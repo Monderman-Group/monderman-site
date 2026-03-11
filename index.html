@@ -5,14 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Monderman</title>
 
+  <!-- Favicon -->
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href='data:image/svg+xml;utf8,
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="10" fill="%230F1720"/>
+      <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text>
+      <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
+    </svg>'
+  />
+
   <style>
     :root {
       --accent: #3F6EA1;
 
       --bg-dark: #0F1720;
       --bg-hero-fallback: #121922;
-      --bg-offwhite: #F6F7F8;
       --bg-soft: #F7F8F9;
+      --bg-offwhite: #F6F7F8;
       --bg-white: #FFFFFF;
 
       --text-light: #F5F7FA;
@@ -204,10 +216,10 @@
       background:
         linear-gradient(
           90deg,
-          rgba(8, 13, 19, 0.90) 0%,
-          rgba(8, 13, 19, 0.82) 28%,
-          rgba(8, 13, 19, 0.56) 52%,
-          rgba(8, 13, 19, 0.18) 76%,
+          rgba(8, 13, 19, 0.92) 0%,
+          rgba(8, 13, 19, 0.84) 28%,
+          rgba(8, 13, 19, 0.58) 52%,
+          rgba(8, 13, 19, 0.20) 76%,
           rgba(8, 13, 19, 0.05) 100%
         ),
         linear-gradient(
@@ -266,14 +278,14 @@
     }
 
     .hero-eyebrow {
-      margin: 0 0 102px;
+      margin: 0 0 116px;
       padding-left: 2px;
-      font-size: 0.48rem;
+      font-size: 0.42rem;
       line-height: 1;
-      letter-spacing: 0.34em;
+      letter-spacing: 0.38em;
       font-weight: 600;
       text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.48);
+      color: rgba(255, 255, 255, 0.42);
       animation-delay: 420ms;
     }
 
@@ -358,14 +370,30 @@
     /* ---------- COST ---------- */
 
     .bureaucracy-cost {
-      background: var(--bg-soft);
+      position: relative;
+      background:
+        linear-gradient(rgba(247, 248, 249, 0.96), rgba(247, 248, 249, 0.96)),
+        linear-gradient(90deg, rgba(63, 110, 161, 0.03) 1px, transparent 1px),
+        linear-gradient(rgba(63, 110, 161, 0.03) 1px, transparent 1px);
+      background-size: auto, 28px 28px, 28px 28px;
       border-top: 1px solid #E7EBEF;
       border-bottom: 1px solid #E7EBEF;
       padding: 116px 34px 108px;
       color: var(--text-dark);
+      overflow: hidden;
+    }
+
+    .bureaucracy-cost::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 85% 20%, rgba(63, 110, 161, 0.05), transparent 34%);
+      pointer-events: none;
     }
 
     .cost-inner {
+      position: relative;
+      z-index: 1;
       max-width: var(--max);
       margin: 0 auto;
     }
@@ -583,16 +611,53 @@
     /* ---------- THINKING ---------- */
 
     .thinking {
-      background: var(--bg-offwhite);
+      position: relative;
+      background:
+        linear-gradient(rgba(246, 247, 248, 0.97), rgba(246, 247, 248, 0.97)),
+        radial-gradient(circle at 15% 18%, rgba(63, 110, 161, 0.05), transparent 28%);
       color: var(--text-dark);
       padding: 72px 34px 120px;
+      overflow: hidden;
       scroll-margin-top: 72px;
     }
 
+    .thinking::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(135deg, rgba(63, 110, 161, 0.025) 1px, transparent 1px);
+      background-size: 36px 36px;
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
     .thinking-inner {
+      position: relative;
+      z-index: 1;
       max-width: var(--max);
       margin: 0 auto;
       padding-left: 64px;
+    }
+
+    .thinking-graphic {
+      position: relative;
+      width: 100%;
+      max-width: 980px;
+      margin: -6px 0 42px;
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      background: rgba(255, 255, 255, 0.78);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.015);
+      overflow: hidden;
+    }
+
+    .thinking-graphic img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 290px;
+      object-fit: cover;
+      filter: saturate(86%) contrast(102%) brightness(0.96);
     }
 
     .thinking-list {
@@ -645,6 +710,124 @@
       transform: translateX(4px);
     }
 
+    /* ---------- FOOTER ---------- */
+
+    .footer {
+      background: #0D141C;
+      color: rgba(245, 247, 250, 0.88);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 44px 34px 34px;
+    }
+
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .footer-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 40px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .footer-brand {
+      max-width: 420px;
+    }
+
+    .footer-mark {
+      display: inline-flex;
+      align-items: center;
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      margin-bottom: 14px;
+    }
+
+    .footer-mark::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+
+    .footer-copy {
+      margin: 0;
+      max-width: 32ch;
+      font-size: 0.98rem;
+      line-height: 1.65;
+      color: rgba(245, 247, 250, 0.68);
+    }
+
+    .footer-nav {
+      display: flex;
+      gap: 48px;
+      flex-wrap: wrap;
+    }
+
+    .footer-nav-col {
+      min-width: 120px;
+    }
+
+    .footer-nav-title {
+      margin: 0 0 12px;
+      font-size: 0.72rem;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: rgba(245, 247, 250, 0.50);
+    }
+
+    .footer-nav a {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      color: rgba(245, 247, 250, 0.82);
+      transition: color var(--transition), transform var(--transition);
+    }
+
+    .footer-nav a:hover,
+    .footer-nav a:focus-visible {
+      color: #FFFFFF;
+      transform: translateX(2px);
+      outline: none;
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding-top: 18px;
+    }
+
+    .footer-meta,
+    .footer-contact {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: rgba(245, 247, 250, 0.58);
+    }
+
+    .footer-contact a {
+      color: rgba(245, 247, 250, 0.78);
+    }
+
+    .footer-contact a:hover,
+    .footer-contact a:focus-visible {
+      color: #FFFFFF;
+      outline: none;
+    }
+
     /* ---------- RESPONSIVE ---------- */
 
     @media (prefers-reduced-motion: reduce) {
@@ -667,7 +850,8 @@
       .approach-card,
       .approach-card::before,
       .thinking-item,
-      .thinking-arrow {
+      .thinking-arrow,
+      .footer-nav a {
         transition: none;
       }
     }
@@ -721,7 +905,8 @@
 
       .bureaucracy-cost,
       .approach,
-      .thinking {
+      .thinking,
+      .footer {
         padding-left: 24px;
         padding-right: 24px;
       }
@@ -768,11 +953,11 @@
       }
 
       .hero-eyebrow {
-        margin-bottom: 50px;
+        margin-bottom: 56px;
         padding-left: 1px;
-        font-size: 0.46rem;
-        letter-spacing: 0.24em;
-        color: rgba(255, 255, 255, 0.54);
+        font-size: 0.42rem;
+        letter-spacing: 0.26em;
+        color: rgba(255, 255, 255, 0.52);
       }
 
       .hero h1 {
@@ -843,12 +1028,43 @@
         padding: 60px 20px 88px;
       }
 
+      .thinking-graphic {
+        margin-bottom: 32px;
+      }
+
+      .thinking-graphic img {
+        max-height: 220px;
+      }
+
       .thinking-title {
         font-size: 1.24rem;
       }
 
       .thinking-desc {
         font-size: 0.98rem;
+      }
+
+      .footer {
+        padding: 34px 20px 28px;
+      }
+
+      .footer-top,
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .footer-nav {
+        gap: 28px;
+      }
+
+      .footer-copy {
+        font-size: 0.94rem;
+      }
+
+      .footer-meta,
+      .footer-contact {
+        font-size: 0.84rem;
       }
     }
   </style>
@@ -872,7 +1088,7 @@
       <img
         class="hero-image"
         id="heroImage"
-        src="iStock-2223938194.jpg?v=2"
+        src="iStock-2223938194.jpg?v=3"
         alt=""
         decoding="async"
         fetchpriority="high"
@@ -989,6 +1205,10 @@
 
       <h2 id="thinking-title">Ideas on Institutional Performance</h2>
 
+      <div class="thinking-graphic" aria-hidden="true">
+        <img src="iStock-511677736.jpg" alt="" />
+      </div>
+
       <div class="thinking-list">
         <div class="thinking-item">
           <div class="thinking-title">Governing Complexity</div>
@@ -1033,6 +1253,38 @@
     </div>
   </section>
 
+  <footer class="footer" id="contact">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-mark">Monderman</div>
+          <p class="footer-copy">
+            Advisory thinking on institutional performance, decision velocity, and the design of
+            systems that sustain clarity under complexity.
+          </p>
+        </div>
+
+        <div class="footer-nav" aria-label="Footer navigation">
+          <div class="footer-nav-col">
+            <p class="footer-nav-title">Navigate</p>
+            <a href="#approach">Approach</a>
+            <a href="#thinking">Thinking</a>
+          </div>
+
+          <div class="footer-nav-col">
+            <p class="footer-nav-title">Contact</p>
+            <a href="mailto:hello@monderman.com">hello@monderman.com</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
+        <p class="footer-contact">Built for clarity in complexity.</p>
+      </div>
+    </div>
+  </footer>
+
   <script>
     const heroImage = document.getElementById("heroImage");
     const header = document.getElementById("siteHeader");
@@ -1062,146 +1314,3 @@
   </script>
 </body>
 </html>
-
-/* ---------- FOOTER ---------- */
-
-.footer {
-  background: #0D141C;
-  color: rgba(245, 247, 250, 0.88);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 44px 34px 34px;
-}
-
-.footer-inner {
-  max-width: var(--max);
-  margin: 0 auto;
-}
-
-.footer-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 40px;
-  padding-bottom: 28px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.footer-brand {
-  max-width: 420px;
-}
-
-.footer-mark {
-  display: inline-flex;
-  align-items: center;
-  font-size: 1.1rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: #FFFFFF;
-  margin-bottom: 14px;
-}
-
-.footer-mark::after {
-  content: "";
-  width: 6px;
-  height: 6px;
-  margin-left: 10px;
-  background: var(--accent);
-  border-radius: 1px;
-  display: inline-block;
-  transform: translateY(-1px);
-}
-
-.footer-copy {
-  margin: 0;
-  max-width: 32ch;
-  font-size: 0.98rem;
-  line-height: 1.65;
-  color: rgba(245, 247, 250, 0.68);
-}
-
-.footer-nav {
-  display: flex;
-  gap: 48px;
-  flex-wrap: wrap;
-}
-
-.footer-nav-col {
-  min-width: 120px;
-}
-
-.footer-nav-title {
-  margin: 0 0 12px;
-  font-size: 0.72rem;
-  line-height: 1;
-  letter-spacing: 0.18em;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: rgba(245, 247, 250, 0.50);
-}
-
-.footer-nav a {
-  display: block;
-  margin-bottom: 10px;
-  font-size: 0.95rem;
-  line-height: 1.45;
-  color: rgba(245, 247, 250, 0.82);
-  transition: color var(--transition), transform var(--transition);
-}
-
-.footer-nav a:hover,
-.footer-nav a:focus-visible {
-  color: #FFFFFF;
-  transform: translateX(2px);
-  outline: none;
-}
-
-.footer-bottom {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  padding-top: 18px;
-}
-
-.footer-meta,
-.footer-contact {
-  margin: 0;
-  font-size: 0.88rem;
-  line-height: 1.6;
-  color: rgba(245, 247, 250, 0.58);
-}
-
-.footer-contact a {
-  color: rgba(245, 247, 250, 0.78);
-}
-
-.footer-contact a:hover,
-.footer-contact a:focus-visible {
-  color: #FFFFFF;
-  outline: none;
-}
-
-@media (max-width: 760px) {
-  .footer {
-    padding: 34px 20px 28px;
-  }
-
-  .footer-top,
-  .footer-bottom {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .footer-nav {
-    gap: 28px;
-  }
-
-  .footer-copy {
-    font-size: 0.94rem;
-  }
-
-  .footer-meta,
-  .footer-contact {
-    font-size: 0.84rem;
-  }
-}
