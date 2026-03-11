@@ -39,7 +39,8 @@
       --header-border: rgba(255, 255, 255, 0.08);
 
       --max: 1320px;
-      --transition: 220ms ease;
+      --transition: 240ms cubic-bezier(0.22, 1, 0.36, 1);
+      --transition-slow: 340ms cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     * {
@@ -193,7 +194,7 @@
       object-fit: cover;
       object-position: center center;
       opacity: 0;
-      transform: scale(1.07);
+      transform: scale(1.06);
       filter: saturate(94%) contrast(102%) brightness(0.96);
       transition:
         opacity 2.8s cubic-bezier(0.22, 1, 0.36, 1),
@@ -278,14 +279,14 @@
     }
 
     .hero-eyebrow {
-      margin: 0 0 116px;
+      margin: 0 0 128px;
       padding-left: 2px;
-      font-size: 0.42rem;
+      font-size: 0.38rem;
       line-height: 1;
-      letter-spacing: 0.38em;
+      letter-spacing: 0.42em;
       font-weight: 600;
       text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.42);
+      color: rgba(255, 255, 255, 0.34);
       animation-delay: 420ms;
     }
 
@@ -372,9 +373,9 @@
     .bureaucracy-cost {
       position: relative;
       background:
-        linear-gradient(rgba(247, 248, 249, 0.96), rgba(247, 248, 249, 0.96)),
-        linear-gradient(90deg, rgba(63, 110, 161, 0.03) 1px, transparent 1px),
-        linear-gradient(rgba(63, 110, 161, 0.03) 1px, transparent 1px);
+        linear-gradient(rgba(247, 248, 249, 0.965), rgba(247, 248, 249, 0.965)),
+        linear-gradient(90deg, rgba(63, 110, 161, 0.026) 1px, transparent 1px),
+        linear-gradient(rgba(63, 110, 161, 0.026) 1px, transparent 1px);
       background-size: auto, 28px 28px, 28px 28px;
       border-top: 1px solid #E7EBEF;
       border-bottom: 1px solid #E7EBEF;
@@ -387,7 +388,7 @@
       content: "";
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at 85% 20%, rgba(63, 110, 161, 0.05), transparent 34%);
+      background: radial-gradient(circle at 85% 20%, rgba(63, 110, 161, 0.045), transparent 34%);
       pointer-events: none;
     }
 
@@ -436,21 +437,25 @@
       border: 1px solid rgba(21, 32, 43, 0.07);
       padding: 42px 34px 38px;
       min-height: 310px;
-      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.015);
+      box-shadow:
+        0 1px 0 rgba(0, 0, 0, 0.012),
+        0 6px 18px rgba(0, 0, 0, 0);
       transition:
-        transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
-        box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1),
-        border-color 220ms ease,
-        background 220ms ease;
+        transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 420ms cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 360ms ease,
+        background 360ms ease;
+      will-change: transform, box-shadow;
     }
 
     .cost-card:hover {
-      transform: translateY(-3px);
+      transform: translateY(-2px);
       background: #FFFFFF;
-      border-color: rgba(63, 110, 161, 0.18);
+      border-color: rgba(63, 110, 161, 0.16);
       box-shadow:
-        0 8px 18px rgba(0, 0, 0, 0.025),
-        0 18px 34px rgba(0, 0, 0, 0.03);
+        0 1px 0 rgba(0, 0, 0, 0.014),
+        0 10px 24px rgba(0, 0, 0, 0.022),
+        0 20px 38px rgba(0, 0, 0, 0.02);
     }
 
     .cost-card-title {
@@ -564,9 +569,9 @@
       padding: 46px 38px 64px;
       overflow: hidden;
       transition:
-        transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
-        box-shadow 260ms cubic-bezier(0.22, 1, 0.36, 1),
-        border-color 260ms ease;
+        transform var(--transition-slow),
+        box-shadow var(--transition-slow),
+        border-color var(--transition);
     }
 
     .approach-card::before {
@@ -582,7 +587,7 @@
     }
 
     .approach-card:hover {
-      transform: translateY(-6px);
+      transform: translateY(-5px);
       border-color: rgba(0, 0, 0, 0.06);
       box-shadow:
         0 8px 18px rgba(0, 0, 0, 0.05),
@@ -616,7 +621,7 @@
         linear-gradient(rgba(246, 247, 248, 0.97), rgba(246, 247, 248, 0.97)),
         radial-gradient(circle at 15% 18%, rgba(63, 110, 161, 0.05), transparent 28%);
       color: var(--text-dark);
-      padding: 72px 34px 120px;
+      padding: 84px 34px 120px;
       overflow: hidden;
       scroll-margin-top: 72px;
     }
@@ -625,10 +630,9 @@
       content: "";
       position: absolute;
       inset: 0;
-      background:
-        linear-gradient(135deg, rgba(63, 110, 161, 0.025) 1px, transparent 1px);
+      background: linear-gradient(135deg, rgba(63, 110, 161, 0.022) 1px, transparent 1px);
       background-size: 36px 36px;
-      opacity: 0.45;
+      opacity: 0.42;
       pointer-events: none;
     }
 
@@ -640,22 +644,43 @@
       padding-left: 64px;
     }
 
-    .thinking-graphic {
-      position: relative;
+    .thinking-intro {
+      max-width: 1100px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) 380px;
+      gap: 52px;
+      align-items: start;
+      margin-bottom: 46px;
+    }
+
+    .thinking-copy h2 {
+      margin-bottom: 26px;
+      max-width: 640px;
+    }
+
+    .thinking-intro-text {
+      max-width: 58ch;
+      margin: 0;
+      font-size: 1.05rem;
+      line-height: 1.72;
+      color: var(--muted-dark);
+    }
+
+    .thinking-visual {
+      justify-self: end;
       width: 100%;
-      max-width: 980px;
-      margin: -6px 0 42px;
-      border: 1px solid rgba(21, 32, 43, 0.08);
+      max-width: 380px;
+      aspect-ratio: 1 / 1;
       background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(21, 32, 43, 0.08);
       box-shadow: 0 1px 0 rgba(0, 0, 0, 0.015);
       overflow: hidden;
     }
 
-    .thinking-graphic img {
+    .thinking-visual img {
       display: block;
       width: 100%;
-      height: auto;
-      max-height: 290px;
+      height: 100%;
       object-fit: cover;
       filter: saturate(86%) contrast(102%) brightness(0.96);
     }
@@ -869,6 +894,15 @@
       .cost-card {
         min-height: auto;
       }
+
+      .thinking-intro {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+
+      .thinking-visual {
+        justify-self: start;
+      }
     }
 
     @media (max-width: 980px) {
@@ -953,11 +987,11 @@
       }
 
       .hero-eyebrow {
-        margin-bottom: 56px;
+        margin-bottom: 64px;
         padding-left: 1px;
-        font-size: 0.42rem;
-        letter-spacing: 0.26em;
-        color: rgba(255, 255, 255, 0.52);
+        font-size: 0.38rem;
+        letter-spacing: 0.28em;
+        color: rgba(255, 255, 255, 0.44);
       }
 
       .hero h1 {
@@ -1028,12 +1062,17 @@
         padding: 60px 20px 88px;
       }
 
-      .thinking-graphic {
-        margin-bottom: 32px;
+      .thinking-copy h2 {
+        margin-bottom: 22px;
       }
 
-      .thinking-graphic img {
-        max-height: 220px;
+      .thinking-intro-text {
+        font-size: 0.98rem;
+        line-height: 1.62;
+      }
+
+      .thinking-visual {
+        max-width: 100%;
       }
 
       .thinking-title {
@@ -1088,7 +1127,7 @@
       <img
         class="hero-image"
         id="heroImage"
-        src="iStock-2223938194.jpg?v=3"
+        src="iStock-2223938194.jpg?v=4"
         alt=""
         decoding="async"
         fetchpriority="high"
@@ -1203,10 +1242,19 @@
     <div class="thinking-inner">
       <div class="section-label">Our Thinking</div>
 
-      <h2 id="thinking-title">Ideas on Institutional Performance</h2>
+      <div class="thinking-intro">
+        <div class="thinking-copy">
+          <h2 id="thinking-title">Ideas on Institutional Performance</h2>
+          <p class="thinking-intro-text">
+            We write about the forces that shape clarity, execution, and institutional drift.
+            Our thinking explores how complexity compounds, how systems lose alignment, and
+            how organizations can be designed to sustain performance over time.
+          </p>
+        </div>
 
-      <div class="thinking-graphic" aria-hidden="true">
-        <img src="iStock-511677736.jpg" alt="" />
+        <div class="thinking-visual" aria-hidden="true">
+          <img src="iStock-511677736.jpg" alt="" />
+        </div>
       </div>
 
       <div class="thinking-list">
