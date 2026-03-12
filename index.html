@@ -36,8 +36,6 @@
       --muted-dark-2: #7A8794;
 
       --line-dark: #E3E7EB;
-      --line-dark-soft: rgba(21, 32, 43, 0.08);
-
       --header-solid: rgba(18, 25, 34, 0.84);
       --header-border: rgba(255, 255, 255, 0.08);
 
@@ -528,27 +526,6 @@
       scroll-margin-top: 72px;
     }
 
-    .approach::before {
-      content: "";
-      position: absolute;
-      top: 8px;
-      right: -120px;
-      width: 760px;
-      height: 320px;
-      pointer-events: none;
-      opacity: 0.22;
-      background-repeat: no-repeat;
-      background-size: contain;
-      background-image: url('data:image/svg+xml;utf8,\
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 320">\
-        <path d="M 740 10 C 510 20, 390 90, 360 160 C 335 222, 360 278, 392 318" fill="none" stroke="%238C6B47" stroke-width="1.2"/>\
-        <path d="M 700 8 C 485 18, 377 84, 348 158 C 324 218, 348 271, 377 314" fill="none" stroke="%238C6B47" stroke-width="1.05"/>\
-        <path d="M 660 6 C 460 16, 363 79, 336 155 C 313 213, 336 264, 364 309" fill="none" stroke="%238C6B47" stroke-width="0.95"/>\
-        <path d="M 620 5 C 435 15, 351 74, 325 152 C 303 209, 325 257, 351 304" fill="none" stroke="%238C6B47" stroke-width="0.9"/>\
-        <path d="M 580 4 C 410 14, 339 69, 315 149 C 294 204, 315 251, 339 299" fill="none" stroke="%238C6B47" stroke-width="0.85"/>\
-      </svg>');
-    }
-
     .approach-inner {
       position: relative;
       z-index: 1;
@@ -656,7 +633,7 @@
         linear-gradient(rgba(246, 247, 248, 0.97), rgba(246, 247, 248, 0.97)),
         radial-gradient(circle at 15% 18%, rgba(63, 110, 161, 0.045), transparent 28%);
       color: var(--text-dark);
-      padding: 84px 34px 120px;
+      padding: 88px 34px 120px;
       overflow: hidden;
       scroll-margin-top: 72px;
     }
@@ -680,33 +657,40 @@
     }
 
     .thinking-intro {
-      max-width: 1100px;
+      max-width: 1180px;
       display: grid;
-      grid-template-columns: minmax(0, 1.18fr) 380px;
-      gap: 52px;
-      align-items: start;
-      margin-bottom: 46px;
+      grid-template-columns: minmax(0, 1fr) 460px;
+      gap: 56px;
+      align-items: stretch;
+      margin-bottom: 26px;
+    }
+
+    .thinking-copy {
+      padding-top: 6px;
     }
 
     .thinking-copy h2 {
-      margin-bottom: 26px;
-      max-width: 640px;
+      margin: 0 0 24px;
+      max-width: 620px;
+      font-size: clamp(2rem, 2.7vw, 2.55rem);
+      line-height: 1.08;
+      letter-spacing: -0.045em;
     }
 
     .thinking-intro-text {
-      max-width: 58ch;
+      max-width: 60ch;
       margin: 0;
-      font-size: 1.05rem;
-      line-height: 1.72;
+      font-size: 1.08rem;
+      line-height: 1.74;
       color: var(--muted-dark);
     }
 
     .thinking-visual {
       justify-self: end;
       width: 100%;
-      max-width: 380px;
-      aspect-ratio: 1 / 1;
-      background: rgba(255, 255, 255, 0.78);
+      max-width: 460px;
+      min-height: 460px;
+      background: rgba(255, 255, 255, 0.82);
       border: 1px solid rgba(21, 32, 43, 0.08);
       box-shadow: 0 1px 0 rgba(0, 0, 0, 0.015);
       overflow: hidden;
@@ -719,16 +703,23 @@
       filter: saturate(86%) contrast(102%) brightness(0.96);
     }
 
+    .thinking-divider {
+      max-width: 1180px;
+      height: 1px;
+      background: rgba(21, 32, 43, 0.10);
+      margin: 0 0 8px;
+    }
+
     .thinking-list {
-      max-width: 980px;
+      max-width: 1180px;
       margin: 0;
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0 34px;
+      gap: 0 40px;
     }
 
     .thinking-item {
-      padding: 30px 0 32px;
+      padding: 30px 0 34px;
       border-bottom: 1px solid rgba(0, 0, 0, 0.08);
       transition: background var(--transition);
     }
@@ -738,20 +729,20 @@
     }
 
     .thinking-title {
-      font-size: 1.32rem;
-      line-height: 1.18;
+      font-size: 1.34rem;
+      line-height: 1.16;
       font-weight: 600;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.022em;
       color: var(--text-dark);
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .thinking-desc {
       font-size: 1rem;
-      line-height: 1.60;
+      line-height: 1.68;
       color: var(--muted-dark);
-      margin-bottom: 12px;
-      max-width: 36ch;
+      margin-bottom: 14px;
+      max-width: 42ch;
     }
 
     .thinking-link {
@@ -1036,11 +1027,13 @@
 
       .thinking-intro {
         grid-template-columns: 1fr;
-        gap: 30px;
+        gap: 28px;
       }
 
       .thinking-visual {
         justify-self: start;
+        max-width: 100%;
+        min-height: 380px;
       }
 
       .thinking-list {
@@ -1190,14 +1183,6 @@
         padding: 86px 20px 72px;
       }
 
-      .approach::before {
-        right: -220px;
-        top: 6px;
-        width: 620px;
-        height: 260px;
-        opacity: 0.16;
-      }
-
       .approach-grid {
         grid-template-columns: 1fr;
         gap: 24px;
@@ -1222,7 +1207,8 @@
       }
 
       .thinking-copy h2 {
-        margin-bottom: 22px;
+        margin-bottom: 20px;
+        font-size: clamp(1.8rem, 6vw, 2.2rem);
       }
 
       .thinking-intro-text {
@@ -1231,11 +1217,11 @@
       }
 
       .thinking-visual {
-        max-width: 100%;
+        min-height: 300px;
       }
 
       .thinking-title {
-        font-size: 1.24rem;
+        font-size: 1.22rem;
       }
 
       .thinking-desc {
@@ -1303,7 +1289,7 @@
       <img
         class="hero-image"
         id="heroImage"
-        src="iStock-2223938194.jpg?v=7"
+        src="iStock-2223938194.jpg?v=8"
         alt=""
         decoding="async"
         fetchpriority="high"
@@ -1434,45 +1420,55 @@
         </div>
       </div>
 
+      <div class="thinking-divider" aria-hidden="true"></div>
+
       <div class="thinking-list">
         <div class="thinking-item">
           <div class="thinking-title">Governing Complexity</div>
           <div class="thinking-desc">
-            Why institutions struggle to manage complexity at scale.
+            Institutions rarely fail because complexity appears. They fail because complexity
+            accumulates faster than the organization’s structures can interpret, prioritize,
+            and act on it. Effective governance begins by making that complexity legible.
           </div>
-          <div class="thinking-link">
+          <a class="thinking-link" href="#">
             Read insight <span class="thinking-arrow">→</span>
-          </div>
+          </a>
         </div>
 
         <div class="thinking-item">
           <div class="thinking-title">Bureaucracy as an Operating System</div>
           <div class="thinking-desc">
-            Administrative systems determine institutional performance.
+            Bureaucracy is not just a set of rules. It is the operating system through which
+            authority, information, approvals, and accountability move. When that system drifts,
+            institutional performance drifts with it.
           </div>
-          <div class="thinking-link">
+          <a class="thinking-link" href="#">
             Read insight <span class="thinking-arrow">→</span>
-          </div>
+          </a>
         </div>
 
         <div class="thinking-item">
           <div class="thinking-title">The Drift Problem</div>
           <div class="thinking-desc">
-            How institutions gradually lose alignment over time.
+            Over time, structures that once supported execution can harden into friction.
+            Layers accumulate, responsibilities blur, and decisions take longer to travel.
+            Drift is rarely dramatic at first, but it compounds quietly until performance suffers.
           </div>
-          <div class="thinking-link">
+          <a class="thinking-link" href="#">
             Read insight <span class="thinking-arrow">→</span>
-          </div>
+          </a>
         </div>
 
         <div class="thinking-item">
           <div class="thinking-title">Designing for Decision Velocity</div>
           <div class="thinking-desc">
-            Why execution depends on institutional design.
+            Faster execution does not come from urgency alone. It comes from design.
+            Institutions move well when roles are clear, pathways are aligned, and governance
+            mechanisms support sound judgment without creating drag.
           </div>
-          <div class="thinking-link">
+          <a class="thinking-link" href="#">
             Read insight <span class="thinking-arrow">→</span>
-          </div>
+          </a>
         </div>
       </div>
     </div>
