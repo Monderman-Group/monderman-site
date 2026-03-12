@@ -47,4 +47,268 @@
       z-index: 100;
       height: 72px;
       background: var(--header-solid);
-      backdrop
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--header-border);
+    }
+    .header-inner {
+      max-width: var(--max);
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 34px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      font-size: 1.28rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      white-space: nowrap;
+    }
+    .brand::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+    }
+    .nav a {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.86);
+    }
+    .nav a:hover { color: #FFFFFF; }
+
+    .hero {
+      background: linear-gradient(180deg, #111B25 0%, #172331 100%);
+      color: var(--text-light);
+      padding: 84px 34px 70px;
+    }
+    .hero-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+    .eyebrow {
+      margin: 0 0 18px;
+      font-size: 0.72rem;
+      line-height: 1;
+      letter-spacing: 0.24em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.68);
+    }
+    .hero h1 {
+      margin: 0 0 22px;
+      max-width: 11ch;
+      font-size: clamp(2.6rem, 5vw, 4.4rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      font-weight: 600;
+    }
+    .hero-dek {
+      max-width: 62ch;
+      margin: 0;
+      font-size: 1.12rem;
+      line-height: 1.7;
+      color: rgba(245,247,250,0.78);
+    }
+
+    .article-wrap {
+      padding: 74px 34px 96px;
+      background:
+        linear-gradient(rgba(246,247,248,0.96), rgba(246,247,248,0.96)),
+        linear-gradient(135deg, rgba(63,110,161,0.025) 1px, transparent 1px);
+      background-size: auto, 36px 36px;
+    }
+    .article-inner {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .article-inner p {
+      margin: 0 0 24px;
+      font-size: 1.08rem;
+      line-height: 1.9;
+      color: var(--muted-dark);
+    }
+    .article-inner p.lead {
+      font-size: 1.16rem;
+      line-height: 1.86;
+      color: var(--text-dark);
+    }
+
+    .cta {
+      margin-top: 50px;
+      padding-top: 26px;
+      border-top: 1px solid var(--line-dark);
+    }
+    .cta h2 {
+      margin: 0 0 14px;
+      font-size: 1.5rem;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      color: var(--text-dark);
+    }
+    .cta p {
+      margin: 0 0 20px;
+      font-size: 1rem;
+      line-height: 1.72;
+      color: var(--muted-dark);
+    }
+    .cta-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .cta-link-mark {
+      width: 7px;
+      height: 7px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+
+    .footer {
+      background: #0D141C;
+      color: rgba(245,247,250,0.88);
+      padding: 30px 34px 34px;
+    }
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .footer p {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: rgba(245,247,250,0.58);
+    }
+
+    @media (max-width: 760px) {
+      .header { height: auto; }
+      .header-inner {
+        padding: 16px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .hero { padding: 70px 20px 54px; }
+      .article-wrap { padding: 54px 20px 74px; }
+      .article-inner p { font-size: 1rem; line-height: 1.78; }
+      .footer { padding: 26px 20px 28px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="brand">Monderman</a>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="index.html#approach">Approach</a>
+        <a href="index.html#thinking">Thinking</a>
+        <a href="why-monderman.html">Why Monderman</a>
+        <a href="index.html#connect">Connect</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">Our Thinking</p>
+      <h1>Designing for Decision Velocity</h1>
+      <p class="hero-dek">
+        Decision velocity is not about haste. It is the ability to convert information into sound
+        action at the pace the environment requires, without avoidable drag.
+      </p>
+    </div>
+  </section>
+
+  <section class="article-wrap">
+    <div class="article-inner">
+      <p class="lead">
+        Many organizations mistake decision problems for leadership problems. In practice, the issue
+        is often design. Institutions do not move slowly simply because leaders hesitate. They move
+        slowly because authority is unclear, approvals are layered, escalation routes are muddy, and
+        information must travel through too many hands before action becomes possible.
+      </p>
+
+      <p>
+        Decision velocity, properly understood, is not raw speed. It is the capacity to move with
+        coherence. Fast decisions in a poorly designed system can create confusion, rework, and risk.
+        Slow decisions in a high-friction system create stagnation. What matters is whether the
+        institution can convert signal into action with enough clarity, judgment, and follow-through
+        to sustain performance.
+      </p>
+
+      <p>
+        This is why decision velocity is fundamentally an organizational design issue. Institutions
+        with strong decision velocity tend to share several qualities: roles are clear, ownership is
+        legible, escalation pathways are understood, and approval structures are proportionate to the
+        actual level of risk. In those environments, work does not depend on constant improvisation
+        from above. The system itself supports movement.
+      </p>
+
+      <p>
+        The ROI implications are significant. When decisions move cleanly, execution cycles shorten.
+        Leadership attention is used more strategically. Teams spend less time waiting, chasing, and
+        clarifying. Opportunities are less likely to decay while sitting in internal queues. The
+        institution becomes more responsive not only externally, but internally as well. This is one
+        of the clearest ways organizational design translates into measurable performance.
+      </p>
+
+      <p>
+        Designing for decision velocity does not mean eliminating all controls. It means distinguishing
+        between the controls that create necessary rigor and the controls that merely create drag. Many
+        organizations have inherited structures built around risk conditions, political assumptions, or
+        operational realities that no longer apply. Without review, those structures continue shaping
+        decisions long after their original purpose has weakened.
+      </p>
+
+      <p>
+        The solution is to design for flow with judgment. Clarify ownership. Reduce avoidable handoffs.
+        Tighten escalation logic. Make visible which decisions require formal control and which decisions
+        should move at the level of the work itself. Institutions that do this well do not become less
+        disciplined. They become more capable. Decision velocity, in the end, is not a luxury. It is a
+        defining characteristic of organizations that can adapt, execute, and sustain results under
+        complexity.
+      </p>
+
+      <div class="cta">
+        <h2>Continue the conversation</h2>
+        <p>
+          If your institution is losing time and capacity to avoidable decision drag, Monderman helps
+          leaders redesign pathways so execution moves with greater clarity and speed.
+        </p>
+        <a class="cta-link" href="mailto:connect@monderman.com">
+          <span class="cta-link-mark" aria-hidden="true"></span>
+          connect@monderman.com
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <p>© 2026 Monderman. All rights reserved.</p>
+      <p>Built for clarity in complexity.</p>
+    </div>
+  </footer>
+</body>
+</html>
