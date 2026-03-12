@@ -531,19 +531,21 @@
     .approach::before {
       content: "";
       position: absolute;
-      top: 28px;
-      right: -140px;
+      top: 8px;
+      right: -120px;
       width: 760px;
-      height: 260px;
+      height: 320px;
       pointer-events: none;
-      opacity: 0.12;
+      opacity: 0.22;
       background-repeat: no-repeat;
       background-size: contain;
       background-image: url('data:image/svg+xml;utf8,\
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 260">\
-        <path d="M-20 165 C 70 125, 150 125, 240 165 S 410 205, 500 165 S 670 125, 780 168" fill="none" stroke="%238C6B47" stroke-width="1.4"/>\
-        <path d="M-10 185 C 85 145, 165 145, 255 185 S 425 225, 515 185 S 685 145, 790 188" fill="none" stroke="%238C6B47" stroke-width="1.1"/>\
-        <path d="M5 205 C 100 165, 180 165, 270 205 S 440 245, 530 205 S 700 165, 805 208" fill="none" stroke="%238C6B47" stroke-width="0.95"/>\
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 320">\
+        <path d="M 740 10 C 510 20, 390 90, 360 160 C 335 222, 360 278, 392 318" fill="none" stroke="%238C6B47" stroke-width="1.2"/>\
+        <path d="M 700 8 C 485 18, 377 84, 348 158 C 324 218, 348 271, 377 314" fill="none" stroke="%238C6B47" stroke-width="1.05"/>\
+        <path d="M 660 6 C 460 16, 363 79, 336 155 C 313 213, 336 264, 364 309" fill="none" stroke="%238C6B47" stroke-width="0.95"/>\
+        <path d="M 620 5 C 435 15, 351 74, 325 152 C 303 209, 325 257, 351 304" fill="none" stroke="%238C6B47" stroke-width="0.9"/>\
+        <path d="M 580 4 C 410 14, 339 69, 315 149 C 294 204, 315 251, 339 299" fill="none" stroke="%238C6B47" stroke-width="0.85"/>\
       </svg>');
     }
 
@@ -574,7 +576,8 @@
     }
 
     .approach h2,
-    .thinking h2 {
+    .thinking h2,
+    .connect h2 {
       margin: 0 0 64px;
       max-width: 760px;
       font-size: clamp(1.85rem, 2.4vw, 2.25rem);
@@ -769,12 +772,123 @@
       transform: translateX(4px);
     }
 
+    /* ---------- CONNECT ---------- */
+
+    .connect {
+      position: relative;
+      background:
+        linear-gradient(180deg, #0F1720 0%, #111B25 100%);
+      color: var(--text-light);
+      padding: 92px 34px 88px;
+      overflow: hidden;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .connect::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 80% 20%, rgba(63, 110, 161, 0.10), transparent 28%),
+        linear-gradient(135deg, rgba(63, 110, 161, 0.03) 1px, transparent 1px);
+      background-size: auto, 34px 34px;
+      opacity: 0.42;
+      pointer-events: none;
+    }
+
+    .connect-inner {
+      position: relative;
+      z-index: 1;
+      max-width: var(--max);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+      gap: 56px;
+      align-items: start;
+    }
+
+    .connect-copy .section-label {
+      color: rgba(245, 247, 250, 0.82);
+    }
+
+    .connect-copy .section-label::before {
+      background: var(--accent);
+    }
+
+    .connect-copy h2 {
+      color: #FFFFFF;
+      margin-bottom: 24px;
+      max-width: 560px;
+    }
+
+    .connect-text {
+      margin: 0;
+      max-width: 58ch;
+      font-size: 1.06rem;
+      line-height: 1.72;
+      color: rgba(245, 247, 250, 0.74);
+    }
+
+    .connect-panel {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 30px 30px 28px;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.02);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .connect-kicker {
+      margin: 0 0 14px;
+      font-size: 0.72rem;
+      line-height: 1;
+      letter-spacing: 0.20em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: rgba(245, 247, 250, 0.54);
+    }
+
+    .connect-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: clamp(1.06rem, 1.6vw, 1.22rem);
+      line-height: 1.3;
+      font-weight: 600;
+      color: #FFFFFF;
+      letter-spacing: -0.015em;
+      transition: color var(--transition), transform var(--transition);
+    }
+
+    .connect-link:hover,
+    .connect-link:focus-visible {
+      color: #FFFFFF;
+      transform: translateX(2px);
+      outline: none;
+    }
+
+    .connect-link-mark {
+      width: 7px;
+      height: 7px;
+      background: var(--accent);
+      border-radius: 1px;
+      flex: 0 0 auto;
+      transform: translateY(-1px);
+    }
+
+    .connect-note {
+      margin: 16px 0 0;
+      font-size: 0.92rem;
+      line-height: 1.64;
+      color: rgba(245, 247, 250, 0.60);
+    }
+
     /* ---------- FOOTER ---------- */
 
     .footer {
       background: #0D141C;
       color: rgba(245, 247, 250, 0.88);
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
       padding: 44px 34px 34px;
     }
 
@@ -877,16 +991,6 @@
       color: rgba(245, 247, 250, 0.58);
     }
 
-    .footer-contact a {
-      color: rgba(245, 247, 250, 0.78);
-    }
-
-    .footer-contact a:hover,
-    .footer-contact a:focus-visible {
-      color: #FFFFFF;
-      outline: none;
-    }
-
     /* ---------- RESPONSIVE ---------- */
 
     @media (prefers-reduced-motion: reduce) {
@@ -910,7 +1014,8 @@
       .approach-card::before,
       .thinking-item,
       .thinking-arrow,
-      .footer-nav a {
+      .footer-nav a,
+      .connect-link {
         transition: none;
       }
     }
@@ -940,6 +1045,11 @@
 
       .thinking-list {
         grid-template-columns: 1fr;
+      }
+
+      .connect-inner {
+        grid-template-columns: 1fr;
+        gap: 28px;
       }
     }
 
@@ -978,6 +1088,7 @@
       .bureaucracy-cost,
       .approach,
       .thinking,
+      .connect,
       .footer {
         padding-left: 24px;
         padding-right: 24px;
@@ -1080,11 +1191,11 @@
       }
 
       .approach::before {
-        right: -280px;
-        top: 12px;
-        width: 680px;
-        height: 220px;
-        opacity: 0.10;
+        right: -220px;
+        top: 6px;
+        width: 620px;
+        height: 260px;
+        opacity: 0.16;
       }
 
       .approach-grid {
@@ -1131,6 +1242,23 @@
         font-size: 0.98rem;
       }
 
+      .connect {
+        padding: 68px 20px 64px;
+      }
+
+      .connect-copy h2 {
+        margin-bottom: 22px;
+      }
+
+      .connect-text {
+        font-size: 0.98rem;
+        line-height: 1.62;
+      }
+
+      .connect-panel {
+        padding: 24px 22px 22px;
+      }
+
       .footer {
         padding: 34px 20px 28px;
       }
@@ -1165,7 +1293,7 @@
         <a href="#approach">Approach</a>
         <a href="#thinking">Thinking</a>
         <a href="why-monderman.html">Why Monderman</a>
-        <a href="#contact">Connect</a>
+        <a href="#connect">Connect</a>
       </nav>
     </div>
   </header>
@@ -1175,7 +1303,7 @@
       <img
         class="hero-image"
         id="heroImage"
-        src="iStock-2223938194.jpg?v=6"
+        src="iStock-2223938194.jpg?v=7"
         alt=""
         decoding="async"
         fetchpriority="high"
@@ -1197,7 +1325,7 @@
         <div class="hero-actions">
           <a class="btn" href="#approach">Our Approach</a>
           <a class="btn" href="#thinking">Our Thinking</a>
-          <a class="btn-connect" href="#contact">Connect</a>
+          <a class="btn-connect" href="#connect">Connect</a>
         </div>
       </div>
     </div>
@@ -1350,7 +1478,33 @@
     </div>
   </section>
 
-  <footer class="footer" id="contact">
+  <section class="connect" id="connect" aria-labelledby="connect-title">
+    <div class="connect-inner">
+      <div class="connect-copy">
+        <div class="section-label">Connect</div>
+        <h2 id="connect-title">Start a serious conversation.</h2>
+        <p class="connect-text">
+          If you are navigating institutional drag, decision friction, or execution misalignment,
+          we would welcome a conversation. Monderman works with leaders who need clearer systems,
+          faster movement, and stronger performance under complexity.
+        </p>
+      </div>
+
+      <div class="connect-panel">
+        <p class="connect-kicker">Primary Contact</p>
+        <a class="connect-link" href="mailto:connect@monderman.com">
+          <span class="connect-link-mark" aria-hidden="true"></span>
+          connect@monderman.com
+        </a>
+        <p class="connect-note">
+          For inquiries, collaborations, or advisory discussions, reach out directly and we will
+          respond as promptly as possible.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
     <div class="footer-inner">
       <div class="footer-top">
         <div class="footer-brand">
@@ -1371,7 +1525,7 @@
 
           <div class="footer-nav-col">
             <p class="footer-nav-title">Connect</p>
-            <a href="mailto:hello@monderman.com">hello@monderman.com</a>
+            <a href="mailto:connect@monderman.com">connect@monderman.com</a>
           </div>
         </div>
       </div>
