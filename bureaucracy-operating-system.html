@@ -19,7 +19,6 @@
       --accent: #3F6EA1;
       --bg-dark: #0F1720;
       --bg-white: #FFFFFF;
-      --bg-soft: #F6F7F8;
       --text-light: #F5F7FA;
       --text-dark: #15202B;
       --muted-dark: #5F6B78;
@@ -28,9 +27,294 @@
       --header-border: rgba(255, 255, 255, 0.08);
       --max: 1240px;
     }
+
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
       margin: 0;
       background: var(--bg-white);
       color: var(--text-dark);
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 72px;
+      background: var(--header-solid);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--header-border);
+    }
+    .header-inner {
+      max-width: var(--max);
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 34px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      font-size: 1.28rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      white-space: nowrap;
+    }
+    .brand::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+    }
+    .nav a {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.86);
+    }
+    .nav a:hover { color: #FFFFFF; }
+
+    .hero {
+      background: linear-gradient(180deg, #111B25 0%, #172331 100%);
+      color: var(--text-light);
+      padding: 84px 34px 70px;
+    }
+    .hero-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+    .eyebrow {
+      margin: 0 0 18px;
+      font-size: 0.72rem;
+      line-height: 1;
+      letter-spacing: 0.24em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.68);
+    }
+    .hero h1 {
+      margin: 0 0 22px;
+      max-width: 10ch;
+      font-size: clamp(2.6rem, 5vw, 4.4rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      font-weight: 600;
+    }
+    .hero-dek {
+      max-width: 62ch;
+      margin: 0;
+      font-size: 1.12rem;
+      line-height: 1.7;
+      color: rgba(245,247,250,0.78);
+    }
+
+    .article-wrap {
+      padding: 74px 34px 96px;
+      background:
+        linear-gradient(rgba(246,247,248,0.96), rgba(246,247,248,0.96)),
+        linear-gradient(135deg, rgba(63,110,161,0.025) 1px, transparent 1px);
+      background-size: auto, 36px 36px;
+    }
+    .article-inner {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .article-inner p {
+      margin: 0 0 24px;
+      font-size: 1.08rem;
+      line-height: 1.9;
+      color: var(--muted-dark);
+    }
+    .article-inner p.lead {
+      font-size: 1.16rem;
+      line-height: 1.86;
+      color: var(--text-dark);
+    }
+
+    .cta {
+      margin-top: 50px;
+      padding-top: 26px;
+      border-top: 1px solid var(--line-dark);
+    }
+    .cta h2 {
+      margin: 0 0 14px;
+      font-size: 1.5rem;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      color: var(--text-dark);
+    }
+    .cta p {
+      margin: 0 0 20px;
+      font-size: 1rem;
+      line-height: 1.72;
+      color: var(--muted-dark);
+    }
+    .cta-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .cta-link-mark {
+      width: 7px;
+      height: 7px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+
+    .footer {
+      background: #0D141C;
+      color: rgba(245,247,250,0.88);
+      padding: 30px 34px 34px;
+    }
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .footer p {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: rgba(245,247,250,0.58);
+    }
+
+    @media (max-width: 760px) {
+      .header { height: auto; }
+      .header-inner {
+        padding: 16px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .hero { padding: 70px 20px 54px; }
+      .article-wrap { padding: 54px 20px 74px; }
+      .article-inner p { font-size: 1rem; line-height: 1.78; }
+      .footer { padding: 26px 20px 28px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="brand">Monderman</a>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="index.html#approach">Approach</a>
+        <a href="index.html#thinking">Thinking</a>
+        <a href="why-monderman.html">Why Monderman</a>
+        <a href="index.html#connect">Connect</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">Our Thinking</p>
+      <h1>Bureaucracy as an Operating System</h1>
+      <p class="hero-dek">
+        Bureaucracy is not just a collection of rules. It is the operating system through which
+        authority, accountability, information, and execution move across the institution.
+      </p>
+    </div>
+  </section>
+
+  <section class="article-wrap">
+    <div class="article-inner">
+      <p class="lead">
+        Bureaucracy is often discussed as though it were merely a burden: forms, approvals,
+        meetings, controls, and compliance procedures that slow the real work. But that view,
+        while understandable, is incomplete. Bureaucracy is better understood as an operating
+        system. It is the infrastructure through which organizations coordinate work, establish
+        accountability, distribute decision rights, and preserve consistency over time.
+      </p>
+
+      <p>
+        Seen in that light, the quality of bureaucracy becomes a strategic issue. When the
+        operating system is coherent, work moves with greater clarity. Teams understand where
+        authority lives, how decisions are made, and how information should travel. Expectations
+        become more legible. Risk is contained without suffocating initiative. In those conditions,
+        bureaucracy is not the enemy of performance. It is one of the conditions that makes
+        performance possible.
+      </p>
+
+      <p>
+        Problems emerge when that operating system drifts out of alignment with the work it is
+        meant to support. Processes accumulate faster than they are reviewed. Controls designed
+        for one moment persist into another. Layers are added without old layers being removed.
+        Over time, the institution still appears governed, but the experience of work becomes
+        heavier. Coordination requires more translation. Decisions travel through more hands.
+        Teams begin spending increasing amounts of time navigating the system rather than advancing
+        the mission.
+      </p>
+
+      <p>
+        This is where bureaucracy stops feeling like structure and starts feeling like drag. The
+        cost is not limited to morale, though morale is certainly affected. The larger issue is
+        ROI. Leadership attention is consumed by clarification rather than direction. Labor hours
+        are redirected into procedural upkeep. Opportunities move more slowly through the system.
+        Even when the formal intent of governance remains sound, the operating burden can become
+        materially expensive.
+      </p>
+
+      <p>
+        The strategic opportunity is to treat bureaucracy not as a static inheritance, but as
+        something that can be tuned. If bureaucracy is an operating system, then it can be audited,
+        redesigned, and improved. Institutions can reduce redundant approvals, clarify ownership,
+        tighten escalation pathways, and distinguish between controls that genuinely protect value
+        and controls that merely preserve habit. This does not weaken governance. It makes
+        governance more intelligent.
+      </p>
+
+      <p>
+        The result is not a world without structure. It is a world with better structure. Leaders
+        gain clearer lines of sight into how decisions travel. Teams regain time and confidence.
+        Execution improves because the system itself is more supportive of movement. In that sense,
+        treating bureaucracy as an operating system is not merely a conceptual shift. It is a
+        practical route to stronger institutional performance, better use of human capacity, and a
+        healthier balance between rigor and responsiveness.
+      </p>
+
+      <div class="cta">
+        <h2>Continue the conversation</h2>
+        <p>
+          If your institution’s operating logic is slowing work instead of supporting it,
+          Monderman helps leaders redesign bureaucracy so it improves flow, clarity, and performance.
+        </p>
+        <a class="cta-link" href="mailto:connect@monderman.com">
+          <span class="cta-link-mark" aria-hidden="true"></span>
+          connect@monderman.com
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <p>© 2026 Monderman. All rights reserved.</p>
+      <p>Built for clarity in complexity.</p>
+    </div>
+  </footer>
+</body>
+</html>
