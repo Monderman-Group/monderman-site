@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bureaucracy as an Operating System | Monderman</title>
+  <title>The Drift Problem | Monderman</title>
   <link
     rel="icon"
     type="image/svg+xml"
@@ -19,7 +19,6 @@
       --accent: #3F6EA1;
       --bg-dark: #0F1720;
       --bg-white: #FFFFFF;
-      --bg-soft: #F6F7F8;
       --text-light: #F5F7FA;
       --text-dark: #15202B;
       --muted-dark: #5F6B78;
@@ -28,9 +27,287 @@
       --header-border: rgba(255, 255, 255, 0.08);
       --max: 1240px;
     }
+
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
       margin: 0;
       background: var(--bg-white);
       color: var(--text-dark);
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 72px;
+      background: var(--header-solid);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--header-border);
+    }
+    .header-inner {
+      max-width: var(--max);
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 34px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      font-size: 1.28rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      white-space: nowrap;
+    }
+    .brand::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+    }
+    .nav a {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.86);
+    }
+    .nav a:hover { color: #FFFFFF; }
+
+    .hero {
+      background: linear-gradient(180deg, #111B25 0%, #172331 100%);
+      color: var(--text-light);
+      padding: 84px 34px 70px;
+    }
+    .hero-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+    .eyebrow {
+      margin: 0 0 18px;
+      font-size: 0.72rem;
+      line-height: 1;
+      letter-spacing: 0.24em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.68);
+    }
+    .hero h1 {
+      margin: 0 0 22px;
+      max-width: 9ch;
+      font-size: clamp(2.6rem, 5vw, 4.4rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      font-weight: 600;
+    }
+    .hero-dek {
+      max-width: 62ch;
+      margin: 0;
+      font-size: 1.12rem;
+      line-height: 1.7;
+      color: rgba(245,247,250,0.78);
+    }
+
+    .article-wrap {
+      padding: 74px 34px 96px;
+      background:
+        linear-gradient(rgba(246,247,248,0.96), rgba(246,247,248,0.96)),
+        linear-gradient(135deg, rgba(63,110,161,0.025) 1px, transparent 1px);
+      background-size: auto, 36px 36px;
+    }
+    .article-inner {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .article-inner p {
+      margin: 0 0 24px;
+      font-size: 1.08rem;
+      line-height: 1.9;
+      color: var(--muted-dark);
+    }
+    .article-inner p.lead {
+      font-size: 1.16rem;
+      line-height: 1.86;
+      color: var(--text-dark);
+    }
+
+    .cta {
+      margin-top: 50px;
+      padding-top: 26px;
+      border-top: 1px solid var(--line-dark);
+    }
+    .cta h2 {
+      margin: 0 0 14px;
+      font-size: 1.5rem;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      color: var(--text-dark);
+    }
+    .cta p {
+      margin: 0 0 20px;
+      font-size: 1rem;
+      line-height: 1.72;
+      color: var(--muted-dark);
+    }
+    .cta-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .cta-link-mark {
+      width: 7px;
+      height: 7px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+
+    .footer {
+      background: #0D141C;
+      color: rgba(245,247,250,0.88);
+      padding: 30px 34px 34px;
+    }
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .footer p {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: rgba(245,247,250,0.58);
+    }
+
+    @media (max-width: 760px) {
+      .header { height: auto; }
+      .header-inner {
+        padding: 16px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .hero { padding: 70px 20px 54px; }
+      .article-wrap { padding: 54px 20px 74px; }
+      .article-inner p { font-size: 1rem; line-height: 1.78; }
+      .footer { padding: 26px 20px 28px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="brand">Monderman</a>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="index.html#approach">Approach</a>
+        <a href="index.html#thinking">Thinking</a>
+        <a href="why-monderman.html">Why Monderman</a>
+        <a href="index.html#connect">Connect</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">Our Thinking</p>
+      <h1>The Drift Problem</h1>
+      <p class="hero-dek">
+        Most institutions do not become slow, costly, or misaligned all at once. They drift—
+        incrementally, quietly, and often invisibly until performance begins to suffer.
+      </p>
+    </div>
+  </section>
+
+  <section class="article-wrap">
+    <div class="article-inner">
+      <p class="lead">
+        Institutional drift rarely arrives with a single dramatic event. It emerges through accumulation.
+        A review layer added here. A reporting step added there. A governance process retained long after
+        the original conditions that justified it have changed. Each addition may appear modest. Over time,
+        however, the institution becomes harder to steer because its structures no longer match the work
+        they are meant to support.
+      </p>
+
+      <p>
+        This is one of the reasons drift is so costly. It often goes unrecognized while still generating
+        real consequences. Responsibilities blur. Approvals take longer to travel. Teams spend more time
+        navigating the system than advancing outcomes. Leaders sense that execution has become heavier, but
+        the reasons are distributed across so many mechanisms that the slowdown can feel difficult to name.
+        The institution remains active, yet less coherent. Work continues, but not always with the same
+        clarity, speed, or confidence.
+      </p>
+
+      <p>
+        Over time, the financial and operational effects compound. Small inefficiencies repeated across
+        teams, functions, and cycles produce measurable losses in time and productive capacity. Leadership
+        attention is absorbed by clarification, exception handling, and workarounds rather than by
+        higher-order priorities. This is where drift becomes an ROI issue. Even when no single process is
+        catastrophic, the accumulated drag of a system that has drifted out of alignment becomes expensive.
+      </p>
+
+      <p>
+        The encouraging reality is that drift is not irreversible. Institutions do not need to destabilize
+        themselves to regain alignment. In most cases, the work begins by making structures visible again:
+        mapping how decisions actually travel, where responsibilities have become diffuse, and where controls
+        have outlived their usefulness. Once that terrain is visible, organizations can remove unnecessary
+        drag without weakening governance.
+      </p>
+
+      <p>
+        This is where a positive discipline of stewardship matters. Strong institutions periodically review
+        the relationship between structure and mission. They ask whether administrative pathways still serve
+        the current environment. They identify where clarity has eroded and where execution has become
+        heavier than it needs to be. The goal is not minimalism for its own sake. It is structural alignment.
+      </p>
+
+      <p>
+        Institutions that address drift early reclaim more than speed. They regain coherence. Decision rights
+        become clearer. Work flows more predictably. Capacity that was being consumed by avoidable friction can
+        be redirected toward growth, innovation, and mission delivery. That is the deeper value of correcting
+        drift: not just preventing decline, but restoring the conditions for sustained institutional performance.
+      </p>
+
+      <div class="cta">
+        <h2>Continue the conversation</h2>
+        <p>
+          If your institution is carrying structures that no longer match its mission or operating tempo,
+          Monderman helps leaders identify and correct drift before it becomes entrenched.
+        </p>
+        <a class="cta-link" href="mailto:connect@monderman.com">
+          <span class="cta-link-mark" aria-hidden="true"></span>
+          connect@monderman.com
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <p>© 2026 Monderman. All rights reserved.</p>
+      <p>Built for clarity in complexity.</p>
+    </div>
+  </footer>
+</body>
+</html>
