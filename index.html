@@ -71,8 +71,6 @@
       display: block;
     }
 
-    /* ---------- HEADER ---------- */
-
     .header {
       position: fixed;
       top: 0;
@@ -171,8 +169,6 @@
     .nav a:focus-visible::after {
       transform: scaleX(1);
     }
-
-    /* ---------- HERO ---------- */
 
     .hero {
       position: relative;
@@ -372,8 +368,6 @@
       }
     }
 
-    /* ---------- COST ---------- */
-
     .bureaucracy-cost {
       position: relative;
       background:
@@ -508,8 +502,6 @@
       color: var(--muted-dark-2);
     }
 
-    /* ---------- APPROACH ---------- */
-
     .approach {
       position: relative;
       background: var(--bg-white);
@@ -617,8 +609,6 @@
       line-height: 1.80;
       color: var(--muted-dark);
     }
-
-    /* ---------- THINKING ---------- */
 
     .thinking {
       position: relative;
@@ -756,8 +746,6 @@
       transform: translateX(4px);
     }
 
-    /* ---------- CONNECT ---------- */
-
     .connect {
       position: relative;
       background:
@@ -867,8 +855,6 @@
       line-height: 1.64;
       color: rgba(245, 247, 250, 0.60);
     }
-
-    /* ---------- FOOTER ---------- */
 
     .footer {
       background: #0D141C;
@@ -1279,7 +1265,7 @@
       <img
         class="hero-image"
         id="heroImage"
-        src="iStock-2223938194.jpg?v=9"
+        src="iStock-2223938194.jpg?v=10"
         alt=""
         decoding="async"
         fetchpriority="high"
@@ -1307,7 +1293,7 @@
     </div>
   </section>
 
-  <section class="bureaucracy-cost" aria-labelledby="cost-title">
+  <section class="bureaucracy-cost" id="cost-section" aria-labelledby="cost-title">
     <div class="cost-inner">
       <div class="cost-heading">
         <p class="cost-label">The Cost of Bureaucratic Friction</p>
@@ -1318,7 +1304,7 @@
         <div class="cost-card">
           <div class="cost-card-title">Time<span class="asterisk">*</span></div>
           <p class="cost-card-source"><em>* HBR / management reporting research</em></p>
-          <div class="cost-card-number">40%</div>
+          <div class="cost-card-number" data-count-type="percent" data-target="40">0%</div>
           <p class="cost-card-text">
             of managers’ time can be consumed by reports alone.
           </p>
@@ -1327,7 +1313,7 @@
         <div class="cost-card">
           <div class="cost-card-title">Money<span class="asterisk">*</span></div>
           <p class="cost-card-source"><em>* Harvard Business Review</em></p>
-          <div class="cost-card-number">$3T</div>
+          <div class="cost-card-number" data-count-type="currency-trillion" data-target="3">$0T</div>
           <p class="cost-card-text">
             estimated annual cost of excess management in the U.S. economy.
           </p>
@@ -1336,7 +1322,7 @@
         <div class="cost-card">
           <div class="cost-card-title">Resources<span class="asterisk">*</span></div>
           <p class="cost-card-source"><em>* OECD / administrative burden guidance</em></p>
-          <div class="cost-card-number">20–30%</div>
+          <div class="cost-card-number" data-count-type="range-percent" data-target="30">0–0%</div>
           <p class="cost-card-text">
             of productive capacity can be absorbed by administrative burden.
           </p>
@@ -1549,6 +1535,63 @@
 
     updateHeader();
     window.addEventListener("scroll", updateHeader);
+
+    const costSection = document.getElementById("cost-section");
+    const counters = document.querySelectorAll(".cost-card-number");
+    let hasCounted = false;
+
+    function easeOutCubic(t) {
+      return 1 - Math.pow(1 - t, 3);
+    }
+
+    function formatCounter(type, value) {
+      if (type === "percent") {
+        return `${Math.round(value)}%`;
+      }
+      if (type === "currency-trillion") {
+        return `$${Math.round(value)}T`;
+      }
+      if (type === "range-percent") {
+        const maxVal = Math.round(value);
+        const minVal = Math.round((value * 2) / 3);
+        return `${minVal}–${maxVal}%`;
+      }
+      return Math.round(value).toString();
+    }
+
+    function animateCounter(el) {
+      const type = el.dataset.countType;
+      const target = Number(el.dataset.target);
+      const duration = 1500;
+      const start = performance.now();
+
+      function step(now) {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = easeOutCubic(progress);
+        const current = target * eased;
+        el.textContent = formatCounter(type, current);
+
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          el.textContent = formatCounter(type, target);
+        }
+      }
+
+      requestAnimationFrame(step);
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && !hasCounted) {
+          hasCounted = true;
+          counters.forEach((counter) => animateCounter(counter));
+          observer.disconnect();
+        }
+      });
+    }, { threshold: 0.35 });
+
+    observer.observe(costSection);
   </script>
 </body>
 </html>
