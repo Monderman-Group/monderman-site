@@ -287,14 +287,14 @@
     }
 
     .hero-eyebrow {
-      margin: 0 0 132px;
+      margin: 0 0 136px;
       padding-left: 2px;
-      font-size: 0.36rem;
+      font-size: 0.34rem;
       line-height: 1;
-      letter-spacing: 0.46em;
+      letter-spacing: 0.50em;
       font-weight: 600;
       text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.30);
+      color: rgba(255, 255, 255, 0.28);
       animation-delay: 420ms;
     }
 
@@ -332,21 +332,24 @@
       animation-delay: 940ms;
     }
 
-    .btn {
+    .btn,
+    .btn-connect {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       min-height: 50px;
+      min-width: 162px;
       padding: 0 24px;
       border-radius: 999px;
       font-size: 1rem;
-      font-weight: 500;
+      font-weight: 600;
       letter-spacing: -0.01em;
       white-space: nowrap;
       background: rgba(255, 255, 255, 0.96);
       color: var(--accent);
-      border: 1px solid rgba(255, 255, 255, 0.38);
+      border: 1px solid rgba(255, 255, 255, 0.48);
       box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+      text-shadow: 0 0 0.01px currentColor;
       transition:
         background var(--transition),
         color var(--transition),
@@ -356,28 +359,15 @@
     }
 
     .btn:hover,
-    .btn:focus-visible {
+    .btn:focus-visible,
+    .btn-connect:hover,
+    .btn-connect:focus-visible {
       background: #FFFFFF;
       color: var(--accent);
-      border-color: rgba(255, 255, 255, 0.54);
+      border-color: rgba(255, 255, 255, 0.62);
       transform: translateY(-1px);
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
       outline: none;
-    }
-
-    .btn-connect {
-      background: transparent;
-      color: #FFFFFF;
-      border-color: rgba(255, 255, 255, 0.30);
-      box-shadow: none;
-    }
-
-    .btn-connect:hover,
-    .btn-connect:focus-visible {
-      background: rgba(255, 255, 255, 0.08);
-      color: #FFFFFF;
-      border-color: rgba(255, 255, 255, 0.48);
-      box-shadow: none;
     }
 
     @keyframes heroFadeUp {
@@ -464,10 +454,10 @@
         0 1px 0 rgba(0, 0, 0, 0.012),
         0 6px 18px rgba(0, 0, 0, 0);
       transition:
-        transform 480ms cubic-bezier(0.22, 1, 0.36, 1),
-        box-shadow 480ms cubic-bezier(0.22, 1, 0.36, 1),
-        border-color 420ms ease,
-        background 420ms ease;
+        transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 520ms cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 460ms ease,
+        background 460ms ease;
       will-change: transform, box-shadow;
     }
 
@@ -536,6 +526,25 @@
       color: var(--text-dark);
       overflow: hidden;
       scroll-margin-top: 72px;
+    }
+
+    .approach::before {
+      content: "";
+      position: absolute;
+      top: 28px;
+      right: -140px;
+      width: 760px;
+      height: 260px;
+      pointer-events: none;
+      opacity: 0.12;
+      background-repeat: no-repeat;
+      background-size: contain;
+      background-image: url('data:image/svg+xml;utf8,\
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 260">\
+        <path d="M-20 165 C 70 125, 150 125, 240 165 S 410 205, 500 165 S 670 125, 780 168" fill="none" stroke="%238C6B47" stroke-width="1.4"/>\
+        <path d="M-10 185 C 85 145, 165 145, 255 185 S 425 225, 515 185 S 685 145, 790 188" fill="none" stroke="%238C6B47" stroke-width="1.1"/>\
+        <path d="M5 205 C 100 165, 180 165, 270 205 S 440 245, 530 205 S 700 165, 805 208" fill="none" stroke="%238C6B47" stroke-width="0.95"/>\
+      </svg>');
     }
 
     .approach-inner {
@@ -1016,7 +1025,7 @@
       }
 
       .hero-eyebrow {
-        margin-bottom: 72px;
+        margin-bottom: 76px;
         padding-left: 1px;
         font-size: 0.38rem;
         letter-spacing: 0.30em;
@@ -1037,7 +1046,9 @@
         gap: 12px;
       }
 
-      .btn {
+      .btn,
+      .btn-connect {
+        min-width: 148px;
         min-height: 46px;
         padding: 0 20px;
         font-size: 0.98rem;
@@ -1066,6 +1077,14 @@
 
       .approach {
         padding: 86px 20px 72px;
+      }
+
+      .approach::before {
+        right: -280px;
+        top: 12px;
+        width: 680px;
+        height: 220px;
+        opacity: 0.10;
       }
 
       .approach-grid {
@@ -1156,7 +1175,7 @@
       <img
         class="hero-image"
         id="heroImage"
-        src="iStock-2223938194.jpg?v=5"
+        src="iStock-2223938194.jpg?v=6"
         alt=""
         decoding="async"
         fetchpriority="high"
@@ -1178,7 +1197,7 @@
         <div class="hero-actions">
           <a class="btn" href="#approach">Our Approach</a>
           <a class="btn" href="#thinking">Our Thinking</a>
-          <a class="btn btn-connect" href="#contact">Connect</a>
+          <a class="btn-connect" href="#contact">Connect</a>
         </div>
       </div>
     </div>
@@ -1276,7 +1295,7 @@
         <div class="thinking-copy">
           <h2 id="thinking-title">Ideas on Institutional Performance</h2>
           <p class="thinking-intro-text">
-            We write about the forces that shape clarity, execution, and institutional drift.
+            We address the forces that shape clarity, execution, and institutional drift.
             Our thinking explores how complexity compounds, how systems lose alignment, and
             how organizations can be designed to sustain performance over time.
           </p>
