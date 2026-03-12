@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Monderman</title>
 
-  <!-- Favicon -->
   <link
     rel="icon"
     type="image/svg+xml"
@@ -24,7 +23,6 @@
 
       --bg-dark: #0F1720;
       --bg-hero-fallback: #121922;
-      --bg-soft: #F7F8F9;
       --bg-offwhite: #F6F7F8;
       --bg-white: #FFFFFF;
 
@@ -50,7 +48,6 @@
 
     html {
       scroll-behavior: smooth;
-      scroll-snap-type: none;
       scroll-padding-top: 72px;
     }
 
@@ -147,8 +144,7 @@
       text-shadow: 0 0 0.5px rgba(0, 0, 0, 0.40);
       transition:
         color var(--transition),
-        transform var(--transition),
-        opacity var(--transition);
+        transform var(--transition);
     }
 
     .nav a::after {
@@ -297,7 +293,7 @@
     }
 
     .hero h1 {
-      margin: 0 0 44px;
+      margin: 0 0 40px;
       max-width: 11.5ch;
       font-size: clamp(3.4rem, 5.5vw, 5.3rem);
       line-height: 0.96;
@@ -310,10 +306,10 @@
     }
 
     .hero p {
-      max-width: 680px;
+      max-width: 660px;
       margin: 0;
-      font-size: clamp(1.1rem, 1.5vw, 1.32rem);
-      line-height: 1.60;
+      font-size: clamp(1.08rem, 1.45vw, 1.28rem);
+      line-height: 1.62;
       letter-spacing: -0.012em;
       font-weight: 400;
       color: var(--muted-light);
@@ -326,12 +322,11 @@
       align-items: center;
       gap: 16px;
       flex-wrap: wrap;
-      margin-top: 52px;
+      margin-top: 50px;
       animation-delay: 940ms;
     }
 
-    .btn,
-    .btn-connect {
+    .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -357,9 +352,7 @@
     }
 
     .btn:hover,
-    .btn:focus-visible,
-    .btn-connect:hover,
-    .btn-connect:focus-visible {
+    .btn:focus-visible {
       background: #FFFFFF;
       color: var(--accent);
       border-color: rgba(255, 255, 255, 0.62);
@@ -416,7 +409,7 @@
     }
 
     .cost-label {
-      margin: 0 0 20px;
+      margin: 0 0 18px;
       font-size: 0.72rem;
       line-height: 1;
       letter-spacing: 0.24em;
@@ -520,7 +513,7 @@
     .approach {
       position: relative;
       background: var(--bg-white);
-      padding: 110px 34px 96px;
+      padding: 110px 34px 100px;
       color: var(--text-dark);
       overflow: hidden;
       scroll-margin-top: 72px;
@@ -535,7 +528,7 @@
     }
 
     .section-label {
-      margin-bottom: 18px;
+      margin-bottom: 16px;
       font-size: 0.78rem;
       letter-spacing: 0.22em;
       font-weight: 700;
@@ -555,11 +548,11 @@
     .approach h2,
     .thinking h2,
     .connect h2 {
-      margin: 0 0 64px;
+      margin: 0 0 58px;
       max-width: 760px;
-      font-size: clamp(1.85rem, 2.4vw, 2.25rem);
-      line-height: 1.18;
-      letter-spacing: -0.035em;
+      font-size: clamp(1.9rem, 2.45vw, 2.3rem);
+      line-height: 1.14;
+      letter-spacing: -0.038em;
       font-weight: 600;
       color: var(--text-dark);
       text-wrap: balance;
@@ -570,7 +563,7 @@
       grid-template-columns: repeat(4, minmax(0, 260px));
       gap: 40px;
       justify-content: start;
-      margin-top: 12px;
+      margin-top: 10px;
     }
 
     .approach-card {
@@ -659,18 +652,18 @@
     .thinking-intro {
       max-width: 1180px;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 460px;
-      gap: 56px;
+      grid-template-columns: minmax(0, 1fr) 500px;
+      gap: 60px;
       align-items: stretch;
       margin-bottom: 26px;
     }
 
     .thinking-copy {
-      padding-top: 6px;
+      padding-top: 8px;
     }
 
     .thinking-copy h2 {
-      margin: 0 0 24px;
+      margin: 0 0 22px;
       max-width: 620px;
       font-size: clamp(2rem, 2.7vw, 2.55rem);
       line-height: 1.08;
@@ -681,15 +674,15 @@
       max-width: 60ch;
       margin: 0;
       font-size: 1.08rem;
-      line-height: 1.74;
+      line-height: 1.72;
       color: var(--muted-dark);
     }
 
     .thinking-visual {
       justify-self: end;
       width: 100%;
-      max-width: 460px;
-      min-height: 460px;
+      max-width: 500px;
+      min-height: 500px;
       background: rgba(255, 255, 255, 0.82);
       border: 1px solid rgba(21, 32, 43, 0.08);
       box-shadow: 0 1px 0 rgba(0, 0, 0, 0.015);
@@ -707,7 +700,7 @@
       max-width: 1180px;
       height: 1px;
       background: rgba(21, 32, 43, 0.10);
-      margin: 0 0 8px;
+      margin: 0 0 10px;
     }
 
     .thinking-list {
@@ -715,11 +708,11 @@
       margin: 0;
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0 40px;
+      gap: 0 42px;
     }
 
     .thinking-item {
-      padding: 30px 0 34px;
+      padding: 32px 0 36px;
       border-bottom: 1px solid rgba(0, 0, 0, 0.08);
       transition: background var(--transition);
     }
@@ -809,7 +802,7 @@
 
     .connect-copy h2 {
       color: #FFFFFF;
-      margin-bottom: 24px;
+      margin-bottom: 22px;
       max-width: 560px;
     }
 
@@ -982,8 +975,6 @@
       color: rgba(245, 247, 250, 0.58);
     }
 
-    /* ---------- RESPONSIVE ---------- */
-
     @media (prefers-reduced-motion: reduce) {
       .hero-image,
       .hero-eyebrow,
@@ -1027,7 +1018,7 @@
 
       .thinking-intro {
         grid-template-columns: 1fr;
-        gap: 28px;
+        gap: 30px;
       }
 
       .thinking-visual {
@@ -1150,8 +1141,7 @@
         gap: 12px;
       }
 
-      .btn,
-      .btn-connect {
+      .btn {
         min-width: 148px;
         min-height: 46px;
         padding: 0 20px;
@@ -1289,7 +1279,7 @@
       <img
         class="hero-image"
         id="heroImage"
-        src="iStock-2223938194.jpg?v=8"
+        src="iStock-2223938194.jpg?v=9"
         alt=""
         decoding="async"
         fetchpriority="high"
@@ -1311,7 +1301,7 @@
         <div class="hero-actions">
           <a class="btn" href="#approach">Our Approach</a>
           <a class="btn" href="#thinking">Our Thinking</a>
-          <a class="btn-connect" href="#connect">Connect</a>
+          <a class="btn" href="#connect">Connect</a>
         </div>
       </div>
     </div>
@@ -1430,7 +1420,7 @@
             accumulates faster than the organization’s structures can interpret, prioritize,
             and act on it. Effective governance begins by making that complexity legible.
           </div>
-          <a class="thinking-link" href="#">
+          <a class="thinking-link" href="governing-complexity.html">
             Read insight <span class="thinking-arrow">→</span>
           </a>
         </div>
@@ -1442,7 +1432,7 @@
             authority, information, approvals, and accountability move. When that system drifts,
             institutional performance drifts with it.
           </div>
-          <a class="thinking-link" href="#">
+          <a class="thinking-link" href="bureaucracy-operating-system.html">
             Read insight <span class="thinking-arrow">→</span>
           </a>
         </div>
@@ -1454,7 +1444,7 @@
             Layers accumulate, responsibilities blur, and decisions take longer to travel.
             Drift is rarely dramatic at first, but it compounds quietly until performance suffers.
           </div>
-          <a class="thinking-link" href="#">
+          <a class="thinking-link" href="the-drift-problem.html">
             Read insight <span class="thinking-arrow">→</span>
           </a>
         </div>
@@ -1466,7 +1456,7 @@
             Institutions move well when roles are clear, pathways are aligned, and governance
             mechanisms support sound judgment without creating drag.
           </div>
-          <a class="thinking-link" href="#">
+          <a class="thinking-link" href="designing-for-decision-velocity.html">
             Read insight <span class="thinking-arrow">→</span>
           </a>
         </div>
