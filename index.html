@@ -20,6 +20,7 @@
   <style>
     :root {
       --accent: #3F6EA1;
+      --copper: #8C6B47;
 
       --bg-dark: #0F1720;
       --bg-hero-fallback: #121922;
@@ -35,12 +36,14 @@
       --muted-dark-2: #7A8794;
 
       --line-dark: #E3E7EB;
+      --line-dark-soft: rgba(21, 32, 43, 0.08);
+
       --header-solid: rgba(18, 25, 34, 0.84);
       --header-border: rgba(255, 255, 255, 0.08);
 
       --max: 1320px;
       --transition: 240ms cubic-bezier(0.22, 1, 0.36, 1);
-      --transition-slow: 340ms cubic-bezier(0.22, 1, 0.36, 1);
+      --transition-slow: 360ms cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     * {
@@ -66,6 +69,11 @@
     a {
       color: inherit;
       text-decoration: none;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
     }
 
     /* ---------- HEADER ---------- */
@@ -279,14 +287,14 @@
     }
 
     .hero-eyebrow {
-      margin: 0 0 128px;
+      margin: 0 0 132px;
       padding-left: 2px;
-      font-size: 0.38rem;
+      font-size: 0.36rem;
       line-height: 1;
-      letter-spacing: 0.42em;
+      letter-spacing: 0.46em;
       font-weight: 600;
       text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.34);
+      color: rgba(255, 255, 255, 0.30);
       animation-delay: 420ms;
     }
 
@@ -357,6 +365,21 @@
       outline: none;
     }
 
+    .btn-connect {
+      background: transparent;
+      color: #FFFFFF;
+      border-color: rgba(255, 255, 255, 0.30);
+      box-shadow: none;
+    }
+
+    .btn-connect:hover,
+    .btn-connect:focus-visible {
+      background: rgba(255, 255, 255, 0.08);
+      color: #FFFFFF;
+      border-color: rgba(255, 255, 255, 0.48);
+      box-shadow: none;
+    }
+
     @keyframes heroFadeUp {
       from {
         opacity: 0;
@@ -374,8 +397,8 @@
       position: relative;
       background:
         linear-gradient(rgba(247, 248, 249, 0.965), rgba(247, 248, 249, 0.965)),
-        linear-gradient(90deg, rgba(63, 110, 161, 0.026) 1px, transparent 1px),
-        linear-gradient(rgba(63, 110, 161, 0.026) 1px, transparent 1px);
+        linear-gradient(90deg, rgba(63, 110, 161, 0.022) 1px, transparent 1px),
+        linear-gradient(rgba(63, 110, 161, 0.022) 1px, transparent 1px);
       background-size: auto, 28px 28px, 28px 28px;
       border-top: 1px solid #E7EBEF;
       border-bottom: 1px solid #E7EBEF;
@@ -388,7 +411,7 @@
       content: "";
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at 85% 20%, rgba(63, 110, 161, 0.045), transparent 34%);
+      background: radial-gradient(circle at 85% 20%, rgba(63, 110, 161, 0.04), transparent 34%);
       pointer-events: none;
     }
 
@@ -441,21 +464,21 @@
         0 1px 0 rgba(0, 0, 0, 0.012),
         0 6px 18px rgba(0, 0, 0, 0);
       transition:
-        transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
-        box-shadow 420ms cubic-bezier(0.22, 1, 0.36, 1),
-        border-color 360ms ease,
-        background 360ms ease;
+        transform 480ms cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 480ms cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 420ms ease,
+        background 420ms ease;
       will-change: transform, box-shadow;
     }
 
     .cost-card:hover {
       transform: translateY(-2px);
       background: #FFFFFF;
-      border-color: rgba(63, 110, 161, 0.16);
+      border-color: rgba(63, 110, 161, 0.14);
       box-shadow:
         0 1px 0 rgba(0, 0, 0, 0.014),
-        0 10px 24px rgba(0, 0, 0, 0.022),
-        0 20px 38px rgba(0, 0, 0, 0.02);
+        0 8px 20px rgba(0, 0, 0, 0.018),
+        0 18px 34px rgba(0, 0, 0, 0.016);
     }
 
     .cost-card-title {
@@ -619,7 +642,7 @@
       position: relative;
       background:
         linear-gradient(rgba(246, 247, 248, 0.97), rgba(246, 247, 248, 0.97)),
-        radial-gradient(circle at 15% 18%, rgba(63, 110, 161, 0.05), transparent 28%);
+        radial-gradient(circle at 15% 18%, rgba(63, 110, 161, 0.045), transparent 28%);
       color: var(--text-dark);
       padding: 84px 34px 120px;
       overflow: hidden;
@@ -630,9 +653,9 @@
       content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(135deg, rgba(63, 110, 161, 0.022) 1px, transparent 1px);
+      background: linear-gradient(135deg, rgba(63, 110, 161, 0.02) 1px, transparent 1px);
       background-size: 36px 36px;
-      opacity: 0.42;
+      opacity: 0.38;
       pointer-events: none;
     }
 
@@ -647,7 +670,7 @@
     .thinking-intro {
       max-width: 1100px;
       display: grid;
-      grid-template-columns: minmax(0, 1.2fr) 380px;
+      grid-template-columns: minmax(0, 1.18fr) 380px;
       gap: 52px;
       align-items: start;
       margin-bottom: 46px;
@@ -678,7 +701,6 @@
     }
 
     .thinking-visual img {
-      display: block;
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -688,20 +710,23 @@
     .thinking-list {
       max-width: 980px;
       margin: 0;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0 34px;
     }
 
     .thinking-item {
-      padding: 34px 0;
+      padding: 30px 0 32px;
       border-bottom: 1px solid rgba(0, 0, 0, 0.08);
       transition: background var(--transition);
     }
 
     .thinking-item:hover {
-      background: rgba(0, 0, 0, 0.02);
+      background: rgba(0, 0, 0, 0.018);
     }
 
     .thinking-title {
-      font-size: 1.45rem;
+      font-size: 1.32rem;
       line-height: 1.18;
       font-weight: 600;
       letter-spacing: -0.02em;
@@ -710,11 +735,11 @@
     }
 
     .thinking-desc {
-      font-size: 1.05rem;
+      font-size: 1rem;
       line-height: 1.60;
       color: var(--muted-dark);
       margin-bottom: 12px;
-      max-width: 760px;
+      max-width: 36ch;
     }
 
     .thinking-link {
@@ -785,7 +810,7 @@
 
     .footer-copy {
       margin: 0;
-      max-width: 32ch;
+      max-width: 36ch;
       font-size: 0.98rem;
       line-height: 1.65;
       color: rgba(245, 247, 250, 0.68);
@@ -903,6 +928,10 @@
       .thinking-visual {
         justify-self: start;
       }
+
+      .thinking-list {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 980px) {
@@ -987,11 +1016,11 @@
       }
 
       .hero-eyebrow {
-        margin-bottom: 64px;
+        margin-bottom: 72px;
         padding-left: 1px;
         font-size: 0.38rem;
-        letter-spacing: 0.28em;
-        color: rgba(255, 255, 255, 0.44);
+        letter-spacing: 0.30em;
+        color: rgba(255, 255, 255, 0.40);
       }
 
       .hero h1 {
@@ -1116,8 +1145,8 @@
       <nav class="nav" aria-label="Primary navigation">
         <a href="#approach">Approach</a>
         <a href="#thinking">Thinking</a>
-        <a href="#about">About</a>
-        <a href="#contact">Contact</a>
+        <a href="why-monderman.html">Why Monderman</a>
+        <a href="#contact">Connect</a>
       </nav>
     </div>
   </header>
@@ -1127,7 +1156,7 @@
       <img
         class="hero-image"
         id="heroImage"
-        src="iStock-2223938194.jpg?v=4"
+        src="iStock-2223938194.jpg?v=5"
         alt=""
         decoding="async"
         fetchpriority="high"
@@ -1147,8 +1176,9 @@
         </p>
 
         <div class="hero-actions">
-          <a class="btn" href="#approach">Our approach</a>
-          <a class="btn" href="#thinking">Our thinking</a>
+          <a class="btn" href="#approach">Our Approach</a>
+          <a class="btn" href="#thinking">Our Thinking</a>
+          <a class="btn btn-connect" href="#contact">Connect</a>
         </div>
       </div>
     </div>
@@ -1314,13 +1344,14 @@
 
         <div class="footer-nav" aria-label="Footer navigation">
           <div class="footer-nav-col">
-            <p class="footer-nav-title">Navigate</p>
+            <p class="footer-nav-title">Explore</p>
             <a href="#approach">Approach</a>
             <a href="#thinking">Thinking</a>
+            <a href="why-monderman.html">Why Monderman</a>
           </div>
 
           <div class="footer-nav-col">
-            <p class="footer-nav-title">Contact</p>
+            <p class="footer-nav-title">Connect</p>
             <a href="mailto:hello@monderman.com">hello@monderman.com</a>
           </div>
         </div>
