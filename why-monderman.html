@@ -1,1 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Why Monderman</title>
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href='data:image/svg+xml;utf8,
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="10" fill="%230F1720"/>
+      <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text>
+      <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
+    </svg>'
+  />
+  <style>
+    :root {
+      --accent: #3F6EA1;
+      --bg-dark: #0F1720;
+      --bg-dark-2: #111B25;
+      --bg-white: #FFFFFF;
+      --bg-soft: #F6F7F8;
+      --text-light: #F5F7FA;
+      --text-dark: #15202B;
+      --muted-dark: #5F6B78;
+      --muted-light: rgba(245, 247, 250, 0.78);
+      --line-dark: #E3E7EB;
+      --header-solid: rgba(18, 25, 34, 0.88);
+      --header-border: rgba(255, 255, 255, 0.08);
+      --max: 1240px;
+      --transition: 220ms ease;
+    }
 
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--bg-white);
+      color: var(--text-dark);
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 72px;
+      background: var(--header-solid);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--header-border);
+    }
+
+    .header-inner {
+      max-width: var(--max);
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 34px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      font-size: 1.28rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      white-space: nowrap;
+    }
+
+    .brand::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+    }
+
+    .nav a {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.86);
+      transition: color var(--transition), transform var(--transition);
+    }
+
+    .nav a:hover,
+    .nav a:focus-visible {
+      color: #FFFFFF;
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .hero {
+      background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-dark-2) 100%);
+      color: var(--text-light);
+      padding: 86px 34px 72px;
+    }
+
+    .hero-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      margin: 0 0 18px;
+      font-size: 0.72rem;
+      line-height: 1;
+      letter-spacing: 0.24em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.68);
+    }
+
+    .hero h1 {
+      margin: 0 0 22px;
+      max-width: 9ch;
+      font-size: clamp(2.8rem, 5vw, 4.6rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      font-weight: 600;
+    }
+
+    .hero-dek {
+      max-width: 62ch;
+      margin: 0;
+      font-size: 1.14rem;
+      line-height: 1.72;
+      color: var(--muted-light);
+    }
+
+    .content {
+      background:
+        linear-gradient(rgba(246,247,248,0.97), rgba(246,247,248,0.97)),
+        linear-gradient(135deg, rgba(63,110,161,0.025) 1px, transparent 1px);
+      background-size: auto, 36px 36px;
+      padding: 74px 34px 96px;
+    }
+
+    .content-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .intro {
+      max-width: 880px;
+      margin: 0 0 54px;
+    }
+
+    .intro p {
+      margin: 0 0 24px;
+      font-size: 1.1rem;
+      line-height: 1.9;
+      color: var(--muted-dark);
+    }
+
+    .intro p.lead {
+      font-size: 1.18rem;
+      line-height: 1.84;
+      color: var(--text-dark);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 30px 34px;
+      margin-top: 44px;
+    }
+
+    .panel {
+      background: rgba(255,255,255,0.94);
+      border: 1px solid var(--line-dark);
+      padding: 32px 30px 30px;
+    }
+
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 1.34rem;
+      line-height: 1.14;
+      letter-spacing: -0.025em;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .panel p {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.72;
+      color: var(--muted-dark);
+    }
+
+    .connect-band {
+      margin-top: 52px;
+      padding-top: 28px;
+      border-top: 1px solid var(--line-dark);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 36px;
+      align-items: start;
+    }
+
+    .connect-copy h2 {
+      margin: 0 0 12px;
+      font-size: 1.5rem;
+      line-height: 1.14;
+      letter-spacing: -0.03em;
+      color: var(--text-dark);
+    }
+
+    .connect-copy p {
+      margin: 0;
+      max-width: 56ch;
+      font-size: 1rem;
+      line-height: 1.72;
+      color: var(--muted-dark);
+    }
+
+    .connect-card {
+      background: #FFFFFF;
+      border: 1px solid var(--line-dark);
+      padding: 24px 22px;
+    }
+
+    .connect-kicker {
+      margin: 0 0 12px;
+      font-size: 0.72rem;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #7A8794;
+    }
+
+    .connect-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.02rem;
+      line-height: 1.4;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .connect-link-mark {
+      width: 7px;
+      height: 7px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+
+    .footer {
+      background: #0D141C;
+      color: rgba(245,247,250,0.88);
+      padding: 30px 34px 34px;
+    }
+
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .footer p {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: rgba(245,247,250,0.58);
+    }
+
+    @media (max-width: 900px) {
+      .grid,
+      .connect-band {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .header { height: auto; }
+      .header-inner {
+        padding: 16px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .hero { padding: 70px 20px 54px; }
+      .content { padding: 54px 20px 74px; }
+      .intro p,
+      .panel p,
+      .connect-copy p {
+        font-size: 1rem;
+        line-height: 1.78;
+      }
+      .footer { padding: 26px 20px 28px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="brand">Monderman</a>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="index.html#approach">Approach</a>
+        <a href="index.html#thinking">Thinking</a>
+        <a href="why-monderman.html">Why Monderman</a>
+        <a href="index.html#connect">Connect</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">Why Monderman</p>
+      <h1>Why Monderman</h1>
+      <p class="hero-dek">
+        We help institutions reclaim time, money, and productive capacity by reducing administrative
+        drag, clarifying decision pathways, and designing systems that sustain performance under complexity.
+      </p>
+    </div>
+  </section>
+
+  <section class="content">
+    <div class="content-inner">
+      <div class="intro">
+        <p class="lead">
+          At Monderman, we help institutions translate complexity into clarity and execution.
+          Every organization faces friction—unnecessary approvals, layered reporting, diffuse
+          ownership, and processes that quietly outlive their purpose. These forces consume time,
+          money, and resources long before they are recognized as strategic problems.
+        </p>
+
+        <p>
+          Our work begins by making those costs visible. We examine where authority and accountability
+          have drifted apart, where governance has become heavier than the work requires, and where
+          execution is being slowed by structural rather than personal causes. That allows leaders to
+          move beyond symptoms and address the real architecture of drag.
+        </p>
+
+        <p>
+          The goal is not to strip away rigor. It is to build institutions that can move with greater
+          coherence, better judgment, and stronger performance. When systems are clearer, leadership
+          attention is used more effectively, productive capacity is freed for higher-value work, and
+          organizations become better able to sustain growth, innovation, and mission delivery.
+        </p>
+      </div>
+
+      <div class="grid">
+        <div class="panel">
+          <h2>What we see</h2>
+          <p>
+            Most institutions are not failing from lack of effort. They are being slowed by inherited
+            structures that no longer match the speed, scale, or complexity of the work in front of them.
+          </p>
+        </div>
+
+        <div class="panel">
+          <h2>What we do</h2>
+          <p>
+            We identify where friction is accumulating, clarify how decisions and accountability actually
+            move, and redesign governance mechanisms so they support execution rather than quietly obstruct it.
+          </p>
+        </div>
+
+        <div class="panel">
+          <h2>What it unlocks</h2>
+          <p>
+            Better structure creates measurable return: faster decisions, stronger coordination, clearer
+            ownership, and reclaimed capacity that can be redirected toward growth, innovation, and mission.
+          </p>
+        </div>
+
+        <div class="panel">
+          <h2>Who it is for</h2>
+          <p>
+            Monderman is for leaders responsible for institutional performance—especially where complexity,
+            bureaucracy, and execution friction have begun to pull strategy away from action.
+          </p>
+        </div>
+      </div>
+
+      <div class="connect-band">
+        <div class="connect-copy">
+          <h2>Start a serious conversation.</h2>
+          <p>
+            If your institution is carrying more drag than it should, Monderman helps make the structural
+            problem visible and the path forward clearer.
+          </p>
+        </div>
+
+        <div class="connect-card">
+          <p class="connect-kicker">Primary Contact</p>
+          <a class="connect-link" href="mailto:connect@monderman.com">
+            <span class="connect-link-mark" aria-hidden="true"></span>
+            connect@monderman.com
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <p>© 2026 Monderman. All rights reserved.</p>
+      <p>Built for clarity in complexity.</p>
+    </div>
+  </footer>
+</body>
+</html>
