@@ -52,23 +52,18 @@
     :root {
       --accent: #3F6EA1;
       --copper: #8C6B47;
-
       --bg-dark: #0F1720;
       --bg-hero-fallback: #121922;
       --bg-offwhite: #F6F7F8;
       --bg-white: #FFFFFF;
-
       --text-light: #F5F7FA;
       --muted-light: rgba(245, 247, 250, 0.82);
-
       --text-dark: #15202B;
       --muted-dark: #5F6B78;
       --muted-dark-2: #7A8794;
-
       --line-dark: #E3E7EB;
       --header-solid: rgba(18, 25, 34, 0.84);
       --header-border: rgba(255, 255, 255, 0.08);
-
       --max: 1320px;
       --transition: 240ms cubic-bezier(0.22, 1, 0.36, 1);
       --transition-slow: 360ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -145,7 +140,8 @@
     .connect-note,
     .footer-copy,
     .footer-meta,
-    .footer-contact {
+    .footer-contact,
+    .hero-research-text {
       font-weight: 400;
     }
 
@@ -153,7 +149,9 @@
     .btn,
     .thinking-link,
     .connect-link,
-    .hero-eyebrow {
+    .hero-eyebrow,
+    .hero-research-btn,
+    .hero-research-link {
       font-weight: 500;
     }
 
@@ -168,7 +166,8 @@
     .thinking-title,
     .cost-card-title,
     .cost-card-number,
-    .footer-mark {
+    .footer-mark,
+    .hero-research-title {
       font-family: "Neue Haas Monderman", "Helvetica Neue", Helvetica, Arial, sans-serif;
       font-weight: 700;
     }
@@ -371,8 +370,8 @@
       margin: 0 auto;
       padding: 132px 34px 110px;
       display: grid;
-      grid-template-columns: minmax(0, 760px) 1fr;
-      gap: 72px;
+      grid-template-columns: minmax(0, 700px) minmax(320px, 500px);
+      gap: 56px;
       align-items: center;
     }
 
@@ -476,6 +475,211 @@
         opacity: 1;
         transform: translateY(0);
       }
+    }
+
+    /* ---------- HERO RESEARCH CAROUSEL ---------- */
+
+    .hero-research-stage {
+      position: relative;
+      width: 100%;
+      min-height: 560px;
+      align-self: stretch;
+      display: flex;
+      align-items: stretch;
+      justify-content: stretch;
+    }
+
+    .hero-slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(12px);
+      transition:
+        opacity 520ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .hero-slide.is-active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+    }
+
+    .hero-slide-visual {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.04));
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.02),
+        0 20px 40px rgba(0, 0, 0, 0.16);
+    }
+
+    .hero-slide-visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.72) saturate(92%) contrast(104%);
+    }
+
+    .hero-slide-visual::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(8, 13, 19, 0.12), rgba(8, 13, 19, 0.34)),
+        linear-gradient(0deg, rgba(8, 13, 19, 0.42), rgba(8, 13, 19, 0));
+    }
+
+    .hero-research-card {
+      position: absolute;
+      right: 22px;
+      bottom: 22px;
+      z-index: 2;
+      width: min(360px, calc(100% - 44px));
+      background: rgba(15, 23, 32, 0.74);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      padding: 22px 22px 20px;
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.03),
+        0 18px 34px rgba(0, 0, 0, 0.16);
+    }
+
+    .hero-research-kicker {
+      margin: 0 0 12px;
+      font-size: 0.68rem;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: rgba(245, 247, 250, 0.56);
+    }
+
+    .hero-research-title {
+      margin: 0 0 12px;
+      font-size: 1.18rem;
+      line-height: 1.08;
+      letter-spacing: -0.025em;
+      color: #FFFFFF;
+      text-wrap: balance;
+    }
+
+    .hero-research-text {
+      margin: 0 0 18px;
+      font-size: 0.95rem;
+      line-height: 1.58;
+      color: rgba(245, 247, 250, 0.78);
+    }
+
+    .hero-research-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .hero-research-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 18px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--accent);
+      border: 1px solid rgba(255, 255, 255, 0.46);
+      font-size: 0.92rem;
+      letter-spacing: -0.01em;
+      transition:
+        background var(--transition),
+        color var(--transition),
+        transform var(--transition),
+        box-shadow var(--transition);
+    }
+
+    .hero-research-btn:hover,
+    .hero-research-btn:focus-visible {
+      background: #FFFFFF;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+      outline: none;
+    }
+
+    .hero-research-link {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      color: rgba(245, 247, 250, 0.82);
+      transition: color var(--transition);
+    }
+
+    .hero-research-link:hover,
+    .hero-research-link:focus-visible {
+      color: #FFFFFF;
+      outline: none;
+    }
+
+    .hero-carousel-controls {
+      position: absolute;
+      left: 22px;
+      bottom: 22px;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .hero-carousel-arrow {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(15, 23, 32, 0.50);
+      color: #FFFFFF;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition:
+        background var(--transition),
+        border-color var(--transition),
+        transform var(--transition);
+    }
+
+    .hero-carousel-arrow:hover,
+    .hero-carousel-arrow:focus-visible {
+      background: rgba(15, 23, 32, 0.72);
+      border-color: rgba(255, 255, 255, 0.24);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .hero-carousel-dots {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: 4px;
+    }
+
+    .hero-carousel-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.32);
+      transition: background var(--transition), transform var(--transition);
+    }
+
+    .hero-carousel-dot.is-active {
+      background: #FFFFFF;
+      transform: scale(1.08);
     }
 
     /* ---------- COST ---------- */
@@ -1072,7 +1276,8 @@
       .hero-eyebrow,
       .hero h1,
       .hero p,
-      .hero-actions {
+      .hero-actions,
+      .hero-slide {
         animation: none;
         opacity: 1;
         transform: none;
@@ -1089,12 +1294,26 @@
       .thinking-item,
       .thinking-arrow,
       .footer-nav a,
-      .connect-link {
+      .connect-link,
+      .hero-carousel-arrow,
+      .hero-carousel-dot,
+      .hero-research-btn,
+      .hero-research-link {
         transition: none;
       }
     }
 
     @media (max-width: 1100px) {
+      .hero-inner {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+
+      .hero-research-stage {
+        min-height: 480px;
+        max-width: 620px;
+      }
+
       .approach-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -1149,7 +1368,6 @@
       .hero-inner {
         min-height: 100vh;
         padding: 120px 24px 84px;
-        grid-template-columns: 1fr;
         gap: 24px;
       }
 
@@ -1238,6 +1456,30 @@
         min-height: 46px;
         padding: 0 20px;
         font-size: 0.98rem;
+      }
+
+      .hero-research-stage {
+        min-height: 380px;
+      }
+
+      .hero-research-card {
+        right: 16px;
+        bottom: 16px;
+        width: calc(100% - 32px);
+        padding: 18px 18px 16px;
+      }
+
+      .hero-carousel-controls {
+        left: 16px;
+        bottom: 16px;
+      }
+
+      .hero-research-title {
+        font-size: 1.05rem;
+      }
+
+      .hero-research-text {
+        font-size: 0.9rem;
       }
 
       .bureaucracy-cost {
@@ -1360,6 +1602,7 @@
       <nav class="nav" aria-label="Primary navigation">
         <a href="#approach">Approach</a>
         <a href="#thinking">Thinking</a>
+        <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
         <a href="#connect">Connect</a>
       </nav>
@@ -1393,6 +1636,67 @@
           <a class="btn" href="#approach">Our Approach</a>
           <a class="btn" href="#thinking">Our Thinking</a>
           <a class="btn" href="#connect">Connect</a>
+        </div>
+      </div>
+
+      <div class="hero-research-stage" aria-label="Featured research">
+        <article class="hero-slide is-active" data-slide="0">
+          <div class="hero-slide-visual">
+            <img src="Washington DC.jpg" alt="Washington, D.C. skyline for featured Monderman research" />
+          </div>
+
+          <div class="hero-research-card">
+            <p class="hero-research-kicker">Latest research</p>
+            <h2 class="hero-research-title">Administrative Overhead in the U.S. Department of War</h2>
+            <p class="hero-research-text">
+              Read Monderman’s latest research on administrative burden, overhead, and institutional drag
+              in the U.S. Department of War.
+            </p>
+
+            <div class="hero-research-actions">
+              <a class="hero-research-btn" href="Monderman Administrative Overhead Final.pdf" target="_blank" rel="noopener noreferrer">
+                Download research
+              </a>
+              <a class="hero-research-link" href="research.html">View all research</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="hero-slide" data-slide="1">
+          <div class="hero-slide-visual">
+            <img src="Healthcare costs.jpg" alt="Healthcare costs research image for featured Monderman research" />
+          </div>
+
+          <div class="hero-research-card">
+            <p class="hero-research-kicker">Latest research</p>
+            <h2 class="hero-research-title">Administrative Overhead in U.S. Healthcare Systems</h2>
+            <p class="hero-research-text">
+              Read Monderman’s latest research on administrative burden, cost pressure, and institutional drag
+              in U.S. healthcare systems.
+            </p>
+
+            <div class="hero-research-actions">
+              <a class="hero-research-btn" href="Monderman Healthcare Administrative Overhead.pdf" target="_blank" rel="noopener noreferrer">
+                Download research
+              </a>
+              <a class="hero-research-link" href="research.html">View all research</a>
+            </div>
+          </div>
+        </article>
+
+        <div class="hero-carousel-controls" aria-label="Research carousel controls">
+          <button class="hero-carousel-arrow" id="heroPrev" type="button" aria-label="Previous research">
+            &#8592;
+          </button>
+
+          <button class="hero-carousel-arrow" id="heroNext" type="button" aria-label="Next research">
+            &#8594;
+          </button>
+
+          <div class="hero-carousel-dots" aria-hidden="true">
+            <span class="hero-carousel-dot is-active"></span>
+            <span class="hero-carousel-dot"></span>
+          </div>
         </div>
       </div>
     </div>
@@ -1597,6 +1901,7 @@
             <p class="footer-nav-title">Explore</p>
             <a href="#approach">Approach</a>
             <a href="#thinking">Thinking</a>
+            <a href="research.html">Research</a>
             <a href="why-monderman.html">Why Monderman</a>
           </div>
 
@@ -1700,6 +2005,52 @@
 
       observer.observe(costSection);
     }
+
+    const heroSlides = document.querySelectorAll(".hero-slide");
+    const heroDots = document.querySelectorAll(".hero-carousel-dot");
+    const heroPrev = document.getElementById("heroPrev");
+    const heroNext = document.getElementById("heroNext");
+    let currentHeroSlide = 0;
+    let heroAutoRotate = null;
+
+    function showHeroSlide(index) {
+      if (!heroSlides.length) return;
+
+      currentHeroSlide = (index + heroSlides.length) % heroSlides.length;
+
+      heroSlides.forEach((slide, i) => {
+        slide.classList.toggle("is-active", i === currentHeroSlide);
+      });
+
+      heroDots.forEach((dot, i) => {
+        dot.classList.toggle("is-active", i === currentHeroSlide);
+      });
+    }
+
+    function startHeroAutoRotate() {
+      if (heroSlides.length <= 1) return;
+      clearInterval(heroAutoRotate);
+      heroAutoRotate = setInterval(() => {
+        showHeroSlide(currentHeroSlide + 1);
+      }, 8000);
+    }
+
+    if (heroPrev) {
+      heroPrev.addEventListener("click", () => {
+        showHeroSlide(currentHeroSlide - 1);
+        startHeroAutoRotate();
+      });
+    }
+
+    if (heroNext) {
+      heroNext.addEventListener("click", () => {
+        showHeroSlide(currentHeroSlide + 1);
+        startHeroAutoRotate();
+      });
+    }
+
+    showHeroSlide(0);
+    startHeroAutoRotate();
   </script>
 </body>
 </html>
