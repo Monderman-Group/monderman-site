@@ -94,6 +94,87 @@
       text-rendering: optimizeLegibility;
     }
 
+    html,
+    body,
+    button,
+    input,
+    textarea,
+    select,
+    option,
+    a,
+    p,
+    li,
+    dt,
+    dd,
+    span,
+    small,
+    strong,
+    em,
+    label,
+    figcaption,
+    blockquote,
+    cite,
+    div,
+    section,
+    article,
+    nav,
+    header,
+    footer,
+    main {
+      font-family: "Neue Haas Monderman", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    p,
+    li,
+    dt,
+    dd,
+    blockquote,
+    figcaption,
+    small,
+    label,
+    input,
+    textarea,
+    select,
+    option,
+    .hero-dek,
+    .thinking-intro-text,
+    .thinking-desc,
+    .card-desc,
+    .cost-card-text,
+    .connect-text,
+    .connect-note,
+    .footer-copy,
+    .footer-meta,
+    .footer-contact,
+    .hero-panel-text {
+      font-weight: 400;
+    }
+
+    .nav a,
+    .btn,
+    .thinking-link,
+    .connect-link,
+    .hero-eyebrow {
+      font-weight: 500;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    .brand,
+    .card-title,
+    .thinking-title,
+    .cost-card-title,
+    .cost-card-number,
+    .footer-mark,
+    .hero-panel-number {
+      font-family: "Neue Haas Monderman", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 700;
+    }
+
     a {
       color: inherit;
       text-decoration: none;
@@ -144,7 +225,6 @@
       display: inline-flex;
       align-items: center;
       font-size: 1.32rem;
-      font-weight: 700;
       letter-spacing: -0.02em;
       color: #FFFFFF;
       white-space: nowrap;
@@ -171,7 +251,6 @@
     .nav a {
       position: relative;
       font-size: 0.95rem;
-      font-weight: 500;
       letter-spacing: 0.015em;
       color: rgba(255, 255, 255, 0.88);
       text-shadow: 0 0 0.5px rgba(0, 0, 0, 0.40);
@@ -229,13 +308,12 @@
       object-fit: cover;
       object-position: center center;
       opacity: 0;
-      transform: scale(1.06);
-      filter: saturate(94%) contrast(102%) brightness(0.96);
+      transform: scale(1.04);
+      filter: saturate(92%) contrast(102%) brightness(0.94);
       transition:
-        opacity 2.8s cubic-bezier(0.22, 1, 0.36, 1),
-        transform 3.2s cubic-bezier(0.22, 1, 0.36, 1),
-        filter 3.2s cubic-bezier(0.22, 1, 0.36, 1);
-      will-change: opacity, transform, filter;
+        opacity 2.2s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 2.8s cubic-bezier(0.22, 1, 0.36, 1),
+        filter 2.8s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .hero-image.is-loaded {
@@ -247,43 +325,20 @@
     .hero-overlay {
       position: absolute;
       inset: 0;
-      opacity: 0.94;
-      transition: opacity 2.2s cubic-bezier(0.22, 1, 0.36, 1);
       background:
         linear-gradient(
           90deg,
           rgba(8, 13, 19, 0.92) 0%,
-          rgba(8, 13, 19, 0.84) 28%,
-          rgba(8, 13, 19, 0.58) 52%,
-          rgba(8, 13, 19, 0.20) 76%,
-          rgba(8, 13, 19, 0.05) 100%
+          rgba(8, 13, 19, 0.86) 34%,
+          rgba(8, 13, 19, 0.56) 60%,
+          rgba(8, 13, 19, 0.20) 82%,
+          rgba(8, 13, 19, 0.08) 100%
         ),
         linear-gradient(
           180deg,
-          rgba(8, 13, 19, 0.30) 0%,
-          rgba(8, 13, 19, 0.10) 20%,
-          rgba(8, 13, 19, 0.16) 100%
+          rgba(8, 13, 19, 0.26) 0%,
+          rgba(8, 13, 19, 0.12) 100%
         );
-    }
-
-    .hero-image.is-loaded + .hero-overlay {
-      opacity: 1;
-    }
-
-    .hero::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 18%;
-      background: linear-gradient(
-        180deg,
-        rgba(8, 13, 19, 0) 0%,
-        rgba(8, 13, 19, 0.16) 100%
-      );
-      pointer-events: none;
-      z-index: 1;
     }
 
     .hero-inner {
@@ -294,60 +349,57 @@
       margin: 0 auto;
       padding: 132px 34px 110px;
       display: grid;
-      grid-template-columns: minmax(0, 760px) 1fr;
+      grid-template-columns: minmax(0, 760px) minmax(320px, 420px);
       gap: 72px;
-      align-items: center;
+      align-items: end;
     }
 
     .hero-copy {
       max-width: 760px;
+      align-self: center;
     }
 
     .hero-eyebrow,
     .hero h1,
-    .hero p,
-    .hero-actions {
+    .hero-dek,
+    .hero-actions,
+    .hero-panel {
       opacity: 0;
       transform: translateY(16px);
       animation: heroFadeUp 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
-      will-change: transform, opacity;
     }
 
     .hero-eyebrow {
-      margin: 0 0 136px;
+      margin: 0 0 34px;
       padding-left: 2px;
-      font-size: 0.34rem;
+      font-size: 0.68rem;
       line-height: 1;
-      letter-spacing: 0.50em;
-      font-weight: 500;
+      letter-spacing: 0.28em;
       text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.28);
-      animation-delay: 420ms;
+      color: rgba(255, 255, 255, 0.64);
+      animation-delay: 320ms;
     }
 
     .hero h1 {
-      margin: 0 0 40px;
-      max-width: 11.5ch;
-      font-size: clamp(3.4rem, 5.5vw, 5.3rem);
-      line-height: 0.96;
-      letter-spacing: -0.055em;
-      font-weight: 700;
+      margin: 0 0 28px;
+      max-width: 10.5ch;
+      font-size: clamp(3.4rem, 5.5vw, 5.4rem);
+      line-height: 0.94;
+      letter-spacing: -0.06em;
       color: #FFFFFF;
       text-wrap: balance;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
-      animation-delay: 560ms;
+      animation-delay: 460ms;
     }
 
-    .hero p {
-      max-width: 660px;
+    .hero-dek {
+      max-width: 38ch;
       margin: 0;
-      font-size: clamp(1.08rem, 1.45vw, 1.28rem);
+      font-size: clamp(1.08rem, 1.45vw, 1.26rem);
       line-height: 1.62;
       letter-spacing: -0.012em;
-      font-weight: 400;
       color: var(--muted-light);
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.14);
-      animation-delay: 760ms;
+      animation-delay: 620ms;
     }
 
     .hero-actions {
@@ -355,43 +407,49 @@
       align-items: center;
       gap: 16px;
       flex-wrap: wrap;
-      margin-top: 50px;
-      animation-delay: 940ms;
+      margin-top: 40px;
+      animation-delay: 760ms;
     }
 
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 50px;
-      min-width: 162px;
-      padding: 0 24px;
-      border-radius: 999px;
-      font-size: 1rem;
-      font-weight: 500;
-      letter-spacing: -0.01em;
-      white-space: nowrap;
-      background: rgba(255, 255, 255, 0.96);
-      color: var(--accent);
-      border: 1px solid rgba(255, 255, 255, 0.48);
-      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
-      text-shadow: 0 0 0.01px currentColor;
-      transition:
-        background var(--transition),
-        color var(--transition),
-        border-color var(--transition),
-        transform var(--transition),
-        box-shadow var(--transition);
+    .hero-panel {
+      align-self: end;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      padding: 28px 28px 24px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03);
+      animation-delay: 900ms;
     }
 
-    .btn:hover,
-    .btn:focus-visible {
-      background: #FFFFFF;
-      color: var(--accent);
-      border-color: rgba(255, 255, 255, 0.62);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
-      outline: none;
+    .hero-panel-kicker {
+      margin: 0 0 18px;
+      font-size: 0.7rem;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: rgba(245, 247, 250, 0.56);
+    }
+
+    .hero-panel-item + .hero-panel-item {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .hero-panel-number {
+      font-size: 1.9rem;
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      color: #FFFFFF;
+      margin-bottom: 8px;
+    }
+
+    .hero-panel-text {
+      font-size: 0.96rem;
+      line-height: 1.56;
+      color: rgba(245, 247, 250, 0.74);
     }
 
     @keyframes heroFadeUp {
@@ -446,7 +504,6 @@
       font-size: 0.72rem;
       line-height: 1;
       letter-spacing: 0.24em;
-      font-weight: 700;
       text-transform: uppercase;
       color: var(--accent);
     }
@@ -457,7 +514,6 @@
       font-size: clamp(2.05rem, 2.9vw, 2.7rem);
       line-height: 1.12;
       letter-spacing: -0.045em;
-      font-weight: 700;
       color: var(--text-dark);
       text-wrap: balance;
     }
@@ -499,7 +555,6 @@
       margin: 0 0 8px;
       font-size: 1.02rem;
       line-height: 1.12;
-      font-weight: 700;
       letter-spacing: -0.015em;
       color: var(--text-dark);
     }
@@ -522,7 +577,6 @@
       font-size: clamp(3.25rem, 5vw, 4.6rem);
       line-height: 0.88;
       letter-spacing: -0.065em;
-      font-weight: 700;
       color: var(--accent);
     }
 
@@ -564,7 +618,6 @@
       margin-bottom: 16px;
       font-size: 0.78rem;
       letter-spacing: 0.22em;
-      font-weight: 700;
       color: var(--accent);
       text-transform: uppercase;
     }
@@ -586,7 +639,6 @@
       font-size: clamp(1.9rem, 2.45vw, 2.3rem);
       line-height: 1.14;
       letter-spacing: -0.038em;
-      font-weight: 700;
       color: var(--text-dark);
       text-wrap: balance;
     }
@@ -639,7 +691,6 @@
     .card-title {
       font-size: 1.46rem;
       line-height: 1.08;
-      font-weight: 700;
       letter-spacing: -0.024em;
       color: var(--text-dark);
       margin-bottom: 18px;
@@ -701,7 +752,6 @@
       font-size: clamp(2rem, 2.7vw, 2.55rem);
       line-height: 1.08;
       letter-spacing: -0.045em;
-      font-weight: 700;
     }
 
     .thinking-intro-text {
@@ -758,7 +808,6 @@
     .thinking-title {
       font-size: 1.34rem;
       line-height: 1.16;
-      font-weight: 700;
       letter-spacing: -0.022em;
       color: var(--text-dark);
       margin-bottom: 12px;
@@ -775,7 +824,6 @@
     .thinking-link {
       font-size: 0.95rem;
       color: var(--accent);
-      font-weight: 500;
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -861,7 +909,6 @@
       font-size: 0.72rem;
       line-height: 1;
       letter-spacing: 0.20em;
-      font-weight: 700;
       text-transform: uppercase;
       color: rgba(245, 247, 250, 0.54);
     }
@@ -872,9 +919,8 @@
       gap: 10px;
       font-size: clamp(1.06rem, 1.6vw, 1.22rem);
       line-height: 1.3;
-      font-weight: 500;
-      color: #FFFFFF;
       letter-spacing: -0.015em;
+      color: #FFFFFF;
       transition: color var(--transition), transform var(--transition);
     }
 
@@ -931,7 +977,6 @@
       display: inline-flex;
       align-items: center;
       font-size: 1.1rem;
-      font-weight: 700;
       letter-spacing: -0.02em;
       color: #FFFFFF;
       margin-bottom: 14px;
@@ -971,7 +1016,6 @@
       font-size: 0.72rem;
       line-height: 1;
       letter-spacing: 0.18em;
-      font-weight: 700;
       text-transform: uppercase;
       color: rgba(245, 247, 250, 0.50);
     }
@@ -1012,8 +1056,9 @@
       .hero-image,
       .hero-eyebrow,
       .hero h1,
-      .hero p,
-      .hero-actions {
+      .hero-dek,
+      .hero-actions,
+      .hero-panel {
         animation: none;
         opacity: 1;
         transform: none;
@@ -1036,6 +1081,16 @@
     }
 
     @media (max-width: 1100px) {
+      .hero-inner {
+        grid-template-columns: 1fr;
+        gap: 28px;
+        align-items: center;
+      }
+
+      .hero-panel {
+        max-width: 420px;
+      }
+
       .approach-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -1090,16 +1145,6 @@
       .hero-inner {
         min-height: 100vh;
         padding: 120px 24px 84px;
-        grid-template-columns: 1fr;
-        gap: 24px;
-      }
-
-      .hero h1 {
-        max-width: 12ch;
-      }
-
-      .hero p {
-        max-width: 620px;
       }
 
       .bureaucracy-cost,
@@ -1149,23 +1194,21 @@
       }
 
       .hero-inner {
-        padding: 128px 20px 68px;
+        padding: 124px 20px 72px;
       }
 
       .hero-eyebrow {
-        margin-bottom: 76px;
-        padding-left: 1px;
-        font-size: 0.38rem;
-        letter-spacing: 0.30em;
-        color: rgba(255, 255, 255, 0.40);
+        margin-bottom: 24px;
+        font-size: 0.62rem;
+        letter-spacing: 0.22em;
       }
 
       .hero h1 {
         max-width: 100%;
-        font-size: clamp(2.45rem, 8vw, 3.25rem);
+        font-size: clamp(2.6rem, 8vw, 3.4rem);
       }
 
-      .hero p {
+      .hero-dek {
         font-size: 1rem;
         line-height: 1.58;
       }
@@ -1179,6 +1222,18 @@
         min-height: 46px;
         padding: 0 20px;
         font-size: 0.98rem;
+      }
+
+      .hero-panel {
+        padding: 22px 20px 20px;
+      }
+
+      .hero-panel-number {
+        font-size: 1.6rem;
+      }
+
+      .hero-panel-text {
+        font-size: 0.92rem;
       }
 
       .bureaucracy-cost {
@@ -1312,7 +1367,7 @@
       <img
         class="hero-image"
         id="heroImage"
-        src="iStock-2223938194.jpg?v=10"
+        src="iStock-2223938194.jpg?v=12"
         alt=""
         decoding="async"
         fetchpriority="high"
@@ -1326,15 +1381,34 @@
 
         <h1 id="hero-title">Complexity made clearer. Execution made stronger.</h1>
 
-        <p>
-          The strongest institutions are not the simplest. They are the clearest—designed to
-          handle complexity with confidence and sustain performance over time.
+        <p class="hero-dek">
+          Monderman helps institutions reduce administrative drag, improve decision velocity,
+          and build systems that sustain clarity under complexity.
         </p>
 
         <div class="hero-actions">
           <a class="btn" href="#approach">Our Approach</a>
           <a class="btn" href="#thinking">Our Thinking</a>
           <a class="btn" href="#connect">Connect</a>
+        </div>
+      </div>
+
+      <div class="hero-panel" aria-label="Institutional performance highlights">
+        <div class="hero-panel-kicker">Why it matters</div>
+
+        <div class="hero-panel-item">
+          <div class="hero-panel-number">$3T</div>
+          <div class="hero-panel-text">Estimated annual cost of excess management in the U.S. economy.</div>
+        </div>
+
+        <div class="hero-panel-item">
+          <div class="hero-panel-number">40%</div>
+          <div class="hero-panel-text">Of managers’ time can be consumed by reporting alone.</div>
+        </div>
+
+        <div class="hero-panel-item">
+          <div class="hero-panel-number">20–30%</div>
+          <div class="hero-panel-text">Of productive capacity can be absorbed by administrative burden.</div>
         </div>
       </div>
     </div>
@@ -1561,7 +1635,9 @@
     const header = document.getElementById("siteHeader");
 
     function revealHero() {
-      setTimeout(() => heroImage.classList.add("is-loaded"), 120);
+      setTimeout(() => {
+        if (heroImage) heroImage.classList.add("is-loaded");
+      }, 120);
     }
 
     if (heroImage && heroImage.complete) {
