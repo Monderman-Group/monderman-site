@@ -20,7 +20,7 @@
     /* ---------- WEBFONTS ---------- */
 
     @font-face {
-      font-family: "Neue Haas Monderman";
+      font-family: "Neue Haas Grotesk";
       src:
         url("55font.woff2") format("woff2"),
         url("55font.woff") format("woff");
@@ -30,7 +30,7 @@
     }
 
     @font-face {
-      font-family: "Neue Haas Monderman";
+      font-family: "Neue Haas Grotesk";
       src:
         url("65font.woff2") format("woff2"),
         url("65font.woff") format("woff");
@@ -40,7 +40,7 @@
     }
 
     @font-face {
-      font-family: "Neue Haas Monderman";
+      font-family: "Neue Haas Grotesk";
       src:
         url("75font.woff2") format("woff2"),
         url("75font.woff") format("woff");
@@ -51,22 +51,24 @@
 
     :root {
       --accent: #3F6EA1;
-      --copper: #8C6B47;
       --bg-dark: #0F1720;
+      --bg-dark-2: #111B25;
       --bg-hero-fallback: #121922;
       --bg-offwhite: #F6F7F8;
       --bg-white: #FFFFFF;
       --text-light: #F5F7FA;
-      --muted-light: rgba(245, 247, 250, 0.82);
+      --muted-light: rgba(245, 247, 250, 0.80);
       --text-dark: #15202B;
       --muted-dark: #5F6B78;
       --muted-dark-2: #7A8794;
       --line-dark: #E3E7EB;
+      --line-dark-2: rgba(21, 32, 43, 0.08);
       --header-solid: rgba(18, 25, 34, 0.84);
       --header-border: rgba(255, 255, 255, 0.08);
       --max: 1320px;
-      --transition: 240ms cubic-bezier(0.22, 1, 0.36, 1);
+      --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
       --transition-slow: 360ms cubic-bezier(0.22, 1, 0.36, 1);
+      --rail-card-width: min(520px, 82vw);
     }
 
     * {
@@ -82,7 +84,7 @@
       margin: 0;
       background: var(--bg-dark);
       color: var(--text-light);
-      font-family: "Neue Haas Monderman", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
       font-weight: 400;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
@@ -116,60 +118,7 @@
     header,
     footer,
     main {
-      font-family: "Neue Haas Monderman", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    }
-
-    p,
-    li,
-    dt,
-    dd,
-    blockquote,
-    figcaption,
-    small,
-    label,
-    input,
-    textarea,
-    select,
-    option,
-    .hero p,
-    .thinking-intro-text,
-    .thinking-desc,
-    .card-desc,
-    .cost-card-text,
-    .connect-text,
-    .connect-note,
-    .footer-copy,
-    .footer-meta,
-    .footer-contact,
-    .hero-research-text {
-      font-weight: 400;
-    }
-
-    .nav a,
-    .btn,
-    .thinking-link,
-    .connect-link,
-    .hero-eyebrow,
-    .hero-research-btn,
-    .hero-research-link {
-      font-weight: 500;
-    }
-
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6,
-    .brand,
-    .card-title,
-    .thinking-title,
-    .cost-card-title,
-    .cost-card-number,
-    .footer-mark,
-    .hero-research-title {
-      font-family: "Neue Haas Monderman", "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-weight: 700;
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
     }
 
     a {
@@ -182,12 +131,26 @@
       display: block;
     }
 
+    @media (min-width: 981px) {
+      body {
+        scroll-snap-type: y proximity;
+      }
+
+      .hero,
+      .bureaucracy-cost,
+      .approach,
+      .latest,
+      .thinking,
+      .connect {
+        scroll-snap-align: start;
+      }
+    }
+
     /* ---------- HEADER ---------- */
 
     .header {
       position: fixed;
-      top: 0;
-      left: 0;
+      inset: 0 0 auto 0;
       width: 100%;
       height: 72px;
       z-index: 100;
@@ -202,9 +165,9 @@
 
     .header.scrolled {
       background: var(--header-solid);
+      border-bottom-color: var(--header-border);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border-bottom-color: var(--header-border);
     }
 
     .header-inner {
@@ -222,6 +185,7 @@
       display: inline-flex;
       align-items: center;
       font-size: 1.32rem;
+      font-weight: 700;
       letter-spacing: -0.02em;
       color: #FFFFFF;
       white-space: nowrap;
@@ -248,12 +212,10 @@
     .nav a {
       position: relative;
       font-size: 0.95rem;
+      font-weight: 500;
       letter-spacing: 0.015em;
       color: rgba(255, 255, 255, 0.88);
-      text-shadow: 0 0 0.5px rgba(0, 0, 0, 0.40);
-      transition:
-        color var(--transition),
-        transform var(--transition);
+      transition: color var(--transition), transform var(--transition);
     }
 
     .nav a::after {
@@ -323,41 +285,29 @@
     .hero-overlay {
       position: absolute;
       inset: 0;
-      opacity: 0.94;
-      transition: opacity 2.2s cubic-bezier(0.22, 1, 0.36, 1);
       background:
         linear-gradient(
           90deg,
           rgba(8, 13, 19, 0.92) 0%,
-          rgba(8, 13, 19, 0.84) 28%,
-          rgba(8, 13, 19, 0.58) 52%,
-          rgba(8, 13, 19, 0.20) 76%,
+          rgba(8, 13, 19, 0.84) 30%,
+          rgba(8, 13, 19, 0.62) 54%,
+          rgba(8, 13, 19, 0.18) 78%,
           rgba(8, 13, 19, 0.05) 100%
         ),
         linear-gradient(
           180deg,
-          rgba(8, 13, 19, 0.30) 0%,
-          rgba(8, 13, 19, 0.10) 20%,
+          rgba(8, 13, 19, 0.24) 0%,
+          rgba(8, 13, 19, 0.10) 22%,
           rgba(8, 13, 19, 0.16) 100%
         );
-    }
-
-    .hero-image.is-loaded + .hero-overlay {
-      opacity: 1;
     }
 
     .hero::after {
       content: "";
       position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      inset: auto 0 0 0;
       height: 18%;
-      background: linear-gradient(
-        180deg,
-        rgba(8, 13, 19, 0) 0%,
-        rgba(8, 13, 19, 0.16) 100%
-      );
+      background: linear-gradient(180deg, rgba(8, 13, 19, 0) 0%, rgba(8, 13, 19, 0.18) 100%);
       pointer-events: none;
       z-index: 1;
     }
@@ -369,14 +319,12 @@
       min-height: 100vh;
       margin: 0 auto;
       padding: 132px 34px 110px;
-      display: grid;
-      grid-template-columns: minmax(0, 700px) minmax(320px, 500px);
-      gap: 56px;
+      display: flex;
       align-items: center;
     }
 
     .hero-copy {
-      max-width: 760px;
+      max-width: 780px;
     }
 
     .hero-eyebrow,
@@ -390,36 +338,38 @@
     }
 
     .hero-eyebrow {
-      margin: 0 0 136px;
+      margin: 0 0 132px;
       padding-left: 2px;
       font-size: 0.34rem;
       line-height: 1;
       letter-spacing: 0.50em;
+      font-weight: 500;
       text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.28);
+      color: rgba(255, 255, 255, 0.30);
       animation-delay: 420ms;
     }
 
     .hero h1 {
-      margin: 0 0 40px;
-      max-width: 11.5ch;
-      font-size: clamp(3.4rem, 5.5vw, 5.3rem);
-      line-height: 0.96;
-      letter-spacing: -0.055em;
+      margin: 0 0 38px;
+      max-width: 10.6ch;
+      font-size: clamp(3.35rem, 5.6vw, 5.4rem);
+      line-height: 0.95;
+      letter-spacing: -0.056em;
+      font-weight: 700;
       color: #FFFFFF;
       text-wrap: balance;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
       animation-delay: 560ms;
     }
 
     .hero p {
-      max-width: 660px;
+      max-width: 680px;
       margin: 0;
-      font-size: clamp(1.08rem, 1.45vw, 1.28rem);
+      font-size: clamp(1.08rem, 1.44vw, 1.26rem);
       line-height: 1.62;
       letter-spacing: -0.012em;
       color: var(--muted-light);
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.14);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
       animation-delay: 760ms;
     }
 
@@ -428,7 +378,7 @@
       align-items: center;
       gap: 16px;
       flex-wrap: wrap;
-      margin-top: 50px;
+      margin-top: 48px;
       animation-delay: 940ms;
     }
 
@@ -441,13 +391,13 @@
       padding: 0 24px;
       border-radius: 999px;
       font-size: 1rem;
+      font-weight: 500;
       letter-spacing: -0.01em;
       white-space: nowrap;
       background: rgba(255, 255, 255, 0.96);
       color: var(--accent);
       border: 1px solid rgba(255, 255, 255, 0.48);
       box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
-      text-shadow: 0 0 0.01px currentColor;
       transition:
         background var(--transition),
         color var(--transition),
@@ -462,7 +412,7 @@
       color: var(--accent);
       border-color: rgba(255, 255, 255, 0.62);
       transform: translateY(-1px);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
+      box-shadow: 0 5px 14px rgba(0, 0, 0, 0.12);
       outline: none;
     }
 
@@ -477,193 +427,48 @@
       }
     }
 
-    /* ---------- HERO RESEARCH FEATURE ---------- */
+    /* ---------- SHARED SECTION ---------- */
 
-    .hero-research-stage {
-      position: relative;
-      width: 100%;
-      min-height: 560px;
-      align-self: stretch;
+    .section-shell {
+      max-width: var(--max);
+      margin: 0 auto;
     }
 
-    .hero-slide {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      pointer-events: none;
-      transform: translateX(10px);
-      transition:
-        opacity 460ms cubic-bezier(0.22, 1, 0.36, 1),
-        transform 460ms cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    .hero-slide.is-active {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translateX(0);
-    }
-
-    .hero-slide-shell {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      grid-template-rows: minmax(0, 1fr) auto;
-      border: 1px solid rgba(255, 255, 255, 0.10);
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.02),
-        0 20px 40px rgba(0, 0, 0, 0.16);
-      overflow: hidden;
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    .hero-slide-visual {
-      position: relative;
-      min-height: 0;
-      overflow: hidden;
-    }
-
-    .hero-slide-visual img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      filter: brightness(0.76) saturate(92%) contrast(104%);
-    }
-
-    .hero-slide-visual::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(180deg, rgba(8, 13, 19, 0.06), rgba(8, 13, 19, 0.22)),
-        linear-gradient(0deg, rgba(8, 13, 19, 0.24), rgba(8, 13, 19, 0));
-    }
-
-    .hero-research-band {
-      position: relative;
-      z-index: 2;
-      background: rgba(13, 20, 28, 0.96);
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 22px 24px 20px;
-    }
-
-    .hero-research-topline {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 10px;
-    }
-
-    .hero-research-kicker {
-      margin: 0;
-      font-size: 0.66rem;
-      line-height: 1;
-      letter-spacing: 0.18em;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: rgba(245, 247, 250, 0.56);
-    }
-
-    .hero-research-count {
-      margin: 0;
+    .section-label {
+      margin-bottom: 16px;
       font-size: 0.78rem;
-      line-height: 1;
-      letter-spacing: 0.08em;
-      font-weight: 500;
-      color: rgba(245, 247, 250, 0.56);
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
     }
 
-    .hero-research-title {
-      margin: 0 0 10px;
-      font-size: 1.14rem;
-      line-height: 1.1;
-      letter-spacing: -0.022em;
-      color: #FFFFFF;
+    .section-label::before {
+      content: "";
+      display: block;
+      width: 48px;
+      height: 2px;
+      background: var(--accent);
+      margin-bottom: 14px;
+    }
+
+    .section-intro h2 {
+      margin: 0 0 18px;
+      max-width: 760px;
+      font-size: clamp(1.95rem, 2.45vw, 2.35rem);
+      line-height: 1.12;
+      letter-spacing: -0.04em;
+      font-weight: 700;
+      color: var(--text-dark);
       text-wrap: balance;
     }
 
-    .hero-research-text {
-      margin: 0 0 16px;
-      max-width: 40ch;
-      font-size: 0.94rem;
-      line-height: 1.56;
-      color: rgba(245, 247, 250, 0.74);
-    }
-
-    .hero-research-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 18px;
-      flex-wrap: wrap;
-    }
-
-    .hero-research-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      min-height: 0;
-      padding: 0;
-      border: 0;
-      background: transparent;
-      color: #FFFFFF;
-      font-size: 0.94rem;
-      font-weight: 500;
-      letter-spacing: -0.01em;
-      transition: color var(--transition), transform var(--transition);
-    }
-
-    .hero-research-btn:hover,
-    .hero-research-btn:focus-visible {
-      color: rgba(255, 255, 255, 0.82);
-      transform: translateX(2px);
-      outline: none;
-    }
-
-    .hero-research-controls {
-      display: inline-flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .hero-carousel-arrow {
-      width: 28px;
-      height: 28px;
-      border: 0;
-      background: transparent;
-      color: rgba(245, 247, 250, 0.72);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      padding: 0;
-      transition: color var(--transition), transform var(--transition);
-    }
-
-    .hero-carousel-arrow:hover,
-    .hero-carousel-arrow:focus-visible {
-      color: #FFFFFF;
-      transform: translateY(-1px);
-      outline: none;
-    }
-
-    .hero-carousel-dots {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-    }
-
-    .hero-carousel-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.26);
-      transition: background var(--transition), transform var(--transition);
-    }
-
-    .hero-carousel-dot.is-active {
-      background: #FFFFFF;
-      transform: scale(1.08);
+    .section-intro p {
+      margin: 0;
+      max-width: 60ch;
+      font-size: 1.04rem;
+      line-height: 1.68;
+      color: var(--muted-dark);
     }
 
     /* ---------- COST ---------- */
@@ -705,6 +510,7 @@
     .cost-label {
       margin: 0 0 18px;
       font-size: 0.72rem;
+      font-weight: 700;
       line-height: 1;
       letter-spacing: 0.24em;
       text-transform: uppercase;
@@ -717,6 +523,7 @@
       font-size: clamp(2.05rem, 2.9vw, 2.7rem);
       line-height: 1.12;
       letter-spacing: -0.045em;
+      font-weight: 700;
       color: var(--text-dark);
       text-wrap: balance;
     }
@@ -733,20 +540,15 @@
       border: 1px solid rgba(21, 32, 43, 0.07);
       padding: 42px 34px 38px;
       min-height: 310px;
-      box-shadow:
-        0 1px 0 rgba(0, 0, 0, 0.012),
-        0 6px 18px rgba(0, 0, 0, 0);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
       transition:
-        transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
-        box-shadow 520ms cubic-bezier(0.22, 1, 0.36, 1),
-        border-color 460ms ease,
-        background 460ms ease;
-      will-change: transform, box-shadow;
+        transform var(--transition-slow),
+        box-shadow var(--transition-slow),
+        border-color var(--transition);
     }
 
     .cost-card:hover {
       transform: translateY(-2px);
-      background: #FFFFFF;
       border-color: rgba(63, 110, 161, 0.14);
       box-shadow:
         0 1px 0 rgba(0, 0, 0, 0.014),
@@ -759,6 +561,7 @@
       font-size: 1.02rem;
       line-height: 1.12;
       letter-spacing: -0.015em;
+      font-weight: 700;
       color: var(--text-dark);
     }
 
@@ -780,6 +583,7 @@
       font-size: clamp(3.25rem, 5vw, 4.6rem);
       line-height: 0.88;
       letter-spacing: -0.065em;
+      font-weight: 700;
       color: var(--accent);
     }
 
@@ -803,10 +607,9 @@
     .approach {
       position: relative;
       background: var(--bg-white);
-      padding: 110px 34px 100px;
+      padding: 110px 34px 102px;
       color: var(--text-dark);
       overflow: hidden;
-      scroll-margin-top: 72px;
     }
 
     .approach-inner {
@@ -817,41 +620,12 @@
       padding-left: 8px;
     }
 
-    .section-label {
-      margin-bottom: 16px;
-      font-size: 0.78rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
-
-    .section-label::before {
-      content: "";
-      display: block;
-      width: 48px;
-      height: 2px;
-      background: var(--accent);
-      margin-bottom: 14px;
-    }
-
-    .approach h2,
-    .thinking h2,
-    .connect h2 {
-      margin: 0 0 58px;
-      max-width: 760px;
-      font-size: clamp(1.9rem, 2.45vw, 2.3rem);
-      line-height: 1.14;
-      letter-spacing: -0.038em;
-      color: var(--text-dark);
-      text-wrap: balance;
-    }
-
     .approach-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 260px));
       gap: 40px;
       justify-content: start;
-      margin-top: 10px;
+      margin-top: 52px;
     }
 
     .approach-card {
@@ -875,16 +649,15 @@
       height: 3px;
       width: 0%;
       background: var(--accent);
-      transition: width 460ms cubic-bezier(0.22, 1, 0.36, 1);
-      transition-delay: 40ms;
+      transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .approach-card:hover {
-      transform: translateY(-5px);
+      transform: translateY(-4px);
       border-color: rgba(0, 0, 0, 0.06);
       box-shadow:
         0 8px 18px rgba(0, 0, 0, 0.05),
-        0 22px 40px rgba(0, 0, 0, 0.06);
+        0 20px 34px rgba(0, 0, 0, 0.05);
     }
 
     .approach-card:hover::before {
@@ -892,30 +665,195 @@
     }
 
     .card-title {
+      margin-bottom: 18px;
       font-size: 1.46rem;
       line-height: 1.08;
+      font-weight: 700;
       letter-spacing: -0.024em;
       color: var(--text-dark);
-      margin-bottom: 18px;
     }
 
     .card-desc {
       font-size: 1.03rem;
-      line-height: 1.80;
+      line-height: 1.78;
       color: var(--muted-dark);
+    }
+
+    /* ---------- LATEST ---------- */
+
+    .latest {
+      position: relative;
+      background: var(--bg-offwhite);
+      padding: 100px 34px 110px;
+      color: var(--text-dark);
+      overflow: hidden;
+      border-top: 1px solid rgba(21, 32, 43, 0.04);
+      border-bottom: 1px solid rgba(21, 32, 43, 0.04);
+    }
+
+    .latest-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .latest-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 30px;
+      margin-bottom: 42px;
+    }
+
+    .latest-intro {
+      max-width: 740px;
+    }
+
+    .latest-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      flex: 0 0 auto;
+    }
+
+    .rail-arrow {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid rgba(21, 32, 43, 0.10);
+      background: #FFFFFF;
+      color: var(--text-dark);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition:
+        transform var(--transition),
+        border-color var(--transition),
+        box-shadow var(--transition);
+    }
+
+    .rail-arrow:hover,
+    .rail-arrow:focus-visible {
+      transform: translateY(-1px);
+      border-color: rgba(63, 110, 161, 0.16);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+      outline: none;
+    }
+
+    .latest-rail-wrap {
+      position: relative;
+    }
+
+    .latest-rail {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: var(--rail-card-width);
+      gap: 22px;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x proximity;
+      scroll-behavior: smooth;
+      padding-bottom: 8px;
+      scrollbar-width: none;
+    }
+
+    .latest-rail::-webkit-scrollbar {
+      display: none;
+    }
+
+    .latest-card {
+      scroll-snap-align: start;
+      background: #FFFFFF;
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
+      overflow: hidden;
+      transition:
+        transform var(--transition-slow),
+        box-shadow var(--transition-slow),
+        border-color var(--transition);
+    }
+
+    .latest-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(63, 110, 161, 0.14);
+      box-shadow:
+        0 1px 0 rgba(0, 0, 0, 0.012),
+        0 10px 26px rgba(0, 0, 0, 0.05);
+    }
+
+    .latest-card-image {
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      background: #DDE4EB;
+    }
+
+    .latest-card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .latest-card:hover .latest-card-image img {
+      transform: scale(1.02);
+    }
+
+    .latest-card-body {
+      padding: 22px 22px 24px;
+    }
+
+    .latest-card-kicker {
+      margin: 0 0 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .latest-card-title {
+      margin: 0 0 12px;
+      font-size: 1.26rem;
+      line-height: 1.12;
+      font-weight: 700;
+      letter-spacing: -0.024em;
+      color: var(--text-dark);
+      text-wrap: balance;
+    }
+
+    .latest-card-text {
+      margin: 0 0 16px;
+      font-size: 0.98rem;
+      line-height: 1.66;
+      color: var(--muted-dark);
+    }
+
+    .latest-card-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.94rem;
+      font-weight: 500;
+      color: var(--text-dark);
+      transition: color var(--transition), transform var(--transition);
+    }
+
+    .latest-card-link:hover,
+    .latest-card-link:focus-visible {
+      color: var(--accent);
+      transform: translateX(2px);
+      outline: none;
     }
 
     /* ---------- THINKING ---------- */
 
     .thinking {
       position: relative;
-      background:
-        linear-gradient(rgba(246, 247, 248, 0.97), rgba(246, 247, 248, 0.97)),
-        radial-gradient(circle at 15% 18%, rgba(63, 110, 161, 0.045), transparent 28%);
+      background: var(--bg-white);
       color: var(--text-dark);
-      padding: 88px 34px 120px;
+      padding: 94px 34px 120px;
       overflow: hidden;
-      scroll-margin-top: 72px;
     }
 
     .thinking::after {
@@ -924,7 +862,7 @@
       inset: 0;
       background: linear-gradient(135deg, rgba(63, 110, 161, 0.02) 1px, transparent 1px);
       background-size: 36px 36px;
-      opacity: 0.38;
+      opacity: 0.30;
       pointer-events: none;
     }
 
@@ -955,6 +893,7 @@
       font-size: clamp(2rem, 2.7vw, 2.55rem);
       line-height: 1.08;
       letter-spacing: -0.045em;
+      font-weight: 700;
     }
 
     .thinking-intro-text {
@@ -1005,12 +944,13 @@
     }
 
     .thinking-item:hover {
-      background: rgba(0, 0, 0, 0.018);
+      background: rgba(0, 0, 0, 0.014);
     }
 
     .thinking-title {
       font-size: 1.34rem;
       line-height: 1.16;
+      font-weight: 700;
       letter-spacing: -0.022em;
       color: var(--text-dark);
       margin-bottom: 12px;
@@ -1026,6 +966,7 @@
 
     .thinking-link {
       font-size: 0.95rem;
+      font-weight: 500;
       color: var(--accent);
       display: inline-flex;
       align-items: center;
@@ -1045,8 +986,7 @@
 
     .connect {
       position: relative;
-      background:
-        linear-gradient(180deg, #0F1720 0%, #111B25 100%);
+      background: linear-gradient(180deg, #0F1720 0%, #111B25 100%);
       color: var(--text-light);
       padding: 92px 34px 88px;
       overflow: hidden;
@@ -1110,6 +1050,7 @@
     .connect-kicker {
       margin: 0 0 14px;
       font-size: 0.72rem;
+      font-weight: 700;
       line-height: 1;
       letter-spacing: 0.20em;
       text-transform: uppercase;
@@ -1122,6 +1063,7 @@
       gap: 10px;
       font-size: clamp(1.06rem, 1.6vw, 1.22rem);
       line-height: 1.3;
+      font-weight: 500;
       letter-spacing: -0.015em;
       color: #FFFFFF;
       transition: color var(--transition), transform var(--transition);
@@ -1180,6 +1122,7 @@
       display: inline-flex;
       align-items: center;
       font-size: 1.1rem;
+      font-weight: 700;
       letter-spacing: -0.02em;
       color: #FFFFFF;
       margin-bottom: 14px;
@@ -1217,6 +1160,7 @@
     .footer-nav-title {
       margin: 0 0 12px;
       font-size: 0.72rem;
+      font-weight: 700;
       line-height: 1;
       letter-spacing: 0.18em;
       text-transform: uppercase;
@@ -1255,13 +1199,14 @@
       color: rgba(245, 247, 250, 0.58);
     }
 
+    /* ---------- RESPONSIVE ---------- */
+
     @media (prefers-reduced-motion: reduce) {
       .hero-image,
       .hero-eyebrow,
       .hero h1,
       .hero p,
-      .hero-actions,
-      .hero-slide {
+      .hero-actions {
         animation: none;
         opacity: 1;
         transform: none;
@@ -1275,29 +1220,19 @@
       .cost-card,
       .approach-card,
       .approach-card::before,
+      .latest-card,
+      .latest-card-image img,
+      .rail-arrow,
       .thinking-item,
       .thinking-arrow,
       .footer-nav a,
       .connect-link,
-      .hero-carousel-arrow,
-      .hero-carousel-dot,
-      .hero-research-btn,
-      .hero-research-link {
+      .latest-card-link {
         transition: none;
       }
     }
 
     @media (max-width: 1100px) {
-      .hero-inner {
-        grid-template-columns: 1fr;
-        gap: 30px;
-      }
-
-      .hero-research-stage {
-        min-height: 500px;
-        max-width: 620px;
-      }
-
       .approach-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -1350,21 +1285,12 @@
       }
 
       .hero-inner {
-        min-height: 100vh;
         padding: 120px 24px 84px;
-        gap: 24px;
-      }
-
-      .hero h1 {
-        max-width: 12ch;
-      }
-
-      .hero p {
-        max-width: 620px;
       }
 
       .bureaucracy-cost,
       .approach,
+      .latest,
       .thinking,
       .connect,
       .footer {
@@ -1375,6 +1301,11 @@
       .approach-inner,
       .thinking-inner {
         padding-left: 0;
+      }
+
+      .latest-head {
+        flex-direction: column;
+        align-items: flex-start;
       }
     }
 
@@ -1442,27 +1373,6 @@
         font-size: 0.98rem;
       }
 
-      .hero-research-stage {
-        min-height: 390px;
-      }
-
-      .hero-research-band {
-        padding: 18px 18px 16px;
-      }
-
-      .hero-research-title {
-        font-size: 1.02rem;
-      }
-
-      .hero-research-text {
-        font-size: 0.9rem;
-      }
-
-      .hero-research-footer {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-
       .bureaucracy-cost {
         padding: 82px 20px 74px;
       }
@@ -1505,6 +1415,18 @@
       .card-desc {
         font-size: 0.96rem;
         line-height: 1.68;
+      }
+
+      .latest {
+        padding: 74px 20px 82px;
+      }
+
+      .latest-card-title {
+        font-size: 1.14rem;
+      }
+
+      .latest-card-text {
+        font-size: 0.95rem;
       }
 
       .thinking {
@@ -1582,6 +1504,7 @@
 
       <nav class="nav" aria-label="Primary navigation">
         <a href="#approach">Approach</a>
+        <a href="#latest">Latest</a>
         <a href="#thinking">Thinking</a>
         <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
@@ -1607,7 +1530,7 @@
       <div class="hero-copy">
         <p class="hero-eyebrow">Institutional Performance</p>
 
-        <h1 id="hero-title">Turning complexity into capability.</h1>
+        <h1 id="hero-title">Transforming complexity into opportunity.</h1>
 
         <p>
           Advancing decision velocity, institutional design, and performance in complex organizations.
@@ -1615,97 +1538,9 @@
 
         <div class="hero-actions">
           <a class="btn" href="#approach">Our Approach</a>
-          <a class="btn" href="#thinking">Our Thinking</a>
+          <a class="btn" href="#latest">Latest from Monderman</a>
           <a class="btn" href="#connect">Connect</a>
         </div>
-      </div>
-
-      <div class="hero-research-stage" aria-label="Featured research">
-        <article class="hero-slide is-active" data-slide="0">
-          <div class="hero-slide-shell">
-            <div class="hero-slide-visual">
-              <img src="Washington DC.jpg" alt="Washington, D.C. skyline for featured Monderman research" />
-            </div>
-
-            <div class="hero-research-band">
-              <div class="hero-research-topline">
-                <p class="hero-research-kicker">Featured research</p>
-                <p class="hero-research-count">01 / 02</p>
-              </div>
-
-              <h2 class="hero-research-title">Administrative Overhead in the U.S. Department of War</h2>
-
-              <p class="hero-research-text">
-                Read Monderman’s latest research on administrative burden, overhead, and institutional drag
-                in the U.S. Department of War.
-              </p>
-
-              <div class="hero-research-footer">
-                <a class="hero-research-btn" href="Monderman Administrative Overhead Final.pdf" target="_blank" rel="noopener noreferrer">
-                  Download research &#8594;
-                </a>
-
-                <div class="hero-research-controls" aria-label="Research carousel controls">
-                  <button class="hero-carousel-arrow" id="heroPrev" type="button" aria-label="Previous research">
-                    &#8592;
-                  </button>
-
-                  <div class="hero-carousel-dots" aria-hidden="true">
-                    <span class="hero-carousel-dot is-active"></span>
-                    <span class="hero-carousel-dot"></span>
-                  </div>
-
-                  <button class="hero-carousel-arrow" id="heroNext" type="button" aria-label="Next research">
-                    &#8594;
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </article>
-
-        <article class="hero-slide" data-slide="1">
-          <div class="hero-slide-shell">
-            <div class="hero-slide-visual">
-              <img src="Healthcare costs.jpg" alt="Healthcare costs research image for featured Monderman research" />
-            </div>
-
-            <div class="hero-research-band">
-              <div class="hero-research-topline">
-                <p class="hero-research-kicker">Featured research</p>
-                <p class="hero-research-count">02 / 02</p>
-              </div>
-
-              <h2 class="hero-research-title">Administrative Overhead in U.S. Healthcare Systems</h2>
-
-              <p class="hero-research-text">
-                Read Monderman’s latest research on administrative burden, cost pressure, and institutional drag
-                in U.S. healthcare systems.
-              </p>
-
-              <div class="hero-research-footer">
-                <a class="hero-research-btn" href="Monderman Healthcare Administrative Overhead.pdf" target="_blank" rel="noopener noreferrer">
-                  Download research &#8594;
-                </a>
-
-                <div class="hero-research-controls" aria-hidden="true">
-                  <button class="hero-carousel-arrow" type="button" tabindex="-1">
-                    &#8592;
-                  </button>
-
-                  <div class="hero-carousel-dots">
-                    <span class="hero-carousel-dot"></span>
-                    <span class="hero-carousel-dot is-active"></span>
-                  </div>
-
-                  <button class="hero-carousel-arrow" type="button" tabindex="-1">
-                    &#8594;
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </article>
       </div>
     </div>
   </section>
@@ -1754,41 +1589,134 @@
 
   <section class="approach" id="approach" aria-labelledby="approach-title">
     <div class="approach-inner">
-      <div class="section-label">Our Approach</div>
-
-      <h2 id="approach-title">Designing Systems for Clarity and Execution</h2>
+      <div class="section-intro">
+        <div class="section-label">Our Approach</div>
+        <h2 id="approach-title">Designing systems for clarity and execution.</h2>
+        <p>
+          Monderman works at the level where structure, governance, and institutional performance meet.
+          We help organizations reduce friction, move faster, and sustain alignment under complexity.
+        </p>
+      </div>
 
       <div class="approach-grid">
         <div class="approach-card">
           <div class="card-title">Structural Clarity</div>
           <div class="card-desc">
-            We identify where authority, responsibility, and execution have drifted apart—then
-            realign the operating structure so decisions translate into action.
+            We identify where authority, responsibility, and execution have drifted apart, then realign the operating structure so decisions translate into action.
           </div>
         </div>
 
         <div class="approach-card">
           <div class="card-title">Decision Velocity</div>
           <div class="card-desc">
-            Most organizations do not lack strategy. They lack speed. We remove the friction
-            that slows decision cycles and stalls execution.
+            Most organizations do not lack strategy. They lack speed. We remove the friction that slows decision cycles and stalls execution.
           </div>
         </div>
 
         <div class="approach-card">
           <div class="card-title">Operational Systems</div>
           <div class="card-desc">
-            Policies, controls, and processes shape how work actually moves. We redesign
-            administrative systems so they support performance rather than constrain it.
+            Policies, controls, and processes shape how work actually moves. We redesign administrative systems so they support performance rather than constrain it.
           </div>
         </div>
 
         <div class="approach-card">
           <div class="card-title">Institutional Performance</div>
           <div class="card-desc">
-            Strong institutions sustain clarity over time. We design governance mechanisms that
-            preserve alignment as organizations grow and evolve.
+            Strong institutions sustain clarity over time. We design governance mechanisms that preserve alignment as organizations grow and evolve.
           </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="latest" id="latest" aria-labelledby="latest-title">
+    <div class="latest-inner">
+      <div class="latest-head">
+        <div class="latest-intro section-intro">
+          <div class="section-label">Latest from Monderman</div>
+          <h2 id="latest-title">Research, briefs, and perspectives.</h2>
+          <p>
+            Current publications and featured work on administrative burden, institutional design,
+            and performance under complexity.
+          </p>
+        </div>
+
+        <div class="latest-controls" aria-label="Latest content controls">
+          <button class="rail-arrow" id="latestPrev" type="button" aria-label="Scroll latest content left">
+            &#8592;
+          </button>
+          <button class="rail-arrow" id="latestNext" type="button" aria-label="Scroll latest content right">
+            &#8594;
+          </button>
+        </div>
+      </div>
+
+      <div class="latest-rail-wrap">
+        <div class="latest-rail" id="latestRail">
+          <article class="latest-card">
+            <div class="latest-card-image">
+              <img src="Washington DC.jpg" alt="Washington, D.C. skyline for Monderman defense research" />
+            </div>
+            <div class="latest-card-body">
+              <p class="latest-card-kicker">Defense · Research Brief</p>
+              <h3 class="latest-card-title">Administrative Overhead in the U.S. Department of War</h3>
+              <p class="latest-card-text">
+                A research brief on administrative burden, overhead, and institutional drag in one of the world’s most complex public institutions.
+              </p>
+              <a class="latest-card-link" href="Monderman Administrative Overhead Final.pdf" target="_blank" rel="noopener noreferrer">
+                Download research &#8594;
+              </a>
+            </div>
+          </article>
+
+          <article class="latest-card">
+            <div class="latest-card-image">
+              <img src="Healthcare costs.jpg" alt="Healthcare costs graphic for Monderman healthcare research" />
+            </div>
+            <div class="latest-card-body">
+              <p class="latest-card-kicker">Healthcare · Research Brief</p>
+              <h3 class="latest-card-title">Administrative Overhead in U.S. Healthcare Systems</h3>
+              <p class="latest-card-text">
+                A Monderman brief on administrative burden, cost pressure, and the structural drag that complicates performance in healthcare systems.
+              </p>
+              <a class="latest-card-link" href="Monderman Healthcare Administrative Overhead.pdf" target="_blank" rel="noopener noreferrer">
+                Download research &#8594;
+              </a>
+            </div>
+          </article>
+
+          <article class="latest-card">
+            <div class="latest-card-image">
+              <img src="iStock-511677736.jpg" alt="Abstract institutional image for Monderman insight" />
+            </div>
+            <div class="latest-card-body">
+              <p class="latest-card-kicker">Insight</p>
+              <h3 class="latest-card-title">Governing Complexity</h3>
+              <p class="latest-card-text">
+                Why institutions rarely fail because complexity appears, and more often fail because it accumulates faster than their structures can absorb.
+              </p>
+              <a class="latest-card-link" href="governing-complexity.html">
+                Read insight &#8594;
+              </a>
+            </div>
+          </article>
+
+          <article class="latest-card">
+            <div class="latest-card-image">
+              <img src="iStock-2223938194.jpg?v=10" alt="Abstract organizational image for Monderman decision velocity insight" />
+            </div>
+            <div class="latest-card-body">
+              <p class="latest-card-kicker">Insight</p>
+              <h3 class="latest-card-title">Designing for Decision Velocity</h3>
+              <p class="latest-card-text">
+                Institutions move well when governance, pathways, and role clarity support sound judgment without generating unnecessary drag.
+              </p>
+              <a class="latest-card-link" href="designing-for-decision-velocity.html">
+                Read insight &#8594;
+              </a>
+            </div>
+          </article>
         </div>
       </div>
     </div>
@@ -1800,11 +1728,10 @@
 
       <div class="thinking-intro">
         <div class="thinking-copy">
-          <h2 id="thinking-title">Ideas on Institutional Performance</h2>
+          <h2 id="thinking-title">Ideas on institutional performance.</h2>
           <p class="thinking-intro-text">
-            We address the forces that shape clarity, execution, and institutional drift.
-            Our thinking explores how complexity compounds, how systems lose alignment, and
-            how organizations can be designed to sustain performance over time.
+            Monderman’s thinking explores how complexity compounds, how systems lose alignment,
+            and how organizations can be designed to sustain performance over time.
           </p>
         </div>
 
@@ -1819,9 +1746,7 @@
         <div class="thinking-item">
           <div class="thinking-title">Governing Complexity</div>
           <div class="thinking-desc">
-            Institutions rarely fail because complexity appears. They fail because complexity
-            accumulates faster than the organization’s structures can interpret, prioritize,
-            and act on it. Effective governance begins by making that complexity legible.
+            Institutions rarely fail because complexity appears. They fail because complexity accumulates faster than the organization’s structures can interpret, prioritize, and act on it.
           </div>
           <a class="thinking-link" href="governing-complexity.html">
             Read insight <span class="thinking-arrow">→</span>
@@ -1831,9 +1756,7 @@
         <div class="thinking-item">
           <div class="thinking-title">Bureaucracy as an Operating System</div>
           <div class="thinking-desc">
-            Bureaucracy is not just a set of rules. It is the operating system through which
-            authority, information, approvals, and accountability move. When that system drifts,
-            institutional performance drifts with it.
+            Bureaucracy is not just a set of rules. It is the operating system through which authority, information, approvals, and accountability move.
           </div>
           <a class="thinking-link" href="bureaucracy-operating-system.html">
             Read insight <span class="thinking-arrow">→</span>
@@ -1843,9 +1766,7 @@
         <div class="thinking-item">
           <div class="thinking-title">The Drift Problem</div>
           <div class="thinking-desc">
-            Over time, structures that once supported execution can harden into friction.
-            Layers accumulate, responsibilities blur, and decisions take longer to travel.
-            Drift is rarely dramatic at first, but it compounds quietly until performance suffers.
+            Structures that once supported execution can harden into friction. Drift is rarely dramatic at first, but it compounds quietly until performance suffers.
           </div>
           <a class="thinking-link" href="the-drift-problem.html">
             Read insight <span class="thinking-arrow">→</span>
@@ -1855,9 +1776,7 @@
         <div class="thinking-item">
           <div class="thinking-title">Designing for Decision Velocity</div>
           <div class="thinking-desc">
-            Faster execution does not come from urgency alone. It comes from design.
-            Institutions move well when roles are clear, pathways are aligned, and governance
-            mechanisms support sound judgment without creating drag.
+            Faster execution does not come from urgency alone. It comes from design: clear roles, aligned pathways, and governance that supports judgment without creating drag.
           </div>
           <a class="thinking-link" href="designing-for-decision-velocity.html">
             Read insight <span class="thinking-arrow">→</span>
@@ -1908,6 +1827,7 @@
           <div class="footer-nav-col">
             <p class="footer-nav-title">Explore</p>
             <a href="#approach">Approach</a>
+            <a href="#latest">Latest</a>
             <a href="#thinking">Thinking</a>
             <a href="research.html">Research</a>
             <a href="why-monderman.html">Why Monderman</a>
@@ -1964,12 +1884,8 @@
     }
 
     function formatCounter(type, value) {
-      if (type === "percent") {
-        return `${Math.round(value)}%`;
-      }
-      if (type === "currency-trillion") {
-        return `$${Math.round(value)}T`;
-      }
+      if (type === "percent") return `${Math.round(value)}%`;
+      if (type === "currency-trillion") return `$${Math.round(value)}T`;
       if (type === "range-percent") {
         const maxVal = Math.round(value);
         const minVal = Math.round((value * 2) / 3);
@@ -2014,51 +1930,31 @@
       observer.observe(costSection);
     }
 
-    const heroSlides = document.querySelectorAll(".hero-slide");
-    const heroDots = document.querySelectorAll(".hero-carousel-dot");
-    const heroPrev = document.getElementById("heroPrev");
-    const heroNext = document.getElementById("heroNext");
-    let currentHeroSlide = 0;
-    let heroAutoRotate = null;
+    const latestRail = document.getElementById("latestRail");
+    const latestPrev = document.getElementById("latestPrev");
+    const latestNext = document.getElementById("latestNext");
 
-    function showHeroSlide(index) {
-      if (!heroSlides.length) return;
+    function getRailStep() {
+      if (!latestRail) return 0;
+      const firstCard = latestRail.querySelector(".latest-card");
+      if (!firstCard) return latestRail.clientWidth * 0.9;
 
-      currentHeroSlide = (index + heroSlides.length) % heroSlides.length;
-
-      heroSlides.forEach((slide, i) => {
-        slide.classList.toggle("is-active", i === currentHeroSlide);
-      });
-
-      heroDots.forEach((dot, i) => {
-        dot.classList.toggle("is-active", i === currentHeroSlide);
-      });
+      const cardWidth = firstCard.getBoundingClientRect().width;
+      const gap = 22;
+      return cardWidth + gap;
     }
 
-    function startHeroAutoRotate() {
-      if (heroSlides.length <= 1) return;
-      clearInterval(heroAutoRotate);
-      heroAutoRotate = setInterval(() => {
-        showHeroSlide(currentHeroSlide + 1);
-      }, 8000);
-    }
-
-    if (heroPrev) {
-      heroPrev.addEventListener("click", () => {
-        showHeroSlide(currentHeroSlide - 1);
-        startHeroAutoRotate();
+    if (latestPrev && latestRail) {
+      latestPrev.addEventListener("click", () => {
+        latestRail.scrollBy({ left: -getRailStep(), behavior: "smooth" });
       });
     }
 
-    if (heroNext) {
-      heroNext.addEventListener("click", () => {
-        showHeroSlide(currentHeroSlide + 1);
-        startHeroAutoRotate();
+    if (latestNext && latestRail) {
+      latestNext.addEventListener("click", () => {
+        latestRail.scrollBy({ left: getRailStep(), behavior: "smooth" });
       });
     }
-
-    showHeroSlide(0);
-    startHeroAutoRotate();
   </script>
 </body>
 </html>
