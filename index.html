@@ -67,7 +67,7 @@
       --max: 1320px;
       --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
       --transition-slow: 360ms cubic-bezier(0.22, 1, 0.36, 1);
-      --rail-gap: 22px;
+      --rail-gap: 18px;
     }
 
     * {
@@ -695,7 +695,7 @@
       align-items: end;
       justify-content: space-between;
       gap: 30px;
-      margin-bottom: 42px;
+      margin-bottom: 38px;
     }
 
     .latest-intro {
@@ -723,7 +723,8 @@
       transition:
         transform var(--transition),
         border-color var(--transition),
-        box-shadow var(--transition);
+        box-shadow var(--transition),
+        opacity var(--transition);
     }
 
     .rail-arrow:hover,
@@ -742,11 +743,11 @@
       display: flex;
       gap: var(--rail-gap);
       will-change: transform;
-      transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+      transition: transform 560ms cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .latest-card {
-      flex: 0 0 calc((100% - var(--rail-gap)) / 2);
+      flex: 0 0 calc((100% - (var(--rail-gap) * 2)) / 2.35);
       background: #FFFFFF;
       border: 1px solid rgba(21, 32, 43, 0.08);
       box-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
@@ -766,7 +767,7 @@
     }
 
     .latest-card-image {
-      aspect-ratio: 16 / 9;
+      aspect-ratio: 16 / 8.4;
       overflow: hidden;
       background: #DDE4EB;
     }
@@ -783,12 +784,12 @@
     }
 
     .latest-card-body {
-      padding: 22px 22px 24px;
+      padding: 18px 18px 20px;
     }
 
     .latest-card-kicker {
-      margin: 0 0 10px;
-      font-size: 0.72rem;
+      margin: 0 0 9px;
+      font-size: 0.68rem;
       font-weight: 700;
       line-height: 1;
       letter-spacing: 0.18em;
@@ -797,19 +798,19 @@
     }
 
     .latest-card-title {
-      margin: 0 0 12px;
-      font-size: 1.26rem;
+      margin: 0 0 10px;
+      font-size: 1.14rem;
       line-height: 1.12;
       font-weight: 700;
-      letter-spacing: -0.024em;
+      letter-spacing: -0.022em;
       color: var(--text-dark);
       text-wrap: balance;
     }
 
     .latest-card-text {
-      margin: 0 0 16px;
-      font-size: 0.98rem;
-      line-height: 1.66;
+      margin: 0 0 14px;
+      font-size: 0.94rem;
+      line-height: 1.58;
       color: var(--muted-dark);
     }
 
@@ -817,7 +818,7 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      font-size: 0.94rem;
+      font-size: 0.92rem;
       font-weight: 500;
       color: var(--text-dark);
       transition: color var(--transition), transform var(--transition);
@@ -1382,11 +1383,11 @@
       }
 
       .latest-card-title {
-        font-size: 1.14rem;
+        font-size: 1.10rem;
       }
 
       .latest-card-text {
-        font-size: 0.95rem;
+        font-size: 0.93rem;
       }
 
       .thinking {
@@ -1616,9 +1617,9 @@
             </div>
             <div class="latest-card-body">
               <p class="latest-card-kicker">Defense · Research Brief</p>
-              <h3 class="latest-card-title">Administrative Overhead in the U.S. Department of War</h3>
+              <h3 class="latest-card-title">Accumulated Drag in the Department of War</h3>
               <p class="latest-card-text">
-                A research brief on accumulated drag, administrative burden, and institutional friction in one of the world’s most complex public institutions.
+                A Monderman research brief on accumulated drag, administrative burden, and institutional friction in one of the world’s most complex public institutions.
               </p>
               <a class="latest-card-link" href="Monderman_Accumulated_Drag_DoW.pdf" target="_blank" rel="noopener noreferrer">
                 Download research &#8594;
@@ -1632,9 +1633,9 @@
             </div>
             <div class="latest-card-body">
               <p class="latest-card-kicker">Healthcare · Research Brief</p>
-              <h3 class="latest-card-title">Administrative Overhead in U.S. Healthcare Systems</h3>
+              <h3 class="latest-card-title">Quarter-Trillion Friction in U.S. Healthcare</h3>
               <p class="latest-card-text">
-                A Monderman brief on quarter-trillion friction, administrative burden, and the structural drag that complicates performance in healthcare systems.
+                A Monderman brief on quarter-trillion friction, administrative burden, and the structural drag complicating performance in healthcare systems.
               </p>
               <a class="latest-card-link" href="Monderman_Quarter_Trillion_Friction_Healthcare.pdf" target="_blank" rel="noopener noreferrer">
                 Download research &#8594;
@@ -1890,50 +1891,106 @@
     const latestCards = latestTrack ? Array.from(latestTrack.querySelectorAll(".latest-card")) : [];
 
     let latestIndex = 0;
-    let cardsPerView = window.innerWidth <= 760 ? 1 : 2;
+    let latestCardsPerView = window.innerWidth <= 760 ? 1 : 2;
+    let autoAdvanceTimer = null;
+    let resumeTimer = null;
+
+    function getLatestMaxIndex() {
+      return Math.max(0, latestCards.length - latestCardsPerView);
+    }
 
     function clampLatestIndex() {
-      const maxIndex = Math.max(0, latestCards.length - cardsPerView);
-      latestIndex = Math.max(0, Math.min(latestIndex, maxIndex));
+      latestIndex = Math.max(0, Math.min(latestIndex, getLatestMaxIndex()));
     }
 
     function updateLatestCarousel() {
-      if (!latestViewport || !latestTrack || !latestCards.length) return;
+      if (!latestTrack || !latestCards.length) return;
 
-      cardsPerView = window.innerWidth <= 760 ? 1 : 2;
+      latestCardsPerView = window.innerWidth <= 760 ? 1 : 2;
       clampLatestIndex();
 
-      const viewportWidth = latestViewport.clientWidth;
-      const gap = 22;
-      const step = cardsPerView === 1
-        ? viewportWidth
-        : (viewportWidth + gap) / 2;
+      const targetCard = latestCards[latestIndex];
+      const targetX = targetCard ? targetCard.offsetLeft : 0;
+      latestTrack.style.transform = `translateX(-${targetX}px)`;
 
-      latestTrack.style.transform = `translateX(-${latestIndex * step}px)`;
+      if (latestPrev) {
+        latestPrev.disabled = latestIndex === 0;
+        latestPrev.style.opacity = latestIndex === 0 ? "0.45" : "1";
+      }
 
-      if (latestPrev) latestPrev.disabled = latestIndex === 0;
-      if (latestNext) latestNext.disabled = latestIndex >= latestCards.length - cardsPerView;
+      if (latestNext) {
+        const atEnd = latestIndex >= getLatestMaxIndex();
+        latestNext.disabled = atEnd;
+        latestNext.style.opacity = atEnd ? "0.45" : "1";
+      }
+    }
 
-      if (latestPrev) latestPrev.style.opacity = latestIndex === 0 ? "0.45" : "1";
-      if (latestNext) latestNext.style.opacity = latestIndex >= latestCards.length - cardsPerView ? "0.45" : "1";
+    function goToLatest(index) {
+      latestIndex = index;
+      clampLatestIndex();
+      updateLatestCarousel();
+    }
+
+    function goToNextLatest() {
+      if (latestIndex >= getLatestMaxIndex()) {
+        latestIndex = 0;
+      } else {
+        latestIndex += 1;
+      }
+      updateLatestCarousel();
+    }
+
+    function stopAutoAdvance() {
+      if (autoAdvanceTimer) {
+        clearInterval(autoAdvanceTimer);
+        autoAdvanceTimer = null;
+      }
+      if (resumeTimer) {
+        clearTimeout(resumeTimer);
+        resumeTimer = null;
+      }
+    }
+
+    function startAutoAdvance() {
+      stopAutoAdvance();
+      if (latestCards.length <= latestCardsPerView) return;
+      autoAdvanceTimer = setInterval(() => {
+        goToNextLatest();
+      }, 7000);
+    }
+
+    function pauseAndResume(delay = 12000) {
+      stopAutoAdvance();
+      resumeTimer = setTimeout(() => {
+        startAutoAdvance();
+      }, delay);
     }
 
     if (latestPrev) {
       latestPrev.addEventListener("click", () => {
-        latestIndex -= 1;
-        updateLatestCarousel();
+        goToLatest(latestIndex - 1);
+        pauseAndResume();
       });
     }
 
     if (latestNext) {
       latestNext.addEventListener("click", () => {
-        latestIndex += 1;
-        updateLatestCarousel();
+        goToLatest(latestIndex + 1);
+        pauseAndResume();
       });
     }
 
+    if (latestViewport) {
+      latestViewport.addEventListener("mouseenter", stopAutoAdvance);
+      latestViewport.addEventListener("mouseleave", () => pauseAndResume(3500));
+      latestViewport.addEventListener("touchstart", () => pauseAndResume());
+    }
+
     window.addEventListener("resize", updateLatestCarousel);
-    window.addEventListener("load", updateLatestCarousel);
+    window.addEventListener("load", () => {
+      updateLatestCarousel();
+      startAutoAdvance();
+    });
   </script>
 </body>
 </html>
