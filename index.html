@@ -67,7 +67,7 @@
       --max: 1320px;
       --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
       --transition-slow: 360ms cubic-bezier(0.22, 1, 0.36, 1);
-      --rail-card-width: min(520px, 82vw);
+      --rail-gap: 22px;
     }
 
     * {
@@ -428,11 +428,6 @@
 
     /* ---------- SHARED SECTION ---------- */
 
-    .section-shell {
-      max-width: var(--max);
-      margin: 0 auto;
-    }
-
     .section-label {
       margin-bottom: 16px;
       font-size: 0.78rem;
@@ -739,31 +734,19 @@
       outline: none;
     }
 
-    .latest-rail-wrap {
-      position: relative;
+    .latest-viewport {
+      overflow: hidden;
     }
 
-    .latest-rail {
-      display: grid;
-      grid-auto-flow: column;
-      grid-auto-columns: var(--rail-card-width);
-      gap: 22px;
-      overflow-x: auto;
-      overscroll-behavior-x: contain;
-      scroll-snap-type: x mandatory;
-      scroll-behavior: smooth;
-      scroll-padding-left: 0;
-      padding-bottom: 8px;
-      scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .latest-rail::-webkit-scrollbar {
-      display: none;
+    .latest-track {
+      display: flex;
+      gap: var(--rail-gap);
+      will-change: transform;
+      transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .latest-card {
-      scroll-snap-align: start;
+      flex: 0 0 calc((100% - var(--rail-gap)) / 2);
       background: #FFFFFF;
       border: 1px solid rgba(21, 32, 43, 0.08);
       box-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
@@ -1206,6 +1189,7 @@
       .latest-card,
       .latest-card-image img,
       .rail-arrow,
+      .latest-track,
       .thinking-item,
       .thinking-arrow,
       .footer-nav a,
@@ -1391,6 +1375,10 @@
 
       .latest {
         padding: 74px 20px 82px;
+      }
+
+      .latest-card {
+        flex-basis: 100%;
       }
 
       .latest-card-title {
@@ -1611,17 +1599,17 @@
         </div>
 
         <div class="latest-controls" aria-label="Latest content controls">
-          <button class="rail-arrow" id="latestPrev" type="button" aria-label="Scroll latest content left">
+          <button class="rail-arrow" id="latestPrev" type="button" aria-label="Show previous latest items">
             &#8592;
           </button>
-          <button class="rail-arrow" id="latestNext" type="button" aria-label="Scroll latest content right">
+          <button class="rail-arrow" id="latestNext" type="button" aria-label="Show next latest items">
             &#8594;
           </button>
         </div>
       </div>
 
-      <div class="latest-rail-wrap">
-        <div class="latest-rail" id="latestRail">
+      <div class="latest-viewport" id="latestViewport">
+        <div class="latest-track" id="latestTrack">
           <article class="latest-card">
             <div class="latest-card-image">
               <img src="Washington DC.jpg" alt="Washington, D.C. skyline for Monderman defense research" />
@@ -1630,9 +1618,9 @@
               <p class="latest-card-kicker">Defense · Research Brief</p>
               <h3 class="latest-card-title">Administrative Overhead in the U.S. Department of War</h3>
               <p class="latest-card-text">
-                A research brief on administrative burden, overhead, and institutional drag in one of the world’s most complex public institutions.
+                A research brief on accumulated drag, administrative burden, and institutional friction in one of the world’s most complex public institutions.
               </p>
-              <a class="latest-card-link" href="Monderman Administrative Overhead Final.pdf" target="_blank" rel="noopener noreferrer">
+              <a class="latest-card-link" href="Monderman_Accumulated_Drag_DoW.pdf" target="_blank" rel="noopener noreferrer">
                 Download research &#8594;
               </a>
             </div>
@@ -1646,9 +1634,9 @@
               <p class="latest-card-kicker">Healthcare · Research Brief</p>
               <h3 class="latest-card-title">Administrative Overhead in U.S. Healthcare Systems</h3>
               <p class="latest-card-text">
-                A Monderman brief on administrative burden, cost pressure, and the structural drag that complicates performance in healthcare systems.
+                A Monderman brief on quarter-trillion friction, administrative burden, and the structural drag that complicates performance in healthcare systems.
               </p>
-              <a class="latest-card-link" href="Monderman Healthcare Administrative Overhead.pdf" target="_blank" rel="noopener noreferrer">
+              <a class="latest-card-link" href="Monderman_Quarter_Trillion_Friction_Healthcare.pdf" target="_blank" rel="noopener noreferrer">
                 Download research &#8594;
               </a>
             </div>
@@ -1816,6 +1804,7 @@
     const header = document.getElementById("siteHeader");
 
     function revealHero() {
+      if (!heroImage) return;
       setTimeout(() => heroImage.classList.add("is-loaded"), 120);
     }
 
@@ -1894,57 +1883,57 @@
       observer.observe(costSection);
     }
 
-    const latestRail = document.getElementById("latestRail");
+    const latestViewport = document.getElementById("latestViewport");
+    const latestTrack = document.getElementById("latestTrack");
     const latestPrev = document.getElementById("latestPrev");
     const latestNext = document.getElementById("latestNext");
+    const latestCards = latestTrack ? Array.from(latestTrack.querySelectorAll(".latest-card")) : [];
 
-    function getRailCards() {
-      return latestRail ? Array.from(latestRail.querySelectorAll(".latest-card")) : [];
+    let latestIndex = 0;
+    let cardsPerView = window.innerWidth <= 760 ? 1 : 2;
+
+    function clampLatestIndex() {
+      const maxIndex = Math.max(0, latestCards.length - cardsPerView);
+      latestIndex = Math.max(0, Math.min(latestIndex, maxIndex));
     }
 
-    function getClosestCardIndex() {
-      const cards = getRailCards();
-      if (!latestRail || !cards.length) return 0;
+    function updateLatestCarousel() {
+      if (!latestViewport || !latestTrack || !latestCards.length) return;
 
-      const railLeft = latestRail.scrollLeft;
-      let closestIndex = 0;
-      let closestDistance = Infinity;
+      cardsPerView = window.innerWidth <= 760 ? 1 : 2;
+      clampLatestIndex();
 
-      cards.forEach((card, index) => {
-        const distance = Math.abs(card.offsetLeft - railLeft);
-        if (distance < closestDistance) {
-          closestDistance = distance;
-          closestIndex = index;
-        }
-      });
+      const viewportWidth = latestViewport.clientWidth;
+      const gap = 22;
+      const step = cardsPerView === 1
+        ? viewportWidth
+        : (viewportWidth + gap) / 2;
 
-      return closestIndex;
+      latestTrack.style.transform = `translateX(-${latestIndex * step}px)`;
+
+      if (latestPrev) latestPrev.disabled = latestIndex === 0;
+      if (latestNext) latestNext.disabled = latestIndex >= latestCards.length - cardsPerView;
+
+      if (latestPrev) latestPrev.style.opacity = latestIndex === 0 ? "0.45" : "1";
+      if (latestNext) latestNext.style.opacity = latestIndex >= latestCards.length - cardsPerView ? "0.45" : "1";
     }
 
-    function scrollToCard(index) {
-      const cards = getRailCards();
-      if (!latestRail || !cards.length) return;
-
-      const clampedIndex = Math.max(0, Math.min(index, cards.length - 1));
-      latestRail.scrollTo({
-        left: cards[clampedIndex].offsetLeft,
-        behavior: "smooth"
-      });
-    }
-
-    if (latestPrev && latestRail) {
+    if (latestPrev) {
       latestPrev.addEventListener("click", () => {
-        const currentIndex = getClosestCardIndex();
-        scrollToCard(currentIndex - 1);
+        latestIndex -= 1;
+        updateLatestCarousel();
       });
     }
 
-    if (latestNext && latestRail) {
+    if (latestNext) {
       latestNext.addEventListener("click", () => {
-        const currentIndex = getClosestCardIndex();
-        scrollToCard(currentIndex + 1);
+        latestIndex += 1;
+        updateLatestCarousel();
       });
     }
+
+    window.addEventListener("resize", updateLatestCarousel);
+    window.addEventListener("load", updateLatestCarousel);
   </script>
 </body>
 </html>
