@@ -1,0 +1,99 @@
+<svg width="2880" height="1800" viewBox="0 0 2880 1800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="2880" y2="1800" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#02040A"/>
+      <stop offset="55%" stop-color="#050A14"/>
+      <stop offset="100%" stop-color="#02040A"/>
+    </linearGradient>
+
+    <linearGradient id="blueFill1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0A1424"/>
+      <stop offset="100%" stop-color="#13294A"/>
+    </linearGradient>
+
+    <linearGradient id="blueFill2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0D1930"/>
+      <stop offset="100%" stop-color="#18345D"/>
+    </linearGradient>
+
+    <linearGradient id="blueFill3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#122341"/>
+      <stop offset="100%" stop-color="#244A83"/>
+    </linearGradient>
+
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feColorMatrix
+        in="blur"
+        type="matrix"
+        values="1 0 0 0 0
+                0 1 0 0 0
+                0 0 1 0 0
+                0 0 0 0.08 0"
+      />
+    </filter>
+
+    <style>
+      .outline-dark { stroke: #0E2241; stroke-width: 8; fill: none; stroke-linejoin: miter; }
+      .outline-mid  { stroke: #234778; stroke-width: 8; fill: none; stroke-linejoin: miter; }
+      .outline-bright { stroke: #3F6EA1; stroke-width: 8; fill: none; stroke-linejoin: miter; }
+      .outline-copper { stroke: #8C6B47; stroke-width: 7; fill: none; stroke-linejoin: miter; }
+
+      .fill-dark { fill: url(#blueFill1); opacity: 0.72; }
+      .fill-mid  { fill: url(#blueFill2); opacity: 0.68; }
+      .fill-bright { fill: url(#blueFill3); opacity: 0.62; }
+
+      .ghost { opacity: 0.28; }
+      .dim { opacity: 0.44; }
+      .strong { opacity: 0.82; }
+    </style>
+  </defs>
+
+  <rect width="2880" height="1800" fill="url(#bg)"/>
+
+  <!-- subtle background atmosphere -->
+  <g opacity="0.08">
+    <rect x="0" y="0" width="2880" height="1800" fill="#000000"/>
+    <path d="M0 1600L1000 650L1500 1040L2200 300L2880 760V1800H0V1600Z" fill="#0A1A32"/>
+  </g>
+
+  <!-- large soft filled bands -->
+  <g>
+    <path class="fill-dark" d="M260 1680L1010 930L1180 1100L430 1850L260 1680Z"/>
+    <path class="fill-mid" d="M760 1760L1500 1020L1670 1190L930 1930L760 1760Z"/>
+    <path class="fill-bright" d="M1230 1590L1880 940L2050 1110L1400 1760L1230 1590Z"/>
+  </g>
+
+  <!-- outlined open-end tracks -->
+  <g class="ghost">
+    <path class="outline-dark" d="M-120 1700L680 900L770 990L-30 1790"/>
+    <path class="outline-dark" d="M180 1590L980 790L1070 880L270 1680"/>
+    <path class="outline-dark" d="M470 1460L1270 660L1360 750L560 1550"/>
+  </g>
+
+  <g class="dim">
+    <path class="outline-mid" d="M-40 1820L860 920L960 1020L60 1920"/>
+    <path class="outline-mid" d="M340 1760L1240 860L1340 960L440 1860"/>
+    <path class="outline-mid" d="M780 1640L1680 740L1780 840L880 1740"/>
+    <path class="outline-mid" d="M2050 860L2830 80L2920 170L2140 950"/>
+  </g>
+
+  <g class="strong">
+    <path class="outline-bright" d="M620 1790L1510 900L1620 1010L730 1900"/>
+    <path class="outline-bright" d="M1090 1630L1930 790L2040 900L1200 1740"/>
+    <path class="outline-bright" d="M2020 1500L2800 720L2910 830L2130 1610"/>
+    <path class="outline-bright" d="M2330 1740L3020 1050L3130 1160L2440 1850"/>
+  </g>
+
+  <!-- a couple of open-end tracks with slightly brighter emphasis -->
+  <g filter="url(#softGlow)">
+    <path class="outline-bright" d="M840 1860L1710 990L1810 1090L940 1960"/>
+    <path class="outline-bright" d="M2190 1620L2950 860L3050 960L2290 1720"/>
+  </g>
+
+  <!-- restrained copper accents -->
+  <g>
+    <path class="outline-copper strong" d="M1560 1380L2140 800L2230 890L1650 1470"/>
+    <path class="outline-copper dim" d="M2550 1700L3050 1200L3140 1290L2640 1790"/>
+  </g>
+</svg>
