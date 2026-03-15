@@ -17,8 +17,6 @@
   />
 
   <style>
-    /* ---------- WEBFONTS ---------- */
-
     @font-face {
       font-family: "Neue Haas Grotesk";
       src:
@@ -68,6 +66,7 @@
       --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
       --transition-slow: 360ms cubic-bezier(0.22, 1, 0.36, 1);
       --rail-gap: 18px;
+      --tool-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
     }
 
     * {
@@ -130,6 +129,13 @@
       display: block;
     }
 
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
     @media (min-width: 981px) {
       body {
         scroll-snap-type: y proximity;
@@ -138,14 +144,13 @@
       .hero,
       .bureaucracy-cost,
       .approach,
+      .tools,
       .latest,
       .thinking,
       .connect {
         scroll-snap-align: start;
       }
     }
-
-    /* ---------- HEADER ---------- */
 
     .header {
       position: fixed;
@@ -205,7 +210,9 @@
     .nav {
       display: flex;
       align-items: center;
-      gap: 40px;
+      gap: 32px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
 
     .nav a {
@@ -241,8 +248,6 @@
     .nav a:focus-visible::after {
       transform: scaleX(1);
     }
-
-    /* ---------- HERO ---------- */
 
     .hero {
       position: relative;
@@ -403,6 +408,7 @@
         border-color var(--transition),
         transform var(--transition),
         box-shadow var(--transition);
+      cursor: pointer;
     }
 
     .btn:hover,
@@ -415,6 +421,21 @@
       outline: none;
     }
 
+    .btn-secondary {
+      background: transparent;
+      color: #FFFFFF;
+      border-color: rgba(255, 255, 255, 0.28);
+      box-shadow: none;
+    }
+
+    .btn-secondary:hover,
+    .btn-secondary:focus-visible {
+      background: rgba(255, 255, 255, 0.06);
+      color: #FFFFFF;
+      border-color: rgba(255, 255, 255, 0.42);
+      box-shadow: none;
+    }
+
     @keyframes heroFadeUp {
       from {
         opacity: 0;
@@ -425,8 +446,6 @@
         transform: translateY(0);
       }
     }
-
-    /* ---------- SHARED SECTION ---------- */
 
     .section-label {
       margin-bottom: 16px;
@@ -464,8 +483,6 @@
       line-height: 1.68;
       color: var(--muted-dark);
     }
-
-    /* ---------- COST ---------- */
 
     .bureaucracy-cost {
       position: relative;
@@ -596,8 +613,6 @@
       color: var(--muted-dark-2);
     }
 
-    /* ---------- APPROACH ---------- */
-
     .approach {
       position: relative;
       background: var(--bg-white);
@@ -673,7 +688,430 @@
       color: var(--muted-dark);
     }
 
-    /* ---------- LATEST ---------- */
+    .tools {
+      position: relative;
+      background: var(--bg-offwhite);
+      padding: 98px 34px 96px;
+      color: var(--text-dark);
+      border-top: 1px solid rgba(21, 32, 43, 0.04);
+      border-bottom: 1px solid rgba(21, 32, 43, 0.04);
+    }
+
+    .tools-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .tools-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 48px;
+      align-items: end;
+      margin-bottom: 34px;
+    }
+
+    .tools-note {
+      margin: 0;
+      font-size: 0.90rem;
+      line-height: 1.62;
+      color: var(--muted-dark-2);
+      padding: 18px 20px;
+      background: rgba(255,255,255,0.72);
+      border: 1px solid rgba(21,32,43,0.08);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.01);
+    }
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 22px;
+      margin-bottom: 30px;
+    }
+
+    .tool-card {
+      position: relative;
+      background: #FFFFFF;
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      box-shadow: var(--tool-shadow);
+      padding: 22px 22px 20px;
+      min-height: 244px;
+      transition:
+        transform var(--transition-slow),
+        box-shadow var(--transition-slow),
+        border-color var(--transition);
+    }
+
+    .tool-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(63, 110, 161, 0.14);
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .tool-card-kicker {
+      margin: 0 0 10px;
+      font-size: 0.70rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .tool-card-title {
+      margin: 0 0 10px;
+      font-size: 1.14rem;
+      line-height: 1.14;
+      font-weight: 700;
+      letter-spacing: -0.022em;
+      color: var(--text-dark);
+    }
+
+    .tool-card-text {
+      margin: 0 0 16px;
+      font-size: 0.95rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+    }
+
+    .tool-card-meta {
+      margin-top: auto;
+      font-size: 0.86rem;
+      line-height: 1.55;
+      color: var(--muted-dark-2);
+    }
+
+    .tool-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      background: rgba(63, 110, 161, 0.08);
+      color: var(--accent);
+      border: 1px solid rgba(63, 110, 161, 0.12);
+      margin-bottom: 12px;
+    }
+
+    .tool-badge-muted {
+      background: rgba(21,32,43,0.04);
+      color: var(--muted-dark);
+      border-color: rgba(21,32,43,0.08);
+    }
+
+    .tool-card-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .tool-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: var(--text-dark);
+      transition: color var(--transition), transform var(--transition);
+    }
+
+    .tool-link:hover,
+    .tool-link:focus-visible {
+      color: var(--accent);
+      transform: translateX(2px);
+      outline: none;
+    }
+
+    .tool-live {
+      border-color: rgba(63, 110, 161, 0.16);
+    }
+
+    .tool-app {
+      margin-top: 12px;
+      background: #FFFFFF;
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.012), 0 14px 32px rgba(0,0,0,0.04);
+      overflow: hidden;
+    }
+
+    .tool-app-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 24px 24px 18px;
+      border-bottom: 1px solid rgba(21,32,43,0.08);
+      background: rgba(246,247,248,0.6);
+    }
+
+    .tool-app-head h3 {
+      margin: 0 0 8px;
+      font-size: 1.28rem;
+      line-height: 1.12;
+      letter-spacing: -0.024em;
+      color: var(--text-dark);
+    }
+
+    .tool-app-head p {
+      margin: 0;
+      max-width: 62ch;
+      font-size: 0.96rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+    }
+
+    .tool-privacy {
+      max-width: 360px;
+      font-size: 0.84rem;
+      line-height: 1.58;
+      color: var(--muted-dark-2);
+    }
+
+    .tool-steps {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 18px 24px 0;
+    }
+
+    .tool-step-pill {
+      padding: 7px 11px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+      background: rgba(21,32,43,0.04);
+      border: 1px solid rgba(21,32,43,0.08);
+    }
+
+    .tool-step-pill.is-active {
+      color: var(--accent);
+      background: rgba(63,110,161,0.08);
+      border-color: rgba(63,110,161,0.16);
+    }
+
+    .tool-app-body {
+      padding: 24px;
+    }
+
+    .tool-pane {
+      display: none;
+    }
+
+    .tool-pane.is-active {
+      display: block;
+    }
+
+    .tool-pane-title {
+      margin: 0 0 12px;
+      font-size: 1.08rem;
+      line-height: 1.18;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .tool-pane-copy {
+      margin: 0 0 18px;
+      max-width: 64ch;
+      font-size: 0.95rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+    }
+
+    .tool-fields {
+      display: grid;
+      gap: 16px;
+    }
+
+    .tool-field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .tool-field label {
+      font-size: 0.90rem;
+      font-weight: 500;
+      color: var(--text-dark);
+    }
+
+    .tool-field input,
+    .tool-field select,
+    .tool-field textarea {
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 14px;
+      border: 1px solid rgba(21,32,43,0.12);
+      background: #FFFFFF;
+      color: var(--text-dark);
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .tool-field textarea {
+      min-height: 96px;
+      resize: vertical;
+    }
+
+    .tool-field input:focus,
+    .tool-field select:focus,
+    .tool-field textarea:focus {
+      outline: none;
+      border-color: rgba(63,110,161,0.48);
+      box-shadow: 0 0 0 3px rgba(63,110,161,0.10);
+    }
+
+    .tool-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .tool-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .tool-decision-list {
+      display: grid;
+      gap: 16px;
+      margin-top: 6px;
+    }
+
+    .tool-decision-card {
+      border: 1px solid rgba(21,32,43,0.08);
+      background: rgba(246,247,248,0.58);
+      padding: 16px;
+    }
+
+    .tool-decision-card h4 {
+      margin: 0 0 12px;
+      font-size: 0.96rem;
+      line-height: 1.2;
+      color: var(--text-dark);
+    }
+
+    .tool-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(21,32,43,0.08);
+    }
+
+    .tool-nav-left,
+    .tool-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tool-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 18px;
+      background: var(--text-dark);
+      color: #FFFFFF;
+      border: 1px solid var(--text-dark);
+      font-size: 0.94rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      transition: background var(--transition), border-color var(--transition), transform var(--transition);
+    }
+
+    .tool-btn:hover,
+    .tool-btn:focus-visible {
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .tool-btn-secondary {
+      background: #FFFFFF;
+      color: var(--text-dark);
+      border-color: rgba(21,32,43,0.14);
+    }
+
+    .tool-btn-secondary:hover,
+    .tool-btn-secondary:focus-visible {
+      border-color: rgba(63,110,161,0.24);
+    }
+
+    .tool-summary {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+      margin-bottom: 22px;
+    }
+
+    .tool-score {
+      background: rgba(63,110,161,0.08);
+      border: 1px solid rgba(63,110,161,0.16);
+      padding: 18px;
+    }
+
+    .tool-score-label {
+      margin: 0 0 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .tool-score-value {
+      margin: 0 0 8px;
+      font-size: 3rem;
+      line-height: 0.95;
+      letter-spacing: -0.06em;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .tool-score-band {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      color: var(--muted-dark);
+    }
+
+    .tool-results h4 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+      line-height: 1.2;
+      color: var(--text-dark);
+    }
+
+    .tool-results p,
+    .tool-results li {
+      color: var(--muted-dark);
+      font-size: 0.95rem;
+      line-height: 1.62;
+    }
+
+    .tool-results ul {
+      margin: 0 0 18px 18px;
+      padding: 0;
+    }
+
+    .tool-results-note {
+      margin-top: 18px;
+      padding: 16px;
+      border: 1px solid rgba(21,32,43,0.08);
+      background: rgba(246,247,248,0.62);
+      font-size: 0.90rem;
+      line-height: 1.6;
+      color: var(--muted-dark);
+    }
 
     .latest {
       position: relative;
@@ -834,8 +1272,6 @@
       outline: none;
     }
 
-    /* ---------- THINKING ---------- */
-
     .thinking {
       position: relative;
       background: var(--bg-white);
@@ -952,8 +1388,6 @@
       transform: translateX(4px);
     }
 
-    /* ---------- CONNECT ---------- */
-
     .connect {
       position: relative;
       background: linear-gradient(180deg, #0F1720 0%, #111B25 100%);
@@ -1062,8 +1496,6 @@
       color: rgba(245, 247, 250, 0.60);
     }
 
-    /* ---------- FOOTER ---------- */
-
     .footer {
       background: #0D141C;
       color: rgba(245, 247, 250, 0.88);
@@ -1169,8 +1601,6 @@
       color: rgba(245, 247, 250, 0.58);
     }
 
-    /* ---------- RESPONSIVE ---------- */
-
     @media (prefers-reduced-motion: reduce) {
       .hero-image,
       .hero-eyebrow,
@@ -1190,6 +1620,9 @@
       .cost-card,
       .approach-card,
       .approach-card::before,
+      .tool-card,
+      .tool-link,
+      .tool-btn,
       .latest-card,
       .latest-card-image img,
       .rail-arrow,
@@ -1204,8 +1637,17 @@
     }
 
     @media (max-width: 1100px) {
-      .approach-grid {
+      .approach-grid,
+      .tools-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .tools-head {
+        grid-template-columns: 1fr;
+      }
+
+      .tool-summary {
+        grid-template-columns: 1fr;
       }
 
       .cost-grid {
@@ -1229,15 +1671,18 @@
 
     @media (max-width: 980px) {
       .header {
-        height: 68px;
+        height: auto;
       }
 
       .header-inner {
-        padding: 0 24px;
+        padding: 16px 24px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 14px;
       }
 
       .nav {
-        gap: 26px;
+        gap: 22px;
       }
 
       .hero-image {
@@ -1250,6 +1695,7 @@
 
       .bureaucracy-cost,
       .approach,
+      .tools,
       .latest,
       .thinking,
       .connect,
@@ -1270,29 +1716,11 @@
     }
 
     @media (max-width: 760px) {
-      .header {
-        height: auto;
-      }
-
-      .header.scrolled {
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-      }
-
-      .header-inner {
-        padding: 16px 20px;
-        flex-direction: column;
-        align-items: flex-start;
-        justify-content: center;
-        gap: 12px;
-      }
-
       .brand {
         font-size: 1.24rem;
       }
 
       .nav {
-        flex-wrap: wrap;
         gap: 18px;
       }
 
@@ -1358,9 +1786,12 @@
         padding: 86px 20px 72px;
       }
 
-      .approach-grid {
+      .approach-grid,
+      .tools-grid,
+      .tool-grid-2,
+      .tool-grid-3 {
         grid-template-columns: 1fr;
-        gap: 24px;
+        gap: 20px;
       }
 
       .approach-card {
@@ -1375,6 +1806,32 @@
       .card-desc {
         font-size: 0.96rem;
         line-height: 1.68;
+      }
+
+      .tools {
+        padding: 74px 20px 74px;
+      }
+
+      .tool-app-head {
+        padding: 20px 20px 16px;
+        flex-direction: column;
+      }
+
+      .tool-steps,
+      .tool-app-body {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .tool-nav {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .tool-nav-left,
+      .tool-nav-right {
+        width: 100%;
+        justify-content: space-between;
       }
 
       .latest {
@@ -1464,7 +1921,7 @@
 
       <nav class="nav" aria-label="Primary navigation">
         <a href="#approach">Approach</a>
-        <a href="#latest">Latest</a>
+        <a href="#tools">Tools</a>
         <a href="#thinking">Thinking</a>
         <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
@@ -1498,8 +1955,8 @@
 
         <div class="hero-actions">
           <a class="btn" href="#approach">Our Approach</a>
-          <a class="btn" href="#latest">Latest from Monderman</a>
-          <a class="btn" href="#connect">Connect</a>
+          <a class="btn" href="#tools">Run Diagnostics</a>
+          <a class="btn btn-secondary" href="#connect">Connect</a>
         </div>
       </div>
     </div>
@@ -1584,6 +2041,401 @@
           <div class="card-title">Institutional Performance</div>
           <div class="card-desc">
             Strong institutions sustain clarity over time. We design governance mechanisms that preserve alignment as organizations grow and evolve.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tools" id="tools" aria-labelledby="tools-title">
+    <div class="tools-inner">
+      <div class="tools-head">
+        <div class="section-intro">
+          <div class="section-label">Diagnostic Tools</div>
+          <h2 id="tools-title">Structured tools for identifying drag, ambiguity, and institutional friction.</h2>
+          <p>
+            Applied diagnostics grounded in the same logic behind Monderman’s advisory approach.
+            These tools are designed to surface real structural issues in bounded workflows, not produce generic survey scores.
+          </p>
+        </div>
+
+        <p class="tools-note">
+          <strong>Private by default.</strong> These diagnostics are intended for immediate use and do not create a persistent organizational record.
+          Please avoid entering confidential, classified, regulated, or personally sensitive information.
+        </p>
+      </div>
+
+      <div class="tools-grid">
+        <article class="tool-card tool-live">
+          <div class="tool-badge">Live</div>
+          <p class="tool-card-kicker">Structural Clarity</p>
+          <h3 class="tool-card-title">Structural Clarity Snapshot</h3>
+          <p class="tool-card-text">
+            Map one real workflow to identify ownership gaps, authority conflicts, approval stacking, and ambiguous handoffs.
+          </p>
+          <p class="tool-card-meta">
+            Best for one team, one process, or one cross-functional operating slice.
+          </p>
+          <div class="tool-card-actions">
+            <a class="tool-link" href="#structural-clarity-app">Launch tool →</a>
+          </div>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-badge tool-badge-muted">Coming Soon</div>
+          <p class="tool-card-kicker">Decision Velocity</p>
+          <h3 class="tool-card-title">Decision Velocity Snapshot</h3>
+          <p class="tool-card-text">
+            Identify where approvals, escalation patterns, and structural bottlenecks are slowing movement through critical decisions.
+          </p>
+          <p class="tool-card-meta">
+            Designed to show where action stalls between intent, authority, and execution.
+          </p>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-badge tool-badge-muted">Coming Soon</div>
+          <p class="tool-card-kicker">Operational Systems</p>
+          <h3 class="tool-card-title">Bureaucratic Drag Snapshot</h3>
+          <p class="tool-card-text">
+            Surface recurring administrative burden, process density, and non-value-adding overhead inside a specific workflow.
+          </p>
+          <p class="tool-card-meta">
+            Built to distinguish manageable friction from systemic drag requiring redesign.
+          </p>
+        </article>
+      </div>
+
+      <div class="tool-app" id="structural-clarity-app">
+        <div class="tool-app-head">
+          <div>
+            <h3>Structural Clarity Snapshot</h3>
+            <p>
+              A rapid diagnostic for one workflow or operating slice. Results are generated from your inputs and intended for private use only.
+              This is a bounded snapshot, not a comprehensive organizational assessment.
+            </p>
+          </div>
+          <div class="tool-privacy">
+            <strong>Use note:</strong> Do not enter confidential, classified, regulated, or personally sensitive information.
+            This tool is designed to reveal contradictions in ownership, authority, approvals, and handoffs.
+          </div>
+        </div>
+
+        <div class="tool-steps" aria-label="Diagnostic steps">
+          <div class="tool-step-pill is-active" data-step-pill="0">1. Scope</div>
+          <div class="tool-step-pill" data-step-pill="1">2. Roles</div>
+          <div class="tool-step-pill" data-step-pill="2">3. Decisions</div>
+          <div class="tool-step-pill" data-step-pill="3">4. Review</div>
+          <div class="tool-step-pill" data-step-pill="4">5. Results</div>
+        </div>
+
+        <div class="tool-app-body">
+          <div class="tool-pane is-active" data-step="0">
+            <h4 class="tool-pane-title">Choose one real workflow.</h4>
+            <p class="tool-pane-copy">
+              Keep the scope narrow. This tool works best when focused on one recurring workflow rather than the whole organization.
+            </p>
+
+            <div class="tool-fields">
+              <div class="tool-grid-2">
+                <div class="tool-field">
+                  <label for="workflowName">Workflow name</label>
+                  <input id="workflowName" type="text" placeholder="e.g., Budget approval, Vendor onboarding, Incident response" />
+                </div>
+
+                <div class="tool-field">
+                  <label for="workflowScope">Scope type</label>
+                  <select id="workflowScope">
+                    <option value="">Select scope</option>
+                    <option>One team</option>
+                    <option>One function</option>
+                    <option>Cross-functional process</option>
+                    <option>Business unit workflow</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="tool-grid-2">
+                <div class="tool-field">
+                  <label for="workflowFrequency">How often does this workflow occur?</label>
+                  <select id="workflowFrequency">
+                    <option value="">Select frequency</option>
+                    <option>Daily</option>
+                    <option>Weekly</option>
+                    <option>Monthly</option>
+                    <option>Quarterly</option>
+                    <option>Irregular but recurring</option>
+                  </select>
+                </div>
+
+                <div class="tool-field">
+                  <label for="workflowRisk">Operational consequence if this workflow stalls</label>
+                  <select id="workflowRisk">
+                    <option value="">Select consequence</option>
+                    <option>Low</option>
+                    <option>Moderate</option>
+                    <option>High</option>
+                    <option>Mission-critical</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tool-pane" data-step="1">
+            <h4 class="tool-pane-title">Name the key roles or teams.</h4>
+            <p class="tool-pane-copy">
+              List the primary roles involved in the workflow. Use actual role or team names, not individual people.
+            </p>
+
+            <div class="tool-fields">
+              <div class="tool-grid-3">
+                <div class="tool-field"><label for="role1">Role or team 1</label><input id="role1" type="text" placeholder="e.g., Finance" /></div>
+                <div class="tool-field"><label for="role2">Role or team 2</label><input id="role2" type="text" placeholder="e.g., Operations" /></div>
+                <div class="tool-field"><label for="role3">Role or team 3</label><input id="role3" type="text" placeholder="e.g., Program Lead" /></div>
+                <div class="tool-field"><label for="role4">Role or team 4</label><input id="role4" type="text" placeholder="Optional" /></div>
+                <div class="tool-field"><label for="role5">Role or team 5</label><input id="role5" type="text" placeholder="Optional" /></div>
+                <div class="tool-field"><label for="role6">Role or team 6</label><input id="role6" type="text" placeholder="Optional" /></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tool-pane" data-step="2">
+            <h4 class="tool-pane-title">Map three key decisions or handoffs.</h4>
+            <p class="tool-pane-copy">
+              Use concrete workflow steps. The tool looks for contradictions across decision ownership, execution, approvals, and escalation.
+            </p>
+
+            <div class="tool-decision-list">
+              <div class="tool-decision-card">
+                <h4>Workflow step 1</h4>
+                <div class="tool-grid-2">
+                  <div class="tool-field">
+                    <label for="d1_name">Decision or handoff</label>
+                    <input id="d1_name" type="text" placeholder="e.g., Approve budget reallocation" />
+                  </div>
+                  <div class="tool-field">
+                    <label for="d1_initiator">Who initiates it?</label>
+                    <input id="d1_initiator" type="text" placeholder="Role or team" />
+                  </div>
+                  <div class="tool-field">
+                    <label for="d1_decider">Who makes the final decision?</label>
+                    <input id="d1_decider" type="text" placeholder="Role or team" />
+                  </div>
+                  <div class="tool-field">
+                    <label for="d1_executor">Who executes the outcome?</label>
+                    <input id="d1_executor" type="text" placeholder="Role or team" />
+                  </div>
+                  <div class="tool-field">
+                    <label for="d1_owner">Who is accountable if it goes wrong?</label>
+                    <input id="d1_owner" type="text" placeholder="Role or team" />
+                  </div>
+                  <div class="tool-field">
+                    <label for="d1_approvals">How many approvals are typically required?</label>
+                    <select id="d1_approvals">
+                      <option value="">Select</option>
+                      <option value="0">0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4+</option>
+                    </select>
+                  </div>
+                  <div class="tool-field">
+                    <label for="d1_escalates">Does this step often get escalated?</label>
+                    <select id="d1_escalates">
+                      <option value="">Select</option>
+                      <option>No</option>
+                      <option>Sometimes</option>
+                      <option>Frequently</option>
+                    </select>
+                  </div>
+                  <div class="tool-field">
+                    <label for="d1_handoff">Is there a handoff with unclear receiving ownership?</label>
+                    <select id="d1_handoff">
+                      <option value="">Select</option>
+                      <option>No</option>
+                      <option>Possibly</option>
+                      <option>Yes</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tool-decision-card">
+                <h4>Workflow step 2</h4>
+                <div class="tool-grid-2">
+                  <div class="tool-field">
+                    <label for="d2_name">Decision or handoff</label>
+                    <input id="d2_name" type="text" placeholder="e.g., Route package for approval" />
+                  </div>
+                  <div class="tool-field">
+                    <label for="d2_initiator">Who initiates it?</label>
+                    <input id="d2_initiator" type="text" placeholder="Role or team" />
+                  </div>
+                  <div class="tool-field">
+                    <label for="d2_decider">Who makes the final decision?</label>
+                    <input id="d2_decider" type="text" placeholder="Role or team" />
+                  </div>
+                  <div class="tool-field">
+                    <label for="d2_executor">Who executes the outcome?</label>
+                    <input id="d2_executor" type="text" placeholder="Role or team" />
+                  </div>
+                  <div class="tool-field">
+                    <label for="d2_owner">Who is accountable if it goes wrong?</label>
+                    <input id="d2_owner" type="text" placeholder="Role or team" />
+                  </div>
+                  <div class="tool-field">
+                    <label for="d2_approvals">How many approvals are typically required?</label>
+                    <select id="d2_approvals">
+                      <option value="">Select</option>
+                      <option value="0">0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4+</option>
+                    </select>
+                  </div>
+                  <div class="tool-field">
+                    <label for="d2_escalates">Does this step often get escalated?</label>
+                    <select id="d2_escalates">
+                      <option value="">Select</option>
+                      <option>No</option>
+                      <option>Sometimes</option>
+                      <option>Frequently</option>
+                    </select>
+                  </div>
+                  <div class="tool-field">
+                    <label for="d2_handoff">Is there a handoff with unclear receiving ownership?</label>
+                    <select id="d2_handoff">
+                      <option value="">Select</option>
+                      <option>No</option>
+                      <option>Possibly</option>
+                      <option>Yes</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tool-decision-card">
+                <h4>Workflow step 3</h4>
+                <div class="tool-grid-2">
+                  <div class="tool-field">
+                    <label for="d3_name">Decision or handoff</label>
+                    <input id="d3_name" type="text" placeholder="e.g., Implement approved action" />
+                  </div>
+                  <div class="tool-field">
+                    <label for="d3_initiator">Who initiates it?</label>
+                    <input id="d3_initiator" type="text" placeholder="Role or team" />
+                  </div>
+                  <div class="tool-field">
+                    <label for="d3_decider">Who makes the final decision?</label>
+                    <input id="d3_decider" type="text" placeholder="Role or team" />
+                  </div>
+                  <div class="tool-field">
+                    <label for="d3_executor">Who executes the outcome?</label>
+                    <input id="d3_executor" type="text" placeholder="Role or team" />
+                  </div>
+                  <div class="tool-field">
+                    <label for="d3_owner">Who is accountable if it goes wrong?</label>
+                    <input id="d3_owner" type="text" placeholder="Role or team" />
+                  </div>
+                  <div class="tool-field">
+                    <label for="d3_approvals">How many approvals are typically required?</label>
+                    <select id="d3_approvals">
+                      <option value="">Select</option>
+                      <option value="0">0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4+</option>
+                    </select>
+                  </div>
+                  <div class="tool-field">
+                    <label for="d3_escalates">Does this step often get escalated?</label>
+                    <select id="d3_escalates">
+                      <option value="">Select</option>
+                      <option>No</option>
+                      <option>Sometimes</option>
+                      <option>Frequently</option>
+                    </select>
+                  </div>
+                  <div class="tool-field">
+                    <label for="d3_handoff">Is there a handoff with unclear receiving ownership?</label>
+                    <select id="d3_handoff">
+                      <option value="">Select</option>
+                      <option>No</option>
+                      <option>Possibly</option>
+                      <option>Yes</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tool-pane" data-step="3">
+            <h4 class="tool-pane-title">Review before analysis.</h4>
+            <p class="tool-pane-copy">
+              This snapshot is strongest when based on a real workflow rather than a general impression. Review your entries, then run the diagnostic.
+            </p>
+
+            <div class="tool-results">
+              <h4>Before you continue, confirm these conditions:</h4>
+              <ul>
+                <li>You selected one specific recurring workflow.</li>
+                <li>You named the roles or teams actually involved.</li>
+                <li>You described three concrete steps rather than broad perceptions.</li>
+                <li>You avoided confidential or sensitive information.</li>
+              </ul>
+              <div class="tool-results-note">
+                <strong>Privacy note:</strong> Results are generated in your browser for immediate use only. This snapshot does not create a persistent organizational profile.
+              </div>
+            </div>
+          </div>
+
+          <div class="tool-pane" data-step="4">
+            <div class="tool-summary">
+              <div class="tool-score">
+                <p class="tool-score-label">Structural Clarity Score</p>
+                <p class="tool-score-value" id="clarityScore">--</p>
+                <p class="tool-score-band" id="clarityBand">Run the diagnostic to see your score.</p>
+              </div>
+
+              <div class="tool-results">
+                <h4>Interpretation</h4>
+                <p id="clarityInterpretation">
+                  Results will appear here after analysis.
+                </p>
+
+                <h4>Highest-risk issues</h4>
+                <ul id="clarityIssues">
+                  <li>Complete the prior steps and run the diagnostic.</li>
+                </ul>
+
+                <h4>Monderman reading of this workflow</h4>
+                <p id="claritySummary">
+                  This section will summarize whether the issue appears local, concentrated, or more systemic.
+                </p>
+
+                <div class="tool-results-note">
+                  <strong>Use note:</strong> This output is a rapid diagnostic snapshot based on user-provided inputs.
+                  It is intended for private reflection and planning, not as a comprehensive organizational assessment.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tool-nav">
+            <div class="tool-nav-left">
+              <button class="tool-btn tool-btn-secondary" id="toolPrev" type="button">Previous</button>
+              <button class="tool-btn tool-btn-secondary" id="toolReset" type="button">Reset</button>
+            </div>
+
+            <div class="tool-nav-right">
+              <button class="tool-btn tool-btn-secondary" id="toolRun" type="button">Run diagnostic</button>
+              <button class="tool-btn" id="toolNext" type="button">Next</button>
+            </div>
           </div>
         </div>
       </div>
@@ -1783,7 +2635,7 @@
           <div class="footer-nav-col">
             <p class="footer-nav-title">Explore</p>
             <a href="#approach">Approach</a>
-            <a href="#latest">Latest</a>
+            <a href="#tools">Tools</a>
             <a href="#thinking">Thinking</a>
             <a href="research.html">Research</a>
             <a href="why-monderman.html">Why Monderman</a>
@@ -1994,6 +2846,224 @@
       updateLatestCarousel();
       startAutoAdvance();
     });
+
+    const panes = Array.from(document.querySelectorAll(".tool-pane"));
+    const pills = Array.from(document.querySelectorAll(".tool-step-pill"));
+    const prevBtn = document.getElementById("toolPrev");
+    const nextBtn = document.getElementById("toolNext");
+    const runBtn = document.getElementById("toolRun");
+    const resetBtn = document.getElementById("toolReset");
+
+    const results = {
+      score: document.getElementById("clarityScore"),
+      band: document.getElementById("clarityBand"),
+      interpretation: document.getElementById("clarityInterpretation"),
+      issues: document.getElementById("clarityIssues"),
+      summary: document.getElementById("claritySummary")
+    };
+
+    let currentStep = 0;
+
+    function setActiveStep(index) {
+      currentStep = Math.max(0, Math.min(index, panes.length - 1));
+
+      panes.forEach((pane, i) => {
+        pane.classList.toggle("is-active", i === currentStep);
+      });
+
+      pills.forEach((pill, i) => {
+        pill.classList.toggle("is-active", i === currentStep);
+      });
+
+      prevBtn.disabled = currentStep === 0;
+      nextBtn.style.display = currentStep === panes.length - 1 ? "none" : "inline-flex";
+      runBtn.style.display = currentStep === panes.length - 2 ? "inline-flex" : currentStep === panes.length - 1 ? "none" : "none";
+    }
+
+    function getFieldValue(id) {
+      const el = document.getElementById(id);
+      return el ? el.value.trim() : "";
+    }
+
+    function normalizeRole(value) {
+      return value.trim().toLowerCase();
+    }
+
+    function buildDecision(step) {
+      return {
+        name: getFieldValue(`d${step}_name`),
+        initiator: getFieldValue(`d${step}_initiator`),
+        decider: getFieldValue(`d${step}_decider`),
+        executor: getFieldValue(`d${step}_executor`),
+        owner: getFieldValue(`d${step}_owner`),
+        approvals: getFieldValue(`d${step}_approvals`),
+        escalates: getFieldValue(`d${step}_escalates`),
+        handoff: getFieldValue(`d${step}_handoff`)
+      };
+    }
+
+    function analyzeStructuralClarity() {
+      const workflowName = getFieldValue("workflowName");
+      const workflowScope = getFieldValue("workflowScope");
+
+      const roles = ["role1","role2","role3","role4","role5","role6"]
+        .map(getFieldValue)
+        .filter(Boolean);
+
+      const decisions = [1,2,3].map(buildDecision).filter(d => d.name || d.decider || d.executor || d.owner);
+
+      let score = 100;
+      const issues = [];
+      let highRiskCount = 0;
+      let escalationCount = 0;
+      let highApprovalCount = 0;
+      let handoffCount = 0;
+
+      const roleLoad = {};
+
+      function addRoleLoad(role) {
+        if (!role) return;
+        const key = normalizeRole(role);
+        roleLoad[key] = (roleLoad[key] || 0) + 1;
+      }
+
+      decisions.forEach((d) => {
+        addRoleLoad(d.decider);
+        addRoleLoad(d.executor);
+        addRoleLoad(d.owner);
+
+        if (!d.decider) {
+          score -= 12;
+          highRiskCount += 1;
+          issues.push(`"${d.name || "A workflow step"}" has no clearly named final decision owner.`);
+        }
+
+        if (!d.owner) {
+          score -= 12;
+          highRiskCount += 1;
+          issues.push(`"${d.name || "A workflow step"}" has no clearly named accountable owner.`);
+        }
+
+        if (d.decider && d.executor && normalizeRole(d.decider) !== normalizeRole(d.executor)) {
+          score -= 7;
+          issues.push(`"${d.name || "A workflow step"}" separates final decision authority from execution.`);
+        }
+
+        if (d.owner && d.executor && normalizeRole(d.owner) !== normalizeRole(d.executor)) {
+          score -= 6;
+          issues.push(`"${d.name || "A workflow step"}" assigns accountability to a different role than execution.`);
+        }
+
+        if (d.approvals === "3" || d.approvals === "4") {
+          score -= 9;
+          highApprovalCount += 1;
+          issues.push(`"${d.name || "A workflow step"}" appears to carry a high approval burden.`);
+        }
+
+        if (d.escalates === "Frequently") {
+          score -= 10;
+          escalationCount += 1;
+          issues.push(`"${d.name || "A workflow step"}" appears dependent on frequent escalation.`);
+        } else if (d.escalates === "Sometimes") {
+          score -= 4;
+          escalationCount += 1;
+        }
+
+        if (d.handoff === "Yes") {
+          score -= 10;
+          handoffCount += 1;
+          issues.push(`"${d.name || "A workflow step"}" includes a handoff with unclear receiving ownership.`);
+        } else if (d.handoff === "Possibly") {
+          score -= 5;
+          handoffCount += 1;
+        }
+      });
+
+      const overloadedRoles = Object.entries(roleLoad).filter(([, count]) => count >= 4);
+      if (overloadedRoles.length) {
+        score -= 8;
+        issues.push("One role appears repeatedly concentrated across decision, execution, and accountability responsibilities.");
+      }
+
+      if (roles.length < 3) {
+        score -= 6;
+        issues.push("The workflow map may be under-specified; fewer than three named roles limits diagnostic quality.");
+      }
+
+      if (!workflowName) {
+        score -= 6;
+        issues.push("No workflow name was provided, which weakens the specificity of the snapshot.");
+      }
+
+      if (!workflowScope) {
+        score -= 4;
+        issues.push("No workflow scope was selected, which limits interpretation of the result.");
+      }
+
+      score = Math.max(28, Math.min(100, score));
+
+      let band = "";
+      let interpretation = "";
+      let summary = "";
+
+      if (score >= 82) {
+        band = "Relatively clear";
+        interpretation = "This workflow appears structurally clearer than most. Ownership and decision rights look comparatively legible, though some targeted refinements may still reduce friction.";
+      } else if (score >= 64) {
+        band = "Moderate ambiguity";
+        interpretation = "This workflow shows meaningful structural ambiguity. It likely contains a mix of local clarity issues and recurring bottlenecks that could be improved through role clarification and approval redesign.";
+      } else {
+        band = "High-risk ambiguity";
+        interpretation = "This workflow shows a high degree of structural ambiguity. Authority, accountability, execution, or handoffs appear materially misaligned and likely require more than simple role clarification.";
+      }
+
+      if (highRiskCount >= 2 || handoffCount >= 2 || escalationCount >= 2 || highApprovalCount >= 2) {
+        summary = "Monderman reading: this looks less like an isolated role-definition issue and more like a systemic workflow design problem. A broader redesign of ownership, approvals, and handoff logic may be warranted.";
+      } else if (issues.length <= 2) {
+        summary = "Monderman reading: the issues surfaced here appear comparatively bounded. This workflow may improve materially through targeted role clarification and explicit decision-right assignment.";
+      } else {
+        summary = "Monderman reading: this workflow appears partially workable but structurally uneven. Some issues likely sit within local role definitions, while others suggest friction embedded in the workflow design itself.";
+      }
+
+      const dedupedIssues = Array.from(new Set(issues)).slice(0, 5);
+      if (!dedupedIssues.length) {
+        dedupedIssues.push("No major contradictions were detected from the current inputs.");
+      }
+
+      results.score.textContent = score.toString();
+      results.band.textContent = band;
+      results.interpretation.textContent = interpretation;
+      results.summary.textContent = summary;
+
+      results.issues.innerHTML = "";
+      dedupedIssues.forEach((issue) => {
+        const li = document.createElement("li");
+        li.textContent = issue;
+        results.issues.appendChild(li);
+      });
+
+      setActiveStep(4);
+    }
+
+    nextBtn.addEventListener("click", () => setActiveStep(currentStep + 1));
+    prevBtn.addEventListener("click", () => setActiveStep(currentStep - 1));
+    runBtn.addEventListener("click", analyzeStructuralClarity);
+
+    resetBtn.addEventListener("click", () => {
+      document.querySelectorAll('.tool-app input, .tool-app select, .tool-app textarea').forEach((el) => {
+        el.value = "";
+      });
+
+      results.score.textContent = "--";
+      results.band.textContent = "Run the diagnostic to see your score.";
+      results.interpretation.textContent = "Results will appear here after analysis.";
+      results.summary.textContent = "This section will summarize whether the issue appears local, concentrated, or more systemic.";
+      results.issues.innerHTML = "<li>Complete the prior steps and run the diagnostic.</li>";
+
+      setActiveStep(0);
+    });
+
+    setActiveStep(0);
   </script>
 </body>
 </html>
