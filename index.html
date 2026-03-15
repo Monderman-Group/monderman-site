@@ -62,4 +62,1938 @@
       --muted-dark: #5F6B78;
       --muted-dark-2: #7A8794;
       --line-dark: #E3E7EB;
-     
+      --header-solid: rgba(18, 25, 34, 0.84);
+      --header-border: rgba(255, 255, 255, 0.08);
+      --max: 1320px;
+      --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
+      --transition-slow: 360ms cubic-bezier(0.22, 1, 0.36, 1);
+      --rail-gap: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 72px;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg-dark);
+      color: var(--text-light);
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    html,
+    body,
+    button,
+    input,
+    textarea,
+    select,
+    option,
+    a,
+    p,
+    li,
+    dt,
+    dd,
+    span,
+    small,
+    strong,
+    em,
+    label,
+    figcaption,
+    blockquote,
+    cite,
+    div,
+    section,
+    article,
+    nav,
+    header,
+    footer,
+    main {
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    @media (min-width: 981px) {
+      body {
+        scroll-snap-type: y proximity;
+      }
+
+      .hero,
+      .bureaucracy-cost,
+      .approach,
+      .latest,
+      .thinking,
+      .connect {
+        scroll-snap-align: start;
+      }
+    }
+
+    /* ---------- HEADER ---------- */
+
+    .header {
+      position: fixed;
+      inset: 0 0 auto 0;
+      width: 100%;
+      height: 72px;
+      z-index: 100;
+      background: transparent;
+      border-bottom: 1px solid transparent;
+      transition:
+        background var(--transition),
+        border-color var(--transition),
+        backdrop-filter var(--transition),
+        -webkit-backdrop-filter var(--transition);
+    }
+
+    .header.scrolled {
+      background: var(--header-solid);
+      border-bottom-color: var(--header-border);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .header-inner {
+      max-width: var(--max);
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 34px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      font-size: 1.32rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      white-space: nowrap;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
+    }
+
+    .brand::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .nav a {
+      position: relative;
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 0.015em;
+      color: rgba(255, 255, 255, 0.88);
+      transition: color var(--transition), transform var(--transition);
+    }
+
+    .nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -6px;
+      width: 100%;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.76);
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 180ms ease;
+    }
+
+    .nav a:hover,
+    .nav a:focus-visible {
+      color: #FFFFFF;
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .nav a:hover::after,
+    .nav a:focus-visible::after {
+      transform: scaleX(1);
+    }
+
+    /* ---------- HERO ---------- */
+
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
+      background: var(--bg-hero-fallback);
+    }
+
+    .hero-media-wrap {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .hero-image {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      opacity: 0;
+      transform: scale(1.06);
+      filter: saturate(94%) contrast(102%) brightness(0.96);
+      transition:
+        opacity 2.8s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 3.2s cubic-bezier(0.22, 1, 0.36, 1),
+        filter 3.2s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: opacity, transform, filter;
+    }
+
+    .hero-image.is-loaded {
+      opacity: 1;
+      transform: scale(1);
+      filter: saturate(100%) contrast(100%) brightness(1);
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(
+          90deg,
+          rgba(8, 13, 19, 0.92) 0%,
+          rgba(8, 13, 19, 0.84) 30%,
+          rgba(8, 13, 19, 0.62) 54%,
+          rgba(8, 13, 19, 0.18) 78%,
+          rgba(8, 13, 19, 0.05) 100%
+        ),
+        linear-gradient(
+          180deg,
+          rgba(8, 13, 19, 0.24) 0%,
+          rgba(8, 13, 19, 0.10) 22%,
+          rgba(8, 13, 19, 0.16) 100%
+        );
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 18%;
+      background: linear-gradient(180deg, rgba(8, 13, 19, 0) 0%, rgba(8, 13, 19, 0.18) 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 2;
+      max-width: var(--max);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 132px 34px 110px;
+      display: flex;
+      align-items: center;
+    }
+
+    .hero-copy {
+      max-width: 780px;
+    }
+
+    .hero-eyebrow,
+    .hero h1,
+    .hero p,
+    .hero-actions {
+      opacity: 0;
+      transform: translateY(16px);
+      animation: heroFadeUp 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      will-change: transform, opacity;
+    }
+
+    .hero-eyebrow {
+      margin: 0 0 132px;
+      padding-left: 2px;
+      font-size: 0.34rem;
+      line-height: 1;
+      letter-spacing: 0.50em;
+      font-weight: 500;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.30);
+      animation-delay: 420ms;
+    }
+
+    .hero h1 {
+      margin: 0 0 36px;
+      max-width: 10.6ch;
+      font-size: clamp(3.35rem, 5.6vw, 5.4rem);
+      line-height: 0.95;
+      letter-spacing: -0.056em;
+      font-weight: 700;
+      color: #FFFFFF;
+      text-wrap: balance;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
+      animation-delay: 560ms;
+    }
+
+    .hero p {
+      max-width: 640px;
+      margin: 0;
+      font-size: clamp(1.06rem, 1.38vw, 1.18rem);
+      line-height: 1.60;
+      letter-spacing: -0.012em;
+      color: var(--muted-light);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+      animation-delay: 760ms;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 48px;
+      animation-delay: 940ms;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 50px;
+      min-width: 162px;
+      padding: 0 24px;
+      border-radius: 999px;
+      font-size: 1rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--accent);
+      border: 1px solid rgba(255, 255, 255, 0.48);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+      transition:
+        background var(--transition),
+        color var(--transition),
+        border-color var(--transition),
+        transform var(--transition),
+        box-shadow var(--transition);
+    }
+
+    .btn:hover,
+    .btn:focus-visible {
+      background: #FFFFFF;
+      color: var(--accent);
+      border-color: rgba(255, 255, 255, 0.62);
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(0, 0, 0, 0.12);
+      outline: none;
+    }
+
+    @keyframes heroFadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ---------- SHARED SECTION ---------- */
+
+    .section-label {
+      margin-bottom: 16px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .section-label::before {
+      content: "";
+      display: block;
+      width: 48px;
+      height: 2px;
+      background: var(--accent);
+      margin-bottom: 14px;
+    }
+
+    .section-intro h2 {
+      margin: 0 0 18px;
+      max-width: 760px;
+      font-size: clamp(1.95rem, 2.45vw, 2.35rem);
+      line-height: 1.12;
+      letter-spacing: -0.04em;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-wrap: balance;
+    }
+
+    .section-intro p {
+      margin: 0;
+      max-width: 60ch;
+      font-size: 1.04rem;
+      line-height: 1.68;
+      color: var(--muted-dark);
+    }
+
+    /* ---------- COST ---------- */
+
+    .bureaucracy-cost {
+      position: relative;
+      background:
+        linear-gradient(rgba(247, 248, 249, 0.965), rgba(247, 248, 249, 0.965)),
+        linear-gradient(90deg, rgba(63, 110, 161, 0.022) 1px, transparent 1px),
+        linear-gradient(rgba(63, 110, 161, 0.022) 1px, transparent 1px);
+      background-size: auto, 28px 28px, 28px 28px;
+      border-top: 1px solid #E7EBEF;
+      border-bottom: 1px solid #E7EBEF;
+      padding: 116px 34px 108px;
+      color: var(--text-dark);
+      overflow: hidden;
+    }
+
+    .bureaucracy-cost::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 85% 20%, rgba(63, 110, 161, 0.04), transparent 34%);
+      pointer-events: none;
+    }
+
+    .cost-inner {
+      position: relative;
+      z-index: 1;
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .cost-heading {
+      max-width: 820px;
+      margin: 0 0 58px;
+    }
+
+    .cost-label {
+      margin: 0 0 18px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .cost-heading h2 {
+      margin: 0;
+      max-width: 720px;
+      font-size: clamp(2.05rem, 2.9vw, 2.7rem);
+      line-height: 1.12;
+      letter-spacing: -0.045em;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-wrap: balance;
+    }
+
+    .cost-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 30px;
+      margin-top: 10px;
+    }
+
+    .cost-card {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(21, 32, 43, 0.07);
+      padding: 42px 34px 38px;
+      min-height: 310px;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
+      transition:
+        transform var(--transition-slow),
+        box-shadow var(--transition-slow),
+        border-color var(--transition);
+    }
+
+    .cost-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(63, 110, 161, 0.14);
+      box-shadow:
+        0 1px 0 rgba(0, 0, 0, 0.014),
+        0 8px 20px rgba(0, 0, 0, 0.018),
+        0 18px 34px rgba(0, 0, 0, 0.016);
+    }
+
+    .cost-card-title {
+      margin: 0 0 8px;
+      font-size: 1.02rem;
+      line-height: 1.12;
+      letter-spacing: -0.015em;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .cost-card-title .asterisk {
+      font-size: 0.9em;
+      vertical-align: 0.08em;
+    }
+
+    .cost-card-source {
+      margin: 0 0 34px;
+      font-size: 0.76rem;
+      line-height: 1.45;
+      color: #8A95A3;
+      font-style: italic;
+    }
+
+    .cost-card-number {
+      margin: 0 0 18px;
+      font-size: clamp(3.25rem, 5vw, 4.6rem);
+      line-height: 0.88;
+      letter-spacing: -0.065em;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .cost-card-text {
+      margin: 0;
+      max-width: 22ch;
+      font-size: 1.02rem;
+      line-height: 1.6;
+      color: var(--muted-dark);
+    }
+
+    .cost-footer {
+      margin: 24px 0 0;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      color: var(--muted-dark-2);
+    }
+
+    /* ---------- APPROACH ---------- */
+
+    .approach {
+      position: relative;
+      background: var(--bg-white);
+      padding: 110px 34px 96px;
+      color: var(--text-dark);
+      overflow: hidden;
+    }
+
+    .approach-inner {
+      position: relative;
+      z-index: 1;
+      max-width: var(--max);
+      margin: 0 auto;
+      padding-left: 8px;
+    }
+
+    .approach-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 260px));
+      gap: 40px;
+      justify-content: start;
+      margin-top: 52px;
+    }
+
+    .approach-card {
+      position: relative;
+      min-height: 372px;
+      background: rgba(255, 255, 255, 0.98);
+      border: 1px solid var(--line-dark);
+      padding: 46px 38px 64px;
+      overflow: hidden;
+      transition:
+        transform var(--transition-slow),
+        box-shadow var(--transition-slow),
+        border-color var(--transition);
+    }
+
+    .approach-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0%;
+      background: var(--accent);
+      transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .approach-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(0, 0, 0, 0.06);
+      box-shadow:
+        0 8px 18px rgba(0, 0, 0, 0.05),
+        0 20px 34px rgba(0, 0, 0, 0.05);
+    }
+
+    .approach-card:hover::before {
+      width: 100%;
+    }
+
+    .card-title {
+      margin-bottom: 18px;
+      font-size: 1.46rem;
+      line-height: 1.08;
+      font-weight: 700;
+      letter-spacing: -0.024em;
+      color: var(--text-dark);
+    }
+
+    .card-desc {
+      font-size: 1.03rem;
+      line-height: 1.78;
+      color: var(--muted-dark);
+    }
+
+    /* ---------- LATEST ---------- */
+
+    .latest {
+      position: relative;
+      background: var(--bg-offwhite);
+      padding: 92px 34px 86px;
+      color: var(--text-dark);
+      overflow: hidden;
+      border-top: 1px solid rgba(21, 32, 43, 0.04);
+      border-bottom: 1px solid rgba(21, 32, 43, 0.04);
+    }
+
+    .latest-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .latest-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 30px;
+      margin-bottom: 34px;
+    }
+
+    .latest-intro {
+      max-width: 740px;
+    }
+
+    .latest-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      flex: 0 0 auto;
+    }
+
+    .rail-arrow {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      border: 1px solid rgba(21, 32, 43, 0.14);
+      background: #FFFFFF;
+      color: rgba(21, 32, 43, 0.90);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
+      transition:
+        transform var(--transition),
+        border-color var(--transition),
+        box-shadow var(--transition),
+        opacity var(--transition),
+        color var(--transition);
+    }
+
+    .rail-arrow:hover,
+    .rail-arrow:focus-visible {
+      transform: translateY(-1px);
+      color: var(--text-dark);
+      border-color: rgba(63, 110, 161, 0.22);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+      outline: none;
+    }
+
+    .latest-viewport {
+      overflow: hidden;
+    }
+
+    .latest-track {
+      display: flex;
+      gap: var(--rail-gap);
+      will-change: transform;
+      transition: transform 560ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .latest-card {
+      flex: 0 0 calc((100% - (var(--rail-gap) * 2)) / 2.55);
+      background: #FFFFFF;
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
+      overflow: hidden;
+      transition:
+        transform var(--transition-slow),
+        box-shadow var(--transition-slow),
+        border-color var(--transition);
+    }
+
+    .latest-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(63, 110, 161, 0.14);
+      box-shadow:
+        0 1px 0 rgba(0, 0, 0, 0.012),
+        0 10px 26px rgba(0, 0, 0, 0.05);
+    }
+
+    .latest-card-image {
+      aspect-ratio: 16 / 8.2;
+      overflow: hidden;
+      background: #DDE4EB;
+    }
+
+    .latest-card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .latest-card:hover .latest-card-image img {
+      transform: scale(1.02);
+    }
+
+    .latest-card-body {
+      padding: 17px 17px 18px;
+    }
+
+    .latest-card-kicker {
+      margin: 0 0 9px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .latest-card-title {
+      margin: 0 0 9px;
+      font-size: 1.08rem;
+      line-height: 1.12;
+      font-weight: 700;
+      letter-spacing: -0.020em;
+      color: var(--text-dark);
+      text-wrap: balance;
+    }
+
+    .latest-card-text {
+      margin: 0 0 13px;
+      font-size: 0.91rem;
+      line-height: 1.55;
+      color: var(--muted-dark);
+    }
+
+    .latest-card-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.90rem;
+      font-weight: 500;
+      color: var(--text-dark);
+      transition: color var(--transition), transform var(--transition);
+    }
+
+    .latest-card-link:hover,
+    .latest-card-link:focus-visible {
+      color: var(--accent);
+      transform: translateX(2px);
+      outline: none;
+    }
+
+    /* ---------- THINKING ---------- */
+
+    .thinking {
+      position: relative;
+      background: var(--bg-white);
+      color: var(--text-dark);
+      padding: 112px 34px 120px;
+      overflow: hidden;
+    }
+
+    .thinking::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(63, 110, 161, 0.02) 1px, transparent 1px);
+      background-size: 36px 36px;
+      opacity: 0.30;
+      pointer-events: none;
+    }
+
+    .thinking-inner {
+      position: relative;
+      z-index: 1;
+      max-width: var(--max);
+      margin: 0 auto;
+      padding-left: 64px;
+    }
+
+    .thinking-intro {
+      max-width: 1180px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+      align-items: start;
+      margin-bottom: 24px;
+    }
+
+    .thinking-copy {
+      padding-top: 8px;
+    }
+
+    .thinking-copy h2 {
+      margin: 0 0 22px;
+      max-width: 620px;
+      font-size: clamp(2rem, 2.7vw, 2.55rem);
+      line-height: 1.08;
+      letter-spacing: -0.045em;
+      font-weight: 700;
+    }
+
+    .thinking-intro-text {
+      max-width: 60ch;
+      margin: 0;
+      font-size: 1.06rem;
+      line-height: 1.70;
+      color: var(--muted-dark);
+    }
+
+    .thinking-divider {
+      max-width: 1180px;
+      height: 1px;
+      background: rgba(21, 32, 43, 0.10);
+      margin: 0 0 10px;
+    }
+
+    .thinking-list {
+      max-width: 1180px;
+      margin: 0;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0 42px;
+    }
+
+    .thinking-item {
+      padding: 32px 0 36px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      transition: background var(--transition);
+    }
+
+    .thinking-item:hover {
+      background: rgba(0, 0, 0, 0.014);
+    }
+
+    .thinking-title {
+      font-size: 1.34rem;
+      line-height: 1.16;
+      font-weight: 700;
+      letter-spacing: -0.022em;
+      color: var(--text-dark);
+      margin-bottom: 12px;
+    }
+
+    .thinking-desc {
+      font-size: 1rem;
+      line-height: 1.68;
+      color: var(--muted-dark);
+      margin-bottom: 14px;
+      max-width: 42ch;
+    }
+
+    .thinking-link {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--accent);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .thinking-arrow {
+      display: inline-block;
+      transition: transform 200ms ease;
+    }
+
+    .thinking-item:hover .thinking-arrow {
+      transform: translateX(4px);
+    }
+
+    /* ---------- CONNECT ---------- */
+
+    .connect {
+      position: relative;
+      background: linear-gradient(180deg, #0F1720 0%, #111B25 100%);
+      color: var(--text-light);
+      padding: 92px 34px 88px;
+      overflow: hidden;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .connect::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 80% 20%, rgba(63, 110, 161, 0.10), transparent 28%),
+        linear-gradient(135deg, rgba(63, 110, 161, 0.03) 1px, transparent 1px);
+      background-size: auto, 34px 34px;
+      opacity: 0.42;
+      pointer-events: none;
+    }
+
+    .connect-inner {
+      position: relative;
+      z-index: 1;
+      max-width: var(--max);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+      gap: 56px;
+      align-items: start;
+    }
+
+    .connect-copy .section-label {
+      color: rgba(245, 247, 250, 0.82);
+    }
+
+    .connect-copy .section-label::before {
+      background: var(--accent);
+    }
+
+    .connect-copy h2 {
+      color: #FFFFFF;
+      margin-bottom: 22px;
+    }
+
+    .connect-text {
+      margin: 0;
+      max-width: 58ch;
+      font-size: 1.06rem;
+      line-height: 1.72;
+      color: rgba(245, 247, 250, 0.74);
+    }
+
+    .connect-panel {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 30px 30px 28px;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.02);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .connect-kicker {
+      margin: 0 0 14px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      color: rgba(245, 247, 250, 0.54);
+    }
+
+    .connect-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: clamp(1.06rem, 1.6vw, 1.22rem);
+      line-height: 1.3;
+      font-weight: 500;
+      letter-spacing: -0.015em;
+      color: #FFFFFF;
+      transition: color var(--transition), transform var(--transition);
+    }
+
+    .connect-link:hover,
+    .connect-link:focus-visible {
+      color: #FFFFFF;
+      transform: translateX(2px);
+      outline: none;
+    }
+
+    .connect-link-mark {
+      width: 7px;
+      height: 7px;
+      background: var(--accent);
+      border-radius: 1px;
+      flex: 0 0 auto;
+      transform: translateY(-1px);
+    }
+
+    .connect-note {
+      margin: 16px 0 0;
+      font-size: 0.92rem;
+      line-height: 1.64;
+      color: rgba(245, 247, 250, 0.60);
+    }
+
+    /* ---------- FOOTER ---------- */
+
+    .footer {
+      background: #0D141C;
+      color: rgba(245, 247, 250, 0.88);
+      padding: 44px 34px 34px;
+    }
+
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .footer-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 40px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .footer-brand {
+      max-width: 420px;
+    }
+
+    .footer-mark {
+      display: inline-flex;
+      align-items: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      margin-bottom: 14px;
+    }
+
+    .footer-mark::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+
+    .footer-copy {
+      margin: 0;
+      max-width: 36ch;
+      font-size: 0.98rem;
+      line-height: 1.65;
+      color: rgba(245, 247, 250, 0.68);
+    }
+
+    .footer-nav {
+      display: flex;
+      gap: 48px;
+      flex-wrap: wrap;
+    }
+
+    .footer-nav-col {
+      min-width: 120px;
+    }
+
+    .footer-nav-title {
+      margin: 0 0 12px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245, 247, 250, 0.50);
+    }
+
+    .footer-nav a {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      color: rgba(245, 247, 250, 0.82);
+      transition: color var(--transition), transform var(--transition);
+    }
+
+    .footer-nav a:hover,
+    .footer-nav a:focus-visible {
+      color: #FFFFFF;
+      transform: translateX(2px);
+      outline: none;
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding-top: 18px;
+    }
+
+    .footer-meta,
+    .footer-contact {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: rgba(245, 247, 250, 0.58);
+    }
+
+    /* ---------- RESPONSIVE ---------- */
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-image,
+      .hero-eyebrow,
+      .hero h1,
+      .hero p,
+      .hero-actions {
+        animation: none;
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+
+      .btn,
+      .header,
+      .nav a,
+      .nav a::after,
+      .cost-card,
+      .approach-card,
+      .approach-card::before,
+      .latest-card,
+      .latest-card-image img,
+      .rail-arrow,
+      .latest-track,
+      .thinking-item,
+      .thinking-arrow,
+      .footer-nav a,
+      .connect-link,
+      .latest-card-link {
+        transition: none;
+      }
+    }
+
+    @media (max-width: 1100px) {
+      .approach-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .cost-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .cost-card {
+        min-height: auto;
+      }
+
+      .thinking-list {
+        grid-template-columns: 1fr;
+      }
+
+      .connect-inner {
+        grid-template-columns: 1fr;
+        gap: 28px;
+      }
+    }
+
+    @media (max-width: 980px) {
+      .header {
+        height: 68px;
+      }
+
+      .header-inner {
+        padding: 0 24px;
+      }
+
+      .nav {
+        gap: 26px;
+      }
+
+      .hero-image {
+        object-position: 64% center;
+      }
+
+      .hero-inner {
+        padding: 120px 24px 84px;
+      }
+
+      .bureaucracy-cost,
+      .approach,
+      .latest,
+      .thinking,
+      .connect,
+      .footer {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+
+      .approach-inner,
+      .thinking-inner {
+        padding-left: 0;
+      }
+
+      .latest-head {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .header {
+        height: auto;
+      }
+
+      .header.scrolled {
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+
+      .header-inner {
+        padding: 16px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 12px;
+      }
+
+      .brand {
+        font-size: 1.24rem;
+      }
+
+      .nav {
+        flex-wrap: wrap;
+        gap: 18px;
+      }
+
+      .hero-image {
+        object-position: 70% center;
+      }
+
+      .hero-inner {
+        padding: 128px 20px 68px;
+      }
+
+      .hero-eyebrow {
+        margin-bottom: 76px;
+        padding-left: 1px;
+        font-size: 0.38rem;
+        letter-spacing: 0.30em;
+        color: rgba(255, 255, 255, 0.40);
+      }
+
+      .hero h1 {
+        max-width: 100%;
+        font-size: clamp(2.45rem, 8vw, 3.25rem);
+      }
+
+      .hero p {
+        font-size: 1rem;
+        line-height: 1.58;
+      }
+
+      .hero-actions {
+        gap: 12px;
+      }
+
+      .btn {
+        min-width: 148px;
+        min-height: 46px;
+        padding: 0 20px;
+        font-size: 0.98rem;
+      }
+
+      .bureaucracy-cost {
+        padding: 82px 20px 74px;
+      }
+
+      .cost-heading {
+        margin-bottom: 38px;
+      }
+
+      .cost-card {
+        padding: 30px 22px 28px;
+      }
+
+      .cost-card-number {
+        font-size: 2.95rem;
+      }
+
+      .cost-card-text {
+        font-size: 0.96rem;
+        line-height: 1.56;
+      }
+
+      .approach {
+        padding: 86px 20px 72px;
+      }
+
+      .approach-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+
+      .approach-card {
+        min-height: auto;
+        padding: 30px 24px 38px;
+      }
+
+      .card-title {
+        font-size: 1.22rem;
+      }
+
+      .card-desc {
+        font-size: 0.96rem;
+        line-height: 1.68;
+      }
+
+      .latest {
+        padding: 72px 20px 72px;
+      }
+
+      .latest-card {
+        flex-basis: 100%;
+      }
+
+      .latest-card-title {
+        font-size: 1.08rem;
+      }
+
+      .latest-card-text {
+        font-size: 0.92rem;
+      }
+
+      .thinking {
+        padding: 82px 20px 88px;
+      }
+
+      .thinking-copy h2 {
+        margin-bottom: 20px;
+        font-size: clamp(1.8rem, 6vw, 2.2rem);
+      }
+
+      .thinking-intro-text {
+        font-size: 0.98rem;
+        line-height: 1.62;
+      }
+
+      .thinking-title {
+        font-size: 1.22rem;
+      }
+
+      .thinking-desc {
+        font-size: 0.98rem;
+      }
+
+      .connect {
+        padding: 68px 20px 64px;
+      }
+
+      .connect-copy h2 {
+        margin-bottom: 22px;
+      }
+
+      .connect-text {
+        font-size: 0.98rem;
+        line-height: 1.62;
+      }
+
+      .connect-panel {
+        padding: 24px 22px 22px;
+      }
+
+      .footer {
+        padding: 34px 20px 28px;
+      }
+
+      .footer-top,
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .footer-nav {
+        gap: 28px;
+      }
+
+      .footer-copy {
+        font-size: 0.94rem;
+      }
+
+      .footer-meta,
+      .footer-contact {
+        font-size: 0.84rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header" id="siteHeader">
+    <div class="header-inner">
+      <a href="#" class="brand">Monderman</a>
+
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="#approach">Approach</a>
+        <a href="#latest">Latest</a>
+        <a href="#thinking">Thinking</a>
+        <a href="research.html">Research</a>
+        <a href="why-monderman.html">Why Monderman</a>
+        <a href="#connect">Connect</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-media-wrap" aria-hidden="true">
+      <img
+        class="hero-image"
+        id="heroImage"
+        src="iStock-2223938194.jpg?v=10"
+        alt=""
+        decoding="async"
+        fetchpriority="high"
+      />
+      <div class="hero-overlay"></div>
+    </div>
+
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <p class="hero-eyebrow">Institutional Performance</p>
+
+        <h1 id="hero-title">Transforming complexity into opportunity.</h1>
+
+        <p>
+          Helping complex institutions move with greater clarity, speed, and structural confidence.
+        </p>
+
+        <div class="hero-actions">
+          <a class="btn" href="#approach">Our Approach</a>
+          <a class="btn" href="#latest">Latest from Monderman</a>
+          <a class="btn" href="#connect">Connect</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bureaucracy-cost" id="cost-section" aria-labelledby="cost-title">
+    <div class="cost-inner">
+      <div class="cost-heading">
+        <p class="cost-label">The Cost of Bureaucratic Friction</p>
+        <h2 id="cost-title">What overhead quietly consumes.</h2>
+      </div>
+
+      <div class="cost-grid">
+        <div class="cost-card">
+          <div class="cost-card-title">Time<span class="asterisk">*</span></div>
+          <p class="cost-card-source"><em>* HBR / management reporting research</em></p>
+          <div class="cost-card-number" data-count-type="percent" data-target="40">0%</div>
+          <p class="cost-card-text">
+            of managers’ time can be consumed by reports alone.
+          </p>
+        </div>
+
+        <div class="cost-card">
+          <div class="cost-card-title">Money<span class="asterisk">*</span></div>
+          <p class="cost-card-source"><em>* Harvard Business Review</em></p>
+          <div class="cost-card-number" data-count-type="currency-trillion" data-target="3">$0T</div>
+          <p class="cost-card-text">
+            estimated annual cost of excess management in the U.S. economy.
+          </p>
+        </div>
+
+        <div class="cost-card">
+          <div class="cost-card-title">Resources<span class="asterisk">*</span></div>
+          <p class="cost-card-source"><em>* OECD / administrative burden guidance</em></p>
+          <div class="cost-card-number" data-count-type="range-percent" data-target="30">0–0%</div>
+          <p class="cost-card-text">
+            of productive capacity can be absorbed by administrative burden.
+          </p>
+        </div>
+      </div>
+
+      <p class="cost-footer">
+        Selected sources: Harvard Business Review; OECD administrative burden guidance.
+      </p>
+    </div>
+  </section>
+
+  <section class="approach" id="approach" aria-labelledby="approach-title">
+    <div class="approach-inner">
+      <div class="section-intro">
+        <div class="section-label">Our Approach</div>
+        <h2 id="approach-title">Designing systems for clarity and execution.</h2>
+        <p>
+          Monderman works at the level where structure, governance, and institutional performance meet.
+          We help organizations reduce friction, move faster, and sustain alignment under complexity.
+        </p>
+      </div>
+
+      <div class="approach-grid">
+        <div class="approach-card">
+          <div class="card-title">Structural Clarity</div>
+          <div class="card-desc">
+            We identify where authority, responsibility, and execution have drifted apart, then realign the operating structure so decisions translate into action.
+          </div>
+        </div>
+
+        <div class="approach-card">
+          <div class="card-title">Decision Velocity</div>
+          <div class="card-desc">
+            Most organizations do not lack strategy. They lack speed. We remove the friction that slows decision cycles and stalls execution.
+          </div>
+        </div>
+
+        <div class="approach-card">
+          <div class="card-title">Operational Systems</div>
+          <div class="card-desc">
+            Policies, controls, and processes shape how work actually moves. We redesign administrative systems so they support performance rather than constrain it.
+          </div>
+        </div>
+
+        <div class="approach-card">
+          <div class="card-title">Institutional Performance</div>
+          <div class="card-desc">
+            Strong institutions sustain clarity over time. We design governance mechanisms that preserve alignment as organizations grow and evolve.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="latest" id="latest" aria-labelledby="latest-title">
+    <div class="latest-inner">
+      <div class="latest-head">
+        <div class="latest-intro section-intro">
+          <div class="section-label">Latest from Monderman</div>
+          <h2 id="latest-title">Research, briefs, and perspectives.</h2>
+          <p>
+            Current publications and featured work on administrative burden, institutional design,
+            and performance under complexity.
+          </p>
+        </div>
+
+        <div class="latest-controls" aria-label="Latest content controls">
+          <button class="rail-arrow" id="latestPrev" type="button" aria-label="Show previous latest items">
+            &#8592;
+          </button>
+          <button class="rail-arrow" id="latestNext" type="button" aria-label="Show next latest items">
+            &#8594;
+          </button>
+        </div>
+      </div>
+
+      <div class="latest-viewport" id="latestViewport">
+        <div class="latest-track" id="latestTrack">
+          <article class="latest-card">
+            <div class="latest-card-image">
+              <img src="Washington DC.jpg" alt="Washington, D.C. skyline for Monderman defense research" />
+            </div>
+            <div class="latest-card-body">
+              <p class="latest-card-kicker">Defense · Research Brief</p>
+              <h3 class="latest-card-title">Accumulated Drag in the Department of War</h3>
+              <p class="latest-card-text">
+                A Monderman research brief on accumulated drag, administrative burden, and institutional friction in one of the world’s most complex public institutions.
+              </p>
+              <a class="latest-card-link" href="Monderman%20Accumulated%20Drag%20DoW.pdf" target="_blank" rel="noopener noreferrer">
+                Download research &#8594;
+              </a>
+            </div>
+          </article>
+
+          <article class="latest-card">
+            <div class="latest-card-image">
+              <img src="Healthcare costs.jpg" alt="Healthcare costs graphic for Monderman healthcare research" />
+            </div>
+            <div class="latest-card-body">
+              <p class="latest-card-kicker">Healthcare · Research Brief</p>
+              <h3 class="latest-card-title">Quarter-Trillion Friction in U.S. Healthcare</h3>
+              <p class="latest-card-text">
+                A Monderman brief on quarter-trillion friction, administrative burden, and the structural drag complicating performance in healthcare systems.
+              </p>
+              <a class="latest-card-link" href="Monderman%20Quarter%20Trillion%20Friction%20Healthcare.pdf" target="_blank" rel="noopener noreferrer">
+                Download research &#8594;
+              </a>
+            </div>
+          </article>
+
+          <article class="latest-card">
+            <div class="latest-card-image">
+              <img src="iStock-511677736.jpg" alt="Abstract institutional image for Monderman insight" />
+            </div>
+            <div class="latest-card-body">
+              <p class="latest-card-kicker">Insight</p>
+              <h3 class="latest-card-title">Governing Complexity</h3>
+              <p class="latest-card-text">
+                Why institutions rarely fail because complexity appears, and more often fail because it accumulates faster than their structures can absorb.
+              </p>
+              <a class="latest-card-link" href="governing-complexity.html">
+                Read insight &#8594;
+              </a>
+            </div>
+          </article>
+
+          <article class="latest-card">
+            <div class="latest-card-image">
+              <img src="Decision Velocity.jpg" alt="Decision velocity visual for Monderman insight" />
+            </div>
+            <div class="latest-card-body">
+              <p class="latest-card-kicker">Insight</p>
+              <h3 class="latest-card-title">Designing for Decision Velocity</h3>
+              <p class="latest-card-text">
+                Institutions move well when governance, pathways, and role clarity support sound judgment without generating unnecessary drag.
+              </p>
+              <a class="latest-card-link" href="designing-for-decision-velocity.html">
+                Read insight &#8594;
+              </a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="thinking" id="thinking" aria-labelledby="thinking-title">
+    <div class="thinking-inner">
+      <div class="section-label">Our Thinking</div>
+
+      <div class="thinking-intro">
+        <div class="thinking-copy">
+          <h2 id="thinking-title">Ideas on institutional performance.</h2>
+          <p class="thinking-intro-text">
+            Monderman’s thinking explores how complexity compounds, how systems lose alignment,
+            and how organizations can be designed to sustain performance over time.
+          </p>
+        </div>
+      </div>
+
+      <div class="thinking-divider" aria-hidden="true"></div>
+
+      <div class="thinking-list">
+        <div class="thinking-item">
+          <div class="thinking-title">Governing Complexity</div>
+          <div class="thinking-desc">
+            Institutions rarely fail because complexity appears. They fail because complexity accumulates faster than the organization’s structures can interpret, prioritize, and act on it.
+          </div>
+          <a class="thinking-link" href="governing-complexity.html">
+            Read insight <span class="thinking-arrow">→</span>
+          </a>
+        </div>
+
+        <div class="thinking-item">
+          <div class="thinking-title">Bureaucracy as an Operating System</div>
+          <div class="thinking-desc">
+            Bureaucracy is not just a set of rules. It is the operating system through which authority, information, approvals, and accountability move.
+          </div>
+          <a class="thinking-link" href="bureaucracy-operating-system.html">
+            Read insight <span class="thinking-arrow">→</span>
+          </a>
+        </div>
+
+        <div class="thinking-item">
+          <div class="thinking-title">The Drift Problem</div>
+          <div class="thinking-desc">
+            Structures that once supported execution can harden into friction. Drift is rarely dramatic at first, but it compounds quietly until performance suffers.
+          </div>
+          <a class="thinking-link" href="the-drift-problem.html">
+            Read insight <span class="thinking-arrow">→</span>
+          </a>
+        </div>
+
+        <div class="thinking-item">
+          <div class="thinking-title">Designing for Decision Velocity</div>
+          <div class="thinking-desc">
+            Faster execution does not come from urgency alone. It comes from design: clear roles, aligned pathways, and governance that supports judgment without creating drag.
+          </div>
+          <a class="thinking-link" href="designing-for-decision-velocity.html">
+            Read insight <span class="thinking-arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="connect" id="connect" aria-labelledby="connect-title">
+    <div class="connect-inner">
+      <div class="connect-copy">
+        <div class="section-label">Connect</div>
+        <h2 id="connect-title">Start a serious conversation.</h2>
+        <p class="connect-text">
+          If you are navigating institutional drag, decision friction, or execution misalignment,
+          we would welcome a conversation. Monderman works with leaders who need clearer systems,
+          faster movement, and stronger performance under complexity.
+        </p>
+      </div>
+
+      <div class="connect-panel">
+        <p class="connect-kicker">Primary Contact</p>
+        <a class="connect-link" href="mailto:connect@monderman.com">
+          <span class="connect-link-mark" aria-hidden="true"></span>
+          connect@monderman.com
+        </a>
+        <p class="connect-note">
+          For inquiries, collaborations, or advisory discussions, reach out directly and we will
+          respond as promptly as possible.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-mark">Monderman</div>
+          <p class="footer-copy">
+            Advisory thinking on institutional performance, decision velocity, and the design of
+            systems that sustain clarity under complexity.
+          </p>
+        </div>
+
+        <div class="footer-nav" aria-label="Footer navigation">
+          <div class="footer-nav-col">
+            <p class="footer-nav-title">Explore</p>
+            <a href="#approach">Approach</a>
+            <a href="#latest">Latest</a>
+            <a href="#thinking">Thinking</a>
+            <a href="research.html">Research</a>
+            <a href="why-monderman.html">Why Monderman</a>
+          </div>
+
+          <div class="footer-nav-col">
+            <p class="footer-nav-title">Connect</p>
+            <a href="mailto:connect@monderman.com">connect@monderman.com</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
+        <p class="footer-contact">Clarity for complex institutions.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const heroImage = document.getElementById("heroImage");
+    const header = document.getElementById("siteHeader");
+
+    function revealHero() {
+      if (!heroImage) return;
+      setTimeout(() => heroImage.classList.add("is-loaded"), 120);
+    }
+
+    if (heroImage && heroImage.complete) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(revealHero);
+      });
+    } else if (heroImage) {
+      heroImage.addEventListener("load", revealHero, { once: true });
+    }
+
+    function updateHeader() {
+      if (!header) return;
+      if (window.scrollY > 12) {
+        header.classList.add("scrolled");
+      } else {
+        header.classList.remove("scrolled");
+      }
+    }
+
+    updateHeader();
+    window.addEventListener("scroll", updateHeader);
+
+    const costSection = document.getElementById("cost-section");
+    const counters = document.querySelectorAll(".cost-card-number");
+    let hasCounted = false;
+
+    function easeOutCubic(t) {
+      return 1 - Math.pow(1 - t, 3);
+    }
+
+    function formatCounter(type, value) {
+      if (type === "percent") return `${Math.round(value)}%`;
+      if (type === "currency-trillion") return `$${Math.round(value)}T`;
+      if (type === "range-percent") {
+        const maxVal = Math.round(value);
+        const minVal = Math.round((value * 2) / 3);
+        return `${minVal}–${maxVal}%`;
+      }
+      return Math.round(value).toString();
+    }
+
+    function animateCounter(el) {
+      const type = el.dataset.countType;
+      const target = Number(el.dataset.target);
+      const duration = 1500;
+      const start = performance.now();
+
+      function step(now) {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = easeOutCubic(progress);
+        const current = target * eased;
+        el.textContent = formatCounter(type, current);
+
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          el.textContent = formatCounter(type, target);
+        }
+      }
+
+      requestAnimationFrame(step);
+    }
+
+    if (costSection && counters.length) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !hasCounted) {
+            hasCounted = true;
+            counters.forEach((counter) => animateCounter(counter));
+            observer.disconnect();
+          }
+        });
+      }, { threshold: 0.35 });
+
+      observer.observe(costSection);
+    }
+
+    const latestViewport = document.getElementById("latestViewport");
+    const latestTrack = document.getElementById("latestTrack");
+    const latestPrev = document.getElementById("latestPrev");
+    const latestNext = document.getElementById("latestNext");
+    const latestCards = latestTrack ? Array.from(latestTrack.querySelectorAll(".latest-card")) : [];
+
+    let latestIndex = 0;
+    let latestCardsPerView = window.innerWidth <= 760 ? 1 : 2;
+    let autoAdvanceTimer = null;
+    let resumeTimer = null;
+
+    function getLatestMaxIndex() {
+      return Math.max(0, latestCards.length - latestCardsPerView);
+    }
+
+    function clampLatestIndex() {
+      latestIndex = Math.max(0, Math.min(latestIndex, getLatestMaxIndex()));
+    }
+
+    function updateLatestCarousel() {
+      if (!latestTrack || !latestCards.length) return;
+
+      latestCardsPerView = window.innerWidth <= 760 ? 1 : 2;
+      clampLatestIndex();
+
+      const targetCard = latestCards[latestIndex];
+      const targetX = targetCard ? targetCard.offsetLeft : 0;
+      latestTrack.style.transform = `translateX(-${targetX}px)`;
+
+      if (latestPrev) {
+        latestPrev.disabled = latestIndex === 0;
+        latestPrev.style.opacity = latestIndex === 0 ? "0.45" : "1";
+      }
+
+      if (latestNext) {
+        const atEnd = latestIndex >= getLatestMaxIndex();
+        latestNext.disabled = atEnd;
+        latestNext.style.opacity = atEnd ? "0.45" : "1";
+      }
+    }
+
+    function goToLatest(index) {
+      latestIndex = index;
+      clampLatestIndex();
+      updateLatestCarousel();
+    }
+
+    function goToNextLatest() {
+      if (latestIndex >= getLatestMaxIndex()) {
+        latestIndex = 0;
+      } else {
+        latestIndex += 1;
+      }
+      updateLatestCarousel();
+    }
+
+    function stopAutoAdvance() {
+      if (autoAdvanceTimer) {
+        clearInterval(autoAdvanceTimer);
+        autoAdvanceTimer = null;
+      }
+      if (resumeTimer) {
+        clearTimeout(resumeTimer);
+        resumeTimer = null;
+      }
+    }
+
+    function startAutoAdvance() {
+      stopAutoAdvance();
+      if (latestCards.length <= latestCardsPerView) return;
+      autoAdvanceTimer = setInterval(() => {
+        goToNextLatest();
+      }, 7000);
+    }
+
+    function pauseAndResume(delay = 12000) {
+      stopAutoAdvance();
+      resumeTimer = setTimeout(() => {
+        startAutoAdvance();
+      }, delay);
+    }
+
+    if (latestPrev) {
+      latestPrev.addEventListener("click", () => {
+        goToLatest(latestIndex - 1);
+        pauseAndResume();
+      });
+    }
+
+    if (latestNext) {
+      latestNext.addEventListener("click", () => {
+        goToLatest(latestIndex + 1);
+        pauseAndResume();
+      });
+    }
+
+    if (latestViewport) {
+      latestViewport.addEventListener("mouseenter", stopAutoAdvance);
+      latestViewport.addEventListener("mouseleave", () => pauseAndResume(3500));
+      latestViewport.addEventListener("touchstart", () => pauseAndResume());
+    }
+
+    window.addEventListener("resize", updateLatestCarousel);
+    window.addEventListener("load", () => {
+      updateLatestCarousel();
+      startAutoAdvance();
+    });
+  </script>
+</body>
+</html>
