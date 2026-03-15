@@ -1,1 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diagnostic Tools | Monderman</title>
 
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href='data:image/svg+xml;utf8,
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="10" fill="%230F1720"/>
+      <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text>
+      <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
+    </svg>'
+  />
+
+  <style>
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src:
+        url("55font.woff2") format("woff2"),
+        url("55font.woff") format("woff");
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src:
+        url("65font.woff2") format("woff2"),
+        url("65font.woff") format("woff");
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src:
+        url("75font.woff2") format("woff2"),
+        url("75font.woff") format("woff");
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+    }
+
+    :root {
+      --accent: #3F6EA1;
+      --bg-dark: #0F1720;
+      --bg-dark-2: #111B25;
+      --bg-white: #FFFFFF;
+      --bg-offwhite: #F6F7F8;
+      --text-light: #F5F7FA;
+      --muted-light: rgba(245, 247, 250, 0.80);
+      --text-dark: #15202B;
+      --muted-dark: #5F6B78;
+      --muted-dark-2: #7A8794;
+      --line-dark: #E3E7EB;
+      --header-solid: rgba(18, 25, 34, 0.84);
+      --header-border: rgba(255, 255, 255, 0.08);
+      --max: 1320px;
+      --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
+      --transition-slow: 360ms cubic-bezier(0.22, 1, 0.36, 1);
+      --tool-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 72px;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg-white);
+      color: var(--text-dark);
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    html,
+    body,
+    button,
+    input,
+    textarea,
+    select,
+    option,
+    a,
+    p,
+    li,
+    dt,
+    dd,
+    span,
+    small,
+    strong,
+    em,
+    label,
+    figcaption,
+    blockquote,
+    cite,
+    div,
+    section,
+    article,
+    nav,
+    header,
+    footer,
+    main {
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    .header {
+      position: fixed;
+      inset: 0 0 auto 0;
+      width: 100%;
+      height: 72px;
+      z-index: 100;
+      background: transparent;
+      border-bottom: 1px solid transparent;
+      transition:
+        background var(--transition),
+        border-color var(--transition),
+        backdrop-filter var(--transition),
+        -webkit-backdrop-filter var(--transition);
+    }
+
+    .header.scrolled {
+      background: var(--header-solid);
+      border-bottom-color: var(--header-border);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .header-inner {
+      max-width: var(--max);
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 34px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      font-size: 1.32rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      white-space: nowrap;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
+    }
+
+    .brand::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .nav a {
+      position: relative;
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 0.015em;
+      color: rgba(255, 255, 255, 0.88);
+      transition: color var(--transition), transform var(--transition);
+    }
+
+    .nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -6px;
+      width: 100%;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.76);
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 180ms ease;
+    }
+
+    .nav a:hover,
+    .nav a:focus-visible {
+      color: #FFFFFF;
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .nav a:hover::after,
+    .nav a:focus-visible::after {
+      transform: scaleX(1);
+    }
+
+    .hero-tools {
+      position: relative;
+      background: linear-gradient(180deg, #0F1720 0%, #131E29 100%);
+      color: var(--text-light);
+      overflow: hidden;
+    }
+
+    .hero-tools::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 80% 20%, rgba(63, 110, 161, 0.12), transparent 30%),
+        linear-gradient(135deg, rgba(63, 110, 161, 0.03) 1px, transparent 1px);
+      background-size: auto, 34px 34px;
+      opacity: 0.34;
+      pointer-events: none;
+    }
+
+    .hero-tools-inner {
+      position: relative;
+      z-index: 1;
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 148px 34px 92px;
+    }
+
+    .hero-tools-eyebrow {
+      margin: 0 0 22px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: rgba(245, 247, 250, 0.58);
+    }
+
+    .hero-tools h1 {
+      margin: 0 0 22px;
+      max-width: 11.5ch;
+      font-size: clamp(3rem, 5vw, 4.8rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      font-weight: 700;
+      color: #FFFFFF;
+      text-wrap: balance;
+    }
+
+    .hero-tools p {
+      margin: 0;
+      max-width: 62ch;
+      font-size: 1.08rem;
+      line-height: 1.68;
+      color: var(--muted-light);
+    }
+
+    .tools-page {
+      background: var(--bg-offwhite);
+      padding: 88px 34px 92px;
+      color: var(--text-dark);
+    }
+
+    .tools-page-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .tools-page-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 46px;
+      align-items: end;
+      margin-bottom: 34px;
+    }
+
+    .section-label {
+      margin-bottom: 16px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .section-label::before {
+      content: "";
+      display: block;
+      width: 48px;
+      height: 2px;
+      background: var(--accent);
+      margin-bottom: 14px;
+    }
+
+    .section-intro h2 {
+      margin: 0 0 18px;
+      max-width: 760px;
+      font-size: clamp(1.95rem, 2.45vw, 2.35rem);
+      line-height: 1.12;
+      letter-spacing: -0.04em;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-wrap: balance;
+    }
+
+    .section-intro p {
+      margin: 0;
+      max-width: 62ch;
+      font-size: 1.04rem;
+      line-height: 1.68;
+      color: var(--muted-dark);
+    }
+
+    .tools-note {
+      margin: 0;
+      font-size: 0.90rem;
+      line-height: 1.62;
+      color: var(--muted-dark-2);
+      padding: 18px 20px;
+      background: rgba(255,255,255,0.72);
+      border: 1px solid rgba(21,32,43,0.08);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.01);
+    }
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 22px;
+      margin-bottom: 30px;
+    }
+
+    .tool-card {
+      position: relative;
+      background: #FFFFFF;
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      box-shadow: var(--tool-shadow);
+      padding: 22px 22px 20px;
+      min-height: 236px;
+      transition:
+        transform var(--transition-slow),
+        box-shadow var(--transition-slow),
+        border-color var(--transition);
+    }
+
+    .tool-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(63, 110, 161, 0.14);
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .tool-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      background: rgba(63, 110, 161, 0.08);
+      color: var(--accent);
+      border: 1px solid rgba(63, 110, 161, 0.12);
+      margin-bottom: 12px;
+    }
+
+    .tool-badge-muted {
+      background: rgba(21,32,43,0.04);
+      color: var(--muted-dark);
+      border-color: rgba(21,32,43,0.08);
+    }
+
+    .tool-card-kicker {
+      margin: 0 0 10px;
+      font-size: 0.70rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .tool-card-title {
+      margin: 0 0 10px;
+      font-size: 1.14rem;
+      line-height: 1.14;
+      font-weight: 700;
+      letter-spacing: -0.022em;
+      color: var(--text-dark);
+    }
+
+    .tool-card-text {
+      margin: 0 0 14px;
+      font-size: 0.95rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+    }
+
+    .tool-card-meta {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.55;
+      color: var(--muted-dark-2);
+    }
+
+    .tool-card-live {
+      border-color: rgba(63, 110, 161, 0.16);
+    }
+
+    .tool-app {
+      margin-top: 10px;
+      background: #FFFFFF;
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      box-shadow:
+        0 1px 0 rgba(0,0,0,0.012),
+        0 14px 32px rgba(0,0,0,0.04);
+      overflow: hidden;
+    }
+
+    .tool-app-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 24px 24px 18px;
+      border-bottom: 1px solid rgba(21,32,43,0.08);
+      background: rgba(246,247,248,0.6);
+    }
+
+    .tool-app-head h3 {
+      margin: 0 0 8px;
+      font-size: 1.28rem;
+      line-height: 1.12;
+      letter-spacing: -0.024em;
+      color: var(--text-dark);
+    }
+
+    .tool-app-head p {
+      margin: 0;
+      max-width: 62ch;
+      font-size: 0.96rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+    }
+
+    .tool-privacy {
+      max-width: 360px;
+      font-size: 0.84rem;
+      line-height: 1.58;
+      color: var(--muted-dark-2);
+    }
+
+    .tool-steps {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 18px 24px 0;
+    }
+
+    .tool-step-pill {
+      padding: 7px 11px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+      background: rgba(21,32,43,0.04);
+      border: 1px solid rgba(21,32,43,0.08);
+    }
+
+    .tool-step-pill.is-active {
+      color: var(--accent);
+      background: rgba(63,110,161,0.08);
+      border-color: rgba(63,110,161,0.16);
+    }
+
+    .tool-app-body {
+      padding: 24px;
+    }
+
+    .tool-pane {
+      display: none;
+    }
+
+    .tool-pane.is-active {
+      display: block;
+    }
+
+    .tool-pane-title {
+      margin: 0 0 12px;
+      font-size: 1.08rem;
+      line-height: 1.18;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .tool-pane-copy {
+      margin: 0 0 18px;
+      max-width: 64ch;
+      font-size: 0.95rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+    }
+
+    .tool-fields {
+      display: grid;
+      gap: 16px;
+    }
+
+    .tool-field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .tool-field label {
+      font-size: 0.90rem;
+      font-weight: 500;
+      color: var(--text-dark);
+    }
+
+    .tool-field input,
+    .tool-field select,
+    .tool-field textarea {
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 14px;
+      border: 1px solid rgba(21,32,43,0.12);
+      background: #FFFFFF;
+      color: var(--text-dark);
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .tool-field textarea {
+      min-height: 96px;
+      resize: vertical;
+    }
+
+    .tool-field input:focus,
+    .tool-field select:focus,
+    .tool-field textarea:focus {
+      outline: none;
+      border-color: rgba(63,110,161,0.48);
+      box-shadow: 0 0 0 3px rgba(63,110,161,0.10);
+    }
+
+    .tool-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .tool-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .tool-decision-list {
+      display: grid;
+      gap: 16px;
+      margin-top: 6px;
+    }
+
+    .tool-decision-card {
+      border: 1px solid rgba(21,32,43,0.08);
+      background: rgba(246,247,248,0.58);
+      padding: 16px;
+    }
+
+    .tool-decision-card h4 {
+      margin: 0 0 12px;
+      font-size: 0.96rem;
+      line-height: 1.2;
+      color: var(--text-dark);
+    }
+
+    .tool-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(21,32,43,0.08);
+    }
+
+    .tool-nav-left,
+    .tool-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tool-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 18px;
+      background: var(--text-dark);
+      color: #FFFFFF;
+      border: 1px solid var(--text-dark);
+      font-size: 0.94rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      transition:
+        background var(--transition),
+        border-color var(--transition),
+        transform var(--transition);
+    }
+
+    .tool-btn:hover,
+    .tool-btn:focus-visible {
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .tool-btn-secondary {
+      background: #FFFFFF;
+      color: var(--text-dark);
+      border-color: rgba(21,32,43,0.14);
+    }
+
+    .tool-btn-secondary:hover,
+    .tool-btn-secondary:focus-visible {
+      border-color: rgba(63,110,161,0.24);
+    }
+
+    .tool-summary {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+      margin-bottom: 22px;
+    }
+
+    .tool-score {
+      background: rgba(63,110,161,0.08);
+      border: 1px solid rgba(63,110,161,0.16);
+      padding: 18px;
+    }
+
+    .tool-score-label {
+      margin: 0 0 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .tool-score-value {
+      margin: 0 0 8px;
+      font-size: 3rem;
+      line-height: 0.95;
+      letter-spacing: -0.06em;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .tool-score-band {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      color: var(--muted-dark);
+    }
+
+    .tool-results h4 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+      line-height: 1.2;
+      color: var(--text-dark);
+    }
+
+    .tool-results p,
+    .tool-results li {
+      color: var(--muted-dark);
+      font-size: 0.95rem;
+      line-height: 1.62;
+    }
+
+    .tool-results ul {
+      margin: 0 0 18px 18px;
+      padding: 0;
+    }
+
+    .tool-results-note {
+      margin-top: 18px;
+      padding: 16px;
+      border: 1px solid rgba(21,32,43,0.08);
+      background: rgba(246,247,248,0.62);
+      font-size: 0.90rem;
+      line-height: 1.6;
+      color: var(--muted-dark);
+    }
+
+    .footer {
+      background: #0D141C;
+      color: rgba(245, 247, 250, 0.88);
+      padding: 44px 34px 34px;
+    }
+
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .footer-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 40px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .footer-brand {
+      max-width: 420px;
+    }
+
+    .footer-mark {
+      display: inline-flex;
+      align-items: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      margin-bottom: 14px;
+    }
+
+    .footer-mark::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+
+    .footer-copy {
+      margin: 0;
+      max-width: 36ch;
+      font-size: 0.98rem;
+      line-height: 1.65;
+      color: rgba(245, 247, 250, 0.68);
+    }
+
+    .footer-nav {
+      display: flex;
+      gap: 48px;
+      flex-wrap: wrap;
+    }
+
+    .footer-nav-col {
+      min-width: 120px;
+    }
+
+    .footer-nav-title {
+      margin: 0 0 12px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245, 247, 250, 0.50);
+    }
+
+    .footer-nav a {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      color: rgba(245, 247, 250, 0.82);
+      transition: color var(--transition), transform var(--transition);
+    }
+
+    .footer-nav a:hover,
+    .footer-nav a:focus-visible {
+      color: #FFFFFF;
+      transform: translateX(2px);
+      outline: none;
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding-top: 18px;
+    }
+
+    .footer-meta,
+    .footer-contact {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: rgba(245, 247, 250, 0.58);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .header,
+      .nav a,
+      .nav a::after,
+      .tool-card,
+      .tool-btn,
+      .footer-nav a {
+        transition: none;
+      }
+    }
+
+    @media (max-width: 1100px) {
+      .tools-page-head {
+        grid-template-columns: 1fr;
+      }
+
+      .tools-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .tool-summary {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 980px) {
+      .header {
+        height: auto;
+      }
+
+      .header-inner {
+        padding: 16px 24px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .nav {
+        gap: 22px;
+      }
+
+      .hero-tools-inner,
+      .tools-page,
+      .footer {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .brand {
+        font-size: 1.24rem;
+      }
+
+      .nav {
+        gap: 18px;
+      }
+
+      .hero-tools-inner {
+        padding: 134px 20px 74px;
+      }
+
+      .hero-tools h1 {
+        max-width: 100%;
+        font-size: clamp(2.4rem, 8vw, 3.3rem);
+      }
+
+      .hero-tools p {
+        font-size: 1rem;
+        line-height: 1.58;
+      }
+
+      .tools-page {
+        padding: 72px 20px 72px;
+      }
+
+      .tools-grid,
+      .tool-grid-2,
+      .tool-grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .tool-app-head {
+        padding: 20px 20px 16px;
+        flex-direction: column;
+      }
+
+      .tool-steps,
+      .tool-app-body {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .tool-nav {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .tool-nav-left,
+      .tool-nav-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .footer {
+        padding: 34px 20px 28px;
+      }
+
+      .footer-top,
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .footer-nav {
+        gap: 28px;
+      }
+
+      .footer-copy {
+        font-size: 0.94rem;
+      }
+
+      .footer-meta,
+      .footer-contact {
+        font-size: 0.84rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header" id="siteHeader">
+    <div class="header-inner">
+      <a href="index.html" class="brand">Monderman</a>
+
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="index.html#approach">Approach</a>
+        <a href="diagnostic-tools.html">Tools</a>
+        <a href="index.html#thinking">Thinking</a>
+        <a href="research.html">Research</a>
+        <a href="why-monderman.html">Why Monderman</a>
+        <a href="index.html#connect">Connect</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero-tools" aria-labelledby="tools-hero-title">
+    <div class="hero-tools-inner">
+      <p class="hero-tools-eyebrow">Monderman Diagnostic Tools</p>
+      <h1 id="tools-hero-title">Practical diagnostics for institutional friction.</h1>
+      <p>
+        Structured tools for identifying ownership ambiguity, decision bottlenecks, and administrative drag in bounded workflows and operating environments.
+      </p>
+    </div>
+  </section>
+
+  <main class="tools-page">
+    <div class="tools-page-inner">
+      <div class="tools-page-head">
+        <div class="section-intro">
+          <div class="section-label">Diagnostic Suite</div>
+          <h2>Grounded tools, built for immediate use.</h2>
+          <p>
+            These diagnostics are designed to reveal real structural issues without pretending to be full organizational assessments. Use them to clarify where friction is accumulating, where responsibilities are misaligned, and where deeper redesign may be needed.
+          </p>
+        </div>
+
+        <p class="tools-note">
+          <strong>Private by default.</strong> These diagnostics are intended for immediate use and do not create a persistent organizational record.
+          Please avoid entering confidential, classified, regulated, or personally sensitive information.
+        </p>
+      </div>
+
+      <div class="tools-grid">
+        <article class="tool-card tool-card-live">
+          <div class="tool-badge">Live</div>
+          <p class="tool-card-kicker">Structural Clarity</p>
+          <h3 class="tool-card-title">Structural Clarity Snapshot</h3>
+          <p class="tool-card-text">
+            Map one real workflow to identify ownership gaps, authority conflicts, approval stacking, and ambiguous handoffs.
+          </p>
+          <p class="tool-card-meta">
+            Best for one team, one process, or one cross-functional operating slice.
+          </p>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-badge tool-badge-muted">Coming Soon</div>
+          <p class="tool-card-kicker">Decision Velocity</p>
+          <h3 class="tool-card-title">Decision Velocity Snapshot</h3>
+          <p class="tool-card-text">
+            Identify where approvals, escalation patterns, and structural bottlenecks are slowing movement through critical decisions.
+          </p>
+          <p class="tool-card-meta">
+            Designed to show where action stalls between intent, authority, and execution.
+          </p>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-badge tool-badge-muted">Coming Soon</div>
+          <p class="tool-card-kicker">Operational Systems</p>
+          <h3 class="tool-card-title">Bureaucratic Drag Snapshot</h3>
+          <p class="tool-card-text">
+            Surface recurring administrative burden, process density, and non-value-adding overhead inside a specific workflow.
+          </p>
+          <p class="tool-card-meta">
+            Built to distinguish manageable friction from systemic drag requiring redesign.
+          </p>
+        </article>
+      </div>
+
+      <div class="tool-app" id="structural-clarity-app">
+        <div class="tool-app-head">
+          <div>
+            <h3>Structural Clarity Snapshot</h3>
+            <p>
+              A rapid diagnostic for one workflow or operating slice. Results are generated from your inputs and intended for private use only.
+              This is a bounded snapshot, not a comprehensive organizational assessment.
+            </p>
+          </div>
+          <div class="tool-privacy">
+            <strong>Use note:</strong> Do not enter confidential, classified, regulated, or personally sensitive information.
+            This tool is designed to reveal contradictions in ownership, authority, approvals, and handoffs.
+          </div>
+        </
