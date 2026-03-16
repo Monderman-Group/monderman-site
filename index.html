@@ -16,6 +16,8 @@
     </svg>'
   />
 
+  <link rel="preload" as="image" href="IMG_2383.jpeg" />
+
   <style>
     @font-face {
       font-family: "Neue Haas Grotesk";
@@ -272,19 +274,31 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: center center;
+      object-position: 58% center;
       opacity: 0;
-      transform: scale(1.02);
+      transform: translateY(0) scale(1.02);
       transition:
         opacity 1.8s cubic-bezier(0.22, 1, 0.36, 1),
         transform 2.4s cubic-bezier(0.22, 1, 0.36, 1);
       will-change: opacity, transform;
       filter: none;
+      animation: heroSlowZoom 18s ease-out forwards;
+      animation-play-state: paused;
     }
 
     .hero-image.is-loaded {
       opacity: 1;
-      transform: scale(1);
+      transform: translateY(0) scale(1.01);
+      animation-play-state: running;
+    }
+
+    @keyframes heroSlowZoom {
+      from {
+        transform: translateY(0) scale(1.01);
+      }
+      to {
+        transform: translateY(0) scale(1.045);
+      }
     }
 
     .hero-overlay {
@@ -293,17 +307,17 @@
       background:
         linear-gradient(
           90deg,
-          rgba(7, 10, 16, 0.92) 0%,
-          rgba(7, 10, 16, 0.86) 28%,
-          rgba(7, 10, 16, 0.62) 54%,
-          rgba(7, 10, 16, 0.20) 78%,
-          rgba(7, 10, 16, 0.08) 100%
+          rgba(10, 14, 20, 0.74) 0%,
+          rgba(10, 14, 20, 0.56) 24%,
+          rgba(10, 14, 20, 0.28) 48%,
+          rgba(10, 14, 20, 0.10) 72%,
+          rgba(10, 14, 20, 0.04) 100%
         ),
         linear-gradient(
           180deg,
-          rgba(7, 10, 16, 0.12) 0%,
-          rgba(7, 10, 16, 0.08) 28%,
-          rgba(7, 10, 16, 0.18) 100%
+          rgba(10, 14, 20, 0.08) 0%,
+          rgba(10, 14, 20, 0.02) 36%,
+          rgba(10, 14, 20, 0.14) 100%
         );
     }
 
@@ -347,10 +361,10 @@
       padding-left: 2px;
       font-size: 0.34rem;
       line-height: 1;
-      letter-spacing: 0.50em;
+      letter-spacing: 0.38em;
       font-weight: 500;
       text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.32);
+      color: rgba(255, 255, 255, 0.34);
       animation-delay: 420ms;
     }
 
@@ -399,10 +413,10 @@
       font-weight: 500;
       letter-spacing: -0.01em;
       white-space: nowrap;
-      background: rgba(255, 255, 255, 0.97);
-      color: var(--accent);
-      border: 1px solid rgba(255, 255, 255, 0.42);
-      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--text-dark);
+      border: 1px solid rgba(255, 255, 255, 0.46);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
       transition:
         background var(--transition),
         color var(--transition),
@@ -415,25 +429,25 @@
     .btn:hover,
     .btn:focus-visible {
       background: #FFFFFF;
-      color: var(--accent-dark);
-      border-color: rgba(255, 255, 255, 0.58);
+      color: var(--text-dark);
+      border-color: rgba(255, 255, 255, 0.62);
       transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.10);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
       outline: none;
     }
 
     .btn-secondary {
       background: transparent;
       color: #FFFFFF;
-      border-color: rgba(255, 255, 255, 0.24);
+      border-color: rgba(255, 255, 255, 0.30);
       box-shadow: none;
     }
 
     .btn-secondary:hover,
     .btn-secondary:focus-visible {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.06);
       color: #FFFFFF;
-      border-color: rgba(255, 255, 255, 0.40);
+      border-color: rgba(255, 255, 255, 0.46);
       box-shadow: none;
     }
 
@@ -740,6 +754,18 @@
         transform var(--transition-slow),
         box-shadow var(--transition-slow),
         border-color var(--transition);
+    }
+
+    .tool-card-link {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .tool-card-link:focus-visible {
+      outline: 2px solid rgba(63, 110, 161, 0.35);
+      outline-offset: 3px;
     }
 
     .tool-card:hover {
@@ -1412,7 +1438,7 @@
       }
 
       .hero-image {
-        object-position: 60% center;
+        object-position: 62% center;
       }
 
       .hero-inner {
@@ -1451,7 +1477,7 @@
       }
 
       .hero-image {
-        object-position: 66% center;
+        object-position: 64% center;
       }
 
       .hero-inner {
@@ -1462,7 +1488,7 @@
         margin-bottom: 76px;
         padding-left: 1px;
         font-size: 0.38rem;
-        letter-spacing: 0.30em;
+        letter-spacing: 0.24em;
         color: rgba(255, 255, 255, 0.40);
       }
 
@@ -1628,7 +1654,7 @@
 
       <nav class="nav" aria-label="Primary navigation">
         <a href="#approach">Approach</a>
-        <a href="diagnostic-tools.html">Tools</a>
+        <a href="diagnostic-tools.html">Diagnostic Tools</a>
         <a href="#thinking">Thinking</a>
         <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
@@ -1642,7 +1668,7 @@
       <img
         class="hero-image"
         id="heroImage"
-        src="monderman-hero-lines.svg"
+        src="IMG_2383.jpeg"
         alt=""
         decoding="async"
         fetchpriority="high"
@@ -1652,7 +1678,7 @@
 
     <div class="hero-inner">
       <div class="hero-copy">
-        <p class="hero-eyebrow">Institutional Performance</p>
+        <p class="hero-eyebrow">Institutional Design · Performance Under Complexity</p>
 
         <h1 id="hero-title">Transforming complexity into opportunity.</h1>
 
@@ -1662,8 +1688,7 @@
 
         <div class="hero-actions">
           <a class="btn" href="#approach">Our Approach</a>
-          <a class="btn" href="diagnostic-tools.html">Run Diagnostics</a>
-          <a class="btn btn-secondary" href="#connect">Connect</a>
+          <a class="btn btn-secondary" href="diagnostic-tools.html">Run Diagnostics</a>
         </div>
       </div>
     </div>
@@ -1772,7 +1797,7 @@
       </div>
 
       <div class="tools-grid">
-        <article class="tool-card">
+        <a class="tool-card tool-card-link" href="diagnostic-tools.html">
           <div class="tool-badge">Live</div>
           <p class="tool-card-kicker">Structural Clarity</p>
           <h3 class="tool-card-title">Structural Clarity Snapshot</h3>
@@ -1782,9 +1807,9 @@
           <p class="tool-card-meta">
             Best for one team, one process, or one cross-functional operating slice.
           </p>
-        </article>
+        </a>
 
-        <article class="tool-card">
+        <a class="tool-card tool-card-link" href="diagnostic-tools.html">
           <div class="tool-badge tool-badge-muted">Coming Soon</div>
           <p class="tool-card-kicker">Decision Velocity</p>
           <h3 class="tool-card-title">Decision Velocity Snapshot</h3>
@@ -1794,9 +1819,9 @@
           <p class="tool-card-meta">
             Designed to show where action stalls between intent, authority, and execution.
           </p>
-        </article>
+        </a>
 
-        <article class="tool-card">
+        <a class="tool-card tool-card-link" href="diagnostic-tools.html">
           <div class="tool-badge tool-badge-muted">Coming Soon</div>
           <p class="tool-card-kicker">Operational Systems</p>
           <h3 class="tool-card-title">Bureaucratic Drag Snapshot</h3>
@@ -1806,7 +1831,7 @@
           <p class="tool-card-meta">
             Built to distinguish manageable friction from systemic drag requiring redesign.
           </p>
-        </article>
+        </a>
       </div>
 
       <div class="tools-teaser-footer">
@@ -2011,7 +2036,7 @@
           <div class="footer-nav-col">
             <p class="footer-nav-title">Explore</p>
             <a href="#approach">Approach</a>
-            <a href="diagnostic-tools.html">Tools</a>
+            <a href="diagnostic-tools.html">Diagnostic Tools</a>
             <a href="#thinking">Thinking</a>
             <a href="research.html">Research</a>
             <a href="why-monderman.html">Why Monderman</a>
@@ -2034,6 +2059,7 @@
   <script>
     const heroImage = document.getElementById("heroImage");
     const header = document.getElementById("siteHeader");
+    const heroSection = document.querySelector(".hero");
 
     function revealHero() {
       if (!heroImage) return;
@@ -2057,8 +2083,21 @@
       }
     }
 
+    function updateHeroParallax() {
+      if (!heroImage || !heroSection) return;
+      const rect = heroSection.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const progress = Math.max(-1, Math.min(1, rect.top / vh));
+      const y = progress * -18;
+      if (heroImage.classList.contains("is-loaded")) {
+        heroImage.style.transform = `translateY(${y}px) scale(1.045)`;
+      }
+    }
+
     updateHeader();
     window.addEventListener("scroll", updateHeader);
+    window.addEventListener("scroll", updateHeroParallax, { passive: true });
+    window.addEventListener("load", updateHeroParallax);
 
     const costSection = document.getElementById("cost-section");
     const counters = document.querySelectorAll(".cost-card-number");
