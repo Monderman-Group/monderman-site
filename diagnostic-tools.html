@@ -1533,7 +1533,7 @@
     }
 
     updateHeader();
-    window.addEventListener("scroll", updateHeader);
+    window.addEventListener("scroll", updateHeader, { passive: true });
 
     const panes = Array.from(document.querySelectorAll(".tool-pane"));
     const stepPills = Array.from(document.querySelectorAll(".tool-step-pill"));
@@ -1547,7 +1547,6 @@
       stepPills.forEach((pill, i) => pill.classList.toggle("is-active", i === currentStep));
       progressFill.style.width = `${((currentStep + 1) / panes.length) * 100}%`;
       progressLabel.textContent = `Step ${currentStep + 1} of ${panes.length}`;
-      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     document.querySelectorAll("[data-next]").forEach((btn) => {
