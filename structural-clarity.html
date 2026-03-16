@@ -1,1 +1,1623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Structural Clarity Snapshot | Monderman</title>
 
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href='data:image/svg+xml;utf8,
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="10" fill="%230F1720"/>
+      <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text>
+      <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
+    </svg>'
+  />
+
+  <style>
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff");
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff");
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff");
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+    }
+
+    :root {
+      --accent: #3F6EA1;
+      --accent-dark: #2F5886;
+      --bg-dark: #0F1720;
+      --bg-dark-2: #111B25;
+      --bg-white: #FFFFFF;
+      --bg-offwhite: #F6F7F8;
+      --text-light: #F5F7FA;
+      --muted-light: rgba(245, 247, 250, 0.80);
+      --text-dark: #15202B;
+      --muted-dark: #5F6B78;
+      --muted-dark-2: #7A8794;
+      --line-dark: #E3E7EB;
+      --header-solid: rgba(14, 20, 28, 0.84);
+      --header-border: rgba(255, 255, 255, 0.08);
+      --max: 1320px;
+      --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
+      --transition-slow: 360ms cubic-bezier(0.22, 1, 0.36, 1);
+      --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 88px;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg-white);
+      color: var(--text-dark);
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    html,
+    body,
+    button,
+    input,
+    textarea,
+    select,
+    option,
+    a,
+    p,
+    li,
+    dt,
+    dd,
+    span,
+    small,
+    strong,
+    em,
+    label,
+    figcaption,
+    blockquote,
+    cite,
+    div,
+    section,
+    article,
+    nav,
+    header,
+    footer,
+    main,
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    .header {
+      position: fixed;
+      inset: 0 0 auto 0;
+      width: 100%;
+      height: 72px;
+      z-index: 100;
+      background: transparent;
+      border-bottom: 1px solid transparent;
+      transition:
+        background var(--transition),
+        border-color var(--transition),
+        backdrop-filter var(--transition),
+        -webkit-backdrop-filter var(--transition);
+    }
+
+    .header.scrolled {
+      background: var(--header-solid);
+      border-bottom-color: var(--header-border);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .header-inner {
+      max-width: var(--max);
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 34px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      font-size: 1.32rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      white-space: nowrap;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
+    }
+
+    .brand::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .nav a {
+      position: relative;
+      font-size: 0.94rem;
+      font-weight: 500;
+      letter-spacing: 0.012em;
+      color: rgba(255, 255, 255, 0.88);
+      transition: color var(--transition), transform var(--transition);
+    }
+
+    .nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -6px;
+      width: 100%;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.74);
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 180ms ease;
+    }
+
+    .nav a:hover,
+    .nav a:focus-visible {
+      color: #FFFFFF;
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .nav a:hover::after,
+    .nav a:focus-visible::after {
+      transform: scaleX(1);
+    }
+
+    .hero-tools {
+      position: relative;
+      background: linear-gradient(180deg, #0F1720 0%, #131E29 100%);
+      color: var(--text-light);
+      overflow: hidden;
+    }
+
+    .hero-tools::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 80% 20%, rgba(63, 110, 161, 0.12), transparent 30%),
+        linear-gradient(135deg, rgba(63, 110, 161, 0.03) 1px, transparent 1px);
+      background-size: auto, 34px 34px;
+      opacity: 0.34;
+      pointer-events: none;
+    }
+
+    .hero-tools-inner {
+      position: relative;
+      z-index: 1;
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 148px 34px 92px;
+    }
+
+    .hero-tools-eyebrow {
+      margin: 0 0 22px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: rgba(245, 247, 250, 0.58);
+    }
+
+    .hero-tools h1 {
+      margin: 0 0 22px;
+      max-width: 11ch;
+      font-size: clamp(3rem, 5vw, 4.8rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      font-weight: 700;
+      color: #FFFFFF;
+      text-wrap: balance;
+    }
+
+    .hero-tools p {
+      margin: 0;
+      max-width: 64ch;
+      font-size: 1.08rem;
+      line-height: 1.68;
+      color: var(--muted-light);
+    }
+
+    .tools-page {
+      background: var(--bg-offwhite);
+      padding: 88px 34px 92px;
+      color: var(--text-dark);
+    }
+
+    .tools-page-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .tool-app {
+      background: #FFFFFF;
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      box-shadow:
+        0 1px 0 rgba(0,0,0,0.012),
+        0 14px 32px rgba(0,0,0,0.04);
+      overflow: hidden;
+    }
+
+    .tool-app-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 24px 24px 18px;
+      border-bottom: 1px solid rgba(21,32,43,0.08);
+      background: rgba(246,247,248,0.60);
+    }
+
+    .tool-app-head h3 {
+      margin: 0 0 8px;
+      font-size: 1.28rem;
+      line-height: 1.12;
+      letter-spacing: -0.024em;
+      color: var(--text-dark);
+    }
+
+    .tool-app-head p {
+      margin: 0;
+      max-width: 62ch;
+      font-size: 0.96rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+    }
+
+    .tool-privacy {
+      max-width: 360px;
+      font-size: 0.84rem;
+      line-height: 1.58;
+      color: var(--muted-dark-2);
+    }
+
+    .tool-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      background: rgba(63, 110, 161, 0.08);
+      color: var(--accent);
+      border: 1px solid rgba(63, 110, 161, 0.12);
+      margin-bottom: 12px;
+      align-self: flex-start;
+    }
+
+    .tool-progress {
+      padding: 18px 24px 0;
+    }
+
+    .tool-progress-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .tool-progress-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+    }
+
+    .tool-progress-time {
+      font-size: 0.86rem;
+      color: var(--muted-dark-2);
+    }
+
+    .tool-progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(21,32,43,0.08);
+      overflow: hidden;
+    }
+
+    .tool-progress-fill {
+      width: 25%;
+      height: 100%;
+      background: var(--accent);
+      transition: width var(--transition-slow);
+    }
+
+    .tool-steps {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 18px 24px 0;
+    }
+
+    .tool-step-pill {
+      padding: 7px 11px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+      background: rgba(21,32,43,0.04);
+      border: 1px solid rgba(21,32,43,0.08);
+    }
+
+    .tool-step-pill.is-active {
+      color: var(--accent);
+      background: rgba(63,110,161,0.08);
+      border-color: rgba(63,110,161,0.16);
+    }
+
+    .tool-app-body {
+      padding: 24px;
+    }
+
+    .tool-pane {
+      display: none;
+    }
+
+    .tool-pane.is-active {
+      display: block;
+    }
+
+    .tool-pane-title {
+      margin: 0 0 12px;
+      font-size: 1.08rem;
+      line-height: 1.18;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .tool-pane-copy {
+      margin: 0 0 18px;
+      max-width: 64ch;
+      font-size: 0.95rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+    }
+
+    .tool-fields {
+      display: grid;
+      gap: 16px;
+    }
+
+    .tool-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .tool-field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .tool-field label {
+      font-size: 0.90rem;
+      font-weight: 500;
+      color: var(--text-dark);
+    }
+
+    .tool-field input[type="text"],
+    .tool-field select,
+    .tool-field textarea {
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 14px;
+      border: 1px solid rgba(21,32,43,0.12);
+      background: #FFFFFF;
+      color: var(--text-dark);
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .tool-field textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    .tool-field input[type="text"]:focus,
+    .tool-field select:focus,
+    .tool-field textarea:focus {
+      outline: none;
+      border-color: rgba(63,110,161,0.48);
+      box-shadow: 0 0 0 3px rgba(63,110,161,0.10);
+    }
+
+    .tool-choice-group,
+    .tool-check-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .tool-choice,
+    .tool-check {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 46px;
+      padding: 10px 12px;
+      border: 1px solid rgba(21,32,43,0.10);
+      background: #FFFFFF;
+      color: var(--text-dark);
+      cursor: pointer;
+    }
+
+    .tool-choice input,
+    .tool-check input {
+      margin: 0;
+      accent-color: var(--accent);
+    }
+
+    .tool-range-wrap {
+      display: grid;
+      gap: 8px;
+      padding: 14px 14px 12px;
+      border: 1px solid rgba(21,32,43,0.08);
+      background: rgba(246,247,248,0.58);
+    }
+
+    .tool-range-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.90rem;
+      color: var(--muted-dark);
+    }
+
+    .tool-range-value {
+      font-weight: 700;
+      color: var(--text-dark);
+      min-width: 88px;
+      text-align: right;
+    }
+
+    .tool-range-labels {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.78rem;
+      color: var(--muted-dark-2);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .tool-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(21,32,43,0.08);
+    }
+
+    .tool-nav-left,
+    .tool-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tool-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 18px;
+      background: var(--text-dark);
+      color: #FFFFFF;
+      border: 1px solid var(--text-dark);
+      font-size: 0.94rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      transition:
+        background var(--transition),
+        border-color var(--transition),
+        transform var(--transition);
+    }
+
+    .tool-btn:hover,
+    .tool-btn:focus-visible {
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .tool-btn-secondary {
+      background: #FFFFFF;
+      color: var(--text-dark);
+      border-color: rgba(21,32,43,0.14);
+    }
+
+    .tool-btn-secondary:hover,
+    .tool-btn-secondary:focus-visible {
+      border-color: rgba(63,110,161,0.24);
+    }
+
+    .tool-output {
+      display: grid;
+      gap: 22px;
+    }
+
+    .tool-output-intro {
+      max-width: 64ch;
+      font-size: 0.96rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+    }
+
+    .tool-results-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 22px;
+    }
+
+    .tool-result-card {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(21, 32, 43, 0.06);
+      padding: 34px 28px 30px;
+      min-height: 248px;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .tool-result-title {
+      margin: 0 0 8px;
+      font-size: 1.02rem;
+      line-height: 1.12;
+      letter-spacing: -0.015em;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .tool-result-source {
+      margin: 0 0 26px;
+      font-size: 0.76rem;
+      line-height: 1.45;
+      color: #8A95A3;
+      font-style: italic;
+    }
+
+    .tool-result-number {
+      margin: 0 0 16px;
+      font-size: clamp(2.8rem, 4vw, 4.2rem);
+      line-height: 0.88;
+      letter-spacing: -0.065em;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .tool-result-text {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.58;
+      color: var(--muted-dark);
+      max-width: 24ch;
+    }
+
+    .tool-summary {
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .tool-score {
+      background: rgba(63,110,161,0.08);
+      border: 1px solid rgba(63,110,161,0.16);
+      padding: 18px;
+    }
+
+    .tool-score-label {
+      margin: 0 0 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .tool-score-value {
+      margin: 0 0 8px;
+      font-size: 3rem;
+      line-height: 0.95;
+      letter-spacing: -0.06em;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .tool-score-band {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      color: var(--muted-dark);
+    }
+
+    .tool-results h4 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+      line-height: 1.2;
+      color: var(--text-dark);
+    }
+
+    .tool-results p,
+    .tool-results li {
+      color: var(--muted-dark);
+      font-size: 0.95rem;
+      line-height: 1.62;
+    }
+
+    .tool-results ul {
+      margin: 0 0 18px 18px;
+      padding: 0;
+    }
+
+    .tool-results-note {
+      margin-top: 18px;
+      padding: 16px;
+      border: 1px solid rgba(21,32,43,0.08);
+      background: rgba(246,247,248,0.62);
+      font-size: 0.90rem;
+      line-height: 1.6;
+      color: var(--muted-dark);
+    }
+
+    .footer {
+      background: #0D141C;
+      color: rgba(245, 247, 250, 0.88);
+      padding: 44px 34px 34px;
+    }
+
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .footer-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 40px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .footer-brand {
+      max-width: 420px;
+    }
+
+    .footer-mark {
+      display: inline-flex;
+      align-items: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      margin-bottom: 14px;
+    }
+
+    .footer-mark::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+
+    .footer-copy {
+      margin: 0;
+      max-width: 36ch;
+      font-size: 0.98rem;
+      line-height: 1.65;
+      color: rgba(245, 247, 250, 0.68);
+    }
+
+    .footer-nav {
+      display: flex;
+      gap: 48px;
+      flex-wrap: wrap;
+    }
+
+    .footer-nav-col {
+      min-width: 120px;
+    }
+
+    .footer-nav-title {
+      margin: 0 0 12px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245, 247, 250, 0.50);
+    }
+
+    .footer-nav a {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      color: rgba(245, 247, 250, 0.82);
+      transition: color var(--transition), transform var(--transition);
+    }
+
+    .footer-nav a:hover,
+    .footer-nav a:focus-visible {
+      color: #FFFFFF;
+      transform: translateX(2px);
+      outline: none;
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding-top: 18px;
+    }
+
+    .footer-meta,
+    .footer-contact {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: rgba(245, 247, 250, 0.58);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .header,
+      .nav a,
+      .nav a::after,
+      .tool-btn,
+      .footer-nav a,
+      .tool-progress-fill {
+        transition: none;
+      }
+    }
+
+    @media (max-width: 1100px) {
+      .tool-results-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .tool-summary {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 980px) {
+      .header {
+        height: auto;
+      }
+
+      .header-inner {
+        padding: 16px 24px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .nav {
+        gap: 22px;
+      }
+
+      .hero-tools-inner,
+      .tools-page,
+      .footer {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .brand {
+        font-size: 1.24rem;
+      }
+
+      .nav {
+        gap: 18px;
+      }
+
+      .hero-tools-inner {
+        padding: 134px 20px 74px;
+      }
+
+      .hero-tools h1 {
+        max-width: 100%;
+        font-size: clamp(2.4rem, 8vw, 3.3rem);
+      }
+
+      .hero-tools p {
+        font-size: 1rem;
+        line-height: 1.58;
+      }
+
+      .tools-page {
+        padding: 72px 20px 72px;
+      }
+
+      .tool-grid-2,
+      .tool-choice-group,
+      .tool-check-grid,
+      .tool-results-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tool-app-head {
+        padding: 20px 20px 16px;
+        flex-direction: column;
+      }
+
+      .tool-progress,
+      .tool-steps,
+      .tool-app-body {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .tool-nav {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .tool-nav-left,
+      .tool-nav-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .footer {
+        padding: 34px 20px 28px;
+      }
+
+      .footer-top,
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .footer-nav {
+        gap: 28px;
+      }
+
+      .footer-copy {
+        font-size: 0.94rem;
+      }
+
+      .footer-meta,
+      .footer-contact {
+        font-size: 0.84rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header" id="siteHeader">
+    <div class="header-inner">
+      <a href="index.html" class="brand">Monderman</a>
+
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="index.html#approach">Approach</a>
+        <a href="diagnostic-tools.html">Diagnostic Tools</a>
+        <a href="index.html#thinking">Thinking</a>
+        <a href="research.html">Research</a>
+        <a href="why-monderman.html">Why Monderman</a>
+        <a href="index.html#connect">Connect</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero-tools" aria-labelledby="tools-hero-title">
+    <div class="hero-tools-inner">
+      <p class="hero-tools-eyebrow">Monderman Diagnostic Tools</p>
+      <h1 id="tools-hero-title">Structural Clarity Snapshot.</h1>
+      <p>
+        A guided tool for identifying where ownership, authority, handoffs, and review structure
+        have drifted apart inside one bounded workflow or operating slice.
+      </p>
+    </div>
+  </section>
+
+  <main class="tools-page">
+    <div class="tools-page-inner">
+      <div class="tool-app">
+        <div class="tool-app-head">
+          <div>
+            <div class="tool-badge">Live</div>
+            <h3>Structural Clarity Snapshot</h3>
+            <p>
+              A guided four-step diagnostic for one workflow or operating slice. Complete the structured inputs below
+              to estimate likely structural overhead and reveal the patterns most likely driving it.
+            </p>
+          </div>
+          <div class="tool-privacy">
+            <strong>Use note:</strong> Do not enter confidential, classified, regulated, or personally sensitive information.
+            This tool provides directional estimates, not audited organizational values.
+          </div>
+        </div>
+
+        <div class="tool-progress">
+          <div class="tool-progress-top">
+            <div class="tool-progress-label" id="progressLabel">Step 1 of 4</div>
+            <div class="tool-progress-time">Approx. 3 minutes</div>
+          </div>
+          <div class="tool-progress-bar">
+            <div class="tool-progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+
+        <div class="tool-steps">
+          <div class="tool-step-pill is-active">1 · Workflow</div>
+          <div class="tool-step-pill">2 · Clarity</div>
+          <div class="tool-step-pill">3 · Friction</div>
+          <div class="tool-step-pill">4 · Output</div>
+        </div>
+
+        <div class="tool-app-body">
+          <div class="tool-pane is-active" data-step="1">
+            <h4 class="tool-pane-title">Step 1 — Define the workflow</h4>
+            <p class="tool-pane-copy">
+              Start with one bounded workflow. Keep it specific enough that one team, division, or operating slice
+              could clearly recognize it.
+            </p>
+
+            <div class="tool-fields">
+              <div class="tool-grid-2">
+                <div class="tool-field">
+                  <label for="workflowName">Workflow name <span style="color:#7A8794;">(optional)</span></label>
+                  <input id="workflowName" type="text" placeholder="Example: Budget approval for new hires" />
+                </div>
+
+                <div class="tool-field">
+                  <label for="workflowType">Workflow type</label>
+                  <select id="workflowType">
+                    <option value="">Select one</option>
+                    <option>Approvals</option>
+                    <option>Hiring</option>
+                    <option>Procurement</option>
+                    <option>Reporting</option>
+                    <option>Product / program delivery</option>
+                    <option>Cross-functional coordination</option>
+                    <option>Escalations / exceptions</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="tool-grid-2">
+                <div class="tool-field">
+                  <label>Organizational scope</label>
+                  <div class="tool-choice-group">
+                    <label class="tool-choice"><input type="radio" name="scope" value="team" checked /> Team</label>
+                    <label class="tool-choice"><input type="radio" name="scope" value="division" /> Division</label>
+                    <label class="tool-choice"><input type="radio" name="scope" value="company" /> Entire company</label>
+                    <label class="tool-choice"><input type="radio" name="scope" value="other-scope" /> Other</label>
+                  </div>
+                </div>
+
+                <div class="tool-field">
+                  <label>Workflow frequency</label>
+                  <div class="tool-choice-group">
+                    <label class="tool-choice"><input type="radio" name="frequency" value="daily" /> Daily</label>
+                    <label class="tool-choice"><input type="radio" name="frequency" value="weekly" checked /> Weekly</label>
+                    <label class="tool-choice"><input type="radio" name="frequency" value="monthly" /> Monthly</label>
+                    <label class="tool-choice"><input type="radio" name="frequency" value="adhoc" /> Ad hoc</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tool-grid-2">
+                <div class="tool-field">
+                  <label for="headcount">Approximate number of people affected</label>
+                  <select id="headcount">
+                    <option value="8">1–10</option>
+                    <option value="25">11–25</option>
+                    <option value="50">26–50</option>
+                    <option value="100">51–100</option>
+                    <option value="250">101–250</option>
+                    <option value="500">251–500</option>
+                    <option value="1000">500+</option>
+                  </select>
+                </div>
+
+                <div class="tool-field">
+                  <label for="hoursLost">Average hours lost per person per week</label>
+                  <select id="hoursLost">
+                    <option value="1">Under 1 hour</option>
+                    <option value="2">1–2 hours</option>
+                    <option value="3" selected>2–3 hours</option>
+                    <option value="4">3–4 hours</option>
+                    <option value="6">4–6 hours</option>
+                    <option value="8">6+ hours</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="tool-nav">
+              <div class="tool-nav-left"></div>
+              <div class="tool-nav-right">
+                <button class="tool-btn" type="button" data-next>Next</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="tool-pane" data-step="2">
+            <h4 class="tool-pane-title">Step 2 — Rate structural clarity</h4>
+            <p class="tool-pane-copy">
+              Use the sliders to rate how clear the workflow is in practice. Lower clarity increases likely overhead.
+            </p>
+
+            <div class="tool-fields">
+              <div class="tool-field">
+                <label for="ownershipRange">Ownership clarity</label>
+                <div class="tool-range-wrap">
+                  <div class="tool-range-top">
+                    <span>How clear is ownership?</span>
+                    <span class="tool-range-value" id="ownershipValue">Mixed</span>
+                  </div>
+                  <input id="ownershipRange" type="range" min="1" max="5" value="3" />
+                  <div class="tool-range-labels">
+                    <span>Very unclear</span>
+                    <span>Very clear</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tool-field">
+                <label for="authorityRange">Decision authority clarity</label>
+                <div class="tool-range-wrap">
+                  <div class="tool-range-top">
+                    <span>Who can decide?</span>
+                    <span class="tool-range-value" id="authorityValue">Mixed</span>
+                  </div>
+                  <input id="authorityRange" type="range" min="1" max="5" value="3" />
+                  <div class="tool-range-labels">
+                    <span>Very unclear</span>
+                    <span>Very clear</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tool-field">
+                <label for="handoffRange">Handoff clarity</label>
+                <div class="tool-range-wrap">
+                  <div class="tool-range-top">
+                    <span>Are handoffs explicit?</span>
+                    <span class="tool-range-value" id="handoffValue">Mixed</span>
+                  </div>
+                  <input id="handoffRange" type="range" min="1" max="5" value="3" />
+                  <div class="tool-range-labels">
+                    <span>Very unclear</span>
+                    <span>Very clear</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tool-field">
+                <label for="escalationRange">Escalation path clarity</label>
+                <div class="tool-range-wrap">
+                  <div class="tool-range-top">
+                    <span>Are escalation paths understood?</span>
+                    <span class="tool-range-value" id="escalationValue">Mixed</span>
+                  </div>
+                  <input id="escalationRange" type="range" min="1" max="5" value="3" />
+                  <div class="tool-range-labels">
+                    <span>Very unclear</span>
+                    <span>Very clear</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tool-field">
+                <label for="approvalRange">Approval proportionality</label>
+                <div class="tool-range-wrap">
+                  <div class="tool-range-top">
+                    <span>Are approvals proportional to risk?</span>
+                    <span class="tool-range-value" id="approvalValue">Mixed</span>
+                  </div>
+                  <input id="approvalRange" type="range" min="1" max="5" value="3" />
+                  <div class="tool-range-labels">
+                    <span>Not at all</span>
+                    <span>Very much</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tool-nav">
+              <div class="tool-nav-left">
+                <button class="tool-btn tool-btn-secondary" type="button" data-prev>Back</button>
+              </div>
+              <div class="tool-nav-right">
+                <button class="tool-btn" type="button" data-next>Next</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="tool-pane" data-step="3">
+            <h4 class="tool-pane-title">Step 3 — Identify friction patterns</h4>
+            <p class="tool-pane-copy">
+              Select the patterns that best describe the workflow. More friction patterns increase the likely overhead estimate.
+            </p>
+
+            <div class="tool-check-grid">
+              <label class="tool-check"><input type="checkbox" value="duplicate-approvals" /> Duplicate approvals</label>
+              <label class="tool-check"><input type="checkbox" value="unclear-owner" /> Unclear owner</label>
+              <label class="tool-check"><input type="checkbox" value="too-many-handoffs" /> Too many handoffs</label>
+              <label class="tool-check"><input type="checkbox" value="conflicting-authority" /> Conflicting authority</label>
+              <label class="tool-check"><input type="checkbox" value="reporting-burden" /> Reporting burden</label>
+              <label class="tool-check"><input type="checkbox" value="delayed-decisions" /> Delayed decisions</label>
+              <label class="tool-check"><input type="checkbox" value="workarounds-common" /> Workarounds are common</label>
+              <label class="tool-check"><input type="checkbox" value="weak-exception-handling" /> Weak exception handling</label>
+            </div>
+
+            <div class="tool-fields" style="margin-top:16px;">
+              <div class="tool-field">
+                <label for="contextNotes">Optional context <span style="color:#7A8794;">(brief, non-sensitive)</span></label>
+                <textarea id="contextNotes" placeholder="Example: Two directors both review the same decision package before it moves forward."></textarea>
+              </div>
+            </div>
+
+            <div class="tool-nav">
+              <div class="tool-nav-left">
+                <button class="tool-btn tool-btn-secondary" type="button" data-prev>Back</button>
+              </div>
+              <div class="tool-nav-right">
+                <button class="tool-btn" type="button" id="generateResults">Generate results</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="tool-pane" data-step="4">
+            <h4 class="tool-pane-title">Step 4 — Estimated structural overhead</h4>
+            <p class="tool-pane-copy tool-output-intro">
+              These estimates are directional and based on your selected scope, headcount, burden inputs, and generalized labor-rate assumptions.
+              They are intended to surface likely administrative overhead, not provide audited financial values.
+            </p>
+
+            <div class="tool-output">
+              <div class="tool-results-grid">
+                <div class="tool-result-card">
+                  <div class="tool-result-title">Time</div>
+                  <p class="tool-result-source"><em>* rough directional estimate based on your inputs</em></p>
+                  <div class="tool-result-number" id="timeTile">0 hrs</div>
+                  <p class="tool-result-text" id="timeTileText">Estimated labor hours absorbed by structural overhead each month.</p>
+                </div>
+
+                <div class="tool-result-card">
+                  <div class="tool-result-title">Money</div>
+                  <p class="tool-result-source"><em>* rough directional estimate based on blended labor-rate assumptions</em></p>
+                  <div class="tool-result-number" id="moneyTile">$0</div>
+                  <p class="tool-result-text" id="moneyTileText">Estimated monthly cost equivalent of structural overhead.</p>
+                </div>
+
+                <div class="tool-result-card">
+                  <div class="tool-result-title">Resources</div>
+                  <p class="tool-result-source"><em>* rough directional estimate of productive capacity absorbed</em></p>
+                  <div class="tool-result-number" id="resourceTile">0%</div>
+                  <p class="tool-result-text" id="resourceTileText">Estimated productive capacity consumed by structural burden.</p>
+                </div>
+              </div>
+
+              <div class="tool-summary">
+                <div class="tool-score">
+                  <p class="tool-score-label">Clarity Index</p>
+                  <p class="tool-score-value" id="scoreValue">0</p>
+                  <p class="tool-score-band" id="scoreBand">Low burden</p>
+                </div>
+
+                <div class="tool-results">
+                  <h4>Interpretation</h4>
+                  <p id="resultSummary">Your summary will appear here.</p>
+
+                  <h4>Most likely drivers</h4>
+                  <ul id="resultDrivers"></ul>
+
+                  <h4>Most likely interventions</h4>
+                  <ul id="resultActions"></ul>
+
+                  <div class="tool-results-note" id="resultCaveat">
+                    These results are a bounded snapshot intended to make hidden burden more visible. They should be read as a directional estimate, not as a substitute for deeper organizational assessment.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tool-nav">
+              <div class="tool-nav-left">
+                <button class="tool-btn tool-btn-secondary" type="button" data-prev>Back</button>
+              </div>
+              <div class="tool-nav-right">
+                <button class="tool-btn tool-btn-secondary" type="button" id="resetTool">Reset</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-mark">Monderman</div>
+          <p class="footer-copy">
+            Advisory thinking on institutional performance, decision velocity, and the design of systems that sustain clarity under complexity.
+          </p>
+        </div>
+
+        <div class="footer-nav" aria-label="Footer navigation">
+          <div class="footer-nav-col">
+            <p class="footer-nav-title">Explore</p>
+            <a href="index.html#approach">Approach</a>
+            <a href="diagnostic-tools.html">Diagnostic Tools</a>
+            <a href="index.html#thinking">Thinking</a>
+            <a href="research.html">Research</a>
+            <a href="why-monderman.html">Why Monderman</a>
+          </div>
+
+          <div class="footer-nav-col">
+            <p class="footer-nav-title">Connect</p>
+            <a href="mailto:connect@monderman.com">connect@monderman.com</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
+        <p class="footer-contact">Clarity for complex institutions.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const header = document.getElementById("siteHeader");
+
+    function updateHeader() {
+      if (!header) return;
+      if (window.scrollY > 12) {
+        header.classList.add("scrolled");
+      } else {
+        header.classList.remove("scrolled");
+      }
+    }
+
+    updateHeader();
+    window.addEventListener("scroll", updateHeader, { passive: true });
+
+    const panes = Array.from(document.querySelectorAll(".tool-pane"));
+    const stepPills = Array.from(document.querySelectorAll(".tool-step-pill"));
+    const progressFill = document.getElementById("progressFill");
+    const progressLabel = document.getElementById("progressLabel");
+    let currentStep = 0;
+
+    function showStep(index) {
+      currentStep = Math.max(0, Math.min(index, panes.length - 1));
+      panes.forEach((pane, i) => pane.classList.toggle("is-active", i === currentStep));
+      stepPills.forEach((pill, i) => pill.classList.toggle("is-active", i === currentStep));
+      progressFill.style.width = `${((currentStep + 1) / panes.length) * 100}%`;
+      progressLabel.textContent = `Step ${currentStep + 1} of ${panes.length}`;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    document.querySelectorAll("[data-next]").forEach((btn) => {
+      btn.addEventListener("click", () => showStep(currentStep + 1));
+    });
+
+    document.querySelectorAll("[data-prev]").forEach((btn) => {
+      btn.addEventListener("click", () => showStep(currentStep - 1));
+    });
+
+    function bindRange(inputId, valueId, mode = "clarity") {
+      const input = document.getElementById(inputId);
+      const value = document.getElementById(valueId);
+      if (!input || !value) return;
+
+      function update() {
+        const v = Number(input.value);
+        let label;
+        if (mode === "approval") {
+          label = ["Very poor fit", "Poor fit", "Mixed", "Mostly fit", "Strong fit"][v - 1];
+        } else {
+          label = ["Very unclear", "Unclear", "Mixed", "Mostly clear", "Very clear"][v - 1];
+        }
+        value.textContent = label;
+      }
+
+      input.addEventListener("input", update);
+      update();
+    }
+
+    bindRange("ownershipRange", "ownershipValue", "clarity");
+    bindRange("authorityRange", "authorityValue", "clarity");
+    bindRange("handoffRange", "handoffValue", "clarity");
+    bindRange("escalationRange", "escalationValue", "clarity");
+    bindRange("approvalRange", "approvalValue", "approval");
+
+    function getSelectedRadio(name) {
+      const el = document.querySelector(`input[name="${name}"]:checked`);
+      return el ? el.value : "";
+    }
+
+    function formatHours(num) {
+      if (num >= 1000) return `${Math.round(num).toLocaleString()} hrs`;
+      return `${Math.round(num)} hrs`;
+    }
+
+    function formatMoney(num) {
+      if (num >= 1000000) return `$${(num / 1000000).toFixed(1)}M`;
+      if (num >= 1000) return `$${Math.round(num).toLocaleString()}`;
+      return `$${Math.round(num)}`;
+    }
+
+    function scoreBand(score) {
+      if (score < 35) return "Low estimated burden";
+      if (score < 60) return "Moderate estimated burden";
+      if (score < 80) return "High estimated burden";
+      return "Severe estimated burden";
+    }
+
+    function resourceBand(pct) {
+      if (pct < 8) return "limited but visible overhead";
+      if (pct < 15) return "meaningful overhead load";
+      if (pct < 22) return "heavy overhead burden";
+      return "very high overhead absorption";
+    }
+
+    function buildDrivers(checkedValues, clarityAverage) {
+      const drivers = [];
+
+      if (checkedValues.includes("duplicate-approvals")) drivers.push("Approval density appears to be consuming more time than the underlying work requires.");
+      if (checkedValues.includes("unclear-owner")) drivers.push("Ambiguous ownership is likely forcing rework, delay, and unnecessary coordination.");
+      if (checkedValues.includes("too-many-handoffs")) drivers.push("Excessive handoffs suggest the workflow is fragmented across too many points of transfer.");
+      if (checkedValues.includes("conflicting-authority")) drivers.push("Conflicting authority likely creates hesitation, duplication, and escalation loops.");
+      if (checkedValues.includes("reporting-burden")) drivers.push("Reporting and documentation demands appear to be absorbing a meaningful share of productive effort.");
+      if (checkedValues.includes("delayed-decisions")) drivers.push("Decision latency is likely translating directly into stalled progress and queue buildup.");
+      if (checkedValues.includes("workarounds-common")) drivers.push("Frequent workarounds suggest the formal process is no longer aligned with how work actually moves.");
+      if (checkedValues.includes("weak-exception-handling")) drivers.push("Weak exception handling likely causes edge cases to trigger slow, manual escalation patterns.");
+
+      if (clarityAverage < 3 && drivers.length < 3) {
+        drivers.push("Low structural clarity across the workflow is likely amplifying overhead independent of workload volume.");
+      }
+
+      return drivers.slice(0, 3);
+    }
+
+    function buildActions(score, checkedValues, clarityAverage) {
+      const actions = [];
+
+      if (checkedValues.includes("unclear-owner") || clarityAverage < 3) {
+        actions.push("Clarify one accountable owner for each major stage of the workflow.");
+      }
+      if (checkedValues.includes("duplicate-approvals") || checkedValues.includes("delayed-decisions")) {
+        actions.push("Reduce approval layers and compress approvals to those proportional to real risk.");
+      }
+      if (checkedValues.includes("too-many-handoffs")) {
+        actions.push("Redesign handoffs so responsibility transfers are explicit and fewer in number.");
+      }
+      if (checkedValues.includes("conflicting-authority")) {
+        actions.push("Resolve conflicting decision rights before adding new controls or escalation rules.");
+      }
+      if (checkedValues.includes("workarounds-common") || checkedValues.includes("weak-exception-handling")) {
+        actions.push("Strengthen exception paths so edge cases do not require improvised workarounds.");
+      }
+      if (checkedValues.includes("reporting-burden")) {
+        actions.push("Remove reporting obligations that do not clearly support decisions, accountability, or risk management.");
+      }
+      if (actions.length < 3 && score >= 60) {
+        actions.push("Run a deeper structural review of the workflow rather than relying on local workarounds.");
+      }
+
+      return actions.slice(0, 3);
+    }
+
+    function generateSummary(data) {
+      const scopeText =
+        data.scope === "team" ? "team-level" :
+        data.scope === "division" ? "division-level" :
+        data.scope === "company" ? "enterprise-level" :
+        "workflow-level";
+
+      const burdenText = scoreBand(data.score).replace("estimated ", "");
+      return `This ${scopeText} snapshot suggests ${burdenText.toLowerCase()} driven by the combination of workload loss, structural ambiguity, and friction inside the selected workflow. Based on your inputs, structural overhead is likely consuming a meaningful share of available labor capacity rather than acting as a minor background cost. The strongest signal here is not simply work volume, but the way ownership, authority, handoffs, and reporting demands are interacting to absorb productive effort.`;
+    }
+
+    function calculateResults() {
+      const scope = getSelectedRadio("scope");
+      const frequency = getSelectedRadio("frequency");
+      const headcount = Number(document.getElementById("headcount").value);
+      const hoursLost = Number(document.getElementById("hoursLost").value);
+
+      const ownership = Number(document.getElementById("ownershipRange").value);
+      const authority = Number(document.getElementById("authorityRange").value);
+      const handoff = Number(document.getElementById("handoffRange").value);
+      const escalation = Number(document.getElementById("escalationRange").value);
+      const approval = Number(document.getElementById("approvalRange").value);
+
+      const checkedValues = Array.from(document.querySelectorAll('.tool-check input:checked')).map(el => el.value);
+
+      const scopeRate = scope === "team" ? 75 : scope === "division" ? 90 : scope === "company" ? 110 : 85;
+      const frequencyFactor = frequency === "daily" ? 4.3 : frequency === "weekly" ? 4 : frequency === "monthly" ? 1 : 2;
+      const clarityAverage = (ownership + authority + handoff + escalation + approval) / 5;
+
+      const clarityPenalty = (6 - clarityAverage) * 0.10;
+      const frictionPenalty = checkedValues.length * 0.05;
+      const scopePressure = scope === "company" ? 0.15 : scope === "division" ? 0.08 : 0;
+
+      const multiplier = 1 + clarityPenalty + frictionPenalty + scopePressure;
+      const monthlyHours = headcount * hoursLost * frequencyFactor * multiplier;
+      const monthlyCost = monthlyHours * scopeRate;
+      const resourcePct = Math.min(30, ((hoursLost * multiplier) / 40) * 100);
+
+      const score = Math.min(
+        100,
+        Math.round(
+          (resourcePct * 2.2) +
+          ((checkedValues.length / 8) * 22) +
+          ((6 - clarityAverage) * 12)
+        )
+      );
+
+      return {
+        scope,
+        headcount,
+        monthlyHours,
+        monthlyCost,
+        resourcePct,
+        score,
+        clarityAverage,
+        checkedValues
+      };
+    }
+
+    function renderResults(data) {
+      document.getElementById("timeTile").textContent = formatHours(data.monthlyHours);
+      document.getElementById("timeTileText").textContent =
+        `Estimated labor hours absorbed by structural overhead each month across approximately ${data.headcount.toLocaleString()} affected people.`;
+
+      document.getElementById("moneyTile").textContent = formatMoney(data.monthlyCost);
+      document.getElementById("moneyTileText").textContent =
+        `Estimated monthly cost equivalent based on generalized blended labor-rate assumptions for the selected scope.`;
+
+      document.getElementById("resourceTile").textContent = `${Math.round(data.resourcePct)}%`;
+      document.getElementById("resourceTileText").textContent =
+        `Estimated productive capacity absorbed by structural burden — ${resourceBand(data.resourcePct)}.`;
+
+      document.getElementById("scoreValue").textContent = data.score;
+      document.getElementById("scoreBand").textContent = scoreBand(data.score);
+      document.getElementById("resultSummary").textContent = generateSummary(data);
+
+      const drivers = buildDrivers(data.checkedValues, data.clarityAverage);
+      const actions = buildActions(data.score, data.checkedValues, data.clarityAverage);
+
+      const driversList = document.getElementById("resultDrivers");
+      const actionsList = document.getElementById("resultActions");
+      driversList.innerHTML = "";
+      actionsList.innerHTML = "";
+
+      drivers.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        driversList.appendChild(li);
+      });
+
+      actions.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        actionsList.appendChild(li);
+      });
+
+      showStep(3);
+    }
+
+    document.getElementById("generateResults").addEventListener("click", () => {
+      const data = calculateResults();
+      renderResults(data);
+    });
+
+    document.getElementById("resetTool").addEventListener("click", () => {
+      document.getElementById("workflowName").value = "";
+      document.getElementById("workflowType").value = "";
+      document.getElementById("headcount").value = "8";
+      document.getElementById("hoursLost").value = "3";
+      document.querySelector('input[name="scope"][value="team"]').checked = true;
+      document.querySelector('input[name="frequency"][value="weekly"]').checked = true;
+      document.getElementById("ownershipRange").value = "3";
+      document.getElementById("authorityRange").value = "3";
+      document.getElementById("handoffRange").value = "3";
+      document.getElementById("escalationRange").value = "3";
+      document.getElementById("approvalRange").value = "3";
+      document.getElementById("contextNotes").value = "";
+      document.querySelectorAll('.tool-check input').forEach(el => el.checked = false);
+
+      bindRange("ownershipRange", "ownershipValue", "clarity");
+      bindRange("authorityRange", "authorityValue", "clarity");
+      bindRange("handoffRange", "handoffValue", "clarity");
+      bindRange("escalationRange", "escalationValue", "clarity");
+      bindRange("approvalRange", "approvalValue", "approval");
+
+      showStep(0);
+    });
+  </script>
+</body>
+</html>
