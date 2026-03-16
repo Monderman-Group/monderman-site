@@ -19,9 +19,7 @@
   <style>
     @font-face {
       font-family: "Neue Haas Grotesk";
-      src:
-        url("55font.woff2") format("woff2"),
-        url("55font.woff") format("woff");
+      src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff");
       font-style: normal;
       font-weight: 400;
       font-display: swap;
@@ -29,9 +27,7 @@
 
     @font-face {
       font-family: "Neue Haas Grotesk";
-      src:
-        url("65font.woff2") format("woff2"),
-        url("65font.woff") format("woff");
+      src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff");
       font-style: normal;
       font-weight: 500;
       font-display: swap;
@@ -39,9 +35,7 @@
 
     @font-face {
       font-family: "Neue Haas Grotesk";
-      src:
-        url("75font.woff2") format("woff2"),
-        url("75font.woff") format("woff");
+      src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff");
       font-style: normal;
       font-weight: 700;
       font-display: swap;
@@ -69,11 +63,13 @@
       --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     html {
       scroll-behavior: smooth;
-      scroll-padding-top: 72px;
+      scroll-padding-top: 88px;
     }
 
     body {
@@ -87,7 +83,37 @@
       text-rendering: optimizeLegibility;
     }
 
-    html, body, button, input, textarea, select, option, a, p, li, dt, dd, span, small, strong, em, label, figcaption, blockquote, cite, div, section, article, nav, header, footer, main {
+    html,
+    body,
+    button,
+    input,
+    textarea,
+    select,
+    option,
+    a,
+    p,
+    li,
+    dt,
+    dd,
+    span,
+    small,
+    strong,
+    em,
+    label,
+    figcaption,
+    blockquote,
+    cite,
+    div,
+    section,
+    article,
+    nav,
+    header,
+    footer,
+    main,
+    h1,
+    h2,
+    h3,
+    h4 {
       font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
     }
 
@@ -96,7 +122,10 @@
       text-decoration: none;
     }
 
-    button, input, select, textarea {
+    button,
+    input,
+    select,
+    textarea {
       font: inherit;
     }
 
@@ -236,7 +265,7 @@
 
     .hero-tools h1 {
       margin: 0 0 22px;
-      max-width: 10.2ch;
+      max-width: 11ch;
       font-size: clamp(3rem, 5vw, 4.8rem);
       line-height: 0.95;
       letter-spacing: -0.05em;
@@ -247,7 +276,7 @@
 
     .hero-tools p {
       margin: 0;
-      max-width: 62ch;
+      max-width: 64ch;
       font-size: 1.08rem;
       line-height: 1.68;
       color: var(--muted-light);
@@ -264,148 +293,7 @@
       margin: 0 auto;
     }
 
-    .tools-page-head {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 360px;
-      gap: 46px;
-      align-items: end;
-      margin-bottom: 34px;
-    }
-
-    .section-label {
-      margin-bottom: 16px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
-
-    .section-label::before {
-      content: "";
-      display: block;
-      width: 48px;
-      height: 2px;
-      background: var(--accent);
-      margin-bottom: 14px;
-    }
-
-    .section-intro h2 {
-      margin: 0 0 18px;
-      max-width: 760px;
-      font-size: clamp(1.95rem, 2.45vw, 2.35rem);
-      line-height: 1.12;
-      letter-spacing: -0.04em;
-      font-weight: 700;
-      color: var(--text-dark);
-      text-wrap: balance;
-    }
-
-    .section-intro p {
-      margin: 0;
-      max-width: 62ch;
-      font-size: 1.04rem;
-      line-height: 1.68;
-      color: var(--muted-dark);
-    }
-
-    .tools-note {
-      margin: 0;
-      font-size: 0.90rem;
-      line-height: 1.62;
-      color: var(--muted-dark-2);
-      padding: 18px 20px;
-      background: rgba(255,255,255,0.72);
-      border: 1px solid rgba(21,32,43,0.08);
-      box-shadow: var(--soft-shadow);
-    }
-
-    .tools-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 22px;
-      margin-bottom: 30px;
-    }
-
-    .tool-card {
-      position: relative;
-      background: #FFFFFF;
-      border: 1px solid rgba(21, 32, 43, 0.08);
-      box-shadow: var(--tool-shadow);
-      padding: 22px 22px 20px;
-      min-height: 236px;
-      transition:
-        transform var(--transition-slow),
-        box-shadow var(--transition-slow),
-        border-color var(--transition);
-    }
-
-    .tool-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(63, 110, 161, 0.14);
-      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.05);
-    }
-
-    .tool-card-live {
-      border-color: rgba(63, 110, 161, 0.16);
-    }
-
-    .tool-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.10em;
-      text-transform: uppercase;
-      background: rgba(63, 110, 161, 0.08);
-      color: var(--accent);
-      border: 1px solid rgba(63, 110, 161, 0.12);
-      margin-bottom: 12px;
-    }
-
-    .tool-badge-muted {
-      background: rgba(21,32,43,0.04);
-      color: var(--muted-dark);
-      border-color: rgba(21,32,43,0.08);
-    }
-
-    .tool-card-kicker {
-      margin: 0 0 10px;
-      font-size: 0.70rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
-
-    .tool-card-title {
-      margin: 0 0 10px;
-      font-size: 1.14rem;
-      line-height: 1.14;
-      font-weight: 700;
-      letter-spacing: -0.022em;
-      color: var(--text-dark);
-    }
-
-    .tool-card-text {
-      margin: 0 0 14px;
-      font-size: 0.95rem;
-      line-height: 1.62;
-      color: var(--muted-dark);
-    }
-
-    .tool-card-meta {
-      margin: 0;
-      font-size: 0.86rem;
-      line-height: 1.55;
-      color: var(--muted-dark-2);
-    }
-
     .tool-app {
-      margin-top: 10px;
       background: #FFFFFF;
       border: 1px solid rgba(21, 32, 43, 0.08);
       box-shadow:
@@ -421,7 +309,7 @@
       gap: 20px;
       padding: 24px 24px 18px;
       border-bottom: 1px solid rgba(21,32,43,0.08);
-      background: rgba(246,247,248,0.6);
+      background: rgba(246,247,248,0.60);
     }
 
     .tool-app-head h3 {
@@ -445,6 +333,22 @@
       font-size: 0.84rem;
       line-height: 1.58;
       color: var(--muted-dark-2);
+    }
+
+    .tool-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      background: rgba(63, 110, 161, 0.08);
+      color: var(--accent);
+      border: 1px solid rgba(63, 110, 161, 0.12);
+      margin-bottom: 12px;
+      align-self: flex-start;
     }
 
     .tool-progress {
@@ -543,6 +447,12 @@
       gap: 16px;
     }
 
+    .tool-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
     .tool-field {
       display: grid;
       gap: 8px;
@@ -579,19 +489,15 @@
       box-shadow: 0 0 0 3px rgba(63,110,161,0.10);
     }
 
-    .tool-grid-2 {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-    }
-
-    .tool-choice-group {
+    .tool-choice-group,
+    .tool-check-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
     }
 
-    .tool-choice {
+    .tool-choice,
+    .tool-check {
       display: flex;
       align-items: center;
       gap: 10px;
@@ -603,7 +509,8 @@
       cursor: pointer;
     }
 
-    .tool-choice input {
+    .tool-choice input,
+    .tool-check input {
       margin: 0;
       accent-color: var(--accent);
     }
@@ -628,7 +535,7 @@
     .tool-range-value {
       font-weight: 700;
       color: var(--text-dark);
-      min-width: 72px;
+      min-width: 88px;
       text-align: right;
     }
 
@@ -644,29 +551,6 @@
       width: 100%;
       accent-color: var(--accent);
       cursor: pointer;
-    }
-
-    .tool-check-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .tool-check {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-height: 46px;
-      padding: 10px 12px;
-      border: 1px solid rgba(21,32,43,0.10);
-      background: #FFFFFF;
-      color: var(--text-dark);
-      cursor: pointer;
-    }
-
-    .tool-check input {
-      margin: 0;
-      accent-color: var(--accent);
     }
 
     .tool-nav {
@@ -956,10 +840,13 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
       .header,
       .nav a,
       .nav a::after,
-      .tool-card,
       .tool-btn,
       .footer-nav a,
       .tool-progress-fill {
@@ -968,11 +855,6 @@
     }
 
     @media (max-width: 1100px) {
-      .tools-page-head {
-        grid-template-columns: 1fr;
-      }
-
-      .tools-grid,
       .tool-results-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -1033,7 +915,6 @@
         padding: 72px 20px 72px;
       }
 
-      .tools-grid,
       .tool-grid-2,
       .tool-choice-group,
       .tool-check-grid,
@@ -1108,74 +989,24 @@
   <section class="hero-tools" aria-labelledby="tools-hero-title">
     <div class="hero-tools-inner">
       <p class="hero-tools-eyebrow">Monderman Diagnostic Tools</p>
-      <h1 id="tools-hero-title">A practical diagnostic for how decisions stall, slow, and lose force.</h1>
+      <h1 id="tools-hero-title">Decision Velocity Snapshot.</h1>
       <p>
-        Use this guided snapshot to estimate where decision environments are absorbing time, adding unnecessary review burden, and losing momentum between decision and execution.
+        A guided tool for surfacing where approvals, escalation pathways, unclear authority,
+        and review density are slowing movement through important decisions.
       </p>
     </div>
   </section>
 
   <main class="tools-page">
     <div class="tools-page-inner">
-      <div class="tools-page-head">
-        <div class="section-intro">
-          <div class="section-label">Decision Velocity</div>
-          <h2>Grounded, bounded, and designed for immediate use.</h2>
-          <p>
-            This phase-one diagnostic evaluates one real decision environment. It is intended to show where delay is accumulating, where review density is too high, and where execution loses force after a decision should already have moved into action.
-          </p>
-        </div>
-
-        <p class="tools-note">
-          <strong>Private by default.</strong> This tool is intended for immediate use and does not create a persistent organizational record.
-          Please avoid entering confidential, classified, regulated, or personally sensitive information.
-        </p>
-      </div>
-
-      <div class="tools-grid">
-        <article class="tool-card tool-card-live">
-          <div class="tool-badge">Live</div>
-          <p class="tool-card-kicker">Decision Velocity</p>
-          <h3 class="tool-card-title">Decision Velocity Snapshot</h3>
-          <p class="tool-card-text">
-            Estimate how much time, review burden, and execution drag may be accumulating around one real decision environment.
-          </p>
-          <p class="tool-card-meta">
-            Best for one recurring decision type, one approval path, or one cross-functional decision environment.
-          </p>
-        </article>
-
-        <article class="tool-card">
-          <div class="tool-badge tool-badge-muted">Also Live</div>
-          <p class="tool-card-kicker">Structural Clarity</p>
-          <h3 class="tool-card-title">Structural Clarity Snapshot</h3>
-          <p class="tool-card-text">
-            Estimate how much time, money, and productive capacity may be consumed by overhead inside one workflow or operating slice.
-          </p>
-          <p class="tool-card-meta">
-            Use when the main problem is ownership, authority, handoffs, or structural ambiguity.
-          </p>
-        </article>
-
-        <article class="tool-card">
-          <div class="tool-badge tool-badge-muted">Coming Soon</div>
-          <p class="tool-card-kicker">Operational Systems</p>
-          <h3 class="tool-card-title">Bureaucratic Drag Snapshot</h3>
-          <p class="tool-card-text">
-            Surface recurring administrative burden, process density, and non-value-adding overhead across a selected workflow.
-          </p>
-          <p class="tool-card-meta">
-            Built to distinguish manageable friction from systemic drag requiring redesign.
-          </p>
-        </article>
-      </div>
-
-      <div class="tool-app" id="decision-velocity-app">
+      <div class="tool-app">
         <div class="tool-app-head">
           <div>
+            <div class="tool-badge">Live</div>
             <h3>Decision Velocity Snapshot</h3>
             <p>
-              A guided four-step diagnostic for one decision environment. Complete the structured inputs below to estimate where decision delay is accumulating, how much review burden surrounds the decision, and how much momentum may be lost after a decision is nominally made.
+              A guided four-step diagnostic for one decision stream, approval pathway, or recurring operating decision.
+              Complete the structured inputs below to estimate how much delay may be accumulating and what is most likely causing it.
             </p>
           </div>
           <div class="tool-privacy">
@@ -1196,35 +1027,36 @@
 
         <div class="tool-steps">
           <div class="tool-step-pill is-active">1 · Decision</div>
-          <div class="tool-step-pill">2 · Conditions</div>
+          <div class="tool-step-pill">2 · Clarity</div>
           <div class="tool-step-pill">3 · Drag</div>
           <div class="tool-step-pill">4 · Output</div>
         </div>
 
         <div class="tool-app-body">
           <div class="tool-pane is-active" data-step="1">
-            <h4 class="tool-pane-title">Step 1 — Define the decision environment</h4>
+            <h4 class="tool-pane-title">Step 1 — Define the decision flow</h4>
             <p class="tool-pane-copy">
-              Start with one real decision type. Keep it bounded enough that a team, function, or operating slice would clearly recognize it.
+              Start with one bounded decision stream. Keep it specific enough that one team, approval chain,
+              or operating context could clearly recognize it.
             </p>
 
             <div class="tool-fields">
               <div class="tool-grid-2">
                 <div class="tool-field">
-                  <label for="decisionName">Decision name <span style="color:#7A8794;">(optional)</span></label>
-                  <input id="decisionName" type="text" placeholder="Example: Approval to onboard a new vendor" />
+                  <label for="decisionName">Decision stream name <span style="color:#7A8794;">(optional)</span></label>
+                  <input id="decisionName" type="text" placeholder="Example: Contract approval for new vendors" />
                 </div>
 
                 <div class="tool-field">
                   <label for="decisionType">Decision type</label>
                   <select id="decisionType">
                     <option value="">Select one</option>
-                    <option>Operational approval</option>
+                    <option>Budget / funding</option>
                     <option>Hiring / staffing</option>
-                    <option>Budget / resourcing</option>
-                    <option>Risk / compliance</option>
-                    <option>Escalation / exception</option>
-                    <option>Program / product direction</option>
+                    <option>Procurement / contracting</option>
+                    <option>Policy / compliance</option>
+                    <option>Program / operational delivery</option>
+                    <option>Escalations / exceptions</option>
                     <option>Cross-functional coordination</option>
                     <option>Other</option>
                   </select>
@@ -1237,8 +1069,8 @@
                   <div class="tool-choice-group">
                     <label class="tool-choice"><input type="radio" name="scope" value="team" checked /> Team</label>
                     <label class="tool-choice"><input type="radio" name="scope" value="division" /> Division</label>
-                    <label class="tool-choice"><input type="radio" name="scope" value="enterprise" /> Enterprise</label>
-                    <label class="tool-choice"><input type="radio" name="scope" value="other-scope" /> Other</label>
+                    <label class="tool-choice"><input type="radio" name="scope" value="company" /> Entire company</label>
+                    <label class="tool-choice"><input type="radio" name="scope" value="other" /> Other</label>
                   </div>
                 </div>
 
@@ -1255,23 +1087,26 @@
 
               <div class="tool-grid-2">
                 <div class="tool-field">
-                  <label for="teamsInvolved">Typical number of people or teams involved</label>
-                  <select id="teamsInvolved">
-                    <option value="3">1–3</option>
-                    <option value="5" selected>4–5</option>
-                    <option value="8">6–8</option>
-                    <option value="12">9–12</option>
-                    <option value="18">13+</option>
+                  <label for="approvers">Approximate number of approval/review points</label>
+                  <select id="approvers">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3" selected>3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6+</option>
                   </select>
                 </div>
 
                 <div class="tool-field">
-                  <label for="decisionCriticality">Typical importance</label>
-                  <select id="decisionCriticality">
-                    <option value="1">Low</option>
-                    <option value="2" selected>Moderate</option>
-                    <option value="3">High</option>
-                    <option value="4">Mission-critical</option>
+                  <label for="delayDays">Average delay per decision cycle</label>
+                  <select id="delayDays">
+                    <option value="1">Under 1 day</option>
+                    <option value="2">1–2 days</option>
+                    <option value="4" selected>3–5 days</option>
+                    <option value="7">About 1 week</option>
+                    <option value="14">About 2 weeks</option>
+                    <option value="21">3+ weeks</option>
                   </select>
                 </div>
               </div>
@@ -1286,17 +1121,32 @@
           </div>
 
           <div class="tool-pane" data-step="2">
-            <h4 class="tool-pane-title">Step 2 — Rate the decision conditions</h4>
+            <h4 class="tool-pane-title">Step 2 — Rate decision clarity</h4>
             <p class="tool-pane-copy">
-              Use the sliders to rate how this decision environment operates in practice. Lower scores generally increase likely delay and drag.
+              Use the sliders to rate how clear the decision pathway is in practice. Lower clarity increases likely drag.
             </p>
 
             <div class="tool-fields">
               <div class="tool-field">
-                <label for="authorityRange">Final authority clarity</label>
+                <label for="ownerRange">Decision ownership clarity</label>
                 <div class="tool-range-wrap">
                   <div class="tool-range-top">
-                    <span>Is the final decision-maker clear?</span>
+                    <span>Who owns movement through the decision?</span>
+                    <span class="tool-range-value" id="ownerValue">Mixed</span>
+                  </div>
+                  <input id="ownerRange" type="range" min="1" max="5" value="3" />
+                  <div class="tool-range-labels">
+                    <span>Very unclear</span>
+                    <span>Very clear</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tool-field">
+                <label for="authorityRange">Decision-right clarity</label>
+                <div class="tool-range-wrap">
+                  <div class="tool-range-top">
+                    <span>Is final decision authority clear?</span>
                     <span class="tool-range-value" id="authorityValue">Mixed</span>
                   </div>
                   <input id="authorityRange" type="range" min="1" max="5" value="3" />
@@ -1308,58 +1158,13 @@
               </div>
 
               <div class="tool-field">
-                <label for="approvalRange">Approval proportionality</label>
+                <label for="criteriaRange">Decision criteria clarity</label>
                 <div class="tool-range-wrap">
                   <div class="tool-range-top">
-                    <span>Are approvals proportional to stakes?</span>
-                    <span class="tool-range-value" id="approvalValue">Mixed</span>
+                    <span>Are approval criteria understood?</span>
+                    <span class="tool-range-value" id="criteriaValue">Mixed</span>
                   </div>
-                  <input id="approvalRange" type="range" min="1" max="5" value="3" />
-                  <div class="tool-range-labels">
-                    <span>Not at all</span>
-                    <span>Very much</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="tool-field">
-                <label for="escalationRange">Escalation speed</label>
-                <div class="tool-range-wrap">
-                  <div class="tool-range-top">
-                    <span>When blocked, how quickly does escalation move?</span>
-                    <span class="tool-range-value" id="escalationValue">Mixed</span>
-                  </div>
-                  <input id="escalationRange" type="range" min="1" max="5" value="3" />
-                  <div class="tool-range-labels">
-                    <span>Very slow</span>
-                    <span>Very fast</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="tool-field">
-                <label for="inputsRange">Input quality at decision point</label>
-                <div class="tool-range-wrap">
-                  <div class="tool-range-top">
-                    <span>Is the information good enough when the decision is made?</span>
-                    <span class="tool-range-value" id="inputsValue">Mixed</span>
-                  </div>
-                  <input id="inputsRange" type="range" min="1" max="5" value="3" />
-                  <div class="tool-range-labels">
-                    <span>Very weak</span>
-                    <span>Very strong</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="tool-field">
-                <label for="executionRange">Execution ownership after decision</label>
-                <div class="tool-range-wrap">
-                  <div class="tool-range-top">
-                    <span>Once decided, is execution ownership explicit?</span>
-                    <span class="tool-range-value" id="executionValue">Mixed</span>
-                  </div>
-                  <input id="executionRange" type="range" min="1" max="5" value="3" />
+                  <input id="criteriaRange" type="range" min="1" max="5" value="3" />
                   <div class="tool-range-labels">
                     <span>Very unclear</span>
                     <span>Very clear</span>
@@ -1368,16 +1173,31 @@
               </div>
 
               <div class="tool-field">
-                <label for="reopenRange">Decision reopen rate</label>
+                <label for="escalationRange">Escalation pathway clarity</label>
                 <div class="tool-range-wrap">
                   <div class="tool-range-top">
-                    <span>How often are decisions reopened after they are made?</span>
-                    <span class="tool-range-value" id="reopenValue">Mixed</span>
+                    <span>When blocked, is the path forward clear?</span>
+                    <span class="tool-range-value" id="escalationValue">Mixed</span>
                   </div>
-                  <input id="reopenRange" type="range" min="1" max="5" value="3" />
+                  <input id="escalationRange" type="range" min="1" max="5" value="3" />
                   <div class="tool-range-labels">
-                    <span>Rarely</span>
-                    <span>Very often</span>
+                    <span>Very unclear</span>
+                    <span>Very clear</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tool-field">
+                <label for="proportionRange">Review proportionality</label>
+                <div class="tool-range-wrap">
+                  <div class="tool-range-top">
+                    <span>Are reviews proportional to actual risk?</span>
+                    <span class="tool-range-value" id="proportionValue">Mixed</span>
+                  </div>
+                  <input id="proportionRange" type="range" min="1" max="5" value="3" />
+                  <div class="tool-range-labels">
+                    <span>Not at all</span>
+                    <span>Very much</span>
                   </div>
                 </div>
               </div>
@@ -1394,28 +1214,26 @@
           </div>
 
           <div class="tool-pane" data-step="3">
-            <h4 class="tool-pane-title">Step 3 — Identify drag patterns</h4>
+            <h4 class="tool-pane-title">Step 3 — Identify decision drag patterns</h4>
             <p class="tool-pane-copy">
-              Select the patterns that best describe this decision environment. More drag patterns increase likely delay, review burden, and post-decision drag.
+              Select the patterns that best describe the decision flow. More drag patterns increase the likely delay estimate.
             </p>
 
             <div class="tool-check-grid">
-              <label class="tool-check"><input type="checkbox" value="too-many-approvers" /> Too many approvers</label>
-              <label class="tool-check"><input type="checkbox" value="re-review" /> Repeated re-review</label>
+              <label class="tool-check"><input type="checkbox" value="too-many-reviewers" /> Too many reviewers</label>
               <label class="tool-check"><input type="checkbox" value="unclear-authority" /> Unclear final authority</label>
-              <label class="tool-check"><input type="checkbox" value="weak-inputs" /> Weak decision inputs</label>
-              <label class="tool-check"><input type="checkbox" value="late-escalation" /> Escalations happen too late</label>
-              <label class="tool-check"><input type="checkbox" value="early-escalation" /> Escalations happen too early</label>
-              <label class="tool-check"><input type="checkbox" value="execution-unclear" /> Execution ownership unclear after decision</label>
-              <label class="tool-check"><input type="checkbox" value="risk-disproportionate" /> Risk/compliance review disproportionate to stakes</label>
-              <label class="tool-check"><input type="checkbox" value="reopened" /> Decisions often reopened after approval</label>
-              <label class="tool-check"><input type="checkbox" value="meeting-wait" /> Decisions wait for meetings instead of moving asynchronously</label>
+              <label class="tool-check"><input type="checkbox" value="rework-common" /> Rework is common</label>
+              <label class="tool-check"><input type="checkbox" value="serial-approvals" /> Serial approvals instead of parallel review</label>
+              <label class="tool-check"><input type="checkbox" value="late-escalations" /> Escalations happen late</label>
+              <label class="tool-check"><input type="checkbox" value="criteria-shifts" /> Approval criteria shift midstream</label>
+              <label class="tool-check"><input type="checkbox" value="meeting-heavy" /> Excessive meeting dependency</label>
+              <label class="tool-check"><input type="checkbox" value="exception-confusion" /> Exception handling is unclear</label>
             </div>
 
             <div class="tool-fields" style="margin-top:16px;">
               <div class="tool-field">
                 <label for="contextNotes">Optional context <span style="color:#7A8794;">(brief, non-sensitive)</span></label>
-                <textarea id="contextNotes" placeholder="Example: Final authority is nominally clear, but legal, finance, and two operational leaders all re-review the package."></textarea>
+                <textarea id="contextNotes" placeholder="Example: Most packages are reviewed by three offices sequentially before a final signature is possible."></textarea>
               </div>
             </div>
 
@@ -1432,30 +1250,31 @@
           <div class="tool-pane" data-step="4">
             <h4 class="tool-pane-title">Step 4 — Estimated decision drag</h4>
             <p class="tool-pane-copy tool-output-intro">
-              These estimates are directional and based on your selected scope, decision conditions, and drag-pattern inputs. They are intended to make hidden delay and review burden more visible, not provide audited operational measures.
+              These estimates are directional and based on your selected approval density, delay inputs, clarity ratings,
+              and generalized assumptions about decision cycles. They are intended to surface likely drag, not provide audited process values.
             </p>
 
             <div class="tool-output">
               <div class="tool-results-grid">
                 <div class="tool-result-card">
-                  <div class="tool-result-title">Decision Delay</div>
+                  <div class="tool-result-title">Cycle Delay</div>
                   <p class="tool-result-source"><em>* rough directional estimate based on your inputs</em></p>
-                  <div class="tool-result-number" id="delayTile">0 hrs</div>
-                  <p class="tool-result-text" id="delayTileText">Estimated time lost before a decision moves.</p>
+                  <div class="tool-result-number" id="delayTile">0 days</div>
+                  <p class="tool-result-text" id="delayTileText">Estimated decision-cycle drag per month across the selected flow.</p>
                 </div>
 
                 <div class="tool-result-card">
                   <div class="tool-result-title">Approval Load</div>
                   <p class="tool-result-source"><em>* rough directional estimate of review burden</em></p>
-                  <div class="tool-result-number" id="approvalTile">0</div>
-                  <p class="tool-result-text" id="approvalTileText">Estimated review or approval touches surrounding the decision.</p>
+                  <div class="tool-result-number" id="reviewTile">0 pts</div>
+                  <p class="tool-result-text" id="reviewTileText">Estimated review density shaping how long decisions take to move.</p>
                 </div>
 
                 <div class="tool-result-card">
-                  <div class="tool-result-title">Execution Drag</div>
-                  <p class="tool-result-source"><em>* rough directional estimate of post-decision force loss</em></p>
-                  <div class="tool-result-number" id="executionTile">0%</div>
-                  <p class="tool-result-text" id="executionTileText">Estimated loss of execution momentum after the decision is nominally made.</p>
+                  <div class="tool-result-title">Decision Capacity</div>
+                  <p class="tool-result-source"><em>* rough directional estimate of decision throughput absorption</em></p>
+                  <div class="tool-result-number" id="capacityTile">0%</div>
+                  <p class="tool-result-text" id="capacityTileText">Estimated decision capacity being absorbed by friction rather than action.</p>
                 </div>
               </div>
 
@@ -1463,7 +1282,7 @@
                 <div class="tool-score">
                   <p class="tool-score-label">Velocity Index</p>
                   <p class="tool-score-value" id="scoreValue">0</p>
-                  <p class="tool-score-band" id="scoreBand">Relatively strong decision flow</p>
+                  <p class="tool-score-band" id="scoreBand">High velocity</p>
                 </div>
 
                 <div class="tool-results">
@@ -1477,7 +1296,8 @@
                   <ul id="resultActions"></ul>
 
                   <div class="tool-results-note" id="resultCaveat">
-                    These results are a bounded snapshot intended to make decision drag more visible. They should be read as a directional estimate, not as a substitute for deeper organizational assessment.
+                    These results are a bounded snapshot intended to make hidden decision drag more visible.
+                    They should be read as a directional estimate, not as a substitute for deeper organizational assessment.
                   </div>
                 </div>
               </div>
@@ -1511,10 +1331,10 @@
           <div class="footer-nav-col">
             <p class="footer-nav-title">Explore</p>
             <a href="index.html#approach">Approach</a>
-            <a href="diagnostic-tools.html">Structural Clarity</a>
-            <a href="decision-velocity.html">Decision Velocity</a>
+            <a href="diagnostic-tools.html">Diagnostic Tools</a>
             <a href="index.html#thinking">Thinking</a>
             <a href="research.html">Research</a>
+            <a href="why-monderman.html">Why Monderman</a>
           </div>
 
           <div class="footer-nav-col">
@@ -1558,6 +1378,7 @@
       stepPills.forEach((pill, i) => pill.classList.toggle("is-active", i === currentStep));
       progressFill.style.width = `${((currentStep + 1) / panes.length) * 100}%`;
       progressLabel.textContent = `Step ${currentStep + 1} of ${panes.length}`;
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     document.querySelectorAll("[data-next]").forEach((btn) => {
@@ -1575,24 +1396,12 @@
 
       function update() {
         const v = Number(input.value);
-        let label = "Mixed";
-
-        if (mode === "clarity") {
+        let label;
+        if (mode === "proportion") {
+          label = ["Very poor fit", "Poor fit", "Mixed", "Mostly fit", "Strong fit"][v - 1];
+        } else {
           label = ["Very unclear", "Unclear", "Mixed", "Mostly clear", "Very clear"][v - 1];
         }
-        if (mode === "speed") {
-          label = ["Very slow", "Slow", "Mixed", "Fast", "Very fast"][v - 1];
-        }
-        if (mode === "quality") {
-          label = ["Very weak", "Weak", "Mixed", "Strong", "Very strong"][v - 1];
-        }
-        if (mode === "approval") {
-          label = ["Very poor fit", "Poor fit", "Mixed", "Mostly fit", "Strong fit"][v - 1];
-        }
-        if (mode === "reopen") {
-          label = ["Rarely", "Occasionally", "Mixed", "Often", "Very often"][v - 1];
-        }
-
         value.textContent = label;
       }
 
@@ -1600,217 +1409,177 @@
       update();
     }
 
+    bindRange("ownerRange", "ownerValue", "clarity");
     bindRange("authorityRange", "authorityValue", "clarity");
-    bindRange("approvalRange", "approvalValue", "approval");
-    bindRange("escalationRange", "escalationValue", "speed");
-    bindRange("inputsRange", "inputsValue", "quality");
-    bindRange("executionRange", "executionValue", "clarity");
-    bindRange("reopenRange", "reopenValue", "reopen");
+    bindRange("criteriaRange", "criteriaValue", "clarity");
+    bindRange("escalationRange", "escalationValue", "clarity");
+    bindRange("proportionRange", "proportionValue", "proportion");
 
     function getSelectedRadio(name) {
       const el = document.querySelector(`input[name="${name}"]:checked`);
       return el ? el.value : "";
     }
 
-    function formatDelay(hours) {
-      if (hours >= 40) {
-        return `${(hours / 8).toFixed(1)} d`;
-      }
-      if (hours >= 8) {
-        return `${hours.toFixed(1)} hrs`;
-      }
-      return `${hours.toFixed(1)} hrs`;
+    function formatDays(num) {
+      return `${Math.round(num)} days`;
     }
 
-    function formatApprovalTouches(num) {
-      return num >= 6 ? "6+" : `${Math.round(num)}`;
+    function scoreBand(score) {
+      if (score < 30) return "High velocity";
+      if (score < 55) return "Moderate drag";
+      if (score < 75) return "High drag";
+      return "Severe drag";
     }
 
-    function velocityBand(score) {
-      if (score < 30) return "Relatively strong decision flow";
-      if (score < 55) return "Moderate decision drag";
-      if (score < 75) return "High decision drag";
-      return "Severe decision drag";
+    function capacityBand(pct) {
+      if (pct < 10) return "limited but visible decision drag";
+      if (pct < 18) return "meaningful decision friction";
+      if (pct < 26) return "heavy decision drag";
+      return "very high decision absorption";
     }
 
-    function executionBand(pct) {
-      if (pct < 10) return "limited post-decision loss";
-      if (pct < 18) return "meaningful post-decision drag";
-      if (pct < 26) return "heavy post-decision drag";
-      return "very high post-decision drag";
-    }
-
-    function buildDrivers(checkedValues, authority, approvalFit, execution, reopen) {
+    function buildDrivers(checkedValues, clarityAverage, approvers) {
       const drivers = [];
 
-      if (checkedValues.includes("too-many-approvers")) drivers.push("Review density appears too high relative to the actual stakes of the decision.");
-      if (checkedValues.includes("re-review")) drivers.push("Repeated re-review is likely absorbing time without proportionate improvement in decision quality.");
-      if (checkedValues.includes("unclear-authority") || authority < 3) drivers.push("Diffuse or ambiguous final authority is likely slowing commitment and increasing hesitation.");
-      if (checkedValues.includes("weak-inputs")) drivers.push("Weak inputs at the decision point appear to be creating avoidable loops, questions, and rework.");
-      if (checkedValues.includes("late-escalation") || checkedValues.includes("early-escalation")) drivers.push("Escalation patterns appear mis-timed, which can add delay before a clean decision path emerges.");
-      if (checkedValues.includes("execution-unclear") || execution < 3) drivers.push("Even when a decision is made, unclear downstream ownership may be preventing fast translation into action.");
-      if (checkedValues.includes("risk-disproportionate")) drivers.push("Risk or compliance review may be operating as blanket friction rather than proportionate governance.");
-      if (checkedValues.includes("reopened") || reopen > 3) drivers.push("Decisions appear vulnerable to reopening, which weakens commitment and extends cycle time.");
-      if (checkedValues.includes("meeting-wait")) drivers.push("Waiting for scheduled meetings instead of moving asynchronously is likely adding structural delay.");
+      if (checkedValues.includes("too-many-reviewers") || approvers >= 4) {
+        drivers.push("Review density appears to be slowing movement more than the underlying decision actually requires.");
+      }
+      if (checkedValues.includes("unclear-authority")) {
+        drivers.push("Unclear final authority is likely causing hesitation, duplicate review, and stalled closure.");
+      }
+      if (checkedValues.includes("serial-approvals")) {
+        drivers.push("Serial approval sequencing suggests the pathway is creating avoidable queue time.");
+      }
+      if (checkedValues.includes("rework-common")) {
+        drivers.push("Frequent rework suggests packages are moving forward before expectations are fully aligned.");
+      }
+      if (checkedValues.includes("late-escalations")) {
+        drivers.push("Late escalation behavior is likely allowing blockers to compound before they are surfaced.");
+      }
+      if (checkedValues.includes("criteria-shifts")) {
+        drivers.push("Changing criteria midstream likely increases churn, delay, and avoidable revision cycles.");
+      }
+      if (checkedValues.includes("meeting-heavy")) {
+        drivers.push("Heavy dependence on meetings suggests decisions may lack a clean pathway for asynchronous movement.");
+      }
+      if (checkedValues.includes("exception-confusion")) {
+        drivers.push("Weak exception handling likely causes edge cases to stall the decision pathway disproportionately.");
+      }
 
-      if (approvalFit < 3 && drivers.length < 3) {
-        drivers.push("Approval design appears poorly matched to the actual stakes and cadence of the decision.");
+      if (clarityAverage < 3 && drivers.length < 3) {
+        drivers.push("Low structural clarity across the decision pathway is likely amplifying delay independent of workload volume.");
       }
 
       return drivers.slice(0, 3);
     }
 
-    function buildActions(score, checkedValues, authority, approvalFit, execution, inputs) {
+    function buildActions(score, checkedValues, clarityAverage, approvers) {
       const actions = [];
 
-      if (checkedValues.includes("unclear-authority") || authority < 3) {
-        actions.push("Clarify who holds final decision rights and distinguish advisory input from true approval authority.");
+      if (checkedValues.includes("unclear-authority") || clarityAverage < 3) {
+        actions.push("Clarify final decision authority and make ownership of progression explicit.");
       }
-      if (checkedValues.includes("too-many-approvers") || approvalFit < 3) {
-        actions.push("Reduce approval layers to those genuinely proportional to risk, cost, and consequence.");
+      if (checkedValues.includes("too-many-reviewers") || checkedValues.includes("serial-approvals") || approvers >= 4) {
+        actions.push("Reduce review density and shift sequential approvals into parallel review where possible.");
       }
-      if (checkedValues.includes("weak-inputs") || inputs < 3) {
-        actions.push("Strengthen the quality of decision materials before review so reviewers are not compensating for ambiguity.");
+      if (checkedValues.includes("criteria-shifts") || checkedValues.includes("rework-common")) {
+        actions.push("Define decision criteria earlier so packages are not repeatedly revised midstream.");
       }
-      if (checkedValues.includes("re-review") || checkedValues.includes("reopened")) {
-        actions.push("Set a clearer rule for when a decision is final and under what conditions it can be reopened.");
+      if (checkedValues.includes("late-escalations")) {
+        actions.push("Move escalation thresholds earlier so blockers surface before delay compounds.");
       }
-      if (checkedValues.includes("meeting-wait") || checkedValues.includes("late-escalation") || checkedValues.includes("early-escalation")) {
-        actions.push("Design a cleaner escalation path and allow more decisions to move asynchronously instead of waiting for formal meetings.");
+      if (checkedValues.includes("meeting-heavy")) {
+        actions.push("Create lighter-weight decision pathways that do not depend on repeated meetings to advance.");
       }
-      if (checkedValues.includes("execution-unclear") || execution < 3) {
-        actions.push("Assign explicit execution ownership at the moment a decision is made so movement starts immediately.");
+      if (checkedValues.includes("exception-confusion")) {
+        actions.push("Clarify exception handling so unusual cases do not stall the entire pathway.");
       }
-
       if (actions.length < 3 && score >= 60) {
-        actions.push("Run a deeper review of the full decision path rather than adding more coordination around a structurally slow system.");
+        actions.push("Run a deeper review of the decision pathway instead of relying on ad hoc escalation and coordination.");
       }
 
       return actions.slice(0, 3);
     }
 
     function generateSummary(data) {
-      const scopeText = data.scope === "team"
-        ? "team-level"
-        : data.scope === "division"
-        ? "division-level"
-        : data.scope === "enterprise"
-        ? "enterprise-level"
-        : "workflow-level";
+      const scopeText =
+        data.scope === "team" ? "team-level" :
+        data.scope === "division" ? "division-level" :
+        data.scope === "company" ? "enterprise-level" :
+        "workflow-level";
 
-      const bandText = velocityBand(data.score).toLowerCase();
-      return `This ${scopeText} snapshot suggests ${bandText} driven less by a single approval bottleneck than by the combined effects of diffuse authority, review density, and post-decision loss of force. Based on your inputs, the decision environment appears to be absorbing time both before and after the nominal decision point. The strongest signal here is not only delay in deciding, but the possibility that decisions are being weakened by re-review, unclear ownership, or execution ambiguity once they should already be moving into action.`;
+      const dragText = scoreBand(data.score).toLowerCase();
+      return `This ${scopeText} snapshot suggests ${dragText} driven by the interaction of review density, pathway ambiguity, and approval delay inside the selected decision flow. Based on your inputs, the strongest signal is not simply that decisions take time, but that authority, sequencing, escalation, and review design may be absorbing decision capacity that should be translating into movement.`;
     }
 
     function calculateResults() {
       const scope = getSelectedRadio("scope");
       const frequency = getSelectedRadio("frequency");
-      const teamsInvolved = Number(document.getElementById("teamsInvolved").value);
-      const criticality = Number(document.getElementById("decisionCriticality").value);
+      const approvers = Number(document.getElementById("approvers").value);
+      const delayDays = Number(document.getElementById("delayDays").value);
 
+      const owner = Number(document.getElementById("ownerRange").value);
       const authority = Number(document.getElementById("authorityRange").value);
-      const approvalFit = Number(document.getElementById("approvalRange").value);
+      const criteria = Number(document.getElementById("criteriaRange").value);
       const escalation = Number(document.getElementById("escalationRange").value);
-      const inputs = Number(document.getElementById("inputsRange").value);
-      const execution = Number(document.getElementById("executionRange").value);
-      const reopen = Number(document.getElementById("reopenRange").value);
+      const proportion = Number(document.getElementById("proportionRange").value);
 
       const checkedValues = Array.from(document.querySelectorAll('.tool-check input:checked')).map(el => el.value);
 
-      const scopeFactor = scope === "team" ? 1 : scope === "division" ? 1.3 : scope === "enterprise" ? 1.7 : 1.15;
-      const frequencyFactor = frequency === "daily" ? 1.3 : frequency === "weekly" ? 1 : frequency === "monthly" ? 0.8 : 0.9;
-      const authorityPenalty = (6 - authority) * 1.1;
-      const approvalPenalty = (6 - approvalFit) * 0.9;
-      const escalationPenalty = (6 - escalation) * 0.8;
-      const inputPenalty = (6 - inputs) * 0.7;
-      const executionPenalty = (6 - execution) * 0.9;
-      const reopenPenalty = reopen * 0.8;
-      const patternPenalty = checkedValues.length * 0.75;
+      const frequencyFactor = frequency === "daily" ? 20 : frequency === "weekly" ? 4 : frequency === "monthly" ? 1 : 2;
+      const clarityAverage = (owner + authority + criteria + escalation + proportion) / 5;
 
-      const baseHours = 2.5;
-      const delayHours = (
-        baseHours +
-        authorityPenalty +
-        approvalPenalty +
-        escalationPenalty +
-        inputPenalty +
-        executionPenalty +
-        reopenPenalty +
-        patternPenalty +
-        (teamsInvolved * 0.18) +
-        (criticality * 0.4)
-      ) * scopeFactor * frequencyFactor;
+      const clarityPenalty = (6 - clarityAverage) * 0.12;
+      const dragPenalty = checkedValues.length * 0.06;
+      const reviewerPenalty = Math.max(0, (approvers - 2) * 0.08);
+      const scopePressure = scope === "company" ? 0.15 : scope === "division" ? 0.08 : 0;
 
-      const approvalTouches = Math.max(
-        1,
-        (
-          1.2 +
-          ((6 - approvalFit) * 0.8) +
-          (teamsInvolved * 0.18) +
-          (checkedValues.includes("too-many-approvers") ? 1.4 : 0) +
-          (checkedValues.includes("re-review") ? 1.2 : 0) +
-          (checkedValues.includes("risk-disproportionate") ? 0.9 : 0)
-        )
-      );
-
-      const executionDragPct = Math.min(
-        35,
-        (
-          ((6 - execution) * 3.4) +
-          ((reopen - 1) * 2.1) +
-          (checkedValues.includes("execution-unclear") ? 4.5 : 0) +
-          (checkedValues.includes("reopened") ? 4.2 : 0) +
-          (checkedValues.includes("meeting-wait") ? 2.2 : 0) +
-          ((6 - authority) * 1.2)
-        )
-      );
+      const multiplier = 1 + clarityPenalty + dragPenalty + reviewerPenalty + scopePressure;
+      const monthlyDelay = delayDays * frequencyFactor * multiplier;
+      const reviewLoad = Math.round(approvers * frequencyFactor * multiplier);
+      const capacityPct = Math.min(35, ((delayDays * multiplier) / 20) * 100);
 
       const score = Math.min(
         100,
         Math.round(
-          (delayHours * 3.2) +
-          (approvalTouches * 4.4) +
-          (executionDragPct * 1.35)
+          (capacityPct * 2.0) +
+          ((checkedValues.length / 8) * 24) +
+          ((6 - clarityAverage) * 12) +
+          (Math.max(0, approvers - 2) * 5)
         )
       );
 
       return {
         scope,
-        teamsInvolved,
-        criticality,
-        delayHours,
-        approvalTouches,
-        executionDragPct,
+        approvers,
+        monthlyDelay,
+        reviewLoad,
+        capacityPct,
         score,
-        authority,
-        approvalFit,
-        escalation,
-        inputs,
-        execution,
-        reopen,
+        clarityAverage,
         checkedValues
       };
     }
 
     function renderResults(data) {
-      document.getElementById("delayTile").textContent = formatDelay(data.delayHours);
+      document.getElementById("delayTile").textContent = formatDays(data.monthlyDelay);
       document.getElementById("delayTileText").textContent =
-        `Estimated time lost before a decision moves in this decision environment.`;
+        `Estimated accumulated decision-cycle delay per month across a pathway with approximately ${data.approvers} review point(s).`;
 
-      document.getElementById("approvalTile").textContent = formatApprovalTouches(data.approvalTouches);
-      document.getElementById("approvalTileText").textContent =
-        `Estimated review or approval touches surrounding the decision before movement occurs.`;
+      document.getElementById("reviewTile").textContent = `${data.reviewLoad} pts`;
+      document.getElementById("reviewTileText").textContent =
+        `Estimated review-load pressure shaping how long decisions take to move and close.`;
 
-      document.getElementById("executionTile").textContent = `${Math.round(data.executionDragPct)}%`;
-      document.getElementById("executionTileText").textContent =
-        `Estimated loss of execution momentum after the decision is made — ${executionBand(data.executionDragPct)}.`;
+      document.getElementById("capacityTile").textContent = `${Math.round(data.capacityPct)}%`;
+      document.getElementById("capacityTileText").textContent =
+        `Estimated decision capacity absorbed by friction — ${capacityBand(data.capacityPct)}.`;
 
       document.getElementById("scoreValue").textContent = data.score;
-      document.getElementById("scoreBand").textContent = velocityBand(data.score);
+      document.getElementById("scoreBand").textContent = scoreBand(data.score);
       document.getElementById("resultSummary").textContent = generateSummary(data);
 
-      const drivers = buildDrivers(data.checkedValues, data.authority, data.approvalFit, data.execution, data.reopen);
-      const actions = buildActions(data.score, data.checkedValues, data.authority, data.approvalFit, data.execution, data.inputs);
+      const drivers = buildDrivers(data.checkedValues, data.clarityAverage, data.approvers);
+      const actions = buildActions(data.score, data.checkedValues, data.clarityAverage, data.approvers);
 
       const driversList = document.getElementById("resultDrivers");
       const actionsList = document.getElementById("resultActions");
@@ -1840,27 +1609,23 @@
     document.getElementById("resetTool").addEventListener("click", () => {
       document.getElementById("decisionName").value = "";
       document.getElementById("decisionType").value = "";
-      document.getElementById("teamsInvolved").value = "5";
-      document.getElementById("decisionCriticality").value = "2";
+      document.getElementById("approvers").value = "3";
+      document.getElementById("delayDays").value = "4";
       document.querySelector('input[name="scope"][value="team"]').checked = true;
       document.querySelector('input[name="frequency"][value="weekly"]').checked = true;
-
+      document.getElementById("ownerRange").value = "3";
       document.getElementById("authorityRange").value = "3";
-      document.getElementById("approvalRange").value = "3";
+      document.getElementById("criteriaRange").value = "3";
       document.getElementById("escalationRange").value = "3";
-      document.getElementById("inputsRange").value = "3";
-      document.getElementById("executionRange").value = "3";
-      document.getElementById("reopenRange").value = "3";
-
+      document.getElementById("proportionRange").value = "3";
       document.getElementById("contextNotes").value = "";
       document.querySelectorAll('.tool-check input').forEach(el => el.checked = false);
 
+      bindRange("ownerRange", "ownerValue", "clarity");
       bindRange("authorityRange", "authorityValue", "clarity");
-      bindRange("approvalRange", "approvalValue", "approval");
-      bindRange("escalationRange", "escalationValue", "speed");
-      bindRange("inputsRange", "inputsValue", "quality");
-      bindRange("executionRange", "executionValue", "clarity");
-      bindRange("reopenRange", "reopenValue", "reopen");
+      bindRange("criteriaRange", "criteriaValue", "clarity");
+      bindRange("escalationRange", "escalationValue", "clarity");
+      bindRange("proportionRange", "proportionValue", "proportion");
 
       showStep(0);
     });
