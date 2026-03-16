@@ -26,6 +26,7 @@
       font-weight: 400;
       font-display: swap;
     }
+
     @font-face {
       font-family: "Neue Haas Grotesk";
       src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff");
@@ -33,6 +34,7 @@
       font-weight: 500;
       font-display: swap;
     }
+
     @font-face {
       font-family: "Neue Haas Grotesk";
       src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff");
@@ -65,7 +67,9 @@
       --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     html {
       scroll-behavior: smooth;
@@ -83,7 +87,33 @@
       text-rendering: optimizeLegibility;
     }
 
-    html, body, button, input, textarea, select, option, a, p, li, dt, dd, span, small, strong, em, label, figcaption, blockquote, cite, div, section, article, nav, header, footer, main {
+    html,
+    body,
+    button,
+    input,
+    textarea,
+    select,
+    option,
+    a,
+    p,
+    li,
+    dt,
+    dd,
+    span,
+    small,
+    strong,
+    em,
+    label,
+    figcaption,
+    blockquote,
+    cite,
+    div,
+    section,
+    article,
+    nav,
+    header,
+    footer,
+    main {
       font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
     }
 
@@ -97,7 +127,10 @@
       display: block;
     }
 
-    button, input, select, textarea {
+    button,
+    input,
+    select,
+    textarea {
       font: inherit;
     }
 
@@ -253,17 +286,17 @@
       background:
         linear-gradient(
           90deg,
-          rgba(10, 14, 20, 0.72) 0%,
-          rgba(10, 14, 20, 0.56) 24%,
-          rgba(10, 14, 20, 0.28) 48%,
-          rgba(10, 14, 20, 0.10) 72%,
-          rgba(10, 14, 20, 0.04) 100%
+          rgba(10, 14, 20, 0.64) 0%,
+          rgba(10, 14, 20, 0.46) 24%,
+          rgba(10, 14, 20, 0.22) 48%,
+          rgba(10, 14, 20, 0.08) 72%,
+          rgba(10, 14, 20, 0.03) 100%
         ),
         linear-gradient(
           180deg,
-          rgba(10, 14, 20, 0.08) 0%,
+          rgba(10, 14, 20, 0.06) 0%,
           rgba(10, 14, 20, 0.02) 36%,
-          rgba(10, 14, 20, 0.14) 100%
+          rgba(10, 14, 20, 0.12) 100%
         );
     }
 
@@ -289,7 +322,7 @@
     }
 
     .hero-copy {
-      max-width: 720px;
+      max-width: 660px;
     }
 
     .hero-eyebrow,
@@ -303,19 +336,19 @@
     }
 
     .hero-eyebrow {
-      margin: 0 0 112px;
-      padding-left: 2px;
-      font-size: 0.35rem;
+      margin: 0 0 96px;
+      padding-left: 1px;
+      font-size: 0.40rem;
       line-height: 1;
-      letter-spacing: 0.34em;
+      letter-spacing: 0.22em;
       font-weight: 500;
       text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.34);
+      color: rgba(255, 255, 255, 0.40);
       animation-delay: 340ms;
     }
 
     .hero h1 {
-      margin: 0 0 36px;
+      margin: 0 0 34px;
       max-width: 10.2ch;
       font-size: clamp(3.35rem, 5.6vw, 5.4rem);
       line-height: 0.95;
@@ -328,7 +361,7 @@
     }
 
     .hero p {
-      max-width: 620px;
+      max-width: 600px;
       margin: 0;
       font-size: clamp(1.06rem, 1.38vw, 1.18rem);
       line-height: 1.60;
@@ -343,7 +376,7 @@
       align-items: center;
       gap: 12px;
       flex-wrap: wrap;
-      margin-top: 46px;
+      margin-top: 42px;
       animation-delay: 820ms;
     }
 
@@ -1435,11 +1468,11 @@
       }
 
       .hero-eyebrow {
-        margin-bottom: 76px;
+        margin-bottom: 72px;
         padding-left: 1px;
-        font-size: 0.38rem;
-        letter-spacing: 0.24em;
-        color: rgba(255, 255, 255, 0.40);
+        font-size: 0.40rem;
+        letter-spacing: 0.18em;
+        color: rgba(255, 255, 255, 0.42);
       }
 
       .hero h1 {
@@ -1618,7 +1651,7 @@
       <img
         class="hero-image"
         id="heroImage"
-        src="IMG_2383.jpeg"
+        src="IMG_2383.JPG"
         alt=""
         decoding="async"
         fetchpriority="high"
@@ -1628,7 +1661,7 @@
 
     <div class="hero-inner">
       <div class="hero-copy">
-        <p class="hero-eyebrow">Institutional Design · Performance Under Complexity</p>
+        <p class="hero-eyebrow">Institutional Design</p>
 
         <h1 id="hero-title">Transforming complexity into opportunity.</h1>
 
@@ -2132,7 +2165,6 @@
       observer.observe(costSection);
     }
 
-    const latestViewport = document.getElementById("latestViewport");
     const latestTrack = document.getElementById("latestTrack");
     const latestPrev = document.getElementById("latestPrev");
     const latestNext = document.getElementById("latestNext");
@@ -2140,8 +2172,6 @@
 
     let latestIndex = 0;
     let latestCardsPerView = window.innerWidth <= 760 ? 1 : 2;
-    let autoAdvanceTimer = null;
-    let resumeTimer = null;
 
     function getLatestMaxIndex() {
       return Math.max(0, latestCards.length - latestCardsPerView);
@@ -2179,65 +2209,21 @@
       updateLatestCarousel();
     }
 
-    function goToNextLatest() {
-      if (latestIndex >= getLatestMaxIndex()) {
-        latestIndex = 0;
-      } else {
-        latestIndex += 1;
-      }
-      updateLatestCarousel();
-    }
-
-    function stopAutoAdvance() {
-      if (autoAdvanceTimer) {
-        clearInterval(autoAdvanceTimer);
-        autoAdvanceTimer = null;
-      }
-      if (resumeTimer) {
-        clearTimeout(resumeTimer);
-        resumeTimer = null;
-      }
-    }
-
-    function startAutoAdvance() {
-      stopAutoAdvance();
-      if (latestCards.length <= latestCardsPerView) return;
-      autoAdvanceTimer = setInterval(() => {
-        goToNextLatest();
-      }, 7000);
-    }
-
-    function pauseAndResume(delay = 12000) {
-      stopAutoAdvance();
-      resumeTimer = setTimeout(() => {
-        startAutoAdvance();
-      }, delay);
-    }
-
     if (latestPrev) {
       latestPrev.addEventListener("click", () => {
         goToLatest(latestIndex - 1);
-        pauseAndResume();
       });
     }
 
     if (latestNext) {
       latestNext.addEventListener("click", () => {
         goToLatest(latestIndex + 1);
-        pauseAndResume();
       });
-    }
-
-    if (latestViewport) {
-      latestViewport.addEventListener("mouseenter", stopAutoAdvance);
-      latestViewport.addEventListener("mouseleave", () => pauseAndResume(3500));
-      latestViewport.addEventListener("touchstart", () => pauseAndResume());
     }
 
     window.addEventListener("resize", updateLatestCarousel);
     window.addEventListener("load", () => {
       updateLatestCarousel();
-      startAutoAdvance();
     });
   </script>
 </body>
