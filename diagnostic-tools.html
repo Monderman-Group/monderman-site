@@ -49,27 +49,30 @@
 
     :root {
       --accent: #3F6EA1;
+      --accent-dark: #2F5886;
       --bg-dark: #0F1720;
       --bg-dark-2: #111B25;
       --bg-white: #FFFFFF;
       --bg-offwhite: #F6F7F8;
       --text-light: #F5F7FA;
-      --muted-light: rgba(245, 247, 250, 0.80);
+      --muted-light: rgba(245, 247, 250, 0.8);
       --text-dark: #15202B;
       --muted-dark: #5F6B78;
       --muted-dark-2: #7A8794;
       --line-dark: #E3E7EB;
-      --header-solid: rgba(18, 25, 34, 0.84);
+      --header-solid: rgba(14, 20, 28, 0.84);
       --header-border: rgba(255, 255, 255, 0.08);
       --max: 1320px;
       --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
       --transition-slow: 360ms cubic-bezier(0.22, 1, 0.36, 1);
       --tool-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+      --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
+      --good: #1f7a53;
+      --warn: #8c6b47;
+      --alert: #b14d3f;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     html {
       scroll-behavior: smooth;
@@ -87,33 +90,7 @@
       text-rendering: optimizeLegibility;
     }
 
-    html,
-    body,
-    button,
-    input,
-    textarea,
-    select,
-    option,
-    a,
-    p,
-    li,
-    dt,
-    dd,
-    span,
-    small,
-    strong,
-    em,
-    label,
-    figcaption,
-    blockquote,
-    cite,
-    div,
-    section,
-    article,
-    nav,
-    header,
-    footer,
-    main {
+    html, body, button, input, textarea, select, option, a, p, li, dt, dd, span, small, strong, em, label, figcaption, blockquote, cite, div, section, article, nav, header, footer, main {
       font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
     }
 
@@ -122,15 +99,7 @@
       text-decoration: none;
     }
 
-    img {
-      max-width: 100%;
-      display: block;
-    }
-
-    button,
-    input,
-    select,
-    textarea {
+    button, input, select, textarea {
       font: inherit;
     }
 
@@ -192,16 +161,16 @@
     .nav {
       display: flex;
       align-items: center;
-      gap: 32px;
+      gap: 28px;
       flex-wrap: wrap;
       justify-content: flex-end;
     }
 
     .nav a {
       position: relative;
-      font-size: 0.95rem;
+      font-size: 0.94rem;
       font-weight: 500;
-      letter-spacing: 0.015em;
+      letter-spacing: 0.012em;
       color: rgba(255, 255, 255, 0.88);
       transition: color var(--transition), transform var(--transition);
     }
@@ -213,7 +182,7 @@
       bottom: -6px;
       width: 100%;
       height: 1px;
-      background: rgba(255, 255, 255, 0.76);
+      background: rgba(255, 255, 255, 0.74);
       transform: scaleX(0);
       transform-origin: left center;
       transition: transform 180ms ease;
@@ -270,7 +239,7 @@
 
     .hero-tools h1 {
       margin: 0 0 22px;
-      max-width: 11.5ch;
+      max-width: 10.8ch;
       font-size: clamp(3rem, 5vw, 4.8rem);
       line-height: 0.95;
       letter-spacing: -0.05em;
@@ -351,7 +320,7 @@
       padding: 18px 20px;
       background: rgba(255,255,255,0.72);
       border: 1px solid rgba(21,32,43,0.08);
-      box-shadow: 0 1px 0 rgba(0,0,0,0.01);
+      box-shadow: var(--soft-shadow);
     }
 
     .tools-grid {
@@ -378,6 +347,10 @@
       transform: translateY(-3px);
       border-color: rgba(63, 110, 161, 0.14);
       box-shadow: 0 14px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .tool-card-live {
+      border-color: rgba(63, 110, 161, 0.16);
     }
 
     .tool-badge {
@@ -434,10 +407,6 @@
       color: var(--muted-dark-2);
     }
 
-    .tool-card-live {
-      border-color: rgba(63, 110, 161, 0.16);
-    }
-
     .tool-app {
       margin-top: 10px;
       background: #FFFFFF;
@@ -479,6 +448,45 @@
       font-size: 0.84rem;
       line-height: 1.58;
       color: var(--muted-dark-2);
+    }
+
+    .tool-progress {
+      padding: 18px 24px 0;
+    }
+
+    .tool-progress-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .tool-progress-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+    }
+
+    .tool-progress-time {
+      font-size: 0.86rem;
+      color: var(--muted-dark-2);
+    }
+
+    .tool-progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(21,32,43,0.08);
+      overflow: hidden;
+    }
+
+    .tool-progress-fill {
+      width: 25%;
+      height: 100%;
+      background: var(--accent);
+      transition: width var(--transition-slow);
     }
 
     .tool-steps {
@@ -549,7 +557,7 @@
       color: var(--text-dark);
     }
 
-    .tool-field input,
+    .tool-field input[type="text"],
     .tool-field select,
     .tool-field textarea {
       width: 100%;
@@ -562,11 +570,11 @@
     }
 
     .tool-field textarea {
-      min-height: 96px;
+      min-height: 92px;
       resize: vertical;
     }
 
-    .tool-field input:focus,
+    .tool-field input[type="text"]:focus,
     .tool-field select:focus,
     .tool-field textarea:focus {
       outline: none;
@@ -580,29 +588,88 @@
       gap: 16px;
     }
 
-    .tool-grid-3 {
+    .tool-choice-group {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
     }
 
-    .tool-decision-list {
-      display: grid;
-      gap: 16px;
-      margin-top: 6px;
+    .tool-choice {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 46px;
+      padding: 10px 12px;
+      border: 1px solid rgba(21,32,43,0.10);
+      background: #FFFFFF;
+      color: var(--text-dark);
+      cursor: pointer;
     }
 
-    .tool-decision-card {
+    .tool-choice input {
+      margin: 0;
+      accent-color: var(--accent);
+    }
+
+    .tool-range-wrap {
+      display: grid;
+      gap: 8px;
+      padding: 14px 14px 12px;
       border: 1px solid rgba(21,32,43,0.08);
       background: rgba(246,247,248,0.58);
-      padding: 16px;
     }
 
-    .tool-decision-card h4 {
-      margin: 0 0 12px;
-      font-size: 0.96rem;
-      line-height: 1.2;
+    .tool-range-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.90rem;
+      color: var(--muted-dark);
+    }
+
+    .tool-range-value {
+      font-weight: 700;
       color: var(--text-dark);
+      min-width: 72px;
+      text-align: right;
+    }
+
+    .tool-range-labels {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.78rem;
+      color: var(--muted-dark-2);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .tool-check-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .tool-check {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 46px;
+      padding: 10px 12px;
+      border: 1px solid rgba(21,32,43,0.10);
+      background: #FFFFFF;
+      color: var(--text-dark);
+      cursor: pointer;
+    }
+
+    .tool-check input {
+      margin: 0;
+      accent-color: var(--accent);
     }
 
     .tool-nav {
@@ -659,12 +726,71 @@
       border-color: rgba(63,110,161,0.24);
     }
 
+    .tool-output {
+      display: grid;
+      gap: 22px;
+    }
+
+    .tool-output-intro {
+      max-width: 64ch;
+      font-size: 0.96rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+    }
+
+    .tool-results-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 22px;
+    }
+
+    .tool-result-card {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(21, 32, 43, 0.06);
+      padding: 34px 28px 30px;
+      min-height: 248px;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .tool-result-title {
+      margin: 0 0 8px;
+      font-size: 1.02rem;
+      line-height: 1.12;
+      letter-spacing: -0.015em;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .tool-result-source {
+      margin: 0 0 26px;
+      font-size: 0.76rem;
+      line-height: 1.45;
+      color: #8A95A3;
+      font-style: italic;
+    }
+
+    .tool-result-number {
+      margin: 0 0 16px;
+      font-size: clamp(2.8rem, 4vw, 4.2rem);
+      line-height: 0.88;
+      letter-spacing: -0.065em;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .tool-result-text {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.58;
+      color: var(--muted-dark);
+      max-width: 24ch;
+    }
+
     .tool-summary {
       display: grid;
-      grid-template-columns: 220px minmax(0, 1fr);
+      grid-template-columns: 240px minmax(0, 1fr);
       gap: 22px;
       align-items: start;
-      margin-bottom: 22px;
     }
 
     .tool-score {
@@ -838,7 +964,8 @@
       .nav a::after,
       .tool-card,
       .tool-btn,
-      .footer-nav a {
+      .footer-nav a,
+      .tool-progress-fill {
         transition: none;
       }
     }
@@ -848,7 +975,8 @@
         grid-template-columns: 1fr;
       }
 
-      .tools-grid {
+      .tools-grid,
+      .tool-results-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
@@ -910,7 +1038,9 @@
 
       .tools-grid,
       .tool-grid-2,
-      .tool-grid-3 {
+      .tool-choice-group,
+      .tool-check-grid,
+      .tool-results-grid {
         grid-template-columns: 1fr;
       }
 
@@ -919,6 +1049,7 @@
         flex-direction: column;
       }
 
+      .tool-progress,
       .tool-steps,
       .tool-app-body {
         padding-left: 20px;
@@ -968,7 +1099,7 @@
 
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
-        <a href="diagnostic-tools.html">Tools</a>
+        <a href="diagnostic-tools.html">Diagnostic Tools</a>
         <a href="index.html#thinking">Thinking</a>
         <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
@@ -982,7 +1113,7 @@
       <p class="hero-tools-eyebrow">Monderman Diagnostic Tools</p>
       <h1 id="tools-hero-title">Practical diagnostics for institutional friction.</h1>
       <p>
-        Structured tools for identifying ownership ambiguity, decision bottlenecks, and administrative drag in bounded workflows and operating environments.
+        A guided snapshot for estimating how much time, money, and productive capacity may be consumed by bureaucratic overhead in a bounded workflow or operating environment.
       </p>
     </div>
   </section>
@@ -994,7 +1125,7 @@
           <div class="section-label">Diagnostic Suite</div>
           <h2>Grounded tools, built for immediate use.</h2>
           <p>
-            These diagnostics are designed to reveal real structural issues without pretending to be full organizational assessments. Use them to clarify where friction is accumulating, where responsibilities are misaligned, and where deeper redesign may be needed.
+            This phase-one diagnostic is designed to make administrative burden visible quickly. It uses structured inputs and directional assumptions to estimate the likely cost of bureaucratic overhead inside a team, division, or broader organization.
           </p>
         </div>
 
@@ -1010,10 +1141,10 @@
           <p class="tool-card-kicker">Structural Clarity</p>
           <h3 class="tool-card-title">Structural Clarity Snapshot</h3>
           <p class="tool-card-text">
-            Map one real workflow to identify ownership gaps, authority conflicts, approval stacking, and ambiguous handoffs.
+            Estimate how much time, money, and productive capacity may be consumed by overhead inside one workflow or operating slice.
           </p>
           <p class="tool-card-meta">
-            Best for one team, one process, or one cross-functional operating slice.
+            Best for one team, one process, one cross-functional workflow, or one organizational slice.
           </p>
         </article>
 
@@ -1022,10 +1153,10 @@
           <p class="tool-card-kicker">Decision Velocity</p>
           <h3 class="tool-card-title">Decision Velocity Snapshot</h3>
           <p class="tool-card-text">
-            Identify where approvals, escalation patterns, and structural bottlenecks are slowing movement through critical decisions.
+            Identify where approval density, escalation patterns, and role ambiguity are slowing movement through important decisions.
           </p>
           <p class="tool-card-meta">
-            Designed to show where action stalls between intent, authority, and execution.
+            Designed to surface how decisions stall between intent, authority, and execution.
           </p>
         </article>
 
@@ -1034,7 +1165,7 @@
           <p class="tool-card-kicker">Operational Systems</p>
           <h3 class="tool-card-title">Bureaucratic Drag Snapshot</h3>
           <p class="tool-card-text">
-            Surface recurring administrative burden, process density, and non-value-adding overhead inside a specific workflow.
+            Surface recurring administrative burden, process density, and non-value-adding overhead across a selected workflow.
           </p>
           <p class="tool-card-meta">
             Built to distinguish manageable friction from systemic drag requiring redesign.
@@ -1047,12 +1178,628 @@
           <div>
             <h3>Structural Clarity Snapshot</h3>
             <p>
-              A rapid diagnostic for one workflow or operating slice. Results are generated from your inputs and intended for private use only.
-              This is a bounded snapshot, not a comprehensive organizational assessment.
+              A guided four-step diagnostic for one workflow or operating slice. Complete the structured inputs below to estimate likely bureaucratic overhead and reveal the patterns most likely driving it.
             </p>
           </div>
           <div class="tool-privacy">
-            <strong>Use note:</strong> Do not enter confidential, classified, regulated, or personally sensitive information.
-            This tool is designed to reveal contradictions in ownership, authority, approvals, and handoffs.
+            <strong>Use note:</strong> Do not enter confidential, classified, regulated, or personally sensitive information. This tool provides directional estimates, not audited financial values.
           </div>
-        </
+        </div>
+
+        <div class="tool-progress">
+          <div class="tool-progress-top">
+            <div class="tool-progress-label" id="progressLabel">Step 1 of 4</div>
+            <div class="tool-progress-time">Approx. 3 minutes</div>
+          </div>
+          <div class="tool-progress-bar">
+            <div class="tool-progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+
+        <div class="tool-steps">
+          <div class="tool-step-pill is-active">1 · Workflow</div>
+          <div class="tool-step-pill">2 · Clarity</div>
+          <div class="tool-step-pill">3 · Friction</div>
+          <div class="tool-step-pill">4 · Output</div>
+        </div>
+
+        <div class="tool-app-body">
+          <div class="tool-pane is-active" data-step="1">
+            <h4 class="tool-pane-title">Step 1 — Define the workflow</h4>
+            <p class="tool-pane-copy">
+              Start with one bounded workflow. Keep it specific enough that one team, division, or operating slice could reasonably recognize it.
+            </p>
+
+            <div class="tool-fields">
+              <div class="tool-grid-2">
+                <div class="tool-field">
+                  <label for="workflowName">Workflow name <span style="color:#7A8794;">(optional)</span></label>
+                  <input id="workflowName" type="text" placeholder="Example: Budget approval for new hires" />
+                </div>
+
+                <div class="tool-field">
+                  <label for="workflowType">Workflow type</label>
+                  <select id="workflowType">
+                    <option value="">Select one</option>
+                    <option>Approvals</option>
+                    <option>Hiring</option>
+                    <option>Procurement</option>
+                    <option>Reporting</option>
+                    <option>Product / program delivery</option>
+                    <option>Cross-functional coordination</option>
+                    <option>Escalations / exceptions</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="tool-grid-2">
+                <div class="tool-field">
+                  <label>Organizational scope</label>
+                  <div class="tool-choice-group">
+                    <label class="tool-choice"><input type="radio" name="scope" value="team" checked /> Team</label>
+                    <label class="tool-choice"><input type="radio" name="scope" value="division" /> Division</label>
+                    <label class="tool-choice"><input type="radio" name="scope" value="company" /> Entire company</label>
+                    <label class="tool-choice"><input type="radio" name="scope" value="other-scope" /> Other</label>
+                  </div>
+                </div>
+
+                <div class="tool-field">
+                  <label>Workflow frequency</label>
+                  <div class="tool-choice-group">
+                    <label class="tool-choice"><input type="radio" name="frequency" value="daily" /> Daily</label>
+                    <label class="tool-choice"><input type="radio" name="frequency" value="weekly" checked /> Weekly</label>
+                    <label class="tool-choice"><input type="radio" name="frequency" value="monthly" /> Monthly</label>
+                    <label class="tool-choice"><input type="radio" name="frequency" value="adhoc" /> Ad hoc</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tool-grid-2">
+                <div class="tool-field">
+                  <label for="headcount">Approximate number of people affected</label>
+                  <select id="headcount">
+                    <option value="8">1–10</option>
+                    <option value="25">11–25</option>
+                    <option value="50">26–50</option>
+                    <option value="100">51–100</option>
+                    <option value="250">101–250</option>
+                    <option value="500">251–500</option>
+                    <option value="1000">500+</option>
+                  </select>
+                </div>
+
+                <div class="tool-field">
+                  <label for="hoursLost">Average hours lost per person per week</label>
+                  <select id="hoursLost">
+                    <option value="1">Under 1 hour</option>
+                    <option value="2">1–2 hours</option>
+                    <option value="3" selected>2–3 hours</option>
+                    <option value="4">3–4 hours</option>
+                    <option value="6">4–6 hours</option>
+                    <option value="8">6+ hours</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="tool-nav">
+              <div class="tool-nav-left"></div>
+              <div class="tool-nav-right">
+                <button class="tool-btn" type="button" data-next>Next</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="tool-pane" data-step="2">
+            <h4 class="tool-pane-title">Step 2 — Rate structural clarity</h4>
+            <p class="tool-pane-copy">
+              Use the sliders to rate how clear the workflow is in practice. Lower clarity increases likely overhead.
+            </p>
+
+            <div class="tool-fields">
+              <div class="tool-field">
+                <label for="ownershipRange">Ownership clarity</label>
+                <div class="tool-range-wrap">
+                  <div class="tool-range-top">
+                    <span>How clear is ownership?</span>
+                    <span class="tool-range-value" id="ownershipValue">Mixed</span>
+                  </div>
+                  <input id="ownershipRange" type="range" min="1" max="5" value="3" />
+                  <div class="tool-range-labels">
+                    <span>Very unclear</span>
+                    <span>Very clear</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tool-field">
+                <label for="authorityRange">Decision authority clarity</label>
+                <div class="tool-range-wrap">
+                  <div class="tool-range-top">
+                    <span>Who can decide?</span>
+                    <span class="tool-range-value" id="authorityValue">Mixed</span>
+                  </div>
+                  <input id="authorityRange" type="range" min="1" max="5" value="3" />
+                  <div class="tool-range-labels">
+                    <span>Very unclear</span>
+                    <span>Very clear</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tool-field">
+                <label for="handoffRange">Handoff clarity</label>
+                <div class="tool-range-wrap">
+                  <div class="tool-range-top">
+                    <span>Are handoffs explicit?</span>
+                    <span class="tool-range-value" id="handoffValue">Mixed</span>
+                  </div>
+                  <input id="handoffRange" type="range" min="1" max="5" value="3" />
+                  <div class="tool-range-labels">
+                    <span>Very unclear</span>
+                    <span>Very clear</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tool-field">
+                <label for="escalationRange">Escalation path clarity</label>
+                <div class="tool-range-wrap">
+                  <div class="tool-range-top">
+                    <span>Are escalation paths understood?</span>
+                    <span class="tool-range-value" id="escalationValue">Mixed</span>
+                  </div>
+                  <input id="escalationRange" type="range" min="1" max="5" value="3" />
+                  <div class="tool-range-labels">
+                    <span>Very unclear</span>
+                    <span>Very clear</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tool-field">
+                <label for="approvalRange">Approval proportionality</label>
+                <div class="tool-range-wrap">
+                  <div class="tool-range-top">
+                    <span>Are approvals proportional to risk?</span>
+                    <span class="tool-range-value" id="approvalValue">Mixed</span>
+                  </div>
+                  <input id="approvalRange" type="range" min="1" max="5" value="3" />
+                  <div class="tool-range-labels">
+                    <span>Not at all</span>
+                    <span>Very much</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tool-nav">
+              <div class="tool-nav-left">
+                <button class="tool-btn tool-btn-secondary" type="button" data-prev>Back</button>
+              </div>
+              <div class="tool-nav-right">
+                <button class="tool-btn" type="button" data-next>Next</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="tool-pane" data-step="3">
+            <h4 class="tool-pane-title">Step 3 — Identify friction patterns</h4>
+            <p class="tool-pane-copy">
+              Select the patterns that best describe the workflow. More friction patterns increase the likely overhead estimate.
+            </p>
+
+            <div class="tool-check-grid">
+              <label class="tool-check"><input type="checkbox" value="duplicate-approvals" /> Duplicate approvals</label>
+              <label class="tool-check"><input type="checkbox" value="unclear-owner" /> Unclear owner</label>
+              <label class="tool-check"><input type="checkbox" value="too-many-handoffs" /> Too many handoffs</label>
+              <label class="tool-check"><input type="checkbox" value="conflicting-authority" /> Conflicting authority</label>
+              <label class="tool-check"><input type="checkbox" value="reporting-burden" /> Reporting burden</label>
+              <label class="tool-check"><input type="checkbox" value="delayed-decisions" /> Delayed decisions</label>
+              <label class="tool-check"><input type="checkbox" value="workarounds-common" /> Workarounds are common</label>
+              <label class="tool-check"><input type="checkbox" value="weak-exception-handling" /> Weak exception handling</label>
+            </div>
+
+            <div class="tool-fields" style="margin-top:16px;">
+              <div class="tool-field">
+                <label for="contextNotes">Optional context <span style="color:#7A8794;">(brief, non-sensitive)</span></label>
+                <textarea id="contextNotes" placeholder="Example: Two directors both review the same decision package before it moves forward."></textarea>
+              </div>
+            </div>
+
+            <div class="tool-nav">
+              <div class="tool-nav-left">
+                <button class="tool-btn tool-btn-secondary" type="button" data-prev>Back</button>
+              </div>
+              <div class="tool-nav-right">
+                <button class="tool-btn" type="button" id="generateResults">Generate results</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="tool-pane" data-step="4">
+            <h4 class="tool-pane-title">Step 4 — Estimated bureaucratic overhead</h4>
+            <p class="tool-pane-copy tool-output-intro">
+              These estimates are directional and based on your selected scope, headcount, burden inputs, and generalized labor-rate assumptions. They are intended to surface likely administrative overhead, not provide audited financial values.
+            </p>
+
+            <div class="tool-output">
+              <div class="tool-results-grid">
+                <div class="tool-result-card">
+                  <div class="tool-result-title">Time</div>
+                  <p class="tool-result-source"><em>* rough directional estimate based on your inputs</em></p>
+                  <div class="tool-result-number" id="timeTile">0 hrs</div>
+                  <p class="tool-result-text" id="timeTileText">Estimated labor hours absorbed by bureaucratic overhead each month.</p>
+                </div>
+
+                <div class="tool-result-card">
+                  <div class="tool-result-title">Money</div>
+                  <p class="tool-result-source"><em>* rough directional estimate based on blended labor-rate assumptions</em></p>
+                  <div class="tool-result-number" id="moneyTile">$0</div>
+                  <p class="tool-result-text" id="moneyTileText">Estimated monthly cost equivalent of bureaucratic overhead.</p>
+                </div>
+
+                <div class="tool-result-card">
+                  <div class="tool-result-title">Resources</div>
+                  <p class="tool-result-source"><em>* rough directional estimate of productive capacity absorbed</em></p>
+                  <div class="tool-result-number" id="resourceTile">0%</div>
+                  <p class="tool-result-text" id="resourceTileText">Estimated productive capacity consumed by administrative burden.</p>
+                </div>
+              </div>
+
+              <div class="tool-summary">
+                <div class="tool-score">
+                  <p class="tool-score-label">Overhead Index</p>
+                  <p class="tool-score-value" id="scoreValue">0</p>
+                  <p class="tool-score-band" id="scoreBand">Low burden</p>
+                </div>
+
+                <div class="tool-results">
+                  <h4>Interpretation</h4>
+                  <p id="resultSummary">Your summary will appear here.</p>
+
+                  <h4>Most likely drivers</h4>
+                  <ul id="resultDrivers"></ul>
+
+                  <h4>Most likely interventions</h4>
+                  <ul id="resultActions"></ul>
+
+                  <div class="tool-results-note" id="resultCaveat">
+                    These results are a bounded snapshot intended to make hidden burden more visible. They should be read as a directional estimate, not as a substitute for deeper organizational assessment.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tool-nav">
+              <div class="tool-nav-left">
+                <button class="tool-btn tool-btn-secondary" type="button" data-prev>Back</button>
+              </div>
+              <div class="tool-nav-right">
+                <button class="tool-btn tool-btn-secondary" type="button" id="resetTool">Reset</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-mark">Monderman</div>
+          <p class="footer-copy">
+            Advisory thinking on institutional performance, decision velocity, and the design of systems that sustain clarity under complexity.
+          </p>
+        </div>
+
+        <div class="footer-nav" aria-label="Footer navigation">
+          <div class="footer-nav-col">
+            <p class="footer-nav-title">Explore</p>
+            <a href="index.html#approach">Approach</a>
+            <a href="diagnostic-tools.html">Diagnostic Tools</a>
+            <a href="index.html#thinking">Thinking</a>
+            <a href="research.html">Research</a>
+            <a href="why-monderman.html">Why Monderman</a>
+          </div>
+
+          <div class="footer-nav-col">
+            <p class="footer-nav-title">Connect</p>
+            <a href="mailto:connect@monderman.com">connect@monderman.com</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
+        <p class="footer-contact">Clarity for complex institutions.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const header = document.getElementById("siteHeader");
+
+    function updateHeader() {
+      if (!header) return;
+      if (window.scrollY > 12) {
+        header.classList.add("scrolled");
+      } else {
+        header.classList.remove("scrolled");
+      }
+    }
+
+    updateHeader();
+    window.addEventListener("scroll", updateHeader);
+
+    const panes = Array.from(document.querySelectorAll(".tool-pane"));
+    const stepPills = Array.from(document.querySelectorAll(".tool-step-pill"));
+    const progressFill = document.getElementById("progressFill");
+    const progressLabel = document.getElementById("progressLabel");
+    let currentStep = 0;
+
+    function showStep(index) {
+      currentStep = Math.max(0, Math.min(index, panes.length - 1));
+      panes.forEach((pane, i) => pane.classList.toggle("is-active", i === currentStep));
+      stepPills.forEach((pill, i) => pill.classList.toggle("is-active", i === currentStep));
+      progressFill.style.width = `${((currentStep + 1) / panes.length) * 100}%`;
+      progressLabel.textContent = `Step ${currentStep + 1} of ${panes.length}`;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    document.querySelectorAll("[data-next]").forEach((btn) => {
+      btn.addEventListener("click", () => showStep(currentStep + 1));
+    });
+
+    document.querySelectorAll("[data-prev]").forEach((btn) => {
+      btn.addEventListener("click", () => showStep(currentStep - 1));
+    });
+
+    const rangeLabels = {
+      1: "Very low",
+      2: "Low",
+      3: "Mixed",
+      4: "High",
+      5: "Very high"
+    };
+
+    function bindRange(inputId, valueId, mode = "default") {
+      const input = document.getElementById(inputId);
+      const value = document.getElementById(valueId);
+      if (!input || !value) return;
+
+      function update() {
+        const v = Number(input.value);
+        let label = rangeLabels[v];
+        if (mode === "clarity") {
+          label = ["Very unclear", "Unclear", "Mixed", "Mostly clear", "Very clear"][v - 1];
+        }
+        if (mode === "approval") {
+          label = ["Very poor fit", "Poor fit", "Mixed", "Mostly fit", "Strong fit"][v - 1];
+        }
+        value.textContent = label;
+      }
+
+      input.addEventListener("input", update);
+      update();
+    }
+
+    bindRange("ownershipRange", "ownershipValue", "clarity");
+    bindRange("authorityRange", "authorityValue", "clarity");
+    bindRange("handoffRange", "handoffValue", "clarity");
+    bindRange("escalationRange", "escalationValue", "clarity");
+    bindRange("approvalRange", "approvalValue", "approval");
+
+    function getSelectedRadio(name) {
+      const el = document.querySelector(`input[name="${name}"]:checked`);
+      return el ? el.value : "";
+    }
+
+    function formatHours(num) {
+      if (num >= 1000) return `${Math.round(num).toLocaleString()} hrs`;
+      return `${Math.round(num)} hrs`;
+    }
+
+    function formatMoney(num) {
+      if (num >= 1000000) return `$${(num / 1000000).toFixed(1)}M`;
+      if (num >= 1000) return `$${Math.round(num).toLocaleString()}`;
+      return `$${Math.round(num)}`;
+    }
+
+    function scoreBand(score) {
+      if (score < 35) return "Low estimated burden";
+      if (score < 60) return "Moderate estimated burden";
+      if (score < 80) return "High estimated burden";
+      return "Severe estimated burden";
+    }
+
+    function resourceBand(pct) {
+      if (pct < 8) return "limited but visible overhead";
+      if (pct < 15) return "meaningful overhead load";
+      if (pct < 22) return "heavy overhead burden";
+      return "very high overhead absorption";
+    }
+
+    function buildDrivers(checkedValues, clarityAverage) {
+      const drivers = [];
+
+      if (checkedValues.includes("duplicate-approvals")) drivers.push("Approval density appears to be consuming more time than the underlying work requires.");
+      if (checkedValues.includes("unclear-owner")) drivers.push("Ambiguous ownership is likely forcing rework, delay, and unnecessary coordination.");
+      if (checkedValues.includes("too-many-handoffs")) drivers.push("Excessive handoffs suggest the workflow is fragmented across too many points of transfer.");
+      if (checkedValues.includes("conflicting-authority")) drivers.push("Conflicting authority likely creates hesitation, duplication, and escalation loops.");
+      if (checkedValues.includes("reporting-burden")) drivers.push("Reporting and documentation demands appear to be absorbing a meaningful share of productive effort.");
+      if (checkedValues.includes("delayed-decisions")) drivers.push("Decision latency is likely translating directly into stalled progress and queue buildup.");
+      if (checkedValues.includes("workarounds-common")) drivers.push("Frequent workarounds suggest the formal process is no longer aligned with how work actually moves.");
+      if (checkedValues.includes("weak-exception-handling")) drivers.push("Weak exception handling likely causes edge cases to trigger slow, manual escalation patterns.");
+
+      if (clarityAverage < 3 && drivers.length < 3) {
+        drivers.push("Low structural clarity across the workflow is likely amplifying overhead independent of workload volume.");
+      }
+
+      return drivers.slice(0, 3);
+    }
+
+    function buildActions(score, checkedValues, clarityAverage) {
+      const actions = [];
+
+      if (checkedValues.includes("unclear-owner") || clarityAverage < 3) {
+        actions.push("Clarify one accountable owner for each major stage of the workflow.");
+      }
+      if (checkedValues.includes("duplicate-approvals") || checkedValues.includes("delayed-decisions")) {
+        actions.push("Reduce approval layers and compress approvals to those proportional to real risk.");
+      }
+      if (checkedValues.includes("too-many-handoffs")) {
+        actions.push("Redesign handoffs so responsibility transfers are explicit and fewer in number.");
+      }
+      if (checkedValues.includes("conflicting-authority")) {
+        actions.push("Resolve conflicting decision rights before adding new controls or escalation rules.");
+      }
+      if (checkedValues.includes("workarounds-common") || checkedValues.includes("weak-exception-handling")) {
+        actions.push("Strengthen exception paths so edge cases do not require improvised workarounds.");
+      }
+      if (checkedValues.includes("reporting-burden")) {
+        actions.push("Remove reporting obligations that do not clearly support decisions, accountability, or risk management.");
+      }
+
+      if (actions.length < 3 && score >= 60) {
+        actions.push("Run a deeper structural review of the workflow rather than relying on local workarounds.");
+      }
+
+      return actions.slice(0, 3);
+    }
+
+    function generateSummary(data) {
+      const scopeText = data.scope === "team"
+        ? "team-level"
+        : data.scope === "division"
+        ? "division-level"
+        : data.scope === "company"
+        ? "enterprise-level"
+        : "workflow-level";
+
+      const burdenText = scoreBand(data.score).replace("estimated ", "");
+      return `This ${scopeText} snapshot suggests ${burdenText.toLowerCase()} driven by the combination of workload loss, structural ambiguity, and friction inside the selected workflow. Based on your inputs, bureaucratic overhead is likely consuming a meaningful share of available labor capacity rather than acting as a minor background cost. The strongest signal here is not simply work volume, but the way approvals, ownership, handoffs, and reporting demands are interacting to absorb productive effort.`;
+    }
+
+    function calculateResults() {
+      const scope = getSelectedRadio("scope");
+      const frequency = getSelectedRadio("frequency");
+      const headcount = Number(document.getElementById("headcount").value);
+      const hoursLost = Number(document.getElementById("hoursLost").value);
+
+      const ownership = Number(document.getElementById("ownershipRange").value);
+      const authority = Number(document.getElementById("authorityRange").value);
+      const handoff = Number(document.getElementById("handoffRange").value);
+      const escalation = Number(document.getElementById("escalationRange").value);
+      const approval = Number(document.getElementById("approvalRange").value);
+
+      const checkedValues = Array.from(document.querySelectorAll('.tool-check input:checked')).map(el => el.value);
+
+      const scopeRate = scope === "team" ? 75 : scope === "division" ? 90 : scope === "company" ? 110 : 85;
+      const frequencyFactor = frequency === "daily" ? 4.3 : frequency === "weekly" ? 4 : frequency === "monthly" ? 1 : 2;
+      const clarityAverage = (ownership + authority + handoff + escalation + approval) / 5;
+
+      const clarityPenalty = (6 - clarityAverage) * 0.10;
+      const frictionPenalty = checkedValues.length * 0.05;
+      const scopePressure = scope === "company" ? 0.15 : scope === "division" ? 0.08 : 0;
+
+      const multiplier = 1 + clarityPenalty + frictionPenalty + scopePressure;
+      const monthlyHours = headcount * hoursLost * frequencyFactor * multiplier;
+      const monthlyCost = monthlyHours * scopeRate;
+      const resourcePct = Math.min(30, ((hoursLost * multiplier) / 40) * 100);
+
+      const score = Math.min(
+        100,
+        Math.round(
+          (resourcePct * 2.2) +
+          ((checkedValues.length / 8) * 22) +
+          ((6 - clarityAverage) * 12)
+        )
+      );
+
+      return {
+        scope,
+        headcount,
+        monthlyHours,
+        monthlyCost,
+        resourcePct,
+        score,
+        clarityAverage,
+        checkedValues
+      };
+    }
+
+    function renderResults(data) {
+      document.getElementById("timeTile").textContent = formatHours(data.monthlyHours);
+      document.getElementById("timeTileText").textContent =
+        `Estimated labor hours absorbed by bureaucratic overhead each month across approximately ${data.headcount.toLocaleString()} affected people.`;
+
+      document.getElementById("moneyTile").textContent = formatMoney(data.monthlyCost);
+      document.getElementById("moneyTileText").textContent =
+        `Estimated monthly cost equivalent based on generalized blended labor-rate assumptions for the selected scope.`;
+
+      document.getElementById("resourceTile").textContent = `${Math.round(data.resourcePct)}%`;
+      document.getElementById("resourceTileText").textContent =
+        `Estimated productive capacity absorbed by administrative burden — ${resourceBand(data.resourcePct)}.`;
+
+      document.getElementById("scoreValue").textContent = data.score;
+      document.getElementById("scoreBand").textContent = scoreBand(data.score);
+      document.getElementById("resultSummary").textContent = generateSummary(data);
+
+      const drivers = buildDrivers(data.checkedValues, data.clarityAverage);
+      const actions = buildActions(data.score, data.checkedValues, data.clarityAverage);
+
+      const driversList = document.getElementById("resultDrivers");
+      const actionsList = document.getElementById("resultActions");
+      driversList.innerHTML = "";
+      actionsList.innerHTML = "";
+
+      drivers.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        driversList.appendChild(li);
+      });
+
+      actions.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        actionsList.appendChild(li);
+      });
+
+      showStep(3);
+    }
+
+    document.getElementById("generateResults").addEventListener("click", () => {
+      const data = calculateResults();
+      renderResults(data);
+    });
+
+    document.getElementById("resetTool").addEventListener("click", () => {
+      document.getElementById("workflowName").value = "";
+      document.getElementById("workflowType").value = "";
+      document.getElementById("headcount").value = "8";
+      document.getElementById("hoursLost").value = "3";
+      document.querySelector('input[name="scope"][value="team"]').checked = true;
+      document.querySelector('input[name="frequency"][value="weekly"]').checked = true;
+      document.getElementById("ownershipRange").value = "3";
+      document.getElementById("authorityRange").value = "3";
+      document.getElementById("handoffRange").value = "3";
+      document.getElementById("escalationRange").value = "3";
+      document.getElementById("approvalRange").value = "3";
+      document.getElementById("contextNotes").value = "";
+      document.querySelectorAll('.tool-check input').forEach(el => el.checked = false);
+
+      bindRange("ownershipRange", "ownershipValue", "clarity");
+      bindRange("authorityRange", "authorityValue", "clarity");
+      bindRange("handoffRange", "handoffValue", "clarity");
+      bindRange("escalationRange", "escalationValue", "clarity");
+      bindRange("approvalRange", "approvalValue", "approval");
+
+      showStep(0);
+    });
+  </script>
+</body>
+</html>
