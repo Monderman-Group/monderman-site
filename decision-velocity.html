@@ -1,0 +1,1869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Decision Velocity Snapshot | Monderman</title>
+
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href='data:image/svg+xml;utf8,
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="10" fill="%230F1720"/>
+      <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text>
+      <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
+    </svg>'
+  />
+
+  <style>
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src:
+        url("55font.woff2") format("woff2"),
+        url("55font.woff") format("woff");
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src:
+        url("65font.woff2") format("woff2"),
+        url("65font.woff") format("woff");
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src:
+        url("75font.woff2") format("woff2"),
+        url("75font.woff") format("woff");
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+    }
+
+    :root {
+      --accent: #3F6EA1;
+      --accent-dark: #2F5886;
+      --bg-dark: #0F1720;
+      --bg-dark-2: #111B25;
+      --bg-white: #FFFFFF;
+      --bg-offwhite: #F6F7F8;
+      --text-light: #F5F7FA;
+      --muted-light: rgba(245, 247, 250, 0.80);
+      --text-dark: #15202B;
+      --muted-dark: #5F6B78;
+      --muted-dark-2: #7A8794;
+      --line-dark: #E3E7EB;
+      --header-solid: rgba(14, 20, 28, 0.84);
+      --header-border: rgba(255, 255, 255, 0.08);
+      --max: 1320px;
+      --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
+      --transition-slow: 360ms cubic-bezier(0.22, 1, 0.36, 1);
+      --tool-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+      --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 72px;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg-white);
+      color: var(--text-dark);
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    html, body, button, input, textarea, select, option, a, p, li, dt, dd, span, small, strong, em, label, figcaption, blockquote, cite, div, section, article, nav, header, footer, main {
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    .header {
+      position: fixed;
+      inset: 0 0 auto 0;
+      width: 100%;
+      height: 72px;
+      z-index: 100;
+      background: transparent;
+      border-bottom: 1px solid transparent;
+      transition:
+        background var(--transition),
+        border-color var(--transition),
+        backdrop-filter var(--transition),
+        -webkit-backdrop-filter var(--transition);
+    }
+
+    .header.scrolled {
+      background: var(--header-solid);
+      border-bottom-color: var(--header-border);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .header-inner {
+      max-width: var(--max);
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 34px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      font-size: 1.32rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      white-space: nowrap;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
+    }
+
+    .brand::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .nav a {
+      position: relative;
+      font-size: 0.94rem;
+      font-weight: 500;
+      letter-spacing: 0.012em;
+      color: rgba(255, 255, 255, 0.88);
+      transition: color var(--transition), transform var(--transition);
+    }
+
+    .nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -6px;
+      width: 100%;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.74);
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 180ms ease;
+    }
+
+    .nav a:hover,
+    .nav a:focus-visible {
+      color: #FFFFFF;
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .nav a:hover::after,
+    .nav a:focus-visible::after {
+      transform: scaleX(1);
+    }
+
+    .hero-tools {
+      position: relative;
+      background: linear-gradient(180deg, #0F1720 0%, #131E29 100%);
+      color: var(--text-light);
+      overflow: hidden;
+    }
+
+    .hero-tools::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 80% 20%, rgba(63, 110, 161, 0.12), transparent 30%),
+        linear-gradient(135deg, rgba(63, 110, 161, 0.03) 1px, transparent 1px);
+      background-size: auto, 34px 34px;
+      opacity: 0.34;
+      pointer-events: none;
+    }
+
+    .hero-tools-inner {
+      position: relative;
+      z-index: 1;
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 148px 34px 92px;
+    }
+
+    .hero-tools-eyebrow {
+      margin: 0 0 22px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: rgba(245, 247, 250, 0.58);
+    }
+
+    .hero-tools h1 {
+      margin: 0 0 22px;
+      max-width: 10.2ch;
+      font-size: clamp(3rem, 5vw, 4.8rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      font-weight: 700;
+      color: #FFFFFF;
+      text-wrap: balance;
+    }
+
+    .hero-tools p {
+      margin: 0;
+      max-width: 62ch;
+      font-size: 1.08rem;
+      line-height: 1.68;
+      color: var(--muted-light);
+    }
+
+    .tools-page {
+      background: var(--bg-offwhite);
+      padding: 88px 34px 92px;
+      color: var(--text-dark);
+    }
+
+    .tools-page-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .tools-page-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 46px;
+      align-items: end;
+      margin-bottom: 34px;
+    }
+
+    .section-label {
+      margin-bottom: 16px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .section-label::before {
+      content: "";
+      display: block;
+      width: 48px;
+      height: 2px;
+      background: var(--accent);
+      margin-bottom: 14px;
+    }
+
+    .section-intro h2 {
+      margin: 0 0 18px;
+      max-width: 760px;
+      font-size: clamp(1.95rem, 2.45vw, 2.35rem);
+      line-height: 1.12;
+      letter-spacing: -0.04em;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-wrap: balance;
+    }
+
+    .section-intro p {
+      margin: 0;
+      max-width: 62ch;
+      font-size: 1.04rem;
+      line-height: 1.68;
+      color: var(--muted-dark);
+    }
+
+    .tools-note {
+      margin: 0;
+      font-size: 0.90rem;
+      line-height: 1.62;
+      color: var(--muted-dark-2);
+      padding: 18px 20px;
+      background: rgba(255,255,255,0.72);
+      border: 1px solid rgba(21,32,43,0.08);
+      box-shadow: var(--soft-shadow);
+    }
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 22px;
+      margin-bottom: 30px;
+    }
+
+    .tool-card {
+      position: relative;
+      background: #FFFFFF;
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      box-shadow: var(--tool-shadow);
+      padding: 22px 22px 20px;
+      min-height: 236px;
+      transition:
+        transform var(--transition-slow),
+        box-shadow var(--transition-slow),
+        border-color var(--transition);
+    }
+
+    .tool-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(63, 110, 161, 0.14);
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .tool-card-live {
+      border-color: rgba(63, 110, 161, 0.16);
+    }
+
+    .tool-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      background: rgba(63, 110, 161, 0.08);
+      color: var(--accent);
+      border: 1px solid rgba(63, 110, 161, 0.12);
+      margin-bottom: 12px;
+    }
+
+    .tool-badge-muted {
+      background: rgba(21,32,43,0.04);
+      color: var(--muted-dark);
+      border-color: rgba(21,32,43,0.08);
+    }
+
+    .tool-card-kicker {
+      margin: 0 0 10px;
+      font-size: 0.70rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .tool-card-title {
+      margin: 0 0 10px;
+      font-size: 1.14rem;
+      line-height: 1.14;
+      font-weight: 700;
+      letter-spacing: -0.022em;
+      color: var(--text-dark);
+    }
+
+    .tool-card-text {
+      margin: 0 0 14px;
+      font-size: 0.95rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+    }
+
+    .tool-card-meta {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.55;
+      color: var(--muted-dark-2);
+    }
+
+    .tool-app {
+      margin-top: 10px;
+      background: #FFFFFF;
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      box-shadow:
+        0 1px 0 rgba(0,0,0,0.012),
+        0 14px 32px rgba(0,0,0,0.04);
+      overflow: hidden;
+    }
+
+    .tool-app-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 24px 24px 18px;
+      border-bottom: 1px solid rgba(21,32,43,0.08);
+      background: rgba(246,247,248,0.6);
+    }
+
+    .tool-app-head h3 {
+      margin: 0 0 8px;
+      font-size: 1.28rem;
+      line-height: 1.12;
+      letter-spacing: -0.024em;
+      color: var(--text-dark);
+    }
+
+    .tool-app-head p {
+      margin: 0;
+      max-width: 62ch;
+      font-size: 0.96rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+    }
+
+    .tool-privacy {
+      max-width: 360px;
+      font-size: 0.84rem;
+      line-height: 1.58;
+      color: var(--muted-dark-2);
+    }
+
+    .tool-progress {
+      padding: 18px 24px 0;
+    }
+
+    .tool-progress-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .tool-progress-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+    }
+
+    .tool-progress-time {
+      font-size: 0.86rem;
+      color: var(--muted-dark-2);
+    }
+
+    .tool-progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(21,32,43,0.08);
+      overflow: hidden;
+    }
+
+    .tool-progress-fill {
+      width: 25%;
+      height: 100%;
+      background: var(--accent);
+      transition: width var(--transition-slow);
+    }
+
+    .tool-steps {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 18px 24px 0;
+    }
+
+    .tool-step-pill {
+      padding: 7px 11px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+      background: rgba(21,32,43,0.04);
+      border: 1px solid rgba(21,32,43,0.08);
+    }
+
+    .tool-step-pill.is-active {
+      color: var(--accent);
+      background: rgba(63,110,161,0.08);
+      border-color: rgba(63,110,161,0.16);
+    }
+
+    .tool-app-body {
+      padding: 24px;
+    }
+
+    .tool-pane {
+      display: none;
+    }
+
+    .tool-pane.is-active {
+      display: block;
+    }
+
+    .tool-pane-title {
+      margin: 0 0 12px;
+      font-size: 1.08rem;
+      line-height: 1.18;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .tool-pane-copy {
+      margin: 0 0 18px;
+      max-width: 64ch;
+      font-size: 0.95rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+    }
+
+    .tool-fields {
+      display: grid;
+      gap: 16px;
+    }
+
+    .tool-field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .tool-field label {
+      font-size: 0.90rem;
+      font-weight: 500;
+      color: var(--text-dark);
+    }
+
+    .tool-field input[type="text"],
+    .tool-field select,
+    .tool-field textarea {
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 14px;
+      border: 1px solid rgba(21,32,43,0.12);
+      background: #FFFFFF;
+      color: var(--text-dark);
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .tool-field textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    .tool-field input[type="text"]:focus,
+    .tool-field select:focus,
+    .tool-field textarea:focus {
+      outline: none;
+      border-color: rgba(63,110,161,0.48);
+      box-shadow: 0 0 0 3px rgba(63,110,161,0.10);
+    }
+
+    .tool-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .tool-choice-group {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .tool-choice {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 46px;
+      padding: 10px 12px;
+      border: 1px solid rgba(21,32,43,0.10);
+      background: #FFFFFF;
+      color: var(--text-dark);
+      cursor: pointer;
+    }
+
+    .tool-choice input {
+      margin: 0;
+      accent-color: var(--accent);
+    }
+
+    .tool-range-wrap {
+      display: grid;
+      gap: 8px;
+      padding: 14px 14px 12px;
+      border: 1px solid rgba(21,32,43,0.08);
+      background: rgba(246,247,248,0.58);
+    }
+
+    .tool-range-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.90rem;
+      color: var(--muted-dark);
+    }
+
+    .tool-range-value {
+      font-weight: 700;
+      color: var(--text-dark);
+      min-width: 72px;
+      text-align: right;
+    }
+
+    .tool-range-labels {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.78rem;
+      color: var(--muted-dark-2);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .tool-check-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .tool-check {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 46px;
+      padding: 10px 12px;
+      border: 1px solid rgba(21,32,43,0.10);
+      background: #FFFFFF;
+      color: var(--text-dark);
+      cursor: pointer;
+    }
+
+    .tool-check input {
+      margin: 0;
+      accent-color: var(--accent);
+    }
+
+    .tool-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(21,32,43,0.08);
+    }
+
+    .tool-nav-left,
+    .tool-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tool-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 18px;
+      background: var(--text-dark);
+      color: #FFFFFF;
+      border: 1px solid var(--text-dark);
+      font-size: 0.94rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      transition:
+        background var(--transition),
+        border-color var(--transition),
+        transform var(--transition);
+    }
+
+    .tool-btn:hover,
+    .tool-btn:focus-visible {
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .tool-btn-secondary {
+      background: #FFFFFF;
+      color: var(--text-dark);
+      border-color: rgba(21,32,43,0.14);
+    }
+
+    .tool-btn-secondary:hover,
+    .tool-btn-secondary:focus-visible {
+      border-color: rgba(63,110,161,0.24);
+    }
+
+    .tool-output {
+      display: grid;
+      gap: 22px;
+    }
+
+    .tool-output-intro {
+      max-width: 64ch;
+      font-size: 0.96rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+    }
+
+    .tool-results-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 22px;
+    }
+
+    .tool-result-card {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(21, 32, 43, 0.06);
+      padding: 34px 28px 30px;
+      min-height: 248px;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .tool-result-title {
+      margin: 0 0 8px;
+      font-size: 1.02rem;
+      line-height: 1.12;
+      letter-spacing: -0.015em;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .tool-result-source {
+      margin: 0 0 26px;
+      font-size: 0.76rem;
+      line-height: 1.45;
+      color: #8A95A3;
+      font-style: italic;
+    }
+
+    .tool-result-number {
+      margin: 0 0 16px;
+      font-size: clamp(2.8rem, 4vw, 4.2rem);
+      line-height: 0.88;
+      letter-spacing: -0.065em;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .tool-result-text {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.58;
+      color: var(--muted-dark);
+      max-width: 24ch;
+    }
+
+    .tool-summary {
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .tool-score {
+      background: rgba(63,110,161,0.08);
+      border: 1px solid rgba(63,110,161,0.16);
+      padding: 18px;
+    }
+
+    .tool-score-label {
+      margin: 0 0 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .tool-score-value {
+      margin: 0 0 8px;
+      font-size: 3rem;
+      line-height: 0.95;
+      letter-spacing: -0.06em;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .tool-score-band {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      color: var(--muted-dark);
+    }
+
+    .tool-results h4 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+      line-height: 1.2;
+      color: var(--text-dark);
+    }
+
+    .tool-results p,
+    .tool-results li {
+      color: var(--muted-dark);
+      font-size: 0.95rem;
+      line-height: 1.62;
+    }
+
+    .tool-results ul {
+      margin: 0 0 18px 18px;
+      padding: 0;
+    }
+
+    .tool-results-note {
+      margin-top: 18px;
+      padding: 16px;
+      border: 1px solid rgba(21,32,43,0.08);
+      background: rgba(246,247,248,0.62);
+      font-size: 0.90rem;
+      line-height: 1.6;
+      color: var(--muted-dark);
+    }
+
+    .footer {
+      background: #0D141C;
+      color: rgba(245, 247, 250, 0.88);
+      padding: 44px 34px 34px;
+    }
+
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .footer-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 40px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .footer-brand {
+      max-width: 420px;
+    }
+
+    .footer-mark {
+      display: inline-flex;
+      align-items: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      margin-bottom: 14px;
+    }
+
+    .footer-mark::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+
+    .footer-copy {
+      margin: 0;
+      max-width: 36ch;
+      font-size: 0.98rem;
+      line-height: 1.65;
+      color: rgba(245, 247, 250, 0.68);
+    }
+
+    .footer-nav {
+      display: flex;
+      gap: 48px;
+      flex-wrap: wrap;
+    }
+
+    .footer-nav-col {
+      min-width: 120px;
+    }
+
+    .footer-nav-title {
+      margin: 0 0 12px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245, 247, 250, 0.50);
+    }
+
+    .footer-nav a {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      color: rgba(245, 247, 250, 0.82);
+      transition: color var(--transition), transform var(--transition);
+    }
+
+    .footer-nav a:hover,
+    .footer-nav a:focus-visible {
+      color: #FFFFFF;
+      transform: translateX(2px);
+      outline: none;
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding-top: 18px;
+    }
+
+    .footer-meta,
+    .footer-contact {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: rgba(245, 247, 250, 0.58);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .header,
+      .nav a,
+      .nav a::after,
+      .tool-card,
+      .tool-btn,
+      .footer-nav a,
+      .tool-progress-fill {
+        transition: none;
+      }
+    }
+
+    @media (max-width: 1100px) {
+      .tools-page-head {
+        grid-template-columns: 1fr;
+      }
+
+      .tools-grid,
+      .tool-results-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .tool-summary {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 980px) {
+      .header {
+        height: auto;
+      }
+
+      .header-inner {
+        padding: 16px 24px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .nav {
+        gap: 22px;
+      }
+
+      .hero-tools-inner,
+      .tools-page,
+      .footer {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .brand {
+        font-size: 1.24rem;
+      }
+
+      .nav {
+        gap: 18px;
+      }
+
+      .hero-tools-inner {
+        padding: 134px 20px 74px;
+      }
+
+      .hero-tools h1 {
+        max-width: 100%;
+        font-size: clamp(2.4rem, 8vw, 3.3rem);
+      }
+
+      .hero-tools p {
+        font-size: 1rem;
+        line-height: 1.58;
+      }
+
+      .tools-page {
+        padding: 72px 20px 72px;
+      }
+
+      .tools-grid,
+      .tool-grid-2,
+      .tool-choice-group,
+      .tool-check-grid,
+      .tool-results-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tool-app-head {
+        padding: 20px 20px 16px;
+        flex-direction: column;
+      }
+
+      .tool-progress,
+      .tool-steps,
+      .tool-app-body {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .tool-nav {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .tool-nav-left,
+      .tool-nav-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .footer {
+        padding: 34px 20px 28px;
+      }
+
+      .footer-top,
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .footer-nav {
+        gap: 28px;
+      }
+
+      .footer-copy {
+        font-size: 0.94rem;
+      }
+
+      .footer-meta,
+      .footer-contact {
+        font-size: 0.84rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header" id="siteHeader">
+    <div class="header-inner">
+      <a href="index.html" class="brand">Monderman</a>
+
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="index.html#approach">Approach</a>
+        <a href="diagnostic-tools.html">Diagnostic Tools</a>
+        <a href="index.html#thinking">Thinking</a>
+        <a href="research.html">Research</a>
+        <a href="why-monderman.html">Why Monderman</a>
+        <a href="index.html#connect">Connect</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero-tools" aria-labelledby="tools-hero-title">
+    <div class="hero-tools-inner">
+      <p class="hero-tools-eyebrow">Monderman Diagnostic Tools</p>
+      <h1 id="tools-hero-title">A practical diagnostic for how decisions stall, slow, and lose force.</h1>
+      <p>
+        Use this guided snapshot to estimate where decision environments are absorbing time, adding unnecessary review burden, and losing momentum between decision and execution.
+      </p>
+    </div>
+  </section>
+
+  <main class="tools-page">
+    <div class="tools-page-inner">
+      <div class="tools-page-head">
+        <div class="section-intro">
+          <div class="section-label">Decision Velocity</div>
+          <h2>Grounded, bounded, and designed for immediate use.</h2>
+          <p>
+            This phase-one diagnostic evaluates one real decision environment. It is intended to show where delay is accumulating, where review density is too high, and where execution loses force after a decision should already have moved into action.
+          </p>
+        </div>
+
+        <p class="tools-note">
+          <strong>Private by default.</strong> This tool is intended for immediate use and does not create a persistent organizational record.
+          Please avoid entering confidential, classified, regulated, or personally sensitive information.
+        </p>
+      </div>
+
+      <div class="tools-grid">
+        <article class="tool-card tool-card-live">
+          <div class="tool-badge">Live</div>
+          <p class="tool-card-kicker">Decision Velocity</p>
+          <h3 class="tool-card-title">Decision Velocity Snapshot</h3>
+          <p class="tool-card-text">
+            Estimate how much time, review burden, and execution drag may be accumulating around one real decision environment.
+          </p>
+          <p class="tool-card-meta">
+            Best for one recurring decision type, one approval path, or one cross-functional decision environment.
+          </p>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-badge tool-badge-muted">Also Live</div>
+          <p class="tool-card-kicker">Structural Clarity</p>
+          <h3 class="tool-card-title">Structural Clarity Snapshot</h3>
+          <p class="tool-card-text">
+            Estimate how much time, money, and productive capacity may be consumed by overhead inside one workflow or operating slice.
+          </p>
+          <p class="tool-card-meta">
+            Use when the main problem is ownership, authority, handoffs, or structural ambiguity.
+          </p>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-badge tool-badge-muted">Coming Soon</div>
+          <p class="tool-card-kicker">Operational Systems</p>
+          <h3 class="tool-card-title">Bureaucratic Drag Snapshot</h3>
+          <p class="tool-card-text">
+            Surface recurring administrative burden, process density, and non-value-adding overhead across a selected workflow.
+          </p>
+          <p class="tool-card-meta">
+            Built to distinguish manageable friction from systemic drag requiring redesign.
+          </p>
+        </article>
+      </div>
+
+      <div class="tool-app" id="decision-velocity-app">
+        <div class="tool-app-head">
+          <div>
+            <h3>Decision Velocity Snapshot</h3>
+            <p>
+              A guided four-step diagnostic for one decision environment. Complete the structured inputs below to estimate where decision delay is accumulating, how much review burden surrounds the decision, and how much momentum may be lost after a decision is nominally made.
+            </p>
+          </div>
+          <div class="tool-privacy">
+            <strong>Use note:</strong> Do not enter confidential, classified, regulated, or personally sensitive information.
+            This tool provides directional estimates, not audited operational values.
+          </div>
+        </div>
+
+        <div class="tool-progress">
+          <div class="tool-progress-top">
+            <div class="tool-progress-label" id="progressLabel">Step 1 of 4</div>
+            <div class="tool-progress-time">Approx. 3 minutes</div>
+          </div>
+          <div class="tool-progress-bar">
+            <div class="tool-progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+
+        <div class="tool-steps">
+          <div class="tool-step-pill is-active">1 · Decision</div>
+          <div class="tool-step-pill">2 · Conditions</div>
+          <div class="tool-step-pill">3 · Drag</div>
+          <div class="tool-step-pill">4 · Output</div>
+        </div>
+
+        <div class="tool-app-body">
+          <div class="tool-pane is-active" data-step="1">
+            <h4 class="tool-pane-title">Step 1 — Define the decision environment</h4>
+            <p class="tool-pane-copy">
+              Start with one real decision type. Keep it bounded enough that a team, function, or operating slice would clearly recognize it.
+            </p>
+
+            <div class="tool-fields">
+              <div class="tool-grid-2">
+                <div class="tool-field">
+                  <label for="decisionName">Decision name <span style="color:#7A8794;">(optional)</span></label>
+                  <input id="decisionName" type="text" placeholder="Example: Approval to onboard a new vendor" />
+                </div>
+
+                <div class="tool-field">
+                  <label for="decisionType">Decision type</label>
+                  <select id="decisionType">
+                    <option value="">Select one</option>
+                    <option>Operational approval</option>
+                    <option>Hiring / staffing</option>
+                    <option>Budget / resourcing</option>
+                    <option>Risk / compliance</option>
+                    <option>Escalation / exception</option>
+                    <option>Program / product direction</option>
+                    <option>Cross-functional coordination</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="tool-grid-2">
+                <div class="tool-field">
+                  <label>Organizational scope</label>
+                  <div class="tool-choice-group">
+                    <label class="tool-choice"><input type="radio" name="scope" value="team" checked /> Team</label>
+                    <label class="tool-choice"><input type="radio" name="scope" value="division" /> Division</label>
+                    <label class="tool-choice"><input type="radio" name="scope" value="enterprise" /> Enterprise</label>
+                    <label class="tool-choice"><input type="radio" name="scope" value="other-scope" /> Other</label>
+                  </div>
+                </div>
+
+                <div class="tool-field">
+                  <label>Decision frequency</label>
+                  <div class="tool-choice-group">
+                    <label class="tool-choice"><input type="radio" name="frequency" value="daily" /> Daily</label>
+                    <label class="tool-choice"><input type="radio" name="frequency" value="weekly" checked /> Weekly</label>
+                    <label class="tool-choice"><input type="radio" name="frequency" value="monthly" /> Monthly</label>
+                    <label class="tool-choice"><input type="radio" name="frequency" value="adhoc" /> Ad hoc</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tool-grid-2">
+                <div class="tool-field">
+                  <label for="teamsInvolved">Typical number of people or teams involved</label>
+                  <select id="teamsInvolved">
+                    <option value="3">1–3</option>
+                    <option value="5" selected>4–5</option>
+                    <option value="8">6–8</option>
+                    <option value="12">9–12</option>
+                    <option value="18">13+</option>
+                  </select>
+                </div>
+
+                <div class="tool-field">
+                  <label for="decisionCriticality">Typical importance</label>
+                  <select id="decisionCriticality">
+                    <option value="1">Low</option>
+                    <option value="2" selected>Moderate</option>
+                    <option value="3">High</option>
+                    <option value="4">Mission-critical</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="tool-nav">
+              <div class="tool-nav-left"></div>
+              <div class="tool-nav-right">
+                <button class="tool-btn" type="button" data-next>Next</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="tool-pane" data-step="2">
+            <h4 class="tool-pane-title">Step 2 — Rate the decision conditions</h4>
+            <p class="tool-pane-copy">
+              Use the sliders to rate how this decision environment operates in practice. Lower scores generally increase likely delay and drag.
+            </p>
+
+            <div class="tool-fields">
+              <div class="tool-field">
+                <label for="authorityRange">Final authority clarity</label>
+                <div class="tool-range-wrap">
+                  <div class="tool-range-top">
+                    <span>Is the final decision-maker clear?</span>
+                    <span class="tool-range-value" id="authorityValue">Mixed</span>
+                  </div>
+                  <input id="authorityRange" type="range" min="1" max="5" value="3" />
+                  <div class="tool-range-labels">
+                    <span>Very unclear</span>
+                    <span>Very clear</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tool-field">
+                <label for="approvalRange">Approval proportionality</label>
+                <div class="tool-range-wrap">
+                  <div class="tool-range-top">
+                    <span>Are approvals proportional to stakes?</span>
+                    <span class="tool-range-value" id="approvalValue">Mixed</span>
+                  </div>
+                  <input id="approvalRange" type="range" min="1" max="5" value="3" />
+                  <div class="tool-range-labels">
+                    <span>Not at all</span>
+                    <span>Very much</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tool-field">
+                <label for="escalationRange">Escalation speed</label>
+                <div class="tool-range-wrap">
+                  <div class="tool-range-top">
+                    <span>When blocked, how quickly does escalation move?</span>
+                    <span class="tool-range-value" id="escalationValue">Mixed</span>
+                  </div>
+                  <input id="escalationRange" type="range" min="1" max="5" value="3" />
+                  <div class="tool-range-labels">
+                    <span>Very slow</span>
+                    <span>Very fast</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tool-field">
+                <label for="inputsRange">Input quality at decision point</label>
+                <div class="tool-range-wrap">
+                  <div class="tool-range-top">
+                    <span>Is the information good enough when the decision is made?</span>
+                    <span class="tool-range-value" id="inputsValue">Mixed</span>
+                  </div>
+                  <input id="inputsRange" type="range" min="1" max="5" value="3" />
+                  <div class="tool-range-labels">
+                    <span>Very weak</span>
+                    <span>Very strong</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tool-field">
+                <label for="executionRange">Execution ownership after decision</label>
+                <div class="tool-range-wrap">
+                  <div class="tool-range-top">
+                    <span>Once decided, is execution ownership explicit?</span>
+                    <span class="tool-range-value" id="executionValue">Mixed</span>
+                  </div>
+                  <input id="executionRange" type="range" min="1" max="5" value="3" />
+                  <div class="tool-range-labels">
+                    <span>Very unclear</span>
+                    <span>Very clear</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tool-field">
+                <label for="reopenRange">Decision reopen rate</label>
+                <div class="tool-range-wrap">
+                  <div class="tool-range-top">
+                    <span>How often are decisions reopened after they are made?</span>
+                    <span class="tool-range-value" id="reopenValue">Mixed</span>
+                  </div>
+                  <input id="reopenRange" type="range" min="1" max="5" value="3" />
+                  <div class="tool-range-labels">
+                    <span>Rarely</span>
+                    <span>Very often</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tool-nav">
+              <div class="tool-nav-left">
+                <button class="tool-btn tool-btn-secondary" type="button" data-prev>Back</button>
+              </div>
+              <div class="tool-nav-right">
+                <button class="tool-btn" type="button" data-next>Next</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="tool-pane" data-step="3">
+            <h4 class="tool-pane-title">Step 3 — Identify drag patterns</h4>
+            <p class="tool-pane-copy">
+              Select the patterns that best describe this decision environment. More drag patterns increase likely delay, review burden, and post-decision drag.
+            </p>
+
+            <div class="tool-check-grid">
+              <label class="tool-check"><input type="checkbox" value="too-many-approvers" /> Too many approvers</label>
+              <label class="tool-check"><input type="checkbox" value="re-review" /> Repeated re-review</label>
+              <label class="tool-check"><input type="checkbox" value="unclear-authority" /> Unclear final authority</label>
+              <label class="tool-check"><input type="checkbox" value="weak-inputs" /> Weak decision inputs</label>
+              <label class="tool-check"><input type="checkbox" value="late-escalation" /> Escalations happen too late</label>
+              <label class="tool-check"><input type="checkbox" value="early-escalation" /> Escalations happen too early</label>
+              <label class="tool-check"><input type="checkbox" value="execution-unclear" /> Execution ownership unclear after decision</label>
+              <label class="tool-check"><input type="checkbox" value="risk-disproportionate" /> Risk/compliance review disproportionate to stakes</label>
+              <label class="tool-check"><input type="checkbox" value="reopened" /> Decisions often reopened after approval</label>
+              <label class="tool-check"><input type="checkbox" value="meeting-wait" /> Decisions wait for meetings instead of moving asynchronously</label>
+            </div>
+
+            <div class="tool-fields" style="margin-top:16px;">
+              <div class="tool-field">
+                <label for="contextNotes">Optional context <span style="color:#7A8794;">(brief, non-sensitive)</span></label>
+                <textarea id="contextNotes" placeholder="Example: Final authority is nominally clear, but legal, finance, and two operational leaders all re-review the package."></textarea>
+              </div>
+            </div>
+
+            <div class="tool-nav">
+              <div class="tool-nav-left">
+                <button class="tool-btn tool-btn-secondary" type="button" data-prev>Back</button>
+              </div>
+              <div class="tool-nav-right">
+                <button class="tool-btn" type="button" id="generateResults">Generate results</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="tool-pane" data-step="4">
+            <h4 class="tool-pane-title">Step 4 — Estimated decision drag</h4>
+            <p class="tool-pane-copy tool-output-intro">
+              These estimates are directional and based on your selected scope, decision conditions, and drag-pattern inputs. They are intended to make hidden delay and review burden more visible, not provide audited operational measures.
+            </p>
+
+            <div class="tool-output">
+              <div class="tool-results-grid">
+                <div class="tool-result-card">
+                  <div class="tool-result-title">Decision Delay</div>
+                  <p class="tool-result-source"><em>* rough directional estimate based on your inputs</em></p>
+                  <div class="tool-result-number" id="delayTile">0 hrs</div>
+                  <p class="tool-result-text" id="delayTileText">Estimated time lost before a decision moves.</p>
+                </div>
+
+                <div class="tool-result-card">
+                  <div class="tool-result-title">Approval Load</div>
+                  <p class="tool-result-source"><em>* rough directional estimate of review burden</em></p>
+                  <div class="tool-result-number" id="approvalTile">0</div>
+                  <p class="tool-result-text" id="approvalTileText">Estimated review or approval touches surrounding the decision.</p>
+                </div>
+
+                <div class="tool-result-card">
+                  <div class="tool-result-title">Execution Drag</div>
+                  <p class="tool-result-source"><em>* rough directional estimate of post-decision force loss</em></p>
+                  <div class="tool-result-number" id="executionTile">0%</div>
+                  <p class="tool-result-text" id="executionTileText">Estimated loss of execution momentum after the decision is nominally made.</p>
+                </div>
+              </div>
+
+              <div class="tool-summary">
+                <div class="tool-score">
+                  <p class="tool-score-label">Velocity Index</p>
+                  <p class="tool-score-value" id="scoreValue">0</p>
+                  <p class="tool-score-band" id="scoreBand">Relatively strong decision flow</p>
+                </div>
+
+                <div class="tool-results">
+                  <h4>Interpretation</h4>
+                  <p id="resultSummary">Your summary will appear here.</p>
+
+                  <h4>Most likely drivers</h4>
+                  <ul id="resultDrivers"></ul>
+
+                  <h4>Most likely interventions</h4>
+                  <ul id="resultActions"></ul>
+
+                  <div class="tool-results-note" id="resultCaveat">
+                    These results are a bounded snapshot intended to make decision drag more visible. They should be read as a directional estimate, not as a substitute for deeper organizational assessment.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tool-nav">
+              <div class="tool-nav-left">
+                <button class="tool-btn tool-btn-secondary" type="button" data-prev>Back</button>
+              </div>
+              <div class="tool-nav-right">
+                <button class="tool-btn tool-btn-secondary" type="button" id="resetTool">Reset</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-mark">Monderman</div>
+          <p class="footer-copy">
+            Advisory thinking on institutional performance, decision velocity, and the design of systems that sustain clarity under complexity.
+          </p>
+        </div>
+
+        <div class="footer-nav" aria-label="Footer navigation">
+          <div class="footer-nav-col">
+            <p class="footer-nav-title">Explore</p>
+            <a href="index.html#approach">Approach</a>
+            <a href="diagnostic-tools.html">Structural Clarity</a>
+            <a href="decision-velocity.html">Decision Velocity</a>
+            <a href="index.html#thinking">Thinking</a>
+            <a href="research.html">Research</a>
+          </div>
+
+          <div class="footer-nav-col">
+            <p class="footer-nav-title">Connect</p>
+            <a href="mailto:connect@monderman.com">connect@monderman.com</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
+        <p class="footer-contact">Clarity for complex institutions.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const header = document.getElementById("siteHeader");
+
+    function updateHeader() {
+      if (!header) return;
+      if (window.scrollY > 12) {
+        header.classList.add("scrolled");
+      } else {
+        header.classList.remove("scrolled");
+      }
+    }
+
+    updateHeader();
+    window.addEventListener("scroll", updateHeader, { passive: true });
+
+    const panes = Array.from(document.querySelectorAll(".tool-pane"));
+    const stepPills = Array.from(document.querySelectorAll(".tool-step-pill"));
+    const progressFill = document.getElementById("progressFill");
+    const progressLabel = document.getElementById("progressLabel");
+    let currentStep = 0;
+
+    function showStep(index) {
+      currentStep = Math.max(0, Math.min(index, panes.length - 1));
+      panes.forEach((pane, i) => pane.classList.toggle("is-active", i === currentStep));
+      stepPills.forEach((pill, i) => pill.classList.toggle("is-active", i === currentStep));
+      progressFill.style.width = `${((currentStep + 1) / panes.length) * 100}%`;
+      progressLabel.textContent = `Step ${currentStep + 1} of ${panes.length}`;
+    }
+
+    document.querySelectorAll("[data-next]").forEach((btn) => {
+      btn.addEventListener("click", () => showStep(currentStep + 1));
+    });
+
+    document.querySelectorAll("[data-prev]").forEach((btn) => {
+      btn.addEventListener("click", () => showStep(currentStep - 1));
+    });
+
+    function bindRange(inputId, valueId, mode = "clarity") {
+      const input = document.getElementById(inputId);
+      const value = document.getElementById(valueId);
+      if (!input || !value) return;
+
+      function update() {
+        const v = Number(input.value);
+        let label = "Mixed";
+
+        if (mode === "clarity") {
+          label = ["Very unclear", "Unclear", "Mixed", "Mostly clear", "Very clear"][v - 1];
+        }
+        if (mode === "speed") {
+          label = ["Very slow", "Slow", "Mixed", "Fast", "Very fast"][v - 1];
+        }
+        if (mode === "quality") {
+          label = ["Very weak", "Weak", "Mixed", "Strong", "Very strong"][v - 1];
+        }
+        if (mode === "approval") {
+          label = ["Very poor fit", "Poor fit", "Mixed", "Mostly fit", "Strong fit"][v - 1];
+        }
+        if (mode === "reopen") {
+          label = ["Rarely", "Occasionally", "Mixed", "Often", "Very often"][v - 1];
+        }
+
+        value.textContent = label;
+      }
+
+      input.addEventListener("input", update);
+      update();
+    }
+
+    bindRange("authorityRange", "authorityValue", "clarity");
+    bindRange("approvalRange", "approvalValue", "approval");
+    bindRange("escalationRange", "escalationValue", "speed");
+    bindRange("inputsRange", "inputsValue", "quality");
+    bindRange("executionRange", "executionValue", "clarity");
+    bindRange("reopenRange", "reopenValue", "reopen");
+
+    function getSelectedRadio(name) {
+      const el = document.querySelector(`input[name="${name}"]:checked`);
+      return el ? el.value : "";
+    }
+
+    function formatDelay(hours) {
+      if (hours >= 40) {
+        return `${(hours / 8).toFixed(1)} d`;
+      }
+      if (hours >= 8) {
+        return `${hours.toFixed(1)} hrs`;
+      }
+      return `${hours.toFixed(1)} hrs`;
+    }
+
+    function formatApprovalTouches(num) {
+      return num >= 6 ? "6+" : `${Math.round(num)}`;
+    }
+
+    function velocityBand(score) {
+      if (score < 30) return "Relatively strong decision flow";
+      if (score < 55) return "Moderate decision drag";
+      if (score < 75) return "High decision drag";
+      return "Severe decision drag";
+    }
+
+    function executionBand(pct) {
+      if (pct < 10) return "limited post-decision loss";
+      if (pct < 18) return "meaningful post-decision drag";
+      if (pct < 26) return "heavy post-decision drag";
+      return "very high post-decision drag";
+    }
+
+    function buildDrivers(checkedValues, authority, approvalFit, execution, reopen) {
+      const drivers = [];
+
+      if (checkedValues.includes("too-many-approvers")) drivers.push("Review density appears too high relative to the actual stakes of the decision.");
+      if (checkedValues.includes("re-review")) drivers.push("Repeated re-review is likely absorbing time without proportionate improvement in decision quality.");
+      if (checkedValues.includes("unclear-authority") || authority < 3) drivers.push("Diffuse or ambiguous final authority is likely slowing commitment and increasing hesitation.");
+      if (checkedValues.includes("weak-inputs")) drivers.push("Weak inputs at the decision point appear to be creating avoidable loops, questions, and rework.");
+      if (checkedValues.includes("late-escalation") || checkedValues.includes("early-escalation")) drivers.push("Escalation patterns appear mis-timed, which can add delay before a clean decision path emerges.");
+      if (checkedValues.includes("execution-unclear") || execution < 3) drivers.push("Even when a decision is made, unclear downstream ownership may be preventing fast translation into action.");
+      if (checkedValues.includes("risk-disproportionate")) drivers.push("Risk or compliance review may be operating as blanket friction rather than proportionate governance.");
+      if (checkedValues.includes("reopened") || reopen > 3) drivers.push("Decisions appear vulnerable to reopening, which weakens commitment and extends cycle time.");
+      if (checkedValues.includes("meeting-wait")) drivers.push("Waiting for scheduled meetings instead of moving asynchronously is likely adding structural delay.");
+
+      if (approvalFit < 3 && drivers.length < 3) {
+        drivers.push("Approval design appears poorly matched to the actual stakes and cadence of the decision.");
+      }
+
+      return drivers.slice(0, 3);
+    }
+
+    function buildActions(score, checkedValues, authority, approvalFit, execution, inputs) {
+      const actions = [];
+
+      if (checkedValues.includes("unclear-authority") || authority < 3) {
+        actions.push("Clarify who holds final decision rights and distinguish advisory input from true approval authority.");
+      }
+      if (checkedValues.includes("too-many-approvers") || approvalFit < 3) {
+        actions.push("Reduce approval layers to those genuinely proportional to risk, cost, and consequence.");
+      }
+      if (checkedValues.includes("weak-inputs") || inputs < 3) {
+        actions.push("Strengthen the quality of decision materials before review so reviewers are not compensating for ambiguity.");
+      }
+      if (checkedValues.includes("re-review") || checkedValues.includes("reopened")) {
+        actions.push("Set a clearer rule for when a decision is final and under what conditions it can be reopened.");
+      }
+      if (checkedValues.includes("meeting-wait") || checkedValues.includes("late-escalation") || checkedValues.includes("early-escalation")) {
+        actions.push("Design a cleaner escalation path and allow more decisions to move asynchronously instead of waiting for formal meetings.");
+      }
+      if (checkedValues.includes("execution-unclear") || execution < 3) {
+        actions.push("Assign explicit execution ownership at the moment a decision is made so movement starts immediately.");
+      }
+
+      if (actions.length < 3 && score >= 60) {
+        actions.push("Run a deeper review of the full decision path rather than adding more coordination around a structurally slow system.");
+      }
+
+      return actions.slice(0, 3);
+    }
+
+    function generateSummary(data) {
+      const scopeText = data.scope === "team"
+        ? "team-level"
+        : data.scope === "division"
+        ? "division-level"
+        : data.scope === "enterprise"
+        ? "enterprise-level"
+        : "workflow-level";
+
+      const bandText = velocityBand(data.score).toLowerCase();
+      return `This ${scopeText} snapshot suggests ${bandText} driven less by a single approval bottleneck than by the combined effects of diffuse authority, review density, and post-decision loss of force. Based on your inputs, the decision environment appears to be absorbing time both before and after the nominal decision point. The strongest signal here is not only delay in deciding, but the possibility that decisions are being weakened by re-review, unclear ownership, or execution ambiguity once they should already be moving into action.`;
+    }
+
+    function calculateResults() {
+      const scope = getSelectedRadio("scope");
+      const frequency = getSelectedRadio("frequency");
+      const teamsInvolved = Number(document.getElementById("teamsInvolved").value);
+      const criticality = Number(document.getElementById("decisionCriticality").value);
+
+      const authority = Number(document.getElementById("authorityRange").value);
+      const approvalFit = Number(document.getElementById("approvalRange").value);
+      const escalation = Number(document.getElementById("escalationRange").value);
+      const inputs = Number(document.getElementById("inputsRange").value);
+      const execution = Number(document.getElementById("executionRange").value);
+      const reopen = Number(document.getElementById("reopenRange").value);
+
+      const checkedValues = Array.from(document.querySelectorAll('.tool-check input:checked')).map(el => el.value);
+
+      const scopeFactor = scope === "team" ? 1 : scope === "division" ? 1.3 : scope === "enterprise" ? 1.7 : 1.15;
+      const frequencyFactor = frequency === "daily" ? 1.3 : frequency === "weekly" ? 1 : frequency === "monthly" ? 0.8 : 0.9;
+      const authorityPenalty = (6 - authority) * 1.1;
+      const approvalPenalty = (6 - approvalFit) * 0.9;
+      const escalationPenalty = (6 - escalation) * 0.8;
+      const inputPenalty = (6 - inputs) * 0.7;
+      const executionPenalty = (6 - execution) * 0.9;
+      const reopenPenalty = reopen * 0.8;
+      const patternPenalty = checkedValues.length * 0.75;
+
+      const baseHours = 2.5;
+      const delayHours = (
+        baseHours +
+        authorityPenalty +
+        approvalPenalty +
+        escalationPenalty +
+        inputPenalty +
+        executionPenalty +
+        reopenPenalty +
+        patternPenalty +
+        (teamsInvolved * 0.18) +
+        (criticality * 0.4)
+      ) * scopeFactor * frequencyFactor;
+
+      const approvalTouches = Math.max(
+        1,
+        (
+          1.2 +
+          ((6 - approvalFit) * 0.8) +
+          (teamsInvolved * 0.18) +
+          (checkedValues.includes("too-many-approvers") ? 1.4 : 0) +
+          (checkedValues.includes("re-review") ? 1.2 : 0) +
+          (checkedValues.includes("risk-disproportionate") ? 0.9 : 0)
+        )
+      );
+
+      const executionDragPct = Math.min(
+        35,
+        (
+          ((6 - execution) * 3.4) +
+          ((reopen - 1) * 2.1) +
+          (checkedValues.includes("execution-unclear") ? 4.5 : 0) +
+          (checkedValues.includes("reopened") ? 4.2 : 0) +
+          (checkedValues.includes("meeting-wait") ? 2.2 : 0) +
+          ((6 - authority) * 1.2)
+        )
+      );
+
+      const score = Math.min(
+        100,
+        Math.round(
+          (delayHours * 3.2) +
+          (approvalTouches * 4.4) +
+          (executionDragPct * 1.35)
+        )
+      );
+
+      return {
+        scope,
+        teamsInvolved,
+        criticality,
+        delayHours,
+        approvalTouches,
+        executionDragPct,
+        score,
+        authority,
+        approvalFit,
+        escalation,
+        inputs,
+        execution,
+        reopen,
+        checkedValues
+      };
+    }
+
+    function renderResults(data) {
+      document.getElementById("delayTile").textContent = formatDelay(data.delayHours);
+      document.getElementById("delayTileText").textContent =
+        `Estimated time lost before a decision moves in this decision environment.`;
+
+      document.getElementById("approvalTile").textContent = formatApprovalTouches(data.approvalTouches);
+      document.getElementById("approvalTileText").textContent =
+        `Estimated review or approval touches surrounding the decision before movement occurs.`;
+
+      document.getElementById("executionTile").textContent = `${Math.round(data.executionDragPct)}%`;
+      document.getElementById("executionTileText").textContent =
+        `Estimated loss of execution momentum after the decision is made — ${executionBand(data.executionDragPct)}.`;
+
+      document.getElementById("scoreValue").textContent = data.score;
+      document.getElementById("scoreBand").textContent = velocityBand(data.score);
+      document.getElementById("resultSummary").textContent = generateSummary(data);
+
+      const drivers = buildDrivers(data.checkedValues, data.authority, data.approvalFit, data.execution, data.reopen);
+      const actions = buildActions(data.score, data.checkedValues, data.authority, data.approvalFit, data.execution, data.inputs);
+
+      const driversList = document.getElementById("resultDrivers");
+      const actionsList = document.getElementById("resultActions");
+      driversList.innerHTML = "";
+      actionsList.innerHTML = "";
+
+      drivers.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        driversList.appendChild(li);
+      });
+
+      actions.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        actionsList.appendChild(li);
+      });
+
+      showStep(3);
+    }
+
+    document.getElementById("generateResults").addEventListener("click", () => {
+      const data = calculateResults();
+      renderResults(data);
+    });
+
+    document.getElementById("resetTool").addEventListener("click", () => {
+      document.getElementById("decisionName").value = "";
+      document.getElementById("decisionType").value = "";
+      document.getElementById("teamsInvolved").value = "5";
+      document.getElementById("decisionCriticality").value = "2";
+      document.querySelector('input[name="scope"][value="team"]').checked = true;
+      document.querySelector('input[name="frequency"][value="weekly"]').checked = true;
+
+      document.getElementById("authorityRange").value = "3";
+      document.getElementById("approvalRange").value = "3";
+      document.getElementById("escalationRange").value = "3";
+      document.getElementById("inputsRange").value = "3";
+      document.getElementById("executionRange").value = "3";
+      document.getElementById("reopenRange").value = "3";
+
+      document.getElementById("contextNotes").value = "";
+      document.querySelectorAll('.tool-check input').forEach(el => el.checked = false);
+
+      bindRange("authorityRange", "authorityValue", "clarity");
+      bindRange("approvalRange", "approvalValue", "approval");
+      bindRange("escalationRange", "escalationValue", "speed");
+      bindRange("inputsRange", "inputsValue", "quality");
+      bindRange("executionRange", "executionValue", "clarity");
+      bindRange("reopenRange", "reopenValue", "reopen");
+
+      showStep(0);
+    });
+  </script>
+</body>
+</html>
