@@ -19,9 +19,7 @@
   <style>
     @font-face {
       font-family: "Neue Haas Grotesk";
-      src:
-        url("55font.woff2") format("woff2"),
-        url("55font.woff") format("woff");
+      src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff");
       font-style: normal;
       font-weight: 400;
       font-display: swap;
@@ -29,9 +27,7 @@
 
     @font-face {
       font-family: "Neue Haas Grotesk";
-      src:
-        url("65font.woff2") format("woff2"),
-        url("65font.woff") format("woff");
+      src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff");
       font-style: normal;
       font-weight: 500;
       font-display: swap;
@@ -39,9 +35,7 @@
 
     @font-face {
       font-family: "Neue Haas Grotesk";
-      src:
-        url("75font.woff2") format("woff2"),
-        url("75font.woff") format("woff");
+      src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff");
       font-style: normal;
       font-weight: 700;
       font-display: swap;
@@ -55,7 +49,7 @@
       --bg-white: #FFFFFF;
       --bg-offwhite: #F6F7F8;
       --text-light: #F5F7FA;
-      --muted-light: rgba(245, 247, 250, 0.8);
+      --muted-light: rgba(245, 247, 250, 0.80);
       --text-dark: #15202B;
       --muted-dark: #5F6B78;
       --muted-dark-2: #7A8794;
@@ -69,11 +63,13 @@
       --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     html {
       scroll-behavior: smooth;
-      scroll-padding-top: 90px;
+      scroll-padding-top: 88px;
     }
 
     body {
@@ -87,7 +83,37 @@
       text-rendering: optimizeLegibility;
     }
 
-    html, body, button, input, textarea, select, option, a, p, li, dt, dd, span, small, strong, em, label, figcaption, blockquote, cite, div, section, article, nav, header, footer, main {
+    html,
+    body,
+    button,
+    input,
+    textarea,
+    select,
+    option,
+    a,
+    p,
+    li,
+    dt,
+    dd,
+    span,
+    small,
+    strong,
+    em,
+    label,
+    figcaption,
+    blockquote,
+    cite,
+    div,
+    section,
+    article,
+    nav,
+    header,
+    footer,
+    main,
+    h1,
+    h2,
+    h3,
+    h4 {
       font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
     }
 
@@ -96,7 +122,10 @@
       text-decoration: none;
     }
 
-    button, input, select, textarea {
+    button,
+    input,
+    select,
+    textarea {
       font: inherit;
     }
 
@@ -349,28 +378,23 @@
       border-color: rgba(63, 110, 161, 0.16);
     }
 
-    .tool-card-link {
+    .tool-card-link,
+    .tool-card-static {
       display: flex;
       flex-direction: column;
       min-height: 236px;
       height: 100%;
       padding: 22px 22px 20px;
       color: inherit;
-      text-decoration: none;
+    }
+
+    .tool-card-link {
       cursor: pointer;
     }
 
     .tool-card-link:focus-visible {
       outline: 2px solid rgba(63, 110, 161, 0.35);
       outline-offset: 3px;
-    }
-
-    .tool-card-body {
-      display: flex;
-      flex-direction: column;
-      min-height: 236px;
-      height: 100%;
-      padding: 22px 22px 20px;
     }
 
     .tool-badge {
@@ -428,6 +452,10 @@
       color: var(--muted-dark-2);
     }
 
+    #structural-clarity-app {
+      scroll-margin-top: 110px;
+    }
+
     .tool-app {
       margin-top: 10px;
       background: #FFFFFF;
@@ -445,7 +473,7 @@
       gap: 20px;
       padding: 24px 24px 18px;
       border-bottom: 1px solid rgba(21,32,43,0.08);
-      background: rgba(246,247,248,0.6);
+      background: rgba(246,247,248,0.60);
     }
 
     .tool-app-head h3 {
@@ -567,6 +595,12 @@
       gap: 16px;
     }
 
+    .tool-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
     .tool-field {
       display: grid;
       gap: 8px;
@@ -603,19 +637,15 @@
       box-shadow: 0 0 0 3px rgba(63,110,161,0.10);
     }
 
-    .tool-grid-2 {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-    }
-
-    .tool-choice-group {
+    .tool-choice-group,
+    .tool-check-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
     }
 
-    .tool-choice {
+    .tool-choice,
+    .tool-check {
       display: flex;
       align-items: center;
       gap: 10px;
@@ -627,7 +657,8 @@
       cursor: pointer;
     }
 
-    .tool-choice input {
+    .tool-choice input,
+    .tool-check input {
       margin: 0;
       accent-color: var(--accent);
     }
@@ -652,7 +683,7 @@
     .tool-range-value {
       font-weight: 700;
       color: var(--text-dark);
-      min-width: 96px;
+      min-width: 88px;
       text-align: right;
     }
 
@@ -668,29 +699,6 @@
       width: 100%;
       accent-color: var(--accent);
       cursor: pointer;
-    }
-
-    .tool-check-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .tool-check {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-height: 46px;
-      padding: 10px 12px;
-      border: 1px solid rgba(21,32,43,0.10);
-      background: #FFFFFF;
-      color: var(--text-dark);
-      cursor: pointer;
-    }
-
-    .tool-check input {
-      margin: 0;
-      accent-color: var(--accent);
     }
 
     .tool-nav {
@@ -980,6 +988,10 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
       .header,
       .nav a,
       .nav a::after,
@@ -1134,7 +1146,8 @@
       <p class="hero-tools-eyebrow">Monderman Diagnostic Tools</p>
       <h1 id="tools-hero-title">Practical diagnostics for institutional friction.</h1>
       <p>
-        A guided snapshot for estimating how much time, money, and productive capacity may be consumed by bureaucratic overhead in a bounded workflow or operating environment.
+        A guided set of tools for identifying ownership ambiguity, review burden, decision drag,
+        and administrative overhead in bounded workflows and operating environments.
       </p>
     </div>
   </section>
@@ -1146,13 +1159,16 @@
           <div class="section-label">Diagnostic Suite</div>
           <h2>Grounded tools, built for immediate use.</h2>
           <p>
-            This phase-one diagnostic is designed to make administrative burden visible quickly. It uses structured inputs and directional assumptions to estimate the likely cost of bureaucratic overhead inside a team, division, or broader organization.
+            These diagnostics are designed to reveal real structural problems quickly without pretending to be
+            full organizational assessments. Use them to surface where friction is accumulating and where deeper
+            redesign may be needed.
           </p>
         </div>
 
         <p class="tools-note">
-          <strong>Private by default.</strong> These diagnostics are intended for immediate use and do not create a persistent organizational record.
-          Please avoid entering confidential, classified, regulated, or personally sensitive information.
+          <strong>Private by default.</strong> These diagnostics are intended for immediate use and do not create a
+          persistent organizational record. Please avoid entering confidential, classified, regulated, or personally
+          sensitive information.
         </p>
       </div>
 
@@ -1186,7 +1202,7 @@
         </article>
 
         <article class="tool-card">
-          <div class="tool-card-body">
+          <div class="tool-card-static">
             <div class="tool-badge tool-badge-muted">Coming Soon</div>
             <p class="tool-card-kicker">Operational Systems</p>
             <h3 class="tool-card-title">Bureaucratic Drag Snapshot</h3>
@@ -1203,13 +1219,16 @@
       <div class="tool-app" id="structural-clarity-app">
         <div class="tool-app-head">
           <div>
+            <div class="tool-badge">Live</div>
             <h3>Structural Clarity Snapshot</h3>
             <p>
-              A guided four-step diagnostic for one workflow or operating slice. Complete the structured inputs below to estimate likely bureaucratic overhead and reveal the patterns most likely driving it.
+              A guided four-step diagnostic for one workflow or operating slice. Complete the structured inputs below
+              to estimate likely bureaucratic overhead and reveal the patterns most likely driving it.
             </p>
           </div>
           <div class="tool-privacy">
-            <strong>Use note:</strong> Do not enter confidential, classified, regulated, or personally sensitive information. This tool provides directional estimates, not audited financial values.
+            <strong>Use note:</strong> Do not enter confidential, classified, regulated, or personally sensitive information.
+            This tool provides directional estimates, not audited financial values.
           </div>
         </div>
 
@@ -1234,7 +1253,8 @@
           <div class="tool-pane is-active" data-step="1">
             <h4 class="tool-pane-title">Step 1 — Define the workflow</h4>
             <p class="tool-pane-copy">
-              Start with one bounded workflow. Keep it specific enough that one team, division, or operating slice could reasonably recognize it.
+              Start with one bounded workflow. Keep it specific enough that one team, division, or operating slice
+              could reasonably recognize it.
             </p>
 
             <div class="tool-fields">
@@ -1448,7 +1468,8 @@
           <div class="tool-pane" data-step="4">
             <h4 class="tool-pane-title">Step 4 — Estimated bureaucratic overhead</h4>
             <p class="tool-pane-copy tool-output-intro">
-              These estimates are directional and based on your selected scope, headcount, burden inputs, and generalized labor-rate assumptions. They are intended to surface likely administrative overhead, not provide audited financial values.
+              These estimates are directional and based on your selected scope, headcount, burden inputs, and generalized labor-rate assumptions.
+              They are intended to surface likely administrative overhead, not provide audited financial values.
             </p>
 
             <div class="tool-output">
@@ -1510,7 +1531,6 @@
           </div>
         </div>
       </div>
-
     </div>
   </main>
 
@@ -1567,50 +1587,36 @@
     const stepPills = Array.from(document.querySelectorAll(".tool-step-pill"));
     const progressFill = document.getElementById("progressFill");
     const progressLabel = document.getElementById("progressLabel");
-    const structuralApp = document.getElementById("structural-clarity-app");
     let currentStep = 0;
 
-    function showStep(index, shouldScroll = false) {
+    function showStep(index) {
       currentStep = Math.max(0, Math.min(index, panes.length - 1));
       panes.forEach((pane, i) => pane.classList.toggle("is-active", i === currentStep));
       stepPills.forEach((pill, i) => pill.classList.toggle("is-active", i === currentStep));
       progressFill.style.width = `${((currentStep + 1) / panes.length) * 100}%`;
       progressLabel.textContent = `Step ${currentStep + 1} of ${panes.length}`;
-
-      if (shouldScroll && structuralApp) {
-        structuralApp.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
     }
 
     document.querySelectorAll("[data-next]").forEach((btn) => {
-      btn.addEventListener("click", () => showStep(currentStep + 1, false));
+      btn.addEventListener("click", () => showStep(currentStep + 1));
     });
 
     document.querySelectorAll("[data-prev]").forEach((btn) => {
-      btn.addEventListener("click", () => showStep(currentStep - 1, false));
+      btn.addEventListener("click", () => showStep(currentStep - 1));
     });
 
-    const rangeLabels = {
-      1: "Very low",
-      2: "Low",
-      3: "Mixed",
-      4: "High",
-      5: "Very high"
-    };
-
-    function bindRange(inputId, valueId, mode = "default") {
+    function bindRange(inputId, valueId, mode = "clarity") {
       const input = document.getElementById(inputId);
       const value = document.getElementById(valueId);
       if (!input || !value) return;
 
       function update() {
         const v = Number(input.value);
-        let label = rangeLabels[v];
-        if (mode === "clarity") {
-          label = ["Very unclear", "Unclear", "Mixed", "Mostly clear", "Very clear"][v - 1];
-        }
+        let label;
         if (mode === "approval") {
           label = ["Very poor fit", "Poor fit", "Mixed", "Mostly fit", "Strong fit"][v - 1];
+        } else {
+          label = ["Very unclear", "Unclear", "Mixed", "Mostly clear", "Very clear"][v - 1];
         }
         value.textContent = label;
       }
@@ -1695,7 +1701,6 @@
       if (checkedValues.includes("reporting-burden")) {
         actions.push("Remove reporting obligations that do not clearly support decisions, accountability, or risk management.");
       }
-
       if (actions.length < 3 && score >= 60) {
         actions.push("Run a deeper structural review of the workflow rather than relying on local workarounds.");
       }
@@ -1704,13 +1709,11 @@
     }
 
     function generateSummary(data) {
-      const scopeText = data.scope === "team"
-        ? "team-level"
-        : data.scope === "division"
-        ? "division-level"
-        : data.scope === "company"
-        ? "enterprise-level"
-        : "workflow-level";
+      const scopeText =
+        data.scope === "team" ? "team-level" :
+        data.scope === "division" ? "division-level" :
+        data.scope === "company" ? "enterprise-level" :
+        "workflow-level";
 
       const burdenText = scoreBand(data.score).replace("estimated ", "");
       return `This ${scopeText} snapshot suggests ${burdenText.toLowerCase()} driven by the combination of workload loss, structural ambiguity, and friction inside the selected workflow. Based on your inputs, bureaucratic overhead is likely consuming a meaningful share of available labor capacity rather than acting as a minor background cost. The strongest signal here is not simply work volume, but the way approvals, ownership, handoffs, and reporting demands are interacting to absorb productive effort.`;
@@ -1801,7 +1804,7 @@
         actionsList.appendChild(li);
       });
 
-      showStep(3, true);
+      showStep(3);
     }
 
     document.getElementById("generateResults").addEventListener("click", () => {
@@ -1830,7 +1833,7 @@
       bindRange("escalationRange", "escalationValue", "clarity");
       bindRange("approvalRange", "approvalValue", "approval");
 
-      showStep(0, true);
+      showStep(0);
     });
   </script>
 </body>
