@@ -1009,7 +1009,7 @@
 
   <main class="tools-page">
     <div class="tools-page-inner">
-      <div class="tool-app">
+      <div class="tool-app" id="toolApp">
         <div class="tool-app-head">
           <div>
             <div class="tool-badge">Live</div>
@@ -1411,6 +1411,7 @@
 
   <script>
     const header = document.getElementById("siteHeader");
+    const toolApp = document.getElementById("toolApp");
 
     function updateHeader() {
       if (!header) return;
@@ -1430,13 +1431,26 @@
     const progressLabel = document.getElementById("progressLabel");
     let currentStep = 0;
 
-    function showStep(index) {
+    function scrollToToolTop() {
+      if (!toolApp) return;
+      const headerOffset = 92;
+      const targetTop = toolApp.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+      window.scrollTo({
+        top: Math.max(0, targetTop),
+        behavior: "smooth"
+      });
+    }
+
+    function showStep(index, shouldScroll = true) {
       currentStep = Math.max(0, Math.min(index, panes.length - 1));
       panes.forEach((pane, i) => pane.classList.toggle("is-active", i === currentStep));
       stepPills.forEach((pill, i) => pill.classList.toggle("is-active", i === currentStep));
       progressFill.style.width = `${((currentStep + 1) / panes.length) * 100}%`;
       progressLabel.textContent = `Step ${currentStep + 1} of ${panes.length}`;
-      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      if (shouldScroll) {
+        scrollToToolTop();
+      }
     }
 
     document.querySelectorAll("[data-next]").forEach((btn) => {
@@ -1640,6 +1654,8 @@
       updateFlowMetrics();
       showStep(0);
     });
+
+    showStep(0, false);
   </script>
 </body>
 </html>
