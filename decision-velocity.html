@@ -54,12 +54,14 @@
       --muted-dark: #5F6B78;
       --muted-dark-2: #7A8794;
       --line-dark: #E3E7EB;
+      --line-dark-2: #D7DEE5;
       --header-solid: rgba(14, 20, 28, 0.84);
       --header-border: rgba(255, 255, 255, 0.08);
       --max: 1320px;
       --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
       --transition-slow: 360ms cubic-bezier(0.22, 1, 0.36, 1);
       --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
+      --card-shadow: 0 16px 40px rgba(15, 23, 32, 0.06);
     }
 
     * {
@@ -112,7 +114,8 @@
     h1,
     h2,
     h3,
-    h4 {
+    h4,
+    h5 {
       font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
     }
 
@@ -214,22 +217,24 @@
     }
 
     .nav a:hover,
-    .nav a:focus-visible {
+    .nav a.is-active {
       color: #FFFFFF;
       transform: translateY(-1px);
-      outline: none;
     }
 
     .nav a:hover::after,
-    .nav a:focus-visible::after {
+    .nav a.is-active::after {
       transform: scaleX(1);
     }
 
     .hero-tools {
       position: relative;
-      background: linear-gradient(180deg, #0F1720 0%, #131E29 100%);
-      color: var(--text-light);
       overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(15, 23, 32, 0.82) 0%, rgba(15, 23, 32, 0.92) 100%),
+        linear-gradient(135deg, #172331 0%, #0F1720 52%, #111B25 100%);
+      color: var(--text-light);
+      padding: 140px 34px 86px;
     }
 
     .hero-tools::before {
@@ -237,514 +242,648 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(circle at 78% 18%, rgba(63, 110, 161, 0.14), transparent 28%),
-        linear-gradient(135deg, rgba(63, 110, 161, 0.03) 1px, transparent 1px);
-      background-size: auto, 34px 34px;
-      opacity: 0.34;
+        radial-gradient(circle at 16% 18%, rgba(63, 110, 161, 0.20), transparent 30%),
+        radial-gradient(circle at 82% 20%, rgba(63, 110, 161, 0.12), transparent 24%),
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: auto, auto, 40px 40px, 40px 40px;
       pointer-events: none;
+      opacity: 0.62;
     }
 
     .hero-tools-inner {
       position: relative;
-      z-index: 1;
       max-width: var(--max);
       margin: 0 auto;
-      padding: 148px 34px 92px;
+      z-index: 1;
     }
 
     .hero-tools-eyebrow {
-      margin: 0 0 22px;
-      font-size: 0.72rem;
-      font-weight: 700;
+      margin: 0 0 18px;
+      font-size: 0.78rem;
       line-height: 1;
-      letter-spacing: 0.24em;
+      letter-spacing: 0.18em;
+      font-weight: 700;
       text-transform: uppercase;
-      color: rgba(245, 247, 250, 0.58);
+      color: rgba(245, 247, 250, 0.72);
     }
 
     .hero-tools h1 {
-      margin: 0 0 22px;
-      max-width: 10ch;
-      font-size: clamp(3rem, 5vw, 4.8rem);
-      line-height: 0.95;
+      margin: 0 0 18px;
+      max-width: 760px;
+      font-size: clamp(2.7rem, 5vw, 4.45rem);
+      line-height: 0.96;
       letter-spacing: -0.05em;
       font-weight: 700;
       color: #FFFFFF;
-      text-wrap: balance;
     }
 
     .hero-tools p {
+      max-width: 760px;
       margin: 0;
-      max-width: 64ch;
-      font-size: 1.08rem;
-      line-height: 1.68;
+      font-size: 1.14rem;
+      line-height: 1.82;
       color: var(--muted-light);
     }
 
     .tools-page {
-      background: var(--bg-offwhite);
-      padding: 88px 34px 92px;
-      color: var(--text-dark);
+      background: linear-gradient(180deg, var(--bg-offwhite) 0%, #FFFFFF 100%);
+      padding: 0 34px 110px;
     }
 
     .tools-page-inner {
       max-width: var(--max);
-      margin: 0 auto;
+      margin: -42px auto 0;
+      position: relative;
+      z-index: 2;
     }
 
     .tool-app {
       background: #FFFFFF;
-      border: 1px solid rgba(21, 32, 43, 0.08);
-      box-shadow:
-        0 1px 0 rgba(0,0,0,0.012),
-        0 14px 32px rgba(0,0,0,0.04);
+      border: 1px solid rgba(227, 231, 235, 0.96);
+      border-radius: 28px;
+      box-shadow: var(--card-shadow);
       overflow: hidden;
     }
 
     .tool-app-head {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 20px;
-      padding: 24px 24px 18px;
-      border-bottom: 1px solid rgba(21,32,43,0.08);
-      background: rgba(246,247,248,0.60);
-    }
-
-    .tool-app-head h3 {
-      margin: 0 0 8px;
-      font-size: 1.28rem;
-      line-height: 1.12;
-      letter-spacing: -0.024em;
-      color: var(--text-dark);
-    }
-
-    .tool-app-head p {
-      margin: 0;
-      max-width: 62ch;
-      font-size: 0.96rem;
-      line-height: 1.62;
-      color: var(--muted-dark);
-    }
-
-    .tool-privacy {
-      max-width: 360px;
-      font-size: 0.84rem;
-      line-height: 1.58;
-      color: var(--muted-dark-2);
+      padding: 34px 34px 28px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.9fr);
+      gap: 28px;
+      border-bottom: 1px solid var(--line-dark);
+      background:
+        linear-gradient(180deg, rgba(246, 247, 248, 0.86) 0%, rgba(255,255,255,0.96) 100%);
     }
 
     .tool-badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.10em;
-      text-transform: uppercase;
-      background: rgba(63, 110, 161, 0.08);
+      justify-content: center;
+      min-height: 28px;
+      padding: 0 12px;
+      margin-bottom: 14px;
+      border-radius: 999px;
+      background: rgba(63, 110, 161, 0.11);
       color: var(--accent);
-      border: 1px solid rgba(63, 110, 161, 0.12);
-      margin-bottom: 12px;
-      align-self: flex-start;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .tool-app-head h3 {
+      margin: 0 0 12px;
+      font-size: clamp(1.5rem, 2.2vw, 2rem);
+      line-height: 1.06;
+      letter-spacing: -0.03em;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .tool-app-head p,
+    .tool-privacy {
+      margin: 0;
+      font-size: 0.98rem;
+      line-height: 1.72;
+      color: var(--muted-dark);
+    }
+
+    .tool-privacy {
+      align-self: stretch;
+      padding: 18px 20px;
+      border: 1px solid var(--line-dark);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.9);
+    }
+
+    .tool-privacy strong {
+      color: var(--text-dark);
     }
 
     .tool-progress {
-      padding: 18px 24px 0;
+      padding: 24px 34px 0;
     }
 
     .tool-progress-top {
       display: flex;
-      justify-content: space-between;
-      gap: 14px;
       align-items: center;
+      justify-content: space-between;
+      gap: 16px;
       margin-bottom: 12px;
     }
 
     .tool-progress-label {
-      font-size: 0.82rem;
-      font-weight: 700;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--muted-dark-2);
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text-dark);
     }
 
     .tool-progress-time {
-      font-size: 0.86rem;
+      font-size: 0.9rem;
       color: var(--muted-dark-2);
     }
 
     .tool-progress-bar {
       width: 100%;
       height: 8px;
-      background: rgba(21,32,43,0.08);
+      border-radius: 999px;
       overflow: hidden;
+      background: #E8EDF2;
     }
 
     .tool-progress-fill {
       width: 20%;
       height: 100%;
-      background: var(--accent);
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), #6C8FB8);
       transition: width var(--transition-slow);
     }
 
     .tool-steps {
+      padding: 22px 34px 0;
       display: flex;
-      gap: 10px;
+      gap: 12px;
       flex-wrap: wrap;
-      padding: 18px 24px 0;
     }
 
     .tool-step-pill {
-      padding: 7px 11px;
-      font-size: 0.76rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted-dark-2);
-      background: rgba(21,32,43,0.04);
-      border: 1px solid rgba(21,32,43,0.08);
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+      padding: 0 16px;
+      border-radius: 999px;
+      border: 1px solid var(--line-dark);
+      background: #FFFFFF;
+      color: var(--muted-dark);
+      font-size: 0.88rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      transition: all var(--transition);
     }
 
     .tool-step-pill.is-active {
-      color: var(--accent);
-      background: rgba(63,110,161,0.08);
-      border-color: rgba(63,110,161,0.16);
+      border-color: rgba(63, 110, 161, 0.22);
+      background: rgba(63, 110, 161, 0.10);
+      color: var(--accent-dark);
     }
 
     .tool-app-body {
-      padding: 24px;
+      padding: 32px 34px 34px;
     }
 
     .tool-pane {
       display: none;
+      animation: paneFade 220ms ease;
     }
 
     .tool-pane.is-active {
       display: block;
     }
 
+    @keyframes paneFade {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     .tool-pane-title {
-      margin: 0 0 12px;
-      font-size: 1.08rem;
-      line-height: 1.18;
+      margin: 0 0 10px;
+      font-size: clamp(1.3rem, 2vw, 1.72rem);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
       font-weight: 700;
       color: var(--text-dark);
     }
 
     .tool-pane-copy {
-      margin: 0 0 18px;
-      max-width: 64ch;
-      font-size: 0.95rem;
-      line-height: 1.62;
+      margin: 0 0 26px;
+      max-width: 820px;
+      font-size: 1rem;
+      line-height: 1.76;
       color: var(--muted-dark);
     }
 
     .tool-fields {
       display: grid;
-      gap: 16px;
-    }
-
-    .tool-grid-2,
-    .tool-grid-3 {
-      display: grid;
-      gap: 16px;
+      gap: 24px;
     }
 
     .tool-grid-2 {
+      display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
     }
 
     .tool-grid-3 {
+      display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
     }
 
     .tool-field {
       display: grid;
-      gap: 8px;
+      gap: 10px;
     }
 
-    .tool-field label {
-      font-size: 0.90rem;
-      font-weight: 500;
+    .tool-field label,
+    .tool-question-title {
+      font-size: 0.94rem;
+      line-height: 1.5;
+      font-weight: 600;
       color: var(--text-dark);
     }
 
-    .tool-field input[type="text"],
+    .tool-field input,
     .tool-field select,
     .tool-field textarea {
       width: 100%;
-      min-height: 48px;
-      padding: 12px 14px;
-      border: 1px solid rgba(21,32,43,0.12);
+      min-height: 52px;
+      border: 1px solid var(--line-dark-2);
+      border-radius: 14px;
       background: #FFFFFF;
       color: var(--text-dark);
+      padding: 0 16px;
+      outline: none;
       transition: border-color var(--transition), box-shadow var(--transition);
     }
 
     .tool-field textarea {
-      min-height: 92px;
+      min-height: 120px;
+      padding: 14px 16px;
       resize: vertical;
     }
 
-    .tool-field input[type="text"]:focus,
+    .tool-field input:focus,
     .tool-field select:focus,
     .tool-field textarea:focus {
-      outline: none;
-      border-color: rgba(63,110,161,0.48);
-      box-shadow: 0 0 0 3px rgba(63,110,161,0.10);
+      border-color: rgba(63, 110, 161, 0.65);
+      box-shadow: 0 0 0 4px rgba(63, 110, 161, 0.10);
     }
 
-    .tool-choice-group,
-    .tool-check-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
+    .tool-field-hint {
+      margin: -2px 0 0;
+      font-size: 0.86rem;
+      line-height: 1.5;
+      color: var(--muted-dark-2);
     }
 
-    .tool-choice,
-    .tool-check {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-height: 46px;
-      padding: 10px 12px;
-      border: 1px solid rgba(21,32,43,0.10);
-      background: #FFFFFF;
-      color: var(--text-dark);
-      cursor: pointer;
+    .question-card {
+      border: 1px solid var(--line-dark);
+      border-radius: 18px;
+      padding: 20px;
+      background: linear-gradient(180deg, #FFFFFF 0%, #FCFDFD 100%);
     }
 
-    .tool-choice input,
-    .tool-check input {
-      margin: 0;
-      accent-color: var(--accent);
+    .question-card + .question-card {
+      margin-top: 16px;
     }
 
-    .metric-strip {
+    .question-meta {
+      margin: 0 0 8px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .choice-row {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 4px;
+      gap: 10px;
+      margin-top: 16px;
     }
 
-    .metric-card {
-      padding: 16px;
-      background: rgba(246,247,248,0.66);
-      border: 1px solid rgba(21,32,43,0.08);
+    .choice-btn {
+      appearance: none;
+      border: 1px solid var(--line-dark-2);
+      background: #FFFFFF;
+      color: var(--muted-dark);
+      border-radius: 14px;
+      min-height: 54px;
+      padding: 10px 12px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      line-height: 1.3;
+      text-align: center;
+      cursor: pointer;
+      transition:
+        border-color var(--transition),
+        background var(--transition),
+        color var(--transition),
+        transform var(--transition),
+        box-shadow var(--transition);
     }
 
-    .metric-label {
+    .choice-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(63, 110, 161, 0.38);
+      color: var(--text-dark);
+    }
+
+    .choice-btn.is-selected {
+      border-color: rgba(63, 110, 161, 0.30);
+      background: rgba(63, 110, 161, 0.10);
+      color: var(--accent-dark);
+      box-shadow: 0 0 0 3px rgba(63, 110, 161, 0.08);
+    }
+
+    .metric-inline {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .metric-mini {
+      border: 1px solid var(--line-dark);
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(180deg, #FFFFFF 0%, #FAFCFD 100%);
+    }
+
+    .metric-mini-label {
       margin: 0 0 8px;
       font-size: 0.72rem;
       font-weight: 700;
       letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: var(--muted-dark-2);
+      color: var(--accent);
     }
 
-    .metric-value {
-      margin: 0;
+    .metric-mini-value {
+      margin: 0 0 8px;
       font-size: 1.7rem;
       line-height: 1;
-      letter-spacing: -0.05em;
       font-weight: 700;
+      letter-spacing: -0.04em;
       color: var(--text-dark);
     }
 
-    .metric-sub {
-      margin: 8px 0 0;
-      font-size: 0.84rem;
-      line-height: 1.5;
+    .metric-mini-copy {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.55;
       color: var(--muted-dark);
+    }
+
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .checkbox-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      min-height: 60px;
+      padding: 16px;
+      border: 1px solid var(--line-dark);
+      border-radius: 16px;
+      background: #FFFFFF;
+      transition: border-color var(--transition), background var(--transition), transform var(--transition);
+      cursor: pointer;
+    }
+
+    .checkbox-card:hover {
+      transform: translateY(-1px);
+      border-color: rgba(63, 110, 161, 0.26);
+    }
+
+    .checkbox-card input {
+      margin-top: 2px;
+      accent-color: var(--accent);
+      transform: scale(1.05);
+      flex: 0 0 auto;
+    }
+
+    .checkbox-card span {
+      font-size: 0.94rem;
+      line-height: 1.55;
+      color: var(--text-dark);
+      font-weight: 500;
     }
 
     .tool-nav {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 14px;
-      margin-top: 22px;
-      padding-top: 18px;
-      border-top: 1px solid rgba(21,32,43,0.08);
+      gap: 16px;
+      padding-top: 28px;
     }
 
     .tool-nav-left,
     .tool-nav-right {
       display: flex;
       align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
+      gap: 12px;
     }
 
-    .tool-btn {
+    .btn {
+      appearance: none;
+      border: none;
+      cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 46px;
-      padding: 0 18px;
-      background: var(--text-dark);
-      color: #FFFFFF;
-      border: 1px solid var(--text-dark);
-      font-size: 0.94rem;
-      font-weight: 500;
-      letter-spacing: -0.01em;
-      cursor: pointer;
+      min-height: 48px;
+      padding: 0 20px;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
       transition:
+        transform var(--transition),
         background var(--transition),
+        color var(--transition),
         border-color var(--transition),
-        transform var(--transition);
+        box-shadow var(--transition);
     }
 
-    .tool-btn:hover,
-    .tool-btn:focus-visible {
+    .btn:hover {
       transform: translateY(-1px);
-      outline: none;
     }
 
-    .tool-btn-secondary {
+    .btn-primary {
+      background: var(--accent);
+      color: #FFFFFF;
+      box-shadow: 0 8px 24px rgba(63, 110, 161, 0.18);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-dark);
+    }
+
+    .btn-secondary {
       background: #FFFFFF;
       color: var(--text-dark);
-      border-color: rgba(21,32,43,0.14);
+      border: 1px solid var(--line-dark-2);
     }
 
-    .tool-btn-secondary:hover,
-    .tool-btn-secondary:focus-visible {
-      border-color: rgba(63,110,161,0.24);
+    .btn-secondary:hover {
+      border-color: rgba(63, 110, 161, 0.35);
     }
 
-    .tool-output {
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted-dark);
+      border: 1px solid transparent;
+    }
+
+    .results-wrap {
       display: grid;
       gap: 22px;
     }
 
-    .tool-output-intro {
-      max-width: 64ch;
-      font-size: 0.96rem;
-      line-height: 1.62;
-      color: var(--muted-dark);
-    }
-
-    .tool-results-grid {
+    .results-top {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 22px;
+      gap: 18px;
     }
 
-    .tool-result-card {
-      background: rgba(255, 255, 255, 0.95);
-      border: 1px solid rgba(21, 32, 43, 0.06);
-      padding: 34px 28px 30px;
-      min-height: 248px;
-      box-shadow: var(--soft-shadow);
+    .result-card {
+      border: 1px solid var(--line-dark);
+      border-radius: 20px;
+      padding: 22px 22px 20px;
+      background: linear-gradient(180deg, #FFFFFF 0%, #F9FBFC 100%);
     }
 
-    .tool-result-title {
-      margin: 0 0 8px;
-      font-size: 1.02rem;
-      line-height: 1.12;
-      letter-spacing: -0.015em;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-
-    .tool-result-source {
-      margin: 0 0 26px;
-      font-size: 0.76rem;
-      line-height: 1.45;
-      color: #8A95A3;
-      font-style: italic;
-    }
-
-    .tool-result-number {
-      margin: 0 0 16px;
-      font-size: clamp(2.8rem, 4vw, 4.2rem);
-      line-height: 0.88;
-      letter-spacing: -0.065em;
-      font-weight: 700;
-      color: var(--accent);
-    }
-
-    .tool-result-text {
-      margin: 0;
-      font-size: 1rem;
-      line-height: 1.58;
-      color: var(--muted-dark);
-      max-width: 24ch;
-    }
-
-    .tool-summary {
-      display: grid;
-      grid-template-columns: 240px minmax(0, 1fr);
-      gap: 22px;
-      align-items: start;
-    }
-
-    .tool-score {
-      background: rgba(63,110,161,0.08);
-      border: 1px solid rgba(63,110,161,0.16);
-      padding: 18px;
-    }
-
-    .tool-score-label {
+    .result-card-label {
       margin: 0 0 10px;
-      font-size: 0.72rem;
+      font-size: 0.76rem;
       font-weight: 700;
       letter-spacing: 0.16em;
       text-transform: uppercase;
       color: var(--accent);
     }
 
-    .tool-score-value {
+    .result-card-value {
       margin: 0 0 8px;
-      font-size: 3rem;
-      line-height: 0.95;
-      letter-spacing: -0.06em;
+      font-size: clamp(1.7rem, 3vw, 2.45rem);
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: var(--text-dark);
+    }
+
+    .result-card-copy {
+      margin: 0;
+      font-size: 0.94rem;
+      line-height: 1.66;
+      color: var(--muted-dark);
+    }
+
+    .results-main {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+      gap: 20px;
+    }
+
+    .results-panel {
+      border: 1px solid var(--line-dark);
+      border-radius: 22px;
+      padding: 24px;
+      background: #FFFFFF;
+    }
+
+    .results-panel h5 {
+      margin: 0 0 12px;
+      font-size: 1.18rem;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
       font-weight: 700;
       color: var(--text-dark);
     }
 
-    .tool-score-band {
-      margin: 0;
+    .results-panel p {
+      margin: 0 0 14px;
+      font-size: 0.98rem;
+      line-height: 1.78;
+      color: var(--muted-dark);
+    }
+
+    .results-panel p:last-child {
+      margin-bottom: 0;
+    }
+
+    .bar-group {
+      display: grid;
+      gap: 16px;
+    }
+
+    .bar-row {
+      display: grid;
+      gap: 8px;
+    }
+
+    .bar-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
       font-size: 0.92rem;
-      line-height: 1.5;
-      color: var(--muted-dark);
-    }
-
-    .tool-results h4 {
-      margin: 0 0 12px;
-      font-size: 1rem;
-      line-height: 1.2;
+      line-height: 1.4;
       color: var(--text-dark);
+      font-weight: 600;
     }
 
-    .tool-results p,
-    .tool-results li {
+    .bar-track {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: #E8EDF2;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      width: 0;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), #6C8FB8);
+      transition: width 520ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .actions-list {
+      margin: 0;
+      padding-left: 18px;
       color: var(--muted-dark);
-      font-size: 0.95rem;
-      line-height: 1.62;
     }
 
-    .tool-results ul {
-      margin: 0 0 18px 18px;
-      padding: 0;
+    .actions-list li {
+      margin: 0 0 10px;
+      line-height: 1.72;
     }
 
-    .tool-results-note {
-      margin-top: 18px;
-      padding: 16px;
-      border: 1px solid rgba(21,32,43,0.08);
-      background: rgba(246,247,248,0.62);
-      font-size: 0.90rem;
+    .actions-list li:last-child {
+      margin-bottom: 0;
+    }
+
+    .results-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding-top: 8px;
+    }
+
+    .results-note {
+      margin: 0;
+      font-size: 0.88rem;
       line-height: 1.6;
-      color: var(--muted-dark);
+      color: var(--muted-dark-2);
     }
 
     .footer {
-      background: #0D141C;
-      color: rgba(245, 247, 250, 0.88);
-      padding: 44px 34px 34px;
+      background: var(--bg-dark);
+      color: rgba(245, 247, 250, 0.74);
+      padding: 42px 34px 34px;
     }
 
     .footer-inner {
@@ -752,30 +891,32 @@
       margin: 0 auto;
     }
 
-    .footer-top {
+    .footer-top,
+    .footer-bottom {
       display: flex;
-      align-items: flex-start;
       justify-content: space-between;
-      gap: 40px;
-      padding-bottom: 28px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .footer-top {
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .footer-bottom {
+      padding-top: 24px;
     }
 
     .footer-brand {
-      max-width: 420px;
-    }
-
-    .footer-mark {
-      display: inline-flex;
-      align-items: center;
-      font-size: 1.1rem;
+      font-size: 1.08rem;
       font-weight: 700;
-      letter-spacing: -0.02em;
       color: #FFFFFF;
-      margin-bottom: 14px;
+      letter-spacing: -0.02em;
     }
 
-    .footer-mark::after {
+    .footer-brand::after {
       content: "";
       width: 6px;
       height: 6px;
@@ -786,166 +927,75 @@
       transform: translateY(-1px);
     }
 
-    .footer-copy {
-      margin: 0;
-      max-width: 36ch;
-      font-size: 0.98rem;
-      line-height: 1.65;
-      color: rgba(245, 247, 250, 0.68);
-    }
-
     .footer-nav {
       display: flex;
-      gap: 48px;
+      align-items: center;
+      gap: 26px;
       flex-wrap: wrap;
     }
 
-    .footer-nav-col {
-      min-width: 120px;
-    }
-
-    .footer-nav-title {
-      margin: 0 0 12px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(245, 247, 250, 0.50);
-    }
-
     .footer-nav a {
-      display: block;
-      margin-bottom: 10px;
-      font-size: 0.95rem;
-      line-height: 1.45;
-      color: rgba(245, 247, 250, 0.82);
-      transition: color var(--transition), transform var(--transition);
+      font-size: 0.92rem;
+      color: rgba(245, 247, 250, 0.76);
+      transition: color var(--transition);
     }
 
-    .footer-nav a:hover,
-    .footer-nav a:focus-visible {
+    .footer-nav a:hover {
       color: #FFFFFF;
-      transform: translateX(2px);
-      outline: none;
     }
 
-    .footer-bottom {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-      padding-top: 18px;
+    .footer-copy {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.6;
     }
 
     .footer-meta,
     .footer-contact {
       margin: 0;
-      font-size: 0.88rem;
-      line-height: 1.6;
-      color: rgba(245, 247, 250, 0.58);
+      font-size: 0.84rem;
+      line-height: 1.65;
+      color: rgba(245, 247, 250, 0.62);
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      html {
-        scroll-behavior: auto;
+    @media (max-width: 1120px) {
+      .tool-app-head,
+      .results-main {
+        grid-template-columns: 1fr;
       }
 
-      .header,
-      .nav a,
-      .nav a::after,
-      .tool-btn,
-      .footer-nav a,
-      .tool-progress-fill {
-        transition: none;
-      }
-    }
-
-    @media (max-width: 1100px) {
-      .tool-results-grid,
-      .metric-strip {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .tool-summary {
+      .results-top,
+      .metric-inline {
         grid-template-columns: 1fr;
       }
     }
 
-    @media (max-width: 980px) {
-      .header {
-        height: auto;
+    @media (max-width: 900px) {
+      .tool-grid-2,
+      .tool-grid-3,
+      .choice-row,
+      .checkbox-grid {
+        grid-template-columns: 1fr;
       }
 
-      .header-inner {
-        padding: 16px 24px;
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 14px;
-      }
-
-      .nav {
-        gap: 22px;
-      }
-
-      .hero-tools-inner,
-      .tools-page,
-      .footer {
-        padding-left: 24px;
-        padding-right: 24px;
-      }
-    }
-
-    @media (max-width: 760px) {
-      .brand {
-        font-size: 1.24rem;
-      }
-
-      .nav {
-        gap: 18px;
-      }
-
-      .hero-tools-inner {
-        padding: 134px 20px 74px;
-      }
-
-      .hero-tools h1 {
-        max-width: 100%;
-        font-size: clamp(2.4rem, 8vw, 3.3rem);
-      }
-
-      .hero-tools p {
-        font-size: 1rem;
-        line-height: 1.58;
+      .hero-tools {
+        padding: 132px 24px 74px;
       }
 
       .tools-page {
-        padding: 72px 20px 72px;
+        padding: 0 24px 90px;
       }
 
-      .tool-grid-2,
-      .tool-grid-3,
-      .tool-choice-group,
-      .tool-check-grid,
-      .tool-results-grid,
-      .metric-strip {
-        grid-template-columns: 1fr;
-      }
-
-      .tool-app-head {
-        padding: 20px 20px 16px;
-        flex-direction: column;
-      }
-
+      .tool-app-head,
       .tool-progress,
       .tool-steps,
       .tool-app-body {
-        padding-left: 20px;
-        padding-right: 20px;
+        padding-left: 24px;
+        padding-right: 24px;
       }
 
       .tool-nav {
-        flex-direction: column;
+        flex-direction: column-reverse;
         align-items: stretch;
       }
 
@@ -953,6 +1003,60 @@
       .tool-nav-right {
         width: 100%;
         justify-content: space-between;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .header {
+        height: auto;
+      }
+
+      .header-inner {
+        padding: 16px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .nav {
+        flex-wrap: wrap;
+        gap: 18px;
+      }
+
+      .hero-tools {
+        padding: 126px 20px 68px;
+      }
+
+      .tools-page {
+        padding: 0 20px 80px;
+      }
+
+      .tool-app {
+        border-radius: 22px;
+      }
+
+      .tool-app-head,
+      .tool-progress,
+      .tool-steps,
+      .tool-app-body {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .tool-app-head {
+        padding-top: 24px;
+      }
+
+      .tool-step-pill {
+        min-height: 38px;
+        font-size: 0.82rem;
+      }
+
+      .results-panel,
+      .result-card,
+      .question-card,
+      .metric-mini {
+        padding: 18px;
       }
 
       .footer {
@@ -966,16 +1070,7 @@
       }
 
       .footer-nav {
-        gap: 28px;
-      }
-
-      .footer-copy {
-        font-size: 0.94rem;
-      }
-
-      .footer-meta,
-      .footer-contact {
-        font-size: 0.84rem;
+        gap: 18px;
       }
     }
   </style>
@@ -987,7 +1082,7 @@
 
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
-        <a href="diagnostic-tools.html">Diagnostic Tools</a>
+        <a href="diagnostic-tools.html" class="is-active">Diagnostic Tools</a>
         <a href="index.html#thinking">Thinking</a>
         <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
@@ -1001,8 +1096,8 @@
       <p class="hero-tools-eyebrow">Monderman Diagnostic Tools</p>
       <h1 id="tools-hero-title">Decision Velocity Snapshot.</h1>
       <p>
-        A guided tool for identifying where approvals, escalation, queue buildup, and review density
-        are slowing movement through one important decision flow.
+        A guided tool for identifying where approvals, review density, escalation patterns,
+        and queue buildup are slowing movement through an important decision flow.
       </p>
     </div>
   </section>
@@ -1015,8 +1110,9 @@
             <div class="tool-badge">Live</div>
             <h3>Decision Velocity Snapshot</h3>
             <p>
-              A five-step diagnostic focused on flow. Use it to estimate where decisions are slowing,
-              how much delay is accumulating, and which design conditions are most likely creating drag.
+              A five-step diagnostic focused on flow. Use it to estimate how much delay is accumulating
+              around one recurring decision pathway, which friction points are most prominent, and where
+              redesign may improve movement.
             </p>
           </div>
           <div class="tool-privacy">
@@ -1036,18 +1132,19 @@
         </div>
 
         <div class="tool-steps">
-          <div class="tool-step-pill is-active">1 · Decision</div>
+          <div class="tool-step-pill is-active">1 · Context</div>
           <div class="tool-step-pill">2 · Flow</div>
           <div class="tool-step-pill">3 · Friction</div>
-          <div class="tool-step-pill">4 · Escalation</div>
+          <div class="tool-step-pill">4 · Pressure</div>
           <div class="tool-step-pill">5 · Output</div>
         </div>
 
         <div class="tool-app-body">
           <div class="tool-pane is-active" data-step="1">
-            <h4 class="tool-pane-title">Step 1 — Define the decision flow</h4>
+            <h4 class="tool-pane-title">Step 1 — Define the decision pathway</h4>
             <p class="tool-pane-copy">
-              Start with one recurring decision pathway. Think about a real decision that should move faster than it currently does.
+              Start with one recurring decision flow. Choose a real pathway where movement should be faster
+              than it currently is.
             </p>
 
             <div class="tool-fields">
@@ -1107,20 +1204,30 @@
                   </select>
                 </div>
               </div>
+
+              <div class="tool-field">
+                <label for="contextNotes">Brief context note <span style="color:#7A8794;">(optional)</span></label>
+                <textarea id="contextNotes" placeholder="What kind of delay or slowdown are you observing?"></textarea>
+                <p class="tool-field-hint">
+                  Keep this general. Avoid proprietary, personal, or otherwise sensitive details.
+                </p>
+              </div>
             </div>
 
             <div class="tool-nav">
-              <div class="tool-nav-left"></div>
+              <div class="tool-nav-left">
+                <button class="btn btn-ghost" type="button" disabled>Back</button>
+              </div>
               <div class="tool-nav-right">
-                <button class="tool-btn" type="button" data-next>Next</button>
+                <button class="btn btn-primary" type="button" data-next>Continue</button>
               </div>
             </div>
           </div>
 
           <div class="tool-pane" data-step="2">
-            <h4 class="tool-pane-title">Step 2 — Map the movement</h4>
+            <h4 class="tool-pane-title">Step 2 — Estimate how the flow moves</h4>
             <p class="tool-pane-copy">
-              Now estimate how the decision actually moves. Focus on approvals, cycle time, and wait time rather than role clarity.
+              Focus on the mechanics of movement: approvals, handoffs, total cycle time, and how much of that time is spent waiting.
             </p>
 
             <div class="tool-fields">
@@ -1176,63 +1283,66 @@
                 </div>
               </div>
 
-              <div class="metric-strip">
-                <div class="metric-card">
-                  <p class="metric-label">Current throughput</p>
-                  <p class="metric-value" id="throughputMetric">0</p>
-                  <p class="metric-sub">decisions per month</p>
+              <div class="metric-inline">
+                <div class="metric-mini">
+                  <p class="metric-mini-label">Current Throughput</p>
+                  <p class="metric-mini-value" id="throughputMetric">0</p>
+                  <p class="metric-mini-copy">Estimated decisions per month.</p>
                 </div>
-                <div class="metric-card">
-                  <p class="metric-label">Approval load</p>
-                  <p class="metric-value" id="approvalMetric">0</p>
-                  <p class="metric-sub">touchpoints per decision</p>
+
+                <div class="metric-mini">
+                  <p class="metric-mini-label">Approval Load</p>
+                  <p class="metric-mini-value" id="approvalMetric">0</p>
+                  <p class="metric-mini-copy">Combined approvals and handoffs per decision.</p>
                 </div>
-                <div class="metric-card">
-                  <p class="metric-label">Cycle time</p>
-                  <p class="metric-value" id="cycleMetric">0d</p>
-                  <p class="metric-sub">average elapsed time</p>
+
+                <div class="metric-mini">
+                  <p class="metric-mini-label">Cycle Time</p>
+                  <p class="metric-mini-value" id="cycleMetric">0d</p>
+                  <p class="metric-mini-copy">Average elapsed time per decision.</p>
                 </div>
-                <div class="metric-card">
-                  <p class="metric-label">Waiting share</p>
-                  <p class="metric-value" id="waitingMetric">0%</p>
-                  <p class="metric-sub">of total cycle time</p>
+
+                <div class="metric-mini">
+                  <p class="metric-mini-label">Waiting Share</p>
+                  <p class="metric-mini-value" id="waitingMetric">0%</p>
+                  <p class="metric-mini-copy">Estimated portion of total time spent waiting.</p>
                 </div>
               </div>
             </div>
 
             <div class="tool-nav">
               <div class="tool-nav-left">
-                <button class="tool-btn tool-btn-secondary" type="button" data-prev>Back</button>
+                <button class="btn btn-secondary" type="button" data-prev>Back</button>
               </div>
               <div class="tool-nav-right">
-                <button class="tool-btn" type="button" data-next>Next</button>
+                <button class="btn btn-primary" type="button" data-next>Continue</button>
               </div>
             </div>
           </div>
 
           <div class="tool-pane" data-step="3">
-            <h4 class="tool-pane-title">Step 3 — Identify where the flow stalls</h4>
+            <h4 class="tool-pane-title">Step 3 — Identify the most common friction points</h4>
             <p class="tool-pane-copy">
-              Select the patterns that best describe where decisions slow down. This tool is looking for latency, queue buildup, and repeated stop points.
+              Select the conditions that best describe how this decision pathway slows in practice.
             </p>
 
-            <div class="tool-check-grid">
-              <label class="tool-check"><input type="checkbox" value="queue-buildup" /> Queue buildup before approval</label>
-              <label class="tool-check"><input type="checkbox" value="batching" /> Decisions are batched instead of moved continuously</label>
-              <label class="tool-check"><input type="checkbox" value="rework" /> Rework after review is common</label>
-              <label class="tool-check"><input type="checkbox" value="serial-reviews" /> Reviews happen serially instead of in parallel</label>
-              <label class="tool-check"><input type="checkbox" value="calendar-delays" /> Scheduling / calendar delays are common</label>
-              <label class="tool-check"><input type="checkbox" value="risk-avoidance" /> People delay decisions to avoid perceived risk</label>
-              <label class="tool-check"><input type="checkbox" value="missing-info" /> Decisions frequently stall waiting for missing information</label>
-              <label class="tool-check"><input type="checkbox" value="late-escalation" /> Problems are escalated only after delay accumulates</label>
+            <div class="checkbox-grid">
+              <label class="checkbox-card"><input type="checkbox" value="queue-buildup" /><span>Queue buildup before approval</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="batching" /><span>Decisions are batched instead of moved continuously</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="rework" /><span>Rework after review is common</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="serial-reviews" /><span>Reviews happen serially instead of in parallel</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="calendar-delays" /><span>Scheduling or calendar delays are common</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="risk-avoidance" /><span>People delay decisions to avoid perceived risk</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="missing-info" /><span>Work stalls while waiting for missing information</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="late-escalation" /><span>Problems escalate only after delay has accumulated</span></label>
             </div>
 
             <div class="tool-nav">
               <div class="tool-nav-left">
-                <button class="tool-btn tool-btn-secondary" type="button" data-prev>Back</button>
+                <button class="btn btn-secondary" type="button" data-prev>Back</button>
               </div>
               <div class="tool-nav-right">
-                <button class="tool-btn" type="button" data-next>Next</button>
+                <button class="btn btn-primary" type="button" data-next>Continue</button>
               </div>
             </div>
           </div>
@@ -1240,133 +1350,178 @@
           <div class="tool-pane" data-step="4">
             <h4 class="tool-pane-title">Step 4 — Assess escalation and decision pressure</h4>
             <p class="tool-pane-copy">
-              Decision velocity problems are often less about one approval and more about how often decisions escalate, bounce, or wait for senior attention.
+              Decision velocity problems are often driven by escalation behavior, revision loops, and how much urgency the system is trying to absorb.
             </p>
 
             <div class="tool-fields">
-              <div class="tool-grid-2">
-                <div class="tool-field">
-                  <label>How often do decisions escalate upward?</label>
-                  <div class="tool-choice-group">
-                    <label class="tool-choice"><input type="radio" name="escalationRate" value="1" /> Rarely</label>
-                    <label class="tool-choice"><input type="radio" name="escalationRate" value="2" checked /> Sometimes</label>
-                    <label class="tool-choice"><input type="radio" name="escalationRate" value="3" /> Often</label>
-                    <label class="tool-choice"><input type="radio" name="escalationRate" value="4" /> Almost always</label>
-                  </div>
-                </div>
-
-                <div class="tool-field">
-                  <label>How often do decisions bounce back for revision?</label>
-                  <div class="tool-choice-group">
-                    <label class="tool-choice"><input type="radio" name="bounceRate" value="1" /> Rarely</label>
-                    <label class="tool-choice"><input type="radio" name="bounceRate" value="2" checked /> Sometimes</label>
-                    <label class="tool-choice"><input type="radio" name="bounceRate" value="3" /> Often</label>
-                    <label class="tool-choice"><input type="radio" name="bounceRate" value="4" /> Almost always</label>
-                  </div>
+              <div class="question-card">
+                <p class="question-meta">Escalation Pressure</p>
+                <div class="tool-question-title">How often do decisions escalate upward?</div>
+                <div class="choice-row" data-question="escalationRate">
+                  <button class="choice-btn is-selected" type="button" data-value="1">Rarely</button>
+                  <button class="choice-btn" type="button" data-value="2">Sometimes</button>
+                  <button class="choice-btn" type="button" data-value="3">Often</button>
+                  <button class="choice-btn" type="button" data-value="4">Almost always</button>
                 </div>
               </div>
 
-              <div class="tool-grid-2">
-                <div class="tool-field">
-                  <label>How time-sensitive are these decisions?</label>
-                  <div class="tool-choice-group">
-                    <label class="tool-choice"><input type="radio" name="urgencyRate" value="1" /> Low</label>
-                    <label class="tool-choice"><input type="radio" name="urgencyRate" value="2" /> Moderate</label>
-                    <label class="tool-choice"><input type="radio" name="urgencyRate" value="3" checked /> High</label>
-                    <label class="tool-choice"><input type="radio" name="urgencyRate" value="4" /> Very high</label>
-                  </div>
+              <div class="question-card">
+                <p class="question-meta">Revision Pressure</p>
+                <div class="tool-question-title">How often do decisions bounce back for revision?</div>
+                <div class="choice-row" data-question="bounceRate">
+                  <button class="choice-btn" type="button" data-value="1">Rarely</button>
+                  <button class="choice-btn is-selected" type="button" data-value="2">Sometimes</button>
+                  <button class="choice-btn" type="button" data-value="3">Often</button>
+                  <button class="choice-btn" type="button" data-value="4">Almost always</button>
                 </div>
+              </div>
 
-                <div class="tool-field">
-                  <label>What is the most common stall point?</label>
-                  <select id="stallPoint">
-                    <option value="approval">Approval queue</option>
-                    <option value="review">Review / rework loop</option>
-                    <option value="escalation">Escalation to leadership</option>
-                    <option value="information">Waiting for information</option>
-                    <option value="handoff">Transfer between teams</option>
-                    <option value="scheduling">Scheduling / availability</option>
-                  </select>
+              <div class="question-card">
+                <p class="question-meta">Urgency Profile</p>
+                <div class="tool-question-title">How time-sensitive are these decisions?</div>
+                <div class="choice-row" data-question="urgencyRate">
+                  <button class="choice-btn" type="button" data-value="1">Low</button>
+                  <button class="choice-btn" type="button" data-value="2">Moderate</button>
+                  <button class="choice-btn is-selected" type="button" data-value="3">High</button>
+                  <button class="choice-btn" type="button" data-value="4">Very high</button>
                 </div>
               </div>
 
               <div class="tool-field">
-                <label for="contextNotes">Optional context <span style="color:#7A8794;">(brief, non-sensitive)</span></label>
-                <textarea id="contextNotes" placeholder="Example: Most delays happen after legal review, when the request waits for VP attention."></textarea>
+                <label for="stallPoint">Most common stall point</label>
+                <select id="stallPoint">
+                  <option value="approval">Approval queue</option>
+                  <option value="review">Review / rework loop</option>
+                  <option value="escalation">Escalation to leadership</option>
+                  <option value="information">Waiting for information</option>
+                  <option value="handoff">Transfer between teams</option>
+                  <option value="scheduling">Scheduling / availability</option>
+                </select>
               </div>
             </div>
 
             <div class="tool-nav">
               <div class="tool-nav-left">
-                <button class="tool-btn tool-btn-secondary" type="button" data-prev>Back</button>
+                <button class="btn btn-secondary" type="button" data-prev>Back</button>
               </div>
               <div class="tool-nav-right">
-                <button class="tool-btn" type="button" id="generateResults">Generate results</button>
+                <button class="btn btn-primary" type="button" id="generateResults">Generate results</button>
               </div>
             </div>
           </div>
 
           <div class="tool-pane" data-step="5">
-            <h4 class="tool-pane-title">Step 5 — Estimated decision drag</h4>
-            <p class="tool-pane-copy tool-output-intro">
-              These results are directional. They are designed to help make hidden delay visible and show where approval design,
-              escalation patterns, and queue effects are likely slowing movement through the decision flow.
+            <h4 class="tool-pane-title">Step 5 — Decision velocity profile and interpretation</h4>
+            <p class="tool-pane-copy">
+              This output is designed to surface where elapsed time is being shaped less by the decision itself
+              and more by the structure wrapped around it.
             </p>
 
-            <div class="tool-output">
-              <div class="tool-results-grid">
-                <div class="tool-result-card">
-                  <div class="tool-result-title">Cycle Delay</div>
-                  <p class="tool-result-source"><em>* estimated avoidable time based on your inputs</em></p>
-                  <div class="tool-result-number" id="delayTile">0d</div>
-                  <p class="tool-result-text" id="delayTileText">Estimated avoidable delay per decision cycle.</p>
+            <div class="results-wrap">
+              <div class="results-top">
+                <div class="result-card">
+                  <p class="result-card-label">Avoidable Delay</p>
+                  <div class="result-card-value" id="delayTile">—</div>
+                  <p class="result-card-copy" id="delayTileText">Estimated avoidable time per decision cycle.</p>
                 </div>
 
-                <div class="tool-result-card">
-                  <div class="tool-result-title">Approval Load</div>
-                  <p class="tool-result-source"><em>* directional estimate of review density</em></p>
-                  <div class="tool-result-number" id="loadTile">0</div>
-                  <p class="tool-result-text" id="loadTileText">Estimated review and approval load slowing movement.</p>
+                <div class="result-card">
+                  <p class="result-card-label">Approval Load</p>
+                  <div class="result-card-value" id="loadTile">—</div>
+                  <p class="result-card-copy" id="loadTileText">Estimated review and approval load touching each decision.</p>
                 </div>
 
-                <div class="tool-result-card">
-                  <div class="tool-result-title">Velocity Drag</div>
-                  <p class="tool-result-source"><em>* estimated throughput penalty from current flow design</em></p>
-                  <div class="tool-result-number" id="dragTile">0%</div>
-                  <p class="tool-result-text" id="dragTileText">Estimated throughput drag from queues, rework, and escalation.</p>
+                <div class="result-card">
+                  <p class="result-card-label">Velocity Drag</p>
+                  <div class="result-card-value" id="dragTile">—</div>
+                  <p class="result-card-copy" id="dragTileText">Estimated throughput drag from queues, rework, escalation, and wait time.</p>
                 </div>
               </div>
 
-              <div class="tool-summary">
-                <div class="tool-score">
-                  <p class="tool-score-label">Velocity Index</p>
-                  <p class="tool-score-value" id="scoreValue">0</p>
-                  <p class="tool-score-band" id="scoreBand">Low drag</p>
+              <div class="results-main">
+                <div class="results-panel">
+                  <h5>Interpretation</h5>
+                  <p id="resultSummary">Complete the assessment to generate your decision velocity profile.</p>
+
+                  <h5 style="margin-top:22px;">Most likely drivers</h5>
+                  <ul class="actions-list" id="resultDrivers">
+                    <li>Complete the assessment to generate drivers.</li>
+                  </ul>
+
+                  <h5 style="margin-top:22px;">Most likely interventions</h5>
+                  <ul class="actions-list" id="resultActions">
+                    <li>Complete the assessment to generate recommendations.</li>
+                  </ul>
                 </div>
 
-                <div class="tool-results">
-                  <h4>Interpretation</h4>
-                  <p id="resultSummary">Your summary will appear here.</p>
+                <div class="results-panel">
+                  <h5>Velocity profile</h5>
 
-                  <h4>Most likely drivers</h4>
-                  <ul id="resultDrivers"></ul>
+                  <div class="bar-group">
+                    <div class="bar-row">
+                      <div class="bar-top">
+                        <span>Waiting Intensity</span>
+                        <span id="waitingBarLabel">0%</span>
+                      </div>
+                      <div class="bar-track">
+                        <div class="bar-fill" id="waitingBar"></div>
+                      </div>
+                    </div>
 
-                  <h4>Most likely interventions</h4>
-                  <ul id="resultActions"></ul>
+                    <div class="bar-row">
+                      <div class="bar-top">
+                        <span>Approval Density</span>
+                        <span id="approvalBarLabel">0%</span>
+                      </div>
+                      <div class="bar-track">
+                        <div class="bar-fill" id="approvalBar"></div>
+                      </div>
+                    </div>
 
-                  <div class="tool-results-note">
-                    These results are a bounded snapshot intended to make delay more visible. They should be read as a directional estimate, not as a substitute for deeper process analysis.
+                    <div class="bar-row">
+                      <div class="bar-top">
+                        <span>Escalation Pressure</span>
+                        <span id="escalationBarLabel">0%</span>
+                      </div>
+                      <div class="bar-track">
+                        <div class="bar-fill" id="escalationBar"></div>
+                      </div>
+                    </div>
+
+                    <div class="bar-row">
+                      <div class="bar-top">
+                        <span>Rework / Friction Load</span>
+                        <span id="frictionBarLabel">0%</span>
+                      </div>
+                      <div class="bar-track">
+                        <div class="bar-fill" id="frictionBar"></div>
+                      </div>
+                    </div>
                   </div>
+
+                  <h5 style="margin-top:22px;">Velocity index</h5>
+                  <p><strong id="scoreValue">—</strong> · <span id="scoreBand">Complete the assessment to generate a score band.</span></p>
+                </div>
+              </div>
+
+              <div class="results-foot">
+                <p class="results-note">
+                  Directional diagnostic only. This tool estimates likely delay and structural drag; it does not replace workflow mapping,
+                  process analysis, or leadership judgment.
+                </p>
+
+                <div class="tool-nav-right" style="padding:0;">
+                  <button class="btn btn-secondary" type="button" id="resetTool">Reset tool</button>
                 </div>
               </div>
             </div>
 
             <div class="tool-nav">
               <div class="tool-nav-left">
-                <button class="tool-btn tool-btn-secondary" type="button" data-prev>Back</button>
+                <button class="btn btn-secondary" type="button" data-prev>Back</button>
               </div>
               <div class="tool-nav-right">
-                <button class="tool-btn tool-btn-secondary" type="button" id="resetTool">Reset</button>
+                <a class="btn btn-primary" href="diagnostic-tools.html">Back to tools</a>
               </div>
             </div>
           </div>
@@ -1378,284 +1533,362 @@
   <footer class="footer">
     <div class="footer-inner">
       <div class="footer-top">
-        <div class="footer-brand">
-          <div class="footer-mark">Monderman</div>
-          <p class="footer-copy">
-            Advisory thinking on institutional performance, decision velocity, and the design of systems that sustain clarity under complexity.
-          </p>
-        </div>
+        <div class="footer-brand">Monderman</div>
 
-        <div class="footer-nav" aria-label="Footer navigation">
-          <div class="footer-nav-col">
-            <p class="footer-nav-title">Explore</p>
-            <a href="index.html#approach">Approach</a>
-            <a href="diagnostic-tools.html">Diagnostic Tools</a>
-            <a href="index.html#thinking">Thinking</a>
-            <a href="research.html">Research</a>
-            <a href="why-monderman.html">Why Monderman</a>
-          </div>
-
-          <div class="footer-nav-col">
-            <p class="footer-nav-title">Connect</p>
-            <a href="mailto:connect@monderman.com">connect@monderman.com</a>
-          </div>
-        </div>
+        <nav class="footer-nav" aria-label="Footer navigation">
+          <a href="index.html#approach">Approach</a>
+          <a href="diagnostic-tools.html">Diagnostic Tools</a>
+          <a href="index.html#thinking">Thinking</a>
+          <a href="research.html">Research</a>
+          <a href="why-monderman.html">Why Monderman</a>
+          <a href="index.html#connect">Connect</a>
+        </nav>
       </div>
 
       <div class="footer-bottom">
-        <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
-        <p class="footer-contact">Clarity for complex institutions.</p>
+        <p class="footer-copy">Turning complexity into capability.</p>
+        <p class="footer-meta">Institutional design, decision velocity, and performance in complex environments.</p>
+        <p class="footer-contact">Contact: connect@monderman.com</p>
       </div>
     </div>
   </footer>
 
   <script>
-    const header = document.getElementById("siteHeader");
-    const toolApp = document.getElementById("toolApp");
+    (function () {
+      const header = document.getElementById("siteHeader");
+      const toolApp = document.getElementById("toolApp");
+      const panes = Array.from(document.querySelectorAll(".tool-pane"));
+      const pills = Array.from(document.querySelectorAll(".tool-step-pill"));
+      const progressLabel = document.getElementById("progressLabel");
+      const progressFill = document.getElementById("progressFill");
 
-    function updateHeader() {
-      if (!header) return;
-      if (window.scrollY > 12) {
-        header.classList.add("scrolled");
-      } else {
-        header.classList.remove("scrolled");
-      }
-    }
+      let currentStep = 1;
 
-    updateHeader();
-    window.addEventListener("scroll", updateHeader, { passive: true });
-
-    const panes = Array.from(document.querySelectorAll(".tool-pane"));
-    const stepPills = Array.from(document.querySelectorAll(".tool-step-pill"));
-    const progressFill = document.getElementById("progressFill");
-    const progressLabel = document.getElementById("progressLabel");
-    let currentStep = 0;
-
-    function scrollToToolTop() {
-      if (!toolApp) return;
-      const headerOffset = 92;
-      const targetTop = toolApp.getBoundingClientRect().top + window.pageYOffset - headerOffset;
-      window.scrollTo({
-        top: Math.max(0, targetTop),
-        behavior: "smooth"
-      });
-    }
-
-    function showStep(index, shouldScroll = true) {
-      currentStep = Math.max(0, Math.min(index, panes.length - 1));
-      panes.forEach((pane, i) => pane.classList.toggle("is-active", i === currentStep));
-      stepPills.forEach((pill, i) => pill.classList.toggle("is-active", i === currentStep));
-      progressFill.style.width = `${((currentStep + 1) / panes.length) * 100}%`;
-      progressLabel.textContent = `Step ${currentStep + 1} of ${panes.length}`;
-
-      if (shouldScroll) {
-        scrollToToolTop();
-      }
-    }
-
-    document.querySelectorAll("[data-next]").forEach((btn) => {
-      btn.addEventListener("click", () => showStep(currentStep + 1));
-    });
-
-    document.querySelectorAll("[data-prev]").forEach((btn) => {
-      btn.addEventListener("click", () => showStep(currentStep - 1));
-    });
-
-    function getSelectedRadio(name) {
-      const el = document.querySelector(`input[name="${name}"]:checked`);
-      return el ? Number(el.value) : 0;
-    }
-
-    function updateFlowMetrics() {
-      const volume = Number(document.getElementById("decisionVolume").value);
-      const approvals = Number(document.getElementById("approvalsRequired").value);
-      const handoffs = Number(document.getElementById("handoffsRequired").value);
-      const cycle = Number(document.getElementById("cycleTimeDays").value);
-      const wait = Number(document.getElementById("waitTimeDays").value);
-
-      document.getElementById("throughputMetric").textContent = volume.toLocaleString();
-      document.getElementById("approvalMetric").textContent = approvals + handoffs;
-      document.getElementById("cycleMetric").textContent = `${cycle}d`;
-
-      const waitingShare = Math.min(95, Math.round((wait / Math.max(cycle, 1)) * 100));
-      document.getElementById("waitingMetric").textContent = `${waitingShare}%`;
-    }
-
-    ["decisionVolume", "approvalsRequired", "handoffsRequired", "cycleTimeDays", "waitTimeDays"]
-      .forEach((id) => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener("change", updateFlowMetrics);
-      });
-
-    updateFlowMetrics();
-
-    function dragBand(score) {
-      if (score < 30) return "Low velocity drag";
-      if (score < 55) return "Moderate velocity drag";
-      if (score < 75) return "High velocity drag";
-      return "Severe velocity drag";
-    }
-
-    function buildDrivers(data) {
-      const drivers = [];
-      const checked = data.checkedValues;
-
-      if (data.waitShare > 50) drivers.push("A large share of total cycle time appears to be waiting rather than active decision work.");
-      if (data.approvals >= 4) drivers.push("Approval density is likely slowing movement through repeated stop points.");
-      if (checked.includes("serial-reviews")) drivers.push("Serial review structure appears to be extending elapsed time unnecessarily.");
-      if (checked.includes("queue-buildup")) drivers.push("Queue buildup before review is likely creating avoidable decision latency.");
-      if (checked.includes("batching")) drivers.push("Batching decisions rather than moving them continuously is likely creating rhythm-based delays.");
-      if (checked.includes("rework")) drivers.push("Rework after review suggests poor first-pass alignment or unclear review criteria.");
-      if (checked.includes("calendar-delays")) drivers.push("Scheduling and availability constraints appear to be acting as a flow bottleneck.");
-      if (checked.includes("risk-avoidance")) drivers.push("Decision hesitation driven by perceived risk is likely slowing movement beyond real necessity.");
-      if (checked.includes("missing-info")) drivers.push("Missing information is likely causing avoidable stop-start delay.");
-      if (checked.includes("late-escalation")) drivers.push("Escalation is occurring too late, after delay has already accumulated.");
-      if (data.escalationRate >= 3) drivers.push("Frequent upward escalation suggests decision rights are not well-matched to the work.");
-
-      return drivers.slice(0, 3);
-    }
-
-    function buildActions(data) {
-      const actions = [];
-      const checked = data.checkedValues;
-
-      if (data.approvals >= 4) actions.push("Reduce approval layers and distinguish true decision rights from passive sign-off.");
-      if (checked.includes("serial-reviews")) actions.push("Convert serial reviews to parallel review where risk and sequence allow.");
-      if (checked.includes("queue-buildup") || checked.includes("batching")) actions.push("Move high-volume decisions in a steadier flow rather than in approval batches or review piles.");
-      if (checked.includes("rework") || checked.includes("missing-info")) actions.push("Improve decision packet quality at entry so downstream reviewers are not repeatedly sending work back.");
-      if (data.escalationRate >= 3 || checked.includes("late-escalation")) actions.push("Clarify escalation thresholds so routine decisions do not wait unnecessarily for senior attention.");
-      if (checked.includes("calendar-delays")) actions.push("Create standing review windows or delegated authority to reduce calendar-based delay.");
-      if (checked.includes("risk-avoidance")) actions.push("Make acceptable risk boundaries explicit so people can decide faster with confidence.");
-      if (actions.length < 3) actions.push("Track cycle time and wait time separately so delay becomes visible rather than being hidden inside total elapsed time.");
-
-      return actions.slice(0, 3);
-    }
-
-    function calculateResults() {
-      const volume = Number(document.getElementById("decisionVolume").value);
-      const people = Number(document.getElementById("peopleInvolved").value);
-      const approvals = Number(document.getElementById("approvalsRequired").value);
-      const handoffs = Number(document.getElementById("handoffsRequired").value);
-      const cycle = Number(document.getElementById("cycleTimeDays").value);
-      const wait = Number(document.getElementById("waitTimeDays").value);
-
-      const escalationRate = getSelectedRadio("escalationRate");
-      const bounceRate = getSelectedRadio("bounceRate");
-      const urgencyRate = getSelectedRadio("urgencyRate");
-
-      const checkedValues = Array.from(document.querySelectorAll('.tool-check input:checked')).map(el => el.value);
-
-      const waitShare = Math.min(100, Math.round((wait / Math.max(cycle, 1)) * 100));
-      const approvalLoad = approvals + handoffs + escalationRate + bounceRate;
-      const avoidableDelay = Math.max(1, Math.round(
-        (wait * 0.6) +
-        ((approvals - 1) * 0.8) +
-        ((handoffs - 1) * 0.5) +
-        (checkedValues.length * 0.45) +
-        (bounceRate * 0.7)
-      ));
-
-      const dragPct = Math.min(85, Math.round(
-        (waitShare * 0.45) +
-        (approvalLoad * 3.2) +
-        (checkedValues.length * 2.8) +
-        (escalationRate * 4) +
-        (bounceRate * 4) +
-        (urgencyRate * 1.8)
-      ));
-
-      const score = Math.min(100, Math.round(
-        (waitShare * 0.40) +
-        (approvalLoad * 2.8) +
-        (checkedValues.length * 3.5) +
-        (escalationRate * 4.5) +
-        (bounceRate * 4.5)
-      ));
-
-      return {
-        volume,
-        people,
-        approvals,
-        handoffs,
-        cycle,
-        wait,
-        waitShare,
-        escalationRate,
-        bounceRate,
-        urgencyRate,
-        checkedValues,
-        approvalLoad,
-        avoidableDelay,
-        dragPct,
-        score
+      const buttonAnswers = {
+        escalationRate: 1,
+        bounceRate: 2,
+        urgencyRate: 3
       };
-    }
 
-    function renderResults(data) {
-      document.getElementById("delayTile").textContent = `${data.avoidableDelay}d`;
-      document.getElementById("delayTileText").textContent =
-        `Estimated avoidable delay per decision cycle under the current design.`;
+      function handleScrollHeader() {
+        if (window.scrollY > 10) {
+          header.classList.add("scrolled");
+        } else {
+          header.classList.remove("scrolled");
+        }
+      }
 
-      document.getElementById("loadTile").textContent = data.approvalLoad;
-      document.getElementById("loadTileText").textContent =
-        `Estimated review and approval load now touching each decision flow.`;
+      handleScrollHeader();
+      window.addEventListener("scroll", handleScrollHeader, { passive: true });
 
-      document.getElementById("dragTile").textContent = `${data.dragPct}%`;
-      document.getElementById("dragTileText").textContent =
-        `Estimated throughput drag created by queues, rework, escalation, and review density.`;
+      function scrollToToolTop() {
+        const top = toolApp.getBoundingClientRect().top + window.pageYOffset - 92;
+        window.scrollTo({ top, behavior: "smooth" });
+      }
 
-      document.getElementById("scoreValue").textContent = data.score;
-      document.getElementById("scoreBand").textContent = dragBand(data.score);
+      function showStep(step, doScroll = true) {
+        currentStep = step;
 
-      const summary = `This snapshot suggests ${dragBand(data.score).toLowerCase()} inside the selected decision flow. The strongest signal is that elapsed time appears to be shaped less by the decision itself and more by approvals, waiting, and review structure. In practical terms, the design of the flow is likely slowing movement well beyond what the underlying decision complexity requires.`;
-      document.getElementById("resultSummary").textContent = summary;
+        panes.forEach((pane) => {
+          pane.classList.toggle("is-active", Number(pane.dataset.step) === step);
+        });
 
-      const driversList = document.getElementById("resultDrivers");
-      const actionsList = document.getElementById("resultActions");
-      driversList.innerHTML = "";
-      actionsList.innerHTML = "";
+        pills.forEach((pill, index) => {
+          pill.classList.toggle("is-active", index === step - 1);
+        });
 
-      buildDrivers(data).forEach((item) => {
-        const li = document.createElement("li");
-        li.textContent = item;
-        driversList.appendChild(li);
-      });
+        progressLabel.textContent = `Step ${step} of 5`;
+        progressFill.style.width = `${(step / 5) * 100}%`;
 
-      buildActions(data).forEach((item) => {
-        const li = document.createElement("li");
-        li.textContent = item;
-        actionsList.appendChild(li);
-      });
+        if (doScroll) {
+          scrollToToolTop();
+        }
+      }
 
-      showStep(4);
-    }
+      function bindChoiceRows() {
+        const rows = document.querySelectorAll(".choice-row");
 
-    document.getElementById("generateResults").addEventListener("click", () => {
-      renderResults(calculateResults());
-    });
+        rows.forEach((row) => {
+          const questionKey = row.dataset.question;
+          const buttons = Array.from(row.querySelectorAll(".choice-btn"));
 
-    document.getElementById("resetTool").addEventListener("click", () => {
-      document.getElementById("decisionName").value = "";
-      document.getElementById("decisionType").value = "";
-      document.getElementById("decisionVolume").value = "35";
-      document.getElementById("peopleInvolved").value = "4";
-      document.getElementById("scope").value = "division";
-      document.getElementById("approvalsRequired").value = "3";
-      document.getElementById("handoffsRequired").value = "3";
-      document.getElementById("cycleTimeDays").value = "10";
-      document.getElementById("waitTimeDays").value = "5";
-      document.querySelector('input[name="escalationRate"][value="2"]').checked = true;
-      document.querySelector('input[name="bounceRate"][value="2"]').checked = true;
-      document.querySelector('input[name="urgencyRate"][value="3"]').checked = true;
-      document.getElementById("stallPoint").value = "approval";
-      document.getElementById("contextNotes").value = "";
-      document.querySelectorAll('.tool-check input').forEach(el => el.checked = false);
+          buttons.forEach((btn) => {
+            btn.addEventListener("click", function (event) {
+              event.preventDefault();
+              buttonAnswers[questionKey] = Number(btn.dataset.value);
+              buttons.forEach((b) => b.classList.remove("is-selected"));
+              btn.classList.add("is-selected");
+            });
+          });
+        });
+      }
 
+      function stepNav() {
+        document.querySelectorAll("[data-next]").forEach((button) => {
+          button.addEventListener("click", function () {
+            if (currentStep >= 5) return;
+            showStep(Math.min(5, currentStep + 1));
+          });
+        });
+
+        document.querySelectorAll("[data-prev]").forEach((button) => {
+          button.addEventListener("click", function () {
+            if (currentStep <= 1) return;
+            showStep(Math.max(1, currentStep - 1));
+          });
+        });
+      }
+
+      function updateFlowMetrics() {
+        const volume = Number(document.getElementById("decisionVolume").value);
+        const approvals = Number(document.getElementById("approvalsRequired").value);
+        const handoffs = Number(document.getElementById("handoffsRequired").value);
+        const cycle = Number(document.getElementById("cycleTimeDays").value);
+        const wait = Number(document.getElementById("waitTimeDays").value);
+
+        document.getElementById("throughputMetric").textContent = volume.toLocaleString();
+        document.getElementById("approvalMetric").textContent = approvals + handoffs;
+        document.getElementById("cycleMetric").textContent = `${cycle}d`;
+
+        const waitingShare = Math.min(95, Math.round((wait / Math.max(cycle, 1)) * 100));
+        document.getElementById("waitingMetric").textContent = `${waitingShare}%`;
+      }
+
+      ["decisionVolume", "approvalsRequired", "handoffsRequired", "cycleTimeDays", "waitTimeDays"]
+        .forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.addEventListener("change", updateFlowMetrics);
+        });
+
+      function dragBand(score) {
+        if (score < 30) return "Low velocity drag";
+        if (score < 55) return "Moderate velocity drag";
+        if (score < 75) return "High velocity drag";
+        return "Severe velocity drag";
+      }
+
+      function buildDrivers(data) {
+        const drivers = [];
+        const checked = data.checkedValues;
+
+        if (data.waitShare > 50) drivers.push("A large share of total cycle time appears to be waiting rather than active decision work.");
+        if (data.approvals >= 4) drivers.push("Approval density is likely slowing movement through repeated stop points.");
+        if (checked.includes("serial-reviews")) drivers.push("Serial review structure appears to be extending elapsed time unnecessarily.");
+        if (checked.includes("queue-buildup")) drivers.push("Queue buildup before review is likely creating avoidable decision latency.");
+        if (checked.includes("batching")) drivers.push("Batching decisions rather than moving them continuously is likely creating rhythm-based delays.");
+        if (checked.includes("rework")) drivers.push("Rework after review suggests poor first-pass alignment or unclear review criteria.");
+        if (checked.includes("calendar-delays")) drivers.push("Scheduling and availability constraints appear to be acting as a flow bottleneck.");
+        if (checked.includes("risk-avoidance")) drivers.push("Decision hesitation driven by perceived risk is likely slowing movement beyond real necessity.");
+        if (checked.includes("missing-info")) drivers.push("Missing information is likely causing avoidable stop-start delay.");
+        if (checked.includes("late-escalation")) drivers.push("Escalation is occurring too late, after delay has already accumulated.");
+        if (data.escalationRate >= 3) drivers.push("Frequent upward escalation suggests decision rights are not well-matched to the work.");
+
+        return drivers.slice(0, 3);
+      }
+
+      function buildActions(data) {
+        const actions = [];
+        const checked = data.checkedValues;
+
+        if (data.approvals >= 4) actions.push("Reduce approval layers and distinguish true decision rights from passive sign-off.");
+        if (checked.includes("serial-reviews")) actions.push("Convert serial reviews to parallel review where risk and sequence allow.");
+        if (checked.includes("queue-buildup") || checked.includes("batching")) actions.push("Move high-volume decisions in a steadier flow rather than in approval batches or review piles.");
+        if (checked.includes("rework") || checked.includes("missing-info")) actions.push("Improve decision packet quality at entry so downstream reviewers are not repeatedly sending work back.");
+        if (data.escalationRate >= 3 || checked.includes("late-escalation")) actions.push("Clarify escalation thresholds so routine decisions do not wait unnecessarily for senior attention.");
+        if (checked.includes("calendar-delays")) actions.push("Create standing review windows or delegated authority to reduce calendar-based delay.");
+        if (checked.includes("risk-avoidance")) actions.push("Make acceptable risk boundaries explicit so people can decide faster with confidence.");
+        if (actions.length < 3) actions.push("Track cycle time and wait time separately so delay becomes visible rather than being hidden inside total elapsed time.");
+
+        return actions.slice(0, 3);
+      }
+
+      function toPercent(value, max) {
+        return Math.max(0, Math.min(100, Math.round((value / max) * 100)));
+      }
+
+      function calculateResults() {
+        const volume = Number(document.getElementById("decisionVolume").value);
+        const people = Number(document.getElementById("peopleInvolved").value);
+        const approvals = Number(document.getElementById("approvalsRequired").value);
+        const handoffs = Number(document.getElementById("handoffsRequired").value);
+        const cycle = Number(document.getElementById("cycleTimeDays").value);
+        const wait = Number(document.getElementById("waitTimeDays").value);
+
+        const escalationRate = buttonAnswers.escalationRate;
+        const bounceRate = buttonAnswers.bounceRate;
+        const urgencyRate = buttonAnswers.urgencyRate;
+
+        const checkedValues = Array.from(document.querySelectorAll('.checkbox-card input:checked')).map(el => el.value);
+
+        const waitShare = Math.min(100, Math.round((wait / Math.max(cycle, 1)) * 100));
+        const approvalLoad = approvals + handoffs + escalationRate + bounceRate;
+
+        const avoidableDelay = Math.max(1, Math.round(
+          (wait * 0.6) +
+          ((approvals - 1) * 0.8) +
+          ((handoffs - 1) * 0.5) +
+          (checkedValues.length * 0.45) +
+          (bounceRate * 0.7)
+        ));
+
+        const dragPct = Math.min(85, Math.round(
+          (waitShare * 0.45) +
+          (approvalLoad * 3.2) +
+          (checkedValues.length * 2.8) +
+          (escalationRate * 4) +
+          (bounceRate * 4) +
+          (urgencyRate * 1.8)
+        ));
+
+        const score = Math.min(100, Math.round(
+          (waitShare * 0.40) +
+          (approvalLoad * 2.8) +
+          (checkedValues.length * 3.5) +
+          (escalationRate * 4.5) +
+          (bounceRate * 4.5)
+        ));
+
+        return {
+          volume,
+          people,
+          approvals,
+          handoffs,
+          cycle,
+          wait,
+          waitShare,
+          escalationRate,
+          bounceRate,
+          urgencyRate,
+          checkedValues,
+          approvalLoad,
+          avoidableDelay,
+          dragPct,
+          score
+        };
+      }
+
+      function renderResults(data) {
+        document.getElementById("delayTile").textContent = `${data.avoidableDelay}d`;
+        document.getElementById("delayTileText").textContent =
+          "Estimated avoidable delay per decision cycle under the current design.";
+
+        document.getElementById("loadTile").textContent = data.approvalLoad;
+        document.getElementById("loadTileText").textContent =
+          "Estimated review and approval load now touching each decision flow.";
+
+        document.getElementById("dragTile").textContent = `${data.dragPct}%`;
+        document.getElementById("dragTileText").textContent =
+          "Estimated throughput drag created by queues, rework, escalation, and review density.";
+
+        document.getElementById("scoreValue").textContent = data.score;
+        document.getElementById("scoreBand").textContent = dragBand(data.score);
+
+        const summary = `This snapshot suggests ${dragBand(data.score).toLowerCase()} inside the selected decision flow. The strongest signal is that elapsed time appears to be shaped less by the decision itself and more by approvals, waiting, and review structure. In practical terms, the design of the flow is likely slowing movement well beyond what the underlying decision complexity requires.`;
+        document.getElementById("resultSummary").textContent = summary;
+
+        const driversList = document.getElementById("resultDrivers");
+        const actionsList = document.getElementById("resultActions");
+        driversList.innerHTML = "";
+        actionsList.innerHTML = "";
+
+        buildDrivers(data).forEach((item) => {
+          const li = document.createElement("li");
+          li.textContent = item;
+          driversList.appendChild(li);
+        });
+
+        buildActions(data).forEach((item) => {
+          const li = document.createElement("li");
+          li.textContent = item;
+          actionsList.appendChild(li);
+        });
+
+        const waitingPct = toPercent(data.waitShare, 100);
+        const approvalPct = toPercent(data.approvalLoad, 16);
+        const escalationPct = toPercent((data.escalationRate + data.bounceRate + data.urgencyRate), 12);
+        const frictionPct = toPercent((data.checkedValues.length * 10), 80);
+
+        document.getElementById("waitingBarLabel").textContent = `${waitingPct}%`;
+        document.getElementById("approvalBarLabel").textContent = `${approvalPct}%`;
+        document.getElementById("escalationBarLabel").textContent = `${escalationPct}%`;
+        document.getElementById("frictionBarLabel").textContent = `${frictionPct}%`;
+
+        document.getElementById("waitingBar").style.width = `${waitingPct}%`;
+        document.getElementById("approvalBar").style.width = `${approvalPct}%`;
+        document.getElementById("escalationBar").style.width = `${escalationPct}%`;
+        document.getElementById("frictionBar").style.width = `${frictionPct}%`;
+      }
+
+      function resetTool() {
+        document.getElementById("decisionName").value = "";
+        document.getElementById("decisionType").value = "";
+        document.getElementById("decisionVolume").value = "35";
+        document.getElementById("peopleInvolved").value = "4";
+        document.getElementById("scope").value = "division";
+        document.getElementById("contextNotes").value = "";
+        document.getElementById("approvalsRequired").value = "3";
+        document.getElementById("handoffsRequired").value = "3";
+        document.getElementById("cycleTimeDays").value = "10";
+        document.getElementById("waitTimeDays").value = "5";
+        document.getElementById("stallPoint").value = "approval";
+
+        buttonAnswers.escalationRate = 1;
+        buttonAnswers.bounceRate = 2;
+        buttonAnswers.urgencyRate = 3;
+
+        document.querySelectorAll(".choice-row").forEach((row) => {
+          const key = row.dataset.question;
+          const buttons = row.querySelectorAll(".choice-btn");
+          buttons.forEach((btn) => {
+            btn.classList.toggle("is-selected", Number(btn.dataset.value) === buttonAnswers[key]);
+          });
+        });
+
+        document.querySelectorAll('.checkbox-card input').forEach(el => {
+          el.checked = false;
+        });
+
+        updateFlowMetrics();
+
+        document.getElementById("delayTile").textContent = "—";
+        document.getElementById("delayTileText").textContent = "Estimated avoidable time per decision cycle.";
+        document.getElementById("loadTile").textContent = "—";
+        document.getElementById("loadTileText").textContent = "Estimated review and approval load touching each decision.";
+        document.getElementById("dragTile").textContent = "—";
+        document.getElementById("dragTileText").textContent = "Estimated throughput drag from queues, rework, escalation, and wait time.";
+        document.getElementById("scoreValue").textContent = "—";
+        document.getElementById("scoreBand").textContent = "Complete the assessment to generate a score band.";
+        document.getElementById("resultSummary").textContent = "Complete the assessment to generate your decision velocity profile.";
+
+        document.getElementById("resultDrivers").innerHTML = "<li>Complete the assessment to generate drivers.</li>";
+        document.getElementById("resultActions").innerHTML = "<li>Complete the assessment to generate recommendations.</li>";
+
+        document.getElementById("waitingBarLabel").textContent = "0%";
+        document.getElementById("approvalBarLabel").textContent = "0%";
+        document.getElementById("escalationBarLabel").textContent = "0%";
+        document.getElementById("frictionBarLabel").textContent = "0%";
+
+        document.getElementById("waitingBar").style.width = "0%";
+        document.getElementById("approvalBar").style.width = "0%";
+        document.getElementById("escalationBar").style.width = "0%";
+        document.getElementById("frictionBar").style.width = "0%";
+
+        showStep(1);
+      }
+
+      bindChoiceRows();
+      stepNav();
       updateFlowMetrics();
-      showStep(0);
-    });
 
-    showStep(0, false);
+      document.getElementById("generateResults").addEventListener("click", function () {
+        renderResults(calculateResults());
+        showStep(5);
+      });
+
+      document.getElementById("resetTool").addEventListener("click", resetTool);
+
+      showStep(1, false);
+    })();
   </script>
 </body>
 </html>
