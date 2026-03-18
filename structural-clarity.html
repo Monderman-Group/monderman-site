@@ -54,12 +54,14 @@
       --muted-dark: #5F6B78;
       --muted-dark-2: #7A8794;
       --line-dark: #E3E7EB;
+      --line-dark-2: #D7DEE5;
       --header-solid: rgba(14, 20, 28, 0.84);
       --header-border: rgba(255, 255, 255, 0.08);
       --max: 1320px;
       --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
       --transition-slow: 360ms cubic-bezier(0.22, 1, 0.36, 1);
       --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
+      --card-shadow: 0 16px 40px rgba(15, 23, 32, 0.06);
     }
 
     * {
@@ -112,7 +114,8 @@
     h1,
     h2,
     h3,
-    h4 {
+    h4,
+    h5 {
       font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
     }
 
@@ -214,22 +217,24 @@
     }
 
     .nav a:hover,
-    .nav a:focus-visible {
+    .nav a.is-active {
       color: #FFFFFF;
       transform: translateY(-1px);
-      outline: none;
     }
 
     .nav a:hover::after,
-    .nav a:focus-visible::after {
+    .nav a.is-active::after {
       transform: scaleX(1);
     }
 
     .hero-tools {
       position: relative;
-      background: linear-gradient(180deg, #0F1720 0%, #131E29 100%);
-      color: var(--text-light);
       overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(15, 23, 32, 0.82) 0%, rgba(15, 23, 32, 0.92) 100%),
+        linear-gradient(135deg, #172331 0%, #0F1720 52%, #111B25 100%);
+      color: var(--text-light);
+      padding: 140px 34px 86px;
     }
 
     .hero-tools::before {
@@ -237,506 +242,610 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(circle at 80% 20%, rgba(63, 110, 161, 0.12), transparent 30%),
-        linear-gradient(135deg, rgba(63, 110, 161, 0.03) 1px, transparent 1px);
-      background-size: auto, 34px 34px;
-      opacity: 0.34;
+        radial-gradient(circle at 16% 18%, rgba(63, 110, 161, 0.20), transparent 30%),
+        radial-gradient(circle at 82% 20%, rgba(63, 110, 161, 0.12), transparent 24%),
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: auto, auto, 40px 40px, 40px 40px;
       pointer-events: none;
+      opacity: 0.62;
     }
 
     .hero-tools-inner {
       position: relative;
-      z-index: 1;
       max-width: var(--max);
       margin: 0 auto;
-      padding: 148px 34px 92px;
+      z-index: 1;
     }
 
     .hero-tools-eyebrow {
-      margin: 0 0 22px;
-      font-size: 0.72rem;
-      font-weight: 700;
+      margin: 0 0 18px;
+      font-size: 0.78rem;
       line-height: 1;
-      letter-spacing: 0.24em;
+      letter-spacing: 0.18em;
+      font-weight: 700;
       text-transform: uppercase;
-      color: rgba(245, 247, 250, 0.58);
+      color: rgba(245, 247, 250, 0.72);
     }
 
     .hero-tools h1 {
-      margin: 0 0 22px;
-      max-width: 11ch;
-      font-size: clamp(3rem, 5vw, 4.8rem);
-      line-height: 0.95;
+      margin: 0 0 18px;
+      max-width: 760px;
+      font-size: clamp(2.7rem, 5vw, 4.45rem);
+      line-height: 0.96;
       letter-spacing: -0.05em;
       font-weight: 700;
       color: #FFFFFF;
-      text-wrap: balance;
     }
 
     .hero-tools p {
+      max-width: 760px;
       margin: 0;
-      max-width: 64ch;
-      font-size: 1.08rem;
-      line-height: 1.68;
+      font-size: 1.14rem;
+      line-height: 1.82;
       color: var(--muted-light);
     }
 
     .tools-page {
-      background: var(--bg-offwhite);
-      padding: 88px 34px 92px;
-      color: var(--text-dark);
+      background: linear-gradient(180deg, var(--bg-offwhite) 0%, #FFFFFF 100%);
+      padding: 0 34px 110px;
     }
 
     .tools-page-inner {
       max-width: var(--max);
-      margin: 0 auto;
+      margin: -42px auto 0;
+      position: relative;
+      z-index: 2;
     }
 
     .tool-app {
       background: #FFFFFF;
-      border: 1px solid rgba(21, 32, 43, 0.08);
-      box-shadow:
-        0 1px 0 rgba(0,0,0,0.012),
-        0 14px 32px rgba(0,0,0,0.04);
+      border: 1px solid rgba(227, 231, 235, 0.96);
+      border-radius: 28px;
+      box-shadow: var(--card-shadow);
       overflow: hidden;
     }
 
     .tool-app-head {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 20px;
-      padding: 24px 24px 18px;
-      border-bottom: 1px solid rgba(21,32,43,0.08);
-      background: rgba(246,247,248,0.60);
-    }
-
-    .tool-app-head h3 {
-      margin: 0 0 8px;
-      font-size: 1.28rem;
-      line-height: 1.12;
-      letter-spacing: -0.024em;
-      color: var(--text-dark);
-    }
-
-    .tool-app-head p {
-      margin: 0;
-      max-width: 62ch;
-      font-size: 0.96rem;
-      line-height: 1.62;
-      color: var(--muted-dark);
-    }
-
-    .tool-privacy {
-      max-width: 360px;
-      font-size: 0.84rem;
-      line-height: 1.58;
-      color: var(--muted-dark-2);
+      padding: 34px 34px 28px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.9fr);
+      gap: 28px;
+      border-bottom: 1px solid var(--line-dark);
+      background:
+        linear-gradient(180deg, rgba(246, 247, 248, 0.86) 0%, rgba(255,255,255,0.96) 100%);
     }
 
     .tool-badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.10em;
-      text-transform: uppercase;
-      background: rgba(63, 110, 161, 0.08);
+      justify-content: center;
+      min-height: 28px;
+      padding: 0 12px;
+      margin-bottom: 14px;
+      border-radius: 999px;
+      background: rgba(63, 110, 161, 0.11);
       color: var(--accent);
-      border: 1px solid rgba(63, 110, 161, 0.12);
-      margin-bottom: 12px;
-      align-self: flex-start;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .tool-app-head h3 {
+      margin: 0 0 12px;
+      font-size: clamp(1.5rem, 2.2vw, 2rem);
+      line-height: 1.06;
+      letter-spacing: -0.03em;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .tool-app-head p,
+    .tool-privacy {
+      margin: 0;
+      font-size: 0.98rem;
+      line-height: 1.72;
+      color: var(--muted-dark);
+    }
+
+    .tool-privacy {
+      align-self: stretch;
+      padding: 18px 20px;
+      border: 1px solid var(--line-dark);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.9);
+    }
+
+    .tool-privacy strong {
+      color: var(--text-dark);
     }
 
     .tool-progress {
-      padding: 18px 24px 0;
+      padding: 24px 34px 0;
     }
 
     .tool-progress-top {
       display: flex;
-      justify-content: space-between;
-      gap: 14px;
       align-items: center;
+      justify-content: space-between;
+      gap: 16px;
       margin-bottom: 12px;
     }
 
     .tool-progress-label {
-      font-size: 0.82rem;
-      font-weight: 700;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--muted-dark-2);
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text-dark);
     }
 
     .tool-progress-time {
-      font-size: 0.86rem;
+      font-size: 0.9rem;
       color: var(--muted-dark-2);
     }
 
     .tool-progress-bar {
       width: 100%;
       height: 8px;
-      background: rgba(21,32,43,0.08);
+      border-radius: 999px;
       overflow: hidden;
+      background: #E8EDF2;
     }
 
     .tool-progress-fill {
       width: 25%;
       height: 100%;
-      background: var(--accent);
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), #6C8FB8);
       transition: width var(--transition-slow);
     }
 
     .tool-steps {
+      padding: 22px 34px 0;
       display: flex;
-      gap: 10px;
+      gap: 12px;
       flex-wrap: wrap;
-      padding: 18px 24px 0;
     }
 
     .tool-step-pill {
-      padding: 7px 11px;
-      font-size: 0.76rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted-dark-2);
-      background: rgba(21,32,43,0.04);
-      border: 1px solid rgba(21,32,43,0.08);
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+      padding: 0 16px;
+      border-radius: 999px;
+      border: 1px solid var(--line-dark);
+      background: #FFFFFF;
+      color: var(--muted-dark);
+      font-size: 0.88rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      transition: all var(--transition);
     }
 
     .tool-step-pill.is-active {
-      color: var(--accent);
-      background: rgba(63,110,161,0.08);
-      border-color: rgba(63,110,161,0.16);
+      border-color: rgba(63, 110, 161, 0.22);
+      background: rgba(63, 110, 161, 0.10);
+      color: var(--accent-dark);
     }
 
     .tool-app-body {
-      padding: 24px;
+      padding: 32px 34px 34px;
     }
 
     .tool-pane {
       display: none;
+      animation: paneFade 220ms ease;
     }
 
     .tool-pane.is-active {
       display: block;
     }
 
+    @keyframes paneFade {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     .tool-pane-title {
-      margin: 0 0 12px;
-      font-size: 1.08rem;
-      line-height: 1.18;
+      margin: 0 0 10px;
+      font-size: clamp(1.3rem, 2vw, 1.72rem);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
       font-weight: 700;
       color: var(--text-dark);
     }
 
     .tool-pane-copy {
-      margin: 0 0 18px;
-      max-width: 64ch;
-      font-size: 0.95rem;
-      line-height: 1.62;
+      margin: 0 0 26px;
+      max-width: 820px;
+      font-size: 1rem;
+      line-height: 1.76;
       color: var(--muted-dark);
     }
 
     .tool-fields {
       display: grid;
-      gap: 16px;
+      gap: 24px;
     }
 
     .tool-grid-2 {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
+      gap: 20px;
+    }
+
+    .tool-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
     }
 
     .tool-field {
       display: grid;
-      gap: 8px;
+      gap: 10px;
     }
 
-    .tool-field label {
-      font-size: 0.90rem;
-      font-weight: 500;
+    .tool-field label,
+    .tool-question-title {
+      font-size: 0.94rem;
+      line-height: 1.5;
+      font-weight: 600;
       color: var(--text-dark);
     }
 
-    .tool-field input[type="text"],
+    .tool-field input,
     .tool-field select,
     .tool-field textarea {
       width: 100%;
-      min-height: 48px;
-      padding: 12px 14px;
-      border: 1px solid rgba(21,32,43,0.12);
+      min-height: 52px;
+      border: 1px solid var(--line-dark-2);
+      border-radius: 14px;
       background: #FFFFFF;
       color: var(--text-dark);
+      padding: 0 16px;
+      outline: none;
       transition: border-color var(--transition), box-shadow var(--transition);
     }
 
     .tool-field textarea {
-      min-height: 92px;
+      min-height: 120px;
+      padding: 14px 16px;
       resize: vertical;
     }
 
-    .tool-field input[type="text"]:focus,
+    .tool-field input:focus,
     .tool-field select:focus,
     .tool-field textarea:focus {
-      outline: none;
-      border-color: rgba(63,110,161,0.48);
-      box-shadow: 0 0 0 3px rgba(63,110,161,0.10);
+      border-color: rgba(63, 110, 161, 0.65);
+      box-shadow: 0 0 0 4px rgba(63, 110, 161, 0.10);
     }
 
-    .tool-choice-group,
-    .tool-check-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .tool-choice,
-    .tool-check {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-height: 46px;
-      padding: 10px 12px;
-      border: 1px solid rgba(21,32,43,0.10);
-      background: #FFFFFF;
-      color: var(--text-dark);
-      cursor: pointer;
-    }
-
-    .tool-choice input,
-    .tool-check input {
-      margin: 0;
-      accent-color: var(--accent);
-    }
-
-    .tool-range-wrap {
-      display: grid;
-      gap: 8px;
-      padding: 14px 14px 12px;
-      border: 1px solid rgba(21,32,43,0.08);
-      background: rgba(246,247,248,0.58);
-    }
-
-    .tool-range-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      font-size: 0.90rem;
-      color: var(--muted-dark);
-    }
-
-    .tool-range-value {
-      font-weight: 700;
-      color: var(--text-dark);
-      min-width: 88px;
-      text-align: right;
-    }
-
-    .tool-range-labels {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      font-size: 0.78rem;
+    .tool-field-hint {
+      margin: -2px 0 0;
+      font-size: 0.86rem;
+      line-height: 1.5;
       color: var(--muted-dark-2);
     }
 
-    input[type="range"] {
-      width: 100%;
-      accent-color: var(--accent);
-      cursor: pointer;
+    .question-card {
+      border: 1px solid var(--line-dark);
+      border-radius: 18px;
+      padding: 20px;
+      background: linear-gradient(180deg, #FFFFFF 0%, #FCFDFD 100%);
     }
 
-    .tool-nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      margin-top: 22px;
-      padding-top: 18px;
-      border-top: 1px solid rgba(21,32,43,0.08);
+    .question-card + .question-card {
+      margin-top: 16px;
     }
 
-    .tool-nav-left,
-    .tool-nav-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .tool-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 46px;
-      padding: 0 18px;
-      background: var(--text-dark);
-      color: #FFFFFF;
-      border: 1px solid var(--text-dark);
-      font-size: 0.94rem;
-      font-weight: 500;
-      letter-spacing: -0.01em;
-      cursor: pointer;
-      transition:
-        background var(--transition),
-        border-color var(--transition),
-        transform var(--transition);
-    }
-
-    .tool-btn:hover,
-    .tool-btn:focus-visible {
-      transform: translateY(-1px);
-      outline: none;
-    }
-
-    .tool-btn-secondary {
-      background: #FFFFFF;
-      color: var(--text-dark);
-      border-color: rgba(21,32,43,0.14);
-    }
-
-    .tool-btn-secondary:hover,
-    .tool-btn-secondary:focus-visible {
-      border-color: rgba(63,110,161,0.24);
-    }
-
-    .tool-output {
-      display: grid;
-      gap: 22px;
-    }
-
-    .tool-output-intro {
-      max-width: 64ch;
-      font-size: 0.96rem;
-      line-height: 1.62;
-      color: var(--muted-dark);
-    }
-
-    .tool-results-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 22px;
-    }
-
-    .tool-result-card {
-      background: rgba(255, 255, 255, 0.95);
-      border: 1px solid rgba(21, 32, 43, 0.06);
-      padding: 34px 28px 30px;
-      min-height: 248px;
-      box-shadow: var(--soft-shadow);
-    }
-
-    .tool-result-title {
+    .question-meta {
       margin: 0 0 8px;
-      font-size: 1.02rem;
-      line-height: 1.12;
-      letter-spacing: -0.015em;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-
-    .tool-result-source {
-      margin: 0 0 26px;
       font-size: 0.76rem;
-      line-height: 1.45;
-      color: #8A95A3;
-      font-style: italic;
-    }
-
-    .tool-result-number {
-      margin: 0 0 16px;
-      font-size: clamp(2.8rem, 4vw, 4.2rem);
-      line-height: 0.88;
-      letter-spacing: -0.065em;
-      font-weight: 700;
-      color: var(--accent);
-    }
-
-    .tool-result-text {
-      margin: 0;
-      font-size: 1rem;
-      line-height: 1.58;
-      color: var(--muted-dark);
-      max-width: 24ch;
-    }
-
-    .tool-summary {
-      display: grid;
-      grid-template-columns: 240px minmax(0, 1fr);
-      gap: 22px;
-      align-items: start;
-    }
-
-    .tool-score {
-      background: rgba(63,110,161,0.08);
-      border: 1px solid rgba(63,110,161,0.16);
-      padding: 18px;
-    }
-
-    .tool-score-label {
-      margin: 0 0 10px;
-      font-size: 0.72rem;
       font-weight: 700;
       letter-spacing: 0.16em;
       text-transform: uppercase;
       color: var(--accent);
     }
 
-    .tool-score-value {
+    .choice-row {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .choice-btn {
+      appearance: none;
+      border: 1px solid var(--line-dark-2);
+      background: #FFFFFF;
+      color: var(--muted-dark);
+      border-radius: 14px;
+      min-height: 54px;
+      padding: 10px 12px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      line-height: 1.3;
+      text-align: center;
+      cursor: pointer;
+      transition:
+        border-color var(--transition),
+        background var(--transition),
+        color var(--transition),
+        transform var(--transition),
+        box-shadow var(--transition);
+    }
+
+    .choice-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(63, 110, 161, 0.38);
+      color: var(--text-dark);
+    }
+
+    .choice-btn.is-selected {
+      border-color: rgba(63, 110, 161, 0.30);
+      background: rgba(63, 110, 161, 0.10);
+      color: var(--accent-dark);
+      box-shadow: 0 0 0 3px rgba(63, 110, 161, 0.08);
+    }
+
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .checkbox-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      min-height: 60px;
+      padding: 16px;
+      border: 1px solid var(--line-dark);
+      border-radius: 16px;
+      background: #FFFFFF;
+      transition: border-color var(--transition), background var(--transition), transform var(--transition);
+      cursor: pointer;
+    }
+
+    .checkbox-card:hover {
+      transform: translateY(-1px);
+      border-color: rgba(63, 110, 161, 0.26);
+    }
+
+    .checkbox-card input {
+      margin-top: 2px;
+      accent-color: var(--accent);
+      transform: scale(1.05);
+      flex: 0 0 auto;
+    }
+
+    .checkbox-card span {
+      font-size: 0.94rem;
+      line-height: 1.55;
+      color: var(--text-dark);
+      font-weight: 500;
+    }
+
+    .tool-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-top: 28px;
+    }
+
+    .tool-nav-left,
+    .tool-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      appearance: none;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 20px;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      transition:
+        transform var(--transition),
+        background var(--transition),
+        color var(--transition),
+        border-color var(--transition),
+        box-shadow var(--transition);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #FFFFFF;
+      box-shadow: 0 8px 24px rgba(63, 110, 161, 0.18);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-dark);
+    }
+
+    .btn-secondary {
+      background: #FFFFFF;
+      color: var(--text-dark);
+      border: 1px solid var(--line-dark-2);
+    }
+
+    .btn-secondary:hover {
+      border-color: rgba(63, 110, 161, 0.35);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted-dark);
+      border: 1px solid transparent;
+    }
+
+    .results-wrap {
+      display: grid;
+      gap: 22px;
+    }
+
+    .results-top {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .result-card {
+      border: 1px solid var(--line-dark);
+      border-radius: 20px;
+      padding: 22px 22px 20px;
+      background: linear-gradient(180deg, #FFFFFF 0%, #F9FBFC 100%);
+    }
+
+    .result-card-label {
+      margin: 0 0 10px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .result-card-value {
       margin: 0 0 8px;
-      font-size: 3rem;
-      line-height: 0.95;
-      letter-spacing: -0.06em;
+      font-size: clamp(1.7rem, 3vw, 2.45rem);
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: var(--text-dark);
+    }
+
+    .result-card-copy {
+      margin: 0;
+      font-size: 0.94rem;
+      line-height: 1.66;
+      color: var(--muted-dark);
+    }
+
+    .results-main {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+      gap: 20px;
+    }
+
+    .results-panel {
+      border: 1px solid var(--line-dark);
+      border-radius: 22px;
+      padding: 24px;
+      background: #FFFFFF;
+    }
+
+    .results-panel h5 {
+      margin: 0 0 12px;
+      font-size: 1.18rem;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
       font-weight: 700;
       color: var(--text-dark);
     }
 
-    .tool-score-band {
-      margin: 0;
+    .results-panel p {
+      margin: 0 0 14px;
+      font-size: 0.98rem;
+      line-height: 1.78;
+      color: var(--muted-dark);
+    }
+
+    .results-panel p:last-child {
+      margin-bottom: 0;
+    }
+
+    .bar-group {
+      display: grid;
+      gap: 16px;
+    }
+
+    .bar-row {
+      display: grid;
+      gap: 8px;
+    }
+
+    .bar-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
       font-size: 0.92rem;
-      line-height: 1.5;
-      color: var(--muted-dark);
-    }
-
-    .tool-results h4 {
-      margin: 0 0 12px;
-      font-size: 1rem;
-      line-height: 1.2;
+      line-height: 1.4;
       color: var(--text-dark);
+      font-weight: 600;
     }
 
-    .tool-results p,
-    .tool-results li {
+    .bar-track {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: #E8EDF2;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      width: 0;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), #6C8FB8);
+      transition: width 520ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .actions-list {
+      margin: 0;
+      padding-left: 18px;
       color: var(--muted-dark);
-      font-size: 0.95rem;
-      line-height: 1.62;
     }
 
-    .tool-results ul {
-      margin: 0 0 18px 18px;
-      padding: 0;
+    .actions-list li {
+      margin: 0 0 10px;
+      line-height: 1.72;
     }
 
-    .tool-results-note {
-      margin-top: 18px;
-      padding: 16px;
-      border: 1px solid rgba(21,32,43,0.08);
-      background: rgba(246,247,248,0.62);
-      font-size: 0.90rem;
+    .actions-list li:last-child {
+      margin-bottom: 0;
+    }
+
+    .results-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding-top: 8px;
+    }
+
+    .results-note {
+      margin: 0;
+      font-size: 0.88rem;
       line-height: 1.6;
-      color: var(--muted-dark);
+      color: var(--muted-dark-2);
     }
 
     .footer {
-      background: #0D141C;
-      color: rgba(245, 247, 250, 0.88);
-      padding: 44px 34px 34px;
+      background: var(--bg-dark);
+      color: rgba(245, 247, 250, 0.74);
+      padding: 42px 34px 34px;
     }
 
     .footer-inner {
@@ -744,30 +853,32 @@
       margin: 0 auto;
     }
 
-    .footer-top {
+    .footer-top,
+    .footer-bottom {
       display: flex;
-      align-items: flex-start;
       justify-content: space-between;
-      gap: 40px;
-      padding-bottom: 28px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .footer-top {
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .footer-bottom {
+      padding-top: 24px;
     }
 
     .footer-brand {
-      max-width: 420px;
-    }
-
-    .footer-mark {
-      display: inline-flex;
-      align-items: center;
-      font-size: 1.1rem;
+      font-size: 1.08rem;
       font-weight: 700;
-      letter-spacing: -0.02em;
       color: #FFFFFF;
-      margin-bottom: 14px;
+      letter-spacing: -0.02em;
     }
 
-    .footer-mark::after {
+    .footer-brand::after {
       content: "";
       width: 6px;
       height: 6px;
@@ -778,163 +889,74 @@
       transform: translateY(-1px);
     }
 
-    .footer-copy {
-      margin: 0;
-      max-width: 36ch;
-      font-size: 0.98rem;
-      line-height: 1.65;
-      color: rgba(245, 247, 250, 0.68);
-    }
-
     .footer-nav {
       display: flex;
-      gap: 48px;
+      align-items: center;
+      gap: 26px;
       flex-wrap: wrap;
     }
 
-    .footer-nav-col {
-      min-width: 120px;
-    }
-
-    .footer-nav-title {
-      margin: 0 0 12px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(245, 247, 250, 0.50);
-    }
-
     .footer-nav a {
-      display: block;
-      margin-bottom: 10px;
-      font-size: 0.95rem;
-      line-height: 1.45;
-      color: rgba(245, 247, 250, 0.82);
-      transition: color var(--transition), transform var(--transition);
+      font-size: 0.92rem;
+      color: rgba(245, 247, 250, 0.76);
+      transition: color var(--transition);
     }
 
-    .footer-nav a:hover,
-    .footer-nav a:focus-visible {
+    .footer-nav a:hover {
       color: #FFFFFF;
-      transform: translateX(2px);
-      outline: none;
     }
 
-    .footer-bottom {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-      padding-top: 18px;
+    .footer-copy {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.6;
     }
 
     .footer-meta,
     .footer-contact {
       margin: 0;
-      font-size: 0.88rem;
-      line-height: 1.6;
-      color: rgba(245, 247, 250, 0.58);
+      font-size: 0.84rem;
+      line-height: 1.65;
+      color: rgba(245, 247, 250, 0.62);
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      html {
-        scroll-behavior: auto;
+    @media (max-width: 1120px) {
+      .tool-app-head,
+      .results-main {
+        grid-template-columns: 1fr;
       }
 
-      .header,
-      .nav a,
-      .nav a::after,
-      .tool-btn,
-      .footer-nav a,
-      .tool-progress-fill {
-        transition: none;
-      }
-    }
-
-    @media (max-width: 1100px) {
-      .tool-results-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .tool-summary {
+      .results-top {
         grid-template-columns: 1fr;
       }
     }
 
-    @media (max-width: 980px) {
-      .header {
-        height: auto;
+    @media (max-width: 900px) {
+      .tool-grid-2,
+      .tool-grid-3,
+      .choice-row,
+      .checkbox-grid {
+        grid-template-columns: 1fr;
       }
 
-      .header-inner {
-        padding: 16px 24px;
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 14px;
-      }
-
-      .nav {
-        gap: 22px;
-      }
-
-      .hero-tools-inner,
-      .tools-page,
-      .footer {
-        padding-left: 24px;
-        padding-right: 24px;
-      }
-    }
-
-    @media (max-width: 760px) {
-      .brand {
-        font-size: 1.24rem;
-      }
-
-      .nav {
-        gap: 18px;
-      }
-
-      .hero-tools-inner {
-        padding: 134px 20px 74px;
-      }
-
-      .hero-tools h1 {
-        max-width: 100%;
-        font-size: clamp(2.4rem, 8vw, 3.3rem);
-      }
-
-      .hero-tools p {
-        font-size: 1rem;
-        line-height: 1.58;
+      .hero-tools {
+        padding: 132px 24px 74px;
       }
 
       .tools-page {
-        padding: 72px 20px 72px;
+        padding: 0 24px 90px;
       }
 
-      .tool-grid-2,
-      .tool-choice-group,
-      .tool-check-grid,
-      .tool-results-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .tool-app-head {
-        padding: 20px 20px 16px;
-        flex-direction: column;
-      }
-
+      .tool-app-head,
       .tool-progress,
       .tool-steps,
       .tool-app-body {
-        padding-left: 20px;
-        padding-right: 20px;
+        padding-left: 24px;
+        padding-right: 24px;
       }
 
       .tool-nav {
-        flex-direction: column;
+        flex-direction: column-reverse;
         align-items: stretch;
       }
 
@@ -942,6 +964,59 @@
       .tool-nav-right {
         width: 100%;
         justify-content: space-between;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .header {
+        height: auto;
+      }
+
+      .header-inner {
+        padding: 16px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .nav {
+        flex-wrap: wrap;
+        gap: 18px;
+      }
+
+      .hero-tools {
+        padding: 126px 20px 68px;
+      }
+
+      .tools-page {
+        padding: 0 20px 80px;
+      }
+
+      .tool-app {
+        border-radius: 22px;
+      }
+
+      .tool-app-head,
+      .tool-progress,
+      .tool-steps,
+      .tool-app-body {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .tool-app-head {
+        padding-top: 24px;
+      }
+
+      .tool-step-pill {
+        min-height: 38px;
+        font-size: 0.82rem;
+      }
+
+      .results-panel,
+      .result-card,
+      .question-card {
+        padding: 18px;
       }
 
       .footer {
@@ -955,16 +1030,7 @@
       }
 
       .footer-nav {
-        gap: 28px;
-      }
-
-      .footer-copy {
-        font-size: 0.94rem;
-      }
-
-      .footer-meta,
-      .footer-contact {
-        font-size: 0.84rem;
+        gap: 18px;
       }
     }
   </style>
@@ -976,7 +1042,7 @@
 
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
-        <a href="diagnostic-tools.html">Diagnostic Tools</a>
+        <a href="diagnostic-tools.html" class="is-active">Diagnostic Tools</a>
         <a href="index.html#thinking">Thinking</a>
         <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
@@ -998,14 +1064,14 @@
 
   <main class="tools-page">
     <div class="tools-page-inner">
-      <div class="tool-app">
+      <div class="tool-app" id="toolApp">
         <div class="tool-app-head">
           <div>
             <div class="tool-badge">Live</div>
             <h3>Structural Clarity Snapshot</h3>
             <p>
-              A guided four-step diagnostic for one workflow or operating slice. Complete the structured inputs below
-              to estimate likely structural overhead and reveal the patterns most likely driving it.
+              A guided four-step diagnostic for one workflow or operating slice. Use it to estimate
+              likely structural overhead and surface the design conditions most likely creating it.
             </p>
           </div>
           <div class="tool-privacy">
@@ -1035,8 +1101,8 @@
           <div class="tool-pane is-active" data-step="1">
             <h4 class="tool-pane-title">Step 1 — Define the workflow</h4>
             <p class="tool-pane-copy">
-              Start with one bounded workflow. Keep it specific enough that one team, division, or operating slice
-              could clearly recognize it.
+              Start with one bounded workflow. Keep it specific enough that one team, division,
+              or operating slice could clearly recognize it.
             </p>
 
             <div class="tool-fields">
@@ -1050,13 +1116,13 @@
                   <label for="workflowType">Workflow type</label>
                   <select id="workflowType">
                     <option value="">Select one</option>
-                    <option>Approvals</option>
-                    <option>Hiring</option>
-                    <option>Procurement</option>
-                    <option>Reporting</option>
-                    <option>Product / program delivery</option>
-                    <option>Cross-functional coordination</option>
-                    <option>Escalations / exceptions</option>
+                    <option>Approvals / signoff</option>
+                    <option>Hiring / staffing</option>
+                    <option>Budget / resource allocation</option>
+                    <option>Procurement / vendor workflow</option>
+                    <option>Cross-functional delivery</option>
+                    <option>Compliance / review</option>
+                    <option>Operational support</option>
                     <option>Other</option>
                   </select>
                 </div>
@@ -1064,23 +1130,23 @@
 
               <div class="tool-grid-2">
                 <div class="tool-field">
-                  <label>Organizational scope</label>
-                  <div class="tool-choice-group">
-                    <label class="tool-choice"><input type="radio" name="scope" value="team" checked /> Team</label>
-                    <label class="tool-choice"><input type="radio" name="scope" value="division" /> Division</label>
-                    <label class="tool-choice"><input type="radio" name="scope" value="company" /> Entire company</label>
-                    <label class="tool-choice"><input type="radio" name="scope" value="other-scope" /> Other</label>
-                  </div>
+                  <label for="scope">Organizational scope</label>
+                  <select id="scope">
+                    <option value="team">Team</option>
+                    <option value="division">Division</option>
+                    <option value="company">Entire company</option>
+                    <option value="other">Other</option>
+                  </select>
                 </div>
 
                 <div class="tool-field">
-                  <label>Workflow frequency</label>
-                  <div class="tool-choice-group">
-                    <label class="tool-choice"><input type="radio" name="frequency" value="daily" /> Daily</label>
-                    <label class="tool-choice"><input type="radio" name="frequency" value="weekly" checked /> Weekly</label>
-                    <label class="tool-choice"><input type="radio" name="frequency" value="monthly" /> Monthly</label>
-                    <label class="tool-choice"><input type="radio" name="frequency" value="adhoc" /> Ad hoc</label>
-                  </div>
+                  <label for="frequency">Workflow frequency</label>
+                  <select id="frequency">
+                    <option value="daily">Daily</option>
+                    <option value="weekly" selected>Weekly</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="adhoc">Ad hoc</option>
+                  </select>
                 </div>
               </div>
 
@@ -1113,9 +1179,11 @@
             </div>
 
             <div class="tool-nav">
-              <div class="tool-nav-left"></div>
+              <div class="tool-nav-left">
+                <button class="btn btn-ghost" type="button" disabled>Back</button>
+              </div>
               <div class="tool-nav-right">
-                <button class="tool-btn" type="button" data-next>Next</button>
+                <button class="btn btn-primary" type="button" data-next>Continue</button>
               </div>
             </div>
           </div>
@@ -1123,111 +1191,84 @@
           <div class="tool-pane" data-step="2">
             <h4 class="tool-pane-title">Step 2 — Rate structural clarity</h4>
             <p class="tool-pane-copy">
-              Use the sliders to rate how clear the workflow is in practice. Lower clarity increases likely overhead.
+              These questions focus on whether the workflow is legible in practice. Lower clarity generally means higher structural overhead.
             </p>
 
             <div class="tool-fields">
-              <div class="tool-field">
-                <label for="ownershipRange">Ownership clarity</label>
-                <div class="tool-range-wrap">
-                  <div class="tool-range-top">
-                    <span>How clear is ownership?</span>
-                    <span class="tool-range-value" id="ownershipValue">Mixed</span>
-                  </div>
-                  <input id="ownershipRange" type="range" min="1" max="5" value="3" />
-                  <div class="tool-range-labels">
-                    <span>Very unclear</span>
-                    <span>Very clear</span>
-                  </div>
+              <div class="question-card">
+                <p class="question-meta">Ownership Clarity</p>
+                <div class="tool-question-title">How clear is ownership for this workflow?</div>
+                <div class="choice-row" data-question="ownership">
+                  <button class="choice-btn" type="button" data-value="1">Very unclear</button>
+                  <button class="choice-btn" type="button" data-value="2">Unclear</button>
+                  <button class="choice-btn is-selected" type="button" data-value="3">Mixed</button>
+                  <button class="choice-btn" type="button" data-value="4">Mostly clear</button>
+                  <button class="choice-btn" type="button" data-value="5">Very clear</button>
                 </div>
               </div>
 
-              <div class="tool-field">
-                <label for="authorityRange">Decision authority clarity</label>
-                <div class="tool-range-wrap">
-                  <div class="tool-range-top">
-                    <span>Who can decide?</span>
-                    <span class="tool-range-value" id="authorityValue">Mixed</span>
-                  </div>
-                  <input id="authorityRange" type="range" min="1" max="5" value="3" />
-                  <div class="tool-range-labels">
-                    <span>Very unclear</span>
-                    <span>Very clear</span>
-                  </div>
+              <div class="question-card">
+                <p class="question-meta">Authority Clarity</p>
+                <div class="tool-question-title">How clear is decision authority?</div>
+                <div class="choice-row" data-question="authority">
+                  <button class="choice-btn" type="button" data-value="1">Very unclear</button>
+                  <button class="choice-btn" type="button" data-value="2">Unclear</button>
+                  <button class="choice-btn is-selected" type="button" data-value="3">Mixed</button>
+                  <button class="choice-btn" type="button" data-value="4">Mostly clear</button>
+                  <button class="choice-btn" type="button" data-value="5">Very clear</button>
                 </div>
               </div>
 
-              <div class="tool-field">
-                <label for="handoffRange">Handoff clarity</label>
-                <div class="tool-range-wrap">
-                  <div class="tool-range-top">
-                    <span>Are handoffs explicit?</span>
-                    <span class="tool-range-value" id="handoffValue">Mixed</span>
-                  </div>
-                  <input id="handoffRange" type="range" min="1" max="5" value="3" />
-                  <div class="tool-range-labels">
-                    <span>Very unclear</span>
-                    <span>Very clear</span>
-                  </div>
+              <div class="question-card">
+                <p class="question-meta">Handoff Clarity</p>
+                <div class="tool-question-title">How explicit are the handoffs between people or teams?</div>
+                <div class="choice-row" data-question="handoff">
+                  <button class="choice-btn" type="button" data-value="1">Very unclear</button>
+                  <button class="choice-btn" type="button" data-value="2">Unclear</button>
+                  <button class="choice-btn is-selected" type="button" data-value="3">Mixed</button>
+                  <button class="choice-btn" type="button" data-value="4">Mostly clear</button>
+                  <button class="choice-btn" type="button" data-value="5">Very clear</button>
                 </div>
               </div>
 
-              <div class="tool-field">
-                <label for="escalationRange">Escalation path clarity</label>
-                <div class="tool-range-wrap">
-                  <div class="tool-range-top">
-                    <span>Are escalation paths understood?</span>
-                    <span class="tool-range-value" id="escalationValue">Mixed</span>
-                  </div>
-                  <input id="escalationRange" type="range" min="1" max="5" value="3" />
-                  <div class="tool-range-labels">
-                    <span>Very unclear</span>
-                    <span>Very clear</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="tool-field">
-                <label for="approvalRange">Approval proportionality</label>
-                <div class="tool-range-wrap">
-                  <div class="tool-range-top">
-                    <span>Are approvals proportional to risk?</span>
-                    <span class="tool-range-value" id="approvalValue">Mixed</span>
-                  </div>
-                  <input id="approvalRange" type="range" min="1" max="5" value="3" />
-                  <div class="tool-range-labels">
-                    <span>Not at all</span>
-                    <span>Very much</span>
-                  </div>
+              <div class="question-card">
+                <p class="question-meta">Review Logic</p>
+                <div class="tool-question-title">How coherent is the review and approval structure?</div>
+                <div class="choice-row" data-question="review">
+                  <button class="choice-btn" type="button" data-value="1">Very unclear</button>
+                  <button class="choice-btn" type="button" data-value="2">Unclear</button>
+                  <button class="choice-btn is-selected" type="button" data-value="3">Mixed</button>
+                  <button class="choice-btn" type="button" data-value="4">Mostly clear</button>
+                  <button class="choice-btn" type="button" data-value="5">Very clear</button>
                 </div>
               </div>
             </div>
 
             <div class="tool-nav">
               <div class="tool-nav-left">
-                <button class="tool-btn tool-btn-secondary" type="button" data-prev>Back</button>
+                <button class="btn btn-secondary" type="button" data-prev>Back</button>
               </div>
               <div class="tool-nav-right">
-                <button class="tool-btn" type="button" data-next>Next</button>
+                <button class="btn btn-primary" type="button" data-next>Continue</button>
               </div>
             </div>
           </div>
 
           <div class="tool-pane" data-step="3">
-            <h4 class="tool-pane-title">Step 3 — Identify friction patterns</h4>
+            <h4 class="tool-pane-title">Step 3 — Mark the most common friction signals</h4>
             <p class="tool-pane-copy">
-              Select the patterns that best describe the workflow. More friction patterns increase the likely overhead estimate.
+              Select the friction patterns that most often show up in the workflow you are assessing.
             </p>
 
-            <div class="tool-check-grid">
-              <label class="tool-check"><input type="checkbox" value="duplicate-approvals" /> Duplicate approvals</label>
-              <label class="tool-check"><input type="checkbox" value="unclear-owner" /> Unclear owner</label>
-              <label class="tool-check"><input type="checkbox" value="too-many-handoffs" /> Too many handoffs</label>
-              <label class="tool-check"><input type="checkbox" value="conflicting-authority" /> Conflicting authority</label>
-              <label class="tool-check"><input type="checkbox" value="reporting-burden" /> Reporting burden</label>
-              <label class="tool-check"><input type="checkbox" value="delayed-decisions" /> Delayed decisions</label>
-              <label class="tool-check"><input type="checkbox" value="workarounds-common" /> Workarounds are common</label>
-              <label class="tool-check"><input type="checkbox" value="weak-exception-handling" /> Weak exception handling</label>
+            <div class="checkbox-grid">
+              <label class="checkbox-card"><input type="checkbox" value="duplicate-approvals" /><span>Duplicate approvals</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="unclear-owner" /><span>Unclear owner</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="too-many-handoffs" /><span>Too many handoffs</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="conflicting-authority" /><span>Conflicting authority</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="reporting-burden" /><span>Reporting burden</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="delayed-decisions" /><span>Delayed decisions</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="workarounds-common" /><span>Workarounds are common</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="weak-exception-handling" /><span>Weak exception handling</span></label>
             </div>
 
             <div class="tool-fields" style="margin-top:16px;">
@@ -1239,75 +1280,124 @@
 
             <div class="tool-nav">
               <div class="tool-nav-left">
-                <button class="tool-btn tool-btn-secondary" type="button" data-prev>Back</button>
+                <button class="btn btn-secondary" type="button" data-prev>Back</button>
               </div>
               <div class="tool-nav-right">
-                <button class="tool-btn" type="button" id="generateResults">Generate results</button>
+                <button class="btn btn-primary" type="button" id="generateResults">Generate results</button>
               </div>
             </div>
           </div>
 
           <div class="tool-pane" data-step="4">
             <h4 class="tool-pane-title">Step 4 — Estimated structural overhead</h4>
-            <p class="tool-pane-copy tool-output-intro">
-              These estimates are directional and based on your selected scope, headcount, burden inputs, and generalized labor-rate assumptions.
-              They are intended to surface likely administrative overhead, not provide audited financial values.
+            <p class="tool-pane-copy">
+              These estimates are directional and based on your selected scope, headcount, burden inputs,
+              and generalized labor-rate assumptions. They are intended to surface likely administrative overhead,
+              not provide audited financial values.
             </p>
 
-            <div class="tool-output">
-              <div class="tool-results-grid">
-                <div class="tool-result-card">
-                  <div class="tool-result-title">Time</div>
-                  <p class="tool-result-source"><em>* rough directional estimate based on your inputs</em></p>
-                  <div class="tool-result-number" id="timeTile">0 hrs</div>
-                  <p class="tool-result-text" id="timeTileText">Estimated labor hours absorbed by structural overhead each month.</p>
+            <div class="results-wrap">
+              <div class="results-top">
+                <div class="result-card">
+                  <p class="result-card-label">Time</p>
+                  <div class="result-card-value" id="timeTile">—</div>
+                  <p class="result-card-copy" id="timeTileText">Estimated labor hours absorbed by structural overhead each month.</p>
                 </div>
 
-                <div class="tool-result-card">
-                  <div class="tool-result-title">Money</div>
-                  <p class="tool-result-source"><em>* rough directional estimate based on blended labor-rate assumptions</em></p>
-                  <div class="tool-result-number" id="moneyTile">$0</div>
-                  <p class="tool-result-text" id="moneyTileText">Estimated monthly cost equivalent of structural overhead.</p>
+                <div class="result-card">
+                  <p class="result-card-label">Money</p>
+                  <div class="result-card-value" id="moneyTile">—</div>
+                  <p class="result-card-copy" id="moneyTileText">Estimated monthly cost equivalent of structural overhead.</p>
                 </div>
 
-                <div class="tool-result-card">
-                  <div class="tool-result-title">Resources</div>
-                  <p class="tool-result-source"><em>* rough directional estimate of productive capacity absorbed</em></p>
-                  <div class="tool-result-number" id="resourceTile">0%</div>
-                  <p class="tool-result-text" id="resourceTileText">Estimated productive capacity consumed by structural burden.</p>
+                <div class="result-card">
+                  <p class="result-card-label">Structural Risk</p>
+                  <div class="result-card-value" id="riskTile">—</div>
+                  <p class="result-card-copy" id="riskTileText">Directional read on how strongly clarity breakdown appears to be affecting the workflow.</p>
                 </div>
               </div>
 
-              <div class="tool-summary">
-                <div class="tool-score">
-                  <p class="tool-score-label">Clarity Index</p>
-                  <p class="tool-score-value" id="scoreValue">0</p>
-                  <p class="tool-score-band" id="scoreBand">Low burden</p>
+              <div class="results-main">
+                <div class="results-panel">
+                  <h5>Interpretation</h5>
+                  <p id="resultSummary">Complete the assessment to generate your structural clarity profile.</p>
+
+                  <h5 style="margin-top:22px;">Most likely drivers</h5>
+                  <ul class="actions-list" id="resultDrivers">
+                    <li>Complete the assessment to generate drivers.</li>
+                  </ul>
+
+                  <h5 style="margin-top:22px;">Most likely interventions</h5>
+                  <ul class="actions-list" id="resultActions">
+                    <li>Complete the assessment to generate recommendations.</li>
+                  </ul>
                 </div>
 
-                <div class="tool-results">
-                  <h4>Interpretation</h4>
-                  <p id="resultSummary">Your summary will appear here.</p>
+                <div class="results-panel">
+                  <h5>Clarity profile</h5>
 
-                  <h4>Most likely drivers</h4>
-                  <ul id="resultDrivers"></ul>
+                  <div class="bar-group">
+                    <div class="bar-row">
+                      <div class="bar-top">
+                        <span>Ownership Clarity Gap</span>
+                        <span id="ownershipBarLabel">0%</span>
+                      </div>
+                      <div class="bar-track">
+                        <div class="bar-fill" id="ownershipBar"></div>
+                      </div>
+                    </div>
 
-                  <h4>Most likely interventions</h4>
-                  <ul id="resultActions"></ul>
+                    <div class="bar-row">
+                      <div class="bar-top">
+                        <span>Authority Clarity Gap</span>
+                        <span id="authorityBarLabel">0%</span>
+                      </div>
+                      <div class="bar-track">
+                        <div class="bar-fill" id="authorityBar"></div>
+                      </div>
+                    </div>
 
-                  <div class="tool-results-note" id="resultCaveat">
-                    These results are a bounded snapshot intended to make hidden burden more visible. They should be read as a directional estimate, not as a substitute for deeper organizational assessment.
+                    <div class="bar-row">
+                      <div class="bar-top">
+                        <span>Handoff Clarity Gap</span>
+                        <span id="handoffBarLabel">0%</span>
+                      </div>
+                      <div class="bar-track">
+                        <div class="bar-fill" id="handoffBar"></div>
+                      </div>
+                    </div>
+
+                    <div class="bar-row">
+                      <div class="bar-top">
+                        <span>Review Logic Gap</span>
+                        <span id="reviewBarLabel">0%</span>
+                      </div>
+                      <div class="bar-track">
+                        <div class="bar-fill" id="reviewBar"></div>
+                      </div>
+                    </div>
                   </div>
+                </div>
+              </div>
+
+              <div class="results-foot">
+                <p class="results-note">
+                  Directional diagnostic only. This tool estimates likely structural overhead and clarity gaps;
+                  it does not replace workflow mapping, operating review, or leadership judgment.
+                </p>
+
+                <div class="tool-nav-right" style="padding:0;">
+                  <button class="btn btn-secondary" type="button" id="resetTool">Reset tool</button>
                 </div>
               </div>
             </div>
 
             <div class="tool-nav">
               <div class="tool-nav-left">
-                <button class="tool-btn tool-btn-secondary" type="button" data-prev>Back</button>
+                <button class="btn btn-secondary" type="button" data-prev>Back</button>
               </div>
               <div class="tool-nav-right">
-                <button class="tool-btn tool-btn-secondary" type="button" id="resetTool">Reset</button>
+                <a class="btn btn-primary" href="diagnostic-tools.html">Back to tools</a>
               </div>
             </div>
           </div>
@@ -1319,305 +1409,323 @@
   <footer class="footer">
     <div class="footer-inner">
       <div class="footer-top">
-        <div class="footer-brand">
-          <div class="footer-mark">Monderman</div>
-          <p class="footer-copy">
-            Advisory thinking on institutional performance, decision velocity, and the design of systems that sustain clarity under complexity.
-          </p>
-        </div>
+        <div class="footer-brand">Monderman</div>
 
-        <div class="footer-nav" aria-label="Footer navigation">
-          <div class="footer-nav-col">
-            <p class="footer-nav-title">Explore</p>
-            <a href="index.html#approach">Approach</a>
-            <a href="diagnostic-tools.html">Diagnostic Tools</a>
-            <a href="index.html#thinking">Thinking</a>
-            <a href="research.html">Research</a>
-            <a href="why-monderman.html">Why Monderman</a>
-          </div>
-
-          <div class="footer-nav-col">
-            <p class="footer-nav-title">Connect</p>
-            <a href="mailto:connect@monderman.com">connect@monderman.com</a>
-          </div>
-        </div>
+        <nav class="footer-nav" aria-label="Footer navigation">
+          <a href="index.html#approach">Approach</a>
+          <a href="diagnostic-tools.html">Diagnostic Tools</a>
+          <a href="index.html#thinking">Thinking</a>
+          <a href="research.html">Research</a>
+          <a href="why-monderman.html">Why Monderman</a>
+          <a href="index.html#connect">Connect</a>
+        </nav>
       </div>
 
       <div class="footer-bottom">
-        <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
-        <p class="footer-contact">Clarity for complex institutions.</p>
+        <p class="footer-copy">Turning complexity into capability.</p>
+        <p class="footer-meta">Institutional design, decision velocity, and performance in complex environments.</p>
+        <p class="footer-contact">Contact: connect@monderman.com</p>
       </div>
     </div>
   </footer>
 
   <script>
-    const header = document.getElementById("siteHeader");
+    (function () {
+      const header = document.getElementById("siteHeader");
+      const toolApp = document.getElementById("toolApp");
+      const panes = Array.from(document.querySelectorAll(".tool-pane"));
+      const pills = Array.from(document.querySelectorAll(".tool-step-pill"));
+      const progressLabel = document.getElementById("progressLabel");
+      const progressFill = document.getElementById("progressFill");
 
-    function updateHeader() {
-      if (!header) return;
-      if (window.scrollY > 12) {
-        header.classList.add("scrolled");
-      } else {
-        header.classList.remove("scrolled");
-      }
-    }
+      let currentStep = 1;
 
-    updateHeader();
-    window.addEventListener("scroll", updateHeader, { passive: true });
-
-    const panes = Array.from(document.querySelectorAll(".tool-pane"));
-    const stepPills = Array.from(document.querySelectorAll(".tool-step-pill"));
-    const progressFill = document.getElementById("progressFill");
-    const progressLabel = document.getElementById("progressLabel");
-    let currentStep = 0;
-
-    function showStep(index) {
-      currentStep = Math.max(0, Math.min(index, panes.length - 1));
-      panes.forEach((pane, i) => pane.classList.toggle("is-active", i === currentStep));
-      stepPills.forEach((pill, i) => pill.classList.toggle("is-active", i === currentStep));
-      progressFill.style.width = `${((currentStep + 1) / panes.length) * 100}%`;
-      progressLabel.textContent = `Step ${currentStep + 1} of ${panes.length}`;
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    document.querySelectorAll("[data-next]").forEach((btn) => {
-      btn.addEventListener("click", () => showStep(currentStep + 1));
-    });
-
-    document.querySelectorAll("[data-prev]").forEach((btn) => {
-      btn.addEventListener("click", () => showStep(currentStep - 1));
-    });
-
-    function bindRange(inputId, valueId, mode = "clarity") {
-      const input = document.getElementById(inputId);
-      const value = document.getElementById(valueId);
-      if (!input || !value) return;
-
-      function update() {
-        const v = Number(input.value);
-        let label;
-        if (mode === "approval") {
-          label = ["Very poor fit", "Poor fit", "Mixed", "Mostly fit", "Strong fit"][v - 1];
-        } else {
-          label = ["Very unclear", "Unclear", "Mixed", "Mostly clear", "Very clear"][v - 1];
-        }
-        value.textContent = label;
-      }
-
-      input.addEventListener("input", update);
-      update();
-    }
-
-    bindRange("ownershipRange", "ownershipValue", "clarity");
-    bindRange("authorityRange", "authorityValue", "clarity");
-    bindRange("handoffRange", "handoffValue", "clarity");
-    bindRange("escalationRange", "escalationValue", "clarity");
-    bindRange("approvalRange", "approvalValue", "approval");
-
-    function getSelectedRadio(name) {
-      const el = document.querySelector(`input[name="${name}"]:checked`);
-      return el ? el.value : "";
-    }
-
-    function formatHours(num) {
-      if (num >= 1000) return `${Math.round(num).toLocaleString()} hrs`;
-      return `${Math.round(num)} hrs`;
-    }
-
-    function formatMoney(num) {
-      if (num >= 1000000) return `$${(num / 1000000).toFixed(1)}M`;
-      if (num >= 1000) return `$${Math.round(num).toLocaleString()}`;
-      return `$${Math.round(num)}`;
-    }
-
-    function scoreBand(score) {
-      if (score < 35) return "Low estimated burden";
-      if (score < 60) return "Moderate estimated burden";
-      if (score < 80) return "High estimated burden";
-      return "Severe estimated burden";
-    }
-
-    function resourceBand(pct) {
-      if (pct < 8) return "limited but visible overhead";
-      if (pct < 15) return "meaningful overhead load";
-      if (pct < 22) return "heavy overhead burden";
-      return "very high overhead absorption";
-    }
-
-    function buildDrivers(checkedValues, clarityAverage) {
-      const drivers = [];
-
-      if (checkedValues.includes("duplicate-approvals")) drivers.push("Approval density appears to be consuming more time than the underlying work requires.");
-      if (checkedValues.includes("unclear-owner")) drivers.push("Ambiguous ownership is likely forcing rework, delay, and unnecessary coordination.");
-      if (checkedValues.includes("too-many-handoffs")) drivers.push("Excessive handoffs suggest the workflow is fragmented across too many points of transfer.");
-      if (checkedValues.includes("conflicting-authority")) drivers.push("Conflicting authority likely creates hesitation, duplication, and escalation loops.");
-      if (checkedValues.includes("reporting-burden")) drivers.push("Reporting and documentation demands appear to be absorbing a meaningful share of productive effort.");
-      if (checkedValues.includes("delayed-decisions")) drivers.push("Decision latency is likely translating directly into stalled progress and queue buildup.");
-      if (checkedValues.includes("workarounds-common")) drivers.push("Frequent workarounds suggest the formal process is no longer aligned with how work actually moves.");
-      if (checkedValues.includes("weak-exception-handling")) drivers.push("Weak exception handling likely causes edge cases to trigger slow, manual escalation patterns.");
-
-      if (clarityAverage < 3 && drivers.length < 3) {
-        drivers.push("Low structural clarity across the workflow is likely amplifying overhead independent of workload volume.");
-      }
-
-      return drivers.slice(0, 3);
-    }
-
-    function buildActions(score, checkedValues, clarityAverage) {
-      const actions = [];
-
-      if (checkedValues.includes("unclear-owner") || clarityAverage < 3) {
-        actions.push("Clarify one accountable owner for each major stage of the workflow.");
-      }
-      if (checkedValues.includes("duplicate-approvals") || checkedValues.includes("delayed-decisions")) {
-        actions.push("Reduce approval layers and compress approvals to those proportional to real risk.");
-      }
-      if (checkedValues.includes("too-many-handoffs")) {
-        actions.push("Redesign handoffs so responsibility transfers are explicit and fewer in number.");
-      }
-      if (checkedValues.includes("conflicting-authority")) {
-        actions.push("Resolve conflicting decision rights before adding new controls or escalation rules.");
-      }
-      if (checkedValues.includes("workarounds-common") || checkedValues.includes("weak-exception-handling")) {
-        actions.push("Strengthen exception paths so edge cases do not require improvised workarounds.");
-      }
-      if (checkedValues.includes("reporting-burden")) {
-        actions.push("Remove reporting obligations that do not clearly support decisions, accountability, or risk management.");
-      }
-      if (actions.length < 3 && score >= 60) {
-        actions.push("Run a deeper structural review of the workflow rather than relying on local workarounds.");
-      }
-
-      return actions.slice(0, 3);
-    }
-
-    function generateSummary(data) {
-      const scopeText =
-        data.scope === "team" ? "team-level" :
-        data.scope === "division" ? "division-level" :
-        data.scope === "company" ? "enterprise-level" :
-        "workflow-level";
-
-      const burdenText = scoreBand(data.score).replace("estimated ", "");
-      return `This ${scopeText} snapshot suggests ${burdenText.toLowerCase()} driven by the combination of workload loss, structural ambiguity, and friction inside the selected workflow. Based on your inputs, structural overhead is likely consuming a meaningful share of available labor capacity rather than acting as a minor background cost. The strongest signal here is not simply work volume, but the way ownership, authority, handoffs, and reporting demands are interacting to absorb productive effort.`;
-    }
-
-    function calculateResults() {
-      const scope = getSelectedRadio("scope");
-      const frequency = getSelectedRadio("frequency");
-      const headcount = Number(document.getElementById("headcount").value);
-      const hoursLost = Number(document.getElementById("hoursLost").value);
-
-      const ownership = Number(document.getElementById("ownershipRange").value);
-      const authority = Number(document.getElementById("authorityRange").value);
-      const handoff = Number(document.getElementById("handoffRange").value);
-      const escalation = Number(document.getElementById("escalationRange").value);
-      const approval = Number(document.getElementById("approvalRange").value);
-
-      const checkedValues = Array.from(document.querySelectorAll('.tool-check input:checked')).map(el => el.value);
-
-      const scopeRate = scope === "team" ? 75 : scope === "division" ? 90 : scope === "company" ? 110 : 85;
-      const frequencyFactor = frequency === "daily" ? 4.3 : frequency === "weekly" ? 4 : frequency === "monthly" ? 1 : 2;
-      const clarityAverage = (ownership + authority + handoff + escalation + approval) / 5;
-
-      const clarityPenalty = (6 - clarityAverage) * 0.10;
-      const frictionPenalty = checkedValues.length * 0.05;
-      const scopePressure = scope === "company" ? 0.15 : scope === "division" ? 0.08 : 0;
-
-      const multiplier = 1 + clarityPenalty + frictionPenalty + scopePressure;
-      const monthlyHours = headcount * hoursLost * frequencyFactor * multiplier;
-      const monthlyCost = monthlyHours * scopeRate;
-      const resourcePct = Math.min(30, ((hoursLost * multiplier) / 40) * 100);
-
-      const score = Math.min(
-        100,
-        Math.round(
-          (resourcePct * 2.2) +
-          ((checkedValues.length / 8) * 22) +
-          ((6 - clarityAverage) * 12)
-        )
-      );
-
-      return {
-        scope,
-        headcount,
-        monthlyHours,
-        monthlyCost,
-        resourcePct,
-        score,
-        clarityAverage,
-        checkedValues
+      const answers = {
+        ownership: 3,
+        authority: 3,
+        handoff: 3,
+        review: 3
       };
-    }
 
-    function renderResults(data) {
-      document.getElementById("timeTile").textContent = formatHours(data.monthlyHours);
-      document.getElementById("timeTileText").textContent =
-        `Estimated labor hours absorbed by structural overhead each month across approximately ${data.headcount.toLocaleString()} affected people.`;
+      function handleScrollHeader() {
+        if (window.scrollY > 10) {
+          header.classList.add("scrolled");
+        } else {
+          header.classList.remove("scrolled");
+        }
+      }
 
-      document.getElementById("moneyTile").textContent = formatMoney(data.monthlyCost);
-      document.getElementById("moneyTileText").textContent =
-        `Estimated monthly cost equivalent based on generalized blended labor-rate assumptions for the selected scope.`;
+      handleScrollHeader();
+      window.addEventListener("scroll", handleScrollHeader, { passive: true });
 
-      document.getElementById("resourceTile").textContent = `${Math.round(data.resourcePct)}%`;
-      document.getElementById("resourceTileText").textContent =
-        `Estimated productive capacity absorbed by structural burden — ${resourceBand(data.resourcePct)}.`;
+      function scrollToToolTop() {
+        const top = toolApp.getBoundingClientRect().top + window.pageYOffset - 92;
+        window.scrollTo({ top, behavior: "smooth" });
+      }
 
-      document.getElementById("scoreValue").textContent = data.score;
-      document.getElementById("scoreBand").textContent = scoreBand(data.score);
-      document.getElementById("resultSummary").textContent = generateSummary(data);
+      function showStep(step, doScroll = true) {
+        currentStep = step;
 
-      const drivers = buildDrivers(data.checkedValues, data.clarityAverage);
-      const actions = buildActions(data.score, data.checkedValues, data.clarityAverage);
+        panes.forEach((pane) => {
+          pane.classList.toggle("is-active", Number(pane.dataset.step) === step);
+        });
 
-      const driversList = document.getElementById("resultDrivers");
-      const actionsList = document.getElementById("resultActions");
-      driversList.innerHTML = "";
-      actionsList.innerHTML = "";
+        pills.forEach((pill, index) => {
+          pill.classList.toggle("is-active", index === step - 1);
+        });
 
-      drivers.forEach((item) => {
-        const li = document.createElement("li");
-        li.textContent = item;
-        driversList.appendChild(li);
+        progressLabel.textContent = `Step ${step} of 4`;
+        progressFill.style.width = `${(step / 4) * 100}%`;
+
+        if (doScroll) {
+          scrollToToolTop();
+        }
+      }
+
+      function bindChoiceRows() {
+        const rows = document.querySelectorAll(".choice-row");
+
+        rows.forEach((row) => {
+          const questionKey = row.dataset.question;
+          const buttons = Array.from(row.querySelectorAll(".choice-btn"));
+
+          buttons.forEach((btn) => {
+            btn.addEventListener("click", function (event) {
+              event.preventDefault();
+              answers[questionKey] = Number(btn.dataset.value);
+              buttons.forEach((b) => b.classList.remove("is-selected"));
+              btn.classList.add("is-selected");
+            });
+          });
+        });
+      }
+
+      function stepNav() {
+        document.querySelectorAll("[data-next]").forEach((button) => {
+          button.addEventListener("click", function () {
+            if (currentStep >= 4) return;
+            showStep(Math.min(4, currentStep + 1));
+          });
+        });
+
+        document.querySelectorAll("[data-prev]").forEach((button) => {
+          button.addEventListener("click", function () {
+            if (currentStep <= 1) return;
+            showStep(Math.max(1, currentStep - 1));
+          });
+        });
+      }
+
+      function scopeMultiplier(scope) {
+        return {
+          team: 1,
+          division: 1.15,
+          company: 1.35,
+          other: 1.1
+        }[scope] || 1;
+      }
+
+      function frequencyMultiplier(freq) {
+        return {
+          daily: 4.2,
+          weekly: 1,
+          monthly: 0.32,
+          adhoc: 0.18
+        }[freq] || 1;
+      }
+
+      function riskBand(score) {
+        if (score < 30) return "Low";
+        if (score < 55) return "Moderate";
+        if (score < 75) return "Elevated";
+        return "Severe";
+      }
+
+      function currency(n) {
+        return new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+          maximumFractionDigits: 0
+        }).format(n);
+      }
+
+      function checkedValues() {
+        return Array.from(document.querySelectorAll('.checkbox-card input:checked')).map(el => el.value);
+      }
+
+      function buildDrivers(data) {
+        const drivers = [];
+        const checked = data.checked;
+
+        if (data.gapScores.ownership > 55) drivers.push("Ownership appears insufficiently defined for the workflow being assessed.");
+        if (data.gapScores.authority > 55) drivers.push("Decision rights appear diffuse or insufficiently matched to the work.");
+        if (data.gapScores.handoff > 55) drivers.push("Handoffs appear to be underspecified, increasing coordination burden.");
+        if (data.gapScores.review > 55) drivers.push("The review structure appears heavier or less coherent than the workflow requires.");
+        if (checked.includes("duplicate-approvals")) drivers.push("Duplicate approvals are likely increasing cycle time without proportional value.");
+        if (checked.includes("conflicting-authority")) drivers.push("Conflicting authority signals are likely creating hesitation or rework.");
+        if (checked.includes("workarounds-common")) drivers.push("Frequent workarounds suggest the formal workflow no longer reflects actual work.");
+        if (checked.includes("weak-exception-handling")) drivers.push("Weak exception handling appears to be pushing irregular cases into improvised pathways.");
+
+        return drivers.slice(0, 3);
+      }
+
+      function buildActions(data) {
+        const actions = [];
+        const checked = data.checked;
+
+        if (data.gapScores.ownership > 50) actions.push("Assign one visible owner for the workflow and make that ownership legible to all participants.");
+        if (data.gapScores.authority > 50) actions.push("Clarify decision authority and reduce ambiguity around who can approve, reject, or escalate.");
+        if (data.gapScores.handoff > 50) actions.push("Define handoff points explicitly so work does not rely on memory, interpretation, or informal routing.");
+        if (data.gapScores.review > 50) actions.push("Simplify review logic so oversight is proportional to the actual risk and complexity involved.");
+        if (checked.includes("duplicate-approvals") || checked.includes("delayed-decisions")) actions.push("Remove redundant review steps and separate true control points from inherited ritual.");
+        if (checked.includes("workarounds-common")) actions.push("Document common workarounds and use them as clues for redesign rather than tolerating them indefinitely.");
+        if (actions.length < 3) actions.push("Map the workflow visually and test whether the current structure still matches how work actually moves.");
+
+        return actions.slice(0, 3);
+      }
+
+      function calculateResults() {
+        const headcount = Number(document.getElementById("headcount").value);
+        const hoursLost = Number(document.getElementById("hoursLost").value);
+        const scope = document.getElementById("scope").value;
+        const frequency = document.getElementById("frequency").value;
+
+        const checked = checkedValues();
+        const clarityAverage = (answers.ownership + answers.authority + answers.handoff + answers.review) / 4;
+        const clarityGap = (6 - clarityAverage) / 5;
+
+        const gapScores = {
+          ownership: Math.round(((6 - answers.ownership) / 5) * 100),
+          authority: Math.round(((6 - answers.authority) / 5) * 100),
+          handoff: Math.round(((6 - answers.handoff) / 5) * 100),
+          review: Math.round(((6 - answers.review) / 5) * 100)
+        };
+
+        const multiplier =
+          scopeMultiplier(scope) *
+          frequencyMultiplier(frequency) *
+          (1 + (checked.length * 0.06)) *
+          (1 + (clarityGap * 0.55));
+
+        const monthlyHours = Math.round(headcount * hoursLost * 4 * multiplier);
+        const monthlyCost = Math.round(monthlyHours * 62);
+        const riskScore = Math.min(
+          100,
+          Math.round(
+            (clarityGap * 58) +
+            (checked.length * 4.5) +
+            (scopeMultiplier(scope) * 10)
+          )
+        );
+
+        return {
+          headcount,
+          hoursLost,
+          scope,
+          frequency,
+          checked,
+          gapScores,
+          monthlyHours,
+          monthlyCost,
+          riskScore
+        };
+      }
+
+      function renderResults(data) {
+        document.getElementById("timeTile").textContent = `${data.monthlyHours.toLocaleString()} hrs`;
+        document.getElementById("moneyTile").textContent = currency(data.monthlyCost);
+        document.getElementById("riskTile").textContent = riskBand(data.riskScore);
+
+        const summary = `This snapshot suggests ${riskBand(data.riskScore).toLowerCase()} structural overhead inside the selected workflow. The strongest signal is that the workflow appears to be carrying more ambiguity in ownership, authority, handoffs, or review logic than its current operating rhythm can absorb cleanly. In practical terms, structural clarity appears to be lagging behind the needs of execution.`;
+
+        document.getElementById("resultSummary").textContent = summary;
+
+        const driversList = document.getElementById("resultDrivers");
+        const actionsList = document.getElementById("resultActions");
+        driversList.innerHTML = "";
+        actionsList.innerHTML = "";
+
+        buildDrivers(data).forEach((item) => {
+          const li = document.createElement("li");
+          li.textContent = item;
+          driversList.appendChild(li);
+        });
+
+        buildActions(data).forEach((item) => {
+          const li = document.createElement("li");
+          li.textContent = item;
+          actionsList.appendChild(li);
+        });
+
+        document.getElementById("ownershipBarLabel").textContent = `${data.gapScores.ownership}%`;
+        document.getElementById("authorityBarLabel").textContent = `${data.gapScores.authority}%`;
+        document.getElementById("handoffBarLabel").textContent = `${data.gapScores.handoff}%`;
+        document.getElementById("reviewBarLabel").textContent = `${data.gapScores.review}%`;
+
+        document.getElementById("ownershipBar").style.width = `${data.gapScores.ownership}%`;
+        document.getElementById("authorityBar").style.width = `${data.gapScores.authority}%`;
+        document.getElementById("handoffBar").style.width = `${data.gapScores.handoff}%`;
+        document.getElementById("reviewBar").style.width = `${data.gapScores.review}%`;
+      }
+
+      function resetTool() {
+        document.getElementById("workflowName").value = "";
+        document.getElementById("workflowType").value = "";
+        document.getElementById("scope").value = "team";
+        document.getElementById("frequency").value = "weekly";
+        document.getElementById("headcount").value = "8";
+        document.getElementById("hoursLost").value = "3";
+        document.getElementById("contextNotes").value = "";
+
+        answers.ownership = 3;
+        answers.authority = 3;
+        answers.handoff = 3;
+        answers.review = 3;
+
+        document.querySelectorAll(".choice-row").forEach((row) => {
+          const key = row.dataset.question;
+          const buttons = row.querySelectorAll(".choice-btn");
+          buttons.forEach((btn) => {
+            btn.classList.toggle("is-selected", Number(btn.dataset.value) === answers[key]);
+          });
+        });
+
+        document.querySelectorAll('.checkbox-card input').forEach(el => {
+          el.checked = false;
+        });
+
+        document.getElementById("timeTile").textContent = "—";
+        document.getElementById("moneyTile").textContent = "—";
+        document.getElementById("riskTile").textContent = "—";
+        document.getElementById("resultSummary").textContent = "Complete the assessment to generate your structural clarity profile.";
+        document.getElementById("resultDrivers").innerHTML = "<li>Complete the assessment to generate drivers.</li>";
+        document.getElementById("resultActions").innerHTML = "<li>Complete the assessment to generate recommendations.</li>";
+
+        document.getElementById("ownershipBarLabel").textContent = "0%";
+        document.getElementById("authorityBarLabel").textContent = "0%";
+        document.getElementById("handoffBarLabel").textContent = "0%";
+        document.getElementById("reviewBarLabel").textContent = "0%";
+
+        document.getElementById("ownershipBar").style.width = "0%";
+        document.getElementById("authorityBar").style.width = "0%";
+        document.getElementById("handoffBar").style.width = "0%";
+        document.getElementById("reviewBar").style.width = "0%";
+
+        showStep(1);
+      }
+
+      bindChoiceRows();
+      stepNav();
+
+      document.getElementById("generateResults").addEventListener("click", function () {
+        renderResults(calculateResults());
+        showStep(4);
       });
 
-      actions.forEach((item) => {
-        const li = document.createElement("li");
-        li.textContent = item;
-        actionsList.appendChild(li);
-      });
+      document.getElementById("resetTool").addEventListener("click", resetTool);
 
-      showStep(3);
-    }
-
-    document.getElementById("generateResults").addEventListener("click", () => {
-      const data = calculateResults();
-      renderResults(data);
-    });
-
-    document.getElementById("resetTool").addEventListener("click", () => {
-      document.getElementById("workflowName").value = "";
-      document.getElementById("workflowType").value = "";
-      document.getElementById("headcount").value = "8";
-      document.getElementById("hoursLost").value = "3";
-      document.querySelector('input[name="scope"][value="team"]').checked = true;
-      document.querySelector('input[name="frequency"][value="weekly"]').checked = true;
-      document.getElementById("ownershipRange").value = "3";
-      document.getElementById("authorityRange").value = "3";
-      document.getElementById("handoffRange").value = "3";
-      document.getElementById("escalationRange").value = "3";
-      document.getElementById("approvalRange").value = "3";
-      document.getElementById("contextNotes").value = "";
-      document.querySelectorAll('.tool-check input').forEach(el => el.checked = false);
-
-      bindRange("ownershipRange", "ownershipValue", "clarity");
-      bindRange("authorityRange", "authorityValue", "clarity");
-      bindRange("handoffRange", "handoffValue", "clarity");
-      bindRange("escalationRange", "escalationValue", "clarity");
-      bindRange("approvalRange", "approvalValue", "approval");
-
-      showStep(0);
-    });
+      showStep(1, false);
+    })();
   </script>
 </body>
 </html>
