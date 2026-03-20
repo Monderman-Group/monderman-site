@@ -116,7 +116,7 @@
       font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
     }
 
-    h1, h2, h3 {
+    h1, h2, h3, h4 {
       letter-spacing: -0.048em;
     }
 
@@ -127,11 +127,6 @@
     a {
       color: inherit;
       text-decoration: none;
-    }
-
-    img {
-      max-width: 100%;
-      display: block;
     }
 
     button {
@@ -289,51 +284,9 @@
       inset: 0;
       background:
         radial-gradient(circle at 78% 16%, rgba(63, 110, 161, 0.14), transparent 24%),
-        linear-gradient(135deg, rgba(63, 110, 161, 0.03) 1px, transparent 1px);
-      background-size: auto, 34px 34px;
-      opacity: 0.38;
+        radial-gradient(circle at 18% 82%, rgba(63, 110, 161, 0.06), transparent 22%);
+      opacity: 0.9;
       pointer-events: none;
-    }
-
-    .hero-anchor {
-      position: absolute;
-      inset: 0;
-      overflow: hidden;
-      pointer-events: none;
-      opacity: 0.34;
-    }
-
-    .hero-anchor-grid {
-      position: absolute;
-      right: 7%;
-      top: 17%;
-      width: min(39vw, 520px);
-      height: min(28vw, 380px);
-      border: 1px solid rgba(255, 255, 255, 0.07);
-      background:
-        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
-      background-size: 32px 32px, 32px 32px;
-    }
-
-    .hero-anchor-grid::before,
-    .hero-anchor-grid::after {
-      content: "";
-      position: absolute;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      background: rgba(255, 255, 255, 0.015);
-    }
-
-    .hero-anchor-grid::before {
-      inset: 14% 10% auto auto;
-      width: 54%;
-      height: 48%;
-    }
-
-    .hero-anchor-grid::after {
-      inset: auto auto 12% 12%;
-      width: 48%;
-      height: 40%;
     }
 
     .hero-inner {
@@ -342,13 +295,13 @@
       max-width: var(--max);
       min-height: 100vh;
       margin: 0 auto;
-      padding: 146px 34px 108px;
+      padding: 148px 34px 108px;
       display: flex;
       align-items: center;
     }
 
     .hero-copy {
-      max-width: 740px;
+      max-width: 960px;
     }
 
     .hero-eyebrow,
@@ -374,9 +327,9 @@
 
     .hero h1 {
       margin: 0 0 24px;
-      max-width: 11.6ch;
-      font-size: clamp(3rem, 5.1vw, 4.8rem);
-      line-height: 0.96;
+      max-width: 18ch;
+      font-size: clamp(2.85rem, 4.8vw, 4.7rem);
+      line-height: 0.98;
       font-weight: 700;
       color: #FFFFFF;
       text-wrap: balance;
@@ -384,10 +337,10 @@
     }
 
     .hero p {
-      max-width: 44ch;
+      max-width: 54ch;
       margin: 0;
-      font-size: clamp(1.08rem, 1.4vw, 1.18rem);
-      line-height: 1.62;
+      font-size: clamp(1.05rem, 1.34vw, 1.16rem);
+      line-height: 1.66;
       color: var(--muted-light);
       text-wrap: balance;
       animation-delay: 520ms;
@@ -509,20 +462,9 @@
     .engagements {
       position: relative;
       background: var(--bg-white);
-      padding: 108px 34px 98px;
+      padding: 108px 34px 102px;
       color: var(--text-dark);
       overflow: hidden;
-    }
-
-    .engagements::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(135deg, rgba(63, 110, 161, 0.018) 1px, transparent 1px);
-      background-size: 36px 36px;
-      opacity: 0.38;
-      pointer-events: none;
     }
 
     .engagements-inner {
@@ -533,22 +475,22 @@
     }
 
     .engagements-layout {
-      margin-top: 42px;
+      margin-top: 44px;
       display: grid;
       grid-template-columns: minmax(0, 1fr);
-      gap: 24px;
+      gap: 28px;
     }
 
     .engagement-tiles {
       display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 16px;
+      gap: 18px;
     }
 
     .engagement-tile {
       position: relative;
-      padding: 28px 22px 28px;
-      min-height: 276px;
+      padding: 30px 24px 30px;
+      min-height: 308px;
       background: #FFFFFF;
       border: 1px solid rgba(21, 32, 43, 0.08);
       box-shadow: var(--soft-shadow);
@@ -594,20 +536,10 @@
         0 10px 26px rgba(0, 0, 0, 0.05);
     }
 
-    .engagement-tile-kicker {
-      margin: 0 0 12px;
-      font-size: 0.70rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
-
     .engagement-tile-title {
-      margin: 0 0 12px;
-      font-size: 1.14rem;
-      line-height: 1.14;
+      margin: 0 0 14px;
+      font-size: 1.18rem;
+      line-height: 1.16;
       font-weight: 700;
       color: var(--text-dark);
       text-wrap: balance;
@@ -615,31 +547,22 @@
 
     .engagement-tile-text {
       margin: 0;
-      font-size: 0.95rem;
-      line-height: 1.60;
+      font-size: 0.98rem;
+      line-height: 1.64;
       color: var(--muted-dark);
     }
 
     .engagement-detail {
       position: relative;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 280px;
-      gap: 32px;
-      padding: 38px 36px 34px;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 34px;
+      padding: 40px 38px 36px;
       background: linear-gradient(180deg, rgba(246,247,248,0.96) 0%, #FFFFFF 100%);
       border: 1px solid rgba(21, 32, 43, 0.08);
       box-shadow: 0 2px 0 rgba(0,0,0,0.015);
-      min-height: 340px;
-    }
-
-    .engagement-detail::before {
-      content: "";
-      position: absolute;
-      inset: 22px 22px auto auto;
-      width: 34%;
-      height: 42%;
-      border: 1px solid rgba(21, 32, 43, 0.04);
-      pointer-events: none;
+      min-height: 352px;
+      scroll-margin-top: 96px;
     }
 
     .engagement-detail-left,
@@ -650,8 +573,8 @@
 
     .engagement-detail-right {
       align-self: start;
-      padding: 18px 18px 16px;
-      background: rgba(255,255,255,0.78);
+      padding: 20px 20px 18px;
+      background: rgba(255,255,255,0.82);
       border: 1px solid rgba(21,32,43,0.08);
       box-shadow: var(--soft-shadow);
     }
@@ -668,7 +591,7 @@
 
     .engagement-detail-title {
       margin: 0 0 12px;
-      font-size: clamp(1.55rem, 2vw, 1.88rem);
+      font-size: clamp(1.62rem, 2vw, 1.96rem);
       line-height: 1.08;
       font-weight: 700;
       color: var(--text-dark);
@@ -676,17 +599,17 @@
     }
 
     .engagement-detail-summary {
-      margin: 0 0 20px;
+      margin: 0 0 22px;
       max-width: 58ch;
-      font-size: 1.02rem;
-      line-height: 1.66;
+      font-size: 1.03rem;
+      line-height: 1.68;
       color: var(--muted-dark);
     }
 
     .engagement-detail-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 20px 28px;
+      gap: 22px 30px;
     }
 
     .engagement-detail-block h4 {
@@ -701,8 +624,8 @@
 
     .engagement-detail-block p {
       margin: 0;
-      font-size: 0.96rem;
-      line-height: 1.62;
+      font-size: 0.97rem;
+      line-height: 1.64;
       color: var(--muted-dark);
     }
 
@@ -718,8 +641,8 @@
 
     .engagement-detail-panel-text {
       margin: 0 0 16px;
-      font-size: 0.92rem;
-      line-height: 1.60;
+      font-size: 0.93rem;
+      line-height: 1.62;
       color: var(--muted-dark);
     }
 
@@ -743,7 +666,7 @@
     .triggers {
       position: relative;
       background: var(--bg-offwhite);
-      padding: 96px 34px 90px;
+      padding: 100px 34px 94px;
       color: var(--text-dark);
       border-top: 1px solid rgba(21, 32, 43, 0.04);
       border-bottom: 1px solid rgba(21, 32, 43, 0.04);
@@ -757,15 +680,16 @@
     .trigger-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 18px;
-      margin-top: 38px;
+      gap: 20px;
+      margin-top: 40px;
     }
 
     .trigger-card {
       background: #FFFFFF;
       border: 1px solid rgba(21, 32, 43, 0.08);
       box-shadow: var(--soft-shadow);
-      padding: 22px 22px 20px;
+      padding: 28px 26px 24px;
+      min-height: 220px;
       transition:
         transform var(--transition-slow),
         box-shadow var(--transition-slow),
@@ -779,8 +703,8 @@
     }
 
     .trigger-card-title {
-      margin: 0 0 9px;
-      font-size: 1.02rem;
+      margin: 0 0 10px;
+      font-size: 1.08rem;
       line-height: 1.18;
       font-weight: 700;
       color: var(--text-dark);
@@ -788,15 +712,15 @@
 
     .trigger-card-text {
       margin: 0;
-      font-size: 0.94rem;
-      line-height: 1.58;
+      font-size: 0.97rem;
+      line-height: 1.62;
       color: var(--muted-dark);
     }
 
     .process {
       position: relative;
       background: var(--bg-white);
-      padding: 104px 34px 98px;
+      padding: 108px 34px 102px;
       color: var(--text-dark);
       overflow: hidden;
     }
@@ -807,20 +731,21 @@
     }
 
     .process-grid {
-      margin-top: 40px;
+      position: relative;
+      margin-top: 44px;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 24px;
+      gap: 28px;
       align-items: start;
     }
 
     .process-step {
       position: relative;
-      padding: 30px 28px 26px;
+      padding: 34px 30px 28px;
       background: linear-gradient(180deg, rgba(246,247,248,0.88) 0%, #FFFFFF 100%);
       border: 1px solid rgba(21, 32, 43, 0.08);
       box-shadow: var(--soft-shadow);
-      min-height: 240px;
+      min-height: 250px;
       transition:
         transform var(--transition-slow),
         box-shadow var(--transition-slow),
@@ -835,7 +760,7 @@
 
     .process-step-number {
       margin: 0 0 16px;
-      font-size: 2.1rem;
+      font-size: 2.2rem;
       line-height: 0.9;
       font-weight: 700;
       letter-spacing: -0.06em;
@@ -844,7 +769,7 @@
 
     .process-step-title {
       margin: 0 0 10px;
-      font-size: 1.18rem;
+      font-size: 1.2rem;
       line-height: 1.12;
       font-weight: 700;
       color: var(--text-dark);
@@ -852,15 +777,39 @@
 
     .process-step-text {
       margin: 0;
-      font-size: 0.98rem;
-      line-height: 1.62;
+      font-size: 0.99rem;
+      line-height: 1.64;
       color: var(--muted-dark);
+    }
+
+    .process-step:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -20px;
+      width: 12px;
+      height: 1px;
+      background: rgba(63, 110, 161, 0.24);
+      transform: translateY(-50%);
+    }
+
+    .process-step:not(:last-child)::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -8px;
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 999px;
+      transform: translateY(-50%);
+      box-shadow: 0 0 0 4px rgba(63, 110, 161, 0.08);
     }
 
     .outcomes {
       position: relative;
       background: var(--bg-offwhite);
-      padding: 96px 34px 92px;
+      padding: 100px 34px 94px;
       color: var(--text-dark);
       border-top: 1px solid rgba(21, 32, 43, 0.04);
       border-bottom: 1px solid rgba(21, 32, 43, 0.04);
@@ -873,8 +822,8 @@
 
     .outcomes-band {
       position: relative;
-      margin-top: 38px;
-      padding: 40px 36px 32px;
+      margin-top: 40px;
+      padding: 42px 38px 34px;
       background: linear-gradient(180deg, rgba(246,247,248,0.96) 0%, #FFFFFF 100%);
       border: 1px solid rgba(21, 32, 43, 0.08);
       border-radius: 4px;
@@ -966,9 +915,7 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(circle at 80% 20%, rgba(63, 110, 161, 0.10), transparent 28%),
-        linear-gradient(135deg, rgba(63, 110, 161, 0.03) 1px, transparent 1px);
-      background-size: auto, 34px 34px;
+        radial-gradient(circle at 80% 20%, rgba(63, 110, 161, 0.10), transparent 28%);
       opacity: 0.36;
       pointer-events: none;
     }
@@ -1069,7 +1016,7 @@
     }
 
     .footer {
-      background: #0D141C;
+      background: var(--bg-dark-3);
       color: rgba(245, 247, 250, 0.88);
       padding: 44px 34px 34px;
     }
@@ -1223,6 +1170,11 @@
       .outcomes-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
+
+      .process-step:nth-child(2)::after,
+      .process-step:nth-child(2)::before {
+        display: none;
+      }
     }
 
     @media (max-width: 980px) {
@@ -1282,7 +1234,7 @@
 
       .hero h1 {
         max-width: 100%;
-        font-size: clamp(2.45rem, 8vw, 3.25rem);
+        font-size: clamp(2.35rem, 8vw, 3.2rem);
       }
 
       .hero p {
@@ -1300,10 +1252,6 @@
         min-height: 46px;
         padding: 0 20px;
         font-size: 0.98rem;
-      }
-
-      .hero-anchor-grid {
-        display: none;
       }
 
       .engagements,
@@ -1327,14 +1275,15 @@
       }
 
       .engagement-tile {
-        min-height: 224px;
+        min-height: 230px;
       }
 
       .engagement-detail {
         padding: 26px 22px 22px;
       }
 
-      .engagement-detail::before {
+      .process-step::after,
+      .process-step::before {
         display: none;
       }
 
@@ -1370,18 +1319,14 @@
   </header>
 
   <section class="hero" aria-labelledby="hero-title">
-    <div class="hero-anchor" aria-hidden="true">
-      <div class="hero-anchor-grid"></div>
-    </div>
-
     <div class="hero-inner">
       <div class="hero-copy">
         <p class="hero-eyebrow">Advisory Engagements</p>
 
-        <h1 id="hero-title">Advisory for institutions under structural strain.</h1>
+        <h1 id="hero-title">Institutional problems rarely begin where they first become visible.</h1>
 
         <p>
-          Monderman works with leaders facing structural drag, decision friction, and institutional misalignment — where the visible problem is real, but the underlying system is the deeper issue.
+          Monderman advises leaders facing structural drag, decision friction, and institutional misalignment — where the visible issue is real, but the system beneath it is the deeper problem.
         </p>
 
         <div class="hero-actions">
@@ -1405,80 +1350,75 @@
       <div class="engagements-layout">
         <div class="engagement-tiles reveal reveal-delay-1" role="tablist" aria-label="Select engagement format">
           <button class="engagement-tile is-active" type="button" role="tab" aria-selected="true" aria-controls="engagement-detail" id="tile-advisory" data-key="advisory">
-            <p class="engagement-tile-kicker">01</p>
-            <h3 class="engagement-tile-title">Executive Advisory</h3>
+            <h3 class="engagement-tile-title">Advisory Engagement</h3>
             <p class="engagement-tile-text">
-              Ongoing counsel for leaders confronting structural complexity, institutional drift, or decision friction.
+              For leaders navigating persistent misalignment between authority, execution, and accountability — where decisions are made, but outcomes do not follow.
             </p>
           </button>
 
-          <button class="engagement-tile" type="button" role="tab" aria-selected="false" aria-controls="engagement-detail" id="tile-diagnosis" data-key="diagnosis">
-            <p class="engagement-tile-kicker">02</p>
-            <h3 class="engagement-tile-title">Institutional Diagnosis</h3>
+          <button class="engagement-tile" type="button" role="tab" aria-selected="false" aria-controls="engagement-detail" id="tile-audit" data-key="audit">
+            <h3 class="engagement-tile-title">Institutional Audit</h3>
             <p class="engagement-tile-text">
-              A focused assessment of where structure, governance, and process are degrading execution.
+              For organizations that need to understand where performance is being lost — and why.
             </p>
           </button>
 
-          <button class="engagement-tile" type="button" role="tab" aria-selected="false" aria-controls="engagement-detail" id="tile-intervention" data-key="intervention">
-            <p class="engagement-tile-kicker">03</p>
-            <h3 class="engagement-tile-title">Targeted Structural Intervention</h3>
+          <button class="engagement-tile" type="button" role="tab" aria-selected="false" aria-controls="engagement-detail" id="tile-workshop" data-key="workshop">
+            <h3 class="engagement-tile-title">Executive Workshop</h3>
             <p class="engagement-tile-text">
-              Redesign support for a specific decision path, operating system, or administrative bottleneck.
+              For leadership teams that are aligned on intent, but not on how the organization actually operates.
             </p>
           </button>
 
-          <button class="engagement-tile" type="button" role="tab" aria-selected="false" aria-controls="engagement-detail" id="tile-sessions" data-key="sessions">
-            <p class="engagement-tile-kicker">04</p>
-            <h3 class="engagement-tile-title">Leadership Sessions</h3>
+          <button class="engagement-tile" type="button" role="tab" aria-selected="false" aria-controls="engagement-detail" id="tile-tailored" data-key="tailored">
+            <h3 class="engagement-tile-title">Tailored Engagement</h3>
             <p class="engagement-tile-text">
-              Working sessions for leadership groups that need shared language, clearer understanding, and alignment.
+              For situations that do not fit a standard model — but where the underlying issue is clearly structural.
             </p>
           </button>
 
-          <button class="engagement-tile" type="button" role="tab" aria-selected="false" aria-controls="engagement-detail" id="tile-bespoke" data-key="bespoke">
-            <p class="engagement-tile-kicker">05</p>
-            <h3 class="engagement-tile-title">Bespoke Engagements</h3>
+          <button class="engagement-tile" type="button" role="tab" aria-selected="false" aria-controls="engagement-detail" id="tile-training" data-key="training">
+            <h3 class="engagement-tile-title">Training &amp; Capability Development</h3>
             <p class="engagement-tile-text">
-              Tailored work for challenges that do not fit neatly into a predefined format or sequence.
+              For organizations that want to build internal capacity to diagnose and manage structural complexity.
             </p>
           </button>
         </div>
 
         <div class="engagement-detail reveal reveal-delay-2" id="engagement-detail" role="tabpanel" aria-labelledby="tile-advisory">
           <div class="engagement-detail-left">
-            <p class="engagement-detail-label" id="detail-label">Executive Advisory</p>
-            <h3 class="engagement-detail-title" id="detail-title">Ongoing counsel for leaders facing structural strain that cannot be resolved through effort alone.</h3>
+            <p class="engagement-detail-label" id="detail-label">Advisory Engagement</p>
+            <h3 class="engagement-detail-title" id="detail-title">Sustained engagement at the level where structure determines whether execution holds.</h3>
             <p class="engagement-detail-summary" id="detail-summary">
-              Executive Advisory is designed for senior leaders who know something in the institution is slowing, distorting, or weakening performance but need sharper diagnosis, better framing, and disciplined guidance on where to intervene.
+              This is not episodic consulting. It is sustained engagement at the level where structure determines whether execution holds. We work alongside senior leadership to identify where systems are distorting performance, and to continuously realign them as conditions evolve.
             </p>
 
             <div class="engagement-detail-grid">
               <div class="engagement-detail-block">
                 <h4>Best for</h4>
                 <p id="detail-bestfor">
-                  Leadership-level structural issues, recurring decision friction, execution drift, and governance questions that cut across functions.
+                  Organizations where the problem is not a single failure point, but a pattern that continues to reappear.
                 </p>
               </div>
 
               <div class="engagement-detail-block">
                 <h4>Primary focus</h4>
                 <p id="detail-focus">
-                  Structural clarity, decision pathways, institutional interpretation, and more credible leadership action under complexity.
+                  Authority, accountability, execution, and the structural conditions that prevent decisions from translating into outcomes.
                 </p>
               </div>
 
               <div class="engagement-detail-block">
                 <h4>How Monderman works</h4>
                 <p id="detail-how">
-                  Through focused advisory conversations, working analysis, institutional framing, and targeted guidance tied to the real operating problem.
+                  Through senior-level advisory dialogue, structural diagnosis, and disciplined guidance tied to the real operating problem beneath visible symptoms.
                 </p>
               </div>
 
               <div class="engagement-detail-block">
                 <h4>When it matters</h4>
                 <p id="detail-when">
-                  When leaders sense that pace, accountability, or coherence is being lost but the institution has not yet named the underlying structural cause.
+                  When leaders know the organization is underperforming in ways that cannot be explained by effort, talent, or strategy alone.
                 </p>
               </div>
             </div>
@@ -1487,7 +1427,7 @@
           <aside class="engagement-detail-right">
             <p class="engagement-detail-panel-title">How to think about this format</p>
             <p class="engagement-detail-panel-text" id="detail-panel-text">
-              Best when the challenge is important, real, and cross-cutting — but not yet reduced to a single process or decision lane.
+              Best suited for organizations where the issue is recurring, structural, and too consequential to treat as an isolated fix.
             </p>
             <a class="engagement-detail-panel-link" href="#connect">Start a conversation &#8594;</a>
           </aside>
@@ -1502,50 +1442,50 @@
         <div class="section-label">When Leaders Bring Monderman In</div>
         <h2 id="triggers-title">The need is usually felt before it is fully named.</h2>
         <p>
-          Institutions rarely describe the problem as “bureaucratic design.” More often, they experience symptoms that persist despite more meetings, more effort, and more pressure from leadership.
+          Institutions rarely describe the problem in structural terms at first. More often, it is experienced as recurring friction, stalled movement, or a growing sense that the system is no longer producing what leadership intends.
         </p>
       </div>
 
       <div class="trigger-grid">
         <article class="trigger-card reveal reveal-delay-1">
-          <h3 class="trigger-card-title">Decision paths are slowing</h3>
+          <h3 class="trigger-card-title">Decisions are made — but stall, loop, or degrade before they reach execution.</h3>
           <p class="trigger-card-text">
-            Important decisions require too many approvals, too much escalation, or too much interpretation before action can begin.
+            What appears to be slowness is often a symptom of overloaded pathways, diffused authority, or governance that no longer fits the work.
           </p>
         </article>
 
         <article class="trigger-card reveal reveal-delay-2">
-          <h3 class="trigger-card-title">Accountability is diffused</h3>
+          <h3 class="trigger-card-title">Strategy is clear at the top, but fragments as it moves through the organization.</h3>
           <p class="trigger-card-text">
-            Ownership exists on paper, but responsibility and execution have drifted apart in practice.
+            The problem is not usually intent. It is the system through which interpretation, ownership, and action are expected to hold together.
           </p>
         </article>
 
         <article class="trigger-card reveal reveal-delay-3">
-          <h3 class="trigger-card-title">Process density is rising</h3>
+          <h3 class="trigger-card-title">Accountability exists in theory, but diffuses in practice.</h3>
           <p class="trigger-card-text">
-            More controls, more coordination, and more procedural overhead are appearing without stronger performance in return.
+            Roles appear defined, yet responsibility becomes blurred as work crosses teams, approvals, and institutional layers.
           </p>
         </article>
 
         <article class="trigger-card reveal reveal-delay-1">
-          <h3 class="trigger-card-title">Growth has outpaced governance</h3>
+          <h3 class="trigger-card-title">Teams are working harder, but the system produces less.</h3>
           <p class="trigger-card-text">
-            The organization has become more layered, more interdependent, and more difficult to steer coherently.
+            Increased effort can temporarily mask structural drag, but it cannot overcome a design that steadily absorbs time, clarity, and decision energy.
           </p>
         </article>
 
         <article class="trigger-card reveal reveal-delay-2">
-          <h3 class="trigger-card-title">New technology is exposing structural weakness</h3>
+          <h3 class="trigger-card-title">Administrative processes continue to expand, even as performance slows.</h3>
           <p class="trigger-card-text">
-            AI, automation, or system change is not resolving friction because the institution beneath the tools is still poorly aligned.
+            More controls, more coordination, and more procedural density often signal a system compensating for lost coherence rather than restoring it.
           </p>
         </article>
 
         <article class="trigger-card reveal reveal-delay-3">
-          <h3 class="trigger-card-title">Leaders feel complexity more than control</h3>
+          <h3 class="trigger-card-title">The same issues resurface — despite repeated intervention.</h3>
           <p class="trigger-card-text">
-            The institution seems increasingly difficult to interpret, govern, and move — even for capable leadership teams.
+            When friction is systemic, local fixes rarely hold. The visible problem changes shape, but the underlying structure remains untouched.
           </p>
         </article>
       </div>
@@ -1565,25 +1505,25 @@
       <div class="process-grid">
         <article class="process-step reveal reveal-delay-1">
           <p class="process-step-number">01</p>
-          <h3 class="process-step-title">Initial conversation</h3>
+          <h3 class="process-step-title">Diagnose</h3>
           <p class="process-step-text">
-            A serious discussion of the institutional challenge, where it is being felt, what has already been attempted, and what kind of leadership problem may be sitting underneath it.
+            We identify where structure, authority, and execution have drifted apart.
           </p>
         </article>
 
         <article class="process-step reveal reveal-delay-2">
           <p class="process-step-number">02</p>
-          <h3 class="process-step-title">Diagnostic framing</h3>
+          <h3 class="process-step-title">Redesign</h3>
           <p class="process-step-text">
-            Clarification of the problem space: whether the issue is structural, procedural, interpretive, or a combination — and what type of engagement is actually warranted.
+            We reconfigure the systems that determine how decisions move and work occurs.
           </p>
         </article>
 
         <article class="process-step reveal reveal-delay-3">
           <p class="process-step-number">03</p>
-          <h3 class="process-step-title">Focused engagement</h3>
+          <h3 class="process-step-title">Embed</h3>
           <p class="process-step-text">
-            A tailored advisory format, scoped to the institution’s real needs rather than generic consulting choreography.
+            We ensure the changes hold — so performance is sustained, not temporary.
           </p>
         </article>
       </div>
@@ -1663,8 +1603,7 @@
         <div class="footer-brand">
           <div class="footer-mark">Monderman</div>
           <p class="footer-copy">
-            Advisory thinking on institutional performance, decision velocity, and the design of
-            systems that sustain clarity under complexity.
+            Advisory thinking on institutional performance, decision velocity, and the design of systems that sustain clarity under complexity.
           </p>
         </div>
 
@@ -1726,54 +1665,54 @@
 
     const engagementContent = {
       advisory: {
-        label: "Executive Advisory",
-        title: "Ongoing counsel for leaders facing structural strain that cannot be resolved through effort alone.",
-        summary: "Executive Advisory is designed for senior leaders who know something in the institution is slowing, distorting, or weakening performance but need sharper diagnosis, better framing, and disciplined guidance on where to intervene.",
-        bestfor: "Leadership-level structural issues, recurring decision friction, execution drift, and governance questions that cut across functions.",
-        focus: "Structural clarity, decision pathways, institutional interpretation, and more credible leadership action under complexity.",
-        how: "Through focused advisory conversations, working analysis, institutional framing, and targeted guidance tied to the real operating problem.",
-        when: "When leaders sense that pace, accountability, or coherence is being lost but the institution has not yet named the underlying structural cause.",
-        panel: "Best when the challenge is important, real, and cross-cutting — but not yet reduced to a single process or decision lane."
+        label: "Advisory Engagement",
+        title: "Sustained engagement at the level where structure determines whether execution holds.",
+        summary: "This is not episodic consulting. It is sustained engagement at the level where structure determines whether execution holds. We work alongside senior leadership to identify where systems are distorting performance, and to continuously realign them as conditions evolve.",
+        bestfor: "Organizations where the problem is not a single failure point, but a pattern that continues to reappear.",
+        focus: "Authority, accountability, execution, and the structural conditions that prevent decisions from translating into outcomes.",
+        how: "Through senior-level advisory dialogue, structural diagnosis, and disciplined guidance tied to the real operating problem beneath visible symptoms.",
+        when: "When leaders know the organization is underperforming in ways that cannot be explained by effort, talent, or strategy alone.",
+        panel: "Best suited for organizations where the issue is recurring, structural, and too consequential to treat as an isolated fix."
       },
-      diagnosis: {
-        label: "Institutional Diagnosis",
-        title: "A focused assessment of where structure, governance, and process are degrading execution.",
-        summary: "Institutional Diagnosis is used when the organization needs a disciplined picture of where hidden drag is accumulating, where authority and execution have separated, and where administrative design is undermining performance.",
-        bestfor: "Institutions that need a sharper picture of structural strain before deciding whether redesign, intervention, or broader advisory support is required.",
-        focus: "Decision bottlenecks, accountability gaps, process density, operating friction, and the real institutional conditions beneath visible symptoms.",
-        how: "Through targeted inquiry, analytical framing, review of key pathways, and interpretation of how the institution is actually functioning beneath formal design.",
-        when: "When leadership knows there is a performance problem but needs a clearer, more credible diagnosis before acting.",
-        panel: "Best when the first need is clarity — not another initiative, not another workshop, and not another generic assessment."
+      audit: {
+        label: "Institutional Audit",
+        title: "A focused examination of how decisions move, where authority resides, and how administrative systems shape execution.",
+        summary: "We conduct a focused examination of how decisions move, where authority resides, and how administrative systems shape execution. The objective is not observation, but clarity: identifying the structural conditions that produce delay, duplication, and drift.",
+        bestfor: "Organizations that need a clear picture of where performance is being lost — and why.",
+        focus: "Decision flow, authority, administrative burden, duplication, drift, and the difference between formal design and operating reality.",
+        how: "Through targeted inquiry, structural review, and analytical framing that distinguishes visible symptoms from underlying design failures.",
+        when: "When the organization needs credible diagnosis before choosing what kind of intervention is actually warranted.",
+        panel: "Best when leaders need to understand the system clearly before deciding how to change it."
       },
-      intervention: {
-        label: "Targeted Structural Intervention",
-        title: "Focused redesign support for a specific lane of institutional strain.",
-        summary: "Targeted Structural Intervention is appropriate when the organization already has a good sense of where strain exists and needs help redesigning a particular decision path, operating structure, or administrative bottleneck that is compromising execution.",
-        bestfor: "A specific workflow, approval path, governance mechanism, or recurring coordination burden that is materially slowing the institution.",
-        focus: "Reducing drag, improving clarity, tightening ownership, and restoring performance within a bounded operating slice.",
-        how: "Through precise analysis, structural redesign, decision-path simplification, and direct support around the chosen institutional pressure point.",
-        when: "When the challenge is concrete enough to target directly but significant enough to warrant senior attention and external discipline.",
-        panel: "Best when the institution does not need a broad transformation narrative — it needs one consequential problem solved properly."
+      workshop: {
+        label: "Executive Workshop",
+        title: "Designed to surface structural realities that are often felt, but rarely articulated.",
+        summary: "These sessions are designed to surface structural realities that are often felt, but rarely articulated. We work through how decisions are made, how work moves, and where friction accumulates — building a shared understanding of the system beneath performance.",
+        bestfor: "Leadership teams that are aligned on intent, but not on how the organization actually operates.",
+        focus: "Shared structural understanding, institutional interpretation, and collective clarity around how performance is being shaped beneath the surface.",
+        how: "Through facilitated executive working sessions that move beyond alignment rhetoric into real diagnostic recognition.",
+        when: "When alignment exists at the surface, but execution continues to fragment beneath it.",
+        panel: "Best used when leadership needs a common structural language before larger intervention begins."
       },
-      sessions: {
-        label: "Leadership Sessions",
-        title: "Working sessions for leadership groups that need sharper shared understanding.",
-        summary: "Leadership Sessions are designed for executive teams, boards, or senior groups that need a more coherent grasp of the institutional challenge in front of them, stronger shared language, and a clearer basis for governing under complexity.",
-        bestfor: "Leadership groups that are aligned in intent but not yet aligned in diagnosis, interpretation, or structural response.",
-        focus: "Shared language, institutional interpretation, structural framing, and the conditions necessary for more coherent collective action.",
-        how: "Through carefully structured working sessions that move beyond presentation into interpretation, problem-framing, and concrete leadership understanding.",
-        when: "When the institution would benefit from deeper leadership alignment before broader advisory work or structural intervention begins.",
-        panel: "Best when the leadership problem is not lack of commitment — it is lack of shared structural clarity."
+      tailored: {
+        label: "Tailored Engagement",
+        title: "Designed around the organization’s actual structure, constraints, and operating environment.",
+        summary: "Some challenges are bounded. Others are embedded across functions, time horizons, or governance layers. In these cases, we design an engagement specific to the organization’s structure, constraints, and operating environment.",
+        bestfor: "Situations that do not fit a standard model — but where the underlying issue is clearly structural.",
+        focus: "Institution-specific design, custom diagnostic framing, and intervention shaped to the real organizational environment rather than a consulting template.",
+        how: "Through a bespoke engagement architecture built around the problem as it actually exists, not as it is typically packaged.",
+        when: "When the visible challenge crosses functions, governance layers, or time horizons in ways that require a more exact approach.",
+        panel: "The objective remains consistent: redesign the systems that determine how performance actually occurs."
       },
-      bespoke: {
-        label: "Bespoke Engagements",
-        title: "Tailored advisory work for institutional problems that do not fit neatly into a predefined format.",
-        summary: "Some structural challenges are too specific, too unusual, or too consequential to be approached through a standard engagement path. Bespoke Engagements allow Monderman to tailor scope, sequencing, and method to the institution’s actual needs.",
-        bestfor: "Complex institutional challenges that span multiple categories, require custom sequencing, or call for a more specialized advisory architecture.",
-        focus: "Problem-specific design, tailored advisory structure, and disciplined adaptation to the institution rather than vice versa.",
-        how: "Through a custom engagement built from the real conditions of the organization, the nature of the leadership challenge, and the level of intervention required.",
-        when: "When the institution’s problem is important enough that forcing it into a generic format would reduce the quality of the work.",
-        panel: "Best when the challenge is real, specific, and high-consequence — and deserves an engagement designed around it rather than around a template."
+      training: {
+        label: "Training & Capability Development",
+        title: "Built to strengthen internal capacity to diagnose and manage structural complexity.",
+        summary: "These sessions focus on developing the ability to recognize bureaucratic friction, understand how administrative systems shape outcomes, and intervene effectively. The goal is not knowledge transfer alone, but capability — so that organizations can sustain clarity without external dependence.",
+        bestfor: "Organizations that want to build internal capacity to diagnose and manage structural complexity.",
+        focus: "Capability development around bureaucratic friction, administrative design, structural diagnosis, and practical intervention logic.",
+        how: "Through structured sessions that build organizational fluency in how systems shape execution and how to respond with discipline.",
+        when: "When the organization wants stronger internal stewardship rather than indefinite dependence on outside interpretation.",
+        panel: "Best suited for teams responsible for operations, transformation, or institutional design."
       }
     };
 
