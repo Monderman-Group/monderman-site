@@ -271,18 +271,18 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: 65% center;
+      object-position: 68% center;
       opacity: 0;
-      transform: translateY(0) scale(0.94);
+      transform: translateY(0) scale(0.92);
       transition:
         opacity 1.2s cubic-bezier(0.22, 1, 0.36, 1),
         transform 1.8s cubic-bezier(0.22, 1, 0.36, 1);
       will-change: transform, opacity;
-      filter: blur(0.3px);
+      filter: blur(0.4px);
     }
 
     .hero-image.is-loaded {
-      opacity: 0.90;
+      opacity: 0.88;
     }
 
     .hero-overlay {
@@ -291,17 +291,17 @@
       background:
         linear-gradient(
           90deg,
-          rgba(10, 14, 20, 0.88) 0%,
-          rgba(10, 14, 20, 0.68) 24%,
-          rgba(10, 14, 20, 0.38) 48%,
-          rgba(10, 14, 20, 0.14) 72%,
+          rgba(10, 14, 20, 0.90) 0%,
+          rgba(10, 14, 20, 0.72) 24%,
+          rgba(10, 14, 20, 0.42) 48%,
+          rgba(10, 14, 20, 0.16) 72%,
           rgba(10, 14, 20, 0.05) 100%
         ),
         linear-gradient(
           180deg,
           rgba(10, 14, 20, 0.10) 0%,
           rgba(10, 14, 20, 0.03) 36%,
-          rgba(10, 14, 20, 0.16) 100%
+          rgba(10, 14, 20, 0.18) 100%
         );
     }
 
@@ -341,7 +341,7 @@
     }
 
     .hero-eyebrow {
-      margin: 0 0 62px;
+      margin: 0 0 58px;
       padding-left: 1px;
       font-size: 0.40rem;
       line-height: 1;
@@ -353,7 +353,7 @@
     }
 
     .hero h1 {
-      margin: 0 0 30px;
+      margin: 0 0 28px;
       max-width: 10.2ch;
       font-size: clamp(3.35rem, 5.6vw, 5.4rem);
       line-height: 0.95;
@@ -366,10 +366,10 @@
     }
 
     .hero p {
-      max-width: 540px;
+      max-width: 560px;
       margin: 0;
       font-size: clamp(1.12rem, 1.5vw, 1.24rem);
-      line-height: 1.60;
+      line-height: 1.58;
       letter-spacing: -0.012em;
       color: var(--muted-light);
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
@@ -381,7 +381,7 @@
       align-items: center;
       gap: 14px;
       flex-wrap: wrap;
-      margin-top: 44px;
+      margin-top: 42px;
       animation-delay: 820ms;
     }
 
@@ -390,7 +390,7 @@
       align-items: center;
       justify-content: center;
       min-height: 48px;
-      min-width: 156px;
+      min-width: 158px;
       padding: 0 22px;
       border-radius: 999px;
       font-size: 0.98rem;
@@ -421,20 +421,20 @@
     }
 
     .btn-secondary {
-      background: rgba(15, 23, 32, 0.30);
-      color: rgba(255, 255, 255, 0.96);
-      border-color: rgba(255, 255, 255, 0.42);
-      box-shadow: none;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      background: rgba(8, 13, 20, 0.48);
+      color: rgba(255, 255, 255, 0.98);
+      border-color: rgba(255, 255, 255, 0.46);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
 
     .btn-secondary:hover,
     .btn-secondary:focus-visible {
-      background: rgba(15, 23, 32, 0.40);
+      background: rgba(8, 13, 20, 0.58);
       color: #FFFFFF;
-      border-color: rgba(255, 255, 255, 0.56);
-      box-shadow: none;
+      border-color: rgba(255, 255, 255, 0.62);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
     }
 
     @keyframes heroFadeUp {
@@ -607,71 +607,6 @@
       color: var(--muted-dark);
     }
 
-    .cost-sentence {
-      margin: 34px 0 0;
-      padding-top: 26px;
-      border-top: 1px solid rgba(21, 32, 43, 0.10);
-    }
-
-    .cost-sentence-rail {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 28px;
-      align-items: start;
-    }
-
-    .cost-sentence-step {
-      position: relative;
-      padding-top: 18px;
-    }
-
-    .cost-sentence-step::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 1px;
-      background: rgba(63, 110, 161, 0.16);
-    }
-
-    .cost-sentence-step::after {
-      content: "";
-      position: absolute;
-      top: -4px;
-      left: 0;
-      width: 9px;
-      height: 9px;
-      border-radius: 999px;
-      background: var(--accent);
-      box-shadow: 0 0 0 4px rgba(63, 110, 161, 0.08);
-    }
-
-    .cost-sentence-title {
-      margin: 0 0 10px;
-      font-size: 0.96rem;
-      line-height: 1.1;
-      font-weight: 700;
-      letter-spacing: -0.014em;
-      color: var(--text-dark);
-    }
-
-    .cost-sentence-text {
-      margin: 0;
-      font-size: 0.90rem;
-      line-height: 1.55;
-      color: var(--muted-dark);
-      max-width: 24ch;
-    }
-
-    .cost-sentence-note {
-      margin: 16px 0 0;
-      max-width: 62ch;
-      font-size: 0.90rem;
-      line-height: 1.62;
-      color: var(--muted-dark-2);
-    }
-
     .cost-footer {
       margin: 22px 0 0;
       font-size: 0.82rem;
@@ -752,6 +687,66 @@
       font-size: 1.02rem;
       line-height: 1.66;
       color: var(--muted-dark);
+    }
+
+    .approach-band {
+      position: relative;
+      margin-top: 34px;
+      padding: 24px 0 0;
+      border-top: 1px solid rgba(21, 32, 43, 0.10);
+    }
+
+    .approach-band::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 96px;
+      height: 2px;
+      background: rgba(63, 110, 161, 0.22);
+    }
+
+    .approach-band-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 24px;
+      align-items: start;
+    }
+
+    .approach-band-item {
+      position: relative;
+      padding-top: 16px;
+    }
+
+    .approach-band-item::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(63, 110, 161, 0.08);
+    }
+
+    .approach-band-title {
+      margin: 0 0 8px;
+      font-size: 0.84rem;
+      line-height: 1.1;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .approach-band-text {
+      margin: 0;
+      font-size: 0.94rem;
+      line-height: 1.55;
+      color: var(--text-dark);
+      max-width: 20ch;
+      letter-spacing: -0.01em;
     }
 
     .tools-teaser {
@@ -1335,13 +1330,9 @@
         gap: 20px;
       }
 
-      .cost-sentence-rail {
-        grid-template-columns: 1fr;
+      .approach-band-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 22px;
-      }
-
-      .cost-sentence-text {
-        max-width: 100%;
       }
 
       .cost-card {
@@ -1412,7 +1403,7 @@
       }
 
       .hero-eyebrow {
-        margin-bottom: 52px;
+        margin-bottom: 48px;
         padding-left: 1px;
         font-size: 0.40rem;
         letter-spacing: 0.18em;
@@ -1461,22 +1452,13 @@
         line-height: 1.56;
       }
 
-      .cost-sentence {
-        margin-top: 28px;
-        padding-top: 22px;
-      }
-
-      .cost-sentence-note,
-      .cost-sentence-text {
-        font-size: 0.90rem;
-      }
-
       .approach {
         padding: 86px 20px 72px;
       }
 
       .approach-grid,
-      .tools-grid {
+      .tools-grid,
+      .approach-band-grid {
         grid-template-columns: 1fr;
         gap: 20px;
       }
@@ -1493,6 +1475,16 @@
       .card-desc {
         font-size: 0.96rem;
         line-height: 1.68;
+      }
+
+      .approach-band {
+        margin-top: 28px;
+        padding-top: 22px;
+      }
+
+      .approach-band-text {
+        max-width: 100%;
+        font-size: 0.92rem;
       }
 
       .tools-teaser {
@@ -1597,7 +1589,7 @@
         <h1 id="hero-title">Transforming complexity into opportunity.</h1>
 
         <p>
-          AI accelerates output. We ensure your organization can act on it.
+          An organization performs only as well as the system beneath it.
         </p>
 
         <div class="hero-actions">
@@ -1645,35 +1637,6 @@
         </div>
       </div>
 
-      <div class="cost-sentence" aria-label="How friction becomes performance loss">
-        <div class="cost-sentence-rail">
-          <div class="cost-sentence-step">
-            <h3 class="cost-sentence-title">Structural Friction</h3>
-            <p class="cost-sentence-text">
-              unclear ownership · approval density
-            </p>
-          </div>
-
-          <div class="cost-sentence-step">
-            <h3 class="cost-sentence-title">Decision Drag</h3>
-            <p class="cost-sentence-text">
-              slower cycles · stalled movement
-            </p>
-          </div>
-
-          <div class="cost-sentence-step">
-            <h3 class="cost-sentence-title">Execution Loss</h3>
-            <p class="cost-sentence-text">
-              weaker responsiveness · lost capacity
-            </p>
-          </div>
-        </div>
-
-        <p class="cost-sentence-note">
-          AI raises the volume of analysis. It does not remove the structural drag that slows decisions and weakens execution.
-        </p>
-      </div>
-
       <p class="cost-footer">
         Selected sources: Harvard Business Review; OECD administrative burden guidance.
       </p>
@@ -1717,6 +1680,30 @@
           <div class="card-title">Institutional Performance</div>
           <div class="card-desc">
             Strong institutions sustain clarity over time. We design governance mechanisms that preserve alignment as organizations grow and evolve.
+          </div>
+        </div>
+      </div>
+
+      <div class="approach-band" aria-label="Approach synthesis">
+        <div class="approach-band-grid">
+          <div class="approach-band-item">
+            <p class="approach-band-title">Structural Clarity</p>
+            <p class="approach-band-text">clarify ownership</p>
+          </div>
+
+          <div class="approach-band-item">
+            <p class="approach-band-title">Decision Velocity</p>
+            <p class="approach-band-text">shorten decision paths</p>
+          </div>
+
+          <div class="approach-band-item">
+            <p class="approach-band-title">Operational Systems</p>
+            <p class="approach-band-text">reduce hidden drag</p>
+          </div>
+
+          <div class="approach-band-item">
+            <p class="approach-band-title">Institutional Performance</p>
+            <p class="approach-band-text">strengthen performance</p>
           </div>
         </div>
       </div>
@@ -1949,7 +1936,7 @@
     const header = document.getElementById("siteHeader");
     const heroSection = document.querySelector(".hero");
 
-    let heroScale = 0.94;
+    let heroScale = 0.92;
     let zoomStarted = false;
 
     function revealHero() {
@@ -1969,7 +1956,7 @@
 
       function tick(now) {
         const progress = Math.min((now - start) / duration, 1);
-        heroScale = 0.94 + (0.025 * progress);
+        heroScale = 0.92 + (0.022 * progress);
         updateHeroTransform();
         if (progress < 1) requestAnimationFrame(tick);
       }
@@ -1982,7 +1969,7 @@
       const rect = heroSection.getBoundingClientRect();
       const vh = window.innerHeight || 1;
       const progress = Math.max(-1, Math.min(1, rect.top / vh));
-      const y = progress * -12;
+      const y = progress * -10;
       heroImage.style.transform = `translateY(${y}px) scale(${heroScale})`;
     }
 
