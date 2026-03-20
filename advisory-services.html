@@ -2020,33 +2020,44 @@
       const data = engagementData[key];
       if (!data) return;
 
-      tiles.forEach((t) => {
-        t.classList.remove("is-active");
-        t.setAttribute("aria-selected", "false");
-      });
+      function scrollToDetailPanel() {
+  if (!detailPanel) return;
 
-      tile.classList.add("is-active");
-      tile.setAttribute("aria-selected", "true");
+  const headerOffset = 92;
+  const panelTop = detailPanel.getBoundingClientRect().top + window.pageYOffset - headerOffset;
 
-      detailPanel.setAttribute("aria-labelledby", tile.id);
-      detailKicker.textContent = data.kicker;
-      detailTitle.textContent = data.title;
-      detailSummary.textContent = data.summary;
-      detailAddresses.textContent = data.addresses;
-      detailMethod.textContent = data.method;
-      renderList(detailBestFor, data.bestFor);
-      renderList(detailOutcomes, data.outcomes);
+  window.scrollTo({
+    top: panelTop,
+    behavior: "smooth"
+  });
+}
+
+tiles.forEach((tile) => {
+  tile.addEventListener("click", () => {
+    updateEngagementDetail(tile.dataset.key, tile);
+    scrollToDetailPanel();
+  });
+
+  tile.addEventListener("keydown", (event) => {
+    const index = tiles.indexOf(tile);
+
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+      event.preventDefault();
+      const next = tiles[(index + 1) % tiles.length];
+      next.focus();
+      updateEngagementDetail(next.dataset.key, next);
+      scrollToDetailPanel();
     }
 
-    tiles.forEach((tile) => {
-      tile.addEventListener("click", () => setActiveTile(tile));
-      tile.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          setActiveTile(tile);
-        }
-      });
-    });
+    if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+      event.preventDefault();
+      const prev = tiles[(index - 1 + tiles.length) % tiles.length];
+      prev.focus();
+      updateEngagementDetail(prev.dataset.key, prev);
+      scrollToDetailPanel();
+    }
+  });
+});
   </script>
 </body>
 </html>
