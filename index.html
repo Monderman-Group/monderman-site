@@ -167,8 +167,8 @@
       opacity: 0;
       transform: translateY(var(--reveal-distance));
       transition:
-        opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
-        transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+        opacity 720ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 720ms cubic-bezier(0.22, 1, 0.36, 1);
       will-change: opacity, transform;
     }
 
@@ -178,9 +178,9 @@
     }
 
     .reveal-delay-1 { transition-delay: 80ms; }
-    .reveal-delay-2 { transition-delay: 140ms; }
-    .reveal-delay-3 { transition-delay: 200ms; }
-    .reveal-delay-4 { transition-delay: 260ms; }
+    .reveal-delay-2 { transition-delay: 150ms; }
+    .reveal-delay-3 { transition-delay: 220ms; }
+    .reveal-delay-4 { transition-delay: 290ms; }
 
     .header {
       position: fixed;
@@ -310,7 +310,7 @@
     }
 
     .hero-image.is-loaded {
-      opacity: 0.88;
+      opacity: 0.87;
     }
 
     .hero-overlay {
@@ -361,7 +361,6 @@
     .hero-eyebrow,
     .hero h1,
     .hero p,
-    .hero-micro,
     .hero-actions {
       opacity: 0;
       transform: translateY(16px);
@@ -394,7 +393,7 @@
     }
 
     .hero p {
-      max-width: 32ch;
+      max-width: 34ch;
       margin: 0;
       font-size: clamp(1.14rem, 1.52vw, 1.26rem);
       line-height: 1.56;
@@ -405,34 +404,24 @@
       text-wrap: balance;
     }
 
-    .hero-micro {
-      margin-top: 18px;
-      font-size: 0.82rem;
-      line-height: 1.5;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.52);
-      animation-delay: 740ms;
-    }
-
     .hero-actions {
       display: flex;
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
       margin-top: 32px;
-      animation-delay: 840ms;
+      animation-delay: 820ms;
     }
 
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 48px;
-      min-width: 168px;
-      padding: 0 22px;
+      min-height: 46px;
+      min-width: 164px;
+      padding: 0 20px;
       border-radius: 999px;
-      font-size: 0.98rem;
+      font-size: 0.95rem;
       font-weight: 500;
       letter-spacing: -0.012em;
       white-space: nowrap;
@@ -441,12 +430,12 @@
       border: 1px solid rgba(255, 255, 255, 0.52);
       box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
       transition:
-        background var(--transition),
-        color var(--transition),
-        border-color var(--transition),
-        transform var(--transition),
-        box-shadow var(--transition),
-        opacity var(--transition);
+        background 180ms cubic-bezier(0.22, 1, 0.36, 1),
+        color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 180ms cubic-bezier(0.22, 1, 0.36, 1);
       cursor: pointer;
     }
 
@@ -455,8 +444,8 @@
       background: #FFFFFF;
       color: var(--text-dark);
       border-color: rgba(255, 255, 255, 0.66);
-      transform: translateY(-1px);
-      box-shadow: 0 5px 14px rgba(0, 0, 0, 0.07);
+      transform: translateY(-0.5px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
       outline: none;
     }
 
@@ -467,7 +456,7 @@
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      opacity: 0.92;
+      opacity: 0.94;
     }
 
     .btn-secondary:hover,
@@ -475,7 +464,9 @@
       background: rgba(8, 13, 20, 0.58);
       color: #FFFFFF;
       border-color: rgba(255, 255, 255, 0.62);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 4px 10px rgba(0, 0, 0, 0.06);
       opacity: 1;
     }
 
@@ -571,7 +562,7 @@
     }
 
     .cost-heading h2 {
-      margin: 0;
+      margin: 0 0 12px;
       max-width: 720px;
       font-size: clamp(2.05rem, 2.9vw, 2.7rem);
       line-height: 1.12;
@@ -581,7 +572,7 @@
     }
 
     .cost-context {
-      margin-top: 12px;
+      margin: 0;
       max-width: 52ch;
       font-size: 0.96rem;
       line-height: 1.62;
@@ -674,12 +665,10 @@
       z-index: 1;
       max-width: var(--max);
       margin: 0 auto;
-      padding-left: 8px;
     }
 
     .approach-bridge {
-      margin-top: 10px;
-      margin-bottom: 10px;
+      margin: 10px 0 10px;
       max-width: 60ch;
       font-size: 1rem;
       line-height: 1.64;
@@ -721,7 +710,7 @@
     .approach-card:hover {
       transform: translateY(-4px);
       border-color: rgba(0, 0, 0, 0.06);
-      background: rgba(255, 255, 255, 1);
+      background: #FFFFFF;
       box-shadow:
         0 8px 18px rgba(0, 0, 0, 0.04),
         0 18px 30px rgba(0, 0, 0, 0.04);
@@ -757,40 +746,58 @@
 
     .approach-band {
       position: relative;
-      margin-top: 34px;
-      padding: 26px 22px 22px;
-      background: linear-gradient(
-        180deg,
-        rgba(246, 247, 248, 0.82) 0%,
-        rgba(255, 255, 255, 0.96) 100%
-      );
+      margin-top: 44px;
+      padding: 42px 36px 36px;
+      background: linear-gradient(180deg, rgba(246, 247, 248, 0.96) 0%, #FFFFFF 100%);
       border: 1px solid rgba(21, 32, 43, 0.08);
-      border-radius: 2px;
-      box-shadow: var(--soft-shadow);
+      border-radius: 4px;
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.015);
       overflow: hidden;
     }
 
-    .approach-band-line {
+    .approach-band-header {
+      position: relative;
+      padding-bottom: 24px;
+      margin-bottom: 26px;
+      max-width: 560px;
+    }
+
+    .approach-band-header::after {
+      content: "";
       position: absolute;
-      top: 33px;
-      left: 22px;
-      right: 22px;
+      left: 0;
+      bottom: 0;
+      width: 96px;
       height: 1px;
-      background: rgba(63, 110, 161, 0.18);
+      background: rgba(63, 110, 161, 0.22);
+    }
+
+    .approach-band-title {
+      margin: 0 0 8px;
+      font-size: 1.08rem;
+      line-height: 1.15;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text-dark);
+    }
+
+    .approach-band-sub {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.58;
+      color: var(--muted-dark);
+      max-width: 52ch;
     }
 
     .approach-band-grid {
-      position: relative;
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 34px;
-      align-items: start;
+      gap: 28px;
+      position: relative;
     }
 
     .approach-band-item {
-      position: relative;
-      padding-top: 0;
-      transition: transform var(--transition);
+      transition: transform 200ms ease;
     }
 
     .approach-band-item:hover {
@@ -798,29 +805,25 @@
     }
 
     .approach-band-dot {
-      position: relative;
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      margin-bottom: 18px;
+      width: 10px;
+      height: 10px;
+      margin-bottom: 14px;
       border-radius: 999px;
       background: var(--accent);
-      box-shadow: 0 0 0 4px rgba(63, 110, 161, 0.08);
-      transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+      box-shadow: 0 0 0 4px rgba(63, 110, 161, 0.10);
+      display: inline-block;
+      transition: transform var(--transition), box-shadow var(--transition);
     }
 
     .approach-band-item:hover .approach-band-dot {
       transform: scale(1.08);
-      box-shadow: 0 0 0 5px rgba(63, 110, 161, 0.11);
-      background: var(--accent-dark);
+      box-shadow: 0 0 0 5px rgba(63, 110, 161, 0.14);
     }
 
     .approach-band-text {
       margin: 0;
-      max-width: 16ch;
       font-size: 1rem;
       line-height: 1.45;
-      letter-spacing: -0.014em;
       font-weight: 500;
       color: var(--text-dark);
       transition: color var(--transition);
@@ -828,6 +831,28 @@
 
     .approach-band-item:hover .approach-band-text {
       color: #0F1720;
+    }
+
+    .approach-band-cta {
+      margin-top: 26px;
+    }
+
+    .approach-band-cta a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: var(--accent);
+      transition: opacity 200ms ease, transform 200ms ease, color 200ms ease;
+    }
+
+    .approach-band-cta a:hover,
+    .approach-band-cta a:focus-visible {
+      opacity: 0.8;
+      color: var(--accent-dark);
+      transform: translateX(2px);
+      outline: none;
     }
 
     .tools-teaser {
@@ -900,17 +925,13 @@
       border-color: rgba(63, 110, 161, 0.12);
     }
 
-    .tool-card-link,
-    .tool-card-static {
+    .tool-card-link {
       display: flex;
       flex-direction: column;
       min-height: 228px;
       height: 100%;
       padding: 22px 22px 20px;
       color: inherit;
-    }
-
-    .tool-card-link {
       text-decoration: none;
       cursor: pointer;
     }
@@ -1051,13 +1072,15 @@
         border-color var(--transition),
         box-shadow var(--transition),
         opacity var(--transition),
-        color var(--transition);
+        color var(--transition),
+        background var(--transition);
     }
 
     .rail-arrow:hover,
     .rail-arrow:focus-visible {
       transform: translateY(-1px);
       color: var(--text-dark);
+      background: #FFFFFF;
       border-color: rgba(63, 110, 161, 0.20);
       box-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
       outline: none;
@@ -1071,7 +1094,7 @@
       display: flex;
       gap: var(--rail-gap);
       will-change: transform;
-      transition: transform 560ms cubic-bezier(0.22, 1, 0.36, 1);
+      transition: transform 760ms cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .latest-card {
@@ -1201,7 +1224,16 @@
 
     .connect-copy h2 {
       color: #FFFFFF;
-      margin-bottom: 22px;
+      margin-bottom: 18px;
+    }
+
+    .connect-signal {
+      margin: 0 0 14px;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(245, 247, 250, 0.54);
     }
 
     .connect-text {
@@ -1210,16 +1242,6 @@
       font-size: 1.04rem;
       line-height: 1.70;
       color: rgba(245, 247, 250, 0.74);
-    }
-
-    .connect-signal {
-      margin: 16px 0 0;
-      max-width: 40ch;
-      font-size: 0.88rem;
-      line-height: 1.6;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: rgba(245, 247, 250, 0.52);
     }
 
     .connect-panel {
@@ -1392,7 +1414,6 @@
       .hero-eyebrow,
       .hero h1,
       .hero p,
-      .hero-micro,
       .hero-actions {
         animation: none;
         opacity: 1;
@@ -1435,10 +1456,6 @@
       .approach-band-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 24px 28px;
-      }
-
-      .approach-band-line {
-        display: none;
       }
 
       .cost-card {
@@ -1505,7 +1522,7 @@
       }
 
       .hero-inner {
-        padding: 140px 34px 112px;
+        padding: 140px 20px 112px;
       }
 
       .hero-eyebrow {
@@ -1586,7 +1603,12 @@
 
       .approach-band {
         margin-top: 28px;
-        padding: 22px 18px 0;
+        padding: 28px 22px 24px;
+      }
+
+      .approach-band-header {
+        padding-bottom: 20px;
+        margin-bottom: 22px;
       }
 
       .approach-band-text {
@@ -1628,7 +1650,7 @@
       }
 
       .connect-copy h2 {
-        margin-bottom: 22px;
+        margin-bottom: 18px;
       }
 
       .connect-text {
@@ -1701,10 +1723,6 @@
 
         <p>
           An organization performs only as well as the system beneath it.
-        </p>
-
-        <p class="hero-micro">
-          Advisory engagements for senior leaders navigating structural complexity.
         </p>
 
         <div class="hero-actions">
@@ -1793,7 +1811,7 @@
         <div class="approach-card reveal reveal-delay-3">
           <div class="card-title">Operational Systems</div>
           <div class="card-desc">
-            Policies, controls, and processes shape how work actually moves. We redesign administrative systems so they support performance rather than constrain it.
+            Policies, controls, and processes shape how work actually moves. We redesign operating systems so they support performance rather than constrain it.
           </div>
         </div>
 
@@ -1805,8 +1823,13 @@
         </div>
       </div>
 
-      <div class="approach-band reveal" aria-label="Approach synthesis">
-        <div class="approach-band-line" aria-hidden="true"></div>
+      <div class="approach-band reveal" aria-label="The Monderman Effect">
+        <div class="approach-band-header">
+          <h3 class="approach-band-title">The Monderman Effect</h3>
+          <p class="approach-band-sub">
+            Four interconnected outcomes that turn structural complexity into sustained execution advantage.
+          </p>
+        </div>
 
         <div class="approach-band-grid">
           <div class="approach-band-item">
@@ -1828,6 +1851,10 @@
             <span class="approach-band-dot" aria-hidden="true"></span>
             <p class="approach-band-text">strengthen performance</p>
           </div>
+        </div>
+
+        <div class="approach-band-cta">
+          <a href="diagnostic-tools.html">See these outcomes in your organization</a>
         </div>
       </div>
     </div>
@@ -1964,6 +1991,22 @@
 
           <article class="latest-card">
             <div class="latest-card-image">
+              <img src="apature.jpg" alt="Kodak aperture image for Monderman research brief" />
+            </div>
+            <div class="latest-card-body">
+              <p class="latest-card-kicker">Research Brief</p>
+              <h3 class="latest-card-title">How the Collapse of Eastman Kodak Is Misunderstood</h3>
+              <p class="latest-card-text">
+                Kodak did not fail because it missed technology. It failed because its administrative and decision systems could not adapt.
+              </p>
+              <a class="latest-card-link" href="the-collapse-of-eastman-kodak.pdf" target="_blank" rel="noopener noreferrer">
+                Download research &#8594;
+              </a>
+            </div>
+          </article>
+
+          <article class="latest-card">
+            <div class="latest-card-image">
               <img src="iStock-511677736.jpg" alt="Abstract institutional image for Monderman insight" />
             </div>
             <div class="latest-card-body">
@@ -2003,12 +2046,10 @@
       <div class="connect-copy reveal">
         <div class="section-label">Connect</div>
         <h2 id="connect-title">Start a serious conversation.</h2>
+        <p class="connect-signal">Monderman works selectively with institutions facing consequential structural challenges.</p>
         <p class="connect-text">
           If you are navigating institutional drag, decision friction, or execution misalignment,
           we would welcome a conversation. Monderman works with leaders who understand that more intelligence is not the problem — institutional capacity is.
-        </p>
-        <p class="connect-signal">
-          We typically engage on a limited basis.
         </p>
       </div>
 
@@ -2199,12 +2240,14 @@
     }
 
     const latestTrack = document.getElementById("latestTrack");
+    const latestViewport = document.getElementById("latestViewport");
     const latestPrev = document.getElementById("latestPrev");
     const latestNext = document.getElementById("latestNext");
     const latestCards = latestTrack ? Array.from(latestTrack.querySelectorAll(".latest-card")) : [];
 
     let latestIndex = 0;
     let latestCardsPerView = window.innerWidth <= 760 ? 1 : 2;
+    let autoScrollInterval = null;
 
     function getLatestMaxIndex() {
       return Math.max(0, latestCards.length - latestCardsPerView);
@@ -2242,21 +2285,57 @@
       updateLatestCarousel();
     }
 
+    function stopAutoScroll() {
+      if (autoScrollInterval) {
+        clearInterval(autoScrollInterval);
+        autoScrollInterval = null;
+      }
+    }
+
+    function startAutoScroll() {
+      stopAutoScroll();
+
+      if (!latestTrack || latestCards.length <= latestCardsPerView) return;
+
+      autoScrollInterval = setInterval(() => {
+        if (latestIndex >= getLatestMaxIndex()) {
+          latestIndex = 0;
+        } else {
+          latestIndex += 1;
+        }
+        updateLatestCarousel();
+      }, 6200);
+    }
+
     if (latestPrev) {
       latestPrev.addEventListener("click", () => {
         goToLatest(latestIndex - 1);
+        startAutoScroll();
       });
     }
 
     if (latestNext) {
       latestNext.addEventListener("click", () => {
         goToLatest(latestIndex + 1);
+        startAutoScroll();
       });
     }
 
-    window.addEventListener("resize", updateLatestCarousel);
+    if (latestViewport) {
+      latestViewport.addEventListener("mouseenter", stopAutoScroll);
+      latestViewport.addEventListener("mouseleave", startAutoScroll);
+      latestViewport.addEventListener("focusin", stopAutoScroll);
+      latestViewport.addEventListener("focusout", startAutoScroll);
+    }
+
+    window.addEventListener("resize", () => {
+      updateLatestCarousel();
+      startAutoScroll();
+    });
+
     window.addEventListener("load", () => {
       updateLatestCarousel();
+      startAutoScroll();
     });
   </script>
 </body>
