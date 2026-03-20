@@ -65,6 +65,7 @@
       --rail-gap: 18px;
       --tool-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
       --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
+      --reveal-distance: 18px;
     }
 
     * {
@@ -117,6 +118,14 @@
       font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
     }
 
+    h1, h2, h3 {
+      letter-spacing: -0.048em;
+    }
+
+    p {
+      letter-spacing: -0.01em;
+    }
+
     a {
       color: inherit;
       text-decoration: none;
@@ -153,6 +162,25 @@
         scroll-snap-stop: normal;
       }
     }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(var(--reveal-distance));
+      transition:
+        opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: opacity, transform;
+    }
+
+    .reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 80ms; }
+    .reveal-delay-2 { transition-delay: 140ms; }
+    .reveal-delay-3 { transition-delay: 200ms; }
+    .reveal-delay-4 { transition-delay: 260ms; }
 
     .header {
       position: fixed;
@@ -333,6 +361,7 @@
     .hero-eyebrow,
     .hero h1,
     .hero p,
+    .hero-micro,
     .hero-actions {
       opacity: 0;
       transform: translateY(16px);
@@ -357,7 +386,6 @@
       max-width: 10.2ch;
       font-size: clamp(3.35rem, 5.6vw, 5.4rem);
       line-height: 0.95;
-      letter-spacing: -0.05em;
       font-weight: 700;
       color: #FFFFFF;
       text-wrap: balance;
@@ -366,23 +394,34 @@
     }
 
     .hero p {
-      max-width: 560px;
+      max-width: 32ch;
       margin: 0;
-      font-size: clamp(1.12rem, 1.5vw, 1.24rem);
-      line-height: 1.58;
-      letter-spacing: -0.012em;
+      font-size: clamp(1.14rem, 1.52vw, 1.26rem);
+      line-height: 1.56;
+      letter-spacing: -0.014em;
       color: var(--muted-light);
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
       animation-delay: 640ms;
+      text-wrap: balance;
+    }
+
+    .hero-micro {
+      margin-top: 18px;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.52);
+      animation-delay: 740ms;
     }
 
     .hero-actions {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 10px;
       flex-wrap: wrap;
-      margin-top: 42px;
-      animation-delay: 820ms;
+      margin-top: 32px;
+      animation-delay: 840ms;
     }
 
     .btn {
@@ -390,12 +429,12 @@
       align-items: center;
       justify-content: center;
       min-height: 48px;
-      min-width: 158px;
+      min-width: 168px;
       padding: 0 22px;
       border-radius: 999px;
       font-size: 0.98rem;
       font-weight: 500;
-      letter-spacing: -0.01em;
+      letter-spacing: -0.012em;
       white-space: nowrap;
       background: rgba(255, 255, 255, 0.96);
       color: var(--text-dark);
@@ -406,7 +445,8 @@
         color var(--transition),
         border-color var(--transition),
         transform var(--transition),
-        box-shadow var(--transition);
+        box-shadow var(--transition),
+        opacity var(--transition);
       cursor: pointer;
     }
 
@@ -427,6 +467,7 @@
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
+      opacity: 0.92;
     }
 
     .btn-secondary:hover,
@@ -435,6 +476,7 @@
       color: #FFFFFF;
       border-color: rgba(255, 255, 255, 0.62);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      opacity: 1;
     }
 
     @keyframes heroFadeUp {
@@ -471,7 +513,6 @@
       max-width: 760px;
       font-size: clamp(1.95rem, 2.45vw, 2.35rem);
       line-height: 1.12;
-      letter-spacing: -0.04em;
       font-weight: 700;
       color: var(--text-dark);
       text-wrap: balance;
@@ -534,10 +575,17 @@
       max-width: 720px;
       font-size: clamp(2.05rem, 2.9vw, 2.7rem);
       line-height: 1.12;
-      letter-spacing: -0.045em;
       font-weight: 700;
       color: var(--text-dark);
       text-wrap: balance;
+    }
+
+    .cost-context {
+      margin-top: 12px;
+      max-width: 52ch;
+      font-size: 0.96rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
     }
 
     .cost-grid {
@@ -560,7 +608,7 @@
     }
 
     .cost-card:hover {
-      transform: translateY(-2px);
+      transform: translateY(-3px);
       border-color: rgba(63, 110, 161, 0.12);
       box-shadow:
         0 1px 0 rgba(0, 0, 0, 0.014),
@@ -572,7 +620,6 @@
       margin: 0 0 8px;
       font-size: 1.02rem;
       line-height: 1.12;
-      letter-spacing: -0.015em;
       font-weight: 700;
       color: var(--text-dark);
     }
@@ -630,11 +677,19 @@
       padding-left: 8px;
     }
 
+    .approach-bridge {
+      margin-top: 10px;
+      margin-bottom: 10px;
+      max-width: 60ch;
+      font-size: 1rem;
+      line-height: 1.64;
+      color: var(--muted-dark);
+    }
+
     .approach-grid {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 260px));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 34px;
-      justify-content: start;
       margin-top: 50px;
     }
 
@@ -648,7 +703,8 @@
       transition:
         transform var(--transition-slow),
         box-shadow var(--transition-slow),
-        border-color var(--transition);
+        border-color var(--transition),
+        background var(--transition);
     }
 
     .approach-card::before {
@@ -665,6 +721,7 @@
     .approach-card:hover {
       transform: translateY(-4px);
       border-color: rgba(0, 0, 0, 0.06);
+      background: rgba(255, 255, 255, 1);
       box-shadow:
         0 8px 18px rgba(0, 0, 0, 0.04),
         0 18px 30px rgba(0, 0, 0, 0.04);
@@ -674,79 +731,103 @@
       width: 100%;
     }
 
+    .approach-card:hover .card-title {
+      color: #0F1720;
+    }
+
+    .approach-card:hover .card-desc {
+      color: #4C5A67;
+    }
+
     .card-title {
       margin-bottom: 18px;
       font-size: 1.42rem;
       line-height: 1.08;
       font-weight: 700;
-      letter-spacing: -0.024em;
       color: var(--text-dark);
+      transition: color var(--transition);
     }
 
     .card-desc {
       font-size: 1.02rem;
       line-height: 1.66;
       color: var(--muted-dark);
+      transition: color var(--transition);
     }
 
     .approach-band {
       position: relative;
       margin-top: 34px;
-      padding: 24px 0 0;
-      border-top: 1px solid rgba(21, 32, 43, 0.10);
+      padding: 26px 22px 22px;
+      background: linear-gradient(
+        180deg,
+        rgba(246, 247, 248, 0.82) 0%,
+        rgba(255, 255, 255, 0.96) 100%
+      );
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      border-radius: 2px;
+      box-shadow: var(--soft-shadow);
+      overflow: hidden;
     }
 
-    .approach-band::before {
-      content: "";
+    .approach-band-line {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 96px;
-      height: 2px;
-      background: rgba(63, 110, 161, 0.22);
+      top: 33px;
+      left: 22px;
+      right: 22px;
+      height: 1px;
+      background: rgba(63, 110, 161, 0.18);
     }
 
     .approach-band-grid {
+      position: relative;
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 24px;
+      gap: 34px;
       align-items: start;
     }
 
     .approach-band-item {
       position: relative;
-      padding-top: 16px;
+      padding-top: 0;
+      transition: transform var(--transition);
     }
 
-    .approach-band-item::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 9px;
-      height: 9px;
+    .approach-band-item:hover {
+      transform: translateY(-1px);
+    }
+
+    .approach-band-dot {
+      position: relative;
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      margin-bottom: 18px;
       border-radius: 999px;
       background: var(--accent);
       box-shadow: 0 0 0 4px rgba(63, 110, 161, 0.08);
+      transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
     }
 
-    .approach-band-title {
-      margin: 0 0 8px;
-      font-size: 0.84rem;
-      line-height: 1.1;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--accent);
+    .approach-band-item:hover .approach-band-dot {
+      transform: scale(1.08);
+      box-shadow: 0 0 0 5px rgba(63, 110, 161, 0.11);
+      background: var(--accent-dark);
     }
 
     .approach-band-text {
       margin: 0;
-      font-size: 0.94rem;
-      line-height: 1.55;
+      max-width: 16ch;
+      font-size: 1rem;
+      line-height: 1.45;
+      letter-spacing: -0.014em;
+      font-weight: 500;
       color: var(--text-dark);
-      max-width: 20ch;
-      letter-spacing: -0.01em;
+      transition: color var(--transition);
+    }
+
+    .approach-band-item:hover .approach-band-text {
+      color: #0F1720;
     }
 
     .tools-teaser {
@@ -780,6 +861,14 @@
       background: rgba(255,255,255,0.76);
       border: 1px solid rgba(21,32,43,0.08);
       box-shadow: var(--soft-shadow);
+    }
+
+    .tools-positioning {
+      margin-top: 12px;
+      max-width: 54ch;
+      font-size: 0.94rem;
+      line-height: 1.62;
+      color: var(--muted-dark-2);
     }
 
     .tools-grid {
@@ -862,7 +951,6 @@
       font-size: 1.14rem;
       line-height: 1.14;
       font-weight: 700;
-      letter-spacing: -0.022em;
       color: var(--text-dark);
     }
 
@@ -1024,7 +1112,7 @@
     }
 
     .latest-card-body {
-      padding: 20px 20px 20px;
+      padding: 16px;
     }
 
     .latest-card-kicker {
@@ -1042,14 +1130,13 @@
       font-size: 1.08rem;
       line-height: 1.12;
       font-weight: 700;
-      letter-spacing: -0.020em;
       color: var(--text-dark);
       text-wrap: balance;
     }
 
     .latest-card-text {
       margin: 0 0 13px;
-      font-size: 0.91rem;
+      font-size: 0.88rem;
       line-height: 1.55;
       color: var(--muted-dark);
     }
@@ -1123,6 +1210,16 @@
       font-size: 1.04rem;
       line-height: 1.70;
       color: rgba(245, 247, 250, 0.74);
+    }
+
+    .connect-signal {
+      margin: 16px 0 0;
+      max-width: 40ch;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(245, 247, 250, 0.52);
     }
 
     .connect-panel {
@@ -1290,10 +1387,12 @@
         scroll-snap-type: none;
       }
 
+      .reveal,
       .hero-image,
       .hero-eyebrow,
       .hero h1,
       .hero p,
+      .hero-micro,
       .hero-actions {
         animation: none;
         opacity: 1;
@@ -1307,6 +1406,9 @@
       .nav a::after,
       .cost-card,
       .approach-card,
+      .approach-band-item,
+      .approach-band-dot,
+      .approach-band-text,
       .tool-card,
       .latest-card,
       .latest-card-image img,
@@ -1332,7 +1434,11 @@
 
       .approach-band-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 22px;
+        gap: 24px 28px;
+      }
+
+      .approach-band-line {
+        display: none;
       }
 
       .cost-card {
@@ -1416,6 +1522,7 @@
       }
 
       .hero p {
+        max-width: 100%;
         font-size: 1rem;
         line-height: 1.58;
       }
@@ -1479,12 +1586,16 @@
 
       .approach-band {
         margin-top: 28px;
-        padding-top: 22px;
+        padding: 22px 18px 0;
       }
 
       .approach-band-text {
         max-width: 100%;
-        font-size: 0.92rem;
+        font-size: 0.96rem;
+      }
+
+      .approach-band-dot {
+        margin-bottom: 14px;
       }
 
       .tools-teaser {
@@ -1592,6 +1703,10 @@
           An organization performs only as well as the system beneath it.
         </p>
 
+        <p class="hero-micro">
+          Advisory engagements for senior leaders navigating structural complexity.
+        </p>
+
         <div class="hero-actions">
           <a class="btn" href="advisory-services.html">Advisory Engagements</a>
           <a class="btn btn-secondary" href="diagnostic-tools.html">Run Diagnostics</a>
@@ -1603,13 +1718,16 @@
 
   <section class="bureaucracy-cost" id="cost-section" aria-labelledby="cost-title">
     <div class="cost-inner">
-      <div class="cost-heading">
+      <div class="cost-heading reveal">
         <p class="cost-label">The Cost of Bureaucratic Friction</p>
-        <h2 id="cost-title">What overhead quietly consumes.</h2>
+        <h2 id="cost-title">Where performance is quietly lost.</h2>
+        <p class="cost-context">
+          The issue is not complexity itself. It is the systems built to manage it.
+        </p>
       </div>
 
       <div class="cost-grid">
-        <div class="cost-card">
+        <div class="cost-card reveal reveal-delay-1">
           <div class="cost-card-title">Time<span class="asterisk">*</span></div>
           <p class="cost-card-source"><em>* HBR / management reporting research</em></p>
           <div class="cost-card-number" data-count-type="percent" data-target="40">0%</div>
@@ -1618,7 +1736,7 @@
           </p>
         </div>
 
-        <div class="cost-card">
+        <div class="cost-card reveal reveal-delay-2">
           <div class="cost-card-title">Money<span class="asterisk">*</span></div>
           <p class="cost-card-source"><em>* Harvard Business Review</em></p>
           <div class="cost-card-number" data-count-type="currency-trillion" data-target="3">$0T</div>
@@ -1627,7 +1745,7 @@
           </p>
         </div>
 
-        <div class="cost-card">
+        <div class="cost-card reveal reveal-delay-3">
           <div class="cost-card-title">Resources<span class="asterisk">*</span></div>
           <p class="cost-card-source"><em>* OECD / administrative burden guidance</em></p>
           <div class="cost-card-number" data-count-type="range-percent" data-target="30">0–0%</div>
@@ -1637,7 +1755,7 @@
         </div>
       </div>
 
-      <p class="cost-footer">
+      <p class="cost-footer reveal reveal-delay-4">
         Selected sources: Harvard Business Review; OECD administrative burden guidance.
       </p>
     </div>
@@ -1645,38 +1763,41 @@
 
   <section class="approach" id="approach" aria-labelledby="approach-title">
     <div class="approach-inner">
-      <div class="section-intro">
+      <div class="section-intro reveal">
         <div class="section-label">Our Approach</div>
         <h2 id="approach-title">Designing systems for clarity and execution.</h2>
         <p>
           Monderman works at the level where structure, governance, and institutional performance meet.
           We help organizations reduce friction, improve decision velocity, and strengthen the systems through which execution actually happens.
         </p>
+        <p class="approach-bridge">
+          We work at the level beneath strategy — where structure determines whether execution holds.
+        </p>
       </div>
 
       <div class="approach-grid">
-        <div class="approach-card">
+        <div class="approach-card reveal reveal-delay-1">
           <div class="card-title">Structural Clarity</div>
           <div class="card-desc">
             We identify where authority, responsibility, and execution have drifted apart, then realign the operating structure so decisions translate into action.
           </div>
         </div>
 
-        <div class="approach-card">
+        <div class="approach-card reveal reveal-delay-2">
           <div class="card-title">Decision Velocity</div>
           <div class="card-desc">
             Most organizations do not lack strategy. They lack speed. We remove the friction that slows decision cycles and stalls execution.
           </div>
         </div>
 
-        <div class="approach-card">
+        <div class="approach-card reveal reveal-delay-3">
           <div class="card-title">Operational Systems</div>
           <div class="card-desc">
             Policies, controls, and processes shape how work actually moves. We redesign administrative systems so they support performance rather than constrain it.
           </div>
         </div>
 
-        <div class="approach-card">
+        <div class="approach-card reveal reveal-delay-4">
           <div class="card-title">Institutional Performance</div>
           <div class="card-desc">
             Strong institutions sustain clarity over time. We design governance mechanisms that preserve alignment as organizations grow and evolve.
@@ -1684,25 +1805,27 @@
         </div>
       </div>
 
-      <div class="approach-band" aria-label="Approach synthesis">
+      <div class="approach-band reveal" aria-label="Approach synthesis">
+        <div class="approach-band-line" aria-hidden="true"></div>
+
         <div class="approach-band-grid">
           <div class="approach-band-item">
-            <p class="approach-band-title">Structural Clarity</p>
+            <span class="approach-band-dot" aria-hidden="true"></span>
             <p class="approach-band-text">clarify ownership</p>
           </div>
 
           <div class="approach-band-item">
-            <p class="approach-band-title">Decision Velocity</p>
+            <span class="approach-band-dot" aria-hidden="true"></span>
             <p class="approach-band-text">shorten decision paths</p>
           </div>
 
           <div class="approach-band-item">
-            <p class="approach-band-title">Operational Systems</p>
+            <span class="approach-band-dot" aria-hidden="true"></span>
             <p class="approach-band-text">reduce hidden drag</p>
           </div>
 
           <div class="approach-band-item">
-            <p class="approach-band-title">Institutional Performance</p>
+            <span class="approach-band-dot" aria-hidden="true"></span>
             <p class="approach-band-text">strengthen performance</p>
           </div>
         </div>
@@ -1713,22 +1836,25 @@
   <section class="tools-teaser" id="tools" aria-labelledby="tools-title">
     <div class="tools-teaser-inner">
       <div class="tools-teaser-head">
-        <div class="section-intro">
+        <div class="section-intro reveal">
           <div class="section-label">Diagnostic Tools</div>
           <h2 id="tools-title">Practical diagnostics for structural clarity, decision velocity, and institutional drag.</h2>
           <p>
             Monderman’s diagnostic tools are designed to help users identify friction inside bounded workflows and operating environments without reducing complex problems to generic surveys.
           </p>
+          <p class="tools-positioning">
+            These tools reveal structure. They do not replace judgment.
+          </p>
         </div>
 
-        <p class="tools-note">
+        <p class="tools-note reveal reveal-delay-2">
           <strong>Private by default.</strong> These diagnostics are intended for immediate use and do not create a persistent organizational record.
           Please avoid entering confidential, classified, regulated, or personally sensitive information.
         </p>
       </div>
 
       <div class="tools-grid">
-        <div class="tool-card tool-card-live">
+        <div class="tool-card tool-card-live reveal reveal-delay-1">
           <a class="tool-card-link" href="structural-clarity.html" aria-label="Open Structural Clarity Snapshot">
             <div class="tool-badge">Live</div>
             <p class="tool-card-kicker">Structural Clarity</p>
@@ -1742,7 +1868,7 @@
           </a>
         </div>
 
-        <div class="tool-card tool-card-live">
+        <div class="tool-card tool-card-live reveal reveal-delay-2">
           <a class="tool-card-link" href="decision-velocity.html" aria-label="Open Decision Velocity Snapshot">
             <div class="tool-badge">Live</div>
             <p class="tool-card-kicker">Decision Velocity</p>
@@ -1756,7 +1882,7 @@
           </a>
         </div>
 
-        <div class="tool-card tool-card-live">
+        <div class="tool-card tool-card-live reveal reveal-delay-3">
           <a class="tool-card-link" href="bureaucratic-drag-snapshot.html" aria-label="Open Bureaucratic Drag Snapshot">
             <div class="tool-badge">Live</div>
             <p class="tool-card-kicker">Operational Systems</p>
@@ -1771,7 +1897,7 @@
         </div>
       </div>
 
-      <div class="tools-teaser-footer">
+      <div class="tools-teaser-footer reveal reveal-delay-4">
         <p>
           Explore the full diagnostic suite, including Monderman’s live Structural Clarity, Decision Velocity, and Bureaucratic Drag tools.
         </p>
@@ -1783,7 +1909,7 @@
   <section class="latest" id="latest" aria-labelledby="latest-title">
     <div class="latest-inner">
       <div class="latest-head">
-        <div class="latest-intro section-intro">
+        <div class="latest-intro section-intro reveal">
           <div class="section-label">Latest from Monderman</div>
           <h2 id="latest-title">Research, briefs, and perspectives.</h2>
           <p>
@@ -1792,7 +1918,7 @@
           </p>
         </div>
 
-        <div class="latest-controls" aria-label="Latest content controls">
+        <div class="latest-controls reveal reveal-delay-2" aria-label="Latest content controls">
           <button class="rail-arrow" id="latestPrev" type="button" aria-label="Show previous latest items">
             &#8592;
           </button>
@@ -1874,16 +2000,19 @@
 
   <section class="connect" id="connect" aria-labelledby="connect-title">
     <div class="connect-inner">
-      <div class="connect-copy">
+      <div class="connect-copy reveal">
         <div class="section-label">Connect</div>
         <h2 id="connect-title">Start a serious conversation.</h2>
         <p class="connect-text">
           If you are navigating institutional drag, decision friction, or execution misalignment,
           we would welcome a conversation. Monderman works with leaders who understand that more intelligence is not the problem — institutional capacity is.
         </p>
+        <p class="connect-signal">
+          We typically engage on a limited basis.
+        </p>
       </div>
 
-      <div class="connect-panel">
+      <div class="connect-panel reveal reveal-delay-2">
         <p class="connect-kicker">Primary Contact</p>
         <a class="connect-link" href="mailto:connect@monderman.com">
           <span class="connect-link-mark" aria-hidden="true"></span>
@@ -2049,6 +2178,24 @@
       }, { threshold: 0.35 });
 
       observer.observe(costSection);
+    }
+
+    const revealItems = document.querySelectorAll(".reveal");
+
+    if (revealItems.length) {
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      }, {
+        threshold: 0.12,
+        rootMargin: "0px 0px -8% 0px"
+      });
+
+      revealItems.forEach((item) => revealObserver.observe(item));
     }
 
     const latestTrack = document.getElementById("latestTrack");
