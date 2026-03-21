@@ -1,1 +1,1774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Institutional Performance Snapshot | Monderman</title>
 
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href='data:image/svg+xml;utf8,
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="10" fill="%230F1720"/>
+      <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text>
+      <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
+    </svg>'
+  />
+
+  <style>
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff");
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff");
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff");
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+    }
+
+    :root {
+      --accent: #3F6EA1;
+      --accent-dark: #2F5886;
+      --bg-dark: #0F1720;
+      --bg-dark-2: #111B25;
+      --bg-white: #FFFFFF;
+      --bg-offwhite: #F6F7F8;
+      --text-light: #F5F7FA;
+      --muted-light: rgba(245, 247, 250, 0.80);
+      --text-dark: #15202B;
+      --muted-dark: #5F6B78;
+      --muted-dark-2: #7A8794;
+      --line-dark: #E3E7EB;
+      --line-dark-2: #D7DEE5;
+      --header-solid: rgba(14, 20, 28, 0.84);
+      --header-border: rgba(255, 255, 255, 0.08);
+      --max: 1320px;
+      --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
+      --transition-slow: 360ms cubic-bezier(0.22, 1, 0.36, 1);
+      --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
+      --card-shadow: 0 16px 40px rgba(15, 23, 32, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 88px;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg-white);
+      color: var(--text-dark);
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    html,
+    body,
+    button,
+    input,
+    textarea,
+    select,
+    option,
+    a,
+    p,
+    li,
+    dt,
+    dd,
+    span,
+    small,
+    strong,
+    em,
+    label,
+    figcaption,
+    blockquote,
+    cite,
+    div,
+    section,
+    article,
+    nav,
+    header,
+    footer,
+    main,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5 {
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    .header {
+      position: fixed;
+      inset: 0 0 auto 0;
+      width: 100%;
+      height: 72px;
+      z-index: 100;
+      background: transparent;
+      border-bottom: 1px solid transparent;
+      transition:
+        background var(--transition),
+        border-color var(--transition),
+        backdrop-filter var(--transition),
+        -webkit-backdrop-filter var(--transition);
+    }
+
+    .header.scrolled {
+      background: var(--header-solid);
+      border-bottom-color: var(--header-border);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .header-inner {
+      max-width: var(--max);
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 34px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      font-size: 1.32rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      white-space: nowrap;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
+    }
+
+    .brand::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .nav a {
+      position: relative;
+      font-size: 0.94rem;
+      font-weight: 500;
+      letter-spacing: 0.012em;
+      color: rgba(255, 255, 255, 0.88);
+      transition: color var(--transition), transform var(--transition);
+    }
+
+    .nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -6px;
+      width: 100%;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.74);
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 180ms ease;
+    }
+
+    .nav a:hover,
+    .nav a.is-active {
+      color: #FFFFFF;
+      transform: translateY(-1px);
+    }
+
+    .nav a:hover::after,
+    .nav a.is-active::after {
+      transform: scaleX(1);
+    }
+
+    .hero-tools {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(15, 23, 32, 0.82) 0%, rgba(15, 23, 32, 0.92) 100%),
+        linear-gradient(135deg, #172331 0%, #0F1720 52%, #111B25 100%);
+      color: var(--text-light);
+      padding: 140px 34px 86px;
+    }
+
+    .hero-tools::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 16% 18%, rgba(63, 110, 161, 0.20), transparent 30%),
+        radial-gradient(circle at 82% 20%, rgba(63, 110, 161, 0.12), transparent 24%),
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: auto, auto, 40px 40px, 40px 40px;
+      pointer-events: none;
+      opacity: 0.62;
+    }
+
+    .hero-tools-inner {
+      position: relative;
+      max-width: var(--max);
+      margin: 0 auto;
+      z-index: 1;
+    }
+
+    .hero-tools-eyebrow {
+      margin: 0 0 18px;
+      font-size: 0.78rem;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: rgba(245, 247, 250, 0.72);
+    }
+
+    .hero-tools h1 {
+      margin: 0 0 18px;
+      max-width: 760px;
+      font-size: clamp(2.7rem, 5vw, 4.45rem);
+      line-height: 0.96;
+      letter-spacing: -0.05em;
+      font-weight: 700;
+      color: #FFFFFF;
+    }
+
+    .hero-tools p {
+      max-width: 800px;
+      margin: 0;
+      font-size: 1.14rem;
+      line-height: 1.82;
+      color: var(--muted-light);
+    }
+
+    .tools-page {
+      background: linear-gradient(180deg, var(--bg-offwhite) 0%, #FFFFFF 100%);
+      padding: 0 34px 110px;
+    }
+
+    .tools-page-inner {
+      max-width: var(--max);
+      margin: -42px auto 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    .tool-app {
+      background: #FFFFFF;
+      border: 1px solid rgba(227, 231, 235, 0.96);
+      border-radius: 28px;
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+    }
+
+    .tool-app-head {
+      padding: 34px 34px 28px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.9fr);
+      gap: 28px;
+      border-bottom: 1px solid var(--line-dark);
+      background:
+        linear-gradient(180deg, rgba(246, 247, 248, 0.86) 0%, rgba(255,255,255,0.96) 100%);
+    }
+
+    .tool-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      padding: 0 12px;
+      margin-bottom: 14px;
+      border-radius: 999px;
+      background: rgba(63, 110, 161, 0.11);
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .tool-app-head h3 {
+      margin: 0 0 12px;
+      font-size: clamp(1.5rem, 2.2vw, 2rem);
+      line-height: 1.06;
+      letter-spacing: -0.03em;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .tool-app-head p,
+    .tool-privacy {
+      margin: 0;
+      font-size: 0.98rem;
+      line-height: 1.72;
+      color: var(--muted-dark);
+    }
+
+    .tool-privacy {
+      align-self: stretch;
+      padding: 18px 20px;
+      border: 1px solid var(--line-dark);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.9);
+    }
+
+    .tool-privacy strong {
+      color: var(--text-dark);
+    }
+
+    .tool-progress {
+      padding: 24px 34px 0;
+    }
+
+    .tool-progress-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .tool-progress-label {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .tool-progress-time {
+      font-size: 0.9rem;
+      color: var(--muted-dark-2);
+    }
+
+    .tool-progress-bar {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #E8EDF2;
+    }
+
+    .tool-progress-fill {
+      width: 25%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), #6C8FB8);
+      transition: width var(--transition-slow);
+    }
+
+    .tool-steps {
+      padding: 22px 34px 0;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .tool-step-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+      padding: 0 16px;
+      border-radius: 999px;
+      border: 1px solid var(--line-dark);
+      background: #FFFFFF;
+      color: var(--muted-dark);
+      font-size: 0.88rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      transition: all var(--transition);
+    }
+
+    .tool-step-pill.is-active {
+      border-color: rgba(63, 110, 161, 0.22);
+      background: rgba(63, 110, 161, 0.10);
+      color: var(--accent-dark);
+    }
+
+    .tool-app-body {
+      padding: 32px 34px 34px;
+    }
+
+    .tool-pane {
+      display: none;
+      animation: paneFade 220ms ease;
+    }
+
+    .tool-pane.is-active {
+      display: block;
+    }
+
+    @keyframes paneFade {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .tool-pane-title {
+      margin: 0 0 10px;
+      font-size: clamp(1.3rem, 2vw, 1.72rem);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .tool-pane-copy {
+      margin: 0 0 26px;
+      max-width: 840px;
+      font-size: 1rem;
+      line-height: 1.76;
+      color: var(--muted-dark);
+    }
+
+    .tool-fields {
+      display: grid;
+      gap: 24px;
+    }
+
+    .tool-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .tool-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .tool-field {
+      display: grid;
+      gap: 10px;
+    }
+
+    .tool-field label,
+    .tool-question-title {
+      font-size: 0.94rem;
+      line-height: 1.5;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .tool-field input,
+    .tool-field select,
+    .tool-field textarea {
+      width: 100%;
+      min-height: 52px;
+      border: 1px solid var(--line-dark-2);
+      border-radius: 14px;
+      background: #FFFFFF;
+      color: var(--text-dark);
+      padding: 0 16px;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .tool-field textarea {
+      min-height: 120px;
+      padding: 14px 16px;
+      resize: vertical;
+    }
+
+    .tool-field input:focus,
+    .tool-field select:focus,
+    .tool-field textarea:focus {
+      border-color: rgba(63, 110, 161, 0.65);
+      box-shadow: 0 0 0 4px rgba(63, 110, 161, 0.10);
+    }
+
+    .tool-field-hint {
+      margin: -2px 0 0;
+      font-size: 0.86rem;
+      line-height: 1.5;
+      color: var(--muted-dark-2);
+    }
+
+    .question-card {
+      border: 1px solid var(--line-dark);
+      border-radius: 18px;
+      padding: 20px;
+      background: linear-gradient(180deg, #FFFFFF 0%, #FCFDFD 100%);
+    }
+
+    .question-card + .question-card {
+      margin-top: 16px;
+    }
+
+    .question-meta {
+      margin: 0 0 8px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .choice-row {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .choice-btn {
+      appearance: none;
+      border: 1px solid var(--line-dark-2);
+      background: #FFFFFF;
+      color: var(--muted-dark);
+      border-radius: 14px;
+      min-height: 54px;
+      padding: 10px 12px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      line-height: 1.3;
+      text-align: center;
+      cursor: pointer;
+      transition:
+        border-color var(--transition),
+        background var(--transition),
+        color var(--transition),
+        transform var(--transition),
+        box-shadow var(--transition);
+    }
+
+    .choice-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(63, 110, 161, 0.38);
+      color: var(--text-dark);
+    }
+
+    .choice-btn.is-selected {
+      border-color: rgba(63, 110, 161, 0.30);
+      background: rgba(63, 110, 161, 0.10);
+      color: var(--accent-dark);
+      box-shadow: 0 0 0 3px rgba(63, 110, 161, 0.08);
+    }
+
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .checkbox-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      min-height: 60px;
+      padding: 16px;
+      border: 1px solid var(--line-dark);
+      border-radius: 16px;
+      background: #FFFFFF;
+      transition: border-color var(--transition), background var(--transition), transform var(--transition);
+      cursor: pointer;
+    }
+
+    .checkbox-card:hover {
+      transform: translateY(-1px);
+      border-color: rgba(63, 110, 161, 0.26);
+    }
+
+    .checkbox-card input {
+      margin-top: 2px;
+      accent-color: var(--accent);
+      transform: scale(1.05);
+      flex: 0 0 auto;
+    }
+
+    .checkbox-card span {
+      font-size: 0.94rem;
+      line-height: 1.55;
+      color: var(--text-dark);
+      font-weight: 500;
+    }
+
+    .tool-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-top: 28px;
+    }
+
+    .tool-nav-left,
+    .tool-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      appearance: none;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 20px;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      transition:
+        transform var(--transition),
+        background var(--transition),
+        color var(--transition),
+        border-color var(--transition),
+        box-shadow var(--transition);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #FFFFFF;
+      box-shadow: 0 8px 24px rgba(63, 110, 161, 0.18);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-dark);
+    }
+
+    .btn-secondary {
+      background: #FFFFFF;
+      color: var(--text-dark);
+      border: 1px solid var(--line-dark-2);
+    }
+
+    .btn-secondary:hover {
+      border-color: rgba(63, 110, 161, 0.35);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted-dark);
+      border: 1px solid transparent;
+    }
+
+    .results-wrap {
+      display: grid;
+      gap: 22px;
+    }
+
+    .results-top {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .result-card {
+      border: 1px solid var(--line-dark);
+      border-radius: 20px;
+      padding: 22px 22px 20px;
+      background: linear-gradient(180deg, #FFFFFF 0%, #F9FBFC 100%);
+    }
+
+    .result-card-label {
+      margin: 0 0 10px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .result-card-value {
+      margin: 0 0 8px;
+      font-size: clamp(1.5rem, 2.6vw, 2.2rem);
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: var(--text-dark);
+    }
+
+    .result-card-copy {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+    }
+
+    .results-main {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.9fr);
+      gap: 20px;
+    }
+
+    .results-panel {
+      border: 1px solid var(--line-dark);
+      border-radius: 22px;
+      padding: 24px;
+      background: #FFFFFF;
+    }
+
+    .results-panel h5 {
+      margin: 0 0 12px;
+      font-size: 1.18rem;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .results-panel p {
+      margin: 0 0 14px;
+      font-size: 0.98rem;
+      line-height: 1.78;
+      color: var(--muted-dark);
+    }
+
+    .results-panel p:last-child {
+      margin-bottom: 0;
+    }
+
+    .bar-group {
+      display: grid;
+      gap: 16px;
+    }
+
+    .bar-row {
+      display: grid;
+      gap: 8px;
+    }
+
+    .bar-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      font-size: 0.92rem;
+      line-height: 1.4;
+      color: var(--text-dark);
+      font-weight: 600;
+    }
+
+    .bar-track {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: #E8EDF2;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      width: 0;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), #6C8FB8);
+      transition: width 520ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .actions-list {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted-dark);
+    }
+
+    .actions-list li {
+      margin: 0 0 10px;
+      line-height: 1.72;
+    }
+
+    .actions-list li:last-child {
+      margin-bottom: 0;
+    }
+
+    .results-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding-top: 8px;
+    }
+
+    .results-note {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--muted-dark-2);
+    }
+
+    .footer {
+      background: var(--bg-dark);
+      color: rgba(245, 247, 250, 0.74);
+      padding: 42px 34px 34px;
+    }
+
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .footer-top,
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .footer-top {
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .footer-bottom {
+      padding-top: 24px;
+    }
+
+    .footer-brand {
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: -0.02em;
+    }
+
+    .footer-brand::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+
+    .footer-nav {
+      display: flex;
+      align-items: center;
+      gap: 26px;
+      flex-wrap: wrap;
+    }
+
+    .footer-nav a {
+      font-size: 0.92rem;
+      color: rgba(245, 247, 250, 0.76);
+      transition: color var(--transition);
+    }
+
+    .footer-nav a:hover {
+      color: #FFFFFF;
+    }
+
+    .footer-copy {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
+    .footer-meta,
+    .footer-contact {
+      margin: 0;
+      font-size: 0.84rem;
+      line-height: 1.65;
+      color: rgba(245, 247, 250, 0.62);
+    }
+
+    @media (max-width: 1120px) {
+      .tool-app-head,
+      .results-main {
+        grid-template-columns: 1fr;
+      }
+
+      .results-top {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 900px) {
+      .tool-grid-2,
+      .tool-grid-3,
+      .choice-row,
+      .checkbox-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-tools {
+        padding: 132px 24px 74px;
+      }
+
+      .tools-page {
+        padding: 0 24px 90px;
+      }
+
+      .tool-app-head,
+      .tool-progress,
+      .tool-steps,
+      .tool-app-body {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+
+      .tool-nav {
+        flex-direction: column-reverse;
+        align-items: stretch;
+      }
+
+      .tool-nav-left,
+      .tool-nav-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .results-top {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .header {
+        height: auto;
+      }
+
+      .header-inner {
+        padding: 16px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .nav {
+        flex-wrap: wrap;
+        gap: 18px;
+      }
+
+      .hero-tools {
+        padding: 126px 20px 68px;
+      }
+
+      .tools-page {
+        padding: 0 20px 80px;
+      }
+
+      .tool-app {
+        border-radius: 22px;
+      }
+
+      .tool-app-head,
+      .tool-progress,
+      .tool-steps,
+      .tool-app-body {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .tool-app-head {
+        padding-top: 24px;
+      }
+
+      .tool-step-pill {
+        min-height: 38px;
+        font-size: 0.82rem;
+      }
+
+      .results-panel,
+      .result-card,
+      .question-card {
+        padding: 18px;
+      }
+
+      .footer {
+        padding: 34px 20px 28px;
+      }
+
+      .footer-top,
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .footer-nav {
+        gap: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header" id="siteHeader">
+    <div class="header-inner">
+      <a href="index.html" class="brand">Monderman</a>
+
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="index.html#approach">Approach</a>
+        <a href="diagnostic-tools.html" class="is-active">Diagnostic Tools</a>
+        <a href="research.html">Research</a>
+        <a href="why-monderman.html">Why Monderman</a>
+        <a href="index.html#connect">Connect</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero-tools" aria-labelledby="tools-hero-title">
+    <div class="hero-tools-inner">
+      <p class="hero-tools-eyebrow">Monderman Diagnostic Tools</p>
+      <h1 id="tools-hero-title">Institutional Performance Snapshot.</h1>
+      <p>
+        A guided diagnostic for estimating how well an institution converts structure into sustained performance.
+        Use it to assess whether execution, decision-making, adaptability, and operating confidence are holding together — or drifting apart.
+      </p>
+    </div>
+  </section>
+
+  <main class="tools-page">
+    <div class="tools-page-inner">
+      <div class="tool-app" id="toolApp">
+        <div class="tool-app-head">
+          <div>
+            <div class="tool-badge">Live</div>
+            <h3>Institutional Performance Snapshot</h3>
+            <p>
+              A guided four-step diagnostic for one bounded operating environment. It produces an overall performance score and four sub-scores:
+              execution coherence, decision reliability, adaptive capacity, and institutional confidence.
+            </p>
+          </div>
+          <div class="tool-privacy">
+            <strong>Use note:</strong> Do not enter confidential, classified, regulated, or personally sensitive information.
+            This tool provides directional estimates, not audited organizational values.
+          </div>
+        </div>
+
+        <div class="tool-progress">
+          <div class="tool-progress-top">
+            <div class="tool-progress-label" id="progressLabel">Step 1 of 4</div>
+            <div class="tool-progress-time">Approx. 4 minutes</div>
+          </div>
+          <div class="tool-progress-bar">
+            <div class="tool-progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+
+        <div class="tool-steps">
+          <div class="tool-step-pill is-active">1 · Context</div>
+          <div class="tool-step-pill">2 · Core Ratings</div>
+          <div class="tool-step-pill">3 · Signals</div>
+          <div class="tool-step-pill">4 · Output</div>
+        </div>
+
+        <div class="tool-app-body">
+          <div class="tool-pane is-active" data-step="1">
+            <h4 class="tool-pane-title">Step 1 — Define the operating context</h4>
+            <p class="tool-pane-copy">
+              Keep the assessment bounded. The objective is not to rate an entire institution in the abstract,
+              but to assess one recognizable operating environment or organizational slice.
+            </p>
+
+            <div class="tool-fields">
+              <div class="tool-grid-2">
+                <div class="tool-field">
+                  <label for="unitName">Assessment name <span style="color:#7A8794;">(optional)</span></label>
+                  <input id="unitName" type="text" placeholder="Example: Finance and operations interface" />
+                </div>
+
+                <div class="tool-field">
+                  <label for="assessmentScope">What are you assessing?</label>
+                  <select id="assessmentScope">
+                    <option value="team">One team</option>
+                    <option value="function">One function</option>
+                    <option value="division">One division</option>
+                    <option value="workflow">A cross-functional workflow</option>
+                    <option value="organization">An entire organization</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="tool-grid-3">
+                <div class="tool-field">
+                  <label for="orgSize">Organization size</label>
+                  <select id="orgSize">
+                    <option value="1">1–25</option>
+                    <option value="2">26–100</option>
+                    <option value="3">101–500</option>
+                    <option value="4">500+</option>
+                  </select>
+                </div>
+
+                <div class="tool-field">
+                  <label for="sector">Sector / environment</label>
+                  <select id="sector">
+                    <option value="1">Private sector</option>
+                    <option value="1.1">Public sector</option>
+                    <option value="1.05">Nonprofit</option>
+                    <option value="1.15">Regulated / high-compliance</option>
+                    <option value="1">Other</option>
+                  </select>
+                </div>
+
+                <div class="tool-field">
+                  <label for="operatingCondition">Current operating condition</label>
+                  <select id="operatingCondition">
+                    <option value="0">Stable</option>
+                    <option value="4">Under pressure</option>
+                    <option value="6">In transition</option>
+                    <option value="5">Recovering from disruption</option>
+                    <option value="7">Rapid growth / scale-up</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="tool-nav">
+              <div class="tool-nav-left">
+                <button class="btn btn-ghost" type="button" disabled>Back</button>
+              </div>
+              <div class="tool-nav-right">
+                <button class="btn btn-primary" type="button" data-next>Continue</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="tool-pane" data-step="2">
+            <h4 class="tool-pane-title">Step 2 — Rate core institutional conditions</h4>
+            <p class="tool-pane-copy">
+              These questions assess whether the institution is converting structure into sustained performance,
+              rather than relying on extra effort, workarounds, or temporary compensation.
+            </p>
+
+            <div class="tool-fields">
+              <div class="question-card">
+                <p class="question-meta">Execution Coherence</p>
+                <div class="tool-question-title">How reliably does leadership intent translate into execution?</div>
+                <div class="choice-row" data-question="execution">
+                  <button class="choice-btn" type="button" data-value="1">Very weak</button>
+                  <button class="choice-btn" type="button" data-value="2">Weak</button>
+                  <button class="choice-btn is-selected" type="button" data-value="3">Mixed</button>
+                  <button class="choice-btn" type="button" data-value="4">Strong</button>
+                  <button class="choice-btn" type="button" data-value="5">Very strong</button>
+                </div>
+              </div>
+
+              <div class="question-card">
+                <p class="question-meta">Priority Clarity</p>
+                <div class="tool-question-title">How clearly are priorities understood across the assessed environment?</div>
+                <div class="choice-row" data-question="priorities">
+                  <button class="choice-btn" type="button" data-value="1">Very weak</button>
+                  <button class="choice-btn" type="button" data-value="2">Weak</button>
+                  <button class="choice-btn is-selected" type="button" data-value="3">Mixed</button>
+                  <button class="choice-btn" type="button" data-value="4">Strong</button>
+                  <button class="choice-btn" type="button" data-value="5">Very strong</button>
+                </div>
+              </div>
+
+              <div class="question-card">
+                <p class="question-meta">Decision Reliability</p>
+                <div class="tool-question-title">How consistently do teams know who decides and who acts?</div>
+                <div class="choice-row" data-question="decision">
+                  <button class="choice-btn" type="button" data-value="1">Very weak</button>
+                  <button class="choice-btn" type="button" data-value="2">Weak</button>
+                  <button class="choice-btn is-selected" type="button" data-value="3">Mixed</button>
+                  <button class="choice-btn" type="button" data-value="4">Strong</button>
+                  <button class="choice-btn" type="button" data-value="5">Very strong</button>
+                </div>
+              </div>
+
+              <div class="question-card">
+                <p class="question-meta">Follow-through</p>
+                <div class="tool-question-title">How effectively does the institution follow through once decisions are made?</div>
+                <div class="choice-row" data-question="followthrough">
+                  <button class="choice-btn" type="button" data-value="1">Very weak</button>
+                  <button class="choice-btn" type="button" data-value="2">Weak</button>
+                  <button class="choice-btn is-selected" type="button" data-value="3">Mixed</button>
+                  <button class="choice-btn" type="button" data-value="4">Strong</button>
+                  <button class="choice-btn" type="button" data-value="5">Very strong</button>
+                </div>
+              </div>
+
+              <div class="question-card">
+                <p class="question-meta">Adaptive Capacity</p>
+                <div class="tool-question-title">How well does the institution maintain performance under changing conditions?</div>
+                <div class="choice-row" data-question="adaptation">
+                  <button class="choice-btn" type="button" data-value="1">Very weak</button>
+                  <button class="choice-btn" type="button" data-value="2">Weak</button>
+                  <button class="choice-btn is-selected" type="button" data-value="3">Mixed</button>
+                  <button class="choice-btn" type="button" data-value="4">Strong</button>
+                  <button class="choice-btn" type="button" data-value="5">Very strong</button>
+                </div>
+              </div>
+
+              <div class="question-card">
+                <p class="question-meta">Institutional Confidence</p>
+                <div class="tool-question-title">How much confidence do people appear to have in the system they work inside?</div>
+                <div class="choice-row" data-question="confidence">
+                  <button class="choice-btn" type="button" data-value="1">Very weak</button>
+                  <button class="choice-btn" type="button" data-value="2">Weak</button>
+                  <button class="choice-btn is-selected" type="button" data-value="3">Mixed</button>
+                  <button class="choice-btn" type="button" data-value="4">Strong</button>
+                  <button class="choice-btn" type="button" data-value="5">Very strong</button>
+                </div>
+              </div>
+
+              <div class="question-card">
+                <p class="question-meta">Problem Resolution</p>
+                <div class="tool-question-title">How often do recurring problems actually get resolved rather than resurfacing?</div>
+                <div class="choice-row" data-question="resolution">
+                  <button class="choice-btn" type="button" data-value="1">Very weak</button>
+                  <button class="choice-btn" type="button" data-value="2">Weak</button>
+                  <button class="choice-btn is-selected" type="button" data-value="3">Mixed</button>
+                  <button class="choice-btn" type="button" data-value="4">Strong</button>
+                  <button class="choice-btn" type="button" data-value="5">Very strong</button>
+                </div>
+              </div>
+
+              <div class="question-card">
+                <p class="question-meta">Execution Stability</p>
+                <div class="tool-question-title">How evenly does performance hold across similar teams, units, or situations?</div>
+                <div class="choice-row" data-question="stability">
+                  <button class="choice-btn" type="button" data-value="1">Very weak</button>
+                  <button class="choice-btn" type="button" data-value="2">Weak</button>
+                  <button class="choice-btn is-selected" type="button" data-value="3">Mixed</button>
+                  <button class="choice-btn" type="button" data-value="4">Strong</button>
+                  <button class="choice-btn" type="button" data-value="5">Very strong</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="tool-nav">
+              <div class="tool-nav-left">
+                <button class="btn btn-secondary" type="button" data-prev>Back</button>
+              </div>
+              <div class="tool-nav-right">
+                <button class="btn btn-primary" type="button" data-next>Continue</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="tool-pane" data-step="3">
+            <h4 class="tool-pane-title">Step 3 — Mark recurring performance signals</h4>
+            <p class="tool-pane-copy">
+              Select the signals that most often describe the environment being assessed.
+            </p>
+
+            <div class="checkbox-grid">
+              <label class="checkbox-card"><input type="checkbox" value="priority-shift" /><span>Priorities shift faster than the organization can absorb</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="execution-fragment" /><span>Decisions are made but execution fragments</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="accountability-diffuse" /><span>Accountability diffuses across teams or levels</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="informal-dependence" /><span>Work depends on informal relationships to move</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="coordination-load" /><span>Managers spend too much time coordinating</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="effort-compensates" /><span>Teams compensate for weak systems through extra effort</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="issues-recur" /><span>The same issues reappear after intervention</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="change-loses-momentum" /><span>Change efforts lose momentum before embedding</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="confidence-low" /><span>Staff confidence in internal processes is low</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="uneven-performance" /><span>Performance is uneven across similar units</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="oversight-rises" /><span>Oversight is increasing while effectiveness is not</span></label>
+              <label class="checkbox-card"><input type="checkbox" value="authority-unclear" /><span>People hesitate because authority is unclear</span></label>
+            </div>
+
+            <div class="tool-fields" style="margin-top:16px;">
+              <div class="tool-field">
+                <label for="contextNotes">Optional context <span style="color:#7A8794;">(brief, non-sensitive)</span></label>
+                <textarea id="contextNotes" placeholder="Example: Executive priorities are clear, but execution repeatedly stalls between finance, operations, and legal."></textarea>
+              </div>
+            </div>
+
+            <div class="tool-nav">
+              <div class="tool-nav-left">
+                <button class="btn btn-secondary" type="button" data-prev>Back</button>
+              </div>
+              <div class="tool-nav-right">
+                <button class="btn btn-primary" type="button" id="generateResults">Generate results</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="tool-pane" data-step="4">
+            <h4 class="tool-pane-title">Step 4 — Institutional performance profile</h4>
+            <p class="tool-pane-copy">
+              These results are directional. They estimate the institutional conditions most likely shaping performance,
+              not direct business or mission outcomes.
+            </p>
+
+            <div class="results-wrap">
+              <div class="results-top">
+                <div class="result-card">
+                  <p class="result-card-label">Overall Score</p>
+                  <div class="result-card-value" id="overallTile">—</div>
+                  <p class="result-card-copy">Estimated institutional performance score.</p>
+                </div>
+
+                <div class="result-card">
+                  <p class="result-card-label">Band</p>
+                  <div class="result-card-value" id="bandTile">—</div>
+                  <p class="result-card-copy">Directional institutional condition band.</p>
+                </div>
+
+                <div class="result-card">
+                  <p class="result-card-label">Execution Coherence</p>
+                  <div class="result-card-value" id="executionTile">—</div>
+                  <p class="result-card-copy">How well intent is translating into coordinated action.</p>
+                </div>
+
+                <div class="result-card">
+                  <p class="result-card-label">Adaptive Capacity</p>
+                  <div class="result-card-value" id="adaptiveTile">—</div>
+                  <p class="result-card-copy">How well performance holds under change or pressure.</p>
+                </div>
+
+                <div class="result-card">
+                  <p class="result-card-label">Confidence</p>
+                  <div class="result-card-value" id="confidenceTile">—</div>
+                  <p class="result-card-copy">How much trust the environment appears to place in the system itself.</p>
+                </div>
+              </div>
+
+              <div class="results-main">
+                <div class="results-panel">
+                  <h5>Interpretation</h5>
+                  <p id="resultSummary">Complete the assessment to generate your institutional performance profile.</p>
+
+                  <h5 style="margin-top:22px;">Most likely drivers</h5>
+                  <ul class="actions-list" id="resultDrivers">
+                    <li>Complete the assessment to generate drivers.</li>
+                  </ul>
+
+                  <h5 style="margin-top:22px;">Most likely priorities</h5>
+                  <ul class="actions-list" id="resultActions">
+                    <li>Complete the assessment to generate priorities.</li>
+                  </ul>
+                </div>
+
+                <div class="results-panel">
+                  <h5>Sub-score profile</h5>
+
+                  <div class="bar-group">
+                    <div class="bar-row">
+                      <div class="bar-top">
+                        <span>Execution Coherence</span>
+                        <span id="executionBarLabel">0</span>
+                      </div>
+                      <div class="bar-track">
+                        <div class="bar-fill" id="executionBar"></div>
+                      </div>
+                    </div>
+
+                    <div class="bar-row">
+                      <div class="bar-top">
+                        <span>Decision Reliability</span>
+                        <span id="decisionBarLabel">0</span>
+                      </div>
+                      <div class="bar-track">
+                        <div class="bar-fill" id="decisionBar"></div>
+                      </div>
+                    </div>
+
+                    <div class="bar-row">
+                      <div class="bar-top">
+                        <span>Adaptive Capacity</span>
+                        <span id="adaptationBarLabel">0</span>
+                      </div>
+                      <div class="bar-track">
+                        <div class="bar-fill" id="adaptationBar"></div>
+                      </div>
+                    </div>
+
+                    <div class="bar-row">
+                      <div class="bar-top">
+                        <span>Institutional Confidence</span>
+                        <span id="confidenceBarLabel">0</span>
+                      </div>
+                      <div class="bar-track">
+                        <div class="bar-fill" id="confidenceBar"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="results-foot">
+                <p class="results-note">
+                  Directional diagnostic only. This tool estimates institutional performance conditions and likely structural exposures;
+                  it does not replace operating review, mission assessment, or leadership judgment.
+                </p>
+
+                <div class="tool-nav-right" style="padding:0;">
+                  <button class="btn btn-secondary" type="button" id="resetTool">Reset tool</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="tool-nav">
+              <div class="tool-nav-left">
+                <button class="btn btn-secondary" type="button" data-prev>Back</button>
+              </div>
+              <div class="tool-nav-right">
+                <a class="btn btn-primary" href="diagnostic-tools.html">Back to tools</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">Monderman</div>
+
+        <nav class="footer-nav" aria-label="Footer navigation">
+          <a href="index.html#approach">Approach</a>
+          <a href="diagnostic-tools.html">Diagnostic Tools</a>
+          <a href="research.html">Research</a>
+          <a href="why-monderman.html">Why Monderman</a>
+          <a href="index.html#connect">Connect</a>
+        </nav>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="footer-copy">Turning complexity into capability.</p>
+        <p class="footer-meta">Institutional design, decision velocity, and performance in complex environments.</p>
+        <p class="footer-contact">Contact: connect@monderman.com</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const header = document.getElementById("siteHeader");
+      const toolApp = document.getElementById("toolApp");
+      const panes = Array.from(document.querySelectorAll(".tool-pane"));
+      const pills = Array.from(document.querySelectorAll(".tool-step-pill"));
+      const progressLabel = document.getElementById("progressLabel");
+      const progressFill = document.getElementById("progressFill");
+
+      let currentStep = 1;
+
+      const answers = {
+        execution: 3,
+        priorities: 3,
+        decision: 3,
+        followthrough: 3,
+        adaptation: 3,
+        confidence: 3,
+        resolution: 3,
+        stability: 3
+      };
+
+      function handleScrollHeader() {
+        if (window.scrollY > 10) {
+          header.classList.add("scrolled");
+        } else {
+          header.classList.remove("scrolled");
+        }
+      }
+
+      handleScrollHeader();
+      window.addEventListener("scroll", handleScrollHeader, { passive: true });
+
+      function scrollToToolTop() {
+        const top = toolApp.getBoundingClientRect().top + window.pageYOffset - 92;
+        window.scrollTo({ top, behavior: "smooth" });
+      }
+
+      function showStep(step, doScroll = true) {
+        currentStep = step;
+
+        panes.forEach((pane) => {
+          pane.classList.toggle("is-active", Number(pane.dataset.step) === step);
+        });
+
+        pills.forEach((pill, index) => {
+          pill.classList.toggle("is-active", index === step - 1);
+        });
+
+        progressLabel.textContent = `Step ${step} of 4`;
+        progressFill.style.width = `${(step / 4) * 100}%`;
+
+        if (doScroll) {
+          scrollToToolTop();
+        }
+      }
+
+      function bindChoiceRows() {
+        const rows = document.querySelectorAll(".choice-row");
+
+        rows.forEach((row) => {
+          const questionKey = row.dataset.question;
+          const buttons = Array.from(row.querySelectorAll(".choice-btn"));
+
+          buttons.forEach((btn) => {
+            btn.addEventListener("click", function (event) {
+              event.preventDefault();
+              answers[questionKey] = Number(btn.dataset.value);
+              buttons.forEach((b) => b.classList.remove("is-selected"));
+              btn.classList.add("is-selected");
+            });
+          });
+        });
+      }
+
+      function stepNav() {
+        document.querySelectorAll("[data-next]").forEach((button) => {
+          button.addEventListener("click", function () {
+            if (currentStep >= 4) return;
+            showStep(Math.min(4, currentStep + 1));
+          });
+        });
+
+        document.querySelectorAll("[data-prev]").forEach((button) => {
+          button.addEventListener("click", function () {
+            if (currentStep <= 1) return;
+            showStep(Math.max(1, currentStep - 1));
+          });
+        });
+      }
+
+      function bandFromScore(score) {
+        if (score >= 80) return "Strong";
+        if (score >= 65) return "Stable";
+        if (score >= 50) return "Fragile";
+        return "Degraded";
+      }
+
+      function checkedValues() {
+        return Array.from(document.querySelectorAll('.checkbox-card input:checked')).map(el => el.value);
+      }
+
+      function calculateResults() {
+        const conditionModifier = Number(document.getElementById("operatingCondition").value);
+        const sectorModifier = Number(document.getElementById("sector").value);
+        const sizeModifier = Number(document.getElementById("orgSize").value);
+        const checked = checkedValues();
+
+        const coreAverage =
+          (
+            answers.execution +
+            answers.priorities +
+            answers.decision +
+            answers.followthrough +
+            answers.adaptation +
+            answers.confidence +
+            answers.resolution +
+            answers.stability
+          ) / 8;
+
+        const executionCoherence = Math.round(((answers.execution + answers.priorities + answers.followthrough + answers.stability) / 4) * 20);
+        const decisionReliability = Math.round(((answers.decision + answers.followthrough + answers.resolution) / 3) * 20);
+        const adaptiveCapacity = Math.round(((answers.adaptation + answers.stability + answers.resolution) / 3) * 20);
+        const institutionalConfidence = Math.round(((answers.confidence + answers.priorities + answers.execution) / 3) * 20);
+
+        const signalPenalty = Math.min(24, checked.length * 2.1);
+        const contextAdjustment = (conditionModifier + ((sectorModifier - 1) * 10) + (sizeModifier * 1.2));
+
+        let overallScore = Math.round((coreAverage * 20) - signalPenalty - contextAdjustment);
+        overallScore = Math.max(18, Math.min(96, overallScore));
+
+        return {
+          checked,
+          overallScore,
+          executionCoherence,
+          decisionReliability,
+          adaptiveCapacity,
+          institutionalConfidence
+        };
+      }
+
+      function buildDrivers(data) {
+        const drivers = [];
+        const c = data.checked;
+
+        if (data.executionCoherence < 65) drivers.push("Execution coherence appears weaker than leadership intent requires.");
+        if (data.decisionReliability < 65) drivers.push("Decision rights and follow-through appear insufficiently reliable.");
+        if (data.adaptiveCapacity < 65) drivers.push("The institution appears to lose coherence as conditions change.");
+        if (data.institutionalConfidence < 65) drivers.push("Operating confidence in the system itself appears limited.");
+        if (c.includes("execution-fragment")) drivers.push("Execution appears to fragment after decisions are made.");
+        if (c.includes("informal-dependence")) drivers.push("Informal relationships appear to be compensating for formal system weakness.");
+        if (c.includes("issues-recur")) drivers.push("Recurring problems appear to be managed temporarily rather than resolved structurally.");
+        if (c.includes("authority-unclear")) drivers.push("Authority ambiguity appears to be slowing movement and weakening confidence.");
+
+        return drivers.slice(0, 4);
+      }
+
+      function buildPriorities(data) {
+        const priorities = [];
+        const c = data.checked;
+
+        if (data.executionCoherence < 70) priorities.push("Strengthen the linkage between leadership intent, ownership, and execution.");
+        if (data.decisionReliability < 70) priorities.push("Clarify who decides, who acts, and how follow-through is enforced.");
+        if (data.adaptiveCapacity < 70) priorities.push("Reduce brittleness by designing for performance under changing conditions, not only stable ones.");
+        if (data.institutionalConfidence < 70) priorities.push("Rebuild confidence in the system by making core processes more legible and dependable.");
+        if (c.includes("coordination-load") || c.includes("effort-compensates")) priorities.push("Reduce the amount of managerial compensation currently required to keep work moving.");
+        if (c.includes("change-loses-momentum")) priorities.push("Build stronger embedding mechanisms so changes hold beyond the initial intervention period.");
+        if (priorities.length < 4) priorities.push("Map one recurrent performance failure and identify the structural conditions that keep reproducing it.");
+
+        return priorities.slice(0, 4);
+      }
+
+      function buildSummary(data) {
+        const band = bandFromScore(data.overallScore).toLowerCase();
+
+        if (data.overallScore >= 80) {
+          return "This assessment suggests the institution is converting structure into performance relatively well. The environment appears broadly coherent, decisions appear dependable, and adaptation appears possible without major loss of control. Remaining risk is more likely to come from external change than from deep internal degradation.";
+        }
+
+        if (data.overallScore >= 65) {
+          return "This assessment suggests a generally functional institution with visible exposure points. Performance appears to hold, but not effortlessly. The main issue appears to be that execution, decision reliability, or adaptive capacity is beginning to depend too heavily on managerial compensation rather than on a system that naturally sustains coherence.";
+        }
+
+        if (data.overallScore >= 50) {
+          return "This assessment suggests a " + band + " institutional environment. The institution is still producing outcomes, but doing so with weakening coherence. The problem appears less about effort or intent than about the system’s diminishing ability to translate direction into sustained, reliable performance.";
+        }
+
+        return "This assessment suggests a structurally degraded institutional environment. Performance may still occur, but it appears increasingly dependent on informal workarounds, extra effort, and unstable operating conditions. The main issue is likely systemic rather than episodic.";
+      }
+
+      function renderResults(data) {
+        const band = bandFromScore(data.overallScore);
+
+        document.getElementById("overallTile").textContent = `${data.overallScore}/100`;
+        document.getElementById("bandTile").textContent = band;
+        document.getElementById("executionTile").textContent = `${data.executionCoherence}`;
+        document.getElementById("adaptiveTile").textContent = `${data.adaptiveCapacity}`;
+        document.getElementById("confidenceTile").textContent = `${data.institutionalConfidence}`;
+
+        document.getElementById("resultSummary").textContent = buildSummary(data);
+
+        const driversList = document.getElementById("resultDrivers");
+        const actionsList = document.getElementById("resultActions");
+        driversList.innerHTML = "";
+        actionsList.innerHTML = "";
+
+        buildDrivers(data).forEach((item) => {
+          const li = document.createElement("li");
+          li.textContent = item;
+          driversList.appendChild(li);
+        });
+
+        buildPriorities(data).forEach((item) => {
+          const li = document.createElement("li");
+          li.textContent = item;
+          actionsList.appendChild(li);
+        });
+
+        document.getElementById("executionBarLabel").textContent = data.executionCoherence;
+        document.getElementById("decisionBarLabel").textContent = data.decisionReliability;
+        document.getElementById("adaptationBarLabel").textContent = data.adaptiveCapacity;
+        document.getElementById("confidenceBarLabel").textContent = data.institutionalConfidence;
+
+        document.getElementById("executionBar").style.width = `${data.executionCoherence}%`;
+        document.getElementById("decisionBar").style.width = `${data.decisionReliability}%`;
+        document.getElementById("adaptationBar").style.width = `${data.adaptiveCapacity}%`;
+        document.getElementById("confidenceBar").style.width = `${data.institutionalConfidence}%`;
+      }
+
+      function resetTool() {
+        document.getElementById("unitName").value = "";
+        document.getElementById("assessmentScope").value = "team";
+        document.getElementById("orgSize").value = "1";
+        document.getElementById("sector").value = "1";
+        document.getElementById("operatingCondition").value = "0";
+        document.getElementById("contextNotes").value = "";
+
+        answers.execution = 3;
+        answers.priorities = 3;
+        answers.decision = 3;
+        answers.followthrough = 3;
+        answers.adaptation = 3;
+        answers.confidence = 3;
+        answers.resolution = 3;
+        answers.stability = 3;
+
+        document.querySelectorAll(".choice-row").forEach((row) => {
+          const key = row.dataset.question;
+          const buttons = row.querySelectorAll(".choice-btn");
+          buttons.forEach((btn) => {
+            btn.classList.toggle("is-selected", Number(btn.dataset.value) === answers[key]);
+          });
+        });
+
+        document.querySelectorAll('.checkbox-card input').forEach(el => {
+          el.checked = false;
+        });
+
+        document.getElementById("overallTile").textContent = "—";
+        document.getElementById("bandTile").textContent = "—";
+        document.getElementById("executionTile").textContent = "—";
+        document.getElementById("adaptiveTile").textContent = "—";
+        document.getElementById("confidenceTile").textContent = "—";
+
+        document.getElementById("resultSummary").textContent = "Complete the assessment to generate your institutional performance profile.";
+        document.getElementById("resultDrivers").innerHTML = "<li>Complete the assessment to generate drivers.</li>";
+        document.getElementById("resultActions").innerHTML = "<li>Complete the assessment to generate priorities.</li>";
+
+        document.getElementById("executionBarLabel").textContent = "0";
+        document.getElementById("decisionBarLabel").textContent = "0";
+        document.getElementById("adaptationBarLabel").textContent = "0";
+        document.getElementById("confidenceBarLabel").textContent = "0";
+
+        document.getElementById("executionBar").style.width = "0%";
+        document.getElementById("decisionBar").style.width = "0%";
+        document.getElementById("adaptationBar").style.width = "0%";
+        document.getElementById("confidenceBar").style.width = "0%";
+
+        showStep(1);
+      }
+
+      bindChoiceRows();
+      stepNav();
+
+      document.getElementById("generateResults").addEventListener("click", function () {
+        renderResults(calculateResults());
+        showStep(4);
+      });
+
+      document.getElementById("resetTool").addEventListener("click", resetTool);
+
+      showStep(1, false);
+    })();
+  </script>
+</body>
+</html>
