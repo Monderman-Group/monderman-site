@@ -744,117 +744,6 @@
       transition: color var(--transition);
     }
 
-    .approach-band {
-      position: relative;
-      margin-top: 44px;
-      padding: 42px 36px 36px;
-      background: linear-gradient(180deg, rgba(246, 247, 248, 0.96) 0%, #FFFFFF 100%);
-      border: 1px solid rgba(21, 32, 43, 0.08);
-      border-radius: 4px;
-      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.015);
-      overflow: hidden;
-    }
-
-    .approach-band-header {
-      position: relative;
-      padding-bottom: 24px;
-      margin-bottom: 26px;
-      max-width: 560px;
-    }
-
-    .approach-band-header::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      width: 96px;
-      height: 1px;
-      background: rgba(63, 110, 161, 0.22);
-    }
-
-    .approach-band-title {
-      margin: 0 0 8px;
-      font-size: 1.08rem;
-      line-height: 1.15;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      color: var(--text-dark);
-    }
-
-    .approach-band-sub {
-      margin: 0;
-      font-size: 0.92rem;
-      line-height: 1.58;
-      color: var(--muted-dark);
-      max-width: 52ch;
-    }
-
-    .approach-band-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 28px;
-      position: relative;
-    }
-
-    .approach-band-item {
-      transition: transform 200ms ease;
-    }
-
-    .approach-band-item:hover {
-      transform: translateY(-1px);
-    }
-
-    .approach-band-dot {
-      width: 10px;
-      height: 10px;
-      margin-bottom: 14px;
-      border-radius: 999px;
-      background: var(--accent);
-      box-shadow: 0 0 0 4px rgba(63, 110, 161, 0.10);
-      display: inline-block;
-      transition: transform var(--transition), box-shadow var(--transition);
-    }
-
-    .approach-band-item:hover .approach-band-dot {
-      transform: scale(1.08);
-      box-shadow: 0 0 0 5px rgba(63, 110, 161, 0.14);
-    }
-
-    .approach-band-text {
-      margin: 0;
-      font-size: 1rem;
-      line-height: 1.45;
-      font-weight: 500;
-      color: var(--text-dark);
-      transition: color var(--transition);
-    }
-
-    .approach-band-item:hover .approach-band-text {
-      color: #0F1720;
-    }
-
-    .approach-band-cta {
-      margin-top: 26px;
-    }
-
-    .approach-band-cta a {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.92rem;
-      font-weight: 500;
-      color: var(--accent);
-      transition: opacity 200ms ease, transform 200ms ease, color 200ms ease;
-    }
-
-    .approach-band-cta a:hover,
-    .approach-band-cta a:focus-visible {
-      opacity: 0.8;
-      color: var(--accent-dark);
-      transform: translateX(2px);
-      outline: none;
-    }
-
     .tools-teaser {
       position: relative;
       background: var(--bg-offwhite);
@@ -898,9 +787,10 @@
 
     .tools-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 22px;
       margin-bottom: 26px;
+      align-items: start;
     }
 
     .tool-card {
@@ -928,6 +818,8 @@
     .tool-card-link {
       display: flex;
       flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
       min-height: 228px;
       height: 100%;
       padding: 22px 22px 20px;
@@ -953,38 +845,28 @@
       background: rgba(63, 110, 161, 0.08);
       color: var(--accent);
       border: 1px solid rgba(63, 110, 161, 0.12);
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       align-self: flex-start;
     }
 
-    .tool-card-kicker {
-      margin: 0 0 10px;
-      font-size: 0.70rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
-
     .tool-card-title {
-      margin: 0 0 10px;
-      font-size: 1.14rem;
-      line-height: 1.14;
+      margin: 0 0 12px;
+      font-size: 1.10rem;
+      line-height: 1.16;
       font-weight: 700;
       color: var(--text-dark);
     }
 
     .tool-card-text {
       margin: 0 0 14px;
-      font-size: 0.95rem;
+      font-size: 0.93rem;
       line-height: 1.62;
       color: var(--muted-dark);
     }
 
     .tool-card-meta {
       margin-top: auto;
-      font-size: 0.86rem;
+      font-size: 0.84rem;
       line-height: 1.55;
       color: var(--muted-dark-2);
     }
@@ -1427,9 +1309,6 @@
       .nav a::after,
       .cost-card,
       .approach-card,
-      .approach-band-item,
-      .approach-band-dot,
-      .approach-band-text,
       .tool-card,
       .latest-card,
       .latest-card-image img,
@@ -1451,11 +1330,6 @@
       .cost-grid {
         grid-template-columns: 1fr;
         gap: 20px;
-      }
-
-      .approach-band-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 24px 28px;
       }
 
       .cost-card {
@@ -1581,8 +1455,7 @@
       }
 
       .approach-grid,
-      .tools-grid,
-      .approach-band-grid {
+      .tools-grid {
         grid-template-columns: 1fr;
         gap: 20px;
       }
@@ -1599,25 +1472,6 @@
       .card-desc {
         font-size: 0.96rem;
         line-height: 1.68;
-      }
-
-      .approach-band {
-        margin-top: 28px;
-        padding: 28px 22px 24px;
-      }
-
-      .approach-band-header {
-        padding-bottom: 20px;
-        margin-bottom: 22px;
-      }
-
-      .approach-band-text {
-        max-width: 100%;
-        font-size: 0.96rem;
-      }
-
-      .approach-band-dot {
-        margin-bottom: 14px;
       }
 
       .tools-teaser {
@@ -1789,7 +1643,7 @@
           We help organizations reduce friction, improve decision velocity, and strengthen the systems through which execution actually happens.
         </p>
         <p class="approach-bridge">
-          We work at the level beneath strategy — where structure determines whether execution holds.
+          We work where institutional structure determines whether strategy becomes execution.
         </p>
       </div>
 
@@ -1822,41 +1676,6 @@
           </div>
         </div>
       </div>
-
-      <div class="approach-band reveal" aria-label="The Monderman Effect">
-        <div class="approach-band-header">
-          <h3 class="approach-band-title">The Monderman Effect</h3>
-          <p class="approach-band-sub">
-            Four interconnected outcomes that turn structural complexity into sustained execution advantage.
-          </p>
-        </div>
-
-        <div class="approach-band-grid">
-          <div class="approach-band-item">
-            <span class="approach-band-dot" aria-hidden="true"></span>
-            <p class="approach-band-text">clarify ownership</p>
-          </div>
-
-          <div class="approach-band-item">
-            <span class="approach-band-dot" aria-hidden="true"></span>
-            <p class="approach-band-text">shorten decision paths</p>
-          </div>
-
-          <div class="approach-band-item">
-            <span class="approach-band-dot" aria-hidden="true"></span>
-            <p class="approach-band-text">reduce hidden drag</p>
-          </div>
-
-          <div class="approach-band-item">
-            <span class="approach-band-dot" aria-hidden="true"></span>
-            <p class="approach-band-text">strengthen performance</p>
-          </div>
-        </div>
-
-        <div class="approach-band-cta">
-          <a href="diagnostic-tools.html">See these outcomes in your organization</a>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -1865,18 +1684,17 @@
       <div class="tools-teaser-head">
         <div class="section-intro reveal">
           <div class="section-label">Diagnostic Tools</div>
-          <h2 id="tools-title">Practical diagnostics for structural clarity, decision velocity, and institutional drag.</h2>
+          <h2 id="tools-title">Practical diagnostics for structure, speed, drag, and institutional performance.</h2>
           <p>
-            Monderman’s diagnostic tools are designed to help users identify friction inside bounded workflows and operating environments without reducing complex problems to generic surveys.
+            Monderman’s diagnostic tools help identify friction inside bounded workflows and operating environments.
           </p>
           <p class="tools-positioning">
-            These tools reveal structure. They do not replace judgment.
+            They reveal structure. They do not replace judgment.
           </p>
         </div>
 
         <p class="tools-note reveal reveal-delay-2">
-          <strong>Private by default.</strong> These diagnostics are intended for immediate use and do not create a persistent organizational record.
-          Please avoid entering confidential, classified, regulated, or personally sensitive information.
+          <strong>Private by default.</strong> Use these tools without entering confidential, classified, regulated, or personally sensitive information.
         </p>
       </div>
 
@@ -1884,13 +1702,12 @@
         <div class="tool-card tool-card-live reveal reveal-delay-1">
           <a class="tool-card-link" href="structural-clarity.html" aria-label="Open Structural Clarity Snapshot">
             <div class="tool-badge">Live</div>
-            <p class="tool-card-kicker">Structural Clarity</p>
             <h3 class="tool-card-title">Structural Clarity Snapshot</h3>
             <p class="tool-card-text">
-              Estimate how much time, money, and productive capacity may be consumed by overhead inside one workflow or operating slice.
+              Identify where roles, authority, and accountability have drifted apart.
             </p>
             <p class="tool-card-meta">
-              Best for one team, one process, one cross-functional workflow, or one organizational slice.
+              Best for one team, one process, or one workflow.
             </p>
           </a>
         </div>
@@ -1898,13 +1715,12 @@
         <div class="tool-card tool-card-live reveal reveal-delay-2">
           <a class="tool-card-link" href="decision-velocity.html" aria-label="Open Decision Velocity Snapshot">
             <div class="tool-badge">Live</div>
-            <p class="tool-card-kicker">Decision Velocity</p>
             <h3 class="tool-card-title">Decision Velocity Snapshot</h3>
             <p class="tool-card-text">
-              Identify where approvals, escalation patterns, and structural bottlenecks are slowing movement through critical decisions.
+              Surface bottlenecks, approval drag, and slow decision pathways.
             </p>
             <p class="tool-card-meta">
-              Designed to show where action stalls between intent, authority, and execution.
+              Best for stalled decisions and escalation patterns.
             </p>
           </a>
         </div>
@@ -1912,13 +1728,25 @@
         <div class="tool-card tool-card-live reveal reveal-delay-3">
           <a class="tool-card-link" href="bureaucratic-drag-snapshot.html" aria-label="Open Bureaucratic Drag Snapshot">
             <div class="tool-badge">Live</div>
-            <p class="tool-card-kicker">Operational Systems</p>
             <h3 class="tool-card-title">Bureaucratic Drag Snapshot</h3>
             <p class="tool-card-text">
-              Surface recurring administrative burden, process density, and non-value-adding overhead across a selected workflow.
+              Expose recurring overhead, process density, and administrative burden.
             </p>
             <p class="tool-card-meta">
-              Built to distinguish manageable friction from systemic drag requiring redesign.
+              Best for separating normal friction from systemic drag.
+            </p>
+          </a>
+        </div>
+
+        <div class="tool-card tool-card-live reveal reveal-delay-4">
+          <a class="tool-card-link" href="institutional-performance.html" aria-label="Open Institutional Performance Snapshot">
+            <div class="tool-badge">Live</div>
+            <h3 class="tool-card-title">Institutional Performance Snapshot</h3>
+            <p class="tool-card-text">
+              Assess whether structure and governance are supporting sustained performance.
+            </p>
+            <p class="tool-card-meta">
+              Best for overall institutional health and alignment.
             </p>
           </a>
         </div>
@@ -1926,7 +1754,7 @@
 
       <div class="tools-teaser-footer reveal reveal-delay-4">
         <p>
-          Explore the full diagnostic suite, including Monderman’s live Structural Clarity, Decision Velocity, and Bureaucratic Drag tools.
+          Explore Monderman’s diagnostic suite.
         </p>
         <a class="btn tools-cta" href="diagnostic-tools.html">Explore Diagnostic Tools</a>
       </div>
@@ -2049,7 +1877,7 @@
         <p class="connect-signal">Monderman works selectively with institutions facing consequential structural challenges.</p>
         <p class="connect-text">
           If you are navigating institutional drag, decision friction, or execution misalignment,
-          we would welcome a conversation. Monderman works with leaders who understand that more intelligence is not the problem — institutional capacity is.
+          we welcome a conversation. Monderman works with leaders who understand that the constraint is rarely insight alone, but the institutional capacity to act on it.
         </p>
       </div>
 
