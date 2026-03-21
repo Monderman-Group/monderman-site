@@ -675,12 +675,20 @@
       font-style: italic;
     }
 
-    .cost-card-number,
-    .estimate-card-number {
+    .cost-card-number {
       margin: 0 0 18px;
       font-size: clamp(3rem, 4.8vw, 4.35rem);
       line-height: 0.9;
       letter-spacing: -0.065em;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .estimate-card-number {
+      margin: 0 0 18px;
+      font-size: clamp(2.15rem, 3vw, 3rem);
+      line-height: 1;
+      letter-spacing: -0.05em;
       font-weight: 700;
       color: var(--accent);
     }
@@ -1590,9 +1598,10 @@
         <div class="estimate-field">
           <label for="estimateOrgSize">Organization size</label>
           <select id="estimateOrgSize" aria-label="Organization size">
+            <option value="" selected>---</option>
             <option value="50">1–50</option>
             <option value="250">51–250</option>
-            <option value="1000" selected>251–1,000</option>
+            <option value="1000">251–1,000</option>
             <option value="5000">1,001–5,000</option>
             <option value="25000">5,001–25,000</option>
             <option value="100000">25,000+</option>
@@ -1602,9 +1611,10 @@
         <div class="estimate-field">
           <label for="estimateComplexity">Organizational complexity</label>
           <select id="estimateComplexity" aria-label="Organizational complexity">
+            <option value="" selected>---</option>
             <option value="light">Light</option>
             <option value="moderate">Moderate</option>
-            <option value="heavy" selected>Heavy</option>
+            <option value="heavy">Heavy</option>
             <option value="excessive">Excessive</option>
           </select>
         </div>
@@ -1612,6 +1622,7 @@
         <div class="estimate-field">
           <label for="estimateSector">Sector</label>
           <select id="estimateSector" aria-label="Sector">
+            <option value="" selected>---</option>
             <option value="general">General private sector</option>
             <option value="defense-department">Defense Department</option>
             <option value="defense-production">Defense production</option>
@@ -1638,7 +1649,7 @@
         <div class="estimate-card reveal reveal-delay-2">
           <div class="estimate-card-title">Money</div>
           <p class="estimate-card-source"><em>Directional annual cost equivalent</em></p>
-          <div class="estimate-card-number" id="estimateMoney">$0–$0</div>
+          <div class="estimate-card-number" id="estimateMoney">$0</div>
           <p class="estimate-card-text">
             estimated annual cost of overhead absorbed by administrative and bureaucratic systems.
           </p>
@@ -1647,7 +1658,7 @@
         <div class="estimate-card reveal reveal-delay-3">
           <div class="estimate-card-title">Time</div>
           <p class="estimate-card-source"><em>Directional annual labor hours</em></p>
-          <div class="estimate-card-number" id="estimateTime">0–0</div>
+          <div class="estimate-card-number" id="estimateTime">0</div>
           <p class="estimate-card-text">
             estimated labor hours absorbed each year by coordination, compliance, review, and process burden.
           </p>
@@ -1656,7 +1667,7 @@
         <div class="estimate-card reveal reveal-delay-4">
           <div class="estimate-card-title">Resources</div>
           <p class="estimate-card-source"><em>Directional productive capacity absorbed</em></p>
-          <div class="estimate-card-number" id="estimateResources">0–0%</div>
+          <div class="estimate-card-number" id="estimateResources">0%</div>
           <p class="estimate-card-text">
             estimated share of productive capacity absorbed by administrative overhead rather than mission or operational output.
           </p>
@@ -2142,9 +2153,20 @@
     }
 
     function updateEstimate() {
-      const orgSize = Number(estimateOrgSize.value);
-      const complexity = complexityProfiles[estimateComplexity.value];
-      const sector = sectorProfiles[estimateSector.value] || sectorProfiles.general;
+      const orgSizeValue = estimateOrgSize.value;
+      const complexityValue = estimateComplexity.value;
+      const sectorValue = estimateSector.value;
+
+      if (!orgSizeValue || !complexityValue || !sectorValue) {
+        estimateTime.textContent = "0";
+        estimateMoney.textContent = "$0";
+        estimateResources.textContent = "0%";
+        return;
+      }
+
+      const orgSize = Number(orgSizeValue);
+      const complexity = complexityProfiles[complexityValue];
+      const sector = sectorProfiles[sectorValue] || sectorProfiles.general;
 
       const annualHoursBase = orgSize * 1920;
       const lowBurden = complexity.low * sector.multiplier;
