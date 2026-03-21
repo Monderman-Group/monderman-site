@@ -1,1 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Structural Clarity | Monderman</title>
+  <style>
+    :root {
+      --accent: #3F6EA1;
+      --accent-dark: #2F5886;
+      --bg: #F6F7F8;
+      --white: #FFFFFF;
+      --text: #15202B;
+      --muted: #556270;
+      --line: #E3E7EB;
+      --dark: #0F1720;
+      --max: 980px;
+    }
 
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .header {
+      background: rgba(15, 23, 32, 0.96);
+      color: #fff;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(10px);
+    }
+
+    .header-inner,
+    .hero-inner,
+    .article-inner,
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding-left: 28px;
+      padding-right: 28px;
+    }
+
+    .header-inner {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.02em;
+    }
+
+    .brand::after {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      border-radius: 1px;
+      background: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .nav {
+      display: flex;
+      gap: 22px;
+      flex-wrap: wrap;
+    }
+
+    .nav a {
+      color: rgba(255,255,255,0.84);
+      font-size: 0.96rem;
+    }
+
+    .nav a:hover { color: #fff; }
+
+    .hero {
+      background: linear-gradient(135deg, #0F1720 0%, #182331 100%);
+      color: #fff;
+      padding: 84px 0 72px;
+    }
+
+    .eyebrow {
+      margin: 0 0 16px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.68);
+    }
+
+    .hero h1 {
+      margin: 0 0 18px;
+      max-width: 11ch;
+      font-size: clamp(2.5rem, 5vw, 4.6rem);
+      line-height: 0.96;
+      letter-spacing: -0.05em;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 40ch;
+      font-size: 1.08rem;
+      line-height: 1.65;
+      color: rgba(255,255,255,0.78);
+    }
+
+    .hero-actions {
+      margin-top: 30px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 18px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .btn-primary {
+      background: #fff;
+      color: var(--text);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      border-color: rgba(255,255,255,0.18);
+    }
+
+    .article {
+      padding: 62px 0 84px;
+    }
+
+    .article-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 36px;
+      align-items: start;
+    }
+
+    .content {
+      background: var(--white);
+      border: 1px solid var(--line);
+      padding: 38px 34px;
+    }
+
+    .content p {
+      margin: 0 0 20px;
+      font-size: 1.03rem;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+
+    .content h2 {
+      margin: 38px 0 14px;
+      font-size: 1.55rem;
+      line-height: 1.12;
+      letter-spacing: -0.04em;
+      color: var(--text);
+    }
+
+    .content h3 {
+      margin: 30px 0 10px;
+      font-size: 1.08rem;
+      line-height: 1.2;
+      color: var(--text);
+    }
+
+    .pullquote,
+    .sidebar-card {
+      background: var(--white);
+      border: 1px solid var(--line);
+    }
+
+    .pullquote {
+      margin: 28px 0;
+      padding: 24px 24px 22px;
+      border-left: 3px solid var(--accent);
+    }
+
+    .pullquote p {
+      margin: 0;
+      color: var(--text);
+      font-size: 1.02rem;
+      line-height: 1.7;
+    }
+
+    .sidebar {
+      display: grid;
+      gap: 18px;
+      position: sticky;
+      top: 96px;
+    }
+
+    .sidebar-card {
+      padding: 22px 20px;
+    }
+
+    .sidebar-kicker {
+      margin: 0 0 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .sidebar-card h3 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      line-height: 1.25;
+    }
+
+    .sidebar-card p {
+      margin: 0;
+      font-size: 0.94rem;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    .mini-list {
+      margin: 12px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    .mini-list li {
+      margin-bottom: 10px;
+      line-height: 1.55;
+    }
+
+    .cta {
+      margin-top: 38px;
+      padding: 26px 24px;
+      background: #F8F9FA;
+      border: 1px solid var(--line);
+    }
+
+    .cta h3 {
+      margin: 0 0 10px;
+      font-size: 1.12rem;
+    }
+
+    .cta p {
+      margin: 0 0 18px;
+    }
+
+    .footer {
+      background: var(--dark);
+      color: rgba(255,255,255,0.72);
+      padding: 34px 0;
+    }
+
+    .footer p {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 900px) {
+      .article-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .header-inner,
+      .hero-inner,
+      .article-inner,
+      .footer-inner {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .header-inner {
+        padding-top: 16px;
+        padding-bottom: 16px;
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .content {
+        padding: 28px 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="brand">Monderman</a>
+      <nav class="nav">
+        <a href="index.html#approach">Approach</a>
+        <a href="diagnostic-tools.html">Diagnostic Tools</a>
+        <a href="research.html">Research</a>
+        <a href="why-monderman.html">Why Monderman</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">Our Approach</p>
+      <h1>Structural Clarity</h1>
+      <p>
+        When authority, responsibility, and execution drift apart, organizations do not just slow down.
+        They become harder to trust, harder to lead, and harder to move.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="diagnostic-tools.html">Run Diagnostics</a>
+        <a class="btn btn-secondary" href="index.html#connect">Start a Conversation</a>
+      </div>
+    </div>
+  </section>
+
+  <main class="article">
+    <div class="article-inner">
+      <div class="article-layout">
+        <article class="content">
+          <p>
+            Most organizations do not suffer from a lack of intelligence. They suffer from a lack of structural clarity.
+            People are working hard. Meetings are happening. Plans exist. But the actual shape of authority is blurry:
+            who decides, who advises, who owns execution, and who is still carrying veto power from an earlier era.
+          </p>
+
+          <p>
+            When that blur sets in, a predictable pattern follows. Decisions take longer than they should. Teams begin
+            working around one another instead of with one another. Employees spend more time interpreting the system
+            than moving through it. The result is not simply inefficiency. It is organizational drag.
+          </p>
+
+          <div class="pullquote">
+            <p>
+              Structural clarity is not about making an organization rigid. It is about making responsibility legible
+              enough that action can travel without distortion.
+            </p>
+          </div>
+
+          <h2>The problem rarely looks structural at first</h2>
+
+          <p>
+            In most organizations, structural confusion does not show up on a dashboard labeled “structure.”
+            It shows up indirectly: duplicated work, decisions that boomerang back for re-review, leaders who feel
+            overloaded, teams waiting on approvals that no one can fully explain, and employees who stop raising
+            ideas because the path to action feels too murky.
+          </p>
+
+          <p>
+            Over time, that confusion becomes cultural. People become cautious. They escalate decisions upward that
+            should have been handled lower down. They build informal workarounds. Eventually, the organization begins
+            to rely on personal intervention rather than coherent design.
+          </p>
+
+          <h2>What structural clarity actually means</h2>
+
+          <p>
+            Structural clarity means more than a tidy org chart. It means that authority, accountability, and workflow
+            line up in a way that makes sense to the people doing the work. It means decisions have a visible home.
+            It means approvals are tied to real risk rather than habit. It means teams know where discretion begins
+            and where it ends.
+          </p>
+
+          <p>
+            In a structurally clear organization, people are not constantly asking quiet questions like: “Do we really
+            have permission to do this?” or “Why does this need three sign-offs?” or “Who actually owns the result?”
+            Those questions still arise, but they do not dominate the work.
+          </p>
+
+          <h2>What happens when clarity is missing</h2>
+
+          <h3>Decision rights blur</h3>
+          <p>
+            People participate in decisions without clear ownership. The result is too many voices without enough
+            accountability.
+          </p>
+
+          <h3>Approvals multiply</h3>
+          <p>
+            New controls get added over time, often for good reasons, but few are revisited. The system becomes
+            heavier even when the original risk has changed.
+          </p>
+
+          <h3>Execution slows</h3>
+          <p>
+            Teams spend energy navigating the organization itself. The work is still being done, but less of that
+            effort reaches the customer, citizen, or mission.
+          </p>
+
+          <h3>Trust erodes</h3>
+          <p>
+            When people cannot see why decisions are made, legitimacy weakens. Even reasonable decisions start to feel
+            arbitrary.
+          </p>
+
+          <h2>How Monderman approaches structural clarity</h2>
+
+          <p>
+            We do not begin with abstract redesign. We begin by making the real operating structure visible.
+            That means mapping decision paths, locating approval bottlenecks, identifying where authority has drifted,
+            and clarifying where rules no longer match the work they are governing.
+          </p>
+
+          <p>
+            From there, the goal is not to strip out all structure. The goal is to build the right amount of structure:
+            enough to coordinate, enough to protect real risk, and not so much that the organization loses the ability
+            to move.
+          </p>
+
+          <div class="cta">
+            <h3>Common signs you may have a structural clarity problem</h3>
+            <p>
+              Leadership feels overloaded. Teams wait for decisions no one quite owns. Approval chains have grown by
+              accretion. Informal workarounds are becoming normal. Good people are frustrated by the system beneath
+              the strategy.
+            </p>
+            <a class="btn btn-primary" href="diagnostic-tools.html">Explore the Diagnostic Hub</a>
+          </div>
+        </article>
+
+        <aside class="sidebar">
+          <div class="sidebar-card">
+            <p class="sidebar-kicker">What this affects</p>
+            <h3>Clarity is upstream of execution</h3>
+            <p>
+              If the structure is fuzzy, even strong strategy gets slowed, diluted, or misrouted on the way down.
+            </p>
+          </div>
+
+          <div class="sidebar-card">
+            <p class="sidebar-kicker">Look for</p>
+            <ul class="mini-list">
+              <li>Too many approvals for low-risk decisions</li>
+              <li>Frequent escalation to senior leaders</li>
+              <li>Unclear handoffs between functions</li>
+              <li>Rework caused by conflicting ownership</li>
+            </ul>
+          </div>
+
+          <div class="sidebar-card">
+            <p class="sidebar-kicker">Monderman view</p>
+            <p>
+              Structure should clarify movement, not quietly replace it. The point is not more control. The point is
+              cleaner translation from intent to action.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <p>Monderman — clarity for complex institutions.</p>
+    </div>
+  </footer>
+</body>
+</html>
