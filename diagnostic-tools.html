@@ -62,7 +62,6 @@
       --transition-slow: 360ms cubic-bezier(0.22, 1, 0.36, 1);
       --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
       --card-shadow: 0 14px 32px rgba(0, 0, 0, 0.05);
-      --glow: 0 0 0 1px rgba(63, 110, 161, 0.10), 0 0 24px rgba(63, 110, 161, 0.08);
     }
 
     * {
@@ -136,8 +135,7 @@
       .hero,
       .how-to-use,
       .tool-selector,
-      .tool-cards-section,
-      .footer {
+      .tool-cards-section {
         scroll-snap-align: start;
         scroll-snap-stop: normal;
       }
@@ -368,7 +366,7 @@
       border: 1px solid rgba(21, 32, 43, 0.08);
       box-shadow: var(--soft-shadow);
       padding: 28px 28px 26px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
       scroll-margin-top: 88px;
     }
 
@@ -425,30 +423,32 @@
       align-items: center;
       justify-content: center;
       gap: 0;
-      margin: 10px 0 22px;
+      margin: 14px 0 28px;
       pointer-events: none;
     }
 
     .section-connector-line {
-      width: 1px;
-      height: 34px;
+      width: 2px;
+      height: 48px;
       background: linear-gradient(
         180deg,
-        rgba(63, 110, 161, 0.04) 0%,
-        rgba(63, 110, 161, 0.28) 45%,
-        rgba(63, 110, 161, 0.12) 100%
+        rgba(63, 110, 161, 0.05) 0%,
+        rgba(63, 110, 161, 0.48) 46%,
+        rgba(63, 110, 161, 0.18) 100%
       );
-      box-shadow: 0 0 10px rgba(63, 110, 161, 0.08);
+      box-shadow:
+        0 0 14px rgba(63, 110, 161, 0.10),
+        0 0 22px rgba(63, 110, 161, 0.06);
     }
 
     .section-connector-arrow {
-      width: 10px;
-      height: 10px;
+      width: 14px;
+      height: 14px;
       margin-top: -1px;
-      border-right: 1.5px solid rgba(63, 110, 161, 0.42);
-      border-bottom: 1.5px solid rgba(63, 110, 161, 0.42);
+      border-right: 2px solid rgba(63, 110, 161, 0.62);
+      border-bottom: 2px solid rgba(63, 110, 161, 0.62);
       transform: rotate(45deg);
-      box-shadow: 0 0 8px rgba(63, 110, 161, 0.06);
+      box-shadow: 0 0 12px rgba(63, 110, 161, 0.08);
     }
 
     .matrix {
@@ -468,14 +468,14 @@
     .matrix td {
       text-align: left;
       vertical-align: top;
-      padding: 16px 18px;
+      padding: 15px 16px;
       border-bottom: 1px solid rgba(21, 32, 43, 0.08);
-      font-size: 0.92rem;
-      line-height: 1.55;
+      font-size: 0.90rem;
+      line-height: 1.5;
     }
 
     .matrix th {
-      font-size: 0.76rem;
+      font-size: 0.74rem;
       font-weight: 700;
       letter-spacing: 0.14em;
       text-transform: uppercase;
@@ -493,10 +493,12 @@
 
     .tool-launch-head {
       margin: 0 0 24px;
-      padding: 26px 28px 22px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,1) 100%);
+      padding: 28px 28px 24px;
+      background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(249,250,251,1) 100%);
       border: 1px solid rgba(21, 32, 43, 0.08);
-      box-shadow: var(--soft-shadow);
+      box-shadow:
+        0 1px 0 rgba(0,0,0,0.012),
+        0 10px 26px rgba(0, 0, 0, 0.035);
     }
 
     .tool-launch-head .section-label {
@@ -505,6 +507,14 @@
 
     .tool-launch-head .section-label::before {
       margin-bottom: 12px;
+    }
+
+    .tool-launch-note {
+      margin-top: 12px;
+      font-size: 0.92rem;
+      line-height: 1.62;
+      color: var(--accent-dark);
+      font-weight: 500;
     }
 
     .tools-grid {
@@ -520,7 +530,7 @@
       background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(249,250,251,1) 100%);
       border: 1px solid rgba(21, 32, 43, 0.08);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
-      min-height: 258px;
+      min-height: 272px;
       height: 100%;
       overflow: hidden;
       transition:
@@ -534,7 +544,12 @@
       position: absolute;
       inset: 0 0 auto 0;
       height: 3px;
-      background: linear-gradient(90deg, rgba(63, 110, 161, 0.38) 0%, rgba(63, 110, 161, 0.94) 48%, rgba(63, 110, 161, 0.42) 100%);
+      background: linear-gradient(
+        90deg,
+        rgba(63, 110, 161, 0.38) 0%,
+        rgba(63, 110, 161, 0.94) 48%,
+        rgba(63, 110, 161, 0.42) 100%
+      );
       transform: scaleX(0.35);
       transform-origin: left center;
       transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -556,7 +571,9 @@
     .tool-card:hover {
       transform: translateY(-4px);
       border-color: rgba(63, 110, 161, 0.16);
-      box-shadow: 0 16px 34px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(63, 110, 161, 0.04);
+      box-shadow:
+        0 16px 34px rgba(0, 0, 0, 0.06),
+        0 0 0 1px rgba(63, 110, 161, 0.04);
     }
 
     .tool-card:hover::before {
@@ -568,13 +585,24 @@
       opacity: 1;
     }
 
+    .tool-card.is-recommended {
+      border-color: rgba(63, 110, 161, 0.18);
+      box-shadow:
+        0 12px 28px rgba(0, 0, 0, 0.05),
+        0 0 0 1px rgba(63, 110, 161, 0.06);
+    }
+
+    .tool-card.is-recommended::before {
+      transform: scaleX(1);
+    }
+
     .tool-card-link {
       position: relative;
       z-index: 1;
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      min-height: 258px;
+      min-height: 272px;
       height: 100%;
       padding: 22px 22px 20px;
       text-align: left;
@@ -585,40 +613,77 @@
       outline-offset: 3px;
     }
 
-    .tool-badge {
+    .tool-card-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .tool-badge,
+    .tool-badge-secondary {
       display: inline-flex;
       align-items: center;
       padding: 6px 10px;
-      font-size: 0.72rem;
+      font-size: 0.70rem;
       font-weight: 700;
       letter-spacing: 0.10em;
       text-transform: uppercase;
+      border: 1px solid;
+      white-space: nowrap;
+    }
+
+    .tool-badge {
       background: rgba(63, 110, 161, 0.08);
       color: var(--accent);
-      border: 1px solid rgba(63, 110, 161, 0.12);
-      margin-bottom: 12px;
+      border-color: rgba(63, 110, 161, 0.12);
       box-shadow: 0 0 18px rgba(63, 110, 161, 0.05);
     }
 
+    .tool-badge-secondary {
+      background: rgba(21, 32, 43, 0.04);
+      color: var(--text-dark);
+      border-color: rgba(21, 32, 43, 0.08);
+    }
+
     .tool-title {
-      margin: 0 0 10px;
-      font-size: 1.14rem;
-      line-height: 1.14;
+      margin: 0 0 8px;
+      font-size: 1.15rem;
+      line-height: 1.12;
       font-weight: 700;
       letter-spacing: -0.022em;
       color: var(--text-dark);
     }
 
+    .tool-subline {
+      margin: 0 0 12px;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+    }
+
     .tool-text {
-      margin: 0 0 14px;
+      margin: 0 0 16px;
       font-size: 0.95rem;
       line-height: 1.62;
       color: var(--muted-dark);
     }
 
+    .tool-meta-label {
+      margin: 0 0 6px;
+      font-size: 0.72rem;
+      line-height: 1;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+      font-weight: 700;
+    }
+
     .tool-meta {
       margin-top: auto;
-      font-size: 0.86rem;
+      font-size: 0.87rem;
       line-height: 1.55;
       color: var(--muted-dark-2);
     }
@@ -822,16 +887,16 @@
       }
 
       .section-connector {
-        margin: 6px 0 18px;
+        margin: 10px 0 20px;
       }
 
       .section-connector-line {
-        height: 26px;
+        height: 36px;
       }
 
       .section-connector-arrow {
-        width: 9px;
-        height: 9px;
+        width: 12px;
+        height: 12px;
       }
 
       .tools-grid {
@@ -944,43 +1009,43 @@
       <section class="tool-selector panel">
         <h3>Which tool to start with</h3>
         <p>
-          Each tool is built for a different problem shape. Use this guide to choose the most credible starting point.
+          Use the guide below to choose the most credible starting point. When in doubt, begin with the tool that best matches the dominant symptom rather than the full complexity of the situation.
         </p>
 
         <div class="matrix">
           <table>
             <thead>
               <tr>
-                <th>Start here when…</th>
-                <th>Best tool</th>
-                <th>What it clarifies</th>
-                <th>What it does not try to do</th>
+                <th>Dominant symptom</th>
+                <th>Start here</th>
+                <th>Clarifies</th>
+                <th>Less suited for</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><strong>Roles, ownership, and handoffs feel blurred.</strong></td>
+                <td><strong>Ownership, roles, or handoffs feel blurred.</strong></td>
                 <td>Structural Clarity Snapshot</td>
                 <td>Whether the workflow is legible enough to support reliable execution.</td>
-                <td>It does not directly measure overall institutional health.</td>
+                <td>Broad institutional health across the full system.</td>
               </tr>
               <tr>
                 <td><strong>Decisions feel slow, stuck, or approval-heavy.</strong></td>
                 <td>Decision Velocity Snapshot</td>
                 <td>Where decision movement is being slowed by structure.</td>
-                <td>It does not fully assess administrative burden.</td>
+                <td>Total administrative burden across the whole environment.</td>
               </tr>
               <tr>
                 <td><strong>The environment feels overloaded by process.</strong></td>
                 <td>Bureaucratic Drag Snapshot</td>
                 <td>Whether administrative density is absorbing time and attention.</td>
-                <td>It does not isolate all ownership and authority issues.</td>
+                <td>Fine-grained authority and ownership questions.</td>
               </tr>
               <tr>
                 <td><strong>The whole system seems to be weakening.</strong></td>
                 <td>Institutional Performance Snapshot</td>
                 <td>Whether structure is still producing sustained institutional performance.</td>
-                <td>It is broader and less workflow-specific than the other three.</td>
+                <td>Narrow workflow diagnosis within a single slice.</td>
               </tr>
             </tbody>
           </table>
@@ -995,22 +1060,30 @@
       <section class="tool-cards-section" id="tool-launch">
         <div class="tool-launch-head">
           <div class="section-label">Live Diagnostics</div>
-          <h3>Open the diagnostic that matches the shape of the problem.</h3>
+          <h3>Open the diagnostic that best matches the dominant symptom.</h3>
           <p>
-            Each tool launches in its own dedicated environment. Start with the most credible fit, then use the result to decide whether deeper review or redesign is needed.
+            Each tool launches in its own dedicated environment. Start with the strongest fit, then use the result to decide whether deeper review or redesign is needed.
+          </p>
+          <p class="tool-launch-note">
+            If the problem feels real but hard to name, start with Structural Clarity.
           </p>
         </div>
 
         <div class="tools-grid">
-          <article class="tool-card">
+          <article class="tool-card is-recommended">
             <a class="tool-card-link" href="structural-clarity.html" aria-label="Open Structural Clarity Snapshot">
-              <div class="tool-badge">Live</div>
+              <div class="tool-card-top">
+                <div class="tool-badge">Live</div>
+                <div class="tool-badge-secondary">Best starting point</div>
+              </div>
               <h3 class="tool-title">Structural Clarity Snapshot</h3>
+              <p class="tool-subline">Roles · ownership · handoffs</p>
               <p class="tool-text">
                 Assess whether ownership, authority, handoffs, and review logic are sufficiently clear for one bounded workflow or operating slice.
               </p>
+              <p class="tool-meta-label">Best when</p>
               <p class="tool-meta">
-                Best when the issue feels like ambiguity, duplication, or execution drift.
+                The issue feels like ambiguity, duplication, confusion, or execution drift.
               </p>
               <span class="tool-open">Open diagnostic &#8594;</span>
             </a>
@@ -1018,13 +1091,17 @@
 
           <article class="tool-card">
             <a class="tool-card-link" href="decision-velocity.html" aria-label="Open Decision Velocity Snapshot">
-              <div class="tool-badge">Live</div>
+              <div class="tool-card-top">
+                <div class="tool-badge">Live</div>
+              </div>
               <h3 class="tool-title">Decision Velocity Snapshot</h3>
+              <p class="tool-subline">Approvals · escalation · delay</p>
               <p class="tool-text">
                 Diagnose where approvals, escalation patterns, and role uncertainty are slowing movement through important decisions.
               </p>
+              <p class="tool-meta-label">Best when</p>
               <p class="tool-meta">
-                Best when the issue feels like slowness, delay, or approval drag.
+                The issue feels like slowness, delay, stalled action, or approval drag.
               </p>
               <span class="tool-open">Open diagnostic &#8594;</span>
             </a>
@@ -1032,13 +1109,17 @@
 
           <article class="tool-card">
             <a class="tool-card-link" href="bureaucratic-drag-snapshot.html" aria-label="Open Bureaucratic Drag Snapshot">
-              <div class="tool-badge">Live</div>
+              <div class="tool-card-top">
+                <div class="tool-badge">Live</div>
+              </div>
               <h3 class="tool-title">Bureaucratic Drag Snapshot</h3>
+              <p class="tool-subline">Process load · reporting · overhead</p>
               <p class="tool-text">
                 Surface recurring administrative burden, process density, and non-value-adding overhead across a selected workflow.
               </p>
+              <p class="tool-meta-label">Best when</p>
               <p class="tool-meta">
-                Best when the issue feels like too much process, too much reporting, or too much coordination.
+                The issue feels like too much process, too much reporting, or too much coordination.
               </p>
               <span class="tool-open">Open diagnostic &#8594;</span>
             </a>
@@ -1046,13 +1127,17 @@
 
           <article class="tool-card">
             <a class="tool-card-link" href="institutional-performance.html" aria-label="Open Institutional Performance Snapshot">
-              <div class="tool-badge">Live</div>
+              <div class="tool-card-top">
+                <div class="tool-badge">Live</div>
+              </div>
               <h3 class="tool-title">Institutional Performance Snapshot</h3>
+              <p class="tool-subline">System health · adaptation · reliability</p>
               <p class="tool-text">
                 Estimate how well an institution is converting structure into sustained performance across execution, decision reliability, adaptation, and operating confidence.
               </p>
+              <p class="tool-meta-label">Best when</p>
               <p class="tool-meta">
-                Best when the issue feels broader than one workflow and the system itself may be weakening.
+                The issue feels broader than one workflow and the system itself may be weakening.
               </p>
               <span class="tool-open">Open diagnostic &#8594;</span>
             </a>
