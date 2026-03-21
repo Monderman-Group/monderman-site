@@ -786,12 +786,25 @@
     }
 
     .tools-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 22px;
-      margin-bottom: 26px;
-      align-items: start;
-    }
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 22px;
+    margin-bottom: 26px;
+    align-items: stretch;
+  }
+
+    .tool-card {
+  position: relative;
+  background: #FFFFFF;
+  border: 1px solid rgba(21, 32, 43, 0.08);
+  box-shadow: var(--tool-shadow);
+  min-height: 228px;
+  height: 100%;
+  transition:
+    transform var(--transition-slow),
+    box-shadow var(--transition-slow),
+    border-color var(--transition);
+}
 
     .tool-card {
       position: relative;
