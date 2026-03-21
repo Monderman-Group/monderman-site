@@ -20,23 +20,18 @@
     @font-face {
       font-family: "Neue Haas Grotesk";
       src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff");
-      font-style: normal;
       font-weight: 400;
       font-display: swap;
     }
-
     @font-face {
       font-family: "Neue Haas Grotesk";
       src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff");
-      font-style: normal;
       font-weight: 500;
       font-display: swap;
     }
-
     @font-face {
       font-family: "Neue Haas Grotesk";
       src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff");
-      font-style: normal;
       font-weight: 700;
       font-display: swap;
     }
@@ -45,7 +40,8 @@
       --accent: #3F6EA1;
       --accent-dark: #2F5886;
       --bg-dark: #0F1720;
-      --bg-dark-2: #111B25;
+      --bg-dark-2: #131E29;
+      --bg-dark-3: #0D141C;
       --bg-white: #FFFFFF;
       --bg-offwhite: #F6F7F8;
       --text-light: #F5F7FA;
@@ -53,74 +49,31 @@
       --text-dark: #15202B;
       --muted-dark: #5F6B78;
       --muted-dark-2: #7A8794;
-      --line-dark: #E3E7EB;
+      --line: #E3E7EB;
       --header-solid: rgba(14, 20, 28, 0.84);
       --header-border: rgba(255, 255, 255, 0.08);
       --max: 1320px;
       --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
       --transition-slow: 360ms cubic-bezier(0.22, 1, 0.36, 1);
-      --tool-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
-      --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
+      --soft-shadow: 0 1px 0 rgba(0,0,0,0.012);
+      --card-shadow: 0 14px 32px rgba(0,0,0,0.05);
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-      scroll-padding-top: 72px;
-    }
-
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 72px; }
     body {
       margin: 0;
       background: var(--bg-white);
       color: var(--text-dark);
       font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-weight: 400;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       text-rendering: optimizeLegibility;
     }
-
-    html,
-    body,
-    button,
-    input,
-    textarea,
-    select,
-    option,
-    a,
-    p,
-    li,
-    dt,
-    dd,
-    span,
-    small,
-    strong,
-    em,
-    label,
-    figcaption,
-    blockquote,
-    cite,
-    div,
-    section,
-    article,
-    nav,
-    header,
-    footer,
-    main,
-    h1,
-    h2,
-    h3,
-    h4 {
+    h1, h2, h3, h4, p, a, span, div, section, article, nav, header, footer, main {
       font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
     }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
+    a { color: inherit; text-decoration: none; }
 
     .header {
       position: fixed;
@@ -130,20 +83,14 @@
       z-index: 100;
       background: transparent;
       border-bottom: 1px solid transparent;
-      transition:
-        background var(--transition),
-        border-color var(--transition),
-        backdrop-filter var(--transition),
-        -webkit-backdrop-filter var(--transition);
+      transition: background var(--transition), border-color var(--transition), backdrop-filter var(--transition);
     }
-
     .header.scrolled {
       background: var(--header-solid);
       border-bottom-color: var(--header-border);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
     }
-
     .header-inner {
       max-width: var(--max);
       height: 100%;
@@ -154,7 +101,6 @@
       justify-content: space-between;
       gap: 28px;
     }
-
     .brand {
       display: inline-flex;
       align-items: center;
@@ -163,9 +109,7 @@
       letter-spacing: -0.02em;
       color: #FFFFFF;
       white-space: nowrap;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
     }
-
     .brand::after {
       content: "";
       width: 6px;
@@ -176,24 +120,19 @@
       display: inline-block;
       transform: translateY(-1px);
     }
-
     .nav {
       display: flex;
       align-items: center;
       gap: 28px;
       flex-wrap: wrap;
-      justify-content: flex-end;
     }
-
     .nav a {
       position: relative;
       font-size: 0.94rem;
       font-weight: 500;
-      letter-spacing: 0.012em;
-      color: rgba(255, 255, 255, 0.88);
+      color: rgba(255,255,255,0.88);
       transition: color var(--transition), transform var(--transition);
     }
-
     .nav a::after {
       content: "";
       position: absolute;
@@ -201,64 +140,57 @@
       bottom: -6px;
       width: 100%;
       height: 1px;
-      background: rgba(255, 255, 255, 0.74);
+      background: rgba(255,255,255,0.74);
       transform: scaleX(0);
       transform-origin: left center;
       transition: transform 180ms ease;
     }
-
     .nav a:hover,
-    .nav a:focus-visible {
+    .nav a.is-active {
       color: #FFFFFF;
       transform: translateY(-1px);
-      outline: none;
     }
-
     .nav a:hover::after,
-    .nav a:focus-visible::after {
+    .nav a.is-active::after {
       transform: scaleX(1);
     }
 
-    .hero-tools {
+    .hero {
       position: relative;
-      background: linear-gradient(180deg, #0F1720 0%, #131E29 100%);
-      color: var(--text-light);
       overflow: hidden;
+      background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-dark-2) 100%);
+      color: var(--text-light);
     }
-
-    .hero-tools::before {
+    .hero::before {
       content: "";
       position: absolute;
       inset: 0;
       background:
         radial-gradient(circle at 80% 20%, rgba(63, 110, 161, 0.12), transparent 30%),
-        linear-gradient(135deg, rgba(63, 110, 161, 0.03) 1px, transparent 1px);
+        linear-gradient(135deg, rgba(63,110,161,0.03) 1px, transparent 1px);
       background-size: auto, 34px 34px;
       opacity: 0.34;
       pointer-events: none;
     }
-
-    .hero-tools-inner {
+    .hero-inner {
       position: relative;
       z-index: 1;
       max-width: var(--max);
       margin: 0 auto;
       padding: 148px 34px 92px;
     }
-
-    .hero-tools-eyebrow {
+    .eyebrow {
       margin: 0 0 22px;
       font-size: 0.72rem;
       font-weight: 700;
       line-height: 1;
       letter-spacing: 0.24em;
       text-transform: uppercase;
-      color: rgba(245, 247, 250, 0.58);
+      color: rgba(245,247,250,0.58);
     }
-
-    .hero-tools h1 {
+    .hero h1 {
       margin: 0 0 22px;
-      max-width: 10.8ch;
+      max-width: 12ch;
       font-size: clamp(3rem, 5vw, 4.8rem);
       line-height: 0.95;
       letter-spacing: -0.05em;
@@ -266,34 +198,30 @@
       color: #FFFFFF;
       text-wrap: balance;
     }
-
-    .hero-tools p {
+    .hero p {
       margin: 0;
-      max-width: 62ch;
+      max-width: 64ch;
       font-size: 1.08rem;
       line-height: 1.68;
       color: var(--muted-light);
     }
 
-    .tools-page {
+    .page {
       background: var(--bg-offwhite);
       padding: 88px 34px 92px;
-      color: var(--text-dark);
     }
-
-    .tools-page-inner {
+    .page-inner {
       max-width: var(--max);
       margin: 0 auto;
     }
 
-    .tools-page-head {
+    .head {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 360px;
+      grid-template-columns: minmax(0,1fr) 360px;
       gap: 46px;
       align-items: end;
       margin-bottom: 34px;
     }
-
     .section-label {
       margin-bottom: 16px;
       font-size: 0.78rem;
@@ -302,7 +230,6 @@
       text-transform: uppercase;
       color: var(--accent);
     }
-
     .section-label::before {
       content: "";
       display: block;
@@ -311,10 +238,9 @@
       background: var(--accent);
       margin-bottom: 14px;
     }
-
-    .section-intro h2 {
+    .head h2,
+    .panel h3 {
       margin: 0 0 18px;
-      max-width: 760px;
       font-size: clamp(1.95rem, 2.45vw, 2.35rem);
       line-height: 1.12;
       letter-spacing: -0.04em;
@@ -322,16 +248,14 @@
       color: var(--text-dark);
       text-wrap: balance;
     }
-
-    .section-intro p {
+    .head p,
+    .panel p {
       margin: 0;
-      max-width: 62ch;
-      font-size: 1.04rem;
+      font-size: 1.02rem;
       line-height: 1.68;
       color: var(--muted-dark);
     }
-
-    .tools-note {
+    .note {
       margin: 0;
       font-size: 0.90rem;
       line-height: 1.62;
@@ -344,85 +268,50 @@
 
     .tools-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 22px;
-      margin-bottom: 28px;
+      margin-bottom: 34px;
+      align-items: stretch;
     }
-
     .tool-card {
-      position: relative;
       background: #FFFFFF;
-      border: 1px solid rgba(21, 32, 43, 0.08);
-      box-shadow: var(--tool-shadow);
-      min-height: 236px;
-      transition:
-        transform var(--transition-slow),
-        box-shadow var(--transition-slow),
-        border-color var(--transition);
+      border: 1px solid rgba(21,32,43,0.08);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+      min-height: 244px;
+      transition: transform var(--transition-slow), box-shadow var(--transition-slow), border-color var(--transition);
     }
-
     .tool-card:hover {
       transform: translateY(-3px);
-      border-color: rgba(63, 110, 161, 0.14);
-      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.05);
+      border-color: rgba(63,110,161,0.14);
+      box-shadow: var(--card-shadow);
     }
-
-    .tool-card-live {
-      border-color: rgba(63, 110, 161, 0.16);
-    }
-
-    .tool-card-link,
-    .tool-card-static {
+    .tool-card-link {
       display: flex;
       flex-direction: column;
-      min-height: 236px;
+      align-items: flex-start;
+      min-height: 244px;
       height: 100%;
       padding: 22px 22px 20px;
-      color: inherit;
+      text-align: left;
     }
-
-    .tool-card-link {
-      cursor: pointer;
-    }
-
     .tool-card-link:focus-visible {
-      outline: 2px solid rgba(63, 110, 161, 0.35);
+      outline: 2px solid rgba(63,110,161,0.35);
       outline-offset: 3px;
     }
-
     .tool-badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
       padding: 6px 10px;
       font-size: 0.72rem;
       font-weight: 700;
       letter-spacing: 0.10em;
       text-transform: uppercase;
-      background: rgba(63, 110, 161, 0.08);
+      background: rgba(63,110,161,0.08);
       color: var(--accent);
-      border: 1px solid rgba(63, 110, 161, 0.12);
+      border: 1px solid rgba(63,110,161,0.12);
       margin-bottom: 12px;
-      align-self: flex-start;
     }
-
-    .tool-badge-muted {
-      background: rgba(21,32,43,0.04);
-      color: var(--muted-dark);
-      border-color: rgba(21,32,43,0.08);
-    }
-
-    .tool-card-kicker {
-      margin: 0 0 10px;
-      font-size: 0.70rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
-
-    .tool-card-title {
+    .tool-title {
       margin: 0 0 10px;
       font-size: 1.14rem;
       line-height: 1.14;
@@ -430,22 +319,103 @@
       letter-spacing: -0.022em;
       color: var(--text-dark);
     }
-
-    .tool-card-text {
+    .tool-text {
       margin: 0 0 14px;
       font-size: 0.95rem;
       line-height: 1.62;
       color: var(--muted-dark);
     }
-
-    .tool-card-meta {
+    .tool-meta {
       margin-top: auto;
       font-size: 0.86rem;
       line-height: 1.55;
       color: var(--muted-dark-2);
     }
 
-    .tools-footer-copy {
+    .panel-stack {
+      display: grid;
+      gap: 28px;
+      margin-bottom: 34px;
+    }
+    .panel {
+      background: #FFFFFF;
+      border: 1px solid rgba(21,32,43,0.08);
+      box-shadow: var(--soft-shadow);
+      padding: 28px 28px 26px;
+    }
+    .panel h3 {
+      margin-bottom: 12px;
+      font-size: 1.12rem;
+      line-height: 1.18;
+      letter-spacing: -0.02em;
+    }
+
+    .use-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 18px;
+      margin-top: 20px;
+    }
+    .use-card {
+      background: linear-gradient(180deg, rgba(246,247,248,0.92) 0%, #FFFFFF 100%);
+      border: 1px solid rgba(21,32,43,0.08);
+      padding: 20px 18px 18px;
+    }
+    .use-step {
+      margin: 0 0 10px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .use-title {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      line-height: 1.2;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+    .use-text {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: var(--muted-dark);
+    }
+
+    .matrix {
+      overflow-x: auto;
+      margin-top: 18px;
+      border: 1px solid rgba(21,32,43,0.08);
+      background: #FFFFFF;
+    }
+    .matrix table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 860px;
+    }
+    .matrix th,
+    .matrix td {
+      text-align: left;
+      vertical-align: top;
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(21,32,43,0.08);
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+    .matrix th {
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+      background: rgba(246,247,248,0.8);
+    }
+    .matrix td strong {
+      color: var(--text-dark);
+    }
+
+    .footer-copy-top {
       margin: 0;
       max-width: 72ch;
       font-size: 0.95rem;
@@ -454,29 +424,25 @@
     }
 
     .footer {
-      background: #0D141C;
-      color: rgba(245, 247, 250, 0.88);
+      background: var(--bg-dark-3);
+      color: rgba(245,247,250,0.88);
       padding: 44px 34px 34px;
     }
-
     .footer-inner {
       max-width: var(--max);
       margin: 0 auto;
     }
-
     .footer-top {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
       gap: 40px;
       padding-bottom: 28px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
     }
-
     .footer-brand {
       max-width: 420px;
     }
-
     .footer-mark {
       display: inline-flex;
       align-items: center;
@@ -486,7 +452,6 @@
       color: #FFFFFF;
       margin-bottom: 14px;
     }
-
     .footer-mark::after {
       content: "";
       width: 6px;
@@ -497,25 +462,21 @@
       display: inline-block;
       transform: translateY(-1px);
     }
-
     .footer-copy {
       margin: 0;
       max-width: 36ch;
       font-size: 0.98rem;
       line-height: 1.65;
-      color: rgba(245, 247, 250, 0.68);
+      color: rgba(245,247,250,0.68);
     }
-
     .footer-nav {
       display: flex;
       gap: 48px;
       flex-wrap: wrap;
     }
-
     .footer-nav-col {
       min-width: 120px;
     }
-
     .footer-nav-title {
       margin: 0 0 12px;
       font-size: 0.72rem;
@@ -523,25 +484,20 @@
       line-height: 1;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: rgba(245, 247, 250, 0.50);
+      color: rgba(245,247,250,0.50);
     }
-
     .footer-nav a {
       display: block;
       margin-bottom: 10px;
       font-size: 0.95rem;
       line-height: 1.45;
-      color: rgba(245, 247, 250, 0.82);
+      color: rgba(245,247,250,0.82);
       transition: color var(--transition), transform var(--transition);
     }
-
-    .footer-nav a:hover,
-    .footer-nav a:focus-visible {
+    .footer-nav a:hover {
       color: #FFFFFF;
       transform: translateX(2px);
-      outline: none;
     }
-
     .footer-bottom {
       display: flex;
       align-items: center;
@@ -549,116 +505,60 @@
       gap: 20px;
       padding-top: 18px;
     }
-
     .footer-meta,
     .footer-contact {
       margin: 0;
       font-size: 0.88rem;
       line-height: 1.6;
-      color: rgba(245, 247, 250, 0.58);
+      color: rgba(245,247,250,0.58);
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      html {
-        scroll-behavior: auto;
-      }
-
-      .header,
-      .nav a,
-      .nav a::after,
-      .tool-card,
-      .footer-nav a {
-        transition: none;
-      }
-    }
-
-    @media (max-width: 1100px) {
-      .tools-page-head {
-        grid-template-columns: 1fr;
-      }
-
-      .tools-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
+    @media (max-width: 1180px) {
+      .tools-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .head { grid-template-columns: 1fr; }
+      .use-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 980px) {
-      .header {
-        height: auto;
-      }
-
+      .header { height: auto; }
       .header-inner {
         padding: 16px 24px;
         align-items: flex-start;
         flex-direction: column;
         gap: 14px;
       }
-
-      .nav {
-        gap: 22px;
-      }
-
-      .hero-tools-inner,
-      .tools-page,
-      .footer {
-        padding-left: 24px;
-        padding-right: 24px;
-      }
+      .nav { gap: 22px; }
+      .hero-inner,
+      .page,
+      .footer { padding-left: 24px; padding-right: 24px; }
     }
 
     @media (max-width: 760px) {
-      .brand {
-        font-size: 1.24rem;
-      }
-
-      .nav {
-        gap: 18px;
-      }
-
-      .hero-tools-inner {
-        padding: 134px 20px 74px;
-      }
-
-      .hero-tools h1 {
+      .brand { font-size: 1.24rem; }
+      .nav { gap: 18px; }
+      .hero-inner { padding: 134px 20px 74px; }
+      .hero h1 {
         max-width: 100%;
         font-size: clamp(2.4rem, 8vw, 3.3rem);
       }
-
-      .hero-tools p {
+      .hero p {
         font-size: 1rem;
         line-height: 1.58;
       }
-
-      .tools-page {
-        padding: 72px 20px 72px;
-      }
-
-      .tools-grid {
-        grid-template-columns: 1fr;
-      }
-
+      .page { padding: 72px 20px 72px; }
+      .tools-grid { grid-template-columns: 1fr; }
       .footer {
         padding: 34px 20px 28px;
       }
-
       .footer-top,
       .footer-bottom {
         flex-direction: column;
         align-items: flex-start;
       }
-
-      .footer-nav {
-        gap: 28px;
-      }
-
-      .footer-copy {
-        font-size: 0.94rem;
-      }
-
+      .footer-nav { gap: 28px; }
+      .footer-copy { font-size: 0.94rem; }
       .footer-meta,
-      .footer-contact {
-        font-size: 0.84rem;
-      }
+      .footer-contact { font-size: 0.84rem; }
     }
   </style>
 </head>
@@ -669,8 +569,7 @@
 
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
-        <a href="diagnostic-tools.html">Diagnostic Tools</a>
-        <a href="index.html#thinking">Thinking</a>
+        <a href="diagnostic-tools.html" class="is-active">Diagnostic Tools</a>
         <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
         <a href="index.html#connect">Connect</a>
@@ -678,81 +577,163 @@
     </div>
   </header>
 
-  <section class="hero-tools" aria-labelledby="tools-hero-title">
-    <div class="hero-tools-inner">
-      <p class="hero-tools-eyebrow">Monderman Diagnostic Tools</p>
-      <h1 id="tools-hero-title">Practical diagnostics for institutional friction.</h1>
+  <section class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">Monderman Diagnostic Suite</p>
+      <h1>Focused tools for structural diagnosis.</h1>
       <p>
-        A guided set of tools for identifying ownership ambiguity, review burden, decision drag,
-        and administrative overhead in bounded workflows and operating environments.
+        This is a quieter environment for running Monderman’s live diagnostics. Use the suite to isolate where performance is being weakened by structural ambiguity, decision friction, administrative burden, or declining institutional coherence.
       </p>
     </div>
   </section>
 
-  <main class="tools-page">
-    <div class="tools-page-inner">
-      <div class="tools-page-head">
-        <div class="section-intro">
+  <main class="page">
+    <div class="page-inner">
+      <div class="head">
+        <div>
           <div class="section-label">Diagnostic Suite</div>
-          <h2>Grounded tools, built for immediate use.</h2>
+          <h2>Four tools. Four different ways institutions lose strength.</h2>
           <p>
-            These diagnostics are designed to reveal real structural problems quickly without pretending to be full organizational assessments.
-            Use them to surface where friction is accumulating and where deeper redesign may be needed.
+            The homepage introduces the suite. This page is where you choose the right diagnostic and work more deliberately. Each tool is bounded, directional, and designed for immediate use without the clutter of a broader marketing page.
           </p>
         </div>
 
-        <p class="tools-note">
-          <strong>Private by default.</strong> These diagnostics are intended for immediate use and do not create a persistent organizational record.
-          Please avoid entering confidential, classified, regulated, or personally sensitive information.
+        <p class="note">
+          <strong>Private by default.</strong> These diagnostics are designed for immediate use and do not create a persistent organizational record. Avoid entering confidential, classified, regulated, or personally sensitive information.
         </p>
       </div>
 
       <div class="tools-grid">
-        <article class="tool-card tool-card-live">
+        <article class="tool-card">
           <a class="tool-card-link" href="structural-clarity.html" aria-label="Open Structural Clarity Snapshot">
             <div class="tool-badge">Live</div>
-            <p class="tool-card-kicker">Structural Clarity</p>
-            <h3 class="tool-card-title">Structural Clarity Snapshot</h3>
-            <p class="tool-card-text">
-              Estimate how much time, money, and productive capacity may be consumed by overhead inside one workflow or operating slice.
+            <h3 class="tool-title">Structural Clarity Snapshot</h3>
+            <p class="tool-text">
+              Assess whether ownership, authority, handoffs, and review logic are sufficiently clear for one bounded workflow or operating slice.
             </p>
-            <p class="tool-card-meta">
-              Best for one team, one process, one cross-functional workflow, or one organizational slice.
+            <p class="tool-meta">
+              Best when the issue feels like ambiguity, duplication, or execution drift.
             </p>
           </a>
         </article>
 
-        <article class="tool-card tool-card-live">
+        <article class="tool-card">
           <a class="tool-card-link" href="decision-velocity.html" aria-label="Open Decision Velocity Snapshot">
             <div class="tool-badge">Live</div>
-            <p class="tool-card-kicker">Decision Velocity</p>
-            <h3 class="tool-card-title">Decision Velocity Snapshot</h3>
-            <p class="tool-card-text">
-              Identify where approval density, escalation patterns, and role ambiguity are slowing movement through important decisions.
+            <h3 class="tool-title">Decision Velocity Snapshot</h3>
+            <p class="tool-text">
+              Diagnose where approvals, escalation patterns, and role uncertainty are slowing movement through important decisions.
             </p>
-            <p class="tool-card-meta">
-              Designed to surface how decisions stall between intent, authority, and execution.
+            <p class="tool-meta">
+              Best when the issue feels like slowness, delay, or approval drag.
             </p>
           </a>
         </article>
 
-        <article class="tool-card tool-card-live">
+        <article class="tool-card">
           <a class="tool-card-link" href="bureaucratic-drag-snapshot.html" aria-label="Open Bureaucratic Drag Snapshot">
             <div class="tool-badge">Live</div>
-            <p class="tool-card-kicker">Operational Systems</p>
-            <h3 class="tool-card-title">Bureaucratic Drag Snapshot</h3>
-            <p class="tool-card-text">
+            <h3 class="tool-title">Bureaucratic Drag Snapshot</h3>
+            <p class="tool-text">
               Surface recurring administrative burden, process density, and non-value-adding overhead across a selected workflow.
             </p>
-            <p class="tool-card-meta">
-              Built to distinguish manageable friction from systemic drag requiring redesign.
+            <p class="tool-meta">
+              Best when the issue feels like too much process, too much reporting, or too much coordination.
+            </p>
+          </a>
+        </article>
+
+        <article class="tool-card">
+          <a class="tool-card-link" href="institutional-performance.html" aria-label="Open Institutional Performance Snapshot">
+            <div class="tool-badge">Live</div>
+            <h3 class="tool-title">Institutional Performance Snapshot</h3>
+            <p class="tool-text">
+              Estimate how well an institution is converting structure into sustained performance across execution, decision reliability, adaptation, and operating confidence.
+            </p>
+            <p class="tool-meta">
+              Best when the issue feels broader than one workflow and the system itself may be weakening.
             </p>
           </a>
         </article>
       </div>
 
-      <p class="tools-footer-copy">
-        Open the live tools above to work through each diagnostic in its own dedicated environment.
+      <div class="panel-stack">
+        <section class="panel">
+          <h3>How to use the suite</h3>
+          <p>
+            These are not exhaustive organizational assessments. They are disciplined entry points. Start with the tool that best matches the felt problem, complete one bounded diagnostic, then compare the result against what leaders already suspect. The objective is not false precision. It is better structural visibility.
+          </p>
+
+          <div class="use-grid">
+            <div class="use-card">
+              <p class="use-step">Step 1</p>
+              <h4 class="use-title">Choose the problem shape</h4>
+              <p class="use-text">Begin with the most visible symptom: ambiguity, delay, burden, or weakening institutional performance.</p>
+            </div>
+
+            <div class="use-card">
+              <p class="use-step">Step 2</p>
+              <h4 class="use-title">Keep the scope bounded</h4>
+              <p class="use-text">Use one team, one function, one workflow, or one operating environment wherever possible.</p>
+            </div>
+
+            <div class="use-card">
+              <p class="use-step">Step 3</p>
+              <h4 class="use-title">Use the result directionally</h4>
+              <p class="use-text">Treat the output as a structural signal, not a substitute for leadership judgment or deeper review.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h3>Which tool to start with</h3>
+          <p>
+            The suite is more useful when each tool has a distinct job. This matrix helps users choose a starting point instead of reading four cards that sound too similar.
+          </p>
+
+          <div class="matrix">
+            <table>
+              <thead>
+                <tr>
+                  <th>Start here when…</th>
+                  <th>Best tool</th>
+                  <th>What it clarifies</th>
+                  <th>What it does not try to do</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Roles, ownership, and handoffs feel blurred.</strong></td>
+                  <td>Structural Clarity Snapshot</td>
+                  <td>Whether the workflow is legible enough to support reliable execution.</td>
+                  <td>It does not directly measure speed or burden.</td>
+                </tr>
+                <tr>
+                  <td><strong>Decisions feel slow, stuck, or approval-heavy.</strong></td>
+                  <td>Decision Velocity Snapshot</td>
+                  <td>Where decision movement is being slowed by structure.</td>
+                  <td>It does not fully assess institutional health.</td>
+                </tr>
+                <tr>
+                  <td><strong>The environment feels overloaded by process.</strong></td>
+                  <td>Bureaucratic Drag Snapshot</td>
+                  <td>Whether administrative density is consuming time and attention.</td>
+                  <td>It does not isolate all authority and ownership issues.</td>
+                </tr>
+                <tr>
+                  <td><strong>The whole system seems to be weakening.</strong></td>
+                  <td>Institutional Performance Snapshot</td>
+                  <td>Whether structure is still producing sustained institutional performance.</td>
+                  <td>It is broader and less workflow-specific than the other three.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <p class="footer-copy-top">
+        Open the live tools above to work through each diagnostic in its own dedicated environment. The purpose of this page is not to repeat the homepage, but to provide a cleaner hub for choosing the right diagnostic and beginning structured inquiry.
       </p>
     </div>
   </main>
@@ -772,7 +753,6 @@
             <p class="footer-nav-title">Explore</p>
             <a href="index.html#approach">Approach</a>
             <a href="diagnostic-tools.html">Diagnostic Tools</a>
-            <a href="index.html#thinking">Thinking</a>
             <a href="research.html">Research</a>
             <a href="why-monderman.html">Why Monderman</a>
           </div>
