@@ -1,1 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Decision Velocity | Monderman</title>
+  <style>
+    :root {
+      --accent: #3F6EA1;
+      --accent-dark: #2F5886;
+      --bg: #F6F7F8;
+      --white: #FFFFFF;
+      --text: #15202B;
+      --muted: #556270;
+      --line: #E3E7EB;
+      --dark: #0F1720;
+      --max: 980px;
+    }
 
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .header {
+      background: rgba(15, 23, 32, 0.96);
+      color: #fff;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(10px);
+    }
+
+    .header-inner,
+    .hero-inner,
+    .article-inner,
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding-left: 28px;
+      padding-right: 28px;
+    }
+
+    .header-inner {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .brand::after {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      border-radius: 1px;
+      background: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .nav {
+      display: flex;
+      gap: 22px;
+      flex-wrap: wrap;
+    }
+
+    .nav a {
+      color: rgba(255,255,255,0.84);
+      font-size: 0.96rem;
+    }
+
+    .nav a:hover { color: #fff; }
+
+    .hero {
+      background: linear-gradient(135deg, #0F1720 0%, #182331 100%);
+      color: #fff;
+      padding: 84px 0 72px;
+    }
+
+    .eyebrow {
+      margin: 0 0 16px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.68);
+    }
+
+    .hero h1 {
+      margin: 0 0 18px;
+      max-width: 10ch;
+      font-size: clamp(2.5rem, 5vw, 4.6rem);
+      line-height: 0.96;
+      letter-spacing: -0.05em;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 42ch;
+      font-size: 1.08rem;
+      line-height: 1.65;
+      color: rgba(255,255,255,0.78);
+    }
+
+    .hero-actions {
+      margin-top: 30px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 18px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .btn-primary {
+      background: #fff;
+      color: var(--text);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      border-color: rgba(255,255,255,0.18);
+    }
+
+    .article { padding: 62px 0 84px; }
+
+    .article-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 36px;
+      align-items: start;
+    }
+
+    .content, .sidebar-card, .pullquote, .cta {
+      background: var(--white);
+      border: 1px solid var(--line);
+    }
+
+    .content { padding: 38px 34px; }
+
+    .content p {
+      margin: 0 0 20px;
+      font-size: 1.03rem;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+
+    .content h2 {
+      margin: 38px 0 14px;
+      font-size: 1.55rem;
+      line-height: 1.12;
+      letter-spacing: -0.04em;
+      color: var(--text);
+    }
+
+    .content h3 {
+      margin: 30px 0 10px;
+      font-size: 1.08rem;
+      line-height: 1.2;
+      color: var(--text);
+    }
+
+    .pullquote {
+      margin: 28px 0;
+      padding: 24px;
+      border-left: 3px solid var(--accent);
+    }
+
+    .pullquote p {
+      margin: 0;
+      color: var(--text);
+    }
+
+    .sidebar {
+      display: grid;
+      gap: 18px;
+      position: sticky;
+      top: 96px;
+    }
+
+    .sidebar-card { padding: 22px 20px; }
+
+    .sidebar-kicker {
+      margin: 0 0 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .sidebar-card h3 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+    }
+
+    .sidebar-card p {
+      margin: 0;
+      font-size: 0.94rem;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    .mini-list {
+      margin: 12px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    .mini-list li {
+      margin-bottom: 10px;
+      line-height: 1.55;
+    }
+
+    .cta {
+      margin-top: 38px;
+      padding: 26px 24px;
+      background: #F8F9FA;
+    }
+
+    .cta h3 {
+      margin: 0 0 10px;
+      font-size: 1.12rem;
+    }
+
+    .cta p { margin: 0 0 18px; }
+
+    .footer {
+      background: var(--dark);
+      color: rgba(255,255,255,0.72);
+      padding: 34px 0;
+    }
+
+    .footer p {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 900px) {
+      .article-layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+    }
+
+    @media (max-width: 720px) {
+      .header-inner,
+      .hero-inner,
+      .article-inner,
+      .footer-inner {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .header-inner {
+        padding-top: 16px;
+        padding-bottom: 16px;
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .content { padding: 28px 22px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="brand">Monderman</a>
+      <nav class="nav">
+        <a href="index.html#approach">Approach</a>
+        <a href="diagnostic-tools.html">Diagnostic Tools</a>
+        <a href="research.html">Research</a>
+        <a href="why-monderman.html">Why Monderman</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">Our Approach</p>
+      <h1>Decision Velocity</h1>
+      <p>
+        Strategy rarely fails because people cannot think. It fails because organizations cannot convert judgment
+        into timely action.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="diagnostic-tools.html">Run Diagnostics</a>
+        <a class="btn btn-secondary" href="index.html#connect">Start a Conversation</a>
+      </div>
+    </div>
+  </section>
+
+  <main class="article">
+    <div class="article-inner">
+      <div class="article-layout">
+        <article class="content">
+          <p>
+            Most organizations do not have a decision problem in the abstract. They have a decision-speed problem
+            in practice. Leaders can usually identify what needs attention. Teams often know what should happen next.
+            The breakdown occurs in the middle: approvals, reviews, handoffs, unclear ownership, and the quiet fear
+            of acting without cover.
+          </p>
+
+          <p>
+            That is what decision velocity is really about. Not speed for its own sake, but the ability to move from
+            signal to decision to action before the environment has already changed.
+          </p>
+
+          <div class="pullquote">
+            <p>
+              Decision velocity is not recklessness. It is the disciplined ability to make timely decisions at the
+              clock speed of reality.
+            </p>
+          </div>
+
+          <h2>Why good organizations still move too slowly</h2>
+
+          <p>
+            Delay is rarely caused by one dramatic bottleneck. More often, it is the combined effect of many small
+            frictions: one more review, one more stakeholder, one more committee, one more request for a slide that
+            will not change the outcome. Over time, these accumulate into a system that feels careful but behaves slow.
+          </p>
+
+          <p>
+            This matters because delay changes the economics of judgment. A good decision made too late is often
+            indistinguishable from a bad one. By the time approval is granted, the customer has moved, the competitor
+            has acted, or the internal window for action has closed.
+          </p>
+
+          <h2>The hidden cost of slow decisions</h2>
+
+          <h3>Teams stop escalating ideas</h3>
+          <p>
+            When people learn that worthwhile ideas spend months in review, they begin to self-filter before the
+            organization ever sees the signal.
+          </p>
+
+          <h3>Leaders become overloaded</h3>
+          <p>
+            Unclear decision rights push too many choices upward. Senior leaders become the system’s workaround.
+          </p>
+
+          <h3>Execution loses tempo</h3>
+          <p>
+            Even strong teams struggle when decisions land late, arrive half-settled, or keep being reopened.
+          </p>
+
+          <h3>Risk actually increases</h3>
+          <p>
+            Slow organizations often believe they are being safer. In reality, they may simply be allowing unresolved
+            issues to age inside the system.
+          </p>
+
+          <h2>What higher decision velocity looks like</h2>
+
+          <p>
+            Faster decisions do not begin with motivational slogans. They begin with cleaner design. Decision rights
+            need to sit where the relevant information is. Approval thresholds need to match actual risk. Review paths
+            need to be visible. Exceptions should be rare, not the normal way work moves.
+          </p>
+
+          <p>
+            In healthier systems, people know which decisions are reversible and can move quickly, and which are
+            consequential enough to require deeper review. That distinction alone can dramatically improve tempo.
+          </p>
+
+          <h2>How Monderman approaches decision velocity</h2>
+
+          <p>
+            We look at the full pathway beneath the decision, not just the moment of choice. Where is work waiting?
+            Where is authority fragmented? Which approvals are performing real governance, and which are simply
+            inherited habits? Where has the organization become dependent on escalation instead of coherent design?
+          </p>
+
+          <p>
+            The goal is not permanent acceleration. It is more intelligent movement. Some decisions should be slower.
+            Many should be faster. The real task is to design a system that knows the difference.
+          </p>
+
+          <div class="cta">
+            <h3>Common signs decision velocity is degrading</h3>
+            <p>
+              Deadlines slip while activity stays high. More decisions are pushed upward. Teams rely on personal
+              relationships to get things unstuck. “Urgent” becomes the only way anything moves.
+            </p>
+            <a class="btn btn-primary" href="diagnostic-tools.html">Explore the Diagnostic Hub</a>
+          </div>
+        </article>
+
+        <aside class="sidebar">
+          <div class="sidebar-card">
+            <p class="sidebar-kicker">What this affects</p>
+            <h3>Speed, trust, and adaptability</h3>
+            <p>
+              Slow decisions do not just reduce tempo. They train people to become passive, political, or overly cautious.
+            </p>
+          </div>
+
+          <div class="sidebar-card">
+            <p class="sidebar-kicker">Look for</p>
+            <ul class="mini-list">
+              <li>Approval cycles longer than the problem’s shelf life</li>
+              <li>Escalation becoming routine</li>
+              <li>Decisions reopened after sign-off</li>
+              <li>Action waiting on presentation-quality polish</li>
+            </ul>
+          </div>
+
+          <div class="sidebar-card">
+            <p class="sidebar-kicker">Monderman view</p>
+            <p>
+              Decision velocity is not about haste. It is about keeping judgment, authority, and timing aligned closely
+              enough that organizations can still maneuver.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <p>Monderman — clarity for complex institutions.</p>
+    </div>
+  </footer>
+</body>
+</html>
