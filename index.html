@@ -804,6 +804,8 @@
 
     .approach-card {
       position: relative;
+      display: flex;
+      flex-direction: column;
       min-height: 356px;
       background: rgba(255, 255, 255, 0.99);
       border: 1px solid var(--line-dark);
@@ -848,6 +850,11 @@
       color: #4C5A67;
     }
 
+    .approach-card:hover .approach-card-link {
+      color: var(--accent-dark);
+      transform: translateX(2px);
+    }
+
     .card-title {
       margin-bottom: 18px;
       font-size: 1.42rem;
@@ -862,6 +869,70 @@
       line-height: 1.66;
       color: var(--muted-dark);
       transition: color var(--transition);
+    }
+
+    .approach-card-link {
+      margin-top: auto;
+      align-self: flex-end;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding-top: 26px;
+      font-size: 0.90rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: var(--accent);
+      transition: color var(--transition), transform var(--transition);
+    }
+
+    .approach-card-link:hover,
+    .approach-card-link:focus-visible {
+      color: var(--accent-dark);
+      transform: translateX(2px);
+      outline: none;
+    }
+
+    .approach-synthesis {
+      margin-top: 64px;
+      padding: 40px 34px;
+      background: #F8F9FA;
+      border-radius: 6px;
+      border: 1px solid #E3E7EB;
+      text-align: center;
+    }
+
+    .approach-synthesis .section-label {
+      margin-bottom: 12px;
+    }
+
+    .approach-synthesis .section-label::before {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .approach-synthesis-copy {
+      max-width: 52ch;
+      margin: 0 auto 32px;
+      font-size: 1.04rem;
+      line-height: 1.58;
+      color: #556270;
+    }
+
+    .approach-synthesis-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 24px;
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    .approach-synthesis-item {
+      font-size: 0.96rem;
+      line-height: 1.45;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text-dark);
+      text-transform: lowercase;
     }
 
     .latest {
@@ -1271,6 +1342,7 @@
       .cost-card,
       .estimate-card,
       .approach-card,
+      .approach-card-link,
       .latest-card,
       .latest-card-image img,
       .rail-arrow,
@@ -1418,6 +1490,15 @@
         padding: 30px 24px 38px;
       }
 
+      .approach-card-link {
+        padding-top: 22px;
+      }
+
+      .approach-synthesis {
+        margin-top: 44px;
+        padding: 30px 22px;
+      }
+
       .estimate-footer {
         align-items: flex-start;
         flex-direction: column;
@@ -1555,6 +1636,7 @@
           <div class="card-desc">
             We identify where authority, responsibility, and execution have drifted apart, then realign the operating structure so decisions translate into action.
           </div>
+          <a class="approach-card-link" href="structural-clarity-article.html">Read more &#8594;</a>
         </div>
 
         <div class="approach-card reveal reveal-delay-2">
@@ -1562,6 +1644,7 @@
           <div class="card-desc">
             Most organizations do not lack strategy. They lack speed. We remove the friction that slows decision cycles and stalls execution.
           </div>
+          <a class="approach-card-link" href="decision-velocity-article.html">Read more &#8594;</a>
         </div>
 
         <div class="approach-card reveal reveal-delay-3">
@@ -1569,6 +1652,7 @@
           <div class="card-desc">
             Policies, controls, and processes shape how work actually moves. We redesign operating systems so they support performance rather than constrain it.
           </div>
+          <a class="approach-card-link" href="operationa-systems-article.html">Read more &#8594;</a>
         </div>
 
         <div class="approach-card reveal reveal-delay-4">
@@ -1576,6 +1660,20 @@
           <div class="card-desc">
             Strong institutions sustain clarity over time. We design governance mechanisms that preserve alignment as organizations grow and evolve.
           </div>
+          <a class="approach-card-link" href="institutional-performance.html">Read more &#8594;</a>
+        </div>
+      </div>
+
+      <div class="approach-synthesis reveal">
+        <div class="section-label">The Monderman Effect</div>
+        <p class="approach-synthesis-copy">
+          Four interconnected outcomes that turn structural complexity into sustained execution advantage.
+        </p>
+        <div class="approach-synthesis-grid">
+          <div class="approach-synthesis-item">clarify ownership</div>
+          <div class="approach-synthesis-item">shorten decision paths</div>
+          <div class="approach-synthesis-item">reduce hidden drag</div>
+          <div class="approach-synthesis-item">strengthen performance</div>
         </div>
       </div>
     </div>
@@ -1647,20 +1745,20 @@
 
       <div class="estimate-grid">
         <div class="estimate-card reveal reveal-delay-2">
-          <div class="estimate-card-title">Money</div>
-          <p class="estimate-card-source"><em>Directional annual cost equivalent</em></p>
-          <div class="estimate-card-number" id="estimateMoney">$0</div>
-          <p class="estimate-card-text">
-            estimated annual cost of overhead absorbed by administrative and bureaucratic systems.
-          </p>
-        </div>
-
-        <div class="estimate-card reveal reveal-delay-3">
           <div class="estimate-card-title">Time</div>
           <p class="estimate-card-source"><em>Directional annual labor hours</em></p>
           <div class="estimate-card-number" id="estimateTime">0</div>
           <p class="estimate-card-text">
             estimated labor hours absorbed each year by coordination, compliance, review, and process burden.
+          </p>
+        </div>
+
+        <div class="estimate-card reveal reveal-delay-3">
+          <div class="estimate-card-title">Money</div>
+          <p class="estimate-card-source"><em>Directional annual cost equivalent</em></p>
+          <div class="estimate-card-number" id="estimateMoney">$0</div>
+          <p class="estimate-card-text">
+            estimated annual cost of overhead absorbed by administrative and bureaucratic systems.
           </p>
         </div>
 
