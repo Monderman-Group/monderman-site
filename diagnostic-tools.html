@@ -51,6 +51,7 @@
       --bg-offwhite: #F6F7F8;
       --text-light: #F5F7FA;
       --muted-light: rgba(245, 247, 250, 0.80);
+      --muted-light-2: rgba(245, 247, 250, 0.60);
       --text-dark: #15202B;
       --muted-dark: #5F6B78;
       --muted-dark-2: #7A8794;
@@ -242,6 +243,7 @@
       overflow: hidden;
       background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-dark-2) 100%);
       color: var(--text-light);
+      min-height: 58vh;
     }
 
     .hero::before {
@@ -253,6 +255,17 @@
         linear-gradient(135deg, rgba(63, 110, 161, 0.03) 1px, transparent 1px);
       background-size: auto, 34px 34px;
       opacity: 0.34;
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 78% 16%, rgba(63, 110, 161, 0.16), transparent 24%),
+        radial-gradient(circle at 18% 82%, rgba(63, 110, 161, 0.06), transparent 22%);
+      opacity: 0.95;
       pointer-events: none;
     }
 
@@ -293,6 +306,71 @@
       color: var(--muted-light);
     }
 
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 30px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      min-width: 164px;
+      padding: 0 20px;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: -0.012em;
+      white-space: nowrap;
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--text-dark);
+      border: 1px solid rgba(255, 255, 255, 0.52);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+      transition:
+        background 180ms cubic-bezier(0.22, 1, 0.36, 1),
+        color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 180ms cubic-bezier(0.22, 1, 0.36, 1);
+      cursor: pointer;
+    }
+
+    .btn:hover,
+    .btn:focus-visible {
+      background: #FFFFFF;
+      color: var(--text-dark);
+      border-color: rgba(255, 255, 255, 0.66);
+      transform: translateY(-0.5px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+      outline: none;
+    }
+
+    .btn-secondary {
+      background: rgba(8, 13, 20, 0.48);
+      color: rgba(255, 255, 255, 0.98);
+      border-color: rgba(255, 255, 255, 0.46);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      opacity: 0.94;
+    }
+
+    .btn-secondary:hover,
+    .btn-secondary:focus-visible {
+      background: rgba(8, 13, 20, 0.58);
+      color: #FFFFFF;
+      border-color: rgba(255, 255, 255, 0.62);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 4px 10px rgba(0, 0, 0, 0.06);
+      opacity: 1;
+    }
+
     .page {
       background: var(--bg-offwhite);
       padding: 88px 34px 92px;
@@ -331,7 +409,8 @@
 
     .head h2,
     .panel h3,
-    .tool-launch-head h3 {
+    .tool-launch-head h3,
+    .advisory-bridge h3 {
       margin: 0 0 18px;
       font-size: clamp(1.95rem, 2.45vw, 2.35rem);
       line-height: 1.12;
@@ -343,7 +422,8 @@
 
     .head p,
     .panel p,
-    .tool-launch-head p {
+    .tool-launch-head p,
+    .advisory-bridge p {
       margin: 0;
       font-size: 1.02rem;
       line-height: 1.68;
@@ -705,6 +785,50 @@
       transform: translateX(2px);
     }
 
+    .advisory-bridge {
+      margin: 0 0 34px;
+      padding: 34px 32px 30px;
+      background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(249,250,251,1) 100%);
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      box-shadow:
+        0 1px 0 rgba(0,0,0,0.012),
+        0 10px 26px rgba(0, 0, 0, 0.03);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .advisory-bridge-copy {
+      max-width: 58ch;
+    }
+
+    .advisory-bridge .section-label {
+      margin-bottom: 12px;
+    }
+
+    .advisory-bridge .section-label::before {
+      margin-bottom: 12px;
+    }
+
+    .advisory-bridge-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.98rem;
+      font-weight: 600;
+      color: var(--accent);
+      transition: color var(--transition), transform var(--transition);
+      white-space: nowrap;
+    }
+
+    .advisory-bridge-link:hover,
+    .advisory-bridge-link:focus-visible {
+      color: var(--accent-dark);
+      transform: translateX(2px);
+      outline: none;
+    }
+
     .footer-copy-top {
       margin: 0;
       max-width: 72ch;
@@ -828,6 +952,11 @@
       .use-grid {
         grid-template-columns: 1fr;
       }
+
+      .advisory-bridge {
+        grid-template-columns: 1fr;
+        align-items: start;
+      }
     }
 
     @media (max-width: 980px) {
@@ -877,12 +1006,24 @@
         line-height: 1.58;
       }
 
+      .hero-actions {
+        gap: 12px;
+      }
+
+      .btn {
+        min-width: 148px;
+        min-height: 46px;
+        padding: 0 20px;
+        font-size: 0.98rem;
+      }
+
       .page {
         padding: 72px 20px 72px;
       }
 
       .panel,
-      .tool-launch-head {
+      .tool-launch-head,
+      .advisory-bridge {
         padding: 24px 20px 22px;
       }
 
@@ -940,6 +1081,7 @@
 
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
+        <a href="advisory-services.html">Advisory Engagements</a>
         <a href="diagnostic-tools.html" class="is-active">Diagnostic Tools</a>
         <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
@@ -955,6 +1097,10 @@
       <p>
         This is a quieter environment for running Monderman’s live diagnostics. Use the suite to isolate where performance is being weakened by structural ambiguity, decision friction, administrative burden, or declining institutional coherence.
       </p>
+
+      <div class="hero-actions">
+        <a class="btn btn-secondary" href="advisory-services.html">View Advisory Engagements</a>
+      </div>
     </div>
   </section>
 
@@ -1145,6 +1291,20 @@
         </div>
       </section>
 
+      <section class="advisory-bridge" aria-labelledby="advisory-bridge-title">
+        <div class="advisory-bridge-copy">
+          <div class="section-label">Advisory Engagements</div>
+          <h3 id="advisory-bridge-title">Need a deeper structural review?</h3>
+          <p>
+            The diagnostic suite is designed to clarify the shape of the problem. When the issue proves broader, more consequential, or more deeply embedded than a directional tool can resolve, Monderman’s advisory work provides a more sustained structural approach.
+          </p>
+        </div>
+
+        <a class="advisory-bridge-link" href="advisory-services.html">
+          Explore Advisory Engagements &#8594;
+        </a>
+      </section>
+
       <p class="footer-copy-top">
         Open the live tools above to work through each diagnostic in its own dedicated environment. The purpose of this page is not to repeat the homepage, but to provide a cleaner hub for choosing the right diagnostic and beginning structured inquiry.
       </p>
@@ -1165,6 +1325,7 @@
           <div class="footer-nav-col">
             <p class="footer-nav-title">Explore</p>
             <a href="index.html#approach">Approach</a>
+            <a href="advisory-services.html">Advisory Engagements</a>
             <a href="diagnostic-tools.html">Diagnostic Tools</a>
             <a href="research.html">Research</a>
             <a href="why-monderman.html">Why Monderman</a>
