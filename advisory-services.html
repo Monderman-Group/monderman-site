@@ -137,25 +137,6 @@
       padding: 0;
     }
 
-    @media (min-width: 981px) {
-      html {
-        scroll-snap-type: y proximity;
-      }
-
-      body {
-        scroll-snap-type: none;
-      }
-
-      .hero,
-      .engagements,
-      .triggers,
-      .process,
-      .outcomes,
-      .connect {
-        scroll-snap-align: start;
-      }
-    }
-
     .reveal {
       opacity: 0;
       transform: translateY(var(--reveal-distance));
@@ -495,12 +476,19 @@
       display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 18px;
+      align-items: stretch;
     }
 
     .engagement-tile {
       position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      vertical-align: top;
+      text-align: left;
       padding: 34px 26px 34px;
-      min-height: 332px;
+      min-height: 300px;
       background: #FFFFFF;
       border: 1px solid rgba(21, 32, 43, 0.08);
       box-shadow: var(--soft-shadow);
@@ -510,7 +498,6 @@
         box-shadow var(--transition-slow),
         border-color var(--transition),
         background var(--transition);
-      text-align: left;
     }
 
     .engagement-tile::before {
@@ -539,11 +526,11 @@
     }
 
     .engagement-tile.is-active {
-      border-color: rgba(63, 110, 161, 0.22);
+      border-color: rgba(63, 110, 161, 0.28);
       background: linear-gradient(180deg, rgba(246,247,248,0.95) 0%, #FFFFFF 100%);
       box-shadow:
         0 1px 0 rgba(0, 0, 0, 0.012),
-        0 10px 26px rgba(0, 0, 0, 0.05);
+        0 12px 28px rgba(0, 0, 0, 0.06);
     }
 
     .engagement-tile-title {
@@ -553,14 +540,16 @@
       font-weight: 700;
       color: var(--text-dark);
       text-wrap: balance;
+      text-align: left;
     }
 
     .engagement-tile-text {
       margin: 0;
-      font-size: 0.98rem;
-      line-height: 1.64;
+      font-size: 0.96rem;
+      line-height: 1.6;
       color: var(--muted-dark);
-      max-width: 20ch;
+      max-width: none;
+      text-align: left;
     }
 
     .engagement-detail {
@@ -575,7 +564,7 @@
         0 2px 0 rgba(0,0,0,0.015),
         0 14px 28px rgba(0,0,0,0.025);
       min-height: 368px;
-      scroll-margin-top: 96px;
+      scroll-margin-top: 110px;
     }
 
     .engagement-detail-left,
@@ -654,27 +643,27 @@
     }
 
     .engagement-detail-panel-text {
-      margin: 0 0 16px;
+      margin: 0 0 18px;
       font-size: 0.93rem;
       line-height: 1.62;
       color: var(--muted-dark);
     }
 
-    .engagement-detail-panel-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.92rem;
-      font-weight: 500;
-      color: var(--accent);
-      transition: color var(--transition), transform var(--transition);
+    .engagement-detail-btn {
+      min-width: 100%;
+      justify-content: center;
+      background: var(--accent);
+      color: #FFFFFF;
+      border: 1px solid rgba(63, 110, 161, 0.18);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
     }
 
-    .engagement-detail-panel-link:hover,
-    .engagement-detail-panel-link:focus-visible {
-      color: var(--accent-dark);
-      transform: translateX(2px);
-      outline: none;
+    .engagement-detail-btn:hover,
+    .engagement-detail-btn:focus-visible {
+      background: var(--accent-dark);
+      color: #FFFFFF;
+      border-color: rgba(47, 88, 134, 0.24);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
     }
 
     .triggers {
@@ -821,100 +810,6 @@
       box-shadow: 0 0 0 4px rgba(63, 110, 161, 0.08);
     }
 
-    .outcomes {
-      position: relative;
-      background: var(--bg-offwhite);
-      padding: 100px 34px 94px;
-      color: var(--text-dark);
-      border-top: 1px solid var(--section-rule);
-      border-bottom: 1px solid var(--section-rule);
-    }
-
-    .outcomes-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-    }
-
-    .outcomes-band {
-      position: relative;
-      margin-top: 40px;
-      padding: 42px 38px 34px;
-      background: linear-gradient(180deg, rgba(246,247,248,0.96) 0%, #FFFFFF 100%);
-      border: 1px solid rgba(21, 32, 43, 0.08);
-      border-radius: 4px;
-      box-shadow: 0 2px 0 rgba(0,0,0,0.015);
-    }
-
-    .outcomes-band-header {
-      position: relative;
-      padding-bottom: 22px;
-      margin-bottom: 24px;
-      max-width: 560px;
-    }
-
-    .outcomes-band-header::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      width: 96px;
-      height: 1px;
-      background: rgba(63, 110, 161, 0.22);
-    }
-
-    .outcomes-band-title {
-      margin: 0 0 8px;
-      font-size: 1.08rem;
-      line-height: 1.15;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-
-    .outcomes-band-sub {
-      margin: 0;
-      font-size: 0.92rem;
-      line-height: 1.58;
-      color: var(--muted-dark);
-    }
-
-    .outcomes-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 28px;
-    }
-
-    .outcome-item {
-      transition: transform 200ms ease;
-    }
-
-    .outcome-item:hover {
-      transform: translateY(-1px);
-    }
-
-    .outcome-dot {
-      width: 10px;
-      height: 10px;
-      margin-bottom: 14px;
-      border-radius: 999px;
-      background: var(--accent);
-      box-shadow: 0 0 0 4px rgba(63, 110, 161, 0.10);
-      display: inline-block;
-      transition: transform var(--transition), box-shadow var(--transition);
-    }
-
-    .outcome-item:hover .outcome-dot {
-      transform: scale(1.08);
-      box-shadow: 0 0 0 5px rgba(63, 110, 161, 0.14);
-    }
-
-    .outcome-text {
-      margin: 0;
-      font-size: 1rem;
-      line-height: 1.45;
-      font-weight: 500;
-      color: var(--text-dark);
-    }
-
     .connect {
       position: relative;
       background: linear-gradient(180deg, #0F1720 0%, #111B25 100%);
@@ -929,8 +824,7 @@
       content: "";
       position: absolute;
       inset: 0;
-      background:
-        radial-gradient(circle at 80% 20%, rgba(63, 110, 161, 0.10), transparent 28%);
+      background: radial-gradient(circle at 80% 20%, rgba(63, 110, 161, 0.10), transparent 28%);
       opacity: 0.36;
       pointer-events: none;
     }
@@ -1138,7 +1032,6 @@
     @media (prefers-reduced-motion: reduce) {
       html {
         scroll-behavior: auto;
-        scroll-snap-type: none;
       }
 
       .reveal,
@@ -1157,11 +1050,8 @@
       .nav a,
       .nav a::after,
       .engagement-tile,
-      .engagement-detail,
       .trigger-card,
       .process-step,
-      .outcome-item,
-      .outcome-dot,
       .footer-nav a,
       .connect-link {
         transition: none;
@@ -1176,10 +1066,6 @@
       .engagement-detail {
         grid-template-columns: 1fr;
       }
-
-      .engagement-tile-text {
-        max-width: none;
-      }
     }
 
     @media (max-width: 1200px) {
@@ -1187,8 +1073,7 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      .process-grid,
-      .outcomes-grid {
+      .process-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
@@ -1218,7 +1103,6 @@
       .engagements,
       .triggers,
       .process,
-      .outcomes,
       .connect,
       .footer {
         padding-left: 24px;
@@ -1281,8 +1165,7 @@
         padding-bottom: 72px;
       }
 
-      .triggers,
-      .outcomes {
+      .triggers {
         padding-top: 74px;
         padding-bottom: 72px;
       }
@@ -1290,7 +1173,6 @@
       .engagement-tiles,
       .trigger-grid,
       .process-grid,
-      .outcomes-grid,
       .engagement-detail-grid {
         grid-template-columns: 1fr;
       }
@@ -1373,28 +1255,28 @@
           <button class="engagement-tile is-active" type="button" role="tab" aria-selected="true" aria-controls="engagement-detail" id="tile-advisory" data-key="advisory">
             <h3 class="engagement-tile-title">Advisory Engagement</h3>
             <p class="engagement-tile-text">
-              For leaders navigating persistent misalignment between authority, execution, and accountability — where decisions are made, but outcomes do not follow.
+              For leaders facing persistent misalignment between authority, execution, and accountability.
             </p>
           </button>
 
           <button class="engagement-tile" type="button" role="tab" aria-selected="false" aria-controls="engagement-detail" id="tile-audit" data-key="audit">
             <h3 class="engagement-tile-title">Institutional Audit</h3>
             <p class="engagement-tile-text">
-              For organizations that need to understand where performance is being lost — and why.
+              For organizations that need to understand where performance is being lost and why.
             </p>
           </button>
 
           <button class="engagement-tile" type="button" role="tab" aria-selected="false" aria-controls="engagement-detail" id="tile-workshop" data-key="workshop">
             <h3 class="engagement-tile-title">Executive Workshop</h3>
             <p class="engagement-tile-text">
-              For leadership teams that are aligned on intent, but not on how the organization actually operates.
+              For leadership teams aligned on intent, but not on how the organization actually operates.
             </p>
           </button>
 
           <button class="engagement-tile" type="button" role="tab" aria-selected="false" aria-controls="engagement-detail" id="tile-tailored" data-key="tailored">
             <h3 class="engagement-tile-title">Tailored Engagement</h3>
             <p class="engagement-tile-text">
-              For situations that do not fit a standard model — but where the underlying issue is clearly structural.
+              For situations that do not fit a standard model, but where the underlying issue is structural.
             </p>
           </button>
 
@@ -1450,7 +1332,7 @@
             <p class="engagement-detail-panel-text" id="detail-panel-text">
               Best suited for organizations where the issue is recurring, structural, and too consequential to treat as an isolated fix.
             </p>
-            <a class="engagement-detail-panel-link" href="#connect">Start a conversation &#8594;</a>
+            <a class="btn engagement-detail-btn" href="#connect">Start a conversation</a>
           </aside>
         </div>
       </div>
@@ -1547,49 +1429,6 @@
             We ensure the changes hold — so performance is sustained, not temporary.
           </p>
         </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="outcomes" aria-labelledby="outcomes-title">
-    <div class="outcomes-inner">
-      <div class="section-intro reveal">
-        <div class="section-label">Typical Outcomes</div>
-        <h2 id="outcomes-title">What better institutional design tends to produce.</h2>
-        <p>
-          Monderman’s work is ultimately about improving the system beneath performance — so that leaders can govern more clearly, decisions can move more credibly, and the institution can act with greater coherence.
-        </p>
-      </div>
-
-      <div class="outcomes-band reveal reveal-delay-1">
-        <div class="outcomes-band-header">
-          <h3 class="outcomes-band-title">The Monderman Effect</h3>
-          <p class="outcomes-band-sub">
-            Four interconnected outcomes that turn structural complexity into sustained execution advantage.
-          </p>
-        </div>
-
-        <div class="outcomes-grid">
-          <div class="outcome-item">
-            <span class="outcome-dot" aria-hidden="true"></span>
-            <p class="outcome-text">clarify ownership</p>
-          </div>
-
-          <div class="outcome-item">
-            <span class="outcome-dot" aria-hidden="true"></span>
-            <p class="outcome-text">shorten decision paths</p>
-          </div>
-
-          <div class="outcome-item">
-            <span class="outcome-dot" aria-hidden="true"></span>
-            <p class="outcome-text">reduce hidden drag</p>
-          </div>
-
-          <div class="outcome-item">
-            <span class="outcome-dot" aria-hidden="true"></span>
-            <p class="outcome-text">strengthen performance</p>
-          </div>
-        </div>
       </div>
     </div>
   </section>
@@ -1775,12 +1614,18 @@
     function scrollToDetailPanel() {
       if (!detailPanel) return;
 
-      const headerOffset = 92;
-      const panelTop = detailPanel.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+      const headerOffset = 104;
+      const currentY = window.pageYOffset;
+      const targetY = detailPanel.getBoundingClientRect().top + currentY - headerOffset;
+      const distance = targetY - currentY;
 
-      window.scrollTo({
-        top: panelTop,
-        behavior: "smooth"
+      if (Math.abs(distance) < 24) return;
+
+      window.requestAnimationFrame(() => {
+        window.scrollTo({
+          top: targetY,
+          behavior: "smooth"
+        });
       });
     }
 
