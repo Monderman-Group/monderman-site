@@ -1549,7 +1549,7 @@
       handleScrollHeader();
       window.addEventListener("scroll", handleScrollHeader, { passive: true });
 
-      function showStep(step) {
+      function showStep(step, doScroll = true) {
         currentStep = step;
 
         panes.forEach((pane) => {
@@ -1563,10 +1563,12 @@
         progressLabel.textContent = `Step ${step} of 5`;
         progressFill.style.width = `${(step / 5) * 100}%`;
 
-        const appTop = document.querySelector(".tool-app");
-        if (appTop) {
-          const top = appTop.getBoundingClientRect().top + window.pageYOffset - 92;
-          window.scrollTo({ top, behavior: "smooth" });
+        if (doScroll) {
+          const appTop = document.querySelector(".tool-app");
+          if (appTop) {
+            const top = appTop.getBoundingClientRect().top + window.pageYOffset - 92;
+            window.scrollTo({ top, behavior: "smooth" });
+          }
         }
       }
 
@@ -1611,10 +1613,6 @@
         document.querySelectorAll("[data-next]").forEach((button) => {
           button.addEventListener("click", function () {
             if (currentStep >= 5) return;
-
-            if (!isStepComplete(currentStep + 1) && currentStep + 1 <= 4) {
-              // no-op for future steps
-            }
 
             if (currentStep === 2 && !isStepComplete(2)) {
               showValidation(2, true);
@@ -1836,7 +1834,7 @@
       bindChoiceRows();
       stepNav();
       document.getElementById("resetTool").addEventListener("click", resetTool);
-      showStep(1);
+      showStep(1, false);
     })();
   </script>
 </body>
