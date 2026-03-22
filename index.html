@@ -393,7 +393,7 @@
     }
 
     .hero p {
-      max-width: 34ch;
+      max-width: 38ch;
       margin: 0;
       font-size: clamp(1.14rem, 1.52vw, 1.26rem);
       line-height: 1.56;
@@ -1559,7 +1559,7 @@
         <h1 id="hero-title">Transforming complexity into opportunity.</h1>
 
         <p>
-          An organization performs only as well as the system beneath it.
+          Institutions perform only as well as the systems beneath them.
         </p>
 
         <div class="hero-actions">
@@ -1577,7 +1577,7 @@
         <p class="cost-label">The Cost of Bureaucratic Friction</p>
         <h2 id="cost-title">Where performance is quietly lost.</h2>
         <p class="cost-context">
-          The issue is not complexity itself. It is the systems built to manage it.
+          The issue is rarely complexity itself. It is the accumulation of systems built to manage it.
         </p>
       </div>
 
@@ -1626,7 +1626,7 @@
           We help organizations reduce friction, improve decision velocity, and strengthen the systems through which execution actually happens.
         </p>
         <p class="approach-bridge">
-          We work where institutional structure determines whether strategy becomes execution.
+          We work where institutional structure determines whether strategy becomes execution — or stalls beneath the weight of its own supporting systems.
         </p>
       </div>
 
@@ -1642,7 +1642,7 @@
         <div class="approach-card reveal reveal-delay-2">
           <div class="card-title">Decision Velocity</div>
           <div class="card-desc">
-            Most organizations do not lack strategy. They lack speed. We remove the friction that slows decision cycles and stalls execution.
+            Most organizations do not lack strategy. They are slowed by decision pathways that have grown heavier than the work requires.
           </div>
           <a class="approach-card-link" href="decision-velocity-article.html">Read more &#8594;</a>
         </div>
@@ -1650,7 +1650,7 @@
         <div class="approach-card reveal reveal-delay-3">
           <div class="card-title">Operational Systems</div>
           <div class="card-desc">
-            Policies, controls, and processes shape how work actually moves. We redesign operating systems so they support performance rather than constrain it.
+            Policies, controls, and processes shape how work actually moves. We redesign operating systems so they preserve rigor without quietly absorbing time, money, and productive capacity.
           </div>
           <a class="approach-card-link" href="operational-systems-article.html">Read more &#8594;</a>
         </div>
@@ -1658,7 +1658,7 @@
         <div class="approach-card reveal reveal-delay-4">
           <div class="card-title">Institutional Performance</div>
           <div class="card-desc">
-            Strong institutions sustain clarity over time. We design governance mechanisms that preserve alignment as organizations grow and evolve.
+            Strong institutions sustain clarity over time. We design governance mechanisms that preserve alignment, absorb complexity, and prevent drift as organizations grow and evolve.
           </div>
           <a class="approach-card-link" href="institutional-performance-article.html">Read more &#8594;</a>
         </div>
@@ -1667,7 +1667,7 @@
       <div class="approach-synthesis reveal">
         <div class="section-label">The Monderman Effect</div>
         <p class="approach-synthesis-copy">
-          Four interconnected outcomes that turn structural complexity into sustained execution advantage.
+          Four interconnected outcomes that reduce hidden drag and turn structural complexity into sustained execution advantage.
         </p>
         <div class="approach-synthesis-grid">
           <div class="approach-synthesis-item">clarify ownership</div>
@@ -1688,7 +1688,7 @@
           This directional estimate gives a high-level view of how much time, money, and productive capacity may be absorbed by bureaucratic overhead inside a complex organization.
         </p>
         <p class="estimate-bridge">
-          The deeper cost is rarely workforce size alone. It is the accumulation of administrative and bureaucratic systems beneath operations and strategy that, when left poorly maintained, steadily absorb time, money, and productive capacity.
+          The deeper cost is rarely workforce size alone. It is the accumulation of administrative and bureaucratic systems beneath operations and strategy that, when poorly maintained, steadily absorb time, money, and productive capacity.
         </p>
       </div>
 
@@ -1794,8 +1794,7 @@
           <div class="section-label">Latest from Monderman</div>
           <h2 id="latest-title">Research, briefs, and perspectives.</h2>
           <p>
-            Current publications and featured work on administrative burden, institutional design,
-            and performance under complexity.
+            Current publications and featured work on administrative burden, institutional design, and the hidden systems that shape performance under complexity.
           </p>
         </div>
 
@@ -1839,6 +1838,22 @@
               </p>
               <a class="latest-card-link" href="Monderman%20Quarter%20Trillion%20Friction%20Healthcare.pdf" target="_blank" rel="noopener noreferrer">
                 Download research &#8594;
+              </a>
+            </div>
+          </article>
+
+          <article class="latest-card">
+            <div class="latest-card-image">
+              <img src="Trees.jpg" alt="Tree canopy image for Monderman perspective on compensatory systems" />
+            </div>
+            <div class="latest-card-body">
+              <p class="latest-card-kicker">Perspective · Institutional Performance</p>
+              <h3 class="latest-card-title">How Workarounds Preserve Output While Masking Institutional Dysfunction</h3>
+              <p class="latest-card-text">
+                Organizations often appear to function because people compensate for structural weakness. Output is preserved, but the underlying system continues to deteriorate.
+              </p>
+              <a class="latest-card-link" href="Monderman%20Compensatory%20Systems.pdf" target="_blank" rel="noopener noreferrer">
+                Read perspective &#8594;
               </a>
             </div>
           </article>
@@ -2122,14 +2137,13 @@
       latestTrack.style.transform = `translateX(-${targetX}px)`;
 
       if (latestPrev) {
-        latestPrev.disabled = latestIndex === 0;
-        latestPrev.style.opacity = latestIndex === 0 ? "0.45" : "1";
+        latestPrev.disabled = false;
+        latestPrev.style.opacity = "1";
       }
 
       if (latestNext) {
-        const atEnd = latestIndex >= getLatestMaxIndex();
-        latestNext.disabled = atEnd;
-        latestNext.style.opacity = atEnd ? "0.45" : "1";
+        latestNext.disabled = false;
+        latestNext.style.opacity = "1";
       }
     }
 
@@ -2163,14 +2177,24 @@
 
     if (latestPrev) {
       latestPrev.addEventListener("click", () => {
-        goToLatest(latestIndex - 1);
+        if (latestIndex <= 0) {
+          latestIndex = getLatestMaxIndex();
+        } else {
+          latestIndex -= 1;
+        }
+        updateLatestCarousel();
         startAutoScroll();
       });
     }
 
     if (latestNext) {
       latestNext.addEventListener("click", () => {
-        goToLatest(latestIndex + 1);
+        if (latestIndex >= getLatestMaxIndex()) {
+          latestIndex = 0;
+        } else {
+          latestIndex += 1;
+        }
+        updateLatestCarousel();
         startAutoScroll();
       });
     }
