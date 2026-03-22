@@ -88,9 +88,27 @@
     .nav a:hover { color: #fff; }
 
     .hero {
+      position: relative;
+      overflow: hidden;
       background: linear-gradient(135deg, #0F1720 0%, #182331 100%);
       color: #fff;
       padding: 84px 0 72px;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 78% 32%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.035) 16%, rgba(255,255,255,0.015) 28%, transparent 46%),
+        radial-gradient(circle at 78% 32%, rgba(63,110,161,0.12) 0%, rgba(63,110,161,0.06) 18%, transparent 50%);
+      opacity: 0.9;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
     }
 
     .eyebrow {
@@ -310,7 +328,7 @@
         into timely action.
       </p>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="diagnostic-tools.html">Run Diagnostics</a>
+        <a class="btn btn-primary" href="decision-velocity.html">Run Diagnostics</a>
         <a class="btn btn-secondary" href="index.html#connect">Start a Conversation</a>
       </div>
     </div>
@@ -409,7 +427,7 @@
               Deadlines slip while activity stays high. More decisions are pushed upward. Teams rely on personal
               relationships to get things unstuck. “Urgent” becomes the only way anything moves.
             </p>
-            <a class="btn btn-primary" href="diagnostic-tools.html">Explore the Diagnostic Hub</a>
+            <a class="btn btn-primary" href="decision-velocity.html">Run Diagnostic</a>
           </div>
         </article>
 
