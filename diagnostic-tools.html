@@ -503,30 +503,37 @@
       align-items: center;
       justify-content: center;
       gap: 0;
-      margin: 14px 0 28px;
+      margin: 16px 0 30px;
       pointer-events: none;
     }
 
     .section-connector-line {
       width: 2px;
-      height: 48px;
+      height: 54px;
       background: linear-gradient(
         180deg,
-        rgba(63, 110, 161, 0.05) 0%,
-        rgba(63, 110, 161, 0.48) 46%,
-        rgba(63, 110, 161, 0.18) 100%
+        rgba(63, 110, 161, 0.08) 0%,
+        rgba(63, 110, 161, 0.62) 52%,
+        rgba(63, 110, 161, 0.22) 100%
       );
       box-shadow:
         0 0 14px rgba(63, 110, 161, 0.10),
-        0 0 22px rgba(63, 110, 161, 0.06);
+        0 0 24px rgba(63, 110, 161, 0.06);
     }
 
     .section-connector-arrow {
-      width: 14px;
-      height: 14px;
-      margin-top: -1px;
-      border-right: 2px solid rgba(63, 110, 161, 0.62);
-      border-bottom: 2px solid rgba(63, 110, 161, 0.62);
+      position: relative;
+      width: 18px;
+      height: 18px;
+      margin-top: -2px;
+    }
+
+    .section-connector-arrow::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-right: 2.5px solid rgba(63, 110, 161, 0.78);
+      border-bottom: 2.5px solid rgba(63, 110, 161, 0.78);
       transform: rotate(45deg);
       box-shadow: 0 0 12px rgba(63, 110, 161, 0.08);
     }
@@ -1028,16 +1035,16 @@
       }
 
       .section-connector {
-        margin: 10px 0 20px;
+        margin: 12px 0 22px;
       }
 
       .section-connector-line {
-        height: 36px;
+        height: 40px;
       }
 
       .section-connector-arrow {
-        width: 12px;
-        height: 12px;
+        width: 15px;
+        height: 15px;
       }
 
       .tools-grid {
@@ -1183,7 +1190,7 @@
               </tr>
               <tr>
                 <td><strong>The environment feels overloaded by process.</strong></td>
-                <td>Bureaucratic Drag Snapshot</td>
+                <td>Operational Systems Snapshot</td>
                 <td>Whether administrative density is absorbing time and attention.</td>
                 <td>Fine-grained authority and ownership questions.</td>
               </tr>
@@ -1254,11 +1261,11 @@
           </article>
 
           <article class="tool-card">
-            <a class="tool-card-link" href="bureaucratic-drag-snapshot.html" aria-label="Open Bureaucratic Drag Snapshot">
+            <a class="tool-card-link" href="bureaucratic-drag-snapshot.html" aria-label="Open Operational Systems Snapshot">
               <div class="tool-card-top">
                 <div class="tool-badge">Live</div>
               </div>
-              <h3 class="tool-title">Bureaucratic Drag Snapshot</h3>
+              <h3 class="tool-title">Operational Systems Snapshot</h3>
               <p class="tool-subline">Process load · reporting · overhead</p>
               <p class="tool-text">
                 Surface recurring administrative burden, process density, and non-value-adding overhead across a selected workflow.
