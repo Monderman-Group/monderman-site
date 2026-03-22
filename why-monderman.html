@@ -17,6 +17,7 @@
   <style>
     :root {
       --accent: #3F6EA1;
+      --accent-dark: #2F5886;
       --bg-dark: #0F1720;
       --bg-dark-2: #111B25;
       --bg-white: #FFFFFF;
@@ -30,6 +31,7 @@
       --header-border: rgba(255, 255, 255, 0.08);
       --max: 1240px;
       --transition: 220ms ease;
+      --shadow-soft: 0 10px 28px rgba(15, 23, 32, 0.06);
     }
 
     * { box-sizing: border-box; }
@@ -97,6 +99,7 @@
       display: flex;
       align-items: center;
       gap: 30px;
+      flex-wrap: wrap;
     }
 
     .nav a {
@@ -113,12 +116,27 @@
     }
 
     .hero {
+      position: relative;
+      overflow: hidden;
       background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-dark-2) 100%);
       color: var(--text-light);
-      padding: 86px 34px 72px;
+      padding: 86px 34px 78px;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 80% 22%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.035) 16%, rgba(255,255,255,0.015) 28%, transparent 46%),
+        radial-gradient(circle at 80% 22%, rgba(63,110,161,0.12) 0%, rgba(63,110,161,0.06) 18%, transparent 50%);
+      opacity: 0.95;
     }
 
     .hero-inner {
+      position: relative;
+      z-index: 1;
       max-width: var(--max);
       margin: 0 auto;
     }
@@ -150,6 +168,48 @@
       color: var(--muted-light);
     }
 
+    .hero-actions {
+      margin-top: 30px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 20px;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+      transition:
+        background var(--transition),
+        border-color var(--transition),
+        color var(--transition),
+        transform var(--transition),
+        box-shadow var(--transition);
+    }
+
+    .btn:hover,
+    .btn:focus-visible {
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #FFFFFF;
+      box-shadow: 0 8px 22px rgba(63, 110, 161, 0.22);
+    }
+
+    .btn-accent:hover,
+    .btn-accent:focus-visible {
+      background: var(--accent-dark);
+    }
+
     .content {
       background:
         linear-gradient(rgba(246,247,248,0.97), rgba(246,247,248,0.97)),
@@ -163,8 +223,27 @@
       margin: 0 auto;
     }
 
+    .section-label {
+      margin: 0 0 14px;
+      font-size: 0.74rem;
+      line-height: 1;
+      letter-spacing: 0.20em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .section-label::before {
+      content: "";
+      display: block;
+      width: 44px;
+      height: 2px;
+      margin-bottom: 12px;
+      background: var(--accent);
+    }
+
     .intro {
-      max-width: 880px;
+      max-width: 900px;
       margin: 0 0 54px;
     }
 
@@ -181,6 +260,60 @@
       color: var(--text-dark);
     }
 
+    .difference-band {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+      gap: 34px;
+      align-items: start;
+      margin: 0 0 48px;
+      padding: 30px 30px 28px;
+      background: #FFFFFF;
+      border: 1px solid var(--line-dark);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .difference-band h2 {
+      margin: 0 0 12px;
+      font-size: 1.58rem;
+      line-height: 1.14;
+      letter-spacing: -0.03em;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .difference-band p {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.72;
+      color: var(--muted-dark);
+    }
+
+    .difference-points {
+      display: grid;
+      gap: 14px;
+    }
+
+    .difference-point {
+      padding: 16px 16px 15px;
+      background: rgba(246,247,248,0.88);
+      border: 1px solid var(--line-dark);
+    }
+
+    .difference-point strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      color: var(--text-dark);
+    }
+
+    .difference-point span {
+      display: block;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: var(--muted-dark);
+    }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -192,6 +325,7 @@
       background: rgba(255,255,255,0.94);
       border: 1px solid var(--line-dark);
       padding: 32px 30px 30px;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.01);
     }
 
     .panel h2 {
@@ -211,29 +345,37 @@
     }
 
     .connect-band {
-      margin-top: 52px;
-      padding-top: 28px;
-      border-top: 1px solid var(--line-dark);
+      margin-top: 56px;
+      padding: 30px 30px 28px;
+      background: #FFFFFF;
+      border: 1px solid var(--line-dark);
+      box-shadow: var(--shadow-soft);
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 320px;
+      grid-template-columns: minmax(0, 1fr) 340px;
       gap: 36px;
       align-items: start;
     }
 
     .connect-copy h2 {
       margin: 0 0 12px;
-      font-size: 1.5rem;
+      font-size: 1.52rem;
       line-height: 1.14;
       letter-spacing: -0.03em;
       color: var(--text-dark);
     }
 
     .connect-copy p {
-      margin: 0;
+      margin: 0 0 20px;
       max-width: 56ch;
       font-size: 1rem;
       line-height: 1.72;
       color: var(--muted-dark);
+    }
+
+    .connect-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
     .connect-card {
@@ -294,6 +436,7 @@
     }
 
     @media (max-width: 900px) {
+      .difference-band,
       .grid,
       .connect-band {
         grid-template-columns: 1fr;
@@ -307,11 +450,21 @@
         flex-direction: column;
         align-items: flex-start;
       }
+      .nav {
+        gap: 18px;
+      }
       .hero { padding: 70px 20px 54px; }
       .content { padding: 54px 20px 74px; }
+      .difference-band,
+      .panel,
+      .connect-band,
+      .connect-card {
+        padding: 24px 20px 22px;
+      }
       .intro p,
       .panel p,
-      .connect-copy p {
+      .connect-copy p,
+      .difference-band p {
         font-size: 1rem;
         line-height: 1.78;
       }
@@ -325,6 +478,7 @@
       <a href="index.html" class="brand">Monderman</a>
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
+        <a href="diagnostic-tools.html">Diagnostic Tools</a>
         <a href="index.html#thinking">Thinking</a>
         <a href="why-monderman.html">Why Monderman</a>
         <a href="index.html#connect">Connect</a>
@@ -338,14 +492,19 @@
       <h1>Why Monderman</h1>
       <p class="hero-dek">
         We help institutions reclaim time, money, and productive capacity by reducing administrative
-        drag, clarifying decision pathways, and designing systems that sustain performance under complexity.
+        burden, clarifying decision pathways, and designing systems that sustain performance under complexity.
       </p>
+      <div class="hero-actions">
+        <a class="btn btn-accent" href="diagnostic-tools.html">Go to Diagnostic Hub</a>
+        <a class="btn btn-accent" href="index.html#connect">Connect</a>
+      </div>
     </div>
   </section>
 
   <section class="content">
     <div class="content-inner">
       <div class="intro">
+        <div class="section-label">What makes this different</div>
         <p class="lead">
           At Monderman, we help institutions translate complexity into clarity and execution.
           Every organization faces friction—unnecessary approvals, layered reporting, diffuse
@@ -366,6 +525,33 @@
           attention is used more effectively, productive capacity is freed for higher-value work, and
           organizations become better able to sustain growth, innovation, and mission delivery.
         </p>
+      </div>
+
+      <div class="difference-band">
+        <div>
+          <h2>We do not treat structural problems like culture problems or personnel problems.</h2>
+          <p>
+            Many firms diagnose symptoms at the surface: slow execution, overloaded leaders, stalled initiatives,
+            weak coordination. Monderman looks beneath those symptoms to the institutional design itself — the
+            approvals, decision rights, reporting structures, handoffs, and operating burdens that are shaping
+            performance every day.
+          </p>
+        </div>
+
+        <div class="difference-points">
+          <div class="difference-point">
+            <strong>Structural first</strong>
+            <span>We look for design flaws in the operating system, not just visible breakdowns in behavior.</span>
+          </div>
+          <div class="difference-point">
+            <strong>Performance-oriented</strong>
+            <span>The goal is not elegance for its own sake. It is clearer execution, stronger capacity, and better institutional movement.</span>
+          </div>
+          <div class="difference-point">
+            <strong>Built for complexity</strong>
+            <span>Our work is designed for environments where bureaucracy, risk, scale, and coordination pressures are real.</span>
+          </div>
+        </div>
       </div>
 
       <div class="grid">
@@ -404,11 +590,16 @@
 
       <div class="connect-band">
         <div class="connect-copy">
-          <h2>Start a serious conversation.</h2>
+          <div class="section-label">Next step</div>
+          <h2>Start with a clearer diagnosis or start a serious conversation.</h2>
           <p>
-            If your institution is carrying more drag than it should, Monderman helps make the structural
-            problem visible and the path forward clearer.
+            The diagnostic suite is the fastest way to make a structural problem visible. When the issue is broader,
+            more embedded, or more consequential, Monderman can help translate that signal into a more serious path forward.
           </p>
+          <div class="connect-actions">
+            <a class="btn btn-accent" href="diagnostic-tools.html">Open Diagnostic Hub</a>
+            <a class="btn btn-accent" href="index.html#connect">Connect</a>
+          </div>
         </div>
 
         <div class="connect-card">
