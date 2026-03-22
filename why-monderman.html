@@ -18,6 +18,7 @@
     :root {
       --accent: #3F6EA1;
       --accent-dark: #2F5886;
+      --accent-soft: #EAF1F8;
       --bg-dark: #0F1720;
       --bg-dark-2: #111B25;
       --bg-white: #FFFFFF;
@@ -161,7 +162,7 @@
     }
 
     .hero-dek {
-      max-width: 62ch;
+      max-width: 64ch;
       margin: 0;
       font-size: 1.14rem;
       line-height: 1.72;
@@ -210,6 +211,32 @@
       background: var(--accent-dark);
     }
 
+    .btn-soft-light {
+      background: rgba(255,255,255,0.10);
+      color: #FFFFFF;
+      border-color: rgba(255,255,255,0.18);
+      box-shadow: none;
+    }
+
+    .btn-soft-light:hover,
+    .btn-soft-light:focus-visible {
+      background: rgba(255,255,255,0.16);
+      border-color: rgba(255,255,255,0.24);
+    }
+
+    .btn-soft-dark {
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      border-color: rgba(63,110,161,0.12);
+      box-shadow: none;
+    }
+
+    .btn-soft-dark:hover,
+    .btn-soft-dark:focus-visible {
+      background: #DFEAF5;
+      border-color: rgba(63,110,161,0.18);
+    }
+
     .content {
       background:
         linear-gradient(rgba(246,247,248,0.97), rgba(246,247,248,0.97)),
@@ -243,7 +270,7 @@
     }
 
     .intro {
-      max-width: 900px;
+      max-width: 920px;
       margin: 0 0 54px;
     }
 
@@ -496,7 +523,7 @@
       </p>
       <div class="hero-actions">
         <a class="btn btn-accent" href="diagnostic-tools.html">Go to Diagnostic Hub</a>
-        <a class="btn btn-accent" href="index.html#connect">Connect</a>
+        <a class="btn btn-soft-light" href="index.html#connect">Connect</a>
       </div>
     </div>
   </section>
@@ -509,14 +536,14 @@
           At Monderman, we help institutions translate complexity into clarity and execution.
           Every organization faces friction—unnecessary approvals, layered reporting, diffuse
           ownership, and processes that quietly outlive their purpose. These forces consume time,
-          money, and resources long before they are recognized as strategic problems.
+          money, and attention long before they are recognized as strategic problems.
         </p>
 
         <p>
           Our work begins by making those costs visible. We examine where authority and accountability
           have drifted apart, where governance has become heavier than the work requires, and where
           execution is being slowed by structural rather than personal causes. That allows leaders to
-          move beyond symptoms and address the real architecture of drag.
+          move beyond symptoms and address the architecture of drag itself.
         </p>
 
         <p>
@@ -598,7 +625,7 @@
           </p>
           <div class="connect-actions">
             <a class="btn btn-accent" href="diagnostic-tools.html">Open Diagnostic Hub</a>
-            <a class="btn btn-accent" href="index.html#connect">Connect</a>
+            <a class="btn btn-soft-dark" href="index.html#connect">Connect</a>
           </div>
         </div>
 
