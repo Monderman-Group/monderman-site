@@ -517,13 +517,6 @@
       color: var(--muted-dark);
     }
 
-    .helper-note {
-      margin: 2px 0 0;
-      font-size: 0.8rem;
-      line-height: 1.48;
-      color: var(--muted-dark-2);
-    }
-
     .form-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1859,7 +1852,7 @@
       const csv = [
         "process_name,decision_type,business_unit,decision_days,approval_count,handoff_count,meeting_count,systems_touched,reopen_rate,escalation_rate,workaround_rate",
         "Vendor Approval,procurement,Operations,14,4,5,3,4,sometimes,rare,sometimes"
-      ].join("\\n");
+      ].join("\n");
 
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
