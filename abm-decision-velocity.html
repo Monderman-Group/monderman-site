@@ -16,6 +16,8 @@
     </svg>'
   />
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
     @font-face {
       font-family: "Neue Haas Grotesk";
@@ -54,7 +56,10 @@
       --muted-dark-2: #7A8794;
       --line-dark: #E3E7EB;
       --panel-line: rgba(21, 32, 43, 0.08);
-      --max: 1240px;
+      --success: #2E8B57;
+      --warning: #B8860B;
+      --danger: #B8505E;
+      --max: 1260px;
       --radius-lg: 18px;
       --radius-md: 14px;
       --radius-sm: 10px;
@@ -286,7 +291,8 @@
         transform var(--transition),
         box-shadow var(--transition),
         background var(--transition),
-        border-color var(--transition);
+        border-color var(--transition),
+        opacity var(--transition);
     }
 
     .btn:hover,
@@ -317,6 +323,13 @@
     .btn-accent:focus-visible {
       background: var(--accent-dark);
       border-color: rgba(47,88,134,0.28);
+    }
+
+    .btn-inline-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     .page-grid {
@@ -507,6 +520,46 @@
       color: var(--muted-dark-2);
     }
 
+    .privacy-box {
+      display: grid;
+      gap: 10px;
+      padding: 16px;
+      border: 1px solid rgba(21,32,43,0.08);
+      border-radius: 16px;
+      background: #F8F9FA;
+    }
+
+    .privacy-title {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.2;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .privacy-text {
+      margin: 0;
+      font-size: 0.84rem;
+      line-height: 1.58;
+      color: var(--muted-dark);
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.86rem;
+      line-height: 1.5;
+      color: var(--text-dark);
+    }
+
+    .checkbox-row input {
+      margin-top: 2px;
+      width: 16px;
+      height: 16px;
+      flex: 0 0 auto;
+    }
+
     .file-drop {
       display: grid;
       gap: 12px;
@@ -611,6 +664,7 @@
 
     .results-shell.active {
       display: grid;
+      margin-top: 26px;
     }
 
     .score-panel {
@@ -691,6 +745,46 @@
       align-self: start;
     }
 
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .summary-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(21,32,43,0.08);
+      border-radius: 14px;
+      padding: 16px 14px 14px;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .summary-label {
+      margin: 0 0 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+    }
+
+    .summary-value {
+      margin: 0;
+      font-size: 1.18rem;
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .summary-sub {
+      margin: 8px 0 0;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      color: var(--muted-dark);
+    }
+
     .results-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -726,36 +820,35 @@
       color: var(--muted-dark);
     }
 
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .kpi {
-      background: #F8F9FA;
-      border: 1px solid rgba(21,32,43,0.06);
-      border-radius: 14px;
-      padding: 14px 14px 12px;
-    }
-
-    .kpi-label {
-      margin: 0 0 8px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--muted-dark-2);
-    }
-
-    .kpi-value {
+    .narrative-copy {
       margin: 0;
-      font-size: 1.35rem;
-      line-height: 1;
-      letter-spacing: -0.04em;
-      font-weight: 700;
-      color: var(--text-dark);
+      font-size: 0.92rem;
+      line-height: 1.68;
+      color: var(--muted-dark);
+      white-space: pre-line;
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .chart-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(21,32,43,0.08);
+      border-radius: 16px;
+      padding: 18px 18px 16px;
+      box-shadow: var(--soft-shadow);
+      min-height: 360px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 10px;
+    }
+
+    .chart-wrap {
+      position: relative;
+      min-height: 280px;
     }
 
     .results-actions {
@@ -778,6 +871,14 @@
       }
 
       .hero-inner {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .summary-grid,
+      .results-grid,
+      .charts-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -811,8 +912,6 @@
       }
 
       .form-grid,
-      .results-grid,
-      .kpi-grid,
       .mode-toggle {
         grid-template-columns: 1fr;
       }
@@ -868,7 +967,7 @@
           <div class="hero-meta-card">
             <p class="hero-meta-title">What you get back</p>
             <p class="hero-meta-text">
-              A Decision Velocity Score, friction flags, a plain-English interpretation, and recommended intervention priorities.
+              A Decision Velocity Score, directional benchmark comparison, friction charts, cost estimates, and a narrative interpretation layer.
             </p>
           </div>
         </div>
@@ -896,14 +995,14 @@
             <label class="mode-card" id="modeCsvCard">
               <input type="radio" name="inputMode" value="csv" />
               <p class="mode-card-title">Use Your Own Data</p>
-              <p class="mode-card-text">Upload a template-compatible CSV for a faster readout from structured decision-process data.</p>
+              <p class="mode-card-text">Upload a template-compatible CSV for a stronger readout from structured process data.</p>
             </label>
           </div>
 
           <form id="guidedForm">
             <div class="section-block">
               <h3 class="section-block-title">Decision context</h3>
-              <p class="section-block-text">Describe one decision process leaders care about: vendor approvals, hiring actions, budget reviews, policy decisions, or similar.</p>
+              <p class="section-block-text">Describe one recurring decision pathway leaders care about.</p>
 
               <div class="form-grid">
                 <div class="field">
@@ -942,8 +1041,8 @@
                 </div>
 
                 <div class="field full">
-                  <label for="description">Optional short description</label>
-                  <textarea id="description" name="description" placeholder="Briefly describe the decision process or the kind of work it supports."></textarea>
+                  <label for="description">Brief context note</label>
+                  <textarea id="description" name="description" placeholder="Briefly describe the decision process, recent friction, or what leaders are experiencing."></textarea>
                 </div>
               </div>
             </div>
@@ -959,7 +1058,7 @@
                 </div>
 
                 <div class="field">
-                  <label for="deadlineSlip">How often deadlines slip because of internal process?</label>
+                  <label for="deadlineSlip">How often do deadlines slip because of internal process?</label>
                   <select id="deadlineSlip" name="deadlineSlip" required>
                     <option value="">Select one</option>
                     <option value="rare">Rarely</option>
@@ -1010,7 +1109,7 @@
 
             <div class="section-block">
               <h3 class="section-block-title">Coordination and ownership</h3>
-              <p class="section-block-text">This captures the friction that tends to hide behind “normal coordination.”</p>
+              <p class="section-block-text">This captures friction that tends to hide behind “normal coordination.”</p>
 
               <div class="form-grid">
                 <div class="field">
@@ -1122,6 +1221,44 @@
               </div>
             </div>
 
+            <div class="section-block">
+              <h3 class="section-block-title">Optional estimate inputs</h3>
+              <p class="section-block-text">These fields are optional. They improve directional estimates of time, money, and resource drag.</p>
+
+              <div class="form-grid">
+                <div class="field">
+                  <label for="peopleInvolved">People typically involved</label>
+                  <input id="peopleInvolved" name="peopleInvolved" type="number" min="0" step="1" placeholder="e.g. 5" />
+                </div>
+
+                <div class="field">
+                  <label for="hourlyCost">Average loaded hourly cost ($)</label>
+                  <input id="hourlyCost" name="hourlyCost" type="number" min="0" step="1" placeholder="e.g. 95" />
+                </div>
+
+                <div class="field">
+                  <label for="annualVolume">Decisions per year</label>
+                  <input id="annualVolume" name="annualVolume" type="number" min="0" step="1" placeholder="e.g. 120" />
+                </div>
+
+                <div class="field">
+                  <label for="meetingHours">Average meeting / coordination hours</label>
+                  <input id="meetingHours" name="meetingHours" type="number" min="0" step="0.5" placeholder="e.g. 4" />
+                </div>
+              </div>
+            </div>
+
+            <div class="privacy-box">
+              <p class="privacy-title">Privacy notice</p>
+              <p class="privacy-text">
+                Monderman does not store, retain, sell, or share diagnostic input beyond what is required to generate the immediate readout. Information submitted through this prototype may be processed temporarily by secure third-party AI infrastructure to generate narrative output. Do not enter classified, proprietary, regulated, or personally sensitive information.
+              </p>
+              <label class="checkbox-row">
+                <input type="checkbox" id="privacyAgree" required />
+                <span>I understand and agree to the privacy notice above.</span>
+              </label>
+            </div>
+
             <div class="submit-row">
               <p class="submit-note">
                 This diagnostic is directional. It is designed to produce a credible first read on decision latency, not an audited enterprise measurement.
@@ -1160,9 +1297,20 @@
               </div>
             </div>
 
+            <div class="privacy-box">
+              <p class="privacy-title">Privacy notice</p>
+              <p class="privacy-text">
+                Monderman does not store, retain, sell, or share diagnostic input beyond what is required to generate the immediate readout. Information submitted through this prototype may be processed temporarily by secure third-party AI infrastructure to generate narrative output. Do not upload classified, proprietary, regulated, or personally sensitive information.
+              </p>
+              <label class="checkbox-row">
+                <input type="checkbox" id="csvPrivacyAgree" required />
+                <span>I understand and agree to the privacy notice above.</span>
+              </label>
+            </div>
+
             <div class="submit-row">
               <p class="submit-note">
-                CSV upload is secondary in v1. The guided diagnostic is the most reliable way to generate a useful readout quickly.
+                CSV upload is secondary in v1. The guided diagnostic is still the most reliable way to generate a useful readout quickly.
               </p>
 
               <div class="btn-inline-group">
@@ -1185,22 +1333,51 @@
               </div>
             </div>
 
-            <div class="kpi-grid">
-              <div class="kpi">
-                <p class="kpi-label">Cycle Time</p>
-                <p class="kpi-value" id="kpiCycle">—</p>
+            <div class="summary-grid">
+              <div class="summary-card">
+                <p class="summary-label">Benchmark</p>
+                <p class="summary-value" id="benchmarkValue">—</p>
+                <p class="summary-sub" id="benchmarkSub">Directional comparison</p>
               </div>
-              <div class="kpi">
-                <p class="kpi-label">Approvals</p>
-                <p class="kpi-value" id="kpiApprovals">—</p>
+
+              <div class="summary-card">
+                <p class="summary-label">Time Cost</p>
+                <p class="summary-value" id="timeCostValue">—</p>
+                <p class="summary-sub" id="timeCostSub">Directional estimate</p>
               </div>
-              <div class="kpi">
-                <p class="kpi-label">Handoffs</p>
-                <p class="kpi-value" id="kpiHandoffs">—</p>
+
+              <div class="summary-card">
+                <p class="summary-label">Money Cost</p>
+                <p class="summary-value" id="moneyCostValue">—</p>
+                <p class="summary-sub" id="moneyCostSub">Directional estimate</p>
               </div>
-              <div class="kpi">
-                <p class="kpi-label">Systems</p>
-                <p class="kpi-value" id="kpiSystems">—</p>
+
+              <div class="summary-card">
+                <p class="summary-label">Resource Drag</p>
+                <p class="summary-value" id="resourceDragValue">—</p>
+                <p class="summary-sub" id="resourceDragSub">Estimated productive load</p>
+              </div>
+
+              <div class="summary-card">
+                <p class="summary-label">Category</p>
+                <p class="summary-value" id="categoryValue">—</p>
+                <p class="summary-sub" id="categorySub">Decision type</p>
+              </div>
+            </div>
+
+            <div class="charts-grid">
+              <div class="chart-card">
+                <h3 class="result-card-title">Friction breakdown</h3>
+                <div class="chart-wrap">
+                  <canvas id="frictionChart"></canvas>
+                </div>
+              </div>
+
+              <div class="chart-card">
+                <h3 class="result-card-title">Slowdown contribution</h3>
+                <div class="chart-wrap">
+                  <canvas id="slowdownChart"></canvas>
+                </div>
               </div>
             </div>
 
@@ -1216,19 +1393,20 @@
               </div>
 
               <div class="result-card">
-                <h3 class="result-card-title">Plain-English interpretation</h3>
-                <ul class="result-list" id="interpretationList"></ul>
+                <h3 class="result-card-title">Narrative interpretation</h3>
+                <p class="narrative-copy" id="narrativeInterpretation">Narrative output will appear here.</p>
               </div>
 
               <div class="result-card">
-                <h3 class="result-card-title">What this suggests</h3>
-                <ul class="result-list" id="whatThisSuggests"></ul>
+                <h3 class="result-card-title">Leadership implication</h3>
+                <p class="narrative-copy" id="leadershipImplication">Leadership implication will appear here.</p>
               </div>
             </div>
 
             <div class="results-actions">
               <button class="btn btn-secondary" id="editInputsBtn" type="button">Edit Inputs</button>
               <button class="btn" id="startOverBtn" type="button">Start Over</button>
+              <button class="btn" id="downloadPdfBtn" type="button">Download Monderman PDF</button>
             </div>
           </section>
         </div>
@@ -1288,21 +1466,42 @@
     const editInputsBtn = document.getElementById("editInputsBtn");
     const startOverBtn = document.getElementById("startOverBtn");
     const downloadTemplateLink = document.getElementById("downloadTemplateLink");
+    const downloadPdfBtn = document.getElementById("downloadPdfBtn");
 
     const scoreNumber = document.getElementById("scoreNumber");
     const scoreBand = document.getElementById("scoreBand");
     const scoreSummary = document.getElementById("scoreSummary");
     const scoreBadge = document.getElementById("scoreBadge");
 
-    const kpiCycle = document.getElementById("kpiCycle");
-    const kpiApprovals = document.getElementById("kpiApprovals");
-    const kpiHandoffs = document.getElementById("kpiHandoffs");
-    const kpiSystems = document.getElementById("kpiSystems");
+    const benchmarkValue = document.getElementById("benchmarkValue");
+    const benchmarkSub = document.getElementById("benchmarkSub");
+    const timeCostValue = document.getElementById("timeCostValue");
+    const timeCostSub = document.getElementById("timeCostSub");
+    const moneyCostValue = document.getElementById("moneyCostValue");
+    const moneyCostSub = document.getElementById("moneyCostSub");
+    const resourceDragValue = document.getElementById("resourceDragValue");
+    const resourceDragSub = document.getElementById("resourceDragSub");
+    const categoryValue = document.getElementById("categoryValue");
+    const categorySub = document.getElementById("categorySub");
 
     const frictionFlags = document.getElementById("frictionFlags");
     const recommendations = document.getElementById("recommendations");
-    const interpretationList = document.getElementById("interpretationList");
-    const whatThisSuggests = document.getElementById("whatThisSuggests");
+    const narrativeInterpretation = document.getElementById("narrativeInterpretation");
+    const leadershipImplication = document.getElementById("leadershipImplication");
+
+    let frictionChart;
+    let slowdownChart;
+    let latestPayload = null;
+
+    const BENCHMARKS = {
+      procurement: { label: "Procurement / vendor", healthyMin: 72, healthyMax: 84, moderateMin: 58, moderateMax: 71, frictionMin: 42, frictionMax: 57 },
+      hiring: { label: "Hiring / staffing", healthyMin: 74, healthyMax: 86, moderateMin: 60, moderateMax: 73, frictionMin: 44, frictionMax: 59 },
+      budget: { label: "Budget / funding", healthyMin: 70, healthyMax: 82, moderateMin: 56, moderateMax: 69, frictionMin: 40, frictionMax: 55 },
+      policy: { label: "Policy / governance", healthyMin: 68, healthyMax: 80, moderateMin: 54, moderateMax: 67, frictionMin: 38, frictionMax: 53 },
+      program: { label: "Program / project", healthyMin: 71, healthyMax: 83, moderateMin: 57, moderateMax: 70, frictionMin: 41, frictionMax: 56 },
+      risk: { label: "Risk / exception", healthyMin: 66, healthyMax: 78, moderateMin: 52, moderateMax: 65, frictionMin: 36, frictionMax: 51 },
+      other: { label: "Other", healthyMin: 70, healthyMax: 82, moderateMin: 56, moderateMax: 69, frictionMin: 40, frictionMax: 55 }
+    };
 
     function setMode(mode) {
       const guided = mode === "guided";
@@ -1310,7 +1509,6 @@
       csvForm.classList.toggle("hidden", guided);
       modeGuidedCard.classList.toggle("active", guided);
       modeCsvCard.classList.toggle("active", !guided);
-      resultsShell.classList.remove("active");
     }
 
     modeGuidedCard.addEventListener("click", () => setMode("guided"));
@@ -1337,8 +1535,8 @@
 
     startOverBtn.addEventListener("click", () => {
       guidedForm.reset();
-      const csvFile = document.getElementById("csvFile");
-      if (csvFile) csvFile.value = "";
+      csvForm.reset();
+      latestPayload = null;
       resultsShell.classList.remove("active");
       setMode("guided");
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1362,133 +1560,230 @@
       URL.revokeObjectURL(url);
     });
 
+    downloadPdfBtn.addEventListener("click", () => {
+      window.print();
+    });
+
     function mapSelect(value, mapping) {
       return mapping[value] ?? 0;
     }
 
-    function scoreGuided(data) {
-      let score = 100;
+    function getBand(score) {
+      if (score >= 82) return "Healthy velocity";
+      if (score >= 65) return "Moderate drag";
+      if (score >= 45) return "Significant friction";
+      return "High bureaucratic latency";
+    }
 
+    function getBenchmarkPosition(score, benchmark) {
+      if (score > benchmark.healthyMax) return "Above comparable range";
+      if (score >= benchmark.moderateMin) return "Within comparable range";
+      return "Below comparable range";
+    }
+
+    function getResourceDragBand(score) {
+      if (score >= 82) return "4–8%";
+      if (score >= 65) return "9–15%";
+      if (score >= 45) return "16–24%";
+      return "25–35%";
+    }
+
+    function scoreGuided(data) {
       const days = Number(data.decisionDays || 0);
       const approvals = Number(data.approvalCount || 0);
       const handoffs = Number(data.handoffCount || 0);
       const meetings = Number(data.meetingCount || 0);
       const systems = Number(data.systemsTouched || 0);
 
-      if (days > 3) score -= Math.min(24, (days - 3) * 1.2);
-      if (approvals > 1) score -= Math.min(16, (approvals - 1) * 2.4);
-      if (handoffs > 1) score -= Math.min(18, (handoffs - 1) * 2.1);
-      if (meetings > 1) score -= Math.min(10, (meetings - 1) * 1.7);
-      if (systems > 1) score -= Math.min(8, (systems - 1) * 1.2);
+      let cycle = 0;
+      if (days <= 3) cycle = 0;
+      else if (days <= 7) cycle = 4;
+      else if (days <= 14) cycle = 8;
+      else if (days <= 21) cycle = 13;
+      else if (days <= 30) cycle = 17;
+      else cycle = 20;
 
-      score -= mapSelect(data.deadlineSlip, { rare: 0, sometimes: 5, often: 10, constant: 15 });
-      score -= mapSelect(data.approvalFlow, { parallel: 0, mixed: 4, sequential: 8 });
-      score -= mapSelect(data.lateApprovals, { no: 0, occasionally: 4, frequently: 8 });
-      score -= mapSelect(data.outsideCoordination, { rare: 0, sometimes: 5, often: 9 });
-      score -= mapSelect(data.ownerClarity, { always: 0, mixed: 7, unclear: 12 });
-      score -= mapSelect(data.escalationClarity, { always: 0, mixed: 5, unclear: 9 });
-      score -= mapSelect(data.keyPersonDependency, { no: 0, somewhat: 5, heavily: 9 });
-      score -= mapSelect(data.reopenRate, { rare: 0, sometimes: 6, often: 11 });
-      score -= mapSelect(data.escalationRate, { rare: 0, sometimes: 5, often: 10 });
-      score -= mapSelect(data.workaroundRate, { rare: 0, sometimes: 7, often: 13 });
-      score -= mapSelect(data.reviewBurden, { light: 0, moderate: 4, heavy: 8 });
-      score -= mapSelect(data.reviewScope, { no: 0, sometimes: 4, often: 8 });
+      if (data.urgency === "high" && days > 10) cycle = Math.min(20, cycle + 2);
+      if (data.urgency === "critical" && days > 7) cycle = Math.min(20, cycle + 4);
 
-      if (data.urgency === "critical" && days > 7) score -= 6;
-      if (data.urgency === "high" && days > 10) score -= 4;
+      let approvalBurden = 0;
+      if (approvals <= 1) approvalBurden = 0;
+      else if (approvals === 2) approvalBurden = 2;
+      else if (approvals === 3) approvalBurden = 5;
+      else if (approvals === 4) approvalBurden = 8;
+      else if (approvals === 5) approvalBurden = 11;
+      else approvalBurden = 14;
 
-      score = Math.max(18, Math.min(100, Math.round(score)));
+      approvalBurden += mapSelect(data.approvalFlow, { parallel: 0, mixed: 2, sequential: 4 });
+      approvalBurden += mapSelect(data.lateApprovals, { no: 0, occasionally: 2, frequently: 4 });
+      approvalBurden = Math.min(14, approvalBurden);
+
+      let handoffBurden = 0;
+      if (handoffs <= 1) handoffBurden = 0;
+      else if (handoffs === 2) handoffBurden = 3;
+      else if (handoffs === 3) handoffBurden = 6;
+      else if (handoffs === 4) handoffBurden = 9;
+      else if (handoffs === 5) handoffBurden = 11;
+      else handoffBurden = 14;
+
+      let coordinationBurden = 0;
+      if (meetings <= 1) coordinationBurden = 0;
+      else if (meetings === 2) coordinationBurden = 2;
+      else if (meetings === 3) coordinationBurden = 4;
+      else if (meetings === 4) coordinationBurden = 6;
+      else coordinationBurden = 8;
+      coordinationBurden += mapSelect(data.outsideCoordination, { rare: 0, sometimes: 1, often: 2 });
+      coordinationBurden = Math.min(10, coordinationBurden);
+
+      let ownershipBurden = 0;
+      ownershipBurden += mapSelect(data.ownerClarity, { always: 0, mixed: 4, unclear: 7 });
+      ownershipBurden += mapSelect(data.escalationClarity, { always: 0, mixed: 2, unclear: 4 });
+      ownershipBurden += mapSelect(data.keyPersonDependency, { no: 0, somewhat: 2, heavily: 4 });
+      ownershipBurden = Math.min(12, ownershipBurden);
+
+      const reworkBurden = mapSelect(data.reopenRate, { rare: 0, sometimes: 5, often: 10 });
+
+      let workaroundBurden = 0;
+      workaroundBurden += mapSelect(data.escalationRate, { rare: 0, sometimes: 3, often: 6 });
+      workaroundBurden += mapSelect(data.workaroundRate, { rare: 0, sometimes: 3, often: 6 });
+      workaroundBurden = Math.min(12, workaroundBurden);
+
+      let systemsBurden = 0;
+      if (systems === 1) systemsBurden += 0;
+      else if (systems === 2) systemsBurden += 1;
+      else if (systems === 3) systemsBurden += 2;
+      else if (systems === 4) systemsBurden += 3;
+      else systemsBurden += 4;
+
+      systemsBurden += mapSelect(data.reviewBurden, { light: 0, moderate: 2, heavy: 3 });
+      systemsBurden += mapSelect(data.reviewScope, { no: 0, sometimes: 1, often: 2 });
+      systemsBurden = Math.min(8, systemsBurden);
+
+      const totalDeduction =
+        cycle +
+        approvalBurden +
+        handoffBurden +
+        coordinationBurden +
+        ownershipBurden +
+        reworkBurden +
+        workaroundBurden +
+        systemsBurden;
+
+      const score = Math.max(0, Math.min(100, 100 - totalDeduction));
+      const band = getBand(score);
+      const benchmark = BENCHMARKS[data.decisionType] || BENCHMARKS.other;
+      const benchmarkPosition = getBenchmarkPosition(score, benchmark);
+
+      const burdenBreakdown = {
+        cycle_time: cycle,
+        approval: approvalBurden,
+        handoff: handoffBurden,
+        coordination: coordinationBurden,
+        ownership: ownershipBurden,
+        rework: reworkBurden,
+        workaround: workaroundBurden,
+        systems_review: systemsBurden
+      };
+
+      const baselineComplexity = mapSelect(data.urgency, { low: 4, moderate: 6, high: 8, critical: 10 });
+
+      const timeHoursPerDecision = Math.round(
+        (approvalBurden * 0.6) +
+        (handoffBurden * 0.75) +
+        (coordinationBurden * 0.9) +
+        (reworkBurden * 1.0) +
+        (workaroundBurden * 0.6)
+      );
+
+      const peopleInvolved = Number(data.peopleInvolved || 0);
+      const hourlyCost = Number(data.hourlyCost || 0);
+      const annualVolume = Number(data.annualVolume || 0);
+
+      const costPerDecision = (peopleInvolved > 0 && hourlyCost > 0)
+        ? Math.round(timeHoursPerDecision * peopleInvolved * hourlyCost)
+        : null;
+
+      const annualCost = (costPerDecision && annualVolume > 0)
+        ? Math.round(costPerDecision * annualVolume)
+        : null;
+
+      const annualHours = (annualVolume > 0)
+        ? Math.round(timeHoursPerDecision * annualVolume)
+        : null;
 
       const flags = [];
       const recs = [];
-      const interpretation = [];
-      const suggests = [];
 
-      if (approvals >= 5 || data.lateApprovals === "frequently") {
+      if (approvalBurden >= 10) {
         flags.push("Approval layering appears heavier than the work likely requires.");
         recs.push("Reduce or consolidate approval layers, especially where late approvals are routinely added.");
       }
 
-      if (handoffs >= 5) {
-        flags.push("High handoff volume suggests routing complexity and accountability dilution.");
-        recs.push("Shorten the decision path by reducing unnecessary routing and clarifying who owns movement.");
+      if (handoffBurden >= 9) {
+        flags.push("High handoff load suggests routing complexity and diluted accountability.");
+        recs.push("Shorten routing paths and reduce unnecessary transfers between functions or reviewers.");
       }
 
-      if (data.ownerClarity !== "always" || data.escalationClarity !== "always") {
+      if (ownershipBurden >= 7) {
         flags.push("Ownership or escalation ambiguity is likely contributing to delay.");
         recs.push("Clarify decision ownership at intake and define escalation rules before the process starts.");
       }
 
-      if (data.reopenRate === "often") {
+      if (reworkBurden >= 5) {
         flags.push("Rework loops are consuming time that should be spent moving toward decision.");
-        recs.push("Identify the most common causes of reopening and tighten quality or scope earlier in the process.");
+        recs.push("Identify the most common causes of reopening and tighten scope or quality earlier in the process.");
       }
 
-      if (data.workaroundRate !== "rare" || data.keyPersonDependency !== "no") {
-        flags.push("The process appears to rely on compensatory behavior or key-person intervention.");
-        recs.push("Audit where exceptions or informal intervention are preserving movement and redesign those structural weak points.");
+      if (workaroundBurden >= 6) {
+        flags.push("The process appears to rely on workaround or escalation behavior to preserve movement.");
+        recs.push("Audit where exceptions and informal intervention are compensating for structural weakness.");
       }
 
-      if (data.outsideCoordination === "often" || meetings >= 4) {
+      if (coordinationBurden >= 6) {
         flags.push("Coordination burden is high relative to a healthy decision pathway.");
-        recs.push("Eliminate redundant coordination steps and shift work into fewer, clearer decision moments.");
+        recs.push("Reduce redundant meetings and shift work into fewer, clearer decision moments.");
       }
 
-      if (systems >= 5 || data.reviewBurden === "heavy") {
-        flags.push("Systems and review burden are likely adding cumulative friction.");
-        recs.push("Narrow review triggers and simplify the number of systems touched where possible.");
+      if (systemsBurden >= 5) {
+        flags.push("Systems and review burden are adding cumulative friction.");
+        recs.push("Narrow recurring review triggers and simplify the number of systems touched where possible.");
       }
 
       if (!flags.length) {
         flags.push("No single dominant friction source surfaced; the process appears more balanced than burdened.");
       }
 
-      const band =
-        score >= 82 ? "Healthy velocity" :
-        score >= 65 ? "Moderate drag" :
-        score >= 45 ? "Significant friction" :
-        "High bureaucratic latency";
-
-      if (score >= 82) {
-        interpretation.push("This decision process appears relatively healthy, with manageable friction and no overwhelming structural burden.");
-        suggests.push("The focus should be on preserving clarity and preventing incremental approval or coordination creep.");
-      } else if (score >= 65) {
-        interpretation.push("This process is still functioning, but moderate drag is likely absorbing time that leaders may not fully see.");
-        suggests.push("The process may be tolerable in normal conditions but vulnerable under urgency, scale, or leadership turnover.");
-      } else if (score >= 45) {
-        interpretation.push("The process appears slowed less by inherent complexity than by accumulated bureaucratic burden.");
-        suggests.push("Movement is likely being preserved through extra coordination, escalation, or rework rather than clean system design.");
-      } else {
-        interpretation.push("This process shows signs of high bureaucratic latency and likely depends on compensatory behavior to keep moving.");
-        suggests.push("Without intervention, this type of decision pathway can quietly weaken execution quality, responsiveness, and trust in the system.");
-      }
-
-      if (data.workaroundRate === "often") {
-        interpretation.push("Frequent exception use suggests the formal pathway may no longer match the work it is meant to govern.");
-      }
-
-      if (data.ownerClarity === "unclear") {
-        suggests.push("Where ownership is unclear, even strong people tend to substitute coordination for authority.");
-      }
-
-      if (!recs.length) {
+      while (recs.length < 3) {
         recs.push("Continue monitoring for approval growth, handoff creep, and rising coordination burden over time.");
       }
 
       return {
+        processName: data.processName || "This decision process",
+        decisionType: data.decisionType,
+        businessUnit: data.businessUnit,
         score,
         band,
+        benchmark,
+        benchmarkPosition,
+        burdenBreakdown,
+        baselineComplexity,
         flags: flags.slice(0, 5),
-        recs: recs.slice(0, 5),
-        interpretation: interpretation.slice(0, 4),
-        suggests: suggests.slice(0, 4),
-        kpis: {
-          cycle: `${days}d`,
-          approvals: `${approvals}`,
-          handoffs: `${handoffs}`,
-          systems: `${systems}`
-        }
+        recommendations: recs.slice(0, 5),
+        timeHoursPerDecision,
+        annualHours,
+        costPerDecision,
+        annualCost,
+        resourceDrag: getResourceDragBand(score),
+        contextNote: data.description || "",
+        rawInputs: data
       };
+    }
+
+    function formatCurrency(value) {
+      if (value == null) return "—";
+      if (value >= 1000000) return `$${(value / 1000000).toFixed(1).replace(/\\.0$/, "")}M`;
+      if (value >= 1000) return `$${Math.round(value / 1000)}K`;
+      return `$${value}`;
     }
 
     function renderList(el, items) {
@@ -1500,37 +1795,234 @@
       });
     }
 
-    function renderResults(result, processName = "this decision process") {
+    function defaultNarrative(result) {
+      let interpretation = "";
+      let implication = "";
+
+      if (result.band === "Healthy velocity") {
+        interpretation = "This decision pathway appears relatively well-governed. Friction exists, but it does not currently dominate movement. The priority is preserving clarity and preventing incremental approval, coordination, or review creep.";
+        implication = "Leadership should treat this as a stable process worth protecting rather than over-engineering. The main risk is slow drift rather than obvious dysfunction.";
+      } else if (result.band === "Moderate drag") {
+        interpretation = "This process is still functioning, but administrative burden is likely absorbing meaningful time that leaders may not fully see. The pattern suggests the process remains workable, though increasingly heavier than the work may require.";
+        implication = "Under urgency, scale, or leadership turnover, this type of process may become noticeably slower and harder to steer. Early intervention is more efficient than waiting for visible breakdown.";
+      } else if (result.band === "Significant friction") {
+        interpretation = "The process appears materially slowed by accumulated burden rather than complexity alone. Approval load, routing, rework, or ambiguity are likely compounding each other and generating avoidable decision latency.";
+        implication = "If this pattern continues, the organization will increasingly rely on escalation, workaround behavior, or extra coordination to preserve movement. That weakens maneuverability over time.";
+      } else {
+        interpretation = "This process shows signs of high bureaucratic latency and likely depends on compensatory behavior to keep moving. The formal pathway may no longer be well matched to the work it is supposed to govern.";
+        implication = "Without intervention, this pattern can quietly degrade execution quality, responsiveness, and trust in the organization’s own decision pathways. Leaders should treat it as an operating risk.";
+      }
+
+      return { interpretation, implication };
+    }
+
+    async function fetchNarrativeFromBackend(payload) {
+      const response = await fetch("/api/decision-velocity-narrative", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error("Narrative request failed.");
+      }
+
+      return await response.json();
+    }
+
+    async function hydrateNarrative(result, payload) {
+      const fallback = defaultNarrative(result);
+      narrativeInterpretation.textContent = "Generating narrative interpretation...";
+      leadershipImplication.textContent = "";
+
+      try {
+        const narrative = await fetchNarrativeFromBackend(payload);
+        narrativeInterpretation.textContent = narrative.executive_interpretation || fallback.interpretation;
+        leadershipImplication.textContent = narrative.leadership_implication || fallback.implication;
+
+        if (Array.isArray(narrative.key_friction_flags) && narrative.key_friction_flags.length) {
+          renderList(frictionFlags, narrative.key_friction_flags);
+        }
+
+        if (Array.isArray(narrative.recommended_interventions) && narrative.recommended_interventions.length) {
+          renderList(recommendations, narrative.recommended_interventions);
+        }
+      } catch (error) {
+        narrativeInterpretation.textContent = fallback.interpretation;
+        leadershipImplication.textContent = fallback.implication;
+      }
+    }
+
+    function buildPayload(result) {
+      return {
+        process_name: result.processName,
+        decision_type: result.decisionType,
+        business_unit: result.businessUnit,
+        score: result.score,
+        score_band: result.band,
+        benchmark_position: result.benchmarkPosition,
+        burden_breakdown: result.burdenBreakdown,
+        time_cost_estimate: result.timeHoursPerDecision ? `${result.timeHoursPerDecision} hours per decision` : "Not provided",
+        money_cost_estimate: result.costPerDecision ? `${formatCurrency(result.costPerDecision)} per decision` : "Not provided",
+        resource_drag_estimate: result.resourceDrag,
+        context_note: result.contextNote
+      };
+    }
+
+    function renderCharts(result) {
+      const frictionData = [
+        { label: "Cycle-Time Burden", value: result.burdenBreakdown.cycle_time },
+        { label: "Approval Burden", value: result.burdenBreakdown.approval },
+        { label: "Handoff Burden", value: result.burdenBreakdown.handoff },
+        { label: "Coordination Burden", value: result.burdenBreakdown.coordination },
+        { label: "Ownership Ambiguity", value: result.burdenBreakdown.ownership },
+        { label: "Rework Burden", value: result.burdenBreakdown.rework },
+        { label: "Workaround / Escalation", value: result.burdenBreakdown.workaround },
+        { label: "Systems / Review Burden", value: result.burdenBreakdown.systems_review }
+      ].sort((a, b) => b.value - a.value);
+
+      const slowdownData = [
+        { stage: "Baseline Complexity", value: result.baselineComplexity },
+        { stage: "Approval Layering", value: result.burdenBreakdown.approval },
+        { stage: "Handoffs", value: result.burdenBreakdown.handoff },
+        { stage: "Coordination", value: result.burdenBreakdown.coordination },
+        { stage: "Rework", value: result.burdenBreakdown.rework },
+        { stage: "Escalation / Workarounds", value: result.burdenBreakdown.workaround }
+      ];
+
+      if (frictionChart) frictionChart.destroy();
+      if (slowdownChart) slowdownChart.destroy();
+
+      frictionChart = new Chart(document.getElementById("frictionChart"), {
+        type: "bar",
+        data: {
+          labels: frictionData.map(d => d.label),
+          datasets: [{
+            label: "Burden contribution",
+            data: frictionData.map(d => d.value),
+            backgroundColor: "rgba(63,110,161,0.82)",
+            borderRadius: 8
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              grid: { color: "rgba(21,32,43,0.06)" },
+              ticks: { color: "#556270" }
+            },
+            y: {
+              grid: { display: false },
+              ticks: { color: "#556270" }
+            }
+          }
+        }
+      });
+
+      slowdownChart = new Chart(document.getElementById("slowdownChart"), {
+        type: "bar",
+        data: {
+          labels: slowdownData.map(d => d.stage),
+          datasets: [{
+            label: "Contribution to slowdown",
+            data: slowdownData.map(d => d.value),
+            backgroundColor: [
+              "rgba(122,135,148,0.55)",
+              "rgba(63,110,161,0.82)",
+              "rgba(63,110,161,0.68)",
+              "rgba(184,134,11,0.68)",
+              "rgba(184,80,94,0.72)",
+              "rgba(184,80,94,0.82)"
+            ],
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: {
+              ticks: { color: "#556270", maxRotation: 35, minRotation: 20 },
+              grid: { display: false }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: { color: "#556270" },
+              grid: { color: "rgba(21,32,43,0.06)" }
+            }
+          }
+        }
+      });
+    }
+
+    function renderResults(result) {
+      resultsShell.classList.add("active");
+
       scoreNumber.textContent = result.score;
       scoreBand.textContent = result.band;
-      scoreBadge.textContent = processName;
+      scoreBadge.textContent = result.processName;
       scoreSummary.textContent =
-        `This readout suggests that ${processName.toLowerCase()} is ${result.band === "Healthy velocity" ? "moving with relatively healthy velocity." : "experiencing enough friction to warrant targeted intervention."}`;
+        `This readout suggests that ${result.processName.toLowerCase()} is ${result.band === "Healthy velocity" ? "moving with relatively healthy velocity." : "experiencing enough friction to warrant targeted intervention."}`;
 
-      kpiCycle.textContent = result.kpis.cycle;
-      kpiApprovals.textContent = result.kpis.approvals;
-      kpiHandoffs.textContent = result.kpis.handoffs;
-      kpiSystems.textContent = result.kpis.systems;
+      benchmarkValue.textContent = result.benchmarkPosition;
+      benchmarkSub.textContent = `${result.benchmark.label}: ${result.benchmark.moderateMin}–${result.benchmark.healthyMax}`;
+
+      timeCostValue.textContent = result.timeHoursPerDecision ? `${result.timeHoursPerDecision} hrs` : "—";
+      timeCostSub.textContent = result.annualHours ? `${result.annualHours} hrs / year` : "Directional estimate";
+
+      moneyCostValue.textContent = result.costPerDecision ? formatCurrency(result.costPerDecision) : "—";
+      moneyCostSub.textContent = result.annualCost ? `${formatCurrency(result.annualCost)} / year` : "Directional estimate";
+
+      resourceDragValue.textContent = result.resourceDrag;
+      resourceDragSub.textContent = "Estimated productive load";
+
+      categoryValue.textContent = result.benchmark.label;
+      categorySub.textContent = result.businessUnit || "Decision type";
 
       renderList(frictionFlags, result.flags);
-      renderList(recommendations, result.recs);
-      renderList(interpretationList, result.interpretation);
-      renderList(whatThisSuggests, result.suggests);
+      renderList(recommendations, result.recommendations);
 
-      resultsShell.classList.add("active");
+      const fallback = defaultNarrative(result);
+      narrativeInterpretation.textContent = fallback.interpretation;
+      leadershipImplication.textContent = fallback.implication;
+
+      renderCharts(result);
+
       resultsShell.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
-    guidedForm.addEventListener("submit", (e) => {
+    guidedForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+
+      const privacyAgree = document.getElementById("privacyAgree");
+      if (!privacyAgree.checked) {
+        alert("Please agree to the privacy notice before proceeding.");
+        return;
+      }
+
       const formData = new FormData(guidedForm);
       const data = Object.fromEntries(formData.entries());
+
       const result = scoreGuided(data);
-      renderResults(result, data.processName || "This decision process");
+      renderResults(result);
+
+      latestPayload = buildPayload(result);
+      await hydrateNarrative(result, latestPayload);
     });
 
     function parseCSV(text) {
-      const lines = text.trim().split(/\r?\n/);
+      const lines = text.trim().split(/\\r?\\n/);
       if (lines.length < 2) return null;
 
       const headers = lines[0].split(",").map(h => h.trim().toLowerCase());
@@ -1551,6 +2043,13 @@
 
     csvForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+
+      const csvPrivacyAgree = document.getElementById("csvPrivacyAgree");
+      if (!csvPrivacyAgree.checked) {
+        alert("Please agree to the privacy notice before proceeding.");
+        return;
+      }
+
       const fileInput = document.getElementById("csvFile");
       const file = fileInput.files[0];
 
@@ -1567,23 +2066,21 @@
         return;
       }
 
-      const days = average(rows.map(r => Number(r.decision_days)));
-      const approvals = average(rows.map(r => Number(r.approval_count)));
-      const handoffs = average(rows.map(r => Number(r.handoff_count)));
-      const meetings = average(rows.map(r => Number(r.meeting_count)));
-      const systems = average(rows.map(r => Number(r.systems_touched)));
-
       const sample = rows[0] || {};
+
       const mapped = {
         processName: sample.process_name || "Uploaded decision process",
-        decisionDays: Math.round(days || 0),
-        approvalCount: Math.round(approvals || 0),
-        handoffCount: Math.round(handoffs || 0),
-        meetingCount: Math.round(meetings || 0),
-        systemsTouched: Math.max(1, Math.round(systems || 1)),
+        decisionType: sample.decision_type || "other",
+        businessUnit: sample.business_unit || "Uploaded data",
+        urgency: "moderate",
+        description: "CSV-based readout generated from structured uploaded data.",
+        decisionDays: Math.round(average(rows.map(r => Number(r.decision_days)))),
         deadlineSlip: "sometimes",
+        approvalCount: Math.round(average(rows.map(r => Number(r.approval_count)))),
         approvalFlow: "mixed",
         lateApprovals: "occasionally",
+        handoffCount: Math.round(average(rows.map(r => Number(r.handoff_count)))),
+        meetingCount: Math.round(average(rows.map(r => Number(r.meeting_count)))),
         outsideCoordination: "sometimes",
         ownerClarity: "mixed",
         escalationClarity: "mixed",
@@ -1591,13 +2088,20 @@
         reopenRate: (sample.reopen_rate || "sometimes").toLowerCase(),
         escalationRate: (sample.escalation_rate || "sometimes").toLowerCase(),
         workaroundRate: (sample.workaround_rate || "sometimes").toLowerCase(),
+        systemsTouched: Math.max(1, Math.round(average(rows.map(r => Number(r.systems_touched))))),
         reviewBurden: "moderate",
         reviewScope: "sometimes",
-        urgency: "moderate"
+        peopleInvolved: "",
+        hourlyCost: "",
+        annualVolume: "",
+        meetingHours: ""
       };
 
       const result = scoreGuided(mapped);
-      renderResults(result, mapped.processName);
+      renderResults(result);
+
+      latestPayload = buildPayload(result);
+      await hydrateNarrative(result, latestPayload);
     });
   </script>
 </body>
