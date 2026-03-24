@@ -1,1 +1,1604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ABM Decision Velocity Diagnostic | Monderman</title>
 
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href='data:image/svg+xml;utf8,
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="10" fill="%230F1720"/>
+      <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text>
+      <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
+    </svg>'
+  />
+
+  <style>
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff");
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff");
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff");
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+    }
+
+    :root {
+      --accent: #3F6EA1;
+      --accent-dark: #2F5886;
+      --bg-dark: #0F1720;
+      --bg-dark-2: #111B25;
+      --bg-offwhite: #F6F7F8;
+      --bg-white: #FFFFFF;
+      --text-light: #F5F7FA;
+      --text-dark: #15202B;
+      --muted-dark: #556270;
+      --muted-dark-2: #7A8794;
+      --line-dark: #E3E7EB;
+      --panel-line: rgba(21, 32, 43, 0.08);
+      --max: 1240px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
+      --card-shadow: 0 12px 28px rgba(0, 0, 0, 0.045);
+      --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 72px;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg-offwhite);
+      color: var(--text-dark);
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      height: 72px;
+      background: rgba(15, 23, 32, 0.92);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .header-inner {
+      max-width: var(--max);
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      font-size: 1.28rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+    }
+
+    .brand::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+
+    .header-links {
+      display: inline-flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .header-links a {
+      color: rgba(255,255,255,0.84);
+      font-size: 0.96rem;
+      font-weight: 500;
+      transition: color var(--transition), transform var(--transition);
+    }
+
+    .header-links a:hover,
+    .header-links a:focus-visible {
+      color: #FFFFFF;
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .page-shell {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 42px 28px 72px;
+    }
+
+    .hero {
+      background: linear-gradient(180deg, #0F1720 0%, #111B25 100%);
+      color: var(--text-light);
+      border-radius: 24px;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 30px;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 82% 18%, rgba(63,110,161,0.22), transparent 28%),
+        linear-gradient(135deg, rgba(63,110,161,0.05) 1px, transparent 1px);
+      background-size: auto, 32px 32px;
+      opacity: 0.55;
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      padding: 52px 40px 40px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+      gap: 30px;
+      align-items: end;
+    }
+
+    .eyebrow {
+      margin: 0 0 18px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.64);
+    }
+
+    .hero h1 {
+      margin: 0 0 16px;
+      max-width: 12ch;
+      font-size: clamp(2.4rem, 4.2vw, 4.1rem);
+      line-height: 0.96;
+      letter-spacing: -0.05em;
+      font-weight: 700;
+      color: #FFFFFF;
+      text-wrap: balance;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 42ch;
+      font-size: 1.06rem;
+      line-height: 1.64;
+      color: rgba(245,247,250,0.82);
+    }
+
+    .hero-meta {
+      display: grid;
+      gap: 16px;
+      align-self: stretch;
+    }
+
+    .hero-meta-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 18px 18px 16px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .hero-meta-title {
+      margin: 0 0 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.54);
+    }
+
+    .hero-meta-text {
+      margin: 0;
+      font-size: 0.94rem;
+      line-height: 1.58;
+      color: rgba(245,247,250,0.82);
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      min-width: 160px;
+      padding: 0 20px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.96);
+      color: var(--text-dark);
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: -0.012em;
+      cursor: pointer;
+      transition:
+        transform var(--transition),
+        box-shadow var(--transition),
+        background var(--transition),
+        border-color var(--transition);
+    }
+
+    .btn:hover,
+    .btn:focus-visible {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+      outline: none;
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.06);
+      color: #FFFFFF;
+      border-color: rgba(255,255,255,0.18);
+    }
+
+    .btn-secondary:hover,
+    .btn-secondary:focus-visible {
+      background: rgba(255,255,255,0.10);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #FFFFFF;
+      border-color: rgba(63,110,161,0.22);
+    }
+
+    .btn-accent:hover,
+    .btn-accent:focus-visible {
+      background: var(--accent-dark);
+      border-color: rgba(47,88,134,0.28);
+    }
+
+    .page-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.9fr);
+      gap: 28px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--bg-white);
+      border: 1px solid var(--panel-line);
+      border-radius: 20px;
+      box-shadow: var(--soft-shadow);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 24px 26px 16px;
+      border-bottom: 1px solid rgba(21,32,43,0.06);
+    }
+
+    .panel-kicker {
+      margin: 0 0 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      line-height: 1;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .panel-title {
+      margin: 0 0 8px;
+      font-size: 1.46rem;
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .panel-copy {
+      margin: 0;
+      max-width: 62ch;
+      font-size: 0.98rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+    }
+
+    .panel-body {
+      padding: 22px 26px 28px;
+    }
+
+    .mode-toggle {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .mode-card {
+      position: relative;
+      border: 1px solid rgba(21,32,43,0.10);
+      background: #F8F9FA;
+      border-radius: 16px;
+      padding: 16px 16px 14px;
+      cursor: pointer;
+      transition: border-color var(--transition), background var(--transition), transform var(--transition), box-shadow var(--transition);
+    }
+
+    .mode-card:hover {
+      transform: translateY(-1px);
+      border-color: rgba(63,110,161,0.24);
+      box-shadow: var(--card-shadow);
+    }
+
+    .mode-card.active {
+      background: rgba(63,110,161,0.06);
+      border-color: rgba(63,110,161,0.34);
+      box-shadow: 0 10px 24px rgba(63,110,161,0.10);
+    }
+
+    .mode-card-title {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      line-height: 1.2;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .mode-card-text {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      color: var(--muted-dark);
+    }
+
+    .mode-card input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    form {
+      display: grid;
+      gap: 22px;
+    }
+
+    .section-block {
+      display: grid;
+      gap: 14px;
+      padding-top: 2px;
+    }
+
+    .section-block + .section-block {
+      border-top: 1px solid rgba(21,32,43,0.06);
+      padding-top: 22px;
+    }
+
+    .section-block-title {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.2;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .section-block-text {
+      margin: -4px 0 0;
+      font-size: 0.9rem;
+      line-height: 1.56;
+      color: var(--muted-dark);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px 18px;
+    }
+
+    .field {
+      display: grid;
+      gap: 9px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      font-size: 0.88rem;
+      line-height: 1.42;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      min-height: 52px;
+      padding: 0 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(21,32,43,0.10);
+      background: #FFFFFF;
+      color: var(--text-dark);
+      outline: none;
+      box-shadow: var(--soft-shadow);
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .field textarea {
+      min-height: 108px;
+      padding: 12px 14px;
+      resize: vertical;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: rgba(63,110,161,0.42);
+      box-shadow: 0 0 0 4px rgba(63,110,161,0.10);
+    }
+
+    .field small {
+      font-size: 0.78rem;
+      line-height: 1.5;
+      color: var(--muted-dark-2);
+    }
+
+    .file-drop {
+      display: grid;
+      gap: 12px;
+      padding: 20px;
+      border: 1px dashed rgba(21,32,43,0.18);
+      border-radius: 16px;
+      background: #F8F9FA;
+    }
+
+    .file-drop-title {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.2;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .file-drop-text {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.56;
+      color: var(--muted-dark);
+      max-width: 58ch;
+    }
+
+    .template-note {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 0.84rem;
+      line-height: 1.5;
+      color: var(--muted-dark);
+    }
+
+    .template-note a {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .submit-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding-top: 6px;
+    }
+
+    .submit-note {
+      max-width: 52ch;
+      font-size: 0.84rem;
+      line-height: 1.56;
+      color: var(--muted-dark-2);
+    }
+
+    .sidebar-stack {
+      display: grid;
+      gap: 20px;
+      position: sticky;
+      top: 92px;
+    }
+
+    .mini-card {
+      background: var(--bg-white);
+      border: 1px solid var(--panel-line);
+      border-radius: 18px;
+      padding: 22px 22px 20px;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .mini-card-title {
+      margin: 0 0 12px;
+      font-size: 1rem;
+      line-height: 1.18;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .mini-card p,
+    .mini-card li {
+      font-size: 0.92rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+    }
+
+    .mini-card p {
+      margin: 0;
+    }
+
+    .mini-card ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .results-shell {
+      display: none;
+      gap: 20px;
+    }
+
+    .results-shell.active {
+      display: grid;
+    }
+
+    .score-panel {
+      background: linear-gradient(180deg, #0F1720 0%, #111B25 100%);
+      color: #FFFFFF;
+      border-radius: 18px;
+      padding: 24px 24px 22px;
+      border: 1px solid rgba(255,255,255,0.06);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .score-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 85% 16%, rgba(63,110,161,0.20), transparent 28%),
+        linear-gradient(135deg, rgba(63,110,161,0.05) 1px, transparent 1px);
+      background-size: auto, 28px 28px;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .score-panel-inner {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: end;
+    }
+
+    .score-label {
+      margin: 0 0 8px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      line-height: 1;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.60);
+    }
+
+    .score-number {
+      margin: 0;
+      font-size: clamp(3rem, 6vw, 4.6rem);
+      line-height: 0.9;
+      letter-spacing: -0.08em;
+      font-weight: 700;
+      color: #FFFFFF;
+    }
+
+    .score-band {
+      margin: 8px 0 0;
+      font-size: 1rem;
+      line-height: 1.4;
+      font-weight: 500;
+      color: rgba(245,247,250,0.88);
+    }
+
+    .score-summary {
+      margin: 10px 0 0;
+      max-width: 52ch;
+      font-size: 0.95rem;
+      line-height: 1.62;
+      color: rgba(245,247,250,0.74);
+    }
+
+    .score-badge {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.10);
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: #FFFFFF;
+      white-space: nowrap;
+      align-self: start;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .result-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(21,32,43,0.08);
+      border-radius: 16px;
+      padding: 18px 18px 16px;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .result-card-title {
+      margin: 0 0 10px;
+      font-size: 0.94rem;
+      line-height: 1.2;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .result-list {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .result-list li {
+      font-size: 0.9rem;
+      line-height: 1.56;
+      color: var(--muted-dark);
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .kpi {
+      background: #F8F9FA;
+      border: 1px solid rgba(21,32,43,0.06);
+      border-radius: 14px;
+      padding: 14px 14px 12px;
+    }
+
+    .kpi-label {
+      margin: 0 0 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+    }
+
+    .kpi-value {
+      margin: 0;
+      font-size: 1.35rem;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .results-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 1120px) {
+      .page-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar-stack {
+        position: static;
+      }
+
+      .hero-inner {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 780px) {
+      .header {
+        height: auto;
+      }
+
+      .header-inner {
+        padding: 16px 20px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .page-shell {
+        padding: 28px 20px 64px;
+      }
+
+      .hero-inner,
+      .panel-head,
+      .panel-body {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .hero-inner {
+        padding-top: 34px;
+        padding-bottom: 30px;
+      }
+
+      .form-grid,
+      .results-grid,
+      .kpi-grid,
+      .mode-toggle {
+        grid-template-columns: 1fr;
+      }
+
+      .score-panel-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .submit-row {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="brand">Monderman</a>
+
+      <nav class="header-links" aria-label="Page navigation">
+        <a href="index.html">Home</a>
+        <a href="diagnostic-tools.html">Diagnostic Tools</a>
+        <a href="Monderman_Active_Bureaucratic_Management.pdf" target="_blank" rel="noopener noreferrer">ABM Brief</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <section class="hero" aria-labelledby="dv-title">
+      <div class="hero-inner">
+        <div>
+          <p class="eyebrow">ABM MVP</p>
+          <h1 id="dv-title">Decision Velocity Diagnostic</h1>
+          <p>
+            A lightweight diagnostic for identifying where decisions slow, why they slow, and where leaders should intervene first.
+          </p>
+
+          <div class="hero-actions">
+            <button class="btn btn-accent" id="startGuidedBtn" type="button">Start Guided Diagnostic</button>
+            <button class="btn btn-secondary" id="startUploadBtn" type="button">Use Your Own Data</button>
+          </div>
+        </div>
+
+        <div class="hero-meta">
+          <div class="hero-meta-card">
+            <p class="hero-meta-title">What it surfaces</p>
+            <p class="hero-meta-text">
+              Approval burden, handoff drag, ownership ambiguity, rework loops, escalation dependence, and workaround pressure.
+            </p>
+          </div>
+
+          <div class="hero-meta-card">
+            <p class="hero-meta-title">What you get back</p>
+            <p class="hero-meta-text">
+              A Decision Velocity Score, friction flags, a plain-English interpretation, and recommended intervention priorities.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-grid">
+      <div class="panel">
+        <div class="panel-head">
+          <p class="panel-kicker">Diagnostic Input</p>
+          <h2 class="panel-title">Assess one decision process.</h2>
+          <p class="panel-copy">
+            Use the guided diagnostic for the cleanest experience, or upload a template-compatible CSV if you already have structured decision-process data.
+          </p>
+        </div>
+
+        <div class="panel-body">
+          <div class="mode-toggle" role="tablist" aria-label="Input mode selection">
+            <label class="mode-card active" id="modeGuidedCard">
+              <input type="radio" name="inputMode" value="guided" checked />
+              <p class="mode-card-title">Guided Diagnostic</p>
+              <p class="mode-card-text">Answer a short set of structured questions about one recurring decision process.</p>
+            </label>
+
+            <label class="mode-card" id="modeCsvCard">
+              <input type="radio" name="inputMode" value="csv" />
+              <p class="mode-card-title">Use Your Own Data</p>
+              <p class="mode-card-text">Upload a template-compatible CSV for a faster readout from structured decision-process data.</p>
+            </label>
+          </div>
+
+          <form id="guidedForm">
+            <div class="section-block">
+              <h3 class="section-block-title">Decision context</h3>
+              <p class="section-block-text">Describe one decision process leaders care about: vendor approvals, hiring actions, budget reviews, policy decisions, or similar.</p>
+
+              <div class="form-grid">
+                <div class="field">
+                  <label for="processName">Decision process name</label>
+                  <input id="processName" name="processName" type="text" placeholder="e.g. Vendor approval" required />
+                </div>
+
+                <div class="field">
+                  <label for="decisionType">Decision type</label>
+                  <select id="decisionType" name="decisionType" required>
+                    <option value="">Select one</option>
+                    <option value="procurement">Procurement / vendor</option>
+                    <option value="hiring">Hiring / staffing</option>
+                    <option value="budget">Budget / funding</option>
+                    <option value="policy">Policy / governance</option>
+                    <option value="program">Program / project</option>
+                    <option value="risk">Risk / exception</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="businessUnit">Business unit / function</label>
+                  <input id="businessUnit" name="businessUnit" type="text" placeholder="e.g. Operations" required />
+                </div>
+
+                <div class="field">
+                  <label for="urgency">Typical urgency</label>
+                  <select id="urgency" name="urgency" required>
+                    <option value="">Select one</option>
+                    <option value="low">Low</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="high">High</option>
+                    <option value="critical">Critical</option>
+                  </select>
+                </div>
+
+                <div class="field full">
+                  <label for="description">Optional short description</label>
+                  <textarea id="description" name="description" placeholder="Briefly describe the decision process or the kind of work it supports."></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="section-block">
+              <h3 class="section-block-title">Timing and throughput</h3>
+              <p class="section-block-text">This helps distinguish normal complexity from accumulated decision burden.</p>
+
+              <div class="form-grid">
+                <div class="field">
+                  <label for="decisionDays">Average time to final decision (days)</label>
+                  <input id="decisionDays" name="decisionDays" type="number" min="0" step="1" placeholder="e.g. 14" required />
+                </div>
+
+                <div class="field">
+                  <label for="deadlineSlip">How often deadlines slip because of internal process?</label>
+                  <select id="deadlineSlip" name="deadlineSlip" required>
+                    <option value="">Select one</option>
+                    <option value="rare">Rarely</option>
+                    <option value="sometimes">Sometimes</option>
+                    <option value="often">Often</option>
+                    <option value="constant">Constantly</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="section-block">
+              <h3 class="section-block-title">Approval and handoff burden</h3>
+              <p class="section-block-text">These are common sources of delay that leaders can often act on directly.</p>
+
+              <div class="form-grid">
+                <div class="field">
+                  <label for="approvalCount">Typical number of approvals</label>
+                  <input id="approvalCount" name="approvalCount" type="number" min="0" step="1" placeholder="e.g. 4" required />
+                </div>
+
+                <div class="field">
+                  <label for="approvalFlow">Approvals are usually</label>
+                  <select id="approvalFlow" name="approvalFlow" required>
+                    <option value="">Select one</option>
+                    <option value="parallel">Mostly parallel</option>
+                    <option value="mixed">Mixed</option>
+                    <option value="sequential">Mostly sequential</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="lateApprovals">Are extra approvals often added late?</label>
+                  <select id="lateApprovals" name="lateApprovals" required>
+                    <option value="">Select one</option>
+                    <option value="no">No</option>
+                    <option value="occasionally">Occasionally</option>
+                    <option value="frequently">Frequently</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="handoffCount">Typical number of handoffs</label>
+                  <input id="handoffCount" name="handoffCount" type="number" min="0" step="1" placeholder="e.g. 5" required />
+                </div>
+              </div>
+            </div>
+
+            <div class="section-block">
+              <h3 class="section-block-title">Coordination and ownership</h3>
+              <p class="section-block-text">This captures the friction that tends to hide behind “normal coordination.”</p>
+
+              <div class="form-grid">
+                <div class="field">
+                  <label for="meetingCount">Meetings typically needed per decision</label>
+                  <input id="meetingCount" name="meetingCount" type="number" min="0" step="1" placeholder="e.g. 3" required />
+                </div>
+
+                <div class="field">
+                  <label for="outsideCoordination">Extra coordination outside normal channels</label>
+                  <select id="outsideCoordination" name="outsideCoordination" required>
+                    <option value="">Select one</option>
+                    <option value="rare">Rarely</option>
+                    <option value="sometimes">Sometimes</option>
+                    <option value="often">Often</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="ownerClarity">Decision ownership is clear from the start</label>
+                  <select id="ownerClarity" name="ownerClarity" required>
+                    <option value="">Select one</option>
+                    <option value="always">Usually yes</option>
+                    <option value="mixed">Mixed</option>
+                    <option value="unclear">Often unclear</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="escalationClarity">Escalation path is clear</label>
+                  <select id="escalationClarity" name="escalationClarity" required>
+                    <option value="">Select one</option>
+                    <option value="always">Usually yes</option>
+                    <option value="mixed">Mixed</option>
+                    <option value="unclear">Often unclear</option>
+                  </select>
+                </div>
+
+                <div class="field full">
+                  <label for="keyPersonDependency">Does this process depend on one or two key people to keep moving?</label>
+                  <select id="keyPersonDependency" name="keyPersonDependency" required>
+                    <option value="">Select one</option>
+                    <option value="no">No</option>
+                    <option value="somewhat">Somewhat</option>
+                    <option value="heavily">Heavily</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="section-block">
+              <h3 class="section-block-title">Rework, workarounds, and review burden</h3>
+              <p class="section-block-text">This is where compensatory behavior and hidden drag often start to appear.</p>
+
+              <div class="form-grid">
+                <div class="field">
+                  <label for="reopenRate">How often is work reopened for revision?</label>
+                  <select id="reopenRate" name="reopenRate" required>
+                    <option value="">Select one</option>
+                    <option value="rare">Rarely</option>
+                    <option value="sometimes">Sometimes</option>
+                    <option value="often">Often</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="escalationRate">How often is the decision escalated?</label>
+                  <select id="escalationRate" name="escalationRate" required>
+                    <option value="">Select one</option>
+                    <option value="rare">Rarely</option>
+                    <option value="sometimes">Sometimes</option>
+                    <option value="often">Often</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="workaroundRate">How often are exceptions or workarounds used?</label>
+                  <select id="workaroundRate" name="workaroundRate" required>
+                    <option value="">Select one</option>
+                    <option value="rare">Rarely</option>
+                    <option value="sometimes">Sometimes</option>
+                    <option value="often">Often</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="systemsTouched">Number of systems typically touched</label>
+                  <input id="systemsTouched" name="systemsTouched" type="number" min="1" step="1" placeholder="e.g. 4" required />
+                </div>
+
+                <div class="field">
+                  <label for="reviewBurden">Legal / finance / policy review burden</label>
+                  <select id="reviewBurden" name="reviewBurden" required>
+                    <option value="">Select one</option>
+                    <option value="light">Light</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="heavy">Heavy</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="reviewScope">Do review scopes tend to expand during the process?</label>
+                  <select id="reviewScope" name="reviewScope" required>
+                    <option value="">Select one</option>
+                    <option value="no">Rarely</option>
+                    <option value="sometimes">Sometimes</option>
+                    <option value="often">Often</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="submit-row">
+              <p class="submit-note">
+                This diagnostic is directional. It is designed to produce a credible first read on decision latency, not an audited enterprise measurement.
+              </p>
+
+              <div class="btn-inline-group">
+                <button class="btn btn-accent" type="submit">Generate Decision Velocity Readout</button>
+                <button class="btn btn-secondary" id="resetFormBtn" type="button">Reset</button>
+              </div>
+            </div>
+          </form>
+
+          <form id="csvForm" class="hidden">
+            <div class="section-block">
+              <h3 class="section-block-title">Use your own structured data</h3>
+              <p class="section-block-text">
+                Upload a template-compatible CSV if you already track decision timing, approvals, handoffs, rework, or escalation patterns in a structured way.
+              </p>
+
+              <div class="file-drop">
+                <p class="file-drop-title">Upload template-compatible CSV</p>
+                <p class="file-drop-text">
+                  For v1, the upload path is intentionally narrow. Use a simple decision-process export or populate the Monderman template first.
+                </p>
+
+                <div class="template-note">
+                  <span>Need a structure?</span>
+                  <a href="#" id="downloadTemplateLink">Download sample template</a>
+                </div>
+
+                <div class="field">
+                  <label for="csvFile">Choose CSV file</label>
+                  <input id="csvFile" name="csvFile" type="file" accept=".csv,text/csv" />
+                  <small>The parser looks for basic fields such as decision days, approvals, handoffs, reopenings, escalations, and systems touched.</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="submit-row">
+              <p class="submit-note">
+                CSV upload is secondary in v1. The guided diagnostic is the most reliable way to generate a useful readout quickly.
+              </p>
+
+              <div class="btn-inline-group">
+                <button class="btn btn-accent" type="submit">Analyze CSV</button>
+                <button class="btn btn-secondary" id="backToGuidedBtn" type="button">Back to Guided Diagnostic</button>
+              </div>
+            </div>
+          </form>
+
+          <section class="results-shell" id="resultsShell" aria-live="polite">
+            <div class="score-panel">
+              <div class="score-panel-inner">
+                <div>
+                  <p class="score-label">Decision Velocity Score</p>
+                  <p class="score-number" id="scoreNumber">0</p>
+                  <p class="score-band" id="scoreBand">—</p>
+                  <p class="score-summary" id="scoreSummary">Complete the diagnostic to generate a readout.</p>
+                </div>
+                <div class="score-badge" id="scoreBadge">Diagnostic Ready</div>
+              </div>
+            </div>
+
+            <div class="kpi-grid">
+              <div class="kpi">
+                <p class="kpi-label">Cycle Time</p>
+                <p class="kpi-value" id="kpiCycle">—</p>
+              </div>
+              <div class="kpi">
+                <p class="kpi-label">Approvals</p>
+                <p class="kpi-value" id="kpiApprovals">—</p>
+              </div>
+              <div class="kpi">
+                <p class="kpi-label">Handoffs</p>
+                <p class="kpi-value" id="kpiHandoffs">—</p>
+              </div>
+              <div class="kpi">
+                <p class="kpi-label">Systems</p>
+                <p class="kpi-value" id="kpiSystems">—</p>
+              </div>
+            </div>
+
+            <div class="results-grid">
+              <div class="result-card">
+                <h3 class="result-card-title">Key friction flags</h3>
+                <ul class="result-list" id="frictionFlags"></ul>
+              </div>
+
+              <div class="result-card">
+                <h3 class="result-card-title">Recommended interventions</h3>
+                <ul class="result-list" id="recommendations"></ul>
+              </div>
+
+              <div class="result-card">
+                <h3 class="result-card-title">Plain-English interpretation</h3>
+                <ul class="result-list" id="interpretationList"></ul>
+              </div>
+
+              <div class="result-card">
+                <h3 class="result-card-title">What this suggests</h3>
+                <ul class="result-list" id="whatThisSuggests"></ul>
+              </div>
+            </div>
+
+            <div class="results-actions">
+              <button class="btn btn-secondary" id="editInputsBtn" type="button">Edit Inputs</button>
+              <button class="btn" id="startOverBtn" type="button">Start Over</button>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <aside class="sidebar-stack">
+        <div class="mini-card">
+          <h3 class="mini-card-title">How this works</h3>
+          <p>
+            This MVP evaluates one decision process at a time. It translates a small set of structured signals into a directional readout of decision velocity, friction, and likely intervention points.
+          </p>
+        </div>
+
+        <div class="mini-card">
+          <h3 class="mini-card-title">Best use cases</h3>
+          <ul>
+            <li>Vendor approvals</li>
+            <li>Hiring and staffing decisions</li>
+            <li>Budget and funding reviews</li>
+            <li>Policy or exception approvals</li>
+            <li>Program decisions requiring multiple stakeholders</li>
+          </ul>
+        </div>
+
+        <div class="mini-card">
+          <h3 class="mini-card-title">What this is not</h3>
+          <ul>
+            <li>Not an enterprise deployment</li>
+            <li>Not a compliance tool</li>
+            <li>Not a productivity monitor</li>
+            <li>Not a replacement for formal process analysis</li>
+          </ul>
+        </div>
+
+        <div class="mini-card">
+          <h3 class="mini-card-title">Next step</h3>
+          <p>
+            If the readout resonates, the next conversation is usually about a guided pilot using real decision-process data and a narrower organizational context.
+          </p>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    const guidedForm = document.getElementById("guidedForm");
+    const csvForm = document.getElementById("csvForm");
+    const resultsShell = document.getElementById("resultsShell");
+
+    const modeGuidedCard = document.getElementById("modeGuidedCard");
+    const modeCsvCard = document.getElementById("modeCsvCard");
+
+    const startGuidedBtn = document.getElementById("startGuidedBtn");
+    const startUploadBtn = document.getElementById("startUploadBtn");
+    const backToGuidedBtn = document.getElementById("backToGuidedBtn");
+    const resetFormBtn = document.getElementById("resetFormBtn");
+    const editInputsBtn = document.getElementById("editInputsBtn");
+    const startOverBtn = document.getElementById("startOverBtn");
+    const downloadTemplateLink = document.getElementById("downloadTemplateLink");
+
+    const scoreNumber = document.getElementById("scoreNumber");
+    const scoreBand = document.getElementById("scoreBand");
+    const scoreSummary = document.getElementById("scoreSummary");
+    const scoreBadge = document.getElementById("scoreBadge");
+
+    const kpiCycle = document.getElementById("kpiCycle");
+    const kpiApprovals = document.getElementById("kpiApprovals");
+    const kpiHandoffs = document.getElementById("kpiHandoffs");
+    const kpiSystems = document.getElementById("kpiSystems");
+
+    const frictionFlags = document.getElementById("frictionFlags");
+    const recommendations = document.getElementById("recommendations");
+    const interpretationList = document.getElementById("interpretationList");
+    const whatThisSuggests = document.getElementById("whatThisSuggests");
+
+    function setMode(mode) {
+      const guided = mode === "guided";
+      guidedForm.classList.toggle("hidden", !guided);
+      csvForm.classList.toggle("hidden", guided);
+      modeGuidedCard.classList.toggle("active", guided);
+      modeCsvCard.classList.toggle("active", !guided);
+      resultsShell.classList.remove("active");
+    }
+
+    modeGuidedCard.addEventListener("click", () => setMode("guided"));
+    modeCsvCard.addEventListener("click", () => setMode("csv"));
+    startGuidedBtn.addEventListener("click", () => {
+      setMode("guided");
+      guidedForm.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    startUploadBtn.addEventListener("click", () => {
+      setMode("csv");
+      csvForm.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    backToGuidedBtn.addEventListener("click", () => setMode("guided"));
+
+    resetFormBtn.addEventListener("click", () => {
+      guidedForm.reset();
+      resultsShell.classList.remove("active");
+    });
+
+    editInputsBtn.addEventListener("click", () => {
+      resultsShell.classList.remove("active");
+      guidedForm.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    startOverBtn.addEventListener("click", () => {
+      guidedForm.reset();
+      const csvFile = document.getElementById("csvFile");
+      if (csvFile) csvFile.value = "";
+      resultsShell.classList.remove("active");
+      setMode("guided");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    downloadTemplateLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      const csv = [
+        "process_name,decision_type,business_unit,decision_days,approval_count,handoff_count,meeting_count,systems_touched,reopen_rate,escalation_rate,workaround_rate",
+        "Vendor Approval,procurement,Operations,14,4,5,3,4,sometimes,rare,sometimes"
+      ].join("\\n");
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const tempLink = document.createElement("a");
+      tempLink.href = url;
+      tempLink.download = "monderman_decision_velocity_template.csv";
+      document.body.appendChild(tempLink);
+      tempLink.click();
+      document.body.removeChild(tempLink);
+      URL.revokeObjectURL(url);
+    });
+
+    function mapSelect(value, mapping) {
+      return mapping[value] ?? 0;
+    }
+
+    function scoreGuided(data) {
+      let score = 100;
+
+      const days = Number(data.decisionDays || 0);
+      const approvals = Number(data.approvalCount || 0);
+      const handoffs = Number(data.handoffCount || 0);
+      const meetings = Number(data.meetingCount || 0);
+      const systems = Number(data.systemsTouched || 0);
+
+      if (days > 3) score -= Math.min(24, (days - 3) * 1.2);
+      if (approvals > 1) score -= Math.min(16, (approvals - 1) * 2.4);
+      if (handoffs > 1) score -= Math.min(18, (handoffs - 1) * 2.1);
+      if (meetings > 1) score -= Math.min(10, (meetings - 1) * 1.7);
+      if (systems > 1) score -= Math.min(8, (systems - 1) * 1.2);
+
+      score -= mapSelect(data.deadlineSlip, { rare: 0, sometimes: 5, often: 10, constant: 15 });
+      score -= mapSelect(data.approvalFlow, { parallel: 0, mixed: 4, sequential: 8 });
+      score -= mapSelect(data.lateApprovals, { no: 0, occasionally: 4, frequently: 8 });
+      score -= mapSelect(data.outsideCoordination, { rare: 0, sometimes: 5, often: 9 });
+      score -= mapSelect(data.ownerClarity, { always: 0, mixed: 7, unclear: 12 });
+      score -= mapSelect(data.escalationClarity, { always: 0, mixed: 5, unclear: 9 });
+      score -= mapSelect(data.keyPersonDependency, { no: 0, somewhat: 5, heavily: 9 });
+      score -= mapSelect(data.reopenRate, { rare: 0, sometimes: 6, often: 11 });
+      score -= mapSelect(data.escalationRate, { rare: 0, sometimes: 5, often: 10 });
+      score -= mapSelect(data.workaroundRate, { rare: 0, sometimes: 7, often: 13 });
+      score -= mapSelect(data.reviewBurden, { light: 0, moderate: 4, heavy: 8 });
+      score -= mapSelect(data.reviewScope, { no: 0, sometimes: 4, often: 8 });
+
+      if (data.urgency === "critical" && days > 7) score -= 6;
+      if (data.urgency === "high" && days > 10) score -= 4;
+
+      score = Math.max(18, Math.min(100, Math.round(score)));
+
+      const flags = [];
+      const recs = [];
+      const interpretation = [];
+      const suggests = [];
+
+      if (approvals >= 5 || data.lateApprovals === "frequently") {
+        flags.push("Approval layering appears heavier than the work likely requires.");
+        recs.push("Reduce or consolidate approval layers, especially where late approvals are routinely added.");
+      }
+
+      if (handoffs >= 5) {
+        flags.push("High handoff volume suggests routing complexity and accountability dilution.");
+        recs.push("Shorten the decision path by reducing unnecessary routing and clarifying who owns movement.");
+      }
+
+      if (data.ownerClarity !== "always" || data.escalationClarity !== "always") {
+        flags.push("Ownership or escalation ambiguity is likely contributing to delay.");
+        recs.push("Clarify decision ownership at intake and define escalation rules before the process starts.");
+      }
+
+      if (data.reopenRate === "often") {
+        flags.push("Rework loops are consuming time that should be spent moving toward decision.");
+        recs.push("Identify the most common causes of reopening and tighten quality or scope earlier in the process.");
+      }
+
+      if (data.workaroundRate !== "rare" || data.keyPersonDependency !== "no") {
+        flags.push("The process appears to rely on compensatory behavior or key-person intervention.");
+        recs.push("Audit where exceptions or informal intervention are preserving movement and redesign those structural weak points.");
+      }
+
+      if (data.outsideCoordination === "often" || meetings >= 4) {
+        flags.push("Coordination burden is high relative to a healthy decision pathway.");
+        recs.push("Eliminate redundant coordination steps and shift work into fewer, clearer decision moments.");
+      }
+
+      if (systems >= 5 || data.reviewBurden === "heavy") {
+        flags.push("Systems and review burden are likely adding cumulative friction.");
+        recs.push("Narrow review triggers and simplify the number of systems touched where possible.");
+      }
+
+      if (!flags.length) {
+        flags.push("No single dominant friction source surfaced; the process appears more balanced than burdened.");
+      }
+
+      const band =
+        score >= 82 ? "Healthy velocity" :
+        score >= 65 ? "Moderate drag" :
+        score >= 45 ? "Significant friction" :
+        "High bureaucratic latency";
+
+      if (score >= 82) {
+        interpretation.push("This decision process appears relatively healthy, with manageable friction and no overwhelming structural burden.");
+        suggests.push("The focus should be on preserving clarity and preventing incremental approval or coordination creep.");
+      } else if (score >= 65) {
+        interpretation.push("This process is still functioning, but moderate drag is likely absorbing time that leaders may not fully see.");
+        suggests.push("The process may be tolerable in normal conditions but vulnerable under urgency, scale, or leadership turnover.");
+      } else if (score >= 45) {
+        interpretation.push("The process appears slowed less by inherent complexity than by accumulated bureaucratic burden.");
+        suggests.push("Movement is likely being preserved through extra coordination, escalation, or rework rather than clean system design.");
+      } else {
+        interpretation.push("This process shows signs of high bureaucratic latency and likely depends on compensatory behavior to keep moving.");
+        suggests.push("Without intervention, this type of decision pathway can quietly weaken execution quality, responsiveness, and trust in the system.");
+      }
+
+      if (data.workaroundRate === "often") {
+        interpretation.push("Frequent exception use suggests the formal pathway may no longer match the work it is meant to govern.");
+      }
+
+      if (data.ownerClarity === "unclear") {
+        suggests.push("Where ownership is unclear, even strong people tend to substitute coordination for authority.");
+      }
+
+      if (!recs.length) {
+        recs.push("Continue monitoring for approval growth, handoff creep, and rising coordination burden over time.");
+      }
+
+      return {
+        score,
+        band,
+        flags: flags.slice(0, 5),
+        recs: recs.slice(0, 5),
+        interpretation: interpretation.slice(0, 4),
+        suggests: suggests.slice(0, 4),
+        kpis: {
+          cycle: `${days}d`,
+          approvals: `${approvals}`,
+          handoffs: `${handoffs}`,
+          systems: `${systems}`
+        }
+      };
+    }
+
+    function renderList(el, items) {
+      el.innerHTML = "";
+      items.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        el.appendChild(li);
+      });
+    }
+
+    function renderResults(result, processName = "this decision process") {
+      scoreNumber.textContent = result.score;
+      scoreBand.textContent = result.band;
+      scoreBadge.textContent = processName;
+      scoreSummary.textContent =
+        `This readout suggests that ${processName.toLowerCase()} is ${result.band === "Healthy velocity" ? "moving with relatively healthy velocity." : "experiencing enough friction to warrant targeted intervention."}`;
+
+      kpiCycle.textContent = result.kpis.cycle;
+      kpiApprovals.textContent = result.kpis.approvals;
+      kpiHandoffs.textContent = result.kpis.handoffs;
+      kpiSystems.textContent = result.kpis.systems;
+
+      renderList(frictionFlags, result.flags);
+      renderList(recommendations, result.recs);
+      renderList(interpretationList, result.interpretation);
+      renderList(whatThisSuggests, result.suggests);
+
+      resultsShell.classList.add("active");
+      resultsShell.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    guidedForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const formData = new FormData(guidedForm);
+      const data = Object.fromEntries(formData.entries());
+      const result = scoreGuided(data);
+      renderResults(result, data.processName || "This decision process");
+    });
+
+    function parseCSV(text) {
+      const lines = text.trim().split(/\r?\n/);
+      if (lines.length < 2) return null;
+
+      const headers = lines[0].split(",").map(h => h.trim().toLowerCase());
+      const rows = lines.slice(1).map(line => line.split(",").map(cell => cell.trim()));
+
+      return rows.map(row => {
+        const obj = {};
+        headers.forEach((h, i) => { obj[h] = row[i] ?? ""; });
+        return obj;
+      });
+    }
+
+    function average(values) {
+      const cleaned = values.filter(v => !Number.isNaN(v));
+      if (!cleaned.length) return 0;
+      return cleaned.reduce((a, b) => a + b, 0) / cleaned.length;
+    }
+
+    csvForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fileInput = document.getElementById("csvFile");
+      const file = fileInput.files[0];
+
+      if (!file) {
+        alert("Please choose a CSV file first.");
+        return;
+      }
+
+      const text = await file.text();
+      const rows = parseCSV(text);
+
+      if (!rows || !rows.length) {
+        alert("The CSV could not be parsed. Please use the sample template or the guided diagnostic.");
+        return;
+      }
+
+      const days = average(rows.map(r => Number(r.decision_days)));
+      const approvals = average(rows.map(r => Number(r.approval_count)));
+      const handoffs = average(rows.map(r => Number(r.handoff_count)));
+      const meetings = average(rows.map(r => Number(r.meeting_count)));
+      const systems = average(rows.map(r => Number(r.systems_touched)));
+
+      const sample = rows[0] || {};
+      const mapped = {
+        processName: sample.process_name || "Uploaded decision process",
+        decisionDays: Math.round(days || 0),
+        approvalCount: Math.round(approvals || 0),
+        handoffCount: Math.round(handoffs || 0),
+        meetingCount: Math.round(meetings || 0),
+        systemsTouched: Math.max(1, Math.round(systems || 1)),
+        deadlineSlip: "sometimes",
+        approvalFlow: "mixed",
+        lateApprovals: "occasionally",
+        outsideCoordination: "sometimes",
+        ownerClarity: "mixed",
+        escalationClarity: "mixed",
+        keyPersonDependency: "somewhat",
+        reopenRate: (sample.reopen_rate || "sometimes").toLowerCase(),
+        escalationRate: (sample.escalation_rate || "sometimes").toLowerCase(),
+        workaroundRate: (sample.workaround_rate || "sometimes").toLowerCase(),
+        reviewBurden: "moderate",
+        reviewScope: "sometimes",
+        urgency: "moderate"
+      };
+
+      const result = scoreGuided(mapped);
+      renderResults(result, mapped.processName);
+    });
+  </script>
+</body>
+</html>
