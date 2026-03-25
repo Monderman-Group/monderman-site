@@ -631,6 +631,10 @@
       color: var(--muted-dark-2);
     }
 
+    .hidden {
+      display: none !important;
+    }
+
     @media (max-width: 1120px) {
       .hero-inner,
       .score-shell {
@@ -896,6 +900,7 @@
         "decision_velocity_result"
       ],
       systems: [
+        "monderman_operational_systems",
         "monderman_operational_systems_result",
         "mondermanOperationalSystemsResult",
         "operationalSystemsResult",
@@ -912,31 +917,35 @@
     const TOOL_META = {
       structural: {
         label: "Structural Clarity",
-        slug: "structural-clarity.html",
+        href: "structural-clarity.html",
         scoreField: "score",
         bandField: "band",
-        contextFields: ["focusArea", "focus_area"]
+        contextFields: ["focusArea", "focus_area", "badge"],
+        riskLabel: "Structural ambiguity"
       },
       velocity: {
         label: "Decision Velocity",
-        slug: "decision-velocity.html",
+        href: "decision-velocity.html",
         scoreField: "score",
         bandField: "band",
-        contextFields: ["processName", "process_name"]
+        contextFields: ["processName", "process_name", "badge"],
+        riskLabel: "Decision drag"
       },
       systems: {
         label: "Operational Systems",
-        slug: "bureaucratic-drag-snapshot.html",
+        href: "bureaucratic-drag-snapshot.html",
         scoreField: "score",
         bandField: "band",
-        contextFields: ["processName", "process_name"]
+        contextFields: ["processName", "process_name", "badge"],
+        riskLabel: "Administrative burden"
       },
       performance: {
         label: "Institutional Performance",
-        slug: "institutional-performance.html",
+        href: "institutional-performance.html",
         scoreField: "score",
         bandField: "band",
-        contextFields: ["unitName", "unit_name"]
+        contextFields: ["unitName", "unit_name", "badge"],
+        riskLabel: "Institutional fragility"
       }
     };
 
@@ -976,6 +985,12 @@
         .replaceAll("'", "&#39;");
     }
 
+    function normalizeScore(value) {
+      const n = Number(value);
+      if (Number.isNaN(n)) return null;
+      return Math.max(0, Math.min(100, n));
+    }
+
     function bandFromComposite(score) {
       if (score >= 82) return "Broadly coherent institutional picture";
       if (score >= 68) return "Functional but exposed cross-tool picture";
@@ -995,13 +1010,6 @@
         return `The loaded tools suggest material friction across multiple layers of the institution. This does not look like a single isolated issue. The strongest shared pattern is ${strongest}, which likely means leaders are seeing symptoms in several places that share the same structural root.`;
       }
       return `The loaded tools suggest a strained institutional picture with multiple reinforcing sources of weakness. The strongest shared pattern is ${strongest}. This kind of profile often means output is still being preserved, but increasingly through compensation, extra management lift, and informal stabilization.`;
-    }
-
-    function scoreToRisk(score) {
-      if (score >= 82) return 1;
-      if (score >= 68) return 2;
-      if (score >= 52) return 3;
-      return 4;
     }
 
     function getHighestRiskTool(loadedTools) {
@@ -1024,9 +1032,9 @@
         else if (fragility === "elevated" || fragility === "moderate") risk += 2;
       }
 
-      if (systems && Number(systems.score) < 65) risk += 2;
-      if (velocity && Number(velocity.score) < 65) risk += 2;
-      if (structural && Number(structural.score) < 65) risk += 2;
+      if (systems && normalizeScore(systems.score) < 65) risk += 2;
+      if (velocity && normalizeScore(velocity.score) < 65) risk += 2;
+      if (structural && normalizeScore(structural.score) < 65) risk += 2;
 
       if (risk >= 7) return "High";
       if (risk >= 4) return "Moderate";
@@ -1041,36 +1049,49 @@
       const systems = loaded.systems?.data;
       const performance = loaded.performance?.data;
 
-      if (structural && velocity && structural.score < 70 && velocity.score < 70) {
+      const structuralScore = structural ? normalizeScore(structural.score) : null;
+      const velocityScore = velocity ? normalizeScore(velocity.score) : null;
+      const systemsScore = systems ? normalizeScore(systems.score) : null;
+      const performanceScore = performance ? normalizeScore(performance.score) : null;
+
+      if (structuralScore != null && velocityScore != null && structuralScore < 70 && velocityScore < 70) {
         patterns.push({
           title: "Unclear structure is likely slowing decisions",
           body: "Structural Clarity and Decision Velocity both appear burdened. That usually suggests delay is not just procedural. It is likely tied to ownership blur, unclear escalation, or weak decision-right alignment."
         });
       }
 
-      if (velocity && systems && velocity.score < 70 && systems.score < 70) {
+      if (velocityScore != null && systemsScore != null && velocityScore < 70 && systemsScore < 70) {
         patterns.push({
           title: "Process burden appears to be slowing movement",
           body: "Decision Velocity and Operational Systems both appear burdened. That usually means the institution is not just making slow decisions; it is routing work through an operating system that has become heavier than the work requires."
         });
       }
 
-      if (structural && systems && structural.score < 70 && systems.score < 70) {
+      if (structuralScore != null && systemsScore != null && structuralScore < 70 && systemsScore < 70) {
         patterns.push({
           title: "Administrative load is likely landing on weak boundaries",
           body: "Structural Clarity and Operational Systems are both under strain. That often means process weight is not landing on a clean structure, which increases overlap, orphaned work, and coordination drag."
         });
       }
 
-      if (performance && performance.score < 70) {
+      if (performanceScore != null && performanceScore < 70) {
         patterns.push({
           title: "Institutional condition is beginning to depend on compensation",
           body: "Institutional Performance is showing exposure. Even if other tools are mixed, this usually means visible output may be relying more on management lift, extra effort, or informal stabilization than leaders fully see."
         });
       }
 
-      if (structural && velocity && systems && performance &&
-          structural.score < 68 && velocity.score < 68 && systems.score < 68 && performance.score < 68) {
+      if (
+        structuralScore != null &&
+        velocityScore != null &&
+        systemsScore != null &&
+        performanceScore != null &&
+        structuralScore < 68 &&
+        velocityScore < 68 &&
+        systemsScore < 68 &&
+        performanceScore < 68
+      ) {
         patterns.unshift({
           title: "The friction pattern appears systemic rather than isolated",
           body: "All four loaded tools are signaling meaningful burden. That usually means the problem is not best understood as one bad process or one difficult team. It is more likely a reinforcing institutional pattern across structure, decisions, operations, and performance condition."
@@ -1095,11 +1116,13 @@
       const performance = loaded.performance?.data;
 
       const toolScores = [
-        { key: "structural", label: "Structural Clarity", score: structural ? Number(structural.score) : null },
-        { key: "velocity", label: "Decision Velocity", score: velocity ? Number(velocity.score) : null },
-        { key: "systems", label: "Operational Systems", score: systems ? Number(systems.score) : null },
-        { key: "performance", label: "Institutional Performance", score: performance ? Number(performance.score) : null }
-      ].filter(item => item.score != null).sort((a, b) => a.score - b.score);
+        { key: "structural", label: "Structural Clarity", score: structural ? normalizeScore(structural.score) : null },
+        { key: "velocity", label: "Decision Velocity", score: velocity ? normalizeScore(velocity.score) : null },
+        { key: "systems", label: "Operational Systems", score: systems ? normalizeScore(systems.score) : null },
+        { key: "performance", label: "Institutional Performance", score: performance ? normalizeScore(performance.score) : null }
+      ]
+        .filter(item => item.score != null)
+        .sort((a, b) => a.score - b.score);
 
       if (toolScores[0]) {
         priorities.push({
@@ -1108,21 +1131,21 @@
         });
       }
 
-      if (structural && velocity && structural.score < 70 && velocity.score < 70) {
+      if (structural && velocity && normalizeScore(structural.score) < 70 && normalizeScore(velocity.score) < 70) {
         priorities.push({
           title: "Clarify ownership before trying to accelerate",
           body: "If structure is blurred, trying to speed decisions first often just accelerates confusion. Clean up ownership, escalation, and authority before pushing for more tempo."
         });
       }
 
-      if (systems && systems.score < 70) {
+      if (systems && normalizeScore(systems.score) < 70) {
         priorities.push({
           title: "Remove low-value operating weight",
           body: "Audit steps, reporting, duplicate entry, review layering, and system switching. Reducing low-value administrative burden is often the fastest way to create visible relief."
         });
       }
 
-      if (performance && performance.score < 70) {
+      if (performance && normalizeScore(performance.score) < 70) {
         priorities.push({
           title: "Reduce dependence on compensatory effort",
           body: "Where performance is being preserved by extra management lift, heroic effort, or informal workarounds, leaders should treat that as a warning signal rather than proof the system is healthy."
@@ -1144,9 +1167,17 @@
 
       ["structural", "velocity", "systems", "performance"].forEach(key => {
         const payload = loaded[key]?.data;
-        if (payload && Array.isArray(payload.flags)) {
-          payload.flags.forEach(flag => allFlags.push(flag));
-        }
+        const candidateArrays = [
+          payload?.flags,
+          payload?.primaryFlags,
+          payload?.keyFlags
+        ];
+
+        candidateArrays.forEach(arr => {
+          if (Array.isArray(arr)) {
+            arr.forEach(flag => allFlags.push(flag));
+          }
+        });
       });
 
       const seen = new Set();
@@ -1160,10 +1191,10 @@
 
     function getPrimaryConstraint(loaded) {
       const scores = {
-        structural: loaded.structural?.data ? Number(loaded.structural.data.score) : null,
-        velocity: loaded.velocity?.data ? Number(loaded.velocity.data.score) : null,
-        systems: loaded.systems?.data ? Number(loaded.systems.data.score) : null,
-        performance: loaded.performance?.data ? Number(loaded.performance.data.score) : null
+        structural: loaded.structural?.data ? normalizeScore(loaded.structural.data.score) : null,
+        velocity: loaded.velocity?.data ? normalizeScore(loaded.velocity.data.score) : null,
+        systems: loaded.systems?.data ? normalizeScore(loaded.systems.data.score) : null,
+        performance: loaded.performance?.data ? normalizeScore(loaded.performance.data.score) : null
       };
 
       const entries = Object.entries(scores).filter(([, v]) => v != null).sort((a, b) => a[1] - b[1]);
@@ -1179,10 +1210,10 @@
 
     function getInterventionOrder(loaded) {
       const scores = {
-        structural: loaded.structural?.data ? Number(loaded.structural.data.score) : null,
-        velocity: loaded.velocity?.data ? Number(loaded.velocity.data.score) : null,
-        systems: loaded.systems?.data ? Number(loaded.systems.data.score) : null,
-        performance: loaded.performance?.data ? Number(loaded.performance.data.score) : null
+        structural: loaded.structural?.data ? normalizeScore(loaded.structural.data.score) : null,
+        velocity: loaded.velocity?.data ? normalizeScore(loaded.velocity.data.score) : null,
+        systems: loaded.systems?.data ? normalizeScore(loaded.systems.data.score) : null,
+        performance: loaded.performance?.data ? normalizeScore(loaded.performance.data.score) : null
       };
 
       const entries = Object.entries(scores)
@@ -1209,8 +1240,8 @@
       Object.entries(TOOL_META).forEach(([key, meta]) => {
         const payload = loaded[key];
         const exists = !!payload;
-        const score = exists ? Number(payload.data[meta.scoreField]) : null;
-        const band = exists ? payload.data[meta.bandField] || "Saved result" : "No saved result found";
+        const score = exists ? normalizeScore(payload.data[meta.scoreField]) : null;
+        const band = exists ? (payload.data[meta.bandField] || "Saved result") : "No saved result found";
         const context = exists ? getContextValue(payload.data, meta.contextFields) : "Run the diagnostic to populate this area.";
 
         toolsGrid.insertAdjacentHTML("beforeend", `
@@ -1219,7 +1250,7 @@
               <h3 class="tool-name">${escapeHtml(meta.label)}</h3>
               <div class="tool-status ${exists ? "complete" : "missing"}">${exists ? "Loaded" : "Missing"}</div>
             </div>
-            <p class="tool-score">${exists ? escapeHtml(String(score)) : "—"}</p>
+            <p class="tool-score">${exists && score != null ? escapeHtml(String(score)) : "—"}</p>
             <p class="tool-band">${escapeHtml(band)}</p>
             <p class="tool-copy">${exists ? "Saved local result detected and included in synthesis." : "This tool is not yet contributing to the synthesis."}</p>
             <p class="tool-context">${escapeHtml(context)}</p>
@@ -1277,14 +1308,17 @@
 
     function initSynthesis() {
       const loaded = buildLoadedMap();
+
       const loadedTools = Object.entries(TOOL_META)
         .map(([key, meta]) => {
           const payload = loaded[key];
           if (!payload) return null;
+          const score = normalizeScore(payload.data.score);
+          if (score == null) return null;
           return {
             key,
             label: meta.label,
-            score: Number(payload.data.score || 0),
+            score,
             band: payload.data.band || "Saved result"
           };
         })
@@ -1325,7 +1359,7 @@
           : "The loaded picture suggests broad institutional strain rather than one isolated issue.";
 
       document.getElementById("toolsLoadedValue").textContent = `${loadedTools.length}/4`;
-      document.getElementById("highestRiskValue").textContent = getHighestRiskTool(loaded);
+      document.getElementById("highestRiskValue").textContent = getHighestRiskTool(loadedTools);
       document.getElementById("primaryConstraintValue").textContent = getPrimaryConstraint(loaded);
       document.getElementById("compensationRiskValue").textContent = getCompensationRisk(loaded);
       document.getElementById("interventionOrderValue").textContent = getInterventionOrder(loaded);
