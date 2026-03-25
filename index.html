@@ -180,8 +180,8 @@
     .header.scrolled {
       background: var(--header-solid);
       border-bottom-color: var(--header-border);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
 
     .header-inner {
@@ -273,16 +273,6 @@
       overflow: hidden;
     }
 
-    .hero-canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0.28;
-      z-index: 1;
-      pointer-events: none;
-    }
-
     .hero-image {
       position: absolute;
       inset: 0;
@@ -297,7 +287,6 @@
         transform 1.5s cubic-bezier(0.22, 1, 0.36, 1);
       will-change: transform, opacity;
       filter: none;
-      z-index: 2;
     }
 
     .hero-image.is-loaded {
@@ -322,7 +311,6 @@
           rgba(10, 14, 20, 0.03) 36%,
           rgba(10, 14, 20, 0.18) 100%
         );
-      z-index: 3;
     }
 
     .hero::after {
@@ -330,7 +318,7 @@
       position: absolute;
       inset: 0;
       pointer-events: none;
-      z-index: 4;
+      z-index: 1;
       background:
         radial-gradient(circle at 79% 18%, rgba(63, 110, 161, 0.18) 0%, rgba(63, 110, 161, 0.08) 18%, transparent 34%),
         linear-gradient(180deg, rgba(7, 10, 16, 0) 78%, rgba(7, 10, 16, 0.22) 100%);
@@ -338,7 +326,7 @@
 
     .hero-inner {
       position: relative;
-      z-index: 5;
+      z-index: 2;
       max-width: var(--max);
       min-height: 100vh;
       margin: 0 auto;
@@ -366,7 +354,7 @@
       padding-left: 1px;
       font-size: 0.41rem;
       line-height: 1;
-      letter-spacing: 0.28em;
+      letter-spacing: 0.22em;
       font-weight: 500;
       text-transform: uppercase;
       color: rgba(255, 255, 255, 0.42);
@@ -445,6 +433,33 @@
       outline: none;
     }
 
+    .btn-secondary,
+    .btn-accent {
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--accent);
+      border: 2px solid rgba(63, 110, 161, 0.96);
+    }
+
+    .btn-secondary:hover,
+    .btn-secondary:focus-visible,
+    .btn-accent:hover,
+    .btn-accent:focus-visible {
+      background: #FFFFFF;
+      color: var(--accent-dark);
+      border-color: var(--accent-dark);
+    }
+
+    @keyframes heroFadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     .section-label {
       margin-bottom: 16px;
       font-size: 0.78rem;
@@ -463,134 +478,24 @@
       margin-bottom: 14px;
     }
 
-    .approach-card {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      min-height: 356px;
-      background: rgba(255, 255, 255, 0.99);
-      border: 1px solid var(--line-dark);
-      padding: 40px 34px 52px;
-      overflow: hidden;
-      transition:
-        transform var(--transition-slow),
-        box-shadow var(--transition-slow),
-        border-color var(--transition),
-        background var(--transition);
-      transform-style: preserve-3d;
-      will-change: transform;
-    }
-
-    .approach-card::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 3px;
-      width: 0%;
-      background: var(--accent);
-      transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    .approach-card:hover {
-      transform: translateY(-6px);
-      border-color: rgba(0, 0, 0, 0.06);
-      background: #FFFFFF;
-      box-shadow:
-        0 25px 50px -12px rgba(63, 110, 161, 0.18);
-    }
-
-    .approach-card:hover::before {
-      width: 100%;
-    }
-
-    .estimate-field {
-      display: grid;
-      gap: 8px;
-    }
-
-    input[type="range"] {
-      accent-color: var(--accent);
-      height: 6px;
-      border-radius: 999px;
-      background: #E3E7EB;
-      outline: none;
-      cursor: pointer;
-    }
-
-    .slider-value {
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: var(--accent);
-      text-align: center;
-      letter-spacing: -0.02em;
-    }
-
-    .segmented-control {
-      display: flex;
-      background: #F8F9FA;
-      border-radius: 999px;
-      padding: 4px;
-      box-shadow: var(--soft-shadow);
-    }
-
-    .segmented-control button {
-      flex: 1;
-      padding: 10px 20px;
-      border-radius: 999px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      transition: all var(--transition);
-      background: transparent;
-      color: var(--muted-dark);
-      border: none;
-    }
-
-    .segmented-control button.active {
-      background: #FFFFFF;
+    .section-intro h2 {
+      margin: 0 0 14px;
+      max-width: 760px;
+      font-size: clamp(1.95rem, 2.45vw, 2.35rem);
+      line-height: 1.12;
+      font-weight: 700;
       color: var(--text-dark);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      text-wrap: balance;
     }
 
-    .progress-container {
-      margin-top: 18px;
-      height: 6px;
-      background: #E3E7EB;
-      border-radius: 9999px;
-      overflow: hidden;
+    .section-intro p {
+      margin: 0;
+      max-width: 58ch;
+      font-size: 1.04rem;
+      line-height: 1.7;
+      color: var(--muted-dark);
     }
 
-    .progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent), #2F5886);
-      width: 0%;
-      transition: width 900ms cubic-bezier(0.22, 1, 0.36, 1);
-      border-radius: 9999px;
-    }
-
-    .carousel-dots {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin-top: 28px;
-    }
-
-    .carousel-dots span {
-      display: block;
-      width: 8px;
-      height: 8px;
-      background: rgba(21, 32, 43, 0.2);
-      border-radius: 50%;
-      transition: all 300ms cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    .carousel-dots span.active {
-      background: var(--accent);
-      width: 28px;
-      border-radius: 9999px;
-    }
-
-    /* ALL REMAINING ORIGINAL CSS RULES FROM YOUR SOURCE (verbatim) */
     .bureaucracy-cost,
     .diagnostic-estimate {
       position: relative;
@@ -775,6 +680,36 @@
       margin-bottom: 28px;
     }
 
+    .estimate-field {
+      display: grid;
+      gap: 10px;
+    }
+
+    .estimate-field label {
+      font-size: 0.88rem;
+      line-height: 1.45;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .estimate-field select {
+      width: 100%;
+      min-height: 56px;
+      padding: 0 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(21, 32, 43, 0.10);
+      background: #FFFFFF;
+      color: var(--text-dark);
+      outline: none;
+      box-shadow: var(--soft-shadow);
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .estimate-field select:focus {
+      border-color: rgba(63, 110, 161, 0.4);
+      box-shadow: 0 0 0 4px rgba(63, 110, 161, 0.10);
+    }
+
     .estimate-footer {
       display: flex;
       align-items: center;
@@ -829,6 +764,96 @@
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 34px;
       margin-top: 46px;
+    }
+
+    .approach-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 356px;
+      background: rgba(255, 255, 255, 0.99);
+      border: 1px solid var(--line-dark);
+      padding: 40px 34px 52px;
+      overflow: hidden;
+      transition:
+        transform var(--transition-slow),
+        box-shadow var(--transition-slow),
+        border-color var(--transition),
+        background var(--transition);
+    }
+
+    .approach-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0%;
+      background: var(--accent);
+      transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .approach-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(0, 0, 0, 0.06);
+      background: #FFFFFF;
+      box-shadow:
+        0 8px 18px rgba(0, 0, 0, 0.04),
+        0 18px 30px rgba(0, 0, 0, 0.04);
+    }
+
+    .approach-card:hover::before {
+      width: 100%;
+    }
+
+    .approach-card:hover .card-title {
+      color: #0F1720;
+    }
+
+    .approach-card:hover .card-desc {
+      color: #4C5A67;
+    }
+
+    .approach-card:hover .approach-card-link {
+      color: var(--accent-dark);
+      transform: translateX(2px);
+    }
+
+    .card-title {
+      margin-bottom: 18px;
+      font-size: 1.42rem;
+      line-height: 1.1;
+      font-weight: 700;
+      color: var(--text-dark);
+      transition: color var(--transition);
+    }
+
+    .card-desc {
+      font-size: 1.01rem;
+      line-height: 1.72;
+      color: var(--muted-dark);
+      transition: color var(--transition);
+    }
+
+    .approach-card-link {
+      margin-top: auto;
+      align-self: flex-end;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding-top: 26px;
+      font-size: 0.90rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: var(--accent);
+      transition: color var(--transition), transform var(--transition);
+    }
+
+    .approach-card-link:hover,
+    .approach-card-link:focus-visible {
+      color: var(--accent-dark);
+      transform: translateX(2px);
+      outline: none;
     }
 
     .approach-synthesis {
@@ -1478,7 +1503,6 @@
 
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero-media-wrap" aria-hidden="true">
-      <canvas id="heroCanvas" class="hero-canvas"></canvas>
       <img
         class="hero-image"
         id="heroImage"
@@ -1630,27 +1654,36 @@
         </p>
       </div>
 
-      <div class="estimate-controls reveal reveal-delay-1" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px;">
+      <div class="estimate-controls reveal reveal-delay-1">
         <div class="estimate-field">
           <label for="estimateOrgSize">Organization size</label>
-          <input type="range" id="estimateOrgSize" min="50" max="100000" value="1000" step="50">
-          <div class="slider-value" id="sizeValue">1,000</div>
+          <select id="estimateOrgSize" aria-label="Organization size">
+            <option value="" selected>---</option>
+            <option value="50">1–50</option>
+            <option value="250">51–250</option>
+            <option value="1000">251–1,000</option>
+            <option value="5000">1,001–5,000</option>
+            <option value="25000">5,001–25,000</option>
+            <option value="100000">25,000+</option>
+          </select>
         </div>
 
         <div class="estimate-field">
-          <label>Organizational complexity</label>
-          <div class="segmented-control" id="complexityControl">
-            <button data-value="light">Light</button>
-            <button data-value="moderate" class="active">Moderate</button>
-            <button data-value="heavy">Heavy</button>
-            <button data-value="excessive">Excessive</button>
-          </div>
+          <label for="estimateComplexity">Organizational complexity</label>
+          <select id="estimateComplexity" aria-label="Organizational complexity">
+            <option value="" selected>---</option>
+            <option value="light">Light</option>
+            <option value="moderate">Moderate</option>
+            <option value="heavy">Heavy</option>
+            <option value="excessive">Excessive</option>
+          </select>
         </div>
 
         <div class="estimate-field">
           <label for="estimateSector">Sector</label>
           <select id="estimateSector" aria-label="Sector">
-            <option value="general" selected>General private sector</option>
+            <option value="" selected>---</option>
+            <option value="general">General private sector</option>
             <option value="defense-department">Defense Department</option>
             <option value="defense-production">Defense production</option>
             <option value="federal-civilian">Federal civilian government</option>
@@ -1680,7 +1713,6 @@
           <p class="estimate-card-text">
             estimated labor hours absorbed each year by coordination, compliance, review, and process burden.
           </p>
-          <div class="progress-container"><div class="progress-bar" id="timeBar"></div></div>
         </div>
 
         <div class="estimate-card reveal reveal-delay-3">
@@ -1690,7 +1722,6 @@
           <p class="estimate-card-text">
             estimated annual cost of overhead absorbed by administrative and bureaucratic systems.
           </p>
-          <div class="progress-container"><div class="progress-bar" id="moneyBar"></div></div>
         </div>
 
         <div class="estimate-card reveal reveal-delay-4">
@@ -1700,7 +1731,6 @@
           <p class="estimate-card-text">
             estimated share of productive capacity absorbed by administrative overhead rather than mission or operational output.
           </p>
-          <div class="progress-container"><div class="progress-bar" id="resourcesBar"></div></div>
         </div>
       </div>
 
@@ -1731,8 +1761,12 @@
         </div>
 
         <div class="latest-controls reveal reveal-delay-2" aria-label="Latest content controls">
-          <button class="rail-arrow" id="latestPrev" type="button">&#8592;</button>
-          <button class="rail-arrow" id="latestNext" type="button">&#8594;</button>
+          <button class="rail-arrow" id="latestPrev" type="button" aria-label="Show previous latest items">
+            &#8592;
+          </button>
+          <button class="rail-arrow" id="latestNext" type="button" aria-label="Show next latest items">
+            &#8594;
+          </button>
         </div>
       </div>
 
@@ -1851,7 +1885,6 @@
           </article>
         </div>
       </div>
-      <div class="carousel-dots" id="carouselDots"></div>
     </div>
   </section>
 
@@ -1913,62 +1946,10 @@
   </footer>
 
   <script>
-    /* HERO NETWORK + PARALLAX */
-    const canvas = document.getElementById('heroCanvas');
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      let w, h, nodes = [], mouse = { x: 0, y: 0 };
-      function resize() {
-        w = canvas.width = window.innerWidth;
-        h = canvas.height = window.innerHeight;
-      }
-      window.addEventListener('resize', resize);
-      resize();
-      for (let i = 0; i < 65; i++) {
-        nodes.push({
-          x: Math.random() * w,
-          y: Math.random() * h,
-          radius: Math.random() * 1.8 + 0.6,
-          speed: Math.random() * 0.4 + 0.1
-        });
-      }
-      function draw() {
-        ctx.clearRect(0, 0, w, h);
-        nodes.forEach(node => {
-          const dx = mouse.x - node.x;
-          const dy = mouse.y - node.y;
-          node.x += dx * 0.0008;
-          node.y += dy * 0.0008;
-          ctx.fillStyle = '#3F6EA1';
-          ctx.globalAlpha = 0.6;
-          ctx.beginPath();
-          ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
-          ctx.fill();
-          nodes.forEach(other => {
-            const dist = Math.hypot(node.x - other.x, node.y - other.y);
-            if (dist < 140 && dist > 0) {
-              ctx.globalAlpha = (140 - dist) / 140 * 0.15;
-              ctx.beginPath();
-              ctx.moveTo(node.x, node.y);
-              ctx.lineTo(other.x, other.y);
-              ctx.strokeStyle = '#3F6EA1';
-              ctx.lineWidth = 0.8;
-              ctx.stroke();
-            }
-          });
-        });
-        requestAnimationFrame(draw);
-      }
-      draw();
-      window.addEventListener('mousemove', e => {
-        mouse.x = e.clientX;
-        mouse.y = e.clientY;
-      });
-    }
-
-    /* ORIGINAL HERO REVEAL + ZOOM + HEADER SCROLL */
     const heroImage = document.getElementById("heroImage");
     const header = document.getElementById("siteHeader");
+    const heroSection = document.querySelector(".hero");
+
     let heroScale = 1.02;
     let zoomStarted = false;
 
@@ -1983,20 +1964,23 @@
     function startHeroZoom() {
       if (zoomStarted || !heroImage) return;
       zoomStarted = true;
+
       const start = performance.now();
       const duration = 22000;
+
       function tick(now) {
         const progress = Math.min((now - start) / duration, 1);
         heroScale = 1.02 + (0.02 * progress);
         updateHeroTransform();
         if (progress < 1) requestAnimationFrame(tick);
       }
+
       requestAnimationFrame(tick);
     }
 
     function updateHeroTransform() {
-      if (!heroImage || !heroImage.classList.contains("is-loaded")) return;
-      const rect = document.querySelector('.hero').getBoundingClientRect();
+      if (!heroImage || !heroSection || !heroImage.classList.contains("is-loaded")) return;
+      const rect = heroSection.getBoundingClientRect();
       const vh = window.innerHeight || 1;
       const progress = Math.max(-1, Math.min(1, rect.top / vh));
       const y = progress * -6;
@@ -2004,30 +1988,36 @@
     }
 
     if (heroImage && heroImage.complete) {
-      requestAnimationFrame(revealHero);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(revealHero);
+      });
     } else if (heroImage) {
       heroImage.addEventListener("load", revealHero, { once: true });
     }
 
     function updateHeader() {
+      if (!header) return;
       if (window.scrollY > 12) {
         header.classList.add("scrolled");
       } else {
         header.classList.remove("scrolled");
       }
     }
+
+    updateHeader();
     window.addEventListener("scroll", updateHeader, { passive: true });
     window.addEventListener("scroll", updateHeroTransform, { passive: true });
     window.addEventListener("resize", updateHeroTransform);
     window.addEventListener("load", updateHeroTransform);
 
-    /* COST COUNTERS */
     const costSection = document.getElementById("cost-section");
     const counters = document.querySelectorAll(".cost-card-number");
     let hasCounted = false;
+
     function easeOutCubic(t) {
       return 1 - Math.pow(1 - t, 3);
     }
+
     function formatCounter(type, value) {
       if (type === "percent") return `${Math.round(value)}%`;
       if (type === "currency-trillion") return `$${Math.round(value)}T`;
@@ -2038,68 +2028,177 @@
       }
       return Math.round(value).toString();
     }
+
     function animateCounter(el) {
       const type = el.dataset.countType;
       const target = Number(el.dataset.target);
       const duration = 1500;
       const start = performance.now();
+
       function step(now) {
         const progress = Math.min((now - start) / duration, 1);
         const eased = easeOutCubic(progress);
         const current = target * eased;
         el.textContent = formatCounter(type, current);
-        if (progress < 1) requestAnimationFrame(step);
-        else el.textContent = formatCounter(type, target);
+
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          el.textContent = formatCounter(type, target);
+        }
       }
+
       requestAnimationFrame(step);
     }
+
     if (costSection && counters.length) {
       const observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && !hasCounted) {
-          hasCounted = true;
-          counters.forEach(animateCounter);
-          observer.disconnect();
-        }
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !hasCounted) {
+            hasCounted = true;
+            counters.forEach((counter) => animateCounter(counter));
+            observer.disconnect();
+          }
+        });
       }, { threshold: 0.35 });
+
       observer.observe(costSection);
     }
 
-    /* REVEAL OBSERVER */
-    const revealObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-visible");
-          revealObserver.unobserve(entry.target);
+    const revealItems = document.querySelectorAll(".reveal");
+
+    if (revealItems.length) {
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      }, {
+        threshold: 0.12,
+        rootMargin: "0px 0px -8% 0px"
+      });
+
+      revealItems.forEach((item) => revealObserver.observe(item));
+    }
+
+    const latestTrack = document.getElementById("latestTrack");
+    const latestViewport = document.getElementById("latestViewport");
+    const latestPrev = document.getElementById("latestPrev");
+    const latestNext = document.getElementById("latestNext");
+    const latestCards = latestTrack ? Array.from(latestTrack.querySelectorAll(".latest-card")) : [];
+
+    let latestIndex = 0;
+    let latestCardsPerView = window.innerWidth <= 760 ? 1 : 2;
+    let autoScrollInterval = null;
+
+    function getLatestMaxIndex() {
+      return Math.max(0, latestCards.length - latestCardsPerView);
+    }
+
+    function clampLatestIndex() {
+      latestIndex = Math.max(0, Math.min(latestIndex, getLatestMaxIndex()));
+    }
+
+    function updateLatestCarousel() {
+      if (!latestTrack || !latestCards.length) return;
+
+      latestCardsPerView = window.innerWidth <= 760 ? 1 : 2;
+      clampLatestIndex();
+
+      const targetCard = latestCards[latestIndex];
+      const targetX = targetCard ? targetCard.offsetLeft : 0;
+      latestTrack.style.transform = `translateX(-${targetX}px)`;
+
+      if (latestPrev) {
+        latestPrev.disabled = false;
+        latestPrev.style.opacity = "1";
+      }
+
+      if (latestNext) {
+        latestNext.disabled = false;
+        latestNext.style.opacity = "1";
+      }
+    }
+
+    function stopAutoScroll() {
+      if (autoScrollInterval) {
+        clearInterval(autoScrollInterval);
+        autoScrollInterval = null;
+      }
+    }
+
+    function startAutoScroll() {
+      stopAutoScroll();
+
+      if (!latestTrack || latestCards.length <= latestCardsPerView) return;
+
+      autoScrollInterval = setInterval(() => {
+        if (latestIndex >= getLatestMaxIndex()) {
+          latestIndex = 0;
+        } else {
+          latestIndex += 1;
         }
-      });
-    }, {
-      threshold: 0.12,
-      rootMargin: "0px 0px -8% 0px"
-    });
-    document.querySelectorAll(".reveal").forEach((item) => revealObserver.observe(item));
+        updateLatestCarousel();
+      }, 7200);
+    }
 
-    /* 3D APPROACH CARD TILT */
-    document.querySelectorAll('.approach-card').forEach(card => {
-      card.addEventListener('mousemove', e => {
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const rotateX = (y / rect.height - 0.5) * -18;
-        const rotateY = (x / rect.width - 0.5) * 18;
-        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    if (latestPrev) {
+      latestPrev.addEventListener("click", () => {
+        if (latestIndex <= 0) {
+          latestIndex = getLatestMaxIndex();
+        } else {
+          latestIndex -= 1;
+        }
+        updateLatestCarousel();
+        startAutoScroll();
       });
-      card.addEventListener('mouseleave', () => {
-        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+    }
+
+    if (latestNext) {
+      latestNext.addEventListener("click", () => {
+        if (latestIndex >= getLatestMaxIndex()) {
+          latestIndex = 0;
+        } else {
+          latestIndex += 1;
+        }
+        updateLatestCarousel();
+        startAutoScroll();
       });
+    }
+
+    if (latestViewport) {
+      latestViewport.addEventListener("mouseenter", stopAutoScroll);
+      latestViewport.addEventListener("mouseleave", startAutoScroll);
+      latestViewport.addEventListener("focusin", stopAutoScroll);
+      latestViewport.addEventListener("focusout", startAutoScroll);
+    }
+
+    window.addEventListener("resize", () => {
+      updateLatestCarousel();
+      startAutoScroll();
     });
 
-    /* PREMIUM DIAGNOSTIC ESTIMATOR */
+    window.addEventListener("load", () => {
+      updateLatestCarousel();
+      startAutoScroll();
+    });
+
+    const estimateOrgSize = document.getElementById("estimateOrgSize");
+    const estimateComplexity = document.getElementById("estimateComplexity");
+    const estimateSector = document.getElementById("estimateSector");
+    const estimateMoney = document.getElementById("estimateMoney");
+    const estimateTime = document.getElementById("estimateTime");
+    const estimateResources = document.getElementById("estimateResources");
+
     const complexityProfiles = {
       light: { low: 0.06, high: 0.10 },
       moderate: { low: 0.10, high: 0.16 },
       heavy: { low: 0.16, high: 0.24 },
       excessive: { low: 0.24, high: 0.34 }
     };
+
     const sectorProfiles = {
       "general": { multiplier: 1.00, rate: 62 },
       "defense-department": { multiplier: 1.18, rate: 78 },
@@ -2121,141 +2220,65 @@
       "nonprofit": { multiplier: 0.92, rate: 44 }
     };
 
-    const estimateOrgSize = document.getElementById("estimateOrgSize");
-    const sizeValue = document.getElementById("sizeValue");
-    const complexityButtons = document.querySelectorAll('#complexityControl button');
-    const estimateSector = document.getElementById("estimateSector");
-    const estimateTime = document.getElementById("estimateTime");
-    const estimateMoney = document.getElementById("estimateMoney");
-    const estimateResources = document.getElementById("estimateResources");
-    const timeBar = document.getElementById("timeBar");
-    const moneyBar = document.getElementById("moneyBar");
-    const resourcesBar = document.getElementById("resourcesBar");
-    let currentComplexity = "moderate";
-
-    function abbrevMoney(v) {
-      if (v >= 1e9) return `$${(v / 1e9).toFixed(1).replace(/\.0$/, "")}B`;
-      if (v >= 1e6) return `$${(v / 1e6).toFixed(1).replace(/\.0$/, "")}M`;
-      return `$${Math.round(v / 1e3)}K`;
+    function formatHoursRange(low, high) {
+      const lowRounded = Math.round(low / 1000) * 1000;
+      const highRounded = Math.round(high / 1000) * 1000;
+      return `${abbrevNumber(lowRounded)}–${abbrevNumber(highRounded)}`;
     }
-    function abbrevNumber(v) {
-      if (v >= 1e6) return `${(v / 1e6).toFixed(1).replace(/\.0$/, "")}M hrs`;
-      if (v >= 1e3) return `${Math.round(v / 1e3)}k hrs`;
-      return `${Math.round(v)} hrs`;
+
+    function formatPercentRange(low, high) {
+      return `${Math.round(low)}–${Math.round(high)}%`;
+    }
+
+    function abbrevMoney(value) {
+      if (value >= 1e9) return `$${(value / 1e9).toFixed(1).replace(/\.0$/, "")}B`;
+      if (value >= 1e6) return `$${(value / 1e6).toFixed(1).replace(/\.0$/, "")}M`;
+      if (value >= 1e3) return `$${Math.round(value / 1e3)}K`;
+      return `$${Math.round(value)}`;
+    }
+
+    function abbrevNumber(value) {
+      if (value >= 1e6) return `${(value / 1e6).toFixed(1).replace(/\.0$/, "")}M hrs`;
+      if (value >= 1e3) return `${Math.round(value / 1e3)}k hrs`;
+      return `${Math.round(value)} hrs`;
     }
 
     function updateEstimate() {
-      const orgSize = Number(estimateOrgSize.value);
-      const sectorValue = estimateSector.value || "general";
+      const orgSizeValue = estimateOrgSize.value;
+      const complexityValue = estimateComplexity.value;
+      const sectorValue = estimateSector.value;
+
+      if (!orgSizeValue || !complexityValue || !sectorValue) {
+        estimateTime.textContent = "0";
+        estimateMoney.textContent = "$0";
+        estimateResources.textContent = "0%";
+        return;
+      }
+
+      const orgSize = Number(orgSizeValue);
+      const complexity = complexityProfiles[complexityValue];
       const sector = sectorProfiles[sectorValue] || sectorProfiles.general;
-      const complexity = complexityProfiles[currentComplexity];
+
       const annualHoursBase = orgSize * 1920;
       const lowBurden = complexity.low * sector.multiplier;
       const highBurden = complexity.high * sector.multiplier;
+
       const lowHours = annualHoursBase * lowBurden;
       const highHours = annualHoursBase * highBurden;
-      const lowMoneyVal = lowHours * sector.rate;
-      const highMoneyVal = highHours * sector.rate;
-      estimateTime.textContent = `${abbrevNumber(lowHours)}–${abbrevNumber(highHours)}`;
-      estimateMoney.textContent = `${abbrevMoney(lowMoneyVal)}–${abbrevMoney(highMoneyVal).replace("$", "")}`;
-      const avgBurdenPct = Math.round(((lowBurden + highBurden) / 2) * 100);
-      estimateResources.textContent = `${avgBurdenPct}%`;
-      const barWidth = Math.min(100, avgBurdenPct * 2.8);
-      timeBar.style.width = `${barWidth}%`;
-      moneyBar.style.width = `${barWidth}%`;
-      resourcesBar.style.width = `${barWidth}%`;
-      sizeValue.textContent = orgSize >= 1000 ? `${Math.round(orgSize / 1000)}k` : orgSize.toLocaleString();
+
+      const lowMoney = lowHours * sector.rate;
+      const highMoney = highHours * sector.rate;
+
+      estimateTime.textContent = formatHoursRange(lowHours, highHours);
+      estimateMoney.textContent = `${abbrevMoney(lowMoney)}–${abbrevMoney(highMoney).replace("$", "")}`;
+      estimateResources.textContent = formatPercentRange(lowBurden * 100, highBurden * 100);
     }
 
-    estimateOrgSize.addEventListener('input', updateEstimate);
-    complexityButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        complexityButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentComplexity = btn.dataset.value;
-        updateEstimate();
-      });
-    });
-    estimateSector.addEventListener('change', updateEstimate);
-    window.addEventListener('load', updateEstimate);
-
-    /* LATEST CAROUSEL (infinite + dots) */
-    const latestTrack = document.getElementById("latestTrack");
-    const latestViewport = document.getElementById("latestViewport");
-    const latestPrev = document.getElementById("latestPrev");
-    const latestNext = document.getElementById("latestNext");
-    const dotsContainer = document.getElementById("carouselDots");
-    let cards = Array.from(latestTrack.children);
-    let currentIndex = 0;
-    let cardsPerView = window.innerWidth <= 760 ? 1 : 2;
-
-    function createDots() {
-      dotsContainer.innerHTML = '';
-      const totalDots = Math.ceil(cards.length / cardsPerView);
-      for (let i = 0; i < totalDots; i++) {
-        const dot = document.createElement('span');
-        dot.addEventListener('click', () => {
-          currentIndex = i * cardsPerView;
-          updateCarousel();
-        });
-        dotsContainer.appendChild(dot);
-      }
-    }
-
-    function updateCarousel() {
-      cardsPerView = window.innerWidth <= 760 ? 1 : 2;
-      const max = cards.length - cardsPerView;
-      currentIndex = Math.max(0, Math.min(currentIndex, max));
-      const targetCard = cards[currentIndex];
-      const offset = targetCard ? targetCard.offsetLeft : 0;
-      latestTrack.style.transition = 'transform 900ms cubic-bezier(0.22, 1, 0.36, 1)';
-      latestTrack.style.transform = `translateX(-${offset}px)`;
-      const dots = dotsContainer.children;
-      Array.from(dots).forEach((dot, i) => {
-        dot.classList.toggle('active', i === Math.floor(currentIndex / cardsPerView));
-      });
-    }
-
-    function makeInfinite() {
-      const firstClone = cards[0].cloneNode(true);
-      const lastClone = cards[cards.length - 1].cloneNode(true);
-      latestTrack.appendChild(firstClone);
-      latestTrack.insertBefore(lastClone, cards[0]);
-      cards = Array.from(latestTrack.children);
-    }
-
-    latestPrev.addEventListener('click', () => {
-      currentIndex = Math.max(0, currentIndex - cardsPerView);
-      updateCarousel();
-    });
-    latestNext.addEventListener('click', () => {
-      currentIndex = Math.min(cards.length - cardsPerView, currentIndex + cardsPerView);
-      updateCarousel();
+    [estimateOrgSize, estimateComplexity, estimateSector].forEach((el) => {
+      el.addEventListener("change", updateEstimate);
     });
 
-    window.addEventListener('resize', () => {
-      updateCarousel();
-      createDots();
-    });
-
-    window.addEventListener('load', () => {
-      makeInfinite();
-      createDots();
-      updateCarousel();
-      let auto = setInterval(() => {
-        currentIndex += cardsPerView;
-        if (currentIndex >= cards.length - cardsPerView) currentIndex = 0;
-        updateCarousel();
-      }, 6800);
-      latestViewport.addEventListener('mouseenter', () => clearInterval(auto));
-      latestViewport.addEventListener('mouseleave', () => {
-        auto = setInterval(() => {
-          currentIndex += cardsPerView;
-          if (currentIndex >= cards.length - cardsPerView) currentIndex = 0;
-          updateCarousel();
-        }, 6800);
-      });
-    });
+    updateEstimate();
   </script>
 </body>
 </html>
