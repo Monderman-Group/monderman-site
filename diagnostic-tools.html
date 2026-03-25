@@ -353,6 +353,21 @@
       opacity: 1;
     }
 
+    .btn-accent {
+      background: var(--accent);
+      color: #FFFFFF;
+      border-color: rgba(63, 110, 161, 0.28);
+      box-shadow: 0 8px 18px rgba(63, 110, 161, 0.18);
+    }
+
+    .btn-accent:hover,
+    .btn-accent:focus-visible {
+      background: var(--accent-dark);
+      color: #FFFFFF;
+      border-color: rgba(47, 88, 134, 0.34);
+      box-shadow: 0 10px 22px rgba(47, 88, 134, 0.20);
+    }
+
     .page {
       background: var(--bg-offwhite);
       padding: 92px 34px 92px;
@@ -392,7 +407,8 @@
     .head h2,
     .panel h3,
     .tool-launch-head h3,
-    .advisory-bridge h3 {
+    .advisory-bridge h3,
+    .synthesis-bridge h3 {
       margin: 0 0 16px;
       font-size: clamp(1.95rem, 2.45vw, 2.35rem);
       line-height: 1.12;
@@ -405,7 +421,8 @@
     .head p,
     .panel p,
     .tool-launch-head p,
-    .advisory-bridge p {
+    .advisory-bridge p,
+    .synthesis-bridge p {
       margin: 0;
       font-size: 1.02rem;
       line-height: 1.7;
@@ -595,7 +612,7 @@
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 22px;
-      margin-bottom: 38px;
+      margin-bottom: 34px;
       align-items: stretch;
     }
 
@@ -779,6 +796,40 @@
       transform: translateX(2px);
     }
 
+    .synthesis-bridge {
+      margin: 0 0 34px;
+      padding: 34px 32px 30px;
+      background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(249,250,251,1) 100%);
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      box-shadow:
+        0 1px 0 rgba(0,0,0,0.012),
+        0 10px 26px rgba(0, 0, 0, 0.03);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .synthesis-bridge-copy {
+      max-width: 62ch;
+    }
+
+    .synthesis-bridge .section-label {
+      margin-bottom: 12px;
+    }
+
+    .synthesis-bridge .section-label::before {
+      margin-bottom: 12px;
+    }
+
+    .synthesis-bridge-note {
+      margin-top: 12px;
+      font-size: 0.92rem;
+      line-height: 1.64;
+      color: var(--accent-dark);
+      font-weight: 500;
+    }
+
     .advisory-bridge {
       margin: 0 0 34px;
       padding: 34px 32px 30px;
@@ -803,24 +854,6 @@
 
     .advisory-bridge .section-label::before {
       margin-bottom: 12px;
-    }
-
-    .advisory-bridge-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 0.98rem;
-      font-weight: 600;
-      color: var(--accent);
-      transition: color var(--transition), transform var(--transition);
-      white-space: nowrap;
-    }
-
-    .advisory-bridge-link:hover,
-    .advisory-bridge-link:focus-visible {
-      color: var(--accent-dark);
-      transform: translateX(2px);
-      outline: none;
     }
 
     .footer-copy-top {
@@ -947,7 +980,8 @@
         grid-template-columns: 1fr;
       }
 
-      .advisory-bridge {
+      .advisory-bridge,
+      .synthesis-bridge {
         grid-template-columns: 1fr;
         align-items: start;
       }
@@ -1017,7 +1051,8 @@
 
       .panel,
       .tool-launch-head,
-      .advisory-bridge {
+      .advisory-bridge,
+      .synthesis-bridge {
         padding: 24px 20px 22px;
       }
 
@@ -1285,6 +1320,23 @@
         </div>
       </section>
 
+      <section class="synthesis-bridge" aria-labelledby="synthesis-bridge-title">
+        <div class="synthesis-bridge-copy">
+          <div class="section-label">Cross-Tool Synthesis</div>
+          <h3 id="synthesis-bridge-title">Combine completed diagnostics into one synthesis view.</h3>
+          <p>
+            Once you have completed two or more diagnostics, use the synthesis layer to combine saved results into a single Monderman readout. This is best used after diagnosis, not before it.
+          </p>
+          <p class="synthesis-bridge-note">
+            Best after multiple completed tools. Not a starting-point diagnostic.
+          </p>
+        </div>
+
+        <a class="btn btn-secondary" href="cross-tool-synthesis.html">
+          Open Cross-Tool Synthesis
+        </a>
+      </section>
+
       <section class="advisory-bridge" aria-labelledby="advisory-bridge-title">
         <div class="advisory-bridge-copy">
           <div class="section-label">Advisory Engagements</div>
@@ -1294,13 +1346,13 @@
           </p>
         </div>
 
-        <a class="advisory-bridge-link" href="advisory-services.html">
-          Explore Advisory Engagements &#8594;
+        <a class="btn btn-accent" href="advisory-services.html">
+          Explore Advisory Engagements
         </a>
       </section>
 
       <p class="footer-copy-top">
-        This page is built as a cleaner hub for choosing the right diagnostic and beginning structured inquiry. Open the live tools above to work through each one in its own dedicated environment.
+        This page is built as a cleaner hub for choosing the right diagnostic and beginning structured inquiry. Open the live tools above to work through each one in its own dedicated environment, then move into synthesis or deeper review as needed.
       </p>
     </div>
   </main>
@@ -1321,6 +1373,7 @@
             <a href="index.html#approach">Approach</a>
             <a href="advisory-services.html">Advisory Engagements</a>
             <a href="diagnostic-tools.html">Diagnostic Tools</a>
+            <a href="cross-tool-synthesis.html">Cross-Tool Synthesis</a>
             <a href="research.html">Research</a>
             <a href="why-monderman.html">Why Monderman</a>
           </div>
