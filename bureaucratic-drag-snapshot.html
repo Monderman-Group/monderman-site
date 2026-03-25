@@ -1045,28 +1045,6 @@
       justify-content: flex-end;
     }
 
-    .synthesis-placeholder {
-      padding: 20px 20px 18px;
-      border: 1px dashed rgba(21,32,43,0.16);
-      border-radius: 16px;
-      background: #F8F9FA;
-    }
-
-    .synthesis-placeholder h3 {
-      margin: 0 0 8px;
-      font-size: 1rem;
-      line-height: 1.2;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-
-    .synthesis-placeholder p {
-      margin: 0;
-      font-size: 0.9rem;
-      line-height: 1.58;
-      color: var(--muted-dark);
-    }
-
     .results-actions {
       display: flex;
       gap: 10px;
@@ -1104,10 +1082,6 @@
       .results-grid,
       .charts-grid,
       .executive-output {
-        grid-template-columns: 1fr;
-      }
-
-      .choice-row {
         grid-template-columns: 1fr;
       }
 
@@ -1177,7 +1151,6 @@
       .sidebar-stack,
       .results-actions,
       .bridge-panel,
-      .synthesis-placeholder,
       .empty-state {
         display: none !important;
       }
@@ -1740,7 +1713,7 @@
               <div class="executive-output-meta">
                 <div class="executive-chip" id="executiveSummaryTag">Executive summary ready</div>
                 <div class="executive-chip" id="deeperReviewTag">Deeper review available</div>
-                <div class="executive-chip">Cross-tool synthesis placeholder</div>
+                <div class="executive-chip">Saved for cross-tool synthesis</div>
               </div>
             </div>
 
@@ -1758,11 +1731,18 @@
               </div>
             </div>
 
-            <div class="synthesis-placeholder">
-              <h3>Cross-tool synthesis</h3>
-              <p>
-                This layer is reserved for a future combined readout across Structural Clarity, Decision Velocity, Operational Systems, and Institutional Performance.
-              </p>
+            <div class="bridge-panel">
+              <div>
+                <h3>Cross-tool synthesis</h3>
+                <p>
+                  This result is automatically saved for later synthesis. As you complete additional diagnostics, Monderman can combine structure, decision movement, operating burden, and institutional condition into a broader integrated readout.
+                </p>
+              </div>
+
+              <div class="bridge-actions">
+                <a class="btn btn-secondary" href="cross-tool-synthesis.html">Open Cross-Tool Synthesis</a>
+                <a class="btn btn-secondary" href="diagnostic-tools.html">Return to Diagnostic Hub</a>
+              </div>
             </div>
 
             <div class="results-actions">
@@ -2375,6 +2355,26 @@
       });
     }
 
+    function saveForSynthesis(result) {
+      localStorage.setItem("monderman_operational_systems_result", JSON.stringify({
+        tool: "operational_systems",
+        title: "Operational Systems",
+        completed_at: new Date().toISOString(),
+        score: result.score,
+        band: result.band,
+        benchmarkPosition: result.benchmarkPosition,
+        primaryFlags: result.flags,
+        recommendations: result.recommendations,
+        breakdown: result.breakdown,
+        summary: scoreSummary.textContent,
+        badge: result.processName || "",
+        contextNote: result.contextNote || "",
+        benchmarkLabel: result.benchmark?.label || "",
+        operationalDrag: result.operationalDrag || "",
+        processName: result.processName || ""
+      }));
+    }
+
     function renderResults(result) {
       resultsEmptyState.classList.add("hidden");
       resultsShell.classList.add("active");
@@ -2408,6 +2408,7 @@
       leadershipImplication.textContent = fallback.implication;
 
       renderCharts(result);
+      saveForSynthesis(result);
 
       const resultsTop = resultsShell.getBoundingClientRect().top + window.pageYOffset - 96;
       window.scrollTo({ top: resultsTop, behavior: "smooth" });
