@@ -2228,13 +2228,15 @@
     }
 
     function saveForSynthesis(result) {
-      localStorage.setItem("monderman_structural_clarity", JSON.stringify({
+      localStorage.setItem("monderman_structural_clarity_result", JSON.stringify({
         tool: "structural_clarity",
         title: "Structural Clarity",
         completed_at: new Date().toISOString(),
         score: result.score,
         band: result.band,
         benchmarkPosition: result.benchmarkPosition,
+        boundaryRisk: result.boundaryRisk,
+        focusArea: result.focusArea || "",
         primaryFlags: result.flags,
         recommendations: result.recommendations,
         breakdown: result.breakdown,
