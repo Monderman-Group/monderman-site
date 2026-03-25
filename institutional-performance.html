@@ -2517,13 +2517,14 @@
     }
 
     function saveForSynthesis(result) {
-      localStorage.setItem("monderman_institutional_performance", JSON.stringify({
+      localStorage.setItem("monderman_institutional_performance_result", JSON.stringify({
         tool: "institutional_performance",
         title: "Institutional Performance",
         completed_at: new Date().toISOString(),
         score: result.score,
         band: result.band,
         benchmarkPosition: result.benchmarkPosition,
+        fragility: result.fragility,
         primaryFlags: result.flags,
         recommendations: result.recommendations,
         breakdown: result.conditionBreakdown,
