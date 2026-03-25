@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Why Monderman</title>
+
   <link
     rel="icon"
     type="image/svg+xml"
@@ -14,38 +15,114 @@
       <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
     </svg>'
   />
+
   <style>
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff");
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff");
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff");
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+    }
+
     :root {
       --accent: #3F6EA1;
       --accent-dark: #2F5886;
-      --accent-soft: #EAF1F8;
       --bg-dark: #0F1720;
       --bg-dark-2: #111B25;
+      --bg-hero-fallback: #121922;
+      --bg-offwhite: #F6F7F8;
       --bg-white: #FFFFFF;
-      --bg-soft: #F6F7F8;
       --text-light: #F5F7FA;
+      --muted-light: rgba(245, 247, 250, 0.82);
       --text-dark: #15202B;
-      --muted-dark: #5F6B78;
-      --muted-light: rgba(245, 247, 250, 0.78);
+      --muted-dark: #556270;
+      --muted-dark-2: #7A8794;
       --line-dark: #E3E7EB;
-      --header-solid: rgba(18, 25, 34, 0.88);
+      --header-solid: rgba(14, 20, 28, 0.87);
       --header-border: rgba(255, 255, 255, 0.08);
-      --max: 1240px;
-      --transition: 220ms ease;
-      --shadow-soft: 0 10px 28px rgba(15, 23, 32, 0.06);
+      --max: 1320px;
+      --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
+      --transition-slow: 420ms cubic-bezier(0.22, 1, 0.36, 1);
+      --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
+      --card-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
+      --panel-radius: 18px;
+      --card-radius: 16px;
+      --reveal-distance: 18px;
     }
 
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 72px;
+    }
 
     body {
       margin: 0;
-      background: var(--bg-white);
+      background: var(--bg-offwhite);
       color: var(--text-dark);
       font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       text-rendering: optimizeLegibility;
+    }
+
+    html,
+    body,
+    button,
+    input,
+    textarea,
+    select,
+    option,
+    a,
+    p,
+    li,
+    dt,
+    dd,
+    span,
+    small,
+    strong,
+    em,
+    label,
+    figcaption,
+    blockquote,
+    cite,
+    div,
+    section,
+    article,
+    nav,
+    header,
+    footer,
+    main {
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    h1, h2, h3 {
+      letter-spacing: -0.048em;
+    }
+
+    p {
+      letter-spacing: -0.01em;
     }
 
     a {
@@ -53,15 +130,52 @@
       text-decoration: none;
     }
 
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(var(--reveal-distance));
+      transition:
+        opacity 820ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 820ms cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: opacity, transform;
+    }
+
+    .reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 90ms; }
+    .reveal-delay-2 { transition-delay: 180ms; }
+    .reveal-delay-3 { transition-delay: 270ms; }
+    .reveal-delay-4 { transition-delay: 360ms; }
+
     .header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      position: fixed;
+      inset: 0 0 auto 0;
+      width: 100%;
       height: 72px;
+      z-index: 100;
+      background: transparent;
+      border-bottom: 1px solid transparent;
+      transition:
+        background var(--transition),
+        border-color var(--transition),
+        backdrop-filter var(--transition),
+        -webkit-backdrop-filter var(--transition);
+    }
+
+    .header.scrolled {
       background: var(--header-solid);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--header-border);
+      border-bottom-color: var(--header-border);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
     }
 
     .header-inner {
@@ -72,17 +186,18 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 28px;
+      gap: 24px;
     }
 
     .brand {
       display: inline-flex;
       align-items: center;
-      font-size: 1.28rem;
-      font-weight: 600;
+      font-size: 1.32rem;
+      font-weight: 700;
       letter-spacing: -0.02em;
       color: #FFFFFF;
       white-space: nowrap;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
     }
 
     .brand::after {
@@ -99,14 +214,31 @@
     .nav {
       display: flex;
       align-items: center;
-      gap: 30px;
+      gap: 28px;
       flex-wrap: wrap;
+      justify-content: flex-end;
     }
 
     .nav a {
-      font-size: 0.95rem;
-      color: rgba(255,255,255,0.86);
+      position: relative;
+      font-size: 1rem;
+      font-weight: 500;
+      letter-spacing: 0.012em;
+      color: rgba(255, 255, 255, 0.88);
       transition: color var(--transition), transform var(--transition);
+    }
+
+    .nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -6px;
+      width: 100%;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.74);
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 180ms ease;
     }
 
     .nav a:hover,
@@ -116,146 +248,232 @@
       outline: none;
     }
 
+    .nav a:hover::after,
+    .nav a:focus-visible::after {
+      transform: scaleX(1);
+    }
+
     .hero {
       position: relative;
       overflow: hidden;
-      background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-dark-2) 100%);
+      min-height: 76vh;
+      background: linear-gradient(180deg, #0F1720 0%, #111B25 100%);
       color: var(--text-light);
-      padding: 86px 34px 78px;
     }
 
     .hero::before {
       content: "";
       position: absolute;
       inset: 0;
+      z-index: 0;
       pointer-events: none;
       background:
-        radial-gradient(circle at 80% 22%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.035) 16%, rgba(255,255,255,0.015) 28%, transparent 46%),
-        radial-gradient(circle at 80% 22%, rgba(63,110,161,0.12) 0%, rgba(63,110,161,0.06) 18%, transparent 50%);
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.035) 16%, rgba(255, 255, 255, 0.015) 28%, transparent 46%),
+        radial-gradient(circle at 80% 20%, rgba(63, 110, 161, 0.18) 0%, rgba(63, 110, 161, 0.08) 18%, transparent 52%),
+        linear-gradient(135deg, rgba(63, 110, 161, 0.04) 1px, transparent 1px);
+      background-size: auto, auto, 34px 34px;
       opacity: 0.95;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(
+          90deg,
+          rgba(10, 14, 20, 0.90) 0%,
+          rgba(10, 14, 20, 0.76) 24%,
+          rgba(10, 14, 20, 0.42) 50%,
+          rgba(10, 14, 20, 0.16) 74%,
+          rgba(10, 14, 20, 0.08) 100%
+        ),
+        linear-gradient(
+          180deg,
+          rgba(10, 14, 20, 0.12) 0%,
+          rgba(10, 14, 20, 0.04) 40%,
+          rgba(10, 14, 20, 0.18) 100%
+        );
     }
 
     .hero-inner {
       position: relative;
       z-index: 1;
       max-width: var(--max);
+      min-height: 76vh;
       margin: 0 auto;
+      padding: 136px 34px 88px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(280px, 0.78fr);
+      gap: 42px;
+      align-items: end;
     }
 
-    .eyebrow {
-      margin: 0 0 18px;
-      font-size: 0.72rem;
+    .hero-copy {
+      max-width: 700px;
+    }
+
+    .hero-eyebrow,
+    .hero h1,
+    .hero-dek,
+    .hero-actions,
+    .hero-proof {
+      opacity: 0;
+      transform: translateY(16px);
+      animation: heroFadeUp 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      will-change: transform, opacity;
+    }
+
+    .hero-eyebrow {
+      margin: 0 0 42px;
+      padding-left: 1px;
+      font-size: 0.41rem;
       line-height: 1;
-      letter-spacing: 0.24em;
-      font-weight: 700;
+      letter-spacing: 0.22em;
+      font-weight: 500;
       text-transform: uppercase;
-      color: rgba(245,247,250,0.68);
+      color: rgba(255, 255, 255, 0.42);
+      animation-delay: 340ms;
     }
 
     .hero h1 {
-      margin: 0 0 22px;
-      max-width: 9ch;
-      font-size: clamp(2.8rem, 5vw, 4.6rem);
+      margin: 0 0 20px;
+      max-width: 9.4ch;
+      font-size: clamp(3.15rem, 5.3vw, 5rem);
       line-height: 0.95;
-      letter-spacing: -0.05em;
-      font-weight: 600;
+      font-weight: 700;
+      color: #FFFFFF;
+      text-wrap: balance;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
+      animation-delay: 480ms;
     }
 
     .hero-dek {
-      max-width: 64ch;
+      max-width: 37ch;
       margin: 0;
-      font-size: 1.14rem;
-      line-height: 1.72;
+      font-size: clamp(1.08rem, 1.44vw, 1.2rem);
+      line-height: 1.64;
       color: var(--muted-light);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+      text-wrap: balance;
+      animation-delay: 640ms;
     }
 
     .hero-actions {
-      margin-top: 30px;
       display: flex;
+      align-items: center;
       gap: 12px;
       flex-wrap: wrap;
+      margin-top: 30px;
+      animation-delay: 820ms;
+    }
+
+    .hero-proof {
+      display: grid;
+      gap: 12px;
+      align-self: stretch;
+      animation-delay: 960ms;
+    }
+
+    .hero-proof-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--panel-radius);
+      padding: 18px 18px 16px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .hero-proof-title {
+      margin: 0 0 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245, 247, 250, 0.54);
+    }
+
+    .hero-proof-text {
+      margin: 0;
+      font-size: 0.94rem;
+      line-height: 1.58;
+      color: rgba(245, 247, 250, 0.82);
     }
 
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 48px;
-      padding: 0 20px;
+      min-height: 50px;
+      min-width: 168px;
+      padding: 0 24px;
       border-radius: 999px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      border: 1px solid transparent;
+      font-size: 0.97rem;
+      font-weight: 500;
+      letter-spacing: -0.012em;
+      white-space: nowrap;
+      background: rgba(255, 255, 255, 0.98);
+      color: var(--accent);
+      border: 1.25px solid rgba(63, 110, 161, 0.9);
+      box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.045),
+        0 0 0 1px rgba(255, 255, 255, 0.08);
       transition:
-        background var(--transition),
-        border-color var(--transition),
-        color var(--transition),
-        transform var(--transition),
-        box-shadow var(--transition);
+        background 180ms cubic-bezier(0.22, 1, 0.36, 1),
+        color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1);
+      cursor: pointer;
     }
 
     .btn:hover,
     .btn:focus-visible {
+      background: #FFFFFF;
+      color: var(--accent-dark);
+      border-color: var(--accent-dark);
       transform: translateY(-1px);
+      box-shadow:
+        0 12px 24px rgba(0, 0, 0, 0.06),
+        0 0 0 1px rgba(255, 255, 255, 0.10);
       outline: none;
     }
 
+    .btn-secondary,
     .btn-accent {
-      background: var(--accent);
-      color: #FFFFFF;
-      box-shadow: 0 8px 22px rgba(63, 110, 161, 0.22);
+      background: rgba(255, 255, 255, 0.98);
+      color: var(--accent);
+      border: 1.25px solid rgba(63, 110, 161, 0.9);
     }
 
+    .btn-secondary:hover,
+    .btn-secondary:focus-visible,
     .btn-accent:hover,
     .btn-accent:focus-visible {
-      background: var(--accent-dark);
-    }
-
-    .btn-soft-light {
-      background: rgba(255,255,255,0.10);
-      color: #FFFFFF;
-      border-color: rgba(255,255,255,0.18);
-      box-shadow: none;
-    }
-
-    .btn-soft-light:hover,
-    .btn-soft-light:focus-visible {
-      background: rgba(255,255,255,0.16);
-      border-color: rgba(255,255,255,0.24);
-    }
-
-    .btn-soft-dark {
-      background: var(--accent-soft);
+      background: #FFFFFF;
       color: var(--accent-dark);
-      border-color: rgba(63,110,161,0.12);
-      box-shadow: none;
+      border-color: var(--accent-dark);
     }
 
-    .btn-soft-dark:hover,
-    .btn-soft-dark:focus-visible {
-      background: #DFEAF5;
-      border-color: rgba(63,110,161,0.18);
-    }
-
-    .content {
-      background:
-        linear-gradient(rgba(246,247,248,0.97), rgba(246,247,248,0.97)),
-        linear-gradient(135deg, rgba(63,110,161,0.025) 1px, transparent 1px);
-      background-size: auto, 36px 36px;
-      padding: 74px 34px 96px;
-    }
-
-    .content-inner {
-      max-width: var(--max);
-      margin: 0 auto;
+    @keyframes heroFadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .section-label {
-      margin: 0 0 14px;
-      font-size: 0.74rem;
-      line-height: 1;
-      letter-spacing: 0.20em;
+      margin-bottom: 16px;
+      font-size: 0.78rem;
       font-weight: 700;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--accent);
     }
@@ -263,49 +481,151 @@
     .section-label::before {
       content: "";
       display: block;
-      width: 44px;
+      width: 48px;
       height: 2px;
-      margin-bottom: 12px;
       background: var(--accent);
+      margin-bottom: 14px;
     }
 
-    .intro {
-      max-width: 920px;
-      margin: 0 0 54px;
+    .section-intro h2 {
+      margin: 0 0 16px;
+      max-width: 760px;
+      font-size: clamp(1.95rem, 2.45vw, 2.35rem);
+      line-height: 1.12;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-wrap: balance;
     }
 
-    .intro p {
-      margin: 0 0 24px;
-      font-size: 1.1rem;
-      line-height: 1.9;
+    .section-intro p {
+      margin: 0;
+      max-width: 58ch;
+      font-size: 1.04rem;
+      line-height: 1.7;
       color: var(--muted-dark);
     }
 
-    .intro p.lead {
-      font-size: 1.18rem;
-      line-height: 1.84;
+    .section-intro p + p {
+      margin-top: 18px;
+    }
+
+    .intro-section {
+      position: relative;
+      background:
+        linear-gradient(rgba(247, 248, 249, 0.97), rgba(247, 248, 249, 0.97)),
+        linear-gradient(90deg, rgba(63, 110, 161, 0.02) 1px, transparent 1px),
+        linear-gradient(rgba(63, 110, 161, 0.02) 1px, transparent 1px);
+      background-size: auto, 28px 28px, 28px 28px;
+      border-top: 1px solid #E7EBEF;
+      padding: 98px 34px 82px;
       color: var(--text-dark);
+      overflow: hidden;
+    }
+
+    .intro-section::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 85% 20%, rgba(63, 110, 161, 0.04), transparent 34%);
+      pointer-events: none;
+    }
+
+    .intro-inner {
+      position: relative;
+      z-index: 1;
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .intro-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+      gap: 34px;
+      align-items: start;
+      margin-top: 42px;
+    }
+
+    .intro-copy p {
+      margin: 0;
+      max-width: 60ch;
+      font-size: 1.06rem;
+      line-height: 1.8;
+      color: var(--muted-dark);
+    }
+
+    .intro-copy p + p {
+      margin-top: 20px;
+    }
+
+    .signal-panel {
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid rgba(21, 32, 43, 0.06);
+      border-radius: var(--panel-radius);
+      padding: 28px 26px 24px;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .signal-panel h3 {
+      margin: 0 0 12px;
+      font-size: 1.12rem;
+      line-height: 1.16;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .signal-panel p {
+      margin: 0 0 16px;
+      font-size: 0.96rem;
+      line-height: 1.66;
+      color: var(--muted-dark);
+    }
+
+    .signal-list {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .signal-list li {
+      font-size: 0.92rem;
+      line-height: 1.58;
+      color: var(--muted-dark);
+    }
+
+    .differentiators {
+      position: relative;
+      background: var(--bg-white);
+      padding: 92px 34px 84px;
+      color: var(--text-dark);
+      overflow: hidden;
+    }
+
+    .differentiators-inner {
+      max-width: var(--max);
+      margin: 0 auto;
     }
 
     .difference-band {
       display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+      grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
       gap: 34px;
       align-items: start;
-      margin: 0 0 48px;
-      padding: 30px 30px 28px;
+      margin-top: 48px;
+      padding: 34px;
       background: #FFFFFF;
-      border: 1px solid var(--line-dark);
-      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      border-radius: var(--panel-radius);
+      box-shadow: var(--soft-shadow);
     }
 
-    .difference-band h2 {
-      margin: 0 0 12px;
-      font-size: 1.58rem;
-      line-height: 1.14;
-      letter-spacing: -0.03em;
-      font-weight: 600;
+    .difference-band h3 {
+      margin: 0 0 14px;
+      font-size: 1.5rem;
+      line-height: 1.12;
+      font-weight: 700;
       color: var(--text-dark);
+      text-wrap: balance;
     }
 
     .difference-band p {
@@ -321,330 +641,848 @@
     }
 
     .difference-point {
-      padding: 16px 16px 15px;
-      background: rgba(246,247,248,0.88);
-      border: 1px solid var(--line-dark);
+      background: #F8F9FA;
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      border-radius: var(--card-radius);
+      padding: 18px 18px 16px;
+      transition:
+        transform var(--transition-slow),
+        box-shadow var(--transition-slow),
+        border-color var(--transition);
+    }
+
+    .difference-point:hover {
+      transform: translateY(-2px);
+      border-color: rgba(63, 110, 161, 0.14);
+      box-shadow: var(--soft-shadow);
     }
 
     .difference-point strong {
       display: block;
       margin-bottom: 6px;
-      font-size: 0.95rem;
-      line-height: 1.4;
+      font-size: 0.96rem;
+      line-height: 1.35;
       color: var(--text-dark);
     }
 
     .difference-point span {
       display: block;
-      font-size: 0.92rem;
+      font-size: 0.91rem;
       line-height: 1.6;
       color: var(--muted-dark);
     }
 
-    .grid {
+    .capability-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 30px 34px;
-      margin-top: 44px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 26px;
+      margin-top: 50px;
     }
 
-    .panel {
-      background: rgba(255,255,255,0.94);
+    .capability-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 280px;
+      background: rgba(255, 255, 255, 0.99);
       border: 1px solid var(--line-dark);
-      padding: 32px 30px 30px;
-      box-shadow: 0 1px 0 rgba(0,0,0,0.01);
+      border-radius: var(--panel-radius);
+      padding: 34px 28px 30px;
+      overflow: hidden;
+      transition:
+        transform var(--transition-slow),
+        box-shadow var(--transition-slow),
+        border-color var(--transition),
+        background var(--transition);
     }
 
-    .panel h2 {
+    .capability-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0%;
+      background: var(--accent);
+      transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .capability-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(63, 110, 161, 0.12);
+      background: #FFFFFF;
+      box-shadow:
+        0 8px 18px rgba(0, 0, 0, 0.04),
+        0 18px 30px rgba(0, 0, 0, 0.04);
+    }
+
+    .capability-card:hover::before {
+      width: 100%;
+    }
+
+    .capability-title {
       margin: 0 0 14px;
-      font-size: 1.34rem;
-      line-height: 1.14;
-      letter-spacing: -0.025em;
-      font-weight: 600;
+      font-size: 1.2rem;
+      line-height: 1.12;
+      font-weight: 700;
       color: var(--text-dark);
     }
 
-    .panel p {
+    .capability-copy {
       margin: 0;
-      font-size: 1rem;
+      font-size: 0.98rem;
       line-height: 1.72;
       color: var(--muted-dark);
     }
 
-    .connect-band {
-      margin-top: 56px;
-      padding: 30px 30px 28px;
-      background: #FFFFFF;
-      border: 1px solid var(--line-dark);
-      box-shadow: var(--shadow-soft);
+    .trust-section {
+      position: relative;
+      background: var(--bg-offwhite);
+      padding: 88px 34px 84px;
+      color: var(--text-dark);
+      overflow: hidden;
+      border-top: 1px solid rgba(21, 32, 43, 0.04);
+      border-bottom: 1px solid rgba(21, 32, 43, 0.04);
+    }
+
+    .trust-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .trust-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 340px;
-      gap: 36px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 22px;
+      margin-top: 42px;
+    }
+
+    .trust-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      border-radius: var(--card-radius);
+      padding: 24px 22px 22px;
+      box-shadow: var(--soft-shadow);
+      transition:
+        transform var(--transition-slow),
+        box-shadow var(--transition-slow),
+        border-color var(--transition);
+    }
+
+    .trust-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(63, 110, 161, 0.12);
+      box-shadow:
+        0 1px 0 rgba(0, 0, 0, 0.012),
+        0 10px 24px rgba(0, 0, 0, 0.04);
+    }
+
+    .trust-card h3 {
+      margin: 0 0 10px;
+      font-size: 1.04rem;
+      line-height: 1.18;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .trust-card p {
+      margin: 0;
+      font-size: 0.94rem;
+      line-height: 1.64;
+      color: var(--muted-dark);
+    }
+
+    .cta-section {
+      position: relative;
+      background: linear-gradient(180deg, #0F1720 0%, #111B25 100%);
+      color: var(--text-light);
+      padding: 84px 34px 82px;
+      overflow: hidden;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .cta-section::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 80% 20%, rgba(63, 110, 161, 0.10), transparent 28%),
+        linear-gradient(135deg, rgba(63, 110, 161, 0.03) 1px, transparent 1px);
+      background-size: auto, 34px 34px;
+      opacity: 0.36;
+      pointer-events: none;
+    }
+
+    .cta-inner {
+      position: relative;
+      z-index: 1;
+      max-width: var(--max);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+      gap: 56px;
       align-items: start;
     }
 
-    .connect-copy h2 {
-      margin: 0 0 12px;
-      font-size: 1.52rem;
-      line-height: 1.14;
-      letter-spacing: -0.03em;
-      color: var(--text-dark);
+    .cta-copy .section-label {
+      color: rgba(245, 247, 250, 0.82);
     }
 
-    .connect-copy p {
-      margin: 0 0 20px;
+    .cta-copy .section-label::before {
+      background: var(--accent);
+    }
+
+    .cta-copy h2 {
+      margin: 0 0 18px;
+      max-width: 18ch;
+      font-size: clamp(2rem, 2.8vw, 2.6rem);
+      line-height: 1.12;
+      font-weight: 700;
+      color: #FFFFFF;
+      text-wrap: balance;
+    }
+
+    .cta-copy p {
+      margin: 0;
       max-width: 56ch;
-      font-size: 1rem;
+      font-size: 1.04rem;
       line-height: 1.72;
-      color: var(--muted-dark);
+      color: rgba(245, 247, 250, 0.74);
     }
 
-    .connect-actions {
+    .cta-actions {
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
+      margin-top: 28px;
     }
 
-    .connect-card {
-      background: #FFFFFF;
-      border: 1px solid var(--line-dark);
-      padding: 24px 22px;
+    .cta-panel {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: var(--panel-radius);
+      padding: 30px 30px 28px;
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.02),
+        0 14px 28px rgba(0, 0, 0, 0.10);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
 
-    .connect-kicker {
-      margin: 0 0 12px;
+    .cta-kicker {
+      margin: 0 0 14px;
       font-size: 0.72rem;
-      line-height: 1;
-      letter-spacing: 0.18em;
       font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.20em;
       text-transform: uppercase;
-      color: #7A8794;
+      color: rgba(245, 247, 250, 0.54);
     }
 
-    .connect-link {
+    .cta-link {
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      font-size: 1.02rem;
-      line-height: 1.4;
-      font-weight: 600;
-      color: var(--accent);
+      font-size: clamp(1.06rem, 1.6vw, 1.22rem);
+      line-height: 1.3;
+      font-weight: 500;
+      letter-spacing: -0.015em;
+      color: #FFFFFF;
+      transition: color var(--transition), transform var(--transition);
     }
 
-    .connect-link-mark {
+    .cta-link:hover,
+    .cta-link:focus-visible {
+      color: #FFFFFF;
+      transform: translateX(2px);
+      outline: none;
+    }
+
+    .cta-link-mark {
       width: 7px;
       height: 7px;
+      background: var(--accent);
+      border-radius: 1px;
+      flex: 0 0 auto;
+      transform: translateY(-1px);
+    }
+
+    .cta-note {
+      margin: 16px 0 0;
+      font-size: 0.92rem;
+      line-height: 1.64;
+      color: rgba(245, 247, 250, 0.60);
+    }
+
+    .footer {
+      background: #0D141C;
+      color: rgba(245, 247, 250, 0.88);
+      padding: 50px 34px 38px;
+    }
+
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .footer-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 40px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .footer-brand {
+      max-width: 420px;
+    }
+
+    .footer-mark {
+      display: inline-flex;
+      align-items: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      margin-bottom: 14px;
+    }
+
+    .footer-mark::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
       background: var(--accent);
       border-radius: 1px;
       display: inline-block;
       transform: translateY(-1px);
     }
 
-    .footer {
-      background: #0D141C;
-      color: rgba(245,247,250,0.88);
-      padding: 30px 34px 34px;
+    .footer-copy {
+      margin: 0;
+      max-width: 36ch;
+      font-size: 0.98rem;
+      line-height: 1.65;
+      color: rgba(245, 247, 250, 0.68);
     }
 
-    .footer-inner {
-      max-width: var(--max);
-      margin: 0 auto;
+    .footer-nav {
       display: flex;
-      justify-content: space-between;
-      gap: 20px;
+      gap: 48px;
       flex-wrap: wrap;
     }
 
-    .footer p {
+    .footer-nav-col {
+      min-width: 120px;
+    }
+
+    .footer-nav-title {
+      margin: 0 0 12px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245, 247, 250, 0.50);
+    }
+
+    .footer-nav a {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      color: rgba(245, 247, 250, 0.82);
+      transition: color var(--transition), transform var(--transition);
+    }
+
+    .footer-nav a:hover,
+    .footer-nav a:focus-visible {
+      color: #FFFFFF;
+      transform: translateX(2px);
+      outline: none;
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding-top: 18px;
+    }
+
+    .footer-meta,
+    .footer-contact {
       margin: 0;
       font-size: 0.88rem;
       line-height: 1.6;
-      color: rgba(245,247,250,0.58);
+      color: rgba(245, 247, 250, 0.58);
     }
 
-    @media (max-width: 900px) {
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .reveal,
+      .hero-eyebrow,
+      .hero h1,
+      .hero-dek,
+      .hero-actions,
+      .hero-proof {
+        animation: none;
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+
+      .btn,
+      .header,
+      .nav a,
+      .nav a::after,
+      .difference-point,
+      .capability-card,
+      .trust-card,
+      .footer-nav a,
+      .cta-link {
+        transition: none;
+      }
+    }
+
+    @media (max-width: 1180px) {
+      .hero-inner,
+      .intro-grid,
       .difference-band,
-      .grid,
-      .connect-band {
+      .cta-inner {
         grid-template-columns: 1fr;
+      }
+
+      .capability-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .trust-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 980px) {
+      .header {
+        height: auto;
+      }
+
+      .header-inner {
+        padding: 16px 24px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .nav {
+        gap: 22px;
+      }
+
+      .hero-inner {
+        padding: 120px 24px 82px;
+      }
+
+      .intro-section,
+      .differentiators,
+      .trust-section,
+      .cta-section,
+      .footer {
+        padding-left: 24px;
+        padding-right: 24px;
       }
     }
 
     @media (max-width: 760px) {
-      .header { height: auto; }
-      .header-inner {
-        padding: 16px 20px;
-        flex-direction: column;
-        align-items: flex-start;
+      .brand {
+        font-size: 1.24rem;
       }
+
       .nav {
         gap: 18px;
       }
-      .hero { padding: 70px 20px 54px; }
-      .content { padding: 54px 20px 74px; }
-      .difference-band,
-      .panel,
-      .connect-band,
-      .connect-card {
-        padding: 24px 20px 22px;
+
+      .hero-inner {
+        padding: 136px 20px 92px;
       }
-      .intro p,
-      .panel p,
-      .connect-copy p,
-      .difference-band p {
+
+      .hero-eyebrow {
+        margin-bottom: 36px;
+        font-size: 0.40rem;
+        letter-spacing: 0.18em;
+        color: rgba(255, 255, 255, 0.42);
+      }
+
+      .hero h1 {
+        max-width: 100%;
+        font-size: clamp(2.45rem, 8vw, 3.25rem);
+      }
+
+      .hero-dek {
+        max-width: 100%;
         font-size: 1rem;
-        line-height: 1.78;
+        line-height: 1.58;
       }
-      .footer { padding: 26px 20px 28px; }
+
+      .hero-actions,
+      .cta-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        max-width: 420px;
+      }
+
+      .btn {
+        width: 100%;
+        min-width: 0;
+        min-height: 52px;
+        padding: 0 20px;
+        font-size: 0.98rem;
+      }
+
+      .intro-section,
+      .differentiators,
+      .trust-section,
+      .cta-section {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .intro-section {
+        padding-top: 78px;
+        padding-bottom: 70px;
+      }
+
+      .differentiators,
+      .trust-section {
+        padding-top: 74px;
+        padding-bottom: 68px;
+      }
+
+      .cta-section {
+        padding-top: 64px;
+        padding-bottom: 60px;
+      }
+
+      .difference-band,
+      .signal-panel,
+      .capability-card,
+      .trust-card,
+      .cta-panel {
+        padding-left: 22px;
+        padding-right: 22px;
+      }
+
+      .capability-grid,
+      .trust-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .capability-card {
+        min-height: auto;
+      }
+
+      .footer {
+        padding: 34px 20px 28px;
+      }
+
+      .footer-top,
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .footer-nav {
+        gap: 28px;
+      }
     }
   </style>
 </head>
 <body>
-  <header class="header">
+  <header class="header" id="siteHeader">
     <div class="header-inner">
       <a href="index.html" class="brand">Monderman</a>
+
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
         <a href="diagnostic-tools.html">Diagnostic Tools</a>
-        <a href="index.html#thinking">Thinking</a>
+        <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
         <a href="index.html#connect">Connect</a>
       </nav>
     </div>
   </header>
 
-  <section class="hero">
+  <section class="hero" aria-labelledby="hero-title">
     <div class="hero-inner">
-      <p class="eyebrow">Why Monderman</p>
-      <h1>Why Monderman</h1>
-      <p class="hero-dek">
-        We help institutions reclaim time, money, and productive capacity by reducing administrative
-        burden, clarifying decision pathways, and designing systems that sustain performance under complexity.
-      </p>
-      <div class="hero-actions">
-        <a class="btn btn-accent" href="diagnostic-tools.html">Go to Diagnostic Hub</a>
-        <a class="btn btn-soft-light" href="index.html#connect">Connect</a>
+      <div class="hero-copy">
+        <p class="hero-eyebrow">Why Monderman</p>
+
+        <h1 id="hero-title">A sharper read on institutional drag.</h1>
+
+        <p class="hero-dek">
+          Monderman helps leaders see what many firms miss: how structure, governance, decision pathways, and operating systems quietly shape performance.
+        </p>
+
+        <div class="hero-actions">
+          <a class="btn" href="diagnostic-tools.html">Run Diagnostics</a>
+          <a class="btn btn-secondary" href="advisory-services.html">Advisory</a>
+          <a class="btn btn-secondary" href="index.html#connect">Connect</a>
+        </div>
+      </div>
+
+      <div class="hero-proof">
+        <div class="hero-proof-card">
+          <p class="hero-proof-title">What makes this different</p>
+          <p class="hero-proof-text">
+            We do not begin with generic culture language or vague transformation promises. We begin with the institutional mechanics beneath execution.
+          </p>
+        </div>
+
+        <div class="hero-proof-card">
+          <p class="hero-proof-title">What leaders get</p>
+          <p class="hero-proof-text">
+            A clearer view of where drag is forming, why it persists, and where intervention is most likely to improve performance.
+          </p>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="content">
-    <div class="content-inner">
-      <div class="intro">
-        <div class="section-label">What makes this different</div>
-        <p class="lead">
-          At Monderman, we help institutions translate complexity into clarity and execution.
-          Every organization faces friction—unnecessary approvals, layered reporting, diffuse
-          ownership, and processes that quietly outlive their purpose. These forces consume time,
-          money, and attention long before they are recognized as strategic problems.
-        </p>
+  <section class="intro-section" aria-labelledby="why-title">
+    <div class="intro-inner">
+      <div class="section-intro reveal">
+        <div class="section-label">Why leaders choose Monderman</div>
+        <h2 id="why-title">Because the real constraint is often structural, not motivational.</h2>
+      </div>
 
-        <p>
-          Our work begins by making those costs visible. We examine where authority and accountability
-          have drifted apart, where governance has become heavier than the work requires, and where
-          execution is being slowed by structural rather than personal causes. That allows leaders to
-          move beyond symptoms and address the architecture of drag itself.
-        </p>
+      <div class="intro-grid">
+        <div class="intro-copy reveal reveal-delay-1">
+          <p>
+            Many organizations are not short on effort, commitment, or intelligence. They are slowed by accumulated administrative burden, unclear decision rights, inherited controls, and operating systems that no longer match the complexity of the work.
+          </p>
 
+          <p>
+            Those conditions rarely announce themselves cleanly. They appear instead as slower execution, overextended managers, repeated coordination, fragile performance, and a growing dependence on workarounds to keep output moving.
+          </p>
+
+          <p>
+            Monderman is designed to help leaders see that underlying picture more clearly. We look past surface symptoms and focus on the institutional conditions beneath them: where authority and accountability have drifted apart, where decisions are carrying unnecessary weight, where systems are absorbing productive effort, and where performance increasingly depends on compensation rather than coherence.
+          </p>
+        </div>
+
+        <aside class="signal-panel reveal reveal-delay-2" aria-label="Typical executive signals">
+          <h3>Common signals</h3>
+          <p>Leaders often arrive here when the institution still appears functional, but the internal cost of keeping it functional is rising.</p>
+          <ul class="signal-list">
+            <li>Execution feels heavier than the work should require.</li>
+            <li>Senior attention is repeatedly pulled into coordination.</li>
+            <li>Output is preserved, but only through extra lift and intervention.</li>
+            <li>Governance exists, but it no longer produces enough clarity.</li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="differentiators" aria-labelledby="difference-title">
+    <div class="differentiators-inner">
+      <div class="section-intro reveal">
+        <div class="section-label">The Monderman difference</div>
+        <h2 id="difference-title">We do not confuse institutional design problems with people problems.</h2>
         <p>
-          The goal is not to strip away rigor. It is to build institutions that can move with greater
-          coherence, better judgment, and stronger performance. When systems are clearer, leadership
-          attention is used more effectively, productive capacity is freed for higher-value work, and
-          organizations become better able to sustain growth, innovation, and mission delivery.
+          Many firms stay at the level of behavior, communications, or change language. Monderman looks more directly at the architecture of drag: approvals, ownership boundaries, decision pathways, reporting structures, control layers, and the compensatory behaviors that keep strained systems looking healthier than they are.
         </p>
       </div>
 
-      <div class="difference-band">
+      <div class="difference-band reveal reveal-delay-1">
         <div>
-          <h2>We do not treat structural problems like culture problems or personnel problems.</h2>
+          <h3>Our value is not generic advice. It is sharper diagnosis.</h3>
           <p>
-            Many firms diagnose symptoms at the surface: slow execution, overloaded leaders, stalled initiatives,
-            weak coordination. Monderman looks beneath those symptoms to the institutional design itself — the
-            approvals, decision rights, reporting structures, handoffs, and operating burdens that are shaping
-            performance every day.
+            We help leaders distinguish between normal complexity and avoidable drag. That difference matters. Complexity cannot always be removed. Institutional burden can often be reduced, clarified, or better governed.
           </p>
         </div>
 
         <div class="difference-points">
           <div class="difference-point">
             <strong>Structural first</strong>
-            <span>We look for design flaws in the operating system, not just visible breakdowns in behavior.</span>
+            <span>We examine the mechanics beneath execution before prescribing broad organizational narratives.</span>
           </div>
           <div class="difference-point">
             <strong>Performance-oriented</strong>
-            <span>The goal is not elegance for its own sake. It is clearer execution, stronger capacity, and better institutional movement.</span>
+            <span>The goal is clearer execution, stronger capacity, and better institutional movement under real constraints.</span>
           </div>
           <div class="difference-point">
             <strong>Built for complexity</strong>
-            <span>Our work is designed for environments where bureaucracy, risk, scale, and coordination pressures are real.</span>
+            <span>Our work is meant for environments where bureaucracy, oversight, risk, and coordination pressures are not theoretical.</span>
           </div>
         </div>
       </div>
 
-      <div class="grid">
-        <div class="panel">
-          <h2>What we see</h2>
-          <p>
-            Most institutions are not failing from lack of effort. They are being slowed by inherited
-            structures that no longer match the speed, scale, or complexity of the work in front of them.
+      <div class="capability-grid">
+        <article class="capability-card reveal reveal-delay-1">
+          <h3 class="capability-title">We identify where drag is actually forming.</h3>
+          <p class="capability-copy">
+            Not just where leaders feel pain, but where structural blur, approval weight, process burden, and institutional drift are quietly producing that pain.
           </p>
-        </div>
+        </article>
 
-        <div class="panel">
-          <h2>What we do</h2>
-          <p>
-            We identify where friction is accumulating, clarify how decisions and accountability actually
-            move, and redesign governance mechanisms so they support execution rather than quietly obstruct it.
+        <article class="capability-card reveal reveal-delay-2">
+          <h3 class="capability-title">We translate symptoms into a leadership-level picture.</h3>
+          <p class="capability-copy">
+            Slow decisions, coordination overload, and uneven execution are rarely isolated phenomena. We help show the system beneath them.
           </p>
-        </div>
+        </article>
 
-        <div class="panel">
-          <h2>What it unlocks</h2>
-          <p>
-            Better structure creates measurable return: faster decisions, stronger coordination, clearer
-            ownership, and reclaimed capacity that can be redirected toward growth, innovation, and mission.
+        <article class="capability-card reveal reveal-delay-3">
+          <h3 class="capability-title">We work at the level where design meets performance.</h3>
+          <p class="capability-copy">
+            That means not only how an institution is arranged, but how it actually moves, absorbs complexity, and sustains output under pressure.
           </p>
-        </div>
+        </article>
 
-        <div class="panel">
-          <h2>Who it is for</h2>
-          <p>
-            Monderman is for leaders responsible for institutional performance—especially where complexity,
-            bureaucracy, and execution friction have begun to pull strategy away from action.
+        <article class="capability-card reveal reveal-delay-4">
+          <h3 class="capability-title">We help leaders intervene with more precision.</h3>
+          <p class="capability-copy">
+            The objective is not broad activity. It is cleaner problem definition, better intervention order, and more credible improvement where it matters.
           </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="trust-section" aria-labelledby="trust-title">
+    <div class="trust-inner">
+      <div class="section-intro reveal">
+        <div class="section-label">Why this builds trust</div>
+        <h2 id="trust-title">Because serious institutions need seriousness, not theater.</h2>
+        <p>
+          Monderman is built for leaders who need a more disciplined read on institutional performance. The posture is practical, analytic, and senior-leader friendly: clear enough to act on, but rigorous enough to trust.
+        </p>
+      </div>
+
+      <div class="trust-grid">
+        <article class="trust-card reveal reveal-delay-1">
+          <h3>Grounded in institutional reality</h3>
+          <p>
+            We assume bureaucracy, risk, and complexity are real. The question is not whether they exist, but whether they are being governed well enough to support performance.
+          </p>
+        </article>
+
+        <article class="trust-card reveal reveal-delay-2">
+          <h3>Focused on what is consequential</h3>
+          <p>
+            We are less interested in abstract transformation language than in whether leadership attention, decision pathways, and operating systems are supporting or degrading execution.
+          </p>
+        </article>
+
+        <article class="trust-card reveal reveal-delay-3">
+          <h3>Designed to clarify action</h3>
+          <p>
+            A useful readout should help leaders understand what kind of problem they are facing, why it persists, and where to begin without pretending to false precision.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section" id="next-step" aria-labelledby="cta-title">
+    <div class="cta-inner">
+      <div class="cta-copy reveal">
+        <div class="section-label">Next step</div>
+        <h2 id="cta-title">Start with a clearer diagnosis or start a serious conversation.</h2>
+        <p>
+          The diagnostic suite is the fastest way to make structural problems visible. When the issue is broader, more embedded, or more consequential, Monderman can help translate that signal into a more serious path forward.
+        </p>
+
+        <div class="cta-actions">
+          <a class="btn btn-accent" href="diagnostic-tools.html">Open Diagnostic Hub</a>
+          <a class="btn btn-secondary" href="advisory-services.html">Explore Advisory</a>
         </div>
       </div>
 
-      <div class="connect-band">
-        <div class="connect-copy">
-          <div class="section-label">Next step</div>
-          <h2>Start with a clearer diagnosis or start a serious conversation.</h2>
-          <p>
-            The diagnostic suite is the fastest way to make a structural problem visible. When the issue is broader,
-            more embedded, or more consequential, Monderman can help translate that signal into a more serious path forward.
-          </p>
-          <div class="connect-actions">
-            <a class="btn btn-accent" href="diagnostic-tools.html">Open Diagnostic Hub</a>
-            <a class="btn btn-soft-dark" href="index.html#connect">Connect</a>
-          </div>
-        </div>
-
-        <div class="connect-card">
-          <p class="connect-kicker">Primary Contact</p>
-          <a class="connect-link" href="mailto:connect@monderman.com">
-            <span class="connect-link-mark" aria-hidden="true"></span>
-            connect@monderman.com
-          </a>
-        </div>
+      <div class="cta-panel reveal reveal-delay-2">
+        <p class="cta-kicker">Primary Contact</p>
+        <a class="cta-link" href="mailto:connect@monderman.com">
+          <span class="cta-link-mark" aria-hidden="true"></span>
+          connect@monderman.com
+        </a>
+        <p class="cta-note">
+          For pilot inquiries, advisory discussions, or institutional performance conversations, reach out directly.
+        </p>
       </div>
     </div>
   </section>
 
   <footer class="footer">
     <div class="footer-inner">
-      <p>© 2026 Monderman. All rights reserved.</p>
-      <p>Built for clarity in complexity.</p>
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-mark">Monderman</div>
+          <p class="footer-copy">
+            Advisory thinking on institutional performance, decision velocity, and the design of systems that sustain clarity under complexity.
+          </p>
+        </div>
+
+        <div class="footer-nav" aria-label="Footer navigation">
+          <div class="footer-nav-col">
+            <p class="footer-nav-title">Explore</p>
+            <a href="index.html#approach">Approach</a>
+            <a href="diagnostic-tools.html">Diagnostic Tools</a>
+            <a href="research.html">Research</a>
+            <a href="why-monderman.html">Why Monderman</a>
+          </div>
+
+          <div class="footer-nav-col">
+            <p class="footer-nav-title">Connect</p>
+            <a href="mailto:connect@monderman.com">connect@monderman.com</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
+        <p class="footer-contact">Clarity for complex institutions.</p>
+      </div>
     </div>
   </footer>
+
+  <script>
+    const header = document.getElementById("siteHeader");
+
+    function updateHeader() {
+      if (!header) return;
+      if (window.scrollY > 12) {
+        header.classList.add("scrolled");
+      } else {
+        header.classList.remove("scrolled");
+      }
+    }
+
+    updateHeader();
+    window.addEventListener("scroll", updateHeader, { passive: true });
+
+    const revealItems = document.querySelectorAll(".reveal");
+
+    if (revealItems.length) {
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      }, {
+        threshold: 0.12,
+        rootMargin: "0px 0px -8% 0px"
+      });
+
+      revealItems.forEach((item) => revealObserver.observe(item));
+    }
+  </script>
 </body>
 </html>
