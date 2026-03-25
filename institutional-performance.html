@@ -62,7 +62,6 @@
       --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
       --card-shadow: 0 12px 28px rgba(0, 0, 0, 0.045);
       --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
-      --transition-slow: 360ms cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     * { box-sizing: border-box; }
@@ -164,7 +163,6 @@
       position: relative;
       border: 1px solid rgba(255,255,255,0.06);
       margin-bottom: 30px;
-      scroll-margin-top: 84px;
     }
 
     .hero::before {
@@ -265,19 +263,20 @@
       min-width: 160px;
       padding: 0 20px;
       border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.14);
       background: rgba(255,255,255,0.96);
       color: var(--text-dark);
-      font-size: 0.95rem;
+      font-size: 0.94rem;
       font-weight: 500;
-      letter-spacing: -0.012em;
+      letter-spacing: -0.01em;
       cursor: pointer;
       transition:
         transform var(--transition),
         box-shadow var(--transition),
         background var(--transition),
         border-color var(--transition),
-        opacity var(--transition);
+        opacity var(--transition),
+        color var(--transition);
     }
 
     .btn:hover,
@@ -290,24 +289,25 @@
     .btn-secondary {
       background: rgba(255,255,255,0.06);
       color: #FFFFFF;
-      border-color: rgba(255,255,255,0.18);
+      border-color: rgba(255,255,255,0.14);
     }
 
     .btn-secondary:hover,
     .btn-secondary:focus-visible {
       background: rgba(255,255,255,0.10);
+      color: #FFFFFF;
     }
 
     .btn-accent {
       background: var(--accent);
       color: #FFFFFF;
-      border-color: rgba(63,110,161,0.22);
+      border-color: rgba(63,110,161,0.18);
     }
 
     .btn-accent:hover,
     .btn-accent:focus-visible {
       background: var(--accent-dark);
-      border-color: rgba(47,88,134,0.28);
+      border-color: rgba(47,88,134,0.22);
     }
 
     .btn-inline-group {
@@ -845,7 +845,8 @@
     .results-shell {
       display: none;
       gap: 20px;
-      margin-top: 30px;
+      margin-top: 32px;
+      padding-top: 8px;
     }
 
     .results-shell.active {
@@ -1073,115 +1074,11 @@
       display: block;
     }
 
-    .executive-output {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
-      gap: 16px;
-      padding: 22px 22px 20px;
-      border: 1px solid rgba(21,32,43,0.08);
-      border-radius: 18px;
-      background: linear-gradient(180deg, #FFFFFF 0%, #F9FBFC 100%);
-      box-shadow: var(--soft-shadow);
-    }
-
-    .executive-output h3 {
-      margin: 0 0 10px;
-      font-size: 1.04rem;
-      line-height: 1.18;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-
-    .executive-output p {
-      margin: 0;
-      font-size: 0.92rem;
-      line-height: 1.62;
-      color: var(--muted-dark);
-      max-width: 58ch;
-    }
-
-    .executive-output-meta {
-      display: grid;
-      gap: 10px;
-      align-content: start;
-    }
-
-    .executive-chip {
-      display: inline-flex;
-      align-items: center;
-      min-height: 34px;
-      padding: 0 12px;
-      border-radius: 999px;
-      background: rgba(63,110,161,0.08);
-      border: 1px solid rgba(63,110,161,0.14);
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--accent-dark);
-      width: fit-content;
-    }
-
-    .bridge-panel {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 18px;
-      align-items: center;
-      padding: 22px 22px 20px;
-      border: 1px solid rgba(21,32,43,0.08);
-      border-radius: 18px;
-      background: linear-gradient(180deg, #FFFFFF 0%, #F8F9FA 100%);
-      box-shadow: var(--soft-shadow);
-    }
-
-    .bridge-panel h3 {
-      margin: 0 0 8px;
-      font-size: 1.02rem;
-      line-height: 1.2;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-
-    .bridge-panel p {
-      margin: 0;
-      font-size: 0.92rem;
-      line-height: 1.6;
-      color: var(--muted-dark);
-      max-width: 60ch;
-    }
-
-    .bridge-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .synthesis-placeholder {
-      padding: 20px 20px 18px;
-      border: 1px dashed rgba(21,32,43,0.16);
-      border-radius: 16px;
-      background: #F8F9FA;
-    }
-
-    .synthesis-placeholder h3 {
-      margin: 0 0 8px;
-      font-size: 1rem;
-      line-height: 1.2;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-
-    .synthesis-placeholder p {
-      margin: 0;
-      font-size: 0.9rem;
-      line-height: 1.58;
-      color: var(--muted-dark);
-    }
-
     .results-actions {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
-      margin-top: 6px;
+      margin-top: 2px;
     }
 
     .benchmark-footnote {
@@ -1189,6 +1086,55 @@
       font-size: 0.8rem;
       line-height: 1.5;
       color: var(--muted-dark-2);
+    }
+
+    .post-results-bridge {
+      display: grid;
+      gap: 16px;
+      margin-top: 4px;
+    }
+
+    .export-bridge,
+    .advisory-bridge,
+    .synthesis-bridge {
+      background: #FFFFFF;
+      border: 1px solid rgba(21,32,43,0.08);
+      border-radius: 18px;
+      padding: 20px 20px 18px;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .bridge-kicker {
+      margin: 0 0 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .bridge-title {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      line-height: 1.24;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .bridge-copy {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+      max-width: 62ch;
+    }
+
+    .bridge-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
     }
 
     .hidden {
@@ -1214,17 +1160,8 @@
       .results-grid,
       .charts-grid,
       .signal-grid,
-      .executive-output {
-        grid-template-columns: 1fr;
-      }
-
       .choice-row {
         grid-template-columns: 1fr;
-      }
-
-      .bridge-panel {
-        grid-template-columns: 1fr;
-        align-items: start;
       }
     }
 
@@ -1267,7 +1204,8 @@
 
       .submit-row,
       .step-actions,
-      .bridge-actions {
+      .bridge-actions,
+      .results-actions {
         align-items: flex-start;
         flex-direction: column;
       }
@@ -1287,8 +1225,7 @@
       #csvForm,
       .sidebar-stack,
       .results-actions,
-      .bridge-panel,
-      .synthesis-placeholder,
+      .post-results-bridge,
       .empty-state {
         display: none !important;
       }
@@ -1335,7 +1272,7 @@
   </header>
 
   <main class="page-shell">
-    <section class="hero" id="heroSection" aria-labelledby="ip-title">
+    <section class="hero" aria-labelledby="ip-title">
       <div class="hero-inner">
         <div>
           <p class="eyebrow">ABM MVP</p>
@@ -1361,7 +1298,7 @@
           <div class="hero-meta-card">
             <p class="hero-meta-title">What you get back</p>
             <p class="hero-meta-text">
-              An Institutional Performance Score, directional benchmark comparison, condition charts, exposure flags, an executive-style summary, and a bridge into deeper advisory review.
+              An Institutional Performance Score, directional benchmark comparison, condition charts, exposure flags, and an executive narrative interpretation.
             </p>
           </div>
         </div>
@@ -1887,46 +1824,46 @@
               </div>
             </div>
 
-            <div class="executive-output">
-              <div>
-                <h3>Executive-style output</h3>
-                <p>
-                  Export a clean summary for leadership review, use the result to frame a more forensic Monderman review, or hold it for future cross-tool synthesis once the broader suite is complete.
+            <div class="post-results-bridge">
+              <div class="export-bridge">
+                <p class="bridge-kicker">Executive Output</p>
+                <h3 class="bridge-title">Export a clean summary for institutional review or leadership discussion.</h3>
+                <p class="bridge-copy">
+                  Use the summary export to capture the current directional readout in a format suitable for executive review, internal assessment, or follow-on synthesis work.
                 </p>
+                <div class="bridge-actions">
+                  <button class="btn" id="downloadPdfBtn" type="button">Export Summary PDF</button>
+                </div>
               </div>
 
-              <div class="executive-output-meta">
-                <div class="executive-chip" id="executiveSummaryTag">Executive summary ready</div>
-                <div class="executive-chip" id="deeperReviewTag">Deeper review available</div>
-                <div class="executive-chip">Cross-tool synthesis placeholder</div>
-              </div>
-            </div>
-
-            <div class="bridge-panel">
-              <div>
-                <h3>Need a deeper review?</h3>
-                <p>
-                  If this result suggests performance is being sustained more by compensation, extra management lift, or informal stabilization than by a coherent institutional system, Monderman can use this readout as a starting point for a more detailed review of resilience, confidence, coordination, and structural performance risk.
+              <div class="advisory-bridge">
+                <p class="bridge-kicker">Deeper Review</p>
+                <h3 class="bridge-title">Need a more forensic institutional assessment?</h3>
+                <p class="bridge-copy">
+                  If the environment appears more fragile, compensatory, or management-intensive than a directional tool can resolve, Monderman’s advisory work can examine the underlying structural, operational, and governance conditions in greater depth.
                 </p>
+                <div class="bridge-actions">
+                  <a class="btn btn-accent" href="advisory-services.html">Explore Advisory Engagements</a>
+                  <a class="btn btn-secondary" href="index.html#connect">Start a Conversation</a>
+                </div>
               </div>
 
-              <div class="bridge-actions">
-                <a class="btn btn-secondary" href="advisory-services.html">Advisory Engagements</a>
-                <a class="btn btn-accent" href="index.html#connect">Start a Conversation</a>
+              <div class="synthesis-bridge">
+                <p class="bridge-kicker">Cross-Tool Synthesis</p>
+                <h3 class="bridge-title">Add this result to a broader institutional view.</h3>
+                <p class="bridge-copy">
+                  This result is automatically saved for later cross-tool synthesis. As you complete additional diagnostics, Monderman can build a more integrated picture across structure, decision pathways, operating burden, and institutional condition.
+                </p>
+                <div class="bridge-actions">
+                  <a class="btn btn-secondary" href="cross-tool-synthesis.html">Open Cross-Tool Synthesis</a>
+                  <a class="btn btn-secondary" href="diagnostic-tools.html">Return to Diagnostic Hub</a>
+                </div>
               </div>
-            </div>
-
-            <div class="synthesis-placeholder">
-              <h3>Cross-tool synthesis</h3>
-              <p>
-                This layer is reserved for a future combined readout across Structural Clarity, Decision Velocity, Operational Systems, and Institutional Performance.
-              </p>
             </div>
 
             <div class="results-actions">
               <button class="btn btn-secondary" id="editInputsBtn" type="button">Edit Inputs</button>
               <button class="btn" id="startOverBtn" type="button">Start Over</button>
-              <button class="btn" id="downloadPdfBtn" type="button">Export Summary PDF</button>
             </div>
           </section>
         </div>
@@ -2076,14 +2013,15 @@
       return true;
     }
 
-    function goToStep(step, options = {}) {
-      const { scroll = true } = options;
+    function goToStep(step, shouldScroll = false) {
       currentStep = Math.max(1, Math.min(5, step));
       updateStepUI();
 
-      if (scroll) {
-        const formTop = guidedForm.getBoundingClientRect().top + window.pageYOffset - 96;
-        window.scrollTo({ top: formTop, behavior: "smooth" });
+      if (shouldScroll) {
+        const topTarget = document.querySelector(".stepper");
+        if (topTarget) {
+          topTarget.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
       }
     }
 
@@ -2091,7 +2029,7 @@
       pill.addEventListener("click", () => {
         const targetStep = index + 1;
         if (targetStep <= currentStep || validateStep(currentStep)) {
-          goToStep(targetStep);
+          goToStep(targetStep, false);
         }
       });
     });
@@ -2099,34 +2037,31 @@
     nextButtons.forEach(btn => {
       btn.addEventListener("click", () => {
         if (validateStep(currentStep)) {
-          goToStep(currentStep + 1);
+          goToStep(currentStep + 1, false);
         }
       });
     });
 
     prevButtons.forEach(btn => {
-      btn.addEventListener("click", () => goToStep(currentStep - 1));
+      btn.addEventListener("click", () => goToStep(currentStep - 1, false));
     });
 
     modeGuidedCard.addEventListener("click", () => setMode("guided"));
     modeCsvCard.addEventListener("click", () => setMode("csv"));
-
     startGuidedBtn.addEventListener("click", () => {
       setMode("guided");
-      goToStep(1, { scroll: true });
+      goToStep(1, false);
+      guidedForm.scrollIntoView({ behavior: "smooth", block: "start" });
     });
-
     startUploadBtn.addEventListener("click", () => {
       setMode("csv");
-      const csvTop = csvForm.getBoundingClientRect().top + window.pageYOffset - 96;
-      window.scrollTo({ top: csvTop, behavior: "smooth" });
+      csvForm.scrollIntoView({ behavior: "smooth", block: "start" });
     });
-
     backToGuidedBtn.addEventListener("click", () => setMode("guided"));
 
     resetFormBtn.addEventListener("click", () => {
       resetGuidedDefaults();
-      goToStep(1, { scroll: false });
+      goToStep(1, false);
       resultsShell.classList.remove("active");
       resultsEmptyState.classList.remove("hidden");
     });
@@ -2134,22 +2069,17 @@
     editInputsBtn.addEventListener("click", () => {
       resultsShell.classList.remove("active");
       resultsEmptyState.classList.remove("hidden");
-      const formTop = guidedForm.getBoundingClientRect().top + window.pageYOffset - 96;
-      window.scrollTo({ top: formTop, behavior: "smooth" });
+      guidedForm.scrollIntoView({ behavior: "smooth", block: "start" });
     });
 
     startOverBtn.addEventListener("click", () => {
       resetGuidedDefaults();
       csvForm.reset();
-      goToStep(1, { scroll: false });
+      goToStep(1, false);
       resultsShell.classList.remove("active");
       resultsEmptyState.classList.remove("hidden");
       setMode("guided");
-      const hero = document.getElementById("heroSection");
-      if (hero) {
-        const heroTop = hero.getBoundingClientRect().top + window.pageYOffset - 84;
-        window.scrollTo({ top: heroTop, behavior: "smooth" });
-      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
     downloadTemplateLink.addEventListener("click", (e) => {
@@ -2586,6 +2516,25 @@
       });
     }
 
+    function saveForSynthesis(result) {
+      localStorage.setItem("monderman_institutional_performance", JSON.stringify({
+        tool: "institutional_performance",
+        title: "Institutional Performance",
+        completed_at: new Date().toISOString(),
+        score: result.score,
+        band: result.band,
+        benchmarkPosition: result.benchmarkPosition,
+        primaryFlags: result.flags,
+        recommendations: result.recommendations,
+        breakdown: result.conditionBreakdown,
+        exposureBreakdown: result.exposureBreakdown,
+        summary: scoreSummary.textContent,
+        badge: result.unitName || "",
+        contextNote: result.contextNote || "",
+        benchmarkLabel: result.benchmark?.label || ""
+      }));
+    }
+
     function renderResults(result) {
       resultsEmptyState.classList.add("hidden");
       resultsShell.classList.add("active");
@@ -2619,9 +2568,9 @@
       leadershipImplication.textContent = fallback.implication;
 
       renderCharts(result);
+      saveForSynthesis(result);
 
-      const resultsTop = resultsShell.getBoundingClientRect().top + window.pageYOffset - 96;
-      window.scrollTo({ top: resultsTop, behavior: "smooth" });
+      resultsShell.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     guidedForm.addEventListener("submit", async (e) => {
@@ -2635,7 +2584,7 @@
 
       for (let step = 1; step <= 5; step++) {
         if (!validateStep(step)) {
-          goToStep(step);
+          goToStep(step, false);
           return;
         }
       }
@@ -2742,7 +2691,7 @@
     initChoiceRows();
     setMode("guided");
     resetGuidedDefaults();
-    goToStep(1, { scroll: false });
+    goToStep(1, false);
   </script>
 </body>
 </html>
