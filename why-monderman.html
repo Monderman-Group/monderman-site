@@ -256,7 +256,7 @@
     .hero {
       position: relative;
       overflow: hidden;
-      min-height: 76vh;
+      min-height: 74vh;
       background: linear-gradient(180deg, #0F1720 0%, #111B25 100%);
       color: var(--text-light);
     }
@@ -270,7 +270,7 @@
       background:
         radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.035) 16%, rgba(255, 255, 255, 0.015) 28%, transparent 46%),
         radial-gradient(circle at 80% 20%, rgba(63, 110, 161, 0.18) 0%, rgba(63, 110, 161, 0.08) 18%, transparent 52%),
-        linear-gradient(135deg, rgba(63, 110, 161, 0.04) 1px, transparent 1px);
+        linear-gradient(135deg, rgba(63, 110, 161, 0.03) 1px, transparent 1px);
       background-size: auto, auto, 34px 34px;
       opacity: 0.95;
     }
@@ -282,19 +282,14 @@
       z-index: 0;
       pointer-events: none;
       background:
+        radial-gradient(circle at 79% 18%, rgba(63, 110, 161, 0.18) 0%, rgba(63, 110, 161, 0.07) 18%, transparent 34%),
         linear-gradient(
           90deg,
-          rgba(10, 14, 20, 0.90) 0%,
+          rgba(10, 14, 20, 0.92) 0%,
           rgba(10, 14, 20, 0.76) 24%,
-          rgba(10, 14, 20, 0.42) 50%,
-          rgba(10, 14, 20, 0.16) 74%,
+          rgba(10, 14, 20, 0.46) 50%,
+          rgba(10, 14, 20, 0.18) 74%,
           rgba(10, 14, 20, 0.08) 100%
-        ),
-        linear-gradient(
-          180deg,
-          rgba(10, 14, 20, 0.12) 0%,
-          rgba(10, 14, 20, 0.04) 40%,
-          rgba(10, 14, 20, 0.18) 100%
         );
     }
 
@@ -302,24 +297,22 @@
       position: relative;
       z-index: 1;
       max-width: var(--max);
-      min-height: 76vh;
+      min-height: 74vh;
       margin: 0 auto;
-      padding: 136px 34px 88px;
-      display: grid;
-      grid-template-columns: minmax(0, 1.08fr) minmax(280px, 0.78fr);
-      gap: 42px;
+      padding: 146px 34px 92px;
+      display: flex;
       align-items: end;
     }
 
     .hero-copy {
-      max-width: 700px;
+      max-width: 760px;
     }
 
     .hero-eyebrow,
     .hero h1,
     .hero-dek,
     .hero-actions,
-    .hero-proof {
+    .hero-subline {
       opacity: 0;
       transform: translateY(16px);
       animation: heroFadeUp 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
@@ -339,10 +332,10 @@
     }
 
     .hero h1 {
-      margin: 0 0 20px;
-      max-width: 9.4ch;
-      font-size: clamp(3.15rem, 5.3vw, 5rem);
-      line-height: 0.95;
+      margin: 0 0 22px;
+      max-width: 9.2ch;
+      font-size: clamp(3.25rem, 5.45vw, 5.2rem);
+      line-height: 0.94;
       font-weight: 700;
       color: #FFFFFF;
       text-wrap: balance;
@@ -351,14 +344,23 @@
     }
 
     .hero-dek {
-      max-width: 37ch;
+      max-width: 38ch;
       margin: 0;
       font-size: clamp(1.08rem, 1.44vw, 1.2rem);
-      line-height: 1.64;
+      line-height: 1.66;
       color: var(--muted-light);
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
       text-wrap: balance;
       animation-delay: 640ms;
+    }
+
+    .hero-subline {
+      margin: 18px 0 0;
+      max-width: 48ch;
+      font-size: 0.96rem;
+      line-height: 1.7;
+      color: rgba(245, 247, 250, 0.68);
+      animation-delay: 760ms;
     }
 
     .hero-actions {
@@ -367,40 +369,7 @@
       gap: 12px;
       flex-wrap: wrap;
       margin-top: 30px;
-      animation-delay: 820ms;
-    }
-
-    .hero-proof {
-      display: grid;
-      gap: 12px;
-      align-self: stretch;
-      animation-delay: 960ms;
-    }
-
-    .hero-proof-card {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: var(--panel-radius);
-      padding: 18px 18px 16px;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-
-    .hero-proof-title {
-      margin: 0 0 8px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(245, 247, 250, 0.54);
-    }
-
-    .hero-proof-text {
-      margin: 0;
-      font-size: 0.94rem;
-      line-height: 1.58;
-      color: rgba(245, 247, 250, 0.82);
+      animation-delay: 900ms;
     }
 
     .btn {
@@ -489,9 +458,9 @@
 
     .section-intro h2 {
       margin: 0 0 16px;
-      max-width: 760px;
-      font-size: clamp(1.95rem, 2.45vw, 2.35rem);
-      line-height: 1.12;
+      max-width: 820px;
+      font-size: clamp(1.95rem, 2.45vw, 2.45rem);
+      line-height: 1.1;
       font-weight: 700;
       color: var(--text-dark);
       text-wrap: balance;
@@ -499,7 +468,7 @@
 
     .section-intro p {
       margin: 0;
-      max-width: 58ch;
+      max-width: 60ch;
       font-size: 1.04rem;
       line-height: 1.7;
       color: var(--muted-dark);
@@ -517,7 +486,7 @@
         linear-gradient(rgba(63, 110, 161, 0.02) 1px, transparent 1px);
       background-size: auto, 28px 28px, 28px 28px;
       border-top: 1px solid #E7EBEF;
-      padding: 98px 34px 82px;
+      padding: 96px 34px 84px;
       color: var(--text-dark);
       overflow: hidden;
     }
@@ -539,17 +508,17 @@
 
     .intro-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
-      gap: 34px;
+      grid-template-columns: minmax(0, 1.18fr) minmax(300px, 0.82fr);
+      gap: 36px;
       align-items: start;
       margin-top: 42px;
     }
 
     .intro-copy p {
       margin: 0;
-      max-width: 60ch;
+      max-width: 62ch;
       font-size: 1.06rem;
-      line-height: 1.8;
+      line-height: 1.82;
       color: var(--muted-dark);
     }
 
@@ -593,101 +562,161 @@
       color: var(--muted-dark);
     }
 
-    .differentiators {
+    .value-section {
       position: relative;
       background: var(--bg-white);
-      padding: 92px 34px 84px;
+      padding: 86px 34px 72px;
       color: var(--text-dark);
       overflow: hidden;
     }
 
-    .differentiators-inner {
+    .value-inner {
       max-width: var(--max);
       margin: 0 auto;
     }
 
-    .difference-band {
+    .value-band {
       display: grid;
       grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
-      gap: 34px;
+      gap: 30px;
       align-items: start;
-      margin-top: 48px;
-      padding: 34px;
+      margin-top: 40px;
+      padding: 30px 32px;
       background: #FFFFFF;
       border: 1px solid rgba(21, 32, 43, 0.08);
       border-radius: var(--panel-radius);
       box-shadow: var(--soft-shadow);
     }
 
-    .difference-band h3 {
+    .value-main h3 {
       margin: 0 0 14px;
-      font-size: 1.5rem;
-      line-height: 1.12;
+      font-size: 1.58rem;
+      line-height: 1.08;
       font-weight: 700;
       color: var(--text-dark);
       text-wrap: balance;
     }
 
-    .difference-band p {
+    .value-main p {
       margin: 0;
+      max-width: 58ch;
       font-size: 1rem;
       line-height: 1.72;
       color: var(--muted-dark);
     }
 
-    .difference-points {
+    .value-stack {
       display: grid;
-      gap: 14px;
+      gap: 12px;
     }
 
-    .difference-point {
+    .value-point {
+      padding: 16px 16px 15px;
       background: #F8F9FA;
       border: 1px solid rgba(21, 32, 43, 0.08);
+      border-radius: 14px;
+    }
+
+    .value-point strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 0.95rem;
+      line-height: 1.35;
+      color: var(--text-dark);
+    }
+
+    .value-point span {
+      display: block;
+      font-size: 0.9rem;
+      line-height: 1.58;
+      color: var(--muted-dark);
+    }
+
+    .read-section {
+      position: relative;
+      background: var(--bg-white);
+      padding: 0 34px 88px;
+      color: var(--text-dark);
+    }
+
+    .read-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .read-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 22px;
+      margin-top: 34px;
+    }
+
+    .read-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(21, 32, 43, 0.08);
       border-radius: var(--card-radius);
-      padding: 18px 18px 16px;
+      padding: 24px 22px 22px;
+      box-shadow: var(--soft-shadow);
       transition:
         transform var(--transition-slow),
         box-shadow var(--transition-slow),
         border-color var(--transition);
     }
 
-    .difference-point:hover {
-      transform: translateY(-2px);
-      border-color: rgba(63, 110, 161, 0.14);
-      box-shadow: var(--soft-shadow);
+    .read-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(63, 110, 161, 0.12);
+      box-shadow:
+        0 1px 0 rgba(0, 0, 0, 0.012),
+        0 10px 24px rgba(0, 0, 0, 0.04);
     }
 
-    .difference-point strong {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 0.96rem;
-      line-height: 1.35;
+    .read-card h3 {
+      margin: 0 0 10px;
+      font-size: 1.04rem;
+      line-height: 1.18;
+      font-weight: 700;
       color: var(--text-dark);
     }
 
-    .difference-point span {
-      display: block;
-      font-size: 0.91rem;
-      line-height: 1.6;
+    .read-card p {
+      margin: 0;
+      font-size: 0.94rem;
+      line-height: 1.64;
       color: var(--muted-dark);
+    }
+
+    .capability-section {
+      position: relative;
+      background: var(--bg-offwhite);
+      padding: 88px 34px 84px;
+      color: var(--text-dark);
+      overflow: hidden;
+      border-top: 1px solid rgba(21, 32, 43, 0.04);
+      border-bottom: 1px solid rgba(21, 32, 43, 0.04);
+    }
+
+    .capability-inner {
+      max-width: var(--max);
+      margin: 0 auto;
     }
 
     .capability-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 26px;
-      margin-top: 50px;
+      gap: 22px;
+      margin-top: 42px;
     }
 
     .capability-card {
       position: relative;
       display: flex;
       flex-direction: column;
-      min-height: 280px;
+      min-height: 250px;
       background: rgba(255, 255, 255, 0.99);
       border: 1px solid var(--line-dark);
       border-radius: var(--panel-radius);
-      padding: 34px 28px 30px;
+      padding: 30px 24px 26px;
       overflow: hidden;
       transition:
         transform var(--transition-slow),
@@ -722,73 +751,16 @@
 
     .capability-title {
       margin: 0 0 14px;
-      font-size: 1.2rem;
-      line-height: 1.12;
+      font-size: 1.14rem;
+      line-height: 1.14;
       font-weight: 700;
       color: var(--text-dark);
     }
 
     .capability-copy {
       margin: 0;
-      font-size: 0.98rem;
-      line-height: 1.72;
-      color: var(--muted-dark);
-    }
-
-    .trust-section {
-      position: relative;
-      background: var(--bg-offwhite);
-      padding: 88px 34px 84px;
-      color: var(--text-dark);
-      overflow: hidden;
-      border-top: 1px solid rgba(21, 32, 43, 0.04);
-      border-bottom: 1px solid rgba(21, 32, 43, 0.04);
-    }
-
-    .trust-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-    }
-
-    .trust-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 22px;
-      margin-top: 42px;
-    }
-
-    .trust-card {
-      background: #FFFFFF;
-      border: 1px solid rgba(21, 32, 43, 0.08);
-      border-radius: var(--card-radius);
-      padding: 24px 22px 22px;
-      box-shadow: var(--soft-shadow);
-      transition:
-        transform var(--transition-slow),
-        box-shadow var(--transition-slow),
-        border-color var(--transition);
-    }
-
-    .trust-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(63, 110, 161, 0.12);
-      box-shadow:
-        0 1px 0 rgba(0, 0, 0, 0.012),
-        0 10px 24px rgba(0, 0, 0, 0.04);
-    }
-
-    .trust-card h3 {
-      margin: 0 0 10px;
-      font-size: 1.04rem;
-      line-height: 1.18;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-
-    .trust-card p {
-      margin: 0;
-      font-size: 0.94rem;
-      line-height: 1.64;
+      font-size: 0.96rem;
+      line-height: 1.7;
       color: var(--muted-dark);
     }
 
@@ -1030,7 +1002,7 @@
       .hero h1,
       .hero-dek,
       .hero-actions,
-      .hero-proof {
+      .hero-subline {
         animation: none;
         opacity: 1;
         transform: none;
@@ -1041,9 +1013,8 @@
       .header,
       .nav a,
       .nav a::after,
-      .difference-point,
+      .read-card,
       .capability-card,
-      .trust-card,
       .footer-nav a,
       .cta-link {
         transition: none;
@@ -1051,19 +1022,18 @@
     }
 
     @media (max-width: 1180px) {
-      .hero-inner,
       .intro-grid,
-      .difference-band,
+      .value-band,
       .cta-inner {
         grid-template-columns: 1fr;
       }
 
-      .capability-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+      .read-grid {
+        grid-template-columns: 1fr 1fr;
       }
 
-      .trust-grid {
-        grid-template-columns: 1fr 1fr;
+      .capability-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
@@ -1084,12 +1054,13 @@
       }
 
       .hero-inner {
-        padding: 120px 24px 82px;
+        padding: 124px 24px 84px;
       }
 
       .intro-section,
-      .differentiators,
-      .trust-section,
+      .value-section,
+      .read-section,
+      .capability-section,
       .cta-section,
       .footer {
         padding-left: 24px;
@@ -1122,7 +1093,8 @@
         font-size: clamp(2.45rem, 8vw, 3.25rem);
       }
 
-      .hero-dek {
+      .hero-dek,
+      .hero-subline {
         max-width: 100%;
         font-size: 1rem;
         line-height: 1.58;
@@ -1145,8 +1117,9 @@
       }
 
       .intro-section,
-      .differentiators,
-      .trust-section,
+      .value-section,
+      .read-section,
+      .capability-section,
       .cta-section {
         padding-left: 20px;
         padding-right: 20px;
@@ -1157,9 +1130,13 @@
         padding-bottom: 70px;
       }
 
-      .differentiators,
-      .trust-section {
+      .value-section,
+      .capability-section {
         padding-top: 74px;
+        padding-bottom: 68px;
+      }
+
+      .read-section {
         padding-bottom: 68px;
       }
 
@@ -1168,17 +1145,17 @@
         padding-bottom: 60px;
       }
 
-      .difference-band,
       .signal-panel,
+      .value-band,
+      .read-card,
       .capability-card,
-      .trust-card,
       .cta-panel {
         padding-left: 22px;
         padding-right: 22px;
       }
 
-      .capability-grid,
-      .trust-grid {
+      .read-grid,
+      .capability-grid {
         grid-template-columns: 1fr;
       }
 
@@ -1228,26 +1205,13 @@
           Monderman helps leaders see what many firms miss: how structure, governance, decision pathways, and operating systems quietly shape performance.
         </p>
 
+        <p class="hero-subline">
+          Not generic change language. Not surface-level advice. A clearer view of the institutional mechanics beneath execution.
+        </p>
+
         <div class="hero-actions">
           <a class="btn" href="diagnostic-tools.html">Run Diagnostics</a>
-          <a class="btn btn-secondary" href="advisory-services.html">Advisory</a>
-          <a class="btn btn-secondary" href="index.html#connect">Connect</a>
-        </div>
-      </div>
-
-      <div class="hero-proof">
-        <div class="hero-proof-card">
-          <p class="hero-proof-title">What makes this different</p>
-          <p class="hero-proof-text">
-            We do not begin with generic culture language or vague transformation promises. We begin with the institutional mechanics beneath execution.
-          </p>
-        </div>
-
-        <div class="hero-proof-card">
-          <p class="hero-proof-title">What leaders get</p>
-          <p class="hero-proof-text">
-            A clearer view of where drag is forming, why it persists, and where intervention is most likely to improve performance.
-          </p>
+          <a class="btn btn-secondary" href="advisory-services.html">Explore Advisory</a>
         </div>
       </div>
     </div>
@@ -1289,65 +1253,70 @@
     </div>
   </section>
 
-  <section class="differentiators" aria-labelledby="difference-title">
-    <div class="differentiators-inner">
+  <section class="value-section" aria-labelledby="value-title">
+    <div class="value-inner">
       <div class="section-intro reveal">
         <div class="section-label">The Monderman difference</div>
-        <h2 id="difference-title">We do not confuse institutional design problems with people problems.</h2>
+        <h2 id="value-title">Our value is not generic advice. It is sharper diagnosis.</h2>
         <p>
-          Many firms stay at the level of behavior, communications, or change language. Monderman looks more directly at the architecture of drag: approvals, ownership boundaries, decision pathways, reporting structures, control layers, and the compensatory behaviors that keep strained systems looking healthier than they are.
+          Many firms stay at the level of behavior, communications, or abstract transformation language. Monderman looks more directly at the architecture of drag: approvals, ownership boundaries, decision pathways, reporting structures, control layers, and the compensatory behaviors that keep strained systems looking healthier than they are.
         </p>
       </div>
 
-      <div class="difference-band reveal reveal-delay-1">
-        <div>
-          <h3>Our value is not generic advice. It is sharper diagnosis.</h3>
+      <div class="value-band reveal reveal-delay-1">
+        <div class="value-main">
+          <h3>We help leaders distinguish between normal complexity and avoidable drag.</h3>
           <p>
-            We help leaders distinguish between normal complexity and avoidable drag. That difference matters. Complexity cannot always be removed. Institutional burden can often be reduced, clarified, or better governed.
+            That difference matters. Complexity cannot always be removed. Institutional burden can often be reduced, clarified, or better governed. The work is to identify where the problem is actually structural, where it is compounding, and where intervention is most likely to improve performance.
           </p>
         </div>
 
-        <div class="difference-points">
-          <div class="difference-point">
+        <div class="value-stack">
+          <div class="value-point">
             <strong>Structural first</strong>
             <span>We examine the mechanics beneath execution before prescribing broad organizational narratives.</span>
           </div>
-          <div class="difference-point">
+          <div class="value-point">
             <strong>Performance-oriented</strong>
             <span>The goal is clearer execution, stronger capacity, and better institutional movement under real constraints.</span>
           </div>
-          <div class="difference-point">
+          <div class="value-point">
             <strong>Built for complexity</strong>
-            <span>Our work is meant for environments where bureaucracy, oversight, risk, and coordination pressures are not theoretical.</span>
+            <span>Our work is meant for environments where bureaucracy, oversight, risk, and coordination pressures are real.</span>
           </div>
         </div>
       </div>
+    </div>
+  </section>
 
-      <div class="capability-grid">
-        <article class="capability-card reveal reveal-delay-1">
-          <h3 class="capability-title">We identify where drag is actually forming.</h3>
-          <p class="capability-copy">
+  <section class="read-section" aria-labelledby="read-title">
+    <div class="read-inner">
+      <div class="section-intro reveal">
+        <div class="section-label">How Monderman reads the problem</div>
+        <h2 id="read-title">A leadership-level view of what is actually happening beneath the surface.</h2>
+        <p>
+          Slow decisions, coordination overload, uneven execution, and management fatigue are rarely isolated phenomena. They are often visible expressions of a deeper structural condition.
+        </p>
+      </div>
+
+      <div class="read-grid">
+        <article class="read-card reveal reveal-delay-1">
+          <h3>Where drag is forming</h3>
+          <p>
             Not just where leaders feel pain, but where structural blur, approval weight, process burden, and institutional drift are quietly producing that pain.
           </p>
         </article>
 
-        <article class="capability-card reveal reveal-delay-2">
-          <h3 class="capability-title">We translate symptoms into a leadership-level picture.</h3>
-          <p class="capability-copy">
-            Slow decisions, coordination overload, and uneven execution are rarely isolated phenomena. We help show the system beneath them.
+        <article class="read-card reveal reveal-delay-2">
+          <h3>Why it persists</h3>
+          <p>
+            Because many burdens become normalized over time, especially when people compensate hard enough to preserve output and mask system weakness.
           </p>
         </article>
 
-        <article class="capability-card reveal reveal-delay-3">
-          <h3 class="capability-title">We work at the level where design meets performance.</h3>
-          <p class="capability-copy">
-            That means not only how an institution is arranged, but how it actually moves, absorbs complexity, and sustains output under pressure.
-          </p>
-        </article>
-
-        <article class="capability-card reveal reveal-delay-4">
-          <h3 class="capability-title">We help leaders intervene with more precision.</h3>
-          <p class="capability-copy">
+        <article class="read-card reveal reveal-delay-3">
+          <h3>Where to intervene</h3>
+          <p>
             The objective is not broad activity. It is cleaner problem definition, better intervention order, and more credible improvement where it matters.
           </p>
         </article>
@@ -1355,35 +1324,42 @@
     </div>
   </section>
 
-  <section class="trust-section" aria-labelledby="trust-title">
-    <div class="trust-inner">
+  <section class="capability-section" aria-labelledby="capability-title">
+    <div class="capability-inner">
       <div class="section-intro reveal">
-        <div class="section-label">Why this builds trust</div>
-        <h2 id="trust-title">Because serious institutions need seriousness, not theater.</h2>
+        <div class="section-label">What this allows</div>
+        <h2 id="capability-title">Serious institutions need seriousness, not theater.</h2>
         <p>
-          Monderman is built for leaders who need a more disciplined read on institutional performance. The posture is practical, analytic, and senior-leader friendly: clear enough to act on, but rigorous enough to trust.
+          Monderman is built for leaders who need a more disciplined read on institutional performance: clear enough to act on, rigorous enough to trust, and grounded in the realities of complexity, bureaucracy, and execution pressure.
         </p>
       </div>
 
-      <div class="trust-grid">
-        <article class="trust-card reveal reveal-delay-1">
-          <h3>Grounded in institutional reality</h3>
-          <p>
+      <div class="capability-grid">
+        <article class="capability-card reveal reveal-delay-1">
+          <h3 class="capability-title">Grounded in institutional reality</h3>
+          <p class="capability-copy">
             We assume bureaucracy, risk, and complexity are real. The question is not whether they exist, but whether they are being governed well enough to support performance.
           </p>
         </article>
 
-        <article class="trust-card reveal reveal-delay-2">
-          <h3>Focused on what is consequential</h3>
-          <p>
+        <article class="capability-card reveal reveal-delay-2">
+          <h3 class="capability-title">Focused on what is consequential</h3>
+          <p class="capability-copy">
             We are less interested in abstract transformation language than in whether leadership attention, decision pathways, and operating systems are supporting or degrading execution.
           </p>
         </article>
 
-        <article class="trust-card reveal reveal-delay-3">
-          <h3>Designed to clarify action</h3>
-          <p>
+        <article class="capability-card reveal reveal-delay-3">
+          <h3 class="capability-title">Designed to clarify action</h3>
+          <p class="capability-copy">
             A useful readout should help leaders understand what kind of problem they are facing, why it persists, and where to begin without pretending to false precision.
+          </p>
+        </article>
+
+        <article class="capability-card reveal reveal-delay-4">
+          <h3 class="capability-title">Built for senior use</h3>
+          <p class="capability-copy">
+            The posture is analytic, direct, and usable at leadership level: not softer language around symptoms, but clearer language about structural conditions.
           </p>
         </article>
       </div>
