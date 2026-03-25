@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cross-Tool Synthesis | Monderman</title>
+  <title>Diagnostic Tools | Monderman</title>
 
   <link
     rel="icon"
@@ -52,6 +52,7 @@
       --bg-white: #FFFFFF;
       --text-light: #F5F7FA;
       --muted-light: rgba(245, 247, 250, 0.82);
+      --muted-light-2: rgba(245, 247, 250, 0.58);
       --text-dark: #15202B;
       --muted-dark: #556270;
       --muted-dark-2: #7A8794;
@@ -60,12 +61,17 @@
       --header-border: rgba(255, 255, 255, 0.08);
       --max: 1320px;
       --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
-      --transition-slow: 360ms cubic-bezier(0.22, 1, 0.36, 1);
+      --transition-slow: 420ms cubic-bezier(0.22, 1, 0.36, 1);
       --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
       --card-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
+      --panel-radius: 18px;
+      --card-radius: 16px;
+      --rail-gap: 18px;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     html {
       scroll-behavior: smooth;
@@ -83,12 +89,47 @@
       text-rendering: optimizeLegibility;
     }
 
-    html, body, button, input, textarea, select, option, a, p, li, dt, dd, span, small, strong, em, label, figcaption, blockquote, cite, div, section, article, nav, header, footer, main, h1, h2, h3, h4 {
+    html,
+    body,
+    button,
+    input,
+    textarea,
+    select,
+    option,
+    a,
+    p,
+    li,
+    dt,
+    dd,
+    span,
+    small,
+    strong,
+    em,
+    label,
+    figcaption,
+    blockquote,
+    cite,
+    div,
+    section,
+    article,
+    nav,
+    header,
+    footer,
+    main,
+    h1,
+    h2,
+    h3,
+    h4 {
       font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
     }
 
-    h1, h2, h3 { letter-spacing: -0.048em; }
-    p { letter-spacing: -0.01em; }
+    h1, h2, h3 {
+      letter-spacing: -0.048em;
+    }
+
+    p {
+      letter-spacing: -0.01em;
+    }
 
     a {
       color: inherit;
@@ -113,8 +154,8 @@
     .header.scrolled {
       background: var(--header-solid);
       border-bottom-color: var(--header-border);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
     }
 
     .header-inner {
@@ -196,7 +237,7 @@
 
     .hero {
       position: relative;
-      min-height: 68vh;
+      min-height: 88vh;
       overflow: hidden;
       background: var(--bg-hero-fallback);
     }
@@ -206,9 +247,14 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(circle at 78% 20%, rgba(63,110,161,0.18), transparent 22%),
-        radial-gradient(circle at 15% 80%, rgba(63,110,161,0.06), transparent 24%),
-        linear-gradient(90deg, rgba(10,14,20,0.90) 0%, rgba(10,14,20,0.78) 26%, rgba(10,14,20,0.52) 54%, rgba(10,14,20,0.24) 100%);
+        radial-gradient(circle at 79% 18%, rgba(63, 110, 161, 0.17) 0%, rgba(63, 110, 161, 0.07) 18%, transparent 34%),
+        linear-gradient(
+          90deg,
+          rgba(10, 14, 20, 0.92) 0%,
+          rgba(10, 14, 20, 0.78) 24%,
+          rgba(10, 14, 20, 0.50) 52%,
+          rgba(10, 14, 20, 0.18) 100%
+        );
       pointer-events: none;
       z-index: 0;
     }
@@ -218,8 +264,8 @@
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(180deg, rgba(10,14,20,0.06) 0%, rgba(10,14,20,0.14) 100%),
-        linear-gradient(135deg, rgba(63,110,161,0.028) 1px, transparent 1px);
+        linear-gradient(180deg, rgba(10, 14, 20, 0.10) 0%, rgba(10, 14, 20, 0.18) 100%),
+        linear-gradient(135deg, rgba(63, 110, 161, 0.028) 1px, transparent 1px);
       background-size: auto, 34px 34px;
       opacity: 0.48;
       pointer-events: none;
@@ -230,19 +276,19 @@
       position: relative;
       z-index: 1;
       max-width: var(--max);
-      min-height: 68vh;
+      min-height: 88vh;
       margin: 0 auto;
-      padding: 136px 34px 88px;
+      padding: 136px 34px 100px;
       display: flex;
       align-items: center;
     }
 
     .hero-copy {
-      max-width: 760px;
+      max-width: 720px;
     }
 
     .hero-eyebrow {
-      margin: 0 0 42px;
+      margin: 0 0 40px;
       padding-left: 1px;
       font-size: 0.42rem;
       line-height: 1;
@@ -254,8 +300,8 @@
 
     .hero h1 {
       margin: 0 0 20px;
-      max-width: 12ch;
-      font-size: clamp(3.2rem, 5.2vw, 5rem);
+      max-width: 10.8ch;
+      font-size: clamp(3.25rem, 5.4vw, 5.15rem);
       line-height: 0.95;
       font-weight: 700;
       color: #FFFFFF;
@@ -264,9 +310,9 @@
     }
 
     .hero p {
-      max-width: 40ch;
+      max-width: 35ch;
       margin: 0;
-      font-size: clamp(1.08rem, 1.42vw, 1.2rem);
+      font-size: clamp(1.12rem, 1.5vw, 1.22rem);
       line-height: 1.6;
       letter-spacing: -0.014em;
       color: var(--muted-light);
@@ -277,86 +323,73 @@
     .hero-actions {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       flex-wrap: wrap;
-      margin-top: 28px;
+      margin-top: 30px;
     }
 
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 46px;
-      min-width: 164px;
-      padding: 0 20px;
+      min-height: 50px;
+      min-width: 168px;
+      padding: 0 24px;
       border-radius: 999px;
-      font-size: 0.95rem;
+      font-size: 0.97rem;
       font-weight: 500;
       letter-spacing: -0.012em;
       white-space: nowrap;
-      background: rgba(255, 255, 255, 0.96);
-      color: var(--text-dark);
-      border: 1px solid rgba(255, 255, 255, 0.56);
-      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+      background: rgba(255, 255, 255, 0.98);
+      color: var(--accent);
+      border: 1.25px solid rgba(63, 110, 161, 0.9);
+      box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.045),
+        0 0 0 1px rgba(255, 255, 255, 0.08);
       transition:
         background 180ms cubic-bezier(0.22, 1, 0.36, 1),
         color 180ms cubic-bezier(0.22, 1, 0.36, 1),
         border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
         transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
-        box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1),
-        opacity 180ms cubic-bezier(0.22, 1, 0.36, 1);
+        box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1);
       cursor: pointer;
     }
 
     .btn:hover,
     .btn:focus-visible {
       background: #FFFFFF;
-      color: var(--text-dark);
-      border-color: rgba(255, 255, 255, 0.7);
-      transform: translateY(-0.5px);
-      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+      color: var(--accent-dark);
+      border-color: var(--accent-dark);
+      transform: translateY(-1px);
+      box-shadow:
+        0 12px 24px rgba(0, 0, 0, 0.06),
+        0 0 0 1px rgba(255, 255, 255, 0.10);
       outline: none;
     }
 
-    .btn-secondary {
-      background: rgba(8, 13, 20, 0.58);
-      color: rgba(255, 255, 255, 0.99);
-      border-color: rgba(255, 255, 255, 0.58);
-      box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.05),
-        0 8px 18px rgba(0, 0, 0, 0.12);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+    .btn-secondary,
+    .btn-accent {
+      background: rgba(255, 255, 255, 0.98);
+      color: var(--accent);
+      border: 1.25px solid rgba(63, 110, 161, 0.9);
     }
 
     .btn-secondary:hover,
-    .btn-secondary:focus-visible {
-      background: rgba(8, 13, 20, 0.68);
-      color: #FFFFFF;
-      border-color: rgba(255, 255, 255, 0.72);
-    }
-
-    .btn-accent {
-      background: var(--accent);
-      color: #FFFFFF;
-      border: 1px solid rgba(63, 110, 161, 0.24);
-      box-shadow: 0 10px 22px rgba(63, 110, 161, 0.22);
-    }
-
+    .btn-secondary:focus-visible,
     .btn-accent:hover,
     .btn-accent:focus-visible {
-      background: var(--accent-dark);
-      color: #FFFFFF;
-      border-color: rgba(47, 88, 134, 0.34);
-      box-shadow: 0 12px 26px rgba(47, 88, 134, 0.24);
+      background: #FFFFFF;
+      color: var(--accent-dark);
+      border-color: var(--accent-dark);
     }
 
     .page {
       position: relative;
       background: var(--bg-offwhite);
-      padding: 96px 34px 92px;
+      padding: 94px 34px 92px;
       color: var(--text-dark);
       overflow: hidden;
+      border-top: 1px solid rgba(21, 32, 43, 0.04);
     }
 
     .page::before {
@@ -378,6 +411,14 @@
       margin: 0 auto;
     }
 
+    .head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 52px;
+      align-items: end;
+      margin-bottom: 42px;
+    }
+
     .section-label {
       margin-bottom: 16px;
       font-size: 0.78rem;
@@ -396,19 +437,12 @@
       margin-bottom: 14px;
     }
 
-    .head {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 360px;
-      gap: 52px;
-      align-items: end;
-      margin-bottom: 34px;
-    }
-
     .head h2,
     .panel h3,
-    .empty-state h3 {
-      margin: 0 0 14px;
-      max-width: 760px;
+    .tool-launch-head h3,
+    .advisory-bridge h3,
+    .synthesis-bridge h3 {
+      margin: 0 0 16px;
       font-size: clamp(1.95rem, 2.45vw, 2.35rem);
       line-height: 1.12;
       font-weight: 700;
@@ -418,10 +452,12 @@
 
     .head p,
     .panel p,
-    .empty-state p {
+    .tool-launch-head p,
+    .advisory-bridge p,
+    .synthesis-bridge p {
       margin: 0;
       font-size: 1.04rem;
-      line-height: 1.66;
+      line-height: 1.7;
       color: var(--muted-dark);
     }
 
@@ -433,118 +469,291 @@
       padding: 22px;
       background: rgba(255, 255, 255, 0.94);
       border: 1px solid rgba(21, 32, 43, 0.06);
+      border-radius: var(--panel-radius);
       box-shadow: var(--soft-shadow);
     }
 
-    .panel {
+    .panel,
+    .tool-launch-head,
+    .advisory-bridge,
+    .synthesis-bridge {
       background: rgba(255, 255, 255, 0.98);
       border: 1px solid rgba(21, 32, 43, 0.06);
+      border-radius: var(--panel-radius);
       box-shadow:
         0 1px 0 rgba(0,0,0,0.012),
         0 10px 26px rgba(0, 0, 0, 0.03);
-      padding: 34px 30px 30px;
-      margin-bottom: 20px;
     }
 
-    .status-grid,
-    .summary-grid,
-    .tool-grid,
-    .synthesis-grid,
-    .action-grid {
+    .panel {
+      padding: 32px 30px 28px;
+      margin-bottom: 18px;
+      scroll-margin-top: 88px;
+    }
+
+    .tool-launch-head,
+    .advisory-bridge,
+    .synthesis-bridge {
+      padding: 34px 32px 30px;
+    }
+
+    .panel h3 {
+      margin-bottom: 14px;
+    }
+
+    .use-grid {
       display: grid;
-      gap: 18px;
-    }
-
-    .status-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
       margin-top: 24px;
     }
 
-    .summary-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-
-    .tool-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .synthesis-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .action-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      margin-top: 22px;
-    }
-
-    .status-card,
-    .summary-card,
-    .tool-card,
-    .synthesis-card,
-    .action-card {
+    .use-card,
+    .tool-card {
+      position: relative;
       background: #FFFFFF;
       border: 1px solid rgba(21, 32, 43, 0.06);
+      border-radius: var(--card-radius);
       box-shadow: var(--soft-shadow);
-      padding: 22px 20px 20px;
+      overflow: hidden;
       transition:
         transform var(--transition-slow),
         border-color var(--transition),
         box-shadow var(--transition-slow);
     }
 
-    .status-card:hover,
-    .summary-card:hover,
-    .tool-card:hover,
-    .synthesis-card:hover,
-    .action-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(63, 110, 161, 0.12);
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.035);
+    .use-card::before,
+    .tool-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 3px;
+      background: linear-gradient(
+        90deg,
+        rgba(63, 110, 161, 0.36) 0%,
+        rgba(63, 110, 161, 0.94) 48%,
+        rgba(63, 110, 161, 0.40) 100%
+      );
+      transform: scaleX(0.34);
+      transform-origin: left center;
+      transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
     }
 
-    .card-label {
-      margin: 0 0 8px;
-      font-size: 0.72rem;
+    .use-card:hover,
+    .tool-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(63, 110, 161, 0.14);
+      box-shadow:
+        0 1px 0 rgba(0,0,0,0.012),
+        0 10px 24px rgba(0, 0, 0, 0.04),
+        0 18px 30px rgba(0, 0, 0, 0.03);
+    }
+
+    .use-card:hover::before,
+    .tool-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .use-card {
+      padding: 24px 22px 22px;
+    }
+
+    .use-step {
+      margin: 0 0 10px;
+      font-size: 0.74rem;
       font-weight: 700;
-      line-height: 1;
       letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: var(--muted-dark-2);
+      color: var(--accent);
     }
 
-    .card-value {
-      margin: 0;
-      font-size: clamp(2rem, 2.8vw, 2.7rem);
-      line-height: 0.95;
-      letter-spacing: -0.06em;
+    .use-title {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      line-height: 1.24;
       font-weight: 700;
       color: var(--text-dark);
     }
 
-    .card-sub {
-      margin: 10px 0 0;
-      font-size: 0.88rem;
-      line-height: 1.58;
+    .use-text {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.62;
       color: var(--muted-dark);
     }
 
-    .tool-card-head {
+    .section-connector {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 14px;
+      justify-content: center;
+      gap: 0;
+      margin: 18px 0 34px;
+      pointer-events: none;
     }
 
-    .tool-card-title {
-      margin: 0;
-      font-size: 1.08rem;
-      line-height: 1.16;
+    .section-connector-line {
+      width: 2px;
+      height: 46px;
+      background: linear-gradient(
+        180deg,
+        rgba(63, 110, 161, 0.08) 0%,
+        rgba(63, 110, 161, 0.38) 100%
+      );
+    }
+
+    .section-connector-circle {
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      background: var(--accent);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 10px 24px rgba(63, 110, 161, 0.22),
+        0 0 0 6px rgba(63, 110, 161, 0.06);
+    }
+
+    .section-connector-circle::before {
+      content: "↓";
+      color: #FFFFFF;
+      font-size: 1rem;
+      line-height: 1;
       font-weight: 700;
+      transform: translateY(-1px);
+    }
+
+    .matrix {
+      overflow-x: auto;
+      margin-top: 20px;
+      border: 1px solid rgba(21, 32, 43, 0.06);
+      border-radius: var(--card-radius);
+      background: #FFFFFF;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .matrix table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 860px;
+    }
+
+    .matrix th,
+    .matrix td {
+      text-align: left;
+      vertical-align: top;
+      padding: 16px 16px;
+      border-bottom: 1px solid rgba(21, 32, 43, 0.08);
+      font-size: 0.90rem;
+      line-height: 1.56;
+    }
+
+    .matrix th {
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+      background: rgba(246, 247, 248, 0.82);
+    }
+
+    .matrix td strong {
       color: var(--text-dark);
     }
 
-    .tool-status {
+    .tool-cards-section {
+      scroll-margin-top: 88px;
+    }
+
+    .tool-launch-head .section-label,
+    .advisory-bridge .section-label,
+    .synthesis-bridge .section-label {
+      margin-bottom: 12px;
+    }
+
+    .tool-launch-head .section-label::before,
+    .advisory-bridge .section-label::before,
+    .synthesis-bridge .section-label::before {
+      margin-bottom: 12px;
+    }
+
+    .tool-launch-note,
+    .synthesis-bridge-note {
+      margin-top: 12px;
+      font-size: 0.92rem;
+      line-height: 1.64;
+      color: var(--accent-dark);
+      font-weight: 500;
+    }
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 22px;
+      margin-bottom: 34px;
+      align-items: stretch;
+    }
+
+    .tool-card {
+      min-height: 292px;
+    }
+
+    .tool-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -20% -30% auto;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(63, 110, 161, 0.10) 0%, rgba(63, 110, 161, 0.03) 42%, transparent 70%);
+      pointer-events: none;
+      opacity: 0.9;
+      transition: transform var(--transition-slow), opacity var(--transition-slow);
+    }
+
+    .tool-card:hover::after {
+      transform: translate(-6px, -6px) scale(1.04);
+      opacity: 1;
+    }
+
+    .tool-card.is-recommended {
+      border-color: rgba(63, 110, 161, 0.18);
+      box-shadow:
+        0 12px 28px rgba(0, 0, 0, 0.05),
+        0 0 0 1px rgba(63, 110, 161, 0.05);
+    }
+
+    .tool-card.is-recommended::before {
+      transform: scaleX(1);
+    }
+
+    .tool-card-link {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      min-height: 292px;
+      height: 100%;
+      padding: 24px 22px 22px;
+      text-align: left;
+    }
+
+    .tool-card-link:focus-visible {
+      outline: 2px solid rgba(63, 110, 161, 0.35);
+      outline-offset: 3px;
+    }
+
+    .tool-card-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .tool-badge,
+    .tool-badge-secondary {
       display: inline-flex;
       align-items: center;
       padding: 6px 10px;
@@ -554,113 +763,104 @@
       text-transform: uppercase;
       border: 1px solid;
       white-space: nowrap;
+      border-radius: 999px;
     }
 
-    .tool-status.complete {
+    .tool-badge {
       background: rgba(63, 110, 161, 0.08);
       color: var(--accent);
       border-color: rgba(63, 110, 161, 0.12);
+      box-shadow: 0 0 18px rgba(63, 110, 161, 0.05);
     }
 
-    .tool-status.empty {
+    .tool-badge-secondary {
       background: rgba(21, 32, 43, 0.04);
-      color: var(--muted-dark-2);
+      color: var(--text-dark);
       border-color: rgba(21, 32, 43, 0.08);
     }
 
-    .tool-score {
+    .tool-title {
       margin: 0 0 8px;
-      font-size: 2.3rem;
-      line-height: 0.95;
-      letter-spacing: -0.06em;
+      font-size: 1.15rem;
+      line-height: 1.16;
       font-weight: 700;
+      letter-spacing: -0.022em;
       color: var(--text-dark);
     }
 
-    .tool-band {
-      margin: 0 0 10px;
-      font-size: 0.94rem;
-      line-height: 1.52;
-      color: var(--accent-dark);
-      font-weight: 500;
+    .tool-subline {
+      margin: 0 0 12px;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
     }
 
-    .tool-copy {
-      margin: 0 0 12px;
-      font-size: 0.92rem;
-      line-height: 1.62;
+    .tool-text {
+      margin: 0 0 16px;
+      font-size: 0.95rem;
+      line-height: 1.66;
       color: var(--muted-dark);
+    }
+
+    .tool-meta-label {
+      margin: 0 0 6px;
+      font-size: 0.72rem;
+      line-height: 1;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+      font-weight: 700;
     }
 
     .tool-meta {
-      display: grid;
+      margin-top: auto;
+      font-size: 0.87rem;
+      line-height: 1.58;
+      color: var(--muted-dark-2);
+    }
+
+    .tool-open {
+      margin-top: 16px;
+      display: inline-flex;
+      align-items: center;
       gap: 8px;
-      margin-top: 14px;
-      padding-top: 14px;
-      border-top: 1px solid rgba(21, 32, 43, 0.08);
+      font-size: 0.90rem;
+      font-weight: 600;
+      color: var(--accent);
+      transition: color var(--transition), transform var(--transition);
     }
 
-    .tool-meta-item {
-      font-size: 0.84rem;
-      line-height: 1.5;
-      color: var(--muted-dark);
+    .tool-card:hover .tool-open,
+    .tool-card-link:focus-visible .tool-open {
+      color: var(--accent-dark);
+      transform: translateX(2px);
     }
 
-    .tool-meta-item strong {
-      color: var(--text-dark);
+    .synthesis-bridge,
+    .advisory-bridge {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 28px;
+      align-items: center;
+      margin: 0 0 34px;
     }
 
-    .synthesis-card h4,
-    .action-card h4 {
-      margin: 0 0 10px;
-      font-size: 1rem;
-      line-height: 1.2;
-      font-weight: 700;
-      color: var(--text-dark);
+    .synthesis-bridge-copy {
+      max-width: 62ch;
     }
 
-    .synthesis-card p,
-    .action-card p {
+    .advisory-bridge-copy {
+      max-width: 58ch;
+    }
+
+    .footer-copy-top {
       margin: 0;
-      font-size: 0.92rem;
-      line-height: 1.62;
+      max-width: 72ch;
+      font-size: 0.95rem;
+      line-height: 1.68;
       color: var(--muted-dark);
-    }
-
-    .list {
-      margin: 14px 0 0;
-      padding-left: 18px;
-      display: grid;
-      gap: 8px;
-    }
-
-    .list li {
-      font-size: 0.9rem;
-      line-height: 1.56;
-      color: var(--muted-dark);
-    }
-
-    .empty-state {
-      display: none;
-      background: rgba(255,255,255,0.98);
-      border: 1px solid rgba(21, 32, 43, 0.06);
-      box-shadow:
-        0 1px 0 rgba(0,0,0,0.012),
-        0 10px 26px rgba(0, 0, 0, 0.03);
-      padding: 34px 30px 30px;
-      margin-bottom: 20px;
-    }
-
-    .empty-state.active {
-      display: block;
-    }
-
-    .results-shell {
-      display: none;
-    }
-
-    .results-shell.active {
-      display: block;
     }
 
     .footer {
@@ -745,9 +945,11 @@
       transition: color var(--transition), transform var(--transition);
     }
 
-    .footer-nav a:hover {
+    .footer-nav a:hover,
+    .footer-nav a:focus-visible {
       color: #FFFFFF;
       transform: translateX(2px);
+      outline: none;
     }
 
     .footer-bottom {
@@ -767,14 +969,22 @@
     }
 
     @media (max-width: 1180px) {
+      .tools-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
       .head {
         grid-template-columns: 1fr;
       }
 
-      .status-grid,
-      .summary-grid,
-      .action-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+      .use-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .advisory-bridge,
+      .synthesis-bridge {
+        grid-template-columns: 1fr;
+        align-items: start;
       }
     }
 
@@ -794,28 +1004,25 @@
         gap: 22px;
       }
 
-      .hero-inner {
-        padding: 120px 24px 82px;
-      }
-
+      .hero-inner,
       .page,
       .footer {
         padding-left: 24px;
         padding-right: 24px;
       }
-
-      .tool-grid,
-      .synthesis-grid {
-        grid-template-columns: 1fr;
-      }
     }
 
     @media (max-width: 760px) {
-      .brand { font-size: 1.24rem; }
-      .nav { gap: 18px; }
+      .brand {
+        font-size: 1.24rem;
+      }
+
+      .nav {
+        gap: 18px;
+      }
 
       .hero-inner {
-        padding: 136px 20px 88px;
+        padding: 136px 20px 108px;
       }
 
       .hero-eyebrow {
@@ -835,26 +1042,52 @@
         line-height: 1.58;
       }
 
-      .page {
-        padding: 74px 20px 72px;
-      }
-
-      .panel,
-      .empty-state {
-        padding: 26px 20px 22px;
-      }
-
-      .status-grid,
-      .summary-grid,
-      .action-grid {
-        grid-template-columns: 1fr;
+      .hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        max-width: 420px;
       }
 
       .btn {
-        min-width: 148px;
-        min-height: 46px;
+        width: 100%;
+        min-width: 0;
+        min-height: 52px;
         padding: 0 20px;
         font-size: 0.98rem;
+      }
+
+      .page {
+        padding: 72px 20px 72px;
+      }
+
+      .panel,
+      .tool-launch-head,
+      .advisory-bridge,
+      .synthesis-bridge {
+        padding: 24px 20px 22px;
+      }
+
+      .section-connector {
+        margin: 14px 0 24px;
+      }
+
+      .section-connector-line {
+        height: 32px;
+      }
+
+      .section-connector-circle {
+        width: 34px;
+        height: 34px;
+      }
+
+      .tools-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tool-card,
+      .tool-card-link {
+        min-height: auto;
       }
 
       .footer {
@@ -870,6 +1103,15 @@
       .footer-nav {
         gap: 28px;
       }
+
+      .footer-copy {
+        font-size: 0.94rem;
+      }
+
+      .footer-meta,
+      .footer-contact {
+        font-size: 0.84rem;
+      }
     }
   </style>
 </head>
@@ -881,8 +1123,7 @@
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
         <a href="advisory-services.html">Advisory Engagements</a>
-        <a href="diagnostic-tools.html">Diagnostic Tools</a>
-        <a href="cross-tool-synthesis.html" class="is-active">Cross-Tool Synthesis</a>
+        <a href="diagnostic-tools.html" class="is-active">Diagnostic Tools</a>
         <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
         <a href="index.html#connect">Connect</a>
@@ -893,15 +1134,14 @@
   <section class="hero">
     <div class="hero-inner">
       <div class="hero-copy">
-        <p class="hero-eyebrow">Cross-Tool Synthesis</p>
-        <h1>Combine completed diagnostics into one Monderman synthesis view.</h1>
+        <p class="hero-eyebrow">Monderman Diagnostic Suite</p>
+        <h1>Choose the right diagnostic and start with the dominant symptom.</h1>
         <p>
-          This layer reads saved results from the four diagnostic tools and turns them into a single directional view of structural condition, operating drag, and advisory priority.
+          Use the suite to isolate where performance is being weakened by structural ambiguity, decision drag, administrative burden, or declining institutional coherence.
         </p>
 
         <div class="hero-actions">
-          <a class="btn btn-secondary" href="diagnostic-tools.html">Back to Diagnostic Suite</a>
-          <button class="btn btn-accent" id="clearSavedResultsBtn" type="button">Clear Saved Results</button>
+          <a class="btn btn-secondary" href="#tool-launch">Open Live Diagnostics</a>
         </div>
       </div>
     </div>
@@ -911,167 +1151,223 @@
     <div class="page-inner">
       <div class="head">
         <div>
-          <div class="section-label">Synthesis Layer</div>
-          <h2>A combined view of what your completed tools are already saying.</h2>
+          <div class="section-label">Diagnostic Suite</div>
+          <h2>A cleaner launch environment for bounded structural diagnosis.</h2>
           <p>
-            This page does not create new diagnostic logic. It reads the most recent saved outputs from Structural Clarity, Decision Velocity, Operational Systems, and Institutional Performance, then combines them into one executive-style synthesis.
+            Each tool isolates a different kind of organizational weakness. Start with the clearest symptom, keep the scope narrow, and use the output as a directional signal for where deeper review may be needed.
           </p>
         </div>
 
         <p class="note">
-          <strong>How this works.</strong> Each diagnostic tool saves its latest completed readout in local storage on this browser. This synthesis page reads those saved payloads, shows what is available, and combines the saved outputs that already exist.
+          <strong>Private by default.</strong> These diagnostics are designed for immediate use and do not create a persistent organizational record. Avoid entering confidential, classified, regulated, or personally sensitive information.
         </p>
       </div>
 
-      <section class="empty-state active" id="emptyState">
-        <div class="section-label">No Saved Results Yet</div>
-        <h3>Complete at least one diagnostic to begin synthesis.</h3>
+      <section class="how-to-use panel">
+        <h3>How to use the suite</h3>
         <p>
-          This page becomes useful once one or more tools have saved local results. For the strongest synthesis, complete at least two tools. For the most complete synthesis, complete all four.
+          Start with the problem shape you can already see, bound the assessment to one environment, and use the result to sharpen diagnosis before moving to broader redesign.
         </p>
 
-        <div class="action-grid">
-          <article class="action-card">
-            <h4>Structural Clarity</h4>
-            <p>Start here when ownership, handoffs, or role boundaries feel blurred.</p>
-            <div class="hero-actions" style="margin-top:16px;">
-              <a class="btn btn-secondary" href="structural-clarity.html">Open Tool</a>
-            </div>
+        <div class="use-grid">
+          <div class="use-card">
+            <p class="use-step">Step 1</p>
+            <h4 class="use-title">Choose the symptom</h4>
+            <p class="use-text">Begin with what feels most visible: ambiguity, slowness, burden, or broader institutional weakening.</p>
+          </div>
+
+          <div class="use-card">
+            <p class="use-step">Step 2</p>
+            <h4 class="use-title">Keep it bounded</h4>
+            <p class="use-text">Use one team, one workflow, one function, or one operating environment wherever possible.</p>
+          </div>
+
+          <div class="use-card">
+            <p class="use-step">Step 3</p>
+            <h4 class="use-title">Read it directionally</h4>
+            <p class="use-text">Treat the output as a structural signal that clarifies where deeper analysis or redesign should begin.</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-connector" aria-hidden="true">
+        <span class="section-connector-line"></span>
+        <span class="section-connector-circle"></span>
+      </div>
+
+      <section class="tool-selector panel">
+        <h3>Start with the symptom you can already see.</h3>
+        <p>
+          Use the guide below to choose the strongest starting point. When in doubt, begin with the most visible symptom rather than the full complexity of the situation.
+        </p>
+
+        <div class="matrix">
+          <table>
+            <thead>
+              <tr>
+                <th>Dominant symptom</th>
+                <th>Start here</th>
+                <th>Clarifies</th>
+                <th>Less suited for</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Ownership, roles, or handoffs feel blurred.</strong></td>
+                <td>Structural Clarity Snapshot</td>
+                <td>Whether authority, ownership, and execution logic are clear enough to support reliable movement.</td>
+                <td>Broad institutional condition across the full system.</td>
+              </tr>
+              <tr>
+                <td><strong>Decisions feel slow, stuck, or approval-heavy.</strong></td>
+                <td>Decision Velocity Snapshot</td>
+                <td>Where decision movement is being slowed by approvals, routing, escalation, or uncertainty.</td>
+                <td>Total administrative burden across the whole environment.</td>
+              </tr>
+              <tr>
+                <td><strong>The environment feels overloaded by process.</strong></td>
+                <td>Operational Systems Snapshot</td>
+                <td>Whether administrative density is absorbing too much time, attention, and managerial effort.</td>
+                <td>Fine-grained authority and ownership questions.</td>
+              </tr>
+              <tr>
+                <td><strong>The whole system seems to be weakening.</strong></td>
+                <td>Institutional Performance Snapshot</td>
+                <td>Whether the institution is still converting structure into sustained performance and confidence.</td>
+                <td>Narrow workflow diagnosis within a single slice.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="section-connector" aria-hidden="true">
+        <span class="section-connector-line"></span>
+        <span class="section-connector-circle"></span>
+      </div>
+
+      <section class="tool-cards-section" id="tool-launch">
+        <div class="tool-launch-head">
+          <div class="section-label">Live Diagnostics</div>
+          <h3>Launch the right diagnostic.</h3>
+          <p>
+            Each tool opens in its own dedicated environment. Start with the strongest fit, then decide whether the issue requires deeper review, redesign, or advisory work.
+          </p>
+          <p class="tool-launch-note">
+            If the problem feels real but hard to name, start with Structural Clarity.
+          </p>
+        </div>
+
+        <div class="tools-grid">
+          <article class="tool-card is-recommended">
+            <a class="tool-card-link" href="structural-clarity.html" aria-label="Open Structural Clarity Snapshot">
+              <div class="tool-card-top">
+                <div class="tool-badge">Live</div>
+                <div class="tool-badge-secondary">Best starting point</div>
+              </div>
+              <h3 class="tool-title">Structural Clarity Snapshot</h3>
+              <p class="tool-subline">Roles · ownership · handoffs</p>
+              <p class="tool-text">
+                Assess whether ownership, authority, and review logic are clear enough for one bounded workflow or operating slice.
+              </p>
+              <p class="tool-meta-label">Best when</p>
+              <p class="tool-meta">
+                The issue feels like ambiguity, duplication, confusion, or execution drift.
+              </p>
+              <span class="tool-open">Open diagnostic &#8594;</span>
+            </a>
           </article>
 
-          <article class="action-card">
-            <h4>Decision Velocity</h4>
-            <p>Use this when slowness, approvals, or escalation patterns dominate the problem.</p>
-            <div class="hero-actions" style="margin-top:16px;">
-              <a class="btn btn-secondary" href="decision-velocity.html">Open Tool</a>
-            </div>
+          <article class="tool-card">
+            <a class="tool-card-link" href="decision-velocity.html" aria-label="Open Decision Velocity Snapshot">
+              <div class="tool-card-top">
+                <div class="tool-badge">Live</div>
+              </div>
+              <h3 class="tool-title">Decision Velocity Snapshot</h3>
+              <p class="tool-subline">Approvals · escalation · delay</p>
+              <p class="tool-text">
+                Diagnose where approvals, escalation patterns, and routing complexity are slowing movement through important decisions.
+              </p>
+              <p class="tool-meta-label">Best when</p>
+              <p class="tool-meta">
+                The issue feels like slowness, delay, stalled action, or approval drag.
+              </p>
+              <span class="tool-open">Open diagnostic &#8594;</span>
+            </a>
           </article>
 
-          <article class="action-card">
-            <h4>Operational Systems</h4>
-            <p>Use this when the environment feels heavy with reporting, controls, or process burden.</p>
-            <div class="hero-actions" style="margin-top:16px;">
-              <a class="btn btn-secondary" href="bureaucratic-drag-snapshot.html">Open Tool</a>
-            </div>
+          <article class="tool-card">
+            <a class="tool-card-link" href="bureaucratic-drag-snapshot.html" aria-label="Open Operational Systems Snapshot">
+              <div class="tool-card-top">
+                <div class="tool-badge">Live</div>
+              </div>
+              <h3 class="tool-title">Operational Systems Snapshot</h3>
+              <p class="tool-subline">Process load · reporting · overhead</p>
+              <p class="tool-text">
+                Surface recurring administrative burden, process density, and non-value-adding overhead across a selected workflow or environment.
+              </p>
+              <p class="tool-meta-label">Best when</p>
+              <p class="tool-meta">
+                The issue feels like too much process, too much reporting, or too much coordination.
+              </p>
+              <span class="tool-open">Open diagnostic &#8594;</span>
+            </a>
+          </article>
+
+          <article class="tool-card">
+            <a class="tool-card-link" href="institutional-performance.html" aria-label="Open Institutional Performance Snapshot">
+              <div class="tool-card-top">
+                <div class="tool-badge">Live</div>
+              </div>
+              <h3 class="tool-title">Institutional Performance Snapshot</h3>
+              <p class="tool-subline">System health · adaptation · reliability</p>
+              <p class="tool-text">
+                Estimate how well an institution is converting structure into sustained performance across execution, resilience, and institutional confidence.
+              </p>
+              <p class="tool-meta-label">Best when</p>
+              <p class="tool-meta">
+                The issue feels broader than one workflow and the system itself may be weakening.
+              </p>
+              <span class="tool-open">Open diagnostic &#8594;</span>
+            </a>
           </article>
         </div>
       </section>
 
-      <section class="results-shell" id="resultsShell">
-        <section class="panel">
-          <div class="section-label">Saved Tool Status</div>
-          <h3>What is currently available in this browser.</h3>
+      <section class="synthesis-bridge" aria-labelledby="synthesis-bridge-title">
+        <div class="synthesis-bridge-copy">
+          <div class="section-label">Cross-Tool Synthesis</div>
+          <h3 id="synthesis-bridge-title">Combine completed diagnostics into one synthesis view.</h3>
           <p>
-            The cards below show whether each tool has a saved payload available for synthesis right now.
+            Once you have completed two or more diagnostics, use the synthesis layer to combine saved results into a single Monderman readout. This is best used after diagnosis, not before it.
           </p>
-
-          <div class="status-grid" id="statusGrid"></div>
-        </section>
-
-        <section class="panel">
-          <div class="section-label">Executive Summary</div>
-          <h3>A combined directional readout.</h3>
-          <p>
-            This summary combines the saved tools into a single view of score condition, concentration of weakness, and likely leadership priority.
+          <p class="synthesis-bridge-note">
+            Best after multiple completed tools. Not a starting-point diagnostic.
           </p>
+        </div>
 
-          <div class="summary-grid" style="margin-top:24px;">
-            <article class="summary-card">
-              <p class="card-label">Tools Included</p>
-              <p class="card-value" id="toolsIncludedValue">0</p>
-              <p class="card-sub" id="toolsIncludedSub">Saved results currently available</p>
-            </article>
-
-            <article class="summary-card">
-              <p class="card-label">Composite Score</p>
-              <p class="card-value" id="compositeScoreValue">—</p>
-              <p class="card-sub" id="compositeScoreSub">Average of included tool scores</p>
-            </article>
-
-            <article class="summary-card">
-              <p class="card-label">Dominant Exposure</p>
-              <p class="card-value" id="dominantExposureValue" style="font-size:1.45rem; line-height:1.1; letter-spacing:-0.03em;">—</p>
-              <p class="card-sub" id="dominantExposureSub">Highest-priority pattern across tools</p>
-            </article>
-
-            <article class="summary-card">
-              <p class="card-label">Advisory Signal</p>
-              <p class="card-value" id="advisorySignalValue" style="font-size:1.45rem; line-height:1.1; letter-spacing:-0.03em;">—</p>
-              <p class="card-sub" id="advisorySignalSub">Suggested next level of review</p>
-            </article>
-          </div>
-        </section>
-
-        <section class="panel">
-          <div class="section-label">Tool Readouts</div>
-          <h3>Saved results by diagnostic.</h3>
-          <p>
-            Each card below reflects the most recent saved payload from that tool.
-          </p>
-
-          <div class="tool-grid" id="toolGrid"></div>
-        </section>
-
-        <section class="panel">
-          <div class="section-label">Cross-Tool Interpretation</div>
-          <h3>Combined Monderman synthesis.</h3>
-          <p>
-            This layer turns multiple diagnostic signals into a single directional interpretation.
-          </p>
-
-          <div class="synthesis-grid" style="margin-top:24px;">
-            <article class="synthesis-card">
-              <h4>Executive interpretation</h4>
-              <p id="executiveInterpretation">—</p>
-            </article>
-
-            <article class="synthesis-card">
-              <h4>Leadership implication</h4>
-              <p id="leadershipImplication">—</p>
-            </article>
-
-            <article class="synthesis-card">
-              <h4>Cross-tool priorities</h4>
-              <ul class="list" id="crossToolPriorities"></ul>
-            </article>
-
-            <article class="synthesis-card">
-              <h4>Suggested next moves</h4>
-              <ul class="list" id="nextMoves"></ul>
-            </article>
-          </div>
-        </section>
-
-        <section class="panel">
-          <div class="section-label">Next Step</div>
-          <h3>Move from diagnostic signal to deeper review.</h3>
-          <p>
-            Synthesis is most useful when it helps decide whether the issue is narrow, layered, or systemic.
-          </p>
-
-          <div class="action-grid">
-            <article class="action-card">
-              <h4>Complete missing tools</h4>
-              <p>Add more completed diagnostics if the current picture still feels too partial or too symptom-specific.</p>
-            </article>
-
-            <article class="action-card">
-              <h4>Return to one tool</h4>
-              <p>Go back into the strongest problem area and refine the bounded environment being assessed.</p>
-            </article>
-
-            <article class="action-card">
-              <h4>Escalate to advisory review</h4>
-              <p>Use the synthesis when the pattern looks layered, cross-cutting, or broader than one workflow or team.</p>
-            </article>
-          </div>
-
-          <div class="hero-actions" style="margin-top:24px;">
-            <a class="btn btn-secondary" href="diagnostic-tools.html">Return to Diagnostic Suite</a>
-            <a class="btn btn-accent" href="advisory-services.html">Explore Advisory Engagements</a>
-          </div>
-        </section>
+        <a class="btn btn-secondary" href="cross-tool-synthesis.html">
+          Open Cross-Tool Synthesis
+        </a>
       </section>
+
+      <section class="advisory-bridge" aria-labelledby="advisory-bridge-title">
+        <div class="advisory-bridge-copy">
+          <div class="section-label">Advisory Engagements</div>
+          <h3 id="advisory-bridge-title">Need a deeper structural review?</h3>
+          <p>
+            The diagnostic suite is designed to clarify the shape of the problem. When the issue proves broader or more embedded than a directional tool can resolve, Monderman’s advisory work provides a deeper structural review.
+          </p>
+        </div>
+
+        <a class="btn btn-accent" href="advisory-services.html">
+          Explore Advisory Engagements
+        </a>
+      </section>
+
+      <p class="footer-copy-top">
+        This page is built as a cleaner hub for choosing the right diagnostic and beginning structured inquiry. Open the live tools above to work through each one in its own dedicated environment, then move into synthesis or deeper review as needed.
+      </p>
     </div>
   </main>
 
@@ -1112,364 +1408,18 @@
 
   <script>
     const header = document.getElementById("siteHeader");
-    const emptyState = document.getElementById("emptyState");
-    const resultsShell = document.getElementById("resultsShell");
-    const clearSavedResultsBtn = document.getElementById("clearSavedResultsBtn");
-
-    const storageMap = {
-      structural_clarity: {
-        key: "monderman_structural_clarity_result",
-        title: "Structural Clarity",
-        href: "structural-clarity.html"
-      },
-      decision_velocity: {
-        key: "monderman_decision_velocity_result",
-        title: "Decision Velocity",
-        href: "decision-velocity.html"
-      },
-      operational_systems: {
-        key: "monderman_operational_systems_result",
-        title: "Operational Systems",
-        href: "bureaucratic-drag-snapshot.html"
-      },
-      institutional_performance: {
-        key: "monderman_institutional_performance_result",
-        title: "Institutional Performance",
-        href: "institutional-performance.html"
-      }
-    };
 
     function updateHeader() {
       if (!header) return;
-      if (window.scrollY > 12) header.classList.add("scrolled");
-      else header.classList.remove("scrolled");
-    }
-
-    function safeParse(value) {
-      try {
-        return JSON.parse(value);
-      } catch (error) {
-        return null;
-      }
-    }
-
-    function loadSavedResults() {
-      const saved = {};
-
-      Object.entries(storageMap).forEach(([id, config]) => {
-        const parsed = safeParse(localStorage.getItem(config.key));
-        if (parsed && typeof parsed === "object") {
-          saved[id] = parsed;
-        }
-      });
-
-      return saved;
-    }
-
-    function getToolScore(payload) {
-      const score = Number(payload?.score);
-      return Number.isFinite(score) ? score : null;
-    }
-
-    function getToolBand(payload) {
-      return payload?.band || payload?.score_band || "No score band available";
-    }
-
-    function getToolName(payload, fallbackTitle) {
-      return (
-        payload?.focusArea ||
-        payload?.focus_area ||
-        payload?.processName ||
-        payload?.process_name ||
-        payload?.unitName ||
-        payload?.unit_name ||
-        fallbackTitle
-      );
-    }
-
-    function getToolSecondaryMeta(toolId, payload) {
-      if (toolId === "structural_clarity") {
-        return [
-          ["Benchmark", payload?.benchmarkPosition || "—"],
-          ["Boundary risk", payload?.boundaryRisk || "—"]
-        ];
-      }
-
-      if (toolId === "decision_velocity") {
-        return [
-          ["Benchmark", payload?.benchmarkPosition || "—"],
-          ["Resource drag", payload?.resourceDrag || "—"]
-        ];
-      }
-
-      if (toolId === "operational_systems") {
-        return [
-          ["Benchmark", payload?.benchmarkPosition || "—"],
-          ["Operational drag", payload?.operationalDrag || "—"]
-        ];
-      }
-
-      if (toolId === "institutional_performance") {
-        return [
-          ["Benchmark", payload?.benchmarkPosition || "—"],
-          ["Fragility", payload?.fragility || "—"]
-        ];
-      }
-
-      return [];
-    }
-
-    function deriveExposureLabel(toolId, payload) {
-      if (toolId === "structural_clarity") return "Structural ambiguity";
-      if (toolId === "decision_velocity") return "Decision drag";
-      if (toolId === "operational_systems") return "Administrative burden";
-      if (toolId === "institutional_performance") return "Institutional fragility";
-      return "General exposure";
-    }
-
-    function getStatusCards(saved) {
-      const statusGrid = document.getElementById("statusGrid");
-      statusGrid.innerHTML = "";
-
-      Object.entries(storageMap).forEach(([id, config]) => {
-        const payload = saved[id];
-        const complete = !!payload;
-
-        const article = document.createElement("article");
-        article.className = "status-card";
-
-        article.innerHTML = `
-          <p class="card-label">${config.title}</p>
-          <p class="card-value" style="font-size:1.18rem; line-height:1.08; letter-spacing:-0.03em;">${complete ? "Saved" : "Empty"}</p>
-          <p class="card-sub">${complete ? "Latest result available for synthesis." : "No saved local result found."}</p>
-        `;
-
-        statusGrid.appendChild(article);
-      });
-    }
-
-    function renderToolCards(saved) {
-      const toolGrid = document.getElementById("toolGrid");
-      toolGrid.innerHTML = "";
-
-      Object.entries(storageMap).forEach(([id, config]) => {
-        const payload = saved[id];
-        const score = getToolScore(payload);
-        const band = getToolBand(payload);
-        const name = getToolName(payload, config.title);
-        const meta = getToolSecondaryMeta(id, payload);
-
-        const card = document.createElement("article");
-        card.className = "tool-card";
-
-        if (!payload) {
-          card.innerHTML = `
-            <div class="tool-card-head">
-              <h4 class="tool-card-title">${config.title}</h4>
-              <span class="tool-status empty">No saved result</span>
-            </div>
-            <p class="tool-copy">
-              This tool has not yet saved a local result in this browser.
-            </p>
-            <div class="hero-actions" style="margin-top:16px;">
-              <a class="btn btn-secondary" href="${config.href}">Open Tool</a>
-            </div>
-          `;
-          toolGrid.appendChild(card);
-          return;
-        }
-
-        const metaHtml = meta.map(([label, value]) => `
-          <div class="tool-meta-item"><strong>${label}:</strong> ${value}</div>
-        `).join("");
-
-        card.innerHTML = `
-          <div class="tool-card-head">
-            <h4 class="tool-card-title">${config.title}</h4>
-            <span class="tool-status complete">Included</span>
-          </div>
-          <p class="tool-score">${score ?? "—"}</p>
-          <p class="tool-band">${band}</p>
-          <p class="tool-copy">
-            Latest saved subject: ${name}.
-          </p>
-          <div class="tool-meta">
-            ${metaHtml}
-          </div>
-          <div class="hero-actions" style="margin-top:16px;">
-            <a class="btn btn-secondary" href="${config.href}">Reopen Tool</a>
-          </div>
-        `;
-
-        toolGrid.appendChild(card);
-      });
-    }
-
-    function averageScore(saved) {
-      const scores = Object.keys(saved)
-        .map((key) => getToolScore(saved[key]))
-        .filter((score) => Number.isFinite(score));
-
-      if (!scores.length) return null;
-      return Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length);
-    }
-
-    function getDominantExposure(saved) {
-      const ranked = Object.entries(saved)
-        .map(([toolId, payload]) => ({
-          toolId,
-          score: getToolScore(payload)
-        }))
-        .filter((item) => Number.isFinite(item.score))
-        .sort((a, b) => a.score - b.score);
-
-      if (!ranked.length) return "No dominant exposure";
-      return deriveExposureLabel(ranked[0].toolId, saved[ranked[0].toolId]);
-    }
-
-    function getAdvisorySignal(saved, compositeScore) {
-      const count = Object.keys(saved).length;
-
-      if (!count) return "No synthesis signal";
-      if (count === 1) return "Single-tool signal only";
-      if (count >= 3 && compositeScore !== null && compositeScore < 65) return "Layered structural review";
-      if (count >= 3 && compositeScore !== null && compositeScore < 80) return "Focused advisory review";
-      if (count >= 2 && compositeScore !== null && compositeScore < 65) return "Cross-functional review";
-      return "Targeted follow-up";
-    }
-
-    function setExecutiveSummary(saved) {
-      const count = Object.keys(saved).length;
-      const composite = averageScore(saved);
-      const dominantExposure = getDominantExposure(saved);
-      const advisorySignal = getAdvisorySignal(saved, composite);
-
-      document.getElementById("toolsIncludedValue").textContent = String(count);
-      document.getElementById("toolsIncludedSub").textContent = count === 1
-        ? "One saved diagnostic result available"
-        : `${count} saved diagnostic results available`;
-
-      document.getElementById("compositeScoreValue").textContent = composite ?? "—";
-      document.getElementById("compositeScoreSub").textContent = composite === null
-        ? "No composite score available"
-        : "Average of included tool scores";
-
-      document.getElementById("dominantExposureValue").textContent = dominantExposure;
-      document.getElementById("dominantExposureSub").textContent = "Lowest-scoring problem pattern";
-
-      document.getElementById("advisorySignalValue").textContent = advisorySignal;
-      document.getElementById("advisorySignalSub").textContent = "Directional escalation signal";
-
-      const executiveInterpretation = document.getElementById("executiveInterpretation");
-      const leadershipImplication = document.getElementById("leadershipImplication");
-      const crossToolPriorities = document.getElementById("crossToolPriorities");
-      const nextMoves = document.getElementById("nextMoves");
-
-      const priorities = [];
-      const moves = [];
-
-      if (saved.structural_clarity && getToolScore(saved.structural_clarity) < 70) {
-        priorities.push("Structural clarity is weak enough that ownership, authority, or handoff design may be distorting downstream performance.");
-      }
-
-      if (saved.decision_velocity && getToolScore(saved.decision_velocity) < 70) {
-        priorities.push("Decision pathways appear slower than the work likely requires, suggesting approval, routing, or escalation burden.");
-      }
-
-      if (saved.operational_systems && getToolScore(saved.operational_systems) < 70) {
-        priorities.push("Operational systems appear heavy enough that process burden, reporting load, or systems friction are absorbing meaningful effort.");
-      }
-
-      if (saved.institutional_performance && getToolScore(saved.institutional_performance) < 70) {
-        priorities.push("Institutional performance signals suggest the environment may be depending on compensation, management lift, or uneven resilience.");
-      }
-
-      if (!priorities.length) {
-        priorities.push("No single diagnostic dominates the picture; the saved tools suggest a more balanced condition than a heavily degraded system.");
-      }
-
-      if (Object.keys(saved).length < 2) {
-        executiveInterpretation.textContent =
-          "This synthesis is still thin. One saved diagnostic can clarify a symptom, but it is usually not enough to support a broader Monderman-level synthesis of the system.";
-        leadershipImplication.textContent =
-          "Complete at least one additional tool before treating this as a serious cross-tool readout. The next best tool should be chosen based on the strongest adjacent symptom.";
-        moves.push("Complete at least one additional diagnostic so the synthesis reflects more than one problem dimension.");
-        moves.push("Use the current saved result as a directional lead, not as a full system-level interpretation.");
-        moves.push("Only escalate to a deeper review after a second tool confirms the pattern or broadens it.");
+      if (window.scrollY > 12) {
+        header.classList.add("scrolled");
       } else {
-        if (composite !== null && composite >= 80) {
-          executiveInterpretation.textContent =
-            "Taken together, the saved diagnostics suggest a comparatively healthy condition. Friction exists, but it does not yet appear to dominate structure, movement, operating load, or institutional stability.";
-          leadershipImplication.textContent =
-            "Leadership should focus on preserving coherence and preventing incremental drift rather than treating the system as broadly compromised.";
-        } else if (composite !== null && composite >= 65) {
-          executiveInterpretation.textContent =
-            "Taken together, the saved diagnostics suggest a system that is still functioning but carrying visible exposure. The problem may not yet be severe in one dimension, but enough drag is present across the tools to warrant targeted review.";
-          leadershipImplication.textContent =
-            "Leadership should not wait for visible breakdown. This is the zone where earlier structural intervention is more efficient than later cleanup.";
-        } else if (composite !== null && composite >= 45) {
-          executiveInterpretation.textContent =
-            "Taken together, the saved diagnostics suggest layered structural stress rather than one isolated problem. Multiple dimensions of the system appear burdened enough to reinforce one another.";
-          leadershipImplication.textContent =
-            "Leadership should treat this as more than a narrow process issue. The pattern points toward a broader review of design, movement, and operating burden.";
-        } else {
-          executiveInterpretation.textContent =
-            "Taken together, the saved diagnostics suggest a materially weakened environment. The pattern appears broad enough that performance may be relying on compensation, workarounds, and extra management lift rather than on a dependable underlying system.";
-          leadershipImplication.textContent =
-            "Leadership should treat this as a systemic operating risk. A deeper advisory review is likely more appropriate than incremental local fixes alone.";
-        }
-
-        moves.push("Focus first on the lowest-scoring tool, because it is most likely to be distorting the system downstream.");
-        moves.push("Check whether the lowest-scoring tool is a cause layer or a symptom layer by comparing it against at least one adjacent diagnostic.");
-        moves.push("Escalate to a deeper advisory review if the pattern appears layered across three or more tools.");
+        header.classList.remove("scrolled");
       }
-
-      crossToolPriorities.innerHTML = "";
-      priorities.forEach((item) => {
-        const li = document.createElement("li");
-        li.textContent = item;
-        crossToolPriorities.appendChild(li);
-      });
-
-      nextMoves.innerHTML = "";
-      moves.forEach((item) => {
-        const li = document.createElement("li");
-        li.textContent = item;
-        nextMoves.appendChild(li);
-      });
-    }
-
-    function clearSavedResults() {
-      Object.values(storageMap).forEach((config) => {
-        localStorage.removeItem(config.key);
-      });
-      renderPage();
-    }
-
-    function renderPage() {
-      const saved = loadSavedResults();
-      const count = Object.keys(saved).length;
-
-      if (!count) {
-        emptyState.classList.add("active");
-        resultsShell.classList.remove("active");
-        return;
-      }
-
-      emptyState.classList.remove("active");
-      resultsShell.classList.add("active");
-
-      getStatusCards(saved);
-      renderToolCards(saved);
-      setExecutiveSummary(saved);
     }
 
     updateHeader();
     window.addEventListener("scroll", updateHeader, { passive: true });
-
-    clearSavedResultsBtn.addEventListener("click", clearSavedResults);
-
-    renderPage();
   </script>
 </body>
 </html>
