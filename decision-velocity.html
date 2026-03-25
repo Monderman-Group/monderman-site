@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ABM Structural Clarity Diagnostic | Monderman</title>
+  <title>ABM Decision Velocity Diagnostic | Monderman</title>
 
   <link
     rel="icon"
@@ -54,6 +54,7 @@
       --text-dark: #15202B;
       --muted-dark: #556270;
       --muted-dark-2: #7A8794;
+      --line-dark: #E3E7EB;
       --panel-line: rgba(21, 32, 43, 0.08);
       --success: #2E8B57;
       --warning: #B8860B;
@@ -65,7 +66,11 @@
     }
 
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 72px;
+    }
 
     body {
       margin: 0;
@@ -274,7 +279,8 @@
         opacity var(--transition);
     }
 
-    .btn:hover, .btn:focus-visible {
+    .btn:hover,
+    .btn:focus-visible {
       transform: translateY(-1px);
       box-shadow: 0 6px 14px rgba(0,0,0,0.08);
       outline: none;
@@ -286,7 +292,8 @@
       border-color: rgba(255,255,255,0.18);
     }
 
-    .btn-secondary:hover, .btn-secondary:focus-visible {
+    .btn-secondary:hover,
+    .btn-secondary:focus-visible {
       background: rgba(255,255,255,0.10);
     }
 
@@ -296,7 +303,8 @@
       border-color: rgba(63,110,161,0.22);
     }
 
-    .btn-accent:hover, .btn-accent:focus-visible {
+    .btn-accent:hover,
+    .btn-accent:focus-visible {
       background: var(--accent-dark);
       border-color: rgba(47,88,134,0.28);
     }
@@ -432,7 +440,8 @@
       transition: all var(--transition);
     }
 
-    .step-pill:hover, .step-pill:focus-visible {
+    .step-pill:hover,
+    .step-pill:focus-visible {
       transform: translateY(-1px);
       border-color: rgba(63,110,161,0.24);
       outline: none;
@@ -463,12 +472,29 @@
       flex: 0 0 auto;
     }
 
-    .step-pill.active .step-num { background: var(--accent); color: #FFFFFF; }
-    .step-pill.done .step-num { background: var(--success); color: #FFFFFF; }
+    .step-pill.active .step-num {
+      background: var(--accent);
+      color: #FFFFFF;
+    }
 
-    form { display: grid; gap: 22px; }
-    .step-panel { display: none; gap: 14px; }
-    .step-panel.active { display: grid; }
+    .step-pill.done .step-num {
+      background: var(--success);
+      color: #FFFFFF;
+    }
+
+    form {
+      display: grid;
+      gap: 22px;
+    }
+
+    .step-panel {
+      display: none;
+      gap: 14px;
+    }
+
+    .step-panel.active {
+      display: grid;
+    }
 
     .section-block {
       display: grid;
@@ -502,7 +528,9 @@
       gap: 9px;
     }
 
-    .field.full { grid-column: 1 / -1; }
+    .field.full {
+      grid-column: 1 / -1;
+    }
 
     .field label {
       font-size: 0.88rem;
@@ -641,7 +669,9 @@
       color: var(--muted-dark);
     }
 
-    .csv-guidance strong { color: var(--text-dark); }
+    .csv-guidance strong {
+      color: var(--text-dark);
+    }
 
     .step-actions,
     .submit-row {
@@ -690,7 +720,9 @@
       color: var(--muted-dark);
     }
 
-    .mini-card p { margin: 0; }
+    .mini-card p {
+      margin: 0;
+    }
 
     .mini-card ul {
       margin: 0;
@@ -705,7 +737,9 @@
       margin-top: 26px;
     }
 
-    .results-shell.active { display: grid; }
+    .results-shell.active {
+      display: grid;
+    }
 
     .empty-state {
       display: grid;
@@ -941,20 +975,36 @@
       color: var(--muted-dark-2);
     }
 
-    .hidden { display: none !important; }
+    .hidden {
+      display: none !important;
+    }
 
     @media (max-width: 1120px) {
-      .page-grid { grid-template-columns: 1fr; }
-      .sidebar-stack { position: static; }
-      .hero-inner { grid-template-columns: 1fr; }
+      .page-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar-stack {
+        position: static;
+      }
+
+      .hero-inner {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 900px) {
-      .summary-grid, .results-grid, .charts-grid { grid-template-columns: 1fr; }
+      .summary-grid,
+      .results-grid,
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 780px) {
-      .header { height: auto; }
+      .header {
+        height: auto;
+      }
 
       .header-inner {
         padding: 16px 20px;
@@ -963,9 +1013,13 @@
         gap: 12px;
       }
 
-      .page-shell { padding: 28px 20px 64px; }
+      .page-shell {
+        padding: 28px 20px 64px;
+      }
 
-      .hero-inner, .panel-head, .panel-body {
+      .hero-inner,
+      .panel-head,
+      .panel-body {
         padding-left: 20px;
         padding-right: 20px;
       }
@@ -975,10 +1029,17 @@
         padding-bottom: 30px;
       }
 
-      .form-grid, .mode-toggle { grid-template-columns: 1fr; }
-      .score-panel-inner { grid-template-columns: 1fr; }
+      .form-grid,
+      .mode-toggle {
+        grid-template-columns: 1fr;
+      }
 
-      .submit-row, .step-actions {
+      .score-panel-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .submit-row,
+      .step-actions {
         align-items: flex-start;
         flex-direction: column;
       }
@@ -1002,7 +1063,9 @@
         display: none !important;
       }
 
-      body { background: #FFFFFF; }
+      body {
+        background: #FFFFFF;
+      }
 
       .page-shell,
       .page-grid {
@@ -1042,13 +1105,13 @@
   </header>
 
   <main class="page-shell">
-    <section class="hero" aria-labelledby="sc-title">
+    <section class="hero" aria-labelledby="dv-title">
       <div class="hero-inner">
         <div>
           <p class="eyebrow">ABM MVP</p>
-          <h1 id="sc-title">Structural Clarity Diagnostic</h1>
+          <h1 id="dv-title">Decision Velocity Diagnostic</h1>
           <p>
-            A focused diagnostic for surfacing where authority, ownership, and accountability have drifted apart.
+            A lightweight diagnostic for identifying where decisions slow, why they slow, and where leaders should intervene first.
           </p>
 
           <div class="hero-actions">
@@ -1061,14 +1124,14 @@
           <div class="hero-meta-card">
             <p class="hero-meta-title">What it surfaces</p>
             <p class="hero-meta-text">
-              Ownership ambiguity, role overlap, escalation confusion, accountability diffusion, and dependence on informal influence.
+              Approval burden, handoff drag, ownership ambiguity, rework loops, escalation dependence, and workaround pressure.
             </p>
           </div>
 
           <div class="hero-meta-card">
             <p class="hero-meta-title">What you get back</p>
             <p class="hero-meta-text">
-              A Structural Clarity Score, directional benchmark comparison, ambiguity charts, boundary-risk signals, and a narrative interpretation layer.
+              A Decision Velocity Score, directional benchmark comparison, friction charts, cost estimates, and a narrative interpretation layer.
             </p>
           </div>
         </div>
@@ -1079,9 +1142,9 @@
       <div class="panel">
         <div class="panel-head">
           <p class="panel-kicker">Diagnostic Input</p>
-          <h2 class="panel-title">Assess one team, role boundary, or operating area.</h2>
+          <h2 class="panel-title">Assess one decision process.</h2>
           <p class="panel-copy">
-            Use the guided diagnostic for the clearest experience, or upload a template-compatible CSV if you already have structured organizational data.
+            Use the guided diagnostic for the cleanest experience, or upload a template-compatible CSV if you already have structured decision-process data.
           </p>
         </div>
 
@@ -1090,13 +1153,13 @@
             <label class="mode-card active" id="modeGuidedCard">
               <input type="radio" name="inputMode" value="guided" checked />
               <p class="mode-card-title">Guided Diagnostic</p>
-              <p class="mode-card-text">Best for leaders examining role clarity, ownership boundaries, and accountability structure.</p>
+              <p class="mode-card-text">Short, progressive workflow. Best for first-time users and leadership conversations.</p>
             </label>
 
             <label class="mode-card" id="modeCsvCard">
               <input type="radio" name="inputMode" value="csv" />
               <p class="mode-card-title">Use Your Own Data</p>
-              <p class="mode-card-text">Upload a narrow CSV for a more structured readout of role and ownership clarity.</p>
+              <p class="mode-card-text">Upload a template-compatible CSV for a narrower, more structured readout.</p>
             </label>
           </div>
 
@@ -1106,75 +1169,70 @@
                 <span class="step-num">1</span><span>Context</span>
               </button>
               <button class="step-pill" type="button" data-step="2">
-                <span class="step-num">2</span><span>Ownership</span>
+                <span class="step-num">2</span><span>Flow</span>
               </button>
               <button class="step-pill" type="button" data-step="3">
-                <span class="step-num">3</span><span>Authority</span>
+                <span class="step-num">3</span><span>Ownership</span>
               </button>
               <button class="step-pill" type="button" data-step="4">
-                <span class="step-num">4</span><span>Boundaries</span>
+                <span class="step-num">4</span><span>Review</span>
               </button>
               <button class="step-pill" type="button" data-step="5">
-                <span class="step-num">5</span><span>Signals & Privacy</span>
+                <span class="step-num">5</span><span>Estimates & Privacy</span>
               </button>
             </div>
 
             <section class="step-panel active" data-step-panel="1">
               <div class="section-block">
-                <h3 class="section-block-title">Step 1 · Structural context</h3>
-                <p class="section-block-text">Describe the team, role boundary, or operating area where clarity may be eroding.</p>
+                <h3 class="section-block-title">Step 1 · Decision context</h3>
+                <p class="section-block-text">Describe one recurring decision pathway leaders care about.</p>
 
                 <div class="form-grid">
                   <div class="field">
-                    <label for="focusArea">Focus area</label>
-                    <input id="focusArea" name="focusArea" type="text" placeholder="e.g. Program management office" required />
+                    <label for="processName">Decision process name</label>
+                    <input id="processName" name="processName" type="text" placeholder="e.g. Vendor approval" required />
                   </div>
 
                   <div class="field">
-                    <label for="structureType">Structure type</label>
-                    <select id="structureType" name="structureType" required>
+                    <label for="decisionType">Decision type</label>
+                    <select id="decisionType" name="decisionType" required>
                       <option value="">Select one</option>
-                      <option value="functional">Functional team</option>
-                      <option value="cross-functional">Cross-functional group</option>
-                      <option value="program">Program / project structure</option>
-                      <option value="shared-service">Shared-service function</option>
-                      <option value="governance">Governance / oversight body</option>
+                      <option value="procurement">Procurement / vendor</option>
+                      <option value="hiring">Hiring / staffing</option>
+                      <option value="budget">Budget / funding</option>
+                      <option value="policy">Policy / governance</option>
+                      <option value="program">Program / project</option>
+                      <option value="risk">Risk / exception</option>
                       <option value="other">Other</option>
                     </select>
                   </div>
 
                   <div class="field">
-                    <label for="scopeSize">People affected</label>
-                    <select id="scopeSize" name="scopeSize" required>
-                      <option value="">Select one</option>
-                      <option value="small">1–10</option>
-                      <option value="medium">11–50</option>
-                      <option value="large">51–150</option>
-                      <option value="very-large">150+</option>
-                    </select>
+                    <label for="businessUnit">Business unit / function</label>
+                    <input id="businessUnit" name="businessUnit" type="text" placeholder="e.g. Operations" required />
                   </div>
 
                   <div class="field">
-                    <label for="changePace">Rate of organizational change</label>
-                    <select id="changePace" name="changePace" required>
+                    <label for="urgency">Typical urgency</label>
+                    <select id="urgency" name="urgency" required>
                       <option value="">Select one</option>
-                      <option value="stable">Stable</option>
+                      <option value="low">Low</option>
                       <option value="moderate">Moderate</option>
                       <option value="high">High</option>
-                      <option value="constant">Constant</option>
+                      <option value="critical">Critical</option>
                     </select>
                   </div>
 
                   <div class="field full">
                     <label for="description">Brief context note</label>
-                    <textarea id="description" name="description" placeholder="Briefly describe where the organization may be experiencing blurred ownership, overlapping roles, or unclear accountability."></textarea>
+                    <textarea id="description" name="description" placeholder="Briefly describe the decision process, recent friction, or what leaders are experiencing."></textarea>
                     <small>This note is optional. Keep it short and non-sensitive.</small>
                   </div>
                 </div>
               </div>
 
               <div class="step-actions">
-                <p class="submit-note">This tool works best when focused on one organizational boundary at a time.</p>
+                <p class="submit-note">This tool works best when you assess one decision pathway at a time.</p>
                 <div class="btn-inline-group">
                   <button class="btn btn-accent step-next" type="button">Continue</button>
                 </div>
@@ -1183,54 +1241,60 @@
 
             <section class="step-panel" data-step-panel="2">
               <div class="section-block">
-                <h3 class="section-block-title">Step 2 · Ownership clarity</h3>
-                <p class="section-block-text">This section measures whether ownership is explicit, stable, and actually recognized by the people involved.</p>
+                <h3 class="section-block-title">Step 2 · Timing, approvals, and handoffs</h3>
+                <p class="section-block-text">This helps distinguish normal complexity from accumulated decision burden.</p>
 
                 <div class="form-grid">
                   <div class="field">
-                    <label for="ownerDefined">Is primary ownership clearly defined?</label>
-                    <select id="ownerDefined" name="ownerDefined" required>
-                      <option value="">Select one</option>
-                      <option value="clear">Usually yes</option>
-                      <option value="mixed">Sometimes</option>
-                      <option value="unclear">Often no</option>
-                    </select>
+                    <label for="decisionDays">Average time to final decision (days)</label>
+                    <input id="decisionDays" name="decisionDays" type="number" min="0" step="1" placeholder="e.g. 14" required />
                   </div>
 
                   <div class="field">
-                    <label for="ownerConsistency">Does ownership stay consistent over time?</label>
-                    <select id="ownerConsistency" name="ownerConsistency" required>
-                      <option value="">Select one</option>
-                      <option value="stable">Usually yes</option>
-                      <option value="mixed">Sometimes</option>
-                      <option value="unstable">Often no</option>
-                    </select>
-                  </div>
-
-                  <div class="field">
-                    <label for="duplicateOwnership">How often do multiple groups believe they own the same work?</label>
-                    <select id="duplicateOwnership" name="duplicateOwnership" required>
+                    <label for="deadlineSlip">How often do deadlines slip because of internal process?</label>
+                    <select id="deadlineSlip" name="deadlineSlip" required>
                       <option value="">Select one</option>
                       <option value="rare">Rarely</option>
                       <option value="sometimes">Sometimes</option>
                       <option value="often">Often</option>
+                      <option value="constant">Constantly</option>
                     </select>
                   </div>
 
                   <div class="field">
-                    <label for="orphanedWork">How often does work sit because no one clearly owns it?</label>
-                    <select id="orphanedWork" name="orphanedWork" required>
+                    <label for="approvalCount">Typical number of approvals</label>
+                    <input id="approvalCount" name="approvalCount" type="number" min="0" step="1" placeholder="e.g. 4" required />
+                  </div>
+
+                  <div class="field">
+                    <label for="approvalFlow">Approvals are usually</label>
+                    <select id="approvalFlow" name="approvalFlow" required>
                       <option value="">Select one</option>
-                      <option value="rare">Rarely</option>
-                      <option value="sometimes">Sometimes</option>
-                      <option value="often">Often</option>
+                      <option value="parallel">Mostly parallel</option>
+                      <option value="mixed">Mixed</option>
+                      <option value="sequential">Mostly sequential</option>
                     </select>
+                  </div>
+
+                  <div class="field">
+                    <label for="lateApprovals">Are extra approvals often added late?</label>
+                    <select id="lateApprovals" name="lateApprovals" required>
+                      <option value="">Select one</option>
+                      <option value="no">No</option>
+                      <option value="occasionally">Occasionally</option>
+                      <option value="frequently">Frequently</option>
+                    </select>
+                  </div>
+
+                  <div class="field">
+                    <label for="handoffCount">Typical number of handoffs</label>
+                    <input id="handoffCount" name="handoffCount" type="number" min="0" step="1" placeholder="e.g. 5" required />
                   </div>
                 </div>
               </div>
 
               <div class="step-actions">
-                <p class="submit-note">This tool is not measuring decision speed; it is measuring whether ownership itself is structurally clear.</p>
+                <p class="submit-note">These inputs drive the strongest part of the current score model.</p>
                 <div class="btn-inline-group">
                   <button class="btn btn-secondary step-prev" type="button">Back</button>
                   <button class="btn btn-accent step-next" type="button">Continue</button>
@@ -1240,33 +1304,18 @@
 
             <section class="step-panel" data-step-panel="3">
               <div class="section-block">
-                <h3 class="section-block-title">Step 3 · Authority and escalation</h3>
-                <p class="section-block-text">This section examines whether formal authority and actual decision rights line up in practice.</p>
+                <h3 class="section-block-title">Step 3 · Coordination and ownership</h3>
+                <p class="section-block-text">This captures friction that tends to hide behind “normal coordination.”</p>
 
                 <div class="form-grid">
                   <div class="field">
-                    <label for="decisionRights">Are decision rights clearly understood?</label>
-                    <select id="decisionRights" name="decisionRights" required>
-                      <option value="">Select one</option>
-                      <option value="clear">Usually yes</option>
-                      <option value="mixed">Mixed</option>
-                      <option value="unclear">Often no</option>
-                    </select>
+                    <label for="meetingCount">Meetings typically needed per decision</label>
+                    <input id="meetingCount" name="meetingCount" type="number" min="0" step="1" placeholder="e.g. 3" required />
                   </div>
 
                   <div class="field">
-                    <label for="escalationPath">Is escalation path clear when conflicts arise?</label>
-                    <select id="escalationPath" name="escalationPath" required>
-                      <option value="">Select one</option>
-                      <option value="clear">Usually yes</option>
-                      <option value="mixed">Mixed</option>
-                      <option value="unclear">Often no</option>
-                    </select>
-                  </div>
-
-                  <div class="field">
-                    <label for="informalInfluence">How often does informal influence override formal structure?</label>
-                    <select id="informalInfluence" name="informalInfluence" required>
+                    <label for="outsideCoordination">Extra coordination outside normal channels</label>
+                    <select id="outsideCoordination" name="outsideCoordination" required>
                       <option value="">Select one</option>
                       <option value="rare">Rarely</option>
                       <option value="sometimes">Sometimes</option>
@@ -1275,19 +1324,39 @@
                   </div>
 
                   <div class="field">
-                    <label for="leaderDependence">How dependent is clarity on one strong leader or key personality?</label>
-                    <select id="leaderDependence" name="leaderDependence" required>
+                    <label for="ownerClarity">Decision ownership is clear from the start</label>
+                    <select id="ownerClarity" name="ownerClarity" required>
                       <option value="">Select one</option>
-                      <option value="low">Low</option>
-                      <option value="moderate">Moderate</option>
-                      <option value="high">High</option>
+                      <option value="always">Usually yes</option>
+                      <option value="mixed">Mixed</option>
+                      <option value="unclear">Often unclear</option>
+                    </select>
+                  </div>
+
+                  <div class="field">
+                    <label for="escalationClarity">Escalation path is clear</label>
+                    <select id="escalationClarity" name="escalationClarity" required>
+                      <option value="">Select one</option>
+                      <option value="always">Usually yes</option>
+                      <option value="mixed">Mixed</option>
+                      <option value="unclear">Often unclear</option>
+                    </select>
+                  </div>
+
+                  <div class="field full">
+                    <label for="keyPersonDependency">Does this process depend on one or two key people to keep moving?</label>
+                    <select id="keyPersonDependency" name="keyPersonDependency" required>
+                      <option value="">Select one</option>
+                      <option value="no">No</option>
+                      <option value="somewhat">Somewhat</option>
+                      <option value="heavily">Heavily</option>
                     </select>
                   </div>
                 </div>
               </div>
 
               <div class="step-actions">
-                <p class="submit-note">If clarity depends mostly on personalities, the structure is usually less clear than it appears.</p>
+                <p class="submit-note">Ownership ambiguity often matters more than leaders expect.</p>
                 <div class="btn-inline-group">
                   <button class="btn btn-secondary step-prev" type="button">Back</button>
                   <button class="btn btn-accent step-next" type="button">Continue</button>
@@ -1297,13 +1366,13 @@
 
             <section class="step-panel" data-step-panel="4">
               <div class="section-block">
-                <h3 class="section-block-title">Step 4 · Role boundaries and accountability</h3>
-                <p class="section-block-text">This section measures overlap, diffusion, and whether accountability survives handoffs and shared work.</p>
+                <h3 class="section-block-title">Step 4 · Rework, workarounds, and review burden</h3>
+                <p class="section-block-text">This is where compensatory behavior and hidden drag often start to appear.</p>
 
                 <div class="form-grid">
                   <div class="field">
-                    <label for="roleOverlap">How often do roles materially overlap?</label>
-                    <select id="roleOverlap" name="roleOverlap" required>
+                    <label for="reopenRate">How often is work reopened for revision?</label>
+                    <select id="reopenRate" name="reopenRate" required>
                       <option value="">Select one</option>
                       <option value="rare">Rarely</option>
                       <option value="sometimes">Sometimes</option>
@@ -1312,8 +1381,8 @@
                   </div>
 
                   <div class="field">
-                    <label for="accountabilityDiffusion">How often does accountability diffuse across multiple parties?</label>
-                    <select id="accountabilityDiffusion" name="accountabilityDiffusion" required>
+                    <label for="escalationRate">How often is the decision escalated?</label>
+                    <select id="escalationRate" name="escalationRate" required>
                       <option value="">Select one</option>
                       <option value="rare">Rarely</option>
                       <option value="sometimes">Sometimes</option>
@@ -1322,20 +1391,35 @@
                   </div>
 
                   <div class="field">
-                    <label for="handoffAmbiguity">When work hands off, does accountability stay clear?</label>
-                    <select id="handoffAmbiguity" name="handoffAmbiguity" required>
+                    <label for="workaroundRate">How often are exceptions or workarounds used?</label>
+                    <select id="workaroundRate" name="workaroundRate" required>
                       <option value="">Select one</option>
-                      <option value="clear">Usually yes</option>
-                      <option value="mixed">Sometimes</option>
-                      <option value="unclear">Often no</option>
+                      <option value="rare">Rarely</option>
+                      <option value="sometimes">Sometimes</option>
+                      <option value="often">Often</option>
                     </select>
                   </div>
 
                   <div class="field">
-                    <label for="conflictFrequency">How often do boundary disputes recur?</label>
-                    <select id="conflictFrequency" name="conflictFrequency" required>
+                    <label for="systemsTouched">Number of systems typically touched</label>
+                    <input id="systemsTouched" name="systemsTouched" type="number" min="1" step="1" placeholder="e.g. 4" required />
+                  </div>
+
+                  <div class="field">
+                    <label for="reviewBurden">Legal / finance / policy review burden</label>
+                    <select id="reviewBurden" name="reviewBurden" required>
                       <option value="">Select one</option>
-                      <option value="rare">Rarely</option>
+                      <option value="light">Light</option>
+                      <option value="moderate">Moderate</option>
+                      <option value="heavy">Heavy</option>
+                    </select>
+                  </div>
+
+                  <div class="field">
+                    <label for="reviewScope">Do review scopes tend to expand during the process?</label>
+                    <select id="reviewScope" name="reviewScope" required>
+                      <option value="">Select one</option>
+                      <option value="no">Rarely</option>
                       <option value="sometimes">Sometimes</option>
                       <option value="often">Often</option>
                     </select>
@@ -1344,7 +1428,7 @@
               </div>
 
               <div class="step-actions">
-                <p class="submit-note">Boundary conflict is often a structural signal, not just a people problem.</p>
+                <p class="submit-note">This section helps reveal where formal process and actual work may be drifting apart.</p>
                 <div class="btn-inline-group">
                   <button class="btn btn-secondary step-prev" type="button">Back</button>
                   <button class="btn btn-accent step-next" type="button">Continue</button>
@@ -1354,13 +1438,13 @@
 
             <section class="step-panel" data-step-panel="5">
               <div class="section-block">
-                <h3 class="section-block-title">Step 5 · Optional signals and privacy</h3>
-                <p class="section-block-text">These optional fields improve directional estimates of structural drag and coordination burden.</p>
+                <h3 class="section-block-title">Step 5 · Optional estimates and privacy</h3>
+                <p class="section-block-text">These fields improve directional estimates of time, money, and resource drag.</p>
 
                 <div class="form-grid">
                   <div class="field">
-                    <label for="meetingsPerWeek">Meetings per week spent resolving ownership / boundary issues</label>
-                    <input id="meetingsPerWeek" name="meetingsPerWeek" type="number" min="0" step="1" placeholder="e.g. 3" />
+                    <label for="peopleInvolved">People typically involved</label>
+                    <input id="peopleInvolved" name="peopleInvolved" type="number" min="0" step="1" placeholder="e.g. 5" />
                   </div>
 
                   <div class="field">
@@ -1369,13 +1453,13 @@
                   </div>
 
                   <div class="field">
-                    <label for="peopleAffected">People regularly affected by this ambiguity</label>
-                    <input id="peopleAffected" name="peopleAffected" type="number" min="0" step="1" placeholder="e.g. 18" />
+                    <label for="annualVolume">Decisions per year</label>
+                    <input id="annualVolume" name="annualVolume" type="number" min="0" step="1" placeholder="e.g. 120" />
                   </div>
 
                   <div class="field">
-                    <label for="issuesPerMonth">Recurring clarity issues per month</label>
-                    <input id="issuesPerMonth" name="issuesPerMonth" type="number" min="0" step="1" placeholder="e.g. 10" />
+                    <label for="meetingHours">Average meeting / coordination hours</label>
+                    <input id="meetingHours" name="meetingHours" type="number" min="0" step="0.5" placeholder="e.g. 4" />
                   </div>
                 </div>
               </div>
@@ -1392,17 +1476,17 @@
               </div>
 
               <p class="submit-reassurance">
-                Do not enter sensitive or proprietary details; a short organizational description is enough.
+                Do not enter sensitive or proprietary details; a short operational description is enough.
               </p>
 
               <div class="submit-row">
                 <p class="submit-note">
-                  This diagnostic is directional. It is designed to produce a credible first read on structural ambiguity, not an audited organizational design assessment.
+                  This diagnostic is directional. It is designed to produce a credible first read on decision latency, not an audited enterprise measurement.
                 </p>
 
                 <div class="btn-inline-group">
                   <button class="btn btn-secondary step-prev" type="button">Back</button>
-                  <button class="btn btn-accent" type="submit">Generate Structural Clarity Readout</button>
+                  <button class="btn btn-accent" type="submit">Generate Decision Velocity Readout</button>
                   <button class="btn btn-secondary" id="resetFormBtn" type="button">Reset</button>
                 </div>
               </div>
@@ -1413,13 +1497,13 @@
             <div class="section-block">
               <h3 class="section-block-title">Use your own structured data</h3>
               <p class="section-block-text">
-                Upload a template-compatible CSV if you already track ownership overlap, unclear escalation, recurring boundary conflict, or accountability issues in a structured way.
+                Upload a template-compatible CSV if you already track decision timing, approvals, handoffs, rework, or escalation patterns in a structured way.
               </p>
 
               <div class="file-drop">
                 <p class="file-drop-title">Upload template-compatible CSV</p>
                 <p class="file-drop-text">
-                  For v1, the upload path is intentionally narrow. Use a simple organizational-clarity export or populate the Monderman template first.
+                  For v1, the upload path is intentionally narrow. Use a simple decision-process export or populate the Monderman template first.
                 </p>
 
                 <div class="template-note">
@@ -1428,7 +1512,7 @@
                 </div>
 
                 <div class="csv-guidance">
-                  <div><strong>Accepted fields:</strong> focus_area, structure_type, owner_defined, owner_consistency, duplicate_ownership, orphaned_work, decision_rights, escalation_path, informal_influence, leader_dependence, role_overlap, accountability_diffusion, handoff_ambiguity, conflict_frequency</div>
+                  <div><strong>Accepted fields:</strong> process_name, decision_type, business_unit, decision_days, approval_count, handoff_count, meeting_count, systems_touched, reopen_rate, escalation_rate, workaround_rate</div>
                   <div><strong>What happens after upload:</strong> the file is parsed into a narrower best-effort readout. Missing fields are filled directionally rather than inferred with false precision.</div>
                 </div>
 
@@ -1452,7 +1536,7 @@
             </div>
 
             <p class="submit-reassurance">
-              Do not upload sensitive or proprietary data. A simplified organizational export is enough for this prototype.
+              Do not upload sensitive or proprietary data. A simplified operational export is enough for this prototype.
             </p>
 
             <div class="submit-row">
@@ -1469,14 +1553,14 @@
 
           <section class="empty-state" id="resultsEmptyState" aria-live="polite">
             <h3 class="empty-state-title">Complete the diagnostic to generate your executive readout.</h3>
-            <p>The dashboard will populate with a Structural Clarity Score, directional benchmark comparison, ambiguity charts, coordination-drag estimates, and narrative interpretation once inputs are submitted.</p>
+            <p>The dashboard will populate with a Decision Velocity Score, directional benchmark comparison, friction charts, cost estimates, and narrative interpretation once inputs are submitted.</p>
           </section>
 
           <section class="results-shell" id="resultsShell" aria-live="polite">
             <div class="score-panel">
               <div class="score-panel-inner">
                 <div>
-                  <p class="score-label">Structural Clarity Score</p>
+                  <p class="score-label">Decision Velocity Score</p>
                   <p class="score-number" id="scoreNumber">0</p>
                   <p class="score-band" id="scoreBand">—</p>
                   <p class="score-summary" id="scoreSummary">Complete the diagnostic to generate a readout.</p>
@@ -1493,44 +1577,44 @@
               </div>
 
               <div class="summary-card">
-                <p class="summary-label">Coordination Drag</p>
+                <p class="summary-label">Time Cost</p>
                 <p class="summary-value" id="timeCostValue">—</p>
                 <p class="summary-sub" id="timeCostSub">Directional estimate</p>
               </div>
 
               <div class="summary-card">
-                <p class="summary-label">Cost Exposure</p>
+                <p class="summary-label">Money Cost</p>
                 <p class="summary-value" id="moneyCostValue">—</p>
                 <p class="summary-sub" id="moneyCostSub">Directional estimate</p>
               </div>
 
               <div class="summary-card">
-                <p class="summary-label">Boundary Risk</p>
+                <p class="summary-label">Resource Drag</p>
                 <p class="summary-value" id="resourceDragValue">—</p>
-                <p class="summary-sub" id="resourceDragSub">Estimated structural load</p>
+                <p class="summary-sub" id="resourceDragSub">Estimated productive load</p>
               </div>
 
               <div class="summary-card">
-                <p class="summary-label">Structure Type</p>
+                <p class="summary-label">Category</p>
                 <p class="summary-value" id="categoryValue">—</p>
-                <p class="summary-sub" id="categorySub">Reference group</p>
+                <p class="summary-sub" id="categorySub">Decision type</p>
               </div>
             </div>
 
             <p class="benchmark-footnote">
-              Benchmark ranges shown here are Monderman directional reference ranges for comparable structure types, not audited market averages.
+              Benchmark ranges shown here are Monderman directional reference ranges for comparable decision types, not audited market averages.
             </p>
 
             <div class="charts-grid">
               <div class="chart-card">
-                <h3 class="result-card-title">Ambiguity profile</h3>
+                <h3 class="result-card-title">Friction breakdown</h3>
                 <div class="chart-wrap">
                   <canvas id="frictionChart"></canvas>
                 </div>
               </div>
 
               <div class="chart-card">
-                <h3 class="result-card-title">Boundary risk contribution</h3>
+                <h3 class="result-card-title">Slowdown contribution</h3>
                 <div class="chart-wrap">
                   <canvas id="slowdownChart"></canvas>
                 </div>
@@ -1539,7 +1623,7 @@
 
             <div class="results-grid">
               <div class="result-card">
-                <h3 class="result-card-title">Key ambiguity flags</h3>
+                <h3 class="result-card-title">Key friction flags</h3>
                 <ul class="result-list" id="frictionFlags"></ul>
               </div>
 
@@ -1572,35 +1656,35 @@
         <div class="mini-card">
           <h3 class="mini-card-title">How this works</h3>
           <p>
-            This diagnostic evaluates one structural boundary at a time. It translates signals about ownership, authority, and accountability into a directional readout of structural clarity.
+            This MVP evaluates one decision process at a time. It translates a small set of structured signals into a directional readout of decision velocity, friction, and likely intervention points.
           </p>
         </div>
 
         <div class="mini-card">
           <h3 class="mini-card-title">Best use cases</h3>
           <ul>
-            <li>Cross-functional teams</li>
-            <li>Program or matrix structures</li>
-            <li>Shared-service functions</li>
-            <li>Oversight and governance groups</li>
-            <li>Recurring ownership disputes between units</li>
+            <li>Vendor approvals</li>
+            <li>Hiring and staffing decisions</li>
+            <li>Budget and funding reviews</li>
+            <li>Policy or exception approvals</li>
+            <li>Program decisions requiring multiple stakeholders</li>
           </ul>
         </div>
 
         <div class="mini-card">
           <h3 class="mini-card-title">What this is not</h3>
           <ul>
-            <li>Not a decision-speed tool</li>
-            <li>Not a morale survey</li>
-            <li>Not a personality assessment</li>
-            <li>Not a replacement for org-design work</li>
+            <li>Not an enterprise deployment</li>
+            <li>Not a compliance tool</li>
+            <li>Not a productivity monitor</li>
+            <li>Not a replacement for formal process analysis</li>
           </ul>
         </div>
 
         <div class="mini-card">
           <h3 class="mini-card-title">What to trust</h3>
           <p>
-            Trust the structural pattern, not false precision. The strongest value here is surfacing where ownership, authority, and accountability no longer align cleanly.
+            Trust the directional pattern, not false precision. The strongest value here is in surfacing where drag is likely forming and where leadership attention should go first.
           </p>
         </div>
       </aside>
@@ -1652,15 +1736,16 @@
     const prevButtons = Array.from(document.querySelectorAll(".step-prev"));
 
     let currentStep = 1;
-    let ambiguityChart;
-    let boundaryChart;
+    let frictionChart;
+    let slowdownChart;
 
     const BENCHMARKS = {
-      functional: { label: "Functional team", healthyMin: 76, healthyMax: 88, moderateMin: 62, moderateMax: 75, frictionMin: 46, frictionMax: 61 },
-      "cross-functional": { label: "Cross-functional group", healthyMin: 70, healthyMax: 84, moderateMin: 56, moderateMax: 69, frictionMin: 40, frictionMax: 55 },
-      program: { label: "Program / project structure", healthyMin: 68, healthyMax: 82, moderateMin: 54, moderateMax: 67, frictionMin: 38, frictionMax: 53 },
-      "shared-service": { label: "Shared-service function", healthyMin: 72, healthyMax: 85, moderateMin: 58, moderateMax: 71, frictionMin: 42, frictionMax: 57 },
-      governance: { label: "Governance / oversight body", healthyMin: 66, healthyMax: 80, moderateMin: 52, moderateMax: 65, frictionMin: 36, frictionMax: 51 },
+      procurement: { label: "Procurement / vendor", healthyMin: 72, healthyMax: 84, moderateMin: 58, moderateMax: 71, frictionMin: 42, frictionMax: 57 },
+      hiring: { label: "Hiring / staffing", healthyMin: 74, healthyMax: 86, moderateMin: 60, moderateMax: 73, frictionMin: 44, frictionMax: 59 },
+      budget: { label: "Budget / funding", healthyMin: 70, healthyMax: 82, moderateMin: 56, moderateMax: 69, frictionMin: 40, frictionMax: 55 },
+      policy: { label: "Policy / governance", healthyMin: 68, healthyMax: 80, moderateMin: 54, moderateMax: 67, frictionMin: 38, frictionMax: 53 },
+      program: { label: "Program / project", healthyMin: 71, healthyMax: 83, moderateMin: 57, moderateMax: 70, frictionMin: 41, frictionMax: 56 },
+      risk: { label: "Risk / exception", healthyMin: 66, healthyMax: 78, moderateMin: 52, moderateMax: 65, frictionMin: 36, frictionMax: 51 },
       other: { label: "Other", healthyMin: 70, healthyMax: 82, moderateMin: 56, moderateMax: 69, frictionMin: 40, frictionMax: 55 }
     };
 
@@ -1716,7 +1801,9 @@
 
     nextButtons.forEach(btn => {
       btn.addEventListener("click", () => {
-        if (validateStep(currentStep)) goToStep(currentStep + 1);
+        if (validateStep(currentStep)) {
+          goToStep(currentStep + 1);
+        }
       });
     });
 
@@ -1726,18 +1813,15 @@
 
     modeGuidedCard.addEventListener("click", () => setMode("guided"));
     modeCsvCard.addEventListener("click", () => setMode("csv"));
-
     startGuidedBtn.addEventListener("click", () => {
       setMode("guided");
       goToStep(1);
       guidedForm.scrollIntoView({ behavior: "smooth", block: "start" });
     });
-
     startUploadBtn.addEventListener("click", () => {
       setMode("csv");
       csvForm.scrollIntoView({ behavior: "smooth", block: "start" });
     });
-
     backToGuidedBtn.addEventListener("click", () => setMode("guided"));
 
     resetFormBtn.addEventListener("click", () => {
@@ -1766,15 +1850,15 @@
     downloadTemplateLink.addEventListener("click", (e) => {
       e.preventDefault();
       const csv = [
-        "focus_area,structure_type,owner_defined,owner_consistency,duplicate_ownership,orphaned_work,decision_rights,escalation_path,informal_influence,leader_dependence,role_overlap,accountability_diffusion,handoff_ambiguity,conflict_frequency",
-        "Program Office,cross-functional,mixed,mixed,sometimes,sometimes,mixed,mixed,sometimes,moderate,often,sometimes,mixed,sometimes"
+        "process_name,decision_type,business_unit,decision_days,approval_count,handoff_count,meeting_count,systems_touched,reopen_rate,escalation_rate,workaround_rate",
+        "Vendor Approval,procurement,Operations,14,4,5,3,4,sometimes,rare,sometimes"
       ].join("\n");
 
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const tempLink = document.createElement("a");
       tempLink.href = url;
-      tempLink.download = "monderman_structural_clarity_template.csv";
+      tempLink.download = "monderman_decision_velocity_template.csv";
       document.body.appendChild(tempLink);
       tempLink.click();
       document.body.removeChild(tempLink);
@@ -1790,10 +1874,10 @@
     }
 
     function getBand(score) {
-      if (score >= 82) return "High structural clarity";
-      if (score >= 65) return "Moderate ambiguity";
-      if (score >= 45) return "Significant structural blur";
-      return "High structural ambiguity";
+      if (score >= 82) return "Healthy velocity";
+      if (score >= 65) return "Moderate drag";
+      if (score >= 45) return "Significant friction";
+      return "High bureaucratic latency";
     }
 
     function getBenchmarkPosition(score, benchmark) {
@@ -1802,138 +1886,199 @@
       return "Below comparable range";
     }
 
-    function getBoundaryRisk(score) {
-      if (score >= 82) return "Low";
-      if (score >= 65) return "Moderate";
-      if (score >= 45) return "Elevated";
-      return "High";
+    function getResourceDragBand(score) {
+      if (score >= 82) return "4–8%";
+      if (score >= 65) return "9–15%";
+      if (score >= 45) return "16–24%";
+      return "25–35%";
     }
 
     function scoreGuided(data) {
-      let ownershipClarity = 0;
-      ownershipClarity += mapSelect(data.ownerDefined, { clear: 0, mixed: 5, unclear: 10 });
-      ownershipClarity += mapSelect(data.ownerConsistency, { stable: 0, mixed: 4, unstable: 8 });
-      ownershipClarity = Math.min(16, ownershipClarity);
+      const days = Number(data.decisionDays || 0);
+      const approvals = Number(data.approvalCount || 0);
+      const handoffs = Number(data.handoffCount || 0);
+      const meetings = Number(data.meetingCount || 0);
+      const systems = Number(data.systemsTouched || 0);
 
-      let overlapDiffusion = 0;
-      overlapDiffusion += mapSelect(data.duplicateOwnership, { rare: 0, sometimes: 4, often: 8 });
-      overlapDiffusion += mapSelect(data.orphanedWork, { rare: 0, sometimes: 3, often: 6 });
-      overlapDiffusion += mapSelect(data.accountabilityDiffusion, { rare: 0, sometimes: 3, often: 6 });
-      overlapDiffusion = Math.min(18, overlapDiffusion);
+      let cycle = 0;
+      if (days <= 3) cycle = 0;
+      else if (days <= 7) cycle = 4;
+      else if (days <= 14) cycle = 8;
+      else if (days <= 21) cycle = 13;
+      else if (days <= 30) cycle = 17;
+      else cycle = 20;
 
-      let authorityAlignment = 0;
-      authorityAlignment += mapSelect(data.decisionRights, { clear: 0, mixed: 5, unclear: 10 });
-      authorityAlignment += mapSelect(data.escalationPath, { clear: 0, mixed: 3, unclear: 6 });
-      authorityAlignment = Math.min(16, authorityAlignment);
+      if (data.urgency === "high" && days > 10) cycle = Math.min(20, cycle + 2);
+      if (data.urgency === "critical" && days > 7) cycle = Math.min(20, cycle + 4);
 
-      let informalDependency = 0;
-      informalDependency += mapSelect(data.informalInfluence, { rare: 0, sometimes: 4, often: 8 });
-      informalDependency += mapSelect(data.leaderDependence, { low: 0, moderate: 3, high: 6 });
-      informalDependency = Math.min(14, informalDependency);
+      let approvalBurden = 0;
+      if (approvals <= 1) approvalBurden = 0;
+      else if (approvals === 2) approvalBurden = 2;
+      else if (approvals === 3) approvalBurden = 5;
+      else if (approvals === 4) approvalBurden = 8;
+      else if (approvals === 5) approvalBurden = 11;
+      else approvalBurden = 14;
 
-      let boundaryFriction = 0;
-      boundaryFriction += mapSelect(data.roleOverlap, { rare: 0, sometimes: 4, often: 8 });
-      boundaryFriction += mapSelect(data.handoffAmbiguity, { clear: 0, mixed: 3, unclear: 6 });
-      boundaryFriction += mapSelect(data.conflictFrequency, { rare: 0, sometimes: 3, often: 6 });
-      boundaryFriction = Math.min(18, boundaryFriction);
+      approvalBurden += mapSelect(data.approvalFlow, { parallel: 0, mixed: 2, sequential: 4 });
+      approvalBurden += mapSelect(data.lateApprovals, { no: 0, occasionally: 2, frequently: 4 });
+      approvalBurden = Math.min(14, approvalBurden);
 
-      let structuralVolatility = 0;
-      structuralVolatility += mapSelect(data.changePace, { stable: 0, moderate: 3, high: 5, constant: 7 });
-      structuralVolatility += mapSelect(data.scopeSize, { small: 0, medium: 2, large: 4, "very-large": 6 });
-      structuralVolatility = Math.min(12, structuralVolatility);
+      let handoffBurden = 0;
+      if (handoffs <= 1) handoffBurden = 0;
+      else if (handoffs === 2) handoffBurden = 3;
+      else if (handoffs === 3) handoffBurden = 6;
+      else if (handoffs === 4) handoffBurden = 9;
+      else if (handoffs === 5) handoffBurden = 11;
+      else handoffBurden = 14;
+
+      let coordinationBurden = 0;
+      if (meetings <= 1) coordinationBurden = 0;
+      else if (meetings === 2) coordinationBurden = 2;
+      else if (meetings === 3) coordinationBurden = 4;
+      else if (meetings === 4) coordinationBurden = 6;
+      else coordinationBurden = 8;
+      coordinationBurden += mapSelect(data.outsideCoordination, { rare: 0, sometimes: 1, often: 2 });
+      coordinationBurden = Math.min(10, coordinationBurden);
+
+      let ownershipBurden = 0;
+      ownershipBurden += mapSelect(data.ownerClarity, { always: 0, mixed: 4, unclear: 7 });
+      ownershipBurden += mapSelect(data.escalationClarity, { always: 0, mixed: 2, unclear: 4 });
+      ownershipBurden += mapSelect(data.keyPersonDependency, { no: 0, somewhat: 2, heavily: 4 });
+      ownershipBurden = Math.min(12, ownershipBurden);
+
+      const reworkBurden = mapSelect(data.reopenRate, { rare: 0, sometimes: 5, often: 10 });
+
+      let workaroundBurden = 0;
+      workaroundBurden += mapSelect(data.escalationRate, { rare: 0, sometimes: 3, often: 6 });
+      workaroundBurden += mapSelect(data.workaroundRate, { rare: 0, sometimes: 3, often: 6 });
+      workaroundBurden = Math.min(12, workaroundBurden);
+
+      let systemsBurden = 0;
+      if (systems === 1) systemsBurden += 0;
+      else if (systems === 2) systemsBurden += 1;
+      else if (systems === 3) systemsBurden += 2;
+      else if (systems === 4) systemsBurden += 3;
+      else systemsBurden += 4;
+
+      systemsBurden += mapSelect(data.reviewBurden, { light: 0, moderate: 2, heavy: 3 });
+      systemsBurden += mapSelect(data.reviewScope, { no: 0, sometimes: 1, often: 2 });
+      systemsBurden = Math.min(8, systemsBurden);
 
       const totalDeduction =
-        ownershipClarity +
-        overlapDiffusion +
-        authorityAlignment +
-        informalDependency +
-        boundaryFriction +
-        structuralVolatility;
+        cycle +
+        approvalBurden +
+        handoffBurden +
+        coordinationBurden +
+        ownershipBurden +
+        reworkBurden +
+        workaroundBurden +
+        systemsBurden;
 
       const score = Math.max(0, Math.min(100, 100 - totalDeduction));
       const band = getBand(score);
-      const benchmark = BENCHMARKS[data.structureType] || BENCHMARKS.other;
+      const benchmark = BENCHMARKS[data.decisionType] || BENCHMARKS.other;
       const benchmarkPosition = getBenchmarkPosition(score, benchmark);
 
-      const breakdown = {
-        ownership_clarity: ownershipClarity,
-        overlap_diffusion: overlapDiffusion,
-        authority_alignment: authorityAlignment,
-        informal_dependency: informalDependency,
-        boundary_friction: boundaryFriction,
-        structural_volatility: structuralVolatility
+      const burdenBreakdown = {
+        cycle_time: cycle,
+        approval: approvalBurden,
+        handoff: handoffBurden,
+        coordination: coordinationBurden,
+        ownership: ownershipBurden,
+        rework: reworkBurden,
+        workaround: workaroundBurden,
+        systems_review: systemsBurden
       };
 
-      const coordinationHours = Math.round(
-        (ownershipClarity * 0.4) +
-        (overlapDiffusion * 0.5) +
-        (authorityAlignment * 0.45) +
-        (boundaryFriction * 0.55)
+      const baselineComplexity = mapSelect(data.urgency, { low: 4, moderate: 6, high: 8, critical: 10 });
+
+      const timeHoursPerDecision = Math.round(
+        (approvalBurden * 0.6) +
+        (handoffBurden * 0.75) +
+        (coordinationBurden * 0.9) +
+        (reworkBurden * 1.0) +
+        (workaroundBurden * 0.6)
       );
 
-      const peopleAffected = Number(data.peopleAffected || 0);
+      const peopleInvolved = Number(data.peopleInvolved || 0);
       const hourlyCost = Number(data.hourlyCost || 0);
-      const issuesPerMonth = Number(data.issuesPerMonth || 0);
-      const meetingsPerWeek = Number(data.meetingsPerWeek || 0);
+      const annualVolume = Number(data.annualVolume || 0);
 
-      const monthlyCost = (peopleAffected > 0 && hourlyCost > 0)
-        ? Math.round((coordinationHours + meetingsPerWeek) * peopleAffected * hourlyCost)
+      const costPerDecision = (peopleInvolved > 0 && hourlyCost > 0)
+        ? Math.round(timeHoursPerDecision * peopleInvolved * hourlyCost)
         : null;
 
-      const annualCost = (monthlyCost && issuesPerMonth > 0)
-        ? Math.round(monthlyCost * 12)
-        : (monthlyCost ? Math.round(monthlyCost * 12) : null);
+      const annualCost = (costPerDecision && annualVolume > 0)
+        ? Math.round(costPerDecision * annualVolume)
+        : null;
+
+      const annualHours = (annualVolume > 0)
+        ? Math.round(timeHoursPerDecision * annualVolume)
+        : null;
 
       const flags = [];
       const recs = [];
 
-      if (ownershipClarity >= 10) {
-        flags.push("Primary ownership appears insufficiently explicit or unstable over time.");
-        recs.push("Define primary ownership more explicitly and reduce silent shifts in responsibility.");
+      if (approvalBurden >= 10) {
+        flags.push("Approval layering appears heavier than the work likely requires.");
+        recs.push("Reduce or consolidate approval layers, especially where late approvals are routinely added.");
       }
-      if (overlapDiffusion >= 11) {
-        flags.push("Ownership overlap or orphaned work suggests accountability is not landing cleanly.");
-        recs.push("Clarify boundaries between groups and identify where work currently falls between roles.");
+
+      if (handoffBurden >= 9) {
+        flags.push("High handoff load suggests routing complexity and diluted accountability.");
+        recs.push("Shorten routing paths and reduce unnecessary transfers between functions or reviewers.");
       }
-      if (authorityAlignment >= 10) {
-        flags.push("Formal authority and actual decision rights may not be aligned in practice.");
-        recs.push("Clarify decision rights and escalation rules in a way people can actually use day to day.");
+
+      if (ownershipBurden >= 7) {
+        flags.push("Ownership or escalation ambiguity is likely contributing to delay.");
+        recs.push("Clarify decision ownership at intake and define escalation rules before the process starts.");
       }
-      if (informalDependency >= 8) {
-        flags.push("The structure appears more dependent on informal influence than it should be.");
-        recs.push("Reduce hidden dependence on key personalities by making authority pathways more explicit.");
+
+      if (reworkBurden >= 5) {
+        flags.push("Rework loops are consuming time that should be spent moving toward decision.");
+        recs.push("Identify the most common causes of reopening and tighten scope or quality earlier in the process.");
       }
-      if (boundaryFriction >= 11) {
-        flags.push("Recurring boundary friction suggests role design and accountability handoffs need attention.");
-        recs.push("Redesign boundary interfaces so accountability remains clear when work crosses units.");
+
+      if (workaroundBurden >= 6) {
+        flags.push("The process appears to rely on workaround or escalation behavior to preserve movement.");
+        recs.push("Audit where exceptions and informal intervention are compensating for structural weakness.");
       }
-      if (structuralVolatility >= 7) {
-        flags.push("Frequent change may be outpacing the organization’s ability to keep structure clear.");
-        recs.push("Revisit role and ownership clarity after major changes instead of assuming the structure still holds.");
+
+      if (coordinationBurden >= 6) {
+        flags.push("Coordination burden is high relative to a healthy decision pathway.");
+        recs.push("Reduce redundant meetings and shift work into fewer, clearer decision moments.");
+      }
+
+      if (systemsBurden >= 5) {
+        flags.push("Systems and review burden are adding cumulative friction.");
+        recs.push("Narrow recurring review triggers and simplify the number of systems touched where possible.");
       }
 
       if (!flags.length) {
-        flags.push("No single dominant ambiguity source surfaced; the structure appears more coherent than blurred.");
+        flags.push("No single dominant friction source surfaced; the process appears more balanced than burdened.");
       }
 
       while (recs.length < 3) {
-        recs.push("Continue monitoring for ownership drift, recurring overlap, and reliance on informal coordination.");
+        recs.push("Continue monitoring for approval growth, handoff creep, and rising coordination burden over time.");
       }
 
       return {
-        focusArea: data.focusArea || "This structure",
-        structureType: data.structureType,
+        processName: data.processName || "This decision process",
+        decisionType: data.decisionType,
+        businessUnit: data.businessUnit,
         score,
         band,
         benchmark,
         benchmarkPosition,
-        breakdown,
+        burdenBreakdown,
+        baselineComplexity,
         flags: flags.slice(0, 5),
         recommendations: recs.slice(0, 5),
-        coordinationHours,
-        monthlyCost,
+        timeHoursPerDecision,
+        annualHours,
+        costPerDecision,
         annualCost,
-        boundaryRisk: getBoundaryRisk(score),
+        resourceDrag: getResourceDragBand(score),
         contextNote: data.description || ""
       };
     }
@@ -1958,27 +2103,29 @@
       let interpretation = "";
       let implication = "";
 
-      if (result.band === "High structural clarity") {
-        interpretation = "This structure appears relatively coherent. Ownership, authority, and accountability seem to align more cleanly than they do in most blurred environments. The priority is preserving clarity as the organization changes.";
-        implication = "Leadership should focus on preventing incremental drift rather than assuming structural coherence will sustain itself automatically.";
-      } else if (result.band === "Moderate ambiguity") {
-        interpretation = "This structure is still functioning, but some ownership and authority signals appear mixed. The organization may still be moving, though with more coordination and interpretation than a cleaner structure should require.";
-        implication = "Without attention, moderate ambiguity often becomes recurring conflict, slow escalation, and quiet accountability diffusion.";
-      } else if (result.band === "Significant structural blur") {
-        interpretation = "The structure appears materially blurred. Ownership, authority, or role boundaries are likely creating recurring friction that leaders may currently experience as coordination difficulty rather than design weakness.";
-        implication = "If this pattern continues, the organization will increasingly rely on informal influence, escalation, and compensatory behavior to preserve coherence.";
+      if (result.band === "Healthy velocity") {
+        interpretation = "This decision pathway appears relatively well-governed. Friction exists, but it does not currently dominate movement. The priority is preserving clarity and preventing incremental approval, coordination, or review creep.";
+        implication = "Leadership should treat this as a stable process worth protecting rather than over-engineering. The main risk is slow drift rather than obvious dysfunction.";
+      } else if (result.band === "Moderate drag") {
+        interpretation = "This process is still functioning, but administrative burden is likely absorbing meaningful time that leaders may not fully see. The pattern suggests the process remains workable, though increasingly heavier than the work may require.";
+        implication = "Under urgency, scale, or leadership turnover, this type of process may become noticeably slower and harder to steer. Early intervention is more efficient than waiting for visible breakdown.";
+      } else if (result.band === "Significant friction") {
+        interpretation = "The process appears materially slowed by accumulated burden rather than complexity alone. Approval load, routing, rework, or ambiguity are likely compounding each other and generating avoidable decision latency.";
+        implication = "If this pattern continues, the organization will increasingly rely on escalation, workaround behavior, or extra coordination to preserve movement. That weakens maneuverability over time.";
       } else {
-        interpretation = "This structure shows signs of high ambiguity. Authority, ownership, and accountability may no longer align reliably enough to support clean execution under pressure.";
-        implication = "Without intervention, structural ambiguity of this kind tends to degrade coordination quality, increase conflict, and make performance more dependent on personalities than on design.";
+        interpretation = "This process shows signs of high bureaucratic latency and likely depends on compensatory behavior to keep moving. The formal pathway may no longer be well matched to the work it is supposed to govern.";
+        implication = "Without intervention, this pattern can quietly degrade execution quality, responsiveness, and trust in the organization’s own decision pathways. Leaders should treat it as an operating risk.";
       }
 
       return { interpretation, implication };
     }
 
     async function fetchNarrativeFromBackend(payload) {
-      const response = await fetch("/api/structural-clarity-narrative", {
+      const response = await fetch("/api/decision-velocity-narrative", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify(payload)
       });
 
@@ -1991,15 +2138,16 @@
 
     function buildPayload(result) {
       return {
-        focus_area: result.focusArea,
-        structure_type: result.structureType,
+        process_name: result.processName,
+        decision_type: result.decisionType,
+        business_unit: result.businessUnit,
         score: result.score,
         score_band: result.band,
         benchmark_position: result.benchmarkPosition,
-        ambiguity_breakdown: result.breakdown,
-        coordination_drag_estimate: result.coordinationHours ? `${result.coordinationHours} hours per month-equivalent signal` : "Not provided",
-        cost_exposure_estimate: result.annualCost ? `${formatCurrency(result.annualCost)} annually` : "Not provided",
-        boundary_risk_estimate: result.boundaryRisk,
+        burden_breakdown: result.burdenBreakdown,
+        time_cost_estimate: result.timeHoursPerDecision ? `${result.timeHoursPerDecision} hours per decision` : "Not provided",
+        money_cost_estimate: result.costPerDecision ? `${formatCurrency(result.costPerDecision)} per decision` : "Not provided",
+        resource_drag_estimate: result.resourceDrag,
         context_note: result.contextNote
       };
     }
@@ -2028,33 +2176,36 @@
     }
 
     function renderCharts(result) {
-      const ambiguityData = [
-        { label: "Ownership Clarity", value: result.breakdown.ownership_clarity },
-        { label: "Overlap / Diffusion", value: result.breakdown.overlap_diffusion },
-        { label: "Authority Alignment", value: result.breakdown.authority_alignment },
-        { label: "Informal Dependency", value: result.breakdown.informal_dependency },
-        { label: "Boundary Friction", value: result.breakdown.boundary_friction },
-        { label: "Structural Volatility", value: result.breakdown.structural_volatility }
+      const frictionData = [
+        { label: "Cycle-Time Burden", value: result.burdenBreakdown.cycle_time },
+        { label: "Approval Burden", value: result.burdenBreakdown.approval },
+        { label: "Handoff Burden", value: result.burdenBreakdown.handoff },
+        { label: "Coordination Burden", value: result.burdenBreakdown.coordination },
+        { label: "Ownership Ambiguity", value: result.burdenBreakdown.ownership },
+        { label: "Rework Burden", value: result.burdenBreakdown.rework },
+        { label: "Workaround / Escalation", value: result.burdenBreakdown.workaround },
+        { label: "Systems / Review Burden", value: result.burdenBreakdown.systems_review }
       ].sort((a, b) => b.value - a.value);
 
-      const boundaryData = [
-        { stage: "Ownership Instability", value: result.breakdown.ownership_clarity },
-        { stage: "Overlap / Diffusion", value: result.breakdown.overlap_diffusion },
-        { stage: "Authority Misalignment", value: result.breakdown.authority_alignment },
-        { stage: "Informal Dependence", value: result.breakdown.informal_dependency },
-        { stage: "Boundary Friction", value: result.breakdown.boundary_friction }
+      const slowdownData = [
+        { stage: "Baseline Complexity", value: result.baselineComplexity },
+        { stage: "Approval Layering", value: result.burdenBreakdown.approval },
+        { stage: "Handoffs", value: result.burdenBreakdown.handoff },
+        { stage: "Coordination", value: result.burdenBreakdown.coordination },
+        { stage: "Rework", value: result.burdenBreakdown.rework },
+        { stage: "Escalation / Workarounds", value: result.burdenBreakdown.workaround }
       ];
 
-      if (ambiguityChart) ambiguityChart.destroy();
-      if (boundaryChart) boundaryChart.destroy();
+      if (frictionChart) frictionChart.destroy();
+      if (slowdownChart) slowdownChart.destroy();
 
-      ambiguityChart = new Chart(document.getElementById("frictionChart"), {
+      frictionChart = new Chart(document.getElementById("frictionChart"), {
         type: "bar",
         data: {
-          labels: ambiguityData.map(d => d.label),
+          labels: frictionData.map(d => d.label),
           datasets: [{
-            label: "Ambiguity contribution",
-            data: ambiguityData.map(d => d.value),
+            label: "Burden contribution",
+            data: frictionData.map(d => d.value),
             backgroundColor: "rgba(63,110,161,0.82)",
             borderRadius: 8,
             maxBarThickness: 28
@@ -2065,7 +2216,9 @@
           responsive: true,
           maintainAspectRatio: false,
           layout: { padding: { right: 8 } },
-          plugins: { legend: { display: false } },
+          plugins: {
+            legend: { display: false }
+          },
           scales: {
             x: {
               beginAtZero: true,
@@ -2086,14 +2239,15 @@
         }
       });
 
-      boundaryChart = new Chart(document.getElementById("slowdownChart"), {
+      slowdownChart = new Chart(document.getElementById("slowdownChart"), {
         type: "bar",
         data: {
-          labels: boundaryData.map(d => d.stage),
+          labels: slowdownData.map(d => d.stage),
           datasets: [{
-            label: "Boundary risk contribution",
-            data: boundaryData.map(d => d.value),
+            label: "Contribution to slowdown",
+            data: slowdownData.map(d => d.value),
             backgroundColor: [
+              "rgba(122,135,148,0.55)",
               "rgba(63,110,161,0.82)",
               "rgba(63,110,161,0.68)",
               "rgba(184,134,11,0.68)",
@@ -2108,7 +2262,9 @@
           responsive: true,
           maintainAspectRatio: false,
           layout: { padding: { right: 8 } },
-          plugins: { legend: { display: false } },
+          plugins: {
+            legend: { display: false }
+          },
           scales: {
             x: {
               ticks: {
@@ -2138,24 +2294,24 @@
 
       scoreNumber.textContent = result.score;
       scoreBand.textContent = result.band;
-      scoreBadge.textContent = result.focusArea;
+      scoreBadge.textContent = result.processName;
       scoreSummary.textContent =
-        `This readout suggests that ${result.focusArea.toLowerCase()} ${result.band === "High structural clarity" ? "is relatively coherent structurally." : "is experiencing enough ambiguity to warrant structural intervention."}`;
+        `This readout suggests that ${result.processName.toLowerCase()} is ${result.band === "Healthy velocity" ? "moving with relatively healthy velocity." : "experiencing enough friction to warrant targeted intervention."}`;
 
       benchmarkValue.textContent = result.benchmarkPosition;
       benchmarkSub.textContent = `${result.benchmark.label}: ${result.benchmark.moderateMin}–${result.benchmark.healthyMax}`;
 
-      timeCostValue.textContent = result.coordinationHours ? `${result.coordinationHours} hrs` : "—";
-      timeCostSub.textContent = "Estimated coordination drag";
+      timeCostValue.textContent = result.timeHoursPerDecision ? `${result.timeHoursPerDecision} hrs` : "—";
+      timeCostSub.textContent = result.annualHours ? `${result.annualHours} hrs / year` : "Directional estimate";
 
-      moneyCostValue.textContent = result.annualCost ? formatCurrency(result.annualCost) : "—";
-      moneyCostSub.textContent = result.annualCost ? "Approx. annualized exposure" : "Directional estimate";
+      moneyCostValue.textContent = result.costPerDecision ? formatCurrency(result.costPerDecision) : "—";
+      moneyCostSub.textContent = result.annualCost ? `${formatCurrency(result.annualCost)} / year` : "Directional estimate";
 
-      resourceDragValue.textContent = result.boundaryRisk;
-      resourceDragSub.textContent = "Estimated structural risk";
+      resourceDragValue.textContent = result.resourceDrag;
+      resourceDragSub.textContent = "Estimated productive load";
 
       categoryValue.textContent = result.benchmark.label;
-      categorySub.textContent = "Reference group";
+      categorySub.textContent = result.businessUnit || "Decision type";
 
       renderList(frictionFlags, result.flags);
       renderList(recommendations, result.recommendations);
@@ -2208,6 +2364,12 @@
       });
     }
 
+    function average(values) {
+      const cleaned = values.filter(v => !Number.isNaN(v));
+      if (!cleaned.length) return 0;
+      return cleaned.reduce((a, b) => a + b, 0) / cleaned.length;
+    }
+
     csvForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -2236,27 +2398,32 @@
       const sample = rows[0] || {};
 
       const mapped = {
-        focusArea: sample.focus_area || "Uploaded structure",
-        structureType: sample.structure_type || "other",
-        scopeSize: "medium",
-        changePace: "moderate",
+        processName: sample.process_name || "Uploaded decision process",
+        decisionType: sample.decision_type || "other",
+        businessUnit: sample.business_unit || "Uploaded data",
+        urgency: "moderate",
         description: "CSV-based readout generated from structured uploaded data.",
-        ownerDefined: sample.owner_defined || "mixed",
-        ownerConsistency: sample.owner_consistency || "mixed",
-        duplicateOwnership: sample.duplicate_ownership || "sometimes",
-        orphanedWork: sample.orphaned_work || "sometimes",
-        decisionRights: sample.decision_rights || "mixed",
-        escalationPath: sample.escalation_path || "mixed",
-        informalInfluence: sample.informal_influence || "sometimes",
-        leaderDependence: sample.leader_dependence || "moderate",
-        roleOverlap: sample.role_overlap || "sometimes",
-        accountabilityDiffusion: sample.accountability_diffusion || "sometimes",
-        handoffAmbiguity: sample.handoff_ambiguity || "mixed",
-        conflictFrequency: sample.conflict_frequency || "sometimes",
-        meetingsPerWeek: "",
+        decisionDays: Math.round(average(rows.map(r => Number(r.decision_days)))),
+        deadlineSlip: "sometimes",
+        approvalCount: Math.round(average(rows.map(r => Number(r.approval_count)))),
+        approvalFlow: "mixed",
+        lateApprovals: "occasionally",
+        handoffCount: Math.round(average(rows.map(r => Number(r.handoff_count)))),
+        meetingCount: Math.round(average(rows.map(r => Number(r.meeting_count)))),
+        outsideCoordination: "sometimes",
+        ownerClarity: "mixed",
+        escalationClarity: "mixed",
+        keyPersonDependency: "somewhat",
+        reopenRate: (sample.reopen_rate || "sometimes").toLowerCase(),
+        escalationRate: (sample.escalation_rate || "sometimes").toLowerCase(),
+        workaroundRate: (sample.workaround_rate || "sometimes").toLowerCase(),
+        systemsTouched: Math.max(1, Math.round(average(rows.map(r => Number(r.systems_touched))))),
+        reviewBurden: "moderate",
+        reviewScope: "sometimes",
+        peopleInvolved: "",
         hourlyCost: "",
-        peopleAffected: "",
-        issuesPerMonth: ""
+        annualVolume: "",
+        meetingHours: ""
       };
 
       const result = scoreGuided(mapped);
