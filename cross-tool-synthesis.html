@@ -1,1 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ABM Cross-Tool Synthesis | Monderman</title>
 
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href='data:image/svg+xml;utf8,
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="10" fill="%230F1720"/>
+      <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text>
+      <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
+    </svg>'
+  />
+
+  <style>
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff");
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff");
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff");
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+    }
+
+    :root {
+      --accent: #3F6EA1;
+      --accent-dark: #2F5886;
+      --bg-dark: #0F1720;
+      --bg-dark-2: #111B25;
+      --bg-offwhite: #F6F7F8;
+      --bg-white: #FFFFFF;
+      --text-light: #F5F7FA;
+      --text-dark: #15202B;
+      --muted-dark: #556270;
+      --muted-dark-2: #7A8794;
+      --panel-line: rgba(21, 32, 43, 0.08);
+      --success: #2E8B57;
+      --warning: #B8860B;
+      --danger: #B8505E;
+      --max: 1260px;
+      --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
+      --card-shadow: 0 12px 28px rgba(0, 0, 0, 0.045);
+      --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 72px;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg-offwhite);
+      color: var(--text-dark);
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      height: 72px;
+      background: rgba(15, 23, 32, 0.92);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .header-inner {
+      max-width: var(--max);
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      font-size: 1.28rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+    }
+
+    .brand::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+
+    .header-links {
+      display: inline-flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .header-links a {
+      color: rgba(255,255,255,0.84);
+      font-size: 0.96rem;
+      font-weight: 500;
+      transition: color var(--transition), transform var(--transition);
+    }
+
+    .header-links a:hover,
+    .header-links a:focus-visible {
+      color: #FFFFFF;
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .page-shell {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 42px 28px 72px;
+    }
+
+    .hero {
+      background: linear-gradient(180deg, #0F1720 0%, #111B25 100%);
+      color: var(--text-light);
+      border-radius: 24px;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 30px;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 82% 18%, rgba(63,110,161,0.22), transparent 28%),
+        linear-gradient(135deg, rgba(63,110,161,0.05) 1px, transparent 1px);
+      background-size: auto, 32px 32px;
+      opacity: 0.55;
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      padding: 52px 40px 40px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+      gap: 30px;
+      align-items: end;
+    }
+
+    .eyebrow {
+      margin: 0 0 18px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.64);
+    }
+
+    .hero h1 {
+      margin: 0 0 16px;
+      max-width: 12ch;
+      font-size: clamp(2.4rem, 4.2vw, 4.1rem);
+      line-height: 0.96;
+      letter-spacing: -0.05em;
+      font-weight: 700;
+      color: #FFFFFF;
+      text-wrap: balance;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 52ch;
+      font-size: 1.06rem;
+      line-height: 1.64;
+      color: rgba(245,247,250,0.82);
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .hero-meta {
+      display: grid;
+      gap: 16px;
+      align-self: stretch;
+    }
+
+    .hero-meta-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 18px 18px 16px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .hero-meta-title {
+      margin: 0 0 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.54);
+    }
+
+    .hero-meta-text {
+      margin: 0;
+      font-size: 0.94rem;
+      line-height: 1.58;
+      color: rgba(245,247,250,0.82);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      min-width: 160px;
+      padding: 0 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.96);
+      color: var(--text-dark);
+      font-size: 0.93rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      transition:
+        transform var(--transition),
+        box-shadow var(--transition),
+        background var(--transition),
+        border-color var(--transition),
+        opacity var(--transition),
+        color var(--transition);
+    }
+
+    .btn:hover,
+    .btn:focus-visible {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+      outline: none;
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.06);
+      color: #FFFFFF;
+      border-color: rgba(255,255,255,0.16);
+    }
+
+    .btn-secondary:hover,
+    .btn-secondary:focus-visible {
+      background: rgba(255,255,255,0.10);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #FFFFFF;
+      border-color: rgba(63,110,161,0.18);
+    }
+
+    .btn-accent:hover,
+    .btn-accent:focus-visible {
+      background: var(--accent-dark);
+      border-color: rgba(47,88,134,0.24);
+    }
+
+    .btn-inline-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .section-stack {
+      display: grid;
+      gap: 20px;
+    }
+
+    .panel {
+      background: var(--bg-white);
+      border: 1px solid var(--panel-line);
+      border-radius: 20px;
+      box-shadow: var(--soft-shadow);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 24px 26px 16px;
+      border-bottom: 1px solid rgba(21,32,43,0.06);
+    }
+
+    .panel-kicker {
+      margin: 0 0 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      line-height: 1;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .panel-title {
+      margin: 0 0 8px;
+      font-size: 1.46rem;
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .panel-copy {
+      margin: 0;
+      max-width: 66ch;
+      font-size: 0.98rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+    }
+
+    .panel-body {
+      padding: 22px 26px 28px;
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .status-card {
+      border: 1px solid rgba(21,32,43,0.08);
+      border-radius: 16px;
+      padding: 18px 16px 16px;
+      background: #FFFFFF;
+      box-shadow: var(--soft-shadow);
+      min-height: 170px;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
+    .status-card.is-complete {
+      border-color: rgba(63,110,161,0.20);
+      background: linear-gradient(180deg, rgba(63,110,161,0.05), rgba(255,255,255,1));
+    }
+
+    .status-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .status-name {
+      margin: 0;
+      font-size: 0.95rem;
+      line-height: 1.2;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border: 1px solid rgba(21,32,43,0.08);
+      background: #F8F9FA;
+      color: var(--muted-dark);
+      white-space: nowrap;
+    }
+
+    .status-card.is-complete .status-badge {
+      background: rgba(63,110,161,0.10);
+      border-color: rgba(63,110,161,0.18);
+      color: var(--accent-dark);
+    }
+
+    .status-score {
+      margin: 0;
+      font-size: 2rem;
+      line-height: 0.95;
+      letter-spacing: -0.06em;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .status-band {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      color: var(--muted-dark);
+    }
+
+    .status-meta {
+      margin: 0;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      color: var(--muted-dark-2);
+    }
+
+    .status-link {
+      margin-top: auto;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .synthesis-score-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.9fr);
+      gap: 16px;
+    }
+
+    .score-panel {
+      background: linear-gradient(180deg, #0F1720 0%, #111B25 100%);
+      color: #FFFFFF;
+      border-radius: 18px;
+      padding: 24px 24px 22px;
+      border: 1px solid rgba(255,255,255,0.06);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .score-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 85% 16%, rgba(63,110,161,0.20), transparent 28%),
+        linear-gradient(135deg, rgba(63,110,161,0.05) 1px, transparent 1px);
+      background-size: auto, 28px 28px;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .score-panel-inner {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 14px;
+    }
+
+    .score-label {
+      margin: 0;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      line-height: 1;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.60);
+    }
+
+    .score-number {
+      margin: 0;
+      font-size: clamp(3rem, 6vw, 4.4rem);
+      line-height: 0.9;
+      letter-spacing: -0.08em;
+      font-weight: 700;
+      color: #FFFFFF;
+    }
+
+    .score-band {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.4;
+      font-weight: 500;
+      color: rgba(245,247,250,0.88);
+    }
+
+    .score-summary {
+      margin: 0;
+      max-width: 60ch;
+      font-size: 0.95rem;
+      line-height: 1.62;
+      color: rgba(245,247,250,0.74);
+    }
+
+    .summary-side {
+      display: grid;
+      gap: 12px;
+    }
+
+    .mini-summary {
+      background: #FFFFFF;
+      border: 1px solid rgba(21,32,43,0.08);
+      border-radius: 16px;
+      padding: 18px 18px 16px;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .mini-summary-label {
+      margin: 0 0 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+    }
+
+    .mini-summary-value {
+      margin: 0;
+      font-size: 1.12rem;
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .mini-summary-sub {
+      margin: 8px 0 0;
+      font-size: 0.84rem;
+      line-height: 1.5;
+      color: var(--muted-dark);
+    }
+
+    .insight-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .result-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(21,32,43,0.08);
+      border-radius: 16px;
+      padding: 18px 18px 16px;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .result-card-title {
+      margin: 0 0 10px;
+      font-size: 0.94rem;
+      line-height: 1.2;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .result-list {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .result-list li {
+      font-size: 0.9rem;
+      line-height: 1.56;
+      color: var(--muted-dark);
+    }
+
+    .narrative-copy {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.68;
+      color: var(--muted-dark);
+      white-space: pre-line;
+    }
+
+    .tool-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .tool-detail-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(21,32,43,0.08);
+      border-radius: 16px;
+      padding: 18px 18px 16px;
+      box-shadow: var(--soft-shadow);
+      display: grid;
+      gap: 10px;
+    }
+
+    .tool-detail-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .tool-detail-title {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.2;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .tool-detail-score {
+      margin: 0;
+      font-size: 1.6rem;
+      line-height: 1;
+      letter-spacing: -0.05em;
+      font-weight: 700;
+      color: var(--accent-dark);
+    }
+
+    .tool-detail-band {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      color: var(--muted-dark);
+    }
+
+    .tool-detail-label {
+      margin: 4px 0 0;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+    }
+
+    .tool-detail-list {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .tool-detail-list li {
+      font-size: 0.88rem;
+      line-height: 1.52;
+      color: var(--muted-dark);
+    }
+
+    .empty-state {
+      display: grid;
+      gap: 14px;
+      align-items: start;
+      padding: 22px 20px;
+      border: 1px dashed rgba(21,32,43,0.14);
+      border-radius: 16px;
+      background: #F8F9FA;
+      color: var(--muted-dark);
+    }
+
+    .empty-state-title {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.2;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .empty-state p {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.58;
+    }
+
+    .footer-note {
+      margin: 0;
+      font-size: 0.82rem;
+      line-height: 1.56;
+      color: var(--muted-dark-2);
+    }
+
+    @media (max-width: 1120px) {
+      .hero-inner,
+      .synthesis-score-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .status-grid,
+      .tool-detail-grid,
+      .insight-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .status-grid,
+      .tool-detail-grid,
+      .insight-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 780px) {
+      .header {
+        height: auto;
+      }
+
+      .header-inner {
+        padding: 16px 20px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .page-shell {
+        padding: 28px 20px 64px;
+      }
+
+      .hero-inner,
+      .panel-head,
+      .panel-body {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .hero-inner {
+        padding-top: 34px;
+        padding-bottom: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="brand">Monderman</a>
+
+      <nav class="header-links" aria-label="Page navigation">
+        <a href="index.html">Home</a>
+        <a href="diagnostic-tools.html">Diagnostic Tools</a>
+        <a href="advisory-services.html">Advisory Engagements</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <section class="hero" aria-labelledby="synthesis-title">
+      <div class="hero-inner">
+        <div>
+          <p class="eyebrow">ABM Synthesis Layer</p>
+          <h1 id="synthesis-title">Cross-Tool Synthesis</h1>
+          <p>
+            A consolidated executive view across Monderman’s four diagnostics. This page identifies where structural ambiguity, decision drag, operational weight, and institutional condition are reinforcing each other.
+          </p>
+
+          <div class="hero-actions">
+            <a class="btn btn-accent" href="diagnostic-tools.html">Return to Diagnostic Tools</a>
+            <button class="btn btn-secondary" id="clearStoredDataBtn" type="button">Clear Saved Results</button>
+          </div>
+        </div>
+
+        <div class="hero-meta">
+          <div class="hero-meta-card">
+            <p class="hero-meta-title">What this does</p>
+            <p class="hero-meta-text">
+              Pulls saved outputs from completed diagnostics and identifies likely cross-tool patterns, missing visibility, and leadership priorities.
+            </p>
+          </div>
+
+          <div class="hero-meta-card">
+            <p class="hero-meta-title">Best use</p>
+            <p class="hero-meta-text">
+              Use this after completing at least two tools. The synthesis becomes stronger as more diagnostic layers are available.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-stack">
+      <section class="panel">
+        <div class="panel-head">
+          <p class="panel-kicker">Completion Status</p>
+          <h2 class="panel-title">Available diagnostic layers</h2>
+          <p class="panel-copy">
+            This page automatically reads saved diagnostic outputs from your browser. Completed tools appear below; missing tools remain available for follow-on assessment.
+          </p>
+        </div>
+        <div class="panel-body">
+          <div class="status-grid" id="statusGrid"></div>
+        </div>
+      </section>
+
+      <section class="panel" id="synthesisPanel">
+        <div class="panel-head">
+          <p class="panel-kicker">Executive Synthesis</p>
+          <h2 class="panel-title">Cross-tool readout</h2>
+          <p class="panel-copy">
+            A directional synthesis of the results currently available. This layer is designed to surface interaction effects between the four diagnostic domains.
+          </p>
+        </div>
+        <div class="panel-body" id="synthesisBody"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <p class="panel-kicker">Tool-Level Detail</p>
+          <h2 class="panel-title">Saved readouts by diagnostic</h2>
+          <p class="panel-copy">
+            Each completed tool appears below with its score, condition band, top flags, and most relevant intervention suggestions.
+          </p>
+        </div>
+        <div class="panel-body">
+          <div class="tool-detail-grid" id="toolDetailGrid"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const STORAGE_KEYS = {
+      structural_clarity: "monderman_structural_clarity",
+      decision_velocity: "monderman_decision_velocity",
+      operational_systems: "monderman_operational_systems",
+      institutional_performance: "monderman_institutional_performance"
+    };
+
+    const TOOL_CONFIG = {
+      structural_clarity: {
+        title: "Structural Clarity",
+        href: "structural-clarity.html"
+      },
+      decision_velocity: {
+        title: "Decision Velocity",
+        href: "decision-velocity.html"
+      },
+      operational_systems: {
+        title: "Operational Systems",
+        href: "bureaucratic-drag-snapshot.html"
+      },
+      institutional_performance: {
+        title: "Institutional Performance",
+        href: "institutional-performance.html"
+      }
+    };
+
+    const statusGrid = document.getElementById("statusGrid");
+    const synthesisBody = document.getElementById("synthesisBody");
+    const toolDetailGrid = document.getElementById("toolDetailGrid");
+    const clearStoredDataBtn = document.getElementById("clearStoredDataBtn");
+
+    function safeRead(key) {
+      try {
+        const raw = localStorage.getItem(key) || sessionStorage.getItem(key);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function readAllResults() {
+      return {
+        structural_clarity: safeRead(STORAGE_KEYS.structural_clarity),
+        decision_velocity: safeRead(STORAGE_KEYS.decision_velocity),
+        operational_systems: safeRead(STORAGE_KEYS.operational_systems),
+        institutional_performance: safeRead(STORAGE_KEYS.institutional_performance)
+      };
+    }
+
+    function average(nums) {
+      const valid = nums.filter((n) => typeof n === "number" && !Number.isNaN(n));
+      if (!valid.length) return null;
+      return Math.round(valid.reduce((a, b) => a + b, 0) / valid.length);
+    }
+
+    function completionCount(results) {
+      return Object.values(results).filter(Boolean).length;
+    }
+
+    function getCompletedTitles(results) {
+      return Object.entries(results)
+        .filter(([, value]) => !!value)
+        .map(([key]) => TOOL_CONFIG[key].title);
+    }
+
+    function getMissingTitles(results) {
+      return Object.entries(results)
+        .filter(([, value]) => !value)
+        .map(([key]) => TOOL_CONFIG[key].title);
+    }
+
+    function buildStatusCard(toolKey, result) {
+      const config = TOOL_CONFIG[toolKey];
+      const card = document.createElement("article");
+      card.className = `status-card${result ? " is-complete" : ""}`;
+
+      if (result) {
+        card.innerHTML = `
+          <div class="status-top">
+            <h3 class="status-name">${config.title}</h3>
+            <span class="status-badge">Saved</span>
+          </div>
+          <p class="status-score">${result.score ?? "—"}</p>
+          <p class="status-band">${result.band ?? "Completed"}</p>
+          <p class="status-meta">${result.benchmarkPosition || "Directional benchmark available"}</p>
+          <a class="status-link" href="${config.href}">Open tool →</a>
+        `;
+      } else {
+        card.innerHTML = `
+          <div class="status-top">
+            <h3 class="status-name">${config.title}</h3>
+            <span class="status-badge">Missing</span>
+          </div>
+          <p class="status-score">—</p>
+          <p class="status-band">Not yet completed</p>
+          <p class="status-meta">Run this tool to add another synthesis layer.</p>
+          <a class="status-link" href="${config.href}">Run tool →</a>
+        `;
+      }
+
+      return card;
+    }
+
+    function topFlagsFromResults(results) {
+      const flags = [];
+      Object.entries(results).forEach(([key, value]) => {
+        if (!value || !Array.isArray(value.primaryFlags)) return;
+        value.primaryFlags.slice(0, 2).forEach((flag) => {
+          flags.push({
+            tool: TOOL_CONFIG[key].title,
+            text: flag
+          });
+        });
+      });
+      return flags.slice(0, 8);
+    }
+
+    function topRecommendationsFromResults(results) {
+      const recs = [];
+      Object.entries(results).forEach(([key, value]) => {
+        if (!value || !Array.isArray(value.recommendations)) return;
+        value.recommendations.slice(0, 2).forEach((item) => {
+          recs.push({
+            tool: TOOL_CONFIG[key].title,
+            text: item
+          });
+        });
+      });
+      return recs.slice(0, 8);
+    }
+
+    function buildCrossPatterns(results) {
+      const patterns = [];
+
+      const sc = results.structural_clarity;
+      const dv = results.decision_velocity;
+      const os = results.operational_systems;
+      const ip = results.institutional_performance;
+
+      if (sc && dv && sc.score < 65 && dv.score < 65) {
+        patterns.push("Structural ambiguity and decision drag appear to be reinforcing each other. This usually means unclear ownership or unstable authority pathways are slowing movement before decisions can close cleanly.");
+      }
+
+      if (dv && os && dv.score < 65 && os.score < 65) {
+        patterns.push("Decision latency and operational weight are both elevated. This suggests the slowdown is not only about judgment or approvals, but also about the systems and process environment decisions must travel through.");
+      }
+
+      if (sc && os && sc.score < 65 && os.score < 65) {
+        patterns.push("The organization may be carrying both structural blur and operating-system heaviness at the same time. In practice, that often means people are working around both role ambiguity and process burden simultaneously.");
+      }
+
+      if (ip && sc && ip.score < 65 && sc.score < 65) {
+        patterns.push("Institutional condition appears weaker alongside lower structural clarity. This suggests performance may be eroding not just from workload, but from weakening alignment between ownership, accountability, and system confidence.");
+      }
+
+      if (ip && dv && ip.score < 65 && dv.score < 65) {
+        patterns.push("Broader institutional condition appears exposed alongside slower decision pathways. This often points to an environment where maneuverability is weakening, not just one process moving too slowly.");
+      }
+
+      if (ip && os && ip.score < 65 && os.score < 65) {
+        patterns.push("Institutional condition and operating burden are both under pressure. That usually means the system itself is consuming too much managerial lift to sustain performance cleanly.");
+      }
+
+      if (sc && sc.score >= 75 && os && os.score < 65) {
+        patterns.push("Structural roles may be relatively clearer than the operating environment that supports them. In other words, the institution may know who owns the work, but still force that work through systems that are too heavy.");
+      }
+
+      if (dv && dv.score >= 75 && ip && ip.score < 65) {
+        patterns.push("Decision movement may be healthier than broader institutional condition. That can happen when local pathways still function, but confidence, resilience, or performance consistency are weakening at the wider system level.");
+      }
+
+      return patterns;
+    }
+
+    function buildPriorityView(results) {
+      const completed = Object.values(results).filter(Boolean);
+      const avgScore = average(completed.map((r) => r.score));
+
+      if (completed.length === 0) {
+        return {
+          band: "No synthesis available",
+          summary: "No saved diagnostic outputs were found in this browser.",
+          confidence: "No completed tools",
+          nextBest: "Run one diagnostic to begin building a synthesis layer."
+        };
+      }
+
+      if (completed.length === 1) {
+        return {
+          band: "Single-layer view",
+          summary: "Only one diagnostic layer is currently available. The result may still be useful, but the synthesis remains narrow until additional tool outputs are added.",
+          confidence: "Low synthesis confidence",
+          nextBest: "Complete at least one more tool to identify interaction effects."
+        };
+      }
+
+      if (avgScore >= 80) {
+        return {
+          band: "Relatively coherent environment",
+          summary: "The available tools suggest a comparatively stronger operating condition than most burdened or fragmented environments. The main risk is drift rather than acute breakdown.",
+          confidence: completed.length >= 3 ? "Moderate-to-strong synthesis confidence" : "Moderate synthesis confidence",
+          nextBest: "Watch for creeping burden, approval growth, and quiet dependence on compensation."
+        };
+      }
+
+      if (avgScore >= 65) {
+        return {
+          band: "Functional but exposed",
+          summary: "The available tools suggest the environment is still functioning, but likely with more drag, compensation, or management lift than leaders fully see.",
+          confidence: completed.length >= 3 ? "Moderate-to-strong synthesis confidence" : "Moderate synthesis confidence",
+          nextBest: "Use the missing tools to determine whether the main issue is structural, procedural, or broader institutional condition."
+        };
+      }
+
+      if (avgScore >= 45) {
+        return {
+          band: "Cross-domain friction present",
+          summary: "The available tools suggest that structural, decision, operational, or institutional burdens are materially affecting the environment. The system is likely still producing output, but with growing internal cost.",
+          confidence: completed.length >= 3 ? "Strong synthesis confidence" : "Moderate synthesis confidence",
+          nextBest: "Prioritize the interactions between the lowest-scoring tools rather than treating each issue in isolation."
+        };
+      }
+
+      return {
+        band: "High multi-domain exposure",
+        summary: "The available tools suggest the environment may be relying heavily on compensation, informal workarounds, managerial intervention, or accumulated burden to preserve performance.",
+        confidence: completed.length >= 3 ? "Strong synthesis confidence" : "Moderate synthesis confidence",
+        nextBest: "Treat the combination of low-scoring domains as an integrated leadership problem rather than separate local symptoms."
+      };
+    }
+
+    function renderSynthesis(results) {
+      const count = completionCount(results);
+
+      if (count === 0) {
+        synthesisBody.innerHTML = `
+          <div class="empty-state">
+            <h3 class="empty-state-title">No saved diagnostic results found.</h3>
+            <p>This synthesis page is ready to receive auto-passed outputs from the four diagnostics, but no completed results are currently available in this browser.</p>
+            <p>Once you add the save block to the tools and complete a diagnostic, this page will populate automatically.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const completed = Object.values(results).filter(Boolean);
+      const avgScore = average(completed.map((r) => r.score));
+      const priorityView = buildPriorityView(results);
+      const crossPatterns = buildCrossPatterns(results);
+      const flags = topFlagsFromResults(results);
+      const recs = topRecommendationsFromResults(results);
+      const missing = getMissingTitles(results);
+
+      const synthesisNarrative = crossPatterns.length
+        ? crossPatterns[0]
+        : "The current tool combination suggests a meaningful but still partial picture. The strongest value now is comparing the weakest available domains and identifying whether they point to the same underlying issue.";
+
+      synthesisBody.innerHTML = `
+        <div class="synthesis-score-grid">
+          <div class="score-panel">
+            <div class="score-panel-inner">
+              <p class="score-label">Cross-Tool Synthesis Score</p>
+              <p class="score-number">${avgScore ?? "—"}</p>
+              <p class="score-band">${priorityView.band}</p>
+              <p class="score-summary">${priorityView.summary}</p>
+            </div>
+          </div>
+
+          <div class="summary-side">
+            <div class="mini-summary">
+              <p class="mini-summary-label">Completed Tools</p>
+              <p class="mini-summary-value">${count} of 4</p>
+              <p class="mini-summary-sub">${getCompletedTitles(results).join(" · ")}</p>
+            </div>
+
+            <div class="mini-summary">
+              <p class="mini-summary-label">Synthesis Confidence</p>
+              <p class="mini-summary-value">${priorityView.confidence}</p>
+              <p class="mini-summary-sub">${missing.length ? `Still missing: ${missing.join(" · ")}` : "All four diagnostic layers available."}</p>
+            </div>
+
+            <div class="mini-summary">
+              <p class="mini-summary-label">Best Next Move</p>
+              <p class="mini-summary-value">Leadership priority</p>
+              <p class="mini-summary-sub">${priorityView.nextBest}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="insight-grid" style="margin-top: 16px;">
+          <div class="result-card">
+            <h3 class="result-card-title">Primary synthesis narrative</h3>
+            <p class="narrative-copy">${synthesisNarrative}</p>
+          </div>
+
+          <div class="result-card">
+            <h3 class="result-card-title">What this likely means</h3>
+            <p class="narrative-copy">${buildLeadershipImplication(results, avgScore, count)}</p>
+          </div>
+
+          <div class="result-card">
+            <h3 class="result-card-title">Cross-tool patterns</h3>
+            <ul class="result-list">
+              ${
+                crossPatterns.length
+                  ? crossPatterns.map((item) => `<li>${item}</li>`).join("")
+                  : `<li>No strong interaction effect surfaced yet from the currently available tool combination.</li>`
+              }
+            </ul>
+          </div>
+
+          <div class="result-card">
+            <h3 class="result-card-title">Missing visibility</h3>
+            <ul class="result-list">
+              ${
+                missing.length
+                  ? missing.map((item) => `<li>${item} has not yet been added to the synthesis layer.</li>`).join("")
+                  : `<li>All four tools are present. The synthesis layer is now operating with full coverage.</li>`
+              }
+            </ul>
+          </div>
+
+          <div class="result-card">
+            <h3 class="result-card-title">Most important flags across completed tools</h3>
+            <ul class="result-list">
+              ${
+                flags.length
+                  ? flags.map((item) => `<li><strong>${item.tool}:</strong> ${item.text}</li>`).join("")
+                  : `<li>No cross-tool flags available.</li>`
+              }
+            </ul>
+          </div>
+
+          <div class="result-card">
+            <h3 class="result-card-title">Most useful intervention themes</h3>
+            <ul class="result-list">
+              ${
+                recs.length
+                  ? recs.map((item) => `<li><strong>${item.tool}:</strong> ${item.text}</li>`).join("")
+                  : `<li>No intervention suggestions available yet.</li>`
+              }
+            </ul>
+          </div>
+        </div>
+
+        <p class="footer-note" style="margin-top: 18px;">
+          This synthesis is directional. It is designed to identify cross-domain interaction effects between the four Monderman diagnostics, not to replace deeper advisory review.
+        </p>
+      `;
+    }
+
+    function buildLeadershipImplication(results, avgScore, count) {
+      if (count < 2) {
+        return "With only one diagnostic layer available, the most useful next step is not deeper interpretation but broader coverage. Add at least one more completed tool before drawing higher-confidence executive conclusions.";
+      }
+
+      if (avgScore >= 80) {
+        return "Leadership should focus less on dramatic intervention and more on preserving coherence. The main risk is that slow accumulation of burden, ambiguity, or compensation goes unnoticed until performance begins to soften.";
+      }
+
+      if (avgScore >= 65) {
+        return "Leadership should treat this environment as workable but exposed. The most likely error would be assuming it is healthier than it is simply because output is still being preserved.";
+      }
+
+      if (avgScore >= 45) {
+        return "Leadership should assume the system is paying a meaningful internal tax to sustain current performance. The most important move is to identify which low-scoring domains are interacting and address them as one structural problem.";
+      }
+
+      return "Leadership should assume the current environment may be relying too heavily on compensation, managerial lift, and workaround behavior. At this level, the issue is probably not isolated process refinement but broader operating-condition repair.";
+    }
+
+    function renderToolDetails(results) {
+      toolDetailGrid.innerHTML = "";
+
+      Object.entries(TOOL_CONFIG).forEach(([key, config]) => {
+        const result = results[key];
+        const card = document.createElement("article");
+        card.className = "tool-detail-card";
+
+        if (!result) {
+          card.innerHTML = `
+            <div class="tool-detail-top">
+              <h3 class="tool-detail-title">${config.title}</h3>
+              <p class="tool-detail-score">—</p>
+            </div>
+            <p class="tool-detail-band">No saved result available yet.</p>
+            <p class="tool-detail-label">Next step</p>
+            <ul class="tool-detail-list">
+              <li>Run this diagnostic to add its output to the synthesis layer.</li>
+            </ul>
+            <a class="status-link" href="${config.href}">Open tool →</a>
+          `;
+        } else {
+          const flags = Array.isArray(result.primaryFlags) ? result.primaryFlags.slice(0, 3) : [];
+          const recs = Array.isArray(result.recommendations) ? result.recommendations.slice(0, 3) : [];
+          card.innerHTML = `
+            <div class="tool-detail-top">
+              <h3 class="tool-detail-title">${config.title}</h3>
+              <p class="tool-detail-score">${result.score ?? "—"}</p>
+            </div>
+            <p class="tool-detail-band">${result.band ?? "Completed"}${result.benchmarkPosition ? ` · ${result.benchmarkPosition}` : ""}</p>
+
+            <p class="tool-detail-label">Top flags</p>
+            <ul class="tool-detail-list">
+              ${flags.length ? flags.map((item) => `<li>${item}</li>`).join("") : "<li>No saved flags available.</li>"}
+            </ul>
+
+            <p class="tool-detail-label">Top actions</p>
+            <ul class="tool-detail-list">
+              ${recs.length ? recs.map((item) => `<li>${item}</li>`).join("") : "<li>No saved recommendations available.</li>"}
+            </ul>
+
+            <a class="status-link" href="${config.href}">Reopen tool →</a>
+          `;
+        }
+
+        toolDetailGrid.appendChild(card);
+      });
+    }
+
+    function renderStatus(results) {
+      statusGrid.innerHTML = "";
+      Object.keys(TOOL_CONFIG).forEach((toolKey) => {
+        statusGrid.appendChild(buildStatusCard(toolKey, results[toolKey]));
+      });
+    }
+
+    function clearStoredData() {
+      Object.values(STORAGE_KEYS).forEach((key) => {
+        localStorage.removeItem(key);
+        sessionStorage.removeItem(key);
+      });
+      refreshPageState();
+    }
+
+    function refreshPageState() {
+      const results = readAllResults();
+      renderStatus(results);
+      renderSynthesis(results);
+      renderToolDetails(results);
+    }
+
+    clearStoredDataBtn.addEventListener("click", clearStoredData);
+
+    refreshPageState();
+  </script>
+</body>
+</html>
