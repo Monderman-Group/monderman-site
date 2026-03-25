@@ -259,19 +259,20 @@
       min-width: 160px;
       padding: 0 20px;
       border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.14);
       background: rgba(255,255,255,0.96);
       color: var(--text-dark);
-      font-size: 0.95rem;
+      font-size: 0.94rem;
       font-weight: 500;
-      letter-spacing: -0.012em;
+      letter-spacing: -0.01em;
       cursor: pointer;
       transition:
         transform var(--transition),
         box-shadow var(--transition),
         background var(--transition),
         border-color var(--transition),
-        opacity var(--transition);
+        opacity var(--transition),
+        color var(--transition);
     }
 
     .btn:hover, .btn:focus-visible {
@@ -283,22 +284,23 @@
     .btn-secondary {
       background: rgba(255,255,255,0.06);
       color: #FFFFFF;
-      border-color: rgba(255,255,255,0.18);
+      border-color: rgba(255,255,255,0.14);
     }
 
     .btn-secondary:hover, .btn-secondary:focus-visible {
       background: rgba(255,255,255,0.10);
+      color: #FFFFFF;
     }
 
     .btn-accent {
       background: var(--accent);
       color: #FFFFFF;
-      border-color: rgba(63,110,161,0.22);
+      border-color: rgba(63,110,161,0.18);
     }
 
     .btn-accent:hover, .btn-accent:focus-visible {
       background: var(--accent-dark);
-      border-color: rgba(47,88,134,0.28);
+      border-color: rgba(47,88,134,0.22);
     }
 
     .btn-inline-group {
@@ -702,7 +704,8 @@
     .results-shell {
       display: none;
       gap: 20px;
-      margin-top: 26px;
+      margin-top: 32px;
+      padding-top: 8px;
     }
 
     .results-shell.active { display: grid; }
@@ -935,75 +938,60 @@
       color: var(--muted-dark-2);
     }
 
+    .post-results-bridge {
+      display: grid;
+      gap: 16px;
+      margin-top: 4px;
+    }
+
+    .export-bridge,
+    .advisory-bridge,
+    .synthesis-bridge {
+      background: #FFFFFF;
+      border: 1px solid rgba(21,32,43,0.08);
+      border-radius: 18px;
+      padding: 20px 20px 18px;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .bridge-kicker {
+      margin: 0 0 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .bridge-title {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      line-height: 1.24;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .bridge-copy {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+      max-width: 62ch;
+    }
+
+    .bridge-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
     .results-actions {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
-      margin-top: 6px;
-      padding-top: 18px;
-      border-top: 1px solid rgba(21,32,43,0.08);
-    }
-
-    .results-next {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
-      margin-top: 6px;
-    }
-
-    .next-card {
-      background: linear-gradient(180deg, #FFFFFF 0%, #F8F9FA 100%);
-      border: 1px solid rgba(21,32,43,0.08);
-      border-radius: 16px;
-      padding: 18px 18px 16px;
-      box-shadow: var(--soft-shadow);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .next-kicker {
-      margin: 0;
-      font-size: 0.72rem;
-      line-height: 1;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      font-weight: 700;
-      color: var(--accent);
-    }
-
-    .next-title {
-      margin: 0;
-      font-size: 1rem;
-      line-height: 1.22;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-
-    .next-copy {
-      margin: 0;
-      font-size: 0.88rem;
-      line-height: 1.58;
-      color: var(--muted-dark);
-    }
-
-    .next-actions {
-      margin-top: auto;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      padding-top: 6px;
-    }
-
-    .btn-quiet {
-      background: #FFFFFF;
-      color: var(--text-dark);
-      border: 1px solid rgba(21,32,43,0.10);
-    }
-
-    .btn-quiet:hover,
-    .btn-quiet:focus-visible {
-      border-color: rgba(63,110,161,0.24);
+      margin-top: 2px;
     }
 
     .hidden { display: none !important; }
@@ -1015,7 +1003,7 @@
     }
 
     @media (max-width: 900px) {
-      .summary-grid, .results-grid, .charts-grid, .results-next { grid-template-columns: 1fr; }
+      .summary-grid, .results-grid, .charts-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 780px) {
@@ -1043,7 +1031,7 @@
       .form-grid, .mode-toggle { grid-template-columns: 1fr; }
       .score-panel-inner { grid-template-columns: 1fr; }
 
-      .submit-row, .step-actions {
+      .submit-row, .step-actions, .bridge-actions, .results-actions {
         align-items: flex-start;
         flex-direction: column;
       }
@@ -1051,11 +1039,6 @@
       .stepper {
         display: grid;
         grid-template-columns: 1fr;
-      }
-
-      .results-actions,
-      .next-actions {
-        align-items: flex-start;
       }
     }
 
@@ -1068,7 +1051,7 @@
       #csvForm,
       .sidebar-stack,
       .results-actions,
-      .results-next,
+      .post-results-bridge,
       .empty-state {
         display: none !important;
       }
@@ -1630,45 +1613,46 @@
               </div>
             </div>
 
-            <div class="results-actions">
-              <button class="btn btn-secondary" id="editInputsBtn" type="button">Edit Inputs</button>
-              <button class="btn btn-quiet" id="startOverBtn" type="button">Start Over</button>
-              <button class="btn btn-accent" id="downloadPdfBtn" type="button">Download Executive Summary PDF</button>
+            <div class="post-results-bridge">
+              <div class="export-bridge">
+                <p class="bridge-kicker">Executive Output</p>
+                <h3 class="bridge-title">Export a clean summary for review or internal discussion.</h3>
+                <p class="bridge-copy">
+                  Use the summary export to capture the current directional readout in a format suitable for leadership review, discussion, or follow-on analysis.
+                </p>
+                <div class="bridge-actions">
+                  <button class="btn" id="downloadPdfBtn" type="button">Export Summary PDF</button>
+                </div>
+              </div>
+
+              <div class="advisory-bridge">
+                <p class="bridge-kicker">Deeper Review</p>
+                <h3 class="bridge-title">Need a more forensic structural read?</h3>
+                <p class="bridge-copy">
+                  If this pattern appears broader, more persistent, or more consequential than a directional tool can resolve, Monderman’s advisory work can examine the underlying role design, boundary conditions, and coordination structure in more depth.
+                </p>
+                <div class="bridge-actions">
+                  <a class="btn btn-accent" href="advisory-services.html">Explore Advisory Engagements</a>
+                  <a class="btn btn-secondary" href="index.html#connect">Start a Conversation</a>
+                </div>
+              </div>
+
+              <div class="synthesis-bridge">
+                <p class="bridge-kicker">Cross-Tool Synthesis</p>
+                <h3 class="bridge-title">Add this result to a broader institutional view.</h3>
+                <p class="bridge-copy">
+                  This result is automatically saved for later cross-tool synthesis. As you complete additional diagnostics, Monderman can build a more integrated view across structure, decision pathways, operating burden, and institutional condition.
+                </p>
+                <div class="bridge-actions">
+                  <a class="btn btn-secondary" href="cross-tool-synthesis.html">Open Cross-Tool Synthesis</a>
+                  <a class="btn btn-secondary" href="diagnostic-tools.html">Return to Diagnostic Hub</a>
+                </div>
+              </div>
             </div>
 
-            <div class="results-next">
-              <div class="next-card">
-                <p class="next-kicker">Next Step</p>
-                <h3 class="next-title">Request a deeper structural review</h3>
-                <p class="next-copy">
-                  This diagnostic gives a directional signal. A deeper review uses interviews, document review, workflow mapping, and leadership interpretation to determine where the structure is actually breaking down.
-                </p>
-                <div class="next-actions">
-                  <a class="btn btn-accent" href="advisory-services.html">Explore Advisory Work</a>
-                </div>
-              </div>
-
-              <div class="next-card">
-                <p class="next-kicker">Executive Use</p>
-                <h3 class="next-title">Share a concise leadership readout</h3>
-                <p class="next-copy">
-                  Export a short executive-style summary for discussion with leadership, program owners, or cross-functional stakeholders.
-                </p>
-                <div class="next-actions">
-                  <button class="btn btn-quiet" id="downloadPdfBtnSecondary" type="button">Export Readout</button>
-                </div>
-              </div>
-
-              <div class="next-card">
-                <p class="next-kicker">Suite View</p>
-                <h3 class="next-title">Cross-tool synthesis is coming next</h3>
-                <p class="next-copy">
-                  Structural clarity is often only one part of the picture. The next layer will allow leaders to combine results across clarity, decision velocity, systems load, and institutional performance.
-                </p>
-                <div class="next-actions">
-                  <a class="btn btn-quiet" href="diagnostic-tools.html">View Diagnostic Suite</a>
-                </div>
-              </div>
+            <div class="results-actions">
+              <button class="btn btn-secondary" id="editInputsBtn" type="button">Edit Inputs</button>
+              <button class="btn" id="startOverBtn" type="button">Start Over</button>
             </div>
           </section>
         </div>
@@ -1730,7 +1714,6 @@
     const startOverBtn = document.getElementById("startOverBtn");
     const downloadTemplateLink = document.getElementById("downloadTemplateLink");
     const downloadPdfBtn = document.getElementById("downloadPdfBtn");
-    const downloadPdfBtnSecondary = document.getElementById("downloadPdfBtnSecondary");
 
     const scoreNumber = document.getElementById("scoreNumber");
     const scoreBand = document.getElementById("scoreBand");
@@ -1805,16 +1788,14 @@
       return true;
     }
 
-    function goToStep(step, options = {}) {
-      const { scroll = false } = options;
+    function goToStep(step, shouldScroll = false) {
       currentStep = Math.max(1, Math.min(5, step));
       updateStepUI();
 
-      if (scroll) {
-        const stepper = document.querySelector(".stepper");
-        if (stepper) {
-          const y = stepper.getBoundingClientRect().top + window.pageYOffset - 96;
-          window.scrollTo({ top: y, behavior: "smooth" });
+      if (shouldScroll) {
+        const topTarget = document.querySelector(".stepper");
+        if (topTarget) {
+          topTarget.scrollIntoView({ behavior: "smooth", block: "nearest" });
         }
       }
     }
@@ -1823,21 +1804,19 @@
       pill.addEventListener("click", () => {
         const targetStep = index + 1;
         if (targetStep <= currentStep || validateStep(currentStep)) {
-          goToStep(targetStep, { scroll: true });
+          goToStep(targetStep, false);
         }
       });
     });
 
     nextButtons.forEach(btn => {
       btn.addEventListener("click", () => {
-        if (validateStep(currentStep)) {
-          goToStep(currentStep + 1, { scroll: true });
-        }
+        if (validateStep(currentStep)) goToStep(currentStep + 1, false);
       });
     });
 
     prevButtons.forEach(btn => {
-      btn.addEventListener("click", () => goToStep(currentStep - 1, { scroll: true }));
+      btn.addEventListener("click", () => goToStep(currentStep - 1, false));
     });
 
     modeGuidedCard.addEventListener("click", () => setMode("guided"));
@@ -1845,7 +1824,7 @@
 
     startGuidedBtn.addEventListener("click", () => {
       setMode("guided");
-      goToStep(1, { scroll: false });
+      goToStep(1, false);
       guidedForm.scrollIntoView({ behavior: "smooth", block: "start" });
     });
 
@@ -1858,7 +1837,7 @@
 
     resetFormBtn.addEventListener("click", () => {
       guidedForm.reset();
-      goToStep(1, { scroll: false });
+      goToStep(1, false);
       resultsShell.classList.remove("active");
       resultsEmptyState.classList.remove("hidden");
     });
@@ -1872,7 +1851,7 @@
     startOverBtn.addEventListener("click", () => {
       guidedForm.reset();
       csvForm.reset();
-      goToStep(1, { scroll: false });
+      goToStep(1, false);
       resultsShell.classList.remove("active");
       resultsEmptyState.classList.remove("hidden");
       setMode("guided");
@@ -1897,12 +1876,9 @@
       URL.revokeObjectURL(url);
     });
 
-    function exportExecutiveSummary() {
+    downloadPdfBtn.addEventListener("click", () => {
       window.print();
-    }
-
-    downloadPdfBtn.addEventListener("click", exportExecutiveSummary);
-    downloadPdfBtnSecondary.addEventListener("click", exportExecutiveSummary);
+    });
 
     function mapSelect(value, mapping) {
       return mapping[value] ?? 0;
@@ -2251,6 +2227,24 @@
       });
     }
 
+    function saveForSynthesis(result) {
+      localStorage.setItem("monderman_structural_clarity", JSON.stringify({
+        tool: "structural_clarity",
+        title: "Structural Clarity",
+        completed_at: new Date().toISOString(),
+        score: result.score,
+        band: result.band,
+        benchmarkPosition: result.benchmarkPosition,
+        primaryFlags: result.flags,
+        recommendations: result.recommendations,
+        breakdown: result.breakdown,
+        summary: scoreSummary.textContent,
+        badge: result.focusArea || "",
+        contextNote: result.contextNote || "",
+        benchmarkLabel: result.benchmark?.label || ""
+      }));
+    }
+
     function renderResults(result) {
       resultsEmptyState.classList.add("hidden");
       resultsShell.classList.add("active");
@@ -2284,9 +2278,9 @@
       leadershipImplication.textContent = fallback.implication;
 
       renderCharts(result);
+      saveForSynthesis(result);
 
-      const y = resultsShell.getBoundingClientRect().top + window.pageYOffset - 96;
-      window.scrollTo({ top: y, behavior: "smooth" });
+      resultsShell.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     guidedForm.addEventListener("submit", async (e) => {
@@ -2300,7 +2294,7 @@
 
       for (let step = 1; step <= 5; step++) {
         if (!validateStep(step)) {
-          goToStep(step, { scroll: true });
+          goToStep(step, false);
           return;
         }
       }
@@ -2388,7 +2382,7 @@
     });
 
     setMode("guided");
-    goToStep(1, { scroll: false });
+    goToStep(1, false);
   </script>
 </body>
 </html>
