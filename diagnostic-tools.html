@@ -50,10 +50,10 @@
       --bg-white: #FFFFFF;
       --bg-offwhite: #F6F7F8;
       --text-light: #F5F7FA;
-      --muted-light: rgba(245, 247, 250, 0.80);
+      --muted-light: rgba(245, 247, 250, 0.82);
       --muted-light-2: rgba(245, 247, 250, 0.60);
       --text-dark: #15202B;
-      --muted-dark: #5F6B78;
+      --muted-dark: #556270;
       --muted-dark-2: #7A8794;
       --line: #E3E7EB;
       --header-solid: rgba(14, 20, 28, 0.84);
@@ -122,24 +122,6 @@
     a {
       color: inherit;
       text-decoration: none;
-    }
-
-    @media (min-width: 981px) {
-      html {
-        scroll-snap-type: y proximity;
-      }
-
-      body {
-        scroll-snap-type: none;
-      }
-
-      .hero,
-      .how-to-use,
-      .tool-selector,
-      .tool-cards-section {
-        scroll-snap-align: start;
-        scroll-snap-stop: normal;
-      }
     }
 
     .header {
@@ -243,7 +225,7 @@
       overflow: hidden;
       background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-dark-2) 100%);
       color: var(--text-light);
-      min-height: 58vh;
+      min-height: 60vh;
     }
 
     .hero::before {
@@ -263,7 +245,7 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(circle at 78% 16%, rgba(63, 110, 161, 0.16), transparent 24%),
+        radial-gradient(circle at 78% 16%, rgba(63, 110, 161, 0.18), transparent 24%),
         radial-gradient(circle at 18% 82%, rgba(63, 110, 161, 0.06), transparent 22%);
       opacity: 0.95;
       pointer-events: none;
@@ -274,7 +256,7 @@
       z-index: 1;
       max-width: var(--max);
       margin: 0 auto;
-      padding: 148px 34px 92px;
+      padding: 148px 34px 96px;
     }
 
     .eyebrow {
@@ -288,8 +270,8 @@
     }
 
     .hero h1 {
-      margin: 0 0 22px;
-      max-width: 12ch;
+      margin: 0 0 20px;
+      max-width: 11ch;
       font-size: clamp(3rem, 5vw, 4.8rem);
       line-height: 0.95;
       letter-spacing: -0.05em;
@@ -300,9 +282,9 @@
 
     .hero p {
       margin: 0;
-      max-width: 64ch;
+      max-width: 60ch;
       font-size: 1.08rem;
-      line-height: 1.68;
+      line-height: 1.72;
       color: var(--muted-light);
     }
 
@@ -373,7 +355,7 @@
 
     .page {
       background: var(--bg-offwhite);
-      padding: 88px 34px 92px;
+      padding: 92px 34px 92px;
     }
 
     .page-inner {
@@ -384,9 +366,9 @@
     .head {
       display: grid;
       grid-template-columns: minmax(0, 1fr) 360px;
-      gap: 46px;
+      gap: 52px;
       align-items: end;
-      margin-bottom: 34px;
+      margin-bottom: 40px;
     }
 
     .section-label {
@@ -411,7 +393,7 @@
     .panel h3,
     .tool-launch-head h3,
     .advisory-bridge h3 {
-      margin: 0 0 18px;
+      margin: 0 0 16px;
       font-size: clamp(1.95rem, 2.45vw, 2.35rem);
       line-height: 1.12;
       letter-spacing: -0.04em;
@@ -426,17 +408,17 @@
     .advisory-bridge p {
       margin: 0;
       font-size: 1.02rem;
-      line-height: 1.68;
+      line-height: 1.7;
       color: var(--muted-dark);
     }
 
     .note {
       margin: 0;
       font-size: 0.90rem;
-      line-height: 1.62;
+      line-height: 1.64;
       color: var(--muted-dark-2);
-      padding: 18px 20px;
-      background: rgba(255, 255, 255, 0.72);
+      padding: 20px 22px;
+      background: rgba(255, 255, 255, 0.78);
       border: 1px solid rgba(21, 32, 43, 0.08);
       box-shadow: var(--soft-shadow);
     }
@@ -445,22 +427,26 @@
       background: #FFFFFF;
       border: 1px solid rgba(21, 32, 43, 0.08);
       box-shadow: var(--soft-shadow);
-      padding: 28px 28px 26px;
-      margin-bottom: 16px;
+      padding: 30px 30px 28px;
+      margin-bottom: 18px;
       scroll-margin-top: 88px;
+    }
+
+    .panel h3 {
+      margin-bottom: 14px;
     }
 
     .use-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 18px;
-      margin-top: 20px;
+      margin-top: 22px;
     }
 
     .use-card {
       background: linear-gradient(180deg, rgba(246, 247, 248, 0.92) 0%, #FFFFFF 100%);
       border: 1px solid rgba(21, 32, 43, 0.08);
-      padding: 20px 18px 18px;
+      padding: 22px 20px 20px;
       transition:
         transform var(--transition-slow),
         border-color var(--transition),
@@ -485,7 +471,7 @@
     .use-title {
       margin: 0 0 8px;
       font-size: 1rem;
-      line-height: 1.2;
+      line-height: 1.24;
       font-weight: 700;
       color: var(--text-dark);
     }
@@ -493,7 +479,7 @@
     .use-text {
       margin: 0;
       font-size: 0.92rem;
-      line-height: 1.6;
+      line-height: 1.62;
       color: var(--muted-dark);
     }
 
@@ -503,44 +489,45 @@
       align-items: center;
       justify-content: center;
       gap: 0;
-      margin: 16px 0 30px;
+      margin: 20px 0 34px;
       pointer-events: none;
     }
 
     .section-connector-line {
       width: 2px;
-      height: 54px;
+      height: 46px;
       background: linear-gradient(
         180deg,
         rgba(63, 110, 161, 0.08) 0%,
-        rgba(63, 110, 161, 0.62) 52%,
-        rgba(63, 110, 161, 0.22) 100%
+        rgba(63, 110, 161, 0.38) 100%
       );
+    }
+
+    .section-connector-circle {
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      background: var(--accent);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       box-shadow:
-        0 0 14px rgba(63, 110, 161, 0.10),
-        0 0 24px rgba(63, 110, 161, 0.06);
+        0 10px 24px rgba(63, 110, 161, 0.22),
+        0 0 0 6px rgba(63, 110, 161, 0.06);
     }
 
-    .section-connector-arrow {
-      position: relative;
-      width: 18px;
-      height: 18px;
-      margin-top: -2px;
-    }
-
-    .section-connector-arrow::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-right: 2.5px solid rgba(63, 110, 161, 0.78);
-      border-bottom: 2.5px solid rgba(63, 110, 161, 0.78);
-      transform: rotate(45deg);
-      box-shadow: 0 0 12px rgba(63, 110, 161, 0.08);
+    .section-connector-circle::before {
+      content: "↓";
+      color: #FFFFFF;
+      font-size: 1rem;
+      line-height: 1;
+      font-weight: 700;
+      transform: translateY(-1px);
     }
 
     .matrix {
       overflow-x: auto;
-      margin-top: 18px;
+      margin-top: 20px;
       border: 1px solid rgba(21, 32, 43, 0.08);
       background: #FFFFFF;
     }
@@ -558,7 +545,7 @@
       padding: 15px 16px;
       border-bottom: 1px solid rgba(21, 32, 43, 0.08);
       font-size: 0.90rem;
-      line-height: 1.5;
+      line-height: 1.54;
     }
 
     .matrix th {
@@ -580,7 +567,7 @@
 
     .tool-launch-head {
       margin: 0 0 24px;
-      padding: 28px 28px 24px;
+      padding: 30px 30px 26px;
       background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(249,250,251,1) 100%);
       border: 1px solid rgba(21, 32, 43, 0.08);
       box-shadow:
@@ -599,7 +586,7 @@
     .tool-launch-note {
       margin-top: 12px;
       font-size: 0.92rem;
-      line-height: 1.62;
+      line-height: 1.64;
       color: var(--accent-dark);
       font-weight: 500;
     }
@@ -608,7 +595,7 @@
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 22px;
-      margin-bottom: 34px;
+      margin-bottom: 38px;
       align-items: stretch;
     }
 
@@ -617,7 +604,7 @@
       background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(249,250,251,1) 100%);
       border: 1px solid rgba(21, 32, 43, 0.08);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
-      min-height: 272px;
+      min-height: 284px;
       height: 100%;
       overflow: hidden;
       transition:
@@ -689,7 +676,7 @@
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      min-height: 272px;
+      min-height: 284px;
       height: 100%;
       padding: 22px 22px 20px;
       text-align: left;
@@ -736,7 +723,7 @@
     .tool-title {
       margin: 0 0 8px;
       font-size: 1.15rem;
-      line-height: 1.12;
+      line-height: 1.16;
       font-weight: 700;
       letter-spacing: -0.022em;
       color: var(--text-dark);
@@ -754,7 +741,7 @@
     .tool-text {
       margin: 0 0 16px;
       font-size: 0.95rem;
-      line-height: 1.62;
+      line-height: 1.66;
       color: var(--muted-dark);
     }
 
@@ -771,7 +758,7 @@
     .tool-meta {
       margin-top: auto;
       font-size: 0.87rem;
-      line-height: 1.55;
+      line-height: 1.58;
       color: var(--muted-dark-2);
     }
 
@@ -840,7 +827,7 @@
       margin: 0;
       max-width: 72ch;
       font-size: 0.95rem;
-      line-height: 1.65;
+      line-height: 1.68;
       color: var(--muted-dark);
     }
 
@@ -1010,7 +997,7 @@
 
       .hero p {
         font-size: 1rem;
-        line-height: 1.58;
+        line-height: 1.6;
       }
 
       .hero-actions {
@@ -1035,16 +1022,16 @@
       }
 
       .section-connector {
-        margin: 12px 0 22px;
+        margin: 14px 0 24px;
       }
 
       .section-connector-line {
-        height: 40px;
+        height: 32px;
       }
 
-      .section-connector-arrow {
-        width: 15px;
-        height: 15px;
+      .section-connector-circle {
+        width: 34px;
+        height: 34px;
       }
 
       .tools-grid {
@@ -1100,13 +1087,13 @@
   <section class="hero">
     <div class="hero-inner">
       <p class="eyebrow">Monderman Diagnostic Suite</p>
-      <h1>Focused tools for structural diagnosis.</h1>
+      <h1>Choose the right diagnostic and start with the dominant symptom.</h1>
       <p>
-        This is a quieter environment for running Monderman’s live diagnostics. Use the suite to isolate where performance is being weakened by structural ambiguity, decision friction, administrative burden, or declining institutional coherence.
+        Use the suite to isolate where performance is being weakened by structural ambiguity, decision drag, administrative burden, or declining institutional coherence.
       </p>
 
       <div class="hero-actions">
-        <a class="btn btn-secondary" href="advisory-services.html">View Advisory Engagements</a>
+        <a class="btn btn-secondary" href="#tool-launch">Open Live Diagnostics</a>
       </div>
     </div>
   </section>
@@ -1116,9 +1103,9 @@
       <div class="head">
         <div>
           <div class="section-label">Diagnostic Suite</div>
-          <h2>Choose the right diagnostic and begin with a cleaner view of the problem.</h2>
+          <h2>A cleaner launch environment for bounded structural diagnosis.</h2>
           <p>
-            This page is designed as a focused starting environment for Monderman’s live tools. Each diagnostic isolates a different kind of structural weakness.
+            Each tool isolates a different kind of organizational weakness. Start with the clearest symptom, keep the scope narrow, and use the output as a directional signal for where deeper review may be needed.
           </p>
         </div>
 
@@ -1130,39 +1117,39 @@
       <section class="how-to-use panel">
         <h3>How to use the suite</h3>
         <p>
-          These tools are designed as bounded entry points. Start with the diagnostic that best matches the problem you are seeing, keep the scope narrow, and treat the result as a directional structural signal rather than a substitute for deeper review.
+          Start with the problem shape you can already see, bound the assessment to one environment, and use the result to sharpen diagnosis before moving to broader redesign.
         </p>
 
         <div class="use-grid">
           <div class="use-card">
             <p class="use-step">Step 1</p>
-            <h4 class="use-title">Choose the problem shape</h4>
-            <p class="use-text">Start with the symptom you can already feel: ambiguity, delay, burden, or weakening institutional performance.</p>
+            <h4 class="use-title">Choose the symptom</h4>
+            <p class="use-text">Begin with what feels most visible: ambiguity, slowness, burden, or broader institutional weakening.</p>
           </div>
 
           <div class="use-card">
             <p class="use-step">Step 2</p>
-            <h4 class="use-title">Keep the scope bounded</h4>
+            <h4 class="use-title">Keep it bounded</h4>
             <p class="use-text">Use one team, one workflow, one function, or one operating environment wherever possible.</p>
           </div>
 
           <div class="use-card">
             <p class="use-step">Step 3</p>
-            <h4 class="use-title">Use the result directionally</h4>
-            <p class="use-text">Treat the output as a structural signal that helps clarify where deeper redesign may be needed.</p>
+            <h4 class="use-title">Read it directionally</h4>
+            <p class="use-text">Treat the output as a structural signal that clarifies where deeper analysis or redesign should begin.</p>
           </div>
         </div>
       </section>
 
       <div class="section-connector" aria-hidden="true">
         <span class="section-connector-line"></span>
-        <span class="section-connector-arrow"></span>
+        <span class="section-connector-circle"></span>
       </div>
 
       <section class="tool-selector panel">
-        <h3>Which tool to start with</h3>
+        <h3>Start with the symptom you can already see.</h3>
         <p>
-          Use the guide below to choose the most credible starting point. When in doubt, begin with the tool that best matches the dominant symptom rather than the full complexity of the situation.
+          Use the guide below to choose the strongest starting point. When in doubt, begin with the most visible symptom rather than the full complexity of the situation.
         </p>
 
         <div class="matrix">
@@ -1179,25 +1166,25 @@
               <tr>
                 <td><strong>Ownership, roles, or handoffs feel blurred.</strong></td>
                 <td>Structural Clarity Snapshot</td>
-                <td>Whether the workflow is legible enough to support reliable execution.</td>
-                <td>Broad institutional health across the full system.</td>
+                <td>Whether authority, ownership, and execution logic are clear enough to support reliable movement.</td>
+                <td>Broad institutional condition across the full system.</td>
               </tr>
               <tr>
                 <td><strong>Decisions feel slow, stuck, or approval-heavy.</strong></td>
                 <td>Decision Velocity Snapshot</td>
-                <td>Where decision movement is being slowed by structure.</td>
+                <td>Where decision movement is being slowed by approvals, routing, escalation, or uncertainty.</td>
                 <td>Total administrative burden across the whole environment.</td>
               </tr>
               <tr>
                 <td><strong>The environment feels overloaded by process.</strong></td>
                 <td>Operational Systems Snapshot</td>
-                <td>Whether administrative density is absorbing time and attention.</td>
+                <td>Whether administrative density is absorbing too much time, attention, and managerial effort.</td>
                 <td>Fine-grained authority and ownership questions.</td>
               </tr>
               <tr>
                 <td><strong>The whole system seems to be weakening.</strong></td>
                 <td>Institutional Performance Snapshot</td>
-                <td>Whether structure is still producing sustained institutional performance.</td>
+                <td>Whether the institution is still converting structure into sustained performance and confidence.</td>
                 <td>Narrow workflow diagnosis within a single slice.</td>
               </tr>
             </tbody>
@@ -1207,15 +1194,15 @@
 
       <div class="section-connector" aria-hidden="true">
         <span class="section-connector-line"></span>
-        <span class="section-connector-arrow"></span>
+        <span class="section-connector-circle"></span>
       </div>
 
       <section class="tool-cards-section" id="tool-launch">
         <div class="tool-launch-head">
           <div class="section-label">Live Diagnostics</div>
-          <h3>Open the diagnostic that best matches the dominant symptom.</h3>
+          <h3>Launch the right diagnostic.</h3>
           <p>
-            Each tool launches in its own dedicated environment. Start with the strongest fit, then use the result to decide whether deeper review or redesign is needed.
+            Each tool opens in its own dedicated environment. Start with the strongest fit, then decide whether the issue requires deeper review, redesign, or advisory work.
           </p>
           <p class="tool-launch-note">
             If the problem feels real but hard to name, start with Structural Clarity.
@@ -1232,7 +1219,7 @@
               <h3 class="tool-title">Structural Clarity Snapshot</h3>
               <p class="tool-subline">Roles · ownership · handoffs</p>
               <p class="tool-text">
-                Assess whether ownership, authority, handoffs, and review logic are sufficiently clear for one bounded workflow or operating slice.
+                Assess whether ownership, authority, and review logic are clear enough for one bounded workflow or operating slice.
               </p>
               <p class="tool-meta-label">Best when</p>
               <p class="tool-meta">
@@ -1250,7 +1237,7 @@
               <h3 class="tool-title">Decision Velocity Snapshot</h3>
               <p class="tool-subline">Approvals · escalation · delay</p>
               <p class="tool-text">
-                Diagnose where approvals, escalation patterns, and role uncertainty are slowing movement through important decisions.
+                Diagnose where approvals, escalation patterns, and routing complexity are slowing movement through important decisions.
               </p>
               <p class="tool-meta-label">Best when</p>
               <p class="tool-meta">
@@ -1268,7 +1255,7 @@
               <h3 class="tool-title">Operational Systems Snapshot</h3>
               <p class="tool-subline">Process load · reporting · overhead</p>
               <p class="tool-text">
-                Surface recurring administrative burden, process density, and non-value-adding overhead across a selected workflow.
+                Surface recurring administrative burden, process density, and non-value-adding overhead across a selected workflow or environment.
               </p>
               <p class="tool-meta-label">Best when</p>
               <p class="tool-meta">
@@ -1286,7 +1273,7 @@
               <h3 class="tool-title">Institutional Performance Snapshot</h3>
               <p class="tool-subline">System health · adaptation · reliability</p>
               <p class="tool-text">
-                Estimate how well an institution is converting structure into sustained performance across execution, decision reliability, adaptation, and operating confidence.
+                Estimate how well an institution is converting structure into sustained performance across execution, resilience, and institutional confidence.
               </p>
               <p class="tool-meta-label">Best when</p>
               <p class="tool-meta">
@@ -1303,7 +1290,7 @@
           <div class="section-label">Advisory Engagements</div>
           <h3 id="advisory-bridge-title">Need a deeper structural review?</h3>
           <p>
-            The diagnostic suite is designed to clarify the shape of the problem. When the issue proves broader, more consequential, or more deeply embedded than a directional tool can resolve, Monderman’s advisory work provides a more sustained structural approach.
+            The diagnostic suite is designed to clarify the shape of the problem. When the issue proves broader or more embedded than a directional tool can resolve, Monderman’s advisory work provides a deeper structural review.
           </p>
         </div>
 
@@ -1313,7 +1300,7 @@
       </section>
 
       <p class="footer-copy-top">
-        Open the live tools above to work through each diagnostic in its own dedicated environment. The purpose of this page is not to repeat the homepage, but to provide a cleaner hub for choosing the right diagnostic and beginning structured inquiry.
+        This page is built as a cleaner hub for choosing the right diagnostic and beginning structured inquiry. Open the live tools above to work through each one in its own dedicated environment.
       </p>
     </div>
   </main>
