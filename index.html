@@ -299,18 +299,18 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: 68% center;
+      object-position: 61% center;
       opacity: 0;
-      transform: translateY(0) scale(0.92);
+      transform: translateY(0) scale(0.965);
       transition:
-        opacity 1.2s cubic-bezier(0.22, 1, 0.36, 1),
-        transform 1.8s cubic-bezier(0.22, 1, 0.36, 1);
+        opacity 1.05s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 1.5s cubic-bezier(0.22, 1, 0.36, 1);
       will-change: transform, opacity;
-      filter: blur(0.4px);
+      filter: blur(0.2px);
     }
 
     .hero-image.is-loaded {
-      opacity: 0.87;
+      opacity: 0.9;
     }
 
     .hero-overlay {
@@ -319,17 +319,17 @@
       background:
         linear-gradient(
           90deg,
-          rgba(10, 14, 20, 0.90) 0%,
-          rgba(10, 14, 20, 0.72) 24%,
-          rgba(10, 14, 20, 0.42) 48%,
-          rgba(10, 14, 20, 0.16) 72%,
-          rgba(10, 14, 20, 0.05) 100%
+          rgba(10, 14, 20, 0.92) 0%,
+          rgba(10, 14, 20, 0.76) 23%,
+          rgba(10, 14, 20, 0.48) 48%,
+          rgba(10, 14, 20, 0.22) 72%,
+          rgba(10, 14, 20, 0.14) 100%
         ),
         linear-gradient(
           180deg,
-          rgba(10, 14, 20, 0.10) 0%,
-          rgba(10, 14, 20, 0.03) 36%,
-          rgba(10, 14, 20, 0.18) 100%
+          rgba(10, 14, 20, 0.12) 0%,
+          rgba(10, 14, 20, 0.04) 36%,
+          rgba(10, 14, 20, 0.20) 100%
         );
     }
 
@@ -338,7 +338,7 @@
       position: absolute;
       inset: auto 0 0 0;
       height: 20%;
-      background: linear-gradient(180deg, rgba(7, 10, 16, 0) 0%, rgba(7, 10, 16, 0.24) 100%);
+      background: linear-gradient(180deg, rgba(7, 10, 16, 0) 0%, rgba(7, 10, 16, 0.26) 100%);
       pointer-events: none;
       z-index: 1;
     }
@@ -349,13 +349,13 @@
       max-width: var(--max);
       min-height: 100vh;
       margin: 0 auto;
-      padding: 140px 34px 112px;
+      padding: 136px 34px 104px;
       display: flex;
       align-items: center;
     }
 
     .hero-copy {
-      max-width: 660px;
+      max-width: 640px;
     }
 
     .hero-eyebrow,
@@ -369,21 +369,21 @@
     }
 
     .hero-eyebrow {
-      margin: 0 0 58px;
+      margin: 0 0 42px;
       padding-left: 1px;
-      font-size: 0.40rem;
+      font-size: 0.41rem;
       line-height: 1;
       letter-spacing: 0.22em;
       font-weight: 500;
       text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.40);
+      color: rgba(255, 255, 255, 0.42);
       animation-delay: 340ms;
     }
 
     .hero h1 {
-      margin: 0 0 28px;
-      max-width: 10.2ch;
-      font-size: clamp(3.35rem, 5.6vw, 5.4rem);
+      margin: 0 0 20px;
+      max-width: 10.4ch;
+      font-size: clamp(3.3rem, 5.55vw, 5.25rem);
       line-height: 0.95;
       font-weight: 700;
       color: #FFFFFF;
@@ -393,10 +393,10 @@
     }
 
     .hero p {
-      max-width: 40ch;
+      max-width: 33ch;
       margin: 0;
-      font-size: clamp(1.14rem, 1.52vw, 1.26rem);
-      line-height: 1.56;
+      font-size: clamp(1.12rem, 1.46vw, 1.22rem);
+      line-height: 1.58;
       letter-spacing: -0.014em;
       color: var(--muted-light);
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
@@ -409,7 +409,7 @@
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
-      margin-top: 32px;
+      margin-top: 28px;
       animation-delay: 820ms;
     }
 
@@ -427,7 +427,7 @@
       white-space: nowrap;
       background: rgba(255, 255, 255, 0.96);
       color: var(--text-dark);
-      border: 1px solid rgba(255, 255, 255, 0.52);
+      border: 1px solid rgba(255, 255, 255, 0.56);
       box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
       transition:
         background 180ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -443,46 +443,47 @@
     .btn:focus-visible {
       background: #FFFFFF;
       color: var(--text-dark);
-      border-color: rgba(255, 255, 255, 0.66);
+      border-color: rgba(255, 255, 255, 0.7);
       transform: translateY(-0.5px);
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
       outline: none;
     }
 
     .btn-secondary {
-      background: rgba(8, 13, 20, 0.48);
-      color: rgba(255, 255, 255, 0.98);
-      border-color: rgba(255, 255, 255, 0.46);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      background: rgba(8, 13, 20, 0.58);
+      color: rgba(255, 255, 255, 0.99);
+      border-color: rgba(255, 255, 255, 0.58);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 8px 18px rgba(0, 0, 0, 0.12);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      opacity: 0.94;
+      opacity: 1;
     }
 
     .btn-secondary:hover,
     .btn-secondary:focus-visible {
-      background: rgba(8, 13, 20, 0.58);
+      background: rgba(8, 13, 20, 0.68);
       color: #FFFFFF;
-      border-color: rgba(255, 255, 255, 0.62);
+      border-color: rgba(255, 255, 255, 0.72);
       box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.05),
-        0 4px 10px rgba(0, 0, 0, 0.06);
-      opacity: 1;
+        inset 0 1px 0 rgba(255, 255, 255, 0.06),
+        0 10px 22px rgba(0, 0, 0, 0.14);
     }
 
     .btn-accent {
       background: var(--accent);
       color: #FFFFFF;
-      border: 1px solid rgba(63, 110, 161, 0.22);
-      box-shadow: 0 8px 20px rgba(63, 110, 161, 0.18);
+      border: 1px solid rgba(63, 110, 161, 0.24);
+      box-shadow: 0 10px 22px rgba(63, 110, 161, 0.22);
     }
 
     .btn-accent:hover,
     .btn-accent:focus-visible {
       background: var(--accent-dark);
       color: #FFFFFF;
-      border-color: rgba(47, 88, 134, 0.32);
-      box-shadow: 0 10px 24px rgba(47, 88, 134, 0.22);
+      border-color: rgba(47, 88, 134, 0.34);
+      box-shadow: 0 12px 26px rgba(47, 88, 134, 0.24);
     }
 
     @keyframes heroFadeUp {
@@ -547,11 +548,11 @@
     }
 
     .bureaucracy-cost {
-      padding: 112px 34px 104px;
+      padding: 104px 34px 96px;
     }
 
     .diagnostic-estimate {
-      padding: 98px 34px 96px;
+      padding: 90px 34px 88px;
     }
 
     .bureaucracy-cost::before,
@@ -698,7 +699,7 @@
       margin: 0;
       max-width: 24ch;
       font-size: 1.02rem;
-      line-height: 1.6;
+      line-height: 1.62;
       color: var(--muted-dark);
     }
 
@@ -772,16 +773,10 @@
       font-size: 0.86rem;
     }
 
-    .estimate-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
     .approach {
       position: relative;
       background: var(--bg-white);
-      padding: 104px 34px 92px;
+      padding: 96px 34px 84px;
       color: var(--text-dark);
       overflow: hidden;
     }
@@ -805,7 +800,7 @@
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 34px;
-      margin-top: 50px;
+      margin-top: 46px;
     }
 
     .approach-card {
@@ -864,15 +859,15 @@
     .card-title {
       margin-bottom: 18px;
       font-size: 1.42rem;
-      line-height: 1.08;
+      line-height: 1.1;
       font-weight: 700;
       color: var(--text-dark);
       transition: color var(--transition);
     }
 
     .card-desc {
-      font-size: 1.02rem;
-      line-height: 1.66;
+      font-size: 1.01rem;
+      line-height: 1.72;
       color: var(--muted-dark);
       transition: color var(--transition);
     }
@@ -899,8 +894,8 @@
     }
 
     .approach-synthesis {
-      margin-top: 64px;
-      padding: 40px 34px;
+      margin-top: 56px;
+      padding: 38px 34px;
       background: #F8F9FA;
       border-radius: 6px;
       border: 1px solid #E3E7EB;
@@ -918,7 +913,7 @@
 
     .approach-synthesis-copy {
       max-width: 52ch;
-      margin: 0 auto 32px;
+      margin: 0 auto 30px;
       font-size: 1.04rem;
       line-height: 1.58;
       color: #556270;
@@ -938,13 +933,12 @@
       font-weight: 600;
       letter-spacing: -0.01em;
       color: var(--text-dark);
-      text-transform: lowercase;
     }
 
     .latest {
       position: relative;
       background: var(--bg-offwhite);
-      padding: 88px 34px 82px;
+      padding: 80px 34px 76px;
       color: var(--text-dark);
       overflow: hidden;
       border-top: 1px solid rgba(21, 32, 43, 0.04);
@@ -1014,7 +1008,7 @@
       display: flex;
       gap: var(--rail-gap);
       will-change: transform;
-      transition: transform 760ms cubic-bezier(0.22, 1, 0.36, 1);
+      transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .latest-card {
@@ -1066,7 +1060,7 @@
     .latest-card-title {
       margin: 0 0 9px;
       font-size: 1.08rem;
-      line-height: 1.12;
+      line-height: 1.14;
       font-weight: 700;
       color: var(--text-dark);
       text-wrap: balance;
@@ -1075,7 +1069,7 @@
     .latest-card-text {
       margin: 0 0 13px;
       font-size: 0.88rem;
-      line-height: 1.55;
+      line-height: 1.58;
       color: var(--muted-dark);
     }
 
@@ -1100,7 +1094,7 @@
       position: relative;
       background: linear-gradient(180deg, #0F1720 0%, #111B25 100%);
       color: var(--text-light);
-      padding: 88px 34px 84px;
+      padding: 80px 34px 78px;
       overflow: hidden;
       border-top: 1px solid rgba(255, 255, 255, 0.06);
       border-bottom: 1px solid rgba(255, 255, 255, 0.06);
@@ -1155,15 +1149,17 @@
       margin: 0;
       max-width: 54ch;
       font-size: 1.04rem;
-      line-height: 1.70;
+      line-height: 1.7;
       color: rgba(245, 247, 250, 0.74);
     }
 
     .connect-panel {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.10);
       padding: 30px 30px 28px;
-      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.02);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.02),
+        0 14px 28px rgba(0, 0, 0, 0.10);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
     }
@@ -1398,7 +1394,7 @@
       }
 
       .hero-inner {
-        padding: 124px 24px 84px;
+        padding: 120px 24px 82px;
       }
 
       .bureaucracy-cost,
@@ -1427,11 +1423,11 @@
       }
 
       .hero-inner {
-        padding: 140px 20px 112px;
+        padding: 136px 20px 108px;
       }
 
       .hero-eyebrow {
-        margin-bottom: 48px;
+        margin-bottom: 36px;
         font-size: 0.40rem;
         letter-spacing: 0.18em;
         color: rgba(255, 255, 255, 0.42);
@@ -1461,19 +1457,19 @@
 
       .bureaucracy-cost,
       .diagnostic-estimate {
-        padding: 82px 20px 74px;
+        padding: 78px 20px 70px;
       }
 
       .approach {
-        padding: 86px 20px 72px;
+        padding: 82px 20px 68px;
       }
 
       .latest {
-        padding: 72px 20px 72px;
+        padding: 68px 20px 68px;
       }
 
       .connect {
-        padding: 68px 20px 64px;
+        padding: 64px 20px 60px;
       }
 
       .footer {
@@ -1559,13 +1555,13 @@
         <h1 id="hero-title">Transforming complexity into opportunity.</h1>
 
         <p>
-          Institutions perform only as well as the systems, decision pathways, and governance beneath them.
+          Monderman helps leaders identify hidden friction, strengthen execution, and improve performance.
         </p>
 
         <div class="hero-actions">
           <a class="btn" href="advisory-services.html">Advisory Engagements</a>
-          <a class="btn btn-secondary" href="diagnostic-tools.html">Run Diagnostics</a>
-          <a class="btn btn-secondary" href="abm-decision-velocity.html">Preview Decision Velocity Diagnostic</a>
+          <a class="btn btn-accent" href="diagnostic-tools.html">Run Diagnostics</a>
+          <a class="btn btn-secondary" href="#connect">Connect</a>
         </div>
       </div>
     </div>
@@ -1622,11 +1618,11 @@
         <div class="section-label">Our Approach</div>
         <h2 id="approach-title">Designing systems for clarity and execution.</h2>
         <p>
-          Monderman works at the level where structure, governance, and institutional performance meet.
-          We help organizations reduce friction, improve decision velocity, and strengthen the systems through which execution actually happens.
+          Monderman works where structure, governance, and institutional performance meet.
+          We help organizations reduce friction, strengthen execution, and improve how performance holds under complexity.
         </p>
         <p class="approach-bridge">
-          Our work begins as advisory diagnosis and design, but increasingly points toward more continuous ways of surfacing friction, latency, and execution risk.
+          We work where strategy becomes execution — or stalls under the weight of unclear structures, slow decisions, and poorly aligned systems.
         </p>
       </div>
 
@@ -1634,7 +1630,7 @@
         <div class="approach-card reveal reveal-delay-1">
           <div class="card-title">Structural Clarity</div>
           <div class="card-desc">
-            We identify where authority, responsibility, and execution have drifted apart, then realign the operating structure so decisions translate into action.
+            We identify where authority, ownership, and accountability have drifted apart, then help realign the structure around execution.
           </div>
           <a class="approach-card-link" href="structural-clarity-article.html">Read more &#8594;</a>
         </div>
@@ -1642,7 +1638,7 @@
         <div class="approach-card reveal reveal-delay-2">
           <div class="card-title">Decision Velocity</div>
           <div class="card-desc">
-            Most organizations do not lack strategy. They are slowed by decision pathways that have grown heavier than the work requires.
+            We surface where decision pathways have become heavier than the work requires, slowing execution and increasing drag.
           </div>
           <a class="approach-card-link" href="decision-velocity-article.html">Read more &#8594;</a>
         </div>
@@ -1650,7 +1646,7 @@
         <div class="approach-card reveal reveal-delay-3">
           <div class="card-title">Operational Systems</div>
           <div class="card-desc">
-            Policies, controls, and processes shape how work actually moves. We redesign operating systems so they preserve rigor without quietly absorbing time, money, and productive capacity.
+            We identify where policies, controls, and administrative processes are absorbing time and effort that should be supporting delivery.
           </div>
           <a class="approach-card-link" href="operational-systems-article.html">Read more &#8594;</a>
         </div>
@@ -1658,7 +1654,7 @@
         <div class="approach-card reveal reveal-delay-4">
           <div class="card-title">Institutional Performance</div>
           <div class="card-desc">
-            Strong institutions sustain clarity over time. We design governance mechanisms that preserve alignment, absorb complexity, and prevent drift as organizations grow and evolve.
+            We help organizations strengthen the conditions that allow performance to hold under pressure, complexity, and change.
           </div>
           <a class="approach-card-link" href="institutional-performance-article.html">Read more &#8594;</a>
         </div>
@@ -1667,13 +1663,13 @@
       <div class="approach-synthesis reveal">
         <div class="section-label">The Monderman Effect</div>
         <p class="approach-synthesis-copy">
-          Four interconnected outcomes that reduce hidden drag and turn structural complexity into sustained execution advantage.
+          Four reinforcing outcomes that help institutions reduce hidden drag and execute with greater clarity.
         </p>
         <div class="approach-synthesis-grid">
-          <div class="approach-synthesis-item">clarify ownership</div>
-          <div class="approach-synthesis-item">shorten decision paths</div>
-          <div class="approach-synthesis-item">reduce hidden drag</div>
-          <div class="approach-synthesis-item">strengthen performance</div>
+          <div class="approach-synthesis-item">Clarify ownership</div>
+          <div class="approach-synthesis-item">Shorten decision paths</div>
+          <div class="approach-synthesis-item">Reduce hidden drag</div>
+          <div class="approach-synthesis-item">Strengthen performance</div>
         </div>
       </div>
     </div>
@@ -1782,10 +1778,7 @@
           </p>
         </div>
 
-        <div class="estimate-actions">
-          <a class="btn btn-accent" href="diagnostic-tools.html">Continue in the Diagnostic Hub</a>
-          <a class="btn btn-secondary" href="abm-decision-velocity.html">Preview Decision Velocity Diagnostic</a>
-        </div>
+        <a class="btn btn-accent" href="diagnostic-tools.html">Continue in the Diagnostic Hub</a>
       </div>
     </div>
   </section>
@@ -1821,7 +1814,7 @@
               <p class="latest-card-kicker">Featured · Executive Brief</p>
               <h3 class="latest-card-title">Active Bureaucratic Management</h3>
               <p class="latest-card-text">
-                A Monderman executive brief introducing ABM as an emerging organizational sensor-and-response fabric for governing bureaucracy in real time.
+                A Monderman executive brief introducing Active Bureaucratic Management as a more continuous way to detect friction, govern bureaucracy, and improve institutional performance.
               </p>
               <a class="latest-card-link" href="Monderman_Active_Bureaucratic_Management.pdf" target="_blank" rel="noopener noreferrer">
                 Download brief &#8594;
@@ -1936,8 +1929,7 @@
         <h2 id="connect-title">Start a serious conversation.</h2>
         <p class="connect-signal">Monderman works selectively with institutions facing consequential structural challenges.</p>
         <p class="connect-text">
-          If you are navigating institutional drag, decision friction, execution misalignment, or exploring a diagnostic pilot,
-          we welcome a conversation. Monderman works with leaders who understand that the constraint is rarely insight alone, but the institutional capacity to act on it.
+          If you are navigating institutional drag, decision friction, execution misalignment, or considering a diagnostic pilot, we welcome a conversation. Monderman works with leaders who understand that the constraint is rarely insight alone, but the institutional capacity to act on it.
         </p>
       </div>
 
@@ -1992,7 +1984,7 @@
     const header = document.getElementById("siteHeader");
     const heroSection = document.querySelector(".hero");
 
-    let heroScale = 0.92;
+    let heroScale = 0.965;
     let zoomStarted = false;
 
     function revealHero() {
@@ -2000,7 +1992,7 @@
       setTimeout(() => {
         heroImage.classList.add("is-loaded");
         startHeroZoom();
-      }, 80);
+      }, 70);
     }
 
     function startHeroZoom() {
@@ -2012,7 +2004,7 @@
 
       function tick(now) {
         const progress = Math.min((now - start) / duration, 1);
-        heroScale = 0.92 + (0.022 * progress);
+        heroScale = 0.965 + (0.014 * progress);
         updateHeroTransform();
         if (progress < 1) requestAnimationFrame(tick);
       }
@@ -2025,7 +2017,7 @@
       const rect = heroSection.getBoundingClientRect();
       const vh = window.innerHeight || 1;
       const progress = Math.max(-1, Math.min(1, rect.top / vh));
-      const y = progress * -10;
+      const y = progress * -6;
       heroImage.style.transform = `translateY(${y}px) scale(${heroScale})`;
     }
 
@@ -2183,7 +2175,7 @@
           latestIndex += 1;
         }
         updateLatestCarousel();
-      }, 6200);
+      }, 7200);
     }
 
     if (latestPrev) {
