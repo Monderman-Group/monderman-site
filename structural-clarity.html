@@ -928,17 +928,82 @@
       display: block;
     }
 
-    .results-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
     .benchmark-footnote {
       margin: -8px 0 0;
       font-size: 0.8rem;
       line-height: 1.5;
       color: var(--muted-dark-2);
+    }
+
+    .results-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(21,32,43,0.08);
+    }
+
+    .results-next {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 6px;
+    }
+
+    .next-card {
+      background: linear-gradient(180deg, #FFFFFF 0%, #F8F9FA 100%);
+      border: 1px solid rgba(21,32,43,0.08);
+      border-radius: 16px;
+      padding: 18px 18px 16px;
+      box-shadow: var(--soft-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .next-kicker {
+      margin: 0;
+      font-size: 0.72rem;
+      line-height: 1;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .next-title {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.22;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .next-copy {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.58;
+      color: var(--muted-dark);
+    }
+
+    .next-actions {
+      margin-top: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-top: 6px;
+    }
+
+    .btn-quiet {
+      background: #FFFFFF;
+      color: var(--text-dark);
+      border: 1px solid rgba(21,32,43,0.10);
+    }
+
+    .btn-quiet:hover,
+    .btn-quiet:focus-visible {
+      border-color: rgba(63,110,161,0.24);
     }
 
     .hidden { display: none !important; }
@@ -950,7 +1015,7 @@
     }
 
     @media (max-width: 900px) {
-      .summary-grid, .results-grid, .charts-grid { grid-template-columns: 1fr; }
+      .summary-grid, .results-grid, .charts-grid, .results-next { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 780px) {
@@ -987,6 +1052,11 @@
         display: grid;
         grid-template-columns: 1fr;
       }
+
+      .results-actions,
+      .next-actions {
+        align-items: flex-start;
+      }
     }
 
     @media print {
@@ -998,6 +1068,7 @@
       #csvForm,
       .sidebar-stack,
       .results-actions,
+      .results-next,
       .empty-state {
         display: none !important;
       }
@@ -1561,8 +1632,43 @@
 
             <div class="results-actions">
               <button class="btn btn-secondary" id="editInputsBtn" type="button">Edit Inputs</button>
-              <button class="btn" id="startOverBtn" type="button">Start Over</button>
-              <button class="btn" id="downloadPdfBtn" type="button">Export Summary PDF</button>
+              <button class="btn btn-quiet" id="startOverBtn" type="button">Start Over</button>
+              <button class="btn btn-accent" id="downloadPdfBtn" type="button">Download Executive Summary PDF</button>
+            </div>
+
+            <div class="results-next">
+              <div class="next-card">
+                <p class="next-kicker">Next Step</p>
+                <h3 class="next-title">Request a deeper structural review</h3>
+                <p class="next-copy">
+                  This diagnostic gives a directional signal. A deeper review uses interviews, document review, workflow mapping, and leadership interpretation to determine where the structure is actually breaking down.
+                </p>
+                <div class="next-actions">
+                  <a class="btn btn-accent" href="advisory-services.html">Explore Advisory Work</a>
+                </div>
+              </div>
+
+              <div class="next-card">
+                <p class="next-kicker">Executive Use</p>
+                <h3 class="next-title">Share a concise leadership readout</h3>
+                <p class="next-copy">
+                  Export a short executive-style summary for discussion with leadership, program owners, or cross-functional stakeholders.
+                </p>
+                <div class="next-actions">
+                  <button class="btn btn-quiet" id="downloadPdfBtnSecondary" type="button">Export Readout</button>
+                </div>
+              </div>
+
+              <div class="next-card">
+                <p class="next-kicker">Suite View</p>
+                <h3 class="next-title">Cross-tool synthesis is coming next</h3>
+                <p class="next-copy">
+                  Structural clarity is often only one part of the picture. The next layer will allow leaders to combine results across clarity, decision velocity, systems load, and institutional performance.
+                </p>
+                <div class="next-actions">
+                  <a class="btn btn-quiet" href="diagnostic-tools.html">View Diagnostic Suite</a>
+                </div>
+              </div>
             </div>
           </section>
         </div>
@@ -1624,6 +1730,7 @@
     const startOverBtn = document.getElementById("startOverBtn");
     const downloadTemplateLink = document.getElementById("downloadTemplateLink");
     const downloadPdfBtn = document.getElementById("downloadPdfBtn");
+    const downloadPdfBtnSecondary = document.getElementById("downloadPdfBtnSecondary");
 
     const scoreNumber = document.getElementById("scoreNumber");
     const scoreBand = document.getElementById("scoreBand");
@@ -1698,30 +1805,39 @@
       return true;
     }
 
-    function goToStep(step) {
+    function goToStep(step, options = {}) {
+      const { scroll = false } = options;
       currentStep = Math.max(1, Math.min(5, step));
       updateStepUI();
-      const topTarget = document.querySelector(".stepper");
-      if (topTarget) topTarget.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+      if (scroll) {
+        const stepper = document.querySelector(".stepper");
+        if (stepper) {
+          const y = stepper.getBoundingClientRect().top + window.pageYOffset - 96;
+          window.scrollTo({ top: y, behavior: "smooth" });
+        }
+      }
     }
 
     stepPills.forEach((pill, index) => {
       pill.addEventListener("click", () => {
         const targetStep = index + 1;
         if (targetStep <= currentStep || validateStep(currentStep)) {
-          goToStep(targetStep);
+          goToStep(targetStep, { scroll: true });
         }
       });
     });
 
     nextButtons.forEach(btn => {
       btn.addEventListener("click", () => {
-        if (validateStep(currentStep)) goToStep(currentStep + 1);
+        if (validateStep(currentStep)) {
+          goToStep(currentStep + 1, { scroll: true });
+        }
       });
     });
 
     prevButtons.forEach(btn => {
-      btn.addEventListener("click", () => goToStep(currentStep - 1));
+      btn.addEventListener("click", () => goToStep(currentStep - 1, { scroll: true }));
     });
 
     modeGuidedCard.addEventListener("click", () => setMode("guided"));
@@ -1729,7 +1845,7 @@
 
     startGuidedBtn.addEventListener("click", () => {
       setMode("guided");
-      goToStep(1);
+      goToStep(1, { scroll: false });
       guidedForm.scrollIntoView({ behavior: "smooth", block: "start" });
     });
 
@@ -1742,7 +1858,7 @@
 
     resetFormBtn.addEventListener("click", () => {
       guidedForm.reset();
-      goToStep(1);
+      goToStep(1, { scroll: false });
       resultsShell.classList.remove("active");
       resultsEmptyState.classList.remove("hidden");
     });
@@ -1756,7 +1872,7 @@
     startOverBtn.addEventListener("click", () => {
       guidedForm.reset();
       csvForm.reset();
-      goToStep(1);
+      goToStep(1, { scroll: false });
       resultsShell.classList.remove("active");
       resultsEmptyState.classList.remove("hidden");
       setMode("guided");
@@ -1781,9 +1897,12 @@
       URL.revokeObjectURL(url);
     });
 
-    downloadPdfBtn.addEventListener("click", () => {
+    function exportExecutiveSummary() {
       window.print();
-    });
+    }
+
+    downloadPdfBtn.addEventListener("click", exportExecutiveSummary);
+    downloadPdfBtnSecondary.addEventListener("click", exportExecutiveSummary);
 
     function mapSelect(value, mapping) {
       return mapping[value] ?? 0;
@@ -2165,7 +2284,9 @@
       leadershipImplication.textContent = fallback.implication;
 
       renderCharts(result);
-      resultsShell.scrollIntoView({ behavior: "smooth", block: "start" });
+
+      const y = resultsShell.getBoundingClientRect().top + window.pageYOffset - 96;
+      window.scrollTo({ top: y, behavior: "smooth" });
     }
 
     guidedForm.addEventListener("submit", async (e) => {
@@ -2179,7 +2300,7 @@
 
       for (let step = 1; step <= 5; step++) {
         if (!validateStep(step)) {
-          goToStep(step);
+          goToStep(step, { scroll: true });
           return;
         }
       }
@@ -2267,7 +2388,7 @@
     });
 
     setMode("guided");
-    goToStep(1);
+    goToStep(1, { scroll: false });
   </script>
 </body>
 </html>
