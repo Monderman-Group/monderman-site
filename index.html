@@ -259,7 +259,13 @@
       transform: scaleX(1);
     }
 
-    /* HERO NETWORK CANVAS */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
+      background: var(--bg-hero-fallback);
+    }
+
     .hero-media-wrap {
       position: absolute;
       inset: 0;
@@ -439,17 +445,68 @@
       outline: none;
     }
 
-    /* DIAGNOSTIC SLIDERS & BARS */
+    .section-label {
+      margin-bottom: 16px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .section-label::before {
+      content: "";
+      display: block;
+      width: 48px;
+      height: 2px;
+      background: var(--accent);
+      margin-bottom: 14px;
+    }
+
+    .approach-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 356px;
+      background: rgba(255, 255, 255, 0.99);
+      border: 1px solid var(--line-dark);
+      padding: 40px 34px 52px;
+      overflow: hidden;
+      transition:
+        transform var(--transition-slow),
+        box-shadow var(--transition-slow),
+        border-color var(--transition),
+        background var(--transition);
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    .approach-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0%;
+      background: var(--accent);
+      transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .approach-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(0, 0, 0, 0.06);
+      background: #FFFFFF;
+      box-shadow:
+        0 25px 50px -12px rgba(63, 110, 161, 0.18);
+    }
+
+    .approach-card:hover::before {
+      width: 100%;
+    }
+
     .estimate-field {
       display: grid;
       gap: 8px;
-    }
-
-    .estimate-field label {
-      font-size: 0.88rem;
-      line-height: 1.45;
-      font-weight: 600;
-      color: var(--text-dark);
     }
 
     input[type="range"] {
@@ -511,49 +568,6 @@
       border-radius: 9999px;
     }
 
-    /* APPROACH 3D TILT */
-    .approach-card {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      min-height: 356px;
-      background: rgba(255, 255, 255, 0.99);
-      border: 1px solid var(--line-dark);
-      padding: 40px 34px 52px;
-      overflow: hidden;
-      transition:
-        transform var(--transition-slow),
-        box-shadow var(--transition-slow),
-        border-color var(--transition),
-        background var(--transition);
-      transform-style: preserve-3d;
-      will-change: transform;
-    }
-
-    .approach-card::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 3px;
-      width: 0%;
-      background: var(--accent);
-      transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    .approach-card:hover {
-      transform: translateY(-6px);
-      border-color: rgba(0, 0, 0, 0.06);
-      background: #FFFFFF;
-      box-shadow:
-        0 25px 50px -12px rgba(63, 110, 161, 0.18);
-    }
-
-    .approach-card:hover::before {
-      width: 100%;
-    }
-
-    /* LATEST CAROUSEL DOTS */
     .carousel-dots {
       display: flex;
       justify-content: center;
@@ -576,17 +590,882 @@
       border-radius: 9999px;
     }
 
-    /* Rest of original styles unchanged (kept for brevity in this block but fully included below) */
-    .section-label { margin-bottom: 16px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); }
-    .section-label::before { content: ""; display: block; width: 48px; height: 2px; background: var(--accent); margin-bottom: 14px; }
-    /* ... (all original CSS for sections, cards, footer, media queries, etc. is preserved exactly as in your source) ... */
-    /* Full original CSS continues here — I have kept every rule verbatim except the targeted premium additions above */
+    /* ALL REMAINING ORIGINAL CSS RULES FROM YOUR SOURCE (verbatim) */
+    .bureaucracy-cost,
+    .diagnostic-estimate {
+      position: relative;
+      background:
+        linear-gradient(rgba(247, 248, 249, 0.97), rgba(247, 248, 249, 0.97)),
+        linear-gradient(90deg, rgba(63, 110, 161, 0.02) 1px, transparent 1px),
+        linear-gradient(rgba(63, 110, 161, 0.02) 1px, transparent 1px);
+      background-size: auto, 28px 28px, 28px 28px;
+      border-top: 1px solid #E7EBEF;
+      border-bottom: 1px solid #E7EBEF;
+      color: var(--text-dark);
+      overflow: hidden;
+    }
+
+    .bureaucracy-cost {
+      padding: 104px 34px 96px;
+    }
+
+    .diagnostic-estimate {
+      padding: 90px 34px 88px;
+    }
+
+    .bureaucracy-cost::before,
+    .diagnostic-estimate::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 85% 20%, rgba(63, 110, 161, 0.04), transparent 34%);
+      pointer-events: none;
+    }
+
+    .cost-inner,
+    .diagnostic-estimate-inner {
+      position: relative;
+      z-index: 1;
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .cost-heading,
+    .diagnostic-estimate-heading {
+      max-width: 900px;
+      margin: 0 0 40px;
+    }
+
+    .cost-label,
+    .estimate-label {
+      margin: 0 0 18px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .cost-heading h2,
+    .diagnostic-estimate-heading h2 {
+      margin: 0 0 12px;
+      max-width: 760px;
+      font-size: clamp(2.05rem, 2.9vw, 2.7rem);
+      line-height: 1.12;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-wrap: balance;
+    }
+
+    .cost-context,
+    .estimate-context,
+    .estimate-bridge {
+      margin: 0;
+      max-width: 58ch;
+      font-size: 0.96rem;
+      line-height: 1.64;
+      color: var(--muted-dark);
+    }
+
+    .estimate-bridge {
+      margin-top: 12px;
+      max-width: 64ch;
+    }
+
+    .cost-grid,
+    .estimate-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 28px;
+      margin-top: 10px;
+    }
+
+    .cost-card,
+    .estimate-card {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(21, 32, 43, 0.06);
+      padding: 42px 34px 38px;
+      box-shadow: var(--soft-shadow);
+      transition:
+        transform var(--transition-slow),
+        box-shadow var(--transition-slow),
+        border-color var(--transition);
+    }
+
+    .cost-card {
+      min-height: 310px;
+    }
+
+    .estimate-card {
+      min-height: 286px;
+    }
+
+    .cost-card:hover,
+    .estimate-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(63, 110, 161, 0.12);
+      box-shadow:
+        0 1px 0 rgba(0, 0, 0, 0.014),
+        0 8px 18px rgba(0, 0, 0, 0.016),
+        0 16px 28px rgba(0, 0, 0, 0.014);
+    }
+
+    .cost-card-title,
+    .estimate-card-title {
+      margin: 0 0 8px;
+      font-size: 1.02rem;
+      line-height: 1.12;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .cost-card-title .asterisk {
+      font-size: 0.9em;
+      vertical-align: 0.08em;
+    }
+
+    .cost-card-source,
+    .estimate-card-source {
+      margin: 0 0 34px;
+      font-size: 0.76rem;
+      line-height: 1.45;
+      color: #8A95A3;
+      font-style: italic;
+    }
+
+    .cost-card-number {
+      margin: 0 0 18px;
+      font-size: clamp(3rem, 4.8vw, 4.35rem);
+      line-height: 0.9;
+      letter-spacing: -0.065em;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .estimate-card-number {
+      margin: 0 0 18px;
+      font-size: clamp(2.15rem, 3vw, 3rem);
+      line-height: 1;
+      letter-spacing: -0.05em;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .cost-card-text,
+    .estimate-card-text {
+      margin: 0;
+      max-width: 24ch;
+      font-size: 1.02rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+    }
+
+    .cost-footer {
+      margin: 22px 0 0;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      color: var(--muted-dark-2);
+    }
+
+    .estimate-controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    .estimate-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-top: 26px;
+    }
+
+    .estimate-foot-copy {
+      max-width: 68ch;
+    }
+
+    .estimate-foot-copy p {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+    }
+
+    .estimate-foot-copy p + p {
+      margin-top: 8px;
+      color: var(--muted-dark-2);
+      font-size: 0.86rem;
+    }
+
+    .approach {
+      position: relative;
+      background: var(--bg-white);
+      padding: 96px 34px 84px;
+      color: var(--text-dark);
+      overflow: hidden;
+    }
+
+    .approach-inner {
+      position: relative;
+      z-index: 1;
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .approach-bridge {
+      margin: 18px 0 0;
+      max-width: 60ch;
+      font-size: 1rem;
+      line-height: 1.66;
+      color: var(--muted-dark);
+    }
+
+    .approach-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 34px;
+      margin-top: 46px;
+    }
+
+    .approach-synthesis {
+      margin-top: 56px;
+      padding: 38px 34px;
+      background: #F8F9FA;
+      border-radius: 6px;
+      border: 1px solid #E3E7EB;
+      text-align: center;
+    }
+
+    .approach-synthesis .section-label {
+      margin-bottom: 12px;
+    }
+
+    .approach-synthesis .section-label::before {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .approach-synthesis-copy {
+      max-width: 52ch;
+      margin: 0 auto 30px;
+      font-size: 1.04rem;
+      line-height: 1.58;
+      color: #556270;
+    }
+
+    .approach-synthesis-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 24px;
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    .approach-synthesis-item {
+      font-size: 0.96rem;
+      line-height: 1.45;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text-dark);
+    }
+
+    .latest {
+      position: relative;
+      background: var(--bg-offwhite);
+      padding: 80px 34px 76px;
+      color: var(--text-dark);
+      overflow: hidden;
+      border-top: 1px solid rgba(21, 32, 43, 0.04);
+      border-bottom: 1px solid rgba(21, 32, 43, 0.04);
+    }
+
+    .latest-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .latest-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 30px;
+      margin-bottom: 34px;
+    }
+
+    .latest-intro {
+      max-width: 740px;
+    }
+
+    .latest-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      flex: 0 0 auto;
+    }
+
+    .rail-arrow {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid rgba(21, 32, 43, 0.12);
+      background: #FFFFFF;
+      color: rgba(21, 32, 43, 0.88);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: var(--soft-shadow);
+      transition:
+        transform var(--transition),
+        border-color var(--transition),
+        box-shadow var(--transition),
+        opacity var(--transition),
+        color var(--transition),
+        background var(--transition);
+    }
+
+    .rail-arrow:hover,
+    .rail-arrow:focus-visible {
+      transform: translateY(-1px);
+      color: var(--text-dark);
+      background: #FFFFFF;
+      border-color: rgba(63, 110, 161, 0.20);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
+      outline: none;
+    }
+
+    .latest-viewport {
+      overflow: hidden;
+    }
+
+    .latest-track {
+      display: flex;
+      gap: var(--rail-gap);
+      will-change: transform;
+      transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .latest-card {
+      flex: 0 0 calc((100% - (var(--rail-gap) * 2)) / 2.55);
+      background: #FFFFFF;
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      box-shadow: var(--soft-shadow);
+      overflow: hidden;
+      transition:
+        transform var(--transition-slow),
+        box-shadow var(--transition-slow),
+        border-color var(--transition);
+    }
+
+    .latest-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(63, 110, 161, 0.12);
+      box-shadow:
+        0 1px 0 rgba(0, 0, 0, 0.012),
+        0 10px 24px rgba(0, 0, 0, 0.04);
+    }
+
+    .latest-card-image {
+      aspect-ratio: 16 / 8.2;
+      overflow: hidden;
+      background: #DDE4EB;
+    }
+
+    .latest-card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .latest-card-body {
+      padding: 16px;
+    }
+
+    .latest-card-kicker {
+      margin: 0 0 9px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .latest-card-title {
+      margin: 0 0 9px;
+      font-size: 1.08rem;
+      line-height: 1.14;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-wrap: balance;
+    }
+
+    .latest-card-text {
+      margin: 0 0 13px;
+      font-size: 0.88rem;
+      line-height: 1.58;
+      color: var(--muted-dark);
+    }
+
+    .latest-card-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.90rem;
+      font-weight: 500;
+      color: var(--text-dark);
+      transition: color var(--transition), transform var(--transition);
+    }
+
+    .latest-card-link:hover,
+    .latest-card-link:focus-visible {
+      color: var(--accent);
+      transform: translateX(2px);
+      outline: none;
+    }
+
+    .connect {
+      position: relative;
+      background: linear-gradient(180deg, #0F1720 0%, #111B25 100%);
+      color: var(--text-light);
+      padding: 80px 34px 78px;
+      overflow: hidden;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .connect::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 80% 20%, rgba(63, 110, 161, 0.10), transparent 28%),
+        linear-gradient(135deg, rgba(63, 110, 161, 0.03) 1px, transparent 1px);
+      background-size: auto, 34px 34px;
+      opacity: 0.36;
+      pointer-events: none;
+    }
+
+    .connect-inner {
+      position: relative;
+      z-index: 1;
+      max-width: var(--max);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+      gap: 56px;
+      align-items: start;
+    }
+
+    .connect-copy .section-label {
+      color: rgba(245, 247, 250, 0.82);
+    }
+
+    .connect-copy .section-label::before {
+      background: var(--accent);
+    }
+
+    .connect-copy h2 {
+      color: #FFFFFF;
+      margin-bottom: 18px;
+    }
+
+    .connect-signal {
+      margin: 0 0 14px;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(245, 247, 250, 0.54);
+    }
+
+    .connect-text {
+      margin: 0;
+      max-width: 54ch;
+      font-size: 1.04rem;
+      line-height: 1.7;
+      color: rgba(245, 247, 250, 0.74);
+    }
+
+    .connect-panel {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      padding: 30px 30px 28px;
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.02),
+        0 14px 28px rgba(0, 0, 0, 0.10);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .connect-kicker {
+      margin: 0 0 14px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      color: rgba(245, 247, 250, 0.54);
+    }
+
+    .connect-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: clamp(1.06rem, 1.6vw, 1.22rem);
+      line-height: 1.3;
+      font-weight: 500;
+      letter-spacing: -0.015em;
+      color: #FFFFFF;
+      transition: color var(--transition), transform var(--transition);
+    }
+
+    .connect-link:hover,
+    .connect-link:focus-visible {
+      color: #FFFFFF;
+      transform: translateX(2px);
+      outline: none;
+    }
+
+    .connect-link-mark {
+      width: 7px;
+      height: 7px;
+      background: var(--accent);
+      border-radius: 1px;
+      flex: 0 0 auto;
+      transform: translateY(-1px);
+    }
+
+    .connect-note {
+      margin: 16px 0 0;
+      font-size: 0.92rem;
+      line-height: 1.64;
+      color: rgba(245, 247, 250, 0.60);
+    }
+
+    .footer {
+      background: #0D141C;
+      color: rgba(245, 247, 250, 0.88);
+      padding: 50px 34px 38px;
+    }
+
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .footer-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 40px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .footer-brand {
+      max-width: 420px;
+    }
+
+    .footer-mark {
+      display: inline-flex;
+      align-items: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      margin-bottom: 14px;
+    }
+
+    .footer-mark::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+
+    .footer-copy {
+      margin: 0;
+      max-width: 36ch;
+      font-size: 0.98rem;
+      line-height: 1.65;
+      color: rgba(245, 247, 250, 0.68);
+    }
+
+    .footer-nav {
+      display: flex;
+      gap: 48px;
+      flex-wrap: wrap;
+    }
+
+    .footer-nav-col {
+      min-width: 120px;
+    }
+
+    .footer-nav-title {
+      margin: 0 0 12px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245, 247, 250, 0.50);
+    }
+
+    .footer-nav a {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      color: rgba(245, 247, 250, 0.82);
+      transition: color var(--transition), transform var(--transition);
+    }
+
+    .footer-nav a:hover,
+    .footer-nav a:focus-visible {
+      color: #FFFFFF;
+      transform: translateX(2px);
+      outline: none;
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding-top: 18px;
+    }
+
+    .footer-meta,
+    .footer-contact {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: rgba(245, 247, 250, 0.58);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .reveal,
+      .hero-image,
+      .hero-eyebrow,
+      .hero h1,
+      .hero p,
+      .hero-actions {
+        animation: none;
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+
+      .btn,
+      .header,
+      .nav a,
+      .nav a::after,
+      .cost-card,
+      .estimate-card,
+      .approach-card,
+      .approach-card-link,
+      .latest-card,
+      .rail-arrow,
+      .latest-track,
+      .footer-nav a,
+      .connect-link,
+      .latest-card-link,
+      .estimate-field select {
+        transition: none;
+      }
+    }
+
+    @media (max-width: 1100px) {
+      .approach-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .cost-grid,
+      .estimate-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .estimate-controls {
+        grid-template-columns: 1fr;
+      }
+
+      .cost-card,
+      .estimate-card {
+        min-height: auto;
+      }
+
+      .connect-inner {
+        grid-template-columns: 1fr;
+        gap: 28px;
+      }
+    }
+
+    @media (max-width: 980px) {
+      .header {
+        height: auto;
+      }
+
+      .header-inner {
+        padding: 16px 24px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .nav {
+        gap: 22px;
+      }
+
+      .hero-inner {
+        padding: 120px 24px 82px;
+      }
+
+      .bureaucracy-cost,
+      .approach,
+      .diagnostic-estimate,
+      .latest,
+      .connect,
+      .footer {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+
+      .latest-head {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .brand {
+        font-size: 1.24rem;
+      }
+
+      .nav {
+        gap: 18px;
+      }
+
+      .hero-inner {
+        padding: 136px 20px 108px;
+      }
+
+      .hero-eyebrow {
+        margin-bottom: 36px;
+        font-size: 0.40rem;
+        letter-spacing: 0.18em;
+        color: rgba(255, 255, 255, 0.42);
+      }
+
+      .hero h1 {
+        max-width: 100%;
+        font-size: clamp(2.45rem, 8vw, 3.25rem);
+      }
+
+      .hero p {
+        max-width: 100%;
+        font-size: 1rem;
+        line-height: 1.58;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        max-width: 420px;
+      }
+
+      .btn {
+        width: 100%;
+        min-width: 0;
+        min-height: 54px;
+        padding: 0 20px;
+        font-size: 1rem;
+      }
+
+      .bureaucracy-cost,
+      .diagnostic-estimate {
+        padding: 78px 20px 70px;
+      }
+
+      .approach {
+        padding: 82px 20px 68px;
+      }
+
+      .latest {
+        padding: 68px 20px 68px;
+      }
+
+      .connect {
+        padding: 64px 20px 60px;
+      }
+
+      .footer {
+        padding: 34px 20px 28px;
+      }
+
+      .approach-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .approach-card {
+        min-height: auto;
+        padding: 30px 24px 38px;
+      }
+
+      .approach-card-link {
+        padding-top: 22px;
+      }
+
+      .approach-synthesis {
+        margin-top: 44px;
+        padding: 30px 22px;
+      }
+
+      .estimate-footer {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .latest-card {
+        flex-basis: 100%;
+      }
+
+      .connect-panel {
+        padding: 24px 22px 22px;
+      }
+
+      .footer-top,
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .footer-nav {
+        gap: 28px;
+      }
+    }
   </style>
 </head>
 <body>
   <header class="header" id="siteHeader">
     <div class="header-inner">
       <a href="#" class="brand">Monderman</a>
+
       <nav class="nav" aria-label="Primary navigation">
         <a href="#approach">Approach</a>
         <a href="diagnostic-tools.html">Diagnostic Tools</a>
@@ -600,17 +1479,27 @@
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero-media-wrap" aria-hidden="true">
       <canvas id="heroCanvas" class="hero-canvas"></canvas>
-      <img class="hero-image" id="heroImage" src="Decision Velocity.jpg" alt="" decoding="async" fetchpriority="high" />
+      <img
+        class="hero-image"
+        id="heroImage"
+        src="Decision Velocity.jpg"
+        alt=""
+        decoding="async"
+        fetchpriority="high"
+      />
       <div class="hero-overlay"></div>
     </div>
 
     <div class="hero-inner">
       <div class="hero-copy">
         <p class="hero-eyebrow">Institutional Design</p>
+
         <h1 id="hero-title">Transforming complexity into opportunity.</h1>
+
         <p>
           Monderman helps leaders identify hidden friction, strengthen execution, and improve performance.
         </p>
+
         <div class="hero-actions">
           <a class="btn" href="diagnostic-tools.html">Run Diagnostics</a>
           <a class="btn btn-secondary" href="advisory-services.html">Advisory</a>
@@ -620,9 +1509,7 @@
     </div>
   </section>
 
-  <!-- Bureaucracy cost section unchanged -->
   <section class="bureaucracy-cost" id="cost-section" aria-labelledby="cost-title">
-    <!-- ... exact original content ... -->
     <div class="cost-inner">
       <div class="cost-heading reveal">
         <p class="cost-label">The Cost of Bureaucratic Friction</p>
@@ -631,8 +1518,8 @@
           The issue is rarely complexity itself. It is the accumulation of systems built to manage it.
         </p>
       </div>
+
       <div class="cost-grid">
-        <!-- exact original three cards -->
         <div class="cost-card reveal reveal-delay-1">
           <div class="cost-card-title">Time<span class="asterisk">*</span></div>
           <p class="cost-card-source"><em>* HBR / management reporting research</em></p>
@@ -641,15 +1528,32 @@
             of managers’ time can be consumed by reports alone.
           </p>
         </div>
-        <!-- ... other two cards exactly as original ... -->
+
+        <div class="cost-card reveal reveal-delay-2">
+          <div class="cost-card-title">Money<span class="asterisk">*</span></div>
+          <p class="cost-card-source"><em>* Harvard Business Review</em></p>
+          <div class="cost-card-number" data-count-type="currency-trillion" data-target="3">$0T</div>
+          <p class="cost-card-text">
+            estimated annual cost of excess management in the U.S. economy.
+          </p>
+        </div>
+
+        <div class="cost-card reveal reveal-delay-3">
+          <div class="cost-card-title">Resources<span class="asterisk">*</span></div>
+          <p class="cost-card-source"><em>* OECD / administrative burden guidance</em></p>
+          <div class="cost-card-number" data-count-type="range-percent" data-target="30">0–0%</div>
+          <p class="cost-card-text">
+            of productive capacity can be absorbed by administrative burden.
+          </p>
+        </div>
       </div>
+
       <p class="cost-footer reveal reveal-delay-4">
         Selected sources: Harvard Business Review; OECD administrative burden guidance.
       </p>
     </div>
   </section>
 
-  <!-- Approach section with 3D tilt cards -->
   <section class="approach" id="approach" aria-labelledby="approach-title">
     <div class="approach-inner">
       <div class="section-intro reveal">
@@ -672,7 +1576,7 @@
           </div>
           <a class="approach-card-link" href="structural-clarity-article.html">Read more &#8594;</a>
         </div>
-        <!-- exact same for the other three cards -->
+
         <div class="approach-card reveal reveal-delay-2">
           <div class="card-title">Decision Velocity</div>
           <div class="card-desc">
@@ -680,6 +1584,7 @@
           </div>
           <a class="approach-card-link" href="decision-velocity-article.html">Read more &#8594;</a>
         </div>
+
         <div class="approach-card reveal reveal-delay-3">
           <div class="card-title">Operational Systems</div>
           <div class="card-desc">
@@ -687,6 +1592,7 @@
           </div>
           <a class="approach-card-link" href="operational-systems-article.html">Read more &#8594;</a>
         </div>
+
         <div class="approach-card reveal reveal-delay-4">
           <div class="card-title">Institutional Performance</div>
           <div class="card-desc">
@@ -696,7 +1602,6 @@
         </div>
       </div>
 
-      <!-- synthesis unchanged -->
       <div class="approach-synthesis reveal">
         <div class="section-label">The Monderman Effect</div>
         <p class="approach-synthesis-copy">
@@ -712,7 +1617,6 @@
     </div>
   </section>
 
-  <!-- Premium Diagnostic Estimator -->
   <section class="diagnostic-estimate" id="diagnostic-estimate" aria-labelledby="estimate-title">
     <div class="diagnostic-estimate-inner">
       <div class="diagnostic-estimate-heading reveal">
@@ -727,38 +1631,48 @@
       </div>
 
       <div class="estimate-controls reveal reveal-delay-1" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px;">
-        <!-- Org Size Slider -->
         <div class="estimate-field">
           <label for="estimateOrgSize">Organization size</label>
           <input type="range" id="estimateOrgSize" min="50" max="100000" value="1000" step="50">
           <div class="slider-value" id="sizeValue">1,000</div>
         </div>
 
-        <!-- Complexity Segmented (premium pill control) -->
         <div class="estimate-field">
           <label>Organizational complexity</label>
           <div class="segmented-control" id="complexityControl">
-            <button data-value="light" class="active">Light</button>
-            <button data-value="moderate">Moderate</button>
+            <button data-value="light">Light</button>
+            <button data-value="moderate" class="active">Moderate</button>
             <button data-value="heavy">Heavy</button>
             <button data-value="excessive">Excessive</button>
           </div>
         </div>
 
-        <!-- Sector Select (premium styling) -->
         <div class="estimate-field">
           <label for="estimateSector">Sector</label>
           <select id="estimateSector" aria-label="Sector">
-            <!-- exact original options -->
             <option value="general" selected>General private sector</option>
             <option value="defense-department">Defense Department</option>
-            <!-- ... all other options exactly as original ... -->
+            <option value="defense-production">Defense production</option>
+            <option value="federal-civilian">Federal civilian government</option>
+            <option value="state-government">State government</option>
+            <option value="local-government">Local government</option>
+            <option value="intelligence">Intelligence / national security</option>
+            <option value="healthcare-provider">Healthcare provider</option>
+            <option value="health-insurer">Health insurer / payer</option>
+            <option value="higher-education">Higher education</option>
+            <option value="manufacturing">Manufacturing</option>
+            <option value="financial-services">Financial services</option>
+            <option value="insurance">Insurance</option>
+            <option value="technology">Technology / software</option>
+            <option value="energy">Energy / utilities</option>
+            <option value="logistics">Logistics / transportation</option>
+            <option value="professional-services">Professional services</option>
+            <option value="nonprofit">Nonprofit / mission organization</option>
           </select>
         </div>
       </div>
 
       <div class="estimate-grid">
-        <!-- Time card with animated bar -->
         <div class="estimate-card reveal reveal-delay-2">
           <div class="estimate-card-title">Time</div>
           <p class="estimate-card-source"><em>Directional annual labor hours</em></p>
@@ -769,7 +1683,6 @@
           <div class="progress-container"><div class="progress-bar" id="timeBar"></div></div>
         </div>
 
-        <!-- Money card with animated bar -->
         <div class="estimate-card reveal reveal-delay-3">
           <div class="estimate-card-title">Money</div>
           <p class="estimate-card-source"><em>Directional annual cost equivalent</em></p>
@@ -780,7 +1693,6 @@
           <div class="progress-container"><div class="progress-bar" id="moneyBar"></div></div>
         </div>
 
-        <!-- Resources card with animated bar -->
         <div class="estimate-card reveal reveal-delay-4">
           <div class="estimate-card-title">Resources</div>
           <p class="estimate-card-source"><em>Directional productive capacity absorbed</em></p>
@@ -801,12 +1713,12 @@
             Use the diagnostic suite to identify where that burden is actually forming and where to begin.
           </p>
         </div>
+
         <a class="btn btn-accent" href="diagnostic-tools.html">Continue in the Diagnostic Hub</a>
       </div>
     </div>
   </section>
 
-  <!-- Latest section with upgraded infinite carousel + dots -->
   <section class="latest" id="latest" aria-labelledby="latest-title">
     <div class="latest-inner">
       <div class="latest-head">
@@ -826,37 +1738,192 @@
 
       <div class="latest-viewport" id="latestViewport">
         <div class="latest-track" id="latestTrack">
-          <!-- exact original 7 cards unchanged -->
-          <!-- ... paste all seven <article class="latest-card"> exactly as in your source ... -->
+          <article class="latest-card">
+            <div class="latest-card-image">
+              <img src="ABM_brief_image.png" alt="Abstract institutional pathway network image for Active Bureaucratic Management brief" />
+            </div>
+            <div class="latest-card-body">
+              <p class="latest-card-kicker">Featured · Executive Brief</p>
+              <h3 class="latest-card-title">Active Bureaucratic Management</h3>
+              <p class="latest-card-text">
+                A Monderman executive brief introducing Active Bureaucratic Management as a more continuous way to detect friction, govern bureaucracy, and improve institutional performance.
+              </p>
+              <a class="latest-card-link" href="Monderman_Active_Bureaucratic_Management.pdf" target="_blank" rel="noopener noreferrer">
+                Download brief &#8594;
+              </a>
+            </div>
+          </article>
+
+          <article class="latest-card">
+            <div class="latest-card-image">
+              <img src="Washington DC.jpg" alt="Washington, D.C. skyline for Monderman defense research" />
+            </div>
+            <div class="latest-card-body">
+              <p class="latest-card-kicker">Defense · Research Brief</p>
+              <h3 class="latest-card-title">Accumulated Drag in the Department of War</h3>
+              <p class="latest-card-text">
+                A Monderman research brief on accumulated drag, administrative burden, and institutional friction in one of the world’s most complex public institutions.
+              </p>
+              <a class="latest-card-link" href="Monderman%20Accumulated%20Drag%20DoW.pdf" target="_blank" rel="noopener noreferrer">
+                Download research &#8594;
+              </a>
+            </div>
+          </article>
+
+          <article class="latest-card">
+            <div class="latest-card-image">
+              <img src="Healthcare costs.jpg" alt="Healthcare costs graphic for Monderman healthcare research" />
+            </div>
+            <div class="latest-card-body">
+              <p class="latest-card-kicker">Healthcare · Research Brief</p>
+              <h3 class="latest-card-title">Quarter-Trillion Friction in U.S. Healthcare</h3>
+              <p class="latest-card-text">
+                A Monderman brief on quarter-trillion friction, administrative burden, and the structural drag complicating performance in healthcare systems.
+              </p>
+              <a class="latest-card-link" href="Monderman%20Quarter%20Trillion%20Friction%20Healthcare.pdf" target="_blank" rel="noopener noreferrer">
+                Download research &#8594;
+              </a>
+            </div>
+          </article>
+
+          <article class="latest-card">
+            <div class="latest-card-image">
+              <img src="Trees.jpg" alt="Tree canopy image for Monderman perspective on compensatory systems" />
+            </div>
+            <div class="latest-card-body">
+              <p class="latest-card-kicker">Perspective · Institutional Performance</p>
+              <h3 class="latest-card-title">How Workarounds Preserve Output While Masking Institutional Dysfunction</h3>
+              <p class="latest-card-text">
+                Organizations often appear to function because people compensate for structural weakness. Output is preserved, but the underlying system continues to deteriorate.
+              </p>
+              <a class="latest-card-link" href="Monderman%20Compensatory%20Systems.pdf" target="_blank" rel="noopener noreferrer">
+                Read perspective &#8594;
+              </a>
+            </div>
+          </article>
+
+          <article class="latest-card">
+            <div class="latest-card-image">
+              <img src="apature.jpg" alt="Kodak aperture image for Monderman research brief" />
+            </div>
+            <div class="latest-card-body">
+              <p class="latest-card-kicker">Research Brief</p>
+              <h3 class="latest-card-title">How the Collapse of Eastman Kodak Is Misunderstood</h3>
+              <p class="latest-card-text">
+                Kodak did not fail because it missed technology. It failed because its administrative and decision systems could not adapt.
+              </p>
+              <a class="latest-card-link" href="the-collapse-of-eastman-kodak.pdf" target="_blank" rel="noopener noreferrer">
+                Download research &#8594;
+              </a>
+            </div>
+          </article>
+
+          <article class="latest-card">
+            <div class="latest-card-image">
+              <img src="iStock-511677736.jpg" alt="Abstract institutional image for Monderman insight" />
+            </div>
+            <div class="latest-card-body">
+              <p class="latest-card-kicker">Insight</p>
+              <h3 class="latest-card-title">Governing Complexity</h3>
+              <p class="latest-card-text">
+                Why institutions rarely fail because complexity appears, and more often fail because it accumulates faster than their structures can absorb.
+              </p>
+              <a class="latest-card-link" href="governing-complexity.html">
+                Read insight &#8594;
+              </a>
+            </div>
+          </article>
+
+          <article class="latest-card">
+            <div class="latest-card-image">
+              <img src="Decision Velocity.jpg" alt="Decision velocity visual for Monderman insight" />
+            </div>
+            <div class="latest-card-body">
+              <p class="latest-card-kicker">Insight</p>
+              <h3 class="latest-card-title">Designing for Decision Velocity</h3>
+              <p class="latest-card-text">
+                Institutions move well when governance, pathways, and role clarity support sound judgment without generating unnecessary drag.
+              </p>
+              <a class="latest-card-link" href="designing-for-decision-velocity.html">
+                Read insight &#8594;
+              </a>
+            </div>
+          </article>
         </div>
       </div>
-
       <div class="carousel-dots" id="carouselDots"></div>
     </div>
   </section>
 
-  <!-- Connect and Footer unchanged -->
   <section class="connect" id="connect" aria-labelledby="connect-title">
-    <!-- exact original -->
+    <div class="connect-inner">
+      <div class="connect-copy reveal">
+        <div class="section-label">Connect</div>
+        <h2 id="connect-title">Start a serious conversation.</h2>
+        <p class="connect-signal">Monderman works selectively with institutions facing consequential structural challenges.</p>
+        <p class="connect-text">
+          If you are navigating institutional drag, decision friction, execution misalignment, or considering a diagnostic pilot, we welcome a conversation. Monderman works with leaders who understand that the constraint is rarely insight alone, but the institutional capacity to act on it.
+        </p>
+      </div>
+
+      <div class="connect-panel reveal reveal-delay-2">
+        <p class="connect-kicker">Primary Contact</p>
+        <a class="connect-link" href="mailto:connect@monderman.com">
+          <span class="connect-link-mark" aria-hidden="true"></span>
+          connect@monderman.com
+        </a>
+        <p class="connect-note">
+          For inquiries, collaborations, pilot discussions, or advisory conversations, reach out directly and we will respond as promptly as possible.
+        </p>
+      </div>
+    </div>
   </section>
 
   <footer class="footer">
-    <!-- exact original -->
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-mark">Monderman</div>
+          <p class="footer-copy">
+            Advisory thinking on institutional performance, decision velocity, and the design of systems that sustain clarity under complexity.
+          </p>
+        </div>
+
+        <div class="footer-nav" aria-label="Footer navigation">
+          <div class="footer-nav-col">
+            <p class="footer-nav-title">Explore</p>
+            <a href="#approach">Approach</a>
+            <a href="diagnostic-tools.html">Diagnostic Tools</a>
+            <a href="research.html">Research</a>
+            <a href="why-monderman.html">Why Monderman</a>
+          </div>
+
+          <div class="footer-nav-col">
+            <p class="footer-nav-title">Connect</p>
+            <a href="mailto:connect@monderman.com">connect@monderman.com</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
+        <p class="footer-contact">Clarity for complex institutions.</p>
+      </div>
+    </div>
   </footer>
 
   <script>
-    /* ==================== HERO NETWORK + PARALLAX ==================== */
+    /* HERO NETWORK + PARALLAX */
     const canvas = document.getElementById('heroCanvas');
     if (canvas) {
       const ctx = canvas.getContext('2d');
-      let w = 0, h = 0, nodes = [], mouse = { x: 0, y: 0 };
+      let w, h, nodes = [], mouse = { x: 0, y: 0 };
       function resize() {
         w = canvas.width = window.innerWidth;
         h = canvas.height = window.innerHeight;
       }
       window.addEventListener('resize', resize);
       resize();
-
       for (let i = 0; i < 65; i++) {
         nodes.push({
           x: Math.random() * w,
@@ -865,7 +1932,6 @@
           speed: Math.random() * 0.4 + 0.1
         });
       }
-
       function draw() {
         ctx.clearRect(0, 0, w, h);
         nodes.forEach(node => {
@@ -873,13 +1939,11 @@
           const dy = mouse.y - node.y;
           node.x += dx * 0.0008;
           node.y += dy * 0.0008;
-
           ctx.fillStyle = '#3F6EA1';
           ctx.globalAlpha = 0.6;
           ctx.beginPath();
           ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
           ctx.fill();
-
           nodes.forEach(other => {
             const dist = Math.hypot(node.x - other.x, node.y - other.y);
             if (dist < 140 && dist > 0) {
@@ -896,14 +1960,13 @@
         requestAnimationFrame(draw);
       }
       draw();
-
       window.addEventListener('mousemove', e => {
         mouse.x = e.clientX;
         mouse.y = e.clientY;
       });
     }
 
-    /* ==================== HERO IMAGE REVEAL & ZOOM (unchanged) ==================== */
+    /* ORIGINAL HERO REVEAL + ZOOM + HEADER SCROLL */
     const heroImage = document.getElementById("heroImage");
     const header = document.getElementById("siteHeader");
     let heroScale = 1.02;
@@ -947,19 +2010,24 @@
     }
 
     function updateHeader() {
-      if (window.scrollY > 12) header.classList.add("scrolled");
-      else header.classList.remove("scrolled");
+      if (window.scrollY > 12) {
+        header.classList.add("scrolled");
+      } else {
+        header.classList.remove("scrolled");
+      }
     }
     window.addEventListener("scroll", updateHeader, { passive: true });
     window.addEventListener("scroll", updateHeroTransform, { passive: true });
     window.addEventListener("resize", updateHeroTransform);
     window.addEventListener("load", updateHeroTransform);
 
-    /* ==================== COUNTERS (unchanged) ==================== */
+    /* COST COUNTERS */
     const costSection = document.getElementById("cost-section");
     const counters = document.querySelectorAll(".cost-card-number");
     let hasCounted = false;
-    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+    function easeOutCubic(t) {
+      return 1 - Math.pow(1 - t, 3);
+    }
     function formatCounter(type, value) {
       if (type === "percent") return `${Math.round(value)}%`;
       if (type === "currency-trillion") return `$${Math.round(value)}T`;
@@ -996,7 +2064,7 @@
       observer.observe(costSection);
     }
 
-    /* ==================== REVEAL OBSERVER (unchanged) ==================== */
+    /* REVEAL OBSERVER */
     const revealObserver = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -1004,10 +2072,13 @@
           revealObserver.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
-    document.querySelectorAll(".reveal").forEach(item => revealObserver.observe(item));
+    }, {
+      threshold: 0.12,
+      rootMargin: "0px 0px -8% 0px"
+    });
+    document.querySelectorAll(".reveal").forEach((item) => revealObserver.observe(item));
 
-    /* ==================== 3D APPROACH CARD TILT ==================== */
+    /* 3D APPROACH CARD TILT */
     document.querySelectorAll('.approach-card').forEach(card => {
       card.addEventListener('mousemove', e => {
         const rect = card.getBoundingClientRect();
@@ -1022,7 +2093,7 @@
       });
     });
 
-    /* ==================== PREMIUM DIAGNOSTIC ESTIMATOR ==================== */
+    /* PREMIUM DIAGNOSTIC ESTIMATOR */
     const complexityProfiles = {
       light: { low: 0.06, high: 0.10 },
       moderate: { low: 0.10, high: 0.16 },
@@ -1032,7 +2103,21 @@
     const sectorProfiles = {
       "general": { multiplier: 1.00, rate: 62 },
       "defense-department": { multiplier: 1.18, rate: 78 },
-      // ... exact same as your original JS for all sectors ...
+      "defense-production": { multiplier: 1.12, rate: 74 },
+      "federal-civilian": { multiplier: 1.14, rate: 72 },
+      "state-government": { multiplier: 1.08, rate: 60 },
+      "local-government": { multiplier: 1.04, rate: 54 },
+      "intelligence": { multiplier: 1.20, rate: 86 },
+      "healthcare-provider": { multiplier: 1.10, rate: 66 },
+      "health-insurer": { multiplier: 1.12, rate: 68 },
+      "higher-education": { multiplier: 1.00, rate: 50 },
+      "manufacturing": { multiplier: 0.96, rate: 56 },
+      "financial-services": { multiplier: 1.08, rate: 82 },
+      "insurance": { multiplier: 1.04, rate: 72 },
+      "technology": { multiplier: 0.98, rate: 88 },
+      "energy": { multiplier: 1.02, rate: 80 },
+      "logistics": { multiplier: 0.94, rate: 52 },
+      "professional-services": { multiplier: 1.06, rate: 78 },
       "nonprofit": { multiplier: 0.92, rate: 44 }
     };
 
@@ -1046,7 +2131,6 @@
     const timeBar = document.getElementById("timeBar");
     const moneyBar = document.getElementById("moneyBar");
     const resourcesBar = document.getElementById("resourcesBar");
-
     let currentComplexity = "moderate";
 
     function abbrevMoney(v) {
@@ -1065,33 +2149,24 @@
       const sectorValue = estimateSector.value || "general";
       const sector = sectorProfiles[sectorValue] || sectorProfiles.general;
       const complexity = complexityProfiles[currentComplexity];
-
       const annualHoursBase = orgSize * 1920;
       const lowBurden = complexity.low * sector.multiplier;
       const highBurden = complexity.high * sector.multiplier;
-
       const lowHours = annualHoursBase * lowBurden;
       const highHours = annualHoursBase * highBurden;
       const lowMoneyVal = lowHours * sector.rate;
       const highMoneyVal = highHours * sector.rate;
-
-      // Update text
       estimateTime.textContent = `${abbrevNumber(lowHours)}–${abbrevNumber(highHours)}`;
       estimateMoney.textContent = `${abbrevMoney(lowMoneyVal)}–${abbrevMoney(highMoneyVal).replace("$", "")}`;
       const avgBurdenPct = Math.round(((lowBurden + highBurden) / 2) * 100);
       estimateResources.textContent = `${avgBurdenPct}%`;
-
-      // Animate bars (all represent the same directional burden %)
-      const barWidth = Math.min(100, avgBurdenPct * 2.8); // visual scaling for premium feel
+      const barWidth = Math.min(100, avgBurdenPct * 2.8);
       timeBar.style.width = `${barWidth}%`;
       moneyBar.style.width = `${barWidth}%`;
       resourcesBar.style.width = `${barWidth}%`;
-
-      // Live slider value
       sizeValue.textContent = orgSize >= 1000 ? `${Math.round(orgSize / 1000)}k` : orgSize.toLocaleString();
     }
 
-    // Wire up controls
     estimateOrgSize.addEventListener('input', updateEstimate);
     complexityButtons.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1102,11 +2177,9 @@
       });
     });
     estimateSector.addEventListener('change', updateEstimate);
-
-    // Initial render
     window.addEventListener('load', updateEstimate);
 
-    /* ==================== PREMIUM LATEST CAROUSEL (infinite + dots + momentum feel) ==================== */
+    /* LATEST CAROUSEL (infinite + dots) */
     const latestTrack = document.getElementById("latestTrack");
     const latestViewport = document.getElementById("latestViewport");
     const latestPrev = document.getElementById("latestPrev");
@@ -1133,26 +2206,22 @@
       cardsPerView = window.innerWidth <= 760 ? 1 : 2;
       const max = cards.length - cardsPerView;
       currentIndex = Math.max(0, Math.min(currentIndex, max));
-
       const targetCard = cards[currentIndex];
       const offset = targetCard ? targetCard.offsetLeft : 0;
       latestTrack.style.transition = 'transform 900ms cubic-bezier(0.22, 1, 0.36, 1)';
       latestTrack.style.transform = `translateX(-${offset}px)`;
-
-      // Update dots
       const dots = dotsContainer.children;
       Array.from(dots).forEach((dot, i) => {
         dot.classList.toggle('active', i === Math.floor(currentIndex / cardsPerView));
       });
     }
 
-    // Infinite loop helper (clone first/last for seamless feel)
     function makeInfinite() {
       const firstClone = cards[0].cloneNode(true);
       const lastClone = cards[cards.length - 1].cloneNode(true);
       latestTrack.appendChild(firstClone);
       latestTrack.insertBefore(lastClone, cards[0]);
-      cards = Array.from(latestTrack.children); // refresh
+      cards = Array.from(latestTrack.children);
     }
 
     latestPrev.addEventListener('click', () => {
@@ -1173,7 +2242,6 @@
       makeInfinite();
       createDots();
       updateCarousel();
-      // Auto-advance with pause on hover
       let auto = setInterval(() => {
         currentIndex += cardsPerView;
         if (currentIndex >= cards.length - cardsPerView) currentIndex = 0;
@@ -1181,7 +2249,11 @@
       }, 6800);
       latestViewport.addEventListener('mouseenter', () => clearInterval(auto));
       latestViewport.addEventListener('mouseleave', () => {
-        auto = setInterval(() => { currentIndex += cardsPerView; if (currentIndex >= cards.length - cardsPerView) currentIndex = 0; updateCarousel(); }, 6800);
+        auto = setInterval(() => {
+          currentIndex += cardsPerView;
+          if (currentIndex >= cards.length - cardsPerView) currentIndex = 0;
+          updateCarousel();
+        }, 6800);
       });
     });
   </script>
