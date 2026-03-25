@@ -46,7 +46,6 @@
       --accent-dark: #2F5886;
       --bg-dark: #0F1720;
       --bg-dark-2: #111B25;
-      --bg-hero-fallback: #121922;
       --bg-offwhite: #F6F7F8;
       --bg-white: #FFFFFF;
       --text-light: #F5F7FA;
@@ -61,7 +60,6 @@
       --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
       --transition-slow: 420ms cubic-bezier(0.22, 1, 0.36, 1);
       --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
-      --card-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
       --panel-radius: 18px;
       --card-radius: 16px;
       --reveal-distance: 18px;
@@ -256,7 +254,7 @@
     .hero {
       position: relative;
       overflow: hidden;
-      min-height: 74vh;
+      min-height: 68vh;
       background: linear-gradient(180deg, #0F1720 0%, #111B25 100%);
       color: var(--text-light);
     }
@@ -286,9 +284,9 @@
         linear-gradient(
           90deg,
           rgba(10, 14, 20, 0.92) 0%,
-          rgba(10, 14, 20, 0.76) 24%,
-          rgba(10, 14, 20, 0.46) 50%,
-          rgba(10, 14, 20, 0.18) 74%,
+          rgba(10, 14, 20, 0.77) 24%,
+          rgba(10, 14, 20, 0.46) 52%,
+          rgba(10, 14, 20, 0.18) 76%,
           rgba(10, 14, 20, 0.08) 100%
         );
     }
@@ -297,22 +295,21 @@
       position: relative;
       z-index: 1;
       max-width: var(--max);
-      min-height: 74vh;
+      min-height: 68vh;
       margin: 0 auto;
-      padding: 146px 34px 92px;
+      padding: 148px 34px 82px;
       display: flex;
-      align-items: end;
+      align-items: flex-end;
     }
 
     .hero-copy {
-      max-width: 760px;
+      max-width: 690px;
     }
 
     .hero-eyebrow,
     .hero h1,
     .hero-dek,
-    .hero-actions,
-    .hero-subline {
+    .hero-actions {
       opacity: 0;
       transform: translateY(16px);
       animation: heroFadeUp 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
@@ -320,7 +317,7 @@
     }
 
     .hero-eyebrow {
-      margin: 0 0 42px;
+      margin: 0 0 34px;
       padding-left: 1px;
       font-size: 0.41rem;
       line-height: 1;
@@ -332,9 +329,9 @@
     }
 
     .hero h1 {
-      margin: 0 0 22px;
-      max-width: 9.2ch;
-      font-size: clamp(3.25rem, 5.45vw, 5.2rem);
+      margin: 0 0 18px;
+      max-width: 8.8ch;
+      font-size: clamp(3.1rem, 5.25vw, 5rem);
       line-height: 0.94;
       font-weight: 700;
       color: #FFFFFF;
@@ -344,23 +341,14 @@
     }
 
     .hero-dek {
-      max-width: 38ch;
+      max-width: 32ch;
       margin: 0;
-      font-size: clamp(1.08rem, 1.44vw, 1.2rem);
-      line-height: 1.66;
+      font-size: clamp(1.04rem, 1.34vw, 1.14rem);
+      line-height: 1.62;
       color: var(--muted-light);
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
       text-wrap: balance;
       animation-delay: 640ms;
-    }
-
-    .hero-subline {
-      margin: 18px 0 0;
-      max-width: 48ch;
-      font-size: 0.96rem;
-      line-height: 1.7;
-      color: rgba(245, 247, 250, 0.68);
-      animation-delay: 760ms;
     }
 
     .hero-actions {
@@ -368,8 +356,8 @@
       align-items: center;
       gap: 12px;
       flex-wrap: wrap;
-      margin-top: 30px;
-      animation-delay: 900ms;
+      margin-top: 28px;
+      animation-delay: 800ms;
     }
 
     .btn {
@@ -458,8 +446,8 @@
 
     .section-intro h2 {
       margin: 0 0 16px;
-      max-width: 820px;
-      font-size: clamp(1.95rem, 2.45vw, 2.45rem);
+      max-width: 780px;
+      font-size: clamp(1.95rem, 2.45vw, 2.35rem);
       line-height: 1.1;
       font-weight: 700;
       color: var(--text-dark);
@@ -468,14 +456,10 @@
 
     .section-intro p {
       margin: 0;
-      max-width: 60ch;
+      max-width: 58ch;
       font-size: 1.04rem;
       line-height: 1.7;
       color: var(--muted-dark);
-    }
-
-    .section-intro p + p {
-      margin-top: 18px;
     }
 
     .intro-section {
@@ -486,7 +470,7 @@
         linear-gradient(rgba(63, 110, 161, 0.02) 1px, transparent 1px);
       background-size: auto, 28px 28px, 28px 28px;
       border-top: 1px solid #E7EBEF;
-      padding: 96px 34px 84px;
+      padding: 92px 34px 76px;
       color: var(--text-dark);
       overflow: hidden;
     }
@@ -508,44 +492,44 @@
 
     .intro-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1.18fr) minmax(300px, 0.82fr);
-      gap: 36px;
+      grid-template-columns: minmax(0, 1.14fr) minmax(300px, 0.86fr);
+      gap: 34px;
       align-items: start;
-      margin-top: 42px;
+      margin-top: 40px;
     }
 
     .intro-copy p {
       margin: 0;
-      max-width: 62ch;
-      font-size: 1.06rem;
-      line-height: 1.82;
+      max-width: 60ch;
+      font-size: 1.05rem;
+      line-height: 1.78;
       color: var(--muted-dark);
     }
 
     .intro-copy p + p {
-      margin-top: 20px;
+      margin-top: 18px;
     }
 
     .signal-panel {
       background: rgba(255, 255, 255, 0.96);
       border: 1px solid rgba(21, 32, 43, 0.06);
       border-radius: var(--panel-radius);
-      padding: 28px 26px 24px;
+      padding: 26px 24px 22px;
       box-shadow: var(--soft-shadow);
     }
 
     .signal-panel h3 {
       margin: 0 0 12px;
-      font-size: 1.12rem;
+      font-size: 1.08rem;
       line-height: 1.16;
       font-weight: 700;
       color: var(--text-dark);
     }
 
     .signal-panel p {
-      margin: 0 0 16px;
-      font-size: 0.96rem;
-      line-height: 1.66;
+      margin: 0 0 14px;
+      font-size: 0.94rem;
+      line-height: 1.64;
       color: var(--muted-dark);
     }
 
@@ -557,67 +541,67 @@
     }
 
     .signal-list li {
-      font-size: 0.92rem;
-      line-height: 1.58;
+      font-size: 0.91rem;
+      line-height: 1.56;
       color: var(--muted-dark);
     }
 
-    .value-section {
+    .difference-section {
       position: relative;
       background: var(--bg-white);
-      padding: 86px 34px 72px;
+      padding: 78px 34px 74px;
       color: var(--text-dark);
       overflow: hidden;
     }
 
-    .value-inner {
+    .difference-inner {
       max-width: var(--max);
       margin: 0 auto;
     }
 
-    .value-band {
+    .difference-band {
       display: grid;
-      grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
-      gap: 30px;
+      grid-template-columns: minmax(0, 1.04fr) minmax(320px, 0.96fr);
+      gap: 28px;
       align-items: start;
-      margin-top: 40px;
-      padding: 30px 32px;
+      margin-top: 38px;
+      padding: 28px 30px;
       background: #FFFFFF;
       border: 1px solid rgba(21, 32, 43, 0.08);
       border-radius: var(--panel-radius);
       box-shadow: var(--soft-shadow);
     }
 
-    .value-main h3 {
-      margin: 0 0 14px;
-      font-size: 1.58rem;
+    .difference-main h3 {
+      margin: 0 0 12px;
+      font-size: 1.46rem;
       line-height: 1.08;
       font-weight: 700;
       color: var(--text-dark);
       text-wrap: balance;
     }
 
-    .value-main p {
+    .difference-main p {
       margin: 0;
-      max-width: 58ch;
       font-size: 1rem;
-      line-height: 1.72;
+      line-height: 1.7;
       color: var(--muted-dark);
+      max-width: 56ch;
     }
 
-    .value-stack {
+    .difference-points {
       display: grid;
       gap: 12px;
     }
 
-    .value-point {
-      padding: 16px 16px 15px;
+    .difference-point {
       background: #F8F9FA;
       border: 1px solid rgba(21, 32, 43, 0.08);
       border-radius: 14px;
+      padding: 16px 16px 14px;
     }
 
-    .value-point strong {
+    .difference-point strong {
       display: block;
       margin-bottom: 5px;
       font-size: 0.95rem;
@@ -625,33 +609,33 @@
       color: var(--text-dark);
     }
 
-    .value-point span {
+    .difference-point span {
       display: block;
       font-size: 0.9rem;
       line-height: 1.58;
       color: var(--muted-dark);
     }
 
-    .read-section {
+    .capability-section {
       position: relative;
       background: var(--bg-white);
       padding: 0 34px 88px;
       color: var(--text-dark);
     }
 
-    .read-inner {
+    .capability-inner {
       max-width: var(--max);
       margin: 0 auto;
     }
 
-    .read-grid {
+    .capability-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 22px;
       margin-top: 34px;
     }
 
-    .read-card {
+    .capability-card {
       background: #FFFFFF;
       border: 1px solid rgba(21, 32, 43, 0.08);
       border-radius: var(--card-radius);
@@ -663,7 +647,7 @@
         border-color var(--transition);
     }
 
-    .read-card:hover {
+    .capability-card:hover {
       transform: translateY(-3px);
       border-color: rgba(63, 110, 161, 0.12);
       box-shadow:
@@ -671,7 +655,64 @@
         0 10px 24px rgba(0, 0, 0, 0.04);
     }
 
-    .read-card h3 {
+    .capability-card h3 {
+      margin: 0 0 10px;
+      font-size: 1.02rem;
+      line-height: 1.18;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .capability-card p {
+      margin: 0;
+      font-size: 0.94rem;
+      line-height: 1.64;
+      color: var(--muted-dark);
+    }
+
+    .trust-section {
+      position: relative;
+      background: var(--bg-offwhite);
+      padding: 82px 34px 80px;
+      color: var(--text-dark);
+      overflow: hidden;
+      border-top: 1px solid rgba(21, 32, 43, 0.04);
+      border-bottom: 1px solid rgba(21, 32, 43, 0.04);
+    }
+
+    .trust-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 22px;
+      margin-top: 38px;
+    }
+
+    .trust-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      border-radius: var(--card-radius);
+      padding: 24px 22px 22px;
+      box-shadow: var(--soft-shadow);
+      transition:
+        transform var(--transition-slow),
+        box-shadow var(--transition-slow),
+        border-color var(--transition);
+    }
+
+    .trust-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(63, 110, 161, 0.12);
+      box-shadow:
+        0 1px 0 rgba(0, 0, 0, 0.012),
+        0 10px 24px rgba(0, 0, 0, 0.04);
+    }
+
+    .trust-card h3 {
       margin: 0 0 10px;
       font-size: 1.04rem;
       line-height: 1.18;
@@ -679,88 +720,10 @@
       color: var(--text-dark);
     }
 
-    .read-card p {
+    .trust-card p {
       margin: 0;
       font-size: 0.94rem;
       line-height: 1.64;
-      color: var(--muted-dark);
-    }
-
-    .capability-section {
-      position: relative;
-      background: var(--bg-offwhite);
-      padding: 88px 34px 84px;
-      color: var(--text-dark);
-      overflow: hidden;
-      border-top: 1px solid rgba(21, 32, 43, 0.04);
-      border-bottom: 1px solid rgba(21, 32, 43, 0.04);
-    }
-
-    .capability-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-    }
-
-    .capability-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 22px;
-      margin-top: 42px;
-    }
-
-    .capability-card {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      min-height: 250px;
-      background: rgba(255, 255, 255, 0.99);
-      border: 1px solid var(--line-dark);
-      border-radius: var(--panel-radius);
-      padding: 30px 24px 26px;
-      overflow: hidden;
-      transition:
-        transform var(--transition-slow),
-        box-shadow var(--transition-slow),
-        border-color var(--transition),
-        background var(--transition);
-    }
-
-    .capability-card::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 3px;
-      width: 0%;
-      background: var(--accent);
-      transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    .capability-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(63, 110, 161, 0.12);
-      background: #FFFFFF;
-      box-shadow:
-        0 8px 18px rgba(0, 0, 0, 0.04),
-        0 18px 30px rgba(0, 0, 0, 0.04);
-    }
-
-    .capability-card:hover::before {
-      width: 100%;
-    }
-
-    .capability-title {
-      margin: 0 0 14px;
-      font-size: 1.14rem;
-      line-height: 1.14;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-
-    .capability-copy {
-      margin: 0;
-      font-size: 0.96rem;
-      line-height: 1.7;
       color: var(--muted-dark);
     }
 
@@ -808,7 +771,7 @@
     .cta-copy h2 {
       margin: 0 0 18px;
       max-width: 18ch;
-      font-size: clamp(2rem, 2.8vw, 2.6rem);
+      font-size: clamp(2rem, 2.8vw, 2.5rem);
       line-height: 1.12;
       font-weight: 700;
       color: #FFFFFF;
@@ -1001,8 +964,7 @@
       .hero-eyebrow,
       .hero h1,
       .hero-dek,
-      .hero-actions,
-      .hero-subline {
+      .hero-actions {
         animation: none;
         opacity: 1;
         transform: none;
@@ -1013,8 +975,8 @@
       .header,
       .nav a,
       .nav a::after,
-      .read-card,
       .capability-card,
+      .trust-card,
       .footer-nav a,
       .cta-link {
         transition: none;
@@ -1023,17 +985,14 @@
 
     @media (max-width: 1180px) {
       .intro-grid,
-      .value-band,
+      .difference-band,
       .cta-inner {
         grid-template-columns: 1fr;
       }
 
-      .read-grid {
+      .capability-grid,
+      .trust-grid {
         grid-template-columns: 1fr 1fr;
-      }
-
-      .capability-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
@@ -1054,13 +1013,13 @@
       }
 
       .hero-inner {
-        padding: 124px 24px 84px;
+        padding: 124px 24px 76px;
       }
 
       .intro-section,
-      .value-section,
-      .read-section,
+      .difference-section,
       .capability-section,
+      .trust-section,
       .cta-section,
       .footer {
         padding-left: 24px;
@@ -1078,11 +1037,11 @@
       }
 
       .hero-inner {
-        padding: 136px 20px 92px;
+        padding: 136px 20px 84px;
       }
 
       .hero-eyebrow {
-        margin-bottom: 36px;
+        margin-bottom: 30px;
         font-size: 0.40rem;
         letter-spacing: 0.18em;
         color: rgba(255, 255, 255, 0.42);
@@ -1093,8 +1052,7 @@
         font-size: clamp(2.45rem, 8vw, 3.25rem);
       }
 
-      .hero-dek,
-      .hero-subline {
+      .hero-dek {
         max-width: 100%;
         font-size: 1rem;
         line-height: 1.58;
@@ -1117,27 +1075,23 @@
       }
 
       .intro-section,
-      .value-section,
-      .read-section,
+      .difference-section,
       .capability-section,
+      .trust-section,
       .cta-section {
         padding-left: 20px;
         padding-right: 20px;
       }
 
-      .intro-section {
-        padding-top: 78px;
-        padding-bottom: 70px;
+      .intro-section,
+      .difference-section,
+      .trust-section {
+        padding-top: 72px;
+        padding-bottom: 66px;
       }
 
-      .value-section,
       .capability-section {
-        padding-top: 74px;
-        padding-bottom: 68px;
-      }
-
-      .read-section {
-        padding-bottom: 68px;
+        padding-bottom: 66px;
       }
 
       .cta-section {
@@ -1146,21 +1100,17 @@
       }
 
       .signal-panel,
-      .value-band,
-      .read-card,
+      .difference-band,
       .capability-card,
+      .trust-card,
       .cta-panel {
         padding-left: 22px;
         padding-right: 22px;
       }
 
-      .read-grid,
-      .capability-grid {
+      .capability-grid,
+      .trust-grid {
         grid-template-columns: 1fr;
-      }
-
-      .capability-card {
-        min-height: auto;
       }
 
       .footer {
@@ -1202,11 +1152,7 @@
         <h1 id="hero-title">A sharper read on institutional drag.</h1>
 
         <p class="hero-dek">
-          Monderman helps leaders see what many firms miss: how structure, governance, decision pathways, and operating systems quietly shape performance.
-        </p>
-
-        <p class="hero-subline">
-          Not generic change language. Not surface-level advice. A clearer view of the institutional mechanics beneath execution.
+          Monderman helps leaders see how structure, governance, and operating systems quietly shape performance.
         </p>
 
         <div class="hero-actions">
@@ -1220,8 +1166,8 @@
   <section class="intro-section" aria-labelledby="why-title">
     <div class="intro-inner">
       <div class="section-intro reveal">
-        <div class="section-label">Why leaders choose Monderman</div>
-        <h2 id="why-title">Because the real constraint is often structural, not motivational.</h2>
+        <div class="section-label">Why leaders come to Monderman</div>
+        <h2 id="why-title">Because the real constraint is often structural, not personal.</h2>
       </div>
 
       <div class="intro-grid">
@@ -1231,17 +1177,17 @@
           </p>
 
           <p>
-            Those conditions rarely announce themselves cleanly. They appear instead as slower execution, overextended managers, repeated coordination, fragile performance, and a growing dependence on workarounds to keep output moving.
+            Those conditions rarely announce themselves cleanly. They appear instead as slower execution, overextended managers, repeated coordination, fragile performance, and growing dependence on workarounds to keep output moving.
           </p>
 
           <p>
-            Monderman is designed to help leaders see that underlying picture more clearly. We look past surface symptoms and focus on the institutional conditions beneath them: where authority and accountability have drifted apart, where decisions are carrying unnecessary weight, where systems are absorbing productive effort, and where performance increasingly depends on compensation rather than coherence.
+            Monderman helps leaders see that underlying picture more clearly: where authority and accountability have drifted apart, where decisions are carrying unnecessary weight, where systems are absorbing productive effort, and where performance increasingly depends on compensation rather than coherence.
           </p>
         </div>
 
         <aside class="signal-panel reveal reveal-delay-2" aria-label="Typical executive signals">
           <h3>Common signals</h3>
-          <p>Leaders often arrive here when the institution still appears functional, but the internal cost of keeping it functional is rising.</p>
+          <p>Leaders often arrive here when the institution still appears functional, but the cost of keeping it functional is rising.</p>
           <ul class="signal-list">
             <li>Execution feels heavier than the work should require.</li>
             <li>Senior attention is repeatedly pulled into coordination.</li>
@@ -1253,34 +1199,34 @@
     </div>
   </section>
 
-  <section class="value-section" aria-labelledby="value-title">
-    <div class="value-inner">
+  <section class="difference-section" aria-labelledby="difference-title">
+    <div class="difference-inner">
       <div class="section-intro reveal">
         <div class="section-label">The Monderman difference</div>
-        <h2 id="value-title">Our value is not generic advice. It is sharper diagnosis.</h2>
+        <h2 id="difference-title">Our value is not generic advice. It is sharper diagnosis.</h2>
         <p>
           Many firms stay at the level of behavior, communications, or abstract transformation language. Monderman looks more directly at the architecture of drag: approvals, ownership boundaries, decision pathways, reporting structures, control layers, and the compensatory behaviors that keep strained systems looking healthier than they are.
         </p>
       </div>
 
-      <div class="value-band reveal reveal-delay-1">
-        <div class="value-main">
+      <div class="difference-band reveal reveal-delay-1">
+        <div class="difference-main">
           <h3>We help leaders distinguish between normal complexity and avoidable drag.</h3>
           <p>
-            That difference matters. Complexity cannot always be removed. Institutional burden can often be reduced, clarified, or better governed. The work is to identify where the problem is actually structural, where it is compounding, and where intervention is most likely to improve performance.
+            Complexity cannot always be removed. Institutional burden can often be reduced, clarified, or better governed. The work is to identify where the problem is structural, where it is compounding, and where intervention is most likely to improve performance.
           </p>
         </div>
 
-        <div class="value-stack">
-          <div class="value-point">
+        <div class="difference-points">
+          <div class="difference-point">
             <strong>Structural first</strong>
             <span>We examine the mechanics beneath execution before prescribing broad organizational narratives.</span>
           </div>
-          <div class="value-point">
+          <div class="difference-point">
             <strong>Performance-oriented</strong>
             <span>The goal is clearer execution, stronger capacity, and better institutional movement under real constraints.</span>
           </div>
-          <div class="value-point">
+          <div class="difference-point">
             <strong>Built for complexity</strong>
             <span>Our work is meant for environments where bureaucracy, oversight, risk, and coordination pressures are real.</span>
           </div>
@@ -1289,32 +1235,32 @@
     </div>
   </section>
 
-  <section class="read-section" aria-labelledby="read-title">
-    <div class="read-inner">
+  <section class="capability-section" aria-labelledby="capability-title">
+    <div class="capability-inner">
       <div class="section-intro reveal">
-        <div class="section-label">How Monderman reads the problem</div>
-        <h2 id="read-title">A leadership-level view of what is actually happening beneath the surface.</h2>
+        <div class="section-label">What Monderman helps clarify</div>
+        <h2 id="capability-title">A leadership-level view of what is actually happening beneath the surface.</h2>
         <p>
           Slow decisions, coordination overload, uneven execution, and management fatigue are rarely isolated phenomena. They are often visible expressions of a deeper structural condition.
         </p>
       </div>
 
-      <div class="read-grid">
-        <article class="read-card reveal reveal-delay-1">
+      <div class="capability-grid">
+        <article class="capability-card reveal reveal-delay-1">
           <h3>Where drag is forming</h3>
           <p>
             Not just where leaders feel pain, but where structural blur, approval weight, process burden, and institutional drift are quietly producing that pain.
           </p>
         </article>
 
-        <article class="read-card reveal reveal-delay-2">
+        <article class="capability-card reveal reveal-delay-2">
           <h3>Why it persists</h3>
           <p>
-            Because many burdens become normalized over time, especially when people compensate hard enough to preserve output and mask system weakness.
+            Many burdens become normalized over time, especially when people compensate hard enough to preserve output and mask system weakness.
           </p>
         </article>
 
-        <article class="read-card reveal reveal-delay-3">
+        <article class="capability-card reveal reveal-delay-3">
           <h3>Where to intervene</h3>
           <p>
             The objective is not broad activity. It is cleaner problem definition, better intervention order, and more credible improvement where it matters.
@@ -1324,42 +1270,35 @@
     </div>
   </section>
 
-  <section class="capability-section" aria-labelledby="capability-title">
-    <div class="capability-inner">
+  <section class="trust-section" aria-labelledby="trust-title">
+    <div class="trust-inner">
       <div class="section-intro reveal">
-        <div class="section-label">What this allows</div>
-        <h2 id="capability-title">Serious institutions need seriousness, not theater.</h2>
+        <div class="section-label">Why this builds confidence</div>
+        <h2 id="trust-title">Clear enough to act on. Rigorous enough to trust.</h2>
         <p>
-          Monderman is built for leaders who need a more disciplined read on institutional performance: clear enough to act on, rigorous enough to trust, and grounded in the realities of complexity, bureaucracy, and execution pressure.
+          Monderman is built for leaders who need a more disciplined read on institutional performance: grounded in the realities of complexity, bureaucracy, and execution pressure, and usable at senior level.
         </p>
       </div>
 
-      <div class="capability-grid">
-        <article class="capability-card reveal reveal-delay-1">
-          <h3 class="capability-title">Grounded in institutional reality</h3>
-          <p class="capability-copy">
+      <div class="trust-grid">
+        <article class="trust-card reveal reveal-delay-1">
+          <h3>Grounded in institutional reality</h3>
+          <p>
             We assume bureaucracy, risk, and complexity are real. The question is not whether they exist, but whether they are being governed well enough to support performance.
           </p>
         </article>
 
-        <article class="capability-card reveal reveal-delay-2">
-          <h3 class="capability-title">Focused on what is consequential</h3>
-          <p class="capability-copy">
+        <article class="trust-card reveal reveal-delay-2">
+          <h3>Focused on what is consequential</h3>
+          <p>
             We are less interested in abstract transformation language than in whether leadership attention, decision pathways, and operating systems are supporting or degrading execution.
           </p>
         </article>
 
-        <article class="capability-card reveal reveal-delay-3">
-          <h3 class="capability-title">Designed to clarify action</h3>
-          <p class="capability-copy">
+        <article class="trust-card reveal reveal-delay-3">
+          <h3>Designed to clarify action</h3>
+          <p>
             A useful readout should help leaders understand what kind of problem they are facing, why it persists, and where to begin without pretending to false precision.
-          </p>
-        </article>
-
-        <article class="capability-card reveal reveal-delay-4">
-          <h3 class="capability-title">Built for senior use</h3>
-          <p class="capability-copy">
-            The posture is analytic, direct, and usable at leadership level: not softer language around symptoms, but clearer language about structural conditions.
           </p>
         </article>
       </div>
