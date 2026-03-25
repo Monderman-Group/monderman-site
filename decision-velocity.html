@@ -1910,15 +1910,18 @@
 
     modeGuidedCard.addEventListener("click", () => setMode("guided"));
     modeCsvCard.addEventListener("click", () => setMode("csv"));
+
     startGuidedBtn.addEventListener("click", () => {
       setMode("guided");
       goToStep(1, false);
       guidedForm.scrollIntoView({ behavior: "smooth", block: "start" });
     });
+
     startUploadBtn.addEventListener("click", () => {
       setMode("csv");
       csvForm.scrollIntoView({ behavior: "smooth", block: "start" });
     });
+
     backToGuidedBtn.addEventListener("click", () => setMode("guided"));
 
     resetFormBtn.addEventListener("click", () => {
@@ -2386,21 +2389,23 @@
     }
 
     function saveForSynthesis(result) {
-      localStorage.setItem("monderman_decision_velocity", JSON.stringify({
+      localStorage.setItem("monderman_decision_velocity_result", JSON.stringify({
         tool: "decision_velocity",
         title: "Decision Velocity",
         completed_at: new Date().toISOString(),
         score: result.score,
         band: result.band,
         benchmarkPosition: result.benchmarkPosition,
+        resourceDrag: result.resourceDrag,
+        processName: result.processName || "",
+        businessUnit: result.businessUnit || "",
         primaryFlags: result.flags,
         recommendations: result.recommendations,
         breakdown: result.burdenBreakdown,
         summary: scoreSummary.textContent,
         badge: result.processName || "",
         contextNote: result.contextNote || "",
-        benchmarkLabel: result.benchmark?.label || "",
-        businessUnit: result.businessUnit || ""
+        benchmarkLabel: result.benchmark?.label || ""
       }));
     }
 
