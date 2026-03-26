@@ -994,6 +994,16 @@
       margin-top: 2px;
     }
 
+    .loading-note,
+    .error-note {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+
+    .loading-note { color: var(--muted-dark); }
+    .error-note { color: var(--danger); }
+
     .hidden { display: none !important; }
 
     @media (max-width: 1120px) {
@@ -1122,7 +1132,7 @@
           <div class="hero-meta-card">
             <p class="hero-meta-title">What you get back</p>
             <p class="hero-meta-text">
-              A Structural Clarity Score, directional benchmark comparison, ambiguity charts, boundary-risk signals, and a narrative interpretation layer.
+              A Structural Clarity index, executive signal, time-money-resources framing, risk profile, intervention order, and cross-tool-ready synthesis signals.
             </p>
           </div>
         </div>
@@ -1523,14 +1533,14 @@
 
           <section class="empty-state" id="resultsEmptyState" aria-live="polite">
             <h3 class="empty-state-title">Complete the diagnostic to generate your executive readout.</h3>
-            <p>The dashboard will populate with a Structural Clarity Score, directional benchmark comparison, ambiguity charts, coordination-drag estimates, and narrative interpretation once inputs are submitted.</p>
+            <p>The dashboard will populate with a Structural Clarity index, directional benchmark comparison, risk charts, time-money-resources framing, and cross-tool-ready synthesis signals once inputs are submitted.</p>
           </section>
 
           <section class="results-shell" id="resultsShell" aria-live="polite">
             <div class="score-panel">
               <div class="score-panel-inner">
                 <div>
-                  <p class="score-label">Structural Clarity Score</p>
+                  <p class="score-label">Structural Clarity Index</p>
                   <p class="score-number" id="scoreNumber">0</p>
                   <p class="score-band" id="scoreBand">—</p>
                   <p class="score-summary" id="scoreSummary">Complete the diagnostic to generate a readout.</p>
@@ -1547,19 +1557,19 @@
               </div>
 
               <div class="summary-card">
-                <p class="summary-label">Coordination Drag</p>
+                <p class="summary-label">Time Risk</p>
                 <p class="summary-value" id="timeCostValue">—</p>
                 <p class="summary-sub" id="timeCostSub">Directional estimate</p>
               </div>
 
               <div class="summary-card">
-                <p class="summary-label">Cost Exposure</p>
+                <p class="summary-label">Money Risk</p>
                 <p class="summary-value" id="moneyCostValue">—</p>
                 <p class="summary-sub" id="moneyCostSub">Directional estimate</p>
               </div>
 
               <div class="summary-card">
-                <p class="summary-label">Boundary Risk</p>
+                <p class="summary-label">Resource Risk</p>
                 <p class="summary-value" id="resourceDragValue">—</p>
                 <p class="summary-sub" id="resourceDragSub">Estimated structural load</p>
               </div>
@@ -1577,14 +1587,14 @@
 
             <div class="charts-grid">
               <div class="chart-card">
-                <h3 class="result-card-title">Ambiguity profile</h3>
+                <h3 class="result-card-title">Structural dimensions</h3>
                 <div class="chart-wrap">
                   <canvas id="frictionChart"></canvas>
                 </div>
               </div>
 
               <div class="chart-card">
-                <h3 class="result-card-title">Boundary risk contribution</h3>
+                <h3 class="result-card-title">Synthesis signals</h3>
                 <div class="chart-wrap">
                   <canvas id="slowdownChart"></canvas>
                 </div>
@@ -1593,24 +1603,34 @@
 
             <div class="results-grid">
               <div class="result-card">
-                <h3 class="result-card-title">Key ambiguity flags</h3>
-                <ul class="result-list" id="frictionFlags"></ul>
-              </div>
-
-              <div class="result-card">
-                <h3 class="result-card-title">Recommended interventions</h3>
-                <ul class="result-list" id="recommendations"></ul>
-              </div>
-
-              <div class="result-card">
-                <h3 class="result-card-title">Narrative interpretation</h3>
+                <h3 class="result-card-title">Executive signal</h3>
                 <p class="narrative-copy" id="narrativeInterpretation"></p>
               </div>
 
               <div class="result-card">
-                <h3 class="result-card-title">Leadership implication</h3>
+                <h3 class="result-card-title">Leadership priority</h3>
                 <p class="narrative-copy" id="leadershipImplication"></p>
               </div>
+
+              <div class="result-card">
+                <h3 class="result-card-title">Recommended intervention order</h3>
+                <ul class="result-list" id="recommendations"></ul>
+              </div>
+
+              <div class="result-card">
+                <h3 class="result-card-title">Trade-off note</h3>
+                <p class="narrative-copy" id="tradeoffNote"></p>
+              </div>
+            </div>
+
+            <div class="result-card">
+              <h3 class="result-card-title">Time, money, and resources summary</h3>
+              <p class="narrative-copy" id="tmrSummary"></p>
+            </div>
+
+            <div class="result-card">
+              <h3 class="result-card-title">Synthesis-ready flags</h3>
+              <ul class="result-list" id="frictionFlags"></ul>
             </div>
 
             <div class="post-results-bridge">
@@ -1633,7 +1653,7 @@
                 </p>
                 <div class="bridge-actions">
                   <a class="btn btn-accent" href="advisory-services.html">Explore Advisory Engagements</a>
-                  <a class="btn btn-secondary" href="index.html#connect">Start a Conversation</a>
+                  <a class="btn btn-secondary" href="index.html#connect">Request an Initial Conversation</a>
                 </div>
               </div>
 
@@ -1655,6 +1675,9 @@
               <button class="btn" id="startOverBtn" type="button">Start Over</button>
             </div>
           </section>
+
+          <p class="loading-note hidden" id="loadingNote">Generating structural clarity readout...</p>
+          <p class="error-note hidden" id="errorNote"></p>
         </div>
       </div>
 
@@ -1698,6 +1721,16 @@
   </main>
 
   <script>
+    const API_BASE = "https://monderman-api.onrender.com";
+    const STRUCTURAL_CLARITY_API_PATH = "/api/structural-clarity/score";
+
+    /*
+      Temporary testing only.
+      Replace with your current Render API key if you want this page to work immediately.
+      Long term, this must move to a public-safe endpoint pattern.
+    */
+    const STRUCTURAL_CLARITY_API_KEY = "REPLACE_WITH_TEMP_TEST_KEY";
+
     const guidedForm = document.getElementById("guidedForm");
     const csvForm = document.getElementById("csvForm");
     const resultsShell = document.getElementById("resultsShell");
@@ -1735,6 +1768,10 @@
     const recommendations = document.getElementById("recommendations");
     const narrativeInterpretation = document.getElementById("narrativeInterpretation");
     const leadershipImplication = document.getElementById("leadershipImplication");
+    const tradeoffNote = document.getElementById("tradeoffNote");
+    const tmrSummary = document.getElementById("tmrSummary");
+    const loadingNote = document.getElementById("loadingNote");
+    const errorNote = document.getElementById("errorNote");
 
     const stepPills = Array.from(document.querySelectorAll(".step-pill"));
     const stepPanels = Array.from(document.querySelectorAll(".step-panel"));
@@ -1742,8 +1779,8 @@
     const prevButtons = Array.from(document.querySelectorAll(".step-prev"));
 
     let currentStep = 1;
-    let ambiguityChart;
-    let boundaryChart;
+    let dimensionsChart;
+    let synthesisChart;
 
     const BENCHMARKS = {
       functional: { label: "Functional team", healthyMin: 76, healthyMax: 88, moderateMin: 62, moderateMax: 75, frictionMin: 46, frictionMax: 61 },
@@ -1752,6 +1789,20 @@
       "shared-service": { label: "Shared-service function", healthyMin: 72, healthyMax: 85, moderateMin: 58, moderateMax: 71, frictionMin: 42, frictionMax: 57 },
       governance: { label: "Governance / oversight body", healthyMin: 66, healthyMax: 80, moderateMin: 52, moderateMax: 65, frictionMin: 36, frictionMax: 51 },
       other: { label: "Other", healthyMin: 70, healthyMax: 82, moderateMin: 56, moderateMax: 69, frictionMin: 40, frictionMax: 55 }
+    };
+
+    const severityLabels = {
+      low: "Low",
+      moderate: "Moderate",
+      high: "High",
+      very_high: "Very high"
+    };
+
+    const severityScores = {
+      low: 25,
+      moderate: 50,
+      high: 75,
+      very_high: 100
     };
 
     function setMode(mode) {
@@ -1800,6 +1851,24 @@
       }
     }
 
+    function setLoadingState(isLoading) {
+      loadingNote.classList.toggle("hidden", !isLoading);
+      errorNote.classList.add("hidden");
+      errorNote.textContent = "";
+    }
+
+    function setError(message) {
+      errorNote.textContent = message;
+      errorNote.classList.remove("hidden");
+      loadingNote.classList.add("hidden");
+    }
+
+    function clearMessages() {
+      loadingNote.classList.add("hidden");
+      errorNote.classList.add("hidden");
+      errorNote.textContent = "";
+    }
+
     stepPills.forEach((pill, index) => {
       pill.addEventListener("click", () => {
         const targetStep = index + 1;
@@ -1840,12 +1909,14 @@
       goToStep(1, false);
       resultsShell.classList.remove("active");
       resultsEmptyState.classList.remove("hidden");
+      clearMessages();
     });
 
     editInputsBtn.addEventListener("click", () => {
       resultsShell.classList.remove("active");
       resultsEmptyState.classList.remove("hidden");
       guidedForm.scrollIntoView({ behavior: "smooth", block: "start" });
+      clearMessages();
     });
 
     startOverBtn.addEventListener("click", () => {
@@ -1855,6 +1926,7 @@
       resultsShell.classList.remove("active");
       resultsEmptyState.classList.remove("hidden");
       setMode("guided");
+      clearMessages();
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
@@ -1880,436 +1952,64 @@
       window.print();
     });
 
-    function mapSelect(value, mapping) {
-      return mapping[value] ?? 0;
+    function mapToScore(value, mapping) {
+      return mapping[value] ?? 50;
     }
 
-    function getBand(score) {
-      if (score >= 82) return "High structural clarity";
-      if (score >= 65) return "Moderate ambiguity";
-      if (score >= 45) return "Significant structural blur";
-      return "High structural ambiguity";
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
     }
 
-    function getBenchmarkPosition(score, benchmark) {
-      if (score > benchmark.healthyMax) return "Above comparable range";
-      if (score >= benchmark.moderateMin) return "Within comparable range";
-      return "Below comparable range";
-    }
-
-    function getBoundaryRisk(score) {
-      if (score >= 82) return "Low";
-      if (score >= 65) return "Moderate";
-      if (score >= 45) return "Elevated";
-      return "High";
-    }
-
-    function scoreGuided(data) {
-      let ownershipClarity = 0;
-      ownershipClarity += mapSelect(data.ownerDefined, { clear: 0, mixed: 5, unclear: 10 });
-      ownershipClarity += mapSelect(data.ownerConsistency, { stable: 0, mixed: 4, unstable: 8 });
-      ownershipClarity = Math.min(16, ownershipClarity);
-
-      let overlapDiffusion = 0;
-      overlapDiffusion += mapSelect(data.duplicateOwnership, { rare: 0, sometimes: 4, often: 8 });
-      overlapDiffusion += mapSelect(data.orphanedWork, { rare: 0, sometimes: 3, often: 6 });
-      overlapDiffusion += mapSelect(data.accountabilityDiffusion, { rare: 0, sometimes: 3, often: 6 });
-      overlapDiffusion = Math.min(18, overlapDiffusion);
-
-      let authorityAlignment = 0;
-      authorityAlignment += mapSelect(data.decisionRights, { clear: 0, mixed: 5, unclear: 10 });
-      authorityAlignment += mapSelect(data.escalationPath, { clear: 0, mixed: 3, unclear: 6 });
-      authorityAlignment = Math.min(16, authorityAlignment);
-
-      let informalDependency = 0;
-      informalDependency += mapSelect(data.informalInfluence, { rare: 0, sometimes: 4, often: 8 });
-      informalDependency += mapSelect(data.leaderDependence, { low: 0, moderate: 3, high: 6 });
-      informalDependency = Math.min(14, informalDependency);
-
-      let boundaryFriction = 0;
-      boundaryFriction += mapSelect(data.roleOverlap, { rare: 0, sometimes: 4, often: 8 });
-      boundaryFriction += mapSelect(data.handoffAmbiguity, { clear: 0, mixed: 3, unclear: 6 });
-      boundaryFriction += mapSelect(data.conflictFrequency, { rare: 0, sometimes: 3, often: 6 });
-      boundaryFriction = Math.min(18, boundaryFriction);
-
-      let structuralVolatility = 0;
-      structuralVolatility += mapSelect(data.changePace, { stable: 0, moderate: 3, high: 5, constant: 7 });
-      structuralVolatility += mapSelect(data.scopeSize, { small: 0, medium: 2, large: 4, "very-large": 6 });
-      structuralVolatility = Math.min(12, structuralVolatility);
-
-      const totalDeduction =
-        ownershipClarity +
-        overlapDiffusion +
-        authorityAlignment +
-        informalDependency +
-        boundaryFriction +
-        structuralVolatility;
-
-      const score = Math.max(0, Math.min(100, 100 - totalDeduction));
-      const band = getBand(score);
-      const benchmark = BENCHMARKS[data.structureType] || BENCHMARKS.other;
-      const benchmarkPosition = getBenchmarkPosition(score, benchmark);
-
-      const breakdown = {
-        ownership_clarity: ownershipClarity,
-        overlap_diffusion: overlapDiffusion,
-        authority_alignment: authorityAlignment,
-        informal_dependency: informalDependency,
-        boundary_friction: boundaryFriction,
-        structural_volatility: structuralVolatility
-      };
-
-      const coordinationHours = Math.round(
-        (ownershipClarity * 0.4) +
-        (overlapDiffusion * 0.5) +
-        (authorityAlignment * 0.45) +
-        (boundaryFriction * 0.55)
+    function buildApiPayloadFromGuided(data) {
+      const roleClarityBase = (
+        mapToScore(data.ownerDefined, { clear: 92, mixed: 66, unclear: 38 }) * 0.38 +
+        mapToScore(data.ownerConsistency, { stable: 90, mixed: 64, unstable: 36 }) * 0.32 +
+        mapToScore(data.roleOverlap, { rare: 86, sometimes: 62, often: 34 }) * 0.30
       );
 
-      const peopleAffected = Number(data.peopleAffected || 0);
-      const hourlyCost = Number(data.hourlyCost || 0);
-      const issuesPerMonth = Number(data.issuesPerMonth || 0);
-      const meetingsPerWeek = Number(data.meetingsPerWeek || 0);
+      const decisionRightsBase = (
+        mapToScore(data.decisionRights, { clear: 92, mixed: 62, unclear: 32 }) * 0.60 +
+        mapToScore(data.escalationPath, { clear: 86, mixed: 58, unclear: 30 }) * 0.40
+      );
 
-      const monthlyCost = (peopleAffected > 0 && hourlyCost > 0)
-        ? Math.round((coordinationHours + meetingsPerWeek) * peopleAffected * hourlyCost)
-        : null;
+      const handoffClarityBase = (
+        mapToScore(data.handoffAmbiguity, { clear: 88, mixed: 56, unclear: 28 }) * 0.55 +
+        mapToScore(data.orphanedWork, { rare: 86, sometimes: 58, often: 24 }) * 0.45
+      );
 
-      const annualCost = (monthlyCost && issuesPerMonth > 0)
-        ? Math.round(monthlyCost * 12)
-        : (monthlyCost ? Math.round(monthlyCost * 12) : null);
+      const accountabilityClarityBase = (
+        mapToScore(data.accountabilityDiffusion, { rare: 88, sometimes: 58, often: 26 }) * 0.55 +
+        mapToScore(data.conflictFrequency, { rare: 84, sometimes: 56, often: 24 }) * 0.45
+      );
 
-      const flags = [];
-      const recs = [];
+      const duplicateApprovalsBase = (
+        mapToScore(data.duplicateOwnership, { rare: 18, sometimes: 46, often: 74 }) * 0.55 +
+        mapToScore(data.informalInfluence, { rare: 14, sometimes: 44, often: 78 }) * 0.25 +
+        mapToScore(data.leaderDependence, { low: 16, moderate: 48, high: 76 }) * 0.20
+      );
 
-      if (ownershipClarity >= 10) {
-        flags.push("Primary ownership appears insufficiently explicit or unstable over time.");
-        recs.push("Define primary ownership more explicitly and reduce silent shifts in responsibility.");
-      }
-      if (overlapDiffusion >= 11) {
-        flags.push("Ownership overlap or orphaned work suggests accountability is not landing cleanly.");
-        recs.push("Clarify boundaries between groups and identify where work currently falls between roles.");
-      }
-      if (authorityAlignment >= 10) {
-        flags.push("Formal authority and actual decision rights may not be aligned in practice.");
-        recs.push("Clarify decision rights and escalation rules in a way people can actually use day to day.");
-      }
-      if (informalDependency >= 8) {
-        flags.push("The structure appears more dependent on informal influence than it should be.");
-        recs.push("Reduce hidden dependence on key personalities by making authority pathways more explicit.");
-      }
-      if (boundaryFriction >= 11) {
-        flags.push("Recurring boundary friction suggests role design and accountability handoffs need attention.");
-        recs.push("Redesign boundary interfaces so accountability remains clear when work crosses units.");
-      }
-      if (structuralVolatility >= 7) {
-        flags.push("Frequent change may be outpacing the organization’s ability to keep structure clear.");
-        recs.push("Revisit role and ownership clarity after major changes instead of assuming the structure still holds.");
-      }
+      const changePenalty = mapToScore(data.changePace, {
+        stable: 0,
+        moderate: 3,
+        high: 6,
+        constant: 9
+      });
 
-      if (!flags.length) {
-        flags.push("No single dominant ambiguity source surfaced; the structure appears more coherent than blurred.");
-      }
-
-      while (recs.length < 3) {
-        recs.push("Continue monitoring for ownership drift, recurring overlap, and reliance on informal coordination.");
-      }
+      const scalePenalty = mapToScore(data.scopeSize, {
+        small: 0,
+        medium: 2,
+        large: 4,
+        "very-large": 6
+      });
 
       return {
-        focusArea: data.focusArea || "This structure",
-        structureType: data.structureType,
-        score,
-        band,
-        benchmark,
-        benchmarkPosition,
-        breakdown,
-        flags: flags.slice(0, 5),
-        recommendations: recs.slice(0, 5),
-        coordinationHours,
-        monthlyCost,
-        annualCost,
-        boundaryRisk: getBoundaryRisk(score),
-        contextNote: data.description || ""
+        role_clarity: Math.round(clamp(roleClarityBase - changePenalty, 0, 100)),
+        decision_rights_clarity: Math.round(clamp(decisionRightsBase - changePenalty, 0, 100)),
+        handoff_clarity: Math.round(clamp(handoffClarityBase - scalePenalty, 0, 100)),
+        accountability_clarity: Math.round(clamp(accountabilityClarityBase - scalePenalty, 0, 100)),
+        duplicate_approvals: Math.round(clamp(duplicateApprovalsBase + changePenalty, 0, 100))
       };
     }
-
-    function formatCurrency(value) {
-      if (value == null) return "—";
-      if (value >= 1000000) return `$${(value / 1000000).toFixed(1).replace(/\.0$/, "")}M`;
-      if (value >= 1000) return `$${Math.round(value / 1000)}K`;
-      return `$${value}`;
-    }
-
-    function renderList(el, items) {
-      el.innerHTML = "";
-      items.forEach((item) => {
-        const li = document.createElement("li");
-        li.textContent = item;
-        el.appendChild(li);
-      });
-    }
-
-    function defaultNarrative(result) {
-      let interpretation = "";
-      let implication = "";
-
-      if (result.band === "High structural clarity") {
-        interpretation = "This structure appears relatively coherent. Ownership, authority, and accountability seem to align more cleanly than they do in most blurred environments. The priority is preserving clarity as the organization changes.";
-        implication = "Leadership should focus on preventing incremental drift rather than assuming structural coherence will sustain itself automatically.";
-      } else if (result.band === "Moderate ambiguity") {
-        interpretation = "This structure is still functioning, but some ownership and authority signals appear mixed. The organization may still be moving, though with more coordination and interpretation than a cleaner structure should require.";
-        implication = "Without attention, moderate ambiguity often becomes recurring conflict, slow escalation, and quiet accountability diffusion.";
-      } else if (result.band === "Significant structural blur") {
-        interpretation = "The structure appears materially blurred. Ownership, authority, or role boundaries are likely creating recurring friction that leaders may currently experience as coordination difficulty rather than design weakness.";
-        implication = "If this pattern continues, the organization will increasingly rely on informal influence, escalation, and compensatory behavior to preserve coherence.";
-      } else {
-        interpretation = "This structure shows signs of high ambiguity. Authority, ownership, and accountability may no longer align reliably enough to support clean execution under pressure.";
-        implication = "Without intervention, structural ambiguity of this kind tends to degrade coordination quality, increase conflict, and make performance more dependent on personalities than on design.";
-      }
-
-      return { interpretation, implication };
-    }
-
-    async function fetchNarrativeFromBackend(payload) {
-      const response = await fetch("/api/structural-clarity-narrative", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-
-      if (!response.ok) {
-        throw new Error("Narrative request failed.");
-      }
-
-      return await response.json();
-    }
-
-    function buildPayload(result) {
-      return {
-        focus_area: result.focusArea,
-        structure_type: result.structureType,
-        score: result.score,
-        score_band: result.band,
-        benchmark_position: result.benchmarkPosition,
-        ambiguity_breakdown: result.breakdown,
-        coordination_drag_estimate: result.coordinationHours ? `${result.coordinationHours} hours per month-equivalent signal` : "Not provided",
-        cost_exposure_estimate: result.annualCost ? `${formatCurrency(result.annualCost)} annually` : "Not provided",
-        boundary_risk_estimate: result.boundaryRisk,
-        context_note: result.contextNote
-      };
-    }
-
-    async function hydrateNarrative(result, payload) {
-      const fallback = defaultNarrative(result);
-      narrativeInterpretation.textContent = "Generating narrative interpretation...";
-      leadershipImplication.textContent = "";
-
-      try {
-        const narrative = await fetchNarrativeFromBackend(payload);
-        narrativeInterpretation.textContent = narrative.executive_interpretation || fallback.interpretation;
-        leadershipImplication.textContent = narrative.leadership_implication || fallback.implication;
-
-        if (Array.isArray(narrative.key_friction_flags) && narrative.key_friction_flags.length) {
-          renderList(frictionFlags, narrative.key_friction_flags);
-        }
-
-        if (Array.isArray(narrative.recommended_interventions) && narrative.recommended_interventions.length) {
-          renderList(recommendations, narrative.recommended_interventions);
-        }
-      } catch (error) {
-        narrativeInterpretation.textContent = fallback.interpretation;
-        leadershipImplication.textContent = fallback.implication;
-      }
-    }
-
-    function renderCharts(result) {
-      const ambiguityData = [
-        { label: "Ownership Clarity", value: result.breakdown.ownership_clarity },
-        { label: "Overlap / Diffusion", value: result.breakdown.overlap_diffusion },
-        { label: "Authority Alignment", value: result.breakdown.authority_alignment },
-        { label: "Informal Dependency", value: result.breakdown.informal_dependency },
-        { label: "Boundary Friction", value: result.breakdown.boundary_friction },
-        { label: "Structural Volatility", value: result.breakdown.structural_volatility }
-      ].sort((a, b) => b.value - a.value);
-
-      const boundaryData = [
-        { stage: "Ownership Instability", value: result.breakdown.ownership_clarity },
-        { stage: "Overlap / Diffusion", value: result.breakdown.overlap_diffusion },
-        { stage: "Authority Misalignment", value: result.breakdown.authority_alignment },
-        { stage: "Informal Dependence", value: result.breakdown.informal_dependency },
-        { stage: "Boundary Friction", value: result.breakdown.boundary_friction }
-      ];
-
-      if (ambiguityChart) ambiguityChart.destroy();
-      if (boundaryChart) boundaryChart.destroy();
-
-      ambiguityChart = new Chart(document.getElementById("frictionChart"), {
-        type: "bar",
-        data: {
-          labels: ambiguityData.map(d => d.label),
-          datasets: [{
-            label: "Ambiguity contribution",
-            data: ambiguityData.map(d => d.value),
-            backgroundColor: "rgba(63,110,161,0.82)",
-            borderRadius: 8,
-            maxBarThickness: 28
-          }]
-        },
-        options: {
-          indexAxis: "y",
-          responsive: true,
-          maintainAspectRatio: false,
-          layout: { padding: { right: 8 } },
-          plugins: { legend: { display: false } },
-          scales: {
-            x: {
-              beginAtZero: true,
-              grid: { color: "rgba(21,32,43,0.06)" },
-              ticks: { color: "#556270", precision: 0 }
-            },
-            y: {
-              grid: { display: false },
-              ticks: {
-                color: "#556270",
-                callback: function(value) {
-                  const label = this.getLabelForValue(value);
-                  return label.length > 22 ? label.slice(0, 22) + "…" : label;
-                }
-              }
-            }
-          }
-        }
-      });
-
-      boundaryChart = new Chart(document.getElementById("slowdownChart"), {
-        type: "bar",
-        data: {
-          labels: boundaryData.map(d => d.stage),
-          datasets: [{
-            label: "Boundary risk contribution",
-            data: boundaryData.map(d => d.value),
-            backgroundColor: [
-              "rgba(63,110,161,0.82)",
-              "rgba(63,110,161,0.68)",
-              "rgba(184,134,11,0.68)",
-              "rgba(184,80,94,0.72)",
-              "rgba(184,80,94,0.82)"
-            ],
-            borderRadius: 8,
-            maxBarThickness: 42
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          layout: { padding: { right: 8 } },
-          plugins: { legend: { display: false } },
-          scales: {
-            x: {
-              ticks: {
-                color: "#556270",
-                maxRotation: 28,
-                minRotation: 18,
-                callback: function(value) {
-                  const label = this.getLabelForValue(value);
-                  return label.length > 18 ? label.slice(0, 18) + "…" : label;
-                }
-              },
-              grid: { display: false }
-            },
-            y: {
-              beginAtZero: true,
-              ticks: { color: "#556270", precision: 0 },
-              grid: { color: "rgba(21,32,43,0.06)" }
-            }
-          }
-        }
-      });
-    }
-
-    function saveForSynthesis(result) {
-      localStorage.setItem("monderman_structural_clarity_result", JSON.stringify({
-        tool: "structural_clarity",
-        title: "Structural Clarity",
-        completed_at: new Date().toISOString(),
-        score: result.score,
-        band: result.band,
-        benchmarkPosition: result.benchmarkPosition,
-        boundaryRisk: result.boundaryRisk,
-        focusArea: result.focusArea || "",
-        primaryFlags: result.flags,
-        recommendations: result.recommendations,
-        breakdown: result.breakdown,
-        summary: scoreSummary.textContent,
-        badge: result.focusArea || "",
-        contextNote: result.contextNote || "",
-        benchmarkLabel: result.benchmark?.label || ""
-      }));
-    }
-
-    function renderResults(result) {
-      resultsEmptyState.classList.add("hidden");
-      resultsShell.classList.add("active");
-
-      scoreNumber.textContent = result.score;
-      scoreBand.textContent = result.band;
-      scoreBadge.textContent = result.focusArea;
-      scoreSummary.textContent =
-        `This readout suggests that ${result.focusArea.toLowerCase()} ${result.band === "High structural clarity" ? "is relatively coherent structurally." : "is experiencing enough ambiguity to warrant structural intervention."}`;
-
-      benchmarkValue.textContent = result.benchmarkPosition;
-      benchmarkSub.textContent = `${result.benchmark.label}: ${result.benchmark.moderateMin}–${result.benchmark.healthyMax}`;
-
-      timeCostValue.textContent = result.coordinationHours ? `${result.coordinationHours} hrs` : "—";
-      timeCostSub.textContent = "Estimated coordination drag";
-
-      moneyCostValue.textContent = result.annualCost ? formatCurrency(result.annualCost) : "—";
-      moneyCostSub.textContent = result.annualCost ? "Approx. annualized exposure" : "Directional estimate";
-
-      resourceDragValue.textContent = result.boundaryRisk;
-      resourceDragSub.textContent = "Estimated structural risk";
-
-      categoryValue.textContent = result.benchmark.label;
-      categorySub.textContent = "Reference group";
-
-      renderList(frictionFlags, result.flags);
-      renderList(recommendations, result.recommendations);
-
-      const fallback = defaultNarrative(result);
-      narrativeInterpretation.textContent = fallback.interpretation;
-      leadershipImplication.textContent = fallback.implication;
-
-      renderCharts(result);
-      saveForSynthesis(result);
-
-      resultsShell.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-
-    guidedForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const privacyAgree = document.getElementById("privacyAgree");
-      if (!privacyAgree.checked) {
-        alert("Please agree to the privacy notice before proceeding.");
-        return;
-      }
-
-      for (let step = 1; step <= 5; step++) {
-        if (!validateStep(step)) {
-          goToStep(step, false);
-          return;
-        }
-      }
-
-      const formData = new FormData(guidedForm);
-      const data = Object.fromEntries(formData.entries());
-
-      const result = scoreGuided(data);
-      renderResults(result);
-
-      const payload = buildPayload(result);
-      await hydrateNarrative(result, payload);
-    });
 
     function parseCSV(text) {
       const lines = text.trim().split(/\r?\n/);
@@ -2325,34 +2025,8 @@
       });
     }
 
-    csvForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const csvPrivacyAgree = document.getElementById("csvPrivacyAgree");
-      if (!csvPrivacyAgree.checked) {
-        alert("Please agree to the privacy notice before proceeding.");
-        return;
-      }
-
-      const fileInput = document.getElementById("csvFile");
-      const file = fileInput.files[0];
-
-      if (!file) {
-        alert("Please choose a CSV file first.");
-        return;
-      }
-
-      const text = await file.text();
-      const rows = parseCSV(text);
-
-      if (!rows || !rows.length) {
-        alert("The CSV could not be parsed. Please use the sample template or the guided diagnostic.");
-        return;
-      }
-
-      const sample = rows[0] || {};
-
-      const mapped = {
+    function buildGuidedLikeObjectFromCsvRow(sample) {
+      return {
         focusArea: sample.focus_area || "Uploaded structure",
         structureType: sample.structure_type || "other",
         scopeSize: "medium",
@@ -2375,12 +2049,340 @@
         peopleAffected: "",
         issuesPerMonth: ""
       };
+    }
 
-      const result = scoreGuided(mapped);
-      renderResults(result);
+    function formatSeverity(value) {
+      return severityLabels[value] || value || "—";
+    }
 
-      const payload = buildPayload(result);
-      await hydrateNarrative(result, payload);
+    function getBenchmarkPosition(score, benchmark) {
+      if (score > benchmark.healthyMax) return "Above comparable range";
+      if (score >= benchmark.moderateMin) return "Within comparable range";
+      return "Below comparable range";
+    }
+
+    function renderList(el, items) {
+      el.innerHTML = "";
+      items.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        el.appendChild(li);
+      });
+    }
+
+    function getSignalNarrativeLines(result) {
+      const lines = [];
+      const signals = result.synthesis_signals || {};
+
+      if (signals.coordination_burden) {
+        lines.push(`Coordination burden: ${formatSeverity(signals.coordination_burden)}.`);
+      }
+      if (signals.decision_friction) {
+        lines.push(`Decision friction: ${formatSeverity(signals.decision_friction)}.`);
+      }
+      if (signals.accountability_blur) {
+        lines.push(`Accountability blur: ${formatSeverity(signals.accountability_blur)}.`);
+      }
+      if (signals.compensatory_dependency) {
+        lines.push(`Compensatory dependency: ${formatSeverity(signals.compensatory_dependency)}.`);
+      }
+
+      return lines;
+    }
+
+    function renderCharts(apiResponse) {
+      const result = apiResponse.result;
+
+      const dimensions = result.dimensions || {};
+      const dimensionData = [
+        { label: "Role clarity", value: dimensions.role_clarity ?? 0 },
+        { label: "Decision rights clarity", value: dimensions.decision_rights_clarity ?? 0 },
+        { label: "Handoff clarity", value: dimensions.handoff_clarity ?? 0 },
+        { label: "Accountability clarity", value: dimensions.accountability_clarity ?? 0 },
+        { label: "Approval simplicity", value: dimensions.duplicate_approvals_inverse ?? 0 }
+      ];
+
+      const synthesisSignals = result.synthesis_signals || {};
+      const synthesisData = [
+        { label: "Drag severity", value: severityScores[synthesisSignals.drag_severity] ?? 0 },
+        { label: "Coordination burden", value: severityScores[synthesisSignals.coordination_burden] ?? 0 },
+        { label: "Decision friction", value: severityScores[synthesisSignals.decision_friction] ?? 0 },
+        { label: "Accountability blur", value: severityScores[synthesisSignals.accountability_blur] ?? 0 },
+        { label: "Compensatory dependency", value: severityScores[synthesisSignals.compensatory_dependency] ?? 0 }
+      ];
+
+      if (dimensionsChart) dimensionsChart.destroy();
+      if (synthesisChart) synthesisChart.destroy();
+
+      dimensionsChart = new Chart(document.getElementById("frictionChart"), {
+        type: "bar",
+        data: {
+          labels: dimensionData.map(d => d.label),
+          datasets: [{
+            label: "Dimension score",
+            data: dimensionData.map(d => d.value),
+            backgroundColor: "rgba(63,110,161,0.82)",
+            borderRadius: 8,
+            maxBarThickness: 28
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { right: 8 } },
+          plugins: { legend: { display: false } },
+          scales: {
+            x: {
+              beginAtZero: true,
+              max: 100,
+              grid: { color: "rgba(21,32,43,0.06)" },
+              ticks: { color: "#556270", precision: 0 }
+            },
+            y: {
+              grid: { display: false },
+              ticks: {
+                color: "#556270",
+                callback: function(value) {
+                  const label = this.getLabelForValue(value);
+                  return label.length > 24 ? label.slice(0, 24) + "…" : label;
+                }
+              }
+            }
+          }
+        }
+      });
+
+      synthesisChart = new Chart(document.getElementById("slowdownChart"), {
+        type: "bar",
+        data: {
+          labels: synthesisData.map(d => d.label),
+          datasets: [{
+            label: "Severity",
+            data: synthesisData.map(d => d.value),
+            backgroundColor: [
+              "rgba(63,110,161,0.82)",
+              "rgba(63,110,161,0.70)",
+              "rgba(184,134,11,0.72)",
+              "rgba(184,80,94,0.76)",
+              "rgba(184,80,94,0.88)"
+            ],
+            borderRadius: 8,
+            maxBarThickness: 42
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { right: 8 } },
+          plugins: { legend: { display: false } },
+          scales: {
+            x: {
+              ticks: {
+                color: "#556270",
+                maxRotation: 24,
+                minRotation: 18,
+                callback: function(value) {
+                  const label = this.getLabelForValue(value);
+                  return label.length > 18 ? label.slice(0, 18) + "…" : label;
+                }
+              },
+              grid: { display: false }
+            },
+            y: {
+              beginAtZero: true,
+              max: 100,
+              ticks: {
+                color: "#556270",
+                callback: function(value) {
+                  if (value === 25) return "Low";
+                  if (value === 50) return "Moderate";
+                  if (value === 75) return "High";
+                  if (value === 100) return "Very high";
+                  return "";
+                }
+              },
+              grid: { color: "rgba(21,32,43,0.06)" }
+            }
+          }
+        }
+      });
+    }
+
+    function saveForSynthesis(apiResponse, meta = {}) {
+      const existing = JSON.parse(localStorage.getItem("monderman_diagnostic_results") || "{}");
+
+      existing.structural_clarity = {
+        ...apiResponse,
+        meta: {
+          completed_at: new Date().toISOString(),
+          focus_area: meta.focusArea || "",
+          structure_type: meta.structureType || "",
+          description: meta.description || ""
+        }
+      };
+
+      localStorage.setItem("monderman_diagnostic_results", JSON.stringify(existing));
+      localStorage.setItem("monderman_structural_clarity_result", JSON.stringify(existing.structural_clarity));
+    }
+
+    function renderResults(apiResponse, contextMeta = {}) {
+      const result = apiResponse.result;
+      const headline = result.headline || {};
+      const readout = result.executive_readout || {};
+      const risk = result.risk_profile || {};
+      const benchmark = BENCHMARKS[contextMeta.structureType] || BENCHMARKS.other;
+      const benchmarkPosition = getBenchmarkPosition(headline.index || 0, benchmark);
+
+      resultsEmptyState.classList.add("hidden");
+      resultsShell.classList.add("active");
+
+      scoreNumber.textContent = headline.index ?? "—";
+      scoreBand.textContent = headline.band || "—";
+      scoreBadge.textContent = contextMeta.focusArea || apiResponse.tool_label || "Structural Clarity";
+      scoreSummary.textContent = readout.executive_signal || "Readout generated.";
+
+      benchmarkValue.textContent = benchmarkPosition;
+      benchmarkSub.textContent = `${benchmark.label}: ${benchmark.moderateMin}–${benchmark.healthyMax}`;
+
+      timeCostValue.textContent = formatSeverity(risk.time_risk);
+      timeCostSub.textContent = "Directional time exposure";
+
+      moneyCostValue.textContent = formatSeverity(risk.money_risk);
+      moneyCostSub.textContent = "Directional cost exposure";
+
+      resourceDragValue.textContent = formatSeverity(risk.resource_risk);
+      resourceDragSub.textContent = "Directional resource exposure";
+
+      categoryValue.textContent = benchmark.label;
+      categorySub.textContent = "Reference group";
+
+      narrativeInterpretation.textContent = readout.executive_signal || "—";
+      leadershipImplication.textContent = readout.priority || "—";
+      tradeoffNote.textContent = result.tradeoff_note || "—";
+      tmrSummary.textContent = readout.time_money_resources_summary || "—";
+
+      renderList(recommendations, result.intervention_order || []);
+
+      const signalLines = [
+        `Primary constraint type: ${result.synthesis_signals?.primary_constraint_type || "clarity"}.`,
+        `Drag severity: ${formatSeverity(result.synthesis_signals?.drag_severity)}.`,
+        ...getSignalNarrativeLines(result)
+      ];
+      renderList(frictionFlags, signalLines);
+
+      renderCharts(apiResponse);
+      saveForSynthesis(apiResponse, contextMeta);
+
+      resultsShell.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    async function callStructuralClarityApi(payload) {
+      const response = await fetch(`${API_BASE}${STRUCTURAL_CLARITY_API_PATH}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": STRUCTURAL_CLARITY_API_KEY
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        throw new Error(data?.error || data?.detail || "Structural Clarity API request failed.");
+      }
+
+      return data;
+    }
+
+    guidedForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const privacyAgree = document.getElementById("privacyAgree");
+      if (!privacyAgree.checked) {
+        alert("Please agree to the privacy notice before proceeding.");
+        return;
+      }
+
+      for (let step = 1; step <= 5; step++) {
+        if (!validateStep(step)) {
+          goToStep(step, false);
+          return;
+        }
+      }
+
+      if (!STRUCTURAL_CLARITY_API_KEY || STRUCTURAL_CLARITY_API_KEY === "REPLACE_WITH_TEMP_TEST_KEY") {
+        setError("Add your temporary testing API key in the HTML before using the live website-connected version of this tool.");
+        return;
+      }
+
+      const formData = new FormData(guidedForm);
+      const data = Object.fromEntries(formData.entries());
+      const payload = buildApiPayloadFromGuided(data);
+
+      setLoadingState(true);
+
+      try {
+        const apiResponse = await callStructuralClarityApi(payload);
+        clearMessages();
+        renderResults(apiResponse, {
+          focusArea: data.focusArea || "Structural Clarity",
+          structureType: data.structureType || "other",
+          description: data.description || ""
+        });
+      } catch (error) {
+        setError(error.message || "Unable to generate structural clarity readout.");
+      }
+    });
+
+    csvForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const csvPrivacyAgree = document.getElementById("csvPrivacyAgree");
+      if (!csvPrivacyAgree.checked) {
+        alert("Please agree to the privacy notice before proceeding.");
+        return;
+      }
+
+      if (!STRUCTURAL_CLARITY_API_KEY || STRUCTURAL_CLARITY_API_KEY === "REPLACE_WITH_TEMP_TEST_KEY") {
+        setError("Add your temporary testing API key in the HTML before using the live website-connected version of this tool.");
+        return;
+      }
+
+      const fileInput = document.getElementById("csvFile");
+      const file = fileInput.files[0];
+
+      if (!file) {
+        alert("Please choose a CSV file first.");
+        return;
+      }
+
+      const text = await file.text();
+      const rows = parseCSV(text);
+
+      if (!rows || !rows.length) {
+        alert("The CSV could not be parsed. Please use the sample template or the guided diagnostic.");
+        return;
+      }
+
+      const sample = rows[0] || {};
+      const mapped = buildGuidedLikeObjectFromCsvRow(sample);
+      const payload = buildApiPayloadFromGuided(mapped);
+
+      setLoadingState(true);
+
+      try {
+        const apiResponse = await callStructuralClarityApi(payload);
+        clearMessages();
+        renderResults(apiResponse, {
+          focusArea: mapped.focusArea || "Uploaded structure",
+          structureType: mapped.structureType || "other",
+          description: mapped.description || ""
+        });
+      } catch (error) {
+        setError(error.message || "Unable to generate structural clarity readout from CSV.");
+      }
     });
 
     setMode("guided");
