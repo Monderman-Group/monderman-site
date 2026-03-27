@@ -63,9 +63,9 @@
       --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
       --transition-slow: 420ms cubic-bezier(0.22, 1, 0.36, 1);
       --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
+      --card-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
       --panel-radius: 18px;
       --card-radius: 16px;
-      --card-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
       --reveal-distance: 18px;
     }
 
@@ -260,7 +260,7 @@
       transform: scaleX(1);
     }
 
-    /* Hero now harmonized to Diagnostic Tools page */
+    /* EXACT hero halo treatment from Diagnostic Tools page */
     .hero {
       position: relative;
       min-height: 88vh;
@@ -309,8 +309,9 @@
       align-items: center;
     }
 
+    /* widened so hero line is less vertical */
     .hero-copy {
-      max-width: 720px;
+      max-width: 920px;
     }
 
     .hero-eyebrow,
@@ -323,6 +324,7 @@
       will-change: transform, opacity;
     }
 
+    /* EXACT eyebrow treatment from Diagnostic Tools page */
     .hero-eyebrow {
       margin: 0 0 40px;
       padding-left: 1px;
@@ -335,10 +337,11 @@
       animation-delay: 340ms;
     }
 
+    /* wider, less vertical than before */
     .hero h1 {
       margin: 0 0 20px;
-      max-width: 10.8ch;
-      font-size: clamp(3.25rem, 5.4vw, 5.15rem);
+      max-width: 14.2ch;
+      font-size: clamp(3.25rem, 5.0vw, 5rem);
       line-height: 0.95;
       font-weight: 700;
       color: #FFFFFF;
@@ -348,7 +351,7 @@
     }
 
     .hero-dek {
-      max-width: 35ch;
+      max-width: 39ch;
       margin: 0;
       font-size: clamp(1.12rem, 1.5vw, 1.22rem);
       line-height: 1.6;
@@ -407,14 +410,17 @@
       outline: none;
     }
 
-    .btn-secondary {
+    .btn-secondary,
+    .btn-accent {
       background: rgba(255, 255, 255, 0.98);
       color: var(--accent);
       border: 1.25px solid rgba(63, 110, 161, 0.9);
     }
 
     .btn-secondary:hover,
-    .btn-secondary:focus-visible {
+    .btn-secondary:focus-visible,
+    .btn-accent:hover,
+    .btn-accent:focus-visible {
       background: #FFFFFF;
       color: var(--accent-dark);
       border-color: var(--accent-dark);
@@ -1061,6 +1067,7 @@
         padding: 136px 20px 108px;
       }
 
+      /* EXACT mobile eyebrow treatment from Diagnostic Tools page */
       .hero-eyebrow {
         margin-bottom: 36px;
         font-size: 0.40rem;
