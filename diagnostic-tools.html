@@ -136,13 +136,6 @@
       text-decoration: none;
     }
 
-    button {
-      font: inherit;
-      border: 0;
-      background: none;
-      padding: 0;
-    }
-
     .header {
       position: fixed;
       inset: 0 0 auto 0;
@@ -304,7 +297,6 @@
       font-weight: 700;
       text-transform: uppercase;
       color: rgba(245, 247, 250, 0.64);
-      animation-delay: 340ms;
     }
 
     .hero h1 {
@@ -319,7 +311,7 @@
     }
 
     .hero p {
-      max-width: 43ch;
+      max-width: 39ch;
       margin: 0;
       font-size: clamp(1.12rem, 1.5vw, 1.22rem);
       line-height: 1.6;
@@ -376,20 +368,36 @@
       outline: none;
     }
 
-    .btn-secondary,
-    .btn-accent {
+    .btn-secondary {
       background: rgba(255, 255, 255, 0.98);
       color: var(--accent);
       border: 1.25px solid rgba(63, 110, 161, 0.9);
     }
 
     .btn-secondary:hover,
-    .btn-secondary:focus-visible,
-    .btn-accent:hover,
-    .btn-accent:focus-visible {
+    .btn-secondary:focus-visible {
       background: #FFFFFF;
       color: var(--accent-dark);
       border-color: var(--accent-dark);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #FFFFFF;
+      border: 1.25px solid rgba(63, 110, 161, 0.28);
+      box-shadow:
+        0 10px 24px rgba(63, 110, 161, 0.22),
+        0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+
+    .btn-accent:hover,
+    .btn-accent:focus-visible {
+      background: var(--accent-dark);
+      color: #FFFFFF;
+      border-color: rgba(47, 88, 134, 0.42);
+      box-shadow:
+        0 12px 26px rgba(47, 88, 134, 0.26),
+        0 0 0 1px rgba(255, 255, 255, 0.08);
     }
 
     .page {
@@ -597,7 +605,7 @@
       align-items: center;
       justify-content: center;
       gap: 0;
-      margin: 20px 0 36px;
+      margin: 18px 0 34px;
     }
 
     .section-connector-line {
@@ -608,7 +616,6 @@
         rgba(63, 110, 161, 0.08) 0%,
         rgba(63, 110, 161, 0.38) 100%
       );
-      pointer-events: none;
     }
 
     .section-connector-circle {
@@ -622,18 +629,9 @@
       box-shadow:
         0 10px 24px rgba(63, 110, 161, 0.22),
         0 0 0 6px rgba(63, 110, 161, 0.06);
+      border: none;
       cursor: pointer;
       transition: transform var(--transition), background var(--transition), box-shadow var(--transition);
-    }
-
-    .section-connector-circle:hover,
-    .section-connector-circle:focus-visible {
-      background: var(--accent-dark);
-      transform: translateY(1px);
-      box-shadow:
-        0 12px 26px rgba(47, 88, 134, 0.26),
-        0 0 0 6px rgba(63, 110, 161, 0.08);
-      outline: none;
     }
 
     .section-connector-circle::before {
@@ -643,6 +641,16 @@
       line-height: 1;
       font-weight: 700;
       transform: translateY(-1px);
+    }
+
+    .section-connector-circle:hover,
+    .section-connector-circle:focus-visible {
+      transform: translateY(2px);
+      background: var(--accent-dark);
+      box-shadow:
+        0 12px 26px rgba(47, 88, 134, 0.24),
+        0 0 0 6px rgba(63, 110, 161, 0.08);
+      outline: none;
     }
 
     .matrix {
@@ -709,7 +717,7 @@
     }
 
     .tool-launch-head {
-      margin-bottom: 34px;
+      margin-bottom: 38px;
     }
 
     .tools-grid {
@@ -1115,6 +1123,10 @@
         min-height: auto;
       }
 
+      .tool-launch-head {
+        margin-bottom: 28px;
+      }
+
       .footer {
         padding: 34px 20px 28px;
       }
@@ -1147,7 +1159,6 @@
 
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
-        <a href="advisory-services.html">Advisory Engagements</a>
         <a href="diagnostic-tools.html" class="is-active">Diagnostic Tools</a>
         <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
@@ -1156,17 +1167,18 @@
     </div>
   </header>
 
-  <section class="hero" aria-labelledby="hero-title">
+  <section class="hero">
     <div class="hero-inner">
       <div class="hero-copy">
         <p class="hero-eyebrow">Monderman Diagnostic Suite</p>
-        <h1 id="hero-title">See what is actually constraining execution.</h1>
+        <h1>See what is actually constraining execution.</h1>
         <p>
-          The Monderman Diagnostic Suite helps organizations identify whether performance is being weakened by structural ambiguity, decision drag, administrative burden, or institutional deterioration.
+          The Monderman Diagnostic Suite helps organizations identify where performance is being weakened by structural ambiguity, decision drag, administrative burden, or institutional deterioration.
         </p>
 
         <div class="hero-actions">
-          <a class="btn btn-secondary" href="#tool-launch">Open Live Diagnostics</a>
+          <a class="btn btn-accent" href="#tool-launch">Run Diagnostics</a>
+          <a class="btn btn-secondary" href="advisory-services.html">Advisory Engagements</a>
         </div>
       </div>
     </div>
@@ -1174,7 +1186,7 @@
 
   <main class="page">
     <div class="page-inner">
-      <div class="head">
+      <div class="head" id="diagnostic-suite-intro">
         <div>
           <div class="section-label">Diagnostic Suite</div>
           <h2>A cleaner launch environment for bounded structural diagnosis.</h2>
@@ -1188,7 +1200,7 @@
         </p>
       </div>
 
-      <section class="how-to-use panel" id="how-to-use">
+      <section class="how-to-use panel">
         <h3>How to use the suite</h3>
         <p>
           Start with the problem shape you can already see, bound the assessment to one environment, and use the result to sharpen diagnosis before moving to broader redesign.
@@ -1217,7 +1229,7 @@
 
       <div class="section-connector" aria-hidden="true">
         <span class="section-connector-line"></span>
-        <button class="section-connector-circle" type="button" data-scroll-target="#tool-selector" aria-label="Jump to next section"></button>
+        <button class="section-connector-circle" type="button" data-scroll-target="#tool-selector"></button>
       </div>
 
       <section class="tool-selector panel" id="tool-selector">
@@ -1268,7 +1280,7 @@
 
       <div class="section-connector" aria-hidden="true">
         <span class="section-connector-line"></span>
-        <button class="section-connector-circle" type="button" data-scroll-target="#tool-launch" aria-label="Jump to next section"></button>
+        <button class="section-connector-circle" type="button" data-scroll-target="#tool-launch"></button>
       </div>
 
       <section class="tool-cards-section" id="tool-launch">
@@ -1410,7 +1422,6 @@
           <div class="footer-nav-col">
             <p class="footer-nav-title">Explore</p>
             <a href="index.html#approach">Approach</a>
-            <a href="advisory-services.html">Advisory Engagements</a>
             <a href="diagnostic-tools.html">Diagnostic Tools</a>
             <a href="cross-tool-synthesis.html">Cross-Tool Synthesis</a>
             <a href="research.html">Research</a>
@@ -1446,11 +1457,9 @@
     updateHeader();
     window.addEventListener("scroll", updateHeader, { passive: true });
 
-    document.querySelectorAll(".section-connector-circle").forEach((button) => {
+    document.querySelectorAll("[data-scroll-target]").forEach((button) => {
       button.addEventListener("click", () => {
-        const targetSelector = button.getAttribute("data-scroll-target");
-        if (!targetSelector) return;
-        const target = document.querySelector(targetSelector);
+        const target = document.querySelector(button.getAttribute("data-scroll-target"));
         if (target) {
           target.scrollIntoView({ behavior: "smooth", block: "start" });
         }
