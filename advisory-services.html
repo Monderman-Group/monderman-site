@@ -81,8 +81,8 @@
 
     body {
       margin: 0;
-      background: var(--bg-dark);
-      color: var(--text-light);
+      background: var(--bg-offwhite);
+      color: var(--text-dark);
       font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
       font-weight: 400;
       -webkit-font-smoothing: antialiased;
@@ -116,7 +116,11 @@
     nav,
     header,
     footer,
-    main {
+    main,
+    h1,
+    h2,
+    h3,
+    h4 {
       font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
     }
 
@@ -256,9 +260,10 @@
       transform: scaleX(1);
     }
 
+    /* Hero matches Why Monderman */
     .hero {
       position: relative;
-      min-height: 92vh;
+      min-height: 88vh;
       overflow: hidden;
       background: var(--bg-hero-fallback);
     }
@@ -267,61 +272,51 @@
       content: "";
       position: absolute;
       inset: 0;
-      z-index: 0;
-      pointer-events: none;
       background:
         radial-gradient(circle at 79% 18%, rgba(63, 110, 161, 0.17) 0%, rgba(63, 110, 161, 0.07) 18%, transparent 34%),
-        radial-gradient(circle at 20% 82%, rgba(63, 110, 161, 0.05), transparent 22%),
-        linear-gradient(135deg, rgba(63, 110, 161, 0.03) 1px, transparent 1px);
-      background-size: auto, auto, 34px 34px;
+        linear-gradient(
+          90deg,
+          rgba(10, 14, 20, 0.92) 0%,
+          rgba(10, 14, 20, 0.78) 24%,
+          rgba(10, 14, 20, 0.50) 52%,
+          rgba(10, 14, 20, 0.18) 100%
+        );
+      pointer-events: none;
+      z-index: 0;
     }
 
     .hero::after {
       content: "";
       position: absolute;
       inset: 0;
-      z-index: 1;
-      pointer-events: none;
       background:
-        linear-gradient(
-          90deg,
-          rgba(10, 14, 20, 0.92) 0%,
-          rgba(10, 14, 20, 0.78) 24%,
-          rgba(10, 14, 20, 0.46) 50%,
-          rgba(10, 14, 20, 0.18) 74%,
-          rgba(10, 14, 20, 0.10) 100%
-        ),
-        linear-gradient(
-          180deg,
-          rgba(10, 14, 20, 0.10) 0%,
-          rgba(10, 14, 20, 0.04) 42%,
-          rgba(10, 14, 20, 0.22) 100%
-        );
+        linear-gradient(180deg, rgba(10, 14, 20, 0.10) 0%, rgba(10, 14, 20, 0.18) 100%),
+        linear-gradient(135deg, rgba(63, 110, 161, 0.028) 1px, transparent 1px);
+      background-size: auto, 34px 34px;
+      opacity: 0.48;
+      pointer-events: none;
+      z-index: 0;
     }
 
     .hero-inner {
       position: relative;
-      z-index: 2;
+      z-index: 1;
       max-width: var(--max);
-      min-height: 92vh;
+      min-height: 88vh;
       margin: 0 auto;
-      padding: 140px 34px 96px;
-      display: grid;
-      grid-template-columns: minmax(0, 1.02fr) minmax(320px, 0.64fr);
-      gap: 46px;
+      padding: 136px 34px 100px;
+      display: flex;
       align-items: center;
     }
 
     .hero-copy {
-      max-width: 720px;
+      max-width: 940px;
     }
 
     .hero-eyebrow,
     .hero h1,
-    .hero-lead,
-    .hero-sub,
-    .hero-actions,
-    .hero-guidance {
+    .hero-dek,
+    .hero-actions {
       opacity: 0;
       transform: translateY(16px);
       animation: heroFadeUp 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
@@ -329,46 +324,40 @@
     }
 
     .hero-eyebrow {
+      display: block;
       margin: 0 0 40px;
       padding-left: 1px;
-      font-size: 0.41rem;
+      font-size: 0.78rem;
       line-height: 1;
       letter-spacing: 0.22em;
-      font-weight: 500;
+      font-weight: 700;
       text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.42);
-      animation-delay: 320ms;
+      color: rgba(245, 247, 250, 0.64);
+      animation-delay: 340ms;
     }
 
     .hero h1 {
-      margin: 0 0 18px;
-      max-width: 11ch;
-      font-size: clamp(3.15rem, 5.35vw, 5.1rem);
+      margin: 0 0 20px;
+      max-width: 18ch;
+      font-size: clamp(3rem, 4.3vw, 4.45rem);
       line-height: 0.95;
       font-weight: 700;
       color: #FFFFFF;
       text-wrap: balance;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
-      animation-delay: 460ms;
+      animation-delay: 480ms;
     }
 
-    .hero-lead {
+    .hero-dek {
+      max-width: 40ch;
       margin: 0;
-      max-width: 34ch;
-      font-size: clamp(1.1rem, 1.42vw, 1.2rem);
-      line-height: 1.62;
+      font-size: clamp(1.12rem, 1.5vw, 1.22rem);
+      line-height: 1.6;
+      letter-spacing: -0.014em;
       color: var(--muted-light);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
       text-wrap: balance;
-      animation-delay: 620ms;
-    }
-
-    .hero-sub {
-      margin: 18px 0 0;
-      max-width: 56ch;
-      font-size: 0.96rem;
-      line-height: 1.68;
-      color: var(--muted-light-2);
-      animation-delay: 760ms;
+      animation-delay: 640ms;
     }
 
     .hero-actions {
@@ -377,51 +366,7 @@
       gap: 12px;
       flex-wrap: wrap;
       margin-top: 30px;
-      animation-delay: 900ms;
-    }
-
-    .hero-guidance {
-      align-self: stretch;
-      display: grid;
-      gap: 14px;
-      animation-delay: 1040ms;
-    }
-
-    .hero-guidance-card {
-      background: rgba(255, 255, 255, 0.055);
-      border: 1px solid rgba(255, 255, 255, 0.09);
-      border-radius: var(--panel-radius);
-      padding: 22px 22px 20px;
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.02),
-        0 12px 28px rgba(0, 0, 0, 0.08);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-
-    .hero-guidance-kicker {
-      margin: 0 0 10px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(245, 247, 250, 0.52);
-    }
-
-    .hero-guidance-title {
-      margin: 0 0 8px;
-      font-size: 1.04rem;
-      line-height: 1.14;
-      font-weight: 700;
-      color: #FFFFFF;
-    }
-
-    .hero-guidance-text {
-      margin: 0;
-      font-size: 0.93rem;
-      line-height: 1.6;
-      color: rgba(245, 247, 250, 0.78);
+      animation-delay: 800ms;
     }
 
     .btn {
@@ -463,20 +408,36 @@
       outline: none;
     }
 
-    .btn-secondary,
-    .btn-accent {
+    .btn-secondary {
       background: rgba(255, 255, 255, 0.98);
       color: var(--accent);
       border: 1.25px solid rgba(63, 110, 161, 0.9);
     }
 
     .btn-secondary:hover,
-    .btn-secondary:focus-visible,
-    .btn-accent:hover,
-    .btn-accent:focus-visible {
+    .btn-secondary:focus-visible {
       background: #FFFFFF;
       color: var(--accent-dark);
       border-color: var(--accent-dark);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #FFFFFF;
+      border: 1.25px solid rgba(63, 110, 161, 0.28);
+      box-shadow:
+        0 10px 24px rgba(63, 110, 161, 0.22),
+        0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+
+    .btn-accent:hover,
+    .btn-accent:focus-visible {
+      background: var(--accent-dark);
+      color: #FFFFFF;
+      border-color: rgba(47, 88, 134, 0.42);
+      box-shadow:
+        0 12px 26px rgba(47, 88, 134, 0.26),
+        0 0 0 1px rgba(255, 255, 255, 0.08);
     }
 
     @keyframes heroFadeUp {
@@ -1157,10 +1118,8 @@
       .reveal,
       .hero-eyebrow,
       .hero h1,
-      .hero-lead,
-      .hero-sub,
-      .hero-actions,
-      .hero-guidance {
+      .hero-dek,
+      .hero-actions {
         animation: none;
         opacity: 1;
         transform: none;
@@ -1181,15 +1140,10 @@
     }
 
     @media (max-width: 1180px) {
-      .hero-inner,
       .entry-layout,
       .qualifier-inner,
       .connect-inner {
         grid-template-columns: 1fr;
-      }
-
-      .hero-guidance {
-        max-width: 520px;
       }
 
       .entry-detail {
@@ -1222,10 +1176,7 @@
         gap: 22px;
       }
 
-      .hero-inner {
-        padding: 126px 24px 86px;
-      }
-
+      .hero-inner,
       .entry-section,
       .signals,
       .process,
@@ -1247,13 +1198,13 @@
       }
 
       .hero-inner {
-        padding: 136px 20px 92px;
+        padding: 136px 20px 108px;
         min-height: auto;
       }
 
       .hero-eyebrow {
-        margin-bottom: 36px;
-        font-size: 0.40rem;
+        margin-bottom: 30px;
+        font-size: 0.74rem;
         letter-spacing: 0.18em;
       }
 
@@ -1262,8 +1213,7 @@
         font-size: clamp(2.45rem, 8vw, 3.25rem);
       }
 
-      .hero-lead,
-      .hero-sub {
+      .hero-dek {
         max-width: 100%;
         font-size: 1rem;
         line-height: 1.58;
@@ -1323,7 +1273,6 @@
       }
 
       .entry-detail,
-      .hero-guidance-card,
       .qualifier-panel,
       .connect-panel {
         padding: 24px 22px 22px;
@@ -1375,37 +1324,15 @@
       <div class="hero-copy">
         <p class="hero-eyebrow">Advisory Engagements</p>
 
-        <h1 id="hero-title">Structural problems rarely resolve at the surface.</h1>
+        <h1 id="hero-title">When the system becomes the constraint, surface fixes stop working.</h1>
 
-        <p class="hero-lead">
-          Monderman advises leaders when execution, decision flow, and institutional performance are being constrained by the design of the system itself.
-        </p>
-
-        <p class="hero-sub">
-          The goal is not a louder intervention. It is a clearer read on the actual constraint, the right level of engagement, and the most credible path forward.
+        <p class="hero-dek">
+          Monderman helps organizations confront the structural conditions that degrade execution, slow decisions, and weaken institutional performance.
         </p>
 
         <div class="hero-actions">
-          <a class="btn" href="#connect">Request an initial conversation</a>
-          <a class="btn btn-secondary" href="diagnostic-tools.html">Explore Diagnostic Tools</a>
-        </div>
-      </div>
-
-      <div class="hero-guidance" aria-label="How to use this page">
-        <div class="hero-guidance-card">
-          <p class="hero-guidance-kicker">How to use this page</p>
-          <h3 class="hero-guidance-title">Start by identifying the shape of the problem.</h3>
-          <p class="hero-guidance-text">
-            Different situations require different levels of intervention. The sections below are designed to help leaders recognize which kind of engagement fits the signal they are seeing.
-          </p>
-        </div>
-
-        <div class="hero-guidance-card">
-          <p class="hero-guidance-kicker">What this page is designed to do</p>
-          <h3 class="hero-guidance-title">Move from interest to fit.</h3>
-          <p class="hero-guidance-text">
-            Rather than presenting generic services, this page clarifies where Monderman is most useful and when a conversation is warranted.
-          </p>
+          <a class="btn btn-accent" href="#connect">Request an Initial Conversation</a>
+          <a class="btn btn-secondary" href="diagnostic-tools.html">Run Diagnostics</a>
         </div>
       </div>
     </div>
@@ -1502,7 +1429,7 @@
             Best suited for institutions where the constraint is consequential enough that treating it as an isolated fix would understate the real issue.
           </p>
 
-          <a class="btn btn-accent entry-detail-btn" href="#connect">Request an initial conversation</a>
+          <a class="btn btn-accent entry-detail-btn" href="#connect">Request an Initial Conversation</a>
         </aside>
       </div>
     </div>
