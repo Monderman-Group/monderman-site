@@ -53,6 +53,7 @@
       --bg-white: #FFFFFF;
       --text-light: #F5F7FA;
       --muted-light: rgba(245, 247, 250, 0.82);
+      --muted-light-2: rgba(245, 247, 250, 0.62);
       --text-dark: #15202B;
       --muted-dark: #556270;
       --muted-dark-2: #7A8794;
@@ -338,7 +339,7 @@
     }
 
     .hero-copy {
-      max-width: 640px;
+      max-width: 940px;
     }
 
     .hero-eyebrow,
@@ -351,22 +352,24 @@
       will-change: transform, opacity;
     }
 
+    /* Match Why Monderman exactly */
     .hero-eyebrow {
-      margin: 0 0 42px;
+      display: block;
+      margin: 0 0 40px;
       padding-left: 1px;
-      font-size: 0.41rem;
+      font-size: 0.78rem;
       line-height: 1;
       letter-spacing: 0.22em;
-      font-weight: 500;
+      font-weight: 700;
       text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.42);
+      color: rgba(245, 247, 250, 0.64);
       animation-delay: 340ms;
     }
 
     .hero h1 {
       margin: 0 0 20px;
-      max-width: 10.4ch;
-      font-size: clamp(3.3rem, 5.55vw, 5.25rem);
+      max-width: 13.5ch;
+      font-size: clamp(3rem, 4.3vw, 4.45rem);
       line-height: 0.95;
       font-weight: 700;
       color: #FFFFFF;
@@ -376,9 +379,9 @@
     }
 
     .hero p {
-      max-width: 34ch;
+      max-width: 41ch;
       margin: 0;
-      font-size: clamp(1.12rem, 1.46vw, 1.22rem);
+      font-size: clamp(1.12rem, 1.5vw, 1.22rem);
       line-height: 1.6;
       letter-spacing: -0.014em;
       color: var(--muted-light);
@@ -435,20 +438,36 @@
       outline: none;
     }
 
-    .btn-secondary,
-    .btn-accent {
+    .btn-secondary {
       background: rgba(255, 255, 255, 0.98);
       color: var(--accent);
       border: 1.25px solid rgba(63, 110, 161, 0.9);
     }
 
     .btn-secondary:hover,
-    .btn-secondary:focus-visible,
-    .btn-accent:hover,
-    .btn-accent:focus-visible {
+    .btn-secondary:focus-visible {
       background: #FFFFFF;
       color: var(--accent-dark);
       border-color: var(--accent-dark);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #FFFFFF;
+      border: 1.25px solid rgba(63, 110, 161, 0.28);
+      box-shadow:
+        0 10px 24px rgba(63, 110, 161, 0.22),
+        0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+
+    .btn-accent:hover,
+    .btn-accent:focus-visible {
+      background: var(--accent-dark);
+      color: #FFFFFF;
+      border-color: rgba(47, 88, 134, 0.42);
+      box-shadow:
+        0 12px 26px rgba(47, 88, 134, 0.26),
+        0 0 0 1px rgba(255, 255, 255, 0.08);
     }
 
     @keyframes heroFadeUp {
@@ -573,7 +592,7 @@
     .estimate-context,
     .estimate-bridge {
       margin: 0;
-      max-width: 58ch;
+      max-width: 64ch;
       font-size: 0.96rem;
       line-height: 1.64;
       color: var(--muted-dark);
@@ -1422,11 +1441,12 @@
         padding: 136px 20px 108px;
       }
 
+      /* Match Why Monderman mobile eyebrow exactly */
       .hero-eyebrow {
-        margin-bottom: 36px;
-        font-size: 0.40rem;
+        margin-bottom: 30px;
+        font-size: 0.74rem;
         letter-spacing: 0.18em;
-        color: rgba(255, 255, 255, 0.42);
+        color: rgba(245, 247, 250, 0.64);
       }
 
       .hero h1 {
@@ -1555,12 +1575,12 @@
         <h1 id="hero-title">Transforming complexity into opportunity.</h1>
 
         <p>
-          Monderman helps leaders identify hidden friction, strengthen execution, and improve performance.
+          Monderman helps organizations turn complexity into an advantage by confronting the structural conditions that constrain execution, adaptability, and performance.
         </p>
 
         <div class="hero-actions">
-          <a class="btn" href="diagnostic-tools.html">Run Diagnostics</a>
-          <a class="btn btn-secondary" href="advisory-services.html">Advisory</a>
+          <a class="btn btn-accent" href="why-monderman.html">Why Monderman</a>
+          <a class="btn btn-secondary" href="diagnostic-tools.html">Diagnostic Hub</a>
           <a class="btn btn-secondary" href="#connect">Connect</a>
         </div>
       </div>
@@ -1573,7 +1593,7 @@
         <p class="cost-label">The Cost of Bureaucratic Friction</p>
         <h2 id="cost-title">Where performance is quietly lost.</h2>
         <p class="cost-context">
-          The issue is rarely complexity itself. It is the accumulation of systems built to manage it.
+          Many institutions are already paying these costs in time, money, and organizational capacity without fully seeing where the losses originate or why repeated fixes fail to resolve them.
         </p>
       </div>
 
@@ -1619,12 +1639,11 @@
         <h2 id="approach-title">Designing systems for clarity and execution.</h2>
 
         <p>
-          Monderman works where structure, governance, and institutional performance meet.
-          We help organizations reduce friction, strengthen execution, and improve how performance holds under complexity.
+          Monderman works where structure, governance, and institutional performance meet. We help organizations reduce friction, strengthen execution, and improve how performance holds under complexity.
         </p>
 
         <p class="approach-bridge">
-          We work where strategy becomes execution — or stalls under the weight of unclear structures, slow decisions, and poorly aligned systems.
+          We work where strategy becomes execution — or stalls under the weight of unclear structures, slower decisions, and administrative systems that no longer support the work.
         </p>
       </div>
 
@@ -1933,7 +1952,7 @@
         <h2 id="connect-title">Start a serious conversation.</h2>
         <p class="connect-signal">Monderman works selectively with institutions facing consequential structural challenges.</p>
         <p class="connect-text">
-          If you are navigating institutional drag, decision friction, execution misalignment, or considering a diagnostic pilot, we welcome a conversation. Monderman works with leaders who understand that the constraint is rarely insight alone, but the institutional capacity to act on it.
+          If you are navigating institutional drag, decision friction, execution misalignment, or considering a diagnostic pilot, we welcome a conversation. Monderman works with organizations that understand the constraint is rarely insight alone, but the institutional capacity to act on it.
         </p>
       </div>
 
