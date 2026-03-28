@@ -48,31 +48,42 @@
       --accent-dark: #2F5886;
       --bg-dark: #0F1720;
       --bg-dark-2: #111B25;
+      --bg-dark-3: #0D141C;
       --bg-offwhite: #F6F7F8;
+      --bg-soft: #FAFBFC;
       --bg-white: #FFFFFF;
       --text-light: #F5F7FA;
       --text-dark: #15202B;
       --muted-dark: #556270;
       --muted-dark-2: #7A8794;
+      --muted-dark-3: #98A3AE;
       --panel-line: rgba(21, 32, 43, 0.08);
       --panel-line-strong: rgba(21, 32, 43, 0.12);
       --success: #2E8B57;
       --warning: #B8860B;
       --danger: #B8505E;
-      --max: 1260px;
+      --max: 1280px;
       --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
-      --card-shadow: 0 12px 28px rgba(0, 0, 0, 0.045);
-      --panel-shadow: 0 14px 34px rgba(10, 18, 26, 0.04);
-      --premium-shadow: 0 18px 44px rgba(10, 18, 26, 0.08);
+      --card-shadow: 0 14px 32px rgba(10, 18, 26, 0.05);
+      --panel-shadow: 0 18px 40px rgba(10, 18, 26, 0.05);
+      --hero-shadow: 0 24px 60px rgba(7, 12, 18, 0.18);
       --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
+      --radius-xl: 24px;
+      --radius-lg: 20px;
+      --radius-md: 16px;
+      --radius-sm: 14px;
     }
 
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; scroll-padding-top: 84px; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 84px;
+    }
 
     body {
       margin: 0;
-      background: var(--bg-offwhite);
+      background: linear-gradient(180deg, #EEF2F5 0%, #F6F7F8 220px, #F6F7F8 100%);
       color: var(--text-dark);
       font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
@@ -84,15 +95,23 @@
     img { display: block; max-width: 100%; }
     button, input, select, textarea { font: inherit; }
 
+    h1, h2, h3, h4 {
+      letter-spacing: -0.048em;
+    }
+
+    p, li {
+      letter-spacing: -0.01em;
+    }
+
     .header {
       position: sticky;
       top: 0;
-      z-index: 50;
+      z-index: 60;
       height: 72px;
       background: rgba(15, 23, 32, 0.92);
       border-bottom: 1px solid rgba(255,255,255,0.08);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
     }
 
     .header-inner {
@@ -114,6 +133,7 @@
       color: #FFFFFF;
       letter-spacing: -0.02em;
       white-space: nowrap;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
     }
 
     .brand::after {
@@ -130,7 +150,7 @@
     .header-links {
       display: inline-flex;
       align-items: center;
-      gap: 20px;
+      gap: 22px;
       flex-wrap: wrap;
     }
 
@@ -151,17 +171,17 @@
     .page-shell {
       max-width: var(--max);
       margin: 0 auto;
-      padding: 42px 28px 72px;
+      padding: 42px 28px 80px;
     }
 
     .hero {
       position: relative;
-      margin-bottom: 32px;
+      margin-bottom: 30px;
       overflow: hidden;
       background: var(--bg-dark);
-      border-radius: 24px;
+      border-radius: var(--radius-xl);
       border: 1px solid rgba(255,255,255,0.06);
-      box-shadow: var(--premium-shadow);
+      box-shadow: var(--hero-shadow);
     }
 
     .hero::before {
@@ -172,9 +192,9 @@
         radial-gradient(circle at 79% 18%, rgba(63, 110, 161, 0.17) 0%, rgba(63, 110, 161, 0.07) 18%, transparent 34%),
         linear-gradient(
           90deg,
-          rgba(10, 14, 20, 0.92) 0%,
-          rgba(10, 14, 20, 0.78) 24%,
-          rgba(10, 14, 20, 0.50) 52%,
+          rgba(10, 14, 20, 0.94) 0%,
+          rgba(10, 14, 20, 0.82) 24%,
+          rgba(10, 14, 20, 0.52) 54%,
           rgba(10, 14, 20, 0.18) 100%
         );
       pointer-events: none;
@@ -186,10 +206,10 @@
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(180deg, rgba(10, 14, 20, 0.10) 0%, rgba(10, 14, 20, 0.18) 100%),
+        linear-gradient(180deg, rgba(10, 14, 20, 0.06) 0%, rgba(10, 14, 20, 0.18) 100%),
         linear-gradient(135deg, rgba(63, 110, 161, 0.028) 1px, transparent 1px);
       background-size: auto, 34px 34px;
-      opacity: 0.48;
+      opacity: 0.5;
       pointer-events: none;
       z-index: 0;
     }
@@ -205,7 +225,7 @@
     }
 
     .hero-copy {
-      max-width: 900px;
+      max-width: 920px;
     }
 
     .eyebrow {
@@ -223,9 +243,8 @@
     .hero h1 {
       margin: 0 0 18px;
       max-width: 12.5ch;
-      font-size: clamp(2.65rem, 4.3vw, 4.2rem);
+      font-size: clamp(2.7rem, 4.35vw, 4.25rem);
       line-height: 0.95;
-      letter-spacing: -0.05em;
       font-weight: 700;
       color: #FFFFFF;
       text-wrap: balance;
@@ -329,7 +348,7 @@
     .btn-accent {
       background: var(--accent);
       color: #FFFFFF;
-      border-color: rgba(63,110,161,0.18);
+      border-color: rgba(63,110,161,0.22);
       box-shadow:
         0 10px 24px rgba(63, 110, 161, 0.22),
         0 0 0 1px rgba(255,255,255,0.05);
@@ -339,7 +358,7 @@
     .btn-accent:focus-visible {
       background: var(--accent-dark);
       color: #FFFFFF;
-      border-color: rgba(47,88,134,0.22);
+      border-color: rgba(47,88,134,0.28);
     }
 
     .btn-inline-group {
@@ -347,6 +366,28 @@
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
+    }
+
+    .spinner {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(63,110,161,0.24);
+      border-top-color: var(--accent);
+      border-radius: 999px;
+      animation: spin 0.9s linear infinite;
+      flex: 0 0 auto;
+    }
+
+    .spinner.light {
+      border-color: rgba(255,255,255,0.18);
+      border-top-color: #FFFFFF;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
 
     .page-grid {
@@ -392,7 +433,6 @@
       margin: 0 0 8px;
       font-size: 1.46rem;
       line-height: 1.08;
-      letter-spacing: -0.04em;
       font-weight: 700;
       color: var(--text-dark);
     }
@@ -423,7 +463,11 @@
       border-radius: 16px;
       padding: 16px 16px 14px;
       cursor: pointer;
-      transition: border-color var(--transition), background var(--transition), transform var(--transition), box-shadow var(--transition);
+      transition:
+        border-color var(--transition),
+        background var(--transition),
+        transform var(--transition),
+        box-shadow var(--transition);
     }
 
     .mode-card:hover {
@@ -517,8 +561,16 @@
     .step-pill.active .step-num { background: var(--accent); color: #FFFFFF; }
     .step-pill.done .step-num { background: var(--success); color: #FFFFFF; }
 
-    form { display: grid; gap: 22px; }
-    .step-panel { display: none; gap: 14px; }
+    form {
+      display: grid;
+      gap: 22px;
+    }
+
+    .step-panel {
+      display: none;
+      gap: 14px;
+    }
+
     .step-panel.active { display: grid; }
 
     .section-block {
@@ -705,7 +757,7 @@
     }
 
     .submit-note {
-      max-width: 52ch;
+      max-width: 54ch;
       font-size: 0.84rem;
       line-height: 1.56;
       color: var(--muted-dark-2);
@@ -754,7 +806,7 @@
       display: none;
       gap: 20px;
       margin-top: 34px;
-      padding-top: 6px;
+      padding-top: 4px;
     }
 
     .results-shell.active { display: grid; }
@@ -777,18 +829,17 @@
 
     .results-title {
       margin: 0;
-      font-size: clamp(1.55rem, 2.1vw, 2rem);
-      line-height: 1.08;
-      letter-spacing: -0.04em;
+      font-size: clamp(1.7rem, 2.2vw, 2.15rem);
+      line-height: 1.06;
       font-weight: 700;
       color: var(--text-dark);
     }
 
     .results-copy {
       margin: 0;
-      max-width: 66ch;
-      font-size: 0.96rem;
-      line-height: 1.62;
+      max-width: 68ch;
+      font-size: 0.98rem;
+      line-height: 1.64;
       color: var(--muted-dark);
     }
 
@@ -817,41 +868,42 @@
       line-height: 1.58;
     }
 
-    .score-panel {
+    .score-hero {
       background: linear-gradient(180deg, #0F1720 0%, #111B25 100%);
       color: #FFFFFF;
       border-radius: 22px;
-      padding: 30px 28px 26px;
+      padding: 28px 24px 24px;
       border: 1px solid rgba(255,255,255,0.06);
       position: relative;
       overflow: hidden;
-      box-shadow: 0 18px 42px rgba(15, 23, 32, 0.16);
+      box-shadow: 0 18px 40px rgba(10, 18, 26, 0.16);
     }
 
-    .score-panel::before {
+    .score-hero::before {
       content: "";
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(circle at 85% 16%, rgba(63,110,161,0.20), transparent 28%),
+        radial-gradient(circle at 86% 16%, rgba(63,110,161,0.24), transparent 28%),
         linear-gradient(135deg, rgba(63,110,161,0.05) 1px, transparent 1px);
       background-size: auto, 28px 28px;
-      opacity: 0.5;
+      opacity: 0.52;
       pointer-events: none;
     }
 
-    .score-panel-inner {
+    .score-hero-inner {
       position: relative;
       z-index: 1;
       display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(240px, 0.9fr);
+      grid-template-columns: 190px minmax(0, 1fr) auto;
       gap: 22px;
-      align-items: end;
+      align-items: start;
     }
 
-    .score-main {
+    .score-column {
       display: grid;
-      gap: 10px;
+      align-content: start;
+      gap: 8px;
     }
 
     .score-label {
@@ -864,44 +916,44 @@
       color: rgba(245,247,250,0.60);
     }
 
-    .score-value-row {
-      display: flex;
-      align-items: flex-end;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
     .score-number {
       margin: 0;
-      font-size: clamp(3.35rem, 6vw, 5.4rem);
-      line-height: 0.88;
-      letter-spacing: -0.09em;
+      font-size: clamp(4.2rem, 7vw, 5.4rem);
+      line-height: 0.86;
       font-weight: 700;
+      letter-spacing: -0.09em;
       color: #FFFFFF;
     }
 
     .score-band {
-      margin: 0 0 8px;
-      font-size: 1.16rem;
-      line-height: 1.25;
-      font-weight: 600;
-      color: rgba(245,247,250,0.94);
-      max-width: 28ch;
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.3;
+      font-weight: 500;
+      color: rgba(245,247,250,0.90);
+    }
+
+    .score-main {
+      display: grid;
+      gap: 12px;
+      padding-top: 8px;
+    }
+
+    .score-status-line {
+      margin: 0;
+      font-size: clamp(1.18rem, 2vw, 1.52rem);
+      line-height: 1.2;
+      font-weight: 700;
+      color: #FFFFFF;
+      max-width: 30ch;
     }
 
     .score-summary {
       margin: 0;
-      max-width: 62ch;
-      font-size: 0.98rem;
-      line-height: 1.68;
-      color: rgba(245,247,250,0.76);
-    }
-
-    .score-side {
-      display: grid;
-      gap: 12px;
-      align-content: start;
-      justify-items: end;
+      max-width: 58ch;
+      font-size: 1rem;
+      line-height: 1.66;
+      color: rgba(245,247,250,0.78);
     }
 
     .score-badge {
@@ -913,203 +965,107 @@
       font-weight: 600;
       color: #FFFFFF;
       white-space: nowrap;
+      align-self: start;
     }
 
-    .score-status-card {
-      width: 100%;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px;
-      padding: 14px 14px 13px;
-    }
-
-    .score-status-label {
-      margin: 0 0 6px;
-      font-size: 0.68rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      font-weight: 700;
-      color: rgba(245,247,250,0.56);
-    }
-
-    .score-status-text {
-      margin: 0;
-      font-size: 0.88rem;
-      line-height: 1.55;
-      color: rgba(245,247,250,0.84);
-    }
-
-    .metric-strip {
+    .metrics-strip {
       display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 0;
+      gap: 12px;
+    }
+
+    .metric-card {
       background: #FFFFFF;
-      border: 1px solid var(--panel-line);
+      border: 1px solid rgba(21,32,43,0.08);
       border-radius: 18px;
-      overflow: hidden;
+      padding: 18px 16px 16px;
       box-shadow: var(--soft-shadow);
-    }
-
-    .metric-block {
-      padding: 18px 18px 16px;
-      border-right: 1px solid rgba(21,32,43,0.08);
-      min-height: 118px;
-    }
-
-    .metric-block:last-child {
-      border-right: none;
+      min-height: 126px;
     }
 
     .metric-label {
       margin: 0 0 10px;
-      font-size: 0.7rem;
+      font-size: 0.72rem;
       font-weight: 700;
       line-height: 1;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
       color: var(--muted-dark-2);
     }
 
     .metric-value {
       margin: 0;
-      font-size: 1.18rem;
-      line-height: 1.08;
-      letter-spacing: -0.04em;
+      font-size: 1.4rem;
+      line-height: 1.02;
       font-weight: 700;
       color: var(--text-dark);
+      letter-spacing: -0.045em;
       text-wrap: balance;
     }
 
     .metric-sub {
-      margin: 8px 0 0;
-      font-size: 0.82rem;
-      line-height: 1.5;
+      margin: 10px 0 0;
+      font-size: 0.84rem;
+      line-height: 1.45;
       color: var(--muted-dark);
     }
 
     .benchmark-footnote {
-      margin: -6px 0 0;
+      margin: -4px 0 0;
       padding: 0 2px;
       font-size: 0.8rem;
       line-height: 1.5;
       color: var(--muted-dark-2);
     }
 
-    .exposure-band {
-      background:
-        linear-gradient(180deg, rgba(63,110,161,0.035) 0%, rgba(63,110,161,0.01) 100%),
-        #FFFFFF;
-      border: 1px solid rgba(63,110,161,0.12);
-      border-radius: 20px;
-      padding: 20px 20px 18px;
-      box-shadow: var(--soft-shadow);
-      display: grid;
-      gap: 14px;
-    }
-
-    .exposure-head {
-      display: grid;
-      gap: 6px;
-    }
-
-    .exposure-kicker {
-      margin: 0;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--accent);
-      line-height: 1;
-    }
-
-    .exposure-title {
-      margin: 0;
-      font-size: 1.1rem;
-      line-height: 1.18;
-      letter-spacing: -0.03em;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-
-    .exposure-copy {
-      margin: 0;
-      max-width: 70ch;
-      font-size: 0.92rem;
-      line-height: 1.62;
-      color: var(--muted-dark);
-    }
-
-    .exposure-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .exposure-card {
-      background: rgba(255,255,255,0.92);
-      border: 1px solid rgba(21,32,43,0.08);
-      border-radius: 16px;
-      padding: 16px 16px 14px;
-    }
-
-    .exposure-label {
-      margin: 0 0 8px;
-      font-size: 0.7rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
+    .tmr-estimate-note {
+      margin: 2px 0 0;
+      padding: 0 2px;
+      font-size: 0.8rem;
+      line-height: 1.5;
       color: var(--muted-dark-2);
     }
 
-    .exposure-value {
-      margin: 0;
-      font-size: 1.34rem;
-      line-height: 1.04;
-      letter-spacing: -0.04em;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-
-    .exposure-sub {
-      margin: 8px 0 0;
-      font-size: 0.82rem;
-      line-height: 1.5;
-      color: var(--muted-dark);
-    }
-
-    .results-grid {
+    .executive-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 16px;
     }
 
-    .result-card {
+    .premium-card {
       background: #FFFFFF;
       border: 1px solid rgba(21,32,43,0.08);
-      border-radius: 18px;
-      padding: 20px 20px 18px;
+      border-radius: 20px;
+      padding: 22px 20px 20px;
       box-shadow: var(--soft-shadow);
     }
 
-    .result-card.emphasis {
+    .premium-card.emphasis {
       background:
         linear-gradient(180deg, rgba(63,110,161,0.04) 0%, rgba(63,110,161,0.01) 100%),
         #FFFFFF;
       border-color: rgba(63,110,161,0.12);
     }
 
-    .result-card-title {
-      margin: 0 0 12px;
-      font-size: 0.78rem;
-      line-height: 1;
+    .card-kicker {
+      margin: 0 0 10px;
+      font-size: 0.72rem;
       font-weight: 700;
+      line-height: 1;
       letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--text-dark);
     }
 
-    .narrative-copy {
+    .card-title {
+      margin: 0 0 10px;
+      font-size: 1.02rem;
+      line-height: 1.18;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .card-copy {
       margin: 0;
       font-size: 0.95rem;
       line-height: 1.7;
@@ -1117,20 +1073,7 @@
       white-space: pre-line;
     }
 
-    .result-list {
-      margin: 0;
-      padding-left: 18px;
-      display: grid;
-      gap: 10px;
-    }
-
-    .result-list li {
-      font-size: 0.92rem;
-      line-height: 1.62;
-      color: var(--muted-dark);
-    }
-
-    .charts-grid {
+    .chart-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 16px;
@@ -1140,47 +1083,357 @@
       background: #FFFFFF;
       border: 1px solid rgba(21,32,43,0.08);
       border-radius: 20px;
-      padding: 22px 20px 16px;
+      padding: 22px 20px 18px;
       box-shadow: var(--soft-shadow);
-      min-height: 390px;
+      min-height: 388px;
       display: grid;
-      grid-template-rows: auto auto 1fr;
-      gap: 10px;
+      grid-template-rows: auto 1fr auto;
+      gap: 8px;
       overflow: hidden;
-    }
-
-    .chart-title {
-      margin: 0;
-      font-size: 0.78rem;
-      line-height: 1;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--text-dark);
-    }
-
-    .chart-subtitle {
-      margin: -2px 0 0;
-      font-size: 0.86rem;
-      line-height: 1.52;
-      color: var(--muted-dark);
-      max-width: 56ch;
     }
 
     .chart-wrap {
       position: relative;
       width: 100%;
-      height: 294px;
-      min-height: 294px;
+      height: 290px;
+      min-height: 290px;
       overflow: hidden;
     }
 
     .chart-wrap canvas {
       width: 100% !important;
       height: 100% !important;
-      max-width: 100%;
-      max-height: 100%;
       display: block;
+    }
+
+    .chart-note {
+      margin: 0;
+      font-size: 0.81rem;
+      line-height: 1.5;
+      color: var(--muted-dark-2);
+    }
+
+    .insight-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .bullet-list {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .bullet-list li {
+      font-size: 0.94rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+    }
+
+    .tmr-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .tmr-tile {
+      background: #F8FAFC;
+      border: 1px solid rgba(21,32,43,0.08);
+      border-radius: 16px;
+      padding: 16px 14px 14px;
+    }
+
+    .tmr-label {
+      margin: 0 0 8px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+    }
+
+    .tmr-value {
+      margin: 0;
+      font-size: 1.28rem;
+      line-height: 1.05;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: var(--text-dark);
+    }
+
+    .tmr-sub {
+      margin: 8px 0 0;
+      font-size: 0.82rem;
+      line-height: 1.48;
+      color: var(--muted-dark);
+    }
+
+    .report-shell {
+      border: 1px solid rgba(21,32,43,0.08);
+      border-radius: 22px;
+      background: linear-gradient(180deg, #FFFFFF 0%, #FCFDFE 100%);
+      box-shadow: var(--panel-shadow);
+      overflow: hidden;
+    }
+
+    .report-head {
+      padding: 24px 24px 16px;
+      border-bottom: 1px solid rgba(21,32,43,0.06);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .report-head-copy {
+      display: grid;
+      gap: 6px;
+    }
+
+    .report-head-title {
+      margin: 0;
+      font-size: 1.12rem;
+      line-height: 1.18;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .report-head-text {
+      margin: 0;
+      max-width: 62ch;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: var(--muted-dark);
+    }
+
+    .report-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .report-page {
+      background: #FFFFFF;
+      margin: 20px;
+      border: 1px solid rgba(21,32,43,0.08);
+      border-radius: 18px;
+      box-shadow: 0 12px 28px rgba(10,18,26,0.04);
+      overflow: hidden;
+    }
+
+    .report-page-head {
+      background: linear-gradient(180deg, #0F1720 0%, #111B25 100%);
+      color: #FFFFFF;
+      padding: 22px 22px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .report-page-head::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 84% 18%, rgba(63,110,161,0.18), transparent 28%),
+        linear-gradient(135deg, rgba(63,110,161,0.05) 1px, transparent 1px);
+      background-size: auto, 28px 28px;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .report-page-head-inner {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 8px;
+    }
+
+    .report-page-kicker {
+      margin: 0;
+      font-size: 0.7rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.62);
+    }
+
+    .report-page-title {
+      margin: 0;
+      font-size: 1.52rem;
+      line-height: 1.06;
+      font-weight: 700;
+      color: #FFFFFF;
+    }
+
+    .report-page-sub {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.58;
+      color: rgba(245,247,250,0.8);
+      max-width: 64ch;
+    }
+
+    .report-body {
+      padding: 20px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .report-score-row {
+      display: grid;
+      grid-template-columns: 160px minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .report-score-box {
+      background: #F7FAFD;
+      border: 1px solid rgba(21,32,43,0.08);
+      border-radius: 16px;
+      padding: 16px 14px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .report-score-label {
+      margin: 0;
+      font-size: 0.68rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+    }
+
+    .report-score-number {
+      margin: 0;
+      font-size: 3rem;
+      line-height: 0.9;
+      font-weight: 700;
+      letter-spacing: -0.08em;
+      color: var(--text-dark);
+    }
+
+    .report-score-band {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.4;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .report-summary-box {
+      background: #FFFFFF;
+      border: 1px solid rgba(21,32,43,0.08);
+      border-radius: 16px;
+      padding: 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .report-summary-title {
+      margin: 0;
+      font-size: 0.96rem;
+      line-height: 1.2;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .report-summary-copy {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.65;
+      color: var(--muted-dark);
+    }
+
+    .report-metrics {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .report-metric {
+      border: 1px solid rgba(21,32,43,0.08);
+      border-radius: 14px;
+      padding: 14px 12px;
+      background: #FFFFFF;
+    }
+
+    .report-metric-label {
+      margin: 0 0 8px;
+      font-size: 0.66rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+    }
+
+    .report-metric-value {
+      margin: 0;
+      font-size: 1.02rem;
+      line-height: 1.08;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .report-metric-sub {
+      margin: 8px 0 0;
+      font-size: 0.78rem;
+      line-height: 1.45;
+      color: var(--muted-dark);
+    }
+
+    .report-columns {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .report-box {
+      border: 1px solid rgba(21,32,43,0.08);
+      border-radius: 16px;
+      padding: 16px;
+      background: #FFFFFF;
+    }
+
+    .report-box-title {
+      margin: 0 0 10px;
+      font-size: 0.88rem;
+      line-height: 1.2;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .report-box-copy,
+    .report-box li {
+      font-size: 0.88rem;
+      line-height: 1.58;
+      color: var(--muted-dark);
+    }
+
+    .report-box-copy { margin: 0; }
+
+    .report-box ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .report-estimate-note {
+      margin: 0;
+      font-size: 0.78rem;
+      line-height: 1.5;
+      color: var(--muted-dark-2);
     }
 
     .post-results-bridge {
@@ -1189,9 +1442,7 @@
       margin-top: 2px;
     }
 
-    .export-bridge,
-    .advisory-bridge,
-    .synthesis-bridge {
+    .bridge-card {
       background: #FFFFFF;
       border: 1px solid rgba(21,32,43,0.08);
       border-radius: 18px;
@@ -1233,44 +1484,37 @@
       margin-top: 16px;
     }
 
-    .loading-state {
+    .loading-shell {
       display: none;
       align-items: center;
       gap: 12px;
-      padding: 14px 16px;
-      border: 1px solid rgba(63,110,161,0.16);
-      border-radius: 14px;
-      background: rgba(63,110,161,0.05);
-      color: var(--text-dark);
-      margin-top: 8px;
+      padding: 16px 18px;
+      border: 1px solid rgba(63,110,161,0.12);
+      background: rgba(63,110,161,0.04);
+      border-radius: 16px;
+      margin-top: 18px;
     }
 
-    .loading-state.active {
+    .loading-shell.active {
       display: inline-flex;
     }
 
-    .loading-spinner {
-      width: 18px;
-      height: 18px;
-      border-radius: 999px;
-      border: 2px solid rgba(63,110,161,0.22);
-      border-top-color: var(--accent);
-      animation: spin 900ms linear infinite;
-      flex: 0 0 auto;
+    .loading-text {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      color: var(--text-dark);
     }
 
-    .loading-text {
-      font-size: 0.9rem;
-      line-height: 1.45;
+    .loading-subtext {
+      margin: 4px 0 0;
+      font-size: 0.8rem;
+      line-height: 1.5;
       color: var(--muted-dark);
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
     .error-note {
-      margin: 10px 0 0;
+      margin: 16px 0 0;
       font-size: 0.88rem;
       line-height: 1.55;
       color: var(--danger);
@@ -1278,30 +1522,48 @@
 
     .hidden { display: none !important; }
 
-    .print-only {
-      display: none;
+    @media (max-width: 1180px) {
+      .score-hero-inner {
+        grid-template-columns: 170px minmax(0, 1fr);
+      }
+
+      .score-badge {
+        grid-column: 1 / -1;
+        justify-self: start;
+      }
+
+      .report-metrics {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
     }
 
     @media (max-width: 1120px) {
       .page-grid { grid-template-columns: 1fr; }
       .sidebar-stack { position: static; }
       .hero-inner { grid-template-columns: 1fr; }
-      .score-panel-inner { grid-template-columns: 1fr; }
-      .score-side { justify-items: start; }
     }
 
     @media (max-width: 980px) {
-      .metric-strip,
-      .summary-grid,
-      .exposure-grid,
-      .results-grid,
-      .charts-grid {
-        grid-template-columns: 1fr 1fr;
+      .metrics-strip,
+      .executive-grid,
+      .chart-grid,
+      .insight-grid,
+      .tmr-grid,
+      .report-columns,
+      .report-score-row,
+      .report-metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .score-hero-inner {
+        grid-template-columns: 1fr;
       }
     }
 
     @media (max-width: 780px) {
-      .header { height: auto; }
+      .header {
+        height: auto;
+      }
 
       .header-inner {
         padding: 16px 20px;
@@ -1310,7 +1572,9 @@
         gap: 12px;
       }
 
-      .page-shell { padding: 28px 20px 64px; }
+      .page-shell {
+        padding: 28px 20px 64px;
+      }
 
       .hero-inner,
       .panel-head,
@@ -1343,29 +1607,18 @@
       }
 
       .form-grid,
-      .mode-toggle,
-      .metric-strip,
-      .exposure-grid,
-      .results-grid,
-      .charts-grid {
+      .mode-toggle {
         grid-template-columns: 1fr;
-      }
-
-      .metric-block {
-        border-right: none;
-        border-bottom: 1px solid rgba(21,32,43,0.08);
-      }
-
-      .metric-block:last-child {
-        border-bottom: none;
       }
 
       .submit-row,
       .step-actions,
       .bridge-actions,
       .results-actions,
-      .hero-actions {
-        align-items: flex-start;
+      .hero-actions,
+      .report-actions,
+      .btn-inline-group {
+        align-items: stretch;
         flex-direction: column;
       }
 
@@ -1378,23 +1631,20 @@
         width: 100%;
       }
 
-      .chart-wrap {
-        height: 260px;
-        min-height: 260px;
+      .report-page {
+        margin: 14px;
+      }
+
+      .report-body,
+      .report-page-head {
+        padding-left: 16px;
+        padding-right: 16px;
       }
     }
 
     @media print {
-      @page {
-        size: A4 portrait;
-        margin: 0.6in;
-      }
-
-      html,
       body {
-        background: #FFFFFF !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
+        background: #FFFFFF;
       }
 
       .header,
@@ -1404,13 +1654,22 @@
       #guidedForm,
       #csvForm,
       .sidebar-stack,
-      .results-actions,
       .post-results-bridge,
+      .results-actions,
+      .loading-shell,
       .empty-state,
-      .loading-state,
-      .error-note,
-      #resultsEmptyState,
-      .panel-head:not(.print-report-header) {
+      .results-intro,
+      .score-hero,
+      .metrics-strip,
+      .executive-grid,
+      .chart-grid,
+      .insight-grid,
+      .tmr-grid,
+      .benchmark-footnote,
+      .tmr-estimate-note,
+      #downloadPdfBtn,
+      #editInputsBtn,
+      #startOverBtn {
         display: none !important;
       }
 
@@ -1418,14 +1677,17 @@
       .page-grid {
         display: block !important;
         max-width: 100%;
-        padding: 0 !important;
-        margin: 0 !important;
+        padding: 0;
       }
 
       .panel {
-        border: none !important;
-        box-shadow: none !important;
-        overflow: visible !important;
+        border: none;
+        box-shadow: none;
+        overflow: visible;
+      }
+
+      .panel-head {
+        display: none !important;
       }
 
       .panel-body {
@@ -1434,128 +1696,41 @@
 
       .results-shell {
         display: grid !important;
-        gap: 12pt !important;
-        margin-top: 0 !important;
-        padding-top: 0 !important;
+        margin-top: 0;
+        gap: 0;
       }
 
-      .print-only {
-        display: block !important;
+      .report-shell {
+        border: none;
+        box-shadow: none;
+        overflow: visible;
       }
 
-      .print-report-header {
-        margin: 0 0 18pt;
-        padding: 0 0 14pt;
-        border-bottom: 1px solid rgba(21,32,43,0.12);
+      .report-head {
+        display: none !important;
       }
 
-      .print-brand {
-        display: inline-flex;
-        align-items: center;
-        font-size: 13pt;
-        font-weight: 700;
-        color: #15202B;
-        letter-spacing: -0.02em;
-        margin-bottom: 14pt;
-      }
-
-      .print-brand::after {
-        content: "";
-        width: 6px;
-        height: 6px;
-        margin-left: 10px;
-        background: #3F6EA1;
-        border-radius: 1px;
-        display: inline-block;
-        transform: translateY(-1px);
-      }
-
-      .print-kicker {
-        margin: 0 0 8pt;
-        font-size: 7.5pt;
-        line-height: 1;
-        font-weight: 700;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-        color: #3F6EA1;
-      }
-
-      .print-title {
-        margin: 0 0 8pt;
-        font-size: 22pt;
-        line-height: 1.02;
-        letter-spacing: -0.04em;
-        font-weight: 700;
-        color: #15202B;
-      }
-
-      .print-subtitle {
+      .report-page {
         margin: 0;
-        max-width: 72ch;
-        font-size: 10.5pt;
-        line-height: 1.55;
-        color: #556270;
+        border: none;
+        box-shadow: none;
+        border-radius: 0;
+        page-break-after: always;
       }
 
-      .print-meta-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10pt;
-        margin-top: 16pt;
+      .report-page:last-child {
+        page-break-after: auto;
       }
 
-      .print-meta-card {
-        border: 1px solid rgba(21,32,43,0.08);
-        border-radius: 10pt;
-        padding: 10pt 10pt 8pt;
+      .report-page-head {
+        border-radius: 0;
       }
 
-      .print-meta-label {
-        margin: 0 0 5pt;
-        font-size: 7pt;
-        font-weight: 700;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
-        color: #7A8794;
-      }
-
-      .print-meta-value {
-        margin: 0;
-        font-size: 10pt;
-        line-height: 1.4;
-        color: #15202B;
-        font-weight: 600;
-      }
-
-      .results-intro {
-        page-break-after: avoid;
-      }
-
-      .score-panel,
-      .metric-strip,
-      .exposure-band,
-      .result-card,
-      .chart-card {
+      .report-box,
+      .report-metric,
+      .report-score-box,
+      .report-summary-box {
         break-inside: avoid;
-        page-break-inside: avoid;
-        box-shadow: none !important;
-      }
-
-      .score-panel {
-        margin-top: 2pt;
-      }
-
-      .chart-card {
-        min-height: 0 !important;
-      }
-
-      .chart-wrap {
-        height: 220pt !important;
-        min-height: 220pt !important;
-      }
-
-      .benchmark-footnote {
-        margin-top: 2pt;
       }
     }
   </style>
@@ -1600,7 +1775,7 @@
           <div class="hero-meta-card">
             <p class="hero-meta-title">What you get back</p>
             <p class="hero-meta-text">
-              A Structural Clarity index, executive signal, risk profile, time-money-resources framing, intervention order, and synthesis-ready signals.
+              A Structural Clarity index, executive signal, benchmark comparison, directional exposure estimates, intervention order, and synthesis-ready flags.
             </p>
           </div>
         </div>
@@ -1608,8 +1783,8 @@
     </section>
 
     <section class="page-grid" id="pageGrid">
-      <div class="panel" id="diagnosticPanel">
-        <div class="panel-head">
+      <div class="panel">
+        <div class="panel-head" id="diagnosticInputTop">
           <p class="panel-kicker">Diagnostic Input</p>
           <h2 class="panel-title">Assess one team, role boundary, or operating area.</h2>
           <p class="panel-copy">
@@ -1622,13 +1797,13 @@
             <label class="mode-card active" id="modeGuidedCard">
               <input type="radio" name="inputMode" value="guided" checked />
               <p class="mode-card-title">Guided Diagnostic</p>
-              <p class="mode-card-text">Best for leaders examining role clarity, ownership boundaries, and accountability structure.</p>
+              <p class="mode-card-text">Best for leaders examining role clarity, ownership boundaries, accountability structure, and practical structural exposure.</p>
             </label>
 
             <label class="mode-card" id="modeCsvCard">
               <input type="radio" name="inputMode" value="csv" />
               <p class="mode-card-title">Use Your Own Data</p>
-              <p class="mode-card-text">Upload a narrow CSV for a more structured readout of role and ownership clarity.</p>
+              <p class="mode-card-text">Upload a narrow CSV for a structured readout of role and ownership clarity with the same output framework.</p>
             </label>
           </div>
 
@@ -1999,210 +2174,278 @@
             </div>
           </form>
 
-          <div class="loading-state hidden" id="loadingState" aria-live="polite">
-            <span class="loading-spinner" aria-hidden="true"></span>
-            <span class="loading-text">Running structural clarity analysis and generating executive readout…</span>
+          <div class="loading-shell hidden" id="loadingShell" aria-live="polite">
+            <span class="spinner" aria-hidden="true"></span>
+            <div>
+              <p class="loading-text">Generating structural clarity readout...</p>
+              <p class="loading-subtext">This can take a few seconds while the diagnostic and narrative output are assembled.</p>
+            </div>
           </div>
+
+          <p class="error-note hidden" id="errorNote"></p>
 
           <section class="empty-state" id="resultsEmptyState" aria-live="polite">
             <h3 class="empty-state-title">Complete the diagnostic to generate your executive readout.</h3>
-            <p>The dashboard will populate with a Structural Clarity index, directional benchmark comparison, risk charts, time-money-resources framing, and synthesis-ready signals once inputs are submitted.</p>
+            <p>The dashboard will populate with a Structural Clarity index, directional benchmark comparison, time-money-resources estimates, leadership implications, and synthesis-ready signals once inputs are submitted.</p>
           </section>
 
           <section class="results-shell" id="resultsShell" aria-live="polite">
-            <section class="print-report-header print-only">
-              <div class="print-brand">Monderman</div>
-              <p class="print-kicker">Monderman Diagnostic Suite</p>
-              <h1 class="print-title">Structural Clarity Diagnostic Report</h1>
-              <p class="print-subtitle" id="printSubtitle">
-                Executive readout generated from Monderman’s Structural Clarity Diagnostic.
-              </p>
-
-              <div class="print-meta-grid">
-                <div class="print-meta-card">
-                  <p class="print-meta-label">Focus area</p>
-                  <p class="print-meta-value" id="printFocusArea">—</p>
-                </div>
-                <div class="print-meta-card">
-                  <p class="print-meta-label">Structure type</p>
-                  <p class="print-meta-value" id="printStructureType">—</p>
-                </div>
-                <div class="print-meta-card">
-                  <p class="print-meta-label">Generated</p>
-                  <p class="print-meta-value" id="printGeneratedDate">—</p>
-                </div>
-              </div>
-            </section>
-
             <div class="results-intro">
               <p class="results-kicker">Executive Readout</p>
               <h3 class="results-title">Structural clarity dashboard</h3>
               <p class="results-copy">
-                This readout is designed to make the structural pattern legible quickly: what condition is present, where the primary exposure sits, what lack of clarity may be costing, and what leadership should address first.
+                This readout is designed to make the structural pattern legible quickly: what condition is present, where the primary exposure sits, what it may be costing, and what leadership should address first.
               </p>
             </div>
 
-            <div class="score-panel">
-              <div class="score-panel-inner">
-                <div class="score-main">
+            <section class="score-hero">
+              <div class="score-hero-inner">
+                <div class="score-column">
                   <p class="score-label">Structural Clarity Index</p>
+                  <p class="score-number" id="scoreNumber">0</p>
+                  <p class="score-band" id="scoreBand">—</p>
+                </div>
 
-                  <div class="score-value-row">
-                    <p class="score-number" id="scoreNumber">0</p>
-                    <p class="score-band" id="scoreBand">—</p>
-                  </div>
-
+                <div class="score-main">
+                  <p class="score-status-line" id="scoreStatusLine">Complete the diagnostic to generate a readout.</p>
                   <p class="score-summary" id="scoreSummary">Complete the diagnostic to generate a readout.</p>
                 </div>
 
-                <div class="score-side">
-                  <div class="score-badge" id="scoreBadge">Diagnostic Ready</div>
-
-                  <div class="score-status-card">
-                    <p class="score-status-label">Status read</p>
-                    <p class="score-status-text" id="scoreStatusText">
-                      Awaiting input.
-                    </p>
-                  </div>
-                </div>
+                <div class="score-badge" id="scoreBadge">Diagnostic Ready</div>
               </div>
-            </div>
+            </section>
 
-            <div class="metric-strip">
-              <div class="metric-block">
+            <section class="metrics-strip">
+              <article class="metric-card">
                 <p class="metric-label">Benchmark</p>
                 <p class="metric-value" id="benchmarkValue">—</p>
                 <p class="metric-sub" id="benchmarkSub">Directional comparison</p>
-              </div>
+              </article>
 
-              <div class="metric-block">
+              <article class="metric-card">
                 <p class="metric-label">Time Risk</p>
-                <p class="metric-value" id="timeCostValue">—</p>
-                <p class="metric-sub" id="timeCostSub">Directional estimate</p>
-              </div>
+                <p class="metric-value" id="timeRiskValue">—</p>
+                <p class="metric-sub" id="timeRiskSub">Directional estimate</p>
+              </article>
 
-              <div class="metric-block">
+              <article class="metric-card">
                 <p class="metric-label">Money Risk</p>
-                <p class="metric-value" id="moneyCostValue">—</p>
-                <p class="metric-sub" id="moneyCostSub">Directional estimate</p>
-              </div>
+                <p class="metric-value" id="moneyRiskValue">—</p>
+                <p class="metric-sub" id="moneyRiskSub">Directional estimate</p>
+              </article>
 
-              <div class="metric-block">
+              <article class="metric-card">
                 <p class="metric-label">Resource Risk</p>
-                <p class="metric-value" id="resourceDragValue">—</p>
-                <p class="metric-sub" id="resourceDragSub">Estimated structural load</p>
-              </div>
+                <p class="metric-value" id="resourceRiskValue">—</p>
+                <p class="metric-sub" id="resourceRiskSub">Estimated structural load</p>
+              </article>
 
-              <div class="metric-block">
+              <article class="metric-card">
                 <p class="metric-label">Structure Type</p>
                 <p class="metric-value" id="categoryValue">—</p>
                 <p class="metric-sub" id="categorySub">Reference group</p>
-              </div>
-            </div>
+              </article>
+            </section>
 
             <p class="benchmark-footnote">
               Benchmark ranges shown here are Monderman directional reference ranges for comparable structure types, not audited market averages.
             </p>
 
-            <section class="exposure-band">
-              <div class="exposure-head">
-                <p class="exposure-kicker">Directional exposure estimate</p>
-                <h3 class="exposure-title">Estimated annual drag associated with structural ambiguity</h3>
-                <p class="exposure-copy" id="exposureCopy">
-                  Add optional signals such as meetings, loaded hourly cost, and number of people affected to produce a stronger directional estimate.
-                </p>
+            <section class="executive-grid">
+              <article class="premium-card emphasis">
+                <p class="card-kicker">Executive Signal</p>
+                <p class="card-copy" id="narrativeInterpretation"></p>
+              </article>
+
+              <article class="premium-card emphasis">
+                <p class="card-kicker">Leadership Priority</p>
+                <p class="card-copy" id="leadershipImplication"></p>
+              </article>
+            </section>
+
+            <section class="chart-grid">
+              <article class="chart-card">
+                <p class="card-kicker">Structural Dimensions</p>
+                <h4 class="card-title">Clarity by operating dimension</h4>
+                <div class="chart-wrap">
+                  <canvas id="frictionChart"></canvas>
+                </div>
+                <p class="chart-note">Higher values indicate clearer structure and lower ambiguity across the scored dimension.</p>
+              </article>
+
+              <article class="chart-card">
+                <p class="card-kicker">Synthesis Signals</p>
+                <h4 class="card-title">Severity profile across structural exposure</h4>
+                <div class="chart-wrap">
+                  <canvas id="slowdownChart"></canvas>
+                </div>
+                <p class="chart-note">These signals help connect structural clarity to broader diagnostic synthesis across drag, burden, and institutional condition.</p>
+              </article>
+            </section>
+
+            <section class="insight-grid">
+              <article class="premium-card">
+                <p class="card-kicker">Recommended Intervention Order</p>
+                <ul class="bullet-list" id="recommendations"></ul>
+              </article>
+
+              <article class="premium-card">
+                <p class="card-kicker">Trade-off Note</p>
+                <p class="card-copy" id="tradeoffNote"></p>
+              </article>
+
+              <article class="premium
+                -card">
+                <p class="card-kicker">Synthesis-Ready Flags</p>
+                <ul class="bullet-list" id="frictionFlags"></ul>
+              </article>
+
+              <article class="premium-card">
+                <p class="card-kicker">Time, Money, and Resources Summary</p>
+                <p class="card-copy" id="tmrSummary"></p>
+
+                <div class="tmr-grid">
+                  <div class="tmr-tile">
+                    <p class="tmr-label">Time Lost*</p>
+                    <p class="tmr-value" id="tmrHoursValue">—</p>
+                    <p class="tmr-sub" id="tmrHoursSub">Estimated annual hours absorbed by structural ambiguity.</p>
+                  </div>
+
+                  <div class="tmr-tile">
+                    <p class="tmr-label">Cost Exposure*</p>
+                    <p class="tmr-value" id="tmrMoneyValue">—</p>
+                    <p class="tmr-sub" id="tmrMoneySub">Estimated annual cost equivalent tied to this structural condition.</p>
+                  </div>
+
+                  <div class="tmr-tile">
+                    <p class="tmr-label">Capacity Drag*</p>
+                    <p class="tmr-value" id="tmrResourceValue">—</p>
+                    <p class="tmr-sub" id="tmrResourceSub">Estimated productive capacity diverted into coordination and clarification overhead.</p>
+                  </div>
+                </div>
+              </article>
+            </section>
+
+            <p class="tmr-estimate-note">
+              * These figures are directional estimates based on user input and structural diagnostic signals. They are intended as practical planning indicators, not audited measurements.
+            </p>
+
+            <section class="report-shell" id="reportShell">
+              <div class="report-head">
+                <div class="report-head-copy">
+                  <h4 class="report-head-title">Executive Summary PDF</h4>
+                  <p class="report-head-text">
+                    This export is designed as a clean leadership brief rather than a dashboard screenshot. It captures the structural condition, practical exposure, and first intervention priorities in a format better suited for internal review.
+                  </p>
+                </div>
+
+                <div class="report-actions">
+                  <button class="btn" id="downloadPdfBtn" type="button">Export Executive Summary PDF</button>
+                </div>
               </div>
 
-              <div class="exposure-grid">
-                <div class="exposure-card">
-                  <p class="exposure-label">Time</p>
-                  <p class="exposure-value" id="exposureHours">—</p>
-                  <p class="exposure-sub" id="exposureHoursSub">Estimated annual coordination hours</p>
+              <div class="report-page">
+                <div class="report-page-head">
+                  <div class="report-page-head-inner">
+                    <p class="report-page-kicker">Monderman Diagnostic Suite</p>
+                    <h4 class="report-page-title">Structural Clarity Executive Summary</h4>
+                    <p class="report-page-sub" id="reportPageSub">
+                      Directional readout of ownership clarity, authority alignment, accountability integrity, and resulting structural exposure.
+                    </p>
+                  </div>
                 </div>
 
-                <div class="exposure-card">
-                  <p class="exposure-label">Money</p>
-                  <p class="exposure-value" id="exposureMoney">—</p>
-                  <p class="exposure-sub" id="exposureMoneySub">Directional annual cost equivalent</p>
-                </div>
+                <div class="report-body">
+                  <div class="report-score-row">
+                    <div class="report-score-box">
+                      <p class="report-score-label">Index</p>
+                      <p class="report-score-number" id="reportScoreNumber">0</p>
+                      <p class="report-score-band" id="reportScoreBand">—</p>
+                    </div>
 
-                <div class="exposure-card">
-                  <p class="exposure-label">Resources</p>
-                  <p class="exposure-value" id="exposureResources">—</p>
-                  <p class="exposure-sub" id="exposureResourcesSub">Estimated productive capacity absorbed</p>
+                    <div class="report-summary-box">
+                      <h5 class="report-summary-title" id="reportStatusLine">Complete the diagnostic to generate a report.</h5>
+                      <p class="report-summary-copy" id="reportSummaryCopy">Complete the diagnostic to generate a report.</p>
+                    </div>
+                  </div>
+
+                  <div class="report-metrics">
+                    <div class="report-metric">
+                      <p class="report-metric-label">Benchmark</p>
+                      <p class="report-metric-value" id="reportBenchmarkValue">—</p>
+                      <p class="report-metric-sub" id="reportBenchmarkSub">Directional comparison</p>
+                    </div>
+
+                    <div class="report-metric">
+                      <p class="report-metric-label">Time Risk</p>
+                      <p class="report-metric-value" id="reportTimeRiskValue">—</p>
+                      <p class="report-metric-sub" id="reportTimeRiskSub">Directional estimate</p>
+                    </div>
+
+                    <div class="report-metric">
+                      <p class="report-metric-label">Money Risk</p>
+                      <p class="report-metric-value" id="reportMoneyRiskValue">—</p>
+                      <p class="report-metric-sub" id="reportMoneyRiskSub">Directional estimate</p>
+                    </div>
+
+                    <div class="report-metric">
+                      <p class="report-metric-label">Resource Risk</p>
+                      <p class="report-metric-value" id="reportResourceRiskValue">—</p>
+                      <p class="report-metric-sub" id="reportResourceRiskSub">Directional estimate</p>
+                    </div>
+
+                    <div class="report-metric">
+                      <p class="report-metric-label">Structure Type</p>
+                      <p class="report-metric-value" id="reportCategoryValue">—</p>
+                      <p class="report-metric-sub" id="reportCategorySub">Reference group</p>
+                    </div>
+                  </div>
+
+                  <div class="report-columns">
+                    <div class="report-box">
+                      <h5 class="report-box-title">Executive Signal</h5>
+                      <p class="report-box-copy" id="reportNarrativeInterpretation"></p>
+                    </div>
+
+                    <div class="report-box">
+                      <h5 class="report-box-title">Leadership Priority</h5>
+                      <p class="report-box-copy" id="reportLeadershipImplication"></p>
+                    </div>
+
+                    <div class="report-box">
+                      <h5 class="report-box-title">Recommended Intervention Order</h5>
+                      <ul id="reportRecommendations"></ul>
+                    </div>
+
+                    <div class="report-box">
+                      <h5 class="report-box-title">Trade-Off Note</h5>
+                      <p class="report-box-copy" id="reportTradeoffNote"></p>
+                    </div>
+
+                    <div class="report-box">
+                      <h5 class="report-box-title">Synthesis-Ready Flags</h5>
+                      <ul id="reportFrictionFlags"></ul>
+                    </div>
+
+                    <div class="report-box">
+                      <h5 class="report-box-title">Time, Money, and Resources Summary</h5>
+                      <p class="report-box-copy" id="reportTmrSummary"></p>
+                    </div>
+                  </div>
+
+                  <p class="report-estimate-note">
+                    * Time, money, and resource figures in this report are directional estimates derived from user input and Monderman’s structural diagnostic logic. They are not audited organizational measurements.
+                  </p>
                 </div>
               </div>
             </section>
 
-            <div class="results-grid">
-              <div class="result-card emphasis">
-                <h3 class="result-card-title">Executive signal</h3>
-                <p class="narrative-copy" id="narrativeInterpretation"></p>
-              </div>
-
-              <div class="result-card emphasis">
-                <h3 class="result-card-title">Leadership priority</h3>
-                <p class="narrative-copy" id="leadershipImplication"></p>
-              </div>
-            </div>
-
-            <div class="charts-grid">
-              <div class="chart-card">
-                <h3 class="chart-title">Structural dimensions</h3>
-                <p class="chart-subtitle">A view across the five underlying dimensions shaping structural clarity in this operating boundary.</p>
-                <div class="chart-wrap">
-                  <canvas id="frictionChart"></canvas>
-                </div>
-              </div>
-
-              <div class="chart-card">
-                <h3 class="chart-title">Synthesis signals</h3>
-                <p class="chart-subtitle">Directional severity across the broader downstream conditions typically associated with low structural clarity.</p>
-                <div class="chart-wrap">
-                  <canvas id="slowdownChart"></canvas>
-                </div>
-              </div>
-            </div>
-
-            <div class="results-grid">
-              <div class="result-card">
-                <h3 class="result-card-title">Recommended intervention order</h3>
-                <ul class="result-list" id="recommendations"></ul>
-              </div>
-
-              <div class="result-card">
-                <h3 class="result-card-title">Trade-off note</h3>
-                <p class="narrative-copy" id="tradeoffNote"></p>
-              </div>
-
-              <div class="result-card">
-                <h3 class="result-card-title">Synthesis-ready flags</h3>
-                <ul class="result-list" id="frictionFlags"></ul>
-              </div>
-
-              <div class="result-card">
-                <h3 class="result-card-title">Time, money, and resources summary</h3>
-                <p class="narrative-copy" id="tmrSummary"></p>
-              </div>
-            </div>
-
             <div class="post-results-bridge">
-              <div class="export-bridge">
-                <p class="bridge-kicker">Executive Output</p>
-                <h3 class="bridge-title">Export a clean summary for review or internal discussion.</h3>
-                <p class="bridge-copy">
-                  Use the summary export to capture the current directional readout in a format suitable for leadership review, discussion, or follow-on analysis.
-                </p>
-                <div class="bridge-actions">
-                  <button class="btn" id="downloadPdfBtn" type="button">Export Summary PDF</button>
-                </div>
-              </div>
-
-              <div class="advisory-bridge">
+              <div class="bridge-card">
                 <p class="bridge-kicker">Deeper Review</p>
                 <h3 class="bridge-title">Need a more forensic structural read?</h3>
                 <p class="bridge-copy">
-                  If this pattern appears broader, more persistent, or more consequential than a directional tool can resolve, Monderman’s advisory work can examine the underlying role design, boundary conditions, and coordination structure in more depth.
+                  If this pattern appears broader, more persistent, or more consequential than a directional tool can resolve, Monderman’s advisory work can examine the underlying role design, ownership logic, boundary conditions, and coordination structure in more depth.
                 </p>
                 <div class="bridge-actions">
                   <a class="btn btn-accent" href="advisory-services.html">Explore Advisory Engagements</a>
@@ -2210,11 +2453,11 @@
                 </div>
               </div>
 
-              <div class="synthesis-bridge">
+              <div class="bridge-card">
                 <p class="bridge-kicker">Cross-Tool Synthesis</p>
                 <h3 class="bridge-title">Add this result to a broader institutional view.</h3>
                 <p class="bridge-copy">
-                  This result is automatically saved for later cross-tool synthesis. As you complete additional diagnostics, Monderman can build a more integrated view across structure, decision pathways, operating burden, and institutional condition.
+                  This result is automatically saved for later cross-tool synthesis. As additional diagnostics are completed, Monderman can build a more integrated picture across structure, decision pathways, operating burden, and institutional condition.
                 </p>
                 <div class="bridge-actions">
                   <a class="btn btn-secondary" href="cross-tool-synthesis.html">Open Cross-Tool Synthesis</a>
@@ -2228,8 +2471,6 @@
               <button class="btn" id="startOverBtn" type="button">Start Over</button>
             </div>
           </section>
-
-          <p class="error-note hidden" id="errorNote"></p>
         </div>
       </div>
 
@@ -2237,7 +2478,7 @@
         <div class="mini-card">
           <h3 class="mini-card-title">How this works</h3>
           <p>
-            This diagnostic evaluates one structural boundary at a time. It translates signals about ownership, authority, and accountability into a directional readout of structural clarity.
+            This diagnostic evaluates one structural boundary at a time. It translates signals about ownership, authority, and accountability into a directional readout of structural clarity and practical structural exposure.
           </p>
         </div>
 
@@ -2265,7 +2506,7 @@
         <div class="mini-card">
           <h3 class="mini-card-title">What to trust</h3>
           <p>
-            Trust the structural pattern, not false precision. The strongest value here is surfacing where ownership, authority, and accountability no longer align cleanly.
+            Trust the structural pattern, not false precision. The strongest value here is surfacing where ownership, authority, and accountability no longer align cleanly—and what that misalignment may be costing.
           </p>
         </div>
       </aside>
@@ -2284,12 +2525,13 @@
     const STRUCTURAL_CLARITY_API_KEY = "272cf20566a5333213e3a0f1c77d6512";
 
     const pageGrid = document.getElementById("pageGrid");
-    const diagnosticPanel = document.getElementById("diagnosticPanel");
     const guidedForm = document.getElementById("guidedForm");
     const csvForm = document.getElementById("csvForm");
     const resultsShell = document.getElementById("resultsShell");
     const resultsEmptyState = document.getElementById("resultsEmptyState");
-    const loadingState = document.getElementById("loadingState");
+    const loadingShell = document.getElementById("loadingShell");
+    const errorNote = document.getElementById("errorNote");
+    const diagnosticInputTop = document.getElementById("diagnosticInputTop");
 
     const modeGuidedCard = document.getElementById("modeGuidedCard");
     const modeCsvCard = document.getElementById("modeCsvCard");
@@ -2305,41 +2547,56 @@
 
     const scoreNumber = document.getElementById("scoreNumber");
     const scoreBand = document.getElementById("scoreBand");
+    const scoreStatusLine = document.getElementById("scoreStatusLine");
     const scoreSummary = document.getElementById("scoreSummary");
     const scoreBadge = document.getElementById("scoreBadge");
-    const scoreStatusText = document.getElementById("scoreStatusText");
 
     const benchmarkValue = document.getElementById("benchmarkValue");
     const benchmarkSub = document.getElementById("benchmarkSub");
-    const timeCostValue = document.getElementById("timeCostValue");
-    const timeCostSub = document.getElementById("timeCostSub");
-    const moneyCostValue = document.getElementById("moneyCostValue");
-    const moneyCostSub = document.getElementById("moneyCostSub");
-    const resourceDragValue = document.getElementById("resourceDragValue");
-    const resourceDragSub = document.getElementById("resourceDragSub");
+    const timeRiskValue = document.getElementById("timeRiskValue");
+    const timeRiskSub = document.getElementById("timeRiskSub");
+    const moneyRiskValue = document.getElementById("moneyRiskValue");
+    const moneyRiskSub = document.getElementById("moneyRiskSub");
+    const resourceRiskValue = document.getElementById("resourceRiskValue");
+    const resourceRiskSub = document.getElementById("resourceRiskSub");
     const categoryValue = document.getElementById("categoryValue");
     const categorySub = document.getElementById("categorySub");
 
-    const exposureCopy = document.getElementById("exposureCopy");
-    const exposureHours = document.getElementById("exposureHours");
-    const exposureHoursSub = document.getElementById("exposureHoursSub");
-    const exposureMoney = document.getElementById("exposureMoney");
-    const exposureMoneySub = document.getElementById("exposureMoneySub");
-    const exposureResources = document.getElementById("exposureResources");
-    const exposureResourcesSub = document.getElementById("exposureResourcesSub");
-
-    const frictionFlags = document.getElementById("frictionFlags");
-    const recommendations = document.getElementById("recommendations");
     const narrativeInterpretation = document.getElementById("narrativeInterpretation");
     const leadershipImplication = document.getElementById("leadershipImplication");
     const tradeoffNote = document.getElementById("tradeoffNote");
     const tmrSummary = document.getElementById("tmrSummary");
-    const errorNote = document.getElementById("errorNote");
+    const frictionFlags = document.getElementById("frictionFlags");
+    const recommendations = document.getElementById("recommendations");
 
-    const printSubtitle = document.getElementById("printSubtitle");
-    const printFocusArea = document.getElementById("printFocusArea");
-    const printStructureType = document.getElementById("printStructureType");
-    const printGeneratedDate = document.getElementById("printGeneratedDate");
+    const tmrHoursValue = document.getElementById("tmrHoursValue");
+    const tmrHoursSub = document.getElementById("tmrHoursSub");
+    const tmrMoneyValue = document.getElementById("tmrMoneyValue");
+    const tmrMoneySub = document.getElementById("tmrMoneySub");
+    const tmrResourceValue = document.getElementById("tmrResourceValue");
+    const tmrResourceSub = document.getElementById("tmrResourceSub");
+
+    const reportScoreNumber = document.getElementById("reportScoreNumber");
+    const reportScoreBand = document.getElementById("reportScoreBand");
+    const reportStatusLine = document.getElementById("reportStatusLine");
+    const reportSummaryCopy = document.getElementById("reportSummaryCopy");
+    const reportBenchmarkValue = document.getElementById("reportBenchmarkValue");
+    const reportBenchmarkSub = document.getElementById("reportBenchmarkSub");
+    const reportTimeRiskValue = document.getElementById("reportTimeRiskValue");
+    const reportTimeRiskSub = document.getElementById("reportTimeRiskSub");
+    const reportMoneyRiskValue = document.getElementById("reportMoneyRiskValue");
+    const reportMoneyRiskSub = document.getElementById("reportMoneyRiskSub");
+    const reportResourceRiskValue = document.getElementById("reportResourceRiskValue");
+    const reportResourceRiskSub = document.getElementById("reportResourceRiskSub");
+    const reportCategoryValue = document.getElementById("reportCategoryValue");
+    const reportCategorySub = document.getElementById("reportCategorySub");
+    const reportNarrativeInterpretation = document.getElementById("reportNarrativeInterpretation");
+    const reportLeadershipImplication = document.getElementById("reportLeadershipImplication");
+    const reportRecommendations = document.getElementById("reportRecommendations");
+    const reportTradeoffNote = document.getElementById("reportTradeoffNote");
+    const reportFrictionFlags = document.getElementById("reportFrictionFlags");
+    const reportTmrSummary = document.getElementById("reportTmrSummary");
+    const reportPageSub = document.getElementById("reportPageSub");
 
     const stepPills = Array.from(document.querySelectorAll(".step-pill"));
     const stepPanels = Array.from(document.querySelectorAll(".step-panel"));
@@ -2349,8 +2606,6 @@
     let currentStep = 1;
     let dimensionsChart;
     let synthesisChart;
-    let lastInputs = {};
-    let lastContext = {};
 
     const BENCHMARKS = {
       functional: { label: "Functional team", healthyMin: 76, healthyMax: 88, moderateMin: 62, moderateMax: 75, frictionMin: 46, frictionMax: 61 },
@@ -2375,6 +2630,12 @@
       very_high: 100
     };
 
+    function scrollToInputTop() {
+      if (diagnosticInputTop) {
+        diagnosticInputTop.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
     function setMode(mode) {
       const guided = mode === "guided";
       guidedForm.classList.toggle("hidden", !guided);
@@ -2385,12 +2646,6 @@
 
     function setResultsLayout(active) {
       pageGrid.classList.toggle("results-active", active);
-    }
-
-    function scrollToToolTop() {
-      const offset = 84;
-      const top = diagnosticPanel.getBoundingClientRect().top + window.pageYOffset - offset;
-      window.scrollTo({ top, behavior: "smooth" });
     }
 
     function updateStepUI() {
@@ -2424,16 +2679,23 @@
       updateStepUI();
 
       if (shouldScroll) {
-        const topTarget = document.querySelector(".stepper");
-        if (topTarget) {
-          topTarget.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        const stepper = document.querySelector(".stepper");
+        if (stepper) {
+          stepper.scrollIntoView({ behavior: "smooth", block: "nearest" });
         }
       }
     }
 
     function setLoadingState(isLoading) {
-      loadingState.classList.toggle("active", isLoading);
-      loadingState.classList.toggle("hidden", !isLoading);
+      loadingShell.classList.toggle("hidden", !isLoading);
+      loadingShell.classList.toggle("active", isLoading);
+      errorNote.classList.add("hidden");
+      errorNote.textContent = "";
+    }
+
+    function clearMessages() {
+      loadingShell.classList.add("hidden");
+      loadingShell.classList.remove("active");
       errorNote.classList.add("hidden");
       errorNote.textContent = "";
     }
@@ -2441,15 +2703,8 @@
     function setError(message) {
       errorNote.textContent = message;
       errorNote.classList.remove("hidden");
-      loadingState.classList.remove("active");
-      loadingState.classList.add("hidden");
-    }
-
-    function clearMessages() {
-      loadingState.classList.remove("active");
-      loadingState.classList.add("hidden");
-      errorNote.classList.add("hidden");
-      errorNote.textContent = "";
+      loadingShell.classList.add("hidden");
+      loadingShell.classList.remove("active");
     }
 
     stepPills.forEach((pill, index) => {
@@ -2477,17 +2732,17 @@
     startGuidedBtn.addEventListener("click", () => {
       setMode("guided");
       goToStep(1, false);
-      scrollToToolTop();
+      scrollToInputTop();
     });
 
     startUploadBtn.addEventListener("click", () => {
       setMode("csv");
-      scrollToToolTop();
+      scrollToInputTop();
     });
 
     backToGuidedBtn.addEventListener("click", () => {
       setMode("guided");
-      scrollToToolTop();
+      scrollToInputTop();
     });
 
     resetFormBtn.addEventListener("click", () => {
@@ -2497,7 +2752,7 @@
       resultsEmptyState.classList.remove("hidden");
       setResultsLayout(false);
       clearMessages();
-      scrollToToolTop();
+      scrollToInputTop();
     });
 
     editInputsBtn.addEventListener("click", () => {
@@ -2505,7 +2760,7 @@
       resultsEmptyState.classList.remove("hidden");
       setResultsLayout(false);
       clearMessages();
-      scrollToToolTop();
+      scrollToInputTop();
     });
 
     startOverBtn.addEventListener("click", () => {
@@ -2517,7 +2772,7 @@
       setResultsLayout(false);
       setMode("guided");
       clearMessages();
-      scrollToToolTop();
+      window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
     downloadTemplateLink.addEventListener("click", (e) => {
@@ -2554,95 +2809,38 @@
       return severityLabels[value] || value || "—";
     }
 
-    function formatNumberCompact(value) {
-      if (!Number.isFinite(value)) return "—";
-      if (value >= 1000000) return `${(value / 1000000).toFixed(1).replace(/\.0$/, "")}M`;
-      if (value >= 1000) return `${Math.round(value / 1000)}k`;
-      return `${Math.round(value)}`;
+    function getBenchmarkPosition(score, benchmark) {
+      if (score > benchmark.healthyMax) return "Above comparable range";
+      if (score >= benchmark.moderateMin) return "Within comparable range";
+      return "Below comparable range";
     }
 
-    function formatCurrencyCompact(value) {
-      if (!Number.isFinite(value)) return "—";
+    function formatCompactCurrency(value) {
+      if (!Number.isFinite(value) || value <= 0) return "$0";
       if (value >= 1000000000) return `$${(value / 1000000000).toFixed(1).replace(/\.0$/, "")}B`;
       if (value >= 1000000) return `$${(value / 1000000).toFixed(1).replace(/\.0$/, "")}M`;
       if (value >= 1000) return `$${Math.round(value / 1000)}K`;
       return `$${Math.round(value)}`;
     }
 
-    function getPeopleAffectedEstimate(inputs) {
-      if (Number(inputs.peopleAffected) > 0) return Number(inputs.peopleAffected);
-      const fallback = {
-        small: 8,
-        medium: 28,
-        large: 90,
-        "very-large": 180
-      };
-      return fallback[inputs.scopeSize] || 20;
+    function formatCompactHours(value) {
+      if (!Number.isFinite(value) || value <= 0) return "0 hrs";
+      if (value >= 1000000) return `${(value / 1000000).toFixed(1).replace(/\.0$/, "")}M hrs`;
+      if (value >= 1000) return `${Math.round(value / 1000)}k hrs`;
+      return `${Math.round(value)} hrs`;
     }
 
-    function getHoursPerIssue(severity) {
-      const map = {
-        low: 1.5,
-        moderate: 3,
-        high: 5,
-        very_high: 7
-      };
-      return map[severity] || 3;
+    function formatPercent(value) {
+      if (!Number.isFinite(value) || value <= 0) return "0%";
+      return `${Math.round(value)}%`;
     }
 
-    function buildExposureEstimate(result, inputs = {}) {
-      const peopleAffected = getPeopleAffectedEstimate(inputs);
-      const hourlyCost = Number(inputs.hourlyCost) > 0 ? Number(inputs.hourlyCost) : 95;
-      const meetingsPerWeek = Math.max(0, Number(inputs.meetingsPerWeek) || 0);
-      const issuesPerMonth = Math.max(0, Number(inputs.issuesPerMonth) || 0);
-      const dragSeverity = result.synthesis_signals?.drag_severity || "moderate";
-      const coordinationBurden = result.synthesis_signals?.coordination_burden || "moderate";
-
-      const activeMeetingParticipants = clamp(Math.ceil(peopleAffected * 0.3), 2, 8);
-      const weeklyMeetingHours = meetingsPerWeek * activeMeetingParticipants * 1.0;
-      const monthlyIssueHours = issuesPerMonth * getHoursPerIssue(coordinationBurden) * clamp(Math.ceil(peopleAffected * 0.2), 1, 6) * 12;
-      const annualCoordinationHours = (weeklyMeetingHours * 52) + monthlyIssueHours;
-
-      const severityMultiplier = {
-        low: 0.85,
-        moderate: 1.0,
-        high: 1.25,
-        very_high: 1.5
-      }[dragSeverity] || 1.0;
-
-      const adjustedHours = annualCoordinationHours * severityMultiplier;
-      const annualCost = adjustedHours * hourlyCost;
-      const annualAvailableHours = peopleAffected * 1920;
-      const resourceShare = annualAvailableHours > 0 ? clamp((adjustedHours / annualAvailableHours) * 100, 1, 38) : 0;
-
-      const hasStrongInputs = Number(inputs.peopleAffected) > 0 && Number(inputs.hourlyCost) > 0 && (Number(inputs.meetingsPerWeek) > 0 || Number(inputs.issuesPerMonth) > 0);
-
-      return {
-        hours: adjustedHours,
-        cost: annualCost,
-        resourcePct: resourceShare,
-        peopleAffected,
-        hasStrongInputs
-      };
-    }
-
-    function renderExposureEstimate(result, inputs) {
-      const estimate = buildExposureEstimate(result, inputs);
-
-      exposureHours.textContent = `${formatNumberCompact(estimate.hours)} hrs`;
-      exposureHoursSub.textContent = `Estimated annual coordination hours across roughly ${estimate.peopleAffected} people`;
-
-      exposureMoney.textContent = formatCurrencyCompact(estimate.cost);
-      exposureMoneySub.textContent = estimate.hasStrongInputs
-        ? "Directional annual cost equivalent based on your optional inputs"
-        : "Directional annual cost equivalent using Monderman fallback assumptions";
-
-      exposureResources.textContent = `${Math.round(estimate.resourcePct)}%`;
-      exposureResourcesSub.textContent = "Estimated productive capacity absorbed by recurring structural ambiguity";
-
-      exposureCopy.textContent = estimate.hasStrongInputs
-        ? "Based on the optional operating signals you provided, this is a directional estimate of annual leadership and coordination drag associated with unclear ownership, handoffs, escalation, and accountability."
-        : "Because limited optional operating data was provided, this estimate uses Monderman fallback assumptions tied to structure type, affected scope, and drag severity. Add meetings, loaded hourly cost, and people affected to sharpen the estimate.";
+    function getStatusLine(index) {
+      if (index >= 85) return "Structure is supporting execution with relatively limited ambiguity exposure.";
+      if (index >= 70) return "Structure is functional, but friction is forming in specific boundary conditions.";
+      if (index >= 55) return "Structural ambiguity is materially constraining execution and leadership attention.";
+      if (index >= 40) return "Structural clarity is weak enough to create recurring drag, rework, and misalignment.";
+      return "Structural ambiguity is now severe enough to threaten coordination, accountability, and execution quality.";
     }
 
     function buildApiPayloadFromGuided(data) {
@@ -2736,12 +2934,6 @@
       };
     }
 
-    function getBenchmarkPosition(score, benchmark) {
-      if (score > benchmark.healthyMax) return "Above comparable range";
-      if (score >= benchmark.moderateMin) return "Within comparable range";
-      return "Below comparable range";
-    }
-
     function renderList(el, items) {
       el.innerHTML = "";
       items.forEach((item) => {
@@ -2771,57 +2963,39 @@
       return lines;
     }
 
-    function composeScoreBand(index, band) {
-      const normalized = String(band || "").toLowerCase();
+    function buildExposureEstimates(contextMeta, apiResponse) {
+      const meetingsPerWeek = Number(contextMeta.meetingsPerWeek || 0);
+      const peopleAffected = Number(contextMeta.peopleAffected || 0);
+      const issuesPerMonth = Number(contextMeta.issuesPerMonth || 0);
+      const hourlyCost = Number(contextMeta.hourlyCost || 0);
 
-      if (normalized.includes("low")) {
-        return "Low clarity | structural ambiguity is constraining execution";
-      }
-      if (normalized.includes("moderate")) {
-        return "Moderate clarity | structural drag is forming around the operating boundary";
-      }
-      if (normalized.includes("high")) {
-        return "High clarity | core ownership and accountability remain relatively intact";
-      }
+      const index = Number(apiResponse?.result?.headline?.index || 0);
+      const severityFactor = clamp((100 - index) / 100, 0.12, 0.85);
 
-      if (Number(index) <= 55) return "Low clarity | structural ambiguity is constraining execution";
-      if (Number(index) <= 74) return "Moderate clarity | structural drag is forming around the operating boundary";
-      return "High clarity | core ownership and accountability remain relatively intact";
+      const fallbackPeople = contextMeta.scopeSize === "small" ? 6 :
+        contextMeta.scopeSize === "medium" ? 24 :
+        contextMeta.scopeSize === "large" ? 80 : 180;
+
+      const people = peopleAffected > 0 ? peopleAffected : fallbackPeople;
+      const rate = hourlyCost > 0 ? hourlyCost : 85;
+
+      const baseMeetings = meetingsPerWeek > 0 ? meetingsPerWeek : Math.max(1, Math.round((issuesPerMonth || 4) / 2));
+      const issues = issuesPerMonth > 0 ? issuesPerMonth : Math.max(4, baseMeetings * 3);
+
+      const meetingHoursAnnual = baseMeetings * 52 * 1.25;
+      const issueResolutionHoursAnnual = issues * 12 * 1.15;
+      const affectedHoursAnnual = people * (3.5 + (severityFactor * 10.5));
+      const annualHours = Math.round((meetingHoursAnnual + issueResolutionHoursAnnual + affectedHoursAnnual) * clamp(0.72 + severityFactor, 0.78, 1.5));
+
+      const annualCost = Math.round(annualHours * rate);
+      const capacityDrag = clamp((severityFactor * 32) + (people > 0 ? Math.min(10, people / 10) : 0), 6, 38);
+
+      return {
+        annualHours,
+        annualCost,
+        capacityDrag
+      };
     }
-
-    function composeStatusText(result) {
-      const signals = result.synthesis_signals || {};
-      const drag = formatSeverity(signals.drag_severity).toLowerCase();
-      const coord = formatSeverity(signals.coordination_burden).toLowerCase();
-
-      return `Current pattern indicates ${drag} structural drag with ${coord} coordination burden.`;
-    }
-
-    const benchmarkBandPlugin = {
-      id: "benchmarkBandPlugin",
-      beforeDatasetsDraw(chart) {
-        if (chart.canvas.id !== "frictionChart") return;
-
-        const { ctx, chartArea, scales } = chart;
-        if (!chartArea || !scales?.x) return;
-
-        const xScale = scales.x;
-        const moderateStart = xScale.getPixelForValue(55);
-        const healthyStart = xScale.getPixelForValue(75);
-
-        ctx.save();
-
-        ctx.fillStyle = "rgba(184,134,11,0.05)";
-        ctx.fillRect(moderateStart, chartArea.top, healthyStart - moderateStart, chartArea.bottom - chartArea.top);
-
-        ctx.fillStyle = "rgba(46,139,87,0.05)";
-        ctx.fillRect(healthyStart, chartArea.top, chartArea.right - healthyStart, chartArea.bottom - chartArea.top);
-
-        ctx.restore();
-      }
-    };
-
-    Chart.register(benchmarkBandPlugin);
 
     function renderCharts(apiResponse) {
       const result = apiResponse.result;
@@ -2855,33 +3029,32 @@
             label: "Dimension score",
             data: dimensionData.map(d => d.value),
             backgroundColor: [
-              "rgba(63,110,161,0.88)",
+              "rgba(63,110,161,0.92)",
               "rgba(63,110,161,0.82)",
               "rgba(63,110,161,0.72)",
-              "rgba(63,110,161,0.78)",
-              "rgba(63,110,161,0.76)"
+              "rgba(47,88,134,0.78)",
+              "rgba(32,56,84,0.84)"
             ],
-            borderRadius: 12,
-            borderSkipped: false,
-            maxBarThickness: 30,
-            categoryPercentage: 0.74,
-            barPercentage: 0.9
+            borderRadius: 10,
+            maxBarThickness: 28,
+            borderSkipped: false
           }]
         },
         options: {
           indexAxis: "y",
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { top: 6, right: 10, bottom: 2, left: 4 } },
+          layout: { padding: { right: 6, left: 2, top: 4, bottom: 4 } },
           plugins: {
             legend: { display: false },
             tooltip: {
-              backgroundColor: "#0F1720",
-              titleColor: "#F5F7FA",
-              bodyColor: "#F5F7FA",
+              backgroundColor: "rgba(15,23,32,0.94)",
+              titleColor: "#FFFFFF",
+              bodyColor: "rgba(245,247,250,0.88)",
+              padding: 12,
               displayColors: false,
               callbacks: {
-                label: (context) => `${context.parsed.x}/100`
+                label: (ctx) => `Score: ${ctx.raw}`
               }
             }
           },
@@ -2890,22 +3063,23 @@
               beginAtZero: true,
               max: 100,
               grid: {
-                color: "rgba(21,32,43,0.05)",
+                color: "rgba(21,32,43,0.06)",
                 drawBorder: false
               },
               border: { display: false },
               ticks: {
                 color: "#6B7785",
-                stepSize: 25,
-                font: { size: 11 }
+                precision: 0,
+                padding: 8
               }
             },
             y: {
               grid: { display: false },
               border: { display: false },
               ticks: {
-                color: "#43515E",
-                font: { size: 12, weight: "500" }
+                color: "#44515E",
+                font: { size: 12, weight: "500" },
+                padding: 10
               }
             }
           }
@@ -2920,38 +3094,36 @@
             label: "Severity",
             data: synthesisData.map(d => d.value),
             backgroundColor: [
-              "rgba(63,110,161,0.82)",
-              "rgba(63,110,161,0.64)",
+              "rgba(63,110,161,0.84)",
+              "rgba(95,132,177,0.84)",
               "rgba(184,134,11,0.78)",
-              "rgba(184,80,94,0.76)",
-              "rgba(184,80,94,0.90)"
+              "rgba(184,104,80,0.82)",
+              "rgba(184,80,94,0.88)"
             ],
-            borderRadius: 14,
-            borderSkipped: false,
-            maxBarThickness: 48,
-            categoryPercentage: 0.64,
-            barPercentage: 0.82
+            borderRadius: 10,
+            maxBarThickness: 42,
+            borderSkipped: false
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { top: 6, right: 6, bottom: 0, left: 0 } },
+          layout: { padding: { right: 6, left: 2, top: 4, bottom: 2 } },
           plugins: {
             legend: { display: false },
             tooltip: {
-              backgroundColor: "#0F1720",
-              titleColor: "#F5F7FA",
-              bodyColor: "#F5F7FA",
+              backgroundColor: "rgba(15,23,32,0.94)",
+              titleColor: "#FFFFFF",
+              bodyColor: "rgba(245,247,250,0.88)",
+              padding: 12,
               displayColors: false,
               callbacks: {
-                label: (context) => {
-                  const v = context.parsed.y;
-                  if (v === 25) return "Low";
-                  if (v === 50) return "Moderate";
-                  if (v === 75) return "High";
-                  if (v === 100) return "Very high";
-                  return `${v}`;
+                label: (ctx) => {
+                  if (ctx.raw === 25) return "Severity: Low";
+                  if (ctx.raw === 50) return "Severity: Moderate";
+                  if (ctx.raw === 75) return "Severity: High";
+                  if (ctx.raw === 100) return "Severity: Very high";
+                  return `Severity score: ${ctx.raw}`;
                 }
               }
             }
@@ -2961,28 +3133,23 @@
               grid: { display: false },
               border: { display: false },
               ticks: {
-                color: "#556270",
+                color: "#44515E",
+                font: { size: 11, weight: "500" },
                 maxRotation: 18,
-                minRotation: 18,
-                font: { size: 11 },
-                callback: function(value) {
-                  const label = this.getLabelForValue(value);
-                  return label.length > 18 ? label.slice(0, 18) + "…" : label;
-                }
+                minRotation: 18
               }
             },
             y: {
               beginAtZero: true,
               max: 100,
               grid: {
-                color: "rgba(21,32,43,0.05)",
+                color: "rgba(21,32,43,0.06)",
                 drawBorder: false
               },
               border: { display: false },
               ticks: {
                 color: "#6B7785",
-                stepSize: 25,
-                font: { size: 11 },
+                padding: 8,
                 callback: function(value) {
                   if (value === 25) return "Low";
                   if (value === 50) return "Moderate";
@@ -3006,7 +3173,11 @@
           completed_at: new Date().toISOString(),
           focus_area: meta.focusArea || "",
           structure_type: meta.structureType || "",
-          description: meta.description || ""
+          description: meta.description || "",
+          meetings_per_week: meta.meetingsPerWeek || "",
+          hourly_cost: meta.hourlyCost || "",
+          people_affected: meta.peopleAffected || "",
+          issues_per_month: meta.issuesPerMonth || ""
         }
       };
 
@@ -3014,49 +3185,37 @@
       localStorage.setItem("monderman_structural_clarity_result", JSON.stringify(existing.structural_clarity));
     }
 
-    function updatePrintHeader(contextMeta) {
-      const date = new Date();
-      printFocusArea.textContent = contextMeta.focusArea || "Structural Clarity";
-      printStructureType.textContent = (BENCHMARKS[contextMeta.structureType] || BENCHMARKS.other).label;
-      printGeneratedDate.textContent = date.toLocaleDateString(undefined, {
-        year: "numeric",
-        month: "long",
-        day: "numeric"
-      });
-      printSubtitle.textContent = contextMeta.description
-        ? contextMeta.description
-        : "Executive readout generated from Monderman’s Structural Clarity Diagnostic.";
-    }
-
-    function renderResults(apiResponse, contextMeta = {}, sourceInputs = {}) {
-      const result = apiResponse.result;
+    function renderResults(apiResponse, contextMeta = {}) {
+      const result = apiResponse.result || {};
       const headline = result.headline || {};
       const readout = result.executive_readout || {};
       const risk = result.risk_profile || {};
       const benchmark = BENCHMARKS[contextMeta.structureType] || BENCHMARKS.other;
       const benchmarkPosition = getBenchmarkPosition(headline.index || 0, benchmark);
+      const exposure = buildExposureEstimates(contextMeta, apiResponse);
+      const statusLine = getStatusLine(Number(headline.index || 0));
 
       resultsEmptyState.classList.add("hidden");
       resultsShell.classList.add("active");
       setResultsLayout(true);
 
       scoreNumber.textContent = headline.index ?? "—";
-      scoreBand.textContent = composeScoreBand(headline.index, headline.band);
-      scoreBadge.textContent = contextMeta.focusArea || apiResponse.tool_label || "Structural Clarity";
+      scoreBand.textContent = headline.band || "—";
+      scoreStatusLine.textContent = statusLine;
       scoreSummary.textContent = readout.executive_signal || "Readout generated.";
-      scoreStatusText.textContent = composeStatusText(result);
+      scoreBadge.textContent = contextMeta.focusArea || apiResponse.tool_label || "Structural Clarity";
 
       benchmarkValue.textContent = benchmarkPosition;
       benchmarkSub.textContent = `${benchmark.label}: ${benchmark.moderateMin}–${benchmark.healthyMax}`;
 
-      timeCostValue.textContent = formatSeverity(risk.time_risk);
-      timeCostSub.textContent = "Directional time exposure";
+      timeRiskValue.textContent = formatSeverity(risk.time_risk);
+      timeRiskSub.textContent = "Directional exposure";
 
-      moneyCostValue.textContent = formatSeverity(risk.money_risk);
-      moneyCostSub.textContent = "Directional cost exposure";
+      moneyRiskValue.textContent = formatSeverity(risk.money_risk);
+      moneyRiskSub.textContent = "Directional exposure";
 
-      resourceDragValue.textContent = formatSeverity(risk.resource_risk);
-      resourceDragSub.textContent = "Directional resource exposure";
+      resourceRiskValue.textContent = formatSeverity(risk.resource_risk);
+      resourceRiskSub.textContent = "Directional exposure";
 
       categoryValue.textContent = benchmark.label;
       categorySub.textContent = "Reference group";
@@ -3065,6 +3224,15 @@
       leadershipImplication.textContent = readout.priority || "—";
       tradeoffNote.textContent = result.tradeoff_note || "—";
       tmrSummary.textContent = readout.time_money_resources_summary || "—";
+
+      tmrHoursValue.textContent = `${formatCompactHours(exposure.annualHours)}*`;
+      tmrHoursSub.textContent = `Estimated annual hours absorbed across approximately ${Number(contextMeta.peopleAffected || 0) || (contextMeta.scopeSize === "small" ? 6 : contextMeta.scopeSize === "medium" ? 24 : contextMeta.scopeSize === "large" ? 80 : 180)} people.`;
+
+      tmrMoneyValue.textContent = `${formatCompactCurrency(exposure.annualCost)}*`;
+      tmrMoneySub.textContent = `Estimated annual cost equivalent using ${contextMeta.hourlyCost ? `$${contextMeta.hourlyCost}/hr` : "a default loaded rate assumption"}.`;
+
+      tmrResourceValue.textContent = `${formatPercent(exposure.capacityDrag)}*`;
+      tmrResourceSub.textContent = "Estimated share of productive capacity diverted into clarification, coordination, and structural rework.";
 
       renderList(recommendations, result.intervention_order || []);
 
@@ -3075,9 +3243,30 @@
       ];
       renderList(frictionFlags, signalLines);
 
-      renderExposureEstimate(result, sourceInputs);
+      reportScoreNumber.textContent = headline.index ?? "—";
+      reportScoreBand.textContent = headline.band || "—";
+      reportStatusLine.textContent = statusLine;
+      reportSummaryCopy.textContent = readout.executive_signal || "Readout generated.";
+      reportBenchmarkValue.textContent = benchmarkPosition;
+      reportBenchmarkSub.textContent = `${benchmark.label}: ${benchmark.moderateMin}–${benchmark.healthyMax}`;
+      reportTimeRiskValue.textContent = formatSeverity(risk.time_risk);
+      reportTimeRiskSub.textContent = "Directional exposure";
+      reportMoneyRiskValue.textContent = formatSeverity(risk.money_risk);
+      reportMoneyRiskSub.textContent = "Directional exposure";
+      reportResourceRiskValue.textContent = formatSeverity(risk.resource_risk);
+      reportResourceRiskSub.textContent = "Directional exposure";
+      reportCategoryValue.textContent = benchmark.label;
+      reportCategorySub.textContent = "Reference group";
+      reportNarrativeInterpretation.textContent = readout.executive_signal || "—";
+      reportLeadershipImplication.textContent = readout.priority || "—";
+      reportTradeoffNote.textContent = result.tradeoff_note || "—";
+      reportTmrSummary.textContent = `${readout.time_money_resources_summary || "—"} Estimated exposure: ${formatCompactHours(exposure.annualHours)}*, ${formatCompactCurrency(exposure.annualCost)}*, ${formatPercent(exposure.capacityDrag)}* capacity drag.`;
+      reportPageSub.textContent = `${contextMeta.focusArea || "Structural boundary"} · ${benchmark.label} · ${contextMeta.description || "Directional structural clarity readout for leadership review."}`;
+
+      renderList(reportRecommendations, result.intervention_order || []);
+      renderList(reportFrictionFlags, signalLines);
+
       renderCharts(apiResponse);
-      updatePrintHeader(contextMeta);
       saveForSynthesis(apiResponse, contextMeta);
 
       resultsShell.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -3127,19 +3316,21 @@
       const data = Object.fromEntries(formData.entries());
       const payload = buildApiPayloadFromGuided(data);
 
-      lastInputs = data;
-      lastContext = {
-        focusArea: data.focusArea || "Structural Clarity",
-        structureType: data.structureType || "other",
-        description: data.description || ""
-      };
-
       setLoadingState(true);
 
       try {
         const apiResponse = await callStructuralClarityApi(payload);
         clearMessages();
-        renderResults(apiResponse, lastContext, lastInputs);
+        renderResults(apiResponse, {
+          focusArea: data.focusArea || "Structural Clarity",
+          structureType: data.structureType || "other",
+          description: data.description || "",
+          meetingsPerWeek: data.meetingsPerWeek || "",
+          hourlyCost: data.hourlyCost || "",
+          peopleAffected: data.peopleAffected || "",
+          issuesPerMonth: data.issuesPerMonth || "",
+          scopeSize: data.scopeSize || ""
+        });
       } catch (error) {
         setError(error.message || "Unable to generate structural clarity readout.");
       }
@@ -3179,19 +3370,21 @@
       const mapped = buildGuidedLikeObjectFromCsvRow(sample);
       const payload = buildApiPayloadFromGuided(mapped);
 
-      lastInputs = mapped;
-      lastContext = {
-        focusArea: mapped.focusArea || "Uploaded structure",
-        structureType: mapped.structureType || "other",
-        description: mapped.description || ""
-      };
-
       setLoadingState(true);
 
       try {
         const apiResponse = await callStructuralClarityApi(payload);
         clearMessages();
-        renderResults(apiResponse, lastContext, lastInputs);
+        renderResults(apiResponse, {
+          focusArea: mapped.focusArea || "Uploaded structure",
+          structureType: mapped.structureType || "other",
+          description: mapped.description || "",
+          meetingsPerWeek: mapped.meetingsPerWeek || "",
+          hourlyCost: mapped.hourlyCost || "",
+          peopleAffected: mapped.peopleAffected || "",
+          issuesPerMonth: mapped.issuesPerMonth || "",
+          scopeSize: mapped.scopeSize || ""
+        });
       } catch (error) {
         setError(error.message || "Unable to generate structural clarity readout from CSV.");
       }
