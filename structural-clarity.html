@@ -2513,906 +2513,1188 @@
     </section>
   </main>
 
-  <script>
-    const API_BASE = "https://monderman-api.onrender.com";
-    const STRUCTURAL_CLARITY_API_PATH = "/api/structural-clarity/score";
+ <script>
+  const API_BASE = "https://monderman-api.onrender.com";
+  const STRUCTURAL_CLARITY_API_PATH = "/api/structural-clarity/score";
+  const STRUCTURAL_CLARITY_NARRATIVE_API_PATH = "/api/structural-clarity/narrative";
 
-    /*
-      Temporary testing only.
-      This is the Render scoring key currently used by the frontend.
-      Long term, this should be removed from the client and replaced with a safer backend pattern.
-    */
-    const STRUCTURAL_CLARITY_API_KEY = "272cf20566a5333213e3a0f1c77d6512";
+  const pageGrid = document.getElementById("pageGrid");
+  const guidedForm = document.getElementById("guidedForm");
+  const csvForm = document.getElementById("csvForm");
+  const resultsShell = document.getElementById("resultsShell");
+  const resultsEmptyState = document.getElementById("resultsEmptyState");
+  const loadingShell = document.getElementById("loadingShell");
+  const errorNote = document.getElementById("errorNote");
+  const diagnosticInputTop = document.getElementById("diagnosticInputTop");
 
-    const pageGrid = document.getElementById("pageGrid");
-    const guidedForm = document.getElementById("guidedForm");
-    const csvForm = document.getElementById("csvForm");
-    const resultsShell = document.getElementById("resultsShell");
-    const resultsEmptyState = document.getElementById("resultsEmptyState");
-    const loadingShell = document.getElementById("loadingShell");
-    const errorNote = document.getElementById("errorNote");
-    const diagnosticInputTop = document.getElementById("diagnosticInputTop");
+  const modeGuidedCard = document.getElementById("modeGuidedCard");
+  const modeCsvCard = document.getElementById("modeCsvCard");
 
-    const modeGuidedCard = document.getElementById("modeGuidedCard");
-    const modeCsvCard = document.getElementById("modeCsvCard");
+  const startGuidedBtn = document.getElementById("startGuidedBtn");
+  const startUploadBtn = document.getElementById("startUploadBtn");
+  const backToGuidedBtn = document.getElementById("backToGuidedBtn");
+  const resetFormBtn = document.getElementById("resetFormBtn");
+  const editInputsBtn = document.getElementById("editInputsBtn");
+  const startOverBtn = document.getElementById("startOverBtn");
+  const downloadTemplateLink = document.getElementById("downloadTemplateLink");
+  const downloadPdfBtn = document.getElementById("downloadPdfBtn");
 
-    const startGuidedBtn = document.getElementById("startGuidedBtn");
-    const startUploadBtn = document.getElementById("startUploadBtn");
-    const backToGuidedBtn = document.getElementById("backToGuidedBtn");
-    const resetFormBtn = document.getElementById("resetFormBtn");
-    const editInputsBtn = document.getElementById("editInputsBtn");
-    const startOverBtn = document.getElementById("startOverBtn");
-    const downloadTemplateLink = document.getElementById("downloadTemplateLink");
-    const downloadPdfBtn = document.getElementById("downloadPdfBtn");
+  const scoreNumber = document.getElementById("scoreNumber");
+  const scoreBand = document.getElementById("scoreBand");
+  const scoreStatusLine = document.getElementById("scoreStatusLine");
+  const scoreSummary = document.getElementById("scoreSummary");
+  const scoreBadge = document.getElementById("scoreBadge");
 
-    const scoreNumber = document.getElementById("scoreNumber");
-    const scoreBand = document.getElementById("scoreBand");
-    const scoreStatusLine = document.getElementById("scoreStatusLine");
-    const scoreSummary = document.getElementById("scoreSummary");
-    const scoreBadge = document.getElementById("scoreBadge");
+  const benchmarkValue = document.getElementById("benchmarkValue");
+  const benchmarkSub = document.getElementById("benchmarkSub");
+  const timeRiskValue = document.getElementById("timeRiskValue");
+  const timeRiskSub = document.getElementById("timeRiskSub");
+  const moneyRiskValue = document.getElementById("moneyRiskValue");
+  const moneyRiskSub = document.getElementById("moneyRiskSub");
+  const resourceRiskValue = document.getElementById("resourceRiskValue");
+  const resourceRiskSub = document.getElementById("resourceRiskSub");
+  const categoryValue = document.getElementById("categoryValue");
+  const categorySub = document.getElementById("categorySub");
 
-    const benchmarkValue = document.getElementById("benchmarkValue");
-    const benchmarkSub = document.getElementById("benchmarkSub");
-    const timeRiskValue = document.getElementById("timeRiskValue");
-    const timeRiskSub = document.getElementById("timeRiskSub");
-    const moneyRiskValue = document.getElementById("moneyRiskValue");
-    const moneyRiskSub = document.getElementById("moneyRiskSub");
-    const resourceRiskValue = document.getElementById("resourceRiskValue");
-    const resourceRiskSub = document.getElementById("resourceRiskSub");
-    const categoryValue = document.getElementById("categoryValue");
-    const categorySub = document.getElementById("categorySub");
+  const narrativeInterpretation = document.getElementById("narrativeInterpretation");
+  const leadershipImplication = document.getElementById("leadershipImplication");
+  const tradeoffNote = document.getElementById("tradeoffNote");
+  const tmrSummary = document.getElementById("tmrSummary");
+  const frictionFlags = document.getElementById("frictionFlags");
+  const recommendations = document.getElementById("recommendations");
 
-    const narrativeInterpretation = document.getElementById("narrativeInterpretation");
-    const leadershipImplication = document.getElementById("leadershipImplication");
-    const tradeoffNote = document.getElementById("tradeoffNote");
-    const tmrSummary = document.getElementById("tmrSummary");
-    const frictionFlags = document.getElementById("frictionFlags");
-    const recommendations = document.getElementById("recommendations");
+  const tmrHoursValue = document.getElementById("tmrHoursValue");
+  const tmrHoursSub = document.getElementById("tmrHoursSub");
+  const tmrMoneyValue = document.getElementById("tmrMoneyValue");
+  const tmrMoneySub = document.getElementById("tmrMoneySub");
+  const tmrResourceValue = document.getElementById("tmrResourceValue");
+  const tmrResourceSub = document.getElementById("tmrResourceSub");
 
-    const tmrHoursValue = document.getElementById("tmrHoursValue");
-    const tmrHoursSub = document.getElementById("tmrHoursSub");
-    const tmrMoneyValue = document.getElementById("tmrMoneyValue");
-    const tmrMoneySub = document.getElementById("tmrMoneySub");
-    const tmrResourceValue = document.getElementById("tmrResourceValue");
-    const tmrResourceSub = document.getElementById("tmrResourceSub");
+  const reportScoreNumber = document.getElementById("reportScoreNumber");
+  const reportScoreBand = document.getElementById("reportScoreBand");
+  const reportStatusLine = document.getElementById("reportStatusLine");
+  const reportSummaryCopy = document.getElementById("reportSummaryCopy");
+  const reportBenchmarkValue = document.getElementById("reportBenchmarkValue");
+  const reportBenchmarkSub = document.getElementById("reportBenchmarkSub");
+  const reportTimeRiskValue = document.getElementById("reportTimeRiskValue");
+  const reportTimeRiskSub = document.getElementById("reportTimeRiskSub");
+  const reportMoneyRiskValue = document.getElementById("reportMoneyRiskValue");
+  const reportMoneyRiskSub = document.getElementById("reportMoneyRiskSub");
+  const reportResourceRiskValue = document.getElementById("reportResourceRiskValue");
+  const reportResourceRiskSub = document.getElementById("reportResourceRiskSub");
+  const reportCategoryValue = document.getElementById("reportCategoryValue");
+  const reportCategorySub = document.getElementById("reportCategorySub");
+  const reportNarrativeInterpretation = document.getElementById("reportNarrativeInterpretation");
+  const reportLeadershipImplication = document.getElementById("reportLeadershipImplication");
+  const reportRecommendations = document.getElementById("reportRecommendations");
+  const reportTradeoffNote = document.getElementById("reportTradeoffNote");
+  const reportFrictionFlags = document.getElementById("reportFrictionFlags");
+  const reportTmrSummary = document.getElementById("reportTmrSummary");
+  const reportPageSub = document.getElementById("reportPageSub");
 
-    const reportScoreNumber = document.getElementById("reportScoreNumber");
-    const reportScoreBand = document.getElementById("reportScoreBand");
-    const reportStatusLine = document.getElementById("reportStatusLine");
-    const reportSummaryCopy = document.getElementById("reportSummaryCopy");
-    const reportBenchmarkValue = document.getElementById("reportBenchmarkValue");
-    const reportBenchmarkSub = document.getElementById("reportBenchmarkSub");
-    const reportTimeRiskValue = document.getElementById("reportTimeRiskValue");
-    const reportTimeRiskSub = document.getElementById("reportTimeRiskSub");
-    const reportMoneyRiskValue = document.getElementById("reportMoneyRiskValue");
-    const reportMoneyRiskSub = document.getElementById("reportMoneyRiskSub");
-    const reportResourceRiskValue = document.getElementById("reportResourceRiskValue");
-    const reportResourceRiskSub = document.getElementById("reportResourceRiskSub");
-    const reportCategoryValue = document.getElementById("reportCategoryValue");
-    const reportCategorySub = document.getElementById("reportCategorySub");
-    const reportNarrativeInterpretation = document.getElementById("reportNarrativeInterpretation");
-    const reportLeadershipImplication = document.getElementById("reportLeadershipImplication");
-    const reportRecommendations = document.getElementById("reportRecommendations");
-    const reportTradeoffNote = document.getElementById("reportTradeoffNote");
-    const reportFrictionFlags = document.getElementById("reportFrictionFlags");
-    const reportTmrSummary = document.getElementById("reportTmrSummary");
-    const reportPageSub = document.getElementById("reportPageSub");
+  const stepPills = Array.from(document.querySelectorAll(".step-pill"));
+  const stepPanels = Array.from(document.querySelectorAll(".step-panel"));
+  const nextButtons = Array.from(document.querySelectorAll(".step-next"));
+  const prevButtons = Array.from(document.querySelectorAll(".step-prev"));
 
-    const stepPills = Array.from(document.querySelectorAll(".step-pill"));
-    const stepPanels = Array.from(document.querySelectorAll(".step-panel"));
-    const nextButtons = Array.from(document.querySelectorAll(".step-next"));
-    const prevButtons = Array.from(document.querySelectorAll(".step-prev"));
+  let currentStep = 1;
+  let dimensionsChart;
+  let synthesisChart;
+  let latestNarrative = null;
+  let latestContextMeta = {};
+  let latestExposure = null;
 
-    let currentStep = 1;
-    let dimensionsChart;
-    let synthesisChart;
+  const BENCHMARKS = {
+    functional: { label: "Functional team", healthyMin: 76, healthyMax: 88, moderateMin: 62, moderateMax: 75, frictionMin: 46, frictionMax: 61 },
+    "cross-functional": { label: "Cross-functional group", healthyMin: 70, healthyMax: 84, moderateMin: 56, moderateMax: 69, frictionMin: 40, frictionMax: 55 },
+    program: { label: "Program / project structure", healthyMin: 68, healthyMax: 82, moderateMin: 54, moderateMax: 67, frictionMin: 38, frictionMax: 53 },
+    "shared-service": { label: "Shared-service function", healthyMin: 72, healthyMax: 85, moderateMin: 58, moderateMax: 71, frictionMin: 42, frictionMax: 57 },
+    governance: { label: "Governance / oversight body", healthyMin: 66, healthyMax: 80, moderateMin: 52, moderateMax: 65, frictionMin: 36, frictionMax: 51 },
+    other: { label: "Other", healthyMin: 70, healthyMax: 82, moderateMin: 56, moderateMax: 69, frictionMin: 40, frictionMax: 55 }
+  };
 
-    const BENCHMARKS = {
-      functional: { label: "Functional team", healthyMin: 76, healthyMax: 88, moderateMin: 62, moderateMax: 75, frictionMin: 46, frictionMax: 61 },
-      "cross-functional": { label: "Cross-functional group", healthyMin: 70, healthyMax: 84, moderateMin: 56, moderateMax: 69, frictionMin: 40, frictionMax: 55 },
-      program: { label: "Program / project structure", healthyMin: 68, healthyMax: 82, moderateMin: 54, moderateMax: 67, frictionMin: 38, frictionMax: 53 },
-      "shared-service": { label: "Shared-service function", healthyMin: 72, healthyMax: 85, moderateMin: 58, moderateMax: 71, frictionMin: 42, frictionMax: 57 },
-      governance: { label: "Governance / oversight body", healthyMin: 66, healthyMax: 80, moderateMin: 52, moderateMax: 65, frictionMin: 36, frictionMax: 51 },
-      other: { label: "Other", healthyMin: 70, healthyMax: 82, moderateMin: 56, moderateMax: 69, frictionMin: 40, frictionMax: 55 }
-    };
+  const severityLabels = {
+    low: "Low",
+    moderate: "Moderate",
+    high: "High",
+    very_high: "Very high"
+  };
 
-    const severityLabels = {
-      low: "Low",
-      moderate: "Moderate",
-      high: "High",
-      very_high: "Very high"
-    };
+  const severityScores = {
+    low: 25,
+    moderate: 50,
+    high: 75,
+    very_high: 100
+  };
 
-    const severityScores = {
-      low: 25,
-      moderate: 50,
-      high: 75,
-      very_high: 100
-    };
-
-    function scrollToInputTop() {
-      if (diagnosticInputTop) {
-        diagnosticInputTop.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
+  function scrollToInputTop() {
+    if (diagnosticInputTop) {
+      diagnosticInputTop.scrollIntoView({ behavior: "smooth", block: "start" });
     }
+  }
 
-    function setMode(mode) {
-      const guided = mode === "guided";
-      guidedForm.classList.toggle("hidden", !guided);
-      csvForm.classList.toggle("hidden", guided);
-      modeGuidedCard.classList.toggle("active", guided);
-      modeCsvCard.classList.toggle("active", !guided);
-    }
+  function setMode(mode) {
+    const guided = mode === "guided";
+    guidedForm.classList.toggle("hidden", !guided);
+    csvForm.classList.toggle("hidden", guided);
+    modeGuidedCard.classList.toggle("active", guided);
+    modeCsvCard.classList.toggle("active", !guided);
+  }
 
-    function setResultsLayout(active) {
-      pageGrid.classList.toggle("results-active", active);
-    }
+  function setResultsLayout(active) {
+    pageGrid.classList.toggle("results-active", active);
+  }
 
-    function updateStepUI() {
-      stepPanels.forEach(panel => {
-        panel.classList.toggle("active", Number(panel.dataset.stepPanel) === currentStep);
-      });
-
-      stepPills.forEach((pill, index) => {
-        const step = index + 1;
-        pill.classList.toggle("active", step === currentStep);
-        pill.classList.toggle("done", step < currentStep);
-      });
-    }
-
-    function validateStep(step) {
-      const panel = document.querySelector(`.step-panel[data-step-panel="${step}"]`);
-      if (!panel) return true;
-
-      const requiredFields = Array.from(panel.querySelectorAll("[required]"));
-      for (const field of requiredFields) {
-        if (!field.checkValidity()) {
-          field.reportValidity();
-          return false;
-        }
-      }
-      return true;
-    }
-
-    function goToStep(step, shouldScroll = false) {
-      currentStep = Math.max(1, Math.min(5, step));
-      updateStepUI();
-
-      if (shouldScroll) {
-        const stepper = document.querySelector(".stepper");
-        if (stepper) {
-          stepper.scrollIntoView({ behavior: "smooth", block: "nearest" });
-        }
-      }
-    }
-
-    function setLoadingState(isLoading) {
-      loadingShell.classList.toggle("hidden", !isLoading);
-      loadingShell.classList.toggle("active", isLoading);
-      errorNote.classList.add("hidden");
-      errorNote.textContent = "";
-    }
-
-    function clearMessages() {
-      loadingShell.classList.add("hidden");
-      loadingShell.classList.remove("active");
-      errorNote.classList.add("hidden");
-      errorNote.textContent = "";
-    }
-
-    function setError(message) {
-      errorNote.textContent = message;
-      errorNote.classList.remove("hidden");
-      loadingShell.classList.add("hidden");
-      loadingShell.classList.remove("active");
-    }
+  function updateStepUI() {
+    stepPanels.forEach(panel => {
+      panel.classList.toggle("active", Number(panel.dataset.stepPanel) === currentStep);
+    });
 
     stepPills.forEach((pill, index) => {
-      pill.addEventListener("click", () => {
-        const targetStep = index + 1;
-        if (targetStep <= currentStep || validateStep(currentStep)) {
-          goToStep(targetStep, false);
-        }
-      });
+      const step = index + 1;
+      pill.classList.toggle("active", step === currentStep);
+      pill.classList.toggle("done", step < currentStep);
     });
+  }
 
-    nextButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        if (validateStep(currentStep)) goToStep(currentStep + 1, false);
-      });
-    });
+  function validateStep(step) {
+    const panel = document.querySelector(`.step-panel[data-step-panel="${step}"]`);
+    if (!panel) return true;
 
-    prevButtons.forEach(btn => {
-      btn.addEventListener("click", () => goToStep(currentStep - 1, false));
-    });
-
-    modeGuidedCard.addEventListener("click", () => setMode("guided"));
-    modeCsvCard.addEventListener("click", () => setMode("csv"));
-
-    startGuidedBtn.addEventListener("click", () => {
-      setMode("guided");
-      goToStep(1, false);
-      scrollToInputTop();
-    });
-
-    startUploadBtn.addEventListener("click", () => {
-      setMode("csv");
-      scrollToInputTop();
-    });
-
-    backToGuidedBtn.addEventListener("click", () => {
-      setMode("guided");
-      scrollToInputTop();
-    });
-
-    resetFormBtn.addEventListener("click", () => {
-      guidedForm.reset();
-      goToStep(1, false);
-      resultsShell.classList.remove("active");
-      resultsEmptyState.classList.remove("hidden");
-      setResultsLayout(false);
-      clearMessages();
-      scrollToInputTop();
-    });
-
-    editInputsBtn.addEventListener("click", () => {
-      resultsShell.classList.remove("active");
-      resultsEmptyState.classList.remove("hidden");
-      setResultsLayout(false);
-      clearMessages();
-      scrollToInputTop();
-    });
-
-    startOverBtn.addEventListener("click", () => {
-      guidedForm.reset();
-      csvForm.reset();
-      goToStep(1, false);
-      resultsShell.classList.remove("active");
-      resultsEmptyState.classList.remove("hidden");
-      setResultsLayout(false);
-      setMode("guided");
-      clearMessages();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-
-    downloadTemplateLink.addEventListener("click", (e) => {
-      e.preventDefault();
-      const csv = [
-        "focus_area,structure_type,owner_defined,owner_consistency,duplicate_ownership,orphaned_work,decision_rights,escalation_path,informal_influence,leader_dependence,role_overlap,accountability_diffusion,handoff_ambiguity,conflict_frequency",
-        "Program Office,cross-functional,mixed,mixed,sometimes,sometimes,mixed,mixed,sometimes,moderate,often,sometimes,mixed,sometimes"
-      ].join("\n");
-
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const tempLink = document.createElement("a");
-      tempLink.href = url;
-      tempLink.download = "monderman_structural_clarity_template.csv";
-      document.body.appendChild(tempLink);
-      tempLink.click();
-      document.body.removeChild(tempLink);
-      URL.revokeObjectURL(url);
-    });
-
-    downloadPdfBtn.addEventListener("click", () => {
-      window.print();
-    });
-
-    function mapToScore(value, mapping) {
-      return mapping[value] ?? 50;
-    }
-
-    function clampValue(value, min, max) {
-      return Math.max(min, Math.min(max, value));
-    }
-
-    function formatSeverity(value) {
-      return severityLabels[value] || value || "—";
-    }
-
-    function getBenchmarkPosition(score, benchmark) {
-      if (score > benchmark.healthyMax) return "Above comparable range";
-      if (score >= benchmark.moderateMin) return "Within comparable range";
-      return "Below comparable range";
-    }
-
-    function formatCompactCurrency(value) {
-      if (!Number.isFinite(value) || value <= 0) return "$0";
-      if (value >= 1000000000) return `$${(value / 1000000000).toFixed(1).replace(/\.0$/, "")}B`;
-      if (value >= 1000000) return `$${(value / 1000000).toFixed(1).replace(/\.0$/, "")}M`;
-      if (value >= 1000) return `$${Math.round(value / 1000)}K`;
-      return `$${Math.round(value)}`;
-    }
-
-    function formatCompactHours(value) {
-      if (!Number.isFinite(value) || value <= 0) return "0 hrs";
-      if (value >= 1000000) return `${(value / 1000000).toFixed(1).replace(/\.0$/, "")}M hrs`;
-      if (value >= 1000) return `${Math.round(value / 1000)}k hrs`;
-      return `${Math.round(value)} hrs`;
-    }
-
-    function formatPercent(value) {
-      if (!Number.isFinite(value) || value <= 0) return "0%";
-      return `${Math.round(value)}%`;
-    }
-
-    function getStatusLine(index) {
-      if (index >= 85) return "Structure is supporting execution with relatively limited ambiguity exposure.";
-      if (index >= 70) return "Structure is functional, but friction is forming in specific boundary conditions.";
-      if (index >= 55) return "Structural ambiguity is materially constraining execution and leadership attention.";
-      if (index >= 40) return "Structural clarity is weak enough to create recurring drag, rework, and misalignment.";
-      return "Structural ambiguity is now severe enough to threaten coordination, accountability, and execution quality.";
-    }
-
-    function buildApiPayloadFromGuided(data) {
-      const roleClarityBase = (
-        mapToScore(data.ownerDefined, { clear: 92, mixed: 66, unclear: 38 }) * 0.38 +
-        mapToScore(data.ownerConsistency, { stable: 90, mixed: 64, unstable: 36 }) * 0.32 +
-        mapToScore(data.roleOverlap, { rare: 86, sometimes: 62, often: 34 }) * 0.30
-      );
-
-      const decisionRightsBase = (
-        mapToScore(data.decisionRights, { clear: 92, mixed: 62, unclear: 32 }) * 0.60 +
-        mapToScore(data.escalationPath, { clear: 86, mixed: 58, unclear: 30 }) * 0.40
-      );
-
-      const handoffClarityBase = (
-        mapToScore(data.handoffAmbiguity, { clear: 88, mixed: 56, unclear: 28 }) * 0.55 +
-        mapToScore(data.orphanedWork, { rare: 86, sometimes: 58, often: 24 }) * 0.45
-      );
-
-      const accountabilityClarityBase = (
-        mapToScore(data.accountabilityDiffusion, { rare: 88, sometimes: 58, often: 26 }) * 0.55 +
-        mapToScore(data.conflictFrequency, { rare: 84, sometimes: 56, often: 24 }) * 0.45
-      );
-
-      const duplicateApprovalsBase = (
-        mapToScore(data.duplicateOwnership, { rare: 18, sometimes: 46, often: 74 }) * 0.55 +
-        mapToScore(data.informalInfluence, { rare: 14, sometimes: 44, often: 78 }) * 0.25 +
-        mapToScore(data.leaderDependence, { low: 16, moderate: 48, high: 76 }) * 0.20
-      );
-
-      const changePenalty = mapToScore(data.changePace, {
-        stable: 0,
-        moderate: 3,
-        high: 6,
-        constant: 9
-      });
-
-      const scalePenalty = mapToScore(data.scopeSize, {
-        small: 0,
-        medium: 2,
-        large: 4,
-        "very-large": 6
-      });
-
-      return {
-        role_clarity: Math.round(clampValue(roleClarityBase - changePenalty, 0, 100)),
-        decision_rights_clarity: Math.round(clampValue(decisionRightsBase - changePenalty, 0, 100)),
-        handoff_clarity: Math.round(clampValue(handoffClarityBase - scalePenalty, 0, 100)),
-        accountability_clarity: Math.round(clampValue(accountabilityClarityBase - scalePenalty, 0, 100)),
-        duplicate_approvals: Math.round(clampValue(duplicateApprovalsBase + changePenalty, 0, 100))
-      };
-    }
-
-    function parseCSV(text) {
-      const lines = text.trim().split(/\r?\n/);
-      if (lines.length < 2) return null;
-
-      const headers = lines[0].split(",").map(h => h.trim().toLowerCase());
-      const rows = lines.slice(1).map(line => line.split(",").map(cell => cell.trim()));
-
-      return rows.map(row => {
-        const obj = {};
-        headers.forEach((h, i) => { obj[h] = row[i] ?? ""; });
-        return obj;
-      });
-    }
-
-    function buildGuidedLikeObjectFromCsvRow(sample) {
-      return {
-        focusArea: sample.focus_area || "Uploaded structure",
-        structureType: sample.structure_type || "other",
-        scopeSize: "medium",
-        changePace: "moderate",
-        description: "CSV-based readout generated from structured uploaded data.",
-        ownerDefined: sample.owner_defined || "mixed",
-        ownerConsistency: sample.owner_consistency || "mixed",
-        duplicateOwnership: sample.duplicate_ownership || "sometimes",
-        orphanedWork: sample.orphaned_work || "sometimes",
-        decisionRights: sample.decision_rights || "mixed",
-        escalationPath: sample.escalation_path || "mixed",
-        informalInfluence: sample.informal_influence || "sometimes",
-        leaderDependence: sample.leader_dependence || "moderate",
-        roleOverlap: sample.role_overlap || "sometimes",
-        accountabilityDiffusion: sample.accountability_diffusion || "sometimes",
-        handoffAmbiguity: sample.handoff_ambiguity || "mixed",
-        conflictFrequency: sample.conflict_frequency || "sometimes",
-        meetingsPerWeek: "",
-        hourlyCost: "",
-        peopleAffected: "",
-        issuesPerMonth: ""
-      };
-    }
-
-    function renderList(el, items) {
-      el.innerHTML = "";
-      items.forEach((item) => {
-        const li = document.createElement("li");
-        li.textContent = item;
-        el.appendChild(li);
-      });
-    }
-
-    function getSignalNarrativeLines(result) {
-      const lines = [];
-      const signals = result.synthesis_signals || {};
-
-      if (signals.coordination_burden) {
-        lines.push(`Coordination burden: ${formatSeverity(signals.coordination_burden)}.`);
+    const requiredFields = Array.from(panel.querySelectorAll("[required]"));
+    for (const field of requiredFields) {
+      if (!field.checkValidity()) {
+        field.reportValidity();
+        return false;
       }
-      if (signals.decision_friction) {
-        lines.push(`Decision friction: ${formatSeverity(signals.decision_friction)}.`);
-      }
-      if (signals.accountability_blur) {
-        lines.push(`Accountability blur: ${formatSeverity(signals.accountability_blur)}.`);
-      }
-      if (signals.compensatory_dependency) {
-        lines.push(`Compensatory dependency: ${formatSeverity(signals.compensatory_dependency)}.`);
-      }
+    }
+    return true;
+  }
 
-      return lines;
+  function goToStep(step, shouldScroll = false) {
+    currentStep = Math.max(1, Math.min(5, step));
+    updateStepUI();
+
+    if (shouldScroll) {
+      const stepper = document.querySelector(".stepper");
+      if (stepper) {
+        stepper.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    }
+  }
+
+  function setLoadingState(isLoading, text = "Generating structural clarity readout...", subtext = "This can take a few seconds while the diagnostic and narrative output are assembled.") {
+    loadingShell.classList.toggle("hidden", !isLoading);
+    loadingShell.classList.toggle("active", isLoading);
+    errorNote.classList.add("hidden");
+    errorNote.textContent = "";
+
+    const loadingTextEl = loadingShell.querySelector(".loading-text");
+    const loadingSubtextEl = loadingShell.querySelector(".loading-subtext");
+
+    if (loadingTextEl) loadingTextEl.textContent = text;
+    if (loadingSubtextEl) loadingSubtextEl.textContent = subtext;
+  }
+
+  function clearMessages() {
+    loadingShell.classList.add("hidden");
+    loadingShell.classList.remove("active");
+    errorNote.classList.add("hidden");
+    errorNote.textContent = "";
+  }
+
+  function setError(message) {
+    errorNote.textContent = message;
+    errorNote.classList.remove("hidden");
+    loadingShell.classList.add("hidden");
+    loadingShell.classList.remove("active");
+  }
+
+  stepPills.forEach((pill, index) => {
+    pill.addEventListener("click", () => {
+      const targetStep = index + 1;
+      if (targetStep <= currentStep || validateStep(currentStep)) {
+        goToStep(targetStep, false);
+      }
+    });
+  });
+
+  nextButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (validateStep(currentStep)) goToStep(currentStep + 1, false);
+    });
+  });
+
+  prevButtons.forEach(btn => {
+    btn.addEventListener("click", () => goToStep(currentStep - 1, false));
+  });
+
+  modeGuidedCard.addEventListener("click", () => setMode("guided"));
+  modeCsvCard.addEventListener("click", () => setMode("csv"));
+
+  startGuidedBtn.addEventListener("click", () => {
+    setMode("guided");
+    goToStep(1, false);
+    scrollToInputTop();
+  });
+
+  startUploadBtn.addEventListener("click", () => {
+    setMode("csv");
+    scrollToInputTop();
+  });
+
+  backToGuidedBtn.addEventListener("click", () => {
+    setMode("guided");
+    scrollToInputTop();
+  });
+
+  resetFormBtn.addEventListener("click", () => {
+    guidedForm.reset();
+    goToStep(1, false);
+    latestNarrative = null;
+    latestContextMeta = {};
+    latestExposure = null;
+    resultsShell.classList.remove("active");
+    resultsEmptyState.classList.remove("hidden");
+    setResultsLayout(false);
+    clearMessages();
+    scrollToInputTop();
+  });
+
+  editInputsBtn.addEventListener("click", () => {
+    resultsShell.classList.remove("active");
+    resultsEmptyState.classList.remove("hidden");
+    setResultsLayout(false);
+    clearMessages();
+    scrollToInputTop();
+  });
+
+  startOverBtn.addEventListener("click", () => {
+    guidedForm.reset();
+    csvForm.reset();
+    goToStep(1, false);
+    latestNarrative = null;
+    latestContextMeta = {};
+    latestExposure = null;
+    resultsShell.classList.remove("active");
+    resultsEmptyState.classList.remove("hidden");
+    setResultsLayout(false);
+    setMode("guided");
+    clearMessages();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  downloadTemplateLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    const csv = [
+      "focus_area,structure_type,owner_defined,owner_consistency,duplicate_ownership,orphaned_work,decision_rights,escalation_path,informal_influence,leader_dependence,role_overlap,accountability_diffusion,handoff_ambiguity,conflict_frequency",
+      "Program Office,cross-functional,mixed,mixed,sometimes,sometimes,mixed,mixed,sometimes,moderate,often,sometimes,mixed,sometimes"
+    ].join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const tempLink = document.createElement("a");
+    tempLink.href = url;
+    tempLink.download = "monderman_structural_clarity_template.csv";
+    document.body.appendChild(tempLink);
+    tempLink.click();
+    document.body.removeChild(tempLink);
+    URL.revokeObjectURL(url);
+  });
+
+  function mapToScore(value, mapping) {
+    return mapping[value] ?? 50;
+  }
+
+  function clampValue(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function formatSeverity(value) {
+    return severityLabels[value] || value || "—";
+  }
+
+  function getBenchmarkPosition(score, benchmark) {
+    if (score > benchmark.healthyMax) return "Above comparable range";
+    if (score >= benchmark.moderateMin) return "Within comparable range";
+    return "Below comparable range";
+  }
+
+  function formatCompactCurrency(value) {
+    if (!Number.isFinite(value) || value <= 0) return "$0";
+    if (value >= 1000000000) return `$${(value / 1000000000).toFixed(1).replace(/\.0$/, "")}B`;
+    if (value >= 1000000) return `$${(value / 1000000).toFixed(1).replace(/\.0$/, "")}M`;
+    if (value >= 1000) return `$${Math.round(value / 1000)}K`;
+    return `$${Math.round(value)}`;
+  }
+
+  function formatCompactHours(value) {
+    if (!Number.isFinite(value) || value <= 0) return "0 hrs";
+    if (value >= 1000000) return `${(value / 1000000).toFixed(1).replace(/\.0$/, "")}M hrs`;
+    if (value >= 1000) return `${Math.round(value / 1000)}k hrs`;
+    return `${Math.round(value)} hrs`;
+  }
+
+  function formatPercent(value) {
+    if (!Number.isFinite(value) || value <= 0) return "0%";
+    return `${Math.round(value)}%`;
+  }
+
+  function getStatusLine(index) {
+    if (index >= 85) return "Structure is supporting execution with relatively limited ambiguity exposure.";
+    if (index >= 70) return "Structure is functional, but friction is forming in specific boundary conditions.";
+    if (index >= 55) return "Structural ambiguity is materially constraining execution and leadership attention.";
+    if (index >= 40) return "Structural clarity is weak enough to create recurring drag, rework, and misalignment.";
+    return "Structural ambiguity is now severe enough to threaten coordination, accountability, and execution quality.";
+  }
+
+  function buildApiPayloadFromGuided(data) {
+    const roleClarityBase = (
+      mapToScore(data.ownerDefined, { clear: 92, mixed: 66, unclear: 38 }) * 0.38 +
+      mapToScore(data.ownerConsistency, { stable: 90, mixed: 64, unstable: 36 }) * 0.32 +
+      mapToScore(data.roleOverlap, { rare: 86, sometimes: 62, often: 34 }) * 0.30
+    );
+
+    const decisionRightsBase = (
+      mapToScore(data.decisionRights, { clear: 92, mixed: 62, unclear: 32 }) * 0.60 +
+      mapToScore(data.escalationPath, { clear: 86, mixed: 58, unclear: 30 }) * 0.40
+    );
+
+    const handoffClarityBase = (
+      mapToScore(data.handoffAmbiguity, { clear: 88, mixed: 56, unclear: 28 }) * 0.55 +
+      mapToScore(data.orphanedWork, { rare: 86, sometimes: 58, often: 24 }) * 0.45
+    );
+
+    const accountabilityClarityBase = (
+      mapToScore(data.accountabilityDiffusion, { rare: 88, sometimes: 58, often: 26 }) * 0.55 +
+      mapToScore(data.conflictFrequency, { rare: 84, sometimes: 56, often: 24 }) * 0.45
+    );
+
+    const duplicateApprovalsBase = (
+      mapToScore(data.duplicateOwnership, { rare: 18, sometimes: 46, often: 74 }) * 0.55 +
+      mapToScore(data.informalInfluence, { rare: 14, sometimes: 44, often: 78 }) * 0.25 +
+      mapToScore(data.leaderDependence, { low: 16, moderate: 48, high: 76 }) * 0.20
+    );
+
+    const changePenalty = mapToScore(data.changePace, {
+      stable: 0,
+      moderate: 3,
+      high: 6,
+      constant: 9
+    });
+
+    const scalePenalty = mapToScore(data.scopeSize, {
+      small: 0,
+      medium: 2,
+      large: 4,
+      "very-large": 6
+    });
+
+    return {
+      role_clarity: Math.round(clampValue(roleClarityBase - changePenalty, 0, 100)),
+      decision_rights_clarity: Math.round(clampValue(decisionRightsBase - changePenalty, 0, 100)),
+      handoff_clarity: Math.round(clampValue(handoffClarityBase - scalePenalty, 0, 100)),
+      accountability_clarity: Math.round(clampValue(accountabilityClarityBase - scalePenalty, 0, 100)),
+      duplicate_approvals: Math.round(clampValue(duplicateApprovalsBase + changePenalty, 0, 100))
+    };
+  }
+
+  function parseCSV(text) {
+    const lines = text.trim().split(/\r?\n/);
+    if (lines.length < 2) return null;
+
+    const headers = lines[0].split(",").map(h => h.trim().toLowerCase());
+    const rows = lines.slice(1).map(line => line.split(",").map(cell => cell.trim()));
+
+    return rows.map(row => {
+      const obj = {};
+      headers.forEach((h, i) => { obj[h] = row[i] ?? ""; });
+      return obj;
+    });
+  }
+
+  function buildGuidedLikeObjectFromCsvRow(sample) {
+    return {
+      focusArea: sample.focus_area || "Uploaded structure",
+      structureType: sample.structure_type || "other",
+      scopeSize: "medium",
+      changePace: "moderate",
+      description: "CSV-based readout generated from structured uploaded data.",
+      ownerDefined: sample.owner_defined || "mixed",
+      ownerConsistency: sample.owner_consistency || "mixed",
+      duplicateOwnership: sample.duplicate_ownership || "sometimes",
+      orphanedWork: sample.orphaned_work || "sometimes",
+      decisionRights: sample.decision_rights || "mixed",
+      escalationPath: sample.escalation_path || "mixed",
+      informalInfluence: sample.informal_influence || "sometimes",
+      leaderDependence: sample.leader_dependence || "moderate",
+      roleOverlap: sample.role_overlap || "sometimes",
+      accountabilityDiffusion: sample.accountability_diffusion || "sometimes",
+      handoffAmbiguity: sample.handoff_ambiguity || "mixed",
+      conflictFrequency: sample.conflict_frequency || "sometimes",
+      meetingsPerWeek: "",
+      hourlyCost: "",
+      peopleAffected: "",
+      issuesPerMonth: ""
+    };
+  }
+
+  function renderList(el, items) {
+    el.innerHTML = "";
+    items.forEach((item) => {
+      const li = document.createElement("li");
+      li.textContent = item;
+      el.appendChild(li);
+    });
+  }
+
+  function getSignalNarrativeLines(result) {
+    const lines = [];
+    const signals = result.synthesis_signals || {};
+
+    if (signals.coordination_burden) {
+      lines.push(`Coordination burden: ${formatSeverity(signals.coordination_burden)}.`);
+    }
+    if (signals.decision_friction) {
+      lines.push(`Decision friction: ${formatSeverity(signals.decision_friction)}.`);
+    }
+    if (signals.accountability_blur) {
+      lines.push(`Accountability blur: ${formatSeverity(signals.accountability_blur)}.`);
+    }
+    if (signals.compensatory_dependency) {
+      lines.push(`Compensatory dependency: ${formatSeverity(signals.compensatory_dependency)}.`);
     }
 
-    function buildExposureEstimates(contextMeta, apiResponse) {
-      const meetingsPerWeek = Number(contextMeta.meetingsPerWeek || 0);
-      const peopleAffected = Number(contextMeta.peopleAffected || 0);
-      const issuesPerMonth = Number(contextMeta.issuesPerMonth || 0);
-      const hourlyCost = Number(contextMeta.hourlyCost || 0);
+    return lines;
+  }
 
-      const index = Number(apiResponse?.result?.headline?.index || 0);
-      const severityFactor = clampValue((100 - index) / 100, 0.12, 0.85);
+  function buildExposureEstimates(contextMeta, apiResponse) {
+    const meetingsPerWeek = Number(contextMeta.meetingsPerWeek || 0);
+    const peopleAffected = Number(contextMeta.peopleAffected || 0);
+    const issuesPerMonth = Number(contextMeta.issuesPerMonth || 0);
+    const hourlyCost = Number(contextMeta.hourlyCost || 0);
 
-      const fallbackPeople = contextMeta.scopeSize === "small" ? 6 :
-        contextMeta.scopeSize === "medium" ? 24 :
-        contextMeta.scopeSize === "large" ? 80 : 180;
+    const index = Number(apiResponse?.result?.headline?.index || 0);
+    const severityFactor = clampValue((100 - index) / 100, 0.12, 0.85);
 
-      const people = peopleAffected > 0 ? peopleAffected : fallbackPeople;
-      const rate = hourlyCost > 0 ? hourlyCost : 85;
+    const fallbackPeople = contextMeta.scopeSize === "small" ? 6 :
+      contextMeta.scopeSize === "medium" ? 24 :
+      contextMeta.scopeSize === "large" ? 80 : 180;
 
-      const baseMeetings = meetingsPerWeek > 0 ? meetingsPerWeek : Math.max(1, Math.round((issuesPerMonth || 4) / 2));
-      const issues = issuesPerMonth > 0 ? issuesPerMonth : Math.max(4, baseMeetings * 3);
+    const people = peopleAffected > 0 ? peopleAffected : fallbackPeople;
+    const rate = hourlyCost > 0 ? hourlyCost : 85;
 
-      const meetingHoursAnnual = baseMeetings * 52 * 1.25;
-      const issueResolutionHoursAnnual = issues * 12 * 1.15;
-      const affectedHoursAnnual = people * (3.5 + (severityFactor * 10.5));
-      const annualHours = Math.round((meetingHoursAnnual + issueResolutionHoursAnnual + affectedHoursAnnual) * clampValue(0.72 + severityFactor, 0.78, 1.5));
+    const baseMeetings = meetingsPerWeek > 0 ? meetingsPerWeek : Math.max(1, Math.round((issuesPerMonth || 4) / 2));
+    const issues = issuesPerMonth > 0 ? issuesPerMonth : Math.max(4, baseMeetings * 3);
 
-      const annualCost = Math.round(annualHours * rate);
-      const capacityDrag = clampValue((severityFactor * 32) + (people > 0 ? Math.min(10, people / 10) : 0), 6, 38);
+    const meetingHoursAnnual = baseMeetings * 52 * 1.25;
+    const issueResolutionHoursAnnual = issues * 12 * 1.15;
+    const affectedHoursAnnual = people * (3.5 + (severityFactor * 10.5));
+    const annualHours = Math.round((meetingHoursAnnual + issueResolutionHoursAnnual + affectedHoursAnnual) * clampValue(0.72 + severityFactor, 0.78, 1.5));
 
-      return {
-        annualHours,
-        annualCost,
-        capacityDrag
-      };
-    }
+    const annualCost = Math.round(annualHours * rate);
+    const capacityDrag = clampValue((severityFactor * 32) + (people > 0 ? Math.min(10, people / 10) : 0), 6, 38);
 
-    function renderCharts(apiResponse) {
-      const result = apiResponse.result;
+    return {
+      annualHours,
+      annualCost,
+      capacityDrag
+    };
+  }
 
-      const dimensions = result.dimensions || {};
-      const dimensionData = [
-        { label: "Role clarity", value: dimensions.role_clarity ?? 0 },
-        { label: "Decision rights clarity", value: dimensions.decision_rights_clarity ?? 0 },
-        { label: "Handoff clarity", value: dimensions.handoff_clarity ?? 0 },
-        { label: "Accountability clarity", value: dimensions.accountability_clarity ?? 0 },
-        { label: "Approval simplicity", value: dimensions.duplicate_approvals_inverse ?? 0 }
-      ];
+  function renderCharts(apiResponse) {
+    const result = apiResponse.result;
 
-      const synthesisSignals = result.synthesis_signals || {};
-      const synthesisData = [
-        { label: "Drag severity", value: severityScores[synthesisSignals.drag_severity] ?? 0 },
-        { label: "Coordination burden", value: severityScores[synthesisSignals.coordination_burden] ?? 0 },
-        { label: "Decision friction", value: severityScores[synthesisSignals.decision_friction] ?? 0 },
-        { label: "Accountability blur", value: severityScores[synthesisSignals.accountability_blur] ?? 0 },
-        { label: "Compensatory dependency", value: severityScores[synthesisSignals.compensatory_dependency] ?? 0 }
-      ];
+    const dimensions = result.dimensions || {};
+    const dimensionData = [
+      { label: "Role clarity", value: dimensions.role_clarity ?? 0 },
+      { label: "Decision rights clarity", value: dimensions.decision_rights_clarity ?? 0 },
+      { label: "Handoff clarity", value: dimensions.handoff_clarity ?? 0 },
+      { label: "Accountability clarity", value: dimensions.accountability_clarity ?? 0 },
+      { label: "Approval simplicity", value: dimensions.duplicate_approvals_inverse ?? 0 }
+    ];
 
-      if (dimensionsChart) dimensionsChart.destroy();
-      if (synthesisChart) synthesisChart.destroy();
+    const synthesisSignals = result.synthesis_signals || {};
+    const synthesisData = [
+      { label: "Drag severity", value: severityScores[synthesisSignals.drag_severity] ?? 0 },
+      { label: "Coordination burden", value: severityScores[synthesisSignals.coordination_burden] ?? 0 },
+      { label: "Decision friction", value: severityScores[synthesisSignals.decision_friction] ?? 0 },
+      { label: "Accountability blur", value: severityScores[synthesisSignals.accountability_blur] ?? 0 },
+      { label: "Compensatory dependency", value: severityScores[synthesisSignals.compensatory_dependency] ?? 0 }
+    ];
 
-      dimensionsChart = new Chart(document.getElementById("frictionChart"), {
-        type: "bar",
-        data: {
-          labels: dimensionData.map(d => d.label),
-          datasets: [{
-            label: "Dimension score",
-            data: dimensionData.map(d => d.value),
-            backgroundColor: [
-              "rgba(63,110,161,0.92)",
-              "rgba(63,110,161,0.82)",
-              "rgba(63,110,161,0.72)",
-              "rgba(47,88,134,0.78)",
-              "rgba(32,56,84,0.84)"
-            ],
-            borderRadius: 10,
-            maxBarThickness: 28,
-            borderSkipped: false
-          }]
+    if (dimensionsChart) dimensionsChart.destroy();
+    if (synthesisChart) synthesisChart.destroy();
+
+    dimensionsChart = new Chart(document.getElementById("frictionChart"), {
+      type: "bar",
+      data: {
+        labels: dimensionData.map(d => d.label),
+        datasets: [{
+          label: "Dimension score",
+          data: dimensionData.map(d => d.value),
+          backgroundColor: [
+            "rgba(63,110,161,0.92)",
+            "rgba(63,110,161,0.82)",
+            "rgba(63,110,161,0.72)",
+            "rgba(47,88,134,0.78)",
+            "rgba(32,56,84,0.84)"
+          ],
+          borderRadius: 10,
+          maxBarThickness: 28,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        indexAxis: "y",
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: { right: 6, left: 2, top: 4, bottom: 4 } },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "rgba(15,23,32,0.94)",
+            titleColor: "#FFFFFF",
+            bodyColor: "rgba(245,247,250,0.88)",
+            padding: 12,
+            displayColors: false,
+            callbacks: {
+              label: (ctx) => `Score: ${ctx.raw}`
+            }
+          }
         },
-        options: {
-          indexAxis: "y",
-          responsive: true,
-          maintainAspectRatio: false,
-          layout: { padding: { right: 6, left: 2, top: 4, bottom: 4 } },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: "rgba(15,23,32,0.94)",
-              titleColor: "#FFFFFF",
-              bodyColor: "rgba(245,247,250,0.88)",
-              padding: 12,
-              displayColors: false,
-              callbacks: {
-                label: (ctx) => `Score: ${ctx.raw}`
-              }
+        scales: {
+          x: {
+            beginAtZero: true,
+            max: 100,
+            grid: {
+              color: "rgba(21,32,43,0.06)",
+              drawBorder: false
+            },
+            border: { display: false },
+            ticks: {
+              color: "#6B7785",
+              precision: 0,
+              padding: 8
             }
           },
-          scales: {
-            x: {
-              beginAtZero: true,
-              max: 100,
-              grid: {
-                color: "rgba(21,32,43,0.06)",
-                drawBorder: false
-              },
-              border: { display: false },
-              ticks: {
-                color: "#6B7785",
-                precision: 0,
-                padding: 8
-              }
-            },
-            y: {
-              grid: { display: false },
-              border: { display: false },
-              ticks: {
-                color: "#44515E",
-                font: { size: 12, weight: "500" },
-                padding: 10
-              }
+          y: {
+            grid: { display: false },
+            border: { display: false },
+            ticks: {
+              color: "#44515E",
+              font: { size: 12, weight: "500" },
+              padding: 10
             }
           }
         }
-      });
+      }
+    });
 
-      synthesisChart = new Chart(document.getElementById("slowdownChart"), {
-        type: "bar",
-        data: {
-          labels: synthesisData.map(d => d.label),
-          datasets: [{
-            label: "Severity",
-            data: synthesisData.map(d => d.value),
-            backgroundColor: [
-              "rgba(63,110,161,0.84)",
-              "rgba(95,132,177,0.84)",
-              "rgba(184,134,11,0.78)",
-              "rgba(184,104,80,0.82)",
-              "rgba(184,80,94,0.88)"
-            ],
-            borderRadius: 10,
-            maxBarThickness: 42,
-            borderSkipped: false
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          layout: { padding: { right: 6, left: 2, top: 4, bottom: 2 } },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: "rgba(15,23,32,0.94)",
-              titleColor: "#FFFFFF",
-              bodyColor: "rgba(245,247,250,0.88)",
-              padding: 12,
-              displayColors: false,
-              callbacks: {
-                label: (ctx) => {
-                  if (ctx.raw === 25) return "Severity: Low";
-                  if (ctx.raw === 50) return "Severity: Moderate";
-                  if (ctx.raw === 75) return "Severity: High";
-                  if (ctx.raw === 100) return "Severity: Very high";
-                  return `Severity score: ${ctx.raw}`;
-                }
+    synthesisChart = new Chart(document.getElementById("slowdownChart"), {
+      type: "bar",
+      data: {
+        labels: synthesisData.map(d => d.label),
+        datasets: [{
+          label: "Severity",
+          data: synthesisData.map(d => d.value),
+          backgroundColor: [
+            "rgba(63,110,161,0.84)",
+            "rgba(95,132,177,0.84)",
+            "rgba(184,134,11,0.78)",
+            "rgba(184,104,80,0.82)",
+            "rgba(184,80,94,0.88)"
+          ],
+          borderRadius: 10,
+          maxBarThickness: 42,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: { right: 6, left: 2, top: 4, bottom: 2 } },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "rgba(15,23,32,0.94)",
+            titleColor: "#FFFFFF",
+            bodyColor: "rgba(245,247,250,0.88)",
+            padding: 12,
+            displayColors: false,
+            callbacks: {
+              label: (ctx) => {
+                if (ctx.raw === 25) return "Severity: Low";
+                if (ctx.raw === 50) return "Severity: Moderate";
+                if (ctx.raw === 75) return "Severity: High";
+                if (ctx.raw === 100) return "Severity: Very high";
+                return `Severity score: ${ctx.raw}`;
               }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            border: { display: false },
+            ticks: {
+              color: "#44515E",
+              font: { size: 11, weight: "500" },
+              maxRotation: 18,
+              minRotation: 18
             }
           },
-          scales: {
-            x: {
-              grid: { display: false },
-              border: { display: false },
-              ticks: {
-                color: "#44515E",
-                font: { size: 11, weight: "500" },
-                maxRotation: 18,
-                minRotation: 18
-              }
+          y: {
+            beginAtZero: true,
+            max: 100,
+            grid: {
+              color: "rgba(21,32,43,0.06)",
+              drawBorder: false
             },
-            y: {
-              beginAtZero: true,
-              max: 100,
-              grid: {
-                color: "rgba(21,32,43,0.06)",
-                drawBorder: false
-              },
-              border: { display: false },
-              ticks: {
-                color: "#6B7785",
-                padding: 8,
-                callback: function(value) {
-                  if (value === 25) return "Low";
-                  if (value === 50) return "Moderate";
-                  if (value === 75) return "High";
-                  if (value === 100) return "Very high";
-                  return "";
-                }
+            border: { display: false },
+            ticks: {
+              color: "#6B7785",
+              padding: 8,
+              callback: function(value) {
+                if (value === 25) return "Low";
+                if (value === 50) return "Moderate";
+                if (value === 75) return "High";
+                if (value === 100) return "Very high";
+                return "";
               }
             }
           }
         }
-      });
-    }
-
-    function saveForSynthesis(apiResponse, meta = {}) {
-      const existing = JSON.parse(localStorage.getItem("monderman_diagnostic_results") || "{}");
-
-      existing.structural_clarity = {
-        ...apiResponse,
-        meta: {
-          completed_at: new Date().toISOString(),
-          focus_area: meta.focusArea || "",
-          structure_type: meta.structureType || "",
-          description: meta.description || "",
-          meetings_per_week: meta.meetingsPerWeek || "",
-          hourly_cost: meta.hourlyCost || "",
-          people_affected: meta.peopleAffected || "",
-          issues_per_month: meta.issuesPerMonth || ""
-        }
-      };
-
-      localStorage.setItem("monderman_diagnostic_results", JSON.stringify(existing));
-      localStorage.setItem("monderman_structural_clarity_result", JSON.stringify(existing.structural_clarity));
-    }
-
-    function renderResults(apiResponse, contextMeta = {}) {
-      const result = apiResponse.result || {};
-      const headline = result.headline || {};
-      const readout = result.executive_readout || {};
-      const risk = result.risk_profile || {};
-      const benchmark = BENCHMARKS[contextMeta.structureType] || BENCHMARKS.other;
-      const benchmarkPosition = getBenchmarkPosition(headline.index || 0, benchmark);
-      const exposure = buildExposureEstimates(contextMeta, apiResponse);
-      const statusLine = getStatusLine(Number(headline.index || 0));
-
-      resultsEmptyState.classList.add("hidden");
-      resultsShell.classList.add("active");
-      setResultsLayout(true);
-
-      scoreNumber.textContent = headline.index ?? "—";
-      scoreBand.textContent = headline.band || "—";
-      scoreStatusLine.textContent = statusLine;
-      scoreSummary.textContent = readout.executive_signal || "Readout generated.";
-      scoreBadge.textContent = contextMeta.focusArea || apiResponse.tool_label || "Structural Clarity";
-
-      benchmarkValue.textContent = benchmarkPosition;
-      benchmarkSub.textContent = `${benchmark.label}: ${benchmark.moderateMin}–${benchmark.healthyMax}`;
-
-      timeRiskValue.textContent = formatSeverity(risk.time_risk);
-      timeRiskSub.textContent = "Directional exposure";
-
-      moneyRiskValue.textContent = formatSeverity(risk.money_risk);
-      moneyRiskSub.textContent = "Directional exposure";
-
-      resourceRiskValue.textContent = formatSeverity(risk.resource_risk);
-      resourceRiskSub.textContent = "Directional exposure";
-
-      categoryValue.textContent = benchmark.label;
-      categorySub.textContent = "Reference group";
-
-      narrativeInterpretation.textContent = readout.executive_signal || "—";
-      leadershipImplication.textContent = readout.priority || "—";
-      tradeoffNote.textContent = result.tradeoff_note || "—";
-      tmrSummary.textContent = readout.time_money_resources_summary || "—";
-
-      tmrHoursValue.textContent = `${formatCompactHours(exposure.annualHours)}*`;
-      tmrHoursSub.textContent = `Estimated annual hours absorbed across approximately ${Number(contextMeta.peopleAffected || 0) || (contextMeta.scopeSize === "small" ? 6 : contextMeta.scopeSize === "medium" ? 24 : contextMeta.scopeSize === "large" ? 80 : 180)} people.`;
-
-      tmrMoneyValue.textContent = `${formatCompactCurrency(exposure.annualCost)}*`;
-      tmrMoneySub.textContent = `Estimated annual cost equivalent using ${contextMeta.hourlyCost ? `$${contextMeta.hourlyCost}/hr` : "a default loaded rate assumption"}.`;
-
-      tmrResourceValue.textContent = `${formatPercent(exposure.capacityDrag)}*`;
-      tmrResourceSub.textContent = "Estimated share of productive capacity diverted into clarification, coordination, and structural rework.";
-
-      renderList(recommendations, result.intervention_order || []);
-
-      const signalLines = [
-        `Primary constraint type: ${result.synthesis_signals?.primary_constraint_type || "clarity"}.`,
-        `Drag severity: ${formatSeverity(result.synthesis_signals?.drag_severity)}.`,
-        ...getSignalNarrativeLines(result)
-      ];
-      renderList(frictionFlags, signalLines);
-
-      reportScoreNumber.textContent = headline.index ?? "—";
-      reportScoreBand.textContent = headline.band || "—";
-      reportStatusLine.textContent = statusLine;
-      reportSummaryCopy.textContent = readout.executive_signal || "Readout generated.";
-      reportBenchmarkValue.textContent = benchmarkPosition;
-      reportBenchmarkSub.textContent = `${benchmark.label}: ${benchmark.moderateMin}–${benchmark.healthyMax}`;
-      reportTimeRiskValue.textContent = formatSeverity(risk.time_risk);
-      reportTimeRiskSub.textContent = "Directional exposure";
-      reportMoneyRiskValue.textContent = formatSeverity(risk.money_risk);
-      reportMoneyRiskSub.textContent = "Directional exposure";
-      reportResourceRiskValue.textContent = formatSeverity(risk.resource_risk);
-      reportResourceRiskSub.textContent = "Directional exposure";
-      reportCategoryValue.textContent = benchmark.label;
-      reportCategorySub.textContent = "Reference group";
-      reportNarrativeInterpretation.textContent = readout.executive_signal || "—";
-      reportLeadershipImplication.textContent = readout.priority || "—";
-      reportTradeoffNote.textContent = result.tradeoff_note || "—";
-      reportTmrSummary.textContent = `${readout.time_money_resources_summary || "—"} Estimated exposure: ${formatCompactHours(exposure.annualHours)}*, ${formatCompactCurrency(exposure.annualCost)}*, ${formatPercent(exposure.capacityDrag)}* capacity drag.`;
-      reportPageSub.textContent = `${contextMeta.focusArea || "Structural boundary"} · ${benchmark.label} · ${contextMeta.description || "Directional structural clarity readout for leadership review."}`;
-
-      renderList(reportRecommendations, result.intervention_order || []);
-      renderList(reportFrictionFlags, signalLines);
-
-      renderCharts(apiResponse);
-      saveForSynthesis(apiResponse, contextMeta);
-
-      resultsShell.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-
-    async function callStructuralClarityApi(payload) {
-      const response = await fetch(`${API_BASE}${STRUCTURAL_CLARITY_API_PATH}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": STRUCTURAL_CLARITY_API_KEY
-        },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await response.json().catch(() => null);
-
-      if (!response.ok) {
-        throw new Error(data?.error || data?.detail || "Structural Clarity API request failed.");
-      }
-
-      return data;
-    }
-
-    guidedForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const privacyAgree = document.getElementById("privacyAgree");
-      if (!privacyAgree.checked) {
-        alert("Please agree to the privacy notice before proceeding.");
-        return;
-      }
-
-      for (let step = 1; step <= 5; step++) {
-        if (!validateStep(step)) {
-          goToStep(step, false);
-          return;
-        }
-      }
-
-      if (!STRUCTURAL_CLARITY_API_KEY || STRUCTURAL_CLARITY_API_KEY === "REPLACE_WITH_TEMP_TEST_KEY") {
-        setError("Add your temporary testing API key in the HTML before using the live website-connected version of this tool.");
-        return;
-      }
-
-      const formData = new FormData(guidedForm);
-      const data = Object.fromEntries(formData.entries());
-      const payload = buildApiPayloadFromGuided(data);
-
-      setLoadingState(true);
-
-      try {
-        const apiResponse = await callStructuralClarityApi(payload);
-        clearMessages();
-        renderResults(apiResponse, {
-          focusArea: data.focusArea || "Structural Clarity",
-          structureType: data.structureType || "other",
-          description: data.description || "",
-          meetingsPerWeek: data.meetingsPerWeek || "",
-          hourlyCost: data.hourlyCost || "",
-          peopleAffected: data.peopleAffected || "",
-          issuesPerMonth: data.issuesPerMonth || "",
-          scopeSize: data.scopeSize || ""
-        });
-      } catch (error) {
-        setError(error.message || "Unable to generate structural clarity readout.");
       }
     });
+  }
 
-    csvForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
+  function saveForSynthesis(apiResponse, meta = {}) {
+    const existing = JSON.parse(localStorage.getItem("monderman_diagnostic_results") || "{}");
 
-      const csvPrivacyAgree = document.getElementById("csvPrivacyAgree");
-      if (!csvPrivacyAgree.checked) {
-        alert("Please agree to the privacy notice before proceeding.");
-        return;
-      }
-
-      if (!STRUCTURAL_CLARITY_API_KEY || STRUCTURAL_CLARITY_API_KEY === "REPLACE_WITH_TEMP_TEST_KEY") {
-        setError("Add your temporary testing API key in the HTML before using the live website-connected version of this tool.");
-        return;
-      }
-
-      const fileInput = document.getElementById("csvFile");
-      const file = fileInput.files[0];
-
-      if (!file) {
-        alert("Please choose a CSV file first.");
-        return;
-      }
-
-      const text = await file.text();
-      const rows = parseCSV(text);
-
-      if (!rows || !rows.length) {
-        alert("The CSV could not be parsed. Please use the sample template or the guided diagnostic.");
-        return;
-      }
-
-      const sample = rows[0] || {};
-      const mapped = buildGuidedLikeObjectFromCsvRow(sample);
-      const payload = buildApiPayloadFromGuided(mapped);
-
-      setLoadingState(true);
-
-      try {
-        const apiResponse = await callStructuralClarityApi(payload);
-        clearMessages();
-        renderResults(apiResponse, {
-          focusArea: mapped.focusArea || "Uploaded structure",
-          structureType: mapped.structureType || "other",
-          description: mapped.description || "",
-          meetingsPerWeek: mapped.meetingsPerWeek || "",
-          hourlyCost: mapped.hourlyCost || "",
-          peopleAffected: mapped.peopleAffected || "",
-          issuesPerMonth: mapped.issuesPerMonth || "",
-          scopeSize: mapped.scopeSize || ""
-        });
-      } catch (error) {
-        setError(error.message || "Unable to generate structural clarity readout from CSV.");
-      }
-    });
-
-    window.testOpenAIHealth = async function () {
-      try {
-        const response = await fetch("https://monderman-api.onrender.com/openai-health", {
-          method: "GET",
-          headers: {
-            "x-api-key": STRUCTURAL_CLARITY_API_KEY
-          }
-        });
-
-        const data = await response.json();
-        console.log("OpenAI health response:", data);
-        alert(JSON.stringify(data, null, 2));
-        return data;
-      } catch (error) {
-        console.error("OpenAI health error:", error);
-        alert("OpenAI health test failed.");
-        throw error;
+    existing.structural_clarity = {
+      ...apiResponse,
+      meta: {
+        completed_at: new Date().toISOString(),
+        focus_area: meta.focusArea || "",
+        structure_type: meta.structureType || "",
+        description: meta.description || "",
+        meetings_per_week: meta.meetingsPerWeek || "",
+        hourly_cost: meta.hourlyCost || "",
+        people_affected: meta.peopleAffected || "",
+        issues_per_month: meta.issuesPerMonth || ""
       }
     };
 
-    setMode("guided");
-    setResultsLayout(false);
-    goToStep(1, false);
-  </script>
+    localStorage.setItem("monderman_diagnostic_results", JSON.stringify(existing));
+    localStorage.setItem("monderman_structural_clarity_result", JSON.stringify(existing.structural_clarity));
+  }
+
+  function applyTooltipToCsvCard() {
+    const csvCard = document.getElementById("modeCsvCard");
+    if (!csvCard) return;
+
+    const title = csvCard.querySelector(".mode-card-title");
+    if (!title || csvCard.querySelector(".mode-info-wrap")) return;
+
+    const wrap = document.createElement("span");
+    wrap.className = "mode-info-wrap";
+    wrap.style.display = "inline-flex";
+    wrap.style.alignItems = "center";
+    wrap.style.gap = "8px";
+    wrap.style.position = "absolute";
+    wrap.style.top = "14px";
+    wrap.style.right = "14px";
+    wrap.style.zIndex = "2";
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.setAttribute("aria-label", "CSV format information");
+    button.setAttribute("aria-expanded", "false");
+    button.className = "mode-info-button";
+    button.style.width = "24px";
+    button.style.height = "24px";
+    button.style.borderRadius = "999px";
+    button.style.border = "1.5px solid #3F6EA1";
+    button.style.background = "#FFFFFF";
+    button.style.color = "#3F6EA1";
+    button.style.display = "inline-flex";
+    button.style.alignItems = "center";
+    button.style.justifyContent = "center";
+    button.style.fontSize = "0.78rem";
+    button.style.fontWeight = "700";
+    button.style.lineHeight = "1";
+    button.style.cursor = "pointer";
+    button.style.padding = "0";
+    button.textContent = "i";
+
+    const tip = document.createElement("div");
+    tip.className = "mode-info-tip";
+    tip.setAttribute("role", "tooltip");
+    tip.style.position = "absolute";
+    tip.style.top = "30px";
+    tip.style.right = "0";
+    tip.style.width = "280px";
+    tip.style.padding = "12px 14px";
+    tip.style.borderRadius = "12px";
+    tip.style.border = "1px solid rgba(21,32,43,0.10)";
+    tip.style.background = "#FFFFFF";
+    tip.style.boxShadow = "0 14px 32px rgba(10, 18, 26, 0.12)";
+    tip.style.fontSize = "0.8rem";
+    tip.style.lineHeight = "1.5";
+    tip.style.color = "#556270";
+    tip.style.display = "none";
+    tip.style.textAlign = "left";
+    tip.textContent = "CSV files should include the accepted field names shown below the upload area. The simplest format is one header row and one or more data rows using those exact column names.";
+
+    function showTip() {
+      tip.style.display = "block";
+      button.setAttribute("aria-expanded", "true");
+    }
+
+    function hideTip() {
+      tip.style.display = "none";
+      button.setAttribute("aria-expanded", "false");
+    }
+
+    button.addEventListener("mouseenter", showTip);
+    button.addEventListener("focus", showTip);
+    button.addEventListener("mouseleave", hideTip);
+    button.addEventListener("blur", hideTip);
+
+    wrap.appendChild(button);
+    wrap.appendChild(tip);
+    csvCard.appendChild(wrap);
+  }
+
+  async function callStructuralClarityApi(payload) {
+    const response = await fetch(`${API_BASE}${STRUCTURAL_CLARITY_API_PATH}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      throw new Error(data?.error || data?.detail || "Structural Clarity API request failed.");
+    }
+
+    return data;
+  }
+
+  async function callStructuralClarityNarrativeApi(payload) {
+    const response = await fetch(`${API_BASE}${STRUCTURAL_CLARITY_NARRATIVE_API_PATH}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      throw new Error(data?.error || data?.detail || "Narrative API request failed.");
+    }
+
+    return data;
+  }
+
+  async function enrichNarrative(apiResponse, contextMeta = {}) {
+    const result = apiResponse.result || {};
+    const headline = result.headline || {};
+    const readout = result.executive_readout || {};
+
+    const synthesisFlags = [
+      `Primary constraint type: ${result.synthesis_signals?.primary_constraint_type || "clarity"}.`,
+      `Drag severity: ${formatSeverity(result.synthesis_signals?.drag_severity)}.`,
+      ...getSignalNarrativeLines(result)
+    ];
+
+    const payload = {
+      focus_area: contextMeta.focusArea || "Structural boundary",
+      structure_type: contextMeta.structureType || "other",
+      index: headline.index || "",
+      band: headline.band || "",
+      executive_signal: readout.executive_signal || "",
+      priority: readout.priority || "",
+      tradeoff_note: result.tradeoff_note || "",
+      time_money_resources_summary: readout.time_money_resources_summary || "",
+      intervention_order: result.intervention_order || [],
+      synthesis_flags: synthesisFlags
+    };
+
+    const narrativeResponse = await callStructuralClarityNarrativeApi(payload);
+    return narrativeResponse.narrative || null;
+  }
+
+  function renderResults(apiResponse, contextMeta = {}, narrative = null) {
+    const result = apiResponse.result || {};
+    const headline = result.headline || {};
+    const readout = result.executive_readout || {};
+    const risk = result.risk_profile || {};
+    const benchmark = BENCHMARKS[contextMeta.structureType] || BENCHMARKS.other;
+    const benchmarkPosition = getBenchmarkPosition(headline.index || 0, benchmark);
+    const exposure = buildExposureEstimates(contextMeta, apiResponse);
+    const statusLine = getStatusLine(Number(headline.index || 0));
+
+    latestNarrative = narrative;
+    latestContextMeta = contextMeta;
+    latestExposure = exposure;
+
+    const executiveSignalText = narrative?.executive_signal || readout.executive_signal || "Readout generated.";
+    const leadershipPriorityText = narrative?.leadership_priority || readout.priority || "Readout generated.";
+    const tradeoffText = narrative?.tradeoff_note || result.tradeoff_note || "—";
+    const tmrText = narrative?.tmr_summary || readout.time_money_resources_summary || "—";
+    const pdfSummaryText = narrative?.pdf_summary || executiveSignalText;
+
+    resultsEmptyState.classList.add("hidden");
+    resultsShell.classList.add("active");
+    setResultsLayout(true);
+
+    scoreNumber.textContent = headline.index ?? "—";
+    scoreBand.textContent = headline.band || "—";
+    scoreStatusLine.textContent = statusLine;
+    scoreSummary.textContent = executiveSignalText;
+    scoreBadge.textContent = contextMeta.focusArea || apiResponse.tool_label || "Structural Clarity";
+
+    benchmarkValue.textContent = benchmarkPosition;
+    benchmarkSub.textContent = `${benchmark.label}: ${benchmark.moderateMin}–${benchmark.healthyMax}`;
+
+    timeRiskValue.textContent = formatSeverity(risk.time_risk);
+    timeRiskSub.textContent = "Directional exposure";
+
+    moneyRiskValue.textContent = formatSeverity(risk.money_risk);
+    moneyRiskSub.textContent = "Directional exposure";
+
+    resourceRiskValue.textContent = formatSeverity(risk.resource_risk);
+    resourceRiskSub.textContent = "Directional exposure";
+
+    categoryValue.textContent = benchmark.label;
+    categorySub.textContent = "Reference group";
+
+    narrativeInterpretation.textContent = executiveSignalText;
+    leadershipImplication.textContent = leadershipPriorityText;
+    tradeoffNote.textContent = tradeoffText;
+    tmrSummary.textContent = tmrText;
+
+    tmrHoursValue.textContent = `${formatCompactHours(exposure.annualHours)}*`;
+    tmrHoursSub.textContent = `Estimated annual hours absorbed across approximately ${Number(contextMeta.peopleAffected || 0) || (contextMeta.scopeSize === "small" ? 6 : contextMeta.scopeSize === "medium" ? 24 : contextMeta.scopeSize === "large" ? 80 : 180)} people.`;
+
+    tmrMoneyValue.textContent = `${formatCompactCurrency(exposure.annualCost)}*`;
+    tmrMoneySub.textContent = `Estimated annual cost equivalent using ${contextMeta.hourlyCost ? `$${contextMeta.hourlyCost}/hr` : "a default loaded rate assumption"}.`;
+
+    tmrResourceValue.textContent = `${formatPercent(exposure.capacityDrag)}*`;
+    tmrResourceSub.textContent = "Estimated share of productive capacity diverted into clarification, coordination, and structural rework.";
+
+    renderList(recommendations, result.intervention_order || []);
+
+    const signalLines = [
+      `Primary constraint type: ${result.synthesis_signals?.primary_constraint_type || "clarity"}.`,
+      `Drag severity: ${formatSeverity(result.synthesis_signals?.drag_severity)}.`,
+      ...getSignalNarrativeLines(result)
+    ];
+    renderList(frictionFlags, signalLines);
+
+    reportScoreNumber.textContent = headline.index ?? "—";
+    reportScoreBand.textContent = headline.band || "—";
+    reportStatusLine.textContent = statusLine;
+    reportSummaryCopy.textContent = pdfSummaryText;
+    reportBenchmarkValue.textContent = benchmarkPosition;
+    reportBenchmarkSub.textContent = `${benchmark.label}: ${benchmark.moderateMin}–${benchmark.healthyMax}`;
+    reportTimeRiskValue.textContent = formatSeverity(risk.time_risk);
+    reportTimeRiskSub.textContent = "Directional exposure";
+    reportMoneyRiskValue.textContent = formatSeverity(risk.money_risk);
+    reportMoneyRiskSub.textContent = "Directional exposure";
+    reportResourceRiskValue.textContent = formatSeverity(risk.resource_risk);
+    reportResourceRiskSub.textContent = "Directional exposure";
+    reportCategoryValue.textContent = benchmark.label;
+    reportCategorySub.textContent = "Reference group";
+    reportNarrativeInterpretation.textContent = executiveSignalText;
+    reportLeadershipImplication.textContent = leadershipPriorityText;
+    reportTradeoffNote.textContent = tradeoffText;
+    reportTmrSummary.textContent = `${tmrText} Estimated exposure: ${formatCompactHours(exposure.annualHours)}*, ${formatCompactCurrency(exposure.annualCost)}*, ${formatPercent(exposure.capacityDrag)}* capacity drag.`;
+    reportPageSub.textContent = `${contextMeta.focusArea || "Structural boundary"} · ${benchmark.label} · ${contextMeta.description || "Directional structural clarity readout for leadership review."}`;
+
+    renderList(reportRecommendations, result.intervention_order || []);
+    renderList(reportFrictionFlags, signalLines);
+
+    renderCharts(apiResponse);
+    saveForSynthesis(apiResponse, contextMeta);
+
+    resultsShell.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function drawWrappedText(doc, text, x, y, maxWidth, fontSize = 10.5, lineHeight = 15, fontStyle = "normal", color = [21, 32, 43]) {
+    doc.setFont("helvetica", fontStyle);
+    doc.setFontSize(fontSize);
+    doc.setTextColor(...color);
+    const lines = doc.splitTextToSize(text || "", maxWidth);
+    doc.text(lines, x, y);
+    return y + (lines.length * lineHeight);
+  }
+
+  function generateExecutiveSummaryPdf() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: "pt", format: "letter" });
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 52;
+    const contentWidth = pageWidth - (margin * 2);
+    let y = 0;
+
+    function ensureSpace(spaceNeeded) {
+      if (y + spaceNeeded > pageHeight - margin) {
+        doc.addPage();
+        y = margin;
+      }
+    }
+
+    function sectionTitle(text) {
+      ensureSpace(24);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(63, 110, 161);
+      doc.text(String(text).toUpperCase(), margin, y);
+      y += 18;
+    }
+
+    function bodyText(text, fontSize = 10.5, lineHeight = 15) {
+      const lines = doc.splitTextToSize(text || "", contentWidth);
+      ensureSpace((lines.length * lineHeight) + 6);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(fontSize);
+      doc.setTextColor(21, 32, 43);
+      doc.text(lines, margin, y);
+      y += (lines.length * lineHeight) + 8;
+    }
+
+    function bulletList(items) {
+      (items || []).forEach(item => {
+        const bulletX = margin;
+        const textX = margin + 12;
+        const lines = doc.splitTextToSize(item, contentWidth - 12);
+        ensureSpace((lines.length * 15) + 6);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10.5);
+        doc.setTextColor(21, 32, 43);
+        doc.text("•", bulletX, y);
+        doc.text(lines, textX, y);
+        y += (lines.length * 15) + 6;
+      });
+      y += 4;
+    }
+
+    const recommendationItems = Array.from(reportRecommendations.querySelectorAll("li")).map(li => li.textContent.trim()).filter(Boolean);
+    const flagItems = Array.from(reportFrictionFlags.querySelectorAll("li")).map(li => li.textContent.trim()).filter(Boolean);
+
+    doc.setFillColor(15, 23, 32);
+    doc.rect(0, 0, pageWidth, 104, "F");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9.5);
+    doc.setTextColor(245, 247, 250);
+    doc.text("MONDERMAN DIAGNOSTIC SUITE", margin, 30);
+
+    doc.setFontSize(22);
+    doc.text("Structural Clarity Executive Summary", margin, 58);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(220, 226, 232);
+    const subLines = doc.splitTextToSize(reportPageSub.textContent || "", contentWidth);
+    doc.text(subLines, margin, 79);
+
+    y = 132;
+
+    sectionTitle("Executive Summary");
+    bodyText(reportSummaryCopy.textContent || "");
+
+    sectionTitle("At-a-Glance");
+    const metricPairs = [
+      ["Index", `${reportScoreNumber.textContent || "—"} · ${reportScoreBand.textContent || "—"}`],
+      ["Benchmark", `${reportBenchmarkValue.textContent || "—"} (${reportBenchmarkSub.textContent || ""})`],
+      ["Time Risk", `${reportTimeRiskValue.textContent || "—"} (${reportTimeRiskSub.textContent || ""})`],
+      ["Money Risk", `${reportMoneyRiskValue.textContent || "—"} (${reportMoneyRiskSub.textContent || ""})`],
+      ["Resource Risk", `${reportResourceRiskValue.textContent || "—"} (${reportResourceRiskSub.textContent || ""})`],
+      ["Structure Type", `${reportCategoryValue.textContent || "—"}`]
+    ];
+
+    metricPairs.forEach(([label, value]) => {
+      ensureSpace(26);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(21, 32, 43);
+      doc.text(label, margin, y);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(85, 98, 112);
+      doc.text(String(value), margin + 110, y);
+      y += 18;
+    });
+
+    y += 6;
+    sectionTitle("Executive Signal");
+    bodyText(reportNarrativeInterpretation.textContent || "");
+
+    sectionTitle("Leadership Priority");
+    bodyText(reportLeadershipImplication.textContent || "");
+
+    sectionTitle("Recommended Intervention Order");
+    bulletList(recommendationItems);
+
+    sectionTitle("Trade-Off Note");
+    bodyText(reportTradeoffNote.textContent || "");
+
+    sectionTitle("Synthesis-Ready Flags");
+    bulletList(flagItems);
+
+    sectionTitle("Time, Money, and Resources");
+    bodyText(reportTmrSummary.textContent || "");
+
+    ensureSpace(40);
+    doc.setDrawColor(227, 231, 235);
+    doc.line(margin, pageHeight - 48, pageWidth - margin, pageHeight - 48);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8.5);
+    doc.setTextColor(122, 135, 148);
+    const footerText = "Time, money, and resource figures in this report are directional estimates derived from user input and Monderman’s structural diagnostic logic. They are intended as leadership planning indicators, not audited measurements.";
+    const footerLines = doc.splitTextToSize(footerText, contentWidth);
+    doc.text(footerLines, margin, pageHeight - 32);
+
+    const safeFocus = (latestContextMeta.focusArea || "structural-clarity")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+
+    const dateStamp = new Date().toISOString().slice(0, 10);
+    doc.save(`monderman-structural-clarity-${safeFocus || "summary"}-${dateStamp}.pdf`);
+  }
+
+  downloadPdfBtn.addEventListener("click", () => {
+    generateExecutiveSummaryPdf();
+  });
+
+  guidedForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const privacyAgree = document.getElementById("privacyAgree");
+    if (!privacyAgree.checked) {
+      alert("Please agree to the privacy notice before proceeding.");
+      return;
+    }
+
+    for (let step = 1; step <= 5; step++) {
+      if (!validateStep(step)) {
+        goToStep(step, false);
+        return;
+      }
+    }
+
+    const formData = new FormData(guidedForm);
+    const data = Object.fromEntries(formData.entries());
+    const payload = buildApiPayloadFromGuided(data);
+
+    setLoadingState(true);
+
+    try {
+      const apiResponse = await callStructuralClarityApi(payload);
+
+      let narrative = null;
+      try {
+        setLoadingState(true, "Polishing executive prose...", "The scoring is complete. Monderman is now refining the narrative output for the dashboard and PDF.");
+        narrative = await enrichNarrative(apiResponse, {
+          focusArea: data.focusArea || "Structural Clarity",
+          structureType: data.structureType || "other"
+        });
+      } catch (narrativeError) {
+        console.warn("Narrative generation failed; using scoring prose.", narrativeError);
+      }
+
+      clearMessages();
+      renderResults(apiResponse, {
+        focusArea: data.focusArea || "Structural Clarity",
+        structureType: data.structureType || "other",
+        description: data.description || "",
+        meetingsPerWeek: data.meetingsPerWeek || "",
+        hourlyCost: data.hourlyCost || "",
+        peopleAffected: data.peopleAffected || "",
+        issuesPerMonth: data.issuesPerMonth || "",
+        scopeSize: data.scopeSize || ""
+      }, narrative);
+    } catch (error) {
+      setError(error.message || "Unable to generate structural clarity readout.");
+    }
+  });
+
+  csvForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const csvPrivacyAgree = document.getElementById("csvPrivacyAgree");
+    if (!csvPrivacyAgree.checked) {
+      alert("Please agree to the privacy notice before proceeding.");
+      return;
+    }
+
+    const fileInput = document.getElementById("csvFile");
+    const file = fileInput.files[0];
+
+    if (!file) {
+      alert("Please choose a CSV file first.");
+      return;
+    }
+
+    const text = await file.text();
+    const rows = parseCSV(text);
+
+    if (!rows || !rows.length) {
+      alert("The CSV could not be parsed. Please use the sample template or the guided diagnostic.");
+      return;
+    }
+
+    const sample = rows[0] || {};
+    const mapped = buildGuidedLikeObjectFromCsvRow(sample);
+    const payload = buildApiPayloadFromGuided(mapped);
+
+    setLoadingState(true);
+
+    try {
+      const apiResponse = await callStructuralClarityApi(payload);
+
+      let narrative = null;
+      try {
+        setLoadingState(true, "Polishing executive prose...", "The scoring is complete. Monderman is now refining the narrative output for the dashboard and PDF.");
+        narrative = await enrichNarrative(apiResponse, {
+          focusArea: mapped.focusArea || "Uploaded structure",
+          structureType: mapped.structureType || "other"
+        });
+      } catch (narrativeError) {
+        console.warn("Narrative generation failed; using scoring prose.", narrativeError);
+      }
+
+      clearMessages();
+      renderResults(apiResponse, {
+        focusArea: mapped.focusArea || "Uploaded structure",
+        structureType: mapped.structureType || "other",
+        description: mapped.description || "",
+        meetingsPerWeek: mapped.meetingsPerWeek || "",
+        hourlyCost: mapped.hourlyCost || "",
+        peopleAffected: mapped.peopleAffected || "",
+        issuesPerMonth: mapped.issuesPerMonth || "",
+        scopeSize: mapped.scopeSize || ""
+      }, narrative);
+    } catch (error) {
+      setError(error.message || "Unable to generate structural clarity readout from CSV.");
+    }
+  });
+
+  applyTooltipToCsvCard();
+  setMode("guided");
+  setResultsLayout(false);
+  goToStep(1, false);
+</script>
 </body>
 </html>
