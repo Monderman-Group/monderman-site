@@ -876,6 +876,8 @@
     });
 
     async function testOpenAIHealth() {
+      console.log("testOpenAIHealth started");
+
       try {
         const response = await fetch("https://monderman-api.onrender.com/openai-health", {
           method: "GET",
@@ -885,8 +887,10 @@
         });
 
         const data = await response.json();
+        console.log("OpenAI health response:", data);
         alert(JSON.stringify(data, null, 2));
       } catch (error) {
+        console.error("OpenAI health error:", error);
         alert("OpenAI health test failed.");
       }
     }
@@ -894,6 +898,8 @@
     setMode("guided");
     setResultsLayout(false);
     goToStep(1, false);
+
+    alert("script loaded");
     testOpenAIHealth();
   </script>
 </body>
