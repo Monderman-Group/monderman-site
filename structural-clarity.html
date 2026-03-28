@@ -55,6 +55,7 @@
       --muted-dark: #556270;
       --muted-dark-2: #7A8794;
       --panel-line: rgba(21, 32, 43, 0.08);
+      --panel-line-strong: rgba(21, 32, 43, 0.12);
       --success: #2E8B57;
       --warning: #B8860B;
       --danger: #B8505E;
@@ -62,11 +63,12 @@
       --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
       --card-shadow: 0 12px 28px rgba(0, 0, 0, 0.045);
       --panel-shadow: 0 14px 34px rgba(10, 18, 26, 0.04);
+      --premium-shadow: 0 18px 44px rgba(10, 18, 26, 0.08);
       --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+    html { scroll-behavior: smooth; scroll-padding-top: 84px; }
 
     body {
       margin: 0;
@@ -154,12 +156,12 @@
 
     .hero {
       position: relative;
-      margin-bottom: 30px;
-      min-height: 0;
+      margin-bottom: 32px;
       overflow: hidden;
       background: var(--bg-dark);
       border-radius: 24px;
       border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: var(--premium-shadow);
     }
 
     .hero::before {
@@ -750,7 +752,7 @@
 
     .results-shell {
       display: none;
-      gap: 18px;
+      gap: 20px;
       margin-top: 34px;
       padding-top: 6px;
     }
@@ -819,11 +821,11 @@
       background: linear-gradient(180deg, #0F1720 0%, #111B25 100%);
       color: #FFFFFF;
       border-radius: 22px;
-      padding: 28px 26px 24px;
+      padding: 30px 28px 26px;
       border: 1px solid rgba(255,255,255,0.06);
       position: relative;
       overflow: hidden;
-      box-shadow: 0 18px 38px rgba(15, 23, 32, 0.16);
+      box-shadow: 0 18px 42px rgba(15, 23, 32, 0.16);
     }
 
     .score-panel::before {
@@ -842,13 +844,18 @@
       position: relative;
       z-index: 1;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 18px;
-      align-items: start;
+      grid-template-columns: minmax(0, 1.1fr) minmax(240px, 0.9fr);
+      gap: 22px;
+      align-items: end;
+    }
+
+    .score-main {
+      display: grid;
+      gap: 10px;
     }
 
     .score-label {
-      margin: 0 0 10px;
+      margin: 0;
       font-size: 0.74rem;
       font-weight: 700;
       letter-spacing: 0.22em;
@@ -857,29 +864,44 @@
       color: rgba(245,247,250,0.60);
     }
 
+    .score-value-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
     .score-number {
       margin: 0;
-      font-size: clamp(3.2rem, 6vw, 5rem);
+      font-size: clamp(3.35rem, 6vw, 5.4rem);
       line-height: 0.88;
-      letter-spacing: -0.08em;
+      letter-spacing: -0.09em;
       font-weight: 700;
       color: #FFFFFF;
     }
 
     .score-band {
-      margin: 12px 0 0;
-      font-size: 1.14rem;
-      line-height: 1.38;
+      margin: 0 0 8px;
+      font-size: 1.16rem;
+      line-height: 1.25;
       font-weight: 600;
       color: rgba(245,247,250,0.94);
+      max-width: 28ch;
     }
 
     .score-summary {
-      margin: 12px 0 0;
+      margin: 0;
       max-width: 62ch;
       font-size: 0.98rem;
       line-height: 1.68;
-      color: rgba(245,247,250,0.78);
+      color: rgba(245,247,250,0.76);
+    }
+
+    .score-side {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+      justify-items: end;
     }
 
     .score-badge {
@@ -891,55 +913,169 @@
       font-weight: 600;
       color: #FFFFFF;
       white-space: nowrap;
-      align-self: start;
     }
 
-    .summary-grid {
+    .score-status-card {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 14px 14px 13px;
+    }
+
+    .score-status-label {
+      margin: 0 0 6px;
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: rgba(245,247,250,0.56);
+    }
+
+    .score-status-text {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: rgba(245,247,250,0.84);
+    }
+
+    .metric-strip {
       display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .summary-card {
+      gap: 0;
       background: #FFFFFF;
-      border: 1px solid rgba(21,32,43,0.08);
-      border-radius: 16px;
-      padding: 16px 14px 14px;
+      border: 1px solid var(--panel-line);
+      border-radius: 18px;
+      overflow: hidden;
       box-shadow: var(--soft-shadow);
     }
 
-    .summary-label {
-      margin: 0 0 8px;
-      font-size: 0.72rem;
+    .metric-block {
+      padding: 18px 18px 16px;
+      border-right: 1px solid rgba(21,32,43,0.08);
+      min-height: 118px;
+    }
+
+    .metric-block:last-child {
+      border-right: none;
+    }
+
+    .metric-label {
+      margin: 0 0 10px;
+      font-size: 0.7rem;
       font-weight: 700;
       line-height: 1;
-      letter-spacing: 0.16em;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--muted-dark-2);
     }
 
-    .summary-value {
+    .metric-value {
       margin: 0;
       font-size: 1.18rem;
       line-height: 1.08;
       letter-spacing: -0.04em;
       font-weight: 700;
       color: var(--text-dark);
+      text-wrap: balance;
     }
 
-    .summary-sub {
+    .metric-sub {
       margin: 8px 0 0;
       font-size: 0.82rem;
-      line-height: 1.45;
+      line-height: 1.5;
       color: var(--muted-dark);
     }
 
     .benchmark-footnote {
-      margin: -4px 0 0;
+      margin: -6px 0 0;
       padding: 0 2px;
       font-size: 0.8rem;
       line-height: 1.5;
       color: var(--muted-dark-2);
+    }
+
+    .exposure-band {
+      background:
+        linear-gradient(180deg, rgba(63,110,161,0.035) 0%, rgba(63,110,161,0.01) 100%),
+        #FFFFFF;
+      border: 1px solid rgba(63,110,161,0.12);
+      border-radius: 20px;
+      padding: 20px 20px 18px;
+      box-shadow: var(--soft-shadow);
+      display: grid;
+      gap: 14px;
+    }
+
+    .exposure-head {
+      display: grid;
+      gap: 6px;
+    }
+
+    .exposure-kicker {
+      margin: 0;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .exposure-title {
+      margin: 0;
+      font-size: 1.1rem;
+      line-height: 1.18;
+      letter-spacing: -0.03em;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .exposure-copy {
+      margin: 0;
+      max-width: 70ch;
+      font-size: 0.92rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+    }
+
+    .exposure-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .exposure-card {
+      background: rgba(255,255,255,0.92);
+      border: 1px solid rgba(21,32,43,0.08);
+      border-radius: 16px;
+      padding: 16px 16px 14px;
+    }
+
+    .exposure-label {
+      margin: 0 0 8px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+    }
+
+    .exposure-value {
+      margin: 0;
+      font-size: 1.34rem;
+      line-height: 1.04;
+      letter-spacing: -0.04em;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .exposure-sub {
+      margin: 8px 0 0;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: var(--muted-dark);
     }
 
     .results-grid {
@@ -952,12 +1088,11 @@
       background: #FFFFFF;
       border: 1px solid rgba(21,32,43,0.08);
       border-radius: 18px;
-      padding: 20px 18px 18px;
+      padding: 20px 20px 18px;
       box-shadow: var(--soft-shadow);
     }
 
-    .result-card.hero-card {
-      padding: 22px 20px 20px;
+    .result-card.emphasis {
       background:
         linear-gradient(180deg, rgba(63,110,161,0.04) 0%, rgba(63,110,161,0.01) 100%),
         #FFFFFF;
@@ -966,33 +1101,33 @@
 
     .result-card-title {
       margin: 0 0 12px;
-      font-size: 0.84rem;
-      line-height: 1.2;
+      font-size: 0.78rem;
+      line-height: 1;
       font-weight: 700;
-      letter-spacing: 0.14em;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--text-dark);
+    }
+
+    .narrative-copy {
+      margin: 0;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: var(--muted-dark);
+      white-space: pre-line;
     }
 
     .result-list {
       margin: 0;
       padding-left: 18px;
       display: grid;
-      gap: 8px;
+      gap: 10px;
     }
 
     .result-list li {
       font-size: 0.92rem;
       line-height: 1.62;
       color: var(--muted-dark);
-    }
-
-    .narrative-copy {
-      margin: 0;
-      font-size: 0.95rem;
-      line-height: 1.72;
-      color: var(--muted-dark);
-      white-space: pre-line;
     }
 
     .charts-grid {
@@ -1004,21 +1139,39 @@
     .chart-card {
       background: #FFFFFF;
       border: 1px solid rgba(21,32,43,0.08);
-      border-radius: 18px;
-      padding: 20px 18px 16px;
+      border-radius: 20px;
+      padding: 22px 20px 16px;
       box-shadow: var(--soft-shadow);
-      min-height: 372px;
+      min-height: 390px;
       display: grid;
-      grid-template-rows: auto 1fr;
+      grid-template-rows: auto auto 1fr;
       gap: 10px;
       overflow: hidden;
+    }
+
+    .chart-title {
+      margin: 0;
+      font-size: 0.78rem;
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-dark);
+    }
+
+    .chart-subtitle {
+      margin: -2px 0 0;
+      font-size: 0.86rem;
+      line-height: 1.52;
+      color: var(--muted-dark);
+      max-width: 56ch;
     }
 
     .chart-wrap {
       position: relative;
       width: 100%;
-      height: 288px;
-      min-height: 288px;
+      height: 294px;
+      min-height: 294px;
       overflow: hidden;
     }
 
@@ -1084,12 +1237,12 @@
       display: none;
       align-items: center;
       gap: 12px;
-      margin-top: 14px;
       padding: 14px 16px;
+      border: 1px solid rgba(63,110,161,0.16);
       border-radius: 14px;
-      background: rgba(63,110,161,0.06);
-      border: 1px solid rgba(63,110,161,0.12);
-      color: var(--accent-dark);
+      background: rgba(63,110,161,0.05);
+      color: var(--text-dark);
+      margin-top: 8px;
     }
 
     .loading-state.active {
@@ -1099,46 +1252,51 @@
     .loading-spinner {
       width: 18px;
       height: 18px;
-      border: 2px solid rgba(63,110,161,0.18);
+      border-radius: 999px;
+      border: 2px solid rgba(63,110,161,0.22);
       border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      animation: spin 900ms linear infinite;
       flex: 0 0 auto;
     }
 
     .loading-text {
       font-size: 0.9rem;
-      line-height: 1.5;
-      font-weight: 500;
+      line-height: 1.45;
+      color: var(--muted-dark);
     }
-
-    .loading-note,
-    .error-note {
-      margin: 0;
-      font-size: 0.88rem;
-      line-height: 1.55;
-    }
-
-    .loading-note { color: var(--muted-dark); }
-    .error-note { color: var(--danger); }
-
-    .hidden { display: none !important; }
 
     @keyframes spin {
       to { transform: rotate(360deg); }
+    }
+
+    .error-note {
+      margin: 10px 0 0;
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: var(--danger);
+    }
+
+    .hidden { display: none !important; }
+
+    .print-only {
+      display: none;
     }
 
     @media (max-width: 1120px) {
       .page-grid { grid-template-columns: 1fr; }
       .sidebar-stack { position: static; }
       .hero-inner { grid-template-columns: 1fr; }
+      .score-panel-inner { grid-template-columns: 1fr; }
+      .score-side { justify-items: start; }
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 980px) {
+      .metric-strip,
       .summary-grid,
+      .exposure-grid,
       .results-grid,
       .charts-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
       }
     }
 
@@ -1185,12 +1343,21 @@
       }
 
       .form-grid,
-      .mode-toggle {
+      .mode-toggle,
+      .metric-strip,
+      .exposure-grid,
+      .results-grid,
+      .charts-grid {
         grid-template-columns: 1fr;
       }
 
-      .score-panel-inner {
-        grid-template-columns: 1fr;
+      .metric-block {
+        border-right: none;
+        border-bottom: 1px solid rgba(21,32,43,0.08);
+      }
+
+      .metric-block:last-child {
+        border-bottom: none;
       }
 
       .submit-row,
@@ -1210,9 +1377,26 @@
       .btn {
         width: 100%;
       }
+
+      .chart-wrap {
+        height: 260px;
+        min-height: 260px;
+      }
     }
 
     @media print {
+      @page {
+        size: A4 portrait;
+        margin: 0.6in;
+      }
+
+      html,
+      body {
+        background: #FFFFFF !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
       .header,
       .hero,
       .mode-toggle,
@@ -1220,81 +1404,158 @@
       #guidedForm,
       #csvForm,
       .sidebar-stack,
-      .post-results-bridge,
       .results-actions,
+      .post-results-bridge,
       .empty-state,
       .loading-state,
-      .loading-note,
-      .error-note {
+      .error-note,
+      #resultsEmptyState,
+      .panel-head:not(.print-report-header) {
         display: none !important;
-      }
-
-      html, body {
-        background: #FFFFFF;
       }
 
       .page-shell,
       .page-grid {
-        display: block;
+        display: block !important;
         max-width: 100%;
-        padding: 0;
-        margin: 0;
+        padding: 0 !important;
+        margin: 0 !important;
       }
 
       .panel {
-        border: none;
-        box-shadow: none;
-        background: #FFFFFF;
+        border: none !important;
+        box-shadow: none !important;
+        overflow: visible !important;
       }
 
-      .panel-head {
-        display: none;
+      .panel-body {
+        padding: 0 !important;
       }
 
       .results-shell {
         display: grid !important;
-        margin-top: 0;
-        gap: 18px;
+        gap: 12pt !important;
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+      }
+
+      .print-only {
+        display: block !important;
+      }
+
+      .print-report-header {
+        margin: 0 0 18pt;
+        padding: 0 0 14pt;
+        border-bottom: 1px solid rgba(21,32,43,0.12);
+      }
+
+      .print-brand {
+        display: inline-flex;
+        align-items: center;
+        font-size: 13pt;
+        font-weight: 700;
+        color: #15202B;
+        letter-spacing: -0.02em;
+        margin-bottom: 14pt;
+      }
+
+      .print-brand::after {
+        content: "";
+        width: 6px;
+        height: 6px;
+        margin-left: 10px;
+        background: #3F6EA1;
+        border-radius: 1px;
+        display: inline-block;
+        transform: translateY(-1px);
+      }
+
+      .print-kicker {
+        margin: 0 0 8pt;
+        font-size: 7.5pt;
+        line-height: 1;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #3F6EA1;
+      }
+
+      .print-title {
+        margin: 0 0 8pt;
+        font-size: 22pt;
+        line-height: 1.02;
+        letter-spacing: -0.04em;
+        font-weight: 700;
+        color: #15202B;
+      }
+
+      .print-subtitle {
+        margin: 0;
+        max-width: 72ch;
+        font-size: 10.5pt;
+        line-height: 1.55;
+        color: #556270;
+      }
+
+      .print-meta-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10pt;
+        margin-top: 16pt;
+      }
+
+      .print-meta-card {
+        border: 1px solid rgba(21,32,43,0.08);
+        border-radius: 10pt;
+        padding: 10pt 10pt 8pt;
+      }
+
+      .print-meta-label {
+        margin: 0 0 5pt;
+        font-size: 7pt;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #7A8794;
+      }
+
+      .print-meta-value {
+        margin: 0;
+        font-size: 10pt;
+        line-height: 1.4;
+        color: #15202B;
+        font-weight: 600;
       }
 
       .results-intro {
-        padding: 0;
-        margin-bottom: 2px;
+        page-break-after: avoid;
+      }
+
+      .score-panel,
+      .metric-strip,
+      .exposure-band,
+      .result-card,
+      .chart-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        box-shadow: none !important;
       }
 
       .score-panel {
-        background: #0F1720 !important;
-        color: #FFFFFF !important;
-        box-shadow: none;
-        border: none;
-        page-break-inside: avoid;
-      }
-
-      .summary-grid,
-      .results-grid,
-      .charts-grid {
-        page-break-inside: avoid;
-      }
-
-      .summary-card,
-      .result-card,
-      .chart-card {
-        border: 1px solid #D7DEE5;
-        box-shadow: none;
-        page-break-inside: avoid;
+        margin-top: 2pt;
       }
 
       .chart-card {
-        min-height: 320px;
+        min-height: 0 !important;
       }
 
       .chart-wrap {
-        height: 240px;
-        min-height: 240px;
+        height: 220pt !important;
+        min-height: 220pt !important;
       }
 
       .benchmark-footnote {
-        padding: 0;
+        margin-top: 2pt;
       }
     }
   </style>
@@ -1347,8 +1608,8 @@
     </section>
 
     <section class="page-grid" id="pageGrid">
-      <div class="panel">
-        <div class="panel-head" id="toolTop">
+      <div class="panel" id="diagnosticPanel">
+        <div class="panel-head">
           <p class="panel-kicker">Diagnostic Input</p>
           <h2 class="panel-title">Assess one team, role boundary, or operating area.</h2>
           <p class="panel-copy">
@@ -1738,9 +1999,9 @@
             </div>
           </form>
 
-          <div class="loading-state" id="loadingState" aria-live="polite">
+          <div class="loading-state hidden" id="loadingState" aria-live="polite">
             <span class="loading-spinner" aria-hidden="true"></span>
-            <span class="loading-text">Generating structural clarity readout...</span>
+            <span class="loading-text">Running structural clarity analysis and generating executive readout…</span>
           </div>
 
           <section class="empty-state" id="resultsEmptyState" aria-live="polite">
@@ -1749,55 +2010,93 @@
           </section>
 
           <section class="results-shell" id="resultsShell" aria-live="polite">
+            <section class="print-report-header print-only">
+              <div class="print-brand">Monderman</div>
+              <p class="print-kicker">Monderman Diagnostic Suite</p>
+              <h1 class="print-title">Structural Clarity Diagnostic Report</h1>
+              <p class="print-subtitle" id="printSubtitle">
+                Executive readout generated from Monderman’s Structural Clarity Diagnostic.
+              </p>
+
+              <div class="print-meta-grid">
+                <div class="print-meta-card">
+                  <p class="print-meta-label">Focus area</p>
+                  <p class="print-meta-value" id="printFocusArea">—</p>
+                </div>
+                <div class="print-meta-card">
+                  <p class="print-meta-label">Structure type</p>
+                  <p class="print-meta-value" id="printStructureType">—</p>
+                </div>
+                <div class="print-meta-card">
+                  <p class="print-meta-label">Generated</p>
+                  <p class="print-meta-value" id="printGeneratedDate">—</p>
+                </div>
+              </div>
+            </section>
+
             <div class="results-intro">
               <p class="results-kicker">Executive Readout</p>
               <h3 class="results-title">Structural clarity dashboard</h3>
               <p class="results-copy">
-                This readout is designed to make the structural pattern legible quickly: what condition is present, where the primary exposure sits, and what leadership should address first.
+                This readout is designed to make the structural pattern legible quickly: what condition is present, where the primary exposure sits, what lack of clarity may be costing, and what leadership should address first.
               </p>
             </div>
 
             <div class="score-panel">
               <div class="score-panel-inner">
-                <div>
+                <div class="score-main">
                   <p class="score-label">Structural Clarity Index</p>
-                  <p class="score-number" id="scoreNumber">0</p>
-                  <p class="score-band" id="scoreBand">—</p>
+
+                  <div class="score-value-row">
+                    <p class="score-number" id="scoreNumber">0</p>
+                    <p class="score-band" id="scoreBand">—</p>
+                  </div>
+
                   <p class="score-summary" id="scoreSummary">Complete the diagnostic to generate a readout.</p>
                 </div>
-                <div class="score-badge" id="scoreBadge">Diagnostic Ready</div>
+
+                <div class="score-side">
+                  <div class="score-badge" id="scoreBadge">Diagnostic Ready</div>
+
+                  <div class="score-status-card">
+                    <p class="score-status-label">Status read</p>
+                    <p class="score-status-text" id="scoreStatusText">
+                      Awaiting input.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div class="summary-grid">
-              <div class="summary-card">
-                <p class="summary-label">Benchmark</p>
-                <p class="summary-value" id="benchmarkValue">—</p>
-                <p class="summary-sub" id="benchmarkSub">Directional comparison</p>
+            <div class="metric-strip">
+              <div class="metric-block">
+                <p class="metric-label">Benchmark</p>
+                <p class="metric-value" id="benchmarkValue">—</p>
+                <p class="metric-sub" id="benchmarkSub">Directional comparison</p>
               </div>
 
-              <div class="summary-card">
-                <p class="summary-label">Time Risk</p>
-                <p class="summary-value" id="timeCostValue">—</p>
-                <p class="summary-sub" id="timeCostSub">Directional estimate</p>
+              <div class="metric-block">
+                <p class="metric-label">Time Risk</p>
+                <p class="metric-value" id="timeCostValue">—</p>
+                <p class="metric-sub" id="timeCostSub">Directional estimate</p>
               </div>
 
-              <div class="summary-card">
-                <p class="summary-label">Money Risk</p>
-                <p class="summary-value" id="moneyCostValue">—</p>
-                <p class="summary-sub" id="moneyCostSub">Directional estimate</p>
+              <div class="metric-block">
+                <p class="metric-label">Money Risk</p>
+                <p class="metric-value" id="moneyCostValue">—</p>
+                <p class="metric-sub" id="moneyCostSub">Directional estimate</p>
               </div>
 
-              <div class="summary-card">
-                <p class="summary-label">Resource Risk</p>
-                <p class="summary-value" id="resourceDragValue">—</p>
-                <p class="summary-sub" id="resourceDragSub">Estimated structural load</p>
+              <div class="metric-block">
+                <p class="metric-label">Resource Risk</p>
+                <p class="metric-value" id="resourceDragValue">—</p>
+                <p class="metric-sub" id="resourceDragSub">Estimated structural load</p>
               </div>
 
-              <div class="summary-card">
-                <p class="summary-label">Structure Type</p>
-                <p class="summary-value" id="categoryValue">—</p>
-                <p class="summary-sub" id="categorySub">Reference group</p>
+              <div class="metric-block">
+                <p class="metric-label">Structure Type</p>
+                <p class="metric-value" id="categoryValue">—</p>
+                <p class="metric-sub" id="categorySub">Reference group</p>
               </div>
             </div>
 
@@ -1805,13 +2104,43 @@
               Benchmark ranges shown here are Monderman directional reference ranges for comparable structure types, not audited market averages.
             </p>
 
+            <section class="exposure-band">
+              <div class="exposure-head">
+                <p class="exposure-kicker">Directional exposure estimate</p>
+                <h3 class="exposure-title">Estimated annual drag associated with structural ambiguity</h3>
+                <p class="exposure-copy" id="exposureCopy">
+                  Add optional signals such as meetings, loaded hourly cost, and number of people affected to produce a stronger directional estimate.
+                </p>
+              </div>
+
+              <div class="exposure-grid">
+                <div class="exposure-card">
+                  <p class="exposure-label">Time</p>
+                  <p class="exposure-value" id="exposureHours">—</p>
+                  <p class="exposure-sub" id="exposureHoursSub">Estimated annual coordination hours</p>
+                </div>
+
+                <div class="exposure-card">
+                  <p class="exposure-label">Money</p>
+                  <p class="exposure-value" id="exposureMoney">—</p>
+                  <p class="exposure-sub" id="exposureMoneySub">Directional annual cost equivalent</p>
+                </div>
+
+                <div class="exposure-card">
+                  <p class="exposure-label">Resources</p>
+                  <p class="exposure-value" id="exposureResources">—</p>
+                  <p class="exposure-sub" id="exposureResourcesSub">Estimated productive capacity absorbed</p>
+                </div>
+              </div>
+            </section>
+
             <div class="results-grid">
-              <div class="result-card hero-card">
+              <div class="result-card emphasis">
                 <h3 class="result-card-title">Executive signal</h3>
                 <p class="narrative-copy" id="narrativeInterpretation"></p>
               </div>
 
-              <div class="result-card hero-card">
+              <div class="result-card emphasis">
                 <h3 class="result-card-title">Leadership priority</h3>
                 <p class="narrative-copy" id="leadershipImplication"></p>
               </div>
@@ -1819,14 +2148,16 @@
 
             <div class="charts-grid">
               <div class="chart-card">
-                <h3 class="result-card-title">Structural dimensions</h3>
+                <h3 class="chart-title">Structural dimensions</h3>
+                <p class="chart-subtitle">A view across the five underlying dimensions shaping structural clarity in this operating boundary.</p>
                 <div class="chart-wrap">
                   <canvas id="frictionChart"></canvas>
                 </div>
               </div>
 
               <div class="chart-card">
-                <h3 class="result-card-title">Synthesis signals</h3>
+                <h3 class="chart-title">Synthesis signals</h3>
+                <p class="chart-subtitle">Directional severity across the broader downstream conditions typically associated with low structural clarity.</p>
                 <div class="chart-wrap">
                   <canvas id="slowdownChart"></canvas>
                 </div>
@@ -1898,7 +2229,6 @@
             </div>
           </section>
 
-          <p class="loading-note hidden" id="loadingNote">Generating structural clarity readout...</p>
           <p class="error-note hidden" id="errorNote"></p>
         </div>
       </div>
@@ -1946,15 +2276,20 @@
     const API_BASE = "https://monderman-api.onrender.com";
     const STRUCTURAL_CLARITY_API_PATH = "/api/structural-clarity/score";
 
+    /*
+      Temporary testing only.
+      Replace with your current Render API key if you want this page to work immediately.
+      Long term, this must move to a public-safe endpoint pattern.
+    */
     const STRUCTURAL_CLARITY_API_KEY = "272cf20566a5333213e3a0f1c77d6512";
 
     const pageGrid = document.getElementById("pageGrid");
+    const diagnosticPanel = document.getElementById("diagnosticPanel");
     const guidedForm = document.getElementById("guidedForm");
     const csvForm = document.getElementById("csvForm");
     const resultsShell = document.getElementById("resultsShell");
     const resultsEmptyState = document.getElementById("resultsEmptyState");
     const loadingState = document.getElementById("loadingState");
-    const toolTop = document.getElementById("toolTop");
 
     const modeGuidedCard = document.getElementById("modeGuidedCard");
     const modeCsvCard = document.getElementById("modeCsvCard");
@@ -1972,6 +2307,7 @@
     const scoreBand = document.getElementById("scoreBand");
     const scoreSummary = document.getElementById("scoreSummary");
     const scoreBadge = document.getElementById("scoreBadge");
+    const scoreStatusText = document.getElementById("scoreStatusText");
 
     const benchmarkValue = document.getElementById("benchmarkValue");
     const benchmarkSub = document.getElementById("benchmarkSub");
@@ -1984,14 +2320,26 @@
     const categoryValue = document.getElementById("categoryValue");
     const categorySub = document.getElementById("categorySub");
 
+    const exposureCopy = document.getElementById("exposureCopy");
+    const exposureHours = document.getElementById("exposureHours");
+    const exposureHoursSub = document.getElementById("exposureHoursSub");
+    const exposureMoney = document.getElementById("exposureMoney");
+    const exposureMoneySub = document.getElementById("exposureMoneySub");
+    const exposureResources = document.getElementById("exposureResources");
+    const exposureResourcesSub = document.getElementById("exposureResourcesSub");
+
     const frictionFlags = document.getElementById("frictionFlags");
     const recommendations = document.getElementById("recommendations");
     const narrativeInterpretation = document.getElementById("narrativeInterpretation");
     const leadershipImplication = document.getElementById("leadershipImplication");
     const tradeoffNote = document.getElementById("tradeoffNote");
     const tmrSummary = document.getElementById("tmrSummary");
-    const loadingNote = document.getElementById("loadingNote");
     const errorNote = document.getElementById("errorNote");
+
+    const printSubtitle = document.getElementById("printSubtitle");
+    const printFocusArea = document.getElementById("printFocusArea");
+    const printStructureType = document.getElementById("printStructureType");
+    const printGeneratedDate = document.getElementById("printGeneratedDate");
 
     const stepPills = Array.from(document.querySelectorAll(".step-pill"));
     const stepPanels = Array.from(document.querySelectorAll(".step-panel"));
@@ -2001,6 +2349,8 @@
     let currentStep = 1;
     let dimensionsChart;
     let synthesisChart;
+    let lastInputs = {};
+    let lastContext = {};
 
     const BENCHMARKS = {
       functional: { label: "Functional team", healthyMin: 76, healthyMax: 88, moderateMin: 62, moderateMax: 75, frictionMin: 46, frictionMax: 61 },
@@ -2025,12 +2375,6 @@
       very_high: 100
     };
 
-    function scrollToToolTop() {
-      if (toolTop) {
-        toolTop.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    }
-
     function setMode(mode) {
       const guided = mode === "guided";
       guidedForm.classList.toggle("hidden", !guided);
@@ -2041,6 +2385,12 @@
 
     function setResultsLayout(active) {
       pageGrid.classList.toggle("results-active", active);
+    }
+
+    function scrollToToolTop() {
+      const offset = 84;
+      const top = diagnosticPanel.getBoundingClientRect().top + window.pageYOffset - offset;
+      window.scrollTo({ top, behavior: "smooth" });
     }
 
     function updateStepUI() {
@@ -2069,14 +2419,21 @@
       return true;
     }
 
-    function goToStep(step) {
+    function goToStep(step, shouldScroll = false) {
       currentStep = Math.max(1, Math.min(5, step));
       updateStepUI();
+
+      if (shouldScroll) {
+        const topTarget = document.querySelector(".stepper");
+        if (topTarget) {
+          topTarget.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+      }
     }
 
     function setLoadingState(isLoading) {
       loadingState.classList.toggle("active", isLoading);
-      loadingNote.classList.toggle("hidden", !isLoading);
+      loadingState.classList.toggle("hidden", !isLoading);
       errorNote.classList.add("hidden");
       errorNote.textContent = "";
     }
@@ -2084,50 +2441,34 @@
     function setError(message) {
       errorNote.textContent = message;
       errorNote.classList.remove("hidden");
-      loadingNote.classList.add("hidden");
       loadingState.classList.remove("active");
+      loadingState.classList.add("hidden");
     }
 
     function clearMessages() {
-      loadingNote.classList.add("hidden");
+      loadingState.classList.remove("active");
+      loadingState.classList.add("hidden");
       errorNote.classList.add("hidden");
       errorNote.textContent = "";
-      loadingState.classList.remove("active");
-    }
-
-    function bandToStatusHeadline(band, score) {
-      const normalized = (band || "").toLowerCase();
-
-      if (normalized.includes("high")) return "High clarity | structurally coherent";
-      if (normalized.includes("moderate")) return "Moderate clarity | emerging structural drag";
-      if (normalized.includes("low")) return "Low clarity | structural ambiguity is constraining execution";
-
-      if (typeof score === "number") {
-        if (score >= 76) return "High clarity | structurally coherent";
-        if (score >= 62) return "Moderate clarity | emerging structural drag";
-        return "Low clarity | structural ambiguity is constraining execution";
-      }
-
-      return band || "Structural condition identified";
     }
 
     stepPills.forEach((pill, index) => {
       pill.addEventListener("click", () => {
         const targetStep = index + 1;
         if (targetStep <= currentStep || validateStep(currentStep)) {
-          goToStep(targetStep);
+          goToStep(targetStep, false);
         }
       });
     });
 
     nextButtons.forEach(btn => {
       btn.addEventListener("click", () => {
-        if (validateStep(currentStep)) goToStep(currentStep + 1);
+        if (validateStep(currentStep)) goToStep(currentStep + 1, false);
       });
     });
 
     prevButtons.forEach(btn => {
-      btn.addEventListener("click", () => goToStep(currentStep - 1));
+      btn.addEventListener("click", () => goToStep(currentStep - 1, false));
     });
 
     modeGuidedCard.addEventListener("click", () => setMode("guided"));
@@ -2135,7 +2476,7 @@
 
     startGuidedBtn.addEventListener("click", () => {
       setMode("guided");
-      goToStep(1);
+      goToStep(1, false);
       scrollToToolTop();
     });
 
@@ -2151,7 +2492,7 @@
 
     resetFormBtn.addEventListener("click", () => {
       guidedForm.reset();
-      goToStep(1);
+      goToStep(1, false);
       resultsShell.classList.remove("active");
       resultsEmptyState.classList.remove("hidden");
       setResultsLayout(false);
@@ -2170,7 +2511,7 @@
     startOverBtn.addEventListener("click", () => {
       guidedForm.reset();
       csvForm.reset();
-      goToStep(1);
+      goToStep(1, false);
       resultsShell.classList.remove("active");
       resultsEmptyState.classList.remove("hidden");
       setResultsLayout(false);
@@ -2207,6 +2548,101 @@
 
     function clamp(value, min, max) {
       return Math.max(min, Math.min(max, value));
+    }
+
+    function formatSeverity(value) {
+      return severityLabels[value] || value || "—";
+    }
+
+    function formatNumberCompact(value) {
+      if (!Number.isFinite(value)) return "—";
+      if (value >= 1000000) return `${(value / 1000000).toFixed(1).replace(/\.0$/, "")}M`;
+      if (value >= 1000) return `${Math.round(value / 1000)}k`;
+      return `${Math.round(value)}`;
+    }
+
+    function formatCurrencyCompact(value) {
+      if (!Number.isFinite(value)) return "—";
+      if (value >= 1000000000) return `$${(value / 1000000000).toFixed(1).replace(/\.0$/, "")}B`;
+      if (value >= 1000000) return `$${(value / 1000000).toFixed(1).replace(/\.0$/, "")}M`;
+      if (value >= 1000) return `$${Math.round(value / 1000)}K`;
+      return `$${Math.round(value)}`;
+    }
+
+    function getPeopleAffectedEstimate(inputs) {
+      if (Number(inputs.peopleAffected) > 0) return Number(inputs.peopleAffected);
+      const fallback = {
+        small: 8,
+        medium: 28,
+        large: 90,
+        "very-large": 180
+      };
+      return fallback[inputs.scopeSize] || 20;
+    }
+
+    function getHoursPerIssue(severity) {
+      const map = {
+        low: 1.5,
+        moderate: 3,
+        high: 5,
+        very_high: 7
+      };
+      return map[severity] || 3;
+    }
+
+    function buildExposureEstimate(result, inputs = {}) {
+      const peopleAffected = getPeopleAffectedEstimate(inputs);
+      const hourlyCost = Number(inputs.hourlyCost) > 0 ? Number(inputs.hourlyCost) : 95;
+      const meetingsPerWeek = Math.max(0, Number(inputs.meetingsPerWeek) || 0);
+      const issuesPerMonth = Math.max(0, Number(inputs.issuesPerMonth) || 0);
+      const dragSeverity = result.synthesis_signals?.drag_severity || "moderate";
+      const coordinationBurden = result.synthesis_signals?.coordination_burden || "moderate";
+
+      const activeMeetingParticipants = clamp(Math.ceil(peopleAffected * 0.3), 2, 8);
+      const weeklyMeetingHours = meetingsPerWeek * activeMeetingParticipants * 1.0;
+      const monthlyIssueHours = issuesPerMonth * getHoursPerIssue(coordinationBurden) * clamp(Math.ceil(peopleAffected * 0.2), 1, 6) * 12;
+      const annualCoordinationHours = (weeklyMeetingHours * 52) + monthlyIssueHours;
+
+      const severityMultiplier = {
+        low: 0.85,
+        moderate: 1.0,
+        high: 1.25,
+        very_high: 1.5
+      }[dragSeverity] || 1.0;
+
+      const adjustedHours = annualCoordinationHours * severityMultiplier;
+      const annualCost = adjustedHours * hourlyCost;
+      const annualAvailableHours = peopleAffected * 1920;
+      const resourceShare = annualAvailableHours > 0 ? clamp((adjustedHours / annualAvailableHours) * 100, 1, 38) : 0;
+
+      const hasStrongInputs = Number(inputs.peopleAffected) > 0 && Number(inputs.hourlyCost) > 0 && (Number(inputs.meetingsPerWeek) > 0 || Number(inputs.issuesPerMonth) > 0);
+
+      return {
+        hours: adjustedHours,
+        cost: annualCost,
+        resourcePct: resourceShare,
+        peopleAffected,
+        hasStrongInputs
+      };
+    }
+
+    function renderExposureEstimate(result, inputs) {
+      const estimate = buildExposureEstimate(result, inputs);
+
+      exposureHours.textContent = `${formatNumberCompact(estimate.hours)} hrs`;
+      exposureHoursSub.textContent = `Estimated annual coordination hours across roughly ${estimate.peopleAffected} people`;
+
+      exposureMoney.textContent = formatCurrencyCompact(estimate.cost);
+      exposureMoneySub.textContent = estimate.hasStrongInputs
+        ? "Directional annual cost equivalent based on your optional inputs"
+        : "Directional annual cost equivalent using Monderman fallback assumptions";
+
+      exposureResources.textContent = `${Math.round(estimate.resourcePct)}%`;
+      exposureResourcesSub.textContent = "Estimated productive capacity absorbed by recurring structural ambiguity";
+
+      exposureCopy.textContent = estimate.hasStrongInputs
+        ? "Based on the optional operating signals you provided, this is a directional estimate of annual leadership and coordination drag associated with unclear ownership, handoffs, escalation, and accountability."
+        : "Because limited optional operating data was provided, this estimate uses Monderman fallback assumptions tied to structure type, affected scope, and drag severity. Add meetings, loaded hourly cost, and people affected to sharpen the estimate.";
     }
 
     function buildApiPayloadFromGuided(data) {
@@ -2300,10 +2736,6 @@
       };
     }
 
-    function formatSeverity(value) {
-      return severityLabels[value] || value || "—";
-    }
-
     function getBenchmarkPosition(score, benchmark) {
       if (score > benchmark.healthyMax) return "Above comparable range";
       if (score >= benchmark.moderateMin) return "Within comparable range";
@@ -2338,6 +2770,58 @@
 
       return lines;
     }
+
+    function composeScoreBand(index, band) {
+      const normalized = String(band || "").toLowerCase();
+
+      if (normalized.includes("low")) {
+        return "Low clarity | structural ambiguity is constraining execution";
+      }
+      if (normalized.includes("moderate")) {
+        return "Moderate clarity | structural drag is forming around the operating boundary";
+      }
+      if (normalized.includes("high")) {
+        return "High clarity | core ownership and accountability remain relatively intact";
+      }
+
+      if (Number(index) <= 55) return "Low clarity | structural ambiguity is constraining execution";
+      if (Number(index) <= 74) return "Moderate clarity | structural drag is forming around the operating boundary";
+      return "High clarity | core ownership and accountability remain relatively intact";
+    }
+
+    function composeStatusText(result) {
+      const signals = result.synthesis_signals || {};
+      const drag = formatSeverity(signals.drag_severity).toLowerCase();
+      const coord = formatSeverity(signals.coordination_burden).toLowerCase();
+
+      return `Current pattern indicates ${drag} structural drag with ${coord} coordination burden.`;
+    }
+
+    const benchmarkBandPlugin = {
+      id: "benchmarkBandPlugin",
+      beforeDatasetsDraw(chart) {
+        if (chart.canvas.id !== "frictionChart") return;
+
+        const { ctx, chartArea, scales } = chart;
+        if (!chartArea || !scales?.x) return;
+
+        const xScale = scales.x;
+        const moderateStart = xScale.getPixelForValue(55);
+        const healthyStart = xScale.getPixelForValue(75);
+
+        ctx.save();
+
+        ctx.fillStyle = "rgba(184,134,11,0.05)";
+        ctx.fillRect(moderateStart, chartArea.top, healthyStart - moderateStart, chartArea.bottom - chartArea.top);
+
+        ctx.fillStyle = "rgba(46,139,87,0.05)";
+        ctx.fillRect(healthyStart, chartArea.top, chartArea.right - healthyStart, chartArea.bottom - chartArea.top);
+
+        ctx.restore();
+      }
+    };
+
+    Chart.register(benchmarkBandPlugin);
 
     function renderCharts(apiResponse) {
       const result = apiResponse.result;
@@ -2375,48 +2859,53 @@
               "rgba(63,110,161,0.82)",
               "rgba(63,110,161,0.72)",
               "rgba(63,110,161,0.78)",
-              "rgba(63,110,161,0.68)"
+              "rgba(63,110,161,0.76)"
             ],
-            borderRadius: 10,
+            borderRadius: 12,
             borderSkipped: false,
-            maxBarThickness: 26
+            maxBarThickness: 30,
+            categoryPercentage: 0.74,
+            barPercentage: 0.9
           }]
         },
         options: {
           indexAxis: "y",
           responsive: true,
           maintainAspectRatio: false,
-          animation: { duration: 900, easing: "easeOutQuart" },
+          layout: { padding: { top: 6, right: 10, bottom: 2, left: 4 } },
           plugins: {
             legend: { display: false },
             tooltip: {
               backgroundColor: "#0F1720",
-              titleColor: "#FFFFFF",
-              bodyColor: "rgba(245,247,250,0.88)",
+              titleColor: "#F5F7FA",
+              bodyColor: "#F5F7FA",
               displayColors: false,
-              padding: 12,
-              cornerRadius: 10
+              callbacks: {
+                label: (context) => `${context.parsed.x}/100`
+              }
             }
           },
           scales: {
             x: {
               beginAtZero: true,
               max: 100,
+              grid: {
+                color: "rgba(21,32,43,0.05)",
+                drawBorder: false
+              },
               border: { display: false },
-              grid: { color: "rgba(21,32,43,0.06)", drawTicks: false },
-              ticks: { color: "#556270", precision: 0, padding: 8 }
+              ticks: {
+                color: "#6B7785",
+                stepSize: 25,
+                font: { size: 11 }
+              }
             },
             y: {
-              border: { display: false },
               grid: { display: false },
+              border: { display: false },
               ticks: {
-                color: "#556270",
-                padding: 10,
-                font: { size: 12, weight: "500" },
-                callback: function(value) {
-                  const label = this.getLabelForValue(value);
-                  return label.length > 26 ? label.slice(0, 26) + "…" : label;
-                }
+                color: "#43515E",
+                font: { size: 12, weight: "500" }
               }
             }
           }
@@ -2432,54 +2921,68 @@
             data: synthesisData.map(d => d.value),
             backgroundColor: [
               "rgba(63,110,161,0.82)",
-              "rgba(63,110,161,0.68)",
-              "rgba(184,134,11,0.72)",
-              "rgba(184,80,94,0.74)",
-              "rgba(184,80,94,0.88)"
+              "rgba(63,110,161,0.64)",
+              "rgba(184,134,11,0.78)",
+              "rgba(184,80,94,0.76)",
+              "rgba(184,80,94,0.90)"
             ],
-            borderRadius: 10,
+            borderRadius: 14,
             borderSkipped: false,
-            maxBarThickness: 40
+            maxBarThickness: 48,
+            categoryPercentage: 0.64,
+            barPercentage: 0.82
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          animation: { duration: 900, easing: "easeOutQuart" },
+          layout: { padding: { top: 6, right: 6, bottom: 0, left: 0 } },
           plugins: {
             legend: { display: false },
             tooltip: {
               backgroundColor: "#0F1720",
-              titleColor: "#FFFFFF",
-              bodyColor: "rgba(245,247,250,0.88)",
+              titleColor: "#F5F7FA",
+              bodyColor: "#F5F7FA",
               displayColors: false,
-              padding: 12,
-              cornerRadius: 10
+              callbacks: {
+                label: (context) => {
+                  const v = context.parsed.y;
+                  if (v === 25) return "Low";
+                  if (v === 50) return "Moderate";
+                  if (v === 75) return "High";
+                  if (v === 100) return "Very high";
+                  return `${v}`;
+                }
+              }
             }
           },
           scales: {
             x: {
-              border: { display: false },
               grid: { display: false },
+              border: { display: false },
               ticks: {
                 color: "#556270",
                 maxRotation: 18,
                 minRotation: 18,
-                padding: 8,
-                font: { size: 12, weight: "500" },
+                font: { size: 11 },
                 callback: function(value) {
                   const label = this.getLabelForValue(value);
-                  return label.length > 20 ? label.slice(0, 20) + "…" : label;
+                  return label.length > 18 ? label.slice(0, 18) + "…" : label;
                 }
               }
             },
             y: {
               beginAtZero: true,
               max: 100,
+              grid: {
+                color: "rgba(21,32,43,0.05)",
+                drawBorder: false
+              },
               border: { display: false },
               ticks: {
-                color: "#556270",
-                padding: 8,
+                color: "#6B7785",
+                stepSize: 25,
+                font: { size: 11 },
                 callback: function(value) {
                   if (value === 25) return "Low";
                   if (value === 50) return "Moderate";
@@ -2487,8 +2990,7 @@
                   if (value === 100) return "Very high";
                   return "";
                 }
-              },
-              grid: { color: "rgba(21,32,43,0.06)", drawTicks: false }
+              }
             }
           }
         }
@@ -2512,7 +3014,21 @@
       localStorage.setItem("monderman_structural_clarity_result", JSON.stringify(existing.structural_clarity));
     }
 
-    function renderResults(apiResponse, contextMeta = {}) {
+    function updatePrintHeader(contextMeta) {
+      const date = new Date();
+      printFocusArea.textContent = contextMeta.focusArea || "Structural Clarity";
+      printStructureType.textContent = (BENCHMARKS[contextMeta.structureType] || BENCHMARKS.other).label;
+      printGeneratedDate.textContent = date.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+      printSubtitle.textContent = contextMeta.description
+        ? contextMeta.description
+        : "Executive readout generated from Monderman’s Structural Clarity Diagnostic.";
+    }
+
+    function renderResults(apiResponse, contextMeta = {}, sourceInputs = {}) {
       const result = apiResponse.result;
       const headline = result.headline || {};
       const readout = result.executive_readout || {};
@@ -2525,9 +3041,10 @@
       setResultsLayout(true);
 
       scoreNumber.textContent = headline.index ?? "—";
-      scoreBand.textContent = bandToStatusHeadline(headline.band, headline.index);
+      scoreBand.textContent = composeScoreBand(headline.index, headline.band);
       scoreBadge.textContent = contextMeta.focusArea || apiResponse.tool_label || "Structural Clarity";
       scoreSummary.textContent = readout.executive_signal || "Readout generated.";
+      scoreStatusText.textContent = composeStatusText(result);
 
       benchmarkValue.textContent = benchmarkPosition;
       benchmarkSub.textContent = `${benchmark.label}: ${benchmark.moderateMin}–${benchmark.healthyMax}`;
@@ -2558,7 +3075,9 @@
       ];
       renderList(frictionFlags, signalLines);
 
+      renderExposureEstimate(result, sourceInputs);
       renderCharts(apiResponse);
+      updatePrintHeader(contextMeta);
       saveForSynthesis(apiResponse, contextMeta);
 
       resultsShell.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -2594,7 +3113,7 @@
 
       for (let step = 1; step <= 5; step++) {
         if (!validateStep(step)) {
-          goToStep(step);
+          goToStep(step, false);
           return;
         }
       }
@@ -2608,16 +3127,19 @@
       const data = Object.fromEntries(formData.entries());
       const payload = buildApiPayloadFromGuided(data);
 
+      lastInputs = data;
+      lastContext = {
+        focusArea: data.focusArea || "Structural Clarity",
+        structureType: data.structureType || "other",
+        description: data.description || ""
+      };
+
       setLoadingState(true);
 
       try {
         const apiResponse = await callStructuralClarityApi(payload);
         clearMessages();
-        renderResults(apiResponse, {
-          focusArea: data.focusArea || "Structural Clarity",
-          structureType: data.structureType || "other",
-          description: data.description || ""
-        });
+        renderResults(apiResponse, lastContext, lastInputs);
       } catch (error) {
         setError(error.message || "Unable to generate structural clarity readout.");
       }
@@ -2657,16 +3179,19 @@
       const mapped = buildGuidedLikeObjectFromCsvRow(sample);
       const payload = buildApiPayloadFromGuided(mapped);
 
+      lastInputs = mapped;
+      lastContext = {
+        focusArea: mapped.focusArea || "Uploaded structure",
+        structureType: mapped.structureType || "other",
+        description: mapped.description || ""
+      };
+
       setLoadingState(true);
 
       try {
         const apiResponse = await callStructuralClarityApi(payload);
         clearMessages();
-        renderResults(apiResponse, {
-          focusArea: mapped.focusArea || "Uploaded structure",
-          structureType: mapped.structureType || "other",
-          description: mapped.description || ""
-        });
+        renderResults(apiResponse, lastContext, lastInputs);
       } catch (error) {
         setError(error.message || "Unable to generate structural clarity readout from CSV.");
       }
@@ -2674,7 +3199,7 @@
 
     setMode("guided");
     setResultsLayout(false);
-    goToStep(1);
+    goToStep(1, false);
   </script>
 </body>
 </html>
