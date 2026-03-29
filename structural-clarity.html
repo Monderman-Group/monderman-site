@@ -2518,6 +2518,16 @@
   const errorNote = document.getElementById("errorNote");
   const diagnosticInputTop = document.getElementById("diagnosticInputTop");
 
+  const narrativeStatusNote = document.createElement("p");
+  narrativeStatusNote.className = "hidden";
+  narrativeStatusNote.style.margin = "12px 0 0";
+  narrativeStatusNote.style.fontSize = "0.84rem";
+  narrativeStatusNote.style.lineHeight = "1.55";
+  narrativeStatusNote.style.color = "var(--muted-dark)";
+  if (errorNote && errorNote.parentNode) {
+    errorNote.parentNode.insertBefore(narrativeStatusNote, errorNote.nextSibling);
+  }
+
   const modeGuidedCard = document.getElementById("modeGuidedCard");
   const modeCsvCard = document.getElementById("modeCsvCard");
 
@@ -2696,6 +2706,19 @@
     loadingShell.classList.remove("active");
     errorNote.classList.add("hidden");
     errorNote.textContent = "";
+    narrativeStatusNote.classList.add("hidden");
+    narrativeStatusNote.textContent = "";
+  }
+
+  function setNarrativeStatus(message) {
+    if (!message) {
+      narrativeStatusNote.classList.add("hidden");
+      narrativeStatusNote.textContent = "";
+      return;
+    }
+
+    narrativeStatusNote.textContent = message;
+    narrativeStatusNote.classList.remove("hidden");
   }
 
   function setError(message) {
@@ -2703,6 +2726,8 @@
     errorNote.classList.remove("hidden");
     loadingShell.classList.add("hidden");
     loadingShell.classList.remove("active");
+    narrativeStatusNote.classList.add("hidden");
+    narrativeStatusNote.textContent = "";
   }
 
   stepPills.forEach((pill, index) => {
@@ -3266,40 +3291,53 @@
     csvCard.appendChild(wrap);
   }
 
-  async function callStructuralClarityApi(payload) {
-    const response = await fetch(`${API_BASE}${STRUCTURAL_CLARITY_API_PATH}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    });
+  async function postJsonWithTimeout(url, payload, timeoutMs, fallbackMessage) {
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
 
-    const data = await response.json().catch(() => null);
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload),
+        signal: controller.signal
+      });
 
-    if (!response.ok) {
-      throw new Error(data?.error || data?.detail || "Structural Clarity API request failed.");
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        throw new Error(data?.error || data?.detail || fallbackMessage);
+      }
+
+      return data;
+    } catch (error) {
+      if (error?.name === "AbortError") {
+        throw new Error("The request took too long. Please try again.");
+      }
+      throw error;
+    } finally {
+      window.clearTimeout(timeoutId);
     }
+  }
 
-    return data;
+  async function callStructuralClarityApi(payload) {
+    return postJsonWithTimeout(
+      `${API_BASE}${STRUCTURAL_CLARITY_API_PATH}`,
+      payload,
+      30000,
+      "Structural Clarity API request failed."
+    );
   }
 
   async function callStructuralClarityNarrativeApi(payload) {
-    const response = await fetch(`${API_BASE}${STRUCTURAL_CLARITY_NARRATIVE_API_PATH}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await response.json().catch(() => null);
-
-    if (!response.ok) {
-      throw new Error(data?.error || data?.detail || "Narrative API request failed.");
-    }
-
-    return data;
+    return postJsonWithTimeout(
+      `${API_BASE}${STRUCTURAL_CLARITY_NARRATIVE_API_PATH}`,
+      payload,
+      35000,
+      "Narrative API request failed."
+    );
   }
 
   async function enrichNarrative(apiResponse, contextMeta = {}) {
@@ -3360,7 +3398,12 @@
     };
 
     const narrativeResponse = await callStructuralClarityNarrativeApi(payload);
-    return narrativeResponse.narrative || null;
+
+    return {
+      narrative: narrativeResponse.narrative || null,
+      usedFallback: Boolean(narrativeResponse.used_fallback),
+      warning: narrativeResponse.warning || ""
+    };
   }
 
   function renderResults(apiResponse, contextMeta = {}, narrative = null) {
@@ -3679,14 +3722,14 @@
     try {
       const apiResponse = await callStructuralClarityApi(payload);
 
-      let narrative = null;
+      let narrativePackage = null;
       try {
         setLoadingState(
           true,
           "Polishing executive prose...",
           "The scoring is complete. Monderman is now refining the narrative output for the dashboard and PDF."
         );
-        narrative = await enrichNarrative(apiResponse, {
+        narrativePackage = await enrichNarrative(apiResponse, {
           focusArea: data.focusArea || "Structural Clarity",
           structureType: data.structureType || "other",
           scopeSize: data.scopeSize || "",
@@ -3700,9 +3743,18 @@
         });
       } catch (narrativeError) {
         console.warn("Narrative generation failed; using scoring prose.", narrativeError);
+        setNarrativeStatus("Narrative enhancement was unavailable for this run. The dashboard is showing the core diagnostic readout.");
       }
 
       clearMessages();
+
+      if (narrativePackage?.usedFallback || narrativePackage?.warning) {
+        setNarrativeStatus(
+          narrativePackage.warning ||
+          "Narrative enhancement used a backup generation path for this run."
+        );
+      }
+
       renderResults(apiResponse, {
         focusArea: data.focusArea || "Structural Clarity",
         structureType: data.structureType || "other",
@@ -3714,7 +3766,7 @@
         peopleAffected: data.peopleAffected || "",
         issuesPerMonth: data.issuesPerMonth || "",
         rawInputs: data
-      }, narrative);
+      }, narrativePackage?.narrative || null);
     } catch (error) {
       setError(error.message || "Unable to generate structural clarity readout.");
     }
@@ -3754,14 +3806,14 @@
     try {
       const apiResponse = await callStructuralClarityApi(payload);
 
-      let narrative = null;
+      let narrativePackage = null;
       try {
         setLoadingState(
           true,
           "Polishing executive prose...",
           "The scoring is complete. Monderman is now refining the narrative output for the dashboard and PDF."
         );
-        narrative = await enrichNarrative(apiResponse, {
+        narrativePackage = await enrichNarrative(apiResponse, {
           focusArea: mapped.focusArea || "Uploaded structure",
           structureType: mapped.structureType || "other",
           scopeSize: mapped.scopeSize || "",
@@ -3775,9 +3827,18 @@
         });
       } catch (narrativeError) {
         console.warn("Narrative generation failed; using scoring prose.", narrativeError);
+        setNarrativeStatus("Narrative enhancement was unavailable for this run. The dashboard is showing the core diagnostic readout.");
       }
 
       clearMessages();
+
+      if (narrativePackage?.usedFallback || narrativePackage?.warning) {
+        setNarrativeStatus(
+          narrativePackage.warning ||
+          "Narrative enhancement used a backup generation path for this run."
+        );
+      }
+
       renderResults(apiResponse, {
         focusArea: mapped.focusArea || "Uploaded structure",
         structureType: mapped.structureType || "other",
@@ -3789,7 +3850,7 @@
         peopleAffected: mapped.peopleAffected || "",
         issuesPerMonth: mapped.issuesPerMonth || "",
         rawInputs: mapped
-      }, narrative);
+      }, narrativePackage?.narrative || null);
     } catch (error) {
       setError(error.message || "Unable to generate structural clarity readout from CSV.");
     }
