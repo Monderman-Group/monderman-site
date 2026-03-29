@@ -847,6 +847,12 @@
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 16px 18px;
+      align-items: start;
+    }
+
+    .step-panel[data-step-panel="1"] .field label {
+      min-height: 42px;
+      align-items: flex-start;
     }
 
     .field {
@@ -998,11 +1004,63 @@
     .step-actions,
     .submit-row {
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: space-between;
       gap: 16px;
       flex-wrap: wrap;
       padding-top: 6px;
+    }
+
+    .step-actions {
+      position: relative;
+      padding-right: 76px;
+      min-height: 56px;
+    }
+
+    .step-section-progress {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted-dark-2);
+    }
+
+    .step-section-progress-label {
+      font-size: 0.76rem;
+      line-height: 1;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .step-section-progress-circle {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid rgba(21,32,43,0.10);
+      background: #F8F9FA;
+      color: var(--text-dark);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      font-weight: 700;
+      line-height: 1;
+      box-shadow: var(--soft-shadow);
+      transition: background var(--transition), border-color var(--transition), color var(--transition), box-shadow var(--transition);
+    }
+
+    .step-section-progress.is-complete .step-section-progress-circle {
+      background: var(--success);
+      border-color: rgba(46,139,87,0.38);
+      color: #FFFFFF;
+      box-shadow: 0 10px 22px rgba(46,139,87,0.16);
+    }
+
+    .step-section-progress.is-complete .step-section-progress-label {
+      color: var(--success);
     }
 
     .submit-note {
@@ -1096,7 +1154,8 @@
       display: grid;
       gap: 14px;
       align-items: start;
-      padding: 22px 20px;
+      margin-top: 26px;
+      padding: 28px 24px;
       border: 1px dashed rgba(21,32,43,0.14);
       border-radius: 16px;
       background: #F8F9FA;
@@ -1769,6 +1828,50 @@
       color: var(--text-dark);
     }
 
+
+    .step-panel[data-step-panel="5"] .loading-shell {
+      margin-top: 10px;
+      margin-bottom: 2px;
+    }
+
+    .results-title {
+      max-width: 22ch;
+    }
+
+    .results-copy {
+      max-width: 58ch;
+    }
+
+    .results-shell .metrics-strip,
+    .results-shell .benchmark-footnote,
+    .results-shell .tmr-estimate-note,
+    .results-shell .premium-card.optional-detail,
+    .results-shell .report-shell,
+    .results-shell .results-actions.results-actions-primary {
+      display: none !important;
+    }
+
+    .pdf-export-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(21,32,43,0.08);
+      border-radius: 18px;
+      padding: 22px 20px 20px;
+      box-shadow: var(--soft-shadow);
+      display: grid;
+      gap: 10px;
+    }
+
+    .pdf-export-card .bridge-actions {
+      margin-top: 8px;
+    }
+
+    .results-actions {
+      justify-content: flex-end;
+    }
+
+    .results-actions #editInputsBtn {
+      display: none !important;
+    }
     .loading-subtext {
       margin: 4px 0 0;
       font-size: 0.8rem;
@@ -1883,6 +1986,21 @@
       .btn-inline-group {
         align-items: stretch;
         flex-direction: column;
+      }
+
+      .step-actions {
+        padding-right: 0;
+        min-height: auto;
+      }
+
+      .step-section-progress {
+        position: static;
+        justify-content: flex-end;
+        margin-top: 4px;
+      }
+
+      .step-panel[data-step-panel="1"] .field label {
+        min-height: 0;
       }
 
       .stepper {
@@ -2105,7 +2223,7 @@ A structural clarity score, leadership-level readout, directional cost estimates
                 <div class="form-grid">
                   <div class="field">
                     <label for="focusArea">Where is the problem showing up?</label>
-                    <input id="focusArea" name="focusArea" type="text" placeholder="e.g. Program management office, product launch process, regional approvals chain" required />
+                    <input id="focusArea" name="focusArea" type="text" placeholder="e.g. Program management office, product launch approvals, regional governance boundary" required />
                   </div>
 
                   <div class="field">
@@ -2488,7 +2606,7 @@ A structural clarity score, leadership-level readout, directional cost estimates
           <div class="loading-shell hidden" id="loadingShell" aria-live="polite">
             <span class="spinner" aria-hidden="true"></span>
             <div>
-              <p class="loading-text">Generating structural clarity readout...</p>
+              <p class="loading-text">Generating structural clarity executive summary...</p>
               <p class="loading-subtext">This can take a few seconds while the diagnostic and narrative output are assembled.</p>
             </div>
           </div>
@@ -2503,9 +2621,9 @@ A structural clarity score, leadership-level readout, directional cost estimates
           <section class="results-shell" id="resultsShell" aria-live="polite">
             <div class="results-intro">
               <p class="results-kicker">Executive Readout</p>
-              <h3 class="results-title">Structural clarity dashboard</h3>
+              <h3 class="results-title">Structural Clarity Executive Summary</h3>
               <p class="results-copy">
-                This readout is designed to make the structural condition legible quickly: where the system beneath the work is constraining execution, what that may be costing, and what leadership should address first.
+                A cleaner leadership readout of where the underlying structure is constraining execution, what that condition may be signaling, and what should be addressed first.
               </p>
             </div>
 
@@ -2611,7 +2729,7 @@ A structural clarity score, leadership-level readout, directional cost estimates
                 <ul class="bullet-list" id="frictionFlags"></ul>
               </article>
 
-              <article class="premium-card">
+              <article class="premium-card optional-detail">
                 <p class="card-kicker">Estimated Structural Cost</p>
                 <p class="card-copy" id="tmrSummary"></p>
 
@@ -2640,6 +2758,17 @@ A structural clarity score, leadership-level readout, directional cost estimates
             <p class="tmr-estimate-note">
               * These figures are directional estimates based on user input and structural diagnostic signals. They are intended as practical planning indicators, not audited measurements.
             </p>
+
+            <section class="pdf-export-card">
+              <p class="bridge-kicker">Executive Summary PDF</p>
+              <h3 class="bridge-title">Generate a cleaner leadership brief.</h3>
+              <p class="bridge-copy">
+                Export the structural clarity executive summary as a polished PDF designed for internal review, sharing, or discussion with leadership.
+              </p>
+              <div class="bridge-actions">
+                <button class="btn btn-accent" id="downloadPdfBtnBottom" type="button">Generate Executive Summary PDF</button>
+              </div>
+            </section>
 
             <section class="report-shell" id="reportShell">
               <div class="report-head">
@@ -2775,11 +2904,6 @@ A structural clarity score, leadership-level readout, directional cost estimates
                   <a class="btn btn-secondary" href="diagnostic-tools.html">Return to Diagnostic Hub</a>
                 </div>
               </div>
-            </div>
-
-            <div class="results-actions results-actions-primary">
-              <button class="btn btn-accent" id="downloadPdfBtnBottom" type="button">Generate Executive Summary</button>
-              <a class="btn btn-secondary" href="advisory-services.html">Explore Advisory Engagement</a>
             </div>
 
             <div class="results-actions">
@@ -2933,6 +3057,48 @@ A structural clarity score, leadership-level readout, directional cost estimates
     5: "Impact signals and privacy"
   };
 
+  function isStepComplete(step) {
+    const panel = document.querySelector(`.step-panel[data-step-panel="${step}"]`);
+    if (!panel) return false;
+    const requiredFields = Array.from(panel.querySelectorAll("[required]"));
+    return requiredFields.every(field => field.checkValidity());
+  }
+
+  function updateStepCompletionStates() {
+    stepPills.forEach((pill, index) => {
+      const step = index + 1;
+      const complete = isStepComplete(step);
+      pill.classList.toggle("done", complete);
+      const num = pill.querySelector(".step-num");
+      if (num) {
+        num.textContent = complete && step !== currentStep ? "✓" : String(step);
+      }
+    });
+
+    stepPanels.forEach((panel) => {
+      const step = Number(panel.dataset.stepPanel);
+      let progressEl = panel.querySelector(".step-section-progress");
+      if (!progressEl) {
+        progressEl = document.createElement("div");
+        progressEl.className = "step-section-progress";
+        progressEl.innerHTML = `<span class="step-section-progress-label">Step ${step} of 5</span><span class="step-section-progress-circle">${step}</span>`;
+        const actions = panel.querySelector(".step-actions");
+        if (actions) actions.appendChild(progressEl);
+      }
+      const complete = isStepComplete(step);
+      progressEl.classList.toggle("is-complete", complete);
+      const circle = progressEl.querySelector(".step-section-progress-circle");
+      if (circle) circle.textContent = complete ? "✓" : String(step);
+    });
+  }
+
+  function attachProgressListeners() {
+    guidedForm.querySelectorAll("input, select, textarea").forEach((field) => {
+      field.addEventListener("input", updateStepCompletionStates);
+      field.addEventListener("change", updateStepCompletionStates);
+    });
+  }
+
   let currentStep = 1;
   let dimensionsChart;
   let synthesisChart;
@@ -2969,12 +3135,25 @@ A structural clarity score, leadership-level readout, directional cost estimates
     }
   }
 
+  function placeLoadingShell(mode = "guided") {
+    const guidedTarget = document.querySelector('.step-panel[data-step-panel="5"]');
+    const csvTarget = csvForm;
+    if (!loadingShell) return;
+
+    if (mode === "csv" && csvTarget && loadingShell.parentNode !== csvTarget) {
+      csvTarget.appendChild(loadingShell);
+    } else if (mode === "guided" && guidedTarget && loadingShell.parentNode !== guidedTarget) {
+      guidedTarget.appendChild(loadingShell);
+    }
+  }
+
   function setMode(mode) {
     const guided = mode === "guided";
     guidedForm.classList.toggle("hidden", !guided);
     csvForm.classList.toggle("hidden", guided);
     modeGuidedCard.classList.toggle("active", guided);
     modeCsvCard.classList.toggle("active", !guided);
+    placeLoadingShell(mode);
   }
 
   function setResultsLayout(active) {
@@ -2989,7 +3168,6 @@ A structural clarity score, leadership-level readout, directional cost estimates
     stepPills.forEach((pill, index) => {
       const step = index + 1;
       pill.classList.toggle("active", step === currentStep);
-      pill.classList.toggle("done", step < currentStep);
     });
 
     if (stepProgressBanner) {
@@ -2998,6 +3176,8 @@ A structural clarity score, leadership-level readout, directional cost estimates
       if (eyebrow) eyebrow.textContent = `Step ${currentStep} of 5`;
       if (title) title.textContent = STEP_TITLES[currentStep] || "Current step";
     }
+
+    updateStepCompletionStates();
   }
 
   function validateStep(step) {
@@ -3035,7 +3215,7 @@ A structural clarity score, leadership-level readout, directional cost estimates
 
   function setLoadingState(
     isLoading,
-    text = "Generating structural clarity readout...",
+    text = "Generating structural clarity executive summary...",
     subtext = "This can take a few seconds while the diagnostic and narrative output are assembled."
   ) {
     loadingShell.classList.toggle("hidden", !isLoading);
@@ -3112,12 +3292,12 @@ A structural clarity score, leadership-level readout, directional cost estimates
     scrollToInputTop();
   });
 
-  backToGuidedBtn.addEventListener("click", () => {
+  backToGuidedBtn?.addEventListener("click", () => {
     setMode("guided");
     scrollToInputTop();
   });
 
-  resetFormBtn.addEventListener("click", () => {
+  resetFormBtn?.addEventListener("click", () => {
     guidedForm.reset();
     goToStep(1, false);
     latestNarrative = null;
@@ -3130,7 +3310,7 @@ A structural clarity score, leadership-level readout, directional cost estimates
     scrollToInputTop();
   });
 
-  editInputsBtn.addEventListener("click", () => {
+  editInputsBtn?.addEventListener("click", () => {
     resultsShell.classList.remove("active");
     resultsEmptyState.classList.remove("hidden");
     setResultsLayout(false);
@@ -3138,7 +3318,7 @@ A structural clarity score, leadership-level readout, directional cost estimates
     scrollToInputTop();
   });
 
-  startOverBtn.addEventListener("click", () => {
+  startOverBtn?.addEventListener("click", () => {
     guidedForm.reset();
     csvForm.reset();
     goToStep(1, false);
@@ -3153,7 +3333,7 @@ A structural clarity score, leadership-level readout, directional cost estimates
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
-  downloadTemplateLink.addEventListener("click", (e) => {
+  downloadTemplateLink?.addEventListener("click", (e) => {
     e.preventDefault();
     const csv = [
       "focus_area,structure_type,owner_defined,owner_consistency,duplicate_ownership,orphaned_work,decision_rights,escalation_path,informal_influence,leader_dependence,role_overlap,accountability_diffusion,handoff_ambiguity,conflict_frequency",
@@ -4063,7 +4243,7 @@ A structural clarity score, leadership-level readout, directional cost estimates
     doc.save(`monderman-structural-clarity-${safeFocus || "summary"}-${dateStamp}.pdf`);
   }
 
-  downloadPdfBtn.addEventListener("click", () => {
+  downloadPdfBtn?.addEventListener("click", () => {
     generateExecutiveSummaryPdf();
   });
 
@@ -4233,9 +4413,11 @@ A structural clarity score, leadership-level readout, directional cost estimates
   });
 
   applyTooltipToCsvCard();
+  attachProgressListeners();
   setMode("guided");
   setResultsLayout(false);
   goToStep(1, false);
+  updateStepCompletionStates();
 </script>
 </body>
 </html>
