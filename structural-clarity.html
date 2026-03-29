@@ -2137,7 +2137,12 @@ A structural clarity score, leadership-level readout, directional cost estimates
                   </div>
 
                   <div class="field">
-                    <label for="changePace">How often are roles, reporting lines, or responsibilities changing here?</label>
+                    <label for="changePace">How often is the structure around this area changing?
+                      <span class="field-info-wrap">
+                        <button class="field-info-button" type="button" aria-label="Explain structural change" data-tooltip-target="changePaceTip">i</button>
+                        <span class="field-tooltip" id="changePaceTip" role="tooltip">Think about changes that affect how this area works: role changes, new approvals, shifting reporting lines, reorganizations, or repeated changes in who decides what.</span>
+                      </span>
+                    </label>
                     <select id="changePace" name="changePace" required>
                       <option value="">Select one</option>
                       <option value="not_sure">Not sure</option>
@@ -2147,7 +2152,6 @@ A structural clarity score, leadership-level readout, directional cost estimates
                       <option value="high">High</option>
                       <option value="constant">Constant</option>
                     </select>
-                    <small>Think about organizational change that affects how this area works: role changes, new approvals, shifting reporting lines, reorganizations, or repeated changes in who decides what.</small>
                   </div>
 
                   <div class="field full">
@@ -2757,7 +2761,6 @@ A structural clarity score, leadership-level readout, directional cost estimates
                 </p>
                 <div class="bridge-actions">
                   <a class="btn btn-accent" href="advisory-services.html">Explore Advisory Engagements</a>
-                  <a class="btn btn-secondary" href="index.html#connect">Request an Initial Conversation</a>
                 </div>
               </div>
 
@@ -3014,12 +3017,6 @@ A structural clarity score, leadership-level readout, directional cost estimates
   function goToStep(step, shouldScroll = false) {
     currentStep = Math.max(1, Math.min(5, step));
     updateStepUI();
-
-    if (stepProgressBanner) {
-      stepProgressBanner.classList.remove("flash");
-      void stepProgressBanner.offsetWidth;
-      stepProgressBanner.classList.add("flash");
-    }
 
     const scrollTarget = stepProgressBanner || document.querySelector(".stepper");
 
