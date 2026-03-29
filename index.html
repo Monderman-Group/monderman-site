@@ -66,7 +66,7 @@
       --rail-gap: 18px;
       --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
       --card-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
-      --reveal-distance: 18px;
+      --reveal-distance: 10px;
       --panel-radius: 18px;
       --card-radius: 16px;
     }
@@ -284,10 +284,10 @@
       object-fit: cover;
       object-position: center center;
       opacity: 0;
-      transform: translateY(0) scale(1.015);
+      transform: scale(1.01);
       transition:
-        opacity 1.05s cubic-bezier(0.22, 1, 0.36, 1),
-        transform 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+        opacity 720ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 1800ms cubic-bezier(0.22, 1, 0.36, 1);
       will-change: transform, opacity;
       filter: none;
     }
@@ -397,6 +397,19 @@
       flex-wrap: wrap;
       margin-top: 30px;
       animation-delay: 820ms;
+    }
+
+    .hero-signal {
+      margin: 18px 0 0;
+      max-width: 58ch;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      letter-spacing: 0.02em;
+      color: rgba(245, 247, 250, 0.64);
+      opacity: 0;
+      transform: translateY(16px);
+      animation: heroFadeUp 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      animation-delay: 940ms;
     }
 
     .btn {
@@ -910,18 +923,46 @@
 
     .approach-synthesis-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 24px;
-      max-width: 820px;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 18px;
+      max-width: 980px;
       margin: 0 auto;
     }
 
     .approach-synthesis-item {
-      font-size: 0.96rem;
-      line-height: 1.45;
-      font-weight: 600;
-      letter-spacing: -0.01em;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+      min-height: 168px;
+      padding: 22px 20px 20px;
+      text-align: left;
+      background: #FFFFFF;
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      border-radius: 16px;
+      box-shadow: var(--soft-shadow);
       color: var(--text-dark);
+      transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition), background var(--transition);
+    }
+
+    .approach-synthesis-item strong {
+      font-size: 1rem;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      color: var(--text-dark);
+    }
+
+    .approach-synthesis-item span {
+      font-size: 0.9rem;
+      line-height: 1.56;
+      color: var(--muted-dark);
+    }
+
+    .approach-synthesis-item.is-linked,
+    .approach-synthesis-item:hover {
+      transform: translateY(-2px);
+      border-color: rgba(63, 110, 161, 0.18);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.04);
+      background: #FFFFFF;
     }
 
     .latest {
@@ -991,6 +1032,12 @@
 
     .latest-viewport {
       overflow: hidden;
+      opacity: 0;
+      transition: opacity 240ms ease;
+    }
+
+    .latest-viewport.is-ready {
+      opacity: 1;
     }
 
     .latest-track {
@@ -1467,6 +1514,11 @@
         max-width: 420px;
       }
 
+      .hero-signal {
+        max-width: 100%;
+        font-size: 0.82rem;
+      }
+
       .btn {
         width: 100%;
         min-width: 0;
@@ -1572,17 +1624,21 @@
       <div class="hero-copy">
         <p class="hero-eyebrow">Institutional Design</p>
 
-        <h1 id="hero-title">Transforming complexity into opportunity.</h1>
+        <h1 id="hero-title">Complexity made clearer. Execution made stronger.</h1>
 
         <p class="hero-dek">
-          Monderman helps organizations turn complexity into an advantage by confronting the structural conditions that constrain execution, adaptability, and performance.
+          Monderman helps complex institutions identify the structural conditions that slow decisions, absorb capacity, and weaken performance under pressure.
         </p>
 
         <div class="hero-actions">
           <a class="btn btn-accent" href="why-monderman.html">Why Monderman</a>
-          <a class="btn btn-secondary" href="diagnostic-tools.html">Diagnostic Suite</a>
+          <a class="btn btn-secondary" href="diagnostic-tools.html">Start the Diagnostic Evaluation</a>
           <a class="btn btn-secondary" href="advisory-services.html">Advisory Engagements</a>
         </div>
+
+        <p class="hero-signal">
+          Diagnostics, briefs, and advisory work for organizations where administrative and bureaucratic drag has become consequential.
+        </p>
       </div>
     </div>
   </section>
@@ -1638,17 +1694,13 @@
         <div class="section-label">Our Approach</div>
         <h2 id="approach-title">Designing systems for clarity and execution.</h2>
 
-        <p>
-          Monderman works where structure, governance, and institutional performance meet. We help organizations reduce friction, strengthen execution, and improve how performance holds under complexity.
-        </p>
-
         <p class="approach-bridge">
-          We work where strategy becomes execution — or stalls under the weight of unclear structures, slower decisions, and administrative systems that no longer support the work.
+          Monderman works where strategy becomes execution — or stalls under the weight of unclear structures, slower decisions, and administrative systems that no longer support the work.
         </p>
       </div>
 
       <div class="approach-grid">
-        <div class="approach-card reveal reveal-delay-1">
+        <div class="approach-card reveal reveal-delay-1" data-effect-target="clarity">
           <div class="card-title">Structural Clarity</div>
           <div class="card-desc">
             We identify where authority, ownership, and accountability have drifted apart, then help realign the structure around execution.
@@ -1656,7 +1708,7 @@
           <a class="approach-card-link" href="structural-clarity-article.html">Read more &#8594;</a>
         </div>
 
-        <div class="approach-card reveal reveal-delay-2">
+        <div class="approach-card reveal reveal-delay-2" data-effect-target="velocity">
           <div class="card-title">Decision Velocity</div>
           <div class="card-desc">
             We surface where decision pathways have become heavier than the work requires, slowing execution and increasing drag.
@@ -1664,7 +1716,7 @@
           <a class="approach-card-link" href="decision-velocity-article.html">Read more &#8594;</a>
         </div>
 
-        <div class="approach-card reveal reveal-delay-3">
+        <div class="approach-card reveal reveal-delay-3" data-effect-target="systems">
           <div class="card-title">Operational Systems</div>
           <div class="card-desc">
             We identify where policies, controls, and administrative processes are absorbing time and effort that should be supporting delivery.
@@ -1672,7 +1724,7 @@
           <a class="approach-card-link" href="operational-systems-article.html">Read more &#8594;</a>
         </div>
 
-        <div class="approach-card reveal reveal-delay-4">
+        <div class="approach-card reveal reveal-delay-4" data-effect-target="performance">
           <div class="card-title">Institutional Performance</div>
           <div class="card-desc">
             We help organizations strengthen the conditions that allow performance to hold under pressure, complexity, and change.
@@ -1684,13 +1736,25 @@
       <div class="approach-synthesis reveal">
         <div class="section-label">The Monderman Effect</div>
         <p class="approach-synthesis-copy">
-          Four reinforcing outcomes that help institutions reduce hidden drag and execute with greater clarity.
+          Four reinforcing outcomes Monderman is designed to produce across the conditions that matter most for institutional performance.
         </p>
         <div class="approach-synthesis-grid">
-          <div class="approach-synthesis-item">Clarify ownership</div>
-          <div class="approach-synthesis-item">Shorten decision paths</div>
-          <div class="approach-synthesis-item">Reduce hidden drag</div>
-          <div class="approach-synthesis-item">Strengthen performance</div>
+          <div class="approach-synthesis-item" data-effect="clarity">
+            <strong>Confident Action</strong>
+            <span>When structural clarity restores confidence in who owns what, who decides, and how execution moves.</span>
+          </div>
+          <div class="approach-synthesis-item" data-effect="velocity">
+            <strong>Sustained Advantage</strong>
+            <span>When decision velocity remains faster than the drag, delay, and caution accumulating beneath the work.</span>
+          </div>
+          <div class="approach-synthesis-item" data-effect="systems">
+            <strong>Reclaimed Capacity</strong>
+            <span>When operational systems stop absorbing time and effort that should be available for delivery, judgment, and innovation.</span>
+          </div>
+          <div class="approach-synthesis-item" data-effect="performance">
+            <strong>Organizational Credibility</strong>
+            <span>When performance holds under complexity in ways leaders, employees, and stakeholders can trust.</span>
+          </div>
         </div>
       </div>
     </div>
@@ -1700,9 +1764,9 @@
     <div class="diagnostic-estimate-inner">
       <div class="diagnostic-estimate-heading reveal">
         <p class="estimate-label">Diagnostic Suite</p>
-        <h2 id="estimate-title">Estimate the hidden cost of bureaucratic overhead.</h2>
+        <h2 id="estimate-title">Estimate the hidden cost of structural drag.</h2>
         <p class="estimate-context">
-          This directional estimate gives a high-level view of how much time, money, and productive capacity may be absorbed by bureaucratic overhead inside a complex organization.
+          This directional estimate provides a high-level view of how much time, money, and productive capacity may be absorbed by administrative and bureaucratic burden inside a complex organization.
         </p>
         <p class="estimate-bridge">
           The deeper cost is rarely workforce size alone. It is the accumulation of administrative and bureaucratic systems beneath operations and strategy that, when poorly maintained, steadily absorb time, money, and productive capacity.
@@ -1799,7 +1863,7 @@
           </p>
         </div>
 
-        <a class="btn btn-accent" href="diagnostic-tools.html">Continue in the Diagnostic Suite</a>
+        <a class="btn btn-accent" href="diagnostic-tools.html">Start the Diagnostic Evaluation</a>
       </div>
     </div>
   </section>
@@ -2007,15 +2071,13 @@
     const header = document.getElementById("siteHeader");
     const heroSection = document.querySelector(".hero");
 
-    let heroScale = 1.015;
+    let heroScale = 1.01;
     let zoomStarted = false;
 
     function revealHero() {
       if (!heroImage) return;
-      setTimeout(() => {
-        heroImage.classList.add("is-loaded");
-        startHeroZoom();
-      }, 70);
+      heroImage.classList.add("is-loaded");
+      startHeroZoom();
     }
 
     function startHeroZoom() {
@@ -2023,31 +2085,20 @@
       zoomStarted = true;
 
       const start = performance.now();
-      const duration = 22000;
+      const duration = 26000;
 
       function tick(now) {
         const progress = Math.min((now - start) / duration, 1);
-        heroScale = 1.015 + (0.012 * progress);
-        updateHeroTransform();
+        heroScale = 1.01 + (0.008 * progress);
+        heroImage.style.transform = `scale(${heroScale})`;
         if (progress < 1) requestAnimationFrame(tick);
       }
 
       requestAnimationFrame(tick);
     }
 
-    function updateHeroTransform() {
-      if (!heroImage || !heroSection || !heroImage.classList.contains("is-loaded")) return;
-      const rect = heroSection.getBoundingClientRect();
-      const vh = window.innerHeight || 1;
-      const progress = Math.max(-1, Math.min(1, rect.top / vh));
-      const y = progress * -5;
-      heroImage.style.transform = `translateY(${y}px) scale(${heroScale})`;
-    }
-
     if (heroImage && heroImage.complete) {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(revealHero);
-      });
+      requestAnimationFrame(revealHero);
     } else if (heroImage) {
       heroImage.addEventListener("load", revealHero, { once: true });
     }
@@ -2063,9 +2114,6 @@
 
     updateHeader();
     window.addEventListener("scroll", updateHeader, { passive: true });
-    window.addEventListener("scroll", updateHeroTransform, { passive: true });
-    window.addEventListener("resize", updateHeroTransform);
-    window.addEventListener("load", updateHeroTransform);
 
     const costSection = document.getElementById("cost-section");
     const counters = document.querySelectorAll(".cost-card-number");
@@ -2201,6 +2249,7 @@
       }
 
       renderLatestDots();
+      latestViewport?.classList.add("is-ready");
     }
 
     function stopAutoScroll() {
@@ -2222,7 +2271,7 @@
           latestIndex += 1;
         }
         updateLatestCarousel();
-      }, 7200);
+      }, 8600);
     }
 
     if (latestPrev) {
@@ -2257,6 +2306,31 @@
       latestViewport.addEventListener("touchstart", stopAutoScroll, { passive: true });
       latestViewport.addEventListener("touchend", startAutoScroll, { passive: true });
     }
+    const approachCards = Array.from(document.querySelectorAll(".approach-card[data-effect-target]"));
+    const effectItems = Array.from(document.querySelectorAll(".approach-synthesis-item[data-effect]"));
+
+    function clearEffectLinks() {
+      effectItems.forEach((item) => item.classList.remove("is-linked"));
+    }
+
+    approachCards.forEach((card) => {
+      const target = card.dataset.effectTarget;
+      const linkedItem = effectItems.find((item) => item.dataset.effect === target);
+      if (!linkedItem) return;
+
+      card.addEventListener("mouseenter", () => {
+        clearEffectLinks();
+        linkedItem.classList.add("is-linked");
+      });
+
+      card.addEventListener("mouseleave", clearEffectLinks);
+      card.addEventListener("focusin", () => {
+        clearEffectLinks();
+        linkedItem.classList.add("is-linked");
+      });
+      card.addEventListener("focusout", clearEffectLinks);
+    });
+
 
     window.addEventListener("resize", () => {
       updateLatestCarousel();
