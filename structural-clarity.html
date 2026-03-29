@@ -495,6 +495,234 @@
       pointer-events: none;
     }
 
+    .hero-time-estimate {
+      margin-top: 14px;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      color: rgba(245,247,250,0.70);
+    }
+
+    .step-progress-banner {
+      display: grid;
+      gap: 4px;
+      margin: -6px 0 22px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(63,110,161,0.16);
+      background: linear-gradient(180deg, rgba(63,110,161,0.06) 0%, rgba(63,110,161,0.02) 100%);
+      box-shadow: 0 10px 24px rgba(63,110,161,0.06);
+      transition: opacity var(--transition), transform var(--transition);
+    }
+
+    .step-progress-banner.flash {
+      animation: stepFlash 420ms ease;
+    }
+
+    .step-progress-eyebrow {
+      font-size: 0.7rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .step-progress-title {
+      font-size: 0.96rem;
+      line-height: 1.35;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    @keyframes stepFlash {
+      0% { transform: translateY(4px); opacity: 0.55; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    .field label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .field-info-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .field-info-button {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 1.25px solid rgba(63,110,161,0.8);
+      background: #FFFFFF;
+      color: var(--accent);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.68rem;
+      font-weight: 700;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .field-tooltip {
+      position: absolute;
+      left: 22px;
+      top: -10px;
+      width: min(300px, 72vw);
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(21,32,43,0.10);
+      background: #FFFFFF;
+      color: var(--muted-dark);
+      font-size: 0.78rem;
+      line-height: 1.48;
+      box-shadow: 0 14px 32px rgba(10, 18, 26, 0.12);
+      display: none;
+      z-index: 5;
+      text-transform: none;
+      letter-spacing: normal;
+      font-weight: 400;
+    }
+
+    .field-info-wrap:hover .field-tooltip,
+    .field-info-button:focus + .field-tooltip {
+      display: block;
+    }
+
+    .step-panel {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    .step-panel.active {
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 220ms ease, transform 220ms ease;
+    }
+
+    .score-denominator,
+    .report-score-denominator {
+      font-size: 0.36em;
+      line-height: 1;
+      vertical-align: 0.42em;
+      margin-left: 6px;
+      letter-spacing: -0.01em;
+      color: rgba(245,247,250,0.72);
+      font-weight: 600;
+    }
+
+    .report-score-denominator {
+      color: var(--muted-dark-2);
+    }
+
+    .score-score-note,
+    .report-score-note {
+      margin: 2px 0 0;
+      font-size: 0.8rem;
+      line-height: 1.45;
+      color: rgba(245,247,250,0.72);
+    }
+
+    .report-score-note {
+      color: var(--muted-dark);
+    }
+
+    .metric-card,
+    .premium-card,
+    .chart-card,
+    .tmr-tile,
+    .report-metric,
+    .report-box,
+    .report-summary-box,
+    .report-score-box,
+    .mini-card,
+    .bridge-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card::before,
+    .premium-card::before,
+    .chart-card::before,
+    .report-box::before,
+    .bridge-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, rgba(63,110,161,0.55), rgba(63,110,161,0.08));
+      opacity: 0.9;
+    }
+
+    .metric-card:hover,
+    .premium-card:hover,
+    .chart-card:hover,
+    .bridge-card:hover {
+      box-shadow: 0 18px 36px rgba(10, 18, 26, 0.08);
+      transform: translateY(-1px);
+      transition: box-shadow var(--transition), transform var(--transition);
+    }
+
+    .number-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: numbered-steps;
+      display: grid;
+      gap: 12px;
+    }
+
+    .number-list li {
+      counter-increment: numbered-steps;
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+      font-size: 0.94rem;
+      line-height: 1.58;
+      color: var(--muted-dark);
+    }
+
+    .number-list li::before {
+      content: counter(numbered-steps, decimal-leading-zero);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      min-height: 42px;
+      border-radius: 999px;
+      border: 1px solid rgba(63,110,161,0.18);
+      background: linear-gradient(180deg, rgba(63,110,161,0.08) 0%, rgba(63,110,161,0.02) 100%);
+      color: var(--accent);
+      font-size: 0.84rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.02em;
+    }
+
+    .number-list-compact li {
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 10px;
+      font-size: 0.88rem;
+    }
+
+    .number-list-compact li::before {
+      width: 34px;
+      min-height: 34px;
+      font-size: 0.76rem;
+    }
+
+    .results-actions-primary {
+      margin-top: 6px;
+      padding-top: 2px;
+    }
+
     .stepper {
       display: flex;
       gap: 10px;
@@ -1732,10 +1960,12 @@
     <div class="header-inner">
       <a href="index.html" class="brand">Monderman</a>
 
-      <nav class="header-links" aria-label="Page navigation">
-        <a href="index.html">Home</a>
+      <nav class="header-links" aria-label="Primary navigation">
+        <a href="approach.html">Approach</a>
         <a href="diagnostic-tools.html">Diagnostic Tools</a>
-        <a href="Monderman_Active_Bureaucratic_Management.pdf" target="_blank" rel="noopener noreferrer">ABM Brief</a>
+        <a href="research.html">Research</a>
+        <a href="why-monderman.html">Why Monderman</a>
+        <a href="index.html#connect">Connect</a>
       </nav>
     </div>
   </header>
@@ -1745,29 +1975,30 @@
       <div class="hero-inner">
         <div class="hero-copy">
           <p class="eyebrow">Monderman Diagnostic Suite</p>
-          <h1 id="sc-title">Structural Clarity Diagnostic</h1>
+          <h1 id="sc-title">When the system becomes the constraint, superficial fixes stop working.</h1>
           <p>
-            A focused diagnostic for surfacing where authority, ownership, and accountability have drifted apart inside one team, function, or operating boundary.
+            Diagnose the underlying structural conditions that are degrading execution—where authority, ownership, accountability, and administrative design no longer support the work.
           </p>
 
           <div class="hero-actions">
             <button class="btn btn-accent" id="startGuidedBtn" type="button">Start Guided Diagnostic</button>
             <button class="btn btn-secondary" id="startUploadBtn" type="button">Use Your Own Data</button>
           </div>
+          <p class="hero-time-estimate">Estimated time: 4–6 minutes</p>
         </div>
 
         <div class="hero-meta">
           <div class="hero-meta-card">
             <p class="hero-meta-title">What it surfaces</p>
             <p class="hero-meta-text">
-              Ownership ambiguity, role overlap, escalation confusion, accountability diffusion, and dependence on informal influence.
+Where bureaucracy, governance weight, or unclear structural design are causing repeated friction beneath the visible problem.
             </p>
           </div>
 
           <div class="hero-meta-card">
             <p class="hero-meta-title">What you get back</p>
             <p class="hero-meta-text">
-              A Structural Clarity index, executive signal, benchmark comparison, directional exposure estimates, intervention order, and synthesis-ready flags.
+A structural clarity score, leadership-level readout, directional cost estimates, and a clearer view of where the underlying system—not just the visible process—is constraining execution.
             </p>
           </div>
         </div>
@@ -1778,9 +2009,9 @@
       <div class="panel">
         <div class="panel-head" id="diagnosticInputTop">
           <p class="panel-kicker">Diagnostic Input</p>
-          <h2 class="panel-title">Assess one team, role boundary, or operating area.</h2>
+          <h2 class="panel-title">Assess one team, boundary, or structural problem area.</h2>
           <p class="panel-copy">
-            Use the guided diagnostic for the clearest experience, or upload a template-compatible CSV if you already have structured organizational data.
+            Use the guided diagnostic to examine where the system beneath the work is becoming the constraint. Upload a template-compatible CSV only if you already have structured organizational data.
           </p>
         </div>
 
@@ -1789,13 +2020,13 @@
             <label class="mode-card active" id="modeGuidedCard">
               <input type="radio" name="inputMode" value="guided" checked />
               <p class="mode-card-title">Guided Diagnostic</p>
-              <p class="mode-card-text">Best for leaders examining role clarity, ownership boundaries, accountability structure, and practical structural exposure.</p>
+              <p class="mode-card-text">Best for leaders and practitioners examining where unclear structure, excessive governance weight, or weak accountability are distorting execution.</p>
             </label>
 
             <label class="mode-card" id="modeCsvCard">
               <input type="radio" name="inputMode" value="csv" />
               <p class="mode-card-title">Use Your Own Data</p>
-              <p class="mode-card-text">Upload a narrow CSV for a structured readout of role and ownership clarity with the same output framework.</p>
+              <p class="mode-card-text">Upload structured data for a narrower readout of structural clarity, governance friction, and role-accountability misalignment.</p>
             </label>
           </div>
 
@@ -1818,21 +2049,28 @@
               </button>
             </div>
 
+            <div class="step-progress-banner" id="stepProgressBanner" aria-live="polite">
+              <span class="step-progress-eyebrow">Step 1 of 5</span>
+              <span class="step-progress-title">Structural context</span>
+            </div>
+
             <section class="step-panel active" data-step-panel="1">
               <div class="section-block">
                 <h3 class="section-block-title">Step 1 · Structural context</h3>
-                <p class="section-block-text">Describe the team, role boundary, or operating area where clarity may be eroding.</p>
+                <p class="section-block-text">Describe the part of the organization where the underlying system may be constraining execution, accountability, or coordination.</p>
 
                 <div class="form-grid">
                   <div class="field">
-                    <label for="focusArea">Focus area</label>
-                    <input id="focusArea" name="focusArea" type="text" placeholder="e.g. Program management office" required />
+                    <label for="focusArea">Where is the problem showing up?</label>
+                    <input id="focusArea" name="focusArea" type="text" placeholder="e.g. Program management office, product launch process, regional approvals chain" required />
                   </div>
 
                   <div class="field">
-                    <label for="structureType">Structure type</label>
+                    <label for="structureType">What kind of structure is this?</label>
                     <select id="structureType" name="structureType" required>
                       <option value="">Select one</option>
+                      <option value="not_sure">Not sure</option>
+                      <option value="na">Not applicable</option>
                       <option value="functional">Functional team</option>
                       <option value="cross-functional">Cross-functional group</option>
                       <option value="program">Program / project structure</option>
@@ -1843,9 +2081,11 @@
                   </div>
 
                   <div class="field">
-                    <label for="scopeSize">People affected</label>
+                    <label for="scopeSize">How many people are affected overall?</label>
                     <select id="scopeSize" name="scopeSize" required>
                       <option value="">Select one</option>
+                      <option value="not_sure">Not sure</option>
+                      <option value="na">Not applicable</option>
                       <option value="small">1–10</option>
                       <option value="medium">11–50</option>
                       <option value="large">51–150</option>
@@ -1854,9 +2094,11 @@
                   </div>
 
                   <div class="field">
-                    <label for="changePace">Rate of organizational change</label>
+                    <label for="changePace">How much is this area changing right now?</label>
                     <select id="changePace" name="changePace" required>
                       <option value="">Select one</option>
+                      <option value="not_sure">Not sure</option>
+                      <option value="na">Not applicable</option>
                       <option value="stable">Stable</option>
                       <option value="moderate">Moderate</option>
                       <option value="high">High</option>
@@ -1865,15 +2107,15 @@
                   </div>
 
                   <div class="field full">
-                    <label for="description">Brief context note</label>
-                    <textarea id="description" name="description" placeholder="Briefly describe where the organization may be experiencing blurred ownership, overlapping roles, or unclear accountability."></textarea>
-                    <small>This note is optional. Keep it short and non-sensitive.</small>
+                    <label for="description">Describe the issue</label>
+                    <textarea id="description" name="description" placeholder="Explain what is happening, where the friction shows up, and how it affects execution, accountability, or coordination."></textarea>
+                    <small>Optional, but helpful. A clear explanation improves the quality of the output. Include the practical problem, where it shows up, and who it affects. Do not include sensitive information.</small>
                   </div>
                 </div>
               </div>
 
               <div class="step-actions">
-                <p class="submit-note">This tool works best when focused on one organizational boundary at a time.</p>
+                <p class="submit-note">This works best when focused on one structural problem area at a time.</p>
                 <div class="btn-inline-group">
                   <button class="btn btn-accent step-next" type="button">Continue</button>
                 </div>
@@ -1882,14 +2124,16 @@
 
             <section class="step-panel" data-step-panel="2">
               <div class="section-block">
-                <h3 class="section-block-title">Step 2 · Ownership clarity</h3>
-                <p class="section-block-text">This section measures whether ownership is explicit, stable, and actually recognized by the people involved.</p>
+                <h3 class="section-block-title">Step 2 · Ownership and responsibility</h3>
+                <p class="section-block-text">This section checks whether responsibility is actually clear in practice—not just on paper.</p>
 
                 <div class="form-grid">
                   <div class="field">
-                    <label for="ownerDefined">Is primary ownership clearly defined?</label>
+                    <label for="ownerDefined">Is it clear who owns the work?</label>
                     <select id="ownerDefined" name="ownerDefined" required>
                       <option value="">Select one</option>
+                      <option value="not_sure">Not sure</option>
+                      <option value="na">Not applicable</option>
                       <option value="clear">Usually yes</option>
                       <option value="mixed">Sometimes</option>
                       <option value="unclear">Often no</option>
@@ -1897,9 +2141,11 @@
                   </div>
 
                   <div class="field">
-                    <label for="ownerConsistency">Does ownership stay consistent over time?</label>
+                    <label for="ownerConsistency">Does that ownership stay consistent?</label>
                     <select id="ownerConsistency" name="ownerConsistency" required>
                       <option value="">Select one</option>
+                      <option value="not_sure">Not sure</option>
+                      <option value="na">Not applicable</option>
                       <option value="stable">Usually yes</option>
                       <option value="mixed">Sometimes</option>
                       <option value="unstable">Often no</option>
@@ -1907,9 +2153,11 @@
                   </div>
 
                   <div class="field">
-                    <label for="duplicateOwnership">How often do multiple groups believe they own the same work?</label>
+                    <label for="duplicateOwnership">How often do multiple groups think they own the same issue or task?</label>
                     <select id="duplicateOwnership" name="duplicateOwnership" required>
                       <option value="">Select one</option>
+                      <option value="not_sure">Not sure</option>
+                      <option value="na">Not applicable</option>
                       <option value="rare">Rarely</option>
                       <option value="sometimes">Sometimes</option>
                       <option value="often">Often</option>
@@ -1917,9 +2165,11 @@
                   </div>
 
                   <div class="field">
-                    <label for="orphanedWork">How often does work sit because no one clearly owns it?</label>
+                    <label for="orphanedWork">How often does work stall because no one clearly owns it?</label>
                     <select id="orphanedWork" name="orphanedWork" required>
                       <option value="">Select one</option>
+                      <option value="not_sure">Not sure</option>
+                      <option value="na">Not applicable</option>
                       <option value="rare">Rarely</option>
                       <option value="sometimes">Sometimes</option>
                       <option value="often">Often</option>
@@ -1929,7 +2179,7 @@
               </div>
 
               <div class="step-actions">
-                <p class="submit-note">This tool is not measuring decision speed; it is measuring whether ownership itself is structurally clear.</p>
+                <p class="submit-note">This is not measuring generic efficiency. It is testing whether the underlying structure makes responsibility clear enough for execution to hold.</p>
                 <div class="btn-inline-group">
                   <button class="btn btn-secondary step-prev" type="button">Back</button>
                   <button class="btn btn-accent step-next" type="button">Continue</button>
@@ -1939,14 +2189,16 @@
 
             <section class="step-panel" data-step-panel="3">
               <div class="section-block">
-                <h3 class="section-block-title">Step 3 · Authority and escalation</h3>
-                <p class="section-block-text">This section examines whether formal authority and actual decision rights line up in practice.</p>
+                <h3 class="section-block-title">Step 3 · Authority and decision rights</h3>
+                <p class="section-block-text">This section examines whether formal authority and real decision rights still line up in practice.</p>
 
                 <div class="form-grid">
                   <div class="field">
-                    <label for="decisionRights">Are decision rights clearly understood?</label>
+                    <label for="decisionRights">Is it clear who can make which decisions?</label>
                     <select id="decisionRights" name="decisionRights" required>
                       <option value="">Select one</option>
+                      <option value="not_sure">Not sure</option>
+                      <option value="na">Not applicable</option>
                       <option value="clear">Usually yes</option>
                       <option value="mixed">Mixed</option>
                       <option value="unclear">Often no</option>
@@ -1954,9 +2206,11 @@
                   </div>
 
                   <div class="field">
-                    <label for="escalationPath">Is escalation path clear when conflicts arise?</label>
+                    <label for="escalationPath">When conflict appears, is the escalation path clear?</label>
                     <select id="escalationPath" name="escalationPath" required>
                       <option value="">Select one</option>
+                      <option value="not_sure">Not sure</option>
+                      <option value="na">Not applicable</option>
                       <option value="clear">Usually yes</option>
                       <option value="mixed">Mixed</option>
                       <option value="unclear">Often no</option>
@@ -1964,9 +2218,11 @@
                   </div>
 
                   <div class="field">
-                    <label for="informalInfluence">How often does informal influence override formal structure?</label>
+                    <label for="informalInfluence">How often do decisions depend more on informal influence than formal authority?</label>
                     <select id="informalInfluence" name="informalInfluence" required>
                       <option value="">Select one</option>
+                      <option value="not_sure">Not sure</option>
+                      <option value="na">Not applicable</option>
                       <option value="rare">Rarely</option>
                       <option value="sometimes">Sometimes</option>
                       <option value="often">Often</option>
@@ -1974,9 +2230,11 @@
                   </div>
 
                   <div class="field">
-                    <label for="leaderDependence">How dependent is clarity on one strong leader or key personality?</label>
+                    <label for="leaderDependence">How dependent is this area on one strong leader or key personality to stay clear?</label>
                     <select id="leaderDependence" name="leaderDependence" required>
                       <option value="">Select one</option>
+                      <option value="not_sure">Not sure</option>
+                      <option value="na">Not applicable</option>
                       <option value="low">Low</option>
                       <option value="moderate">Moderate</option>
                       <option value="high">High</option>
@@ -1986,7 +2244,7 @@
               </div>
 
               <div class="step-actions">
-                <p class="submit-note">If clarity depends mostly on personalities, the structure is usually less clear than it appears.</p>
+                <p class="submit-note">If clarity depends mostly on personalities, the structure is usually weaker than it looks.</p>
                 <div class="btn-inline-group">
                   <button class="btn btn-secondary step-prev" type="button">Back</button>
                   <button class="btn btn-accent step-next" type="button">Continue</button>
@@ -1996,14 +2254,16 @@
 
             <section class="step-panel" data-step-panel="4">
               <div class="section-block">
-                <h3 class="section-block-title">Step 4 · Role boundaries and accountability</h3>
-                <p class="section-block-text">This section measures overlap, diffusion, and whether accountability survives handoffs and shared work.</p>
+                <h3 class="section-block-title">Step 4 · Boundaries and accountability</h3>
+                <p class="section-block-text">This section checks whether roles, handoffs, and accountability still hold when work crosses teams or layers.</p>
 
                 <div class="form-grid">
                   <div class="field">
-                    <label for="roleOverlap">How often do roles materially overlap?</label>
+                    <label for="roleOverlap">How often do roles overlap enough to create confusion?</label>
                     <select id="roleOverlap" name="roleOverlap" required>
                       <option value="">Select one</option>
+                      <option value="not_sure">Not sure</option>
+                      <option value="na">Not applicable</option>
                       <option value="rare">Rarely</option>
                       <option value="sometimes">Sometimes</option>
                       <option value="often">Often</option>
@@ -2011,9 +2271,11 @@
                   </div>
 
                   <div class="field">
-                    <label for="accountabilityDiffusion">How often does accountability diffuse across multiple parties?</label>
+                    <label for="accountabilityDiffusion">How often does accountability become blurred across multiple people or teams?</label>
                     <select id="accountabilityDiffusion" name="accountabilityDiffusion" required>
                       <option value="">Select one</option>
+                      <option value="not_sure">Not sure</option>
+                      <option value="na">Not applicable</option>
                       <option value="rare">Rarely</option>
                       <option value="sometimes">Sometimes</option>
                       <option value="often">Often</option>
@@ -2021,9 +2283,11 @@
                   </div>
 
                   <div class="field">
-                    <label for="handoffAmbiguity">When work hands off, does accountability stay clear?</label>
+                    <label for="handoffAmbiguity">When work moves from one group to another, does accountability stay clear?</label>
                     <select id="handoffAmbiguity" name="handoffAmbiguity" required>
                       <option value="">Select one</option>
+                      <option value="not_sure">Not sure</option>
+                      <option value="na">Not applicable</option>
                       <option value="clear">Usually yes</option>
                       <option value="mixed">Sometimes</option>
                       <option value="unclear">Often no</option>
@@ -2031,9 +2295,11 @@
                   </div>
 
                   <div class="field">
-                    <label for="conflictFrequency">How often do boundary disputes recur?</label>
+                    <label for="conflictFrequency">How often do the same boundary or ownership disputes come back?</label>
                     <select id="conflictFrequency" name="conflictFrequency" required>
                       <option value="">Select one</option>
+                      <option value="not_sure">Not sure</option>
+                      <option value="na">Not applicable</option>
                       <option value="rare">Rarely</option>
                       <option value="sometimes">Sometimes</option>
                       <option value="often">Often</option>
@@ -2043,7 +2309,7 @@
               </div>
 
               <div class="step-actions">
-                <p class="submit-note">Boundary conflict is often a structural signal, not just a people problem.</p>
+                <p class="submit-note">Repeated boundary conflict is often a structural signal, not just a people problem.</p>
                 <div class="btn-inline-group">
                   <button class="btn btn-secondary step-prev" type="button">Back</button>
                   <button class="btn btn-accent step-next" type="button">Continue</button>
@@ -2053,27 +2319,32 @@
 
             <section class="step-panel" data-step-panel="5">
               <div class="section-block">
-                <h3 class="section-block-title">Step 5 · Optional signals and privacy</h3>
-                <p class="section-block-text">These optional fields improve directional estimates of structural drag and coordination burden.</p>
+                <h3 class="section-block-title">Step 5 · Impact signals and privacy</h3>
+                <p class="section-block-text">These optional fields improve the directional estimate of how much structural drag may be costing in time, money, and capacity.</p>
 
                 <div class="form-grid">
                   <div class="field">
-                    <label for="meetingsPerWeek">Meetings per week spent resolving ownership / boundary issues</label>
+                    <label for="meetingsPerWeek">Meetings per week spent resolving this structural issue</label>
                     <input id="meetingsPerWeek" name="meetingsPerWeek" type="number" min="0" step="1" placeholder="e.g. 3" />
                   </div>
 
                   <div class="field">
-                    <label for="hourlyCost">Average loaded hourly cost ($)</label>
+                    <label for="hourlyCost">Hourly cost of the people doing the work ($)
+                      <span class="field-info-wrap">
+                        <button class="field-info-button" type="button" aria-label="Explain hourly cost" data-tooltip-target="hourlyCostTip">i</button>
+                        <span class="field-tooltip" id="hourlyCostTip" role="tooltip">Use the approximate hourly cost for the people directly performing or repeatedly handling the work in question. Do not use the full population affected unless they are also doing the work.</span>
+                      </span>
+                    </label>
                     <input id="hourlyCost" name="hourlyCost" type="number" min="0" step="1" placeholder="e.g. 95" />
                   </div>
 
                   <div class="field">
-                    <label for="peopleAffected">People regularly affected by this ambiguity</label>
+                    <label for="peopleAffected">People regularly affected by this issue</label>
                     <input id="peopleAffected" name="peopleAffected" type="number" min="0" step="1" placeholder="e.g. 18" />
                   </div>
 
                   <div class="field">
-                    <label for="issuesPerMonth">Recurring clarity issues per month</label>
+                    <label for="issuesPerMonth">Recurring issues per month</label>
                     <input id="issuesPerMonth" name="issuesPerMonth" type="number" min="0" step="1" placeholder="e.g. 10" />
                   </div>
                 </div>
@@ -2091,12 +2362,12 @@
               </div>
 
               <p class="submit-reassurance">
-                Do not enter sensitive or proprietary details; a short organizational description is enough.
+                Do not enter sensitive or proprietary details. A clear explanation is more useful than a minimal one.
               </p>
 
               <div class="submit-row">
                 <p class="submit-note">
-                  This diagnostic is directional. It is designed to produce a credible first read on structural ambiguity, not an audited organizational design assessment.
+                  This diagnostic is directional. It is designed to produce a credible first read on the structural conditions beneath recurring friction—not an audited organizational design assessment.
                 </p>
 
                 <div class="btn-inline-group">
@@ -2186,7 +2457,7 @@
               <p class="results-kicker">Executive Readout</p>
               <h3 class="results-title">Structural clarity dashboard</h3>
               <p class="results-copy">
-                This readout is designed to make the structural pattern legible quickly: what condition is present, where the primary exposure sits, what it may be costing, and what leadership should address first.
+                This readout is designed to make the structural condition legible quickly: where the system beneath the work is constraining execution, what that may be costing, and what leadership should address first.
               </p>
             </div>
 
@@ -2194,8 +2465,9 @@
               <div class="score-hero-inner">
                 <div class="score-column">
                   <p class="score-label">Structural Clarity Index</p>
-                  <p class="score-number" id="scoreNumber">0</p>
+                  <p class="score-number"><span id="scoreNumber">0</span><span class="score-denominator">/100</span></p>
                   <p class="score-band" id="scoreBand">—</p>
+                  <p class="score-score-note">Higher scores indicate stronger structural clarity.</p>
                 </div>
 
                 <div class="score-main">
@@ -2277,8 +2549,8 @@
 
             <section class="insight-grid">
               <article class="premium-card">
-                <p class="card-kicker">Recommended Intervention Order</p>
-                <ul class="bullet-list" id="recommendations"></ul>
+                <p class="card-kicker">Recommended Next Steps</p>
+                <ol class="number-list" id="recommendations"></ol>
               </article>
 
               <article class="premium-card">
@@ -2287,31 +2559,31 @@
               </article>
 
               <article class="premium-card">
-                <p class="card-kicker">Synthesis-Ready Flags</p>
+                <p class="card-kicker">Structural Warning Signs</p>
                 <ul class="bullet-list" id="frictionFlags"></ul>
               </article>
 
               <article class="premium-card">
-                <p class="card-kicker">Time, Money, and Resources Summary</p>
+                <p class="card-kicker">Estimated Structural Cost</p>
                 <p class="card-copy" id="tmrSummary"></p>
 
                 <div class="tmr-grid">
                   <div class="tmr-tile">
                     <p class="tmr-label">Time Lost*</p>
                     <p class="tmr-value" id="tmrHoursValue">—</p>
-                    <p class="tmr-sub" id="tmrHoursSub">Estimated annual hours absorbed by structural ambiguity.</p>
+                    <p class="tmr-sub" id="tmrHoursSub">Estimated annual hours absorbed by this structural condition.</p>
                   </div>
 
                   <div class="tmr-tile">
                     <p class="tmr-label">Cost Exposure*</p>
                     <p class="tmr-value" id="tmrMoneyValue">—</p>
-                    <p class="tmr-sub" id="tmrMoneySub">Estimated annual cost equivalent tied to this structural condition.</p>
+                    <p class="tmr-sub" id="tmrMoneySub">Estimated annual cost equivalent tied to the people doing the work.</p>
                   </div>
 
                   <div class="tmr-tile">
                     <p class="tmr-label">Capacity Drag*</p>
                     <p class="tmr-value" id="tmrResourceValue">—</p>
-                    <p class="tmr-sub" id="tmrResourceSub">Estimated productive capacity diverted into coordination and clarification overhead.</p>
+                    <p class="tmr-sub" id="tmrResourceSub">Estimated productive capacity diverted into coordination, clarification, and structural rework.</p>
                   </div>
                 </div>
               </article>
@@ -2350,8 +2622,9 @@
                   <div class="report-score-row">
                     <div class="report-score-box">
                       <p class="report-score-label">Index</p>
-                      <p class="report-score-number" id="reportScoreNumber">0</p>
+                      <p class="report-score-number"><span id="reportScoreNumber">0</span><span class="report-score-denominator">/100</span></p>
                       <p class="report-score-band" id="reportScoreBand">—</p>
+                      <p class="report-score-note">Higher is better</p>
                     </div>
 
                     <div class="report-summary-box">
@@ -2404,8 +2677,8 @@
                     </div>
 
                     <div class="report-box">
-                      <h5 class="report-box-title">Recommended Intervention Order</h5>
-                      <ul id="reportRecommendations"></ul>
+                      <h5 class="report-box-title">Recommended Next Steps</h5>
+                      <ol class="number-list number-list-compact" id="reportRecommendations"></ol>
                     </div>
 
                     <div class="report-box">
@@ -2414,12 +2687,12 @@
                     </div>
 
                     <div class="report-box">
-                      <h5 class="report-box-title">Synthesis-Ready Flags</h5>
+                      <h5 class="report-box-title">Structural Warning Signs</h5>
                       <ul id="reportFrictionFlags"></ul>
                     </div>
 
                     <div class="report-box">
-                      <h5 class="report-box-title">Time, Money, and Resources Summary</h5>
+                      <h5 class="report-box-title">Estimated Structural Cost</h5>
                       <p class="report-box-copy" id="reportTmrSummary"></p>
                     </div>
                   </div>
@@ -2457,6 +2730,11 @@
               </div>
             </div>
 
+            <div class="results-actions results-actions-primary">
+              <button class="btn btn-accent" id="downloadPdfBtnBottom" type="button">Generate Executive Summary</button>
+              <a class="btn btn-secondary" href="advisory-services.html">Explore Advisory Engagement</a>
+            </div>
+
             <div class="results-actions">
               <button class="btn btn-secondary" id="editInputsBtn" type="button">Edit Inputs</button>
               <button class="btn" id="startOverBtn" type="button">Start Over</button>
@@ -2469,7 +2747,7 @@
         <div class="mini-card">
           <h3 class="mini-card-title">How this works</h3>
           <p>
-            This diagnostic evaluates one structural boundary at a time. It translates signals about ownership, authority, and accountability into a directional readout of structural clarity and practical structural exposure.
+            This diagnostic evaluates one structural boundary at a time. It translates signals about ownership, authority, accountability, and governance weight into a directional readout of structural drag and clarity.
           </p>
         </div>
 
@@ -2487,17 +2765,17 @@
         <div class="mini-card">
           <h3 class="mini-card-title">What this is not</h3>
           <ul>
-            <li>Not a decision-speed tool</li>
+            <li>Not a generic process-improvement tool</li>
             <li>Not a morale survey</li>
             <li>Not a personality assessment</li>
-            <li>Not a replacement for org-design work</li>
+            <li>Not a replacement for deeper structural advisory work</li>
           </ul>
         </div>
 
         <div class="mini-card">
           <h3 class="mini-card-title">What to trust</h3>
           <p>
-            Trust the structural pattern, not false precision. The strongest value here is surfacing where ownership, authority, and accountability no longer align cleanly—and what that misalignment may be costing.
+            Trust the structural pattern, not false precision. The strongest value here is surfacing where bureaucracy, governance design, or weak structural clarity are quietly constraining execution—and what that condition may be costing.
           </p>
         </div>
       </aside>
@@ -2595,8 +2873,18 @@
 
   const stepPills = Array.from(document.querySelectorAll(".step-pill"));
   const stepPanels = Array.from(document.querySelectorAll(".step-panel"));
+  const stepProgressBanner = document.getElementById("stepProgressBanner");
+  const downloadPdfBtnBottom = document.getElementById("downloadPdfBtnBottom");
   const nextButtons = Array.from(document.querySelectorAll(".step-next"));
   const prevButtons = Array.from(document.querySelectorAll(".step-prev"));
+
+  const STEP_TITLES = {
+    1: "Structural context",
+    2: "Ownership and responsibility",
+    3: "Authority and decision rights",
+    4: "Boundaries and accountability",
+    5: "Impact signals and privacy"
+  };
 
   let currentStep = 1;
   let dimensionsChart;
@@ -2656,6 +2944,13 @@
       pill.classList.toggle("active", step === currentStep);
       pill.classList.toggle("done", step < currentStep);
     });
+
+    if (stepProgressBanner) {
+      const eyebrow = stepProgressBanner.querySelector(".step-progress-eyebrow");
+      const title = stepProgressBanner.querySelector(".step-progress-title");
+      if (eyebrow) eyebrow.textContent = `Step ${currentStep} of 5`;
+      if (title) title.textContent = STEP_TITLES[currentStep] || "Current step";
+    }
   }
 
   function validateStep(step) {
@@ -2676,10 +2971,21 @@
     currentStep = Math.max(1, Math.min(5, step));
     updateStepUI();
 
+    if (stepProgressBanner) {
+      stepProgressBanner.classList.remove("flash");
+      void stepProgressBanner.offsetWidth;
+      stepProgressBanner.classList.add("flash");
+    }
+
     if (shouldScroll) {
       const stepper = document.querySelector(".stepper");
       if (stepper) {
         stepper.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    } else {
+      const activePanel = document.querySelector(`.step-panel[data-step-panel="${currentStep}"]`);
+      if (activePanel) {
+        activePanel.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     }
   }
@@ -2823,6 +3129,7 @@
   });
 
   function mapToScore(value, mapping) {
+    if (value === "na" || value === "not_sure" || value === "" || value == null) return 50;
     return mapping[value] ?? 50;
   }
 
@@ -2861,11 +3168,11 @@
   }
 
   function getStatusLine(index) {
-    if (index >= 85) return "Structure is supporting execution with relatively limited ambiguity exposure.";
-    if (index >= 70) return "Structure is functional, but friction is forming in specific boundary conditions.";
-    if (index >= 55) return "Structural ambiguity is materially constraining execution and leadership attention.";
-    if (index >= 40) return "Structural clarity is weak enough to create recurring drag, rework, and misalignment.";
-    return "Structural ambiguity is now severe enough to threaten coordination, accountability, and execution quality.";
+    if (index >= 85) return "The underlying structure appears to be supporting execution with relatively limited drag.";
+    if (index >= 70) return "The structure is functional, but drag is forming in specific ownership, authority, or accountability boundaries." ;
+    if (index >= 55) return "Structural weakness is materially constraining execution and drawing leadership attention into compensation." ;
+    if (index >= 40) return "Structural clarity is weak enough to create recurring drag, rework, and coordination breakdown." ;
+    return "The underlying system is now weak enough to threaten coordination, accountability, and execution quality." ;
   }
 
   function buildApiPayloadFromGuided(data) {
@@ -3607,6 +3914,26 @@
       y += 4;
     }
 
+    function numberedList(items) {
+      (items || []).forEach((item, index) => {
+        const number = String(index + 1).padStart(2, "0");
+        const numberX = margin;
+        const textX = margin + 22;
+        const lines = doc.splitTextToSize(item, contentWidth - 22);
+        ensureSpace((lines.length * 15) + 6);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        doc.setTextColor(63, 110, 161);
+        doc.text(number, numberX, y);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10.5);
+        doc.setTextColor(21, 32, 43);
+        doc.text(lines, textX, y);
+        y += (lines.length * 15) + 6;
+      });
+      y += 4;
+    }
+
     const recommendationItems = Array.from(reportRecommendations.querySelectorAll("li")).map(li => li.textContent.trim()).filter(Boolean);
     const flagItems = Array.from(reportFrictionFlags.querySelectorAll("li")).map(li => li.textContent.trim()).filter(Boolean);
 
@@ -3661,13 +3988,13 @@
     sectionTitle("Leadership Priority");
     bodyText(reportLeadershipImplication.textContent || "");
 
-    sectionTitle("Recommended Intervention Order");
+    sectionTitle("Recommended Next Steps");
     bulletList(recommendationItems);
 
     sectionTitle("Trade-Off Note");
     bodyText(reportTradeoffNote.textContent || "");
 
-    sectionTitle("Synthesis-Ready Flags");
+    sectionTitle("Structural Warning Signs");
     bulletList(flagItems);
 
     sectionTitle("Time, Money, and Resources");
@@ -3696,6 +4023,12 @@
   downloadPdfBtn.addEventListener("click", () => {
     generateExecutiveSummaryPdf();
   });
+
+  if (downloadPdfBtnBottom) {
+    downloadPdfBtnBottom.addEventListener("click", () => {
+      generateExecutiveSummaryPdf();
+    });
+  }
 
   guidedForm.addEventListener("submit", async (e) => {
     e.preventDefault();
