@@ -67,7 +67,7 @@
       --panel-radius: 18px;
       --card-radius: 16px;
       --snap-offset: 72px;
-      --snap-landing-offset: 18px;
+      --snap-landing-offset: 10px;
     }
 
     * { box-sizing: border-box; }
@@ -1821,13 +1821,26 @@
         return window.innerWidth > 980 && window.matchMedia("(prefers-reduced-motion: no-preference)").matches;
       }
 
+      function getHeaderHeight() {
+        const headerEl = document.getElementById("siteHeader");
+        return headerEl ? headerEl.getBoundingClientRect().height : 72;
+      }
+
+      function getTargetTop(anchor) {
+        const headerHeight = getHeaderHeight();
+        const anchorStyles = window.getComputedStyle(anchor);
+        const anchorPaddingTop = parseFloat(anchorStyles.paddingTop) || 0;
+        const landingOffset = 10;
+        return Math.max(0, anchor.offsetTop - headerHeight - landingOffset + anchorPaddingTop);
+      }
+
       function getNearestAnchor() {
         const viewportTop = window.scrollY;
         let nearest = null;
         let nearestDistance = Infinity;
 
         snapAnchors.forEach((anchor) => {
-          const targetTop = Math.max(0, anchor.offsetTop - 18);
+          const targetTop = getTargetTop(anchor);
           const distance = Math.abs(targetTop - viewportTop);
           if (distance < nearestDistance) {
             nearestDistance = distance;
@@ -1844,9 +1857,9 @@
         const { nearest, nearestDistance } = getNearestAnchor();
         if (!nearest) return;
 
-        const targetTop = Math.max(0, nearest.offsetTop - 18);
+        const targetTop = getTargetTop(nearest);
 
-        if (nearestDistance > 56) return;
+        if (nearestDistance > 64) return;
         if (Math.abs(window.scrollY - targetTop) < 6) return;
 
         isAutoSnapping = true;
@@ -1857,13 +1870,13 @@
 
         window.setTimeout(() => {
           isAutoSnapping = false;
-        }, 260);
+        }, 280);
       }
 
       window.addEventListener("scroll", () => {
         if (!isDesktopSnap() || isAutoSnapping) return;
         clearTimeout(snapTimer);
-        snapTimer = setTimeout(softSnapToNearestAnchor, 380);
+        snapTimer = setTimeout(softSnapToNearestAnchor, 420);
       }, { passive: true });
     }
 
