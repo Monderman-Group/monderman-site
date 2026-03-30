@@ -5,6 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Structural Clarity | Monderman</title>
   <style>
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff");
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff");
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff");
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+    }
+
     :root {
       --accent: #3F6EA1;
       --accent-dark: #2F5886;
@@ -23,7 +47,7 @@
       margin: 0;
       background: var(--bg);
       color: var(--text);
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
     }
@@ -84,16 +108,38 @@
     .nav a {
       color: rgba(255,255,255,0.84);
       font-size: 0.96rem;
+      transition: color 180ms ease, transform 180ms ease;
     }
 
-    .nav a:hover { color: #fff; }
+    .nav a:hover,
+    .nav a:focus-visible {
+      color: #fff;
+      transform: translateY(-1px);
+      outline: none;
+    }
 
+    
     .hero {
       position: relative;
       overflow: hidden;
       background: linear-gradient(135deg, #0F1720 0%, #182331 100%);
       color: #fff;
-      padding: 84px 0 72px;
+      min-height: 520px;
+      padding: 92px 0 76px;
+    }
+
+    .hero-media {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .hero-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      opacity: 0.34;
     }
 
     .hero::before {
@@ -102,18 +148,34 @@
       inset: 0;
       pointer-events: none;
       background:
-        radial-gradient(circle at 78% 32%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.035) 16%, rgba(255,255,255,0.015) 28%, transparent 46%),
-        radial-gradient(circle at 78% 32%, rgba(63,110,161,0.12) 0%, rgba(63,110,161,0.06) 18%, transparent 50%);
-      opacity: 0.9;
+        linear-gradient(90deg, rgba(10,14,20,0.88) 0%, rgba(10,14,20,0.74) 30%, rgba(10,14,20,0.46) 58%, rgba(10,14,20,0.18) 100%),
+        linear-gradient(180deg, rgba(10,14,20,0.16) 0%, rgba(10,14,20,0.10) 100%);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 78% 28%, rgba(63,110,161,0.18) 0%, rgba(63,110,161,0.06) 22%, transparent 44%);
+      opacity: 0.95;
     }
 
     .hero-inner {
       position: relative;
       z-index: 1;
+      display: flex;
+      align-items: flex-end;
+      min-height: 352px;
+    }
+
+    .hero-copy {
+      max-width: 700px;
     }
 
     .eyebrow {
-      margin: 0 0 16px;
+      margin: 0 0 18px;
       font-size: 0.76rem;
       font-weight: 700;
       letter-spacing: 0.18em;
@@ -123,18 +185,18 @@
 
     .hero h1 {
       margin: 0 0 18px;
-      max-width: 9ch;
-      font-size: clamp(2.5rem, 5vw, 4.6rem);
+      max-width: 11ch;
+      font-size: clamp(2.7rem, 5vw, 4.7rem);
       line-height: 0.96;
-      letter-spacing: -0.05em;
+      letter-spacing: -0.052em;
     }
 
     .hero p {
       margin: 0;
-      max-width: 44ch;
-      font-size: 1.08rem;
-      line-height: 1.65;
-      color: rgba(255,255,255,0.78);
+      max-width: 46ch;
+      font-size: 1.06rem;
+      line-height: 1.7;
+      color: rgba(255,255,255,0.82);
     }
 
     .hero-actions {
@@ -157,8 +219,16 @@
     }
 
     .btn-primary {
-      background: #fff;
-      color: var(--text);
+      background: var(--accent);
+      color: #fff;
+      border-color: rgba(63,110,161,0.28);
+    }
+
+    .btn-primary:hover,
+    .btn-primary:focus-visible {
+      background: var(--accent-dark);
+      color: #fff;
+      outline: none;
     }
 
     .btn-secondary {
@@ -179,6 +249,8 @@
     .content, .sidebar-card, .pullquote, .cta {
       background: var(--white);
       border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.012);
     }
 
     .content { padding: 38px 34px; }
@@ -303,6 +375,21 @@
         flex-direction: column;
       }
 
+      .hero {
+        min-height: auto;
+        padding: 78px 0 62px;
+      }
+
+      .hero-inner {
+        min-height: auto;
+        align-items: flex-end;
+      }
+
+      .hero h1 {
+        max-width: 100%;
+        font-size: clamp(2.4rem, 10vw, 3.4rem);
+      }
+
       .content { padding: 28px 22px; }
     }
   </style>
@@ -321,15 +408,20 @@
   </header>
 
   <section class="hero">
+    <div class="hero-media" aria-hidden="true">
+      <img src="Article-image.jpg" alt="" />
+    </div>
     <div class="hero-inner">
-      <p class="eyebrow">Our Approach</p>
-      <h1>Structural Clarity</h1>
-      <p>
-        Organizations do not perform well simply because talented people work inside them. They perform well when authority, ownership, and execution are clear enough for work to move cleanly.
-      </p>
-      <div class="hero-actions">
-        <a class="btn btn-primary" href="structural-clarity.html">Run Diagnostics</a>
-        <a class="btn btn-secondary" href="index.html#connect">Start a Conversation</a>
+      <div class="hero-copy">
+        <p class="eyebrow">Our Approach</p>
+        <h1>Structural Clarity</h1>
+        <p>
+          Organizations perform best when authority, ownership, and execution are clear enough for work to move without constant interpretation.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="structural-clarity.html">Run Structural Clarity Diagnostic</a>
+          <a class="btn btn-secondary" href="index.html#connect">Start a Conversation</a>
+        </div>
       </div>
     </div>
   </section>
@@ -339,23 +431,23 @@
       <div class="article-layout">
         <article class="content">
           <p>
-            Structural clarity is not about org charts alone. It is about whether people can actually tell how work is supposed to move, who owns what, where authority sits, and how decisions convert into action. Many organizations appear fully designed on paper while functioning ambiguously in practice.
+            Structural clarity is not about org charts alone. It is about whether people can actually tell how work is meant to move, who owns what, where authority sits, and how decisions convert into action. Many organizations appear fully designed on paper while functioning ambiguously in practice.
           </p>
 
           <p>
-            That ambiguity rarely announces itself directly. It shows up as duplication, drift, delayed execution, repeated check-ins, unnecessary escalation, and the quiet sense that progress depends too much on who knows whom rather than on a system that is genuinely clear.
+            That ambiguity rarely announces itself directly. It shows up as duplication, drift, delayed execution, repeated check-ins, unnecessary escalation, and the quiet sense that progress depends too much on personal navigation rather than on a system that is genuinely clear.
           </p>
 
           <div class="pullquote">
             <p>
-              Structural clarity exists when authority, ownership, and execution are aligned closely enough that work can move without constant interpretation.
+              Structural clarity exists when authority, ownership, and execution are aligned closely enough that work can move without constant interpretation or informal translation.
             </p>
           </div>
 
           <h2>Why structural ambiguity is so expensive</h2>
 
           <p>
-            Organizations often treat ambiguity as a communication issue when it is actually a design issue. People do not need more reminders about who should do what if the underlying structure remains blurred. In those conditions, even capable teams begin to hesitate, overlap, or wait for reassurance before acting.
+            Organizations often treat ambiguity as a communication problem when it is actually a design problem. People do not need more reminders about who should do what if the underlying structure remains blurred. In those conditions, even capable teams begin to hesitate, overlap, or wait for reassurance before acting.
           </p>
 
           <p>
@@ -376,7 +468,7 @@
 
           <h3>Handoffs multiply</h3>
           <p>
-            Instead of one clean transfer, work bounces across functions, reviewers, or leaders. Each handoff slightly increases the risk of confusion, delay, or diluted accountability.
+            Instead of one clean transfer, work bounces across functions, reviewers, or leaders. Each handoff increases the risk of confusion, delay, or diluted accountability.
           </p>
 
           <h3>Coordination replaces design</h3>
@@ -387,17 +479,17 @@
           <h2>Why clarity matters under pressure</h2>
 
           <p>
-            Structural ambiguity is most damaging when tempo increases. In stable conditions, strong individuals can often compensate for a muddled system. Under pressure, that compensation becomes harder to sustain. Deadlines tighten, competing priorities intensify, and confusion that once felt tolerable begins to break execution apart.
+            Structural ambiguity is most damaging when tempo increases. In stable conditions, strong individuals can often compensate for a muddled system. Under pressure, that compensation becomes harder to sustain. Deadlines tighten, competing priorities intensify, and confusion that once felt tolerable begins to fracture execution.
           </p>
 
           <p>
-            This is why structural clarity is not administrative neatness. It is a form of performance infrastructure. When authority and ownership are clear, organizations can move faster without becoming chaotic. When they are not, even routine work starts to require excess management energy.
+            This is why structural clarity is not administrative neatness. It is a form of performance infrastructure. When authority and ownership are clear, organizations can move faster without becoming chaotic. When they are not, even routine work begins to require excess management energy.
           </p>
 
           <h2>What greater structural clarity looks like</h2>
 
           <p>
-            Healthier structures make the flow of work more obvious. People know where responsibility begins and ends. Review logic is understandable. Escalation is used deliberately rather than habitually. Teams do not need constant interpretation to keep basic movement intact.
+            Healthier structures make the flow of work more legible. People know where responsibility begins and ends. Review logic is understandable. Escalation is used deliberately rather than habitually. Teams do not need constant interpretation to keep basic movement intact.
           </p>
 
           <p>
@@ -411,7 +503,7 @@
           </p>
 
           <p>
-            The aim is not perfect neatness. It is clearer institutional movement. A structurally clear environment gives leaders a better view of how work is truly operating and gives teams a more reliable path from responsibility to action.
+            The aim is not perfect neatness. It is clearer institutional movement. A structurally clear environment gives leaders a better view of how work is actually operating and gives teams a more reliable path from responsibility to action.
           </p>
 
           <div class="cta">
@@ -419,7 +511,7 @@
             <p>
               Teams revisit basic ownership questions, the same work is touched by multiple groups, decisions require repeated clarification, and managers spend too much time interpreting rather than directing.
             </p>
-            <a class="btn btn-primary" href="structural-clarity.html">Run Diagnostic</a>
+            <a class="btn btn-primary" href="structural-clarity.html">Run Structural Clarity Diagnostic</a>
           </div>
         </article>
 
@@ -428,7 +520,7 @@
             <p class="sidebar-kicker">What this affects</p>
             <h3>Execution, trust, and accountability</h3>
             <p>
-              Structural ambiguity does not just slow work. It weakens accountability, increases management lift, and makes reliable execution harder to sustain.
+              Structural ambiguity does not just slow work. It weakens accountability, increases management lift, and makes reliable execution harder to sustain over time.
             </p>
           </div>
 
