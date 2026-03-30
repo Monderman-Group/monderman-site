@@ -351,7 +351,7 @@
 
     .section-bar-wrap {
       background: var(--bg-offwhite);
-      padding: 36px 34px 0;
+      padding: 30px 20px 0;
       border-top: 1px solid rgba(21,32,43,0.04);
     }
     .section-bar-wrap-light { background: var(--bg-white); }
@@ -359,8 +359,8 @@
     .section-bar {
       display: flex;
       align-items: center;
-      min-height: 52px;
-      padding: 0 22px;
+      min-height: 44px;
+      padding: 0 20px;
       border-radius: 999px;
       background: var(--accent);
       color: #FFFFFF;
@@ -714,7 +714,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0 22px;
+      padding: 0 20px;
       border-radius: 16px;
       background: var(--accent-light);
       border: 1px solid var(--accent);
@@ -1065,13 +1065,13 @@
       .btn {
         width: 100%;
         min-width: 0;
-        min-height: 52px;
+        min-height: 44px;
         padding: 0 20px;
         font-size: 0.98rem;
       }
-      .section-bar-wrap { padding: 28px 20px 0; }
+      .section-bar-wrap { padding: 22px 16px 0; }
       .section-bar {
-        min-height: 48px;
+        min-height: 40px;
         padding: 0 18px;
         font-size: 0.72rem;
         letter-spacing: 0.14em;
@@ -1155,8 +1155,7 @@
   <section class="bureaucracy-cost snap-section" id="cost-section" aria-labelledby="cost-title">
     <div class="cost-inner">
       <div class="cost-heading reveal">
-        <p class="cost-label">The Cost of Bureaucratic Friction</p>
-        <h2 id="cost-title">Where performance is quietly lost.</h2>
+                <h2 id="cost-title">Where performance is quietly lost.</h2>
         <p class="cost-context">
           Many institutions are already paying these costs in time, money, and productive capacity without fully seeing where the losses originate or why repeated fixes fail to resolve them.
         </p>
@@ -1180,7 +1179,7 @@
         <div class="cost-card reveal reveal-delay-3">
           <div class="cost-card-title">Productive Capacity<span class="asterisk">*</span></div>
           <p class="cost-card-source"><em>* OECD / administrative burden guidance</em></p>
-          <div class="cost-card-number" data-count-type="range-percent" data-target="30">0â0%</div>
+          <div class="cost-card-number" data-count-type="range-percent" data-target="30">0-0%</div>
           <p class="cost-card-text">of productive capacity can be absorbed by administrative burden.</p>
         </div>
       </div>
@@ -1273,8 +1272,7 @@
   <section class="diagnostic-estimate snap-section" id="diagnostic-estimate" aria-labelledby="estimate-title">
     <div class="diagnostic-estimate-inner">
       <div class="diagnostic-estimate-heading reveal">
-        <p class="estimate-label">Diagnostic Suite</p>
-        <h2 id="estimate-title">Estimate the hidden cost of structural drag.</h2>
+                <h2 id="estimate-title">Estimate the hidden cost of structural drag.</h2>
         <p class="estimate-context">
           This directional estimate provides a high-level view of how much time, money, and productive capacity may be absorbed by administrative and bureaucratic burden inside a complex organization.
         </p>
@@ -1385,8 +1383,7 @@
     <div class="latest-inner">
       <div class="latest-head">
         <div class="latest-intro section-intro reveal">
-          <p class="latest-label">Latest from Monderman</p>
-          <h2 id="latest-title">Research, briefs, and perspectives.</h2>
+                    <h2 id="latest-title">Research, briefs, and perspectives.</h2>
           <p>
             Current publications and featured work on administrative burden, institutional design, decision velocity, and the hidden systems that shape performance under complexity.
           </p>
@@ -1586,7 +1583,7 @@
       if (type === "range-percent") {
         const maxVal = Math.round(value);
         const minVal = Math.round((value * 2) / 3);
-        return `${minVal}â${maxVal}%`;
+        return `${minVal}-${maxVal}%`;
       }
       return Math.round(value).toString();
     }
@@ -1767,10 +1764,10 @@
     function formatHoursRange(low, high) {
       const lowRounded = Math.round(low / 1000) * 1000;
       const highRounded = Math.round(high / 1000) * 1000;
-      return `${abbrevNumber(lowRounded)}â${abbrevNumber(highRounded)}`;
+      return `${abbrevNumber(lowRounded)}-${abbrevNumber(highRounded)}`;
     }
     function formatPercentRange(low, high) {
-      return `${Math.round(low)}â${Math.round(high)}%`;
+      return `${Math.round(low)}-${Math.round(high)}%`;
     }
     function abbrevMoney(value) {
       if (value >= 1e9) return `$${(value / 1e9).toFixed(1).replace(/\.0$/, "")}B`;
