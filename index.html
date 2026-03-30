@@ -87,9 +87,8 @@
     h1, h2, h3 { letter-spacing: -0.048em; }
     p { letter-spacing: -0.01em; }
 
-    .snap-section {
-      scroll-snap-align: start;
-      scroll-margin-top: var(--snap-offset);
+    .snap-anchor {
+      scroll-margin-top: 0;
     }
 
     .reveal {
@@ -1153,11 +1152,11 @@
     </div>
   </section>
 
-  <div class="section-bar-wrap" aria-hidden="true">
+  <div class="section-bar-wrap snap-anchor" aria-hidden="true">
     <div class="section-bar-inner"><div class="section-bar">The Cost of Bureaucratic Friction</div></div>
   </div>
 
-  <section class="bureaucracy-cost snap-section" id="cost-section" aria-labelledby="cost-title">
+  <section class="bureaucracy-cost" id="cost-section" aria-labelledby="cost-title">
     <div class="cost-inner">
       <div class="cost-heading reveal">
                 <h2 id="cost-title">Where performance is quietly lost.</h2>
@@ -1195,11 +1194,11 @@
     </div>
   </section>
 
-  <div class="section-bar-wrap section-bar-wrap-light" aria-hidden="true">
+  <div class="section-bar-wrap section-bar-wrap-light snap-anchor" aria-hidden="true">
     <div class="section-bar-inner"><div class="section-bar">Our Approach</div></div>
   </div>
 
-  <section class="approach snap-section" id="approach" aria-labelledby="approach-title">
+  <section class="approach" id="approach" aria-labelledby="approach-title">
     <div class="approach-inner">
       <div class="section-intro reveal">
         <h2 id="approach-title">Designing systems for clarity and execution.</h2>
@@ -1270,11 +1269,11 @@
     </div>
   </section>
 
-  <div class="section-bar-wrap" aria-hidden="true">
+  <div class="section-bar-wrap snap-anchor" aria-hidden="true">
     <div class="section-bar-inner"><div class="section-bar">Diagnostic Suite</div></div>
   </div>
 
-  <section class="diagnostic-estimate snap-section" id="diagnostic-estimate" aria-labelledby="estimate-title">
+  <section class="diagnostic-estimate" id="diagnostic-estimate" aria-labelledby="estimate-title">
     <div class="diagnostic-estimate-inner">
       <div class="diagnostic-estimate-heading reveal">
                 <h2 id="estimate-title">Estimate the hidden cost of structural drag.</h2>
@@ -1380,11 +1379,11 @@
     </div>
   </section>
 
-  <div class="section-bar-wrap" aria-hidden="true">
+  <div class="section-bar-wrap snap-anchor" aria-hidden="true">
     <div class="section-bar-inner"><div class="section-bar">Latest from Monderman</div></div>
   </div>
 
-  <section class="latest snap-section" id="latest" aria-labelledby="latest-title">
+  <section class="latest" id="latest" aria-labelledby="latest-title">
     <div class="latest-inner">
       <div class="latest-head">
         <div class="latest-intro section-intro reveal">
@@ -1813,38 +1812,45 @@
     updateEstimate();
 
     function initSoftSnap() {
-      const snapSections = Array.from(document.querySelectorAll("section.snap-section"));
+      const snapAnchors = Array.from(document.querySelectorAll(".snap-anchor"));
       let snapTimer = null;
       let isAutoSnapping = false;
+      let lastScrollY = window.scrollY;
 
       function isDesktopSnap() {
         return window.innerWidth > 980 && window.matchMedia("(prefers-reduced-motion: no-preference)").matches;
       }
 
-      function getNearestSection() {
-        const viewportAnchor = window.scrollY + 150;
+      function getNearestAnchor() {
+        const viewportTop = window.scrollY;
         let nearest = null;
         let nearestDistance = Infinity;
 
-        snapSections.forEach((section) => {
-          const distance = Math.abs(section.offsetTop - viewportAnchor);
+        snapAnchors.forEach((anchor) => {
+          const distance = Math.abs(anchor.offsetTop - viewportTop);
           if (distance < nearestDistance) {
             nearestDistance = distance;
-            nearest = section;
+            nearest = anchor;
           }
         });
 
         return { nearest, nearestDistance };
       }
 
-      function softSnapToNearestSection() {
-        if (!isDesktopSnap() || !snapSections.length || isAutoSnapping) return;
+      function softSnapToNearestAnchor() {
+        if (!isDesktopSnap() || !snapAnchors.length || isAutoSnapping) return;
 
-        const { nearest, nearestDistance } = getNearestSection();
-        if (!nearest || nearestDistance > 120) return;
+        const scrollDelta = Math.abs(window.scrollY - lastScrollY);
+        lastScrollY = window.scrollY;
 
-        const targetTop = Math.max(0, nearest.offsetTop - 72);
-        if (Math.abs(window.scrollY - targetTop) < 12) return;
+        const { nearest, nearestDistance } = getNearestAnchor();
+        if (!nearest) return;
+
+        const targetTop = Math.max(0, nearest.offsetTop - 8);
+
+        if (nearestDistance > 72) return;
+        if (scrollDelta > 140) return;
+        if (Math.abs(window.scrollY - targetTop) < 8) return;
 
         isAutoSnapping = true;
         window.scrollTo({
@@ -1854,13 +1860,14 @@
 
         window.setTimeout(() => {
           isAutoSnapping = false;
-        }, 420);
+          lastScrollY = window.scrollY;
+        }, 320);
       }
 
       window.addEventListener("scroll", () => {
         if (!isDesktopSnap() || isAutoSnapping) return;
         clearTimeout(snapTimer);
-        snapTimer = setTimeout(softSnapToNearestSection, 220);
+        snapTimer = setTimeout(softSnapToNearestAnchor, 320);
       }, { passive: true });
     }
 
