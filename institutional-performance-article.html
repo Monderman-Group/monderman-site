@@ -5,8 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Institutional Performance | Monderman</title>
   <style>
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff");
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff");
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff");
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+    }
+
     :root {
       --accent: #3F6EA1;
+      --accent-dark: #2F5886;
       --bg: #F6F7F8;
       --white: #FFFFFF;
       --text: #15202B;
@@ -21,7 +46,7 @@
       margin: 0;
       background: var(--bg);
       color: var(--text);
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
     }
@@ -82,16 +107,38 @@
     .nav a {
       color: rgba(255,255,255,0.84);
       font-size: 0.96rem;
+      transition: color 180ms ease, transform 180ms ease;
     }
 
-    .nav a:hover { color: #fff; }
+    .nav a:hover,
+    .nav a:focus-visible {
+      color: #fff;
+      transform: translateY(-1px);
+      outline: none;
+    }
 
+    
     .hero {
       position: relative;
       overflow: hidden;
       background: linear-gradient(135deg, #0F1720 0%, #182331 100%);
       color: #fff;
-      padding: 84px 0 72px;
+      min-height: 520px;
+      padding: 92px 0 76px;
+    }
+
+    .hero-media {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .hero-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      opacity: 0.34;
     }
 
     .hero::before {
@@ -100,18 +147,34 @@
       inset: 0;
       pointer-events: none;
       background:
-        radial-gradient(circle at 78% 32%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.035) 16%, rgba(255,255,255,0.015) 28%, transparent 46%),
-        radial-gradient(circle at 78% 32%, rgba(63,110,161,0.12) 0%, rgba(63,110,161,0.06) 18%, transparent 50%);
-      opacity: 0.9;
+        linear-gradient(90deg, rgba(10,14,20,0.88) 0%, rgba(10,14,20,0.74) 30%, rgba(10,14,20,0.46) 58%, rgba(10,14,20,0.18) 100%),
+        linear-gradient(180deg, rgba(10,14,20,0.16) 0%, rgba(10,14,20,0.10) 100%);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 78% 28%, rgba(63,110,161,0.18) 0%, rgba(63,110,161,0.06) 22%, transparent 44%);
+      opacity: 0.95;
     }
 
     .hero-inner {
       position: relative;
       z-index: 1;
+      display: flex;
+      align-items: flex-end;
+      min-height: 352px;
+    }
+
+    .hero-copy {
+      max-width: 700px;
     }
 
     .eyebrow {
-      margin: 0 0 16px;
+      margin: 0 0 18px;
       font-size: 0.76rem;
       font-weight: 700;
       letter-spacing: 0.18em;
@@ -122,17 +185,17 @@
     .hero h1 {
       margin: 0 0 18px;
       max-width: 11ch;
-      font-size: clamp(2.5rem, 5vw, 4.6rem);
+      font-size: clamp(2.7rem, 5vw, 4.7rem);
       line-height: 0.96;
-      letter-spacing: -0.05em;
+      letter-spacing: -0.052em;
     }
 
     .hero p {
       margin: 0;
-      max-width: 42ch;
-      font-size: 1.08rem;
-      line-height: 1.65;
-      color: rgba(255,255,255,0.78);
+      max-width: 46ch;
+      font-size: 1.06rem;
+      line-height: 1.7;
+      color: rgba(255,255,255,0.82);
     }
 
     .hero-actions {
@@ -155,8 +218,16 @@
     }
 
     .btn-primary {
-      background: #fff;
-      color: var(--text);
+      background: var(--accent);
+      color: #fff;
+      border-color: rgba(63,110,161,0.28);
+    }
+
+    .btn-primary:hover,
+    .btn-primary:focus-visible {
+      background: var(--accent-dark);
+      color: #fff;
+      outline: none;
     }
 
     .btn-secondary {
@@ -177,6 +248,8 @@
     .content, .sidebar-card, .pullquote, .cta {
       background: var(--white);
       border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.012);
     }
 
     .content { padding: 38px 34px; }
@@ -301,6 +374,21 @@
         flex-direction: column;
       }
 
+      .hero {
+        min-height: auto;
+        padding: 78px 0 62px;
+      }
+
+      .hero-inner {
+        min-height: auto;
+        align-items: flex-end;
+      }
+
+      .hero h1 {
+        max-width: 100%;
+        font-size: clamp(2.4rem, 10vw, 3.4rem);
+      }
+
       .content { padding: 28px 22px; }
     }
   </style>
@@ -319,16 +407,20 @@
   </header>
 
   <section class="hero">
+    <div class="hero-media" aria-hidden="true">
+      <img src="Article-image.jpg" alt="" />
+    </div>
     <div class="hero-inner">
-      <p class="eyebrow">Our Approach</p>
-      <h1>Institutional Performance</h1>
-      <p>
-        Strong institutions are not defined by how serious they look. They are defined by whether they can still
-        notice, decide, and adapt before friction hardens into failure.
-      </p>
-      <div class="hero-actions">
-        <a class="btn btn-primary" href="institutional-performance.html">Run Diagnostics</a>
-        <a class="btn btn-secondary" href="index.html#connect">Start a Conversation</a>
+      <div class="hero-copy">
+        <p class="eyebrow">Our Approach</p>
+        <h1>Institutional Performance</h1>
+        <p>
+          Strong institutions are not defined by how serious they look. They are defined by whether they can still notice, decide, and adapt before friction hardens into failure.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="institutional-performance.html">Run Institutional Performance Diagnostic</a>
+          <a class="btn btn-secondary" href="index.html#connect">Start a Conversation</a>
+        </div>
       </div>
     </div>
   </section>
@@ -338,57 +430,44 @@
       <div class="article-layout">
         <article class="content">
           <p>
-            Institutional performance is bigger than quarterly execution. It is the ability of an organization to stay
-            coherent, credible, and responsive over time. It is what allows an institution to keep producing results
-            even as complexity rises, leadership changes, and external pressures shift.
+            Institutional performance is bigger than quarterly execution. It is the ability of an organization to stay coherent, credible, and responsive over time. It is what allows an institution to keep producing results even as complexity rises, leadership changes, and external pressures shift.
           </p>
 
           <p>
-            Many organizations still judge institutional strength by surface signals: scale, prestige, documentation,
-            seriousness, procedural density. Those things can matter. But they are no longer enough. Today, competence
-            is increasingly judged by lived experience: does the institution respond, adjust, and follow through?
+            Many organizations still judge institutional strength by surface signals: scale, prestige, documentation, seriousness, procedural density. Those things can matter. But they are no longer enough. Today, competence is increasingly judged by lived experience: does the institution respond, adjust, and follow through?
           </p>
 
           <div class="pullquote">
             <p>
-              Institutional performance is not just what an organization intends. It is what its system can reliably
-              turn into reality.
+              Institutional performance is not just what an organization intends. It is what its system can reliably turn into reality.
             </p>
           </div>
 
           <h2>Why institutions underperform even when people are capable</h2>
 
           <p>
-            Institutions rarely decline because talent disappears overnight. More often, performance degrades because
-            the governing system beneath the work becomes too opaque, too slow, or too fragmented. The organization
-            still looks active. Meetings continue. Reports continue. Budgets continue. But the ability to correct,
-            adapt, and deliver begins to weaken.
+            Institutions rarely decline because talent disappears overnight. More often, performance degrades because the governing system beneath the work becomes too opaque, too slow, or too fragmented. The organization still looks active. Meetings continue. Reports continue. Budgets continue. But the ability to correct, adapt, and deliver begins to weaken.
           </p>
 
           <p>
-            This is why institutional performance has to be understood systemically. The issue is not only leadership
-            quality, team quality, or strategic quality. It is whether the operating architecture preserves enough
-            maneuverability for the institution to remain credible under pressure.
+            This is why institutional performance has to be understood systemically. The issue is not only leadership quality, team quality, or strategic quality. It is whether the operating architecture preserves enough maneuverability for the institution to remain credible under pressure.
           </p>
 
           <h2>What strong institutional performance looks like</h2>
 
           <h3>It preserves legitimacy</h3>
           <p>
-            People inside and outside the organization can understand decisions well enough to trust the system,
-            even when they do not agree with every outcome.
+            People inside and outside the organization can understand decisions well enough to trust the system, even when they do not agree with every outcome.
           </p>
 
           <h3>It corrects visibly</h3>
           <p>
-            Strong institutions do not pretend they never miss. They demonstrate that they can notice problems,
-            respond, and improve.
+            Strong institutions do not pretend they never miss. They demonstrate that they can notice problems, respond, and improve.
           </p>
 
           <h3>It protects capacity</h3>
           <p>
-            Administrative growth does not quietly swallow the organization’s mission. Bureaucracy remains proportional
-            to the work it is meant to support.
+            Administrative growth does not quietly swallow the organization’s mission. Bureaucracy remains proportional to the work it is meant to support.
           </p>
 
           <h3>It stays responsive as complexity rises</h3>
@@ -399,36 +478,29 @@
           <h2>How performance quietly erodes</h2>
 
           <p>
-            Institutional decline usually begins upstream. Weak signals get filtered. Decision rationales stop traveling.
-            Employees learn that effort is absorbed more often than rewarded. Over time, the organization becomes more
-            dependent on intervention, exception, and personality to make progress.
+            Institutional decline usually begins upstream. Weak signals get filtered. Decision rationales stop traveling. Employees learn that effort is absorbed more often than rewarded. Over time, the organization becomes more dependent on intervention, exception, and personality to make progress.
           </p>
 
           <p>
-            That may keep things moving for a while, but it is not the same as durable performance. It is compensation
-            for a system that is losing coherence.
+            That may keep things moving for a while, but it is not the same as durable performance. It is compensation for a system that is losing coherence.
           </p>
 
           <h2>How Monderman approaches institutional performance</h2>
 
           <p>
-            We look at the institution as a living system. Where is trust being lost? Where is drag accumulating?
-            Where is responsiveness slowing? Which controls still create value, and which ones now exist mainly to
-            stabilize yesterday’s assumptions?
+            We look at the institution as a living system. Where is trust being lost? Where is drag accumulating? Where is responsiveness slowing? Which controls still create value, and which ones now exist mainly to stabilize yesterday’s assumptions?
           </p>
 
           <p>
-            The objective is not cosmetic modernization. It is institutional competence that can be felt: clearer
-            governance, cleaner feedback, better correction, and stronger performance under complexity.
+            The objective is not cosmetic modernization. It is institutional competence that can be felt: clearer governance, cleaner feedback, better correction, and stronger performance under complexity.
           </p>
 
           <div class="cta">
             <h3>Common signs institutional performance is under strain</h3>
             <p>
-              Confidence is slipping. More effort is being spent on coordination and explanation. The institution still
-              functions, but it no longer feels proportionate, adaptive, or fully in command of its own system.
+              Confidence is slipping. More effort is being spent on coordination and explanation. The institution still functions, but it no longer feels proportionate, adaptive, or fully in command of its own system.
             </p>
-            <a class="btn btn-primary" href="institutional-performance.html">Run Diagnostic</a>
+            <a class="btn btn-primary" href="institutional-performance.html">Run Institutional Performance Diagnostic</a>
           </div>
         </article>
 
@@ -437,8 +509,7 @@
             <p class="sidebar-kicker">What this affects</p>
             <h3>Credibility over time</h3>
             <p>
-              Institutions are increasingly judged by whether they can still move coherently under pressure, not just by
-              how established they appear.
+              Institutions are increasingly judged by whether they can still move coherently under pressure, not just by how established they appear.
             </p>
           </div>
 
@@ -455,8 +526,7 @@
           <div class="sidebar-card">
             <p class="sidebar-kicker">Monderman view</p>
             <p>
-              Strong performance is not just operational output. It is the sustained capacity to govern, adjust, and
-              remain legitimate as conditions change.
+              Strong performance is not just operational output. It is the sustained capacity to govern, adjust, and remain legitimate as conditions change.
             </p>
           </div>
         </aside>
