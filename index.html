@@ -289,11 +289,11 @@
     }
     .hero-signal {
       margin: 18px 0 0;
-      max-width: 58ch;
-      font-size: 0.85rem;
-      line-height: 1.6;
-      letter-spacing: 0.02em;
-      color: rgba(245,247,250,0.64);
+      max-width: 48ch;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      letter-spacing: 0.015em;
+      color: rgba(245,247,250,0.76);
       opacity: 0;
       transform: translateY(16px);
       animation: heroFadeUp 900ms cubic-bezier(0.22,1,0.36,1) forwards;
@@ -338,7 +338,7 @@
       border: 1.25px solid rgba(63,110,161,0.9);
     }
     .btn-accent {
-      background: var(--accent);
+      background: var(--accent-dark);
       color: #FFFFFF;
       border: 1.25px solid rgba(63,110,161,0.28);
       box-shadow: 0 10px 24px rgba(63,110,161,0.22), 0 0 0 1px rgba(255,255,255,0.05);
@@ -362,7 +362,7 @@
       min-height: 44px;
       padding: 0 20px;
       border-radius: 999px;
-      background: var(--accent);
+      background: var(--accent-dark);
       color: #FFFFFF;
       font-size: 0.78rem;
       line-height: 1;
@@ -402,8 +402,8 @@
       color: var(--text-dark);
       overflow: hidden;
     }
-    .bureaucracy-cost { padding: 56px 34px 100px; }
-    .diagnostic-estimate { padding: 56px 34px 92px; }
+    .bureaucracy-cost { padding: 48px 34px 100px; }
+    .diagnostic-estimate { padding: 48px 34px 92px; }
     .bureaucracy-cost::before,
     .diagnostic-estimate::before {
       content: "";
@@ -583,7 +583,7 @@
     .approach {
       position: relative;
       background: var(--bg-white);
-      padding: 56px 34px 88px;
+      padding: 48px 34px 88px;
       color: var(--text-dark);
       overflow: hidden;
     }
@@ -710,7 +710,7 @@
     .approach-foundation {
       margin: 22px auto 0;
       max-width: 980px;
-      min-height: 58px;
+      min-height: 56px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -719,10 +719,10 @@
       background: var(--accent-light);
       border: 1px solid var(--accent);
       color: #FFFFFF;
-      font-size: 0.82rem;
+      font-size: 0.76rem;
       line-height: 1.2;
       font-weight: 700;
-      letter-spacing: 0.16em;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       box-shadow: var(--soft-shadow);
       text-align: center;
@@ -731,7 +731,7 @@
     .latest {
       position: relative;
       background: var(--bg-offwhite);
-      padding: 56px 34px 80px;
+      padding: 48px 34px 80px;
       color: var(--text-dark);
       overflow: hidden;
       border-top: 1px solid rgba(21,32,43,0.04);
@@ -1062,6 +1062,11 @@
         gap: 14px;
         max-width: 420px;
       }
+      .hero-signal {
+        max-width: 100%;
+        font-size: 0.8rem;
+        line-height: 1.5;
+      }
       .btn {
         width: 100%;
         min-width: 0;
@@ -1077,9 +1082,9 @@
         letter-spacing: 0.14em;
       }
       .bureaucracy-cost,
-      .diagnostic-estimate { padding: 42px 20px 70px; }
-      .approach { padding: 42px 20px 68px; }
-      .latest { padding: 42px 20px 68px; }
+      .diagnostic-estimate { padding: 36px 20px 70px; }
+      .approach { padding: 36px 20px 68px; }
+      .latest { padding: 36px 20px 68px; }
       .connect { padding: 64px 20px 60px; }
       .footer { padding: 34px 20px 28px; }
       .approach-grid { grid-template-columns: 1fr; gap: 20px; }
@@ -1142,7 +1147,7 @@
           <a class="btn btn-secondary" href="advisory-services.html">Advisory Engagements</a>
         </div>
         <p class="hero-signal">
-          Diagnostics, briefs, and advisory work for organizations where administrative and bureaucratic drag has become consequential.
+          Diagnostics, briefs, and advisory work for complex institutions.
         </p>
       </div>
     </div>
@@ -1166,7 +1171,7 @@
           <div class="cost-card-title">Time<span class="asterisk">*</span></div>
           <p class="cost-card-source"><em>* HBR / management reporting research</em></p>
           <div class="cost-card-number" data-count-type="percent" data-target="40">0%</div>
-          <p class="cost-card-text">of managersâ time can be consumed by reports alone.</p>
+          <p class="cost-card-text">of managers' time can be consumed by reports alone.</p>
         </div>
 
         <div class="cost-card reveal reveal-delay-2">
