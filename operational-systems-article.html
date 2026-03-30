@@ -5,8 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Operational Systems | Monderman</title>
   <style>
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff");
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff");
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff");
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+    }
+
     :root {
       --accent: #3F6EA1;
+      --accent-dark: #2F5886;
       --bg: #F6F7F8;
       --white: #FFFFFF;
       --text: #15202B;
@@ -21,7 +46,7 @@
       margin: 0;
       background: var(--bg);
       color: var(--text);
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
     }
@@ -82,16 +107,38 @@
     .nav a {
       color: rgba(255,255,255,0.84);
       font-size: 0.96rem;
+      transition: color 180ms ease, transform 180ms ease;
     }
 
-    .nav a:hover { color: #fff; }
+    .nav a:hover,
+    .nav a:focus-visible {
+      color: #fff;
+      transform: translateY(-1px);
+      outline: none;
+    }
 
+    
     .hero {
       position: relative;
       overflow: hidden;
       background: linear-gradient(135deg, #0F1720 0%, #182331 100%);
       color: #fff;
-      padding: 84px 0 72px;
+      min-height: 520px;
+      padding: 92px 0 76px;
+    }
+
+    .hero-media {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .hero-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      opacity: 0.34;
     }
 
     .hero::before {
@@ -100,18 +147,34 @@
       inset: 0;
       pointer-events: none;
       background:
-        radial-gradient(circle at 78% 32%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.035) 16%, rgba(255,255,255,0.015) 28%, transparent 46%),
-        radial-gradient(circle at 78% 32%, rgba(63,110,161,0.12) 0%, rgba(63,110,161,0.06) 18%, transparent 50%);
-      opacity: 0.9;
+        linear-gradient(90deg, rgba(10,14,20,0.88) 0%, rgba(10,14,20,0.74) 30%, rgba(10,14,20,0.46) 58%, rgba(10,14,20,0.18) 100%),
+        linear-gradient(180deg, rgba(10,14,20,0.16) 0%, rgba(10,14,20,0.10) 100%);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 78% 28%, rgba(63,110,161,0.18) 0%, rgba(63,110,161,0.06) 22%, transparent 44%);
+      opacity: 0.95;
     }
 
     .hero-inner {
       position: relative;
       z-index: 1;
+      display: flex;
+      align-items: flex-end;
+      min-height: 352px;
+    }
+
+    .hero-copy {
+      max-width: 700px;
     }
 
     .eyebrow {
-      margin: 0 0 16px;
+      margin: 0 0 18px;
       font-size: 0.76rem;
       font-weight: 700;
       letter-spacing: 0.18em;
@@ -121,18 +184,18 @@
 
     .hero h1 {
       margin: 0 0 18px;
-      max-width: 10ch;
-      font-size: clamp(2.5rem, 5vw, 4.6rem);
+      max-width: 11ch;
+      font-size: clamp(2.7rem, 5vw, 4.7rem);
       line-height: 0.96;
-      letter-spacing: -0.05em;
+      letter-spacing: -0.052em;
     }
 
     .hero p {
       margin: 0;
-      max-width: 42ch;
-      font-size: 1.08rem;
-      line-height: 1.65;
-      color: rgba(255,255,255,0.78);
+      max-width: 46ch;
+      font-size: 1.06rem;
+      line-height: 1.7;
+      color: rgba(255,255,255,0.82);
     }
 
     .hero-actions {
@@ -155,8 +218,16 @@
     }
 
     .btn-primary {
-      background: #fff;
-      color: var(--text);
+      background: var(--accent);
+      color: #fff;
+      border-color: rgba(63,110,161,0.28);
+    }
+
+    .btn-primary:hover,
+    .btn-primary:focus-visible {
+      background: #2F5886;
+      color: #fff;
+      outline: none;
     }
 
     .btn-secondary {
@@ -177,6 +248,8 @@
     .content, .sidebar-card, .pullquote, .cta {
       background: var(--white);
       border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.012);
     }
 
     .content { padding: 38px 34px; }
@@ -301,6 +374,21 @@
         flex-direction: column;
       }
 
+      .hero {
+        min-height: auto;
+        padding: 78px 0 62px;
+      }
+
+      .hero-inner {
+        min-height: auto;
+        align-items: flex-end;
+      }
+
+      .hero h1 {
+        max-width: 100%;
+        font-size: clamp(2.4rem, 10vw, 3.4rem);
+      }
+
       .content { padding: 28px 22px; }
     }
   </style>
@@ -319,16 +407,20 @@
   </header>
 
   <section class="hero">
+    <div class="hero-media" aria-hidden="true">
+      <img src="Article-image.jpg" alt="" />
+    </div>
     <div class="hero-inner">
-      <p class="eyebrow">Our Approach</p>
-      <h1>Operational Systems</h1>
-      <p>
-        Policies, controls, and processes are supposed to support performance. Too often, they become a parallel
-        workload that consumes the very capacity the organization needs.
-      </p>
-      <div class="hero-actions">
-        <a class="btn btn-primary" href="bureaucratic-drag-snapshot.html">Run Diagnostics</a>
-        <a class="btn btn-secondary" href="index.html#connect">Start a Conversation</a>
+      <div class="hero-copy">
+        <p class="eyebrow">Our Approach</p>
+        <h1>Operational Systems</h1>
+        <p>
+          Policies, controls, and processes are meant to support performance. Too often, they become a parallel workload that consumes the very capacity the organization needs.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="bureaucratic-drag-snapshot.html">Run Operational Systems Diagnostic</a>
+          <a class="btn btn-secondary" href="index.html#connect">Start a Conversation</a>
+        </div>
       </div>
     </div>
   </section>
@@ -338,44 +430,34 @@
       <div class="article-layout">
         <article class="content">
           <p>
-            Every organization has operational systems: workflows, reporting structures, compliance routines, controls,
-            templates, approvals, and documentation requirements that shape how work actually moves. These systems are
-            often treated as neutral background infrastructure. They are not.
+            Every organization has operational systems: workflows, reporting structures, compliance routines, controls, templates, approvals, and documentation requirements that shape how work actually moves. These systems are often treated as neutral background infrastructure. They are not.
           </p>
 
           <p>
-            Operational systems determine whether effort compounds or gets absorbed. They shape how long work waits,
-            how often people must stop and translate what they are doing into administrative proof, and how much of
-            the day is spent producing value versus maintaining the machinery around value.
+            Operational systems determine whether effort compounds or gets absorbed. They shape how long work waits, how often people must stop and translate what they are doing into administrative proof, and how much of the day is spent producing value versus maintaining the machinery around value.
           </p>
 
           <div class="pullquote">
             <p>
-              The question is not whether your organization has operational systems. The question is whether those
-              systems are helping work move or quietly competing with the work itself.
+              The question is not whether your organization has operational systems. The question is whether those systems are helping work move or quietly competing with the work itself.
             </p>
           </div>
 
           <h2>How good systems become heavy systems</h2>
 
           <p>
-            Most burdensome systems did not begin as nonsense. A report was added to improve visibility. A control
-            was added after a failure. A review step was introduced to reduce risk. Over time, though, few of these
-            mechanisms are revisited with the same seriousness that introduced them.
+            Most burdensome systems did not begin as nonsense. A report was added to improve visibility. A control was added after a failure. A review step was introduced to reduce risk. Over time, though, few of these mechanisms are revisited with the same seriousness that introduced them.
           </p>
 
           <p>
-            The result is accumulation. One team is maintaining yesterday’s safeguard. Another is complying with a
-            template no one fully trusts. A third is spending hours preparing information that is already available
-            somewhere else. The organization grows, but its operating burden grows with it.
+            The result is accumulation. One team is maintaining yesterday’s safeguard. Another is complying with a template no one fully trusts. A third is spending hours preparing information that is already available somewhere else. The organization grows, but its operating burden grows with it.
           </p>
 
           <h2>What operational drag looks like in practice</h2>
 
           <h3>Duplicate reporting</h3>
           <p>
-            The same information is prepared multiple times for different audiences or systems, each with slightly
-            different formats and expectations.
+            The same information is prepared multiple times for different audiences or systems, each with slightly different formats and expectations.
           </p>
 
           <h3>Review chains with unclear value</h3>
@@ -396,37 +478,29 @@
           <h2>Operational systems should create flow, not friction</h2>
 
           <p>
-            Healthy systems do not mean minimal systems. In many organizations, strong controls are necessary.
-            The issue is fitness, not ideology. A strong operational system is one that remains intelligible,
-            proportionate, and responsive. It supports the mission rather than quietly feeding on it.
+            Healthy systems do not mean minimal systems. In many organizations, strong controls are necessary. The issue is fitness, not ideology. A strong operational system is one that remains intelligible, proportionate, and responsive. It supports the mission rather than quietly feeding on it.
           </p>
 
           <p>
-            In practice, that means periodic burden audits, pruning redundant processes, aligning controls to actual
-            risk, and redesigning handoffs so information does not have to be constantly repackaged just to cross
-            internal boundaries.
+            In practice, that means periodic burden audits, pruning redundant processes, aligning controls to actual risk, and redesigning handoffs so information does not have to be constantly repackaged just to cross internal boundaries.
           </p>
 
           <h2>How Monderman approaches operational systems</h2>
 
           <p>
-            We examine the operating burden beneath the org chart: where documentation is expanding, where approvals
-            are stacking, where reporting is duplicative, and where people closest to the work are being converted
-            into custodians of the system instead of contributors to the mission.
+            We examine the operating burden beneath the org chart: where documentation is expanding, where approvals are stacking, where reporting is duplicative, and where people closest to the work are being converted into custodians of the system instead of contributors to the mission.
           </p>
 
           <p>
-            The aim is not simplistic streamlining. It is to return capacity to the organization. Time, attention,
-            and judgment are finite resources. Every unnecessary layer of process spends them.
+            The aim is not simplistic streamlining. It is to return capacity to the organization. Time, attention, and judgment are finite resources. Every unnecessary layer of process spends them.
           </p>
 
           <div class="cta">
             <h3>Common signs your operational systems need redesign</h3>
             <p>
-              Teams spend too much time updating trackers, preparing slides, re-entering data, or waiting for routine
-              approvals. People know the system feels heavy, but no one owns the burden as a system-level issue.
+              Teams spend too much time updating trackers, preparing slides, re-entering data, or waiting for routine approvals. People know the system feels heavy, but no one owns the burden as a system-level issue.
             </p>
-            <a class="btn btn-primary" href="bureaucratic-drag-snapshot.html">Run Diagnostic</a>
+            <a class="btn btn-primary" href="bureaucratic-drag-snapshot.html">Run Operational Systems Diagnostic</a>
           </div>
         </article>
 
@@ -435,8 +509,7 @@
             <p class="sidebar-kicker">What this affects</p>
             <h3>Capacity, morale, and throughput</h3>
             <p>
-              Heavy operating systems do not just waste time. They change how people work, what they avoid, and how
-              much creative energy remains.
+              Heavy operating systems do not just waste time. They change how people work, what they avoid, and how much creative energy remains.
             </p>
           </div>
 
@@ -453,8 +526,7 @@
           <div class="sidebar-card">
             <p class="sidebar-kicker">Monderman view</p>
             <p>
-              Operational systems should preserve flow and judgment. When they become ends in themselves, the
-              organization begins paying maintenance costs instead of creating value.
+              Operational systems should preserve flow and judgment. When they become ends in themselves, the organization begins paying maintenance costs instead of creating value.
             </p>
           </div>
         </aside>
