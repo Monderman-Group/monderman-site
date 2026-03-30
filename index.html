@@ -67,6 +67,7 @@
       --panel-radius: 18px;
       --card-radius: 16px;
       --snap-offset: 72px;
+      --snap-landing-offset: 18px;
     }
 
     * { box-sizing: border-box; }
@@ -1815,7 +1816,6 @@
       const snapAnchors = Array.from(document.querySelectorAll(".snap-anchor"));
       let snapTimer = null;
       let isAutoSnapping = false;
-      let lastScrollY = window.scrollY;
 
       function isDesktopSnap() {
         return window.innerWidth > 980 && window.matchMedia("(prefers-reduced-motion: no-preference)").matches;
@@ -1827,7 +1827,8 @@
         let nearestDistance = Infinity;
 
         snapAnchors.forEach((anchor) => {
-          const distance = Math.abs(anchor.offsetTop - viewportTop);
+          const targetTop = Math.max(0, anchor.offsetTop - 18);
+          const distance = Math.abs(targetTop - viewportTop);
           if (distance < nearestDistance) {
             nearestDistance = distance;
             nearest = anchor;
@@ -1840,17 +1841,13 @@
       function softSnapToNearestAnchor() {
         if (!isDesktopSnap() || !snapAnchors.length || isAutoSnapping) return;
 
-        const scrollDelta = Math.abs(window.scrollY - lastScrollY);
-        lastScrollY = window.scrollY;
-
         const { nearest, nearestDistance } = getNearestAnchor();
         if (!nearest) return;
 
-        const targetTop = Math.max(0, nearest.offsetTop - 8);
+        const targetTop = Math.max(0, nearest.offsetTop - 18);
 
-        if (nearestDistance > 72) return;
-        if (scrollDelta > 140) return;
-        if (Math.abs(window.scrollY - targetTop) < 8) return;
+        if (nearestDistance > 56) return;
+        if (Math.abs(window.scrollY - targetTop) < 6) return;
 
         isAutoSnapping = true;
         window.scrollTo({
@@ -1860,14 +1857,13 @@
 
         window.setTimeout(() => {
           isAutoSnapping = false;
-          lastScrollY = window.scrollY;
-        }, 320);
+        }, 260);
       }
 
       window.addEventListener("scroll", () => {
         if (!isDesktopSnap() || isAutoSnapping) return;
         clearTimeout(snapTimer);
-        snapTimer = setTimeout(softSnapToNearestAnchor, 320);
+        snapTimer = setTimeout(softSnapToNearestAnchor, 380);
       }, { passive: true });
     }
 
