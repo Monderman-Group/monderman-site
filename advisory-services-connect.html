@@ -59,6 +59,9 @@
       --line-dark: #E3E7EB;
       --header-solid: rgba(14, 20, 28, 0.87);
       --header-border: rgba(255, 255, 255, 0.08);
+      --success: #2E8B57;
+      --success-2: #1F5E3C;
+      --danger: #B8505E;
       --max: 1320px;
       --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
       --transition-slow: 420ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -67,12 +70,9 @@
       --reveal-distance: 18px;
       --panel-radius: 18px;
       --card-radius: 16px;
-      --section-rule: rgba(21, 32, 43, 0.04);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     html {
       scroll-behavior: smooth;
@@ -90,59 +90,19 @@
       text-rendering: optimizeLegibility;
     }
 
-    html,
-    body,
-    button,
-    input,
-    textarea,
-    select,
-    option,
-    a,
-    p,
-    li,
-    dt,
-    dd,
-    span,
-    small,
-    strong,
-    em,
-    label,
-    figcaption,
-    blockquote,
-    cite,
-    div,
-    section,
-    article,
-    nav,
-    header,
-    footer,
-    main,
-    h1,
-    h2,
-    h3,
-    h4 {
+    html, body, button, input, textarea, select, option, a, p, li, dt, dd, span, small, strong, em, label, figcaption, blockquote, cite, div, section, article, nav, header, footer, main, h1, h2, h3, h4 {
       font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
     }
 
-    h1, h2, h3, h4 {
-      letter-spacing: -0.048em;
-    }
-
-    p, li {
-      letter-spacing: -0.01em;
-    }
+    h1, h2, h3, h4 { letter-spacing: -0.048em; }
+    p, li { letter-spacing: -0.01em; }
 
     a {
       color: inherit;
       text-decoration: none;
     }
 
-    button,
-    input,
-    textarea,
-    select {
-      font: inherit;
-    }
+    button, input, textarea, select { font: inherit; }
 
     .reveal {
       opacity: 0;
@@ -309,9 +269,7 @@
       align-items: center;
     }
 
-    .hero-copy {
-      max-width: 940px;
-    }
+    .hero-copy { max-width: 940px; }
 
     .hero-eyebrow,
     .hero h1,
@@ -349,7 +307,7 @@
     }
 
     .hero-dek {
-      max-width: 41ch;
+      max-width: 43ch;
       margin: 0;
       font-size: clamp(1.12rem, 1.5vw, 1.22rem);
       line-height: 1.6;
@@ -392,7 +350,8 @@
         color 180ms cubic-bezier(0.22, 1, 0.36, 1),
         border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
         transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
-        box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1);
+        box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 180ms cubic-bezier(0.22, 1, 0.36, 1);
       cursor: pointer;
     }
 
@@ -408,17 +367,19 @@
       outline: none;
     }
 
+    .btn:disabled {
+      opacity: 0.72;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.045),
+        0 0 0 1px rgba(255, 255, 255, 0.08);
+    }
+
     .btn-secondary {
       background: rgba(255, 255, 255, 0.98);
       color: var(--accent);
       border: 1.25px solid rgba(63, 110, 161, 0.9);
-    }
-
-    .btn-secondary:hover,
-    .btn-secondary:focus-visible {
-      background: #FFFFFF;
-      color: var(--accent-dark);
-      border-color: var(--accent-dark);
     }
 
     .btn-accent {
@@ -435,20 +396,11 @@
       background: var(--accent-dark);
       color: #FFFFFF;
       border-color: rgba(47, 88, 134, 0.42);
-      box-shadow:
-        0 12px 26px rgba(47, 88, 134, 0.26),
-        0 0 0 1px rgba(255, 255, 255, 0.08);
     }
 
     @keyframes heroFadeUp {
-      from {
-        opacity: 0;
-        transform: translateY(16px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .section-label {
@@ -524,7 +476,8 @@
       margin-top: 44px;
     }
 
-    .contact-form-shell {
+    .contact-form-shell,
+    .confirmation-shell {
       background: rgba(255, 255, 255, 0.96);
       border: 1px solid rgba(21, 32, 43, 0.08);
       border-radius: var(--panel-radius);
@@ -534,12 +487,14 @@
       overflow: hidden;
     }
 
-    .contact-form-head {
+    .contact-form-head,
+    .confirmation-head {
       padding: 28px 28px 18px;
       border-bottom: 1px solid rgba(21, 32, 43, 0.06);
     }
 
-    .contact-form-head h3 {
+    .contact-form-head h3,
+    .confirmation-head h3 {
       margin: 0 0 10px;
       font-size: 1.46rem;
       line-height: 1.08;
@@ -548,7 +503,8 @@
       text-wrap: balance;
     }
 
-    .contact-form-head p {
+    .contact-form-head p,
+    .confirmation-head p {
       margin: 0;
       max-width: 60ch;
       font-size: 0.98rem;
@@ -556,8 +512,70 @@
       color: var(--muted-dark);
     }
 
-    .contact-form-body {
+    .contact-form-body,
+    .confirmation-body {
       padding: 24px 28px 28px;
+    }
+
+    .confirmation-shell {
+      display: none;
+    }
+
+    .confirmation-shell.is-visible {
+      display: block;
+    }
+
+    .confirmation-mark {
+      width: 58px;
+      height: 58px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+      background: rgba(46, 139, 87, 0.10);
+      color: var(--success-2);
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .confirmation-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .confirmation-card {
+      background: #F8F9FA;
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      border-radius: 16px;
+      padding: 18px 16px 16px;
+    }
+
+    .confirmation-card h4 {
+      margin: 0 0 8px;
+      font-size: 0.82rem;
+      line-height: 1.2;
+      font-weight: 700;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--text-dark);
+    }
+
+    .confirmation-card p {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.58;
+      color: var(--muted-dark);
+    }
+
+    .confirmation-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
     }
 
     .form-grid {
@@ -580,6 +598,17 @@
       line-height: 1.42;
       font-weight: 600;
       color: var(--text-dark);
+    }
+
+    .required-mark {
+      color: var(--accent);
+      margin-left: 2px;
+    }
+
+    .optional-mark {
+      color: var(--muted-dark-2);
+      font-weight: 500;
+      margin-left: 4px;
     }
 
     .field input,
@@ -684,14 +713,22 @@
 
     .status-note {
       margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 14px;
       font-size: 0.88rem;
       line-height: 1.55;
-      color: var(--text-dark);
       display: none;
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      background: #F8F9FA;
+      color: var(--text-dark);
     }
 
-    .status-note.is-visible {
-      display: block;
+    .status-note.is-visible { display: block; }
+
+    .status-note.is-error {
+      border-color: rgba(184, 80, 94, 0.18);
+      background: rgba(184, 80, 94, 0.08);
+      color: var(--danger);
     }
 
     .contact-side {
@@ -838,9 +875,7 @@
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .footer-brand {
-      max-width: 420px;
-    }
+    .footer-brand { max-width: 420px; }
 
     .footer-mark {
       display: inline-flex;
@@ -877,9 +912,7 @@
       flex-wrap: wrap;
     }
 
-    .footer-nav-col {
-      min-width: 120px;
-    }
+    .footer-nav-col { min-width: 120px; }
 
     .footer-nav-title {
       margin: 0 0 12px;
@@ -924,10 +957,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      html {
-        scroll-behavior: auto;
-      }
-
+      html { scroll-behavior: auto; }
       .reveal,
       .hero-eyebrow,
       .hero h1,
@@ -938,7 +968,6 @@
         transform: none;
         transition: none;
       }
-
       .btn,
       .header,
       .nav a,
@@ -951,135 +980,54 @@
     }
 
     @media (max-width: 1180px) {
-      .contact-layout {
-        grid-template-columns: 1fr;
-      }
-
-      .contact-side {
-        position: static;
-      }
-
-      .expectations-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
+      .contact-layout { grid-template-columns: 1fr; }
+      .contact-side { position: static; }
+      .expectations-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .confirmation-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 980px) {
-      .header {
-        height: auto;
-      }
-
+      .header { height: auto; }
       .header-inner {
         padding: 16px 24px;
         align-items: flex-start;
         flex-direction: column;
         gap: 14px;
       }
-
-      .nav {
-        gap: 22px;
-      }
-
-      .hero-inner,
-      .connect-section,
-      .expectations,
-      .footer {
+      .nav { gap: 22px; }
+      .hero-inner, .connect-section, .expectations, .footer {
         padding-left: 24px;
         padding-right: 24px;
       }
     }
 
     @media (max-width: 760px) {
-      .brand {
-        font-size: 1.24rem;
-      }
-
-      .nav {
-        gap: 18px;
-      }
-
       .hero-inner {
         padding: 136px 20px 108px;
         min-height: auto;
       }
-
-      .hero-eyebrow {
-        margin-bottom: 30px;
-        font-size: 0.74rem;
-        letter-spacing: 0.18em;
-      }
-
-      .hero h1 {
-        max-width: 100%;
-        font-size: clamp(2.45rem, 8vw, 3.25rem);
-      }
-
-      .hero-dek {
-        max-width: 100%;
-        font-size: 1rem;
-        line-height: 1.58;
-      }
-
       .hero-actions {
         flex-direction: column;
         align-items: stretch;
         gap: 14px;
         max-width: 420px;
       }
-
       .btn {
         width: 100%;
         min-width: 0;
-        min-height: 52px;
-        padding: 0 20px;
-        font-size: 0.98rem;
       }
-
-      .connect-section,
-      .expectations {
+      .connect-section, .expectations {
         padding-left: 20px;
         padding-right: 20px;
       }
-
-      .connect-section {
-        padding-top: 78px;
-        padding-bottom: 74px;
-      }
-
-      .expectations {
-        padding-top: 74px;
-        padding-bottom: 68px;
-      }
-
-      .contact-form-head,
-      .contact-form-body,
-      .side-card {
-        padding-left: 22px;
-        padding-right: 22px;
-      }
-
-      .form-grid,
-      .expectations-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .form-actions {
+      .form-grid, .expectations-grid { grid-template-columns: 1fr; }
+      .form-actions, .confirmation-actions {
         flex-direction: column;
         align-items: stretch;
       }
-
-      .footer {
-        padding: 34px 20px 28px;
-      }
-
-      .footer-top,
-      .footer-bottom {
+      .footer-top, .footer-bottom {
         flex-direction: column;
         align-items: flex-start;
-      }
-
-      .footer-nav {
-        gap: 28px;
       }
     }
   </style>
@@ -1103,9 +1051,7 @@
     <div class="hero-inner">
       <div class="hero-copy">
         <p class="hero-eyebrow">Connect</p>
-
         <h1 id="hero-title">Start a more structured conversation.</h1>
-
         <p class="hero-dek">
           Use this form to share the nature of your inquiry, the kind of institution involved, and the issue requiring attention. Monderman reviews requests selectively and responds when there is a credible fit.
         </p>
@@ -1129,140 +1075,177 @@
       </div>
 
       <div class="contact-layout">
-        <div class="contact-form-shell reveal reveal-delay-1">
-          <div class="contact-form-head">
-            <h3>Request an initial conversation</h3>
-            <p>
-              Complete the fields below to submit a structured inquiry directly to Monderman. This keeps the process lightweight while preserving enough detail to assess fit.
-            </p>
+        <div>
+          <div class="contact-form-shell reveal reveal-delay-1" id="contactFormShell">
+            <div class="contact-form-head">
+              <h3>Request an initial conversation</h3>
+              <p>
+                Complete the fields below to submit a structured inquiry directly to Monderman. The goal is to make serious conversations easier to assess while keeping the process lightweight and professional.
+              </p>
+            </div>
+
+            <div class="contact-form-body">
+              <form id="connectForm">
+                <div class="form-grid">
+                  <div class="field">
+                    <label for="inquiryType">Inquiry type<span class="required-mark">*</span></label>
+                    <select id="inquiryType" name="inquiryType" required>
+                      <option value="">Select one</option>
+                      <option value="Advisory engagement">Advisory engagement</option>
+                      <option value="Institutional audit">Institutional audit</option>
+                      <option value="Executive workshop">Executive workshop</option>
+                      <option value="Training or capability development">Training or capability development</option>
+                      <option value="Speaking or briefing request">Speaking or briefing request</option>
+                      <option value="Research or media inquiry">Research or media inquiry</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+
+                  <div class="field">
+                    <label for="institutionType">Institution type<span class="required-mark">*</span></label>
+                    <select id="institutionType" name="institutionType" required>
+                      <option value="">Select one</option>
+                      <option value="Private company">Private company</option>
+                      <option value="Public company">Public company</option>
+                      <option value="Federal government">Federal government</option>
+                      <option value="State or local government">State or local government</option>
+                      <option value="Defense or national security">Defense or national security</option>
+                      <option value="Healthcare system">Healthcare system</option>
+                      <option value="Higher education">Higher education</option>
+                      <option value="Nonprofit or mission organization">Nonprofit or mission organization</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+
+                  <div class="field">
+                    <label for="orgSize">Approximate organizational size<span class="optional-mark">Optional</span></label>
+                    <select id="orgSize" name="orgSize">
+                      <option value="">Optional</option>
+                      <option value="1-50">1–50</option>
+                      <option value="51-250">51–250</option>
+                      <option value="251-1000">251–1,000</option>
+                      <option value="1001-5000">1,001–5,000</option>
+                      <option value="5001-25000">5,001–25,000</option>
+                      <option value="25000+">25,000+</option>
+                    </select>
+                  </div>
+
+                  <div class="field">
+                    <label for="timeline">Timing<span class="optional-mark">Optional</span></label>
+                    <select id="timeline" name="timeline">
+                      <option value="">Optional</option>
+                      <option value="Immediate">Immediate</option>
+                      <option value="Within 30 days">Within 30 days</option>
+                      <option value="Within 90 days">Within 90 days</option>
+                      <option value="Exploratory">Exploratory</option>
+                    </select>
+                  </div>
+
+                  <div class="field">
+                    <label for="fullName">Name<span class="required-mark">*</span></label>
+                    <input id="fullName" name="fullName" type="text" required />
+                  </div>
+
+                  <div class="field">
+                    <label for="workEmail">Work email<span class="required-mark">*</span></label>
+                    <input id="workEmail" name="workEmail" type="email" required placeholder="name@organization.com" />
+                    <small>Use your professional email when possible.</small>
+                  </div>
+
+                  <div class="field">
+                    <label for="organization">Organization<span class="required-mark">*</span></label>
+                    <input id="organization" name="organization" type="text" required />
+                  </div>
+
+                  <div class="field">
+                    <label for="roleTitle">Role or title<span class="optional-mark">Optional</span></label>
+                    <input id="roleTitle" name="roleTitle" type="text" placeholder="Optional" />
+                  </div>
+
+                  <div class="field full">
+                    <label for="subjectLine">Subject<span class="required-mark">*</span></label>
+                    <input id="subjectLine" name="subjectLine" type="text" placeholder="Briefly state the reason for your inquiry" required />
+                  </div>
+
+                  <div class="field full">
+                    <label for="issueSummary">What requires attention?<span class="required-mark">*</span></label>
+                    <textarea id="issueSummary" name="issueSummary" placeholder="Briefly describe the issue, the visible signal, or what prompted the inquiry." required></textarea>
+                    <small>A short, clear description is enough. Do not include classified, proprietary, regulated, or personally sensitive information.</small>
+                  </div>
+
+                  <div class="field full">
+                    <label for="additionalContext">Additional context<span class="optional-mark">Optional</span></label>
+                    <textarea id="additionalContext" name="additionalContext" placeholder="Optional: add context about goals, leadership audience, organizational complexity, or why now."></textarea>
+                  </div>
+                </div>
+
+                <div class="form-divider"></div>
+
+                <div class="privacy-box">
+                  <h4>Privacy notice</h4>
+                  <p>
+                    Monderman does not sell, share, or distribute contact information for any reason. Information submitted through this form is used only to review the inquiry and determine whether a response is warranted.
+                  </p>
+                  <p>
+                    Submissions are reviewed directly by Monderman and sent through a secure backend email workflow.
+                  </p>
+                  <label class="checkbox-row">
+                    <input type="checkbox" id="privacyConsent" required />
+                    <span>I understand and agree to the privacy notice above.<span class="required-mark">*</span></span>
+                  </label>
+                </div>
+
+                <div class="form-actions">
+                  <div class="form-actions-copy">
+                    <p>
+                      Required fields are marked with *. Monderman works selectively. Not every inquiry will lead to an engagement, but serious, well-scoped requests receive the strongest consideration.
+                    </p>
+                  </div>
+
+                  <div>
+                    <button class="btn btn-accent" type="submit" id="submitButton">Submit Inquiry</button>
+                  </div>
+                </div>
+
+                <p class="status-note" id="statusNote" aria-live="polite"></p>
+              </form>
+            </div>
           </div>
 
-          <div class="contact-form-body">
-            <form id="connectForm">
-              <div class="form-grid">
-                <div class="field">
-                  <label for="inquiryType">Inquiry type</label>
-                  <select id="inquiryType" name="inquiryType" required>
-                    <option value="">Select one</option>
-                    <option value="Advisory engagement">Advisory engagement</option>
-                    <option value="Institutional audit">Institutional audit</option>
-                    <option value="Executive workshop">Executive workshop</option>
-                    <option value="Training or capability development">Training or capability development</option>
-                    <option value="Speaking or briefing request">Speaking or briefing request</option>
-                    <option value="Research or media inquiry">Research or media inquiry</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-
-                <div class="field">
-                  <label for="institutionType">Institution type</label>
-                  <select id="institutionType" name="institutionType" required>
-                    <option value="">Select one</option>
-                    <option value="Private company">Private company</option>
-                    <option value="Public company">Public company</option>
-                    <option value="Federal government">Federal government</option>
-                    <option value="State or local government">State or local government</option>
-                    <option value="Defense or national security">Defense or national security</option>
-                    <option value="Healthcare system">Healthcare system</option>
-                    <option value="Higher education">Higher education</option>
-                    <option value="Nonprofit or mission organization">Nonprofit or mission organization</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-
-                <div class="field">
-                  <label for="orgSize">Approximate organizational size</label>
-                  <select id="orgSize" name="orgSize">
-                    <option value="">Optional</option>
-                    <option value="1-50">1–50</option>
-                    <option value="51-250">51–250</option>
-                    <option value="251-1000">251–1,000</option>
-                    <option value="1001-5000">1,001–5,000</option>
-                    <option value="5001-25000">5,001–25,000</option>
-                    <option value="25000+">25,000+</option>
-                  </select>
-                </div>
-
-                <div class="field">
-                  <label for="timeline">Timing</label>
-                  <select id="timeline" name="timeline">
-                    <option value="">Optional</option>
-                    <option value="Immediate">Immediate</option>
-                    <option value="Within 30 days">Within 30 days</option>
-                    <option value="Within 90 days">Within 90 days</option>
-                    <option value="Exploratory">Exploratory</option>
-                  </select>
-                </div>
-
-                <div class="field">
-                  <label for="fullName">Name</label>
-                  <input id="fullName" name="fullName" type="text" required />
-                </div>
-
-                <div class="field">
-                  <label for="workEmail">Work email</label>
-                  <input id="workEmail" name="workEmail" type="email" required />
-                </div>
-
-                <div class="field">
-                  <label for="organization">Organization</label>
-                  <input id="organization" name="organization" type="text" required />
-                </div>
-
-                <div class="field">
-                  <label for="roleTitle">Role or title</label>
-                  <input id="roleTitle" name="roleTitle" type="text" />
-                </div>
-
-                <div class="field full">
-                  <label for="subjectLine">Subject</label>
-                  <input id="subjectLine" name="subjectLine" type="text" placeholder="Briefly state the reason for your inquiry" required />
-                </div>
-
-                <div class="field full">
-                  <label for="issueSummary">What requires attention?</label>
-                  <textarea id="issueSummary" name="issueSummary" placeholder="Briefly describe the issue, the visible signal, or what prompted the inquiry." required></textarea>
-                  <small>A short, clear description is enough. Do not include classified, proprietary, regulated, or personally sensitive information.</small>
-                </div>
-
-                <div class="field full">
-                  <label for="additionalContext">Additional context</label>
-                  <textarea id="additionalContext" name="additionalContext" placeholder="Optional: add context about goals, leadership audience, organizational complexity, or why now."></textarea>
-                </div>
-              </div>
-
-              <div class="form-divider"></div>
-
-              <div class="privacy-box">
-                <h4>Privacy notice</h4>
-                <p>
-                  Monderman does not sell, share, or distribute contact information for any reason. Information submitted through this form is used only to review the inquiry and determine whether a response is warranted.
-                </p>
-                <p>
-                  Submissions are sent directly to Monderman through a secure backend email workflow rather than relying on your device’s mail client.
-                </p>
-                <label class="checkbox-row">
-                  <input type="checkbox" id="privacyConsent" required />
-                  <span>I understand and agree to the privacy notice above.</span>
-                </label>
-              </div>
-
-              <div class="form-actions">
-                <div class="form-actions-copy">
-                  <p>
-                    Monderman works selectively. Not every inquiry will lead to an engagement, but serious, well-scoped requests receive the strongest consideration.
-                  </p>
-                </div>
-
-                <div>
-                  <button class="btn btn-accent" type="submit">Submit Inquiry</button>
-                </div>
-              </div>
-
-              <p class="status-note" id="statusNote">
-                
+          <div class="confirmation-shell" id="confirmationScreen" aria-live="polite">
+            <div class="confirmation-head">
+              <h3>Inquiry submitted.</h3>
+              <p>
+                Your request has been sent to Monderman for review. This page confirms submission so you are not left wondering whether it went through.
               </p>
-            </form>
+            </div>
+
+            <div class="confirmation-body">
+              <div class="confirmation-mark" aria-hidden="true">✓</div>
+              <p style="margin: 0; font-size: 1.02rem; line-height: 1.7; color: var(--muted-dark); max-width: 62ch;">
+                Monderman reviews inquiries selectively. If there is a credible fit, the response will typically follow by email using the contact information you provided.
+              </p>
+
+              <div class="confirmation-grid">
+                <div class="confirmation-card">
+                  <h4>Status</h4>
+                  <p>Submission received successfully.</p>
+                </div>
+                <div class="confirmation-card">
+                  <h4>Next step</h4>
+                  <p>Monderman will assess the inquiry for fit, relevance, and timing.</p>
+                </div>
+                <div class="confirmation-card">
+                  <h4>Contact path</h4>
+                  <p>Follow-up will typically occur by email if a conversation is warranted.</p>
+                </div>
+              </div>
+
+              <div class="confirmation-actions">
+                <a class="btn btn-accent" href="advisory-services.html">Return to Advisory Engagements</a>
+                <button class="btn btn-secondary" type="button" id="submitAnotherButton">Submit Another Inquiry</button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1289,6 +1272,13 @@
             <h3>What not to send</h3>
             <p>
               Do not include classified information, regulated data, confidential client material, or personally sensitive details. A disciplined overview is enough for a first exchange.
+            </p>
+          </div>
+
+          <div class="side-card">
+            <h3>What happens next</h3>
+            <p>
+              Submissions are reviewed directly by Monderman. If there is a credible fit, the response will typically follow by email.
             </p>
           </div>
         </aside>
@@ -1399,17 +1389,55 @@
 
     const connectForm = document.getElementById("connectForm");
     const statusNote = document.getElementById("statusNote");
+    const submitButton = document.getElementById("submitButton");
+    const confirmationScreen = document.getElementById("confirmationScreen");
+    const contactFormShell = document.getElementById("contactFormShell");
+    const submitAnotherButton = document.getElementById("submitAnotherButton");
 
     function safeValue(id) {
       const el = document.getElementById(id);
       return el ? el.value.trim() : "";
     }
 
-    function setStatus(message, isError = false) {
+    function showError(message) {
       if (!statusNote) return;
       statusNote.textContent = message;
-      statusNote.style.color = isError ? "#B8505E" : "#15202B";
-      statusNote.classList.add("is-visible");
+      statusNote.classList.remove("is-success");
+      statusNote.classList.add("is-visible", "is-error");
+    }
+
+    function clearStatus() {
+      if (!statusNote) return;
+      statusNote.textContent = "";
+      statusNote.classList.remove("is-visible", "is-error", "is-success");
+    }
+
+    function showConfirmation() {
+      if (contactFormShell) {
+        contactFormShell.style.display = "none";
+      }
+      if (confirmationScreen) {
+        confirmationScreen.classList.add("is-visible");
+        confirmationScreen.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
+    function showFormAgain() {
+      if (confirmationScreen) {
+        confirmationScreen.classList.remove("is-visible");
+      }
+      if (contactFormShell) {
+        contactFormShell.style.display = "block";
+        contactFormShell.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+      clearStatus();
+    }
+
+    if (submitAnotherButton) {
+      submitAnotherButton.addEventListener("click", () => {
+        if (connectForm) connectForm.reset();
+        showFormAgain();
+      });
     }
 
     if (connectForm) {
@@ -1424,11 +1452,12 @@
 
         if (!connectForm.checkValidity()) {
           connectForm.reportValidity();
+          const firstInvalid = connectForm.querySelector(":invalid");
+          if (firstInvalid) firstInvalid.focus();
           return;
         }
 
-        const submitBtn = connectForm.querySelector('button[type="submit"]');
-        const originalBtnText = submitBtn ? submitBtn.textContent : "Submit Inquiry";
+        const originalBtnText = submitButton ? submitButton.textContent : "Submit Inquiry";
 
         const payload = {
           inquiryType: safeValue("inquiryType"),
@@ -1444,11 +1473,11 @@
           additionalContext: safeValue("additionalContext")
         };
 
-        statusNote?.classList.remove("is-visible");
+        clearStatus();
 
-        if (submitBtn) {
-          submitBtn.disabled = true;
-          submitBtn.textContent = "Submitting...";
+        if (submitButton) {
+          submitButton.disabled = true;
+          submitButton.textContent = "Submitting...";
         }
 
         try {
@@ -1466,15 +1495,15 @@
             throw new Error(result?.error || result?.detail || "Submission failed.");
           }
 
-          setStatus("Inquiry submitted successfully. Monderman will review the request and respond if there is a strong fit.");
           connectForm.reset();
+          showConfirmation();
         } catch (error) {
           console.error(error);
-          setStatus("Something went wrong. Please try again or email connect@monderman.com directly.", true);
+          showError("Something went wrong. Please try again or email connect@monderman.com directly.");
         } finally {
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalBtnText;
+          if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.textContent = originalBtnText;
           }
         }
       });
