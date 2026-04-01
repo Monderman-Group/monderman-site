@@ -1133,7 +1133,7 @@
           <div class="contact-form-head">
             <h3>Request an initial conversation</h3>
             <p>
-              Complete the fields below and the page will prepare a structured email to Monderman. This keeps the process lightweight while preserving enough detail to assess fit.
+              Complete the fields below to submit a structured inquiry directly to Monderman. This keeps the process lightweight while preserving enough detail to assess fit.
             </p>
           </div>
 
@@ -1239,7 +1239,7 @@
                   Monderman does not sell, share, or distribute contact information for any reason. Information submitted through this form is used only to review the inquiry and determine whether a response is warranted.
                 </p>
                 <p>
-                  This page prepares an email in your mail client rather than storing submissions on the site itself.
+                  Submissions are sent directly to Monderman through a secure backend email workflow rather than relying on your device’s mail client.
                 </p>
                 <label class="checkbox-row">
                   <input type="checkbox" id="privacyConsent" required />
@@ -1255,12 +1255,12 @@
                 </div>
 
                 <div>
-                  <button class="btn btn-accent" type="submit">Prepare Inquiry Email</button>
+                  <button class="btn btn-accent" type="submit">Submit Inquiry</button>
                 </div>
               </div>
 
               <p class="status-note" id="statusNote">
-                Your mail application should open with a structured draft addressed to Monderman.
+                
               </p>
             </form>
           </div>
@@ -1405,54 +1405,80 @@
       return el ? el.value.trim() : "";
     }
 
-    connectForm.addEventListener("submit", (event) => {
-      event.preventDefault();
-
-      const consent = document.getElementById("privacyConsent");
-      if (!consent.checked) {
-        consent.reportValidity();
-        return;
-      }
-
-      if (!connectForm.checkValidity()) {
-        connectForm.reportValidity();
-        return;
-      }
-
-      const subject = safeValue("subjectLine");
-      const inquiryType = safeValue("inquiryType");
-      const institutionType = safeValue("institutionType");
-      const orgSize = safeValue("orgSize");
-      const timeline = safeValue("timeline");
-      const fullName = safeValue("fullName");
-      const workEmail = safeValue("workEmail");
-      const organization = safeValue("organization");
-      const roleTitle = safeValue("roleTitle");
-      const issueSummary = safeValue("issueSummary");
-      const additionalContext = safeValue("additionalContext");
-
-      const bodyLines = [
-        `Name: ${fullName}`,
-        `Organization: ${organization}`,
-        `Role/Title: ${roleTitle || "Not provided"}`,
-        `Work Email: ${workEmail}`,
-        `Inquiry Type: ${inquiryType}`,
-        `Institution Type: ${institutionType}`,
-        `Organization Size: ${orgSize || "Not provided"}`,
-        `Timing: ${timeline || "Not provided"}`,
-        ``,
-        `Issue Requiring Attention:`,
-        `${issueSummary}`,
-        ``,
-        `Additional Context:`,
-        `${additionalContext || "Not provided"}`
-      ];
-
-      const mailto = `mailto:connect@monderman.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines.join("\n"))}`;
-      window.location.href = mailto;
-
+    function setStatus(message, isError = false) {
+      if (!statusNote) return;
+      statusNote.textContent = message;
+      statusNote.style.color = isError ? "#B8505E" : "#15202B";
       statusNote.classList.add("is-visible");
-    });
+    }
+
+    if (connectForm) {
+      connectForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const consent = document.getElementById("privacyConsent");
+        if (!consent || !consent.checked) {
+          consent?.reportValidity();
+          return;
+        }
+
+        if (!connectForm.checkValidity()) {
+          connectForm.reportValidity();
+          return;
+        }
+
+        const submitBtn = connectForm.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn ? submitBtn.textContent : "Submit Inquiry";
+
+        const payload = {
+          inquiryType: safeValue("inquiryType"),
+          institutionType: safeValue("institutionType"),
+          orgSize: safeValue("orgSize"),
+          timeline: safeValue("timeline"),
+          fullName: safeValue("fullName"),
+          workEmail: safeValue("workEmail"),
+          organization: safeValue("organization"),
+          roleTitle: safeValue("roleTitle"),
+          subjectLine: safeValue("subjectLine"),
+          issueSummary: safeValue("issueSummary"),
+          additionalContext: safeValue("additionalContext")
+        };
+
+        statusNote?.classList.remove("is-visible");
+
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Submitting...";
+        }
+
+        try {
+          const response = await fetch("https://monderman-api.onrender.com/api/connect/send", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+          });
+
+          const result = await response.json().catch(() => null);
+
+          if (!response.ok || !result?.ok) {
+            throw new Error(result?.error || result?.detail || "Submission failed.");
+          }
+
+          setStatus("Inquiry submitted successfully. Monderman will review the request and respond if there is a strong fit.");
+          connectForm.reset();
+        } catch (error) {
+          console.error(error);
+          setStatus("Something went wrong. Please try again or email connect@monderman.com directly.", true);
+        } finally {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalBtnText;
+          }
+        }
+      });
+    }
   </script>
 </body>
 </html>
