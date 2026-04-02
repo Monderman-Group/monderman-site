@@ -1247,7 +1247,6 @@
       display: none !important;
     }
 
-
     .stacked-flow {
       display: grid;
       gap: 18px;
@@ -1305,7 +1304,6 @@
       line-height: 1.52;
       color: var(--muted-dark-2);
     }
-
 
     @media (max-width: 1180px) {
       .result-hero-grid {
@@ -1476,7 +1474,8 @@
           <p class="eyebrow">Monderman Diagnostic Suite</p>
           <h1 id="sc-title">See where structural clarity is breaking down beneath the work.</h1>
           <p>
-            Diagnose where authority, ownership, accountability, and structural design no longer support execution—and where the system itself is starting to slow the work.
+            Diagnose where authority, ownership, accountability, and structural design no longer support execution — and where the system itself is starting to slow the work. 
+            Powered by Monderman’s proprietary structural decision framework — a precise, tested logic engine that isolates and quantifies drag with directional clarity no generic analysis can match.
           </p>
           <div class="hero-actions">
             <button class="btn btn-accent" id="heroStartBtn" type="button">Start Guided Diagnostic</button>
@@ -1504,52 +1503,6 @@
     </section>
 
     <section class="experience-shell">
-      <section class="experience-panel entry-panel active" id="entryPanel">
-        <div class="entry-card">
-          <p class="entry-kicker">Guided Diagnostic</p>
-          <h2 class="entry-title">A cleaner way to move through the problem.</h2>
-          <p class="entry-copy">
-            This version adapts to the structural issue you describe. Instead of forcing every user through the same fixed survey, the diagnostic routes through the questions most relevant to the problem area you select.
-          </p>
-          <div class="entry-actions">
-            <button class="btn btn-accent" id="entryStartBtn" type="button">Start Guided Diagnostic</button>
-            <button class="btn btn-ghost" id="entryResetBtn" type="button">Reset Experience</button>
-          </div>
-          <p class="entry-note">
-            Do not enter classified, proprietary, regulated, or personally sensitive information.
-          </p>
-        </div>
-
-        <aside class="sidebar-stack">
-          <div class="sidebar-card">
-            <h3 class="sidebar-title">Best used for</h3>
-            <ul>
-              <li>Cross-functional teams</li>
-              <li>Program or matrix structures</li>
-              <li>Recurring approval drag</li>
-              <li>Ownership and accountability confusion</li>
-              <li>Structural friction beneath visible execution problems</li>
-            </ul>
-          </div>
-
-          <div class="sidebar-card">
-            <h3 class="sidebar-title">What this is not</h3>
-            <ul>
-              <li>Not a morale survey</li>
-              <li>Not a personality assessment</li>
-              <li>Not a generic efficiency tool</li>
-              <li>Not a substitute for deeper structural advisory work</li>
-            </ul>
-          </div>
-
-          <div class="sidebar-card">
-            <h3 class="sidebar-title">What to trust</h3>
-            <p>
-              Trust the structural pattern, not false precision. The strongest value here is surfacing where the system itself is becoming the constraint.
-            </p>
-          </div>
-        </aside>
-      </section>
 
       <section class="experience-panel active" id="diagnosticPanel">
         <div class="diagnostic-canvas">
@@ -1558,7 +1511,7 @@
               <p class="canvas-kicker">Guided Structural Clarity Diagnostic</p>
               <h2 class="canvas-title">Follow the structural pattern as it branches.</h2>
               <p class="canvas-sub">
-                Answers can open one, two, or three related follow-up questions. The goal is a more bespoke readout—not a flat survey.
+                Powered by Monderman’s proprietary structural decision framework. One answer can open multiple related follow-up questions because structural problems are rarely linear.
               </p>
             </div>
 
@@ -1587,7 +1540,8 @@
 
           <div class="diagnostic-footer">
             <p class="diagnostic-note">
-              This is a directional diagnostic designed to surface structural conditions beneath recurring friction—not a full organizational design audit.
+              This is a directional diagnostic designed to surface structural conditions beneath recurring friction — not a full organizational design audit. 
+              Powered by Monderman’s proprietary structural decision framework.
             </p>
 
             <div style="display:flex; gap:10px; flex-wrap:wrap;">
@@ -1752,7 +1706,7 @@
 
         <div class="results-actions">
           <p style="margin:0; font-size:0.8rem; line-height:1.5; color:var(--muted-dark-2);">
-            * These figures are directional estimates based on user input and structural diagnostic signals. They are intended as practical planning indicators, not audited measurements.
+            * These figures are directional estimates based on user input and structural diagnostic signals. They are intended as practical planning indicators, not audited measurements. Results generated by Monderman’s proprietary institutional diagnostic framework. Directional only — not an audited assessment.
           </p>
 
           <div class="results-actions-right">
@@ -1774,10 +1728,6 @@
     const STRUCTURAL_CLARITY_NARRATIVE_API_PATH = "/api/structural-clarity/narrative";
 
     const heroStartBtn = document.getElementById("heroStartBtn");
-    const entryStartBtn = document.getElementById("entryStartBtn");
-    const entryResetBtn = document.getElementById("entryResetBtn");
-
-    const entryPanel = document.getElementById("entryPanel");
     const diagnosticPanel = document.getElementById("diagnosticPanel");
     const resultsPanel = document.getElementById("resultsPanel");
 
@@ -2191,8 +2141,8 @@
     };
 
     function showPanel(name) {
-      [entryPanel, diagnosticPanel, resultsPanel].forEach(panel => panel.classList.remove("active"));
-      if (name === "entry") entryPanel.classList.add("active");
+      diagnosticPanel.classList.remove("active");
+      resultsPanel.classList.remove("active");
       if (name === "diagnostic") diagnosticPanel.classList.add("active");
       if (name === "results") resultsPanel.classList.add("active");
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -3488,8 +3438,6 @@
     }
 
     heroStartBtn.addEventListener("click", startDiagnostic);
-    entryStartBtn.addEventListener("click", startDiagnostic);
-    entryResetBtn.addEventListener("click", resetExperience);
     restartBtn.addEventListener("click", resetExperience);
     resultsStartOverBtn.addEventListener("click", resetExperience);
     backBtn.addEventListener("click", goBack);
