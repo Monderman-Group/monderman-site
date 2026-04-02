@@ -200,7 +200,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: center center;
+      object-position: 72% 48%;
       opacity: 0;
       transform: scale(1.01);
       transition: opacity 720ms cubic-bezier(0.22,1,0.36,1), transform 1800ms cubic-bezier(0.22,1,0.36,1);
@@ -211,7 +211,7 @@
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(90deg, rgba(10,14,20,0.92) 0%, rgba(10,14,20,0.76) 23%, rgba(10,14,20,0.48) 48%, rgba(10,14,20,0.20) 72%, rgba(10,14,20,0.08) 100%),
+        linear-gradient(90deg, rgba(10,14,20,0.96) 0%, rgba(10,14,20,0.88) 28%, rgba(10,14,20,0.55) 52%, rgba(10,14,20,0.22) 74%, rgba(10,14,20,0.08) 100%),
         linear-gradient(180deg, rgba(10,14,20,0.10) 0%, rgba(10,14,20,0.03) 36%, rgba(10,14,20,0.18) 100%);
     }
     .hero::after {
@@ -349,29 +349,26 @@
       color: #FFFFFF;
     }
 
-    .section-bar-wrap {
-      background: var(--bg-offwhite);
-      padding: 26px 20px 0;
-      border-top: 1px solid rgba(21,32,43,0.04);
+    .section-with-bar {
+      position: relative;
     }
-    .section-bar-wrap-light { background: var(--bg-white); }
-    .section-bar-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-      padding-top: 18px;
-      border-top: 1px solid rgba(21,32,43,0.08);
-    }
-    .section-bar {
-      display: inline-block;
+
+    .section-with-bar .section-bar {
+      position: absolute;
+      top: 26px;
+      left: 34px;
+      z-index: 2;
+      margin: 0;
       padding: 0;
       background: transparent;
-      color: var(--accent-dark);
-      font-size: 0.72rem;
+      color: rgba(21,32,43,0.48);
+      font-size: 0.68rem;
       line-height: 1;
       font-weight: 700;
-      letter-spacing: 0.16em;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
       box-shadow: none;
+      pointer-events: none;
     }
 
     .section-intro h2 {
@@ -395,7 +392,7 @@
     .recognition-strip {
       background: var(--bg-offwhite);
       color: var(--text-dark);
-      padding: 42px 34px 18px;
+      padding: 64px 34px 40px;
     }
     .recognition-inner {
       max-width: var(--max);
@@ -422,8 +419,8 @@
       color: var(--text-dark);
       overflow: hidden;
     }
-    .bureaucracy-cost { padding: 48px 34px 100px; }
-    .diagnostic-estimate { padding: 48px 34px 92px; }
+    .bureaucracy-cost { padding: 78px 34px 100px; }
+    .diagnostic-estimate { padding: 78px 34px 92px; }
     .bureaucracy-cost::before,
     .diagnostic-estimate::before {
       content: "";
@@ -603,7 +600,7 @@
     .approach {
       position: relative;
       background: var(--bg-white);
-      padding: 48px 34px 88px;
+      padding: 78px 34px 88px;
       color: var(--text-dark);
       overflow: hidden;
     }
@@ -751,7 +748,7 @@
     .latest {
       position: relative;
       background: var(--bg-offwhite);
-      padding: 48px 34px 80px;
+      padding: 78px 34px 80px;
       color: var(--text-dark);
       overflow: hidden;
       border-top: 1px solid rgba(21,32,43,0.04);
@@ -1050,7 +1047,6 @@
       }
       .nav { gap: 22px; }
       .hero-inner { padding: 120px 24px 82px; }
-      .section-bar-wrap,
       .bureaucracy-cost,
       .approach,
       .diagnostic-estimate,
@@ -1094,18 +1090,18 @@
         padding: 0 20px;
         font-size: 0.98rem;
       }
-      .section-bar-wrap { padding: 20px 16px 0; }
-      .section-bar-inner { padding-top: 14px; }
-      .section-bar {
-        font-size: 0.66rem;
+      .section-with-bar .section-bar {
+        top: 20px;
+        left: 20px;
+        font-size: 0.64rem;
         letter-spacing: 0.12em;
       }
-      .recognition-strip { padding: 30px 20px 12px; }
+      .recognition-strip { padding: 30px 20px 20px; }
       .recognition-inner p { font-size: 0.98rem; line-height: 1.68; }
       .bureaucracy-cost,
-      .diagnostic-estimate { padding: 36px 20px 70px; }
-      .approach { padding: 36px 20px 68px; }
-      .latest { padding: 36px 20px 68px; }
+      .diagnostic-estimate { padding: 62px 20px 70px; }
+      .approach { padding: 62px 20px 68px; }
+      .latest { padding: 62px 20px 68px; }
       .connect { padding: 64px 20px 60px; }
       .footer { padding: 34px 20px 28px; }
       .approach-grid { grid-template-columns: 1fr; gap: 20px; }
@@ -1167,9 +1163,6 @@
           <a class="btn btn-secondary" href="diagnostic-tools.html">Start the Diagnostic Evaluation</a>
           <a class="btn btn-secondary" href="advisory-services.html">Advisory Engagements</a>
         </div>
-        <p class="hero-signal">
-          Diagnostics, briefs, and advisory work on structure, execution, and institutional advantage.
-        </p>
       </div>
     </div>
   </section>
@@ -1186,11 +1179,8 @@
     </div>
   </section>
 
-  <div class="section-bar-wrap snap-anchor" aria-hidden="true">
-    <div class="section-bar-inner"><div class="section-bar">The Cost of Bureaucratic Friction</div></div>
-  </div>
-
-  <section class="bureaucracy-cost" id="cost-section" aria-labelledby="cost-title">
+  <section class="bureaucracy-cost section-with-bar snap-anchor" id="cost-section" aria-labelledby="cost-title">
+    <div class="section-bar" aria-hidden="true">Cost of Bureaucratic Friction</div>
     <div class="cost-inner">
       <div class="cost-heading reveal">
                 <h2 id="cost-title">Where performance is quietly lost.</h2>
@@ -1228,11 +1218,8 @@
     </div>
   </section>
 
-  <div class="section-bar-wrap section-bar-wrap-light snap-anchor" aria-hidden="true">
-    <div class="section-bar-inner"><div class="section-bar">Our Approach</div></div>
-  </div>
-
-  <section class="approach" id="approach" aria-labelledby="approach-title">
+  <section class="approach section-with-bar snap-anchor" id="approach" aria-labelledby="approach-title">
+    <div class="section-bar" aria-hidden="true">Our Approach</div>
     <div class="approach-inner">
       <div class="section-intro reveal">
         <h2 id="approach-title">Designing systems for clarity and execution.</h2>
@@ -1303,11 +1290,8 @@
     </div>
   </section>
 
-  <div class="section-bar-wrap snap-anchor" aria-hidden="true">
-    <div class="section-bar-inner"><div class="section-bar">Diagnostic Suite</div></div>
-  </div>
-
-  <section class="diagnostic-estimate" id="diagnostic-estimate" aria-labelledby="estimate-title">
+  <section class="diagnostic-estimate section-with-bar snap-anchor" id="diagnostic-estimate" aria-labelledby="estimate-title">
+    <div class="section-bar" aria-hidden="true">Diagnostic Suite</div>
     <div class="diagnostic-estimate-inner">
       <div class="diagnostic-estimate-heading reveal">
                 <h2 id="estimate-title">Estimate the hidden cost of structural drag.</h2>
@@ -1413,11 +1397,8 @@
     </div>
   </section>
 
-  <div class="section-bar-wrap snap-anchor" aria-hidden="true">
-    <div class="section-bar-inner"><div class="section-bar">Latest from Monderman</div></div>
-  </div>
-
-  <section class="latest" id="latest" aria-labelledby="latest-title">
+  <section class="latest section-with-bar snap-anchor" id="latest" aria-labelledby="latest-title">
+    <div class="section-bar" aria-hidden="true">Latest from Monderman</div>
     <div class="latest-inner">
       <div class="latest-head">
         <div class="latest-intro section-intro reveal">
