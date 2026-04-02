@@ -200,7 +200,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: 72% 48%;
+      object-position: 79% 50%;
       opacity: 0;
       transform: scale(1.01);
       transition: opacity 720ms cubic-bezier(0.22,1,0.36,1), transform 1800ms cubic-bezier(0.22,1,0.36,1);
@@ -211,8 +211,8 @@
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(90deg, rgba(10,14,20,0.96) 0%, rgba(10,14,20,0.88) 28%, rgba(10,14,20,0.55) 52%, rgba(10,14,20,0.22) 74%, rgba(10,14,20,0.08) 100%),
-        linear-gradient(180deg, rgba(10,14,20,0.10) 0%, rgba(10,14,20,0.03) 36%, rgba(10,14,20,0.18) 100%);
+        linear-gradient(90deg, rgba(10,14,20,0.975) 0%, rgba(10,14,20,0.92) 30%, rgba(10,14,20,0.68) 54%, rgba(10,14,20,0.34) 76%, rgba(10,14,20,0.14) 100%),
+        linear-gradient(180deg, rgba(10,14,20,0.18) 0%, rgba(10,14,20,0.08) 34%, rgba(10,14,20,0.24) 100%);
     }
     .hero::after {
       content: "";
@@ -221,8 +221,8 @@
       pointer-events: none;
       z-index: 1;
       background:
-        radial-gradient(circle at 79% 18%, rgba(63,110,161,0.17) 0%, rgba(63,110,161,0.07) 18%, transparent 34%),
-        linear-gradient(180deg, rgba(7,10,16,0) 78%, rgba(7,10,16,0.22) 100%);
+        radial-gradient(circle at 82% 18%, rgba(63,110,161,0.12) 0%, rgba(63,110,161,0.05) 18%, transparent 34%),
+        linear-gradient(180deg, rgba(7,10,16,0.06) 0%, rgba(7,10,16,0.26) 100%);
     }
     .hero-inner {
       position: relative;
@@ -392,17 +392,40 @@
     .recognition-strip {
       background: var(--bg-offwhite);
       color: var(--text-dark);
-      padding: 64px 34px 40px;
+      padding: 44px 34px 30px;
+      border-top: 1px solid rgba(21,32,43,0.04);
+      border-bottom: 1px solid rgba(21,32,43,0.04);
     }
     .recognition-inner {
       max-width: var(--max);
       margin: 0 auto;
     }
-    .recognition-inner p {
+    .recognition-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px 28px;
+      max-width: 980px;
+    }
+    .recognition-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      min-height: 40px;
+      padding-right: 12px;
+    }
+    .recognition-dot {
+      width: 8px;
+      height: 8px;
+      margin-top: 9px;
+      border-radius: 999px;
+      background: var(--accent);
+      flex: 0 0 auto;
+      box-shadow: 0 0 0 4px rgba(63,110,161,0.08);
+    }
+    .recognition-text {
       margin: 0;
-      max-width: 60ch;
-      font-size: 1.03rem;
-      line-height: 1.72;
+      font-size: 1rem;
+      line-height: 1.6;
       color: var(--muted-dark);
     }
 
@@ -1096,8 +1119,9 @@
         font-size: 0.64rem;
         letter-spacing: 0.12em;
       }
-      .recognition-strip { padding: 30px 20px 20px; }
-      .recognition-inner p { font-size: 0.98rem; line-height: 1.68; }
+      .recognition-strip { padding: 28px 20px 22px; }
+      .recognition-grid { grid-template-columns: 1fr; gap: 14px; }
+      .recognition-text { font-size: 0.98rem; line-height: 1.64; }
       .bureaucracy-cost,
       .diagnostic-estimate { padding: 62px 20px 70px; }
       .approach { padding: 62px 20px 68px; }
@@ -1160,7 +1184,7 @@
         </p>
         <div class="hero-actions">
           <a class="btn btn-accent" href="why-monderman.html">Why Monderman</a>
-          <a class="btn btn-secondary" href="diagnostic-tools.html">Start the Diagnostic Evaluation</a>
+          <a class="btn btn-secondary" href="diagnostic-tools.html">Enter the Diagnostic Suite</a>
           <a class="btn btn-secondary" href="advisory-services.html">Advisory Engagements</a>
         </div>
       </div>
@@ -1170,12 +1194,24 @@
 
   <section class="recognition-strip" aria-label="Institutional recognition">
     <div class="recognition-inner">
-      <p>
-        Decisions slow down without a clear reason.<br><br>
-        Coordination expands to compensate for unclear structure.<br><br>
-        Execution weakens, even when talent and intent are strong.<br><br>
-        The organization appears to be moving—but is increasingly harder to move.
-      </p>
+      <div class="recognition-grid">
+        <div class="recognition-item">
+          <span class="recognition-dot" aria-hidden="true"></span>
+          <p class="recognition-text">Decisions slow down without a clear reason.</p>
+        </div>
+        <div class="recognition-item">
+          <span class="recognition-dot" aria-hidden="true"></span>
+          <p class="recognition-text">Coordination expands to compensate for unclear structure.</p>
+        </div>
+        <div class="recognition-item">
+          <span class="recognition-dot" aria-hidden="true"></span>
+          <p class="recognition-text">Execution weakens, even when talent and intent are strong.</p>
+        </div>
+        <div class="recognition-item">
+          <span class="recognition-dot" aria-hidden="true"></span>
+          <p class="recognition-text">The organization appears to be moving—but is increasingly harder to move.</p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1392,7 +1428,7 @@
             Use the diagnostic suite to identify where that burden is actually forming and where to begin.
           </p>
         </div>
-        <a class="btn btn-accent" href="diagnostic-tools.html">Start the Diagnostic Evaluation</a>
+        <a class="btn btn-accent" href="diagnostic-tools.html">Enter the Diagnostic Suite</a>
       </div>
     </div>
   </section>
@@ -1496,7 +1532,7 @@
     <div class="connect-inner">
       <div class="connect-copy reveal">
         <h2 id="connect-title">Start a serious conversation.</h2>
-        <p class="connect-signal">Monderman works selectively with institutions facing consequential structural challenges.</p>
+        <p class="connect-signal">Monderman works selectively with organizations facing consequential structural challenges.</p>
         <p class="connect-text">
           If you are navigating institutional drag, decision friction, execution misalignment, or considering a diagnostic pilot, we welcome a conversation. Monderman works with organizations that understand the constraint is rarely insight alone, but the institutional capacity to act on it.
         </p>
@@ -1521,7 +1557,7 @@
         <div class="footer-brand">
           <div class="footer-mark">Monderman</div>
           <p class="footer-copy">
-            Advisory thinking on institutional performance, decision velocity, and the design of systems that sustain clarity under complexity.
+            Advisory work on structure, execution, and the conditions that sustain institutional advantage.
           </p>
         </div>
 
@@ -1543,7 +1579,7 @@
 
       <div class="footer-bottom">
         <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
-        <p class="footer-contact">Clarity for complex institutions.</p>
+        <p class="footer-contact">Take ownership of the conditions that determine performance.</p>
       </div>
     </div>
   </footer>
