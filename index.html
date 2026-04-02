@@ -683,7 +683,7 @@
     }
     .approach-card-link {
       margin-top: auto;
-      align-self: flex-end;
+      align-self: flex-start;
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -696,7 +696,7 @@
 
     .approach-synthesis {
       margin-top: 60px;
-      padding: 40px 34px 34px;
+      padding: 40px 34px 10px;
       background: #F8F9FA;
       border-radius: var(--panel-radius);
       border: 1px solid #E3E7EB;
@@ -704,24 +704,26 @@
     }
     .approach-synthesis-copy {
       max-width: 52ch;
-      margin: 0 auto 30px;
-      font-size: 1.04rem;
-      line-height: 1.6;
+      margin: 0 auto 28px;
+      font-size: 1.02rem;
+      line-height: 1.58;
       color: #556270;
     }
     .approach-synthesis-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-      gap: 18px;
-      max-width: 980px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      max-width: 1120px;
       margin: 0 auto;
+      align-items: stretch;
     }
     .approach-synthesis-item {
-      display: grid;
-      gap: 10px;
-      align-content: start;
-      min-height: 168px;
-      padding: 22px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+      min-height: 0;
+      padding: 22px 20px 22px;
       text-align: left;
       background: #FFFFFF;
       border: 1px solid rgba(21,32,43,0.08);
@@ -731,29 +733,33 @@
       transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition), background var(--transition);
     }
     .approach-synthesis-item strong {
-      font-size: 1rem;
-      line-height: 1.15;
+      font-size: 0.98rem;
+      line-height: 1.12;
       letter-spacing: -0.02em;
       color: var(--text-dark);
+    }
+    .approach-synthesis-item:hover .approach-synthesis-link,
+    .approach-synthesis-item.is-linked .approach-synthesis-link {
+      color: var(--accent-dark);
     }
     .approach-synthesis-link {
       display: inline-flex;
       align-items: center;
       width: fit-content;
-      min-height: 26px;
-      padding: 0 10px;
-      border-radius: 999px;
-      background: rgba(63,110,161,0.08);
-      border: 1px solid rgba(63,110,161,0.14);
-      font-size: 0.68rem;
+      min-height: 0;
+      padding: 0;
+      border-radius: 0;
+      background: transparent;
+      border: 0;
+      font-size: 0.66rem;
       line-height: 1;
       font-weight: 700;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: var(--accent-dark);
+      color: var(--accent);
     }
-    .approach-synthesis-item span {
-      font-size: 0.9rem;
+    .approach-synthesis-body {
+      font-size: 0.88rem;
       line-height: 1.56;
       color: var(--muted-dark);
     }
@@ -765,23 +771,24 @@
       background: #FFFFFF;
     }
     .approach-foundation {
-      margin: 22px auto 0;
-      max-width: 980px;
-      min-height: 56px;
+      margin: 24px auto 0;
+      max-width: 1120px;
+      min-height: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0 20px;
-      border-radius: 16px;
-      background: var(--accent-light);
-      border: 1px solid var(--accent);
-      color: #FFFFFF;
-      font-size: 0.76rem;
+      padding: 18px 0 0;
+      border-radius: 0;
+      background: transparent;
+      border: 0;
+      border-top: 1px solid rgba(63,110,161,0.16);
+      color: var(--accent-dark);
+      font-size: 0.72rem;
       line-height: 1.2;
       font-weight: 700;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
-      box-shadow: var(--soft-shadow);
+      box-shadow: none;
       text-align: center;
     }
 
@@ -851,7 +858,7 @@
       height: 100%;
       object-fit: cover;
     }
-    .latest-card-body { padding: 16px; }
+    .latest-card-body { padding: 16px 16px 18px; }
     .latest-card-kicker {
       margin: 0 0 9px;
       font-size: 0.68rem;
@@ -1152,12 +1159,16 @@
       }
       .approach-synthesis {
         margin-top: 44px;
-        padding: 30px 22px 24px;
+        padding: 30px 22px 12px;
+      }
+      .approach-synthesis-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
       }
       .approach-foundation {
-        min-height: 54px;
-        font-size: 0.72rem;
+        font-size: 0.7rem;
         letter-spacing: 0.12em;
+        padding-top: 16px;
       }
       .estimate-footer {
         align-items: flex-start;
@@ -1287,7 +1298,7 @@
           <div class="card-desc">
             We identify where authority, ownership, and accountability have drifted apart, then help realign the structure around execution.
           </div>
-          <a class="approach-card-link" href="structural-clarity-article.html">Read more &#8594;</a>
+          <a class="approach-card-link" href="structural-clarity-article.html">Read article &#8594;</a>
         </div>
 
         <div class="approach-card reveal reveal-delay-2" data-effect-target="velocity">
@@ -1295,7 +1306,7 @@
           <div class="card-desc">
             We surface where decision pathways have become heavier than the work requires, slowing execution and increasing drag.
           </div>
-          <a class="approach-card-link" href="decision-velocity-article.html">Read more &#8594;</a>
+          <a class="approach-card-link" href="decision-velocity-article.html">Read article &#8594;</a>
         </div>
 
         <div class="approach-card reveal reveal-delay-3" data-effect-target="systems">
@@ -1303,7 +1314,7 @@
           <div class="card-desc">
             We identify where policies, controls, and administrative processes are absorbing time and effort that should be supporting delivery.
           </div>
-          <a class="approach-card-link" href="operational-systems-article.html">Read more &#8594;</a>
+          <a class="approach-card-link" href="operational-systems-article.html">Read article &#8594;</a>
         </div>
 
         <div class="approach-card reveal reveal-delay-4" data-effect-target="performance">
@@ -1311,7 +1322,7 @@
           <div class="card-desc">
             We help organizations strengthen the conditions that allow performance to hold under pressure, complexity, and change.
           </div>
-          <a class="approach-card-link" href="institutional-performance-article.html">Read more &#8594;</a>
+          <a class="approach-card-link" href="institutional-performance-article.html">Read article &#8594;</a>
         </div>
       </div>
 
@@ -1324,22 +1335,22 @@
           <a class="approach-synthesis-item" data-effect="clarity" href="structural-clarity-article.html">
             <strong>Confident Action</strong>
             <span class="approach-synthesis-link">Structural Clarity</span>
-            <span>When structural clarity restores confidence in who owns what, who decides, and how execution moves.</span>
+            <span class="approach-synthesis-body">When structural clarity restores confidence in who owns what, who decides, and how execution moves.</span>
           </a>
           <a class="approach-synthesis-item" data-effect="velocity" href="decision-velocity-article.html">
             <strong>Sustained Advantage</strong>
             <span class="approach-synthesis-link">Decision Velocity</span>
-            <span>When decision velocity remains faster than the drag, delay, and caution accumulating beneath the work.</span>
+            <span class="approach-synthesis-body">When decision velocity remains faster than the drag, delay, and caution accumulating beneath the work.</span>
           </a>
           <a class="approach-synthesis-item" data-effect="systems" href="operational-systems-article.html">
             <strong>Reclaimed Capacity</strong>
             <span class="approach-synthesis-link">Operational Systems</span>
-            <span>When operational systems stop absorbing time and effort that should be available for delivery, judgment, and innovation.</span>
+            <span class="approach-synthesis-body">When operational systems stop absorbing time and effort that should be available for delivery, judgment, and innovation.</span>
           </a>
           <a class="approach-synthesis-item" data-effect="performance" href="institutional-performance-article.html">
             <strong>Organizational Credibility</strong>
             <span class="approach-synthesis-link">Institutional Performance</span>
-            <span>When institutional performance holds under complexity in ways leaders, employees, and stakeholders can trust.</span>
+            <span class="approach-synthesis-body">When institutional performance holds under complexity in ways leaders, employees, and stakeholders can trust.</span>
           </a>
         </div>
         <div class="approach-foundation">Sustained Institutional Advantage</div>
