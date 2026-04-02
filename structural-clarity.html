@@ -1474,7 +1474,7 @@
           <p class="eyebrow">Monderman Diagnostic Suite</p>
           <h1 id="sc-title">See where structural clarity is breaking down beneath the work.</h1>
           <p>
-            Diagnose where authority, ownership, accountability, and structural design no longer support execution — and where the system itself is starting to slow the work. 
+            Diagnose where authority, ownership, accountability, and structural design no longer support execution—and where the system itself is starting to slow the work.
             Powered by Monderman’s proprietary structural decision framework — a precise, tested logic engine that isolates and quantifies drag with directional clarity no generic analysis can match.
           </p>
           <div class="hero-actions">
@@ -1728,6 +1728,10 @@
     const STRUCTURAL_CLARITY_NARRATIVE_API_PATH = "/api/structural-clarity/narrative";
 
     const heroStartBtn = document.getElementById("heroStartBtn");
+    const entryStartBtn = document.getElementById("entryStartBtn");
+    const entryResetBtn = document.getElementById("entryResetBtn");
+
+    const entryPanel = document.getElementById("entryPanel");
     const diagnosticPanel = document.getElementById("diagnosticPanel");
     const resultsPanel = document.getElementById("resultsPanel");
 
@@ -2141,6 +2145,7 @@
     };
 
     function showPanel(name) {
+      if (entryPanel) entryPanel.classList.remove("active");
       diagnosticPanel.classList.remove("active");
       resultsPanel.classList.remove("active");
       if (name === "diagnostic") diagnosticPanel.classList.add("active");
@@ -3438,6 +3443,8 @@
     }
 
     heroStartBtn.addEventListener("click", startDiagnostic);
+    if (entryStartBtn) entryStartBtn.addEventListener("click", startDiagnostic);
+    if (entryResetBtn) entryResetBtn.addEventListener("click", resetExperience);
     restartBtn.addEventListener("click", resetExperience);
     resultsStartOverBtn.addEventListener("click", resetExperience);
     backBtn.addEventListener("click", goBack);
