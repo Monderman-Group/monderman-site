@@ -247,7 +247,7 @@
     }
     .hero-eyebrow {
       display: block;
-      margin: 0 0 40px;
+      margin: 0 0 34px;
       padding-left: 1px;
       font-size: 0.78rem;
       line-height: 1;
@@ -475,12 +475,13 @@
     .estimate-label,
     .latest-label {
       margin: 0 0 18px;
-      font-size: 0.72rem;
+      font-size: 0.66rem;
       font-weight: 700;
       line-height: 1;
-      letter-spacing: 0.24em;
+      letter-spacing: 0.20em;
       text-transform: uppercase;
       color: var(--accent);
+      opacity: 0.85;
     }
     .cost-heading h2,
     .diagnostic-estimate-heading h2 {
@@ -648,7 +649,7 @@
       background: rgba(255,255,255,0.99);
       border: 1px solid var(--line-dark);
       border-radius: var(--panel-radius);
-      padding: 40px 34px 52px;
+      padding: 40px 34px 46px;
       overflow: hidden;
       transition: transform var(--transition-slow), box-shadow var(--transition-slow), border-color var(--transition), background var(--transition);
     }
@@ -695,7 +696,7 @@
     }
 
     .approach-synthesis {
-      margin-top: 60px;
+      margin-top: 52px;
       padding: 40px 34px 10px;
       background: #F8F9FA;
       border-radius: var(--panel-radius);
@@ -704,7 +705,7 @@
     }
     .approach-synthesis-copy {
       max-width: 52ch;
-      margin: 0 auto 28px;
+      margin: 0 auto 24px;
       font-size: 1.02rem;
       line-height: 1.58;
       color: #556270;
@@ -713,7 +714,7 @@
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 16px;
-      max-width: 1120px;
+      max-width: 1040px;
       margin: 0 auto;
       align-items: stretch;
     }
@@ -721,7 +722,7 @@
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      gap: 12px;
+      gap: 10px;
       min-height: 0;
       padding: 22px 20px 22px;
       text-align: left;
@@ -730,13 +731,17 @@
       border-radius: 16px;
       box-shadow: var(--soft-shadow);
       color: var(--text-dark);
-      transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition), background var(--transition);
+      transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease, background 200ms ease;
     }
     .approach-synthesis-item strong {
       font-size: 0.98rem;
       line-height: 1.12;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.025em;
       color: var(--text-dark);
+    }
+    .approach-synthesis-item:hover strong,
+    .approach-synthesis-item.is-linked strong {
+      color: var(--accent-dark);
     }
     .approach-synthesis-item:hover .approach-synthesis-link,
     .approach-synthesis-item.is-linked .approach-synthesis-link {
@@ -754,14 +759,14 @@
       font-size: 0.66rem;
       line-height: 1;
       font-weight: 700;
-      letter-spacing: 0.16em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
       color: var(--accent);
     }
     .approach-synthesis-body {
       font-size: 0.88rem;
       line-height: 1.56;
-      color: var(--muted-dark);
+      color: #5F6B78;
     }
     .approach-synthesis-item.is-linked,
     .approach-synthesis-item:hover {
@@ -777,7 +782,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 18px 0 0;
+      padding: 22px 0 0;
       border-radius: 0;
       background: transparent;
       border: 0;
