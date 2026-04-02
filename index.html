@@ -402,16 +402,17 @@
     }
     .recognition-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(340px, 420px));
+      justify-content: center;
       gap: 16px 28px;
       max-width: 980px;
+      margin: 0 auto;
     }
     .recognition-item {
       display: flex;
       align-items: flex-start;
       gap: 12px;
       min-height: 40px;
-      padding-right: 12px;
     }
     .recognition-dot {
       width: 8px;
@@ -734,6 +735,22 @@
       line-height: 1.15;
       letter-spacing: -0.02em;
       color: var(--text-dark);
+    }
+    .approach-synthesis-link {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      min-height: 26px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: rgba(63,110,161,0.08);
+      border: 1px solid rgba(63,110,161,0.14);
+      font-size: 0.68rem;
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent-dark);
     }
     .approach-synthesis-item span {
       font-size: 0.9rem;
@@ -1120,7 +1137,7 @@
         letter-spacing: 0.12em;
       }
       .recognition-strip { padding: 28px 20px 22px; }
-      .recognition-grid { grid-template-columns: 1fr; gap: 14px; }
+      .recognition-grid { grid-template-columns: minmax(0, 620px); justify-content: center; gap: 14px; }
       .recognition-text { font-size: 0.98rem; line-height: 1.64; }
       .bureaucracy-cost,
       .diagnostic-estimate { padding: 62px 20px 70px; }
@@ -1306,19 +1323,23 @@
         <div class="approach-synthesis-grid">
           <a class="approach-synthesis-item" data-effect="clarity" href="structural-clarity-article.html">
             <strong>Confident Action</strong>
+            <span class="approach-synthesis-link">Structural Clarity</span>
             <span>When structural clarity restores confidence in who owns what, who decides, and how execution moves.</span>
           </a>
           <a class="approach-synthesis-item" data-effect="velocity" href="decision-velocity-article.html">
             <strong>Sustained Advantage</strong>
+            <span class="approach-synthesis-link">Decision Velocity</span>
             <span>When decision velocity remains faster than the drag, delay, and caution accumulating beneath the work.</span>
           </a>
           <a class="approach-synthesis-item" data-effect="systems" href="operational-systems-article.html">
             <strong>Reclaimed Capacity</strong>
+            <span class="approach-synthesis-link">Operational Systems</span>
             <span>When operational systems stop absorbing time and effort that should be available for delivery, judgment, and innovation.</span>
           </a>
           <a class="approach-synthesis-item" data-effect="performance" href="institutional-performance-article.html">
             <strong>Organizational Credibility</strong>
-            <span>When performance holds under complexity in ways leaders, employees, and stakeholders can trust.</span>
+            <span class="approach-synthesis-link">Institutional Performance</span>
+            <span>When institutional performance holds under complexity in ways leaders, employees, and stakeholders can trust.</span>
           </a>
         </div>
         <div class="approach-foundation">Sustained Institutional Advantage</div>
