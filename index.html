@@ -715,7 +715,7 @@
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 16px;
       max-width: 1040px;
-      margin: 0 auto;
+      margin: 0 auto 14px;
       align-items: stretch;
     }
     .approach-synthesis-item {
@@ -776,22 +776,21 @@
       background: #FFFFFF;
     }
     .approach-foundation {
-      margin: 24px auto 0;
-      max-width: 1120px;
+      margin: 20px auto 0;
+      max-width: 640px;
       min-height: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 22px 0 0;
-      border-radius: 0;
-      background: transparent;
-      border: 0;
-      border-top: 1px solid rgba(63,110,161,0.16);
+      padding: 16px 20px;
+      border-radius: 999px;
+      background: rgba(63,110,161,0.04);
+      border: 1px solid rgba(63,110,161,0.10);
       color: var(--accent-dark);
-      font-size: 0.72rem;
+      font-size: 0.74rem;
       line-height: 1.2;
       font-weight: 700;
-      letter-spacing: 0.16em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
       box-shadow: none;
       text-align: center;
@@ -832,6 +831,15 @@
       justify-content: center;
       cursor: pointer;
       box-shadow: var(--soft-shadow);
+      transition: border-color 180ms ease, color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+    }
+    .rail-arrow:hover,
+    .rail-arrow:focus-visible {
+      color: var(--accent-dark);
+      border-color: rgba(63,110,161,0.22);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.04);
+      outline: none;
     }
     .latest-viewport {
       overflow: hidden;
@@ -1079,7 +1087,7 @@
       margin: 0;
       font-size: 0.88rem;
       line-height: 1.6;
-      color: rgba(245,247,250,0.58);
+      color: rgba(245,247,250,0.54);
     }
 
     @media (max-width: 1100px) {
@@ -1171,9 +1179,10 @@
         gap: 14px;
       }
       .approach-foundation {
+        max-width: 100%;
         font-size: 0.7rem;
         letter-spacing: 0.12em;
-        padding-top: 16px;
+        padding: 14px 16px;
       }
       .estimate-footer {
         align-items: flex-start;
@@ -1334,7 +1343,7 @@
       <div class="approach-synthesis reveal">
         <p class="cost-label">Reinforcing Outcomes</p>
         <p class="approach-synthesis-copy">
-          Four reinforcing outcomes Monderman is designed to produce across the conditions that matter most for institutional advantage.
+          Four reinforcing outcomes that emerge when structural conditions are aligned for performance.
         </p>
         <div class="approach-synthesis-grid">
           <a class="approach-synthesis-item" data-effect="clarity" href="structural-clarity-article.html">
