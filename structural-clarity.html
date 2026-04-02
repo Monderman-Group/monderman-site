@@ -178,19 +178,19 @@
     .page-shell {
       position: relative;
       z-index: 1;
-      max-width: var(--max);
+      max-width: 1180px;
       margin: 0 auto;
-      padding: 42px 28px 78px;
+      padding: 34px 24px 72px;
     }
 
     .hero {
       position: relative;
-      margin-bottom: 26px;
+      margin-bottom: 22px;
       overflow: hidden;
       background: var(--bg-dark);
       border-radius: var(--radius-xl);
       border: 1px solid rgba(255,255,255,0.06);
-      box-shadow: var(--hero-shadow);
+      box-shadow: 0 18px 44px rgba(7, 12, 18, 0.14);
     }
 
     .hero::before {
@@ -226,11 +226,11 @@
     .hero-inner {
       position: relative;
       z-index: 1;
-      padding: 44px 40px 36px;
+      padding: 38px 34px 32px;
       display: grid;
-      grid-template-columns: minmax(0, 1.52fr) minmax(250px, 0.6fr);
-      gap: 34px;
-      align-items: center;
+      grid-template-columns: minmax(0, 1.42fr) minmax(230px, 0.58fr);
+      gap: 24px;
+      align-items: start;
     }
 
     .hero-copy { max-width: 960px; }
@@ -402,7 +402,7 @@
     }
 
     .experience-shell {
-      min-height: 700px;
+      min-height: 620px;
       position: relative;
     }
 
@@ -421,10 +421,7 @@
     }
 
     .entry-panel {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 320px;
-      gap: 22px;
-      align-items: start;
+      display: none !important;
     }
 
     .entry-card,
@@ -519,13 +516,12 @@
     }
 
     .diagnostic-canvas {
-      min-height: 680px;
-      padding: 30px 30px 88px;
+      min-height: 560px;
+      padding: 26px 26px 34px;
       position: relative;
-      overflow: hidden;
-      background:
-        radial-gradient(circle at 12% 10%, rgba(63,110,161,0.06) 0%, rgba(63,110,161,0.02) 16%, transparent 32%),
-        linear-gradient(180deg, #FCFDFE 0%, #FFFFFF 100%);
+      overflow: visible;
+      background: linear-gradient(180deg, #FCFDFE 0%, #FFFFFF 100%);
+      box-shadow: 0 12px 28px rgba(10, 18, 26, 0.035);
     }
 
     .canvas-head {
@@ -533,7 +529,7 @@
       align-items: flex-start;
       justify-content: space-between;
       gap: 16px;
-      margin-bottom: 28px;
+      margin-bottom: 20px;
     }
 
     .canvas-kicker {
@@ -578,36 +574,18 @@
 
     .diagnostic-stage {
       position: relative;
-      min-height: 470px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
+      min-height: 280px;
+      display: block;
+      overflow: visible;
     }
 
     .node-shell {
       width: 100%;
-      min-height: 430px;
+      min-height: 220px;
       position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
-    .node-connector {
-      position: absolute;
-      top: 50%;
-      right: calc(50% - 390px);
-      width: 120px;
-      height: 2px;
-      background: linear-gradient(90deg, rgba(63,110,161,0.18) 0%, rgba(63,110,161,0.72) 70%, rgba(63,110,161,0.82) 100%);
-      border-radius: 999px;
-      transform-origin: left center;
-      transform: scaleX(0);
-      opacity: 0;
-      transition: transform 340ms cubic-bezier(0.22, 1, 0.36, 1), opacity 220ms ease;
-      pointer-events: none;
-    }
+    .node-connector { display: none !important; }
 
     .node-connector.visible {
       transform: scaleX(1);
@@ -628,37 +606,35 @@
     }
 
     .node-card {
-      width: min(640px, 100%);
-      min-height: 246px;
+      width: min(720px, 100%);
+      min-height: 0;
       background: linear-gradient(180deg, #FFFFFF 0%, #FBFCFD 100%);
       border: 1px solid rgba(21,32,43,0.08);
       border-radius: 24px;
-      box-shadow: 0 22px 44px rgba(10,18,26,0.07);
-      padding: 24px 24px 22px;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      transition:
-        transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
-        opacity 260ms ease,
-        filter 260ms ease;
+      box-shadow: 0 14px 30px rgba(10,18,26,0.055);
+      padding: 22px 22px 20px;
+      position: relative;
+      top: auto;
+      left: auto;
+      transform: none;
+      transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1), opacity 220ms ease, filter 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+      margin: 0 auto 16px;
     }
 
     .node-card.entering {
       opacity: 0;
-      transform: translate(calc(-50% + 36px), -50%);
+      transform: translateY(10px);
     }
 
     .node-card.active {
       opacity: 1;
-      transform: translate(-50%, -50%);
+      transform: translateY(0);
     }
 
     .node-card.exiting {
-      opacity: 0;
-      transform: translate(calc(-50% - 34px), -50%);
-      filter: blur(1px);
+      opacity: 1;
+      transform: translateY(0);
+      filter: none;
     }
 
     .node-topline {
@@ -666,28 +642,28 @@
       align-items: center;
       justify-content: space-between;
       gap: 14px;
-      margin-bottom: 16px;
+      margin-bottom: 10px;
     }
 
     .node-step {
       margin: 0;
-      font-size: 0.68rem;
+      font-size: 0.62rem;
       line-height: 1;
       font-weight: 700;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: var(--muted-dark-2);
+      color: var(--muted-dark-3);
     }
 
     .node-branch {
       display: inline-flex;
       align-items: center;
-      min-height: 28px;
-      padding: 0 10px;
+      min-height: 24px;
+      padding: 0 8px;
       border-radius: 999px;
-      background: rgba(63,110,161,0.08);
-      border: 1px solid rgba(63,110,161,0.14);
-      font-size: 0.76rem;
+      background: rgba(63,110,161,0.05);
+      border: 1px solid rgba(63,110,161,0.10);
+      font-size: 0.68rem;
       line-height: 1;
       font-weight: 600;
       color: var(--accent-dark);
@@ -695,18 +671,18 @@
     }
 
     .node-question {
-      margin: 0 0 12px;
-      font-size: 1.32rem;
-      line-height: 1.12;
+      margin: 0 0 10px;
+      font-size: 1.18rem;
+      line-height: 1.10;
       font-weight: 700;
       color: var(--text-dark);
-      max-width: 20ch;
+      max-width: 24ch;
     }
 
     .node-helper {
-      margin: 0 0 18px;
-      font-size: 0.92rem;
-      line-height: 1.62;
+      margin: 0 0 14px;
+      font-size: 0.88rem;
+      line-height: 1.56;
       color: var(--muted-dark);
       max-width: 56ch;
     }
@@ -807,15 +783,18 @@
     }
 
     .diagnostic-footer {
-      position: absolute;
-      left: 30px;
-      right: 30px;
-      bottom: 28px;
+      position: relative;
+      left: auto;
+      right: auto;
+      bottom: auto;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 14px;
       flex-wrap: wrap;
+      margin-top: 22px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(21,32,43,0.06);
     }
 
     .diagnostic-note {
@@ -900,6 +879,7 @@
     .results-shell {
       display: none;
       gap: 18px;
+      margin-top: 6px;
     }
 
     .results-shell.active {
@@ -1267,6 +1247,66 @@
       display: none !important;
     }
 
+
+    .stacked-flow {
+      display: grid;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .stack-cluster {
+      display: grid;
+      gap: 14px;
+    }
+
+    .stack-cluster.multi {
+      grid-template-columns: 1fr;
+    }
+
+    .node-card.locked {
+      background: linear-gradient(180deg, #FBFCFD 0%, #F8FAFC 100%);
+      border-color: rgba(21,32,43,0.06);
+      box-shadow: 0 8px 18px rgba(10,18,26,0.035);
+    }
+
+    .node-card.locked .node-input-wrap {
+      opacity: 0.72;
+      pointer-events: none;
+    }
+
+    .node-answer-preview {
+      margin: 8px 0 0;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: var(--muted-dark-2);
+    }
+
+    .cluster-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24px;
+      color: var(--muted-dark-3);
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .cluster-divider::before {
+      content: "";
+      width: 1px;
+      height: 24px;
+      background: rgba(21,32,43,0.10);
+    }
+
+    .canvas-subtle-note {
+      margin: 0 0 16px;
+      font-size: 0.82rem;
+      line-height: 1.52;
+      color: var(--muted-dark-2);
+    }
+
+
     @media (max-width: 1180px) {
       .result-hero-grid {
         grid-template-columns: 190px minmax(0, 1fr);
@@ -1293,15 +1333,11 @@
       }
 
       .diagnostic-canvas {
-        min-height: 720px;
+        min-height: 520px;
       }
 
       .node-card {
-        width: min(100%, 620px);
-      }
-
-      .node-connector {
-        display: none;
+        width: min(100%, 640px);
       }
     }
 
@@ -1515,14 +1551,14 @@
         </aside>
       </section>
 
-      <section class="experience-panel" id="diagnosticPanel">
+      <section class="experience-panel active" id="diagnosticPanel">
         <div class="diagnostic-canvas">
           <div class="canvas-head">
             <div>
               <p class="canvas-kicker">Guided Structural Clarity Diagnostic</p>
-              <h2 class="canvas-title">Move through the structural problem, one question at a time.</h2>
+              <h2 class="canvas-title">Follow the structural pattern as it branches.</h2>
               <p class="canvas-sub">
-                The path adapts as you answer. Prior questions fall away so the experience stays focused, minimal, and easier to read.
+                Answers can open one, two, or three related follow-up questions. The goal is a more bespoke readout—not a flat survey.
               </p>
             </div>
 
@@ -1530,6 +1566,8 @@
           </div>
 
           <div class="error-note" id="errorNote"></div>
+
+          <p class="canvas-subtle-note">Previous answers stay visible in compressed form so the path feels cumulative rather than repetitive.</p>
 
           <div class="diagnostic-stage" id="diagnosticStage">
             <div class="node-shell" id="nodeShell">
@@ -1728,10 +1766,10 @@
     </section>
   </main>
 
+  
   <script>
     const API_BASE = "https://monderman-api.onrender.com";
     const API_KEY = "272cf20566a5333213e3a0f1c77d6512";
-    const SURVEY_NEXT_API_PATH = "/api/survey/next";
     const STRUCTURAL_CLARITY_API_PATH = "/api/structural-clarity/score";
     const STRUCTURAL_CLARITY_NARRATIVE_API_PATH = "/api/structural-clarity/narrative";
 
@@ -1744,7 +1782,6 @@
     const resultsPanel = document.getElementById("resultsPanel");
 
     const nodeShell = document.getElementById("nodeShell");
-    const nodeConnector = document.getElementById("nodeConnector");
     const diagnosticProgress = document.getElementById("diagnosticProgress");
 
     const loadingState = document.getElementById("loadingState");
@@ -1790,17 +1827,17 @@
     let dimensionsChart = null;
     let synthesisChart = null;
 
-    let currentNode = null;
-    let currentBranch = "intake";
     let answers = {};
-    let nodeStack = [];
-    let nodeCount = 0;
+    let pathState = {
+      focus: null,
+      renderedClusters: [],
+      stage: 0
+    };
+    let clusterHistory = [];
     let latestNarrative = null;
     let latestApiResponse = null;
     let latestContextMeta = {};
     let latestExposure = null;
-    let surveyRoutingHealthy = true;
-    let activeCard = null;
 
     const BENCHMARKS = {
       functional: { label: "Functional team", healthyMin: 76, healthyMax: 88, moderateMin: 62, moderateMax: 75, frictionMin: 46, frictionMax: 61 },
@@ -1825,12 +1862,12 @@
       very_high: 100
     };
 
-    const STATIC_NODE_LIBRARY = {
+    const NODE_LIBRARY = {
       entry_problem: {
         id: "entry_problem",
         type: "dropdown",
         label: "Where is the structural problem most visible right now?",
-        helper: "Choose the place where the issue is showing up most clearly. The path will adapt from there.",
+        helper: "Choose the place where the issue is showing up most clearly.",
         branch: "intake",
         options: [
           "Decision-making",
@@ -1839,15 +1876,17 @@
           "Approvals or governance burden",
           "Handoffs between teams",
           "Other"
-        ]
+        ],
+        required: true
       },
 
       focus_area: {
         id: "focus_area",
         type: "short_text",
         label: "What team, boundary, function, or operating area are you assessing?",
-        helper: "Use a concrete label such as product launch approvals, program office, shared-services intake, or regional governance boundary.",
-        branch: "context"
+        helper: "Use a concrete label such as product launch approvals, shared-services intake, or regional governance boundary.",
+        branch: "context",
+        required: true
       },
 
       structure_type: {
@@ -1856,6 +1895,7 @@
         label: "What kind of structure is this?",
         helper: "This helps place the result in a more relevant directional benchmark group.",
         branch: "context",
+        required: true,
         options: [
           "Functional team",
           "Cross-functional group",
@@ -1866,40 +1906,199 @@
         ]
       },
 
+      issue_description: {
+        id: "issue_description",
+        type: "long_text",
+        label: "Describe the issue in plain language.",
+        helper: "Explain what is happening, where it shows up, and how it affects execution, accountability, or coordination.",
+        branch: "context",
+        required: true
+      },
+
+      owner_defined: {
+        id: "owner_defined",
+        type: "dropdown",
+        label: "Is it clear who owns the work?",
+        helper: "This is about operating clarity in practice, not what the org chart suggests on paper.",
+        branch: "ownership",
+        required: true,
+        options: ["Usually yes", "Sometimes", "Often no"]
+      },
+
+      owner_consistency: {
+        id: "owner_consistency",
+        type: "dropdown",
+        label: "Does that ownership stay consistent over time?",
+        helper: "This checks whether responsibility shifts depending on urgency, personalities, or context.",
+        branch: "ownership",
+        required: true,
+        options: ["Usually yes", "Sometimes", "Often no"]
+      },
+
+      duplicate_ownership: {
+        id: "duplicate_ownership",
+        type: "dropdown",
+        label: "How often do multiple groups think they own the same task or issue?",
+        helper: "Repeated overlap is usually a structural clarity signal, not just a communication problem.",
+        branch: "ownership",
+        required: true,
+        options: ["Rarely", "Sometimes", "Often"]
+      },
+
+      orphaned_work: {
+        id: "orphaned_work",
+        type: "dropdown",
+        label: "How often does work stall because no one clearly owns it?",
+        helper: "This is one of the clearest indicators that structural clarity is breaking down beneath execution.",
+        branch: "ownership",
+        required: true,
+        options: ["Rarely", "Sometimes", "Often"]
+      },
+
+      decision_rights: {
+        id: "decision_rights",
+        type: "dropdown",
+        label: "Is it clear who can make which decisions?",
+        helper: "This is about real decision rights in practice, not just formal hierarchy.",
+        branch: "authority",
+        required: true,
+        options: ["Usually yes", "Mixed", "Often no"]
+      },
+
+      escalation_path: {
+        id: "escalation_path",
+        type: "dropdown",
+        label: "When conflict appears, is the escalation path clear?",
+        helper: "A healthy escalation path resolves ambiguity rather than intensifying it.",
+        branch: "authority",
+        required: true,
+        options: ["Usually yes", "Mixed", "Often no"]
+      },
+
+      informal_influence: {
+        id: "informal_influence",
+        type: "dropdown",
+        label: "How often do decisions depend more on informal influence than formal authority?",
+        helper: "This helps surface structures that only work because the right personalities are present.",
+        branch: "authority",
+        required: true,
+        options: ["Rarely", "Sometimes", "Often"]
+      },
+
+      leader_dependence: {
+        id: "leader_dependence",
+        type: "dropdown",
+        label: "How dependent is this area on one strong leader or key personality to stay clear?",
+        helper: "If clarity depends heavily on one person, the structure is usually weaker than it appears.",
+        branch: "authority",
+        required: true,
+        options: ["Low", "Moderate", "High"]
+      },
+
+      role_overlap: {
+        id: "role_overlap",
+        type: "dropdown",
+        label: "How often do roles overlap enough to create confusion?",
+        helper: "This is distinct from healthy collaboration. The issue is overlapping accountability or role ambiguity.",
+        branch: "boundaries",
+        required: true,
+        options: ["Rarely", "Sometimes", "Often"]
+      },
+
+      accountability_diffusion: {
+        id: "accountability_diffusion",
+        type: "dropdown",
+        label: "How often does accountability become blurred across multiple people or teams?",
+        helper: "This often shows up when no one can say who is truly answerable for the outcome.",
+        branch: "boundaries",
+        required: true,
+        options: ["Rarely", "Sometimes", "Often"]
+      },
+
+      handoff_ambiguity: {
+        id: "handoff_ambiguity",
+        type: "dropdown",
+        label: "When work moves from one group to another, does accountability stay clear?",
+        helper: "Handoffs are one of the most common places where structural clarity degrades quietly.",
+        branch: "boundaries",
+        required: true,
+        options: ["Usually yes", "Sometimes", "Often no"]
+      },
+
+      conflict_frequency: {
+        id: "conflict_frequency",
+        type: "dropdown",
+        label: "How often do the same boundary or ownership disputes come back?",
+        helper: "Repeated disputes are usually a structural pattern, not just a one-time coordination failure.",
+        branch: "boundaries",
+        required: true,
+        options: ["Rarely", "Sometimes", "Often"]
+      },
+
+      governance_weight: {
+        id: "governance_weight",
+        type: "dropdown",
+        label: "How often does the review or approval burden feel heavier than the practical risk?",
+        helper: "This helps distinguish legitimate control from structural over-weight.",
+        branch: "governance",
+        required: true,
+        options: ["Rarely", "Sometimes", "Often"]
+      },
+
       scope_size: {
         id: "scope_size",
         type: "dropdown",
         label: "How many people are regularly affected overall?",
-        helper: "Use the rough population that is repeatedly touched by the issue, not a theoretical org-wide maximum.",
-        branch: "context",
-        options: [
-          "1–10",
-          "11–50",
-          "51–150",
-          "150+"
-        ]
+        helper: "Use the rough recurring population touched by the issue, not a theoretical org-wide maximum.",
+        branch: "impact",
+        required: true,
+        options: ["1–10", "11–50", "51–150", "150+"]
       },
 
       change_pace: {
         id: "change_pace",
         type: "dropdown",
         label: "How often is the structure around this area changing?",
-        helper: "Think about reorganizations, changes in reporting lines, new approvals, new committees, shifting authority, or recurring role changes.",
-        branch: "context",
-        options: [
-          "Stable",
-          "Moderate",
-          "High",
-          "Constant"
-        ]
+        helper: "Think about reorganizations, new approvals, changing reporting lines, or shifting authority.",
+        branch: "impact",
+        required: true,
+        options: ["Stable", "Moderate", "High", "Constant"]
       },
 
-      issue_description: {
-        id: "issue_description",
-        type: "long_text",
-        label: "Describe the issue in plain language.",
-        helper: "Explain what is happening, where it shows up, and how it affects execution, accountability, or coordination. Avoid sensitive information.",
-        branch: "context"
+      meetings_per_week: {
+        id: "meetings_per_week",
+        type: "number",
+        label: "Roughly how many meetings per week are spent resolving this issue?",
+        helper: "Optional, but useful for directional exposure estimates.",
+        branch: "impact",
+        required: false
+      },
+
+      people_affected: {
+        id: "people_affected",
+        type: "number",
+        label: "How many people are regularly affected by this issue?",
+        helper: "Optional. Use the recurring population, not the maximum theoretical scope.",
+        branch: "impact",
+        required: false
+      },
+
+      hourly_cost: {
+        id: "hourly_cost",
+        type: "number",
+        label: "What is the approximate hourly cost of the people repeatedly doing the work?",
+        helper: "Optional. Use an approximate loaded hourly rate for the people directly handling the work.",
+        branch: "impact",
+        required: false
+      },
+
+      issues_per_month: {
+        id: "issues_per_month",
+        type: "number",
+        label: "How many recurring incidents or flare-ups happen in a typical month?",
+        helper: "Optional. This helps size recurring burden more realistically.",
+        branch: "impact",
+        required: false
       },
 
       risk_types: {
@@ -1908,6 +2107,7 @@
         label: "Which risks is the system mostly trying to prevent here?",
         helper: "Choose all that apply. This helps distinguish legitimate control from structural over-weight.",
         branch: "context",
+        required: false,
         options: [
           "Compliance / regulatory exposure",
           "Financial exposure",
@@ -1919,217 +2119,14 @@
         ]
       },
 
-      owner_defined: {
-        id: "owner_defined",
-        type: "dropdown",
-        label: "Is it clear who owns the work?",
-        helper: "This is about real operating clarity, not what the org chart implies on paper.",
-        branch: "ownership",
-        options: [
-          "Usually yes",
-          "Sometimes",
-          "Often no"
-        ]
-      },
-
-      owner_consistency: {
-        id: "owner_consistency",
-        type: "dropdown",
-        label: "Does that ownership stay consistent over time?",
-        helper: "This checks whether responsibility shifts depending on personalities, urgency, or context.",
-        branch: "ownership",
-        options: [
-          "Usually yes",
-          "Sometimes",
-          "Often no"
-        ]
-      },
-
-      duplicate_ownership: {
-        id: "duplicate_ownership",
-        type: "dropdown",
-        label: "How often do multiple groups think they own the same issue or task?",
-        helper: "Repeated overlap is often a structural clarity signal, not just a communication issue.",
-        branch: "ownership",
-        options: [
-          "Rarely",
-          "Sometimes",
-          "Often"
-        ]
-      },
-
-      orphaned_work: {
-        id: "orphaned_work",
-        type: "dropdown",
-        label: "How often does work stall because no one clearly owns it?",
-        helper: "This is one of the clearest structural drag signals in practice.",
-        branch: "ownership",
-        options: [
-          "Rarely",
-          "Sometimes",
-          "Often"
-        ]
-      },
-
-      decision_rights: {
-        id: "decision_rights",
-        type: "dropdown",
-        label: "Is it clear who can make which decisions?",
-        helper: "This is about decision rights in practice, not just formal hierarchy.",
-        branch: "authority",
-        options: [
-          "Usually yes",
-          "Mixed",
-          "Often no"
-        ]
-      },
-
-      escalation_path: {
-        id: "escalation_path",
-        type: "dropdown",
-        label: "When conflict appears, is the escalation path clear?",
-        helper: "A clear escalation path should resolve ambiguity rather than intensify it.",
-        branch: "authority",
-        options: [
-          "Usually yes",
-          "Mixed",
-          "Often no"
-        ]
-      },
-
-      informal_influence: {
-        id: "informal_influence",
-        type: "dropdown",
-        label: "How often do decisions depend more on informal influence than formal authority?",
-        helper: "This helps surface structures that only work because the right personalities are present.",
-        branch: "authority",
-        options: [
-          "Rarely",
-          "Sometimes",
-          "Often"
-        ]
-      },
-
-      leader_dependence: {
-        id: "leader_dependence",
-        type: "dropdown",
-        label: "How dependent is this area on one strong leader or key personality to stay clear?",
-        helper: "If clarity depends heavily on one person, the structure is usually weaker than it looks.",
-        branch: "authority",
-        options: [
-          "Low",
-          "Moderate",
-          "High"
-        ]
-      },
-
-      role_overlap: {
-        id: "role_overlap",
-        type: "dropdown",
-        label: "How often do roles overlap enough to create confusion?",
-        helper: "This is distinct from healthy collaboration. The issue is overlapping accountability or role ambiguity.",
-        branch: "boundaries",
-        options: [
-          "Rarely",
-          "Sometimes",
-          "Often"
-        ]
-      },
-
-      accountability_diffusion: {
-        id: "accountability_diffusion",
-        type: "dropdown",
-        label: "How often does accountability become blurred across multiple people or teams?",
-        helper: "This often shows up when no one can say who is truly answerable for the outcome.",
-        branch: "boundaries",
-        options: [
-          "Rarely",
-          "Sometimes",
-          "Often"
-        ]
-      },
-
-      handoff_ambiguity: {
-        id: "handoff_ambiguity",
-        type: "dropdown",
-        label: "When work moves from one group to another, does accountability stay clear?",
-        helper: "Handoffs are one of the most common points where structural clarity quietly degrades.",
-        branch: "boundaries",
-        options: [
-          "Usually yes",
-          "Sometimes",
-          "Often no"
-        ]
-      },
-
-      conflict_frequency: {
-        id: "conflict_frequency",
-        type: "dropdown",
-        label: "How often do the same boundary or ownership disputes come back?",
-        helper: "Repeated disputes are usually a structural pattern, not just a one-time coordination failure.",
-        branch: "boundaries",
-        options: [
-          "Rarely",
-          "Sometimes",
-          "Often"
-        ]
-      },
-
-      governance_weight: {
-        id: "governance_weight",
-        type: "dropdown",
-        label: "How often does the review or approval burden feel heavier than the practical risk?",
-        helper: "This helps surface governance weight that may have outgrown the problem it was originally designed to control.",
-        branch: "governance",
-        options: [
-          "Rarely",
-          "Sometimes",
-          "Often"
-        ]
-      },
-
-      meetings_per_week: {
-        id: "meetings_per_week",
-        type: "number",
-        label: "Roughly how many meetings per week are spent resolving this structural issue?",
-        helper: "Optional, but useful for directional exposure estimates.",
-        branch: "impact"
-      },
-
-      hourly_cost: {
-        id: "hourly_cost",
-        type: "number",
-        label: "What is the approximate hourly cost of the people repeatedly doing the work?",
-        helper: "Optional. Use the approximate hourly cost for the people directly performing or repeatedly handling the work in question.",
-        branch: "impact"
-      },
-
-      people_affected: {
-        id: "people_affected",
-        type: "number",
-        label: "How many people are regularly affected by this issue?",
-        helper: "Optional. Use the recurring population, not the maximum theoretical scope.",
-        branch: "impact"
-      },
-
-      issues_per_month: {
-        id: "issues_per_month",
-        type: "number",
-        label: "How many recurring incidents or flare-ups happen in a typical month?",
-        helper: "Optional. This helps size the likely recurring burden more realistically.",
-        branch: "impact"
-      },
-
       privacy_confirm: {
         id: "privacy_confirm",
         type: "dropdown",
         label: "Before we generate the readout, do you confirm you have not included sensitive or regulated information?",
-        helper: "Monderman does not store the diagnostic beyond what is required to generate the immediate readout. Do not include classified, proprietary, regulated, or personally sensitive information.",
+        helper: "Do not include classified, proprietary, regulated, or personally sensitive information.",
         branch: "privacy",
-        options: [
-          "I confirm",
-          "I need to revise my answers"
-        ]
+        required: true,
+        options: ["I confirm", "I need to revise my answers"]
       },
 
       final_submit: {
@@ -2137,7 +2134,59 @@
         type: "summary",
         label: "Ready to generate the structural clarity readout?",
         helper: "The diagnostic now has enough context to compute the score and assemble the executive-facing output.",
-        branch: "complete"
+        branch: "complete",
+        required: true
+      }
+    };
+
+    const PATH_DEFS = {
+      "Decision-making": {
+        cluster1: ["focus_area", "structure_type", "decision_rights"],
+        cluster2: ["escalation_path", "informal_influence", "leader_dependence"],
+        cluster3: ["scope_size", "change_pace", "issue_description"],
+        cluster4: ["meetings_per_week", "people_affected", "hourly_cost"],
+        cluster5: ["issues_per_month", "privacy_confirm"],
+        final: ["final_submit"]
+      },
+      "Cross-functional coordination": {
+        cluster1: ["focus_area", "structure_type", "handoff_ambiguity"],
+        cluster2: ["role_overlap", "accountability_diffusion", "conflict_frequency"],
+        cluster3: ["scope_size", "change_pace", "issue_description"],
+        cluster4: ["meetings_per_week", "people_affected", "risk_types"],
+        cluster5: ["issues_per_month", "privacy_confirm"],
+        final: ["final_submit"]
+      },
+      "Ownership and accountability confusion": {
+        cluster1: ["focus_area", "structure_type", "owner_defined"],
+        cluster2: ["owner_consistency", "duplicate_ownership", "orphaned_work"],
+        cluster3: ["accountability_diffusion", "conflict_frequency", "issue_description"],
+        cluster4: ["scope_size", "change_pace", "people_affected"],
+        cluster5: ["issues_per_month", "privacy_confirm"],
+        final: ["final_submit"]
+      },
+      "Approvals or governance burden": {
+        cluster1: ["focus_area", "structure_type", "governance_weight"],
+        cluster2: ["decision_rights", "escalation_path", "informal_influence"],
+        cluster3: ["scope_size", "change_pace", "issue_description"],
+        cluster4: ["meetings_per_week", "people_affected", "hourly_cost"],
+        cluster5: ["issues_per_month", "risk_types", "privacy_confirm"],
+        final: ["final_submit"]
+      },
+      "Handoffs between teams": {
+        cluster1: ["focus_area", "structure_type", "handoff_ambiguity"],
+        cluster2: ["orphaned_work", "role_overlap", "accountability_diffusion"],
+        cluster3: ["conflict_frequency", "scope_size", "change_pace"],
+        cluster4: ["issue_description", "meetings_per_week", "people_affected"],
+        cluster5: ["issues_per_month", "privacy_confirm"],
+        final: ["final_submit"]
+      },
+      "Other": {
+        cluster1: ["focus_area", "structure_type", "issue_description"],
+        cluster2: ["owner_defined", "decision_rights", "handoff_ambiguity"],
+        cluster3: ["accountability_diffusion", "scope_size", "change_pace"],
+        cluster4: ["people_affected", "issues_per_month", "risk_types"],
+        cluster5: ["privacy_confirm"],
+        final: ["final_submit"]
       }
     };
 
@@ -2387,11 +2436,7 @@
       const annualCost = Math.round(annualHours * rate);
       const capacityDrag = clampValue((severityFactor * 32) + (people > 0 ? Math.min(10, people / 10) : 0), 6, 38);
 
-      return {
-        annualHours,
-        annualCost,
-        capacityDrag
-      };
+      return { annualHours, annualCost, capacityDrag };
     }
 
     function buildNarrativePromptPayload(apiResponse, contextMeta) {
@@ -2432,18 +2477,9 @@
         benchmark: {
           structure_label: benchmark.label,
           benchmark_position: benchmarkPosition,
-          healthy_range: {
-            min: benchmark.healthyMin,
-            max: benchmark.healthyMax
-          },
-          moderate_range: {
-            min: benchmark.moderateMin,
-            max: benchmark.moderateMax
-          },
-          friction_range: {
-            min: benchmark.frictionMin,
-            max: benchmark.frictionMax
-          }
+          healthy_range: { min: benchmark.healthyMin, max: benchmark.healthyMax },
+          moderate_range: { min: benchmark.moderateMin, max: benchmark.moderateMax },
+          friction_range: { min: benchmark.frictionMin, max: benchmark.frictionMax }
         },
         exposure_estimates: {
           annual_hours: exposure.annualHours,
@@ -2485,14 +2521,6 @@
       }
     }
 
-    async function callSurveyNext(diagnostic, currentNodeId, answersPayload) {
-      return postJson(`${API_BASE}${SURVEY_NEXT_API_PATH}`, {
-        diagnostic,
-        currentNode: currentNodeId,
-        answers: answersPayload
-      }, 25000);
-    }
-
     async function callStructuralClarityApi(payload) {
       return postJson(`${API_BASE}${STRUCTURAL_CLARITY_API_PATH}`, payload, 30000);
     }
@@ -2501,85 +2529,76 @@
       return postJson(`${API_BASE}${STRUCTURAL_CLARITY_NARRATIVE_API_PATH}`, payload, 35000);
     }
 
-    function fallbackNextNode(currentNodeId, answerMap) {
-      const pathHint = answerMap.entry_problem || "";
-      const route = {
-        "Decision-making": ["focus_area", "structure_type", "scope_size", "change_pace", "issue_description", "decision_rights", "escalation_path", "informal_influence", "leader_dependence", "meetings_per_week", "people_affected", "issues_per_month", "privacy_confirm", "final_submit"],
-        "Cross-functional coordination": ["focus_area", "structure_type", "scope_size", "change_pace", "issue_description", "handoff_ambiguity", "role_overlap", "accountability_diffusion", "conflict_frequency", "meetings_per_week", "people_affected", "issues_per_month", "privacy_confirm", "final_submit"],
-        "Ownership and accountability confusion": ["focus_area", "structure_type", "scope_size", "change_pace", "issue_description", "owner_defined", "owner_consistency", "duplicate_ownership", "orphaned_work", "accountability_diffusion", "conflict_frequency", "people_affected", "issues_per_month", "privacy_confirm", "final_submit"],
-        "Approvals or governance burden": ["focus_area", "structure_type", "scope_size", "change_pace", "issue_description", "governance_weight", "decision_rights", "escalation_path", "informal_influence", "meetings_per_week", "hourly_cost", "people_affected", "issues_per_month", "privacy_confirm", "final_submit"],
-        "Handoffs between teams": ["focus_area", "structure_type", "scope_size", "change_pace", "issue_description", "handoff_ambiguity", "orphaned_work", "role_overlap", "accountability_diffusion", "meetings_per_week", "people_affected", "issues_per_month", "privacy_confirm", "final_submit"],
-        "Other": ["focus_area", "structure_type", "scope_size", "change_pace", "issue_description", "owner_defined", "decision_rights", "handoff_ambiguity", "accountability_diffusion", "meetings_per_week", "people_affected", "issues_per_month", "privacy_confirm", "final_submit"]
-      };
-
-      if (currentNodeId === "start") {
-        return { next_node: STATIC_NODE_LIBRARY.entry_problem, branch: "intake", summary: "Opening structural clarity intake." };
-      }
-
-      if (currentNodeId === "entry_problem") {
-        const first = route[pathHint] || route["Other"];
-        return { next_node: STATIC_NODE_LIBRARY[first[0]], branch: "context", summary: "Routing into structural context." };
-      }
-
-      const selectedPath = route[pathHint] || route["Other"];
-      const index = selectedPath.indexOf(currentNodeId);
-
-      if (index === -1) {
-        return { next_node: STATIC_NODE_LIBRARY.final_submit, branch: "complete", summary: "Fallback completion node." };
-      }
-
-      const nextId = selectedPath[index + 1];
-      if (!nextId) {
-        return { next_node: STATIC_NODE_LIBRARY.final_submit, branch: "complete", summary: "Ready to generate the readout." };
-      }
-
-      return {
-        next_node: STATIC_NODE_LIBRARY[nextId],
-        branch: STATIC_NODE_LIBRARY[nextId].branch || "intake",
-        summary: `Routing to ${nextId}.`
-      };
+    function getPathDef() {
+      return PATH_DEFS[pathState.focus] || PATH_DEFS["Other"];
     }
 
-    function normalizeSurveyNode(node) {
-      if (!node) return null;
+    function getClustersForFocus(focus) {
+      return PATH_DEFS[focus] || PATH_DEFS["Other"];
+    }
 
-      const normalized = {
-        id: node.id,
-        type: node.type,
-        label: node.label,
-        options: Array.isArray(node.options) ? node.options : [],
-        branch: node.branch || currentBranch || "intake",
-        helper: node.helper || ""
-      };
+    function getNodeDef(nodeId) {
+      return NODE_LIBRARY[nodeId];
+    }
 
-      if (!STATIC_NODE_LIBRARY[normalized.id] && STATIC_NODE_LIBRARY[normalized.id]) {
-        normalized.helper = STATIC_NODE_LIBRARY[normalized.id].helper || "";
-      }
-
-      if (STATIC_NODE_LIBRARY[normalized.id]) {
-        normalized.helper = STATIC_NODE_LIBRARY[normalized.id].helper || normalized.helper;
-        normalized.branch = STATIC_NODE_LIBRARY[normalized.id].branch || normalized.branch;
-        if (!normalized.options.length && STATIC_NODE_LIBRARY[normalized.id].options) {
-          normalized.options = STATIC_NODE_LIBRARY[normalized.id].options.slice();
-        }
-        if (!normalized.type) normalized.type = STATIC_NODE_LIBRARY[normalized.id].type;
-      }
-
-      return normalized;
+    function isClusterComplete(nodeIds) {
+      return nodeIds.every(id => {
+        const node = getNodeDef(id);
+        const value = answers[id];
+        if (!node) return true;
+        if (node.required === false) return true;
+        if (node.type === "multi_select") return Array.isArray(value);
+        return normalizeText(value) !== "";
+      });
     }
 
     function updateProgressLabel() {
-      diagnosticProgress.textContent = `Question ${Math.max(nodeStack.length, 1)}`;
+      const answered = Object.keys(answers).filter(key => {
+        const node = getNodeDef(key);
+        if (!node) return false;
+        if (node.type === "multi_select") return Array.isArray(answers[key]);
+        return normalizeText(answers[key]) !== "";
+      }).length;
+
+      diagnosticProgress.textContent = `${answered} response${answered === 1 ? "" : "s"} captured`;
     }
 
-    function showConnectorPulse() {
-      nodeConnector.classList.remove("visible");
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          nodeConnector.classList.add("visible");
-          window.setTimeout(() => nodeConnector.classList.remove("visible"), 360);
-        });
-      });
+    function buildAnswerPreview(value) {
+      if (Array.isArray(value)) return value.join(", ");
+      if (value === "") return "Skipped";
+      return String(value);
+    }
+
+    function buildNodeCard(nodeId, clusterIndex) {
+      const node = getNodeDef(nodeId);
+      const card = document.createElement("div");
+      card.className = "node-card entering";
+      card.dataset.nodeId = node.id;
+      card.dataset.clusterIndex = String(clusterIndex);
+
+      const clusterLabelMap = {
+        intake: "Intake",
+        context: "Context",
+        ownership: "Ownership",
+        authority: "Authority",
+        boundaries: "Boundaries",
+        governance: "Governance",
+        impact: "Impact",
+        privacy: "Privacy",
+        complete: "Ready"
+      };
+
+      card.innerHTML = `
+        <div class="node-topline">
+          <p class="node-step">${clusterIndex === 0 ? "Opening question" : "Follow-up"}</p>
+          <span class="node-branch">${clusterLabelMap[node.branch] || "Diagnostic"}</span>
+        </div>
+        <h3 class="node-question">${node.label}</h3>
+        <p class="node-helper">${node.helper || ""}</p>
+      `;
+
+      card.appendChild(createInputForNode(node));
+      return card;
     }
 
     function createInputForNode(node) {
@@ -2604,33 +2623,28 @@
           select.appendChild(opt);
         });
 
-        wrap.appendChild(select);
-
         const actionRow = document.createElement("div");
         actionRow.className = "node-inline-actions";
-
         const nextBtn = document.createElement("button");
         nextBtn.type = "button";
         nextBtn.className = "btn btn-accent";
-        nextBtn.textContent = "Continue";
+        nextBtn.textContent = node.id === "privacy_confirm" ? "Confirm and Continue" : "Continue";
 
         nextBtn.addEventListener("click", async () => {
           const value = normalizeText(select.value);
-          if (!value) {
-            select.reportValidity?.();
-            return;
-          }
-          await handleAnswer(node, value);
+          if (!value) return;
+          await handleNodeAnswer(node.id, value);
         });
 
         select.addEventListener("keydown", async (e) => {
           if (e.key === "Enter") {
             e.preventDefault();
             const value = normalizeText(select.value);
-            if (value) await handleAnswer(node, value);
+            if (value) await handleNodeAnswer(node.id, value);
           }
         });
 
+        wrap.appendChild(select);
         actionRow.appendChild(nextBtn);
         wrap.appendChild(actionRow);
       }
@@ -2642,11 +2656,9 @@
         input.id = `input-${node.id}`;
         input.placeholder = "Type your answer";
         input.value = answers[node.id] || "";
-        wrap.appendChild(input);
 
         const actionRow = document.createElement("div");
         actionRow.className = "node-inline-actions";
-
         const nextBtn = document.createElement("button");
         nextBtn.type = "button";
         nextBtn.className = "btn btn-accent";
@@ -2655,17 +2667,18 @@
         nextBtn.addEventListener("click", async () => {
           const value = normalizeText(input.value);
           if (!value) return;
-          await handleAnswer(node, value);
+          await handleNodeAnswer(node.id, value);
         });
 
         input.addEventListener("keydown", async (e) => {
           if (e.key === "Enter") {
             e.preventDefault();
             const value = normalizeText(input.value);
-            if (value) await handleAnswer(node, value);
+            if (value) await handleNodeAnswer(node.id, value);
           }
         });
 
+        wrap.appendChild(input);
         actionRow.appendChild(nextBtn);
         wrap.appendChild(actionRow);
       }
@@ -2676,11 +2689,9 @@
         textarea.id = `input-${node.id}`;
         textarea.placeholder = "Describe the issue";
         textarea.value = answers[node.id] || "";
-        wrap.appendChild(textarea);
 
         const actionRow = document.createElement("div");
         actionRow.className = "node-inline-actions";
-
         const nextBtn = document.createElement("button");
         nextBtn.type = "button";
         nextBtn.className = "btn btn-accent";
@@ -2689,9 +2700,10 @@
         nextBtn.addEventListener("click", async () => {
           const value = normalizeText(textarea.value);
           if (!value) return;
-          await handleAnswer(node, value);
+          await handleNodeAnswer(node.id, value);
         });
 
+        wrap.appendChild(textarea);
         actionRow.appendChild(nextBtn);
         wrap.appendChild(actionRow);
       }
@@ -2705,7 +2717,6 @@
         input.id = `input-${node.id}`;
         input.placeholder = "Optional";
         input.value = answers[node.id] || "";
-        wrap.appendChild(input);
 
         const actionRow = document.createElement("div");
         actionRow.className = "node-inline-actions";
@@ -2721,14 +2732,14 @@
         nextBtn.textContent = "Continue";
 
         skipBtn.addEventListener("click", async () => {
-          await handleAnswer(node, "");
+          await handleNodeAnswer(node.id, "");
         });
 
         nextBtn.addEventListener("click", async () => {
-          const value = normalizeText(input.value);
-          await handleAnswer(node, value);
+          await handleNodeAnswer(node.id, normalizeText(input.value));
         });
 
+        wrap.appendChild(input);
         actionRow.appendChild(skipBtn);
         actionRow.appendChild(nextBtn);
         wrap.appendChild(actionRow);
@@ -2737,7 +2748,6 @@
       if (node.type === "multi_select") {
         const chipGroup = document.createElement("div");
         chipGroup.className = "chip-group";
-
         const current = Array.isArray(answers[node.id]) ? answers[node.id] : [];
 
         node.options.forEach((option, index) => {
@@ -2758,11 +2768,8 @@
           chipGroup.appendChild(label);
         });
 
-        wrap.appendChild(chipGroup);
-
         const actionRow = document.createElement("div");
         actionRow.className = "node-inline-actions";
-
         const nextBtn = document.createElement("button");
         nextBtn.type = "button";
         nextBtn.className = "btn btn-accent";
@@ -2770,9 +2777,10 @@
 
         nextBtn.addEventListener("click", async () => {
           const selected = Array.from(chipGroup.querySelectorAll('input[type="checkbox"]:checked')).map(el => el.value);
-          await handleAnswer(node, selected);
+          await handleNodeAnswer(node.id, selected);
         });
 
+        wrap.appendChild(chipGroup);
         actionRow.appendChild(nextBtn);
         wrap.appendChild(actionRow);
       }
@@ -2786,21 +2794,19 @@
         summaryBox.style.fontSize = "0.9rem";
         summaryBox.style.lineHeight = "1.58";
         summaryBox.style.color = "var(--muted-dark)";
-        summaryBox.textContent = "The diagnostic has enough information to compute the score and generate the executive-facing output.";
-        wrap.appendChild(summaryBox);
+        summaryBox.textContent = "The diagnostic now has enough context to compute the score and generate the executive-facing output.";
 
         const actionRow = document.createElement("div");
         actionRow.className = "node-inline-actions";
-
         const nextBtn = document.createElement("button");
         nextBtn.type = "button";
         nextBtn.className = "btn btn-accent";
         nextBtn.textContent = "Generate Structural Clarity Readout";
-
         nextBtn.addEventListener("click", async () => {
           await finalizeDiagnostic();
         });
 
+        wrap.appendChild(summaryBox);
         actionRow.appendChild(nextBtn);
         wrap.appendChild(actionRow);
       }
@@ -2808,164 +2814,173 @@
       return wrap;
     }
 
-    function buildNodeCard(node) {
-      const card = document.createElement("div");
-      card.className = "node-card entering";
-      card.dataset.nodeId = node.id;
+    function lockNode(nodeId) {
+      const card = nodeShell.querySelector(`.node-card[data-node-id="${nodeId}"]`);
+      if (!card) return;
+      card.classList.add("locked");
 
-      const branchLabelMap = {
-        intake: "Intake",
-        context: "Context",
-        ownership: "Ownership",
-        authority: "Authority",
-        boundaries: "Boundaries",
-        governance: "Governance",
-        impact: "Impact",
-        privacy: "Privacy",
-        complete: "Ready"
-      };
+      const existingPreview = card.querySelector(".node-answer-preview");
+      if (existingPreview) existingPreview.remove();
 
-      card.innerHTML = `
-        <div class="node-topline">
-          <p class="node-step">Question ${Math.max(nodeStack.length + 1, 1)}</p>
-          <span class="node-branch">${branchLabelMap[node.branch] || "Diagnostic"}</span>
-        </div>
-        <h3 class="node-question">${node.label}</h3>
-        <p class="node-helper">${node.helper || ""}</p>
-      `;
+      const preview = document.createElement("p");
+      preview.className = "node-answer-preview";
+      preview.textContent = `Recorded: ${buildAnswerPreview(answers[nodeId])}`;
+      card.appendChild(preview);
 
-      card.appendChild(createInputForNode(node));
-      return card;
+      const buttons = card.querySelectorAll("button");
+      const fields = card.querySelectorAll("input, select, textarea");
+      buttons.forEach(btn => btn.disabled = true);
+      fields.forEach(field => field.disabled = true);
     }
 
-    function renderNode(node, animate = true) {
-      clearError();
-      currentNode = node;
-      currentBranch = node.branch || "intake";
-      updateProgressLabel();
+    function insertDivider() {
+      const divider = document.createElement("div");
+      divider.className = "cluster-divider";
+      nodeShell.appendChild(divider);
+    }
 
-      const nextCard = buildNodeCard(node);
-      nodeShell.appendChild(nextCard);
+    function renderCluster(nodeIds, clusterIndex) {
+      const cluster = document.createElement("div");
+      cluster.className = "stack-cluster" + (nodeIds.length > 1 ? " multi" : "");
+      cluster.dataset.clusterIndex = String(clusterIndex);
 
-      requestAnimationFrame(() => {
-        nextCard.classList.remove("entering");
-        nextCard.classList.add("active");
+      nodeIds.forEach(nodeId => {
+        const card = buildNodeCard(nodeId, clusterIndex);
+        cluster.appendChild(card);
+        requestAnimationFrame(() => {
+          card.classList.remove("entering");
+          card.classList.add("active");
+        });
       });
 
-      if (activeCard && animate) {
-        activeCard.classList.remove("active");
-        activeCard.classList.add("exiting");
-        window.setTimeout(() => {
-          activeCard?.remove();
-        }, 320);
-      } else if (activeCard && !animate) {
-        activeCard.remove();
-      }
+      if (clusterIndex > 0) insertDivider();
+      nodeShell.appendChild(cluster);
+      pathState.renderedClusters.push(clusterIndex);
 
-      activeCard = nextCard;
-
-      const focusable = nextCard.querySelector("select, input, textarea, button");
-      if (focusable) {
-        window.setTimeout(() => focusable.focus(), 120);
+      const firstFocusable = cluster.querySelector("select, input, textarea, button");
+      if (firstFocusable) {
+        window.setTimeout(() => firstFocusable.focus(), 120);
       }
     }
 
-    async function requestNextNode(currentNodeId) {
-      try {
-        const response = await callSurveyNext("structural_clarity", currentNodeId, answers);
-        surveyRoutingHealthy = true;
-        return normalizeSurveyNode({
-          ...response.result.next_node,
-          branch: response.result.branch || response.result.next_node.branch
-        });
-      } catch (error) {
-        surveyRoutingHealthy = false;
-        const fallback = fallbackNextNode(currentNodeId, answers);
-        return normalizeSurveyNode({
-          ...fallback.next_node,
-          branch: fallback.branch
-        });
-      }
+    function renderInitialFlow() {
+      nodeShell.innerHTML = "";
+      pathState.renderedClusters = [];
+      renderCluster(["entry_problem"], 0);
+      updateProgressLabel();
     }
 
-    async function handleAnswer(node, value) {
+    function advanceIfClusterComplete() {
+      const pathDef = getPathDef();
+      const clusterKeys = Object.keys(pathDef);
+      const renderedCount = pathState.renderedClusters.length;
+
+      const currentClusterKey = clusterKeys[renderedCount - 1];
+      const currentClusterNodeIds = pathDef[currentClusterKey] || [];
+
+      if (!isClusterComplete(currentClusterNodeIds)) return;
+
+      const nextClusterKey = clusterKeys[renderedCount];
+      if (!nextClusterKey) return;
+
+      const nextNodeIds = pathDef[nextClusterKey];
+      renderCluster(nextNodeIds, renderedCount);
+      updateProgressLabel();
+    }
+
+    async function handleNodeAnswer(nodeId, value) {
       clearError();
 
-      if (node.id === "privacy_confirm" && value === "I need to revise my answers") {
+      if (nodeId === "privacy_confirm" && value === "I need to revise my answers") {
         setError("Please revise your answers before generating the readout.");
         return;
       }
 
-      answers[node.id] = value;
-      nodeCount += 1;
-      nodeStack.push({
-        node,
-        value
-      });
+      answers[nodeId] = value;
+      lockNode(nodeId);
 
-      showConnectorPulse();
-
-      const nextNode = await requestNextNode(node.id);
-
-      if (!nextNode || nextNode.id === "final_submit" || nextNode.type === "summary") {
-        renderNode(normalizeSurveyNode(STATIC_NODE_LIBRARY.final_submit));
-        return;
+      if (nodeId === "entry_problem") {
+        pathState.focus = value || "Other";
       }
 
-      renderNode(nextNode);
+      clusterHistory.push(JSON.parse(JSON.stringify({
+        answers,
+        focus: pathState.focus,
+        renderedClusters: [...pathState.renderedClusters]
+      })));
+
+      advanceIfClusterComplete();
+      updateProgressLabel();
     }
 
     function goBack() {
       clearError();
 
-      if (!nodeStack.length) {
-        showPanel("entry");
+      if (!clusterHistory.length) {
+        resetExperience();
         return;
       }
 
-      nodeStack.pop();
-      answers = {};
-      nodeStack.forEach(item => {
-        answers[item.node.id] = item.value;
-      });
+      clusterHistory.pop();
 
-      if (!nodeStack.length) {
-        currentNode = null;
-        activeCard?.remove();
-        activeCard = null;
-        updateProgressLabel();
-        showPanel("entry");
+      if (!clusterHistory.length) {
+        resetExperience();
         return;
       }
 
-      const previous = nodeStack[nodeStack.length - 1].node;
-      nodeStack.pop();
-      answers = {};
-      nodeStack.forEach(item => {
-        answers[item.node.id] = item.value;
+      const snapshot = clusterHistory[clusterHistory.length - 1];
+      answers = JSON.parse(JSON.stringify(snapshot.answers || {}));
+      pathState.focus = snapshot.focus || null;
+      pathState.renderedClusters = [];
+
+      const pathDef = getPathDef();
+      nodeShell.innerHTML = "";
+
+      const clusterKeys = Object.keys(pathDef);
+      const clustersToRender = snapshot.renderedClusters || [];
+
+      clustersToRender.forEach((clusterIndex) => {
+        const key = clusterKeys[clusterIndex];
+        if (!key) return;
+        const nodeIds = pathDef[key];
+        renderCluster(nodeIds, clusterIndex);
+
+        nodeIds.forEach(nodeId => {
+          if (answers[nodeId] !== undefined && answers[nodeId] !== null && !(Array.isArray(answers[nodeId]) && answers[nodeId].length === 0) && !(answers[nodeId] === "" && getNodeDef(nodeId).required)) {
+            lockNode(nodeId);
+          }
+        });
       });
 
-      renderNode(previous, false);
+      // re-open last unanswered node in last rendered cluster
+      const lastCluster = nodeShell.querySelector('.stack-cluster:last-of-type');
+      if (lastCluster) {
+        const cards = Array.from(lastCluster.querySelectorAll('.node-card'));
+        const openCard = cards.find(card => !card.classList.contains('locked'));
+        if (openCard) {
+          const focusable = openCard.querySelector("select, input, textarea, button");
+          if (focusable) window.setTimeout(() => focusable.focus(), 120);
+        }
+      }
+
       updateProgressLabel();
+      showPanel("diagnostic");
     }
 
     function resetExperience() {
       answers = {};
-      nodeStack = [];
-      nodeCount = 0;
+      pathState = { focus: null, renderedClusters: [], stage: 0 };
+      clusterHistory = [];
       latestNarrative = null;
       latestApiResponse = null;
       latestContextMeta = {};
       latestExposure = null;
-      currentNode = null;
-      currentBranch = "intake";
-      activeCard?.remove();
-      activeCard = null;
       if (dimensionsChart) { dimensionsChart.destroy(); dimensionsChart = null; }
       if (synthesisChart) { synthesisChart.destroy(); synthesisChart = null; }
       clearError();
       setLoadingState(false);
-      showPanel("entry");
+      renderInitialFlow();
+      showPanel("diagnostic");
     }
 
     function saveForSynthesis(apiResponse, meta = {}) {
@@ -3045,34 +3060,21 @@
               bodyColor: "rgba(245,247,250,0.88)",
               padding: 12,
               displayColors: false,
-              callbacks: {
-                label: (ctx) => `Score: ${ctx.raw}`
-              }
+              callbacks: { label: (ctx) => `Score: ${ctx.raw}` }
             }
           },
           scales: {
             x: {
               beginAtZero: true,
               max: 100,
-              grid: {
-                color: "rgba(21,32,43,0.06)",
-                drawBorder: false
-              },
+              grid: { color: "rgba(21,32,43,0.06)", drawBorder: false },
               border: { display: false },
-              ticks: {
-                color: "#6B7785",
-                precision: 0,
-                padding: 8
-              }
+              ticks: { color: "#6B7785", precision: 0, padding: 8 }
             },
             y: {
               grid: { display: false },
               border: { display: false },
-              ticks: {
-                color: "#44515E",
-                font: { size: 12, weight: "500" },
-                padding: 10
-              }
+              ticks: { color: "#44515E", font: { size: 12, weight: "500" }, padding: 10 }
             }
           }
         }
@@ -3124,20 +3126,12 @@
             x: {
               grid: { display: false },
               border: { display: false },
-              ticks: {
-                color: "#44515E",
-                font: { size: 11, weight: "500" },
-                maxRotation: 18,
-                minRotation: 18
-              }
+              ticks: { color: "#44515E", font: { size: 11, weight: "500" }, maxRotation: 18, minRotation: 18 }
             },
             y: {
               beginAtZero: true,
               max: 100,
-              grid: {
-                color: "rgba(21,32,43,0.06)",
-                drawBorder: false
-              },
+              grid: { color: "rgba(21,32,43,0.06)", drawBorder: false },
               border: { display: false },
               ticks: {
                 color: "#6B7785",
@@ -3284,15 +3278,8 @@
     }
 
     function startDiagnostic() {
-      clearError();
       showPanel("diagnostic");
-      answers = {};
-      nodeStack = [];
-      nodeCount = 0;
-      activeCard?.remove();
-      activeCard = null;
-      renderNode(normalizeSurveyNode(STATIC_NODE_LIBRARY.entry_problem), false);
-      updateProgressLabel();
+      resetExperience();
     }
 
     function generateExecutiveSummaryPdf() {
@@ -3305,7 +3292,6 @@
       const headline = result.headline || {};
       const benchmark = BENCHMARKS[latestContextMeta.structureType] || BENCHMARKS.other;
       const benchmarkPosition = getBenchmarkPosition(headline.index || 0, benchmark);
-      const statusLine = getStatusLine(Number(headline.index || 0));
 
       const executiveSignalText =
         latestNarrative?.dashboard_executive_signal ||
@@ -3512,5 +3498,6 @@
 
     resetExperience();
   </script>
+
 </body>
 </html>
