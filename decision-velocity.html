@@ -60,6 +60,11 @@
     .impact-chip{display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:26px;padding:0 10px;border-radius:999px;font-size:.78rem;font-weight:700}
     .impact-0{background:#EEF2F6;color:#6E7A86}.impact-1,.impact-2{background:rgba(212,185,110,.18);color:#7A6528}.impact-3{background:rgba(212,148,89,.18);color:#8B6033}.impact-4,.impact-5{background:rgba(198,108,116,.18);color:#8C4D56}
     .advisory-card{display:grid;gap:12px;padding:20px;border-radius:20px;border:1px solid rgba(63,110,161,.14);background:linear-gradient(180deg, rgba(63,110,161,.06) 0%, rgba(63,110,161,.03) 100%)}.results-disclaimer{padding:16px 18px;border-radius:16px;background:#F8FAFC;border:1px solid rgba(21,32,43,.08);font-size:.88rem;line-height:1.6;color:var(--ink-soft)}
+    .report-header{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:end;background:#FFF;border:1px solid rgba(21,32,43,.08);border-radius:20px;box-shadow:var(--shadow-sm);padding:22px 20px}.report-brand{margin:0 0 6px;font-size:.76rem;letter-spacing:.28em;font-weight:700;color:var(--ink-muted)}.report-title{margin:0;font-size:1.9rem;line-height:1.02;letter-spacing:-.04em}.report-subtitle{margin:8px 0 0;max-width:62ch;color:var(--ink-soft);font-size:.95rem;line-height:1.6}.report-meta{display:grid;gap:10px;min-width:240px}.report-meta div{padding:10px 12px;border:1px solid rgba(21,32,43,.08);border-radius:14px;background:var(--panel-soft)}.report-meta span{display:block;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;margin-bottom:4px}.report-meta strong{font-size:.92rem;line-height:1.35;color:var(--ink)}
+    .intro-consent{margin-top:14px}
+    .compact-list{gap:10px}
+    .quadrant-wrap{display:grid;gap:12px}.quadrant-grid{position:relative;height:280px;border:1px solid rgba(21,32,43,.10);border-radius:20px;background:linear-gradient(180deg,#FBFCFE 0%,#F7FAFD 100%);overflow:hidden}.quadrant-grid::before,.quadrant-grid::after{content:"";position:absolute;background:rgba(21,32,43,.12)}.quadrant-grid::before{left:50%;top:0;bottom:0;width:1px;transform:translateX(-50%)}.quadrant-grid::after{top:50%;left:0;right:0;height:1px;transform:translateY(-50%)}.quad-label{position:absolute;font-size:.8rem;font-weight:700;color:var(--ink-muted);letter-spacing:.02em}.quad-tl{left:14px;top:14px}.quad-tr{right:14px;top:14px}.quad-bl{left:14px;bottom:18px}.quad-br{right:14px;bottom:18px}.axis-label{position:absolute;font-size:.76rem;font-weight:700;color:var(--ink-muted);letter-spacing:.14em;text-transform:uppercase}.axis-x{bottom:10px;left:50%;transform:translateX(-50%)}.axis-y{left:10px;top:50%;transform:translateY(-50%) rotate(-90deg);transform-origin:left top}.quadrant-marker{position:absolute;width:18px;height:18px;border-radius:999px;background:var(--accent);border:3px solid #fff;box-shadow:0 10px 18px rgba(15,23,32,.18);left:50%;top:50%;transform:translate(-50%,-50%)}.quadrant-caption{font-size:.88rem;line-height:1.6;color:var(--ink-soft)}
+    @media print{body{background:#fff}.frame-top,.env-head,.env-foot,.advisory-card .actions,.loading-screen,#introStage,#questionStage,#processingStage{display:none !important}.shell,.app,.environment,.environment-inner{display:block;min-height:auto;padding:0;margin:0;width:100%;box-shadow:none;border:none;background:#fff}.environment::before{display:none}.results-layout{display:block;gap:0}.report-header,.score-panel,.summary-grid,.visual-grid,.text-grid,.chart-grid,.table-grid,.insight-grid,.advisory-card,.results-disclaimer{break-inside:avoid;page-break-inside:avoid;margin:0 0 18px 0}.report-header{border:none;border-bottom:2px solid #D8E0EA;border-radius:0;padding:0 0 14px 0;box-shadow:none}.score-panel,.summary-card,.visual-card,.result-card,.chart-card,.table-card,.advisory-card,.results-disclaimer{box-shadow:none;border-color:#D7DEE8}.score-panel{background:#fff !important;color:#15202B;border:1px solid #D7DEE8}.score-panel::before{display:none}.score-kicker{color:#5B6774}.score-band,.score-summary{color:#334155}.score-badge{background:#F5F8FB;border-color:#D7DEE8;color:#15202B}.summary-grid,.visual-grid,.text-grid,.chart-grid,.table-grid,.insight-grid{display:grid;grid-template-columns:1fr 1fr !important}.results-disclaimer{font-size:.8rem}.btn{display:none !important}}
     @media (max-width:1080px){.intro-layout,.score-inner,.summary-grid,.text-grid,.chart-grid,.insight-grid,.visual-grid{grid-template-columns:1fr}.summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.branch-grid{grid-template-columns:1fr}.branch-grid::before{left:50%;right:50%}.environment,.environment-inner{min-height:unset}.stack-row,.heat-row,.ladder-item{grid-template-columns:1fr}.heat-row{gap:6px}}
     @media (max-width:760px){.shell{padding:26px 14px 34px}.env-head,.stage,.env-foot,.question-card{padding-left:18px;padding-right:18px}.summary-grid{grid-template-columns:1fr}.tool-title h1{font-size:2.35rem}.question-card{min-height:340px}.actions{align-items:stretch}.actions-left,.actions-right{width:100%}.actions-left .btn,.actions-right .btn{flex:1}.rating-row,.scale-head{grid-template-columns:minmax(0,1fr) repeat(6,36px)}}
   </style>
@@ -93,17 +98,18 @@
                   <div class="notice"><strong>Notice</strong><div class="tiny" id="openingNotice"></div></div>
                   <div class="notice"><strong>What to expect</strong><div class="tiny">This run is intentionally more detailed than a light survey. The pathway adjusts based on your answers, and some responses open additional question tiles so the Monderman engine has enough signal to generate a more useful readout.</div></div>
                 </div>
-                <div class="gentle-note tiny">Output quality depends on the quality and quantity of the information you provide. Some pathways require a bit more detail so the Monderman engine can generate a more precise and useful readout. Brief patience here improves the value of the output.</div>
-                <div class="actions" style="margin-top:22px;justify-content:flex-start;"><div class="actions-left"><button class="btn btn-accent" id="beginBtn" type="button">Begin diagnostic</button><a class="btn" href="diagnostic-tools.html">Return to hub</a></div></div>
+                <div class="gentle-note tiny">Output quality depends on the quality and quantity of the information you provide. Some pathways benefit from a bit more detail so the Monderman engine can produce a sharper and more decision-useful readout. A little patience here usually improves the quality of the output.</div>
+                <div class="checkbox-card intro-consent"><div class="checkbox-row"><input id="inputResponsibility" type="checkbox" /><label for="inputResponsibility">I agree not to enter classified, export-controlled, sensitive, proprietary, personally identifiable, protected health, or otherwise restricted information into this tool. I understand that I am solely responsible for the information I submit.</label></div></div>
+                <div class="actions" style="margin-top:22px;justify-content:flex-start;"><div class="actions-left"><button class="btn btn-accent" id="beginBtn" type="button" disabled>Begin diagnostic</button><a class="btn" href="diagnostic-tools.html">Return to hub</a></div></div>
               </div>
               <aside class="card soft">
                 <h3>What this tool is built to detect</h3>
                 <ul>
-                  <li>Approval layering and sequential gatekeeping</li>
-                  <li>Hidden coordination work and handoff burden</li>
-                  <li>Escalation dependence and decision-rights ambiguity</li>
-                  <li>Key-person brittleness and unstable pathways</li>
-                  <li>Peer-relative benchmark context by industry and operating environment</li>
+                  <li>Review layering and overbuilt approval paths</li>
+                  <li>Invisible coordination load and routing drag</li>
+                  <li>Escalation dependence and authority ambiguity</li>
+                  <li>Key-person brittleness and low pathway resilience</li>
+                  <li>Comparable-position context by decision type, industry, and operating environment</li>
                 </ul>
               </aside>
             </div>
@@ -143,6 +149,10 @@
               <section class="visual-grid">
                 <article class="visual-card"><h3>Delay concentration map</h3><div class="heat-strip" id="delayHeat"></div></article>
                 <article class="visual-card"><h3>Contradiction signals</h3><div class="signal-tiles" id="contradictionTiles"></div></article>
+              </section>
+              <section class="visual-grid">
+                <article class="visual-card"><h3>Governance weight × execution responsiveness</h3><div class="quadrant-wrap"><div class="quadrant-grid" id="quadrantGrid"><div class="quad-label quad-tl">Adaptive Edge</div><div class="quad-label quad-tr">Governed Flow</div><div class="quad-label quad-bl">Unstructured Friction</div><div class="quad-label quad-br">Accumulated Drag</div><div class="axis-label axis-x">Governance Weight</div><div class="axis-label axis-y">Execution Responsiveness</div><div class="quadrant-marker" id="quadrantMarker"></div></div><div class="quadrant-caption" id="quadrantCaption">Position will appear after scoring.</div></div></article>
+                <article class="visual-card"><h3>How to read this output</h3><ul class="result-list compact-list"><li>The score and peer band provide directional context, not audited measurement.</li><li>The burden and delay visuals show where the pathway is absorbing capacity.</li><li>The priority ladder indicates where a leader would most likely intervene first.</li><li>The report view is optimized for printing and handoff once results are generated.</li></ul></article>
               </section>
               <section class="text-grid"><article class="result-card"><h3>Executive interpretation</h3><p class="result-copy" id="executiveText"></p></article><article class="result-card"><h3>Leadership implication</h3><p class="result-copy" id="leadershipText"></p></article><article class="result-card"><h3>Trade-off note</h3><p class="result-copy" id="tradeoffText"></p></article><article class="result-card"><h3>Time, money, and resources</h3><p class="result-copy" id="tmrText"></p></article></section>
               <section class="chart-grid"><article class="chart-card"><h3>Structural gaps</h3><div class="chart-wrap"><canvas id="gapChart"></canvas></div></article><article class="chart-card"><h3>Dimension profile</h3><div class="chart-wrap"><canvas id="dimensionChart"></canvas></div></article></section>
@@ -700,9 +710,45 @@ async function submitDiagnostic(){
   showStage(resultsStage);
 }
 
+
+function deriveMissingResultFields(result){
+  result.benchmark_context = result.benchmark_context || { industry_label: humanize(state.answers.industry || "other"), organization_size_label: humanize(state.answers.organizationSize || "unknown"), regulatory_intensity_label: humanize(state.answers.regulatoryIntensity || "unknown") };
+  result.input_confidence_label = result.input_confidence_label || ({high:"Strong input depth",moderate:"Moderate input depth",limited:"Limited input depth"}[state.answers.confidenceLevel] || "Moderate input depth");
+  if(!result.intervention_priority_ladder && result.burden_breakdown){
+    const ladder = Object.entries(result.burden_breakdown).map(([k,v])=>({focus:k.replace(/_/g,' '),severity:Number(v)||0})).sort((a,b)=>b.severity-a.severity).slice(0,3);
+    result.intervention_priority_ladder = ladder.map((item,idx)=>({priority: idx===0?'Fix now':idx===1?'Fix next':'Monitor', focus:item.focus, severity:item.severity}));
+  }
+  if(!result.labor_profile){
+    const people = Math.max(1, Number(state.answers.peopleInvolved || 0));
+    result.labor_profile = [
+      {role:'Core decision makers', people: Math.max(1, Math.round(people*0.18)), significance:'Focused'},
+      {role:'Reviewers / approvers', people: Math.max(1, Number(state.answers.approvalCount || 0)), significance:Number(state.answers.approvalCount||0)>=4?'High':'Moderate'},
+      {role:'Coordinators / analysts', people: Math.max(1, Math.round(people*0.2)), significance:Number(state.answers.meetingCount||0)>=4?'Moderate':'Light'}
+    ];
+  }
+  if(!result.impact_profile){
+    const labels = {minor_delay:'Minor delay or annoyance',delivery_slippage:'Missed timing or delivery slippage',cost_growth:'Added labor or cost',leadership_escalation:'Repeated leadership intervention',mission_risk:'Meaningful operational or mission risk'};
+    const ratings = state.answers.consequenceRatings || {};
+    const selected = state.answers.slowdownConsequences || [];
+    result.impact_profile = {entries:Object.entries(labels).map(([code,label])=>({code,label,score:Number(ratings[code] || (selected.includes(code)?3:0))}))};
+  }
+  if(!result.exposure) result.exposure = {};
+  if(!result.exposure.composition){
+    const annualHours = Number(result.exposure.annual_hours || 0);
+    result.exposure.composition = {coordination_hours:Math.round(annualHours*0.35), review_hours:Math.round(annualHours*0.3), rework_hours:Math.round(annualHours*0.2), escalation_hours:Math.max(0, annualHours - Math.round(annualHours*0.85))};
+  }
+  if(!result.quadrant_position){
+    const governance = Math.round((Number(result.burden_breakdown?.approval || 30) + Number(result.burden_breakdown?.coordination || 30) + Number(result.burden_breakdown?.escalation || 30))/3);
+    const execution = Math.round((Number(result.dimensions?.cycle_velocity || 50) + Number(result.dimensions?.execution_stability || 50))/2);
+    result.quadrant_position = {governance_weight: governance, execution_responsiveness: execution};
+  }
+  return result;
+}
+
 function renderResults(result, outputMode){
+  result = deriveMissingResultFields(result);
   const narrative = result.narrative || {};
-  document.getElementById("scoreNumber").textContent = result.score ?? "—";
+  document.getElementById("reportPathway").textContent = result.process_name || state.answers.processName || "Unnamed pathway"; document.getElementById("reportDate").textContent = new Date().toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"}); document.getElementById("scoreNumber").textContent = result.score ?? "—";
   document.getElementById("scoreBand").textContent = result.band || result.score_band || "—";
   document.getElementById("scoreSummary").textContent = narrative.executive_interpretation || "Output generated.";
   document.getElementById("scoreBadge").textContent = outputMode || result.benchmark?.label || "Decision Velocity";
@@ -730,6 +776,7 @@ function renderResults(result, outputMode){
   renderContradictionTiles(result);
   renderPriorityLadder(result);
   renderLaborTable(result);
+  renderQuadrant(result);
   renderImpactTable(result);
   renderCostCompositionTable(result);
   renderList("flagsList", narrative.key_friction_flags || result.key_findings || []);
@@ -783,6 +830,22 @@ function renderContradictionTiles(result){
     host.appendChild(tile);
   });
 }
+
+function renderQuadrant(result){
+  const marker = document.getElementById("quadrantMarker");
+  const caption = document.getElementById("quadrantCaption");
+  const pos = result.quadrant_position || { governance_weight: 50, execution_responsiveness: 50 };
+  const x = clamp(Number(pos.governance_weight || 50), 5, 95);
+  const y = clamp(Number(pos.execution_responsiveness || 50), 5, 95);
+  marker.style.left = `${x}%`;
+  marker.style.top = `${100 - y}%`;
+  let zone = "Governed Flow";
+  if (x < 50 && y >= 50) zone = "Adaptive Edge";
+  else if (x < 50 && y < 50) zone = "Unstructured Friction";
+  else if (x >= 50 && y < 50) zone = "Accumulated Drag";
+  caption.textContent = `Approximate position: ${zone}. Governance weight ${x}/100; execution responsiveness ${y}/100.`;
+}
+
 function renderPriorityLadder(result){
   const host = document.getElementById("priorityLadder");
   host.innerHTML = "";
