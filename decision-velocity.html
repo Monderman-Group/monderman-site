@@ -170,6 +170,7 @@
       background:#FFF;border:1px solid rgba(21,32,43,.10);border-radius:18px;
       padding:15px 16px 14px;transition:transform var(--transition), border-color var(--transition), background var(--transition), box-shadow var(--transition);
     }
+    .choice.selected{border-color:rgba(63,110,161,.34);background:rgba(63,110,161,.06)}
     .choice:hover,.choice:focus-visible{outline:none;transform:translateY(-1px);border-color:rgba(63,110,161,.24);background:rgba(63,110,161,.04);box-shadow:var(--shadow-sm)}
     .choice-title{display:block;font-size:.96rem;font-weight:600;line-height:1.4;color:var(--ink)}
     .choice-note{display:block;margin-top:4px;font-size:.83rem;line-height:1.5;color:var(--ink-soft)}
@@ -249,6 +250,24 @@
       background:linear-gradient(180deg, rgba(63,110,161,.06) 0%, rgba(63,110,161,.03) 100%);
     }
     .results-disclaimer{padding:16px 18px;border-radius:16px;background:#F8FAFC;border:1px solid rgba(21,32,43,.08);font-size:.88rem;line-height:1.6;color:var(--ink-soft)}
+
+
+    .title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+    .info-wrap{position:relative;display:flex;align-items:center;gap:8px}
+    .info-btn{width:26px;height:26px;border-radius:999px;border:1px solid rgba(63,110,161,.22);background:#FFF;color:var(--accent);font-size:.82rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow-sm)}
+    .info-panel{margin-top:10px;padding:12px 12px 10px;border-radius:14px;background:rgba(63,110,161,.05);border:1px solid rgba(63,110,161,.12);font-size:.84rem;line-height:1.55;color:var(--ink-soft);display:none}
+    .info-panel.show{display:block}
+    .cluster-stack{display:grid;gap:18px;position:relative}
+    .cluster-children{display:grid;gap:14px;position:relative;padding-top:8px}
+    .cluster-children::before{content:"";position:absolute;left:50%;top:-2px;bottom:100%;width:2px;height:12px;background:rgba(63,110,161,.36);transform:translateX(-50%)}
+    .branch-grid{display:grid;grid-template-columns:1fr;gap:14px;position:relative}
+    .branch-grid::before{content:"";position:absolute;left:50%;top:-14px;bottom:14px;width:2px;background:rgba(63,110,161,.24);transform:translateX(-50%)}
+    .mini-card{position:relative;padding:16px;border:1px solid rgba(63,110,161,.14);border-radius:18px;background:linear-gradient(180deg,#FFF 0%,#FAFCFF 100%);box-shadow:var(--shadow-sm);min-width:0}
+    .mini-card::before{content:"";position:absolute;left:50%;top:-14px;width:2px;height:14px;background:rgba(63,110,161,.36);transform:translateX(-50%)}
+    .mini-eyebrow{margin:0 0 8px;font-size:.68rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+    .mini-card h4{margin:0 0 6px;font-size:1rem;line-height:1.26;letter-spacing:-.02em}
+    .mini-copy{margin:0 0 12px;font-size:.88rem;line-height:1.58;color:var(--ink-soft)}
+    .field-help{margin-top:6px;font-size:.78rem;line-height:1.5;color:var(--ink-soft)}
 
     @media (max-width:1080px){
       .intro-layout,.score-inner,.summary-grid,.text-grid,.chart-grid,.insight-grid{grid-template-columns:1fr}
@@ -497,6 +516,7 @@ let dimensionChart = null;
 const openingNotice = "This diagnostic generates directional insights based on the information you provide. Results are only as accurate as your inputs and should be used as an interpretive aid, not as a substitute for independent review, professional judgment, or organization-specific analysis.";
 const finalAcknowledgment = "I acknowledge that this diagnostic provides directional insights only, that Monderman has not independently verified my inputs, and that I am solely responsible for how these results are interpreted or used.";
 
+
 const questions = {
   symptom: {
     id: "symptom",
@@ -505,6 +525,7 @@ const questions = {
     cluster: "Opening signal",
     title: "What is the most visible problem in this decision pathway right now?",
     copy: "Start with the most observable failure pattern. The diagnostic will open the next most relevant branch from there.",
+    help: "Choose the pattern leadership or frontline staff would recognize first. You are not diagnosing root cause yet. You are telling the tool where the friction is most visible.",
     options: [
       { value: "approval_expansion", label: "Approvals keep accumulating", note: "The pathway feels heavier than the decision seems to justify." },
       { value: "coordination_load", label: "Coordination effort keeps growing", note: "Movement depends on meetings, follow-up, or side-channel coordination." },
@@ -513,30 +534,24 @@ const questions = {
     ]
   },
   processName: {
-    id: "processName",
-    kind: "text",
-    required: true,
-    cluster: "Pathway framing",
+    id: "processName", kind: "text", required: true, cluster: "Pathway framing",
     title: "What decision pathway are you evaluating?",
     copy: "Use a short operational label so the output is easy to recognize later.",
+    help: "Examples: vendor approval, hiring exception, budget reallocation, contract review, policy waiver, project change request.",
     placeholder: "e.g. Vendor approval"
   },
   businessUnit: {
-    id: "businessUnit",
-    kind: "text",
-    required: true,
-    cluster: "Pathway framing",
+    id: "businessUnit", kind: "text", required: true, cluster: "Pathway framing",
     title: "Which function or business unit does this pathway primarily sit in?",
     copy: "Keep it simple. A single function or team is enough.",
+    help: "Examples: Operations, Finance, HR, Procurement, Legal, PMO, Compliance, Product.",
     placeholder: "e.g. Operations"
   },
   decisionType: {
-    id: "decisionType",
-    kind: "select",
-    required: true,
-    cluster: "Pathway framing",
+    id: "decisionType", kind: "select", required: true, cluster: "Pathway framing",
     title: "What kind of decision is this, primarily?",
     copy: "This helps benchmark the pathway against an appropriate decision class.",
+    help: "Choose the dominant decision class, not every element involved in the pathway.",
     options: [
       { value: "", label: "Select one" },
       { value: "procurement", label: "Procurement / vendor" },
@@ -548,31 +563,60 @@ const questions = {
       { value: "other", label: "Other" }
     ]
   },
+  decisionFrequency: {
+    id: "decisionFrequency", kind: "select", required: true, cluster: "Pathway framing",
+    title: "How often does this pathway typically occur?",
+    copy: "This helps distinguish chronic organizational drag from rarer but still costly friction.",
+    help: "Pick the closest frequency, even if the volume fluctuates across the year.",
+    options: [
+      { value: "", label: "Select one" },
+      { value: "daily", label: "Daily or near-daily" },
+      { value: "weekly", label: "Weekly" },
+      { value: "monthly", label: "Monthly" },
+      { value: "quarterly", label: "Quarterly" },
+      { value: "sporadic", label: "Sporadic / irregular" }
+    ]
+  },
   description: {
-    id: "description",
-    kind: "textarea",
-    required: false,
-    cluster: "Context note",
+    id: "description", kind: "textarea", required: false, cluster: "Context note",
     title: "Anything important leaders are currently experiencing in this pathway?",
     copy: "A brief note can make the narrative output feel more grounded, but you can skip this if needed.",
+    help: "Examples: repeated complaints, missed deadlines, leadership frustration, rushed escalations, stalled procurement, burnout around approvals.",
     placeholder: "Briefly describe recent friction, recent complaints, or what leaders are noticing."
   },
   approvalCount: {
-    id: "approvalCount",
-    kind: "number",
-    required: true,
-    cluster: "Approval structure",
-    title: "How many approvals does this pathway typically require?",
-    copy: "Use a normal run, not a best case or worst case.",
-    placeholder: "e.g. 5"
+    id: "approvalCount", kind: "number", required: true, cluster: "Approval structure",
+    title: "How many distinct approvals does one normal run of this pathway typically require?",
+    copy: "Count the approval points that must be satisfied before the decision can fully move forward.",
+    help: "Do not count FYI notifications. Count only the people, offices, or boards whose approval materially determines whether the pathway advances.",
+    placeholder: "e.g. 5",
+    followups: [
+      {
+        id: "approverRoleMap", kind: "textarea", required: true,
+        title: "If there are several approvers, what do they broadly represent?",
+        copy: "Briefly describe the kinds of actors involved.",
+        placeholder: "e.g. line manager, finance reviewer, legal reviewer, risk approver, final director sign-off",
+        showIf: value => Number(value || 0) >= 5
+      },
+      {
+        id: "approvalConcentration", kind: "select", required: true,
+        title: "Are most approvals genuinely decision-making approvals or mainly confirmatory checkpoints?",
+        copy: "This helps distinguish governance necessity from review layering.",
+        options: [
+          { value: "", label: "Select one" },
+          { value: "mostly_decisive", label: "Mostly decisive approvals" },
+          { value: "mixed", label: "Mixed" },
+          { value: "mostly_confirmatory", label: "Mostly confirmatory checkpoints" }
+        ],
+        showIf: value => Number(value || 0) >= 4
+      }
+    ]
   },
   approvalFlow: {
-    id: "approvalFlow",
-    kind: "select",
-    required: true,
-    cluster: "Approval structure",
+    id: "approvalFlow", kind: "select", required: true, cluster: "Approval structure",
     title: "Those approvals are usually organized how?",
     copy: "This distinguishes parallel routing from gate-by-gate sequencing.",
+    help: "Sequential approvals usually create more delay because each step waits on the prior one.",
     options: [
       { value: "", label: "Select one" },
       { value: "parallel", label: "Mostly parallel" },
@@ -581,34 +625,54 @@ const questions = {
     ]
   },
   reviewExpansion: {
-    id: "reviewExpansion",
-    kind: "choice",
-    required: true,
-    cluster: "Approval structure",
+    id: "reviewExpansion", kind: "choice", required: true, cluster: "Approval structure",
     title: "Do extra reviewers or review scopes get added after the process is already moving?",
     copy: "Late-stage review expansion often signals weak trust or unclear criteria upstream.",
+    help: "This question gets at whether the pathway becomes heavier midstream rather than starting with a known review perimeter.",
     options: [
       { value: "rare", label: "Rarely", note: "The review perimeter is usually known from the start." },
       { value: "sometimes", label: "Sometimes", note: "The review footprint expands under certain conditions." },
       { value: "often", label: "Often", note: "New reviewers or expanded review scopes show up repeatedly." }
     ]
   },
+  criteriaClarity: {
+    id: "criteriaClarity", kind: "select", required: true, cluster: "Approval structure",
+    title: "How clear are the approval criteria before the pathway starts?",
+    copy: "Unclear criteria often produce rework, defensive review, and review creep.",
+    help: "If different reviewers apply different standards, the criteria are not as clear as they appear.",
+    options: [
+      { value: "", label: "Select one" },
+      { value: "clear", label: "Usually clear" },
+      { value: "mixed", label: "Mixed" },
+      { value: "unclear", label: "Often unclear" }
+    ]
+  },
   meetingCount: {
-    id: "meetingCount",
-    kind: "number",
-    required: true,
-    cluster: "Coordination burden",
+    id: "meetingCount", kind: "number", required: true, cluster: "Coordination burden",
     title: "How many meetings are typically needed just to keep this decision moving?",
     copy: "Count the meetings that feel necessary to maintain motion, not every adjacent touchpoint.",
-    placeholder: "e.g. 4"
+    help: "Include recurring syncs, alignment meetings, follow-up meetings, or ad hoc sessions needed to prevent the pathway from stalling.",
+    placeholder: "e.g. 4",
+    followups: [
+      {
+        id: "meetingPurposeSplit", kind: "select", required: true,
+        title: "Those meetings are mostly doing what kind of work?",
+        copy: "This clarifies whether meetings are substantive or compensatory.",
+        options: [
+          { value: "", label: "Select one" },
+          { value: "decision_making", label: "Mainly making the decision" },
+          { value: "coordination", label: "Mainly coordinating people and information" },
+          { value: "rework", label: "Mainly clarifying, revisiting, or correcting" }
+        ],
+        showIf: value => Number(value || 0) >= 3
+      }
+    ]
   },
   outsideCoordination: {
-    id: "outsideCoordination",
-    kind: "select",
-    required: true,
-    cluster: "Coordination burden",
+    id: "outsideCoordination", kind: "select", required: true, cluster: "Coordination burden",
     title: "How often does extra coordination happen outside formal channels?",
     copy: "Think about side pings, informal follow-ups, or personal outreach used to compensate for the formal process.",
+    help: "If people regularly rely on chat messages, favors, texts, or side conversations to move the process, that is extra coordination.",
     options: [
       { value: "", label: "Select one" },
       { value: "rare", label: "Rarely" },
@@ -617,30 +681,33 @@ const questions = {
     ]
   },
   systemsTouched: {
-    id: "systemsTouched",
-    kind: "number",
-    required: true,
-    cluster: "Coordination burden",
+    id: "systemsTouched", kind: "number", required: true, cluster: "Coordination burden",
     title: "How many systems are typically touched in one run of this pathway?",
     copy: "Include only the systems materially involved in routing, approving, documenting, or revising the decision.",
-    placeholder: "e.g. 4"
+    help: "Examples: ticketing system, ERP, email, spreadsheet tracker, HRIS, procurement platform, shared drive, project tool.",
+    placeholder: "e.g. 4",
+    followups: [
+      {
+        id: "systemFrictionPoint", kind: "textarea", required: true,
+        title: "Where does system friction show up most?",
+        copy: "Briefly note the most burdensome system interaction.",
+        placeholder: "e.g. information must be re-entered across tools; approvals are tracked in email but documented elsewhere",
+        showIf: value => Number(value || 0) >= 4
+      }
+    ]
   },
   handoffCount: {
-    id: "handoffCount",
-    kind: "number",
-    required: true,
-    cluster: "Routing density",
+    id: "handoffCount", kind: "number", required: true, cluster: "Routing density",
     title: "How many handoffs or routing transitions typically occur?",
     copy: "High handoff density often means accountability is distributed more widely than the work requires.",
+    help: "A handoff occurs when the work or responsibility materially moves to another person, team, or office.",
     placeholder: "e.g. 6"
   },
   workaroundRate: {
-    id: "workaroundRate",
-    kind: "select",
-    required: true,
-    cluster: "Routing density",
+    id: "workaroundRate", kind: "select", required: true, cluster: "Routing density",
     title: "How often are workarounds or exceptions used to keep this pathway moving?",
     copy: "This helps distinguish designed coordination from compensatory behavior.",
+    help: "Examples: bypassing normal routing, asking for informal help, pushing a case outside standard sequence, manual spreadsheet tracking.",
     options: [
       { value: "", label: "Select one" },
       { value: "rare", label: "Rarely" },
@@ -649,26 +716,44 @@ const questions = {
     ]
   },
   escalationRate: {
-    id: "escalationRate",
-    kind: "select",
-    required: true,
-    cluster: "Escalation condition",
+    id: "escalationRate", kind: "select", required: true, cluster: "Escalation condition",
     title: "How often is this decision escalated above the formal pathway?",
     copy: "Escalation is not always unhealthy, but routine escalation often means the pathway is not self-resolving.",
+    help: "Count escalations to more senior leaders, exception bodies, higher governance forums, or off-path decision-makers.",
     options: [
       { value: "", label: "Select one" },
       { value: "rare", label: "Rarely" },
       { value: "sometimes", label: "Sometimes" },
       { value: "often", label: "Often" }
+    ],
+    followups: [
+      {
+        id: "escalationTarget", kind: "select", required: true,
+        title: "Escalation usually goes where?",
+        copy: "This helps locate where the system resolves ambiguity.",
+        options: [
+          { value: "", label: "Select one" },
+          { value: "single_leader", label: "A single leader" },
+          { value: "committee", label: "A board, committee, or governance forum" },
+          { value: "cross_functional", label: "Cross-functional senior group" },
+          { value: "varies", label: "It varies" }
+        ],
+        showIf: value => ["sometimes","often"].includes(String(value || ""))
+      },
+      {
+        id: "escalationReason", kind: "textarea", required: true,
+        title: "What usually forces the escalation?",
+        copy: "Briefly note the trigger.",
+        placeholder: "e.g. unclear owner, conflicting priorities, policy ambiguity, risk discomfort, budget sensitivity",
+        showIf: value => ["sometimes","often"].includes(String(value || ""))
+      }
     ]
   },
   ownerClarity: {
-    id: "ownerClarity",
-    kind: "select",
-    required: true,
-    cluster: "Decision rights",
+    id: "ownerClarity", kind: "select", required: true, cluster: "Decision rights",
     title: "How clear is decision ownership before the pathway starts moving?",
     copy: "This distinguishes healthy collaboration from a pathway surviving through ambiguity.",
+    help: "If multiple parties believe they can stop or redefine the pathway, ownership is probably mixed or unclear.",
     options: [
       { value: "", label: "Select one" },
       { value: "clear", label: "Usually clear" },
@@ -677,12 +762,10 @@ const questions = {
     ]
   },
   escalationClarity: {
-    id: "escalationClarity",
-    kind: "select",
-    required: true,
-    cluster: "Decision rights",
+    id: "escalationClarity", kind: "select", required: true, cluster: "Decision rights",
     title: "How clear is the escalation path when the pathway cannot resolve itself?",
     copy: "Clear escalation is different from frequent escalation.",
+    help: "A pathway can escalate often and still have a clear route, or escalate rarely but chaotically.",
     options: [
       { value: "", label: "Select one" },
       { value: "clear", label: "Usually clear" },
@@ -691,82 +774,145 @@ const questions = {
     ]
   },
   keyPersonDependency: {
-    id: "keyPersonDependency",
-    kind: "choice",
-    required: true,
-    cluster: "Pathway resilience",
+    id: "keyPersonDependency", kind: "choice", required: true, cluster: "Pathway resilience",
     title: "How dependent is the pathway on specific people to keep moving?",
     copy: "This detects whether the process is stable in itself or surviving through key-person compensation.",
+    help: "Think about whether the pathway would still move if the usual fixers, translators, or final pushers were absent.",
     options: [
       { value: "no", label: "Minimal dependence", note: "The pathway would still function if specific people were absent." },
       { value: "somewhat", label: "Some dependence", note: "The pathway would function, but noticeably less smoothly." },
       { value: "heavily", label: "Heavy dependence", note: "The pathway would likely stall or become confused without specific individuals." }
+    ],
+    followups: [
+      {
+        id: "keyPersonCount", kind: "number", required: true,
+        title: "How many people does the pathway materially depend on?",
+        copy: "Estimate the core group the process leans on.",
+        placeholder: "e.g. 2",
+        showIf: value => ["somewhat","heavily"].includes(String(value || ""))
+      },
+      {
+        id: "keyPersonRoleCoverage", kind: "textarea", required: true,
+        title: "What do those key people mainly do for the pathway?",
+        copy: "Briefly describe the role they play.",
+        placeholder: "e.g. translate requirements, resolve ambiguity, chase approvals, reconcile conflicting instructions",
+        showIf: value => ["somewhat","heavily"].includes(String(value || ""))
+      }
     ]
   },
   decisionDays: {
-    id: "decisionDays",
-    kind: "number",
-    required: true,
-    cluster: "Cycle timing",
+    id: "decisionDays", kind: "number", required: true, cluster: "Cycle timing",
     title: "On average, how many days does it take to reach a final decision?",
     copy: "Use a directional average. Exact precision is not necessary.",
-    placeholder: "e.g. 18"
+    help: "Measure from meaningful initiation to final resolution, not just the time spent inside one team.",
+    placeholder: "e.g. 18",
+    followups: [
+      {
+        id: "delayPoint", kind: "select", required: true,
+        title: "Where does the delay tend to concentrate most?",
+        copy: "Choose the point where the pathway most often slows materially.",
+        options: [
+          { value: "", label: "Select one" },
+          { value: "front_end", label: "At the front end / intake" },
+          { value: "midstream_review", label: "During review and coordination" },
+          { value: "late_stage", label: "Near final approval or sign-off" },
+          { value: "varies", label: "It varies" }
+        ],
+        showIf: value => Number(value || 0) >= 10
+      },
+      {
+        id: "reopenRate", kind: "select", required: true,
+        title: "How often is work reopened for revision after it appears nearly complete?",
+        copy: "This helps distinguish slow pathways from unstable pathways.",
+        options: [
+          { value: "", label: "Select one" },
+          { value: "rare", label: "Rarely" },
+          { value: "sometimes", label: "Sometimes" },
+          { value: "often", label: "Often" }
+        ],
+        showIf: value => Number(value || 0) >= 10
+      }
+    ]
   },
   peopleInvolved: {
-    id: "peopleInvolved",
-    kind: "number",
-    required: true,
-    cluster: "Exposure sizing",
-    title: "Roughly how many people are typically involved in one run of this pathway?",
-    copy: "This supports the directional resource estimate.",
-    placeholder: "e.g. 8"
+    id: "peopleInvolved", kind: "number", required: true, cluster: "Exposure sizing",
+    title: "Roughly how many people are typically involved in one normal run of this pathway?",
+    copy: "Count the people who materially contribute time, review, routing, coordination, or approval effort.",
+    help: "Do not count everyone merely copied on the thread. Count the people whose time is actually consumed by getting the decision through.",
+    placeholder: "e.g. 8",
+    followups: [
+      {
+        id: "participantRoleMap", kind: "textarea", required: true,
+        title: "If several people are involved, what are the main roles they play?",
+        copy: "Briefly describe the work categories involved.",
+        placeholder: "e.g. requestor, manager, finance reviewer, legal reviewer, procurement analyst, final approver",
+        showIf: value => Number(value || 0) >= 5
+      },
+      {
+        id: "participantTimeShare", kind: "select", required: true,
+        title: "How concentrated is the work across those people?",
+        copy: "This helps estimate whether most of the burden sits with a small core or is spread broadly.",
+        options: [
+          { value: "", label: "Select one" },
+          { value: "few_people", label: "A few people carry most of the work" },
+          { value: "mixed", label: "Mixed" },
+          { value: "broadly_shared", label: "The burden is spread broadly" }
+        ],
+        showIf: value => Number(value || 0) >= 5
+      }
+    ]
   },
   hourlyCost: {
-    id: "hourlyCost",
-    kind: "number",
-    required: true,
-    cluster: "Exposure sizing",
+    id: "hourlyCost", kind: "number", required: true, cluster: "Exposure sizing",
     title: "What is a reasonable average loaded hourly cost for the people involved?",
-    copy: "An informed directional estimate is enough.",
+    copy: "Use salary plus overhead if you know it. A directional estimate is enough.",
+    help: "Loaded hourly cost usually means compensation, benefits, and a rough overhead factor rather than salary alone.",
     placeholder: "e.g. 95"
   },
   annualVolume: {
-    id: "annualVolume",
-    kind: "number",
-    required: true,
-    cluster: "Exposure sizing",
-    title: "How many times does this decision pathway run in a year?",
+    id: "annualVolume", kind: "number", required: true, cluster: "Exposure sizing",
+    title: "How many times does this decision pathway run in a typical year?",
     copy: "If you are unsure, use a reasonable yearly estimate.",
+    help: "For monthly pathways, 12 may be appropriate. For weekly pathways, 52 may be appropriate. Use your best directional estimate.",
     placeholder: "e.g. 120"
   },
   meetingHours: {
-    id: "meetingHours",
-    kind: "number",
-    required: true,
-    cluster: "Exposure sizing",
-    title: "How many meeting or coordination hours does one run usually consume?",
-    copy: "Use the burden you would want a leader to understand.",
+    id: "meetingHours", kind: "number", required: true, cluster: "Exposure sizing",
+    title: "How many meeting or coordination hours does one normal run usually consume?",
+    copy: "Estimate the total hours spent coordinating, aligning, revisiting, or pushing the pathway forward.",
+    help: "This should include the coordination burden you would want a leader to understand, not just formal calendar time in one team.",
     placeholder: "e.g. 4"
   },
+  consequenceSeverity: {
+    id: "consequenceSeverity", kind: "select", required: true, cluster: "Exposure sizing",
+    title: "When this pathway slows materially, what is the most common consequence?",
+    copy: "This helps the output distinguish inconvenience from more serious organizational exposure.",
+    help: "Choose the consequence leaders would care about most if the pathway keeps behaving this way.",
+    options: [
+      { value: "", label: "Select one" },
+      { value: "minor_delay", label: "Minor delay or annoyance" },
+      { value: "delivery_slippage", label: "Missed timing or delivery slippage" },
+      { value: "cost_growth", label: "Added labor or cost" },
+      { value: "leadership_escalation", label: "Repeated leadership intervention" },
+      { value: "mission_risk", label: "Meaningful operational or mission risk" }
+    ]
+  },
   acknowledgment: {
-    id: "acknowledgment",
-    kind: "checkbox",
-    required: true,
-    cluster: "Final acknowledgment",
+    id: "acknowledgment", kind: "checkbox", required: true, cluster: "Final acknowledgment",
     title: "Before generating your output, please confirm the following.",
     copy: "This final acknowledgment is required before the diagnostic engine can generate the readout.",
     label: finalAcknowledgment
   }
 };
 
-const commonIntro = ["processName", "businessUnit", "decisionType", "description"];
+const commonIntro = ["processName", "businessUnit", "decisionType", "decisionFrequency", "description"];
 const branchMap = {
-  approval_expansion: ["approvalCount", "approvalFlow", "reviewExpansion", "decisionDays", "ownerClarity", "escalationClarity"],
+  approval_expansion: ["approvalCount", "approvalFlow", "reviewExpansion", "criteriaClarity", "decisionDays", "ownerClarity", "escalationClarity"],
   coordination_load: ["meetingCount", "outsideCoordination", "systemsTouched", "handoffCount", "workaroundRate", "ownerClarity", "decisionDays"],
-  escalation_dependence: ["escalationRate", "ownerClarity", "escalationClarity", "decisionDays", "approvalCount", "keyPersonDependency"],
-  key_person_dependence: ["keyPersonDependency", "ownerClarity", "escalationClarity", "decisionDays", "handoffCount", "workaroundRate"]
+  escalation_dependence: ["escalationRate", "ownerClarity", "escalationClarity", "decisionDays", "approvalCount", "criteriaClarity", "keyPersonDependency"],
+  key_person_dependence: ["keyPersonDependency", "ownerClarity", "escalationClarity", "decisionDays", "handoffCount", "workaroundRate", "meetingCount"]
 };
-const commonOutro = ["peopleInvolved", "hourlyCost", "annualVolume", "meetingHours", "acknowledgment"];
+const commonOutro = ["peopleInvolved", "hourlyCost", "annualVolume", "meetingHours", "consequenceSeverity", "acknowledgment"];
 
 const state = {
   started: false,
@@ -823,122 +969,194 @@ function setHeader(headline, subcopy, status) {
   statusPill.textContent = status;
 }
 
+
 function renderQuestion() {
   const q = currentQuestion();
   if (!q) return;
 
-  setHeader("Structured diagnostic sequence", "Answer one question at a time. You can move back, skip non-required questions, or restart without losing the rest of the logic.", "Diagnostic in progress");
+  setHeader("Structured diagnostic sequence", "The pathway adapts as the signal becomes clearer. Some questions open follow-up tiles when your answer warrants deeper interpretation.", "Diagnostic in progress");
   questionCluster.textContent = q.cluster;
   questionStep.textContent = `Question ${state.index + 1} of ${state.path.length}`;
-  questionTitle.textContent = q.title;
-  questionCopy.textContent = q.copy || "";
   requiredNotice.classList.toggle("show", false);
   questionBody.innerHTML = "";
 
-  if (q.kind === "choice") renderChoiceQuestion(q);
-  else if (q.kind === "text" || q.kind === "number") renderInputQuestion(q);
-  else if (q.kind === "textarea") renderTextareaQuestion(q);
-  else if (q.kind === "select") renderSelectQuestion(q);
-  else if (q.kind === "checkbox") renderCheckboxQuestion(q);
+  const shell = document.createElement("div");
+  shell.className = "cluster-stack";
+
+  const primary = renderQuestionCard(q, false);
+  shell.appendChild(primary);
+
+  const followups = getVisibleFollowups(q, state.answers[q.id]);
+  if (followups.length) {
+    const childrenWrap = document.createElement("div");
+    childrenWrap.className = "cluster-children";
+
+    const branchGrid = document.createElement("div");
+    branchGrid.className = "branch-grid";
+    followups.forEach(child => branchGrid.appendChild(renderQuestionCard(child, true, q.id)));
+    childrenWrap.appendChild(branchGrid);
+    shell.appendChild(childrenWrap);
+  }
+
+  questionBody.appendChild(shell);
+  questionTitle.textContent = q.title;
+  questionCopy.textContent = q.copy || "";
 
   backBtn.disabled = state.index === 0;
   skipBtn.disabled = q.required;
-  continueBtn.style.display = q.kind === "choice" ? "none" : "inline-flex";
+  continueBtn.style.display = q.kind === "choice" && !q.followups ? "none" : "inline-flex";
   updateProgress();
 }
 
-function renderChoiceQuestion(q) {
-  const wrap = document.createElement("div");
-  wrap.className = "choices";
-  q.options.forEach(option => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "choice";
-    btn.innerHTML = `<span class="choice-title">${option.label}</span><span class="choice-note">${option.note || ""}</span>`;
-    btn.addEventListener("click", () => {
-      saveAnswer(q.id, option.value);
-      moveNext(true);
+function renderQuestionCard(q, isChild = false, parentId = "") {
+  const card = document.createElement("div");
+  card.className = isChild ? "mini-card" : "";
+  const existing = state.answers[q.id];
+  const title = `
+    <div class="title-row">
+      <div>
+        ${isChild ? '<p class="mini-eyebrow">Follow-up</p>' : ""}
+        <h4 style="margin:${isChild ? '0 0 6px' : '0 0 8px'};font-size:${isChild ? '1rem' : '1.34rem'};line-height:${isChild ? '1.26' : '1.16'};letter-spacing:-.03em;">${escapeHtml(q.title)}</h4>
+      </div>
+      ${q.help ? `<div class="info-wrap"><button class="info-btn" type="button" aria-label="More information">i</button></div>` : ""}
+    </div>
+    <p class="${isChild ? 'mini-copy' : 'question-card-copy'}">${escapeHtml(q.copy || "")}</p>
+    ${q.help ? `<div class="info-panel">${escapeHtml(q.help)}</div>` : ""}
+  `;
+  card.innerHTML = title;
+  if (!isChild) card.classList.add();
+
+  const content = document.createElement("div");
+  if (q.kind === "choice") {
+    const wrap = document.createElement("div");
+    wrap.className = "choices";
+    q.options.forEach(option => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "choice" + (String(existing) === String(option.value) ? " selected" : "");
+      btn.innerHTML = `<span class="choice-title">${option.label}</span><span class="choice-note">${option.note || ""}</span>`;
+      btn.addEventListener("click", () => {
+        saveAnswer(q.id, option.value);
+        if (!q.followups && !isChild) moveNext(true);
+        else renderQuestion();
+      });
+      wrap.appendChild(btn);
     });
-    wrap.appendChild(btn);
-  });
-  questionBody.appendChild(wrap);
-}
-
-function renderInputQuestion(q) {
-  const value = state.answers[q.id] ?? "";
-  questionBody.innerHTML = `
-    <div class="field-group">
-      <div class="field">
-        <label for="activeField">Your answer</label>
-        <input id="activeField" type="${q.kind}" ${q.kind === "number" ? 'step="any" min="0"' : ""} placeholder="${q.placeholder || ""}" value="${escapeHtml(String(value))}" />
-      </div>
-    </div>`;
-  questionBody.querySelector("#activeField").focus();
-}
-
-function renderTextareaQuestion(q) {
-  const value = state.answers[q.id] ?? "";
-  questionBody.innerHTML = `
-    <div class="field-group">
-      <div class="field">
-        <label for="activeField">Optional context</label>
-        <textarea id="activeField" placeholder="${q.placeholder || ""}">${escapeHtml(String(value))}</textarea>
-      </div>
-    </div>`;
-  questionBody.querySelector("#activeField").focus();
-}
-
-function renderSelectQuestion(q) {
-  const value = state.answers[q.id] ?? "";
-  const options = q.options.map(option => `<option value="${escapeHtml(option.value)}" ${String(value) === String(option.value) ? "selected" : ""}>${option.label}</option>`).join("");
-  questionBody.innerHTML = `
-    <div class="field-group">
-      <div class="field">
-        <label for="activeField">Select one</label>
-        <select id="activeField">${options}</select>
-      </div>
-    </div>`;
-  questionBody.querySelector("#activeField").focus();
-}
-
-function renderCheckboxQuestion(q) {
-  const checked = Boolean(state.answers[q.id]);
-  questionBody.innerHTML = `
-    <div class="checkbox-card">
-      <div class="checkbox-row">
-        <input id="activeCheckbox" type="checkbox" ${checked ? "checked" : ""} />
-        <label for="activeCheckbox">${q.label}</label>
-      </div>
-    </div>`;
-}
-
-function readCurrentInput() {
-  const q = currentQuestion();
-  if (q.kind === "choice") return state.answers[q.id];
-  if (q.kind === "checkbox") return document.getElementById("activeCheckbox")?.checked || false;
-  return document.getElementById("activeField")?.value ?? "";
-}
-
-function validateCurrent() {
-  const q = currentQuestion();
-  const value = readCurrentInput();
-  const isEmpty = value === "" || value == null || (q.kind === "checkbox" && value !== true);
-  if (q.required && isEmpty) {
-    requiredNotice.classList.add("show");
-    return false;
+    content.appendChild(wrap);
+  } else if (q.kind === "select") {
+    const options = q.options.map(option => `<option value="${escapeHtml(option.value)}" ${String(existing ?? "") === String(option.value) ? "selected" : ""}>${option.label}</option>`).join("");
+    content.innerHTML = `
+      <div class="field-group">
+        <div class="field">
+          <label for="field_${q.id}">Select one</label>
+          <select id="field_${q.id}">${options}</select>
+        </div>
+      </div>`;
+    content.querySelector("select")?.addEventListener("change", () => {
+      saveAnswer(q.id, document.getElementById(`field_${q.id}`).value);
+      if (q.followups) renderQuestion();
+    });
+  } else if (q.kind === "textarea") {
+    content.innerHTML = `
+      <div class="field-group">
+        <div class="field">
+          <label for="field_${q.id}">${q.required ? 'Your answer' : 'Optional context'}</label>
+          <textarea id="field_${q.id}" placeholder="${q.placeholder || ""}">${escapeHtml(String(existing ?? ""))}</textarea>
+        </div>
+      </div>`;
+  } else if (q.kind === "checkbox") {
+    content.innerHTML = `
+      <div class="checkbox-card">
+        <div class="checkbox-row">
+          <input id="field_${q.id}" type="checkbox" ${existing ? "checked" : ""} />
+          <label for="field_${q.id}">${q.label}</label>
+        </div>
+      </div>`;
+  } else {
+    content.innerHTML = `
+      <div class="field-group">
+        <div class="field">
+          <label for="field_${q.id}">Your answer</label>
+          <input id="field_${q.id}" type="${q.kind}" ${q.kind === "number" ? 'step="any" min="0"' : ""} placeholder="${q.placeholder || ""}" value="${escapeHtml(String(existing ?? ""))}" />
+        </div>
+      </div>`;
   }
-  if (q.kind === "select" && q.required && value === "") {
-    requiredNotice.classList.add("show");
-    return false;
+  card.appendChild(content);
+
+  if (q.help) {
+    const btn = card.querySelector(".info-btn");
+    const panel = card.querySelector(".info-panel");
+    btn?.addEventListener("click", () => panel?.classList.toggle("show"));
+  }
+  return card;
+}
+
+function getVisibleFollowups(q, value) {
+  return (q.followups || []).filter(child => {
+    try {
+      return child.showIf ? child.showIf(value) : true;
+    } catch {
+      return false;
+    }
+  });
+}
+
+function readQuestionValue(q) {
+  if (q.kind === "choice") return state.answers[q.id];
+  if (q.kind === "checkbox") return document.getElementById(`field_${q.id}`)?.checked || false;
+  return document.getElementById(`field_${q.id}`)?.value ?? state.answers[q.id] ?? "";
+}
+
+function validateQuestionAndFollowups(q) {
+  const value = readQuestionValue(q);
+  const isEmpty = value === "" || value == null || (q.kind === "checkbox" && value !== true);
+  if (q.required && isEmpty) return false;
+  if (q.kind === "select" && q.required && value === "") return false;
+
+  for (const child of getVisibleFollowups(q, value)) {
+    const childValue = readQuestionValue(child);
+    const childEmpty = childValue === "" || childValue == null || (child.kind === "checkbox" && childValue !== true);
+    if (child.required && childEmpty) return false;
+    if (child.kind === "select" && child.required && childValue === "") return false;
   }
   return true;
 }
 
+function saveQuestionAndFollowups(q) {
+  saveAnswer(q.id, readQuestionValue(q));
+  const parentValue = state.answers[q.id];
+  const visibleIds = new Set(getVisibleFollowups(q, parentValue).map(item => item.id));
+  (q.followups || []).forEach(child => {
+    if (visibleIds.has(child.id)) saveAnswer(child.id, readQuestionValue(child));
+    else delete state.answers[child.id];
+  });
+}
+
+function readCurrentInput() {
+  const q = currentQuestion();
+  return readQuestionValue(q);
+}
+
+function validateCurrent() {
+  const q = currentQuestion();
+  const ok = validateQuestionAndFollowups(q);
+  if (!ok) requiredNotice.classList.add("show");
+  return ok;
+}
+
 function normalizeValue(id, value) {
-  const q = questions[id];
+  const q = questions[id] || findChildQuestion(id);
   if (!q) return value;
   if (q.kind === "number") return value === "" ? "" : Number(value);
   return value;
+}
+
+function findChildQuestion(id) {
+  for (const q of Object.values(questions)) {
+    const match = (q.followups || []).find(child => child.id === id);
+    if (match) return match;
+  }
+  return null;
 }
 
 function saveAnswer(id, value) {
@@ -955,16 +1173,17 @@ function saveAnswer(id, value) {
 }
 
 function clearBranchAnswers() {
-  Object.keys(questions).forEach(id => {
+  Object.keys(state.answers).forEach(id => {
+    if (!questions[id] && !findChildQuestion(id)) return;
     if (!["symptom", ...commonIntro, ...commonOutro].includes(id)) delete state.answers[id];
   });
 }
 
 function moveNext(fromChoice = false) {
   const q = currentQuestion();
-  if (!fromChoice) {
+  if (!fromChoice || q.followups) {
     if (!validateCurrent()) return;
-    saveAnswer(q.id, readCurrentInput());
+    saveQuestionAndFollowups(q);
   }
   requiredNotice.classList.remove("show");
   if (state.index < state.path.length - 1) {
@@ -1017,47 +1236,75 @@ function hintForSymptom(symptom) {
 async function submitDiagnostic() {
   if (!validateCurrent()) return;
   const q = currentQuestion();
-  saveAnswer(q.id, readCurrentInput());
+  saveQuestionAndFollowups(q);
 
   setHeader("Generating output", "The diagnostic engine is interpreting your pathway and preparing a leadership-facing readout.", "Output in progress");
   showStage(processingStage);
 
+  const payload = buildPayload();
+  const localResult = buildLocalResult(payload);
+
   try {
-    const payload = buildPayload();
-    const [response] = await Promise.all([
-      fetch(`${API_BASE}/api/diagnostic/run`, {
+    const [scoreResponse] = await Promise.all([
+      fetch(`${API_BASE}/api/decision-velocity-score`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          organization_id: ORG_ID,
-          tool_type: "decision_velocity",
-          inputs: payload
-        })
+        body: JSON.stringify(payload)
       }),
       wait(RESULTS_LOADER_MS)
     ]);
 
-    const data = await response.json().catch(() => null);
-    if (!response.ok || !data?.ok) throw new Error(data?.error || "Unable to generate output.");
+    const scoreData = await scoreResponse.json().catch(() => null);
+    if (!scoreResponse.ok || !scoreData?.ok || !scoreData?.result) {
+      throw new Error(scoreData?.error || "Unable to generate score output.");
+    }
 
-    state.result = data.result;
-    renderResults(data.result);
+    let finalResult = scoreData.result;
+
+    try {
+      const narrativeResponse = await fetch(`${API_BASE}/api/decision-velocity-narrative`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(scoreData.result)
+      });
+      const narrativeData = await narrativeResponse.json().catch(() => null);
+
+      if (narrativeResponse.ok && narrativeData?.ok && narrativeData?.narrative) {
+        finalResult = { ...scoreData.result, narrative: narrativeData.narrative };
+      } else {
+        finalResult = { ...scoreData.result, narrative: localResult.narrative };
+      }
+    } catch (_narrativeError) {
+      finalResult = { ...scoreData.result, narrative: localResult.narrative };
+    }
+
+    state.result = finalResult;
+    renderResults(finalResult);
     setHeader("Diagnostic output", "Your results reflect the specific signal path you surfaced and the information you provided.", "Output generated");
     showStage(resultsStage);
   } catch (error) {
-    alert(error.message || "Unable to generate output.");
-    setHeader("Structured diagnostic sequence", openingNotice, "Diagnostic in progress");
-    showStage(questionStage);
-    renderQuestion();
+    state.result = localResult;
+    renderResults(localResult);
+    document.getElementById("scoreBadge").textContent = "Output generated";
+    setHeader("Diagnostic output", "Your results reflect the specific signal path you surfaced and the information you provided.", "Output generated");
+    showStage(resultsStage);
   }
 }
 
 function buildPayload() {
+  const contextFragments = [
+    state.answers.description || "",
+    state.answers.participantRoleMap ? `Participant roles: ${state.answers.participantRoleMap}.` : "",
+    state.answers.keyPersonRoleCoverage ? `Key-person contribution: ${state.answers.keyPersonRoleCoverage}.` : "",
+    state.answers.approverRoleMap ? `Approver mix: ${state.answers.approverRoleMap}.` : "",
+    state.answers.systemFrictionPoint ? `System friction: ${state.answers.systemFrictionPoint}.` : "",
+    state.answers.escalationReason ? `Escalation trigger: ${state.answers.escalationReason}.` : ""
+  ].filter(Boolean).join(" ");
   return {
     processName: state.answers.processName || "Unnamed pathway",
     businessUnit: state.answers.businessUnit || "",
     decisionType: state.answers.decisionType || "other",
-    description: state.answers.description || "",
+    description: contextFragments,
     decisionDays: Number(state.answers.decisionDays || 0),
     approvalCount: Number(state.answers.approvalCount || 0),
     handoffCount: Number(state.answers.handoffCount || 0),
@@ -1075,6 +1322,96 @@ function buildPayload() {
     hourlyCost: Number(state.answers.hourlyCost || 0),
     annualVolume: Number(state.answers.annualVolume || 0),
     meetingHours: Number(state.answers.meetingHours || 0)
+  };
+}
+
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function average(values) {
+  const cleaned = values.filter(v => Number.isFinite(v));
+  if (!cleaned.length) return 0;
+  return cleaned.reduce((a, b) => a + b, 0) / cleaned.length;
+}
+
+function buildLocalResult(input) {
+  const decisionDays = Number(input.decisionDays || 0);
+  const approvalCount = Number(input.approvalCount || 0);
+  const handoffCount = Number(input.handoffCount || 0);
+  const meetingCount = Number(input.meetingCount || 0);
+  const systemsTouched = Number(input.systemsTouched || 0);
+  const ownerClarity = String(input.ownerClarity || "");
+  const escalationClarity = String(input.escalationClarity || "");
+  const keyPersonDependency = String(input.keyPersonDependency || "");
+  const reopenRate = String(input.reopenRate || "");
+  const escalationRate = String(input.escalationRate || "");
+  const workaroundRate = String(input.workaroundRate || "");
+  const approvalFlow = String(input.approvalFlow || "");
+  const lateApprovals = String(input.lateApprovals || "");
+
+  const dimensions = {
+    cycle_velocity: clamp(100 - (decisionDays <= 3 ? 2 : decisionDays <= 7 ? 8 : decisionDays <= 14 ? 18 : decisionDays <= 21 ? 28 : decisionDays <= 30 ? 38 : 50), 0, 100),
+    approval_efficiency: clamp(100 - Math.min(35, approvalCount * 5) - (approvalFlow === "sequential" ? 14 : approvalFlow === "mixed" ? 6 : 0) - (lateApprovals === "frequently" ? 14 : lateApprovals === "occasionally" ? 7 : 0), 0, 100),
+    coordination_load: clamp(100 - Math.min(30, handoffCount * 5) - Math.min(22, meetingCount * 4) - Math.min(15, systemsTouched * 3), 0, 100),
+    execution_stability: clamp(100 - (ownerClarity === "unclear" ? 20 : ownerClarity === "mixed" ? 10 : 3) - (escalationClarity === "unclear" ? 16 : escalationClarity === "mixed" ? 8 : 3) - (keyPersonDependency === "heavily" ? 14 : keyPersonDependency === "somewhat" ? 7 : 0) - (reopenRate === "often" ? 14 : reopenRate === "sometimes" ? 7 : 0) - (escalationRate === "often" ? 10 : escalationRate === "sometimes" ? 5 : 0) - (workaroundRate === "often" ? 12 : workaroundRate === "sometimes" ? 6 : 0), 0, 100)
+  };
+
+  const contradictions = [];
+  if (approvalCount <= 2 && decisionDays > 20) contradictions.push({ message: "Visible approvals are low, but latency remains high, suggesting hidden friction." });
+  if (ownerClarity === "clear" && escalationRate === "often") contradictions.push({ message: "Ownership appears clear, but the pathway still depends on frequent escalation." });
+  if (ownerClarity === "clear" && keyPersonDependency === "heavily") contradictions.push({ message: "Ownership appears clear, but the pathway still depends heavily on specific individuals." });
+
+  const patterns = [];
+  if (dimensions.approval_efficiency <= 55 && dimensions.cycle_velocity <= 60) patterns.push("approval_layering_pattern");
+  if (dimensions.coordination_load <= 55 && dimensions.execution_stability <= 60) patterns.push("compensatory_coordination_pattern");
+  if (dimensions.execution_stability <= 52 && contradictions.length) patterns.push("unstable_pathway_pattern");
+  if (!patterns.length) patterns.push("balanced_pathway_pattern");
+
+  const score = Math.round(average(Object.values(dimensions)));
+  const band = score >= 82 ? "Healthy velocity" : score >= 65 ? "Moderate drag" : score >= 45 ? "Significant friction" : "High bureaucratic latency";
+  const annualHours = Math.round((Number(input.meetingHours || 0) * Number(input.annualVolume || 0) * 0.5) + (Number(input.peopleInvolved || 0) * 8 * clamp((100 - score) / 100, 0.12, 0.85) * 12));
+  const annualCost = Math.round(annualHours * Number(input.hourlyCost || 0));
+  const capacityDrag = Math.round(clamp((((100 - score) / 100) * 32) + Math.min(8, Number(input.peopleInvolved || 0) / 3), 5, 38));
+  const routeFamily = input.decisionType === "procurement" ? "approval_density_route" : input.decisionType === "hiring" ? "sequencing_route" : (input.decisionType === "budget" || input.decisionType === "policy") ? "governance_latency_route" : input.decisionType === "program" ? "coordination_route" : input.decisionType === "risk" ? "exception_route" : "mixed_route";
+  const leadPattern = patterns[0];
+
+  const narrative = {
+    executive_interpretation: `${input.processName || 'This pathway'} appears to show ${band.toLowerCase()} driven most visibly by ${leadPattern.replaceAll('_', ' ')}. The pattern suggests the organization is spending meaningful effort moving the pathway itself, not just resolving the underlying decision.`,
+    leadership_implication: `Leadership should treat this as a structural condition rather than a one-off complaint. The dominant intervention point is the lowest-performing part of the pathway: approvals, coordination load, or execution stability.`,
+    tradeoff_note: `Some burden may be justified by risk, quality, or governance needs. The issue is whether the current amount of friction is proportionate to the decision being processed.`,
+    time_money_resources_summary: `Directional modeling suggests roughly ${annualHours.toLocaleString()} annual hours* and about $${annualCost.toLocaleString()} in labor exposure*, with capacity drag around ${capacityDrag}%*.`,
+    key_friction_flags: [
+      approvalCount >= 5 ? "High approval density is increasing pathway weight." : null,
+      meetingCount >= 4 ? "Meeting demand suggests coordination is compensating for structural weakness." : null,
+      handoffCount >= 5 ? "High handoff density is distributing accountability broadly." : null,
+      escalationRate === "often" ? "Escalation has become part of the normal operating model." : null,
+      keyPersonDependency === "heavily" ? "The pathway appears brittle because it depends on specific people." : null,
+      contradictions.length ? "Surface answers suggest the formal process may look healthier than the lived one." : null
+    ].filter(Boolean),
+    recommended_interventions: [
+      dimensions.approval_efficiency === Math.min(...Object.values(dimensions)) ? "Reduce approval layering or collapse confirmatory checkpoints first." : null,
+      dimensions.coordination_load === Math.min(...Object.values(dimensions)) ? "Reduce coordination burden by clarifying routing and reducing side-channel work." : null,
+      dimensions.execution_stability === Math.min(...Object.values(dimensions)) ? "Clarify ownership, escalation rules, and rework thresholds before adding process complexity." : null,
+      "Review this pathway with the people who do the work, not just the people who govern it.",
+      "Use advisory follow-on work if the pattern appears systemic rather than isolated."
+    ].filter(Boolean)
+  };
+
+  return {
+    score,
+    band,
+    benchmark_position: score >= 65 ? "Within comparable range" : "Below comparable range",
+    route_family: routeFamily,
+    exposure: { annual_hours: annualHours, annual_cost: annualCost, capacity_drag_percent: capacityDrag },
+    contradictions,
+    patterns,
+    dimensions,
+    narrative,
+    key_findings: narrative.key_friction_flags,
+    intervention_priorities: narrative.recommended_interventions,
+    watch_items: contradictions.map(item => item.message)
   };
 }
 
