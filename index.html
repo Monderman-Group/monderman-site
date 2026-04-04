@@ -88,20 +88,6 @@
     h1, h2, h3 { letter-spacing: -0.048em; }
     p { letter-spacing: -0.01em; }
 
-    ::selection {
-      background: rgba(63,110,161,0.18);
-      color: var(--text-dark);
-    }
-
-    a, button, select, input {
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    :focus-visible {
-      outline: 2px solid rgba(63,110,161,0.42);
-      outline-offset: 3px;
-    }
-
     .snap-anchor {
       scroll-margin-top: 0;
     }
@@ -173,20 +159,20 @@
     }
     .nav a {
       position: relative;
-      font-size: 0.98rem;
+      font-size: 1rem;
       font-weight: 500;
-      letter-spacing: 0.01em;
-      color: rgba(255,255,255,0.86);
-      transition: color var(--transition), transform var(--transition), opacity var(--transition);
+      letter-spacing: 0.012em;
+      color: rgba(255,255,255,0.88);
+      transition: color var(--transition), transform var(--transition);
     }
     .nav a::after {
       content: "";
       position: absolute;
       left: 0;
-      bottom: -7px;
+      bottom: -6px;
       width: 100%;
       height: 1px;
-      background: rgba(255,255,255,0.70);
+      background: rgba(255,255,255,0.74);
       transform: scaleX(0);
       transform-origin: left center;
       transition: transform 180ms ease;
@@ -214,7 +200,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: 72% 48%;
+      object-position: 79% 50%;
       opacity: 0;
       transform: scale(1.01);
       transition: opacity 720ms cubic-bezier(0.22,1,0.36,1), transform 1800ms cubic-bezier(0.22,1,0.36,1);
@@ -225,8 +211,8 @@
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(90deg, rgba(10,14,20,0.96) 0%, rgba(10,14,20,0.88) 28%, rgba(10,14,20,0.55) 52%, rgba(10,14,20,0.22) 74%, rgba(10,14,20,0.08) 100%),
-        linear-gradient(180deg, rgba(10,14,20,0.10) 0%, rgba(10,14,20,0.03) 36%, rgba(10,14,20,0.18) 100%);
+        linear-gradient(90deg, rgba(10,14,20,0.975) 0%, rgba(10,14,20,0.92) 30%, rgba(10,14,20,0.68) 54%, rgba(10,14,20,0.34) 76%, rgba(10,14,20,0.14) 100%),
+        linear-gradient(180deg, rgba(10,14,20,0.18) 0%, rgba(10,14,20,0.08) 34%, rgba(10,14,20,0.24) 100%);
     }
     .hero::after {
       content: "";
@@ -235,8 +221,8 @@
       pointer-events: none;
       z-index: 1;
       background:
-        radial-gradient(circle at 79% 18%, rgba(63,110,161,0.17) 0%, rgba(63,110,161,0.07) 18%, transparent 34%),
-        linear-gradient(180deg, rgba(7,10,16,0) 78%, rgba(7,10,16,0.22) 100%);
+        radial-gradient(circle at 82% 18%, rgba(63,110,161,0.12) 0%, rgba(63,110,161,0.05) 18%, transparent 34%),
+        linear-gradient(180deg, rgba(7,10,16,0.06) 0%, rgba(7,10,16,0.26) 100%);
     }
     .hero-inner {
       position: relative;
@@ -261,7 +247,7 @@
     }
     .hero-eyebrow {
       display: block;
-      margin: 0 0 40px;
+      margin: 0 0 34px;
       padding-left: 1px;
       font-size: 0.78rem;
       line-height: 1;
@@ -272,8 +258,8 @@
       animation-delay: 340ms;
     }
     .hero h1 {
-      margin: 0 0 20px;
-      max-width: 13.5ch;
+      margin: 0 0 16px;
+      max-width: 12.6ch;
       font-size: clamp(3rem, 4.3vw, 4.45rem);
       line-height: 0.95;
       font-weight: 700;
@@ -283,7 +269,7 @@
       animation-delay: 480ms;
     }
     .hero-dek {
-      max-width: 41ch;
+      max-width: 38ch;
       margin: 0;
       font-size: clamp(1.12rem, 1.5vw, 1.22rem);
       line-height: 1.6;
@@ -322,18 +308,18 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 48px;
+      min-height: 50px;
       min-width: 168px;
-      padding: 0 22px;
+      padding: 0 24px;
       border-radius: 999px;
-      font-size: 0.96rem;
+      font-size: 0.97rem;
       font-weight: 500;
       letter-spacing: -0.012em;
       white-space: nowrap;
       background: rgba(255,255,255,0.98);
       color: var(--accent);
       border: 1.25px solid rgba(63,110,161,0.9);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.04), 0 0 0 1px rgba(255,255,255,0.08);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.045), 0 0 0 1px rgba(255,255,255,0.08);
       transition: background 180ms cubic-bezier(0.22,1,0.36,1), color 180ms cubic-bezier(0.22,1,0.36,1), border-color 180ms cubic-bezier(0.22,1,0.36,1), transform 180ms cubic-bezier(0.22,1,0.36,1), box-shadow 180ms cubic-bezier(0.22,1,0.36,1);
       cursor: pointer;
     }
@@ -396,7 +382,7 @@
     }
     .section-intro p {
       margin: 0;
-      max-width: 56ch;
+      max-width: 58ch;
       font-size: 1.04rem;
       line-height: 1.7;
       color: var(--muted-dark);
@@ -406,17 +392,41 @@
     .recognition-strip {
       background: var(--bg-offwhite);
       color: var(--text-dark);
-      padding: 64px 34px 40px;
+      padding: 40px 34px 26px;
+      border-top: 1px solid rgba(21,32,43,0.04);
+      border-bottom: 1px solid rgba(21,32,43,0.04);
     }
     .recognition-inner {
       max-width: var(--max);
       margin: 0 auto;
     }
-    .recognition-inner p {
+    .recognition-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(340px, 420px));
+      justify-content: center;
+      gap: 16px 28px;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    .recognition-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      min-height: 40px;
+    }
+    .recognition-dot {
+      width: 7px;
+      height: 7px;
+      margin-top: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      flex: 0 0 auto;
+      box-shadow: 0 0 0 3px rgba(63,110,161,0.07);
+    }
+    .recognition-text {
       margin: 0;
-      max-width: 60ch;
-      font-size: 1.03rem;
-      line-height: 1.72;
+      font-size: 0.96rem;
+      line-height: 1.58;
       color: var(--muted-dark);
     }
 
@@ -465,12 +475,13 @@
     .estimate-label,
     .latest-label {
       margin: 0 0 18px;
-      font-size: 0.72rem;
+      font-size: 0.66rem;
       font-weight: 700;
       line-height: 1;
-      letter-spacing: 0.24em;
+      letter-spacing: 0.20em;
       text-transform: uppercase;
       color: var(--accent);
+      opacity: 0.85;
     }
     .cost-heading h2,
     .diagnostic-estimate-heading h2 {
@@ -638,7 +649,7 @@
       background: rgba(255,255,255,0.99);
       border: 1px solid var(--line-dark);
       border-radius: var(--panel-radius);
-      padding: 40px 34px 52px;
+      padding: 40px 34px 46px;
       overflow: hidden;
       transition: transform var(--transition-slow), box-shadow var(--transition-slow), border-color var(--transition), background var(--transition);
     }
@@ -673,7 +684,7 @@
     }
     .approach-card-link {
       margin-top: auto;
-      align-self: flex-end;
+      align-self: flex-start;
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -685,8 +696,8 @@
     }
 
     .approach-synthesis {
-      margin-top: 60px;
-      padding: 40px 34px 34px;
+      margin-top: 52px;
+      padding: 40px 34px 10px;
       background: #F8F9FA;
       border-radius: var(--panel-radius);
       border: 1px solid #E3E7EB;
@@ -694,42 +705,68 @@
     }
     .approach-synthesis-copy {
       max-width: 52ch;
-      margin: 0 auto 30px;
-      font-size: 1.04rem;
-      line-height: 1.6;
+      margin: 0 auto 24px;
+      font-size: 1.02rem;
+      line-height: 1.58;
       color: #556270;
     }
     .approach-synthesis-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-      gap: 18px;
-      max-width: 980px;
-      margin: 0 auto;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      max-width: 1040px;
+      margin: 0 auto 14px;
+      align-items: stretch;
     }
     .approach-synthesis-item {
-      display: grid;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
       gap: 10px;
-      align-content: start;
-      min-height: 168px;
-      padding: 22px 20px 20px;
+      min-height: 0;
+      padding: 22px 20px 22px;
       text-align: left;
       background: #FFFFFF;
       border: 1px solid rgba(21,32,43,0.08);
       border-radius: 16px;
       box-shadow: var(--soft-shadow);
       color: var(--text-dark);
-      transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition), background var(--transition);
+      transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease, background 200ms ease;
     }
     .approach-synthesis-item strong {
-      font-size: 1rem;
-      line-height: 1.15;
-      letter-spacing: -0.02em;
+      font-size: 0.98rem;
+      line-height: 1.12;
+      letter-spacing: -0.025em;
       color: var(--text-dark);
     }
-    .approach-synthesis-item span {
-      font-size: 0.9rem;
+    .approach-synthesis-item:hover strong,
+    .approach-synthesis-item.is-linked strong {
+      color: var(--accent-dark);
+    }
+    .approach-synthesis-item:hover .approach-synthesis-link,
+    .approach-synthesis-item.is-linked .approach-synthesis-link {
+      color: var(--accent-dark);
+    }
+    .approach-synthesis-link {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      min-height: 0;
+      padding: 0;
+      border-radius: 0;
+      background: transparent;
+      border: 0;
+      font-size: 0.66rem;
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .approach-synthesis-body {
+      font-size: 0.88rem;
       line-height: 1.56;
-      color: var(--muted-dark);
+      color: #5F6B78;
     }
     .approach-synthesis-item.is-linked,
     .approach-synthesis-item:hover {
@@ -739,23 +776,23 @@
       background: #FFFFFF;
     }
     .approach-foundation {
-      margin: 22px auto 0;
-      max-width: 980px;
-      min-height: 56px;
+      margin: 20px auto 0;
+      max-width: 640px;
+      min-height: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0 20px;
-      border-radius: 16px;
-      background: var(--accent-light);
-      border: 1px solid var(--accent);
-      color: #FFFFFF;
-      font-size: 0.76rem;
+      padding: 16px 20px;
+      border-radius: 999px;
+      background: rgba(63,110,161,0.04);
+      border: 1px solid rgba(63,110,161,0.10);
+      color: var(--accent-dark);
+      font-size: 0.74rem;
       line-height: 1.2;
       font-weight: 700;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
-      box-shadow: var(--soft-shadow);
+      box-shadow: none;
       text-align: center;
     }
 
@@ -834,7 +871,7 @@
       height: 100%;
       object-fit: cover;
     }
-    .latest-card-body { padding: 18px 18px 20px; }
+    .latest-card-body { padding: 16px 16px 18px; }
     .latest-card-kicker {
       margin: 0 0 9px;
       font-size: 0.68rem;
@@ -865,13 +902,6 @@
       font-size: 0.90rem;
       font-weight: 500;
       color: var(--text-dark);
-      transition: color var(--transition), transform var(--transition);
-    }
-    .latest-card-link:hover,
-    .latest-card-link:focus-visible {
-      color: var(--accent-dark);
-      transform: translateX(1px);
-      outline: none;
     }
     .latest-dots {
       display: flex;
@@ -982,15 +1012,6 @@
       line-height: 1.64;
       color: rgba(245,247,250,0.60);
     }
-    .connect-actions {
-      margin-top: 18px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    .connect-actions .btn {
-      min-width: 0;
-    }
 
     .footer {
       background: #0D141C;
@@ -1053,13 +1074,6 @@
       font-size: 0.95rem;
       line-height: 1.45;
       color: rgba(245,247,250,0.82);
-      transition: color var(--transition), transform var(--transition);
-    }
-    .footer-nav a:hover,
-    .footer-nav a:focus-visible {
-      color: #FFFFFF;
-      transform: translateX(1px);
-      outline: none;
     }
     .footer-bottom {
       display: flex;
@@ -1073,7 +1087,7 @@
       margin: 0;
       font-size: 0.88rem;
       line-height: 1.6;
-      color: rgba(245,247,250,0.58);
+      color: rgba(245,247,250,0.54);
     }
 
     @media (max-width: 1100px) {
@@ -1142,8 +1156,9 @@
         font-size: 0.64rem;
         letter-spacing: 0.12em;
       }
-      .recognition-strip { padding: 30px 20px 20px; }
-      .recognition-inner p { font-size: 0.98rem; line-height: 1.68; }
+      .recognition-strip { padding: 24px 20px 18px; }
+      .recognition-grid { grid-template-columns: minmax(0, 620px); justify-content: center; gap: 14px; }
+      .recognition-text { font-size: 0.94rem; line-height: 1.6; }
       .bureaucracy-cost,
       .diagnostic-estimate { padding: 62px 20px 70px; }
       .approach { padding: 62px 20px 68px; }
@@ -1157,12 +1172,17 @@
       }
       .approach-synthesis {
         margin-top: 44px;
-        padding: 30px 22px 24px;
+        padding: 30px 22px 12px;
+      }
+      .approach-synthesis-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
       }
       .approach-foundation {
-        min-height: 54px;
-        font-size: 0.72rem;
+        max-width: 100%;
+        font-size: 0.7rem;
         letter-spacing: 0.12em;
+        padding: 14px 16px;
       }
       .estimate-footer {
         align-items: flex-start;
@@ -1176,16 +1196,6 @@
         align-items: flex-start;
       }
     }
-
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
-      }
-    }
   </style>
 </head>
 <body>
@@ -1195,7 +1205,7 @@
       <nav class="nav" aria-label="Primary navigation">
         <a href="#approach">Approach</a>
         <a href="diagnostic-tools.html">Diagnostic Tools</a>
-        <a href="#latest">Research</a>
+        <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
         <a href="advisory-services-connect.html">Connect</a>
       </nav>
@@ -1209,14 +1219,14 @@
     </div>
     <div class="hero-inner">
       <div class="hero-copy">
-        <p class="hero-eyebrow">Institutional Design</p>
-        <h1 id="hero-title">Take ownership of the conditions that determine performance.</h1>
+        <p class="hero-eyebrow">Institutional Performance</p>
+        <h1 id="hero-title">Where structure enables execution, performance follows.</h1>
         <p class="hero-dek">
-          Monderman helps organizations identify and reshape the structural conditions that slow decisions, absorb capacity, and weaken execution.
+          Monderman helps organizations reshape the structural conditions beneath execution—so performance improves in measurable, repeatable, and sustained ways.
         </p>
         <div class="hero-actions">
           <a class="btn btn-accent" href="why-monderman.html">Why Monderman</a>
-          <a class="btn btn-secondary" href="diagnostic-tools.html">Start the Diagnostic Evaluation</a>
+          <a class="btn btn-secondary" href="diagnostic-tools.html">Enter the Diagnostic Suite</a>
           <a class="btn btn-secondary" href="advisory-services.html">Advisory Engagements</a>
         </div>
       </div>
@@ -1226,12 +1236,24 @@
 
   <section class="recognition-strip" aria-label="Institutional recognition">
     <div class="recognition-inner">
-      <p>
-        Decisions slow down without a clear reason.<br><br>
-        Coordination expands to compensate for unclear structure.<br><br>
-        Execution weakens, even when talent and intent are strong.<br><br>
-        The organization appears to be moving—but is increasingly harder to move.
-      </p>
+      <div class="recognition-grid">
+        <div class="recognition-item">
+          <span class="recognition-dot" aria-hidden="true"></span>
+          <p class="recognition-text">Decisions slow down without a clear reason.</p>
+        </div>
+        <div class="recognition-item">
+          <span class="recognition-dot" aria-hidden="true"></span>
+          <p class="recognition-text">Coordination expands to compensate for unclear structure.</p>
+        </div>
+        <div class="recognition-item">
+          <span class="recognition-dot" aria-hidden="true"></span>
+          <p class="recognition-text">Execution weakens, even when talent and intent are strong.</p>
+        </div>
+        <div class="recognition-item">
+          <span class="recognition-dot" aria-hidden="true"></span>
+          <p class="recognition-text">The organization appears to be moving—but is increasingly harder to move.</p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1290,7 +1312,7 @@
           <div class="card-desc">
             We identify where authority, ownership, and accountability have drifted apart, then help realign the structure around execution.
           </div>
-          <a class="approach-card-link" href="structural-clarity-article.html">Read more &#8594;</a>
+          <a class="approach-card-link" href="structural-clarity-article.html">Read article &#8594;</a>
         </div>
 
         <div class="approach-card reveal reveal-delay-2" data-effect-target="velocity">
@@ -1298,7 +1320,7 @@
           <div class="card-desc">
             We surface where decision pathways have become heavier than the work requires, slowing execution and increasing drag.
           </div>
-          <a class="approach-card-link" href="decision-velocity-article.html">Read more &#8594;</a>
+          <a class="approach-card-link" href="decision-velocity-article.html">Read article &#8594;</a>
         </div>
 
         <div class="approach-card reveal reveal-delay-3" data-effect-target="systems">
@@ -1306,7 +1328,7 @@
           <div class="card-desc">
             We identify where policies, controls, and administrative processes are absorbing time and effort that should be supporting delivery.
           </div>
-          <a class="approach-card-link" href="operational-systems-article.html">Read more &#8594;</a>
+          <a class="approach-card-link" href="operational-systems-article.html">Read article &#8594;</a>
         </div>
 
         <div class="approach-card reveal reveal-delay-4" data-effect-target="performance">
@@ -1314,31 +1336,35 @@
           <div class="card-desc">
             We help organizations strengthen the conditions that allow performance to hold under pressure, complexity, and change.
           </div>
-          <a class="approach-card-link" href="institutional-performance-article.html">Read more &#8594;</a>
+          <a class="approach-card-link" href="institutional-performance-article.html">Read article &#8594;</a>
         </div>
       </div>
 
       <div class="approach-synthesis reveal">
         <p class="cost-label">Reinforcing Outcomes</p>
         <p class="approach-synthesis-copy">
-          Four reinforcing outcomes Monderman is designed to produce across the conditions that matter most for institutional advantage.
+          Four reinforcing outcomes that emerge when structural conditions are aligned for performance.
         </p>
         <div class="approach-synthesis-grid">
           <a class="approach-synthesis-item" data-effect="clarity" href="structural-clarity-article.html">
             <strong>Confident Action</strong>
-            <span>When structural clarity restores confidence in who owns what, who decides, and how execution moves.</span>
+            <span class="approach-synthesis-link">Structural Clarity</span>
+            <span class="approach-synthesis-body">When structural clarity restores confidence in who owns what, who decides, and how execution moves.</span>
           </a>
           <a class="approach-synthesis-item" data-effect="velocity" href="decision-velocity-article.html">
             <strong>Sustained Advantage</strong>
-            <span>When decision velocity remains faster than the drag, delay, and caution accumulating beneath the work.</span>
+            <span class="approach-synthesis-link">Decision Velocity</span>
+            <span class="approach-synthesis-body">When decision velocity remains faster than the drag, delay, and caution accumulating beneath the work.</span>
           </a>
           <a class="approach-synthesis-item" data-effect="systems" href="operational-systems-article.html">
             <strong>Reclaimed Capacity</strong>
-            <span>When operational systems stop absorbing time and effort that should be available for delivery, judgment, and innovation.</span>
+            <span class="approach-synthesis-link">Operational Systems</span>
+            <span class="approach-synthesis-body">When operational systems stop absorbing time and effort that should be available for delivery, judgment, and innovation.</span>
           </a>
           <a class="approach-synthesis-item" data-effect="performance" href="institutional-performance-article.html">
             <strong>Organizational Credibility</strong>
-            <span>When performance holds under complexity in ways leaders, employees, and stakeholders can trust.</span>
+            <span class="approach-synthesis-link">Institutional Performance</span>
+            <span class="approach-synthesis-body">When institutional performance holds under complexity in ways leaders, employees, and stakeholders can trust.</span>
           </a>
         </div>
         <div class="approach-foundation">Sustained Institutional Advantage</div>
@@ -1448,7 +1474,7 @@
             Use the diagnostic suite to identify where that burden is actually forming and where to begin.
           </p>
         </div>
-        <a class="btn btn-accent" href="diagnostic-tools.html">Start the Diagnostic Evaluation</a>
+        <a class="btn btn-accent" href="diagnostic-tools.html">Enter the Diagnostic Suite</a>
       </div>
     </div>
   </section>
@@ -1551,8 +1577,8 @@
   <section class="connect" id="connect" aria-labelledby="connect-title">
     <div class="connect-inner">
       <div class="connect-copy reveal">
-        <h2 id="connect-title">Start a serious conversation.</h2>
-        <p class="connect-signal">Monderman works selectively with institutions facing consequential structural challenges.</p>
+        <h2 id="connect-title">Start a more focused conversation.</h2>
+        <p class="connect-signal">Monderman works selectively with organizations facing consequential structural challenges.</p>
         <p class="connect-text">
           If you are navigating institutional drag, decision friction, execution misalignment, or considering a diagnostic pilot, we welcome a conversation. Monderman works with organizations that understand the constraint is rarely insight alone, but the institutional capacity to act on it.
         </p>
@@ -1565,11 +1591,8 @@
           connect@monderman.com
         </a>
         <p class="connect-note">
-          For inquiries, collaborations, pilot discussions, or advisory conversations, reach out directly or use the structured connect form.
+          For inquiries, collaborations, pilot discussions, or advisory conversations, reach out directly and we will respond as promptly as possible.
         </p>
-        <div class="connect-actions">
-          <a class="btn btn-secondary" href="advisory-services-connect.html">Open Connect Form</a>
-        </div>
       </div>
     </div>
   </section>
@@ -1580,7 +1603,7 @@
         <div class="footer-brand">
           <div class="footer-mark">Monderman</div>
           <p class="footer-copy">
-            Advisory thinking on institutional performance, decision velocity, and the design of systems that sustain clarity under complexity.
+            Advisory work on structure, execution, and the conditions that sustain institutional advantage.
           </p>
         </div>
 
@@ -1589,13 +1612,12 @@
             <p class="footer-nav-title">Explore</p>
             <a href="#approach">Approach</a>
             <a href="diagnostic-tools.html">Diagnostic Tools</a>
-            <a href="#latest">Research</a>
+            <a href="research.html">Research</a>
             <a href="why-monderman.html">Why Monderman</a>
           </div>
 
           <div class="footer-nav-col">
             <p class="footer-nav-title">Connect</p>
-            <a href="advisory-services-connect.html">Connect form</a>
             <a href="mailto:connect@monderman.com">connect@monderman.com</a>
           </div>
         </div>
@@ -1603,7 +1625,7 @@
 
       <div class="footer-bottom">
         <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
-        <p class="footer-contact">Clarity for complex institutions.</p>
+        <p class="footer-contact">Where structure enables execution, performance follows.</p>
       </div>
     </div>
   </footer>
