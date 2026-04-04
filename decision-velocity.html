@@ -15,58 +15,344 @@
     @font-face { font-family:"Neue Haas Grotesk"; src:url("55font.woff2") format("woff2"),url("55font.woff") format("woff"); font-weight:400; }
     @font-face { font-family:"Neue Haas Grotesk"; src:url("65font.woff2") format("woff2"),url("65font.woff") format("woff"); font-weight:500; }
     @font-face { font-family:"Neue Haas Grotesk"; src:url("75font.woff2") format("woff2"),url("75font.woff") format("woff"); font-weight:700; }
+
     :root{
-      --ink:#15202B;--ink-soft:#5B6774;--ink-muted:#7C8794;--page:#F4F6F9;--panel:#FFFFFF;--panel-soft:#F8FAFC;
-      --dark:#0F1720;--dark-2:#111B25;--accent:#3F6EA1;--accent-dark:#315983;--accent-soft:rgba(63,110,161,.08);
-      --green:#79A889;--gold:#D4B96E;--amber:#D49459;--rose:#C66C74;
-      --shadow-lg:0 28px 70px rgba(15,23,32,.10);--shadow-md:0 18px 40px rgba(15,23,32,.08);--shadow-sm:0 8px 18px rgba(15,23,32,.05);
+      --ink:#15202B;
+      --ink-soft:#5B6774;
+      --ink-muted:#7C8794;
+      --page:#F4F6F9;
+      --panel:#FFF;
+      --panel-soft:#F8FAFC;
+      --dark:#0F1720;
+      --dark-2:#111B25;
+      --accent:#3F6EA1;
+      --accent-dark:#315983;
+      --accent-muted:rgba(63,110,161,.35);
+      --shadow-lg:0 28px 70px rgba(15,23,32,.10);
+      --shadow-md:0 18px 40px rgba(15,23,32,.08);
+      --shadow-sm:0 8px 18px rgba(15,23,32,.05);
       --transition:220ms cubic-bezier(.22,1,.36,1);
     }
+
     *{box-sizing:border-box}
     html,body{margin:0;padding:0}
-    body{min-height:100vh;font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;color:var(--ink);background:radial-gradient(circle at 84% 12%, rgba(63,110,161,.12), transparent 24%),radial-gradient(circle at 12% 84%, rgba(63,110,161,.06), transparent 30%),linear-gradient(180deg,#F9FBFD 0%,var(--page) 100%);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
-    button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
-    .shell{min-height:100vh;display:grid;place-items:center;padding:44px 20px 56px}.app{width:min(1240px,100%)}
-    .loading-screen{position:fixed;inset:0;background:#F7F9FC;display:grid;place-items:center;z-index:300;transition:opacity .55s ease, visibility .55s ease}.loading-screen.hidden{opacity:0;visibility:hidden;pointer-events:none}
-    .loading-box{display:grid;gap:18px;justify-items:center;text-align:center}.spinner{width:64px;height:64px;border-radius:999px;border:4px solid rgba(63,110,161,.16);border-top-color:var(--accent);animation:spin 1s linear infinite}.spinner.spinner-sm{width:54px;height:54px}@keyframes spin{to{transform:rotate(360deg)}}
-    .loading-title{margin:0;font-size:.86rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-muted);font-weight:700}.loading-copy{margin:0;max-width:36ch;font-size:.98rem;line-height:1.6;color:var(--ink-soft)}
-    .frame-top{display:grid;gap:10px;margin:0 auto 18px;max-width:1020px;padding:0 6px}.engine-note,.tool-title{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}.eyebrow{margin:0;font-size:.76rem;font-weight:700;line-height:1;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-muted)}.engine-copy{margin:0;color:var(--ink-soft);font-size:.95rem;line-height:1.6}.tool-title h1{margin:0;font-size:clamp(2.4rem,4.8vw,4.3rem);line-height:.93;letter-spacing:-.055em;font-weight:700;color:var(--dark)}.tool-title p{margin:0;max-width:46ch;font-size:1rem;line-height:1.65;color:var(--ink-soft)}
-    .environment{width:min(100%,1020px);min-height:780px;background:linear-gradient(180deg,#FFFFFF 0%,#F9FBFD 100%);border:1px solid rgba(21,32,43,.08);border-radius:32px;box-shadow:var(--shadow-lg);overflow:hidden;margin:0 auto;position:relative}.environment::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 84% 12%, rgba(63,110,161,.08), transparent 22%),linear-gradient(135deg, rgba(63,110,161,.045) 1px, transparent 1px);background-size:auto,30px 30px;opacity:.55}.environment-inner{position:relative;z-index:1;display:grid;grid-template-rows:auto 1fr auto;min-height:780px}
-    .env-head{padding:28px 32px 20px;border-bottom:1px solid rgba(21,32,43,.06);display:grid;gap:14px}.env-head-row{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap}.env-kicker{margin:0;font-size:.76rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}.env-status{display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:999px;background:#FFF;border:1px solid rgba(21,32,43,.08);box-shadow:var(--shadow-sm);font-size:.84rem;color:var(--ink-soft)}.env-status-dot{width:8px;height:8px;border-radius:999px;background:var(--accent)}.env-head h2{margin:0;font-size:1.42rem;line-height:1.08;letter-spacing:-.03em}.env-head p{margin:0;max-width:84ch;font-size:.96rem;line-height:1.65;color:var(--ink-soft)}
-    .stage{padding:34px 32px 28px;display:none}.stage.active{display:block}
+    body{
+      min-height:100vh;
+      font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 84% 12%, rgba(63,110,161,.12), transparent 24%),
+        radial-gradient(circle at 12% 84%, rgba(63,110,161,.06), transparent 30%),
+        linear-gradient(180deg, #F9FBFD 0%, var(--page) 100%);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      text-rendering:optimizeLegibility;
+    }
+
+    button,input,select,textarea{font:inherit}
+    a{text-decoration:none;color:inherit}
+
+    .shell{min-height:100vh;display:grid;place-items:center;padding:44px 20px 56px}
+    .app{width:min(1180px,100%)}
+
+    .loading-screen{
+      position:fixed; inset:0; background:#F7F9FC; display:grid; place-items:center; z-index:300;
+      transition:opacity .55s ease, visibility .55s ease;
+    }
+    .loading-screen.hidden{opacity:0;visibility:hidden;pointer-events:none}
+    .loading-box{display:grid;gap:18px;justify-items:center;text-align:center}
+    .spinner{
+      width:64px;height:64px;border-radius:999px;
+      border:4px solid rgba(63,110,161,.16);
+      border-top-color:var(--accent);
+      animation:spin 1s linear infinite
+    }
+    .spinner.spinner-sm{width:54px;height:54px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .loading-title{margin:0;font-size:.86rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-muted);font-weight:700}
+    .loading-copy{margin:0;max-width:34ch;font-size:.98rem;line-height:1.6;color:var(--ink-soft)}
+
+    .frame-top{display:grid;gap:10px;margin:0 auto 18px;max-width:980px;padding:0 6px}
+    .engine-note,.tool-title{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+    .eyebrow{margin:0;font-size:.76rem;font-weight:700;line-height:1;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-muted)}
+    .engine-copy{margin:0;color:var(--ink-soft);font-size:.95rem;line-height:1.6}
+    .tool-title h1{margin:0;font-size:clamp(2.4rem,4.8vw,4.3rem);line-height:.93;letter-spacing:-.055em;font-weight:700;color:var(--dark)}
+    .tool-title p{margin:0;max-width:44ch;font-size:1rem;line-height:1.65;color:var(--ink-soft)}
+
+    .environment{
+      width:min(100%, 980px);
+      min-height:760px;
+      background:linear-gradient(180deg,#FFFFFF 0%, #F9FBFD 100%);
+      border:1px solid rgba(21,32,43,.08);
+      border-radius:32px;
+      box-shadow:var(--shadow-lg);
+      overflow:hidden;
+      margin:0 auto;
+      position:relative;
+    }
+
+    .environment::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background:
+        radial-gradient(circle at 84% 12%, rgba(63,110,161,.08), transparent 22%),
+        linear-gradient(135deg, rgba(63,110,161,.045) 1px, transparent 1px);
+      background-size:auto, 30px 30px;
+      opacity:.55;
+    }
+
+    .environment-inner{
+      position:relative;
+      z-index:1;
+      display:grid;
+      grid-template-rows:auto 1fr auto;
+      min-height:760px;
+    }
+
+    .env-head{
+      padding:28px 32px 20px;
+      border-bottom:1px solid rgba(21,32,43,.06);
+      display:grid;
+      gap:14px;
+    }
+
+    .env-head-row{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap}
+    .env-kicker{margin:0;font-size:.76rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
+    .env-status{
+      display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:999px;background:#FFF;
+      border:1px solid rgba(21,32,43,.08);box-shadow:var(--shadow-sm);font-size:.84rem;color:var(--ink-soft)
+    }
+    .env-status-dot{width:8px;height:8px;border-radius:999px;background:var(--accent)}
+    .env-head h2{margin:0;font-size:1.42rem;line-height:1.08;letter-spacing:-.03em}
+    .env-head p{margin:0;max-width:78ch;font-size:.96rem;line-height:1.65;color:var(--ink-soft)}
+
+    .stage{padding:34px 32px 28px;display:none}
+    .stage.active{display:block}
+
     .intro-layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(280px,.95fr);gap:22px;align-items:start}
-    .card,.summary-card,.result-card,.chart-card,.visual-card,.ladder-card,.table-card{background:#FFF;border:1px solid rgba(21,32,43,.08);border-radius:22px;box-shadow:var(--shadow-md);padding:22px 22px 20px;overflow-wrap:anywhere;min-width:0}
-    .card.soft{background:linear-gradient(180deg,#FBFCFE 0%,#F8FAFC 100%)}
-    .card h3,.summary-card h3,.result-card h3,.chart-card h3,.visual-card h3,.ladder-card h3,.table-card h3{margin:0 0 10px;font-size:1.02rem;line-height:1.2;letter-spacing:-.02em}
-    .card p,.card li,.question-copy,.result-copy,.tiny{color:var(--ink-soft);line-height:1.65;font-size:.95rem}.card ul{margin:12px 0 0;padding-left:18px;display:grid;gap:8px}
-    .notice-block{display:grid;gap:14px}.notice{padding:16px 16px 14px;border-radius:18px;border:1px solid rgba(63,110,161,.14);background:rgba(63,110,161,.05)}.notice strong{display:block;margin-bottom:6px;font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}.gentle-note{margin-top:14px;padding:14px 16px;border-radius:16px;background:#F8FAFC;border:1px solid rgba(21,32,43,.08)}
-    .question-shell{display:grid;gap:20px;height:100%;align-content:start}.question-card{width:min(100%,790px);min-height:420px;margin:0 auto;background:#FFF;border:1px solid rgba(21,32,43,.08);border-radius:28px;box-shadow:var(--shadow-md);padding:28px 28px 24px;display:grid;align-content:start;gap:18px;overflow:hidden}.question-meta{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.question-label{margin:0;font-size:.76rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}.question-step{margin:0;font-size:.86rem;color:var(--ink-muted)}.question-title{margin:0;font-size:1.42rem;line-height:1.14;letter-spacing:-.035em}.question-copy{margin:0}.required-note{display:none;padding:12px 14px;border-radius:14px;background:#FFF8EC;border:1px solid #F0D29D;color:#795B22;font-size:.9rem;line-height:1.5}.required-note.show{display:block}
-    .choices{display:grid;gap:12px}.choice{width:100%;text-align:left;cursor:pointer;background:#FFF;border:1px solid rgba(21,32,43,.10);border-radius:18px;padding:15px 16px 14px;transition:transform var(--transition), border-color var(--transition), background var(--transition), box-shadow var(--transition)}.choice.selected{border-color:rgba(63,110,161,.34);background:rgba(63,110,161,.06)}.choice:hover,.choice:focus-visible{outline:none;transform:translateY(-1px);border-color:rgba(63,110,161,.24);background:rgba(63,110,161,.04);box-shadow:var(--shadow-sm)}.choice-title{display:block;font-size:.96rem;font-weight:600;line-height:1.4;color:var(--ink)}.choice-note{display:block;margin-top:4px;font-size:.83rem;line-height:1.5;color:var(--ink-soft)}
-    .field-group{display:grid;gap:14px}.field label{display:block;margin-bottom:8px;font-size:.85rem;font-weight:600;color:var(--ink)}.field input,.field select,.field textarea{width:100%;max-width:100%;min-height:50px;padding:0 14px;border-radius:16px;border:1px solid rgba(21,32,43,.12);background:#FFF;color:var(--ink);transition:border-color var(--transition), box-shadow var(--transition)}.field textarea{min-height:118px;padding:14px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:rgba(63,110,161,.40);box-shadow:0 0 0 4px rgba(63,110,161,.10)}.field small{display:block;margin-top:7px;font-size:.79rem;line-height:1.5;color:var(--ink-muted)}
-    .checkbox-card{padding:18px;border-radius:18px;border:1px solid rgba(21,32,43,.08);background:var(--panel-soft)}.checkbox-row{display:flex;gap:12px;align-items:flex-start}.checkbox-row input{margin-top:3px;accent-color:var(--accent);transform:scale(1.08)}.checkbox-row label{font-size:.95rem;line-height:1.62;color:var(--ink)}
-    .title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.info-btn{width:26px;height:26px;border-radius:999px;border:1px solid rgba(63,110,161,.22);background:#FFF;color:var(--accent);font-size:.82rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow-sm)}.info-panel{margin-top:10px;padding:12px 12px 10px;border-radius:14px;background:rgba(63,110,161,.05);border:1px solid rgba(63,110,161,.12);font-size:.84rem;line-height:1.55;color:var(--ink-soft);display:none}.info-panel.show{display:block}
-    .cluster-stack{display:grid;gap:18px;position:relative}.cluster-children{display:grid;gap:18px;position:relative;padding-top:10px}.cluster-children::before{content:"";position:absolute;left:50%;top:-4px;width:2px;height:14px;background:rgba(63,110,161,.42);transform:translateX(-50%)}.branch-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 20px;position:relative;padding-top:16px}.branch-grid.single{grid-template-columns:1fr}.branch-grid::before{content:"";position:absolute;left:15%;right:15%;top:0;height:2px;background:rgba(63,110,161,.26)}.mini-card{position:relative;padding:18px 18px 16px;border:1px solid rgba(63,110,161,.14);border-radius:20px;background:linear-gradient(180deg,#FFF 0%,#FAFCFF 100%);box-shadow:var(--shadow-sm);min-width:0}.mini-card::before{content:"";position:absolute;left:50%;top:-16px;width:2px;height:16px;background:rgba(63,110,161,.42);transform:translateX(-50%)}.mini-eyebrow{margin:0 0 8px;font-size:.68rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}.mini-card h4{margin:0 0 6px;font-size:1rem;line-height:1.26;letter-spacing:-.02em}.mini-copy{margin:0 0 12px;font-size:.88rem;line-height:1.58;color:var(--ink-soft)}
-    .rating-matrix{display:grid;gap:10px}.rating-row{display:grid;grid-template-columns:minmax(0,1.4fr) repeat(6,44px);gap:8px;align-items:center}.rating-label{font-size:.86rem;line-height:1.45;color:var(--ink)}.rating-pill{height:38px;border-radius:12px;border:1px solid rgba(21,32,43,.12);background:#FFF;display:grid;place-items:center;cursor:pointer;font-size:.82rem;font-weight:600;color:var(--ink-soft)}.rating-pill.active{border-color:rgba(63,110,161,.32);background:rgba(63,110,161,.08);color:var(--accent)}.scale-head{display:grid;grid-template-columns:minmax(0,1.4fr) repeat(6,44px);gap:8px;color:var(--ink-muted);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em}
-    .env-foot{padding:18px 32px 28px;border-top:1px solid rgba(21,32,43,.06);display:grid;gap:18px}.progress-wrap{display:grid;gap:10px}.progress-top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}.progress-top p{margin:0;font-size:.84rem;color:var(--ink-muted)}.progress-track{height:10px;background:rgba(21,32,43,.08);border-radius:999px;overflow:hidden}.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent) 0%, #5B88B8 100%);border-radius:999px;transition:width 260ms ease}.actions{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.actions-left,.actions-right{display:flex;gap:10px;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border-radius:999px;border:1px solid rgba(21,32,43,.12);background:#FFF;color:var(--ink);cursor:pointer;font-size:.92rem;font-weight:500;letter-spacing:-.01em;transition:transform var(--transition), box-shadow var(--transition), background var(--transition), border-color var(--transition), color var(--transition), opacity var(--transition)}.btn:hover,.btn:focus-visible{outline:none;transform:translateY(-1px);box-shadow:var(--shadow-sm)}.btn[disabled]{opacity:.48;cursor:not-allowed;transform:none;box-shadow:none}.btn-accent{background:var(--accent);border-color:rgba(63,110,161,.18);color:#FFF}.btn-accent:hover,.btn-accent:focus-visible{background:var(--accent-dark)}.btn-accent.btn-disabled{background:rgba(63,110,161,.38);border-color:rgba(63,110,161,.18);color:#FFF;opacity:1;cursor:not-allowed;box-shadow:none;transform:none}.btn-accent.btn-disabled:hover,.btn-accent.btn-disabled:focus-visible{background:rgba(63,110,161,.38);box-shadow:none;transform:none}.btn-soft{background:rgba(63,110,161,.07);border-color:rgba(63,110,161,.16);color:var(--accent)}
-    .processing-stage{height:100%;display:grid;place-items:center}.processing-card{width:min(680px,100%);text-align:center;padding:38px 28px;border-radius:28px;background:linear-gradient(180deg,#FFFFFF 0%, #F7FAFD 100%);border:1px solid rgba(21,32,43,.08);box-shadow:var(--shadow-md);display:grid;justify-items:center;gap:18px}.processing-card h3{margin:0;font-size:1.6rem;line-height:1.06;letter-spacing:-.04em}.processing-card p{margin:0;max-width:40ch;color:var(--ink-soft);line-height:1.65}.processing-list{display:grid;gap:9px;margin-top:6px;text-align:left}.processing-item{display:flex;gap:10px;align-items:flex-start;color:var(--ink-soft);font-size:.95rem;line-height:1.55}.pulse{width:8px;height:8px;margin-top:7px;border-radius:999px;background:var(--accent);box-shadow:0 0 0 0 rgba(63,110,161,.34);animation:pulse 1.7s infinite}@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(63,110,161,.34)}70%{box-shadow:0 0 0 10px rgba(63,110,161,0)}100%{box-shadow:0 0 0 0 rgba(63,110,161,0)}}
-    .results-layout{display:grid;gap:18px}.score-panel{background:linear-gradient(180deg,var(--dark) 0%, var(--dark-2) 100%);color:#FFF;border-radius:24px;padding:28px 24px 24px;border:1px solid rgba(255,255,255,.06);position:relative;overflow:hidden}.score-panel::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 84% 14%, rgba(63,110,161,.26), transparent 24%), linear-gradient(135deg, rgba(63,110,161,.05) 1px, transparent 1px);background-size:auto, 30px 30px;opacity:.55}.score-inner{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:end}.score-kicker{margin:0 0 8px;font-size:.76rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.62)}.score-number{margin:0;font-size:clamp(3rem,6vw,5rem);line-height:.88;letter-spacing:-.08em;font-weight:700}.score-band{margin:8px 0 0;font-size:1rem;color:rgba(255,255,255,.88)}.score-summary{margin:14px 0 0;max-width:62ch;font-size:.96rem;line-height:1.68;color:rgba(255,255,255,.76)}.score-badge{padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);font-size:.84rem;font-weight:600;white-space:nowrap}
-    .summary-grid,.text-grid,.chart-grid,.insight-grid,.visual-grid{display:grid;gap:14px}.summary-grid{grid-template-columns:repeat(6,minmax(0,1fr))}.text-grid,.chart-grid,.insight-grid,.visual-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.summary-card{padding:18px 16px 16px}.summary-label{margin:0 0 8px;font-size:.72rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-muted)}.summary-value{margin:0;font-size:1.08rem;line-height:1.14;letter-spacing:-.04em;font-weight:700;overflow-wrap:anywhere}.summary-sub{margin:8px 0 0;font-size:.82rem;line-height:1.5;color:var(--ink-soft);overflow-wrap:anywhere}.result-copy{margin:0;white-space:pre-line;overflow-wrap:anywhere}.result-list{margin:0;padding-left:18px;display:grid;gap:8px}.result-list li{color:var(--ink-soft);font-size:.92rem;line-height:1.6;overflow-wrap:anywhere}.chart-wrap{position:relative;height:260px;min-height:260px;max-width:100%;overflow:hidden}.chart-wrap canvas{width:100%!important;height:100%!important;display:block}
-    .benchmark-strip{display:grid;gap:10px}.benchmark-bar{position:relative;height:26px;border-radius:999px;background:linear-gradient(90deg, rgba(198,108,116,.22) 0 32%, rgba(212,185,110,.22) 32% 58%, rgba(121,168,137,.22) 58% 100%);overflow:hidden}.benchmark-range{position:absolute;top:0;bottom:0;border-left:2px dashed rgba(21,32,43,.22);border-right:2px dashed rgba(21,32,43,.22)}.benchmark-marker{position:absolute;top:-4px;bottom:-4px;width:4px;border-radius:999px;background:var(--accent);box-shadow:0 0 0 3px rgba(63,110,161,.18)}.benchmark-legend{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:.8rem;color:var(--ink-soft)}
-    .stack-list{display:grid;gap:12px}.stack-row{display:grid;grid-template-columns:160px 1fr auto;gap:12px;align-items:center}.stack-label{font-size:.86rem;color:var(--ink)}.stack-bar{height:14px;border-radius:999px;background:#EEF2F6;overflow:hidden;position:relative}.stack-fill{height:100%;border-radius:999px}.stack-value{font-size:.82rem;color:var(--ink-soft)}
-    .heat-strip{display:grid;gap:10px}.heat-row{display:grid;grid-template-columns:150px repeat(4,1fr);gap:8px;align-items:center}.heat-label{font-size:.85rem;color:var(--ink)}.heat-cell{padding:10px 8px;border-radius:12px;text-align:center;font-size:.8rem;font-weight:600;color:#314252;background:#EEF2F6}
-    .signal-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.signal-tile{padding:14px;border-radius:16px;border:1px solid rgba(21,32,43,.08);background:linear-gradient(180deg,#FFF 0%,#F8FAFC 100%)}.signal-tile strong{display:block;margin-bottom:6px;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted)}.signal-tile span{font-size:.9rem;line-height:1.45;color:var(--ink-soft)}
-    .ladder-list{display:grid;gap:12px}.ladder-item{display:grid;grid-template-columns:110px 1fr 90px;gap:12px;align-items:center;padding:12px 14px;border-radius:16px;background:#F8FAFC;border:1px solid rgba(21,32,43,.08)}.ladder-tag{display:inline-flex;align-items:center;justify-content:center;min-height:32px;padding:0 12px;border-radius:999px;font-size:.76rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}.tag-now{background:rgba(198,108,116,.16);color:#8E4F57}.tag-next{background:rgba(212,185,110,.18);color:#826B2C}.tag-monitor{background:rgba(121,168,137,.18);color:#506E59}.ladder-focus{font-size:.92rem;color:var(--ink)}.ladder-severity{font-size:.82rem;color:var(--ink-soft);text-align:right}
-    .table{width:100%;border-collapse:collapse}.table th,.table td{padding:10px 8px;border-bottom:1px solid rgba(21,32,43,.08);text-align:left;font-size:.86rem;vertical-align:top}.table th{font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);font-weight:700}.table td{color:var(--ink-soft)}
-    .impact-chip{display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:26px;padding:0 10px;border-radius:999px;font-size:.78rem;font-weight:700}
-    .impact-0{background:#EEF2F6;color:#6E7A86}.impact-1,.impact-2{background:rgba(212,185,110,.18);color:#7A6528}.impact-3{background:rgba(212,148,89,.18);color:#8B6033}.impact-4,.impact-5{background:rgba(198,108,116,.18);color:#8C4D56}
-    .advisory-card{display:grid;gap:12px;padding:20px;border-radius:20px;border:1px solid rgba(63,110,161,.14);background:linear-gradient(180deg, rgba(63,110,161,.06) 0%, rgba(63,110,161,.03) 100%)}.results-disclaimer{padding:16px 18px;border-radius:16px;background:#F8FAFC;border:1px solid rgba(21,32,43,.08);font-size:.88rem;line-height:1.6;color:var(--ink-soft)}
-    .report-header{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:end;background:#FFF;border:1px solid rgba(21,32,43,.08);border-radius:20px;box-shadow:var(--shadow-sm);padding:22px 20px}.report-brand{margin:0 0 6px;font-size:.76rem;letter-spacing:.28em;font-weight:700;color:var(--ink-muted)}.report-title{margin:0;font-size:1.9rem;line-height:1.02;letter-spacing:-.04em}.report-subtitle{margin:8px 0 0;max-width:62ch;color:var(--ink-soft);font-size:.95rem;line-height:1.6}.report-meta{display:grid;gap:10px;min-width:240px}.report-meta div{padding:10px 12px;border:1px solid rgba(21,32,43,.08);border-radius:14px;background:var(--panel-soft)}.report-meta span{display:block;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;margin-bottom:4px}.report-meta strong{font-size:.92rem;line-height:1.35;color:var(--ink)}
-    .intro-consent{margin-top:14px}
-    .compact-list{gap:10px}
-    .quadrant-wrap{display:grid;gap:12px}.quadrant-grid{position:relative;height:280px;border:1px solid rgba(21,32,43,.10);border-radius:20px;background:linear-gradient(180deg,#FBFCFE 0%,#F7FAFD 100%);overflow:hidden}.quadrant-grid::before,.quadrant-grid::after{content:"";position:absolute;background:rgba(21,32,43,.12)}.quadrant-grid::before{left:50%;top:0;bottom:0;width:1px;transform:translateX(-50%)}.quadrant-grid::after{top:50%;left:0;right:0;height:1px;transform:translateY(-50%)}.quad-label{position:absolute;font-size:.8rem;font-weight:700;color:var(--ink-muted);letter-spacing:.02em}.quad-tl{left:14px;top:14px}.quad-tr{right:14px;top:14px}.quad-bl{left:14px;bottom:18px}.quad-br{right:14px;bottom:18px}.axis-label{position:absolute;font-size:.76rem;font-weight:700;color:var(--ink-muted);letter-spacing:.14em;text-transform:uppercase}.axis-x{bottom:10px;left:50%;transform:translateX(-50%)}.axis-y{left:10px;top:50%;transform:translateY(-50%) rotate(-90deg);transform-origin:left top}.quadrant-marker{position:absolute;width:18px;height:18px;border-radius:999px;background:var(--accent);border:3px solid #fff;box-shadow:0 10px 18px rgba(15,23,32,.18);left:50%;top:50%;transform:translate(-50%,-50%)}.quadrant-caption{font-size:.88rem;line-height:1.6;color:var(--ink-soft)}
-    @media print{body{background:#fff}.frame-top,.env-head,.env-foot,.advisory-card .actions,.loading-screen,#introStage,#questionStage,#processingStage{display:none !important}.shell,.app,.environment,.environment-inner{display:block;min-height:auto;padding:0;margin:0;width:100%;box-shadow:none;border:none;background:#fff}.environment::before{display:none}.results-layout{display:block;gap:0}.report-header,.score-panel,.summary-grid,.visual-grid,.text-grid,.chart-grid,.table-grid,.insight-grid,.advisory-card,.results-disclaimer{break-inside:avoid;page-break-inside:avoid;margin:0 0 18px 0}.report-header{border:none;border-bottom:2px solid #D8E0EA;border-radius:0;padding:0 0 14px 0;box-shadow:none}.score-panel,.summary-card,.visual-card,.result-card,.chart-card,.table-card,.advisory-card,.results-disclaimer{box-shadow:none;border-color:#D7DEE8}.score-panel{background:#fff !important;color:#15202B;border:1px solid #D7DEE8}.score-panel::before{display:none}.score-kicker{color:#5B6774}.score-band,.score-summary{color:#334155}.score-badge{background:#F5F8FB;border-color:#D7DEE8;color:#15202B}.summary-grid,.visual-grid,.text-grid,.chart-grid,.table-grid,.insight-grid{display:grid;grid-template-columns:1fr 1fr !important}.results-disclaimer{font-size:.8rem}.btn{display:none !important}}
-    @media (max-width:1080px){.intro-layout,.score-inner,.summary-grid,.text-grid,.chart-grid,.insight-grid,.visual-grid{grid-template-columns:1fr}.summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.branch-grid{grid-template-columns:1fr}.branch-grid::before{left:50%;right:50%}.environment,.environment-inner{min-height:unset}.stack-row,.heat-row,.ladder-item{grid-template-columns:1fr}.heat-row{gap:6px}}
-    @media (max-width:760px){.shell{padding:26px 14px 34px}.env-head,.stage,.env-foot,.question-card{padding-left:18px;padding-right:18px}.summary-grid{grid-template-columns:1fr}.tool-title h1{font-size:2.35rem}.question-card{min-height:340px}.actions{align-items:stretch}.actions-left,.actions-right{width:100%}.actions-left .btn,.actions-right .btn{flex:1}.rating-row,.scale-head{grid-template-columns:minmax(0,1fr) repeat(6,36px)}}
+    .card{
+      background:#FFF;border:1px solid rgba(21,32,43,.08);border-radius:24px;box-shadow:var(--shadow-md);
+      padding:24px 24px 22px;overflow-wrap:anywhere
+    }
+    .card.soft{background:linear-gradient(180deg,#FBFCFE 0%, #F8FAFC 100%)}
+    .card h3,.result-card h3,.chart-card h3{margin:0 0 10px;font-size:1.02rem;line-height:1.2;letter-spacing:-.02em}
+    .card p,.card li,.question-copy,.result-copy,.tiny{color:var(--ink-soft);line-height:1.65;font-size:.95rem}
+    .card ul{margin:12px 0 0;padding-left:18px;display:grid;gap:8px}
+
+    .notice-block{display:grid;gap:14px}
+    .notice{
+      padding:16px 16px 14px;border-radius:18px;border:1px solid rgba(63,110,161,.14);background:rgba(63,110,161,.05)
+    }
+    .notice strong{display:block;margin-bottom:6px;font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+    .gentle-note{margin-top:14px;padding:14px 16px;border-radius:16px;background:#F8FAFC;border:1px solid rgba(21,32,43,.08)}
+
+    .checkbox-card{padding:18px;border-radius:18px;border:1px solid rgba(21,32,43,.08);background:var(--panel-soft)}
+    .checkbox-row{display:flex;gap:12px;align-items:flex-start}
+    .checkbox-row input{margin-top:3px;accent-color:var(--accent);transform:scale(1.08)}
+    .checkbox-row label{font-size:.95rem;line-height:1.62;color:var(--ink)}
+
+    .question-shell{display:grid;gap:20px;height:100%;align-content:start}
+    .question-card{
+      width:min(100%, 780px);
+      min-height:410px;
+      margin:0 auto;
+      background:#FFF;
+      border:1px solid rgba(21,32,43,.08);
+      border-radius:28px;
+      box-shadow:var(--shadow-md);
+      padding:28px 28px 24px;
+      display:grid;
+      align-content:start;
+      gap:18px;
+      overflow:hidden;
+    }
+
+    .question-meta{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .question-label{margin:0;font-size:.76rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
+    .question-step{margin:0;font-size:.86rem;color:var(--ink-muted)}
+    .question-title{margin:0;font-size:1.42rem;line-height:1.14;letter-spacing:-.035em}
+    .question-copy{margin:0}
+    .required-note{
+      display:none;padding:12px 14px;border-radius:14px;background:#FFF8EC;border:1px solid #F0D29D;color:#795B22;font-size:.9rem;line-height:1.5
+    }
+    .required-note.show{display:block}
+
+    .choices{display:grid;gap:12px}
+    .choice{
+      width:100%;text-align:left;cursor:pointer;background:#FFF;border:1px solid rgba(21,32,43,.10);
+      border-radius:18px;padding:15px 16px 14px;
+      transition:transform var(--transition), border-color var(--transition), background var(--transition), box-shadow var(--transition)
+    }
+    .choice.selected{border-color:rgba(63,110,161,.34);background:rgba(63,110,161,.06)}
+    .choice:hover,.choice:focus-visible{
+      outline:none;transform:translateY(-1px);border-color:rgba(63,110,161,.24);background:rgba(63,110,161,.04);box-shadow:var(--shadow-sm)
+    }
+    .choice-title{display:block;font-size:.96rem;font-weight:600;line-height:1.4;color:var(--ink)}
+    .choice-note{display:block;margin-top:4px;font-size:.83rem;line-height:1.5;color:var(--ink-soft)}
+
+    .field-group{display:grid;gap:14px}
+    .field label{display:block;margin-bottom:8px;font-size:.85rem;font-weight:600;color:var(--ink)}
+    .field input,.field select,.field textarea{
+      width:100%;max-width:100%;min-height:50px;padding:0 14px;border-radius:16px;border:1px solid rgba(21,32,43,.12);
+      background:#FFF;color:var(--ink);
+      transition:border-color var(--transition), box-shadow var(--transition), background var(--transition)
+    }
+    .field textarea{min-height:118px;padding:14px;resize:vertical}
+    .field input:focus,.field select:focus,.field textarea:focus{
+      outline:none;border-color:rgba(63,110,161,.40);box-shadow:0 0 0 4px rgba(63,110,161,.10)
+    }
+
+    .title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+    .info-btn{
+      width:26px;height:26px;border-radius:999px;border:1px solid rgba(63,110,161,.22);background:#FFF;color:var(--accent);
+      font-size:.82rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow-sm)
+    }
+    .info-panel{
+      margin-top:10px;padding:12px 12px 10px;border-radius:14px;background:rgba(63,110,161,.05);border:1px solid rgba(63,110,161,.12);
+      font-size:.84rem;line-height:1.55;color:var(--ink-soft);display:none
+    }
+    .info-panel.show{display:block}
+
+    .cluster-stack{display:grid;gap:18px;position:relative}
+    .cluster-children{display:grid;gap:18px;position:relative;padding-top:10px}
+    .cluster-children::before{
+      content:"";position:absolute;left:50%;top:-4px;width:2px;height:14px;background:rgba(63,110,161,.42);transform:translateX(-50%)
+    }
+    .branch-grid{
+      display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 20px;position:relative;padding-top:16px
+    }
+    .branch-grid.single{grid-template-columns:1fr}
+    .branch-grid::before{
+      content:"";position:absolute;left:15%;right:15%;top:0;height:2px;background:rgba(63,110,161,.26)
+    }
+    .mini-card{
+      position:relative;padding:18px 18px 16px;border:1px solid rgba(63,110,161,.14);border-radius:20px;
+      background:linear-gradient(180deg,#FFF 0%,#FAFCFF 100%);box-shadow:var(--shadow-sm);min-width:0
+    }
+    .mini-card::before{
+      content:"";position:absolute;left:50%;top:-16px;width:2px;height:16px;background:rgba(63,110,161,.42);transform:translateX(-50%)
+    }
+    .mini-eyebrow{margin:0 0 8px;font-size:.68rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+    .mini-card h4{margin:0 0 6px;font-size:1rem;line-height:1.26;letter-spacing:-.02em}
+    .mini-copy{margin:0 0 12px;font-size:.88rem;line-height:1.58;color:var(--ink-soft)}
+
+    .env-foot{padding:18px 32px 28px;border-top:1px solid rgba(21,32,43,.06);display:grid;gap:18px}
+    .progress-wrap{display:grid;gap:10px}
+    .progress-top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+    .progress-top p{margin:0;font-size:.84rem;color:var(--ink-muted)}
+    .progress-track{height:10px;background:rgba(21,32,43,.08);border-radius:999px;overflow:hidden}
+    .progress-bar{
+      height:100%;width:0;background:linear-gradient(90deg,var(--accent) 0%, #5B88B8 100%);border-radius:999px;transition:width 260ms ease
+    }
+
+    .actions{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .actions-left,.actions-right{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border-radius:999px;
+      border:1px solid rgba(21,32,43,.12);background:#FFF;color:var(--ink);cursor:pointer;
+      font-size:.92rem;font-weight:500;letter-spacing:-.01em;
+      transition:transform var(--transition), box-shadow var(--transition), background var(--transition), border-color var(--transition), color var(--transition), opacity var(--transition)
+    }
+    .btn:hover,.btn:focus-visible{outline:none;transform:translateY(-1px);box-shadow:var(--shadow-sm)}
+    .btn[disabled]{cursor:not-allowed;transform:none;box-shadow:none}
+    .btn-accent{background:var(--accent);border-color:rgba(63,110,161,.18);color:#FFF}
+    .btn-accent:hover,.btn-accent:focus-visible{background:var(--accent-dark)}
+    .btn-soft{background:rgba(63,110,161,.07);border-color:rgba(63,110,161,.16);color:var(--accent)}
+
+    .btn-accent.btn-disabled{
+      background:var(--accent-muted);
+      border-color:rgba(63,110,161,.18);
+      color:#FFF;
+      cursor:not-allowed;
+      box-shadow:none;
+      transform:none;
+      opacity:1;
+    }
+    .btn-accent.btn-disabled:hover,
+    .btn-accent.btn-disabled:focus-visible{
+      background:var(--accent-muted);
+      box-shadow:none;
+      transform:none;
+    }
+
+    .processing-stage{height:100%;display:grid;place-items:center}
+    .processing-card{
+      width:min(680px,100%);text-align:center;padding:38px 28px;border-radius:28px;background:linear-gradient(180deg,#FFFFFF 0%, #F7FAFD 100%);
+      border:1px solid rgba(21,32,43,.08);box-shadow:var(--shadow-md);display:grid;justify-items:center;gap:18px
+    }
+    .processing-card h3{margin:0;font-size:1.6rem;line-height:1.06;letter-spacing:-.04em}
+    .processing-card p{margin:0;max-width:40ch;color:var(--ink-soft);line-height:1.65}
+    .processing-list{display:grid;gap:9px;margin-top:6px;text-align:left}
+    .processing-item{display:flex;gap:10px;align-items:flex-start;color:var(--ink-soft);font-size:.95rem;line-height:1.55}
+    .pulse{
+      width:8px;height:8px;margin-top:7px;border-radius:999px;background:var(--accent);box-shadow:0 0 0 0 rgba(63,110,161,.34);animation:pulse 1.7s infinite
+    }
+    @keyframes pulse{
+      0%{box-shadow:0 0 0 0 rgba(63,110,161,.34)}
+      70%{box-shadow:0 0 0 10px rgba(63,110,161,0)}
+      100%{box-shadow:0 0 0 0 rgba(63,110,161,0)}
+    }
+
+    .results-layout{display:grid;gap:18px}
+    .score-panel{
+      background:linear-gradient(180deg,var(--dark) 0%, var(--dark-2) 100%);
+      color:#FFF;border-radius:24px;padding:28px 24px 24px;border:1px solid rgba(255,255,255,.06);position:relative;overflow:hidden
+    }
+    .score-panel::before{
+      content:"";position:absolute;inset:0;pointer-events:none;
+      background:radial-gradient(circle at 84% 14%, rgba(63,110,161,.26), transparent 24%), linear-gradient(135deg, rgba(63,110,161,.05) 1px, transparent 1px);
+      background-size:auto, 30px 30px;opacity:.55
+    }
+    .score-inner{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:end}
+    .score-kicker{margin:0 0 8px;font-size:.76rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.62)}
+    .score-number{margin:0;font-size:clamp(3rem,6vw,5rem);line-height:.88;letter-spacing:-.08em;font-weight:700}
+    .score-band{margin:8px 0 0;font-size:1rem;color:rgba(255,255,255,.88)}
+    .score-summary{margin:14px 0 0;max-width:62ch;font-size:.96rem;line-height:1.68;color:rgba(255,255,255,.76)}
+    .score-badge{padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);font-size:.84rem;font-weight:600;white-space:nowrap}
+
+    .summary-grid,.text-grid,.chart-grid,.insight-grid{display:grid;gap:14px}
+    .summary-grid{grid-template-columns:repeat(6,minmax(0,1fr))}
+    .text-grid,.chart-grid,.insight-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .summary-card,.result-card,.chart-card{
+      background:#FFF;border:1px solid rgba(21,32,43,.08);border-radius:18px;box-shadow:var(--shadow-sm);padding:18px 16px 16px;min-width:0;overflow:hidden
+    }
+    .summary-label{margin:0 0 8px;font-size:.72rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-muted)}
+    .summary-value{margin:0;font-size:1.08rem;line-height:1.14;letter-spacing:-.04em;font-weight:700;overflow-wrap:anywhere}
+    .summary-sub{margin:8px 0 0;font-size:.82rem;line-height:1.5;color:var(--ink-soft);overflow-wrap:anywhere}
+    .result-copy{margin:0;white-space:pre-line;overflow-wrap:anywhere}
+    .result-list{margin:0;padding-left:18px;display:grid;gap:8px}
+    .result-list li{color:var(--ink-soft);font-size:.92rem;line-height:1.6;overflow-wrap:anywhere}
+    .chart-wrap{position:relative;height:260px;min-height:260px;max-width:100%;overflow:hidden}
+    .chart-wrap canvas{width:100%!important;height:100%!important;display:block}
+    .advisory-card{
+      display:grid;gap:12px;padding:20px;border-radius:20px;border:1px solid rgba(63,110,161,.14);
+      background:linear-gradient(180deg, rgba(63,110,161,.06) 0%, rgba(63,110,161,.03) 100%)
+    }
+    .results-disclaimer{
+      padding:16px 18px;border-radius:16px;background:#F8FAFC;border:1px solid rgba(21,32,43,.08);font-size:.88rem;line-height:1.6;color:var(--ink-soft)
+    }
+
+    @media (max-width:1080px){
+      .intro-layout,.score-inner,.summary-grid,.text-grid,.chart-grid,.insight-grid{grid-template-columns:1fr}
+      .summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .branch-grid{grid-template-columns:1fr}
+      .branch-grid::before{left:50%;right:50%}
+      .environment,.environment-inner{min-height:unset}
+    }
+
+    @media (max-width:760px){
+      .shell{padding:26px 14px 34px}
+      .env-head,.stage,.env-foot,.question-card{padding-left:18px;padding-right:18px}
+      .summary-grid{grid-template-columns:1fr}
+      .tool-title h1{font-size:2.35rem}
+      .question-card{min-height:340px}
+      .actions{align-items:stretch}
+      .actions-left,.actions-right{width:100%}
+      .actions-left .btn,.actions-right .btn{flex:1}
+    }
   </style>
 </head>
 <body>
@@ -77,16 +363,35 @@
       <p class="loading-copy">Preparing Monderman’s decision velocity environment.</p>
     </div>
   </div>
+
   <div class="shell">
     <main class="app">
       <section class="frame-top">
-        <div class="engine-note"><div><p class="eyebrow">Decision velocity diagnostic</p><p class="engine-copy">Powered by Monderman’s proprietary diagnostic engine.</p></div></div>
-        <div class="tool-title"><div><h1>Decision Velocity</h1></div><p>Surface where decisions slow, what structural conditions are driving the slowdown, and where leadership is likely carrying hidden time, cost, and resource exposure.</p></div>
+        <div class="engine-note">
+          <div>
+            <p class="eyebrow">Decision velocity diagnostic</p>
+            <p class="engine-copy">Powered by Monderman’s proprietary diagnostic engine.</p>
+          </div>
+        </div>
+        <div class="tool-title">
+          <div><h1>Decision Velocity</h1></div>
+          <p>Surface where decisions slow, what structural conditions are driving the slowdown, and where leadership is likely carrying hidden time, cost, and resource exposure.</p>
+        </div>
       </section>
+
       <section class="environment" aria-label="Decision velocity diagnostic environment">
         <div class="environment-inner">
           <header class="env-head">
-            <div class="env-head-row"><div><p class="env-kicker">Monderman diagnostic environment</p><h2 id="envHeadline">Structured diagnostic sequence</h2></div><div class="env-status"><span class="env-status-dot" aria-hidden="true"></span><span id="statusPill">Ready to begin</span></div></div>
+            <div class="env-head-row">
+              <div>
+                <p class="env-kicker">Monderman diagnostic environment</p>
+                <h2 id="envHeadline">Structured diagnostic sequence</h2>
+              </div>
+              <div class="env-status">
+                <span class="env-status-dot" aria-hidden="true"></span>
+                <span id="statusPill">Ready to begin</span>
+              </div>
+            </div>
             <p id="envSubcopy">This tool adapts to the structural signal you surface first. You can move back, skip non-required questions, or restart without breaking the rest of the run.</p>
           </header>
 
@@ -94,22 +399,49 @@
             <div class="intro-layout">
               <div class="card">
                 <h3>Before you begin</h3>
+
                 <div class="notice-block">
-                  <div class="notice"><strong>Notice</strong><div class="tiny" id="openingNotice"></div></div>
-                  <div class="notice"><strong>What to expect</strong><div class="tiny">This run is intentionally more detailed than a light survey. The pathway adjusts based on your answers, and some responses open additional question tiles so the Monderman engine has enough signal to generate a more useful readout.</div></div>
+                  <div class="notice">
+                    <strong>Notice</strong>
+                    <div class="tiny" id="openingNotice"></div>
+                  </div>
+                  <div class="notice">
+                    <strong>What to expect</strong>
+                    <div class="tiny">
+                      This run is intentionally more detailed than a light survey. The pathway adjusts based on your answers, and some responses open additional question tiles so the Monderman engine has enough signal to generate a more useful readout.
+                    </div>
+                  </div>
                 </div>
-                <div class="gentle-note tiny">Output quality depends on the quality and quantity of the information you provide. Some pathways benefit from a bit more detail so the Monderman engine can produce a sharper and more decision-useful readout. A little patience here usually improves the quality of the output.</div>
-                <div class="checkbox-card intro-consent"><div class="checkbox-row"><input id="inputResponsibility" type="checkbox" /><label for="inputResponsibility">I agree not to enter classified, export-controlled, sensitive, proprietary, personally identifiable, protected health, or otherwise restricted information into this tool. I understand that I am solely responsible for the information I submit.</label></div></div>
-                <div class="actions" style="margin-top:22px;justify-content:flex-start;"><div class="actions-left"><a class="btn" href="diagnostic-tools.html">Back to diagnostic suite</a><button class="btn btn-accent btn-disabled" id="beginBtn" type="button" disabled>Begin diagnostic</button></div></div>
+
+                <div class="gentle-note tiny">
+                  Output quality depends on the quality and quantity of the information you provide. Some pathways require a bit more detail so the Monderman engine can generate a more precise and useful readout. Brief patience here improves the value of the output.
+                </div>
+
+                <div class="checkbox-card" style="margin-top:18px;">
+                  <div class="checkbox-row">
+                    <input id="preStartConsent" type="checkbox" />
+                    <label for="preStartConsent">
+                      I agree not to enter classified, export-controlled, sensitive, proprietary, personally identifiable, protected health, or otherwise restricted information into this tool. I understand that I am solely responsible for the information I submit.
+                    </label>
+                  </div>
+                </div>
+
+                <div class="actions" style="margin-top:22px;justify-content:flex-start;">
+                  <div class="actions-left">
+                    <a class="btn" href="diagnostic-tools.html">Back to diagnostic suite</a>
+                    <button class="btn btn-accent btn-disabled" id="beginBtn" type="button" disabled>Begin diagnostic</button>
+                  </div>
+                </div>
               </div>
+
               <aside class="card soft">
                 <h3>What this tool is built to detect</h3>
                 <ul>
-                  <li>Review layering and overbuilt approval paths</li>
-                  <li>Invisible coordination load and routing drag</li>
-                  <li>Escalation dependence and authority ambiguity</li>
-                  <li>Key-person brittleness and low pathway resilience</li>
-                  <li>Comparable-position context by decision type, industry, and operating environment</li>
+                  <li>Approval layering and sequential gatekeeping</li>
+                  <li>Hidden coordination work and handoff burden</li>
+                  <li>Escalation dependence and decision-rights ambiguity</li>
+                  <li>Key-person brittleness and unstable pathways</li>
+                  <li>Directionally sized time, money, and resource exposure</li>
                 </ul>
               </aside>
             </div>
@@ -118,7 +450,10 @@
           <div class="stage" id="questionStage">
             <div class="question-shell">
               <div class="question-card">
-                <div class="question-meta"><p class="question-label" id="questionCluster">Diagnostic question</p><p class="question-step" id="questionStep">Question 1</p></div>
+                <div class="question-meta">
+                  <p class="question-label" id="questionCluster">Diagnostic question</p>
+                  <p class="question-step" id="questionStep">Question 1</p>
+                </div>
                 <h3 class="question-title" id="questionTitle"></h3>
                 <p class="question-copy" id="questionCopy"></p>
                 <div class="required-note" id="requiredNotice">This question is required for the diagnostic logic to work.</div>
@@ -128,63 +463,115 @@
           </div>
 
           <div class="stage" id="processingStage">
-            <div class="processing-stage"><div class="processing-card"><div class="spinner spinner-sm" aria-hidden="true"></div><h3>Generating output</h3><p>The diagnostic engine is interpreting the pathway, sizing directional exposure, and preparing your executive-facing readout.</p><div class="processing-list"><div class="processing-item"><span class="pulse"></span><span>Scoring structural burden and decision drag</span></div><div class="processing-item"><span class="pulse"></span><span>Checking for contradiction and instability signals</span></div><div class="processing-item"><span class="pulse"></span><span>Estimating directional time, cost, and resource exposure</span></div><div class="processing-item"><span class="pulse"></span><span>Generating Monderman narrative interpretation</span></div></div></div></div>
+            <div class="processing-stage">
+              <div class="processing-card">
+                <div class="spinner spinner-sm" aria-hidden="true"></div>
+                <h3>Generating output</h3>
+                <p>The diagnostic engine is interpreting your pathway and preparing a leadership-facing readout.</p>
+                <div class="processing-list">
+                  <div class="processing-item"><span class="pulse"></span><span>Scoring structural burden and decision drag</span></div>
+                  <div class="processing-item"><span class="pulse"></span><span>Checking for contradiction and instability signals</span></div>
+                  <div class="processing-item"><span class="pulse"></span><span>Estimating directional time, cost, and resource exposure</span></div>
+                  <div class="processing-item"><span class="pulse"></span><span>Generating Monderman narrative interpretation</span></div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="stage" id="resultsStage">
             <div class="results-layout">
-              <section class="score-panel"><div class="score-inner"><div><p class="score-kicker">Decision velocity score</p><p class="score-number" id="scoreNumber">0</p><p class="score-band" id="scoreBand">—</p><p class="score-summary" id="scoreSummary">Your results will appear here after the diagnostic is complete.</p></div><div class="score-badge" id="scoreBadge">Decision Velocity</div></div></section>
+              <section class="score-panel">
+                <div class="score-inner">
+                  <div>
+                    <p class="score-kicker">Decision velocity score</p>
+                    <p class="score-number" id="scoreNumber">0</p>
+                    <p class="score-band" id="scoreBand">—</p>
+                    <p class="score-summary" id="scoreSummary">Your results will appear here after the diagnostic is complete.</p>
+                  </div>
+                  <div class="score-badge" id="scoreBadge">Decision Velocity</div>
+                </div>
+              </section>
+
               <section class="summary-grid">
                 <article class="summary-card"><p class="summary-label">Benchmark</p><p class="summary-value" id="benchmarkValue">—</p><p class="summary-sub" id="benchmarkSub">Directional comparison</p></article>
                 <article class="summary-card"><p class="summary-label">Route family</p><p class="summary-value" id="routeValue">—</p><p class="summary-sub" id="routeSub">Primary interpretation path</p></article>
                 <article class="summary-card"><p class="summary-label">Hours exposure*</p><p class="summary-value" id="hoursValue">—</p><p class="summary-sub" id="hoursSub">Annual estimate</p></article>
                 <article class="summary-card"><p class="summary-label">Cost exposure*</p><p class="summary-value" id="costValue">—</p><p class="summary-sub" id="costSub">Annual estimate</p></article>
                 <article class="summary-card"><p class="summary-label">Capacity drag*</p><p class="summary-value" id="dragValue">—</p><p class="summary-sub" id="dragSub">Directional estimate</p></article>
-                <article class="summary-card"><p class="summary-label">Input depth</p><p class="summary-value" id="confidenceValue">—</p><p class="summary-sub" id="confidenceSub">Calibration context</p></article>
+                <article class="summary-card"><p class="summary-label">Contradictions</p><p class="summary-value" id="contradictionsValue">—</p><p class="summary-sub" id="contradictionsSub">Surface-vs-reality signals</p></article>
               </section>
-              <section class="visual-grid">
-                <article class="visual-card"><h3>Where you stand versus comparable peers</h3><div class="benchmark-strip"><div class="benchmark-bar" id="benchmarkBar"><div class="benchmark-range" id="benchmarkHealthy"></div><div class="benchmark-marker" id="benchmarkMarker"></div></div><div class="benchmark-legend"><span>Below range</span><span>Comparable range</span><span>Healthy range</span></div></div></article>
-                <article class="visual-card"><h3>Pathway burden stack</h3><div class="stack-list" id="burdenStack"></div></article>
+
+              <section class="text-grid">
+                <article class="result-card"><h3>Executive interpretation</h3><p class="result-copy" id="executiveText"></p></article>
+                <article class="result-card"><h3>Leadership implication</h3><p class="result-copy" id="leadershipText"></p></article>
+                <article class="result-card"><h3>Trade-off note</h3><p class="result-copy" id="tradeoffText"></p></article>
+                <article class="result-card"><h3>Time, money, and resources</h3><p class="result-copy" id="tmrText"></p></article>
               </section>
-              <section class="visual-grid">
-                <article class="visual-card"><h3>Delay concentration map</h3><div class="heat-strip" id="delayHeat"></div></article>
-                <article class="visual-card"><h3>Contradiction signals</h3><div class="signal-tiles" id="contradictionTiles"></div></article>
+
+              <section class="chart-grid">
+                <article class="chart-card"><h3>Structural gaps</h3><div class="chart-wrap"><canvas id="gapChart"></canvas></div></article>
+                <article class="chart-card"><h3>Dimension profile</h3><div class="chart-wrap"><canvas id="dimensionChart"></canvas></div></article>
               </section>
-              <section class="visual-grid">
-                <article class="visual-card"><h3>Governance weight × execution responsiveness</h3><div class="quadrant-wrap"><div class="quadrant-grid" id="quadrantGrid"><div class="quad-label quad-tl">Adaptive Edge</div><div class="quad-label quad-tr">Governed Flow</div><div class="quad-label quad-bl">Unstructured Friction</div><div class="quad-label quad-br">Accumulated Drag</div><div class="axis-label axis-x">Governance Weight</div><div class="axis-label axis-y">Execution Responsiveness</div><div class="quadrant-marker" id="quadrantMarker"></div></div><div class="quadrant-caption" id="quadrantCaption">Position will appear after scoring.</div></div></article>
-                <article class="visual-card"><h3>How to read this output</h3><ul class="result-list compact-list"><li>The score and peer band provide directional context, not audited measurement.</li><li>The burden and delay visuals show where the pathway is absorbing capacity.</li><li>The priority ladder indicates where a leader would most likely intervene first.</li><li>The report view is optimized for printing and handoff once results are generated.</li></ul></article>
+
+              <section class="insight-grid">
+                <article class="result-card"><h3>Key friction flags</h3><ul class="result-list" id="flagsList"></ul></article>
+                <article class="result-card"><h3>Recommended interventions</h3><ul class="result-list" id="actionsList"></ul></article>
+                <article class="result-card"><h3>Detected patterns</h3><ul class="result-list" id="patternsList"></ul></article>
+                <article class="result-card"><h3>Contradiction signals</h3><ul class="result-list" id="contradictionsList"></ul></article>
               </section>
-              <section class="text-grid"><article class="result-card"><h3>Executive interpretation</h3><p class="result-copy" id="executiveText"></p></article><article class="result-card"><h3>Leadership implication</h3><p class="result-copy" id="leadershipText"></p></article><article class="result-card"><h3>Trade-off note</h3><p class="result-copy" id="tradeoffText"></p></article><article class="result-card"><h3>Time, money, and resources</h3><p class="result-copy" id="tmrText"></p></article></section>
-              <section class="chart-grid"><article class="chart-card"><h3>Structural gaps</h3><div class="chart-wrap"><canvas id="gapChart"></canvas></div></article><article class="chart-card"><h3>Dimension profile</h3><div class="chart-wrap"><canvas id="dimensionChart"></canvas></div></article></section>
-              <section class="visual-grid">
-                <article class="ladder-card"><h3>Intervention priority ladder</h3><div class="ladder-list" id="priorityLadder"></div></article>
-                <article class="table-card"><h3>Labor exposure composition</h3><table class="table" id="laborTable"><thead><tr><th>Role cluster</th><th>People</th><th>Exposure significance</th></tr></thead><tbody></tbody></table></article>
+
+              <section class="advisory-card">
+                <div>
+                  <p class="summary-label" style="margin-bottom:8px;color:var(--accent);">Next step</p>
+                  <h3 style="margin:0 0 8px;">Bring this into a deeper advisory conversation.</h3>
+                  <p class="result-copy" style="margin:0;">If the pattern appears broader, more persistent, or more costly than a directional tool can resolve, Monderman can go deeper on decision pathways, approvals, operating burden, and compensatory behaviors.</p>
+                </div>
+                <div class="actions" style="justify-content:flex-start;">
+                  <div class="actions-left">
+                    <a class="btn btn-accent" href="https://www.monderman.com/advisory-services-connect.html">Visit advisory services</a>
+                    <button class="btn" id="printBtn" type="button">Print / save output</button>
+                    <button class="btn btn-soft" id="newRunBtn" type="button">Run again</button>
+                  </div>
+                </div>
               </section>
-              <section class="visual-grid">
-                <article class="table-card"><h3>Impact severity matrix</h3><table class="table" id="impactTable"><thead><tr><th>Consequence</th><th>Severity</th><th>Meaning</th></tr></thead><tbody></tbody></table></article>
-                <article class="table-card"><h3>Estimated labor-cost composition*</h3><table class="table" id="costCompositionTable"><thead><tr><th>Category</th><th>Hours*</th><th>Share</th></tr></thead><tbody></tbody></table></article>
-              </section>
-              <section class="insight-grid"><article class="result-card"><h3>Key friction flags</h3><ul class="result-list" id="flagsList"></ul></article><article class="result-card"><h3>Recommended interventions</h3><ul class="result-list" id="actionsList"></ul></article><article class="result-card"><h3>Detected patterns</h3><ul class="result-list" id="patternsList"></ul></article><article class="result-card"><h3>Contradiction details</h3><ul class="result-list" id="contradictionsList"></ul></article></section>
-              <section class="advisory-card"><div><p class="summary-label" style="margin-bottom:8px;color:var(--accent);">Next step</p><h3 style="margin:0 0 8px;">Bring this into a deeper advisory conversation.</h3><p class="result-copy" style="margin:0;">If the pattern appears broader, more persistent, or more costly than a directional tool can resolve, Monderman can go deeper on decision pathways, approvals, operating burden, and compensatory behaviors.</p></div><div class="actions" style="justify-content:flex-start;"><div class="actions-left"><a class="btn btn-accent" href="https://www.monderman.com/advisory-services-connect.html">Visit advisory services</a><button class="btn" id="printBtn" type="button">Print / save output</button><button class="btn btn-soft" id="newRunBtn" type="button">Run again</button></div></div></section>
+
               <section class="results-disclaimer" id="bottomDisclaimer"></section>
             </div>
           </div>
 
           <footer class="env-foot" id="questionFooter">
-            <div class="progress-wrap"><div class="progress-top"><p id="progressCopy">0% complete</p><p id="pathHint">Waiting for first signal.</p></div><div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div></div>
-            <div class="actions"><div class="actions-left"><button class="btn" id="backBtn" type="button">Back</button><button class="btn" id="skipBtn" type="button">Skip</button></div><div class="actions-right"><button class="btn btn-soft" id="restartBtn" type="button">Start over</button><button class="btn btn-accent" id="continueBtn" type="button">Continue</button></div></div>
+            <div class="progress-wrap">
+              <div class="progress-top">
+                <p id="progressCopy">0% complete</p>
+                <p id="pathHint">Waiting for first signal.</p>
+              </div>
+              <div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div>
+            </div>
+            <div class="actions">
+              <div class="actions-left">
+                <button class="btn" id="backBtn" type="button">Back</button>
+                <button class="btn" id="skipBtn" type="button">Skip</button>
+              </div>
+              <div class="actions-right">
+                <button class="btn btn-soft" id="restartBtn" type="button">Start over</button>
+                <button class="btn btn-accent" id="continueBtn" type="button">Continue</button>
+              </div>
+            </div>
           </footer>
         </div>
       </section>
     </main>
   </div>
-  <script>
+
+<script>
 const API_BASE = "https://monderman-api.onrender.com";
-const LOADER_MS = 3200;
-const RESULTS_LOADER_MS = 3000;
+const LOADER_MS = 3600;
+const RESULTS_LOADER_MS = 3200;
+
 const openingNotice = "This diagnostic generates directional insights based on the information you provide. Results are only as accurate as your inputs and should be used as an interpretive aid, not as a substitute for independent review, professional judgment, or organization-specific analysis.";
 const finalAcknowledgment = "I acknowledge that this diagnostic provides directional insights only, that Monderman has not independently verified my inputs, and that I am solely responsible for how these results are interpreted or used.";
 const bottomDisclaimer = "* All figures, including time, cost, and resource estimates, are directional estimates generated from user-provided information. They are intended to support additional analysis, discussion, and advisory review, and should not be used in isolation for formal decision-making.";
+
 document.getElementById("openingNotice").textContent = openingNotice;
 document.getElementById("bottomDisclaimer").textContent = bottomDisclaimer;
 
@@ -195,12 +582,14 @@ const processingStage = document.getElementById("processingStage");
 const resultsStage = document.getElementById("resultsStage");
 const questionFooter = document.getElementById("questionFooter");
 const beginBtn = document.getElementById("beginBtn");
+const preStartConsent = document.getElementById("preStartConsent");
 const backBtn = document.getElementById("backBtn");
 const skipBtn = document.getElementById("skipBtn");
 const restartBtn = document.getElementById("restartBtn");
 const continueBtn = document.getElementById("continueBtn");
 const printBtn = document.getElementById("printBtn");
 const newRunBtn = document.getElementById("newRunBtn");
+
 const envHeadline = document.getElementById("envHeadline");
 const envSubcopy = document.getElementById("envSubcopy");
 const statusPill = document.getElementById("statusPill");
@@ -213,713 +602,822 @@ const requiredNotice = document.getElementById("requiredNotice");
 const progressBar = document.getElementById("progressBar");
 const progressCopy = document.getElementById("progressCopy");
 const pathHint = document.getElementById("pathHint");
-let gapChart = null, dimensionChart = null, rerenderTimer = null;
 
-const industryOptions = [
-  ["", "Select one"],
-  ["government_defense", "Government / defense"],
-  ["financial_services", "Financial services"],
-  ["healthcare_life_sciences", "Healthcare / life sciences"],
-  ["technology_software", "Technology / software"],
-  ["manufacturing_industrial", "Manufacturing / industrial"],
-  ["energy_utilities", "Energy / utilities"],
-  ["retail_consumer", "Retail / consumer"],
-  ["education_nonprofit", "Education / nonprofit"],
-  ["professional_services", "Professional services"],
-  ["other", "Other"]
-];
+let gapChart = null;
+let dimensionChart = null;
+let rerenderTimer = null;
 
-const consequenceScaleLabels = {
-  0: "No meaningful impact",
-  1: "Minimal impact",
-  2: "Mild impact",
-  3: "Moderate impact",
-  4: "High impact",
-  5: "Severe impact"
+const q = {
+  symptom:{
+    id:"symptom",kind:"choice",required:true,cluster:"Opening signal",
+    title:"What is the most visible problem in this decision pathway right now?",
+    copy:"Start with the most observable failure pattern. The diagnostic will open the next most relevant branch from there.",
+    help:"Choose the pattern leadership or frontline staff would recognize first. You are not diagnosing root cause yet. You are telling the tool where the friction is most visible.",
+    options:[
+      {value:"approval_expansion",label:"Approvals keep accumulating",note:"The pathway feels heavier than the decision seems to justify."},
+      {value:"coordination_load",label:"Coordination effort keeps growing",note:"Movement depends on meetings, follow-up, or side-channel coordination."},
+      {value:"escalation_dependence",label:"Escalations are becoming normal",note:"The pathway preserves movement by pushing decisions upward."},
+      {value:"key_person_dependence",label:"The process depends on a few key people",note:"Without specific individuals, the pathway slows or stalls."}
+    ]
+  },
+  processName:{
+    id:"processName",kind:"text",required:true,cluster:"Pathway framing",
+    title:"What decision pathway are you evaluating?",
+    copy:"Use a short operational label so the output is easy to recognize later.",
+    help:"Examples: vendor approval, hiring exception, budget reallocation, contract review, policy waiver, project change request.",
+    placeholder:"e.g. Vendor approval"
+  },
+  businessUnit:{
+    id:"businessUnit",kind:"text",required:true,cluster:"Pathway framing",
+    title:"Which function or business unit does this pathway primarily sit in?",
+    copy:"Keep it simple. A single function or team is enough.",
+    help:"Examples: Operations, Finance, HR, Procurement, Legal, PMO, Compliance, Product.",
+    placeholder:"e.g. Operations"
+  },
+  industry:{
+    id:"industry",kind:"select",required:true,cluster:"Pathway framing",
+    title:"What industry or operating sector best matches your organization?",
+    copy:"This captures peer context so the output can position the pathway relative to comparable operating environments.",
+    help:"Choose the closest primary sector.",
+    options:[
+      {value:"",label:"Select one"},
+      {value:"government_defense",label:"Government / defense"},
+      {value:"financial_services",label:"Financial services"},
+      {value:"healthcare_life_sciences",label:"Healthcare / life sciences"},
+      {value:"technology_software",label:"Technology / software"},
+      {value:"manufacturing_industrial",label:"Manufacturing / industrial"},
+      {value:"energy_utilities",label:"Energy / utilities"},
+      {value:"retail_consumer",label:"Retail / consumer"},
+      {value:"education_nonprofit",label:"Education / nonprofit"},
+      {value:"professional_services",label:"Professional services"},
+      {value:"other",label:"Other"}
+    ]
+  },
+  decisionType:{
+    id:"decisionType",kind:"select",required:true,cluster:"Pathway framing",
+    title:"What kind of decision is this, primarily?",
+    copy:"This helps benchmark the pathway against an appropriate decision class.",
+    help:"Choose the dominant decision class, not every element involved in the pathway.",
+    options:[
+      {value:"",label:"Select one"},
+      {value:"procurement",label:"Procurement / vendor"},
+      {value:"hiring",label:"Hiring / staffing"},
+      {value:"budget",label:"Budget / funding"},
+      {value:"policy",label:"Policy / governance"},
+      {value:"program",label:"Program / project"},
+      {value:"risk",label:"Risk / exception"},
+      {value:"other",label:"Other"}
+    ]
+  },
+  decisionFrequency:{
+    id:"decisionFrequency",kind:"select",required:true,cluster:"Pathway framing",
+    title:"How often does this pathway typically occur?",
+    copy:"This helps distinguish chronic organizational drag from rarer but still costly friction.",
+    help:"Pick the closest frequency, even if the volume fluctuates across the year.",
+    options:[
+      {value:"",label:"Select one"},
+      {value:"daily",label:"Daily or near-daily"},
+      {value:"weekly",label:"Weekly"},
+      {value:"monthly",label:"Monthly"},
+      {value:"quarterly",label:"Quarterly"},
+      {value:"sporadic",label:"Sporadic / irregular"}
+    ]
+  },
+  organizationalLevel:{
+    id:"organizationalLevel",kind:"select",required:true,cluster:"Pathway framing",
+    title:"At what level does this pathway primarily operate?",
+    copy:"This helps distinguish local routing issues from broader governance patterns.",
+    help:"Choose the level where the pathway mainly lives.",
+    options:[
+      {value:"",label:"Select one"},
+      {value:"team",label:"Within a team"},
+      {value:"cross_team",label:"Across multiple teams"},
+      {value:"function",label:"Within a function or department"},
+      {value:"cross_functional",label:"Cross-functional"},
+      {value:"enterprise",label:"Enterprise-wide"}
+    ]
+  },
+  description:{
+    id:"description",kind:"textarea",required:false,cluster:"Context note",
+    title:"Anything important leaders are currently experiencing in this pathway?",
+    copy:"A brief note can make the narrative output feel more grounded, but you can skip this if needed.",
+    help:"Examples: repeated complaints, missed deadlines, rushed escalations, stalled procurement, burnout around approvals.",
+    placeholder:"Briefly describe recent friction, recent complaints, or what leaders are noticing."
+  },
+  approvalCount:{
+    id:"approvalCount",kind:"number",required:true,cluster:"Approval structure",
+    title:"How many distinct approvals does one normal run of this pathway typically require?",
+    copy:"Count the approval points that must be satisfied before the decision can fully move forward.",
+    help:"Do not count FYI notifications. Count only the people, offices, or boards whose approval materially determines whether the pathway advances.",
+    placeholder:"e.g. 5"
+  },
+  approvalFlow:{
+    id:"approvalFlow",kind:"select",required:true,cluster:"Approval structure",
+    title:"Those approvals are usually organized how?",
+    copy:"This distinguishes parallel routing from gate-by-gate sequencing.",
+    help:"Sequential approvals usually create more delay because each step waits on the prior one.",
+    options:[
+      {value:"",label:"Select one"},
+      {value:"parallel",label:"Mostly parallel"},
+      {value:"mixed",label:"Mixed"},
+      {value:"sequential",label:"Mostly sequential"}
+    ]
+  },
+  reviewExpansion:{
+    id:"reviewExpansion",kind:"choice",required:true,cluster:"Approval structure",
+    title:"Do extra reviewers or review scopes get added after the process is already moving?",
+    copy:"Late-stage review expansion often signals weak trust or unclear criteria upstream.",
+    help:"This question gets at whether the pathway becomes heavier midstream rather than starting with a known review perimeter.",
+    options:[
+      {value:"rare",label:"Rarely",note:"The review perimeter is usually known from the start."},
+      {value:"sometimes",label:"Sometimes",note:"The review footprint expands under certain conditions."},
+      {value:"often",label:"Often",note:"New reviewers or expanded review scopes show up repeatedly."}
+    ]
+  },
+  ownerClarity:{
+    id:"ownerClarity",kind:"select",required:true,cluster:"Decision rights",
+    title:"How clear is decision ownership before the pathway starts moving?",
+    copy:"This distinguishes healthy collaboration from a pathway surviving through ambiguity.",
+    help:"If multiple parties believe they can stop or redefine the pathway, ownership is probably mixed or unclear.",
+    options:[
+      {value:"",label:"Select one"},
+      {value:"clear",label:"Usually clear"},
+      {value:"mixed",label:"Mixed"},
+      {value:"unclear",label:"Often unclear"}
+    ]
+  },
+  escalationClarity:{
+    id:"escalationClarity",kind:"select",required:true,cluster:"Decision rights",
+    title:"How clear is the escalation path when the pathway cannot resolve itself?",
+    copy:"Clear escalation is different from frequent escalation.",
+    help:"A pathway can escalate often and still have a clear route, or escalate rarely but chaotically.",
+    options:[
+      {value:"",label:"Select one"},
+      {value:"clear",label:"Usually clear"},
+      {value:"mixed",label:"Mixed"},
+      {value:"unclear",label:"Often unclear"}
+    ]
+  },
+  meetingCount:{
+    id:"meetingCount",kind:"number",required:true,cluster:"Coordination burden",
+    title:"How many meetings are typically needed just to keep this decision moving?",
+    copy:"Count the meetings that feel necessary to maintain motion, not every adjacent touchpoint.",
+    help:"Include recurring syncs, alignment meetings, follow-up meetings, or ad hoc sessions needed to prevent the pathway from stalling.",
+    placeholder:"e.g. 4"
+  },
+  handoffCount:{
+    id:"handoffCount",kind:"number",required:true,cluster:"Routing density",
+    title:"How many handoffs or routing transitions typically occur?",
+    copy:"High handoff density often means accountability is distributed more widely than the work requires.",
+    help:"A handoff occurs when the work or responsibility materially moves to another person, team, or office.",
+    placeholder:"e.g. 6"
+  },
+  systemsTouched:{
+    id:"systemsTouched",kind:"number",required:true,cluster:"Coordination burden",
+    title:"How many systems are typically touched in one run of this pathway?",
+    copy:"Include only the systems materially involved in routing, approving, documenting, or revising the decision.",
+    help:"Examples: ticketing system, ERP, email, spreadsheet tracker, HRIS, procurement platform, shared drive, project tool.",
+    placeholder:"e.g. 4"
+  },
+  workaroundRate:{
+    id:"workaroundRate",kind:"select",required:true,cluster:"Routing density",
+    title:"How often are workarounds or exceptions used to keep this pathway moving?",
+    copy:"This helps distinguish designed coordination from compensatory behavior.",
+    help:"Examples: bypassing normal routing, asking for informal help, pushing a case outside standard sequence, manual spreadsheet tracking.",
+    options:[
+      {value:"",label:"Select one"},
+      {value:"rare",label:"Rarely"},
+      {value:"sometimes",label:"Sometimes"},
+      {value:"often",label:"Often"}
+    ]
+  },
+  escalationRate:{
+    id:"escalationRate",kind:"select",required:true,cluster:"Escalation condition",
+    title:"How often is this decision escalated above the formal pathway?",
+    copy:"Escalation is not always unhealthy, but routine escalation often means the pathway is not self-resolving.",
+    help:"Count escalations to more senior leaders, exception bodies, higher governance forums, or off-path decision-makers.",
+    options:[
+      {value:"",label:"Select one"},
+      {value:"rare",label:"Rarely"},
+      {value:"sometimes",label:"Sometimes"},
+      {value:"often",label:"Often"}
+    ]
+  },
+  keyPersonDependency:{
+    id:"keyPersonDependency",kind:"choice",required:true,cluster:"Pathway resilience",
+    title:"How dependent is the pathway on specific people to keep moving?",
+    copy:"This detects whether the process is stable in itself or surviving through key-person compensation.",
+    help:"Think about whether the pathway would still move if the usual fixers, translators, or final pushers were absent.",
+    options:[
+      {value:"no",label:"Minimal dependence",note:"The pathway would still function if specific people were absent."},
+      {value:"somewhat",label:"Some dependence",note:"The pathway would function, but noticeably less smoothly."},
+      {value:"heavily",label:"Heavy dependence",note:"The pathway would likely stall or become confused without specific individuals."}
+    ]
+  },
+  decisionDays:{
+    id:"decisionDays",kind:"number",required:true,cluster:"Cycle timing",
+    title:"On average, how many days does it take to reach a final decision?",
+    copy:"Use a directional average. Exact precision is not necessary.",
+    help:"Measure from meaningful initiation to final resolution, not just the time spent inside one team.",
+    placeholder:"e.g. 18"
+  },
+  peopleInvolved:{
+    id:"peopleInvolved",kind:"number",required:true,cluster:"Exposure sizing",
+    title:"Roughly how many people are typically involved in one normal run of this pathway?",
+    copy:"Count the people who materially contribute time, review, routing, coordination, or approval effort.",
+    help:"Do not count everyone merely copied on the thread. Count the people whose time is actually consumed by getting the decision through.",
+    placeholder:"e.g. 8"
+  },
+  hourlyCost:{
+    id:"hourlyCost",kind:"number",required:true,cluster:"Exposure sizing",
+    title:"About what is the average loaded hourly cost for the people materially involved in this pathway?",
+    copy:"Use a rough per-hour estimate that includes compensation plus overhead. This field is not asking for annual salary.",
+    help:"Think in cost per hour of labor, not pay per year. If you only know approximate salaries, convert them directionally into an hourly labor cost.",
+    placeholder:"e.g. 95"
+  },
+  annualVolume:{
+    id:"annualVolume",kind:"number",required:true,cluster:"Exposure sizing",
+    title:"How many times does this decision pathway run in a typical year?",
+    copy:"If you are unsure, use a reasonable yearly estimate.",
+    help:"For monthly pathways, 12 may be appropriate. For weekly pathways, 52 may be appropriate. Use your best directional estimate.",
+    placeholder:"e.g. 120"
+  },
+  meetingHours:{
+    id:"meetingHours",kind:"number",required:true,cluster:"Exposure sizing",
+    title:"How many meeting or coordination hours does one normal run usually consume?",
+    copy:"Estimate the total hours spent coordinating, aligning, revisiting, or pushing the pathway forward.",
+    help:"This should include the coordination burden you would want a leader to understand, not just formal calendar time in one team.",
+    placeholder:"e.g. 4"
+  },
+  acknowledgment:{
+    id:"acknowledgment",kind:"checkbox",required:true,cluster:"Final acknowledgment",
+    title:"Before generating your output, please confirm the following.",
+    copy:"This final acknowledgment is required before the diagnostic engine can generate the readout.",
+    label:finalAcknowledgment
+  }
 };
 
-const questions = {
-  symptom: { id:"symptom", kind:"choice", required:true, cluster:"Opening signal", title:"What is the most visible problem in this decision pathway right now?", copy:"Start with the most observable failure pattern. The diagnostic will open the next most relevant branch from there.", help:"Choose the pattern leadership or frontline staff would recognize first. You are not diagnosing root cause yet. You are telling the tool where the friction is most visible.", options:[
-    { value:"approval_expansion", label:"Approvals keep accumulating", note:"The pathway feels heavier than the decision seems to justify." },
-    { value:"coordination_load", label:"Coordination effort keeps growing", note:"Movement depends on meetings, follow-up, or side-channel coordination." },
-    { value:"escalation_dependence", label:"Escalations are becoming normal", note:"The pathway preserves movement by pushing decisions upward." },
-    { value:"key_person_dependence", label:"The process depends on a few key people", note:"Without specific individuals, the pathway slows or stalls." }
-  ]},
-  processName: { id:"processName", kind:"text", required:true, cluster:"Pathway framing", title:"What decision pathway are you evaluating?", copy:"Use a short operational label so the output is easy to recognize later.", help:"Examples: vendor approval, hiring exception, budget reallocation, contract review, policy waiver, project change request.", placeholder:"e.g. Vendor approval" },
-  businessUnit: { id:"businessUnit", kind:"text", required:true, cluster:"Pathway framing", title:"Which function or business unit does this pathway primarily sit in?", copy:"Keep it simple. A single function or team is enough.", help:"Examples: Operations, Finance, HR, Procurement, Legal, PMO, Compliance, Product.", placeholder:"e.g. Operations" },
-  industry: { id:"industry", kind:"select", required:true, cluster:"Pathway framing", title:"What industry or operating sector best matches your organization?", copy:"This gives the output stronger peer context and lets the backend compare the pathway to a more relevant operating environment.", help:"Choose the closest primary sector.", options: industryOptions.map(([value, label]) => ({ value, label })) },
-  organizationSize: { id:"organizationSize", kind:"select", required:true, cluster:"Pathway framing", title:"What size band best matches the organization this pathway sits inside?", copy:"Scale matters because large organizations usually carry heavier governance weight than small ones.", help:"Choose the size band that best reflects the organization using this pathway, not just the team where the issue is felt.", options:[{value:"",label:"Select one"},{value:"small",label:"Small organization"},{value:"midsize",label:"Mid-sized organization"},{value:"large",label:"Large organization"},{value:"enterprise",label:"Enterprise-scale organization"}] },
-  regulatoryIntensity: { id:"regulatoryIntensity", kind:"select", required:true, cluster:"Pathway framing", title:"How regulation-heavy is the environment around this pathway?", copy:"This helps separate justified governance burden from avoidable internal drag.", help:"Think about compliance, auditability, legal sensitivity, or external rules that materially shape how the work must move.", options:[{value:"",label:"Select one"},{value:"low",label:"Lower-regulation environment"},{value:"moderate",label:"Moderate-regulation environment"},{value:"high",label:"High-regulation environment"}] },
-  decisionType: { id:"decisionType", kind:"select", required:true, cluster:"Pathway framing", title:"What kind of decision is this, primarily?", copy:"This helps benchmark the pathway against an appropriate decision class.", help:"Choose the dominant decision class, not every element involved in the pathway.", options:[{value:"",label:"Select one"},{value:"procurement",label:"Procurement / vendor"},{value:"hiring",label:"Hiring / staffing"},{value:"budget",label:"Budget / funding"},{value:"policy",label:"Policy / governance"},{value:"program",label:"Program / project"},{value:"risk",label:"Risk / exception"},{value:"other",label:"Other"}] },
-  decisionFrequency: { id:"decisionFrequency", kind:"select", required:true, cluster:"Pathway framing", title:"How often does this pathway typically occur?", copy:"This helps distinguish chronic organizational drag from rarer but still costly friction.", help:"Pick the closest frequency, even if the volume fluctuates across the year.", options:[{value:"",label:"Select one"},{value:"daily",label:"Daily or near-daily"},{value:"weekly",label:"Weekly"},{value:"monthly",label:"Monthly"},{value:"quarterly",label:"Quarterly"},{value:"sporadic",label:"Sporadic / irregular"}] },
-  organizationalLevel: { id:"organizationalLevel", kind:"select", required:true, cluster:"Pathway framing", title:"At what level does this pathway primarily operate?", copy:"This helps distinguish local routing issues from broader governance patterns.", help:"Choose the level where the pathway mainly lives, even if other levels are touched.", options:[{value:"",label:"Select one"},{value:"team",label:"Within a team"},{value:"cross_team",label:"Across multiple teams"},{value:"function",label:"Within a function or department"},{value:"cross_functional",label:"Cross-functional"},{value:"enterprise",label:"Enterprise-wide"}] },
-  description: { id:"description", kind:"textarea", required:false, cluster:"Observable context", title:"Anything important leaders are currently seeing in this pathway?", copy:"A brief note can make the narrative output feel more grounded, but you can skip this if needed.", help:"Keep this observable. Examples: missed deadlines, repeated complaints, executive intervention, stalled approvals, or burn caused by chasing the process.", placeholder:"Briefly describe recent friction leaders are seeing or hearing about." },
-  approvalCount: { id:"approvalCount", kind:"number", required:true, cluster:"Approval structure", title:"How many distinct approvals does one normal run of this pathway typically require?", copy:"Count the approval points that must be satisfied before the decision can fully move forward.", help:"Do not count FYI notifications. Count only the people, offices, or boards whose approval materially determines whether the pathway advances.", placeholder:"e.g. 5", followups:[
-    { id:"approverRoleMap", kind:"textarea", required:true, title:"If there are several approvers, what do they broadly represent?", copy:"Briefly describe the kinds of actors involved.", placeholder:"e.g. line manager, finance reviewer, legal reviewer, risk approver, final director sign-off", showIf:(v)=>Number(v||0)>=5 },
-    { id:"approvalConcentration", kind:"select", required:true, title:"Are most approvals genuinely decision-making approvals or mainly confirmatory checkpoints?", copy:"This helps distinguish governance necessity from review layering.", options:[{value:"",label:"Select one"},{value:"mostly_decisive",label:"Mostly decisive approvals"},{value:"mixed",label:"Mixed"},{value:"mostly_confirmatory",label:"Mostly confirmatory checkpoints"}], showIf:(v)=>Number(v||0)>=4 }
-  ]},
-  approvalFlow: { id:"approvalFlow", kind:"select", required:true, cluster:"Approval structure", title:"Those approvals are usually organized how?", copy:"This distinguishes parallel routing from gate-by-gate sequencing.", help:"Sequential approvals usually create more delay because each step waits on the prior one.", options:[{value:"",label:"Select one"},{value:"parallel",label:"Mostly parallel"},{value:"mixed",label:"Mixed"},{value:"sequential",label:"Mostly sequential"}] },
-  reviewExpansion: { id:"reviewExpansion", kind:"choice", required:true, cluster:"Approval structure", title:"Do extra reviewers or review scopes get added after the process is already moving?", copy:"Late-stage review expansion often signals weak trust or unclear criteria upstream.", help:"This gets at whether the pathway becomes heavier midstream rather than starting with a known review perimeter.", options:[{value:"rare",label:"Rarely",note:"The review perimeter is usually known from the start."},{value:"sometimes",label:"Sometimes",note:"The review footprint expands under certain conditions."},{value:"often",label:"Often",note:"New reviewers or expanded review scopes show up repeatedly."}] },
-  criteriaClarity: { id:"criteriaClarity", kind:"select", required:true, cluster:"Approval structure", title:"How clear are the approval criteria before the pathway starts?", copy:"Unclear criteria often produce rework, defensive review, and review creep.", help:"If different reviewers apply different standards, the criteria are not as clear as they appear.", options:[{value:"",label:"Select one"},{value:"clear",label:"Usually clear"},{value:"mixed",label:"Mixed"},{value:"unclear",label:"Often unclear"}] },
-  approvalReworkTrigger: { id:"approvalReworkTrigger", kind:"select", required:true, cluster:"Approval structure", title:"When work gets pushed back, what most commonly triggers it?", copy:"This helps distinguish quality control from structural ambiguity.", options:[{value:"",label:"Select one"},{value:"missing_info",label:"Missing information or documentation"},{value:"changing_criteria",label:"Changing or inconsistent criteria"},{value:"risk_discomfort",label:"Risk discomfort or caution"},{value:"late_reviewer_input",label:"Late reviewer input"},{value:"unclear",label:"It is not usually clear"}] },
-  approvalBypass: { id:"approvalBypass", kind:"select", required:true, cluster:"Approval structure", title:"How often does someone try to speed the process by bypassing or informally pressuring the approval path?", copy:"This is a signal that the formal route may not match the lived urgency of the work.", options:[{value:"",label:"Select one"},{value:"rare",label:"Rarely"},{value:"sometimes",label:"Sometimes"},{value:"often",label:"Often"}] },
-  meetingCount: { id:"meetingCount", kind:"number", required:true, cluster:"Coordination burden", title:"How many meetings are typically needed just to keep this decision moving?", copy:"Count the meetings that feel necessary to maintain motion, not every adjacent touchpoint.", help:"Include recurring syncs, alignment meetings, follow-up meetings, or ad hoc sessions needed to prevent the pathway from stalling.", placeholder:"e.g. 4", followups:[
-    { id:"meetingPurposeSplit", kind:"multiselect", required:true, title:"Those meetings are mostly doing what kinds of work?", copy:"Choose all that usually apply. This helps separate substantive decision work from compensatory coordination.", options:[{value:"decision_making",label:"Making the decision",note:"The meeting is actually used to decide."},{value:"coordination",label:"Coordinating people and information",note:"The meeting aligns actors, timing, or dependencies."},{value:"rework",label:"Clarifying, revisiting, or correcting",note:"The meeting exists because prior steps did not hold."},{value:"status_pressure",label:"Applying pressure to keep the pathway moving",note:"The meeting is mainly there to prompt action or chase movement."}], showIf:(v)=>Number(v||0)>=3 }
-  ]},
-  outsideCoordination: { id:"outsideCoordination", kind:"select", required:true, cluster:"Coordination burden", title:"How often does extra coordination happen outside formal channels?", copy:"Think about side pings, informal follow-ups, or personal outreach used to compensate for the formal process.", options:[{value:"",label:"Select one"},{value:"rare",label:"Rarely"},{value:"sometimes",label:"Sometimes"},{value:"often",label:"Often"}] },
-  systemsTouched: { id:"systemsTouched", kind:"number", required:true, cluster:"Coordination burden", title:"How many systems are typically touched in one run of this pathway?", copy:"Include only the systems materially involved in routing, approving, documenting, or revising the decision.", placeholder:"e.g. 4", followups:[
-    { id:"systemFrictionAreas", kind:"multiselect", required:true, title:"Where does system friction show up most?", copy:"Choose all the system issues that materially slow the pathway.", options:[{value:"duplicate_entry",label:"Information must be entered more than once",note:"The same data is re-entered across systems."},{value:"status_visibility",label:"Status is hard to see",note:"People cannot easily tell where the decision sits."},{value:"tool_switching",label:"Too much switching across tools",note:"The pathway hops across multiple systems or channels."},{value:"email_dependency",label:"Email or chat is carrying too much of the process",note:"The formal system is not enough on its own."},{value:"document_versioning",label:"Documents or versions are hard to control",note:"The right version is not always clear."}], showIf:(v)=>Number(v||0)>=4 },
-    { id:"systemFrictionPoint", kind:"textarea", required:false, title:"Anything else notable about the system friction?", copy:"Add a short note only if there is one specific point leadership should understand.", placeholder:"e.g. approvals are tracked in email but documented elsewhere", showIf:(v)=>Number(v||0)>=4 }
-  ]},
-  handoffCount: { id:"handoffCount", kind:"number", required:true, cluster:"Routing density", title:"How many handoffs or routing transitions typically occur?", copy:"High handoff density often means accountability is distributed more widely than the work requires.", placeholder:"e.g. 6" },
-  workaroundRate: { id:"workaroundRate", kind:"select", required:true, cluster:"Routing density", title:"How often are workarounds or exceptions used to keep this pathway moving?", copy:"This helps distinguish designed coordination from compensatory behavior.", options:[{value:"",label:"Select one"},{value:"rare",label:"Rarely"},{value:"sometimes",label:"Sometimes"},{value:"often",label:"Often"}] },
-  coordinationOwnershipBlur: { id:"coordinationOwnershipBlur", kind:"select", required:true, cluster:"Coordination burden", title:"During the path, how often is it unclear who is supposed to move the work next?", copy:"This surfaces accountability drift during coordination.", options:[{value:"",label:"Select one"},{value:"rare",label:"Rarely"},{value:"sometimes",label:"Sometimes"},{value:"often",label:"Often"}] },
-  coordinationRecovery: { id:"coordinationRecovery", kind:"select", required:true, cluster:"Coordination burden", title:"When the pathway stalls, what most often gets it moving again?", copy:"This helps distinguish resilient design from compensatory hustle.", options:[{value:"",label:"Select one"},{value:"formal_followup",label:"Normal follow-up in the process"},{value:"manager_push",label:"A manager or senior person pushes it"},{value:"informal_network",label:"Informal relationships or side-channel coordination"},{value:"varies",label:"It varies"}] },
-  escalationRate: { id:"escalationRate", kind:"select", required:true, cluster:"Escalation condition", title:"How often is this decision escalated above the formal pathway?", copy:"Escalation is not always unhealthy, but routine escalation often means the pathway is not self-resolving.", options:[{value:"",label:"Select one"},{value:"rare",label:"Rarely"},{value:"sometimes",label:"Sometimes"},{value:"often",label:"Often"}], followups:[
-    { id:"escalationTarget", kind:"select", required:true, title:"Escalation usually goes where?", copy:"This helps locate where the system resolves ambiguity.", options:[{value:"",label:"Select one"},{value:"single_leader",label:"A single leader"},{value:"committee",label:"A board, committee, or governance forum"},{value:"cross_functional",label:"Cross-functional senior group"},{value:"varies",label:"It varies"}], showIf:(v)=>["sometimes","often"].includes(String(v||"")) },
-    { id:"escalationDrivers", kind:"multiselect", required:true, title:"What usually forces the escalation?", copy:"Choose all that commonly trigger escalation in this pathway.", options:[{value:"unclear_owner",label:"Unclear owner or decision rights",note:"No one is clearly empowered to resolve the issue."},{value:"conflicting_priorities",label:"Conflicting priorities across groups",note:"Different actors are optimizing for different outcomes."},{value:"policy_ambiguity",label:"Policy or rule ambiguity",note:"The formal guidance leaves too much room for interpretation."},{value:"risk_discomfort",label:"Risk discomfort or caution",note:"People escalate because they do not want to carry the decision alone."},{value:"budget_sensitivity",label:"Budget, optics, or senior visibility",note:"The issue becomes more sensitive than the normal pathway can absorb."}], showIf:(v)=>["sometimes","often"].includes(String(v||"")) }
-  ]},
-  ownerClarity: { id:"ownerClarity", kind:"select", required:true, cluster:"Decision rights", title:"How clear is decision ownership before the pathway starts moving?", copy:"This distinguishes healthy collaboration from a pathway surviving through ambiguity.", options:[{value:"",label:"Select one"},{value:"clear",label:"Usually clear"},{value:"mixed",label:"Mixed"},{value:"unclear",label:"Often unclear"}] },
-  escalationClarity: { id:"escalationClarity", kind:"select", required:true, cluster:"Decision rights", title:"How clear is the escalation path when the pathway cannot resolve itself?", copy:"Clear escalation is different from frequent escalation.", options:[{value:"",label:"Select one"},{value:"clear",label:"Usually clear"},{value:"mixed",label:"Mixed"},{value:"unclear",label:"Often unclear"}] },
-  decisionRightsConflict: { id:"decisionRightsConflict", kind:"select", required:true, cluster:"Decision rights", title:"How often do decision rights feel contested or interpreted differently by different actors?", copy:"This helps detect governance ambiguity beneath the visible process.", options:[{value:"",label:"Select one"},{value:"rare",label:"Rarely"},{value:"sometimes",label:"Sometimes"},{value:"often",label:"Often"}] },
-  exceptionPathClarity: { id:"exceptionPathClarity", kind:"select", required:true, cluster:"Decision rights", title:"If the normal path does not fit, how clear is the exception path?", copy:"Weak exception routing often creates improvisation, delay, and political escalation.", options:[{value:"",label:"Select one"},{value:"clear",label:"Usually clear"},{value:"mixed",label:"Mixed"},{value:"unclear",label:"Often unclear"}] },
-  keyPersonDependency: { id:"keyPersonDependency", kind:"choice", required:true, cluster:"Pathway resilience", title:"How dependent is the pathway on specific people to keep moving?", copy:"This detects whether the process is stable in itself or surviving through key-person compensation.", options:[{value:"no",label:"Minimal dependence",note:"The pathway would still function if specific people were absent."},{value:"somewhat",label:"Some dependence",note:"The pathway would function, but noticeably less smoothly."},{value:"heavily",label:"Heavy dependence",note:"The pathway would likely stall or become confused without specific individuals."}], followups:[
-    { id:"keyPersonCount", kind:"number", required:true, title:"How many people does the pathway materially depend on?", copy:"Estimate the core group the process leans on.", placeholder:"e.g. 2", showIf:(v)=>["somewhat","heavily"].includes(String(v||"")) },
-    { id:"keyPersonRoleCoverage", kind:"multiselect", required:true, title:"What do those key people mainly do for the pathway?", copy:"Choose all the roles they materially play in keeping the pathway moving.", options:[{value:"translate",label:"Translate requirements or expectations",note:"They explain what different actors actually want."},{value:"unblock",label:"Unblock stalled work",note:"They intervene to move things that would otherwise sit."},{value:"reconcile",label:"Reconcile conflicting instructions",note:"They resolve contradictions across groups or rules."},{value:"approve",label:"Personally approve or override",note:"They are the decision authority or de facto authority."},{value:"coordinate",label:"Coordinate people and timing",note:"They keep the pathway aligned and moving."}], showIf:(v)=>["somewhat","heavily"].includes(String(v||"")) }
-  ]},
-  keyPersonSubstitution: { id:"keyPersonSubstitution", kind:"select", required:true, cluster:"Pathway resilience", title:"If a key person were suddenly unavailable, how ready is the pathway to absorb that disruption?", copy:"This helps distinguish mild dependence from structural brittleness.", options:[{value:"",label:"Select one"},{value:"ready",label:"Mostly ready"},{value:"mixed",label:"Mixed"},{value:"fragile",label:"Fragile"}] },
-  knowledgeLocation: { id:"knowledgeLocation", kind:"select", required:true, cluster:"Pathway resilience", title:"Where does critical pathway knowledge mostly live today?", copy:"This clarifies whether the system is documented or person-dependent.", options:[{value:"",label:"Select one"},{value:"documented",label:"Mainly in documented systems or guides"},{value:"mixed",label:"Mixed between documents and people"},{value:"people",label:"Mainly in people’s heads or informal know-how"}] },
-  delayVisibility: { id:"delayVisibility", kind:"select", required:true, cluster:"Pathway resilience", title:"When the pathway slows, how visible is the slowdown to leadership?", copy:"Invisible friction often persists longer because it is hard to govern.", options:[{value:"",label:"Select one"},{value:"visible",label:"Usually visible early"},{value:"mixed",label:"Mixed"},{value:"hidden",label:"Often hidden until late"}] },
-  decisionDays: { id:"decisionDays", kind:"number", required:true, cluster:"Cycle timing", title:"On average, how many days does it take to reach a final decision?", copy:"Use a directional average. Exact precision is not necessary.", help:"Measure from meaningful initiation to final resolution, not just the time spent inside one team.", placeholder:"e.g. 18", followups:[
-    { id:"delayPoint", kind:"select", required:true, title:"Where does the delay tend to concentrate most?", copy:"Choose the point where the pathway most often slows materially.", options:[{value:"",label:"Select one"},{value:"front_end",label:"At the front end / intake"},{value:"midstream_review",label:"During review and coordination"},{value:"late_stage",label:"Near final approval or sign-off"},{value:"varies",label:"It varies"}], showIf:(v)=>Number(v||0)>=10 },
-    { id:"reopenRate", kind:"select", required:true, title:"How often is work reopened for revision after it appears nearly complete?", copy:"This helps distinguish slow pathways from unstable pathways.", options:[{value:"",label:"Select one"},{value:"rare",label:"Rarely"},{value:"sometimes",label:"Sometimes"},{value:"often",label:"Often"}], showIf:(v)=>Number(v||0)>=10 }
-  ]},
-  peopleInvolved: { id:"peopleInvolved", kind:"number", required:true, cluster:"Exposure sizing", title:"Roughly how many people are typically involved in one normal run of this pathway?", copy:"Count the people who materially contribute time, review, routing, coordination, or approval effort.", help:"Do not count everyone merely copied on the thread. Count the people whose time is actually consumed by getting the decision through.", placeholder:"e.g. 8", followups:[
-    { id:"participantRoleMap", kind:"textarea", required:true, title:"If several people are involved, what are the main roles they play?", copy:"Briefly describe the work categories involved.", placeholder:"e.g. requestor, manager, finance reviewer, legal reviewer, procurement analyst, final approver", showIf:(v)=>Number(v||0)>=5 },
-    { id:"participantTimeShare", kind:"select", required:true, title:"How concentrated is the work across those people?", copy:"This helps estimate whether most of the burden sits with a small core or is spread broadly.", options:[{value:"",label:"Select one"},{value:"few_people",label:"A few people carry most of the work"},{value:"mixed",label:"Mixed"},{value:"broadly_shared",label:"The burden is spread broadly"}], showIf:(v)=>Number(v||0)>=5 }
-  ]},
-  costMode: { id:"costMode", kind:"select", required:true, cluster:"Exposure sizing", title:"How would you like to estimate labor cost for this pathway?", copy:"Use a single directional average unless you know the pathway’s hourly cost by participant group.", help:"The group option is optional and only improves the estimate if you know the numbers well enough.", options:[{value:"",label:"Select one"},{value:"average",label:"Use one average loaded hourly cost per materially involved participant"},{value:"grouped",label:"I know rough hourly cost by participant group"}], followups:[
-    { id:"hourlyCost", kind:"number", required:true, title:"About what is the average loaded hourly cost per materially involved participant?", copy:"Use a rough per-hour estimate that includes compensation plus overhead. This field is not asking for annual salary.", help:"Enter an approximate hourly cost per person, not total pathway cost. If you only know approximate salaries, convert them directionally into an hourly labor cost.", placeholder:"e.g. 95", showIf:(v)=>v === "average" },
-    { id:"decisionMakerHourlyCost", kind:"number", required:true, title:"Decision-makers: approximate loaded hourly cost per person", copy:"This is a directional estimate for the people who primarily decide or own the decision.", placeholder:"e.g. 120", showIf:(v)=>v === "grouped" },
-    { id:"reviewerHourlyCost", kind:"number", required:true, title:"Reviewers / approvers: approximate loaded hourly cost per person", copy:"Use a rough per-hour estimate for formal reviewers or approvers.", placeholder:"e.g. 105", showIf:(v)=>v === "grouped" },
-    { id:"coordinatorHourlyCost", kind:"number", required:true, title:"Coordinators / analysts: approximate loaded hourly cost per person", copy:"Use a rough per-hour estimate for people doing routing, preparation, or coordination work.", placeholder:"e.g. 80", showIf:(v)=>v === "grouped" },
-    { id:"seniorApproverHourlyCost", kind:"number", required:false, title:"Senior escalation / override actors: approximate loaded hourly cost per person", copy:"Optional if a materially more senior approval or escalation layer gets involved.", placeholder:"e.g. 145", showIf:(v)=>v === "grouped" }
-  ]},
-  annualVolume: { id:"annualVolume", kind:"number", required:true, cluster:"Exposure sizing", title:"How many times does this decision pathway run in a typical year?", copy:"If you are unsure, use a reasonable yearly estimate.", placeholder:"e.g. 120" },
-  meetingHours: { id:"meetingHours", kind:"number", required:true, cluster:"Exposure sizing", title:"How many meeting or coordination hours does one normal run usually consume?", copy:"Estimate the total hours spent coordinating, aligning, revisiting, or pushing the pathway forward.", placeholder:"e.g. 4" },
-  consequenceRatings: { id:"consequenceRatings", kind:"ratingmatrix", required:true, cluster:"Impact sizing", title:"When this pathway slows materially, how severe is the impact across these consequence areas?", copy:"Rate each impact from 0 to 5. This is stronger than forcing only one consequence because several effects can coexist at once.", help:"0 = no meaningful impact, 1 = minimal, 2 = mild, 3 = moderate, 4 = high, 5 = severe.", rows:[
-    { key:"minor_delay", label:"Minor delay or annoyance" },
-    { key:"delivery_slippage", label:"Missed timing or delivery slippage" },
-    { key:"cost_growth", label:"Added labor or cost" },
-    { key:"leadership_escalation", label:"Repeated leadership intervention" },
-    { key:"mission_risk", label:"Meaningful operational or mission risk" }
-  ]},
-  confidenceLevel: { id:"confidenceLevel", kind:"select", required:true, cluster:"Input calibration", title:"How confident are you in the accuracy of the information you provided?", copy:"This does not reduce the value of the output. It helps calibrate how strongly the result should be interpreted.", options:[{value:"",label:"Select one"},{value:"high",label:"High confidence"},{value:"moderate",label:"Moderate confidence"},{value:"limited",label:"Limited confidence"}] },
-  acknowledgment: { id:"acknowledgment", kind:"checkbox", required:true, cluster:"Final acknowledgment", title:"Before generating your output, please confirm the following.", copy:"This final acknowledgment is required before the diagnostic engine can generate the readout.", label:finalAcknowledgment }
-};
-
-const commonIntro = ["processName","businessUnit","industry","organizationSize","regulatoryIntensity","decisionType","decisionFrequency","organizationalLevel","description"];
+const commonIntro = ["processName","businessUnit","industry","decisionType","decisionFrequency","organizationalLevel","description"];
 const branchMap = {
-  approval_expansion:["approvalCount","approvalFlow","reviewExpansion","criteriaClarity","approvalReworkTrigger","approvalBypass","ownerClarity","decisionRightsConflict","decisionDays"],
-  coordination_load:["meetingCount","outsideCoordination","systemsTouched","handoffCount","coordinationOwnershipBlur","coordinationRecovery","workaroundRate","ownerClarity","decisionDays"],
-  escalation_dependence:["escalationRate","ownerClarity","escalationClarity","decisionRightsConflict","exceptionPathClarity","decisionDays","approvalCount","criteriaClarity","keyPersonDependency"],
-  key_person_dependence:["keyPersonDependency","keyPersonSubstitution","knowledgeLocation","delayVisibility","ownerClarity","escalationClarity","decisionDays","handoffCount","workaroundRate"]
+  approval_expansion:["approvalCount","approvalFlow","reviewExpansion","ownerClarity","escalationClarity","decisionDays"],
+  coordination_load:["meetingCount","systemsTouched","handoffCount","workaroundRate","ownerClarity","decisionDays"],
+  escalation_dependence:["escalationRate","ownerClarity","escalationClarity","approvalCount","decisionDays","keyPersonDependency"],
+  key_person_dependence:["keyPersonDependency","ownerClarity","escalationClarity","decisionDays","handoffCount","workaroundRate"]
 };
-const commonOutro = ["peopleInvolved","costMode","annualVolume","meetingHours","consequenceRatings","confidenceLevel","acknowledgment"];
+const commonOutro = ["peopleInvolved","hourlyCost","annualVolume","meetingHours","acknowledgment"];
 
 const state = { path:["symptom"], index:0, answers:{}, result:null };
 
-function hideLoader(){ setTimeout(()=>pageLoader.classList.add("hidden"), LOADER_MS); }
-function showStage(stage){ [introStage,questionStage,processingStage,resultsStage].forEach((el)=>el.classList.remove("active")); stage.classList.add("active"); questionFooter.style.display = stage === questionStage ? "grid" : "none"; }
-function setHeader(headline, subcopy, status){ envHeadline.textContent=headline; envSubcopy.textContent=subcopy; statusPill.textContent=status; }
+function hideLoader(){ setTimeout(() => pageLoader.classList.add("hidden"), LOADER_MS); }
+
+function showStage(stage){
+  [introStage, questionStage, processingStage, resultsStage].forEach(el => el.classList.remove("active"));
+  stage.classList.add("active");
+  questionFooter.style.display = stage === questionStage ? "grid" : "none";
+}
+
+function setHeader(headline, subcopy, status){
+  envHeadline.textContent = headline;
+  envSubcopy.textContent = subcopy;
+  statusPill.textContent = status;
+}
+
 function currentQuestionId(){ return state.path[state.index]; }
-function currentQuestion(){ return questions[currentQuestionId()]; }
-function buildPath(){ const branch = branchMap[state.answers.symptom] || []; state.path = Array.from(new Set(["symptom",...commonIntro,...branch,...commonOutro])); if(state.index >= state.path.length) state.index = state.path.length - 1; }
-function startDiagnostic(){ state.index = 0; state.answers = {}; state.result = null; state.path = ["symptom"]; destroyCharts(); setHeader("Structured diagnostic sequence","The pathway will adjust based on the most visible signal you identify first. Some answers open additional tiles so the engine can go deeper where needed.","Question path active"); showStage(questionStage); renderQuestion(); }
+function currentQuestion(){ return q[currentQuestionId()]; }
+
+function buildPath(){
+  const branch = branchMap[state.answers.symptom] || [];
+  state.path = ["symptom", ...commonIntro, ...branch, ...commonOutro];
+  state.path = Array.from(new Set(state.path));
+  if (state.index >= state.path.length) state.index = state.path.length - 1;
+}
+
+function startDiagnostic(){
+  state.index = 0;
+  state.answers = {};
+  state.result = null;
+  state.path = ["symptom"];
+  destroyCharts();
+  setHeader(
+    "Structured diagnostic sequence",
+    "The pathway will adjust based on the most visible signal you identify first. Some answers open additional tiles so the engine can go deeper where needed.",
+    "Question path active"
+  );
+  showStage(questionStage);
+  renderQuestion();
+}
+
 function restartDiagnostic(){ startDiagnostic(); }
-function escapeHtml(value){ return String(value).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&#39;"); }
-function humanize(text){ return String(text || "").replace(/_/g," ").replace(/\b\w/g,(c)=>c.toUpperCase()); }
-function findChildQuestion(id){ for(const question of Object.values(questions)){ const child = (question.followups || []).find((item)=>item.id === id); if(child) return child; } return null; }
-function normalizeValue(id, value){ const question = questions[id] || findChildQuestion(id); if(!question) return value; if(question.kind === "number") return value === "" ? "" : Number(value); if(question.kind === "multiselect") return Array.isArray(value) ? value : []; if(question.kind === "ratingmatrix") return value && typeof value === "object" ? value : {}; return value; }
-function saveAnswer(id, value){ state.answers[id] = normalizeValue(id, value); if(id === "symptom"){ clearBranchAnswers(); buildPath(); } if(id === "reviewExpansion"){ if(value === "often") state.answers.lateApprovals = "frequently"; else if(value === "sometimes") state.answers.lateApprovals = "occasionally"; else state.answers.lateApprovals = "no"; } }
-function clearBranchAnswers(){ Object.keys(state.answers).forEach((id)=>{ if(!["symptom",...commonIntro,...commonOutro].includes(id)) delete state.answers[id]; }); }
-function getVisibleFollowups(question, value){ return (question.followups || []).filter((child)=>{ try { return child.showIf ? child.showIf(value) : true; } catch { return false; } }); }
-function attachLiveInput(el, question){ if(!el) return; const handler = ()=>{ saveAnswer(question.id, el.value); updateProgress(); if(question.followups){ clearTimeout(rerenderTimer); rerenderTimer = setTimeout(renderQuestion, 120); } }; el.addEventListener("input", handler); el.addEventListener("change", handler); }
 
 function renderQuestion(){
   const question = currentQuestion();
-  if(!question) return;
+  if (!question) return;
+
   questionCluster.textContent = question.cluster;
   questionStep.textContent = `Question ${state.index + 1} of ${state.path.length}`;
   questionTitle.textContent = "";
   questionCopy.textContent = "";
   requiredNotice.classList.remove("show");
   questionBody.innerHTML = "";
+
   const shell = document.createElement("div");
   shell.className = "cluster-stack";
   shell.appendChild(renderQuestionCard(question, false));
-  const kids = getVisibleFollowups(question, state.answers[question.id]);
-  if(kids.length){
-    const childWrap = document.createElement("div");
-    childWrap.className = "cluster-children";
-    const grid = document.createElement("div");
-    grid.className = `branch-grid${kids.length === 1 ? " single" : ""}`;
-    kids.forEach((child)=>grid.appendChild(renderQuestionCard(child, true)));
-    childWrap.appendChild(grid);
-    shell.appendChild(childWrap);
-  }
   questionBody.appendChild(shell);
+
   backBtn.disabled = state.index === 0;
   skipBtn.disabled = question.required;
-  continueBtn.style.display = (question.kind === "choice" && !question.followups) ? "none" : "inline-flex";
+  continueBtn.style.display = question.kind === "choice" ? "none" : "inline-flex";
+
   updateProgress();
 }
 
 function renderQuestionCard(question, isChild = false){
   const card = document.createElement("div");
-  if(isChild) card.className = "mini-card";
+  if (isChild) card.className = "mini-card";
   const existing = state.answers[question.id];
+
   card.innerHTML = `
     <div class="title-row">
       <div>
-        ${isChild ? '<p class="mini-eyebrow">Follow-up</p>' : ''}
+        ${isChild ? '<p class="mini-eyebrow">Follow-up</p>' : ""}
         <h4 style="margin:${isChild ? '0 0 6px' : '0 0 8px'};font-size:${isChild ? '1rem' : '1.34rem'};line-height:${isChild ? '1.26' : '1.16'};letter-spacing:-.03em;">${escapeHtml(question.title)}</h4>
       </div>
-      ${question.help ? '<button class="info-btn" type="button" aria-label="More information">i</button>' : ''}
+      ${question.help ? `<button class="info-btn" type="button" aria-label="More information">i</button>` : ""}
     </div>
-    <p class="${isChild ? 'mini-copy' : 'question-card-copy'}">${escapeHtml(question.copy || '')}</p>
-    ${question.help ? `<div class="info-panel">${escapeHtml(question.help)}</div>` : ''}`;
+    <p class="${isChild ? 'mini-copy' : 'question-card-copy'}">${escapeHtml(question.copy || "")}</p>
+    ${question.help ? `<div class="info-panel">${escapeHtml(question.help)}</div>` : ""}
+  `;
+
   const content = document.createElement("div");
 
-  if(question.kind === "choice"){
+  if (question.kind === "choice") {
     const wrap = document.createElement("div");
     wrap.className = "choices";
-    question.options.forEach((option)=>{
+    question.options.forEach(option => {
       const btn = document.createElement("button");
       btn.type = "button";
-      btn.className = `choice${String(existing) === String(option.value) ? " selected" : ""}`;
-      btn.innerHTML = `<span class="choice-title">${escapeHtml(option.label)}</span><span class="choice-note">${escapeHtml(option.note || '')}</span>`;
-      btn.addEventListener("click", ()=>{
+      btn.className = "choice" + (String(existing) === String(option.value) ? " selected" : "");
+      btn.innerHTML = `<span class="choice-title">${escapeHtml(option.label)}</span><span class="choice-note">${escapeHtml(option.note || "")}</span>`;
+      btn.addEventListener("click", () => {
         saveAnswer(question.id, option.value);
-        if(!question.followups && !isChild) moveNext(true); else renderQuestion();
+        moveNext(true);
       });
       wrap.appendChild(btn);
     });
     content.appendChild(wrap);
-  } else if(question.kind === "multiselect"){
-    const wrap = document.createElement("div");
-    wrap.className = "choices";
-    const selected = Array.isArray(existing) ? existing : [];
-    question.options.forEach((option)=>{
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = `choice${selected.includes(option.value) ? " selected" : ""}`;
-      btn.innerHTML = `<span class="choice-title">${escapeHtml(option.label)}</span><span class="choice-note">${escapeHtml(option.note || '')}</span>`;
-      btn.addEventListener("click", ()=>{
-        const current = Array.isArray(state.answers[question.id]) ? [...state.answers[question.id]] : [];
-        const idx = current.indexOf(option.value);
-        if(idx >= 0) current.splice(idx, 1); else current.push(option.value);
-        saveAnswer(question.id, current);
-        if(question.followups) renderQuestion(); else { btn.classList.toggle("selected"); updateProgress(); }
-      });
-      wrap.appendChild(btn);
-    });
-    content.appendChild(wrap);
-  } else if(question.kind === "select"){
-    content.innerHTML = `<div class="field-group"><div class="field"><label for="field_${question.id}">Select one</label><select id="field_${question.id}">${question.options.map((option)=>`<option value="${escapeHtml(option.value)}" ${String(existing ?? '') === String(option.value) ? 'selected' : ''}>${escapeHtml(option.label)}</option>`).join('')}</select></div></div>`;
-    const select = content.querySelector("select");
-    select.addEventListener("change", ()=>{ saveAnswer(question.id, select.value); if(question.followups) renderQuestion(); updateProgress(); });
-  } else if(question.kind === "textarea"){
-    content.innerHTML = `<div class="field-group"><div class="field"><label for="field_${question.id}">${question.required ? 'Your answer' : 'Optional context'}</label><textarea id="field_${question.id}" placeholder="${escapeHtml(question.placeholder || '')}">${escapeHtml(String(existing ?? ''))}</textarea></div></div>`;
-    attachLiveInput(content.querySelector("textarea"), question);
-  } else if(question.kind === "checkbox"){
-    content.innerHTML = `<div class="checkbox-card"><div class="checkbox-row"><input id="field_${question.id}" type="checkbox" ${existing ? 'checked' : ''} /><label for="field_${question.id}">${escapeHtml(question.label)}</label></div></div>`;
-    content.querySelector("input").addEventListener("change", ()=>{ saveAnswer(question.id, content.querySelector("input").checked); updateProgress(); });
-  } else if(question.kind === "ratingmatrix"){
-    const current = existing && typeof existing === 'object' ? existing : {};
-    const wrap = document.createElement("div");
-    wrap.className = "rating-matrix";
-    const head = document.createElement("div");
-    head.className = "scale-head";
-    head.innerHTML = `<div>Impact area</div><div>0</div><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div>`;
-    wrap.appendChild(head);
-    question.rows.forEach((row)=>{
-      const rowEl = document.createElement("div");
-      rowEl.className = "rating-row";
-      rowEl.innerHTML = `<div class="rating-label">${escapeHtml(row.label)}</div>`;
-      for(let n = 0; n <= 5; n += 1){
-        const pill = document.createElement("button");
-        pill.type = "button";
-        pill.className = `rating-pill${Number(current[row.key] ?? -1) === n ? ' active' : ''}`;
-        pill.textContent = String(n);
-        pill.title = consequenceScaleLabels[n];
-        pill.addEventListener("click", ()=>{
-          const next = { ...(state.answers[question.id] || {}) };
-          next[row.key] = n;
-          saveAnswer(question.id, next);
-          renderQuestion();
-        });
-        rowEl.appendChild(pill);
-      }
-      wrap.appendChild(rowEl);
-    });
-    content.appendChild(wrap);
+  } else if (question.kind === "select") {
+    const options = question.options.map(option => `<option value="${escapeHtml(option.value)}" ${String(existing ?? "") === String(option.value) ? "selected" : ""}>${escapeHtml(option.label)}</option>`).join("");
+    content.innerHTML = `
+      <div class="field-group">
+        <div class="field">
+          <label for="field_${question.id}">Select one</label>
+          <select id="field_${question.id}">${options}</select>
+        </div>
+      </div>
+    `;
+  } else if (question.kind === "textarea") {
+    content.innerHTML = `
+      <div class="field-group">
+        <div class="field">
+          <label for="field_${question.id}">${question.required ? "Your answer" : "Optional context"}</label>
+          <textarea id="field_${question.id}" placeholder="${escapeHtml(question.placeholder || "")}">${escapeHtml(String(existing ?? ""))}</textarea>
+        </div>
+      </div>
+    `;
+  } else if (question.kind === "checkbox") {
+    content.innerHTML = `
+      <div class="checkbox-card">
+        <div class="checkbox-row">
+          <input id="field_${question.id}" type="checkbox" ${existing ? "checked" : ""} />
+          <label for="field_${question.id}">${escapeHtml(question.label)}</label>
+        </div>
+      </div>
+    `;
   } else {
-    content.innerHTML = `<div class="field-group"><div class="field"><label for="field_${question.id}">Your answer</label><input id="field_${question.id}" type="${question.kind}" ${question.kind === 'number' ? 'step="any" min="0"' : ''} placeholder="${escapeHtml(question.placeholder || '')}" value="${escapeHtml(String(existing ?? ''))}" /></div></div>`;
-    attachLiveInput(content.querySelector("input"), question);
+    content.innerHTML = `
+      <div class="field-group">
+        <div class="field">
+          <label for="field_${question.id}">Your answer</label>
+          <input id="field_${question.id}" type="${question.kind}" ${question.kind === "number" ? 'step="any" min="0"' : ""} placeholder="${escapeHtml(question.placeholder || "")}" value="${escapeHtml(String(existing ?? ""))}" />
+        </div>
+      </div>
+    `;
   }
 
   card.appendChild(content);
-  if(question.help){
+
+  if (question.help) {
     const btn = card.querySelector(".info-btn");
     const panel = card.querySelector(".info-panel");
-    btn.addEventListener("mouseenter", ()=>panel.classList.add("show"));
-    btn.addEventListener("mouseleave", ()=>panel.classList.remove("show"));
-    btn.addEventListener("click", ()=>panel.classList.toggle("show"));
+    btn.addEventListener("mouseenter", () => panel.classList.add("show"));
+    btn.addEventListener("mouseleave", () => panel.classList.remove("show"));
+    btn.addEventListener("click", () => panel.classList.toggle("show"));
   }
+
   return card;
 }
 
+function normalizeValue(id, value){
+  const question = q[id];
+  if (!question) return value;
+  if (question.kind === "number") return value === "" ? "" : Number(value);
+  return value;
+}
+
+function saveAnswer(id, value){
+  state.answers[id] = normalizeValue(id, value);
+  if (id === "symptom") buildPath();
+}
+
 function readQuestionValue(question){
-  if(question.kind === "choice") return state.answers[question.id];
-  if(question.kind === "multiselect") return state.answers[question.id] || [];
-  if(question.kind === "ratingmatrix") return state.answers[question.id] || {};
-  if(question.kind === "checkbox") return document.getElementById(`field_${question.id}`)?.checked || false;
+  if (question.kind === "choice") return state.answers[question.id];
+  if (question.kind === "checkbox") return document.getElementById(`field_${question.id}`)?.checked || false;
   return document.getElementById(`field_${question.id}`)?.value ?? state.answers[question.id] ?? "";
 }
 
-function validateQuestionAndFollowups(question){
+function validateCurrent(){
+  const question = currentQuestion();
   const value = readQuestionValue(question);
-  const empty = value === "" || value == null || (question.kind === "checkbox" && value !== true) || (question.kind === "multiselect" && (!Array.isArray(value) || value.length === 0)) || (question.kind === "ratingmatrix" && Object.values(value || {}).every((score)=>Number(score) === 0 || score === undefined));
-  if(question.required && empty) return false;
-  if(question.kind === "select" && question.required && value === "") return false;
-  for(const child of getVisibleFollowups(question, value)){
-    const childValue = readQuestionValue(child);
-    const childEmpty = childValue === "" || childValue == null || (child.kind === "checkbox" && childValue !== true) || (child.kind === "multiselect" && (!Array.isArray(childValue) || childValue.length === 0)) || (child.kind === "ratingmatrix" && Object.values(childValue || {}).every((score)=>Number(score) === 0 || score === undefined));
-    if(child.required && childEmpty) return false;
-    if(child.kind === "select" && child.required && childValue === "") return false;
+  const empty = value === "" || value == null || (question.kind === "checkbox" && value !== true);
+  if (question.required && empty) {
+    requiredNotice.classList.add("show");
+    return false;
+  }
+  if (question.kind === "select" && question.required && value === "") {
+    requiredNotice.classList.add("show");
+    return false;
   }
   return true;
 }
-function saveQuestionAndFollowups(question){ saveAnswer(question.id, readQuestionValue(question)); const parentValue = state.answers[question.id]; const visibleIds = new Set(getVisibleFollowups(question,parentValue).map((item)=>item.id)); (question.followups || []).forEach((child)=>{ if(visibleIds.has(child.id)) saveAnswer(child.id, readQuestionValue(child)); else delete state.answers[child.id]; }); }
-function validateCurrent(){ const question = currentQuestion(); const ok = validateQuestionAndFollowups(question); if(!ok) requiredNotice.classList.add("show"); return ok; }
-function moveNext(fromChoice = false){ const question = currentQuestion(); if(!fromChoice || question.followups){ if(!validateCurrent()) return; saveQuestionAndFollowups(question); } requiredNotice.classList.remove("show"); if(state.index < state.path.length - 1){ state.index += 1; renderQuestion(); } else submitDiagnostic(); }
-function moveBack(){ if(state.index === 0) return; requiredNotice.classList.remove("show"); state.index -= 1; renderQuestion(); }
-function skipCurrent(){ const question = currentQuestion(); if(question.required) return; delete state.answers[question.id]; if(state.index < state.path.length - 1){ state.index += 1; renderQuestion(); } }
-function updateProgress(){ const completed = state.path.reduce((count,id)=>{ const value = state.answers[id]; if(value === undefined || value === "" || value === false) return count; if(Array.isArray(value) && value.length === 0) return count; return count + 1; }, 0); const percent = Math.max(8, Math.round((completed / state.path.length) * 100)); progressBar.style.width = `${percent}%`; progressCopy.textContent = `${percent}% complete`; pathHint.textContent = ({approval_expansion:"Approval layering branch active.",coordination_load:"Coordination burden branch active.",escalation_dependence:"Escalation dependence branch active.",key_person_dependence:"Key-person dependence branch active."})[state.answers.symptom] || "Waiting for first signal."; }
-function normalizeChoice(value){ return String(value ?? "").trim().toLowerCase(); }
-function safeNumber(value, fallback = 0){ const n = Number(value); return Number.isFinite(n) ? n : fallback; }
-function average(values, fallback = 0){ const cleaned = values.filter((v)=>Number.isFinite(v)); if(!cleaned.length) return fallback; return cleaned.reduce((a,b)=>a+b,0) / cleaned.length; }
-function clamp(value,min,max){ return Math.max(min, Math.min(max, value)); }
+
+function saveCurrentQuestion(){
+  const question = currentQuestion();
+  saveAnswer(question.id, readQuestionValue(question));
+}
+
+function moveNext(fromChoice = false){
+  if (!fromChoice) {
+    if (!validateCurrent()) return;
+    saveCurrentQuestion();
+  }
+  requiredNotice.classList.remove("show");
+  if (state.index < state.path.length - 1) {
+    state.index += 1;
+    renderQuestion();
+  } else {
+    submitDiagnostic();
+  }
+}
+
+function moveBack(){
+  if (state.index === 0) return;
+  requiredNotice.classList.remove("show");
+  state.index -= 1;
+  renderQuestion();
+}
+
+function skipCurrent(){
+  const question = currentQuestion();
+  if (question.required) return;
+  delete state.answers[question.id];
+  if (state.index < state.path.length - 1) {
+    state.index += 1;
+    renderQuestion();
+  }
+}
+
+function updateProgress(){
+  const completed = state.path.reduce((count, id) => {
+    const value = state.answers[id];
+    if (value === undefined || value === "" || value === false) return count;
+    return count + 1;
+  }, 0);
+  const percent = Math.max(8, Math.round((completed / state.path.length) * 100));
+  progressBar.style.width = `${percent}%`;
+  progressCopy.textContent = `${percent}% complete`;
+
+  const hints = {
+    approval_expansion:"Approval layering branch active.",
+    coordination_load:"Coordination burden branch active.",
+    escalation_dependence:"Escalation dependence branch active.",
+    key_person_dependence:"Key-person dependence branch active."
+  };
+  pathHint.textContent = hints[state.answers.symptom] || "Waiting for first signal.";
+}
 
 function buildPayload(){
-  const costMode = state.answers.costMode || "average";
-  const fragments = [
-    state.answers.description || "",
-    state.answers.participantRoleMap ? `Participant roles: ${state.answers.participantRoleMap}.` : "",
-    Array.isArray(state.answers.keyPersonRoleCoverage) && state.answers.keyPersonRoleCoverage.length ? `Key-person contribution: ${state.answers.keyPersonRoleCoverage.join(", ")}.` : "",
-    state.answers.approverRoleMap ? `Approver mix: ${state.answers.approverRoleMap}.` : "",
-    Array.isArray(state.answers.systemFrictionAreas) && state.answers.systemFrictionAreas.length ? `System friction areas: ${state.answers.systemFrictionAreas.join(", ")}.` : "",
-    state.answers.systemFrictionPoint ? `System friction note: ${state.answers.systemFrictionPoint}.` : "",
-    Array.isArray(state.answers.escalationDrivers) && state.answers.escalationDrivers.length ? `Escalation drivers: ${state.answers.escalationDrivers.join(", ")}.` : "",
-    Array.isArray(state.answers.meetingPurposeSplit) && state.answers.meetingPurposeSplit.length ? `Meeting purpose: ${state.answers.meetingPurposeSplit.join(", ")}.` : "",
-    state.answers.participantTimeShare ? `Participation spread: ${state.answers.participantTimeShare}.` : "",
-    state.answers.confidenceLevel ? `Input confidence: ${state.answers.confidenceLevel}.` : ""
-  ].filter(Boolean).join(" ");
   return {
     processName: state.answers.processName || "Unnamed pathway",
     businessUnit: state.answers.businessUnit || "",
     industry: state.answers.industry || "other",
-    organizationSize: state.answers.organizationSize || "unknown",
-    regulatoryIntensity: state.answers.regulatoryIntensity || "unknown",
     decisionType: state.answers.decisionType || "other",
-    description: fragments,
-    decisionDays: safeNumber(state.answers.decisionDays || 0),
-    approvalCount: safeNumber(state.answers.approvalCount || 0),
-    handoffCount: safeNumber(state.answers.handoffCount || 0),
-    meetingCount: safeNumber(state.answers.meetingCount || 0),
-    systemsTouched: safeNumber(state.answers.systemsTouched || 1),
+    description: state.answers.description || "",
+    decisionDays: Number(state.answers.decisionDays || 0),
+    approvalCount: Number(state.answers.approvalCount || 0),
+    handoffCount: Number(state.answers.handoffCount || 0),
+    meetingCount: Number(state.answers.meetingCount || 0),
+    systemsTouched: Number(state.answers.systemsTouched || 1),
     approvalFlow: state.answers.approvalFlow || "mixed",
-    lateApprovals: state.answers.lateApprovals || "occasionally",
+    lateApprovals: state.answers.reviewExpansion === "often" ? "frequently" : state.answers.reviewExpansion === "sometimes" ? "occasionally" : "no",
     ownerClarity: state.answers.ownerClarity || "mixed",
     escalationClarity: state.answers.escalationClarity || "mixed",
     keyPersonDependency: state.answers.keyPersonDependency || "somewhat",
-    reopenRate: state.answers.reopenRate || (state.answers.workaroundRate === "often" ? "often" : state.answers.workaroundRate === "sometimes" ? "sometimes" : "rare"),
+    reopenRate: state.answers.workaroundRate === "often" ? "often" : state.answers.workaroundRate === "sometimes" ? "sometimes" : "rare",
     escalationRate: state.answers.escalationRate || "sometimes",
     workaroundRate: state.answers.workaroundRate || "sometimes",
-    peopleInvolved: safeNumber(state.answers.peopleInvolved || 0),
-    hourlyCost: costMode === "average" ? safeNumber(state.answers.hourlyCost || 0) : 0,
-    decisionMakerHourlyCost: costMode === "grouped" ? safeNumber(state.answers.decisionMakerHourlyCost || 0) : undefined,
-    reviewerHourlyCost: costMode === "grouped" ? safeNumber(state.answers.reviewerHourlyCost || 0) : undefined,
-    coordinatorHourlyCost: costMode === "grouped" ? safeNumber(state.answers.coordinatorHourlyCost || 0) : undefined,
-    seniorApproverHourlyCost: costMode === "grouped" ? safeNumber(state.answers.seniorApproverHourlyCost || 0) : undefined,
-    annualVolume: safeNumber(state.answers.annualVolume || 0),
-    meetingHours: safeNumber(state.answers.meetingHours || 0),
-    consequenceRatings: state.answers.consequenceRatings || {},
-    confidenceLevel: state.answers.confidenceLevel || ""
+    peopleInvolved: Number(state.answers.peopleInvolved || 0),
+    hourlyCost: Number(state.answers.hourlyCost || 0),
+    annualVolume: Number(state.answers.annualVolume || 0),
+    meetingHours: Number(state.answers.meetingHours || 0)
   };
 }
 
+function clamp(value,min,max){ return Math.max(min, Math.min(max, value)); }
+function average(values){ const cleaned = values.filter(v => Number.isFinite(v)); return cleaned.length ? cleaned.reduce((a,b)=>a+b,0)/cleaned.length : 0; }
+
 function buildLocalResult(input){
-  const decisionDays = safeNumber(input.decisionDays || 0);
-  const approvalCount = safeNumber(input.approvalCount || 0);
-  const handoffCount = safeNumber(input.handoffCount || 0);
-  const meetingCount = safeNumber(input.meetingCount || 0);
-  const systemsTouched = safeNumber(input.systemsTouched || 0);
-  const ownerClarity = normalizeChoice(input.ownerClarity || "");
-  const escalationClarity = normalizeChoice(input.escalationClarity || "");
-  const keyPersonDependency = normalizeChoice(input.keyPersonDependency || "");
-  const reopenRate = normalizeChoice(input.reopenRate || "");
-  const escalationRate = normalizeChoice(input.escalationRate || "");
-  const workaroundRate = normalizeChoice(input.workaroundRate || "");
-  const approvalFlow = normalizeChoice(input.approvalFlow || "");
-  const lateApprovals = normalizeChoice(input.lateApprovals || "");
+  const decisionDays = Number(input.decisionDays || 0);
+  const approvalCount = Number(input.approvalCount || 0);
+  const handoffCount = Number(input.handoffCount || 0);
+  const meetingCount = Number(input.meetingCount || 0);
+  const systemsTouched = Number(input.systemsTouched || 0);
+  const ownerClarity = String(input.ownerClarity || "");
+  const escalationClarity = String(input.escalationClarity || "");
+  const keyPersonDependency = String(input.keyPersonDependency || "");
+  const reopenRate = String(input.reopenRate || "");
+  const escalationRate = String(input.escalationRate || "");
+  const workaroundRate = String(input.workaroundRate || "");
+  const approvalFlow = String(input.approvalFlow || "");
+  const lateApprovals = String(input.lateApprovals || "");
+
   const dimensions = {
     cycle_velocity: clamp(100 - (decisionDays <= 3 ? 2 : decisionDays <= 7 ? 8 : decisionDays <= 14 ? 18 : decisionDays <= 21 ? 28 : decisionDays <= 30 ? 38 : 50), 0, 100),
     approval_efficiency: clamp(100 - Math.min(35, approvalCount * 5) - (approvalFlow === "sequential" ? 14 : approvalFlow === "mixed" ? 6 : 0) - (lateApprovals === "frequently" ? 14 : lateApprovals === "occasionally" ? 7 : 0), 0, 100),
     coordination_load: clamp(100 - Math.min(30, handoffCount * 5) - Math.min(22, meetingCount * 4) - Math.min(15, systemsTouched * 3), 0, 100),
     execution_stability: clamp(100 - (ownerClarity === "unclear" ? 20 : ownerClarity === "mixed" ? 10 : 3) - (escalationClarity === "unclear" ? 16 : escalationClarity === "mixed" ? 8 : 3) - (keyPersonDependency === "heavily" ? 14 : keyPersonDependency === "somewhat" ? 7 : 0) - (reopenRate === "often" ? 14 : reopenRate === "sometimes" ? 7 : 0) - (escalationRate === "often" ? 10 : escalationRate === "sometimes" ? 5 : 0) - (workaroundRate === "often" ? 12 : workaroundRate === "sometimes" ? 6 : 0), 0, 100)
   };
+
   const contradictions = [];
-  if(approvalCount <= 2 && decisionDays > 20) contradictions.push({ code:"low_visible_approvals_high_latency", severity:"moderate", message:"Visible approvals are low, but decision latency remains high, suggesting hidden friction." });
-  if(ownerClarity === "clear" && escalationRate === "often") contradictions.push({ code:"clear_owner_frequent_escalation", severity:"high", message:"Ownership appears clear, but the pathway still depends on frequent escalation." });
-  if(ownerClarity === "clear" && keyPersonDependency === "heavily") contradictions.push({ code:"clear_owner_key_person_brittleness", severity:"high", message:"Ownership appears clear, but the pathway still depends heavily on specific individuals." });
+  if (approvalCount <= 2 && decisionDays > 20) contradictions.push({message:"Visible approvals are low, but latency remains high, suggesting hidden friction."});
+  if (ownerClarity === "clear" && escalationRate === "often") contradictions.push({message:"Ownership appears clear, but the pathway still depends on frequent escalation."});
+  if (ownerClarity === "clear" && keyPersonDependency === "heavily") contradictions.push({message:"Ownership appears clear, but the pathway still depends heavily on specific individuals."});
+
   const patterns = [];
-  if(dimensions.approval_efficiency <= 55 && dimensions.cycle_velocity <= 60) patterns.push("approval_layering_pattern");
-  if(dimensions.coordination_load <= 55 && dimensions.execution_stability <= 60) patterns.push("compensatory_coordination_pattern");
-  if(dimensions.execution_stability <= 52 && contradictions.length) patterns.push("unstable_pathway_pattern");
-  if(!patterns.length) patterns.push("balanced_pathway_pattern");
+  if (dimensions.approval_efficiency <= 55 && dimensions.cycle_velocity <= 60) patterns.push("approval_layering_pattern");
+  if (dimensions.coordination_load <= 55 && dimensions.execution_stability <= 60) patterns.push("compensatory_coordination_pattern");
+  if (dimensions.execution_stability <= 52 && contradictions.length) patterns.push("unstable_pathway_pattern");
+  if (!patterns.length) patterns.push("balanced_pathway_pattern");
+
   const score = Math.round(average(Object.values(dimensions)));
   const band = score >= 82 ? "Healthy velocity" : score >= 65 ? "Moderate drag" : score >= 45 ? "Significant friction" : "High bureaucratic latency";
-  const weightedHourly = average([safeNumber(input.decisionMakerHourlyCost, NaN), safeNumber(input.reviewerHourlyCost, NaN), safeNumber(input.coordinatorHourlyCost, NaN), safeNumber(input.seniorApproverHourlyCost, NaN)], safeNumber(input.hourlyCost || 85));
-  const annualHours = Math.round((safeNumber(input.meetingHours || 0) * safeNumber(input.annualVolume || 0) * 0.5) + (safeNumber(input.peopleInvolved || 0) * 8 * clamp((100 - score) / 100, 0.12, 0.85) * 12));
-  const annualCost = Math.round(annualHours * weightedHourly);
-  const capacityDragPercent = Math.round(clamp((((100 - score) / 100) * 32) + Math.min(8, safeNumber(input.peopleInvolved || 0) / 3), 5, 38));
-  const burdenBreakdown = {
-    approval: Math.max(0, 100 - dimensions.approval_efficiency),
-    coordination: Math.max(0, 100 - dimensions.coordination_load),
-    handoff: Math.max(0, Math.round(handoffCount * 8)),
-    escalation: escalationRate === "often" ? 72 : escalationRate === "sometimes" ? 42 : 12,
-    rework: reopenRate === "often" ? 68 : reopenRate === "sometimes" ? 34 : 10,
-    key_person: keyPersonDependency === "heavily" ? 78 : keyPersonDependency === "somewhat" ? 42 : 10
-  };
-  const consequenceRatings = input.consequenceRatings || {};
-  const impactEntries = [
-    { code:"minor_delay", label:"Minor delay or annoyance", score: safeNumber(consequenceRatings.minor_delay, 0) },
-    { code:"delivery_slippage", label:"Missed timing or delivery slippage", score: safeNumber(consequenceRatings.delivery_slippage, 0) },
-    { code:"cost_growth", label:"Added labor or cost", score: safeNumber(consequenceRatings.cost_growth, 0) },
-    { code:"leadership_escalation", label:"Repeated leadership intervention", score: safeNumber(consequenceRatings.leadership_escalation, 0) },
-    { code:"mission_risk", label:"Meaningful operational or mission risk", score: safeNumber(consequenceRatings.mission_risk, 0) }
-  ];
+  const annualHours = Math.round((Number(input.meetingHours || 0) * Number(input.annualVolume || 0) * 0.5) + (Number(input.peopleInvolved || 0) * 8 * clamp((100 - score) / 100, 0.12, 0.85) * 12));
+  const annualCost = Math.round(annualHours * Number(input.hourlyCost || 0));
+  const capacityDrag = Math.round(clamp((((100 - score) / 100) * 32) + Math.min(8, Number(input.peopleInvolved || 0) / 3), 5, 38));
+  const routeFamily = input.decisionType === "procurement" ? "approval_density_route" : input.decisionType === "hiring" ? "sequencing_route" : (input.decisionType === "budget" || input.decisionType === "policy") ? "governance_latency_route" : input.decisionType === "program" ? "coordination_route" : input.decisionType === "risk" ? "exception_route" : "mixed_route";
+  const leadPattern = patterns[0];
+
   return {
     score,
-    score_band: band,
     band,
-    benchmark: { label: `${humanize(input.decisionType || 'other')} • ${humanize(input.industry || 'other')}`, healthyMin: 58, healthyMax: 80, moderateMin: 45, moderateMax: 57 },
-    benchmark_position: score >= 58 ? "Within comparable range" : "Below comparable range",
-    benchmark_context: { industry_label: humanize(input.industry || 'other'), organization_size_label: humanize(input.organizationSize || 'unknown'), regulatory_intensity_label: humanize(input.regulatoryIntensity || 'unknown') },
-    route_family: input.decisionType === "procurement" ? "approval_density_route" : input.decisionType === "hiring" ? "sequencing_route" : (input.decisionType === "budget" || input.decisionType === "policy") ? "governance_latency_route" : input.decisionType === "program" ? "coordination_route" : input.decisionType === "risk" ? "exception_route" : "mixed_route",
-    primary_constraint: patterns[0],
-    patterns,
+    benchmark_position: score >= 65 ? "Within comparable range" : "Below comparable range",
+    route_family: routeFamily,
+    exposure: { annual_hours: annualHours, annual_cost: annualCost, capacity_drag_percent: capacityDrag },
     contradictions,
+    patterns,
     dimensions,
-    burden_breakdown: burdenBreakdown,
-    delay_concentration: input.delayPoint === "front_end" ? { intake:75, review:35, coordination:30, signoff:20 } : input.delayPoint === "midstream_review" ? { intake:25, review:85, coordination:70, signoff:25 } : input.delayPoint === "late_stage" ? { intake:20, review:40, coordination:35, signoff:85 } : { intake:45, review:55, coordination:50, signoff:45 },
-    exposure: { annual_hours: annualHours, annual_cost: annualCost, capacity_drag_percent: capacityDragPercent, average_hourly_cost: Math.round(weightedHourly), composition: { coordination_hours: Math.round(annualHours * 0.35), review_hours: Math.round(annualHours * 0.30), rework_hours: Math.round(annualHours * 0.20), escalation_hours: Math.round(annualHours * 0.15) } },
-    impact_profile: { entries: impactEntries, most_critical: impactEntries.slice().sort((a,b)=>b.score-a.score)[0], average_impact: Number(average(impactEntries.map((e)=>e.score)).toFixed(1)) },
-    intervention_priority_ladder: [
-      { priority:"Fix now", focus:Object.entries(burdenBreakdown).sort((a,b)=>b[1]-a[1])[0][0].replace(/_/g,' '), severity:Object.entries(burdenBreakdown).sort((a,b)=>b[1]-a[1])[0][1] },
-      { priority:"Fix next", focus:Object.entries(burdenBreakdown).sort((a,b)=>b[1]-a[1])[1][0].replace(/_/g,' '), severity:Object.entries(burdenBreakdown).sort((a,b)=>b[1]-a[1])[1][1] },
-      { priority:"Monitor", focus:Object.entries(burdenBreakdown).sort((a,b)=>b[1]-a[1])[2][0].replace(/_/g,' '), severity:Object.entries(burdenBreakdown).sort((a,b)=>b[1]-a[1])[2][1] }
-    ],
-    labor_profile: [
-      { role:"Core decision makers", people:Math.max(1, Math.round(safeNumber(input.peopleInvolved || 0) * 0.18)), significance:"Focused" },
-      { role:"Reviewers / approvers", people:Math.max(1, safeNumber(input.approvalCount || 0)), significance:safeNumber(input.approvalCount || 0) >= 4 ? "High" : "Moderate" },
-      { role:"Coordinators / analysts", people:Math.max(1, Math.round(safeNumber(input.peopleInvolved || 0) * 0.18)), significance:"Moderate" },
-      { role:"Escalation actors", people:input.escalationRate === "often" ? 2 : input.escalationRate === "sometimes" ? 1 : 0, significance:input.escalationRate === "often" ? "High" : input.escalationRate === "sometimes" ? "Moderate" : "Minimal" },
-      { role:"Key-person carriers", people:input.keyPersonDependency === "heavily" ? 2 : input.keyPersonDependency === "somewhat" ? 1 : 0, significance:input.keyPersonDependency === "heavily" ? "High" : input.keyPersonDependency === "somewhat" ? "Moderate" : "Minimal" }
-    ],
-    input_confidence_label: input.confidenceLevel === "high" ? "Strong input depth" : input.confidenceLevel === "moderate" ? "Moderate input depth" : "Limited input depth",
-    narrative: {
-      executive_interpretation: `${input.processName || 'This pathway'} appears to show ${band.toLowerCase()} driven most visibly by ${patterns[0].replaceAll('_', ' ')}. Relative to comparable ${humanize(input.decisionType || 'other')} pathways in ${humanize(input.industry || 'other')}, the current path appears to be consuming more effort moving the process itself than resolving the underlying decision.`,
-      leadership_implication: `Leadership should treat this as a structural condition rather than a one-off complaint. The most effective starting point is the highest-burden layer shown in the priority ladder, not another round of generic pressure on the people inside the path.`,
-      tradeoff_note: `Some burden may be justified by risk, quality, or governance needs. The issue is whether the current amount of friction is proportionate to the decision being processed in this operating environment.`,
-      time_money_resources_summary: `Directional modeling suggests roughly ${annualHours.toLocaleString()} annual hours* and about $${annualCost.toLocaleString()} in labor exposure*, with capacity drag around ${capacityDragPercent}%*. These values should be treated as directional, not audited.`,
-      key_friction_flags: [
+    narrative:{
+      executive_interpretation:`${input.processName || "This pathway"} appears to show ${band.toLowerCase()} driven most visibly by ${leadPattern.replaceAll("_"," ")}. The pattern suggests the organization is spending meaningful effort moving the pathway itself, not just resolving the underlying decision.`,
+      leadership_implication:`Leadership should treat this as a structural condition rather than a one-off complaint. The dominant intervention point is the lowest-performing part of the pathway: approvals, coordination load, or execution stability.`,
+      tradeoff_note:`Some burden may be justified by risk, quality, or governance needs. The issue is whether the current amount of friction is proportionate to the decision being processed.`,
+      time_money_resources_summary:`Directional modeling suggests roughly ${annualHours.toLocaleString()} annual hours* and about $${annualCost.toLocaleString()} in labor exposure*, with capacity drag around ${capacityDrag}%*.`,
+      key_friction_flags:[
         approvalCount >= 5 ? "High approval density is increasing pathway weight." : null,
         meetingCount >= 4 ? "Meeting demand suggests coordination is compensating for structural weakness." : null,
         handoffCount >= 5 ? "High handoff density is distributing accountability broadly." : null,
-        input.escalationRate === "often" ? "Escalation has become part of the normal operating model." : null,
-        input.keyPersonDependency === "heavily" ? "The pathway appears brittle because it depends on specific people." : null,
+        escalationRate === "often" ? "Escalation has become part of the normal operating model." : null,
+        keyPersonDependency === "heavily" ? "The pathway appears brittle because it depends on specific people." : null,
         contradictions.length ? "Surface answers suggest the formal process may look healthier than the lived one." : null
       ].filter(Boolean),
-      recommended_interventions: [
-        burdenBreakdown.approval >= burdenBreakdown.coordination ? "Reduce approval layering or collapse confirmatory checkpoints first." : null,
-        burdenBreakdown.coordination >= burdenBreakdown.approval ? "Reduce coordination burden by clarifying routing and reducing side-channel work." : null,
-        burdenBreakdown.key_person >= 42 ? "Stabilize the pathway so it depends less on a small number of fixers or translators." : null,
+      recommended_interventions:[
+        dimensions.approval_efficiency === Math.min(...Object.values(dimensions)) ? "Reduce approval layering or collapse confirmatory checkpoints first." : null,
+        dimensions.coordination_load === Math.min(...Object.values(dimensions)) ? "Reduce coordination burden by clarifying routing and reducing side-channel work." : null,
+        dimensions.execution_stability === Math.min(...Object.values(dimensions)) ? "Clarify ownership, escalation rules, and rework thresholds before adding process complexity." : null,
         "Review this pathway with the people who do the work, not just the people who govern it.",
         "Use advisory follow-on work if the pattern appears systemic rather than isolated."
       ].filter(Boolean)
     },
-    key_findings: patterns.map((p)=>`Detected pattern: ${p.replace(/_/g, ' ')}.`),
-    intervention_priorities: ["Address the highest-burden dimension first, then reassess."],
+    key_findings: patterns.map(p => `Detected pattern: ${p.replace(/_/g," ")}.`),
+    intervention_priorities:[
+      patterns.includes("approval_layering_pattern") ? "Reduce approval layering before broader redesign." : null,
+      patterns.includes("compensatory_coordination_pattern") ? "Collapse coordination loops that are compensating for structural weakness." : null,
+      patterns.includes("unstable_pathway_pattern") ? "Stabilize ownership, escalation, and handoff rules before adding process complexity." : null,
+      "Address the lowest-scoring dimension first, then reassess."
+    ].filter(Boolean),
     watch_items: contradictions.length ? ["Surface-vs-reality gaps suggest the formal process may look healthier than the lived system."] : []
   };
 }
 
 async function submitDiagnostic(){
-  if(!validateCurrent()) return;
-  const question = currentQuestion();
-  saveQuestionAndFollowups(question);
+  if (!validateCurrent()) return;
+  saveCurrentQuestion();
+
   setHeader("Generating output","The diagnostic engine is interpreting your pathway and preparing a leadership-facing readout.","Output in progress");
   showStage(processingStage);
+
   const payload = buildPayload();
   const localResult = buildLocalResult(payload);
   let finalResult = localResult;
   let outputMode = "Local fallback";
+
   try {
     const [scoreResponse] = await Promise.all([
-      fetch(`${API_BASE}/api/decision-velocity-score`, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload) }),
+      fetch(`${API_BASE}/api/decision-velocity-score`, {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body:JSON.stringify(payload)
+      }),
       wait(RESULTS_LOADER_MS)
     ]);
-    const scoreData = await scoreResponse.json().catch(()=>null);
-    if(!scoreResponse.ok || !scoreData?.ok || !scoreData?.result) throw new Error(scoreData?.error || "Unable to generate score output.");
+
+    const scoreData = await scoreResponse.json().catch(() => null);
+    if (!scoreResponse.ok || !scoreData?.ok || !scoreData?.result) throw new Error(scoreData?.error || "Unable to generate score output.");
+
     finalResult = scoreData.result;
     outputMode = "Scored";
+
     try {
-      const narrativeResponse = await fetch(`${API_BASE}/api/decision-velocity-narrative`, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(scoreData.result) });
-      const narrativeData = await narrativeResponse.json().catch(()=>null);
-      if(narrativeResponse.ok && narrativeData?.ok && narrativeData?.narrative){
-        finalResult = { ...scoreData.result, narrative: narrativeData.narrative };
+      const narrativeResponse = await fetch(`${API_BASE}/api/decision-velocity-narrative`, {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body:JSON.stringify(scoreData.result)
+      });
+      const narrativeData = await narrativeResponse.json().catch(() => null);
+      if (narrativeResponse.ok && narrativeData?.ok && narrativeData?.narrative) {
+        finalResult = { ...scoreData.result, narrative:narrativeData.narrative };
         outputMode = "Full output";
       } else {
-        finalResult = { ...scoreData.result, narrative: localResult.narrative };
+        finalResult = { ...scoreData.result, narrative:localResult.narrative };
         outputMode = "Scored + local narrative";
       }
     } catch {
-      finalResult = { ...scoreData.result, narrative: localResult.narrative };
+      finalResult = { ...scoreData.result, narrative:localResult.narrative };
       outputMode = "Scored + local narrative";
     }
   } catch {
     finalResult = localResult;
     outputMode = "Local fallback";
   }
+
   state.result = finalResult;
-  renderResults(finalResult, outputMode);
+  renderResults(finalResult);
+  document.getElementById("scoreBadge").textContent = outputMode;
   setHeader("Diagnostic output","Your results reflect the specific signal path you surfaced and the information you provided.","Output generated");
   showStage(resultsStage);
 }
 
-
-function deriveMissingResultFields(result){
-  result.benchmark_context = result.benchmark_context || { industry_label: humanize(state.answers.industry || "other"), organization_size_label: humanize(state.answers.organizationSize || "unknown"), regulatory_intensity_label: humanize(state.answers.regulatoryIntensity || "unknown") };
-  result.input_confidence_label = result.input_confidence_label || ({high:"Strong input depth",moderate:"Moderate input depth",limited:"Limited input depth"}[state.answers.confidenceLevel] || "Moderate input depth");
-  if(!result.intervention_priority_ladder && result.burden_breakdown){
-    const ladder = Object.entries(result.burden_breakdown).map(([k,v])=>({focus:k.replace(/_/g,' '),severity:Number(v)||0})).sort((a,b)=>b.severity-a.severity).slice(0,3);
-    result.intervention_priority_ladder = ladder.map((item,idx)=>({priority: idx===0?'Fix now':idx===1?'Fix next':'Monitor', focus:item.focus, severity:item.severity}));
-  }
-  if(!result.labor_profile){
-    const people = Math.max(1, Number(state.answers.peopleInvolved || 0));
-    result.labor_profile = [
-      {role:'Core decision makers', people: Math.max(1, Math.round(people*0.18)), significance:'Focused'},
-      {role:'Reviewers / approvers', people: Math.max(1, Number(state.answers.approvalCount || 0)), significance:Number(state.answers.approvalCount||0)>=4?'High':'Moderate'},
-      {role:'Coordinators / analysts', people: Math.max(1, Math.round(people*0.2)), significance:Number(state.answers.meetingCount||0)>=4?'Moderate':'Light'}
-    ];
-  }
-  if(!result.impact_profile){
-    const labels = {minor_delay:'Minor delay or annoyance',delivery_slippage:'Missed timing or delivery slippage',cost_growth:'Added labor or cost',leadership_escalation:'Repeated leadership intervention',mission_risk:'Meaningful operational or mission risk'};
-    const ratings = state.answers.consequenceRatings || {};
-    const selected = state.answers.slowdownConsequences || [];
-    result.impact_profile = {entries:Object.entries(labels).map(([code,label])=>({code,label,score:Number(ratings[code] || (selected.includes(code)?3:0))}))};
-  }
-  if(!result.exposure) result.exposure = {};
-  if(!result.exposure.composition){
-    const annualHours = Number(result.exposure.annual_hours || 0);
-    result.exposure.composition = {coordination_hours:Math.round(annualHours*0.35), review_hours:Math.round(annualHours*0.3), rework_hours:Math.round(annualHours*0.2), escalation_hours:Math.max(0, annualHours - Math.round(annualHours*0.85))};
-  }
-  if(!result.quadrant_position){
-    const governance = Math.round((Number(result.burden_breakdown?.approval || 30) + Number(result.burden_breakdown?.coordination || 30) + Number(result.burden_breakdown?.escalation || 30))/3);
-    const execution = Math.round((Number(result.dimensions?.cycle_velocity || 50) + Number(result.dimensions?.execution_stability || 50))/2);
-    result.quadrant_position = {governance_weight: governance, execution_responsiveness: execution};
-  }
-  return result;
-}
-
-function renderResults(result, outputMode){
-  result = deriveMissingResultFields(result);
+function renderResults(result){
   const narrative = result.narrative || {};
-  document.getElementById("reportPathway").textContent = result.process_name || state.answers.processName || "Unnamed pathway"; document.getElementById("reportDate").textContent = new Date().toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"}); document.getElementById("scoreNumber").textContent = result.score ?? "—";
+  document.getElementById("scoreNumber").textContent = result.score ?? "—";
   document.getElementById("scoreBand").textContent = result.band || result.score_band || "—";
   document.getElementById("scoreSummary").textContent = narrative.executive_interpretation || "Output generated.";
-  document.getElementById("scoreBadge").textContent = outputMode || result.benchmark?.label || "Decision Velocity";
   document.getElementById("benchmarkValue").textContent = result.benchmark_position || "—";
   document.getElementById("benchmarkSub").textContent = result.benchmark ? `${result.benchmark.label}: healthy ${result.benchmark.healthyMin}-${result.benchmark.healthyMax}` : "Directional comparison";
-  document.getElementById("routeValue").textContent = ({approval_density_route:"Approval density",sequencing_route:"Sequencing",governance_latency_route:"Governance latency",coordination_route:"Coordination",exception_route:"Exception handling",mixed_route:"Mixed route"})[result.route_family] || humanize(result.route_family || "mixed route");
+  document.getElementById("routeValue").textContent = ({
+    approval_density_route:"Approval density",
+    sequencing_route:"Sequencing",
+    governance_latency_route:"Governance latency",
+    coordination_route:"Coordination",
+    exception_route:"Exception handling",
+    mixed_route:"Mixed route"
+  })[result.route_family] || humanize(result.route_family || "mixed route");
   document.getElementById("routeSub").textContent = result.primary_constraint ? humanize(result.primary_constraint) : "Primary interpretation path";
   document.getElementById("hoursValue").textContent = result.exposure?.annual_hours == null ? "—" : `${Math.round(result.exposure.annual_hours)} hrs`;
   document.getElementById("hoursSub").textContent = result.exposure?.annual_hours ? `${Math.round(result.exposure.annual_hours)} hrs / year` : "Annual estimate";
   document.getElementById("costValue").textContent = formatCurrency(result.exposure?.annual_cost);
-  document.getElementById("costSub").textContent = result.exposure?.average_hourly_cost ? `${formatCurrency(result.exposure.average_hourly_cost)} / person-hour*` : "Annual estimate";
+  document.getElementById("costSub").textContent = result.exposure?.annual_cost ? `${formatCurrency(result.exposure.annual_cost)} / year` : "Annual estimate";
   document.getElementById("dragValue").textContent = result.exposure?.capacity_drag_percent == null ? "—" : `${Math.round(result.exposure.capacity_drag_percent)}%`;
   document.getElementById("dragSub").textContent = "Directional estimate";
-  document.getElementById("confidenceValue").textContent = result.input_confidence_label || "—";
-  document.getElementById("confidenceSub").textContent = result.benchmark_context ? `${result.benchmark_context.industry_label || ''}${result.benchmark_context.organization_size_label ? ` • ${result.benchmark_context.organization_size_label}` : ''}` : "Calibration context";
+  document.getElementById("contradictionsValue").textContent = String((result.contradictions || []).length);
+  document.getElementById("contradictionsSub").textContent = (result.contradictions || []).length ? "Signals surfaced" : "No major gaps surfaced";
 
   document.getElementById("executiveText").textContent = narrative.executive_interpretation || "";
   document.getElementById("leadershipText").textContent = narrative.leadership_implication || "";
   document.getElementById("tradeoffText").textContent = narrative.tradeoff_note || "";
   document.getElementById("tmrText").textContent = narrative.time_money_resources_summary || "";
 
-  renderBenchmarkBar(result);
-  renderBurdenStack(result);
-  renderDelayHeat(result);
-  renderContradictionTiles(result);
-  renderPriorityLadder(result);
-  renderLaborTable(result);
-  renderQuadrant(result);
-  renderImpactTable(result);
-  renderCostCompositionTable(result);
   renderList("flagsList", narrative.key_friction_flags || result.key_findings || []);
   renderList("actionsList", narrative.recommended_interventions || result.intervention_priorities || []);
   renderList("patternsList", (result.patterns || []).map(humanize));
-  renderList("contradictionsList", (result.contradictions || []).length ? result.contradictions.map((item)=>item.message || humanize(item.code || "contradiction")) : ["No material contradiction signals surfaced in this run."]);
+  renderList("contradictionsList", (result.contradictions || []).length ? result.contradictions.map(item => item.message || humanize(item.code || "contradiction")) : ["No material contradiction signals surfaced in this run."]);
   renderCharts(result);
 }
 
-function renderBenchmarkBar(result){
-  const bar = document.getElementById("benchmarkBar");
-  const healthy = document.getElementById("benchmarkHealthy");
-  const marker = document.getElementById("benchmarkMarker");
-  const benchmark = result.benchmark || { healthyMin:58, healthyMax:80, moderateMin:45, moderateMax:57 };
-  const score = clamp(Number(result.score || 0), 0, 100);
-  healthy.style.left = `${benchmark.healthyMin}%`;
-  healthy.style.width = `${Math.max(0, benchmark.healthyMax - benchmark.healthyMin)}%`;
-  marker.style.left = `${Math.max(0, Math.min(98, score))}%`;
-}
-function renderBurdenStack(result){
-  const host = document.getElementById("burdenStack");
-  host.innerHTML = "";
-  const labels = { approval:"Approval burden", coordination:"Coordination burden", handoff:"Handoff burden", escalation:"Escalation dependence", rework:"Rework pressure", key_person:"Key-person dependence" };
-  const colors = { approval:"var(--rose)", coordination:"var(--amber)", handoff:"var(--gold)", escalation:"var(--accent)", rework:"var(--rose)", key_person:"var(--green)" };
-  Object.entries(result.burden_breakdown || {}).forEach(([key, value])=>{
-    const row = document.createElement("div");
-    row.className = "stack-row";
-    row.innerHTML = `<div class="stack-label">${labels[key] || humanize(key)}</div><div class="stack-bar"><div class="stack-fill" style="width:${clamp(Number(value || 0),0,100)}%;background:${colors[key] || 'var(--accent)'}"></div></div><div class="stack-value">${Math.round(value || 0)}</div>`;
-    host.appendChild(row);
-  });
-}
-function renderDelayHeat(result){
-  const host = document.getElementById("delayHeat");
-  const map = result.delay_concentration || { intake:40, review:45, coordination:45, signoff:35 };
-  const severityColor = (v)=> v >= 75 ? 'rgba(198,108,116,.25)' : v >= 55 ? 'rgba(212,148,89,.24)' : v >= 35 ? 'rgba(212,185,110,.24)' : 'rgba(121,168,137,.22)';
-  host.innerHTML = `<div class="heat-row"><div class="heat-label"></div><div class="heat-cell">Intake</div><div class="heat-cell">Review</div><div class="heat-cell">Coordination</div><div class="heat-cell">Sign-off</div></div>`;
-  const row = document.createElement("div");
-  row.className = "heat-row";
-  row.innerHTML = `<div class="heat-label">Relative drag</div>${[map.intake,map.review,map.coordination,map.signoff].map((v)=>`<div class="heat-cell" style="background:${severityColor(v)}">${Math.round(v)}</div>`).join('')}`;
-  host.appendChild(row);
-}
-function renderContradictionTiles(result){
-  const host = document.getElementById("contradictionTiles");
-  host.innerHTML = "";
-  const contradictions = result.contradictions || [];
-  if(!contradictions.length){ host.innerHTML = `<div class="signal-tile"><strong>No major contradiction signals</strong><span>No material surface-vs-reality gaps were flagged in this run.</span></div>`; return; }
-  contradictions.forEach((item)=>{
-    const tile = document.createElement("div");
-    tile.className = "signal-tile";
-    tile.innerHTML = `<strong>${item.severity === 'high' ? 'High-severity gap' : 'Contradiction signal'}</strong><span>${escapeHtml(item.message || humanize(item.code || 'contradiction'))}</span>`;
-    host.appendChild(tile);
-  });
-}
-
-function renderQuadrant(result){
-  const marker = document.getElementById("quadrantMarker");
-  const caption = document.getElementById("quadrantCaption");
-  const pos = result.quadrant_position || { governance_weight: 50, execution_responsiveness: 50 };
-  const x = clamp(Number(pos.governance_weight || 50), 5, 95);
-  const y = clamp(Number(pos.execution_responsiveness || 50), 5, 95);
-  marker.style.left = `${x}%`;
-  marker.style.top = `${100 - y}%`;
-  let zone = "Governed Flow";
-  if (x < 50 && y >= 50) zone = "Adaptive Edge";
-  else if (x < 50 && y < 50) zone = "Unstructured Friction";
-  else if (x >= 50 && y < 50) zone = "Accumulated Drag";
-  caption.textContent = `Approximate position: ${zone}. Governance weight ${x}/100; execution responsiveness ${y}/100.`;
-}
-
-function renderPriorityLadder(result){
-  const host = document.getElementById("priorityLadder");
-  host.innerHTML = "";
-  (result.intervention_priority_ladder || []).forEach((item)=>{
-    const cls = item.priority === 'Fix now' ? 'tag-now' : item.priority === 'Fix next' ? 'tag-next' : 'tag-monitor';
-    const div = document.createElement("div");
-    div.className = "ladder-item";
-    div.innerHTML = `<div><span class="ladder-tag ${cls}">${escapeHtml(item.priority)}</span></div><div class="ladder-focus">${escapeHtml(humanize(item.focus || 'focus area'))}</div><div class="ladder-severity">Severity ${Math.round(item.severity || 0)}</div>`;
-    host.appendChild(div);
-  });
-}
-function renderLaborTable(result){
-  const body = document.querySelector("#laborTable tbody");
-  body.innerHTML = "";
-  (result.labor_profile || []).forEach((row)=>{
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${escapeHtml(row.role)}</td><td>${Math.round(row.people || 0)}</td><td>${escapeHtml(row.significance || '—')}</td>`;
-    body.appendChild(tr);
-  });
-}
-function renderImpactTable(result){
-  const body = document.querySelector("#impactTable tbody");
-  body.innerHTML = "";
-  ((result.impact_profile && result.impact_profile.entries) || []).forEach((row)=>{
-    const score = Math.round(row.score || 0);
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${escapeHtml(row.label)}</td><td><span class="impact-chip impact-${score}">${score}</span></td><td>${escapeHtml(consequenceScaleLabels[score])}</td>`;
-    body.appendChild(tr);
-  });
-}
-function renderCostCompositionTable(result){
-  const body = document.querySelector("#costCompositionTable tbody");
-  body.innerHTML = "";
-  const composition = result.exposure?.composition || {};
-  const annualHours = Number(result.exposure?.annual_hours || 0) || 1;
-  const rows = [
-    ["Coordination hours*", composition.coordination_hours || 0],
-    ["Review hours*", composition.review_hours || 0],
-    ["Rework hours*", composition.rework_hours || 0],
-    ["Escalation hours*", composition.escalation_hours || 0]
-  ];
-  rows.forEach(([label, hours])=>{
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${escapeHtml(label)}</td><td>${Math.round(hours)}</td><td>${Math.round((hours / annualHours) * 100)}%</td>`;
-    body.appendChild(tr);
-  });
-}
 function renderCharts(result){
   destroyCharts();
-  const dimensions = result.dimensions || {};
+  const dims = result.dimensions || {};
   const labels = ["Cycle velocity","Approval efficiency","Coordination load","Execution stability"];
-  const values = [dimensions.cycle_velocity || 0, dimensions.approval_efficiency || 0, dimensions.coordination_load || 0, dimensions.execution_stability || 0];
-  const gaps = values.map((v)=>Math.max(0,100-v));
-  gapChart = new Chart(document.getElementById("gapChart"), { type:"bar", data:{ labels, datasets:[{ data:gaps, borderRadius:8 }] }, options: chartOptions() });
-  dimensionChart = new Chart(document.getElementById("dimensionChart"), { type:"bar", data:{ labels, datasets:[{ data:values, borderRadius:8 }] }, options: chartOptions() });
-}
-function chartOptions(){ return { responsive:true, maintainAspectRatio:false, animation:false, plugins:{ legend:{ display:false } }, scales:{ x:{ grid:{ display:false }, ticks:{ color:'#556270', maxRotation:0, minRotation:0 } }, y:{ beginAtZero:true, max:100, grid:{ color:'rgba(21,32,43,0.06)' }, ticks:{ color:'#556270' } } } }; }
-function destroyCharts(){ if(gapChart){ gapChart.destroy(); gapChart = null; } if(dimensionChart){ dimensionChart.destroy(); dimensionChart = null; } }
-function renderList(id, items){ const el = document.getElementById(id); el.innerHTML = ""; (items || []).forEach((item)=>{ const li = document.createElement("li"); li.textContent = item; el.appendChild(li); }); }
-function formatCurrency(value){ if(value == null) return '—'; if(value >= 1000000) return `$${(value / 1000000).toFixed(1).replace(/\.0$/,'')}M`; if(value >= 1000) return `$${Math.round(value / 1000)}K`; return `$${Math.round(value)}`; }
-function wait(ms){ return new Promise((resolve)=>setTimeout(resolve, ms)); }
+  const values = [dims.cycle_velocity || 0, dims.approval_efficiency || 0, dims.coordination_load || 0, dims.execution_stability || 0];
+  const gaps = values.map(v => Math.max(0, 100 - v));
 
-beginBtn.addEventListener("click", startDiagnostic);
-continueBtn.addEventListener("click", ()=>moveNext(false));
+  gapChart = new Chart(document.getElementById("gapChart"), {
+    type:"bar",
+    data:{ labels, datasets:[{ data:gaps, borderRadius:8 }] },
+    options:chartOptions()
+  });
+
+  dimensionChart = new Chart(document.getElementById("dimensionChart"), {
+    type:"bar",
+    data:{ labels, datasets:[{ data:values, borderRadius:8 }] },
+    options:chartOptions()
+  });
+}
+
+function chartOptions(){
+  return {
+    responsive:true,
+    maintainAspectRatio:false,
+    animation:false,
+    plugins:{ legend:{ display:false } },
+    scales:{
+      x:{ grid:{ display:false }, ticks:{ color:"#556270", maxRotation:0, minRotation:0 } },
+      y:{ beginAtZero:true, max:100, grid:{ color:"rgba(21,32,43,0.06)" }, ticks:{ color:"#556270" } }
+    }
+  };
+}
+
+function destroyCharts(){
+  if (gapChart){ gapChart.destroy(); gapChart = null; }
+  if (dimensionChart){ dimensionChart.destroy(); dimensionChart = null; }
+}
+
+function renderList(id, items){
+  const el = document.getElementById(id);
+  el.innerHTML = "";
+  (items || []).forEach(item => {
+    const li = document.createElement("li");
+    li.textContent = item;
+    el.appendChild(li);
+  });
+}
+
+function formatCurrency(value){
+  if (value == null) return "—";
+  if (value >= 1000000) return `$${(value / 1000000).toFixed(1).replace(/\.0$/,"")}M`;
+  if (value >= 1000) return `$${Math.round(value / 1000)}K`;
+  return `$${Math.round(value)}`;
+}
+
+function humanize(text){
+  return String(text || "").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function wait(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
+
+function escapeHtml(value){
+  return String(value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#39;");
+}
+
+function syncBeginButton(){
+  const allowed = !!preStartConsent && preStartConsent.checked;
+  beginBtn.disabled = !allowed;
+  beginBtn.classList.toggle("btn-disabled", !allowed);
+}
+
+preStartConsent?.addEventListener("change", syncBeginButton);
+syncBeginButton();
+
+beginBtn.addEventListener("click", () => {
+  if (beginBtn.disabled) return;
+  startDiagnostic();
+});
+
+continueBtn.addEventListener("click", () => moveNext(false));
 backBtn.addEventListener("click", moveBack);
 skipBtn.addEventListener("click", skipCurrent);
 restartBtn.addEventListener("click", restartDiagnostic);
-printBtn.addEventListener("click", ()=>window.print());
+printBtn.addEventListener("click", () => window.print());
 newRunBtn.addEventListener("click", startDiagnostic);
-window.addEventListener("keydown", (event)=>{ if(!questionStage.classList.contains("active")) return; if(event.key === "Enter" && continueBtn.style.display !== "none"){ const target = event.target; if(target && target.tagName === "TEXTAREA") return; event.preventDefault(); moveNext(false); } });
+
+window.addEventListener("keydown", event => {
+  if (!questionStage.classList.contains("active")) return;
+  if (event.key === "Enter" && continueBtn.style.display !== "none") {
+    const target = event.target;
+    if (target && target.tagName === "TEXTAREA") return;
+    event.preventDefault();
+    moveNext(false);
+  }
+});
+
 hideLoader();
 setHeader("Structured diagnostic sequence", openingNotice, "Ready to begin");
 showStage(introStage);
 questionFooter.style.display = "none";
-  </script>
+</script>
 </body>
 </html>
