@@ -128,7 +128,7 @@
       max-width: var(--max);
       height: 100%;
       margin: 0 auto;
-      padding: 0 36px;
+      padding: 0 34px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -157,7 +157,7 @@
     .nav {
       display: flex;
       align-items: center;
-      gap: 26px;
+      gap: 24px;
       flex-wrap: wrap;
       justify-content: flex-end;
     }
@@ -313,10 +313,10 @@
       align-items: center;
       justify-content: center;
       min-height: 48px;
-      min-width: 166px;
-      padding: 0 22px;
+      min-width: 164px;
+      padding: 0 21px;
       border-radius: 999px;
-      font-size: 0.95rem;
+      font-size: 0.94rem;
       font-weight: 500;
       letter-spacing: -0.012em;
       white-space: nowrap;
@@ -393,47 +393,6 @@
     }
 
 
-    .recognition-strip {
-      background: var(--bg-offwhite);
-      color: var(--text-dark);
-      padding: 36px 34px 24px;
-      border-top: 1px solid rgba(21,32,43,0.04);
-      border-bottom: 1px solid rgba(21,32,43,0.04);
-    }
-    .recognition-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-    }
-    .recognition-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(340px, 420px));
-      justify-content: center;
-      gap: 16px 28px;
-      max-width: 980px;
-      margin: 0 auto;
-    }
-    .recognition-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      min-height: 40px;
-    }
-    .recognition-dot {
-      width: 7px;
-      height: 7px;
-      margin-top: 8px;
-      border-radius: 999px;
-      background: var(--accent);
-      flex: 0 0 auto;
-      box-shadow: 0 0 0 3px rgba(63,110,161,0.07);
-    }
-    .recognition-text {
-      margin: 0;
-      font-size: 0.96rem;
-      line-height: 1.58;
-      color: var(--muted-dark);
-    }
-
     .bureaucracy-cost,
     .diagnostic-estimate {
       position: relative;
@@ -447,7 +406,7 @@
       color: var(--text-dark);
       overflow: hidden;
     }
-    .bureaucracy-cost { padding: 78px 34px 100px; }
+    .bureaucracy-cost { padding: 84px 34px 100px; }
     .diagnostic-estimate { padding: 78px 34px 92px; }
     .bureaucracy-cost::before,
     .diagnostic-estimate::before {
@@ -897,7 +856,7 @@
       height: 100%;
       object-fit: cover;
     }
-    .latest-card-body { padding: 18px 18px 20px; }
+    .latest-card-body { padding: 18px 18px 19px; }
     .latest-card-kicker {
       margin: 0 0 9px;
       font-size: 0.68rem;
@@ -916,7 +875,7 @@
       text-wrap: balance;
     }
     .latest-card-text {
-      margin: 0 0 13px;
+      margin: 0 0 14px;
       font-size: 0.88rem;
       line-height: 1.58;
       color: var(--muted-dark);
@@ -1007,7 +966,7 @@
       background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.10);
       border-radius: var(--panel-radius);
-      padding: 30px 30px 28px;
+      padding: 30px 30px 27px;
       box-shadow: 0 1px 0 rgba(255,255,255,0.02), 0 14px 28px rgba(0,0,0,0.10);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
@@ -1232,20 +1191,7 @@
         font-size: 0.64rem;
         letter-spacing: 0.12em;
       }
-      .recognition-strip { padding: 24px 20px 18px; }
-      .recognition-grid { grid-template-columns: minmax(0, 620px); justify-content: center; gap: 14px; }
-      .recognition-text { font-size: 0.94rem; line-height: 1.6; }
-      .bureaucracy-cost,
-      .diagnostic-estimate { padding: 62px 20px 70px; }
-      .approach { padding: 62px 20px 68px; }
-      .latest { padding: 62px 20px 68px; }
-      .connect { padding: 64px 20px 60px; }
-      .footer { padding: 34px 20px 28px; }
-      .approach-grid { grid-template-columns: 1fr; gap: 20px; }
-      .approach-card {
-        min-height: auto;
-        padding: 30px 24px 38px;
-      }
+
       .approach-synthesis {
         margin-top: 44px;
         padding: 30px 22px 12px;
@@ -1309,29 +1255,6 @@
     </div>
   </section>
 
-
-  <section class="recognition-strip" aria-label="Institutional recognition">
-    <div class="recognition-inner">
-      <div class="recognition-grid">
-        <div class="recognition-item">
-          <span class="recognition-dot" aria-hidden="true"></span>
-          <p class="recognition-text">Decisions slow down without a clear reason.</p>
-        </div>
-        <div class="recognition-item">
-          <span class="recognition-dot" aria-hidden="true"></span>
-          <p class="recognition-text">Coordination expands to compensate for unclear structure.</p>
-        </div>
-        <div class="recognition-item">
-          <span class="recognition-dot" aria-hidden="true"></span>
-          <p class="recognition-text">Execution weakens, even when talent and intent are strong.</p>
-        </div>
-        <div class="recognition-item">
-          <span class="recognition-dot" aria-hidden="true"></span>
-          <p class="recognition-text">The organization appears to be moving—but is increasingly harder to move.</p>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <section class="bureaucracy-cost section-with-bar snap-anchor" id="cost-section" aria-labelledby="cost-title">
     <div class="section-bar" aria-hidden="true">Cost of Bureaucratic Friction</div>
@@ -1667,7 +1590,7 @@
           connect@monderman.com
         </a>
         <p class="connect-note">
-          For inquiries, collaborations, pilot discussions, or advisory conversations, reach out directly and we will respond as promptly as possible.
+          For inquiries, collaborations, pilot discussions, or advisory conversations, reach out directly, or use the structured inquiry form for a more focused start.
         </p>
         <div class="connect-actions">
           <a class="btn btn-secondary" href="advisory-services-connect.html">Open Connect Form</a>
