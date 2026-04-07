@@ -17,20 +17,32 @@
   />
 
   <style>
-    @font-face { font-family: "Neue Haas Grotesk"; src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff"); font-style: normal; font-weight: 400; font-display: swap; }
-    @font-face { font-family: "Neue Haas Grotesk"; src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff"); font-style: normal; font-weight: 500; font-display: swap; }
-    @font-face { font-family: "Neue Haas Grotesk"; src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff"); font-style: normal; font-weight: 700; font-display: swap; }
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff");
+      font-style: normal; font-weight: 400; font-display: swap;
+    }
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff");
+      font-style: normal; font-weight: 500; font-display: swap;
+    }
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff");
+      font-style: normal; font-weight: 700; font-display: swap;
+    }
 
     :root {
       --accent:#3F6EA1;
       --accent-dark:#2F5886;
-      --accent-soft:rgba(63,110,161,.08);
       --bg-dark:#0F1720;
-      --bg-hero-fallback:#121922;
+      --bg-dark-2:#121A23;
       --bg-offwhite:#F6F7F8;
+      --bg-white:#FFFFFF;
       --text-light:#F5F7FA;
       --muted-light:rgba(245,247,250,.82);
-      --muted-light-2:rgba(245,247,250,.58);
+      --muted-light-2:rgba(245,247,250,.60);
       --text-dark:#15202B;
       --muted-dark:#556270;
       --muted-dark-2:#7A8794;
@@ -42,8 +54,8 @@
       --transition-slow:420ms cubic-bezier(.22,1,.36,1);
       --panel-radius:18px;
       --card-radius:16px;
-      --shadow-soft:0 1px 0 rgba(0,0,0,.012),0 10px 26px rgba(0,0,0,.03);
-      --shadow-card:0 1px 0 rgba(0,0,0,.012);
+      --shadow-soft:0 1px 0 rgba(0,0,0,.012), 0 10px 26px rgba(0,0,0,.03);
+      --shadow-card:0 1px 0 rgba(0,0,0,.012), 0 14px 28px rgba(0,0,0,.035);
     }
 
     * { box-sizing:border-box; }
@@ -61,389 +73,787 @@
     html,body,button,input,textarea,select,option,a,p,li,dt,dd,span,small,strong,em,label,figcaption,blockquote,cite,div,section,article,nav,header,footer,main,h1,h2,h3,h4 {
       font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
     }
-    h1,h2,h3,h4 { letter-spacing:-.048em; }
-    p,li { letter-spacing:-.01em; }
+    h1,h2,h3,h4 { letter-spacing:-0.048em; }
+    p,li { letter-spacing:-0.01em; }
     a { color:inherit; text-decoration:none; }
 
     .header {
-      position:fixed; inset:0 0 auto 0; width:100%; height:72px; z-index:100;
-      background:transparent; border-bottom:1px solid transparent;
+      position:fixed;
+      inset:0 0 auto 0;
+      width:100%;
+      height:72px;
+      z-index:100;
+      background:transparent;
+      border-bottom:1px solid transparent;
       transition:background var(--transition), border-color var(--transition), backdrop-filter var(--transition), -webkit-backdrop-filter var(--transition);
     }
     .header.scrolled {
-      background:var(--header-solid); border-bottom-color:var(--header-border);
-      backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+      background:var(--header-solid);
+      border-bottom-color:var(--header-border);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
     }
     .header-inner {
-      max-width:var(--max); height:100%; margin:0 auto; padding:0 34px;
-      display:flex; align-items:center; justify-content:space-between; gap:24px;
+      max-width:var(--max);
+      height:100%;
+      margin:0 auto;
+      padding:0 34px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:24px;
     }
     .brand {
-      display:inline-flex; align-items:center; font-size:1.32rem; font-weight:700;
-      letter-spacing:-.02em; color:#FFF; white-space:nowrap; text-shadow:0 1px 2px rgba(0,0,0,.16);
+      display:inline-flex;
+      align-items:center;
+      font-size:1.32rem;
+      font-weight:700;
+      letter-spacing:-0.02em;
+      color:#FFFFFF;
+      white-space:nowrap;
+      text-shadow:0 1px 2px rgba(0,0,0,.16);
     }
     .brand::after {
-      content:""; width:6px; height:6px; margin-left:10px; background:var(--accent);
-      border-radius:1px; display:inline-block; transform:translateY(-1px);
+      content:"";
+      width:6px;
+      height:6px;
+      margin-left:10px;
+      background:var(--accent);
+      border-radius:1px;
+      display:inline-block;
+      transform:translateY(-1px);
     }
-    .nav { display:flex; align-items:center; gap:28px; flex-wrap:wrap; justify-content:flex-end; }
+    .nav {
+      display:flex;
+      align-items:center;
+      gap:28px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
     .nav a {
-      position:relative; font-size:1rem; font-weight:500; letter-spacing:.012em;
-      color:rgba(255,255,255,.88); transition:color var(--transition), transform var(--transition);
+      position:relative;
+      font-size:1rem;
+      font-weight:500;
+      letter-spacing:.012em;
+      color:rgba(255,255,255,.88);
+      transition:color var(--transition), transform var(--transition);
     }
     .nav a::after {
-      content:""; position:absolute; left:0; bottom:-6px; width:100%; height:1px;
-      background:rgba(255,255,255,.74); transform:scaleX(0); transform-origin:left center; transition:transform 180ms ease;
+      content:"";
+      position:absolute;
+      left:0;
+      bottom:-6px;
+      width:100%;
+      height:1px;
+      background:rgba(255,255,255,.74);
+      transform:scaleX(0);
+      transform-origin:left center;
+      transition:transform 180ms ease;
     }
-    .nav a:hover, .nav a:focus-visible, .nav a.is-active { color:#FFF; transform:translateY(-1px); outline:none; }
-    .nav a:hover::after, .nav a:focus-visible::after, .nav a.is-active::after { transform:scaleX(1); }
+    .nav a:hover,
+    .nav a:focus-visible,
+    .nav a.is-active {
+      color:#FFFFFF;
+      transform:translateY(-1px);
+      outline:none;
+    }
+    .nav a:hover::after,
+    .nav a:focus-visible::after,
+    .nav a.is-active::after {
+      transform:scaleX(1);
+    }
 
     .hero {
-      position:relative; min-height:88vh; overflow:hidden; background:var(--bg-hero-fallback);
+      position:relative;
+      min-height:82vh;
+      overflow:hidden;
+      background:var(--bg-dark-2);
     }
     .hero::before {
-      content:""; position:absolute; inset:0;
+      content:"";
+      position:absolute;
+      inset:0;
       background:
-        radial-gradient(circle at 79% 18%, rgba(63,110,161,.17) 0%, rgba(63,110,161,.07) 18%, transparent 34%),
-        linear-gradient(90deg, rgba(10,14,20,.92) 0%, rgba(10,14,20,.78) 24%, rgba(10,14,20,.50) 52%, rgba(10,14,20,.18) 100%);
-      pointer-events:none; z-index:0;
+        radial-gradient(circle at 78% 18%, rgba(63,110,161,.18) 0%, rgba(63,110,161,.08) 18%, transparent 34%),
+        linear-gradient(90deg, rgba(10,14,20,.93) 0%, rgba(10,14,20,.80) 30%, rgba(10,14,20,.54) 56%, rgba(10,14,20,.20) 100%);
+      pointer-events:none;
+      z-index:0;
     }
     .hero::after {
-      content:""; position:absolute; inset:0;
-      background: linear-gradient(180deg, rgba(10,14,20,.10) 0%, rgba(10,14,20,.18) 100%), linear-gradient(135deg, rgba(63,110,161,.028) 1px, transparent 1px);
-      background-size:auto, 34px 34px; opacity:.48; pointer-events:none; z-index:0;
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(180deg, rgba(10,14,20,.10) 0%, rgba(10,14,20,.18) 100%),
+        linear-gradient(135deg, rgba(63,110,161,.026) 1px, transparent 1px);
+      background-size:auto, 36px 36px;
+      opacity:.46;
+      pointer-events:none;
+      z-index:0;
     }
     .hero-inner {
-      position:relative; z-index:1; max-width:var(--max); min-height:88vh; margin:0 auto;
-      padding:136px 34px 100px; display:flex; align-items:center;
+      position:relative;
+      z-index:1;
+      max-width:var(--max);
+      min-height:82vh;
+      margin:0 auto;
+      padding:138px 34px 92px;
+      display:flex;
+      align-items:center;
     }
-    .hero-copy { max-width:1020px; }
+    .hero-copy { max-width:920px; }
     .hero-eyebrow {
-      display:block; margin:0 0 40px; padding-left:1px; font-size:.78rem; line-height:1;
-      letter-spacing:.22em; font-weight:700; text-transform:uppercase; color:rgba(245,247,250,.64);
+      display:block;
+      margin:0 0 34px;
+      padding-left:1px;
+      font-size:.78rem;
+      line-height:1;
+      letter-spacing:.22em;
+      font-weight:700;
+      text-transform:uppercase;
+      color:rgba(245,247,250,.64);
     }
     .hero h1 {
-      margin:0 0 20px; max-width:11.5ch; font-size:clamp(3rem,4.3vw,4.6rem);
-      line-height:.95; font-weight:700; color:#FFF; text-wrap:balance; text-shadow:0 1px 2px rgba(0,0,0,.16);
+      margin:0 0 20px;
+      max-width:11.2ch;
+      font-size:clamp(3rem,4.4vw,4.7rem);
+      line-height:.94;
+      font-weight:700;
+      color:#FFFFFF;
+      text-wrap:balance;
+      text-shadow:0 1px 2px rgba(0,0,0,.16);
     }
     .hero-dek {
-      max-width:46ch; margin:0; font-size:clamp(1.12rem,1.5vw,1.22rem); line-height:1.62;
-      letter-spacing:-.014em; color:var(--muted-light); text-shadow:0 1px 2px rgba(0,0,0,.12); text-wrap:balance;
+      max-width:43ch;
+      margin:0;
+      font-size:clamp(1.1rem,1.46vw,1.2rem);
+      line-height:1.62;
+      letter-spacing:-0.014em;
+      color:var(--muted-light);
+      text-shadow:0 1px 2px rgba(0,0,0,.12);
+      text-wrap:balance;
     }
-    .hero-actions { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:30px; }
-    .hero-subrail {
-      display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-top:34px; max-width:980px;
+    .hero-actions {
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:30px;
     }
-    .hero-subrail-item {
-      background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); border-radius:14px;
-      padding:14px 14px 12px; backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); min-height:96px;
+    .hero-rail {
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      gap:12px;
+      margin-top:34px;
+      max-width:980px;
     }
-    .hero-subrail-label { margin:0 0 6px; font-size:.70rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:rgba(245,247,250,.58); }
-    .hero-subrail-value { margin:0 0 4px; font-size:1rem; font-weight:700; color:#FFF; line-height:1.2; }
-    .hero-subrail-copy { margin:0; font-size:.84rem; line-height:1.48; color:rgba(245,247,250,.74); }
+    .hero-rail-item {
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+      padding:14px 14px 12px;
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
+      min-height:92px;
+    }
+    .hero-rail-label {
+      margin:0 0 6px;
+      font-size:.70rem;
+      font-weight:700;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:rgba(245,247,250,.56);
+    }
+    .hero-rail-value {
+      margin:0 0 4px;
+      font-size:1rem;
+      font-weight:700;
+      color:#FFFFFF;
+      line-height:1.2;
+    }
+    .hero-rail-copy {
+      margin:0;
+      font-size:.84rem;
+      line-height:1.46;
+      color:rgba(245,247,250,.74);
+    }
 
     .btn {
-      display:inline-flex; align-items:center; justify-content:center; min-height:50px; min-width:168px; padding:0 24px;
-      border-radius:999px; font-size:.97rem; font-weight:500; letter-spacing:-.012em; white-space:nowrap;
-      background:rgba(255,255,255,.98); color:var(--accent); border:1.25px solid rgba(63,110,161,.9);
-      box-shadow:0 8px 20px rgba(0,0,0,.045),0 0 0 1px rgba(255,255,255,.08);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      min-width:168px;
+      padding:0 24px;
+      border-radius:999px;
+      font-size:.97rem;
+      font-weight:500;
+      letter-spacing:-0.012em;
+      white-space:nowrap;
+      background:rgba(255,255,255,.98);
+      color:var(--accent);
+      border:1.25px solid rgba(63,110,161,.9);
+      box-shadow:0 8px 20px rgba(0,0,0,.045), 0 0 0 1px rgba(255,255,255,.08);
       transition:background 180ms cubic-bezier(.22,1,.36,1), color 180ms cubic-bezier(.22,1,.36,1), border-color 180ms cubic-bezier(.22,1,.36,1), transform 180ms cubic-bezier(.22,1,.36,1), box-shadow 180ms cubic-bezier(.22,1,.36,1);
       cursor:pointer;
     }
-    .btn:hover, .btn:focus-visible {
-      background:#FFF; color:var(--accent-dark); border-color:var(--accent-dark); transform:translateY(-1px);
-      box-shadow:0 12px 24px rgba(0,0,0,.06),0 0 0 1px rgba(255,255,255,.10); outline:none;
+    .btn:hover,
+    .btn:focus-visible {
+      background:#FFFFFF;
+      color:var(--accent-dark);
+      border-color:var(--accent-dark);
+      transform:translateY(-1px);
+      box-shadow:0 12px 24px rgba(0,0,0,.06), 0 0 0 1px rgba(255,255,255,.10);
+      outline:none;
     }
-    .btn-secondary { background:rgba(255,255,255,.98); color:var(--accent); border:1.25px solid rgba(63,110,161,.9); }
+    .btn-secondary {
+      background:rgba(255,255,255,.98);
+      color:var(--accent);
+      border:1.25px solid rgba(63,110,161,.9);
+    }
     .btn-accent {
-      background:var(--accent); color:#FFF; border:1.25px solid rgba(63,110,161,.28);
-      box-shadow:0 10px 24px rgba(63,110,161,.22),0 0 0 1px rgba(255,255,255,.05);
+      background:var(--accent);
+      color:#FFFFFF;
+      border:1.25px solid rgba(63,110,161,.28);
+      box-shadow:0 10px 24px rgba(63,110,161,.22), 0 0 0 1px rgba(255,255,255,.05);
     }
-    .btn-accent:hover, .btn-accent:focus-visible {
-      background:var(--accent-dark); color:#FFF; border-color:rgba(47,88,134,.42);
-      box-shadow:0 12px 26px rgba(47,88,134,.26),0 0 0 1px rgba(255,255,255,.08);
+    .btn-accent:hover,
+    .btn-accent:focus-visible {
+      background:var(--accent-dark);
+      color:#FFFFFF;
+      border-color:rgba(47,88,134,.42);
+      box-shadow:0 12px 26px rgba(47,88,134,.26), 0 0 0 1px rgba(255,255,255,.08);
     }
 
     .page {
-      position:relative; background:var(--bg-offwhite); padding:94px 34px 92px; color:var(--text-dark); overflow:hidden; border-top:1px solid rgba(21,32,43,.04);
+      position:relative;
+      background:var(--bg-offwhite);
+      padding:94px 34px 92px;
+      color:var(--text-dark);
+      overflow:hidden;
+      border-top:1px solid rgba(21,32,43,.04);
     }
     .page::before {
-      content:""; position:absolute; inset:0;
-      background: linear-gradient(rgba(247,248,249,.97), rgba(247,248,249,.97)), linear-gradient(90deg, rgba(63,110,161,.018) 1px, transparent 1px), linear-gradient(rgba(63,110,161,.018) 1px, transparent 1px);
-      background-size:auto, 28px 28px, 28px 28px; pointer-events:none;
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(rgba(247,248,249,.97), rgba(247,248,249,.97)),
+        linear-gradient(90deg, rgba(63,110,161,.018) 1px, transparent 1px),
+        linear-gradient(rgba(63,110,161,.018) 1px, transparent 1px);
+      background-size:auto, 28px 28px, 28px 28px;
+      pointer-events:none;
     }
-    .page-inner { position:relative; z-index:1; max-width:var(--max); margin:0 auto; }
+    .page-inner {
+      position:relative;
+      z-index:1;
+      max-width:var(--max);
+      margin:0 auto;
+    }
 
     .head {
-      display:grid; grid-template-columns:minmax(0,1fr) 380px; gap:52px; align-items:end; margin-bottom:42px;
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 360px;
+      gap:52px;
+      align-items:end;
+      margin-bottom:42px;
     }
     .section-label {
-      margin-bottom:16px; font-size:.78rem; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:var(--accent);
+      margin-bottom:16px;
+      font-size:.78rem;
+      font-weight:700;
+      letter-spacing:.22em;
+      text-transform:uppercase;
+      color:var(--accent);
     }
     .section-label::before {
-      content:""; display:block; width:48px; height:2px; background:var(--accent); margin-bottom:14px;
+      content:"";
+      display:block;
+      width:48px;
+      height:2px;
+      background:var(--accent);
+      margin-bottom:14px;
     }
-    .head h2, .panel h3, .tool-launch-head h3, .advisory-bridge h3, .synthesis-bridge h3, .value-grid-wrap h3, .trust-wrap h3, .route-wrap h3, .timeline-strip h3, .rerun-wrap h3 {
-      margin:0 0 16px; font-size:clamp(1.95rem,2.45vw,2.35rem); line-height:1.12; font-weight:700; color:var(--text-dark); text-wrap:balance;
+    .head h2,
+    .panel h3,
+    .tools-head h3,
+    .bridge h3 {
+      margin:0 0 16px;
+      font-size:clamp(2rem,2.45vw,2.4rem);
+      line-height:1.12;
+      font-weight:700;
+      color:var(--text-dark);
+      text-wrap:balance;
     }
-    .head p, .panel p, .tool-launch-head p, .advisory-bridge p, .synthesis-bridge p, .value-grid-wrap p, .trust-wrap p, .route-wrap p, .timeline-strip p, .rerun-wrap p {
-      margin:0; font-size:1.04rem; line-height:1.7; color:var(--muted-dark);
+    .head p,
+    .panel p,
+    .tools-head p,
+    .bridge p {
+      margin:0;
+      font-size:1.04rem;
+      line-height:1.7;
+      color:var(--muted-dark);
     }
     .note {
-      margin:0; font-size:.90rem; line-height:1.64; color:var(--muted-dark-2); padding:22px;
-      background:rgba(255,255,255,.94); border:1px solid var(--line-soft); border-radius:var(--panel-radius); box-shadow:var(--shadow-soft);
+      margin:0;
+      font-size:.90rem;
+      line-height:1.64;
+      color:var(--muted-dark-2);
+      padding:22px;
+      background:rgba(255,255,255,.94);
+      border:1px solid var(--line-soft);
+      border-radius:var(--panel-radius);
+      box-shadow:var(--shadow-soft);
     }
     .note strong { color:var(--text-dark); }
 
-    .panel, .tool-launch-head, .advisory-bridge, .synthesis-bridge, .value-grid-wrap, .trust-wrap, .route-wrap, .timeline-strip, .rerun-wrap {
-      background:rgba(255,255,255,.98); border:1px solid var(--line-soft); border-radius:var(--panel-radius); box-shadow:var(--shadow-soft);
+    .panel,
+    .tools-head,
+    .bridge {
+      background:rgba(255,255,255,.98);
+      border:1px solid var(--line-soft);
+      border-radius:var(--panel-radius);
+      box-shadow:var(--shadow-soft);
     }
-    .panel, .value-grid-wrap, .trust-wrap, .route-wrap, .timeline-strip, .rerun-wrap {
-      padding:32px 30px 28px; margin-bottom:18px; scroll-margin-top:88px;
+    .panel,
+    .tools-head {
+      padding:32px 30px 28px;
+      margin-bottom:18px;
+      scroll-margin-top:88px;
     }
-    .tool-launch-head, .advisory-bridge, .synthesis-bridge { padding:34px 32px 30px; }
+    .bridge {
+      padding:34px 32px 30px;
+      margin-bottom:18px;
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:28px;
+      align-items:center;
+    }
 
-    .use-grid, .value-grid, .trust-grid, .rerun-grid {
-      display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:20px; margin-top:24px;
+    .split-grid {
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+      gap:20px;
+      margin-top:24px;
     }
-    .use-card, .tool-card, .value-card, .trust-card, .rerun-card, .route-card, .timeline-step {
-      position:relative; background:#FFF; border:1px solid var(--line-soft); border-radius:var(--card-radius); box-shadow:var(--shadow-card); overflow:hidden;
-      transition:transform var(--transition-slow),border-color var(--transition),box-shadow var(--transition-slow);
+    .use-grid {
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:20px;
+      margin-top:24px;
     }
-    .use-card::before, .tool-card::before, .value-card::before, .trust-card::before, .rerun-card::before, .route-card::before, .timeline-step::before {
-      content:""; position:absolute; inset:0 0 auto 0; height:3px;
+
+    .card,
+    .use-card,
+    .tool-card {
+      position:relative;
+      background:#FFFFFF;
+      border:1px solid var(--line-soft);
+      border-radius:var(--card-radius);
+      box-shadow:var(--shadow-card);
+      overflow:hidden;
+      transition:transform var(--transition-slow), border-color var(--transition), box-shadow var(--transition-slow);
+    }
+    .card::before,
+    .use-card::before,
+    .tool-card::before {
+      content:"";
+      position:absolute;
+      inset:0 0 auto 0;
+      height:3px;
       background:linear-gradient(90deg, rgba(63,110,161,.36) 0%, rgba(63,110,161,.94) 48%, rgba(63,110,161,.40) 100%);
-      transform:scaleX(.34); transform-origin:left center; transition:transform 420ms cubic-bezier(.22,1,.36,1);
+      transform:scaleX(.34);
+      transform-origin:left center;
+      transition:transform 420ms cubic-bezier(.22,1,.36,1);
     }
-    .use-card:hover, .tool-card:hover, .value-card:hover, .trust-card:hover, .rerun-card:hover, .route-card:hover, .timeline-step:hover {
-      transform:translateY(-4px); border-color:rgba(63,110,161,.14); box-shadow:0 1px 0 rgba(0,0,0,.012),0 10px 24px rgba(0,0,0,.04),0 18px 30px rgba(0,0,0,.03);
+    .card:hover,
+    .use-card:hover,
+    .tool-card:hover {
+      transform:translateY(-4px);
+      border-color:rgba(63,110,161,.14);
+      box-shadow:0 1px 0 rgba(0,0,0,.012), 0 10px 24px rgba(0,0,0,.04), 0 18px 30px rgba(0,0,0,.03);
     }
-    .use-card:hover::before, .tool-card:hover::before, .value-card:hover::before, .trust-card:hover::before, .rerun-card:hover::before, .route-card:hover::before, .timeline-step:hover::before {
+    .card:hover::before,
+    .use-card:hover::before,
+    .tool-card:hover::before {
       transform:scaleX(1);
     }
-    .use-card, .value-card, .trust-card, .rerun-card, .route-card, .timeline-step { padding:24px 22px 22px; }
-
-    .use-step, .value-kicker, .trust-kicker, .rerun-kicker, .timeline-kicker {
-      margin:0 0 10px; font-size:.74rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--accent);
+    .card,
+    .use-card {
+      padding:24px 22px 22px;
     }
-    .use-title, .value-title, .trust-title, .rerun-title, .route-title, .timeline-title {
-      margin:0 0 8px; font-size:1rem; line-height:1.24; font-weight:700; color:var(--text-dark);
+    .card-kicker,
+    .use-step {
+      margin:0 0 10px;
+      font-size:.74rem;
+      font-weight:700;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:var(--accent);
     }
-    .use-text, .value-text, .trust-text, .rerun-text, .route-text, .timeline-text {
-      margin:0; font-size:.92rem; line-height:1.62; color:var(--muted-dark);
+    .card-title,
+    .use-title {
+      margin:0 0 8px;
+      font-size:1rem;
+      line-height:1.24;
+      font-weight:700;
+      color:var(--text-dark);
     }
-
-    .route-grid {
-      display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; margin-top:24px;
-    }
-    .route-card.is-primary {
-      border-color:rgba(63,110,161,.18); box-shadow:0 12px 28px rgba(0,0,0,.05),0 0 0 1px rgba(63,110,161,.05);
-    }
-    .route-chip {
-      display:inline-flex; align-items:center; min-height:30px; padding:0 10px; border-radius:999px; border:1px solid rgba(63,110,161,.12);
-      background:var(--accent-soft); color:var(--accent); font-size:.73rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin-bottom:12px;
-    }
-
-    .timeline-grid {
-      display:grid; grid-template-columns:repeat(9,minmax(0,1fr)); gap:16px; margin-top:24px; align-items:stretch;
-    }
-    .timeline-step { min-height:168px; }
-    .timeline-arrow {
-      display:flex; align-items:center; justify-content:center; color:var(--accent); font-size:1.2rem; font-weight:700;
-    }
-
-    .paired-with {
-      margin-top:14px; padding-top:12px; border-top:1px solid rgba(21,32,43,.08); font-size:.84rem; line-height:1.55; color:var(--muted-dark-2);
-    }
-
-    .section-connector {
-      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; margin:18px 0 34px; pointer-events:none;
-    }
-    .section-connector-line {
-      width:2px; height:46px; background:linear-gradient(180deg, rgba(63,110,161,.08) 0%, rgba(63,110,161,.38) 100%);
-    }
-    .section-connector-circle {
-      width:38px; height:38px; border-radius:999px; background:var(--accent); display:inline-flex; align-items:center; justify-content:center;
-      box-shadow:0 10px 24px rgba(63,110,161,.22),0 0 0 6px rgba(63,110,161,.06);
-    }
-    .section-connector-circle::before {
-      content:"↓"; color:#FFF; font-size:1rem; line-height:1; font-weight:700; transform:translateY(-1px);
+    .card-text,
+    .use-text {
+      margin:0;
+      font-size:.92rem;
+      line-height:1.62;
+      color:var(--muted-dark);
     }
 
     .matrix {
-      overflow-x:auto; margin-top:20px; border:1px solid var(--line-soft); border-radius:var(--card-radius); background:#FFF; box-shadow:var(--shadow-card);
+      overflow-x:auto;
+      margin-top:20px;
+      border:1px solid var(--line-soft);
+      border-radius:var(--card-radius);
+      background:#FFFFFF;
+      box-shadow:var(--shadow-card);
     }
-    .matrix table { width:100%; border-collapse:collapse; min-width:980px; }
-    .matrix th, .matrix td {
-      text-align:left; vertical-align:top; padding:16px 16px; border-bottom:1px solid rgba(21,32,43,.08); font-size:.90rem; line-height:1.56;
+    .matrix table {
+      width:100%;
+      border-collapse:collapse;
+      min-width:900px;
+    }
+    .matrix th,
+    .matrix td {
+      text-align:left;
+      vertical-align:top;
+      padding:16px 16px;
+      border-bottom:1px solid rgba(21,32,43,.08);
+      font-size:.90rem;
+      line-height:1.56;
     }
     .matrix th {
-      font-size:.74rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--muted-dark-2); background:rgba(246,247,248,.82);
+      font-size:.74rem;
+      font-weight:700;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:var(--muted-dark-2);
+      background:rgba(246,247,248,.82);
     }
     .matrix td strong { color:var(--text-dark); }
 
-    .tool-cards-section { scroll-margin-top:88px; }
-
-    .tool-launch-head .section-label, .advisory-bridge .section-label, .synthesis-bridge .section-label, .value-grid-wrap .section-label, .trust-wrap .section-label, .route-wrap .section-label, .timeline-strip .section-label, .rerun-wrap .section-label {
-      margin-bottom:12px;
-    }
-    .tool-launch-head .section-label::before, .advisory-bridge .section-label::before, .synthesis-bridge .section-label::before, .value-grid-wrap .section-label::before, .trust-wrap .section-label::before, .route-wrap .section-label::before, .timeline-strip .section-label::before, .rerun-wrap .section-label::before {
-      margin-bottom:12px;
-    }
-
-    .tool-launch-note, .synthesis-bridge-note, .value-grid-note, .timeline-note, .rerun-note {
-      margin-top:12px; font-size:.92rem; line-height:1.64; color:var(--accent-dark); font-weight:500;
-    }
-
+    .tools-section { scroll-margin-top:88px; }
     .tools-grid {
-      display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:22px; margin-top:28px; margin-bottom:34px; align-items:stretch;
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      gap:22px;
+      margin-top:28px;
     }
-    .tool-card { min-height:360px; }
-    .tool-card::after {
-      content:""; position:absolute; inset:auto -20% -30% auto; width:180px; height:180px; border-radius:50%;
-      background:radial-gradient(circle, rgba(63,110,161,.10) 0%, rgba(63,110,161,.03) 42%, transparent 70%);
-      pointer-events:none; opacity:.9; transition:transform var(--transition-slow), opacity var(--transition-slow);
+    .tool-card {
+      min-height:336px;
     }
-    .tool-card:hover::after { transform:translate(-6px,-6px) scale(1.04); opacity:1; }
     .tool-card.is-recommended {
-      border-color:rgba(63,110,161,.18); box-shadow:0 12px 28px rgba(0,0,0,.05),0 0 0 1px rgba(63,110,161,.05);
+      border-color:rgba(63,110,161,.18);
+      box-shadow:0 12px 28px rgba(0,0,0,.05), 0 0 0 1px rgba(63,110,161,.05);
     }
-    .tool-card.is-recommended::before { transform:scaleX(1); }
-
+    .tool-card.is-recommended::before {
+      transform:scaleX(1);
+    }
     .tool-card-link {
-      position:relative; z-index:1; display:flex; flex-direction:column; align-items:flex-start; min-height:360px; height:100%;
-      padding:24px 22px 22px; text-align:left;
+      position:relative;
+      z-index:1;
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+      min-height:336px;
+      height:100%;
+      padding:24px 22px 22px;
+      text-align:left;
     }
-    .tool-card-link:focus-visible { outline:2px solid rgba(63,110,161,.35); outline-offset:3px; }
-
+    .tool-card-link:focus-visible {
+      outline:2px solid rgba(63,110,161,.35);
+      outline-offset:3px;
+    }
     .tool-card-top {
-      display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:12px;
     }
-    .tool-badge, .tool-badge-secondary {
-      display:inline-flex; align-items:center; padding:6px 10px; font-size:.70rem; font-weight:700; letter-spacing:.10em;
-      text-transform:uppercase; border:1px solid; white-space:nowrap; border-radius:999px;
+    .tool-badge,
+    .tool-badge-secondary {
+      display:inline-flex;
+      align-items:center;
+      padding:6px 10px;
+      font-size:.70rem;
+      font-weight:700;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      border:1px solid;
+      white-space:nowrap;
+      border-radius:999px;
     }
     .tool-badge {
-      background:rgba(63,110,161,.08); color:var(--accent); border-color:rgba(63,110,161,.12); box-shadow:0 0 18px rgba(63,110,161,.05);
+      background:rgba(63,110,161,.08);
+      color:var(--accent);
+      border-color:rgba(63,110,161,.12);
+      box-shadow:0 0 18px rgba(63,110,161,.05);
     }
     .tool-badge-secondary {
-      background:rgba(21,32,43,.04); color:var(--text-dark); border-color:rgba(21,32,43,.08);
+      background:rgba(21,32,43,.04);
+      color:var(--text-dark);
+      border-color:rgba(21,32,43,.08);
     }
-
     .tool-title {
-      margin:0 0 8px; font-size:1.15rem; line-height:1.16; font-weight:700; letter-spacing:-.022em; color:var(--text-dark);
+      margin:0 0 8px;
+      font-size:1.15rem;
+      line-height:1.16;
+      font-weight:700;
+      letter-spacing:-0.022em;
+      color:var(--text-dark);
     }
     .tool-subline {
-      margin:0 0 12px; font-size:.84rem; line-height:1.45; letter-spacing:.02em; text-transform:uppercase; color:var(--muted-dark-2);
+      margin:0 0 12px;
+      font-size:.84rem;
+      line-height:1.45;
+      letter-spacing:.02em;
+      text-transform:uppercase;
+      color:var(--muted-dark-2);
     }
     .tool-text {
-      margin:0 0 16px; font-size:.95rem; line-height:1.66; color:var(--muted-dark);
+      margin:0 0 16px;
+      font-size:.95rem;
+      line-height:1.66;
+      color:var(--muted-dark);
     }
     .tool-meta-label {
-      margin:0 0 6px; font-size:.72rem; line-height:1; letter-spacing:.14em; text-transform:uppercase; color:var(--muted-dark-2); font-weight:700;
+      margin:0 0 6px;
+      font-size:.72rem;
+      line-height:1;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:var(--muted-dark-2);
+      font-weight:700;
     }
     .tool-meta {
-      margin-top:0; font-size:.87rem; line-height:1.58; color:var(--muted-dark-2);
-    }
-    .tool-repeat {
-      margin-top:12px; font-size:.84rem; line-height:1.56; color:var(--muted-dark); padding-top:12px; border-top:1px solid rgba(21,32,43,.08);
+      margin-top:0;
+      font-size:.87rem;
+      line-height:1.58;
+      color:var(--muted-dark-2);
     }
     .tool-open {
-      margin-top:auto; display:inline-flex; align-items:center; gap:8px; font-size:.90rem; font-weight:600; color:var(--accent);
+      margin-top:auto;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-size:.90rem;
+      font-weight:600;
+      color:var(--accent);
       transition:color var(--transition), transform var(--transition);
     }
-    .tool-card:hover .tool-open, .tool-card-link:focus-visible .tool-open { color:var(--accent-dark); transform:translateX(2px); }
-
-    .synthesis-bridge, .advisory-bridge {
-      display:grid; grid-template-columns:minmax(0,1fr) auto; gap:28px; align-items:center; margin:0 0 34px;
+    .tool-card:hover .tool-open,
+    .tool-card-link:focus-visible .tool-open {
+      color:var(--accent-dark);
+      transform:translateX(2px);
     }
-    .synthesis-bridge-copy { max-width:64ch; }
-    .advisory-bridge-copy { max-width:58ch; }
+
+    .bridge-copy { max-width:62ch; }
 
     .footer-copy-top {
-      margin:0; max-width:74ch; font-size:.95rem; line-height:1.68; color:var(--muted-dark);
+      margin:0;
+      max-width:72ch;
+      font-size:.95rem;
+      line-height:1.68;
+      color:var(--muted-dark);
     }
 
     .footer {
-      background:#0D141C; color:rgba(245,247,250,.88); padding:50px 34px 38px;
+      background:#0D141C;
+      color:rgba(245,247,250,.88);
+      padding:50px 34px 38px;
     }
-    .footer-inner { max-width:var(--max); margin:0 auto; }
+    .footer-inner {
+      max-width:var(--max);
+      margin:0 auto;
+    }
     .footer-top {
-      display:flex; align-items:flex-start; justify-content:space-between; gap:40px; padding-bottom:28px; border-bottom:1px solid rgba(255,255,255,.08);
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:40px;
+      padding-bottom:28px;
+      border-bottom:1px solid rgba(255,255,255,.08);
     }
-    .footer-brand { max-width:420px; }
+    .footer-brand {
+      max-width:420px;
+    }
     .footer-mark {
-      display:inline-flex; align-items:center; font-size:1.1rem; font-weight:700; letter-spacing:-.02em; color:#FFF; margin-bottom:14px;
+      display:inline-flex;
+      align-items:center;
+      font-size:1.1rem;
+      font-weight:700;
+      letter-spacing:-0.02em;
+      color:#FFFFFF;
+      margin-bottom:14px;
     }
     .footer-mark::after {
-      content:""; width:6px; height:6px; margin-left:10px; background:var(--accent); border-radius:1px; display:inline-block; transform:translateY(-1px);
+      content:"";
+      width:6px;
+      height:6px;
+      margin-left:10px;
+      background:var(--accent);
+      border-radius:1px;
+      display:inline-block;
+      transform:translateY(-1px);
     }
     .footer-copy {
-      margin:0; max-width:36ch; font-size:.98rem; line-height:1.65; color:rgba(245,247,250,.68);
+      margin:0;
+      max-width:36ch;
+      font-size:.98rem;
+      line-height:1.65;
+      color:rgba(245,247,250,.68);
     }
     .footer-nav {
-      display:flex; gap:48px; flex-wrap:wrap;
+      display:flex;
+      gap:48px;
+      flex-wrap:wrap;
     }
     .footer-nav-col { min-width:120px; }
     .footer-nav-title {
-      margin:0 0 12px; font-size:.72rem; font-weight:700; line-height:1; letter-spacing:.18em; text-transform:uppercase; color:rgba(245,247,250,.50);
+      margin:0 0 12px;
+      font-size:.72rem;
+      font-weight:700;
+      line-height:1;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:rgba(245,247,250,.50);
     }
     .footer-nav a {
-      display:block; margin-bottom:10px; font-size:.95rem; line-height:1.45; color:rgba(245,247,250,.82); transition:color var(--transition), transform var(--transition);
+      display:block;
+      margin-bottom:10px;
+      font-size:.95rem;
+      line-height:1.45;
+      color:rgba(245,247,250,.82);
+      transition:color var(--transition), transform var(--transition);
     }
-    .footer-nav a:hover, .footer-nav a:focus-visible { color:#FFF; transform:translateX(2px); outline:none; }
+    .footer-nav a:hover,
+    .footer-nav a:focus-visible {
+      color:#FFFFFF;
+      transform:translateX(2px);
+      outline:none;
+    }
     .footer-bottom {
-      display:flex; align-items:center; justify-content:space-between; gap:20px; padding-top:18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+      padding-top:18px;
     }
-    .footer-meta, .footer-contact {
-      margin:0; font-size:.88rem; line-height:1.6; color:rgba(245,247,250,.58);
+    .footer-meta,
+    .footer-contact {
+      margin:0;
+      font-size:.88rem;
+      line-height:1.6;
+      color:rgba(245,247,250,.58);
     }
 
     @media (max-width:1180px) {
-      .hero-subrail, .tools-grid, .route-grid { grid-template-columns:repeat(2, minmax(0,1fr)); }
-      .timeline-grid { grid-template-columns:1fr; }
-      .timeline-arrow { display:none; }
-      .head { grid-template-columns:1fr; }
-      .use-grid, .value-grid, .trust-grid, .rerun-grid { grid-template-columns:1fr; }
-      .advisory-bridge, .synthesis-bridge { grid-template-columns:1fr; align-items:start; }
+      .hero-rail,
+      .tools-grid,
+      .split-grid {
+        grid-template-columns:repeat(2, minmax(0,1fr));
+      }
+      .head {
+        grid-template-columns:1fr;
+      }
+      .use-grid {
+        grid-template-columns:1fr;
+      }
+      .bridge {
+        grid-template-columns:1fr;
+        align-items:start;
+      }
     }
 
     @media (max-width:980px) {
       .header { height:auto; }
       .header-inner {
-        padding:16px 24px; align-items:flex-start; flex-direction:column; gap:14px;
+        padding:16px 24px;
+        align-items:flex-start;
+        flex-direction:column;
+        gap:14px;
       }
       .nav { gap:22px; }
-      .hero-inner, .page, .footer {
-        padding-left:24px; padding-right:24px;
+      .hero-inner,
+      .page,
+      .footer {
+        padding-left:24px;
+        padding-right:24px;
       }
-      .hero-subrail { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .hero-rail {
+        grid-template-columns:repeat(2, minmax(0,1fr));
+      }
     }
 
     @media (max-width:760px) {
       .brand { font-size:1.24rem; }
       .nav { gap:18px; }
-      .hero-inner { padding:136px 20px 108px; }
-      .hero-eyebrow { margin-bottom:30px; font-size:.74rem; letter-spacing:.18em; }
-      .hero h1 { max-width:100%; font-size:clamp(2.45rem,8vw,3.25rem); }
-      .hero-dek { max-width:100%; font-size:1rem; line-height:1.58; }
-      .hero-actions { flex-direction:column; align-items:stretch; gap:14px; max-width:420px; }
-      .hero-subrail { grid-template-columns:1fr; }
-      .btn { width:100%; min-width:0; min-height:52px; padding:0 20px; font-size:.98rem; }
-      .page { padding:72px 20px 72px; }
-      .panel, .tool-launch-head, .advisory-bridge, .synthesis-bridge, .value-grid-wrap, .trust-wrap, .route-wrap, .timeline-strip, .rerun-wrap {
+      .hero-inner {
+        padding:136px 20px 104px;
+      }
+      .hero-eyebrow {
+        margin-bottom:30px;
+        font-size:.74rem;
+        letter-spacing:.18em;
+      }
+      .hero h1 {
+        max-width:100%;
+        font-size:clamp(2.45rem, 8vw, 3.3rem);
+      }
+      .hero-dek {
+        max-width:100%;
+        font-size:1rem;
+        line-height:1.58;
+      }
+      .hero-actions {
+        flex-direction:column;
+        align-items:stretch;
+        gap:14px;
+        max-width:420px;
+      }
+      .hero-rail,
+      .tools-grid,
+      .split-grid {
+        grid-template-columns:1fr;
+      }
+      .btn {
+        width:100%;
+        min-width:0;
+        min-height:52px;
+        padding:0 20px;
+        font-size:.98rem;
+      }
+      .page {
+        padding:72px 20px 72px;
+      }
+      .panel,
+      .tools-head,
+      .bridge {
         padding:24px 20px 22px;
       }
-      .section-connector { margin:14px 0 24px; }
-      .section-connector-line { height:32px; }
-      .section-connector-circle { width:34px; height:34px; }
-      .tools-grid, .route-grid { grid-template-columns:1fr; margin-top:24px; }
-      .tool-card, .tool-card-link { min-height:auto; }
-      .footer { padding:34px 20px 28px; }
-      .footer-top, .footer-bottom { flex-direction:column; align-items:flex-start; }
+      .tool-card,
+      .tool-card-link {
+        min-height:auto;
+      }
+      .footer {
+        padding:34px 20px 28px;
+      }
+      .footer-top,
+      .footer-bottom {
+        flex-direction:column;
+        align-items:flex-start;
+      }
       .footer-nav { gap:28px; }
       .footer-copy { font-size:.94rem; }
-      .footer-meta, .footer-contact { font-size:.84rem; }
+      .footer-meta,
+      .footer-contact { font-size:.84rem; }
     }
   </style>
 </head>
@@ -451,6 +861,7 @@
   <header class="header" id="siteHeader">
     <div class="header-inner">
       <a href="index.html" class="brand">Monderman</a>
+
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
         <a href="diagnostic-tools.html" class="is-active">Diagnostic Tools</a>
@@ -465,36 +876,36 @@
     <div class="hero-inner">
       <div class="hero-copy">
         <p class="hero-eyebrow">Monderman Diagnostic Suite</p>
-        <h1>See what is weakening execution—then track what changes over time.</h1>
+        <h1>Clarify the problem. Revisit the signal. Lead with a clearer view.</h1>
         <p class="hero-dek">
-          The Monderman Diagnostic Suite is a premium diagnostic hub for ongoing organizational visibility. Establish a baseline, compare perspectives, identify structural friction, and return over time to see whether conditions are improving, stalling, or compounding.
+          The Monderman Diagnostic Suite gives leaders a disciplined way to establish a baseline, identify structural friction, and return over time with greater precision as conditions change.
         </p>
 
         <div class="hero-actions">
-          <a class="btn btn-accent" href="#tool-launch">Enter the Diagnostic Hub</a>
+          <a class="btn btn-accent" href="#tool-launch">Run Diagnostics</a>
           <a class="btn btn-secondary" href="advisory-services.html">Advisory Engagements</a>
         </div>
 
-        <div class="hero-subrail" aria-label="Diagnostic suite operating model">
-          <div class="hero-subrail-item">
-            <p class="hero-subrail-label">Baseline</p>
-            <p class="hero-subrail-value">Establish a reference point</p>
-            <p class="hero-subrail-copy">Capture how a bounded institutional condition looks now.</p>
+        <div class="hero-rail" aria-label="How the suite is designed to be used">
+          <div class="hero-rail-item">
+            <p class="hero-rail-label">Baseline</p>
+            <p class="hero-rail-value">Start with one bounded issue</p>
+            <p class="hero-rail-copy">Assess one team, workflow, function, or operating environment at a time.</p>
           </div>
-          <div class="hero-subrail-item">
-            <p class="hero-subrail-label">Repeat Reads</p>
-            <p class="hero-subrail-value">Return with discipline</p>
-            <p class="hero-subrail-copy">Revisit after changes, disruptions, or visible strain.</p>
+          <div class="hero-rail-item">
+            <p class="hero-rail-label">Initiative</p>
+            <p class="hero-rail-value">Start where the friction is visible</p>
+            <p class="hero-rail-copy">Choose the clearest symptom first rather than diagnosing everything at once.</p>
           </div>
-          <div class="hero-subrail-item">
-            <p class="hero-subrail-label">Comparison</p>
-            <p class="hero-subrail-value">See vantage-point differences</p>
-            <p class="hero-subrail-copy">Compare how teams, functions, or leaders experience the same system.</p>
+          <div class="hero-rail-item">
+            <p class="hero-rail-label">Repeatability</p>
+            <p class="hero-rail-value">Return after change</p>
+            <p class="hero-rail-copy">Reassess after redesign, turnover, new controls, or visible strain.</p>
           </div>
-          <div class="hero-subrail-item">
-            <p class="hero-subrail-label">Synthesis</p>
-            <p class="hero-subrail-value">Build broader visibility</p>
-            <p class="hero-subrail-copy">Move from individual snapshots toward institutional signal.</p>
+          <div class="hero-rail-item">
+            <p class="hero-rail-label">Perspective</p>
+            <p class="hero-rail-value">Build a clearer picture over time</p>
+            <p class="hero-rail-copy">Compare outputs across runs, functions, and conditions as the institution evolves.</p>
           </div>
         </div>
       </div>
@@ -506,189 +917,69 @@
       <div class="head">
         <div>
           <div class="section-label">Diagnostic Hub</div>
-          <h2>A cleaner portal for baseline diagnosis, repeated use, and ongoing structural visibility.</h2>
+          <h2>A premium launch point for structured diagnosis and repeated use.</h2>
           <p>
-            A single diagnostic can provide a meaningful directional snapshot. The stronger Monderman use case is temporal: establish a baseline, revisit conditions after changes occur, compare how different parts of the organization see the same system, and build a clearer view of what is actually changing over time.
+            Each diagnostic is built to isolate a different kind of organizational weakness. Used well, the suite helps leaders move from first signal to clearer interpretation, then return with discipline as conditions shift.
           </p>
         </div>
 
         <p class="note">
-          <strong>Use with care.</strong> Current diagnostic runs are intended to support structured inquiry and should be treated as directional outputs. Avoid entering confidential, classified, regulated, or personally sensitive information.
+          <strong>Use bounded inputs.</strong> These diagnostics are designed for directional organizational analysis. Avoid entering confidential, classified, regulated, proprietary, or personally sensitive information.
         </p>
       </div>
 
-      <section class="trust-wrap">
-        <div class="section-label">Trust and Use Conditions</div>
-        <h3>Built to feel structured, bounded, and trustworthy.</h3>
+      <section class="panel">
+        <h3>What this hub is for</h3>
         <p>
-          The suite is designed for organizational conditions, not personality testing or generic surveys. Use bounded, non-sensitive descriptions, interpret outputs directionally, and treat results as support for structured judgment rather than stand-alone verdicts.
+          This hub is designed to support clear entry, disciplined use, and repeated return. Begin with the most visible problem, keep the scope narrow, and use repeat runs to see whether conditions are improving, holding, or compounding.
         </p>
 
-        <div class="trust-grid">
-          <div class="trust-card">
-            <p class="trust-kicker">Structured</p>
-            <h4 class="trust-title">Designed for institutional conditions</h4>
-            <p class="trust-text">These diagnostics are built to surface structural friction, bureaucratic burden, decision drag, and institutional weakening—not abstract traits or personal dispositions.</p>
+        <div class="split-grid">
+          <div class="card">
+            <p class="card-kicker">For immediate use</p>
+            <h4 class="card-title">Choose the right diagnostic quickly</h4>
+            <p class="card-text">Start with the strongest visible symptom so the first read is focused, relevant, and easier to interpret.</p>
           </div>
-          <div class="trust-card">
-            <p class="trust-kicker">Bounded</p>
-            <h4 class="trust-title">Use narrow, appropriate inputs</h4>
-            <p class="trust-text">The suite works best when you assess one workflow, one team, one function, or one operating slice at a time using bounded descriptions.</p>
-          </div>
-          <div class="trust-card">
-            <p class="trust-kicker">Directional</p>
-            <h4 class="trust-title">Supports judgment, not replacement</h4>
-            <p class="trust-text">Outputs should inform analysis, discussion, and decision-making. They are designed to sharpen organizational judgment—not replace it.</p>
+
+          <div class="card">
+            <p class="card-kicker">For repeated use</p>
+            <h4 class="card-title">Return with a stronger frame of reference</h4>
+            <p class="card-text">Use the suite again after change, disruption, or intervention to assess whether structural conditions are actually improving.</p>
           </div>
         </div>
       </section>
 
-      <div class="section-connector" aria-hidden="true">
-        <span class="section-connector-line"></span>
-        <span class="section-connector-circle"></span>
-      </div>
-
-      <section class="route-wrap">
-        <div class="section-label">Recommended Path</div>
-        <h3>Use the hub like a guided operating surface.</h3>
-        <p>
-          The suite is more useful when it helps route users, not just list tools. Start with the strongest visible signal, move into adjacent diagnostics when the issue broadens, and use synthesis only after enough bounded reads exist to support a wider interpretation.
-        </p>
-
-        <div class="route-grid">
-          <div class="route-card is-primary">
-            <div class="route-chip">New to the suite</div>
-            <h4 class="route-title">Start with Structural Clarity</h4>
-            <p class="route-text">When the problem is real but still hard to name, begin with clarity. Ownership, authority, review logic, and handoff structure often reveal the first meaningful signal.</p>
-          </div>
-          <div class="route-card">
-            <div class="route-chip">Already seeing drag</div>
-            <h4 class="route-title">Move to Decision Velocity or Operational Systems</h4>
-            <p class="route-text">If the problem clearly feels like delay, approval layering, administrative burden, or compensatory coordination, move into the tools built for those patterns.</p>
-          </div>
-          <div class="route-card">
-            <div class="route-chip">Multiple reads completed</div>
-            <h4 class="route-title">Then move into Synthesis</h4>
-            <p class="route-text">Cross-tool synthesis should follow repeated bounded diagnostics. That is where separate snapshots begin to form a more durable institutional signal.</p>
-          </div>
-        </div>
-      </section>
-
-      <div class="section-connector" aria-hidden="true">
-        <span class="section-connector-line"></span>
-        <span class="section-connector-circle"></span>
-      </div>
-
-      <section class="how-to-use panel">
+      <section class="panel">
         <h3>How to use the suite</h3>
         <p>
-          Start with the clearest visible symptom, keep the first run bounded, then use repeat diagnostics and cross-tool synthesis to build a more durable picture of institutional condition.
+          The suite works best when the first run is bounded and the next run is intentional.
         </p>
 
         <div class="use-grid">
           <div class="use-card">
             <p class="use-step">Step 1</p>
-            <h4 class="use-title">Establish the baseline</h4>
-            <p class="use-text">Begin with the strongest visible problem in one team, one workflow, one function, or one operating slice.</p>
+            <h4 class="use-title">Choose the clearest symptom</h4>
+            <p class="use-text">Start with what is most visible now: ambiguity, delay, burden, or broader institutional weakening.</p>
           </div>
+
           <div class="use-card">
             <p class="use-step">Step 2</p>
-            <h4 class="use-title">Deepen the view</h4>
-            <p class="use-text">Use the most relevant tool first, then add adjacent diagnostics when the issue appears broader, more embedded, or cross-functional.</p>
+            <h4 class="use-title">Keep the scope narrow</h4>
+            <p class="use-text">Use one workflow, one function, one team, or one operating environment wherever possible.</p>
           </div>
+
           <div class="use-card">
             <p class="use-step">Step 3</p>
-            <h4 class="use-title">Return over time</h4>
-            <p class="use-text">Rerun after changes, compare perspectives, and watch whether structural conditions are easing, holding, or compounding.</p>
+            <h4 class="use-title">Return with discipline</h4>
+            <p class="use-text">Revisit after meaningful change to see whether time, money, and productive capacity are actually being reclaimed.</p>
           </div>
         </div>
       </section>
 
-      <div class="section-connector" aria-hidden="true">
-        <span class="section-connector-line"></span>
-        <span class="section-connector-circle"></span>
-      </div>
-
-      <section class="timeline-strip">
-        <div class="section-label">Progression Model</div>
-        <h3>From snapshot to institutional visibility.</h3>
-        <p>The suite is strongest when used as a progression rather than a one-time event. This is the operating logic behind repeat use.</p>
-
-        <div class="timeline-grid">
-          <div class="timeline-step">
-            <p class="timeline-kicker">1</p>
-            <h4 class="timeline-title">Snapshot</h4>
-            <p class="timeline-text">Run a bounded read on the clearest visible problem.</p>
-          </div>
-          <div class="timeline-arrow" aria-hidden="true">→</div>
-          <div class="timeline-step">
-            <p class="timeline-kicker">2</p>
-            <h4 class="timeline-title">Baseline</h4>
-            <p class="timeline-text">Treat the output as a reference point, not just a survey result.</p>
-          </div>
-          <div class="timeline-arrow" aria-hidden="true">→</div>
-          <div class="timeline-step">
-            <p class="timeline-kicker">3</p>
-            <h4 class="timeline-title">Repeat Read</h4>
-            <p class="timeline-text">Return after visible change, strain, redesign, or leadership movement.</p>
-          </div>
-          <div class="timeline-arrow" aria-hidden="true">→</div>
-          <div class="timeline-step">
-            <p class="timeline-kicker">4</p>
-            <h4 class="timeline-title">Comparison</h4>
-            <p class="timeline-text">Compare across functions, layers, or adjacent tools.</p>
-          </div>
-          <div class="timeline-arrow" aria-hidden="true">→</div>
-          <div class="timeline-step">
-            <p class="timeline-kicker">5</p>
-            <h4 class="timeline-title">Institutional Visibility</h4>
-            <p class="timeline-text">Use synthesis and repeated reads to clarify broader structural movement.</p>
-          </div>
-        </div>
-
-        <p class="timeline-note">This is the core shift from a diagnostic page to a reusable portal for institutional visibility.</p>
-      </section>
-
-      <div class="section-connector" aria-hidden="true">
-        <span class="section-connector-line"></span>
-        <span class="section-connector-circle"></span>
-      </div>
-
-      <section class="value-grid-wrap">
-        <div class="section-label">Why It Becomes More Valuable Over Time</div>
-        <h3>This suite is designed to become more useful with repeated use.</h3>
-        <p>One diagnostic gives you a directional read. Repeated diagnostics give you pattern recognition, comparative perspective, and a better sense of whether structural conditions are actually changing or just being discussed.</p>
-
-        <div class="value-grid">
-          <div class="value-card">
-            <p class="value-kicker">Baseline</p>
-            <h4 class="value-title">Establish a reference point</h4>
-            <p class="value-text">Run a bounded diagnostic now to capture the condition as it exists today rather than relying on impression, memory, or anecdote.</p>
-          </div>
-          <div class="value-card">
-            <p class="value-kicker">Comparison</p>
-            <h4 class="value-title">Compare perspectives</h4>
-            <p class="value-text">Use the suite across teams, functions, or leadership layers to see whether the same system is being experienced differently across the institution.</p>
-          </div>
-          <div class="value-card">
-            <p class="value-kicker">Movement</p>
-            <h4 class="value-title">Track whether conditions shift</h4>
-            <p class="value-text">Return after process changes, reorganizations, leadership turnover, or other interventions to see whether friction is easing, holding, or compounding.</p>
-          </div>
-        </div>
-
-        <p class="value-grid-note">The goal is not just to diagnose a moment. It is to keep a clearer finger on the pulse of how the institution is functioning over time.</p>
-      </section>
-
-      <div class="section-connector" aria-hidden="true">
-        <span class="section-connector-line"></span>
-        <span class="section-connector-circle"></span>
-      </div>
-
-      <section class="tool-selector panel">
-        <h3>Start with the symptom you can already see.</h3>
+      <section class="panel">
+        <h3>Choose the right starting point</h3>
         <p>
-          Use the guide below to choose the strongest entry point. The goal is not to diagnose everything at once, but to start with the most visible signal and build outward as needed.
+          Start with the most visible symptom. You can broaden from there if the issue proves larger or more persistent than the first read suggests.
         </p>
 
         <div class="matrix">
@@ -697,9 +988,8 @@
               <tr>
                 <th>Dominant symptom</th>
                 <th>Start here</th>
-                <th>Best used to clarify</th>
-                <th>What it can support over time</th>
-                <th>Less suited for</th>
+                <th>Clarifies</th>
+                <th>Best used when</th>
               </tr>
             </thead>
             <tbody>
@@ -707,49 +997,37 @@
                 <td><strong>Ownership, roles, or handoffs feel blurred.</strong></td>
                 <td>Structural Clarity Snapshot</td>
                 <td>Whether authority, ownership, and execution logic are clear enough to support reliable movement.</td>
-                <td>Baseline and follow-on comparison after role, process, or governance changes.</td>
-                <td>Broad institutional condition across the full system.</td>
+                <td>The issue feels like ambiguity, duplication, confusion, or execution drift.</td>
               </tr>
               <tr>
                 <td><strong>Decisions feel slow, stuck, or approval-heavy.</strong></td>
                 <td>Decision Velocity Snapshot</td>
-                <td>Where decision movement is being slowed by approvals, routing, escalation, or uncertainty.</td>
-                <td>Repeated reads on whether decision pathways are improving or accumulating drag.</td>
-                <td>Total administrative burden across the whole environment.</td>
+                <td>Where decisions are being slowed by approvals, routing, escalation, or uncertainty.</td>
+                <td>The issue feels like slowness, delay, stalled action, or approval drag.</td>
               </tr>
               <tr>
                 <td><strong>The environment feels overloaded by process.</strong></td>
                 <td>Operational Systems Snapshot</td>
                 <td>Whether administrative density is absorbing too much time, attention, and managerial effort.</td>
-                <td>Trend monitoring of burden, overhead, and reclaimed capacity over time.</td>
-                <td>Fine-grained authority and ownership questions.</td>
+                <td>The issue feels like too much process, too much reporting, or too much coordination.</td>
               </tr>
               <tr>
                 <td><strong>The whole system seems to be weakening.</strong></td>
                 <td>Institutional Performance Snapshot</td>
-                <td>Whether the institution is still converting structure into sustained performance across execution, resilience, and institutional confidence.</td>
-                <td>Higher-level pulse checks on whether broader institutional condition is strengthening or deteriorating.</td>
-                <td>Narrow workflow diagnosis within a single slice.</td>
+                <td>Whether the institution is still converting structure into sustained performance and confidence.</td>
+                <td>The issue feels broader than one workflow and the system itself may be weakening.</td>
               </tr>
             </tbody>
           </table>
         </div>
       </section>
 
-      <div class="section-connector" aria-hidden="true">
-        <span class="section-connector-line"></span>
-        <span class="section-connector-circle"></span>
-      </div>
-
-      <section class="tool-cards-section" id="tool-launch">
-        <div class="tool-launch-head">
+      <section class="tools-section" id="tool-launch">
+        <div class="tools-head">
           <div class="section-label">Live Diagnostics</div>
           <h3>Launch the right diagnostic.</h3>
           <p>
-            Each tool opens in its own dedicated environment. Use one tool to get a directional read, or use the suite over time to build a broader view of structural conditions, comparative perspectives, and institutional movement.
-          </p>
-          <p class="tool-launch-note">
-            Best first move when the problem is real but still hard to name: begin with Structural Clarity.
+            Each tool opens in its own dedicated environment. Start with the strongest fit, then return to the suite as your view of the problem becomes clearer.
           </p>
         </div>
 
@@ -762,11 +1040,13 @@
               </div>
               <h3 class="tool-title">Structural Clarity Snapshot</h3>
               <p class="tool-subline">Roles · ownership · handoffs</p>
-              <p class="tool-text">Assess whether ownership, authority, and review logic are clear enough for one bounded workflow or operating slice.</p>
+              <p class="tool-text">
+                Assess whether ownership, authority, and review logic are clear enough for one bounded workflow or operating slice.
+              </p>
               <p class="tool-meta-label">Best when</p>
-              <p class="tool-meta">The issue feels like ambiguity, duplication, confusion, or execution drift.</p>
-              <div class="tool-repeat"><strong>Use again when:</strong> role changes, process redesign, reorganization, or persistent confusion remain unresolved.</div>
-              <div class="paired-with"><strong>Pairs well with:</strong> Decision Velocity Snapshot</div>
+              <p class="tool-meta">
+                The issue feels like ambiguity, duplication, confusion, or execution drift.
+              </p>
               <span class="tool-open">Open diagnostic &#8594;</span>
             </a>
           </article>
@@ -778,11 +1058,13 @@
               </div>
               <h3 class="tool-title">Decision Velocity Snapshot</h3>
               <p class="tool-subline">Approvals · escalation · delay</p>
-              <p class="tool-text">Diagnose where approvals, escalation patterns, and routing complexity are slowing movement through important decisions.</p>
+              <p class="tool-text">
+                Diagnose where approvals, escalation patterns, and routing complexity are slowing movement through important decisions.
+              </p>
               <p class="tool-meta-label">Best when</p>
-              <p class="tool-meta">The issue feels like slowness, delay, stalled action, or approval drag.</p>
-              <div class="tool-repeat"><strong>Use again when:</strong> approval layers increase, cycle times slip, or new governance controls are introduced.</div>
-              <div class="paired-with"><strong>Pairs well with:</strong> Operational Systems Snapshot</div>
+              <p class="tool-meta">
+                The issue feels like slowness, delay, stalled action, or approval drag.
+              </p>
               <span class="tool-open">Open diagnostic &#8594;</span>
             </a>
           </article>
@@ -794,11 +1076,13 @@
               </div>
               <h3 class="tool-title">Operational Systems Snapshot</h3>
               <p class="tool-subline">Process load · reporting · overhead</p>
-              <p class="tool-text">Surface recurring administrative burden, process density, and non-value-adding overhead across a selected workflow or environment.</p>
+              <p class="tool-text">
+                Surface recurring administrative burden, process density, and non-value-adding overhead across a selected workflow or environment.
+              </p>
               <p class="tool-meta-label">Best when</p>
-              <p class="tool-meta">The issue feels like too much process, too much reporting, or too much coordination.</p>
-              <div class="tool-repeat"><strong>Use again when:</strong> new reporting layers appear, workload feels heavier, or capacity continues to disappear.</div>
-              <div class="paired-with"><strong>Pairs well with:</strong> Institutional Performance Snapshot</div>
+              <p class="tool-meta">
+                The issue feels like too much process, too much reporting, or too much coordination.
+              </p>
               <span class="tool-open">Open diagnostic &#8594;</span>
             </a>
           </article>
@@ -810,59 +1094,46 @@
               </div>
               <h3 class="tool-title">Institutional Performance Snapshot</h3>
               <p class="tool-subline">System health · adaptation · reliability</p>
-              <p class="tool-text">Estimate how well an institution is converting structure into sustained performance across execution, resilience, and institutional confidence.</p>
+              <p class="tool-text">
+                Estimate how well an institution is converting structure into sustained performance across execution, resilience, and institutional confidence.
+              </p>
               <p class="tool-meta-label">Best when</p>
-              <p class="tool-meta">The issue feels broader than one workflow and the system itself may be weakening.</p>
-              <div class="tool-repeat"><strong>Use again when:</strong> performance dips, adaptation slows, or leaders suspect the system is losing maneuverability.</div>
-              <div class="paired-with"><strong>Pairs well with:</strong> Cross-Tool Synthesis</div>
+              <p class="tool-meta">
+                The issue feels broader than one workflow and the system itself may be weakening.
+              </p>
               <span class="tool-open">Open diagnostic &#8594;</span>
             </a>
           </article>
         </div>
       </section>
 
-      <section class="rerun-wrap">
-        <div class="section-label">When to Return</div>
-        <h3>These are the moments when repeated use matters most.</h3>
+      <section class="panel">
+        <h3>How repeated use creates value</h3>
         <p>
-          The suite should not just be revisited on a schedule. It should be revisited when the institution changes, when strain becomes visible, or when leaders need to know whether conditions are actually improving.
+          The suite becomes more useful when it is used as part of a management cadence rather than a one-time event.
         </p>
 
-        <div class="rerun-grid">
-          <div class="rerun-card">
-            <p class="rerun-kicker">Organizational change</p>
-            <h4 class="rerun-title">After reorganization or role movement</h4>
-            <p class="rerun-text">Rerun after restructures, leadership turnover, or major ownership shifts to see whether clarity and coordination improved or degraded.</p>
+        <div class="split-grid">
+          <div class="card">
+            <p class="card-kicker">Baseline</p>
+            <h4 class="card-title">Establish a reference point</h4>
+            <p class="card-text">A first run captures the condition as it exists now rather than relying on impression, memory, or anecdote.</p>
           </div>
-          <div class="rerun-card">
-            <p class="rerun-kicker">Process change</p>
-            <h4 class="rerun-title">After a redesign, policy shift, or new system</h4>
-            <p class="rerun-text">Use repeat reads after formal interventions to determine whether time, money, and productive capacity are actually being reclaimed.</p>
-          </div>
-          <div class="rerun-card">
-            <p class="rerun-kicker">Visible strain</p>
-            <h4 class="rerun-title">After slowdown, frustration, or performance dip</h4>
-            <p class="rerun-text">When the system feels heavier, slower, or less maneuverable, rerun to test whether the condition is transient or structurally compounding.</p>
+
+          <div class="card">
+            <p class="card-kicker">Repeatability</p>
+            <h4 class="card-title">Return after change</h4>
+            <p class="card-text">Rerun after redesign, turnover, new controls, or visible strain to see whether structural conditions are actually shifting.</p>
           </div>
         </div>
-
-        <p class="rerun-note">Repeated use is how a bounded snapshot becomes a clearer read on institutional movement.</p>
       </section>
 
-      <div class="section-connector" aria-hidden="true">
-        <span class="section-connector-line"></span>
-        <span class="section-connector-circle"></span>
-      </div>
-
-      <section class="synthesis-bridge" aria-labelledby="synthesis-bridge-title">
-        <div class="synthesis-bridge-copy">
+      <section class="bridge" aria-labelledby="synthesis-bridge-title">
+        <div class="bridge-copy">
           <div class="section-label">Cross-Tool Synthesis</div>
-          <h3 id="synthesis-bridge-title">Combine completed diagnostics into one synthesis view.</h3>
+          <h3 id="synthesis-bridge-title">Bring multiple diagnostics into one clearer read.</h3>
           <p>
-            The suite becomes most powerful when separate diagnostic runs begin to function as a cumulative visibility layer. Once you have completed two or more diagnostics, move into synthesis to combine saved outputs into a broader Monderman readout.
-          </p>
-          <p class="synthesis-bridge-note">
-            This is where individual snapshots begin to form a more durable organizational signal.
+            Once you have completed two or more diagnostics, use the synthesis layer to combine outputs into a broader Monderman readout.
           </p>
         </div>
 
@@ -871,12 +1142,12 @@
         </a>
       </section>
 
-      <section class="advisory-bridge" aria-labelledby="advisory-bridge-title">
-        <div class="advisory-bridge-copy">
+      <section class="bridge" aria-labelledby="advisory-bridge-title">
+        <div class="bridge-copy">
           <div class="section-label">Advisory Engagements</div>
           <h3 id="advisory-bridge-title">Need a deeper structural review?</h3>
           <p>
-            The diagnostic suite is designed to clarify the shape, severity, and direction of organizational conditions. When repeated signals suggest broader structural problems, Monderman’s advisory work provides a deeper review of governance, workflow design, bureaucratic burden, institutional performance, and how reclaimed time, money, and productive capacity can be redirected toward stronger execution.
+            When repeated signals suggest broader structural problems, Monderman’s advisory work goes deeper on governance, workflow design, bureaucratic burden, and institutional performance.
           </p>
         </div>
 
@@ -886,7 +1157,7 @@
       </section>
 
       <p class="footer-copy-top">
-        This page is designed as a premium hub for selecting the right diagnostic, establishing an initial baseline, and building toward ongoing organizational visibility. Open the live tools above to begin with a bounded read, then return, compare, and synthesize as the system changes—or fails to change.
+        The Monderman Diagnostic Suite is built to support clearer entry, stronger interpretation, and more disciplined return as organizational conditions evolve.
       </p>
     </div>
   </main>
@@ -927,11 +1198,16 @@
 
   <script>
     const header = document.getElementById("siteHeader");
+
     function updateHeader() {
       if (!header) return;
-      if (window.scrollY > 12) header.classList.add("scrolled");
-      else header.classList.remove("scrolled");
+      if (window.scrollY > 12) {
+        header.classList.add("scrolled");
+      } else {
+        header.classList.remove("scrolled");
+      }
     }
+
     updateHeader();
     window.addEventListener("scroll", updateHeader, { passive: true });
   </script>
