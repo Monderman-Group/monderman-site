@@ -369,7 +369,8 @@
     .panel h3,
     .tool-launch-head h3,
     .advisory-bridge h3,
-    .synthesis-bridge h3 {
+    .synthesis-bridge h3,
+    .value-grid-wrap h3 {
       margin:0 0 16px;
       font-size:clamp(1.95rem,2.45vw,2.35rem);
       line-height:1.12;
@@ -382,7 +383,8 @@
     .panel p,
     .tool-launch-head p,
     .advisory-bridge p,
-    .synthesis-bridge p {
+    .synthesis-bridge p,
+    .value-grid-wrap p {
       margin:0;
       font-size:1.04rem;
       line-height:1.7;
@@ -406,14 +408,16 @@
     .panel,
     .tool-launch-head,
     .advisory-bridge,
-    .synthesis-bridge {
+    .synthesis-bridge,
+    .value-grid-wrap {
       background:rgba(255,255,255,.98);
       border:1px solid rgba(21,32,43,.06);
       border-radius:var(--panel-radius);
       box-shadow:0 1px 0 rgba(0,0,0,.012),0 10px 26px rgba(0,0,0,.03);
     }
 
-    .panel {
+    .panel,
+    .value-grid-wrap {
       padding:32px 30px 28px;
       margin-bottom:18px;
       scroll-margin-top:88px;
@@ -425,9 +429,11 @@
       padding:34px 32px 30px;
     }
 
-    .panel h3 { margin-bottom:14px; }
+    .panel h3,
+    .value-grid-wrap h3 { margin-bottom:14px; }
 
-    .use-grid {
+    .use-grid,
+    .value-grid {
       display:grid;
       grid-template-columns:repeat(3, minmax(0,1fr));
       gap:20px;
@@ -435,7 +441,8 @@
     }
 
     .use-card,
-    .tool-card {
+    .tool-card,
+    .value-card {
       position:relative;
       background:#FFF;
       border:1px solid rgba(21,32,43,.06);
@@ -446,7 +453,8 @@
     }
 
     .use-card::before,
-    .tool-card::before {
+    .tool-card::before,
+    .value-card::before {
       content:"";
       position:absolute;
       inset:0 0 auto 0;
@@ -458,18 +466,24 @@
     }
 
     .use-card:hover,
-    .tool-card:hover {
+    .tool-card:hover,
+    .value-card:hover {
       transform:translateY(-4px);
       border-color:rgba(63,110,161,.14);
       box-shadow:0 1px 0 rgba(0,0,0,.012),0 10px 24px rgba(0,0,0,.04),0 18px 30px rgba(0,0,0,.03);
     }
 
     .use-card:hover::before,
-    .tool-card:hover::before { transform:scaleX(1); }
+    .tool-card:hover::before,
+    .value-card:hover::before {
+      transform:scaleX(1);
+    }
 
-    .use-card { padding:24px 22px 22px; }
+    .use-card,
+    .value-card { padding:24px 22px 22px; }
 
-    .use-step {
+    .use-step,
+    .value-kicker {
       margin:0 0 10px;
       font-size:.74rem;
       font-weight:700;
@@ -478,7 +492,8 @@
       color:var(--accent);
     }
 
-    .use-title {
+    .use-title,
+    .value-title {
       margin:0 0 8px;
       font-size:1rem;
       line-height:1.24;
@@ -486,7 +501,8 @@
       color:var(--text-dark);
     }
 
-    .use-text {
+    .use-text,
+    .value-text {
       margin:0;
       font-size:.92rem;
       line-height:1.62;
@@ -569,18 +585,21 @@
 
     .tool-launch-head .section-label,
     .advisory-bridge .section-label,
-    .synthesis-bridge .section-label {
+    .synthesis-bridge .section-label,
+    .value-grid-wrap .section-label {
       margin-bottom:12px;
     }
 
     .tool-launch-head .section-label::before,
     .advisory-bridge .section-label::before,
-    .synthesis-bridge .section-label::before {
+    .synthesis-bridge .section-label::before,
+    .value-grid-wrap .section-label::before {
       margin-bottom:12px;
     }
 
     .tool-launch-note,
-    .synthesis-bridge-note {
+    .synthesis-bridge-note,
+    .value-grid-note {
       margin-top:12px;
       font-size:.92rem;
       line-height:1.64;
@@ -855,7 +874,7 @@
     @media (max-width:1180px) {
       .tools-grid { grid-template-columns:repeat(2, minmax(0,1fr)); }
       .head { grid-template-columns:1fr; }
-      .use-grid { grid-template-columns:1fr; }
+      .use-grid, .value-grid { grid-template-columns:1fr; }
       .advisory-bridge,
       .synthesis-bridge { grid-template-columns:1fr; align-items:start; }
     }
@@ -912,7 +931,8 @@
       .panel,
       .tool-launch-head,
       .advisory-bridge,
-      .synthesis-bridge {
+      .synthesis-bridge,
+      .value-grid-wrap {
         padding:24px 20px 22px;
       }
       .section-connector { margin:14px 0 24px; }
@@ -1017,6 +1037,37 @@
         <span class="section-connector-circle"></span>
       </div>
 
+      <section class="value-grid-wrap">
+        <div class="section-label">Why It Becomes More Valuable Over Time</div>
+        <h3>This suite is designed to become more useful with repeated use.</h3>
+        <p>One diagnostic gives you a directional read. Repeated diagnostics give you pattern recognition, comparative perspective, and a better sense of whether structural conditions are actually changing or just being discussed.</p>
+
+        <div class="value-grid">
+          <div class="value-card">
+            <p class="value-kicker">Baseline</p>
+            <h4 class="value-title">Establish a reference point</h4>
+            <p class="value-text">Run a bounded diagnostic now to capture the condition as it exists today rather than relying on impression, memory, or anecdote.</p>
+          </div>
+          <div class="value-card">
+            <p class="value-kicker">Comparison</p>
+            <h4 class="value-title">Compare perspectives</h4>
+            <p class="value-text">Use the suite across teams, functions, or leadership layers to see whether the same system is being experienced differently across the institution.</p>
+          </div>
+          <div class="value-card">
+            <p class="value-kicker">Movement</p>
+            <h4 class="value-title">Track whether conditions shift</h4>
+            <p class="value-text">Return after process changes, reorganizations, leadership turnover, or other interventions to see whether friction is easing, holding, or compounding.</p>
+          </div>
+        </div>
+
+        <p class="value-grid-note">The goal is not just to diagnose a moment. It is to keep a clearer finger on the pulse of how the institution is functioning over time.</p>
+      </section>
+
+      <div class="section-connector" aria-hidden="true">
+        <span class="section-connector-line"></span>
+        <span class="section-connector-circle"></span>
+      </div>
+
       <section class="tool-selector panel">
         <h3>Start with the symptom you can already see.</h3>
         <p>
@@ -1094,13 +1145,9 @@
               </div>
               <h3 class="tool-title">Structural Clarity Snapshot</h3>
               <p class="tool-subline">Roles · ownership · handoffs</p>
-              <p class="tool-text">
-                Assess whether ownership, authority, and review logic are clear enough for one bounded workflow or operating slice.
-              </p>
+              <p class="tool-text">Assess whether ownership, authority, and review logic are clear enough for one bounded workflow or operating slice.</p>
               <p class="tool-meta-label">Best when</p>
-              <p class="tool-meta">
-                The issue feels like ambiguity, duplication, confusion, or execution drift.
-              </p>
+              <p class="tool-meta">The issue feels like ambiguity, duplication, confusion, or execution drift.</p>
               <span class="tool-open">Open diagnostic &#8594;</span>
             </a>
           </article>
@@ -1112,13 +1159,9 @@
               </div>
               <h3 class="tool-title">Decision Velocity Snapshot</h3>
               <p class="tool-subline">Approvals · escalation · delay</p>
-              <p class="tool-text">
-                Diagnose where approvals, escalation patterns, and routing complexity are slowing movement through important decisions.
-              </p>
+              <p class="tool-text">Diagnose where approvals, escalation patterns, and routing complexity are slowing movement through important decisions.</p>
               <p class="tool-meta-label">Best when</p>
-              <p class="tool-meta">
-                The issue feels like slowness, delay, stalled action, or approval drag.
-              </p>
+              <p class="tool-meta">The issue feels like slowness, delay, stalled action, or approval drag.</p>
               <span class="tool-open">Open diagnostic &#8594;</span>
             </a>
           </article>
@@ -1130,13 +1173,9 @@
               </div>
               <h3 class="tool-title">Operational Systems Snapshot</h3>
               <p class="tool-subline">Process load · reporting · overhead</p>
-              <p class="tool-text">
-                Surface recurring administrative burden, process density, and non-value-adding overhead across a selected workflow or environment.
-              </p>
+              <p class="tool-text">Surface recurring administrative burden, process density, and non-value-adding overhead across a selected workflow or environment.</p>
               <p class="tool-meta-label">Best when</p>
-              <p class="tool-meta">
-                The issue feels like too much process, too much reporting, or too much coordination.
-              </p>
+              <p class="tool-meta">The issue feels like too much process, too much reporting, or too much coordination.</p>
               <span class="tool-open">Open diagnostic &#8594;</span>
             </a>
           </article>
@@ -1148,13 +1187,9 @@
               </div>
               <h3 class="tool-title">Institutional Performance Snapshot</h3>
               <p class="tool-subline">System health · adaptation · reliability</p>
-              <p class="tool-text">
-                Estimate how well an institution is converting structure into sustained performance across execution, resilience, and institutional confidence.
-              </p>
+              <p class="tool-text">Estimate how well an institution is converting structure into sustained performance across execution, resilience, and institutional confidence.</p>
               <p class="tool-meta-label">Best when</p>
-              <p class="tool-meta">
-                The issue feels broader than one workflow and the system itself may be weakening.
-              </p>
+              <p class="tool-meta">The issue feels broader than one workflow and the system itself may be weakening.</p>
               <span class="tool-open">Open diagnostic &#8594;</span>
             </a>
           </article>
