@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Monderman</title>
+  <title>Diagnostic Tools | Monderman</title>
 
   <link
     rel="icon"
@@ -15,8 +15,6 @@
       <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
     </svg>'
   />
-
-  <link rel="preload" as="image" href="Decision Velocity.jpg" />
 
   <style>
     @font-face {
@@ -42,1181 +40,955 @@
     }
 
     :root {
-      --accent: #3F6EA1;
-      --accent-dark: #2F5886;
-      --accent-light: #76A5D3;
-      --bg-dark: #0F1720;
-      --bg-dark-2: #111B25;
-      --bg-hero-fallback: #121922;
-      --bg-offwhite: #F6F7F8;
-      --bg-white: #FFFFFF;
-      --text-light: #F5F7FA;
-      --muted-light: rgba(245,247,250,0.82);
-      --text-dark: #15202B;
-      --muted-dark: #556270;
-      --muted-dark-2: #7A8794;
-      --line-dark: #E3E7EB;
-      --header-solid: rgba(14,20,28,0.87);
-      --header-border: rgba(255,255,255,0.08);
-      --max: 1320px;
-      --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
-      --transition-slow: 420ms cubic-bezier(0.22, 1, 0.36, 1);
-      --rail-gap: 18px;
-      --soft-shadow: 0 1px 0 rgba(0,0,0,0.012);
-      --reveal-distance: 10px;
-      --panel-radius: 18px;
-      --card-radius: 16px;
-      --snap-offset: 72px;
-      --snap-landing-offset: 10px;
+      --accent:#3F6EA1;
+      --accent-dark:#2F5886;
+      --accent-soft:rgba(63,110,161,.08);
+      --gold:#B28D3C;
+      --gold-soft:rgba(178,141,60,.12);
+      --bg-dark:#0F1720;
+      --bg-dark-2:#121A23;
+      --bg-offwhite:#F6F7F8;
+      --text-light:#F5F7FA;
+      --muted-light:rgba(245,247,250,.82);
+      --muted-light-2:rgba(245,247,250,.60);
+      --text-dark:#15202B;
+      --muted-dark:#556270;
+      --muted-dark-2:#7A8794;
+      --line-soft:rgba(21,32,43,.06);
+      --header-solid:rgba(14,20,28,.87);
+      --header-border:rgba(255,255,255,.08);
+      --max:1320px;
+      --transition:220ms cubic-bezier(.22,1,.36,1);
+      --transition-slow:420ms cubic-bezier(.22,1,.36,1);
+      --panel-radius:18px;
+      --card-radius:16px;
+      --shadow-soft:0 1px 0 rgba(0,0,0,.012), 0 10px 26px rgba(0,0,0,.03);
+      --shadow-card:0 1px 0 rgba(0,0,0,.012), 0 14px 28px rgba(0,0,0,.035);
     }
 
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; scroll-padding-top: var(--snap-offset); }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; scroll-padding-top:72px; }
+
     body {
-      margin: 0;
-      background: var(--bg-dark);
-      color: var(--text-light);
-      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-weight: 400;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      text-rendering: optimizeLegibility;
+      margin:0;
+      background:var(--bg-dark);
+      color:var(--text-light);
+      font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
+      font-weight:400;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      text-rendering:optimizeLegibility;
     }
 
-    a { color: inherit; text-decoration: none; }
-    img { max-width: 100%; display: block; }
-    h1, h2, h3 { letter-spacing: -0.048em; }
-    p { letter-spacing: -0.01em; }
-    :focus-visible {
-      outline: 2px solid rgba(118,165,211,0.95);
-      outline-offset: 3px;
+    html, body, button, input, textarea, select, option, a, p, li, dt, dd, span, small, strong, em, label, figcaption, blockquote, cite, div, section, article, nav, header, footer, main, h1, h2, h3, h4 {
+      font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
     }
 
-    .snap-anchor {
-      scroll-margin-top: 0;
-    }
-
-    .reveal {
-      opacity: 0;
-      transform: translateY(var(--reveal-distance));
-      transition: opacity 820ms cubic-bezier(0.22,1,0.36,1), transform 820ms cubic-bezier(0.22,1,0.36,1);
-      will-change: opacity, transform;
-    }
-    .reveal.is-visible { opacity: 1; transform: translateY(0); }
-    .reveal-delay-1 { transition-delay: 90ms; }
-    .reveal-delay-2 { transition-delay: 180ms; }
-    .reveal-delay-3 { transition-delay: 270ms; }
-    .reveal-delay-4 { transition-delay: 360ms; }
+    h1, h2, h3, h4 { letter-spacing:-0.048em; }
+    p, li { letter-spacing:-0.01em; }
+    a { color:inherit; text-decoration:none; }
 
     .header {
-      position: fixed;
-      inset: 0 0 auto 0;
-      width: 100%;
-      height: 72px;
-      z-index: 100;
-      background: transparent;
-      border-bottom: 1px solid transparent;
-      transition: background var(--transition), border-color var(--transition), backdrop-filter var(--transition), -webkit-backdrop-filter var(--transition);
+      position:fixed;
+      inset:0 0 auto 0;
+      width:100%;
+      height:72px;
+      z-index:100;
+      background:transparent;
+      border-bottom:1px solid transparent;
+      transition:background var(--transition), border-color var(--transition), backdrop-filter var(--transition), -webkit-backdrop-filter var(--transition);
     }
     .header.scrolled {
-      background: var(--header-solid);
-      border-bottom-color: var(--header-border);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background:var(--header-solid);
+      border-bottom-color:var(--header-border);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
     }
     .header-inner {
-      max-width: var(--max);
-      height: 100%;
-      margin: 0 auto;
-      padding: 0 34px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
+      max-width:var(--max);
+      height:100%;
+      margin:0 auto;
+      padding:0 34px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:24px;
     }
     .brand {
-      display: inline-flex;
-      align-items: center;
-      font-size: 1.32rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: #FFFFFF;
-      white-space: nowrap;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.16);
+      display:inline-flex;
+      align-items:center;
+      font-size:1.32rem;
+      font-weight:700;
+      letter-spacing:-0.02em;
+      color:#FFFFFF;
+      white-space:nowrap;
+      text-shadow:0 1px 2px rgba(0,0,0,.16);
     }
     .brand::after {
-      content: "";
-      width: 6px;
-      height: 6px;
-      margin-left: 10px;
-      background: var(--accent);
-      border-radius: 1px;
-      display: inline-block;
-      transform: translateY(-1px);
+      content:"";
+      width:6px;
+      height:6px;
+      margin-left:10px;
+      background:var(--accent);
+      border-radius:1px;
+      display:inline-block;
+      transform:translateY(-1px);
     }
     .nav {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
+      display:flex;
+      align-items:center;
+      gap:28px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
     }
     .nav a {
-      position: relative;
-      font-size: 0.98rem;
-      font-weight: 500;
-      letter-spacing: 0.012em;
-      color: rgba(255,255,255,0.88);
-      transition: color var(--transition), transform var(--transition), opacity var(--transition);
+      position:relative;
+      font-size:1rem;
+      font-weight:500;
+      letter-spacing:.012em;
+      color:rgba(255,255,255,.88);
+      transition:color var(--transition), transform var(--transition);
     }
     .nav a::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: -6px;
-      width: 100%;
-      height: 1px;
-      background: rgba(255,255,255,0.74);
-      transform: scaleX(0);
-      transform-origin: left center;
-      transition: transform 180ms ease;
+      content:"";
+      position:absolute;
+      left:0;
+      bottom:-6px;
+      width:100%;
+      height:1px;
+      background:rgba(255,255,255,.74);
+      transform:scaleX(0);
+      transform-origin:left center;
+      transition:transform 180ms ease;
     }
     .nav a:hover,
-    .nav a:focus-visible { color: #FFFFFF; transform: translateY(-1px); outline: none; }
+    .nav a:focus-visible,
+    .nav a.is-active {
+      color:#FFFFFF;
+      transform:translateY(-1px);
+      outline:none;
+    }
     .nav a:hover::after,
-    .nav a:focus-visible::after { transform: scaleX(1); }
+    .nav a:focus-visible::after,
+    .nav a.is-active::after {
+      transform:scaleX(1);
+    }
 
     .hero {
-      position: relative;
-      min-height: 100vh;
-      overflow: hidden;
-      background: var(--bg-hero-fallback);
+      position:relative;
+      min-height:82vh;
+      overflow:hidden;
+      background:var(--bg-dark-2);
     }
-    .hero-media-wrap {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      overflow: hidden;
-    }
-    .hero-image {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: 79% 50%;
-      opacity: 0;
-      transform: scale(1.01);
-      transition: opacity 720ms cubic-bezier(0.22,1,0.36,1), transform 1800ms cubic-bezier(0.22,1,0.36,1);
-      will-change: transform, opacity;
-    }
-    .hero-image.is-loaded { opacity: 0.9; }
-    .hero-overlay {
-      position: absolute;
-      inset: 0;
+    .hero::before {
+      content:"";
+      position:absolute;
+      inset:0;
       background:
-        linear-gradient(90deg, rgba(10,14,20,0.975) 0%, rgba(10,14,20,0.92) 30%, rgba(10,14,20,0.68) 54%, rgba(10,14,20,0.34) 76%, rgba(10,14,20,0.14) 100%),
-        linear-gradient(180deg, rgba(10,14,20,0.18) 0%, rgba(10,14,20,0.08) 34%, rgba(10,14,20,0.24) 100%);
+        radial-gradient(circle at 78% 18%, rgba(63,110,161,.18) 0%, rgba(63,110,161,.08) 18%, transparent 34%),
+        linear-gradient(90deg, rgba(10,14,20,.93) 0%, rgba(10,14,20,.80) 30%, rgba(10,14,20,.54) 56%, rgba(10,14,20,.20) 100%);
+      pointer-events:none;
+      z-index:0;
     }
     .hero::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 1;
+      content:"";
+      position:absolute;
+      inset:0;
       background:
-        radial-gradient(circle at 82% 18%, rgba(63,110,161,0.12) 0%, rgba(63,110,161,0.05) 18%, transparent 34%),
-        linear-gradient(180deg, rgba(7,10,16,0.06) 0%, rgba(7,10,16,0.26) 100%);
+        linear-gradient(180deg, rgba(10,14,20,.10) 0%, rgba(10,14,20,.18) 100%),
+        linear-gradient(135deg, rgba(63,110,161,.022) 1px, transparent 1px);
+      background-size:auto, 34px 34px;
+      opacity:.5;
+      pointer-events:none;
+      z-index:0;
     }
     .hero-inner {
-      position: relative;
-      z-index: 2;
-      max-width: var(--max);
-      min-height: 100vh;
-      margin: 0 auto;
-      padding: 136px 34px 104px;
-      display: flex;
-      align-items: center;
+      position:relative;
+      z-index:1;
+      max-width:var(--max);
+      min-height:82vh;
+      margin:0 auto;
+      padding:138px 34px 92px;
+      display:flex;
+      align-items:center;
     }
-    .hero-copy { max-width: 940px; }
-
-    .hero-eyebrow,
-    .hero h1,
-    .hero p,
-    .hero-actions {
-      opacity: 0;
-      transform: translateY(16px);
-      animation: heroFadeUp 900ms cubic-bezier(0.22,1,0.36,1) forwards;
-      will-change: transform, opacity;
-    }
+    .hero-copy { max-width:940px; }
     .hero-eyebrow {
-      display: block;
-      margin: 0 0 34px;
-      padding-left: 1px;
-      font-size: 0.78rem;
-      line-height: 1;
-      letter-spacing: 0.22em;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: rgba(245,247,250,0.64);
-      animation-delay: 340ms;
+      display:block;
+      margin:0 0 12px;
+      padding-left:1px;
+      font-size:.78rem;
+      line-height:1;
+      letter-spacing:.22em;
+      font-weight:700;
+      text-transform:uppercase;
+      color:rgba(245,247,250,.64);
+    }
+    .hero-subeyebrow {
+      margin:0 0 30px;
+      font-size:.94rem;
+      line-height:1.5;
+      color:rgba(245,247,250,.76);
     }
     .hero h1 {
-      margin: 0 0 16px;
-      max-width: 12.6ch;
-      font-size: clamp(3rem, 4.3vw, 4.45rem);
-      line-height: 0.95;
-      font-weight: 700;
-      color: #FFFFFF;
-      text-wrap: balance;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.16);
-      animation-delay: 480ms;
+      margin:0 0 20px;
+      max-width:12.6ch;
+      font-size:clamp(3rem,4.45vw,4.78rem);
+      line-height:.94;
+      font-weight:700;
+      color:#FFFFFF;
+      text-wrap:balance;
+      text-shadow:0 1px 2px rgba(0,0,0,.16);
     }
     .hero-dek {
-      max-width: 38ch;
-      margin: 0;
-      font-size: clamp(1.12rem, 1.5vw, 1.22rem);
-      line-height: 1.6;
-      letter-spacing: -0.014em;
-      color: var(--muted-light);
-      text-shadow: 0 1px 2px rgba(0,0,0,0.12);
-      animation-delay: 640ms;
-      text-wrap: balance;
+      max-width:47ch;
+      margin:0;
+      font-size:clamp(1.1rem,1.46vw,1.2rem);
+      line-height:1.62;
+      letter-spacing:-0.014em;
+      color:var(--muted-light);
+      text-shadow:0 1px 2px rgba(0,0,0,.12);
+      text-wrap:balance;
     }
     .hero-actions {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 30px;
-      animation-delay: 820ms;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:30px;
     }
-    .hero-signal {
-      margin: 18px 0 0;
-      max-width: 48ch;
-      font-size: 0.82rem;
-      line-height: 1.55;
-      letter-spacing: 0.015em;
-      color: rgba(245,247,250,0.76);
-      opacity: 0;
-      transform: translateY(16px);
-      animation: heroFadeUp 900ms cubic-bezier(0.22,1,0.36,1) forwards;
-      animation-delay: 940ms;
+    .hero-rail {
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      gap:12px;
+      margin-top:34px;
+      max-width:1000px;
     }
-    @keyframes heroFadeUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: translateY(0); }
+    .hero-rail-item {
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+      padding:14px 14px 12px;
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
+      min-height:96px;
+    }
+    .hero-rail-label {
+      margin:0 0 6px;
+      font-size:.70rem;
+      font-weight:700;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:rgba(245,247,250,.56);
+    }
+    .hero-rail-value {
+      margin:0 0 4px;
+      font-size:1rem;
+      font-weight:700;
+      color:#FFFFFF;
+      line-height:1.2;
+    }
+    .hero-rail-copy {
+      margin:0;
+      font-size:.84rem;
+      line-height:1.46;
+      color:rgba(245,247,250,.74);
     }
 
     .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 48px;
-      min-width: 164px;
-      padding: 0 21px;
-      border-radius: 999px;
-      font-size: 0.94rem;
-      font-weight: 500;
-      letter-spacing: -0.012em;
-      white-space: nowrap;
-      background: rgba(255,255,255,0.98);
-      color: var(--accent);
-      border: 1.25px solid rgba(63,110,161,0.9);
-      box-shadow: 0 8px 18px rgba(0,0,0,0.042), 0 0 0 1px rgba(255,255,255,0.08);
-      transition: background 180ms cubic-bezier(0.22,1,0.36,1), color 180ms cubic-bezier(0.22,1,0.36,1), border-color 180ms cubic-bezier(0.22,1,0.36,1), transform 180ms cubic-bezier(0.22,1,0.36,1), box-shadow 180ms cubic-bezier(0.22,1,0.36,1);
-      cursor: pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      min-width:168px;
+      padding:0 24px;
+      border-radius:999px;
+      font-size:.97rem;
+      font-weight:500;
+      letter-spacing:-0.012em;
+      white-space:nowrap;
+      background:rgba(255,255,255,.98);
+      color:var(--accent);
+      border:1.25px solid rgba(63,110,161,.9);
+      box-shadow:0 8px 20px rgba(0,0,0,.045), 0 0 0 1px rgba(255,255,255,.08);
+      transition:background 180ms cubic-bezier(.22,1,.36,1), color 180ms cubic-bezier(.22,1,.36,1), border-color 180ms cubic-bezier(.22,1,.36,1), transform 180ms cubic-bezier(.22,1,.36,1), box-shadow 180ms cubic-bezier(.22,1,.36,1);
+      cursor:pointer;
     }
     .btn:hover,
     .btn:focus-visible {
-      background: #FFFFFF;
-      color: var(--accent-dark);
-      border-color: var(--accent-dark);
-      transform: translateY(-1px);
-      box-shadow: 0 12px 24px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,255,255,0.10);
-      outline: none;
+      background:#FFFFFF;
+      color:var(--accent-dark);
+      border-color:var(--accent-dark);
+      transform:translateY(-1px);
+      box-shadow:0 12px 24px rgba(0,0,0,.06), 0 0 0 1px rgba(255,255,255,.10);
+      outline:none;
     }
     .btn-secondary {
-      background: rgba(255,255,255,0.98);
-      color: var(--accent);
-      border: 1.25px solid rgba(63,110,161,0.9);
+      background:rgba(255,255,255,.98);
+      color:var(--accent);
+      border:1.25px solid rgba(63,110,161,.9);
     }
     .btn-accent {
-      background: var(--accent-dark);
-      color: #FFFFFF;
-      border: 1.25px solid rgba(63,110,161,0.28);
-      box-shadow: 0 10px 24px rgba(63,110,161,0.22), 0 0 0 1px rgba(255,255,255,0.05);
+      background:var(--accent);
+      color:#FFFFFF;
+      border:1.25px solid rgba(63,110,161,.28);
+      box-shadow:0 10px 24px rgba(63,110,161,.22), 0 0 0 1px rgba(255,255,255,.05);
     }
     .btn-accent:hover,
     .btn-accent:focus-visible {
-      background: var(--accent-dark);
-      color: #FFFFFF;
+      background:var(--accent-dark);
+      color:#FFFFFF;
+      border-color:rgba(47,88,134,.42);
+      box-shadow:0 12px 26px rgba(47,88,134,.26), 0 0 0 1px rgba(255,255,255,.08);
     }
 
-    .section-with-bar {
-      position: relative;
+    .page {
+      position:relative;
+      background:var(--bg-offwhite);
+      padding:94px 34px 92px;
+      color:var(--text-dark);
+      overflow:hidden;
+      border-top:1px solid rgba(21,32,43,.04);
     }
-
-    .section-with-bar .section-bar {
-      position: absolute;
-      top: 26px;
-      left: 34px;
-      z-index: 2;
-      margin: 0;
-      padding: 0;
-      background: transparent;
-      color: rgba(21,32,43,0.48);
-      font-size: 0.68rem;
-      line-height: 1;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      box-shadow: none;
-      pointer-events: none;
-    }
-
-    .section-intro h2 {
-      margin: 0 0 16px;
-      max-width: 760px;
-      font-size: clamp(1.95rem, 2.45vw, 2.35rem);
-      line-height: 1.12;
-      font-weight: 700;
-      color: var(--text-dark);
-      text-wrap: balance;
-    }
-    .section-intro p {
-      margin: 0;
-      max-width: 58ch;
-      font-size: 1.04rem;
-      line-height: 1.7;
-      color: var(--muted-dark);
-    }
-
-
-    .bureaucracy-cost,
-    .diagnostic-estimate {
-      position: relative;
+    .page::before {
+      content:"";
+      position:absolute;
+      inset:0;
       background:
-        linear-gradient(rgba(247,248,249,0.97), rgba(247,248,249,0.97)),
-        linear-gradient(90deg, rgba(63,110,161,0.02) 1px, transparent 1px),
-        linear-gradient(rgba(63,110,161,0.02) 1px, transparent 1px);
-      background-size: auto, 28px 28px, 28px 28px;
-      border-top: 1px solid #E7EBEF;
-      border-bottom: 1px solid #E7EBEF;
-      color: var(--text-dark);
-      overflow: hidden;
+        linear-gradient(rgba(247,248,249,.97), rgba(247,248,249,.97)),
+        linear-gradient(90deg, rgba(63,110,161,.018) 1px, transparent 1px),
+        linear-gradient(rgba(63,110,161,.018) 1px, transparent 1px);
+      background-size:auto, 28px 28px, 28px 28px;
+      pointer-events:none;
     }
-    .bureaucracy-cost { padding: 84px 34px 100px; }
-    .diagnostic-estimate { padding: 78px 34px 92px; }
-    .bureaucracy-cost::before,
-    .diagnostic-estimate::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at 85% 20%, rgba(63,110,161,0.04), transparent 34%);
-      pointer-events: none;
+    .page-inner {
+      position:relative;
+      z-index:1;
+      max-width:var(--max);
+      margin:0 auto;
     }
 
-    .cost-inner,
-    .diagnostic-estimate-inner,
-    .approach-inner,
-    .latest-inner,
-    .connect-inner,
-    .footer-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-      position: relative;
-      z-index: 1;
+    .head {
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 360px;
+      gap:52px;
+      align-items:end;
+      margin-bottom:42px;
+    }
+    .section-label {
+      margin-bottom:16px;
+      font-size:.78rem;
+      font-weight:700;
+      letter-spacing:.22em;
+      text-transform:uppercase;
+      color:var(--accent);
+    }
+    .section-label::before {
+      content:"";
+      display:block;
+      width:48px;
+      height:2px;
+      background:var(--accent);
+      margin-bottom:14px;
+    }
+    .head h2,
+    .panel h3,
+    .tools-head h3,
+    .bridge h3 {
+      margin:0 0 16px;
+      font-size:clamp(2rem,2.45vw,2.4rem);
+      line-height:1.12;
+      font-weight:700;
+      color:var(--text-dark);
+      text-wrap:balance;
+    }
+    .head p,
+    .panel p,
+    .tools-head p,
+    .bridge p {
+      margin:0;
+      font-size:1.04rem;
+      line-height:1.7;
+      color:var(--muted-dark);
+    }
+    .note {
+      margin:0;
+      font-size:.90rem;
+      line-height:1.64;
+      color:var(--muted-dark-2);
+      padding:22px;
+      background:rgba(255,255,255,.94);
+      border:1px solid var(--line-soft);
+      border-radius:var(--panel-radius);
+      box-shadow:var(--shadow-soft);
+    }
+    .note strong { color:var(--text-dark); }
+
+    .panel,
+    .tools-head,
+    .bridge {
+      background:rgba(255,255,255,.98);
+      border:1px solid var(--line-soft);
+      border-radius:var(--panel-radius);
+      box-shadow:var(--shadow-soft);
+    }
+    .panel,
+    .tools-head {
+      padding:32px 30px 28px;
+      margin-bottom:18px;
+      scroll-margin-top:88px;
+    }
+    .bridge {
+      padding:34px 32px 30px;
+      margin-bottom:18px;
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:28px;
+      align-items:center;
     }
 
-    .cost-heading,
-    .diagnostic-estimate-heading {
-      max-width: 900px;
-      margin: 0 0 44px;
+    .split-grid {
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+      gap:20px;
+      margin-top:24px;
     }
-    .cost-label,
-    .estimate-label,
-    .latest-label {
-      margin: 0 0 18px;
-      font-size: 0.66rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.20em;
-      text-transform: uppercase;
-      color: var(--accent);
-      opacity: 0.85;
-    }
-    .cost-heading h2,
-    .diagnostic-estimate-heading h2 {
-      margin: 0 0 14px;
-      max-width: 760px;
-      font-size: clamp(2.05rem, 2.9vw, 2.7rem);
-      line-height: 1.12;
-      font-weight: 700;
-      color: var(--text-dark);
-      text-wrap: balance;
-    }
-    .cost-context,
-    .estimate-context,
-    .estimate-bridge {
-      margin: 0;
-      max-width: 64ch;
-      font-size: 0.96rem;
-      line-height: 1.64;
-      color: var(--muted-dark);
-    }
-    .estimate-bridge { margin-top: 12px; }
-
-    .cost-grid,
-    .estimate-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 28px;
-      margin-top: 10px;
-    }
-    .cost-card,
-    .estimate-card {
-      background: rgba(255,255,255,0.96);
-      border: 1px solid rgba(21,32,43,0.06);
-      border-radius: var(--panel-radius);
-      padding: 42px 34px 38px;
-      box-shadow: var(--soft-shadow);
-      transition: transform var(--transition-slow), box-shadow var(--transition-slow), border-color var(--transition);
-    }
-    .cost-card { min-height: 310px; }
-    .estimate-card { min-height: 286px; }
-    .cost-card:hover,
-    .estimate-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(63,110,161,0.12);
-      box-shadow: 0 1px 0 rgba(0,0,0,0.014), 0 8px 18px rgba(0,0,0,0.016), 0 16px 28px rgba(0,0,0,0.014);
-    }
-    .cost-card-title,
-    .estimate-card-title {
-      margin: 0 0 8px;
-      font-size: 1.02rem;
-      line-height: 1.12;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-    .cost-card-title .asterisk { font-size: 0.9em; vertical-align: 0.08em; }
-    .cost-card-source,
-    .estimate-card-source {
-      margin: 0 0 34px;
-      font-size: 0.76rem;
-      line-height: 1.45;
-      color: #8A95A3;
-      font-style: italic;
-    }
-    .cost-card-number {
-      margin: 0 0 18px;
-      font-size: clamp(3rem, 4.8vw, 4.35rem);
-      line-height: 0.9;
-      letter-spacing: -0.065em;
-      font-weight: 700;
-      color: var(--accent);
-    }
-    .estimate-card-number {
-      margin: 0 0 18px;
-      font-size: clamp(2.15rem, 3vw, 3rem);
-      line-height: 1;
-      letter-spacing: -0.05em;
-      font-weight: 700;
-      color: var(--accent);
-    }
-    .cost-card-text,
-    .estimate-card-text {
-      margin: 0;
-      max-width: 24ch;
-      font-size: 1.02rem;
-      line-height: 1.64;
-      color: var(--muted-dark);
-    }
-    .cost-footer {
-      margin: 24px 0 0;
-      font-size: 0.82rem;
-      line-height: 1.6;
-      color: var(--muted-dark-2);
+    .use-grid {
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:20px;
+      margin-top:24px;
     }
 
-    .estimate-controls {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 18px;
-      margin-bottom: 28px;
+    .card,
+    .use-card,
+    .tool-card,
+    .dynamic-card {
+      position:relative;
+      background:#FFFFFF;
+      border:1px solid var(--line-soft);
+      border-radius:var(--card-radius);
+      box-shadow:var(--shadow-card);
+      overflow:hidden;
+      transition:transform var(--transition-slow), border-color var(--transition), box-shadow var(--transition-slow);
     }
-    .estimate-field { display: grid; gap: 10px; }
-    .estimate-field label {
-      font-size: 0.88rem;
-      line-height: 1.45;
-      font-weight: 600;
-      color: var(--text-dark);
+    .card::before,
+    .use-card::before,
+    .tool-card::before,
+    .dynamic-card::before {
+      content:"";
+      position:absolute;
+      inset:0 0 auto 0;
+      height:3px;
+      background:linear-gradient(90deg, rgba(63,110,161,.36) 0%, rgba(63,110,161,.94) 48%, rgba(63,110,161,.40) 100%);
+      transform:scaleX(.34);
+      transform-origin:left center;
+      transition:transform 420ms cubic-bezier(.22,1,.36,1);
     }
-    .estimate-field select {
-      width: 100%;
-      min-height: 56px;
-      padding: 0 16px;
-      border-radius: 14px;
-      border: 1px solid rgba(21,32,43,0.10);
-      background: #FFFFFF;
-      color: var(--text-dark);
-      outline: none;
-      box-shadow: var(--soft-shadow);
-      transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+    .card:hover,
+    .use-card:hover,
+    .tool-card:hover,
+    .dynamic-card:hover {
+      transform:translateY(-4px);
+      border-color:rgba(63,110,161,.14);
+      box-shadow:0 1px 0 rgba(0,0,0,.012), 0 10px 24px rgba(0,0,0,.04), 0 18px 30px rgba(0,0,0,.03);
     }
-    .estimate-field select:hover {
-      border-color: rgba(21,32,43,0.18);
+    .card:hover::before,
+    .use-card:hover::before,
+    .tool-card:hover::before,
+    .dynamic-card:hover::before {
+      transform:scaleX(1);
     }
-    .estimate-field select:focus-visible {
-      border-color: rgba(63,110,161,0.58);
-      box-shadow: 0 0 0 4px rgba(63,110,161,0.10);
-      transform: translateY(-1px);
-      outline: none;
-    }
-    .estimate-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-      flex-wrap: wrap;
-      margin-top: 28px;
-    }
-    .estimate-foot-copy { max-width: 68ch; }
-    .estimate-foot-copy p {
-      margin: 0;
-      font-size: 0.92rem;
-      line-height: 1.64;
-      color: var(--muted-dark);
-    }
-    .estimate-foot-copy p + p {
-      margin-top: 8px;
-      color: var(--muted-dark-2);
-      font-size: 0.86rem;
+    .card,
+    .use-card {
+      padding:24px 22px 22px;
     }
 
-    .approach {
-      position: relative;
-      background: var(--bg-white);
-      padding: 78px 34px 88px;
-      color: var(--text-dark);
-      overflow: hidden;
+    .card-kicker,
+    .use-step {
+      margin:0 0 10px;
+      font-size:.74rem;
+      font-weight:700;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:var(--accent);
     }
-    .approach-bridge {
-      max-width: 60ch;
-      font-size: 1rem;
-      line-height: 1.68;
-      color: var(--muted-dark);
+    .card-title,
+    .use-title {
+      margin:0 0 8px;
+      font-size:1rem;
+      line-height:1.24;
+      font-weight:700;
+      color:var(--text-dark);
     }
-    .approach-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 34px;
-      margin-top: 52px;
-    }
-    .approach-card {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      min-height: 356px;
-      background: rgba(255,255,255,0.99);
-      border: 1px solid var(--line-dark);
-      border-radius: var(--panel-radius);
-      padding: 40px 34px 46px;
-      overflow: hidden;
-      transition: transform var(--transition-slow), box-shadow var(--transition-slow), border-color var(--transition), background var(--transition);
-    }
-    .approach-card::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 3px;
-      width: 0%;
-      background: var(--accent);
-      transition: width 420ms cubic-bezier(0.22,1,0.36,1);
-    }
-    .approach-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(0,0,0,0.06);
-      background: #FFFFFF;
-      box-shadow: 0 8px 18px rgba(0,0,0,0.04), 0 18px 30px rgba(0,0,0,0.04);
-    }
-    .approach-card:hover::before { width: 100%; }
-    .card-title {
-      margin-bottom: 18px;
-      font-size: 1.42rem;
-      line-height: 1.12;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-    .card-desc {
-      font-size: 1.01rem;
-      line-height: 1.74;
-      color: var(--muted-dark);
-    }
-    .approach-card-link {
-      margin-top: auto;
-      align-self: flex-start;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding-top: 26px;
-      font-size: 0.89rem;
-      font-weight: 500;
-      letter-spacing: -0.01em;
-      color: var(--accent);
-      transition: color var(--transition), transform var(--transition);
-    }
-    .approach-card-link:hover,
-    .approach-card-link:focus-visible {
-      color: var(--accent-dark);
-      transform: translateX(1px);
-      outline: none;
+    .card-text,
+    .use-text {
+      margin:0;
+      font-size:.92rem;
+      line-height:1.62;
+      color:var(--muted-dark);
     }
 
-    .approach-synthesis {
-      margin-top: 52px;
-      padding: 40px 34px 10px;
-      background: #F8F9FA;
-      border-radius: var(--panel-radius);
-      border: 1px solid #E3E7EB;
-      text-align: center;
+    .matrix {
+      overflow-x:auto;
+      margin-top:20px;
+      border:1px solid var(--line-soft);
+      border-radius:var(--card-radius);
+      background:#FFFFFF;
+      box-shadow:var(--shadow-card);
     }
-    .approach-synthesis-copy {
-      max-width: 52ch;
-      margin: 0 auto 24px;
-      font-size: 1.02rem;
-      line-height: 1.58;
-      color: #556270;
+    .matrix table {
+      width:100%;
+      border-collapse:collapse;
+      min-width:980px;
     }
-    .approach-synthesis-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 16px;
-      max-width: 1040px;
-      margin: 0 auto 14px;
-      align-items: stretch;
+    .matrix th,
+    .matrix td {
+      text-align:left;
+      vertical-align:top;
+      padding:16px 16px;
+      border-bottom:1px solid rgba(21,32,43,.08);
+      font-size:.90rem;
+      line-height:1.56;
     }
-    .approach-synthesis-item {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
-      min-height: 0;
-      padding: 22px 20px 22px;
-      text-align: left;
-      background: #FFFFFF;
-      border: 1px solid rgba(21,32,43,0.08);
-      border-radius: 16px;
-      box-shadow: var(--soft-shadow);
-      color: var(--text-dark);
-      transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease, background 200ms ease;
+    .matrix th {
+      font-size:.74rem;
+      font-weight:700;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:var(--muted-dark-2);
+      background:rgba(246,247,248,.82);
     }
-    .approach-synthesis-item strong {
-      font-size: 0.98rem;
-      line-height: 1.12;
-      letter-spacing: -0.025em;
-      color: var(--text-dark);
+    .matrix td strong { color:var(--text-dark); }
+
+    .symptom-cell {
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
     }
-    .approach-synthesis-item:hover strong,
-    .approach-synthesis-item.is-linked strong {
-      color: var(--accent-dark);
-    }
-    .approach-synthesis-item:hover .approach-synthesis-link,
-    .approach-synthesis-item.is-linked .approach-synthesis-link {
-      color: var(--accent-dark);
-    }
-    .approach-synthesis-link {
-      display: inline-flex;
-      align-items: center;
-      width: fit-content;
-      min-height: 0;
-      padding: 0;
-      border-radius: 0;
-      background: transparent;
-      border: 0;
-      font-size: 0.66rem;
-      line-height: 1;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
-    .approach-synthesis-body {
-      font-size: 0.88rem;
-      line-height: 1.56;
-      color: #5F6B78;
-    }
-    .approach-synthesis-item.is-linked,
-    .approach-synthesis-item:hover {
-      transform: translateY(-2px);
-      border-color: rgba(63,110,161,0.18);
-      box-shadow: 0 10px 22px rgba(0,0,0,0.04);
-      background: #FFFFFF;
-    }
-    .approach-foundation {
-      margin: 20px auto 0;
-      max-width: 640px;
-      min-height: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px 20px;
-      border-radius: 999px;
-      background: rgba(63,110,161,0.04);
-      border: 1px solid rgba(63,110,161,0.10);
-      color: var(--accent-dark);
-      font-size: 0.74rem;
-      line-height: 1.2;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      box-shadow: none;
-      text-align: center;
+    .symptom-icon {
+      flex:0 0 18px;
+      width:18px;
+      height:18px;
+      margin-top:2px;
+      color:var(--accent);
     }
 
-    .latest {
-      position: relative;
-      background: var(--bg-offwhite);
-      padding: 78px 34px 80px;
-      color: var(--text-dark);
-      overflow: hidden;
-      border-top: 1px solid rgba(21,32,43,0.04);
-      border-bottom: 1px solid rgba(21,32,43,0.04);
+    .tools-section { scroll-margin-top:88px; }
+    .tools-grid {
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      gap:22px;
+      margin-top:28px;
     }
-    .latest-head {
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 30px;
-      margin-bottom: 34px;
+    .tool-card { min-height:364px; }
+    .tool-card.is-recommended {
+      border-color:rgba(63,110,161,.20);
+      box-shadow:0 14px 30px rgba(0,0,0,.055), 0 0 0 1px rgba(63,110,161,.06);
+      background:linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(249,251,254,1) 100%);
     }
-    .latest-intro { max-width: 740px; }
-    .latest-controls {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      flex: 0 0 auto;
+    .tool-card.is-recommended::before {
+      transform:scaleX(1);
+      background:linear-gradient(90deg, rgba(63,110,161,.85) 0%, rgba(63,110,161,1) 60%, rgba(47,88,134,.88) 100%);
     }
-    .rail-arrow {
-      width: 40px;
-      height: 40px;
-      border-radius: 999px;
-      border: 1px solid rgba(21,32,43,0.12);
-      background: #FFFFFF;
-      color: rgba(21,32,43,0.88);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: var(--soft-shadow);
-      transition: border-color 180ms ease, color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+    .tool-card.is-recommended::after {
+      content:"";
+      position:absolute;
+      inset:4px 0 auto 0;
+      height:1px;
+      background:linear-gradient(90deg, rgba(178,141,60,.35) 0%, rgba(178,141,60,.92) 50%, rgba(178,141,60,.35) 100%);
     }
-    .rail-arrow:hover,
-    .rail-arrow:focus-visible {
-      color: var(--accent-dark);
-      border-color: rgba(63,110,161,0.22);
-      transform: translateY(-1px);
-      box-shadow: 0 8px 18px rgba(0,0,0,0.04);
-      outline: none;
+    .tool-card-link {
+      position:relative;
+      z-index:1;
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+      min-height:364px;
+      height:100%;
+      padding:24px 22px 22px;
+      text-align:left;
     }
-    .latest-viewport {
-      overflow: hidden;
-      opacity: 0;
-      transition: opacity 240ms ease;
+    .tool-card-link:focus-visible {
+      outline:2px solid rgba(63,110,161,.35);
+      outline-offset:3px;
     }
-    .latest-viewport.is-ready { opacity: 1; }
-    .latest-track {
-      display: flex;
-      gap: var(--rail-gap);
-      will-change: transform;
-      transition: transform 860ms cubic-bezier(0.22,1,0.36,1);
+    .tool-card-top {
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:12px;
     }
-    .latest-card {
-      flex: 0 0 calc((100% - (var(--rail-gap) * 2)) / 2.55);
-      background: #FFFFFF;
-      border: 1px solid rgba(21,32,43,0.08);
-      border-radius: var(--card-radius);
-      box-shadow: var(--soft-shadow);
-      overflow: hidden;
-      transition: transform var(--transition-slow), box-shadow var(--transition-slow), border-color var(--transition);
+    .tool-badge,
+    .tool-badge-secondary {
+      display:inline-flex;
+      align-items:center;
+      padding:6px 10px;
+      font-size:.70rem;
+      font-weight:700;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      border:1px solid;
+      white-space:nowrap;
+      border-radius:999px;
     }
-    .latest-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(63,110,161,0.14);
-      box-shadow: 0 10px 22px rgba(0,0,0,0.035);
+    .tool-badge {
+      background:rgba(63,110,161,.09);
+      color:var(--accent);
+      border-color:rgba(63,110,161,.16);
+      box-shadow:0 0 18px rgba(63,110,161,.05);
     }
-    .latest-card-image {
-      aspect-ratio: 16 / 8.2;
-      overflow: hidden;
-      background: #DDE4EB;
+    .tool-badge-secondary {
+      background:var(--gold-soft);
+      color:#7D6320;
+      border-color:rgba(178,141,60,.26);
     }
-    .latest-card-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    .tool-title {
+      margin:0 0 8px;
+      font-size:1.15rem;
+      line-height:1.16;
+      font-weight:700;
+      letter-spacing:-0.022em;
+      color:var(--text-dark);
     }
-    .latest-card-body { padding: 18px 18px 19px; }
-    .latest-card-kicker {
-      margin: 0 0 9px;
-      font-size: 0.68rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--accent);
+    .tool-card:not(.is-recommended) .tool-title {
+      font-size:1.06rem;
     }
-    .latest-card-title {
-      margin: 0 0 9px;
-      font-size: 1.08rem;
-      line-height: 1.14;
-      font-weight: 700;
-      color: var(--text-dark);
-      text-wrap: balance;
+    .tool-subline {
+      margin:0 0 12px;
+      font-size:.82rem;
+      line-height:1.45;
+      letter-spacing:.02em;
+      text-transform:uppercase;
+      color:var(--muted-dark-2);
     }
-    .latest-card-text {
-      margin: 0 0 14px;
-      font-size: 0.88rem;
-      line-height: 1.58;
-      color: var(--muted-dark);
+    .tool-text {
+      margin:0 0 16px;
+      font-size:.95rem;
+      line-height:1.66;
+      color:var(--muted-dark);
     }
-    .latest-card-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.89rem;
-      font-weight: 500;
-      color: var(--text-dark);
-      transition: color var(--transition), transform var(--transition);
+    .tool-meta-label {
+      margin:0 0 6px;
+      font-size:.72rem;
+      line-height:1;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:var(--muted-dark-2);
+      font-weight:700;
     }
-    .latest-card-link:hover,
-    .latest-card-link:focus-visible {
-      color: var(--accent-dark);
-      transform: translateX(1px);
-      outline: none;
+    .tool-meta {
+      margin-top:0;
+      font-size:.87rem;
+      line-height:1.58;
+      color:var(--muted-dark-2);
     }
-    .latest-dots {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      margin-top: 18px;
+    .tool-micro {
+      margin-top:14px;
+      padding-top:12px;
+      border-top:1px solid rgba(21,32,43,.08);
+      font-size:.82rem;
+      line-height:1.55;
+      color:var(--accent-dark);
+      font-weight:500;
     }
-    .latest-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      border: 0;
-      padding: 0;
-      background: rgba(21,32,43,0.18);
-      cursor: pointer;
-      transition: transform var(--transition), background var(--transition), width var(--transition);
+    .tool-open {
+      margin-top:auto;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-size:.90rem;
+      font-weight:600;
+      color:var(--accent);
+      transition:color var(--transition), transform var(--transition);
     }
-    .latest-dot.is-active {
-      width: 22px;
-      background: var(--accent);
+    .tool-card:hover .tool-open,
+    .tool-card-link:focus-visible .tool-open {
+      color:var(--accent-dark);
+      transform:translateX(2px);
     }
 
-    .connect {
-      position: relative;
-      background: linear-gradient(180deg, #0F1720 0%, #111B25 100%);
-      color: var(--text-light);
-      padding: 84px 34px 82px;
-      overflow: hidden;
-      border-top: 1px solid rgba(255,255,255,0.06);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+    .dynamic-wrap {
+      margin-top:24px;
+      display:grid;
+      gap:16px;
     }
-    .connect::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at 80% 20%, rgba(63,110,161,0.10), transparent 28%),
-        linear-gradient(135deg, rgba(63,110,161,0.03) 1px, transparent 1px);
-      background-size: auto, 34px 34px;
-      opacity: 0.36;
-      pointer-events: none;
+    .dynamic-grid {
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      gap:16px;
     }
-    .connect-inner {
-      display: grid;
-      grid-template-columns: minmax(0,1fr) minmax(280px,420px);
-      gap: 56px;
-      align-items: start;
+    .dynamic-card {
+      min-height:186px;
+      display:flex;
+      flex-direction:column;
     }
-    .connect-copy h2 {
-      color: #FFFFFF;
-      margin-bottom: 18px;
+    .dynamic-toggle {
+      appearance:none;
+      background:transparent;
+      border:none;
+      width:100%;
+      text-align:left;
+      padding:22px 20px 18px;
+      cursor:pointer;
+      display:grid;
+      gap:10px;
+      color:var(--text-dark);
     }
-    .connect-signal {
-      margin: 0 0 14px;
-      font-size: 0.82rem;
-      line-height: 1.45;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: rgba(245,247,250,0.54);
+    .dynamic-toggle:focus-visible {
+      outline:2px solid rgba(63,110,161,.35);
+      outline-offset:-2px;
     }
-    .connect-text {
-      margin: 0;
-      max-width: 54ch;
-      font-size: 1.04rem;
-      line-height: 1.72;
-      color: rgba(245,247,250,0.74);
+    .dynamic-kicker {
+      margin:0;
+      font-size:.72rem;
+      font-weight:700;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:var(--accent);
     }
-    .connect-panel {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.10);
-      border-radius: var(--panel-radius);
-      padding: 30px 30px 27px;
-      box-shadow: 0 1px 0 rgba(255,255,255,0.02), 0 14px 28px rgba(0,0,0,0.10);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+    .dynamic-title-row {
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
     }
-    .connect-kicker {
-      margin: 0 0 14px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.20em;
-      text-transform: uppercase;
-      color: rgba(245,247,250,0.54);
+    .dynamic-title {
+      margin:0;
+      font-size:1.04rem;
+      line-height:1.2;
+      font-weight:700;
+      color:var(--text-dark);
     }
-    .connect-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      font-size: clamp(1.06rem, 1.6vw, 1.22rem);
-      line-height: 1.3;
-      font-weight: 500;
-      letter-spacing: -0.015em;
-      color: #FFFFFF;
+    .dynamic-plus {
+      flex:0 0 auto;
+      width:24px;
+      height:24px;
+      border-radius:999px;
+      border:1px solid rgba(63,110,161,.16);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-size:1rem;
+      line-height:1;
+      color:var(--accent);
+      transition:transform var(--transition), background var(--transition), border-color var(--transition);
     }
-    .connect-link-mark {
-      width: 7px;
-      height: 7px;
-      background: var(--accent);
-      border-radius: 1px;
-      flex: 0 0 auto;
-      transform: translateY(-1px);
+    .dynamic-summary {
+      margin:0;
+      font-size:.90rem;
+      line-height:1.58;
+      color:var(--muted-dark);
     }
-    .connect-note {
-      margin: 16px 0 0;
-      font-size: 0.92rem;
-      line-height: 1.64;
-      color: rgba(245,247,250,0.60);
+    .dynamic-detail {
+      display:none;
+      padding:0 20px 20px;
+      border-top:1px solid rgba(21,32,43,.06);
     }
-    .connect-actions {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 20px;
+    .dynamic-card.active .dynamic-detail {
+      display:block;
     }
-    .connect-inline-link {
-      display: inline-flex;
-      align-items: center;
-      font-size: 0.88rem;
-      line-height: 1.4;
-      font-weight: 500;
-      color: rgba(245,247,250,0.82);
-      transition: color var(--transition), transform var(--transition);
+    .dynamic-card.active .dynamic-plus {
+      transform:rotate(45deg);
+      background:rgba(63,110,161,.06);
+      border-color:rgba(63,110,161,.22);
     }
-    .connect-inline-link:hover,
-    .connect-inline-link:focus-visible {
-      color: #FFFFFF;
-      transform: translateX(1px);
-      outline: none;
+    .dynamic-detail p {
+      margin:14px 0 0;
+      font-size:.90rem;
+      line-height:1.62;
+      color:var(--muted-dark);
+    }
+
+    .bridge-copy { max-width:62ch; }
+
+    .footer-copy-top {
+      margin:0;
+      max-width:72ch;
+      font-size:.95rem;
+      line-height:1.68;
+      color:var(--muted-dark);
     }
 
     .footer {
-      background: #0D141C;
-      color: rgba(245,247,250,0.88);
-      padding: 50px 34px 38px;
+      background:#0D141C;
+      color:rgba(245,247,250,.88);
+      padding:50px 34px 38px;
+    }
+    .footer-inner {
+      max-width:var(--max);
+      margin:0 auto;
     }
     .footer-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 40px;
-      padding-bottom: 28px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:40px;
+      padding-bottom:28px;
+      border-bottom:1px solid rgba(255,255,255,.08);
     }
-    .footer-brand { max-width: 420px; }
+    .footer-brand { max-width:420px; }
     .footer-mark {
-      display: inline-flex;
-      align-items: center;
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: #FFFFFF;
-      margin-bottom: 14px;
+      display:inline-flex;
+      align-items:center;
+      font-size:1.1rem;
+      font-weight:700;
+      letter-spacing:-0.02em;
+      color:#FFFFFF;
+      margin-bottom:14px;
     }
     .footer-mark::after {
-      content: "";
-      width: 6px;
-      height: 6px;
-      margin-left: 10px;
-      background: var(--accent);
-      border-radius: 1px;
-      display: inline-block;
-      transform: translateY(-1px);
+      content:"";
+      width:6px;
+      height:6px;
+      margin-left:10px;
+      background:var(--accent);
+      border-radius:1px;
+      display:inline-block;
+      transform:translateY(-1px);
     }
     .footer-copy {
-      margin: 0;
-      max-width: 36ch;
-      font-size: 0.98rem;
-      line-height: 1.65;
-      color: rgba(245,247,250,0.68);
+      margin:0;
+      max-width:36ch;
+      font-size:.98rem;
+      line-height:1.65;
+      color:rgba(245,247,250,.68);
     }
     .footer-nav {
-      display: flex;
-      gap: 48px;
-      flex-wrap: wrap;
+      display:flex;
+      gap:48px;
+      flex-wrap:wrap;
     }
-    .footer-nav-col { min-width: 120px; }
+    .footer-nav-col { min-width:120px; }
     .footer-nav-title {
-      margin: 0 0 12px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(245,247,250,0.50);
+      margin:0 0 12px;
+      font-size:.72rem;
+      font-weight:700;
+      line-height:1;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:rgba(245,247,250,.50);
     }
     .footer-nav a {
-      display: block;
-      margin-bottom: 10px;
-      font-size: 0.95rem;
-      line-height: 1.45;
-      color: rgba(245,247,250,0.82);
-      transition: color var(--transition), transform var(--transition);
+      display:block;
+      margin-bottom:10px;
+      font-size:.95rem;
+      line-height:1.45;
+      color:rgba(245,247,250,.82);
+      transition:color var(--transition), transform var(--transition);
     }
     .footer-nav a:hover,
     .footer-nav a:focus-visible {
-      color: #FFFFFF;
-      transform: translateX(1px);
-      outline: none;
+      color:#FFFFFF;
+      transform:translateX(2px);
+      outline:none;
     }
     .footer-bottom {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-      padding-top: 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+      padding-top:18px;
     }
     .footer-meta,
     .footer-contact {
-      margin: 0;
-      font-size: 0.88rem;
-      line-height: 1.6;
-      color: rgba(245,247,250,0.54);
+      margin:0;
+      font-size:.88rem;
+      line-height:1.6;
+      color:rgba(245,247,250,.58);
     }
 
-
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
+    @media (max-width:1180px) {
+      .hero-rail,
+      .tools-grid,
+      .split-grid,
+      .dynamic-grid {
+        grid-template-columns:repeat(2, minmax(0,1fr));
       }
-      .hero-image {
-        transform: none !important;
+      .head { grid-template-columns:1fr; }
+      .use-grid { grid-template-columns:1fr; }
+      .bridge {
+        grid-template-columns:1fr;
+        align-items:start;
       }
     }
 
-    @media (max-width: 1100px) {
-      .approach-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .cost-grid, .estimate-grid { grid-template-columns: 1fr; gap: 20px; }
-      .estimate-controls { grid-template-columns: 1fr; }
-      .cost-card, .estimate-card { min-height: auto; }
-      .connect-inner { grid-template-columns: 1fr; gap: 28px; }
-    }
-    @media (max-width: 980px) {
-      .header { height: auto; }
+    @media (max-width:980px) {
+      .header { height:auto; }
       .header-inner {
-        padding: 16px 24px;
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 14px;
+        padding:16px 24px;
+        align-items:flex-start;
+        flex-direction:column;
+        gap:14px;
       }
-      .nav { gap: 22px; }
-      .hero-inner { padding: 120px 24px 82px; }
-      .bureaucracy-cost,
-      .approach,
-      .diagnostic-estimate,
-      .latest,
-      .connect,
+      .nav { gap:22px; }
+      .hero-inner,
+      .page,
       .footer {
-        padding-left: 24px;
-        padding-right: 24px;
+        padding-left:24px;
+        padding-right:24px;
       }
-      .latest-head {
-        flex-direction: column;
-        align-items: flex-start;
+      .hero-rail {
+        grid-template-columns:repeat(2, minmax(0,1fr));
       }
     }
-    @media (max-width: 760px) {
-      .hero-inner { padding: 136px 20px 108px; }
+
+    @media (max-width:760px) {
+      .brand { font-size:1.24rem; }
+      .nav { gap:18px; }
+      .hero-inner { padding:136px 20px 104px; }
+      .hero-eyebrow {
+        margin-bottom:10px;
+        font-size:.74rem;
+        letter-spacing:.18em;
+      }
+      .hero-subeyebrow { margin-bottom:24px; }
       .hero h1 {
-        max-width: 100%;
-        font-size: clamp(2.45rem, 8vw, 3.25rem);
+        max-width:100%;
+        font-size:clamp(2.45rem, 8vw, 3.3rem);
       }
       .hero-dek {
-        max-width: 100%;
-        font-size: 1rem;
-        line-height: 1.58;
+        max-width:100%;
+        font-size:1rem;
+        line-height:1.58;
       }
       .hero-actions {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 14px;
-        max-width: 420px;
+        flex-direction:column;
+        align-items:stretch;
+        gap:14px;
+        max-width:420px;
       }
-      .hero-signal {
-        max-width: 100%;
-        font-size: 0.8rem;
-        line-height: 1.5;
+      .hero-rail,
+      .tools-grid,
+      .split-grid,
+      .dynamic-grid {
+        grid-template-columns:1fr;
       }
       .btn {
-        width: 100%;
-        min-width: 0;
-        min-height: 44px;
-        padding: 0 20px;
-        font-size: 0.98rem;
+        width:100%;
+        min-width:0;
+        min-height:52px;
+        padding:0 20px;
+        font-size:.98rem;
       }
-      .section-with-bar .section-bar {
-        top: 20px;
-        left: 20px;
-        font-size: 0.64rem;
-        letter-spacing: 0.12em;
+      .page { padding:72px 20px 72px; }
+      .panel,
+      .tools-head,
+      .bridge {
+        padding:24px 20px 22px;
       }
-
-      .approach-synthesis {
-        margin-top: 44px;
-        padding: 30px 22px 12px;
-      }
-      .approach-synthesis-grid {
-        grid-template-columns: 1fr;
-        gap: 14px;
-      }
-      .approach-foundation {
-        max-width: 100%;
-        font-size: 0.7rem;
-        letter-spacing: 0.12em;
-        padding: 14px 16px;
-      }
-      .estimate-footer {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-      .latest-card { flex-basis: 100%; }
-      .connect-panel { padding: 24px 22px 22px; }
+      .tool-card,
+      .tool-card-link { min-height:auto; }
+      .footer { padding:34px 20px 28px; }
       .footer-top,
       .footer-bottom {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction:column;
+        align-items:flex-start;
       }
+      .footer-nav { gap:28px; }
+      .footer-copy { font-size:.94rem; }
+      .footer-meta,
+      .footer-contact { font-size:.84rem; }
     }
   </style>
 </head>
@@ -1224,51 +996,448 @@
   <header class="header" id="siteHeader">
     <div class="header-inner">
       <a href="index.html" class="brand">Monderman</a>
+
       <nav class="nav" aria-label="Primary navigation">
-        <a href="#approach">Approach</a>
-        <a href="diagnostic-tools.html">Diagnostic Tools</a>
-        <a href="#latest">Research</a>
+        <a href="index.html#approach">Approach</a>
+        <a href="diagnostic-tools.html" class="is-active">Diagnostic Tools</a>
+        <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
-        <a href="advisory-services-connect.html">Connect</a>
+        <a href="index.html#connect">Connect</a>
       </nav>
     </div>
   </header>
 
-  <section class="hero" aria-labelledby="hero-title">
-    <div class="hero-media-wrap" aria-hidden="true">
-      <img class="hero-image" id="heroImage" src="Decision Velocity.jpg" alt="" decoding="async" fetchpriority="high" />
-      <div class="hero-overlay"></div>
-    </div>
+  <section class="hero">
     <div class="hero-inner">
       <div class="hero-copy">
-        <p class="hero-eyebrow">Institutional Performance</p>
-        <h1 id="hero-title">Where structure enables execution, performance follows.</h1>
+        <p class="hero-eyebrow">Monderman Diagnostic Suite</p>
+        <p class="hero-subeyebrow">A repeatable diagnostic instrument</p>
+        <h1>Surface structural issues. Continually reassess them through calibrated diagnostic lenses.</h1>
         <p class="hero-dek">
-          Monderman helps organizations reshape the structural conditions beneath execution—so performance improves in measurable, repeatable, and sustained ways.
+          The Monderman Diagnostic Suite helps participants surface structural issues, examine organizational systems through multiple lenses, and return over time as surrounding conditions or the systems themselves evolve.
         </p>
-        <!-- Micro-tweak 1: stronger “money on the table” line -->
-        <p class="hero-signal">
-          Leaders recover measurable time, money, and productive capacity by governing the administrative reality beneath strategy.
-        </p>
+
         <div class="hero-actions">
-          <a class="btn btn-accent" href="why-monderman.html">Why Monderman</a>
-          <a class="btn btn-secondary" href="diagnostic-tools.html">Enter the Diagnostic Suite</a>
+          <a class="btn btn-accent" href="#tool-launch">Run Diagnostics</a>
           <a class="btn btn-secondary" href="advisory-services.html">Advisory Engagements</a>
+        </div>
+
+        <div class="hero-rail" aria-label="How the suite is designed to be used">
+          <div class="hero-rail-item">
+            <p class="hero-rail-label">Baseline</p>
+            <p class="hero-rail-value">Start with one bounded issue</p>
+            <p class="hero-rail-copy">Assess one team, workflow, function, or operating environment at a time.</p>
+          </div>
+          <div class="hero-rail-item">
+            <p class="hero-rail-label">Participant lens</p>
+            <p class="hero-rail-value">Use more than one vantage point</p>
+            <p class="hero-rail-copy">See how the same organizational system is experienced differently across participant groups.</p>
+          </div>
+          <div class="hero-rail-item">
+            <p class="hero-rail-label">Changing context</p>
+            <p class="hero-rail-value">Return when the environment shifts</p>
+            <p class="hero-rail-copy">Volume, tools, dependencies, and external demands can change how stable systems behave.</p>
+          </div>
+          <div class="hero-rail-item">
+            <p class="hero-rail-label">Structural change</p>
+            <p class="hero-rail-value">Reassess after redesign</p>
+            <p class="hero-rail-copy">Use the same instrument after governance, workflow, or accountability changes take hold.</p>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- [ALL REMAINING SECTIONS BELOW ARE EXACTLY AS IN YOUR ORIGINAL FILE — NO OTHER CHANGES] -->
-  <section class="bureaucracy-cost section-with-bar snap-anchor" id="cost-section" aria-labelledby="cost-title">
-    <!-- ... rest of your original cost section ... -->
-  </section>
+  <main class="page">
+    <div class="page-inner">
+      <div class="head">
+        <div>
+          <div class="section-label">Diagnostic Hub</div>
+          <h2>A premium launch point for structured diagnosis and repeated use.</h2>
+          <p>
+            Each diagnostic is built to isolate a different kind of organizational weakness. Used well, the suite helps participants move from first signal to clearer interpretation, then return with discipline as organizational systems and surrounding conditions shift.
+          </p>
+        </div>
 
-  <!-- approach, diagnostic-estimate, latest, connect, footer all unchanged from your uploaded file -->
+        <p class="note">
+          <strong>Use bounded inputs.</strong> These diagnostics are designed for directional organizational analysis. Avoid entering confidential, classified, regulated, proprietary, or personally sensitive information.
+        </p>
+      </div>
 
-  <!-- [your original script at the bottom remains identical] -->
+      <section class="panel">
+        <h3>What this hub is for</h3>
+        <p>
+          This hub is designed to support clear entry, disciplined use, and repeated return. Begin with the most visible problem, keep the scope narrow, and use repeat runs to see whether organizational systems are improving, holding, or absorbing new kinds of strain.
+        </p>
+
+        <div class="split-grid">
+          <div class="card">
+            <p class="card-kicker">For immediate use</p>
+            <h4 class="card-title">Choose the right diagnostic quickly</h4>
+            <p class="card-text">Start with the strongest visible symptom so the first read is focused, relevant, and easier to interpret.</p>
+          </div>
+
+          <div class="card">
+            <p class="card-kicker">For repeated use</p>
+            <h4 class="card-title">Return with a stronger frame of reference</h4>
+            <p class="card-text">Use the suite again when the system changed, the surrounding context changed, or a different participant lens is needed.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>How to use the suite</h3>
+        <p>
+          The suite works best when the first run is bounded and the next run is intentional.
+        </p>
+
+        <div class="use-grid">
+          <div class="use-card">
+            <p class="use-step">Step 1</p>
+            <h4 class="use-title">Choose the clearest symptom</h4>
+            <p class="use-text">Start with what is most visible now: ambiguity, delay, burden, or broader institutional weakening.</p>
+          </div>
+
+          <div class="use-card">
+            <p class="use-step">Step 2</p>
+            <h4 class="use-title">Keep the scope narrow</h4>
+            <p class="use-text">Use one workflow, one function, one team, or one operating environment wherever possible.</p>
+          </div>
+
+          <div class="use-card">
+            <p class="use-step">Step 3</p>
+            <h4 class="use-title">Return with discipline</h4>
+            <p class="use-text">Revisit the same organizational system when conditions shift, a new perspective is needed, or structural changes begin to take effect.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>Choose the right starting point</h3>
+        <p>
+          Start with the most visible symptom. You can broaden from there if the issue proves larger or more persistent than the first read suggests.
+        </p>
+
+        <div class="matrix">
+          <table>
+            <thead>
+              <tr>
+                <th>Dominant symptom</th>
+                <th>Start here</th>
+                <th>Clarifies</th>
+                <th>Best used when</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="symptom-cell">
+                    <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
+                    </svg>
+                    <strong>Ownership, roles, or handoffs feel blurred.</strong>
+                  </div>
+                </td>
+                <td>Structural Clarity Snapshot</td>
+                <td>Whether authority, ownership, and execution logic are clear enough to support reliable movement.</td>
+                <td>The issue feels like ambiguity, duplication, confusion, or execution drift.</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="symptom-cell">
+                    <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
+                    </svg>
+                    <strong>Decisions feel slow, stuck, or approval-heavy.</strong>
+                  </div>
+                </td>
+                <td>Decision Velocity Snapshot</td>
+                <td>Where decisions are being slowed by approvals, routing, escalation, or uncertainty.</td>
+                <td>The issue feels like slowness, delay, stalled action, or approval drag.</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="symptom-cell">
+                    <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
+                    </svg>
+                    <strong>The environment feels overloaded by process.</strong>
+                  </div>
+                </td>
+                <td>Operational Systems Snapshot</td>
+                <td>Whether administrative density is absorbing too much time, attention, and managerial effort.</td>
+                <td>The issue feels like too much process, too much reporting, or too much coordination.</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="symptom-cell">
+                    <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
+                    </svg>
+                    <strong>The whole system seems to be weakening.</strong>
+                  </div>
+                </td>
+                <td>Institutional Performance Snapshot</td>
+                <td>Whether the institution is still converting structure into sustained performance and confidence.</td>
+                <td>The issue feels broader than one workflow and the system itself may be weakening.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="tools-section" id="tool-launch">
+        <div class="tools-head">
+          <div class="section-label">Live Diagnostics</div>
+          <h3>Launch the right diagnostic.</h3>
+          <p>
+            Each tool opens in its own dedicated environment. Start with the strongest fit, then return to the suite as your view of the problem becomes clearer.
+          </p>
+        </div>
+
+        <div class="tools-grid">
+          <article class="tool-card is-recommended">
+            <a class="tool-card-link" href="structural-clarity.html" aria-label="Open Structural Clarity Snapshot">
+              <div class="tool-card-top">
+                <div class="tool-badge">Live</div>
+                <div class="tool-badge-secondary">Recommended first diagnostic</div>
+              </div>
+              <h3 class="tool-title">Structural Clarity Snapshot</h3>
+              <p class="tool-subline">Roles · ownership · handoffs</p>
+              <p class="tool-text">
+                Assess whether ownership, authority, and review logic are clear enough for one bounded workflow or operating slice.
+              </p>
+              <p class="tool-meta-label">Best when</p>
+              <p class="tool-meta">
+                The issue feels like ambiguity, duplication, confusion, or execution drift.
+              </p>
+              <p class="tool-micro">Most participants begin here when the source of strain is still taking shape.</p>
+              <span class="tool-open">Open diagnostic &#8594;</span>
+            </a>
+          </article>
+
+          <article class="tool-card">
+            <a class="tool-card-link" href="decision-velocity.html" aria-label="Open Decision Velocity Snapshot">
+              <div class="tool-card-top">
+                <div class="tool-badge">Live</div>
+              </div>
+              <h3 class="tool-title">Decision Velocity Snapshot</h3>
+              <p class="tool-subline">Approvals · escalation · delay</p>
+              <p class="tool-text">
+                Diagnose where approvals, escalation patterns, and routing complexity are slowing movement through important decisions.
+              </p>
+              <p class="tool-meta-label">Best when</p>
+              <p class="tool-meta">
+                The issue feels like slowness, delay, stalled action, or approval drag.
+              </p>
+              <span class="tool-open">Open diagnostic &#8594;</span>
+            </a>
+          </article>
+
+          <article class="tool-card">
+            <a class="tool-card-link" href="bureaucratic-drag-snapshot.html" aria-label="Open Operational Systems Snapshot">
+              <div class="tool-card-top">
+                <div class="tool-badge">Live</div>
+              </div>
+              <h3 class="tool-title">Operational Systems Snapshot</h3>
+              <p class="tool-subline">Process load · reporting · overhead</p>
+              <p class="tool-text">
+                Surface recurring administrative burden, process density, and non-value-adding overhead across a selected workflow or environment.
+              </p>
+              <p class="tool-meta-label">Best when</p>
+              <p class="tool-meta">
+                The issue feels like too much process, too much reporting, or too much coordination.
+              </p>
+              <span class="tool-open">Open diagnostic &#8594;</span>
+            </a>
+          </article>
+
+          <article class="tool-card">
+            <a class="tool-card-link" href="institutional-performance.html" aria-label="Open Institutional Performance Snapshot">
+              <div class="tool-card-top">
+                <div class="tool-badge">Live</div>
+              </div>
+              <h3 class="tool-title">Institutional Performance Snapshot</h3>
+              <p class="tool-subline">System health · adaptation · reliability</p>
+              <p class="tool-text">
+                Estimate how well an institution is converting structure into sustained performance across execution, resilience, and institutional confidence.
+              </p>
+              <p class="tool-meta-label">Best when</p>
+              <p class="tool-meta">
+                The issue feels broader than one workflow and the system itself may be weakening.
+              </p>
+              <span class="tool-open">Open diagnostic &#8594;</span>
+            </a>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>How repeated use creates value</h3>
+        <p>
+          The suite is most beneficial when used temporally and dynamically to govern organizational systems over time, across changing conditions, and through different participant lenses.
+        </p>
+
+        <div class="dynamic-wrap">
+          <div class="dynamic-grid">
+            <article class="dynamic-card active">
+              <button class="dynamic-toggle" type="button" aria-expanded="true">
+                <p class="dynamic-kicker">Mode of use</p>
+                <div class="dynamic-title-row">
+                  <h4 class="dynamic-title">Baseline</h4>
+                  <span class="dynamic-plus" aria-hidden="true">+</span>
+                </div>
+                <p class="dynamic-summary">Establish a reference point for a specific organizational system.</p>
+              </button>
+              <div class="dynamic-detail">
+                <p>Use one diagnostic to establish a clear reference point for a specific organizational system so future runs can be interpreted against something more concrete than memory, impression, or isolated complaint.</p>
+              </div>
+            </article>
+
+            <article class="dynamic-card">
+              <button class="dynamic-toggle" type="button" aria-expanded="false">
+                <p class="dynamic-kicker">Mode of use</p>
+                <div class="dynamic-title-row">
+                  <h4 class="dynamic-title">Participant lens</h4>
+                  <span class="dynamic-plus" aria-hidden="true">+</span>
+                </div>
+                <p class="dynamic-summary">Use the same diagnostic across different participant groups.</p>
+              </button>
+              <div class="dynamic-detail">
+                <p>Use the same diagnostic across different participant groups to see where perspectives on the same organizational system diverge, align, or conceal different kinds of strain over time.</p>
+              </div>
+            </article>
+
+            <article class="dynamic-card">
+              <button class="dynamic-toggle" type="button" aria-expanded="false">
+                <p class="dynamic-kicker">Mode of use</p>
+                <div class="dynamic-title-row">
+                  <h4 class="dynamic-title">Changing context</h4>
+                  <span class="dynamic-plus" aria-hidden="true">+</span>
+                </div>
+                <p class="dynamic-summary">Return when the surrounding environment changes.</p>
+              </button>
+              <div class="dynamic-detail">
+                <p>Revisit an organizational system when the surrounding environment changes—even if the system itself has not. Growth, new tooling, adjacent dependencies, staffing pressure, customer expansion, or external demands can all alter how a system behaves.</p>
+              </div>
+            </article>
+
+            <article class="dynamic-card">
+              <button class="dynamic-toggle" type="button" aria-expanded="false">
+                <p class="dynamic-kicker">Mode of use</p>
+                <div class="dynamic-title-row">
+                  <h4 class="dynamic-title">Structural change</h4>
+                  <span class="dynamic-plus" aria-hidden="true">+</span>
+                </div>
+                <p class="dynamic-summary">Reassess after a meaningful change to the system itself.</p>
+              </button>
+              <div class="dynamic-detail">
+                <p>Use the same diagnostic after redesigned workflows, new approvals, updated governance, platform changes, or shifts in accountability to see whether conditions improved, held, or worsened.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="bridge" aria-labelledby="synthesis-bridge-title">
+        <div class="bridge-copy">
+          <div class="section-label">Cross-Tool Synthesis</div>
+          <h3 id="synthesis-bridge-title">Bring multiple diagnostics into one clearer read.</h3>
+          <p>
+            Once you have completed two or more diagnostics, use the synthesis layer to combine outputs into a broader Monderman readout.
+          </p>
+        </div>
+
+        <a class="btn btn-secondary" href="cross-tool-synthesis.html">
+          Open Cross-Tool Synthesis
+        </a>
+      </section>
+
+      <section class="bridge" aria-labelledby="advisory-bridge-title">
+        <div class="bridge-copy">
+          <div class="section-label">Advisory Engagements</div>
+          <h3 id="advisory-bridge-title">Need a deeper structural review?</h3>
+          <p>
+            When repeated signals suggest broader structural problems, Monderman’s advisory work goes deeper on governance, workflow design, administrative burden, and institutional performance.
+          </p>
+        </div>
+
+        <a class="btn btn-accent" href="advisory-services.html">
+          Explore Advisory Engagements
+        </a>
+      </section>
+
+      <p class="footer-copy-top">
+        The Monderman Diagnostic Suite is built to support clearer entry, stronger interpretation, and more disciplined return as organizational systems and surrounding conditions evolve.
+      </p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-mark">Monderman</div>
+          <p class="footer-copy">
+            Advisory thinking on institutional performance, decision velocity, and the design of systems that sustain clarity under complexity.
+          </p>
+        </div>
+
+        <div class="footer-nav" aria-label="Footer navigation">
+          <div class="footer-nav-col">
+            <p class="footer-nav-title">Explore</p>
+            <a href="index.html#approach">Approach</a>
+            <a href="diagnostic-tools.html">Diagnostic Tools</a>
+            <a href="cross-tool-synthesis.html">Cross-Tool Synthesis</a>
+            <a href="research.html">Research</a>
+            <a href="why-monderman.html">Why Monderman</a>
+          </div>
+
+          <div class="footer-nav-col">
+            <p class="footer-nav-title">Connect</p>
+            <a href="mailto:connect@monderman.com">connect@monderman.com</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
+        <p class="footer-contact">Precision instruments for complex institutions.</p>
+      </div>
+    </div>
+  </footer>
+
   <script>
-    // [your full original script]
+    const header = document.getElementById("siteHeader");
+
+    function updateHeader() {
+      if (!header) return;
+      if (window.scrollY > 12) {
+        header.classList.add("scrolled");
+      } else {
+        header.classList.remove("scrolled");
+      }
+    }
+
+    updateHeader();
+    window.addEventListener("scroll", updateHeader, { passive: true });
+
+    const dynamicCards = document.querySelectorAll(".dynamic-card");
+    dynamicCards.forEach((card) => {
+      const btn = card.querySelector(".dynamic-toggle");
+      btn.addEventListener("click", () => {
+        const isActive = card.classList.contains("active");
+        dynamicCards.forEach((other) => {
+          other.classList.remove("active");
+          const otherBtn = other.querySelector(".dynamic-toggle");
+          if (otherBtn) otherBtn.setAttribute("aria-expanded", "false");
+        });
+        if (!isActive) {
+          card.classList.add("active");
+          btn.setAttribute("aria-expanded", "true");
+        }
+      });
+    });
   </script>
 </body>
 </html>
