@@ -240,8 +240,7 @@ function buildExecutiveSummary(result,payload){
   const benchmarkPos=result.benchmark_position||"Industry range comparison";
   const process=(payload.processName||"This pathway").trim();
   const opportunity=buildOpportunityText(result);
-  const firstSentence=(result.narrative?.executive_interpretation||"").split("
-")[0].trim();
+  const firstSentence=String(result.narrative?.executive_interpretation||"").split("\n")[0].trim();
   return {
     headline:`${process} is experiencing ${String(result.score_band||result.band||"directionally assessed").toLowerCase()}.`,
     takeaway: buildExecutiveTakeaway(result,payload),
