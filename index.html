@@ -274,8 +274,8 @@
     }
     .hero-rotator {
       display: inline-block;
-      min-width: 4.9ch;
-      color: var(--accent-light);
+      min-width: 6.2ch;
+      color: var(--accent);
       white-space: nowrap;
       position: relative;
     }
@@ -284,7 +284,7 @@
       will-change: opacity;
     }
     .hero-rotate-word.is-fading {
-      animation: heroWordFade 520ms cubic-bezier(0.22,1,0.36,1);
+      animation: heroWordFade 760ms cubic-bezier(0.22,1,0.36,1);
     }
     @keyframes heroWordFade {
       0% { opacity: 0.18; }
@@ -1197,7 +1197,7 @@
         font-size: 0.8rem;
         line-height: 1.5;
       }
-      .hero-rotator { min-width: 4.8ch; }
+      .hero-rotator { min-width: 6ch; }
       .btn {
         width: 100%;
         min-width: 0;
@@ -1689,14 +1689,14 @@
     }
 
     const heroRotateWord = document.getElementById("heroRotateWord");
-    const heroWords = ["deliver", "compete", "adapt", "scale", "innovate"];
+    const heroWords = ["deliver", "adapt", "scale", "innovate", "perform"];
 
     function runHeroWordRotationOnce() {
       if (!heroRotateWord || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       let index = 0;
-      const initialDelay = 1700;
-      const holdMs = 2200;
-      const fadeMs = 520;
+      const initialDelay = 2400;
+      const holdMs = 3000;
+      const fadeMs = 760;
 
       function step() {
         if (index >= heroWords.length - 1) return;
