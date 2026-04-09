@@ -272,6 +272,25 @@
       text-shadow: 0 1px 2px rgba(0,0,0,0.16);
       animation-delay: 480ms;
     }
+    .hero-rotator {
+      display: inline-block;
+      min-width: 4.9ch;
+      color: var(--accent-light);
+      white-space: nowrap;
+      position: relative;
+    }
+    .hero-rotate-word {
+      display: inline-block;
+      will-change: opacity;
+    }
+    .hero-rotate-word.is-fading {
+      animation: heroWordFade 520ms cubic-bezier(0.22,1,0.36,1);
+    }
+    @keyframes heroWordFade {
+      0% { opacity: 0.18; }
+      100% { opacity: 1; }
+    }
+
     .hero-dek {
       max-width: 38ch;
       margin: 0;
@@ -1178,6 +1197,7 @@
         font-size: 0.8rem;
         line-height: 1.5;
       }
+      .hero-rotator { min-width: 4.8ch; }
       .btn {
         width: 100%;
         min-width: 0;
@@ -1242,11 +1262,10 @@
     <div class="hero-inner">
       <div class="hero-copy">
         <p class="hero-eyebrow">Institutional Performance</p>
-        <h1 id="hero-title">Organizations move at the speed of their administrative reality.</h1>
+        <h1 id="hero-title">Organizations <span class="hero-rotator"><span class="hero-rotate-word" id="heroRotateWord">deliver</span></span><br>at the speed of their administrative reality.</h1>
         <p class="hero-dek">
           Monderman makes hidden structural and administrative conditions visible, interpretable, and governable—so leaders can continuously reduce drag and strengthen execution.
         </p>
-        <p class="hero-signal">Leaders recover measurable time, money, and productive capacity by governing the administrative reality beneath strategy.</p>
         <div class="hero-actions">
           <a class="btn btn-accent" href="why-monderman.html">Why Monderman</a>
           <a class="btn btn-secondary" href="diagnostic-tools.html">Enter the Diagnostic Suite</a>
@@ -1669,6 +1688,33 @@
       heroImage.addEventListener("load", revealHero, { once: true });
     }
 
+    const heroRotateWord = document.getElementById("heroRotateWord");
+    const heroWords = ["deliver", "compete", "adapt", "scale", "innovate"];
+
+    function runHeroWordRotationOnce() {
+      if (!heroRotateWord || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      let index = 0;
+      const initialDelay = 1700;
+      const holdMs = 2200;
+      const fadeMs = 520;
+
+      function step() {
+        if (index >= heroWords.length - 1) return;
+        index += 1;
+        heroRotateWord.classList.remove("is-fading");
+        void heroRotateWord.offsetWidth;
+        heroRotateWord.textContent = heroWords[index];
+        heroRotateWord.classList.add("is-fading");
+        if (index < heroWords.length - 1) {
+          window.setTimeout(step, holdMs);
+        } else {
+          window.setTimeout(() => heroRotateWord.classList.remove("is-fading"), fadeMs);
+        }
+      }
+
+      window.setTimeout(step, initialDelay);
+    }
+
     function updateHeader() {
       if (!header) return;
       if (window.scrollY > 12) header.classList.add("scrolled");
@@ -1990,6 +2036,7 @@
       updateLatestCarousel();
       startAutoScroll();
       initSoftSnap();
+      runHeroWordRotationOnce();
     });
   </script>
 </body>
