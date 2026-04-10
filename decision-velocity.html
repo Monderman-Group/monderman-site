@@ -1644,7 +1644,7 @@ function downloadExecutiveReport(result,payload){
   return artifact;
 }
 
-async async function downloadExecutiveReportPdf(result,payload){
+async function downloadExecutiveReportPdf(result,payload){
   const reportHtml = buildExecutiveReportHtml(result,payload);
   const printWindow = window.open("", "_blank", "noopener,noreferrer,width=1180,height=900");
   if(!printWindow){
