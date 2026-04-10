@@ -1300,6 +1300,95 @@ function bindDetailToggle(){
   toggle.onclick=function(){ shell.classList.toggle("open"); };
 }
 
+
+function escapeHtml(value){
+  return String(value ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#39;");
+}
+
+function humanize(value){
+  return String(value ?? "")
+    .replace(/_/g," ")
+    .replace(/\b\w/g, c => c.toUpperCase())
+    .trim();
+}
+
+function formatCurrency(value){
+  const num = Number(value);
+  if(!Number.isFinite(num)) return "—";
+  return new Intl.NumberFormat(undefined,{
+    style:"currency",
+    currency:"USD",
+    maximumFractionDigits:0
+  }).format(num);
+}
+
+function wait(ms){
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function renderList(id, items){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.innerHTML = "";
+  const arr = Array.isArray(items) ? items.filter(Boolean) : [];
+  if(!arr.length){
+    const li = document.createElement("li");
+    li.textContent = "No material signal surfaced in this run.";
+    el.appendChild(li);
+    return;
+  }
+  arr.forEach(item=>{
+    const li = document.createElement("li");
+    li.textContent = String(item);
+    el.appendChild(li);
+  });
+}
+
+function renderBarRows(id, rows){
+  const wrap = document.getElementById(id);
+  if(!wrap) return;
+  wrap.innerHTML = "";
+  (rows || []).forEach((row, idx)=>{
+    const value = Math.max(0, Math.min(100, Number(row.value || 0)));
+    const fillClasses = ["fill-blue","fill-green","fill-gold","fill-amber","fill-rose"];
+    const fillClass = fillClasses[idx % fillClasses.length];
+    const bar = document.createElement("div");
+    bar.className = "bar-row";
+    bar.innerHTML = `
+      <div class="bar-label">${escapeHtml(row.label || "")}</div>
+      <div class="bar-track"><div class="bar-fill ${fillClass}" style="width:${value}%"></div></div>
+      <div class="bar-value">${Math.round(value)}</div>
+    `;
+    wrap.appendChild(bar);
+  });
+}
+
+function renderBenchmarkBar(result){
+  const industryRange = document.getElementById("industryRange");
+  const opportunityRange = document.getElementById("opportunityRange");
+  const benchmarkMarker = document.getElementById("benchmarkMarker");
+  if(!industryRange || !opportunityRange || !benchmarkMarker) return;
+
+  const benchmark=result.benchmark||{};
+  const industryMin=Number.isFinite(benchmark.industryMin)?benchmark.industryMin:(Number.isFinite(benchmark.moderateMin)?benchmark.moderateMin:58);
+  const industryMax=Number.isFinite(benchmark.industryMax)?benchmark.industryMax:(Number.isFinite(benchmark.moderateMax)?benchmark.moderateMax:69);
+  const opportunityMin=Number.isFinite(benchmark.opportunityMin)?benchmark.opportunityMin:(Number.isFinite(benchmark.healthyMin)?benchmark.healthyMin:70);
+  const opportunityMax=Number.isFinite(benchmark.opportunityMax)?benchmark.opportunityMax:(Number.isFinite(benchmark.healthyMax)?benchmark.healthyMax:84);
+  const industryWidth=Math.max(2,Math.min(100,industryMax-industryMin));
+  const opportunityWidth=Math.max(2,Math.min(100,opportunityMax-opportunityMin));
+
+  industryRange.style.left=`${Math.max(0,Math.min(100,industryMin))}%`;
+  industryRange.style.width=`${industryWidth}%`;
+  opportunityRange.style.left=`${Math.max(0,Math.min(100,opportunityMin))}%`;
+  opportunityRange.style.width=`${opportunityWidth}%`;
+  benchmarkMarker.style.left=`${Math.max(0,Math.min(100,result.score||0))}%`;
+}
+
 function syncBeginButton(){const allowed=!!preStartConsent&&preStartConsent.checked&&!!state.mode&&!!state.depth; beginBtn.disabled=!allowed; beginBtn.classList.toggle("btn-disabled",!allowed)} document.querySelectorAll(".lane-btn").forEach(btn=>btn.addEventListener("click",()=>selectLane(btn.dataset.lane))); document.querySelectorAll("[data-depth]").forEach(btn=>btn.addEventListener("click",()=>selectDepth(btn.dataset.depth))); preStartConsent?.addEventListener("change",syncBeginButton); syncBeginButton(); beginBtn.addEventListener("click",()=>{if(beginBtn.disabled||!state.mode||!state.depth) return; startDiagnostic()}); continueBtn.addEventListener("click",()=>moveNext(false)); backBtn.addEventListener("click",moveBack); skipBtn.addEventListener("click",skipCurrent); restartBtn.addEventListener("click",restartDiagnostic); exportBtn.addEventListener("click",()=>{if(!state.result) return; exportExecutiveReport(state.result, buildPayload());}); downloadPdfBtn.addEventListener("click",()=>{if(!state.result) return; downloadExecutiveReportPdf(state.result, buildPayload());}); downloadReportBtn.addEventListener("click",()=>{if(!state.result) return; downloadExecutiveReport(state.result, buildPayload());}); newRunBtn.addEventListener("click",startDiagnostic); window.addEventListener("keydown",event=>{if(!questionStage.classList.contains("active")) return; if(event.key==="Enter"&&continueBtn.style.display!=="none"){const target=event.target; if(target&&target.tagName==="TEXTAREA") return; event.preventDefault(); moveNext(false)}}); hideLoader(); setHeader("Choose participant perspective","Select the perspective that best matches your role in the pathway, then choose the appropriate diagnostic depth.","Awaiting selection"); showStage(laneStage); questionFooter.style.display="none";
 </script>
 </body>
