@@ -130,8 +130,8 @@
         </section>
 
         <section class="narrative-grid">
-          <article class="result-card"><h3>Current decision cycle condition</h3><div id="trajectorySignalWrap" class="result-copy" style="margin-bottom:12px;">Trajectory signal will appear here after scoring.</div><p class="result-copy" id="executiveText"></p><div class="premium-note" id="conditionSupportText">This section will explain how fast the cycle appears to be moving, what is making it move at that speed, and whether that speed looks proportionate.</div></article>
-          <article class="result-card"><h3>Cost of current cycle time</h3><p class="result-copy" id="roiNarrativeText">This section will translate current cycle time into labor cost, management attention, and recoverable capacity.</p></article>
+          <article class="result-card"><h3>Current decision cycle condition</h3><div id="trajectorySignalWrap" class="result-copy" style="margin-bottom:12px;">Trajectory signal will appear here after scoring.</div><p class="result-copy" id="executiveText"></p><div class="premium-note" id="conditionSupportText">This section explains how fast the cycle appears to be moving, what is most likely driving that speed, and whether the organization appears to be paying too much to sustain it.</div></article>
+          <article class="result-card"><h3>Cost of current cycle time</h3><p class="result-copy" id="roiNarrativeText">This section will translate current cycle time into labor cost, management attention, and the specific capacity leadership could reclaim by making the cycle faster without weakening control.</p></article>
           <article class="result-card"><h3>What leadership gets back by making this cycle faster — without weakening control</h3><div class="benchmark-interpretation" style="margin-top:0;"><strong>Benchmark interpretation</strong><p class="result-copy" id="benchmarkInterpretationText">Benchmark interpretation will appear here after scoring.</p></div><div class="opportunity-tile"><strong>Guided opportunity view</strong><div id="opportunityGateWrap"><p class="result-copy" style="margin-bottom:10px;">Before revealing Monderman’s guided opportunity view, acknowledge that this narrative is directional, based on user inputs Monderman has not independently audited, and that implementation decisions remain your responsibility.</p><div class="checkbox-card" style="margin-bottom:12px;"><div class="checkbox-row"><input id="opportunityGateCheckbox" type="checkbox" /><label for="opportunityGateCheckbox">I understand and accept these terms for the guided opportunity view.</label></div></div><div class="actions" style="justify-content:flex-start;"><div class="actions-left"><button class="btn btn-soft" id="revealOpportunityBtn" type="button">Reveal guided opportunity view</button><a class="btn btn-accent" href="https://www.monderman.com/advisory-services-connect.html">Discuss with Monderman Advisory</a></div></div></div><div id="opportunityRevealWrap" class="hidden"><div class="opportunity-brief"><p class="lead" id="opportunityLeadText">Opportunity framing will appear here after scoring.</p><p id="opportunitySectorText">Sector and pathway interpretation will appear here after scoring.</p><p id="opportunityActionReasonText">Why the first moves matter will appear here after scoring.</p><p id="leadershipWatchoutText">Leadership watchout will appear here after scoring.</p></div><div class="opportunity-disclaimer" id="opportunityDisclaimer">Guided insights are directional, generated from user-provided inputs Monderman has not independently audited. Any interpretation, implementation, or resulting decisions remain the user’s responsibility.</div><div class="actions" style="justify-content:flex-start;margin-top:12px;"><div class="actions-left"><a class="btn btn-accent" href="https://www.monderman.com/advisory-services-connect.html">Discuss with Monderman Advisory</a></div></div></div></div></article>
           <article class="result-card"><h3>Priority actions</h3><ul class="result-list" id="actionsList"></ul><div class="compact-card" style="margin-top:14px;"><h3>Leadership implication</h3><ul class="result-list" id="leadershipList"></ul></div></article>
         </section>
@@ -743,9 +743,13 @@ function buildHarmonizedNarrative(result,payload){
   const keyFlags = (Array.isArray(narrative.key_friction_flags) && narrative.key_friction_flags.length)
     ? narrative.key_friction_flags
     : (Array.isArray(result.key_findings) ? result.key_findings : []);
-  const recommendedActions = (Array.isArray(narrative.recommended_interventions) && narrative.recommended_interventions.length)
-    ? narrative.recommended_interventions
-    : buildPriorityActions(result,payload);
+  const recommendedActions = sanitizeRecommendedActions(
+    (Array.isArray(narrative.recommended_interventions) && narrative.recommended_interventions.length)
+      ? narrative.recommended_interventions
+      : buildPriorityActions(result,payload),
+    result,
+    payload
+  );
 
   return {
     state,
@@ -810,6 +814,41 @@ function classifyPosition(result){
 function primaryFocusLabel(result){
   return ((result.intervention_priority_ladder&&result.intervention_priority_ladder[0]?.focus)||"Highest-friction burden");
 }
+
+function isWeakNarrativeText(value){
+  const s=String(value||"").trim();
+  if(!s) return true;
+  if(s.length<70) return true;
+  return /significant friction|reduce approval first|then address escalation|showing significant friction|recover and build advantage|move out of the normalized middle/i.test(s);
+}
+
+function sanitizeRecommendedActions(items,result,payload){
+  const arr=Array.isArray(items)?items.filter(Boolean).map(v=>String(v).trim()):[];
+  if(arr.length<3) return buildPriorityActions(result,payload);
+  if(arr.some(v=>v.length<42 || /reduce approval first|then address escalation|fix now|fix next/i.test(v))) return buildPriorityActions(result,payload);
+  return arr.slice(0,4);
+}
+
+function buildDecisionCycleRecoveryNarrative(result,payload,speedConstraint,tradeoffDiagnosis){
+  const hoursNum=Number(result.exposure?.annual_hours||0);
+  const costNum=Number(result.exposure?.annual_cost||0);
+  const dragNum=Math.round(Number(result.exposure?.capacity_drag_percent||0));
+  const process=(payload.processName||"this pathway").trim().toLowerCase();
+  let returnLine=`If leadership materially lightens the current cycle, the likely return is not just a faster path. It is recovered managerial attention, fewer low-yield touches, and more capacity available for higher-priority work.`;
+  if(speedConstraint.label==="Approval density"){
+    returnLine=`If leadership materially lightens the current approval path, the likely return is fewer unnecessary review touches, less managerial interruption, faster routine decisions, and a cleaner separation between normal cases and true exceptions.`;
+  }else if(speedConstraint.label==="Coordination density"){
+    returnLine=`If leadership materially lightens the current coordination burden, the likely return is less manual follow-up, fewer meetings required to keep movement alive, and a cycle that consumes less hidden labor to reach the same decision.`;
+  }else if(speedConstraint.label==="Escalation substitution"){
+    returnLine=`If leadership materially reduces escalation dependence, the likely return is a cycle that resolves more issues at the intended level, interrupts senior leaders less often, and becomes less brittle under volume pressure.`;
+  }else if(speedConstraint.label==="Key-person dependence"){
+    returnLine=`If leadership materially reduces key-person dependence, the likely return is a cycle that keeps moving without heroics, absorbs absence or turnover better, and scales with less disruption.`;
+  }
+  const roiLine=`On current inputs, the organization appears to be committing roughly ${hoursNum.toLocaleString()} hours and about ${formatCurrency(costNum)} each year to sustain a decision cycle carrying about ${dragNum}% capacity drag. That is the economic and managerial price of the current speed.`;
+  const valueLine=`The strategic question is not whether this cycle works at all. It is whether the organization should continue paying this much to preserve a cycle that reads as ${tradeoffDiagnosis.label.toLowerCase()}.`;
+  return {roiLine, returnLine, valueLine};
+}
+
 function buildPriorityActions(result,payload){
   const process=(payload.processName||"this pathway").trim().toLowerCase();
   const decisionType=(payload.decisionType||"").toLowerCase();
@@ -822,42 +861,42 @@ function buildPriorityActions(result,payload){
   const travelLike = process.includes("travel");
 
   if(travelLike){
-    actions.push("Collapse routine travel requests into a lighter standard path, reserving expanded scrutiny for genuinely exceptional trips, higher-cost cases, or clearly elevated risk conditions.");
-    actions.push("Clarify decision authority across manager, finance, and oversight roles so normal cases resolve at the intended level rather than drifting upward through habit or uncertainty.");
-    actions.push("Create a clear exception threshold so unusual travel receives added scrutiny without causing the normal case to inherit the weight of the exception case.");
-    actions.push("Re-run the pathway after the first redesign to confirm that burden was actually removed rather than shifted into new coordination work, informal escalation, or side-channel fixes.");
+    actions.push("Collapse routine travel requests into a lighter standard route so ordinary cases no longer inherit the full weight of exceptional review.");
+    actions.push("Clarify which decisions belong with managers, finance, and oversight so routine cases resolve at the intended level rather than drifting upward by habit.");
+    actions.push("Set an explicit exception threshold for cost, risk, or mission sensitivity so additional scrutiny is triggered deliberately rather than reflexively.");
+    actions.push("Run the pathway again after the first redesign to confirm that cycle time was actually reduced rather than displaced into side-channel coordination or escalation.");
     return actions.slice(0,4);
   }
 
   if(approvalHigh){
     if(decisionType==="procurement"){
-      actions.push("Reduce serial procurement approvals for standard cases and reserve heavier review for true exceptions, higher spend, or elevated risk.");
+      actions.push("Reduce serial procurement approvals for standard cases and reserve heavier review for true exceptions, higher-spend cases, or elevated-risk conditions.");
     } else if(decisionType==="hiring"){
-      actions.push("Clarify which hiring decisions belong with the manager, which belong with HR, and which truly require added approval so routine hiring does not stall in avoidable review layers.");
+      actions.push("Clarify which hiring decisions belong with the manager, which belong with HR, and which truly require additional approval so routine hiring does not stall in avoidable review layers.");
     } else if(decisionType==="budget"){
-      actions.push("Separate routine budget movement from higher-risk funding decisions so standard requests do not inherit the full weight of exceptional review.");
+      actions.push("Separate routine budget movement from higher-risk funding decisions so standard requests do not automatically inherit the full weight of exceptional review.");
     } else {
-      actions.push("Lighten the standard path by reducing unnecessary serial approvals and reserving expanded review for cases that actually warrant it.");
+      actions.push("Lighten the normal decision path by reducing unnecessary serial approvals and reserving expanded review for cases that genuinely warrant it.");
     }
   }
 
   if(coordinationHigh){
-    actions.push("Clarify required inputs, ownership points, and handoffs so the pathway can move without repeated manual coordination, chasing, and side-channel work.");
+    actions.push("Tighten required inputs, ownership points, and handoffs so the cycle can move without repeated follow-up, manual coordination, or parallel side-channel work.");
   }
 
   if(escalationHigh){
-    actions.push("Reset decision rights so normal cases resolve at the intended level instead of escalating by habit, ambiguity, or loss of confidence in the standard path.");
+    actions.push("Reset decision rights and escalation thresholds so routine cases resolve where they should instead of climbing upward through habit, ambiguity, or caution.");
   }
 
   if(keyPersonHigh){
-    actions.push("Reduce dependence on specific individuals by standardizing criteria, routing logic, and role expectations so movement no longer depends on informal fixers.");
+    actions.push("Reduce dependence on specific individuals by standardizing criteria, routing logic, and role expectations so movement does not depend on informal fixers.");
   }
 
   if(!actions.length){
-    actions.push("Protect the current pathway condition while removing the recurring sources of drag most likely to accumulate into a heavier structure over time.");
+    actions.push("Protect the current cycle condition while removing the recurring sources of delay most likely to accumulate into a heavier decision path over time.");
   }
 
-  actions.push("Re-run the diagnostic after the first material intervention to verify that drag was actually reduced rather than merely absorbed differently.");
+  actions.push("Re-run the diagnostic after the first material intervention to verify that the cycle actually became faster and lighter rather than merely shifting the burden elsewhere.");
   return actions.slice(0,4);
 }
 
@@ -1159,7 +1198,11 @@ function destroyCharts(){if(gapChart){gapChart.destroy(); gapChart=null} if(dime
 function buildExecutiveReportHtml(result,payload){
   const safe = (v)=>escapeHtml(v==null?"":String(v));
   const harmonized = buildHarmonizedNarrative(result,payload);
-  const actions = (harmonized.recommendedActions||[]).map(item=>`<li>${safe(item)}</li>`).join("") || "<li>No immediate intervention priorities surfaced.</li>";
+  const cycleCondition = deriveDecisionCycleCondition(result);
+  const speedConstraint = derivePrimarySpeedConstraint(result);
+  const tradeoffDiagnosis = deriveTradeoffDiagnosis(result,payload);
+  const recoveryNarrative = buildDecisionCycleRecoveryNarrative(result,payload,speedConstraint,tradeoffDiagnosis);
+  const actions = sanitizeRecommendedActions(harmonized.recommendedActions||[],result,payload).map(item=>`<li>${safe(item)}</li>`).join("") || "<li>No immediate intervention priorities surfaced.</li>";
   const flags = (harmonized.keyFlags||[]).map(item=>`<li>${safe(item)}</li>`).join("") || "<li>No major friction flags surfaced.</li>";
   const contradictions = (result.contradictions||[]).map(item=>`<li>${safe(item.message||item.code||"Contradiction signal")}</li>`).join("") || "<li>No material contradiction signals surfaced in this run.</li>";
   const executiveSummary = buildExecutiveSummary(result,payload);
@@ -1176,12 +1219,12 @@ function buildExecutiveReportHtml(result,payload){
   const reclaim = estimateReclaimPotential(result);
 
   const sectorWrong = harmonized.opportunityFields.sectorDynamic || "Comparable organizations often allow routine pathways to inherit heavier scrutiny than the normal case actually requires.";
-  const runSuggests = harmonized.opportunityFields.runIndicates || harmonized.executive;
-  const buildAdvantage = harmonized.opportunityFields.buildAdvantage || "The advantage is not merely a faster path. It is a lighter routine path that returns time, managerial attention, and productive capacity to higher-yield work.";
-  const firstMoves = harmonized.opportunityFields.firstMoves || "These first moves matter because they reduce the structure carrying the work, not just the symptoms people are compensating for.";
+  const runSuggests = !isWeakNarrativeText(harmonized.opportunityFields.runIndicates) ? harmonized.opportunityFields.runIndicates : `${payload.processName||"This pathway"} appears to be carrying a ${speedConstraint.label.toLowerCase()} problem that is making routine movement slower, more management-intensive, and more expensive than it likely needs to be.`;
+  const buildAdvantage = !isWeakNarrativeText(harmonized.opportunityFields.buildAdvantage) ? harmonized.opportunityFields.buildAdvantage : recoveryNarrative.returnLine;
+  const firstMoves = !isWeakNarrativeText(harmonized.opportunityFields.firstMoves) ? harmonized.opportunityFields.firstMoves : `${sanitizeRecommendedActions(harmonized.recommendedActions||[],result,payload)[0]} ${sanitizeRecommendedActions(harmonized.recommendedActions||[],result,payload)[1]||""}`.trim();
   const watchout = harmonized.opportunityFields.watchout || "Do not respond by adding more control, more visibility pressure, or more reviewers if the normal case is already carrying too much weight.";
-  const roiLine = `On current inputs, this pathway may be absorbing roughly ${hoursNum.toLocaleString()} hours of organizational effort and about ${formatCurrency(costNum)} in annual labor exposure. That is not just process inefficiency. It is time, money, and managerial attention being consumed to move the pathway itself rather than support the underlying business need.`;
-  const partialRecoveryLine = `Even a partial reduction in approval burden could return meaningful labor capacity, reduce low-yield management touch, and improve responsiveness without requiring major system change.`;
+  const roiLine = recoveryNarrative.roiLine;
+  const partialRecoveryLine = `${recoveryNarrative.returnLine} ${recoveryNarrative.valueLine}`;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -1210,7 +1253,7 @@ function buildExecutiveReportHtml(result,payload){
   .score-copy{margin:12px 0 0;max-width:68ch;font-size:.97rem;line-height:1.7;color:rgba(255,255,255,.78)}
   .badge{padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);font-size:.84rem;color:#FFF}
   .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}
-  .panel{background:#FFF;border:1px solid rgba(21,32,43,.08);border-radius:24px;box-shadow:var(--shadow-md);padding:22px 22px 20px}
+  .panel{background:#FFF;border:1px solid rgba(21,32,43,.08);border-radius:24px;box-shadow:var(--shadow-md);padding:24px 24px 22px}.panel.hero-panel{padding:28px 28px 24px}.section-rule{height:1px;background:linear-gradient(90deg,transparent,rgba(21,32,43,.12),transparent);margin:16px 0}.callout-strong{margin-top:12px;padding:14px 16px;border-radius:16px;background:linear-gradient(180deg,#FBFCFE 0%,#F7FAFD 100%);border:1px solid rgba(63,110,161,.14)}.callout-strong strong{display:block;margin-bottom:6px;font-size:.74rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}.op-block .roi-emphasis{padding:14px 16px;border-radius:16px;background:#F8FAFC;border:1px solid rgba(21,32,43,.08)}.op-block .roi-emphasis p{margin:0}
   .panel h2{margin:0 0 10px;font-size:1.04rem;line-height:1.2;letter-spacing:-.02em}
   .panel h3{margin:0 0 8px;font-size:.96rem;line-height:1.2;letter-spacing:-.01em;color:var(--ink)}
   .panel p,.panel li{color:var(--ink-soft);line-height:1.68}
@@ -1277,14 +1320,14 @@ function buildExecutiveReportHtml(result,payload){
   </section>
 
   <section class="panel" style="margin-top:14px">
-    <h2>Executive summary</h2>
+    <h2>Executive summary</h2><div class="section-rule"></div>
     <p>${safe(executiveSummary.headline)}</p>
     <div class="bottom-line">Bottom line for leadership: ${safe(executiveSummary.takeaway)}</div>
     ${reclaim.amount>0 ? `<div class="reclaim-box"><strong>Reclaim potential*</strong><span>${safe(formatCurrency(reclaim.amount))}</span><p>${safe(reclaim.driverText)} Potential recovery assumes the organization materially reduces the highest visible drag sources.</p></div>` : ""}
     <div class="summary-grid">
-      <div class="mini"><p class="label">Current decision cycle condition</p><p class="value">${safe(deriveDecisionCycleCondition(result).label)}</p><p class="subv">${safe(deriveDecisionCycleCondition(result).note)}</p></div>
-      <div class="mini"><p class="label">Primary speed constraint</p><p class="value">${safe(derivePrimarySpeedConstraint(result).label)}</p><p class="subv">${safe(derivePrimarySpeedConstraint(result).note)}</p></div>
-      <div class="mini"><p class="label">Trade-off diagnosis</p><p class="value">${safe(deriveTradeoffDiagnosis(result,payload).label)}</p><p class="subv">${safe(deriveTradeoffDiagnosis(result,payload).note)}</p></div>
+      <div class="mini"><p class="label">Current decision cycle condition</p><p class="value">${safe(cycleCondition.label)}</p><p class="subv">${safe(cycleCondition.note)}</p></div>
+      <div class="mini"><p class="label">Primary speed constraint</p><p class="value">${safe(speedConstraint.label)}</p><p class="subv">${safe(speedConstraint.note)}</p></div>
+      <div class="mini"><p class="label">Trade-off diagnosis</p><p class="value">${safe(tradeoffDiagnosis.label)}</p><p class="subv">${safe(tradeoffDiagnosis.note)}</p></div>
       <div class="mini"><p class="label">Benchmark</p><p class="value">${safe(result.benchmark_position||"—")}</p><p class="subv">${safe(harmonized.benchmark)}</p></div>
       <div class="mini"><p class="label">Reclaimable advantage</p><p class="value">${safe(harmonized.opportunityFields.title || harmonized.opportunityLabel)}</p><p class="subv">The opportunity is not just to make the pathway less frustrating. It is to reduce low-yield structural weight, return labor capacity to higher-value work, and preserve responsiveness as volume or complexity grows.</p></div>
       <div class="mini"><p class="label">Trajectory</p><p class="value">${safe(trajectoryLabel)}</p><p class="subv">${safe(trajectoryNote)}</p></div>
@@ -1298,11 +1341,12 @@ function buildExecutiveReportHtml(result,payload){
       <p>${safe(roiLine)}</p>
       <p>${safe(partialRecoveryLine)}</p>
     </div>
+    <div class="callout-strong"><strong>Executive ROI read</strong><p>${safe(`Even modest cycle-time improvement would return labor capacity, reduce low-yield management touch, and improve responsiveness without requiring the organization to weaken legitimate control.`)}</p></div>
   </section>
 
   <div class="grid">
-    <section class="panel">
-      <h2>Priority actions</h2>
+    <section class="panel hero-panel">
+      <h2>Priority actions</h2><p>These actions are ordered to improve cycle quality first, then reduce the burden required to sustain that speed.</p>
       <ul>${actions}</ul>
     </section>
     <section class="panel">
@@ -1314,8 +1358,8 @@ function buildExecutiveReportHtml(result,payload){
       <h2>Contradiction signals</h2>
       <ul>${contradictions}</ul>
     </section>
-    <section class="panel">
-      <h2>What leadership gets back by making this cycle faster — without weakening control</h2>
+    <section class="panel hero-panel">
+      <h2>What leadership gets back by making this cycle faster — without weakening control</h2><p>This section is the economic and managerial upside case for making the cycle lighter, faster, and more proportionate.</p>
       <div class="op-block">
         <div>
           <h3>What this run suggests</h3>
@@ -1325,6 +1369,7 @@ function buildExecutiveReportHtml(result,payload){
           <h3>What organizations like this often get wrong</h3>
           <p>${safe(sectorWrong)}</p>
         </div>
+        <div class="roi-emphasis"><p>${safe(recoveryNarrative.valueLine)}</p></div>
         <div>
           <h3>How advantage is built</h3>
           <p>${safe(buildAdvantage)}</p>
@@ -1338,6 +1383,7 @@ function buildExecutiveReportHtml(result,payload){
         <div>
           <h3>Why the first moves are the right moves</h3>
           <p>${safe(firstMoves)}</p>
+          <p>${safe("The goal is not merely to push the same cycle harder. The goal is to remove low-yield cycle weight so normal cases move faster with less managerial effort and less reliance on escalation.")}</p>
         </div>
         <div>
           <h3>What leadership should avoid</h3>
