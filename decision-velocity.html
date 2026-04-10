@@ -56,7 +56,7 @@
     .trajectory-flat{background:#FFF9F2;border-color:rgba(198,123,45,.18);color:#9A5D14}.trajectory-flat .traj-arrow{background:#F0DAB8;color:#9A5D14}
     .trajectory-down{background:#F7FBF8;border-color:rgba(110,143,114,.18);color:#446A49}.trajectory-down .traj-arrow{background:#DCE8DE;color:#446A49}
     .benchmark-interpretation,.opportunity-tile{margin-top:12px;padding:16px 18px;border-radius:18px;border:1px solid rgba(21,32,43,.08);background:#F8FAFC}.opportunity-disclaimer{margin-top:10px;padding:10px 12px;border-radius:12px;background:#FFF;border:1px dashed rgba(21,32,43,.14);font-size:.78rem;line-height:1.55;color:var(--ink-muted)}
-    .opportunity-tile{background:linear-gradient(180deg,#FBFCFE 0%,#F7FAFD 100%)}.opportunity-sections{display:grid;gap:12px;margin-top:10px}.opportunity-section{padding:12px 14px;border-radius:14px;background:#FFF;border:1px solid rgba(21,32,43,.08)}.opportunity-section strong{display:block;margin-bottom:6px;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted)}.opportunity-section p{margin:0;font-size:.9rem;line-height:1.6;color:var(--ink-soft)}
+    .opportunity-tile{background:linear-gradient(180deg,#FBFCFE 0%,#F7FAFD 100%)}.opportunity-narrative{display:grid;gap:12px;margin-top:12px}.opportunity-opening{padding:14px 16px;border-radius:16px;background:#FFF;border:1px solid rgba(21,32,43,.08);font-size:.94rem;line-height:1.68;color:var(--ink)}.opportunity-block{padding:14px 16px;border-radius:16px;background:#FFF;border:1px solid rgba(21,32,43,.08)}.opportunity-block strong{display:block;margin-bottom:6px;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted)}.opportunity-block p{margin:0;font-size:.92rem;line-height:1.68;color:var(--ink-soft)}
     .opportunity-tile strong,.benchmark-interpretation strong{display:block;margin-bottom:6px;font-size:.84rem;letter-spacing:.06em;color:var(--ink)}
 .quad-guide-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.quad-guide{padding:14px 16px;border-radius:16px;background:#F8FAFC;border:1px solid rgba(21,32,43,.08)}.quad-guide strong{display:block;margin-bottom:6px;font-size:.84rem;line-height:1.3}.trajectory-note{margin-top:10px;font-size:.9rem;line-height:1.6;color:var(--ink-soft)}.export-actions{display:flex;gap:10px;flex-wrap:wrap}.hidden-download{display:none!important}.export-summary-card{background:linear-gradient(180deg,#FFF 0%,#FBFCFE 100%);border:1px solid rgba(21,32,43,.08);border-radius:24px;box-shadow:var(--shadow-md);padding:24px}.export-summary-head{display:grid;gap:10px;margin-bottom:14px}.export-summary-kicker{margin:0;font-size:.76rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-muted)}.export-summary-title{margin:0;font-size:1.5rem;line-height:1.05;letter-spacing:-.03em}.export-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}.export-block{padding:16px 18px;border-radius:18px;background:#FFF;border:1px solid rgba(21,32,43,.08)}.export-block h4{margin:0 0 8px;font-size:1rem;line-height:1.2}.export-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}.export-pill{display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;border:1px solid rgba(21,32,43,.08);background:#FFF;font-size:.82rem;color:var(--ink-soft)}@media (max-width:1080px){.depth-card-grid,.export-grid,.quad-guide-grid{grid-template-columns:1fr}}
     @media (max-width:1080px){.intro-layout,.score-inner,.summary-grid,.grid-2,.tiles-grid{grid-template-columns:1fr}.summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.environment,.environment-inner{min-height:unset}.score-rubric{grid-template-columns:1fr 1fr}}
@@ -83,7 +83,7 @@
         <section class="summary-grid"><article class="summary-card"><p class="summary-label">Value judgment</p><p class="summary-value" id="valueJudgmentValue">—</p><p class="summary-sub tight" id="valueJudgmentSub">Burden-return balance</p></article><article class="summary-card"><p class="summary-label">Sector comparison</p><p class="summary-value" id="peerAdvantageValue">—</p><p class="summary-sub tight" id="peerAdvantageSub">Relative to sector midpoint</p></article><article class="summary-card"><p class="summary-label">Benchmark</p><p class="summary-value" id="benchmarkValue">—</p><p class="summary-sub tight" id="benchmarkSub">Industry range comparison</p></article><article class="summary-card"><p class="summary-label">Route family</p><p class="summary-value" id="routeValue">—</p><p class="summary-sub tight" id="routeSub">Primary interpretation path</p></article><article class="summary-card"><p class="summary-label">Hours exposure*</p><p class="summary-value" id="hoursValue">—</p><p class="summary-sub tight" id="hoursSub">Annual estimate</p></article><article class="summary-card"><p class="summary-label">Cost exposure*</p><p class="summary-value" id="costValue">—</p><p class="summary-sub tight" id="costSub">Annual estimate</p></article><article class="summary-card"><p class="summary-label">Capacity drag*</p><p class="summary-value" id="dragValue">—</p><p class="summary-sub tight" id="dragSub">Directional estimate</p></article><article class="summary-card"><p class="summary-label">Input depth</p><p class="summary-value" id="confidenceValue">—</p><p class="summary-sub tight" id="confidenceSub">Confidence framing</p></article></section>
         <section class="grid-2"><article class="result-card"><h3>Trajectory signal</h3><div id="trajectorySignalWrap" class="result-copy">Trajectory signal will appear here after scoring.</div><p class="result-copy" id="trajectorySignalText"></p></article><article class="result-card"><h3>Executive interpretation</h3><p class="result-copy" id="executiveText"></p></article><article class="result-card"><h3>Leadership implication</h3><ul class="result-list" id="leadershipList"></ul></article></section>
         <section class="grid-2"><article class="result-card"><h3>How to read this output</h3><p class="result-copy">This score reflects the balance between governance weight and execution responsiveness in the pathway you assessed. Higher scores suggest a stronger opportunity position, while lower scores suggest the pathway is consuming more effort to move itself than the underlying decision should require.</p></article><article class="result-card"><h3>Trade-off note</h3><p class="result-copy" id="tradeoffText"></p></article></section>
-        <section class="grid-2"><article class="chart-card"><h3>Benchmark position</h3><div class="benchmark-band"><div class="benchmark-track"><div class="benchmark-range industry-range" id="industryRange"></div><div class="benchmark-range opportunity-range" id="opportunityRange"></div><div class="benchmark-marker" id="benchmarkMarker"></div></div><div class="benchmark-legend"><span><span class="legend-dot dot-gold"></span>Within industry range</span><span><span class="legend-dot dot-green"></span>Opportunity range</span><span><span class="legend-dot dot-blue"></span>Your score</span></div><div class="benchmark-interpretation"><strong>Benchmark interpretation</strong><p class="result-copy" id="benchmarkInterpretationText">Benchmark interpretation will appear here after scoring.</p></div><div class="opportunity-tile"><strong>Relative opportunity space</strong><div id="opportunityGateWrap"><p class="result-copy" style="margin-bottom:10px;">Before revealing Monderman’s guided opportunity view, acknowledge that this narrative is directional, based on user inputs Monderman has not independently audited, and that implementation decisions remain your responsibility.</p><div class="checkbox-card" style="margin-bottom:12px;"><div class="checkbox-row"><input id="opportunityGateCheckbox" type="checkbox" /><label for="opportunityGateCheckbox">I understand and accept these terms for the guided opportunity view.</label></div></div><div class="actions" style="justify-content:flex-start;"><div class="actions-left"><button class="btn btn-soft" id="revealOpportunityBtn" type="button">Reveal guided opportunity view</button><a class="btn btn-accent" href="https://www.monderman.com/advisory-services-connect.html">Discuss with Monderman Advisory</a></div></div></div><div id="opportunityRevealWrap" class="hidden"><p class="result-copy" id="opportunityText">Opportunity framing will appear here after scoring.</p><div class="opportunity-sections"><div class="opportunity-section"><strong id="opportunityTitleLabel">Opportunity title</strong><p id="opportunityTitleText">Opportunity title will appear here after scoring.</p></div><div class="opportunity-section"><strong>Sector pattern</strong><p id="sectorPatternText">Sector pattern will appear here after scoring.</p></div><div class="opportunity-section"><strong>Why these actions</strong><p id="actionsRationaleText">Action rationale will appear here after scoring.</p></div><div class="opportunity-section"><strong>Leadership watchout</strong><p id="leadershipWatchoutText">Leadership watchout will appear here after scoring.</p></div></div><div class="opportunity-disclaimer" id="opportunityDisclaimer">Guided insights are directional, generated from user-provided inputs Monderman has not independently audited. Any interpretation, implementation, or resulting decisions remain the user’s responsibility.</div><div class="actions" style="justify-content:flex-start;margin-top:12px;"><div class="actions-left"><a class="btn btn-accent" href="https://www.monderman.com/advisory-services-connect.html">Discuss with Monderman Advisory</a></div></div></div></div></div></article><article class="chart-card"><h3>Governance Weight × Execution Responsiveness</h3><div class="quadrant-wrap"><div class="quadrant-box"><div class="axis-y">Execution responsiveness</div><div class="q-label q-tl">Fast movement,<br>lighter governance</div><div class="q-label q-tr">Fast movement,<br>heavier governance</div><div class="q-label q-bl">Slow movement,<br>lighter governance</div><div class="q-label q-br">Slow movement,<br>heavier governance</div><div class="quad-dot" id="quadDot"></div></div><div class="axis-x">Governance weight</div><div class="quad-guide-grid"><div class="quad-guide"><strong>How to read this chart</strong><p class="tiny">Left means lighter governance weight. Right means heavier governance weight. Higher means the pathway still moves relatively well. Lower means it is absorbing more delay and drag. Rightward movement means governance weight is increasing; leftward movement means the pathway is carrying less governance weight. Positions close to the centerline should be read as borderline, not decisively strong or weak.</p></div><div class="quad-guide"><strong>Quadrant interpretation</strong><p class="tiny" id="quadrantInterpretationText">Quadrant interpretation will appear here after scoring.</p></div></div></div></article></section>
+        <section class="grid-2"><article class="chart-card"><h3>Benchmark position</h3><div class="benchmark-band"><div class="benchmark-track"><div class="benchmark-range industry-range" id="industryRange"></div><div class="benchmark-range opportunity-range" id="opportunityRange"></div><div class="benchmark-marker" id="benchmarkMarker"></div></div><div class="benchmark-legend"><span><span class="legend-dot dot-gold"></span>Within industry range</span><span><span class="legend-dot dot-green"></span>Opportunity range</span><span><span class="legend-dot dot-blue"></span>Your score</span></div><div class="benchmark-interpretation"><strong>Benchmark interpretation</strong><p class="result-copy" id="benchmarkInterpretationText">Benchmark interpretation will appear here after scoring.</p></div><div class="opportunity-tile"><strong>Relative opportunity space</strong><div id="opportunityGateWrap"><p class="result-copy" style="margin-bottom:10px;">Before revealing Monderman’s guided opportunity view, acknowledge that this narrative is directional, based on user inputs Monderman has not independently audited, and that implementation decisions remain your responsibility.</p><div class="checkbox-card" style="margin-bottom:12px;"><div class="checkbox-row"><input id="opportunityGateCheckbox" type="checkbox" /><label for="opportunityGateCheckbox">I understand and accept these terms for the guided opportunity view.</label></div></div><div class="actions" style="justify-content:flex-start;"><div class="actions-left"><button class="btn btn-soft" id="revealOpportunityBtn" type="button">Reveal guided opportunity view</button><a class="btn btn-accent" href="https://www.monderman.com/advisory-services-connect.html">Discuss with Monderman Advisory</a></div></div></div><div id="opportunityRevealWrap" class="hidden"><div class="opportunity-opening"><strong id="opportunityTitleLabel">Opportunity title</strong><p id="opportunityOpeningText">Opportunity framing will appear here after scoring.</p></div><div class="opportunity-narrative"><div class="opportunity-block"><strong>What organizations in this sector commonly get wrong</strong><p id="oppSectorWrongText">Sector interpretation will appear here after scoring.</p></div><div class="opportunity-block"><strong>What this run suggests is happening here</strong><p id="oppRunSuggestsText">Run-specific interpretation will appear here after scoring.</p></div><div class="opportunity-block"><strong>How advantage is built here</strong><p id="oppBuildAdvantageText">Advantage-building interpretation will appear here after scoring.</p></div><div class="opportunity-block"><strong>Why the first moves are the right moves</strong><p id="oppFirstMovesText">Action rationale will appear here after scoring.</p></div><div class="opportunity-block"><strong>What leadership should avoid</strong><p id="oppLeadershipAvoidText">Leadership watchout will appear here after scoring.</p></div></div><div class="opportunity-disclaimer" id="opportunityDisclaimer">Guided insights are directional, generated from user-provided inputs Monderman has not independently audited. Any interpretation, implementation, or resulting decisions remain the user’s responsibility.</div><div class="actions" style="justify-content:flex-start;margin-top:12px;"><div class="actions-left"><a class="btn btn-accent" href="https://www.monderman.com/advisory-services-connect.html">Discuss with Monderman Advisory</a></div></div></div></div></div></article><article class="chart-card"><h3>Governance Weight × Execution Responsiveness</h3><div class="quadrant-wrap"><div class="quadrant-box"><div class="axis-y">Execution responsiveness</div><div class="q-label q-tl">Fast movement,<br>lighter governance</div><div class="q-label q-tr">Fast movement,<br>heavier governance</div><div class="q-label q-bl">Slow movement,<br>lighter governance</div><div class="q-label q-br">Slow movement,<br>heavier governance</div><div class="quad-dot" id="quadDot"></div></div><div class="axis-x">Governance weight</div><div class="quad-guide-grid"><div class="quad-guide"><strong>How to read this chart</strong><p class="tiny">Left means lighter governance weight. Right means heavier governance weight. Higher means the pathway still moves relatively well. Lower means it is absorbing more delay and drag. Rightward movement means governance weight is increasing; leftward movement means the pathway is carrying less governance weight. Positions close to the centerline should be read as borderline, not decisively strong or weak.</p></div><div class="quad-guide"><strong>Quadrant interpretation</strong><p class="tiny" id="quadrantInterpretationText">Quadrant interpretation will appear here after scoring.</p></div></div></div></article></section>
         <section class="grid-2"><article class="chart-card"><h3>Pathway burden stack</h3><div class="bar-stack" id="burdenStack"></div></article><article class="chart-card"><h3>Delay concentration map</h3><div class="bar-stack" id="delayStack"></div></article></section>
         <section class="grid-2"><article class="chart-card"><h3>Structural gaps</h3><div class="chart-wrap"><canvas id="gapChart"></canvas></div></article><article class="chart-card"><h3>Dimension profile</h3><div class="chart-wrap"><canvas id="dimensionChart"></canvas></div></article></section>
         <section class="grid-2"><article class="result-card"><h3>Intervention priority ladder</h3><div class="table-wrap"><table class="matrix"><thead><tr><th>Priority</th><th>Focus</th><th>Severity</th></tr></thead><tbody id="priorityBody"></tbody></table></div></article><article class="result-card"><h3>Contradiction signals</h3><div class="tiles-grid" id="contradictionTiles"></div></article></section>
@@ -383,43 +383,62 @@ function buildSectorSpecificOpportunity(state){
   const decision=String(state.payload?.decisionType||"").toLowerCase();
   const route=String(state.result?.route_family||"");
   const focus=String(state.topFocus||"highest-friction burden").toLowerCase();
+  const trajectory=String(state.trajectoryDirection||"flat");
 
-  let sectorPattern=`In ${sector}, organizations often accumulate drag when routine pathways become heavier than the risk or value at stake warrants.`;
-  if(sector.includes("government") || sector.includes("defense")) sectorPattern=`In ${sector}, many organizations accumulate drag when risk review, compliance layering, and serial concurrence become normal for work that still needs timely movement.`;
-  else if(sector.includes("financial")) sectorPattern=`In ${sector}, many organizations accumulate drag when control layers expand faster than the risk differentiation of the cases moving through the pathway.`;
-  else if(sector.includes("healthcare")) sectorPattern=`In ${sector}, many organizations accumulate drag when safety, compliance, and coordination requirements are managed through added review layers instead of clearer routing.`;
-  else if(sector.includes("technology")) sectorPattern=`In ${sector}, many organizations accumulate drag when cross-functional dependencies, exception handling, and stakeholder review outgrow the speed the business expects.`;
-  else if(sector.includes("manufacturing") || sector.includes("industrial")) sectorPattern=`In ${sector}, many organizations accumulate drag when approvals, routing, and exception handling spread across too many roles for the pace of operations required.`;
-  else if(sector.includes("professional services")) sectorPattern=`In ${sector}, many organizations accumulate drag when partner, finance, legal, or delivery checks become sequential rather than proportionate to the work being approved.`;
-
-  let title="Relative opportunity space";
+  let title="Recover and build advantage";
   if(state.benchmarkPos==="Above industry range") title="Preserve and extend advantage";
   else if(state.benchmarkPos==="Within industry range") title="Move out of the normalized middle";
-  else title="Recover and build advantage";
 
-  let opportunityGuidance=`This diagnostic indicates that ${focus} is the best place to intervene first.`;
-  if(decision==="risk") opportunityGuidance=`This diagnostic indicates that risk-related review burden is likely carrying more of the pathway than it should, especially around ${focus}.`;
-  else if(decision==="procurement") opportunityGuidance=`This diagnostic indicates that procurement-related movement is being constrained by approval and routing weight, especially around ${focus}.`;
-  else if(decision==="hiring") opportunityGuidance=`This diagnostic indicates that hiring movement is being constrained by sequencing, handoffs, or review density, especially around ${focus}.`;
-  else if(decision==="budget") opportunityGuidance=`This diagnostic indicates that budget movement is being constrained by layered approvals and coordination burden, especially around ${focus}.`;
-  else if(decision==="policy") opportunityGuidance=`This diagnostic indicates that governance and policy movement is being constrained by review density and structural caution, especially around ${focus}.`;
+  let opening=`This is not a case for passive observation. ${state.payload?.processName||"The pathway"} is showing a condition leadership can govern more deliberately and improve over time.`;
+  if(state.benchmarkPos==="Above industry range") opening=`This pathway is currently in a stronger position, but the task now is disciplined preservation rather than admiration.`;
+  else if(state.benchmarkPos==="Within industry range") opening=`This pathway is not failing outright, but it is still carrying enough recoverable drag to justify deliberate intervention.`;
 
-  if(route==="approval_density_route") opportunityGuidance += ` The practical opportunity is to reduce serial approvals, reserve expanded review for true exceptions, and make the normal path lighter than the exception path.`;
-  else if(route==="coordination_route") opportunityGuidance += ` The practical opportunity is to reduce unclear handoffs, tighten ownership, and remove repeated manual coordination from the normal path.`;
-  else if(route==="governance_latency_route") opportunityGuidance += ` The practical opportunity is to bring governance weight back into proportion with the actual risk being managed, rather than letting caution or drift define the pathway.`;
-  else if(route==="exception_route") opportunityGuidance += ` The practical opportunity is to reduce the amount of exception handling and side-channel effort required just to move a standard case forward.`;
-  else opportunityGuidance += ` The practical opportunity is to reduce ${focus}, make the normal path easier to move, and confirm the gain through a repeat run.`;
+  let sectorDynamic=`In ${sector}, organizations often get into trouble when routine pathways become heavier than the risk or value at stake warrants.`;
+  if(sector.includes("government") || sector.includes("defense")) sectorDynamic=`In ${sector}, organizations often get into trouble when serial concurrence, compliance layering, and review reflexes become normal even for work that still needs timely movement.`;
+  else if(sector.includes("financial")) sectorDynamic=`In ${sector}, organizations often get into trouble when control layers expand faster than the actual differentiation of risk across the cases moving through the pathway.`;
+  else if(sector.includes("healthcare")) sectorDynamic=`In ${sector}, organizations often get into trouble when safety and compliance needs are managed through more review layers rather than clearer routing, thresholds, and ownership.`;
+  else if(sector.includes("technology")) sectorDynamic=`In ${sector}, organizations often get into trouble when cross-functional dependency, stakeholder review, and exception handling outgrow the speed the business still expects.`;
+  else if(sector.includes("manufacturing") || sector.includes("industrial")) sectorDynamic=`In ${sector}, organizations often get into trouble when approvals, routing, and exception handling spread across too many roles for the operational pace required.`;
+  else if(sector.includes("professional services")) sectorDynamic=`In ${sector}, organizations often get into trouble when partner, finance, legal, or delivery checks become sequential and habitual rather than proportionate to the work being approved.`;
 
-  let rationale=`These steps are recommended because they reduce the effort spent moving the pathway itself rather than resolving the underlying decision.`;
-  if(state.trajectoryDirection==="up") rationale += ` Because drag pressure is rising, early correction matters more than waiting for more visible symptoms.`;
-  else if(state.trajectoryDirection==="down") rationale += ` Because drag pressure is easing, leadership has room to consolidate gains rather than simply react.`;
+  let runIndicates=`This run suggests that ${focus} is carrying more of the pathway than it should.`;
+  if(decision==="risk") runIndicates=`This run suggests that risk-related review burden is carrying more of the pathway than the underlying case mix likely requires, especially around ${focus}.`;
+  else if(decision==="procurement") runIndicates=`This run suggests that procurement movement is being constrained by approval and routing weight, especially around ${focus}.`;
+  else if(decision==="hiring") runIndicates=`This run suggests that hiring movement is being constrained by sequencing, handoffs, and review density, especially around ${focus}.`;
+  else if(decision==="budget") runIndicates=`This run suggests that budget movement is being constrained by layered approvals and coordination burden, especially around ${focus}.`;
+  else if(decision==="policy") runIndicates=`This run suggests that governance and policy movement is being constrained by review density and structural caution, especially around ${focus}.`;
+  if(trajectory==="up") runIndicates += ` Drag pressure also appears to be rising, which makes early correction more valuable.`;
+  else if(trajectory==="flat") runIndicates += ` The current condition may look stable, but stability here should not be mistaken for strength.`;
+  else runIndicates += ` Some pressure may be easing, but that should be verified rather than assumed.`;
 
-  let watchout=`Do not confuse current movement with a good structural trade-off.`;
-  if(state.benchmarkPos==="Above industry range") watchout=`Do not assume current advantage is self-sustaining; unmanaged governance drift can erode it quietly.`;
-  else if(state.benchmarkPos==="Within industry range") watchout=`Do not treat peer-normal performance as strategically sufficient if reclaimable drag is still present.`;
-  else watchout=`Do not respond by simply adding oversight; heavier governance without redesign will usually deepen the condition rather than fix it.`;
+  let buildAdvantage=`Advantage is built here by reducing the heaviest visible burden first, then tightening the normal path so the organization does not keep paying for movement with manual compensation.`;
+  if(route==="approval_density_route") buildAdvantage=`Advantage is built here by making standard cases easier to move than exception cases: reduce serial approvals, clarify thresholds for expanded review, and keep the normal path lighter than the exceptional one.`;
+  else if(route==="coordination_route") buildAdvantage=`Advantage is built here by reducing unclear handoffs, tightening ownership, and removing repeated manual coordination from the normal path.`;
+  else if(route==="governance_latency_route") buildAdvantage=`Advantage is built here by bringing governance weight back into proportion with the actual risk being managed, rather than letting caution or drift define the pathway.`;
+  else if(route==="exception_route") buildAdvantage=`Advantage is built here by reducing how much exception handling and side-channel effort is required just to move a standard case forward.`;
+  if(state.benchmarkPos==="Above industry range") buildAdvantage=`Advantage is built here by protecting what is currently working and stripping out low-yield burden before drift quietly compounds into a weaker condition.`;
+  else if(state.benchmarkPos==="Within industry range") buildAdvantage=`Advantage is built here by moving the pathway out of the normalized middle: remove burden the organization has learned to tolerate and convert hidden compensatory effort back into usable capacity.`;
 
-  return { title, sectorPattern, opportunityGuidance, rationale, watchout };
+  let firstMoves=`These first moves are the right moves because they reduce the effort spent moving the pathway itself rather than resolving the underlying decision. Start with ${focus}, then verify the gain through a repeat run rather than assuming the condition has been solved.`;
+  if(trajectory==="up") firstMoves += ` Because drag pressure is rising, waiting for more visible symptoms would likely make the pathway heavier before it becomes cleaner.`;
+
+  let watchout=`Leadership should avoid treating current movement as evidence that the structural trade-off is sound.`;
+  if(state.benchmarkPos==="Above industry range") watchout=`Leadership should avoid assuming current advantage is self-sustaining. Unmanaged governance drift can erode a strong position quietly.`;
+  else if(state.benchmarkPos==="Within industry range") watchout=`Leadership should avoid mistaking peer-normal performance for strategic sufficiency if reclaimable drag is still present.`;
+  else watchout=`Leadership should avoid responding by simply adding more oversight. Heavier governance without redesign usually deepens the condition rather than fixing it.`;
+
+  return {
+    title,
+    opening,
+    sectorDynamic,
+    runIndicates,
+    buildAdvantage,
+    firstMoves,
+    watchout,
+    opportunityGuidance: `${opening} ${runIndicates} ${buildAdvantage}`,
+    sectorPattern: sectorDynamic,
+    rationale: firstMoves
+  };
 }
 function buildHarmonizedNarrative(result,payload){
   const state = buildInterpretiveState(result,payload);
@@ -427,10 +446,13 @@ function buildHarmonizedNarrative(result,payload){
   const narrative = result.narrative || {};
   const backendOpportunity = {
     title: (typeof narrative.opportunity_title==="string" && narrative.opportunity_title.trim()) ? narrative.opportunity_title.trim() : "",
-    sectorPattern: (typeof narrative.sector_pattern==="string" && narrative.sector_pattern.trim()) ? narrative.sector_pattern.trim() : "",
-    opportunityGuidance: (typeof narrative.opportunity_guidance==="string" && narrative.opportunity_guidance.trim()) ? narrative.opportunity_guidance.trim() : "",
-    rationale: (typeof narrative.opportunity_rationale==="string" && narrative.opportunity_rationale.trim()) ? narrative.opportunity_rationale.trim() : "",
-    actionsRationale: (typeof narrative.recommended_actions_rationale==="string" && narrative.recommended_actions_rationale.trim()) ? narrative.recommended_actions_rationale.trim() : "",
+    opening: (typeof narrative.opportunity_opening==="string" && narrative.opportunity_opening.trim()) ? narrative.opportunity_opening.trim() : "",
+    sectorDynamic: (typeof narrative.sector_dynamic==="string" && narrative.sector_dynamic.trim()) ? narrative.sector_dynamic.trim() : ((typeof narrative.sector_pattern==="string" && narrative.sector_pattern.trim()) ? narrative.sector_pattern.trim() : ""),
+    runIndicates: (typeof narrative.what_this_run_indicates==="string" && narrative.what_this_run_indicates.trim()) ? narrative.what_this_run_indicates.trim() : ((typeof narrative.opportunity_guidance==="string" && narrative.opportunity_guidance.trim()) ? narrative.opportunity_guidance.trim() : ""),
+    buildAdvantage: (typeof narrative.how_advantage_is_built_here==="string" && narrative.how_advantage_is_built_here.trim()) ? narrative.how_advantage_is_built_here.trim() : "",
+    firstMove1Reason: (typeof narrative.first_move_1_reason==="string" && narrative.first_move_1_reason.trim()) ? narrative.first_move_1_reason.trim() : "",
+    firstMove2Reason: (typeof narrative.first_move_2_reason==="string" && narrative.first_move_2_reason.trim()) ? narrative.first_move_2_reason.trim() : "",
+    rationale: (typeof narrative.recommended_actions_rationale==="string" && narrative.recommended_actions_rationale.trim()) ? narrative.recommended_actions_rationale.trim() : ((typeof narrative.opportunity_rationale==="string" && narrative.opportunity_rationale.trim()) ? narrative.opportunity_rationale.trim() : ""),
     watchout: (typeof narrative.leadership_watchout==="string" && narrative.leadership_watchout.trim()) ? narrative.leadership_watchout.trim() : ""
   };
   const fallbackOpportunity = buildSectorSpecificOpportunity(state);
@@ -485,10 +507,15 @@ function buildHarmonizedNarrative(result,payload){
   const benchmark = buildBenchmarkInterpretationText({...result,__interpretiveState:state});
   const opportunityFields = {
     title: backendOpportunity.title || fallbackOpportunity.title,
-    sectorPattern: backendOpportunity.sectorPattern || fallbackOpportunity.sectorPattern,
-    opportunityGuidance: backendOpportunity.opportunityGuidance || fallbackOpportunity.opportunityGuidance,
-    rationale: backendOpportunity.actionsRationale || backendOpportunity.rationale || fallbackOpportunity.rationale,
-    watchout: backendOpportunity.watchout || fallbackOpportunity.watchout
+    opening: backendOpportunity.opening || fallbackOpportunity.opening,
+    sectorDynamic: backendOpportunity.sectorDynamic || fallbackOpportunity.sectorDynamic,
+    runIndicates: backendOpportunity.runIndicates || fallbackOpportunity.runIndicates,
+    buildAdvantage: backendOpportunity.buildAdvantage || fallbackOpportunity.buildAdvantage,
+    firstMoves: [backendOpportunity.firstMove1Reason, backendOpportunity.firstMove2Reason, backendOpportunity.rationale].filter(Boolean).join(" "),
+    watchout: backendOpportunity.watchout || fallbackOpportunity.watchout,
+    opportunityGuidance: (typeof narrative.opportunity_guidance==="string" && narrative.opportunity_guidance.trim()) ? narrative.opportunity_guidance.trim() : fallbackOpportunity.opportunityGuidance,
+    sectorPattern: (typeof narrative.sector_pattern==="string" && narrative.sector_pattern.trim()) ? narrative.sector_pattern.trim() : fallbackOpportunity.sectorPattern,
+    rationale: backendOpportunity.rationale || fallbackOpportunity.rationale
   };
   const opportunity = opportunityFields.opportunityGuidance;
   const quadrant = buildQuadrantInterpretation({...result,__interpretiveState:state});
@@ -709,16 +736,20 @@ function renderResults(result,payload,outputMode){
 
   const bi=document.getElementById("benchmarkInterpretationText");
   if(bi) bi.textContent=harmonized.benchmark;
-  const oi=document.getElementById("opportunityText");
-  if(oi) oi.textContent=harmonized.opportunityFields.opportunityGuidance;
-  const ot=document.getElementById("opportunityTitleText");
+  const oo=document.getElementById("opportunityOpeningText");
+  if(oo) oo.textContent=harmonized.opportunityFields.opening;
+  const ot=document.getElementById("opportunityTitleLabel");
   if(ot) ot.textContent=harmonized.opportunityFields.title;
-  const sp=document.getElementById("sectorPatternText");
-  if(sp) sp.textContent=harmonized.opportunityFields.sectorPattern;
-  const ar=document.getElementById("actionsRationaleText");
-  if(ar) ar.textContent=harmonized.opportunityFields.rationale;
-  const lw=document.getElementById("leadershipWatchoutText");
-  if(lw) lw.textContent=harmonized.opportunityFields.watchout;
+  const os=document.getElementById("oppSectorWrongText");
+  if(os) os.textContent=harmonized.opportunityFields.sectorDynamic;
+  const oru=document.getElementById("oppRunSuggestsText");
+  if(oru) oru.textContent=harmonized.opportunityFields.runIndicates;
+  const oba=document.getElementById("oppBuildAdvantageText");
+  if(oba) oba.textContent=harmonized.opportunityFields.buildAdvantage;
+  const ofm=document.getElementById("oppFirstMovesText");
+  if(ofm) ofm.textContent=harmonized.opportunityFields.firstMoves || harmonized.opportunityFields.rationale;
+  const olw=document.getElementById("oppLeadershipAvoidText");
+  if(olw) olw.textContent=harmonized.opportunityFields.watchout;
 
   const executiveSummary=buildExecutiveSummary(result,payload);
   document.getElementById("execSummaryHeadline").textContent=executiveSummary.headline;
@@ -728,11 +759,11 @@ function renderResults(result,payload,outputMode){
   const eot=document.getElementById("execOpportunityTitle");
   if(eot) eot.textContent=harmonized.opportunityFields.title || "What this means";
   const esp=document.getElementById("execSectorPatternText");
-  if(esp) esp.textContent=harmonized.opportunityFields.sectorPattern ? `Sector pattern: ${harmonized.opportunityFields.sectorPattern}` : "";
+  if(esp) esp.textContent=harmonized.opportunityFields.sectorDynamic ? `What organizations in this sector commonly get wrong: ${harmonized.opportunityFields.sectorDynamic}` : "";
   const ear=document.getElementById("execActionsRationaleText");
-  if(ear) ear.textContent=harmonized.opportunityFields.rationale ? `Why these actions: ${harmonized.opportunityFields.rationale}` : "";
+  if(ear) ear.textContent=harmonized.opportunityFields.firstMoves ? `Why the first moves are the right moves: ${harmonized.opportunityFields.firstMoves}` : "";
   const elw=document.getElementById("execLeadershipWatchoutText");
-  if(elw) elw.textContent=harmonized.opportunityFields.watchout ? `Leadership watchout: ${harmonized.opportunityFields.watchout}` : "";
+  if(elw) elw.textContent=harmonized.opportunityFields.watchout ? `What leadership should avoid: ${harmonized.opportunityFields.watchout}` : "";
   renderList("execSummaryActions", harmonized.recommendedActions);
 
   document.getElementById("exportMetaBenchmark").textContent=`Benchmark: ${result.benchmark_position||"Industry range comparison"}`;
@@ -946,7 +977,7 @@ function buildExecutiveReportHtml(result,payload){
     <div class="bottom-line">Bottom line for leadership: ${safe(executiveSummary.takeaway)}</div>${reclaim.amount>150000 ? `<div class="reclaim-box"><strong>Reclaim potential*</strong><span>${safe(formatCurrency(reclaim.amount))}</span><p>${safe(reclaim.driverText)} Potential recovery assumes the organization materially reduces the highest visible drag sources.</p></div>` : ""}
     <div class="summary-grid">
       <div class="mini"><p class="label">Benchmark</p><p class="value">${safe(result.benchmark_position||"—")}</p><p class="subv">${safe(harmonized.benchmark)}</p></div>
-      <div class="mini"><p class="label">Opportunity space</p><p class="value">${safe(harmonized.opportunityFields.title || harmonized.opportunityLabel)}</p><p class="subv">${safe(harmonized.opportunityFields.opportunityGuidance)}</p></div>
+      <div class="mini"><p class="label">Opportunity space</p><p class="value">${safe(harmonized.opportunityFields.title || harmonized.opportunityLabel)}</p><p class="subv">${safe(harmonized.opportunityFields.opening || harmonized.opportunityFields.opportunityGuidance)}</p></div>
       <div class="mini"><p class="label">Trajectory</p><p class="value">${safe(trajectoryLabel)}</p><p class="subv">${safe(trajectoryNote)}</p></div>
       <div class="mini"><p class="label">Quadrant meaning</p><p class="value">Current position</p><p class="subv">${safe(harmonized.quadrant)}</p></div>
     </div>
@@ -965,7 +996,7 @@ function buildExecutiveReportHtml(result,payload){
     <section class="panel">
       <h2>Key friction flags</h2>
       <ul>${flags}</ul>
-      <p style="margin-top:10px;">${safe(harmonized.opportunityFields.sectorPattern ? `Sector pattern: ${harmonized.opportunityFields.sectorPattern}` : "")}</p>
+      <p style="margin-top:10px;">${safe(harmonized.opportunityFields.sectorDynamic ? `What organizations in this sector commonly get wrong: ${harmonized.opportunityFields.sectorDynamic}` : "")}</p>
     </section>
     <section class="panel">
       <h2>Contradiction signals</h2>
@@ -974,8 +1005,9 @@ function buildExecutiveReportHtml(result,payload){
     <section class="panel">
       <h2>Advisory note</h2>
       <p>${safe(harmonized.tradeoff)}</p>
-      <p style="margin-top:10px;">${safe(harmonized.opportunityFields.rationale ? `Why these actions: ${harmonized.opportunityFields.rationale}` : "")}</p>
-      <p style="margin-top:10px;">${safe(harmonized.opportunityFields.watchout ? `Leadership watchout: ${harmonized.opportunityFields.watchout}` : "")}</p>
+      <p style="margin-top:10px;">${safe(harmonized.opportunityFields.buildAdvantage ? `How advantage is built here: ${harmonized.opportunityFields.buildAdvantage}` : "")}</p>
+      <p style="margin-top:10px;">${safe(harmonized.opportunityFields.firstMoves ? `Why the first moves are the right moves: ${harmonized.opportunityFields.firstMoves}` : "")}</p>
+      <p style="margin-top:10px;">${safe(harmonized.opportunityFields.watchout ? `What leadership should avoid: ${harmonized.opportunityFields.watchout}` : "")}</p>
     </section>
   </div>
 
