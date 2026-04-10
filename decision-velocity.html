@@ -769,15 +769,23 @@ function buildPriorityActions(result,payload){
   const process=(payload.processName||"this pathway").trim().toLowerCase();
   const decisionType=(payload.decisionType||"").toLowerCase();
   const actions=[];
-  const approvalHigh=(result.burden_breakdown?.approval||0)>=55;
-  const escalationHigh=(result.burden_breakdown?.escalation||0)>=42;
-  const coordinationHigh=(result.burden_breakdown?.coordination||0)>=55 || (result.burden_breakdown?.handoff||0)>=40;
-  const keyPersonHigh=(result.burden_breakdown?.key_person||0)>=42;
+
+  const approvalHigh=(result.burden_breakdown?.approval||0)>=45;
+  const escalationHigh=(result.burden_breakdown?.escalation||0)>=35;
+  const coordinationHigh=(result.burden_breakdown?.coordination||0)>=45 || (result.burden_breakdown?.handoff||0)>=35;
+  const keyPersonHigh=(result.burden_breakdown?.key_person||0)>=40;
+  const travelLike = process.includes("travel");
+
+  if(travelLike){
+    actions.push("Collapse routine travel requests into a lighter standard path, reserving expanded scrutiny for genuinely exceptional trips, higher-cost cases, or clearly elevated risk conditions.");
+    actions.push("Clarify decision authority across manager, finance, and oversight roles so normal cases resolve at the intended level rather than drifting upward through habit or uncertainty.");
+    actions.push("Create a clear exception threshold so unusual travel receives added scrutiny without causing the normal case to inherit the weight of the exception case.");
+    actions.push("Re-run the pathway after the first redesign to confirm that burden was actually removed rather than shifted into new coordination work, informal escalation, or side-channel fixes.");
+    return actions.slice(0,4);
+  }
 
   if(approvalHigh){
-    if(process.includes("travel")){
-      actions.push("Collapse routine travel cases into a lighter standard approval path, reserving expanded review for genuinely exceptional trips.");
-    } else if(decisionType==="procurement"){
+    if(decisionType==="procurement"){
       actions.push("Reduce serial procurement approvals for standard cases and reserve heavier review for true exceptions, higher spend, or elevated risk.");
     } else if(decisionType==="hiring"){
       actions.push("Clarify which hiring decisions belong with the manager, which belong with HR, and which truly require added approval so routine hiring does not stall in avoidable review layers.");
@@ -789,13 +797,7 @@ function buildPriorityActions(result,payload){
   }
 
   if(coordinationHigh){
-    if(decisionType==="hiring"){
-      actions.push("Tighten handoffs among recruiter, hiring manager, panel, and approver so the pathway moves on clear ownership rather than follow-up and re-clarification.");
-    } else if(decisionType==="budget"){
-      actions.push("Standardize required inputs, routing, and ownership across requestor, finance, and approving authority so requests stop looping backward for avoidable clarification.");
-    } else {
-      actions.push("Clarify the required inputs, ownership points, and handoffs so the pathway can move without repeated manual coordination, chasing, and side-channel work.");
-    }
+    actions.push("Clarify required inputs, ownership points, and handoffs so the pathway can move without repeated manual coordination, chasing, and side-channel work.");
   }
 
   if(escalationHigh){
@@ -807,7 +809,7 @@ function buildPriorityActions(result,payload){
   }
 
   if(!actions.length){
-    actions.push("Protect the current pathway condition while removing the small recurring sources of drag most likely to accumulate into a heavier structure over time.");
+    actions.push("Protect the current pathway condition while removing the recurring sources of drag most likely to accumulate into a heavier structure over time.");
   }
 
   actions.push("Re-run the diagnostic after the first material intervention to verify that drag was actually reduced rather than merely absorbed differently.");
@@ -834,23 +836,46 @@ function buildExecutiveTakeaway(result,payload){
 function buildExecutiveSummary(result,payload){
   const harmonized=buildHarmonizedNarrative(result,payload);
   const process=(payload.processName||"This pathway").trim();
+  const benchmarkPos=result.benchmark_position||"Comparable range context unavailable";
+  const trajectory=result.trajectory?.label||"No strong directional signal";
+
+  let headline=`${process} is functioning, but carrying enough structural drag to leave meaningful value unreclaimed.`;
+  if(result.benchmark_position==="Above industry range" || result.benchmark_position==="Above comparable range"){
+    headline=`${process} is currently performing from a stronger position, but that advantage will erode if drag continues to accumulate.`;
+  } else if(result.benchmark_position==="Below industry range" || result.benchmark_position==="Below comparable range"){
+    headline=`${process} is carrying a heavier structural burden than a comparable pathway likely should.`;
+  }
+
+  let takeaway=`On current inputs, ${process.toLowerCase()} appears serviceable but increasingly burdened. The issue is not collapse. The issue is that routine movement is becoming slower, more management-intensive, and more expensive than it likely needs to be.`;
+  if(result.benchmark_position==="Above industry range" || result.benchmark_position==="Above comparable range"){
+    takeaway=`On current inputs, ${process.toLowerCase()} appears stronger than many comparable pathways. The leadership task is to preserve that position by preventing routine burden from quietly compounding.`;
+  } else if(result.benchmark_position==="Below industry range" || result.benchmark_position==="Below comparable range"){
+    takeaway=`On current inputs, ${process.toLowerCase()} appears structurally heavier than comparable pathways. Leadership should treat that as recoverable drag rather than an inevitable cost of operating.`;
+  }
+
+  const body = [
+    harmonized.executive,
+    `Benchmark context: ${benchmarkPos}.`,
+    `Trajectory: ${trajectory}.`,
+    result.trajectory?.note || ""
+  ].filter(Boolean).join(" ").replace(/\s+/g," ").trim();
+
   return {
-    headline:`${process} shows ${String(result.score_band||result.band||"directionally assessed").toLowerCase()}.`,
-    takeaway: buildExecutiveTakeaway({...result,__interpretiveState:harmonized.state},payload),
-    body:(`${harmonized.executive} ${harmonized.benchmark} ${result.trajectory?.note||""}`).replace(/\s+/g," ").trim(),
-    opportunity:harmonized.opportunity
+    headline,
+    takeaway,
+    body,
+    opportunity:harmonized.opportunityFields.opening || harmonized.opportunity
   };
 }
 function buildBenchmarkInterpretationText(result){
-  const pos=result.benchmark_position||"Industry range comparison";
-  const band=result.score_band||result.band||"";
-  if(pos==="Within industry range"){
-    return `This pathway sits inside the current sector range for this pathway type. That is useful context, but not a success signal: ${String(band).toLowerCase()} can still mean leadership is funding hidden drag that the sector has merely learned to tolerate.`;
+  const pos=result.benchmark_position||"Comparable range context unavailable";
+  if(pos==="Within comparable range" || pos==="Within industry range"){
+    return "This pathway appears broadly in line with comparable pathways in this operating context. That should be read as context, not comfort: peer-normal pathways can still carry substantial reclaimable drag.";
   }
-  if(pos==="Above industry range"){
-    return `This pathway is currently above the sector range for this pathway type. The leadership task is to preserve and extend that position before added burden, caution, or drift quietly degrade it.`;
+  if(pos==="Above comparable range" || pos==="Above industry range"){
+    return "This pathway appears stronger than many comparable pathways in this operating context. The leadership task is to preserve and extend that position before routine burden quietly accumulates.";
   }
-  return `This pathway is currently below the sector range for this pathway type. That should be read less as a comparison problem and more as evidence of recoverable structural drag.`;
+  return "This pathway appears below the current comparable range for this pathway type, suggesting a structurally heavier path than peers are likely carrying.";
 }
 function buildOpportunityText(result){
   // Deprecated helper retained only for backward compatibility.
@@ -1082,12 +1107,22 @@ function buildExecutiveReportHtml(result,payload){
   const trajectoryLabel = result.trajectory?.label || "No strong directional signal";
   const trajectoryNote = result.trajectory?.note || "";
   const generated = nowLabel();
+  const hoursNum = Number(result.exposure?.annual_hours||0);
+  const costNum = Number(result.exposure?.annual_cost||0);
   const hours = result.exposure?.annual_hours!=null ? `${Math.round(result.exposure.annual_hours)} hrs` : "—";
   const cost = result.exposure?.annual_cost!=null ? formatCurrency(result.exposure.annual_cost) : "—";
   const drag = result.exposure?.capacity_drag_percent!=null ? `${Math.round(result.exposure.capacity_drag_percent)}%` : "—";
   const participantLabel = humanize(payload.participantMode||"executive");
   const depthLabel = payload.diagnosticDepth ? `${payload.diagnosticDepth}-minute diagnostic` : "Diagnostic";
   const reclaim = estimateReclaimPotential(result);
+
+  const sectorWrong = harmonized.opportunityFields.sectorDynamic || "Comparable organizations often allow routine pathways to inherit heavier scrutiny than the normal case actually requires.";
+  const runSuggests = harmonized.opportunityFields.runIndicates || harmonized.executive;
+  const buildAdvantage = harmonized.opportunityFields.buildAdvantage || "The advantage is not merely a faster path. It is a lighter routine path that returns time, managerial attention, and productive capacity to higher-yield work.";
+  const firstMoves = harmonized.opportunityFields.firstMoves || "These first moves matter because they reduce the structure carrying the work, not just the symptoms people are compensating for.";
+  const watchout = harmonized.opportunityFields.watchout || "Do not respond by adding more control, more visibility pressure, or more reviewers if the normal case is already carrying too much weight.";
+  const roiLine = `On current inputs, this pathway may be absorbing roughly ${hoursNum.toLocaleString()} hours of organizational effort and about ${formatCurrency(costNum)} in annual labor exposure. That is not just process inefficiency. It is time, money, and managerial attention being consumed to move the pathway itself rather than support the underlying business need.`;
+  const partialRecoveryLine = `Even a partial reduction in approval burden could return meaningful labor capacity, reduce low-yield management touch, and improve responsiveness without requiring major system change.`;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -1118,6 +1153,7 @@ function buildExecutiveReportHtml(result,payload){
   .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}
   .panel{background:#FFF;border:1px solid rgba(21,32,43,.08);border-radius:24px;box-shadow:var(--shadow-md);padding:22px 22px 20px}
   .panel h2{margin:0 0 10px;font-size:1.04rem;line-height:1.2;letter-spacing:-.02em}
+  .panel h3{margin:0 0 8px;font-size:.96rem;line-height:1.2;letter-spacing:-.01em;color:var(--ink)}
   .panel p,.panel li{color:var(--ink-soft);line-height:1.68}
   .summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:14px}
   .mini{background:#FFF;border:1px solid rgba(21,32,43,.08);border-radius:18px;box-shadow:var(--shadow-sm);padding:16px}
@@ -1138,6 +1174,11 @@ function buildExecutiveReportHtml(result,payload){
   .tmr-card{padding:16px;border-radius:18px;background:linear-gradient(180deg,#FBFCFE 0%,#F8FAFC 100%);border:1px solid rgba(21,32,43,.08)}
   .tmr-card strong{display:block;margin-bottom:6px;font-size:.74rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted)}
   .tmr-card span{display:block;font-size:1.12rem;font-weight:700;color:var(--ink)}
+  .roi-callout{margin-top:12px;padding:14px 16px;border-radius:16px;background:#F8FAFC;border:1px solid rgba(21,32,43,.08)}
+  .roi-callout p{margin:0 0 8px}
+  .op-block{display:grid;gap:14px}
+  .op-block ul{margin:0;padding-left:18px}
+  .op-block li{margin:0 0 6px}
   ul{margin:8px 0 0;padding-left:18px}
   li{margin:0 0 7px}
   .footer{margin-top:16px;padding-top:12px;border-top:1px solid rgba(21,32,43,.10);font-size:.82rem;color:var(--ink-muted)}
@@ -1154,13 +1195,13 @@ function buildExecutiveReportHtml(result,payload){
     <div class="hero-inner">
       <p class="kicker">Monderman • Decision Velocity Executive Report</p>
       <h1>${safe(payload.processName||"Decision pathway")}</h1>
-      <p class="sub">Leadership-ready executive report focused on current condition, industry-range context, trajectory, relative opportunity space, and the first actions most likely to improve decision velocity.</p>
+      <p class="sub">Leadership-ready executive report focused on current condition, comparable-range context, trajectory, reclaimable advantage, and the first actions most likely to improve decision velocity.</p>
       <div class="meta">
         <span class="pill">Generated: ${safe(generated)}</span>
         <span class="pill">Perspective: ${safe(participantLabel)}</span>
         <span class="pill">Depth: ${safe(depthLabel)}</span>
         <span class="pill">Industry: ${safe(result.industry_label||humanize(payload.industry||"other"))}</span>
-        <span class="pill">Benchmark: ${safe(result.benchmark_position||"Industry range comparison")}</span>
+        <span class="pill">Benchmark: ${safe(result.benchmark_position||"Comparable range context unavailable")}</span>
       </div>
       <div class="score-panel">
         <div class="score-inner">
@@ -1179,10 +1220,11 @@ function buildExecutiveReportHtml(result,payload){
   <section class="panel" style="margin-top:14px">
     <h2>Executive summary</h2>
     <p>${safe(executiveSummary.headline)}</p>
-    <div class="bottom-line">Bottom line for leadership: ${safe(executiveSummary.takeaway)}</div>${reclaim.amount>150000 ? `<div class="reclaim-box"><strong>Reclaim potential*</strong><span>${safe(formatCurrency(reclaim.amount))}</span><p>${safe(reclaim.driverText)} Potential recovery assumes the organization materially reduces the highest visible drag sources.</p></div>` : ""}
+    <div class="bottom-line">Bottom line for leadership: ${safe(executiveSummary.takeaway)}</div>
+    ${reclaim.amount>0 ? `<div class="reclaim-box"><strong>Reclaim potential*</strong><span>${safe(formatCurrency(reclaim.amount))}</span><p>${safe(reclaim.driverText)} Potential recovery assumes the organization materially reduces the highest visible drag sources.</p></div>` : ""}
     <div class="summary-grid">
       <div class="mini"><p class="label">Benchmark</p><p class="value">${safe(result.benchmark_position||"—")}</p><p class="subv">${safe(harmonized.benchmark)}</p></div>
-      <div class="mini"><p class="label">Opportunity space</p><p class="value">${safe(harmonized.opportunityFields.title || harmonized.opportunityLabel)}</p><p class="subv">${safe(harmonized.opportunityFields.opening || harmonized.opportunityFields.opportunityGuidance)}</p></div>
+      <div class="mini"><p class="label">Reclaimable advantage</p><p class="value">${safe(harmonized.opportunityFields.title || harmonized.opportunityLabel)}</p><p class="subv">The opportunity is not just to make the pathway less frustrating. It is to reduce low-yield structural weight, return labor capacity to higher-value work, and preserve responsiveness as volume or complexity grows.</p></div>
       <div class="mini"><p class="label">Trajectory</p><p class="value">${safe(trajectoryLabel)}</p><p class="subv">${safe(trajectoryNote)}</p></div>
       <div class="mini"><p class="label">Quadrant meaning</p><p class="value">Current position</p><p class="subv">${safe(harmonized.quadrant)}</p></div>
     </div>
@@ -1190,6 +1232,10 @@ function buildExecutiveReportHtml(result,payload){
       <div class="tmr-card"><strong>Hours exposure*</strong><span>${safe(hours)}</span></div>
       <div class="tmr-card"><strong>Cost exposure*</strong><span>${safe(cost)}</span></div>
       <div class="tmr-card"><strong>Capacity drag*</strong><span>${safe(drag)}</span></div>
+    </div>
+    <div class="roi-callout">
+      <p>${safe(roiLine)}</p>
+      <p>${safe(partialRecoveryLine)}</p>
     </div>
   </section>
 
@@ -1208,10 +1254,35 @@ function buildExecutiveReportHtml(result,payload){
       <ul>${contradictions}</ul>
     </section>
     <section class="panel">
-      <h2>Advisory note</h2>
-      <p>${safe(harmonized.tradeoff)}</p>
-      <p style="margin-top:10px;">${safe(harmonized.opportunityFields.firstMoves ? `Why these first moves matter: ${harmonized.opportunityFields.firstMoves}` : "")}</p>
-      <p style="margin-top:10px;">${safe(harmonized.opportunityFields.watchout ? `What leadership should avoid: ${harmonized.opportunityFields.watchout}` : "")}</p>
+      <h2>Reclaimable advantage</h2>
+      <div class="op-block">
+        <div>
+          <h3>What this run suggests</h3>
+          <p>${safe(runSuggests)}</p>
+        </div>
+        <div>
+          <h3>What organizations like this often get wrong</h3>
+          <p>${safe(sectorWrong)}</p>
+        </div>
+        <div>
+          <h3>How advantage is built</h3>
+          <p>${safe(buildAdvantage)}</p>
+          <ul>
+            <li>Returns managerial and staff capacity to higher-yield work.</li>
+            <li>Reduces the need for unnecessary escalation and manual follow-up.</li>
+            <li>Improves responsiveness without weakening oversight quality.</li>
+            <li>Scales more cleanly as pathway volume or complexity grows.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Why the first moves are the right moves</h3>
+          <p>${safe(firstMoves)}</p>
+        </div>
+        <div>
+          <h3>What leadership should avoid</h3>
+          <p>${safe(watchout)}</p>
+        </div>
+      </div>
     </section>
   </div>
 
@@ -1271,24 +1342,46 @@ function downloadExecutiveReport(result,payload){
   return artifact;
 }
 
-async function downloadExecutiveReportPdf(result,payload){
+async async function downloadExecutiveReportPdf(result,payload){
   const artifact = createExecutiveReportArtifact(result,payload);
-  const reportWindow = window.open(artifact.url, "_blank", "noopener,noreferrer,width=1180,height=920");
-  if(!reportWindow){
+  const iframe = document.createElement("iframe");
+  iframe.style.position = "fixed";
+  iframe.style.right = "0";
+  iframe.style.bottom = "0";
+  iframe.style.width = "1px";
+  iframe.style.height = "1px";
+  iframe.style.border = "0";
+  iframe.style.opacity = "0";
+  iframe.setAttribute("aria-hidden","true");
+  iframe.src = artifact.url;
+  document.body.appendChild(iframe);
+
+  const cleanup = ()=>{
+    setTimeout(()=>{
+      try{ document.body.removeChild(iframe); }catch(e){}
+      try{ URL.revokeObjectURL(artifact.url); }catch(e){}
+    }, 2500);
+  };
+
+  iframe.onload = ()=>{
+    try{
+      const win = iframe.contentWindow;
+      if(win){
+        win.focus();
+        setTimeout(()=>{
+          try{ win.print(); }catch(e){}
+          cleanup();
+        }, 250);
+        return;
+      }
+    }catch(e){}
     reportDownloadLink.href = artifact.url;
     reportDownloadLink.download = artifact.filename;
     reportDownloadLink.click();
-    setTimeout(()=>{ try{ URL.revokeObjectURL(artifact.url); }catch(e){} }, 1500);
-    alert("Pop-ups were blocked, so the executive report HTML was downloaded instead.");
-    return artifact;
-  }
-  reportWindow.addEventListener("load", ()=>{
-    try{
-      reportWindow.focus();
-      reportWindow.print();
-    }catch(e){}
-    setTimeout(()=>{ try{ URL.revokeObjectURL(artifact.url); }catch(e){} }, 2500);
-  });
+    cleanup();
+    alert("PDF print could not be opened directly, so the executive report HTML was downloaded instead.");
+  };
+
   return artifact;
 }
 
