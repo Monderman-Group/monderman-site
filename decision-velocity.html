@@ -181,8 +181,79 @@ const state={path:["symptom"],index:0,answers:{},result:null,mode:null,depth:nul
 function hideLoader(){setTimeout(()=>pageLoader.classList.add("hidden"),LOADER_MS)} function showStage(stage){[laneStage,depthStage,introStage,questionStage,processingStage,resultsStage].forEach(el=>el.classList.remove("active")); stage.classList.add("active"); questionFooter.style.display=stage===questionStage?"grid":"none"} function setHeader(h,s,st){envHeadline.textContent=h; envSubcopy.textContent=s; statusPill.textContent=st} function currentQuestionId(){return state.path[state.index]} function currentQuestion(){return q[currentQuestionId()]}
 function buildPath(){const branch=branchMap[state.answers.symptom]||[]; const laneBlock=laneSpecificBlocks[state.mode]||[]; const depthBlock=(depthConfigs[state.depth]?.extra)||[]; state.path=["symptom",...commonIntro,...branch,...laneBlock,...depthBlock,...commonOutro]; state.path=Array.from(new Set(state.path)); if(state.index>=state.path.length) state.index=state.path.length-1}
 function startDiagnostic(){state.index=0; state.answers={}; state.result=null; state.path=["symptom"]; destroyCharts(); const lane=laneConfigs[state.mode]||laneConfigs.executive; const depth=depthConfigs[state.depth]||depthConfigs["30"]; setHeader(`${lane.header} • ${depth.label}`,`${lane.subcopy} ${depth.subcopy}`,"Question path active"); showStage(questionStage); renderQuestion()} function restartDiagnostic(){startDiagnostic()} function selectLane(mode){state.mode=mode; document.querySelectorAll(".lane-btn").forEach(btn=>btn.classList.toggle("active",btn.dataset.lane===mode)); document.querySelectorAll("[data-lane-tile]").forEach(tile=>tile.classList.toggle("selected",tile.dataset.laneTile===mode)); const lane=laneConfigs[mode]||laneConfigs.executive; laneAsideTitle.textContent=lane.aside; setHeader(lane.header,lane.subcopy,"Perspective selected"); syncBeginButton(); showStage(depthStage)} function selectDepth(depth){state.depth=depth; document.querySelectorAll("[data-depth]").forEach(btn=>btn.classList.toggle("selected",btn.dataset.depth===depth)); const lane=laneConfigs[state.mode]||laneConfigs.executive; const cfg=depthConfigs[depth]||depthConfigs["30"]; setHeader(cfg.header,`${lane.label} perspective • ${cfg.subcopy}`,"Depth selected"); syncBeginButton(); showStage(introStage)} function getQuestionDef(id){const base=q[id]; const override=((laneOverrides[state.mode]||{})[id])||{}; return {...base,...override}} 
-function renderQuestion(){const question=getQuestionDef(currentQuestionId()); if(!question) return; questionCluster.textContent=question.cluster; questionStep.textContent=`Question ${state.index+1} of ${state.path.length}`; questionTitle.textContent=""; questionCopy.textContent=""; requiredNotice.classList.remove("show"); questionBody.innerHTML=""; const shell=document.createElement("div"); shell.className="cluster-stack"; shell.appendChild(renderQuestionCard(question,false)); questionBody.appendChild(shell); backBtn.disabled=state.index===0; skipBtn.disabled=question.required; continueBtn.style.display=question.kind==="choice"?"none":"inline-flex"; updateProgress()}
-function renderQuestionCard(question,isChild=false){const card=document.createElement("div"); if(isChild) card.className="mini-card"; const existing=state.answers[question.id]; card.innerHTML=`<div class="title-row"><div>${isChild?'<p class="mini-eyebrow">Follow-up</p>':''}<h4 style="margin:${isChild?'0 0 6px':'0 0 8px'};font-size:${isChild?'1rem':'1.34rem'};line-height:${isChild?'1.26':'1.16'};letter-spacing:-.03em;">${escapeHtml(question.title)}</h4></div>${question.help?`<button class="info-btn" type="button" aria-label="More information">i</button>`:''}</div><p class="${isChild?'mini-copy':'question-card-copy'}">${escapeHtml(question.copy||"")}</p>${question.help?`<div class="info-panel">${escapeHtml(question.help)}</div>`:''}`; const content=document.createElement("div"); if(question.kind==="choice"){const wrap=document.createElement("div"); wrap.className="choices"; question.options.forEach(option=>{const btn=document.createElement("button"); btn.type="button"; btn.className="choice"+(String(existing)===String(option.value)?" selected":""); btn.innerHTML=`<span class="choice-title">${escapeHtml(option.label)}</span><span class="choice-note">${escapeHtml(option.note||"")}</span>`; btn.addEventListener("click",()=>{saveAnswer(question.id,option.value); moveNext(true)}); wrap.appendChild(btn)}); content.appendChild(wrap)} else if(question.kind==="select"){const options=question.options.map(option=>`<option value="${escapeHtml(option.value)}" ${String(existing??"")===String(option.value)?"selected":""}>${escapeHtml(option.label)}</option>`).join(""); content.innerHTML=`<div class="field-group"><div class="field"><label for="field_${question.id}">Select one</label><select id="field_${question.id}">${options}</select></div></div>`} else if(question.kind==="textarea"){content.innerHTML=`<div class="field-group"><div class="field"><label for="field_${question.id}">${question.required?'Your answer':'Optional context'}</label><textarea id="field_${question.id}" placeholder="${escapeHtml(question.placeholder||"")}">${escapeHtml(String(existing??""))}</textarea></div></div>`} else if(question.kind==="checkbox"){content.innerHTML=`<div class="checkbox-card"><div class="checkbox-row"><input id="field_${question.id}" type="checkbox" ${existing?"checked":""} /><label for="field_${question.id}">${escapeHtml(question.label)}</label></div></div>`} else {content.innerHTML=`<div class="field-group"><div class="field"><label for="field_${question.id}">Your answer</label><input id="field_${question.id}" type="${question.kind}" ${question.kind==="number"?'step="any" min="0"':''} placeholder="${escapeHtml(question.placeholder||"")}" value="${escapeHtml(String(existing??""))}" /></div></div>`} card.appendChild(content); if(question.help){const btn=card.querySelector(".info-btn"), panel=card.querySelector(".info-panel"); btn.addEventListener("mouseenter",()=>panel.classList.add("show")); btn.addEventListener("mouseleave",()=>panel.classList.remove("show")); btn.addEventListener("click",()=>panel.classList.toggle("show"))} return card}
+
+function renderQuestion(){
+  const question=getQuestionDef(currentQuestionId());
+  if(!question) return;
+  questionCluster.textContent=question.cluster;
+  questionStep.textContent=`Question ${state.index+1} of ${state.path.length}`;
+  questionTitle.textContent=question.title || "";
+  questionCopy.textContent=question.copy || "";
+  requiredNotice.classList.remove("show");
+  questionBody.innerHTML="";
+  questionBody.appendChild(renderQuestionContent(question));
+  backBtn.disabled=state.index===0;
+  skipBtn.disabled=question.required;
+  continueBtn.style.display=question.kind==="choice"?"none":"inline-flex";
+  updateProgress();
+}
+
+function renderQuestionContent(question){
+  const wrap=document.createElement("div");
+  wrap.className="field-group";
+  const existing=state.answers[question.id];
+
+  if(question.help){
+    const infoWrap=document.createElement("div");
+    infoWrap.innerHTML=`<div class="title-row"><div></div><button class="info-btn" type="button" aria-label="More information">i</button></div><div class="info-panel">${escapeHtml(question.help)}</div>`;
+    const btn=infoWrap.querySelector(".info-btn");
+    const panel=infoWrap.querySelector(".info-panel");
+    btn.addEventListener("mouseenter",()=>panel.classList.add("show"));
+    btn.addEventListener("mouseleave",()=>panel.classList.remove("show"));
+    btn.addEventListener("click",()=>panel.classList.toggle("show"));
+    wrap.appendChild(infoWrap);
+  }
+
+  if(question.kind==="choice"){
+    const choices=document.createElement("div");
+    choices.className="choices";
+    (question.options||[]).forEach(option=>{
+      const btn=document.createElement("button");
+      btn.type="button";
+      btn.className="choice"+(String(existing)===String(option.value)?" selected":"");
+      btn.innerHTML=`<span class="choice-title">${escapeHtml(option.label)}</span><span class="choice-note">${escapeHtml(option.note||"")}</span>`;
+      btn.addEventListener("click",()=>{
+        saveAnswer(question.id,option.value);
+        moveNext(true);
+      });
+      choices.appendChild(btn);
+    });
+    wrap.appendChild(choices);
+    return wrap;
+  }
+
+  if(question.kind==="select"){
+    const options=(question.options||[]).map(option=>
+      `<option value="${escapeHtml(option.value)}" ${String(existing??"")===String(option.value)?"selected":""}>${escapeHtml(option.label)}</option>`
+    ).join("");
+    wrap.innerHTML += `<div class="field"><label for="field_${question.id}">Select one</label><select id="field_${question.id}">${options}</select></div>`;
+    return wrap;
+  }
+
+  if(question.kind==="textarea"){
+    wrap.innerHTML += `<div class="field"><label for="field_${question.id}">${question.required?'Your answer':'Optional context'}</label><textarea id="field_${question.id}" placeholder="${escapeHtml(question.placeholder||"")}">${escapeHtml(String(existing??""))}</textarea></div>`;
+    return wrap;
+  }
+
+  if(question.kind==="checkbox"){
+    wrap.innerHTML += `<div class="checkbox-card"><div class="checkbox-row"><input id="field_${question.id}" type="checkbox" ${existing?"checked":""} /><label for="field_${question.id}">${escapeHtml(question.label||"")}</label></div></div>`;
+    return wrap;
+  }
+
+  wrap.innerHTML += `<div class="field"><label for="field_${question.id}">Your answer</label><input id="field_${question.id}" type="${question.kind}" ${question.kind==="number"?'step="any" min="0"':''} placeholder="${escapeHtml(question.placeholder||"")}" value="${escapeHtml(String(existing??""))}" /></div>`;
+  return wrap;
+}
+
 function normalizeValue(id,value){const question=getQuestionDef(id); if(!question) return value; if(question.kind==="number") return value===""?"":Number(value); return value}
 function saveAnswer(id,value){state.answers[id]=normalizeValue(id,value); if(id==="symptom") buildPath()}
 function readQuestionValue(question){if(question.kind==="choice") return state.answers[question.id]; if(question.kind==="checkbox") return document.getElementById(`field_${question.id}`)?.checked||false; return document.getElementById(`field_${question.id}`)?.value ?? state.answers[question.id] ?? ""}
