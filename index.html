@@ -263,7 +263,7 @@
     }
     .hero h1 {
       margin: 0 0 16px;
-      max-width: 16.5ch;
+      max-width: 15.2ch;
       font-size: clamp(3rem, 4.3vw, 4.45rem);
       line-height: 0.95;
       font-weight: 700;
@@ -272,26 +272,13 @@
       text-shadow: 0 1px 2px rgba(0,0,0,0.16);
       animation-delay: 480ms;
     }
-    .hero-line {
-      display: block;
-    }
-    .hero-line + .hero-line {
-      margin-top: 0.08em;
-    }
-    .hero-line-1 {
-      display: inline-flex;
-      align-items: baseline;
-      gap: 0.06em;
-      white-space: nowrap;
-    }
     .hero-rotator {
-      display: inline-grid;
-      place-items: center start;
-      min-width: 6.6ch;
+      display: inline-block;
+      min-width: 6.2ch;
+      margin-left: 0.18ch;
       color: var(--accent);
       white-space: nowrap;
       position: relative;
-      vertical-align: baseline;
     }
     .hero-rotate-word {
       display: inline-block;
@@ -1195,9 +1182,6 @@
         max-width: 100%;
         font-size: clamp(2.45rem, 8vw, 3.25rem);
       }
-      .hero-line-1 {
-        white-space: normal;
-      }
       .hero-dek {
         max-width: 100%;
         font-size: 1rem;
@@ -1279,11 +1263,7 @@
     <div class="hero-inner">
       <div class="hero-copy">
         <p class="hero-eyebrow">Institutional Performance</p>
-        <h1 id="hero-title">
-          <span class="hero-line hero-line-1">Organizations <span class="hero-rotator"><span class="hero-rotate-word" id="heroRotateWord" aria-live="polite" aria-atomic="true">deliver</span></span></span>
-          <span class="hero-line">at the speed of their</span>
-          <span class="hero-line">administrative reality.</span>
-        </h1>
+        <h1 id="hero-title">Organizations <span class="hero-rotator"><span class="hero-rotate-word" id="heroRotateWord">deliver</span></span> at the speed of their administrative reality.</h1>
         <p class="hero-dek">
           Monderman makes hidden structural and administrative conditions visible, interpretable, and governable—so leaders can continuously reduce drag and strengthen execution.
         </p>
