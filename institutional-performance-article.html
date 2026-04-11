@@ -38,7 +38,9 @@
       --muted: #556270;
       --line: #E3E7EB;
       --dark: #0F1720;
+      --soft: #F8FAFC;
       --max: 980px;
+      --shadow: 0 1px 0 rgba(0,0,0,0.012);
     }
 
     * { box-sizing: border-box; }
@@ -117,7 +119,6 @@
       outline: none;
     }
 
-    
     .hero {
       position: relative;
       overflow: hidden;
@@ -170,7 +171,7 @@
     }
 
     .hero-copy {
-      max-width: 700px;
+      max-width: 720px;
     }
 
     .eyebrow {
@@ -192,7 +193,7 @@
 
     .hero p {
       margin: 0;
-      max-width: 46ch;
+      max-width: 50ch;
       font-size: 1.06rem;
       line-height: 1.7;
       color: rgba(255,255,255,0.82);
@@ -245,11 +246,11 @@
       align-items: start;
     }
 
-    .content, .sidebar-card, .pullquote, .cta {
+    .content, .sidebar-card, .pullquote, .cta, .signal-figure, .output-figure {
       background: var(--white);
       border: 1px solid var(--line);
       border-radius: 16px;
-      box-shadow: 0 1px 0 rgba(0,0,0,0.012);
+      box-shadow: var(--shadow);
     }
 
     .content { padding: 38px 34px; }
@@ -285,6 +286,154 @@
     .pullquote p {
       margin: 0;
       color: var(--text);
+    }
+
+    .signal-figure,
+    .output-figure {
+      margin: 28px 0;
+      padding: 24px;
+      background: linear-gradient(180deg, #FFFFFF 0%, #FBFCFE 100%);
+    }
+
+    .figure-kicker {
+      margin: 0 0 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .figure-title {
+      margin: 0 0 16px;
+      font-size: 1.04rem;
+      line-height: 1.25;
+      color: var(--text);
+    }
+
+    .signal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .signal-card {
+      padding: 16px;
+      border-radius: 14px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+    }
+
+    .signal-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.92rem;
+      color: var(--text);
+    }
+
+    .signal-card span {
+      display: block;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .output-shell {
+      display: grid;
+      gap: 16px;
+    }
+
+    .output-top {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 18px;
+      align-items: center;
+    }
+
+    .score-block {
+      padding: 20px 16px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #0F1720 0%, #172231 100%);
+      color: #fff;
+      text-align: center;
+    }
+
+    .score-block .score-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.68);
+      margin-bottom: 8px;
+    }
+
+    .score-block .score-num {
+      font-size: 3rem;
+      line-height: 0.92;
+      font-weight: 700;
+      letter-spacing: -0.06em;
+      margin: 0;
+    }
+
+    .score-block .score-band {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.82);
+    }
+
+    .output-copy {
+      display: grid;
+      gap: 10px;
+    }
+
+    .output-copy p {
+      margin: 0;
+      font-size: 0.94rem;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    .output-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      padding: 14px 14px 12px;
+      border-radius: 14px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 0.74rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .metric span {
+      display: block;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 5px;
+    }
+
+    .metric small {
+      display: block;
+      font-size: 0.84rem;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .figure-note {
+      margin-top: 14px;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--muted);
     }
 
     .sidebar {
@@ -390,6 +539,9 @@
       }
 
       .content { padding: 28px 22px; }
+      .signal-grid,
+      .output-metrics,
+      .output-top { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -415,11 +567,11 @@
         <p class="eyebrow">Our Approach</p>
         <h1>Institutional Performance</h1>
         <p>
-          Performance is not just outcomes—it’s the system’s ability to sustain them. Institutional performance reflects whether the organization can consistently execute, adapt, and maintain momentum over time.
+          Institutional Performance shows whether an institution is still converting structure into sustained execution, confidence, adaptive capacity, and performance stability — or whether visible output is increasingly being preserved through fragility, management lift, and compensatory effort.
         </p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="institutional-performance.html">Run Institutional Performance Diagnostic</a>
-          <a class="btn btn-secondary" href="index.html#connect">Start a Conversation</a>
+          <a class="btn btn-secondary" href="advisory-services-connect.html">Start a Conversation</a>
         </div>
       </div>
     </div>
@@ -430,75 +582,164 @@
       <div class="article-layout">
         <article class="content">
           <p>
-            Institutional performance is bigger than quarterly execution. It is the ability of an organization to stay coherent, credible, and responsive over time. It is what allows an institution to keep producing results even as complexity rises, leadership changes, and external pressures shift.
+            Many institutions do not first decline through visible failure. They decline through weakening condition. Output may still appear acceptable. Teams still work hard. Managers still intervene. Leaders still see movement. But underneath that visible performance, the institution may be losing coherence, confidence, adaptive range, and the ability to carry its own weight.
           </p>
 
           <p>
-            Many organizations still judge institutional strength by surface signals: scale, prestige, documentation, seriousness, procedural density. Those things can matter. But they are no longer enough. Today, competence is increasingly judged by lived experience: does the institution respond, adjust, and follow through?
+            That is what the Institutional Performance diagnostic is designed to surface. Not whether the organization looks busy, serious, or well governed, but whether the institution is still converting structure into durable performance — or relying more heavily on compensation, informal stabilization, and extra management lift to preserve acceptable results.
           </p>
 
           <div class="pullquote">
             <p>
-              Institutional performance is not just what an organization intends. It is what its system can reliably turn into reality.
+              Institutional performance is not just whether outcomes still appear. It is whether the institution itself can still produce them with enough coherence, confidence, and resilience to remain credible over time.
             </p>
           </div>
 
-          <h2>Why institutions underperform even when people are capable</h2>
+          <h2>What the diagnostic is actually reading</h2>
 
           <p>
-            Institutions rarely decline because talent disappears overnight. More often, performance degrades because the governing system beneath the work becomes too opaque, too slow, or too fragmented. The organization still looks active. Meetings continue. Reports continue. Budgets continue. But the ability to correct, adapt, and deliver begins to weaken.
+            The tool does not treat performance as a single output number. It reads the institutional condition beneath visible results: whether leadership intent translates into execution, whether decisions hold once made, whether confidence in the system is weakening, whether performance degrades under pressure, and whether the institution is increasingly borrowing performance from compensatory effort rather than generating it through sound underlying conditions.
+          </p>
+
+          <div class="signal-figure">
+            <p class="figure-kicker">Diagnostic reading model</p>
+            <h3 class="figure-title">The tool is built to detect four recurring institutional risk patterns</h3>
+            <div class="signal-grid">
+              <div class="signal-card">
+                <strong>Execution fragility</strong>
+                <span>Leadership intent, priorities, or follow-through are not translating cleanly enough into day-to-day execution.</span>
+              </div>
+              <div class="signal-card">
+                <strong>Confidence erosion</strong>
+                <span>People rely less on the institution itself and more on workarounds, relationships, local interpretation, or management intervention.</span>
+              </div>
+              <div class="signal-card">
+                <strong>Adaptive strain</strong>
+                <span>The institution appears less able to maintain performance when conditions shift, pressure rises, or disruption enters the environment.</span>
+              </div>
+              <div class="signal-card">
+                <strong>Compensatory dependence</strong>
+                <span>Visible output still appears, but too much of it depends on extra effort, heroics, or quiet manual stabilization.</span>
+              </div>
+            </div>
+            <p class="figure-note">
+              The live diagnostic adapts its question path around these signals and reads them differently across operational, managerial, and executive perspectives.
+            </p>
+          </div>
+
+          <h2>Why institutions can look functional while weakening underneath</h2>
+
+          <p>
+            Institutional weakness rarely begins with open collapse. More often, it begins when the system stops carrying performance on its own. Decisions need more translation. Managers need to intervene more often. Teams rely more heavily on informal coordination. Recurring issues are managed repeatedly rather than resolved structurally. Under stable conditions, the institution may still look capable. Under strain, its underlying condition becomes much easier to see.
           </p>
 
           <p>
-            This is why institutional performance has to be understood systemically. The issue is not only leadership quality, team quality, or strategic quality. It is whether the operating architecture preserves enough maneuverability for the institution to remain credible under pressure.
+            This is why institutional performance has to be read differently from simple process efficiency. The real question is not only whether outcomes are still being produced. It is whether the institution remains coherent and adaptive enough to keep producing them without steadily increasing the hidden cost of maintaining them.
           </p>
 
-          <h2>What strong institutional performance looks like</h2>
+          <h2>What strong institutional performance actually looks like</h2>
 
-          <h3>It preserves legitimacy</h3>
+          <h3>Leadership intent travels cleanly</h3>
           <p>
-            People inside and outside the organization can understand decisions well enough to trust the system, even when they do not agree with every outcome.
+            Decisions do not dissolve into local reinterpretation, uneven follow-through, or repeated management rescue. Direction translates into action with relatively little distortion.
           </p>
 
-          <h3>It corrects visibly</h3>
+          <h3>Confidence in the system remains intact</h3>
           <p>
-            Strong institutions do not pretend they never miss. They demonstrate that they can notice problems, respond, and improve.
+            People do not need to constantly route around the institution to get acceptable outcomes. The formal system remains usable enough to be trusted.
           </p>
 
-          <h3>It protects capacity</h3>
+          <h3>Performance holds under pressure</h3>
           <p>
-            Administrative growth does not quietly swallow the organization’s mission. Bureaucracy remains proportional to the work it is meant to support.
+            The institution does not become brittle every time complexity rises, priorities shift, or volume increases. It can absorb change without losing coherence.
           </p>
 
-          <h3>It stays responsive as complexity rises</h3>
+          <h3>Compensation stays proportionate</h3>
           <p>
-            The institution does not become slower and more brittle simply because it has become larger or more visible.
+            Exceptional effort exists, but it does not become the invisible operating model that keeps the institution looking healthier than it really is.
           </p>
 
-          <h2>How performance quietly erodes</h2>
+          <h2>What the output is meant to give leaders</h2>
 
           <p>
-            Institutional decline usually begins upstream. Weak signals get filtered. Decision rationales stop traveling. Employees learn that effort is absorbed more often than rewarded. Over time, the organization becomes more dependent on intervention, exception, and personality to make progress.
+            The Institutional Performance diagnostic is not a generic culture survey or morale score. It is built to return a leadership-facing readout: a directional institutional-performance score, a current condition read, a primary exposure source, a coherence diagnosis, a benchmark position, a trajectory signal, and a directional estimate of reclaimable capacity if the weakest conditions are strengthened first.
           </p>
 
+          <div class="output-figure">
+            <p class="figure-kicker">What the tool returns</p>
+            <h3 class="figure-title">A leadership readout about institutional condition, not just visible output</h3>
+            <div class="output-shell">
+              <div class="output-top">
+                <div class="score-block">
+                  <div class="score-label">Condition score</div>
+                  <p class="score-num">64</p>
+                  <div class="score-band">Fragile but still performing</div>
+                </div>
+                <div class="output-copy">
+                  <p><strong>Current condition.</strong> A concise read of whether the institution appears strong, exposed, fragile, or degraded beneath visible performance.</p>
+                  <p><strong>Primary exposure source.</strong> The heaviest likely fragility driver, such as execution coherence weakness, confidence erosion, adaptive strain, or compensatory dependence.</p>
+                  <p><strong>Coherence diagnosis.</strong> Whether current performance appears durable enough for the demands being placed on the institution — or increasingly borrowed through compensation and management lift.</p>
+                </div>
+              </div>
+              <div class="output-metrics">
+                <div class="metric">
+                  <strong>Benchmark</strong>
+                  <span>Within range</span>
+                  <small>How the institution compares with similar environments.</small>
+                </div>
+                <div class="metric">
+                  <strong>Trajectory</strong>
+                  <span>Rising strain</span>
+                  <small>Whether underlying institutional strain appears stable, worsening, or easing.</small>
+                </div>
+                <div class="metric">
+                  <strong>Reclaim potential</strong>
+                  <span>Directional upside</span>
+                  <small>Approximate recoverable value if the weakest conditions are strengthened first.</small>
+                </div>
+              </div>
+            </div>
+            <p class="figure-note">
+              The actual tool also includes priority actions, a gated opportunity view, supporting evidence panels, and a downloadable executive report.
+            </p>
+          </div>
+
+          <h2>The hidden cost of weakening institutional condition</h2>
+
+          <h3>Managers become part of the mechanism</h3>
           <p>
-            That may keep things moving for a while, but it is not the same as durable performance. It is compensation for a system that is losing coherence.
+            When the system no longer carries performance cleanly, managers spend more time stabilizing, clarifying, escalating, and compensating. That is not just a leadership burden. It is a structural warning.
+          </p>
+
+          <h3>Visible performance becomes more expensive to preserve</h3>
+          <p>
+            Outcomes may still appear acceptable, but the institution may now require more labor, more coordination, and more intervention to keep producing them.
+          </p>
+
+          <h3>Adaptation narrows</h3>
+          <p>
+            Institutions with weakening condition often remain passable in stable periods but degrade quickly when conditions change. That is where fragility becomes strategically relevant.
+          </p>
+
+          <h3>Confidence falls before collapse becomes obvious</h3>
+          <p>
+            By the time leaders see broad institutional distrust or visible performance failure, the weaker condition beneath it has often been developing for some time.
           </p>
 
           <h2>How Monderman approaches institutional performance</h2>
 
           <p>
-            We look at the institution as a living system. Where is trust being lost? Where is drag accumulating? Where is responsiveness slowing? Which controls still create value, and which ones now exist mainly to stabilize yesterday’s assumptions?
+            Monderman looks beneath visible output to the institutional conditions producing it. Where is follow-through weakening? Where is confidence being lost? Where is adaptation narrowing? Where is performance still visible mainly because people keep compensating for a system that is no longer carrying enough of the load itself?
           </p>
 
           <p>
-            The objective is not cosmetic modernization. It is institutional competence that can be felt: clearer governance, cleaner feedback, better correction, and stronger performance under complexity.
+            The goal is not cosmetic reassurance. It is to help leaders see whether the institution still possesses durable performance capacity — and, if not, where strengthening coherence, confidence, and resilience is likely to yield the greatest return in time, money, resources, and long-run maneuverability.
           </p>
 
           <div class="cta">
-            <h3>Common signs institutional performance is under strain</h3>
+            <h3>Common signs institutional performance is weakening</h3>
             <p>
-              Confidence is slipping. More effort is being spent on coordination and explanation. The institution still functions, but it no longer feels proportionate, adaptive, or fully in command of its own system.
+              Managers intervene too often. Recurring problems keep resurfacing. People rely more on informal relationships and workarounds than on the formal system. Output still appears, but it increasingly feels borrowed rather than produced by a strong institution.
             </p>
             <a class="btn btn-primary" href="institutional-performance.html">Run Institutional Performance Diagnostic</a>
           </div>
@@ -507,26 +748,26 @@
         <aside class="sidebar">
           <div class="sidebar-card">
             <p class="sidebar-kicker">What this affects</p>
-            <h3>Credibility over time</h3>
+            <h3>Credibility, resilience, and maneuverability</h3>
             <p>
-              Institutions are increasingly judged by whether they can still move coherently under pressure, not just by how established they appear.
+              Weak institutional performance does not just reduce efficiency. It undermines the institution’s ability to remain credible, adaptive, and dependable under pressure.
             </p>
           </div>
 
           <div class="sidebar-card">
-            <p class="sidebar-kicker">Look for</p>
+            <p class="sidebar-kicker">The tool is looking for</p>
             <ul class="mini-list">
-              <li>Rising coordination effort with flat results</li>
-              <li>Too much reliance on exceptions and heroics</li>
-              <li>Growing admin layers without clearer outcomes</li>
-              <li>Falling confidence in the system’s responsiveness</li>
+              <li>Execution that depends too heavily on intervention or translation</li>
+              <li>Confidence weakening beneath still-visible performance</li>
+              <li>Institutions that degrade under pressure or change</li>
+              <li>Performance preserved through compensation more than sound condition</li>
             </ul>
           </div>
 
           <div class="sidebar-card">
             <p class="sidebar-kicker">Monderman view</p>
             <p>
-              Strong performance is not just operational output. It is the sustained capacity to govern, adjust, and remain legitimate as conditions change.
+              Institutional Performance is about the condition beneath visible output: whether the institution still converts structure into sustained execution, confidence, adaptability, and performance stability.
             </p>
           </div>
         </aside>
@@ -534,7 +775,6 @@
     </div>
   </main>
 
-  
   <footer class="footer">
     <div class="footer-inner">
       <p>Monderman — clarity for complex institutions.</p>
