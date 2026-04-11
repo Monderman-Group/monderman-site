@@ -687,14 +687,57 @@
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 14px;
       align-items: stretch;
+      position: relative;
     }
 
     .engine-step {
+      position: relative;
       background: rgba(255, 255, 255, 0.88);
       border: 1px solid rgba(21, 32, 43, 0.06);
       border-radius: 14px;
       padding: 16px 16px 14px;
     }
+
+    .engine-arrow {
+      position: absolute;
+      top: 50%;
+      right: -22px;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: #FFFFFF;
+      border: 1px solid rgba(63, 110, 161, 0.34);
+      color: var(--accent);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(63, 110, 161, 0.10);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .suite-top-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-top: 36px;
+    }
+
+    .suite-top-row .focus-grid {
+      flex: 1 1 auto;
+      margin-top: 0;
+    }
+
+    .suite-top-cta {
+      display: flex;
+      justify-content: flex-end;
+      align-self: flex-end;
+      flex: 0 0 auto;
+      padding-bottom: 2px;
+    }
+
 
     .engine-step-label {
       margin: 0 0 8px;
@@ -1086,6 +1129,19 @@
       .engine-strip-grid {
         grid-template-columns: 1fr 1fr;
       }
+
+      .suite-top-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .suite-top-cta {
+        justify-content: flex-end;
+      }
+
+      .engine-arrow {
+        display: none;
+      }
     }
 
     @media (max-width: 980px) {
@@ -1201,7 +1257,7 @@
         grid-template-columns: 1fr;
       }
 
-      .suite-cta-row {
+      .suite-top-cta {
         justify-content: stretch;
       }
 
@@ -1409,34 +1465,40 @@
         </p>
       </div>
 
-      <div class="focus-grid" style="margin-top:36px; grid-template-columns: repeat(4, minmax(0, 1fr));">
-        <article class="focus-card reveal reveal-delay-1">
-          <h3>Structural Clarity</h3>
-          <p>
-            Reveals whether ownership, authority, and handoffs are clear enough to support reliable execution without repeated interpretation or rescue work.
-          </p>
-        </article>
+      <div class="suite-top-row">
+        <div class="focus-grid" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
+          <article class="focus-card reveal reveal-delay-1">
+            <h3>Structural Clarity</h3>
+            <p>
+              Reveals whether ownership, authority, and handoffs are clear enough to support reliable execution without repeated interpretation or rescue work.
+            </p>
+          </article>
 
-        <article class="focus-card reveal reveal-delay-2">
-          <h3>Decision Velocity</h3>
-          <p>
-            Shows where approvals, escalation, and routing burden are slowing movement through important decisions and quietly raising control cost.
-          </p>
-        </article>
+          <article class="focus-card reveal reveal-delay-2">
+            <h3>Decision Velocity</h3>
+            <p>
+              Shows where approvals, escalation, and routing burden are slowing movement through important decisions and quietly raising control cost.
+            </p>
+          </article>
 
-        <article class="focus-card reveal reveal-delay-3">
-          <h3>Operational Systems</h3>
-          <p>
-            Surfaces recurring process load, reporting burden, and non-value-adding administrative weight across the environment doing the work.
-          </p>
-        </article>
+          <article class="focus-card reveal reveal-delay-3">
+            <h3>Operational Systems</h3>
+            <p>
+              Surfaces recurring process load, reporting burden, and non-value-adding administrative weight across the environment doing the work.
+            </p>
+          </article>
 
-        <article class="focus-card reveal reveal-delay-1">
-          <h3>Institutional Performance</h3>
-          <p>
-            Reads the broader condition of the system—whether the institution is still converting structure into sustained performance, confidence, and adaptability.
-          </p>
-        </article>
+          <article class="focus-card reveal reveal-delay-1">
+            <h3>Institutional Performance</h3>
+            <p>
+              Reads the broader condition of the system—whether the institution is still converting structure into sustained performance, confidence, and adaptability.
+            </p>
+          </article>
+        </div>
+
+        <div class="suite-top-cta reveal reveal-delay-2">
+          <a class="btn btn-accent" href="diagnostic-tools.html">Open Diagnostic Hub</a>
+        </div>
       </div>
 
       <div class="section-intro reveal" style="margin-top:46px;">
@@ -1477,18 +1539,21 @@
             <p class="engine-step-label">Step 1</p>
             <h3>Bounded input</h3>
             <p>Participants respond within a defined lens, scope, and diagnostic structure.</p>
+            <span class="engine-arrow" aria-hidden="true">→</span>
           </div>
 
           <div class="engine-step">
             <p class="engine-step-label">Step 2</p>
             <h3>Engine read</h3>
             <p>The proprietary model interprets the underlying administrative condition beneath the responses.</p>
+            <span class="engine-arrow" aria-hidden="true">→</span>
           </div>
 
           <div class="engine-step">
             <p class="engine-step-label">Step 3</p>
             <h3>Directional signal</h3>
             <p>The output surfaces structured patterns around drag, coherence, burden, and institutional strain.</p>
+            <span class="engine-arrow" aria-hidden="true">→</span>
           </div>
 
           <div class="engine-step">
@@ -1499,9 +1564,6 @@
         </div>
       </div>
 
-      <div class="suite-cta-row reveal reveal-delay-2">
-        <a class="btn btn-accent" href="diagnostic-tools.html">Open Diagnostic Hub</a>
-      </div>
     </div>
   </section>
 
