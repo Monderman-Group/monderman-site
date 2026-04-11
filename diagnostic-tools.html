@@ -1175,6 +1175,78 @@
       transition:width 240ms linear;
     }
 
+
+    .cf-modal{
+      position:fixed;
+      inset:0;
+      z-index:220;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:rgba(13,20,28,.56);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+    }
+    .cf-modal.show{ display:flex; }
+    .cf-modal-panel{
+      width:min(100%, 560px);
+      background:rgba(255,255,255,.98);
+      border:1px solid var(--line-soft);
+      border-radius:24px;
+      box-shadow:0 28px 60px rgba(15,23,32,.16);
+      padding:30px 28px 26px;
+      color:var(--text-dark);
+    }
+    .cf-modal-kicker{
+      margin:0 0 10px;
+      font-size:.74rem;
+      font-weight:700;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:var(--accent);
+    }
+    .cf-modal-title{
+      margin:0 0 12px;
+      font-size:1.46rem;
+      line-height:1.1;
+      font-weight:700;
+      color:var(--text-dark);
+    }
+    .cf-modal-copy{
+      margin:0 0 18px;
+      font-size:.97rem;
+      line-height:1.66;
+      color:var(--muted-dark);
+      max-width:42ch;
+    }
+    .cf-widget-shell{
+      min-height:76px;
+      padding:14px;
+      border-radius:16px;
+      border:1px solid var(--line-soft);
+      background:linear-gradient(180deg,#FFFFFF 0%, #FAFBFD 100%);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin-bottom:16px;
+    }
+    .cf-modal-status{
+      min-height:24px;
+      margin:0 0 18px;
+      font-size:.88rem;
+      line-height:1.55;
+      color:var(--muted-dark);
+    }
+    .cf-modal-status.is-error{ color:#8A3946; }
+    .cf-modal-status.is-ok{ color:#456A4B; }
+    .cf-modal-actions{
+      display:flex;
+      justify-content:flex-end;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
     @media (max-width:1180px){
       .hero-rail,
       .tools-grid,
@@ -1253,6 +1325,7 @@
       }
     }
   </style>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
 </head>
 <body>
   <div class="loading-overlay" id="calibrationOverlay" aria-hidden="true">
@@ -1404,7 +1477,7 @@
             <div class="matrix-meta">
               <div class="matrix-meta-item">
                 <span class="matrix-meta-label">Open diagnostic</span>
-                <span class="matrix-meta-value"><a href="structural-clarity.html" class="tool-inline-link" aria-label="Open Structural Clarity Diagnostic">Structural Clarity Diagnostic</a></span>
+                <span class="matrix-meta-value"><a href="structural-clarity.html" class="tool-inline-link diagnostic-link" aria-label="Open Structural Clarity Diagnostic">Structural Clarity Diagnostic</a></span>
               </div>
               <div class="matrix-meta-item">
                 <span class="matrix-meta-label">Clarifies</span>
@@ -1431,7 +1504,7 @@
             <div class="matrix-meta">
               <div class="matrix-meta-item">
                 <span class="matrix-meta-label">Open diagnostic</span>
-                <span class="matrix-meta-value"><a href="decision-velocity.html" class="tool-inline-link" aria-label="Open Decision Velocity Diagnostic">Decision Velocity Diagnostic</a></span>
+                <span class="matrix-meta-value"><a href="decision-velocity.html" class="tool-inline-link diagnostic-link" aria-label="Open Decision Velocity Diagnostic">Decision Velocity Diagnostic</a></span>
               </div>
               <div class="matrix-meta-item">
                 <span class="matrix-meta-label">Clarifies</span>
@@ -1458,7 +1531,7 @@
             <div class="matrix-meta">
               <div class="matrix-meta-item">
                 <span class="matrix-meta-label">Open diagnostic</span>
-                <span class="matrix-meta-value"><a href="bureaucratic-drag-snapshot.html" class="tool-inline-link" aria-label="Open Operational Systems Diagnostic">Operational Systems Diagnostic</a></span>
+                <span class="matrix-meta-value"><a href="bureaucratic-drag-snapshot.html" class="tool-inline-link diagnostic-link" aria-label="Open Operational Systems Diagnostic">Operational Systems Diagnostic</a></span>
               </div>
               <div class="matrix-meta-item">
                 <span class="matrix-meta-label">Clarifies</span>
@@ -1485,7 +1558,7 @@
             <div class="matrix-meta">
               <div class="matrix-meta-item">
                 <span class="matrix-meta-label">Open diagnostic</span>
-                <span class="matrix-meta-value"><a href="institutional-performance.html" class="tool-inline-link" aria-label="Open Institutional Performance Diagnostic">Institutional Performance Diagnostic</a></span>
+                <span class="matrix-meta-value"><a href="institutional-performance.html" class="tool-inline-link diagnostic-link" aria-label="Open Institutional Performance Diagnostic">Institutional Performance Diagnostic</a></span>
               </div>
               <div class="matrix-meta-item">
                 <span class="matrix-meta-label">Clarifies</span>
@@ -1706,6 +1779,22 @@
       </p>
     </div>
   </main>
+
+
+  <div class="cf-modal" id="turnstileModal" aria-hidden="true">
+    <div class="cf-modal-panel" role="dialog" aria-modal="true" aria-labelledby="turnstileTitle">
+      <p class="cf-modal-kicker">Protected diagnostic launch</p>
+      <h3 class="cf-modal-title" id="turnstileTitle">Confirming human access</h3>
+      <p class="cf-modal-copy">Before opening the diagnostic environment, please complete a quick human check. This protection applies only to the four Monderman diagnostic tools.</p>
+      <div class="cf-widget-shell">
+        <div id="turnstileWidget"></div>
+      </div>
+      <p class="cf-modal-status" id="turnstileStatus">Waiting to initialize human check...</p>
+      <div class="cf-modal-actions">
+        <button class="btn btn-subtle" id="turnstileCancelBtn" type="button">Cancel</button>
+      </div>
+    </div>
+  </div>
 
   <footer class="footer">
     <div class="footer-inner">
@@ -2083,6 +2172,168 @@
         }
       });
     }
+
+
+    const TURNSTILE_SITE_KEY = "YOUR_CLOUDFLARE_TURNSTILE_SITE_KEY";
+    const TURNSTILE_VERIFY_URL = "https://monderman-api.onrender.com/api/turnstile-verify";
+    const PROTECTED_DIAGNOSTIC_PATHS = new Set([
+      "structural-clarity.html",
+      "decision-velocity.html",
+      "bureaucratic-drag-snapshot.html",
+      "institutional-performance.html"
+    ]);
+
+    const turnstileModal = document.getElementById("turnstileModal");
+    const turnstileWidget = document.getElementById("turnstileWidget");
+    const turnstileStatus = document.getElementById("turnstileStatus");
+    const turnstileCancelBtn = document.getElementById("turnstileCancelBtn");
+
+    let pendingDiagnosticUrl = "";
+    let turnstileWidgetId = null;
+    let turnstileToken = "";
+
+    function setTurnstileStatus(message, type = "") {
+      if (!turnstileStatus) return;
+      turnstileStatus.textContent = message || "";
+      turnstileStatus.classList.remove("is-error", "is-ok");
+      if (type === "error") turnstileStatus.classList.add("is-error");
+      if (type === "ok") turnstileStatus.classList.add("is-ok");
+    }
+
+    function closeTurnstileModal() {
+      if (!turnstileModal) return;
+      turnstileModal.classList.remove("show");
+      turnstileModal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+      pendingDiagnosticUrl = "";
+      turnstileToken = "";
+      if (window.turnstile && turnstileWidgetId) {
+        try { window.turnstile.remove(turnstileWidgetId); } catch (error) {}
+      }
+      turnstileWidgetId = null;
+      if (turnstileWidget) turnstileWidget.innerHTML = "";
+      setTurnstileStatus("Waiting to initialize human check...");
+    }
+
+    async function verifyTurnstileToken(token) {
+      const response = await fetch(TURNSTILE_VERIFY_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ token })
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || data.message || "Human verification failed.");
+      }
+      return data;
+    }
+
+    async function handleTurnstileSuccess(token) {
+      turnstileToken = token;
+      setTurnstileStatus("Human check complete. Confirming access...", "ok");
+
+      try {
+        await verifyTurnstileToken(token);
+        setTurnstileStatus("Access confirmed. Opening diagnostic...", "ok");
+        const target = pendingDiagnosticUrl;
+        setTimeout(() => {
+          closeTurnstileModal();
+          if (target) window.location.href = target;
+        }, 350);
+      } catch (error) {
+        console.error(error);
+        setTurnstileStatus(error.message || "Human verification failed. Please try again.", "error");
+        if (window.turnstile && turnstileWidgetId) {
+          try { window.turnstile.reset(turnstileWidgetId); } catch (resetError) {}
+        }
+      }
+    }
+
+    function openTurnstileModal(targetUrl) {
+      if (!turnstileModal || !turnstileWidget) return;
+      pendingDiagnosticUrl = targetUrl;
+      turnstileToken = "";
+      turnstileModal.classList.add("show");
+      turnstileModal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+      setTurnstileStatus("Loading human check...");
+
+      const renderWidget = () => {
+        if (!window.turnstile) {
+          setTurnstileStatus("Cloudflare widget failed to load. Please refresh and try again.", "error");
+          return;
+        }
+        if (turnstileWidgetId) {
+          try { window.turnstile.remove(turnstileWidgetId); } catch (error) {}
+          turnstileWidgetId = null;
+        }
+        turnstileWidget.innerHTML = "";
+        try {
+          turnstileWidgetId = window.turnstile.render("#turnstileWidget", {
+            sitekey: TURNSTILE_SITE_KEY,
+            theme: "light",
+            appearance: "always",
+            callback: handleTurnstileSuccess,
+            "expired-callback": () => {
+              turnstileToken = "";
+              setTurnstileStatus("Human check expired. Please complete it again.", "error");
+            },
+            "error-callback": () => {
+              turnstileToken = "";
+              setTurnstileStatus("Cloudflare check failed to initialize. Please try again.", "error");
+            }
+          });
+          setTurnstileStatus("Complete the human check to continue.");
+        } catch (error) {
+          console.error(error);
+          setTurnstileStatus("Cloudflare check could not be rendered. Please verify the site key.", "error");
+        }
+      };
+
+      if (window.turnstile) {
+        renderWidget();
+      } else {
+        let attempts = 0;
+        const waitForTurnstile = setInterval(() => {
+          attempts += 1;
+          if (window.turnstile) {
+            clearInterval(waitForTurnstile);
+            renderWidget();
+          } else if (attempts > 30) {
+            clearInterval(waitForTurnstile);
+            setTurnstileStatus("Cloudflare widget failed to load. Please refresh and try again.", "error");
+          }
+        }, 250);
+      }
+    }
+
+    if (turnstileCancelBtn) {
+      turnstileCancelBtn.addEventListener("click", closeTurnstileModal);
+    }
+
+    if (turnstileModal) {
+      turnstileModal.addEventListener("click", (event) => {
+        if (event.target === turnstileModal) closeTurnstileModal();
+      });
+    }
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && turnstileModal && turnstileModal.classList.contains("show")) {
+        closeTurnstileModal();
+      }
+    });
+
+    document.querySelectorAll("a.diagnostic-link[href]").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        const href = link.getAttribute("href") || "";
+        if (!PROTECTED_DIAGNOSTIC_PATHS.has(href)) return;
+        event.preventDefault();
+        openTurnstileModal(href);
+      });
+    });
   </script>
 </body>
 </html>
