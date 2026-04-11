@@ -548,6 +548,16 @@
       line-height:1.56;
       color:var(--muted-dark);
     }
+    .tool-inline-link{
+      color:var(--accent-dark);
+      font-weight:600;
+      transition:color var(--transition), transform var(--transition);
+    }
+    .tool-inline-link:hover,
+    .tool-inline-link:focus-visible{
+      color:var(--accent);
+      outline:none;
+    }
     .symptom-head{
       display:flex;
       align-items:flex-start;
@@ -1266,10 +1276,10 @@
       <a href="index.html" class="brand">Monderman</a>
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
-        <a href="diagnostic-tools.html" class="is-active">Diagnostic Tools</a>
+        <a href="diagnostic-tools.html" class="is-active">Diagnostic Hub</a>
         <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
-        <a href="index.html#connect">Connect</a>
+        <a href="advisory-services-connect.html">Connect</a>
       </nav>
     </div>
   </header>
@@ -1279,14 +1289,14 @@
       <div class="hero-copy">
         <p class="hero-eyebrow">Monderman Diagnostic Suite</p>
         <p class="hero-subeyebrow">A repeatable governance instrument</p>
-        <h1>Enter the right diagnostic environment with less noise and more structural clarity.</h1>
+        <h1>Build a clearer picture of administrative reality over time.</h1>
         <p class="hero-dek">
-          The Diagnostic Hub is built to help participants launch the right tool, keep the first run bounded, and return with discipline as conditions, systems, and governance demands evolve.
+          Use repeated diagnostics to see where structure, decision flow, process burden, and institutional performance are strengthening, drifting, or accumulating drag.
         </p>
 
         <div class="hero-actions">
           <a class="btn btn-accent" href="#tool-launch">Launch diagnostics</a>
-          <a class="btn" href="#cross-diagnostic-synthesis">Cross-diagnostic synthesis</a>
+          <a class="btn" href="#cross-diagnostic-synthesis">Cross-diagnostic analysis</a>
         </div>
 
         <p class="hero-signal">Use one bounded run to establish a baseline. Use repeated runs to see whether interventions restored strength or whether new drag is quietly accumulating.</p>
@@ -1378,6 +1388,7 @@
         <h3>Choose the right starting point</h3>
         <p>Start with the strongest visible symptom. You can broaden from there if the issue proves larger or more persistent than the first read suggests.</p>
 
+        
         <div class="matrix-grid">
           <article class="matrix-card">
             <p class="matrix-kicker">Starting point</p>
@@ -1392,8 +1403,8 @@
             </div>
             <div class="matrix-meta">
               <div class="matrix-meta-item">
-                <span class="matrix-meta-label">Start here</span>
-                <span class="matrix-meta-value">Structural Clarity Snapshot</span>
+                <span class="matrix-meta-label">Open diagnostic</span>
+                <span class="matrix-meta-value"><a href="structural-clarity.html" class="tool-inline-link" aria-label="Open Structural Clarity Diagnostic">Structural Clarity Diagnostic</a></span>
               </div>
               <div class="matrix-meta-item">
                 <span class="matrix-meta-label">Clarifies</span>
@@ -1419,8 +1430,8 @@
             </div>
             <div class="matrix-meta">
               <div class="matrix-meta-item">
-                <span class="matrix-meta-label">Start here</span>
-                <span class="matrix-meta-value">Decision Velocity Snapshot</span>
+                <span class="matrix-meta-label">Open diagnostic</span>
+                <span class="matrix-meta-value"><a href="decision-velocity.html" class="tool-inline-link" aria-label="Open Decision Velocity Diagnostic">Decision Velocity Diagnostic</a></span>
               </div>
               <div class="matrix-meta-item">
                 <span class="matrix-meta-label">Clarifies</span>
@@ -1446,8 +1457,8 @@
             </div>
             <div class="matrix-meta">
               <div class="matrix-meta-item">
-                <span class="matrix-meta-label">Start here</span>
-                <span class="matrix-meta-value">Operational Systems Snapshot</span>
+                <span class="matrix-meta-label">Open diagnostic</span>
+                <span class="matrix-meta-value"><a href="bureaucratic-drag-snapshot.html" class="tool-inline-link" aria-label="Open Operational Systems Diagnostic">Operational Systems Diagnostic</a></span>
               </div>
               <div class="matrix-meta-item">
                 <span class="matrix-meta-label">Clarifies</span>
@@ -1473,8 +1484,8 @@
             </div>
             <div class="matrix-meta">
               <div class="matrix-meta-item">
-                <span class="matrix-meta-label">Start here</span>
-                <span class="matrix-meta-value">Institutional Performance Snapshot</span>
+                <span class="matrix-meta-label">Open diagnostic</span>
+                <span class="matrix-meta-value"><a href="institutional-performance.html" class="tool-inline-link" aria-label="Open Institutional Performance Diagnostic">Institutional Performance Diagnostic</a></span>
               </div>
               <div class="matrix-meta-item">
                 <span class="matrix-meta-label">Clarifies</span>
@@ -1487,6 +1498,7 @@
             </div>
           </article>
         </div>
+
       </section>
 
       <section class="tools-section" id="tool-launch">
@@ -1499,13 +1511,13 @@
         </div>
 
         <div class="tools-grid">
-          <article class="tool-card is-recommended">
-            <a class="tool-card-link diagnostic-link" href="structural-clarity.html" aria-label="Open Structural Clarity Snapshot">
+          <article class="tool-card">
+            <a class="tool-card-link diagnostic-link" href="structural-clarity.html" aria-label="Open Structural Clarity Diagnostic">
               <div class="tool-card-top">
                 <div class="tool-badge">Live</div>
-                <div class="tool-badge-secondary">Recommended first diagnostic</div>
+                
               </div>
-              <h3 class="tool-title">Structural Clarity Snapshot</h3>
+              <h3 class="tool-title">Structural Clarity Diagnostic</h3>
               <p class="tool-subline">Roles · ownership · handoffs</p>
               <p class="tool-text">
                 Assess whether ownership, authority, and review logic are clear enough for one bounded workflow or operating slice.
@@ -1514,17 +1526,17 @@
               <p class="tool-meta">
                 The issue feels like ambiguity, duplication, confusion, or execution drift.
               </p>
-              <p class="tool-micro">Most participants begin here when the source of strain is still taking shape.</p>
+              
               <span class="tool-open">Open diagnostic &#8594;</span>
             </a>
           </article>
 
           <article class="tool-card">
-            <a class="tool-card-link diagnostic-link" href="decision-velocity.html" aria-label="Open Decision Velocity Snapshot">
+            <a class="tool-card-link diagnostic-link" href="decision-velocity.html" aria-label="Open Decision Velocity Diagnostic">
               <div class="tool-card-top">
                 <div class="tool-badge">Live</div>
               </div>
-              <h3 class="tool-title">Decision Velocity Snapshot</h3>
+              <h3 class="tool-title">Decision Velocity Diagnostic</h3>
               <p class="tool-subline">Approvals · escalation · delay</p>
               <p class="tool-text">
                 Diagnose where approvals, escalation patterns, and routing complexity are slowing movement through important decisions.
@@ -1538,11 +1550,11 @@
           </article>
 
           <article class="tool-card">
-            <a class="tool-card-link diagnostic-link" href="bureaucratic-drag-snapshot.html" aria-label="Open Operational Systems Snapshot">
+            <a class="tool-card-link diagnostic-link" href="bureaucratic-drag-snapshot.html" aria-label="Open Operational Systems Diagnostic">
               <div class="tool-card-top">
                 <div class="tool-badge">Live</div>
               </div>
-              <h3 class="tool-title">Operational Systems Snapshot</h3>
+              <h3 class="tool-title">Operational Systems Diagnostic</h3>
               <p class="tool-subline">Process load · reporting · overhead</p>
               <p class="tool-text">
                 Surface recurring administrative burden, process density, and non-value-adding overhead across a selected workflow or environment.
@@ -1556,11 +1568,11 @@
           </article>
 
           <article class="tool-card">
-            <a class="tool-card-link diagnostic-link" href="institutional-performance.html" aria-label="Open Institutional Performance Snapshot">
+            <a class="tool-card-link diagnostic-link" href="institutional-performance.html" aria-label="Open Institutional Performance Diagnostic">
               <div class="tool-card-top">
                 <div class="tool-badge">Live</div>
               </div>
-              <h3 class="tool-title">Institutional Performance Snapshot</h3>
+              <h3 class="tool-title">Institutional Performance Diagnostic</h3>
               <p class="tool-subline">System health · adaptation · reliability</p>
               <p class="tool-text">
                 Estimate how well an institution is converting structure into sustained performance across execution, resilience, and institutional confidence.
@@ -1606,12 +1618,7 @@
               <p class="synthesis-note">Your saved result files stay on your device until you choose to upload them for synthesis in this session. Monderman does not retain them automatically.</p>
               <button class="btn btn-accent" id="synthesizeBtn" type="button" disabled>Synthesize Results</button>
             </div>
-
-            <div class="synthesis-fallback">
-              <p>Prefer the existing route instead?</p>
-              <a class="btn btn-subtle" href="cross-tool-synthesis.html">Open Cross-Tool Synthesis</a>
-            </div>
-          </div>
+</div>
         </section>
       </section>
 
@@ -1715,8 +1722,7 @@
             <p class="footer-nav-title">Explore</p>
             <a href="index.html#approach">Approach</a>
             <a href="diagnostic-tools.html">Diagnostic Tools</a>
-            <a href="cross-tool-synthesis.html">Cross-Tool Synthesis</a>
-            <a href="research.html">Research</a>
+                        <a href="research.html">Research</a>
             <a href="why-monderman.html">Why Monderman</a>
           </div>
 
