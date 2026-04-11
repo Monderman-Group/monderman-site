@@ -673,6 +673,61 @@
       margin-top: 24px;
     }
 
+    .engine-strip {
+      margin-top: 34px;
+      padding: 22px 24px;
+      background: linear-gradient(180deg, rgba(63, 110, 161, 0.07) 0%, rgba(63, 110, 161, 0.03) 100%);
+      border: 1px solid rgba(63, 110, 161, 0.12);
+      border-radius: var(--panel-radius);
+      box-shadow: var(--soft-shadow);
+    }
+
+    .engine-strip-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .engine-step {
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(21, 32, 43, 0.06);
+      border-radius: 14px;
+      padding: 16px 16px 14px;
+    }
+
+    .engine-step-label {
+      margin: 0 0 8px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .engine-step h3 {
+      margin: 0 0 6px;
+      font-size: 0.98rem;
+      line-height: 1.16;
+      font-weight: 700;
+      color: var(--text-dark);
+      letter-spacing: -0.03em;
+    }
+
+    .engine-step p {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.58;
+      color: var(--muted-dark);
+    }
+
+    .suite-cta-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 26px;
+    }
+
     .focus-card {
       background: #FFFFFF;
       border: 1px solid rgba(21, 32, 43, 0.08);
@@ -1027,7 +1082,8 @@
 
       .focus-grid,
       .trust-grid,
-      .compound-grid {
+      .compound-grid,
+      .engine-strip-grid {
         grid-template-columns: 1fr 1fr;
       }
     }
@@ -1140,8 +1196,13 @@
 
       .focus-grid,
       .trust-grid,
-      .compound-grid {
+      .compound-grid,
+      .engine-strip-grid {
         grid-template-columns: 1fr;
+      }
+
+      .suite-cta-row {
+        justify-content: stretch;
       }
 
       .footer {
@@ -1404,10 +1465,42 @@
 
       <div class="section-intro reveal" style="margin-top:46px;">
         <div class="section-label">How it works</div>
-        <h2 style="max-width:760px;">Input → engine → directional structural signal → repeatable insight.</h2>
+        <h2 style="max-width:760px;">A clearer path from bounded input to repeatable institutional insight.</h2>
         <p>
-          Monderman turns bounded participant input into structured, directional insight that can be tracked over time rather than treated as a one-time observation.
+          The proprietary engine translates bounded participant input into structured signals leadership can compare, revisit, and govern over time.
         </p>
+      </div>
+
+      <div class="engine-strip reveal reveal-delay-1" aria-label="How the Monderman engine works">
+        <div class="engine-strip-grid">
+          <div class="engine-step">
+            <p class="engine-step-label">Step 1</p>
+            <h3>Bounded input</h3>
+            <p>Participants respond within a defined lens, scope, and diagnostic structure.</p>
+          </div>
+
+          <div class="engine-step">
+            <p class="engine-step-label">Step 2</p>
+            <h3>Engine read</h3>
+            <p>The proprietary model interprets the underlying administrative condition beneath the responses.</p>
+          </div>
+
+          <div class="engine-step">
+            <p class="engine-step-label">Step 3</p>
+            <h3>Directional signal</h3>
+            <p>The output surfaces structured patterns around drag, coherence, burden, and institutional strain.</p>
+          </div>
+
+          <div class="engine-step">
+            <p class="engine-step-label">Step 4</p>
+            <h3>Repeatable insight</h3>
+            <p>Results can be revisited across runs, compared across lenses, and tracked as conditions change.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="suite-cta-row reveal reveal-delay-2">
+        <a class="btn btn-accent" href="diagnostic-tools.html">Open Diagnostic Hub</a>
       </div>
     </div>
   </section>
