@@ -1309,6 +1309,7 @@
           </div>
         </div>
       </div>
+      <div class="hero-visual-spacer" aria-hidden="true"></div>
     </div>
   </section>
 
@@ -1744,6 +1745,33 @@
     updateHeader();
     window.addEventListener("scroll", updateHeader, { passive: true });
 
+    function applyHeroImage() {
+      const hero = document.querySelector(".hero");
+      if (!hero) return;
+      const candidates = [
+        "Diagnostic-Hub-Hero.jpg",
+        "Diagnostic-Hub-Hero-Image.jpg",
+        "Diagnostic-Hub-Hero.jpeg",
+        "Diagnostic-Hub-Hero-Image.jpeg",
+        "diagnostic-hub-hero.jpg"
+      ];
+
+      const tryNext = (index) => {
+        if (index >= candidates.length) return;
+        const img = new Image();
+        img.onload = () => {
+          hero.style.setProperty("--hero-image", `url("${candidates[index]}")`);
+          hero.classList.add("hero-image-loaded");
+        };
+        img.onerror = () => tryNext(index + 1);
+        img.src = candidates[index];
+      };
+
+      tryNext(0);
+    }
+
+    applyHeroImage();
+
     const dynamicCards = document.querySelectorAll(".dynamic-card");
     dynamicCards.forEach((card) => {
       const btn = card.querySelector(".dynamic-toggle");
@@ -1764,38 +1792,39 @@
     const overlay = document.getElementById("calibrationOverlay");
     const loadingBar = document.getElementById("loadingBar");
     const loadingStatus = document.getElementById("loadingStatus");
-    const diagnosticLinks = document.querySelectorAll(".diagnostic-link");
     const loadingMessages = [
       "Aligning structural signals...",
       "Mapping participant lenses...",
       "Preparing repeatable governance instrument...",
       "Environment ready."
     ];
+    const HUB_CALIBRATION_MS = 4700;
     let loadingTimer = null;
     let progressTimer = null;
+    let messageTimer = null;
 
-    function openDiagnosticWithCalibration(targetHref) {
-      if (!overlay || !loadingBar || !loadingStatus || !targetHref) {
-        window.location.href = targetHref;
-        return;
-      }
+    function startHubCalibration() {
+      if (!overlay || !loadingBar || !loadingStatus) return;
+
       overlay.classList.add("show");
       overlay.setAttribute("aria-hidden", "false");
       loadingBar.style.width = "0%";
       loadingStatus.textContent = loadingMessages[0];
+      document.body.style.overflow = "hidden";
 
       let progress = 0;
       let messageIndex = 0;
 
       clearInterval(progressTimer);
+      clearInterval(messageTimer);
       clearTimeout(loadingTimer);
 
       progressTimer = setInterval(() => {
-        progress = Math.min(progress + 2, 100);
+        progress = Math.min(progress + 2, 96);
         loadingBar.style.width = progress + "%";
       }, 100);
 
-      const messageTimer = setInterval(() => {
+      messageTimer = setInterval(() => {
         messageIndex = Math.min(messageIndex + 1, loadingMessages.length - 1);
         loadingStatus.textContent = loadingMessages[messageIndex];
       }, 1200);
@@ -1806,19 +1835,33 @@
         loadingBar.style.width = "100%";
         loadingStatus.textContent = loadingMessages[loadingMessages.length - 1];
         setTimeout(() => {
-          window.location.href = targetHref;
-        }, 220);
-      }, 4600);
+          overlay.classList.remove("show");
+          overlay.setAttribute("aria-hidden", "true");
+          document.body.style.overflow = "";
+        }, 240);
+      }, HUB_CALIBRATION_MS);
     }
 
-    diagnosticLinks.forEach((link) => {
-      link.addEventListener("click", (event) => {
-        const href = link.getAttribute("href");
-        if (!href) return;
-        event.preventDefault();
-        openDiagnosticWithCalibration(href);
+    function shouldRunHubCalibration() {
+      const navEntry = performance.getEntriesByType("navigation")[0];
+      const navType = navEntry?.type || "navigate";
+      const referrer = (document.referrer || "").toLowerCase();
+      const fromMonderman = referrer.includes("monderman.com");
+      const fromHub = referrer.includes("diagnostic-tools.html");
+
+      if (navType === "reload" || navType === "back_forward") return false;
+      if (fromMonderman && !fromHub) return true;
+      if (!referrer) return true;
+      return false;
+    }
+
+    if (shouldRunHubCalibration()) {
+      window.addEventListener("load", () => {
+        requestAnimationFrame(() => {
+          startHubCalibration();
+        });
       });
-    });
+    }
 
     const dropzone = document.getElementById("dropzone");
     const fileInput = document.getElementById("synthesisFileInput");
