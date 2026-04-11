@@ -272,13 +272,31 @@
       text-shadow: 0 1px 2px rgba(0,0,0,0.16);
       animation-delay: 480ms;
     }
+    .hero-title {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.02em;
+    }
+    .hero-line {
+      display: block;
+    }
+    .hero-line-top {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.16ch;
+      flex-wrap: nowrap;
+    }
+    .hero-line-label {
+      display: inline-block;
+    }
     .hero-rotator {
       display: inline-block;
       min-width: 6.2ch;
-      margin-left: 0.08ch;
       color: var(--accent);
       white-space: nowrap;
       position: relative;
+      line-height: 0.9;
     }
     .hero-rotate-word {
       display: inline-block;
@@ -1177,10 +1195,55 @@
       }
     }
     @media (max-width: 760px) {
-      .hero-inner { padding: 136px 20px 108px; }
+      .header-inner {
+        padding: 14px 20px 10px;
+        gap: 10px;
+      }
+      .brand {
+        font-size: 1.05rem;
+      }
+      .brand::after {
+        margin-left: 8px;
+      }
+      .nav {
+        width: calc(100% + 4px);
+        gap: 10px;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding: 2px 4px 6px 0;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+      }
+      .nav::-webkit-scrollbar { display: none; }
+      .nav a {
+        flex: 0 0 auto;
+        font-size: 0.84rem;
+        line-height: 1;
+        padding: 10px 12px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.08);
+      }
+      .nav a::after { display: none; }
+      .hero-inner { padding: 160px 20px 108px; }
+      .hero-copy { max-width: 100%; }
       .hero h1 {
         max-width: 100%;
-        font-size: clamp(2.45rem, 8vw, 3.25rem);
+        font-size: clamp(2.15rem, 10vw, 3rem);
+        line-height: 0.92;
+      }
+      .hero-title {
+        gap: 0.06em;
+      }
+      .hero-line-top {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.02em;
+      }
+      .hero-rotator {
+        min-width: auto;
       }
       .hero-dek {
         max-width: 100%;
@@ -1198,7 +1261,6 @@
         font-size: 0.8rem;
         line-height: 1.5;
       }
-      .hero-rotator { min-width: 6ch; }
       .btn {
         width: 100%;
         min-width: 0;
@@ -1263,7 +1325,14 @@
     <div class="hero-inner">
       <div class="hero-copy">
         <p class="hero-eyebrow">Institutional Performance</p>
-        <h1 id="hero-title">Organizations <span class="hero-rotator"><span class="hero-rotate-word" id="heroRotateWord">deliver</span></span> at the speed of their administrative reality.</h1>
+        <h1 id="hero-title" class="hero-title">
+          <span class="hero-line hero-line-top">
+            <span class="hero-line-label">Organizations</span>
+            <span class="hero-rotator" aria-live="polite" aria-atomic="true"><span class="hero-rotate-word" id="heroRotateWord">deliver</span></span>
+          </span>
+          <span class="hero-line">at the speed of their</span>
+          <span class="hero-line">administrative reality.</span>
+        </h1>
         <p class="hero-dek">
           Monderman makes hidden structural and administrative conditions visible, interpretable, and governable—so leaders can continuously reduce drag and strengthen execution.
         </p>
