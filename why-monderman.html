@@ -666,6 +666,12 @@
       gap: 22px;
       margin-top: 34px;
     }
+    .compound-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px;
+      margin-top: 24px;
+    }
 
     .focus-card {
       background: #FFFFFF;
@@ -1020,7 +1026,8 @@
       }
 
       .focus-grid,
-      .trust-grid {
+      .trust-grid,
+      .compound-grid {
         grid-template-columns: 1fr 1fr;
       }
     }
@@ -1132,7 +1139,8 @@
       }
 
       .focus-grid,
-      .trust-grid {
+      .trust-grid,
+      .compound-grid {
         grid-template-columns: 1fr;
       }
 
@@ -1331,13 +1339,13 @@
     <div class="focus-inner">
       <div class="section-intro reveal">
         <div class="section-label">How Monderman reads administrative reality</div>
-        <h2 id="suite-title">Four lenses. One clearer picture over time.</h2>
+        <h2 id="suite-title">Four distinct lenses. One clearer picture.</h2>
         <p>
-          The diagnostic suite is designed to help organizations build a fuller read of administrative reality rather than rely on one-off impressions or isolated fixes.
+          Monderman’s tools are powered by a proprietary diagnostic engine built to generate structured, repeatable, and high-fidelity reads of administrative reality across four distinct diagnostic lenses.
         </p>
       </div>
 
-      <div class="focus-grid" style="margin-top:36px;">
+      <div class="focus-grid" style="margin-top:36px; grid-template-columns: repeat(4, minmax(0, 1fr));">
         <article class="focus-card reveal reveal-delay-1">
           <h3>Structural Clarity</h3>
           <p>
@@ -1365,18 +1373,28 @@
             Reads the broader condition of the system—whether the institution is still converting structure into sustained performance, confidence, and adaptability.
           </p>
         </article>
+      </div>
 
+      <div class="section-intro reveal" style="margin-top:46px;">
+        <div class="section-label">How insights compound</div>
+        <h2 style="max-width:720px;">Deeper signal across lenses and over time.</h2>
+        <p>
+          The value of the suite compounds when results are compared across tools and revisited as administrative conditions shift.
+        </p>
+      </div>
+
+      <div class="compound-grid">
         <article class="focus-card reveal reveal-delay-2">
-          <h3>Repeatable use</h3>
+          <h3>Cross-diagnostic analysis</h3>
           <p>
-            The value compounds over time. Repeated runs make it easier to see whether conditions are strengthening, drifting, or accumulating new forms of drag.
+            Compare results across lenses to distinguish local symptoms from wider administrative conditions affecting structure, decisions, burden, and performance at once.
           </p>
         </article>
 
         <article class="focus-card reveal reveal-delay-3">
-          <h3>Cross-diagnostic patterning</h3>
+          <h3>Temporal analysis</h3>
           <p>
-            Used together, the tools help distinguish between a local symptom and a wider administrative condition that is affecting multiple parts of the organization at once.
+            Use repeated runs over time to see where conditions are strengthening, drifting, or accumulating drag as the surrounding environment changes.
           </p>
         </article>
       </div>
