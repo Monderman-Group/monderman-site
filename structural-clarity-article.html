@@ -12,7 +12,6 @@
       font-weight: 400;
       font-display: swap;
     }
-
     @font-face {
       font-family: "Neue Haas Grotesk";
       src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff");
@@ -20,7 +19,6 @@
       font-weight: 500;
       font-display: swap;
     }
-
     @font-face {
       font-family: "Neue Haas Grotesk";
       src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff");
@@ -38,11 +36,12 @@
       --muted: #556270;
       --line: #E3E7EB;
       --dark: #0F1720;
+      --soft: #F8FAFC;
       --max: 980px;
+      --shadow: 0 1px 0 rgba(0,0,0,0.012);
     }
 
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
       background: var(--bg);
@@ -118,7 +117,6 @@
       outline: none;
     }
 
-    
     .hero {
       position: relative;
       overflow: hidden;
@@ -157,8 +155,7 @@
       position: absolute;
       inset: 0;
       pointer-events: none;
-      background:
-        radial-gradient(circle at 78% 28%, rgba(63,110,161,0.18) 0%, rgba(63,110,161,0.06) 22%, transparent 44%);
+      background: radial-gradient(circle at 78% 28%, rgba(63,110,161,0.18) 0%, rgba(63,110,161,0.06) 22%, transparent 44%);
       opacity: 0.95;
     }
 
@@ -170,9 +167,7 @@
       min-height: 352px;
     }
 
-    .hero-copy {
-      max-width: 700px;
-    }
+    .hero-copy { max-width: 720px; }
 
     .eyebrow {
       margin: 0 0 18px;
@@ -193,7 +188,7 @@
 
     .hero p {
       margin: 0;
-      max-width: 46ch;
+      max-width: 48ch;
       font-size: 1.06rem;
       line-height: 1.7;
       color: rgba(255,255,255,0.82);
@@ -246,11 +241,11 @@
       align-items: start;
     }
 
-    .content, .sidebar-card, .pullquote, .cta {
+    .content, .sidebar-card, .pullquote, .cta, .signal-figure, .output-figure {
       background: var(--white);
       border: 1px solid var(--line);
       border-radius: 16px;
-      box-shadow: 0 1px 0 rgba(0,0,0,0.012);
+      box-shadow: var(--shadow);
     }
 
     .content { padding: 38px 34px; }
@@ -283,9 +278,154 @@
       border-left: 3px solid var(--accent);
     }
 
-    .pullquote p {
-      margin: 0;
+    .pullquote p { margin: 0; color: var(--text); }
+
+    .signal-figure,
+    .output-figure {
+      margin: 28px 0;
+      padding: 24px;
+      background: linear-gradient(180deg, #FFFFFF 0%, #FBFCFE 100%);
+    }
+
+    .figure-kicker {
+      margin: 0 0 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .figure-title {
+      margin: 0 0 16px;
+      font-size: 1.04rem;
+      line-height: 1.25;
       color: var(--text);
+    }
+
+    .signal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .signal-card {
+      padding: 16px;
+      border-radius: 14px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+    }
+
+    .signal-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.92rem;
+      color: var(--text);
+    }
+
+    .signal-card span {
+      display: block;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .output-shell {
+      display: grid;
+      gap: 16px;
+    }
+
+    .output-top {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 18px;
+      align-items: center;
+    }
+
+    .score-block {
+      padding: 20px 16px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #0F1720 0%, #172231 100%);
+      color: #fff;
+      text-align: center;
+    }
+
+    .score-block .score-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.68);
+      margin-bottom: 8px;
+    }
+
+    .score-block .score-num {
+      font-size: 3rem;
+      line-height: 0.92;
+      font-weight: 700;
+      letter-spacing: -0.06em;
+      margin: 0;
+    }
+
+    .score-block .score-band {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.82);
+    }
+
+    .output-copy {
+      display: grid;
+      gap: 10px;
+    }
+
+    .output-copy p {
+      margin: 0;
+      font-size: 0.94rem;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    .output-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      padding: 14px 14px 12px;
+      border-radius: 14px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 0.74rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .metric span {
+      display: block;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 5px;
+    }
+
+    .metric small {
+      display: block;
+      font-size: 0.84rem;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .figure-note {
+      margin-top: 14px;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--muted);
     }
 
     .sidebar {
@@ -391,6 +531,9 @@
       }
 
       .content { padding: 28px 22px; }
+      .signal-grid,
+      .output-metrics,
+      .output-top { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -416,11 +559,11 @@
         <p class="eyebrow">Our Approach</p>
         <h1>Structural Clarity</h1>
         <p>
-          When roles, responsibilities, and decision rights become unclear, organizations don’t break—they slow. Structural clarity ensures that work moves through the organization without unnecessary friction, confusion, or duplication.
+          Structural Clarity shows whether the underlying structure is clear enough to support execution, where ownership and authority are blurring, and where hidden ambiguity is forcing people to compensate around the system.
         </p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="structural-clarity.html">Run Structural Clarity Diagnostic</a>
-          <a class="btn btn-secondary" href="index.html#connect">Start a Conversation</a>
+          <a class="btn btn-secondary" href="advisory-services-connect.html">Start a Conversation</a>
         </div>
       </div>
     </div>
@@ -431,28 +574,105 @@
       <div class="article-layout">
         <article class="content">
           <p>
-            Structural clarity is not about org charts alone. It is about whether people can clearly tell how work is supposed to move, who owns what, where authority sits, and how decisions turn into action. Many organizations look well designed on paper while remaining ambiguous in practice.
+            Structural clarity is not about org charts alone. It is about whether people can actually tell how work is supposed to move, who owns what, where authority sits, how handoffs are meant to work, and when escalation is truly necessary. Many organizations look well designed on paper while remaining ambiguous in practice.
           </p>
 
           <p>
-            That ambiguity rarely arrives as a dramatic failure. It appears as duplication, drift, delayed execution, repeated check-ins, unnecessary escalation, and the quiet sense that progress depends too much on personal navigation rather than on a system that is genuinely clear.
+            That ambiguity rarely arrives as one dramatic failure. More often, it shows up as overlap, repeated clarification, unnecessary escalation, management interpretation, and the quiet feeling that the structure only works because capable people keep compensating around it.
           </p>
 
           <div class="pullquote">
             <p>
-              Structural clarity exists when authority, ownership, and execution are aligned closely enough that work can move without constant interpretation or informal translation.
+              Structural clarity exists when ownership, authority, boundaries, and accountability are aligned closely enough that work can move without constant interpretation, rescue, or informal translation.
+            </p>
+          </div>
+
+          <h2>What the diagnostic is actually reading</h2>
+
+          <p>
+            The tool is not trying to decide whether the organization is neatly designed in theory. It is reading whether the structure is legible enough to support execution in practice. That means looking for blurred authority, fuzzy ownership, weak handoffs, accountability diffusion, role overlap, and structures that remain usable only because people keep stepping in to make sense of them.
+          </p>
+
+          <div class="signal-figure">
+            <p class="figure-kicker">Diagnostic reading model</p>
+            <h3 class="figure-title">The tool is built to detect four recurring structural failure patterns</h3>
+            <div class="signal-grid">
+              <div class="signal-card">
+                <strong>Ownership ambiguity</strong>
+                <span>No one is clearly carrying the next move, so work advances only after repeated clarification or informal prompting.</span>
+              </div>
+              <div class="signal-card">
+                <strong>Authority blur</strong>
+                <span>Decision rights exist on paper, but people still wait for cover because the real limits of authority are unclear.</span>
+              </div>
+              <div class="signal-card">
+                <strong>Handoff diffusion</strong>
+                <span>Work moves across too many roles, teams, or layers, spreading accountability so widely that clean execution becomes harder to sustain.</span>
+              </div>
+              <div class="signal-card">
+                <strong>Compensatory structure</strong>
+                <span>The system still functions, but mainly because managers, informal fixers, or cross-team workarounds keep translating and stabilizing it.</span>
+              </div>
+            </div>
+            <p class="figure-note">
+              The live diagnostic adapts its question path around these signals and reads them differently across operational, managerial, and executive perspectives.
             </p>
           </div>
 
           <h2>Why structural ambiguity is so expensive</h2>
 
           <p>
-            Organizations often treat ambiguity as a communication problem when it is actually a design problem. People do not need more reminders about who should do what if the underlying structure remains blurred. In those conditions, even capable teams begin to hesitate, overlap, or wait for reassurance before acting.
+            Organizations often treat ambiguity as a communication problem when it is actually a design problem. People do not need more reminders about who should do what if the underlying structure remains blurred. In those conditions, even capable teams begin to hesitate, duplicate effort, or wait for reassurance before acting.
           </p>
 
           <p>
-            The cost is cumulative. One unclear handoff may seem minor. One fuzzy approval threshold may feel manageable. One role boundary that is “still evolving” may not appear dangerous. But once these stack together, execution begins to lose coherence. Activity remains high, yet clean forward movement becomes harder to sustain.
+            The cost is cumulative. One unclear handoff may seem minor. One fuzzy authority threshold may feel manageable. One role boundary that is still “evolving” may not appear dangerous. But once these stack together, execution begins to lose coherence. Activity remains high, yet clean forward movement becomes harder to sustain.
           </p>
+
+          <h2>What the output is meant to give leaders</h2>
+
+          <p>
+            The Structural Clarity diagnostic is not a generic culture survey. It is built to return a leadership-facing readout: a directional score, a benchmark position, a trajectory signal, a likely structural weakness, and a practical first-action sequence. In other words, it is designed to help leaders decide whether the structure is clear and coherent, functional but fuzzy, structurally strained, or unclear enough that compensation has become part of the operating model.
+          </p>
+
+          <div class="output-figure">
+            <p class="figure-kicker">What the tool returns</p>
+            <h3 class="figure-title">A leadership readout about structural coherence, not just sentiment</h3>
+            <div class="output-shell">
+              <div class="output-top">
+                <div class="score-block">
+                  <div class="score-label">Clarity score</div>
+                  <p class="score-num">59</p>
+                  <div class="score-band">Structurally strained</div>
+                </div>
+                <div class="output-copy">
+                  <p><strong>Current structural condition.</strong> A concise read of whether the operating structure is supporting execution cleanly or leaning on compensation.</p>
+                  <p><strong>Primary structural weakness.</strong> The heaviest likely source of incoherence, such as ownership ambiguity, authority blur, or handoff diffusion.</p>
+                  <p><strong>Coherence diagnosis.</strong> Whether the current structural weight is justified or whether the organization is paying too much to preserve basic movement.</p>
+                </div>
+              </div>
+              <div class="output-metrics">
+                <div class="metric">
+                  <strong>Benchmark</strong>
+                  <span>Within range</span>
+                  <small>How the structure compares with similar sector pathways.</small>
+                </div>
+                <div class="metric">
+                  <strong>Trajectory</strong>
+                  <span>Rising ambiguity</span>
+                  <small>Whether the structure appears stabilizing, worsening, or easing.</small>
+                </div>
+                <div class="metric">
+                  <strong>Reclaim potential</strong>
+                  <span>Directional upside</span>
+                  <small>Approximate recoverable value if the heaviest structural burden is corrected first.</small>
+                </div>
+              </div>
+            </div>
+            <p class="figure-note">
+              The actual tool also includes priority actions, a gated opportunity view, supporting evidence panels, and a downloadable executive report.
+            </p>
+          </div>
 
           <h2>What structural ambiguity looks like in practice</h2>
 
@@ -473,7 +693,7 @@
 
           <h3>Coordination replaces design</h3>
           <p>
-            Meetings, side conversations, and follow-up messages become the mechanism that keeps the system working. The organization appears collaborative, but often it is compensating for a structure that is not sufficiently legible on its own.
+            Meetings, side conversations, repeated check-ins, and manager interpretation become the mechanism that keeps the system working. The organization appears collaborative, but often it is compensating for a structure that is not sufficiently legible on its own.
           </p>
 
           <h2>Why clarity matters under pressure</h2>
@@ -483,33 +703,23 @@
           </p>
 
           <p>
-            This is why structural clarity is not administrative neatness. It is a form of performance infrastructure. When authority and ownership are clear, organizations can move faster without becoming chaotic. When they are not, even routine work begins to require excess management energy.
-          </p>
-
-          <h2>What greater structural clarity looks like</h2>
-
-          <p>
-            Healthier structures make the flow of work more legible. People know where responsibility begins and ends. Review logic is understandable. Escalation is used deliberately rather than habitually. Teams do not need constant interpretation to keep basic movement intact.
-          </p>
-
-          <p>
-            This does not mean everything becomes rigid. Strong structural clarity often increases flexibility because people can move within clearer boundaries. The system becomes easier to navigate precisely because it is less dependent on improvisation to hold together.
+            This is why structural clarity is not administrative neatness. It is a form of execution infrastructure. When authority and ownership are clear, organizations can move faster without becoming chaotic. When they are not, even routine work begins to require excess management energy.
           </p>
 
           <h2>How Monderman approaches structural clarity</h2>
 
           <p>
-            We look beneath surface complaints about communication or collaboration and ask more structural questions. Where is ownership actually settling? Which handoffs are real, and which exist only because the system has become layered? Where is authority clear in theory but uncertain in practice? Which coordination rituals are carrying more weight than the formal design itself?
+            Monderman looks beneath surface complaints about communication or collaboration and asks more structural questions. Where is ownership actually settling? Which handoffs are real, and which exist only because the system has become layered? Where is authority clear in theory but uncertain in practice? Which coordination rituals are carrying more weight than the formal design itself?
           </p>
 
           <p>
-            The aim is not perfect neatness. It is clearer institutional movement. A structurally clear environment gives leaders a better view of how work is actually operating and gives teams a more reliable path from responsibility to action.
+            The aim is not perfect neatness. It is clearer institutional movement. A structurally clear environment gives leaders a better view of how work is actually operating and gives teams a more reliable path from responsibility to action without depending on constant interpretation or rescue.
           </p>
 
           <div class="cta">
             <h3>Common signs structural clarity is weakening</h3>
             <p>
-              Teams revisit basic ownership questions, the same work is touched by multiple groups, decisions require repeated clarification, and managers spend too much time interpreting rather than directing.
+              Teams revisit basic ownership questions, the same work is touched by multiple groups, managers spend too much time translating roles, routine cases escalate because boundaries are fuzzy, and the system still works mainly because capable people keep compensating around it.
             </p>
             <a class="btn btn-primary" href="structural-clarity.html">Run Structural Clarity Diagnostic</a>
           </div>
@@ -518,26 +728,26 @@
         <aside class="sidebar">
           <div class="sidebar-card">
             <p class="sidebar-kicker">What this affects</p>
-            <h3>Execution, trust, and accountability</h3>
+            <h3>Execution, accountability, and management lift</h3>
             <p>
-              Structural ambiguity does not just slow work. It weakens accountability, increases management lift, and makes reliable execution harder to sustain over time.
+              Structural ambiguity does not just slow work. It weakens accountability, increases interpretation burden, and makes reliable execution harder to sustain over time.
             </p>
           </div>
 
           <div class="sidebar-card">
-            <p class="sidebar-kicker">Look for</p>
+            <p class="sidebar-kicker">The tool is looking for</p>
             <ul class="mini-list">
               <li>Repeated confusion over who owns what</li>
-              <li>Work bouncing across multiple teams</li>
-              <li>Escalation used to resolve routine ambiguity</li>
-              <li>Meetings doing the work the structure should be doing</li>
+              <li>Authority that exists formally but not confidently in practice</li>
+              <li>Work bouncing across multiple roles or teams</li>
+              <li>Structures that depend on compensation to remain usable</li>
             </ul>
           </div>
 
           <div class="sidebar-card">
             <p class="sidebar-kicker">Monderman view</p>
             <p>
-              Structural clarity is not bureaucracy for its own sake. It is what makes coordinated movement possible without excessive interpretation, overlap, or drift.
+              Structural Clarity is about the integrity of the structure beneath the work: whether ownership, authority, boundaries, and accountability are coherent enough to support execution without constant rescue or reinterpretation.
             </p>
           </div>
         </aside>
@@ -545,7 +755,6 @@
     </div>
   </main>
 
-  
   <footer class="footer">
     <div class="footer-inner">
       <p>Monderman — clarity for complex institutions.</p>
