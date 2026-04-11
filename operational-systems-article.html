@@ -38,7 +38,9 @@
       --muted: #556270;
       --line: #E3E7EB;
       --dark: #0F1720;
+      --soft: #F8FAFC;
       --max: 980px;
+      --shadow: 0 1px 0 rgba(0,0,0,0.012);
     }
 
     * { box-sizing: border-box; }
@@ -117,7 +119,6 @@
       outline: none;
     }
 
-    
     .hero {
       position: relative;
       overflow: hidden;
@@ -170,7 +171,7 @@
     }
 
     .hero-copy {
-      max-width: 700px;
+      max-width: 720px;
     }
 
     .eyebrow {
@@ -192,7 +193,7 @@
 
     .hero p {
       margin: 0;
-      max-width: 46ch;
+      max-width: 50ch;
       font-size: 1.06rem;
       line-height: 1.7;
       color: rgba(255,255,255,0.82);
@@ -225,7 +226,7 @@
 
     .btn-primary:hover,
     .btn-primary:focus-visible {
-      background: #2F5886;
+      background: var(--accent-dark);
       color: #fff;
       outline: none;
     }
@@ -245,11 +246,11 @@
       align-items: start;
     }
 
-    .content, .sidebar-card, .pullquote, .cta {
+    .content, .sidebar-card, .pullquote, .cta, .signal-figure, .output-figure {
       background: var(--white);
       border: 1px solid var(--line);
       border-radius: 16px;
-      box-shadow: 0 1px 0 rgba(0,0,0,0.012);
+      box-shadow: var(--shadow);
     }
 
     .content { padding: 38px 34px; }
@@ -285,6 +286,154 @@
     .pullquote p {
       margin: 0;
       color: var(--text);
+    }
+
+    .signal-figure,
+    .output-figure {
+      margin: 28px 0;
+      padding: 24px;
+      background: linear-gradient(180deg, #FFFFFF 0%, #FBFCFE 100%);
+    }
+
+    .figure-kicker {
+      margin: 0 0 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .figure-title {
+      margin: 0 0 16px;
+      font-size: 1.04rem;
+      line-height: 1.25;
+      color: var(--text);
+    }
+
+    .signal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .signal-card {
+      padding: 16px;
+      border-radius: 14px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+    }
+
+    .signal-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.92rem;
+      color: var(--text);
+    }
+
+    .signal-card span {
+      display: block;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .output-shell {
+      display: grid;
+      gap: 16px;
+    }
+
+    .output-top {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 18px;
+      align-items: center;
+    }
+
+    .score-block {
+      padding: 20px 16px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #0F1720 0%, #172231 100%);
+      color: #fff;
+      text-align: center;
+    }
+
+    .score-block .score-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.68);
+      margin-bottom: 8px;
+    }
+
+    .score-block .score-num {
+      font-size: 3rem;
+      line-height: 0.92;
+      font-weight: 700;
+      letter-spacing: -0.06em;
+      margin: 0;
+    }
+
+    .score-block .score-band {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.82);
+    }
+
+    .output-copy {
+      display: grid;
+      gap: 10px;
+    }
+
+    .output-copy p {
+      margin: 0;
+      font-size: 0.94rem;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    .output-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      padding: 14px 14px 12px;
+      border-radius: 14px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 0.74rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .metric span {
+      display: block;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 5px;
+    }
+
+    .metric small {
+      display: block;
+      font-size: 0.84rem;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .figure-note {
+      margin-top: 14px;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--muted);
     }
 
     .sidebar {
@@ -390,6 +539,9 @@
       }
 
       .content { padding: 28px 22px; }
+      .signal-grid,
+      .output-metrics,
+      .output-top { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -415,11 +567,11 @@
         <p class="eyebrow">Our Approach</p>
         <h1>Operational Systems</h1>
         <p>
-          Processes expand over time—often invisibly. Operational systems determine whether coordination, approvals, and workflows enable execution or quietly slow it down.
+          Operational Systems shows where process load, systems friction, reporting burden, and control accumulation are absorbing time, labor, and productive capacity before that weight is mistaken for normal work.
         </p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="bureaucratic-drag-snapshot.html">Run Operational Systems Diagnostic</a>
-          <a class="btn btn-secondary" href="index.html#connect">Start a Conversation</a>
+          <a class="btn btn-secondary" href="advisory-services-connect.html">Start a Conversation</a>
         </div>
       </div>
     </div>
@@ -430,75 +582,164 @@
       <div class="article-layout">
         <article class="content">
           <p>
-            Every organization has operational systems: workflows, reporting structures, compliance routines, controls, templates, approvals, and documentation requirements that shape how work actually moves. These systems are often treated as neutral background infrastructure. They are not.
+            Most organizations do not first experience administrative drag as a grand structural event. They experience it in the operating system itself: one more handoff, one more system, one more reporting request, one more coordination meeting, one more control layer that no one fully removes once it is added.
           </p>
 
           <p>
-            Operational systems determine whether effort compounds or gets absorbed. They shape how long work waits, how often people must stop and translate what they are doing into administrative proof, and how much of the day is spent producing value versus maintaining the machinery around value.
+            That is what the Operational Systems diagnostic is designed to surface. Not just whether work feels frustrating, but whether the environment carrying the work has become heavier than the work itself requires — and how much time, cost, and productive capacity may be recoverable if that burden is reduced deliberately.
           </p>
 
           <div class="pullquote">
             <p>
-              The question is not whether your organization has operational systems. The question is whether those systems are helping work move or quietly competing with the work itself.
+              Operational drag is not just slow process. It is the cumulative weight of systems, reporting, coordination, and administrative upkeep competing with the work they were supposed to support.
             </p>
           </div>
 
-          <h2>How good systems become heavy systems</h2>
+          <h2>What the diagnostic is actually reading</h2>
 
           <p>
-            Most burdensome systems did not begin as nonsense. A report was added to improve visibility. A control was added after a failure. A review step was introduced to reduce risk. Over time, though, few of these mechanisms are revisited with the same seriousness that introduced them.
+            The tool does not read only one bottleneck. It reads the burden profile of the operating environment: how much process density the workflow is carrying, how much systems friction and duplicate entry are embedded in the route, how much reporting or oversight burden is consuming labor, and whether controls are accumulating faster than the underlying risk or value of the work justifies.
+          </p>
+
+          <div class="signal-figure">
+            <p class="figure-kicker">Diagnostic reading model</p>
+            <h3 class="figure-title">The tool is built to detect four recurring operating-burden patterns</h3>
+            <div class="signal-grid">
+              <div class="signal-card">
+                <strong>Process density</strong>
+                <span>Too many steps, reviews, approvals, or procedural requirements are collecting around the work.</span>
+              </div>
+              <div class="signal-card">
+                <strong>Systems friction</strong>
+                <span>People are switching systems, re-entering information, or manually patching the route just to keep the workflow moving.</span>
+              </div>
+              <div class="signal-card">
+                <strong>Reporting burden</strong>
+                <span>Status updates, recurring oversight, and proof-of-work demands are consuming operating labor that could otherwise stay with the mission.</span>
+              </div>
+              <div class="signal-card">
+                <strong>Control accumulation</strong>
+                <span>Controls, reviews, and governance layers have become heavier than the real risk profile of the work requires.</span>
+              </div>
+            </div>
+            <p class="figure-note">
+              The live diagnostic adapts its question path around these burden patterns and reads them differently across operational, managerial, and executive perspectives.
+            </p>
+          </div>
+
+          <h2>Why good operating systems become heavy ones</h2>
+
+          <p>
+            Few burdensome operating environments begin as nonsense. A report was added to improve visibility. A review step was added after a failure. A system field was added for auditability. A coordination ritual was added because one team no longer trusted what another team would do. The problem is not that these additions appeared. The problem is that they often remain long after their value has become less clear.
           </p>
 
           <p>
-            The result is accumulation. One team is maintaining yesterday’s safeguard. Another is complying with a template no one fully trusts. A third is spending hours preparing information that is already available somewhere else. The organization grows, but its operating burden grows with it.
+            Over time, the organization begins paying maintenance costs instead of simply executing. High-skill labor spends more time proving, formatting, aligning, updating, escalating, and re-entering than actually advancing the work the operating system was built to support.
           </p>
 
-          <h2>What operational drag looks like in practice</h2>
+          <h2>What operating drag looks like in practice</h2>
 
-          <h3>Duplicate reporting</h3>
+          <h3>Routine work requires too much coordination</h3>
           <p>
-            The same information is prepared multiple times for different audiences or systems, each with slightly different formats and expectations.
+            Meetings, follow-ups, side emails, and manual reminders become part of the normal route rather than the exception route.
           </p>
 
-          <h3>Review chains with unclear value</h3>
+          <h3>The same information travels too many times</h3>
           <p>
-            Work passes through several hands, but the additional quality, risk reduction, or insight is hard to detect.
+            Data is re-entered across systems, reformatted for different audiences, or translated repeatedly because the operating environment does not carry it cleanly enough.
           </p>
 
-          <h3>Compliance that outlives the original risk</h3>
+          <h3>Controls stay, even when context changes</h3>
           <p>
-            Controls remain in place long after the surrounding conditions have changed.
+            Governance layers are easier to add than remove, so the burden stack grows quietly even if the actual work does not warrant it anymore.
           </p>
 
-          <h3>Frontline capacity loss</h3>
+          <h3>Operating labor gets converted into upkeep</h3>
           <p>
-            Skilled employees spend more of their time proving the work than doing the work.
+            The organization still works, but too much of its time is spent maintaining the machinery around work rather than doing the work itself.
           </p>
 
-          <h2>Operational systems should create flow, not friction</h2>
+          <h2>What the output is meant to give leaders</h2>
 
           <p>
-            Healthy systems do not mean minimal systems. In many organizations, strong controls are necessary. The issue is fitness, not ideology. A strong operational system is one that remains intelligible, proportionate, and responsive. It supports the mission rather than quietly feeding on it.
+            The Operational Systems diagnostic is not a generic efficiency score. It is built to return a leadership-facing readout: an operating-burden score, a current condition read, a primary burden source, a burden diagnosis, a benchmark position, a trajectory signal, and a directional estimate of reclaim potential if the heaviest visible drag is reduced first.
           </p>
 
+          <div class="output-figure">
+            <p class="figure-kicker">What the tool returns</p>
+            <h3 class="figure-title">A leadership readout about operating burden, not just process annoyance</h3>
+            <div class="output-shell">
+              <div class="output-top">
+                <div class="score-block">
+                  <div class="score-label">Burden score</div>
+                  <p class="score-num">61</p>
+                  <div class="score-band">Burdened and process-heavy</div>
+                </div>
+                <div class="output-copy">
+                  <p><strong>Current operating burden.</strong> A concise read of how heavy the environment appears to be right now.</p>
+                  <p><strong>Primary burden source.</strong> The strongest likely drag driver, such as process density, systems friction, reporting burden, or control accumulation.</p>
+                  <p><strong>Burden diagnosis.</strong> Whether the current amount of administrative weight appears justified by real operating need or heavier than the workflow likely requires.</p>
+                </div>
+              </div>
+              <div class="output-metrics">
+                <div class="metric">
+                  <strong>Benchmark</strong>
+                  <span>Within range</span>
+                  <small>How the pathway compares with similar operating environments.</small>
+                </div>
+                <div class="metric">
+                  <strong>Trajectory</strong>
+                  <span>Rising drag</span>
+                  <small>Whether operating burden appears stable, worsening, or easing.</small>
+                </div>
+                <div class="metric">
+                  <strong>Reclaim potential</strong>
+                  <span>Directional upside</span>
+                  <small>Approximate recoverable value if the heaviest visible burden is reduced first.</small>
+                </div>
+              </div>
+            </div>
+            <p class="figure-note">
+              The actual tool also includes priority actions, a gated opportunity view, supporting evidence panels, and a downloadable executive report.
+            </p>
+          </div>
+
+          <h2>The hidden cost of heavy operational systems</h2>
+
+          <h3>Routine execution becomes labor-intensive</h3>
           <p>
-            In practice, that means periodic burden audits, pruning redundant processes, aligning controls to actual risk, and redesigning handoffs so information does not have to be constantly repackaged just to cross internal boundaries.
+            The organization spends more effort carrying the process than advancing the underlying work. That is not just inconvenience. It is a capacity problem.
+          </p>
+
+          <h3>Managers become manual routing devices</h3>
+          <p>
+            When systems and workflows do not resolve cleanly on their own, managers and coordinators end up patching the route repeatedly just to preserve movement.
+          </p>
+
+          <h3>Controls get more expensive, not necessarily better</h3>
+          <p>
+            Administrative weight often expands in the name of governance, but the key question is whether that extra burden is actually returning proportionate control or simply raising the labor cost of doing normal work.
+          </p>
+
+          <h3>The organization normalizes drag</h3>
+          <p>
+            Once a burdened route becomes familiar, people stop asking whether it is proportionate. They start assuming it is just how work has to happen.
           </p>
 
           <h2>How Monderman approaches operational systems</h2>
 
           <p>
-            We examine the operating burden beneath the org chart: where documentation is expanding, where approvals are stacking, where reporting is duplicative, and where people closest to the work are being converted into custodians of the system instead of contributors to the mission.
+            Monderman looks at the operating burden beneath the org chart. Where is the work being slowed by systems switching, re-entry, and process density? Where is reporting absorbing too much labor? Where are control layers still present mainly because they were easier to add than remove? Where is the operating environment itself becoming harder to carry?
           </p>
 
           <p>
-            The aim is not simplistic streamlining. It is to return capacity to the organization. Time, attention, and judgment are finite resources. Every unnecessary layer of process spends them.
+            The goal is not simplistic streamlining. It is to return usable capacity to the institution by reducing the administrative burden the system imposes on the work — and by making that burden visible enough that leaders can govern it deliberately instead of inheriting it passively.
           </p>
 
           <div class="cta">
-            <h3>Common signs your operational systems need redesign</h3>
+            <h3>Common signs operational systems are becoming too heavy</h3>
             <p>
-              Teams spend too much time updating trackers, preparing slides, re-entering data, or waiting for routine approvals. People know the system feels heavy, but no one owns the burden as a system-level issue.
+              Teams re-enter the same data across systems. Meetings keep the workflow alive. Reporting expands without obvious value. Routine work starts needing manual follow-up, side-channel coordination, and exception handling just to keep moving.
             </p>
             <a class="btn btn-primary" href="bureaucratic-drag-snapshot.html">Run Operational Systems Diagnostic</a>
           </div>
@@ -507,26 +748,26 @@
         <aside class="sidebar">
           <div class="sidebar-card">
             <p class="sidebar-kicker">What this affects</p>
-            <h3>Capacity, morale, and throughput</h3>
+            <h3>Capacity, throughput, and managerial attention</h3>
             <p>
-              Heavy operating systems do not just waste time. They change how people work, what they avoid, and how much creative energy remains.
+              Heavy operational systems do not just waste time. They absorb labor, crowd out productive work, and quietly convert managers into maintainers of the route.
             </p>
           </div>
 
           <div class="sidebar-card">
-            <p class="sidebar-kicker">Look for</p>
+            <p class="sidebar-kicker">The tool is looking for</p>
             <ul class="mini-list">
-              <li>Duplicate reports across functions</li>
-              <li>Manual handoffs between systems</li>
-              <li>Templates no one believes in but everyone completes</li>
-              <li>High-skill staff buried in low-value admin upkeep</li>
+              <li>Process density heavier than the work requires</li>
+              <li>Systems switching and duplicate entry consuming labor</li>
+              <li>Reporting and oversight burden crowding out operating work</li>
+              <li>Controls that have accumulated beyond real risk need</li>
             </ul>
           </div>
 
           <div class="sidebar-card">
             <p class="sidebar-kicker">Monderman view</p>
             <p>
-              Operational systems should preserve flow and judgment. When they become ends in themselves, the organization begins paying maintenance costs instead of creating value.
+              Operational Systems is about the burden profile of the environment itself: how much process, systems, reporting, and administrative weight the workflow is carrying before that weight is mistaken for normal work.
             </p>
           </div>
         </aside>
@@ -534,7 +775,6 @@
     </div>
   </main>
 
-  
   <footer class="footer">
     <div class="footer-inner">
       <p>Monderman — clarity for complex institutions.</p>
