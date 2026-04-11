@@ -685,57 +685,54 @@
     .engine-strip-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 14px;
+      gap: 22px;
       align-items: stretch;
       position: relative;
     }
 
     .engine-step {
       position: relative;
-      background: rgba(255, 255, 255, 0.88);
+      background: rgba(255, 255, 255, 0.9);
       border: 1px solid rgba(21, 32, 43, 0.06);
       border-radius: 14px;
       padding: 16px 16px 14px;
+      overflow: visible;
     }
 
     .engine-arrow {
       position: absolute;
       top: 50%;
-      right: -22px;
+      right: -26px;
       transform: translateY(-50%);
-      width: 28px;
-      height: 28px;
+      width: 40px;
+      height: 40px;
       border-radius: 999px;
-      background: #FFFFFF;
+      background: rgba(63, 110, 161, 0.10);
       border: 1px solid rgba(63, 110, 161, 0.34);
       color: var(--accent);
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 12px rgba(63, 110, 161, 0.10);
-      z-index: 2;
+      box-shadow: 0 6px 14px rgba(63, 110, 161, 0.08);
+      z-index: 3;
       pointer-events: none;
+      font-size: 1.12rem;
+      font-weight: 700;
+      line-height: 1;
     }
 
     .suite-top-row {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 24px;
       margin-top: 36px;
     }
 
     .suite-top-row .focus-grid {
-      flex: 1 1 auto;
       margin-top: 0;
     }
 
     .suite-top-cta {
       display: flex;
       justify-content: flex-end;
-      align-self: flex-end;
-      flex: 0 0 auto;
-      padding-bottom: 2px;
+      margin-top: 22px;
     }
 
 
@@ -1130,11 +1127,6 @@
         grid-template-columns: 1fr 1fr;
       }
 
-      .suite-top-row {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
       .suite-top-cta {
         justify-content: flex-end;
       }
@@ -1259,6 +1251,11 @@
 
       .suite-top-cta {
         justify-content: stretch;
+      }
+
+      .engine-strip {
+        padding-left: 18px;
+        padding-right: 18px;
       }
 
       .footer {
@@ -1495,10 +1492,10 @@
             </p>
           </article>
         </div>
+      </div>
 
-        <div class="suite-top-cta reveal reveal-delay-2">
-          <a class="btn btn-accent" href="diagnostic-tools.html">Open Diagnostic Hub</a>
-        </div>
+      <div class="suite-top-cta reveal reveal-delay-2">
+        <a class="btn btn-accent" href="diagnostic-tools.html">Open Diagnostic Hub</a>
       </div>
 
       <div class="section-intro reveal" style="margin-top:46px;">
