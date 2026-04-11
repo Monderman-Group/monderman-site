@@ -39,37 +39,42 @@
       font-display: swap;
     }
 
-    :root {
+    :root{
       --accent:#3F6EA1;
       --accent-dark:#2F5886;
       --accent-soft:rgba(63,110,161,.08);
       --gold:#B28D3C;
-      --gold-soft:rgba(178,141,60,.12);
+      --gold-soft:rgba(178,141,60,.11);
       --bg-dark:#0F1720;
-      --bg-dark-2:#121A23;
-      --bg-offwhite:#F6F7F8;
+      --bg-dark-2:#121B25;
+      --bg-offwhite:#F6F7F9;
+      --panel:#FFFFFF;
+      --panel-soft:#FBFCFE;
       --text-light:#F5F7FA;
       --muted-light:rgba(245,247,250,.82);
-      --muted-light-2:rgba(245,247,250,.60);
+      --muted-light-2:rgba(245,247,250,.62);
       --text-dark:#15202B;
-      --muted-dark:#556270;
-      --muted-dark-2:#7A8794;
-      --line-soft:rgba(21,32,43,.06);
-      --header-solid:rgba(14,20,28,.87);
+      --muted-dark:#566473;
+      --muted-dark-2:#7B8894;
+      --line-soft:rgba(21,32,43,.08);
+      --line-mid:rgba(21,32,43,.12);
+      --header-solid:rgba(14,20,28,.86);
       --header-border:rgba(255,255,255,.08);
+      --ok:#5E8A66;
+      --danger:#B8505E;
+      --shadow-soft:0 1px 0 rgba(0,0,0,.012), 0 12px 26px rgba(0,0,0,.03);
+      --shadow-card:0 1px 0 rgba(0,0,0,.012), 0 16px 34px rgba(0,0,0,.035);
+      --shadow-hover:0 1px 0 rgba(0,0,0,.012), 0 20px 42px rgba(0,0,0,.06);
       --max:1320px;
       --transition:220ms cubic-bezier(.22,1,.36,1);
       --transition-slow:420ms cubic-bezier(.22,1,.36,1);
-      --panel-radius:18px;
-      --card-radius:16px;
-      --shadow-soft:0 1px 0 rgba(0,0,0,.012), 0 10px 26px rgba(0,0,0,.03);
-      --shadow-card:0 1px 0 rgba(0,0,0,.012), 0 14px 28px rgba(0,0,0,.035);
+      --panel-radius:22px;
+      --card-radius:18px;
     }
 
     * { box-sizing:border-box; }
-    html { scroll-behavior:smooth; scroll-padding-top:72px; }
-
-    body {
+    html { scroll-behavior:smooth; scroll-padding-top:76px; }
+    body{
       margin:0;
       background:var(--bg-dark);
       color:var(--text-light);
@@ -79,16 +84,14 @@
       -moz-osx-font-smoothing:grayscale;
       text-rendering:optimizeLegibility;
     }
-
     html, body, button, input, textarea, select, option, a, p, li, dt, dd, span, small, strong, em, label, figcaption, blockquote, cite, div, section, article, nav, header, footer, main, h1, h2, h3, h4 {
       font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
     }
-
-    h1, h2, h3, h4 { letter-spacing:-0.048em; }
-    p, li { letter-spacing:-0.01em; }
     a { color:inherit; text-decoration:none; }
+    h1, h2, h3, h4 { letter-spacing:-0.05em; }
+    p, li { letter-spacing:-0.01em; }
 
-    .header {
+    .header{
       position:fixed;
       inset:0 0 auto 0;
       width:100%;
@@ -98,13 +101,13 @@
       border-bottom:1px solid transparent;
       transition:background var(--transition), border-color var(--transition), backdrop-filter var(--transition), -webkit-backdrop-filter var(--transition);
     }
-    .header.scrolled {
+    .header.scrolled{
       background:var(--header-solid);
       border-bottom-color:var(--header-border);
       backdrop-filter:blur(16px);
       -webkit-backdrop-filter:blur(16px);
     }
-    .header-inner {
+    .header-inner{
       max-width:var(--max);
       height:100%;
       margin:0 auto;
@@ -114,48 +117,42 @@
       justify-content:space-between;
       gap:24px;
     }
-    .brand {
+    .brand{
       display:inline-flex;
       align-items:center;
       font-size:1.32rem;
       font-weight:700;
-      letter-spacing:-0.02em;
       color:#FFFFFF;
       white-space:nowrap;
       text-shadow:0 1px 2px rgba(0,0,0,.16);
     }
-    .brand::after {
+    .brand::after{
       content:"";
-      width:6px;
-      height:6px;
+      width:6px; height:6px;
       margin-left:10px;
       background:var(--accent);
       border-radius:1px;
-      display:inline-block;
       transform:translateY(-1px);
     }
-    .nav {
+    .nav{
       display:flex;
       align-items:center;
       gap:28px;
       flex-wrap:wrap;
       justify-content:flex-end;
     }
-    .nav a {
+    .nav a{
       position:relative;
       font-size:1rem;
       font-weight:500;
-      letter-spacing:.012em;
       color:rgba(255,255,255,.88);
       transition:color var(--transition), transform var(--transition);
     }
-    .nav a::after {
+    .nav a::after{
       content:"";
       position:absolute;
-      left:0;
-      bottom:-6px;
-      width:100%;
-      height:1px;
+      left:0; bottom:-6px;
+      width:100%; height:1px;
       background:rgba(255,255,255,.74);
       transform:scaleX(0);
       transform-origin:left center;
@@ -163,60 +160,59 @@
     }
     .nav a:hover,
     .nav a:focus-visible,
-    .nav a.is-active {
-      color:#FFFFFF;
+    .nav a.is-active{
+      color:#FFF;
       transform:translateY(-1px);
       outline:none;
     }
     .nav a:hover::after,
     .nav a:focus-visible::after,
-    .nav a.is-active::after {
+    .nav a.is-active::after{
       transform:scaleX(1);
     }
 
-    .hero {
+    .hero{
       position:relative;
-      min-height:82vh;
+      min-height:88vh;
       overflow:hidden;
-      background:var(--bg-dark-2);
+      background:
+        linear-gradient(90deg, rgba(10,14,20,.93) 0%, rgba(10,14,20,.82) 32%, rgba(10,14,20,.58) 58%, rgba(10,14,20,.28) 100%),
+        url("Diagnostic-Hub-Hero-Image.jpg") center center / cover no-repeat,
+        var(--bg-dark-2);
     }
-    .hero::before {
+    .hero::before{
       content:"";
-      position:absolute;
-      inset:0;
+      position:absolute; inset:0;
       background:
         radial-gradient(circle at 78% 18%, rgba(63,110,161,.18) 0%, rgba(63,110,161,.08) 18%, transparent 34%),
-        linear-gradient(90deg, rgba(10,14,20,.93) 0%, rgba(10,14,20,.80) 30%, rgba(10,14,20,.54) 56%, rgba(10,14,20,.20) 100%);
-      pointer-events:none;
-      z-index:0;
-    }
-    .hero::after {
-      content:"";
-      position:absolute;
-      inset:0;
-      background:
-        linear-gradient(180deg, rgba(10,14,20,.10) 0%, rgba(10,14,20,.18) 100%),
         linear-gradient(135deg, rgba(63,110,161,.022) 1px, transparent 1px);
       background-size:auto, 34px 34px;
       opacity:.5;
       pointer-events:none;
       z-index:0;
     }
-    .hero-inner {
+    .hero::after{
+      content:"";
+      position:absolute; inset:auto 0 0 0;
+      height:180px;
+      background:linear-gradient(180deg, rgba(15,23,32,0) 0%, rgba(15,23,32,.18) 28%, rgba(15,23,32,.44) 100%);
+      z-index:0;
+      pointer-events:none;
+    }
+    .hero-inner{
       position:relative;
       z-index:1;
       max-width:var(--max);
-      min-height:82vh;
+      min-height:88vh;
       margin:0 auto;
-      padding:138px 34px 92px;
+      padding:148px 34px 110px;
       display:flex;
       align-items:center;
     }
-    .hero-copy { max-width:940px; }
-    .hero-eyebrow {
+    .hero-copy{ max-width:980px; }
+    .hero-eyebrow{
       display:block;
       margin:0 0 12px;
-      padding-left:1px;
       font-size:.78rem;
       line-height:1;
       letter-spacing:.22em;
@@ -224,86 +220,83 @@
       text-transform:uppercase;
       color:rgba(245,247,250,.64);
     }
-    .hero-subeyebrow {
-      margin:0 0 30px;
+    .hero-subeyebrow{
+      margin:0 0 28px;
       font-size:.94rem;
       line-height:1.5;
       color:rgba(245,247,250,.76);
     }
-    .hero h1 {
-      margin:0 0 20px;
-      max-width:12.6ch;
-      font-size:clamp(3rem,4.45vw,4.78rem);
-      line-height:.94;
+    .hero h1{
+      margin:0 0 22px;
+      max-width:12.8ch;
+      font-size:clamp(3rem,4.5vw,4.92rem);
+      line-height:.93;
       font-weight:700;
-      color:#FFFFFF;
+      color:#FFF;
       text-wrap:balance;
       text-shadow:0 1px 2px rgba(0,0,0,.16);
     }
-    .hero-dek {
-      max-width:47ch;
+    .hero-dek{
+      max-width:46ch;
       margin:0;
-      font-size:clamp(1.1rem,1.46vw,1.2rem);
-      line-height:1.62;
-      letter-spacing:-0.014em;
+      font-size:clamp(1.08rem,1.46vw,1.2rem);
+      line-height:1.66;
       color:var(--muted-light);
-      text-shadow:0 1px 2px rgba(0,0,0,.12);
       text-wrap:balance;
     }
-    .hero-actions {
+    .hero-actions{
       display:flex;
       align-items:center;
       gap:12px;
       flex-wrap:wrap;
-      margin-top:30px;
-    }
-    .hero-signal {
-      margin:18px 0 0;
-      max-width:52ch;
-      font-size:.84rem;
-      line-height:1.55;
-      letter-spacing:.015em;
-      color:rgba(245,247,250,.76);
-    }
-    .hero-rail {
-      display:grid;
-      grid-template-columns:repeat(4, minmax(0,1fr));
-      gap:12px;
       margin-top:34px;
-      max-width:1000px;
     }
-    .hero-rail-item {
-      background:rgba(255,255,255,.06);
+    .hero-signal{
+      margin:24px 0 0;
+      max-width:48ch;
+      font-size:.88rem;
+      line-height:1.58;
+      color:rgba(245,247,250,.74);
+    }
+    .hero-rail{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin-top:42px;
+      max-width:920px;
+    }
+    .hero-rail-item{
+      background:rgba(255,255,255,.055);
       border:1px solid rgba(255,255,255,.10);
-      border-radius:14px;
-      padding:14px 14px 12px;
+      border-radius:16px;
+      padding:18px 18px 16px;
       backdrop-filter:blur(12px);
       -webkit-backdrop-filter:blur(12px);
-      min-height:96px;
+      min-height:118px;
     }
-    .hero-rail-label {
-      margin:0 0 6px;
-      font-size:.70rem;
+    .hero-rail-label{
+      margin:0 0 8px;
+      font-size:.7rem;
       font-weight:700;
       letter-spacing:.16em;
       text-transform:uppercase;
       color:rgba(245,247,250,.56);
     }
-    .hero-rail-value {
-      margin:0 0 4px;
+    .hero-rail-value{
+      margin:0 0 6px;
       font-size:1rem;
+      line-height:1.22;
       font-weight:700;
-      color:#FFFFFF;
-      line-height:1.2;
+      color:#FFF;
     }
-    .hero-rail-copy {
+    .hero-rail-copy{
       margin:0;
-      font-size:.84rem;
-      line-height:1.46;
+      font-size:.86rem;
+      line-height:1.5;
       color:rgba(245,247,250,.74);
     }
 
-    .btn {
+    .btn{
       display:inline-flex;
       align-items:center;
       justify-content:center;
@@ -313,7 +306,6 @@
       border-radius:999px;
       font-size:.97rem;
       font-weight:500;
-      letter-spacing:-0.012em;
       white-space:nowrap;
       background:rgba(255,255,255,.98);
       color:var(--accent);
@@ -323,67 +315,74 @@
       cursor:pointer;
     }
     .btn:hover,
-    .btn:focus-visible {
-      background:#FFFFFF;
+    .btn:focus-visible{
+      background:#FFF;
       color:var(--accent-dark);
       border-color:var(--accent-dark);
       transform:translateY(-1px);
       box-shadow:0 12px 24px rgba(0,0,0,.06), 0 0 0 1px rgba(255,255,255,.10);
       outline:none;
     }
-    .btn-secondary {
-      background:rgba(255,255,255,.98);
-      color:var(--accent);
-      border:1.25px solid rgba(63,110,161,.9);
-    }
-    .btn-accent {
+    .btn-accent{
       background:var(--accent);
-      color:#FFFFFF;
+      color:#FFF;
       border:1.25px solid rgba(63,110,161,.28);
       box-shadow:0 10px 24px rgba(63,110,161,.22), 0 0 0 1px rgba(255,255,255,.05);
     }
     .btn-accent:hover,
-    .btn-accent:focus-visible {
+    .btn-accent:focus-visible{
       background:var(--accent-dark);
-      color:#FFFFFF;
+      color:#FFF;
       border-color:rgba(47,88,134,.42);
       box-shadow:0 12px 26px rgba(47,88,134,.26), 0 0 0 1px rgba(255,255,255,.08);
     }
+    .btn-subtle{
+      background:#FFF;
+      color:var(--text-dark);
+      border:1px solid var(--line-mid);
+      box-shadow:none;
+    }
+    .btn-subtle:hover,
+    .btn-subtle:focus-visible{
+      color:var(--accent-dark);
+      border-color:rgba(63,110,161,.24);
+      box-shadow:var(--shadow-soft);
+    }
+    .btn[disabled]{
+      cursor:not-allowed;
+      opacity:.56;
+      transform:none !important;
+      box-shadow:none !important;
+    }
 
-    .page {
+    .page{
       position:relative;
       background:var(--bg-offwhite);
-      padding:94px 34px 92px;
+      padding:102px 34px 96px;
       color:var(--text-dark);
       overflow:hidden;
       border-top:1px solid rgba(21,32,43,.04);
     }
-    .page::before {
+    .page::before{
       content:"";
-      position:absolute;
-      inset:0;
+      position:absolute; inset:0;
       background:
-        linear-gradient(rgba(247,248,249,.97), rgba(247,248,249,.97)),
-        linear-gradient(90deg, rgba(63,110,161,.018) 1px, transparent 1px),
-        linear-gradient(rgba(63,110,161,.018) 1px, transparent 1px);
-      background-size:auto, 28px 28px, 28px 28px;
+        radial-gradient(circle at 12% 10%, rgba(63,110,161,.045), transparent 24%),
+        radial-gradient(circle at 86% 30%, rgba(63,110,161,.032), transparent 28%),
+        linear-gradient(rgba(247,248,249,.98), rgba(247,248,249,.98)),
+        linear-gradient(90deg, rgba(63,110,161,.015) 1px, transparent 1px),
+        linear-gradient(rgba(63,110,161,.015) 1px, transparent 1px);
+      background-size:auto, auto, auto, 30px 30px, 30px 30px;
       pointer-events:none;
     }
-    .page-inner {
+    .page-inner{
       position:relative;
       z-index:1;
       max-width:var(--max);
       margin:0 auto;
     }
 
-    .head {
-      display:grid;
-      grid-template-columns:minmax(0,1fr) 360px;
-      gap:52px;
-      align-items:end;
-      margin-bottom:42px;
-    }
-    .section-label {
+    .section-label{
       margin-bottom:16px;
       font-size:.78rem;
       font-weight:700;
@@ -391,7 +390,7 @@
       text-transform:uppercase;
       color:var(--accent);
     }
-    .section-label::before {
+    .section-label::before{
       content:"";
       display:block;
       width:48px;
@@ -399,54 +398,53 @@
       background:var(--accent);
       margin-bottom:14px;
     }
-    .head h2,
-    .panel h3,
-    .tools-head h3,
-    .bridge h3 {
-      margin:0 0 16px;
-      font-size:clamp(2rem,2.45vw,2.4rem);
+
+    .head{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 320px;
+      gap:54px;
+      align-items:end;
+      margin-bottom:28px;
+    }
+    .head h2, .panel h3, .tools-head h3, .bridge h3, .synthesis-head h3{
+      margin:0 0 14px;
+      font-size:clamp(2rem,2.4vw,2.42rem);
       line-height:1.12;
       font-weight:700;
       color:var(--text-dark);
       text-wrap:balance;
     }
-    .head p,
-    .panel p,
-    .tools-head p,
-    .bridge p {
+    .head p, .panel p, .tools-head p, .bridge p, .synthesis-head p{
       margin:0;
-      font-size:1.04rem;
-      line-height:1.7;
+      font-size:1.03rem;
+      line-height:1.72;
       color:var(--muted-dark);
     }
-    .note {
+    .note{
       margin:0;
-      font-size:.90rem;
-      line-height:1.64;
+      font-size:.88rem;
+      line-height:1.6;
       color:var(--muted-dark-2);
-      padding:22px;
+      padding:18px 20px;
       background:rgba(255,255,255,.94);
       border:1px solid var(--line-soft);
-      border-radius:var(--panel-radius);
+      border-radius:18px;
       box-shadow:var(--shadow-soft);
     }
-    .note strong { color:var(--text-dark); }
+    .note strong{ color:var(--text-dark); }
 
-    .panel,
-    .tools-head,
-    .bridge {
+    .panel, .tools-head, .bridge, .synthesis-shell{
       background:rgba(255,255,255,.98);
       border:1px solid var(--line-soft);
       border-radius:var(--panel-radius);
       box-shadow:var(--shadow-soft);
     }
-    .panel,
-    .tools-head {
-      padding:32px 30px 28px;
+    .panel, .tools-head, .synthesis-shell{
+      padding:30px 30px 28px;
       margin-bottom:18px;
       scroll-margin-top:88px;
     }
-    .bridge {
+    .bridge{
       padding:34px 32px 30px;
       margin-bottom:18px;
       display:grid;
@@ -455,35 +453,29 @@
       align-items:center;
     }
 
-    .split-grid {
+    .split-grid{
       display:grid;
       grid-template-columns:repeat(2, minmax(0,1fr));
       gap:20px;
       margin-top:24px;
     }
-    .use-grid {
+    .use-grid{
       display:grid;
       grid-template-columns:repeat(3, minmax(0,1fr));
       gap:20px;
       margin-top:24px;
     }
 
-    .card,
-    .use-card,
-    .tool-card,
-    .dynamic-card {
+    .card, .use-card, .tool-card, .dynamic-card, .matrix-card{
       position:relative;
-      background:#FFFFFF;
+      background:#FFF;
       border:1px solid var(--line-soft);
       border-radius:var(--card-radius);
       box-shadow:var(--shadow-card);
       overflow:hidden;
       transition:transform var(--transition-slow), border-color var(--transition), box-shadow var(--transition-slow);
     }
-    .card::before,
-    .use-card::before,
-    .tool-card::before,
-    .dynamic-card::before {
+    .card::before, .use-card::before, .tool-card::before, .dynamic-card::before, .matrix-card::before{
       content:"";
       position:absolute;
       inset:0 0 auto 0;
@@ -491,29 +483,19 @@
       background:linear-gradient(90deg, rgba(63,110,161,.36) 0%, rgba(63,110,161,.94) 48%, rgba(63,110,161,.40) 100%);
       transform:scaleX(.34);
       transform-origin:left center;
-      transition:transform 420ms cubic-bezier(.22,1,.36,1);
+      transition:transform var(--transition-slow);
     }
-    .card:hover,
-    .use-card:hover,
-    .tool-card:hover,
-    .dynamic-card:hover {
+    .card:hover, .use-card:hover, .tool-card:hover, .dynamic-card:hover, .matrix-card:hover{
       transform:translateY(-4px);
       border-color:rgba(63,110,161,.14);
-      box-shadow:0 1px 0 rgba(0,0,0,.012), 0 10px 24px rgba(0,0,0,.04), 0 18px 30px rgba(0,0,0,.03);
+      box-shadow:var(--shadow-hover);
     }
-    .card:hover::before,
-    .use-card:hover::before,
-    .tool-card:hover::before,
-    .dynamic-card:hover::before {
+    .card:hover::before, .use-card:hover::before, .tool-card:hover::before, .dynamic-card:hover::before, .matrix-card:hover::before{
       transform:scaleX(1);
     }
-    .card,
-    .use-card {
-      padding:24px 22px 22px;
-    }
+    .card, .use-card, .matrix-card{ padding:26px 24px 24px; }
 
-    .card-kicker,
-    .use-step {
+    .card-kicker, .use-step, .matrix-kicker{
       margin:0 0 10px;
       font-size:.74rem;
       font-weight:700;
@@ -521,162 +503,146 @@
       text-transform:uppercase;
       color:var(--accent);
     }
-    .card-title,
-    .use-title {
-      margin:0 0 8px;
-      font-size:1rem;
+    .card-title, .use-title, .matrix-title{
+      margin:0 0 9px;
+      font-size:1.04rem;
       line-height:1.24;
       font-weight:700;
       color:var(--text-dark);
     }
-    .card-text,
-    .use-text {
+    .card-text, .use-text, .matrix-text{
       margin:0;
       font-size:.92rem;
-      line-height:1.62;
+      line-height:1.64;
       color:var(--muted-dark);
     }
 
-    .matrix {
-      overflow-x:auto;
-      margin-top:20px;
-      border:1px solid var(--line-soft);
-      border-radius:var(--card-radius);
-      background:#FFFFFF;
-      box-shadow:var(--shadow-card);
-    }
-    .matrix table {
-      width:100%;
-      border-collapse:collapse;
-      min-width:980px;
-    }
-    .matrix th,
-    .matrix td {
-      text-align:left;
-      vertical-align:top;
-      padding:16px 16px;
-      border-bottom:1px solid rgba(21,32,43,.08);
-      font-size:.90rem;
-      line-height:1.56;
-    }
-    .matrix th {
-      font-size:.74rem;
-      font-weight:700;
-      letter-spacing:.14em;
-      text-transform:uppercase;
-      color:var(--muted-dark-2);
-      background:rgba(246,247,248,.82);
-    }
-    .matrix td strong { color:var(--text-dark); }
+    .use-card{ min-height:188px; }
 
-    .symptom-cell {
+    .matrix-grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+      gap:18px;
+      margin-top:24px;
+    }
+    .matrix-meta{
+      display:grid;
+      gap:10px;
+      margin-top:14px;
+      padding-top:12px;
+      border-top:1px solid rgba(21,32,43,.08);
+    }
+    .matrix-meta-item{
+      display:grid;
+      gap:4px;
+    }
+    .matrix-meta-label{
+      font-size:.72rem;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      font-weight:700;
+      color:var(--muted-dark-2);
+    }
+    .matrix-meta-value{
+      font-size:.89rem;
+      line-height:1.56;
+      color:var(--muted-dark);
+    }
+    .symptom-head{
       display:flex;
       align-items:flex-start;
       gap:12px;
     }
-    .symptom-icon {
+    .symptom-icon{
       flex:0 0 18px;
-      width:18px;
-      height:18px;
+      width:18px; height:18px;
       margin-top:2px;
       color:var(--accent);
     }
 
-    .tools-section { scroll-margin-top:88px; }
-    .tools-grid {
+    .tools-section{ scroll-margin-top:88px; }
+    .tools-grid{
       display:grid;
       grid-template-columns:repeat(4, minmax(0,1fr));
       gap:22px;
       margin-top:28px;
     }
-    .tool-card { min-height:364px; }
-    .tool-card.is-recommended {
-      border-color:rgba(63,110,161,.20);
-      box-shadow:0 14px 30px rgba(0,0,0,.055), 0 0 0 1px rgba(63,110,161,.06);
-      background:linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(249,251,254,1) 100%);
+    .tool-card{ min-height:356px; }
+    .tool-card.is-recommended{
+      border-color:rgba(178,141,60,.22);
+      box-shadow:0 14px 30px rgba(0,0,0,.055), 0 0 0 1px rgba(178,141,60,.08);
+      background:linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(252,251,247,1) 100%);
     }
-    .tool-card.is-recommended::before {
+    .tool-card.is-recommended::before{
       transform:scaleX(1);
       background:linear-gradient(90deg, rgba(178,141,60,.92) 0%, rgba(63,110,161,.96) 58%, rgba(47,88,134,.88) 100%);
     }
-    .tool-card.is-recommended::after {
-      content:"";
-      position:absolute;
-      inset:4px 0 auto 0;
-      height:1px;
-      background:linear-gradient(90deg, rgba(178,141,60,.35) 0%, rgba(178,141,60,.92) 50%, rgba(178,141,60,.35) 100%);
-    }
-    .tool-card-link {
+    .tool-card-link{
       position:relative;
       z-index:1;
       display:flex;
       flex-direction:column;
       align-items:flex-start;
-      min-height:364px;
+      min-height:356px;
       height:100%;
-      padding:24px 22px 22px;
+      padding:26px 24px 22px;
       text-align:left;
     }
-    .tool-card-link:focus-visible {
+    .tool-card-link:focus-visible{
       outline:2px solid rgba(63,110,161,.35);
       outline-offset:3px;
     }
-    .tool-card-top {
+    .tool-card-top{
       display:flex;
       flex-wrap:wrap;
       gap:8px;
       margin-bottom:12px;
     }
-    .tool-badge,
-    .tool-badge-secondary {
+    .tool-badge, .tool-badge-secondary{
       display:inline-flex;
       align-items:center;
       padding:6px 10px;
-      font-size:.70rem;
+      font-size:.69rem;
       font-weight:700;
       letter-spacing:.10em;
       text-transform:uppercase;
+      border-radius:999px;
       border:1px solid;
       white-space:nowrap;
-      border-radius:999px;
     }
-    .tool-badge {
+    .tool-badge{
       background:rgba(63,110,161,.09);
       color:var(--accent);
       border-color:rgba(63,110,161,.16);
-      box-shadow:0 0 18px rgba(63,110,161,.05);
     }
-    .tool-badge-secondary {
+    .tool-badge-secondary{
       background:var(--gold-soft);
       color:#7D6320;
       border-color:rgba(178,141,60,.26);
     }
-    .tool-title {
+    .tool-title{
       margin:0 0 8px;
-      font-size:1.15rem;
+      font-size:1.14rem;
       line-height:1.16;
       font-weight:700;
-      letter-spacing:-0.022em;
       color:var(--text-dark);
     }
-    .tool-card:not(.is-recommended) .tool-title {
-      font-size:1.06rem;
-    }
-    .tool-subline {
+    .tool-card:not(.is-recommended) .tool-title{ font-size:1.06rem; }
+    .tool-subline{
       margin:0 0 12px;
-      font-size:.82rem;
+      font-size:.8rem;
       line-height:1.45;
       letter-spacing:.02em;
       text-transform:uppercase;
       color:var(--muted-dark-2);
     }
-    .tool-text {
+    .tool-text{
       margin:0 0 16px;
-      font-size:.95rem;
+      font-size:.94rem;
       line-height:1.66;
       color:var(--muted-dark);
     }
-    .tool-meta-label {
+    .tool-meta-label{
       margin:0 0 6px;
       font-size:.72rem;
       line-height:1;
@@ -685,13 +651,13 @@
       color:var(--muted-dark-2);
       font-weight:700;
     }
-    .tool-meta {
+    .tool-meta{
       margin-top:0;
       font-size:.87rem;
       line-height:1.58;
       color:var(--muted-dark-2);
     }
-    .tool-micro {
+    .tool-micro{
       margin-top:14px;
       padding-top:12px;
       border-top:1px solid rgba(21,32,43,.08);
@@ -700,38 +666,229 @@
       color:var(--accent-dark);
       font-weight:500;
     }
-    .tool-open {
+    .tool-open{
       margin-top:auto;
       display:inline-flex;
       align-items:center;
       gap:8px;
-      font-size:.90rem;
+      font-size:.9rem;
       font-weight:600;
       color:var(--accent);
       transition:color var(--transition), transform var(--transition);
     }
     .tool-card:hover .tool-open,
-    .tool-card-link:focus-visible .tool-open {
+    .tool-card-link:focus-visible .tool-open{
       color:var(--accent-dark);
       transform:translateX(2px);
     }
 
-    .dynamic-wrap {
+    .synthesis-shell{
+      margin-top:22px;
+      margin-bottom:22px;
+      padding:34px 32px 30px;
+    }
+    .synthesis-head{
+      max-width:760px;
+      margin-bottom:22px;
+    }
+    .dropzone-wrap{
+      display:grid;
+      gap:18px;
+      justify-items:center;
+    }
+    .dropzone{
+      position:relative;
+      width:min(100%, 620px);
+      min-height:260px;
+      padding:30px 28px;
+      display:grid;
+      place-items:center;
+      text-align:center;
+      background:linear-gradient(180deg,#FFFFFF 0%, #FAFBFD 100%);
+      border:2px dashed rgba(63,110,161,.20);
+      border-radius:22px;
+      box-shadow:var(--shadow-card);
+      transition:border-color var(--transition), background var(--transition), transform var(--transition), box-shadow var(--transition);
+      cursor:pointer;
+    }
+    .dropzone:hover,
+    .dropzone:focus-visible,
+    .dropzone.is-dragover{
+      border-color:rgba(63,110,161,.42);
+      background:linear-gradient(180deg,#FFFFFF 0%, #F6FAFE 100%);
+      transform:translateY(-2px);
+      box-shadow:var(--shadow-hover);
+      outline:none;
+    }
+    .dropzone-icon{
+      width:56px;
+      height:56px;
+      display:grid;
+      place-items:center;
+      border-radius:999px;
+      background:rgba(63,110,161,.08);
+      color:var(--accent);
+      margin:0 auto 14px;
+      transition:transform var(--transition-slow), background var(--transition);
+    }
+    .dropzone.is-dragover .dropzone-icon{
+      transform:translateY(-2px) scale(1.04);
+      background:rgba(63,110,161,.12);
+    }
+    .dropzone h4{
+      margin:0 0 8px;
+      font-size:1.16rem;
+      line-height:1.18;
+      color:var(--text-dark);
+    }
+    .dropzone p{
+      margin:0;
+      font-size:.95rem;
+      line-height:1.62;
+      color:var(--muted-dark);
+      max-width:38ch;
+    }
+    .dropzone input{
+      position:absolute;
+      inset:0;
+      opacity:0;
+      cursor:pointer;
+    }
+    .dropzone-meta{
+      font-size:.82rem;
+      line-height:1.58;
+      color:var(--muted-dark-2);
+    }
+    .file-list{
+      width:min(100%, 620px);
+      display:grid;
+      gap:10px;
+    }
+    .file-item{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:12px;
+      align-items:center;
+      padding:14px 14px 14px 16px;
+      background:#FFF;
+      border:1px solid var(--line-soft);
+      border-radius:14px;
+      box-shadow:var(--shadow-soft);
+    }
+    .file-main{
+      min-width:0;
+      display:grid;
+      gap:4px;
+    }
+    .file-name{
+      font-size:.92rem;
+      font-weight:600;
+      line-height:1.4;
+      color:var(--text-dark);
+      word-break:break-word;
+    }
+    .file-meta{
+      font-size:.82rem;
+      line-height:1.45;
+      color:var(--muted-dark-2);
+    }
+    .file-status{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      font-size:.78rem;
+      font-weight:700;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .file-status.ok{ color:var(--ok); }
+    .file-status.bad{ color:var(--danger); }
+    .file-remove{
+      min-height:38px;
+      min-width:38px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid var(--line-mid);
+      background:#FFF;
+      color:var(--muted-dark);
+      cursor:pointer;
+      transition:all var(--transition);
+    }
+    .file-remove:hover,
+    .file-remove:focus-visible{
+      color:var(--accent-dark);
+      border-color:rgba(63,110,161,.24);
+      outline:none;
+    }
+    .synthesis-actions{
+      width:min(100%, 620px);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+    }
+    .synthesis-note{
+      font-size:.84rem;
+      line-height:1.58;
+      color:var(--muted-dark-2);
+      max-width:42ch;
+    }
+    .validation-message{
+      width:min(100%,620px);
+      display:none;
+      padding:14px 16px;
+      border-radius:14px;
+      font-size:.88rem;
+      line-height:1.58;
+      background:#FFF;
+      border:1px solid var(--line-soft);
+      box-shadow:var(--shadow-soft);
+      color:var(--muted-dark);
+    }
+    .validation-message.show{ display:block; }
+    .validation-message.is-error{
+      border-color:rgba(184,80,94,.24);
+      color:#8A3946;
+      background:#FFF8F9;
+    }
+    .validation-message.is-ok{
+      border-color:rgba(94,138,102,.24);
+      color:#456A4B;
+      background:#F8FCF8;
+    }
+    .synthesis-fallback{
+      width:min(100%,620px);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      padding-top:4px;
+    }
+    .synthesis-fallback p{
+      margin:0;
+      font-size:.86rem;
+      line-height:1.58;
+      color:var(--muted-dark-2);
+    }
+
+    .dynamic-wrap{
       margin-top:24px;
       display:grid;
       gap:16px;
     }
-    .dynamic-grid {
+    .dynamic-grid{
       display:grid;
       grid-template-columns:repeat(4, minmax(0,1fr));
       gap:16px;
     }
-    .dynamic-card {
-      min-height:186px;
+    .dynamic-card{
+      min-height:188px;
       display:flex;
       flex-direction:column;
     }
-    .dynamic-toggle {
+    .dynamic-toggle{
       appearance:none;
       background:transparent;
       border:none;
@@ -743,11 +900,11 @@
       gap:10px;
       color:var(--text-dark);
     }
-    .dynamic-toggle:focus-visible {
+    .dynamic-toggle:focus-visible{
       outline:2px solid rgba(63,110,161,.35);
       outline-offset:-2px;
     }
-    .dynamic-kicker {
+    .dynamic-kicker{
       margin:0;
       font-size:.72rem;
       font-weight:700;
@@ -755,23 +912,22 @@
       text-transform:uppercase;
       color:var(--accent);
     }
-    .dynamic-title-row {
+    .dynamic-title-row{
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
       gap:12px;
     }
-    .dynamic-title {
+    .dynamic-title{
       margin:0;
       font-size:1.04rem;
       line-height:1.2;
       font-weight:700;
       color:var(--text-dark);
     }
-    .dynamic-plus {
+    .dynamic-plus{
       flex:0 0 auto;
-      width:24px;
-      height:24px;
+      width:24px; height:24px;
       border-radius:999px;
       border:1px solid rgba(63,110,161,.16);
       display:inline-flex;
@@ -782,35 +938,32 @@
       color:var(--accent);
       transition:transform var(--transition), background var(--transition), border-color var(--transition);
     }
-    .dynamic-summary {
+    .dynamic-summary{
       margin:0;
-      font-size:.90rem;
+      font-size:.9rem;
       line-height:1.58;
       color:var(--muted-dark);
     }
-    .dynamic-detail {
+    .dynamic-detail{
       display:none;
       padding:0 20px 20px;
       border-top:1px solid rgba(21,32,43,.06);
     }
-    .dynamic-card.active .dynamic-detail {
-      display:block;
-    }
-    .dynamic-card.active .dynamic-plus {
+    .dynamic-card.active .dynamic-detail{ display:block; }
+    .dynamic-card.active .dynamic-plus{
       transform:rotate(45deg);
       background:rgba(63,110,161,.06);
       border-color:rgba(63,110,161,.22);
     }
-    .dynamic-detail p {
+    .dynamic-detail p{
       margin:14px 0 0;
-      font-size:.90rem;
+      font-size:.9rem;
       line-height:1.62;
       color:var(--muted-dark);
     }
 
-    .bridge-copy { max-width:62ch; }
-
-    .footer-copy-top {
+    .bridge-copy{ max-width:62ch; }
+    .footer-copy-top{
       margin:0;
       max-width:72ch;
       font-size:.95rem;
@@ -818,16 +971,16 @@
       color:var(--muted-dark);
     }
 
-    .footer {
+    .footer{
       background:#0D141C;
       color:rgba(245,247,250,.88);
       padding:50px 34px 38px;
     }
-    .footer-inner {
+    .footer-inner{
       max-width:var(--max);
       margin:0 auto;
     }
-    .footer-top {
+    .footer-top{
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
@@ -835,40 +988,37 @@
       padding-bottom:28px;
       border-bottom:1px solid rgba(255,255,255,.08);
     }
-    .footer-brand { max-width:420px; }
-    .footer-mark {
+    .footer-brand{ max-width:420px; }
+    .footer-mark{
       display:inline-flex;
       align-items:center;
       font-size:1.1rem;
       font-weight:700;
-      letter-spacing:-0.02em;
-      color:#FFFFFF;
+      color:#FFF;
       margin-bottom:14px;
     }
-    .footer-mark::after {
+    .footer-mark::after{
       content:"";
-      width:6px;
-      height:6px;
+      width:6px; height:6px;
       margin-left:10px;
       background:var(--accent);
       border-radius:1px;
-      display:inline-block;
       transform:translateY(-1px);
     }
-    .footer-copy {
+    .footer-copy{
       margin:0;
       max-width:36ch;
       font-size:.98rem;
       line-height:1.65;
       color:rgba(245,247,250,.68);
     }
-    .footer-nav {
+    .footer-nav{
       display:flex;
       gap:48px;
       flex-wrap:wrap;
     }
-    .footer-nav-col { min-width:120px; }
-    .footer-nav-title {
+    .footer-nav-col{ min-width:120px; }
+    .footer-nav-title{
       margin:0 0 12px;
       font-size:.72rem;
       font-weight:700;
@@ -877,7 +1027,7 @@
       text-transform:uppercase;
       color:rgba(245,247,250,.50);
     }
-    .footer-nav a {
+    .footer-nav a{
       display:block;
       margin-bottom:10px;
       font-size:.95rem;
@@ -886,81 +1036,179 @@
       transition:color var(--transition), transform var(--transition);
     }
     .footer-nav a:hover,
-    .footer-nav a:focus-visible {
-      color:#FFFFFF;
+    .footer-nav a:focus-visible{
+      color:#FFF;
       transform:translateX(2px);
       outline:none;
     }
-    .footer-bottom {
+    .footer-bottom{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:20px;
       padding-top:18px;
     }
-    .footer-meta,
-    .footer-contact {
+    .footer-meta, .footer-contact{
       margin:0;
       font-size:.88rem;
       line-height:1.6;
       color:rgba(245,247,250,.58);
     }
 
-    @media (max-width:1180px) {
+    .loading-overlay{
+      position:fixed;
+      inset:0;
+      display:grid;
+      place-items:center;
+      background:
+        radial-gradient(circle at 50% 30%, rgba(63,110,161,.08), transparent 22%),
+        linear-gradient(180deg, #F8FAFD 0%, #F4F7FB 100%);
+      z-index:200;
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+      transition:opacity 260ms ease, visibility 260ms ease;
+    }
+    .loading-overlay.show{
+      opacity:1;
+      visibility:visible;
+      pointer-events:auto;
+    }
+    .loading-box{
+      width:min(560px, calc(100vw - 40px));
+      padding:34px 30px 30px;
+      border-radius:24px;
+      background:rgba(255,255,255,.96);
+      border:1px solid rgba(21,32,43,.08);
+      box-shadow:0 24px 60px rgba(15,23,32,.10);
+      text-align:center;
+      color:var(--text-dark);
+    }
+    .loading-mark{
+      position:relative;
+      width:72px;
+      height:72px;
+      margin:0 auto 18px;
+      display:grid;
+      place-items:center;
+    }
+    .loading-m{
+      position:relative;
+      z-index:2;
+      width:52px;
+      height:52px;
+      border-radius:14px;
+      background:#0F1720;
+      color:#FFF;
+      display:grid;
+      place-items:center;
+      font-size:1.38rem;
+      font-weight:700;
+      box-shadow:0 10px 24px rgba(15,23,32,.16);
+    }
+    .loading-ring{
+      position:absolute;
+      inset:0;
+      border-radius:999px;
+      border:2px solid rgba(63,110,161,.14);
+      border-top-color:var(--accent);
+      animation:spin 1.2s linear infinite;
+    }
+    .loading-dot{
+      position:absolute;
+      right:9px;
+      bottom:12px;
+      width:10px;
+      height:10px;
+      border-radius:2px;
+      background:var(--accent);
+      animation:pulse 1.6s ease-in-out infinite;
+      z-index:3;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    @keyframes pulse {
+      0%, 100% { transform:scale(1); opacity:1; }
+      50% { transform:scale(.82); opacity:.62; }
+    }
+    .loading-title{
+      margin:0 0 8px;
+      font-size:1.28rem;
+      line-height:1.15;
+      color:var(--text-dark);
+    }
+    .loading-copy{
+      margin:0 0 18px;
+      font-size:.96rem;
+      line-height:1.62;
+      color:var(--muted-dark);
+    }
+    .loading-status{
+      min-height:26px;
+      margin:0 0 14px;
+      font-size:.88rem;
+      line-height:1.55;
+      color:var(--accent-dark);
+      font-weight:500;
+    }
+    .loading-progress{
+      width:100%;
+      height:8px;
+      overflow:hidden;
+      border-radius:999px;
+      background:rgba(21,32,43,.08);
+    }
+    .loading-bar{
+      width:0%;
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg, var(--accent) 0%, #5F8ABD 100%);
+      transition:width 240ms linear;
+    }
+
+    @media (max-width:1180px){
       .hero-rail,
       .tools-grid,
       .split-grid,
-      .dynamic-grid {
+      .dynamic-grid,
+      .matrix-grid{
         grid-template-columns:repeat(2, minmax(0,1fr));
       }
-      .head { grid-template-columns:1fr; }
-      .use-grid { grid-template-columns:1fr; }
-      .bridge {
-        grid-template-columns:1fr;
-        align-items:start;
-      }
+      .head{ grid-template-columns:1fr; }
+      .use-grid{ grid-template-columns:1fr; }
+      .bridge{ grid-template-columns:1fr; align-items:start; }
     }
-
-    @media (max-width:980px) {
-      .header { height:auto; }
-      .header-inner {
+    @media (max-width:980px){
+      .header{ height:auto; }
+      .header-inner{
         padding:16px 24px;
         align-items:flex-start;
         flex-direction:column;
         gap:14px;
       }
-      .nav { gap:22px; }
+      .nav{ gap:22px; }
       .hero-inner,
       .page,
-      .footer {
+      .footer{
         padding-left:24px;
         padding-right:24px;
       }
-      .hero-rail {
-        grid-template-columns:repeat(2, minmax(0,1fr));
-      }
     }
-
-    @media (max-width:760px) {
-      .brand { font-size:1.24rem; }
-      .nav { gap:18px; }
-      .hero-inner { padding:136px 20px 104px; }
-      .hero-eyebrow {
-        margin-bottom:10px;
-        font-size:.74rem;
-        letter-spacing:.18em;
-      }
-      .hero-subeyebrow { margin-bottom:24px; }
-      .hero h1 {
+    @media (max-width:760px){
+      .brand{ font-size:1.24rem; }
+      .nav{ gap:18px; }
+      .hero-inner{ padding:136px 20px 110px; }
+      .hero-eyebrow{ margin-bottom:10px; font-size:.74rem; letter-spacing:.18em; }
+      .hero-subeyebrow{ margin-bottom:22px; }
+      .hero h1{
         max-width:100%;
         font-size:clamp(2.45rem, 8vw, 3.3rem);
       }
-      .hero-dek {
+      .hero-dek{
         max-width:100%;
         font-size:1rem;
         line-height:1.58;
       }
-      .hero-actions {
+      .hero-actions{
         flex-direction:column;
         align-items:stretch;
         gap:14px;
@@ -969,42 +1217,53 @@
       .hero-rail,
       .tools-grid,
       .split-grid,
-      .dynamic-grid {
+      .dynamic-grid,
+      .matrix-grid{
         grid-template-columns:1fr;
       }
-      .btn {
+      .btn{
         width:100%;
         min-width:0;
         min-height:52px;
         padding:0 20px;
         font-size:.98rem;
       }
-      .page { padding:72px 20px 72px; }
-      .panel,
-      .tools-head,
-      .bridge {
-        padding:24px 20px 22px;
-      }
-      .tool-card,
-      .tool-card-link { min-height:auto; }
-      .footer { padding:34px 20px 28px; }
-      .footer-top,
-      .footer-bottom {
+      .page{ padding:76px 20px 74px; }
+      .panel, .tools-head, .bridge, .synthesis-shell{ padding:24px 20px 22px; }
+      .tool-card, .tool-card-link{ min-height:auto; }
+      .tool-card-link{ padding:22px 20px 20px; }
+      .footer{ padding:34px 20px 28px; }
+      .footer-top, .footer-bottom{
         flex-direction:column;
         align-items:flex-start;
       }
-      .footer-nav { gap:28px; }
-      .footer-copy { font-size:.94rem; }
-      .footer-meta,
-      .footer-contact { font-size:.84rem; }
+      .footer-nav{ gap:28px; }
+      .synthesis-actions, .synthesis-fallback{
+        align-items:stretch;
+      }
     }
   </style>
 </head>
 <body>
+  <div class="loading-overlay" id="calibrationOverlay" aria-hidden="true">
+    <div class="loading-box" role="status" aria-live="polite">
+      <div class="loading-mark" aria-hidden="true">
+        <div class="loading-ring"></div>
+        <div class="loading-m">M</div>
+        <div class="loading-dot"></div>
+      </div>
+      <h3 class="loading-title">Calibrating diagnostic environment...</h3>
+      <p class="loading-copy">Preparing Monderman’s structured diagnostic instrument for a clean, bounded run.</p>
+      <p class="loading-status" id="loadingStatus">Aligning structural signals...</p>
+      <div class="loading-progress" aria-hidden="true">
+        <div class="loading-bar" id="loadingBar"></div>
+      </div>
+    </div>
+  </div>
+
   <header class="header" id="siteHeader">
     <div class="header-inner">
       <a href="index.html" class="brand">Monderman</a>
-
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
         <a href="diagnostic-tools.html" class="is-active">Diagnostic Tools</a>
@@ -1020,37 +1279,33 @@
       <div class="hero-copy">
         <p class="hero-eyebrow">Monderman Diagnostic Suite</p>
         <p class="hero-subeyebrow">A repeatable governance instrument</p>
-        <h1>Surface structural issues. Continually reassess them through calibrated diagnostic lenses.</h1>
+        <h1>Enter the right diagnostic environment with less noise and more structural clarity.</h1>
         <p class="hero-dek">
-          The Monderman Diagnostic Suite is not a one-time survey. It is a repeatable governance instrument designed for baseline assessment, targeted intervention, and disciplined reassessment as organizational systems and surrounding conditions evolve.
+          The Diagnostic Hub is built to help participants launch the right tool, keep the first run bounded, and return with discipline as conditions, systems, and governance demands evolve.
         </p>
-        <p class="hero-signal">Repeat use creates compounding advantage: each reassessment shows whether interventions actually restored velocity or whether new drag is quietly accumulating.</p>
 
         <div class="hero-actions">
-          <a class="btn btn-accent" href="#tool-launch">Run Diagnostics</a>
-          <a class="btn btn-secondary" href="advisory-services.html">Advisory Engagements</a>
+          <a class="btn btn-accent" href="#tool-launch">Launch diagnostics</a>
+          <a class="btn" href="#cross-diagnostic-synthesis">Cross-diagnostic synthesis</a>
         </div>
+
+        <p class="hero-signal">Use one bounded run to establish a baseline. Use repeated runs to see whether interventions restored strength or whether new drag is quietly accumulating.</p>
 
         <div class="hero-rail" aria-label="How the suite is designed to be used">
           <div class="hero-rail-item">
-            <p class="hero-rail-label">Baseline</p>
-            <p class="hero-rail-value">Start with one bounded issue</p>
-            <p class="hero-rail-copy">Assess one team, workflow, function, or operating environment at a time.</p>
+            <p class="hero-rail-label">Bounded first run</p>
+            <p class="hero-rail-value">Start with one visible issue</p>
+            <p class="hero-rail-copy">One team, one workflow, one function, or one environment is enough for a stronger first read.</p>
           </div>
           <div class="hero-rail-item">
-            <p class="hero-rail-label">Participant lens</p>
-            <p class="hero-rail-value">Use more than one vantage point</p>
-            <p class="hero-rail-copy">See how the same organizational system is experienced differently across participant groups.</p>
+            <p class="hero-rail-label">Repeatable use</p>
+            <p class="hero-rail-value">Return after a change</p>
+            <p class="hero-rail-copy">Use the same instrument again after redesign, growth, or new external pressure changes how the system behaves.</p>
           </div>
           <div class="hero-rail-item">
-            <p class="hero-rail-label">Changing context</p>
-            <p class="hero-rail-value">Return when the environment shifts</p>
-            <p class="hero-rail-copy">Volume, tools, dependencies, and external demands can change how stable systems behave.</p>
-          </div>
-          <div class="hero-rail-item">
-            <p class="hero-rail-label">Structural change</p>
-            <p class="hero-rail-value">Reassess after redesign</p>
-            <p class="hero-rail-copy">Use the same instrument after governance, workflow, or accountability changes take hold.</p>
+            <p class="hero-rail-label">Participant lenses</p>
+            <p class="hero-rail-value">Compare how the system is experienced</p>
+            <p class="hero-rail-copy">The same organizational system can feel very different across operational, managerial, and leadership vantage points.</p>
           </div>
         </div>
       </div>
@@ -1062,12 +1317,11 @@
       <div class="head">
         <div>
           <div class="section-label">Diagnostic Hub</div>
-          <h2>A premium launch point for structured diagnosis and repeated use.</h2>
+          <h2>A calmer, clearer launch point for repeated institutional diagnosis.</h2>
           <p>
-            Each diagnostic is built to isolate a different kind of organizational weakness. Used well, the suite helps participants move from first signal to clearer interpretation, then return with discipline as organizational systems and surrounding conditions shift.
+            Begin with the strongest visible signal, choose the right diagnostic lens, and return with discipline as the system changes. The hub is designed for repeated professional use, not one-time novelty.
           </p>
         </div>
-
         <p class="note">
           <strong>Use bounded inputs.</strong> These diagnostics are designed for directional organizational analysis. Avoid entering confidential, classified, regulated, proprietary, or personally sensitive information.
         </p>
@@ -1076,122 +1330,161 @@
       <section class="panel">
         <h3>What this hub is for</h3>
         <p>
-          This hub is designed to support clear entry, disciplined use, and repeated return. Begin with the most visible problem, keep the scope narrow, and use repeat runs to see whether organizational systems are improving, holding, or absorbing new kinds of strain.
+          This hub is built to reduce friction at the front end: clearer entry, cleaner tool selection, and a more disciplined way to return when a workflow, governance structure, or operating context shifts.
         </p>
 
         <div class="split-grid">
           <div class="card">
             <p class="card-kicker">For immediate use</p>
             <h4 class="card-title">Choose the right diagnostic quickly</h4>
-            <p class="card-text">Start with the strongest visible symptom so the first read is focused, relevant, and easier to interpret.</p>
+            <p class="card-text">Start with the most visible symptom so the first read is more focused, more interpretable, and easier to act on.</p>
           </div>
 
           <div class="card">
             <p class="card-kicker">For repeated use</p>
-            <h4 class="card-title">Return with a stronger frame of reference</h4>
-            <p class="card-text">Use the suite again when the system changed, the surrounding context changed, or a different participant lens is needed.</p>
+            <h4 class="card-title">Return with stronger reference points</h4>
+            <p class="card-text">Use repeat runs to see whether the system improved, held, or absorbed new forms of strain after conditions changed.</p>
           </div>
         </div>
       </section>
 
       <section class="panel">
         <h3>How to use the suite</h3>
-        <p>
-          The suite works best when the first run is bounded and the next run is intentional.
-        </p>
+        <p>The strongest first run is narrow, intentional, and tied to one clear symptom.</p>
 
         <div class="use-grid">
           <div class="use-card">
-            <p class="use-step">Step 1</p>
+            <p class="use-step">01</p>
             <h4 class="use-title">Choose the clearest symptom</h4>
             <p class="use-text">Start with what is most visible now: ambiguity, delay, burden, or broader institutional weakening.</p>
           </div>
 
           <div class="use-card">
-            <p class="use-step">Step 2</p>
-            <h4 class="use-title">Keep the scope narrow</h4>
-            <p class="use-text">Use one workflow, one function, one team, or one operating environment wherever possible.</p>
+            <p class="use-step">02</p>
+            <h4 class="use-title">Keep the scope bounded</h4>
+            <p class="use-text">Use one workflow, one function, one team, or one operating environment whenever possible.</p>
           </div>
 
           <div class="use-card">
-            <p class="use-step">Step 3</p>
+            <p class="use-step">03</p>
             <h4 class="use-title">Return with discipline</h4>
-            <p class="use-text">Revisit the same organizational system when conditions shift, a new participant lens is needed, or structural changes take effect. Only repeated runs reveal whether performance is truly improving or quietly degrading.</p>
+            <p class="use-text">Reassess after redesign, growth, or surrounding change. Repeated use is what reveals whether structural conditions are actually improving.</p>
           </div>
         </div>
       </section>
 
       <section class="panel">
         <h3>Choose the right starting point</h3>
-        <p>
-          Start with the most visible symptom. You can broaden from there if the issue proves larger or more persistent than the first read suggests.
-        </p>
+        <p>Start with the strongest visible symptom. You can broaden from there if the issue proves larger or more persistent than the first read suggests.</p>
 
-        <div class="matrix">
-          <table>
-            <thead>
-              <tr>
-                <th>Dominant symptom</th>
-                <th>Start here</th>
-                <th>Clarifies</th>
-                <th>Best used when the issue first appears or returns.</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <div class="symptom-cell">
-                    <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
-                    </svg>
-                    <strong>Ownership, roles, or handoffs feel blurred.</strong>
-                  </div>
-                </td>
-                <td>Structural Clarity Snapshot</td>
-                <td>Whether authority, ownership, and execution logic are clear enough to support reliable movement.</td>
-                <td>The issue feels like ambiguity, duplication, confusion, or execution drift.</td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="symptom-cell">
-                    <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
-                    </svg>
-                    <strong>Decisions feel slow, stuck, or approval-heavy.</strong>
-                  </div>
-                </td>
-                <td>Decision Velocity Snapshot</td>
-                <td>Where decisions are being slowed by approvals, routing, escalation, or uncertainty.</td>
-                <td>The issue feels like slowness, delay, stalled action, or approval drag.</td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="symptom-cell">
-                    <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
-                    </svg>
-                    <strong>The environment feels overloaded by process.</strong>
-                  </div>
-                </td>
-                <td>Operational Systems Snapshot</td>
-                <td>Whether administrative density is absorbing too much time, attention, and managerial effort.</td>
-                <td>The issue feels like too much process, too much reporting, or too much coordination.</td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="symptom-cell">
-                    <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
-                    </svg>
-                    <strong>The whole system seems to be weakening.</strong>
-                  </div>
-                </td>
-                <td>Institutional Performance Snapshot</td>
-                <td>Whether the institution is still converting structure into sustained performance and confidence.</td>
-                <td>The issue feels broader than one workflow and the system itself may be weakening.</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="matrix-grid">
+          <article class="matrix-card">
+            <p class="matrix-kicker">Starting point</p>
+            <div class="symptom-head">
+              <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
+              </svg>
+              <div>
+                <h4 class="matrix-title">Ownership, roles, or handoffs feel blurred.</h4>
+                <p class="matrix-text">Start with the tool best suited for ambiguity, duplication, and execution drift.</p>
+              </div>
+            </div>
+            <div class="matrix-meta">
+              <div class="matrix-meta-item">
+                <span class="matrix-meta-label">Start here</span>
+                <span class="matrix-meta-value">Structural Clarity Snapshot</span>
+              </div>
+              <div class="matrix-meta-item">
+                <span class="matrix-meta-label">Clarifies</span>
+                <span class="matrix-meta-value">Whether authority, ownership, and execution logic are clear enough to support reliable movement.</span>
+              </div>
+              <div class="matrix-meta-item">
+                <span class="matrix-meta-label">Best when</span>
+                <span class="matrix-meta-value">The issue feels like ambiguity, duplication, confusion, or execution drift.</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="matrix-card">
+            <p class="matrix-kicker">Starting point</p>
+            <div class="symptom-head">
+              <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
+              </svg>
+              <div>
+                <h4 class="matrix-title">Decisions feel slow, stuck, or approval-heavy.</h4>
+                <p class="matrix-text">Start with the tool best suited for latency, escalation, and approval drag.</p>
+              </div>
+            </div>
+            <div class="matrix-meta">
+              <div class="matrix-meta-item">
+                <span class="matrix-meta-label">Start here</span>
+                <span class="matrix-meta-value">Decision Velocity Snapshot</span>
+              </div>
+              <div class="matrix-meta-item">
+                <span class="matrix-meta-label">Clarifies</span>
+                <span class="matrix-meta-value">Where approvals, routing, escalation, or uncertainty are slowing movement through decisions.</span>
+              </div>
+              <div class="matrix-meta-item">
+                <span class="matrix-meta-label">Best when</span>
+                <span class="matrix-meta-value">The issue feels like slowness, delay, stalled action, or approval drag.</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="matrix-card">
+            <p class="matrix-kicker">Starting point</p>
+            <div class="symptom-head">
+              <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
+              </svg>
+              <div>
+                <h4 class="matrix-title">The environment feels overloaded by process.</h4>
+                <p class="matrix-text">Start with the tool best suited for recurring burden, overhead, and process density.</p>
+              </div>
+            </div>
+            <div class="matrix-meta">
+              <div class="matrix-meta-item">
+                <span class="matrix-meta-label">Start here</span>
+                <span class="matrix-meta-value">Operational Systems Snapshot</span>
+              </div>
+              <div class="matrix-meta-item">
+                <span class="matrix-meta-label">Clarifies</span>
+                <span class="matrix-meta-value">Whether administrative density is absorbing too much time, attention, and managerial effort.</span>
+              </div>
+              <div class="matrix-meta-item">
+                <span class="matrix-meta-label">Best when</span>
+                <span class="matrix-meta-value">The issue feels like too much process, too much reporting, or too much coordination.</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="matrix-card">
+            <p class="matrix-kicker">Starting point</p>
+            <div class="symptom-head">
+              <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
+              </svg>
+              <div>
+                <h4 class="matrix-title">The whole system seems to be weakening.</h4>
+                <p class="matrix-text">Start with the tool best suited for broader system health and institutional performance.</p>
+              </div>
+            </div>
+            <div class="matrix-meta">
+              <div class="matrix-meta-item">
+                <span class="matrix-meta-label">Start here</span>
+                <span class="matrix-meta-value">Institutional Performance Snapshot</span>
+              </div>
+              <div class="matrix-meta-item">
+                <span class="matrix-meta-label">Clarifies</span>
+                <span class="matrix-meta-value">Whether the institution is still converting structure into sustained performance and confidence.</span>
+              </div>
+              <div class="matrix-meta-item">
+                <span class="matrix-meta-label">Best when</span>
+                <span class="matrix-meta-value">The issue feels broader than one workflow and the system itself may be weakening.</span>
+              </div>
+            </div>
+          </article>
         </div>
       </section>
 
@@ -1200,13 +1493,13 @@
           <div class="section-label">Live Diagnostics</div>
           <h3>Launch the right diagnostic.</h3>
           <p>
-            Each tool opens in its own dedicated environment. Start with the strongest fit, then return to the suite as your view of the problem becomes clearer.
+            Each diagnostic opens in its own dedicated environment. Start with the strongest fit, then return to the suite as your understanding of the structural issue becomes clearer.
           </p>
         </div>
 
         <div class="tools-grid">
           <article class="tool-card is-recommended">
-            <a class="tool-card-link" href="structural-clarity.html" aria-label="Open Structural Clarity Snapshot">
+            <a class="tool-card-link diagnostic-link" href="structural-clarity.html" aria-label="Open Structural Clarity Snapshot">
               <div class="tool-card-top">
                 <div class="tool-badge">Live</div>
                 <div class="tool-badge-secondary">Recommended first diagnostic</div>
@@ -1226,7 +1519,7 @@
           </article>
 
           <article class="tool-card">
-            <a class="tool-card-link" href="decision-velocity.html" aria-label="Open Decision Velocity Snapshot">
+            <a class="tool-card-link diagnostic-link" href="decision-velocity.html" aria-label="Open Decision Velocity Snapshot">
               <div class="tool-card-top">
                 <div class="tool-badge">Live</div>
               </div>
@@ -1244,7 +1537,7 @@
           </article>
 
           <article class="tool-card">
-            <a class="tool-card-link" href="bureaucratic-drag-snapshot.html" aria-label="Open Operational Systems Snapshot">
+            <a class="tool-card-link diagnostic-link" href="bureaucratic-drag-snapshot.html" aria-label="Open Operational Systems Snapshot">
               <div class="tool-card-top">
                 <div class="tool-badge">Live</div>
               </div>
@@ -1262,7 +1555,7 @@
           </article>
 
           <article class="tool-card">
-            <a class="tool-card-link" href="institutional-performance.html" aria-label="Open Institutional Performance Snapshot">
+            <a class="tool-card-link diagnostic-link" href="institutional-performance.html" aria-label="Open Institutional Performance Snapshot">
               <div class="tool-card-top">
                 <div class="tool-badge">Live</div>
               </div>
@@ -1279,13 +1572,51 @@
             </a>
           </article>
         </div>
+
+        <section class="synthesis-shell" id="cross-diagnostic-synthesis" aria-labelledby="synthesis-title">
+          <div class="synthesis-head">
+            <div class="section-label">Cross-Diagnostic Synthesis</div>
+            <h3 id="synthesis-title">Combine saved results for a broader institutional read.</h3>
+            <p>
+              Drag and drop 2 or more saved Monderman JSON result files to compare patterns across tools, pathways, or participant lenses without storing anything on the site.
+            </p>
+          </div>
+
+          <div class="dropzone-wrap">
+            <label class="dropzone" id="dropzone" for="synthesisFileInput" tabindex="0" aria-label="Drag and drop saved diagnostic result JSON files">
+              <div>
+                <div class="dropzone-icon" aria-hidden="true">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 16V4"></path>
+                    <path d="M7 9l5-5 5 5"></path>
+                    <path d="M4 20h16"></path>
+                  </svg>
+                </div>
+                <h4>Drag &amp; drop saved diagnostic results (2+ files)</h4>
+                <p>Or click to browse • Supports monderman-*.json files from any diagnostic</p>
+              </div>
+              <input id="synthesisFileInput" type="file" accept=".json,application/json" multiple aria-label="Upload saved Monderman JSON result files" />
+            </label>
+
+            <div class="validation-message" id="validationMessage" aria-live="polite"></div>
+            <div class="file-list" id="fileList" aria-live="polite"></div>
+
+            <div class="synthesis-actions">
+              <p class="synthesis-note">Your saved result files stay on your device until you choose to upload them for synthesis in this session. Monderman does not retain them automatically.</p>
+              <button class="btn btn-accent" id="synthesizeBtn" type="button" disabled>Synthesize Results</button>
+            </div>
+
+            <div class="synthesis-fallback">
+              <p>Prefer the existing route instead?</p>
+              <a class="btn btn-subtle" href="cross-tool-synthesis.html">Open Cross-Tool Synthesis</a>
+            </div>
+          </div>
+        </section>
       </section>
 
       <section class="panel">
         <h3>How repeated use creates value</h3>
-        <p>
-          The suite delivers its greatest value when used repeatedly to govern organizational systems over time, across changing conditions, and through different participant lenses.
-        </p>
+        <p>The suite delivers its strongest value when it is used repeatedly to govern organizational systems over time, across changing conditions, and through different participant lenses.</p>
 
         <div class="dynamic-wrap">
           <div class="dynamic-grid">
@@ -1296,10 +1627,10 @@
                   <h4 class="dynamic-title">Baseline</h4>
                   <span class="dynamic-plus" aria-hidden="true">+</span>
                 </div>
-                <p class="dynamic-summary">Establish a reference point for a specific organizational system.</p>
+                <p class="dynamic-summary">Establish a reference point for one specific organizational system.</p>
               </button>
               <div class="dynamic-detail">
-                <p>Use one diagnostic to establish a clear reference point for a specific organizational system so future runs can be interpreted against something more concrete than memory, impression, or isolated complaint.</p>
+                <p>Use one diagnostic to establish a clear reference point for a specific organizational system so future runs can be interpreted against something stronger than memory, impression, or isolated complaint.</p>
               </div>
             </article>
 
@@ -1327,7 +1658,7 @@
                 <p class="dynamic-summary">Return when the surrounding environment changes.</p>
               </button>
               <div class="dynamic-detail">
-                <p>Revisit an organizational system when the surrounding environment changes—even if the system itself has not. Growth, new tooling, adjacent dependencies, staffing pressure, customer expansion, or external demands can all alter how a system behaves.</p>
+                <p>Revisit an organizational system when the surrounding environment changes — even if the system itself has not. Growth, new tooling, dependencies, staffing pressure, or external demands can all change how a system behaves.</p>
               </div>
             </article>
 
@@ -1346,20 +1677,6 @@
             </article>
           </div>
         </div>
-      </section>
-
-      <section class="bridge" aria-labelledby="synthesis-bridge-title">
-        <div class="bridge-copy">
-          <div class="section-label">Cross-Tool Synthesis</div>
-          <h3 id="synthesis-bridge-title">Bring multiple diagnostics into one clearer read.</h3>
-          <p>
-            Once you have completed two or more diagnostics, use the synthesis layer to combine outputs into a broader Monderman readout.
-          </p>
-        </div>
-
-        <a class="btn btn-secondary" href="cross-tool-synthesis.html">
-          Open Cross-Tool Synthesis
-        </a>
       </section>
 
       <section class="bridge" aria-labelledby="advisory-bridge-title">
@@ -1421,13 +1738,9 @@
 
     function updateHeader() {
       if (!header) return;
-      if (window.scrollY > 12) {
-        header.classList.add("scrolled");
-      } else {
-        header.classList.remove("scrolled");
-      }
+      if (window.scrollY > 12) header.classList.add("scrolled");
+      else header.classList.remove("scrolled");
     }
-
     updateHeader();
     window.addEventListener("scroll", updateHeader, { passive: true });
 
@@ -1447,6 +1760,228 @@
         }
       });
     });
+
+    const overlay = document.getElementById("calibrationOverlay");
+    const loadingBar = document.getElementById("loadingBar");
+    const loadingStatus = document.getElementById("loadingStatus");
+    const diagnosticLinks = document.querySelectorAll(".diagnostic-link");
+    const loadingMessages = [
+      "Aligning structural signals...",
+      "Mapping participant lenses...",
+      "Preparing repeatable governance instrument...",
+      "Environment ready."
+    ];
+    let loadingTimer = null;
+    let progressTimer = null;
+
+    function openDiagnosticWithCalibration(targetHref) {
+      if (!overlay || !loadingBar || !loadingStatus || !targetHref) {
+        window.location.href = targetHref;
+        return;
+      }
+      overlay.classList.add("show");
+      overlay.setAttribute("aria-hidden", "false");
+      loadingBar.style.width = "0%";
+      loadingStatus.textContent = loadingMessages[0];
+
+      let progress = 0;
+      let messageIndex = 0;
+
+      clearInterval(progressTimer);
+      clearTimeout(loadingTimer);
+
+      progressTimer = setInterval(() => {
+        progress = Math.min(progress + 2, 100);
+        loadingBar.style.width = progress + "%";
+      }, 100);
+
+      const messageTimer = setInterval(() => {
+        messageIndex = Math.min(messageIndex + 1, loadingMessages.length - 1);
+        loadingStatus.textContent = loadingMessages[messageIndex];
+      }, 1200);
+
+      loadingTimer = setTimeout(() => {
+        clearInterval(progressTimer);
+        clearInterval(messageTimer);
+        loadingBar.style.width = "100%";
+        loadingStatus.textContent = loadingMessages[loadingMessages.length - 1];
+        setTimeout(() => {
+          window.location.href = targetHref;
+        }, 220);
+      }, 4600);
+    }
+
+    diagnosticLinks.forEach((link) => {
+      link.addEventListener("click", (event) => {
+        const href = link.getAttribute("href");
+        if (!href) return;
+        event.preventDefault();
+        openDiagnosticWithCalibration(href);
+      });
+    });
+
+    const dropzone = document.getElementById("dropzone");
+    const fileInput = document.getElementById("synthesisFileInput");
+    const fileList = document.getElementById("fileList");
+    const validationMessage = document.getElementById("validationMessage");
+    const synthesizeBtn = document.getElementById("synthesizeBtn");
+
+    let uploadedFiles = [];
+
+    function sanitizeFileName(name) {
+      return String(name || "").replace(/[<>&"']/g, "");
+    }
+
+    function showValidation(message, type) {
+      if (!validationMessage) return;
+      validationMessage.textContent = message;
+      validationMessage.classList.remove("is-error", "is-ok", "show");
+      if (type === "error") validationMessage.classList.add("is-error");
+      if (type === "ok") validationMessage.classList.add("is-ok");
+      if (message) validationMessage.classList.add("show");
+    }
+
+    function renderFileList() {
+      if (!fileList) return;
+      fileList.innerHTML = "";
+      uploadedFiles.forEach((entry, index) => {
+        const item = document.createElement("div");
+        item.className = "file-item";
+        item.innerHTML = `
+          <div class="file-main">
+            <div class="file-name">${sanitizeFileName(entry.name)}</div>
+            <div class="file-meta">${entry.toolLabel || "Unknown tool"} • ${entry.generatedLabel || "Undated"} • ${entry.statusText}</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="file-status ${entry.valid ? "ok" : "bad"}">${entry.valid ? "Valid" : "Invalid"}</span>
+            <button class="file-remove" type="button" aria-label="Remove ${sanitizeFileName(entry.name)}">×</button>
+          </div>
+        `;
+        item.querySelector(".file-remove").addEventListener("click", () => {
+          uploadedFiles.splice(index, 1);
+          syncSynthesisState();
+        });
+        fileList.appendChild(item);
+      });
+    }
+
+    function syncSynthesisState() {
+      renderFileList();
+      const validCount = uploadedFiles.filter((file) => file.valid).length;
+      synthesizeBtn.disabled = validCount < 2;
+      if (!uploadedFiles.length) {
+        showValidation("", "");
+        return;
+      }
+      if (validCount >= 2) {
+        showValidation(`${validCount} valid result files ready. You can now generate a combined readout.`, "ok");
+      } else {
+        showValidation("Upload 2 or more valid Monderman JSON result files to continue.", "error");
+      }
+    }
+
+    function parseResultFile(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const text = String(reader.result || "");
+            const parsed = JSON.parse(text);
+            const hasSchema = !!(parsed && (parsed.schema_version || parsed.tool_type));
+            const valid = hasSchema;
+            resolve({
+              name: file.name,
+              valid,
+              parsed,
+              toolLabel: parsed.tool_label || parsed.tool_type || "Monderman result",
+              generatedLabel: parsed.generated_at ? new Date(parsed.generated_at).toLocaleString() : "Saved result",
+              statusText: valid ? "Ready for synthesis" : "Missing schema_version or tool_type"
+            });
+          } catch (error) {
+            resolve({
+              name: file.name,
+              valid: false,
+              parsed: null,
+              toolLabel: "Unrecognized file",
+              generatedLabel: "Not readable",
+              statusText: "Could not read JSON"
+            });
+          }
+        };
+        reader.onerror = () => {
+          resolve({
+            name: file.name,
+            valid: false,
+            parsed: null,
+            toolLabel: "Read error",
+            generatedLabel: "Not readable",
+            statusText: "Could not read file"
+          });
+        };
+        reader.readAsText(file);
+      });
+    }
+
+    async function handleFiles(fileCollection) {
+      const files = Array.from(fileCollection || []).filter((file) => /\.json$/i.test(file.name) || file.type === "application/json");
+      if (!files.length) {
+        showValidation("Please upload saved Monderman JSON result files.", "error");
+        return;
+      }
+      showValidation("Processing files...", "ok");
+      const parsed = await Promise.all(files.map(parseResultFile));
+      uploadedFiles = [...uploadedFiles, ...parsed];
+      syncSynthesisState();
+    }
+
+    if (dropzone && fileInput) {
+      ["dragenter", "dragover"].forEach((eventName) => {
+        dropzone.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          dropzone.classList.add("is-dragover");
+        });
+      });
+
+      ["dragleave", "drop"].forEach((eventName) => {
+        dropzone.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          dropzone.classList.remove("is-dragover");
+        });
+      });
+
+      dropzone.addEventListener("drop", (event) => {
+        const files = event.dataTransfer && event.dataTransfer.files;
+        handleFiles(files);
+      });
+
+      dropzone.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          fileInput.click();
+        }
+      });
+
+      fileInput.addEventListener("change", (event) => {
+        handleFiles(event.target.files);
+        fileInput.value = "";
+      });
+    }
+
+    if (synthesizeBtn) {
+      synthesizeBtn.addEventListener("click", () => {
+        const validFiles = uploadedFiles.filter((file) => file.valid);
+        if (validFiles.length < 2) {
+          showValidation("Upload 2 or more valid Monderman JSON result files to continue.", "error");
+          return;
+        }
+        showValidation("Processing files... opening synthesis environment.", "ok");
+        setTimeout(() => {
+          window.location.href = "cross-tool-synthesis.html";
+        }, 800);
+      });
+    }
   </script>
 </body>
 </html>
