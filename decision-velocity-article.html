@@ -38,7 +38,9 @@
       --muted: #556270;
       --line: #E3E7EB;
       --dark: #0F1720;
+      --soft: #F8FAFC;
       --max: 980px;
+      --shadow: 0 1px 0 rgba(0,0,0,0.012);
     }
 
     * { box-sizing: border-box; }
@@ -117,7 +119,6 @@
       outline: none;
     }
 
-    
     .hero {
       position: relative;
       overflow: hidden;
@@ -170,7 +171,7 @@
     }
 
     .hero-copy {
-      max-width: 700px;
+      max-width: 720px;
     }
 
     .eyebrow {
@@ -192,7 +193,7 @@
 
     .hero p {
       margin: 0;
-      max-width: 46ch;
+      max-width: 48ch;
       font-size: 1.06rem;
       line-height: 1.7;
       color: rgba(255,255,255,0.82);
@@ -245,11 +246,11 @@
       align-items: start;
     }
 
-    .content, .sidebar-card, .pullquote, .cta {
+    .content, .sidebar-card, .pullquote, .cta, .signal-figure, .output-figure {
       background: var(--white);
       border: 1px solid var(--line);
       border-radius: 16px;
-      box-shadow: 0 1px 0 rgba(0,0,0,0.012);
+      box-shadow: var(--shadow);
     }
 
     .content { padding: 38px 34px; }
@@ -285,6 +286,154 @@
     .pullquote p {
       margin: 0;
       color: var(--text);
+    }
+
+    .signal-figure,
+    .output-figure {
+      margin: 28px 0;
+      padding: 24px;
+      background: linear-gradient(180deg, #FFFFFF 0%, #FBFCFE 100%);
+    }
+
+    .figure-kicker {
+      margin: 0 0 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .figure-title {
+      margin: 0 0 16px;
+      font-size: 1.04rem;
+      line-height: 1.25;
+      color: var(--text);
+    }
+
+    .signal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .signal-card {
+      padding: 16px;
+      border-radius: 14px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+    }
+
+    .signal-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.92rem;
+      color: var(--text);
+    }
+
+    .signal-card span {
+      display: block;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .output-shell {
+      display: grid;
+      gap: 16px;
+    }
+
+    .output-top {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 18px;
+      align-items: center;
+    }
+
+    .score-block {
+      padding: 20px 16px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #0F1720 0%, #172231 100%);
+      color: #fff;
+      text-align: center;
+    }
+
+    .score-block .score-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.68);
+      margin-bottom: 8px;
+    }
+
+    .score-block .score-num {
+      font-size: 3rem;
+      line-height: 0.92;
+      font-weight: 700;
+      letter-spacing: -0.06em;
+      margin: 0;
+    }
+
+    .score-block .score-band {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.82);
+    }
+
+    .output-copy {
+      display: grid;
+      gap: 10px;
+    }
+
+    .output-copy p {
+      margin: 0;
+      font-size: 0.94rem;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    .output-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      padding: 14px 14px 12px;
+      border-radius: 14px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 0.74rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .metric span {
+      display: block;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 5px;
+    }
+
+    .metric small {
+      display: block;
+      font-size: 0.84rem;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .figure-note {
+      margin-top: 14px;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--muted);
     }
 
     .sidebar {
@@ -390,6 +539,9 @@
       }
 
       .content { padding: 28px 22px; }
+      .signal-grid,
+      .output-metrics,
+      .output-top { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -415,11 +567,11 @@
         <p class="eyebrow">Our Approach</p>
         <h1>Decision Velocity</h1>
         <p>
-          Most decisions don’t fail—they stall. Decision velocity is the organization’s ability to move from intent to action without unnecessary delay, rework, or procedural drag.
+          Decision Velocity shows where routine decisions are slowing down, what kind of drag is actually causing the slowdown, and how much time, cost, and capacity may be recoverable if the path becomes lighter and clearer.
         </p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="decision-velocity.html">Run Decision Velocity Diagnostic</a>
-          <a class="btn btn-secondary" href="index.html#connect">Start a Conversation</a>
+          <a class="btn btn-secondary" href="advisory-services-connect.html">Start a Conversation</a>
         </div>
       </div>
     </div>
@@ -430,75 +582,142 @@
       <div class="article-layout">
         <article class="content">
           <p>
-            Most organizations do not have a decision problem in the abstract. They have a decision-speed problem in practice. Leaders can usually see what needs attention. Teams often know what should happen next. The breakdown occurs in the middle—where approvals, reviews, handoffs, unclear ownership, and the quiet fear of acting without cover begin to slow movement.
+            Most organizations do not have a decision problem in the abstract. They have a pathway problem in practice. Leaders can usually see what needs attention. Teams often know what should happen next. The breakdown occurs in the middle — where approvals, reviews, handoffs, escalations, and quiet compensatory effort begin to slow movement.
           </p>
 
           <p>
-            That is what decision velocity is really about. Not speed for its own sake, but the ability to move from signal to decision to action before the environment has already changed.
+            That is what Decision Velocity is designed to surface. Not speed for its own sake, but the performance of the path itself: how quickly it moves, how much structural burden it is carrying, and whether the organization is paying too much in time and effort to preserve the current decision cycle.
           </p>
 
           <div class="pullquote">
             <p>
-              Decision velocity is not recklessness. It is the disciplined ability to make timely decisions at the clock speed of reality.
+              Decision velocity is not recklessness. It is the disciplined ability to move a routine decision at the clock speed of reality without relying on unnecessary review, hidden coordination, or repeated escalation.
+            </p>
+          </div>
+
+          <h2>What the diagnostic is actually reading</h2>
+
+          <p>
+            The tool does not look only at whether a decision feels slow. It reads the pathway beneath the decision: how approvals are arranged, how many handoffs the work passes through, whether escalation has become normal, and whether the process depends on specific people to keep moving. It also distinguishes between visible governance and hidden compensatory effort — the manual chasing, side-channel coordination, and informal rescue work that often keeps a burdened path alive.
+          </p>
+
+          <div class="signal-figure">
+            <p class="figure-kicker">Diagnostic reading model</p>
+            <h3 class="figure-title">The tool is built to detect four recurring drag patterns</h3>
+            <div class="signal-grid">
+              <div class="signal-card">
+                <strong>Approval density</strong>
+                <span>Too many approvals, serial gates, or late-stage review expansion make the path heavier than the decision likely requires.</span>
+              </div>
+              <div class="signal-card">
+                <strong>Coordination burden</strong>
+                <span>Meetings, handoffs, system switching, and repeated alignment work absorb time just to keep the pathway moving.</span>
+              </div>
+              <div class="signal-card">
+                <strong>Escalation dependence</strong>
+                <span>Cases that should resolve in the normal path repeatedly move upward because decision rights or routing logic are not holding.</span>
+              </div>
+              <div class="signal-card">
+                <strong>Key-person brittleness</strong>
+                <span>The process still works, but only because specific people quietly interpret, translate, or push it through.</span>
+              </div>
+            </div>
+            <p class="figure-note">
+              The live diagnostic adapts its question path around these signals and reads them differently across operational, managerial, and executive perspectives.
             </p>
           </div>
 
           <h2>Why good organizations still move too slowly</h2>
 
           <p>
-            Delay is rarely caused by one dramatic bottleneck. More often, it is the combined effect of many small frictions: one more review, one more stakeholder, one more committee, one more request for a slide that will not change the outcome. Over time, these accumulate into a system that feels careful but behaves slowly.
+            Delay is rarely caused by one dramatic bottleneck. More often, it is the combined effect of many small frictions: one more review, one more stakeholder, one more handoff, one more escalation, one more request for polish that does not materially change the decision. Over time, these accumulate into a path that feels careful but behaves slowly.
           </p>
 
           <p>
-            This matters because delay changes the economics of judgment. A good decision made too late is often indistinguishable from a bad one. By the time approval is granted, the customer has moved, the competitor has acted, or the internal window for action has closed.
+            This matters because delay changes the value of judgment. A good decision made too late is often operationally indistinguishable from a bad one. By the time approval is granted, the customer has moved, the opportunity has narrowed, the internal window has closed, or the organization has already paid the cost of waiting.
           </p>
 
-          <h2>The hidden cost of slow decisions</h2>
+          <h2>What the output is meant to give leaders</h2>
 
-          <h3>Teams stop escalating ideas</h3>
           <p>
-            When people learn that worthwhile ideas spend months in review, they begin to self-filter before the organization ever sees the signal.
+            The Decision Velocity diagnostic is not a generic survey score. It is built to return a leadership-facing readout: a directional score, a benchmark position, a trajectory signal, a view of likely reclaim potential, and a practical first-action sequence. In other words, it is designed to help leaders decide whether the pathway is fast and proportionate, functional but burdened, slow and over-governed, or unstable enough that escalation has become part of the operating model.
           </p>
 
-          <h3>Leaders become overloaded</h3>
+          <div class="output-figure">
+            <p class="figure-kicker">What the tool returns</p>
+            <h3 class="figure-title">A leadership readout, not just a questionnaire result</h3>
+            <div class="output-shell">
+              <div class="output-top">
+                <div class="score-block">
+                  <div class="score-label">Velocity score</div>
+                  <p class="score-num">62</p>
+                  <div class="score-band">Functional but burdened</div>
+                </div>
+                <div class="output-copy">
+                  <p><strong>Current condition.</strong> A concise read of how the path is functioning right now.</p>
+                  <p><strong>Primary speed constraint.</strong> The heaviest likely source of drag, such as approval density or coordination burden.</p>
+                  <p><strong>Trade-off diagnosis.</strong> Whether the current pace appears justified by real risk or is simply consuming too much control cost.</p>
+                </div>
+              </div>
+              <div class="output-metrics">
+                <div class="metric">
+                  <strong>Benchmark</strong>
+                  <span>Within range</span>
+                  <small>How the path compares with similar sector pathways.</small>
+                </div>
+                <div class="metric">
+                  <strong>Trajectory</strong>
+                  <span>Rising drag</span>
+                  <small>Whether the pathway appears stable, worsening, or easing.</small>
+                </div>
+                <div class="metric">
+                  <strong>Reclaim potential</strong>
+                  <span>Directional upside</span>
+                  <small>Approximate recoverable value if the heaviest burden is reduced first.</small>
+                </div>
+              </div>
+            </div>
+            <p class="figure-note">
+              The actual tool also includes priority actions, a gated opportunity view, supporting evidence panels, and a downloadable executive report.
+            </p>
+          </div>
+
+          <h2>The hidden cost of low decision velocity</h2>
+
+          <h3>Routine work becomes management-intensive</h3>
           <p>
-            Unclear decision rights push too many choices upward. Senior leaders become the system’s workaround.
+            When ordinary cases require repeated clarification, follow-up, or escalation, managers and senior leaders become part of the pathway itself. That is not just a timing problem. It is a cost and capacity problem.
+          </p>
+
+          <h3>Teams learn to route around the formal system</h3>
+          <p>
+            Workarounds are often treated as proof that the organization is still resilient. In reality, they may be the signal that the official path is no longer carrying movement on its own.
+          </p>
+
+          <h3>Control gets more expensive, not necessarily better</h3>
+          <p>
+            Slow organizations often believe they are being safer. But the real question is whether added approvals and heavier review are producing proportionate control — or simply increasing the labor cost of getting to the same answer.
           </p>
 
           <h3>Execution loses tempo</h3>
           <p>
-            Even strong teams struggle when decisions land late, arrive half-settled, or keep being reopened.
-          </p>
-
-          <h3>Risk actually increases</h3>
-          <p>
-            Slow organizations often believe they are being safer. In reality, they may simply be allowing unresolved issues to age inside the system.
-          </p>
-
-          <h2>What higher decision velocity looks like</h2>
-
-          <p>
-            Faster decisions do not begin with motivational slogans. They begin with cleaner design. Decision rights need to sit where the relevant information is. Approval thresholds need to match actual risk. Review paths need to be visible. Exceptions should be rare, not the normal way work moves.
-          </p>
-
-          <p>
-            In healthier systems, people know which decisions are reversible and can move quickly, and which are consequential enough to require deeper review. That distinction alone can dramatically improve tempo.
+            Even strong teams struggle when decisions arrive late, land half-settled, or keep reopening after apparent sign-off. The result is not only frustration. It is lost maneuverability.
           </p>
 
           <h2>How Monderman approaches decision velocity</h2>
 
           <p>
-            We look at the full pathway beneath the decision, not just the moment of choice. Where is work waiting? Where is authority fragmented? Which approvals are performing real governance, and which are simply inherited habits? Where has the organization become dependent on escalation instead of coherent design?
+            Monderman looks at the full path beneath the decision, not just the moment of choice. Where is work waiting? Which approvals are performing real governance, and which are inherited habits? Where has escalation become normal? Where is the path stable by design, and where is it only surviving through compensatory effort?
           </p>
 
           <p>
-            The goal is not permanent acceleration. It is more intelligent movement. Some decisions should be slower. Many should be faster. The real task is to design a system that knows the difference.
+            The goal is not permanent acceleration. Some decisions should be slower. Many should be faster. The real task is to make the path proportionate to the decision it is carrying — and to make that proportion visible enough that leaders can govern it deliberately rather than inherit it passively.
           </p>
 
           <div class="cta">
             <h3>Common signs decision velocity is degrading</h3>
             <p>
-              Deadlines slip while activity stays high. More decisions are pushed upward. Teams rely on personal relationships to get things unstuck. “Urgent” becomes the only way anything moves.
+              Approval paths keep expanding. Routine work starts needing repeated follow-up. More cases are escalated upward. Specific people become informal fixers. The process still moves, but only because someone keeps rescuing it.
             </p>
             <a class="btn btn-primary" href="decision-velocity.html">Run Decision Velocity Diagnostic</a>
           </div>
@@ -507,26 +726,26 @@
         <aside class="sidebar">
           <div class="sidebar-card">
             <p class="sidebar-kicker">What this affects</p>
-            <h3>Speed, trust, and adaptability</h3>
+            <h3>Tempo, trust, and maneuverability</h3>
             <p>
-              Slow decisions do not just reduce tempo. They train people to become passive, political, or overly cautious over time.
+              Low decision velocity does not just slow execution. It trains people to rely on escalation, side channels, and informal rescue work over time.
             </p>
           </div>
 
           <div class="sidebar-card">
-            <p class="sidebar-kicker">Look for</p>
+            <p class="sidebar-kicker">The tool is looking for</p>
             <ul class="mini-list">
-              <li>Approval cycles longer than the problem’s shelf life</li>
-              <li>Escalation becoming routine</li>
-              <li>Decisions reopened after sign-off</li>
-              <li>Action waiting on presentation-quality polish</li>
+              <li>Approval cycles heavier than the decision warrants</li>
+              <li>Coordination work that exists mainly to keep motion alive</li>
+              <li>Escalation becoming routine rather than exceptional</li>
+              <li>Pathways that depend on a few people to function</li>
             </ul>
           </div>
 
           <div class="sidebar-card">
             <p class="sidebar-kicker">Monderman view</p>
             <p>
-              Decision velocity is not about haste. It is about keeping judgment, authority, and timing aligned closely enough that organizations can still maneuver.
+              Decision Velocity is about the performance of the path: how quickly work moves, how much burden the path is carrying, and how much value may be recoverable if the route becomes clearer and lighter.
             </p>
           </div>
         </aside>
@@ -534,7 +753,6 @@
     </div>
   </main>
 
-  
   <footer class="footer">
     <div class="footer-inner">
       <p>Monderman — clarity for complex institutions.</p>
