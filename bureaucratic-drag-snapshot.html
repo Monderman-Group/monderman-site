@@ -688,11 +688,11 @@ async function submitDiagnostic(){
 
   try{
     const [scoreResponse]=await Promise.all([
-      fetch(`${API_BASE}/api/operational-systems-score`,{
+      fetchWithTimeout(`${API_BASE}/api/operational-systems-score`,{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify(payload)
-      }),
+      }, SCORE_TIMEOUT_MS),
       wait(RESULTS_LOADER_MS)
     ]);
 
@@ -735,11 +735,11 @@ async function submitDiagnostic(){
       };
 
       const narrativeRequestBody={...scoreData.result,result:scoreData.result,context:narrativeContext};
-      const narrativeResponse=await fetch(`${API_BASE}/api/operational-systems-narrative`,{
+      const narrativeResponse=await fetchWithTimeout(`${API_BASE}/api/operational-systems-narrative`,{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify(narrativeRequestBody)
-      });
+      }, NARRATIVE_TIMEOUT_MS);
 
       const narrativeData=await narrativeResponse.json().catch(()=>null);
       if(narrativeResponse.ok && narrativeData?.ok && narrativeData?.narrative){
@@ -749,13 +749,15 @@ async function submitDiagnostic(){
         finalResult={...scoreData.result,narrative:localResult.narrative};
         outputMode="Scored + local narrative";
       }
-    } catch {
+    } catch (err){
+      console.warn("Remote narrative fell back to local narrative:", err);
       finalResult={...scoreData.result,narrative:localResult.narrative};
       outputMode="Scored + local narrative";
     }
-  } catch {
+  } catch (err){
+    console.warn("Remote scoring fell back to local output:", err);
     finalResult=localResult;
-    outputMode="Local fallback";
+    outputMode="Timed out or failed + local fallback";
   }
 
   state.result=finalResult;
@@ -1834,6 +1836,15 @@ function formatCurrency(value){
 
 function wait(ms){
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+const SCORE_TIMEOUT_MS=12000;
+const NARRATIVE_TIMEOUT_MS=10000;
+function fetchWithTimeout(url, options={}, timeoutMs=SCORE_TIMEOUT_MS){
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(), timeoutMs);
+  const merged={...options, signal:controller.signal};
+  return fetch(url, merged).finally(()=>clearTimeout(timer));
 }
 
 function renderList(id, items){
