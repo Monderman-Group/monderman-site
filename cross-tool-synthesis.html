@@ -559,6 +559,104 @@
     }
     .hidden{ display:none !important; }
 
+
+    .report-only{display:none}
+    .report-header{
+      display:grid;
+      gap:12px;
+      padding:24px;
+      border-radius:24px;
+      border:1px solid rgba(21,32,43,.08);
+      background:linear-gradient(180deg,#FFF 0%,#F9FBFD 100%);
+      box-shadow:var(--soft-shadow);
+    }
+    .report-meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .meta-pill{
+      display:inline-flex;
+      align-items:center;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid rgba(21,32,43,.08);
+      background:#FFF;
+      font-size:.82rem;
+      color:var(--muted-dark);
+    }
+    .export-summary-card{
+      background:linear-gradient(180deg,#FFF 0%,#FBFCFE 100%);
+      border:1px solid rgba(21,32,43,.08);
+      border-radius:24px;
+      box-shadow:var(--soft-shadow);
+      padding:24px;
+    }
+    .export-summary-head{
+      display:grid;
+      gap:10px;
+      margin-bottom:14px;
+    }
+    .export-summary-kicker{
+      margin:0;
+      font-size:.76rem;
+      font-weight:700;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:var(--muted-dark-2);
+    }
+    .export-summary-title{
+      margin:0;
+      font-size:1.5rem;
+      line-height:1.05;
+      font-weight:700;
+      color:var(--text-dark);
+    }
+    .export-grid{
+      display:grid;
+      grid-template-columns:1.05fr .95fr;
+      gap:14px;
+    }
+    .export-block{
+      padding:16px 18px;
+      border-radius:18px;
+      background:#FFF;
+      border:1px solid rgba(21,32,43,.08);
+    }
+    .export-block h4{
+      margin:0 0 8px;
+      font-size:1rem;
+      line-height:1.2;
+      font-weight:700;
+      color:var(--text-dark);
+    }
+    .export-meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:4px;
+    }
+    .export-pill{
+      display:inline-flex;
+      align-items:center;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid rgba(21,32,43,.08);
+      background:#FFF;
+      font-size:.82rem;
+      color:var(--muted-dark);
+    }
+    .results-disclaimer{
+      padding:16px 18px;
+      border-radius:16px;
+      background:#F8FAFC;
+      border:1px solid rgba(21,32,43,.08);
+      font-size:.88rem;
+      line-height:1.6;
+      color:var(--muted-dark);
+    }
+    .hidden-download{display:none!important}
+
     @media (max-width:1120px){
       .hero-inner,
       .score-shell{
@@ -570,7 +668,8 @@
       .tools-grid,
       .patterns-grid,
       .actions-grid,
-      .signals-grid{
+      .signals-grid,
+      .export-grid{
         grid-template-columns:1fr 1fr;
       }
     }
@@ -597,7 +696,8 @@
       .tools-grid,
       .patterns-grid,
       .actions-grid,
-      .signals-grid{
+      .signals-grid,
+      .export-grid{
         grid-template-columns:1fr;
       }
       .hero-actions,
@@ -782,6 +882,65 @@
         </div>
         <div class="panel-body">
           <div class="patterns-grid" id="narrativeGrid"></div>
+        </div>
+      </section>
+
+
+      <section class="panel hidden" id="executiveReportPanel">
+        <div class="panel-head">
+          <p class="panel-kicker">Executive Report</p>
+          <h2 class="panel-title">Leadership-ready synthesis summary</h2>
+          <p class="panel-copy">
+            This section distills the synthesis into a portable executive readout and exportable report format.
+          </p>
+        </div>
+        <div class="panel-body">
+          <section class="report-only report-header" id="reportHeaderShell">
+            <p class="panel-kicker" style="margin-bottom:0;">Monderman</p>
+            <h3 style="margin:0;font-size:2rem;line-height:1;">Cross-Diagnostic Synthesis</h3>
+            <p class="panel-copy" id="reportSubtitle">Leadership-ready executive summary.</p>
+            <div class="report-meta">
+              <span class="meta-pill" id="metaTools">Tools: —</span>
+              <span class="meta-pill" id="metaCondition">Condition: —</span>
+              <span class="meta-pill" id="metaDate">Generated: —</span>
+            </div>
+          </section>
+
+          <section class="export-summary-card" style="margin-top:16px;">
+            <div class="export-summary-head">
+              <p class="export-summary-kicker">Leadership bottom line</p>
+              <h3 class="export-summary-title" id="execSummaryHeadline">Executive summary will appear here after synthesis is loaded.</h3>
+              <p class="panel-copy" id="execSummaryBody">—</p>
+              <div class="export-meta">
+                <span class="export-pill" id="exportMetaCondition">Condition: —</span>
+                <span class="export-pill" id="exportMetaPattern">Pattern: —</span>
+                <span class="export-pill" id="exportMetaExposure">Exposure: —</span>
+              </div>
+            </div>
+            <div class="export-grid">
+              <div class="export-block">
+                <h4>Priority actions</h4>
+                <ul class="list" id="execSummaryActions"></ul>
+              </div>
+              <div class="export-block">
+                <h4>What this means</h4>
+                <p class="panel-copy" id="execMeaningText">—</p>
+                <p class="panel-copy" id="execImplicationText" style="margin-top:10px;">—</p>
+                <p class="panel-copy" id="execSequencingText" style="margin-top:10px;">—</p>
+              </div>
+            </div>
+          </section>
+
+          <div class="footer-actions" style="margin-top:18px;">
+            <button class="btn btn-accent" id="exportBtn" type="button">Open executive report</button>
+            <button class="btn" id="downloadPdfBtn" type="button">Download executive report PDF</button>
+            <button class="btn" id="downloadReportBtn" type="button">Download report HTML</button>
+            <a id="reportDownloadLink" class="hidden-download" download="monderman-cross-diagnostic-synthesis-report.html"></a>
+          </div>
+
+          <section class="results-disclaimer" style="margin-top:16px;">
+            This synthesis report is directional, based on uploaded diagnostic results and user-provided source inputs. It is intended to support leadership discussion and advisory review, not replace independent judgment or audited analysis.
+          </section>
         </div>
       </section>
 
@@ -994,10 +1153,234 @@
         `This synthesis is directional and based on ${Array.isArray(result.source_results) ? result.source_results.length : 0} uploaded diagnostic result${Array.isArray(result.source_results) && result.source_results.length === 1 ? "" : "s"} in the current browser session.`;
     }
 
+    function nowLabel() {
+      return new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+    }
+
+    function buildExecutiveSummary(result) {
+      const toolsCount = Array.isArray(result.source_results) ? result.source_results.length : 0;
+      const annualCost = formatCurrency(result.compounded_exposure?.annual_cost);
+      const annualHours = formatNumber(result.compounded_exposure?.annual_hours);
+      const drag = Number.isFinite(Number(result.compounded_exposure?.capacity_drag_percent))
+        ? `${Math.round(Number(result.compounded_exposure?.capacity_drag_percent))}%`
+        : "—";
+
+      const headline = result.primary_pattern || "Multiple diagnostics point to a shared administrative reality pattern.";
+      const body = result.narrative?.executive_summary ||
+        `This synthesis combines ${toolsCount} source diagnostics into one directional read. Current exposure suggests roughly ${annualHours} annual hours, ${annualCost} in labor exposure, and about ${drag} capacity drag.`;
+
+      return { headline, body };
+    }
+
+    function buildExecutiveReportHtml(result) {
+      const safe = (v) => escapeHtml(v == null ? "" : String(v));
+      const summary = buildExecutiveSummary(result);
+      const generated = nowLabel();
+      const tools = Array.isArray(result.source_results) ? result.source_results.map(r => r.tool_label || r.tool_type).join(", ") : "Uploaded diagnostics";
+      const annualHours = formatNumber(result.compounded_exposure?.annual_hours);
+      const annualCost = formatCurrency(result.compounded_exposure?.annual_cost);
+      const drag = Number.isFinite(Number(result.compounded_exposure?.capacity_drag_percent))
+        ? `${Math.round(Number(result.compounded_exposure?.capacity_drag_percent))}%`
+        : "—";
+
+      const actions = (result.priority_actions || []).map(item => `<li>${safe(item)}</li>`).join("");
+      const signals = (result.convergence_signals || []).map(item => `<li>${safe(item)}</li>`).join("");
+      const contradictions = (result.contradictions || []).length
+        ? (result.contradictions || []).map(item => `<li>${safe(item)}</li>`).join("")
+        : "<li>No major contradiction signals were returned in this run.</li>";
+
+      return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Monderman | Cross-Diagnostic Synthesis Executive Report</title>
+<style>
+  :root{--ink:#15202B;--soft:#5B6774;--muted:#7C8794;--accent:#3F6EA1;--line:#D8E0EA;--paper:#ffffff;--page:#F6F8FB}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--page);color:var(--ink);font-family:Georgia, "Times New Roman", serif}
+  .page{max-width:920px;margin:0 auto;background:var(--paper);padding:54px 68px 64px;box-shadow:0 18px 48px rgba(15,23,32,.08)}
+  .mast{font-family:"Helvetica Neue",Arial,sans-serif;font-size:.78rem;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+  .rule{height:2px;background:var(--accent);opacity:.22;margin:10px 0 28px}
+  h1,h2,h3{font-family:"Helvetica Neue",Arial,sans-serif;color:var(--ink);margin:0}
+  h1{font-size:2.25rem;line-height:1.02;letter-spacing:-.04em}
+  h2{font-size:1.18rem;line-height:1.18;letter-spacing:-.02em;margin-top:34px}
+  h3{font-size:.97rem;line-height:1.2;margin-top:18px}
+  p{font-size:1rem;line-height:1.75;color:var(--ink);margin:0 0 14px}
+  .sub{color:var(--soft);max-width:42em}
+  .meta{display:flex;flex-wrap:wrap;gap:10px 14px;margin:18px 0 0;font-family:"Helvetica Neue",Arial,sans-serif;font-size:.83rem;color:var(--soft)}
+  .cover-score{margin-top:30px;padding:18px 0 0;border-top:1px solid var(--line)}
+  .score-line{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;font-family:"Helvetica Neue",Arial,sans-serif}
+  .score-num{font-size:4rem;line-height:.9;font-weight:700;letter-spacing:-.08em;color:var(--ink)}
+  .score-band{font-size:1rem;color:var(--soft);padding-bottom:8px}
+  .callout{margin:18px 0;padding:18px 20px;border-left:4px solid var(--accent);background:#F8FAFD}
+  .kvs{display:grid;grid-template-columns:190px 1fr;gap:8px 20px;margin:16px 0 8px}
+  .kvs div{font-size:.98rem;line-height:1.7}
+  .kvs .k{font-family:"Helvetica Neue",Arial,sans-serif;color:var(--muted)}
+  ul{margin:8px 0 0 20px;padding:0}
+  li{margin:0 0 8px;line-height:1.7}
+  .footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);font-size:.85rem;color:var(--soft)}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px;font-family:"Helvetica Neue",Arial,sans-serif}
+  .btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 16px;border-radius:999px;border:1px solid #C8D3E0;background:#fff;color:#15202B;cursor:pointer;font-size:.92rem}
+  .btn.primary{background:#3F6EA1;color:#fff;border-color:#3F6EA1}
+  @media print{body{background:#fff}.page{box-shadow:none;max-width:none;padding:34px 42px}.actions{display:none!important}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="mast">Monderman • Cross-Diagnostic Synthesis</div>
+  <div class="rule"></div>
+  <h1>Cross-Diagnostic Synthesis Executive Report</h1>
+  <p class="sub">A combined leadership read across uploaded Monderman diagnostics, designed to surface the primary shared pattern, contradictions, and first-move action sequence.</p>
+  <div class="meta">
+    <span>Generated: ${safe(generated)}</span>
+    <span>Source tools: ${safe(tools)}</span>
+    <span>Condition: ${safe(result.condition_band || "—")}</span>
+  </div>
+
+  <div class="cover-score">
+    <div class="score-line">
+      <div class="score-num">${safe(result.cross_diagnostic_score ?? "—")}</div>
+      <div class="score-band">${safe(result.condition_band || "—")}</div>
+    </div>
+    <p>${safe(summary.body)}</p>
+  </div>
+
+  <h2>1. Executive summary</h2>
+  <p>${safe(summary.headline)}</p>
+  <div class="callout">
+    <p><strong>Bottom line for leadership.</strong> ${safe(result.narrative?.leadership_implication || result.primary_pattern || "No leadership implication returned.")}</p>
+  </div>
+
+  <div class="kvs">
+    <div class="k">Primary pattern</div><div>${safe(result.primary_pattern || "—")}</div>
+    <div class="k">Annual hours*</div><div>${safe(annualHours)}</div>
+    <div class="k">Annual cost*</div><div>${safe(annualCost)}</div>
+    <div class="k">Capacity drag*</div><div>${safe(drag)}</div>
+  </div>
+
+  <h2>2. Convergence signals</h2>
+  <ul>${signals || "<li>No convergence signals returned.</li>"}</ul>
+
+  <h2>3. Contradictions</h2>
+  <ul>${contradictions}</ul>
+
+  <h2>4. Priority actions</h2>
+  <ul>${actions || "<li>No priority actions returned.</li>"}</ul>
+
+  <h2>5. Sequencing logic</h2>
+  <p>${safe(result.narrative?.sequenced_action_logic || "No sequencing logic returned.")}</p>
+
+  <h2>6. Conclusion and next step</h2>
+  <p>This synthesis should be treated as a directional institutional read, not a substitute for independent review or audited analysis. Its strongest value is in clarifying where multiple diagnostics are pointing to the same underlying administrative reality.</p>
+
+  <div class="footer">* All figures, including time, cost, and capacity estimates, are directional estimates derived from uploaded diagnostic results and user-provided source inputs.</div>
+  <div class="actions">
+    <button class="btn primary" onclick="window.print()">Save / Print PDF</button>
+    <button class="btn" onclick="window.close()">Close report</button>
+  </div>
+</div>
+</body>
+</html>`;
+    }
+
+    function buildExecutiveReportFilename(result) {
+      const tools = Array.isArray(result.source_results)
+        ? result.source_results.map(r => r.tool_type || "tool").join("-")
+        : "cross-diagnostic-synthesis";
+      const base = String(tools).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "cross-diagnostic-synthesis";
+      return `monderman-${base}-executive-report.html`;
+    }
+
+    function createExecutiveReportArtifact(result) {
+      const html = buildExecutiveReportHtml(result);
+      const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+      const filename = buildExecutiveReportFilename(result);
+      return { html, blob, filename };
+    }
+
+    function openExecutiveReport(result) {
+      const artifact = createExecutiveReportArtifact(result);
+      const url = URL.createObjectURL(artifact.blob);
+      window.open(url, "_blank", "noopener,noreferrer");
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    }
+
+    function downloadExecutiveReportHtml(result) {
+      const artifact = createExecutiveReportArtifact(result);
+      const link = document.getElementById("reportDownloadLink");
+      if (!link) return;
+      const url = URL.createObjectURL(artifact.blob);
+      link.href = url;
+      link.download = artifact.filename;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    }
+
+    function downloadExecutiveReportPdf(result) {
+      openExecutiveReport(result);
+    }
+
+    function bindExportActions(result) {
+      const exportBtn = document.getElementById("exportBtn");
+      const downloadPdfBtn = document.getElementById("downloadPdfBtn");
+      const downloadReportBtn = document.getElementById("downloadReportBtn");
+
+      if (exportBtn) exportBtn.onclick = () => openExecutiveReport(result);
+      if (downloadPdfBtn) downloadPdfBtn.onclick = () => downloadExecutiveReportPdf(result);
+      if (downloadReportBtn) downloadReportBtn.onclick = () => downloadExecutiveReportHtml(result);
+    }
+
     document.getElementById("clearSavedDataBtn").addEventListener("click", () => {
       sessionStorage.removeItem(SYNTHESIS_STORAGE_KEY);
       window.location.reload();
     });
+
+    const _initSynthesisPageOriginal = initSynthesisPage;
+    initSynthesisPage = function () {
+      _initSynthesisPageOriginal();
+      const result = loadSynthesisResult();
+      if (!result) return;
+
+      document.getElementById("executiveReportPanel").classList.remove("hidden");
+
+      const summary = buildExecutiveSummary(result);
+      document.getElementById("reportSubtitle").textContent =
+        result.narrative?.executive_summary || "Leadership-ready executive summary.";
+      document.getElementById("metaTools").textContent =
+        `Tools: ${Array.isArray(result.source_results) ? result.source_results.length : 0}`;
+      document.getElementById("metaCondition").textContent =
+        `Condition: ${result.condition_band || "—"}`;
+      document.getElementById("metaDate").textContent =
+        `Generated: ${nowLabel()}`;
+
+      document.getElementById("execSummaryHeadline").textContent = summary.headline;
+      document.getElementById("execSummaryBody").textContent = summary.body;
+      document.getElementById("exportMetaCondition").textContent =
+        `Condition: ${result.condition_band || "—"}`;
+      document.getElementById("exportMetaPattern").textContent =
+        `Pattern: ${result.primary_pattern || "—"}`;
+      document.getElementById("exportMetaExposure").textContent =
+        `Exposure: ${formatCurrency(result.compounded_exposure?.annual_cost)} / ${Number.isFinite(Number(result.compounded_exposure?.capacity_drag_percent)) ? `${Math.round(Number(result.compounded_exposure?.capacity_drag_percent))}% drag` : "—"}`;
+
+      document.getElementById("execMeaningText").textContent =
+        result.narrative?.leadership_implication || result.primary_pattern || "No meaning text returned.";
+      document.getElementById("execImplicationText").textContent =
+        result.narrative?.executive_summary || "No executive summary returned.";
+      document.getElementById("execSequencingText").textContent =
+        result.narrative?.sequenced_action_logic || "No sequencing logic returned.";
+
+      renderActions(result.priority_actions || ["No priority actions returned."]);
+      const execActions = document.getElementById("execSummaryActions");
+      execActions.innerHTML = "";
+      (result.priority_actions || []).forEach((action) => {
+        const li = document.createElement("li");
+        li.textContent = action;
+        execActions.appendChild(li);
+      });
+
+      bindExportActions(result);
+    };
 
     initSynthesisPage();
   </script>
