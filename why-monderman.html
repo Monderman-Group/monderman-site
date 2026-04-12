@@ -1136,43 +1136,15 @@
 
     .cycle-figure-header,
     .cycle-diagram-hub {
-      position: relative;
-      z-index: 1;
-    }
-
-    .cycle-figure-header { margin-bottom: 10px; }
-
-    .cycle-figure-kicker {
-      margin: 0 0 10px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
-
-    .cycle-figure-title {
-      margin: 0;
-      max-width: 12ch;
-      font-size: 1.28rem;
-      line-height: 1.06;
-      font-weight: 700;
-      letter-spacing: -0.042em;
-      color: var(--text-dark);
-      text-wrap: balance;
-    }
-
-    .cycle-diagram-hub {
-      --hub-size: 520px;
-      --ring-size: 336px;
-      --center-size: 136px;
-      --node-width: 172px;
-      --node-height: 58px;
+      --hub-size: 560px;
+      --ring-size: 344px;
+      --center-size: 124px;
+      --node-width: 194px;
+      --node-height: 64px;
       position: relative;
       width: min(100%, var(--hub-size));
       height: var(--hub-size);
-      margin: 6px auto 0;
+      margin: 8px auto 0;
     }
 
     .cycle-svg {
@@ -1199,21 +1171,21 @@
     .cycle-ring::after {
       content: "";
       position: absolute;
-      background: rgba(63, 110, 161, 0.18);
+      background: rgba(63, 110, 161, 0.16);
     }
 
     .cycle-ring::before {
       left: 50%;
-      top: -18px;
+      top: -26px;
       width: 1px;
-      height: calc(100% + 36px);
+      height: calc(100% + 52px);
       transform: translateX(-50%);
     }
 
     .cycle-ring::after {
       top: 50%;
-      left: -18px;
-      width: calc(100% + 36px);
+      left: -26px;
+      width: calc(100% + 52px);
       height: 1px;
       transform: translateY(-50%);
     }
@@ -1224,7 +1196,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      text-align: center;
       background: #FFFFFF;
       color: var(--text-dark);
       border: 1px solid rgba(21, 32, 43, 0.12);
@@ -1233,22 +1204,27 @@
     .cycle-node {
       width: var(--node-width);
       min-height: var(--node-height);
-      padding: 8px 12px;
+      padding: 0 16px;
       border-radius: 16px;
       font-size: 0.9rem;
-      line-height: 1.08;
+      line-height: 1.05;
       font-weight: 600;
       letter-spacing: -0.02em;
+      justify-content: space-between;
+      gap: 12px;
+      text-align: left;
       opacity: 0;
       visibility: hidden;
-      transform: scale(0.96);
-      transition: opacity var(--transition), transform var(--transition), border-color var(--transition), background var(--transition);
+      transition:
+        opacity 240ms ease,
+        transform 240ms ease,
+        border-color var(--transition),
+        background var(--transition);
     }
 
     .cycle-diagram-hub.is-open .cycle-node {
       opacity: 1;
       visibility: visible;
-      transform: scale(1);
     }
 
     .cycle-node:hover,
@@ -1258,14 +1234,55 @@
       outline: none;
     }
 
-    .cycle-node-top { left: 50%; top: 22px; transform: translateX(-50%) scale(0.96); }
-    .cycle-node-right { right: 6px; top: 50%; transform: translateY(-50%) scale(0.96); }
-    .cycle-node-bottom { left: 50%; bottom: 22px; transform: translateX(-50%) scale(0.96); }
-    .cycle-node-left { left: 6px; top: 50%; transform: translateY(-50%) scale(0.96); }
-    .cycle-diagram-hub.is-open .cycle-node-top { transform: translateX(-50%) scale(1); }
-    .cycle-diagram-hub.is-open .cycle-node-right { transform: translateY(-50%) scale(1); }
-    .cycle-diagram-hub.is-open .cycle-node-bottom { transform: translateX(-50%) scale(1); }
-    .cycle-diagram-hub.is-open .cycle-node-left { transform: translateY(-50%) scale(1); }
+    .cycle-node-label {
+      display: block;
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .cycle-node-cue {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 auto;
+      border: 1px solid rgba(63, 110, 161, 0.34);
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.64rem;
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: 0;
+      color: var(--accent);
+      background: rgba(255, 255, 255, 0.96);
+      opacity: 0.92;
+    }
+
+    .cycle-diagram-hub.is-open .cycle-node-cue {
+      animation: cycleCuePulse 2.8s ease-in-out infinite;
+    }
+
+    .cycle-node.is-active .cycle-node-cue,
+    .cycle-node:hover .cycle-node-cue,
+    .cycle-node:focus-visible .cycle-node-cue {
+      animation: none;
+      background: rgba(63, 110, 161, 0.08);
+      border-color: rgba(63, 110, 161, 0.46);
+    }
+
+    @keyframes cycleCuePulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(63, 110, 161, 0.0); }
+      50% { box-shadow: 0 0 0 4px rgba(63, 110, 161, 0.10); }
+    }
+
+    .cycle-node-top { left: 50%; top: 26px; transform: translateX(-50%) translateY(6px); }
+    .cycle-node-right { right: 6px; top: 50%; transform: translateY(-50%) translateX(8px); }
+    .cycle-node-bottom { left: 50%; bottom: 26px; transform: translateX(-50%) translateY(-6px); }
+    .cycle-node-left { left: 6px; top: 50%; transform: translateY(-50%) translateX(-8px); }
+    .cycle-diagram-hub.is-open .cycle-node-top { transform: translateX(-50%) translateY(0); }
+    .cycle-diagram-hub.is-open .cycle-node-right { transform: translateY(-50%) translateX(0); }
+    .cycle-diagram-hub.is-open .cycle-node-bottom { transform: translateX(-50%) translateY(0); }
+    .cycle-diagram-hub.is-open .cycle-node-left { transform: translateY(-50%) translateX(0); }
 
     .cycle-center {
       left: 50%;
@@ -1274,10 +1291,10 @@
       height: var(--center-size);
       transform: translate(-50%, -50%);
       border-radius: 50%;
-      padding: 16px;
+      padding: 14px;
       flex-direction: column;
       border: 1px solid rgba(63, 110, 161, 0.22);
-      box-shadow: 0 0 0 10px rgba(63, 110, 161, 0.05);
+      box-shadow: 0 0 0 6px rgba(63, 110, 161, 0.04);
       cursor: pointer;
       z-index: 2;
     }
@@ -1285,17 +1302,17 @@
     .cycle-center::after {
       content: "";
       position: absolute;
-      inset: -12px;
+      inset: -9px;
       border-radius: 50%;
-      border: 1px solid rgba(63, 110, 161, 0.22);
-      opacity: 0.38;
-      animation: mondermanPulse 3.2s ease-in-out infinite;
+      border: 1px solid rgba(63, 110, 161, 0.20);
+      opacity: 0.28;
+      animation: mondermanPulse 3.4s ease-in-out infinite;
       pointer-events: none;
     }
 
     @keyframes mondermanPulse {
-      0%, 100% { transform: scale(0.98); opacity: 0.18; }
-      50% { transform: scale(1.04); opacity: 0.34; }
+      0%, 100% { transform: scale(0.985); opacity: 0.16; }
+      50% { transform: scale(1.025); opacity: 0.28; }
     }
 
     .cycle-center:hover,
@@ -1305,8 +1322,8 @@
     }
 
     .cycle-center-kicker {
-      margin: 0 0 7px;
-      font-size: 0.6rem;
+      margin: 0 0 6px;
+      font-size: 0.58rem;
       font-weight: 700;
       line-height: 1;
       letter-spacing: 0.20em;
@@ -1316,26 +1333,28 @@
 
     .cycle-center-title {
       margin: 0;
-      font-size: 0.92rem;
-      line-height: 1.05;
+      font-size: 0.84rem;
+      line-height: 1.04;
       font-weight: 700;
-      letter-spacing: -0.028em;
+      letter-spacing: -0.024em;
       text-wrap: balance;
-      max-width: 9ch;
+      max-width: 8ch;
+      text-align: center;
     }
 
     .cycle-hint {
-      margin: 16px 0 0;
-      font-size: 0.84rem;
-      line-height: 1.5;
+      margin: 18px 0 0;
+      font-size: 0.86rem;
+      line-height: 1.56;
       color: var(--muted-dark);
+      max-width: 38ch;
     }
 
     .cycle-panel-wrap {
       display: grid;
       gap: 16px;
       align-content: start;
-      padding-top: 6px;
+      padding-top: 32px;
     }
 
     .cycle-panel {
@@ -1355,6 +1374,8 @@
       border-radius: 999px;
       background: linear-gradient(90deg, rgba(63, 110, 161, 0.92) 0%, rgba(63, 110, 161, 0.34) 100%);
       margin-bottom: 18px;
+      transition: transform 260ms ease, opacity 260ms ease;
+      transform-origin: left center;
     }
 
     .cycle-panel-kicker {
@@ -1388,6 +1409,26 @@
     .cycle-panel-body p { margin: 0; }
     .cycle-panel-body p + p { margin-top: 12px; }
 
+    .cycle-panel.is-refreshing .cycle-panel-kicker,
+    .cycle-panel.is-refreshing h3,
+    .cycle-panel.is-refreshing .cycle-panel-body {
+      animation: cyclePanelRefresh 380ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .cycle-panel.is-refreshing .cycle-panel-topline {
+      animation: cyclePanelLine 420ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes cyclePanelRefresh {
+      0% { opacity: 0.18; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes cyclePanelLine {
+      0% { opacity: 0.3; transform: scaleX(0.72); }
+      100% { opacity: 1; transform: scaleX(1); }
+    }
+
     .cycle-support {
       position: relative;
       margin: 0;
@@ -1412,7 +1453,6 @@
       border-radius: 999px;
       background: linear-gradient(180deg, rgba(63, 110, 161, 0.82) 0%, rgba(63, 110, 161, 0.24) 100%);
     }
-
 @media (prefers-reduced-motion: reduce) {
       html {
         scroll-behavior: auto;
@@ -1969,18 +2009,30 @@
                   <p class="cycle-center-title">Reality shifts</p>
                 </button>
 
-                <button class="cycle-node cycle-node-top" id="cycleNodeTop" type="button" data-cycle-key="structured">Structured Input</button>
-                <button class="cycle-node cycle-node-right" id="cycleNodeRight" type="button" data-cycle-key="signal">Diagnostic Signal</button>
-                <button class="cycle-node cycle-node-bottom" id="cycleNodeBottom" type="button" data-cycle-key="response">Leadership Response</button>
-                <button class="cycle-node cycle-node-left" id="cycleNodeLeft" type="button" data-cycle-key="conditions">Changed Conditions</button>
+                <button class="cycle-node cycle-node-top" id="cycleNodeTop" type="button" data-cycle-key="structured">
+                  <span class="cycle-node-label">Structured Input</span>
+                  <span class="cycle-node-cue" aria-hidden="true">i</span>
+                </button>
+                <button class="cycle-node cycle-node-right" id="cycleNodeRight" type="button" data-cycle-key="signal">
+                  <span class="cycle-node-label">Diagnostic Signal</span>
+                  <span class="cycle-node-cue" aria-hidden="true">i</span>
+                </button>
+                <button class="cycle-node cycle-node-bottom" id="cycleNodeBottom" type="button" data-cycle-key="response">
+                  <span class="cycle-node-label">Leadership Response</span>
+                  <span class="cycle-node-cue" aria-hidden="true">i</span>
+                </button>
+                <button class="cycle-node cycle-node-left" id="cycleNodeLeft" type="button" data-cycle-key="conditions">
+                  <span class="cycle-node-label">Changed Conditions</span>
+                  <span class="cycle-node-cue" aria-hidden="true">i</span>
+                </button>
               </div>
 
-              <p class="cycle-hint">Click the center node to reveal the cycle, then select a step to view its explanation.</p>
+              <p class="cycle-hint">Click the center node to reveal the steps. Then select a step to update the explanation.</p>
             </div>
           </div>
 
           <div class="cycle-panel-wrap">
-            <div class="cycle-panel" id="cyclePanel">
+            <div class="cycle-panel" id="cyclePanel" aria-live="polite">
               <div class="cycle-panel-topline" aria-hidden="true"></div>
               <p class="cycle-panel-kicker" id="cyclePanelKicker">Center signal</p>
               <h3 id="cyclePanelTitle">Administrative reality evolves</h3>
@@ -2139,10 +2191,24 @@
     const cycleDiagramHub = document.getElementById("cycleDiagramHub");
     const cycleCenterButton = document.getElementById("cycleCenterButton");
     const cycleNodeButtons = document.querySelectorAll(".cycle-node[data-cycle-key]");
+    const cyclePanel = document.getElementById("cyclePanel");
     const cyclePanelKicker = document.getElementById("cyclePanelKicker");
     const cyclePanelTitle = document.getElementById("cyclePanelTitle");
     const cyclePanelBody = document.getElementById("cyclePanelBody");
     const cyclePanelBodySecondary = document.getElementById("cyclePanelBodySecondary");
+
+    function animateCyclePanel() {
+      if (!cyclePanel) return;
+      cyclePanel.classList.remove("is-refreshing");
+      void cyclePanel.offsetWidth;
+      cyclePanel.classList.add("is-refreshing");
+      window.setTimeout(() => cyclePanel.classList.remove("is-refreshing"), 420);
+    }
+
+    function maybeRevealPanelOnSmallScreen() {
+      if (!cyclePanel || window.innerWidth > 1180) return;
+      cyclePanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
 
     function setCyclePanel(key) {
       const content = cycleContent[key];
@@ -2154,6 +2220,8 @@
       cycleNodeButtons.forEach((button) => {
         button.classList.toggle("is-active", button.dataset.cycleKey === key);
       });
+      animateCyclePanel();
+      maybeRevealPanelOnSmallScreen();
     }
 
     function toggleCycle(open) {
