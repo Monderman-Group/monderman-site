@@ -1087,10 +1087,10 @@
 
 
 
-    .learning-cycle-shell {
+     .learning-cycle-shell {
       margin-top: 34px;
       padding: 34px;
-      background: linear-gradient(180deg, rgba(63, 110, 161, 0.06) 0%, rgba(63, 110, 161, 0.028) 100%);
+      background: linear-gradient(180deg, rgba(63, 110, 161, 0.04) 0%, rgba(63, 110, 161, 0.02) 100%);
       border: 1px solid rgba(21, 32, 43, 0.08);
       border-radius: 26px;
       box-shadow: var(--soft-shadow);
@@ -1098,9 +1098,9 @@
 
     .learning-cycle-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 34px;
-      align-items: stretch;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 0.96fr);
+      gap: 38px;
+      align-items: start;
     }
 
     .cycle-figure {
@@ -1112,8 +1112,8 @@
 
     .cycle-frame {
       position: relative;
-      min-height: 520px;
-      padding: 26px 24px 22px;
+      min-height: 560px;
+      padding: 24px 24px 20px;
       background: rgba(255, 255, 255, 0.98);
       border: 1px solid rgba(21, 32, 43, 0.08);
       border-radius: 22px;
@@ -1126,11 +1126,12 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(circle at 22% 18%, rgba(63, 110, 161, 0.07), transparent 30%),
-        linear-gradient(135deg, rgba(63, 110, 161, 0.022) 1px, transparent 1px);
-      background-size: auto, 22px 22px;
+        linear-gradient(90deg, rgba(21, 32, 43, 0.025) 1px, transparent 1px),
+        linear-gradient(rgba(21, 32, 43, 0.025) 1px, transparent 1px);
+      background-size: 26px 26px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.18), transparent 42%);
       pointer-events: none;
-      opacity: 0.7;
+      opacity: 0.55;
     }
 
     .cycle-figure-header,
@@ -1140,12 +1141,10 @@
       z-index: 1;
     }
 
-    .cycle-figure-header {
-      margin-bottom: 10px;
-    }
+    .cycle-figure-header { margin-bottom: 8px; }
 
     .cycle-figure-kicker {
-      margin: 0 0 8px;
+      margin: 0 0 10px;
       font-size: 0.72rem;
       font-weight: 700;
       line-height: 1;
@@ -1156,21 +1155,20 @@
 
     .cycle-figure-title {
       margin: 0;
-      max-width: 16ch;
-      font-size: 1.26rem;
+      max-width: 15ch;
+      font-size: 1.22rem;
       line-height: 1.08;
       font-weight: 700;
-      letter-spacing: -0.042em;
+      letter-spacing: -0.04em;
       color: var(--text-dark);
       text-wrap: balance;
     }
 
-    
-.cycle-diagram {
+    .cycle-diagram {
       position: relative;
-      width: min(100%, 520px);
+      width: min(100%, 540px);
       aspect-ratio: 1 / 1;
-      margin: 10px auto 0;
+      margin: 8px auto 0;
     }
 
     .cycle-svg {
@@ -1189,90 +1187,47 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      background: rgba(255, 255, 255, 0.995);
+      background: #FFFFFF;
       color: var(--text-dark);
-      isolation: isolate;
-    }
-
-    .cycle-node::before,
-    .cycle-center::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,251,0.98) 100%);
-      z-index: -1;
+      border: 1px solid rgba(21, 32, 43, 0.12);
     }
 
     .cycle-node {
-      min-width: 164px;
-      min-height: 78px;
-      padding: 14px 16px;
-      border-radius: 18px;
-      font-size: 0.92rem;
-      line-height: 1.14;
+      min-width: 168px;
+      min-height: 60px;
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 0.9rem;
+      line-height: 1.12;
       font-weight: 600;
-      letter-spacing: -0.024em;
-      border: 1.5px solid rgba(21, 32, 43, 0.10);
-      box-shadow:
-        0 1px 0 rgba(255,255,255,0.95) inset,
-        0 14px 30px rgba(21, 32, 43, 0.05);
+      letter-spacing: -0.02em;
     }
 
-    .cycle-node-static {
-      cursor: default;
-    }
-
-    .cycle-node-button,
-    .cycle-center-button {
-      cursor: pointer;
-      transition:
-        transform var(--transition),
-        box-shadow var(--transition),
-        border-color var(--transition),
-        background var(--transition);
-    }
-
-    .cycle-node-button:hover,
-    .cycle-node-button:focus-visible,
-    .cycle-center-button:hover,
-    .cycle-center-button:focus-visible {
-      transform: translateY(-2px);
-      border-color: rgba(63, 110, 161, 0.32);
-      box-shadow:
-        0 1px 0 rgba(255,255,255,0.95) inset,
-        0 18px 34px rgba(21, 32, 43, 0.08);
-      outline: none;
-    }
-
-    .cycle-node-button.is-active,
-    .cycle-center-button.is-active {
-      border-color: rgba(63, 110, 161, 0.32);
-      box-shadow:
-        0 0 0 4px rgba(63, 110, 161, 0.08),
-        0 1px 0 rgba(255,255,255,0.95) inset,
-        0 16px 34px rgba(21, 32, 43, 0.08);
-      background: #FFFFFF;
+    .cycle-node-detail {
+      display: block;
+      margin-top: 4px;
+      font-size: 0.68rem;
+      line-height: 1.35;
+      color: var(--muted-dark);
+      font-weight: 400;
+      letter-spacing: -0.01em;
     }
 
     .cycle-center {
       left: 50%;
       top: 50%;
-      width: 170px;
-      height: 118px;
+      width: 186px;
+      height: 186px;
       transform: translate(-50%, -50%);
-      border-radius: 22px;
-      padding: 16px 18px;
+      border-radius: 50%;
+      padding: 18px;
       flex-direction: column;
-      border: 1.5px solid rgba(63, 110, 161, 0.18);
-      box-shadow:
-        0 0 0 6px rgba(63, 110, 161, 0.045),
-        0 18px 36px rgba(21, 32, 43, 0.08);
-      background: rgba(255,255,255,0.998);
+      border: 1px solid rgba(63, 110, 161, 0.22);
+      box-shadow: 0 0 0 14px rgba(63, 110, 161, 0.06);
     }
 
     .cycle-center-kicker {
-      margin: 0 0 7px;
+      margin: 0 0 8px;
       font-size: 0.62rem;
       font-weight: 700;
       line-height: 1;
@@ -1283,25 +1238,28 @@
 
     .cycle-center-title {
       margin: 0;
-      font-size: 0.96rem;
-      line-height: 1.06;
+      font-size: 1.02rem;
+      line-height: 1.04;
       font-weight: 700;
-      letter-spacing: -0.032em;
+      letter-spacing: -0.03em;
       text-wrap: balance;
       max-width: 10ch;
     }
 
-    .cycle-node-top { left: 50%; top: 2%; transform: translateX(-50%); }
-    .cycle-node-right { right: 1%; top: 50%; transform: translateY(-50%); }
-    .cycle-node-bottom { left: 50%; bottom: 2%; transform: translateX(-50%); }
-    .cycle-node-left { left: 1%; top: 50%; transform: translateY(-50%); }
+    .cycle-center-detail {
+      display: block;
+      margin-top: 8px;
+      max-width: 14ch;
+      font-size: 0.66rem;
+      line-height: 1.4;
+      color: var(--muted-dark);
+      font-weight: 400;
+    }
 
-    .cycle-node-button.cycle-node-right:hover,
-    .cycle-node-button.cycle-node-right:focus-visible,
-    .cycle-node-button.cycle-node-right.is-active { transform: translateY(-50%) translateY(-2px); }
-    .cycle-node-button.cycle-node-bottom:hover,
-    .cycle-node-button.cycle-node-bottom:focus-visible,
-    .cycle-node-button.cycle-node-bottom.is-active { transform: translateX(-50%) translateY(-2px); }
+    .cycle-node-top { left: 50%; top: 5%; transform: translateX(-50%); }
+    .cycle-node-right { right: 2%; top: 50%; transform: translateY(-50%); }
+    .cycle-node-bottom { left: 50%; bottom: 5%; transform: translateX(-50%); }
+    .cycle-node-left { left: 2%; top: 50%; transform: translateY(-50%); }
 
     .cycle-explanatory-strip {
       display: flex;
@@ -1309,22 +1267,17 @@
       justify-content: space-between;
       gap: 16px;
       margin-top: 18px;
-      padding: 16px 18px;
+      padding: 14px 16px;
       background: rgba(246, 248, 250, 0.96);
       border: 1px solid rgba(21, 32, 43, 0.08);
       border-radius: 14px;
     }
 
-    .cycle-explanatory-item {
-      flex: 1 1 0;
-      min-width: 0;
-    }
-
+    .cycle-explanatory-item { flex: 1 1 0; min-width: 0; }
     .cycle-explanatory-item + .cycle-explanatory-item {
       position: relative;
       padding-left: 16px;
     }
-
     .cycle-explanatory-item + .cycle-explanatory-item::before {
       content: "";
       position: absolute;
@@ -1334,7 +1287,6 @@
       width: 1px;
       background: rgba(21, 32, 43, 0.08);
     }
-
     .cycle-explanatory-item strong {
       display: block;
       margin-bottom: 4px;
@@ -1343,7 +1295,6 @@
       color: var(--text-dark);
       letter-spacing: -0.012em;
     }
-
     .cycle-explanatory-item span {
       display: block;
       font-size: 0.77rem;
@@ -1359,26 +1310,13 @@
 
     .cycle-panel {
       position: relative;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.995) 0%, rgba(251, 252, 253, 0.98) 100%);
+      background: #FFFFFF;
       border: 1px solid rgba(21, 32, 43, 0.08);
       border-radius: 24px;
       padding: 30px 34px 28px;
-      box-shadow: 0 14px 32px rgba(21, 32, 43, 0.045), var(--soft-shadow);
+      box-shadow: var(--soft-shadow);
       min-height: 0;
       overflow: hidden;
-    }
-
-    .cycle-panel::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at 100% 0%, rgba(63, 110, 161, 0.06), transparent 34%);
-      pointer-events: none;
-    }
-
-    .cycle-panel > * {
-      position: relative;
-      z-index: 1;
     }
 
     .cycle-panel-topline {
@@ -1401,29 +1339,24 @@
 
     .cycle-panel h3 {
       margin: 0 0 18px;
-      font-size: 1.66rem;
+      font-size: 1.62rem;
       line-height: 0.98;
       font-weight: 700;
       color: var(--text-dark);
       letter-spacing: -0.055em;
       text-wrap: balance;
-      max-width: 12ch;
+      max-width: 11ch;
     }
 
     .cycle-panel-body {
-      max-width: 34ch;
-      font-size: 1.01rem;
-      line-height: 1.78;
+      max-width: 35ch;
+      font-size: 1rem;
+      line-height: 1.82;
       color: var(--muted-dark);
     }
 
-    .cycle-panel-body p {
-      margin: 0;
-    }
-
-    .cycle-panel-body p + p {
-      margin-top: 14px;
-    }
+    .cycle-panel-body p { margin: 0; }
+    .cycle-panel-body p + p { margin-top: 14px; }
 
     .cycle-support {
       position: relative;
@@ -1433,7 +1366,7 @@
       font-size: 0.96rem;
       line-height: 1.72;
       color: var(--muted-dark);
-      background: rgba(255, 255, 255, 0.72);
+      background: rgba(255, 255, 255, 0.78);
       border: 1px solid rgba(21, 32, 43, 0.06);
       border-radius: 18px;
       box-shadow: var(--soft-shadow);
@@ -1449,8 +1382,7 @@
       border-radius: 999px;
       background: linear-gradient(180deg, rgba(63, 110, 161, 0.82) 0%, rgba(63, 110, 161, 0.24) 100%);
     }
-
-    @media (prefers-reduced-motion: reduce) {
+@media (prefers-reduced-motion: reduce) {
       html {
         scroll-behavior: auto;
       }
@@ -1637,24 +1569,33 @@
       }
 
       .cycle-center {
-        width: 132px;
-        height: 96px;
-        padding: 12px 10px;
+        width: 140px;
+        height: 140px;
+        padding: 12px;
+        box-shadow: 0 0 0 10px rgba(63, 110, 161, 0.06);
       }
 
       .cycle-center-title {
-        font-size: 0.78rem;
+        font-size: 0.8rem;
+      }
+
+      .cycle-center-detail {
+        font-size: 0.58rem;
       }
 
       .cycle-node {
-        min-width: 112px;
-        min-height: 58px;
+        min-width: 118px;
+        min-height: 56px;
         padding: 8px 10px;
         font-size: 0.72rem;
       }
 
-      .cycle-node-top { top: 1.5%; }
-      .cycle-node-bottom { bottom: 1.5%; }
+      .cycle-node-detail {
+        display: none;
+      }
+
+      .cycle-node-top { top: 2%; }
+      .cycle-node-bottom { bottom: 2%; }
       .cycle-node-left { left: 0; }
       .cycle-node-right { right: 0; }
 
@@ -1972,34 +1913,36 @@
               </div>
 
               <div class="cycle-diagram">
-                <svg class="cycle-svg" viewBox="0 0 470 470" aria-hidden="true">
+                <svg class="cycle-svg" viewBox="0 0 540 540" aria-hidden="true">
                   <defs>
-                    <marker id="cycleArrowBlue" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse">
-                      <path d="M0 0 L12 6 L0 12 Z" fill="#3F6EA1"></path>
+                    <marker id="cycleArrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+                      <path d="M0 0 L10 5 L0 10 Z" fill="#3F6EA1"></path>
                     </marker>
                   </defs>
 
-                  <path d="M235 70 C308 70 365 105 394 162" fill="none" stroke="#3F6EA1" stroke-width="3.5" stroke-linecap="round" marker-end="url(#cycleArrowBlue)"></path>
-                  <path d="M400 235 C400 308 365 365 308 394" fill="none" stroke="#3F6EA1" stroke-width="3.5" stroke-linecap="round" marker-end="url(#cycleArrowBlue)"></path>
-                  <path d="M235 400 C162 400 105 365 76 308" fill="none" stroke="#3F6EA1" stroke-width="3.5" stroke-linecap="round" marker-end="url(#cycleArrowBlue)"></path>
-                  <path d="M70 235 C70 162 105 105 162 76" fill="none" stroke="#3F6EA1" stroke-width="3.5" stroke-linecap="round" marker-end="url(#cycleArrowBlue)"></path>
+                  <circle cx="270" cy="270" r="178" fill="none" stroke="#3F6EA1" stroke-width="2"></circle>
 
-                  <path d="M235 116 L235 176" fill="none" stroke="rgba(63,110,161,0.18)" stroke-width="1.75"></path>
-                  <path d="M354 235 L294 235" fill="none" stroke="rgba(63,110,161,0.18)" stroke-width="1.75"></path>
-                  <path d="M235 354 L235 294" fill="none" stroke="rgba(63,110,161,0.18)" stroke-width="1.75"></path>
-                  <path d="M116 235 L176 235" fill="none" stroke="rgba(63,110,161,0.18)" stroke-width="1.75"></path>
+                  <path d="M270 92 A178 178 0 0 1 448 270" fill="none" stroke="#3F6EA1" stroke-width="2" marker-end="url(#cycleArrowBlue)"></path>
+                  <path d="M448 270 A178 178 0 0 1 270 448" fill="none" stroke="#3F6EA1" stroke-width="2" marker-end="url(#cycleArrowBlue)"></path>
+                  <path d="M270 448 A178 178 0 0 1 92 270" fill="none" stroke="#3F6EA1" stroke-width="2" marker-end="url(#cycleArrowBlue)"></path>
+                  <path d="M92 270 A178 178 0 0 1 270 92" fill="none" stroke="#3F6EA1" stroke-width="2" marker-end="url(#cycleArrowBlue)"></path>
+
+                  <path d="M270 120 L270 176" fill="none" stroke="rgba(63,110,161,0.22)" stroke-width="1.25"></path>
+                  <path d="M392 270 L336 270" fill="none" stroke="rgba(63,110,161,0.22)" stroke-width="1.25"></path>
+                  <path d="M270 420 L270 364" fill="none" stroke="rgba(63,110,161,0.22)" stroke-width="1.25"></path>
+                  <path d="M148 270 L204 270" fill="none" stroke="rgba(63,110,161,0.22)" stroke-width="1.25"></path>
                 </svg>
 
-                <div class="cycle-node cycle-node-top cycle-node-static">Structured input</div>
-                <div class="cycle-node cycle-node-left cycle-node-static">Diagnostic signal</div>
+                <div class="cycle-node cycle-node-top cycle-node-static">Structured Input<span class="cycle-node-detail">Focused collection from the current operating environment.</span></div>
+                <div class="cycle-node cycle-node-right cycle-node-static">Diagnostic Signal<span class="cycle-node-detail">A directional read on the structural condition beneath performance.</span></div>
+                <div class="cycle-node cycle-node-bottom cycle-node-static">Leadership Response<span class="cycle-node-detail">Selective action to clarify, simplify, or rebalance the system.</span></div>
+                <div class="cycle-node cycle-node-left cycle-node-static">Changed Conditions<span class="cycle-node-detail">The system shifts, creating a new reality to read.</span></div>
 
-                <button class="cycle-node cycle-node-button cycle-node-right" type="button" data-cycle-key="response" aria-pressed="false">Leadership response</button>
-                <button class="cycle-node cycle-node-button cycle-node-bottom" type="button" data-cycle-key="conditions" aria-pressed="false">Changed conditions</button>
-
-                <button class="cycle-center cycle-center-button is-active" type="button" data-cycle-key="evolves" aria-pressed="true">
+                <div class="cycle-center">
                   <p class="cycle-center-kicker">Center signal</p>
-                  <p class="cycle-center-title">Reality shifts</p>
-                </button>
+                  <p class="cycle-center-title">Administrative Reality Evolves</p>
+                  <span class="cycle-center-detail">The next read should reflect the institution as it now exists.</span>
+                </div>
               </div>
 
               <div class="cycle-explanatory-strip" aria-hidden="true">
@@ -2025,8 +1968,8 @@
               <p class="cycle-panel-kicker" id="cyclePanelKicker">Center signal</p>
               <h3 id="cyclePanelTitle">Administrative reality evolves</h3>
               <div class="cycle-panel-body" id="cyclePanelBodyWrap">
-                <p id="cyclePanelBody">Administrative structures are not static. Internal priorities shift, leadership attention moves, external demands change, and systems are redesigned in response to what the diagnostics reveal.</p>
-                <p id="cyclePanelBodySecondary">That is why Monderman treats diagnosis as something to revisit, not simply something to complete once.</p>
+                <p id="cyclePanelBody">Administrative structures are not static. Priorities shift, leadership attention moves, and systems are redesigned in response to what the diagnostics reveal.</p>
+                <p id="cyclePanelBodySecondary">That is why Monderman treats diagnosis as something to revisit, compare, and govern over time rather than complete once and archive.</p>
               </div>
             </div>
 
@@ -2154,7 +2097,7 @@
       evolves: {
         kicker: "Center signal",
         title: "Administrative reality evolves",
-        body: "Administrative structures are not static. Internal priorities shift, leadership attention moves, external demands change, and systems are redesigned in response to what the diagnostics reveal. That is why Monderman treats diagnosis as something to revisit, not simply something to complete once."
+        body: "Administrative structures are not static. Priorities shift, leadership attention moves, and systems are redesigned in response to what the diagnostics reveal. That is why Monderman treats diagnosis as something to revisit, compare, and govern over time rather than complete once and archive."
       },
       response: {
         kicker: "Leadership action",
@@ -2168,35 +2111,7 @@
       }
     };
 
-    const cycleButtons = document.querySelectorAll('[data-cycle-key]');
-    const cyclePanelKicker = document.getElementById('cyclePanelKicker');
-    const cyclePanelTitle = document.getElementById('cyclePanelTitle');
-    const cyclePanelBody = document.getElementById('cyclePanelBody');
-    const cyclePanelBodySecondary = document.getElementById('cyclePanelBodySecondary');
-
-    function setCycleState(key) {
-      const content = cycleContent[key];
-      if (!content || !cyclePanelKicker || !cyclePanelTitle || !cyclePanelBody || !cyclePanelBodySecondary) return;
-
-      const parts = content.body.split(/(?<=\.)\s+(?=[A-Z])/);
-      cyclePanelKicker.textContent = content.kicker;
-      cyclePanelTitle.textContent = content.title;
-      cyclePanelBody.textContent = parts[0] || content.body;
-      cyclePanelBodySecondary.textContent = parts.slice(1).join(' ') || '';
-
-      cycleButtons.forEach((button) => {
-        const isActive = button.dataset.cycleKey === key;
-        button.classList.toggle('is-active', isActive);
-        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
-      });
-    }
-
-    cycleButtons.forEach((button) => {
-      button.addEventListener('click', () => setCycleState(button.dataset.cycleKey));
-    });
-
-    setCycleState('evolves');
-
+    
     const revealItems = document.querySelectorAll(".reveal");
 
     if (revealItems.length) {
