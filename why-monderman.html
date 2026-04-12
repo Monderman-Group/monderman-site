@@ -1167,9 +1167,9 @@
 
     .cycle-diagram {
       position: relative;
-      width: min(100%, 470px);
+      width: min(100%, 458px);
       aspect-ratio: 1 / 1;
-      margin: 0 auto;
+      margin: 4px auto 0;
     }
 
     .cycle-svg {
@@ -1206,14 +1206,15 @@
     }
 
     .cycle-node {
-      min-width: 176px;
-      min-height: 86px;
-      padding: 16px 18px;
-      border-radius: 22px;
-      font-size: 1rem;
-      line-height: 1.16;
+      min-width: 166px;
+      min-height: 82px;
+      padding: 15px 16px;
+      border-radius: 20px;
+      font-size: 0.96rem;
+      line-height: 1.14;
       font-weight: 600;
-      letter-spacing: -0.03em;
+      letter-spacing: -0.028em;
+      box-shadow: 0 10px 24px rgba(21, 32, 43, 0.045);
     }
 
     .cycle-node-static {
@@ -1250,19 +1251,22 @@
     .cycle-center {
       left: 50%;
       top: 50%;
-      width: 220px;
-      height: 220px;
+      width: 184px;
+      height: 184px;
       transform: translate(-50%, -50%);
       border-radius: 50%;
-      padding: 28px 24px;
+      padding: 22px 18px;
       flex-direction: column;
-      border-color: rgba(63, 110, 161, 0.14);
-      box-shadow: 0 14px 34px rgba(21, 32, 43, 0.07);
+      border: 1.5px solid rgba(63, 110, 161, 0.18);
+      box-shadow:
+        0 0 0 8px rgba(63, 110, 161, 0.045),
+        0 18px 36px rgba(21, 32, 43, 0.07);
+      background: rgba(255,255,255,0.995);
     }
 
     .cycle-center-kicker {
-      margin: 0 0 10px;
-      font-size: 0.7rem;
+      margin: 0 0 8px;
+      font-size: 0.66rem;
       font-weight: 700;
       line-height: 1;
       letter-spacing: 0.18em;
@@ -1272,18 +1276,18 @@
 
     .cycle-center-title {
       margin: 0;
-      font-size: 1.02rem;
-      line-height: 1.08;
+      font-size: 0.92rem;
+      line-height: 1.06;
       font-weight: 700;
       letter-spacing: -0.04em;
       text-wrap: balance;
       max-width: 11ch;
     }
 
-    .cycle-node-top { left: 50%; top: 6%; transform: translateX(-50%); }
-    .cycle-node-right { right: 2%; top: 50%; transform: translateY(-50%); }
-    .cycle-node-bottom { left: 50%; bottom: 6%; transform: translateX(-50%); }
-    .cycle-node-left { left: 2%; top: 50%; transform: translateY(-50%); }
+    .cycle-node-top { left: 50%; top: 7%; transform: translateX(-50%); }
+    .cycle-node-right { right: 1%; top: 50%; transform: translateY(-50%); }
+    .cycle-node-bottom { left: 50%; bottom: 7%; transform: translateX(-50%); }
+    .cycle-node-left { left: 1%; top: 50%; transform: translateY(-50%); }
 
     .cycle-node-button.cycle-node-right:hover,
     .cycle-node-button.cycle-node-right:focus-visible,
@@ -1292,33 +1296,51 @@
     .cycle-node-button.cycle-node-bottom:focus-visible,
     .cycle-node-button.cycle-node-bottom.is-active { transform: translateX(-50%) translateY(-2px); }
 
-    .cycle-mini-notes {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 6px;
-    }
-
-    .cycle-mini-note {
-      padding: 12px 12px 11px;
+    .cycle-explanatory-strip {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 10px;
+      padding: 14px 16px;
       background: rgba(246, 248, 250, 0.96);
       border: 1px solid rgba(21, 32, 43, 0.08);
       border-radius: 14px;
     }
 
-    .cycle-mini-note strong {
-      display: block;
-      margin-bottom: 4px;
-      font-size: 0.84rem;
-      line-height: 1.2;
-      color: var(--text-dark);
-      letter-spacing: -0.02em;
+    .cycle-explanatory-item {
+      flex: 1 1 0;
+      min-width: 0;
     }
 
-    .cycle-mini-note span {
+    .cycle-explanatory-item + .cycle-explanatory-item {
+      position: relative;
+      padding-left: 16px;
+    }
+
+    .cycle-explanatory-item + .cycle-explanatory-item::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 2px;
+      bottom: 2px;
+      width: 1px;
+      background: rgba(21, 32, 43, 0.08);
+    }
+
+    .cycle-explanatory-item strong {
       display: block;
-      font-size: 0.79rem;
-      line-height: 1.52;
+      margin-bottom: 3px;
+      font-size: 0.8rem;
+      line-height: 1.2;
+      color: var(--text-dark);
+      letter-spacing: -0.015em;
+    }
+
+    .cycle-explanatory-item span {
+      display: block;
+      font-size: 0.76rem;
+      line-height: 1.45;
       color: var(--muted-dark);
     }
 
@@ -1561,24 +1583,24 @@
       }
 
       .cycle-diagram {
-        width: min(100%, 350px);
+        width: min(100%, 336px);
       }
 
       .cycle-center {
-        width: 166px;
-        height: 166px;
-        padding: 20px 18px;
+        width: 142px;
+        height: 142px;
+        padding: 16px 14px;
       }
 
       .cycle-center-title {
-        font-size: 0.9rem;
+        font-size: 0.78rem;
       }
 
       .cycle-node {
-        min-width: 130px;
-        min-height: 68px;
-        padding: 12px 12px;
-        font-size: 0.84rem;
+        min-width: 118px;
+        min-height: 62px;
+        padding: 10px 11px;
+        font-size: 0.78rem;
       }
 
       .cycle-node-top { top: 2%; }
@@ -1586,8 +1608,22 @@
       .cycle-node-left { left: -1%; }
       .cycle-node-right { right: -1%; }
 
-      .cycle-mini-notes {
-        grid-template-columns: 1fr;
+      .cycle-explanatory-strip {
+        flex-direction: column;
+      }
+
+      .cycle-explanatory-item + .cycle-explanatory-item {
+        padding-left: 0;
+        padding-top: 12px;
+      }
+
+      .cycle-explanatory-item + .cycle-explanatory-item::before {
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: auto;
+        width: auto;
+        height: 1px;
       }
 
       .cycle-panel {
@@ -1882,21 +1918,32 @@
             <div class="cycle-frame">
               <div class="cycle-figure-header">
                 <p class="cycle-figure-kicker">Diagnostic learning cycle</p>
-                <h3 class="cycle-figure-title">Signal becomes insight only when it is revisited over time.</h3>
+                <h3 class="cycle-figure-title">Signal becomes insight when it is revisited over time.</h3>
               </div>
 
               <div class="cycle-diagram">
                 <svg class="cycle-svg" viewBox="0 0 470 470" aria-hidden="true">
-                  <circle cx="235" cy="235" r="154" fill="none" stroke="rgba(63,110,161,0.22)" stroke-width="2.5" stroke-dasharray="5 6"></circle>
-                  <circle cx="235" cy="235" r="118" fill="none" stroke="rgba(63,110,161,0.11)" stroke-width="2"></circle>
-                  <circle cx="235" cy="235" r="100" fill="none" stroke="rgba(63,110,161,0.09)" stroke-width="1.25"></circle>
-                  <path d="M235 82 L235 128" fill="none" stroke="rgba(63,110,161,0.18)" stroke-width="2"></path>
-                  <path d="M388 235 L334 235" fill="none" stroke="rgba(63,110,161,0.18)" stroke-width="2"></path>
-                  <path d="M235 388 L235 342" fill="none" stroke="rgba(63,110,161,0.18)" stroke-width="2"></path>
-                  <path d="M82 235 L136 235" fill="none" stroke="rgba(63,110,161,0.18)" stroke-width="2"></path>
+                  <defs>
+                    <marker id="cycleArrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+                      <path d="M0 0 L10 5 L0 10 Z" fill="#3F6EA1"></path>
+                    </marker>
+                  </defs>
+                  <circle cx="235" cy="235" r="150" fill="none" stroke="rgba(63,110,161,0.26)" stroke-width="2.75" stroke-dasharray="4 8"></circle>
+                  <circle cx="235" cy="235" r="112" fill="none" stroke="rgba(63,110,161,0.13)" stroke-width="2"></circle>
+                  <circle cx="235" cy="235" r="98" fill="none" stroke="rgba(63,110,161,0.08)" stroke-width="1.25"></circle>
+
+                  <path d="M235 94 A141 141 0 0 1 372 235" fill="none" stroke="#3F6EA1" stroke-width="3" stroke-linecap="round" marker-end="url(#cycleArrowBlue)"></path>
+                  <path d="M372 235 A141 141 0 0 1 235 376" fill="none" stroke="#3F6EA1" stroke-width="3" stroke-linecap="round" marker-end="url(#cycleArrowBlue)"></path>
+                  <path d="M235 376 A141 141 0 0 1 98 235" fill="none" stroke="#3F6EA1" stroke-width="3" stroke-linecap="round" marker-end="url(#cycleArrowBlue)"></path>
+                  <path d="M98 235 A141 141 0 0 1 235 94" fill="none" stroke="#3F6EA1" stroke-width="3" stroke-linecap="round" marker-end="url(#cycleArrowBlue)"></path>
+
+                  <path d="M235 102 L235 142" fill="none" stroke="rgba(63,110,161,0.22)" stroke-width="1.75"></path>
+                  <path d="M366 235 L326 235" fill="none" stroke="rgba(63,110,161,0.22)" stroke-width="1.75"></path>
+                  <path d="M235 368 L235 328" fill="none" stroke="rgba(63,110,161,0.22)" stroke-width="1.75"></path>
+                  <path d="M104 235 L144 235" fill="none" stroke="rgba(63,110,161,0.22)" stroke-width="1.75"></path>
                 </svg>
 
-                <div class="cycle-node cycle-node-top cycle-node-static">Bounded input</div>
+                <div class="cycle-node cycle-node-top cycle-node-static">Structured input</div>
                 <div class="cycle-node cycle-node-left cycle-node-static">Diagnostic signal</div>
 
                 <button class="cycle-node cycle-node-button cycle-node-right" type="button" data-cycle-key="response" aria-pressed="false">Leadership response</button>
@@ -1904,22 +1951,22 @@
 
                 <button class="cycle-center cycle-center-button is-active" type="button" data-cycle-key="evolves" aria-pressed="true">
                   <p class="cycle-center-kicker">Center signal</p>
-                  <p class="cycle-center-title">Administrative reality evolves</p>
+                  <p class="cycle-center-title">Reality shifts</p>
                 </button>
               </div>
 
-              <div class="cycle-mini-notes" aria-hidden="true">
-                <div class="cycle-mini-note">
-                  <strong>Interpretation matters</strong>
-                  <span>Signal is useful only when leaders can read it cleanly.</span>
+              <div class="cycle-explanatory-strip" aria-hidden="true">
+                <div class="cycle-explanatory-item">
+                  <strong>Read the signal clearly</strong>
+                  <span>Insight depends on interpretation, not just collection.</span>
                 </div>
-                <div class="cycle-mini-note">
-                  <strong>Action reshapes the system</strong>
-                  <span>Every response changes incentives, workflow, and burden.</span>
+                <div class="cycle-explanatory-item">
+                  <strong>Act selectively</strong>
+                  <span>Leadership response changes workflow, ownership, and burden.</span>
                 </div>
-                <div class="cycle-mini-note">
-                  <strong>Reassessment is essential</strong>
-                  <span>The next run should read the institution as it now exists.</span>
+                <div class="cycle-explanatory-item">
+                  <strong>Run it again</strong>
+                  <span>Each intervention creates a new administrative reality.</span>
                 </div>
               </div>
             </div>
