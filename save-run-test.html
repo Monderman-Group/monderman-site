@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Save Diagnostic Run Test</title>
+</head>
+<body style="font-family: Arial, sans-serif; padding: 40px;">
+  <h1>Save Diagnostic Run Test</h1>
+
+  <p>Upload one saved Monderman diagnostic JSON result, then save it to Supabase.</p>
+
+  <input id="fileInput" type="file" accept=".json,application/json" />
+  <button id="saveBtn" type="button">Save uploaded run</button>
+
+  <pre id="status" style="margin-top:20px; background:#f4f4f4; padding:16px; border-radius:8px; white-space:pre-wrap;"></pre>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    const supabaseUrl = "https://ptkxrzgmeldalrkfruth.supabase.co";
+    const supabaseKey = "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const fileInput = document.getElementById("fileInput");
+    const saveBtn = document.getElementById("saveBtn");
+    const status = document.getElementById("status");
+
+    function slugify(value) {
+      return String(value || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "") || "workspace";
+    }
+
+    async function getCurrentUser() {
+      const { data, error } = await supabase.auth.getUser();
+      if (error) throw error;
+      if (!data?.user) throw new Error("No signed-in user found.");
+      return data.user;
+    }
+
+    async function getPrimaryOrganizationId(userId) {
+      const { data, error } = await supabase
+        .from("organization_members")
+        .select("organization_id, role")
+        .eq("user_id", userId)
+        .limit(1)
+        .single();
+
+      if (error) throw error;
+      return data.organization_id;
+    }
+
+    function readJsonFile(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            resolve(JSON.parse(String(reader.result || "")));
+          } catch (error) {
+            reject(new Error("Could not parse JSON file."));
+          }
+        };
+        reader.onerror = () => reject(new Error("Could not read file."));
+        reader.readAsText(file);
+      });
+    }
+
+    function normalizeRunPayload(result) {
+      return {
+        tool_type: result.tool_type || "",
+        tool_label: result.tool_label || result.tool_type || "Monderman Diagnostic",
+        pathway_name:
+          result.process_name ||
+          result.processName ||
+          result.context?.process_name ||
+          "",
+        business_unit:
+          result.business_unit ||
+          result.businessUnit ||
+          result.context?.business_unit ||
+          "",
+        participant_mode:
+          result.participant_mode ||
+          result.participantMode ||
+          result.context?.participant_mode ||
+          "",
+        diagnostic_depth:
+          result.diagnostic_depth ||
+          result.diagnosticDepth ||
+          result.context?.diagnostic_depth ||
+          "",
+        run_period_label: "",
+        intervention_label: "",
+        tags_json: [],
+        score: result.score ?? result.cross_diagnostic_score ?? null,
+        band:
+          result.band ||
+          result.score_band ||
+          result.condition_band ||
+          "",
+        benchmark_position:
+          result.benchmark_position ||
+          result.benchmarkPosition ||
+          "",
+        trajectory_label:
+          result.trajectory?.label ||
+          result.trajectory_label ||
+          result.trajectory ||
+          "",
+        primary_driver:
+          result.primary_driver ||
+          result.primary_constraint ||
+          result.primary_pattern ||
+          "",
+        dimensions_json: result.dimensions || {},
+        exposure_json: result.exposure || result.compounded_exposure || {},
+        key_findings_json:
+          result.key_findings ||
+          result.watch_items ||
+          result.convergence_signals ||
+          [],
+        priority_actions_json:
+          result.priority_actions ||
+          result.intervention_priorities ||
+          [],
+        full_result_json: result
+      };
+    }
+
+    saveBtn.addEventListener("click", async () => {
+      try {
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) throw new Error("Choose a JSON file first.");
+
+        status.textContent = "Checking signed-in user...";
+        const user = await getCurrentUser();
+
+        status.textContent = "Looking up workspace...";
+        const organizationId = await getPrimaryOrganizationId(user.id);
+
+        status.textContent = "Reading JSON file...";
+        const result = await readJsonFile(file);
+
+        if (!result.tool_type) {
+          throw new Error("This file does not look like a saved Monderman result.");
+        }
+
+        const run = normalizeRunPayload(result);
+
+        status.textContent = "Saving diagnostic run...";
+        const { data, error } = await supabase
+          .from("diagnostic_runs")
+          .insert({
+            user_id: user.id,
+            organization_id: organizationId,
+            ...run
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        status.textContent =
+          "Run saved successfully. Saved row id: " + data.id;
+      } catch (error) {
+        status.textContent = "Save error: " + error.message;
+      }
+    });
+
+    const { data, error } = await supabase.auth.getUser();
+    if (error) {
+      status.textContent = "Auth check error: " + error.message;
+    } else if (data?.user) {
+      status.textContent = "Signed in as: " + (data.user.email || data.user.id);
+    } else {
+      status.textContent = "Not signed in yet.";
+    }
+  </script>
+</body>
+</html>
