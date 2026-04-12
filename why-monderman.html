@@ -1238,7 +1238,6 @@
     .cycle-node:focus-visible {
       border-color: rgba(63, 110, 161, 0.28);
       box-shadow: 0 0 0 4px rgba(63, 110, 161, 0.06);
-      transform: translateY(-1px);
       outline: none;
     }
 
@@ -1287,10 +1286,16 @@
 
     .cycle-node-right:hover,
     .cycle-node-right:focus-visible,
-    .cycle-node-right.is-active { transform: translateY(-50%) translateY(-1px); }
+    .cycle-node-right.is-active { transform: translateY(-50%); }
     .cycle-node-bottom:hover,
     .cycle-node-bottom:focus-visible,
-    .cycle-node-bottom.is-active { transform: translateX(-50%) translateY(-1px); }
+    .cycle-node-bottom.is-active { transform: translateX(-50%); }
+    .cycle-node-top:hover,
+    .cycle-node-top:focus-visible,
+    .cycle-node-top.is-active { transform: translateX(-50%); }
+    .cycle-node-left:hover,
+    .cycle-node-left:focus-visible,
+    .cycle-node-left.is-active { transform: translateY(-50%); }
 
     .cycle-panel-wrap {
       display: grid;
@@ -1815,10 +1820,10 @@
                   <path d="M120 270 L204 270" fill="none" stroke="rgba(63,110,161,0.2)" stroke-width="1.1"></path>
                 </svg>
 
-                <button class="cycle-node cycle-node-top is-active" type="button" data-cycle-key="input" aria-pressed="true">Structured Input</button>
-                <button class="cycle-node cycle-node-right" type="button" data-cycle-key="signal" aria-pressed="false">Diagnostic Signal</button>
-                <button class="cycle-node cycle-node-bottom" type="button" data-cycle-key="response" aria-pressed="false">Leadership Response</button>
-                <button class="cycle-node cycle-node-left" type="button" data-cycle-key="conditions" aria-pressed="false">Changing Conditions</button>
+                <button class="cycle-node cycle-node-top is-active" type="button" data-cycle-key="input" aria-pressed="true"><span class="cycle-node-label">Structured Input <span class="cycle-info" aria-hidden="true">i</span></span></button>
+                <button class="cycle-node cycle-node-right" type="button" data-cycle-key="signal" aria-pressed="false"><span class="cycle-node-label">Diagnostic Signal <span class="cycle-info" aria-hidden="true">i</span></span></button>
+                <button class="cycle-node cycle-node-bottom" type="button" data-cycle-key="response" aria-pressed="false"><span class="cycle-node-label">Leadership Response <span class="cycle-info" aria-hidden="true">i</span></span></button>
+                <button class="cycle-node cycle-node-left" type="button" data-cycle-key="conditions" aria-pressed="false"><span class="cycle-node-label">Changing Conditions <span class="cycle-info" aria-hidden="true">i</span></span></button>
 
                 <div class="cycle-center" aria-hidden="true">
                   <p class="cycle-center-kicker">Center signal</p>
@@ -2071,27 +2076,32 @@
       input: {
         kicker: "Starting point",
         title: "Structured Input",
-        body: "Focused collection from the current operating environment gives the diagnostic a disciplined starting point rather than a vague impression. The aim is not to collect everything. It is to collect enough of the right signal to read the condition clearly."
+        bodyPrimary: "Focused collection from the current operating environment gives the diagnostic a disciplined starting point rather than a vague impression.",
+        bodySecondary: "The aim is not to collect everything. It is to collect enough of the right signal to read the condition clearly."
       },
       signal: {
         kicker: "Data-driven read",
         title: "Diagnostic Signal",
-        body: "The diagnostic converts structured input into a data-driven signal about the institution’s administrative condition. It generates grounded directional insight about where burden, drift, and structural strain may be forming."
+        bodyPrimary: "The diagnostic converts structured input into a data-driven signal about the institution’s administrative condition.",
+        bodySecondary: "It generates grounded directional insight about where burden, drift, and structural strain may be forming."
       },
       response: {
         kicker: "Leadership action",
         title: "Leadership Response",
-        body: "Leadership response should be data-driven, selective, and proportionate to the condition revealed. The aim is not to respond to every signal, but to act where the diagnostic evidence most clearly supports clarification, simplification, or recalibration."
+        bodyPrimary: "Leadership response should be data-driven, selective, and proportionate to the condition revealed.",
+        bodySecondary: "The aim is not to respond to every signal, but to act where the diagnostic evidence most clearly supports clarification, simplification, or recalibration."
       },
       conditions: {
         kicker: "Ongoing movement",
         title: "Changing Conditions",
-        body: "Administrative conditions do not change for one reason alone. Some movement follows leadership action, but some comes through internal and external pressures, organizational learning, and the institution’s gradual evolution over time. That is why repeat diagnosis matters."
+        bodyPrimary: "Administrative conditions do not change for one reason alone.",
+        bodySecondary: "Some movement follows leadership action, but some comes through internal and external pressures, organizational learning, and the institution’s gradual evolution over time. That is why repeat diagnosis matters."
       },
       evolves: {
         kicker: "Center signal",
-        title: "Administrative reality evolves",
-        body: "Administrative reality is not static. Each diagnostic run should be understood as part of a continuing cycle in which conditions are read, interpreted, acted on, and reassessed over time."
+        title: "Administrative Reality Evolves",
+        bodyPrimary: "Administrative reality is not static.",
+        bodySecondary: "Each diagnostic run should be understood as part of a continuing cycle in which conditions are read, interpreted, acted on, and reassessed over time."
       }
     };
 
