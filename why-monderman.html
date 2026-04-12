@@ -1135,7 +1135,7 @@
 
     .cycle-figure-header,
     .cycle-diagram,
-    .cycle-mini-notes {
+    .cycle-explanatory-strip {
       position: relative;
       z-index: 1;
     }
@@ -1165,11 +1165,12 @@
       text-wrap: balance;
     }
 
-    .cycle-diagram {
+    
+.cycle-diagram {
       position: relative;
-      width: min(100%, 500px);
+      width: min(100%, 520px);
       aspect-ratio: 1 / 1;
-      margin: 4px auto 0;
+      margin: 10px auto 0;
     }
 
     .cycle-svg {
@@ -1188,9 +1189,7 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      background: rgba(255, 255, 255, 0.98);
-      border: 1px solid rgba(21, 32, 43, 0.08);
-      box-shadow: var(--soft-shadow);
+      background: rgba(255, 255, 255, 0.995);
       color: var(--text-dark);
       isolation: isolate;
     }
@@ -1201,20 +1200,23 @@
       position: absolute;
       inset: 0;
       border-radius: inherit;
-      background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(248,250,251,0.96) 100%);
+      background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,251,0.98) 100%);
       z-index: -1;
     }
 
     .cycle-node {
-      min-width: 148px;
-      min-height: 74px;
-      padding: 13px 14px;
+      min-width: 164px;
+      min-height: 78px;
+      padding: 14px 16px;
       border-radius: 18px;
-      font-size: 0.88rem;
+      font-size: 0.92rem;
       line-height: 1.14;
       font-weight: 600;
-      letter-spacing: -0.028em;
-      box-shadow: 0 10px 24px rgba(21, 32, 43, 0.045);
+      letter-spacing: -0.024em;
+      border: 1.5px solid rgba(21, 32, 43, 0.10);
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.95) inset,
+        0 14px 30px rgba(21, 32, 43, 0.05);
     }
 
     .cycle-node-static {
@@ -1236,58 +1238,63 @@
     .cycle-center-button:hover,
     .cycle-center-button:focus-visible {
       transform: translateY(-2px);
-      border-color: rgba(63, 110, 161, 0.22);
-      box-shadow: var(--card-shadow);
+      border-color: rgba(63, 110, 161, 0.32);
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.95) inset,
+        0 18px 34px rgba(21, 32, 43, 0.08);
       outline: none;
     }
 
     .cycle-node-button.is-active,
     .cycle-center-button.is-active {
-      border-color: rgba(63, 110, 161, 0.28);
-      box-shadow: 0 0 0 4px rgba(63, 110, 161, 0.08), var(--soft-shadow);
+      border-color: rgba(63, 110, 161, 0.32);
+      box-shadow:
+        0 0 0 4px rgba(63, 110, 161, 0.08),
+        0 1px 0 rgba(255,255,255,0.95) inset,
+        0 16px 34px rgba(21, 32, 43, 0.08);
       background: #FFFFFF;
     }
 
     .cycle-center {
       left: 50%;
       top: 50%;
-      width: 148px;
-      height: 148px;
+      width: 170px;
+      height: 118px;
       transform: translate(-50%, -50%);
-      border-radius: 50%;
-      padding: 18px 14px;
+      border-radius: 22px;
+      padding: 16px 18px;
       flex-direction: column;
       border: 1.5px solid rgba(63, 110, 161, 0.18);
       box-shadow:
-        0 0 0 8px rgba(63, 110, 161, 0.045),
-        0 18px 36px rgba(21, 32, 43, 0.07);
-      background: rgba(255,255,255,0.995);
+        0 0 0 6px rgba(63, 110, 161, 0.045),
+        0 18px 36px rgba(21, 32, 43, 0.08);
+      background: rgba(255,255,255,0.998);
     }
 
     .cycle-center-kicker {
-      margin: 0 0 8px;
+      margin: 0 0 7px;
       font-size: 0.62rem;
       font-weight: 700;
       line-height: 1;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.20em;
       text-transform: uppercase;
       color: var(--accent);
     }
 
     .cycle-center-title {
       margin: 0;
-      font-size: 0.78rem;
-      line-height: 1.04;
+      font-size: 0.96rem;
+      line-height: 1.06;
       font-weight: 700;
-      letter-spacing: -0.04em;
+      letter-spacing: -0.032em;
       text-wrap: balance;
-      max-width: 11ch;
+      max-width: 10ch;
     }
 
-    .cycle-node-top { left: 50%; top: 3%; transform: translateX(-50%); }
-    .cycle-node-right { right: -1.5%; top: 50%; transform: translateY(-50%); }
-    .cycle-node-bottom { left: 50%; bottom: 3%; transform: translateX(-50%); }
-    .cycle-node-left { left: -1.5%; top: 50%; transform: translateY(-50%); }
+    .cycle-node-top { left: 50%; top: 2%; transform: translateX(-50%); }
+    .cycle-node-right { right: 1%; top: 50%; transform: translateY(-50%); }
+    .cycle-node-bottom { left: 50%; bottom: 2%; transform: translateX(-50%); }
+    .cycle-node-left { left: 1%; top: 50%; transform: translateY(-50%); }
 
     .cycle-node-button.cycle-node-right:hover,
     .cycle-node-button.cycle-node-right:focus-visible,
@@ -1301,8 +1308,8 @@
       align-items: flex-start;
       justify-content: space-between;
       gap: 16px;
-      margin-top: 10px;
-      padding: 14px 16px;
+      margin-top: 18px;
+      padding: 16px 18px;
       background: rgba(246, 248, 250, 0.96);
       border: 1px solid rgba(21, 32, 43, 0.08);
       border-radius: 14px;
@@ -1330,23 +1337,23 @@
 
     .cycle-explanatory-item strong {
       display: block;
-      margin-bottom: 3px;
-      font-size: 0.8rem;
+      margin-bottom: 4px;
+      font-size: 0.82rem;
       line-height: 1.2;
       color: var(--text-dark);
-      letter-spacing: -0.015em;
+      letter-spacing: -0.012em;
     }
 
     .cycle-explanatory-item span {
       display: block;
-      font-size: 0.76rem;
-      line-height: 1.45;
+      font-size: 0.77rem;
+      line-height: 1.5;
       color: var(--muted-dark);
     }
 
     .cycle-panel-wrap {
       display: grid;
-      gap: 16px;
+      gap: 18px;
       align-content: start;
     }
 
@@ -1355,9 +1362,9 @@
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.995) 0%, rgba(251, 252, 253, 0.98) 100%);
       border: 1px solid rgba(21, 32, 43, 0.08);
       border-radius: 24px;
-      padding: 30px 30px 26px;
+      padding: 30px 34px 28px;
       box-shadow: 0 14px 32px rgba(21, 32, 43, 0.045), var(--soft-shadow);
-      min-height: 322px;
+      min-height: 0;
       overflow: hidden;
     }
 
@@ -1375,7 +1382,7 @@
     }
 
     .cycle-panel-topline {
-      width: 56px;
+      width: 64px;
       height: 3px;
       border-radius: 999px;
       background: linear-gradient(90deg, rgba(63, 110, 161, 0.92) 0%, rgba(63, 110, 161, 0.34) 100%);
@@ -1384,7 +1391,7 @@
 
     .cycle-panel-kicker {
       margin: 0 0 12px;
-      font-size: 0.7rem;
+      font-size: 0.72rem;
       font-weight: 700;
       line-height: 1;
       letter-spacing: 0.20em;
@@ -1393,18 +1400,18 @@
     }
 
     .cycle-panel h3 {
-      margin: 0 0 16px;
-      font-size: 1.6rem;
+      margin: 0 0 18px;
+      font-size: 1.66rem;
       line-height: 0.98;
       font-weight: 700;
       color: var(--text-dark);
       letter-spacing: -0.055em;
       text-wrap: balance;
-      max-width: 14ch;
+      max-width: 12ch;
     }
 
     .cycle-panel-body {
-      max-width: 57ch;
+      max-width: 34ch;
       font-size: 1.01rem;
       line-height: 1.78;
       color: var(--muted-dark);
@@ -1421,12 +1428,12 @@
     .cycle-support {
       position: relative;
       margin: 0;
-      padding: 18px 20px 18px 24px;
-      max-width: 60ch;
+      padding: 18px 22px 18px 26px;
+      max-width: 42ch;
       font-size: 0.96rem;
       line-height: 1.72;
       color: var(--muted-dark);
-      background: rgba(255, 255, 255, 0.62);
+      background: rgba(255, 255, 255, 0.72);
       border: 1px solid rgba(21, 32, 43, 0.06);
       border-radius: 18px;
       box-shadow: var(--soft-shadow);
@@ -1630,26 +1637,26 @@
       }
 
       .cycle-center {
-        width: 118px;
-        height: 118px;
+        width: 132px;
+        height: 96px;
         padding: 12px 10px;
       }
 
       .cycle-center-title {
-        font-size: 0.66rem;
+        font-size: 0.78rem;
       }
 
       .cycle-node {
-        min-width: 104px;
-        min-height: 56px;
+        min-width: 112px;
+        min-height: 58px;
         padding: 8px 10px;
         font-size: 0.72rem;
       }
 
-      .cycle-node-top { top: 2%; }
-      .cycle-node-bottom { bottom: 2%; }
-      .cycle-node-left { left: -1%; }
-      .cycle-node-right { right: -1%; }
+      .cycle-node-top { top: 1.5%; }
+      .cycle-node-bottom { bottom: 1.5%; }
+      .cycle-node-left { left: 0; }
+      .cycle-node-right { right: 0; }
 
       .cycle-explanatory-strip {
         flex-direction: column;
@@ -1971,19 +1978,16 @@
                       <path d="M0 0 L12 6 L0 12 Z" fill="#3F6EA1"></path>
                     </marker>
                   </defs>
-                  <circle cx="235" cy="235" r="156" fill="none" stroke="rgba(63,110,161,0.24)" stroke-width="2.5" stroke-dasharray="4 8"></circle>
-                  <circle cx="235" cy="235" r="122" fill="none" stroke="rgba(63,110,161,0.12)" stroke-width="2"></circle>
-                  <circle cx="235" cy="235" r="108" fill="none" stroke="rgba(63,110,161,0.08)" stroke-width="1.25"></circle>
 
-                  <path d="M146 82 A170 170 0 0 1 388 146" fill="none" stroke="#3F6EA1" stroke-width="3.5" stroke-linecap="round" marker-end="url(#cycleArrowBlue)"></path>
-                  <path d="M388 146 A170 170 0 0 1 324 388" fill="none" stroke="#3F6EA1" stroke-width="3.5" stroke-linecap="round" marker-end="url(#cycleArrowBlue)"></path>
-                  <path d="M324 388 A170 170 0 0 1 82 324" fill="none" stroke="#3F6EA1" stroke-width="3.5" stroke-linecap="round" marker-end="url(#cycleArrowBlue)"></path>
-                  <path d="M82 324 A170 170 0 0 1 146 82" fill="none" stroke="#3F6EA1" stroke-width="3.5" stroke-linecap="round" marker-end="url(#cycleArrowBlue)"></path>
+                  <path d="M235 70 C308 70 365 105 394 162" fill="none" stroke="#3F6EA1" stroke-width="3.5" stroke-linecap="round" marker-end="url(#cycleArrowBlue)"></path>
+                  <path d="M400 235 C400 308 365 365 308 394" fill="none" stroke="#3F6EA1" stroke-width="3.5" stroke-linecap="round" marker-end="url(#cycleArrowBlue)"></path>
+                  <path d="M235 400 C162 400 105 365 76 308" fill="none" stroke="#3F6EA1" stroke-width="3.5" stroke-linecap="round" marker-end="url(#cycleArrowBlue)"></path>
+                  <path d="M70 235 C70 162 105 105 162 76" fill="none" stroke="#3F6EA1" stroke-width="3.5" stroke-linecap="round" marker-end="url(#cycleArrowBlue)"></path>
 
-                  <path d="M235 92 L235 144" fill="none" stroke="rgba(63,110,161,0.2)" stroke-width="1.75"></path>
-                  <path d="M378 235 L326 235" fill="none" stroke="rgba(63,110,161,0.2)" stroke-width="1.75"></path>
-                  <path d="M235 378 L235 326" fill="none" stroke="rgba(63,110,161,0.2)" stroke-width="1.75"></path>
-                  <path d="M92 235 L144 235" fill="none" stroke="rgba(63,110,161,0.2)" stroke-width="1.75"></path>
+                  <path d="M235 116 L235 176" fill="none" stroke="rgba(63,110,161,0.18)" stroke-width="1.75"></path>
+                  <path d="M354 235 L294 235" fill="none" stroke="rgba(63,110,161,0.18)" stroke-width="1.75"></path>
+                  <path d="M235 354 L235 294" fill="none" stroke="rgba(63,110,161,0.18)" stroke-width="1.75"></path>
+                  <path d="M116 235 L176 235" fill="none" stroke="rgba(63,110,161,0.18)" stroke-width="1.75"></path>
                 </svg>
 
                 <div class="cycle-node cycle-node-top cycle-node-static">Structured input</div>
