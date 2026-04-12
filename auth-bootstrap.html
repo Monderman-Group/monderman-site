@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monderman Auth Bootstrap</title>
+</head>
+<body style="font-family: Arial, sans-serif; padding: 40px;">
+  <h1>Monderman Auth Bootstrap</h1>
+  <button id="googleSignInBtn">Sign in with Google</button>
+  <button id="bootstrapBtn">Create user + workspace</button>
+  <pre id="status" style="margin-top:20px; background:#f4f4f4; padding:16px; border-radius:8px; white-space:pre-wrap;"></pre>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    const supabaseUrl = "https://ptkxrzgmeldalrkfruth.supabase.co";
+    const supabaseKey = "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const status = document.getElementById("status");
+    const googleSignInBtn = document.getElementById("googleSignInBtn");
+    const bootstrapBtn = document.getElementById("bootstrapBtn");
+
+    function slugify(value) {
+      return String(value || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "") || "workspace";
+    }
+
+    async function getCurrentUser() {
+      const { data, error } = await supabase.auth.getUser();
+      if (error) throw error;
+      if (!data?.user) throw new Error("No signed-in user found.");
+      return data.user;
+    }
+
+    googleSignInBtn.addEventListener("click", async () => {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: "https://www.monderman.com/auth-bootstrap.html"
+        }
+      });
+
+      if (error) {
+        status.textContent = "Sign-in error: " + error.message;
+      }
+    });
+
+    bootstrapBtn.addEventListener("click", async () => {
+      try {
+        status.textContent = "Checking signed-in user...";
+        const user = await getCurrentUser();
+
+        const email = user.email || "";
+        const fullName =
+          user.user_metadata?.full_name ||
+          user.user_metadata?.name ||
+          "Monderman User";
+        const avatarUrl =
+          user.user_metadata?.avatar_url ||
+          user.user_metadata?.picture ||
+          null;
+
+        status.textContent = "Upserting user profile...";
+        const { error: userError } = await supabase
+          .from("users")
+          .upsert({
+            id: user.id,
+            email,
+            full_name: fullName,
+            avatar_url: avatarUrl,
+            last_sign_in_at: new Date().toISOString()
+          });
+
+        if (userError) throw userError;
+
+        const workspaceName = `${fullName} Workspace`;
+        const workspaceSlug = `${slugify(fullName)}-workspace`;
+
+        status.textContent = "Checking for existing workspace...";
+        const { data: existingMemberships, error: membershipReadError } = await supabase
+          .from("organization_members")
+          .select("id, organization_id, role")
+          .eq("user_id", user.id)
+          .limit(1);
+
+        if (membershipReadError) throw membershipReadError;
+
+        if (existingMemberships && existingMemberships.length > 0) {
+          status.textContent =
+            "Bootstrap complete. Existing workspace already found for this user.";
+          return;
+        }
+
+        status.textContent = "Creating workspace...";
+        const { data: orgData, error: orgError } = await supabase
+          .from("organizations")
+          .insert({
+            name: workspaceName,
+            slug: workspaceSlug,
+            owner_user_id: user.id
+          })
+          .select()
+          .single();
+
+        if (orgError) throw orgError;
+
+        status.textContent = "Creating workspace membership...";
+        const { error: memberError } = await supabase
+          .from("organization_members")
+          .insert({
+            organization_id: orgData.id,
+            user_id: user.id,
+            role: "owner"
+          });
+
+        if (memberError) throw memberError;
+
+        status.textContent =
+          "Bootstrap complete. User row, workspace, and membership were created successfully.";
+      } catch (error) {
+        status.textContent = "Bootstrap error: " + error.message;
+      }
+    });
+
+    const { data, error } = await supabase.auth.getUser();
+    if (error) {
+      status.textContent = "Auth check error: " + error.message;
+    } else if (data?.user) {
+      status.textContent = "Signed in as: " + (data.user.email || data.user.id);
+    } else {
+      status.textContent = "Not signed in yet.";
+    }
+  </script>
+</body>
+</html>
