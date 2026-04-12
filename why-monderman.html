@@ -1085,6 +1085,224 @@
       color: rgba(245, 247, 250, 0.58);
     }
 
+
+    .cycle-section {
+      margin-top: 34px;
+      padding: 28px 30px;
+      background: linear-gradient(180deg, rgba(63, 110, 161, 0.07) 0%, rgba(63, 110, 161, 0.03) 100%);
+      border: 1px solid rgba(63, 110, 161, 0.12);
+      border-radius: var(--panel-radius);
+      box-shadow: var(--soft-shadow);
+    }
+
+    .cycle-layout {
+      display: grid;
+      grid-template-columns: minmax(420px, 1fr) minmax(280px, 0.9fr);
+      gap: 30px;
+      align-items: center;
+    }
+
+    .cycle-visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 520px;
+    }
+
+    .cycle-ring {
+      position: relative;
+      width: min(100%, 520px);
+      aspect-ratio: 1 / 1;
+    }
+
+    .cycle-orbit {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .cycle-orbit circle {
+      fill: none;
+      stroke: rgba(21, 32, 43, 0.08);
+      stroke-width: 1.5;
+    }
+
+    .cycle-arc {
+      fill: none;
+      stroke: rgba(63, 110, 161, 0.28);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-dasharray: 12 14;
+    }
+
+    .cycle-node,
+    .cycle-center {
+      position: absolute;
+      border-radius: 18px;
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--text-dark);
+      box-shadow: var(--soft-shadow);
+      transition:
+        border-color var(--transition),
+        box-shadow var(--transition),
+        transform var(--transition),
+        background var(--transition);
+      font: inherit;
+      cursor: default;
+    }
+
+    .cycle-node {
+      width: 164px;
+      min-height: 84px;
+      padding: 16px 16px 14px;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cycle-node-label {
+      display: block;
+      font-size: 0.95rem;
+      line-height: 1.34;
+      font-weight: 600;
+      letter-spacing: -0.018em;
+      text-align: center;
+    }
+
+    .cycle-node-top { top: 20px; left: 50%; transform: translateX(-50%); }
+    .cycle-node-right { top: 50%; right: 10px; transform: translateY(-50%); }
+    .cycle-node-bottom { bottom: 20px; left: 50%; transform: translateX(-50%); }
+    .cycle-node-left { top: 50%; left: 10px; transform: translateY(-50%); }
+
+    .cycle-center {
+      inset: 50% auto auto 50%;
+      transform: translate(-50%, -50%);
+      width: 220px;
+      min-height: 220px;
+      border-radius: 999px;
+      padding: 26px 26px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border-color: rgba(63, 110, 161, 0.18);
+      background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.96) 100%);
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .cycle-center-kicker,
+    .cycle-copy-label {
+      margin: 0 0 10px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .cycle-center-title {
+      display: block;
+      max-width: 12ch;
+      font-size: 1.24rem;
+      line-height: 1.14;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: var(--text-dark);
+      text-wrap: balance;
+    }
+
+    .cycle-node.is-interactive,
+    .cycle-center {
+      cursor: pointer;
+    }
+
+    .cycle-node.is-interactive:hover,
+    .cycle-node.is-interactive:focus-visible,
+    .cycle-center:hover,
+    .cycle-center:focus-visible {
+      outline: none;
+      transform: translateY(-1px);
+      border-color: rgba(63, 110, 161, 0.22);
+      box-shadow: var(--card-shadow);
+    }
+
+    .cycle-node-top.is-interactive:hover,
+    .cycle-node-top.is-interactive:focus-visible,
+    .cycle-node-bottom.is-interactive:hover,
+    .cycle-node-bottom.is-interactive:focus-visible {
+      transform: translateX(-50%) translateY(-1px);
+    }
+
+    .cycle-node-right.is-interactive:hover,
+    .cycle-node-right.is-interactive:focus-visible {
+      transform: translateY(-50%) translateY(-1px);
+    }
+
+    .cycle-node-left.is-interactive:hover,
+    .cycle-node-left.is-interactive:focus-visible {
+      transform: translateY(-50%) translateY(-1px);
+    }
+
+    .cycle-center:hover,
+    .cycle-center:focus-visible {
+      transform: translate(-50%, calc(-50% - 1px));
+    }
+
+    .cycle-node.is-active,
+    .cycle-center.is-active {
+      border-color: rgba(63, 110, 161, 0.28);
+      box-shadow: 0 0 0 4px rgba(63, 110, 161, 0.08), var(--soft-shadow);
+      background: rgba(255, 255, 255, 1);
+    }
+
+    .cycle-copy {
+      display: grid;
+      gap: 14px;
+      align-self: stretch;
+    }
+
+    .cycle-copy-card {
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      border-radius: 16px;
+      padding: 24px 22px 22px;
+      box-shadow: var(--soft-shadow);
+      min-height: 244px;
+    }
+
+    .cycle-copy-card h3 {
+      margin: 0 0 10px;
+      font-size: 1.28rem;
+      line-height: 1.12;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: var(--text-dark);
+      text-wrap: balance;
+    }
+
+    .cycle-copy-card p {
+      margin: 0;
+      font-size: 0.96rem;
+      line-height: 1.7;
+      color: var(--muted-dark);
+    }
+
+    .cycle-copy-note {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.66;
+      color: var(--muted-dark);
+    }
+
     @media (prefers-reduced-motion: reduce) {
       html {
         scroll-behavior: auto;
@@ -1122,19 +1340,23 @@
 
       .focus-grid,
       .trust-grid,
-      .compound-grid,
-      .engine-strip-grid {
+      .compound-grid {
         grid-template-columns: 1fr 1fr;
+      }
+
+      .cycle-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .cycle-copy-card {
+        min-height: 0;
       }
 
       .suite-top-cta {
         justify-content: flex-end;
       }
 
-      .engine-arrow {
-        display: none;
-      }
-    }
+          }
 
     @media (max-width: 980px) {
       .header {
@@ -1244,9 +1466,37 @@
 
       .focus-grid,
       .trust-grid,
-      .compound-grid,
-      .engine-strip-grid {
+      .compound-grid {
         grid-template-columns: 1fr;
+      }
+
+      .cycle-section {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .cycle-visual {
+        min-height: 0;
+      }
+
+      .cycle-ring {
+        width: min(100%, 420px);
+      }
+
+      .cycle-node {
+        width: 136px;
+        min-height: 74px;
+        padding: 12px 12px 11px;
+      }
+
+      .cycle-center {
+        width: 176px;
+        min-height: 176px;
+        padding: 20px 20px 18px;
+      }
+
+      .cycle-center-title {
+        font-size: 1.05rem;
       }
 
       .suite-top-cta {
@@ -1420,9 +1670,9 @@
     <div class="trust-inner">
       <div class="section-intro reveal">
         <div class="section-label">Why this builds confidence</div>
-        <h2 id="trust-title">More disciplined than generic tools. More serious than standard benchmarking.</h2>
+        <h2 id="trust-title">Why leaders can trust and reuse the signal.</h2>
         <p>
-          Monderman is built for organizations that need a more disciplined read on institutional movement: grounded in the realities of complexity, bureaucracy, and execution pressure, and usable at senior level over time.
+          Monderman is built for organizations that need a disciplined read on institutional movement: grounded in complexity, usable at senior level, and credible enough to revisit as conditions change.
         </p>
       </div>
 
@@ -1467,21 +1717,21 @@
           <article class="focus-card reveal reveal-delay-1">
             <h3>Structural Clarity</h3>
             <p>
-              Reveals whether ownership, authority, and handoffs are clear enough to support reliable execution without repeated interpretation or rescue work.
+              Reveals whether ownership, authority, and role boundaries are clear enough to support execution without repeated interpretation, overlap, or rescue work.
             </p>
           </article>
 
           <article class="focus-card reveal reveal-delay-2">
             <h3>Decision Velocity</h3>
             <p>
-              Shows where approvals, escalation, and routing burden are slowing movement through important decisions and quietly raising control cost.
+              Shows where approvals, escalation, review layering, and routing burden are slowing decision cycles and quietly raising control cost.
             </p>
           </article>
 
           <article class="focus-card reveal reveal-delay-3">
             <h3>Operational Systems</h3>
             <p>
-              Surfaces recurring process load, reporting burden, and non-value-adding administrative weight across the environment doing the work.
+              Surfaces recurring process load, reporting burden, duplicate effort, and non-value-adding administrative weight across the operating environment.
             </p>
           </article>
 
@@ -1524,39 +1774,59 @@
 
       <div class="section-intro reveal" style="margin-top:46px;">
         <div class="section-label">How it works</div>
-        <h2 style="max-width:760px;">A clearer path from bounded input to repeatable institutional insight.</h2>
+        <h2 style="max-width:760px;">How repeatable diagnosis becomes institutional learning.</h2>
         <p>
-          The proprietary engine translates bounded participant input into structured signals leadership can compare, revisit, and govern over time.
+          The proprietary engine does more than convert bounded participant input into a one-time readout. It helps leadership revisit administrative reality through different lenses, under changing conditions, and in light of the redesign decisions those diagnostics inform.
         </p>
       </div>
 
-      <div class="engine-strip reveal reveal-delay-1" aria-label="How the Monderman engine works">
-        <div class="engine-strip-grid">
-          <div class="engine-step">
-            <p class="engine-step-label">Step 1</p>
-            <h3>Bounded input</h3>
-            <p>Participants respond within a defined lens, scope, and diagnostic structure.</p>
-            <span class="engine-arrow" aria-hidden="true">→</span>
+      <div class="cycle-section reveal reveal-delay-1" aria-label="How repeatable diagnosis becomes institutional learning">
+        <div class="cycle-layout">
+          <div class="cycle-visual">
+            <div class="cycle-ring" role="group" aria-label="Monderman diagnostic cycle">
+              <button class="cycle-node cycle-node-top" type="button" data-cycle-key="bounded_input" aria-pressed="false">
+                <span class="cycle-node-label">Bounded input</span>
+              </button>
+
+              <button class="cycle-node cycle-node-right is-interactive" type="button" data-cycle-key="leadership_response" aria-pressed="false">
+                <span class="cycle-node-label">Leadership response</span>
+              </button>
+
+              <button class="cycle-node cycle-node-bottom is-interactive" type="button" data-cycle-key="changed_conditions" aria-pressed="false">
+                <span class="cycle-node-label">Changed conditions</span>
+              </button>
+
+              <button class="cycle-node cycle-node-left" type="button" data-cycle-key="structured_signal" aria-pressed="false">
+                <span class="cycle-node-label">Structured signal</span>
+              </button>
+
+              <button class="cycle-center is-active" type="button" data-cycle-key="administrative_reality" aria-pressed="true" aria-label="Administrative reality evolves">
+                <span class="cycle-center-kicker">Center signal</span>
+                <span class="cycle-center-title">Administrative reality evolves</span>
+              </button>
+
+              <svg class="cycle-orbit" viewBox="0 0 520 520" aria-hidden="true">
+                <circle cx="260" cy="260" r="182"></circle>
+                <path d="M260 66c98 0 178 80 178 178" class="cycle-arc cycle-arc-1"></path>
+                <path d="M454 260c0 98-80 178-178 178" class="cycle-arc cycle-arc-2"></path>
+                <path d="M260 454c-98 0-178-80-178-178" class="cycle-arc cycle-arc-3"></path>
+                <path d="M66 260c0-98 80-178 178-178" class="cycle-arc cycle-arc-4"></path>
+              </svg>
+            </div>
           </div>
 
-          <div class="engine-step">
-            <p class="engine-step-label">Step 2</p>
-            <h3>Engine read</h3>
-            <p>The proprietary model interprets the underlying administrative condition beneath the responses.</p>
-            <span class="engine-arrow" aria-hidden="true">→</span>
-          </div>
+          <div class="cycle-copy">
+            <div class="cycle-copy-card" id="cycleDetailPanel" aria-live="polite">
+              <p class="cycle-copy-label" id="cycleDetailLabel">Center signal</p>
+              <h3 id="cycleDetailTitle">Administrative reality evolves</h3>
+              <p id="cycleDetailBody">
+                Administrative structures are not static. Internal priorities shift, leadership attention moves, external demands change, and systems are redesigned in response to what the diagnostics reveal. That is why Monderman treats diagnosis as something to revisit, not simply something to complete once.
+              </p>
+            </div>
 
-          <div class="engine-step">
-            <p class="engine-step-label">Step 3</p>
-            <h3>Directional signal</h3>
-            <p>The output surfaces structured patterns around drag, coherence, burden, and institutional strain.</p>
-            <span class="engine-arrow" aria-hidden="true">→</span>
-          </div>
-
-          <div class="engine-step">
-            <p class="engine-step-label">Step 4</p>
-            <h3>Repeatable insight</h3>
-            <p>Results can be revisited across runs, compared across lenses, and tracked as conditions change.</p>
+            <p class="cycle-copy-note">
+              The cycle matters because the same institution can look different through different lenses, at different points in time, and after different forms of redesign. Monderman is built to help leadership learn from that movement rather than freeze a single snapshot in place.
+            </p>
           </div>
         </div>
       </div>
@@ -1693,6 +1963,58 @@
 
       revealItems.forEach((item) => revealObserver.observe(item));
     }
+
+    const cyclePanel = document.getElementById("cycleDetailPanel");
+    const cycleLabel = document.getElementById("cycleDetailLabel");
+    const cycleTitle = document.getElementById("cycleDetailTitle");
+    const cycleBody = document.getElementById("cycleDetailBody");
+    const cycleButtons = document.querySelectorAll("[data-cycle-key]");
+
+    const cycleContent = {
+      administrative_reality: {
+        label: "Center signal",
+        title: "Administrative reality evolves",
+        body: "Administrative structures are not static. Internal priorities shift, leadership attention moves, external demands change, and systems are redesigned in response to what the diagnostics reveal. That is why Monderman treats diagnosis as something to revisit, not simply something to complete once."
+      },
+      leadership_response: {
+        label: "Interactive node",
+        title: "Leadership response",
+        body: "Diagnostics matter because they inform action. Leaders recalibrate ownership, reduce approval weight, redesign workflows, or clarify decision rights in response to what the signals show. Those responses then change the institutional conditions the next run will read."
+      },
+      changed_conditions: {
+        label: "Interactive node",
+        title: "Changed conditions",
+        body: "The internal environment changes, the external environment changes, and system experience changes as redesign takes hold. A useful diagnostic approach must therefore help institutions compare runs over time rather than pretend a single snapshot is permanently sufficient."
+      },
+      bounded_input: {
+        label: "Cycle step",
+        title: "Bounded input",
+        body: "Participants respond within a defined lens, scope, and diagnostic structure. The point is not open-ended commentary. It is disciplined input that can be interpreted consistently and compared across runs."
+      },
+      structured_signal: {
+        label: "Cycle step",
+        title: "Structured signal",
+        body: "The engine translates responses into directional signals about administrative reality: where drag is forming, where coherence is weakening, where compensatory behaviors are rising, and where leadership attention is being consumed."
+      }
+    };
+
+    function setCycleState(key) {
+      if (!cyclePanel || !cycleContent[key]) return;
+      const content = cycleContent[key];
+      cycleLabel.textContent = content.label;
+      cycleTitle.textContent = content.title;
+      cycleBody.textContent = content.body;
+
+      cycleButtons.forEach((button) => {
+        const isActive = button.dataset.cycleKey === key;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-pressed", isActive ? "true" : "false");
+      });
+    }
+
+    cycleButtons.forEach((button) => {
+      button.addEventListener("click", () => setCycleState(button.dataset.cycleKey));
+    });
   </script>
 </body>
 </html>
