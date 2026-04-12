@@ -24,7 +24,6 @@
       font-weight: 400;
       font-display: swap;
     }
-
     @font-face {
       font-family: "Neue Haas Grotesk";
       src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff");
@@ -32,7 +31,6 @@
       font-weight: 500;
       font-display: swap;
     }
-
     @font-face {
       font-family: "Neue Haas Grotesk";
       src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff");
@@ -41,655 +39,571 @@
       font-display: swap;
     }
 
-    :root {
-      --accent: #3F6EA1;
-      --accent-dark: #2F5886;
-      --bg-dark: #0F1720;
-      --bg-dark-2: #111B25;
-      --bg-offwhite: #F6F7F8;
-      --bg-white: #FFFFFF;
-      --text-light: #F5F7FA;
-      --text-dark: #15202B;
-      --muted-dark: #556270;
-      --muted-dark-2: #7A8794;
-      --panel-line: rgba(21, 32, 43, 0.08);
-      --success: #2E8B57;
-      --warning: #B8860B;
-      --danger: #B8505E;
-      --max: 1320px;
-      --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
-      --card-shadow: 0 12px 28px rgba(0, 0, 0, 0.045);
-      --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
+    :root{
+      --accent:#3F6EA1;
+      --accent-dark:#2F5886;
+      --bg-dark:#0F1720;
+      --bg-dark-2:#111B25;
+      --bg-offwhite:#F6F7F8;
+      --bg-white:#FFFFFF;
+      --text-light:#F5F7FA;
+      --text-dark:#15202B;
+      --muted-dark:#556270;
+      --muted-dark-2:#7A8794;
+      --panel-line:rgba(21,32,43,.08);
+      --panel-soft:#FBFCFE;
+      --success:#2E8B57;
+      --warning:#B8860B;
+      --danger:#B8505E;
+      --max:1320px;
+      --soft-shadow:0 1px 0 rgba(0,0,0,.012), 0 12px 28px rgba(0,0,0,.04);
+      --card-shadow:0 16px 32px rgba(0,0,0,.045);
+      --transition:220ms cubic-bezier(.22,1,.36,1);
     }
 
-    * { box-sizing: border-box; }
-
-    html {
-      scroll-behavior: smooth;
-      scroll-padding-top: 72px;
+    *{ box-sizing:border-box; }
+    html{ scroll-behavior:smooth; scroll-padding-top:72px; }
+    body{
+      margin:0;
+      background:var(--bg-offwhite);
+      color:var(--text-dark);
+      font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      text-rendering:optimizeLegibility;
     }
+    a{ color:inherit; text-decoration:none; }
+    button,input,select,textarea{ font:inherit; }
+    h1,h2,h3,h4{ letter-spacing:-.04em; }
 
-    body {
-      margin: 0;
-      background: var(--bg-offwhite);
-      color: var(--text-dark);
-      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      text-rendering: optimizeLegibility;
+    .header{
+      position:sticky;
+      top:0;
+      z-index:50;
+      height:72px;
+      background:rgba(15,23,32,.92);
+      border-bottom:1px solid rgba(255,255,255,.08);
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
     }
-
-    a { color: inherit; text-decoration: none; }
-    button, input, select, textarea { font: inherit; }
-
-    .header {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      height: 72px;
-      background: rgba(15, 23, 32, 0.92);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+    .header-inner{
+      max-width:var(--max);
+      height:100%;
+      margin:0 auto;
+      padding:0 28px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
     }
-
-    .header-inner {
-      max-width: var(--max);
-      height: 100%;
-      margin: 0 auto;
-      padding: 0 28px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
+    .brand{
+      display:inline-flex;
+      align-items:center;
+      font-size:1.28rem;
+      font-weight:700;
+      color:#FFF;
+      white-space:nowrap;
     }
-
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      font-size: 1.28rem;
-      font-weight: 700;
-      color: #FFFFFF;
-      letter-spacing: -0.02em;
-      white-space: nowrap;
+    .brand::after{
+      content:"";
+      width:6px; height:6px;
+      margin-left:10px;
+      background:var(--accent);
+      border-radius:1px;
+      transform:translateY(-1px);
     }
-
-    .brand::after {
-      content: "";
-      width: 6px;
-      height: 6px;
-      margin-left: 10px;
-      background: var(--accent);
-      border-radius: 1px;
-      display: inline-block;
-      transform: translateY(-1px);
+    .header-links{
+      display:inline-flex;
+      align-items:center;
+      gap:20px;
+      flex-wrap:wrap;
     }
-
-    .header-links {
-      display: inline-flex;
-      align-items: center;
-      gap: 20px;
-      flex-wrap: wrap;
+    .header-links a{
+      color:rgba(255,255,255,.84);
+      font-size:.96rem;
+      font-weight:500;
+      transition:color var(--transition), transform var(--transition);
     }
-
-    .header-links a {
-      color: rgba(255,255,255,0.84);
-      font-size: 0.96rem;
-      font-weight: 500;
-      transition: color var(--transition), transform var(--transition);
-    }
-
     .header-links a:hover,
-    .header-links a:focus-visible {
-      color: #FFFFFF;
-      transform: translateY(-1px);
-      outline: none;
+    .header-links a:focus-visible{
+      color:#FFF;
+      transform:translateY(-1px);
+      outline:none;
     }
 
-    .page-shell {
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 42px 28px 72px;
+    .page-shell{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:42px 28px 72px;
     }
 
-    .hero {
-      background: linear-gradient(180deg, #0F1720 0%, #111B25 100%);
-      color: var(--text-light);
-      border-radius: 24px;
-      overflow: hidden;
-      position: relative;
-      border: 1px solid rgba(255,255,255,0.06);
-      margin-bottom: 30px;
+    .hero{
+      background:linear-gradient(180deg,#0F1720 0%, #111B25 100%);
+      color:var(--text-light);
+      border-radius:24px;
+      overflow:hidden;
+      position:relative;
+      border:1px solid rgba(255,255,255,.06);
+      margin-bottom:26px;
     }
-
-    .hero::before {
-      content: "";
-      position: absolute;
-      inset: 0;
+    .hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
       background:
-        radial-gradient(circle at 82% 18%, rgba(63,110,161,0.22), transparent 28%),
-        linear-gradient(135deg, rgba(63,110,161,0.05) 1px, transparent 1px);
-      background-size: auto, 32px 32px;
-      opacity: 0.55;
-      pointer-events: none;
+        radial-gradient(circle at 82% 18%, rgba(63,110,161,.22), transparent 28%),
+        linear-gradient(135deg, rgba(63,110,161,.05) 1px, transparent 1px);
+      background-size:auto, 32px 32px;
+      opacity:.55;
+      pointer-events:none;
+    }
+    .hero-inner{
+      position:relative;
+      z-index:1;
+      padding:50px 40px 38px;
+      display:grid;
+      grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);
+      gap:28px;
+      align-items:end;
+    }
+    .eyebrow{
+      margin:0 0 18px;
+      font-size:.74rem;
+      font-weight:700;
+      line-height:1;
+      letter-spacing:.22em;
+      text-transform:uppercase;
+      color:rgba(245,247,250,.64);
+    }
+    .hero h1{
+      margin:0 0 16px;
+      max-width:11ch;
+      font-size:clamp(2.4rem,4.2vw,4.05rem);
+      line-height:.96;
+      font-weight:700;
+      color:#FFF;
+      text-wrap:balance;
+    }
+    .hero p{
+      margin:0;
+      max-width:52ch;
+      font-size:1.05rem;
+      line-height:1.64;
+      color:rgba(245,247,250,.82);
+    }
+    .hero-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:26px;
+    }
+    .hero-meta{
+      display:grid;
+      gap:14px;
+    }
+    .hero-meta-card{
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;
+      padding:18px 18px 16px;
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+    }
+    .hero-meta-title{
+      margin:0 0 8px;
+      font-size:.78rem;
+      font-weight:700;
+      line-height:1;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:rgba(245,247,250,.54);
+    }
+    .hero-meta-text{
+      margin:0;
+      font-size:.93rem;
+      line-height:1.58;
+      color:rgba(245,247,250,.82);
     }
 
-    .hero-inner {
-      position: relative;
-      z-index: 1;
-      padding: 52px 40px 40px;
-      display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
-      gap: 30px;
-      align-items: end;
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:44px;
+      min-width:156px;
+      padding:0 18px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.96);
+      color:var(--text-dark);
+      font-size:.93rem;
+      font-weight:500;
+      cursor:pointer;
+      transition:transform var(--transition), box-shadow var(--transition), background var(--transition), border-color var(--transition), color var(--transition);
     }
-
-    .eyebrow {
-      margin: 0 0 18px;
-      font-size: 0.74rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: rgba(245,247,250,0.64);
-    }
-
-    .hero h1 {
-      margin: 0 0 16px;
-      max-width: 11ch;
-      font-size: clamp(2.4rem, 4.2vw, 4.1rem);
-      line-height: 0.96;
-      letter-spacing: -0.05em;
-      font-weight: 700;
-      color: #FFFFFF;
-      text-wrap: balance;
-    }
-
-    .hero p {
-      margin: 0;
-      max-width: 50ch;
-      font-size: 1.06rem;
-      line-height: 1.64;
-      color: rgba(245,247,250,0.82);
-    }
-
-    .hero-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 28px;
-    }
-
-    .hero-meta {
-      display: grid;
-      gap: 16px;
-      align-self: stretch;
-    }
-
-    .hero-meta-card {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px;
-      padding: 18px 18px 16px;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-
-    .hero-meta-title {
-      margin: 0 0 8px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(245,247,250,0.54);
-    }
-
-    .hero-meta-text {
-      margin: 0;
-      font-size: 0.94rem;
-      line-height: 1.58;
-      color: rgba(245,247,250,0.82);
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 44px;
-      min-width: 156px;
-      padding: 0 18px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(255,255,255,0.96);
-      color: var(--text-dark);
-      font-size: 0.93rem;
-      font-weight: 500;
-      letter-spacing: -0.01em;
-      cursor: pointer;
-      transition:
-        transform var(--transition),
-        box-shadow var(--transition),
-        background var(--transition),
-        border-color var(--transition),
-        color var(--transition);
-    }
-
     .btn:hover,
-    .btn:focus-visible {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 14px rgba(0,0,0,0.08);
-      outline: none;
+    .btn:focus-visible{
+      transform:translateY(-1px);
+      box-shadow:0 6px 14px rgba(0,0,0,.08);
+      outline:none;
     }
-
-    .btn-secondary {
-      background: rgba(255,255,255,0.06);
-      color: #FFFFFF;
-      border-color: rgba(255,255,255,0.16);
+    .btn-secondary{
+      background:rgba(255,255,255,.06);
+      color:#FFF;
+      border-color:rgba(255,255,255,.16);
     }
-
     .btn-secondary:hover,
-    .btn-secondary:focus-visible {
-      background: rgba(255,255,255,0.10);
+    .btn-secondary:focus-visible{
+      background:rgba(255,255,255,.10);
     }
-
-    .btn-accent {
-      background: var(--accent);
-      color: #FFFFFF;
-      border-color: rgba(63,110,161,0.20);
+    .btn-accent{
+      background:var(--accent);
+      color:#FFF;
+      border-color:rgba(63,110,161,.20);
     }
-
     .btn-accent:hover,
-    .btn-accent:focus-visible {
-      background: var(--accent-dark);
-      border-color: rgba(47,88,134,0.24);
+    .btn-accent:focus-visible{
+      background:var(--accent-dark);
+      border-color:rgba(47,88,134,.24);
     }
 
-    .layout {
-      display: grid;
-      gap: 20px;
+    .layout{
+      display:grid;
+      gap:20px;
+    }
+    .panel{
+      background:var(--bg-white);
+      border:1px solid var(--panel-line);
+      border-radius:20px;
+      box-shadow:var(--soft-shadow);
+      overflow:hidden;
+    }
+    .panel-head{
+      padding:24px 26px 16px;
+      border-bottom:1px solid rgba(21,32,43,.06);
+    }
+    .panel-kicker{
+      margin:0 0 10px;
+      font-size:.72rem;
+      font-weight:700;
+      letter-spacing:.20em;
+      line-height:1;
+      text-transform:uppercase;
+      color:var(--accent);
+    }
+    .panel-title{
+      margin:0 0 8px;
+      font-size:1.46rem;
+      line-height:1.08;
+      font-weight:700;
+      color:var(--text-dark);
+    }
+    .panel-copy{
+      margin:0;
+      max-width:72ch;
+      font-size:.98rem;
+      line-height:1.62;
+      color:var(--muted-dark);
+    }
+    .panel-body{
+      padding:22px 26px 28px;
     }
 
-    .panel {
-      background: var(--bg-white);
-      border: 1px solid var(--panel-line);
-      border-radius: 20px;
-      box-shadow: var(--soft-shadow);
-      overflow: hidden;
+    .empty-state{
+      display:grid;
+      gap:14px;
+      align-items:start;
+      padding:22px 20px;
+      border:1px dashed rgba(21,32,43,.14);
+      border-radius:16px;
+      background:#F8F9FA;
+      color:var(--muted-dark);
+    }
+    .empty-state-title{
+      margin:0;
+      font-size:1rem;
+      line-height:1.2;
+      font-weight:700;
+      color:var(--text-dark);
     }
 
-    .panel-head {
-      padding: 24px 26px 16px;
-      border-bottom: 1px solid rgba(21,32,43,0.06);
+    .score-shell{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 360px;
+      gap:16px;
     }
-
-    .panel-kicker {
-      margin: 0 0 10px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      line-height: 1;
-      text-transform: uppercase;
-      color: var(--accent);
+    .score-panel{
+      background:linear-gradient(180deg,#0F1720 0%, #111B25 100%);
+      color:#FFF;
+      border-radius:18px;
+      padding:24px 24px 22px;
+      border:1px solid rgba(255,255,255,.06);
+      position:relative;
+      overflow:hidden;
     }
-
-    .panel-title {
-      margin: 0 0 8px;
-      font-size: 1.46rem;
-      line-height: 1.08;
-      letter-spacing: -0.04em;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-
-    .panel-copy {
-      margin: 0;
-      max-width: 70ch;
-      font-size: 0.98rem;
-      line-height: 1.62;
-      color: var(--muted-dark);
-    }
-
-    .panel-body {
-      padding: 22px 26px 28px;
-    }
-
-    .overview-grid {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .summary-card {
-      background: #FFFFFF;
-      border: 1px solid rgba(21,32,43,0.08);
-      border-radius: 14px;
-      padding: 16px 14px 14px;
-      box-shadow: var(--soft-shadow);
-    }
-
-    .summary-label {
-      margin: 0 0 8px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--muted-dark-2);
-    }
-
-    .summary-value {
-      margin: 0;
-      font-size: 1.18rem;
-      line-height: 1.08;
-      letter-spacing: -0.04em;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-
-    .summary-sub {
-      margin: 8px 0 0;
-      font-size: 0.82rem;
-      line-height: 1.45;
-      color: var(--muted-dark);
-    }
-
-    .score-shell {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 340px;
-      gap: 16px;
-    }
-
-    .score-panel {
-      background: linear-gradient(180deg, #0F1720 0%, #111B25 100%);
-      color: #FFFFFF;
-      border-radius: 18px;
-      padding: 24px 24px 22px;
-      border: 1px solid rgba(255,255,255,0.06);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .score-panel::before {
-      content: "";
-      position: absolute;
-      inset: 0;
+    .score-panel::before{
+      content:"";
+      position:absolute;
+      inset:0;
       background:
-        radial-gradient(circle at 85% 16%, rgba(63,110,161,0.20), transparent 28%),
-        linear-gradient(135deg, rgba(63,110,161,0.05) 1px, transparent 1px);
-      background-size: auto, 28px 28px;
-      opacity: 0.5;
-      pointer-events: none;
+        radial-gradient(circle at 85% 16%, rgba(63,110,161,.20), transparent 28%),
+        linear-gradient(135deg, rgba(63,110,161,.05) 1px, transparent 1px);
+      background-size:auto, 28px 28px;
+      opacity:.5;
+      pointer-events:none;
+    }
+    .score-panel-inner{ position:relative; z-index:1; }
+    .score-label{
+      margin:0 0 8px;
+      font-size:.74rem;
+      font-weight:700;
+      letter-spacing:.22em;
+      line-height:1;
+      text-transform:uppercase;
+      color:rgba(245,247,250,.60);
+    }
+    .score-number{
+      margin:0;
+      font-size:clamp(3rem,6vw,4.6rem);
+      line-height:.9;
+      font-weight:700;
+      letter-spacing:-.08em;
+      color:#FFF;
+    }
+    .score-band{
+      margin:8px 0 0;
+      font-size:1rem;
+      line-height:1.4;
+      font-weight:500;
+      color:rgba(245,247,250,.88);
+    }
+    .score-summary{
+      margin:12px 0 0;
+      max-width:60ch;
+      font-size:.95rem;
+      line-height:1.62;
+      color:rgba(245,247,250,.74);
+      white-space:pre-line;
     }
 
-    .score-panel-inner {
-      position: relative;
-      z-index: 1;
+    .mini-panel{
+      background:#FFF;
+      border:1px solid rgba(21,32,43,.08);
+      border-radius:18px;
+      padding:20px;
+      box-shadow:var(--soft-shadow);
+      display:grid;
+      gap:10px;
+      align-content:start;
+    }
+    .mini-panel h3{
+      margin:0;
+      font-size:1rem;
+      line-height:1.15;
+      font-weight:700;
+      color:var(--text-dark);
+    }
+    .mini-panel p{
+      margin:0;
+      font-size:.92rem;
+      line-height:1.6;
+      color:var(--muted-dark);
     }
 
-    .score-label {
-      margin: 0 0 8px;
-      font-size: 0.74rem;
-      font-weight: 700;
-      letter-spacing: 0.22em;
-      line-height: 1;
-      text-transform: uppercase;
-      color: rgba(245,247,250,0.60);
+    .overview-grid{
+      display:grid;
+      grid-template-columns:repeat(5, minmax(0,1fr));
+      gap:12px;
+      margin-top:16px;
     }
-
-    .score-number {
-      margin: 0;
-      font-size: clamp(3rem, 6vw, 4.6rem);
-      line-height: 0.9;
-      letter-spacing: -0.08em;
-      font-weight: 700;
-      color: #FFFFFF;
+    .summary-card{
+      background:#FFF;
+      border:1px solid rgba(21,32,43,.08);
+      border-radius:14px;
+      padding:16px 14px 14px;
+      box-shadow:var(--soft-shadow);
     }
-
-    .score-band {
-      margin: 8px 0 0;
-      font-size: 1rem;
-      line-height: 1.4;
-      font-weight: 500;
-      color: rgba(245,247,250,0.88);
+    .summary-label{
+      margin:0 0 8px;
+      font-size:.72rem;
+      font-weight:700;
+      line-height:1;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:var(--muted-dark-2);
     }
-
-    .score-summary {
-      margin: 12px 0 0;
-      max-width: 58ch;
-      font-size: 0.95rem;
-      line-height: 1.62;
-      color: rgba(245,247,250,0.74);
-      white-space: pre-line;
+    .summary-value{
+      margin:0;
+      font-size:1.12rem;
+      line-height:1.08;
+      font-weight:700;
+      letter-spacing:-.04em;
+      color:var(--text-dark);
     }
-
-    .mini-panel {
-      background: #FFFFFF;
-      border: 1px solid rgba(21,32,43,0.08);
-      border-radius: 18px;
-      padding: 20px;
-      box-shadow: var(--soft-shadow);
-    }
-
-    .mini-panel h3 {
-      margin: 0 0 10px;
-      font-size: 1rem;
-      line-height: 1.15;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-
-    .mini-panel p {
-      margin: 0;
-      font-size: 0.92rem;
-      line-height: 1.6;
-      color: var(--muted-dark);
+    .summary-sub{
+      margin:8px 0 0;
+      font-size:.82rem;
+      line-height:1.45;
+      color:var(--muted-dark);
     }
 
     .tools-grid,
     .patterns-grid,
-    .actions-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
+    .actions-grid,
+    .signals-grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+      gap:16px;
     }
-
     .tool-card,
     .pattern-card,
-    .action-card {
-      background: #FFFFFF;
-      border: 1px solid rgba(21,32,43,0.08);
-      border-radius: 16px;
-      padding: 18px 18px 16px;
-      box-shadow: var(--soft-shadow);
+    .action-card,
+    .signal-card{
+      background:#FFF;
+      border:1px solid rgba(21,32,43,.08);
+      border-radius:16px;
+      padding:18px 18px 16px;
+      box-shadow:var(--soft-shadow);
     }
-
-    .tool-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 10px;
+    .tool-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
     }
-
-    .tool-name {
-      margin: 0;
-      font-size: 1rem;
-      line-height: 1.15;
-      font-weight: 700;
-      color: var(--text-dark);
+    .tool-name{
+      margin:0;
+      font-size:1rem;
+      line-height:1.15;
+      font-weight:700;
+      color:var(--text-dark);
     }
-
-    .tool-status {
-      padding: 7px 10px;
-      border-radius: 999px;
-      font-size: 0.76rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      border: 1px solid rgba(21,32,43,0.08);
-      background: #F8F9FA;
-      color: var(--muted-dark);
-      white-space: nowrap;
+    .tool-status{
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:.76rem;
+      font-weight:700;
+      line-height:1;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      border:1px solid rgba(21,32,43,.08);
+      background:#F8F9FA;
+      color:var(--muted-dark);
+      white-space:nowrap;
     }
-
-    .tool-status.complete {
-      background: rgba(46,139,87,0.10);
-      border-color: rgba(46,139,87,0.20);
-      color: var(--success);
+    .tool-status.complete{
+      background:rgba(46,139,87,.10);
+      border-color:rgba(46,139,87,.20);
+      color:var(--success);
     }
-
-    .tool-status.missing {
-      background: rgba(184,80,94,0.08);
-      border-color: rgba(184,80,94,0.16);
-      color: var(--danger);
+    .tool-score{
+      margin:0 0 10px;
+      font-size:2rem;
+      line-height:1;
+      letter-spacing:-.06em;
+      font-weight:700;
+      color:var(--accent);
     }
-
-    .tool-score {
-      margin: 0 0 10px;
-      font-size: 2rem;
-      line-height: 1;
-      letter-spacing: -0.06em;
-      font-weight: 700;
-      color: var(--accent);
-    }
-
     .tool-band,
     .tool-context,
     .tool-copy,
     .pattern-card p,
-    .action-card p {
-      margin: 0;
-      font-size: 0.9rem;
-      line-height: 1.58;
-      color: var(--muted-dark);
+    .action-card p,
+    .signal-card p{
+      margin:0;
+      font-size:.9rem;
+      line-height:1.58;
+      color:var(--muted-dark);
     }
-
-    .tool-band {
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: var(--text-dark);
+    .tool-band{
+      margin-bottom:8px;
+      font-weight:600;
+      color:var(--text-dark);
     }
-
-    .tool-context {
-      margin-top: 8px;
-      color: var(--muted-dark-2);
+    .tool-context{
+      margin-top:8px;
+      color:var(--muted-dark-2);
     }
-
     .pattern-card h3,
-    .action-card h3 {
-      margin: 0 0 8px;
-      font-size: 0.98rem;
-      line-height: 1.18;
-      font-weight: 700;
-      color: var(--text-dark);
+    .action-card h3,
+    .signal-card h3{
+      margin:0 0 8px;
+      font-size:.98rem;
+      line-height:1.18;
+      font-weight:700;
+      color:var(--text-dark);
     }
 
-    .list {
-      margin: 0;
-      padding-left: 18px;
-      display: grid;
-      gap: 8px;
+    .list{
+      margin:0;
+      padding-left:18px;
+      display:grid;
+      gap:8px;
     }
-
-    .list li {
-      font-size: 0.9rem;
-      line-height: 1.56;
-      color: var(--muted-dark);
+    .list li{
+      font-size:.9rem;
+      line-height:1.56;
+      color:var(--muted-dark);
     }
-
-    .empty-state {
-      display: grid;
-      gap: 14px;
-      align-items: start;
-      padding: 22px 20px;
-      border: 1px dashed rgba(21,32,43,0.14);
-      border-radius: 16px;
-      background: #F8F9FA;
-      color: var(--muted-dark);
+    .muted-note{
+      margin:0;
+      font-size:.84rem;
+      line-height:1.56;
+      color:var(--muted-dark-2);
     }
-
-    .empty-state-title {
-      margin: 0;
-      font-size: 1rem;
-      line-height: 1.2;
-      font-weight: 700;
-      color: var(--text-dark);
+    .footer-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
     }
+    .hidden{ display:none !important; }
 
-    .footer-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .muted-note {
-      margin: 0;
-      font-size: 0.84rem;
-      line-height: 1.56;
-      color: var(--muted-dark-2);
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    @media (max-width: 1120px) {
+    @media (max-width:1120px){
       .hero-inner,
-      .score-shell {
-        grid-template-columns: 1fr;
+      .score-shell{
+        grid-template-columns:1fr;
       }
     }
-
-    @media (max-width: 980px) {
+    @media (max-width:980px){
       .overview-grid,
       .tools-grid,
       .patterns-grid,
-      .actions-grid {
-        grid-template-columns: 1fr 1fr;
+      .actions-grid,
+      .signals-grid{
+        grid-template-columns:1fr 1fr;
       }
     }
-
-    @media (max-width: 780px) {
-      .header {
-        height: auto;
+    @media (max-width:780px){
+      .header{ height:auto; }
+      .header-inner{
+        padding:16px 20px;
+        align-items:flex-start;
+        flex-direction:column;
+        gap:12px;
       }
-
-      .header-inner {
-        padding: 16px 20px;
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 12px;
-      }
-
-      .page-shell {
-        padding: 28px 20px 64px;
-      }
-
+      .page-shell{ padding:28px 20px 64px; }
       .hero-inner,
       .panel-head,
-      .panel-body {
-        padding-left: 20px;
-        padding-right: 20px;
+      .panel-body{
+        padding-left:20px;
+        padding-right:20px;
       }
-
-      .hero-inner {
-        padding-top: 34px;
-        padding-bottom: 30px;
+      .hero-inner{
+        padding-top:34px;
+        padding-bottom:30px;
       }
-
       .overview-grid,
       .tools-grid,
       .patterns-grid,
-      .actions-grid {
-        grid-template-columns: 1fr;
+      .actions-grid,
+      .signals-grid{
+        grid-template-columns:1fr;
       }
-
       .hero-actions,
-      .footer-actions {
-        flex-direction: column;
-        align-items: stretch;
+      .footer-actions{
+        flex-direction:column;
+        align-items:stretch;
       }
     }
   </style>
@@ -698,7 +612,6 @@
   <header class="header">
     <div class="header-inner">
       <a href="index.html" class="brand">Monderman</a>
-
       <nav class="header-links" aria-label="Page navigation">
         <a href="index.html">Home</a>
         <a href="diagnostic-tools.html">Diagnostic Tools</a>
@@ -714,12 +627,11 @@
           <p class="eyebrow">Monderman Synthesis Layer</p>
           <h1 id="synthesis-title">Cross-tool institutional synthesis.</h1>
           <p>
-            This page combines saved results from Structural Clarity, Decision Velocity, Operational Systems, and Institutional Performance into one integrated Monderman view.
+            This page renders the combined backend synthesis object created from 2 or more saved Monderman diagnostic results.
           </p>
-
           <div class="hero-actions">
             <a class="btn btn-accent" href="diagnostic-tools.html">Return to Diagnostic Tools</a>
-            <button class="btn btn-secondary" id="clearSavedDataBtn" type="button">Clear Saved Tool Results</button>
+            <button class="btn btn-secondary" id="clearSavedDataBtn" type="button">Clear Current Synthesis</button>
           </div>
         </div>
 
@@ -727,14 +639,13 @@
           <div class="hero-meta-card">
             <p class="hero-meta-title">What this does</p>
             <p class="hero-meta-text">
-              Surfaces the shared pattern beneath multiple diagnostic results, not just the individual outputs of each tool.
+              Reads the backend synthesis result directly instead of rebuilding a score from scattered local tool fragments.
             </p>
           </div>
-
           <div class="hero-meta-card">
             <p class="hero-meta-title">What to trust</p>
             <p class="hero-meta-text">
-              Trust recurring patterns across tools more than any single number. The value here is synthesis, not false precision.
+              Trust convergence, contradictions, and action order more than any single number. The value here is the combined read.
             </p>
           </div>
         </div>
@@ -747,15 +658,15 @@
           <p class="panel-kicker">Synthesis Overview</p>
           <h2 class="panel-title">Combined Monderman readout</h2>
           <p class="panel-copy">
-            This section converts the saved local tool payloads into a single directional view of institutional condition, cross-tool risk, and likely intervention order.
+            This page renders the backend output produced by the cross-diagnostic synthesis endpoint.
           </p>
         </div>
 
         <div class="panel-body">
           <div id="emptyState" class="empty-state">
-            <h3 class="empty-state-title">No saved diagnostic payloads detected yet.</h3>
+            <h3 class="empty-state-title">No cross-diagnostic synthesis result is loaded yet.</h3>
             <p>
-              Complete at least one diagnostic and save its result locally, then return here. This page is designed to combine completed tool outputs, not generate them by itself.
+              Return to the Diagnostic Hub, upload 2 or more Monderman diagnostic result files, and run synthesis. This page expects a saved backend synthesis object in the current browser session.
             </p>
           </div>
 
@@ -763,7 +674,7 @@
             <div class="score-shell">
               <div class="score-panel">
                 <div class="score-panel-inner">
-                  <p class="score-label">Composite Institutional Readout</p>
+                  <p class="score-label">Cross-Diagnostic Score</p>
                   <p class="score-number" id="compositeScore">—</p>
                   <p class="score-band" id="compositeBand">—</p>
                   <p class="score-summary" id="compositeSummary">—</p>
@@ -771,40 +682,38 @@
               </div>
 
               <div class="mini-panel">
-                <h3>Primary synthesis view</h3>
-                <p id="synthesisShortView">—</p>
+                <h3>Primary pattern</h3>
+                <p id="primaryPatternText">—</p>
+                <h3 style="margin-top:8px;">Executive summary</h3>
+                <p id="executiveSummaryText">—</p>
               </div>
             </div>
 
-            <div class="overview-grid" style="margin-top:16px;">
+            <div class="overview-grid">
               <div class="summary-card">
-                <p class="summary-label">Tools Loaded</p>
+                <p class="summary-label">Source Tools</p>
                 <p class="summary-value" id="toolsLoadedValue">—</p>
-                <p class="summary-sub">Saved local payloads detected</p>
+                <p class="summary-sub">Completed diagnostics included in synthesis</p>
               </div>
-
               <div class="summary-card">
-                <p class="summary-label">Highest Risk Area</p>
-                <p class="summary-value" id="highestRiskValue">—</p>
-                <p class="summary-sub">Most burdened tool area</p>
+                <p class="summary-label">Condition Band</p>
+                <p class="summary-value" id="conditionBandValue">—</p>
+                <p class="summary-sub">Overall combined institutional read</p>
               </div>
-
               <div class="summary-card">
-                <p class="summary-label">Primary Constraint</p>
-                <p class="summary-value" id="primaryConstraintValue">—</p>
-                <p class="summary-sub">Most likely structural bottleneck</p>
+                <p class="summary-label">Annual Hours</p>
+                <p class="summary-value" id="annualHoursValue">—</p>
+                <p class="summary-sub">Directional compounded hours exposure</p>
               </div>
-
               <div class="summary-card">
-                <p class="summary-label">Compensation Risk</p>
-                <p class="summary-value" id="compensationRiskValue">—</p>
-                <p class="summary-sub">Likelihood of hidden compensatory effort</p>
+                <p class="summary-label">Annual Cost</p>
+                <p class="summary-value" id="annualCostValue">—</p>
+                <p class="summary-sub">Directional compounded labor exposure</p>
               </div>
-
               <div class="summary-card">
-                <p class="summary-label">Intervention Order</p>
-                <p class="summary-value" id="interventionOrderValue">—</p>
-                <p class="summary-sub">Best starting point</p>
+                <p class="summary-label">Capacity Drag</p>
+                <p class="summary-value" id="capacityDragValue">—</p>
+                <p class="summary-sub">Combined directional drag estimate</p>
               </div>
             </div>
           </div>
@@ -813,10 +722,10 @@
 
       <section class="panel hidden" id="toolReadoutPanel">
         <div class="panel-head">
-          <p class="panel-kicker">Loaded Diagnostic Results</p>
-          <h2 class="panel-title">Per-tool status and score picture</h2>
+          <p class="panel-kicker">Source Diagnostic Results</p>
+          <h2 class="panel-title">Per-tool inputs included in synthesis</h2>
           <p class="panel-copy">
-            This view shows which saved results were found locally and how each one is contributing to the synthesis.
+            These are the individual diagnostic results the synthesis engine used to generate the combined readout.
           </p>
         </div>
         <div class="panel-body">
@@ -824,25 +733,38 @@
         </div>
       </section>
 
-      <section class="panel hidden" id="patternsPanel">
+      <section class="panel hidden" id="signalsPanel">
         <div class="panel-head">
-          <p class="panel-kicker">Cross-Tool Patterns</p>
-          <h2 class="panel-title">Recurring patterns beneath the surface</h2>
+          <p class="panel-kicker">Convergence Signals</p>
+          <h2 class="panel-title">Where multiple tools are pointing to the same thing</h2>
           <p class="panel-copy">
-            These are the strongest shared signals detected across the currently loaded diagnostics.
+            These are the strongest reinforcing signals across the uploaded diagnostics.
           </p>
         </div>
         <div class="panel-body">
-          <div class="patterns-grid" id="patternsGrid"></div>
+          <div class="signals-grid" id="signalsGrid"></div>
+        </div>
+      </section>
+
+      <section class="panel hidden" id="contradictionsPanel">
+        <div class="panel-head">
+          <p class="panel-kicker">Contradictions</p>
+          <h2 class="panel-title">Where the tools do not fully agree</h2>
+          <p class="panel-copy">
+            These contradictions are often where hidden compensation, local adaptation, or deeper structural issues become visible.
+          </p>
+        </div>
+        <div class="panel-body">
+          <ul class="list" id="contradictionsList"></ul>
         </div>
       </section>
 
       <section class="panel hidden" id="prioritiesPanel">
         <div class="panel-head">
-          <p class="panel-kicker">Recommended Priorities</p>
+          <p class="panel-kicker">Priority Actions</p>
           <h2 class="panel-title">Where leadership should probably begin</h2>
           <p class="panel-copy">
-            These priorities are derived from the combined pattern, not just the weakest single score.
+            These are sequenced from the combined synthesis output, not from a single isolated tool score.
           </p>
         </div>
         <div class="panel-body">
@@ -850,16 +772,16 @@
         </div>
       </section>
 
-      <section class="panel hidden" id="flagPanel">
+      <section class="panel hidden" id="narrativePanel">
         <div class="panel-head">
-          <p class="panel-kicker">Combined Flag Layer</p>
-          <h2 class="panel-title">Most important synthesis flags</h2>
+          <p class="panel-kicker">Narrative Layer</p>
+          <h2 class="panel-title">Leadership implication and sequencing logic</h2>
           <p class="panel-copy">
-            This is the merged flag view from all available saved diagnostics.
+            This section carries the backend narrative fields directly into the readout.
           </p>
         </div>
         <div class="panel-body">
-          <ul class="list" id="mergedFlagsList"></ul>
+          <div class="patterns-grid" id="narrativeGrid"></div>
         </div>
       </section>
 
@@ -873,9 +795,8 @@
         </div>
         <div class="panel-body">
           <p class="muted-note" id="footerNote">
-            This synthesis is directional and based only on locally saved tool payloads available in this browser.
+            This synthesis is directional and based on uploaded diagnostic results in the current browser session.
           </p>
-
           <div class="footer-actions" style="margin-top:16px;">
             <a class="btn btn-accent" href="diagnostic-tools.html">Run or Revisit Diagnostics</a>
             <a class="btn" href="advisory-services.html">Explore Advisory Engagements</a>
@@ -886,98 +807,10 @@
   </main>
 
   <script>
-    const STORAGE_CANDIDATES = {
-      structural: [
-        "monderman_structural_clarity_result",
-        "mondermanStructuralClarityResult",
-        "structuralClarityResult",
-        "structural_clarity_result"
-      ],
-      velocity: [
-        "monderman_decision_velocity_result",
-        "mondermanDecisionVelocityResult",
-        "decisionVelocityResult",
-        "decision_velocity_result"
-      ],
-      systems: [
-        "monderman_operational_systems",
-        "monderman_operational_systems_result",
-        "mondermanOperationalSystemsResult",
-        "operationalSystemsResult",
-        "operational_systems_result"
-      ],
-      performance: [
-        "monderman_institutional_performance_result",
-        "mondermanInstitutionalPerformanceResult",
-        "institutionalPerformanceResult",
-        "institutional_performance_result"
-      ]
-    };
-
-    const TOOL_META = {
-      structural: {
-        label: "Structural Clarity",
-        href: "structural-clarity.html",
-        scoreField: "score",
-        bandField: "band",
-        contextFields: ["focusArea", "focus_area", "badge"],
-        riskLabel: "Structural ambiguity"
-      },
-      velocity: {
-        label: "Decision Velocity",
-        href: "decision-velocity.html",
-        scoreField: "score",
-        bandField: "band",
-        contextFields: ["processName", "process_name", "badge"],
-        riskLabel: "Decision drag"
-      },
-      systems: {
-        label: "Operational Systems",
-        href: "bureaucratic-drag-snapshot.html",
-        scoreField: "score",
-        bandField: "band",
-        contextFields: ["processName", "process_name", "badge"],
-        riskLabel: "Administrative burden"
-      },
-      performance: {
-        label: "Institutional Performance",
-        href: "institutional-performance.html",
-        scoreField: "score",
-        bandField: "band",
-        contextFields: ["unitName", "unit_name", "badge"],
-        riskLabel: "Institutional fragility"
-      }
-    };
-
-    function safeParse(value) {
-      try {
-        return JSON.parse(value);
-      } catch {
-        return null;
-      }
-    }
-
-    function loadFirstAvailable(keys) {
-      for (const key of keys) {
-        const raw = localStorage.getItem(key);
-        if (!raw) continue;
-        const parsed = safeParse(raw);
-        if (parsed && typeof parsed === "object") {
-          return { key, data: parsed };
-        }
-      }
-      return null;
-    }
-
-    function getContextValue(data, fields) {
-      for (const field of fields) {
-        if (data && data[field]) return data[field];
-      }
-      return "Saved result";
-    }
+    const SYNTHESIS_STORAGE_KEY = "mondermanCrossDiagnosticSynthesis";
 
     function escapeHtml(str) {
-      return String(str)
+      return String(str ?? "")
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
@@ -985,398 +818,188 @@
         .replaceAll("'", "&#39;");
     }
 
-    function normalizeScore(value) {
+    function formatNumber(value) {
       const n = Number(value);
-      if (Number.isNaN(n)) return null;
-      return Math.max(0, Math.min(100, n));
+      if (!Number.isFinite(n)) return "—";
+      return new Intl.NumberFormat("en-US").format(Math.round(n));
     }
 
-    function bandFromComposite(score) {
-      if (score >= 82) return "Broadly coherent institutional picture";
-      if (score >= 68) return "Functional but exposed cross-tool picture";
-      if (score >= 52) return "Material multi-system friction";
-      return "Cross-tool institutional strain";
+    function formatCurrency(value) {
+      const n = Number(value);
+      if (!Number.isFinite(n)) return "—";
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0
+      }).format(n);
     }
 
-    function buildCompositeSummary(score, loadedCount, patterns) {
-      const strongest = patterns[0] ? patterns[0].title.toLowerCase() : "no dominant shared pattern yet";
-      if (score >= 82) {
-        return `The currently loaded tools suggest a relatively coherent institutional picture. That does not mean there is no friction; it means the burden appears more bounded than systemic. The strongest shared pattern is ${strongest}.`;
+    function loadSynthesisResult() {
+      const raw = sessionStorage.getItem(SYNTHESIS_STORAGE_KEY);
+      if (!raw) return null;
+      try {
+        const parsed = JSON.parse(raw);
+        return parsed && typeof parsed === "object" ? parsed : null;
+      } catch {
+        return null;
       }
-      if (score >= 68) {
-        return `The currently loaded tools suggest an institution that is still functioning, but with meaningful exposure forming beneath the surface. The strongest shared pattern is ${strongest}. With ${loadedCount} tool result${loadedCount === 1 ? "" : "s"} loaded, the picture looks more stable than broken, but not self-correcting.`;
-      }
-      if (score >= 52) {
-        return `The loaded tools suggest material friction across multiple layers of the institution. This does not look like a single isolated issue. The strongest shared pattern is ${strongest}, which likely means leaders are seeing symptoms in several places that share the same structural root.`;
-      }
-      return `The loaded tools suggest a strained institutional picture with multiple reinforcing sources of weakness. The strongest shared pattern is ${strongest}. This kind of profile often means output is still being preserved, but increasingly through compensation, extra management lift, and informal stabilization.`;
     }
 
-    function getHighestRiskTool(loadedTools) {
-      if (!loadedTools.length) return "—";
-      const sorted = [...loadedTools].sort((a, b) => a.score - b.score);
-      return sorted[0].label;
-    }
-
-    function getCompensationRisk(loaded) {
-      let risk = 0;
-
-      const performance = loaded.performance?.data;
-      const systems = loaded.systems?.data;
-      const velocity = loaded.velocity?.data;
-      const structural = loaded.structural?.data;
-
-      if (performance) {
-        const fragility = String(performance.fragility || "").toLowerCase();
-        if (fragility === "high") risk += 3;
-        else if (fragility === "elevated" || fragility === "moderate") risk += 2;
-      }
-
-      if (systems && normalizeScore(systems.score) < 65) risk += 2;
-      if (velocity && normalizeScore(velocity.score) < 65) risk += 2;
-      if (structural && normalizeScore(structural.score) < 65) risk += 2;
-
-      if (risk >= 7) return "High";
-      if (risk >= 4) return "Moderate";
-      return "Low";
-    }
-
-    function derivePatterns(loaded) {
-      const patterns = [];
-
-      const structural = loaded.structural?.data;
-      const velocity = loaded.velocity?.data;
-      const systems = loaded.systems?.data;
-      const performance = loaded.performance?.data;
-
-      const structuralScore = structural ? normalizeScore(structural.score) : null;
-      const velocityScore = velocity ? normalizeScore(velocity.score) : null;
-      const systemsScore = systems ? normalizeScore(systems.score) : null;
-      const performanceScore = performance ? normalizeScore(performance.score) : null;
-
-      if (structuralScore != null && velocityScore != null && structuralScore < 70 && velocityScore < 70) {
-        patterns.push({
-          title: "Unclear structure is likely slowing decisions",
-          body: "Structural Clarity and Decision Velocity both appear burdened. That usually suggests delay is not just procedural. It is likely tied to ownership blur, unclear escalation, or weak decision-right alignment."
-        });
-      }
-
-      if (velocityScore != null && systemsScore != null && velocityScore < 70 && systemsScore < 70) {
-        patterns.push({
-          title: "Process burden appears to be slowing movement",
-          body: "Decision Velocity and Operational Systems both appear burdened. That usually means the institution is not just making slow decisions; it is routing work through an operating system that has become heavier than the work requires."
-        });
-      }
-
-      if (structuralScore != null && systemsScore != null && structuralScore < 70 && systemsScore < 70) {
-        patterns.push({
-          title: "Administrative load is likely landing on weak boundaries",
-          body: "Structural Clarity and Operational Systems are both under strain. That often means process weight is not landing on a clean structure, which increases overlap, orphaned work, and coordination drag."
-        });
-      }
-
-      if (performanceScore != null && performanceScore < 70) {
-        patterns.push({
-          title: "Institutional condition is beginning to depend on compensation",
-          body: "Institutional Performance is showing exposure. Even if other tools are mixed, this usually means visible output may be relying more on management lift, extra effort, or informal stabilization than leaders fully see."
-        });
-      }
-
-      if (
-        structuralScore != null &&
-        velocityScore != null &&
-        systemsScore != null &&
-        performanceScore != null &&
-        structuralScore < 68 &&
-        velocityScore < 68 &&
-        systemsScore < 68 &&
-        performanceScore < 68
-      ) {
-        patterns.unshift({
-          title: "The friction pattern appears systemic rather than isolated",
-          body: "All four loaded tools are signaling meaningful burden. That usually means the problem is not best understood as one bad process or one difficult team. It is more likely a reinforcing institutional pattern across structure, decisions, operations, and performance condition."
-        });
-      }
-
-      if (!patterns.length) {
-        patterns.push({
-          title: "No dominant cross-tool pattern yet",
-          body: "The currently loaded results do not yet point to one clearly dominant shared pattern. This can mean either the environment is relatively bounded, or that more completed tools are needed before the synthesis sharpens."
-        });
-      }
-
-      return patterns.slice(0, 4);
-    }
-
-    function derivePriorities(loaded) {
-      const priorities = [];
-      const structural = loaded.structural?.data;
-      const velocity = loaded.velocity?.data;
-      const systems = loaded.systems?.data;
-      const performance = loaded.performance?.data;
-
-      const toolScores = [
-        { key: "structural", label: "Structural Clarity", score: structural ? normalizeScore(structural.score) : null },
-        { key: "velocity", label: "Decision Velocity", score: velocity ? normalizeScore(velocity.score) : null },
-        { key: "systems", label: "Operational Systems", score: systems ? normalizeScore(systems.score) : null },
-        { key: "performance", label: "Institutional Performance", score: performance ? normalizeScore(performance.score) : null }
-      ]
-        .filter(item => item.score != null)
-        .sort((a, b) => a.score - b.score);
-
-      if (toolScores[0]) {
-        priorities.push({
-          title: `Begin with ${toolScores[0].label}`,
-          body: `The weakest currently loaded score sits in ${toolScores[0].label}. That does not mean it is the only problem, but it is probably the cleanest starting point for intervention.`
-        });
-      }
-
-      if (structural && velocity && normalizeScore(structural.score) < 70 && normalizeScore(velocity.score) < 70) {
-        priorities.push({
-          title: "Clarify ownership before trying to accelerate",
-          body: "If structure is blurred, trying to speed decisions first often just accelerates confusion. Clean up ownership, escalation, and authority before pushing for more tempo."
-        });
-      }
-
-      if (systems && normalizeScore(systems.score) < 70) {
-        priorities.push({
-          title: "Remove low-value operating weight",
-          body: "Audit steps, reporting, duplicate entry, review layering, and system switching. Reducing low-value administrative burden is often the fastest way to create visible relief."
-        });
-      }
-
-      if (performance && normalizeScore(performance.score) < 70) {
-        priorities.push({
-          title: "Reduce dependence on compensatory effort",
-          body: "Where performance is being preserved by extra management lift, heroic effort, or informal workarounds, leaders should treat that as a warning signal rather than proof the system is healthy."
-        });
-      }
-
-      if (!priorities.length) {
-        priorities.push({
-          title: "Complete more tools before acting decisively",
-          body: "With too few saved results, the synthesis can remain directionally useful but still underpowered for confident prioritization."
-        });
-      }
-
-      return priorities.slice(0, 4);
-    }
-
-    function mergeFlags(loaded) {
-      const allFlags = [];
-
-      ["structural", "velocity", "systems", "performance"].forEach(key => {
-        const payload = loaded[key]?.data;
-        const candidateArrays = [
-          payload?.flags,
-          payload?.primaryFlags,
-          payload?.keyFlags
-        ];
-
-        candidateArrays.forEach(arr => {
-          if (Array.isArray(arr)) {
-            arr.forEach(flag => allFlags.push(flag));
-          }
-        });
-      });
-
-      const seen = new Set();
-      return allFlags.filter(flag => {
-        const normalized = String(flag).trim().toLowerCase();
-        if (!normalized || seen.has(normalized)) return false;
-        seen.add(normalized);
-        return true;
-      }).slice(0, 10);
-    }
-
-    function getPrimaryConstraint(loaded) {
-      const scores = {
-        structural: loaded.structural?.data ? normalizeScore(loaded.structural.data.score) : null,
-        velocity: loaded.velocity?.data ? normalizeScore(loaded.velocity.data.score) : null,
-        systems: loaded.systems?.data ? normalizeScore(loaded.systems.data.score) : null,
-        performance: loaded.performance?.data ? normalizeScore(loaded.performance.data.score) : null
-      };
-
-      const entries = Object.entries(scores).filter(([, v]) => v != null).sort((a, b) => a[1] - b[1]);
-      if (!entries.length) return "—";
-
-      const [lowestKey] = entries[0];
-
-      if (lowestKey === "structural") return "Structural ambiguity";
-      if (lowestKey === "velocity") return "Decision drag";
-      if (lowestKey === "systems") return "Administrative burden";
-      return "Institutional fragility";
-    }
-
-    function getInterventionOrder(loaded) {
-      const scores = {
-        structural: loaded.structural?.data ? normalizeScore(loaded.structural.data.score) : null,
-        velocity: loaded.velocity?.data ? normalizeScore(loaded.velocity.data.score) : null,
-        systems: loaded.systems?.data ? normalizeScore(loaded.systems.data.score) : null,
-        performance: loaded.performance?.data ? normalizeScore(loaded.performance.data.score) : null
-      };
-
-      const entries = Object.entries(scores)
-        .filter(([, v]) => v != null)
-        .sort((a, b) => a[1] - b[1]);
-
-      if (!entries.length) return "—";
-
-      const [lowestKey] = entries[0];
-      const map = {
-        structural: "Structure first",
-        velocity: "Decision path first",
-        systems: "Operating load first",
-        performance: "Condition review first"
-      };
-
-      return map[lowestKey] || "Targeted review first";
-    }
-
-    function renderToolCards(loaded) {
+    function renderSourceTools(sourceResults) {
       const toolsGrid = document.getElementById("toolsGrid");
       toolsGrid.innerHTML = "";
 
-      Object.entries(TOOL_META).forEach(([key, meta]) => {
-        const payload = loaded[key];
-        const exists = !!payload;
-        const score = exists ? normalizeScore(payload.data[meta.scoreField]) : null;
-        const band = exists ? (payload.data[meta.bandField] || "Saved result") : "No saved result found";
-        const context = exists ? getContextValue(payload.data, meta.contextFields) : "Run the diagnostic to populate this area.";
-
+      sourceResults.forEach((tool) => {
         toolsGrid.insertAdjacentHTML("beforeend", `
           <article class="tool-card">
             <div class="tool-top">
-              <h3 class="tool-name">${escapeHtml(meta.label)}</h3>
-              <div class="tool-status ${exists ? "complete" : "missing"}">${exists ? "Loaded" : "Missing"}</div>
+              <h3 class="tool-name">${escapeHtml(tool.tool_label || tool.tool_type || "Saved tool")}</h3>
+              <div class="tool-status complete">Loaded</div>
             </div>
-            <p class="tool-score">${exists && score != null ? escapeHtml(String(score)) : "—"}</p>
-            <p class="tool-band">${escapeHtml(band)}</p>
-            <p class="tool-copy">${exists ? "Saved local result detected and included in synthesis." : "This tool is not yet contributing to the synthesis."}</p>
-            <p class="tool-context">${escapeHtml(context)}</p>
+            <p class="tool-score">${escapeHtml(String(tool.score ?? "—"))}</p>
+            <p class="tool-band">${escapeHtml(tool.band || "Saved result")}</p>
+            <p class="tool-copy">Primary driver: ${escapeHtml(tool.primary_driver || "Not specified")}</p>
+            <p class="tool-context">${escapeHtml(tool.context?.process_name || tool.context?.business_unit || tool.context?.participant_mode || "Saved synthesis input")}</p>
           </article>
         `);
       });
     }
 
-    function renderPatterns(patterns) {
-      const patternsGrid = document.getElementById("patternsGrid");
-      patternsGrid.innerHTML = "";
-      patterns.forEach(pattern => {
-        patternsGrid.insertAdjacentHTML("beforeend", `
-          <article class="pattern-card">
-            <h3>${escapeHtml(pattern.title)}</h3>
-            <p>${escapeHtml(pattern.body)}</p>
+    function renderSignals(signals) {
+      const signalsGrid = document.getElementById("signalsGrid");
+      signalsGrid.innerHTML = "";
+      signals.forEach((signal, index) => {
+        signalsGrid.insertAdjacentHTML("beforeend", `
+          <article class="signal-card">
+            <h3>Signal ${index + 1}</h3>
+            <p>${escapeHtml(signal)}</p>
           </article>
         `);
+      });
+    }
+
+    function renderContradictions(contradictions) {
+      const contradictionsList = document.getElementById("contradictionsList");
+      contradictionsList.innerHTML = "";
+      contradictions.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        contradictionsList.appendChild(li);
       });
     }
 
     function renderActions(actions) {
       const actionsGrid = document.getElementById("actionsGrid");
       actionsGrid.innerHTML = "";
-      actions.forEach(action => {
+      actions.forEach((action, index) => {
         actionsGrid.insertAdjacentHTML("beforeend", `
           <article class="action-card">
-            <h3>${escapeHtml(action.title)}</h3>
-            <p>${escapeHtml(action.body)}</p>
+            <h3>${escapeHtml(index === 0 ? "First move" : index === 1 ? "Second move" : `Priority ${index + 1}`)}</h3>
+            <p>${escapeHtml(action)}</p>
           </article>
         `);
       });
     }
 
-    function renderMergedFlags(flags) {
-      const list = document.getElementById("mergedFlagsList");
-      list.innerHTML = "";
-      flags.forEach(flag => {
-        const li = document.createElement("li");
-        li.textContent = flag;
-        list.appendChild(li);
+    function renderNarrative(narrative) {
+      const narrativeGrid = document.getElementById("narrativeGrid");
+      narrativeGrid.innerHTML = "";
+
+      const cards = [
+        {
+          title: "Executive summary",
+          body: narrative?.executive_summary || "No executive summary returned."
+        },
+        {
+          title: "Leadership implication",
+          body: narrative?.leadership_implication || "No leadership implication returned."
+        },
+        {
+          title: "Sequenced action logic",
+          body: narrative?.sequenced_action_logic || "No sequenced action logic returned."
+        }
+      ];
+
+      cards.forEach((card) => {
+        narrativeGrid.insertAdjacentHTML("beforeend", `
+          <article class="pattern-card">
+            <h3>${escapeHtml(card.title)}</h3>
+            <p>${escapeHtml(card.body)}</p>
+          </article>
+        `);
       });
     }
 
-    function buildLoadedMap() {
-      const loaded = {};
+    function initSynthesisPage() {
+      const result = loadSynthesisResult();
 
-      Object.entries(STORAGE_CANDIDATES).forEach(([key, keys]) => {
-        const found = loadFirstAvailable(keys);
-        if (found) loaded[key] = found;
-      });
-
-      return loaded;
-    }
-
-    function initSynthesis() {
-      const loaded = buildLoadedMap();
-
-      const loadedTools = Object.entries(TOOL_META)
-        .map(([key, meta]) => {
-          const payload = loaded[key];
-          if (!payload) return null;
-          const score = normalizeScore(payload.data.score);
-          if (score == null) return null;
-          return {
-            key,
-            label: meta.label,
-            score,
-            band: payload.data.band || "Saved result"
-          };
-        })
-        .filter(Boolean);
-
-      if (!loadedTools.length) {
+      if (!result) {
         document.getElementById("emptyState").classList.remove("hidden");
         document.getElementById("synthesisContent").classList.add("hidden");
         return;
       }
 
-      const compositeRaw = loadedTools.reduce((sum, tool) => sum + tool.score, 0) / loadedTools.length;
-      const composite = Math.round(compositeRaw);
-      const patterns = derivePatterns(loaded);
-      const priorities = derivePriorities(loaded);
-      const mergedFlags = mergeFlags(loaded);
-
       document.getElementById("emptyState").classList.add("hidden");
       document.getElementById("synthesisContent").classList.remove("hidden");
-
       document.getElementById("toolReadoutPanel").classList.remove("hidden");
-      document.getElementById("patternsPanel").classList.remove("hidden");
+      document.getElementById("signalsPanel").classList.remove("hidden");
       document.getElementById("prioritiesPanel").classList.remove("hidden");
-      document.getElementById("flagPanel").classList.remove("hidden");
+      document.getElementById("narrativePanel").classList.remove("hidden");
       document.getElementById("footerPanel").classList.remove("hidden");
 
-      document.getElementById("compositeScore").textContent = composite;
-      document.getElementById("compositeBand").textContent = bandFromComposite(composite);
-      document.getElementById("compositeSummary").textContent = buildCompositeSummary(composite, loadedTools.length, patterns);
+      if ((result.contradictions || []).length) {
+        document.getElementById("contradictionsPanel").classList.remove("hidden");
+      }
 
-      document.getElementById("synthesisShortView").textContent =
-        composite >= 82
-          ? "The loaded picture is comparatively coherent, but still worth monitoring for creep and hidden compensation."
-          : composite >= 68
-          ? "The loaded picture is functional, but clearly exposed across multiple layers."
-          : composite >= 52
-          ? "The loaded picture suggests reinforcing friction across structure, decisions, operations, and condition."
-          : "The loaded picture suggests broad institutional strain rather than one isolated issue.";
+      document.getElementById("compositeScore").textContent = result.cross_diagnostic_score ?? "—";
+      document.getElementById("compositeBand").textContent = result.condition_band || "—";
+      document.getElementById("compositeSummary").textContent =
+        result.narrative?.leadership_implication ||
+        result.primary_pattern ||
+        "No synthesis summary returned.";
 
-      document.getElementById("toolsLoadedValue").textContent = `${loadedTools.length}/4`;
-      document.getElementById("highestRiskValue").textContent = getHighestRiskTool(loadedTools);
-      document.getElementById("primaryConstraintValue").textContent = getPrimaryConstraint(loaded);
-      document.getElementById("compensationRiskValue").textContent = getCompensationRisk(loaded);
-      document.getElementById("interventionOrderValue").textContent = getInterventionOrder(loaded);
+      document.getElementById("primaryPatternText").textContent =
+        result.primary_pattern || "No primary pattern returned.";
 
-      renderToolCards(loaded);
-      renderPatterns(patterns);
-      renderActions(priorities);
-      renderMergedFlags(mergedFlags);
+      document.getElementById("executiveSummaryText").textContent =
+        result.narrative?.executive_summary || "No executive summary returned.";
+
+      document.getElementById("toolsLoadedValue").textContent =
+        Array.isArray(result.source_results) ? `${result.source_results.length} loaded` : "—";
+
+      document.getElementById("conditionBandValue").textContent =
+        result.condition_band || "—";
+
+      document.getElementById("annualHoursValue").textContent =
+        formatNumber(result.compounded_exposure?.annual_hours);
+
+      document.getElementById("annualCostValue").textContent =
+        formatCurrency(result.compounded_exposure?.annual_cost);
+
+      const drag = result.compounded_exposure?.capacity_drag_percent;
+      document.getElementById("capacityDragValue").textContent =
+        Number.isFinite(Number(drag)) ? `${Math.round(Number(drag))}%` : "—";
+
+      renderSourceTools(result.source_results || []);
+      renderSignals(result.convergence_signals || ["No convergence signals returned."]);
+      renderActions(result.priority_actions || ["No priority actions returned."]);
+      renderNarrative(result.narrative || {});
+
+      if ((result.contradictions || []).length) {
+        renderContradictions(result.contradictions);
+      }
+
+      const footerNote = document.getElementById("footerNote");
+      footerNote.textContent =
+        `This synthesis is directional and based on ${Array.isArray(result.source_results) ? result.source_results.length : 0} uploaded diagnostic result${Array.isArray(result.source_results) && result.source_results.length === 1 ? "" : "s"} in the current browser session.`;
     }
 
     document.getElementById("clearSavedDataBtn").addEventListener("click", () => {
-      const allKeys = Object.values(STORAGE_CANDIDATES).flat();
-      allKeys.forEach(key => localStorage.removeItem(key));
+      sessionStorage.removeItem(SYNTHESIS_STORAGE_KEY);
       window.location.reload();
     });
 
-    initSynthesis();
+    initSynthesisPage();
   </script>
 </body>
 </html>
