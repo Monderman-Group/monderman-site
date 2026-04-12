@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monderman Auth Test</title>
+</head>
+<body style="font-family: Arial, sans-serif; padding: 40px;">
+  <h1>Monderman Auth Test</h1>
+  <button id="googleSignInBtn">Sign in with Google</button>
+  <pre id="status" style="margin-top:20px; background:#f4f4f4; padding:16px; border-radius:8px;"></pre>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    const supabaseUrl = "https://ptkxrzgmeldalrkfruth.supabase.co";
+    const supabaseKey = "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const status = document.getElementById("status");
+    const btn = document.getElementById("googleSignInBtn");
+
+    btn.addEventListener("click", async () => {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: "https://www.monderman.com/auth-test.html"
+        }
+      });
+
+      if (error) {
+        status.textContent = "Sign-in error: " + error.message;
+      }
+    });
+
+    const { data, error } = await supabase.auth.getUser();
+
+    if (error) {
+      status.textContent = "Auth check error: " + error.message;
+    } else if (data?.user) {
+      status.textContent = JSON.stringify(data.user, null, 2);
+    } else {
+      status.textContent = "Not signed in yet.";
+    }
+  </script>
+</body>
+</html>
