@@ -1089,51 +1089,96 @@
 
     .learning-cycle-shell {
       margin-top: 34px;
-      padding: 30px 32px 28px;
-      background: linear-gradient(180deg, rgba(63, 110, 161, 0.05) 0%, rgba(63, 110, 161, 0.025) 100%);
+      padding: 34px;
+      background: linear-gradient(180deg, rgba(63, 110, 161, 0.06) 0%, rgba(63, 110, 161, 0.028) 100%);
       border: 1px solid rgba(21, 32, 43, 0.08);
-      border-radius: 24px;
+      border-radius: 26px;
       box-shadow: var(--soft-shadow);
     }
 
     .learning-cycle-grid {
       display: grid;
-      grid-template-columns: minmax(360px, 430px) minmax(0, 1fr);
-      gap: 32px;
-      align-items: center;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 34px;
+      align-items: stretch;
     }
 
     .cycle-figure {
       display: grid;
-      place-items: center;
-      min-height: 420px;
+      align-content: start;
+      gap: 18px;
+      min-height: 100%;
+    }
+
+    .cycle-frame {
+      position: relative;
+      min-height: 520px;
+      padding: 26px 24px 22px;
+      background: rgba(255, 255, 255, 0.98);
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      border-radius: 22px;
+      box-shadow: var(--soft-shadow);
+      overflow: hidden;
+    }
+
+    .cycle-frame::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 22% 18%, rgba(63, 110, 161, 0.07), transparent 30%),
+        linear-gradient(135deg, rgba(63, 110, 161, 0.022) 1px, transparent 1px);
+      background-size: auto, 22px 22px;
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    .cycle-figure-header,
+    .cycle-diagram,
+    .cycle-mini-notes {
+      position: relative;
+      z-index: 1;
+    }
+
+    .cycle-figure-header {
+      margin-bottom: 10px;
+    }
+
+    .cycle-figure-kicker {
+      margin: 0 0 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .cycle-figure-title {
+      margin: 0;
+      max-width: 16ch;
+      font-size: 1.26rem;
+      line-height: 1.08;
+      font-weight: 700;
+      letter-spacing: -0.042em;
+      color: var(--text-dark);
+      text-wrap: balance;
     }
 
     .cycle-diagram {
       position: relative;
-      width: 390px;
-      height: 390px;
+      width: min(100%, 470px);
+      aspect-ratio: 1 / 1;
+      margin: 0 auto;
     }
 
-    .cycle-orbit,
-    .cycle-orbit-inner {
+    .cycle-svg {
       position: absolute;
-      inset: 50%;
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
       pointer-events: none;
-    }
-
-    .cycle-orbit {
-      width: 304px;
-      height: 304px;
-      border: 2px dashed rgba(63, 110, 161, 0.24);
-    }
-
-    .cycle-orbit-inner {
-      width: 236px;
-      height: 236px;
-      border: 1.5px solid rgba(63, 110, 161, 0.12);
     }
 
     .cycle-node,
@@ -1143,21 +1188,32 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      background: rgba(255, 255, 255, 0.96);
+      background: rgba(255, 255, 255, 0.98);
       border: 1px solid rgba(21, 32, 43, 0.08);
       box-shadow: var(--soft-shadow);
       color: var(--text-dark);
+      isolation: isolate;
+    }
+
+    .cycle-node::before,
+    .cycle-center::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(248,250,251,0.96) 100%);
+      z-index: -1;
     }
 
     .cycle-node {
-      min-width: 160px;
-      min-height: 74px;
-      padding: 14px 16px;
-      border-radius: 20px;
-      font-size: 0.95rem;
-      line-height: 1.18;
+      min-width: 176px;
+      min-height: 86px;
+      padding: 16px 18px;
+      border-radius: 22px;
+      font-size: 1rem;
+      line-height: 1.16;
       font-weight: 600;
-      letter-spacing: -0.025em;
+      letter-spacing: -0.03em;
     }
 
     .cycle-node-static {
@@ -1186,7 +1242,7 @@
 
     .cycle-node-button.is-active,
     .cycle-center-button.is-active {
-      border-color: rgba(63, 110, 161, 0.24);
+      border-color: rgba(63, 110, 161, 0.28);
       box-shadow: 0 0 0 4px rgba(63, 110, 161, 0.08), var(--soft-shadow);
       background: #FFFFFF;
     }
@@ -1194,17 +1250,19 @@
     .cycle-center {
       left: 50%;
       top: 50%;
-      width: 192px;
-      height: 192px;
+      width: 220px;
+      height: 220px;
       transform: translate(-50%, -50%);
       border-radius: 50%;
-      padding: 26px 24px;
+      padding: 28px 24px;
       flex-direction: column;
+      border-color: rgba(63, 110, 161, 0.14);
+      box-shadow: 0 14px 34px rgba(21, 32, 43, 0.07);
     }
 
     .cycle-center-kicker {
       margin: 0 0 10px;
-      font-size: 0.68rem;
+      font-size: 0.7rem;
       font-weight: 700;
       line-height: 1;
       letter-spacing: 0.18em;
@@ -1214,7 +1272,7 @@
 
     .cycle-center-title {
       margin: 0;
-      font-size: 0.98rem;
+      font-size: 1.02rem;
       line-height: 1.08;
       font-weight: 700;
       letter-spacing: -0.04em;
@@ -1222,10 +1280,10 @@
       max-width: 11ch;
     }
 
-    .cycle-node-top { left: 50%; top: 20px; transform: translateX(-50%); }
-    .cycle-node-right { right: 12px; top: 50%; transform: translateY(-50%); }
-    .cycle-node-bottom { left: 50%; bottom: 20px; transform: translateX(-50%); }
-    .cycle-node-left { left: 12px; top: 50%; transform: translateY(-50%); }
+    .cycle-node-top { left: 50%; top: 6%; transform: translateX(-50%); }
+    .cycle-node-right { right: 2%; top: 50%; transform: translateY(-50%); }
+    .cycle-node-bottom { left: 50%; bottom: 6%; transform: translateX(-50%); }
+    .cycle-node-left { left: 2%; top: 50%; transform: translateY(-50%); }
 
     .cycle-node-button.cycle-node-right:hover,
     .cycle-node-button.cycle-node-right:focus-visible,
@@ -1234,19 +1292,49 @@
     .cycle-node-button.cycle-node-bottom:focus-visible,
     .cycle-node-button.cycle-node-bottom.is-active { transform: translateX(-50%) translateY(-2px); }
 
+    .cycle-mini-notes {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .cycle-mini-note {
+      padding: 12px 12px 11px;
+      background: rgba(246, 248, 250, 0.96);
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      border-radius: 14px;
+    }
+
+    .cycle-mini-note strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.84rem;
+      line-height: 1.2;
+      color: var(--text-dark);
+      letter-spacing: -0.02em;
+    }
+
+    .cycle-mini-note span {
+      display: block;
+      font-size: 0.79rem;
+      line-height: 1.52;
+      color: var(--muted-dark);
+    }
+
     .cycle-panel-wrap {
       display: grid;
       gap: 16px;
-      align-content: center;
+      align-content: start;
     }
 
     .cycle-panel {
       background: rgba(255, 255, 255, 0.98);
       border: 1px solid rgba(21, 32, 43, 0.08);
-      border-radius: 20px;
-      padding: 24px 24px 22px;
+      border-radius: 22px;
+      padding: 28px 28px 24px;
       box-shadow: var(--soft-shadow);
-      min-height: 250px;
+      min-height: 322px;
     }
 
     .cycle-panel-kicker {
@@ -1260,21 +1348,21 @@
     }
 
     .cycle-panel h3 {
-      margin: 0 0 12px;
-      font-size: 1.34rem;
-      line-height: 1.08;
+      margin: 0 0 14px;
+      font-size: 1.5rem;
+      line-height: 1.02;
       font-weight: 700;
       color: var(--text-dark);
-      letter-spacing: -0.045em;
+      letter-spacing: -0.05em;
       text-wrap: balance;
-      max-width: 20ch;
+      max-width: 18ch;
     }
 
     .cycle-panel p {
       margin: 0;
       max-width: 54ch;
-      font-size: 0.98rem;
-      line-height: 1.72;
+      font-size: 1rem;
+      line-height: 1.76;
       color: var(--muted-dark);
     }
 
@@ -1285,8 +1373,8 @@
     .cycle-support {
       margin: 0;
       max-width: 60ch;
-      font-size: 0.98rem;
-      line-height: 1.72;
+      font-size: 1rem;
+      line-height: 1.74;
       color: var(--muted-dark);
     }
 
@@ -1335,6 +1423,10 @@
       .learning-cycle-grid {
         grid-template-columns: 1fr;
         gap: 24px;
+      }
+
+      .cycle-frame {
+        min-height: 0;
       }
 
       .suite-top-cta {
@@ -1463,28 +1555,18 @@
         padding: 22px 20px 20px;
       }
 
-      .cycle-figure {
-        min-height: 360px;
+      .cycle-frame {
+        padding: 20px 18px 18px;
+        min-height: 0;
       }
 
       .cycle-diagram {
-        width: 320px;
-        height: 320px;
-      }
-
-      .cycle-orbit {
-        width: 250px;
-        height: 250px;
-      }
-
-      .cycle-orbit-inner {
-        width: 196px;
-        height: 196px;
+        width: min(100%, 350px);
       }
 
       .cycle-center {
-        width: 156px;
-        height: 156px;
+        width: 166px;
+        height: 166px;
         padding: 20px 18px;
       }
 
@@ -1493,16 +1575,25 @@
       }
 
       .cycle-node {
-        min-width: 124px;
-        min-height: 64px;
+        min-width: 130px;
+        min-height: 68px;
         padding: 12px 12px;
-        font-size: 0.86rem;
+        font-size: 0.84rem;
       }
 
-      .cycle-node-right { right: 0; }
-      .cycle-node-left { left: 0; }
-      .cycle-node-top { top: 10px; }
-      .cycle-node-bottom { bottom: 10px; }
+      .cycle-node-top { top: 2%; }
+      .cycle-node-bottom { bottom: 2%; }
+      .cycle-node-left { left: -1%; }
+      .cycle-node-right { right: -1%; }
+
+      .cycle-mini-notes {
+        grid-template-columns: 1fr;
+      }
+
+      .cycle-panel {
+        min-height: 0;
+        padding: 22px 20px 20px;
+      }
 
       .suite-top-cta {
         justify-content: stretch;
@@ -1788,20 +1879,49 @@
       <div class="learning-cycle-shell reveal reveal-delay-1" aria-label="How repeatable diagnosis becomes institutional learning">
         <div class="learning-cycle-grid">
           <div class="cycle-figure">
-            <div class="cycle-diagram">
-              <div class="cycle-orbit" aria-hidden="true"></div>
-              <div class="cycle-orbit-inner" aria-hidden="true"></div>
+            <div class="cycle-frame">
+              <div class="cycle-figure-header">
+                <p class="cycle-figure-kicker">Diagnostic learning cycle</p>
+                <h3 class="cycle-figure-title">Signal becomes insight only when it is revisited over time.</h3>
+              </div>
 
-              <div class="cycle-node cycle-node-top cycle-node-static">Bounded input</div>
-              <div class="cycle-node cycle-node-left cycle-node-static">Signal</div>
+              <div class="cycle-diagram">
+                <svg class="cycle-svg" viewBox="0 0 470 470" aria-hidden="true">
+                  <circle cx="235" cy="235" r="154" fill="none" stroke="rgba(63,110,161,0.22)" stroke-width="2.5" stroke-dasharray="5 6"></circle>
+                  <circle cx="235" cy="235" r="118" fill="none" stroke="rgba(63,110,161,0.11)" stroke-width="2"></circle>
+                  <circle cx="235" cy="235" r="100" fill="none" stroke="rgba(63,110,161,0.09)" stroke-width="1.25"></circle>
+                  <path d="M235 82 L235 128" fill="none" stroke="rgba(63,110,161,0.18)" stroke-width="2"></path>
+                  <path d="M388 235 L334 235" fill="none" stroke="rgba(63,110,161,0.18)" stroke-width="2"></path>
+                  <path d="M235 388 L235 342" fill="none" stroke="rgba(63,110,161,0.18)" stroke-width="2"></path>
+                  <path d="M82 235 L136 235" fill="none" stroke="rgba(63,110,161,0.18)" stroke-width="2"></path>
+                </svg>
 
-              <button class="cycle-node cycle-node-button cycle-node-right" type="button" data-cycle-key="response" aria-pressed="false">Response</button>
-              <button class="cycle-node cycle-node-button cycle-node-bottom" type="button" data-cycle-key="conditions" aria-pressed="false">Changed conditions</button>
+                <div class="cycle-node cycle-node-top cycle-node-static">Bounded input</div>
+                <div class="cycle-node cycle-node-left cycle-node-static">Diagnostic signal</div>
 
-              <button class="cycle-center cycle-center-button is-active" type="button" data-cycle-key="evolves" aria-pressed="true">
-                <p class="cycle-center-kicker">Center signal</p>
-                <p class="cycle-center-title">Administrative reality evolves</p>
-              </button>
+                <button class="cycle-node cycle-node-button cycle-node-right" type="button" data-cycle-key="response" aria-pressed="false">Leadership response</button>
+                <button class="cycle-node cycle-node-button cycle-node-bottom" type="button" data-cycle-key="conditions" aria-pressed="false">Changed conditions</button>
+
+                <button class="cycle-center cycle-center-button is-active" type="button" data-cycle-key="evolves" aria-pressed="true">
+                  <p class="cycle-center-kicker">Center signal</p>
+                  <p class="cycle-center-title">Administrative reality evolves</p>
+                </button>
+              </div>
+
+              <div class="cycle-mini-notes" aria-hidden="true">
+                <div class="cycle-mini-note">
+                  <strong>Interpretation matters</strong>
+                  <span>Signal is useful only when leaders can read it cleanly.</span>
+                </div>
+                <div class="cycle-mini-note">
+                  <strong>Action reshapes the system</strong>
+                  <span>Every response changes incentives, workflow, and burden.</span>
+                </div>
+                <div class="cycle-mini-note">
+                  <strong>Reassessment is essential</strong>
+                  <span>The next run should read the institution as it now exists.</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1939,12 +2059,12 @@
         body: "Administrative structures are not static. Internal priorities shift, leadership attention moves, external demands change, and systems are redesigned in response to what the diagnostics reveal. That is why Monderman treats diagnosis as something to revisit, not simply something to complete once."
       },
       response: {
-        kicker: "Interactive node",
+        kicker: "Leadership action",
         title: "Leadership response",
         body: "Diagnostic signal becomes useful when leadership interprets it, prioritizes it, and responds with selective redesign. That response may involve clarifying ownership, simplifying approvals, recalibrating reporting load, or governing burden more intentionally rather than layering on another generic fix."
       },
       conditions: {
-        kicker: "Interactive node",
+        kicker: "System update",
         title: "Changed conditions",
         body: "Once leaders respond, the institution does not return to neutral. Internal conditions shift, systems experience redesign, and the surrounding environment keeps moving. That is why the next diagnostic run should be treated as a fresh institutional read, not a replay of the last one."
       }
