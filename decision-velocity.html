@@ -215,6 +215,24 @@ document.getElementById("openingNotice").textContent = openingNotice; document.g
 const pageLoader=document.getElementById("pageLoader"), heroBeginBtn=document.getElementById("heroBeginBtn"), learnMoreToggle=document.getElementById("learnMoreToggle"), learnMorePanel=document.getElementById("learnMorePanel"), laneStage=document.getElementById("laneStage"), depthStage=document.getElementById("depthStage"), introStage=document.getElementById("introStage"), questionStage=document.getElementById("questionStage"), processingStage=document.getElementById("processingStage"), resultsStage=document.getElementById("resultsStage"), questionFooter=document.getElementById("questionFooter"), beginBtn=document.getElementById("beginBtn"), preStartConsent=document.getElementById("preStartConsent"), backBtn=document.getElementById("backBtn"), skipBtn=document.getElementById("skipBtn"), restartBtn=document.getElementById("restartBtn"), continueBtn=document.getElementById("continueBtn"), exportBtn=document.getElementById("exportBtn"), downloadPdfBtn=document.getElementById("downloadPdfBtn"), downloadReportBtn=document.getElementById("downloadReportBtn"), saveCrossDiagnosticBtn=document.getElementById("saveCrossDiagnosticBtn"), reportDownloadLink=document.getElementById("reportDownloadLink"), crossDiagnosticDownloadLink=document.getElementById("crossDiagnosticDownloadLink"), newRunBtn=document.getElementById("newRunBtn"), envHeadline=document.getElementById("envHeadline"), envSubcopy=document.getElementById("envSubcopy"), statusPill=document.getElementById("statusPill"), questionCluster=document.getElementById("questionCluster"), questionStep=document.getElementById("questionStep"), questionTitle=document.getElementById("questionTitle"), questionCopy=document.getElementById("questionCopy"), questionBody=document.getElementById("questionBody"), requiredNotice=document.getElementById("requiredNotice"), progressBar=document.getElementById("progressBar"), progressCopy=document.getElementById("progressCopy"), pathHint=document.getElementById("pathHint"), laneAsideTitle=document.getElementById("laneAsideTitle");
 let gapChart=null, dimensionChart=null;
 
+async function postJsonWithTimeout(url, body, timeoutMs=12000){
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(body),
+      signal:controller.signal
+    });
+    const data = await response.json().catch(()=>null);
+    return {response, data};
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+
 const laneConfigs={operational:{label:"Operational",header:"Operational perspective selected",subcopy:"This version is built for people closest to the work. It surfaces where things get stuck, where manual effort quietly keeps the pathway moving, and where the process only succeeds because someone steps in.",aside:"What the operational version is built to surface"},managerial:{label:"Managerial",header:"Managerial perspective selected",subcopy:"This version is tuned for people coordinating teams and execution. It emphasizes approval burden, recurring friction, escalation patterns, and where pathway weight is growing over time.",aside:"What the managerial version is built to surface"},executive:{label:"Executive",header:"Executive perspective selected",subcopy:"This version is tuned for leaders shaping structure, governance, and risk posture. It emphasizes control climate, approval accumulation, approval drift, and governance weight relative to responsiveness.",aside:"What the executive version is built to surface"}};
 const depthConfigs={"10":{label:"10-minute diagnostic",header:"10-minute diagnostic selected",subcopy:"Quick first read. Best for fast baselining or repeat checks after a change.",extra:[]},"30":{label:"30-minute diagnostic",header:"30-minute diagnostic selected",subcopy:"Balanced default. Stronger explanatory power without becoming burdensome.",extra:["approvalTrend","approvalAddDriver","controlClimate","approvalRemovalRate"]},"60":{label:"60-minute diagnostic",header:"60-minute diagnostic selected",subcopy:"Deepest version. Captures the strongest cycle-speed, chase, and control-weight signals.",extra:["approvalTrend","approvalAddDriver","controlClimate","approvalRemovalRate","compensatoryEffort","managerIntervention","dragVisibility"]}};
 function updateHeroHelp(){
@@ -657,23 +675,26 @@ The strongest signals point to ${humanize(patterns[0].replaceAll("_"," "))}, wit
 async function submitDiagnostic(){
   if(!validateCurrent()) return;
   saveCurrentQuestion();
-  setHeader("Generating output","The diagnostic engine is interpreting your pathway and preparing a leadership-facing readout.","Output in progress");
+  setHeader("Generating output","The diagnostic engine is interpreting your decision cycle and preparing a leadership-facing readout.","Output in progress");
   showStage(processingStage);
 
-  const payload=buildPayload(), localResult=buildLocalResult(payload);
+  const payload=buildPayload();
+  let localResult;
+  try {
+    localResult=buildLocalResult(payload);
+  } catch (err) {
+    console.error("buildLocalResult failed:", err);
+    alert("The tool hit a front-end scoring error before output generation could finish. Please restart after applying the updated file.");
+    setHeader("Output error","The local scoring layer failed before output generation could complete.","Render error");
+    showStage(questionStage);
+    return;
+  }
+
   let finalResult=localResult, outputMode="Local fallback";
 
   try{
-    const [scoreResponse]=await Promise.all([
-      fetch(`${API_BASE}/api/decision-velocity-score`,{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify(payload)
-      }),
-      wait(RESULTS_LOADER_MS)
-    ]);
-
-    const scoreData=await scoreResponse.json().catch(()=>null);
+    await wait(RESULTS_LOADER_MS);
+    const {response:scoreResponse,data:scoreData}=await postJsonWithTimeout(`${API_BASE}/api/decision-velocity-score`, payload, 12000);
     if(!scoreResponse.ok || !scoreData?.ok || !scoreData?.result) throw new Error("Unable to generate score output.");
 
     finalResult=scoreData.result;
@@ -712,13 +733,8 @@ async function submitDiagnostic(){
       };
 
       const narrativeRequestBody={...scoreData.result,result:scoreData.result,context:narrativeContext};
-      const narrativeResponse=await fetch(`${API_BASE}/api/decision-velocity-narrative`,{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify(narrativeRequestBody)
-      });
+      const {response:narrativeResponse,data:narrativeData}=await postJsonWithTimeout(`${API_BASE}/api/decision-velocity-narrative`, narrativeRequestBody, 10000);
 
-      const narrativeData=await narrativeResponse.json().catch(()=>null);
       if(narrativeResponse.ok && narrativeData?.ok && narrativeData?.narrative){
         finalResult={...scoreData.result,narrative:narrativeData.narrative};
         outputMode="Full output";
@@ -726,11 +742,13 @@ async function submitDiagnostic(){
         finalResult={...scoreData.result,narrative:localResult.narrative};
         outputMode="Scored + local narrative";
       }
-    } catch {
+    } catch(err) {
+      console.warn("decision narrative fallback:", err);
       finalResult={...scoreData.result,narrative:localResult.narrative};
       outputMode="Scored + local narrative";
     }
-  } catch {
+  } catch(err) {
+    console.warn("decision score fallback:", err);
     finalResult=localResult;
     outputMode="Local fallback";
   }
@@ -739,7 +757,7 @@ async function submitDiagnostic(){
 
   try{
     renderResults(finalResult,payload,outputMode);
-    setHeader("Diagnostic output","Your results reflect the specific signal path you surfaced and the information you provided.","Output generated");
+    setHeader("Diagnostic output","Your results reflect the specific decision-cycle signal you surfaced and the information you provided.","Output generated");
     showStage(resultsStage);
   } catch (err){
     console.error("renderResults failed:", err);
