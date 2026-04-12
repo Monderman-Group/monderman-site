@@ -215,6 +215,24 @@ document.getElementById("openingNotice").textContent = openingNotice; document.g
 const pageLoader=document.getElementById("pageLoader"), heroBeginBtn=document.getElementById("heroBeginBtn"), learnMoreToggle=document.getElementById("learnMoreToggle"), learnMorePanel=document.getElementById("learnMorePanel"), laneStage=document.getElementById("laneStage"), depthStage=document.getElementById("depthStage"), introStage=document.getElementById("introStage"), questionStage=document.getElementById("questionStage"), processingStage=document.getElementById("processingStage"), resultsStage=document.getElementById("resultsStage"), questionFooter=document.getElementById("questionFooter"), beginBtn=document.getElementById("beginBtn"), preStartConsent=document.getElementById("preStartConsent"), backBtn=document.getElementById("backBtn"), skipBtn=document.getElementById("skipBtn"), restartBtn=document.getElementById("restartBtn"), continueBtn=document.getElementById("continueBtn"), exportBtn=document.getElementById("exportBtn"), downloadPdfBtn=document.getElementById("downloadPdfBtn"), downloadReportBtn=document.getElementById("downloadReportBtn"), saveCrossDiagnosticBtn=document.getElementById("saveCrossDiagnosticBtn"), reportDownloadLink=document.getElementById("reportDownloadLink"), crossDiagnosticDownloadLink=document.getElementById("crossDiagnosticDownloadLink"), newRunBtn=document.getElementById("newRunBtn"), envHeadline=document.getElementById("envHeadline"), envSubcopy=document.getElementById("envSubcopy"), statusPill=document.getElementById("statusPill"), questionCluster=document.getElementById("questionCluster"), questionStep=document.getElementById("questionStep"), questionTitle=document.getElementById("questionTitle"), questionCopy=document.getElementById("questionCopy"), questionBody=document.getElementById("questionBody"), requiredNotice=document.getElementById("requiredNotice"), progressBar=document.getElementById("progressBar"), progressCopy=document.getElementById("progressCopy"), pathHint=document.getElementById("pathHint"), laneAsideTitle=document.getElementById("laneAsideTitle");
 let gapChart=null, dimensionChart=null;
 
+async function postJsonWithTimeout(url, body, timeoutMs=12000){
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(body),
+      signal:controller.signal
+    });
+    const data = await response.json().catch(()=>null);
+    return {response, data};
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+
 const laneConfigs={operational:{label:"Operational",header:"Operational perspective selected",subcopy:"This version is built for people closest to the work. It surfaces where ownership is fuzzy, where instructions shift in practice, and where the structure only works because someone compensates for it locally.",aside:"What the operational version is built to surface"},managerial:{label:"Managerial",header:"Managerial perspective selected",subcopy:"This version is tuned for people coordinating teams and execution. It emphasizes repeated clarification load, accountability diffusion, boundary rework, and where structure is consuming management attention.",aside:"What the managerial version is built to surface"},executive:{label:"Executive",header:"Executive perspective selected",subcopy:"This version is tuned for leaders shaping structure and governance. It emphasizes role-architecture drift, control-fit problems, redesign readiness, and where the system itself is becoming harder to govern.",aside:"What the executive version is built to surface"}};
 const depthConfigs={"10":{label:"10-minute diagnostic",header:"10-minute diagnostic selected",subcopy:"Quick first read. Best for fast baselining or repeat checks after a change.",extra:[]},"30":{label:"30-minute diagnostic",header:"30-minute diagnostic selected",subcopy:"Balanced default. Stronger explanatory power without becoming burdensome.",extra:["issueTrajectory"]},"60":{label:"60-minute diagnostic",header:"60-minute diagnostic selected",subcopy:"Deepest version. Captures the strongest trajectory, interpretation, and dependency signals.",extra:["issueTrajectory","changeDriver","dragVisibility","governanceFit","controlBias"]}};
 function updateHeroHelp(){
@@ -227,7 +245,7 @@ function updateHeroHelp(){
     return;
   }
   const detailMap={
-    operational:`<strong style="display:block;margin-bottom:6px;color:#15202B;">Operational perspective</strong>This version is built for the people closest to the work — the ones who actually move the pathway day to day. It surfaces where things get stuck, where manual workarounds keep everything going, and where the process only succeeds because someone quietly steps in to keep it alive.`,
+    operational:`<strong style="display:block;margin-bottom:6px;color:#15202B;">Operational perspective</strong>This version is built for the people closest to the work — the ones who actually move the pathway day to day. It surfaces where things get stuck, where manual workarounds keep everything going, and where the structure only holds together because someone quietly interprets it, translates it, or pushes it through.`,
     managerial:`<strong style="display:block;margin-bottom:6px;color:#15202B;">Managerial perspective</strong>This version is built for people coordinating teams and execution. It surfaces recurring approval burden, escalation patterns, coordination drag, and where pathway weight is quietly growing over time.`,
     executive:`<strong style="display:block;margin-bottom:6px;color:#15202B;">Executive perspective</strong>This version is built for leaders shaping governance, structure, and risk posture. It surfaces ownership drift, authority overlap, structural translation dependence, and whether the current governance model still supports clear accountability.`
   };
@@ -475,209 +493,180 @@ function buildPayload(){
   return {processName:state.answers.processName||"Unnamed pathway",businessUnit:state.answers.businessUnit||"",industry:industryValue,industrySelection:state.answers.industry||"other",organizationSize:deriveOrganizationSize(employeeCount),employeeCount:employeeCount,regulatoryIntensity:state.answers.regulatoryIntensity||"unknown",decisionType:state.answers.decisionType||"other",description:mergedDescription,decisionDays:Number(state.answers.decisionDays||0),delayPoint:state.answers.delayPoint||"unknown",approvalCount:Number(state.answers.approvalCount||0),handoffCount:Number(state.answers.handoffCount||0),meetingCount:Number(state.answers.meetingCount||0),systemsTouched:Number(state.answers.systemsTouched||1),approvalFlow:state.answers.approvalFlow||"mixed",lateApprovals:state.answers.reviewExpansion==="often"?"frequently":state.answers.reviewExpansion==="sometimes"?"occasionally":"no",ownerClarity:state.answers.ownerClarity||"mixed",escalationClarity:state.answers.escalationClarity||"mixed",keyPersonDependency:state.answers.keyPersonDependency||"somewhat",reopenRate:state.answers.workaroundRate==="often"?"often":state.answers.workaroundRate==="sometimes"?"sometimes":"rare",escalationRate:state.answers.escalationRate||"sometimes",workaroundRate:state.answers.workaroundRate||"sometimes",peopleInvolved:Number(state.answers.peopleInvolved||0),hourlyCost:Number(state.answers.hourlyCost||0),annualVolume:Number(state.answers.annualVolume||0),meetingHours:Number(state.answers.meetingHours||0),confidenceLevel:state.answers.confidenceLevel||"moderate",issueTrajectory:state.answers.issueTrajectory||"flat",changeDriver:state.answers.changeDriver||((state.answers.changeDriver_ranked||[])[0])||"ambiguity",controlClimate:state.answers.controlClimate||"moderate",approvalRemovalRate:state.answers.approvalRemovalRate||"rarely",managerIntervention:state.answers.managerIntervention||"sometimes",compensatoryEffort:state.answers.compensatoryEffort||"sometimes",participantMode:state.mode||"executive",diagnosticDepth:state.depth||"10"}}
 function avg(values){const cleaned=values.filter(v=>Number.isFinite(v)); return cleaned.length?cleaned.reduce((a,b)=>a+b,0)/cleaned.length:0} function severityWord(score){if(score>=5) return "Severe impact"; if(score>=4) return "High impact"; if(score>=3) return "Moderate impact"; if(score>=2) return "Mild impact"; if(score>=1) return "Minimal impact"; return "No meaningful impact"} function confidenceLabel(value){const normalized=String(value||"").toLowerCase(); if(normalized==="high") return "Strong input depth"; if(normalized==="moderate") return "Moderate input depth"; if(normalized==="limited") return "Limited input depth"; return "Input depth not specified"}
 function buildLocalResult(input){
-  const decisionDays=Number(input.decisionDays||0);
+  const ownerClarity=String(input.ownerClarity||"mixed");
+  const escalationClarity=String(input.escalationClarity||"mixed");
+  const keyPersonDependency=String(input.keyPersonDependency||"somewhat");
+  const workaroundRate=String(input.workaroundRate||"sometimes");
+  const instructionVariance=String(input.instructionVariance||"sometimes");
   const approvalCount=Number(input.approvalCount||0);
   const handoffCount=Number(input.handoffCount||0);
   const meetingCount=Number(input.meetingCount||0);
   const systemsTouched=Number(input.systemsTouched||0);
-  const ownerClarity=String(input.ownerClarity||"");
-  const escalationClarity=String(input.escalationClarity||"");
-  const keyPersonDependency=String(input.keyPersonDependency||"");
-  const reopenRate=String(input.reopenRate||"");
-  const escalationRate=String(input.escalationRate||"");
-  const workaroundRate=String(input.workaroundRate||"");
-  const approvalFlow=String(input.approvalFlow||"");
-  const lateApprovals=String(input.lateApprovals||"");
+  const decisionDays=Number(input.decisionDays||0);
+  const managerIntervention=String(input.managerIntervention||"sometimes");
+  const controlBias=String(input.controlBias||"somewhat");
+  const governanceFit=String(input.governanceFit||"fit");
+  const dragVisibility=String(input.dragVisibility||"mixed");
+  const approvalRemovalRate=String(input.approvalRemovalRate||"rarely");
+  const issueTrajectory=String(input.issueTrajectory||"same");
 
   const dimensions={
-    ownership_clarity:Math.max(0,Math.min(100,100-(ownerClarity==="very_unclear"?42:ownerClarity==="somewhat_unclear"?24:ownerClarity==="mixed"?14:6)-(keyPersonDependency==="high"?16:keyPersonDependency==="moderate"?8:0)-(workaroundRate==="frequent"?10:workaroundRate==="occasional"?4:0))),
-    role_boundary_coherence:Math.max(0,Math.min(100,100-(ownerClarity==="very_unclear"?26:ownerClarity==="somewhat_unclear"?14:ownerClarity==="mixed"?8:2)-(managerIntervention==="frequent"?12:managerIntervention==="occasional"?6:0)-(escalationRate==="frequent"?8:escalationRate==="occasional"?4:0))),
-    authority_overlap:Math.max(0,Math.min(100,100-(approvalCount>=6?24:approvalCount>=4?14:approvalCount>=2?8:2)-(approvalFlow==="sequential"?10:approvalFlow==="mixed"?5:0)-(reviewExpansion==="growing"?10:reviewExpansion==="stable_high"?6:0))),
-    compensatory_translation_work:Math.max(0,Math.min(100,100-(workaroundRate==="frequent"?30:workaroundRate==="occasional"?16:6)-(keyPersonDependency==="high"?18:keyPersonDependency==="moderate"?9:0)-(lateApprovals==="frequently"?8:lateApprovals==="occasionally"?4:0))),
-    cycle_velocity:Math.max(0,Math.min(100,100-(decisionDays<=3?2:decisionDays<=7?8:decisionDays<=14?18:decisionDays<=21?28:decisionDays<=30?38:50))),
-    approval_efficiency:Math.max(0,Math.min(100,100-Math.min(35,approvalCount*5)-(approvalFlow==="sequential"?14:approvalFlow==="mixed"?6:0)-(lateApprovals==="frequently"?14:lateApprovals==="occasionally"?7:0))),
-    coordination_load:Math.max(0,Math.min(100,100-Math.min(30,handoffCount*5)-Math.min(22,meetingCount*4)-Math.min(15,systemsTouched*3))),
-    execution_stability:Math.max(0,Math.min(100,100-(ownerClarity==="unclear"?20:ownerClarity==="mixed"?10:3)-(escalationClarity==="unclear"?16:escalationClarity==="mixed"?8:3)-(keyPersonDependency==="heavily"?14:keyPersonDependency==="somewhat"?7:0)-(reopenRate==="often"?14:reopenRate==="sometimes"?7:0)-(escalationRate==="often"?10:escalationRate==="sometimes"?5:0)-(workaroundRate==="often"?12:workaroundRate==="sometimes"?6:0)))
+    ownership_clarity: Math.max(0, Math.min(100, 100
+      - (ownerClarity==="unclear"?42:ownerClarity==="mixed"?20:6)
+      - (keyPersonDependency==="heavily"?18:keyPersonDependency==="somewhat"?8:0)
+      - (instructionVariance==="often"?10:instructionVariance==="sometimes"?4:0))),
+    role_boundary_coherence: Math.max(0, Math.min(100, 100
+      - Math.min(22, handoffCount*4)
+      - Math.min(14, meetingCount*3)
+      - (managerIntervention==="often"?12:managerIntervention==="sometimes"?5:0)
+      - (instructionVariance==="often"?10:instructionVariance==="sometimes"?4:0))),
+    authority_overlap: Math.max(0, Math.min(100, 100
+      - (approvalCount>=6?26:approvalCount>=4?16:approvalCount>=2?8:2)
+      - (governanceFit==="over"?12:governanceFit==="fit"?4:0)
+      - (controlBias==="yes"?12:controlBias==="somewhat"?5:0))),
+    decision_right_clarity: Math.max(0, Math.min(100, 100
+      - (escalationClarity==="unclear"?26:escalationClarity==="mixed"?12:3)
+      - (ownerClarity==="unclear"?18:ownerClarity==="mixed"?8:2)
+      - (instructionVariance==="often"?8:instructionVariance==="sometimes"?3:0))),
+    instruction_alignment: Math.max(0, Math.min(100, 100
+      - (instructionVariance==="often"?30:instructionVariance==="sometimes"?16:5)
+      - (managerIntervention==="often"?8:managerIntervention==="sometimes"?3:0))),
+    compensatory_translation_work: Math.max(0, Math.min(100, 100
+      - (workaroundRate==="often"?34:workaroundRate==="sometimes"?18:6)
+      - (keyPersonDependency==="heavily"?20:keyPersonDependency==="somewhat"?10:0)
+      - Math.min(12, systemsTouched*2))),
+    execution_stability: Math.max(0, Math.min(100, 100
+      - (ownerClarity==="unclear"?20:ownerClarity==="mixed"?10:2)
+      - (instructionVariance==="often"?14:instructionVariance==="sometimes"?7:0)
+      - (workaroundRate==="often"?14:workaroundRate==="sometimes"?7:0)
+      - (keyPersonDependency==="heavily"?12:keyPersonDependency==="somewhat"?6:0)
+      - (decisionDays>20?8:decisionDays>10?4:0)))
   };
 
   const contradictions=[];
-  if(approvalCount<=2 && decisionDays>20) contradictions.push({severity:"moderate",message:"Visible approvals are low, but latency remains high, suggesting hidden friction."});
-  if(ownerClarity==="clear" && escalationRate==="often") contradictions.push({severity:"high",message:"Ownership appears clear, but the pathway still depends on frequent escalation."});
-  if(ownerClarity==="clear" && keyPersonDependency==="heavily") contradictions.push({severity:"high",message:"Ownership appears clear, but the pathway still depends heavily on specific individuals."});
+  if(ownerClarity==="clear" && keyPersonDependency==="heavily") contradictions.push({severity:"high",message:"Formal ownership looks clear, but the structure still depends heavily on specific translators or fixers."});
+  if(instructionVariance==="often" && escalationClarity==="clear") contradictions.push({severity:"moderate",message:"The formal conflict path may be clear, but day-to-day guidance is still colliding in practice."});
+  if(approvalCount<=2 && handoffCount>=6) contradictions.push({severity:"moderate",message:"Visible authority points are limited, but role-boundary transitions remain unusually dense."});
 
   const patterns=[];
-  if(dimensions.approval_efficiency<=55 && dimensions.cycle_velocity<=60) patterns.push("approval_layering_pattern");
-  if(dimensions.coordination_load<=55 && dimensions.execution_stability<=60) patterns.push("compensatory_coordination_pattern");
-  if(dimensions.execution_stability<=52 && contradictions.length) patterns.push("unstable_pathway_pattern");
-  if(!patterns.length) patterns.push("balanced_pathway_pattern");
+  if(dimensions.ownership_clarity<=60) patterns.push("ownership_ambiguity_pattern");
+  if(dimensions.role_boundary_coherence<=58) patterns.push("boundary_collision_pattern");
+  if(dimensions.compensatory_translation_work<=58) patterns.push("translator_dependence_pattern");
+  if(dimensions.instruction_alignment<=60) patterns.push("instruction_conflict_pattern");
+  if(!patterns.length) patterns.push("mostly_coherent_structure_pattern");
 
-  const score=Math.round(avg(Object.values(dimensions)));
-  const band=score>=82?"Opportunity range":score>=65?"Within industry range":score>=45?"Below preferred range":"High-latency condition";
-  const trajectoryDirection=(input.input.issueTrajectory==="more_noticeable"||(input.controlClimate==="high"&&score<82))?"up":input.issueTrajectory==="improved_somewhat"?"down":"flat";
+  const score=Math.round(avg([
+    dimensions.ownership_clarity,
+    dimensions.role_boundary_coherence,
+    dimensions.authority_overlap,
+    dimensions.decision_right_clarity,
+    dimensions.instruction_alignment,
+    dimensions.compensatory_translation_work,
+    dimensions.execution_stability
+  ]));
 
-  const annualHours=Math.round((Number(input.meetingHours||0)*Number(input.annualVolume||0)*0.5)+(Number(input.peopleInvolved||0)*8*Math.max(0.12,Math.min(0.85,(100-score)/100))*12));
+  const band=score>=82?"Opportunity range":score>=65?"Within industry range":score>=45?"Below preferred range":"High-ambiguity condition";
+  const trajectoryDirection=(issueTrajectory==="more_noticeable"||(approvalRemovalRate==="rarely" && score<82))?"up":issueTrajectory==="improved_somewhat"?"down":"flat";
+
+  const annualHours=Math.round((Number(input.meetingHours||0)*Number(input.annualVolume||0)*0.55)+(Number(input.peopleInvolved||0)*7*Math.max(0.12,Math.min(0.85,(100-score)/100))*12));
   const annualCost=Math.round(annualHours*Number(input.hourlyCost||0));
-  const capacityDrag=Math.round(Math.max(5,Math.min(38,(((100-score)/100)*32)+Math.min(8,Number(input.peopleInvolved||0)/3))));
+  const capacityDrag=Math.round(Math.max(5,Math.min(38,(((100-score)/100)*30)+Math.min(8,Number(input.peopleInvolved||0)/3))));
 
-  const routeFamily=input.decisionType==="procurement"?"approval_density_route"
-    : input.decisionType==="hiring"?"sequencing_route"
-    : (input.decisionType==="budget"||input.decisionType==="policy")?"governance_latency_route"
-    : input.decisionType==="program"?"coordination_route"
-    : input.decisionType==="risk"?"exception_route"
-    : "mixed_route";
-
-  const benchmark={label:`${humanize(input.decisionType||"other")} • ${humanize(input.industry||"other")}`,opportunityMin:70,opportunityMax:84,industryMin:58,industryMax:69};
+  const benchmark={label:`${humanize(input.decisionType||"other")} • ${humanize(input.industry||"other")}`,opportunityMin:72,opportunityMax:86,industryMin:60,industryMax:71};
   const benchmarkPos=score>benchmark.opportunityMax?"Above industry range":score>=benchmark.industryMin?"Within industry range":"Below industry range";
 
   const burdenBreakdown={
-    approval:Math.max(0,100-dimensions.approval_efficiency),
-    coordination:Math.max(0,100-dimensions.coordination_load),
-    handoff:Math.max(0,Math.round(handoffCount*8)),
-    escalation:escalationRate==="often"?72:escalationRate==="sometimes"?42:12,
-    rework:reopenRate==="often"?68:reopenRate==="sometimes"?34:10,
-    key_person:keyPersonDependency==="heavily"?78:keyPersonDependency==="somewhat"?42:10
+    ownership_gap: Math.max(0,100-dimensions.ownership_clarity),
+    boundary_collision: Math.max(0,100-dimensions.role_boundary_coherence),
+    authority_overlap: Math.max(0,100-dimensions.authority_overlap),
+    instruction_conflict: Math.max(0,100-dimensions.instruction_alignment),
+    translator_dependence: Math.max(0,100-dimensions.compensatory_translation_work),
+    decision_rights: Math.max(0,100-dimensions.decision_right_clarity)
   };
 
   const delayConcentration={
-    intake:input.delayPoint==="front_end"?75:input.delayPoint==="varies"?45:25,
-    review:input.delayPoint==="midstream_review"?85:input.delayPoint==="varies"?55:40,
-    coordination:input.delayPoint==="midstream_review"?70:input.delayPoint==="varies"?50:35,
-    signoff:input.delayPoint==="late_stage"?85:input.delayPoint==="varies"?45:20
+    intake: ownerClarity==="unclear"?76:ownerClarity==="mixed"?48:24,
+    review: instructionVariance==="often"?82:instructionVariance==="sometimes"?50:28,
+    coordination: handoffCount>=6?78:handoffCount>=3?50:24,
+    signoff: escalationClarity==="unclear"?74:escalationClarity==="mixed"?46:20
   };
 
   const laborProfile=[
-    {role:"Core decision makers",people:Math.max(1,Math.round(Number(input.peopleInvolved||1)*0.18)),significance:"Moderate"},
-    {role:"Reviewers / approvers",people:Math.max(1,Number(input.approvalCount||1)),significance:Number(input.approvalCount||0)>=4?"High":"Moderate"},
-    {role:"Coordinators / analysts",people:Math.max(1,Math.round(Number(input.peopleInvolved||1)*(meetingCount>=4?0.22:0.15))),significance:meetingCount>=4?"Moderate":"Light"},
-    {role:"Escalation actors",people:escalationRate==="often"?Math.max(1,Math.round(Number(input.peopleInvolved||1)*0.12)):escalationRate==="sometimes"?1:0,significance:escalationRate==="often"?"High":escalationRate==="sometimes"?"Moderate":"Minimal"},
-    {role:"Key-person carriers",people:keyPersonDependency==="heavily"?Math.max(1,Math.round(Number(input.peopleInvolved||1)*0.18)):keyPersonDependency==="somewhat"?1:0,significance:keyPersonDependency==="heavily"?"High":keyPersonDependency==="somewhat"?"Moderate":"Minimal"}
+    {role:"Direct owners / responsible actors",people:Math.max(1,Math.round(Number(input.peopleInvolved||1)*0.2)),significance:ownerClarity==="unclear"?"High":"Moderate"},
+    {role:"Boundary-spanning participants",people:Math.max(1,Math.round(handoffCount/2)||1),significance:handoffCount>=6?"High":"Moderate"},
+    {role:"Clarifiers / coordinators",people:Math.max(1,Math.round(Number(input.peopleInvolved||1)*(meetingCount>=4?0.24:0.16))),significance:meetingCount>=4?"High":"Moderate"},
+    {role:"Key translators / fixers",people:keyPersonDependency==="heavily"?Math.max(1,Math.round(Number(input.peopleInvolved||1)*0.16)):keyPersonDependency==="somewhat"?1:0,significance:keyPersonDependency==="heavily"?"High":keyPersonDependency==="somewhat"?"Moderate":"Minimal"}
   ];
 
   const impactProfile={entries:[
-    {label:"Minor delay or annoyance",score:1},
-    {label:"Missed timing or delivery slippage",score:score<65?4:2},
-    {label:"Added labor or cost",score:score<82?4:2},
-    {label:"Repeated leadership intervention",score:escalationRate==="often"?4:escalationRate==="sometimes"?3:1},
+    {label:"Minor ambiguity or annoyance",score:1},
+    {label:"Repeated clarification work",score:score<70?4:2},
+    {label:"Added labor or coordination cost",score:score<82?4:2},
+    {label:"Managerial or leadership intervention",score:managerIntervention==="often"?4:managerIntervention==="sometimes"?3:1},
     {label:"Meaningful operational or mission risk",score:score<45?5:score<65?3:1}
   ]};
 
   const composition={
-    coordination_hours:Math.round(annualHours*0.35),
-    review_hours:Math.round(annualHours*0.30),
-    rework_hours:Math.round(annualHours*0.20),
-    escalation_hours:Math.max(0,annualHours-Math.round(annualHours*0.35)-Math.round(annualHours*0.30)-Math.round(annualHours*0.20))
+    coordination_hours:Math.round(annualHours*0.32),
+    clarification_hours:Math.round(annualHours*0.30),
+    rework_hours:Math.round(annualHours*0.18),
+    translation_hours:Math.max(0,annualHours-Math.round(annualHours*0.32)-Math.round(annualHours*0.30)-Math.round(annualHours*0.18))
   };
 
   const sorted=Object.entries(burdenBreakdown).map(([code,value])=>({code,value})).sort((a,b)=>b.value-a.value);
-  const ladder=sorted.slice(0,3).map((item,i)=>({priority:i===0?"Fix now":i===1?"Fix next":"Monitor",focus:humanize(item.code.replace("_"," ")),severity:item.value}));
+  const ladder=sorted.slice(0,3).map((item,i)=>({priority:i===0?"Fix now":i===1?"Fix next":"Monitor",focus:humanize(item.code.replace(/_/g," ")),severity:item.value}));
 
   const valueJudgment = score>=78
-    ? {label:"Worth the trade-off",note:"Current governance weight appears broadly proportionate to the value returned by the pathway."}
+    ? {label:"Worth the trade-off",note:"The current structure appears broadly proportionate to the clarity it returns."}
     : score>=58
-    ? {label:"Borderline trade-off",note:"The pathway still functions, but burden is getting close to outweighing what it returns."}
-    : {label:"Not worth the trade-off",note:"Time, money, and productive capacity appear to be carrying more burden than the pathway is returning."};
+    ? {label:"Borderline trade-off",note:"The structure still functions, but ambiguity and translation work are beginning to outweigh what it returns."}
+    : {label:"Not worth the trade-off",note:"Too much time, money, and managerial attention appear to be spent compensating for structural ambiguity."};
 
   const peerAdvantageNote = benchmarkPos==="Within industry range"
-    ? "This may be normal for the industry, but normal does not mean strategically acceptable if reclaimable drag is still present."
+    ? "This may be normal for the sector, but normal does not mean strategically acceptable if compensatory structural labor is still high."
     : benchmarkPos==="Above industry range"
-    ? "Current positioning suggests a directional edge over peer pathways, provided the pathway does not quietly accumulate new drag."
-    : "Current positioning suggests a directional disadvantage relative to the industry range for this structure type.";
+    ? "Current positioning suggests a directional edge over peer structures, provided ambiguity does not reaccumulate."
+    : "Current positioning suggests a directional disadvantage relative to the industry range for this kind of structure.";
 
   return {
-    score,
-    band,
-    score_band:band,
-    value_judgment:valueJudgment,
-    benchmark,
-    benchmark_position:benchmarkPos,
-    benchmark_context:{
-      industry_label:humanize(input.industry||"other"),
-      organization_size_label:humanize(input.organizationSize||"unknown"),
-      regulatory_intensity_label:humanize(input.regulatoryIntensity||"unknown")
-    },
+    score,band,score_band:band,value_judgment:valueJudgment,benchmark,benchmark_position:benchmarkPos,
+    benchmark_context:{industry_label:humanize(input.industry||"other"),organization_size_label:humanize(input.organizationSize||"unknown"),regulatory_intensity_label:humanize(input.regulatoryIntensity||"unknown")},
     trajectory:{
       direction:trajectoryDirection,
       label:trajectoryDirection==="up"?"Structural strain becoming more noticeable":trajectoryDirection==="down"?"Structural strain easing somewhat":"Structural strain staying about the same",
-      note:trajectoryDirection==="up"
-        ? "Current inputs suggest governance weight is likely to continue accumulating unless the pathway is actively governed."
-        : trajectoryDirection==="down"
-        ? "Current inputs suggest the pathway may be shedding weight or recovering responsiveness."
-        : "Current inputs suggest the pathway is relatively stable, but stability is not the same thing as strong performance."
+      note:trajectoryDirection==="up"?"Current inputs suggest ownership ambiguity, boundary collision, or translation work are likely to continue accumulating unless the structure is actively redesigned.":trajectoryDirection==="down"?"Current inputs suggest the structure may be regaining clarity or shedding ambiguity.":"Current inputs suggest the structure is relatively steady, but steady is not the same thing as self-executing."
     },
-    route_family:routeFamily,
-    primary_constraint:patterns[0],
-    contradictions,
-    patterns,
-    dimensions,
-    burden_breakdown:burdenBreakdown,
-    delay_concentration:delayConcentration,
-    labor_profile:laborProfile,
-    impact_profile:impactProfile,
-    intervention_priority_ladder:ladder,
-    exposure:{
-      annual_hours:annualHours,
-      annual_cost:annualCost,
-      capacity_drag_percent:capacityDrag,
-      average_hourly_cost:Number(input.hourlyCost||0),
-      composition
-    },
-    peer_advantage:{
-      display:String(score-Math.round((benchmark.opportunityMin+benchmark.opportunityMax)/2)),
-      note:peerAdvantageNote
-    },
-    input_confidence_label:confidenceLabel(input.confidenceLevel),
-    industry_label:humanize(input.industry||"other"),
-    organization_size_label:humanize(input.organizationSize||"unknown"),
-    regulatory_intensity_label:humanize(input.regulatoryIntensity||"unknown"),
-    narrative:{
-      executive_interpretation:`${input.processName||"This pathway"} is showing ${band.toLowerCase()} and appears to be spending meaningful effort moving the pathway itself, not just resolving the underlying decision.
-
-The strongest signals point to ${humanize(patterns[0].replaceAll("_"," "))}, with peer context indicating ${benchmarkPos.toLowerCase()} for this structure type.`,
-      leadership_implication:["Leadership should treat this as a structural condition rather than a one-off complaint or isolated workflow nuisance.","Use the burden and delay views to focus the first intervention.","Reassess after the first targeted correction."].join("\n"),
-      tradeoff_note:`Some burden may be justified by risk, quality, or governance needs. The question is whether the current amount of friction is proportionate to the decision being processed.`,
-      time_money_resources_summary:`Directional modeling suggests roughly ${annualHours.toLocaleString()} annual hours* and about $${annualCost.toLocaleString()} in labor exposure*, with capacity drag around ${capacityDrag}%*.
-
-• These are directional estimates, not audited measurements.
-• The cost model assumes average labor burden across materially involved participants.
-• Use this as an executive signal, not a stand-alone operating decision.`
-    },
-    key_findings:[
-      approvalCount>=5?"High approval density is increasing pathway weight.":null,
-      meetingCount>=4?"Meeting demand suggests coordination is compensating for structural weakness.":null,
-      handoffCount>=5?"High handoff density is distributing accountability broadly.":null,
-      escalationRate==="often"?"Escalation has become part of the normal operating model.":null,
-      keyPersonDependency==="heavily"?"The pathway appears brittle because it depends on specific people.":null,
-      contradictions.length?"Surface answers suggest the formal process may look healthier than the lived one.":null
-    ].filter(Boolean),
-    intervention_priorities:[
-      sorted[0]?`Reduce the heaviest visible ${humanize(sorted[0].code.replace("_"," "))} burden first.`:null,
-      sorted[1]?`Then tighten the next-largest source of structural drag: ${humanize(sorted[1].code.replace("_"," "))}.`:null,
-      "Reassess the pathway after the first targeted correction."
-    ].filter(Boolean),
-    watch_items:contradictions.length?contradictions.map(c=>c.message):["No material contradiction signals surfaced in this run."]
+    route_family:(ownerClarity==="unclear"?"ownership_route":instructionVariance==="often"?"instruction_route":keyPersonDependency==="heavily"?"translator_route":"boundary_route"),
+    primary_constraint:patterns[0],contradictions,patterns,dimensions,burden_breakdown:burdenBreakdown,delay_concentration:delayConcentration,labor_profile:laborProfile,impact_profile:impactProfile,intervention_priority_ladder:ladder,
+    exposure:{annual_hours:annualHours,annual_cost:annualCost,capacity_drag_percent:capacityDrag,reclaimable_hours:Math.round(annualHours*0.33),reclaimable_cost:Math.round(annualCost*0.33)},
+    composition,peer_advantage:{display:peerAdvantageNote},industry_label:humanize(input.industry||"other"),organization_size_label:humanize(input.organizationSize||"unknown"),regulatory_intensity_label:humanize(input.regulatoryIntensity||"unknown"),input_confidence_label:confidenceLabel(input.confidenceLevel),narrative:null
   };
 }
+
 async function submitDiagnostic(){
   if(!validateCurrent()) return;
   saveCurrentQuestion();
-  setHeader("Generating output","The diagnostic engine is interpreting your pathway and preparing a leadership-facing readout.","Output in progress");
+  setHeader("Generating output","The diagnostic engine is interpreting your structure and preparing a leadership-facing readout.","Output in progress");
   showStage(processingStage);
 
-  const payload=buildPayload(), localResult=buildLocalResult(payload);
+  const payload=buildPayload();
+  let localResult;
+  try {
+    localResult=buildLocalResult(payload);
+  } catch (err) {
+    console.error("buildLocalResult failed:", err);
+    alert("The tool hit a front-end scoring error before output generation could finish. Please restart after applying the updated file.");
+    setHeader("Output error","The local scoring layer failed before output generation could complete.","Render error");
+    showStage(questionStage);
+    return;
+  }
+
   let finalResult=localResult, outputMode="Local fallback";
 
   try{
-    const [scoreResponse]=await Promise.all([
-      fetch(`${API_BASE}/api/decision-velocity-score`,{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify(payload)
-      }),
-      wait(RESULTS_LOADER_MS)
-    ]);
-
-    const scoreData=await scoreResponse.json().catch(()=>null);
-    if(!scoreResponse.ok || !scoreData?.ok || !scoreData?.result) throw new Error("Unable to generate score output.");
+    await wait(RESULTS_LOADER_MS);
+    const {response:scoreResponse,data:scoreData}=await postJsonWithTimeout(`${API_BASE}/api/structural-clarity-score`, payload, 12000);
+    if(!scoreResponse.ok || !scoreData?.ok || !scoreData?.result) throw new Error("Unable to generate structural score output.");
 
     finalResult=scoreData.result;
     outputMode="Scored";
@@ -715,13 +704,8 @@ async function submitDiagnostic(){
       };
 
       const narrativeRequestBody={...scoreData.result,result:scoreData.result,context:narrativeContext};
-      const narrativeResponse=await fetch(`${API_BASE}/api/decision-velocity-narrative`,{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify(narrativeRequestBody)
-      });
+      const {response:narrativeResponse,data:narrativeData}=await postJsonWithTimeout(`${API_BASE}/api/structural-clarity-narrative`, narrativeRequestBody, 10000);
 
-      const narrativeData=await narrativeResponse.json().catch(()=>null);
       if(narrativeResponse.ok && narrativeData?.ok && narrativeData?.narrative){
         finalResult={...scoreData.result,narrative:narrativeData.narrative};
         outputMode="Full output";
@@ -729,11 +713,13 @@ async function submitDiagnostic(){
         finalResult={...scoreData.result,narrative:localResult.narrative};
         outputMode="Scored + local narrative";
       }
-    } catch {
+    } catch(err) {
+      console.warn("structural narrative fallback:", err);
       finalResult={...scoreData.result,narrative:localResult.narrative};
       outputMode="Scored + local narrative";
     }
-  } catch {
+  } catch(err) {
+    console.warn("structural score fallback:", err);
     finalResult=localResult;
     outputMode="Local fallback";
   }
@@ -742,7 +728,7 @@ async function submitDiagnostic(){
 
   try{
     renderResults(finalResult,payload,outputMode);
-    setHeader("Diagnostic output","Your results reflect the specific signal path you surfaced and the information you provided.","Output generated");
+    setHeader("Diagnostic output","Your results reflect the specific structural signal you surfaced and the information you provided.","Output generated");
     showStage(resultsStage);
   } catch (err){
     console.error("renderResults failed:", err);
