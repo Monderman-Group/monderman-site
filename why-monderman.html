@@ -1090,7 +1090,7 @@
      .learning-cycle-shell {
       margin-top: 34px;
       padding: 34px;
-      background: linear-gradient(180deg, rgba(63, 110, 161, 0.04) 0%, rgba(63, 110, 161, 0.02) 100%);
+      background: linear-gradient(180deg, rgba(63, 110, 161, 0.035) 0%, rgba(63, 110, 161, 0.018) 100%);
       border: 1px solid rgba(21, 32, 43, 0.08);
       border-radius: 26px;
       box-shadow: var(--soft-shadow);
@@ -1098,8 +1098,8 @@
 
     .learning-cycle-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 0.96fr);
-      gap: 38px;
+      grid-template-columns: minmax(0, 1.02fr) minmax(360px, 0.9fr);
+      gap: 42px;
       align-items: start;
     }
 
@@ -1112,8 +1112,8 @@
 
     .cycle-frame {
       position: relative;
-      min-height: 560px;
-      padding: 24px 24px 20px;
+      min-height: 500px;
+      padding: 24px 24px 18px;
       background: rgba(255, 255, 255, 0.98);
       border: 1px solid rgba(21, 32, 43, 0.08);
       border-radius: 22px;
@@ -1126,12 +1126,12 @@
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(90deg, rgba(21, 32, 43, 0.025) 1px, transparent 1px),
-        linear-gradient(rgba(21, 32, 43, 0.025) 1px, transparent 1px);
-      background-size: 26px 26px;
-      mask-image: linear-gradient(180deg, rgba(0,0,0,0.18), transparent 42%);
+        linear-gradient(90deg, rgba(21, 32, 43, 0.02) 1px, transparent 1px),
+        linear-gradient(rgba(21, 32, 43, 0.02) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.14), transparent 38%);
       pointer-events: none;
-      opacity: 0.55;
+      opacity: 0.5;
     }
 
     .cycle-figure-header,
@@ -1166,9 +1166,9 @@
 
     .cycle-diagram {
       position: relative;
-      width: min(100%, 540px);
+      width: min(100%, 500px);
       aspect-ratio: 1 / 1;
-      margin: 8px auto 0;
+      margin: 10px auto 0;
     }
 
     .cycle-svg {
@@ -1193,42 +1193,33 @@
     }
 
     .cycle-node {
-      min-width: 168px;
-      min-height: 60px;
-      padding: 10px 14px;
-      border-radius: 16px;
-      font-size: 0.9rem;
-      line-height: 1.12;
+      min-width: 156px;
+      min-height: 52px;
+      padding: 8px 12px;
+      border-radius: 14px;
+      font-size: 0.88rem;
+      line-height: 1.08;
       font-weight: 600;
       letter-spacing: -0.02em;
-    }
-
-    .cycle-node-detail {
-      display: block;
-      margin-top: 4px;
-      font-size: 0.68rem;
-      line-height: 1.35;
-      color: var(--muted-dark);
-      font-weight: 400;
-      letter-spacing: -0.01em;
+      white-space: nowrap;
     }
 
     .cycle-center {
       left: 50%;
       top: 50%;
-      width: 186px;
-      height: 186px;
+      width: 144px;
+      height: 144px;
       transform: translate(-50%, -50%);
       border-radius: 50%;
-      padding: 18px;
+      padding: 16px;
       flex-direction: column;
-      border: 1px solid rgba(63, 110, 161, 0.22);
-      box-shadow: 0 0 0 14px rgba(63, 110, 161, 0.06);
+      border: 1px solid rgba(63, 110, 161, 0.2);
+      box-shadow: 0 0 0 12px rgba(63, 110, 161, 0.055);
     }
 
     .cycle-center-kicker {
-      margin: 0 0 8px;
-      font-size: 0.62rem;
+      margin: 0 0 7px;
+      font-size: 0.6rem;
       font-weight: 700;
       line-height: 1;
       letter-spacing: 0.20em;
@@ -1238,35 +1229,35 @@
 
     .cycle-center-title {
       margin: 0;
-      font-size: 1.02rem;
-      line-height: 1.04;
+      font-size: 0.92rem;
+      line-height: 1.05;
       font-weight: 700;
-      letter-spacing: -0.03em;
+      letter-spacing: -0.028em;
       text-wrap: balance;
-      max-width: 10ch;
+      max-width: 9ch;
     }
 
     .cycle-center-detail {
       display: block;
       margin-top: 8px;
-      max-width: 14ch;
-      font-size: 0.66rem;
-      line-height: 1.4;
+      max-width: 12ch;
+      font-size: 0.62rem;
+      line-height: 1.32;
       color: var(--muted-dark);
       font-weight: 400;
     }
 
-    .cycle-node-top { left: 50%; top: 5%; transform: translateX(-50%); }
-    .cycle-node-right { right: 2%; top: 50%; transform: translateY(-50%); }
-    .cycle-node-bottom { left: 50%; bottom: 5%; transform: translateX(-50%); }
-    .cycle-node-left { left: 2%; top: 50%; transform: translateY(-50%); }
+    .cycle-node-top { left: 50%; top: 4%; transform: translateX(-50%); }
+    .cycle-node-right { right: 3%; top: 50%; transform: translateY(-50%); }
+    .cycle-node-bottom { left: 50%; bottom: 4%; transform: translateX(-50%); }
+    .cycle-node-left { left: 3%; top: 50%; transform: translateY(-50%); }
 
     .cycle-explanatory-strip {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
       gap: 16px;
-      margin-top: 18px;
+      margin-top: 16px;
       padding: 14px 16px;
       background: rgba(246, 248, 250, 0.96);
       border: 1px solid rgba(21, 32, 43, 0.08);
@@ -1304,8 +1295,9 @@
 
     .cycle-panel-wrap {
       display: grid;
-      gap: 18px;
+      gap: 16px;
       align-content: start;
+      padding-top: 6px;
     }
 
     .cycle-panel {
@@ -1313,7 +1305,7 @@
       background: #FFFFFF;
       border: 1px solid rgba(21, 32, 43, 0.08);
       border-radius: 24px;
-      padding: 30px 34px 28px;
+      padding: 28px 32px 26px;
       box-shadow: var(--soft-shadow);
       min-height: 0;
       overflow: hidden;
@@ -1338,33 +1330,33 @@
     }
 
     .cycle-panel h3 {
-      margin: 0 0 18px;
-      font-size: 1.62rem;
+      margin: 0 0 16px;
+      font-size: 1.54rem;
       line-height: 0.98;
       font-weight: 700;
       color: var(--text-dark);
-      letter-spacing: -0.055em;
+      letter-spacing: -0.052em;
       text-wrap: balance;
-      max-width: 11ch;
+      max-width: 10ch;
     }
 
     .cycle-panel-body {
-      max-width: 35ch;
-      font-size: 1rem;
-      line-height: 1.82;
+      max-width: 31ch;
+      font-size: 0.98rem;
+      line-height: 1.76;
       color: var(--muted-dark);
     }
 
     .cycle-panel-body p { margin: 0; }
-    .cycle-panel-body p + p { margin-top: 14px; }
+    .cycle-panel-body p + p { margin-top: 12px; }
 
     .cycle-support {
       position: relative;
       margin: 0;
-      padding: 18px 22px 18px 26px;
-      max-width: 42ch;
-      font-size: 0.96rem;
-      line-height: 1.72;
+      padding: 16px 20px 16px 24px;
+      max-width: 39ch;
+      font-size: 0.93rem;
+      line-height: 1.68;
       color: var(--muted-dark);
       background: rgba(255, 255, 255, 0.78);
       border: 1px solid rgba(21, 32, 43, 0.06);
@@ -1569,29 +1561,25 @@
       }
 
       .cycle-center {
-        width: 140px;
-        height: 140px;
-        padding: 12px;
-        box-shadow: 0 0 0 10px rgba(63, 110, 161, 0.06);
+        width: 118px;
+        height: 118px;
+        padding: 10px;
+        box-shadow: 0 0 0 8px rgba(63, 110, 161, 0.05);
       }
 
       .cycle-center-title {
-        font-size: 0.8rem;
-      }
-
-      .cycle-center-detail {
-        font-size: 0.58rem;
-      }
-
-      .cycle-node {
-        min-width: 118px;
-        min-height: 56px;
-        padding: 8px 10px;
         font-size: 0.72rem;
       }
 
-      .cycle-node-detail {
+      .cycle-center-detail {
         display: none;
+      }
+
+      .cycle-node {
+        min-width: 102px;
+        min-height: 48px;
+        padding: 7px 8px;
+        font-size: 0.68rem;
       }
 
       .cycle-node-top { top: 2%; }
@@ -1920,30 +1908,30 @@
                     </marker>
                   </defs>
 
-                  <circle cx="270" cy="270" r="178" fill="none" stroke="#3F6EA1" stroke-width="2"></circle>
+                  <circle cx="270" cy="270" r="176" fill="none" stroke="#3F6EA1" stroke-width="1.8"></circle>
 
-                  <path d="M270 92 A178 178 0 0 1 448 270" fill="none" stroke="#3F6EA1" stroke-width="2" marker-end="url(#cycleArrowBlue)"></path>
-                  <path d="M448 270 A178 178 0 0 1 270 448" fill="none" stroke="#3F6EA1" stroke-width="2" marker-end="url(#cycleArrowBlue)"></path>
-                  <path d="M270 448 A178 178 0 0 1 92 270" fill="none" stroke="#3F6EA1" stroke-width="2" marker-end="url(#cycleArrowBlue)"></path>
-                  <path d="M92 270 A178 178 0 0 1 270 92" fill="none" stroke="#3F6EA1" stroke-width="2" marker-end="url(#cycleArrowBlue)"></path>
+                  <path d="M270 94 A176 176 0 0 1 446 270" fill="none" stroke="#3F6EA1" stroke-width="1.8" marker-end="url(#cycleArrowBlue)"></path>
+                  <path d="M446 270 A176 176 0 0 1 270 446" fill="none" stroke="#3F6EA1" stroke-width="1.8" marker-end="url(#cycleArrowBlue)"></path>
+                  <path d="M270 446 A176 176 0 0 1 94 270" fill="none" stroke="#3F6EA1" stroke-width="1.8" marker-end="url(#cycleArrowBlue)"></path>
+                  <path d="M94 270 A176 176 0 0 1 270 94" fill="none" stroke="#3F6EA1" stroke-width="1.8" marker-end="url(#cycleArrowBlue)"></path>
 
-                  <path d="M270 120 L270 176" fill="none" stroke="rgba(63,110,161,0.22)" stroke-width="1.25"></path>
-                  <path d="M392 270 L336 270" fill="none" stroke="rgba(63,110,161,0.22)" stroke-width="1.25"></path>
-                  <path d="M270 420 L270 364" fill="none" stroke="rgba(63,110,161,0.22)" stroke-width="1.25"></path>
-                  <path d="M148 270 L204 270" fill="none" stroke="rgba(63,110,161,0.22)" stroke-width="1.25"></path>
+                  <path d="M270 120 L270 198" fill="none" stroke="rgba(63,110,161,0.2)" stroke-width="1.1"></path>
+                  <path d="M420 270 L342 270" fill="none" stroke="rgba(63,110,161,0.2)" stroke-width="1.1"></path>
+                  <path d="M270 420 L270 342" fill="none" stroke="rgba(63,110,161,0.2)" stroke-width="1.1"></path>
+                  <path d="M120 270 L198 270" fill="none" stroke="rgba(63,110,161,0.2)" stroke-width="1.1"></path>
                 </svg>
 
-                <div class="cycle-node cycle-node-top cycle-node-static">Structured Input<span class="cycle-node-detail">Focused collection from the current operating environment.</span></div>
-                <div class="cycle-node cycle-node-right cycle-node-static">Diagnostic Signal<span class="cycle-node-detail">A directional read on the structural condition beneath performance.</span></div>
-                <div class="cycle-node cycle-node-bottom cycle-node-static">Leadership Response<span class="cycle-node-detail">Selective action to clarify, simplify, or rebalance the system.</span></div>
-                <div class="cycle-node cycle-node-left cycle-node-static">Changed Conditions<span class="cycle-node-detail">The system shifts, creating a new reality to read.</span></div>
+                <div class="cycle-node cycle-node-top cycle-node-static">Structured Input</div>
+                <div class="cycle-node cycle-node-right cycle-node-static">Diagnostic Signal</div>
+                <div class="cycle-node cycle-node-bottom cycle-node-static">Leadership Response</div>
+                <div class="cycle-node cycle-node-left cycle-node-static">Changed Conditions</div>
 
                 <div class="cycle-center">
                   <p class="cycle-center-kicker">Center signal</p>
                   <p class="cycle-center-title">Administrative Reality Evolves</p>
                   <span class="cycle-center-detail">The next read should reflect the institution as it now exists.</span>
                 </div>
-              </div>
+              </div></div>
 
               <div class="cycle-explanatory-strip" aria-hidden="true">
                 <div class="cycle-explanatory-item">
