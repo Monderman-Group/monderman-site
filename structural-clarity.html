@@ -215,24 +215,6 @@ document.getElementById("openingNotice").textContent = openingNotice; document.g
 const pageLoader=document.getElementById("pageLoader"), heroBeginBtn=document.getElementById("heroBeginBtn"), learnMoreToggle=document.getElementById("learnMoreToggle"), learnMorePanel=document.getElementById("learnMorePanel"), laneStage=document.getElementById("laneStage"), depthStage=document.getElementById("depthStage"), introStage=document.getElementById("introStage"), questionStage=document.getElementById("questionStage"), processingStage=document.getElementById("processingStage"), resultsStage=document.getElementById("resultsStage"), questionFooter=document.getElementById("questionFooter"), beginBtn=document.getElementById("beginBtn"), preStartConsent=document.getElementById("preStartConsent"), backBtn=document.getElementById("backBtn"), skipBtn=document.getElementById("skipBtn"), restartBtn=document.getElementById("restartBtn"), continueBtn=document.getElementById("continueBtn"), exportBtn=document.getElementById("exportBtn"), downloadPdfBtn=document.getElementById("downloadPdfBtn"), downloadReportBtn=document.getElementById("downloadReportBtn"), saveCrossDiagnosticBtn=document.getElementById("saveCrossDiagnosticBtn"), reportDownloadLink=document.getElementById("reportDownloadLink"), crossDiagnosticDownloadLink=document.getElementById("crossDiagnosticDownloadLink"), newRunBtn=document.getElementById("newRunBtn"), envHeadline=document.getElementById("envHeadline"), envSubcopy=document.getElementById("envSubcopy"), statusPill=document.getElementById("statusPill"), questionCluster=document.getElementById("questionCluster"), questionStep=document.getElementById("questionStep"), questionTitle=document.getElementById("questionTitle"), questionCopy=document.getElementById("questionCopy"), questionBody=document.getElementById("questionBody"), requiredNotice=document.getElementById("requiredNotice"), progressBar=document.getElementById("progressBar"), progressCopy=document.getElementById("progressCopy"), pathHint=document.getElementById("pathHint"), laneAsideTitle=document.getElementById("laneAsideTitle");
 let gapChart=null, dimensionChart=null;
 
-async function postJsonWithTimeout(url, body, timeoutMs=12000){
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const response = await fetch(url,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(body),
-      signal:controller.signal
-    });
-    const data = await response.json().catch(()=>null);
-    return {response, data};
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-
 const laneConfigs={operational:{label:"Operational",header:"Operational perspective selected",subcopy:"This version is built for people closest to the work. It surfaces where ownership is fuzzy, where instructions shift in practice, and where the structure only works because someone compensates for it locally.",aside:"What the operational version is built to surface"},managerial:{label:"Managerial",header:"Managerial perspective selected",subcopy:"This version is tuned for people coordinating teams and execution. It emphasizes repeated clarification load, accountability diffusion, boundary rework, and where structure is consuming management attention.",aside:"What the managerial version is built to surface"},executive:{label:"Executive",header:"Executive perspective selected",subcopy:"This version is tuned for leaders shaping structure and governance. It emphasizes role-architecture drift, control-fit problems, redesign readiness, and where the system itself is becoming harder to govern.",aside:"What the executive version is built to surface"}};
 const depthConfigs={"10":{label:"10-minute diagnostic",header:"10-minute diagnostic selected",subcopy:"Quick first read. Best for fast baselining or repeat checks after a change.",extra:[]},"30":{label:"30-minute diagnostic",header:"30-minute diagnostic selected",subcopy:"Balanced default. Stronger explanatory power without becoming burdensome.",extra:["issueTrajectory"]},"60":{label:"60-minute diagnostic",header:"60-minute diagnostic selected",subcopy:"Deepest version. Captures the strongest trajectory, interpretation, and dependency signals.",extra:["issueTrajectory","changeDriver","dragVisibility","governanceFit","controlBias"]}};
 function updateHeroHelp(){
@@ -245,7 +227,7 @@ function updateHeroHelp(){
     return;
   }
   const detailMap={
-    operational:`<strong style="display:block;margin-bottom:6px;color:#15202B;">Operational perspective</strong>This version is built for the people closest to the work — the ones who actually move the pathway day to day. It surfaces where things get stuck, where manual workarounds keep everything going, and where the structure only holds together because someone quietly interprets it, translates it, or pushes it through.`,
+    operational:`<strong style="display:block;margin-bottom:6px;color:#15202B;">Operational perspective</strong>This version is built for the people closest to the work — the ones who actually move the pathway day to day. It surfaces where things get stuck, where manual workarounds keep everything going, and where the process only succeeds because someone quietly steps in to keep it alive.`,
     managerial:`<strong style="display:block;margin-bottom:6px;color:#15202B;">Managerial perspective</strong>This version is built for people coordinating teams and execution. It surfaces recurring approval burden, escalation patterns, coordination drag, and where pathway weight is quietly growing over time.`,
     executive:`<strong style="display:block;margin-bottom:6px;color:#15202B;">Executive perspective</strong>This version is built for leaders shaping governance, structure, and risk posture. It surfaces ownership drift, authority overlap, structural translation dependence, and whether the current governance model still supports clear accountability.`
   };
@@ -493,1294 +475,236 @@ function buildPayload(){
   return {processName:state.answers.processName||"Unnamed pathway",businessUnit:state.answers.businessUnit||"",industry:industryValue,industrySelection:state.answers.industry||"other",organizationSize:deriveOrganizationSize(employeeCount),employeeCount:employeeCount,regulatoryIntensity:state.answers.regulatoryIntensity||"unknown",decisionType:state.answers.decisionType||"other",description:mergedDescription,decisionDays:Number(state.answers.decisionDays||0),delayPoint:state.answers.delayPoint||"unknown",approvalCount:Number(state.answers.approvalCount||0),handoffCount:Number(state.answers.handoffCount||0),meetingCount:Number(state.answers.meetingCount||0),systemsTouched:Number(state.answers.systemsTouched||1),approvalFlow:state.answers.approvalFlow||"mixed",lateApprovals:state.answers.reviewExpansion==="often"?"frequently":state.answers.reviewExpansion==="sometimes"?"occasionally":"no",ownerClarity:state.answers.ownerClarity||"mixed",escalationClarity:state.answers.escalationClarity||"mixed",keyPersonDependency:state.answers.keyPersonDependency||"somewhat",reopenRate:state.answers.workaroundRate==="often"?"often":state.answers.workaroundRate==="sometimes"?"sometimes":"rare",escalationRate:state.answers.escalationRate||"sometimes",workaroundRate:state.answers.workaroundRate||"sometimes",peopleInvolved:Number(state.answers.peopleInvolved||0),hourlyCost:Number(state.answers.hourlyCost||0),annualVolume:Number(state.answers.annualVolume||0),meetingHours:Number(state.answers.meetingHours||0),confidenceLevel:state.answers.confidenceLevel||"moderate",issueTrajectory:state.answers.issueTrajectory||"flat",changeDriver:state.answers.changeDriver||((state.answers.changeDriver_ranked||[])[0])||"ambiguity",controlClimate:state.answers.controlClimate||"moderate",approvalRemovalRate:state.answers.approvalRemovalRate||"rarely",managerIntervention:state.answers.managerIntervention||"sometimes",compensatoryEffort:state.answers.compensatoryEffort||"sometimes",participantMode:state.mode||"executive",diagnosticDepth:state.depth||"10"}}
 function avg(values){const cleaned=values.filter(v=>Number.isFinite(v)); return cleaned.length?cleaned.reduce((a,b)=>a+b,0)/cleaned.length:0} function severityWord(score){if(score>=5) return "Severe impact"; if(score>=4) return "High impact"; if(score>=3) return "Moderate impact"; if(score>=2) return "Mild impact"; if(score>=1) return "Minimal impact"; return "No meaningful impact"} function confidenceLabel(value){const normalized=String(value||"").toLowerCase(); if(normalized==="high") return "Strong input depth"; if(normalized==="moderate") return "Moderate input depth"; if(normalized==="limited") return "Limited input depth"; return "Input depth not specified"}
 function buildLocalResult(input){
-  const ownerClarity=String(input.ownerClarity||"mixed");
-  const escalationClarity=String(input.escalationClarity||"mixed");
-  const keyPersonDependency=String(input.keyPersonDependency||"somewhat");
-  const workaroundRate=String(input.workaroundRate||"sometimes");
-  const instructionVariance=String(input.instructionVariance||"sometimes");
+  const decisionDays=Number(input.decisionDays||0);
   const approvalCount=Number(input.approvalCount||0);
   const handoffCount=Number(input.handoffCount||0);
   const meetingCount=Number(input.meetingCount||0);
   const systemsTouched=Number(input.systemsTouched||0);
-  const decisionDays=Number(input.decisionDays||0);
-  const managerIntervention=String(input.managerIntervention||"sometimes");
-  const controlBias=String(input.controlBias||"somewhat");
-  const governanceFit=String(input.governanceFit||"fit");
-  const dragVisibility=String(input.dragVisibility||"mixed");
-  const approvalRemovalRate=String(input.approvalRemovalRate||"rarely");
-  const issueTrajectory=String(input.issueTrajectory||"same");
+  const ownerClarity=String(input.ownerClarity||"");
+  const escalationClarity=String(input.escalationClarity||"");
+  const keyPersonDependency=String(input.keyPersonDependency||"");
+  const reopenRate=String(input.reopenRate||"");
+  const escalationRate=String(input.escalationRate||"");
+  const workaroundRate=String(input.workaroundRate||"");
+  const approvalFlow=String(input.approvalFlow||"");
+  const lateApprovals=String(input.lateApprovals||"");
+  const managerIntervention=String(input.managerIntervention||"");
+  const reviewExpansion=String(input.reviewExpansion||input.lateApprovals||"");
+  const controlClimate=String(input.controlClimate||"");
+
+  const ownershipAmbiguity=Math.max(0,Math.min(100,
+    (ownerClarity==="very_unclear"?82:ownerClarity==="somewhat_unclear"?62:ownerClarity==="mixed"?42:16)
+    +(escalationClarity==="unclear"?10:escalationClarity==="mixed"?4:0)
+    +(managerIntervention==="frequent"?8:managerIntervention==="occasional"?4:0)
+  ));
+
+  const authorityBlur=Math.max(0,Math.min(100,
+    (escalationClarity==="unclear"?76:escalationClarity==="mixed"?52:18)
+    +(ownerClarity==="very_unclear"?8:ownerClarity==="somewhat_unclear"?4:0)
+    +(approvalFlow==="sequential"?4:approvalFlow==="mixed"?2:0)
+    +(controlClimate==="high"?6:controlClimate==="moderate"?2:0)
+  ));
+
+  const handoffDiffusion=Math.max(0,Math.min(100,
+    (handoffCount>=8?82:handoffCount>=6?68:handoffCount>=4?52:handoffCount>=2?34:14)
+    +(meetingCount>=6?8:meetingCount>=4?5:meetingCount>=2?2:0)
+    +(systemsTouched>=5?6:systemsTouched>=3?3:0)
+  ));
+
+  const compensatoryStructure=Math.max(0,Math.min(100,
+    (workaroundRate==="often"||workaroundRate==="frequent"?74:workaroundRate==="sometimes"||workaroundRate==="occasional"?48:16)
+    +(keyPersonDependency==="heavily"||keyPersonDependency==="high"?16:keyPersonDependency==="somewhat"||keyPersonDependency==="moderate"?8:0)
+    +(managerIntervention==="frequent"?8:managerIntervention==="occasional"?4:0)
+    +(lateApprovals==="frequently"?5:lateApprovals==="occasionally"?2:0)
+  ));
+
+  const escalationDependency=Math.max(0,Math.min(100,
+    (escalationRate==="often"||escalationRate==="frequent"?72:escalationRate==="sometimes"||escalationRate==="occasional"?42:12)
+    +(escalationClarity==="unclear"?8:escalationClarity==="mixed"?4:0)
+  ));
 
   const dimensions={
-    ownership_clarity: Math.max(0, Math.min(100, 100
-      - (ownerClarity==="unclear"?42:ownerClarity==="mixed"?20:6)
-      - (keyPersonDependency==="heavily"?18:keyPersonDependency==="somewhat"?8:0)
-      - (instructionVariance==="often"?10:instructionVariance==="sometimes"?4:0))),
-    role_boundary_coherence: Math.max(0, Math.min(100, 100
-      - Math.min(22, handoffCount*4)
-      - Math.min(14, meetingCount*3)
-      - (managerIntervention==="often"?12:managerIntervention==="sometimes"?5:0)
-      - (instructionVariance==="often"?10:instructionVariance==="sometimes"?4:0))),
-    authority_overlap: Math.max(0, Math.min(100, 100
-      - (approvalCount>=6?26:approvalCount>=4?16:approvalCount>=2?8:2)
-      - (governanceFit==="over"?12:governanceFit==="fit"?4:0)
-      - (controlBias==="yes"?12:controlBias==="somewhat"?5:0))),
-    decision_right_clarity: Math.max(0, Math.min(100, 100
-      - (escalationClarity==="unclear"?26:escalationClarity==="mixed"?12:3)
-      - (ownerClarity==="unclear"?18:ownerClarity==="mixed"?8:2)
-      - (instructionVariance==="often"?8:instructionVariance==="sometimes"?3:0))),
-    instruction_alignment: Math.max(0, Math.min(100, 100
-      - (instructionVariance==="often"?30:instructionVariance==="sometimes"?16:5)
-      - (managerIntervention==="often"?8:managerIntervention==="sometimes"?3:0))),
-    compensatory_translation_work: Math.max(0, Math.min(100, 100
-      - (workaroundRate==="often"?34:workaroundRate==="sometimes"?18:6)
-      - (keyPersonDependency==="heavily"?20:keyPersonDependency==="somewhat"?10:0)
-      - Math.min(12, systemsTouched*2))),
-    execution_stability: Math.max(0, Math.min(100, 100
-      - (ownerClarity==="unclear"?20:ownerClarity==="mixed"?10:2)
-      - (instructionVariance==="often"?14:instructionVariance==="sometimes"?7:0)
-      - (workaroundRate==="often"?14:workaroundRate==="sometimes"?7:0)
-      - (keyPersonDependency==="heavily"?12:keyPersonDependency==="somewhat"?6:0)
-      - (decisionDays>20?8:decisionDays>10?4:0)))
+    ownership_clarity:Math.max(0,100-ownershipAmbiguity),
+    role_boundary_coherence:Math.max(0,100-Math.round((ownershipAmbiguity*0.35)+(handoffDiffusion*0.45)+(managerIntervention==="frequent"?10:managerIntervention==="occasional"?5:0))),
+    authority_overlap:Math.max(0,100-authorityBlur),
+    compensatory_translation_work:Math.max(0,100-compensatoryStructure)
   };
 
   const contradictions=[];
-  if(ownerClarity==="clear" && keyPersonDependency==="heavily") contradictions.push({severity:"high",message:"Formal ownership looks clear, but the structure still depends heavily on specific translators or fixers."});
-  if(instructionVariance==="often" && escalationClarity==="clear") contradictions.push({severity:"moderate",message:"The formal conflict path may be clear, but day-to-day guidance is still colliding in practice."});
-  if(approvalCount<=2 && handoffCount>=6) contradictions.push({severity:"moderate",message:"Visible authority points are limited, but role-boundary transitions remain unusually dense."});
+  if(ownerClarity==="clear" && (escalationRate==="often"||escalationRate==="frequent")) contradictions.push({severity:"high",message:"Formal ownership appears clear, but the structure still depends on frequent escalation to move work."});
+  if((ownerClarity==="clear"||ownerClarity==="mostly_clear") && (keyPersonDependency==="heavily"||keyPersonDependency==="high")) contradictions.push({severity:"high",message:"Ownership appears defined, but coherence still depends heavily on specific individuals."});
+  if(handoffCount<=2 && (workaroundRate==="often"||workaroundRate==="frequent")) contradictions.push({severity:"moderate",message:"Visible handoffs are limited, but informal workarounds remain high, suggesting hidden translation burden inside the structure."});
 
   const patterns=[];
-  if(dimensions.ownership_clarity<=60) patterns.push("ownership_ambiguity_pattern");
-  if(dimensions.role_boundary_coherence<=58) patterns.push("boundary_collision_pattern");
-  if(dimensions.compensatory_translation_work<=58) patterns.push("translator_dependence_pattern");
-  if(dimensions.instruction_alignment<=60) patterns.push("instruction_conflict_pattern");
-  if(!patterns.length) patterns.push("mostly_coherent_structure_pattern");
+  if(ownershipAmbiguity>=60) patterns.push("ownership_ambiguity_pattern");
+  if(authorityBlur>=60) patterns.push("authority_blur_pattern");
+  if(handoffDiffusion>=60) patterns.push("handoff_diffusion_pattern");
+  if(compensatoryStructure>=60) patterns.push("compensatory_structure_pattern");
+  if(!patterns.length) patterns.push("coherent_structure_pattern");
 
-  const score=Math.round(avg([
-    dimensions.ownership_clarity,
-    dimensions.role_boundary_coherence,
-    dimensions.authority_overlap,
-    dimensions.decision_right_clarity,
-    dimensions.instruction_alignment,
-    dimensions.compensatory_translation_work,
-    dimensions.execution_stability
-  ]));
+  const score=Math.round(avg(Object.values(dimensions)));
+  const band=score>=82?"Clear and coherent":score>=65?"Functional but fuzzy":score>=45?"Structurally strained":"Compensation-dependent";
+  const trajectoryDirection=(input.issueTrajectory==="more_noticeable"||(managerIntervention==="frequent"&&score<82))?"up":input.issueTrajectory==="improved_somewhat"?"down":"flat";
 
-  const band=score>=82?"Opportunity range":score>=65?"Within industry range":score>=45?"Below preferred range":"High-ambiguity condition";
-  const trajectoryDirection=(issueTrajectory==="more_noticeable"||(approvalRemovalRate==="rarely" && score<82))?"up":issueTrajectory==="improved_somewhat"?"down":"flat";
-
-  const annualHours=Math.round((Number(input.meetingHours||0)*Number(input.annualVolume||0)*0.55)+(Number(input.peopleInvolved||0)*7*Math.max(0.12,Math.min(0.85,(100-score)/100))*12));
+  const annualHours=Math.round((Number(input.meetingHours||0)*Number(input.annualVolume||0)*0.5)+(Number(input.peopleInvolved||0)*8*Math.max(0.12,Math.min(0.85,(100-score)/100))*12));
   const annualCost=Math.round(annualHours*Number(input.hourlyCost||0));
-  const capacityDrag=Math.round(Math.max(5,Math.min(38,(((100-score)/100)*30)+Math.min(8,Number(input.peopleInvolved||0)/3))));
+  const capacityDrag=Math.round(Math.max(5,Math.min(38,(((100-score)/100)*32)+Math.min(8,Number(input.peopleInvolved||0)/3))));
 
-  const benchmark={label:`${humanize(input.decisionType||"other")} • ${humanize(input.industry||"other")}`,opportunityMin:72,opportunityMax:86,industryMin:60,industryMax:71};
+  const routeFamily = ownershipAmbiguity>=Math.max(authorityBlur,handoffDiffusion,compensatoryStructure)
+    ? "ownership_ambiguity_route"
+    : authorityBlur>=Math.max(handoffDiffusion,compensatoryStructure)
+      ? "authority_blur_route"
+      : handoffDiffusion>=compensatoryStructure
+        ? "handoff_diffusion_route"
+        : "compensatory_structure_route";
+
+  const benchmark={label:`${humanize(input.decisionType||"other")} • ${humanize(input.industry||"other")}`,opportunityMin:70,opportunityMax:84,industryMin:58,industryMax:69};
   const benchmarkPos=score>benchmark.opportunityMax?"Above industry range":score>=benchmark.industryMin?"Within industry range":"Below industry range";
 
   const burdenBreakdown={
-    ownership_gap: Math.max(0,100-dimensions.ownership_clarity),
-    boundary_collision: Math.max(0,100-dimensions.role_boundary_coherence),
-    authority_overlap: Math.max(0,100-dimensions.authority_overlap),
-    instruction_conflict: Math.max(0,100-dimensions.instruction_alignment),
-    translator_dependence: Math.max(0,100-dimensions.compensatory_translation_work),
-    decision_rights: Math.max(0,100-dimensions.decision_right_clarity)
+    ownership_ambiguity:ownershipAmbiguity,
+    authority_blur:authorityBlur,
+    handoff_diffusion:handoffDiffusion,
+    compensatory_structure:compensatoryStructure,
+    escalation_dependency:escalationDependency
   };
 
   const delayConcentration={
-    intake: ownerClarity==="unclear"?76:ownerClarity==="mixed"?48:24,
-    review: instructionVariance==="often"?82:instructionVariance==="sometimes"?50:28,
-    coordination: handoffCount>=6?78:handoffCount>=3?50:24,
-    signoff: escalationClarity==="unclear"?74:escalationClarity==="mixed"?46:20
+    intake:ownerClarity==="very_unclear"?72:ownerClarity==="somewhat_unclear"?56:36,
+    review:authorityBlur>=60?78:authorityBlur>=40?58:34,
+    coordination:handoffDiffusion>=60?82:handoffDiffusion>=40?60:36,
+    signoff:compensatoryStructure>=60?70:compensatoryStructure>=40?54:32
   };
 
   const laborProfile=[
-    {role:"Direct owners / responsible actors",people:Math.max(1,Math.round(Number(input.peopleInvolved||1)*0.2)),significance:ownerClarity==="unclear"?"High":"Moderate"},
-    {role:"Boundary-spanning participants",people:Math.max(1,Math.round(handoffCount/2)||1),significance:handoffCount>=6?"High":"Moderate"},
-    {role:"Clarifiers / coordinators",people:Math.max(1,Math.round(Number(input.peopleInvolved||1)*(meetingCount>=4?0.24:0.16))),significance:meetingCount>=4?"High":"Moderate"},
-    {role:"Key translators / fixers",people:keyPersonDependency==="heavily"?Math.max(1,Math.round(Number(input.peopleInvolved||1)*0.16)):keyPersonDependency==="somewhat"?1:0,significance:keyPersonDependency==="heavily"?"High":keyPersonDependency==="somewhat"?"Moderate":"Minimal"}
+    {role:"Core owners / accountable roles",people:Math.max(1,Math.round(Number(input.peopleInvolved||1)*0.18)),significance:ownershipAmbiguity>=60?"High":"Moderate"},
+    {role:"Boundary-spanning roles",people:Math.max(1,Math.round(Number(input.peopleInvolved||1)*(handoffCount>=4?0.24:0.14))),significance:handoffDiffusion>=60?"High":"Moderate"},
+    {role:"Managers / interpreters",people:managerIntervention==="frequent"?Math.max(1,Math.round(Number(input.peopleInvolved||1)*0.12)):1,significance:managerIntervention==="frequent"?"High":managerIntervention==="occasional"?"Moderate":"Light"},
+    {role:"Escalation actors",people:escalationDependency>=60?Math.max(1,Math.round(Number(input.peopleInvolved||1)*0.10)):escalationDependency>=35?1:0,significance:escalationDependency>=60?"Moderate":escalationDependency>=35?"Light":"Minimal"},
+    {role:"Key-person carriers",people:(keyPersonDependency==="heavily"||keyPersonDependency==="high")?Math.max(1,Math.round(Number(input.peopleInvolved||1)*0.18)):(keyPersonDependency==="somewhat"||keyPersonDependency==="moderate")?1:0,significance:(keyPersonDependency==="heavily"||keyPersonDependency==="high")?"High":(keyPersonDependency==="somewhat"||keyPersonDependency==="moderate")?"Moderate":"Minimal"}
   ];
 
   const impactProfile={entries:[
-    {label:"Minor ambiguity or annoyance",score:1},
-    {label:"Repeated clarification work",score:score<70?4:2},
-    {label:"Added labor or coordination cost",score:score<82?4:2},
-    {label:"Managerial or leadership intervention",score:managerIntervention==="often"?4:managerIntervention==="sometimes"?3:1},
-    {label:"Meaningful operational or mission risk",score:score<45?5:score<65?3:1}
+    {label:"Minor hesitation or role confusion",score:ownershipAmbiguity>=35?3:1},
+    {label:"Duplicated work or ambiguous accountability",score:handoffDiffusion>=55?4:handoffDiffusion>=35?3:1},
+    {label:"Added labor or management translation",score:compensatoryStructure>=55?4:compensatoryStructure>=35?3:2},
+    {label:"Routine escalation for structurally unclear cases",score:escalationDependency>=60?4:escalationDependency>=35?3:1},
+    {label:"Brittle execution if key people are absent",score:(keyPersonDependency==="heavily"||keyPersonDependency==="high")?4:(keyPersonDependency==="somewhat"||keyPersonDependency==="moderate")?3:1}
   ]};
 
-  const composition={
-    coordination_hours:Math.round(annualHours*0.32),
-    clarification_hours:Math.round(annualHours*0.30),
-    rework_hours:Math.round(annualHours*0.18),
-    translation_hours:Math.max(0,annualHours-Math.round(annualHours*0.32)-Math.round(annualHours*0.30)-Math.round(annualHours*0.18))
+  const burdenRanked=Object.entries(burdenBreakdown).sort((a,b)=>b[1]-a[1]).map(([code,value])=>({code,value,label:humanize(code.replace(/_/g," "))}));
+  const topStructural=burdenRanked[0]?.code||"ownership_ambiguity";
+  const driverLabelMap={
+    ownership_ambiguity:"ownership ambiguity",
+    authority_blur:"authority blur",
+    handoff_diffusion:"handoff diffusion",
+    compensatory_structure:"compensatory structure",
+    escalation_dependency:"escalation dependency"
   };
-
-  const sorted=Object.entries(burdenBreakdown).map(([code,value])=>({code,value})).sort((a,b)=>b.value-a.value);
-  const ladder=sorted.slice(0,3).map((item,i)=>({priority:i===0?"Fix now":i===1?"Fix next":"Monitor",focus:humanize(item.code.replace(/_/g," ")),severity:item.value}));
-
-  const valueJudgment = score>=78
-    ? {label:"Worth the trade-off",note:"The current structure appears broadly proportionate to the clarity it returns."}
-    : score>=58
-    ? {label:"Borderline trade-off",note:"The structure still functions, but ambiguity and translation work are beginning to outweigh what it returns."}
-    : {label:"Not worth the trade-off",note:"Too much time, money, and managerial attention appear to be spent compensating for structural ambiguity."};
-
-  const peerAdvantageNote = benchmarkPos==="Within industry range"
-    ? "This may be normal for the sector, but normal does not mean strategically acceptable if compensatory structural labor is still high."
-    : benchmarkPos==="Above industry range"
-    ? "Current positioning suggests a directional edge over peer structures, provided ambiguity does not reaccumulate."
-    : "Current positioning suggests a directional disadvantage relative to the industry range for this kind of structure.";
 
   return {
-    score,band,score_band:band,value_judgment:valueJudgment,benchmark,benchmark_position:benchmarkPos,
-    benchmark_context:{industry_label:humanize(input.industry||"other"),organization_size_label:humanize(input.organizationSize||"unknown"),regulatory_intensity_label:humanize(input.regulatoryIntensity||"unknown")},
-    trajectory:{
-      direction:trajectoryDirection,
-      label:trajectoryDirection==="up"?"Structural strain becoming more noticeable":trajectoryDirection==="down"?"Structural strain easing somewhat":"Structural strain staying about the same",
-      note:trajectoryDirection==="up"?"Current inputs suggest ownership ambiguity, boundary collision, or translation work are likely to continue accumulating unless the structure is actively redesigned.":trajectoryDirection==="down"?"Current inputs suggest the structure may be regaining clarity or shedding ambiguity.":"Current inputs suggest the structure is relatively steady, but steady is not the same thing as self-executing."
-    },
-    route_family:(ownerClarity==="unclear"?"ownership_route":instructionVariance==="often"?"instruction_route":keyPersonDependency==="heavily"?"translator_route":"boundary_route"),
-    primary_constraint:patterns[0],contradictions,patterns,dimensions,burden_breakdown:burdenBreakdown,delay_concentration:delayConcentration,labor_profile:laborProfile,impact_profile:impactProfile,intervention_priority_ladder:ladder,
-    exposure:{annual_hours:annualHours,annual_cost:annualCost,capacity_drag_percent:capacityDrag,reclaimable_hours:Math.round(annualHours*0.33),reclaimable_cost:Math.round(annualCost*0.33)},
-    composition,peer_advantage:{display:peerAdvantageNote},industry_label:humanize(input.industry||"other"),organization_size_label:humanize(input.organizationSize||"unknown"),regulatory_intensity_label:humanize(input.regulatoryIntensity||"unknown"),input_confidence_label:confidenceLabel(input.confidenceLevel),narrative:null
-  };
-}
-
-async function submitDiagnostic(){
-  if(!validateCurrent()) return;
-  saveCurrentQuestion();
-  setHeader("Generating output","The diagnostic engine is interpreting your structure and preparing a leadership-facing readout.","Output in progress");
-  showStage(processingStage);
-
-  const payload=buildPayload();
-  let localResult;
-  try {
-    localResult=buildLocalResult(payload);
-  } catch (err) {
-    console.error("buildLocalResult failed:", err);
-    alert("The tool hit a front-end scoring error before output generation could finish. Please restart after applying the updated file.");
-    setHeader("Output error","The local scoring layer failed before output generation could complete.","Render error");
-    showStage(questionStage);
-    return;
-  }
-
-  let finalResult=localResult, outputMode="Local fallback";
-
-  try{
-    await wait(RESULTS_LOADER_MS);
-    const {response:scoreResponse,data:scoreData}=await postJsonWithTimeout(`${API_BASE}/api/structural-clarity-score`, payload, 12000);
-    if(!scoreResponse.ok || !scoreData?.ok || !scoreData?.result) throw new Error("Unable to generate structural score output.");
-
-    finalResult=scoreData.result;
-    outputMode="Scored";
-
-    try{
-      const topBurdenSummary=(scoreData.result?.burden_breakdown
-        ? Object.entries(scoreData.result.burden_breakdown)
-            .filter(([,value])=>Number.isFinite(value))
-            .sort((a,b)=>b[1]-a[1])
-            .slice(0,2)
-            .map(([code,value])=>`${String(code).replace(/_/g," ")} (${Math.round(value)})`)
-            .join("; ")
-        : "");
-
-      const narrativeContext={
-        tool_type:"structural_clarity",
-        process_name:payload.processName,
-        business_unit:payload.businessUnit,
-        user_context_note:payload.description||"",
-        industry_label:scoreData.result.industry_label||humanize(payload.industry||"other"),
-        organization_size_label:scoreData.result.organization_size_label||humanize(payload.organizationSize||"unknown"),
-        regulatory_intensity_label:scoreData.result.regulatory_intensity_label||humanize(payload.regulatoryIntensity||"unknown"),
-        input_confidence_label:scoreData.result.input_confidence_label||confidenceLabel(payload.confidenceLevel),
-        participant_mode:payload.participantMode||state.mode||"executive",
-        route_family:scoreData.result.route_family||"",
-        primary_constraint:scoreData.result.primary_constraint||"",
-        trajectory_direction:scoreData.result.trajectory?.direction||"",
-        trajectory_label:scoreData.result.trajectory?.label||"",
-        benchmark_position:scoreData.result.benchmark_position||"",
-        top_intervention_focus:(scoreData.result.intervention_priority_ladder&&scoreData.result.intervention_priority_ladder[0]?.focus)||"",
-        peer_advantage_display:scoreData.result.peer_advantage?.display||"",
-        top_burdens:topBurdenSummary,
-        decision_type:payload.decisionType||"",
-        value_judgment:scoreData.result.value_judgment?.label||""
-      };
-
-      const narrativeRequestBody={...scoreData.result,result:scoreData.result,context:narrativeContext};
-      const {response:narrativeResponse,data:narrativeData}=await postJsonWithTimeout(`${API_BASE}/api/structural-clarity-narrative`, narrativeRequestBody, 10000);
-
-      if(narrativeResponse.ok && narrativeData?.ok && narrativeData?.narrative){
-        finalResult={...scoreData.result,narrative:narrativeData.narrative};
-        outputMode="Full output";
-      } else {
-        finalResult={...scoreData.result,narrative:localResult.narrative};
-        outputMode="Scored + local narrative";
-      }
-    } catch(err) {
-      console.warn("structural narrative fallback:", err);
-      finalResult={...scoreData.result,narrative:localResult.narrative};
-      outputMode="Scored + local narrative";
-    }
-  } catch(err) {
-    console.warn("structural score fallback:", err);
-    finalResult=localResult;
-    outputMode="Local fallback";
-  }
-
-  state.result=finalResult;
-
-  try{
-    renderResults(finalResult,payload,outputMode);
-    setHeader("Diagnostic output","Your results reflect the specific structural signal you surfaced and the information you provided.","Output generated");
-    showStage(resultsStage);
-  } catch (err){
-    console.error("renderResults failed:", err);
-    setHeader("Output error","The scoring run completed, but the results view failed to render. Start over after applying the front-end fix.","Render error");
-    alert("The diagnostic finished scoring, but the results view hit a front-end rendering error. Check the browser console.");
-    showStage(questionStage);
-  }
-}
-function renderQuadrant(result){
-  const state=result.__interpretiveState || buildInterpretiveState(result,{});
-  const harmonized={...result,__interpretiveState:state,__governanceWeight:state.governanceWeight,__execResponsive:state.execResponsive};
-  document.getElementById("quadDot").style.left=`${state.governanceWeight}%`;
-  document.getElementById("quadDot").style.top=`${100-state.execResponsive}%`;
-  const qi=document.getElementById("quadrantInterpretationText");
-  if(qi) qi.textContent=buildQuadrantInterpretation(harmonized);
-}
-function renderTableBody(id,rows,cells){const body=document.getElementById(id); body.innerHTML=""; rows.forEach(row=>{const tr=document.createElement("tr"); tr.innerHTML=cells(row).join(""); body.appendChild(tr)})}
-
-
-
-function buildInterpretiveState(result,payload){
-  const approvalBurden=Number(result.burden_breakdown?.approval||0);
-  const coordinationBurden=Number(result.burden_breakdown?.coordination||0);
-  const escalationBurden=Number(result.burden_breakdown?.escalation||0);
-  const handoffBurden=Number(result.burden_breakdown?.handoff||0);
-  const keyPersonBurden=Number(result.burden_breakdown?.key_person||0);
-
-  const regulatoryIntensity=String(payload.regulatoryIntensity||"").toLowerCase();
-  const controlClimate=String(payload.controlClimate||"").toLowerCase();
-  const issueTrajectory=String(payload.issueTrajectory||"").toLowerCase();
-  const approvalRemovalRate=String(payload.approvalRemovalRate||"").toLowerCase();
-  const governanceFit=String(state?.answers?.governanceFit||payload.governanceFit||"").toLowerCase();
-  const controlBias=String(state?.answers?.controlBias||payload.controlBias||"").toLowerCase();
-  const route=String(result.route_family||"");
-
-  const regWeight = regulatoryIntensity==="high" ? 10 : regulatoryIntensity==="moderate" ? 5 : 0;
-  const climateWeight = controlClimate==="high" ? 8 : controlClimate==="moderate" ? 4 : 0;
-  const trendWeight = issueTrajectory==="more_noticeable" ? 10 : issueTrajectory==="improved_somewhat" ? -4 : 0;
-  const removalPenalty = approvalRemovalRate==="never" ? 8 : approvalRemovalRate==="rarely" ? 5 : approvalRemovalRate==="sometimes" ? 2 : -2;
-  const governanceFitWeight = governanceFit==="over" ? 8 : governanceFit==="fit" ? 2 : -2;
-  const controlBiasWeight = controlBias==="yes" ? 6 : controlBias==="somewhat" ? 3 : 0;
-  const routeWeight = route==="approval_density_route" ? 7 : route==="governance_latency_route" ? 9 : route==="exception_route" ? 5 : 0;
-
-  const governanceWeight = Math.max(8, Math.min(96,
-    (approvalBurden*0.42) +
-    (escalationBurden*0.16) +
-    (coordinationBurden*0.10) +
-    (handoffBurden*0.06) +
-    regWeight + climateWeight + trendWeight + removalPenalty + governanceFitWeight + controlBiasWeight + routeWeight
-  ));
-
-  const score=Number(result.score||0);
-  const cycle=Number(result.dimensions?.ownership_clarity||0);
-  const stability=Number(result.dimensions?.execution_stability||0);
-  const trajectoryDirection=result.trajectory?.direction||"flat";
-  const trajectoryPenalty=trajectoryDirection==="up"?8:trajectoryDirection==="down"?-4:0;
-  const instabilityPenalty=(escalationBurden*0.12)+(keyPersonBurden*0.10)+(handoffBurden*0.06);
-  const execResponsive=Math.max(6,Math.min(94,avg([score,cycle,stability]) - trajectoryPenalty - instabilityPenalty));
-  const nearMidline=Math.abs(execResponsive-50)<=8 || Math.abs(governanceWeight-50)<=8;
-
-  const benchmarkPos=result.benchmark_position||"Industry range comparison";
-  const topFocus=((result.intervention_priority_ladder&&result.intervention_priority_ladder[0]?.focus)||"Highest-friction burden");
-  const sectorLabel=result.industry_label||humanize(payload.industry||"this sector");
-  const decisionLabel=humanize(payload.decisionType||result.route_family||"pathway");
-
-  let condition="middle";
-  if(score<45 || (execResponsive<44 && governanceWeight>=52)) condition="high_latency";
-  else if(score<65 || execResponsive<52 || benchmarkPos==="Below industry range") condition="burdened";
-  else if(score>=82 && benchmarkPos==="Above industry range") condition="advantaged";
-
-  let quadrantKey="upper_left";
-  if(execResponsive>=50 && governanceWeight<50) quadrantKey="upper_left";
-  else if(execResponsive>=50 && governanceWeight>=50) quadrantKey="upper_right";
-  else if(execResponsive<50 && governanceWeight<50) quadrantKey="lower_left";
-  else quadrantKey="lower_right";
-
-  const directionSummary=trajectoryDirection==="up" ? "structural strain is becoming more noticeable" : trajectoryDirection==="down" ? "structural strain is easing somewhat" : "structural strain appears relatively steady";
-  return {governanceWeight,execResponsive,nearMidline,benchmarkPos,topFocus,sectorLabel,decisionLabel,condition,quadrantKey,trajectoryDirection,directionSummary,result,payload};
-}
-function buildSectorSpecificOpportunity(state){
-  const sector=String(state.sectorLabel||"this sector").toLowerCase();
-  const decision=String(state.payload?.decisionType||"").toLowerCase();
-  const route=String(state.result?.route_family||"");
-  const focus=String(state.topFocus||"highest-friction burden").toLowerCase();
-
-  let sectorPattern=`In ${sector}, organizations often accumulate drag when routine pathways become heavier than the risk or value at stake warrants.`;
-  if(sector.includes("government") || sector.includes("defense")) sectorPattern=`In ${sector}, organizations often slow themselves when serial concurrence, compliance layering, and risk sensitivity become the default operating pattern even for work that still needs timely movement.`;
-  else if(sector.includes("financial")) sectorPattern=`In ${sector}, organizations often slow themselves when control layers expand faster than the actual differentiation of risk across the cases moving through the pathway.`;
-  else if(sector.includes("healthcare")) sectorPattern=`In ${sector}, organizations often slow themselves when safety and compliance needs are managed through added review layers rather than clearer routing, thresholds, and ownership.`;
-  else if(sector.includes("technology")) sectorPattern=`In ${sector}, organizations often slow themselves when stakeholder review, exception handling, and cross-functional dependency outgrow the speed the business still expects.`;
-  else if(sector.includes("manufacturing") || sector.includes("industrial")) sectorPattern=`In ${sector}, organizations often slow themselves when approvals, routing, and exception handling spread across too many roles for the pace of operations required.`;
-  else if(sector.includes("professional services")) sectorPattern=`In ${sector}, organizations often slow themselves when partner, finance, legal, or delivery checks become sequential and habitual rather than proportionate to the work being approved.`;
-
-  let title="Recover and build advantage";
-  if(state.benchmarkPos==="Above industry range") title="Preserve and extend advantage";
-  else if(state.benchmarkPos==="Within industry range") title="Move out of the normalized middle";
-
-  let opportunityGuidance=`This run suggests the strongest immediate opportunity sits in ${focus}, because that burden appears to be carrying more of the pathway than it should.`;
-  if(decision==="risk") opportunityGuidance=`This run suggests risk-related review burden is carrying more of the pathway than the underlying case mix likely requires, especially around ${focus}.`;
-  else if(decision==="procurement") opportunityGuidance=`This run suggests procurement movement is being constrained less by the work itself than by approval and routing weight, especially around ${focus}.`;
-  else if(decision==="hiring") opportunityGuidance=`This run suggests hiring movement is being constrained by sequencing, handoffs, and review density, especially around ${focus}.`;
-  else if(decision==="budget") opportunityGuidance=`This run suggests budget movement is being constrained by layered approvals and coordination burden, especially around ${focus}.`;
-  else if(decision==="policy") opportunityGuidance=`This run suggests governance and policy movement is being constrained by review density and structural caution, especially around ${focus}.`;
-
-  if(route==="approval_density_route") opportunityGuidance += ` The opportunity is to make the normal path lighter than the exception path by reducing serial approvals and clarifying what truly requires expanded review.`;
-  else if(route==="coordination_route") opportunityGuidance += ` The opportunity is to convert hidden coordination effort back into usable capacity by tightening ownership and removing repeated manual follow-up from the normal path.`;
-  else if(route==="governance_latency_route") opportunityGuidance += ` The opportunity is to bring governance weight back into proportion with actual risk instead of letting caution, habit, or drift define the pathway.`;
-  else if(route==="exception_route") opportunityGuidance += ` The opportunity is to reduce how much exception handling and side-channel effort is required just to move a standard case forward.`;
-  else opportunityGuidance += ` The opportunity is to reduce the heaviest visible burden first, then verify through a repeat run that the structure has actually become lighter.`;
-
-  let rationale=`These first moves matter because they target the structure carrying the work, not just the symptoms people are compensating for.`;
-  if(state.benchmarkPos==="Within industry range") rationale += ` In other words, the goal is not merely to become normal for the sector, but to reclaim time, money, and productive capacity that peer-normal pathways still waste.`;
-  else if(state.benchmarkPos==="Above industry range") rationale += ` The goal is to preserve the current edge before new drag quietly accumulates into a weaker condition.`;
-  else rationale += ` The goal is to move the pathway out of a recoverable drag condition and into a more proportionate, self-sustaining operating state.`;
-
-  if(state.trajectoryDirection==="up") rationale += ` Because drag pressure appears to be rising, delay is likely to make the pathway heavier before it makes it clearer.`;
-  else if(state.trajectoryDirection==="flat") rationale += ` Stability here should not be mistaken for strength if unresolved ambiguity is still embedded in the structure.`;
-
-  let watchout=`Leadership should avoid mistaking current movement for a sound structural trade-off.`;
-  if(state.benchmarkPos==="Above industry range") watchout=`Leadership should avoid assuming current advantage is self-sustaining; unmanaged governance drift can erode a strong pathway quietly.`;
-  else if(state.benchmarkPos==="Within industry range") watchout=`Leadership should avoid mistaking peer-normal performance for strategic sufficiency if reclaimable drag is still present.`;
-  else watchout=`Leadership should avoid responding by simply adding more oversight or more reviewers; heavier governance without redesign usually deepens the condition rather than fixing it.`;
-
-  return { title, sectorPattern, opportunityGuidance, rationale, watchout };
-}
-function buildHarmonizedNarrative(result,payload){
-  const state = buildInterpretiveState(result,payload);
-  const process = (payload.processName||"This pathway").trim();
-  const narrative = result.narrative || {};
-  const backendOpportunity = {
-    title: (typeof narrative.opportunity_title==="string" && narrative.opportunity_title.trim()) ? narrative.opportunity_title.trim() : "",
-    opening: (typeof narrative.opportunity_opening==="string" && narrative.opportunity_opening.trim()) ? narrative.opportunity_opening.trim() : "",
-    sectorDynamic: (typeof narrative.sector_dynamic==="string" && narrative.sector_dynamic.trim()) ? narrative.sector_dynamic.trim() : "",
-    runIndicates: (typeof narrative.what_this_run_indicates==="string" && narrative.what_this_run_indicates.trim()) ? narrative.what_this_run_indicates.trim() : "",
-    buildAdvantage: (typeof narrative.how_advantage_is_built_here==="string" && narrative.how_advantage_is_built_here.trim()) ? narrative.how_advantage_is_built_here.trim() : "",
-    firstMove1Reason: (typeof narrative.first_move_1_reason==="string" && narrative.first_move_1_reason.trim()) ? narrative.first_move_1_reason.trim() : "",
-    firstMove2Reason: (typeof narrative.first_move_2_reason==="string" && narrative.first_move_2_reason.trim()) ? narrative.first_move_2_reason.trim() : "",
-    sectorPattern: (typeof narrative.sector_pattern==="string" && narrative.sector_pattern.trim()) ? narrative.sector_pattern.trim() : "",
-    opportunityGuidance: (typeof narrative.opportunity_guidance==="string" && narrative.opportunity_guidance.trim()) ? narrative.opportunity_guidance.trim() : "",
-    rationale: (typeof narrative.opportunity_rationale==="string" && narrative.opportunity_rationale.trim()) ? narrative.opportunity_rationale.trim() : "",
-    actionsRationale: (typeof narrative.recommended_actions_rationale==="string" && narrative.recommended_actions_rationale.trim()) ? narrative.recommended_actions_rationale.trim() : "",
-    watchout: (typeof narrative.leadership_watchout==="string" && narrative.leadership_watchout.trim()) ? narrative.leadership_watchout.trim() : ""
-  };
-  const fallbackOpportunity = buildSectorSpecificOpportunity(state);
-  const routeFamilyText = humanize(result.route_family||"mixed route");
-  const topFocusText = String(state.topFocus||"highest-friction burden").toLowerCase();
-
-  const executive =
-    state.condition==="high_latency"
-      ? `${process} is behaving like a structural drag condition rather than a minor slowdown. The governing signal is that ${state.directionSummary}, and the pathway is consuming disproportionate effort simply to keep itself moving.`
-      : state.condition==="burdened"
-      ? `${process} is still functioning, but the governing signal is that ${state.directionSummary} and the pathway is leaning increasingly burdened rather than resilient.`
-      : state.condition==="advantaged"
-      ? `${process} is currently operating from a stronger position than many comparable pathways. The governing signal is that ${state.directionSummary}, so leadership should preserve and extend that condition before new weight accumulates.`
-      : `${process} is sitting in a governable middle zone. The governing signal is that ${state.directionSummary}, so this should be managed actively rather than treated as self-correcting.`;
-
-  const leadership =
-    state.condition==="high_latency"
-      ? [
-          `Treat ${process} as a structural priority rather than a routine process complaint.`,
-          `Start by reducing ${topFocusText} because it is the most likely place to reclaim movement quickly.`,
-          `Re-run the pathway after the first correction to confirm that conditions are actually improving rather than being compensated for.`
-        ]
-      : state.condition==="burdened"
-      ? [
-          `Do not treat ${process} as healthy simply because it is still moving.`,
-          `Use ${topFocusText} as the first intervention point because it is carrying the heaviest visible burden.`,
-          `Re-run after the first targeted correction to verify that drag is actually falling.`
-        ]
-      : state.condition==="advantaged"
-      ? [
-          `Protect the conditions currently supporting movement in ${process}.`,
-          `Strip out low-yield burden around ${topFocusText} before it quietly compounds.`,
-          `Use repeat runs to confirm that current advantage is being preserved rather than eroded.`
-        ]
-      : [
-          `${process} is not in crisis, but it is not strong enough to ignore.`,
-          `Reduce ${topFocusText} to move the pathway out of the normalized middle zone.`,
-          `Use a repeat run to verify whether the pathway is materially improving.`
-        ];
-
-  const tradeoff =
-    state.condition==="advantaged"
-      ? `Some burden may still be justified by risk, quality, or governance needs. The leadership question here is whether each remaining layer is still earning its keep as conditions change.`
-      : state.condition==="high_latency"
-      ? `Some governance weight may be justified, but the current balance suggests the pathway is absorbing more friction than the underlying decision should require.`
-      : `Some burden may be justified by risk, quality, or governance needs. The leadership question is whether the current amount of friction is proportionate to the decision being processed.`;
-
-  const tmr = (typeof narrative.time_money_resources_summary==="string" && narrative.time_money_resources_summary.trim())
-    ? narrative.time_money_resources_summary.trim()
-    : `Directional modeling suggests roughly ${Math.round(result.exposure?.annual_hours||0).toLocaleString()} annual hours* and about ${formatCurrency(result.exposure?.annual_cost)} in labor exposure*, with capacity drag around ${Math.round(result.exposure?.capacity_drag_percent||0)}%*. These are directional estimates intended to support deeper leadership review, not audited measurements.`;
-
-  const benchmark = buildBenchmarkInterpretationText({...result,__interpretiveState:state});
-
-  const opportunityFields = {
-    title: backendOpportunity.title || fallbackOpportunity.title,
-    opening: backendOpportunity.opening || "",
-    sectorDynamic: backendOpportunity.sectorDynamic || "",
-    runIndicates: backendOpportunity.runIndicates || "",
-    buildAdvantage: backendOpportunity.buildAdvantage || "",
-    firstMoves: [backendOpportunity.firstMove1Reason, backendOpportunity.firstMove2Reason, backendOpportunity.actionsRationale || backendOpportunity.rationale].filter(Boolean).join(" "),
-    sectorPattern: backendOpportunity.sectorPattern || fallbackOpportunity.sectorPattern,
-    opportunityGuidance: backendOpportunity.opportunityGuidance || fallbackOpportunity.opportunityGuidance,
-    rationale: backendOpportunity.actionsRationale || backendOpportunity.rationale || fallbackOpportunity.rationale,
-    watchout: backendOpportunity.watchout || fallbackOpportunity.watchout
-  };
-
-  if(!opportunityFields.opening){
-    opportunityFields.opening = `${opportunityFields.title}. ${opportunityFields.opportunityGuidance}`;
-  }
-  if(!opportunityFields.sectorDynamic){
-    opportunityFields.sectorDynamic = opportunityFields.sectorPattern;
-  }
-  if(!opportunityFields.runIndicates){
-    opportunityFields.runIndicates = opportunityFields.opportunityGuidance;
-  }
-  if(!opportunityFields.buildAdvantage){
-    opportunityFields.buildAdvantage = opportunityFields.rationale;
-  }
-  if(!opportunityFields.firstMoves){
-    opportunityFields.firstMoves = opportunityFields.rationale;
-  }
-
-  const opportunity = opportunityFields.opportunityGuidance;
-  const quadrant = buildQuadrantInterpretation({...result,__interpretiveState:state});
-  const benchmarkLine = `${result.benchmark_position||"Industry range comparison"} • ${state.sectorLabel} • ${routeFamilyText}`;
-  const opportunityLabel = String(state.topFocus||"Highest-friction burden");
-  const keyFlags = (Array.isArray(narrative.key_friction_flags) && narrative.key_friction_flags.length)
-    ? narrative.key_friction_flags
-    : (Array.isArray(result.key_findings) ? result.key_findings : []);
-  const recommendedActions = sanitizeRecommendedActions(
-    (Array.isArray(narrative.recommended_interventions) && narrative.recommended_interventions.length)
-      ? narrative.recommended_interventions
-      : buildPriorityActions(result,payload),
-    result,
-    payload
-  );
-
-  return {
-    state,
-    executive,
-    leadership,
-    tradeoff,
-    tmr,
+    ok:true,
+    score,
+    band_label:band,
+    score_label:band,
+    route_family:routeFamily,
+    route_family_label:humanize(routeFamily.replace(/_/g," ")),
+    benchmark_position:benchmarkPos,
     benchmark,
-    opportunity,
-    opportunityFields,
-    quadrant,
-    benchmarkLine,
-    opportunityLabel,
-    keyFlags,
-    recommendedActions
-  };
-}
-
-
-function deriveStructuralClarityCondition(result){
-  const score=Number(result.score||0);
-  const approval=Number(result.burden_breakdown?.approval||0);
-  const escalation=Number(result.burden_breakdown?.escalation||0);
-  const keyPerson=Number(result.burden_breakdown?.key_person||0);
-  const route=String(result.route_family||"");
-  if(score>=82 && escalation<35 && approval<52) return {label:"Structurally clear and usable", note:"The structure appears relatively coherent and is supporting execution without excessive visible ambiguity or burden."};
-  if((escalation>=60 || keyPerson>=60) && score<58) return {label:"Ambiguous and compensation-dependent", note:"The structure appears to preserve execution through escalation, special handling, or key-person intervention rather than stable design."};
-  if(score<58 && (approval>=55 || route==="governance_latency_route" || route==="approval_density_route")) return {label:"Structurally over-layered", note:"The structure appears materially less coherent than it should be because governance weight is heavier than the underlying work likely requires."};
-  return {label:"Partly coherent but labor-intensive", note:"The structure is still supporting execution, but it is consuming more effort, coordination, and management attention than a healthy routine design should need."};
-}
-
-function derivePrimaryOwnershipGap(result){
-  const scores = [
-    {label:"Ownership ambiguity and authority overlap", value:Number(result.burden_breakdown?.approval||0), note:"Unclear ownership, overlapping authority, or duplicated decision rights appear to be the main drag on structural clarity and execution coherence."},
-    {label:"Coordination and handoff density", value:Math.max(Number(result.burden_breakdown?.coordination||0), Number(result.burden_breakdown?.handoff||0)), note:"The structure appears to be weakened primarily by handoffs, coordination effort, and repeated alignment work."},
-    {label:"Escalation substitution", value:Number(result.burden_breakdown?.escalation||0), note:"The structure appears to stay viable by escalating cases that the normal operating design should be resolving."},
-    {label:"Key-person dependence", value:Number(result.burden_breakdown?.key_person||0), note:"The structure appears to depend too heavily on specific individuals to maintain coherence and movement."}
-  ].sort((a,b)=>b.value-a.value);
-  return scores[0];
-}
-
-function deriveCoherenceDiagnosis(result,payload){
-  const approval=Number(result.burden_breakdown?.approval||0);
-  const escalation=Number(result.burden_breakdown?.escalation||0);
-  const reg=String(payload.regulatoryIntensity||"").toLowerCase();
-  if(reg==="high" && escalation<55 && approval<60 && Number(result.score||0)>=58){
-    return {label:"Risk-justified structural caution", note:"This heavier structure appears at least partly justified by a higher-risk or more regulated operating context."};
-  }
-  if(escalation>=60){
-    return {label:"Too much escalation to stay coherent", note:"This structure appears to depend too much on escalation and special handling to remain functional."};
-  }
-  if(approval>=55 || result.benchmark_position==="Below industry range" || result.benchmark_position==="Below comparable range"){
-    return {label:"Heavier than the structure requires", note:"This structure appears heavier than the underlying work likely requires."};
-  }
-  return {label:"Paying too much for structural control", note:"The structure is still functioning, but it appears to be paying too much in time and effort for the amount of control and coherence being achieved."};
-}
-
-function classifyPosition(result){
-  const state=result.__interpretiveState || buildInterpretiveState(result,{});
-  return {governanceWeight:state.governanceWeight, execResponsive:state.execResponsive, nearMidline:state.nearMidline};
-}
-function primaryFocusLabel(result){
-  return ((result.intervention_priority_ladder&&result.intervention_priority_ladder[0]?.focus)||"Highest-friction burden");
-}
-
-function isWeakNarrativeText(value){
-  const s=String(value||"").trim();
-  if(!s) return true;
-  if(s.length<70) return true;
-  return /significant friction|reduce approval first|then address escalation|showing significant friction|recover and build advantage|move out of the normalized middle/i.test(s);
-}
-
-function sanitizeRecommendedActions(items,result,payload){
-  const arr=Array.isArray(items)?items.filter(Boolean).map(v=>String(v).trim()):[];
-  if(arr.length<3) return buildPriorityActions(result,payload);
-  if(arr.some(v=>v.length<42 || /reduce approval first|then address escalation|fix now|fix next/i.test(v))) return buildPriorityActions(result,payload);
-  return arr.slice(0,4);
-}
-
-function buildStructuralRecoveryNarrative(result,payload,speedConstraint,tradeoffDiagnosis){
-  const hoursNum=Number(result.exposure?.annual_hours||0);
-  const costNum=Number(result.exposure?.annual_cost||0);
-  const dragNum=Math.round(Number(result.exposure?.capacity_drag_percent||0));
-  const process=(payload.processName||"this structure").trim().toLowerCase();
-  let returnLine=`If leadership materially lightens the current structural condition, the likely return is not just a clearer operating structure. It is recovered managerial attention, fewer low-yield touches, and more capacity available for higher-priority work.`;
-  if(speedConstraint.label==="Ownership ambiguity and authority overlap"){
-    returnLine=`If leadership materially clarifies the current ownership structure, the likely return is fewer conflicting calls, less manual arbitration, cleaner accountability, and a structure that can carry routine work without constant interpretation.`;
-  }else if(speedConstraint.label==="Coordination and handoff density"){
-    returnLine=`If leadership materially lightens the current coordination burden, the likely return is less manual follow-up, fewer meetings required to keep movement alive, and a cycle that consumes less hidden labor to reach the same decision.`;
-  }else if(speedConstraint.label==="Escalation substitution"){
-    returnLine=`If leadership materially reduces structural escalation dependence, the likely return is a structure that resolves more issues at the intended level, interrupts senior leaders less often, and becomes less brittle under pressure.`;
-  }else if(speedConstraint.label==="Key-person dependence"){
-    returnLine=`If leadership materially reduces key-person dependence, the likely return is a structure that stays coherent without heroics, absorbs absence or turnover better, and scales with less disruption.`;
-  }
-  const roiLine=`On current inputs, the organization appears to be committing roughly ${hoursNum.toLocaleString()} hours and about ${formatCurrency(costNum)} each year to sustain a structural condition carrying about ${dragNum}% capacity drag. That is the economic and managerial price of the current structural condition.`;
-  const valueLine=`The strategic question is not whether this structure works at all. It is whether the organization should continue paying this much to preserve a structure that reads as ${tradeoffDiagnosis.label.toLowerCase()}.`;
-  return {roiLine, returnLine, valueLine};
-}
-
-function buildRemedyPaths(result,payload,speedConstraint,tradeoffDiagnosis){
-  const actions=sanitizeRecommendedActions(buildPriorityActions(result,payload),result,payload);
-  const hours=Math.round(Number(result.exposure?.annual_hours||0));
-  const annualCost=Number(result.exposure?.annual_cost||0);
-  const reclaim=estimateReclaimPotential(result).amount||0;
-
-  const lightValue=Math.round(reclaim*0.22);
-  const moderateValue=Math.round(reclaim*0.48);
-  const aggressiveValue=Math.round(reclaim*0.72);
-
-  return [
-    {
-      label:"Light remedy path",
-      kicker:"Low disruption",
-      summary:"Tighten the most visible pain point without materially redesigning the full route.",
-      actions:[actions[0]||"Reduce the heaviest visible burden first.", "Add one clear exception threshold and one cleaner ownership rule."],
-      benefit:`Likely lower-friction gain with a directional upside around ${formatCurrency(lightValue)} if the cycle responds.`,
-      risk:`Risk: may preserve too much drag, produce only cosmetic improvement, or fail to reach opportunity advantage if old approval habits remain in place.`
+    benchmark_label:benchmark.label,
+    benchmark_caption:`Compared with similar pathways in ${humanize(input.industry||"other")}, this structure appears ${benchmarkPos.toLowerCase()}.`,
+    dimensions,
+    contradictions,
+    patterns,
+    burden_breakdown:burdenBreakdown,
+    delay_concentration:delayConcentration,
+    labor_profile:laborProfile,
+    impact_profile:impactProfile,
+    annual_hours:annualHours,
+    annual_cost:annualCost,
+    capacity_drag_pct:capacityDrag,
+    reclaim_potential:{display:`${capacityDrag}% capacity reclaim`,hours:annualHours,cost:annualCost,driver:driverLabelMap[topStructural]},
+    peer_advantage:{display:benchmarkPos==="Above industry range"?"Stronger than peers":"Directional upside available"},
+    industry_label:humanize(input.industry||"other"),
+    organization_size_label:humanize(input.organizationSize||"unknown"),
+    regulatory_intensity_label:humanize(input.regulatoryIntensity||"unknown"),
+    input_confidence_label:confidenceLabel(input.confidenceLevel),
+    primary_constraint:topStructural,
+    primary_constraint_label:driverLabelMap[topStructural],
+    trajectory:{direction:trajectoryDirection,label:trajectoryDirection==="up"?"Rising ambiguity":trajectoryDirection==="down"?"Improving clarity":"Mixed / stable"},
+    value_judgment:{label:score>=82?"Clear and coherent":score>=65?"Functional but fuzzy":score>=45?"Structurally strained":"Compensation-dependent"},
+    intervention_priority_ladder:burdenRanked.slice(0,4).map((item,idx)=>({order:idx+1,focus:driverLabelMap[item.code]||item.label,label:item.label,value:item.value})),
+    recommended_actions:[
+      topStructural==="ownership_ambiguity"?"Clarify who owns the next move, the full path, and the final outcome for the pathway you assessed.":null,
+      topStructural==="authority_blur"?"Make decision-right boundaries more explicit so people know when they can act and when escalation is truly required.":null,
+      topStructural==="handoff_diffusion"?"Reduce unnecessary transfers and define cleaner handoff expectations between roles, teams, or layers.":null,
+      topStructural==="compensatory_structure"?"Reduce reliance on informal translation, key-person rescue, and workaround behavior by tightening the formal operating design.":null,
+      escalationDependency>=35?"Treat escalation as a structural symptom: use it to identify where authority, ownership, or handoff clarity is breaking down.":null,
+      "Re-run the diagnostic after the first targeted structural correction to see whether clarity improves or compensation simply shifts elsewhere."
+    ].filter(Boolean),
+    narrative:{
+      executive_summary:`This pathway reads as ${band.toLowerCase()}. The dominant structural signal is ${driverLabelMap[topStructural]}, and the output suggests the operating design is ${score>=65?"still usable but less legible than it should be":"leaning too heavily on compensation to remain usable"}.`,
+      diagnostic_read:`The heaviest signals point to ${driverLabelMap[topStructural]} as the primary structural weakness, with ${driverLabelMap[burdenRanked[1]?.code]||"secondary structural pressure"} acting as the next-largest source of incoherence.`,
+      benchmark_read:`Against comparable pathways, this structure appears ${benchmarkPos.toLowerCase()}. The issue is less about sentiment than whether ownership, authority, and handoffs are coherent enough to support movement without excess interpretation.`,
+      opportunity_read:`The best opportunity is to reduce ${driverLabelMap[topStructural]} first, then reassess whether the remaining burden is truly necessary or simply normalized inside the operating model.`,
+      confidence_note:`${confidenceLabel(input.confidenceLevel)}. Use this as a leadership-facing structural signal rather than a stand-alone operating decision.`
     },
-    {
-      label:"Moderate remedy path",
-      kicker:"Targeted redesign",
-      summary:"Redesign the normal path and clarify decision rights around the cycle’s heaviest burden.",
-      actions:[actions[0]||"Reduce the heaviest visible burden first.", actions[1]||"Clarify decision rights and routing logic so the normal case resolves where it should."],
-      benefit:`Likely stronger cycle-quality gain with a directional upside around ${formatCurrency(moderateValue)} if redesign holds.`,
-      risk:`Risk: can leave the organization in a 'better but still burdened' middle state, create coordination confusion, or produce partial redesign without enough follow-through.`
-    },
-    {
-      label:"Aggressive remedy path",
-      kicker:"Fastest structural reset",
-      summary:"Remove multiple layers of low-yield cycle weight at once and force a cleaner separation between normal cases and exceptions.",
-      actions:[actions[0]||"Reduce the heaviest visible burden first.", actions[1]||"Clarify decision rights and routing logic.", actions[2]||"Create explicit exception thresholds.", actions[3]||"Re-run quickly to confirm burden was truly removed."],
-      benefit:`Highest upside if executed well, with a directional recovery case around ${formatCurrency(aggressiveValue)} and faster movement sooner.`,
-      risk:`Risk: pushback, decision whiplash, confusion about decision rights, local resistance, and the perception that oversight is being weakened even if the real goal is better proportion.`
-    }
-  ];
-}
-
-function buildPriorityActions(result,payload){
-  const process=(payload.processName||"this structure").trim().toLowerCase();
-  const decisionType=(payload.decisionType||"").toLowerCase();
-  const actions=[];
-
-  const approvalHigh=(result.burden_breakdown?.approval||0)>=45;
-  const escalationHigh=(result.burden_breakdown?.escalation||0)>=35;
-  const coordinationHigh=(result.burden_breakdown?.coordination||0)>=45 || (result.burden_breakdown?.handoff||0)>=35;
-  const keyPersonHigh=(result.burden_breakdown?.key_person||0)>=40;
-  const travelLike = process.includes("travel");
-
-  if(travelLike){
-    actions.push("Collapse routine travel requests into a lighter standard route so ordinary cases no longer inherit the full weight of exceptional review.");
-    actions.push("Clarify which decisions belong with managers, finance, and oversight so routine cases resolve at the intended level rather than drifting upward by habit.");
-    actions.push("Set an explicit exception threshold for cost, risk, or mission sensitivity so additional scrutiny is triggered deliberately rather than reflexively.");
-    actions.push("Run the pathway again after the first redesign to confirm that structural friction was actually reduced rather than displaced into side-channel coordination or escalation.");
-    return actions.slice(0,4);
-  }
-
-  if(approvalHigh){
-    if(decisionType==="procurement"){
-      actions.push("Reduce serial procurement approvals for standard cases and reserve heavier review for true exceptions, higher-spend cases, or elevated-risk conditions.");
-    } else if(decisionType==="hiring"){
-      actions.push("Clarify which hiring decisions belong with the manager, which belong with HR, and which truly require additional approval so routine hiring does not stall in avoidable review layers.");
-    } else if(decisionType==="budget"){
-      actions.push("Separate routine budget movement from higher-risk funding decisions so standard requests do not automatically inherit the full weight of exceptional review.");
-    } else {
-      actions.push("Reduce the need for manual interpretation by clarifying ownership, tightening role boundaries, and removing structural ambiguity that keeps work dependent on informal translation.");
-    }
-  }
-
-  if(coordinationHigh){
-    actions.push("Tighten required inputs, ownership points, and handoffs so the structure can function without repeated follow-up, manual coordination, or parallel side-channel work.");
-  }
-
-  if(escalationHigh){
-    actions.push("Reset decision rights and escalation thresholds so routine cases resolve where they should instead of climbing upward through habit, ambiguity, or caution.");
-  }
-
-  if(keyPersonHigh){
-    actions.push("Reduce dependence on specific individuals by standardizing criteria, routing logic, and role expectations so movement does not depend on informal fixers.");
-  }
-
-  if(!actions.length){
-    actions.push("Protect the current structural condition while removing the recurring sources of ambiguity, overlap, and compensatory translation most likely to weaken clarity over time.");
-  }
-
-  actions.push("Re-run the diagnostic after the first material intervention to verify that the cycle actually became faster and lighter rather than merely shifting the burden elsewhere.");
-  return actions.slice(0,4);
-}
-
-function buildExecutiveTakeaway(result,payload){
-  const process=(payload.processName||"This pathway").trim();
-  const pos=classifyPosition(result);
-  const trajectory=result.trajectory?.direction||"flat";
-  if(result.benchmark_position==="Below industry range"){
-    return `${process} is operating below the current sector range and should be treated as a recoverable structural drag condition with material ROI if leadership intervenes in the right order.`;
-  }
-  if(result.benchmark_position==="Above industry range"){
-    return trajectory==="up"
-      ? `${process} is currently stronger than many comparable pathways, but rising drag pressure suggests that advantage will erode unless leadership actively governs it.`
-      : `${process} is currently stronger than many comparable pathways and should be preserved as a strategic asset rather than treated as self-sustaining.`;
-  }
-  if(pos.nearMidline){
-    return `${process} is sitting in a borderline middle zone: still functioning, but carrying enough reclaimable drag that passive acceptance would leave meaningful value on the table.`;
-  }
-  return `${process} is within the current sector range, but that should be read as context rather than comfort if reclaimable drag is still consuming time, money, and productive capacity.`;
-}
-function buildExecutiveSummary(result,payload){
-  const harmonized=buildHarmonizedNarrative(result,payload);
-  const process=(payload.processName||"This pathway").trim();
-  const benchmarkPos=result.benchmark_position||"Comparable range context unavailable";
-  const trajectory=result.trajectory?.label||"No strong directional signal";
-
-  let headline=`${process} is functioning, but carrying enough structural drag to leave meaningful value unreclaimed.`;
-  if(result.benchmark_position==="Above industry range" || result.benchmark_position==="Above comparable range"){
-    headline=`${process} is currently performing from a stronger position, but that advantage will erode if drag continues to accumulate.`;
-  } else if(result.benchmark_position==="Below industry range" || result.benchmark_position==="Below comparable range"){
-    headline=`${process} is carrying a heavier structural burden than a comparable pathway likely should.`;
-  }
-
-  let takeaway=`On current inputs, ${process.toLowerCase()} appears serviceable but increasingly burdened. The issue is not collapse. The issue is that routine execution is becoming more management-intensive, more compensatory, and more expensive than it likely needs to be.`;
-  if(result.benchmark_position==="Above industry range" || result.benchmark_position==="Above comparable range"){
-    takeaway=`On current inputs, ${process.toLowerCase()} appears stronger than many comparable pathways. The leadership task is to preserve that position by preventing structural ambiguity from quietly compounding.`;
-  } else if(result.benchmark_position==="Below industry range" || result.benchmark_position==="Below comparable range"){
-    takeaway=`On current inputs, ${process.toLowerCase()} appears structurally heavier than comparable pathways. Leadership should treat that as recoverable drag rather than an inevitable cost of operating.`;
-  }
-
-  const body = [
-    harmonized.executive,
-    `Benchmark context: ${benchmarkPos}.`,
-    `Trajectory: ${trajectory}.`,
-    result.trajectory?.note || ""
-  ].filter(Boolean).join(" ").replace(/\s+/g," ").trim();
-
-  return {
-    headline,
-    takeaway,
-    body,
-    opportunity:harmonized.opportunityFields.opening || harmonized.opportunity
-  };
-}
-function buildBenchmarkInterpretationText(result){
-  const pos=result.benchmark_position||"Comparable range context unavailable";
-  if(pos==="Within comparable range" || pos==="Within industry range"){
-    return "This pathway appears broadly in line with comparable pathways in this operating context. That should be read as context, not comfort: peer-normal pathways can still carry substantial reclaimable drag.";
-  }
-  if(pos==="Above comparable range" || pos==="Above industry range"){
-    return "This pathway appears stronger than many comparable pathways in this operating context. The leadership task is to preserve and extend that position before routine burden quietly accumulates.";
-  }
-  return "This pathway appears below the current comparable range for this structure type, suggesting a structurally heavier path than peers are likely carrying.";
-}
-function buildOpportunityText(result){
-  // Deprecated helper retained only for backward compatibility.
-  // Live results and executive reports now flow through buildHarmonizedNarrative(...).
-  const payload = {
-    processName: "This pathway",
-    industry: result?.industry_label || "this sector",
-    decisionType: result?.decision_type || ""
-  };
-  return buildHarmonizedNarrative(result || {}, payload).opportunityFields.opportunityGuidance;
-}
-
-function estimateReclaimPotential(result){
-  const annualCost=Number(result.exposure?.annual_cost||0);
-  const approvalBurden=Math.max(0, Math.min(100, Number(result.burden_breakdown?.approval||0)));
-  const coordinationBurden=Math.max(0, Math.min(100, Number(result.burden_breakdown?.coordination||0)));
-  const topBurden=Math.max(approvalBurden, coordinationBurden);
-  const secondaryBurden=Math.min(approvalBurden, coordinationBurden);
-  const weighted=((topBurden*0.7)+(secondaryBurden*0.3))/100;
-  const recoverableFactor=Math.max(0.10, Math.min(0.42, weighted*0.46));
-  const recoverable=Math.round(annualCost * recoverableFactor);
-  const driverLabel=approvalBurden>=coordinationBurden ? "approval burden" : "coordination burden";
-  return {
-    amount: recoverable,
-    factor: Math.round(recoverableFactor * 100),
-    driverText: `Estimated primarily from the pathway’s visible ${driverLabel}, with secondary weight on the next-largest coordination burden.`
-  };
-}
-function buildQuadrantInterpretation(result){
-  const state=result.__interpretiveState || buildInterpretiveState(result,{});
-  const governanceWeight=state.governanceWeight;
-  const execResponsive=state.execResponsive;
-  const nearMidline=state.nearMidline;
-  const quadrantKey=state.quadrantKey;
-
-  if(quadrantKey==="upper_left"){
-    if(nearMidline) return "The pathway sits just inside the upper-left area. That is a borderline position, not a clearly strong one: movement is still holding, but only with a limited margin before the pathway slips into a weaker condition.";
-    return "The pathway sits clearly in the upper-left area. Movement is relatively strong and governance weight is comparatively light. This is the strongest structural position on the chart, but it still needs to be preserved rather than assumed permanent.";
-  }
-  if(quadrantKey==="upper_right"){
-    if(nearMidline) return "The pathway sits near the upper-right boundary. Responsiveness is still being maintained, but governance weight is already leaning heavy enough that the position should be read as cautionary, not comfortable.";
-    return "The pathway sits clearly in the upper-right area. The organization is still getting movement, but it is paying for that movement with heavier governance weight than it likely wants. The task is to strip out non-proportionate burden without weakening control quality.";
-  }
-  if(quadrantKey==="lower_left"){
-    if(nearMidline) return "The pathway sits near the lower-left boundary. Formal governance density is not the main problem, but movement is already weak enough that ownership, handoffs, or coordination design need improvement before the condition deteriorates further.";
-    return "The pathway sits clearly in the lower-left area. The main issue is not excessive formal control. It is a pathway that is not carrying movement well through ownership, coordination, and handoff design.";
-  }
-  if(nearMidline) return "The pathway sits near the lower-right boundary. Even at the edge, this is a structurally serious position because movement is already weak while governance weight is leaning heavy. Small additional drag could deepen the problem quickly.";
-  return "The pathway sits clearly in the lower-right area. This is the most burdensome structural position on the chart: movement is weak, governance weight is heavy, and time, cost, and capacity are likely being consumed at the same time.";
-}
-function contradictionClass(item){return item.severity==="high"?"high":item.severity==="moderate"?"mod":"low"}
-function renderResults(result,payload,outputMode){
-  const harmonized=buildHarmonizedNarrative(result,payload);
-  const executiveText=harmonized.executive;
-  const tradeoffText=harmonized.tradeoff;
-  const tmrText=harmonized.tmr;
-  const leadershipItems=harmonized.leadership;
-  const resultWithState={...result,__interpretiveState:harmonized.state};
-
-  document.getElementById("scoreNumber").textContent=result.score??"—";
-  const cycleCondition=deriveStructuralClarityCondition(result);
-  const speedConstraint=derivePrimaryOwnershipGap(result);
-  const tradeoffDiagnosis=deriveCoherenceDiagnosis(result,payload);
-
-  const cycleConditionValue=document.getElementById("cycleConditionValue");
-  if(cycleConditionValue) cycleConditionValue.textContent=cycleCondition.label;
-  const cycleConditionSub=document.getElementById("cycleConditionSub");
-  if(cycleConditionSub) cycleConditionSub.textContent=cycleCondition.note;
-
-  const speedConstraintValue=document.getElementById("speedConstraintValue");
-  if(speedConstraintValue) speedConstraintValue.textContent=speedConstraint.label;
-  const speedConstraintSub=document.getElementById("speedConstraintSub");
-  if(speedConstraintSub) speedConstraintSub.textContent=speedConstraint.note;
-
-  const tradeoffDiagnosisValue=document.getElementById("tradeoffDiagnosisValue");
-  if(tradeoffDiagnosisValue) tradeoffDiagnosisValue.textContent=tradeoffDiagnosis.label;
-  const tradeoffDiagnosisSub=document.getElementById("tradeoffDiagnosisSub");
-  if(tradeoffDiagnosisSub) tradeoffDiagnosisSub.textContent=tradeoffDiagnosis.note;
-
-  const tWrap=document.getElementById("trajectorySignalWrap");
-  if(tWrap){
-    const dir=result.trajectory?.direction||"flat";
-    const arrow=dir==="up"?"↑":dir==="down"?"↓":"→";
-    const cls=dir==="up"?"trajectory-up":dir==="down"?"trajectory-down":"trajectory-flat";
-    tWrap.innerHTML=`<span class="trajectory-chip ${cls}"><span class="traj-arrow">${arrow}</span><span>${escapeHtml(result.trajectory?.label||"No strong directional signal")}</span></span>`;
-  }
-
-  document.getElementById("scoreBand").textContent=cycleCondition.label;
-  document.getElementById("scoreSummary").textContent=executiveText||"Output generated.";
-  document.getElementById("scoreBadge").textContent=outputMode;
-  const timeLostValue=document.getElementById("timeLostValue");
-  if(timeLostValue) timeLostValue.textContent=result.exposure?.annual_hours!=null?`${Math.round(result.exposure.annual_hours).toLocaleString()} hrs`:"—";
-  const moneyLostValue=document.getElementById("moneyLostValue");
-  if(moneyLostValue) moneyLostValue.textContent=formatCurrency(result.exposure?.annual_cost);
-  const capacityLostValue=document.getElementById("capacityLostValue");
-  if(capacityLostValue) capacityLostValue.textContent=result.exposure?.capacity_drag_percent!=null?`${Math.round(result.exposure.capacity_drag_percent)}%`:"—";
-  const trajectoryValue=document.getElementById("trajectoryValue");
-  if(trajectoryValue) trajectoryValue.textContent=result.trajectory?.label||"—";
-  const trajectoryValueSub=document.getElementById("trajectoryValueSub");
-  if(trajectoryValueSub) trajectoryValueSub.textContent=result.trajectory?.note||"Directional signal";
-
-  const economicHoursValue=document.getElementById("economicHoursValue");
-  if(economicHoursValue) economicHoursValue.textContent=result.exposure?.annual_hours!=null?`${Math.round(result.exposure.annual_hours).toLocaleString()} hrs`:"—";
-  const economicCostValue=document.getElementById("economicCostValue");
-  if(economicCostValue) economicCostValue.textContent=formatCurrency(result.exposure?.annual_cost);
-  const economicCapacityValue=document.getElementById("economicCapacityValue");
-  if(economicCapacityValue) economicCapacityValue.textContent=result.exposure?.capacity_drag_percent!=null?`${Math.round(result.exposure.capacity_drag_percent)}%`:"—";
-  const benchmarkValue=document.getElementById("benchmarkValue");
-  if(benchmarkValue) benchmarkValue.textContent=result.benchmark_position||"—";
-  const benchmarkSub=document.getElementById("benchmarkSub");
-  if(benchmarkSub) benchmarkSub.textContent="Read as context, not comfort.";
-
-  const reclaim=estimateReclaimPotential(result);
-  const reclaimValue=document.getElementById("reclaimValue");
-  if(reclaimValue) reclaimValue.textContent=reclaim.amount?formatCurrency(reclaim.amount):"—";
-  const reclaimSub=document.getElementById("reclaimSub");
-  if(reclaimSub) reclaimSub.textContent=reclaim.driverText||"Directional estimate of value that may be recoverable if the heaviest visible drag is reduced first.";
-
-  const bi=document.getElementById("benchmarkInterpretationText");
-  if(bi) bi.textContent=harmonized.benchmark;
-  const bc=document.getElementById("benchmarkCaption");
-  if(bc) bc.innerHTML=`<strong>Your structure vs. comparable peers – reclaimable ambiguity visible.</strong> Even a structure inside the comparable range may still be carrying recoverable ambiguity, overlap, or accountability drag.`;
-  const ol=document.getElementById("opportunityLeadText");
-  if(ol) ol.textContent=harmonized.opportunityFields.opening||harmonized.opportunityFields.opportunityGuidance;
-  const os=document.getElementById("opportunitySectorText");
-  if(os) os.textContent=harmonized.opportunityFields.sectorDynamic || "";
-  const oa=document.getElementById("opportunityActionReasonText");
-  if(oa) oa.textContent=[harmonized.opportunityFields.runIndicates, harmonized.opportunityFields.buildAdvantage, harmonized.opportunityFields.firstMoves].filter(Boolean).join(" ");
-  const tradeoffReading=document.getElementById("tradeoffReadingText");
-  if(tradeoffReading) tradeoffReading.textContent=`Benchmark context: ${result.benchmark_position||"Comparable range context unavailable"}. Read that as context, not comfort. The current cycle still appears ${tradeoffDiagnosis.label.toLowerCase()}.`;
-  const lw=document.getElementById("leadershipWatchoutText");
-  if(lw) lw.textContent=harmonized.opportunityFields.watchout||"";
-  const remedyWrap=document.getElementById("remedyTreeWrap");
-  const remedyGrid=document.getElementById("remedyGrid");
-  if(remedyWrap && remedyGrid){
-    const remedies=buildRemedyPaths(result,payload,speedConstraint,tradeoffDiagnosis);
-    remedyGrid.innerHTML=remedies.map(path=>`<div class="remedy-card"><span class="remedy-kicker">${escapeHtml(path.kicker)}</span><h4>${escapeHtml(path.label)}</h4><p>${escapeHtml(path.summary)}</p><ul>${path.actions.map(a=>`<li>${escapeHtml(a)}</li>`).join("")}</ul><div class="remedy-path-risk"><p><strong>Benefit</strong> ${escapeHtml(path.benefit)}</p><p><strong>Risk</strong> ${escapeHtml(path.risk)}</p></div></div>`).join("");
-  }
-  const roiNarrative=document.getElementById("roiNarrativeText");
-  if(roiNarrative) roiNarrative.textContent=`On current inputs, the organization appears to be committing roughly ${Math.round(result.exposure?.annual_hours||0).toLocaleString()} hours, about ${formatCurrency(result.exposure?.annual_cost)}, and around ${Math.round(result.exposure?.capacity_drag_percent||0)}% of productive capacity each year to sustain the current structural condition. Leadership should read that as the economic and managerial price of preserving a structural condition that appears ${tradeoffDiagnosis.label.toLowerCase()}.`;
-
-  const executiveSummary=buildExecutiveSummary(result,payload);
-  document.getElementById("execSummaryHeadline").textContent=executiveSummary.headline;
-  document.getElementById("execSummaryBody").textContent=executiveSummary.body;
-  const execMeaning=document.getElementById("execMeaningText");
-  if(execMeaning) execMeaning.textContent=executiveSummary.opportunity;
-  const eot=document.getElementById("execOpportunityTitle");
-  if(eot) eot.textContent=harmonized.opportunityFields.title || "What this means";
-  const esp=document.getElementById("execSectorPatternText");
-  if(esp) esp.textContent=harmonized.opportunityFields.sectorDynamic ? `What organizations in this sector often get wrong: ${harmonized.opportunityFields.sectorDynamic}` : "";
-  const ear=document.getElementById("execActionsRationaleText");
-  if(ear) ear.textContent=harmonized.opportunityFields.firstMoves ? `Why these first moves matter: ${harmonized.opportunityFields.firstMoves}` : "";
-  const elw=document.getElementById("execLeadershipWatchoutText");
-  if(elw) elw.textContent=harmonized.opportunityFields.watchout ? `What leadership should avoid: ${harmonized.opportunityFields.watchout}` : "";
-  renderList("execSummaryActions", harmonized.recommendedActions);
-
-  document.getElementById("exportMetaBenchmark").textContent=`Benchmark: ${result.benchmark_position||"Industry range comparison"}`;
-  document.getElementById("exportMetaTrajectory").textContent=`Trajectory: ${result.trajectory?.label||"No strong directional signal"}`;
-  document.getElementById("exportMetaOpportunity").textContent=`structural constraint: ${speedConstraint.label}`;
-
-  document.getElementById("executiveText").textContent=`${cycleCondition.label}. ${executiveText} The primary structural constraint appears to be ${speedConstraint.label.toLowerCase()}. The current trade-off reads as ${tradeoffDiagnosis.note.toLowerCase()}`;
-  document.getElementById("tradeoffText").textContent=`${tradeoffDiagnosis.note} ${tradeoffText}`;
-  document.getElementById("tmrText").textContent=tmrText;
-
-  renderList("leadershipList",leadershipItems);
-  renderList("flagsList",harmonized.keyFlags);
-  renderList("actionsList",harmonized.recommendedActions);
-  renderList("actionsListDetail",harmonized.recommendedActions);
-  renderList("patternsList",(result.patterns||[]).map(humanize));
-  renderList("contradictionsList",(result.contradictions||[]).length?result.contradictions.map(item=>item.message||humanize(item.code||"contradiction")):["No material contradiction signals surfaced in this run."]);
-
-  renderBenchmarkBar(result);
-  renderQuadrant(resultWithState);
-
-  renderBarRows("burdenStack",[
-    {label:"Approval burden",value:result.burden_breakdown?.approval||0},
-    {label:"Coordination burden",value:result.burden_breakdown?.coordination||0},
-    {label:"Handoff burden",value:result.burden_breakdown?.handoff||0},
-    {label:"Escalation dependence",value:result.burden_breakdown?.escalation||0},
-    {label:"Rework pressure",value:result.burden_breakdown?.rework||0},
-    {label:"Key-person dependence",value:result.burden_breakdown?.key_person||0}
-  ]);
-  renderBarRows("delayStack",[
-    {label:"Intake",value:result.delay_concentration?.intake||0},
-    {label:"Review",value:result.delay_concentration?.review||0},
-    {label:"Coordination",value:result.delay_concentration?.coordination||0},
-    {label:"Final sign-off",value:result.delay_concentration?.signoff||0}
-  ]);
-
-  renderTableBody("priorityBody",result.intervention_priority_ladder||[],row=>[
-    `<td>${escapeHtml(row.priority)}</td>`,
-    `<td>${escapeHtml(row.focus)}</td>`,
-    `<td>${Math.round(row.severity)}</td>`
-  ]);
-
-  const contradictions=result.contradictions||[], tileWrap=document.getElementById("contradictionTiles");
-  tileWrap.innerHTML="";
-  if(!contradictions.length){
-    tileWrap.innerHTML=`<div class="signal-tile low"><h4>No major contradiction signals</h4><p>The current answer pattern does not show a strong surface-versus-reality gap.</p></div>`;
-  } else {
-    contradictions.forEach(item=>{
-      const div=document.createElement("div");
-      div.className=`signal-tile ${contradictionClass(item)}`;
-      div.innerHTML=`<h4>${item.severity==="high"?"High-severity signal":"Contradiction signal"}</h4><p>${escapeHtml(item.message||"")}</p>`;
-      tileWrap.appendChild(div);
-    });
-  }
-
-  const comp=result.exposure?.composition||{};
-  renderTableBody("laborCompositionBody",[
-    {label:"Coordination hours*",value:comp.coordination_hours||0,note:"Time spent aligning actors, routing, and follow-up."},
-    {label:"Review hours*",value:comp.review_hours||0,note:"Time consumed by review and approval activity."},
-    {label:"Rework hours*",value:comp.rework_hours||0,note:"Time absorbed by revision, reopening, or correction."},
-    {label:"Escalation hours*",value:comp.escalation_hours||0,note:"Time consumed when the normal path cannot resolve itself."}
-  ],row=>[
-    `<td>${escapeHtml(row.label)}</td>`,
-    `<td>${Math.round(row.value)}</td>`,
-    `<td>${escapeHtml(row.note)}</td>`
-  ]);
-
-  renderTableBody("costCompositionBody",[
-    {label:"Average hourly cost*",value:result.exposure?.average_hourly_cost?formatCurrency(result.exposure.average_hourly_cost):formatCurrency(payload.hourlyCost),note:"Directional labor-cost assumption per materially involved participant."},
-    {label:"Annual labor hours*",value:result.exposure?.annual_hours?`${Math.round(result.exposure.annual_hours)} hrs`:"—",note:"Modeled across the pathway volume you provided."},
-    {label:"Annual labor exposure*",value:formatCurrency(result.exposure?.annual_cost),note:"Directional labor-cost impact from keeping the pathway moving."},
-    {label:"Capacity drag*",value:result.exposure?.capacity_drag_percent!=null?`${Math.round(result.exposure.capacity_drag_percent)}%`:"—",note:"Estimated share of capacity absorbed by structural drag."}
-  ],row=>[
-    `<td>${escapeHtml(row.label)}</td>`,
-    `<td>${escapeHtml(row.value)}</td>`,
-    `<td>${escapeHtml(row.note)}</td>`
-  ]);
-
-  renderTableBody("roleClusterBody",result.labor_profile||[],row=>[
-    `<td>${escapeHtml(row.role)}</td>`,
-    `<td>${Math.round(row.people)}</td>`,
-    `<td>${escapeHtml(row.significance)}</td>`
-  ]);
-
-  renderTableBody("impactBody",(result.impact_profile?.entries||[]).map(item=>({label:item.label||humanize(item.code||""),score:item.score||0})),row=>[
-    `<td>${escapeHtml(row.label)}</td>`,
-    `<td><span class="severity-pill sev-${Math.max(0,Math.min(5,Math.round(row.score)))}">${Math.round(row.score)}</span></td>`,
-    `<td>${escapeHtml(severityWord(row.score))}</td>`
-  ]);
-
-  const conditionSupport=document.getElementById("conditionSupportText"); if(conditionSupport) conditionSupport.textContent=`How coherent is this structure in practice? ${cycleCondition.note} What is most likely weakening that coherence? ${speedConstraint.note} Is that coherence pattern justified? ${tradeoffDiagnosis.note}`;
-
-  renderCharts(result);
-
-  document.getElementById("reportTitle").textContent=`${payload.processName||"Structural condition"} • Structural Clarity`;
-  document.getElementById("reportSubtitle").textContent=`${result.benchmark_position||"Industry range comparison"} • ${humanize(payload.participantMode||state.mode||"executive")} perspective • ${result.industry_label||humanize(payload.industry)} • ${payload.employeeCount ? `${Number(payload.employeeCount).toLocaleString()} employees` : (result.organization_size_label||humanize(payload.organizationSize))} • ${result.regulatory_intensity_label||humanize(payload.regulatoryIntensity)}`;
-  document.getElementById("metaProcess").textContent=`Pathway: ${payload.processName||"Unnamed pathway"}`;
-  document.getElementById("metaBench").textContent=`Benchmark: ${result.benchmark_position||"Industry range comparison"}`;
-  document.getElementById("metaDate").textContent=`Generated: ${nowLabel()}`;
-
-  bindOpportunityGate();
-  bindDetailToggle();
-}
-function renderCharts(result){destroyCharts(); const dims=result.dimensions||{}, labels=["Ownership Clarity","Role Boundary Coherence","Authority Overlap","Compensatory Translation Work"], values=[dims.ownership_clarity||0,dims.role_boundary_coherence||0,dims.authority_overlap||0,dims.compensatory_translation_work||0], gaps=values.map(v=>Math.max(0,100-v)); gapChart=new Chart(document.getElementById("gapChart"),{type:"bar",data:{labels,datasets:[{data:gaps,borderRadius:8}]},options:chartOptions()}); dimensionChart=new Chart(document.getElementById("dimensionChart"),{type:"bar",data:{labels,datasets:[{data:values,borderRadius:8}]},options:chartOptions()})}
-function chartOptions(){return {responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:"#556270",maxRotation:0,minRotation:0}},y:{beginAtZero:true,max:100,grid:{color:"rgba(21,32,43,0.06)"},ticks:{color:"#556270"}}}}}
-function destroyCharts(){if(gapChart){gapChart.destroy(); gapChart=null} if(dimensionChart){dimensionChart.destroy(); dimensionChart=null}}
-
-
-function buildExecutiveReportHtml(result,payload){
-  const safe = (v)=>escapeHtml(v==null?"":String(v));
-  const harmonized = buildHarmonizedNarrative(result,payload);
-  const cycleCondition = deriveStructuralClarityCondition(result);
-  const speedConstraint = derivePrimaryOwnershipGap(result);
-  const tradeoffDiagnosis = deriveCoherenceDiagnosis(result,payload);
-  const executiveSummary = buildExecutiveSummary(result,payload);
-  const recoveryNarrative = buildStructuralRecoveryNarrative(result,payload,speedConstraint,tradeoffDiagnosis);
-  const actions = sanitizeRecommendedActions(harmonized.recommendedActions||[],result,payload);
-  const contradictions = (result.contradictions||[]).map(item=>item.message||item.code||"Contradiction signal");
-  const generated = nowLabel();
-  const participantLabel = humanize(payload.participantMode||"executive");
-  const depthLabel = payload.diagnosticDepth ? `${payload.diagnosticDepth}-minute diagnostic` : "Diagnostic";
-  const reclaim = estimateReclaimPotential(result);
-  const remedyPaths = buildRemedyPaths(result,payload,speedConstraint,tradeoffDiagnosis);
-  const sectionList = (items)=>`<ul>${(items||[]).map(item=>`<li>${safe(item)}</li>`).join("")}</ul>`;
-  const figureCaption = `Figure 1. Your pathway vs. sector peers — reclaimable drag visible. Even when a pathway falls inside the comparable range, recoverable structural drag may still be present.`;
-  const benchmarkLine = buildBenchmarkInterpretationText(result);
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Monderman | Structural Clarity Executive Report</title>
-<style>
-  :root{--ink:#15202B;--soft:#5B6774;--muted:#7C8794;--accent:#3F6EA1;--line:#D8E0EA;--paper:#ffffff;--page:#F6F8FB}
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--page);color:var(--ink);font-family:Georgia, "Times New Roman", serif}
-  .page{max-width:920px;margin:0 auto;background:var(--paper);padding:54px 68px 64px;box-shadow:0 18px 48px rgba(15,23,32,.08)}
-  .mast{font-family:"Helvetica Neue",Arial,sans-serif;font-size:.78rem;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
-  .rule{height:2px;background:var(--accent);opacity:.22;margin:10px 0 28px}
-  h1,h2,h3{font-family:"Helvetica Neue",Arial,sans-serif;color:var(--ink);margin:0}
-  h1{font-size:2.25rem;line-height:1.02;letter-spacing:-.04em}
-  h2{font-size:1.18rem;line-height:1.18;letter-spacing:-.02em;margin-top:34px}
-  h3{font-size:.97rem;line-height:1.2;margin-top:18px}
-  p{font-size:1rem;line-height:1.75;color:var(--ink);margin:0 0 14px}
-  .sub{color:var(--soft);max-width:40em}
-  .meta{display:flex;flex-wrap:wrap;gap:10px 14px;margin:18px 0 0;font-family:"Helvetica Neue",Arial,sans-serif;font-size:.83rem;color:var(--soft)}
-  .cover-score{margin-top:30px;padding:18px 0 0;border-top:1px solid var(--line)}
-  .score-line{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;font-family:"Helvetica Neue",Arial,sans-serif}
-  .score-num{font-size:4rem;line-height:.9;font-weight:700;letter-spacing:-.08em;color:var(--ink)}
-  .score-band{font-size:1rem;color:var(--soft);padding-bottom:8px}
-  .lede{font-size:1.05rem;line-height:1.78}
-  .callout{margin:18px 0;padding:18px 20px;border-left:4px solid var(--accent);background:#F8FAFD}
-  .figure{margin:20px 0 10px;padding:16px 18px;border:1px solid var(--line);background:#FBFCFE}
-  .benchmark-track{position:relative;height:26px;border-radius:999px;background:linear-gradient(90deg,#F1F4F8 0%, #EEF3F8 100%);border:1px solid var(--line);overflow:hidden}
-  .benchmark-range{position:absolute;top:0;height:100%}
-  .industry-range{background:rgba(184,80,94,.15)}
-  .opportunity-range{background:rgba(178,141,60,.18)}
-  .benchmark-marker{position:absolute;top:2px;width:14px;height:20px;border-radius:999px;background:var(--accent);transform:translateX(-50%)}
-  .caption{font-size:.84rem;line-height:1.6;color:var(--soft);margin-top:10px}
-  .kvs{display:grid;grid-template-columns:180px 1fr;gap:8px 20px;margin:16px 0 8px}
-  .kvs div{font-size:.98rem;line-height:1.7}
-  .kvs .k{font-family:"Helvetica Neue",Arial,sans-serif;color:var(--muted)}
-  ul{margin:8px 0 0 20px;padding:0}
-  li{margin:0 0 8px;line-height:1.7}
-  .paths{display:grid;gap:18px;margin-top:14px}
-  .path{padding:16px 18px;border:1px solid var(--line);background:#FBFCFE}
-  .path .tag{font-family:"Helvetica Neue",Arial,sans-serif;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
-  .small{font-size:.9rem;color:var(--soft)}
-  .footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);font-size:.85rem;color:var(--soft)}
-  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px;font-family:"Helvetica Neue",Arial,sans-serif}
-  .btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 16px;border-radius:999px;border:1px solid #C8D3E0;background:#fff;color:#15202B;cursor:pointer;font-size:.92rem}
-  .btn.primary{background:#3F6EA1;color:#fff;border-color:#3F6EA1}
-  @media print{body{background:#fff}.page{box-shadow:none;max-width:none;padding:34px 42px}.actions{display:none!important}}
-</style>
-</head>
-<body>
-<div class="page">
-  <div class="mast">Monderman • Institutional Performance Research</div>
-  <div class="rule"></div>
-  <h1>Structural Clarity Diagnostic: ${safe(payload.processName||"Structural condition")}</h1>
-  <p class="sub">How ownership density, coordination load, and hidden structural drag are shaping the coherence, cost, and maneuverability of this structural condition.</p>
-  <div class="meta">
-    <span>Generated: ${safe(generated)}</span>
-    <span>Perspective: ${safe(participantLabel)}</span>
-    <span>Depth: ${safe(depthLabel)}</span>
-    <span>Industry: ${safe(result.industry_label||humanize(payload.industry||"other"))}</span>
-    <span>Benchmark: ${safe(result.benchmark_position||"Comparable range context unavailable")}</span>
-  </div>
-  <div class="cover-score">
-    <div class="score-line"><div class="score-num">${safe(result.score ?? "—")}</div><div class="score-band">${safe(result.score_band||result.band||"—")}</div></div>
-    <p class="lede">${safe(executiveSummary.body)}</p>
-  </div>
-
-  <h2>1. Note on scope</h2>
-  <p>This report reflects the ${safe(participantLabel.toLowerCase())} perspective and a ${safe(depthLabel.toLowerCase())} run. Insights are directional, generated from user-provided inputs, and intended to support leadership interpretation rather than replace audited analysis or professional judgment.</p>
-
-  <h2>2. Executive summary</h2>
-  <p>${safe(executiveSummary.headline)}</p>
-  <div class="callout"><p><strong>Bottom line for leadership.</strong> ${safe(executiveSummary.takeaway)}</p><p class="small">${safe(recoveryNarrative.roiLine)}</p></div>
-  <div class="kvs">
-    <div class="k">Current condition</div><div>${safe(cycleCondition.label)} — ${safe(cycleCondition.note)}</div>
-    <div class="k">Primary structural weakness</div><div>${safe(speedConstraint.label)} — ${safe(speedConstraint.note)}</div>
-    <div class="k">Coherence diagnosis</div><div>${safe(tradeoffDiagnosis.label)} — ${safe(tradeoffDiagnosis.note)}</div>
-    <div class="k">Time exposure*</div><div>${safe(result.exposure?.annual_hours!=null ? `${Math.round(result.exposure.annual_hours).toLocaleString()} hours` : "—")}</div>
-    <div class="k">Cost exposure*</div><div>${safe(result.exposure?.annual_cost!=null ? formatCurrency(result.exposure.annual_cost) : "—")}</div>
-    <div class="k">Capacity drag*</div><div>${safe(result.exposure?.capacity_drag_percent!=null ? `${Math.round(result.exposure.capacity_drag_percent)}%` : "—")}</div>
-    <div class="k">Reclaim potential*</div><div>${safe(reclaim.amount ? formatCurrency(reclaim.amount) : "—")}</div>
-  </div>
-
-  <h2>3. Benchmark and trajectory</h2>
-  <div class="figure">
-    <div class="benchmark-track">
-      <div class="benchmark-range industry-range" style="left:${Math.max(0,Math.min(100,result.benchmark?.industryMin||58))}%;width:${Math.max(4,(result.benchmark?.industryMax||69)-(result.benchmark?.industryMin||58))}%"></div>
-      <div class="benchmark-range opportunity-range" style="left:${Math.max(0,Math.min(100,result.benchmark?.opportunityMin||70))}%;width:${Math.max(4,(result.benchmark?.opportunityMax||84)-(result.benchmark?.opportunityMin||70))}%"></div>
-      <div class="benchmark-marker" style="left:${Math.max(2,Math.min(98,(result.score||0)+(result.benchmark_position==='Within industry range'?2:0)))}%"></div>
-    </div>
-    <div class="caption">${safe(figureCaption)}</div>
-  </div>
-  <p>${safe(benchmarkLine)}</p>
-  <p>${safe(result.trajectory?.label||"No strong directional signal")}. ${safe(result.trajectory?.note||"")}</p>
-
-  <h2>4. Leadership implications and priority actions</h2>
-  <p>${safe(harmonized.executive)}</p>
-  ${sectionList(actions)}
-
-  <h2>5. Opportunity: Clearer structure without weakening control</h2>
-  <p>${safe(harmonized.opportunityFields.opening || harmonized.opportunity)}</p>
-  <p>${safe(harmonized.opportunityFields.sectorDynamic || "")}</p>
-  <p>${safe(harmonized.opportunityFields.runIndicates || "")}</p>
-  <p>${safe(harmonized.opportunityFields.buildAdvantage || recoveryNarrative.returnLine)}</p>
-  <p>${safe(harmonized.opportunityFields.firstMoves || "")}</p>
-  <p>${safe(harmonized.opportunityFields.watchout || "")}</p>
-
-  <h2>6. Remedy paths to opportunity advantage</h2>
-  <div class="paths">
-    ${remedyPaths.map(path=>`<div class="path"><div class="tag">${safe(path.kicker)}</div><h3>${safe(path.label)}</h3><p>${safe(path.summary)}</p>${sectionList(path.actions)}<p class="small"><strong>Benefit.</strong> ${safe(path.benefit)}</p><p class="small"><strong>Risk.</strong> ${safe(path.risk)}</p></div>`).join("")}
-  </div>
-
-  <h2>7. Supporting signals</h2>
-  <p><strong>Contradiction signals.</strong></p>
-  ${sectionList(contradictions.length?contradictions:["No material contradiction signals surfaced in this run."])}
-  <p><strong>Trade-off note.</strong> ${safe(harmonized.tradeoff)}</p>
-  <p><strong>Time, money, and resources.</strong> ${safe(harmonized.tmr)}</p>
-
-  <h2>8. Conclusion and next step</h2>
-  <p>This report is intended to function as a concise Monderman leadership brief: calm enough to circulate, specific enough to act on, and structured enough to support a deeper advisory conversation when the structural condition appears broader, more persistent, or more costly than a directional diagnostic alone can resolve.</p>
-  <div class="footer">* All figures, including time, cost, and resource estimates, are directional estimates generated from user-provided information. They are intended to support additional analysis, discussion, and advisory review, and should not be used in isolation for formal decision-making.</div>
-  <div class="actions"><button class="btn primary" onclick="window.print()">Save / Print PDF</button><button class="btn" onclick="window.close()">Close report</button></div>
-</div>
-</body>
-</html>`;
-}
-
-function bindOpportunityGate(){const checkbox=document.getElementById("opportunityGateCheckbox"); const revealBtn=document.getElementById("revealOpportunityBtn"); const gateWrap=document.getElementById("opportunityGateWrap"); const revealWrap=document.getElementById("opportunityRevealWrap"); const remedyWrap=document.getElementById("remedyTreeWrap"); if(!checkbox||!revealBtn||!gateWrap||!revealWrap) return; checkbox.checked=false; revealWrap.classList.add("hidden"); gateWrap.classList.remove("hidden"); if(remedyWrap) remedyWrap.classList.add("hidden"); revealBtn.onclick=function(){ if(!checkbox.checked){ alert("Please acknowledge the guided opportunity terms before revealing this section."); return; } gateWrap.classList.add("hidden"); revealWrap.classList.remove("hidden"); if(remedyWrap) remedyWrap.classList.remove("hidden"); }; }
-
-function buildExecutiveReportFilename(result,payload){
-  const base = String(payload.processName||"structural-clarity-report").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"") || "structural-clarity-report";
-  return `monderman-${base}-executive-report.html`;
-}
-
-function createExecutiveReportArtifact(result,payload){
-  const html = buildExecutiveReportHtml(result,payload);
-  const blob = new Blob([html], {type:"text/html;charset=utf-8"});
-  const url = URL.createObjectURL(blob);
-  return { html, blob, url, filename: buildExecutiveReportFilename(result,payload) };
-}
-
-function exportExecutiveReport(result,payload){
-  const artifact = createExecutiveReportArtifact(result,payload);
-  const reportWindow = window.open(artifact.url, "_blank", "noopener,noreferrer,width=1180,height=920");
-  if(!reportWindow){
-    reportDownloadLink.href = artifact.url;
-    reportDownloadLink.download = artifact.filename;
-    reportDownloadLink.click();
-    setTimeout(()=>{ try{ URL.revokeObjectURL(artifact.url); }catch(e){} }, 1500);
-    alert("Pop-ups were blocked, so the executive report was downloaded instead.");
-    return artifact;
-  }
-  reportWindow.addEventListener("load", ()=>{
-    setTimeout(()=>{ try{ URL.revokeObjectURL(artifact.url); }catch(e){} }, 2000);
-  });
-  return artifact;
-}
-
-function downloadExecutiveReport(result,payload){
-  const artifact = createExecutiveReportArtifact(result,payload);
-  reportDownloadLink.href = artifact.url;
-  reportDownloadLink.download = artifact.filename;
-  reportDownloadLink.click();
-  setTimeout(()=>{ try{ URL.revokeObjectURL(artifact.url); }catch(e){} }, 1500);
-  return artifact;
-}
-function buildCrossDiagnosticFilename(result,payload){
-  const tool = "structural-clarity";
-  const processBase = String(payload.processName||"diagnostic-result").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"") || "diagnostic-result";
-  return `monderman-${tool}-${processBase}-result.json`;
-}
-
-function buildCrossDiagnosticArtifact(result,payload){
-  const harmonized = buildHarmonizedNarrative(result,payload);
-  const cycleCondition = deriveStructuralClarityCondition(result);
-  const speedConstraint = derivePrimaryOwnershipGap(result);
-  const tradeoffDiagnosis = deriveCoherenceDiagnosis(result,payload);
-  const executiveSummary = buildExecutiveSummary(result,payload);
-  const reclaim = estimateReclaimPotential(result);
-  const packageData = {
-    schema_version: "1.0",
-    saved_for: "cross_diagnostic_analysis",
-    saved_to: "user_device",
-    generated_at: new Date().toISOString(),
-    tool_type: "structural_clarity",
-    tool_label: "Structural Clarity",
-    participant_mode: payload.participantMode || state.mode || "executive",
-    diagnostic_depth: payload.diagnosticDepth || state.depth || "10",
-    process_name: payload.processName || "Unnamed pathway",
-    business_unit: payload.businessUnit || "",
-    organization: {
-      industry: payload.industry || "other",
-      employee_count: Number(payload.employeeCount || 0),
-      regulatory_intensity: payload.regulatoryIntensity || "unknown",
-      decision_type: payload.decisionType || "other",
-      decision_frequency: payload.decisionFrequency || ""
-    },
-    summary: {
-      score: Number(result.score || 0),
-      score_band: result.score_band || result.band || "",
-      benchmark_position: result.benchmark_position || "",
-      trajectory_label: result.trajectory?.label || "",
-      trajectory_direction: result.trajectory?.direction || "",
-      cycle_condition: cycleCondition.label,
-      primary_speed_constraint: speedConstraint.label,
-      tradeoff_diagnosis: tradeoffDiagnosis.label,
-      reclaim_potential: reclaim.amount || 0,
-      executive_headline: executiveSummary.headline,
-      executive_summary: executiveSummary.body
-    },
-    key_findings: Array.isArray(harmonized.keyFlags) ? harmonized.keyFlags : [],
-    priority_actions: Array.isArray(harmonized.recommendedActions) ? harmonized.recommendedActions : [],
-    payload_context: payload,
-    result: result
-  };
-  const json = JSON.stringify(packageData, null, 2);
-  const blob = new Blob([json], {type:"application/json;charset=utf-8"});
-  const url = URL.createObjectURL(blob);
-  return { json, blob, url, filename: buildCrossDiagnosticFilename(result,payload) };
-}
-
-function downloadCrossDiagnosticResult(result,payload){
-  const artifact = buildCrossDiagnosticArtifact(result,payload);
-  crossDiagnosticDownloadLink.href = artifact.url;
-  crossDiagnosticDownloadLink.download = artifact.filename;
-  crossDiagnosticDownloadLink.click();
-  setTimeout(()=>{ try{ URL.revokeObjectURL(artifact.url); }catch(e){} }, 1500);
-  return artifact;
-}
-
-
-async function downloadExecutiveReportPdf(result,payload){
-  const reportHtml = buildExecutiveReportHtml(result,payload);
-  const printWindow = window.open("", "_blank", "noopener,noreferrer,width=1180,height=900");
-  if(!printWindow){
-    const artifact=createExecutiveReportArtifact(result,payload);
-    reportDownloadLink.href = artifact.url;
-    reportDownloadLink.download = artifact.filename;
-    reportDownloadLink.click();
-    return artifact;
-  }
-
-  printWindow.document.open();
-  printWindow.document.write(reportHtml);
-  printWindow.document.close();
-
-  const finalize = ()=>{
-    try{
-      printWindow.focus();
-      printWindow.print();
-    }catch(e){
-      console.error("print window failed", e);
+    executive_summary:{
+      summary:`Structural Clarity indicates a ${band.toLowerCase()} pathway with ${driverLabelMap[topStructural]} as the most prominent source of incoherence.`,
+      key_findings:[
+        ownershipAmbiguity>=60?"Ownership questions are still recurring in the lived pathway.":null,
+        authorityBlur>=60?"Authority appears less usable in practice than it is on paper.":null,
+        handoffDiffusion>=60?"Handoffs are distributing accountability broadly enough to weaken clean execution.":null,
+        compensatoryStructure>=60?"The structure appears to stay usable because people keep translating, rescuing, or working around it.":null,
+        escalationDependency>=60?"Escalation has become a secondary symptom of structural ambiguity rather than a rare exception path.":null,
+        contradictions.length?"Surface answers suggest the formal structure may read cleaner than the lived one.":null
+      ].filter(Boolean),
+      intervention_priorities:[
+        burdenRanked[0]?`Reduce ${driverLabelMap[burdenRanked[0].code]} first.`:null,
+        burdenRanked[1]?`Then tighten ${driverLabelMap[burdenRanked[1].code]} as the next-largest source of incoherence.`:null,
+        "Reassess the structure after the first targeted correction."
+      ].filter(Boolean),
+      watch_items:contradictions.length?contradictions.map(c=>c.message):["No material contradiction signals surfaced in this run."]
     }
   };
-
-  if(printWindow.document.readyState === "complete"){
-    setTimeout(finalize, 250);
-  }else{
-    printWindow.onload = ()=>setTimeout(finalize, 250);
-  }
-
-  return { filename: buildExecutiveReportFilename(result,payload) + ".html" };
 }
 
-
-function bindDetailToggle(){
-  const shell=document.getElementById("detailShell");
-  const toggle=document.getElementById("detailToggle");
-  if(!shell||!toggle) return;
-  shell.classList.remove("open");
-  toggle.setAttribute("aria-expanded","false");
-  toggle.onclick=function(){
-    shell.classList.toggle("open");
-    toggle.setAttribute("aria-expanded", shell.classList.contains("open") ? "true" : "false");
+function normalizeStructuralResult(remoteResult,payload,localResult){
+  const local = localResult || buildLocalResult(payload||{});
+  const remote = remoteResult && typeof remoteResult === "object" ? remoteResult : {};
+  const merged = {
+    ...remote,
+    ...local,
+    narrative: remote.narrative || local.narrative,
+    benchmark_position: local.benchmark_position,
+    route_family: local.route_family,
+    primary_constraint: local.primary_constraint,
+    primary_constraint_label: local.primary_constraint_label,
+    burden_breakdown: local.burden_breakdown,
+    dimensions: local.dimensions,
+    delay_concentration: local.delay_concentration,
+    labor_profile: local.labor_profile,
+    impact_profile: local.impact_profile,
+    contradictions: local.contradictions,
+    patterns: local.patterns,
+    trajectory: local.trajectory,
+    value_judgment: local.value_judgment,
+    intervention_priority_ladder: local.intervention_priority_ladder,
+    reclaim_potential: local.reclaim_potential,
+    benchmark: local.benchmark,
+    benchmark_label: local.benchmark_label,
+    benchmark_caption: local.benchmark_caption,
+    peer_advantage: remote.peer_advantage || local.peer_advantage,
+    annual_hours: local.annual_hours,
+    annual_cost: local.annual_cost,
+    capacity_drag_pct: local.capacity_drag_pct,
+    recommended_actions: local.recommended_actions,
+    executive_summary: local.executive_summary
   };
+  return merged;
 }
 
-
-function escapeHtml(value){
-  return String(value ?? "")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#39;");
-}
-
-function humanize(value){
+function humanize(function humanize(value){
   return String(value ?? "")
     .replace(/_/g," ")
     .replace(/\b\w/g, c => c.toUpperCase())
