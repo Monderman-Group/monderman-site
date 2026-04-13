@@ -1372,6 +1372,7 @@
           <a class="btn" href="#cross-diagnostic-synthesis">Cross-diagnostic analysis</a>
         </div>
 
+        <div class="context-chip" id="currentPathChip"></div>
         <p class="hero-signal">Use one bounded run to establish a baseline. Use repeated runs to see whether interventions restored strength or whether new drag is quietly accumulating.</p>
 
         <div class="hero-rail" aria-label="How the suite is designed to be used">
@@ -1432,6 +1433,103 @@
         </div>
       </section>
 
+      <section class="panel" id="hub-context-panel">
+        <h3>Set shared run context once</h3>
+        <p>Use this only when you plan to run more than one diagnostic against the same event path. It saves common context locally in this browser so you do not have to re-enter the same basics across tools.</p>
+        <div class="context-grid">
+          <div class="context-card">
+            <h4>Hub Context Card</h4>
+            <p>Keep it narrow: one event path, one participant lens, one depth, and one operating slice. You can clear it any time.</p>
+            <div class="context-helper">Best for repeated use across the same event path. Skip this if you are only running one tool or if the context is changing between runs.</div>
+            <div class="context-form">
+              <div class="context-field context-span-2">
+                <label for="ctxPathName">Current event path</label>
+                <input id="ctxPathName" type="text" placeholder="e.g. Contract review escalation" />
+              </div>
+              <div class="context-field">
+                <label for="ctxLens">Participant lens</label>
+                <select id="ctxLens">
+                  <option value="">Select one</option>
+                  <option value="operational">Operational</option>
+                  <option value="managerial">Managerial</option>
+                  <option value="executive">Executive</option>
+                </select>
+              </div>
+              <div class="context-field">
+                <label for="ctxDepth">Run depth</label>
+                <select id="ctxDepth">
+                  <option value="">Select one</option>
+                  <option value="10">10-minute diagnostic</option>
+                  <option value="30">30-minute diagnostic</option>
+                  <option value="60">60-minute diagnostic</option>
+                </select>
+              </div>
+              <div class="context-field">
+                <label for="ctxBusinessUnit">Team or function</label>
+                <input id="ctxBusinessUnit" type="text" placeholder="e.g. Operations" />
+              </div>
+              <div class="context-field">
+                <label for="ctxDecisionType">Path type</label>
+                <select id="ctxDecisionType">
+                  <option value="">Select one</option>
+                  <option value="procurement">Procurement / vendor</option>
+                  <option value="hiring">Hiring / staffing</option>
+                  <option value="budget">Budget / funding</option>
+                  <option value="policy">Policy / governance</option>
+                  <option value="program">Program / project</option>
+                  <option value="risk">Risk / exception</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="context-field">
+                <label for="ctxIndustry">Industry</label>
+                <select id="ctxIndustry">
+                  <option value="">Select one</option>
+                  <option value="government_defense">Government / defense</option>
+                  <option value="financial_services">Financial services</option>
+                  <option value="healthcare_life_sciences">Healthcare / life sciences</option>
+                  <option value="technology_software">Technology / software</option>
+                  <option value="manufacturing_industrial">Manufacturing / industrial</option>
+                  <option value="energy_utilities">Energy / utilities</option>
+                  <option value="retail_consumer">Retail / consumer</option>
+                  <option value="education_nonprofit">Education / nonprofit</option>
+                  <option value="professional_services">Professional services</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="context-field">
+                <label for="ctxRegulatoryIntensity">Regulatory intensity</label>
+                <select id="ctxRegulatoryIntensity">
+                  <option value="">Select one</option>
+                  <option value="low">Lower-regulation environment</option>
+                  <option value="moderate">Moderate-regulation environment</option>
+                  <option value="high">High-regulation environment</option>
+                </select>
+              </div>
+              <div class="context-field">
+                <label for="ctxEmployeeCount">Organization size</label>
+                <input id="ctxEmployeeCount" type="number" min="1" placeholder="e.g. 2400" />
+              </div>
+              <div class="context-field context-span-2">
+                <label for="ctxDescription">Short issue summary</label>
+                <textarea id="ctxDescription" placeholder="Brief note to carry across runs."></textarea>
+              </div>
+            </div>
+            <div class="context-actions">
+              <button class="btn btn-accent" type="button" id="saveHubContextBtn">Save shared context</button>
+              <button class="btn btn-subtle" type="button" id="clearHubContextBtn">Clear context</button>
+            </div>
+            <p class="context-status" id="hubContextStatus">No shared context saved in this browser yet.</p>
+          </div>
+          <aside class="recent-runs-card">
+            <h4>Recent runs on this device</h4>
+            <p>Quick return links for the last few diagnostics launched from this browser. This is local only and can be cleared by clearing browser storage.</p>
+            <div class="recent-runs-list" id="recentRunsList"></div>
+            <div class="recent-run-empty" id="recentRunsEmpty">No recent runs yet. Once you complete diagnostics, the last 3–5 runs will appear here.</div>
+          </aside>
+        </div>
+      </section>
+
       <section class="panel">
         <h3>How to use the suite</h3>
         <p>The strongest first run is narrow, intentional, and tied to one clear symptom.</p>
@@ -1471,7 +1569,7 @@
               </svg>
               <div>
                 <h4 class="matrix-title">Ownership, roles, or handoffs feel blurred.</h4>
-                <p class="matrix-text">Start with the tool best suited for ambiguity, duplication, and execution drift.</p>
+                <p class="matrix-text">Start with the tool best suited for ambiguity, ownership blur, authority confusion, and handoff instability.</p>
               </div>
             </div>
             <div class="matrix-meta">
@@ -1481,11 +1579,11 @@
               </div>
               <div class="matrix-meta-item">
                 <span class="matrix-meta-label">Clarifies</span>
-                <span class="matrix-meta-value">Whether authority, ownership, and execution logic are clear enough to support reliable movement.</span>
+                <span class="matrix-meta-value">Whether ownership, authority, boundaries, and handoffs are coherent enough to support execution without repeated interpretation.</span>
               </div>
               <div class="matrix-meta-item">
                 <span class="matrix-meta-label">Best when</span>
-                <span class="matrix-meta-value">The issue feels like ambiguity, duplication, confusion, or execution drift.</span>
+                <span class="matrix-meta-value">The issue feels like ambiguity, ownership confusion, handoff multiplication, or role-boundary drift.</span>
               </div>
             </div>
           </article>
@@ -1498,7 +1596,7 @@
               </svg>
               <div>
                 <h4 class="matrix-title">Decisions feel slow, stuck, or approval-heavy.</h4>
-                <p class="matrix-text">Start with the tool best suited for latency, escalation, and approval drag.</p>
+                <p class="matrix-text">Start with the tool best suited for approvals, escalation, review layering, routing burden, and cycle delay.</p>
               </div>
             </div>
             <div class="matrix-meta">
@@ -1597,7 +1695,7 @@
               </p>
               <p class="tool-meta-label">Best when</p>
               <p class="tool-meta">
-                The issue feels like ambiguity, duplication, confusion, or execution drift.
+                The issue feels like ambiguity, ownership confusion, handoff multiplication, or role-boundary drift.
               </p>
               
               <span class="tool-open">Open diagnostic &#8594;</span>
@@ -1663,6 +1761,7 @@
           <div class="synthesis-head">
             <div class="section-label">Cross-Diagnostic Synthesis</div>
             <h3 id="synthesis-title">Combine saved results for a broader institutional read.</h3>
+            <div class="best-for-repeat">Best for repeated institutional use</div>
             <p>
               Drag and drop 2 or more saved Monderman JSON result files to compare patterns across tools, pathways, or participant lenses without storing anything on the site.
             </p>
@@ -1940,20 +2039,17 @@
     function shouldRunHubCalibration() {
       const navEntry = performance.getEntriesByType("navigation")[0];
       const navType = navEntry?.type || "navigate";
-      const referrer = (document.referrer || "").toLowerCase();
-      const fromMonderman = referrer.includes("monderman.com");
-      const fromHub = referrer.includes("diagnostic-tools.html");
-
+      const seenAt = Number(safeReadLocal(HUB_LOADER_SUPPRESS_KEY) || 0);
+      if (seenAt && (Date.now() - seenAt) < HUB_LOADER_SUPPRESS_MS) return false;
       if (navType === "reload" || navType === "back_forward") return false;
-      if (fromMonderman && !fromHub) return true;
-      if (!referrer) return true;
-      return false;
+      return true;
     }
 
     if (shouldRunHubCalibration()) {
       window.addEventListener("load", () => {
         requestAnimationFrame(() => {
           startHubCalibration();
+          safeWriteLocal(HUB_LOADER_SUPPRESS_KEY, String(Date.now()));
         });
       });
     }
@@ -2326,10 +2422,152 @@
       }
     });
 
+
+    const HUB_CONTEXT_KEY = "mondermanHubContextV1";
+    const HUB_RECENT_RUNS_KEY = "mondermanRecentRunsV1";
+    const HUB_LOADER_SUPPRESS_KEY = "mondermanHubLoaderSeenAt";
+    const HUB_LOADER_SUPPRESS_MS = 24 * 60 * 60 * 1000;
+
+    function safeReadLocal(key) {
+      try { return localStorage.getItem(key); } catch (error) { return null; }
+    }
+    function safeWriteLocal(key, value) {
+      try { localStorage.setItem(key, value); } catch (error) {}
+    }
+    function safeRemoveLocal(key) {
+      try { localStorage.removeItem(key); } catch (error) {}
+    }
+    function readHubContext() {
+      const raw = safeReadLocal(HUB_CONTEXT_KEY);
+      if (!raw) return null;
+      try { return JSON.parse(raw); } catch (error) { return null; }
+    }
+    function writeHubContext(context) {
+      safeWriteLocal(HUB_CONTEXT_KEY, JSON.stringify({ ...context, savedAt: new Date().toISOString() }));
+    }
+    function formatContextChip(context) {
+      if (!context || !context.pathName) return "";
+      const parts = [context.pathName, context.lensLabel || "", context.depthLabel || ""].filter(Boolean);
+      return `<strong>Current path:</strong> ${parts.join(" | ")}`;
+    }
+    function renderCurrentPathChip() {
+      const chip = document.getElementById("currentPathChip");
+      if (!chip) return;
+      const context = readHubContext();
+      if (!context || !context.pathName) {
+        chip.classList.remove("show");
+        chip.innerHTML = "";
+        return;
+      }
+      chip.innerHTML = formatContextChip(context);
+      chip.classList.add("show");
+    }
+    function renderHubContextForm() {
+      const context = readHubContext() || {};
+      const map = {
+        ctxPathName: context.pathName || "",
+        ctxLens: context.lens || "",
+        ctxDepth: context.depth || "",
+        ctxBusinessUnit: context.businessUnit || "",
+        ctxDecisionType: context.decisionType || "",
+        ctxIndustry: context.industry || "",
+        ctxRegulatoryIntensity: context.regulatoryIntensity || "",
+        ctxEmployeeCount: context.employeeCount || "",
+        ctxDescription: context.description || ""
+      };
+      Object.entries(map).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el) el.value = value;
+      });
+      const status = document.getElementById("hubContextStatus");
+      if (status) {
+        status.textContent = context.pathName
+          ? `Shared context saved locally for ${context.pathName}. Use it only when multiple runs share the same event path.`
+          : "No shared context saved in this browser yet.";
+      }
+    }
+    function collectHubContext() {
+      const lens = document.getElementById("ctxLens")?.value || "";
+      const depth = document.getElementById("ctxDepth")?.value || "";
+      const lensLabelMap = { operational: "Operational lens", managerial: "Managerial lens", executive: "Executive lens" };
+      const depthLabelMap = { "10": "10-minute depth", "30": "30-minute depth", "60": "60-minute depth" };
+      return {
+        pathName: (document.getElementById("ctxPathName")?.value || "").trim(),
+        lens,
+        lensLabel: lensLabelMap[lens] || "",
+        depth,
+        depthLabel: depthLabelMap[depth] || "",
+        businessUnit: (document.getElementById("ctxBusinessUnit")?.value || "").trim(),
+        decisionType: document.getElementById("ctxDecisionType")?.value || "",
+        industry: document.getElementById("ctxIndustry")?.value || "",
+        regulatoryIntensity: document.getElementById("ctxRegulatoryIntensity")?.value || "",
+        employeeCount: (document.getElementById("ctxEmployeeCount")?.value || "").trim(),
+        description: (document.getElementById("ctxDescription")?.value || "").trim()
+      };
+    }
+    function saveHubContextFromForm() {
+      const context = collectHubContext();
+      if (!context.pathName) {
+        const status = document.getElementById("hubContextStatus");
+        if (status) status.textContent = "Enter a current event path before saving shared context.";
+        return;
+      }
+      writeHubContext(context);
+      renderCurrentPathChip();
+      renderHubContextForm();
+    }
+    function clearHubContext() {
+      safeRemoveLocal(HUB_CONTEXT_KEY);
+      renderCurrentPathChip();
+      renderHubContextForm();
+    }
+    function readRecentRuns() {
+      const raw = safeReadLocal(HUB_RECENT_RUNS_KEY);
+      if (!raw) return [];
+      try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        return [];
+      }
+    }
+    function renderRecentRuns() {
+      const list = document.getElementById("recentRunsList");
+      const empty = document.getElementById("recentRunsEmpty");
+      if (!list || !empty) return;
+      const runs = readRecentRuns().slice(0, 5);
+      list.innerHTML = "";
+      empty.style.display = runs.length ? "none" : "block";
+      runs.forEach((run) => {
+        const item = document.createElement("div");
+        item.className = "recent-run-item";
+        const timestamp = run.timestamp ? new Date(run.timestamp).toLocaleString() : "Recent run";
+        item.innerHTML = `
+          <div class="recent-run-top">
+            <div class="recent-run-title">${run.toolLabel || "Diagnostic run"}</div>
+            <a class="recent-run-link" href="${run.href || '#'}">Open</a>
+          </div>
+          <div class="recent-run-meta">${timestamp}</div>
+          <div class="recent-run-copy">${[run.pathName, run.lensLabel, run.depthLabel].filter(Boolean).join(" | ") || "No shared context attached."}</div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    document.getElementById("saveHubContextBtn")?.addEventListener("click", saveHubContextFromForm);
+    document.getElementById("clearHubContextBtn")?.addEventListener("click", clearHubContext);
+    renderCurrentPathChip();
+    renderHubContextForm();
+    renderRecentRuns();
+
     document.querySelectorAll("a.diagnostic-link[href]").forEach((link) => {
       link.addEventListener("click", (event) => {
         const href = link.getAttribute("href") || "";
         if (!PROTECTED_DIAGNOSTIC_PATHS.has(href)) return;
+        const context = readHubContext();
+        if (context && context.pathName) {
+          sessionStorage.setItem("mondermanPendingHubContext", JSON.stringify(context));
+        }
         event.preventDefault();
         openTurnstileModal(href);
       });
