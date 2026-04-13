@@ -3,1181 +3,118 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Monderman</title>
-
-  <link
-    rel="icon"
-    type="image/svg+xml"
-    href='data:image/svg+xml;utf8,
+  <title>Workspace | Monderman</title>
+  <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
       <rect width="64" height="64" rx="10" fill="%230F1720"/>
       <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text>
       <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
-    </svg>'
-  />
-
-  <link rel="preload" as="image" href="Decision Velocity.jpg" />
-
+    </svg>' />
   <style>
-    @font-face {
-      font-family: "Neue Haas Grotesk";
-      src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff");
-      font-style: normal;
-      font-weight: 400;
-      font-display: swap;
+    @font-face { font-family: "Neue Haas Grotesk"; src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff"); font-style: normal; font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Neue Haas Grotesk"; src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff"); font-style: normal; font-weight: 500; font-display: swap; }
+    @font-face { font-family: "Neue Haas Grotesk"; src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff"); font-style: normal; font-weight: 700; font-display: swap; }
+    :root{
+      --accent:#3F6EA1; --accent-dark:#2F5886; --accent-soft:rgba(63,110,161,.08);
+      --bg-dark:#0F1720; --bg-dark-2:#131D28; --bg-off:#F6F7F9; --panel:#FFFFFF;
+      --text:#15202B; --muted:#5A6673; --muted-2:#7B8792; --text-light:#F5F7FA;
+      --line:rgba(21,32,43,.08); --line-strong:rgba(21,32,43,.12);
+      --header-solid:rgba(14,20,28,.88); --header-border:rgba(255,255,255,.08);
+      --shadow-soft:0 1px 0 rgba(0,0,0,.012),0 12px 28px rgba(0,0,0,.035);
+      --shadow-card:0 1px 0 rgba(0,0,0,.012),0 18px 36px rgba(0,0,0,.05);
+      --radius:20px; --radius-sm:16px; --max:1320px;
+      --ok:#4E7A57; --warn:#9A7B2A;
     }
-    @font-face {
-      font-family: "Neue Haas Grotesk";
-      src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff");
-      font-style: normal;
-      font-weight: 500;
-      font-display: swap;
-    }
-    @font-face {
-      font-family: "Neue Haas Grotesk";
-      src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff");
-      font-style: normal;
-      font-weight: 700;
-      font-display: swap;
-    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg-off);color:var(--text);font-family:"Neue Haas Grotesk","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+    a{text-decoration:none;color:inherit}
+    h1,h2,h3,h4{letter-spacing:-.05em;margin:0}
+    p{margin:0;letter-spacing:-.01em}
 
-    :root {
-      --accent: #3F6EA1;
-      --accent-dark: #2F5886;
-      --accent-light: #76A5D3;
-      --bg-dark: #0F1720;
-      --bg-dark-2: #111B25;
-      --bg-hero-fallback: #121922;
-      --bg-offwhite: #F6F7F8;
-      --bg-white: #FFFFFF;
-      --text-light: #F5F7FA;
-      --muted-light: rgba(245,247,250,0.82);
-      --text-dark: #15202B;
-      --muted-dark: #556270;
-      --muted-dark-2: #7A8794;
-      --line-dark: #E3E7EB;
-      --header-solid: rgba(14,20,28,0.87);
-      --header-border: rgba(255,255,255,0.08);
-      --max: 1320px;
-      --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
-      --transition-slow: 420ms cubic-bezier(0.22, 1, 0.36, 1);
-      --rail-gap: 18px;
-      --soft-shadow: 0 1px 0 rgba(0,0,0,0.012);
-      --reveal-distance: 10px;
-      --panel-radius: 18px;
-      --card-radius: 16px;
-      --snap-offset: 72px;
-      --snap-landing-offset: 10px;
-    }
+    .header{position:fixed;inset:0 0 auto 0;height:72px;z-index:40;background:transparent;border-bottom:1px solid transparent;transition:background .22s ease,border-color .22s ease,backdrop-filter .22s ease}
+    .header.scrolled{background:var(--header-solid);border-bottom-color:var(--header-border);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+    .header-inner{max-width:var(--max);height:100%;margin:0 auto;padding:0 34px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+    .brand{display:inline-flex;align-items:center;font-size:1.32rem;font-weight:700;color:#fff;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,.16)}
+    .brand::after{content:"";width:6px;height:6px;margin-left:10px;background:var(--accent);border-radius:1px;transform:translateY(-1px)}
+    .nav{display:flex;align-items:center;gap:26px;flex-wrap:wrap;justify-content:flex-end}
+    .nav a{position:relative;font-size:.98rem;font-weight:500;color:rgba(255,255,255,.88);transition:color .18s ease,transform .18s ease}
+    .nav a::after{content:"";position:absolute;left:0;bottom:-6px;width:100%;height:1px;background:rgba(255,255,255,.74);transform:scaleX(0);transform-origin:left center;transition:transform .18s ease}
+    .nav a:hover,.nav a:focus-visible,.nav a.is-active{color:#fff;transform:translateY(-1px);outline:none}
+    .nav a:hover::after,.nav a:focus-visible::after,.nav a.is-active::after{transform:scaleX(1)}
+    .nav a.workspace-link{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#fff;box-shadow:0 1px 0 rgba(255,255,255,.04)}
+    .nav a.workspace-link::after{display:none}
 
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; scroll-padding-top: var(--snap-offset); }
-    body {
-      margin: 0;
-      background: var(--bg-dark);
-      color: var(--text-light);
-      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-weight: 400;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      text-rendering: optimizeLegibility;
-    }
+    .hero{position:relative;min-height:58vh;overflow:hidden;background:linear-gradient(180deg,#0F1720 0%,#121B25 100%);color:var(--text-light)}
+    .hero::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% 18%, rgba(63,110,161,.16) 0%, rgba(63,110,161,.07) 20%, transparent 36%),linear-gradient(135deg, rgba(63,110,161,.03) 1px, transparent 1px);background-size:auto,34px 34px;opacity:.52;pointer-events:none}
+    .hero-inner{position:relative;z-index:1;max-width:var(--max);margin:0 auto;padding:136px 34px 72px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr);gap:28px;align-items:end}
+    .eyebrow{display:block;margin:0 0 16px;font-size:.76rem;line-height:1;letter-spacing:.22em;font-weight:700;text-transform:uppercase;color:rgba(245,247,250,.64)}
+    .hero h1{font-size:clamp(2.8rem,4.2vw,4.2rem);line-height:.95;color:#fff;max-width:11ch;margin:0 0 18px}
+    .hero-copy{max-width:44ch;font-size:1.06rem;line-height:1.7;color:rgba(245,247,250,.8)}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;min-width:160px;padding:0 22px;border-radius:999px;border:1px solid rgba(63,110,161,.9);background:rgba(255,255,255,.98);color:var(--accent);font-size:.96rem;font-weight:600;box-shadow:0 8px 20px rgba(0,0,0,.045);cursor:pointer;transition:all .18s ease}
+    .btn:hover,.btn:focus-visible{transform:translateY(-1px);color:var(--accent-dark);border-color:var(--accent-dark);outline:none}
+    .btn-accent{background:var(--accent-dark);color:#fff;border-color:rgba(63,110,161,.28);box-shadow:0 10px 24px rgba(63,110,161,.22)}
+    .btn-accent:hover,.btn-accent:focus-visible{color:#fff;background:var(--accent-dark)}
+    .btn-subtle{background:#fff;color:var(--text);border:1px solid var(--line-strong);box-shadow:none}
 
-    a { color: inherit; text-decoration: none; }
-    img { max-width: 100%; display: block; }
-    h1, h2, h3 { letter-spacing: -0.048em; }
-    p { letter-spacing: -0.01em; }
+    .hero-side{display:grid;gap:16px}
+    .hero-panel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:20px;padding:22px 22px 20px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+    .hero-panel-kicker{margin:0 0 8px;font-size:.7rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,247,250,.58)}
+    .hero-panel-title{font-size:1rem;line-height:1.2;font-weight:700;color:#fff;margin:0 0 8px}
+    .hero-panel-copy{font-size:.9rem;line-height:1.58;color:rgba(245,247,250,.74)}
 
-    .snap-anchor {
-      scroll-margin-top: 0;
-    }
+    .page{position:relative;padding:40px 34px 86px}
+    .page-inner{max-width:var(--max);margin:0 auto;display:grid;gap:18px}
+    .section-card{background:rgba(255,255,255,.98);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-soft);padding:30px 30px 28px}
+    .section-kicker{margin:0 0 10px;font-size:.74rem;font-weight:700;line-height:1;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+    .section-title{font-size:2rem;line-height:1.08;color:var(--text);margin:0 0 12px}
+    .section-copy{max-width:62ch;font-size:1rem;line-height:1.7;color:var(--muted)}
 
-    .reveal {
-      opacity: 0;
-      transform: translateY(var(--reveal-distance));
-      transition: opacity 820ms cubic-bezier(0.22,1,0.36,1), transform 820ms cubic-bezier(0.22,1,0.36,1);
-      will-change: opacity, transform;
-    }
-    .reveal.is-visible { opacity: 1; transform: translateY(0); }
-    .reveal-delay-1 { transition-delay: 90ms; }
-    .reveal-delay-2 { transition-delay: 180ms; }
-    .reveal-delay-3 { transition-delay: 270ms; }
-    .reveal-delay-4 { transition-delay: 360ms; }
+    .overview-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-top:22px}
+    .metric{background:linear-gradient(180deg,#fff 0%,#FBFCFE 100%);border:1px solid var(--line);border-radius:var(--radius-sm);padding:20px 18px 18px;box-shadow:var(--shadow-soft)}
+    .metric-label{margin:0 0 8px;font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2)}
+    .metric-value{font-size:1.6rem;line-height:1;font-weight:700;color:var(--text);margin:0 0 8px}
+    .metric-copy{font-size:.9rem;line-height:1.55;color:var(--muted)}
 
-    .header {
-      position: fixed;
-      inset: 0 0 auto 0;
-      width: 100%;
-      height: 72px;
-      z-index: 100;
-      background: transparent;
-      border-bottom: 1px solid transparent;
-      transition: background var(--transition), border-color var(--transition), backdrop-filter var(--transition), -webkit-backdrop-filter var(--transition);
-    }
-    .header.scrolled {
-      background: var(--header-solid);
-      border-bottom-color: var(--header-border);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-    }
-    .header-inner {
-      max-width: var(--max);
-      height: 100%;
-      margin: 0 auto;
-      padding: 0 34px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-    }
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      font-size: 1.32rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: #FFFFFF;
-      white-space: nowrap;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.16);
-    }
-    .brand::after {
-      content: "";
-      width: 6px;
-      height: 6px;
-      margin-left: 10px;
-      background: var(--accent);
-      border-radius: 1px;
-      display: inline-block;
-      transform: translateY(-1px);
-    }
-    .nav {
-      display: flex;
-      align-items: center;
-      gap: 28px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-    .nav a {
-      position: relative;
-      font-size: 1rem;
-      font-weight: 500;
-      letter-spacing: 0.012em;
-      color: rgba(255,255,255,0.88);
-      transition: color var(--transition), transform var(--transition);
-    }
-    .nav a::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: -6px;
-      width: 100%;
-      height: 1px;
-      background: rgba(255,255,255,0.74);
-      transform: scaleX(0);
-      transform-origin: left center;
-      transition: transform 180ms ease;
-    }
-    .nav a:hover,
-    .nav a:focus-visible { color: #FFFFFF; transform: translateY(-1px); outline: none; }
-    .nav a:hover::after,
-    .nav a:focus-visible::after { transform: scaleX(1); }
+    .workspace-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr);gap:18px}
+    .stack{display:grid;gap:18px}
+    .panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}
+    .panel-title{font-size:1.28rem;line-height:1.1;color:var(--text)}
+    .panel-copy{font-size:.94rem;line-height:1.6;color:var(--muted);max-width:48ch}
+    .chip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:var(--accent-soft);border:1px solid rgba(63,110,161,.14);font-size:.76rem;line-height:1;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-dark)}
 
-    .nav a.workspace-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 38px;
-      padding: 0 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.16);
-      background: rgba(255,255,255,0.06);
-      color: #FFFFFF;
-      box-shadow: 0 1px 0 rgba(255,255,255,0.04);
-    }
-    .nav a.workspace-link::after {
-      display: none;
-    }
-    .nav a.workspace-link:hover,
-    .nav a.workspace-link:focus-visible {
-      background: rgba(255,255,255,0.10);
-      border-color: rgba(255,255,255,0.24);
-      color: #FFFFFF;
-      transform: translateY(-1px);
-    }
+    .identity-card{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}
+    .avatar{width:56px;height:56px;border-radius:16px;background:linear-gradient(180deg,#244462 0%,#3F6EA1 100%);color:#fff;display:grid;place-items:center;font-size:1.12rem;font-weight:700;box-shadow:var(--shadow-soft)}
+    .identity-name{font-size:1.12rem;line-height:1.2;font-weight:700;color:var(--text);margin:0 0 4px}
+    .identity-meta{font-size:.92rem;line-height:1.55;color:var(--muted)}
+    .identity-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
 
+    .list{display:grid;gap:12px}
+    .run-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:start;padding:16px;border-radius:16px;background:linear-gradient(180deg,#fff 0%,#FBFCFE 100%);border:1px solid var(--line);box-shadow:var(--shadow-soft)}
+    .run-title{font-size:.98rem;line-height:1.35;font-weight:700;color:var(--text);margin:0 0 4px}
+    .run-meta,.run-copy{font-size:.88rem;line-height:1.55;color:var(--muted)}
+    .run-copy{margin-top:6px}
+    .run-link{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--line-strong);background:#fff;font-size:.84rem;font-weight:600;color:var(--accent)}
+    .run-link:hover,.run-link:focus-visible{border-color:rgba(63,110,161,.22);color:var(--accent-dark);outline:none}
+    .empty{padding:18px;border-radius:16px;background:#FBFCFE;border:1px dashed rgba(21,32,43,.14);font-size:.92rem;line-height:1.62;color:var(--muted-2)}
 
-    .hero {
-      position: relative;
-      min-height: 100vh;
-      overflow: hidden;
-      background: var(--bg-hero-fallback);
-    }
-    .hero-media-wrap {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      overflow: hidden;
-    }
-    .hero-image {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: 79% 50%;
-      opacity: 0;
-      transform: scale(1.01);
-      transition: opacity 720ms cubic-bezier(0.22,1,0.36,1), transform 1800ms cubic-bezier(0.22,1,0.36,1);
-      will-change: transform, opacity;
-    }
-    .hero-image.is-loaded { opacity: 0.9; }
-    .hero-overlay {
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(90deg, rgba(10,14,20,0.975) 0%, rgba(10,14,20,0.92) 30%, rgba(10,14,20,0.68) 54%, rgba(10,14,20,0.34) 76%, rgba(10,14,20,0.14) 100%),
-        linear-gradient(180deg, rgba(10,14,20,0.18) 0%, rgba(10,14,20,0.08) 34%, rgba(10,14,20,0.24) 100%);
-    }
-    .hero::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 1;
-      background:
-        radial-gradient(circle at 82% 18%, rgba(63,110,161,0.12) 0%, rgba(63,110,161,0.05) 18%, transparent 34%),
-        linear-gradient(180deg, rgba(7,10,16,0.06) 0%, rgba(7,10,16,0.26) 100%);
-    }
-    .hero-inner {
-      position: relative;
-      z-index: 2;
-      max-width: var(--max);
-      min-height: 100vh;
-      margin: 0 auto;
-      padding: 136px 34px 104px;
-      display: flex;
-      align-items: center;
-    }
-    .hero-copy { max-width: 940px; }
+    .feature-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .feature{padding:18px;border-radius:16px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow-soft)}
+    .feature h4{font-size:.98rem;line-height:1.2;color:var(--text);margin:0 0 8px}
+    .feature p{font-size:.88rem;line-height:1.56;color:var(--muted)}
+    .feature.locked{background:linear-gradient(180deg,#FCFBF7 0%,#fff 100%);border-color:rgba(154,123,42,.16)}
+    .locked-badge{display:inline-flex;align-items:center;gap:6px;margin-bottom:10px;padding:6px 9px;border-radius:999px;background:rgba(154,123,42,.08);border:1px solid rgba(154,123,42,.16);font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7A6426}
 
-    .hero-eyebrow,
-    .hero h1,
-    .hero p,
-    .hero-actions {
-      opacity: 0;
-      transform: translateY(16px);
-      animation: heroFadeUp 900ms cubic-bezier(0.22,1,0.36,1) forwards;
-      will-change: transform, opacity;
-    }
-    .hero-eyebrow {
-      display: block;
-      margin: 0 0 40px;
-      padding-left: 1px;
-      font-size: 0.78rem;
-      line-height: 1;
-      letter-spacing: 0.22em;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: rgba(245,247,250,0.64);
-      animation-delay: 340ms;
-    }
-    .hero h1 {
-      margin: 0 0 20px;
-      max-width: 13.5ch;
-      font-size: clamp(3rem, 4.3vw, 4.45rem);
-      line-height: 0.95;
-      font-weight: 700;
-      color: #FFFFFF;
-      text-wrap: balance;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.16);
-      animation-delay: 480ms;
-    }
-    .hero-dek {
-      max-width: 41ch;
-      margin: 0;
-      font-size: clamp(1.12rem, 1.5vw, 1.22rem);
-      line-height: 1.6;
-      letter-spacing: -0.014em;
-      color: var(--muted-light);
-      text-shadow: 0 1px 2px rgba(0,0,0,0.12);
-      animation-delay: 640ms;
-      text-wrap: balance;
-    }
-    .hero-actions {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 30px;
-      animation-delay: 820ms;
-    }
-    .hero-signal {
-      margin: 18px 0 0;
-      max-width: 48ch;
-      font-size: 0.82rem;
-      line-height: 1.55;
-      letter-spacing: 0.015em;
-      color: rgba(245,247,250,0.76);
-      opacity: 0;
-      transform: translateY(16px);
-      animation: heroFadeUp 900ms cubic-bezier(0.22,1,0.36,1) forwards;
-      animation-delay: 940ms;
-    }
-    @keyframes heroFadeUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    .footer{background:#0D141C;color:rgba(245,247,250,.88);padding:36px 34px 30px;margin-top:20px}
+    .footer-inner{max-width:var(--max);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+    .footer-copy{font-size:.9rem;line-height:1.58;color:rgba(245,247,250,.6)}
+    .status-inline{font-size:.86rem;line-height:1.55;color:var(--muted-2);min-height:22px}
+    .status-inline.error{color:#8A3946}.status-inline.ok{color:var(--ok)}
 
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 50px;
-      min-width: 168px;
-      padding: 0 24px;
-      border-radius: 999px;
-      font-size: 0.97rem;
-      font-weight: 500;
-      letter-spacing: -0.012em;
-      white-space: nowrap;
-      background: rgba(255,255,255,0.98);
-      color: var(--accent);
-      border: 1.25px solid rgba(63,110,161,0.9);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.045), 0 0 0 1px rgba(255,255,255,0.08);
-      transition: background 180ms cubic-bezier(0.22,1,0.36,1), color 180ms cubic-bezier(0.22,1,0.36,1), border-color 180ms cubic-bezier(0.22,1,0.36,1), transform 180ms cubic-bezier(0.22,1,0.36,1), box-shadow 180ms cubic-bezier(0.22,1,0.36,1);
-      cursor: pointer;
-    }
-    .btn:hover,
-    .btn:focus-visible {
-      background: #FFFFFF;
-      color: var(--accent-dark);
-      border-color: var(--accent-dark);
-      transform: translateY(-1px);
-      box-shadow: 0 12px 24px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,255,255,0.10);
-      outline: none;
-    }
-    .btn-secondary {
-      background: rgba(255,255,255,0.98);
-      color: var(--accent);
-      border: 1.25px solid rgba(63,110,161,0.9);
-    }
-    .btn-accent {
-      background: var(--accent-dark);
-      color: #FFFFFF;
-      border: 1.25px solid rgba(63,110,161,0.28);
-      box-shadow: 0 10px 24px rgba(63,110,161,0.22), 0 0 0 1px rgba(255,255,255,0.05);
-    }
-    .btn-accent:hover,
-    .btn-accent:focus-visible {
-      background: var(--accent-dark);
-      color: #FFFFFF;
-    }
-
-    .section-with-bar {
-      position: relative;
-    }
-
-    .section-with-bar .section-bar {
-      position: absolute;
-      top: 26px;
-      left: 34px;
-      z-index: 2;
-      margin: 0;
-      padding: 0;
-      background: transparent;
-      color: rgba(21,32,43,0.48);
-      font-size: 0.68rem;
-      line-height: 1;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      box-shadow: none;
-      pointer-events: none;
-    }
-
-    .section-intro h2 {
-      margin: 0 0 16px;
-      max-width: 760px;
-      font-size: clamp(1.95rem, 2.45vw, 2.35rem);
-      line-height: 1.12;
-      font-weight: 700;
-      color: var(--text-dark);
-      text-wrap: balance;
-    }
-    .section-intro p {
-      margin: 0;
-      max-width: 58ch;
-      font-size: 1.04rem;
-      line-height: 1.7;
-      color: var(--muted-dark);
-    }
-
-
-    .recognition-strip {
-      background: var(--bg-offwhite);
-      color: var(--text-dark);
-      padding: 44px 34px 30px;
-      border-top: 1px solid rgba(21,32,43,0.04);
-      border-bottom: 1px solid rgba(21,32,43,0.04);
-    }
-    .recognition-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-    }
-    .recognition-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px 28px;
-      max-width: 980px;
-    }
-    .recognition-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      min-height: 40px;
-      padding-right: 12px;
-    }
-    .recognition-dot {
-      width: 8px;
-      height: 8px;
-      margin-top: 9px;
-      border-radius: 999px;
-      background: var(--accent);
-      flex: 0 0 auto;
-      box-shadow: 0 0 0 4px rgba(63,110,161,0.08);
-    }
-    .recognition-text {
-      margin: 0;
-      font-size: 1rem;
-      line-height: 1.6;
-      color: var(--muted-dark);
-    }
-
-    .bureaucracy-cost,
-    .diagnostic-estimate {
-      position: relative;
-      background:
-        linear-gradient(rgba(247,248,249,0.97), rgba(247,248,249,0.97)),
-        linear-gradient(90deg, rgba(63,110,161,0.02) 1px, transparent 1px),
-        linear-gradient(rgba(63,110,161,0.02) 1px, transparent 1px);
-      background-size: auto, 28px 28px, 28px 28px;
-      border-top: 1px solid #E7EBEF;
-      border-bottom: 1px solid #E7EBEF;
-      color: var(--text-dark);
-      overflow: hidden;
-    }
-    .bureaucracy-cost { padding: 78px 34px 100px; }
-    .diagnostic-estimate { padding: 78px 34px 92px; }
-    .bureaucracy-cost::before,
-    .diagnostic-estimate::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at 85% 20%, rgba(63,110,161,0.04), transparent 34%);
-      pointer-events: none;
-    }
-
-    .cost-inner,
-    .diagnostic-estimate-inner,
-    .approach-inner,
-    .latest-inner,
-    .connect-inner,
-    .footer-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-      position: relative;
-      z-index: 1;
-    }
-
-    .cost-heading,
-    .diagnostic-estimate-heading {
-      max-width: 900px;
-      margin: 0 0 44px;
-    }
-    .cost-label,
-    .estimate-label,
-    .latest-label {
-      margin: 0 0 18px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.24em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
-    .cost-heading h2,
-    .diagnostic-estimate-heading h2 {
-      margin: 0 0 14px;
-      max-width: 760px;
-      font-size: clamp(2.05rem, 2.9vw, 2.7rem);
-      line-height: 1.12;
-      font-weight: 700;
-      color: var(--text-dark);
-      text-wrap: balance;
-    }
-    .cost-context,
-    .estimate-context,
-    .estimate-bridge {
-      margin: 0;
-      max-width: 64ch;
-      font-size: 0.96rem;
-      line-height: 1.64;
-      color: var(--muted-dark);
-    }
-    .estimate-bridge { margin-top: 12px; }
-
-    .cost-grid,
-    .estimate-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 28px;
-      margin-top: 10px;
-    }
-    .cost-card,
-    .estimate-card {
-      background: rgba(255,255,255,0.96);
-      border: 1px solid rgba(21,32,43,0.06);
-      border-radius: var(--panel-radius);
-      padding: 42px 34px 38px;
-      box-shadow: var(--soft-shadow);
-      transition: transform var(--transition-slow), box-shadow var(--transition-slow), border-color var(--transition);
-    }
-    .cost-card { min-height: 310px; }
-    .estimate-card { min-height: 286px; }
-    .cost-card:hover,
-    .estimate-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(63,110,161,0.12);
-      box-shadow: 0 1px 0 rgba(0,0,0,0.014), 0 8px 18px rgba(0,0,0,0.016), 0 16px 28px rgba(0,0,0,0.014);
-    }
-    .cost-card-title,
-    .estimate-card-title {
-      margin: 0 0 8px;
-      font-size: 1.02rem;
-      line-height: 1.12;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-    .cost-card-title .asterisk { font-size: 0.9em; vertical-align: 0.08em; }
-    .cost-card-source,
-    .estimate-card-source {
-      margin: 0 0 34px;
-      font-size: 0.76rem;
-      line-height: 1.45;
-      color: #8A95A3;
-      font-style: italic;
-    }
-    .cost-card-number {
-      margin: 0 0 18px;
-      font-size: clamp(3rem, 4.8vw, 4.35rem);
-      line-height: 0.9;
-      letter-spacing: -0.065em;
-      font-weight: 700;
-      color: var(--accent);
-    }
-    .estimate-card-number {
-      margin: 0 0 18px;
-      font-size: clamp(2.15rem, 3vw, 3rem);
-      line-height: 1;
-      letter-spacing: -0.05em;
-      font-weight: 700;
-      color: var(--accent);
-    }
-    .cost-card-text,
-    .estimate-card-text {
-      margin: 0;
-      max-width: 24ch;
-      font-size: 1.02rem;
-      line-height: 1.64;
-      color: var(--muted-dark);
-    }
-    .cost-footer {
-      margin: 24px 0 0;
-      font-size: 0.82rem;
-      line-height: 1.6;
-      color: var(--muted-dark-2);
-    }
-
-    .estimate-controls {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 18px;
-      margin-bottom: 28px;
-    }
-    .estimate-field { display: grid; gap: 10px; }
-    .estimate-field label {
-      font-size: 0.88rem;
-      line-height: 1.45;
-      font-weight: 600;
-      color: var(--text-dark);
-    }
-    .estimate-field select {
-      width: 100%;
-      min-height: 56px;
-      padding: 0 16px;
-      border-radius: 14px;
-      border: 1px solid rgba(21,32,43,0.10);
-      background: #FFFFFF;
-      color: var(--text-dark);
-      outline: none;
-      box-shadow: var(--soft-shadow);
-      transition: border-color var(--transition), box-shadow var(--transition);
-    }
-    .estimate-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-      flex-wrap: wrap;
-      margin-top: 28px;
-    }
-    .estimate-foot-copy { max-width: 68ch; }
-    .estimate-foot-copy p {
-      margin: 0;
-      font-size: 0.92rem;
-      line-height: 1.64;
-      color: var(--muted-dark);
-    }
-    .estimate-foot-copy p + p {
-      margin-top: 8px;
-      color: var(--muted-dark-2);
-      font-size: 0.86rem;
-    }
-
-    .approach {
-      position: relative;
-      background: var(--bg-white);
-      padding: 78px 34px 88px;
-      color: var(--text-dark);
-      overflow: hidden;
-    }
-    .approach-bridge {
-      max-width: 60ch;
-      font-size: 1rem;
-      line-height: 1.68;
-      color: var(--muted-dark);
-    }
-    .approach-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 34px;
-      margin-top: 52px;
-    }
-    .approach-card {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      min-height: 356px;
-      background: rgba(255,255,255,0.99);
-      border: 1px solid var(--line-dark);
-      border-radius: var(--panel-radius);
-      padding: 40px 34px 52px;
-      overflow: hidden;
-      transition: transform var(--transition-slow), box-shadow var(--transition-slow), border-color var(--transition), background var(--transition);
-    }
-    .approach-card::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 3px;
-      width: 0%;
-      background: var(--accent);
-      transition: width 420ms cubic-bezier(0.22,1,0.36,1);
-    }
-    .approach-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(0,0,0,0.06);
-      background: #FFFFFF;
-      box-shadow: 0 8px 18px rgba(0,0,0,0.04), 0 18px 30px rgba(0,0,0,0.04);
-    }
-    .approach-card:hover::before { width: 100%; }
-    .card-title {
-      margin-bottom: 18px;
-      font-size: 1.42rem;
-      line-height: 1.12;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-    .card-desc {
-      font-size: 1.01rem;
-      line-height: 1.74;
-      color: var(--muted-dark);
-    }
-    .approach-card-link {
-      margin-top: auto;
-      align-self: flex-end;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding-top: 26px;
-      font-size: 0.90rem;
-      font-weight: 500;
-      letter-spacing: -0.01em;
-      color: var(--accent);
-    }
-
-    .approach-synthesis {
-      margin-top: 60px;
-      padding: 40px 34px 34px;
-      background: #F8F9FA;
-      border-radius: var(--panel-radius);
-      border: 1px solid #E3E7EB;
-      text-align: center;
-    }
-    .approach-synthesis-copy {
-      max-width: 52ch;
-      margin: 0 auto 30px;
-      font-size: 1.04rem;
-      line-height: 1.6;
-      color: #556270;
-    }
-    .approach-synthesis-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-      gap: 18px;
-      max-width: 980px;
-      margin: 0 auto;
-    }
-    .approach-synthesis-item {
-      display: grid;
-      gap: 10px;
-      align-content: start;
-      min-height: 168px;
-      padding: 22px 20px 20px;
-      text-align: left;
-      background: #FFFFFF;
-      border: 1px solid rgba(21,32,43,0.08);
-      border-radius: 16px;
-      box-shadow: var(--soft-shadow);
-      color: var(--text-dark);
-      transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition), background var(--transition);
-    }
-    .approach-synthesis-item strong {
-      font-size: 1rem;
-      line-height: 1.15;
-      letter-spacing: -0.02em;
-      color: var(--text-dark);
-    }
-    .approach-synthesis-item span {
-      font-size: 0.9rem;
-      line-height: 1.56;
-      color: var(--muted-dark);
-    }
-    .approach-synthesis-item.is-linked,
-    .approach-synthesis-item:hover {
-      transform: translateY(-2px);
-      border-color: rgba(63,110,161,0.18);
-      box-shadow: 0 10px 22px rgba(0,0,0,0.04);
-      background: #FFFFFF;
-    }
-    .approach-foundation {
-      margin: 22px auto 0;
-      max-width: 980px;
-      min-height: 56px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 20px;
-      border-radius: 16px;
-      background: var(--accent-light);
-      border: 1px solid var(--accent);
-      color: #FFFFFF;
-      font-size: 0.76rem;
-      line-height: 1.2;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      box-shadow: var(--soft-shadow);
-      text-align: center;
-    }
-
-    .latest {
-      position: relative;
-      background: var(--bg-offwhite);
-      padding: 78px 34px 80px;
-      color: var(--text-dark);
-      overflow: hidden;
-      border-top: 1px solid rgba(21,32,43,0.04);
-      border-bottom: 1px solid rgba(21,32,43,0.04);
-    }
-    .latest-head {
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 30px;
-      margin-bottom: 34px;
-    }
-    .latest-intro { max-width: 740px; }
-    .latest-controls {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      flex: 0 0 auto;
-    }
-    .rail-arrow {
-      width: 40px;
-      height: 40px;
-      border-radius: 999px;
-      border: 1px solid rgba(21,32,43,0.12);
-      background: #FFFFFF;
-      color: rgba(21,32,43,0.88);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: var(--soft-shadow);
-    }
-    .latest-viewport {
-      overflow: hidden;
-      opacity: 0;
-      transition: opacity 240ms ease;
-    }
-    .latest-viewport.is-ready { opacity: 1; }
-    .latest-track {
-      display: flex;
-      gap: var(--rail-gap);
-      will-change: transform;
-      transition: transform 860ms cubic-bezier(0.22,1,0.36,1);
-    }
-    .latest-card {
-      flex: 0 0 calc((100% - (var(--rail-gap) * 2)) / 2.55);
-      background: #FFFFFF;
-      border: 1px solid rgba(21,32,43,0.08);
-      border-radius: var(--card-radius);
-      box-shadow: var(--soft-shadow);
-      overflow: hidden;
-    }
-    .latest-card-image {
-      aspect-ratio: 16 / 8.2;
-      overflow: hidden;
-      background: #DDE4EB;
-    }
-    .latest-card-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .latest-card-body { padding: 16px; }
-    .latest-card-kicker {
-      margin: 0 0 9px;
-      font-size: 0.68rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
-    .latest-card-title {
-      margin: 0 0 9px;
-      font-size: 1.08rem;
-      line-height: 1.14;
-      font-weight: 700;
-      color: var(--text-dark);
-      text-wrap: balance;
-    }
-    .latest-card-text {
-      margin: 0 0 13px;
-      font-size: 0.88rem;
-      line-height: 1.58;
-      color: var(--muted-dark);
-    }
-    .latest-card-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.90rem;
-      font-weight: 500;
-      color: var(--text-dark);
-    }
-    .latest-dots {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      margin-top: 18px;
-    }
-    .latest-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      border: 0;
-      padding: 0;
-      background: rgba(21,32,43,0.18);
-      cursor: pointer;
-      transition: transform var(--transition), background var(--transition), width var(--transition);
-    }
-    .latest-dot.is-active {
-      width: 22px;
-      background: var(--accent);
-    }
-
-    .connect {
-      position: relative;
-      background: linear-gradient(180deg, #0F1720 0%, #111B25 100%);
-      color: var(--text-light);
-      padding: 84px 34px 82px;
-      overflow: hidden;
-      border-top: 1px solid rgba(255,255,255,0.06);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-    .connect::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at 80% 20%, rgba(63,110,161,0.10), transparent 28%),
-        linear-gradient(135deg, rgba(63,110,161,0.03) 1px, transparent 1px);
-      background-size: auto, 34px 34px;
-      opacity: 0.36;
-      pointer-events: none;
-    }
-    .connect-inner {
-      display: grid;
-      grid-template-columns: minmax(0,1fr) minmax(280px,420px);
-      gap: 56px;
-      align-items: start;
-    }
-    .connect-copy h2 {
-      color: #FFFFFF;
-      margin-bottom: 18px;
-    }
-    .connect-signal {
-      margin: 0 0 14px;
-      font-size: 0.82rem;
-      line-height: 1.45;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: rgba(245,247,250,0.54);
-    }
-    .connect-text {
-      margin: 0;
-      max-width: 54ch;
-      font-size: 1.04rem;
-      line-height: 1.72;
-      color: rgba(245,247,250,0.74);
-    }
-    .connect-panel {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.10);
-      border-radius: var(--panel-radius);
-      padding: 30px 30px 28px;
-      box-shadow: 0 1px 0 rgba(255,255,255,0.02), 0 14px 28px rgba(0,0,0,0.10);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-    .connect-kicker {
-      margin: 0 0 14px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.20em;
-      text-transform: uppercase;
-      color: rgba(245,247,250,0.54);
-    }
-    .connect-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      font-size: clamp(1.06rem, 1.6vw, 1.22rem);
-      line-height: 1.3;
-      font-weight: 500;
-      letter-spacing: -0.015em;
-      color: #FFFFFF;
-    }
-    .connect-link-mark {
-      width: 7px;
-      height: 7px;
-      background: var(--accent);
-      border-radius: 1px;
-      flex: 0 0 auto;
-      transform: translateY(-1px);
-    }
-    .connect-note {
-      margin: 16px 0 0;
-      font-size: 0.92rem;
-      line-height: 1.64;
-      color: rgba(245,247,250,0.60);
-    }
-
-    .footer {
-      background: #0D141C;
-      color: rgba(245,247,250,0.88);
-      padding: 50px 34px 38px;
-    }
-    .footer-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 40px;
-      padding-bottom: 28px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-    .footer-brand { max-width: 420px; }
-    .footer-mark {
-      display: inline-flex;
-      align-items: center;
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: #FFFFFF;
-      margin-bottom: 14px;
-    }
-    .footer-mark::after {
-      content: "";
-      width: 6px;
-      height: 6px;
-      margin-left: 10px;
-      background: var(--accent);
-      border-radius: 1px;
-      display: inline-block;
-      transform: translateY(-1px);
-    }
-    .footer-copy {
-      margin: 0;
-      max-width: 36ch;
-      font-size: 0.98rem;
-      line-height: 1.65;
-      color: rgba(245,247,250,0.68);
-    }
-    .footer-nav {
-      display: flex;
-      gap: 48px;
-      flex-wrap: wrap;
-    }
-    .footer-nav-col { min-width: 120px; }
-    .footer-nav-title {
-      margin: 0 0 12px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(245,247,250,0.50);
-    }
-    .footer-nav a {
-      display: block;
-      margin-bottom: 10px;
-      font-size: 0.95rem;
-      line-height: 1.45;
-      color: rgba(245,247,250,0.82);
-    }
-    .footer-bottom {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-      padding-top: 18px;
-    }
-    .footer-meta,
-    .footer-contact {
-      margin: 0;
-      font-size: 0.88rem;
-      line-height: 1.6;
-      color: rgba(245,247,250,0.58);
-    }
-
-    @media (max-width: 1100px) {
-      .approach-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .cost-grid, .estimate-grid { grid-template-columns: 1fr; gap: 20px; }
-      .estimate-controls { grid-template-columns: 1fr; }
-      .cost-card, .estimate-card { min-height: auto; }
-      .connect-inner { grid-template-columns: 1fr; gap: 28px; }
-    }
-    @media (max-width: 980px) {
-      .header { height: auto; }
-      .header-inner {
-        padding: 16px 24px;
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 14px;
-      }
-      .nav { gap: 22px; }
-      .hero-inner { padding: 120px 24px 82px; }
-      .bureaucracy-cost,
-      .approach,
-      .diagnostic-estimate,
-      .latest,
-      .connect,
-      .footer {
-        padding-left: 24px;
-        padding-right: 24px;
-      }
-      .latest-head {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-    }
-    @media (max-width: 760px) {
-      .hero-inner { padding: 136px 20px 108px; }
-      .hero h1 {
-        max-width: 100%;
-        font-size: clamp(2.45rem, 8vw, 3.25rem);
-      }
-      .hero-dek {
-        max-width: 100%;
-        font-size: 1rem;
-        line-height: 1.58;
-      }
-      .hero-actions {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 14px;
-        max-width: 420px;
-      }
-      .hero-signal {
-        max-width: 100%;
-        font-size: 0.8rem;
-        line-height: 1.5;
-      }
-      .btn {
-        width: 100%;
-        min-width: 0;
-        min-height: 44px;
-        padding: 0 20px;
-        font-size: 0.98rem;
-      }
-      .section-with-bar .section-bar {
-        top: 20px;
-        left: 20px;
-        font-size: 0.64rem;
-        letter-spacing: 0.12em;
-      }
-      .recognition-strip { padding: 28px 20px 22px; }
-      .recognition-grid { grid-template-columns: 1fr; gap: 14px; }
-      .recognition-text { font-size: 0.98rem; line-height: 1.64; }
-      .bureaucracy-cost,
-      .diagnostic-estimate { padding: 62px 20px 70px; }
-      .approach { padding: 62px 20px 68px; }
-      .latest { padding: 62px 20px 68px; }
-      .connect { padding: 64px 20px 60px; }
-      .footer { padding: 34px 20px 28px; }
-      .approach-grid { grid-template-columns: 1fr; gap: 20px; }
-      .approach-card {
-        min-height: auto;
-        padding: 30px 24px 38px;
-      }
-      .approach-synthesis {
-        margin-top: 44px;
-        padding: 30px 22px 24px;
-      }
-      .approach-foundation {
-        min-height: 54px;
-        font-size: 0.72rem;
-        letter-spacing: 0.12em;
-      }
-      .estimate-footer {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-      .latest-card { flex-basis: 100%; }
-      .connect-panel { padding: 24px 22px 22px; }
-      .footer-top,
-      .footer-bottom {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-    }
+    @media (max-width:1180px){.overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.workspace-grid,.hero-inner{grid-template-columns:1fr}.hero h1{max-width:100%}}
+    @media (max-width:980px){.header{height:auto}.header-inner{padding:16px 24px;align-items:flex-start;flex-direction:column;gap:14px}.nav{gap:22px}.hero-inner,.page,.footer{padding-left:24px;padding-right:24px}}
+    @media (max-width:760px){.hero-inner{padding:148px 20px 60px}.hero-actions,.identity-actions{flex-direction:column;align-items:stretch;max-width:420px}.btn,.run-link{width:100%;min-width:0}.overview-grid,.feature-grid{grid-template-columns:1fr}.page{padding:24px 20px 64px}.section-card{padding:24px 20px 22px}.header-inner{padding:14px 20px 10px;gap:10px}.nav{width:calc(100% + 4px);gap:10px;flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;padding:2px 4px 6px 0;scrollbar-width:none;-webkit-overflow-scrolling:touch}.nav::-webkit-scrollbar{display:none}.nav a{flex:0 0 auto;font-size:.84rem;line-height:1;padding:10px 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}.nav a::after{display:none}.footer{padding:30px 20px 26px}}
   </style>
 </head>
 <body>
@@ -1185,786 +122,303 @@
     <div class="header-inner">
       <a href="index.html" class="brand">Monderman</a>
       <nav class="nav" aria-label="Primary navigation">
-        <a href="#approach">Approach</a>
+        <a href="index.html#approach">Approach</a>
         <a href="diagnostic-tools.html">Diagnostic Hub</a>
-        <a href="research.html" class="is-active">Research</a>
+        <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
         <a href="advisory-services-connect.html">Connect</a>
-        <a href="signin.html" class="workspace-link">Workspace</a>
+        <a href="workspace.html" class="workspace-link is-active">Workspace</a>
       </nav>
     </div>
   </header>
 
-  <section class="hero" aria-labelledby="hero-title">
-    <div class="hero-media-wrap" aria-hidden="true">
-      <img class="hero-image" id="heroImage" src="Decision Velocity.jpg" alt="" decoding="async" fetchpriority="high" />
-      <div class="hero-overlay"></div>
-    </div>
+  <section class="hero">
     <div class="hero-inner">
-      <div class="hero-copy">
-        <p class="hero-eyebrow">Institutional Design</p>
-        <h1 id="hero-title">Take ownership of the conditions that determine performance.</h1>
-        <p class="hero-dek">
-          Monderman helps organizations identify and reshape the structural conditions that slow decisions, absorb capacity, and weaken execution.
-        </p>
+      <div>
+        <p class="eyebrow">Monderman Workspace</p>
+        <h1>Your saved diagnostic work, in one place.</h1>
+        <p class="hero-copy">The Workspace is where repeated diagnostic use becomes a product: saved runs, shared event-path context, and later comparison across time, teams, and structural conditions.</p>
         <div class="hero-actions">
-          <a class="btn btn-accent" href="why-monderman.html">Why Monderman</a>
-          <a class="btn btn-secondary" href="diagnostic-tools.html">Enter the Diagnostic Suite</a>
-          <a class="btn btn-secondary" href="advisory-services.html">Advisory Engagements</a>
+          <a class="btn btn-accent" href="diagnostic-tools.html">Launch diagnostics</a>
+          <button class="btn btn-subtle" id="signOutBtn" type="button">Sign out</button>
+        </div>
+      </div>
+      <div class="hero-side">
+        <div class="hero-panel">
+          <p class="hero-panel-kicker">Workspace status</p>
+          <p class="hero-panel-title" id="heroStatusTitle">Checking session…</p>
+          <p class="hero-panel-copy" id="heroStatusCopy">Confirming signed-in access and loading your workspace summary.</p>
+        </div>
+        <div class="hero-panel">
+          <p class="hero-panel-kicker">Built for continuity</p>
+          <p class="hero-panel-title">From one run to repeated governance</p>
+          <p class="hero-panel-copy">The first run gives you a clearer read. The Workspace gives you continuity, recall, and eventually temporal comparison.</p>
         </div>
       </div>
     </div>
   </section>
 
+  <main class="page">
+    <div class="page-inner">
+      <section class="section-card">
+        <p class="section-kicker">Workspace overview</p>
+        <h2 class="section-title">A cleaner home for saved runs and product continuity.</h2>
+        <p class="section-copy">This page is intentionally focused: your identity, your workspace, your most recent diagnostic runs, and the next premium behaviors Monderman will layer on top.</p>
+        <div class="overview-grid">
+          <div class="metric"><p class="metric-label">Saved runs</p><p class="metric-value" id="metricRuns">0</p><p class="metric-copy">Diagnostics currently attached to this workspace.</p></div>
+          <div class="metric"><p class="metric-label">Organization</p><p class="metric-value" id="metricOrg">—</p><p class="metric-copy">Personal workspace or assigned organization.</p></div>
+          <div class="metric"><p class="metric-label">Plan</p><p class="metric-value" id="metricPlan">Free</p><p class="metric-copy">A simple entitlement layer can sit here later.</p></div>
+          <div class="metric"><p class="metric-label">Last activity</p><p class="metric-value" id="metricLast">—</p><p class="metric-copy">Most recent saved run visible to this account.</p></div>
+        </div>
+      </section>
 
-  <section class="recognition-strip" aria-label="Institutional recognition">
-    <div class="recognition-inner">
-      <div class="recognition-grid">
-        <div class="recognition-item">
-          <span class="recognition-dot" aria-hidden="true"></span>
-          <p class="recognition-text">Decisions slow down without a clear reason.</p>
+      <div class="workspace-grid">
+        <div class="stack">
+          <section class="section-card">
+            <div class="panel-head">
+              <div>
+                <h3 class="panel-title">Identity and workspace</h3>
+                <p class="panel-copy">Your sign-in, user profile, and default Monderman workspace should resolve automatically here.</p>
+              </div>
+              <span class="chip">Authenticated</span>
+            </div>
+            <div class="identity-card">
+              <div class="avatar" id="userAvatar">M</div>
+              <div>
+                <p class="identity-name" id="userName">Loading…</p>
+                <p class="identity-meta" id="userMeta">Checking signed-in session.</p>
+              </div>
+            </div>
+            <div class="identity-actions">
+              <a class="btn btn-subtle" href="diagnostic-tools.html">Back to Diagnostic Hub</a>
+              <a class="btn btn-subtle" href="signin.html">Auth page</a>
+            </div>
+            <p class="status-inline" id="identityStatus"></p>
+          </section>
+
+          <section class="section-card">
+            <div class="panel-head">
+              <div>
+                <h3 class="panel-title">Recent saved runs</h3>
+                <p class="panel-copy">Once the diagnostics save into <code>diagnostic_runs</code>, they will appear here for quick reopening and later comparison.</p>
+              </div>
+            </div>
+            <div class="list" id="runsList"></div>
+            <div class="empty" id="runsEmpty">No saved runs are visible yet. That usually means the diagnostics are not writing to <code>diagnostic_runs</code> yet, or your workspace has no saved history.</div>
+          </section>
         </div>
-        <div class="recognition-item">
-          <span class="recognition-dot" aria-hidden="true"></span>
-          <p class="recognition-text">Coordination expands to compensate for unclear structure.</p>
-        </div>
-        <div class="recognition-item">
-          <span class="recognition-dot" aria-hidden="true"></span>
-          <p class="recognition-text">Execution weakens, even when talent and intent are strong.</p>
-        </div>
-        <div class="recognition-item">
-          <span class="recognition-dot" aria-hidden="true"></span>
-          <p class="recognition-text">The organization appears to be moving—but is increasingly harder to move.</p>
+
+        <div class="stack">
+          <section class="section-card">
+            <div class="panel-head">
+              <div>
+                <h3 class="panel-title">What unlocks next</h3>
+                <p class="panel-copy">This is the right place for the premium layer: persistence, comparison, and repeated organizational use.</p>
+              </div>
+            </div>
+            <div class="feature-grid">
+              <div class="feature">
+                <h4>Saved history</h4>
+                <p>Keep multiple runs tied to one workspace instead of one browser session.</p>
+              </div>
+              <div class="feature locked">
+                <span class="locked-badge">Coming next</span>
+                <h4>Temporal analysis</h4>
+                <p>Compare the same path, tool, or participant lens over time.</p>
+              </div>
+              <div class="feature locked">
+                <span class="locked-badge">Coming next</span>
+                <h4>Cross-tool continuity</h4>
+                <p>Link saved runs to one event path and compare across tools.</p>
+              </div>
+              <div class="feature locked">
+                <span class="locked-badge">Plan layer</span>
+                <h4>Paid workspace features</h4>
+                <p>Use this area later for synthesis history, export depth, and team-level features.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card">
+            <div class="panel-head">
+              <div>
+                <h3 class="panel-title">Implementation notes</h3>
+                <p class="panel-copy">This page is intentionally simple and stable so the auth/product foundation is clean before more features are layered on top.</p>
+              </div>
+            </div>
+            <div class="list">
+              <div class="feature"><h4>Correct URL target</h4><p>Use <code>workspace.html</code> in the repo and nav links. A bare <code>/workspace</code> route will 404 unless you add routing support.</p></div>
+              <div class="feature"><h4>Redirect behavior</h4><p>If a user is not signed in, this page sends them to <code>signin.html?next=workspace.html</code>, so the post-auth destination is explicit and stable.</p></div>
+              <div class="feature"><h4>Data dependency</h4><p>The page reads from <code>users</code>, <code>organization_members</code>, <code>organizations</code>, and <code>diagnostic_runs</code>. If row-level policies block reads, the workspace will still load but show an explanatory message.</p></div>
+            </div>
+          </section>
         </div>
       </div>
     </div>
-  </section>
-
-  <section class="bureaucracy-cost section-with-bar snap-anchor" id="cost-section" aria-labelledby="cost-title">
-    <div class="section-bar" aria-hidden="true">Cost of Bureaucratic Friction</div>
-    <div class="cost-inner">
-      <div class="cost-heading reveal">
-                <h2 id="cost-title">Where performance is quietly lost.</h2>
-        <p class="cost-context">
-          Many institutions are already paying these costs in time, money, and productive capacity without fully seeing where the losses originate or why repeated fixes fail to resolve them.
-        </p>
-      </div>
-
-      <div class="cost-grid">
-        <div class="cost-card reveal reveal-delay-1">
-          <div class="cost-card-title">Time<span class="asterisk">*</span></div>
-          <p class="cost-card-source"><em>* HBR / management reporting research</em></p>
-          <div class="cost-card-number" data-count-type="percent" data-target="40">0%</div>
-          <p class="cost-card-text">of managers' time can be consumed by reports alone.</p>
-        </div>
-
-        <div class="cost-card reveal reveal-delay-2">
-          <div class="cost-card-title">Money<span class="asterisk">*</span></div>
-          <p class="cost-card-source"><em>* Harvard Business Review</em></p>
-          <div class="cost-card-number" data-count-type="currency-trillion" data-target="3">$0T</div>
-          <p class="cost-card-text">estimated annual cost of excess management in the U.S. economy.</p>
-        </div>
-
-        <div class="cost-card reveal reveal-delay-3">
-          <div class="cost-card-title">Productive Capacity<span class="asterisk">*</span></div>
-          <p class="cost-card-source"><em>* OECD / administrative burden guidance</em></p>
-          <div class="cost-card-number" data-count-type="range-percent" data-target="30">0–0%</div>
-          <p class="cost-card-text">of productive capacity can be absorbed by administrative burden.</p>
-        </div>
-      </div>
-
-      <p class="cost-footer reveal reveal-delay-4">
-        Selected sources: Harvard Business Review; OECD administrative burden guidance.
-      </p>
-    </div>
-  </section>
-
-  <section class="approach section-with-bar snap-anchor" id="approach" aria-labelledby="approach-title">
-    <div class="section-bar" aria-hidden="true">Our Approach</div>
-    <div class="approach-inner">
-      <div class="section-intro reveal">
-        <h2 id="approach-title">Designing systems for clarity and execution.</h2>
-        <p class="approach-bridge">
-          Monderman works where strategy becomes execution — or stalls under the weight of unclear structures, slower decisions, and administrative systems that no longer support the work.
-        </p>
-      </div>
-
-      <div class="approach-grid">
-        <div class="approach-card reveal reveal-delay-1" data-effect-target="clarity">
-          <div class="card-title">Structural Clarity</div>
-          <div class="card-desc">
-            We identify where ambiguity in ownership, authority, handoffs, and role boundaries is forcing people to compensate around the structure instead of relying on it.
-          </div>
-          <a class="approach-card-link" href="structural-clarity-article.html">Read more &#8594;</a>
-        </div>
-
-        <div class="approach-card reveal reveal-delay-2" data-effect-target="velocity">
-          <div class="card-title">Decision Velocity</div>
-          <div class="card-desc">
-            We surface where approvals, escalation, review layering, and routing burden are slowing movement through important decisions.
-          </div>
-          <a class="approach-card-link" href="decision-velocity-article.html">Read more &#8594;</a>
-        </div>
-
-        <div class="approach-card reveal reveal-delay-3" data-effect-target="systems">
-          <div class="card-title">Operational Systems</div>
-          <div class="card-desc">
-            We identify where process density, reporting burden, and recurring administrative overhead are absorbing time and effort that should be supporting delivery.
-          </div>
-          <a class="approach-card-link" href="operational-systems-article.html">Read more &#8594;</a>
-        </div>
-
-        <div class="approach-card reveal reveal-delay-4" data-effect-target="performance">
-          <div class="card-title">Institutional Performance</div>
-          <div class="card-desc">
-            We read the broader institutional condition — whether the system is sustaining resilience, confidence, and adaptive capacity or quietly weakening beneath the work.
-          </div>
-          <a class="approach-card-link" href="institutional-performance-article.html">Read more &#8594;</a>
-        </div>
-      </div>
-
-      <div class="approach-synthesis reveal">
-        <p class="cost-label">Reinforcing Outcomes</p>
-        <p class="approach-synthesis-copy">
-          Four reinforcing outcomes Monderman is designed to produce across the conditions that matter most for institutional advantage.
-        </p>
-        <div class="approach-synthesis-grid">
-          <a class="approach-synthesis-item" data-effect="clarity" href="structural-clarity-article.html">
-            <strong>Confident Action</strong>
-            <span>When structural clarity restores confidence in who owns what, who decides, and how execution moves.</span>
-          </a>
-          <a class="approach-synthesis-item" data-effect="velocity" href="decision-velocity-article.html">
-            <strong>Sustained Advantage</strong>
-            <span>When decision velocity remains faster than the drag, delay, and caution accumulating beneath the work.</span>
-          </a>
-          <a class="approach-synthesis-item" data-effect="systems" href="operational-systems-article.html">
-            <strong>Reclaimed Capacity</strong>
-            <span>When operational systems stop absorbing time and effort that should be available for delivery, judgment, and innovation.</span>
-          </a>
-          <a class="approach-synthesis-item" data-effect="performance" href="institutional-performance-article.html">
-            <strong>Organizational Credibility</strong>
-            <span>When performance holds under complexity in ways leaders, employees, and stakeholders can trust.</span>
-          </a>
-        </div>
-        <div class="approach-foundation">Sustained Institutional Advantage</div>
-      </div>
-    </div>
-  </section>
-
-  <section class="diagnostic-estimate section-with-bar snap-anchor" id="diagnostic-estimate" aria-labelledby="estimate-title">
-    <div class="section-bar" aria-hidden="true">Diagnostic Suite</div>
-    <div class="diagnostic-estimate-inner">
-      <div class="diagnostic-estimate-heading reveal">
-                <h2 id="estimate-title">Estimate the hidden cost of structural drag.</h2>
-        <p class="estimate-context">
-          This directional estimate provides a high-level view of how much time, money, and productive capacity may be absorbed by administrative and bureaucratic burden inside a complex organization.
-        </p>
-        <p class="estimate-bridge">
-          The deeper cost is rarely workforce size alone. It is the accumulation of administrative and bureaucratic systems beneath operations and strategy that, when poorly maintained, steadily absorb time, money, and productive capacity.
-        </p>
-      </div>
-
-      <div class="estimate-controls reveal reveal-delay-1">
-        <div class="estimate-field">
-          <label for="estimateOrgSize">Organization size</label>
-          <select id="estimateOrgSize" aria-label="Organization size">
-            <option value="" selected>---</option>
-            <option value="50">1–50</option>
-            <option value="250">51–250</option>
-            <option value="1000">251–1,000</option>
-            <option value="5000">1,001–5,000</option>
-            <option value="25000">5,001–25,000</option>
-            <option value="100000">25,000+</option>
-          </select>
-        </div>
-
-        <div class="estimate-field">
-          <label for="estimateComplexity">Organizational complexity</label>
-          <select id="estimateComplexity" aria-label="Organizational complexity">
-            <option value="" selected>---</option>
-            <option value="light">Light</option>
-            <option value="moderate">Moderate</option>
-            <option value="heavy">Heavy</option>
-            <option value="excessive">Excessive</option>
-          </select>
-        </div>
-
-        <div class="estimate-field">
-          <label for="estimateSector">Sector</label>
-          <select id="estimateSector" aria-label="Sector">
-            <option value="" selected>---</option>
-            <option value="general">General private sector</option>
-            <option value="defense-department">Defense Department</option>
-            <option value="defense-production">Defense production</option>
-            <option value="federal-civilian">Federal civilian government</option>
-            <option value="state-government">State government</option>
-            <option value="local-government">Local government</option>
-            <option value="intelligence">Intelligence / national security</option>
-            <option value="healthcare-provider">Healthcare provider</option>
-            <option value="health-insurer">Health insurer / payer</option>
-            <option value="higher-education">Higher education</option>
-            <option value="manufacturing">Manufacturing</option>
-            <option value="financial-services">Financial services</option>
-            <option value="insurance">Insurance</option>
-            <option value="technology">Technology / software</option>
-            <option value="energy">Energy / utilities</option>
-            <option value="logistics">Logistics / transportation</option>
-            <option value="professional-services">Professional services</option>
-            <option value="nonprofit">Nonprofit / mission organization</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="estimate-grid">
-        <div class="estimate-card reveal reveal-delay-2">
-          <div class="estimate-card-title">Time</div>
-          <p class="estimate-card-source"><em>Directional annual labor hours</em></p>
-          <div class="estimate-card-number" id="estimateTime">0</div>
-          <p class="estimate-card-text">
-            estimated labor hours absorbed each year by coordination, compliance, review, and process burden.
-          </p>
-        </div>
-
-        <div class="estimate-card reveal reveal-delay-3">
-          <div class="estimate-card-title">Money</div>
-          <p class="estimate-card-source"><em>Directional annual cost equivalent</em></p>
-          <div class="estimate-card-number" id="estimateMoney">$0</div>
-          <p class="estimate-card-text">
-            estimated annual cost of overhead absorbed by administrative and bureaucratic systems.
-          </p>
-        </div>
-
-        <div class="estimate-card reveal reveal-delay-4">
-          <div class="estimate-card-title">Productive Capacity</div>
-          <p class="estimate-card-source"><em>Directional productive capacity absorbed</em></p>
-          <div class="estimate-card-number" id="estimateResources">0%</div>
-          <p class="estimate-card-text">
-            estimated share of productive capacity absorbed by administrative overhead rather than mission or operational output.
-          </p>
-        </div>
-      </div>
-
-      <div class="estimate-footer reveal reveal-delay-4">
-        <div class="estimate-foot-copy">
-          <p>
-            These are directional estimates based on public research on management overhead, administrative burden, and compliance costs. They are intended to provide a high-level signal, not an audited organizational measurement.
-          </p>
-          <p>
-            Use the diagnostic suite to identify where that burden is actually forming and where to begin.
-          </p>
-        </div>
-        <a class="btn btn-accent" href="diagnostic-tools.html">Enter the Diagnostic Suite</a>
-      </div>
-    </div>
-  </section>
-
-  <section class="latest section-with-bar snap-anchor" id="latest" aria-labelledby="latest-title">
-    <div class="section-bar" aria-hidden="true">Latest from Monderman</div>
-    <div class="latest-inner">
-      <div class="latest-head">
-        <div class="latest-intro section-intro reveal">
-                    <h2 id="latest-title">Research, briefs, and perspectives.</h2>
-          <p>
-            Current publications and featured work on administrative burden, institutional design, decision velocity, and the hidden systems that shape performance under complexity.
-          </p>
-        </div>
-
-        <div class="latest-controls reveal reveal-delay-2" aria-label="Latest content controls">
-          <button class="rail-arrow" id="latestPrev" type="button" aria-label="Show previous latest items">&#8592;</button>
-          <button class="rail-arrow" id="latestNext" type="button" aria-label="Show next latest items">&#8594;</button>
-        </div>
-      </div>
-
-      <div class="latest-viewport" id="latestViewport">
-        <div class="latest-track" id="latestTrack">
-          <article class="latest-card">
-            <div class="latest-card-image"><img src="ABM_brief_image.png" alt="Abstract institutional pathway network image for Active Bureaucratic Management brief" /></div>
-            <div class="latest-card-body">
-              <p class="latest-card-kicker">Featured · Executive Brief</p>
-              <h3 class="latest-card-title">Active Bureaucratic Management</h3>
-              <p class="latest-card-text">A Monderman executive brief introducing Active Bureaucratic Management as a more continuous way to detect friction, govern bureaucracy, and improve institutional performance.</p>
-              <a class="latest-card-link" href="Monderman_Active_Bureaucratic_Management.pdf" target="_blank" rel="noopener noreferrer">Download brief &#8594;</a>
-            </div>
-          </article>
-
-          <article class="latest-card">
-            <div class="latest-card-image"><img src="Washington DC.jpg" alt="Washington, D.C. skyline for Monderman defense research" /></div>
-            <div class="latest-card-body">
-              <p class="latest-card-kicker">Defense · Research Brief</p>
-              <h3 class="latest-card-title">Accumulated Drag in the Department of War</h3>
-              <p class="latest-card-text">A Monderman research brief on accumulated drag, administrative burden, and institutional friction in one of the world’s most complex public institutions.</p>
-              <a class="latest-card-link" href="Monderman%20Accumulated%20Drag%20DoW.pdf" target="_blank" rel="noopener noreferrer">Download research &#8594;</a>
-            </div>
-          </article>
-
-          <article class="latest-card">
-            <div class="latest-card-image"><img src="Healthcare costs.jpg" alt="Healthcare costs graphic for Monderman healthcare research" /></div>
-            <div class="latest-card-body">
-              <p class="latest-card-kicker">Healthcare · Research Brief</p>
-              <h3 class="latest-card-title">Quarter-Trillion Friction in U.S. Healthcare</h3>
-              <p class="latest-card-text">A Monderman brief on quarter-trillion friction, administrative burden, and the structural drag complicating performance in healthcare systems.</p>
-              <a class="latest-card-link" href="Monderman%20Quarter%20Trillion%20Friction%20Healthcare.pdf" target="_blank" rel="noopener noreferrer">Download research &#8594;</a>
-            </div>
-          </article>
-
-          <article class="latest-card">
-            <div class="latest-card-image"><img src="Trees.jpg" alt="Tree canopy image for Monderman perspective on compensatory systems" /></div>
-            <div class="latest-card-body">
-              <p class="latest-card-kicker">Perspective · Institutional Performance</p>
-              <h3 class="latest-card-title">How Workarounds Preserve Output While Masking Institutional Dysfunction</h3>
-              <p class="latest-card-text">Organizations often appear to function because people compensate for structural weakness. Output is preserved, but the underlying system continues to deteriorate.</p>
-              <a class="latest-card-link" href="Monderman%20Compensatory%20Systems.pdf" target="_blank" rel="noopener noreferrer">Read perspective &#8594;</a>
-            </div>
-          </article>
-
-          <article class="latest-card">
-            <div class="latest-card-image"><img src="apature.jpg" alt="Kodak aperture image for Monderman research brief" /></div>
-            <div class="latest-card-body">
-              <p class="latest-card-kicker">Research Brief</p>
-              <h3 class="latest-card-title">How the Collapse of Eastman Kodak Is Misunderstood</h3>
-              <p class="latest-card-text">Kodak did not fail because it missed technology. It failed because its administrative and decision systems could not adapt.</p>
-              <a class="latest-card-link" href="the-collapse-of-eastman-kodak.pdf" target="_blank" rel="noopener noreferrer">Download research &#8594;</a>
-            </div>
-          </article>
-
-          <article class="latest-card">
-            <div class="latest-card-image"><img src="iStock-511677736.jpg" alt="Abstract institutional image for Monderman insight" /></div>
-            <div class="latest-card-body">
-              <p class="latest-card-kicker">Insight</p>
-              <h3 class="latest-card-title">Governing Complexity</h3>
-              <p class="latest-card-text">Why institutions rarely fail because complexity appears, and more often fail because it accumulates faster than their structures can absorb.</p>
-              <a class="latest-card-link" href="governing-complexity.html">Read insight &#8594;</a>
-            </div>
-          </article>
-
-          <article class="latest-card">
-            <div class="latest-card-image"><img src="Decision Velocity.jpg" alt="Decision velocity visual for Monderman insight" /></div>
-            <div class="latest-card-body">
-              <p class="latest-card-kicker">Insight</p>
-              <h3 class="latest-card-title">Designing for Decision Velocity</h3>
-              <p class="latest-card-text">Institutions move well when governance, pathways, and role clarity support sound judgment without generating unnecessary drag.</p>
-              <a class="latest-card-link" href="designing-for-decision-velocity.html">Read insight &#8594;</a>
-            </div>
-          </article>
-        </div>
-      </div>
-
-      <div class="latest-dots" id="latestDots" aria-label="Latest content position"></div>
-    </div>
-  </section>
-
-  <section class="connect" id="connect" aria-labelledby="connect-title">
-    <div class="connect-inner">
-      <div class="connect-copy reveal">
-        <h2 id="connect-title">Start a serious conversation.</h2>
-        <p class="connect-signal">Monderman works selectively with organizations facing consequential structural challenges.</p>
-        <p class="connect-text">
-          If you are navigating institutional drag, decision friction, execution misalignment, or considering a diagnostic pilot, we welcome a conversation. Monderman works with organizations that understand the constraint is rarely insight alone, but the institutional capacity to act on it.
-        </p>
-      </div>
-
-      <div class="connect-panel reveal reveal-delay-2">
-        <p class="connect-kicker">Primary Contact</p>
-        <a class="connect-link" href="mailto:connect@monderman.com">
-          <span class="connect-link-mark" aria-hidden="true"></span>
-          connect@monderman.com
-        </a>
-        <p class="connect-note">
-          For inquiries, collaborations, pilot discussions, or advisory conversations, reach out directly and we will respond as promptly as possible.
-        </p>
-      </div>
-    </div>
-  </section>
+  </main>
 
   <footer class="footer">
     <div class="footer-inner">
-      <div class="footer-top">
-        <div class="footer-brand">
-          <div class="footer-mark">Monderman</div>
-          <p class="footer-copy">
-            Advisory work on structure, execution, and the conditions that sustain institutional advantage.
-          </p>
-        </div>
-
-        <div class="footer-nav" aria-label="Footer navigation">
-          <div class="footer-nav-col">
-            <p class="footer-nav-title">Explore</p>
-            <a href="#approach">Approach</a>
-            <a href="diagnostic-tools.html">Diagnostic Hub</a>
-            <a href="research.html">Research</a>
-            <a href="why-monderman.html">Why Monderman</a>
-          </div>
-
-          <div class="footer-nav-col">
-            <p class="footer-nav-title">Connect</p>
-            <a href="mailto:connect@monderman.com">connect@monderman.com</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="footer-bottom">
-        <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
-        <p class="footer-contact">Take ownership of the conditions that determine performance.</p>
-      </div>
+      <p class="footer-copy">Monderman Workspace is the continuity layer for repeated diagnostic use.</p>
+      <p class="footer-copy">Use <code>workspace.html</code> as the live URL in your repo.</p>
     </div>
   </footer>
 
-  <script>
-    const heroImage = document.getElementById("heroImage");
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const supabaseUrl = "https://ptkxrzgmeldalrkfruth.supabase.co";
+    const supabaseKey = "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
     const header = document.getElementById("siteHeader");
+    function updateHeader(){ if(window.scrollY > 12) header?.classList.add("scrolled"); else header?.classList.remove("scrolled"); }
+    updateHeader(); window.addEventListener("scroll", updateHeader, { passive:true });
 
-    let heroScale = 1.01;
-    let zoomStarted = false;
-
-    function revealHero() {
-      if (!heroImage) return;
-      heroImage.classList.add("is-loaded");
-      startHeroZoom();
-    }
-
-    function startHeroZoom() {
-      if (zoomStarted || !heroImage) return;
-      zoomStarted = true;
-      const start = performance.now();
-      const duration = 26000;
-
-      function tick(now) {
-        const progress = Math.min((now - start) / duration, 1);
-        heroScale = 1.01 + (0.008 * progress);
-        heroImage.style.transform = `scale(${heroScale})`;
-        if (progress < 1) requestAnimationFrame(tick);
-      }
-      requestAnimationFrame(tick);
-    }
-
-    if (heroImage && heroImage.complete) {
-      requestAnimationFrame(revealHero);
-    } else if (heroImage) {
-      heroImage.addEventListener("load", revealHero, { once: true });
-    }
-
-    function updateHeader() {
-      if (!header) return;
-      if (window.scrollY > 12) header.classList.add("scrolled");
-      else header.classList.remove("scrolled");
-    }
-    updateHeader();
-    window.addEventListener("scroll", updateHeader, { passive: true });
-
-    const costSection = document.getElementById("cost-section");
-    const counters = document.querySelectorAll(".cost-card-number");
-    let hasCounted = false;
-
-    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
-
-    function formatCounter(type, value) {
-      if (type === "percent") return `${Math.round(value)}%`;
-      if (type === "currency-trillion") return `$${Math.round(value)}T`;
-      if (type === "range-percent") {
-        const maxVal = Math.round(value);
-        const minVal = Math.round((value * 2) / 3);
-        return `${minVal}–${maxVal}%`;
-      }
-      return Math.round(value).toString();
-    }
-
-    function animateCounter(el) {
-      const type = el.dataset.countType;
-      const target = Number(el.dataset.target);
-      const duration = 1500;
-      const start = performance.now();
-
-      function step(now) {
-        const progress = Math.min((now - start) / duration, 1);
-        const eased = easeOutCubic(progress);
-        const current = target * eased;
-        el.textContent = formatCounter(type, current);
-        if (progress < 1) requestAnimationFrame(step);
-        else el.textContent = formatCounter(type, target);
-      }
-      requestAnimationFrame(step);
-    }
-
-    if (costSection && counters.length) {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !hasCounted) {
-            hasCounted = true;
-            counters.forEach((counter) => animateCounter(counter));
-            observer.disconnect();
-          }
-        });
-      }, { threshold: 0.35 });
-      observer.observe(costSection);
-    }
-
-    const revealItems = document.querySelectorAll(".reveal");
-    if (revealItems.length) {
-      const revealObserver = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            revealObserver.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
-      revealItems.forEach((item) => revealObserver.observe(item));
-    }
-
-    const latestTrack = document.getElementById("latestTrack");
-    const latestViewport = document.getElementById("latestViewport");
-    const latestPrev = document.getElementById("latestPrev");
-    const latestNext = document.getElementById("latestNext");
-    const latestDots = document.getElementById("latestDots");
-    const latestCards = latestTrack ? Array.from(latestTrack.querySelectorAll(".latest-card")) : [];
-
-    let latestIndex = 0;
-    let latestCardsPerView = window.innerWidth <= 760 ? 1 : 2;
-    let autoScrollInterval = null;
-
-    function getLatestMaxIndex() {
-      return Math.max(0, latestCards.length - latestCardsPerView);
-    }
-    function clampLatestIndex() {
-      latestIndex = Math.max(0, Math.min(latestIndex, getLatestMaxIndex()));
-    }
-    function renderLatestDots() {
-      if (!latestDots) return;
-      latestDots.innerHTML = "";
-      const dotCount = getLatestMaxIndex() + 1;
-      if (dotCount <= 1) return;
-      for (let i = 0; i < dotCount; i++) {
-        const dot = document.createElement("button");
-        dot.type = "button";
-        dot.className = "latest-dot" + (i === latestIndex ? " is-active" : "");
-        dot.setAttribute("aria-label", `Go to latest group ${i + 1}`);
-        dot.addEventListener("click", () => {
-          latestIndex = i;
-          updateLatestCarousel();
-          startAutoScroll();
-        });
-        latestDots.appendChild(dot);
-      }
-    }
-    function updateLatestCarousel() {
-      if (!latestTrack || !latestCards.length) return;
-      latestCardsPerView = window.innerWidth <= 760 ? 1 : 2;
-      clampLatestIndex();
-      const targetCard = latestCards[latestIndex];
-      const targetX = targetCard ? targetCard.offsetLeft : 0;
-      latestTrack.style.transform = `translateX(-${targetX}px)`;
-      latestViewport?.classList.add("is-ready");
-      renderLatestDots();
-    }
-    function stopAutoScroll() {
-      if (autoScrollInterval) {
-        clearInterval(autoScrollInterval);
-        autoScrollInterval = null;
-      }
-    }
-    function startAutoScroll() {
-      stopAutoScroll();
-      if (!latestTrack || latestCards.length <= latestCardsPerView) return;
-      autoScrollInterval = setInterval(() => {
-        latestIndex = latestIndex >= getLatestMaxIndex() ? 0 : latestIndex + 1;
-        updateLatestCarousel();
-      }, 8600);
-    }
-
-    latestPrev?.addEventListener("click", () => {
-      latestIndex = latestIndex <= 0 ? getLatestMaxIndex() : latestIndex - 1;
-      updateLatestCarousel();
-      startAutoScroll();
-    });
-    latestNext?.addEventListener("click", () => {
-      latestIndex = latestIndex >= getLatestMaxIndex() ? 0 : latestIndex + 1;
-      updateLatestCarousel();
-      startAutoScroll();
-    });
-    latestViewport?.addEventListener("mouseenter", stopAutoScroll);
-    latestViewport?.addEventListener("mouseleave", startAutoScroll);
-    latestViewport?.addEventListener("focusin", stopAutoScroll);
-    latestViewport?.addEventListener("focusout", startAutoScroll);
-
-    const approachCards = Array.from(document.querySelectorAll(".approach-card[data-effect-target]"));
-    const effectItems = Array.from(document.querySelectorAll(".approach-synthesis-item[data-effect]"));
-    function clearEffectLinks() {
-      effectItems.forEach((item) => item.classList.remove("is-linked"));
-    }
-    approachCards.forEach((card) => {
-      const target = card.dataset.effectTarget;
-      const linkedItem = effectItems.find((item) => item.dataset.effect === target);
-      if (!linkedItem) return;
-      card.addEventListener("mouseenter", () => {
-        clearEffectLinks();
-        linkedItem.classList.add("is-linked");
-      });
-      card.addEventListener("mouseleave", clearEffectLinks);
-      card.addEventListener("focusin", () => {
-        clearEffectLinks();
-        linkedItem.classList.add("is-linked");
-      });
-      card.addEventListener("focusout", clearEffectLinks);
-    });
-
-    const estimateOrgSize = document.getElementById("estimateOrgSize");
-    const estimateComplexity = document.getElementById("estimateComplexity");
-    const estimateSector = document.getElementById("estimateSector");
-    const estimateMoney = document.getElementById("estimateMoney");
-    const estimateTime = document.getElementById("estimateTime");
-    const estimateResources = document.getElementById("estimateResources");
-
-    const complexityProfiles = {
-      light: { low: 0.06, high: 0.10 },
-      moderate: { low: 0.10, high: 0.16 },
-      heavy: { low: 0.16, high: 0.24 },
-      excessive: { low: 0.24, high: 0.34 }
-    };
-    const sectorProfiles = {
-      "general": { multiplier: 1.00, rate: 62 },
-      "defense-department": { multiplier: 1.18, rate: 78 },
-      "defense-production": { multiplier: 1.12, rate: 74 },
-      "federal-civilian": { multiplier: 1.14, rate: 72 },
-      "state-government": { multiplier: 1.08, rate: 60 },
-      "local-government": { multiplier: 1.04, rate: 54 },
-      "intelligence": { multiplier: 1.20, rate: 86 },
-      "healthcare-provider": { multiplier: 1.10, rate: 66 },
-      "health-insurer": { multiplier: 1.12, rate: 68 },
-      "higher-education": { multiplier: 1.00, rate: 50 },
-      "manufacturing": { multiplier: 0.96, rate: 56 },
-      "financial-services": { multiplier: 1.08, rate: 82 },
-      "insurance": { multiplier: 1.04, rate: 72 },
-      "technology": { multiplier: 0.98, rate: 88 },
-      "energy": { multiplier: 1.02, rate: 80 },
-      "logistics": { multiplier: 0.94, rate: 52 },
-      "professional-services": { multiplier: 1.06, rate: 78 },
-      "nonprofit": { multiplier: 0.92, rate: 44 }
+    const ui = {
+      heroStatusTitle: document.getElementById('heroStatusTitle'),
+      heroStatusCopy: document.getElementById('heroStatusCopy'),
+      userAvatar: document.getElementById('userAvatar'),
+      userName: document.getElementById('userName'),
+      userMeta: document.getElementById('userMeta'),
+      identityStatus: document.getElementById('identityStatus'),
+      metricRuns: document.getElementById('metricRuns'),
+      metricOrg: document.getElementById('metricOrg'),
+      metricPlan: document.getElementById('metricPlan'),
+      metricLast: document.getElementById('metricLast'),
+      runsList: document.getElementById('runsList'),
+      runsEmpty: document.getElementById('runsEmpty'),
+      signOutBtn: document.getElementById('signOutBtn')
     };
 
-    function formatHoursRange(low, high) {
-      const lowRounded = Math.round(low / 1000) * 1000;
-      const highRounded = Math.round(high / 1000) * 1000;
-      return `${abbrevNumber(lowRounded)}–${abbrevNumber(highRounded)}`;
-    }
-    function formatPercentRange(low, high) {
-      return `${Math.round(low)}–${Math.round(high)}%`;
-    }
-    function abbrevMoney(value) {
-      if (value >= 1e9) return `$${(value / 1e9).toFixed(1).replace(/\.0$/, "")}B`;
-      if (value >= 1e6) return `$${(value / 1e6).toFixed(1).replace(/\.0$/, "")}M`;
-      if (value >= 1e3) return `$${Math.round(value / 1e3)}K`;
-      return `$${Math.round(value)}`;
-    }
-    function abbrevNumber(value) {
-      if (value >= 1e6) return `${(value / 1e6).toFixed(1).replace(/\.0$/, "")}M hrs`;
-      if (value >= 1e3) return `${Math.round(value / 1e3)}k hrs`;
-      return `${Math.round(value)} hrs`;
-    }
-    function updateEstimate() {
-      const orgSizeValue = estimateOrgSize.value;
-      const complexityValue = estimateComplexity.value;
-      const sectorValue = estimateSector.value;
-      if (!orgSizeValue || !complexityValue || !sectorValue) {
-        estimateTime.textContent = "0";
-        estimateMoney.textContent = "$0";
-        estimateResources.textContent = "0%";
-        return;
-      }
-      const orgSize = Number(orgSizeValue);
-      const complexity = complexityProfiles[complexityValue];
-      const sector = sectorProfiles[sectorValue] || sectorProfiles.general;
-      const annualHoursBase = orgSize * 1920;
-      const lowBurden = complexity.low * sector.multiplier;
-      const highBurden = complexity.high * sector.multiplier;
-      const lowHours = annualHoursBase * lowBurden;
-      const highHours = annualHoursBase * highBurden;
-      const lowMoney = lowHours * sector.rate;
-      const highMoney = highHours * sector.rate;
-      estimateTime.textContent = formatHoursRange(lowHours, highHours);
-      estimateMoney.textContent = `${abbrevMoney(lowMoney)}–${abbrevMoney(highMoney).replace("$", "")}`;
-      estimateResources.textContent = formatPercentRange(lowBurden * 100, highBurden * 100);
-    }
-    [estimateOrgSize, estimateComplexity, estimateSector].forEach((el) => el.addEventListener("change", updateEstimate));
-    updateEstimate();
-
-    function initSoftSnap() {
-      const snapAnchors = Array.from(document.querySelectorAll(".snap-anchor"));
-      let snapTimer = null;
-      let isAutoSnapping = false;
-
-      function isDesktopSnap() {
-        return window.innerWidth > 980 && window.matchMedia("(prefers-reduced-motion: no-preference)").matches;
-      }
-
-      function getHeaderHeight() {
-        const headerEl = document.getElementById("siteHeader");
-        return headerEl ? headerEl.getBoundingClientRect().height : 72;
-      }
-
-      function getTargetTop(anchor) {
-        const headerHeight = getHeaderHeight();
-        const anchorStyles = window.getComputedStyle(anchor);
-        const anchorPaddingTop = parseFloat(anchorStyles.paddingTop) || 0;
-        const landingOffset = 10;
-        return Math.max(0, anchor.offsetTop - headerHeight - landingOffset + anchorPaddingTop);
-      }
-
-      function getNearestAnchor() {
-        const viewportTop = window.scrollY;
-        let nearest = null;
-        let nearestDistance = Infinity;
-
-        snapAnchors.forEach((anchor) => {
-          const targetTop = getTargetTop(anchor);
-          const distance = Math.abs(targetTop - viewportTop);
-          if (distance < nearestDistance) {
-            nearestDistance = distance;
-            nearest = anchor;
-          }
-        });
-
-        return { nearest, nearestDistance };
-      }
-
-      function softSnapToNearestAnchor() {
-        if (!isDesktopSnap() || !snapAnchors.length || isAutoSnapping) return;
-
-        const { nearest, nearestDistance } = getNearestAnchor();
-        if (!nearest) return;
-
-        const targetTop = getTargetTop(nearest);
-
-        if (nearestDistance > 64) return;
-        if (Math.abs(window.scrollY - targetTop) < 6) return;
-
-        isAutoSnapping = true;
-        window.scrollTo({
-          top: targetTop,
-          behavior: "smooth"
-        });
-
-        window.setTimeout(() => {
-          isAutoSnapping = false;
-        }, 280);
-      }
-
-      window.addEventListener("scroll", () => {
-        if (!isDesktopSnap() || isAutoSnapping) return;
-        clearTimeout(snapTimer);
-        snapTimer = setTimeout(softSnapToNearestAnchor, 420);
-      }, { passive: true });
+    function setStatus(message, tone=''){
+      ui.identityStatus.textContent = message || '';
+      ui.identityStatus.className = `status-inline ${tone}`.trim();
     }
 
-    window.addEventListener("resize", () => {
-      updateLatestCarousel();
-      startAutoScroll();
+    function initials(name, email){
+      const source = (name || email || 'M').trim();
+      const parts = source.split(/\s+/).slice(0,2);
+      return parts.map(p => p[0]?.toUpperCase() || '').join('') || 'M';
+    }
+
+    function formatDate(value){
+      if(!value) return '—';
+      const d = new Date(value);
+      if(Number.isNaN(d.getTime())) return '—';
+      return d.toLocaleString();
+    }
+
+    function formatToolName(tool){
+      const map = {
+        structural_clarity: 'Structural Clarity',
+        decision_velocity: 'Decision Velocity',
+        operational_systems: 'Operational Systems',
+        institutional_performance: 'Institutional Performance'
+      };
+      return map[tool] || tool || 'Diagnostic run';
+    }
+
+    async function ensureWorkspace(user){
+      const email = user.email || '';
+      const fullName = user.user_metadata?.full_name || user.user_metadata?.name || 'Monderman User';
+      const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
+      const { error: userError } = await supabase.from('users').upsert({
+        id: user.id, email, full_name: fullName, avatar_url: avatarUrl, last_sign_in_at: new Date().toISOString()
+      });
+      if(userError) throw userError;
+
+      const { data: memberships, error: membershipError } = await supabase
+        .from('organization_members')
+        .select('organization_id, role, organizations(id, name, slug)')
+        .eq('user_id', user.id)
+        .limit(1);
+      if(membershipError) throw membershipError;
+      if(memberships?.length) return memberships[0];
+
+      const slugBase = String(fullName).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'') || 'workspace';
+      const { data: org, error: orgError } = await supabase
+        .from('organizations')
+        .insert({ name: `${fullName} Workspace`, slug: `${slugBase}-workspace`, owner_user_id: user.id })
+        .select()
+        .single();
+      if(orgError) throw orgError;
+
+      const { error: memberError } = await supabase.from('organization_members').insert({ organization_id: org.id, user_id: user.id, role: 'owner' });
+      if(memberError) throw memberError;
+      return { organization_id: org.id, role: 'owner', organizations: org };
+    }
+
+    function renderRuns(runs){
+      ui.runsList.innerHTML = '';
+      ui.runsEmpty.style.display = runs.length ? 'none' : 'block';
+      ui.metricRuns.textContent = String(runs.length);
+      ui.metricLast.textContent = runs.length ? formatDate(runs[0].created_at || runs[0].generated_at) : '—';
+      runs.forEach(run => {
+        const item = document.createElement('div');
+        item.className = 'run-item';
+        const pathParts = [run.event_path_name, run.participant_lens, run.depth_label].filter(Boolean);
+        item.innerHTML = `
+          <div>
+            <p class="run-title">${formatToolName(run.tool_type || run.tool_label)}</p>
+            <p class="run-meta">${formatDate(run.created_at || run.generated_at)}</p>
+            <p class="run-copy">${pathParts.length ? pathParts.join(' | ') : 'Saved run metadata will appear here when available.'}</p>
+          </div>
+          <a class="run-link" href="cross-tool-synthesis.html">View</a>`;
+        ui.runsList.appendChild(item);
+      });
+    }
+
+    async function initialize(){
+      try{
+        const { data, error } = await supabase.auth.getUser();
+        if(error) throw error;
+        if(!data?.user){
+          window.location.href = 'signin.html?next=workspace.html';
+          return;
+        }
+        const user = data.user;
+        const membership = await ensureWorkspace(user);
+        const org = membership?.organizations || null;
+
+        ui.heroStatusTitle.textContent = 'Workspace ready';
+        ui.heroStatusCopy.textContent = 'Your identity layer is live. This page can now become the home for saved runs, continuity, and later temporal analysis.';
+        ui.userAvatar.textContent = initials(user.user_metadata?.full_name || user.user_metadata?.name, user.email);
+        ui.userName.textContent = user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'Monderman User';
+        ui.userMeta.textContent = `${user.email || 'Signed-in user'}${org?.name ? ` • ${org.name}` : ''}`;
+        ui.metricOrg.textContent = org?.name || 'Personal';
+        setStatus('Signed in successfully. Workspace and organization membership resolved.', 'ok');
+
+        let runs = [];
+        try{
+          const { data: runData, error: runsError } = await supabase
+            .from('diagnostic_runs')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(8);
+          if(runsError) throw runsError;
+          runs = runData || [];
+        } catch(err){
+          console.error(err);
+          setStatus('Workspace loaded, but saved runs could not be read. Check Supabase policies on diagnostic_runs.', 'error');
+        }
+        renderRuns(runs);
+      } catch(err){
+        console.error(err);
+        ui.heroStatusTitle.textContent = 'Workspace unavailable';
+        ui.heroStatusCopy.textContent = 'The page loaded, but sign-in or workspace resolution failed.';
+        ui.userName.textContent = 'Workspace unavailable';
+        ui.userMeta.textContent = 'Check auth configuration or Supabase policies.';
+        setStatus(err.message || 'Workspace initialization failed.', 'error');
+      }
+    }
+
+    ui.signOutBtn?.addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = 'signin.html';
     });
 
-    window.addEventListener("load", () => {
-      updateLatestCarousel();
-      startAutoScroll();
-      initSoftSnap();
-    });
+    initialize();
   </script>
 </body>
 </html>
