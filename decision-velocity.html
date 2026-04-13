@@ -589,24 +589,6 @@ function renderQuestionContent(question){
       },0);
       return wrap;
     }
-    const options=(question.options||[]).map(option=>`<label class="choice" style="display:block;padding:12px 14px;"><input type="checkbox" name="approvalAddDriver_multi" value="${escapeHtml(option.value)}" ${savedChecked.includes(option.value)?"checked":""} style="margin-right:10px;accent-color:var(--accent);" /><span class="choice-title" style="display:inline;">${escapeHtml(option.label)}</span></label>`).join("");
-      wrap.innerHTML += `<div class="field"><label>Select up to 3 drivers</label><div class="choices">${options}</div><div id="approvalAddDriver_limit_note" class="tiny">Select up to 3 drivers, then rank them.</div></div>`;
-      wrap.innerHTML += `<div class="grid-2"><div class="field"><label for="approvalAddDriver_rank1">Top driver</label><select id="approvalAddDriver_rank1"></select></div><div class="field"><label for="approvalAddDriver_rank2">Second driver</label><select id="approvalAddDriver_rank2"></select></div></div>`;
-      wrap.innerHTML += `<div class="field"><label for="approvalAddDriver_rank3">Third driver</label><select id="approvalAddDriver_rank3"></select></div>`;
-      renderWhyField(question, wrap);
-      setTimeout(()=>{
-        syncApprovalDriverRanking();
-        const ranked=state.answers["approvalAddDriver_ranked"]||[];
-        const r1=document.getElementById('approvalAddDriver_rank1');
-        const r2=document.getElementById('approvalAddDriver_rank2');
-        const r3=document.getElementById('approvalAddDriver_rank3');
-        if(r1 && ranked[0]) r1.value=ranked[0];
-        if(r2 && ranked[1]) r2.value=ranked[1];
-        if(r3 && ranked[2]) r3.value=ranked[2];
-        [...document.querySelectorAll('input[name="approvalAddDriver_multi"]')].forEach(el=>el.addEventListener('change', syncApprovalDriverRanking));
-      },0);
-      return wrap;
-    }
     const options=(question.options||[]).map(option=>
       `<option value="${escapeHtml(option.value)}" ${String(existing??"")===String(option.value)?"selected":""}>${escapeHtml(option.label)}</option>`
     ).join("");
