@@ -45,12 +45,20 @@
     .nav a.workspace-link{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#fff;box-shadow:0 1px 0 rgba(255,255,255,.04)}
     .nav a.workspace-link::after{display:none}
 
-    .hero{position:relative;min-height:58vh;overflow:hidden;background:linear-gradient(180deg,#0F1720 0%,#121B25 100%);color:var(--text-light)}
-    .hero::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% 18%, rgba(63,110,161,.16) 0%, rgba(63,110,161,.07) 20%, transparent 36%),linear-gradient(135deg, rgba(63,110,161,.03) 1px, transparent 1px);background-size:auto,34px 34px;opacity:.52;pointer-events:none}
-    .hero-inner{position:relative;z-index:1;max-width:var(--max);margin:0 auto;padding:136px 34px 72px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr);gap:28px;align-items:end}
+    .hero{position:relative;min-height:66vh;overflow:hidden;background:#0F1720;color:var(--text-light)}
+    .hero-media{position:absolute;inset:0;z-index:0;overflow:hidden}
+    .hero-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;opacity:.44;transform:scale(1.02)}
+    .hero-media::after{content:"";position:absolute;inset:0;background:
+      linear-gradient(90deg, rgba(10,14,20,.95) 0%, rgba(10,14,20,.88) 32%, rgba(10,14,20,.70) 56%, rgba(10,14,20,.40) 76%, rgba(10,14,20,.20) 100%),
+      linear-gradient(180deg, rgba(10,14,20,.10) 0%, rgba(10,14,20,.24) 100%),
+      radial-gradient(circle at 78% 18%, rgba(63,110,161,.18) 0%, rgba(63,110,161,.07) 22%, transparent 40%),
+      linear-gradient(135deg, rgba(63,110,161,.028) 1px, transparent 1px);
+      background-size:auto,auto,auto,34px 34px;
+      pointer-events:none}
+    .hero-inner{position:relative;z-index:1;max-width:var(--max);margin:0 auto;padding:136px 34px 84px;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr);gap:28px;align-items:end}
     .eyebrow{display:block;margin:0 0 16px;font-size:.76rem;line-height:1;letter-spacing:.22em;font-weight:700;text-transform:uppercase;color:rgba(245,247,250,.64)}
-    .hero h1{font-size:clamp(2.8rem,4.2vw,4.2rem);line-height:.95;color:#fff;max-width:11ch;margin:0 0 18px}
-    .hero-copy{max-width:44ch;font-size:1.06rem;line-height:1.7;color:rgba(245,247,250,.8)}
+    .hero h1{font-size:clamp(2.9rem,4.2vw,4.4rem);line-height:.95;color:#fff;max-width:11ch;margin:0 0 18px}
+    .hero-copy{max-width:45ch;font-size:1.06rem;line-height:1.72;color:rgba(245,247,250,.8)}
     .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
     .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;min-width:160px;padding:0 22px;border-radius:999px;border:1px solid rgba(63,110,161,.9);background:rgba(255,255,255,.98);color:var(--accent);font-size:.96rem;font-weight:600;box-shadow:0 8px 20px rgba(0,0,0,.045);cursor:pointer;transition:all .18s ease}
     .btn:hover,.btn:focus-visible{transform:translateY(-1px);color:var(--accent-dark);border-color:var(--accent-dark);outline:none}
@@ -112,12 +120,41 @@
     .status-inline{font-size:.86rem;line-height:1.55;color:var(--muted-2);min-height:22px}
     .status-inline.error{color:#8A3946}.status-inline.ok{color:var(--ok)}
 
+    .loading-overlay{position:fixed;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 50% 30%, rgba(63,110,161,.08), transparent 22%),linear-gradient(180deg, #F8FAFD 0%, #F4F7FB 100%);z-index:200;opacity:0;visibility:hidden;pointer-events:none;transition:opacity 260ms ease, visibility 260ms ease}
+    .loading-overlay.show{opacity:1;visibility:visible;pointer-events:auto}
+    .loading-box{width:min(560px, calc(100vw - 40px));padding:34px 30px 30px;border-radius:24px;background:rgba(255,255,255,.96);border:1px solid rgba(21,32,43,.08);box-shadow:0 24px 60px rgba(15,23,32,.10);text-align:center;color:var(--text)}
+    .loading-mark{position:relative;width:72px;height:72px;margin:0 auto 18px;display:grid;place-items:center}
+    .loading-m{position:relative;z-index:2;width:52px;height:52px;border-radius:14px;background:#0F1720;color:#FFF;display:grid;place-items:center;font-size:1.38rem;font-weight:700;box-shadow:0 10px 24px rgba(15,23,32,.16)}
+    .loading-ring{position:absolute;inset:0;border-radius:999px;border:2px solid rgba(63,110,161,.14);border-top-color:var(--accent);animation:spin 1.2s linear infinite}
+    .loading-dot{position:absolute;right:9px;bottom:12px;width:10px;height:10px;border-radius:2px;background:var(--accent);animation:pulse 1.6s ease-in-out infinite;z-index:3}
+    @keyframes spin { to { transform:rotate(360deg); } }
+    @keyframes pulse { 0%,100% { transform:scale(1); opacity:1; } 50% { transform:scale(.82); opacity:.62; } }
+    .loading-title{margin:0 0 8px;font-size:1.28rem;line-height:1.15;color:var(--text)}
+    .loading-copy{margin:0 0 18px;font-size:.96rem;line-height:1.62;color:var(--muted)}
+    .loading-status{min-height:26px;margin:0 0 14px;font-size:.88rem;line-height:1.55;color:var(--accent-dark);font-weight:500}
+    .loading-progress{width:100%;height:8px;overflow:hidden;border-radius:999px;background:rgba(21,32,43,.08)}
+    .loading-bar{width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg, var(--accent) 0%, #5F8ABD 100%);transition:width 240ms linear}
+
     @media (max-width:1180px){.overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.workspace-grid,.hero-inner{grid-template-columns:1fr}.hero h1{max-width:100%}}
     @media (max-width:980px){.header{height:auto}.header-inner{padding:16px 24px;align-items:flex-start;flex-direction:column;gap:14px}.nav{gap:22px}.hero-inner,.page,.footer{padding-left:24px;padding-right:24px}}
     @media (max-width:760px){.hero-inner{padding:148px 20px 60px}.hero-actions,.identity-actions{flex-direction:column;align-items:stretch;max-width:420px}.btn,.run-link{width:100%;min-width:0}.overview-grid,.feature-grid{grid-template-columns:1fr}.page{padding:24px 20px 64px}.section-card{padding:24px 20px 22px}.header-inner{padding:14px 20px 10px;gap:10px}.nav{width:calc(100% + 4px);gap:10px;flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;padding:2px 4px 6px 0;scrollbar-width:none;-webkit-overflow-scrolling:touch}.nav::-webkit-scrollbar{display:none}.nav a{flex:0 0 auto;font-size:.84rem;line-height:1;padding:10px 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}.nav a::after{display:none}.footer{padding:30px 20px 26px}}
   </style>
 </head>
 <body>
+  <div class="loading-overlay" id="workspaceLoadingOverlay" aria-hidden="true">
+    <div class="loading-box" role="status" aria-live="polite">
+      <div class="loading-mark" aria-hidden="true">
+        <div class="loading-ring"></div>
+        <div class="loading-m">M</div>
+        <div class="loading-dot"></div>
+      </div>
+      <h3 class="loading-title">Assembling workspace environment...</h3>
+      <p class="loading-copy">Loading saved identity, workspace continuity, and recent diagnostic activity.</p>
+      <p class="loading-status" id="workspaceLoadingStatus">Resolving workspace state...</p>
+      <div class="loading-progress" aria-hidden="true"><div class="loading-bar" id="workspaceLoadingBar"></div></div>
+    </div>
+  </div>
+
   <header class="header" id="siteHeader">
     <div class="header-inner">
       <a href="index.html" class="brand">Monderman</a>
@@ -133,11 +170,12 @@
   </header>
 
   <section class="hero">
+    <div class="hero-media"><img class="hero-image" src="Workspace-Hero.jpg" alt="" aria-hidden="true"></div>
     <div class="hero-inner">
       <div>
         <p class="eyebrow">Monderman Workspace</p>
         <h1>Your saved diagnostic work, in one place.</h1>
-        <p class="hero-copy">The Workspace is where repeated diagnostic use becomes a product: saved runs, shared event-path context, and later comparison across time, teams, and structural conditions.</p>
+        <p class="hero-copy">The Workspace is where repeated diagnostic use becomes continuity: saved runs, shared event-path context, and a stable home for comparison across time, teams, and structural conditions.</p>
         <div class="hero-actions">
           <a class="btn btn-accent" href="diagnostic-tools.html">Launch diagnostics</a>
           <button class="btn btn-subtle" id="signOutBtn" type="button">Sign out</button>
@@ -152,7 +190,7 @@
         <div class="hero-panel">
           <p class="hero-panel-kicker">Built for continuity</p>
           <p class="hero-panel-title">From one run to repeated governance</p>
-          <p class="hero-panel-copy">The first run gives you a clearer read. The Workspace gives you continuity, recall, and eventually temporal comparison.</p>
+          <p class="hero-panel-copy">The first run gives you a clearer read. The Workspace gives you persistence, recall, and eventually temporal comparison.</p>
         </div>
       </div>
     </div>
@@ -163,11 +201,11 @@
       <section class="section-card">
         <p class="section-kicker">Workspace overview</p>
         <h2 class="section-title">A cleaner home for saved runs and product continuity.</h2>
-        <p class="section-copy">This page is intentionally focused: your identity, your workspace, your most recent diagnostic runs, and the next premium behaviors Monderman will layer on top.</p>
+        <p class="section-copy">Use the Workspace to reopen recent diagnostics, maintain continuity across the same event path, and prepare for richer comparison as Monderman’s product layer expands.</p>
         <div class="overview-grid">
           <div class="metric"><p class="metric-label">Saved runs</p><p class="metric-value" id="metricRuns">0</p><p class="metric-copy">Diagnostics currently attached to this workspace.</p></div>
           <div class="metric"><p class="metric-label">Organization</p><p class="metric-value" id="metricOrg">—</p><p class="metric-copy">Personal workspace or assigned organization.</p></div>
-          <div class="metric"><p class="metric-label">Plan</p><p class="metric-value" id="metricPlan">Free</p><p class="metric-copy">A simple entitlement layer can sit here later.</p></div>
+          <div class="metric"><p class="metric-label">Plan</p><p class="metric-value" id="metricPlan">Free</p><p class="metric-copy">A premium entitlement layer can sit here later.</p></div>
           <div class="metric"><p class="metric-label">Last activity</p><p class="metric-value" id="metricLast">—</p><p class="metric-copy">Most recent saved run visible to this account.</p></div>
         </div>
       </section>
@@ -178,7 +216,7 @@
             <div class="panel-head">
               <div>
                 <h3 class="panel-title">Identity and workspace</h3>
-                <p class="panel-copy">Your sign-in, user profile, and default Monderman workspace should resolve automatically here.</p>
+                <p class="panel-copy">Your sign-in, profile, and default Monderman workspace resolve here automatically.</p>
               </div>
               <span class="chip">Authenticated</span>
             </div>
@@ -191,7 +229,7 @@
             </div>
             <div class="identity-actions">
               <a class="btn btn-subtle" href="diagnostic-tools.html">Back to Diagnostic Hub</a>
-              <a class="btn btn-subtle" href="signin.html">Auth page</a>
+              <a class="btn btn-subtle" href="cross-tool-synthesis.html">Cross-tool synthesis</a>
             </div>
             <p class="status-inline" id="identityStatus"></p>
           </section>
@@ -200,11 +238,11 @@
             <div class="panel-head">
               <div>
                 <h3 class="panel-title">Recent saved runs</h3>
-                <p class="panel-copy">Once the diagnostics save into <code>diagnostic_runs</code>, they will appear here for quick reopening and later comparison.</p>
+                <p class="panel-copy">Saved runs appear here once diagnostics write to <code>diagnostic_runs</code>.</p>
               </div>
             </div>
             <div class="list" id="runsList"></div>
-            <div class="empty" id="runsEmpty">No saved runs are visible yet. That usually means the diagnostics are not writing to <code>diagnostic_runs</code> yet, or your workspace has no saved history.</div>
+            <div class="empty" id="runsEmpty">No saved runs are visible yet. That usually means the diagnostics are not writing to <code>diagnostic_runs</code> yet, or this workspace has no saved history.</div>
           </section>
         </div>
 
@@ -213,7 +251,7 @@
             <div class="panel-head">
               <div>
                 <h3 class="panel-title">What unlocks next</h3>
-                <p class="panel-copy">This is the right place for the premium layer: persistence, comparison, and repeated organizational use.</p>
+                <p class="panel-copy">This is the right place for persistence, comparison, and repeated organizational use.</p>
               </div>
             </div>
             <div class="feature-grid">
@@ -242,14 +280,15 @@
           <section class="section-card">
             <div class="panel-head">
               <div>
-                <h3 class="panel-title">Implementation notes</h3>
-                <p class="panel-copy">This page is intentionally simple and stable so the auth/product foundation is clean before more features are layered on top.</p>
+                <h3 class="panel-title">How to get the most from Workspace</h3>
+                <p class="panel-copy">The Workspace becomes more valuable as the same event path is revisited over time.</p>
               </div>
             </div>
-            <div class="list">
-              <div class="feature"><h4>Correct URL target</h4><p>Use <code>workspace.html</code> in the repo and nav links. A bare <code>/workspace</code> route will 404 unless you add routing support.</p></div>
-              <div class="feature"><h4>Redirect behavior</h4><p>If a user is not signed in, this page sends them to <code>signin.html?next=workspace.html</code>, so the post-auth destination is explicit and stable.</p></div>
-              <div class="feature"><h4>Data dependency</h4><p>The page reads from <code>users</code>, <code>organization_members</code>, <code>organizations</code>, and <code>diagnostic_runs</code>. If row-level policies block reads, the workspace will still load but show an explanatory message.</p></div>
+            <div class="feature-grid">
+              <div class="feature"><h4>Keep the path bounded</h4><p>Use one workflow, one team, or one operating slice so repeated runs stay interpretable.</p></div>
+              <div class="feature"><h4>Return after change</h4><p>Revisit the same path after redesign, staffing change, tooling shift, or new external pressure.</p></div>
+              <div class="feature"><h4>Compare participant lenses</h4><p>Use operational, managerial, and leadership vantage points to see where perceptions diverge.</p></div>
+              <div class="feature"><h4>Build continuity deliberately</h4><p>The first run gives you a read. The Workspace gives you memory, recall, and later comparison.</p></div>
             </div>
           </section>
         </div>
@@ -259,8 +298,8 @@
 
   <footer class="footer">
     <div class="footer-inner">
-      <p class="footer-copy">Monderman Workspace is the continuity layer for repeated diagnostic use.</p>
-      <p class="footer-copy">Use <code>workspace.html</code> as the live URL in your repo.</p>
+      <p class="footer-copy">Monderman Workspace supports continuity across saved runs, shared context, and repeated diagnostic use.</p>
+      <p class="footer-copy">Built for clearer structural interpretation over time.</p>
     </div>
   </footer>
 
@@ -270,9 +309,61 @@
     const supabaseKey = "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const header = document.getElementById("siteHeader");
-    function updateHeader(){ if(window.scrollY > 12) header?.classList.add("scrolled"); else header?.classList.remove("scrolled"); }
-    updateHeader(); window.addEventListener("scroll", updateHeader, { passive:true });
+    const WORKSPACE_LOADER_KEY = 'mondermanWorkspaceLoaderSeenAt';
+    const WORKSPACE_LOADER_MS = 24 * 60 * 60 * 1000;
+    const overlay = document.getElementById('workspaceLoadingOverlay');
+    const loadingBar = document.getElementById('workspaceLoadingBar');
+    const loadingStatus = document.getElementById('workspaceLoadingStatus');
+    const loadingMessages = [
+      'Resolving workspace state...',
+      'Loading signed-in profile...',
+      'Checking saved diagnostic history...',
+      'Workspace ready.'
+    ];
+
+    function safeReadLocal(key) { try { return localStorage.getItem(key); } catch (error) { return null; } }
+    function safeWriteLocal(key, value) { try { localStorage.setItem(key, value); } catch (error) {} }
+    function shouldRunWorkspaceCalibration() {
+      const navEntry = performance.getEntriesByType('navigation')[0];
+      const navType = navEntry?.type || 'navigate';
+      const seenAt = Number(safeReadLocal(WORKSPACE_LOADER_KEY) || 0);
+      if (seenAt && (Date.now() - seenAt) < WORKSPACE_LOADER_MS) return false;
+      if (navType === 'reload' || navType === 'back_forward') return false;
+      return true;
+    }
+    function startWorkspaceCalibration() {
+      if (!overlay || !loadingBar || !loadingStatus) return;
+      overlay.classList.add('show');
+      overlay.setAttribute('aria-hidden', 'false');
+      loadingBar.style.width = '0%';
+      loadingStatus.textContent = loadingMessages[0];
+      document.body.style.overflow = 'hidden';
+      let progress = 0;
+      let messageIndex = 0;
+      const progressTimer = setInterval(() => {
+        progress = Math.min(progress + 2, 96);
+        loadingBar.style.width = progress + '%';
+      }, 100);
+      const messageTimer = setInterval(() => {
+        messageIndex = Math.min(messageIndex + 1, loadingMessages.length - 1);
+        loadingStatus.textContent = loadingMessages[messageIndex];
+      }, 1200);
+      setTimeout(() => {
+        clearInterval(progressTimer);
+        clearInterval(messageTimer);
+        loadingBar.style.width = '100%';
+        loadingStatus.textContent = loadingMessages[loadingMessages.length - 1];
+        setTimeout(() => {
+          overlay.classList.remove('show');
+          overlay.setAttribute('aria-hidden', 'true');
+          document.body.style.overflow = '';
+        }, 240);
+      }, 4700);
+    }
+
+    const header = document.getElementById('siteHeader');
+    function updateHeader(){ if(window.scrollY > 12) header?.classList.add('scrolled'); else header?.classList.remove('scrolled'); }
+    updateHeader(); window.addEventListener('scroll', updateHeader, { passive:true });
 
     const ui = {
       heroStatusTitle: document.getElementById('heroStatusTitle'),
@@ -294,20 +385,17 @@
       ui.identityStatus.textContent = message || '';
       ui.identityStatus.className = `status-inline ${tone}`.trim();
     }
-
     function initials(name, email){
       const source = (name || email || 'M').trim();
       const parts = source.split(/\s+/).slice(0,2);
       return parts.map(p => p[0]?.toUpperCase() || '').join('') || 'M';
     }
-
     function formatDate(value){
       if(!value) return '—';
       const d = new Date(value);
       if(Number.isNaN(d.getTime())) return '—';
       return d.toLocaleString();
     }
-
     function formatToolName(tool){
       const map = {
         structural_clarity: 'Structural Clarity',
@@ -326,7 +414,6 @@
         id: user.id, email, full_name: fullName, avatar_url: avatarUrl, last_sign_in_at: new Date().toISOString()
       });
       if(userError) throw userError;
-
       const { data: memberships, error: membershipError } = await supabase
         .from('organization_members')
         .select('organization_id, role, organizations(id, name, slug)')
@@ -334,15 +421,11 @@
         .limit(1);
       if(membershipError) throw membershipError;
       if(memberships?.length) return memberships[0];
-
       const slugBase = String(fullName).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'') || 'workspace';
-      const { data: org, error: orgError } = await supabase
-        .from('organizations')
-        .insert({ name: `${fullName} Workspace`, slug: `${slugBase}-workspace`, owner_user_id: user.id })
-        .select()
-        .single();
+      const { data: org, error: orgError } = await supabase.from('organizations').insert({
+        name: `${fullName} Workspace`, slug: `${slugBase}-workspace`, owner_user_id: user.id
+      }).select().single();
       if(orgError) throw orgError;
-
       const { error: memberError } = await supabase.from('organization_members').insert({ organization_id: org.id, user_id: user.id, role: 'owner' });
       if(memberError) throw memberError;
       return { organization_id: org.id, role: 'owner', organizations: org };
@@ -379,7 +462,6 @@
         const user = data.user;
         const membership = await ensureWorkspace(user);
         const org = membership?.organizations || null;
-
         ui.heroStatusTitle.textContent = 'Workspace ready';
         ui.heroStatusCopy.textContent = 'Your identity layer is live. This page can now become the home for saved runs, continuity, and later temporal analysis.';
         ui.userAvatar.textContent = initials(user.user_metadata?.full_name || user.user_metadata?.name, user.email);
@@ -417,6 +499,15 @@
       await supabase.auth.signOut();
       window.location.href = 'signin.html';
     });
+
+    if (shouldRunWorkspaceCalibration()) {
+      window.addEventListener('load', () => {
+        requestAnimationFrame(() => {
+          startWorkspaceCalibration();
+          safeWriteLocal(WORKSPACE_LOADER_KEY, String(Date.now()));
+        });
+      });
+    }
 
     initialize();
   </script>
