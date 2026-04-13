@@ -171,6 +171,27 @@
       transform:scaleX(1);
     }
 
+    .nav a.workspace-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.06);
+      color:#FFFFFF;
+      box-shadow:0 1px 0 rgba(255,255,255,.04);
+    }
+    .nav a.workspace-link::after{display:none;}
+    .nav a.workspace-link:hover,
+    .nav a.workspace-link:focus-visible{
+      background:rgba(255,255,255,.10);
+      border-color:rgba(255,255,255,.24);
+      color:#FFFFFF;
+      transform:translateY(-1px);
+    }
+
     .hero{
       position:relative;
       min-height:88vh;
@@ -1640,6 +1661,7 @@
         <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
         <a href="advisory-services-connect.html">Connect</a>
+        <a href="workspace.html" class="workspace-link">Workspace</a>
       </nav>
     </div>
   </header>
@@ -1869,6 +1891,16 @@
           <p>
             Each diagnostic opens in its own dedicated environment. Start with the strongest fit, then return to the suite as your understanding of the structural issue becomes clearer.
           </p>
+          <div style="margin-top:18px; display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; padding:16px 18px; border-radius:16px; background:linear-gradient(180deg,#FFFFFF 0%, #FBFCFE 100%); border:1px solid rgba(21,32,43,.08); box-shadow:var(--shadow-soft);">
+            <div style="max-width:44ch;">
+              <div style="margin:0 0 6px; font-size:.72rem; line-height:1; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--accent);">Workspace continuity</div>
+              <div style="font-size:.96rem; line-height:1.6; color:var(--muted-dark);">Save runs, return to the same event path, and build continuity across repeated diagnostic use in your Monderman Workspace.</div>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <a class="btn btn-subtle" href="signin.html?next=workspace.html">Sign in</a>
+              <a class="btn btn-accent" href="workspace.html">Open Workspace</a>
+            </div>
+          </div>
         </div>
 
 
