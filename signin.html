@@ -4,178 +4,97 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign in | Monderman</title>
+  <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="10" fill="%230F1720"/>
+      <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text>
+      <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
+    </svg>' />
   <style>
-    @font-face { font-family:"Neue Haas Grotesk"; src:url("55font.woff2") format("woff2"),url("55font.woff") format("woff"); font-weight:400; font-display:swap; }
-    @font-face { font-family:"Neue Haas Grotesk"; src:url("65font.woff2") format("woff2"),url("65font.woff") format("woff"); font-weight:500; font-display:swap; }
-    @font-face { font-family:"Neue Haas Grotesk"; src:url("75font.woff2") format("woff2"),url("75font.woff") format("woff"); font-weight:700; font-display:swap; }
-    :root{--accent:#3F6EA1;--accent-dark:#2F5886;--bg-dark:#0F1720;--bg-dark-2:#121B25;--bg-off:#F6F7F9;--panel:#FFF;--text:#15202B;--muted:#586574;--line:rgba(21,32,43,.08);--shadow:0 24px 60px rgba(15,23,32,.12);--soft:0 1px 0 rgba(0,0,0,.012), 0 12px 24px rgba(0,0,0,.04);}
-    *{box-sizing:border-box} body{margin:0;font-family:"Neue Haas Grotesk","Helvetica Neue",Arial,sans-serif;background:linear-gradient(180deg,#0F1720 0%,#121B25 36%,#F6F7F9 36%,#F6F7F9 100%);color:var(--text);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
-    a{text-decoration:none;color:inherit}
-    .header{position:sticky;top:0;background:rgba(15,23,32,.92);border-bottom:1px solid rgba(255,255,255,.08);backdrop-filter:blur(12px)}
-    .header-inner{max-width:1180px;margin:0 auto;padding:0 28px;height:72px;display:flex;align-items:center;justify-content:space-between;gap:20px}
-    .brand{display:inline-flex;align-items:center;color:#fff;font-size:1.24rem;font-weight:700}.brand:after{content:"";width:6px;height:6px;margin-left:10px;background:var(--accent);border-radius:1px;transform:translateY(-1px)}
-    .header-nav{display:flex;gap:20px;flex-wrap:wrap}.header-nav a{color:rgba(255,255,255,.82);font-size:.96rem}
-    .shell{max-width:1180px;margin:0 auto;padding:54px 28px 88px}
-    .hero{display:grid;grid-template-columns:minmax(0,1.04fr) minmax(360px,.96fr);gap:28px;align-items:stretch}
-    .hero-copy{padding:16px 0 0;color:#fff}
-    .eyebrow{margin:0 0 14px;font-size:.76rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,247,250,.64)}
-    h1{margin:0 0 18px;max-width:11ch;font-size:clamp(2.6rem,4.5vw,4.6rem);line-height:.95;letter-spacing:-.055em;color:#fff}
-    .hero-copy p{margin:0;max-width:46ch;font-size:1.02rem;line-height:1.68;color:rgba(245,247,250,.8)}
-    .proof-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:26px;max-width:880px}
-    .proof{padding:16px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)}
-    .proof strong{display:block;margin-bottom:6px;font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(245,247,250,.56)}
-    .proof span{display:block;font-size:.88rem;line-height:1.5;color:rgba(245,247,250,.8)}
-    .card{background:rgba(255,255,255,.98);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);padding:28px}
-    .card-kicker{margin:0 0 10px;font-size:.74rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
-    .card h2{margin:0 0 10px;font-size:1.62rem;line-height:1.05;letter-spacing:-.04em}
-    .card-copy{margin:0 0 18px;font-size:.96rem;line-height:1.66;color:var(--muted)}
-    .signin-main{display:grid;gap:14px}
-    .signin-btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:54px;width:100%;padding:0 18px;border-radius:999px;border:1px solid rgba(21,32,43,.12);background:#fff;box-shadow:var(--soft);font-size:.98rem;font-weight:600;color:var(--text);cursor:pointer;transition:transform .18s ease, box-shadow .18s ease,border-color .18s ease}
+    @font-face { font-family: "Neue Haas Grotesk"; src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff"); font-style: normal; font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Neue Haas Grotesk"; src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff"); font-style: normal; font-weight: 500; font-display: swap; }
+    @font-face { font-family: "Neue Haas Grotesk"; src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff"); font-style: normal; font-weight: 700; font-display: swap; }
+    :root{--accent:#3F6EA1;--accent-dark:#2F5886;--bg:#F6F7F9;--text:#15202B;--muted:#596572;--line:rgba(21,32,43,.08);--soft:0 1px 0 rgba(0,0,0,.012),0 18px 36px rgba(0,0,0,.05);--max:1180px}
+    *{box-sizing:border-box} body{margin:0;background:linear-gradient(180deg,#0F1720 0%,#131C27 36%,#F6F7F9 36%,#F6F7F9 100%);font-family:"Neue Haas Grotesk","Helvetica Neue",Arial,sans-serif;color:var(--text)}
+    .wrap{max-width:var(--max);margin:0 auto;padding:72px 24px 72px}.shell{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(340px,.78fr);gap:20px;align-items:stretch}
+    .hero,.card{border-radius:24px}.hero{padding:44px 36px;background:linear-gradient(180deg,#0F1720 0%,#121B25 100%);color:#fff;position:relative;overflow:hidden}.hero:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 78% 18%, rgba(63,110,161,.16) 0%, rgba(63,110,161,.07) 20%, transparent 36%),linear-gradient(135deg, rgba(63,110,161,.03) 1px, transparent 1px);background-size:auto,34px 34px;opacity:.5}
+    .hero > *{position:relative;z-index:1}.eyebrow{margin:0 0 16px;font-size:.76rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:rgba(245,247,250,.64)} h1{margin:0 0 16px;font-size:clamp(2.2rem,4vw,3.4rem);line-height:.96;letter-spacing:-.05em;max-width:11ch} .hero p{max-width:42ch;font-size:1.02rem;line-height:1.7;color:rgba(245,247,250,.8)}
+    .proof-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:26px}.proof{padding:16px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)}.proof strong{display:block;margin:0 0 8px;font-size:.92rem;line-height:1.2}.proof span{display:block;font-size:.84rem;line-height:1.5;color:rgba(245,247,250,.72)}
+    .card{padding:32px 28px;background:rgba(255,255,255,.98);border:1px solid var(--line);box-shadow:var(--soft)} h2{margin:0 0 12px;font-size:1.9rem;line-height:1.06;letter-spacing:-.05em} .card-copy{margin:0 0 20px;font-size:.98rem;line-height:1.68;color:var(--muted)}
+    .signin-btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:54px;width:100%;padding:0 18px;border-radius:999px;border:1px solid rgba(21,32,43,.12);background:#fff;box-shadow:0 14px 28px rgba(15,23,32,.05);font-size:.98rem;font-weight:600;color:var(--text);cursor:pointer;transition:transform .18s ease, box-shadow .18s ease,border-color .18s ease}
     .signin-btn:hover,.signin-btn:focus-visible{transform:translateY(-1px);outline:none;border-color:rgba(63,110,161,.28);box-shadow:0 16px 28px rgba(15,23,32,.08)}
-    .google-mark{width:18px;height:18px;display:inline-block}
-    .status{min-height:24px;margin:0;font-size:.9rem;line-height:1.5;color:var(--muted)}
-    .status.is-error{color:#8A3946}.status.is-ok{color:#456A4B}
-    .mini-panel{margin-top:6px;padding:14px 16px;border-radius:16px;background:linear-gradient(180deg,#FFF 0%,#FBFCFE 100%);border:1px solid var(--line)}
-    .mini-panel strong{display:block;margin-bottom:6px;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-    .mini-panel span{display:block;font-size:.9rem;line-height:1.58;color:var(--muted)}
-    .footer-note{margin-top:8px;font-size:.84rem;line-height:1.56;color:var(--muted)}
-    @media (max-width:980px){.hero{grid-template-columns:1fr}.hero-copy{padding-top:0}.proof-grid{grid-template-columns:1fr}.shell{padding-left:20px;padding-right:20px}.header-inner{padding:0 20px}}
+    .status{min-height:26px;margin-top:16px;font-size:.9rem;line-height:1.55;color:var(--muted)} .status.error{color:#8A3946}.status.ok{color:#456A4B}
+    .small{margin-top:18px;font-size:.88rem;line-height:1.58;color:#7B8792}
+    .small code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#F5F7FA;padding:2px 5px;border-radius:6px}
+    @media (max-width:980px){.shell{grid-template-columns:1fr}.wrap{padding:40px 20px 52px}.hero,.card{padding:28px 22px}.proof-grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-  <header class="header">
-    <div class="header-inner">
-      <a class="brand" href="index.html">Monderman</a>
-      <nav class="header-nav" aria-label="Primary navigation">
-        <a href="diagnostic-tools.html">Diagnostic Hub</a>
-        <a href="research.html">Research</a>
-        <a href="why-monderman.html">Why Monderman</a>
-      </nav>
-    </div>
-  </header>
-
-  <main class="shell">
-    <section class="hero">
-      <div class="hero-copy">
+  <div class="wrap">
+    <div class="shell">
+      <section class="hero">
         <p class="eyebrow">Monderman Workspace</p>
-        <h1>Sign in when you want continuity, not just a one-time run.</h1>
-        <p>Anonymous use is useful for initial signal. Workspace access is where Monderman becomes a repeatable instrument: saved runs, returning to the same event path, and comparing institutional movement over time.</p>
-        <div class="proof-grid" aria-label="What sign-in enables">
+        <h1>Create or open your Workspace.</h1>
+        <p>Use Google sign-in to create your Monderman Workspace. On first sign-in, Monderman will create your user profile and a personal workspace automatically, then send you to the right destination.</p>
+        <div class="proof-grid">
           <div class="proof"><strong>Saved runs</strong><span>Keep diagnostic history tied to one workspace instead of one browser session.</span></div>
-          <div class="proof"><strong>Repeat use</strong><span>Return to the same event path without rebuilding context every time.</span></div>
-          <div class="proof"><strong>Temporal analysis</strong><span>Lay the groundwork for comparing drift, improvement, and recurring strain.</span></div>
-        </div>
-      </div>
-
-      <section class="card" aria-labelledby="signinTitle">
-        <p class="card-kicker">Access</p>
-        <h2 id="signinTitle">Create or open your Workspace</h2>
-        <p class="card-copy">Use Google sign-in to create your Monderman Workspace. On first sign-in, Monderman will create your user profile and a personal workspace automatically.</p>
-        <div class="signin-main">
-          <button class="signin-btn" id="googleSignInBtn" type="button">
-            <svg class="google-mark" viewBox="0 0 24 24" aria-hidden="true"><path fill="#EA4335" d="M12 10.2v3.9h5.4c-.2 1.3-1.5 3.9-5.4 3.9-3.3 0-6-2.7-6-6s2.7-6 6-6c1.9 0 3.2.8 3.9 1.4l2.7-2.6C17 3.2 14.8 2.2 12 2.2A9.8 9.8 0 0 0 2.2 12 9.8 9.8 0 0 0 12 21.8c5.6 0 9.3-3.9 9.3-9.4 0-.6-.1-1.1-.1-1.6H12z"></path><path fill="#34A853" d="M3.3 7.3l3.2 2.3A6 6 0 0 1 12 6c1.9 0 3.2.8 3.9 1.4l2.7-2.6C17 3.2 14.8 2.2 12 2.2 8.2 2.2 4.9 4.3 3.3 7.3z"></path><path fill="#4A90E2" d="M12 21.8c2.7 0 5-.9 6.7-2.5l-3.1-2.6c-.9.6-2 1.1-3.6 1.1-3.8 0-5.2-2.5-5.4-3.8l-3.2 2.5C4.9 19.6 8.2 21.8 12 21.8z"></path><path fill="#FBBC05" d="M3.3 16.6l3.2-2.5c-.2-.6-.3-1.3-.3-2.1s.1-1.4.3-2.1L3.3 7.3A9.9 9.9 0 0 0 2.2 12c0 1.7.4 3.3 1.1 4.6z"></path></svg>
-            Continue with Google
-          </button>
-          <p class="status" id="status">Waiting for sign-in.</p>
-          <div class="mini-panel">
-            <strong>What happens next</strong>
-            <span>After sign-in, Monderman will confirm your user record, create a personal workspace if one does not already exist, and send you into the Workspace dashboard.</span>
-          </div>
-          <p class="footer-note">By continuing, you are opening a Monderman Workspace for saved runs, synthesis history, and account-based access over time.</p>
+          <div class="proof"><strong>Repeated use</strong><span>Return to the same event path without rebuilding context every time.</span></div>
+          <div class="proof"><strong>Product continuity</strong><span>Create the foundation for synthesis history and temporal analysis.</span></div>
         </div>
       </section>
-    </section>
-  </main>
-
+      <section class="card">
+        <h2>Continue with Google</h2>
+        <p class="card-copy">After sign-in, Monderman confirms your user record, creates a personal workspace if one does not already exist, and redirects you to the intended page.</p>
+        <button class="signin-btn" id="googleSignInBtn" type="button">Sign in with Google</button>
+        <p class="status" id="status">Preparing sign-in…</p>
+        <p class="small">Target after sign-in: <code id="nextDisplay">workspace.html</code></p>
+      </section>
+    </div>
+  </div>
   <script type="module">
     import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
     const supabaseUrl = "https://ptkxrzgmeldalrkfruth.supabase.co";
     const supabaseKey = "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
     const supabase = createClient(supabaseUrl, supabaseKey);
+    const status = document.getElementById('status');
+    const btn = document.getElementById('googleSignInBtn');
+    const params = new URLSearchParams(window.location.search);
+    const nextRaw = params.get('next') || 'workspace.html';
+    const nextUrl = /^(https?:|\/\/)/i.test(nextRaw) ? 'workspace.html' : nextRaw;
+    document.getElementById('nextDisplay').textContent = nextUrl;
 
-    const status = document.getElementById("status");
-    const btn = document.getElementById("googleSignInBtn");
-    const nextParam = new URLSearchParams(window.location.search).get("next");
-    const nextUrl = nextParam ? decodeURIComponent(nextParam) : "workspace.html";
-
-    function setStatus(message, type = "") {
-      status.textContent = message;
-      status.classList.remove("is-error", "is-ok");
-      if (type) status.classList.add(type === "error" ? "is-error" : "is-ok");
+    function setStatus(message,tone=''){ status.textContent=message; status.className=`status ${tone}`.trim(); }
+    function slugify(v){ return String(v||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'') || 'workspace'; }
+    async function ensureWorkspace(user){
+      const email=user.email||''; const fullName=user.user_metadata?.full_name||user.user_metadata?.name||'Monderman User';
+      const avatarUrl=user.user_metadata?.avatar_url||user.user_metadata?.picture||null;
+      const { error:userError }=await supabase.from('users').upsert({id:user.id,email,full_name:fullName,avatar_url:avatarUrl,last_sign_in_at:new Date().toISOString()});
+      if(userError) throw userError;
+      const { data:memberships, error:membershipReadError }=await supabase.from('organization_members').select('id, organization_id, role').eq('user_id', user.id).limit(1);
+      if(membershipReadError) throw membershipReadError;
+      if(memberships && memberships.length>0) return memberships[0];
+      const { data:orgData, error:orgError } = await supabase.from('organizations').insert({name:`${fullName} Workspace`,slug:`${slugify(fullName)}-workspace`,owner_user_id:user.id}).select().single();
+      if(orgError) throw orgError;
+      const { error:memberError } = await supabase.from('organization_members').insert({organization_id:orgData.id,user_id:user.id,role:'owner'});
+      if(memberError) throw memberError;
     }
-
-    function slugify(value) {
-      return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "workspace";
-    }
-
-    async function ensureWorkspace(user) {
-      const email = user.email || "";
-      const fullName = user.user_metadata?.full_name || user.user_metadata?.name || "Monderman User";
-      const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
-
-      const { error: userError } = await supabase.from("users").upsert({
-        id: user.id,
-        email,
-        full_name: fullName,
-        avatar_url: avatarUrl,
-        last_sign_in_at: new Date().toISOString()
-      });
-      if (userError) throw userError;
-
-      const { data: memberships, error: membershipReadError } = await supabase
-        .from("organization_members")
-        .select("id, organization_id, role")
-        .eq("user_id", user.id)
-        .limit(1);
-      if (membershipReadError) throw membershipReadError;
-      if (memberships && memberships.length > 0) return memberships[0];
-
-      const workspaceName = `${fullName} Workspace`;
-      const workspaceSlug = `${slugify(fullName)}-workspace`;
-      const { data: orgData, error: orgError } = await supabase
-        .from("organizations")
-        .insert({ name: workspaceName, slug: workspaceSlug, owner_user_id: user.id })
-        .select()
-        .single();
-      if (orgError) throw orgError;
-
-      const { error: memberError } = await supabase.from("organization_members").insert({
-        organization_id: orgData.id,
-        user_id: user.id,
-        role: "owner"
-      });
-      if (memberError) throw memberError;
-    }
-
-    btn.addEventListener("click", async () => {
-      setStatus("Redirecting to Google sign-in...");
-      const redirectTo = `${window.location.origin}/signin.html${nextParam ? `?next=${encodeURIComponent(nextUrl)}` : ""}`;
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo }
-      });
-      if (error) setStatus(`Sign-in error: ${error.message}`, "error");
+    btn.addEventListener('click', async()=>{
+      setStatus('Redirecting to Google sign-in…');
+      const redirectTo = `${window.location.origin}/signin.html?next=${encodeURIComponent(nextUrl)}`;
+      const { error } = await supabase.auth.signInWithOAuth({ provider:'google', options:{ redirectTo } });
+      if(error) setStatus(`Sign-in error: ${error.message}`,'error');
     });
-
-    async function initialize() {
-      try {
+    async function initialize(){
+      try{
         const { data, error } = await supabase.auth.getUser();
-        if (error) throw error;
-        if (!data?.user) {
-          setStatus("Continue with Google to open your Workspace.");
-          return;
-        }
-        setStatus(`Signed in as ${data.user.email || data.user.id}. Preparing your Workspace...`, "ok");
+        if(error) throw error;
+        if(!data?.user){ setStatus('Continue with Google to open your Workspace.'); return; }
+        setStatus(`Signed in as ${data.user.email || data.user.id}. Preparing your Workspace…`,'ok');
         await ensureWorkspace(data.user);
-        setStatus("Workspace ready. Redirecting...", "ok");
-        setTimeout(() => { window.location.href = nextUrl; }, 450);
-      } catch (error) {
-        console.error(error);
-        setStatus(error.message || "Workspace bootstrap failed.", "error");
-      }
+        setStatus('Workspace ready. Redirecting…','ok');
+        window.location.replace(nextUrl || 'workspace.html');
+      }catch(error){ console.error(error); setStatus(error.message || 'Workspace bootstrap failed.','error'); }
     }
-
     initialize();
   </script>
 </body>
