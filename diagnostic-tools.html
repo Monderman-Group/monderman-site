@@ -692,6 +692,293 @@
       transform:translateX(2px);
     }
 
+
+    .context-chip{
+      display:none;
+      align-items:center;
+      gap:10px;
+      width:max-content;
+      max-width:100%;
+      margin:22px 0 0;
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      color:rgba(245,247,250,.88);
+      font-size:.86rem;
+      line-height:1.45;
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+    }
+    .context-chip.show{ display:inline-flex; }
+    .context-chip strong{ color:#FFF; font-weight:700; }
+
+    .shared-context-shell{
+      display:grid;
+      grid-template-columns:minmax(0,1.24fr) minmax(320px,.76fr);
+      gap:18px;
+      margin:20px 0 26px;
+    }
+    .shared-context-card,
+    .recent-runs-card{
+      position:relative;
+      background:#FFF;
+      border:1px solid var(--line-soft);
+      border-radius:var(--card-radius);
+      box-shadow:var(--shadow-card);
+      overflow:hidden;
+    }
+    .shared-context-card::before,
+    .recent-runs-card::before{
+      content:"";
+      position:absolute;
+      inset:0 0 auto 0;
+      height:3px;
+      background:linear-gradient(90deg, rgba(63,110,161,.30) 0%, rgba(63,110,161,.94) 58%, rgba(63,110,161,.36) 100%);
+    }
+    .shared-context-card{ padding:24px 24px 22px; }
+    .recent-runs-card{ padding:24px 22px 22px; }
+    .shared-context-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:18px;
+      margin-bottom:16px;
+    }
+    .shared-context-kicker,
+    .recent-runs-kicker,
+    .best-for-repeat{
+      margin:0 0 8px;
+      font-size:.72rem;
+      line-height:1;
+      font-weight:700;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:var(--accent);
+    }
+    .best-for-repeat{
+      display:inline-flex;
+      align-items:center;
+      padding:7px 10px;
+      margin:0 0 12px;
+      border-radius:999px;
+      background:rgba(63,110,161,.08);
+      border:1px solid rgba(63,110,161,.14);
+    }
+    .shared-context-title,
+    .recent-runs-title{
+      margin:0 0 8px;
+      font-size:1.08rem;
+      line-height:1.18;
+      font-weight:700;
+      color:var(--text-dark);
+      letter-spacing:-.03em;
+    }
+    .shared-context-copy,
+    .recent-runs-card p,
+    .context-helper,
+    .context-status,
+    .recent-run-copy,
+    .recent-run-meta{
+      margin:0;
+      font-size:.9rem;
+      line-height:1.6;
+      color:var(--muted-dark);
+    }
+    .shared-context-flag{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:0 12px;
+      border-radius:999px;
+      background:rgba(178,141,60,.10);
+      border:1px solid rgba(178,141,60,.18);
+      color:#7D6320;
+      font-size:.74rem;
+      font-weight:700;
+      line-height:1;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+    .context-summary{
+      display:none;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:10px;
+      margin:16px 0 14px;
+    }
+    .context-summary.show{ display:grid; }
+    .context-pill{
+      min-height:72px;
+      padding:12px 12px 11px;
+      border-radius:14px;
+      background:linear-gradient(180deg,#FFFFFF 0%, #FBFCFE 100%);
+      border:1px solid rgba(21,32,43,.08);
+      box-shadow:var(--shadow-soft);
+    }
+    .context-pill-label{
+      margin:0 0 6px;
+      font-size:.68rem;
+      line-height:1;
+      font-weight:700;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:var(--muted-dark-2);
+    }
+    .context-pill-value{
+      margin:0;
+      font-size:.88rem;
+      line-height:1.45;
+      color:var(--text-dark);
+      font-weight:600;
+    }
+    .context-form{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+      gap:12px;
+      margin-top:16px;
+    }
+    .context-field{ display:grid; gap:7px; }
+    .context-span-2{ grid-column:span 2; }
+    .context-field label{
+      font-size:.76rem;
+      line-height:1;
+      font-weight:700;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      color:var(--muted-dark-2);
+    }
+    .context-field input,
+    .context-field select,
+    .context-field textarea{
+      width:100%;
+      min-height:48px;
+      padding:0 14px;
+      border-radius:14px;
+      border:1px solid rgba(21,32,43,.10);
+      background:#FFF;
+      color:var(--text-dark);
+      font-size:.94rem;
+      transition:border-color var(--transition), box-shadow var(--transition), background var(--transition);
+      appearance:none;
+      box-shadow:var(--shadow-soft);
+    }
+    .context-field select{
+      background-image:linear-gradient(45deg, transparent 50%, var(--muted-dark-2) 50%), linear-gradient(135deg, var(--muted-dark-2) 50%, transparent 50%);
+      background-position:calc(100% - 20px) calc(50% - 3px), calc(100% - 14px) calc(50% - 3px);
+      background-size:6px 6px, 6px 6px;
+      background-repeat:no-repeat;
+      padding-right:36px;
+    }
+    .context-field textarea{
+      min-height:92px;
+      padding:13px 14px;
+      resize:vertical;
+    }
+    .context-field input:focus,
+    .context-field select:focus,
+    .context-field textarea:focus{
+      outline:none;
+      border-color:rgba(63,110,161,.34);
+      box-shadow:0 0 0 4px rgba(63,110,161,.10);
+    }
+    .context-disclosure{
+      margin-top:12px;
+      border-top:1px solid rgba(21,32,43,.08);
+      padding-top:12px;
+    }
+    .context-disclosure summary{
+      list-style:none;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      cursor:pointer;
+      font-size:.88rem;
+      line-height:1.45;
+      font-weight:600;
+      color:var(--accent-dark);
+    }
+    .context-disclosure summary::-webkit-details-marker{ display:none; }
+    .context-disclosure summary::after{
+      content:'+';
+      width:20px;height:20px;
+      display:inline-flex;align-items:center;justify-content:center;
+      border-radius:999px;
+      border:1px solid rgba(63,110,161,.18);
+      color:var(--accent);
+      font-size:.92rem;
+      line-height:1;
+    }
+    .context-disclosure[open] summary::after{ content:'−'; }
+    .context-secondary-grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+      gap:12px;
+      margin-top:12px;
+    }
+    .context-actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:16px;
+    }
+    .context-actions .btn{ min-height:46px; min-width:0; }
+    .context-status{
+      margin-top:12px;
+      color:var(--muted-dark-2);
+      min-height:24px;
+    }
+    .recent-runs-card{
+      display:grid;
+      align-content:start;
+      gap:12px;
+    }
+    .recent-runs-list{
+      display:grid;
+      gap:10px;
+      margin-top:2px;
+    }
+    .recent-run-item{
+      padding:14px 14px 13px;
+      border-radius:14px;
+      background:linear-gradient(180deg,#FFFFFF 0%, #FBFCFE 100%);
+      border:1px solid rgba(21,32,43,.08);
+      box-shadow:var(--shadow-soft);
+    }
+    .recent-run-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:4px;
+    }
+    .recent-run-title{
+      font-size:.9rem;
+      line-height:1.35;
+      font-weight:700;
+      color:var(--text-dark);
+    }
+    .recent-run-link{
+      font-size:.82rem;
+      line-height:1;
+      font-weight:600;
+      color:var(--accent);
+      white-space:nowrap;
+    }
+    .recent-run-link:hover,
+    .recent-run-link:focus-visible{ color:var(--accent-dark); outline:none; }
+    .recent-run-empty{
+      padding:14px 14px 13px;
+      border-radius:14px;
+      background:#FBFCFE;
+      border:1px dashed rgba(21,32,43,.12);
+      font-size:.88rem;
+      line-height:1.58;
+      color:var(--muted-dark-2);
+    }
+
     .synthesis-shell{
       margin-top:22px;
       margin-bottom:22px;
@@ -1433,103 +1720,6 @@
         </div>
       </section>
 
-      <section class="panel" id="hub-context-panel">
-        <h3>Set shared run context once</h3>
-        <p>Use this only when you plan to run more than one diagnostic against the same event path. It saves common context locally in this browser so you do not have to re-enter the same basics across tools.</p>
-        <div class="context-grid">
-          <div class="context-card">
-            <h4>Hub Context Card</h4>
-            <p>Keep it narrow: one event path, one participant lens, one depth, and one operating slice. You can clear it any time.</p>
-            <div class="context-helper">Best for repeated use across the same event path. Skip this if you are only running one tool or if the context is changing between runs.</div>
-            <div class="context-form">
-              <div class="context-field context-span-2">
-                <label for="ctxPathName">Current event path</label>
-                <input id="ctxPathName" type="text" placeholder="e.g. Contract review escalation" />
-              </div>
-              <div class="context-field">
-                <label for="ctxLens">Participant lens</label>
-                <select id="ctxLens">
-                  <option value="">Select one</option>
-                  <option value="operational">Operational</option>
-                  <option value="managerial">Managerial</option>
-                  <option value="executive">Executive</option>
-                </select>
-              </div>
-              <div class="context-field">
-                <label for="ctxDepth">Run depth</label>
-                <select id="ctxDepth">
-                  <option value="">Select one</option>
-                  <option value="10">10-minute diagnostic</option>
-                  <option value="30">30-minute diagnostic</option>
-                  <option value="60">60-minute diagnostic</option>
-                </select>
-              </div>
-              <div class="context-field">
-                <label for="ctxBusinessUnit">Team or function</label>
-                <input id="ctxBusinessUnit" type="text" placeholder="e.g. Operations" />
-              </div>
-              <div class="context-field">
-                <label for="ctxDecisionType">Path type</label>
-                <select id="ctxDecisionType">
-                  <option value="">Select one</option>
-                  <option value="procurement">Procurement / vendor</option>
-                  <option value="hiring">Hiring / staffing</option>
-                  <option value="budget">Budget / funding</option>
-                  <option value="policy">Policy / governance</option>
-                  <option value="program">Program / project</option>
-                  <option value="risk">Risk / exception</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-              <div class="context-field">
-                <label for="ctxIndustry">Industry</label>
-                <select id="ctxIndustry">
-                  <option value="">Select one</option>
-                  <option value="government_defense">Government / defense</option>
-                  <option value="financial_services">Financial services</option>
-                  <option value="healthcare_life_sciences">Healthcare / life sciences</option>
-                  <option value="technology_software">Technology / software</option>
-                  <option value="manufacturing_industrial">Manufacturing / industrial</option>
-                  <option value="energy_utilities">Energy / utilities</option>
-                  <option value="retail_consumer">Retail / consumer</option>
-                  <option value="education_nonprofit">Education / nonprofit</option>
-                  <option value="professional_services">Professional services</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-              <div class="context-field">
-                <label for="ctxRegulatoryIntensity">Regulatory intensity</label>
-                <select id="ctxRegulatoryIntensity">
-                  <option value="">Select one</option>
-                  <option value="low">Lower-regulation environment</option>
-                  <option value="moderate">Moderate-regulation environment</option>
-                  <option value="high">High-regulation environment</option>
-                </select>
-              </div>
-              <div class="context-field">
-                <label for="ctxEmployeeCount">Organization size</label>
-                <input id="ctxEmployeeCount" type="number" min="1" placeholder="e.g. 2400" />
-              </div>
-              <div class="context-field context-span-2">
-                <label for="ctxDescription">Short issue summary</label>
-                <textarea id="ctxDescription" placeholder="Brief note to carry across runs."></textarea>
-              </div>
-            </div>
-            <div class="context-actions">
-              <button class="btn btn-accent" type="button" id="saveHubContextBtn">Save shared context</button>
-              <button class="btn btn-subtle" type="button" id="clearHubContextBtn">Clear context</button>
-            </div>
-            <p class="context-status" id="hubContextStatus">No shared context saved in this browser yet.</p>
-          </div>
-          <aside class="recent-runs-card">
-            <h4>Recent runs on this device</h4>
-            <p>Quick return links for the last few diagnostics launched from this browser. This is local only and can be cleared by clearing browser storage.</p>
-            <div class="recent-runs-list" id="recentRunsList"></div>
-            <div class="recent-run-empty" id="recentRunsEmpty">No recent runs yet. Once you complete diagnostics, the last 3–5 runs will appear here.</div>
-          </aside>
-        </div>
-      </section>
-
       <section class="panel">
         <h3>How to use the suite</h3>
         <p>The strongest first run is narrow, intentional, and tied to one clear symptom.</p>
@@ -1680,6 +1870,131 @@
             Each diagnostic opens in its own dedicated environment. Start with the strongest fit, then return to the suite as your understanding of the structural issue becomes clearer.
           </p>
         </div>
+
+
+        <section class="shared-context-shell" id="hub-context-panel" aria-label="Shared run context">
+          <div class="shared-context-card">
+            <div class="shared-context-top">
+              <div>
+                <p class="shared-context-kicker">Optional workflow accelerator</p>
+                <h4 class="shared-context-title">Shared run context</h4>
+                <p class="shared-context-copy">Use this only when you plan to launch more than one diagnostic against the same event path. Save the common context once, then carry it across tools from this browser.</p>
+              </div>
+              <div class="shared-context-flag">Repeated use only</div>
+            </div>
+            <p class="context-helper">Keep it narrow: one event path, one participant lens, one depth, and one operating slice. Skip this if you are only running one diagnostic or if the context will change between runs.</p>
+
+            <div class="context-summary" id="hubContextSummary" aria-live="polite">
+              <div class="context-pill">
+                <p class="context-pill-label">Current path</p>
+                <p class="context-pill-value" id="summaryPath">Not set</p>
+              </div>
+              <div class="context-pill">
+                <p class="context-pill-label">Participant lens</p>
+                <p class="context-pill-value" id="summaryLens">Not set</p>
+              </div>
+              <div class="context-pill">
+                <p class="context-pill-label">Run depth</p>
+                <p class="context-pill-value" id="summaryDepth">Not set</p>
+              </div>
+            </div>
+
+            <div class="context-form">
+              <div class="context-field context-span-2">
+                <label for="ctxPathName">Current event path</label>
+                <input id="ctxPathName" type="text" placeholder="e.g. Contract review escalation" />
+              </div>
+              <div class="context-field">
+                <label for="ctxLens">Participant lens</label>
+                <select id="ctxLens">
+                  <option value="">Select one</option>
+                  <option value="operational">Operational</option>
+                  <option value="managerial">Managerial</option>
+                  <option value="executive">Executive</option>
+                </select>
+              </div>
+              <div class="context-field">
+                <label for="ctxDepth">Run depth</label>
+                <select id="ctxDepth">
+                  <option value="">Select one</option>
+                  <option value="10">10-minute diagnostic</option>
+                  <option value="30">30-minute diagnostic</option>
+                  <option value="60">60-minute diagnostic</option>
+                </select>
+              </div>
+              <div class="context-field context-span-2">
+                <label for="ctxBusinessUnit">Team or function</label>
+                <input id="ctxBusinessUnit" type="text" placeholder="e.g. Operations" />
+              </div>
+            </div>
+
+            <details class="context-disclosure">
+              <summary>Add more context</summary>
+              <div class="context-secondary-grid">
+                <div class="context-field">
+                  <label for="ctxDecisionType">Path type</label>
+                  <select id="ctxDecisionType">
+                    <option value="">Select one</option>
+                    <option value="procurement">Procurement / vendor</option>
+                    <option value="hiring">Hiring / staffing</option>
+                    <option value="budget">Budget / funding</option>
+                    <option value="policy">Policy / governance</option>
+                    <option value="program">Program / project</option>
+                    <option value="risk">Risk / exception</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div class="context-field">
+                  <label for="ctxIndustry">Industry</label>
+                  <select id="ctxIndustry">
+                    <option value="">Select one</option>
+                    <option value="government_defense">Government / defense</option>
+                    <option value="financial_services">Financial services</option>
+                    <option value="healthcare_life_sciences">Healthcare / life sciences</option>
+                    <option value="technology_software">Technology / software</option>
+                    <option value="manufacturing_industrial">Manufacturing / industrial</option>
+                    <option value="energy_utilities">Energy / utilities</option>
+                    <option value="retail_consumer">Retail / consumer</option>
+                    <option value="education_nonprofit">Education / nonprofit</option>
+                    <option value="professional_services">Professional services</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div class="context-field">
+                  <label for="ctxRegulatoryIntensity">Regulatory intensity</label>
+                  <select id="ctxRegulatoryIntensity">
+                    <option value="">Select one</option>
+                    <option value="low">Lower-regulation environment</option>
+                    <option value="moderate">Moderate-regulation environment</option>
+                    <option value="high">High-regulation environment</option>
+                  </select>
+                </div>
+                <div class="context-field">
+                  <label for="ctxEmployeeCount">Organization size</label>
+                  <input id="ctxEmployeeCount" type="number" min="1" placeholder="e.g. 2400" />
+                </div>
+                <div class="context-field context-span-2">
+                  <label for="ctxDescription">Short issue summary</label>
+                  <textarea id="ctxDescription" placeholder="Brief note to carry across runs."></textarea>
+                </div>
+              </div>
+            </details>
+
+            <div class="context-actions">
+              <button class="btn btn-accent" type="button" id="saveHubContextBtn">Save shared context</button>
+              <button class="btn btn-subtle" type="button" id="clearHubContextBtn">Clear context</button>
+            </div>
+            <p class="context-status" id="hubContextStatus">No shared context saved in this browser yet.</p>
+          </div>
+
+          <aside class="recent-runs-card">
+            <p class="recent-runs-kicker">Local continuity</p>
+            <h4 class="recent-runs-title">Recent runs on this device</h4>
+            <p>Quick return links for the last few diagnostics launched from this browser. This stays local to this device and can be cleared any time.</p>
+            <div class="recent-runs-list" id="recentRunsList"></div>
+            <div class="recent-run-empty" id="recentRunsEmpty">No recent runs yet. Once you complete diagnostics, the last 3–5 runs will appear here.</div>
+          </aside>
+        </section>
 
         <div class="tools-grid">
           <article class="tool-card">
@@ -2480,9 +2795,20 @@
         if (el) el.value = value;
       });
       const status = document.getElementById("hubContextStatus");
+      const summary = document.getElementById("hubContextSummary");
+      const summaryPath = document.getElementById("summaryPath");
+      const summaryLens = document.getElementById("summaryLens");
+      const summaryDepth = document.getElementById("summaryDepth");
+      if (summary && summaryPath && summaryLens && summaryDepth) {
+        const hasContext = !!context.pathName;
+        summary.classList.toggle("show", hasContext);
+        summaryPath.textContent = context.pathName || "Not set";
+        summaryLens.textContent = context.lensLabel || "Not set";
+        summaryDepth.textContent = context.depthLabel || "Not set";
+      }
       if (status) {
         status.textContent = context.pathName
-          ? `Shared context saved locally for ${context.pathName}. Use it only when multiple runs share the same event path.`
+          ? `Shared context saved locally for ${context.pathName}. Launch any tool below to reuse it.`
           : "No shared context saved in this browser yet.";
       }
     }
