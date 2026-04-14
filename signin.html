@@ -14,20 +14,250 @@
     @font-face { font-family: "Neue Haas Grotesk"; src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff"); font-style: normal; font-weight: 400; font-display: swap; }
     @font-face { font-family: "Neue Haas Grotesk"; src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff"); font-style: normal; font-weight: 500; font-display: swap; }
     @font-face { font-family: "Neue Haas Grotesk"; src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff"); font-style: normal; font-weight: 700; font-display: swap; }
-    :root{--accent:#3F6EA1;--accent-dark:#2F5886;--bg:#F6F7F9;--text:#15202B;--muted:#596572;--line:rgba(21,32,43,.08);--soft:0 1px 0 rgba(0,0,0,.012),0 18px 36px rgba(0,0,0,.05);--max:1180px}
-    *{box-sizing:border-box} body{margin:0;background:linear-gradient(180deg,#0F1720 0%,#131C27 36%,#F6F7F9 36%,#F6F7F9 100%);font-family:"Neue Haas Grotesk","Helvetica Neue",Arial,sans-serif;color:var(--text)}
-    .wrap{max-width:var(--max);margin:0 auto;padding:72px 24px}.shell{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(340px,.78fr);gap:20px;align-items:stretch}
-    .hero,.card{border-radius:24px}.hero{padding:44px 36px;background:linear-gradient(180deg,#0F1720 0%,#121B25 100%);color:#fff;position:relative;overflow:hidden}.hero:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 78% 18%, rgba(63,110,161,.16) 0%, rgba(63,110,161,.07) 20%, transparent 36%),linear-gradient(135deg, rgba(63,110,161,.03) 1px, transparent 1px);background-size:auto,34px 34px;opacity:.5}
-    .hero > *{position:relative;z-index:1}.eyebrow{margin:0 0 16px;font-size:.76rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:rgba(245,247,250,.64)} h1{margin:0 0 16px;font-size:clamp(2.2rem,4vw,3.4rem);line-height:.96;letter-spacing:-.05em;max-width:11ch} .hero p{max-width:42ch;font-size:1.02rem;line-height:1.7;color:rgba(245,247,250,.8)}
-    .proof-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:26px}.proof{padding:16px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)}.proof strong{display:block;margin:0 0 8px;font-size:.92rem;line-height:1.2}.proof span{display:block;font-size:.84rem;line-height:1.5;color:rgba(245,247,250,.72)}
-    .card{padding:32px 28px;background:rgba(255,255,255,.98);border:1px solid var(--line);box-shadow:var(--soft)} h2{margin:0 0 12px;font-size:1.9rem;line-height:1.06;letter-spacing:-.05em} .card-copy{margin:0 0 20px;font-size:.98rem;line-height:1.68;color:var(--muted)}
-    .signin-btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:54px;width:100%;padding:0 18px;border-radius:999px;border:1px solid rgba(21,32,43,.12);background:#fff;box-shadow:0 14px 28px rgba(15,23,32,.05);font-size:.98rem;font-weight:600;color:var(--text);cursor:pointer;transition:transform .18s ease, box-shadow .18s ease,border-color .18s ease}
-    .signin-btn:hover,.signin-btn:focus-visible{transform:translateY(-1px);outline:none;border-color:rgba(63,110,161,.28);box-shadow:0 16px 28px rgba(15,23,32,.08)}
-    .status{min-height:26px;margin-top:16px;font-size:.9rem;line-height:1.55;color:var(--muted)} .status.error{color:#8A3946}.status.ok{color:#456A4B}
-    .small{margin-top:18px;font-size:.88rem;line-height:1.58;color:#7B8792}
-    .small code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#F5F7FA;padding:2px 5px;border-radius:6px}
-    .flag{display:inline-flex;align-items:center;gap:8px;margin:0 0 18px;padding:8px 12px;border-radius:999px;background:rgba(63,110,161,.08);border:1px solid rgba(63,110,161,.16);font-size:.72rem;font-weight:700;line-height:1;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-dark)}
-    @media (max-width:980px){.shell{grid-template-columns:1fr}.wrap{padding:40px 20px 52px}.hero,.card{padding:28px 22px}.proof-grid{grid-template-columns:1fr}}
+
+    :root{
+      --accent:#3F6EA1;
+      --accent-dark:#2F5886;
+      --bg:#F4F6F9;
+      --text:#15202B;
+      --muted:#5B6774;
+      --muted-2:#7C8794;
+      --line:rgba(21,32,43,.08);
+      --line-strong:rgba(21,32,43,.12);
+      --shadow-lg:0 28px 70px rgba(15,23,32,.10);
+      --shadow-md:0 18px 40px rgba(15,23,32,.08);
+      --shadow-sm:0 8px 18px rgba(15,23,32,.05);
+      --max:1200px;
+      --transition:220ms cubic-bezier(.22,1,.36,1);
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      min-height:100vh;
+      font-family:"Neue Haas Grotesk","Helvetica Neue",Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 82% 14%, rgba(63,110,161,.12), transparent 24%),
+        radial-gradient(circle at 14% 82%, rgba(63,110,161,.05), transparent 26%),
+        linear-gradient(180deg, #0F1720 0%, #121B25 34%, #F4F6F9 34%, #F4F6F9 100%);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      text-rendering:optimizeLegibility;
+    }
+
+    button,input,select,textarea{font:inherit}
+    a{text-decoration:none;color:inherit}
+
+    .wrap{max-width:var(--max);margin:0 auto;padding:72px 24px 56px}
+    .shell{display:grid;grid-template-columns:minmax(0,1.06fr) minmax(360px,.78fr);gap:20px;align-items:stretch}
+
+    .hero,.card{border-radius:28px;border:1px solid var(--line)}
+
+    .hero{
+      position:relative;
+      overflow:hidden;
+      padding:44px 40px;
+      background:linear-gradient(180deg,#0F1720 0%, #121B25 100%);
+      color:#F5F7FA;
+      box-shadow:var(--shadow-lg);
+    }
+    .hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background:
+        radial-gradient(circle at 78% 18%, rgba(63,110,161,.18) 0%, rgba(63,110,161,.07) 21%, transparent 38%),
+        linear-gradient(135deg, rgba(63,110,161,.03) 1px, transparent 1px);
+      background-size:auto, 34px 34px;
+      opacity:.5;
+    }
+    .hero > *{position:relative;z-index:1}
+
+    .eyebrow{
+      margin:0 0 18px;
+      font-size:.76rem;
+      font-weight:700;
+      letter-spacing:.22em;
+      text-transform:uppercase;
+      color:rgba(245,247,250,.62);
+    }
+
+    .flag{
+      display:none;
+      align-items:center;
+      gap:8px;
+      width:max-content;
+      margin:0 0 18px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(63,110,161,.10);
+      border:1px solid rgba(63,110,161,.18);
+      font-size:.72rem;
+      font-weight:700;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:#D9E5F2;
+    }
+
+    h1{
+      margin:0 0 16px;
+      max-width:11ch;
+      font-size:clamp(2.3rem,4vw,3.7rem);
+      line-height:.95;
+      letter-spacing:-.055em;
+    }
+
+    .hero-copy{
+      max-width:44ch;
+      margin:0;
+      font-size:1.03rem;
+      line-height:1.72;
+      color:rgba(245,247,250,.80);
+    }
+
+    .proof-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-top:28px;
+    }
+
+    .proof{
+      padding:16px;
+      border-radius:18px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .proof strong{
+      display:block;
+      margin:0 0 8px;
+      font-size:.92rem;
+      line-height:1.2;
+      color:#F5F7FA;
+    }
+    .proof span{
+      display:block;
+      font-size:.84rem;
+      line-height:1.52;
+      color:rgba(245,247,250,.72);
+    }
+
+    .card{
+      padding:34px 30px;
+      background:rgba(255,255,255,.98);
+      box-shadow:var(--shadow-md);
+      display:grid;
+      align-content:start;
+    }
+
+    .card-kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      width:max-content;
+      margin:0 0 18px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(63,110,161,.08);
+      border:1px solid rgba(63,110,161,.14);
+      color:var(--accent-dark);
+      font-size:.72rem;
+      font-weight:700;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+    }
+
+    h2{
+      margin:0 0 12px;
+      font-size:2rem;
+      line-height:1.04;
+      letter-spacing:-.05em;
+    }
+
+    .card-copy{
+      margin:0 0 22px;
+      font-size:.98rem;
+      line-height:1.7;
+      color:var(--muted);
+    }
+
+    .signin-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      width:100%;
+      min-height:56px;
+      padding:0 18px;
+      border-radius:999px;
+      border:1px solid var(--line-strong);
+      background:#fff;
+      color:var(--text);
+      box-shadow:0 14px 28px rgba(15,23,32,.05);
+      font-size:.98rem;
+      font-weight:600;
+      cursor:pointer;
+      transition:transform var(--transition), box-shadow var(--transition), border-color var(--transition), background var(--transition);
+    }
+    .signin-btn:hover,.signin-btn:focus-visible{
+      outline:none;
+      transform:translateY(-1px);
+      border-color:rgba(63,110,161,.26);
+      box-shadow:0 16px 28px rgba(15,23,32,.08);
+    }
+
+    .status-shell{
+      min-height:56px;
+      margin-top:16px;
+      padding:14px 16px;
+      border-radius:18px;
+      background:#F8FAFC;
+      border:1px solid rgba(21,32,43,.08);
+      display:grid;
+      align-items:center;
+    }
+
+    .status{
+      margin:0;
+      font-size:.92rem;
+      line-height:1.58;
+      color:var(--muted);
+    }
+    .status.error{color:#8A3946}
+    .status.ok{color:#456A4B}
+
+    .support-note{
+      margin-top:18px;
+      padding-top:18px;
+      border-top:1px solid rgba(21,32,43,.08);
+      font-size:.88rem;
+      line-height:1.6;
+      color:var(--muted-2);
+    }
+
+    .target-note{
+      margin-top:14px;
+      font-size:.82rem;
+      line-height:1.55;
+      color:var(--muted-2);
+    }
+
+    .target-note span{
+      display:inline-block;
+      margin-top:4px;
+      color:var(--muted);
+      font-weight:500;
+    }
+
+    @media (max-width:980px){
+      .shell{grid-template-columns:1fr}
+      .wrap{padding:40px 20px 52px}
+      .hero,.card{padding:28px 22px}
+      .proof-grid{grid-template-columns:1fr}
+    }
   </style>
 </head>
 <body>
@@ -35,24 +265,33 @@
     <div class="shell">
       <section class="hero">
         <p class="eyebrow">Monderman Workspace</p>
-        <div class="flag" id="assignmentFlag" style="display:none;">Assigned diagnostic</div>
-        <h1 id="heroTitle">Create or open your Workspace.</h1>
-        <p id="heroCopy">Use Google sign-in to create your Monderman Workspace. On first sign-in, Monderman will create your user profile and a workspace membership automatically, then send you to the right destination.</p>
+        <div class="flag" id="assignmentFlag">Assigned diagnostic</div>
+        <h1 id="heroTitle">Enter your Workspace.</h1>
+        <p class="hero-copy" id="heroCopy">Use Google sign-in to open your Monderman Workspace. On first entry, Monderman creates your user profile and workspace membership automatically, then routes you to the right destination with continuity intact.</p>
         <div class="proof-grid">
-          <div class="proof"><strong>Saved runs</strong><span>Keep diagnostic history tied to one workspace instead of one browser session.</span></div>
-          <div class="proof"><strong>Repeated use</strong><span>Return to the same event path without rebuilding context every time.</span></div>
-          <div class="proof"><strong>Product continuity</strong><span>Create the foundation for synthesis history and temporal analysis.</span></div>
+          <div class="proof"><strong>Saved continuity</strong><span>Keep diagnostic history tied to your workspace instead of one browser session.</span></div>
+          <div class="proof"><strong>Structured return</strong><span>Re-enter the right context without rebuilding the same path each time.</span></div>
+          <div class="proof"><strong>Premium foundation</strong><span>Support synthesis history, assignment flow, and longitudinal analysis over time.</span></div>
         </div>
       </section>
+
       <section class="card">
+        <div class="card-kicker">Secure access</div>
         <h2 id="cardTitle">Continue with Google</h2>
-        <p class="card-copy" id="cardCopy">After sign-in, Monderman confirms your user record, resolves workspace membership, and redirects you to the intended page.</p>
+        <p class="card-copy" id="cardCopy">Monderman will confirm your account, resolve workspace access, and send you to the correct destination without exposing technical details along the way.</p>
         <button class="signin-btn" id="googleSignInBtn" type="button">Sign in with Google</button>
-        <p class="status" id="status">Preparing sign-in…</p>
-        <p class="small">Target after sign-in: <code id="nextDisplay">workspace.html</code></p>
+
+        <div class="status-shell">
+          <p class="status" id="status">Preparing secure sign-in…</p>
+        </div>
+
+        <div class="target-note" id="targetNote" aria-live="polite">Destination after sign-in<br><span id="nextDisplay">Workspace</span></div>
+
+        <p class="support-note">If sign-in pauses or your assignment does not open correctly, return to the original link and try again with the same Google account that received access.</p>
       </section>
     </div>
   </div>
+
   <script type="module">
     import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -74,15 +313,26 @@
     const cardCopy = document.getElementById('cardCopy');
     const nextDisplay = document.getElementById('nextDisplay');
 
-    document.getElementById('nextDisplay').textContent = nextUrl;
+    function describeDestination(path) {
+      const clean = String(path || '').toLowerCase();
+      if (clean.includes('workspace')) return 'Workspace';
+      if (clean.includes('decision-velocity')) return 'Decision Velocity';
+      if (clean.includes('structural-clarity')) return 'Structural Clarity';
+      if (clean.includes('bureaucratic-drag') || clean.includes('operational')) return 'Operational Systems';
+      if (clean.includes('institutional-performance')) return 'Institutional Performance';
+      if (clean.includes('diagnostic-tools')) return 'Diagnostic Hub';
+      return 'Requested destination';
+    }
+
+    nextDisplay.textContent = describeDestination(nextUrl);
 
     if (assignmentToken) {
       assignmentFlag.style.display = 'inline-flex';
       heroTitle.textContent = 'Open your assigned diagnostic.';
-      heroCopy.textContent = 'Use Google sign-in to confirm your identity, resolve the assignment to your account, and open the correct diagnostic with its shared context.';
+      heroCopy.textContent = 'Use Google sign-in to confirm identity, connect the assignment to the correct account, and enter the intended diagnostic with its shared context already in place.';
       cardTitle.textContent = 'Continue to your assignment';
-      cardCopy.textContent = 'After sign-in, Monderman will verify the assignment token, match it to your email address, and redirect you into the assigned diagnostic.';
-      nextDisplay.textContent = 'assignment redirect';
+      cardCopy.textContent = 'After sign-in, Monderman will verify the assignment, match it to the signed-in email, and route you directly into the assigned diagnostic.';
+      nextDisplay.textContent = 'Assigned diagnostic';
     }
 
     function setStatus(message, tone='') {
@@ -156,8 +406,8 @@
         .eq('token', assignmentToken)
         .single();
 
-      if (assignmentError) throw new Error('Assignment could not be read. The token may be invalid, or the current policies may not yet allow this type of recipient lookup.');
-      if (!assignment) throw new Error('No assignment was found for this link.');
+      if (assignmentError) throw new Error('The assignment could not be verified. Please reopen the original link and try again.');
+      if (!assignment) throw new Error('This assignment link could not be found.');
 
       const signedInEmail = String(user.email || '').trim().toLowerCase();
       const assignedEmail = String(assignment.assigned_to_email || '').trim().toLowerCase();
@@ -195,32 +445,35 @@
         provider: 'google',
         options: { redirectTo: redirectTarget }
       });
-      if (error) setStatus(`Sign-in error: ${error.message}`, 'error');
+      if (error) setStatus('Google sign-in could not be started. Please try again.', 'error');
     });
 
     async function initialize() {
       try {
         const { data, error } = await supabase.auth.getUser();
         if (error) throw error;
+
         if (!data?.user) {
           setStatus(assignmentToken ? 'Continue with Google to open your assigned diagnostic.' : 'Continue with Google to open your Workspace.');
           return;
         }
 
-        setStatus(`Signed in as ${data.user.email || data.user.id}. Preparing your destination…`, 'ok');
+        const signedInName = data.user.user_metadata?.full_name || data.user.user_metadata?.name || data.user.email || 'your account';
+        setStatus(`Signed in as ${signedInName}. Preparing your destination…`, 'ok');
+
         await ensureUserAndMembership(data.user);
 
         let destination = nextUrl || 'workspace.html';
         if (assignmentToken) {
-          setStatus('Signed in. Verifying assignment and matching it to your account…', 'ok');
+          setStatus('Verified. Preparing your assigned diagnostic…', 'ok');
           destination = await resolveAssignment(data.user);
         }
 
-        setStatus('Ready. Redirecting…', 'ok');
+        setStatus('Ready. Opening your destination…', 'ok');
         window.location.replace(destination);
       } catch (error) {
         console.error(error);
-        setStatus(error.message || 'Workspace bootstrap failed.', 'error');
+        setStatus('We could not complete sign-in right now. Please try again in a moment.', 'error');
       }
     }
 
