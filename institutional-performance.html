@@ -210,6 +210,111 @@
     </div></section>
   </main></div>
 <script>
+
+// === DIAGNOSTIC INTERPRETATION LAYER — transparent, auditable, architecturally distinct ===
+// (structured expert judgment, not empirical validation)
+const DiagnosticInterpretationLayer = {
+  constructs: {
+    execution_coherence:      { name: "Execution Coherence",      weight: 0.28, anchor: "Intent-to-Execution Translation" },
+    decision_reliability:     { name: "Decision Reliability",     weight: 0.25, anchor: "Decision Rights & Accountability Design" },
+    adaptive_capacity:        { name: "Adaptive Capacity",        weight: 0.22, anchor: "Complex Adaptive Systems" },
+    institutional_confidence: { name: "Institutional Confidence", weight: 0.15, anchor: "Institutional Theory" },
+    performance_stability:    { name: "Performance Stability",    weight: 0.10, anchor: "Resilience Engineering" }
+  },
+
+  sectorBenchmarks: {
+    government_defense:       { industryMin: 54, industryMax: 67, opportunityMin: 70, opportunityMax: 82, typicalDrag: 24 },
+    financial_services:       { industryMin: 56, industryMax: 69, opportunityMin: 72, opportunityMax: 84, typicalDrag: 22 },
+    healthcare_life_sciences: { industryMin: 55, industryMax: 68, opportunityMin: 71, opportunityMax: 83, typicalDrag: 23 },
+    technology_software:      { industryMin: 61, industryMax: 74, opportunityMin: 78, opportunityMax: 90, typicalDrag: 17 },
+    manufacturing_industrial: { industryMin: 58, industryMax: 71, opportunityMin: 75, opportunityMax: 87, typicalDrag: 18 },
+    energy_utilities:         { industryMin: 56, industryMax: 69, opportunityMin: 72, opportunityMax: 84, typicalDrag: 21 },
+    retail_consumer:          { industryMin: 58, industryMax: 71, opportunityMin: 74, opportunityMax: 86, typicalDrag: 18 },
+    education_nonprofit:      { industryMin: 55, industryMax: 68, opportunityMin: 71, opportunityMax: 83, typicalDrag: 20 },
+    professional_services:    { industryMin: 60, industryMax: 73, opportunityMin: 76, opportunityMax: 88, typicalDrag: 17 },
+    other:                    { industryMin: 57, industryMax: 70, opportunityMin: 72, opportunityMax: 84, typicalDrag: 19 }
+  },
+
+  computeDimensionScore: function(dims) {
+    let score = 0;
+    Object.keys(this.constructs).forEach(key => {
+      if (dims && dims[key] !== undefined) score += (Number(dims[key]) || 0) * this.constructs[key].weight;
+    });
+    return Math.min(100, Math.max(0, Math.round(score)));
+  },
+
+  normalizeIndustry: function(payload) {
+    const raw = String(payload?.industrySelection || payload?.industry || payload?.sectorSelection || payload?.sector || "other").toLowerCase();
+    return this.sectorBenchmarks[raw] ? raw : "other";
+  },
+
+  getSectorCalibration: function(payload) {
+    const sectorKey = this.normalizeIndustry(payload);
+    const base = {...(this.sectorBenchmarks[sectorKey] || this.sectorBenchmarks.other)};
+    const employeeCount = Number(payload?.employeeCount || 0);
+    const regulatoryIntensity = String(payload?.regulatoryIntensity || payload?.operatingCondition || "").toLowerCase();
+
+    if (employeeCount >= 5000) {
+      base.industryMin -= 2; base.industryMax -= 1; base.opportunityMin -= 1; base.opportunityMax -= 1; base.typicalDrag += 2;
+    } else if (employeeCount > 0 && employeeCount < 250) {
+      base.industryMin += 1; base.industryMax += 2; base.opportunityMin += 1; base.opportunityMax += 2; base.typicalDrag -= 1;
+    }
+
+    if (regulatoryIntensity === "high") {
+      base.industryMin -= 2; base.industryMax -= 2; base.opportunityMin -= 2; base.opportunityMax -= 2; base.typicalDrag += 3;
+    } else if (regulatoryIntensity === "low") {
+      base.industryMin += 1; base.industryMax += 1; base.opportunityMin += 1; base.opportunityMax += 1; base.typicalDrag -= 1;
+    }
+
+    base.industryMin = Math.max(35, Math.min(90, base.industryMin));
+    base.industryMax = Math.max(base.industryMin + 4, Math.min(95, base.industryMax));
+    base.opportunityMin = Math.max(base.industryMax + 1, Math.min(95, base.opportunityMin));
+    base.opportunityMax = Math.max(base.opportunityMin + 4, Math.min(98, base.opportunityMax));
+    return base;
+  },
+
+  deriveWorldviewAlignment: function(result, payload) {
+    const score = Number(result?.score || 50);
+    const sectorKey = this.normalizeIndustry(payload);
+    let primary = "institutional-fragility";
+    if (score >= 82) primary = "complex-adaptive";
+    else if (score >= 65) primary = "institutionally-stable";
+    else if (score >= 45) primary = "institutionally-exposed";
+
+    let secondary = "contingency-fit";
+    if (["government_defense","financial_services","healthcare_life_sciences","energy_utilities"].includes(sectorKey)) secondary = "institutional-legitimacy";
+    else if (["technology_software"].includes(sectorKey)) secondary = "agile-learning";
+    else if (["manufacturing_industrial"].includes(sectorKey)) secondary = "operating-discipline";
+
+    return { primary, secondary, label: `${primary} + ${secondary}` };
+  },
+
+  estimateReclaimPotential: function(result, payload) {
+    const annualCost = Number(result?.exposure?.annual_cost || 0);
+    const dims = getInstitutionalDimensions(result || {});
+    const coherenceGap = Math.max(0, 100 - Number(dims.execution_coherence || 0));
+    const confidenceGap = Math.max(0, 100 - Number(dims.institutional_confidence || 0));
+    const adaptiveGap = Math.max(0, 100 - Number(dims.adaptive_capacity || 0));
+    const compensatory = Number(dims.compensatory_effort || 0);
+    const weighted = ((Math.max(coherenceGap, compensatory) * 0.5) + (confidenceGap * 0.25) + (adaptiveGap * 0.25)) / 100;
+    const sector = this.getSectorCalibration(payload || {});
+    const recoverableFactor = Math.max(0.10, Math.min(0.42, (weighted * 0.40) + (sector.typicalDrag / 250)));
+    const recoverable = Math.round(annualCost * recoverableFactor);
+
+    let driverText = "Estimated primarily from the current gap between visible performance and the institutional condition required to sustain it.";
+    if (compensatory >= coherenceGap && compensatory >= confidenceGap) driverText = "Estimated primarily from visible compensatory effort, with secondary weight on confidence erosion and adaptive strain.";
+    else if (confidenceGap >= coherenceGap && confidenceGap >= adaptiveGap) driverText = "Estimated primarily from confidence erosion, with secondary weight on coherence and adaptive strain.";
+    else if (adaptiveGap >= coherenceGap) driverText = "Estimated primarily from adaptive strain, with secondary weight on coherence and institutional confidence.";
+    else driverText = "Estimated primarily from execution-coherence weakness, with secondary weight on confidence erosion and compensatory effort.";
+
+    return {
+      amount: recoverable,
+      factor: Math.round(recoverableFactor * 100),
+      driverText
+    };
+  }
+};
+
 const API_BASE = "https://monderman-api.onrender.com";
 const LOADER_MS = 3600;
 const RESULTS_LOADER_MS = 3200;
@@ -1003,7 +1108,7 @@ function buildHarmonizedNarrative(result,payload){
     ? narrative.time_money_resources_summary.trim()
     : `Directional modeling suggests roughly ${Math.round(result.exposure?.annual_hours||0).toLocaleString()} annual hours* and about ${formatCurrency(result.exposure?.annual_cost)} in labor exposure*, with capacity drag around ${Math.round(result.exposure?.capacity_drag_percent||0)}%*. These are directional estimates intended to support deeper leadership review, not audited measurements.`;
 
-  const benchmark = buildBenchmarkInterpretationText({...result,__interpretiveState:state});
+  const benchmark = buildBenchmarkInterpretationText({...result,__interpretiveState:state}, payload);
 
   const opportunityFields = {
     title: backendOpportunity.title || fallbackOpportunity.title,
@@ -1282,15 +1387,30 @@ function buildExecutiveSummary(result,payload){
     opportunity:harmonized.opportunityFields.opening || harmonized.opportunity
   };
 }
-function buildBenchmarkInterpretationText(result){
-  const pos=result.benchmark_position||"Comparable institutional context unavailable";
+function buildBenchmarkInterpretationText(result, payload){
+  const activePayload = payload || result?.__interpretiveState?.payload || {};
+  const worldview = DiagnosticInterpretationLayer.deriveWorldviewAlignment(result, activePayload);
+  const cal = DiagnosticInterpretationLayer.getSectorCalibration(activePayload);
+  const pos = result?.benchmark_position || "Comparable institutional context unavailable";
+  const score = Number(result?.score || 50);
+
+  let text = `Your institutional environment sits ${String(pos).toLowerCase()}. `;
   if(pos==="Within comparable range" || pos==="Within industry range"){
-    return "This institutional environment appears broadly in line with comparable institutional environments in this context. That should be read as context, not comfort: peer-normal pathways can still carry substantial reclaimable fragility.";
+    text += `That should be read as context, not comfort: peer-normal environments can still carry meaningful reclaimable fragility. `;
+  } else if(pos==="Above comparable range" || pos==="Above industry range"){
+    text += `This suggests a stronger current position than many comparable environments, but advantage still has to be preserved against drift. `;
+  } else {
+    text += `This suggests a heavier institutional burden than comparable environments are likely carrying. `;
   }
-  if(pos==="Above comparable range" || pos==="Above industry range"){
-    return "This institutional environment appears stronger than many comparable institutional environments in this context. The leadership task is to preserve and extend that position before routine burden quietly accumulates.";
-  }
-  return "This institutional environment appears below the current comparable range for this type of institutional environment, suggesting heavier burden than peers are likely carrying.";
+
+  text += `From a ${worldview.primary} lens, the current score indicates `;
+  if(score >= 82) text += `stronger coherence, confidence, and adaptive resilience than most strained environments sustain. `;
+  else if(score >= 65) text += `a stable but exposed condition with visible room to strengthen the institutional substrate beneath performance. `;
+  else if(score >= 45) text += `a fragile condition in which visible output may be masking deeper dependence on compensation, management lift, or weakening confidence. `;
+  else text += `a materially degraded condition in which the institution appears to be borrowing performance through compensation rather than carrying it through structure. `;
+
+  text += `A secondary ${worldview.secondary} lens suggests roughly ${cal.typicalDrag}% of institutional drag is often directionally reclaimable in comparable ${humanize(DiagnosticInterpretationLayer.normalizeIndustry(activePayload)).toLowerCase()} settings.`;
+  return text;
 }
 function buildOpportunityText(result){
   // Deprecated helper retained only for backward compatibility.
@@ -1303,21 +1423,8 @@ function buildOpportunityText(result){
   return buildHarmonizedNarrative(result || {}, payload).opportunityFields.opportunityGuidance;
 }
 
-function estimateReclaimPotential(result){
-  const annualCost=Number(result.exposure?.annual_cost||0);
-  const approvalBurden=Math.max(0, Math.min(100, Number(result.burden_breakdown?.approval||0)));
-  const coordinationBurden=Math.max(0, Math.min(100, Number(result.burden_breakdown?.coordination||0)));
-  const topBurden=Math.max(approvalBurden, coordinationBurden);
-  const secondaryBurden=Math.min(approvalBurden, coordinationBurden);
-  const weighted=((topBurden*0.7)+(secondaryBurden*0.3))/100;
-  const recoverableFactor=Math.max(0.10, Math.min(0.42, weighted*0.46));
-  const recoverable=Math.round(annualCost * recoverableFactor);
-  const driverLabel=approvalBurden>=coordinationBurden ? "approval burden" : "coordination burden";
-  return {
-    amount: recoverable,
-    factor: Math.round(recoverableFactor * 100),
-    driverText: `Estimated primarily from the pathway’s visible ${driverLabel}, with secondary weight on the next-largest coordination burden.`
-  };
+function estimateReclaimPotential(result, payload){
+  return DiagnosticInterpretationLayer.estimateReclaimPotential(result, payload);
 }
 function buildQuadrantInterpretation(result){
   const state=result.__interpretiveState || buildInterpretiveState(result,{});
@@ -1462,7 +1569,7 @@ function renderResults(result,payload,outputMode){
   renderList("patternsList",(result.patterns||[]).map(humanize));
   renderList("contradictionsList",(result.contradictions||[]).length?result.contradictions.map(item=>item.message||humanize(item.code||"contradiction")):["No material contradiction signals surfaced in this run."]);
 
-  renderBenchmarkBar(result);
+  renderBenchmarkBar(result, payload);
   renderQuadrant(resultWithState);
 
   renderBarRows("burdenStack",[
@@ -1924,25 +2031,22 @@ function renderBarRows(id, rows){
   });
 }
 
-function renderBenchmarkBar(result){
+function renderBenchmarkBar(result, payload){
   const industryRange = document.getElementById("industryRange");
   const opportunityRange = document.getElementById("opportunityRange");
   const benchmarkMarker = document.getElementById("benchmarkMarker");
   if(!industryRange || !opportunityRange || !benchmarkMarker) return;
 
-  const benchmark=result.benchmark||{};
-  const industryMin=Number.isFinite(benchmark.industryMin)?benchmark.industryMin:(Number.isFinite(benchmark.moderateMin)?benchmark.moderateMin:58);
-  const industryMax=Number.isFinite(benchmark.industryMax)?benchmark.industryMax:(Number.isFinite(benchmark.moderateMax)?benchmark.moderateMax:69);
-  const opportunityMin=Number.isFinite(benchmark.opportunityMin)?benchmark.opportunityMin:(Number.isFinite(benchmark.healthyMin)?benchmark.healthyMin:70);
-  const opportunityMax=Number.isFinite(benchmark.opportunityMax)?benchmark.opportunityMax:(Number.isFinite(benchmark.healthyMax)?benchmark.healthyMax:84);
-  const industryWidth=Math.max(2,Math.min(100,industryMax-industryMin));
-  const opportunityWidth=Math.max(2,Math.min(100,opportunityMax-opportunityMin));
+  const activePayload = payload || result?.__interpretiveState?.payload || {};
+  const cal = DiagnosticInterpretationLayer.getSectorCalibration(activePayload);
 
-  industryRange.style.left=`${Math.max(0,Math.min(100,industryMin))}%`;
-  industryRange.style.width=`${industryWidth}%`;
-  opportunityRange.style.left=`${Math.max(0,Math.min(100,opportunityMin))}%`;
-  opportunityRange.style.width=`${opportunityWidth}%`;
-  const adjustedScore=((result.benchmark_position==="Within industry range" || result.benchmark_position==="Within comparable range") ? Number(result.score||0)+2 : Number(result.score||0));
+  industryRange.style.left=`${Math.max(0,Math.min(100,cal.industryMin))}%`;
+  industryRange.style.width=`${Math.max(4,Math.min(100,cal.industryMax-cal.industryMin))}%`;
+  opportunityRange.style.left=`${Math.max(0,Math.min(100,cal.opportunityMin))}%`;
+  opportunityRange.style.width=`${Math.max(4,Math.min(100,cal.opportunityMax-cal.opportunityMin))}%`;
+
+  const score=Number(result?.score||0);
+  const adjustedScore=((result?.benchmark_position==="Within comparable range" || result?.benchmark_position==="Within industry range") ? score+2 : score);
   benchmarkMarker.style.left=`${Math.max(0,Math.min(100,adjustedScore))}%`;
 }
 
