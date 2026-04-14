@@ -721,7 +721,7 @@ function buildLocalResult(input){
   const annualCost=Math.round(annualHours*Number(input.hourlyCost||0));
   const capacityDrag=Math.round(Math.max(5,Math.min(38,(((100-score)/100)*30)+Math.min(8,Number(input.peopleInvolved||0)/3))));
 
-  const benchmark={label:`${humanize(input.decisionType||"other")} • ${humanize(input.industry||"other")}`,opportunityMin:72,opportunityMax:86,industryMin:60,industryMax:71};
+  const benchmark={...DiagnosticInterpretationLayer.getSectorCalibration(input),label:`${humanize(input.decisionType||"other")} • ${humanize(input.industry||"other")}`};
   const benchmarkPos=score>benchmark.opportunityMax?"Above industry range":score>=benchmark.industryMin?"Within industry range":"Below industry range";
 
   const burdenBreakdown={
@@ -1245,7 +1245,7 @@ function buildRemedyPaths(result,payload,speedConstraint,tradeoffDiagnosis){
   const actions=sanitizeRecommendedActions(buildPriorityActions(result,payload),result,payload);
   const hours=Math.round(Number(result.exposure?.annual_hours||0));
   const annualCost=Number(result.exposure?.annual_cost||0);
-  const reclaim=estimateReclaimPotential(result).amount||0;
+  const reclaim=estimateReclaimPotential(result,payload).amount||0;
 
   const lightValue=Math.round(reclaim*0.22);
   const moderateValue=Math.round(reclaim*0.48);
@@ -1640,7 +1640,8 @@ function buildExecutiveReportHtml(result,payload){
   const reclaim = estimateReclaimPotential(result, payload);
   const remedyPaths = buildRemedyPaths(result,payload,speedConstraint,tradeoffDiagnosis);
   const sectionList = (items)=>`<ul>${(items||[]).map(item=>`<li>${safe(item)}</li>`).join("")}</ul>`;
-  const figureCaption = `Figure 1. Your pathway vs. sector peers — reclaimable drag visible. Even when a pathway falls inside the comparable range, recoverable structural drag may still be present.`;
+    const benchmark = DiagnosticInterpretationLayer.getSectorCalibration(payload);
+const figureCaption = `Figure 1. Your pathway vs. sector peers — reclaimable drag visible. Even when a pathway falls inside the comparable range, recoverable structural drag may still be present.`;
   const benchmarkLine = buildBenchmarkInterpretationText(result, payload);
   return `<!DOCTYPE html>
 <html lang="en">
@@ -1728,8 +1729,8 @@ function buildExecutiveReportHtml(result,payload){
   <h2>3. Benchmark and trajectory</h2>
   <div class="figure">
     <div class="benchmark-track">
-      <div class="benchmark-range industry-range" style="left:${Math.max(0,Math.min(100,result.benchmark?.industryMin||58))}%;width:${Math.max(4,(result.benchmark?.industryMax||69)-(result.benchmark?.industryMin||58))}%"></div>
-      <div class="benchmark-range opportunity-range" style="left:${Math.max(0,Math.min(100,result.benchmark?.opportunityMin||70))}%;width:${Math.max(4,(result.benchmark?.opportunityMax||84)-(result.benchmark?.opportunityMin||70))}%"></div>
+      <div class="benchmark-range industry-range" style="left:${Math.max(0,Math.min(100,benchmark.industryMin||58))}%;width:${Math.max(4,(benchmark.industryMax||69)-(benchmark.industryMin||58))}%"></div>
+      <div class="benchmark-range opportunity-range" style="left:${Math.max(0,Math.min(100,benchmark.opportunityMin||70))}%;width:${Math.max(4,(benchmark.opportunityMax||84)-(benchmark.opportunityMin||70))}%"></div>
       <div class="benchmark-marker" style="left:${Math.max(2,Math.min(98,(result.score||0)+(result.benchmark_position==='Within industry range'?2:0)))}%"></div>
     </div>
     <div class="caption">${safe(figureCaption)}</div>
