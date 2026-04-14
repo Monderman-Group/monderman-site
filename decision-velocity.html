@@ -230,17 +230,21 @@ const DiagnosticInterpretationLayer = {
     execution_stability: { name: "Execution Stability", weight: 0.20, anchor: "Compensatory Coordination (Gittell)" }
   },
 
-  normalizeIndustry(industry){
-    const raw=String(industry||"other").toLowerCase();
+  normalizeSectorKey(payloadOrIndustry){
+    const rawSource = typeof payloadOrIndustry === "string" ? payloadOrIndustry : payloadOrIndustry?.industry;
+    const raw=String(rawSource||"other").toLowerCase();
     if(raw.includes("tech") || raw.includes("software")) return "tech";
     if(raw.includes("financial")) return "finance";
     if(raw.includes("health")) return "healthcare";
     if(raw.includes("manufacturing") || raw.includes("industrial")) return "manufacturing";
     return "other";
   },
+  normalizeIndustry(industry){
+    return this.normalizeSectorKey(industry);
+  },
 
   getSectorCalibration(payload){
-    const sector=this.normalizeIndustry(payload?.industry);
+    const sector=this.normalizeSectorKey(payload);
     const employeeCount=Number(payload?.employeeCount||0);
     const regulatory=String(payload?.regulatoryIntensity||"").toLowerCase();
 
@@ -855,7 +859,7 @@ function buildLocalResult(input){
     : input.decisionType==="risk"?"exception_route"
     : "mixed_route";
 
-  const benchmark={label:`${humanize(input.decisionType||"other")} • ${humanize(input.industry||"other")}`,opportunityMin:70,opportunityMax:84,industryMin:58,industryMax:69};
+  const benchmark={...DiagnosticInterpretationLayer.getSectorCalibration(input),label:`${humanize(input.decisionType||"other")} • ${humanize(input.industry||"other")}`};
   const benchmarkPos=score>benchmark.opportunityMax?"Above industry range":score>=benchmark.industryMin?"Within industry range":"Below industry range";
 
   const burdenBreakdown={
@@ -1266,7 +1270,7 @@ function buildHarmonizedNarrative(result,payload){
     ? narrative.time_money_resources_summary.trim()
     : `Directional modeling suggests roughly ${Math.round(result.exposure?.annual_hours||0).toLocaleString()} annual hours* and about ${formatCurrency(result.exposure?.annual_cost)} in labor exposure*, with capacity drag around ${Math.round(result.exposure?.capacity_drag_percent||0)}%*. These are directional estimates intended to support deeper leadership review, not audited measurements.`;
 
-  const benchmark = buildBenchmarkInterpretationText({...result,__interpretiveState:state});
+  const benchmark = buildBenchmarkInterpretationText({...result,__interpretiveState:state}, payload);
 
   const opportunityFields = {
     title: backendOpportunity.title || fallbackOpportunity.title,
@@ -1414,7 +1418,7 @@ function buildRemedyPaths(result,payload,speedConstraint,tradeoffDiagnosis){
   const actions=sanitizeRecommendedActions(buildPriorityActions(result,payload),result,payload);
   const hours=Math.round(Number(result.exposure?.annual_hours||0));
   const annualCost=Number(result.exposure?.annual_cost||0);
-  const reclaim=estimateReclaimPotential(result).amount||0;
+  const reclaim=estimateReclaimPotential(result,payload).amount||0;
 
   const lightValue=Math.round(reclaim*0.22);
   const moderateValue=Math.round(reclaim*0.48);
@@ -1663,7 +1667,7 @@ function renderResults(result,payload,outputMode){
   const benchmarkSub=document.getElementById("benchmarkSub");
   if(benchmarkSub) benchmarkSub.textContent="Read as context, not comfort.";
 
-  const reclaim=estimateReclaimPotential(result);
+  const reclaim=estimateReclaimPotential(result,payload);
   const reclaimValue=document.getElementById("reclaimValue");
   if(reclaimValue) reclaimValue.textContent=reclaim.amount?formatCurrency(reclaim.amount):"—";
   const reclaimSub=document.getElementById("reclaimSub");
@@ -1825,11 +1829,12 @@ function buildExecutiveReportHtml(result,payload){
   const generated = nowLabel();
   const participantLabel = displayModeLabel(payload.participantMode||"executive");
   const depthLabel = payload.diagnosticDepth ? `${payload.diagnosticDepth}-minute diagnostic` : "Diagnostic";
-  const reclaim = estimateReclaimPotential(result);
+  const reclaim = estimateReclaimPotential(result,payload);
   const remedyPaths = buildRemedyPaths(result,payload,speedConstraint,tradeoffDiagnosis);
   const sectionList = (items)=>`<ul>${(items||[]).map(item=>`<li>${safe(item)}</li>`).join("")}</ul>`;
-  const figureCaption = `Figure 1. Your pathway vs. sector peers — reclaimable drag visible. Even when a pathway falls inside the comparable range, recoverable structural drag may still be present.`;
-  const benchmarkLine = buildBenchmarkInterpretationText(result);
+    const benchmark = DiagnosticInterpretationLayer.getSectorCalibration(payload);
+const figureCaption = `Figure 1. Your pathway vs. sector peers — reclaimable drag visible. Even when a pathway falls inside the comparable range, recoverable structural drag may still be present.`;
+  const benchmarkLine = buildBenchmarkInterpretationText(result,payload);
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1916,8 +1921,8 @@ function buildExecutiveReportHtml(result,payload){
   <h2>3. Benchmark and trajectory</h2>
   <div class="figure">
     <div class="benchmark-track">
-      <div class="benchmark-range industry-range" style="left:${Math.max(0,Math.min(100,result.benchmark?.industryMin||58))}%;width:${Math.max(4,(result.benchmark?.industryMax||69)-(result.benchmark?.industryMin||58))}%"></div>
-      <div class="benchmark-range opportunity-range" style="left:${Math.max(0,Math.min(100,result.benchmark?.opportunityMin||70))}%;width:${Math.max(4,(result.benchmark?.opportunityMax||84)-(result.benchmark?.opportunityMin||70))}%"></div>
+      <div class="benchmark-range industry-range" style="left:${Math.max(0,Math.min(100,benchmark.industryMin||58))}%;width:${Math.max(4,(benchmark.industryMax||69)-(benchmark.industryMin||58))}%"></div>
+      <div class="benchmark-range opportunity-range" style="left:${Math.max(0,Math.min(100,benchmark.opportunityMin||70))}%;width:${Math.max(4,(benchmark.opportunityMax||84)-(benchmark.opportunityMin||70))}%"></div>
       <div class="benchmark-marker" style="left:${Math.max(2,Math.min(98,(result.score||0)+(result.benchmark_position==='Within industry range'?2:0)))}%"></div>
     </div>
     <div class="caption">${safe(figureCaption)}</div>
@@ -2008,7 +2013,7 @@ function buildCrossDiagnosticArtifact(result,payload){
   const speedConstraint = derivePrimarySpeedConstraint(result);
   const tradeoffDiagnosis = deriveTradeoffDiagnosis(result,payload);
   const executiveSummary = buildExecutiveSummary(result,payload);
-  const reclaim = estimateReclaimPotential(result);
+  const reclaim = estimateReclaimPotential(result,payload);
   const packageData = {
     schema_version: "1.0",
     saved_for: "cross_diagnostic_analysis",
