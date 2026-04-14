@@ -211,6 +211,89 @@
   </main></div>
 <script>
 const API_BASE = "https://monderman-api.onrender.com";
+const DiagnosticInterpretationLayer = {
+  constructs: {
+    ownership_clarity: { name: "Ownership Clarity", weight: 0.30, anchor: "Principal-Agent + Role Theory" },
+    role_boundary_coherence: { name: "Role Boundary Coherence", weight: 0.25, anchor: "Boundary Management (Ancona & Caldwell)" },
+    authority_overlap: { name: "Authority Overlap", weight: 0.25, anchor: "Authority & Accountability Design" },
+    compensatory_translation_work: { name: "Compensatory Translation Work", weight: 0.20, anchor: "Compensatory Coordination (Gittell)" }
+  },
+
+  computeDimensionScore(dims={}) {
+    let score = 0;
+    Object.keys(this.constructs).forEach((key) => {
+      if (dims[key] !== undefined) score += (Number(dims[key]) || 0) * this.constructs[key].weight;
+    });
+    return Math.min(100, Math.max(0, Math.round(score)));
+  },
+
+  normalizeSectorKey(payload={}) {
+    const raw = String(payload.industrySelection || payload.industry || "other").toLowerCase();
+    if (raw.includes("technology") || raw.includes("software") || raw === "tech") return "tech";
+    if (raw.includes("financial") || raw.includes("finance")) return "finance";
+    if (raw.includes("healthcare") || raw.includes("life_sciences") || raw.includes("life sciences")) return "healthcare";
+    if (raw.includes("manufacturing") || raw.includes("industrial")) return "manufacturing";
+    return "other";
+  },
+
+  deriveWorldviewAlignment(result={}, payload={}) {
+    const score = Number(result.score || 50);
+    const primary = score > 78 ? "complex-adaptive" : (score < 45 ? "institutional-fragile" : "mechanistic");
+    const secondary = "role-boundary";
+    return { primary, secondary, label: `${primary} + ${secondary}` };
+  },
+
+  getSectorCalibration(payload={}) {
+    const key = this.normalizeSectorKey(payload);
+    const base = {
+      tech: { industryMin: 64, industryMax: 76, opportunityMin: 80, opportunityMax: 92, typicalDrag: 16 },
+      finance: { industryMin: 59, industryMax: 72, opportunityMin: 76, opportunityMax: 88, typicalDrag: 20 },
+      healthcare: { industryMin: 57, industryMax: 69, opportunityMin: 73, opportunityMax: 85, typicalDrag: 23 },
+      manufacturing: { industryMin: 61, industryMax: 74, opportunityMin: 78, opportunityMax: 89, typicalDrag: 17 },
+      other: { industryMin: 58, industryMax: 70, opportunityMin: 72, opportunityMax: 85, typicalDrag: 19 }
+    }[key] || { industryMin: 58, industryMax: 70, opportunityMin: 72, opportunityMax: 85, typicalDrag: 19 };
+
+    const size = String(payload.organizationSize || "unknown");
+    const reg = String(payload.regulatoryIntensity || "").toLowerCase();
+    let shift = 0;
+    if (size === "enterprise") shift -= 2;
+    else if (size === "small") shift += 1;
+    if (reg === "high") shift -= 2;
+    else if (reg === "low") shift += 1;
+
+    return {
+      industryMin: Math.max(0, Math.min(100, base.industryMin + shift)),
+      industryMax: Math.max(0, Math.min(100, base.industryMax + shift)),
+      opportunityMin: Math.max(0, Math.min(100, base.opportunityMin + shift)),
+      opportunityMax: Math.max(0, Math.min(100, base.opportunityMax + shift)),
+      typicalDrag: base.typicalDrag + (reg === "high" ? 3 : reg === "low" ? -1 : 0)
+    };
+  },
+
+  estimateReclaimPotential(result={}, payload={}) {
+    const annualCost = Number(result.exposure?.annual_cost || 0);
+    const ownershipGap = Math.max(0, Math.min(100, Number(result.burden_breakdown?.ownership_gap || 0)));
+    const authorityBlur = Math.max(0, Math.min(100, Number(result.burden_breakdown?.authority_blur || result.burden_breakdown?.authority_overlap || 0)));
+    const handoffDiffusion = Math.max(0, Math.min(100, Number(result.burden_breakdown?.handoff_diffusion || result.burden_breakdown?.handoff || 0)));
+    const compensatoryStructure = Math.max(0, Math.min(100, Number(result.burden_breakdown?.compensatory_structure || result.burden_breakdown?.translator_dependence || 0)));
+    const sorted = [
+      { label: "ownership ambiguity", value: ownershipGap },
+      { label: "authority blur", value: authorityBlur },
+      { label: "handoff diffusion", value: handoffDiffusion },
+      { label: "compensatory structure", value: compensatoryStructure }
+    ].sort((a,b)=>b.value-a.value);
+    const topBurden = sorted[0]?.value || 0;
+    const secondaryBurden = sorted[1]?.value || 0;
+    const weighted = ((topBurden * 0.7) + (secondaryBurden * 0.3)) / 100;
+    const sector = this.getSectorCalibration(payload);
+    const recoverableFactor = Math.max(0.10, Math.min(0.42, (weighted * 0.44) + (sector.typicalDrag / 300)));
+    return {
+      amount: Math.round(annualCost * recoverableFactor),
+      factor: Math.round(recoverableFactor * 100),
+      driverText: `Estimated primarily from the pathway’s visible ${sorted[0]?.label || "structural ambiguity"}, with secondary weight on the next-largest structural burden.`
+    };
+  }
+};
 const LOADER_MS = 3600;
 const RESULTS_LOADER_MS = 3200;
 const openingNotice = "This diagnostic generates directional insights based on the information you provide. Results are only as accurate as your inputs and should be used as an interpretive aid, not as a substitute for independent review, professional judgment, or organization-specific analysis.";
@@ -1006,7 +1089,7 @@ function buildHarmonizedNarrative(result,payload){
     ? narrative.time_money_resources_summary.trim()
     : `Directional modeling suggests roughly ${Math.round(result.exposure?.annual_hours||0).toLocaleString()} annual hours* and about ${formatCurrency(result.exposure?.annual_cost)} in labor exposure*, with capacity drag around ${Math.round(result.exposure?.capacity_drag_percent||0)}%*. These are directional estimates intended to support deeper leadership review, not audited measurements.`;
 
-  const benchmark = buildBenchmarkInterpretationText({...result,__interpretiveState:state});
+  const benchmark = buildBenchmarkInterpretationText({...result,__interpretiveState:state}, payload);
 
   const opportunityFields = {
     title: backendOpportunity.title || fallbackOpportunity.title,
@@ -1281,15 +1364,18 @@ function buildExecutiveSummary(result,payload){
     opportunity:harmonized.opportunityFields.opening || harmonized.opportunity
   };
 }
-function buildBenchmarkInterpretationText(result){
-  const pos=result.benchmark_position||"Comparable range context unavailable";
-  if(pos==="Within comparable range" || pos==="Within industry range"){
-    return "This pathway appears broadly in line with comparable pathways in this operating context. That should be read as context, not comfort: peer-normal pathways can still carry substantial reclaimable drag.";
-  }
-  if(pos==="Above comparable range" || pos==="Above industry range"){
-    return "This pathway appears stronger than many comparable pathways in this operating context. The leadership task is to preserve and extend that position before routine burden quietly accumulates.";
-  }
-  return "This pathway appears below the current comparable range for this structure type, suggesting a structurally heavier path than peers are likely carrying.";
+function buildBenchmarkInterpretationText(result, payload={}){
+  const worldview = DiagnosticInterpretationLayer.deriveWorldviewAlignment(result, payload);
+  const cal = DiagnosticInterpretationLayer.getSectorCalibration(payload);
+  const score = Number(result.score || 50);
+  const pos = result.benchmark_position || "Comparable range context unavailable";
+  let text = `Your pathway sits in the ${pos}. `;
+  text += `From a ${worldview.primary} worldview, this indicates `;
+  if (score > 75) text += `strong structural coherence and relatively high legibility for execution. `;
+  else if (score < 55) text += `meaningful ownership ambiguity, authority blur, or compensatory translation work that is likely suppressing execution quality. `;
+  else text += `moderate structural coherence with clear room for clarification, tighter boundaries, and cleaner accountability. `;
+  text += `Secondary ${worldview.secondary} lens highlights roughly ${cal.typicalDrag}% typical reclaimable drag in comparable operating contexts.`;
+  return text;
 }
 function buildOpportunityText(result){
   // Deprecated helper retained only for backward compatibility.
@@ -1302,29 +1388,8 @@ function buildOpportunityText(result){
   return buildHarmonizedNarrative(result || {}, payload).opportunityFields.opportunityGuidance;
 }
 
-function estimateReclaimPotential(result){
-  const annualCost=Number(result.exposure?.annual_cost||0);
-  const ownershipGap=Math.max(0, Math.min(100, Number(result.burden_breakdown?.ownership_gap||0)));
-  const authorityBlur=Math.max(0, Math.min(100, Number(result.burden_breakdown?.authority_blur||result.burden_breakdown?.authority_overlap||0)));
-  const handoffDiffusion=Math.max(0, Math.min(100, Number(result.burden_breakdown?.handoff_diffusion||result.burden_breakdown?.handoff||0)));
-  const compensatoryStructure=Math.max(0, Math.min(100, Number(result.burden_breakdown?.compensatory_structure||result.burden_breakdown?.translator_dependence||0)));
-  const sorted=[
-    {label:"ownership ambiguity", value:ownershipGap},
-    {label:"authority blur", value:authorityBlur},
-    {label:"handoff diffusion", value:handoffDiffusion},
-    {label:"compensatory structure", value:compensatoryStructure}
-  ].sort((a,b)=>b.value-a.value);
-  const topBurden=sorted[0]?.value||0;
-  const secondaryBurden=sorted[1]?.value||0;
-  const weighted=((topBurden*0.7)+(secondaryBurden*0.3))/100;
-  const recoverableFactor=Math.max(0.10, Math.min(0.42, weighted*0.46));
-  const recoverable=Math.round(annualCost * recoverableFactor);
-  const driverLabel=sorted[0]?.label||"structural ambiguity";
-  return {
-    amount: recoverable,
-    factor: Math.round(recoverableFactor * 100),
-    driverText: `Estimated primarily from the pathway’s visible ${driverLabel}, with secondary weight on the next-largest structural burden.`
-  };
+function estimateReclaimPotential(result, payload={}){
+  return DiagnosticInterpretationLayer.estimateReclaimPotential(result, payload);
 }
 function buildQuadrantInterpretation(result){
   const state=result.__interpretiveState || buildInterpretiveState(result,{});
@@ -1410,7 +1475,7 @@ function renderResults(result,payload,outputMode){
   const benchmarkSub=document.getElementById("benchmarkSub");
   if(benchmarkSub) benchmarkSub.textContent="Read as context, not comfort.";
 
-  const reclaim=estimateReclaimPotential(result);
+  const reclaim=estimateReclaimPotential(result, payload);
   const reclaimValue=document.getElementById("reclaimValue");
   if(reclaimValue) reclaimValue.textContent=reclaim.amount?formatCurrency(reclaim.amount):"—";
   const reclaimSub=document.getElementById("reclaimSub");
@@ -1469,7 +1534,7 @@ function renderResults(result,payload,outputMode){
   renderList("patternsList",(result.patterns||[]).map(humanize));
   renderList("contradictionsList",(result.contradictions||[]).length?result.contradictions.map(item=>item.message||humanize(item.code||"contradiction")):["No material contradiction signals surfaced in this run."]);
 
-  renderBenchmarkBar(result);
+  renderBenchmarkBar(result, payload);
   renderQuadrant(resultWithState);
 
   renderBarRows("burdenStack",[
@@ -1572,11 +1637,11 @@ function buildExecutiveReportHtml(result,payload){
   const generated = nowLabel();
   const participantLabel = humanize(payload.participantMode||"executive");
   const depthLabel = payload.diagnosticDepth ? `${payload.diagnosticDepth}-minute diagnostic` : "Diagnostic";
-  const reclaim = estimateReclaimPotential(result);
+  const reclaim = estimateReclaimPotential(result, payload);
   const remedyPaths = buildRemedyPaths(result,payload,speedConstraint,tradeoffDiagnosis);
   const sectionList = (items)=>`<ul>${(items||[]).map(item=>`<li>${safe(item)}</li>`).join("")}</ul>`;
   const figureCaption = `Figure 1. Your pathway vs. sector peers — reclaimable drag visible. Even when a pathway falls inside the comparable range, recoverable structural drag may still be present.`;
-  const benchmarkLine = buildBenchmarkInterpretationText(result);
+  const benchmarkLine = buildBenchmarkInterpretationText(result, payload);
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1755,7 +1820,7 @@ function buildCrossDiagnosticArtifact(result,payload){
   const speedConstraint = derivePrimaryOwnershipGap(result);
   const tradeoffDiagnosis = deriveCoherenceDiagnosis(result,payload);
   const executiveSummary = buildExecutiveSummary(result,payload);
-  const reclaim = estimateReclaimPotential(result);
+  const reclaim = estimateReclaimPotential(result, payload);
   const packageData = {
     schema_version: "1.0",
     saved_for: "cross_diagnostic_analysis",
@@ -1922,23 +1987,19 @@ function renderBarRows(id, rows){
   });
 }
 
-function renderBenchmarkBar(result){
+function renderBenchmarkBar(result, payload={}){
   const industryRange = document.getElementById("industryRange");
   const opportunityRange = document.getElementById("opportunityRange");
   const benchmarkMarker = document.getElementById("benchmarkMarker");
   if(!industryRange || !opportunityRange || !benchmarkMarker) return;
 
-  const benchmark=result.benchmark||{};
-  const industryMin=Number.isFinite(benchmark.industryMin)?benchmark.industryMin:(Number.isFinite(benchmark.moderateMin)?benchmark.moderateMin:58);
-  const industryMax=Number.isFinite(benchmark.industryMax)?benchmark.industryMax:(Number.isFinite(benchmark.moderateMax)?benchmark.moderateMax:69);
-  const opportunityMin=Number.isFinite(benchmark.opportunityMin)?benchmark.opportunityMin:(Number.isFinite(benchmark.healthyMin)?benchmark.healthyMin:70);
-  const opportunityMax=Number.isFinite(benchmark.opportunityMax)?benchmark.opportunityMax:(Number.isFinite(benchmark.healthyMax)?benchmark.healthyMax:84);
-  const industryWidth=Math.max(2,Math.min(100,industryMax-industryMin));
-  const opportunityWidth=Math.max(2,Math.min(100,opportunityMax-opportunityMin));
+  const cal = DiagnosticInterpretationLayer.getSectorCalibration(payload);
+  const industryWidth=Math.max(2,Math.min(100,cal.industryMax-cal.industryMin));
+  const opportunityWidth=Math.max(2,Math.min(100,cal.opportunityMax-cal.opportunityMin));
 
-  industryRange.style.left=`${Math.max(0,Math.min(100,industryMin))}%`;
+  industryRange.style.left=`${Math.max(0,Math.min(100,cal.industryMin))}%`;
   industryRange.style.width=`${industryWidth}%`;
-  opportunityRange.style.left=`${Math.max(0,Math.min(100,opportunityMin))}%`;
+  opportunityRange.style.left=`${Math.max(0,Math.min(100,cal.opportunityMin))}%`;
   opportunityRange.style.width=`${opportunityWidth}%`;
   const adjustedScore=((result.benchmark_position==="Within industry range" || result.benchmark_position==="Within comparable range") ? Number(result.score||0)+2 : Number(result.score||0));
   benchmarkMarker.style.left=`${Math.max(0,Math.min(100,adjustedScore))}%`;
