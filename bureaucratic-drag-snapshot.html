@@ -211,6 +211,89 @@
   </main></div>
 <script>
 const API_BASE = "https://monderman-api.onrender.com";
+const DiagnosticInterpretationLayer = {
+  // structured expert judgment, not empirical validation
+  constructs: {
+    process_load:              { name: "Process Load",               weight: 0.25, anchor: "Lean Systems (Womack & Jones)" },
+    systems_friction:          { name: "Systems Friction",           weight: 0.25, anchor: "Bureaucratic Drag (Graeber)" },
+    control_review_burden:     { name: "Control & Review Burden",    weight: 0.20, anchor: "Principal-Agent Theory" },
+    reporting_oversight_load:  { name: "Reporting & Oversight Load", weight: 0.15, anchor: "Institutional Theory (Meyer & Rowan)" },
+    adaptation_drag:           { name: "Adaptation Drag",            weight: 0.15, anchor: "Complex Adaptive Systems (Holland)" }
+  },
+
+  sectorBenchmarks: {
+    tech:          { industryMin: 62, industryMax: 74, opportunityMin: 78, opportunityMax: 91, typicalDrag: 18 },
+    finance:       { industryMin: 58, industryMax: 71, opportunityMin: 75, opportunityMax: 88, typicalDrag: 22 },
+    healthcare:    { industryMin: 55, industryMax: 68, opportunityMin: 72, opportunityMax: 85, typicalDrag: 25 },
+    manufacturing: { industryMin: 60, industryMax: 73, opportunityMin: 77, opportunityMax: 89, typicalDrag: 15 },
+    other:         { industryMin: 58, industryMax: 69, opportunityMin: 70, opportunityMax: 84, typicalDrag: 20 }
+  },
+
+  mapSectorKey(payload){
+    const raw = String(payload?.industrySelection || payload?.industry || "other").toLowerCase();
+    if (raw.includes("tech") || raw.includes("software")) return "tech";
+    if (raw.includes("finance") || raw.includes("financial")) return "finance";
+    if (raw.includes("health")) return "healthcare";
+    if (raw.includes("manufacturing") || raw.includes("industrial")) return "manufacturing";
+    return "other";
+  },
+
+  computeDimensionScore(dims){
+    let score = 0;
+    Object.keys(this.constructs).forEach(key => {
+      if (dims[key] !== undefined) score += (Number(dims[key]) || 0) * this.constructs[key].weight;
+    });
+    return Math.min(100, Math.max(0, Math.round(score)));
+  },
+
+  deriveWorldviewAlignment(result, payload){
+    const score = Number(result?.score || 50);
+    const sectorKey = this.mapSectorKey(payload);
+    const primary = score > 78 ? "complex-adaptive" : (score < 45 ? "institutionally-burdened" : "mechanistic");
+    let secondary = "contingency-fit";
+    if (sectorKey === "tech" || sectorKey === "finance") secondary = "agile-learning";
+    else if (sectorKey === "healthcare") secondary = "institutional-legitimacy";
+    else if (sectorKey === "manufacturing") secondary = "lean-systems";
+    return { primary, secondary, label: `${primary} + ${secondary}` };
+  },
+
+  getSectorCalibration(payload){
+    const sectorKey = this.mapSectorKey(payload);
+    const base = { ...(this.sectorBenchmarks[sectorKey] || this.sectorBenchmarks.other) };
+    const orgSize = String(payload?.organizationSize || "").toLowerCase();
+    const reg = String(payload?.regulatoryIntensity || "").toLowerCase();
+
+    if (orgSize === "enterprise") { base.industryMin -= 2; base.industryMax -= 1; base.opportunityMin -= 1; }
+    else if (orgSize === "small") { base.industryMin += 1; base.industryMax += 2; }
+
+    if (reg === "high") { base.industryMin -= 3; base.industryMax -= 2; base.opportunityMin -= 2; base.opportunityMax -= 1; base.typicalDrag += 4; }
+    else if (reg === "low") { base.industryMin += 2; base.industryMax += 2; base.opportunityMin += 1; base.opportunityMax += 1; base.typicalDrag = Math.max(10, base.typicalDrag - 2); }
+
+    return {
+      industryMin: Math.max(0, Math.min(100, base.industryMin)),
+      industryMax: Math.max(0, Math.min(100, base.industryMax)),
+      opportunityMin: Math.max(0, Math.min(100, base.opportunityMin)),
+      opportunityMax: Math.max(0, Math.min(100, base.opportunityMax)),
+      typicalDrag: base.typicalDrag
+    };
+  },
+
+  estimateReclaimPotential(result, payload){
+    const annualCost = Number(result?.exposure?.annual_cost || 0);
+    const dims = getOperationalDimensions(result || {});
+    const dimensionScore = this.computeDimensionScore(dims);
+    const calibration = this.getSectorCalibration(payload || {});
+    const recoverableFactor = Math.max(0.12, Math.min(0.42, ((100 - dimensionScore) / 100) * 0.34 + (calibration.typicalDrag / 100) * 0.22));
+    const amount = Math.round(annualCost * recoverableFactor);
+    const impact = amount < annualCost * 0.15 ? "Low" : amount < annualCost * 0.3 ? "Moderate" : "High";
+    return {
+      amount,
+      factor: Math.round(recoverableFactor * 100),
+      driverText: `Directional estimate based on process load, systems friction, control burden, and typical reclaimable drag in comparable ${this.mapSectorKey(payload)} environments.`,
+      impact
+    };
+  }
+};
 const LOADER_MS = 3600;
 const RESULTS_LOADER_MS = 3200;
 const openingNotice = "This diagnostic generates directional insights based on the information you provide. Results are only as accurate as your inputs and should be used as an interpretive aid, not as a substitute for independent review, professional judgment, or organization-specific analysis.";
@@ -1019,7 +1102,7 @@ function buildHarmonizedNarrative(result,payload){
     ? narrative.time_money_resources_summary.trim()
     : `Directional modeling suggests roughly ${Math.round(result.exposure?.annual_hours||0).toLocaleString()} annual hours* and about ${formatCurrency(result.exposure?.annual_cost)} in labor exposure*, with capacity drag around ${Math.round(result.exposure?.capacity_drag_percent||0)}%*. These are directional estimates intended to support deeper leadership review, not audited measurements.`;
 
-  const benchmark = buildBenchmarkInterpretationText({...result,__interpretiveState:state});
+  const benchmark = buildBenchmarkInterpretationText({...result,__interpretiveState:state}, payload);
 
   const opportunityFields = {
     title: backendOpportunity.title || fallbackOpportunity.title,
@@ -1303,15 +1386,17 @@ function buildExecutiveSummary(result,payload){
     opportunity:harmonized.opportunityFields.opening || harmonized.opportunity
   };
 }
-function buildBenchmarkInterpretationText(result){
-  const pos=result.benchmark_position||"Comparable range context unavailable";
-  if(pos==="Within comparable range" || pos==="Within industry range"){
-    return "This workflow appears broadly in line with comparable operating environments in this context. That should be read as context, not comfort: peer-normal pathways can still carry substantial reclaimable drag.";
-  }
-  if(pos==="Above comparable range" || pos==="Above industry range"){
-    return "This workflow appears stronger than many comparable operating environments in this context. The leadership task is to preserve and extend that position before routine burden quietly accumulates.";
-  }
-  return "This workflow appears below the current comparable range for this type of operating environment, suggesting heavier burden than peers are likely carrying.";
+function buildBenchmarkInterpretationText(result, payload){
+  const worldview=DiagnosticInterpretationLayer.deriveWorldviewAlignment(result, payload||{});
+  const cal=DiagnosticInterpretationLayer.getSectorCalibration(payload||{});
+  const score=Number(result.score || 50);
+  let text=`Your pathway sits in the ${result.benchmark_position || "industry range"}. `;
+  text+=`From a ${worldview.primary} worldview, this indicates `;
+  if (score > 75) text += `stronger operating coherence and above-average adaptive capacity for this kind of environment. `;
+  else if (score < 55) text += `a structurally burdened operating environment with meaningful recoverable drag. `;
+  else text += `moderate operating coherence with clear room for sector-levered gains. `;
+  text+=`A secondary ${worldview.secondary} lens suggests roughly ${cal.typicalDrag}% typical reclaimable drag in comparable environments when the heaviest visible burden is reduced first.`;
+  return text;
 }
 function buildOpportunityText(result){
   // Deprecated helper retained only for backward compatibility.
@@ -1324,21 +1409,8 @@ function buildOpportunityText(result){
   return buildHarmonizedNarrative(result || {}, payload).opportunityFields.opportunityGuidance;
 }
 
-function estimateReclaimPotential(result){
-  const annualCost=Number(result.exposure?.annual_cost||0);
-  const approvalBurden=Math.max(0, Math.min(100, Number(result.burden_breakdown?.approval||0)));
-  const coordinationBurden=Math.max(0, Math.min(100, Number(result.burden_breakdown?.coordination||0)));
-  const topBurden=Math.max(approvalBurden, coordinationBurden);
-  const secondaryBurden=Math.min(approvalBurden, coordinationBurden);
-  const weighted=((topBurden*0.7)+(secondaryBurden*0.3))/100;
-  const recoverableFactor=Math.max(0.10, Math.min(0.42, weighted*0.46));
-  const recoverable=Math.round(annualCost * recoverableFactor);
-  const driverLabel=approvalBurden>=coordinationBurden ? "approval burden" : "coordination burden";
-  return {
-    amount: recoverable,
-    factor: Math.round(recoverableFactor * 100),
-    driverText: `Estimated primarily from the pathway’s visible ${driverLabel}, with secondary weight on the next-largest coordination burden.`
-  };
+function estimateReclaimPotential(result, payload){
+  return DiagnosticInterpretationLayer.estimateReclaimPotential(result, payload||buildPayload());
 }
 function buildQuadrantInterpretation(result){
   const state=result.__interpretiveState || buildInterpretiveState(result,{});
@@ -1424,7 +1496,7 @@ function renderResults(result,payload,outputMode){
   const benchmarkSub=document.getElementById("benchmarkSub");
   if(benchmarkSub) benchmarkSub.textContent="Read as context, not comfort.";
 
-  const reclaim=estimateReclaimPotential(result);
+  const reclaim=estimateReclaimPotential(result,payload);
   const reclaimValue=document.getElementById("reclaimValue");
   if(reclaimValue) reclaimValue.textContent=reclaim.amount?formatCurrency(reclaim.amount):"—";
   const reclaimSub=document.getElementById("reclaimSub");
@@ -1483,7 +1555,7 @@ function renderResults(result,payload,outputMode){
   renderList("patternsList",(result.patterns||[]).map(humanize));
   renderList("contradictionsList",(result.contradictions||[]).length?result.contradictions.map(item=>item.message||humanize(item.code||"contradiction")):["No material contradiction signals surfaced in this run."]);
 
-  renderBenchmarkBar(result);
+  renderBenchmarkBar(result,payload);
   renderQuadrant(resultWithState);
 
   renderBarRows("burdenStack",[
@@ -1586,11 +1658,11 @@ function buildExecutiveReportHtml(result,payload){
   const generated = nowLabel();
   const participantLabel = humanize(payload.participantMode||"executive");
   const depthLabel = payload.diagnosticDepth ? `${payload.diagnosticDepth}-minute diagnostic` : "Diagnostic";
-  const reclaim = estimateReclaimPotential(result);
+  const reclaim = estimateReclaimPotential(result,payload);
   const remedyPaths = buildRemedyPaths(result,payload,burdenConstraint,tradeoffDiagnosis);
   const sectionList = (items)=>`<ul>${(items||[]).map(item=>`<li>${safe(item)}</li>`).join("")}</ul>`;
   const figureCaption = `Figure 1. Your pathway vs. sector peers — reclaimable operating drag visible. Even when a pathway falls inside the comparable range, recoverable structural drag may still be present.`;
-  const benchmarkLine = buildBenchmarkInterpretationText(result);
+  const benchmarkLine = buildBenchmarkInterpretationText(result, payload);
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1769,7 +1841,7 @@ function buildCrossDiagnosticArtifact(result,payload){
   const burdenConstraint = derivePrimaryBurdenSource(result);
   const tradeoffDiagnosis = deriveBurdenDiagnosis(result,payload);
   const executiveSummary = buildExecutiveSummary(result,payload);
-  const reclaim = estimateReclaimPotential(result);
+  const reclaim = estimateReclaimPotential(result,payload);
   const packageData = {
     schema_version: "1.0",
     saved_for: "cross_diagnostic_analysis",
@@ -1945,26 +2017,18 @@ function renderBarRows(id, rows){
   });
 }
 
-function renderBenchmarkBar(result){
-  const industryRange = document.getElementById("industryRange");
-  const opportunityRange = document.getElementById("opportunityRange");
-  const benchmarkMarker = document.getElementById("benchmarkMarker");
+function renderBenchmarkBar(result, payload){
+  const industryRange=document.getElementById("industryRange");
+  const opportunityRange=document.getElementById("opportunityRange");
+  const benchmarkMarker=document.getElementById("benchmarkMarker");
   if(!industryRange || !opportunityRange || !benchmarkMarker) return;
-
-  const benchmark=result.benchmark||{};
-  const industryMin=Number.isFinite(benchmark.industryMin)?benchmark.industryMin:(Number.isFinite(benchmark.moderateMin)?benchmark.moderateMin:58);
-  const industryMax=Number.isFinite(benchmark.industryMax)?benchmark.industryMax:(Number.isFinite(benchmark.moderateMax)?benchmark.moderateMax:69);
-  const opportunityMin=Number.isFinite(benchmark.opportunityMin)?benchmark.opportunityMin:(Number.isFinite(benchmark.healthyMin)?benchmark.healthyMin:70);
-  const opportunityMax=Number.isFinite(benchmark.opportunityMax)?benchmark.opportunityMax:(Number.isFinite(benchmark.healthyMax)?benchmark.healthyMax:84);
-  const industryWidth=Math.max(2,Math.min(100,industryMax-industryMin));
-  const opportunityWidth=Math.max(2,Math.min(100,opportunityMax-opportunityMin));
-
-  industryRange.style.left=`${Math.max(0,Math.min(100,industryMin))}%`;
-  industryRange.style.width=`${industryWidth}%`;
-  opportunityRange.style.left=`${Math.max(0,Math.min(100,opportunityMin))}%`;
-  opportunityRange.style.width=`${opportunityWidth}%`;
+  const cal=DiagnosticInterpretationLayer.getSectorCalibration(payload||{});
+  industryRange.style.left=`${Math.max(0, Math.min(100, cal.industryMin))}%`;
+  industryRange.style.width=`${Math.max(4, cal.industryMax - cal.industryMin)}%`;
+  opportunityRange.style.left=`${Math.max(0, Math.min(100, cal.opportunityMin))}%`;
+  opportunityRange.style.width=`${Math.max(4, cal.opportunityMax - cal.opportunityMin)}%`;
   const adjustedScore=((result.benchmark_position==="Within industry range" || result.benchmark_position==="Within comparable range") ? Number(result.score||0)+2 : Number(result.score||0));
-  benchmarkMarker.style.left=`${Math.max(0,Math.min(100,adjustedScore))}%`;
+  benchmarkMarker.style.left=`${Math.max(0, Math.min(100, adjustedScore))}%`;
 }
 
 function syncBeginButton(){const allowed=!!preStartConsent&&preStartConsent.checked&&!!state.mode&&!!state.depth; beginBtn.disabled=!allowed; beginBtn.classList.toggle("btn-disabled",!allowed)} document.querySelectorAll(".lane-btn").forEach(btn=>btn.addEventListener("click",()=>selectLane(btn.dataset.lane))); document.querySelectorAll("[data-depth]").forEach(btn=>btn.addEventListener("click",()=>selectDepth(btn.dataset.depth))); preStartConsent?.addEventListener("change",syncBeginButton); heroBeginBtn?.addEventListener("click",()=>{ if(state.mode && state.depth){ showStage(introStage); const target=document.getElementById("beginBtn"); target?.scrollIntoView({behavior:"smooth",block:"center"}); } else { const target=state.mode ? document.getElementById("depthStage") : document.querySelector(".lane-buttons"); target?.scrollIntoView({behavior:"smooth",block:"center"}); } }); learnMoreToggle?.addEventListener("click",()=>learnMorePanel?.classList.toggle("show")); applyHubContextDefaults(); renderCurrentPathChip(); syncHubContextSelections(); updateHeroHelp(); syncBeginButton(); if(state.mode && state.depth){showStage(introStage);} beginBtn.addEventListener("click",()=>{if(beginBtn.disabled||!state.mode||!state.depth) return; startDiagnostic()}); continueBtn.addEventListener("click",()=>moveNext(false)); backBtn.addEventListener("click",moveBack); skipBtn.addEventListener("click",skipCurrent); restartBtn.addEventListener("click",restartDiagnostic); exportBtn.addEventListener("click",()=>{if(!state.result) return; exportExecutiveReport(state.result, buildPayload());}); downloadPdfBtn.addEventListener("click",()=>{if(!state.result) return; downloadExecutiveReportPdf(state.result, buildPayload());}); downloadReportBtn.addEventListener("click",()=>{if(!state.result) return; downloadExecutiveReport(state.result, buildPayload());}); saveCrossDiagnosticBtn?.addEventListener("click",()=>{if(!state.result) return; downloadCrossDiagnosticResult(state.result, buildPayload());}); newRunBtn.addEventListener("click",startDiagnostic); window.addEventListener("keydown",event=>{if(!questionStage.classList.contains("active")) return; if(event.key==="Enter"&&continueBtn.style.display!=="none"){const target=event.target; if(target&&target.tagName==="TEXTAREA") return; event.preventDefault(); moveNext(false)}}); hideLoader(); setHeader("Choose participant perspective","Select the perspective that best matches your role in the pathway, then choose the appropriate diagnostic depth.","Awaiting selection"); showStage(laneStage); questionFooter.style.display="none";
