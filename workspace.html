@@ -1,313 +1,1320 @@
--- Monderman Workspace: Act layer tables
--- Assumes existing tables:
---   organizations(id), users(id), organization_members(organization_id, user_id, role)
--- Recommended: run as a privileged role in Supabase SQL editor.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Workspace | Monderman</title>
+  <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="10" fill="%230F1720"/>
+      <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text>
+      <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
+    </svg>' />
+  <style>
+    @font-face { font-family: "Neue Haas Grotesk"; src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff"); font-style: normal; font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Neue Haas Grotesk"; src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff"); font-style: normal; font-weight: 500; font-display: swap; }
+    @font-face { font-family: "Neue Haas Grotesk"; src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff"); font-style: normal; font-weight: 700; font-display: swap; }
+    :root{
+      --accent:#3F6EA1; --accent-dark:#2E5684; --accent-soft:rgba(63,110,161,.09); --accent-softer:rgba(63,110,161,.05);
+      --ink:#15202B; --ink-soft:#5A6673; --ink-muted:#7B8792; --page:#F4F7FB; --panel:#FFFFFF;
+      --line:rgba(21,32,43,.08); --line-strong:rgba(21,32,43,.14); --line-dark:rgba(255,255,255,.12);
+      --ok:#4E7A57; --ok-soft:rgba(78,122,87,.09); --warn:#A57920; --warn-soft:rgba(165,121,32,.09); --rose:#8A3946; --rose-soft:rgba(138,57,70,.09);
+      --shadow-soft:0 1px 0 rgba(0,0,0,.012), 0 12px 28px rgba(0,0,0,.04); --shadow-strong:0 18px 48px rgba(7,16,29,.14);
+      --radius:22px; --radius-sm:16px; --max:1380px;
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;background:radial-gradient(circle at 86% 10%, rgba(63,110,161,.08), transparent 22%),linear-gradient(180deg,#F9FBFE 0%, var(--page) 100%);color:var(--ink);font-family:"Neue Haas Grotesk","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+    a{text-decoration:none;color:inherit} button,input,select,textarea{font:inherit} button{appearance:none}
+    h1,h2,h3,h4{margin:0;letter-spacing:-.05em} p{margin:0;letter-spacing:-.01em}
+    code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 
-create extension if not exists pgcrypto;
+    .header{position:fixed;inset:0 0 auto 0;height:72px;z-index:60;background:transparent;border-bottom:1px solid transparent;transition:background .22s ease,border-color .22s ease,backdrop-filter .22s ease}
+    .header.scrolled{background:rgba(14,20,28,.88);border-bottom-color:rgba(255,255,255,.08);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+    .header-inner{max-width:var(--max);height:100%;margin:0 auto;padding:0 34px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+    .brand{display:inline-flex;align-items:center;font-size:1.32rem;font-weight:700;color:#fff;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,.16)}
+    .brand::after{content:"";width:6px;height:6px;margin-left:10px;background:var(--accent);border-radius:1px;transform:translateY(-1px)}
+    .nav{display:flex;align-items:center;gap:24px;flex-wrap:wrap;justify-content:flex-end}
+    .nav a{position:relative;font-size:.98rem;font-weight:500;color:rgba(255,255,255,.88);transition:color .18s ease,transform .18s ease}
+    .nav a::after{content:"";position:absolute;left:0;bottom:-6px;width:100%;height:1px;background:rgba(255,255,255,.74);transform:scaleX(0);transform-origin:left center;transition:transform .18s ease}
+    .nav a:hover,.nav a:focus-visible,.nav a.is-active{color:#fff;transform:translateY(-1px);outline:none}
+    .nav a:hover::after,.nav a:focus-visible::after,.nav a.is-active::after{transform:scaleX(1)}
+    .nav a.workspace-link{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#fff}
+    .nav a.workspace-link::after{display:none}
 
-create or replace function public.workspace_user_is_org_member(_org_id uuid)
-returns boolean
-language sql
-stable
-as $$
-  select exists (
-    select 1
-    from public.organization_members om
-    where om.organization_id = _org_id
-      and om.user_id = auth.uid()
-  );
-$$;
+    .hero{position:relative;min-height:74vh;overflow:hidden;background:#0F1720;color:#F5F7FA}
+    .hero-media{position:absolute;inset:0;z-index:0;overflow:hidden}
+    .hero-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.54;transform:scale(1.02)}
+    .hero-media::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg, rgba(10,14,20,.92) 0%, rgba(10,14,20,.84) 35%, rgba(10,14,20,.60) 63%, rgba(10,14,20,.30) 82%, rgba(10,14,20,.14) 100%),radial-gradient(circle at 76% 18%, rgba(63,110,161,.16), transparent 26%),linear-gradient(135deg, rgba(63,110,161,.022) 1px, transparent 1px);background-size:auto,auto,34px 34px}
+    .hero-inner{position:relative;z-index:1;max-width:var(--max);margin:0 auto;padding:136px 34px 88px;display:grid;grid-template-columns:minmax(0,1.03fr) minmax(380px,.97fr);gap:26px;align-items:end}
+    .eyebrow{display:block;margin:0 0 16px;font-size:.76rem;line-height:1;letter-spacing:.22em;font-weight:700;text-transform:uppercase;color:rgba(245,247,250,.64)}
+    .hero h1{font-size:clamp(3rem,4.5vw,5rem);line-height:.93;color:#fff;max-width:11.5ch;margin:0 0 18px}
+    .hero-copy{max-width:50ch;font-size:1.06rem;line-height:1.72;color:rgba(245,247,250,.82)}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;min-width:164px;padding:0 22px;border-radius:999px;border:1px solid rgba(63,110,161,.24);background:#fff;color:var(--accent);font-size:.96rem;font-weight:600;cursor:pointer;transition:all .18s ease;white-space:nowrap}
+    .btn:hover,.btn:focus-visible{transform:translateY(-1px);color:var(--accent-dark);border-color:var(--accent-dark);outline:none}
+    .btn-accent{background:var(--accent-dark);color:#fff;border-color:rgba(63,110,161,.28)}
+    .btn-accent:hover,.btn-accent:focus-visible{color:#fff;background:#26486D}
+    .btn-subtle{background:#fff;color:var(--ink);border:1px solid var(--line-strong)}
+    .btn-soft{background:var(--accent-soft);color:var(--accent-dark);border-color:rgba(63,110,161,.14)}
+    .btn-danger{background:var(--rose-soft);color:var(--rose);border-color:rgba(138,57,70,.16)}
+    .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
 
-create or replace function public.workspace_user_is_org_admin(_org_id uuid)
-returns boolean
-language sql
-stable
-as $$
-  select exists (
-    select 1
-    from public.organization_members om
-    where om.organization_id = _org_id
-      and om.user_id = auth.uid()
-      and om.role in ('owner','admin')
-  );
-$$;
+    .hero-side{display:grid;gap:16px}
+    .hero-panel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:22px;padding:22px 22px 20px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+    .hero-panel-kicker{margin:0 0 8px;font-size:.7rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,247,250,.58)}
+    .hero-panel-title{font-size:1rem;line-height:1.2;font-weight:700;color:#fff;margin:0 0 8px}
+    .hero-panel-copy{font-size:.9rem;line-height:1.58;color:rgba(245,247,250,.74)}
+    .hero-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
+    .hero-stat{padding:14px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);min-width:0}
+    .hero-stat-label{font-size:.68rem;line-height:1;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(245,247,250,.58);margin-bottom:8px}
+    .hero-stat-value{font-size:1.22rem;line-height:1;font-weight:700;color:#fff;margin-bottom:8px;overflow-wrap:anywhere}
+    .hero-stat-copy{font-size:.82rem;line-height:1.5;color:rgba(245,247,250,.7);overflow-wrap:anywhere}
 
-create table if not exists public.workspace_shares (
-  id uuid primary key default gen_random_uuid(),
-  organization_id uuid not null references public.organizations(id) on delete cascade,
-  created_by_user_id uuid references public.users(id) on delete set null,
-  source_run_id uuid null,
-  source_assignment_id uuid null,
-  audience_type text not null check (audience_type in ('admin','manager','participant','invited_reviewer')),
-  delivery_mode text not null check (delivery_mode in ('attachment','invitation_to_view','executive_summary','normalized_summary_only')),
-  status text not null default 'queued' check (status in ('queued','sent','failed','revoked','draft')),
-  target_emails_json jsonb not null default '[]'::jsonb,
-  metadata_json jsonb not null default '{}'::jsonb,
-  note text null,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
+    .page{position:relative;padding:38px 34px 86px}
+    .page-inner{max-width:var(--max);margin:0 auto;display:grid;gap:18px}
+    .section-card{background:rgba(255,255,255,.98);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-soft);padding:30px 30px 28px;min-width:0}
+    .section-kicker{margin:0 0 10px;font-size:.74rem;font-weight:700;line-height:1;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+    .section-title{font-size:2rem;line-height:1.08;color:var(--ink);margin:0 0 12px}
+    .section-copy{max-width:68ch;font-size:1rem;line-height:1.7;color:var(--ink-soft)}
+    .panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px;min-width:0}
+    .panel-title{font-size:1.28rem;line-height:1.1;color:var(--ink)}
+    .panel-copy{font-size:.94rem;line-height:1.6;color:var(--ink-soft);max-width:60ch}
+    .chip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:var(--accent-soft);border:1px solid rgba(63,110,161,.14);font-size:.76rem;line-height:1;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-dark);white-space:nowrap}
+    .chip.ok{background:var(--ok-soft);border-color:rgba(78,122,87,.16);color:var(--ok)} .chip.warn{background:var(--warn-soft);border-color:rgba(165,121,32,.16);color:var(--warn)} .chip.rose{background:var(--rose-soft);border-color:rgba(138,57,70,.16);color:var(--rose)}
+    .chip.ghost{background:#fff;border-color:var(--line-strong);color:var(--ink-muted)}
 
-create table if not exists public.workspace_action_plans (
-  id uuid primary key default gen_random_uuid(),
-  organization_id uuid not null references public.organizations(id) on delete cascade,
-  created_by_user_id uuid references public.users(id) on delete set null,
-  source_run_id uuid null,
-  source_assignment_id uuid null,
-  source_tool_type text null check (source_tool_type in ('decision_velocity','structural_clarity','operational_systems','institutional_performance')),
-  title text not null,
-  summary text null,
-  owner_user_id uuid null references public.users(id) on delete set null,
-  owner_email text null,
-  status text not null default 'draft' check (status in ('draft','open','in_progress','blocked','paused','completed','cancelled')),
-  due_at timestamptz null,
-  milestones_json jsonb not null default '[]'::jsonb,
-  metadata_json jsonb not null default '{}'::jsonb,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
+    .top-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
+    .overview-grid{display:grid;grid-template-columns:1fr 1fr 1.28fr 1.14fr;gap:18px;margin-top:22px;align-items:stretch}
+    .metric{display:flex;flex-direction:column;justify-content:flex-start;min-height:228px;overflow:hidden;background:linear-gradient(180deg,#fff 0%,#FBFCFE 100%);border:1px solid var(--line);border-radius:18px;padding:20px 18px 18px;box-shadow:var(--shadow-soft);min-width:0}
+    .metric-label{margin:0 0 8px;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);overflow-wrap:anywhere}
+    .metric-value{font-size:clamp(1.1rem,1.8vw,1.54rem);line-height:1.02;font-weight:700;color:var(--ink);margin:0 0 8px;overflow-wrap:anywhere;word-break:break-word;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+    .metric-copy{margin-top:auto;font-size:.88rem;line-height:1.48;color:var(--ink-soft);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 
-create table if not exists public.workspace_action_items (
-  id uuid primary key default gen_random_uuid(),
-  organization_id uuid not null references public.organizations(id) on delete cascade,
-  action_plan_id uuid not null references public.workspace_action_plans(id) on delete cascade,
-  created_by_user_id uuid references public.users(id) on delete set null,
-  owner_user_id uuid null references public.users(id) on delete set null,
-  owner_email text null,
-  title text not null,
-  description text null,
-  status text not null default 'open' check (status in ('open','in_progress','blocked','done','cancelled')),
-  due_at timestamptz null,
-  sort_order integer not null default 0,
-  metadata_json jsonb not null default '{}'::jsonb,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
+    .identity-card{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}.avatar{width:58px;height:58px;border-radius:16px;background:linear-gradient(180deg,#244462 0%,#3F6EA1 100%);color:#fff;display:grid;place-items:center;font-size:1.12rem;font-weight:700}.identity-name{font-size:1.12rem;line-height:1.2;font-weight:700;color:var(--ink);margin:0 0 4px}.identity-meta{font-size:.92rem;line-height:1.55;color:var(--ink-soft)}.identity-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.status-inline{font-size:.86rem;line-height:1.55;color:var(--ink-muted);min-height:22px}.status-inline.error{color:var(--rose)}.status-inline.ok{color:var(--ok)}
 
-create table if not exists public.workspace_collaboration_rooms (
-  id uuid primary key default gen_random_uuid(),
-  organization_id uuid not null references public.organizations(id) on delete cascade,
-  created_by_user_id uuid references public.users(id) on delete set null,
-  linked_action_plan_id uuid null references public.workspace_action_plans(id) on delete set null,
-  source_run_id uuid null,
-  title text not null,
-  purpose text null,
-  visibility_scope text not null default 'invited_only' check (visibility_scope in ('invited_only','manager_plus_admin','participant_plus_admin','admin_only')),
-  status text not null default 'open' check (status in ('open','closed','archived')),
-  metadata_json jsonb not null default '{}'::jsonb,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
+    .rail-shell{position:sticky;top:84px;z-index:34;padding:14px 18px;background:linear-gradient(180deg,rgba(14,20,28,.96) 0%, rgba(18,27,38,.94) 100%);border:1px solid rgba(63,110,161,.18);box-shadow:0 18px 38px rgba(7,16,29,.16);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}.rail-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px}.rail-kicker{font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,247,250,.62)}.rail-copy{font-size:.84rem;line-height:1.5;color:rgba(245,247,250,.72)}.tabs{display:flex;gap:10px;flex-wrap:wrap;margin-top:0}.tab-btn{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 20px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.86);font-size:.92rem;font-weight:700;cursor:pointer;transition:all .18s ease}.tab-btn.active{background:#fff;border-color:rgba(255,255,255,.20);color:var(--accent-dark);box-shadow:var(--shadow-soft)}.tab-btn:hover,.tab-btn:focus-visible{outline:none;transform:translateY(-1px)}.tab-panels{display:grid;gap:18px}.tab-panel{display:none}.tab-panel.active{display:grid;gap:18px}
+    .workspace-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:18px}.stack{display:grid;gap:18px}.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    .card-lite{padding:18px;border-radius:18px;background:linear-gradient(180deg,#fff 0%,#FBFCFE 100%);border:1px solid var(--line);box-shadow:var(--shadow-soft);min-width:0}.card-lite h4{font-size:1rem;line-height:1.2;color:var(--ink);margin:0 0 8px}.card-lite p,.card-lite li{font-size:.9rem;line-height:1.58;color:var(--ink-soft);overflow-wrap:anywhere}.card-lite ul{margin:0;padding-left:18px;display:grid;gap:6px}
+    .summary-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}
+    .summary-card{padding:18px;border-radius:18px;background:linear-gradient(180deg,#fff 0%,#FBFCFE 100%);border:1px solid var(--line);box-shadow:var(--shadow-soft);min-width:0}
+    .summary-label{font-size:.71rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:10px}
+    .summary-value{font-size:1.54rem;line-height:1;font-weight:700;color:var(--ink);margin-bottom:8px;overflow-wrap:anywhere}
+    .summary-copy{font-size:.84rem;line-height:1.55;color:var(--ink-soft)}
+    .summary-card.ok{background:linear-gradient(180deg,#fff 0%, #F8FCF8 100%)}
+    .summary-card.warn{background:linear-gradient(180deg,#fff 0%, #FFFBF4 100%)}
+    .summary-card.rose{background:linear-gradient(180deg,#fff 0%, #FFF8FA 100%)}
 
-create table if not exists public.workspace_comments (
-  id uuid primary key default gen_random_uuid(),
-  organization_id uuid not null references public.organizations(id) on delete cascade,
-  room_id uuid not null references public.workspace_collaboration_rooms(id) on delete cascade,
-  author_user_id uuid references public.users(id) on delete set null,
-  parent_comment_id uuid null references public.workspace_comments(id) on delete cascade,
-  section_key text null,
-  comment_type text not null default 'comment' check (comment_type in ('comment','note')),
-  body text not null,
-  metadata_json jsonb not null default '{}'::jsonb,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:grid;gap:8px;min-width:0}.field.span-2{grid-column:span 2}.field label{font-size:.82rem;font-weight:700;letter-spacing:.04em;color:var(--ink);display:flex;align-items:center;gap:8px}.field input,.field select,.field textarea{width:100%;min-height:48px;padding:0 14px;border-radius:16px;border:1px solid rgba(21,32,43,.12);background:#fff;color:var(--ink);transition:border-color .18s ease, box-shadow .18s ease}.field textarea{min-height:112px;padding:14px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:rgba(63,110,161,.36);box-shadow:0 0 0 4px rgba(63,110,161,.10)}.field-help{font-size:.8rem;line-height:1.5;color:var(--ink-muted)}.form-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+    .toggle-list{display:grid;gap:12px}.toggle-row{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:14px 16px;border-radius:16px;background:linear-gradient(180deg,#fff 0%,#FBFCFE 100%);border:1px solid var(--line);box-shadow:var(--shadow-soft)}.toggle-row strong{display:block;font-size:.95rem;line-height:1.25;color:var(--ink);margin-bottom:4px}.toggle-row p{font-size:.86rem;line-height:1.55;color:var(--ink-soft)}
+    .switch{position:relative;width:52px;height:30px;display:inline-block}.switch input{display:none}.switch-slider{position:absolute;inset:0;border-radius:999px;background:#DCE4ED;transition:.2s ease}.switch-slider::before{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:999px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.14);transition:.2s ease}.switch input:checked + .switch-slider{background:var(--accent-dark)}.switch input:checked + .switch-slider::before{transform:translateX(22px)}
 
-create table if not exists public.workspace_votes (
-  id uuid primary key default gen_random_uuid(),
-  organization_id uuid not null references public.organizations(id) on delete cascade,
-  room_id uuid not null references public.workspace_collaboration_rooms(id) on delete cascade,
-  voter_user_id uuid references public.users(id) on delete set null,
-  target_type text not null check (target_type in ('proposal','action_item','finding')),
-  target_id text not null,
-  vote_value text not null check (vote_value in ('agree','support','priority','concern')),
-  metadata_json jsonb not null default '{}'::jsonb,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  unique (room_id, voter_user_id, target_type, target_id)
-);
+    .steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:18px}
+    .step-card{padding:18px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(180deg,#fff 0%,#FBFCFE 100%);box-shadow:var(--shadow-soft);min-width:0;position:relative;overflow:hidden}
+    .step-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:transparent;transition:background .18s ease}
+    .step-card.active::before{background:var(--accent)}
+    .step-card.complete::before{background:var(--ok)}
+    .step-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+    .step-index{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:999px;background:var(--accent-soft);color:var(--accent-dark);font-size:.86rem;font-weight:700;flex:0 0 auto}
+    .step-card.complete .step-index{background:var(--ok-soft);color:var(--ok)}
+    .step-title{font-size:1rem;line-height:1.15;color:var(--ink)}
+    .step-copy{font-size:.88rem;line-height:1.58;color:var(--ink-soft)}
 
-create table if not exists public.workspace_decision_log (
-  id uuid primary key default gen_random_uuid(),
-  organization_id uuid not null references public.organizations(id) on delete cascade,
-  room_id uuid not null references public.workspace_collaboration_rooms(id) on delete cascade,
-  author_user_id uuid references public.users(id) on delete set null,
-  title text not null,
-  decision_summary text null,
-  metadata_json jsonb not null default '{}'::jsonb,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
+    .intake-tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+    .intake-tab{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 14px;border-radius:999px;background:#fff;border:1px solid var(--line-strong);font-size:.84rem;font-weight:600;color:var(--ink);cursor:pointer}
+    .intake-tab.active{background:var(--accent-dark);border-color:rgba(63,110,161,.26);color:#fff}
+    .intake-panel{display:none;gap:14px}.intake-panel.active{display:grid}
+    .dropzone{position:relative;padding:24px;border-radius:18px;border:1px dashed rgba(63,110,161,.34);background:linear-gradient(180deg,#FCFDFF 0%, #F7FAFE 100%);display:grid;gap:12px;place-items:center;text-align:center;min-height:190px}
+    .dropzone.drag{border-color:var(--accent-dark);background:linear-gradient(180deg,#F9FBFF 0%, #EEF4FB 100%)}
+    .dropzone-title{font-size:1.04rem;font-weight:700;color:var(--ink)}
+    .dropzone-copy{max-width:46ch;font-size:.9rem;line-height:1.58;color:var(--ink-soft)}
+    .dropzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+    .helper-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .kbd{display:inline-flex;align-items:center;justify-content:center;padding:6px 9px;border-radius:10px;border:1px solid var(--line-strong);background:#fff;font-size:.74rem;font-weight:700;letter-spacing:.06em;color:var(--ink-muted)}
 
-create table if not exists public.workspace_followup_cycles (
-  id uuid primary key default gen_random_uuid(),
-  organization_id uuid not null references public.organizations(id) on delete cascade,
-  created_by_user_id uuid references public.users(id) on delete set null,
-  source_action_plan_id uuid null references public.workspace_action_plans(id) on delete set null,
-  source_run_id uuid null,
-  title text not null,
-  tool_type text not null check (tool_type in ('decision_velocity','structural_clarity','operational_systems','institutional_performance')),
-  audience_scope text not null default 'same_cohort' check (audience_scope in ('same_cohort','subset_only','manager_plus_flagged')),
-  cycle_days integer null check (cycle_days in (30,60,90)),
-  next_send_at timestamptz null,
-  criteria_note text null,
-  status text not null default 'draft' check (status in ('draft','scheduled','active','complete','cancelled')),
-  metadata_json jsonb not null default '{}'::jsonb,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
+    .preview-shell{display:grid;gap:14px}
+    .validation-bar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+    .validation-card{padding:14px 16px;border-radius:16px;border:1px solid var(--line);background:#fff;min-width:0}
+    .validation-label{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:8px}
+    .validation-value{font-size:1.24rem;font-weight:700;color:var(--ink);line-height:1}
+    .validation-card.ok{background:#F8FCF8}
+    .validation-card.warn{background:#FFFBF4}
+    .validation-card.rose{background:#FFF8FA}
 
-create table if not exists public.workspace_room_invites (
-  id uuid primary key default gen_random_uuid(),
-  organization_id uuid not null references public.organizations(id) on delete cascade,
-  room_id uuid not null references public.workspace_collaboration_rooms(id) on delete cascade,
-  invited_by_user_id uuid references public.users(id) on delete set null,
-  invited_user_id uuid null references public.users(id) on delete set null,
-  invited_email text not null,
-  access_role text not null default 'invited_reviewer' check (access_role in ('participant','manager','invited_reviewer','admin_reviewer')),
-  invite_status text not null default 'pending' check (invite_status in ('pending','accepted','declined','revoked')),
-  metadata_json jsonb not null default '{}'::jsonb,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  unique (room_id, invited_email)
-);
+    .list{display:grid;gap:12px}.run-item,.assignment-item,.flag-item,.recipient-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:start;padding:16px;border-radius:18px;background:linear-gradient(180deg,#fff 0%,#FBFCFE 100%);border:1px solid var(--line);box-shadow:var(--shadow-soft);min-width:0}.run-title{font-size:.98rem;line-height:1.35;font-weight:700;color:var(--ink);margin:0 0 6px;overflow-wrap:anywhere}.run-meta,.run-copy{font-size:.88rem;line-height:1.55;color:var(--ink-soft);overflow-wrap:anywhere}.meta-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.pill{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;background:#fff;border:1px solid var(--line-strong);font-size:.74rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted)}.pill.ok{background:rgba(78,122,87,.06);border-color:rgba(78,122,87,.14);color:var(--ok)}.pill.warn{background:rgba(165,121,32,.06);border-color:rgba(165,121,32,.14);color:var(--warn)}.pill.rose{background:rgba(138,57,70,.06);border-color:rgba(138,57,70,.14);color:var(--rose)}.pill.accent{background:var(--accent-soft);border-color:rgba(63,110,161,.14);color:var(--accent-dark)}
+    .run-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end}.run-link{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--line-strong);background:#fff;font-size:.84rem;font-weight:600;color:var(--accent)}.run-link:hover,.run-link:focus-visible{border-color:rgba(63,110,161,.22);color:var(--accent-dark);outline:none}
+    .empty{padding:18px;border-radius:16px;background:#FBFCFE;border:1px dashed rgba(21,32,43,.14);font-size:.92rem;line-height:1.62;color:var(--ink-muted)}
 
-create or replace function public.set_updated_at()
-returns trigger
-language plpgsql
-as $$
-begin
-  new.updated_at = now();
-  return new;
-end;
-$$;
+    .analytics-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.analytics-card{padding:18px;border-radius:18px;background:linear-gradient(180deg,#fff 0%,#FBFCFE 100%);border:1px solid var(--line);box-shadow:var(--shadow-soft)}.analytics-label{font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:8px}.analytics-value{font-size:1.46rem;line-height:1;font-weight:700;color:var(--ink);margin-bottom:8px}.analytics-copy{font-size:.85rem;line-height:1.5;color:var(--ink-soft)}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:var(--shadow-soft)} table{width:100%;border-collapse:collapse} th,td{padding:14px 16px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;font-size:.88rem;overflow-wrap:anywhere} th{font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);background:#FBFCFE} tr:last-child td{border-bottom:none}
+    .footer{background:#0D141C;color:rgba(245,247,250,.88);padding:36px 34px 30px;margin-top:20px}.footer-inner{max-width:var(--max);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}.footer-copy{font-size:.9rem;line-height:1.58;color:rgba(245,247,250,.6)}
 
--- Updated-at triggers
-create or replace trigger workspace_shares_set_updated_at before update on public.workspace_shares for each row execute function public.set_updated_at();
-create or replace trigger workspace_action_plans_set_updated_at before update on public.workspace_action_plans for each row execute function public.set_updated_at();
-create or replace trigger workspace_action_items_set_updated_at before update on public.workspace_action_items for each row execute function public.set_updated_at();
-create or replace trigger workspace_collaboration_rooms_set_updated_at before update on public.workspace_collaboration_rooms for each row execute function public.set_updated_at();
-create or replace trigger workspace_comments_set_updated_at before update on public.workspace_comments for each row execute function public.set_updated_at();
-create or replace trigger workspace_votes_set_updated_at before update on public.workspace_votes for each row execute function public.set_updated_at();
-create or replace trigger workspace_decision_log_set_updated_at before update on public.workspace_decision_log for each row execute function public.set_updated_at();
-create or replace trigger workspace_followup_cycles_set_updated_at before update on public.workspace_followup_cycles for each row execute function public.set_updated_at();
-create or replace trigger workspace_room_invites_set_updated_at before update on public.workspace_room_invites for each row execute function public.set_updated_at();
+    .loading-overlay{position:fixed;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 50% 30%, rgba(63,110,161,.08), transparent 22%),linear-gradient(180deg, #F8FAFD 0%, #F4F7FB 100%);z-index:200;opacity:0;visibility:hidden;pointer-events:none;transition:opacity 260ms ease, visibility 260ms ease}.loading-overlay.show{opacity:1;visibility:visible;pointer-events:auto}.loading-box{width:min(560px, calc(100vw - 40px));padding:34px 30px 30px;border-radius:24px;background:rgba(255,255,255,.96);border:1px solid rgba(21,32,43,.08);text-align:center;color:var(--ink)}.loading-mark{position:relative;width:72px;height:72px;margin:0 auto 18px;display:grid;place-items:center}.loading-m{position:relative;z-index:2;width:52px;height:52px;border-radius:14px;background:#0F1720;color:#FFF;display:grid;place-items:center;font-size:1.38rem;font-weight:700}.loading-ring{position:absolute;inset:0;border-radius:999px;border:2px solid rgba(63,110,161,.14);border-top-color:var(--accent);animation:spin 1.2s linear infinite}.loading-dot{position:absolute;right:9px;bottom:12px;width:10px;height:10px;border-radius:2px;background:var(--accent);animation:pulse 1.6s ease-in-out infinite;z-index:3}@keyframes spin { to { transform:rotate(360deg); } }@keyframes pulse { 0%,100% { transform:scale(1); opacity:1; } 50% { transform:scale(.82); opacity:.62; } }.loading-title{margin:0 0 8px;font-size:1.28rem;line-height:1.15;color:var(--ink)}.loading-copy{margin:0 0 18px;font-size:.96rem;line-height:1.62;color:var(--ink-soft)}.loading-status{min-height:26px;margin:0 0 14px;font-size:.88rem;line-height:1.55;color:var(--accent-dark);font-weight:500}.loading-progress{width:100%;height:8px;overflow:hidden;border-radius:999px;background:rgba(21,32,43,.08)}.loading-bar{width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg, var(--accent) 0%, #5F8ABD 100%);transition:width 240ms linear}.hidden{display:none !important}
+    .info{position:relative;display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:999px;border:1px solid rgba(63,110,161,.24);background:var(--accent-softer);color:var(--accent-dark);font-size:.72rem;font-weight:700;cursor:default;flex:0 0 auto}
+    .info::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 10px);transform:translateX(-50%);width:min(280px, 50vw);padding:10px 12px;border-radius:14px;background:#0F1720;color:#F5F7FA;font-size:.78rem;line-height:1.45;font-weight:500;letter-spacing:0;opacity:0;pointer-events:none;transition:opacity .16s ease, transform .16s ease;box-shadow:var(--shadow-strong);text-transform:none}
+    .info::before{content:"";position:absolute;left:50%;bottom:calc(100% + 4px);transform:translateX(-50%);border:6px solid transparent;border-top-color:#0F1720;opacity:0;transition:opacity .16s ease}
+    .info:hover::after,.info:focus-visible::after{opacity:1;transform:translateX(-50%) translateY(-2px)}
+    .info:hover::before,.info:focus-visible::before{opacity:1}
 
--- Helpful indexes
-create index if not exists idx_workspace_shares_org_created_at on public.workspace_shares (organization_id, created_at desc);
-create index if not exists idx_workspace_action_plans_org_created_at on public.workspace_action_plans (organization_id, created_at desc);
-create index if not exists idx_workspace_action_items_org_plan on public.workspace_action_items (organization_id, action_plan_id, created_at desc);
-create index if not exists idx_workspace_rooms_org_created_at on public.workspace_collaboration_rooms (organization_id, created_at desc);
-create index if not exists idx_workspace_comments_org_room_created_at on public.workspace_comments (organization_id, room_id, created_at desc);
-create index if not exists idx_workspace_votes_org_room_created_at on public.workspace_votes (organization_id, room_id, created_at desc);
-create index if not exists idx_workspace_decisions_org_room_created_at on public.workspace_decision_log (organization_id, room_id, created_at desc);
-create index if not exists idx_workspace_followups_org_created_at on public.workspace_followup_cycles (organization_id, created_at desc);
-create index if not exists idx_workspace_room_invites_org_room on public.workspace_room_invites (organization_id, room_id, created_at desc);
+    
+    .act-grid{display:grid;grid-template-columns:1.04fr .96fr;gap:18px}.act-status-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.act-card{padding:18px;border-radius:18px;background:linear-gradient(180deg,#fff 0%,#FBFCFE 100%);border:1px solid var(--line);box-shadow:var(--shadow-soft)}.act-card h4{font-size:1rem;line-height:1.2;color:var(--ink);margin:0 0 8px}.act-card p,.act-card li{font-size:.9rem;line-height:1.58;color:var(--ink-soft)}.act-card ul{margin:0;padding-left:18px;display:grid;gap:6px}.action-plan-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.room-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.section-note{padding:16px 18px;border-radius:16px;background:linear-gradient(180deg,#FBFCFE 0%,#F6F9FD 100%);border:1px solid var(--line);font-size:.88rem;line-height:1.6;color:var(--ink-soft)}
+    @media (max-width:1240px){.summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.overview-grid,.analytics-grid,.act-status-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.workspace-grid,.hero-inner,.top-grid,.act-grid,.action-plan-grid,.room-detail-grid{grid-template-columns:1fr}.hero h1{max-width:100%}}
+    @media (max-width:980px){.header{height:auto}.header-inner{padding:16px 24px;align-items:flex-start;flex-direction:column;gap:14px}.nav{gap:22px}.hero-inner,.page,.footer{padding-left:24px;padding-right:24px}.form-grid,.steps,.validation-bar{grid-template-columns:1fr}.field.span-2{grid-column:span 1}.rail-shell{top:110px}}
+    @media (max-width:760px){.hero-inner{padding:148px 20px 60px}.hero-actions,.identity-actions,.form-actions,.run-actions,.helper-row{flex-direction:column;align-items:stretch;max-width:420px}.btn,.run-link{width:100%;min-width:0}.overview-grid,.analytics-grid,.grid-2,.grid-3,.hero-strip,.summary-grid,.act-status-grid,.action-plan-grid,.room-detail-grid{grid-template-columns:1fr}.page{padding:24px 20px 64px}.section-card{padding:24px 20px 22px}.rail-shell{padding:14px 14px 14px;top:102px}.header-inner{padding:14px 20px 10px;gap:10px}.nav{width:calc(100% + 4px);gap:10px;flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;padding:2px 4px 6px 0;scrollbar-width:none;-webkit-overflow-scrolling:touch}.nav::-webkit-scrollbar{display:none}.nav a{flex:0 0 auto;font-size:.84rem;line-height:1;padding:10px 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}.nav a::after{display:none}.footer{padding:30px 20px 26px}.info::after{width:min(240px, 82vw)}}
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <div class="loading-overlay" id="workspaceLoadingOverlay" aria-hidden="true"><div class="loading-box" role="status" aria-live="polite"><div class="loading-mark" aria-hidden="true"><div class="loading-ring"></div><div class="loading-m">M</div><div class="loading-dot"></div></div><h3 class="loading-title">Assembling workspace environment...</h3><p class="loading-copy">Loading signed-in identity, organization context, assignments, results, and analytic governance state.</p><p class="loading-status" id="workspaceLoadingStatus">Resolving workspace state...</p><div class="loading-progress" aria-hidden="true"><div class="loading-bar" id="workspaceLoadingBar"></div></div></div></div>
+  <header class="header" id="siteHeader"><div class="header-inner"><a href="index.html" class="brand">Monderman</a><nav class="nav" aria-label="Primary navigation"><a href="index.html#approach">Approach</a><a href="diagnostic-tools.html">Diagnostic Hub</a><a href="research.html">Research</a><a href="why-monderman.html">Why Monderman</a><a href="advisory-services-connect.html">Connect</a><a href="workspace.html" class="workspace-link is-active">Workspace</a></nav></div></header>
 
--- RLS
-alter table public.workspace_shares enable row level security;
-alter table public.workspace_action_plans enable row level security;
-alter table public.workspace_action_items enable row level security;
-alter table public.workspace_collaboration_rooms enable row level security;
-alter table public.workspace_comments enable row level security;
-alter table public.workspace_votes enable row level security;
-alter table public.workspace_decision_log enable row level security;
-alter table public.workspace_followup_cycles enable row level security;
-alter table public.workspace_room_invites enable row level security;
+  <section class="hero">
+    <div class="hero-media"><img class="hero-image" src="Workspace-Hero.jpg" alt="" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <div>
+        <p class="eyebrow">Monderman Workspace</p>
+        <h1>Govern diagnostic work with precision and continuity.</h1>
+        <p class="hero-copy">This workspace is designed to become the operating layer above individual runs: assign diagnostics at scale, govern visibility and anonymity, review results, normalize institutional signal, and compare what the organization is learning over time.</p>
+        <div class="hero-actions">
+          <button class="btn btn-accent" type="button" data-jump-tab="build">Enter workspace</button>
+          <button class="btn btn-subtle" id="signOutBtn" type="button">Sign out</button>
+        </div>
+      </div>
+      <div class="hero-side">
+        <div class="hero-panel">
+          <p class="hero-panel-kicker">Workspace status</p>
+          <p class="hero-panel-title" id="heroStatusTitle">Checking session…</p>
+          <p class="hero-panel-copy" id="heroStatusCopy">Confirming signed-in access, organization role, saved runs, batch assignments, and analytic governance state.</p>
+          <div class="hero-strip">
+            <div class="hero-stat"><div class="hero-stat-label">Runs</div><div class="hero-stat-value" id="heroRuns">0</div><div class="hero-stat-copy">Saved runs visible in this workspace.</div></div>
+            <div class="hero-stat"><div class="hero-stat-label">Assignments</div><div class="hero-stat-value" id="heroAssignments">0</div><div class="hero-stat-copy">Open or recent assignments.</div></div>
+            <div class="hero-stat"><div class="hero-stat-label">Flagged</div><div class="hero-stat-value" id="heroFlagged">0</div><div class="hero-stat-copy">Runs marked for caution or exclusion.</div></div>
+          </div>
+        </div>
+        <div class="hero-panel">
+          <p class="hero-panel-kicker">Built for governance</p>
+          <p class="hero-panel-title">Assignments, visibility, normalization, and trust</p>
+          <p class="hero-panel-copy">Monderman should not just collect diagnostic responses. It should govern who receives them, how they are interpreted, and which signals are included in aggregate learning.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
--- Admin / owner policies for workspace console
-create policy if not exists workspace_shares_admin_rw on public.workspace_shares
-for all to authenticated
-using (public.workspace_user_is_org_admin(organization_id))
-with check (public.workspace_user_is_org_admin(organization_id));
+  <main class="page">
+    <div class="page-inner">
+      <div class="top-grid">
+        <section class="section-card">
+          <p class="section-kicker">Workspace overview</p>
+          <h2 class="section-title">A premium operating layer for repeated diagnostic use.</h2>
+          <p class="section-copy">This workspace now centers executive visibility, batch assignment operations, role-sensitive output governance, and cleaner organizational learning over time.</p>
+          <div class="overview-grid">
+            <div class="metric"><p class="metric-label">Saved runs</p><p class="metric-value" id="metricRuns">0</p><p class="metric-copy">Visible in this workspace.</p></div>
+            <div class="metric"><p class="metric-label">Included in aggregates</p><p class="metric-value" id="metricIncluded">0</p><p class="metric-copy">In aggregate reporting.</p></div>
+            <div class="metric"><p class="metric-label">Organization</p><p class="metric-value" id="metricOrg">—</p><p class="metric-copy">Workspace identity.</p></div>
+            <div class="metric"><p class="metric-label">Last activity</p><p class="metric-value" id="metricLast">—</p><p class="metric-copy">Latest visible event.</p></div>
+          </div>
+        </section>
+        <section class="section-card">
+          <div class="panel-head"><div><h3 class="panel-title">Identity and role</h3><p class="panel-copy">Your sign-in, organization membership, and workspace permissions resolve here.</p></div><span class="chip" id="roleChip">Loading role</span></div>
+          <div class="identity-card"><div class="avatar" id="userAvatar">M</div><div><p class="identity-name" id="userName">Loading…</p><p class="identity-meta" id="userMeta">Checking signed-in session.</p></div></div>
+          <div class="identity-actions"><a class="btn btn-subtle" href="diagnostic-tools.html">Back to Diagnostic Hub</a><a class="btn btn-subtle" href="cross-tool-synthesis.html">Cross-tool synthesis</a></div>
+          <p class="status-inline" id="identityStatus"></p>
+        </section>
+      </div>
 
-create policy if not exists workspace_action_plans_admin_rw on public.workspace_action_plans
-for all to authenticated
-using (public.workspace_user_is_org_admin(organization_id))
-with check (public.workspace_user_is_org_admin(organization_id));
+      <section class="section-card">
+        <div class="panel-head"><div><p class="section-kicker">How the workspace is organized</p><h2 class="section-title">One console. Three clear admin modes.</h2><p class="section-copy">Build is where batches are configured and sent. Tracking is where live response flow and status are monitored. Analytics is where raw response activity becomes governed institutional interpretation.</p></div><span class="chip ghost">Admin orientation</span></div>
+        <div class="grid-2">
+          <div class="card-lite"><h4>Build</h4><p>Validate recipients, choose diagnostic defaults, apply anonymity and output policy, set timing, review, and dispatch.</p></div>
+          <div class="card-lite"><h4>Track</h4><p>Watch sent, opened, due-soon, completed, flagged, included, and excluded states in one operating surface.</p></div>
+          <div class="card-lite"><h4>Analyze</h4><p>Review normalized signal, governance defaults, flagged-run treatment, synthesis, and executive export pathways.</p></div>
+          <div class="card-lite"><h4>Act</h4><p>Share governed outputs, assign action plans, invite collaborators, log decisions, and launch structured follow-up rounds.</p></div>
+        </div>
+      </section>
 
-create policy if not exists workspace_action_items_admin_rw on public.workspace_action_items
-for all to authenticated
-using (public.workspace_user_is_org_admin(organization_id))
-with check (public.workspace_user_is_org_admin(organization_id));
+      <section class="section-card rail-shell" id="workspaceTabs">
+        <div class="rail-head"><div><div class="rail-kicker">Workspace rail</div><div class="rail-copy">Move through one governed operating cycle: build, track, analyze, then act.</div></div><span class="chip ghost">Primary navigation</span></div>
+        <div class="tabs" aria-label="Workspace navigation">
+          <button class="tab-btn active" data-tab="build" type="button">Build</button>
+          <button class="tab-btn" data-tab="track" type="button">Track</button>
+          <button class="tab-btn" data-tab="analyze" type="button">Analyze</button>
+          <button class="tab-btn" data-tab="act" type="button">Act</button>
+        </div>
+      </section>
 
-create policy if not exists workspace_rooms_admin_rw on public.workspace_collaboration_rooms
-for all to authenticated
-using (public.workspace_user_is_org_admin(organization_id))
-with check (public.workspace_user_is_org_admin(organization_id));
+      <div class="tab-panels">
+        <section class="tab-panel active" data-panel="build">
+          <div class="workspace-grid">
+            <div class="stack">
+              <section class="section-card" id="assignmentComposerCard">
+                <div class="panel-head"><div><p class="section-kicker">Build</p><h3 class="panel-title">Configure and dispatch diagnostic batches</h3><p class="panel-copy">Move through one clean admin sequence: validate recipients, choose diagnostic defaults, set visibility and anonymity policy, review the batch, and send.</p></div><span class="chip" id="assignmentModeChip">Admin module</span></div>
 
-create policy if not exists workspace_comments_admin_rw on public.workspace_comments
-for all to authenticated
-using (public.workspace_user_is_org_admin(organization_id))
-with check (public.workspace_user_is_org_admin(organization_id));
+                <div class="steps">
+                  <div class="step-card active" id="stepCardIntake">
+                    <div class="step-top"><span class="step-index">1</span><span class="chip ghost" id="stepIntakeChip">Required</span></div>
+                    <h4 class="step-title">Build recipient set</h4>
+                    <p class="step-copy">Paste emails, upload CSV or Excel, or import JSON. Validate before any configuration decisions are finalized.</p>
+                  </div>
+                  <div class="step-card" id="stepCardConfig">
+                    <div class="step-top"><span class="step-index">2</span><span class="chip ghost" id="stepConfigChip">Locked</span></div>
+                    <h4 class="step-title">Configure, review, and send</h4>
+                    <p class="step-copy">Apply diagnostic defaults, privacy controls, delivery timing, and review the final exposure profile before dispatch.</p>
+                  </div>
+                </div>
 
-create policy if not exists workspace_votes_admin_rw on public.workspace_votes
-for all to authenticated
-using (public.workspace_user_is_org_admin(organization_id))
-with check (public.workspace_user_is_org_admin(organization_id));
+                <div class="intake-tabs">
+                  <button class="intake-tab active" type="button" data-intake="paste">Paste</button>
+                  <button class="intake-tab" type="button" data-intake="file">CSV / Excel</button>
+                  <button class="intake-tab" type="button" data-intake="json">JSON</button>
+                </div>
 
-create policy if not exists workspace_decisions_admin_rw on public.workspace_decision_log
-for all to authenticated
-using (public.workspace_user_is_org_admin(organization_id))
-with check (public.workspace_user_is_org_admin(organization_id));
+                <div class="intake-panel active" data-intake-panel="paste">
+                  <div class="field">
+                    <label for="recipientPaste">Paste recipient emails or rows <span tabindex="0" class="info" data-tip="One email per line is enough. You can also paste comma-separated or semicolon-separated values. If you include names, teams, or business units, keep each line in a simple CSV-like format.">i</span></label>
+                    <textarea id="recipientPaste" placeholder="jane@org.com&#10;john@org.com&#10;alex@org.com, Alex Morgan, Product, Platform"></textarea>
+                    <div class="field-help">Best for a quick send list or when you only have emails and a few optional attributes.</div>
+                  </div>
+                  <div class="helper-row">
+                    <button class="btn btn-soft" type="button" id="parsePasteBtn">Validate pasted recipients</button>
+                    <span class="kbd">One email per line</span>
+                    <span class="kbd">Optional name, team, unit</span>
+                  </div>
+                </div>
 
-create policy if not exists workspace_followups_admin_rw on public.workspace_followup_cycles
-for all to authenticated
-using (public.workspace_user_is_org_admin(organization_id))
-with check (public.workspace_user_is_org_admin(organization_id));
+                <div class="intake-panel" data-intake-panel="file">
+                  <div class="dropzone" id="uploadDropzone">
+                    <input id="recipientFile" type="file" accept=".csv,.xlsx,.xls,.json" />
+                    <div class="dropzone-title">Drop CSV, Excel, or JSON here</div>
+                    <div class="dropzone-copy">Use this for larger sends. The workspace will validate the file locally and can also call the batch preview route before dispatch.</div>
+                    <div class="helper-row"><span class="kbd">CSV</span><span class="kbd">XLSX</span><span class="kbd">JSON</span></div>
+                  </div>
+                  <div class="helper-row">
+                    <button class="btn btn-soft" type="button" id="previewBatchBtn">Run backend preview</button>
+                    <span class="field-help" id="selectedFileName">No file selected.</span>
+                  </div>
+                </div>
 
-create policy if not exists workspace_room_invites_admin_rw on public.workspace_room_invites
-for all to authenticated
-using (public.workspace_user_is_org_admin(organization_id))
-with check (public.workspace_user_is_org_admin(organization_id));
+                <div class="intake-panel" data-intake-panel="json">
+                  <div class="field">
+                    <label for="recipientJson">Paste JSON array <span tabindex="0" class="info" data-tip="Use an array of objects such as [{email, name, team, business_unit}]. This is useful when another system already exports structured recipient data.">i</span></label>
+                    <textarea id="recipientJson" placeholder='[
+  {"email":"jane@org.com","name":"Jane Roberts","team":"Operations","business_unit":"North America"},
+  {"email":"john@org.com","name":"John Lee","team":"Finance","business_unit":"Shared Services"}
+]'></textarea>
+                    <div class="field-help">For structured imports from another administrative system.</div>
+                  </div>
+                  <div class="helper-row"><button class="btn btn-soft" type="button" id="parseJsonBtn">Validate JSON recipients</button></div>
+                </div>
 
--- Invited-reader policies for collaboration room artifacts.
--- These are intentionally narrower than the admin policies and allow invited users
--- to read room content for rooms where their email is explicitly invited.
-create policy if not exists workspace_rooms_invited_read on public.workspace_collaboration_rooms
-for select to authenticated
-using (
-  exists (
-    select 1
-    from public.workspace_room_invites ri
-    where ri.room_id = workspace_collaboration_rooms.id
-      and lower(ri.invited_email) = lower(coalesce((auth.jwt() ->> 'email'), ''))
-      and ri.invite_status in ('pending','accepted')
-  )
-);
+                <div class="preview-shell" id="recipientPreviewShell">
+                  <div class="validation-bar">
+                    <div class="validation-card"><div class="validation-label">Rows</div><div class="validation-value" id="recipientCount">0</div></div>
+                    <div class="validation-card ok"><div class="validation-label">Valid</div><div class="validation-value" id="recipientValidCount">0</div></div>
+                    <div class="validation-card warn"><div class="validation-label">Duplicates</div><div class="validation-value" id="recipientDuplicateCount">0</div></div>
+                    <div class="validation-card rose"><div class="validation-label">Invalid</div><div class="validation-value" id="recipientInvalidCount">0</div></div>
+                  </div>
+                  <div class="list" id="recipientPreviewList"></div>
+                  <div class="empty" id="recipientPreviewEmpty">Your validated recipient set will appear here. Until this step is complete, the configuration stage remains locked.</div>
+                </div>
 
-create policy if not exists workspace_comments_invited_read on public.workspace_comments
-for select to authenticated
-using (
-  exists (
-    select 1
-    from public.workspace_room_invites ri
-    where ri.room_id = workspace_comments.room_id
-      and lower(ri.invited_email) = lower(coalesce((auth.jwt() ->> 'email'), ''))
-      and ri.invite_status in ('pending','accepted')
-  )
-);
+                <form id="assignmentForm" novalidate>
+                  <div class="form-grid">
+                    <div class="field"><label for="batchLabel">Batch label <span tabindex="0" class="info" data-tip="A descriptive label helps admins separate sends over time. Example: Q2 frontline run, regional managers pilot, or policy refresh cohort.">i</span></label><input id="batchLabel" name="batchLabel" type="text" placeholder="e.g. Q2 operations cohort" /></div>
+                    <div class="field"><label for="assignmentTool">Diagnostic type</label><select id="assignmentTool" name="assignmentTool"><option value="decision_velocity">Decision Velocity</option><option value="structural_clarity">Structural Clarity</option><option value="operational_systems">Operational Systems</option><option value="institutional_performance">Institutional Performance</option></select></div>
+                    <div class="field"><label for="assignmentLens">Participant lens</label><select id="assignmentLens" name="assignmentLens"><option value="operational">Operational</option><option value="managerial">Managerial</option><option value="executive">Senior leader</option></select></div>
+                    <div class="field"><label for="assignmentDepth">Run depth</label><select id="assignmentDepth" name="assignmentDepth"><option value="10">About 10 minutes</option><option value="30" selected>About 30 minutes</option><option value="60">About 60 minutes</option></select></div>
+                    <div class="field span-2"><label for="eventPathName">Event path / pathway name</label><input id="eventPathName" name="eventPathName" type="text" placeholder="e.g. Contract review escalation" required /></div>
+                    <div class="field span-2"><label for="assignmentMessage">Assignment note</label><textarea id="assignmentMessage" name="assignmentMessage" placeholder="Brief context for the assignees."></textarea></div>
+                    <div class="field"><label for="sendTiming">Send timing</label><select id="sendTiming" name="sendTiming"><option value="now">Send now</option><option value="today">Later today</option><option value="tomorrow">Tomorrow morning</option><option value="custom">Custom timing</option></select></div>
+                    <div class="field"><label for="customDueAt">Custom due / send time</label><input id="customDueAt" name="customDueAt" type="datetime-local" /></div>
+                  </div>
+                  <div class="toggle-list" style="margin-top:18px;">
+                    <div class="toggle-row"><div><strong>Let participant see their full output</strong><p>Turn this off if the run should complete without revealing the full narrative to the participant.</p></div><label class="switch"><input type="checkbox" id="allowParticipantOutput" checked /><span class="switch-slider"></span></label></div>
+                    <div class="toggle-row"><div><strong>Anonymous response</strong><p>Store the run as anonymous for reporting purposes while preserving controlled assignment linkage behind the scenes if needed.</p></div><label class="switch"><input type="checkbox" id="anonymousResponse" /><span class="switch-slider"></span></label></div>
+                    <div class="toggle-row"><div><strong>Hide full output from admin by default</strong><p>Use this when the admin should only see metadata or aggregate-level outcomes rather than the full participant narrative.</p></div><label class="switch"><input type="checkbox" id="hideFromAdmin" /><span class="switch-slider"></span></label></div>
+                    <div class="toggle-row"><div><strong>Request normalization review after completion</strong><p>Flag this assignment so the backend normalization engine evaluates it immediately after the run lands.</p></div><label class="switch"><input type="checkbox" id="requestNormalization" checked /><span class="switch-slider"></span></label></div>
+                  </div>
 
-create policy if not exists workspace_votes_invited_read on public.workspace_votes
-for select to authenticated
-using (
-  exists (
-    select 1
-    from public.workspace_room_invites ri
-    where ri.room_id = workspace_votes.room_id
-      and lower(ri.invited_email) = lower(coalesce((auth.jwt() ->> 'email'), ''))
-      and ri.invite_status in ('pending','accepted')
-  )
-);
+                  <div class="section-card" style="margin-top:18px;padding:20px;background:linear-gradient(180deg,#FCFDFF 0%, #F8FAFD 100%);border-style:solid;">
+                    <div class="panel-head" style="margin-bottom:14px;"><div><h3 class="panel-title" style="font-size:1.08rem;">Batch review</h3><p class="panel-copy">Final review before the batch send route is called.</p></div><span class="chip ghost" id="reviewRecipientChip">0 recipients</span></div>
+                    <div class="grid-3">
+                      <div class="card-lite"><h4>Delivery</h4><p id="reviewDelivery">Decision Velocity • Managerial • About 30 minutes</p></div>
+                      <div class="card-lite"><h4>Visibility</h4><p id="reviewVisibility">Participant-visible output, named response, admin-visible by default.</p></div>
+                      <div class="card-lite"><h4>Timing</h4><p id="reviewTiming">Send now</p></div>
+                    </div>
+                  </div>
 
-create policy if not exists workspace_decisions_invited_read on public.workspace_decision_log
-for select to authenticated
-using (
-  exists (
-    select 1
-    from public.workspace_room_invites ri
-    where ri.room_id = workspace_decision_log.room_id
-      and lower(ri.invited_email) = lower(coalesce((auth.jwt() ->> 'email'), ''))
-      and ri.invite_status in ('pending','accepted')
-  )
-);
+                  <div class="form-actions">
+                    <button class="btn btn-accent" id="sendBatchBtn" type="submit">Send batch</button>
+                    <button class="btn btn-soft" id="copyAssignmentPayloadBtn" type="button">Copy defaults</button>
+                    <button class="btn btn-subtle" type="reset" id="resetBatchBtn">Reset</button>
+                  </div>
+                </form>
+                <p class="status-inline" id="assignmentStatus"></p>
+              </section>
+            </div>
+            <div class="stack">
+              <section class="section-card">
+                <div class="panel-head"><div><p class="section-kicker">Build guidance</p><h3 class="panel-title">Policy decisions that matter before anything goes out</h3><p class="panel-copy">The batch builder should make the send logic feel deliberate: validated recipients, explicit visibility rules, and review-before-dispatch.</p></div></div>
+                <div class="grid-2">
+                  <div class="card-lite"><h4>Bulk intake, not guesswork</h4><p>Large sends should begin with recipient validation, duplicate control, and clear row-level issues before any invitations go out.</p></div>
+                  <div class="card-lite"><h4>Visibility state</h4><p>Participant-visible, admin-visible, aggregate-only, and metadata-only outcomes should be distinct, explicit states.</p></div>
+                  <div class="card-lite"><h4>Anonymity state</h4><p>Anonymous should not mean lost. It should mean protected reporting treatment governed by policy.</p></div>
+                  <div class="card-lite"><h4>Normalization recommendation</h4><p>Admins should request backend normalization review, not manipulate results manually.</p></div>
+                </div>
+              </section>
+              <section class="section-card">
+                <div class="panel-head"><div><p class="section-kicker">Batch status</p><h3 class="panel-title">Route readiness</h3><p class="panel-copy">This gives admins immediate confidence about whether the console is still validating and dispatching through the expected backend flow.</p></div></div>
+                <div class="grid-2">
+                  <div class="card-lite"><h4>Preview route</h4><p id="previewRouteStatus">Not run yet.</p></div>
+                  <div class="card-lite"><h4>Send route</h4><p id="sendRouteStatus">Not run yet.</p></div>
+                </div>
+              </section>
+              <section class="section-card">
+                <div class="panel-head"><div><p class="section-kicker">Recommended additions</p><h3 class="panel-title">What would make Build even stronger</h3><p class="panel-copy">These are product-ready extensions that fit the current architecture without changing the backend model.</p></div></div>
+                <div class="card-lite"><ul><li><strong>Saved drafts:</strong> preserve partially configured batches before dispatch.</li><li><strong>Reusable templates:</strong> let admins store common diagnostic + visibility combinations.</li><li><strong>Multi-diagnostic sends:</strong> support one recipient set with more than one assigned tool.</li><li><strong>Scheduled digests:</strong> allow send-now, scheduled, and batched reminder patterns to feel native.</li></ul></div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" data-panel="track">
+          <div class="workspace-grid">
+            <div class="stack">
+              <section class="section-card">
+                <div class="panel-head"><div><p class="section-kicker">Tracking</p><h3 class="panel-title">Live response and assignment flow</h3><p class="panel-copy">This is the admin operating view: what has been sent, what has been opened, what has been completed, what is due soon, and what is beginning to distort signal quality.</p></div><span class="chip ok" id="runsSummaryChip">0 visible</span></div>
+                <div class="summary-grid">
+                  <div class="summary-card"><div class="summary-label">Open rate</div><div class="summary-value" id="summaryOpenRate">—</div><div class="summary-copy">Assignments opened relative to sent volume.</div></div>
+                  <div class="summary-card ok"><div class="summary-label">Completion rate</div><div class="summary-value" id="summaryCompletionRate">—</div><div class="summary-copy">Assignments completed relative to sent volume.</div></div>
+                  <div class="summary-card warn"><div class="summary-label">Due soon</div><div class="summary-value" id="summaryDueSoon">0</div><div class="summary-copy">Assignments approaching due time.</div></div>
+                  <div class="summary-card warn"><div class="summary-label">Flagged</div><div class="summary-value" id="summaryFlagged">0</div><div class="summary-copy">Runs marked for caution or exclusion.</div></div>
+                  <div class="summary-card ok"><div class="summary-label">Included</div><div class="summary-value" id="summaryIncluded">0</div><div class="summary-copy">Runs included in aggregate interpretation.</div></div>
+                  <div class="summary-card rose"><div class="summary-label">Excluded</div><div class="summary-value" id="summaryExcluded">0</div><div class="summary-copy">Runs excluded from aggregates.</div></div>
+                </div>
+              </section>
+
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Recent assignments</h3><p class="panel-copy">This is the clearest admin queue for what has gone out and where response flow currently stands.</p></div><span class="chip ghost">Assignment state</span></div>
+                <div class="list" id="assignmentList"></div>
+                <div class="empty" id="assignmentEmpty">No recent assignments are visible yet.</div>
+              </section>
+
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Recent saved runs</h3><p class="panel-copy">Raw first-arrival responses surface here before they are filtered into governed analytic treatment.</p></div><span class="chip ghost">Raw run layer</span></div>
+                <div class="list" id="runsList"></div>
+                <div class="empty" id="runsEmpty">No saved runs are visible yet. Once diagnostics write to <code>diagnostic_runs</code>, this list will populate automatically.</div>
+              </section>
+            </div>
+
+            <div class="stack">
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Governed response review</h3><p class="panel-copy">See runs with visibility, anonymity, and normalization context rather than just raw score storage.</p></div><div class="run-actions"><button class="btn btn-soft" id="refreshResultsBtn" type="button">Refresh results</button><button class="btn btn-subtle" id="normalizeOrgBtn" type="button">Run normalization for org</button></div></div>
+                <div class="form-grid" style="margin-bottom:18px;">
+                  <div class="field"><label for="resultToolFilter">Tool filter</label><select id="resultToolFilter"><option value="">All tools</option><option value="decision_velocity">Decision Velocity</option><option value="structural_clarity">Structural Clarity</option><option value="operational_systems">Operational Systems</option><option value="institutional_performance">Institutional Performance</option></select></div>
+                  <div class="field"><label for="resultInclusionFilter">Inclusion filter</label><select id="resultInclusionFilter"><option value="">All runs</option><option value="included">Included</option><option value="included_with_caution">Included with caution</option><option value="excluded_from_aggregates">Excluded from aggregates</option></select></div>
+                </div>
+                <div class="list" id="normalizedRunsList"></div>
+                <div class="empty" id="normalizedRunsEmpty">No normalized runs are visible yet. Once the backend normalization routes are mounted, this view will populate with analytic status.</div>
+                <p class="status-inline" id="resultsStatus"></p>
+              </section>
+
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Flagged-run review</h3><p class="panel-copy">This is where the admin can quickly see which responses should not quietly shape institutional interpretation.</p></div></div>
+                <div class="list" id="flaggedRunList"></div>
+                <div class="empty" id="flaggedRunEmpty">No flagged runs are visible yet.</div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" data-panel="analyze">
+          <section class="section-card">
+            <div class="panel-head"><div><p class="section-kicker">Analytics</p><h3 class="panel-title">Synthesis, signal quality, and governance</h3><p class="panel-copy">This layer turns raw response flow into an institutional learning set: normalized, filtered, governed, and ready for executive interpretation.</p></div><span class="chip ghost" id="summaryContextChip">Workspace context</span></div>
+            <div class="analytics-grid">
+              <div class="analytics-card"><div class="analytics-label">All runs</div><div class="analytics-value" id="analyticsAllRuns">0</div><div class="analytics-copy">Raw runs visible in this workspace.</div></div>
+              <div class="analytics-card"><div class="analytics-label">Included</div><div class="analytics-value" id="analyticsIncluded">0</div><div class="analytics-copy">In aggregate reporting.</div></div>
+              <div class="analytics-card"><div class="analytics-label">With caution</div><div class="analytics-value" id="analyticsCaution">0</div><div class="analytics-copy">Runs included, but flagged for caution.</div></div>
+              <div class="analytics-card"><div class="analytics-label">Excluded</div><div class="analytics-value" id="analyticsExcluded">0</div><div class="analytics-copy">Runs excluded from aggregate views.</div></div>
+            </div>
+          </section>
+
+          <div class="workspace-grid">
+            <div class="stack">
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Normalization recommendation log</h3><p class="panel-copy">Raw run preserved, backend recommendation logged, aggregate treatment made explicit.</p></div></div>
+                <div class="table-wrap"><table><thead><tr><th>Run</th><th>Status</th><th>Score</th><th>Flags</th><th>Last normalized</th></tr></thead><tbody id="normalizationTableBody"></tbody></table></div>
+              </section>
+
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Cross-diagnostic synthesis</h3><p class="panel-copy">Analytics should culminate in a cleaner institutional picture, not just a list of individual runs.</p></div></div>
+                <div class="grid-2">
+                  <div class="card-lite"><h4>Cross-tool synthesis</h4><p>Compare governed signal across Decision Velocity, Structural Clarity, Operational Systems, and Institutional Performance in one executive layer.</p></div>
+                  <div class="card-lite"><h4>Delivery and export</h4><p>Prepare executive summaries, normalized digests, and downstream exports without changing the raw run record.</p></div>
+                </div>
+                <div class="form-actions" style="margin-top:16px;"><a class="btn btn-soft" href="cross-tool-synthesis.html">Open cross-tool synthesis</a><button class="btn btn-subtle" id="exportGovernanceBtn" type="button">Export governance snapshot</button></div>
+              </section>
+            </div>
+
+            <div class="stack">
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Visibility and privacy policy</h3><p class="panel-copy">These controls are where Monderman becomes a governed institutional platform rather than a simple result archive.</p></div></div>
+                <div class="toggle-list">
+                  <div class="toggle-row"><div><strong>Default to participant-visible output</strong><p>Use as the default assignment policy when the assignee should receive the full narrative immediately after completion.</p></div><label class="switch"><input type="checkbox" id="govParticipantVisible" checked /><span class="switch-slider"></span></label></div>
+                  <div class="toggle-row"><div><strong>Default to admin metadata-only for anonymous runs</strong><p>Helps preserve trust by avoiding accidental upward exposure of full narrative output.</p></div><label class="switch"><input type="checkbox" id="govMetadataOnly" checked /><span class="switch-slider"></span></label></div>
+                  <div class="toggle-row"><div><strong>Use normalized analytic set by default</strong><p>Aggregate views should use included runs first, not raw runs indiscriminately.</p></div><label class="switch"><input type="checkbox" id="govUseNormalized" checked /><span class="switch-slider"></span></label></div>
+                </div>
+                <div class="form-actions" style="margin-top:18px;"><button class="btn btn-accent" id="saveGovernanceBtn" type="button">Save governance preferences</button></div>
+                <p class="status-inline" id="governanceStatus"></p>
+              </section>
+
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Governance model summary</h3><p class="panel-copy">These are the distinctions the product should protect explicitly.</p></div></div>
+                <div class="grid-2">
+                  <div class="card-lite"><h4>Raw run</h4><p>Preserved exactly as submitted, never overwritten by normalization or aggregate treatment.</p></div>
+                  <div class="card-lite"><h4>Included analytic set</h4><p>The default basis for organizational summaries, benchmarks, and leadership dashboards.</p></div>
+                  <div class="card-lite"><h4>Flagged with caution</h4><p>Still visible, still often included, but explicitly marked as weaker signal.</p></div>
+                  <div class="card-lite"><h4>Excluded from aggregates</h4><p>Preserved for auditability, but removed from aggregate interpretation when the backend recommends it.</p></div>
+                </div>
+              </section>
+
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">What the backend should govern</h3><p class="panel-copy">The workspace shows these states clearly, but the logic belongs in the API.</p></div></div>
+                <div class="card-lite"><ul><li><strong>Completion-speed sanity</strong> for each diagnostic depth.</li><li><strong>Contradiction burden</strong> relative to structured answers.</li><li><strong>Coverage adequacy</strong> for adaptive branch completion.</li><li><strong>Outlier detection</strong> relative to the organization comparison set.</li><li><strong>Duplicate-like patterns</strong> that should not quietly distort aggregate signal.</li></ul></div>
+              </section>
+            </div>
+          </div>
+        </section>
+      
+        <section class="tab-panel" data-panel="act">
+          <section class="section-card">
+            <div class="panel-head"><div><p class="section-kicker">Act</p><h3 class="panel-title">Share, coordinate, and govern follow-through</h3><p class="panel-copy">Act turns governed signal into controlled distribution, owned action, invited collaboration, and structured follow-up. Everything below is invitation-based and role-aware.</p></div><span class="chip ghost" id="actContextChip">Action layer</span></div>
+            <div class="act-status-grid">
+              <div class="analytics-card"><div class="analytics-label">Shares</div><div class="analytics-value" id="actSharesCount">0</div><div class="analytics-copy">Controlled distributions created from the workspace.</div></div>
+              <div class="analytics-card"><div class="analytics-label">Action plans</div><div class="analytics-value" id="actPlansCount">0</div><div class="analytics-copy">Governed plans created from findings and patterns.</div></div>
+              <div class="analytics-card"><div class="analytics-label">Working rooms</div><div class="analytics-value" id="actRoomsCount">0</div><div class="analytics-copy">Invitation-only collaboration spaces with notes and decisions.</div></div>
+              <div class="analytics-card"><div class="analytics-label">Follow-up rounds</div><div class="analytics-value" id="actCyclesCount">0</div><div class="analytics-copy">Structured re-run or comparison cycles launched from the console.</div></div>
+            </div>
+          </section>
+
+          <div class="act-grid">
+            <div class="stack">
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Share</h3><p class="panel-copy">Distribute the right version of the output to the right audience without exposing more than policy allows.</p></div></div>
+                <form id="shareForm" novalidate>
+                  <div class="form-grid">
+                    <div class="field"><label for="shareAudienceType">Audience type</label><select id="shareAudienceType"><option value="admin">Admin</option><option value="manager">Manager</option><option value="participant">Participant</option><option value="invited_reviewer">Invited reviewer</option></select></div>
+                    <div class="field"><label for="shareDeliveryMode">Delivery mode</label><select id="shareDeliveryMode"><option value="invitation_to_view">Invitation to view</option><option value="executive_summary">Executive summary</option><option value="normalized_summary_only">Normalized summary only</option><option value="attachment">Attachment</option></select></div>
+                    <div class="field span-2"><label for="shareRecipients">Recipients</label><textarea id="shareRecipients" placeholder="One email per line or comma-separated"></textarea></div>
+                    <div class="field"><label for="shareSourceRunId">Linked run ID</label><input id="shareSourceRunId" type="text" placeholder="Optional diagnostic run id" /></div>
+                    <div class="field"><label for="shareSourceAssignmentId">Linked assignment ID</label><input id="shareSourceAssignmentId" type="text" placeholder="Optional assignment id" /></div>
+                    <div class="field span-2"><label for="shareNote">Share note</label><textarea id="shareNote" placeholder="Context for the audience or access instructions."></textarea></div>
+                  </div>
+                  <div class="form-actions"><button class="btn btn-accent" type="submit">Create share</button></div>
+                </form>
+                <p class="status-inline" id="shareStatus"></p>
+                <div class="list" id="sharesList"></div>
+                <div class="empty" id="sharesEmpty">No governed shares have been created yet.</div>
+              </section>
+
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Action plans</h3><p class="panel-copy">Turn findings into owned follow-through with due dates, milestones, and explicit linkage back to diagnostics or patterns.</p></div></div>
+                <form id="actionPlanForm" novalidate>
+                  <div class="form-grid">
+                    <div class="field span-2"><label for="actionPlanTitle">Plan title</label><input id="actionPlanTitle" type="text" placeholder="e.g. Reduce serial review in regional contracting" /></div>
+                    <div class="field"><label for="actionPlanOwnerEmail">Owner email</label><input id="actionPlanOwnerEmail" type="email" placeholder="owner@org.com" /></div>
+                    <div class="field"><label for="actionPlanDueAt">Due date</label><input id="actionPlanDueAt" type="date" /></div>
+                    <div class="field"><label for="actionPlanSourceTool">Linked diagnostic</label><select id="actionPlanSourceTool"><option value="">Optional</option><option value="decision_velocity">Decision Velocity</option><option value="structural_clarity">Structural Clarity</option><option value="operational_systems">Operational Systems</option><option value="institutional_performance">Institutional Performance</option></select></div>
+                    <div class="field"><label for="actionPlanStatus">Plan status</label><select id="actionPlanStatus"><option value="draft">Draft</option><option value="open">Open</option><option value="in_progress">In progress</option><option value="paused">Paused</option></select></div>
+                    <div class="field span-2"><label for="actionPlanSummary">Plan summary</label><textarea id="actionPlanSummary" placeholder="What problem is being addressed, what will change, and how progress should be judged."></textarea></div>
+                    <div class="field span-2"><label for="actionPlanMilestones">Milestones</label><textarea id="actionPlanMilestones" placeholder="One milestone per line."></textarea></div>
+                  </div>
+                  <div class="form-actions"><button class="btn btn-accent" type="submit">Create action plan</button></div>
+                </form>
+                <p class="status-inline" id="actionPlanStatusInline"></p>
+                <div class="list" id="actionPlansList"></div>
+                <div class="empty" id="actionPlansEmpty">No action plans have been created yet.</div>
+              </section>
+            </div>
+
+            <div class="stack">
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Invited collaboration</h3><p class="panel-copy">Create invitation-only working rooms where notes, threaded comments, votes, and decisions can be tied to a governed review context.</p></div></div>
+                <form id="roomForm" novalidate>
+                  <div class="form-grid">
+                    <div class="field span-2"><label for="roomTitle">Working room title</label><input id="roomTitle" type="text" placeholder="e.g. Q2 operating review room" /></div>
+                    <div class="field"><label for="roomLinkedPlanId">Linked action plan ID</label><input id="roomLinkedPlanId" type="text" placeholder="Optional" /></div>
+                    <div class="field"><label for="roomSourceRunId">Linked run ID</label><input id="roomSourceRunId" type="text" placeholder="Optional" /></div>
+                    <div class="field"><label for="roomVisibility">Room visibility</label><select id="roomVisibility"><option value="invited_only">Invited only</option><option value="manager_plus_admin">Manager + admin</option><option value="participant_plus_admin">Participant + admin</option></select></div>
+                    <div class="field"><label for="roomInvitees">Invitees</label><textarea id="roomInvitees" placeholder="One email per line"></textarea></div>
+                    <div class="field span-2"><label for="roomPurpose">Room purpose</label><textarea id="roomPurpose" placeholder="Why this room exists and what invited users are allowed to do."></textarea></div>
+                  </div>
+                  <div class="form-actions"><button class="btn btn-accent" type="submit">Create working room</button></div>
+                </form>
+                <p class="status-inline" id="roomStatus"></p>
+                <div class="list" id="roomsList"></div>
+                <div class="empty" id="roomsEmpty">No collaboration rooms have been created yet.</div>
+              </section>
+
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Room activity</h3><p class="panel-copy">Add comments, notes, votes, and decisions to a selected working room. These remain invitation-scoped and auditable.</p></div></div>
+                <div class="room-detail-grid">
+                  <form id="commentForm" novalidate class="act-card">
+                    <h4>Comment or note</h4>
+                    <div class="field"><label for="commentRoomId">Room</label><input id="commentRoomId" type="text" placeholder="Working room id" /></div>
+                    <div class="field"><label for="commentSectionKey">Section key</label><input id="commentSectionKey" type="text" placeholder="e.g. benchmark, actions, signal-1" /></div>
+                    <div class="field"><label for="commentType">Type</label><select id="commentType"><option value="comment">Comment</option><option value="note">Note</option></select></div>
+                    <div class="field"><label for="commentBody">Body</label><textarea id="commentBody" placeholder="Enter invited collaboration note or comment."></textarea></div>
+                    <div class="form-actions"><button class="btn btn-soft" type="submit">Add entry</button></div>
+                  </form>
+
+                  <form id="voteForm" novalidate class="act-card">
+                    <h4>Reaction or agreement vote</h4>
+                    <div class="field"><label for="voteRoomId">Room</label><input id="voteRoomId" type="text" placeholder="Working room id" /></div>
+                    <div class="field"><label for="voteTargetType">Target type</label><select id="voteTargetType"><option value="proposal">Proposal</option><option value="action_item">Action item</option><option value="finding">Finding</option></select></div>
+                    <div class="field"><label for="voteTargetId">Target id / key</label><input id="voteTargetId" type="text" placeholder="Action item id or local key" /></div>
+                    <div class="field"><label for="voteValue">Vote</label><select id="voteValue"><option value="agree">Agree</option><option value="support">Support</option><option value="priority">Priority</option><option value="concern">Concern</option></select></div>
+                    <div class="form-actions"><button class="btn btn-soft" type="submit">Record vote</button></div>
+                  </form>
+                </div>
+
+                <form id="decisionLogForm" novalidate class="section-note" style="margin-top:14px;">
+                  <div class="panel-head" style="margin-bottom:12px;"><div><h3 class="panel-title" style="font-size:1rem;">Decision log</h3><p class="panel-copy">Create an auditable decision entry tied to a room and visible only to invited users with access.</p></div></div>
+                  <div class="form-grid">
+                    <div class="field"><label for="decisionRoomId">Room</label><input id="decisionRoomId" type="text" placeholder="Working room id" /></div>
+                    <div class="field"><label for="decisionTitle">Decision title</label><input id="decisionTitle" type="text" placeholder="e.g. Approve phased review reduction" /></div>
+                    <div class="field span-2"><label for="decisionSummary">Decision summary</label><textarea id="decisionSummary" placeholder="What was decided, by whom, and what the next implication is."></textarea></div>
+                  </div>
+                  <div class="form-actions"><button class="btn btn-soft" type="submit">Log decision</button></div>
+                </form>
+                <p class="status-inline" id="roomActivityStatus"></p>
+              </section>
+
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Follow-up rounds</h3><p class="panel-copy">Launch structured re-run cycles, targeted comparison rounds, and invited second-pass reviews tied to flagged patterns or action plans.</p></div></div>
+                <form id="followupForm" novalidate>
+                  <div class="form-grid">
+                    <div class="field span-2"><label for="followupTitle">Follow-up title</label><input id="followupTitle" type="text" placeholder="e.g. 60-day structural clarity follow-up" /></div>
+                    <div class="field"><label for="followupCycleDays">Cycle</label><select id="followupCycleDays"><option value="30">30 days</option><option value="60">60 days</option><option value="90">90 days</option><option value="custom">Custom</option></select></div>
+                    <div class="field"><label for="followupNextSendAt">Next send</label><input id="followupNextSendAt" type="datetime-local" /></div>
+                    <div class="field"><label for="followupToolType">Diagnostic</label><select id="followupToolType"><option value="decision_velocity">Decision Velocity</option><option value="structural_clarity">Structural Clarity</option><option value="operational_systems">Operational Systems</option><option value="institutional_performance">Institutional Performance</option></select></div>
+                    <div class="field"><label for="followupAudienceScope">Audience scope</label><select id="followupAudienceScope"><option value="same_cohort">Same cohort</option><option value="subset_only">Specific subset</option><option value="manager_plus_flagged">Managers + flagged patterns</option></select></div>
+                    <div class="field span-2"><label for="followupCriteria">Follow-up criteria</label><textarea id="followupCriteria" placeholder="Which cohort should be invited and what pattern or action plan this round is meant to test."></textarea></div>
+                  </div>
+                  <div class="form-actions"><button class="btn btn-accent" type="submit">Create follow-up round</button></div>
+                </form>
+                <p class="status-inline" id="followupStatus"></p>
+                <div class="list" id="followupsList"></div>
+                <div class="empty" id="followupsEmpty">No follow-up rounds have been created yet.</div>
+              </section>
+            </div>
+          </div>
+        </section>
+</div>    </div>
+  </main>
+
+  <footer class="footer"><div class="footer-inner"><p class="footer-copy">Monderman Workspace is intended to govern assignments, visibility, anonymity, and signal quality over time.</p><p class="footer-copy">Built for continuity, trust, and cleaner institutional interpretation.</p></div></footer>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const supabaseUrl = "https://ptkxrzgmeldalrkfruth.supabase.co";
+    const supabaseKey = "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
+    const apiBase = "https://monderman-api.onrender.com";
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    const WORKSPACE_LOADER_KEY = "mondermanWorkspaceLoaderSeenAt";
+    const WORKSPACE_LOADER_MS = 24 * 60 * 60 * 1000;
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
+
+    const state = {
+      user:null, membership:null, organization:null, role:"viewer",
+      runs:[], normalizedRuns:[], assignments:[], governance:{ participantVisible:true, metadataOnlyForAnonymous:true, useNormalized:true },
+      batch:{ rows:[], sourceType:null, sourceFile:null, previewResponse:null },
+      act:{ shares:[], plans:[], items:[], rooms:[], comments:[], votes:[], decisions:[], followups:[], invites:[] }
+    };
+
+    const ui = {
+      header:document.getElementById("siteHeader"), overlay:document.getElementById("workspaceLoadingOverlay"), loadingBar:document.getElementById("workspaceLoadingBar"), loadingStatus:document.getElementById("workspaceLoadingStatus"),
+      heroStatusTitle:document.getElementById("heroStatusTitle"), heroStatusCopy:document.getElementById("heroStatusCopy"), heroRuns:document.getElementById("heroRuns"), heroAssignments:document.getElementById("heroAssignments"), heroFlagged:document.getElementById("heroFlagged"),
+      userAvatar:document.getElementById("userAvatar"), userName:document.getElementById("userName"), userMeta:document.getElementById("userMeta"), roleChip:document.getElementById("roleChip"), identityStatus:document.getElementById("identityStatus"),
+      metricRuns:document.getElementById("metricRuns"), metricIncluded:document.getElementById("metricIncluded"), metricOrg:document.getElementById("metricOrg"), metricLast:document.getElementById("metricLast"),
+      summaryContextChip:document.getElementById("summaryContextChip"), summaryOpenRate:document.getElementById("summaryOpenRate"), summaryCompletionRate:document.getElementById("summaryCompletionRate"), summaryDueSoon:document.getElementById("summaryDueSoon"), summaryFlagged:document.getElementById("summaryFlagged"), summaryIncluded:document.getElementById("summaryIncluded"), summaryExcluded:document.getElementById("summaryExcluded"),
+      runsSummaryChip:document.getElementById("runsSummaryChip"), runsList:document.getElementById("runsList"), runsEmpty:document.getElementById("runsEmpty"), assignmentList:document.getElementById("assignmentList"), assignmentEmpty:document.getElementById("assignmentEmpty"),
+      assignmentComposerCard:document.getElementById("assignmentComposerCard"), assignmentModeChip:document.getElementById("assignmentModeChip"), assignmentForm:document.getElementById("assignmentForm"), assignmentStatus:document.getElementById("assignmentStatus"), copyAssignmentPayloadBtn:document.getElementById("copyAssignmentPayloadBtn"),
+      normalizeOrgBtn:document.getElementById("normalizeOrgBtn"), refreshResultsBtn:document.getElementById("refreshResultsBtn"), resultToolFilter:document.getElementById("resultToolFilter"), resultInclusionFilter:document.getElementById("resultInclusionFilter"), normalizedRunsList:document.getElementById("normalizedRunsList"), normalizedRunsEmpty:document.getElementById("normalizedRunsEmpty"), flaggedRunList:document.getElementById("flaggedRunList"), flaggedRunEmpty:document.getElementById("flaggedRunEmpty"), resultsStatus:document.getElementById("resultsStatus"),
+      analyticsAllRuns:document.getElementById("analyticsAllRuns"), analyticsIncluded:document.getElementById("analyticsIncluded"), analyticsCaution:document.getElementById("analyticsCaution"), analyticsExcluded:document.getElementById("analyticsExcluded"), normalizationTableBody:document.getElementById("normalizationTableBody"),
+      govParticipantVisible:document.getElementById("govParticipantVisible"), govMetadataOnly:document.getElementById("govMetadataOnly"), govUseNormalized:document.getElementById("govUseNormalized"), saveGovernanceBtn:document.getElementById("saveGovernanceBtn"), exportGovernanceBtn:document.getElementById("exportGovernanceBtn"), governanceStatus:document.getElementById("governanceStatus"), signOutBtn:document.getElementById("signOutBtn"),
+      recipientPaste:document.getElementById("recipientPaste"), parsePasteBtn:document.getElementById("parsePasteBtn"), recipientJson:document.getElementById("recipientJson"), parseJsonBtn:document.getElementById("parseJsonBtn"), recipientFile:document.getElementById("recipientFile"), uploadDropzone:document.getElementById("uploadDropzone"), previewBatchBtn:document.getElementById("previewBatchBtn"), selectedFileName:document.getElementById("selectedFileName"),
+      recipientPreviewList:document.getElementById("recipientPreviewList"), recipientPreviewEmpty:document.getElementById("recipientPreviewEmpty"), recipientCount:document.getElementById("recipientCount"), recipientValidCount:document.getElementById("recipientValidCount"), recipientDuplicateCount:document.getElementById("recipientDuplicateCount"), recipientInvalidCount:document.getElementById("recipientInvalidCount"),
+      stepCardIntake:document.getElementById("stepCardIntake"), stepCardConfig:document.getElementById("stepCardConfig"), stepIntakeChip:document.getElementById("stepIntakeChip"), stepConfigChip:document.getElementById("stepConfigChip"),
+      batchLabel:document.getElementById("batchLabel"), reviewRecipientChip:document.getElementById("reviewRecipientChip"), reviewDelivery:document.getElementById("reviewDelivery"), reviewVisibility:document.getElementById("reviewVisibility"), reviewTiming:document.getElementById("reviewTiming"),
+      previewRouteStatus:document.getElementById("previewRouteStatus"), sendRouteStatus:document.getElementById("sendRouteStatus"), sendBatchBtn:document.getElementById("sendBatchBtn"), resetBatchBtn:document.getElementById("resetBatchBtn"),
+      actContextChip:document.getElementById("actContextChip"), actSharesCount:document.getElementById("actSharesCount"), actPlansCount:document.getElementById("actPlansCount"), actRoomsCount:document.getElementById("actRoomsCount"), actCyclesCount:document.getElementById("actCyclesCount"),
+      shareForm:document.getElementById("shareForm"), shareAudienceType:document.getElementById("shareAudienceType"), shareDeliveryMode:document.getElementById("shareDeliveryMode"), shareRecipients:document.getElementById("shareRecipients"), shareSourceRunId:document.getElementById("shareSourceRunId"), shareSourceAssignmentId:document.getElementById("shareSourceAssignmentId"), shareNote:document.getElementById("shareNote"), shareStatus:document.getElementById("shareStatus"), sharesList:document.getElementById("sharesList"), sharesEmpty:document.getElementById("sharesEmpty"),
+      actionPlanForm:document.getElementById("actionPlanForm"), actionPlanTitle:document.getElementById("actionPlanTitle"), actionPlanOwnerEmail:document.getElementById("actionPlanOwnerEmail"), actionPlanDueAt:document.getElementById("actionPlanDueAt"), actionPlanSourceTool:document.getElementById("actionPlanSourceTool"), actionPlanStatusSelect:document.getElementById("actionPlanStatus"), actionPlanSummaryField:document.getElementById("actionPlanSummary"), actionPlanMilestones:document.getElementById("actionPlanMilestones"), actionPlanStatusInline:document.getElementById("actionPlanStatusInline"), actionPlansList:document.getElementById("actionPlansList"), actionPlansEmpty:document.getElementById("actionPlansEmpty"),
+      roomForm:document.getElementById("roomForm"), roomTitleField:document.getElementById("roomTitle"), roomLinkedPlanId:document.getElementById("roomLinkedPlanId"), roomSourceRunId:document.getElementById("roomSourceRunId"), roomVisibility:document.getElementById("roomVisibility"), roomInvitees:document.getElementById("roomInvitees"), roomPurpose:document.getElementById("roomPurpose"), roomStatus:document.getElementById("roomStatus"), roomsList:document.getElementById("roomsList"), roomsEmpty:document.getElementById("roomsEmpty"),
+      commentForm:document.getElementById("commentForm"), commentRoomId:document.getElementById("commentRoomId"), commentSectionKey:document.getElementById("commentSectionKey"), commentType:document.getElementById("commentType"), commentBody:document.getElementById("commentBody"), voteForm:document.getElementById("voteForm"), voteRoomId:document.getElementById("voteRoomId"), voteTargetType:document.getElementById("voteTargetType"), voteTargetId:document.getElementById("voteTargetId"), voteValue:document.getElementById("voteValue"), decisionLogForm:document.getElementById("decisionLogForm"), decisionRoomId:document.getElementById("decisionRoomId"), decisionTitle:document.getElementById("decisionTitle"), decisionSummary:document.getElementById("decisionSummary"), roomActivityStatus:document.getElementById("roomActivityStatus"),
+      followupForm:document.getElementById("followupForm"), followupTitle:document.getElementById("followupTitle"), followupCycleDays:document.getElementById("followupCycleDays"), followupNextSendAt:document.getElementById("followupNextSendAt"), followupToolType:document.getElementById("followupToolType"), followupAudienceScope:document.getElementById("followupAudienceScope"), followupCriteria:document.getElementById("followupCriteria"), followupStatus:document.getElementById("followupStatus"), followupsList:document.getElementById("followupsList"), followupsEmpty:document.getElementById("followupsEmpty")
+    };
+
+    const loadingMessages = ["Resolving workspace state...","Loading signed-in profile...","Checking organization membership...","Loading assignments and results...","Workspace ready."];
+    const safeReadLocal = (key) => { try { return localStorage.getItem(key); } catch { return null; } };
+    const safeWriteLocal = (key, value) => { try { localStorage.setItem(key, value); } catch {} };
+    const toPct = (num, den) => den ? `${Math.round((num / den) * 100)}%` : "—";
+
+    function shouldRunWorkspaceCalibration(){ const navEntry=performance.getEntriesByType("navigation")[0]; const navType=navEntry?.type || "navigate"; const seenAt=Number(safeReadLocal(WORKSPACE_LOADER_KEY)||0); if(seenAt && (Date.now()-seenAt)<WORKSPACE_LOADER_MS) return false; if(navType==="reload" || navType==="back_forward") return false; return true; }
+    function startWorkspaceCalibration(){ const { overlay, loadingBar, loadingStatus } = ui; if(!overlay||!loadingBar||!loadingStatus) return; overlay.classList.add("show"); overlay.setAttribute("aria-hidden","false"); loadingBar.style.width="0%"; loadingStatus.textContent=loadingMessages[0]; document.body.style.overflow="hidden"; let progress=0; let messageIndex=0; const progressTimer=setInterval(()=>{ progress=Math.min(progress+2,96); loadingBar.style.width=progress+"%"; },100); const messageTimer=setInterval(()=>{ messageIndex=Math.min(messageIndex+1,loadingMessages.length-1); loadingStatus.textContent=loadingMessages[messageIndex]; },1100); setTimeout(()=>{ clearInterval(progressTimer); clearInterval(messageTimer); loadingBar.style.width="100%"; loadingStatus.textContent=loadingMessages[loadingMessages.length-1]; setTimeout(()=>{ overlay.classList.remove("show"); overlay.setAttribute("aria-hidden","true"); document.body.style.overflow=""; },240); },4700); }
+    function updateHeader(){ if(window.scrollY>12) ui.header?.classList.add("scrolled"); else ui.header?.classList.remove("scrolled"); }
+    function setStatus(el, message="", tone=""){ if(!el) return; el.textContent=message; el.className=`status-inline ${tone}`.trim(); }
+    function initials(name,email){ const source=(name||email||"M").trim(); const parts=source.split(/\s+/).slice(0,2); return parts.map((p)=>p[0]?.toUpperCase()||"").join("")||"M"; }
+    function formatDate(value){ if(!value) return "—"; const d=new Date(value); if(Number.isNaN(d.getTime())) return "—"; return d.toLocaleString(); }
+    function formatCompactDate(value){ if(!value) return "—"; const d=new Date(value); if(Number.isNaN(d.getTime())) return "—"; return d.toLocaleString([], { month:"short", day:"numeric", hour:"numeric", minute:"2-digit" }); }
+    function formatToolName(tool){ const map={ structural_clarity:"Structural Clarity", decision_velocity:"Decision Velocity", operational_systems:"Operational Systems", institutional_performance:"Institutional Performance" }; return map[tool] || tool || "Diagnostic run"; }
+    function formatDepthLabel(depth){ const value=String(depth || "30"); return value === "10" ? "About 10 minutes" : value === "60" ? "About 60 minutes" : "About 30 minutes"; }
+    function formatNormalizationStatus(status){ if(!status) return { label:"Unreviewed", className:"pill" }; if(status==="included") return { label:"Included", className:"pill ok" }; if(status==="included_with_caution") return { label:"With caution", className:"pill warn" }; if(status==="excluded_from_aggregates") return { label:"Excluded", className:"pill rose" }; return { label:status, className:"pill" }; }
+    function escapeHtml(value){ return String(value ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&#039;"); }
+
+    async function ensureWorkspace(user){
+      const email=user.email||"";
+      const fullName=user.user_metadata?.full_name || user.user_metadata?.name || "Monderman User";
+      const avatarUrl=user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
+      const { error:userError } = await supabase.from("users").upsert({ id:user.id, email, full_name:fullName, avatar_url:avatarUrl, last_sign_in_at:new Date().toISOString() });
+      if(userError) throw userError;
+      const { data:memberships, error:membershipError } = await supabase.from("organization_members").select("organization_id, role, organizations(id, name, slug)").eq("user_id", user.id).limit(1);
+      if(membershipError) throw membershipError;
+      if(memberships?.length) return memberships[0];
+      const slugBase=String(fullName).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"") || "workspace";
+      const { data:org, error:orgError } = await supabase.from("organizations").insert({ name:`${fullName} Workspace`, slug:`${slugBase}-workspace`, owner_user_id:user.id }).select().single();
+      if(orgError) throw orgError;
+      const { error:memberError } = await supabase.from("organization_members").insert({ organization_id:org.id, user_id:user.id, role:"owner" });
+      if(memberError) throw memberError;
+      return { organization_id:org.id, role:"owner", organizations:org };
+    }
+
+    function setRoleState(role){
+      state.role=role||"viewer";
+      const isAdmin=["owner","admin"].includes(state.role);
+      ui.roleChip.textContent=isAdmin ? `${state.role.toUpperCase()} ROLE` : `${(state.role || "viewer").toUpperCase()} ROLE`;
+      ui.roleChip.className=`chip ${isAdmin ? "ok" : ""}`.trim();
+      ui.assignmentModeChip.textContent=isAdmin ? "Admin module" : "Participant view";
+      ui.assignmentComposerCard.classList.toggle("hidden", !isAdmin);
+      ui.normalizeOrgBtn.classList.toggle("hidden", !isAdmin);
+    }
+
+    async function loadRecentRuns(){ if(!state.user) return []; const { data, error } = await supabase.from("diagnostic_runs").select("*").eq("user_id", state.user.id).order("created_at", { ascending:false }).limit(12); if(error) throw error; return data || []; }
+    async function loadAssignments(){ if(!state.organization?.id) return []; const { data, error } = await supabase.from("diagnostic_assignments").select("*").eq("organization_id", state.organization.id).order("created_at", { ascending:false }).limit(24); if(error) throw error; return data || []; }
+    async function loadNormalizedRuns(){ if(!state.organization?.id) return []; try{ const response=await fetch(`${apiBase}/api/normalization/workspace-runs/${state.organization.id}`); const data=await response.json(); if(!response.ok || !data?.ok) throw new Error(data?.error || "Normalization workspace fetch failed."); return data.runs || []; }catch(error){ console.warn("Normalized runs unavailable", error); return []; } }
+    async function loadAssignmentStatusSummary(){ if(!state.organization?.id) return null; try{ const response = await fetch(`${apiBase}/api/workspace/assignments/status-summary/${state.organization.id}`); const data = await response.json().catch(()=>({})); if(!response.ok || !data?.ok) throw new Error(data?.error || "status summary unavailable"); return data.summary || null; }catch(error){ console.warn("Assignment status summary unavailable", error); return null; } }
+
+    function renderRuns(runs){
+      ui.runsList.innerHTML="";
+      ui.runsEmpty.classList.toggle("hidden", runs.length>0);
+      ui.metricRuns.textContent=String(runs.length);
+      ui.heroRuns.textContent=String(runs.length);
+      ui.runsSummaryChip.textContent=`${runs.length} visible`;
+      ui.metricLast.textContent=runs.length ? formatCompactDate(runs[0].created_at || runs[0].generated_at) : "—";
+      runs.forEach((run)=>{
+        const item=document.createElement("div");
+        item.className="run-item";
+        const visibilityPills=[];
+        visibilityPills.push(run.is_anonymous_response ? '<span class="pill warn">Anonymous</span>' : '<span class="pill ok">Named</span>');
+        visibilityPills.push(run.show_results_to_assignee===false ? '<span class="pill rose">Participant output hidden</span>' : '<span class="pill ok">Participant output visible</span>');
+        if(run.normalization_status){ const norm=formatNormalizationStatus(run.normalization_status); visibilityPills.push(`<span class="${norm.className}">${escapeHtml(norm.label)}</span>`); }
+        item.innerHTML=`<div><p class="run-title">${escapeHtml(formatToolName(run.tool_type || run.tool_label))}</p><p class="run-meta">${escapeHtml(formatDate(run.created_at || run.generated_at))}</p><p class="run-copy">${escapeHtml(run.pathway_name || run.event_path_name || "Saved run metadata will appear here when available.")}</p><div class="meta-row">${visibilityPills.join("")}</div></div><div class="run-actions"><a class="run-link" href="cross-tool-synthesis.html">View</a></div>`;
+        ui.runsList.appendChild(item);
+      });
+    }
+
+    function buildAssignmentLink(assignment){
+      if(!assignment?.token) return "";
+      const routeMap = {
+        decision_velocity: "decision-velocity.html",
+        structural_clarity: "structural-clarity.html",
+        operational_systems: "operational-systems.html",
+        institutional_performance: "institutional-performance.html"
+      };
+      const page = routeMap[assignment.tool_type] || "decision-velocity.html";
+      return `${window.location.origin}/${page}?assignment_token=${assignment.token}`;
+    }
+
+    function renderAssignments(assignments){
+      ui.assignmentList.innerHTML="";
+      ui.assignmentEmpty.classList.toggle("hidden", assignments.length>0);
+      ui.heroAssignments.textContent=String(assignments.length);
+      assignments.forEach((assignment)=>{
+        const item=document.createElement("div");
+        item.className="assignment-item";
+        const pills=[];
+        pills.push(`<span class="pill ${assignment.status === "completed" ? "ok" : assignment.status === "opened" ? "warn" : ""}">${escapeHtml(assignment.status || "pending")}</span>`);
+        if (assignment.send_status) pills.push(`<span class="pill accent">${escapeHtml(assignment.send_status)}</span>`);
+        pills.push(assignment.is_anonymous_response ? '<span class="pill warn">Anonymous</span>' : '<span class="pill ok">Named</span>');
+        pills.push(assignment.show_results_to_assignee===false ? '<span class="pill rose">Output hidden from participant</span>' : '<span class="pill ok">Participant sees output</span>');
+        item.innerHTML=`<div><p class="run-title">${escapeHtml(assignment.event_path_name || assignment.batch_label || "Assignment")}</p><p class="run-meta">${escapeHtml(formatToolName(assignment.tool_type || "decision_velocity"))} • ${escapeHtml(assignment.participant_lens || "participant lens")} • ${escapeHtml(formatDepthLabel(assignment.depth || 30))}</p><p class="run-copy">${escapeHtml(assignment.recipient_email || assignment.message || "No assignment note provided.")}</p><div class="meta-row">${pills.join("")}</div></div><div class="run-actions"><button class="run-link" type="button" data-copy-token="${escapeHtml(assignment.token || "")}">Copy link</button></div>`;
+        ui.assignmentList.appendChild(item);
+      });
+      ui.assignmentList.querySelectorAll("[data-copy-token]").forEach((btn)=>{
+        btn.addEventListener("click", async ()=>{
+          const assignment = assignments.find((item) => item.token === btn.getAttribute("data-copy-token"));
+          const url = buildAssignmentLink(assignment);
+          if(!url) return;
+          await navigator.clipboard.writeText(url);
+          setStatus(ui.assignmentStatus, "Assignment link copied.", "ok");
+        });
+      });
+    }
+
+    function applyResultFilters(runs){ const toolFilter=ui.resultToolFilter.value; const inclusionFilter=ui.resultInclusionFilter.value; return runs.filter((run)=>{ if(toolFilter && run.tool_type!==toolFilter) return false; if(inclusionFilter && run.normalization_status!==inclusionFilter) return false; return true; }); }
+    function renderNormalizedRuns(){
+      const filtered=applyResultFilters(state.normalizedRuns);
+      ui.normalizedRunsList.innerHTML="";
+      ui.normalizedRunsEmpty.classList.toggle("hidden", filtered.length>0);
+      filtered.forEach((run)=>{
+        const item=document.createElement("div");
+        item.className="run-item";
+        const norm=formatNormalizationStatus(run.normalization_status);
+        const flags=Array.isArray(run.normalization_flags_json) ? run.normalization_flags_json : [];
+        item.innerHTML=`<div><p class="run-title">${escapeHtml(formatToolName(run.tool_type))} • ${escapeHtml(run.pathway_name || "Unnamed pathway")}</p><p class="run-meta">${escapeHtml(formatDate(run.created_at))} • Score ${escapeHtml(String(run.score ?? "—"))}</p><p class="run-copy">${escapeHtml(run.primary_driver || "Primary driver not yet set.")}</p><div class="meta-row"><span class="${norm.className}">${escapeHtml(norm.label)}</span>${run.is_anonymous_response ? '<span class="pill warn">Anonymous</span>' : '<span class="pill ok">Named</span>'}${run.show_results_to_assignee===false ? '<span class="pill rose">Participant output hidden</span>' : '<span class="pill ok">Participant output visible</span>'}${run.included_in_aggregates===false ? '<span class="pill rose">Excluded from aggregates</span>' : '<span class="pill ok">Included in aggregates</span>'}</div>${flags.length ? `<p class="run-copy" style="margin-top:10px;">${escapeHtml(flags.map((f)=>f.code || f.explanation || "flag").join(" • "))}</p>` : ""}</div><div class="run-actions"><button class="run-link" type="button" data-run-normalize="${escapeHtml(run.id)}">Normalize</button></div>`;
+        ui.normalizedRunsList.appendChild(item);
+      });
+      ui.normalizedRunsList.querySelectorAll("[data-run-normalize]").forEach((btn)=>{ btn.addEventListener("click", async ()=>{ const runId=btn.getAttribute("data-run-normalize"); await normalizeOneRun(runId); }); });
+      const flagged=state.normalizedRuns.filter((run)=>["included_with_caution","excluded_from_aggregates"].includes(run.normalization_status));
+      ui.flaggedRunList.innerHTML="";
+      ui.flaggedRunEmpty.classList.toggle("hidden", flagged.length>0);
+      ui.heroFlagged.textContent=String(flagged.length);
+      flagged.forEach((run)=>{
+        const flags=Array.isArray(run.normalization_flags_json) ? run.normalization_flags_json : [];
+        const item=document.createElement("div");
+        item.className="flag-item";
+        item.innerHTML=`<div><p class="run-title">${escapeHtml(run.pathway_name || "Unnamed pathway")}</p><p class="run-meta">${escapeHtml(formatToolName(run.tool_type))} • ${escapeHtml(formatDate(run.created_at))}</p><p class="run-copy">${escapeHtml(flags.map((f)=>f.explanation || f.code || "Flagged run").join(" • ") || "Normalization engine flagged this run.")}</p></div><div class="run-actions"><span class="${formatNormalizationStatus(run.normalization_status).className}">${escapeHtml(formatNormalizationStatus(run.normalization_status).label)}</span></div>`;
+        ui.flaggedRunList.appendChild(item);
+      });
+      renderAnalytics();
+      renderNormalizationTable();
+      renderExecutiveSummary();
+    }
+
+    function renderAnalytics(){
+      const runs=state.normalizedRuns;
+      const included=runs.filter((r)=>r.normalization_status==="included");
+      const caution=runs.filter((r)=>r.normalization_status==="included_with_caution");
+      const excluded=runs.filter((r)=>r.normalization_status==="excluded_from_aggregates");
+      const includedCount=runs.filter((r)=>r.included_in_aggregates!==false).length;
+      ui.metricIncluded.textContent=String(includedCount);
+      ui.analyticsAllRuns.textContent=String(runs.length);
+      ui.analyticsIncluded.textContent=String(included.length);
+      ui.analyticsCaution.textContent=String(caution.length);
+      ui.analyticsExcluded.textContent=String(excluded.length);
+    }
+
+    function renderNormalizationTable(){
+      ui.normalizationTableBody.innerHTML="";
+      if(!state.normalizedRuns.length){ ui.normalizationTableBody.innerHTML='<tr><td colspan="5">No normalized runs available yet.</td></tr>'; return; }
+      state.normalizedRuns.forEach((run)=>{
+        const flags=Array.isArray(run.normalization_flags_json) ? run.normalization_flags_json : [];
+        const norm=formatNormalizationStatus(run.normalization_status);
+        const tr=document.createElement("tr");
+        tr.innerHTML=`<td>${escapeHtml(run.pathway_name || formatToolName(run.tool_type))}</td><td><span class="${norm.className}">${escapeHtml(norm.label)}</span></td><td>${escapeHtml(String(run.normalization_score ?? run.score ?? "—"))}</td><td>${escapeHtml(flags.map((f)=>f.code || "flag").join(", ") || "—")}</td><td>${escapeHtml(formatDate(run.normalized_at))}</td>`;
+        ui.normalizationTableBody.appendChild(tr);
+      });
+    }
+
+    function renderExecutiveSummary(summaryFromApi = null){
+      const assignments = state.assignments;
+      const sent = assignments.filter((a) => (a.send_status || "") !== "failed").length;
+      const opened = assignments.filter((a) => a.status === "opened" || a.status === "completed").length;
+      const completed = assignments.filter((a) => a.status === "completed").length;
+      const dueSoonLocal = assignments.filter((a) => {
+        if (!a.due_at) return false;
+        const due = new Date(a.due_at).getTime();
+        const now = Date.now();
+        return due > now && due - now <= 72 * 60 * 60 * 1000 && a.status !== "completed";
+      }).length;
+      const flagged = state.normalizedRuns.filter((r) => ["included_with_caution", "excluded_from_aggregates"].includes(r.normalization_status)).length;
+      const included = state.normalizedRuns.filter((r) => r.included_in_aggregates !== false).length;
+      const excluded = state.normalizedRuns.filter((r) => r.normalization_status === "excluded_from_aggregates" || r.included_in_aggregates === false).length;
+      const api = summaryFromApi || {};
+      ui.summaryOpenRate.textContent = api.open_rate_display || toPct(api.opened_count ?? opened, api.sent_count ?? sent);
+      ui.summaryCompletionRate.textContent = api.completion_rate_display || toPct(api.completed_count ?? completed, api.sent_count ?? sent);
+      ui.summaryDueSoon.textContent = String(api.due_soon_count ?? dueSoonLocal);
+      ui.summaryFlagged.textContent = String(flagged);
+      ui.summaryIncluded.textContent = String(included);
+      ui.summaryExcluded.textContent = String(excluded);
+      ui.summaryContextChip.textContent = state.organization?.name ? `${state.organization.name} summary` : "Workspace summary";
+      if (state.organization?.name) ui.metricOrg.textContent = state.organization.name;
+      ui.heroAssignments.textContent = String(assignments.length);
+      ui.heroFlagged.textContent = String(flagged);
+    }
+
+    function setActiveTab(tab){
+      document.querySelectorAll(".tab-btn").forEach((btn)=>btn.classList.toggle("active", btn.getAttribute("data-tab")===tab));
+      document.querySelectorAll(".tab-panel").forEach((panel)=>panel.classList.toggle("active", panel.getAttribute("data-panel")===tab));
+    }
+    function scrollToWorkspaceRail(){ const rail=document.getElementById("workspaceTabs"); if(!rail) return; const offset=92; const top=rail.getBoundingClientRect().top + window.scrollY - offset; window.scrollTo({ top:Math.max(top,0), behavior:"smooth" }); }
+    function attachTabBehavior(){
+      document.querySelectorAll(".tab-btn").forEach((btn)=>{ btn.addEventListener("click", ()=> setActiveTab(btn.getAttribute("data-tab"))); });
+      document.querySelectorAll("[data-jump-tab]").forEach((btn)=>{ btn.addEventListener("click", ()=>{ const tab = btn.getAttribute("data-jump-tab"); setActiveTab(tab); scrollToWorkspaceRail(); }); });
+    }
+    function attachIntakeTabBehavior(){ document.querySelectorAll(".intake-tab").forEach((btn)=>{ btn.addEventListener("click", ()=>{ const tab = btn.getAttribute("data-intake"); document.querySelectorAll(".intake-tab").forEach((el)=>el.classList.toggle("active", el===btn)); document.querySelectorAll(".intake-panel").forEach((panel)=>panel.classList.toggle("active", panel.getAttribute("data-intake-panel")===tab)); }); }); }
+    function attachGovernanceHandlers(){ ui.saveGovernanceBtn?.addEventListener("click", ()=>{ state.governance.participantVisible=ui.govParticipantVisible.checked; state.governance.metadataOnlyForAnonymous=ui.govMetadataOnly.checked; state.governance.useNormalized=ui.govUseNormalized.checked; safeWriteLocal("monderman_workspace_governance", JSON.stringify(state.governance)); setStatus(ui.governanceStatus, "Governance preferences saved locally for this workspace view.", "ok"); }); ui.exportGovernanceBtn?.addEventListener("click", ()=>{ const blob=new Blob([JSON.stringify({ organization:state.organization, governance:state.governance }, null, 2)], { type:"application/json" }); const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download="monderman-workspace-governance.json"; a.click(); URL.revokeObjectURL(url); }); }
+    function hydrateGovernancePrefs(){ const stored=safeReadLocal("monderman_workspace_governance"); if(!stored) return; try{ const parsed=JSON.parse(stored); state.governance={ ...state.governance, ...parsed }; ui.govParticipantVisible.checked=!!state.governance.participantVisible; ui.govMetadataOnly.checked=!!state.governance.metadataOnlyForAnonymous; ui.govUseNormalized.checked=!!state.governance.useNormalized; }catch{} }
+
+    function normalizeRecipientObject(raw = {}, index = 0){
+      const email = String(raw.email ?? raw.recipient_email ?? raw.mail ?? "").trim();
+      const name = String(raw.name ?? raw.recipient_name ?? raw.full_name ?? "").trim();
+      const team = String(raw.team ?? raw.recipient_team ?? "").trim();
+      const business_unit = String(raw.business_unit ?? raw.recipient_business_unit ?? raw.unit ?? "").trim();
+      return { index, email, name, team, business_unit };
+    }
+
+    function parsePasteRows(text){
+      return text.split(/\n+/).map((line, idx) => {
+        const clean = line.trim();
+        if (!clean) return null;
+        const cols = clean.includes(",") ? clean.split(",") : clean.includes(";") ? clean.split(";") : [clean];
+        const [email, name = "", team = "", business_unit = ""] = cols.map((part) => part.trim());
+        return normalizeRecipientObject({ email, name, team, business_unit }, idx);
+      }).filter(Boolean);
+    }
+
+    function validateRecipients(rows){
+      const seen = new Map();
+      return rows.map((row, index) => {
+        const email = String(row.email || "").trim().toLowerCase();
+        const issues = [];
+        if (!email || !EMAIL_RE.test(email)) issues.push("Invalid email");
+        const count = seen.get(email) || 0;
+        if (email) seen.set(email, count + 1);
+        if (count > 0) issues.push("Duplicate email");
+        return { ...row, index, email, valid: issues.length === 0, issues };
+      });
+    }
+
+    function setBatchRows(rows, sourceType, sourceFile = null){
+      const validated = validateRecipients(rows);
+      state.batch.rows = validated;
+      state.batch.sourceType = sourceType;
+      state.batch.sourceFile = sourceFile;
+      renderRecipientPreview();
+      renderBatchReview();
+    }
+
+    function renderRecipientPreview(){
+      const rows = state.batch.rows;
+      ui.recipientPreviewList.innerHTML = "";
+      ui.recipientPreviewEmpty.classList.toggle("hidden", rows.length > 0);
+      const validCount = rows.filter((r) => r.valid).length;
+      const dupCount = rows.filter((r) => r.issues.includes("Duplicate email")).length;
+      const invalidCount = rows.filter((r) => !r.valid).length;
+      ui.recipientCount.textContent = String(rows.length);
+      ui.recipientValidCount.textContent = String(validCount);
+      ui.recipientDuplicateCount.textContent = String(dupCount);
+      ui.recipientInvalidCount.textContent = String(invalidCount);
+      rows.slice(0, 12).forEach((row) => {
+        const item = document.createElement("div");
+        item.className = "recipient-item";
+        item.innerHTML = `<div><p class="run-title">${escapeHtml(row.email || "Missing email")}</p><p class="run-meta">${escapeHtml(row.name || "No name provided")}${row.team ? ` • ${escapeHtml(row.team)}` : ""}${row.business_unit ? ` • ${escapeHtml(row.business_unit)}` : ""}</p><div class="meta-row">${row.valid ? '<span class="pill ok">Valid</span>' : '<span class="pill rose">Needs attention</span>'}${row.issues.map((issue) => `<span class="pill warn">${escapeHtml(issue)}</span>`).join("")}</div></div><div class="run-actions"><span class="pill accent">Row ${row.index + 1}</span></div>`;
+        ui.recipientPreviewList.appendChild(item);
+      });
+      if (rows.length > 12) {
+        const more = document.createElement("div");
+        more.className = "empty";
+        more.textContent = `${rows.length - 12} additional recipients are validated but not shown here.`;
+        ui.recipientPreviewList.appendChild(more);
+      }
+      const intakeDone = rows.length > 0 && validCount > 0;
+      ui.stepCardIntake.classList.toggle("active", !intakeDone);
+      ui.stepCardIntake.classList.toggle("complete", intakeDone);
+      ui.stepCardConfig.classList.toggle("active", intakeDone);
+      ui.stepConfigChip.textContent = intakeDone ? "Ready" : "Locked";
+      ui.stepConfigChip.className = `chip ${intakeDone ? "ok" : "ghost"}`.trim();
+      ui.stepIntakeChip.textContent = intakeDone ? "Complete" : "Required";
+      ui.stepIntakeChip.className = `chip ${intakeDone ? "ok" : "ghost"}`.trim();
+      ui.reviewRecipientChip.textContent = `${validCount} valid recipients`;
+      ui.sendBatchBtn.disabled = !intakeDone || validCount === 0;
+    }
+
+    function buildCsvFromRows(rows){
+      const header = ["email","name","team","business_unit"];
+      const lines = [header.join(",")];
+      rows.forEach((row) => {
+        const vals = header.map((key) => `"${String(row[key] ?? "").replace(/"/g, '""')}"`);
+        lines.push(vals.join(","));
+      });
+      return new Blob([lines.join("\n")], { type: "text/csv" });
+    }
+
+    async function parseSpreadsheetFile(file){
+      const name = file.name.toLowerCase();
+      if (name.endsWith(".json")) {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        const rows = Array.isArray(parsed) ? parsed.map((row, index) => normalizeRecipientObject(row, index)) : [];
+        setBatchRows(rows, "json", file);
+        return;
+      }
+      if (name.endsWith(".csv")) {
+        const text = await file.text();
+        const workbook = XLSX.read(text, { type: "string" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+        const rows = json.map((row, index) => normalizeRecipientObject(row, index));
+        setBatchRows(rows, "csv", file);
+        return;
+      }
+      const buf = await file.arrayBuffer();
+      const workbook = XLSX.read(buf, { type: "array" });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+      const rows = json.map((row, index) => normalizeRecipientObject(row, index));
+      setBatchRows(rows, "xlsx", file);
+    }
+
+    function buildAssignmentDefaults(){
+      return {
+        tool_type: document.getElementById("assignmentTool").value,
+        participant_lens: document.getElementById("assignmentLens").value,
+        depth: document.getElementById("assignmentDepth").value,
+        event_path_name: document.getElementById("eventPathName").value.trim(),
+        message: document.getElementById("assignmentMessage").value.trim(),
+        send_timing: document.getElementById("sendTiming").value,
+        custom_due_at: document.getElementById("customDueAt").value || null,
+        show_results_to_assignee: document.getElementById("allowParticipantOutput").checked,
+        is_anonymous_response: document.getElementById("anonymousResponse").checked,
+        hide_from_admin: document.getElementById("hideFromAdmin").checked,
+        request_normalization: document.getElementById("requestNormalization").checked
+      };
+    }
+
+    function renderBatchReview(){
+      const defaults = buildAssignmentDefaults();
+      ui.reviewDelivery.textContent = `${formatToolName(defaults.tool_type)} • ${defaults.participant_lens === "executive" ? "Senior leader" : defaults.participant_lens.charAt(0).toUpperCase() + defaults.participant_lens.slice(1)} • ${formatDepthLabel(defaults.depth)}`;
+      const visibilityBits = [];
+      visibilityBits.push(defaults.show_results_to_assignee ? "Participant-visible output" : "Participant output hidden");
+      visibilityBits.push(defaults.is_anonymous_response ? "anonymous response" : "named response");
+      visibilityBits.push(defaults.hide_from_admin ? "admin metadata-first" : "admin-visible by default");
+      ui.reviewVisibility.textContent = visibilityBits.join(", ") + ".";
+      ui.reviewTiming.textContent = defaults.send_timing === "custom" && defaults.custom_due_at ? `Custom timing • ${formatDate(defaults.custom_due_at)}` : defaults.send_timing === "tomorrow" ? "Tomorrow morning" : defaults.send_timing === "today" ? "Later today" : "Send now";
+    }
+
+    async function runBackendBatchPreview(){
+      if (!state.batch.rows.length) {
+        setStatus(ui.assignmentStatus, "Validate a recipient set before calling the preview route.", "error");
+        return;
+      }
+      ui.previewRouteStatus.textContent = "Running preview…";
+      setStatus(ui.assignmentStatus, "Running backend batch preview…");
+      try {
+        const formData = new FormData();
+        const file = state.batch.sourceFile || new File([buildCsvFromRows(state.batch.rows)], "workspace-preview.csv", { type: "text/csv" });
+        formData.append("file", file);
+        formData.append("defaults", JSON.stringify(buildAssignmentDefaults()));
+        const response = await fetch(`${apiBase}/api/workspace/assignments/preview-batch`, { method: "POST", body: formData });
+        const data = await response.json().catch(()=>({}));
+        if (!response.ok || !data?.ok) throw new Error(data?.error || "Batch preview failed.");
+        state.batch.previewResponse = data;
+        ui.previewRouteStatus.textContent = `Preview complete • ${data.summary?.valid_count ?? data.valid_count ?? state.batch.rows.filter((r)=>r.valid).length} valid rows`;
+        setStatus(ui.assignmentStatus, "Backend preview completed successfully.", "ok");
+      } catch (error) {
+        console.warn(error);
+        ui.previewRouteStatus.textContent = `Preview unavailable • ${error.message}`;
+        setStatus(ui.assignmentStatus, error.message || "Batch preview failed.", "error");
+      }
+    }
+
+    async function sendBatch(event){
+      event.preventDefault();
+      const defaults = buildAssignmentDefaults();
+      const validRows = state.batch.rows.filter((row) => row.valid);
+      if (!validRows.length) {
+        setStatus(ui.assignmentStatus, "At least one valid recipient is required.", "error");
+        return;
+      }
+      if (!defaults.event_path_name) {
+        setStatus(ui.assignmentStatus, "Event path is required before sending.", "error");
+        return;
+      }
+      ui.sendBatchBtn.disabled = true;
+      ui.sendRouteStatus.textContent = "Sending batch…";
+      setStatus(ui.assignmentStatus, "Sending batch assignments…");
+      try {
+        const file = state.batch.sourceFile || new File([buildCsvFromRows(validRows)], "workspace-send.csv", { type: "text/csv" });
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("defaults", JSON.stringify(defaults));
+        formData.append("organization_id", state.organization?.id || "");
+        formData.append("sender_user_id", state.user?.id || "");
+        formData.append("batch_label", ui.batchLabel.value.trim());
+        const response = await fetch(`${apiBase}/api/workspace/assignments/send-batch`, { method: "POST", body: formData });
+        const data = await response.json().catch(()=>({}));
+        if (!response.ok || !data?.ok) throw new Error(data?.error || "Batch send failed.");
+        ui.sendRouteStatus.textContent = `Sent • ${data.sent_count ?? data.summary?.sent_count ?? validRows.length} assignments`;
+        setStatus(ui.assignmentStatus, "Batch sent successfully.", "ok");
+        await refreshAssignmentAndResultState();
+      } catch (error) {
+        console.warn(error);
+        ui.sendRouteStatus.textContent = `Send unavailable • ${error.message}`;
+        setStatus(ui.assignmentStatus, error.message || "Batch send failed.", "error");
+      } finally {
+        ui.sendBatchBtn.disabled = false;
+      }
+    }
+
+
+    function splitEmailList(textValue){ return String(textValue || "").split(/[
+,;]+/).map(v=>v.trim().toLowerCase()).filter(Boolean); }
+    function canUseAct(){ return !!state.organization?.id && !!state.user; }
+    async function loadActTable(tableName, orderField="created_at"){
+      if(!canUseAct()) return [];
+      const { data, error } = await supabase.from(tableName).select("*").eq("organization_id", state.organization.id).order(orderField, { ascending:false }).limit(50);
+      if(error) throw error;
+      return data || [];
+    }
+    async function loadActState(){
+      if(!canUseAct()) return;
+      const loaders=[
+        loadActTable("workspace_shares"),
+        loadActTable("workspace_action_plans"),
+        loadActTable("workspace_action_items"),
+        loadActTable("workspace_collaboration_rooms"),
+        loadActTable("workspace_comments"),
+        loadActTable("workspace_votes"),
+        loadActTable("workspace_decision_log"),
+        loadActTable("workspace_followup_cycles"),
+        loadActTable("workspace_room_invites")
+      ];
+      try{
+        const [shares,plans,items,rooms,comments,votes,decisions,followups,invites] = await Promise.all(loaders);
+        state.act = { shares, plans, items, rooms, comments, votes, decisions, followups, invites };
+        renderAct();
+      }catch(error){
+        console.warn("Act data unavailable", error);
+        setStatus(ui.followupStatus, "Act tables are unavailable until the Supabase migration is applied.", "error");
+      }
+    }
+    function renderAct(){
+      const act=state.act || {};
+      ui.actContextChip.textContent = state.organization?.name ? `${state.organization.name} action layer` : "Action layer";
+      ui.actSharesCount.textContent = String((act.shares||[]).length);
+      ui.actPlansCount.textContent = String((act.plans||[]).length);
+      ui.actRoomsCount.textContent = String((act.rooms||[]).length);
+      ui.actCyclesCount.textContent = String((act.followups||[]).length);
+
+      ui.sharesList.innerHTML = "";
+      ui.sharesEmpty.classList.toggle("hidden", (act.shares||[]).length>0);
+      (act.shares||[]).forEach((share)=>{
+        const item=document.createElement("div");
+        item.className="run-item";
+        const audience = share.audience_type ? share.audience_type.replace(/_/g," ") : "audience";
+        const mode = share.delivery_mode ? share.delivery_mode.replace(/_/g," ") : "delivery";
+        item.innerHTML=`<div><p class="run-title">${escapeHtml(mode)}</p><p class="run-meta">${escapeHtml(formatDate(share.created_at))}</p><p class="run-copy">${escapeHtml(share.note || share.target_emails_json?.join(", ") || "Controlled share")}</p><div class="meta-row"><span class="pill accent">${escapeHtml(audience)}</span><span class="pill">${escapeHtml(share.status || "draft")}</span></div></div><div class="run-actions"></div>`;
+        ui.sharesList.appendChild(item);
+      });
+
+      ui.actionPlansList.innerHTML = "";
+      ui.actionPlansEmpty.classList.toggle("hidden", (act.plans||[]).length>0);
+      (act.plans||[]).forEach((plan)=>{
+        const item=document.createElement("div");
+        item.className="run-item";
+        const milestoneCount = Array.isArray(plan.milestones_json) ? plan.milestones_json.length : 0;
+        item.innerHTML=`<div><p class="run-title">${escapeHtml(plan.title || "Untitled action plan")}</p><p class="run-meta">${escapeHtml(formatDate(plan.created_at))}</p><p class="run-copy">${escapeHtml(plan.summary || "Governed action plan")}</p><div class="meta-row"><span class="pill accent">${escapeHtml((plan.status || "draft").replace(/_/g," "))}</span><span class="pill">${escapeHtml(plan.owner_email || "Owner not set")}</span><span class="pill">${milestoneCount} milestones</span></div></div><div class="run-actions"></div>`;
+        ui.actionPlansList.appendChild(item);
+      });
+
+      ui.roomsList.innerHTML = "";
+      ui.roomsEmpty.classList.toggle("hidden", (act.rooms||[]).length>0);
+      (act.rooms||[]).forEach((room)=>{
+        const inviteCount = (act.invites||[]).filter((invite)=>invite.room_id===room.id).length;
+        const commentCount = (act.comments||[]).filter((entry)=>entry.room_id===room.id).length;
+        const decisionCount = (act.decisions||[]).filter((entry)=>entry.room_id===room.id).length;
+        const voteCount = (act.votes||[]).filter((entry)=>entry.room_id===room.id).length;
+        const item=document.createElement("div");
+        item.className="run-item";
+        item.innerHTML=`<div><p class="run-title">${escapeHtml(room.title || "Working room")}</p><p class="run-meta">${escapeHtml(formatDate(room.created_at))}</p><p class="run-copy">${escapeHtml(room.purpose || "Invitation-controlled collaboration room")}</p><div class="meta-row"><span class="pill accent">${escapeHtml((room.visibility_scope || "invited only").replace(/_/g," "))}</span><span class="pill">${inviteCount} invites</span><span class="pill">${commentCount} notes/comments</span><span class="pill">${voteCount} votes</span><span class="pill">${decisionCount} decisions</span></div></div><div class="run-actions"></div>`;
+        ui.roomsList.appendChild(item);
+      });
+
+      ui.followupsList.innerHTML = "";
+      ui.followupsEmpty.classList.toggle("hidden", (act.followups||[]).length>0);
+      (act.followups||[]).forEach((cycle)=>{
+        const item=document.createElement("div");
+        item.className="run-item";
+        item.innerHTML=`<div><p class="run-title">${escapeHtml(cycle.title || "Follow-up round")}</p><p class="run-meta">${escapeHtml(formatDate(cycle.created_at))}</p><p class="run-copy">${escapeHtml(cycle.criteria_note || "Structured re-run or targeted follow-up")}</p><div class="meta-row"><span class="pill accent">${escapeHtml(String(cycle.cycle_days || "custom"))} days</span><span class="pill">${escapeHtml(cycle.tool_type || "tool")}</span><span class="pill">${escapeHtml((cycle.audience_scope || "same cohort").replace(/_/g," "))}</span></div></div><div class="run-actions"></div>`;
+        ui.followupsList.appendChild(item);
+      });
+    }
+    async function insertOrgRow(tableName, row){
+      if(!canUseAct()) throw new Error("Workspace organization context is required.");
+      const payload={ ...row, organization_id:state.organization.id };
+      const { data, error } = await supabase.from(tableName).insert(payload).select("*").single();
+      if(error) throw error;
+      return data;
+    }
+    async function createShare(event){
+      event.preventDefault();
+      try{
+        const recipients=splitEmailList(ui.shareRecipients.value).filter((email)=>EMAIL_RE.test(email));
+        if(!recipients.length) throw new Error("Add at least one valid share recipient.");
+        await insertOrgRow("workspace_shares", { created_by_user_id:state.user.id, audience_type:ui.shareAudienceType.value, delivery_mode:ui.shareDeliveryMode.value, target_emails_json:recipients, source_run_id:ui.shareSourceRunId.value || null, source_assignment_id:ui.shareSourceAssignmentId.value || null, note:ui.shareNote.value || null, status:"queued" });
+        ui.shareForm.reset();
+        setStatus(ui.shareStatus, "Share created.", "ok");
+        await loadActState();
+      }catch(error){ setStatus(ui.shareStatus, error.message || "Share could not be created.", "error"); }
+    }
+    async function createActionPlan(event){
+      event.preventDefault();
+      try{
+        if(!ui.actionPlanTitle.value.trim()) throw new Error("Action plan title is required.");
+        const milestones=String(ui.actionPlanMilestones.value||"").split(/
++/).map(v=>v.trim()).filter(Boolean);
+        await insertOrgRow("workspace_action_plans", { created_by_user_id:state.user.id, title:ui.actionPlanTitle.value.trim(), owner_email:ui.actionPlanOwnerEmail.value.trim() || null, due_at:ui.actionPlanDueAt.value || null, source_tool_type:ui.actionPlanSourceTool.value || null, status:ui.actionPlanStatusSelect.value || "draft", summary:ui.actionPlanSummaryField.value.trim() || null, milestones_json:milestones });
+        ui.actionPlanForm.reset();
+        setStatus(ui.actionPlanStatusInline, "Action plan created.", "ok");
+        await loadActState();
+      }catch(error){ setStatus(ui.actionPlanStatusInline, error.message || "Action plan could not be created.", "error"); }
+    }
+    async function createRoom(event){
+      event.preventDefault();
+      try{
+        if(!ui.roomTitleField.value.trim()) throw new Error("Working room title is required.");
+        const room=await insertOrgRow("workspace_collaboration_rooms", { created_by_user_id:state.user.id, title:ui.roomTitleField.value.trim(), linked_action_plan_id:ui.roomLinkedPlanId.value || null, source_run_id:ui.roomSourceRunId.value || null, visibility_scope:ui.roomVisibility.value, purpose:ui.roomPurpose.value.trim() || null, status:"open" });
+        const invitees=splitEmailList(ui.roomInvitees.value).filter((email)=>EMAIL_RE.test(email));
+        if(invitees.length){
+          const rows=invitees.map((email)=>({ organization_id:state.organization.id, room_id:room.id, invited_email:email, invited_by_user_id:state.user.id, access_role:"invited_reviewer", invite_status:"pending" }));
+          const { error }=await supabase.from("workspace_room_invites").insert(rows); if(error) throw error;
+        }
+        ui.roomForm.reset();
+        setStatus(ui.roomStatus, "Working room created.", "ok");
+        await loadActState();
+      }catch(error){ setStatus(ui.roomStatus, error.message || "Working room could not be created.", "error"); }
+    }
+    async function createComment(event){
+      event.preventDefault();
+      try{
+        if(!ui.commentRoomId.value.trim()) throw new Error("Room id is required.");
+        if(!ui.commentBody.value.trim()) throw new Error("Comment body is required.");
+        await insertOrgRow("workspace_comments", { room_id:ui.commentRoomId.value.trim(), author_user_id:state.user.id, section_key:ui.commentSectionKey.value.trim() || null, comment_type:ui.commentType.value || "comment", body:ui.commentBody.value.trim() });
+        ui.commentForm.reset();
+        setStatus(ui.roomActivityStatus, "Comment or note added.", "ok");
+        await loadActState();
+      }catch(error){ setStatus(ui.roomActivityStatus, error.message || "Comment could not be created.", "error"); }
+    }
+    async function createVote(event){
+      event.preventDefault();
+      try{
+        if(!ui.voteRoomId.value.trim()) throw new Error("Room id is required.");
+        if(!ui.voteTargetId.value.trim()) throw new Error("Target id is required.");
+        await insertOrgRow("workspace_votes", { room_id:ui.voteRoomId.value.trim(), voter_user_id:state.user.id, target_type:ui.voteTargetType.value, target_id:ui.voteTargetId.value.trim(), vote_value:ui.voteValue.value });
+        ui.voteForm.reset();
+        setStatus(ui.roomActivityStatus, "Vote recorded.", "ok");
+        await loadActState();
+      }catch(error){ setStatus(ui.roomActivityStatus, error.message || "Vote could not be recorded.", "error"); }
+    }
+    async function createDecisionLog(event){
+      event.preventDefault();
+      try{
+        if(!ui.decisionRoomId.value.trim()) throw new Error("Room id is required.");
+        if(!ui.decisionTitle.value.trim()) throw new Error("Decision title is required.");
+        await insertOrgRow("workspace_decision_log", { room_id:ui.decisionRoomId.value.trim(), author_user_id:state.user.id, title:ui.decisionTitle.value.trim(), decision_summary:ui.decisionSummary.value.trim() || null });
+        ui.decisionLogForm.reset();
+        setStatus(ui.roomActivityStatus, "Decision logged.", "ok");
+        await loadActState();
+      }catch(error){ setStatus(ui.roomActivityStatus, error.message || "Decision could not be logged.", "error"); }
+    }
+    async function createFollowup(event){
+      event.preventDefault();
+      try{
+        if(!ui.followupTitle.value.trim()) throw new Error("Follow-up title is required.");
+        const cycleDays = ui.followupCycleDays.value === "custom" ? null : Number(ui.followupCycleDays.value || 0);
+        await insertOrgRow("workspace_followup_cycles", { created_by_user_id:state.user.id, title:ui.followupTitle.value.trim(), cycle_days:cycleDays, next_send_at:ui.followupNextSendAt.value || null, tool_type:ui.followupToolType.value, audience_scope:ui.followupAudienceScope.value, criteria_note:ui.followupCriteria.value.trim() || null, status:"draft" });
+        ui.followupForm.reset();
+        setStatus(ui.followupStatus, "Follow-up round created.", "ok");
+        await loadActState();
+      }catch(error){ setStatus(ui.followupStatus, error.message || "Follow-up round could not be created.", "error"); }
+    }
+    function attachActHandlers(){
+      ui.shareForm?.addEventListener("submit", createShare);
+      ui.actionPlanForm?.addEventListener("submit", createActionPlan);
+      ui.roomForm?.addEventListener("submit", createRoom);
+      ui.commentForm?.addEventListener("submit", createComment);
+      ui.voteForm?.addEventListener("submit", createVote);
+      ui.decisionLogForm?.addEventListener("submit", createDecisionLog);
+      ui.followupForm?.addEventListener("submit", createFollowup);
+    }
+    async function normalizeOneRun(runId){ if(!runId) return; setStatus(ui.resultsStatus, "Running normalization for selected run…"); try{ const response=await fetch(`${apiBase}/api/normalization/normalize-run/${runId}`, { method:"POST" }); const data=await response.json().catch(()=>({})); if(!response.ok || !data?.ok) throw new Error(data?.error || "Normalization failed."); setStatus(ui.resultsStatus, "Run normalized successfully.", "ok"); await loadAndRenderNormalizedRuns(); }catch(error){ console.warn(error); setStatus(ui.resultsStatus, error.message || "Normalization failed.", "error"); } }
+    async function normalizeOrganization(){ if(!state.organization?.id) return; setStatus(ui.resultsStatus, "Running organization-wide normalization…"); try{ const toolType=ui.resultToolFilter.value || null; const response=await fetch(`${apiBase}/api/normalization/normalize-organization/${state.organization.id}`, { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify({ tool_type:toolType }) }); const data=await response.json().catch(()=>({})); if(!response.ok || !data?.ok) throw new Error(data?.error || "Organization normalization failed."); setStatus(ui.resultsStatus, `Normalization complete for ${data.count || 0} runs.`, "ok"); await loadAndRenderNormalizedRuns(); }catch(error){ console.warn(error); setStatus(ui.resultsStatus, error.message || "Organization normalization failed.", "error"); } }
+    async function loadAndRenderNormalizedRuns(){ state.normalizedRuns = await loadNormalizedRuns(); renderNormalizedRuns(); }
+    async function refreshAssignmentAndResultState(){ try{ state.assignments = await loadAssignments(); renderAssignments(state.assignments); }catch(error){ console.warn(error); } await loadAndRenderNormalizedRuns(); const summary = await loadAssignmentStatusSummary(); renderExecutiveSummary(summary); }
+
+    function resetBatchBuilder(){
+      state.batch = { rows:[], sourceType:null, sourceFile:null, previewResponse:null };
+      ui.recipientPaste.value = "";
+      ui.recipientJson.value = "";
+      ui.recipientFile.value = "";
+      ui.selectedFileName.textContent = "No file selected.";
+      ui.previewRouteStatus.textContent = "Not run yet.";
+      ui.sendRouteStatus.textContent = "Not run yet.";
+      renderRecipientPreview();
+      renderBatchReview();
+    }
+
+    function attachAssignmentBuilder(){
+      ui.parsePasteBtn?.addEventListener("click", ()=>{ const rows = parsePasteRows(ui.recipientPaste.value || ""); setBatchRows(rows, "paste"); setStatus(ui.assignmentStatus, rows.length ? "Pasted recipients validated." : "No recipient rows found in pasted content.", rows.length ? "ok" : "error"); });
+      ui.parseJsonBtn?.addEventListener("click", ()=>{ try { const parsed = JSON.parse(ui.recipientJson.value || "[]"); const rows = Array.isArray(parsed) ? parsed.map((row, index) => normalizeRecipientObject(row, index)) : []; setBatchRows(rows, "json"); setStatus(ui.assignmentStatus, rows.length ? "JSON recipients validated." : "No recipient rows found in JSON.", rows.length ? "ok" : "error"); } catch (error) { setStatus(ui.assignmentStatus, "JSON could not be parsed.", "error"); } });
+      ui.recipientFile?.addEventListener("change", async (event)=>{ const file = event.target.files?.[0]; if (!file) return; ui.selectedFileName.textContent = file.name; try { await parseSpreadsheetFile(file); setStatus(ui.assignmentStatus, "File recipients validated locally.", "ok"); } catch (error) { console.warn(error); setStatus(ui.assignmentStatus, error.message || "File could not be parsed.", "error"); } });
+      ui.previewBatchBtn?.addEventListener("click", runBackendBatchPreview);
+      ui.uploadDropzone?.addEventListener("dragover", (event)=>{ event.preventDefault(); ui.uploadDropzone.classList.add("drag"); });
+      ui.uploadDropzone?.addEventListener("dragleave", ()=>ui.uploadDropzone.classList.remove("drag"));
+      ui.uploadDropzone?.addEventListener("drop", async (event)=>{ event.preventDefault(); ui.uploadDropzone.classList.remove("drag"); const file = event.dataTransfer.files?.[0]; if(!file) return; ui.selectedFileName.textContent = file.name; ui.recipientFile.files = event.dataTransfer.files; try { await parseSpreadsheetFile(file); setStatus(ui.assignmentStatus, "Dropped file validated locally.", "ok"); } catch (error) { setStatus(ui.assignmentStatus, error.message || "Dropped file could not be parsed.", "error"); } });
+      ["assignmentTool","assignmentLens","assignmentDepth","eventPathName","assignmentMessage","sendTiming","customDueAt","allowParticipantOutput","anonymousResponse","hideFromAdmin","requestNormalization"].forEach((id)=>{ document.getElementById(id)?.addEventListener("change", renderBatchReview); document.getElementById(id)?.addEventListener("input", renderBatchReview); });
+      ui.assignmentForm?.addEventListener("submit", sendBatch);
+      ui.copyAssignmentPayloadBtn?.addEventListener("click", async ()=>{ const payload = buildAssignmentDefaults(); await navigator.clipboard.writeText(JSON.stringify(payload, null, 2)); setStatus(ui.assignmentStatus, "Assignment defaults copied.", "ok"); });
+      ui.resetBatchBtn?.addEventListener("click", ()=>{ setTimeout(resetBatchBuilder, 0); setStatus(ui.assignmentStatus, "", ""); });
+      renderRecipientPreview();
+      renderBatchReview();
+    }
+
+    async function initialize(){
+      try{
+        const { data, error } = await supabase.auth.getUser();
+        if(error) throw error;
+        if(!data?.user){ window.location.href="signin.html?next=workspace.html"; return; }
+        state.user=data.user;
+        state.membership=await ensureWorkspace(state.user);
+        state.organization=state.membership?.organizations || null;
+        setRoleState(state.membership?.role || "viewer");
+        ui.heroStatusTitle.textContent="Workspace ready";
+        ui.heroStatusCopy.textContent="Your identity layer is live. Assignments, result visibility, and normalization can now converge in one governed surface.";
+        ui.userAvatar.textContent=initials(state.user.user_metadata?.full_name || state.user.user_metadata?.name, state.user.email);
+        ui.userName.textContent=state.user.user_metadata?.full_name || state.user.user_metadata?.name || state.user.email || "Monderman User";
+        ui.userMeta.textContent=`${state.user.email || "Signed-in user"}${state.organization?.name ? ` • ${state.organization.name}` : ""}`;
+        ui.metricOrg.textContent=state.organization?.name || "Personal";
+        setStatus(ui.identityStatus, "Signed in successfully. Workspace and organization membership resolved.", "ok");
+        try{ state.runs = await loadRecentRuns(); renderRuns(state.runs); }catch(err){ console.error(err); setStatus(ui.identityStatus, "Workspace loaded, but direct saved-run reads could not be completed. Check Supabase policies on diagnostic_runs.", "error"); }
+        await refreshAssignmentAndResultState();
+        await loadActState();
+        hydrateGovernancePrefs();
+      }catch(err){
+        console.error(err);
+        ui.heroStatusTitle.textContent="Workspace unavailable";
+        ui.heroStatusCopy.textContent="The page loaded, but sign-in or workspace resolution failed.";
+        ui.userName.textContent="Workspace unavailable";
+        ui.userMeta.textContent="Check auth configuration or Supabase policies.";
+        setStatus(ui.identityStatus, err.message || "Workspace initialization failed.", "error");
+      }
+    }
+
+    ui.signOutBtn?.addEventListener("click", async ()=>{ await supabase.auth.signOut(); window.location.href="signin.html"; });
+    ui.refreshResultsBtn?.addEventListener("click", loadAndRenderNormalizedRuns);
+    ui.normalizeOrgBtn?.addEventListener("click", normalizeOrganization);
+    ui.resultToolFilter?.addEventListener("change", renderNormalizedRuns);
+    ui.resultInclusionFilter?.addEventListener("change", renderNormalizedRuns);
+
+    attachTabBehavior();
+    attachIntakeTabBehavior();
+    attachGovernanceHandlers();
+    attachAssignmentBuilder();
+    attachActHandlers();
+    updateHeader();
+    window.addEventListener("scroll", updateHeader, { passive:true });
+    if(shouldRunWorkspaceCalibration()){ window.addEventListener("load", ()=>{ requestAnimationFrame(()=>{ startWorkspaceCalibration(); safeWriteLocal(WORKSPACE_LOADER_KEY, String(Date.now())); }); }); }
+    initialize();
+  </script>
+</body>
+</html>
