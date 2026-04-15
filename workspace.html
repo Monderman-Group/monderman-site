@@ -84,15 +84,16 @@
     .chip.ghost{background:#fff;border-color:var(--line-strong);color:var(--ink-muted)}
 
     .top-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
-    .overview-grid{display:grid;grid-template-columns:1fr 1fr 1.28fr 1.14fr;gap:18px;margin-top:22px;align-items:stretch}
-    .metric{display:flex;flex-direction:column;justify-content:flex-start;min-height:228px;overflow:hidden;background:linear-gradient(180deg,#fff 0%,#FBFCFE 100%);border:1px solid var(--line);border-radius:18px;padding:20px 18px 18px;box-shadow:var(--shadow-soft);min-width:0}
+    .overview-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:22px;align-items:stretch}
+    .metric{display:flex;flex-direction:column;justify-content:flex-start;min-height:156px;overflow:hidden;background:linear-gradient(180deg,#fff 0%,#FBFCFE 100%);border:1px solid var(--line);border-radius:18px;padding:22px 20px 18px;box-shadow:var(--shadow-soft);min-width:0}
     .metric-label{margin:0 0 8px;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);overflow-wrap:anywhere}
-    .metric-value{font-size:clamp(1.1rem,1.8vw,1.54rem);line-height:1.02;font-weight:700;color:var(--ink);margin:0 0 8px;overflow-wrap:anywhere;word-break:break-word;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-    .metric-copy{margin-top:auto;font-size:.88rem;line-height:1.48;color:var(--ink-soft);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+    .metric-value{font-size:clamp(1.1rem,1.7vw,1.42rem);line-height:1.2;font-weight:700;color:var(--ink);margin:0 0 10px;overflow-wrap:anywhere;word-break:break-word}
+    .metric-copy{margin-top:auto;font-size:.82rem;line-height:1.45;color:var(--ink-soft);overflow-wrap:anywhere}
+.metric-value.compact{font-size:1.08rem;line-height:1.32;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
     .identity-card{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}.avatar{width:58px;height:58px;border-radius:16px;background:linear-gradient(180deg,#244462 0%,#3F6EA1 100%);color:#fff;display:grid;place-items:center;font-size:1.12rem;font-weight:700}.identity-name{font-size:1.12rem;line-height:1.2;font-weight:700;color:var(--ink);margin:0 0 4px}.identity-meta{font-size:.92rem;line-height:1.55;color:var(--ink-soft)}.identity-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.status-inline{font-size:.86rem;line-height:1.55;color:var(--ink-muted);min-height:22px}.status-inline.error{color:var(--rose)}.status-inline.ok{color:var(--ok)}
 
-    .rail-shell{position:sticky;top:84px;z-index:34;padding:14px 18px;background:linear-gradient(180deg,rgba(14,20,28,.96) 0%, rgba(18,27,38,.94) 100%);border:1px solid rgba(63,110,161,.18);box-shadow:0 18px 38px rgba(7,16,29,.16);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}.rail-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px}.rail-kicker{font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,247,250,.62)}.rail-copy{font-size:.84rem;line-height:1.5;color:rgba(245,247,250,.72)}.tabs{display:flex;gap:10px;flex-wrap:wrap;margin-top:0}.tab-btn{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 20px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.86);font-size:.92rem;font-weight:700;cursor:pointer;transition:all .18s ease}.tab-btn.active{background:#fff;border-color:rgba(255,255,255,.20);color:var(--accent-dark);box-shadow:var(--shadow-soft)}.tab-btn:hover,.tab-btn:focus-visible{outline:none;transform:translateY(-1px)}.tab-panels{display:grid;gap:18px}.tab-panel{display:none}.tab-panel.active{display:grid;gap:18px}
+    .rail-shell{position:sticky;top:82px;z-index:45;padding:16px 18px;background:#0F1720;border:1px solid rgba(255,255,255,.08);box-shadow:0 14px 34px rgba(7,16,29,.18);backdrop-filter:none;-webkit-backdrop-filter:none}.tabs{display:flex;gap:10px;flex-wrap:wrap;margin-top:0}.tab-btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(245,247,250,.86);font-size:.9rem;font-weight:700;cursor:pointer;transition:all .18s ease}.tab-btn.active{background:#fff;border-color:#fff;color:var(--accent-dark);box-shadow:0 10px 24px rgba(0,0,0,.18)}.tab-btn:hover,.tab-btn:focus-visible{outline:none;transform:translateY(-1px);color:#fff;border-color:rgba(255,255,255,.24)}.tab-panels{display:grid;gap:18px}.tab-panel{display:none}.tab-panel.active{display:grid;gap:18px}
     .workspace-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:18px}.stack{display:grid;gap:18px}.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
     .card-lite{padding:18px;border-radius:18px;background:linear-gradient(180deg,#fff 0%,#FBFCFE 100%);border:1px solid var(--line);box-shadow:var(--shadow-soft);min-width:0}.card-lite h4{font-size:1rem;line-height:1.2;color:var(--ink);margin:0 0 8px}.card-lite p,.card-lite li{font-size:.9rem;line-height:1.58;color:var(--ink-soft);overflow-wrap:anywhere}.card-lite ul{margin:0;padding-left:18px;display:grid;gap:6px}
     .summary-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}
@@ -155,11 +156,9 @@
     .info:hover::after,.info:focus-visible::after{opacity:1;transform:translateX(-50%) translateY(-2px)}
     .info:hover::before,.info:focus-visible::before{opacity:1}
 
-    
-    .act-grid{display:grid;grid-template-columns:1.04fr .96fr;gap:18px}.act-status-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.act-card{padding:18px;border-radius:18px;background:linear-gradient(180deg,#fff 0%,#FBFCFE 100%);border:1px solid var(--line);box-shadow:var(--shadow-soft)}.act-card h4{font-size:1rem;line-height:1.2;color:var(--ink);margin:0 0 8px}.act-card p,.act-card li{font-size:.9rem;line-height:1.58;color:var(--ink-soft)}.act-card ul{margin:0;padding-left:18px;display:grid;gap:6px}.action-plan-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.room-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.section-note{padding:16px 18px;border-radius:16px;background:linear-gradient(180deg,#FBFCFE 0%,#F6F9FD 100%);border:1px solid var(--line);font-size:.88rem;line-height:1.6;color:var(--ink-soft)}
-    @media (max-width:1240px){.summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.overview-grid,.analytics-grid,.act-status-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.workspace-grid,.hero-inner,.top-grid,.act-grid,.action-plan-grid,.room-detail-grid{grid-template-columns:1fr}.hero h1{max-width:100%}}
+    @media (max-width:1240px){.summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.analytics-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.workspace-grid,.hero-inner,.top-grid{grid-template-columns:1fr}.hero h1{max-width:100%}}
     @media (max-width:980px){.header{height:auto}.header-inner{padding:16px 24px;align-items:flex-start;flex-direction:column;gap:14px}.nav{gap:22px}.hero-inner,.page,.footer{padding-left:24px;padding-right:24px}.form-grid,.steps,.validation-bar{grid-template-columns:1fr}.field.span-2{grid-column:span 1}.rail-shell{top:110px}}
-    @media (max-width:760px){.hero-inner{padding:148px 20px 60px}.hero-actions,.identity-actions,.form-actions,.run-actions,.helper-row{flex-direction:column;align-items:stretch;max-width:420px}.btn,.run-link{width:100%;min-width:0}.overview-grid,.analytics-grid,.grid-2,.grid-3,.hero-strip,.summary-grid,.act-status-grid,.action-plan-grid,.room-detail-grid{grid-template-columns:1fr}.page{padding:24px 20px 64px}.section-card{padding:24px 20px 22px}.rail-shell{padding:14px 14px 14px;top:102px}.header-inner{padding:14px 20px 10px;gap:10px}.nav{width:calc(100% + 4px);gap:10px;flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;padding:2px 4px 6px 0;scrollbar-width:none;-webkit-overflow-scrolling:touch}.nav::-webkit-scrollbar{display:none}.nav a{flex:0 0 auto;font-size:.84rem;line-height:1;padding:10px 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}.nav a::after{display:none}.footer{padding:30px 20px 26px}.info::after{width:min(240px, 82vw)}}
+    @media (max-width:760px){.hero-inner{padding:148px 20px 60px}.hero-actions,.identity-actions,.form-actions,.run-actions,.helper-row{flex-direction:column;align-items:stretch;max-width:420px}.btn,.run-link{width:100%;min-width:0}.overview-grid,.analytics-grid,.grid-2,.grid-3,.hero-strip,.summary-grid{grid-template-columns:1fr}.page{padding:24px 20px 64px}.section-card{padding:24px 20px 22px}.rail-shell{padding:14px 14px 14px;top:102px}.header-inner{padding:14px 20px 10px;gap:10px}.nav{width:calc(100% + 4px);gap:10px;flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;padding:2px 4px 6px 0;scrollbar-width:none;-webkit-overflow-scrolling:touch}.nav::-webkit-scrollbar{display:none}.nav a{flex:0 0 auto;font-size:.84rem;line-height:1;padding:10px 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}.nav a::after{display:none}.footer{padding:30px 20px 26px}.info::after{width:min(240px, 82vw)}}
   </style>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
@@ -207,10 +206,10 @@
           <h2 class="section-title">A premium operating layer for repeated diagnostic use.</h2>
           <p class="section-copy">This workspace now centers executive visibility, batch assignment operations, role-sensitive output governance, and cleaner organizational learning over time.</p>
           <div class="overview-grid">
-            <div class="metric"><p class="metric-label">Saved runs</p><p class="metric-value" id="metricRuns">0</p><p class="metric-copy">Visible in this workspace.</p></div>
-            <div class="metric"><p class="metric-label">Included in aggregates</p><p class="metric-value" id="metricIncluded">0</p><p class="metric-copy">In aggregate reporting.</p></div>
-            <div class="metric"><p class="metric-label">Organization</p><p class="metric-value" id="metricOrg">—</p><p class="metric-copy">Workspace identity.</p></div>
-            <div class="metric"><p class="metric-label">Last activity</p><p class="metric-value" id="metricLast">—</p><p class="metric-copy">Latest visible event.</p></div>
+            <div class="metric"><p class="metric-label">Saved runs</p><p class="metric-value" id="metricRuns">0</p><p class="metric-copy">Diagnostics currently visible in this workspace.</p></div>
+            <div class="metric"><p class="metric-label">Included in aggregates</p><p class="metric-value" id="metricIncluded">0</p><p class="metric-copy">Included in aggregate set.</p></div>
+            <div class="metric"><p class="metric-label">Organization</p><p class="metric-value compact" id="metricOrg">—</p><p class="metric-copy">Personal or assigned workspace.</p></div>
+            <div class="metric"><p class="metric-label">Last activity</p><p class="metric-value compact" id="metricLast">—</p><p class="metric-copy">Most recent visible event.</p></div>
           </div>
         </section>
         <section class="section-card">
@@ -223,20 +222,19 @@
 
       <section class="section-card">
         <div class="panel-head"><div><p class="section-kicker">How the workspace is organized</p><h2 class="section-title">One console. Three clear admin modes.</h2><p class="section-copy">Build is where batches are configured and sent. Tracking is where live response flow and status are monitored. Analytics is where raw response activity becomes governed institutional interpretation.</p></div><span class="chip ghost">Admin orientation</span></div>
-        <div class="grid-2">
+        <div class="grid-3">
           <div class="card-lite"><h4>Build</h4><p>Validate recipients, choose diagnostic defaults, apply anonymity and output policy, set timing, review, and dispatch.</p></div>
-          <div class="card-lite"><h4>Track</h4><p>Watch sent, opened, due-soon, completed, flagged, included, and excluded states in one operating surface.</p></div>
-          <div class="card-lite"><h4>Analyze</h4><p>Review normalized signal, governance defaults, flagged-run treatment, synthesis, and executive export pathways.</p></div>
-          <div class="card-lite"><h4>Act</h4><p>Share governed outputs, assign action plans, invite collaborators, log decisions, and launch structured follow-up rounds.</p></div>
+          <div class="card-lite"><h4>Tracking</h4><p>Watch sent, opened, due-soon, completed, flagged, included, and excluded states in one operating surface.</p></div>
+          <div class="card-lite"><h4>Analytics</h4><p>Review normalized signal, governance defaults, flagged-run treatment, synthesis, and executive export pathways.</p></div>
         </div>
       </section>
 
       <section class="section-card rail-shell" id="workspaceTabs">
-        <div class="rail-head"><div><div class="rail-kicker">Workspace rail</div><div class="rail-copy">Move through one governed operating cycle: build, track, analyze, then act.</div></div><span class="chip ghost">Primary navigation</span></div>
+        <div class="panel-head" style="margin-bottom:14px;align-items:center;"><div><p class="section-kicker" style="color:rgba(245,247,250,.58);margin-bottom:8px;">Workspace rail</p><h3 class="panel-title" style="color:#fff;">Build, Track, Analyze, and Act</h3><p class="panel-copy" style="color:rgba(245,247,250,.72);max-width:72ch;">Move from dispatch to live monitoring, then governed interpretation, and finally controlled follow-through.</p></div><span class="chip ghost" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);color:rgba(245,247,250,.78);">Primary navigation</span></div>
         <div class="tabs" aria-label="Workspace navigation">
           <button class="tab-btn active" data-tab="build" type="button">Build</button>
-          <button class="tab-btn" data-tab="track" type="button">Track</button>
-          <button class="tab-btn" data-tab="analyze" type="button">Analyze</button>
+          <button class="tab-btn" data-tab="tracking" type="button">Tracking</button>
+          <button class="tab-btn" data-tab="analytics" type="button">Analyze</button>
           <button class="tab-btn" data-tab="act" type="button">Act</button>
         </div>
       </section>
@@ -377,7 +375,7 @@
           </div>
         </section>
 
-        <section class="tab-panel" data-panel="track">
+        <section class="tab-panel" data-panel="tracking">
           <div class="workspace-grid">
             <div class="stack">
               <section class="section-card">
@@ -426,12 +424,12 @@
           </div>
         </section>
 
-        <section class="tab-panel" data-panel="analyze">
+        <section class="tab-panel" data-panel="analytics">
           <section class="section-card">
             <div class="panel-head"><div><p class="section-kicker">Analytics</p><h3 class="panel-title">Synthesis, signal quality, and governance</h3><p class="panel-copy">This layer turns raw response flow into an institutional learning set: normalized, filtered, governed, and ready for executive interpretation.</p></div><span class="chip ghost" id="summaryContextChip">Workspace context</span></div>
             <div class="analytics-grid">
               <div class="analytics-card"><div class="analytics-label">All runs</div><div class="analytics-value" id="analyticsAllRuns">0</div><div class="analytics-copy">Raw runs visible in this workspace.</div></div>
-              <div class="analytics-card"><div class="analytics-label">Included</div><div class="analytics-value" id="analyticsIncluded">0</div><div class="analytics-copy">In aggregate reporting.</div></div>
+              <div class="analytics-card"><div class="analytics-label">Included</div><div class="analytics-value" id="analyticsIncluded">0</div><div class="analytics-copy">Runs currently included in aggregate reporting.</div></div>
               <div class="analytics-card"><div class="analytics-label">With caution</div><div class="analytics-value" id="analyticsCaution">0</div><div class="analytics-copy">Runs included, but flagged for caution.</div></div>
               <div class="analytics-card"><div class="analytics-label">Excluded</div><div class="analytics-value" id="analyticsExcluded">0</div><div class="analytics-copy">Runs excluded from aggregate views.</div></div>
             </div>
@@ -483,132 +481,46 @@
             </div>
           </div>
         </section>
-      
+
         <section class="tab-panel" data-panel="act">
-          <section class="section-card">
-            <div class="panel-head"><div><p class="section-kicker">Act</p><h3 class="panel-title">Share, coordinate, and govern follow-through</h3><p class="panel-copy">Act turns governed signal into controlled distribution, owned action, invited collaboration, and structured follow-up. Everything below is invitation-based and role-aware.</p></div><span class="chip ghost" id="actContextChip">Action layer</span></div>
-            <div class="act-status-grid">
-              <div class="analytics-card"><div class="analytics-label">Shares</div><div class="analytics-value" id="actSharesCount">0</div><div class="analytics-copy">Controlled distributions created from the workspace.</div></div>
-              <div class="analytics-card"><div class="analytics-label">Action plans</div><div class="analytics-value" id="actPlansCount">0</div><div class="analytics-copy">Governed plans created from findings and patterns.</div></div>
-              <div class="analytics-card"><div class="analytics-label">Working rooms</div><div class="analytics-value" id="actRoomsCount">0</div><div class="analytics-copy">Invitation-only collaboration spaces with notes and decisions.</div></div>
-              <div class="analytics-card"><div class="analytics-label">Follow-up rounds</div><div class="analytics-value" id="actCyclesCount">0</div><div class="analytics-copy">Structured re-run or comparison cycles launched from the console.</div></div>
-            </div>
-          </section>
-
-          <div class="act-grid">
+          <div class="workspace-grid">
             <div class="stack">
               <section class="section-card">
-                <div class="panel-head"><div><h3 class="panel-title">Share</h3><p class="panel-copy">Distribute the right version of the output to the right audience without exposing more than policy allows.</p></div></div>
-                <form id="shareForm" novalidate>
-                  <div class="form-grid">
-                    <div class="field"><label for="shareAudienceType">Audience type</label><select id="shareAudienceType"><option value="admin">Admin</option><option value="manager">Manager</option><option value="participant">Participant</option><option value="invited_reviewer">Invited reviewer</option></select></div>
-                    <div class="field"><label for="shareDeliveryMode">Delivery mode</label><select id="shareDeliveryMode"><option value="invitation_to_view">Invitation to view</option><option value="executive_summary">Executive summary</option><option value="normalized_summary_only">Normalized summary only</option><option value="attachment">Attachment</option></select></div>
-                    <div class="field span-2"><label for="shareRecipients">Recipients</label><textarea id="shareRecipients" placeholder="One email per line or comma-separated"></textarea></div>
-                    <div class="field"><label for="shareSourceRunId">Linked run ID</label><input id="shareSourceRunId" type="text" placeholder="Optional diagnostic run id" /></div>
-                    <div class="field"><label for="shareSourceAssignmentId">Linked assignment ID</label><input id="shareSourceAssignmentId" type="text" placeholder="Optional assignment id" /></div>
-                    <div class="field span-2"><label for="shareNote">Share note</label><textarea id="shareNote" placeholder="Context for the audience or access instructions."></textarea></div>
-                  </div>
-                  <div class="form-actions"><button class="btn btn-accent" type="submit">Create share</button></div>
-                </form>
-                <p class="status-inline" id="shareStatus"></p>
-                <div class="list" id="sharesList"></div>
-                <div class="empty" id="sharesEmpty">No governed shares have been created yet.</div>
-              </section>
-
-              <section class="section-card">
-                <div class="panel-head"><div><h3 class="panel-title">Action plans</h3><p class="panel-copy">Turn findings into owned follow-through with due dates, milestones, and explicit linkage back to diagnostics or patterns.</p></div></div>
-                <form id="actionPlanForm" novalidate>
-                  <div class="form-grid">
-                    <div class="field span-2"><label for="actionPlanTitle">Plan title</label><input id="actionPlanTitle" type="text" placeholder="e.g. Reduce serial review in regional contracting" /></div>
-                    <div class="field"><label for="actionPlanOwnerEmail">Owner email</label><input id="actionPlanOwnerEmail" type="email" placeholder="owner@org.com" /></div>
-                    <div class="field"><label for="actionPlanDueAt">Due date</label><input id="actionPlanDueAt" type="date" /></div>
-                    <div class="field"><label for="actionPlanSourceTool">Linked diagnostic</label><select id="actionPlanSourceTool"><option value="">Optional</option><option value="decision_velocity">Decision Velocity</option><option value="structural_clarity">Structural Clarity</option><option value="operational_systems">Operational Systems</option><option value="institutional_performance">Institutional Performance</option></select></div>
-                    <div class="field"><label for="actionPlanStatus">Plan status</label><select id="actionPlanStatus"><option value="draft">Draft</option><option value="open">Open</option><option value="in_progress">In progress</option><option value="paused">Paused</option></select></div>
-                    <div class="field span-2"><label for="actionPlanSummary">Plan summary</label><textarea id="actionPlanSummary" placeholder="What problem is being addressed, what will change, and how progress should be judged."></textarea></div>
-                    <div class="field span-2"><label for="actionPlanMilestones">Milestones</label><textarea id="actionPlanMilestones" placeholder="One milestone per line."></textarea></div>
-                  </div>
-                  <div class="form-actions"><button class="btn btn-accent" type="submit">Create action plan</button></div>
-                </form>
-                <p class="status-inline" id="actionPlanStatusInline"></p>
-                <div class="list" id="actionPlansList"></div>
-                <div class="empty" id="actionPlansEmpty">No action plans have been created yet.</div>
-              </section>
-            </div>
-
-            <div class="stack">
-              <section class="section-card">
-                <div class="panel-head"><div><h3 class="panel-title">Invited collaboration</h3><p class="panel-copy">Create invitation-only working rooms where notes, threaded comments, votes, and decisions can be tied to a governed review context.</p></div></div>
-                <form id="roomForm" novalidate>
-                  <div class="form-grid">
-                    <div class="field span-2"><label for="roomTitle">Working room title</label><input id="roomTitle" type="text" placeholder="e.g. Q2 operating review room" /></div>
-                    <div class="field"><label for="roomLinkedPlanId">Linked action plan ID</label><input id="roomLinkedPlanId" type="text" placeholder="Optional" /></div>
-                    <div class="field"><label for="roomSourceRunId">Linked run ID</label><input id="roomSourceRunId" type="text" placeholder="Optional" /></div>
-                    <div class="field"><label for="roomVisibility">Room visibility</label><select id="roomVisibility"><option value="invited_only">Invited only</option><option value="manager_plus_admin">Manager + admin</option><option value="participant_plus_admin">Participant + admin</option></select></div>
-                    <div class="field"><label for="roomInvitees">Invitees</label><textarea id="roomInvitees" placeholder="One email per line"></textarea></div>
-                    <div class="field span-2"><label for="roomPurpose">Room purpose</label><textarea id="roomPurpose" placeholder="Why this room exists and what invited users are allowed to do."></textarea></div>
-                  </div>
-                  <div class="form-actions"><button class="btn btn-accent" type="submit">Create working room</button></div>
-                </form>
-                <p class="status-inline" id="roomStatus"></p>
-                <div class="list" id="roomsList"></div>
-                <div class="empty" id="roomsEmpty">No collaboration rooms have been created yet.</div>
-              </section>
-
-              <section class="section-card">
-                <div class="panel-head"><div><h3 class="panel-title">Room activity</h3><p class="panel-copy">Add comments, notes, votes, and decisions to a selected working room. These remain invitation-scoped and auditable.</p></div></div>
-                <div class="room-detail-grid">
-                  <form id="commentForm" novalidate class="act-card">
-                    <h4>Comment or note</h4>
-                    <div class="field"><label for="commentRoomId">Room</label><input id="commentRoomId" type="text" placeholder="Working room id" /></div>
-                    <div class="field"><label for="commentSectionKey">Section key</label><input id="commentSectionKey" type="text" placeholder="e.g. benchmark, actions, signal-1" /></div>
-                    <div class="field"><label for="commentType">Type</label><select id="commentType"><option value="comment">Comment</option><option value="note">Note</option></select></div>
-                    <div class="field"><label for="commentBody">Body</label><textarea id="commentBody" placeholder="Enter invited collaboration note or comment."></textarea></div>
-                    <div class="form-actions"><button class="btn btn-soft" type="submit">Add entry</button></div>
-                  </form>
-
-                  <form id="voteForm" novalidate class="act-card">
-                    <h4>Reaction or agreement vote</h4>
-                    <div class="field"><label for="voteRoomId">Room</label><input id="voteRoomId" type="text" placeholder="Working room id" /></div>
-                    <div class="field"><label for="voteTargetType">Target type</label><select id="voteTargetType"><option value="proposal">Proposal</option><option value="action_item">Action item</option><option value="finding">Finding</option></select></div>
-                    <div class="field"><label for="voteTargetId">Target id / key</label><input id="voteTargetId" type="text" placeholder="Action item id or local key" /></div>
-                    <div class="field"><label for="voteValue">Vote</label><select id="voteValue"><option value="agree">Agree</option><option value="support">Support</option><option value="priority">Priority</option><option value="concern">Concern</option></select></div>
-                    <div class="form-actions"><button class="btn btn-soft" type="submit">Record vote</button></div>
-                  </form>
+                <div class="panel-head"><div><p class="section-kicker">Act</p><h3 class="panel-title">Share governed outputs and launch follow-through</h3><p class="panel-copy">Act is where institutional signal turns into controlled distribution, owned action, invited collaboration, and follow-up rounds.</p></div><span class="chip accent">Invitation-only when needed</span></div>
+                <div class="grid-2">
+                  <div class="card-lite"><h4>Share</h4><p>Send executive summaries, normalized summaries, or invitation-only viewing links by audience type: admin, manager, participant, or invited reviewer.</p><div class="form-actions" style="margin-top:12px;"><button class="btn btn-soft" type="button">Send executive summary</button><button class="btn btn-subtle" type="button">Send invitation to view</button></div></div>
+                  <div class="card-lite"><h4>Follow-up rounds</h4><p>Launch re-run invitations, 30 / 60 / 90 day comparison rounds, or targeted follow-up for specific cohorts and flagged patterns.</p><div class="form-actions" style="margin-top:12px;"><button class="btn btn-soft" type="button">Create follow-up round</button><button class="btn btn-subtle" type="button">Invite selected cohort</button></div></div>
                 </div>
-
-                <form id="decisionLogForm" novalidate class="section-note" style="margin-top:14px;">
-                  <div class="panel-head" style="margin-bottom:12px;"><div><h3 class="panel-title" style="font-size:1rem;">Decision log</h3><p class="panel-copy">Create an auditable decision entry tied to a room and visible only to invited users with access.</p></div></div>
-                  <div class="form-grid">
-                    <div class="field"><label for="decisionRoomId">Room</label><input id="decisionRoomId" type="text" placeholder="Working room id" /></div>
-                    <div class="field"><label for="decisionTitle">Decision title</label><input id="decisionTitle" type="text" placeholder="e.g. Approve phased review reduction" /></div>
-                    <div class="field span-2"><label for="decisionSummary">Decision summary</label><textarea id="decisionSummary" placeholder="What was decided, by whom, and what the next implication is."></textarea></div>
-                  </div>
-                  <div class="form-actions"><button class="btn btn-soft" type="submit">Log decision</button></div>
-                </form>
-                <p class="status-inline" id="roomActivityStatus"></p>
               </section>
 
               <section class="section-card">
-                <div class="panel-head"><div><h3 class="panel-title">Follow-up rounds</h3><p class="panel-copy">Launch structured re-run cycles, targeted comparison rounds, and invited second-pass reviews tied to flagged patterns or action plans.</p></div></div>
-                <form id="followupForm" novalidate>
-                  <div class="form-grid">
-                    <div class="field span-2"><label for="followupTitle">Follow-up title</label><input id="followupTitle" type="text" placeholder="e.g. 60-day structural clarity follow-up" /></div>
-                    <div class="field"><label for="followupCycleDays">Cycle</label><select id="followupCycleDays"><option value="30">30 days</option><option value="60">60 days</option><option value="90">90 days</option><option value="custom">Custom</option></select></div>
-                    <div class="field"><label for="followupNextSendAt">Next send</label><input id="followupNextSendAt" type="datetime-local" /></div>
-                    <div class="field"><label for="followupToolType">Diagnostic</label><select id="followupToolType"><option value="decision_velocity">Decision Velocity</option><option value="structural_clarity">Structural Clarity</option><option value="operational_systems">Operational Systems</option><option value="institutional_performance">Institutional Performance</option></select></div>
-                    <div class="field"><label for="followupAudienceScope">Audience scope</label><select id="followupAudienceScope"><option value="same_cohort">Same cohort</option><option value="subset_only">Specific subset</option><option value="manager_plus_flagged">Managers + flagged patterns</option></select></div>
-                    <div class="field span-2"><label for="followupCriteria">Follow-up criteria</label><textarea id="followupCriteria" placeholder="Which cohort should be invited and what pattern or action plan this round is meant to test."></textarea></div>
-                  </div>
-                  <div class="form-actions"><button class="btn btn-accent" type="submit">Create follow-up round</button></div>
-                </form>
-                <p class="status-inline" id="followupStatus"></p>
-                <div class="list" id="followupsList"></div>
-                <div class="empty" id="followupsEmpty">No follow-up rounds have been created yet.</div>
+                <div class="panel-head"><div><h3 class="panel-title">Action plans</h3><p class="panel-copy">Translate findings into governed follow-through: owners, due dates, milestones, and progress against specific patterns or diagnostics.</p></div><span class="chip ghost">Controlled planning layer</span></div>
+                <div class="grid-2">
+                  <div class="card-lite"><h4>Create action plan</h4><p>Build action plans from findings, assign owners, define due dates, set milestone labels, and track status without changing the raw diagnostic record.</p></div>
+                  <div class="card-lite"><h4>Tie actions to evidence</h4><p>Link action items to one or more diagnostics, governed patterns, flagged signals, or normalized findings so the response path remains traceable.</p></div>
+                </div>
+                <div class="form-actions" style="margin-top:16px;"><button class="btn btn-accent" type="button">Create action plan</button><button class="btn btn-subtle" type="button">Open active plans</button></div>
+              </section>
+            </div>
+
+            <div class="stack">
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Invited collaboration room</h3><p class="panel-copy">Use invitation-only access for comments, notes by section, threaded discussion, lightweight decisions, and reaction voting on proposed actions.</p></div></div>
+                <div class="grid-2">
+                  <div class="card-lite"><h4>Collaboration</h4><ul><li>Comments on findings</li><li>Notes by section</li><li>Threaded discussion on specific signals</li><li>Reaction or agreement voting</li><li>Lightweight decision log</li></ul></div>
+                  <div class="card-lite"><h4>Governance-controlled access</h4><ul><li>Invited users only</li><li>Participants can see summary plus actions, not raw peer responses</li><li>Managers can comment on action items</li><li>Admins control publishing and opening discussion</li></ul></div>
+                </div>
+                <div class="form-actions" style="margin-top:16px;"><button class="btn btn-soft" type="button">Create collaboration room</button><button class="btn btn-subtle" type="button">Invite reviewers</button></div>
+              </section>
+
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Act layer roadmap</h3><p class="panel-copy">This section is ready for deeper wiring against the new workspace Act tables you created in Supabase.</p></div></div>
+                <div class="card-lite"><ul><li><strong>workspace_shares</strong> for governed distribution</li><li><strong>workspace_action_plans</strong> and <strong>workspace_action_items</strong> for structured follow-through</li><li><strong>workspace_collaboration_rooms</strong>, <strong>workspace_comments</strong>, and <strong>workspace_votes</strong> for invited discussion</li><li><strong>workspace_decision_log</strong> for lightweight decision capture</li><li><strong>workspace_followup_cycles</strong> and <strong>workspace_room_invites</strong> for controlled next-round orchestration</li></ul></div>
               </section>
             </div>
           </div>
         </section>
-</div>    </div>
+      </div>    </div>
   </main>
 
   <footer class="footer"><div class="footer-inner"><p class="footer-copy">Monderman Workspace is intended to govern assignments, visibility, anonymity, and signal quality over time.</p><p class="footer-copy">Built for continuity, trust, and cleaner institutional interpretation.</p></div></footer>
@@ -626,8 +538,7 @@
     const state = {
       user:null, membership:null, organization:null, role:"viewer",
       runs:[], normalizedRuns:[], assignments:[], governance:{ participantVisible:true, metadataOnlyForAnonymous:true, useNormalized:true },
-      batch:{ rows:[], sourceType:null, sourceFile:null, previewResponse:null },
-      act:{ shares:[], plans:[], items:[], rooms:[], comments:[], votes:[], decisions:[], followups:[], invites:[] }
+      batch:{ rows:[], sourceType:null, sourceFile:null, previewResponse:null }
     };
 
     const ui = {
@@ -645,13 +556,7 @@
       recipientPreviewList:document.getElementById("recipientPreviewList"), recipientPreviewEmpty:document.getElementById("recipientPreviewEmpty"), recipientCount:document.getElementById("recipientCount"), recipientValidCount:document.getElementById("recipientValidCount"), recipientDuplicateCount:document.getElementById("recipientDuplicateCount"), recipientInvalidCount:document.getElementById("recipientInvalidCount"),
       stepCardIntake:document.getElementById("stepCardIntake"), stepCardConfig:document.getElementById("stepCardConfig"), stepIntakeChip:document.getElementById("stepIntakeChip"), stepConfigChip:document.getElementById("stepConfigChip"),
       batchLabel:document.getElementById("batchLabel"), reviewRecipientChip:document.getElementById("reviewRecipientChip"), reviewDelivery:document.getElementById("reviewDelivery"), reviewVisibility:document.getElementById("reviewVisibility"), reviewTiming:document.getElementById("reviewTiming"),
-      previewRouteStatus:document.getElementById("previewRouteStatus"), sendRouteStatus:document.getElementById("sendRouteStatus"), sendBatchBtn:document.getElementById("sendBatchBtn"), resetBatchBtn:document.getElementById("resetBatchBtn"),
-      actContextChip:document.getElementById("actContextChip"), actSharesCount:document.getElementById("actSharesCount"), actPlansCount:document.getElementById("actPlansCount"), actRoomsCount:document.getElementById("actRoomsCount"), actCyclesCount:document.getElementById("actCyclesCount"),
-      shareForm:document.getElementById("shareForm"), shareAudienceType:document.getElementById("shareAudienceType"), shareDeliveryMode:document.getElementById("shareDeliveryMode"), shareRecipients:document.getElementById("shareRecipients"), shareSourceRunId:document.getElementById("shareSourceRunId"), shareSourceAssignmentId:document.getElementById("shareSourceAssignmentId"), shareNote:document.getElementById("shareNote"), shareStatus:document.getElementById("shareStatus"), sharesList:document.getElementById("sharesList"), sharesEmpty:document.getElementById("sharesEmpty"),
-      actionPlanForm:document.getElementById("actionPlanForm"), actionPlanTitle:document.getElementById("actionPlanTitle"), actionPlanOwnerEmail:document.getElementById("actionPlanOwnerEmail"), actionPlanDueAt:document.getElementById("actionPlanDueAt"), actionPlanSourceTool:document.getElementById("actionPlanSourceTool"), actionPlanStatusSelect:document.getElementById("actionPlanStatus"), actionPlanSummaryField:document.getElementById("actionPlanSummary"), actionPlanMilestones:document.getElementById("actionPlanMilestones"), actionPlanStatusInline:document.getElementById("actionPlanStatusInline"), actionPlansList:document.getElementById("actionPlansList"), actionPlansEmpty:document.getElementById("actionPlansEmpty"),
-      roomForm:document.getElementById("roomForm"), roomTitleField:document.getElementById("roomTitle"), roomLinkedPlanId:document.getElementById("roomLinkedPlanId"), roomSourceRunId:document.getElementById("roomSourceRunId"), roomVisibility:document.getElementById("roomVisibility"), roomInvitees:document.getElementById("roomInvitees"), roomPurpose:document.getElementById("roomPurpose"), roomStatus:document.getElementById("roomStatus"), roomsList:document.getElementById("roomsList"), roomsEmpty:document.getElementById("roomsEmpty"),
-      commentForm:document.getElementById("commentForm"), commentRoomId:document.getElementById("commentRoomId"), commentSectionKey:document.getElementById("commentSectionKey"), commentType:document.getElementById("commentType"), commentBody:document.getElementById("commentBody"), voteForm:document.getElementById("voteForm"), voteRoomId:document.getElementById("voteRoomId"), voteTargetType:document.getElementById("voteTargetType"), voteTargetId:document.getElementById("voteTargetId"), voteValue:document.getElementById("voteValue"), decisionLogForm:document.getElementById("decisionLogForm"), decisionRoomId:document.getElementById("decisionRoomId"), decisionTitle:document.getElementById("decisionTitle"), decisionSummary:document.getElementById("decisionSummary"), roomActivityStatus:document.getElementById("roomActivityStatus"),
-      followupForm:document.getElementById("followupForm"), followupTitle:document.getElementById("followupTitle"), followupCycleDays:document.getElementById("followupCycleDays"), followupNextSendAt:document.getElementById("followupNextSendAt"), followupToolType:document.getElementById("followupToolType"), followupAudienceScope:document.getElementById("followupAudienceScope"), followupCriteria:document.getElementById("followupCriteria"), followupStatus:document.getElementById("followupStatus"), followupsList:document.getElementById("followupsList"), followupsEmpty:document.getElementById("followupsEmpty")
+      previewRouteStatus:document.getElementById("previewRouteStatus"), sendRouteStatus:document.getElementById("sendRouteStatus"), sendBatchBtn:document.getElementById("sendBatchBtn"), resetBatchBtn:document.getElementById("resetBatchBtn")
     };
 
     const loadingMessages = ["Resolving workspace state...","Loading signed-in profile...","Checking organization membership...","Loading assignments and results...","Workspace ready."];
@@ -664,8 +569,12 @@
     function updateHeader(){ if(window.scrollY>12) ui.header?.classList.add("scrolled"); else ui.header?.classList.remove("scrolled"); }
     function setStatus(el, message="", tone=""){ if(!el) return; el.textContent=message; el.className=`status-inline ${tone}`.trim(); }
     function initials(name,email){ const source=(name||email||"M").trim(); const parts=source.split(/\s+/).slice(0,2); return parts.map((p)=>p[0]?.toUpperCase()||"").join("")||"M"; }
-    function formatDate(value){ if(!value) return "—"; const d=new Date(value); if(Number.isNaN(d.getTime())) return "—"; return d.toLocaleString(); }
-    function formatCompactDate(value){ if(!value) return "—"; const d=new Date(value); if(Number.isNaN(d.getTime())) return "—"; return d.toLocaleString([], { month:"short", day:"numeric", hour:"numeric", minute:"2-digit" }); }
+    function formatDate(value){
+      if(!value) return "—";
+      const date = new Date(value);
+      if(Number.isNaN(date.getTime())) return "—";
+      return new Intl.DateTimeFormat(undefined, { month:"short", day:"numeric", hour:"numeric", minute:"2-digit" }).format(date);
+    }
     function formatToolName(tool){ const map={ structural_clarity:"Structural Clarity", decision_velocity:"Decision Velocity", operational_systems:"Operational Systems", institutional_performance:"Institutional Performance" }; return map[tool] || tool || "Diagnostic run"; }
     function formatDepthLabel(depth){ const value=String(depth || "30"); return value === "10" ? "About 10 minutes" : value === "60" ? "About 60 minutes" : "About 30 minutes"; }
     function formatNormalizationStatus(status){ if(!status) return { label:"Unreviewed", className:"pill" }; if(status==="included") return { label:"Included", className:"pill ok" }; if(status==="included_with_caution") return { label:"With caution", className:"pill warn" }; if(status==="excluded_from_aggregates") return { label:"Excluded", className:"pill rose" }; return { label:status, className:"pill" }; }
@@ -709,7 +618,7 @@
       ui.metricRuns.textContent=String(runs.length);
       ui.heroRuns.textContent=String(runs.length);
       ui.runsSummaryChip.textContent=`${runs.length} visible`;
-      ui.metricLast.textContent=runs.length ? formatCompactDate(runs[0].created_at || runs[0].generated_at) : "—";
+      ui.metricLast.textContent=runs.length ? formatDate(runs[0].created_at || runs[0].generated_at) : "—";
       runs.forEach((run)=>{
         const item=document.createElement("div");
         item.className="run-item";
@@ -846,10 +755,16 @@
       document.querySelectorAll(".tab-btn").forEach((btn)=>btn.classList.toggle("active", btn.getAttribute("data-tab")===tab));
       document.querySelectorAll(".tab-panel").forEach((panel)=>panel.classList.toggle("active", panel.getAttribute("data-panel")===tab));
     }
-    function scrollToWorkspaceRail(){ const rail=document.getElementById("workspaceTabs"); if(!rail) return; const offset=92; const top=rail.getBoundingClientRect().top + window.scrollY - offset; window.scrollTo({ top:Math.max(top,0), behavior:"smooth" }); }
+    function scrollWorkspaceRailIntoView(){
+      const rail = document.getElementById("workspaceTabs");
+      if(!rail) return;
+      const headerOffset = window.innerWidth <= 760 ? 118 : 96;
+      const top = rail.getBoundingClientRect().top + window.scrollY - headerOffset;
+      window.scrollTo({ top: Math.max(top, 0), behavior: "smooth" });
+    }
     function attachTabBehavior(){
       document.querySelectorAll(".tab-btn").forEach((btn)=>{ btn.addEventListener("click", ()=> setActiveTab(btn.getAttribute("data-tab"))); });
-      document.querySelectorAll("[data-jump-tab]").forEach((btn)=>{ btn.addEventListener("click", ()=>{ const tab = btn.getAttribute("data-jump-tab"); setActiveTab(tab); scrollToWorkspaceRail(); }); });
+      document.querySelectorAll("[data-jump-tab]").forEach((btn)=>{ btn.addEventListener("click", ()=>{ const tab = btn.getAttribute("data-jump-tab"); setActiveTab(tab); scrollWorkspaceRailIntoView(); }); });
     }
     function attachIntakeTabBehavior(){ document.querySelectorAll(".intake-tab").forEach((btn)=>{ btn.addEventListener("click", ()=>{ const tab = btn.getAttribute("data-intake"); document.querySelectorAll(".intake-tab").forEach((el)=>el.classList.toggle("active", el===btn)); document.querySelectorAll(".intake-panel").forEach((panel)=>panel.classList.toggle("active", panel.getAttribute("data-intake-panel")===tab)); }); }); }
     function attachGovernanceHandlers(){ ui.saveGovernanceBtn?.addEventListener("click", ()=>{ state.governance.participantVisible=ui.govParticipantVisible.checked; state.governance.metadataOnlyForAnonymous=ui.govMetadataOnly.checked; state.governance.useNormalized=ui.govUseNormalized.checked; safeWriteLocal("monderman_workspace_governance", JSON.stringify(state.governance)); setStatus(ui.governanceStatus, "Governance preferences saved locally for this workspace view.", "ok"); }); ui.exportGovernanceBtn?.addEventListener("click", ()=>{ const blob=new Blob([JSON.stringify({ organization:state.organization, governance:state.governance }, null, 2)], { type:"application/json" }); const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download="monderman-workspace-governance.json"; a.click(); URL.revokeObjectURL(url); }); }
@@ -1056,187 +971,6 @@
       }
     }
 
-
-    function splitEmailList(textValue){ return String(textValue || "").split(/[
-,;]+/).map(v=>v.trim().toLowerCase()).filter(Boolean); }
-    function canUseAct(){ return !!state.organization?.id && !!state.user; }
-    async function loadActTable(tableName, orderField="created_at"){
-      if(!canUseAct()) return [];
-      const { data, error } = await supabase.from(tableName).select("*").eq("organization_id", state.organization.id).order(orderField, { ascending:false }).limit(50);
-      if(error) throw error;
-      return data || [];
-    }
-    async function loadActState(){
-      if(!canUseAct()) return;
-      const loaders=[
-        loadActTable("workspace_shares"),
-        loadActTable("workspace_action_plans"),
-        loadActTable("workspace_action_items"),
-        loadActTable("workspace_collaboration_rooms"),
-        loadActTable("workspace_comments"),
-        loadActTable("workspace_votes"),
-        loadActTable("workspace_decision_log"),
-        loadActTable("workspace_followup_cycles"),
-        loadActTable("workspace_room_invites")
-      ];
-      try{
-        const [shares,plans,items,rooms,comments,votes,decisions,followups,invites] = await Promise.all(loaders);
-        state.act = { shares, plans, items, rooms, comments, votes, decisions, followups, invites };
-        renderAct();
-      }catch(error){
-        console.warn("Act data unavailable", error);
-        setStatus(ui.followupStatus, "Act tables are unavailable until the Supabase migration is applied.", "error");
-      }
-    }
-    function renderAct(){
-      const act=state.act || {};
-      ui.actContextChip.textContent = state.organization?.name ? `${state.organization.name} action layer` : "Action layer";
-      ui.actSharesCount.textContent = String((act.shares||[]).length);
-      ui.actPlansCount.textContent = String((act.plans||[]).length);
-      ui.actRoomsCount.textContent = String((act.rooms||[]).length);
-      ui.actCyclesCount.textContent = String((act.followups||[]).length);
-
-      ui.sharesList.innerHTML = "";
-      ui.sharesEmpty.classList.toggle("hidden", (act.shares||[]).length>0);
-      (act.shares||[]).forEach((share)=>{
-        const item=document.createElement("div");
-        item.className="run-item";
-        const audience = share.audience_type ? share.audience_type.replace(/_/g," ") : "audience";
-        const mode = share.delivery_mode ? share.delivery_mode.replace(/_/g," ") : "delivery";
-        item.innerHTML=`<div><p class="run-title">${escapeHtml(mode)}</p><p class="run-meta">${escapeHtml(formatDate(share.created_at))}</p><p class="run-copy">${escapeHtml(share.note || share.target_emails_json?.join(", ") || "Controlled share")}</p><div class="meta-row"><span class="pill accent">${escapeHtml(audience)}</span><span class="pill">${escapeHtml(share.status || "draft")}</span></div></div><div class="run-actions"></div>`;
-        ui.sharesList.appendChild(item);
-      });
-
-      ui.actionPlansList.innerHTML = "";
-      ui.actionPlansEmpty.classList.toggle("hidden", (act.plans||[]).length>0);
-      (act.plans||[]).forEach((plan)=>{
-        const item=document.createElement("div");
-        item.className="run-item";
-        const milestoneCount = Array.isArray(plan.milestones_json) ? plan.milestones_json.length : 0;
-        item.innerHTML=`<div><p class="run-title">${escapeHtml(plan.title || "Untitled action plan")}</p><p class="run-meta">${escapeHtml(formatDate(plan.created_at))}</p><p class="run-copy">${escapeHtml(plan.summary || "Governed action plan")}</p><div class="meta-row"><span class="pill accent">${escapeHtml((plan.status || "draft").replace(/_/g," "))}</span><span class="pill">${escapeHtml(plan.owner_email || "Owner not set")}</span><span class="pill">${milestoneCount} milestones</span></div></div><div class="run-actions"></div>`;
-        ui.actionPlansList.appendChild(item);
-      });
-
-      ui.roomsList.innerHTML = "";
-      ui.roomsEmpty.classList.toggle("hidden", (act.rooms||[]).length>0);
-      (act.rooms||[]).forEach((room)=>{
-        const inviteCount = (act.invites||[]).filter((invite)=>invite.room_id===room.id).length;
-        const commentCount = (act.comments||[]).filter((entry)=>entry.room_id===room.id).length;
-        const decisionCount = (act.decisions||[]).filter((entry)=>entry.room_id===room.id).length;
-        const voteCount = (act.votes||[]).filter((entry)=>entry.room_id===room.id).length;
-        const item=document.createElement("div");
-        item.className="run-item";
-        item.innerHTML=`<div><p class="run-title">${escapeHtml(room.title || "Working room")}</p><p class="run-meta">${escapeHtml(formatDate(room.created_at))}</p><p class="run-copy">${escapeHtml(room.purpose || "Invitation-controlled collaboration room")}</p><div class="meta-row"><span class="pill accent">${escapeHtml((room.visibility_scope || "invited only").replace(/_/g," "))}</span><span class="pill">${inviteCount} invites</span><span class="pill">${commentCount} notes/comments</span><span class="pill">${voteCount} votes</span><span class="pill">${decisionCount} decisions</span></div></div><div class="run-actions"></div>`;
-        ui.roomsList.appendChild(item);
-      });
-
-      ui.followupsList.innerHTML = "";
-      ui.followupsEmpty.classList.toggle("hidden", (act.followups||[]).length>0);
-      (act.followups||[]).forEach((cycle)=>{
-        const item=document.createElement("div");
-        item.className="run-item";
-        item.innerHTML=`<div><p class="run-title">${escapeHtml(cycle.title || "Follow-up round")}</p><p class="run-meta">${escapeHtml(formatDate(cycle.created_at))}</p><p class="run-copy">${escapeHtml(cycle.criteria_note || "Structured re-run or targeted follow-up")}</p><div class="meta-row"><span class="pill accent">${escapeHtml(String(cycle.cycle_days || "custom"))} days</span><span class="pill">${escapeHtml(cycle.tool_type || "tool")}</span><span class="pill">${escapeHtml((cycle.audience_scope || "same cohort").replace(/_/g," "))}</span></div></div><div class="run-actions"></div>`;
-        ui.followupsList.appendChild(item);
-      });
-    }
-    async function insertOrgRow(tableName, row){
-      if(!canUseAct()) throw new Error("Workspace organization context is required.");
-      const payload={ ...row, organization_id:state.organization.id };
-      const { data, error } = await supabase.from(tableName).insert(payload).select("*").single();
-      if(error) throw error;
-      return data;
-    }
-    async function createShare(event){
-      event.preventDefault();
-      try{
-        const recipients=splitEmailList(ui.shareRecipients.value).filter((email)=>EMAIL_RE.test(email));
-        if(!recipients.length) throw new Error("Add at least one valid share recipient.");
-        await insertOrgRow("workspace_shares", { created_by_user_id:state.user.id, audience_type:ui.shareAudienceType.value, delivery_mode:ui.shareDeliveryMode.value, target_emails_json:recipients, source_run_id:ui.shareSourceRunId.value || null, source_assignment_id:ui.shareSourceAssignmentId.value || null, note:ui.shareNote.value || null, status:"queued" });
-        ui.shareForm.reset();
-        setStatus(ui.shareStatus, "Share created.", "ok");
-        await loadActState();
-      }catch(error){ setStatus(ui.shareStatus, error.message || "Share could not be created.", "error"); }
-    }
-    async function createActionPlan(event){
-      event.preventDefault();
-      try{
-        if(!ui.actionPlanTitle.value.trim()) throw new Error("Action plan title is required.");
-        const milestones=String(ui.actionPlanMilestones.value||"").split(/
-+/).map(v=>v.trim()).filter(Boolean);
-        await insertOrgRow("workspace_action_plans", { created_by_user_id:state.user.id, title:ui.actionPlanTitle.value.trim(), owner_email:ui.actionPlanOwnerEmail.value.trim() || null, due_at:ui.actionPlanDueAt.value || null, source_tool_type:ui.actionPlanSourceTool.value || null, status:ui.actionPlanStatusSelect.value || "draft", summary:ui.actionPlanSummaryField.value.trim() || null, milestones_json:milestones });
-        ui.actionPlanForm.reset();
-        setStatus(ui.actionPlanStatusInline, "Action plan created.", "ok");
-        await loadActState();
-      }catch(error){ setStatus(ui.actionPlanStatusInline, error.message || "Action plan could not be created.", "error"); }
-    }
-    async function createRoom(event){
-      event.preventDefault();
-      try{
-        if(!ui.roomTitleField.value.trim()) throw new Error("Working room title is required.");
-        const room=await insertOrgRow("workspace_collaboration_rooms", { created_by_user_id:state.user.id, title:ui.roomTitleField.value.trim(), linked_action_plan_id:ui.roomLinkedPlanId.value || null, source_run_id:ui.roomSourceRunId.value || null, visibility_scope:ui.roomVisibility.value, purpose:ui.roomPurpose.value.trim() || null, status:"open" });
-        const invitees=splitEmailList(ui.roomInvitees.value).filter((email)=>EMAIL_RE.test(email));
-        if(invitees.length){
-          const rows=invitees.map((email)=>({ organization_id:state.organization.id, room_id:room.id, invited_email:email, invited_by_user_id:state.user.id, access_role:"invited_reviewer", invite_status:"pending" }));
-          const { error }=await supabase.from("workspace_room_invites").insert(rows); if(error) throw error;
-        }
-        ui.roomForm.reset();
-        setStatus(ui.roomStatus, "Working room created.", "ok");
-        await loadActState();
-      }catch(error){ setStatus(ui.roomStatus, error.message || "Working room could not be created.", "error"); }
-    }
-    async function createComment(event){
-      event.preventDefault();
-      try{
-        if(!ui.commentRoomId.value.trim()) throw new Error("Room id is required.");
-        if(!ui.commentBody.value.trim()) throw new Error("Comment body is required.");
-        await insertOrgRow("workspace_comments", { room_id:ui.commentRoomId.value.trim(), author_user_id:state.user.id, section_key:ui.commentSectionKey.value.trim() || null, comment_type:ui.commentType.value || "comment", body:ui.commentBody.value.trim() });
-        ui.commentForm.reset();
-        setStatus(ui.roomActivityStatus, "Comment or note added.", "ok");
-        await loadActState();
-      }catch(error){ setStatus(ui.roomActivityStatus, error.message || "Comment could not be created.", "error"); }
-    }
-    async function createVote(event){
-      event.preventDefault();
-      try{
-        if(!ui.voteRoomId.value.trim()) throw new Error("Room id is required.");
-        if(!ui.voteTargetId.value.trim()) throw new Error("Target id is required.");
-        await insertOrgRow("workspace_votes", { room_id:ui.voteRoomId.value.trim(), voter_user_id:state.user.id, target_type:ui.voteTargetType.value, target_id:ui.voteTargetId.value.trim(), vote_value:ui.voteValue.value });
-        ui.voteForm.reset();
-        setStatus(ui.roomActivityStatus, "Vote recorded.", "ok");
-        await loadActState();
-      }catch(error){ setStatus(ui.roomActivityStatus, error.message || "Vote could not be recorded.", "error"); }
-    }
-    async function createDecisionLog(event){
-      event.preventDefault();
-      try{
-        if(!ui.decisionRoomId.value.trim()) throw new Error("Room id is required.");
-        if(!ui.decisionTitle.value.trim()) throw new Error("Decision title is required.");
-        await insertOrgRow("workspace_decision_log", { room_id:ui.decisionRoomId.value.trim(), author_user_id:state.user.id, title:ui.decisionTitle.value.trim(), decision_summary:ui.decisionSummary.value.trim() || null });
-        ui.decisionLogForm.reset();
-        setStatus(ui.roomActivityStatus, "Decision logged.", "ok");
-        await loadActState();
-      }catch(error){ setStatus(ui.roomActivityStatus, error.message || "Decision could not be logged.", "error"); }
-    }
-    async function createFollowup(event){
-      event.preventDefault();
-      try{
-        if(!ui.followupTitle.value.trim()) throw new Error("Follow-up title is required.");
-        const cycleDays = ui.followupCycleDays.value === "custom" ? null : Number(ui.followupCycleDays.value || 0);
-        await insertOrgRow("workspace_followup_cycles", { created_by_user_id:state.user.id, title:ui.followupTitle.value.trim(), cycle_days:cycleDays, next_send_at:ui.followupNextSendAt.value || null, tool_type:ui.followupToolType.value, audience_scope:ui.followupAudienceScope.value, criteria_note:ui.followupCriteria.value.trim() || null, status:"draft" });
-        ui.followupForm.reset();
-        setStatus(ui.followupStatus, "Follow-up round created.", "ok");
-        await loadActState();
-      }catch(error){ setStatus(ui.followupStatus, error.message || "Follow-up round could not be created.", "error"); }
-    }
-    function attachActHandlers(){
-      ui.shareForm?.addEventListener("submit", createShare);
-      ui.actionPlanForm?.addEventListener("submit", createActionPlan);
-      ui.roomForm?.addEventListener("submit", createRoom);
-      ui.commentForm?.addEventListener("submit", createComment);
-      ui.voteForm?.addEventListener("submit", createVote);
-      ui.decisionLogForm?.addEventListener("submit", createDecisionLog);
-      ui.followupForm?.addEventListener("submit", createFollowup);
-    }
     async function normalizeOneRun(runId){ if(!runId) return; setStatus(ui.resultsStatus, "Running normalization for selected run…"); try{ const response=await fetch(`${apiBase}/api/normalization/normalize-run/${runId}`, { method:"POST" }); const data=await response.json().catch(()=>({})); if(!response.ok || !data?.ok) throw new Error(data?.error || "Normalization failed."); setStatus(ui.resultsStatus, "Run normalized successfully.", "ok"); await loadAndRenderNormalizedRuns(); }catch(error){ console.warn(error); setStatus(ui.resultsStatus, error.message || "Normalization failed.", "error"); } }
     async function normalizeOrganization(){ if(!state.organization?.id) return; setStatus(ui.resultsStatus, "Running organization-wide normalization…"); try{ const toolType=ui.resultToolFilter.value || null; const response=await fetch(`${apiBase}/api/normalization/normalize-organization/${state.organization.id}`, { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify({ tool_type:toolType }) }); const data=await response.json().catch(()=>({})); if(!response.ok || !data?.ok) throw new Error(data?.error || "Organization normalization failed."); setStatus(ui.resultsStatus, `Normalization complete for ${data.count || 0} runs.`, "ok"); await loadAndRenderNormalizedRuns(); }catch(error){ console.warn(error); setStatus(ui.resultsStatus, error.message || "Organization normalization failed.", "error"); } }
     async function loadAndRenderNormalizedRuns(){ state.normalizedRuns = await loadNormalizedRuns(); renderNormalizedRuns(); }
@@ -1288,7 +1022,6 @@
         setStatus(ui.identityStatus, "Signed in successfully. Workspace and organization membership resolved.", "ok");
         try{ state.runs = await loadRecentRuns(); renderRuns(state.runs); }catch(err){ console.error(err); setStatus(ui.identityStatus, "Workspace loaded, but direct saved-run reads could not be completed. Check Supabase policies on diagnostic_runs.", "error"); }
         await refreshAssignmentAndResultState();
-        await loadActState();
         hydrateGovernancePrefs();
       }catch(err){
         console.error(err);
@@ -1310,7 +1043,6 @@
     attachIntakeTabBehavior();
     attachGovernanceHandlers();
     attachAssignmentBuilder();
-    attachActHandlers();
     updateHeader();
     window.addEventListener("scroll", updateHeader, { passive:true });
     if(shouldRunWorkspaceCalibration()){ window.addEventListener("load", ()=>{ requestAnimationFrame(()=>{ startWorkspaceCalibration(); safeWriteLocal(WORKSPACE_LOADER_KEY, String(Date.now())); }); }); }
