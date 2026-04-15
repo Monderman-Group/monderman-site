@@ -15,17 +15,18 @@
     @font-face { font-family: "Neue Haas Grotesk"; src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff"); font-style: normal; font-weight: 500; font-display: swap; }
     @font-face { font-family: "Neue Haas Grotesk"; src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff"); font-style: normal; font-weight: 700; font-display: swap; }
     :root{
-      --accent:#3F6EA1; --accent-dark:#2E5684; --accent-soft:rgba(63,110,161,.08);
-      --ink:#15202B; --ink-soft:#5A6673; --ink-muted:#7B8792; --page:#F4F7FB;
-      --line:rgba(21,32,43,.08); --line-strong:rgba(21,32,43,.14);
-      --ok:#4E7A57; --warn:#A57920; --rose:#8A3946;
-      --shadow-soft:0 1px 0 rgba(0,0,0,.012), 0 12px 28px rgba(0,0,0,.04);
-      --radius:22px; --max:1360px;
+      --accent:#3F6EA1; --accent-dark:#2E5684; --accent-soft:rgba(63,110,161,.09); --accent-softer:rgba(63,110,161,.05);
+      --ink:#15202B; --ink-soft:#5A6673; --ink-muted:#7B8792; --page:#F4F7FB; --panel:#FFFFFF;
+      --line:rgba(21,32,43,.08); --line-strong:rgba(21,32,43,.14); --line-dark:rgba(255,255,255,.12);
+      --ok:#4E7A57; --ok-soft:rgba(78,122,87,.09); --warn:#A57920; --warn-soft:rgba(165,121,32,.09); --rose:#8A3946; --rose-soft:rgba(138,57,70,.09);
+      --shadow-soft:0 1px 0 rgba(0,0,0,.012), 0 12px 28px rgba(0,0,0,.04); --shadow-strong:0 18px 48px rgba(7,16,29,.14);
+      --radius:22px; --radius-sm:16px; --max:1380px;
     }
     *{box-sizing:border-box} html{scroll-behavior:smooth}
     body{margin:0;background:radial-gradient(circle at 86% 10%, rgba(63,110,161,.08), transparent 22%),linear-gradient(180deg,#F9FBFE 0%, var(--page) 100%);color:var(--ink);font-family:"Neue Haas Grotesk","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
-    a{text-decoration:none;color:inherit} button,input,select,textarea{font:inherit}
+    a{text-decoration:none;color:inherit} button,input,select,textarea{font:inherit} button{appearance:none}
     h1,h2,h3,h4{margin:0;letter-spacing:-.05em} p{margin:0;letter-spacing:-.01em}
+    code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 
     .header{position:fixed;inset:0 0 auto 0;height:72px;z-index:60;background:transparent;border-bottom:1px solid transparent;transition:background .22s ease,border-color .22s ease,backdrop-filter .22s ease}
     .header.scrolled{background:rgba(14,20,28,.88);border-bottom-color:rgba(255,255,255,.08);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
@@ -40,21 +41,22 @@
     .nav a.workspace-link{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#fff}
     .nav a.workspace-link::after{display:none}
 
-    .hero{position:relative;min-height:72vh;overflow:hidden;background:#0F1720;color:#F5F7FA}
+    .hero{position:relative;min-height:74vh;overflow:hidden;background:#0F1720;color:#F5F7FA}
     .hero-media{position:absolute;inset:0;z-index:0;overflow:hidden}
-    .hero-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.48;transform:scale(1.02)}
-    .hero-media::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg, rgba(10,14,20,.92) 0%, rgba(10,14,20,.84) 36%, rgba(10,14,20,.60) 62%, rgba(10,14,20,.30) 82%, rgba(10,14,20,.16) 100%),radial-gradient(circle at 76% 18%, rgba(63,110,161,.16), transparent 26%),linear-gradient(135deg, rgba(63,110,161,.022) 1px, transparent 1px);background-size:auto,auto,34px 34px}
-    .hero-inner{position:relative;z-index:1;max-width:var(--max);margin:0 auto;padding:136px 34px 84px;display:grid;grid-template-columns:minmax(0,1.04fr) minmax(360px,.96fr);gap:26px;align-items:end}
+    .hero-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.54;transform:scale(1.02)}
+    .hero-media::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg, rgba(10,14,20,.92) 0%, rgba(10,14,20,.84) 35%, rgba(10,14,20,.60) 63%, rgba(10,14,20,.30) 82%, rgba(10,14,20,.14) 100%),radial-gradient(circle at 76% 18%, rgba(63,110,161,.16), transparent 26%),linear-gradient(135deg, rgba(63,110,161,.022) 1px, transparent 1px);background-size:auto,auto,34px 34px}
+    .hero-inner{position:relative;z-index:1;max-width:var(--max);margin:0 auto;padding:136px 34px 88px;display:grid;grid-template-columns:minmax(0,1.03fr) minmax(380px,.97fr);gap:26px;align-items:end}
     .eyebrow{display:block;margin:0 0 16px;font-size:.76rem;line-height:1;letter-spacing:.22em;font-weight:700;text-transform:uppercase;color:rgba(245,247,250,.64)}
-    .hero h1{font-size:clamp(3rem,4.6vw,5rem);line-height:.93;color:#fff;max-width:11ch;margin:0 0 18px}
-    .hero-copy{max-width:48ch;font-size:1.06rem;line-height:1.72;color:rgba(245,247,250,.82)}
+    .hero h1{font-size:clamp(3rem,4.5vw,5rem);line-height:.93;color:#fff;max-width:11.5ch;margin:0 0 18px}
+    .hero-copy{max-width:50ch;font-size:1.06rem;line-height:1.72;color:rgba(245,247,250,.82)}
     .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
-    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;min-width:164px;padding:0 22px;border-radius:999px;border:1px solid rgba(63,110,161,.26);background:#fff;color:var(--accent);font-size:.96rem;font-weight:600;cursor:pointer;transition:all .18s ease}
+    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;min-width:164px;padding:0 22px;border-radius:999px;border:1px solid rgba(63,110,161,.24);background:#fff;color:var(--accent);font-size:.96rem;font-weight:600;cursor:pointer;transition:all .18s ease;white-space:nowrap}
     .btn:hover,.btn:focus-visible{transform:translateY(-1px);color:var(--accent-dark);border-color:var(--accent-dark);outline:none}
     .btn-accent{background:var(--accent-dark);color:#fff;border-color:rgba(63,110,161,.28)}
     .btn-accent:hover,.btn-accent:focus-visible{color:#fff;background:#26486D}
     .btn-subtle{background:#fff;color:var(--ink);border:1px solid var(--line-strong)}
     .btn-soft{background:var(--accent-soft);color:var(--accent-dark);border-color:rgba(63,110,161,.14)}
+    .btn-danger{background:var(--rose-soft);color:var(--rose);border-color:rgba(138,57,70,.16)}
     .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
 
     .hero-side{display:grid;gap:16px}
@@ -63,41 +65,431 @@
     .hero-panel-title{font-size:1rem;line-height:1.2;font-weight:700;color:#fff;margin:0 0 8px}
     .hero-panel-copy{font-size:.9rem;line-height:1.58;color:rgba(245,247,250,.74)}
     .hero-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
-    .hero-stat{padding:14px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}
+    .hero-stat{padding:14px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);min-width:0}
     .hero-stat-label{font-size:.68rem;line-height:1;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(245,247,250,.58);margin-bottom:8px}
-    .hero-stat-value{font-size:1.22rem;line-height:1;font-weight:700;color:#fff;margin-bottom:8px}
-    .hero-stat-copy{font-size:.82rem;line-height:1.5;color:rgba(245,247,250,.7)}
+    .hero-stat-value{font-size:1.22rem;line-height:1;font-weight:700;color:#fff;margin-bottom:8px;overflow-wrap:anywhere}
+    .hero-stat-copy{font-size:.82rem;line-height:1.5;color:rgba(245,247,250,.7);overflow-wrap:anywhere}
 
-    .page{position:relative;padding:38px 34px 86px}.page-inner{max-width:var(--max);margin:0 auto;display:grid;gap:18px}
-    .section-card{background:rgba(255,255,255,.98);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-soft);padding:30px 30px 28px}
+    .page{position:relative;padding:38px 34px 86px}
+    .page-inner{max-width:var(--max);margin:0 auto;display:grid;gap:18px}
+    .section-card{background:rgba(255,255,255,.98);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-soft);padding:30px 30px 28px;min-width:0}
     .section-kicker{margin:0 0 10px;font-size:.74rem;font-weight:700;line-height:1;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
-    .section-title{font-size:2rem;line-height:1.08;color:var(--ink);margin:0 0 12px}.section-copy{max-width:66ch;font-size:1rem;line-height:1.7;color:var(--ink-soft)}
-    .panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}.panel-title{font-size:1.28rem;line-height:1.1;color:var(--ink)}.panel-copy{font-size:.94rem;line-height:1.6;color:var(--ink-soft);max-width:58ch}
-    .chip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:var(--accent-soft);border:1px solid rgba(63,110,161,.14);font-size:.76rem;line-height:1;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-dark)}
-    .chip.ok{background:rgba(78,122,87,.08);border-color:rgba(78,122,87,.16);color:var(--ok)}.chip.warn{background:rgba(165,121,32,.08);border-color:rgba(165,121,32,.16);color:var(--warn)}.chip.rose{background:rgba(138,57,70,.08);border-color:rgba(138,57,70,.16);color:var(--rose)}
-    .top-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:18px}.overview-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-top:22px;align-items:stretch}.metric{display:flex;flex-direction:column;justify-content:flex-start;min-height:172px;overflow:hidden;background:linear-gradient(180deg,#fff 0%,#FBFCFE 100%);border:1px solid var(--line);border-radius:18px;padding:20px 18px 18px;box-shadow:var(--shadow-soft)}.metric-label{margin:0 0 8px;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);word-break:break-word}.metric-value{font-size:clamp(1.2rem,2vw,1.6rem);line-height:1.08;font-weight:700;color:var(--ink);margin:0 0 8px;overflow-wrap:anywhere;word-break:break-word}.metric-copy{margin-top:auto;font-size:.9rem;line-height:1.55;color:var(--ink-soft);overflow-wrap:anywhere}
+    .section-title{font-size:2rem;line-height:1.08;color:var(--ink);margin:0 0 12px}
+    .section-copy{max-width:68ch;font-size:1rem;line-height:1.7;color:var(--ink-soft)}
+    .panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px;min-width:0}
+    .panel-title{font-size:1.28rem;line-height:1.1;color:var(--ink)}
+    .panel-copy{font-size:.94rem;line-height:1.6;color:var(--ink-soft);max-width:60ch}
+    .chip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:var(--accent-soft);border:1px solid rgba(63,110,161,.14);font-size:.76rem;line-height:1;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-dark);white-space:nowrap}
+    .chip.ok{background:var(--ok-soft);border-color:rgba(78,122,87,.16);color:var(--ok)} .chip.warn{background:var(--warn-soft);border-color:rgba(165,121,32,.16);color:var(--warn)} .chip.rose{background:var(--rose-soft);border-color:rgba(138,57,70,.16);color:var(--rose)}
+    .chip.ghost{background:#fff;border-color:var(--line-strong);color:var(--ink-muted)}
+
+    .top-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
+    .overview-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-top:22px;align-items:stretch}
+    .metric{display:flex;flex-direction:column;justify-content:flex-start;min-height:174px;overflow:hidden;background:linear-gradient(180deg,#fff 0%,#FBFCFE 100%);border:1px solid var(--line);border-radius:18px;padding:20px 18px 18px;box-shadow:var(--shadow-soft);min-width:0}
+    .metric-label{margin:0 0 8px;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);overflow-wrap:anywhere}
+    .metric-value{font-size:clamp(1.15rem,2vw,1.64rem);line-height:1.08;font-weight:700;color:var(--ink);margin:0 0 8px;overflow-wrap:anywhere;word-break:break-word}
+    .metric-copy{margin-top:auto;font-size:.9rem;line-height:1.55;color:var(--ink-soft);overflow-wrap:anywhere}
+
     .identity-card{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}.avatar{width:58px;height:58px;border-radius:16px;background:linear-gradient(180deg,#244462 0%,#3F6EA1 100%);color:#fff;display:grid;place-items:center;font-size:1.12rem;font-weight:700}.identity-name{font-size:1.12rem;line-height:1.2;font-weight:700;color:var(--ink);margin:0 0 4px}.identity-meta{font-size:.92rem;line-height:1.55;color:var(--ink-soft)}.identity-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.status-inline{font-size:.86rem;line-height:1.55;color:var(--ink-muted);min-height:22px}.status-inline.error{color:var(--rose)}.status-inline.ok{color:var(--ok)}
+
     .tabs{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.tab-btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 16px;border-radius:999px;background:#fff;border:1px solid var(--line-strong);color:var(--ink);font-size:.88rem;font-weight:600;cursor:pointer;transition:all .18s ease}.tab-btn.active{background:var(--accent-dark);border-color:rgba(63,110,161,.28);color:#fff}.tab-btn:hover,.tab-btn:focus-visible{outline:none;transform:translateY(-1px)}.tab-panels{display:grid;gap:18px}.tab-panel{display:none}.tab-panel.active{display:grid;gap:18px}
-    .workspace-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:18px}.stack{display:grid;gap:18px}.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.card-lite{padding:18px;border-radius:18px;background:linear-gradient(180deg,#fff 0%,#FBFCFE 100%);border:1px solid var(--line);box-shadow:var(--shadow-soft)}.card-lite h4{font-size:1rem;line-height:1.2;color:var(--ink);margin:0 0 8px}.card-lite p,.card-lite li{font-size:.9rem;line-height:1.58;color:var(--ink-soft)}.card-lite ul{margin:0;padding-left:18px;display:grid;gap:6px}
-    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:grid;gap:8px}.field.span-2{grid-column:span 2}.field label{font-size:.82rem;font-weight:700;letter-spacing:.04em;color:var(--ink)}.field input,.field select,.field textarea{width:100%;min-height:48px;padding:0 14px;border-radius:16px;border:1px solid rgba(21,32,43,.12);background:#fff;color:var(--ink);transition:border-color .18s ease, box-shadow .18s ease}.field textarea{min-height:112px;padding:14px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:rgba(63,110,161,.36);box-shadow:0 0 0 4px rgba(63,110,161,.10)}.field-help{font-size:.8rem;line-height:1.5;color:var(--ink-muted)}.form-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+    .workspace-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:18px}.stack{display:grid;gap:18px}.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    .card-lite{padding:18px;border-radius:18px;background:linear-gradient(180deg,#fff 0%,#FBFCFE 100%);border:1px solid var(--line);box-shadow:var(--shadow-soft);min-width:0}.card-lite h4{font-size:1rem;line-height:1.2;color:var(--ink);margin:0 0 8px}.card-lite p,.card-lite li{font-size:.9rem;line-height:1.58;color:var(--ink-soft);overflow-wrap:anywhere}.card-lite ul{margin:0;padding-left:18px;display:grid;gap:6px}
+    .summary-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}
+    .summary-card{padding:18px;border-radius:18px;background:linear-gradient(180deg,#fff 0%,#FBFCFE 100%);border:1px solid var(--line);box-shadow:var(--shadow-soft);min-width:0}
+    .summary-label{font-size:.71rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:10px}
+    .summary-value{font-size:1.54rem;line-height:1;font-weight:700;color:var(--ink);margin-bottom:8px;overflow-wrap:anywhere}
+    .summary-copy{font-size:.84rem;line-height:1.55;color:var(--ink-soft)}
+    .summary-card.ok{background:linear-gradient(180deg,#fff 0%, #F8FCF8 100%)}
+    .summary-card.warn{background:linear-gradient(180deg,#fff 0%, #FFFBF4 100%)}
+    .summary-card.rose{background:linear-gradient(180deg,#fff 0%, #FFF8FA 100%)}
+
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:grid;gap:8px;min-width:0}.field.span-2{grid-column:span 2}.field label{font-size:.82rem;font-weight:700;letter-spacing:.04em;color:var(--ink);display:flex;align-items:center;gap:8px}.field input,.field select,.field textarea{width:100%;min-height:48px;padding:0 14px;border-radius:16px;border:1px solid rgba(21,32,43,.12);background:#fff;color:var(--ink);transition:border-color .18s ease, box-shadow .18s ease}.field textarea{min-height:112px;padding:14px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:rgba(63,110,161,.36);box-shadow:0 0 0 4px rgba(63,110,161,.10)}.field-help{font-size:.8rem;line-height:1.5;color:var(--ink-muted)}.form-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
     .toggle-list{display:grid;gap:12px}.toggle-row{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:14px 16px;border-radius:16px;background:linear-gradient(180deg,#fff 0%,#FBFCFE 100%);border:1px solid var(--line);box-shadow:var(--shadow-soft)}.toggle-row strong{display:block;font-size:.95rem;line-height:1.25;color:var(--ink);margin-bottom:4px}.toggle-row p{font-size:.86rem;line-height:1.55;color:var(--ink-soft)}
     .switch{position:relative;width:52px;height:30px;display:inline-block}.switch input{display:none}.switch-slider{position:absolute;inset:0;border-radius:999px;background:#DCE4ED;transition:.2s ease}.switch-slider::before{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:999px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.14);transition:.2s ease}.switch input:checked + .switch-slider{background:var(--accent-dark)}.switch input:checked + .switch-slider::before{transform:translateX(22px)}
-    .list{display:grid;gap:12px}.run-item,.assignment-item,.flag-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:start;padding:16px;border-radius:18px;background:linear-gradient(180deg,#fff 0%,#FBFCFE 100%);border:1px solid var(--line);box-shadow:var(--shadow-soft)}.run-title{font-size:.98rem;line-height:1.35;font-weight:700;color:var(--ink);margin:0 0 6px}.run-meta,.run-copy{font-size:.88rem;line-height:1.55;color:var(--ink-soft)}.meta-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.pill{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;background:#fff;border:1px solid var(--line-strong);font-size:.74rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted)}.pill.ok{background:rgba(78,122,87,.06);border-color:rgba(78,122,87,.14);color:var(--ok)}.pill.warn{background:rgba(165,121,32,.06);border-color:rgba(165,121,32,.14);color:var(--warn)}.pill.rose{background:rgba(138,57,70,.06);border-color:rgba(138,57,70,.14);color:var(--rose)}.run-actions{display:flex;gap:10px;flex-wrap:wrap}.run-link{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--line-strong);background:#fff;font-size:.84rem;font-weight:600;color:var(--accent)}.run-link:hover,.run-link:focus-visible{border-color:rgba(63,110,161,.22);color:var(--accent-dark);outline:none}.empty{padding:18px;border-radius:16px;background:#FBFCFE;border:1px dashed rgba(21,32,43,.14);font-size:.92rem;line-height:1.62;color:var(--ink-muted)}
+
+    .steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:18px}
+    .step-card{padding:18px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(180deg,#fff 0%,#FBFCFE 100%);box-shadow:var(--shadow-soft);min-width:0;position:relative;overflow:hidden}
+    .step-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:transparent;transition:background .18s ease}
+    .step-card.active::before{background:var(--accent)}
+    .step-card.complete::before{background:var(--ok)}
+    .step-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+    .step-index{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:999px;background:var(--accent-soft);color:var(--accent-dark);font-size:.86rem;font-weight:700;flex:0 0 auto}
+    .step-card.complete .step-index{background:var(--ok-soft);color:var(--ok)}
+    .step-title{font-size:1rem;line-height:1.15;color:var(--ink)}
+    .step-copy{font-size:.88rem;line-height:1.58;color:var(--ink-soft)}
+
+    .intake-tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+    .intake-tab{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 14px;border-radius:999px;background:#fff;border:1px solid var(--line-strong);font-size:.84rem;font-weight:600;color:var(--ink);cursor:pointer}
+    .intake-tab.active{background:var(--accent-dark);border-color:rgba(63,110,161,.26);color:#fff}
+    .intake-panel{display:none;gap:14px}.intake-panel.active{display:grid}
+    .dropzone{position:relative;padding:24px;border-radius:18px;border:1px dashed rgba(63,110,161,.34);background:linear-gradient(180deg,#FCFDFF 0%, #F7FAFE 100%);display:grid;gap:12px;place-items:center;text-align:center;min-height:190px}
+    .dropzone.drag{border-color:var(--accent-dark);background:linear-gradient(180deg,#F9FBFF 0%, #EEF4FB 100%)}
+    .dropzone-title{font-size:1.04rem;font-weight:700;color:var(--ink)}
+    .dropzone-copy{max-width:46ch;font-size:.9rem;line-height:1.58;color:var(--ink-soft)}
+    .dropzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+    .helper-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .kbd{display:inline-flex;align-items:center;justify-content:center;padding:6px 9px;border-radius:10px;border:1px solid var(--line-strong);background:#fff;font-size:.74rem;font-weight:700;letter-spacing:.06em;color:var(--ink-muted)}
+
+    .preview-shell{display:grid;gap:14px}
+    .validation-bar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+    .validation-card{padding:14px 16px;border-radius:16px;border:1px solid var(--line);background:#fff;min-width:0}
+    .validation-label{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:8px}
+    .validation-value{font-size:1.24rem;font-weight:700;color:var(--ink);line-height:1}
+    .validation-card.ok{background:#F8FCF8}
+    .validation-card.warn{background:#FFFBF4}
+    .validation-card.rose{background:#FFF8FA}
+
+    .list{display:grid;gap:12px}.run-item,.assignment-item,.flag-item,.recipient-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:start;padding:16px;border-radius:18px;background:linear-gradient(180deg,#fff 0%,#FBFCFE 100%);border:1px solid var(--line);box-shadow:var(--shadow-soft);min-width:0}.run-title{font-size:.98rem;line-height:1.35;font-weight:700;color:var(--ink);margin:0 0 6px;overflow-wrap:anywhere}.run-meta,.run-copy{font-size:.88rem;line-height:1.55;color:var(--ink-soft);overflow-wrap:anywhere}.meta-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.pill{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;background:#fff;border:1px solid var(--line-strong);font-size:.74rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted)}.pill.ok{background:rgba(78,122,87,.06);border-color:rgba(78,122,87,.14);color:var(--ok)}.pill.warn{background:rgba(165,121,32,.06);border-color:rgba(165,121,32,.14);color:var(--warn)}.pill.rose{background:rgba(138,57,70,.06);border-color:rgba(138,57,70,.14);color:var(--rose)}.pill.accent{background:var(--accent-soft);border-color:rgba(63,110,161,.14);color:var(--accent-dark)}
+    .run-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end}.run-link{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--line-strong);background:#fff;font-size:.84rem;font-weight:600;color:var(--accent)}.run-link:hover,.run-link:focus-visible{border-color:rgba(63,110,161,.22);color:var(--accent-dark);outline:none}
+    .empty{padding:18px;border-radius:16px;background:#FBFCFE;border:1px dashed rgba(21,32,43,.14);font-size:.92rem;line-height:1.62;color:var(--ink-muted)}
+
     .analytics-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.analytics-card{padding:18px;border-radius:18px;background:linear-gradient(180deg,#fff 0%,#FBFCFE 100%);border:1px solid var(--line);box-shadow:var(--shadow-soft)}.analytics-label{font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:8px}.analytics-value{font-size:1.46rem;line-height:1;font-weight:700;color:var(--ink);margin-bottom:8px}.analytics-copy{font-size:.85rem;line-height:1.5;color:var(--ink-soft)}
-    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:var(--shadow-soft)} table{width:100%;border-collapse:collapse} th,td{padding:14px 16px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;font-size:.88rem} th{font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);background:#FBFCFE} tr:last-child td{border-bottom:none}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:var(--shadow-soft)} table{width:100%;border-collapse:collapse} th,td{padding:14px 16px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;font-size:.88rem;overflow-wrap:anywhere} th{font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);background:#FBFCFE} tr:last-child td{border-bottom:none}
     .footer{background:#0D141C;color:rgba(245,247,250,.88);padding:36px 34px 30px;margin-top:20px}.footer-inner{max-width:var(--max);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}.footer-copy{font-size:.9rem;line-height:1.58;color:rgba(245,247,250,.6)}
+
     .loading-overlay{position:fixed;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 50% 30%, rgba(63,110,161,.08), transparent 22%),linear-gradient(180deg, #F8FAFD 0%, #F4F7FB 100%);z-index:200;opacity:0;visibility:hidden;pointer-events:none;transition:opacity 260ms ease, visibility 260ms ease}.loading-overlay.show{opacity:1;visibility:visible;pointer-events:auto}.loading-box{width:min(560px, calc(100vw - 40px));padding:34px 30px 30px;border-radius:24px;background:rgba(255,255,255,.96);border:1px solid rgba(21,32,43,.08);text-align:center;color:var(--ink)}.loading-mark{position:relative;width:72px;height:72px;margin:0 auto 18px;display:grid;place-items:center}.loading-m{position:relative;z-index:2;width:52px;height:52px;border-radius:14px;background:#0F1720;color:#FFF;display:grid;place-items:center;font-size:1.38rem;font-weight:700}.loading-ring{position:absolute;inset:0;border-radius:999px;border:2px solid rgba(63,110,161,.14);border-top-color:var(--accent);animation:spin 1.2s linear infinite}.loading-dot{position:absolute;right:9px;bottom:12px;width:10px;height:10px;border-radius:2px;background:var(--accent);animation:pulse 1.6s ease-in-out infinite;z-index:3}@keyframes spin { to { transform:rotate(360deg); } }@keyframes pulse { 0%,100% { transform:scale(1); opacity:1; } 50% { transform:scale(.82); opacity:.62; } }.loading-title{margin:0 0 8px;font-size:1.28rem;line-height:1.15;color:var(--ink)}.loading-copy{margin:0 0 18px;font-size:.96rem;line-height:1.62;color:var(--ink-soft)}.loading-status{min-height:26px;margin:0 0 14px;font-size:.88rem;line-height:1.55;color:var(--accent-dark);font-weight:500}.loading-progress{width:100%;height:8px;overflow:hidden;border-radius:999px;background:rgba(21,32,43,.08)}.loading-bar{width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg, var(--accent) 0%, #5F8ABD 100%);transition:width 240ms linear}.hidden{display:none !important}
-    @media (max-width:1180px){.overview-grid,.analytics-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.workspace-grid,.hero-inner,.top-grid{grid-template-columns:1fr}.hero h1{max-width:100%}}
-    @media (max-width:980px){.header{height:auto}.header-inner{padding:16px 24px;align-items:flex-start;flex-direction:column;gap:14px}.nav{gap:22px}.hero-inner,.page,.footer{padding-left:24px;padding-right:24px}.form-grid{grid-template-columns:1fr}.field.span-2{grid-column:span 1}}
-    @media (max-width:760px){.hero-inner{padding:148px 20px 60px}.hero-actions,.identity-actions,.form-actions,.run-actions{flex-direction:column;align-items:stretch;max-width:420px}.btn,.run-link{width:100%;min-width:0}.overview-grid,.analytics-grid,.grid-2,.hero-strip{grid-template-columns:1fr}.page{padding:24px 20px 64px}.section-card{padding:24px 20px 22px}.header-inner{padding:14px 20px 10px;gap:10px}.nav{width:calc(100% + 4px);gap:10px;flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;padding:2px 4px 6px 0;scrollbar-width:none;-webkit-overflow-scrolling:touch}.nav::-webkit-scrollbar{display:none}.nav a{flex:0 0 auto;font-size:.84rem;line-height:1;padding:10px 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}.nav a::after{display:none}.footer{padding:30px 20px 26px}}
+    .info{position:relative;display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:999px;border:1px solid rgba(63,110,161,.24);background:var(--accent-softer);color:var(--accent-dark);font-size:.72rem;font-weight:700;cursor:default;flex:0 0 auto}
+    .info::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 10px);transform:translateX(-50%);width:min(280px, 50vw);padding:10px 12px;border-radius:14px;background:#0F1720;color:#F5F7FA;font-size:.78rem;line-height:1.45;font-weight:500;letter-spacing:0;opacity:0;pointer-events:none;transition:opacity .16s ease, transform .16s ease;box-shadow:var(--shadow-strong);text-transform:none}
+    .info::before{content:"";position:absolute;left:50%;bottom:calc(100% + 4px);transform:translateX(-50%);border:6px solid transparent;border-top-color:#0F1720;opacity:0;transition:opacity .16s ease}
+    .info:hover::after,.info:focus-visible::after{opacity:1;transform:translateX(-50%) translateY(-2px)}
+    .info:hover::before,.info:focus-visible::before{opacity:1}
+
+    @media (max-width:1240px){.summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.overview-grid,.analytics-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.workspace-grid,.hero-inner,.top-grid{grid-template-columns:1fr}.hero h1{max-width:100%}}
+    @media (max-width:980px){.header{height:auto}.header-inner{padding:16px 24px;align-items:flex-start;flex-direction:column;gap:14px}.nav{gap:22px}.hero-inner,.page,.footer{padding-left:24px;padding-right:24px}.form-grid,.steps,.validation-bar{grid-template-columns:1fr}.field.span-2{grid-column:span 1}}
+    @media (max-width:760px){.hero-inner{padding:148px 20px 60px}.hero-actions,.identity-actions,.form-actions,.run-actions,.helper-row{flex-direction:column;align-items:stretch;max-width:420px}.btn,.run-link{width:100%;min-width:0}.overview-grid,.analytics-grid,.grid-2,.grid-3,.hero-strip,.summary-grid{grid-template-columns:1fr}.page{padding:24px 20px 64px}.section-card{padding:24px 20px 22px}.header-inner{padding:14px 20px 10px;gap:10px}.nav{width:calc(100% + 4px);gap:10px;flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;padding:2px 4px 6px 0;scrollbar-width:none;-webkit-overflow-scrolling:touch}.nav::-webkit-scrollbar{display:none}.nav a{flex:0 0 auto;font-size:.84rem;line-height:1;padding:10px 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}.nav a::after{display:none}.footer{padding:30px 20px 26px}.info::after{width:min(240px, 82vw)}}
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
   <div class="loading-overlay" id="workspaceLoadingOverlay" aria-hidden="true"><div class="loading-box" role="status" aria-live="polite"><div class="loading-mark" aria-hidden="true"><div class="loading-ring"></div><div class="loading-m">M</div><div class="loading-dot"></div></div><h3 class="loading-title">Assembling workspace environment...</h3><p class="loading-copy">Loading signed-in identity, organization context, assignments, results, and analytic governance state.</p><p class="loading-status" id="workspaceLoadingStatus">Resolving workspace state...</p><div class="loading-progress" aria-hidden="true"><div class="loading-bar" id="workspaceLoadingBar"></div></div></div></div>
   <header class="header" id="siteHeader"><div class="header-inner"><a href="index.html" class="brand">Monderman</a><nav class="nav" aria-label="Primary navigation"><a href="index.html#approach">Approach</a><a href="diagnostic-tools.html">Diagnostic Hub</a><a href="research.html">Research</a><a href="why-monderman.html">Why Monderman</a><a href="advisory-services-connect.html">Connect</a><a href="workspace.html" class="workspace-link is-active">Workspace</a></nav></div></header>
-  <section class="hero"><div class="hero-media"><img class="hero-image" src="Workspace-Hero.jpg" alt="" aria-hidden="true"></div><div class="hero-inner"><div><p class="eyebrow">Monderman Workspace</p><h1>Govern diagnostic work with precision and continuity.</h1><p class="hero-copy">This workspace is designed to become the operating layer above individual runs: assign diagnostics, govern visibility and anonymity, review results, normalize institutional signal, and compare what the organization is learning over time.</p><div class="hero-actions"><a class="btn btn-accent" href="#workspaceTabs">Open workspace</a><a class="btn btn-subtle" href="diagnostic-tools.html">Launch diagnostics</a><button class="btn btn-subtle" id="signOutBtn" type="button">Sign out</button></div></div><div class="hero-side"><div class="hero-panel"><p class="hero-panel-kicker">Workspace status</p><p class="hero-panel-title" id="heroStatusTitle">Checking session…</p><p class="hero-panel-copy" id="heroStatusCopy">Confirming signed-in access, organization role, saved runs, and analytic governance state.</p><div class="hero-strip"><div class="hero-stat"><div class="hero-stat-label">Runs</div><div class="hero-stat-value" id="heroRuns">0</div><div class="hero-stat-copy">Saved runs visible in this workspace.</div></div><div class="hero-stat"><div class="hero-stat-label">Assignments</div><div class="hero-stat-value" id="heroAssignments">0</div><div class="hero-stat-copy">Open or recent assignments.</div></div><div class="hero-stat"><div class="hero-stat-label">Flagged</div><div class="hero-stat-value" id="heroFlagged">0</div><div class="hero-stat-copy">Runs marked for caution or exclusion.</div></div></div></div><div class="hero-panel"><p class="hero-panel-kicker">Built for governance</p><p class="hero-panel-title">Assignments, visibility, normalization, and trust</p><p class="hero-panel-copy">Monderman should not just collect diagnostic responses. It should govern who receives them, how they are interpreted, and which signals are included in aggregate learning.</p></div></div></div></section>
-  <main class="page"><div class="page-inner"><div class="top-grid"><section class="section-card"><p class="section-kicker">Workspace overview</p><h2 class="section-title">A premium operating layer for repeated diagnostic use.</h2><p class="section-copy">This workspace should support assignments, role-sensitive visibility, raw and normalized result review, and clean organizational learning over time.</p><div class="overview-grid"><div class="metric"><p class="metric-label">Saved runs</p><p class="metric-value" id="metricRuns">0</p><p class="metric-copy">Diagnostics currently visible in this workspace.</p></div><div class="metric"><p class="metric-label">Included in aggregates</p><p class="metric-value" id="metricIncluded">0</p><p class="metric-copy">Runs currently included in aggregate reporting.</p></div><div class="metric"><p class="metric-label">Organization</p><p class="metric-value" id="metricOrg">—</p><p class="metric-copy">Personal workspace or assigned organization.</p></div><div class="metric"><p class="metric-label">Last activity</p><p class="metric-value" id="metricLast">—</p><p class="metric-copy">Most recent run or assignment activity visible here.</p></div></div></section><section class="section-card"><div class="panel-head"><div><h3 class="panel-title">Identity and role</h3><p class="panel-copy">Your sign-in, organization membership, and workspace permissions resolve here.</p></div><span class="chip" id="roleChip">Loading role</span></div><div class="identity-card"><div class="avatar" id="userAvatar">M</div><div><p class="identity-name" id="userName">Loading…</p><p class="identity-meta" id="userMeta">Checking signed-in session.</p></div></div><div class="identity-actions"><a class="btn btn-subtle" href="diagnostic-tools.html">Back to Diagnostic Hub</a><a class="btn btn-subtle" href="cross-tool-synthesis.html">Cross-tool synthesis</a></div><p class="status-inline" id="identityStatus"></p></section></div><section class="section-card" id="workspaceTabs"><div class="panel-head"><div><p class="section-kicker">Workspace modules</p><h2 class="section-title">Assignments, results, analytics, and governance</h2><p class="section-copy">These modules are designed so the workspace can evolve from a personal archive into a premium institutional operating layer.</p></div></div><div class="tabs"><button class="tab-btn active" data-tab="overview" type="button">Overview</button><button class="tab-btn" data-tab="assignments" type="button">Assignments</button><button class="tab-btn" data-tab="results" type="button">Results</button><button class="tab-btn" data-tab="analytics" type="button">Analytics</button><button class="tab-btn" data-tab="governance" type="button">Governance</button></div></section><div class="tab-panels"><section class="tab-panel active" data-panel="overview"><div class="workspace-grid"><div class="stack"><section class="section-card"><div class="panel-head"><div><h3 class="panel-title">Recent saved runs</h3><p class="panel-copy">Saved runs appear here with visibility and normalization metadata.</p></div><span class="chip ok" id="runsSummaryChip">0 visible</span></div><div class="list" id="runsList"></div><div class="empty" id="runsEmpty">No saved runs are visible yet. Once diagnostics write to <code>diagnostic_runs</code>, this list will populate automatically.</div></section><section class="section-card"><div class="panel-head"><div><h3 class="panel-title">Recent assignments</h3><p class="panel-copy">Recent or open assignments appear here with due state and visibility configuration.</p></div></div><div class="list" id="assignmentList"></div><div class="empty" id="assignmentEmpty">No recent assignments are visible yet.</div></section></div><div class="stack"><section class="section-card"><div class="panel-head"><div><h3 class="panel-title">What this workspace now supports</h3><p class="panel-copy">These modules are live or wired to be live as backend routes come online.</p></div></div><div class="grid-2"><div class="card-lite"><h4>Assignment-ready shell</h4><p>Choose tool, lens, depth, recipient, visibility rules, anonymity, and send timing from one premium form.</p></div><div class="card-lite"><h4>Visibility governance</h4><p>Specify whether participants can see their own output and whether admins can see full results.</p></div><div class="card-lite"><h4>Normalization display</h4><p>Review raw runs, flagged runs, included analytic set, and normalization recommendations driven by backend rules.</p></div><div class="card-lite"><h4>Institutional continuity</h4><p>Keep assignments, results, and analytic interpretation in one location.</p></div></div></section><section class="section-card"><div class="panel-head"><div><h3 class="panel-title">Recommended next integrations</h3><p class="panel-copy">These front-end modules are already structured to call the backend as you expand the API.</p></div></div><div class="card-lite"><ul><li><strong>Assignment email route:</strong> send tokenized diagnostic invitations directly from the workspace.</li><li><strong>Normalization batch action:</strong> run the backend engine over one organization or one tool at a time.</li><li><strong>Aggregate dashboards:</strong> use <code>included_in_aggregates</code> by default while preserving raw runs.</li><li><strong>Admin visibility controls:</strong> enforce assignee-only, aggregate-only, or metadata-only access states.</li></ul></div></section></div></div></section><section class="tab-panel" data-panel="assignments"><div class="workspace-grid"><div class="stack"><section class="section-card" id="assignmentComposerCard"><div class="panel-head"><div><h3 class="panel-title">Send diagnostic assignment</h3><p class="panel-copy">Assign diagnostics with deliberate control over tool type, run depth, visibility, anonymity, and recommended normalization posture.</p></div><span class="chip" id="assignmentModeChip">Admin module</span></div><form id="assignmentForm" novalidate><div class="form-grid"><div class="field"><label for="recipientEmail">Recipient email</label><input id="recipientEmail" name="recipientEmail" type="email" placeholder="name@organization.com" required /><div class="field-help">Primary recipient for the tokenized diagnostic link.</div></div><div class="field"><label for="assignmentTool">Diagnostic type</label><select id="assignmentTool" name="assignmentTool"><option value="decision_velocity">Decision Velocity</option><option value="structural_clarity">Structural Clarity</option><option value="operational_systems">Operational Systems</option><option value="institutional_performance">Institutional Performance</option></select></div><div class="field"><label for="assignmentLens">Participant lens</label><select id="assignmentLens" name="assignmentLens"><option value="operational">Operational</option><option value="managerial">Managerial</option><option value="executive">Senior leader</option></select></div><div class="field"><label for="assignmentDepth">Run depth</label><select id="assignmentDepth" name="assignmentDepth"><option value="10">About 10 minutes</option><option value="30" selected>About 30 minutes</option><option value="60">About 60 minutes</option></select></div><div class="field span-2"><label for="eventPathName">Event path / pathway name</label><input id="eventPathName" name="eventPathName" type="text" placeholder="e.g. Contract review escalation" required /></div><div class="field span-2"><label for="assignmentMessage">Assignment note</label><textarea id="assignmentMessage" name="assignmentMessage" placeholder="Brief context for the assignee."></textarea></div><div class="field"><label for="sendTiming">Send timing</label><select id="sendTiming" name="sendTiming"><option value="now">Send now</option><option value="today">Later today</option><option value="tomorrow">Tomorrow morning</option><option value="custom">Custom timing</option></select></div><div class="field"><label for="customDueAt">Custom due / send time</label><input id="customDueAt" name="customDueAt" type="datetime-local" /></div></div><div class="toggle-list" style="margin-top:18px;"><div class="toggle-row"><div><strong>Let participant see their full output</strong><p>Turn this off if the run should complete without revealing the full narrative to the participant.</p></div><label class="switch"><input type="checkbox" id="allowParticipantOutput" checked /><span class="switch-slider"></span></label></div><div class="toggle-row"><div><strong>Anonymous response</strong><p>Store the run as anonymous for reporting purposes while preserving controlled assignment linkage behind the scenes if needed.</p></div><label class="switch"><input type="checkbox" id="anonymousResponse" /><span class="switch-slider"></span></label></div><div class="toggle-row"><div><strong>Hide full output from admin by default</strong><p>Use this when the admin should only see metadata or aggregate-level outcomes rather than the full participant narrative.</p></div><label class="switch"><input type="checkbox" id="hideFromAdmin" /><span class="switch-slider"></span></label></div><div class="toggle-row"><div><strong>Request normalization review after completion</strong><p>Flag this assignment so the backend normalization engine evaluates it immediately after the run lands.</p></div><label class="switch"><input type="checkbox" id="requestNormalization" checked /><span class="switch-slider"></span></label></div></div><div class="form-actions"><button class="btn btn-accent" id="sendAssignmentBtn" type="submit">Send assignment</button><button class="btn btn-soft" id="copyAssignmentPayloadBtn" type="button">Copy payload</button><button class="btn btn-subtle" type="reset">Reset</button></div></form><p class="status-inline" id="assignmentStatus"></p></section></div><div class="stack"><section class="section-card"><div class="panel-head"><div><h3 class="panel-title">Assignment policy summary</h3><p class="panel-copy">These are the policy choices the assignment form is meant to surface cleanly and explicitly.</p></div></div><div class="grid-2"><div class="card-lite"><h4>Visibility state</h4><p>Participant-visible, admin-visible, aggregate-only, and metadata-only outcomes should be distinct, explicit states.</p></div><div class="card-lite"><h4>Anonymity state</h4><p>Anonymous should not mean “lost.” It should mean protected reporting treatment governed by policy.</p></div><div class="card-lite"><h4>Delivery intent</h4><p>Assignment timing can begin simple now and later evolve into reminder and scheduling logic.</p></div><div class="card-lite"><h4>Normalization recommendation</h4><p>Admins should request backend normalization review, not manipulate results manually.</p></div></div></section></div></div></section><section class="tab-panel" data-panel="results"><div class="workspace-grid"><div class="stack"><section class="section-card"><div class="panel-head"><div><h3 class="panel-title">Results view</h3><p class="panel-copy">See runs with visibility, anonymity, and normalization context rather than just raw score storage.</p></div><div class="run-actions"><button class="btn btn-soft" id="refreshResultsBtn" type="button">Refresh results</button><button class="btn btn-subtle" id="normalizeOrgBtn" type="button">Run normalization for org</button></div></div><div class="form-grid" style="margin-bottom:18px;"><div class="field"><label for="resultToolFilter">Tool filter</label><select id="resultToolFilter"><option value="">All tools</option><option value="decision_velocity">Decision Velocity</option><option value="structural_clarity">Structural Clarity</option><option value="operational_systems">Operational Systems</option><option value="institutional_performance">Institutional Performance</option></select></div><div class="field"><label for="resultInclusionFilter">Inclusion filter</label><select id="resultInclusionFilter"><option value="">All runs</option><option value="included">Included</option><option value="included_with_caution">Included with caution</option><option value="excluded_from_aggregates">Excluded from aggregates</option></select></div></div><div class="list" id="normalizedRunsList"></div><div class="empty" id="normalizedRunsEmpty">No normalized runs are visible yet. Once the backend normalization routes are mounted, this view will populate with analytic status.</div><p class="status-inline" id="resultsStatus"></p></section></div><div class="stack"><section class="section-card"><div class="panel-head"><div><h3 class="panel-title">Flagged-run review</h3><p class="panel-copy">This is where the workspace begins to distinguish raw response storage from governed institutional signal.</p></div></div><div class="list" id="flaggedRunList"></div><div class="empty" id="flaggedRunEmpty">No flagged runs are visible yet.</div></section></div></div></section><section class="tab-panel" data-panel="analytics"><section class="section-card"><div class="panel-head"><div><h3 class="panel-title">Analytic summary</h3><p class="panel-copy">These summary metrics are intended to run off the normalized analytic set by default, while still keeping the raw set accessible.</p></div></div><div class="analytics-grid"><div class="analytics-card"><div class="analytics-label">All runs</div><div class="analytics-value" id="analyticsAllRuns">0</div><div class="analytics-copy">Raw runs visible in this workspace.</div></div><div class="analytics-card"><div class="analytics-label">Included</div><div class="analytics-value" id="analyticsIncluded">0</div><div class="analytics-copy">Runs currently included in aggregate reporting.</div></div><div class="analytics-card"><div class="analytics-label">With caution</div><div class="analytics-value" id="analyticsCaution">0</div><div class="analytics-copy">Runs included, but flagged for caution.</div></div><div class="analytics-card"><div class="analytics-label">Excluded</div><div class="analytics-value" id="analyticsExcluded">0</div><div class="analytics-copy">Runs excluded from aggregate views.</div></div></div></section><div class="workspace-grid"><div class="stack"><section class="section-card"><div class="panel-head"><div><h3 class="panel-title">Normalization recommendation log</h3><p class="panel-copy">This is the simplest trustworthy pattern: raw run preserved, backend recommendation logged, aggregate treatment made explicit.</p></div></div><div class="table-wrap"><table><thead><tr><th>Run</th><th>Status</th><th>Score</th><th>Flags</th><th>Last normalized</th></tr></thead><tbody id="normalizationTableBody"></tbody></table></div></section></div><div class="stack"><section class="section-card"><div class="panel-head"><div><h3 class="panel-title">What the backend should govern</h3><p class="panel-copy">The workspace should show these states clearly, but the logic should live in the API.</p></div></div><div class="card-lite"><ul><li><strong>Completion-speed sanity</strong> for each diagnostic depth.</li><li><strong>Contradiction burden</strong> relative to structured answers.</li><li><strong>Coverage adequacy</strong> for adaptive branch completion.</li><li><strong>Outlier detection</strong> relative to the organization comparison set.</li><li><strong>Duplicate-like patterns</strong> that should not quietly distort aggregate signal.</li></ul></div></section></div></div></section><section class="tab-panel" data-panel="governance"><div class="workspace-grid"><div class="stack"><section class="section-card"><div class="panel-head"><div><h3 class="panel-title">Visibility and privacy policy</h3><p class="panel-copy">These controls are where Monderman becomes a governed institutional platform rather than a simple result archive.</p></div></div><div class="toggle-list"><div class="toggle-row"><div><strong>Default to participant-visible output</strong><p>Use as the default assignment policy when the assignee should receive the full narrative immediately after completion.</p></div><label class="switch"><input type="checkbox" id="govParticipantVisible" checked /><span class="switch-slider"></span></label></div><div class="toggle-row"><div><strong>Default to admin metadata-only for anonymous runs</strong><p>Helps preserve trust by avoiding accidental upward exposure of full narrative output.</p></div><label class="switch"><input type="checkbox" id="govMetadataOnly" checked /><span class="switch-slider"></span></label></div><div class="toggle-row"><div><strong>Use normalized analytic set by default</strong><p>Aggregate views should use included runs first, not raw runs indiscriminately.</p></div><label class="switch"><input type="checkbox" id="govUseNormalized" checked /><span class="switch-slider"></span></label></div></div><div class="form-actions" style="margin-top:18px;"><button class="btn btn-accent" id="saveGovernanceBtn" type="button">Save governance preferences</button><button class="btn btn-subtle" id="exportGovernanceBtn" type="button">Export governance snapshot</button></div><p class="status-inline" id="governanceStatus"></p></section></div><div class="stack"><section class="section-card"><div class="panel-head"><div><h3 class="panel-title">Governance model summary</h3><p class="panel-copy">These are the distinctions the product should protect explicitly.</p></div></div><div class="grid-2"><div class="card-lite"><h4>Raw run</h4><p>Preserved exactly as submitted, never overwritten by normalization or aggregate treatment.</p></div><div class="card-lite"><h4>Included analytic set</h4><p>The default basis for organizational summaries, benchmarks, and leadership dashboards.</p></div><div class="card-lite"><h4>Flagged with caution</h4><p>Still visible, still often included, but explicitly marked as weaker signal.</p></div><div class="card-lite"><h4>Excluded from aggregates</h4><p>Preserved for auditability, but removed from aggregate interpretation when the backend recommends it.</p></div></div></section></div></div></section></div></div></main>
+
+  <section class="hero">
+    <div class="hero-media"><img class="hero-image" src="Workspace-Hero.jpg" alt="" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <div>
+        <p class="eyebrow">Monderman Workspace</p>
+        <h1>Govern diagnostic work with precision and continuity.</h1>
+        <p class="hero-copy">This workspace is designed to become the operating layer above individual runs: assign diagnostics at scale, govern visibility and anonymity, review results, normalize institutional signal, and compare what the organization is learning over time.</p>
+        <div class="hero-actions">
+          <a class="btn btn-accent" href="#workspaceTabs">Open workspace</a>
+          <a class="btn btn-subtle" href="diagnostic-tools.html">Launch diagnostics</a>
+          <button class="btn btn-subtle" id="signOutBtn" type="button">Sign out</button>
+        </div>
+      </div>
+      <div class="hero-side">
+        <div class="hero-panel">
+          <p class="hero-panel-kicker">Workspace status</p>
+          <p class="hero-panel-title" id="heroStatusTitle">Checking session…</p>
+          <p class="hero-panel-copy" id="heroStatusCopy">Confirming signed-in access, organization role, saved runs, batch assignments, and analytic governance state.</p>
+          <div class="hero-strip">
+            <div class="hero-stat"><div class="hero-stat-label">Runs</div><div class="hero-stat-value" id="heroRuns">0</div><div class="hero-stat-copy">Saved runs visible in this workspace.</div></div>
+            <div class="hero-stat"><div class="hero-stat-label">Assignments</div><div class="hero-stat-value" id="heroAssignments">0</div><div class="hero-stat-copy">Open or recent assignments.</div></div>
+            <div class="hero-stat"><div class="hero-stat-label">Flagged</div><div class="hero-stat-value" id="heroFlagged">0</div><div class="hero-stat-copy">Runs marked for caution or exclusion.</div></div>
+          </div>
+        </div>
+        <div class="hero-panel">
+          <p class="hero-panel-kicker">Built for governance</p>
+          <p class="hero-panel-title">Assignments, visibility, normalization, and trust</p>
+          <p class="hero-panel-copy">Monderman should not just collect diagnostic responses. It should govern who receives them, how they are interpreted, and which signals are included in aggregate learning.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="page">
+    <div class="page-inner">
+      <div class="top-grid">
+        <section class="section-card">
+          <p class="section-kicker">Workspace overview</p>
+          <h2 class="section-title">A premium operating layer for repeated diagnostic use.</h2>
+          <p class="section-copy">This workspace now centers executive visibility, batch assignment operations, role-sensitive output governance, and cleaner organizational learning over time.</p>
+          <div class="overview-grid">
+            <div class="metric"><p class="metric-label">Saved runs</p><p class="metric-value" id="metricRuns">0</p><p class="metric-copy">Diagnostics currently visible in this workspace.</p></div>
+            <div class="metric"><p class="metric-label">Included in aggregates</p><p class="metric-value" id="metricIncluded">0</p><p class="metric-copy">Runs currently included in aggregate reporting.</p></div>
+            <div class="metric"><p class="metric-label">Organization</p><p class="metric-value" id="metricOrg">—</p><p class="metric-copy">Personal workspace or assigned organization.</p></div>
+            <div class="metric"><p class="metric-label">Last activity</p><p class="metric-value" id="metricLast">—</p><p class="metric-copy">Most recent run or assignment activity visible here.</p></div>
+          </div>
+        </section>
+        <section class="section-card">
+          <div class="panel-head"><div><h3 class="panel-title">Identity and role</h3><p class="panel-copy">Your sign-in, organization membership, and workspace permissions resolve here.</p></div><span class="chip" id="roleChip">Loading role</span></div>
+          <div class="identity-card"><div class="avatar" id="userAvatar">M</div><div><p class="identity-name" id="userName">Loading…</p><p class="identity-meta" id="userMeta">Checking signed-in session.</p></div></div>
+          <div class="identity-actions"><a class="btn btn-subtle" href="diagnostic-tools.html">Back to Diagnostic Hub</a><a class="btn btn-subtle" href="cross-tool-synthesis.html">Cross-tool synthesis</a></div>
+          <p class="status-inline" id="identityStatus"></p>
+        </section>
+      </div>
+
+      <section class="section-card">
+        <div class="panel-head"><div><p class="section-kicker">Executive summary</p><h2 class="section-title">Completion, exposure, and signal quality at a glance</h2><p class="section-copy">This layer is designed for a serious administrative workspace: what is open, what is moving, what is due, and what should or should not shape institutional interpretation.</p></div><span class="chip ghost" id="summaryContextChip">Workspace context</span></div>
+        <div class="summary-grid">
+          <div class="summary-card"><div class="summary-label">Open rate</div><div class="summary-value" id="summaryOpenRate">—</div><div class="summary-copy">Assignments opened relative to sent volume.</div></div>
+          <div class="summary-card ok"><div class="summary-label">Completion rate</div><div class="summary-value" id="summaryCompletionRate">—</div><div class="summary-copy">Assignments completed relative to sent volume.</div></div>
+          <div class="summary-card warn"><div class="summary-label">Due soon</div><div class="summary-value" id="summaryDueSoon">0</div><div class="summary-copy">Assignments approaching due time.</div></div>
+          <div class="summary-card warn"><div class="summary-label">Flagged</div><div class="summary-value" id="summaryFlagged">0</div><div class="summary-copy">Runs marked for caution or exclusion.</div></div>
+          <div class="summary-card ok"><div class="summary-label">Included</div><div class="summary-value" id="summaryIncluded">0</div><div class="summary-copy">Runs included in aggregate interpretation.</div></div>
+          <div class="summary-card rose"><div class="summary-label">Excluded</div><div class="summary-value" id="summaryExcluded">0</div><div class="summary-copy">Runs excluded from aggregates.</div></div>
+        </div>
+      </section>
+
+      <section class="section-card" id="workspaceTabs">
+        <div class="panel-head"><div><p class="section-kicker">Workspace modules</p><h2 class="section-title">Assignments, results, analytics, and governance</h2><p class="section-copy">These modules are organized to feel deliberate and premium: one operating surface for dispatch, interpretation, and governed learning.</p></div></div>
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="overview" type="button">Overview</button>
+          <button class="tab-btn" data-tab="assignments" type="button">Assignments</button>
+          <button class="tab-btn" data-tab="results" type="button">Results</button>
+          <button class="tab-btn" data-tab="analytics" type="button">Analytics</button>
+          <button class="tab-btn" data-tab="governance" type="button">Governance</button>
+        </div>
+      </section>
+
+      <div class="tab-panels">
+        <section class="tab-panel active" data-panel="overview">
+          <div class="workspace-grid">
+            <div class="stack">
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Recent saved runs</h3><p class="panel-copy">Saved runs appear here with visibility and normalization metadata.</p></div><span class="chip ok" id="runsSummaryChip">0 visible</span></div>
+                <div class="list" id="runsList"></div>
+                <div class="empty" id="runsEmpty">No saved runs are visible yet. Once diagnostics write to <code>diagnostic_runs</code>, this list will populate automatically.</div>
+              </section>
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Recent assignments</h3><p class="panel-copy">Recent or open assignments appear here with due state and visibility configuration.</p></div></div>
+                <div class="list" id="assignmentList"></div>
+                <div class="empty" id="assignmentEmpty">No recent assignments are visible yet.</div>
+              </section>
+            </div>
+            <div class="stack">
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">What this workspace now supports</h3><p class="panel-copy">The architecture now assumes serious administrative use, not just a personal archive.</p></div></div>
+                <div class="grid-2">
+                  <div class="card-lite"><h4>Two-step batch dispatch</h4><p>Upload or paste recipients first, validate them, then move into a separate configuration and review stage before send.</p></div>
+                  <div class="card-lite"><h4>Executive signal layer</h4><p>Open rate, completion rate, due-soon, flagged, included, and excluded are surfaced up front.</p></div>
+                  <div class="card-lite"><h4>Visibility governance</h4><p>Specify whether participants see their own output and whether admins should be restricted to metadata or aggregate views.</p></div>
+                  <div class="card-lite"><h4>Normalization-aware results</h4><p>Review raw runs, included runs, caution states, and backend recommendations without overwriting the original run.</p></div>
+                </div>
+              </section>
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Recommended next integrations</h3><p class="panel-copy">The front-end is now organized to match the backend and future dashboarding more closely.</p></div></div>
+                <div class="card-lite"><ul><li><strong>Batch preview route:</strong> validate large recipient sets before any diagnostic invitations go out.</li><li><strong>Status summary route:</strong> populate executive summary cards from organizational assignment flow, not just local browser state.</li><li><strong>Normalization display:</strong> default summaries to included runs while preserving the raw run set.</li><li><strong>Governed visibility states:</strong> protect assignee-only, metadata-only, aggregate-only, and admin-visible outcomes explicitly.</li></ul></div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" data-panel="assignments">
+          <div class="workspace-grid">
+            <div class="stack">
+              <section class="section-card" id="assignmentComposerCard">
+                <div class="panel-head"><div><h3 class="panel-title">Batch diagnostic assignments</h3><p class="panel-copy">Dispatch diagnostics in two deliberate steps: first validate recipients, then configure defaults, review exposure rules, and send.</p></div><span class="chip" id="assignmentModeChip">Admin module</span></div>
+
+                <div class="steps">
+                  <div class="step-card active" id="stepCardIntake">
+                    <div class="step-top"><span class="step-index">1</span><span class="chip ghost" id="stepIntakeChip">Required</span></div>
+                    <h4 class="step-title">Build recipient set</h4>
+                    <p class="step-copy">Paste emails, upload CSV or Excel, or import JSON. Validate before any configuration decisions are finalized.</p>
+                  </div>
+                  <div class="step-card" id="stepCardConfig">
+                    <div class="step-top"><span class="step-index">2</span><span class="chip ghost" id="stepConfigChip">Locked</span></div>
+                    <h4 class="step-title">Configure, review, and send</h4>
+                    <p class="step-copy">Apply default tool settings, privacy controls, and timing. Review the final batch summary before dispatch.</p>
+                  </div>
+                </div>
+
+                <div class="intake-tabs">
+                  <button class="intake-tab active" type="button" data-intake="paste">Paste</button>
+                  <button class="intake-tab" type="button" data-intake="file">CSV / Excel</button>
+                  <button class="intake-tab" type="button" data-intake="json">JSON</button>
+                </div>
+
+                <div class="intake-panel active" data-intake-panel="paste">
+                  <div class="field">
+                    <label for="recipientPaste">Paste recipient emails or rows <span tabindex="0" class="info" data-tip="One email per line is enough. You can also paste comma-separated or semicolon-separated values. If you include names, teams, or business units, keep each line in a simple CSV-like format.">i</span></label>
+                    <textarea id="recipientPaste" placeholder="jane@org.com&#10;john@org.com&#10;alex@org.com, Alex Morgan, Product, Platform"></textarea>
+                    <div class="field-help">Best for a quick send list or when you only have emails and a few optional attributes.</div>
+                  </div>
+                  <div class="helper-row">
+                    <button class="btn btn-soft" type="button" id="parsePasteBtn">Validate pasted recipients</button>
+                    <span class="kbd">One email per line</span>
+                    <span class="kbd">Optional name, team, unit</span>
+                  </div>
+                </div>
+
+                <div class="intake-panel" data-intake-panel="file">
+                  <div class="dropzone" id="uploadDropzone">
+                    <input id="recipientFile" type="file" accept=".csv,.xlsx,.xls,.json" />
+                    <div class="dropzone-title">Drop CSV, Excel, or JSON here</div>
+                    <div class="dropzone-copy">Use this for larger sends. The workspace will validate the file locally and can also call the batch preview route before dispatch.</div>
+                    <div class="helper-row"><span class="kbd">CSV</span><span class="kbd">XLSX</span><span class="kbd">JSON</span></div>
+                  </div>
+                  <div class="helper-row">
+                    <button class="btn btn-soft" type="button" id="previewBatchBtn">Run backend preview</button>
+                    <span class="field-help" id="selectedFileName">No file selected.</span>
+                  </div>
+                </div>
+
+                <div class="intake-panel" data-intake-panel="json">
+                  <div class="field">
+                    <label for="recipientJson">Paste JSON array <span tabindex="0" class="info" data-tip="Use an array of objects such as [{email, name, team, business_unit}]. This is useful when another system already exports structured recipient data.">i</span></label>
+                    <textarea id="recipientJson" placeholder='[
+  {"email":"jane@org.com","name":"Jane Roberts","team":"Operations","business_unit":"North America"},
+  {"email":"john@org.com","name":"John Lee","team":"Finance","business_unit":"Shared Services"}
+]'></textarea>
+                    <div class="field-help">For structured imports from another administrative system.</div>
+                  </div>
+                  <div class="helper-row"><button class="btn btn-soft" type="button" id="parseJsonBtn">Validate JSON recipients</button></div>
+                </div>
+
+                <div class="preview-shell" id="recipientPreviewShell">
+                  <div class="validation-bar">
+                    <div class="validation-card"><div class="validation-label">Rows</div><div class="validation-value" id="recipientCount">0</div></div>
+                    <div class="validation-card ok"><div class="validation-label">Valid</div><div class="validation-value" id="recipientValidCount">0</div></div>
+                    <div class="validation-card warn"><div class="validation-label">Duplicates</div><div class="validation-value" id="recipientDuplicateCount">0</div></div>
+                    <div class="validation-card rose"><div class="validation-label">Invalid</div><div class="validation-value" id="recipientInvalidCount">0</div></div>
+                  </div>
+                  <div class="list" id="recipientPreviewList"></div>
+                  <div class="empty" id="recipientPreviewEmpty">Your validated recipient set will appear here. Until this step is complete, the configuration stage remains locked.</div>
+                </div>
+
+                <form id="assignmentForm" novalidate>
+                  <div class="form-grid">
+                    <div class="field"><label for="batchLabel">Batch label <span tabindex="0" class="info" data-tip="A descriptive label helps admins separate sends over time. Example: Q2 frontline run, regional managers pilot, or policy refresh cohort.">i</span></label><input id="batchLabel" name="batchLabel" type="text" placeholder="e.g. Q2 operations cohort" /></div>
+                    <div class="field"><label for="assignmentTool">Diagnostic type</label><select id="assignmentTool" name="assignmentTool"><option value="decision_velocity">Decision Velocity</option><option value="structural_clarity">Structural Clarity</option><option value="operational_systems">Operational Systems</option><option value="institutional_performance">Institutional Performance</option></select></div>
+                    <div class="field"><label for="assignmentLens">Participant lens</label><select id="assignmentLens" name="assignmentLens"><option value="operational">Operational</option><option value="managerial">Managerial</option><option value="executive">Senior leader</option></select></div>
+                    <div class="field"><label for="assignmentDepth">Run depth</label><select id="assignmentDepth" name="assignmentDepth"><option value="10">About 10 minutes</option><option value="30" selected>About 30 minutes</option><option value="60">About 60 minutes</option></select></div>
+                    <div class="field span-2"><label for="eventPathName">Event path / pathway name</label><input id="eventPathName" name="eventPathName" type="text" placeholder="e.g. Contract review escalation" required /></div>
+                    <div class="field span-2"><label for="assignmentMessage">Assignment note</label><textarea id="assignmentMessage" name="assignmentMessage" placeholder="Brief context for the assignees."></textarea></div>
+                    <div class="field"><label for="sendTiming">Send timing</label><select id="sendTiming" name="sendTiming"><option value="now">Send now</option><option value="today">Later today</option><option value="tomorrow">Tomorrow morning</option><option value="custom">Custom timing</option></select></div>
+                    <div class="field"><label for="customDueAt">Custom due / send time</label><input id="customDueAt" name="customDueAt" type="datetime-local" /></div>
+                  </div>
+                  <div class="toggle-list" style="margin-top:18px;">
+                    <div class="toggle-row"><div><strong>Let participant see their full output</strong><p>Turn this off if the run should complete without revealing the full narrative to the participant.</p></div><label class="switch"><input type="checkbox" id="allowParticipantOutput" checked /><span class="switch-slider"></span></label></div>
+                    <div class="toggle-row"><div><strong>Anonymous response</strong><p>Store the run as anonymous for reporting purposes while preserving controlled assignment linkage behind the scenes if needed.</p></div><label class="switch"><input type="checkbox" id="anonymousResponse" /><span class="switch-slider"></span></label></div>
+                    <div class="toggle-row"><div><strong>Hide full output from admin by default</strong><p>Use this when the admin should only see metadata or aggregate-level outcomes rather than the full participant narrative.</p></div><label class="switch"><input type="checkbox" id="hideFromAdmin" /><span class="switch-slider"></span></label></div>
+                    <div class="toggle-row"><div><strong>Request normalization review after completion</strong><p>Flag this assignment so the backend normalization engine evaluates it immediately after the run lands.</p></div><label class="switch"><input type="checkbox" id="requestNormalization" checked /><span class="switch-slider"></span></label></div>
+                  </div>
+
+                  <div class="section-card" style="margin-top:18px;padding:20px;background:linear-gradient(180deg,#FCFDFF 0%, #F8FAFD 100%);border-style:solid;">
+                    <div class="panel-head" style="margin-bottom:14px;"><div><h3 class="panel-title" style="font-size:1.08rem;">Batch review</h3><p class="panel-copy">Final review before the batch send route is called.</p></div><span class="chip ghost" id="reviewRecipientChip">0 recipients</span></div>
+                    <div class="grid-3">
+                      <div class="card-lite"><h4>Delivery</h4><p id="reviewDelivery">Decision Velocity • Managerial • About 30 minutes</p></div>
+                      <div class="card-lite"><h4>Visibility</h4><p id="reviewVisibility">Participant-visible output, named response, admin-visible by default.</p></div>
+                      <div class="card-lite"><h4>Timing</h4><p id="reviewTiming">Send now</p></div>
+                    </div>
+                  </div>
+
+                  <div class="form-actions">
+                    <button class="btn btn-accent" id="sendBatchBtn" type="submit">Send batch</button>
+                    <button class="btn btn-soft" id="copyAssignmentPayloadBtn" type="button">Copy defaults</button>
+                    <button class="btn btn-subtle" type="reset" id="resetBatchBtn">Reset</button>
+                  </div>
+                </form>
+                <p class="status-inline" id="assignmentStatus"></p>
+              </section>
+            </div>
+            <div class="stack">
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Assignment policy summary</h3><p class="panel-copy">These are the policy choices the batch send flow is meant to surface clearly and explicitly.</p></div></div>
+                <div class="grid-2">
+                  <div class="card-lite"><h4>Bulk intake, not guesswork</h4><p>Large sends should begin with recipient validation, duplicate control, and clear row-level issues before any invitations go out.</p></div>
+                  <div class="card-lite"><h4>Visibility state</h4><p>Participant-visible, admin-visible, aggregate-only, and metadata-only outcomes should be distinct, explicit states.</p></div>
+                  <div class="card-lite"><h4>Anonymity state</h4><p>Anonymous should not mean lost. It should mean protected reporting treatment governed by policy.</p></div>
+                  <div class="card-lite"><h4>Normalization recommendation</h4><p>Admins should request backend normalization review, not manipulate results manually.</p></div>
+                </div>
+              </section>
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Batch route status</h3><p class="panel-copy">These statuses help the admin understand whether the UI is using local validation or backend validation and send routes.</p></div></div>
+                <div class="grid-2">
+                  <div class="card-lite"><h4>Preview route</h4><p id="previewRouteStatus">Not run yet.</p></div>
+                  <div class="card-lite"><h4>Send route</h4><p id="sendRouteStatus">Not run yet.</p></div>
+                </div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" data-panel="results">
+          <div class="workspace-grid">
+            <div class="stack">
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Results view</h3><p class="panel-copy">See runs with visibility, anonymity, and normalization context rather than just raw score storage.</p></div><div class="run-actions"><button class="btn btn-soft" id="refreshResultsBtn" type="button">Refresh results</button><button class="btn btn-subtle" id="normalizeOrgBtn" type="button">Run normalization for org</button></div></div>
+                <div class="form-grid" style="margin-bottom:18px;">
+                  <div class="field"><label for="resultToolFilter">Tool filter</label><select id="resultToolFilter"><option value="">All tools</option><option value="decision_velocity">Decision Velocity</option><option value="structural_clarity">Structural Clarity</option><option value="operational_systems">Operational Systems</option><option value="institutional_performance">Institutional Performance</option></select></div>
+                  <div class="field"><label for="resultInclusionFilter">Inclusion filter</label><select id="resultInclusionFilter"><option value="">All runs</option><option value="included">Included</option><option value="included_with_caution">Included with caution</option><option value="excluded_from_aggregates">Excluded from aggregates</option></select></div>
+                </div>
+                <div class="list" id="normalizedRunsList"></div>
+                <div class="empty" id="normalizedRunsEmpty">No normalized runs are visible yet. Once the backend normalization routes are mounted, this view will populate with analytic status.</div>
+                <p class="status-inline" id="resultsStatus"></p>
+              </section>
+            </div>
+            <div class="stack">
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Flagged-run review</h3><p class="panel-copy">This is where the workspace distinguishes raw response storage from governed institutional signal.</p></div></div>
+                <div class="list" id="flaggedRunList"></div>
+                <div class="empty" id="flaggedRunEmpty">No flagged runs are visible yet.</div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" data-panel="analytics">
+          <section class="section-card">
+            <div class="panel-head"><div><h3 class="panel-title">Analytic summary</h3><p class="panel-copy">These summary metrics are intended to run off the normalized analytic set by default, while still keeping the raw set accessible.</p></div></div>
+            <div class="analytics-grid">
+              <div class="analytics-card"><div class="analytics-label">All runs</div><div class="analytics-value" id="analyticsAllRuns">0</div><div class="analytics-copy">Raw runs visible in this workspace.</div></div>
+              <div class="analytics-card"><div class="analytics-label">Included</div><div class="analytics-value" id="analyticsIncluded">0</div><div class="analytics-copy">Runs currently included in aggregate reporting.</div></div>
+              <div class="analytics-card"><div class="analytics-label">With caution</div><div class="analytics-value" id="analyticsCaution">0</div><div class="analytics-copy">Runs included, but flagged for caution.</div></div>
+              <div class="analytics-card"><div class="analytics-label">Excluded</div><div class="analytics-value" id="analyticsExcluded">0</div><div class="analytics-copy">Runs excluded from aggregate views.</div></div>
+            </div>
+          </section>
+          <div class="workspace-grid">
+            <div class="stack">
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Normalization recommendation log</h3><p class="panel-copy">Raw run preserved, backend recommendation logged, aggregate treatment made explicit.</p></div></div>
+                <div class="table-wrap"><table><thead><tr><th>Run</th><th>Status</th><th>Score</th><th>Flags</th><th>Last normalized</th></tr></thead><tbody id="normalizationTableBody"></tbody></table></div>
+              </section>
+            </div>
+            <div class="stack">
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">What the backend should govern</h3><p class="panel-copy">The workspace shows these states clearly, but the logic belongs in the API.</p></div></div>
+                <div class="card-lite"><ul><li><strong>Completion-speed sanity</strong> for each diagnostic depth.</li><li><strong>Contradiction burden</strong> relative to structured answers.</li><li><strong>Coverage adequacy</strong> for adaptive branch completion.</li><li><strong>Outlier detection</strong> relative to the organization comparison set.</li><li><strong>Duplicate-like patterns</strong> that should not quietly distort aggregate signal.</li></ul></div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" data-panel="governance">
+          <div class="workspace-grid">
+            <div class="stack">
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Visibility and privacy policy</h3><p class="panel-copy">These controls are where Monderman becomes a governed institutional platform rather than a simple result archive.</p></div></div>
+                <div class="toggle-list">
+                  <div class="toggle-row"><div><strong>Default to participant-visible output</strong><p>Use as the default assignment policy when the assignee should receive the full narrative immediately after completion.</p></div><label class="switch"><input type="checkbox" id="govParticipantVisible" checked /><span class="switch-slider"></span></label></div>
+                  <div class="toggle-row"><div><strong>Default to admin metadata-only for anonymous runs</strong><p>Helps preserve trust by avoiding accidental upward exposure of full narrative output.</p></div><label class="switch"><input type="checkbox" id="govMetadataOnly" checked /><span class="switch-slider"></span></label></div>
+                  <div class="toggle-row"><div><strong>Use normalized analytic set by default</strong><p>Aggregate views should use included runs first, not raw runs indiscriminately.</p></div><label class="switch"><input type="checkbox" id="govUseNormalized" checked /><span class="switch-slider"></span></label></div>
+                </div>
+                <div class="form-actions" style="margin-top:18px;"><button class="btn btn-accent" id="saveGovernanceBtn" type="button">Save governance preferences</button><button class="btn btn-subtle" id="exportGovernanceBtn" type="button">Export governance snapshot</button></div>
+                <p class="status-inline" id="governanceStatus"></p>
+              </section>
+            </div>
+            <div class="stack">
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Governance model summary</h3><p class="panel-copy">These are the distinctions the product should protect explicitly.</p></div></div>
+                <div class="grid-2">
+                  <div class="card-lite"><h4>Raw run</h4><p>Preserved exactly as submitted, never overwritten by normalization or aggregate treatment.</p></div>
+                  <div class="card-lite"><h4>Included analytic set</h4><p>The default basis for organizational summaries, benchmarks, and leadership dashboards.</p></div>
+                  <div class="card-lite"><h4>Flagged with caution</h4><p>Still visible, still often included, but explicitly marked as weaker signal.</p></div>
+                  <div class="card-lite"><h4>Excluded from aggregates</h4><p>Preserved for auditability, but removed from aggregate interpretation when the backend recommends it.</p></div>
+                </div>
+              </section>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
   <footer class="footer"><div class="footer-inner"><p class="footer-copy">Monderman Workspace is intended to govern assignments, visibility, anonymity, and signal quality over time.</p><p class="footer-copy">Built for continuity, trust, and cleaner institutional interpretation.</p></div></footer>
+
   <script type="module">
     import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     const supabaseUrl = "https://ptkxrzgmeldalrkfruth.supabase.co";
@@ -106,21 +498,37 @@
     const supabase = createClient(supabaseUrl, supabaseKey);
     const WORKSPACE_LOADER_KEY = "mondermanWorkspaceLoaderSeenAt";
     const WORKSPACE_LOADER_MS = 24 * 60 * 60 * 1000;
-    const state = { user:null, membership:null, organization:null, role:"viewer", runs:[], normalizedRuns:[], assignments:[], governance:{ participantVisible:true, metadataOnlyForAnonymous:true, useNormalized:true } };
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
+
+    const state = {
+      user:null, membership:null, organization:null, role:"viewer",
+      runs:[], normalizedRuns:[], assignments:[], governance:{ participantVisible:true, metadataOnlyForAnonymous:true, useNormalized:true },
+      batch:{ rows:[], sourceType:null, sourceFile:null, previewResponse:null }
+    };
+
     const ui = {
       header:document.getElementById("siteHeader"), overlay:document.getElementById("workspaceLoadingOverlay"), loadingBar:document.getElementById("workspaceLoadingBar"), loadingStatus:document.getElementById("workspaceLoadingStatus"),
       heroStatusTitle:document.getElementById("heroStatusTitle"), heroStatusCopy:document.getElementById("heroStatusCopy"), heroRuns:document.getElementById("heroRuns"), heroAssignments:document.getElementById("heroAssignments"), heroFlagged:document.getElementById("heroFlagged"),
       userAvatar:document.getElementById("userAvatar"), userName:document.getElementById("userName"), userMeta:document.getElementById("userMeta"), roleChip:document.getElementById("roleChip"), identityStatus:document.getElementById("identityStatus"),
       metricRuns:document.getElementById("metricRuns"), metricIncluded:document.getElementById("metricIncluded"), metricOrg:document.getElementById("metricOrg"), metricLast:document.getElementById("metricLast"),
+      summaryContextChip:document.getElementById("summaryContextChip"), summaryOpenRate:document.getElementById("summaryOpenRate"), summaryCompletionRate:document.getElementById("summaryCompletionRate"), summaryDueSoon:document.getElementById("summaryDueSoon"), summaryFlagged:document.getElementById("summaryFlagged"), summaryIncluded:document.getElementById("summaryIncluded"), summaryExcluded:document.getElementById("summaryExcluded"),
       runsSummaryChip:document.getElementById("runsSummaryChip"), runsList:document.getElementById("runsList"), runsEmpty:document.getElementById("runsEmpty"), assignmentList:document.getElementById("assignmentList"), assignmentEmpty:document.getElementById("assignmentEmpty"),
-      assignmentComposerCard:document.getElementById("assignmentComposerCard"), assignmentModeChip:document.getElementById("assignmentModeChip"), assignmentForm:document.getElementById("assignmentForm"), sendAssignmentBtn:document.getElementById("sendAssignmentBtn"), assignmentStatus:document.getElementById("assignmentStatus"), copyAssignmentPayloadBtn:document.getElementById("copyAssignmentPayloadBtn"),
-      resultToolFilter:document.getElementById("resultToolFilter"), resultInclusionFilter:document.getElementById("resultInclusionFilter"), refreshResultsBtn:document.getElementById("refreshResultsBtn"), normalizeOrgBtn:document.getElementById("normalizeOrgBtn"), normalizedRunsList:document.getElementById("normalizedRunsList"), normalizedRunsEmpty:document.getElementById("normalizedRunsEmpty"), flaggedRunList:document.getElementById("flaggedRunList"), flaggedRunEmpty:document.getElementById("flaggedRunEmpty"), resultsStatus:document.getElementById("resultsStatus"),
+      assignmentComposerCard:document.getElementById("assignmentComposerCard"), assignmentModeChip:document.getElementById("assignmentModeChip"), assignmentForm:document.getElementById("assignmentForm"), assignmentStatus:document.getElementById("assignmentStatus"), copyAssignmentPayloadBtn:document.getElementById("copyAssignmentPayloadBtn"),
+      normalizeOrgBtn:document.getElementById("normalizeOrgBtn"), refreshResultsBtn:document.getElementById("refreshResultsBtn"), resultToolFilter:document.getElementById("resultToolFilter"), resultInclusionFilter:document.getElementById("resultInclusionFilter"), normalizedRunsList:document.getElementById("normalizedRunsList"), normalizedRunsEmpty:document.getElementById("normalizedRunsEmpty"), flaggedRunList:document.getElementById("flaggedRunList"), flaggedRunEmpty:document.getElementById("flaggedRunEmpty"), resultsStatus:document.getElementById("resultsStatus"),
       analyticsAllRuns:document.getElementById("analyticsAllRuns"), analyticsIncluded:document.getElementById("analyticsIncluded"), analyticsCaution:document.getElementById("analyticsCaution"), analyticsExcluded:document.getElementById("analyticsExcluded"), normalizationTableBody:document.getElementById("normalizationTableBody"),
-      govParticipantVisible:document.getElementById("govParticipantVisible"), govMetadataOnly:document.getElementById("govMetadataOnly"), govUseNormalized:document.getElementById("govUseNormalized"), saveGovernanceBtn:document.getElementById("saveGovernanceBtn"), exportGovernanceBtn:document.getElementById("exportGovernanceBtn"), governanceStatus:document.getElementById("governanceStatus"), signOutBtn:document.getElementById("signOutBtn")
+      govParticipantVisible:document.getElementById("govParticipantVisible"), govMetadataOnly:document.getElementById("govMetadataOnly"), govUseNormalized:document.getElementById("govUseNormalized"), saveGovernanceBtn:document.getElementById("saveGovernanceBtn"), exportGovernanceBtn:document.getElementById("exportGovernanceBtn"), governanceStatus:document.getElementById("governanceStatus"), signOutBtn:document.getElementById("signOutBtn"),
+      recipientPaste:document.getElementById("recipientPaste"), parsePasteBtn:document.getElementById("parsePasteBtn"), recipientJson:document.getElementById("recipientJson"), parseJsonBtn:document.getElementById("parseJsonBtn"), recipientFile:document.getElementById("recipientFile"), uploadDropzone:document.getElementById("uploadDropzone"), previewBatchBtn:document.getElementById("previewBatchBtn"), selectedFileName:document.getElementById("selectedFileName"),
+      recipientPreviewList:document.getElementById("recipientPreviewList"), recipientPreviewEmpty:document.getElementById("recipientPreviewEmpty"), recipientCount:document.getElementById("recipientCount"), recipientValidCount:document.getElementById("recipientValidCount"), recipientDuplicateCount:document.getElementById("recipientDuplicateCount"), recipientInvalidCount:document.getElementById("recipientInvalidCount"),
+      stepCardIntake:document.getElementById("stepCardIntake"), stepCardConfig:document.getElementById("stepCardConfig"), stepIntakeChip:document.getElementById("stepIntakeChip"), stepConfigChip:document.getElementById("stepConfigChip"),
+      batchLabel:document.getElementById("batchLabel"), reviewRecipientChip:document.getElementById("reviewRecipientChip"), reviewDelivery:document.getElementById("reviewDelivery"), reviewVisibility:document.getElementById("reviewVisibility"), reviewTiming:document.getElementById("reviewTiming"),
+      previewRouteStatus:document.getElementById("previewRouteStatus"), sendRouteStatus:document.getElementById("sendRouteStatus"), sendBatchBtn:document.getElementById("sendBatchBtn"), resetBatchBtn:document.getElementById("resetBatchBtn")
     };
+
     const loadingMessages = ["Resolving workspace state...","Loading signed-in profile...","Checking organization membership...","Loading assignments and results...","Workspace ready."];
     const safeReadLocal = (key) => { try { return localStorage.getItem(key); } catch { return null; } };
     const safeWriteLocal = (key, value) => { try { localStorage.setItem(key, value); } catch {} };
+    const toPct = (num, den) => den ? `${Math.round((num / den) * 100)}%` : "—";
+
     function shouldRunWorkspaceCalibration(){ const navEntry=performance.getEntriesByType("navigation")[0]; const navType=navEntry?.type || "navigate"; const seenAt=Number(safeReadLocal(WORKSPACE_LOADER_KEY)||0); if(seenAt && (Date.now()-seenAt)<WORKSPACE_LOADER_MS) return false; if(navType==="reload" || navType==="back_forward") return false; return true; }
     function startWorkspaceCalibration(){ const { overlay, loadingBar, loadingStatus } = ui; if(!overlay||!loadingBar||!loadingStatus) return; overlay.classList.add("show"); overlay.setAttribute("aria-hidden","false"); loadingBar.style.width="0%"; loadingStatus.textContent=loadingMessages[0]; document.body.style.overflow="hidden"; let progress=0; let messageIndex=0; const progressTimer=setInterval(()=>{ progress=Math.min(progress+2,96); loadingBar.style.width=progress+"%"; },100); const messageTimer=setInterval(()=>{ messageIndex=Math.min(messageIndex+1,loadingMessages.length-1); loadingStatus.textContent=loadingMessages[messageIndex]; },1100); setTimeout(()=>{ clearInterval(progressTimer); clearInterval(messageTimer); loadingBar.style.width="100%"; loadingStatus.textContent=loadingMessages[loadingMessages.length-1]; setTimeout(()=>{ overlay.classList.remove("show"); overlay.setAttribute("aria-hidden","true"); document.body.style.overflow=""; },240); },4700); }
     function updateHeader(){ if(window.scrollY>12) ui.header?.classList.add("scrolled"); else ui.header?.classList.remove("scrolled"); }
@@ -128,37 +536,461 @@
     function initials(name,email){ const source=(name||email||"M").trim(); const parts=source.split(/\s+/).slice(0,2); return parts.map((p)=>p[0]?.toUpperCase()||"").join("")||"M"; }
     function formatDate(value){ if(!value) return "—"; const d=new Date(value); if(Number.isNaN(d.getTime())) return "—"; return d.toLocaleString(); }
     function formatToolName(tool){ const map={ structural_clarity:"Structural Clarity", decision_velocity:"Decision Velocity", operational_systems:"Operational Systems", institutional_performance:"Institutional Performance" }; return map[tool] || tool || "Diagnostic run"; }
+    function formatDepthLabel(depth){ const value=String(depth || "30"); return value === "10" ? "About 10 minutes" : value === "60" ? "About 60 minutes" : "About 30 minutes"; }
     function formatNormalizationStatus(status){ if(!status) return { label:"Unreviewed", className:"pill" }; if(status==="included") return { label:"Included", className:"pill ok" }; if(status==="included_with_caution") return { label:"With caution", className:"pill warn" }; if(status==="excluded_from_aggregates") return { label:"Excluded", className:"pill rose" }; return { label:status, className:"pill" }; }
     function escapeHtml(value){ return String(value ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&#039;"); }
-    async function ensureWorkspace(user){ const email=user.email||""; const fullName=user.user_metadata?.full_name || user.user_metadata?.name || "Monderman User"; const avatarUrl=user.user_metadata?.avatar_url || user.user_metadata?.picture || null; const { error:userError } = await supabase.from("users").upsert({ id:user.id, email, full_name:fullName, avatar_url:avatarUrl, last_sign_in_at:new Date().toISOString() }); if(userError) throw userError; const { data:memberships, error:membershipError } = await supabase.from("organization_members").select("organization_id, role, organizations(id, name, slug)").eq("user_id", user.id).limit(1); if(membershipError) throw membershipError; if(memberships?.length) return memberships[0]; const slugBase=String(fullName).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"") || "workspace"; const { data:org, error:orgError } = await supabase.from("organizations").insert({ name:`${fullName} Workspace`, slug:`${slugBase}-workspace`, owner_user_id:user.id }).select().single(); if(orgError) throw orgError; const { error:memberError } = await supabase.from("organization_members").insert({ organization_id:org.id, user_id:user.id, role:"owner" }); if(memberError) throw memberError; return { organization_id:org.id, role:"owner", organizations:org }; }
-    function setRoleState(role){ state.role=role||"viewer"; const isAdmin=["owner","admin"].includes(state.role); ui.roleChip.textContent=isAdmin ? `${state.role.toUpperCase()} ROLE` : `${(state.role || "viewer").toUpperCase()} ROLE`; ui.roleChip.className=`chip ${isAdmin ? "ok" : ""}`.trim(); ui.assignmentModeChip.textContent=isAdmin ? "Admin module" : "Participant view"; ui.assignmentComposerCard.classList.toggle("hidden", !isAdmin); ui.normalizeOrgBtn.classList.toggle("hidden", !isAdmin); }
+
+    async function ensureWorkspace(user){
+      const email=user.email||"";
+      const fullName=user.user_metadata?.full_name || user.user_metadata?.name || "Monderman User";
+      const avatarUrl=user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
+      const { error:userError } = await supabase.from("users").upsert({ id:user.id, email, full_name:fullName, avatar_url:avatarUrl, last_sign_in_at:new Date().toISOString() });
+      if(userError) throw userError;
+      const { data:memberships, error:membershipError } = await supabase.from("organization_members").select("organization_id, role, organizations(id, name, slug)").eq("user_id", user.id).limit(1);
+      if(membershipError) throw membershipError;
+      if(memberships?.length) return memberships[0];
+      const slugBase=String(fullName).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"") || "workspace";
+      const { data:org, error:orgError } = await supabase.from("organizations").insert({ name:`${fullName} Workspace`, slug:`${slugBase}-workspace`, owner_user_id:user.id }).select().single();
+      if(orgError) throw orgError;
+      const { error:memberError } = await supabase.from("organization_members").insert({ organization_id:org.id, user_id:user.id, role:"owner" });
+      if(memberError) throw memberError;
+      return { organization_id:org.id, role:"owner", organizations:org };
+    }
+
+    function setRoleState(role){
+      state.role=role||"viewer";
+      const isAdmin=["owner","admin"].includes(state.role);
+      ui.roleChip.textContent=isAdmin ? `${state.role.toUpperCase()} ROLE` : `${(state.role || "viewer").toUpperCase()} ROLE`;
+      ui.roleChip.className=`chip ${isAdmin ? "ok" : ""}`.trim();
+      ui.assignmentModeChip.textContent=isAdmin ? "Admin module" : "Participant view";
+      ui.assignmentComposerCard.classList.toggle("hidden", !isAdmin);
+      ui.normalizeOrgBtn.classList.toggle("hidden", !isAdmin);
+    }
+
     async function loadRecentRuns(){ if(!state.user) return []; const { data, error } = await supabase.from("diagnostic_runs").select("*").eq("user_id", state.user.id).order("created_at", { ascending:false }).limit(12); if(error) throw error; return data || []; }
-    async function loadAssignments(){ if(!state.organization?.id) return []; const { data, error } = await supabase.from("diagnostic_assignments").select("*").eq("organization_id", state.organization.id).order("created_at", { ascending:false }).limit(12); if(error) throw error; return data || []; }
+    async function loadAssignments(){ if(!state.organization?.id) return []; const { data, error } = await supabase.from("diagnostic_assignments").select("*").eq("organization_id", state.organization.id).order("created_at", { ascending:false }).limit(24); if(error) throw error; return data || []; }
     async function loadNormalizedRuns(){ if(!state.organization?.id) return []; try{ const response=await fetch(`${apiBase}/api/normalization/workspace-runs/${state.organization.id}`); const data=await response.json(); if(!response.ok || !data?.ok) throw new Error(data?.error || "Normalization workspace fetch failed."); return data.runs || []; }catch(error){ console.warn("Normalized runs unavailable", error); return []; } }
-    function renderRuns(runs){ ui.runsList.innerHTML=""; ui.runsEmpty.classList.toggle("hidden", runs.length>0); ui.metricRuns.textContent=String(runs.length); ui.heroRuns.textContent=String(runs.length); ui.runsSummaryChip.textContent=`${runs.length} visible`; ui.metricLast.textContent=runs.length ? formatDate(runs[0].created_at || runs[0].generated_at) : "—"; runs.forEach((run)=>{ const item=document.createElement("div"); item.className="run-item"; const visibilityPills=[]; visibilityPills.push(run.is_anonymous_response ? '<span class="pill warn">Anonymous</span>' : '<span class="pill ok">Named</span>'); visibilityPills.push(run.show_results_to_assignee===false ? '<span class="pill rose">Participant output hidden</span>' : '<span class="pill ok">Participant output visible</span>'); if(run.normalization_status){ const norm=formatNormalizationStatus(run.normalization_status); visibilityPills.push(`<span class="${norm.className}">${escapeHtml(norm.label)}</span>`); } item.innerHTML=`<div><p class="run-title">${escapeHtml(formatToolName(run.tool_type || run.tool_label))}</p><p class="run-meta">${escapeHtml(formatDate(run.created_at || run.generated_at))}</p><p class="run-copy">${escapeHtml(run.pathway_name || run.event_path_name || "Saved run metadata will appear here when available.")}</p><div class="meta-row">${visibilityPills.join("")}</div></div><div class="run-actions"><a class="run-link" href="cross-tool-synthesis.html">View</a></div>`; ui.runsList.appendChild(item); }); }
-    function renderAssignments(assignments){ ui.assignmentList.innerHTML=""; ui.assignmentEmpty.classList.toggle("hidden", assignments.length>0); ui.heroAssignments.textContent=String(assignments.length); assignments.forEach((assignment)=>{ const item=document.createElement("div"); item.className="assignment-item"; const pills=[]; pills.push(`<span class="pill ${assignment.status === "completed" ? "ok" : assignment.status === "opened" ? "warn" : ""}">${escapeHtml(assignment.status || "pending")}</span>`); pills.push(assignment.is_anonymous_response ? '<span class="pill warn">Anonymous</span>' : '<span class="pill ok">Named</span>'); pills.push(assignment.show_results_to_assignee===false ? '<span class="pill rose">Output hidden from participant</span>' : '<span class="pill ok">Participant sees output</span>'); item.innerHTML=`<div><p class="run-title">${escapeHtml(assignment.event_path_name || "Assignment")}</p><p class="run-meta">${escapeHtml(formatToolName(assignment.tool_type || "decision_velocity"))} • ${escapeHtml(assignment.participant_lens || "participant lens")} • ${escapeHtml(String(assignment.depth || ""))} min</p><p class="run-copy">${escapeHtml(assignment.message || "No assignment note provided.")}</p><div class="meta-row">${pills.join("")}</div></div><div class="run-actions"><button class="run-link" type="button" data-copy-token="${escapeHtml(assignment.token || "")}">Copy link</button></div>`; ui.assignmentList.appendChild(item); }); ui.assignmentList.querySelectorAll("[data-copy-token]").forEach((btn)=>{ btn.addEventListener("click", async ()=>{ const token=btn.getAttribute("data-copy-token"); if(!token) return; const url=`${window.location.origin}/decision-velocity.html?assignment_token=${token}`; await navigator.clipboard.writeText(url); setStatus(ui.assignmentStatus, "Assignment link copied.", "ok"); }); }); }
+    async function loadAssignmentStatusSummary(){ if(!state.organization?.id) return null; try{ const response = await fetch(`${apiBase}/api/workspace/assignments/status-summary/${state.organization.id}`); const data = await response.json().catch(()=>({})); if(!response.ok || !data?.ok) throw new Error(data?.error || "status summary unavailable"); return data.summary || null; }catch(error){ console.warn("Assignment status summary unavailable", error); return null; } }
+
+    function renderRuns(runs){
+      ui.runsList.innerHTML="";
+      ui.runsEmpty.classList.toggle("hidden", runs.length>0);
+      ui.metricRuns.textContent=String(runs.length);
+      ui.heroRuns.textContent=String(runs.length);
+      ui.runsSummaryChip.textContent=`${runs.length} visible`;
+      ui.metricLast.textContent=runs.length ? formatDate(runs[0].created_at || runs[0].generated_at) : "—";
+      runs.forEach((run)=>{
+        const item=document.createElement("div");
+        item.className="run-item";
+        const visibilityPills=[];
+        visibilityPills.push(run.is_anonymous_response ? '<span class="pill warn">Anonymous</span>' : '<span class="pill ok">Named</span>');
+        visibilityPills.push(run.show_results_to_assignee===false ? '<span class="pill rose">Participant output hidden</span>' : '<span class="pill ok">Participant output visible</span>');
+        if(run.normalization_status){ const norm=formatNormalizationStatus(run.normalization_status); visibilityPills.push(`<span class="${norm.className}">${escapeHtml(norm.label)}</span>`); }
+        item.innerHTML=`<div><p class="run-title">${escapeHtml(formatToolName(run.tool_type || run.tool_label))}</p><p class="run-meta">${escapeHtml(formatDate(run.created_at || run.generated_at))}</p><p class="run-copy">${escapeHtml(run.pathway_name || run.event_path_name || "Saved run metadata will appear here when available.")}</p><div class="meta-row">${visibilityPills.join("")}</div></div><div class="run-actions"><a class="run-link" href="cross-tool-synthesis.html">View</a></div>`;
+        ui.runsList.appendChild(item);
+      });
+    }
+
+    function buildAssignmentLink(assignment){
+      if(!assignment?.token) return "";
+      const routeMap = {
+        decision_velocity: "decision-velocity.html",
+        structural_clarity: "structural-clarity.html",
+        operational_systems: "operational-systems.html",
+        institutional_performance: "institutional-performance.html"
+      };
+      const page = routeMap[assignment.tool_type] || "decision-velocity.html";
+      return `${window.location.origin}/${page}?assignment_token=${assignment.token}`;
+    }
+
+    function renderAssignments(assignments){
+      ui.assignmentList.innerHTML="";
+      ui.assignmentEmpty.classList.toggle("hidden", assignments.length>0);
+      ui.heroAssignments.textContent=String(assignments.length);
+      assignments.forEach((assignment)=>{
+        const item=document.createElement("div");
+        item.className="assignment-item";
+        const pills=[];
+        pills.push(`<span class="pill ${assignment.status === "completed" ? "ok" : assignment.status === "opened" ? "warn" : ""}">${escapeHtml(assignment.status || "pending")}</span>`);
+        if (assignment.send_status) pills.push(`<span class="pill accent">${escapeHtml(assignment.send_status)}</span>`);
+        pills.push(assignment.is_anonymous_response ? '<span class="pill warn">Anonymous</span>' : '<span class="pill ok">Named</span>');
+        pills.push(assignment.show_results_to_assignee===false ? '<span class="pill rose">Output hidden from participant</span>' : '<span class="pill ok">Participant sees output</span>');
+        item.innerHTML=`<div><p class="run-title">${escapeHtml(assignment.event_path_name || assignment.batch_label || "Assignment")}</p><p class="run-meta">${escapeHtml(formatToolName(assignment.tool_type || "decision_velocity"))} • ${escapeHtml(assignment.participant_lens || "participant lens")} • ${escapeHtml(formatDepthLabel(assignment.depth || 30))}</p><p class="run-copy">${escapeHtml(assignment.recipient_email || assignment.message || "No assignment note provided.")}</p><div class="meta-row">${pills.join("")}</div></div><div class="run-actions"><button class="run-link" type="button" data-copy-token="${escapeHtml(assignment.token || "")}">Copy link</button></div>`;
+        ui.assignmentList.appendChild(item);
+      });
+      ui.assignmentList.querySelectorAll("[data-copy-token]").forEach((btn)=>{
+        btn.addEventListener("click", async ()=>{
+          const assignment = assignments.find((item) => item.token === btn.getAttribute("data-copy-token"));
+          const url = buildAssignmentLink(assignment);
+          if(!url) return;
+          await navigator.clipboard.writeText(url);
+          setStatus(ui.assignmentStatus, "Assignment link copied.", "ok");
+        });
+      });
+    }
+
     function applyResultFilters(runs){ const toolFilter=ui.resultToolFilter.value; const inclusionFilter=ui.resultInclusionFilter.value; return runs.filter((run)=>{ if(toolFilter && run.tool_type!==toolFilter) return false; if(inclusionFilter && run.normalization_status!==inclusionFilter) return false; return true; }); }
-    function renderNormalizedRuns(){ const filtered=applyResultFilters(state.normalizedRuns); ui.normalizedRunsList.innerHTML=""; ui.normalizedRunsEmpty.classList.toggle("hidden", filtered.length>0); filtered.forEach((run)=>{ const item=document.createElement("div"); item.className="run-item"; const norm=formatNormalizationStatus(run.normalization_status); const flags=Array.isArray(run.normalization_flags_json) ? run.normalization_flags_json : []; item.innerHTML=`<div><p class="run-title">${escapeHtml(formatToolName(run.tool_type))} • ${escapeHtml(run.pathway_name || "Unnamed pathway")}</p><p class="run-meta">${escapeHtml(formatDate(run.created_at))} • Score ${escapeHtml(String(run.score ?? "—"))}</p><p class="run-copy">${escapeHtml(run.primary_driver || "Primary driver not yet set.")}</p><div class="meta-row"><span class="${norm.className}">${escapeHtml(norm.label)}</span>${run.is_anonymous_response ? '<span class="pill warn">Anonymous</span>' : '<span class="pill ok">Named</span>'}${run.show_results_to_assignee===false ? '<span class="pill rose">Participant output hidden</span>' : '<span class="pill ok">Participant output visible</span>'}${run.included_in_aggregates===false ? '<span class="pill rose">Excluded from aggregates</span>' : '<span class="pill ok">Included in aggregates</span>'}</div>${flags.length ? `<p class="run-copy" style="margin-top:10px;">${escapeHtml(flags.map((f)=>f.code || f.explanation || "flag").join(" • "))}</p>` : ""}</div><div class="run-actions"><button class="run-link" type="button" data-run-normalize="${escapeHtml(run.id)}">Normalize</button></div>`; ui.normalizedRunsList.appendChild(item); }); ui.normalizedRunsList.querySelectorAll("[data-run-normalize]").forEach((btn)=>{ btn.addEventListener("click", async ()=>{ const runId=btn.getAttribute("data-run-normalize"); await normalizeOneRun(runId); }); }); const flagged=state.normalizedRuns.filter((run)=>["included_with_caution","excluded_from_aggregates"].includes(run.normalization_status)); ui.flaggedRunList.innerHTML=""; ui.flaggedRunEmpty.classList.toggle("hidden", flagged.length>0); ui.heroFlagged.textContent=String(flagged.length); flagged.forEach((run)=>{ const flags=Array.isArray(run.normalization_flags_json) ? run.normalization_flags_json : []; const item=document.createElement("div"); item.className="flag-item"; item.innerHTML=`<div><p class="run-title">${escapeHtml(run.pathway_name || "Unnamed pathway")}</p><p class="run-meta">${escapeHtml(formatToolName(run.tool_type))} • ${escapeHtml(formatDate(run.created_at))}</p><p class="run-copy">${escapeHtml(flags.map((f)=>f.explanation || f.code || "Flagged run").join(" • ") || "Normalization engine flagged this run.")}</p></div><div class="run-actions"><span class="${formatNormalizationStatus(run.normalization_status).className}">${escapeHtml(formatNormalizationStatus(run.normalization_status).label)}</span></div>`; ui.flaggedRunList.appendChild(item); }); renderAnalytics(); renderNormalizationTable(); }
-    function renderAnalytics(){ const runs=state.normalizedRuns; const included=runs.filter((r)=>r.normalization_status==="included"); const caution=runs.filter((r)=>r.normalization_status==="included_with_caution"); const excluded=runs.filter((r)=>r.normalization_status==="excluded_from_aggregates"); const includedCount=runs.filter((r)=>r.included_in_aggregates!==false).length; ui.metricIncluded.textContent=String(includedCount); ui.analyticsAllRuns.textContent=String(runs.length); ui.analyticsIncluded.textContent=String(included.length); ui.analyticsCaution.textContent=String(caution.length); ui.analyticsExcluded.textContent=String(excluded.length); }
-    function renderNormalizationTable(){ ui.normalizationTableBody.innerHTML=""; if(!state.normalizedRuns.length){ ui.normalizationTableBody.innerHTML='<tr><td colspan="5">No normalized runs available yet.</td></tr>'; return; } state.normalizedRuns.forEach((run)=>{ const flags=Array.isArray(run.normalization_flags_json) ? run.normalization_flags_json : []; const norm=formatNormalizationStatus(run.normalization_status); const tr=document.createElement("tr"); tr.innerHTML=`<td>${escapeHtml(run.pathway_name || formatToolName(run.tool_type))}</td><td><span class="${norm.className}">${escapeHtml(norm.label)}</span></td><td>${escapeHtml(String(run.normalization_score ?? "—"))}</td><td>${escapeHtml(flags.map((f)=>f.code || "flag").join(", ") || "—")}</td><td>${escapeHtml(formatDate(run.normalized_at))}</td>`; ui.normalizationTableBody.appendChild(tr); }); }
-    function buildAssignmentPayload(){ return { organization_id:state.organization?.id || null, sender_user_id:state.user?.id || null, recipient_email:document.getElementById("recipientEmail").value.trim(), tool_type:document.getElementById("assignmentTool").value, participant_lens:document.getElementById("assignmentLens").value, depth:document.getElementById("assignmentDepth").value, event_path_name:document.getElementById("eventPathName").value.trim(), message:document.getElementById("assignmentMessage").value.trim(), send_timing:document.getElementById("sendTiming").value, custom_due_at:document.getElementById("customDueAt").value || null, show_results_to_assignee:document.getElementById("allowParticipantOutput").checked, is_anonymous_response:document.getElementById("anonymousResponse").checked, hide_from_admin:document.getElementById("hideFromAdmin").checked, request_normalization:document.getElementById("requestNormalization").checked }; }
-    async function sendAssignment(event){ event.preventDefault(); const payload=buildAssignmentPayload(); if(!payload.recipient_email || !payload.event_path_name){ setStatus(ui.assignmentStatus, "Recipient email and event path are required.", "error"); return; } ui.sendAssignmentBtn.disabled=true; setStatus(ui.assignmentStatus, "Sending assignment…"); try{ const response=await fetch(`${apiBase}/api/workspace/send-assignment`, { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify(payload) }); const data=await response.json().catch(()=>({})); if(!response.ok || !data?.ok) throw new Error(data?.error || "Assignment route is not wired yet."); setStatus(ui.assignmentStatus, "Assignment sent successfully.", "ok"); await refreshAssignmentAndResultState(); ui.assignmentForm.reset(); }catch(error){ console.warn(error); setStatus(ui.assignmentStatus, `Assignment UI is ready, but backend send wiring is still pending: ${error.message}`, "error"); } finally { ui.sendAssignmentBtn.disabled=false; } }
+    function renderNormalizedRuns(){
+      const filtered=applyResultFilters(state.normalizedRuns);
+      ui.normalizedRunsList.innerHTML="";
+      ui.normalizedRunsEmpty.classList.toggle("hidden", filtered.length>0);
+      filtered.forEach((run)=>{
+        const item=document.createElement("div");
+        item.className="run-item";
+        const norm=formatNormalizationStatus(run.normalization_status);
+        const flags=Array.isArray(run.normalization_flags_json) ? run.normalization_flags_json : [];
+        item.innerHTML=`<div><p class="run-title">${escapeHtml(formatToolName(run.tool_type))} • ${escapeHtml(run.pathway_name || "Unnamed pathway")}</p><p class="run-meta">${escapeHtml(formatDate(run.created_at))} • Score ${escapeHtml(String(run.score ?? "—"))}</p><p class="run-copy">${escapeHtml(run.primary_driver || "Primary driver not yet set.")}</p><div class="meta-row"><span class="${norm.className}">${escapeHtml(norm.label)}</span>${run.is_anonymous_response ? '<span class="pill warn">Anonymous</span>' : '<span class="pill ok">Named</span>'}${run.show_results_to_assignee===false ? '<span class="pill rose">Participant output hidden</span>' : '<span class="pill ok">Participant output visible</span>'}${run.included_in_aggregates===false ? '<span class="pill rose">Excluded from aggregates</span>' : '<span class="pill ok">Included in aggregates</span>'}</div>${flags.length ? `<p class="run-copy" style="margin-top:10px;">${escapeHtml(flags.map((f)=>f.code || f.explanation || "flag").join(" • "))}</p>` : ""}</div><div class="run-actions"><button class="run-link" type="button" data-run-normalize="${escapeHtml(run.id)}">Normalize</button></div>`;
+        ui.normalizedRunsList.appendChild(item);
+      });
+      ui.normalizedRunsList.querySelectorAll("[data-run-normalize]").forEach((btn)=>{ btn.addEventListener("click", async ()=>{ const runId=btn.getAttribute("data-run-normalize"); await normalizeOneRun(runId); }); });
+      const flagged=state.normalizedRuns.filter((run)=>["included_with_caution","excluded_from_aggregates"].includes(run.normalization_status));
+      ui.flaggedRunList.innerHTML="";
+      ui.flaggedRunEmpty.classList.toggle("hidden", flagged.length>0);
+      ui.heroFlagged.textContent=String(flagged.length);
+      flagged.forEach((run)=>{
+        const flags=Array.isArray(run.normalization_flags_json) ? run.normalization_flags_json : [];
+        const item=document.createElement("div");
+        item.className="flag-item";
+        item.innerHTML=`<div><p class="run-title">${escapeHtml(run.pathway_name || "Unnamed pathway")}</p><p class="run-meta">${escapeHtml(formatToolName(run.tool_type))} • ${escapeHtml(formatDate(run.created_at))}</p><p class="run-copy">${escapeHtml(flags.map((f)=>f.explanation || f.code || "Flagged run").join(" • ") || "Normalization engine flagged this run.")}</p></div><div class="run-actions"><span class="${formatNormalizationStatus(run.normalization_status).className}">${escapeHtml(formatNormalizationStatus(run.normalization_status).label)}</span></div>`;
+        ui.flaggedRunList.appendChild(item);
+      });
+      renderAnalytics();
+      renderNormalizationTable();
+      renderExecutiveSummary();
+    }
+
+    function renderAnalytics(){
+      const runs=state.normalizedRuns;
+      const included=runs.filter((r)=>r.normalization_status==="included");
+      const caution=runs.filter((r)=>r.normalization_status==="included_with_caution");
+      const excluded=runs.filter((r)=>r.normalization_status==="excluded_from_aggregates");
+      const includedCount=runs.filter((r)=>r.included_in_aggregates!==false).length;
+      ui.metricIncluded.textContent=String(includedCount);
+      ui.analyticsAllRuns.textContent=String(runs.length);
+      ui.analyticsIncluded.textContent=String(included.length);
+      ui.analyticsCaution.textContent=String(caution.length);
+      ui.analyticsExcluded.textContent=String(excluded.length);
+    }
+
+    function renderNormalizationTable(){
+      ui.normalizationTableBody.innerHTML="";
+      if(!state.normalizedRuns.length){ ui.normalizationTableBody.innerHTML='<tr><td colspan="5">No normalized runs available yet.</td></tr>'; return; }
+      state.normalizedRuns.forEach((run)=>{
+        const flags=Array.isArray(run.normalization_flags_json) ? run.normalization_flags_json : [];
+        const norm=formatNormalizationStatus(run.normalization_status);
+        const tr=document.createElement("tr");
+        tr.innerHTML=`<td>${escapeHtml(run.pathway_name || formatToolName(run.tool_type))}</td><td><span class="${norm.className}">${escapeHtml(norm.label)}</span></td><td>${escapeHtml(String(run.normalization_score ?? run.score ?? "—"))}</td><td>${escapeHtml(flags.map((f)=>f.code || "flag").join(", ") || "—")}</td><td>${escapeHtml(formatDate(run.normalized_at))}</td>`;
+        ui.normalizationTableBody.appendChild(tr);
+      });
+    }
+
+    function renderExecutiveSummary(summaryFromApi = null){
+      const assignments = state.assignments;
+      const sent = assignments.filter((a) => (a.send_status || "") !== "failed").length;
+      const opened = assignments.filter((a) => a.status === "opened" || a.status === "completed").length;
+      const completed = assignments.filter((a) => a.status === "completed").length;
+      const dueSoonLocal = assignments.filter((a) => {
+        if (!a.due_at) return false;
+        const due = new Date(a.due_at).getTime();
+        const now = Date.now();
+        return due > now && due - now <= 72 * 60 * 60 * 1000 && a.status !== "completed";
+      }).length;
+      const flagged = state.normalizedRuns.filter((r) => ["included_with_caution", "excluded_from_aggregates"].includes(r.normalization_status)).length;
+      const included = state.normalizedRuns.filter((r) => r.included_in_aggregates !== false).length;
+      const excluded = state.normalizedRuns.filter((r) => r.normalization_status === "excluded_from_aggregates" || r.included_in_aggregates === false).length;
+      const api = summaryFromApi || {};
+      ui.summaryOpenRate.textContent = api.open_rate_display || toPct(api.opened_count ?? opened, api.sent_count ?? sent);
+      ui.summaryCompletionRate.textContent = api.completion_rate_display || toPct(api.completed_count ?? completed, api.sent_count ?? sent);
+      ui.summaryDueSoon.textContent = String(api.due_soon_count ?? dueSoonLocal);
+      ui.summaryFlagged.textContent = String(flagged);
+      ui.summaryIncluded.textContent = String(included);
+      ui.summaryExcluded.textContent = String(excluded);
+      ui.summaryContextChip.textContent = state.organization?.name ? `${state.organization.name} summary` : "Workspace summary";
+      if (state.organization?.name) ui.metricOrg.textContent = state.organization.name;
+      ui.heroAssignments.textContent = String(assignments.length);
+      ui.heroFlagged.textContent = String(flagged);
+    }
+
+    function attachTabBehavior(){ document.querySelectorAll(".tab-btn").forEach((btn)=>{ btn.addEventListener("click", ()=>{ const tab=btn.getAttribute("data-tab"); document.querySelectorAll(".tab-btn").forEach((b)=>b.classList.toggle("active", b===btn)); document.querySelectorAll(".tab-panel").forEach((panel)=>panel.classList.toggle("active", panel.getAttribute("data-panel")===tab)); }); }); }
+    function attachIntakeTabBehavior(){ document.querySelectorAll(".intake-tab").forEach((btn)=>{ btn.addEventListener("click", ()=>{ const tab = btn.getAttribute("data-intake"); document.querySelectorAll(".intake-tab").forEach((el)=>el.classList.toggle("active", el===btn)); document.querySelectorAll(".intake-panel").forEach((panel)=>panel.classList.toggle("active", panel.getAttribute("data-intake-panel")===tab)); }); }); }
+    function attachGovernanceHandlers(){ ui.saveGovernanceBtn?.addEventListener("click", ()=>{ state.governance.participantVisible=ui.govParticipantVisible.checked; state.governance.metadataOnlyForAnonymous=ui.govMetadataOnly.checked; state.governance.useNormalized=ui.govUseNormalized.checked; safeWriteLocal("monderman_workspace_governance", JSON.stringify(state.governance)); setStatus(ui.governanceStatus, "Governance preferences saved locally for this workspace view.", "ok"); }); ui.exportGovernanceBtn?.addEventListener("click", ()=>{ const blob=new Blob([JSON.stringify({ organization:state.organization, governance:state.governance }, null, 2)], { type:"application/json" }); const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download="monderman-workspace-governance.json"; a.click(); URL.revokeObjectURL(url); }); }
+    function hydrateGovernancePrefs(){ const stored=safeReadLocal("monderman_workspace_governance"); if(!stored) return; try{ const parsed=JSON.parse(stored); state.governance={ ...state.governance, ...parsed }; ui.govParticipantVisible.checked=!!state.governance.participantVisible; ui.govMetadataOnly.checked=!!state.governance.metadataOnlyForAnonymous; ui.govUseNormalized.checked=!!state.governance.useNormalized; }catch{} }
+
+    function normalizeRecipientObject(raw = {}, index = 0){
+      const email = String(raw.email ?? raw.recipient_email ?? raw.mail ?? "").trim();
+      const name = String(raw.name ?? raw.recipient_name ?? raw.full_name ?? "").trim();
+      const team = String(raw.team ?? raw.recipient_team ?? "").trim();
+      const business_unit = String(raw.business_unit ?? raw.recipient_business_unit ?? raw.unit ?? "").trim();
+      return { index, email, name, team, business_unit };
+    }
+
+    function parsePasteRows(text){
+      return text.split(/\n+/).map((line, idx) => {
+        const clean = line.trim();
+        if (!clean) return null;
+        const cols = clean.includes(",") ? clean.split(",") : clean.includes(";") ? clean.split(";") : [clean];
+        const [email, name = "", team = "", business_unit = ""] = cols.map((part) => part.trim());
+        return normalizeRecipientObject({ email, name, team, business_unit }, idx);
+      }).filter(Boolean);
+    }
+
+    function validateRecipients(rows){
+      const seen = new Map();
+      return rows.map((row, index) => {
+        const email = String(row.email || "").trim().toLowerCase();
+        const issues = [];
+        if (!email || !EMAIL_RE.test(email)) issues.push("Invalid email");
+        const count = seen.get(email) || 0;
+        if (email) seen.set(email, count + 1);
+        if (count > 0) issues.push("Duplicate email");
+        return { ...row, index, email, valid: issues.length === 0, issues };
+      });
+    }
+
+    function setBatchRows(rows, sourceType, sourceFile = null){
+      const validated = validateRecipients(rows);
+      state.batch.rows = validated;
+      state.batch.sourceType = sourceType;
+      state.batch.sourceFile = sourceFile;
+      renderRecipientPreview();
+      renderBatchReview();
+    }
+
+    function renderRecipientPreview(){
+      const rows = state.batch.rows;
+      ui.recipientPreviewList.innerHTML = "";
+      ui.recipientPreviewEmpty.classList.toggle("hidden", rows.length > 0);
+      const validCount = rows.filter((r) => r.valid).length;
+      const dupCount = rows.filter((r) => r.issues.includes("Duplicate email")).length;
+      const invalidCount = rows.filter((r) => !r.valid).length;
+      ui.recipientCount.textContent = String(rows.length);
+      ui.recipientValidCount.textContent = String(validCount);
+      ui.recipientDuplicateCount.textContent = String(dupCount);
+      ui.recipientInvalidCount.textContent = String(invalidCount);
+      rows.slice(0, 12).forEach((row) => {
+        const item = document.createElement("div");
+        item.className = "recipient-item";
+        item.innerHTML = `<div><p class="run-title">${escapeHtml(row.email || "Missing email")}</p><p class="run-meta">${escapeHtml(row.name || "No name provided")}${row.team ? ` • ${escapeHtml(row.team)}` : ""}${row.business_unit ? ` • ${escapeHtml(row.business_unit)}` : ""}</p><div class="meta-row">${row.valid ? '<span class="pill ok">Valid</span>' : '<span class="pill rose">Needs attention</span>'}${row.issues.map((issue) => `<span class="pill warn">${escapeHtml(issue)}</span>`).join("")}</div></div><div class="run-actions"><span class="pill accent">Row ${row.index + 1}</span></div>`;
+        ui.recipientPreviewList.appendChild(item);
+      });
+      if (rows.length > 12) {
+        const more = document.createElement("div");
+        more.className = "empty";
+        more.textContent = `${rows.length - 12} additional recipients are validated but not shown here.`;
+        ui.recipientPreviewList.appendChild(more);
+      }
+      const intakeDone = rows.length > 0 && validCount > 0;
+      ui.stepCardIntake.classList.toggle("active", !intakeDone);
+      ui.stepCardIntake.classList.toggle("complete", intakeDone);
+      ui.stepCardConfig.classList.toggle("active", intakeDone);
+      ui.stepConfigChip.textContent = intakeDone ? "Ready" : "Locked";
+      ui.stepConfigChip.className = `chip ${intakeDone ? "ok" : "ghost"}`.trim();
+      ui.stepIntakeChip.textContent = intakeDone ? "Complete" : "Required";
+      ui.stepIntakeChip.className = `chip ${intakeDone ? "ok" : "ghost"}`.trim();
+      ui.reviewRecipientChip.textContent = `${validCount} valid recipients`;
+      ui.sendBatchBtn.disabled = !intakeDone || validCount === 0;
+    }
+
+    function buildCsvFromRows(rows){
+      const header = ["email","name","team","business_unit"];
+      const lines = [header.join(",")];
+      rows.forEach((row) => {
+        const vals = header.map((key) => `"${String(row[key] ?? "").replace(/"/g, '""')}"`);
+        lines.push(vals.join(","));
+      });
+      return new Blob([lines.join("\n")], { type: "text/csv" });
+    }
+
+    async function parseSpreadsheetFile(file){
+      const name = file.name.toLowerCase();
+      if (name.endsWith(".json")) {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        const rows = Array.isArray(parsed) ? parsed.map((row, index) => normalizeRecipientObject(row, index)) : [];
+        setBatchRows(rows, "json", file);
+        return;
+      }
+      if (name.endsWith(".csv")) {
+        const text = await file.text();
+        const workbook = XLSX.read(text, { type: "string" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+        const rows = json.map((row, index) => normalizeRecipientObject(row, index));
+        setBatchRows(rows, "csv", file);
+        return;
+      }
+      const buf = await file.arrayBuffer();
+      const workbook = XLSX.read(buf, { type: "array" });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+      const rows = json.map((row, index) => normalizeRecipientObject(row, index));
+      setBatchRows(rows, "xlsx", file);
+    }
+
+    function buildAssignmentDefaults(){
+      return {
+        tool_type: document.getElementById("assignmentTool").value,
+        participant_lens: document.getElementById("assignmentLens").value,
+        depth: document.getElementById("assignmentDepth").value,
+        event_path_name: document.getElementById("eventPathName").value.trim(),
+        message: document.getElementById("assignmentMessage").value.trim(),
+        send_timing: document.getElementById("sendTiming").value,
+        custom_due_at: document.getElementById("customDueAt").value || null,
+        show_results_to_assignee: document.getElementById("allowParticipantOutput").checked,
+        is_anonymous_response: document.getElementById("anonymousResponse").checked,
+        hide_from_admin: document.getElementById("hideFromAdmin").checked,
+        request_normalization: document.getElementById("requestNormalization").checked
+      };
+    }
+
+    function renderBatchReview(){
+      const defaults = buildAssignmentDefaults();
+      ui.reviewDelivery.textContent = `${formatToolName(defaults.tool_type)} • ${defaults.participant_lens === "executive" ? "Senior leader" : defaults.participant_lens.charAt(0).toUpperCase() + defaults.participant_lens.slice(1)} • ${formatDepthLabel(defaults.depth)}`;
+      const visibilityBits = [];
+      visibilityBits.push(defaults.show_results_to_assignee ? "Participant-visible output" : "Participant output hidden");
+      visibilityBits.push(defaults.is_anonymous_response ? "anonymous response" : "named response");
+      visibilityBits.push(defaults.hide_from_admin ? "admin metadata-first" : "admin-visible by default");
+      ui.reviewVisibility.textContent = visibilityBits.join(", ") + ".";
+      ui.reviewTiming.textContent = defaults.send_timing === "custom" && defaults.custom_due_at ? `Custom timing • ${formatDate(defaults.custom_due_at)}` : defaults.send_timing === "tomorrow" ? "Tomorrow morning" : defaults.send_timing === "today" ? "Later today" : "Send now";
+    }
+
+    async function runBackendBatchPreview(){
+      if (!state.batch.rows.length) {
+        setStatus(ui.assignmentStatus, "Validate a recipient set before calling the preview route.", "error");
+        return;
+      }
+      ui.previewRouteStatus.textContent = "Running preview…";
+      setStatus(ui.assignmentStatus, "Running backend batch preview…");
+      try {
+        const formData = new FormData();
+        const file = state.batch.sourceFile || new File([buildCsvFromRows(state.batch.rows)], "workspace-preview.csv", { type: "text/csv" });
+        formData.append("file", file);
+        formData.append("defaults", JSON.stringify(buildAssignmentDefaults()));
+        const response = await fetch(`${apiBase}/api/workspace/assignments/preview-batch`, { method: "POST", body: formData });
+        const data = await response.json().catch(()=>({}));
+        if (!response.ok || !data?.ok) throw new Error(data?.error || "Batch preview failed.");
+        state.batch.previewResponse = data;
+        ui.previewRouteStatus.textContent = `Preview complete • ${data.summary?.valid_count ?? data.valid_count ?? state.batch.rows.filter((r)=>r.valid).length} valid rows`;
+        setStatus(ui.assignmentStatus, "Backend preview completed successfully.", "ok");
+      } catch (error) {
+        console.warn(error);
+        ui.previewRouteStatus.textContent = `Preview unavailable • ${error.message}`;
+        setStatus(ui.assignmentStatus, error.message || "Batch preview failed.", "error");
+      }
+    }
+
+    async function sendBatch(event){
+      event.preventDefault();
+      const defaults = buildAssignmentDefaults();
+      const validRows = state.batch.rows.filter((row) => row.valid);
+      if (!validRows.length) {
+        setStatus(ui.assignmentStatus, "At least one valid recipient is required.", "error");
+        return;
+      }
+      if (!defaults.event_path_name) {
+        setStatus(ui.assignmentStatus, "Event path is required before sending.", "error");
+        return;
+      }
+      ui.sendBatchBtn.disabled = true;
+      ui.sendRouteStatus.textContent = "Sending batch…";
+      setStatus(ui.assignmentStatus, "Sending batch assignments…");
+      try {
+        const file = state.batch.sourceFile || new File([buildCsvFromRows(validRows)], "workspace-send.csv", { type: "text/csv" });
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("defaults", JSON.stringify(defaults));
+        formData.append("organization_id", state.organization?.id || "");
+        formData.append("sender_user_id", state.user?.id || "");
+        formData.append("batch_label", ui.batchLabel.value.trim());
+        const response = await fetch(`${apiBase}/api/workspace/assignments/send-batch`, { method: "POST", body: formData });
+        const data = await response.json().catch(()=>({}));
+        if (!response.ok || !data?.ok) throw new Error(data?.error || "Batch send failed.");
+        ui.sendRouteStatus.textContent = `Sent • ${data.sent_count ?? data.summary?.sent_count ?? validRows.length} assignments`;
+        setStatus(ui.assignmentStatus, "Batch sent successfully.", "ok");
+        await refreshAssignmentAndResultState();
+      } catch (error) {
+        console.warn(error);
+        ui.sendRouteStatus.textContent = `Send unavailable • ${error.message}`;
+        setStatus(ui.assignmentStatus, error.message || "Batch send failed.", "error");
+      } finally {
+        ui.sendBatchBtn.disabled = false;
+      }
+    }
+
     async function normalizeOneRun(runId){ if(!runId) return; setStatus(ui.resultsStatus, "Running normalization for selected run…"); try{ const response=await fetch(`${apiBase}/api/normalization/normalize-run/${runId}`, { method:"POST" }); const data=await response.json().catch(()=>({})); if(!response.ok || !data?.ok) throw new Error(data?.error || "Normalization failed."); setStatus(ui.resultsStatus, "Run normalized successfully.", "ok"); await loadAndRenderNormalizedRuns(); }catch(error){ console.warn(error); setStatus(ui.resultsStatus, error.message || "Normalization failed.", "error"); } }
     async function normalizeOrganization(){ if(!state.organization?.id) return; setStatus(ui.resultsStatus, "Running organization-wide normalization…"); try{ const toolType=ui.resultToolFilter.value || null; const response=await fetch(`${apiBase}/api/normalization/normalize-organization/${state.organization.id}`, { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify({ tool_type:toolType }) }); const data=await response.json().catch(()=>({})); if(!response.ok || !data?.ok) throw new Error(data?.error || "Organization normalization failed."); setStatus(ui.resultsStatus, `Normalization complete for ${data.count || 0} runs.`, "ok"); await loadAndRenderNormalizedRuns(); }catch(error){ console.warn(error); setStatus(ui.resultsStatus, error.message || "Organization normalization failed.", "error"); } }
     async function loadAndRenderNormalizedRuns(){ state.normalizedRuns = await loadNormalizedRuns(); renderNormalizedRuns(); }
-    async function refreshAssignmentAndResultState(){ try{ state.assignments = await loadAssignments(); renderAssignments(state.assignments); }catch(error){ console.warn(error); } await loadAndRenderNormalizedRuns(); }
-    function attachTabBehavior(){ document.querySelectorAll(".tab-btn").forEach((btn)=>{ btn.addEventListener("click", ()=>{ const tab=btn.getAttribute("data-tab"); document.querySelectorAll(".tab-btn").forEach((b)=>b.classList.toggle("active", b===btn)); document.querySelectorAll(".tab-panel").forEach((panel)=>panel.classList.toggle("active", panel.getAttribute("data-panel")===tab)); }); }); }
-    function attachGovernanceHandlers(){ ui.saveGovernanceBtn?.addEventListener("click", ()=>{ state.governance.participantVisible=ui.govParticipantVisible.checked; state.governance.metadataOnlyForAnonymous=ui.govMetadataOnly.checked; state.governance.useNormalized=ui.govUseNormalized.checked; safeWriteLocal("monderman_workspace_governance", JSON.stringify(state.governance)); setStatus(ui.governanceStatus, "Governance preferences saved locally for this workspace view.", "ok"); }); ui.exportGovernanceBtn?.addEventListener("click", ()=>{ const blob=new Blob([JSON.stringify({ organization:state.organization, governance:state.governance }, null, 2)], { type:"application/json" }); const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download="monderman-workspace-governance.json"; a.click(); URL.revokeObjectURL(url); }); }
-    function hydrateGovernancePrefs(){ const stored=safeReadLocal("monderman_workspace_governance"); if(!stored) return; try{ const parsed=JSON.parse(stored); state.governance={ ...state.governance, ...parsed }; ui.govParticipantVisible.checked=!!state.governance.participantVisible; ui.govMetadataOnly.checked=!!state.governance.metadataOnlyForAnonymous; ui.govUseNormalized.checked=!!state.governance.useNormalized; }catch{} }
-    async function initialize(){ try{ const { data, error } = await supabase.auth.getUser(); if(error) throw error; if(!data?.user){ window.location.href="signin.html?next=workspace.html"; return; } state.user=data.user; state.membership=await ensureWorkspace(state.user); state.organization=state.membership?.organizations || null; setRoleState(state.membership?.role || "viewer"); ui.heroStatusTitle.textContent="Workspace ready"; ui.heroStatusCopy.textContent="Your identity layer is live. Assignments, result visibility, and normalization can now converge in one governed surface."; ui.userAvatar.textContent=initials(state.user.user_metadata?.full_name || state.user.user_metadata?.name, state.user.email); ui.userName.textContent=state.user.user_metadata?.full_name || state.user.user_metadata?.name || state.user.email || "Monderman User"; ui.userMeta.textContent=`${state.user.email || "Signed-in user"}${state.organization?.name ? ` • ${state.organization.name}` : ""}`; ui.metricOrg.textContent=state.organization?.name || "Personal"; setStatus(ui.identityStatus, "Signed in successfully. Workspace and organization membership resolved.", "ok"); try{ state.runs = await loadRecentRuns(); renderRuns(state.runs); }catch(err){ console.error(err); setStatus(ui.identityStatus, "Workspace loaded, but direct saved-run reads could not be completed. Check Supabase policies on diagnostic_runs.", "error"); } await refreshAssignmentAndResultState(); hydrateGovernancePrefs(); }catch(err){ console.error(err); ui.heroStatusTitle.textContent="Workspace unavailable"; ui.heroStatusCopy.textContent="The page loaded, but sign-in or workspace resolution failed."; ui.userName.textContent="Workspace unavailable"; ui.userMeta.textContent="Check auth configuration or Supabase policies."; setStatus(ui.identityStatus, err.message || "Workspace initialization failed.", "error"); } }
+    async function refreshAssignmentAndResultState(){ try{ state.assignments = await loadAssignments(); renderAssignments(state.assignments); }catch(error){ console.warn(error); } await loadAndRenderNormalizedRuns(); const summary = await loadAssignmentStatusSummary(); renderExecutiveSummary(summary); }
+
+    function resetBatchBuilder(){
+      state.batch = { rows:[], sourceType:null, sourceFile:null, previewResponse:null };
+      ui.recipientPaste.value = "";
+      ui.recipientJson.value = "";
+      ui.recipientFile.value = "";
+      ui.selectedFileName.textContent = "No file selected.";
+      ui.previewRouteStatus.textContent = "Not run yet.";
+      ui.sendRouteStatus.textContent = "Not run yet.";
+      renderRecipientPreview();
+      renderBatchReview();
+    }
+
+    function attachAssignmentBuilder(){
+      ui.parsePasteBtn?.addEventListener("click", ()=>{ const rows = parsePasteRows(ui.recipientPaste.value || ""); setBatchRows(rows, "paste"); setStatus(ui.assignmentStatus, rows.length ? "Pasted recipients validated." : "No recipient rows found in pasted content.", rows.length ? "ok" : "error"); });
+      ui.parseJsonBtn?.addEventListener("click", ()=>{ try { const parsed = JSON.parse(ui.recipientJson.value || "[]"); const rows = Array.isArray(parsed) ? parsed.map((row, index) => normalizeRecipientObject(row, index)) : []; setBatchRows(rows, "json"); setStatus(ui.assignmentStatus, rows.length ? "JSON recipients validated." : "No recipient rows found in JSON.", rows.length ? "ok" : "error"); } catch (error) { setStatus(ui.assignmentStatus, "JSON could not be parsed.", "error"); } });
+      ui.recipientFile?.addEventListener("change", async (event)=>{ const file = event.target.files?.[0]; if (!file) return; ui.selectedFileName.textContent = file.name; try { await parseSpreadsheetFile(file); setStatus(ui.assignmentStatus, "File recipients validated locally.", "ok"); } catch (error) { console.warn(error); setStatus(ui.assignmentStatus, error.message || "File could not be parsed.", "error"); } });
+      ui.previewBatchBtn?.addEventListener("click", runBackendBatchPreview);
+      ui.uploadDropzone?.addEventListener("dragover", (event)=>{ event.preventDefault(); ui.uploadDropzone.classList.add("drag"); });
+      ui.uploadDropzone?.addEventListener("dragleave", ()=>ui.uploadDropzone.classList.remove("drag"));
+      ui.uploadDropzone?.addEventListener("drop", async (event)=>{ event.preventDefault(); ui.uploadDropzone.classList.remove("drag"); const file = event.dataTransfer.files?.[0]; if(!file) return; ui.selectedFileName.textContent = file.name; ui.recipientFile.files = event.dataTransfer.files; try { await parseSpreadsheetFile(file); setStatus(ui.assignmentStatus, "Dropped file validated locally.", "ok"); } catch (error) { setStatus(ui.assignmentStatus, error.message || "Dropped file could not be parsed.", "error"); } });
+      ["assignmentTool","assignmentLens","assignmentDepth","eventPathName","assignmentMessage","sendTiming","customDueAt","allowParticipantOutput","anonymousResponse","hideFromAdmin","requestNormalization"].forEach((id)=>{ document.getElementById(id)?.addEventListener("change", renderBatchReview); document.getElementById(id)?.addEventListener("input", renderBatchReview); });
+      ui.assignmentForm?.addEventListener("submit", sendBatch);
+      ui.copyAssignmentPayloadBtn?.addEventListener("click", async ()=>{ const payload = buildAssignmentDefaults(); await navigator.clipboard.writeText(JSON.stringify(payload, null, 2)); setStatus(ui.assignmentStatus, "Assignment defaults copied.", "ok"); });
+      ui.resetBatchBtn?.addEventListener("click", ()=>{ setTimeout(resetBatchBuilder, 0); setStatus(ui.assignmentStatus, "", ""); });
+      renderRecipientPreview();
+      renderBatchReview();
+    }
+
+    async function initialize(){
+      try{
+        const { data, error } = await supabase.auth.getUser();
+        if(error) throw error;
+        if(!data?.user){ window.location.href="signin.html?next=workspace.html"; return; }
+        state.user=data.user;
+        state.membership=await ensureWorkspace(state.user);
+        state.organization=state.membership?.organizations || null;
+        setRoleState(state.membership?.role || "viewer");
+        ui.heroStatusTitle.textContent="Workspace ready";
+        ui.heroStatusCopy.textContent="Your identity layer is live. Assignments, result visibility, and normalization can now converge in one governed surface.";
+        ui.userAvatar.textContent=initials(state.user.user_metadata?.full_name || state.user.user_metadata?.name, state.user.email);
+        ui.userName.textContent=state.user.user_metadata?.full_name || state.user.user_metadata?.name || state.user.email || "Monderman User";
+        ui.userMeta.textContent=`${state.user.email || "Signed-in user"}${state.organization?.name ? ` • ${state.organization.name}` : ""}`;
+        ui.metricOrg.textContent=state.organization?.name || "Personal";
+        setStatus(ui.identityStatus, "Signed in successfully. Workspace and organization membership resolved.", "ok");
+        try{ state.runs = await loadRecentRuns(); renderRuns(state.runs); }catch(err){ console.error(err); setStatus(ui.identityStatus, "Workspace loaded, but direct saved-run reads could not be completed. Check Supabase policies on diagnostic_runs.", "error"); }
+        await refreshAssignmentAndResultState();
+        hydrateGovernancePrefs();
+      }catch(err){
+        console.error(err);
+        ui.heroStatusTitle.textContent="Workspace unavailable";
+        ui.heroStatusCopy.textContent="The page loaded, but sign-in or workspace resolution failed.";
+        ui.userName.textContent="Workspace unavailable";
+        ui.userMeta.textContent="Check auth configuration or Supabase policies.";
+        setStatus(ui.identityStatus, err.message || "Workspace initialization failed.", "error");
+      }
+    }
+
     ui.signOutBtn?.addEventListener("click", async ()=>{ await supabase.auth.signOut(); window.location.href="signin.html"; });
-    ui.assignmentForm?.addEventListener("submit", sendAssignment);
-    ui.copyAssignmentPayloadBtn?.addEventListener("click", async ()=>{ const payload=buildAssignmentPayload(); await navigator.clipboard.writeText(JSON.stringify(payload, null, 2)); setStatus(ui.assignmentStatus, "Assignment payload copied.", "ok"); });
     ui.refreshResultsBtn?.addEventListener("click", loadAndRenderNormalizedRuns);
     ui.normalizeOrgBtn?.addEventListener("click", normalizeOrganization);
     ui.resultToolFilter?.addEventListener("change", renderNormalizedRuns);
     ui.resultInclusionFilter?.addEventListener("change", renderNormalizedRuns);
-    attachTabBehavior(); attachGovernanceHandlers(); updateHeader(); window.addEventListener("scroll", updateHeader, { passive:true });
+
+    attachTabBehavior();
+    attachIntakeTabBehavior();
+    attachGovernanceHandlers();
+    attachAssignmentBuilder();
+    updateHeader();
+    window.addEventListener("scroll", updateHeader, { passive:true });
     if(shouldRunWorkspaceCalibration()){ window.addEventListener("load", ()=>{ requestAnimationFrame(()=>{ startWorkspaceCalibration(); safeWriteLocal(WORKSPACE_LOADER_KEY, String(Date.now())); }); }); }
     initialize();
   </script>
