@@ -260,6 +260,23 @@
       transform: scaleX(1);
     }
 
+    .nav a.workspace-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    .nav a.workspace-link::after {
+      display: none;
+    }
+
+
     /* Exact halo treatment from Diagnostic Tools page */
     .hero {
       position: relative;
@@ -1381,116 +1398,105 @@
 
 
     
-    .symptom-map-section {
-      position: relative;
-      background: var(--bg-white);
-      padding: 82px 34px 78px;
-      color: var(--text-dark);
-      border-top: 1px solid rgba(21, 32, 43, 0.04);
-      border-bottom: 1px solid rgba(21, 32, 43, 0.04);
-      overflow: hidden;
-    }
-
-    .symptom-map-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-    }
-
-    .symptom-map-grid {
+    
+    .suite-merge-grid {
       display: grid;
-      grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1.08fr);
-      gap: 36px;
+      grid-template-columns: minmax(0, 0.9fr) minmax(420px, 1.1fr);
+      gap: 34px;
       align-items: start;
-      margin-top: 36px;
+      margin-top: 34px;
     }
 
-    .symptom-copy p {
+    .suite-merge-copy p {
       margin: 0;
-      max-width: 58ch;
-      font-size: 1.02rem;
-      line-height: 1.76;
+      max-width: 56ch;
+      font-size: 1rem;
+      line-height: 1.74;
       color: var(--muted-dark);
     }
 
-    .symptom-copy p + p {
-      margin-top: 18px;
+    .suite-merge-copy p + p {
+      margin-top: 16px;
     }
 
-    .symptom-note {
-      margin-top: 22px;
-      padding: 18px 20px;
-      max-width: 54ch;
-      background: linear-gradient(180deg, rgba(63,110,161,0.05) 0%, rgba(63,110,161,0.022) 100%);
+    .suite-merge-note {
+      margin-top: 20px;
+      padding: 16px 18px;
+      max-width: 52ch;
+      background: linear-gradient(180deg, rgba(63,110,161,0.05) 0%, rgba(63,110,161,0.02) 100%);
       border: 1px solid rgba(63,110,161,0.12);
       border-radius: 16px;
-      font-size: 0.95rem;
-      line-height: 1.68;
+      font-size: 0.92rem;
+      line-height: 1.66;
       color: var(--muted-dark);
       box-shadow: var(--soft-shadow);
     }
 
-    .symptom-interactive {
-      background: linear-gradient(180deg, rgba(248,249,250,0.96) 0%, rgba(255,255,255,0.98) 100%);
+    .suite-interactive {
+      background: linear-gradient(180deg, rgba(248,249,250,0.98) 0%, rgba(255,255,255,0.98) 100%);
       border: 1px solid rgba(21,32,43,0.08);
-      border-radius: 26px;
-      padding: 24px;
+      border-radius: 24px;
+      padding: 22px;
       box-shadow: var(--soft-shadow);
       display: grid;
-      gap: 20px;
+      gap: 18px;
     }
 
-    .symptom-interactive-head {
+    .suite-interactive-head {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
       gap: 16px;
     }
 
-    .symptom-interactive-head h3 {
-      margin: 6px 0 0;
-      font-size: 1.08rem;
-      line-height: 1.16;
+    .suite-interactive-head h3 {
+      margin: 4px 0 0;
+      font-size: 1rem;
+      line-height: 1.18;
       font-weight: 700;
       color: var(--text-dark);
-      max-width: 25ch;
+      max-width: 24ch;
     }
 
-    .symptom-grid {
+    .suite-lens-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
     }
 
-    .symptom-tile {
+    .suite-lens-tile {
       min-width: 0;
+      min-height: 118px;
       text-align: left;
-      padding: 16px 16px 14px;
+      padding: 16px;
       background: #FFFFFF;
       border: 1px solid rgba(21,32,43,0.08);
       border-radius: 16px;
       box-shadow: var(--soft-shadow);
       cursor: pointer;
+      display: grid;
+      align-content: start;
+      gap: 8px;
       transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition), background var(--transition);
     }
 
-    .symptom-tile:hover,
-    .symptom-tile:focus-visible {
+    .suite-lens-tile:hover,
+    .suite-lens-tile:focus-visible {
       transform: translateY(-1px);
       border-color: rgba(63,110,161,0.20);
       box-shadow: 0 0 0 4px rgba(63,110,161,0.05);
       outline: none;
     }
 
-    .symptom-tile.is-active {
+    .suite-lens-tile.is-active {
       border-color: rgba(63,110,161,0.28);
       background: linear-gradient(180deg, rgba(63,110,161,0.06) 0%, rgba(255,255,255,1) 100%);
       box-shadow: 0 0 0 4px rgba(63,110,161,0.06);
     }
 
-    .symptom-tile-kicker {
+    .suite-lens-kicker {
       display: block;
-      margin-bottom: 8px;
-      font-size: 0.68rem;
+      font-size: 0.66rem;
       font-weight: 700;
       line-height: 1;
       letter-spacing: 0.16em;
@@ -1501,55 +1507,53 @@
       text-overflow: ellipsis;
     }
 
-    .symptom-tile-title {
+    .suite-lens-title {
       display: block;
-      margin-bottom: 6px;
       font-size: 1rem;
-      line-height: 1.18;
+      line-height: 1.16;
       font-weight: 700;
       color: var(--text-dark);
       letter-spacing: -0.028em;
     }
 
-    .symptom-tile-copy {
+    .suite-lens-copy {
       display: -webkit-box;
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 2;
       overflow: hidden;
-      font-size: 0.88rem;
-      line-height: 1.52;
+      font-size: 0.84rem;
+      line-height: 1.48;
       color: var(--muted-dark);
-      min-height: 2.95em;
+      min-height: 2.96em;
     }
 
-    .symptom-read {
+    .suite-read {
+      display: grid;
+      grid-template-columns: minmax(260px, 0.92fr) minmax(0, 1.08fr);
+      gap: 18px;
+      align-items: stretch;
       background: #FFFFFF;
       border: 1px solid rgba(21,32,43,0.08);
       border-radius: 20px;
-      padding: 20px;
+      padding: 18px;
       box-shadow: var(--soft-shadow);
-      display: grid;
-      grid-template-columns: minmax(280px, 0.92fr) minmax(0, 1.08fr);
-      gap: 22px;
-      align-items: stretch;
     }
 
-    .symptom-graphic {
-      position: relative;
+    .suite-visual-panel {
       border-radius: 18px;
       background: linear-gradient(180deg, rgba(63,110,161,0.05) 0%, rgba(63,110,161,0.018) 100%);
       border: 1px solid rgba(63,110,161,0.12);
-      padding: 18px;
-      overflow: hidden;
+      padding: 16px;
       display: grid;
       gap: 14px;
       align-content: start;
-      min-height: 332px;
+      min-height: 292px;
+      overflow: hidden;
     }
 
-    .symptom-graphic-kicker {
+    .suite-visual-kicker {
       margin: 0;
-      font-size: 0.68rem;
+      font-size: 0.66rem;
       font-weight: 700;
       line-height: 1;
       letter-spacing: 0.16em;
@@ -1557,54 +1561,54 @@
       color: var(--accent);
     }
 
-    .symptom-graphic-label {
+    .suite-visual-label {
       margin: 0;
-      padding: 12px 14px;
-      border-radius: 14px;
-      background: rgba(255,255,255,0.92);
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.94);
       border: 1px solid rgba(21,32,43,0.08);
-      font-size: 0.96rem;
-      line-height: 1.22;
+      font-size: 0.92rem;
+      line-height: 1.2;
       font-weight: 700;
       color: var(--text-dark);
       box-shadow: var(--soft-shadow);
       text-wrap: balance;
     }
 
-    .symptom-graphic-stage {
-      min-height: 170px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.78);
+    .suite-visual-stage {
+      min-height: 172px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.8);
       border: 1px solid rgba(21,32,43,0.08);
       display: grid;
       place-items: center;
-      padding: 14px;
+      padding: 12px;
     }
 
-    .symptom-graphic-stage svg {
+    .suite-visual-stage svg {
       width: 100%;
-      max-width: 320px;
-      height: 170px;
+      max-width: 340px;
+      height: 176px;
       display: block;
       overflow: visible;
     }
 
-    .symptom-graphic-note {
+    .suite-visual-note {
       margin: 0;
-      font-size: 0.86rem;
-      line-height: 1.56;
+      font-size: 0.84rem;
+      line-height: 1.54;
       color: var(--muted-dark);
       max-width: 30ch;
     }
 
-    .symptom-detail {
+    .suite-detail {
       display: grid;
       align-content: start;
-      gap: 14px;
+      gap: 12px;
       min-width: 0;
     }
 
-    .symptom-detail-kicker {
+    .suite-detail-kicker {
       margin: 0;
       font-size: 0.68rem;
       font-weight: 700;
@@ -1614,68 +1618,66 @@
       color: var(--muted-dark-2);
     }
 
-    .symptom-detail h3 {
+    .suite-detail h3 {
       margin: 0;
-      font-size: clamp(1.5rem, 2.2vw, 2rem);
+      font-size: clamp(1.42rem, 2vw, 1.86rem);
       line-height: 0.98;
       font-weight: 700;
       color: var(--text-dark);
       letter-spacing: -0.052em;
       text-wrap: balance;
-      max-width: 13ch;
+      max-width: 12ch;
     }
 
-    .symptom-detail p {
+    .suite-detail p {
       margin: 0;
-      font-size: 1rem;
-      line-height: 1.74;
+      font-size: 0.96rem;
+      line-height: 1.7;
       color: var(--muted-dark);
-      max-width: 32ch;
+      max-width: 33ch;
     }
 
-    .symptom-read-points {
+    .suite-read-points {
       display: grid;
       gap: 10px;
-      margin-top: 2px;
+      margin-top: 4px;
     }
 
-    .symptom-read-point {
+    .suite-read-point {
       display: grid;
-      grid-template-columns: 12px minmax(0, 1fr);
+      grid-template-columns: 10px minmax(0, 1fr);
       gap: 10px;
       align-items: start;
-      padding: 12px 14px;
+      padding: 11px 12px;
       border-radius: 14px;
       background: #F8F9FA;
       border: 1px solid rgba(21,32,43,0.08);
       box-shadow: var(--soft-shadow);
     }
 
-    .symptom-read-dot {
-      width: 10px;
-      height: 10px;
+    .suite-read-dot {
+      width: 8px;
+      height: 8px;
       border-radius: 999px;
       background: var(--accent);
-      margin-top: 5px;
-      box-shadow: 0 0 0 5px rgba(63,110,161,0.08);
+      margin-top: 6px;
+      box-shadow: 0 0 0 4px rgba(63,110,161,0.08);
     }
 
-    .symptom-read-point strong {
+    .suite-read-point strong {
       display: block;
-      margin-bottom: 3px;
-      font-size: 0.92rem;
-      line-height: 1.25;
+      margin-bottom: 2px;
+      font-size: 0.88rem;
+      line-height: 1.22;
       color: var(--text-dark);
     }
 
-    .symptom-read-point span {
+    .suite-read-point span {
       display: block;
-      font-size: 0.88rem;
-      line-height: 1.55;
+      font-size: 0.82rem;
+      line-height: 1.5;
       color: var(--muted-dark);
     }
-
-
 @media (prefers-reduced-motion: reduce) {
       html {
         scroll-behavior: auto;
@@ -1708,8 +1710,8 @@
       .intro-grid,
       .difference-band,
       .cta-inner,
-      .symptom-map-grid,
-      .symptom-read {
+      .suite-merge-grid,
+      .suite-read {
         grid-template-columns: 1fr;
       }
 
@@ -1819,7 +1821,7 @@
       .focus-section,
       .trust-section,
       .cta-section,
-      .symptom-map-section {
+      .symptom-map-section-removed {
         padding-left: 20px;
         padding-right: 20px;
       }
@@ -1828,7 +1830,7 @@
       .difference-section,
       .focus-section,
       .trust-section,
-      .symptom-map-section {
+      .symptom-map-section-removed {
         padding-top: 72px;
         padding-bottom: 66px;
       }
@@ -1851,7 +1853,7 @@
       .trust-grid,
       .compound-grid,
       .engine-strip-grid,
-      
+      .suite-lens-grid,
       .learning-cycle-shell {
         padding: 22px 20px 20px;
       }
@@ -1915,7 +1917,7 @@
         padding: 22px 20px 20px;
       }
 
-      .symptom-grid {
+      .suite-lens-grid {
         grid-template-columns: 1fr;
       }
 
@@ -2017,6 +2019,8 @@
     </div>
   </section>
 
+  
+  
 <section class="focus-section" aria-labelledby="suite-title" style="background:#FFFFFF; border-top:none; border-bottom:1px solid rgba(21,32,43,0.04);">
     <div class="focus-inner">
       <div class="section-intro reveal">
@@ -2027,23 +2031,21 @@
         </p>
       </div>
 
-      <div class="symptom-map-grid" style="margin-top:36px; grid-template-columns:minmax(0,0.92fr) minmax(420px,1.08fr);">
-        <div class="symptom-copy reveal reveal-delay-1">
+      <div class="suite-merge-grid">
+        <div class="suite-merge-copy reveal reveal-delay-1">
           <p>
-            Monderman’s tools are powered by a proprietary diagnostic engine built to generate structured, repeatable, and high-fidelity reads of administrative reality across four distinct diagnostic lenses. Each lens is built to make a different kind of problem visible.
+            Each lens is built to reveal a different governing condition. Structural ambiguity, overloaded decision paths, heavy operating environments, and fragile institutional performance are related, but they should not be diagnosed through the same read.
           </p>
-
           <p>
-            Select a diagnostic to see the kind of condition it is built to reveal. The goal is not to restate the suite in words. It is to show, simply and clearly, what each lens is actually reading underneath the surface.
+            Select a lens to see the kind of condition it is designed to make visible. The graphic carries the explanation so the difference between the four reads is clear at a glance.
           </p>
-
-          <div class="symptom-note">
-            Each diagnostic isolates a different governing condition so leaders can distinguish where delay, confusion, burden, or fragility is actually coming from.
+          <div class="suite-merge-note">
+            Each diagnostic isolates a different source of drag so leaders can distinguish where confusion, delay, burden, or fragility is actually forming.
           </div>
         </div>
 
-        <div class="symptom-interactive reveal reveal-delay-2">
-          <div class="symptom-interactive-head">
+        <div class="suite-interactive reveal reveal-delay-2">
+          <div class="suite-interactive-head">
             <div>
               <p class="section-label" style="margin-bottom:0; color: var(--accent);">Interactive suite view</p>
               <h3>Choose the lens you want to understand first.</h3>
@@ -2051,62 +2053,62 @@
             <span class="chip ghost">Four diagnostics</span>
           </div>
 
-          <div class="symptom-grid">
-            <button class="symptom-tile is-active" type="button" data-symptom-key="structural_clarity" aria-pressed="true">
-              <span class="symptom-tile-kicker">Diagnostic lens</span>
-              <span class="symptom-tile-title">Structural Clarity</span>
-              <span class="symptom-tile-copy">Reads ownership, authority, handoffs, and role boundaries where the structure itself becomes hard to govern.</span>
+          <div class="suite-lens-grid">
+            <button class="suite-lens-tile is-active" type="button" data-suite-key="structural_clarity" aria-pressed="true">
+              <span class="suite-lens-kicker">Diagnostic lens</span>
+              <span class="suite-lens-title">Structural Clarity</span>
+              <span class="suite-lens-copy">Reads ownership, authority, and handoffs when the structure itself becomes hard to govern.</span>
             </button>
-            <button class="symptom-tile" type="button" data-symptom-key="decision_velocity" aria-pressed="false">
-              <span class="symptom-tile-kicker">Diagnostic lens</span>
-              <span class="symptom-tile-title">Decision Velocity</span>
-              <span class="symptom-tile-copy">Reads control weight, approval layering, and escalation burden where decisions become slower than the issue warrants.</span>
+            <button class="suite-lens-tile" type="button" data-suite-key="decision_velocity" aria-pressed="false">
+              <span class="suite-lens-kicker">Diagnostic lens</span>
+              <span class="suite-lens-title">Decision Velocity</span>
+              <span class="suite-lens-copy">Reads control weight, approvals, and escalation when decisions move too slowly.</span>
             </button>
-            <button class="symptom-tile" type="button" data-symptom-key="operational_systems" aria-pressed="false">
-              <span class="symptom-tile-kicker">Diagnostic lens</span>
-              <span class="symptom-tile-title">Operational Systems</span>
-              <span class="symptom-tile-copy">Reads process load, reporting demand, and system friction where the environment around the work has become heavy.</span>
+            <button class="suite-lens-tile" type="button" data-suite-key="operational_systems" aria-pressed="false">
+              <span class="suite-lens-kicker">Diagnostic lens</span>
+              <span class="suite-lens-title">Operational Systems</span>
+              <span class="suite-lens-copy">Reads process density, reporting load, and system friction around the work.</span>
             </button>
-            <button class="symptom-tile" type="button" data-symptom-key="institutional_performance" aria-pressed="false">
-              <span class="symptom-tile-kicker">Diagnostic lens</span>
-              <span class="symptom-tile-title">Institutional Performance</span>
-              <span class="symptom-tile-copy">Reads whether visible output is durable, adaptive, and resilient—or increasingly preserved through compensation.</span>
+            <button class="suite-lens-tile" type="button" data-suite-key="institutional_performance" aria-pressed="false">
+              <span class="suite-lens-kicker">Diagnostic lens</span>
+              <span class="suite-lens-title">Institutional Performance</span>
+              <span class="suite-lens-copy">Reads whether visible output is durable or increasingly preserved through compensation.</span>
             </button>
           </div>
 
-          <div class="symptom-read">
-            <div class="symptom-graphic">
-              <p class="symptom-graphic-kicker">Visual representation</p>
-              <p class="symptom-graphic-label" id="symptomSurfaceTitle">Structural Clarity</p>
-              <div class="symptom-graphic-stage" id="symptomGraphicStage" aria-hidden="true"></div>
-              <p class="symptom-graphic-note" id="symptomGraphicNote">This lens shows where formal structure forces repeated interpretation because ownership and authority are not clear enough in practice.</p>
+          <div class="suite-read">
+            <div class="suite-visual-panel">
+              <p class="suite-visual-kicker">Visual representation</p>
+              <p class="suite-visual-label" id="suiteSurfaceTitle">Structural Clarity</p>
+              <div class="suite-visual-stage" id="suiteGraphicStage" aria-hidden="true"></div>
+              <p class="suite-visual-note" id="suiteGraphicNote">This lens shows where ownership and authority stop being clear enough to support movement without repeated interpretation.</p>
             </div>
 
-            <div class="symptom-detail">
-              <p class="symptom-detail-kicker">Underlying read</p>
-              <h3 id="symptomDetailTitle">Structural Clarity makes ambiguous ownership and handoffs visible.</h3>
-              <p id="symptomDetailBody">When structure is legible, people know who owns the work, where authority sits, and how responsibility passes from one role to another. When it is not, execution depends on translation and rescue.</p>
+            <div class="suite-detail">
+              <p class="suite-detail-kicker">Underlying read</p>
+              <h3 id="suiteDetailTitle">Structure becomes hard to govern when ownership and handoffs blur.</h3>
+              <p id="suiteDetailBody">This lens isolates ambiguity in who owns the work, where authority sits, and how responsibility moves from one role to another.</p>
 
-              <div class="symptom-read-points">
-                <div class="symptom-read-point">
-                  <span class="symptom-read-dot" aria-hidden="true"></span>
+              <div class="suite-read-points">
+                <div class="suite-read-point">
+                  <span class="suite-read-dot" aria-hidden="true"></span>
                   <div>
-                    <strong id="symptomPointTitle1">Ownership clarity</strong>
-                    <span id="symptomPointBody1">Who is accountable is clear enough to support movement without repeated arbitration.</span>
+                    <strong id="suitePointTitle1">Ownership clarity</strong>
+                    <span id="suitePointBody1">Accountability is either legible enough to move work or fuzzy enough to trigger rescue behavior.</span>
                   </div>
                 </div>
-                <div class="symptom-read-point">
-                  <span class="symptom-read-dot" aria-hidden="true"></span>
+                <div class="suite-read-point">
+                  <span class="suite-read-dot" aria-hidden="true"></span>
                   <div>
-                    <strong id="symptomPointTitle2">Authority placement</strong>
-                    <span id="symptomPointBody2">Decision rights sit where the work can actually move, rather than escalating by default.</span>
+                    <strong id="suitePointTitle2">Authority placement</strong>
+                    <span id="suitePointBody2">Decision rights either sit close to the work or pull movement upward by default.</span>
                   </div>
                 </div>
-                <div class="symptom-read-point">
-                  <span class="symptom-read-dot" aria-hidden="true"></span>
+                <div class="suite-read-point">
+                  <span class="suite-read-dot" aria-hidden="true"></span>
                   <div>
-                    <strong id="symptomPointTitle3">Handoff legibility</strong>
-                    <span id="symptomPointBody3">Responsibility moves clearly between roles instead of being reconstructed through manual interpretation.</span>
+                    <strong id="suitePointTitle3">Handoff legibility</strong>
+                    <span id="suitePointBody3">Responsibility either passes clearly or must be reconstructed through translation.</span>
                   </div>
                 </div>
               </div>
@@ -2119,7 +2121,7 @@
         <a class="btn btn-accent" href="diagnostic-tools.html">Open Diagnostic Hub</a>
       </div>
 
-      <div class="section-intro reveal" style="margin-top:46px;">
+<div class="section-intro reveal" style="margin-top:46px;">
         <div class="section-label">How insights compound</div>
         <h2 style="max-width:720px;">Deeper signal across lenses and over time.</h2>
         <p>
@@ -2499,189 +2501,157 @@
 
 
     
-    const symptomContent = {
+    
+    const suiteContent = {
       structural_clarity: {
         surface: "Structural Clarity",
-        graphicNote: "This lens shows where formal structure forces repeated interpretation because ownership and authority are not clear enough in practice.",
-        title: "Structural Clarity makes ambiguous ownership and handoffs visible.",
-        body: "When structure is legible, people know who owns the work, where authority sits, and how responsibility passes from one role to another. When it is not, execution depends on translation and rescue.",
+        graphicNote: "This lens shows where ownership and authority stop being clear enough to support movement without repeated interpretation.",
+        title: "Structure becomes hard to govern when ownership and handoffs blur.",
+        body: "This lens isolates ambiguity in who owns the work, where authority sits, and how responsibility moves from one role to another.",
         points: [
-          {
-            title: "Ownership clarity",
-            body: "Who is accountable is clear enough to support movement without repeated arbitration."
-          },
-          {
-            title: "Authority placement",
-            body: "Decision rights sit where the work can actually move, rather than escalating by default."
-          },
-          {
-            title: "Handoff legibility",
-            body: "Responsibility moves clearly between roles instead of being reconstructed through manual interpretation."
-          }
+          { title: "Ownership clarity", body: "Accountability is either legible enough to move work or fuzzy enough to trigger rescue behavior." },
+          { title: "Authority placement", body: "Decision rights either sit close to the work or pull movement upward by default." },
+          { title: "Handoff legibility", body: "Responsibility either passes clearly or must be reconstructed through translation." }
         ],
         svg: `
-          <svg viewBox="0 0 320 170" role="presentation" aria-hidden="true">
-            <rect x="18" y="26" width="88" height="36" rx="10" fill="#FFFFFF" stroke="#CED7E1"/>
-            <rect x="116" y="26" width="88" height="36" rx="10" fill="#FFFFFF" stroke="#CED7E1"/>
-            <rect x="214" y="26" width="88" height="36" rx="10" fill="#FFFFFF" stroke="#CED7E1"/>
-            <rect x="58" y="108" width="88" height="36" rx="10" fill="#FFFFFF" stroke="#CED7E1"/>
-            <rect x="174" y="108" width="88" height="36" rx="10" fill="#FFFFFF" stroke="#CED7E1"/>
-            <line x1="106" y1="44" x2="116" y2="44" stroke="#5D85B3" stroke-width="2.4"/>
-            <line x1="204" y1="44" x2="214" y2="44" stroke="#5D85B3" stroke-width="2.4"/>
-            <line x1="95" y1="62" x2="102" y2="108" stroke="#A8BDD5" stroke-width="2.4" stroke-dasharray="6 5"/>
-            <line x1="220" y1="62" x2="218" y2="108" stroke="#A8BDD5" stroke-width="2.4" stroke-dasharray="6 5"/>
-            <circle cx="160" cy="86" r="6" fill="#3F6EA1"/>
+          <svg viewBox="0 0 340 176" role="presentation" aria-hidden="true">
+            <rect x="20" y="26" width="88" height="34" rx="11" fill="#FFFFFF" stroke="#CED7E1"/>
+            <rect x="126" y="26" width="88" height="34" rx="11" fill="#FFFFFF" stroke="#CED7E1"/>
+            <rect x="232" y="26" width="88" height="34" rx="11" fill="#FFFFFF" stroke="#CED7E1"/>
+            <rect x="76" y="112" width="88" height="34" rx="11" fill="#FFFFFF" stroke="#CED7E1"/>
+            <rect x="182" y="112" width="88" height="34" rx="11" fill="#FFFFFF" stroke="#5D85B3" stroke-width="2.4"/>
+            <line x1="108" y1="43" x2="126" y2="43" stroke="#5D85B3" stroke-width="2.5"/>
+            <line x1="214" y1="43" x2="232" y2="43" stroke="#AFC2D8" stroke-width="2.5" stroke-dasharray="6 5"/>
+            <line x1="155" y1="60" x2="120" y2="112" stroke="#AFC2D8" stroke-width="2.5" stroke-dasharray="6 5"/>
+            <line x1="195" y1="60" x2="226" y2="112" stroke="#5D85B3" stroke-width="2.5"/>
+            <circle cx="170" cy="88" r="7" fill="#3F6EA1"/>
           </svg>
         `
       },
       decision_velocity: {
         surface: "Decision Velocity",
-        graphicNote: "This lens shows where reviews, approvals, and escalation layers add more control weight than the issue now requires.",
-        title: "Decision Velocity shows where decisions slow under accumulated control weight.",
-        body: "A decision path can look orderly while still becoming too heavy. This lens reads how many review steps, routing layers, and escalation points sit between recognition and movement.",
+        graphicNote: "This lens shows where approvals and escalation layers make the decision path heavier than the issue requires.",
+        title: "Decision movement slows when control weight accumulates faster than it is removed.",
+        body: "This lens isolates review layering, routing burden, and escalation dependence inside the decision path itself.",
         points: [
-          {
-            title: "Approval layering",
-            body: "More sign-offs or review stages than the situation warrants extend time without improving judgment."
-          },
-          {
-            title: "Escalation dependence",
-            body: "Work moves upward too often because the path is not calibrated for proportionate decision-making."
-          },
-          {
-            title: "Cycle burden",
-            body: "Time is lost between recognition and action because control architecture has become heavier than the work."
-          }
+          { title: "Approval layering", body: "More sign-offs or review stages extend time without improving judgment proportionately." },
+          { title: "Escalation dependence", body: "Work moves upward too often because the path is not calibrated for normal decisions." },
+          { title: "Cycle burden", body: "Time is lost between recognition and movement because the path has become too heavy." }
         ],
         svg: `
-          <svg viewBox="0 0 320 170" role="presentation" aria-hidden="true">
-            <line x1="34" y1="84" x2="286" y2="84" stroke="#AFC2D8" stroke-width="3"/>
-            <circle cx="58" cy="84" r="12" fill="#FFFFFF" stroke="#5D85B3" stroke-width="3"/>
-            <circle cx="126" cy="84" r="12" fill="#FFFFFF" stroke="#5D85B3" stroke-width="3"/>
-            <circle cx="194" cy="84" r="12" fill="#FFFFFF" stroke="#5D85B3" stroke-width="3"/>
-            <circle cx="262" cy="84" r="12" fill="#FFFFFF" stroke="#5D85B3" stroke-width="3"/>
-            <rect x="96" y="42" width="60" height="20" rx="10" fill="#EAF1F8" stroke="#CED7E1"/>
-            <rect x="164" y="24" width="60" height="20" rx="10" fill="#EAF1F8" stroke="#CED7E1"/>
-            <line x1="126" y1="72" x2="126" y2="62" stroke="#AFC2D8" stroke-width="2"/>
-            <line x1="194" y1="72" x2="194" y2="44" stroke="#AFC2D8" stroke-width="2"/>
+          <svg viewBox="0 0 340 176" role="presentation" aria-hidden="true">
+            <line x1="34" y1="92" x2="306" y2="92" stroke="#B7C9DD" stroke-width="3"/>
+            <circle cx="62" cy="92" r="12" fill="#FFFFFF" stroke="#5D85B3" stroke-width="2.8"/>
+            <circle cx="132" cy="92" r="12" fill="#FFFFFF" stroke="#5D85B3" stroke-width="2.8"/>
+            <circle cx="202" cy="92" r="12" fill="#FFFFFF" stroke="#5D85B3" stroke-width="2.8"/>
+            <circle cx="272" cy="92" r="12" fill="#FFFFFF" stroke="#5D85B3" stroke-width="2.8"/>
+            <rect x="102" y="48" width="60" height="18" rx="9" fill="#EAF1F8" stroke="#CED7E1"/>
+            <rect x="172" y="30" width="60" height="18" rx="9" fill="#EAF1F8" stroke="#CED7E1"/>
+            <line x1="132" y1="80" x2="132" y2="66" stroke="#AFC2D8" stroke-width="2"/>
+            <line x1="202" y1="80" x2="202" y2="48" stroke="#AFC2D8" stroke-width="2"/>
+            <path d="M284 92 H304" stroke="#5D85B3" stroke-width="2.8" stroke-linecap="round"/>
+            <path d="M302 92 L294 86" stroke="#5D85B3" stroke-width="2.8" stroke-linecap="round"/>
+            <path d="M302 92 L294 98" stroke="#5D85B3" stroke-width="2.8" stroke-linecap="round"/>
           </svg>
         `
       },
       operational_systems: {
         surface: "Operational Systems",
-        graphicNote: "This lens shows the administrative load surrounding the work when systems, reports, and process layers start absorbing too much effort.",
-        title: "Operational Systems reveals when the environment around the work has become heavy.",
-        body: "Work is not only shaped by structure and decisions. It is also shaped by the surrounding process density, reporting demand, and systems friction that absorb effort before the mission moves.",
+        graphicNote: "This lens shows when process layers, reporting demand, and systems friction crowd the work itself.",
+        title: "The operating environment becomes heavy when too much effort is spent servicing the system.",
+        body: "This lens isolates the administrative load around the work: process density, reporting demand, and systems friction.",
         points: [
-          {
-            title: "Process density",
-            body: "More steps, checks, or reporting obligations sit around the work than the work itself requires."
-          },
-          {
-            title: "System friction",
-            body: "Tool switching, duplication, and manual workarounds increase the cost of ordinary execution."
-          },
-          {
-            title: "Administrative drag",
-            body: "Capacity is consumed by servicing the operating environment rather than advancing the task."
-          }
+          { title: "Process density", body: "More steps, checks, or reporting obligations sit around the work than the work requires." },
+          { title: "System friction", body: "Duplication, tool switching, and workaround behavior increase the cost of ordinary execution." },
+          { title: "Administrative drag", body: "Capacity is consumed by servicing the environment rather than advancing the task." }
         ],
         svg: `
-          <svg viewBox="0 0 320 170" role="presentation" aria-hidden="true">
-            <rect x="44" y="28" width="232" height="24" rx="12" fill="#EAF1F8" stroke="#CED7E1"/>
-            <rect x="58" y="66" width="204" height="24" rx="12" fill="#DCE7F3" stroke="#CED7E1"/>
-            <rect x="76" y="104" width="168" height="28" rx="14" fill="#FFFFFF" stroke="#5D85B3" stroke-width="2.6"/>
-            <line x1="92" y1="52" x2="92" y2="66" stroke="#AFC2D8" stroke-width="2"/>
-            <line x1="160" y1="90" x2="160" y2="104" stroke="#AFC2D8" stroke-width="2"/>
-            <line x1="228" y1="52" x2="228" y2="66" stroke="#AFC2D8" stroke-width="2"/>
+          <svg viewBox="0 0 340 176" role="presentation" aria-hidden="true">
+            <rect x="42" y="34" width="256" height="22" rx="11" fill="#EAF1F8" stroke="#CED7E1"/>
+            <rect x="56" y="70" width="228" height="22" rx="11" fill="#DCE7F3" stroke="#CED7E1"/>
+            <rect x="74" y="108" width="192" height="30" rx="15" fill="#FFFFFF" stroke="#5D85B3" stroke-width="2.8"/>
+            <line x1="94" y1="56" x2="94" y2="70" stroke="#AFC2D8" stroke-width="2"/>
+            <line x1="170" y1="92" x2="170" y2="108" stroke="#AFC2D8" stroke-width="2"/>
+            <line x1="246" y1="56" x2="246" y2="70" stroke="#AFC2D8" stroke-width="2"/>
           </svg>
         `
       },
       institutional_performance: {
         surface: "Institutional Performance",
-        graphicNote: "This lens shows whether visible output is resting on durable institutional condition or increasingly on extra lift and compensation.",
-        title: "Institutional Performance reads whether performance is durable or merely being held together.",
-        body: "Output can still appear acceptable while the institution underneath it weakens. This lens looks beneath visible performance to see whether confidence, adaptability, and resilience are holding—or being substituted by heroics.",
+        graphicNote: "This lens shows whether visible output rests on durable institutional condition or increasingly on extra lift.",
+        title: "Performance can look stable while the institution underneath it grows more fragile.",
+        body: "This lens reads whether confidence, adaptability, and resilience are holding—or being substituted by compensation.",
         points: [
-          {
-            title: "Compensatory dependence",
-            body: "Visible results increasingly rely on extra lift, manual stabilization, and heroic effort."
-          },
-          {
-            title: "Adaptive strain",
-            body: "The institution looks less able to absorb pressure, change, or disruption without wobbling."
-          },
-          {
-            title: "Confidence erosion",
-            body: "People trust the formal system less and rely more on workarounds, interpretation, and rescue."
-          }
+          { title: "Compensatory dependence", body: "Visible results rely more on extra lift, manual stabilization, and heroic effort." },
+          { title: "Adaptive strain", body: "The institution absorbs pressure and change less comfortably than it appears." },
+          { title: "Confidence erosion", body: "People trust the formal system less and rely more on informal rescue." }
         ],
         svg: `
-          <svg viewBox="0 0 320 170" role="presentation" aria-hidden="true">
-            <rect x="100" y="26" width="120" height="28" rx="12" fill="#FFFFFF" stroke="#5D85B3" stroke-width="2.4"/>
-            <line x1="160" y1="54" x2="160" y2="112" stroke="#5D85B3" stroke-width="3"/>
-            <line x1="160" y1="74" x2="114" y2="112" stroke="#AFC2D8" stroke-width="3"/>
-            <line x1="160" y1="74" x2="206" y2="112" stroke="#AFC2D8" stroke-width="3"/>
-            <circle cx="114" cy="112" r="8" fill="#FFFFFF" stroke="#5D85B3" stroke-width="2.4"/>
-            <circle cx="160" cy="112" r="8" fill="#FFFFFF" stroke="#5D85B3" stroke-width="2.4"/>
-            <circle cx="206" cy="112" r="8" fill="#FFFFFF" stroke="#5D85B3" stroke-width="2.4"/>
-            <rect x="84" y="126" width="152" height="18" rx="9" fill="#EAF1F8" stroke="#CED7E1"/>
+          <svg viewBox="0 0 340 176" role="presentation" aria-hidden="true">
+            <rect x="110" y="26" width="120" height="28" rx="12" fill="#FFFFFF" stroke="#5D85B3" stroke-width="2.4"/>
+            <line x1="170" y1="54" x2="170" y2="112" stroke="#5D85B3" stroke-width="3"/>
+            <line x1="170" y1="74" x2="120" y2="112" stroke="#AFC2D8" stroke-width="3"/>
+            <line x1="170" y1="74" x2="220" y2="112" stroke="#AFC2D8" stroke-width="3"/>
+            <circle cx="120" cy="112" r="8" fill="#FFFFFF" stroke="#5D85B3" stroke-width="2.4"/>
+            <circle cx="170" cy="112" r="8" fill="#FFFFFF" stroke="#5D85B3" stroke-width="2.4"/>
+            <circle cx="220" cy="112" r="8" fill="#FFFFFF" stroke="#5D85B3" stroke-width="2.4"/>
+            <rect x="92" y="128" width="156" height="18" rx="9" fill="#EAF1F8" stroke="#CED7E1"/>
           </svg>
         `
       }
     };
 
-const symptomButtons = document.querySelectorAll('[data-symptom-key]');
-    const symptomSurfaceTitle = document.getElementById('symptomSurfaceTitle');
-    const symptomDetailTitle = document.getElementById('symptomDetailTitle');
-    const symptomDetailBody = document.getElementById('symptomDetailBody');
-    const symptomGraphicStage = document.getElementById('symptomGraphicStage');
-    const symptomGraphicNote = document.getElementById('symptomGraphicNote');
-    const symptomPointTitle1 = document.getElementById('symptomPointTitle1');
-    const symptomPointTitle2 = document.getElementById('symptomPointTitle2');
-    const symptomPointTitle3 = document.getElementById('symptomPointTitle3');
-    const symptomPointBody1 = document.getElementById('symptomPointBody1');
-    const symptomPointBody2 = document.getElementById('symptomPointBody2');
-    const symptomPointBody3 = document.getElementById('symptomPointBody3');
+    const suiteButtons = document.querySelectorAll('[data-suite-key]');
+    const suiteSurfaceTitle = document.getElementById('suiteSurfaceTitle');
+    const suiteDetailTitle = document.getElementById('suiteDetailTitle');
+    const suiteDetailBody = document.getElementById('suiteDetailBody');
+    const suiteGraphicStage = document.getElementById('suiteGraphicStage');
+    const suiteGraphicNote = document.getElementById('suiteGraphicNote');
+    const suitePointTitle1 = document.getElementById('suitePointTitle1');
+    const suitePointTitle2 = document.getElementById('suitePointTitle2');
+    const suitePointTitle3 = document.getElementById('suitePointTitle3');
+    const suitePointBody1 = document.getElementById('suitePointBody1');
+    const suitePointBody2 = document.getElementById('suitePointBody2');
+    const suitePointBody3 = document.getElementById('suitePointBody3');
 
-    function setSymptomState(key) {
-      const content = symptomContent[key];
+    function setSuiteState(key) {
+      const content = suiteContent[key];
       if (!content) return;
 
-      if (symptomSurfaceTitle) symptomSurfaceTitle.textContent = content.surface;
-      if (symptomGraphicNote) symptomGraphicNote.textContent = content.graphicNote;
-      if (symptomGraphicStage) symptomGraphicStage.innerHTML = content.svg;
-      if (symptomDetailTitle) symptomDetailTitle.textContent = content.title;
-      if (symptomDetailBody) symptomDetailBody.textContent = content.body;
+      if (suiteSurfaceTitle) suiteSurfaceTitle.textContent = content.surface;
+      if (suiteGraphicNote) suiteGraphicNote.textContent = content.graphicNote;
+      if (suiteGraphicStage) suiteGraphicStage.innerHTML = content.svg;
+      if (suiteDetailTitle) suiteDetailTitle.textContent = content.title;
+      if (suiteDetailBody) suiteDetailBody.textContent = content.body;
 
       const [p1, p2, p3] = content.points;
       if (p1) {
-        symptomPointTitle1.textContent = p1.title;
-        symptomPointBody1.textContent = p1.body;
+        suitePointTitle1.textContent = p1.title;
+        suitePointBody1.textContent = p1.body;
       }
       if (p2) {
-        symptomPointTitle2.textContent = p2.title;
-        symptomPointBody2.textContent = p2.body;
+        suitePointTitle2.textContent = p2.title;
+        suitePointBody2.textContent = p2.body;
       }
       if (p3) {
-        symptomPointTitle3.textContent = p3.title;
-        symptomPointBody3.textContent = p3.body;
+        suitePointTitle3.textContent = p3.title;
+        suitePointBody3.textContent = p3.body;
       }
 
-      symptomButtons.forEach((button) => {
-        const isActive = button.dataset.symptomKey === key;
+      suiteButtons.forEach((button) => {
+        const isActive = button.dataset.suiteKey === key;
         button.classList.toggle('is-active', isActive);
         button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
       });
     }
 
-    symptomButtons.forEach((button) => {
-      button.addEventListener('click', () => setSymptomState(button.dataset.symptomKey));
+    suiteButtons.forEach((button) => {
+      button.addEventListener('click', () => setSuiteState(button.dataset.suiteKey));
     });
 
-    setSymptomState('structural_clarity');
+    setSuiteState('structural_clarity');
 
-    const revealItems = document.querySelectorAll(".reveal");
+const revealItems = document.querySelectorAll(".reveal");
 
     if (revealItems.length) {
       const revealObserver = new IntersectionObserver((entries) => {
