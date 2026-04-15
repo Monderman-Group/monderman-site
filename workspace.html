@@ -173,8 +173,9 @@
         <h1>Govern diagnostic work with precision and continuity.</h1>
         <p class="hero-copy">This workspace is designed to become the operating layer above individual runs: assign diagnostics at scale, govern visibility and anonymity, review results, normalize institutional signal, and compare what the organization is learning over time.</p>
         <div class="hero-actions">
-          <a class="btn btn-accent" href="#workspaceTabs">Open workspace</a>
-          <a class="btn btn-subtle" href="diagnostic-tools.html">Launch diagnostics</a>
+          <button class="btn btn-accent" type="button" data-jump-tab="build">Configure</button>
+          <button class="btn btn-subtle" type="button" data-jump-tab="tracking">Tracking</button>
+          <button class="btn btn-subtle" type="button" data-jump-tab="analytics">Analytics</button>
           <button class="btn btn-subtle" id="signOutBtn" type="button">Sign out</button>
         </div>
       </div>
@@ -221,66 +222,29 @@
       </div>
 
       <section class="section-card">
-        <div class="panel-head"><div><p class="section-kicker">Executive summary</p><h2 class="section-title">Completion, exposure, and signal quality at a glance</h2><p class="section-copy">This layer is designed for a serious administrative workspace: what is open, what is moving, what is due, and what should or should not shape institutional interpretation.</p></div><span class="chip ghost" id="summaryContextChip">Workspace context</span></div>
-        <div class="summary-grid">
-          <div class="summary-card"><div class="summary-label">Open rate</div><div class="summary-value" id="summaryOpenRate">—</div><div class="summary-copy">Assignments opened relative to sent volume.</div></div>
-          <div class="summary-card ok"><div class="summary-label">Completion rate</div><div class="summary-value" id="summaryCompletionRate">—</div><div class="summary-copy">Assignments completed relative to sent volume.</div></div>
-          <div class="summary-card warn"><div class="summary-label">Due soon</div><div class="summary-value" id="summaryDueSoon">0</div><div class="summary-copy">Assignments approaching due time.</div></div>
-          <div class="summary-card warn"><div class="summary-label">Flagged</div><div class="summary-value" id="summaryFlagged">0</div><div class="summary-copy">Runs marked for caution or exclusion.</div></div>
-          <div class="summary-card ok"><div class="summary-label">Included</div><div class="summary-value" id="summaryIncluded">0</div><div class="summary-copy">Runs included in aggregate interpretation.</div></div>
-          <div class="summary-card rose"><div class="summary-label">Excluded</div><div class="summary-value" id="summaryExcluded">0</div><div class="summary-copy">Runs excluded from aggregates.</div></div>
+        <div class="panel-head"><div><p class="section-kicker">Workspace orientation</p><h2 class="section-title">A clearer operating flow for serious administrative use.</h2><p class="section-copy">Build is where admins configure batches and policy. Tracking is where live response flow and signal health are monitored. Analytics is where raw response activity becomes governed institutional interpretation.</p></div><span class="chip ghost">Three-part rail</span></div>
+        <div class="grid-3">
+          <div class="card-lite"><h4>Build</h4><p>Validate recipients, choose diagnostic defaults, apply anonymity and output policy, set timing, review, and dispatch.</p></div>
+          <div class="card-lite"><h4>Tracking</h4><p>Watch sent, opened, due-soon, completed, flagged, included, and excluded states in one clean operating surface.</p></div>
+          <div class="card-lite"><h4>Analytics</h4><p>Review normalized signal, governance defaults, flagged-run treatment, synthesis, and executive export pathways.</p></div>
         </div>
       </section>
 
       <section class="section-card" id="workspaceTabs">
-        <div class="panel-head"><div><p class="section-kicker">Workspace modules</p><h2 class="section-title">Assignments, results, analytics, and governance</h2><p class="section-copy">These modules are organized to feel deliberate and premium: one operating surface for dispatch, interpretation, and governed learning.</p></div></div>
+        <div class="panel-head"><div><p class="section-kicker">Workspace rail</p><h2 class="section-title">Build, track, and interpret governed diagnostic work.</h2><p class="section-copy">The workspace is now organized around the admin journey: configure and send runs, monitor live response flow, and govern the analytic signal that leadership should trust.</p></div><span class="chip ghost">Admin operating surface</span></div>
         <div class="tabs">
-          <button class="tab-btn active" data-tab="overview" type="button">Overview</button>
-          <button class="tab-btn" data-tab="assignments" type="button">Assignments</button>
-          <button class="tab-btn" data-tab="results" type="button">Results</button>
+          <button class="tab-btn active" data-tab="build" type="button">Build</button>
+          <button class="tab-btn" data-tab="tracking" type="button">Tracking</button>
           <button class="tab-btn" data-tab="analytics" type="button">Analytics</button>
-          <button class="tab-btn" data-tab="governance" type="button">Governance</button>
         </div>
       </section>
 
       <div class="tab-panels">
-        <section class="tab-panel active" data-panel="overview">
-          <div class="workspace-grid">
-            <div class="stack">
-              <section class="section-card">
-                <div class="panel-head"><div><h3 class="panel-title">Recent saved runs</h3><p class="panel-copy">Saved runs appear here with visibility and normalization metadata.</p></div><span class="chip ok" id="runsSummaryChip">0 visible</span></div>
-                <div class="list" id="runsList"></div>
-                <div class="empty" id="runsEmpty">No saved runs are visible yet. Once diagnostics write to <code>diagnostic_runs</code>, this list will populate automatically.</div>
-              </section>
-              <section class="section-card">
-                <div class="panel-head"><div><h3 class="panel-title">Recent assignments</h3><p class="panel-copy">Recent or open assignments appear here with due state and visibility configuration.</p></div></div>
-                <div class="list" id="assignmentList"></div>
-                <div class="empty" id="assignmentEmpty">No recent assignments are visible yet.</div>
-              </section>
-            </div>
-            <div class="stack">
-              <section class="section-card">
-                <div class="panel-head"><div><h3 class="panel-title">What this workspace now supports</h3><p class="panel-copy">The architecture now assumes serious administrative use, not just a personal archive.</p></div></div>
-                <div class="grid-2">
-                  <div class="card-lite"><h4>Two-step batch dispatch</h4><p>Upload or paste recipients first, validate them, then move into a separate configuration and review stage before send.</p></div>
-                  <div class="card-lite"><h4>Executive signal layer</h4><p>Open rate, completion rate, due-soon, flagged, included, and excluded are surfaced up front.</p></div>
-                  <div class="card-lite"><h4>Visibility governance</h4><p>Specify whether participants see their own output and whether admins should be restricted to metadata or aggregate views.</p></div>
-                  <div class="card-lite"><h4>Normalization-aware results</h4><p>Review raw runs, included runs, caution states, and backend recommendations without overwriting the original run.</p></div>
-                </div>
-              </section>
-              <section class="section-card">
-                <div class="panel-head"><div><h3 class="panel-title">Recommended next integrations</h3><p class="panel-copy">The front-end is now organized to match the backend and future dashboarding more closely.</p></div></div>
-                <div class="card-lite"><ul><li><strong>Batch preview route:</strong> validate large recipient sets before any diagnostic invitations go out.</li><li><strong>Status summary route:</strong> populate executive summary cards from organizational assignment flow, not just local browser state.</li><li><strong>Normalization display:</strong> default summaries to included runs while preserving the raw run set.</li><li><strong>Governed visibility states:</strong> protect assignee-only, metadata-only, aggregate-only, and admin-visible outcomes explicitly.</li></ul></div>
-              </section>
-            </div>
-          </div>
-        </section>
-
-        <section class="tab-panel" data-panel="assignments">
+        <section class="tab-panel active" data-panel="build">
           <div class="workspace-grid">
             <div class="stack">
               <section class="section-card" id="assignmentComposerCard">
-                <div class="panel-head"><div><h3 class="panel-title">Batch diagnostic assignments</h3><p class="panel-copy">Dispatch diagnostics in two deliberate steps: first validate recipients, then configure defaults, review exposure rules, and send.</p></div><span class="chip" id="assignmentModeChip">Admin module</span></div>
+                <div class="panel-head"><div><p class="section-kicker">Build</p><h3 class="panel-title">Configure and dispatch diagnostic batches</h3><p class="panel-copy">Move through one clean admin sequence: validate recipients, choose diagnostic defaults, set visibility and anonymity policy, review the batch, and send.</p></div><span class="chip" id="assignmentModeChip">Admin module</span></div>
 
                 <div class="steps">
                   <div class="step-card active" id="stepCardIntake">
@@ -291,7 +255,7 @@
                   <div class="step-card" id="stepCardConfig">
                     <div class="step-top"><span class="step-index">2</span><span class="chip ghost" id="stepConfigChip">Locked</span></div>
                     <h4 class="step-title">Configure, review, and send</h4>
-                    <p class="step-copy">Apply default tool settings, privacy controls, and timing. Review the final batch summary before dispatch.</p>
+                    <p class="step-copy">Apply diagnostic defaults, privacy controls, delivery timing, and review the final exposure profile before dispatch.</p>
                   </div>
                 </div>
 
@@ -388,7 +352,7 @@
             </div>
             <div class="stack">
               <section class="section-card">
-                <div class="panel-head"><div><h3 class="panel-title">Assignment policy summary</h3><p class="panel-copy">These are the policy choices the batch send flow is meant to surface clearly and explicitly.</p></div></div>
+                <div class="panel-head"><div><p class="section-kicker">Build guidance</p><h3 class="panel-title">Policy decisions that matter before anything goes out</h3><p class="panel-copy">The batch builder should make the send logic feel deliberate: validated recipients, explicit visibility rules, and review-before-dispatch.</p></div></div>
                 <div class="grid-2">
                   <div class="card-lite"><h4>Bulk intake, not guesswork</h4><p>Large sends should begin with recipient validation, duplicate control, and clear row-level issues before any invitations go out.</p></div>
                   <div class="card-lite"><h4>Visibility state</h4><p>Participant-visible, admin-visible, aggregate-only, and metadata-only outcomes should be distinct, explicit states.</p></div>
@@ -397,21 +361,51 @@
                 </div>
               </section>
               <section class="section-card">
-                <div class="panel-head"><div><h3 class="panel-title">Batch route status</h3><p class="panel-copy">These statuses help the admin understand whether the UI is using local validation or backend validation and send routes.</p></div></div>
+                <div class="panel-head"><div><p class="section-kicker">Batch status</p><h3 class="panel-title">Route readiness</h3><p class="panel-copy">This gives admins immediate confidence about whether the console is still validating and dispatching through the expected backend flow.</p></div></div>
                 <div class="grid-2">
                   <div class="card-lite"><h4>Preview route</h4><p id="previewRouteStatus">Not run yet.</p></div>
                   <div class="card-lite"><h4>Send route</h4><p id="sendRouteStatus">Not run yet.</p></div>
                 </div>
               </section>
+              <section class="section-card">
+                <div class="panel-head"><div><p class="section-kicker">Recommended additions</p><h3 class="panel-title">What would make Build even stronger</h3><p class="panel-copy">These are product-ready extensions that fit the current architecture without changing the backend model.</p></div></div>
+                <div class="card-lite"><ul><li><strong>Saved drafts:</strong> preserve partially configured batches before dispatch.</li><li><strong>Reusable templates:</strong> let admins store common diagnostic + visibility combinations.</li><li><strong>Multi-diagnostic sends:</strong> support one recipient set with more than one assigned tool.</li><li><strong>Scheduled digests:</strong> allow send-now, scheduled, and batched reminder patterns to feel native.</li></ul></div>
+              </section>
             </div>
           </div>
         </section>
 
-        <section class="tab-panel" data-panel="results">
+        <section class="tab-panel" data-panel="tracking">
           <div class="workspace-grid">
             <div class="stack">
               <section class="section-card">
-                <div class="panel-head"><div><h3 class="panel-title">Results view</h3><p class="panel-copy">See runs with visibility, anonymity, and normalization context rather than just raw score storage.</p></div><div class="run-actions"><button class="btn btn-soft" id="refreshResultsBtn" type="button">Refresh results</button><button class="btn btn-subtle" id="normalizeOrgBtn" type="button">Run normalization for org</button></div></div>
+                <div class="panel-head"><div><p class="section-kicker">Tracking</p><h3 class="panel-title">Live response and assignment flow</h3><p class="panel-copy">This is the admin operating view: what has been sent, what has been opened, what has been completed, what is due soon, and what is beginning to distort signal quality.</p></div><span class="chip ok" id="runsSummaryChip">0 visible</span></div>
+                <div class="summary-grid">
+                  <div class="summary-card"><div class="summary-label">Open rate</div><div class="summary-value" id="summaryOpenRate">—</div><div class="summary-copy">Assignments opened relative to sent volume.</div></div>
+                  <div class="summary-card ok"><div class="summary-label">Completion rate</div><div class="summary-value" id="summaryCompletionRate">—</div><div class="summary-copy">Assignments completed relative to sent volume.</div></div>
+                  <div class="summary-card warn"><div class="summary-label">Due soon</div><div class="summary-value" id="summaryDueSoon">0</div><div class="summary-copy">Assignments approaching due time.</div></div>
+                  <div class="summary-card warn"><div class="summary-label">Flagged</div><div class="summary-value" id="summaryFlagged">0</div><div class="summary-copy">Runs marked for caution or exclusion.</div></div>
+                  <div class="summary-card ok"><div class="summary-label">Included</div><div class="summary-value" id="summaryIncluded">0</div><div class="summary-copy">Runs included in aggregate interpretation.</div></div>
+                  <div class="summary-card rose"><div class="summary-label">Excluded</div><div class="summary-value" id="summaryExcluded">0</div><div class="summary-copy">Runs excluded from aggregates.</div></div>
+                </div>
+              </section>
+
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Recent assignments</h3><p class="panel-copy">This is the clearest admin queue for what has gone out and where response flow currently stands.</p></div><span class="chip ghost">Assignment state</span></div>
+                <div class="list" id="assignmentList"></div>
+                <div class="empty" id="assignmentEmpty">No recent assignments are visible yet.</div>
+              </section>
+
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Recent saved runs</h3><p class="panel-copy">Raw first-arrival responses surface here before they are filtered into governed analytic treatment.</p></div><span class="chip ghost">Raw run layer</span></div>
+                <div class="list" id="runsList"></div>
+                <div class="empty" id="runsEmpty">No saved runs are visible yet. Once diagnostics write to <code>diagnostic_runs</code>, this list will populate automatically.</div>
+              </section>
+            </div>
+
+            <div class="stack">
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">Governed response review</h3><p class="panel-copy">See runs with visibility, anonymity, and normalization context rather than just raw score storage.</p></div><div class="run-actions"><button class="btn btn-soft" id="refreshResultsBtn" type="button">Refresh results</button><button class="btn btn-subtle" id="normalizeOrgBtn" type="button">Run normalization for org</button></div></div>
                 <div class="form-grid" style="margin-bottom:18px;">
                   <div class="field"><label for="resultToolFilter">Tool filter</label><select id="resultToolFilter"><option value="">All tools</option><option value="decision_velocity">Decision Velocity</option><option value="structural_clarity">Structural Clarity</option><option value="operational_systems">Operational Systems</option><option value="institutional_performance">Institutional Performance</option></select></div>
                   <div class="field"><label for="resultInclusionFilter">Inclusion filter</label><select id="resultInclusionFilter"><option value="">All runs</option><option value="included">Included</option><option value="included_with_caution">Included with caution</option><option value="excluded_from_aggregates">Excluded from aggregates</option></select></div>
@@ -420,10 +414,9 @@
                 <div class="empty" id="normalizedRunsEmpty">No normalized runs are visible yet. Once the backend normalization routes are mounted, this view will populate with analytic status.</div>
                 <p class="status-inline" id="resultsStatus"></p>
               </section>
-            </div>
-            <div class="stack">
+
               <section class="section-card">
-                <div class="panel-head"><div><h3 class="panel-title">Flagged-run review</h3><p class="panel-copy">This is where the workspace distinguishes raw response storage from governed institutional signal.</p></div></div>
+                <div class="panel-head"><div><h3 class="panel-title">Flagged-run review</h3><p class="panel-copy">This is where the admin can quickly see which responses should not quietly shape institutional interpretation.</p></div></div>
                 <div class="list" id="flaggedRunList"></div>
                 <div class="empty" id="flaggedRunEmpty">No flagged runs are visible yet.</div>
               </section>
@@ -433,7 +426,7 @@
 
         <section class="tab-panel" data-panel="analytics">
           <section class="section-card">
-            <div class="panel-head"><div><h3 class="panel-title">Analytic summary</h3><p class="panel-copy">These summary metrics are intended to run off the normalized analytic set by default, while still keeping the raw set accessible.</p></div></div>
+            <div class="panel-head"><div><p class="section-kicker">Analytics</p><h3 class="panel-title">Synthesis, signal quality, and governance</h3><p class="panel-copy">This layer turns raw response flow into an institutional learning set: normalized, filtered, governed, and ready for executive interpretation.</p></div><span class="chip ghost" id="summaryContextChip">Workspace context</span></div>
             <div class="analytics-grid">
               <div class="analytics-card"><div class="analytics-label">All runs</div><div class="analytics-value" id="analyticsAllRuns">0</div><div class="analytics-copy">Raw runs visible in this workspace.</div></div>
               <div class="analytics-card"><div class="analytics-label">Included</div><div class="analytics-value" id="analyticsIncluded">0</div><div class="analytics-copy">Runs currently included in aggregate reporting.</div></div>
@@ -441,24 +434,24 @@
               <div class="analytics-card"><div class="analytics-label">Excluded</div><div class="analytics-value" id="analyticsExcluded">0</div><div class="analytics-copy">Runs excluded from aggregate views.</div></div>
             </div>
           </section>
+
           <div class="workspace-grid">
             <div class="stack">
               <section class="section-card">
                 <div class="panel-head"><div><h3 class="panel-title">Normalization recommendation log</h3><p class="panel-copy">Raw run preserved, backend recommendation logged, aggregate treatment made explicit.</p></div></div>
                 <div class="table-wrap"><table><thead><tr><th>Run</th><th>Status</th><th>Score</th><th>Flags</th><th>Last normalized</th></tr></thead><tbody id="normalizationTableBody"></tbody></table></div>
               </section>
-            </div>
-            <div class="stack">
+
               <section class="section-card">
-                <div class="panel-head"><div><h3 class="panel-title">What the backend should govern</h3><p class="panel-copy">The workspace shows these states clearly, but the logic belongs in the API.</p></div></div>
-                <div class="card-lite"><ul><li><strong>Completion-speed sanity</strong> for each diagnostic depth.</li><li><strong>Contradiction burden</strong> relative to structured answers.</li><li><strong>Coverage adequacy</strong> for adaptive branch completion.</li><li><strong>Outlier detection</strong> relative to the organization comparison set.</li><li><strong>Duplicate-like patterns</strong> that should not quietly distort aggregate signal.</li></ul></div>
+                <div class="panel-head"><div><h3 class="panel-title">Cross-diagnostic synthesis</h3><p class="panel-copy">Analytics should culminate in a cleaner institutional picture, not just a list of individual runs.</p></div></div>
+                <div class="grid-2">
+                  <div class="card-lite"><h4>Cross-tool synthesis</h4><p>Compare governed signal across Decision Velocity, Structural Clarity, Operational Systems, and Institutional Performance in one executive layer.</p></div>
+                  <div class="card-lite"><h4>Delivery and export</h4><p>Prepare executive summaries, normalized digests, and downstream exports without changing the raw run record.</p></div>
+                </div>
+                <div class="form-actions" style="margin-top:16px;"><a class="btn btn-soft" href="cross-tool-synthesis.html">Open cross-tool synthesis</a><button class="btn btn-subtle" id="exportGovernanceBtn" type="button">Export governance snapshot</button></div>
               </section>
             </div>
-          </div>
-        </section>
 
-        <section class="tab-panel" data-panel="governance">
-          <div class="workspace-grid">
             <div class="stack">
               <section class="section-card">
                 <div class="panel-head"><div><h3 class="panel-title">Visibility and privacy policy</h3><p class="panel-copy">These controls are where Monderman becomes a governed institutional platform rather than a simple result archive.</p></div></div>
@@ -467,11 +460,10 @@
                   <div class="toggle-row"><div><strong>Default to admin metadata-only for anonymous runs</strong><p>Helps preserve trust by avoiding accidental upward exposure of full narrative output.</p></div><label class="switch"><input type="checkbox" id="govMetadataOnly" checked /><span class="switch-slider"></span></label></div>
                   <div class="toggle-row"><div><strong>Use normalized analytic set by default</strong><p>Aggregate views should use included runs first, not raw runs indiscriminately.</p></div><label class="switch"><input type="checkbox" id="govUseNormalized" checked /><span class="switch-slider"></span></label></div>
                 </div>
-                <div class="form-actions" style="margin-top:18px;"><button class="btn btn-accent" id="saveGovernanceBtn" type="button">Save governance preferences</button><button class="btn btn-subtle" id="exportGovernanceBtn" type="button">Export governance snapshot</button></div>
+                <div class="form-actions" style="margin-top:18px;"><button class="btn btn-accent" id="saveGovernanceBtn" type="button">Save governance preferences</button></div>
                 <p class="status-inline" id="governanceStatus"></p>
               </section>
-            </div>
-            <div class="stack">
+
               <section class="section-card">
                 <div class="panel-head"><div><h3 class="panel-title">Governance model summary</h3><p class="panel-copy">These are the distinctions the product should protect explicitly.</p></div></div>
                 <div class="grid-2">
@@ -481,11 +473,15 @@
                   <div class="card-lite"><h4>Excluded from aggregates</h4><p>Preserved for auditability, but removed from aggregate interpretation when the backend recommends it.</p></div>
                 </div>
               </section>
+
+              <section class="section-card">
+                <div class="panel-head"><div><h3 class="panel-title">What the backend should govern</h3><p class="panel-copy">The workspace shows these states clearly, but the logic belongs in the API.</p></div></div>
+                <div class="card-lite"><ul><li><strong>Completion-speed sanity</strong> for each diagnostic depth.</li><li><strong>Contradiction burden</strong> relative to structured answers.</li><li><strong>Coverage adequacy</strong> for adaptive branch completion.</li><li><strong>Outlier detection</strong> relative to the organization comparison set.</li><li><strong>Duplicate-like patterns</strong> that should not quietly distort aggregate signal.</li></ul></div>
+              </section>
             </div>
           </div>
         </section>
-      </div>
-    </div>
+      </div>    </div>
   </main>
 
   <footer class="footer"><div class="footer-inner"><p class="footer-copy">Monderman Workspace is intended to govern assignments, visibility, anonymity, and signal quality over time.</p><p class="footer-copy">Built for continuity, trust, and cleaner institutional interpretation.</p></div></footer>
@@ -711,7 +707,14 @@
       ui.heroFlagged.textContent = String(flagged);
     }
 
-    function attachTabBehavior(){ document.querySelectorAll(".tab-btn").forEach((btn)=>{ btn.addEventListener("click", ()=>{ const tab=btn.getAttribute("data-tab"); document.querySelectorAll(".tab-btn").forEach((b)=>b.classList.toggle("active", b===btn)); document.querySelectorAll(".tab-panel").forEach((panel)=>panel.classList.toggle("active", panel.getAttribute("data-panel")===tab)); }); }); }
+    function setActiveTab(tab){
+      document.querySelectorAll(".tab-btn").forEach((btn)=>btn.classList.toggle("active", btn.getAttribute("data-tab")===tab));
+      document.querySelectorAll(".tab-panel").forEach((panel)=>panel.classList.toggle("active", panel.getAttribute("data-panel")===tab));
+    }
+    function attachTabBehavior(){
+      document.querySelectorAll(".tab-btn").forEach((btn)=>{ btn.addEventListener("click", ()=> setActiveTab(btn.getAttribute("data-tab"))); });
+      document.querySelectorAll("[data-jump-tab]").forEach((btn)=>{ btn.addEventListener("click", ()=>{ const tab = btn.getAttribute("data-jump-tab"); setActiveTab(tab); document.getElementById("workspaceTabs")?.scrollIntoView({ behavior:"smooth", block:"start" }); }); });
+    }
     function attachIntakeTabBehavior(){ document.querySelectorAll(".intake-tab").forEach((btn)=>{ btn.addEventListener("click", ()=>{ const tab = btn.getAttribute("data-intake"); document.querySelectorAll(".intake-tab").forEach((el)=>el.classList.toggle("active", el===btn)); document.querySelectorAll(".intake-panel").forEach((panel)=>panel.classList.toggle("active", panel.getAttribute("data-intake-panel")===tab)); }); }); }
     function attachGovernanceHandlers(){ ui.saveGovernanceBtn?.addEventListener("click", ()=>{ state.governance.participantVisible=ui.govParticipantVisible.checked; state.governance.metadataOnlyForAnonymous=ui.govMetadataOnly.checked; state.governance.useNormalized=ui.govUseNormalized.checked; safeWriteLocal("monderman_workspace_governance", JSON.stringify(state.governance)); setStatus(ui.governanceStatus, "Governance preferences saved locally for this workspace view.", "ok"); }); ui.exportGovernanceBtn?.addEventListener("click", ()=>{ const blob=new Blob([JSON.stringify({ organization:state.organization, governance:state.governance }, null, 2)], { type:"application/json" }); const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download="monderman-workspace-governance.json"; a.click(); URL.revokeObjectURL(url); }); }
     function hydrateGovernancePrefs(){ const stored=safeReadLocal("monderman_workspace_governance"); if(!stored) return; try{ const parsed=JSON.parse(stored); state.governance={ ...state.governance, ...parsed }; ui.govParticipantVisible.checked=!!state.governance.participantVisible; ui.govMetadataOnly.checked=!!state.governance.metadataOnlyForAnonymous; ui.govUseNormalized.checked=!!state.governance.useNormalized; }catch{} }
