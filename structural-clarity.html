@@ -11,6 +11,11 @@
       <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
     </svg>' />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    window.MONDERMAN_SUPABASE_URL = "https://ptkxrzgmeldalrkfruth.supabase.co";
+    window.MONDERMAN_SUPABASE_ANON_KEY = "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
+  </script>
     <style>
     @font-face { font-family:"Neue Haas Grotesk"; src:url("55font.woff2") format("woff2"),url("55font.woff") format("woff"); font-weight:400; }
     @font-face { font-family:"Neue Haas Grotesk"; src:url("65font.woff2") format("woff2"),url("65font.woff") format("woff"); font-weight:500; }
@@ -142,7 +147,7 @@
       <div class="stage active" id="laneStage"><div class="lane-layout"><div class="card"><div class="step-chip"><strong>Step 1</strong><span>Select the perspective closest to the work you can actually observe.</span></div><h3>Choose the perspective that best matches your role.</h3><p class="tiny">Each version looks at the same structural issue from a different vantage point. Pick the lane that best matches what you can see firsthand.</p><div class="lane-buttons" style="margin-top:18px;"><button class="btn lane-btn" type="button" data-lane="operational">Operational</button><button class="btn lane-btn" type="button" data-lane="managerial">Managerial</button><button class="btn lane-btn" type="button" data-lane="executive">Executive</button></div><div class="lane-note">You can change lanes later by starting over. The underlying diagnostic engine remains the same; the questions shift to fit what each perspective can observe most credibly.</div></div><div class="lane-tiles"><div class="lane-tile" data-lane-tile="operational"><h4>Operational</h4><p>Built for people closest to the work. Best for surfacing fuzzy ownership, conflicting instructions, and where the structure only works because someone quietly translates or compensates around it.</p></div><div class="lane-tile" data-lane-tile="managerial"><h4>Managerial</h4><p>Built for people coordinating teams and execution. Best for identifying recurring clarification load, accountability diffusion, boundary rework, and where structure is consuming management attention.</p></div><div class="lane-tile" data-lane-tile="executive"><h4>Executive</h4><p>Built for leaders shaping structure and governance. Best for assessing role-architecture drift, control-fit problems, redesign readiness, and where the system itself is becoming harder to govern.</p></div></div></div></div>
       <div class="stage" id="depthStage"><div class="intro-layout"><div class="card"><div class="step-chip"><strong>Step 2</strong><span>Choose how deep you want this run to go.</span></div><h3>Choose diagnostic depth</h3><p class="depth-intro">Pick the shortest run that still fits the importance of the pathway. For most first passes, the 30-minute version is the best starting point.</p><div class="depth-card-grid"><button class="depth-card" type="button" data-depth="10"><h4>10-minute diagnostic</h4><p>Best for fast baselining, a first pass, or repeated checks after a change.</p><div class="depth-meta">Lower burden • directional signal</div></button><button class="depth-card" type="button" data-depth="30"><span class="depth-recommend">Recommended default</span><h4>30-minute diagnostic</h4><p>Best default option. Balances speed with stronger explanatory power and better pattern detection.</p><div class="depth-meta">Balanced depth • stronger interpretation</div></button><button class="depth-card" type="button" data-depth="60"><h4>60-minute diagnostic</h4><p>Best when the pathway is politically important, chronically slow, or costly enough to justify a richer readout.</p><div class="depth-meta">Deepest branch logic • strongest self-guided read</div></button></div><div class="depth-footnote">Shorter runs still deliver useful signal. Longer runs simply uncover more hidden patterning and stronger opportunity framing over time.</div></div><aside class="card soft"><div class="depth-support"><div><h3>Why time depth matters</h3><ul><li><strong>Get a baseline:</strong> understand how the pathway works today</li><li><strong>Re-run later:</strong> measure whether changes actually improved the cycle</li><li><strong>Compare perspectives:</strong> see where different roles experience the pathway differently</li><li><strong>Track drift:</strong> longer runs surface accumulating burden more clearly</li></ul></div><div class="sidebar-note"><strong>Best starting point</strong>Use the 30-minute diagnostic when the goal is a strong first read without adding unnecessary friction to the run.</div></div></aside></div></div>
       <div class="stage" id="introStage"><div class="intro-layout"><div class="card"><div class="step-chip"><strong>Step 3</strong><span>Confirm the input guardrail, then begin the run.</span></div><h3>Before you begin</h3><div class="notice-block"><div class="notice"><strong>Notice</strong><div class="tiny" id="openingNotice"></div></div><div class="notice"><strong>What to expect</strong><div class="tiny">This run is intentionally more detailed than a light survey. The pathway adjusts based on your answers, and some responses open additional question tiles so the Monderman engine has enough signal to generate a more useful readout.</div></div></div><div class="gentle-note tiny">Output quality depends on the quality and quantity of the information you provide. Some pathways require a bit more detail so the Monderman engine can generate a more precise and useful readout. Brief patience here improves the value of the output.</div><div class="checkbox-card" style="margin-top:18px;"><div class="checkbox-row"><input id="preStartConsent" type="checkbox" /><label for="preStartConsent">I agree not to enter classified, export-controlled, sensitive, proprietary, personally identifiable, protected health, or otherwise restricted information into this tool. I understand that I am solely responsible for the information I submit.</label></div></div><div class="actions" style="margin-top:22px;justify-content:flex-start;"><div class="actions-left"><a class="btn" href="diagnostic-tools.html">Back to Diagnostic Hub</a><button class="btn btn-accent btn-disabled" id="beginBtn" type="button" disabled>Begin diagnostic</button></div></div></div><aside class="card soft"><h3 id="laneAsideTitle">What this tool is built to detect</h3><ul><li>Unclear ownership, decision-right confusion, and accountability diffusion</li><li>Role overlap, conflicting guidance, and manual translation work</li><li>Structures that only function because specific people keep them coherent</li><li>Boundary weakness across teams, functions, or governance layers</li><li>Directionally sized time, money, and resource exposure</li></ul></aside></div></div>
-      <div class="stage" id="questionStage"><div class="question-shell"><div class="question-card"><div class="question-meta"><p class="question-label" id="questionCluster">Diagnostic question</p><p class="question-step" id="questionStep">Question 1</p></div><h3 class="question-title" id="questionTitle"></h3><p class="question-copy" id="questionCopy"></p><div class="required-note" id="requiredNotice">This question is required for the diagnostic logic to work.</div><div id="questionBody"></div></div></div></div>
+      <div class="stage" id="questionStage"><div class="question-shell"><div class="question-card"><div class="question-meta"><p class="question-label" id="questionCluster">Diagnostic question</p><p class="question-step" id="questionStep">Question 1</p></div><h3 class="question-title" id="questionTitle"></h3><p class="question-copy" id="questionCopy"></p><div class="required-note" id="requiredNotice">This question is required for the diagnostic logic to work.</div><div class="required-note" id="persistenceNotice" style="display:none;background:#FFF8EC;border-color:#F0D29D;color:#795B22;">Durable save status will appear here if the database write is blocked.</div><div id="questionBody"></div></div></div></div>
       <div class="stage" id="processingStage"><div class="processing-stage"><div class="processing-card"><div class="spinner spinner-sm" aria-hidden="true"></div><h3>Generating output</h3><p>The diagnostic engine is interpreting your pathway and preparing a leadership-facing readout.</p><div class="processing-list"><div class="processing-item"><span class="pulse"></span><span>Scoring ownership, authority, and accountability clarity</span></div><div class="processing-item"><span class="pulse"></span><span>Checking for contradiction, overlap, and drift signals</span></div><div class="processing-item"><span class="pulse"></span><span>Estimating directional time, cost, and resource exposure</span></div><div class="processing-item"><span class="pulse"></span><span>Preparing report-ready structural output modules</span></div></div></div></div></div>
       
 <div class="stage" id="resultsStage"><div class="results-layout">
@@ -300,7 +305,7 @@ const openingNotice = "This diagnostic generates directional insights based on t
 const finalAcknowledgment = "I acknowledge that this diagnostic provides directional insights only, that Monderman has not independently verified my inputs, and that I am solely responsible for how these results are interpreted or used.";
 const bottomDisclaimer = "* All figures, including time, cost, and resource estimates, are directional estimates generated from user-provided information. They are intended to support additional analysis, discussion, and advisory review, and should not be used in isolation for formal decision-making.";
 document.getElementById("openingNotice").textContent = openingNotice; document.getElementById("bottomDisclaimer").textContent = bottomDisclaimer;
-const pageLoader=document.getElementById("pageLoader"), heroBeginBtn=document.getElementById("heroBeginBtn"), learnMoreToggle=document.getElementById("learnMoreToggle"), learnMorePanel=document.getElementById("learnMorePanel"), laneStage=document.getElementById("laneStage"), depthStage=document.getElementById("depthStage"), introStage=document.getElementById("introStage"), questionStage=document.getElementById("questionStage"), processingStage=document.getElementById("processingStage"), resultsStage=document.getElementById("resultsStage"), questionFooter=document.getElementById("questionFooter"), beginBtn=document.getElementById("beginBtn"), preStartConsent=document.getElementById("preStartConsent"), backBtn=document.getElementById("backBtn"), skipBtn=document.getElementById("skipBtn"), restartBtn=document.getElementById("restartBtn"), continueBtn=document.getElementById("continueBtn"), exportBtn=document.getElementById("exportBtn"), downloadPdfBtn=document.getElementById("downloadPdfBtn"), downloadReportBtn=document.getElementById("downloadReportBtn"), saveCrossDiagnosticBtn=document.getElementById("saveCrossDiagnosticBtn"), reportDownloadLink=document.getElementById("reportDownloadLink"), crossDiagnosticDownloadLink=document.getElementById("crossDiagnosticDownloadLink"), newRunBtn=document.getElementById("newRunBtn"), envHeadline=document.getElementById("envHeadline"), envSubcopy=document.getElementById("envSubcopy"), statusPill=document.getElementById("statusPill"), questionCluster=document.getElementById("questionCluster"), questionStep=document.getElementById("questionStep"), questionTitle=document.getElementById("questionTitle"), questionCopy=document.getElementById("questionCopy"), questionBody=document.getElementById("questionBody"), requiredNotice=document.getElementById("requiredNotice"), progressBar=document.getElementById("progressBar"), progressCopy=document.getElementById("progressCopy"), pathHint=document.getElementById("pathHint"), laneAsideTitle=document.getElementById("laneAsideTitle");
+const pageLoader=document.getElementById("pageLoader"), heroBeginBtn=document.getElementById("heroBeginBtn"), learnMoreToggle=document.getElementById("learnMoreToggle"), learnMorePanel=document.getElementById("learnMorePanel"), laneStage=document.getElementById("laneStage"), depthStage=document.getElementById("depthStage"), introStage=document.getElementById("introStage"), questionStage=document.getElementById("questionStage"), processingStage=document.getElementById("processingStage"), resultsStage=document.getElementById("resultsStage"), questionFooter=document.getElementById("questionFooter"), beginBtn=document.getElementById("beginBtn"), preStartConsent=document.getElementById("preStartConsent"), backBtn=document.getElementById("backBtn"), skipBtn=document.getElementById("skipBtn"), restartBtn=document.getElementById("restartBtn"), continueBtn=document.getElementById("continueBtn"), exportBtn=document.getElementById("exportBtn"), downloadPdfBtn=document.getElementById("downloadPdfBtn"), downloadReportBtn=document.getElementById("downloadReportBtn"), saveCrossDiagnosticBtn=document.getElementById("saveCrossDiagnosticBtn"), reportDownloadLink=document.getElementById("reportDownloadLink"), crossDiagnosticDownloadLink=document.getElementById("crossDiagnosticDownloadLink"), newRunBtn=document.getElementById("newRunBtn"), envHeadline=document.getElementById("envHeadline"), envSubcopy=document.getElementById("envSubcopy"), statusPill=document.getElementById("statusPill"), questionCluster=document.getElementById("questionCluster"), questionStep=document.getElementById("questionStep"), questionTitle=document.getElementById("questionTitle"), questionCopy=document.getElementById("questionCopy"), questionBody=document.getElementById("questionBody"), requiredNotice=document.getElementById("requiredNotice"), progressBar=document.getElementById("progressBar"), progressCopy=document.getElementById("progressCopy"), pathHint=document.getElementById("pathHint"), laneAsideTitle=document.getElementById("laneAsideTitle"), persistenceNotice=document.getElementById("persistenceNotice");
 let gapChart=null, dimensionChart=null;
 
 async function postJsonWithTimeout(url, body, timeoutMs=12000){
@@ -400,6 +405,210 @@ const branchMap={
 
 const commonOutro=["peopleInvolved","hourlyCost","annualVolume","meetingHours","confidenceLevel","acknowledgment"];
 
+const state={path:["symptom"],index:0,answers:{},result:null,mode:null,depth:null,explicitLane:false,explicitDepth:false,persistedRunId:null};
+const assignmentState={id:null,token:null,row:null,user:null,client:null,persistenceMode:"unknown",lastPersistenceStatus:"not_attempted"};
+const SUPABASE_URL = window.MONDERMAN_SUPABASE_URL || window.SUPABASE_URL || window.__MONDERMAN_SUPABASE_URL__ || "https://ptkxrzgmeldalrkfruth.supabase.co";
+const SUPABASE_KEY = window.MONDERMAN_SUPABASE_ANON_KEY || window.SUPABASE_ANON_KEY || window.SUPABASE_KEY || window.__MONDERMAN_SUPABASE_ANON_KEY__ || "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
+
+function normalizeMode(value){
+  const v=String(value||"").toLowerCase();
+  if(v==="executive" || v==="senior leader" || v==="senior_leader") return "executive";
+  if(v==="managerial" || v==="manager") return "managerial";
+  if(v==="operational" || v==="operations") return "operational";
+  return "";
+}
+function displayModeLabel(value){
+  const mode=normalizeMode(value);
+  return mode ? humanize(mode) : "";
+}
+async function getSupabaseClient(){
+  if(assignmentState.client) return assignmentState.client;
+  if(!SUPABASE_URL || !SUPABASE_KEY) return null;
+  const mod = await import("https://esm.sh/@supabase/supabase-js@2");
+  assignmentState.client = mod.createClient(SUPABASE_URL, SUPABASE_KEY);
+  return assignmentState.client;
+}
+function getAssignmentParams(){
+  const params=new URLSearchParams(window.location.search);
+  return { id: params.get("assignment_id") || "", token: params.get("assignment_token") || "" };
+}
+function applyAssignmentContext(row){
+  if(!row) return;
+  assignmentState.row=row;
+  assignmentState.id=row.id||assignmentState.id;
+  assignmentState.token=row.token||assignmentState.token;
+  const ctx=(row.context_json && typeof row.context_json==="object") ? row.context_json : {};
+  if(!state.explicitLane) state.mode = normalizeMode(row.participant_lens || ctx.lens || state.mode);
+  if(!state.explicitDepth) state.depth = String(row.depth || ctx.depth || state.depth || "");
+  state.answers.processName = state.answers.processName || row.event_path_name || row.pathway_name || ctx.pathName || "";
+  state.answers.businessUnit = state.answers.businessUnit || ctx.businessUnit || ctx.teamFunction || "";
+  state.answers.industry = state.answers.industry || ctx.industry || "";
+  state.answers.regulatoryIntensity = state.answers.regulatoryIntensity || ctx.regulatoryIntensity || "";
+  state.answers.employeeCount = state.answers.employeeCount || ctx.employeeCount || "";
+  state.answers.decisionType = state.answers.decisionType || ctx.decisionType || "";
+  state.answers.description = state.answers.description || row.message || ctx.description || "";
+}
+async function loadAssignmentContext(){
+  const params=getAssignmentParams();
+  if(!params.id && !params.token) return null;
+  assignmentState.id=params.id||null;
+  assignmentState.token=params.token||null;
+  try{
+    const client = await getSupabaseClient();
+    if(!client) return null;
+    const { data:userData } = await client.auth.getUser();
+    const user=userData?.user||null;
+    assignmentState.user=user;
+
+    let query = client.from("diagnostic_assignments").select("*");
+    query = params.id ? query.eq("id", params.id) : query.eq("token", params.token);
+    const { data:row, error } = await query.single();
+    if(error || !row) return null;
+    applyAssignmentContext(row);
+
+    const patch={};
+    if(!row.opened_at) patch.opened_at=new Date().toISOString();
+    if(row.status==="pending" || row.status==="sent") patch.status="opened";
+    if(user && !row.assigned_to_user_id) patch.assigned_to_user_id=user.id;
+
+    if(Object.keys(patch).length){
+      const { data:updated } = await client.from("diagnostic_assignments").update(patch).eq("id", row.id).select("*").single();
+      if(updated) applyAssignmentContext(updated);
+    }
+    return assignmentState.row;
+  }catch(error){
+    console.warn("Assignment initialization failed", error);
+    return null;
+  }
+}
+async function insertDiagnosticRun(client,row){
+  const { data, error } = await client.from("diagnostic_runs").insert(row).select("*").single();
+  if(error) throw error;
+  return data;
+}
+function saveRecentRun(result,payload){
+  try{
+    const runs=JSON.parse(localStorage.getItem("monderman_recent_runs")||"[]");
+    const entry={
+      toolLabel:"Structural Clarity",
+      href:window.location.pathname.split('/').pop()||"structural-clarity.html",
+      timestamp:new Date().toISOString(),
+      pathName:payload.processName||"",
+      lensLabel:displayModeLabel(state.mode) ? `${displayModeLabel(state.mode)} lens` : "",
+      depthLabel:state.depth?`${state.depth}-minute depth`:"",
+      exportName: result?.tool_label || "Structural Clarity"
+    };
+    const next=[entry, ...runs.filter(r=>!(r.toolLabel===entry.toolLabel && r.pathName===entry.pathName))].slice(0,5);
+    localStorage.setItem("monderman_recent_runs", JSON.stringify(next));
+  }catch(error){}
+}
+async function persistDiagnosticRun(result,payload){
+  const pendingKey = "monderman_pending_structural_clarity_run";
+  const cachePendingRun = (row, errorMessage)=>{
+    try{
+      localStorage.setItem(pendingKey, JSON.stringify({cachedAt:new Date().toISOString(), error:errorMessage || "Unknown persistence failure", row}));
+    }catch(storageError){
+      console.warn("local pending-run cache failed", storageError);
+    }
+  };
+  try{
+    const client = await getSupabaseClient();
+    if(!client) throw new Error("Supabase client could not be initialized.");
+    if(!assignmentState.row){
+      await loadAssignmentContext();
+    }
+    const { data:userData } = await client.auth.getUser();
+    const user = userData?.user || assignmentState.user || null;
+    assignmentState.user = user;
+
+    const primaryConstraint=derivePrimaryOwnershipGap(result);
+    const actions=sanitizeRecommendedActions(buildPriorityActions(result,payload),result,payload);
+    const canPersistAnonymously = !!assignmentState.row && (assignmentState.row.is_anonymous_response === true || !!assignmentState.token);
+    if(!user && !canPersistAnonymously){
+      assignmentState.persistenceMode = "blocked_no_auth";
+      assignmentState.lastPersistenceStatus = "skipped_no_auth";
+      throw new Error("This run cannot complete until the page has either an authenticated user or an anonymous assignment token with write permission.");
+    }
+
+    const row={
+      user_id:user?.id || null,
+      organization_id:assignmentState.row?.organization_id || null,
+      assignment_id:assignmentState.row?.id || null,
+      tool_type:"structural_clarity",
+      tool_label:"Structural Clarity",
+      pathway_name:payload.processName || assignmentState.row?.event_path_name || null,
+      business_unit:payload.businessUnit || null,
+      participant_mode:state.mode || assignmentState.row?.participant_lens || null,
+      diagnostic_depth:String(state.depth || assignmentState.row?.depth || ""),
+      run_period_label:payload.decisionFrequency || null,
+      intervention_label:payload.decisionType || null,
+      tags_json:{
+        industry:payload.industry || null,
+        organizationSize:payload.organizationSize || null,
+        regulatoryIntensity:payload.regulatoryIntensity || null,
+        routeFamily:result.route_family || null,
+        assignmentToken:assignmentState.token || null,
+        persistenceMode:user ? "authenticated" : "assignment_token"
+      },
+      score:result.score ?? null,
+      band:result.score_band || result.band || null,
+      benchmark_position:result.benchmark_position || null,
+      trajectory_label:result.trajectory?.label || null,
+      primary_driver:primaryConstraint.label || null,
+      dimensions_json:result.dimensions || {},
+      exposure_json:result.exposure || {},
+      key_findings_json:Array.isArray(result.key_findings) ? result.key_findings : [],
+      priority_actions_json:actions,
+      full_result_json:{
+        payload,
+        result,
+        assignment:{
+          id:assignmentState.row?.id || null,
+          token:assignmentState.token || null,
+          is_anonymous_response:assignmentState.row?.is_anonymous_response ?? false,
+          show_results_to_assignee:assignmentState.row?.show_results_to_assignee ?? true
+        },
+        persistence:{
+          mode:user ? "authenticated" : "assignment_token",
+          hadAuthenticatedUser:!!user
+        }
+      },
+      is_anonymous_response:assignmentState.row?.is_anonymous_response ?? false,
+      show_results_to_assignee:assignmentState.row?.show_results_to_assignee ?? true
+    };
+
+    let inserted = null;
+    try{
+      inserted = await insertDiagnosticRun(client,row);
+    }catch(insertError){
+      cachePendingRun(row, insertError?.message || String(insertError||"insert failed"));
+      throw new Error(`Diagnostic run save failed before completion: ${insertError?.message || "database insert blocked"}`);
+    }
+    if(!inserted?.id){
+      cachePendingRun(row, "insert returned no id");
+      throw new Error("Diagnostic run save did not return a durable row id.");
+    }
+
+    state.persistedRunId = inserted.id;
+    assignmentState.persistenceMode = user ? "authenticated" : "assignment_token";
+    assignmentState.lastPersistenceStatus = "persisted";
+    try{ localStorage.removeItem(pendingKey); }catch(storageError){ console.warn("pending-run cache clear failed", storageError); }
+
+    if(assignmentState.row){
+      const patch={ status:"completed", completed_at:new Date().toISOString(), run_id: inserted.id };
+      if(user?.id) patch.assigned_to_user_id=user.id;
+      const { data:updated, error:updateError } = await client.from("diagnostic_assignments").update(patch).eq("id", assignmentState.row.id).select("*").single();
+      if(updateError) throw new Error(`Diagnostic assignment completion update failed: ${updateError.message || updateError}`);
+      if(updated) applyAssignmentContext(updated);
+    }
+    return inserted;
+  }catch(error){
+    assignmentState.lastPersistenceStatus = "error";
+    console.warn("diagnostic run persistence failed", error);
+    throw error;
+  }
+}
+
 function buildPath(){
   const branch=branchMap[state.answers.symptom]||[];
   const laneBlock=laneSpecificBlocks[state.mode]||[];
@@ -416,7 +625,7 @@ function buildPath(){
   state.path=Array.from(new Set(state.path));
   if(state.index>=state.path.length) state.index=state.path.length-1;
 }
-function startDiagnostic(){state.index=0; state.answers={}; applyHubContextDefaults(); state.result=null; state.path=["symptom"]; destroyCharts(); const lane=laneConfigs[state.mode]||laneConfigs.executive; const depth=depthConfigs[state.depth]||depthConfigs["30"]; setHeader(`${lane.header} • ${depth.label}`,`${lane.subcopy} ${depth.subcopy}`,"Question path active"); updateHeroHelp(); showStage(questionStage); renderQuestion()} function restartDiagnostic(){startDiagnostic()} function selectLane(mode){state.mode=mode; document.querySelectorAll(".lane-btn").forEach(btn=>btn.classList.toggle("active",btn.dataset.lane===mode)); document.querySelectorAll("[data-lane-tile]").forEach(tile=>tile.classList.toggle("selected",tile.dataset.laneTile===mode)); const lane=laneConfigs[mode]||laneConfigs.executive; laneAsideTitle.textContent=lane.aside; setHeader(lane.header,lane.subcopy,"Perspective selected"); updateHeroHelp(); syncBeginButton(); showStage(depthStage)} function selectDepth(depth){state.depth=depth; document.querySelectorAll("[data-depth]").forEach(btn=>btn.classList.toggle("selected",btn.dataset.depth===depth)); const lane=laneConfigs[state.mode]||laneConfigs.executive; const cfg=depthConfigs[depth]||depthConfigs["30"]; setHeader(cfg.header,`${lane.label} perspective • ${cfg.subcopy}`,"Depth selected"); updateHeroHelp(); syncBeginButton(); showStage(introStage)} function getQuestionDef(id){const base=q[id]; const override=((laneOverrides[state.mode]||{})[id])||{}; return {...base,...override}} 
+function startDiagnostic(){state.index=0; state.answers={}; applyHubContextDefaults(); state.result=null; state.path=["symptom"]; destroyCharts(); const lane=laneConfigs[state.mode]||laneConfigs.executive; const depth=depthConfigs[state.depth]||depthConfigs["30"]; setHeader(`${lane.header} • ${depth.label}`,`${lane.subcopy} ${depth.subcopy}`,"Question path active"); updateHeroHelp(); showStage(questionStage); renderQuestion()} function restartDiagnostic(){startDiagnostic()} function selectLane(mode){state.mode=mode; state.explicitLane=true; document.querySelectorAll(".lane-btn").forEach(btn=>btn.classList.toggle("active",btn.dataset.lane===mode)); document.querySelectorAll("[data-lane-tile]").forEach(tile=>tile.classList.toggle("selected",tile.dataset.laneTile===mode)); const lane=laneConfigs[mode]||laneConfigs.executive; laneAsideTitle.textContent=lane.aside; setHeader(lane.header,lane.subcopy,"Perspective selected"); updateHeroHelp(); syncBeginButton(); showStage(depthStage)} function selectDepth(depth){state.depth=depth; state.explicitDepth=true; document.querySelectorAll("[data-depth]").forEach(btn=>btn.classList.toggle("selected",btn.dataset.depth===depth)); const lane=laneConfigs[state.mode]||laneConfigs.executive; const cfg=depthConfigs[depth]||depthConfigs["30"]; setHeader(cfg.header,`${lane.label} perspective • ${cfg.subcopy}`,"Depth selected"); updateHeroHelp(); syncBeginButton(); showStage(introStage)} function getQuestionDef(id){const base=q[id]; const override=((laneOverrides[state.mode]||{})[id])||{}; return {...base,...override}} 
 
 function renderQuestion(){
   const question=getQuestionDef(currentQuestionId());
@@ -1052,17 +1261,25 @@ async function submitDiagnostic(){
   }
 
   state.result=finalResult;
-  saveRecentRun(finalResult,payload);
 
   try{
+    await persistDiagnosticRun(finalResult,payload);
+    saveRecentRun(finalResult,payload);
     renderResults(finalResult,payload,outputMode);
     setHeader("Diagnostic output","Your results reflect the specific structural signal you surfaced and the information you provided.","Output generated");
     showStage(resultsStage);
   } catch (err){
-    console.error("renderResults failed:", err);
-    setHeader("Output error","The scoring run completed, but the results view failed to render. Start over after applying the front-end fix.","Render error");
-    alert("The diagnostic finished scoring, but the results view hit a front-end rendering error. Check the browser console.");
+    console.error("diagnostic completion blocked:", err);
+    assignmentState.lastPersistenceStatus = "error";
+    if(persistenceNotice){
+      persistenceNotice.style.display = "block";
+      persistenceNotice.classList.add("show");
+      persistenceNotice.textContent = err?.message || "The diagnostic could not confirm a durable save to diagnostic_runs.";
+    }
+    setHeader("Persistence required","The diagnostic generated a result, but it did not confirm a durable database save. The run is being held open until that succeeds.","Save required");
+    alert(err?.message || "The diagnostic could not confirm a durable save to diagnostic_runs.");
     showStage(questionStage);
+    renderQuestion();
   }
 }
 function renderQuadrant(result){
