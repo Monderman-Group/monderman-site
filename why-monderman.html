@@ -575,6 +575,228 @@
       color: var(--muted-dark);
     }
 
+
+
+    .symptom-section {
+      position: relative;
+      background: #FFFFFF;
+      padding: 76px 34px 72px;
+      color: var(--text-dark);
+      border-top: 1px solid rgba(21, 32, 43, 0.04);
+      border-bottom: 1px solid rgba(21, 32, 43, 0.04);
+      overflow: hidden;
+    }
+
+    .symptom-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .symptom-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(340px, 1.08fr);
+      gap: 34px;
+      align-items: start;
+      margin-top: 38px;
+    }
+
+    .symptom-copy p {
+      margin: 0;
+      max-width: 58ch;
+      font-size: 1rem;
+      line-height: 1.74;
+      color: var(--muted-dark);
+    }
+
+    .symptom-copy p + p {
+      margin-top: 16px;
+    }
+
+    .symptom-copy-note {
+      margin-top: 18px;
+      padding: 16px 18px;
+      background: #F8F9FA;
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      border-radius: 16px;
+      box-shadow: var(--soft-shadow);
+      font-size: 0.92rem;
+      line-height: 1.64;
+      color: var(--muted-dark);
+    }
+
+    .symptom-panel {
+      background: linear-gradient(180deg, rgba(63, 110, 161, 0.035) 0%, rgba(63, 110, 161, 0.015) 100%);
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .symptom-panel-kicker {
+      margin: 0 0 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .symptom-panel-title {
+      margin: 0;
+      font-size: 1.1rem;
+      line-height: 1.15;
+      font-weight: 700;
+      color: var(--text-dark);
+      max-width: 22ch;
+      text-wrap: balance;
+    }
+
+    .symptom-tile-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .symptom-tile {
+      display: grid;
+      align-content: start;
+      gap: 8px;
+      min-height: 104px;
+      padding: 16px 16px 14px;
+      background: rgba(255, 255, 255, 0.98);
+      border: 1px solid rgba(21, 32, 43, 0.10);
+      border-radius: 16px;
+      box-shadow: var(--soft-shadow);
+      text-align: left;
+      cursor: pointer;
+      transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition), background var(--transition);
+      overflow: hidden;
+    }
+
+    .symptom-tile:hover,
+    .symptom-tile:focus-visible {
+      transform: translateY(-2px);
+      border-color: rgba(63, 110, 161, 0.20);
+      box-shadow: var(--card-shadow);
+      outline: none;
+    }
+
+    .symptom-tile.is-active {
+      border-color: rgba(63, 110, 161, 0.28);
+      background: rgba(63, 110, 161, 0.06);
+      box-shadow: 0 0 0 4px rgba(63, 110, 161, 0.06);
+    }
+
+    .symptom-tile-label {
+      margin: 0;
+      font-size: 0.69rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+    }
+
+    .symptom-tile-title {
+      margin: 0;
+      font-size: 0.98rem;
+      line-height: 1.18;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-wrap: balance;
+      overflow-wrap: anywhere;
+    }
+
+    .symptom-tile-copy {
+      margin: 0;
+      font-size: 0.84rem;
+      line-height: 1.5;
+      color: var(--muted-dark);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .symptom-detail {
+      display: grid;
+      gap: 16px;
+      margin-top: 18px;
+      padding: 22px 22px 20px;
+      background: rgba(255, 255, 255, 0.98);
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      border-radius: 20px;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .symptom-detail-top {
+      display: grid;
+      gap: 10px;
+    }
+
+    .symptom-detail-kicker {
+      margin: 0;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+    }
+
+    .symptom-detail-title {
+      margin: 0;
+      font-size: 1.48rem;
+      line-height: 1.02;
+      font-weight: 700;
+      letter-spacing: -0.05em;
+      color: var(--text-dark);
+      text-wrap: balance;
+      max-width: 18ch;
+    }
+
+    .symptom-detail-body {
+      margin: 0;
+      font-size: 0.98rem;
+      line-height: 1.72;
+      color: var(--muted-dark);
+      max-width: 60ch;
+    }
+
+    .symptom-condition-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .symptom-condition-card {
+      min-width: 0;
+      padding: 16px 16px 14px;
+      background: #F8F9FA;
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      border-radius: 16px;
+    }
+
+    .symptom-condition-card strong {
+      display: block;
+      margin: 0 0 6px;
+      font-size: 0.94rem;
+      line-height: 1.28;
+      color: var(--text-dark);
+      text-wrap: balance;
+      overflow-wrap: anywhere;
+    }
+
+    .symptom-condition-card span {
+      display: block;
+      font-size: 0.86rem;
+      line-height: 1.56;
+      color: var(--muted-dark);
+      overflow-wrap: anywhere;
+    }
+
     .difference-section {
       position: relative;
       background: var(--bg-white);
@@ -1416,8 +1638,13 @@
       .focus-grid,
       .trust-grid,
       .compound-grid,
-      .engine-strip-grid {
+      .engine-strip-grid,
+      .symptom-condition-grid {
         grid-template-columns: 1fr 1fr;
+      }
+
+      .symptom-grid {
+        grid-template-columns: 1fr;
       }
 
       .learning-cycle-grid {
@@ -1547,8 +1774,23 @@
       .focus-grid,
       .trust-grid,
       .compound-grid,
-      .engine-strip-grid {
+      .engine-strip-grid,
+      .symptom-tile-grid,
+      .symptom-condition-grid {
         grid-template-columns: 1fr;
+      }
+
+      .symptom-section {
+        padding-left: 20px;
+        padding-right: 20px;
+        padding-top: 68px;
+        padding-bottom: 64px;
+      }
+
+      .symptom-panel,
+      .symptom-detail {
+        padding-left: 18px;
+        padding-right: 18px;
       }
 
       .learning-cycle-shell {
@@ -1708,6 +1950,81 @@
             <li>The same frictions return despite repeated fixes.</li>
           </ul>
         </aside>
+      </div>
+    </div>
+  </section>
+
+
+
+  <section class="symptom-section" aria-labelledby="symptom-title">
+    <div class="symptom-inner">
+      <div class="section-intro reveal">
+        <div class="section-label">What looks separate is often connected</div>
+        <h2 id="symptom-title">Visible symptoms often share the same underlying condition.</h2>
+        <p>
+          Click a familiar executive symptom to see the deeper administrative conditions that often sit beneath it. The point is not to flatten every problem into one answer. It is to show why surface pain is so often misdiagnosed when the deeper structure is left unread.
+        </p>
+      </div>
+
+      <div class="symptom-grid">
+        <div class="symptom-copy reveal reveal-delay-1">
+          <p>
+            Organizations rarely experience administrative strain as a clean structural diagnosis. They experience it as slower decisions, repeated coordination, rising managerial lift, workaround behavior, and heavier effort just to preserve ordinary output.
+          </p>
+          <p>
+            Those surface signals matter, but they are often effects rather than causes. Treating each one in isolation can create motion without actually changing the condition that is producing them.
+          </p>
+          <div class="symptom-copy-note">
+            Monderman is built to help leaders distinguish between the visible symptom and the underlying condition shaping it.
+          </div>
+        </div>
+
+        <div class="symptom-panel reveal reveal-delay-2">
+          <p class="symptom-panel-kicker">Interactive structural read</p>
+          <h3 class="symptom-panel-title">Choose the symptom leaders usually notice first.</h3>
+
+          <div class="symptom-tile-grid" aria-label="Visible executive symptoms">
+            <button class="symptom-tile is-active" type="button" data-symptom-key="slow_decisions" aria-pressed="true">
+              <p class="symptom-tile-label">Surface symptom</p>
+              <p class="symptom-tile-title">Slow decisions</p>
+              <p class="symptom-tile-copy">Approvals, routing, or escalation begin to feel heavier than the issue warrants.</p>
+            </button>
+            <button class="symptom-tile" type="button" data-symptom-key="coordination_overload" aria-pressed="false">
+              <p class="symptom-tile-label">Surface symptom</p>
+              <p class="symptom-tile-title">Coordination overload</p>
+              <p class="symptom-tile-copy">Too much effort is spent aligning people, clarifying expectations, and stitching work back together.</p>
+            </button>
+            <button class="symptom-tile" type="button" data-symptom-key="management_lift" aria-pressed="false">
+              <p class="symptom-tile-label">Surface symptom</p>
+              <p class="symptom-tile-title">Management lift</p>
+              <p class="symptom-tile-copy">Managers are pulled into repeated rescue, translation, and follow-through just to keep work moving.</p>
+            </button>
+            <button class="symptom-tile" type="button" data-symptom-key="workarounds" aria-pressed="false">
+              <p class="symptom-tile-label">Surface symptom</p>
+              <p class="symptom-tile-title">Workarounds everywhere</p>
+              <p class="symptom-tile-copy">Capable people quietly bypass the system because the formal path no longer feels reliable enough.</p>
+            </button>
+            <button class="symptom-tile" type="button" data-symptom-key="heavy_execution" aria-pressed="false">
+              <p class="symptom-tile-label">Surface symptom</p>
+              <p class="symptom-tile-title">Execution feels heavy</p>
+              <p class="symptom-tile-copy">Ordinary output now takes more effort, more touchpoints, and more institutional energy than it should.</p>
+            </button>
+            <button class="symptom-tile" type="button" data-symptom-key="performance_fragility" aria-pressed="false">
+              <p class="symptom-tile-label">Surface symptom</p>
+              <p class="symptom-tile-title">Performance looks fragile</p>
+              <p class="symptom-tile-copy">Output still appears, but only through extra lift, heroics, and increasingly delicate coordination.</p>
+            </button>
+          </div>
+
+          <div class="symptom-detail" id="symptomDetailPanel">
+            <div class="symptom-detail-top">
+              <p class="symptom-detail-kicker" id="symptomDetailKicker">Underlying read</p>
+              <h3 class="symptom-detail-title" id="symptomDetailTitle">Slow decisions often point to heavier control weight than the issue requires.</h3>
+              <p class="symptom-detail-body" id="symptomDetailBody">What feels like a speed problem is often a mix of approval layering, ambiguous decision rights, and a system that has accumulated more review than the work now justifies.</p>
+            </div>
+            <div class="symptom-condition-grid" id="symptomConditionGrid"></div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -2072,6 +2389,104 @@
 
     updateHeader();
     window.addEventListener("scroll", updateHeader, { passive: true });
+
+
+
+    const symptomContent = {
+      slow_decisions: {
+        kicker: "Underlying read",
+        title: "Slow decisions often point to heavier control weight than the issue requires.",
+        body: "What feels like a speed problem is often a mix of approval layering, ambiguous decision rights, and a system that has accumulated more review than the work now justifies.",
+        conditions: [
+          { title: "Approval density", body: "Too many reviews or sign-offs are now sitting between issue recognition and actual movement." },
+          { title: "Decision-right blur", body: "People are unsure who can decide, so work escalates upward or sideways for reassurance." },
+          { title: "Legacy control weight", body: "Controls built for a prior risk environment remain in place long after their original need has changed." }
+        ]
+      },
+      coordination_overload: {
+        kicker: "Underlying read",
+        title: "Coordination overload usually signals weak structural legibility.",
+        body: "When teams spend too much time aligning, clarifying, and reconnecting work, the deeper issue is often unclear ownership, fragmented handoffs, or an operating structure that no longer fits the task.",
+        conditions: [
+          { title: "Boundary ambiguity", body: "Roles and responsibilities are not clear enough to let work pass cleanly between units." },
+          { title: "Handoff friction", body: "Work arrives incomplete, inconsistently framed, or dependent on extra translation." },
+          { title: "Cross-system strain", body: "The institution relies on excessive coordination because the formal design does not carry enough of the load itself." }
+        ]
+      },
+      management_lift: {
+        kicker: "Underlying read",
+        title: "High management lift often means managers are compensating for system weakness.",
+        body: "Managers become stabilizers when ownership is diffused, follow-through is unreliable, or confidence in the formal system has weakened enough that intervention becomes the hidden operating model.",
+        conditions: [
+          { title: "Compensatory management", body: "Managers are repeatedly stepping in to clarify, chase, or rescue instead of governing a stable flow." },
+          { title: "Execution fragility", body: "Work does not reliably hold once direction is given, so leaders must reapply effort to preserve momentum." },
+          { title: "Confidence erosion", body: "People increasingly rely on particular managers rather than the institution itself to keep work coherent." }
+        ]
+      },
+      workarounds: {
+        kicker: "Underlying read",
+        title: "Widespread workarounds are usually a trust signal, not just a behavior problem.",
+        body: "When capable people routinely go around the formal path, they are often telling you the system feels too slow, too ambiguous, or too brittle to rely on under real conditions.",
+        conditions: [
+          { title: "System distrust", body: "The formal route is no longer trusted to move work with enough clarity, speed, or reliability." },
+          { title: "Process density", body: "The official path carries more steps, reporting, or coordination than the work can absorb cleanly." },
+          { title: "Local compensation", body: "Individuals preserve performance by inventing alternate routes that quietly mask underlying drag." }
+        ]
+      },
+      heavy_execution: {
+        kicker: "Underlying read",
+        title: "Heavy execution often means the operating environment has become too administratively dense.",
+        body: "When ordinary work starts feeling unusually expensive, the underlying issue is often not effort or commitment. It is the accumulated administrative burden surrounding the work itself.",
+        conditions: [
+          { title: "Process accretion", body: "Steps, checks, and reporting layers have accumulated faster than they have been retired." },
+          { title: "Systems friction", body: "People are spending meaningful time navigating tools, process requirements, and procedural upkeep." },
+          { title: "Hidden drag", body: "Execution still happens, but too much institutional energy is being consumed before the work advances." }
+        ]
+      },
+      performance_fragility: {
+        kicker: "Underlying read",
+        title: "Fragile performance often means output is being preserved through compensation rather than condition.",
+        body: "The institution may still appear to perform, but the real question is whether results are being generated through durable structure or held together through extra lift, heroics, and compensatory effort.",
+        conditions: [
+          { title: "Compensatory dependence", body: "Visible output remains acceptable only because extra effort is constantly being added behind the scenes." },
+          { title: "Adaptive strain", body: "Performance becomes less stable as pressure rises, disruption appears, or conditions shift." },
+          { title: "Institutional weakening", body: "The organization is producing results, but with less resilience, confidence, and structural integrity than it once did." }
+        ]
+      }
+    };
+
+    const symptomButtons = document.querySelectorAll('[data-symptom-key]');
+    const symptomDetailKicker = document.getElementById('symptomDetailKicker');
+    const symptomDetailTitle = document.getElementById('symptomDetailTitle');
+    const symptomDetailBody = document.getElementById('symptomDetailBody');
+    const symptomConditionGrid = document.getElementById('symptomConditionGrid');
+
+    function setSymptomState(key) {
+      const content = symptomContent[key];
+      if (!content || !symptomDetailKicker || !symptomDetailTitle || !symptomDetailBody || !symptomConditionGrid) return;
+
+      symptomDetailKicker.textContent = content.kicker;
+      symptomDetailTitle.textContent = content.title;
+      symptomDetailBody.textContent = content.body;
+      symptomConditionGrid.innerHTML = content.conditions.map((condition) => `
+        <div class="symptom-condition-card">
+          <strong>${condition.title}</strong>
+          <span>${condition.body}</span>
+        </div>
+      `).join('');
+
+      symptomButtons.forEach((button) => {
+        const isActive = button.dataset.symptomKey === key;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      });
+    }
+
+    symptomButtons.forEach((button) => {
+      button.addEventListener('click', () => setSymptomState(button.dataset.symptomKey));
+    });
+
+    setSymptomState('slow_decisions');
 
     const cycleContent = {
       input: {
