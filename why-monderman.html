@@ -1380,6 +1380,7 @@
     }
 
 
+    
     .symptom-map-section {
       position: relative;
       background: var(--bg-white);
@@ -1397,8 +1398,8 @@
 
     .symptom-map-grid {
       display: grid;
-      grid-template-columns: minmax(0, 0.96fr) minmax(360px, 1.04fr);
-      gap: 34px;
+      grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1.08fr);
+      gap: 36px;
       align-items: start;
       margin-top: 36px;
     }
@@ -1416,10 +1417,10 @@
     }
 
     .symptom-note {
-      margin-top: 20px;
+      margin-top: 22px;
       padding: 18px 20px;
       max-width: 54ch;
-      background: linear-gradient(180deg, rgba(63,110,161,0.05) 0%, rgba(63,110,161,0.025) 100%);
+      background: linear-gradient(180deg, rgba(63,110,161,0.05) 0%, rgba(63,110,161,0.022) 100%);
       border: 1px solid rgba(63,110,161,0.12);
       border-radius: 16px;
       font-size: 0.95rem;
@@ -1432,10 +1433,10 @@
       background: linear-gradient(180deg, rgba(248,249,250,0.96) 0%, rgba(255,255,255,0.98) 100%);
       border: 1px solid rgba(21,32,43,0.08);
       border-radius: 26px;
-      padding: 22px;
+      padding: 24px;
       box-shadow: var(--soft-shadow);
       display: grid;
-      gap: 18px;
+      gap: 20px;
     }
 
     .symptom-interactive-head {
@@ -1448,10 +1449,10 @@
     .symptom-interactive-head h3 {
       margin: 6px 0 0;
       font-size: 1.08rem;
-      line-height: 1.14;
+      line-height: 1.16;
       font-weight: 700;
       color: var(--text-dark);
-      max-width: 24ch;
+      max-width: 25ch;
     }
 
     .symptom-grid {
@@ -1463,7 +1464,7 @@
     .symptom-tile {
       min-width: 0;
       text-align: left;
-      padding: 14px 14px 13px;
+      padding: 16px 16px 14px;
       background: #FFFFFF;
       border: 1px solid rgba(21,32,43,0.08);
       border-radius: 16px;
@@ -1475,8 +1476,8 @@
     .symptom-tile:hover,
     .symptom-tile:focus-visible {
       transform: translateY(-1px);
-      border-color: rgba(63,110,161,0.22);
-      box-shadow: 0 0 0 4px rgba(63,110,161,0.06);
+      border-color: rgba(63,110,161,0.20);
+      box-shadow: 0 0 0 4px rgba(63,110,161,0.05);
       outline: none;
     }
 
@@ -1503,7 +1504,7 @@
     .symptom-tile-title {
       display: block;
       margin-bottom: 6px;
-      font-size: 0.98rem;
+      font-size: 1rem;
       line-height: 1.18;
       font-weight: 700;
       color: var(--text-dark);
@@ -1516,33 +1517,38 @@
       -webkit-line-clamp: 2;
       overflow: hidden;
       font-size: 0.88rem;
-      line-height: 1.54;
+      line-height: 1.52;
       color: var(--muted-dark);
+      min-height: 2.95em;
     }
 
     .symptom-read {
       background: #FFFFFF;
       border: 1px solid rgba(21,32,43,0.08);
       border-radius: 20px;
-      padding: 18px;
+      padding: 20px;
       box-shadow: var(--soft-shadow);
       display: grid;
-      grid-template-columns: minmax(220px, 0.9fr) minmax(0, 1.1fr);
-      gap: 18px;
+      grid-template-columns: minmax(280px, 0.92fr) minmax(0, 1.08fr);
+      gap: 22px;
       align-items: stretch;
     }
 
     .symptom-graphic {
       position: relative;
       border-radius: 18px;
-      background: linear-gradient(180deg, rgba(63,110,161,0.045) 0%, rgba(63,110,161,0.015) 100%);
+      background: linear-gradient(180deg, rgba(63,110,161,0.05) 0%, rgba(63,110,161,0.018) 100%);
       border: 1px solid rgba(63,110,161,0.12);
-      padding: 16px 14px 14px;
+      padding: 18px;
       overflow: hidden;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+      min-height: 332px;
     }
 
     .symptom-graphic-kicker {
-      margin: 0 0 8px;
+      margin: 0;
       font-size: 0.68rem;
       font-weight: 700;
       line-height: 1;
@@ -1551,132 +1557,124 @@
       color: var(--accent);
     }
 
-    .symptom-graphic-surface {
-      width: 100%;
-      min-height: 66px;
-      padding: 12px 12px 10px;
-      border-radius: 16px;
-      background: #FFFFFF;
+    .symptom-graphic-label {
+      margin: 0;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.92);
       border: 1px solid rgba(21,32,43,0.08);
-      display: grid;
-      place-items: center;
-      text-align: center;
-      box-shadow: var(--soft-shadow);
-    }
-
-    .symptom-graphic-surface strong {
-      display: block;
-      font-size: 0.97rem;
-      line-height: 1.18;
+      font-size: 0.96rem;
+      line-height: 1.22;
+      font-weight: 700;
       color: var(--text-dark);
-      letter-spacing: -0.026em;
+      box-shadow: var(--soft-shadow);
       text-wrap: balance;
     }
 
-    .symptom-graphic-svg {
-      width: 100%;
-      height: 76px;
-      display: block;
-      margin: 6px 0 4px;
-    }
-
-    .symptom-driver-stack {
-      display: grid;
-      gap: 10px;
-    }
-
-    .symptom-driver-chip {
-      min-width: 0;
-      padding: 10px 11px 10px;
-      background: rgba(255,255,255,0.92);
+    .symptom-graphic-stage {
+      min-height: 170px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.78);
       border: 1px solid rgba(21,32,43,0.08);
-      border-radius: 14px;
-      box-shadow: var(--soft-shadow);
+      display: grid;
+      place-items: center;
+      padding: 14px;
     }
 
-    .symptom-driver-chip strong {
+    .symptom-graphic-stage svg {
+      width: 100%;
+      max-width: 320px;
+      height: 170px;
       display: block;
-      font-size: 0.84rem;
-      line-height: 1.22;
-      color: var(--text-dark);
-      margin-bottom: 5px;
-      letter-spacing: -0.02em;
+      overflow: visible;
     }
 
-    .symptom-driver-bar {
-      height: 6px;
-      border-radius: 999px;
-      background: rgba(21,32,43,0.08);
-      overflow: hidden;
-    }
-
-    .symptom-driver-bar > span {
-      display: block;
-      height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, rgba(63,110,161,0.95) 0%, rgba(63,110,161,0.38) 100%);
+    .symptom-graphic-note {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.56;
+      color: var(--muted-dark);
+      max-width: 30ch;
     }
 
     .symptom-detail {
       display: grid;
       align-content: start;
       gap: 14px;
+      min-width: 0;
+    }
+
+    .symptom-detail-kicker {
+      margin: 0;
+      font-size: 0.68rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
     }
 
     .symptom-detail h3 {
       margin: 0;
-      font-size: 1.16rem;
-      line-height: 1.08;
+      font-size: clamp(1.5rem, 2.2vw, 2rem);
+      line-height: 0.98;
       font-weight: 700;
-      letter-spacing: -0.04em;
       color: var(--text-dark);
-      max-width: 18ch;
+      letter-spacing: -0.052em;
       text-wrap: balance;
+      max-width: 13ch;
     }
 
     .symptom-detail p {
       margin: 0;
-      font-size: 0.97rem;
-      line-height: 1.7;
+      font-size: 1rem;
+      line-height: 1.74;
       color: var(--muted-dark);
-      max-width: 42ch;
+      max-width: 32ch;
     }
 
-    .symptom-condition-grid {
+    .symptom-read-points {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
+      margin-top: 2px;
     }
 
-    .symptom-condition-card {
-      min-width: 0;
-      padding: 14px 14px 12px;
-      border-radius: 16px;
+    .symptom-read-point {
+      display: grid;
+      grid-template-columns: 12px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      padding: 12px 14px;
+      border-radius: 14px;
       background: #F8F9FA;
       border: 1px solid rgba(21,32,43,0.08);
       box-shadow: var(--soft-shadow);
     }
 
-    .symptom-condition-card h4 {
-      margin: 0 0 8px;
-      font-size: 0.92rem;
-      line-height: 1.2;
-      font-weight: 700;
-      color: var(--text-dark);
-      letter-spacing: -0.022em;
-      text-wrap: balance;
+    .symptom-read-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--accent);
+      margin-top: 5px;
+      box-shadow: 0 0 0 5px rgba(63,110,161,0.08);
     }
 
-    .symptom-condition-card p {
-      margin: 0;
-      font-size: 0.86rem;
-      line-height: 1.56;
-      color: var(--muted-dark);
-      display: -webkit-box;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 5;
-      overflow: hidden;
+    .symptom-read-point strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 0.92rem;
+      line-height: 1.25;
+      color: var(--text-dark);
     }
+
+    .symptom-read-point span {
+      display: block;
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: var(--muted-dark);
+    }
+
 
 @media (prefers-reduced-motion: reduce) {
       html {
@@ -1853,10 +1851,7 @@
       .trust-grid,
       .compound-grid,
       .engine-strip-grid,
-      .symptom-condition-grid {
-        grid-template-columns: 1fr;
-      }
-
+      
       .learning-cycle-shell {
         padding: 22px 20px 20px;
       }
@@ -1918,6 +1913,10 @@
       .cycle-panel {
         min-height: 0;
         padding: 22px 20px 20px;
+      }
+
+      .symptom-grid {
+        grid-template-columns: 1fr;
       }
 
       .suite-top-cta {
@@ -2018,130 +2017,103 @@
     </div>
   </section>
 
+  
   <section class="symptom-map-section" aria-labelledby="symptom-map-title">
     <div class="symptom-map-inner">
       <div class="section-intro reveal">
-        <div class="section-label">What looks separate is often connected</div>
-        <h2 id="symptom-map-title">Visible symptoms often share the same underlying condition.</h2>
+        <div class="section-label">Each lens makes a different problem visible</div>
+        <h2 id="symptom-map-title">Four diagnostics. Four distinct reads of administrative reality.</h2>
       </div>
 
       <div class="symptom-map-grid">
         <div class="symptom-copy reveal reveal-delay-1">
           <p>
-            Click a familiar executive symptom to see the deeper administrative conditions that often sit beneath it. The point is not to flatten every problem into one answer. It is to show why surface pain is so often misdiagnosed when the deeper structure is left unread.
+            The Monderman suite is most useful when leaders can see that not every organizational problem is the same kind of problem. Slow decisions, structural ambiguity, operating burden, and fragile performance are related—but they should not be diagnosed through the same lens.
           </p>
+
           <p>
-            Organizations rarely experience administrative strain as a clean structural diagnosis. They experience it as slower decisions, repeated coordination, rising managerial lift, workaround behavior, and heavier effort just to preserve ordinary output.
+            Select a diagnostic to see the kind of condition it is built to make visible. The point is not visual decoration. It is to show, simply and clearly, what each lens is actually reading underneath the surface.
           </p>
-          <p>
-            Those surface signals matter, but they are often effects rather than causes. Treating each one in isolation can create motion without actually changing the condition that is producing them.
-          </p>
-          <div class="symptom-note">Monderman is built to help leaders distinguish between the visible symptom and the underlying condition shaping it.</div>
+
+          <div class="symptom-note">
+            Each diagnostic isolates a different governing condition so leaders can distinguish where delay, confusion, burden, or fragility is actually coming from.
+          </div>
         </div>
 
         <div class="symptom-interactive reveal reveal-delay-2">
           <div class="symptom-interactive-head">
             <div>
-              <p class="cycle-figure-kicker" style="margin-bottom:10px;">Interactive structural read</p>
-              <h3>Choose the symptom leaders usually notice first.</h3>
+              <p class="section-label" style="margin-bottom:0; color: var(--accent);">Interactive diagnostic read</p>
+              <h3>Choose the lens you want to understand first.</h3>
             </div>
+            <span class="chip ghost">Suite overview</span>
           </div>
 
-          <div class="symptom-grid" id="symptomGrid">
-            <button class="symptom-tile is-active" type="button" data-symptom-key="slow_decisions" aria-pressed="true">
-              <span class="symptom-tile-kicker">Surface symptom</span>
-              <span class="symptom-tile-title">Slow decisions</span>
-              <span class="symptom-tile-copy">Approvals, routing, or escalation begin to feel heavier than the issue warrants.</span>
+          <div class="symptom-grid">
+            <button class="symptom-tile is-active" type="button" data-symptom-key="structural_clarity" aria-pressed="true">
+              <span class="symptom-tile-kicker">Diagnostic lens</span>
+              <span class="symptom-tile-title">Structural Clarity</span>
+              <span class="symptom-tile-copy">Reads ownership, authority, handoffs, and role boundaries where the structure itself becomes hard to govern.</span>
             </button>
-            <button class="symptom-tile" type="button" data-symptom-key="coordination_overload" aria-pressed="false">
-              <span class="symptom-tile-kicker">Surface symptom</span>
-              <span class="symptom-tile-title">Coordination overload</span>
-              <span class="symptom-tile-copy">Too much effort is spent aligning people, clarifying expectations, and stitching work together.</span>
+            <button class="symptom-tile" type="button" data-symptom-key="decision_velocity" aria-pressed="false">
+              <span class="symptom-tile-kicker">Diagnostic lens</span>
+              <span class="symptom-tile-title">Decision Velocity</span>
+              <span class="symptom-tile-copy">Reads control weight, approval layering, and escalation burden where decisions become slower than the issue warrants.</span>
             </button>
-            <button class="symptom-tile" type="button" data-symptom-key="management_lift" aria-pressed="false">
-              <span class="symptom-tile-kicker">Surface symptom</span>
-              <span class="symptom-tile-title">Management lift</span>
-              <span class="symptom-tile-copy">Managers are pulled into repeated rescue, translation, and follow-through just to keep work moving.</span>
+            <button class="symptom-tile" type="button" data-symptom-key="operational_systems" aria-pressed="false">
+              <span class="symptom-tile-kicker">Diagnostic lens</span>
+              <span class="symptom-tile-title">Operational Systems</span>
+              <span class="symptom-tile-copy">Reads process load, reporting demand, and system friction where the environment around the work has become heavy.</span>
             </button>
-            <button class="symptom-tile" type="button" data-symptom-key="workarounds" aria-pressed="false">
-              <span class="symptom-tile-kicker">Surface symptom</span>
-              <span class="symptom-tile-title">Workarounds everywhere</span>
-              <span class="symptom-tile-copy">Capable people quietly bypass the system because the formal path no longer feels usable.</span>
-            </button>
-            <button class="symptom-tile" type="button" data-symptom-key="heavy_execution" aria-pressed="false">
-              <span class="symptom-tile-kicker">Surface symptom</span>
-              <span class="symptom-tile-title">Execution feels heavy</span>
-              <span class="symptom-tile-copy">Ordinary output now takes more effort, more touchpoints, and more institutional energy.</span>
-            </button>
-            <button class="symptom-tile" type="button" data-symptom-key="fragile_performance" aria-pressed="false">
-              <span class="symptom-tile-kicker">Surface symptom</span>
-              <span class="symptom-tile-title">Performance looks fragile</span>
-              <span class="symptom-tile-copy">Output still appears, but only through extra lift, heroics, and increasingly delicate coordination.</span>
+            <button class="symptom-tile" type="button" data-symptom-key="institutional_performance" aria-pressed="false">
+              <span class="symptom-tile-kicker">Diagnostic lens</span>
+              <span class="symptom-tile-title">Institutional Performance</span>
+              <span class="symptom-tile-copy">Reads whether visible output is durable, adaptive, and resilient—or increasingly preserved through compensation.</span>
             </button>
           </div>
 
-          <div class="symptom-read" aria-live="polite">
+          <div class="symptom-read">
             <div class="symptom-graphic">
-              <p class="symptom-graphic-kicker">Structural map</p>
-              <div class="symptom-graphic-surface"><strong id="symptomSurfaceTitle">Slow decisions</strong></div>
-              <svg class="symptom-graphic-svg" viewBox="0 0 260 84" aria-hidden="true">
-                <defs>
-                  <linearGradient id="symptomLineGrad" x1="0" x2="1">
-                    <stop offset="0%" stop-color="#3F6EA1" stop-opacity="0.92"></stop>
-                    <stop offset="100%" stop-color="#3F6EA1" stop-opacity="0.28"></stop>
-                  </linearGradient>
-                </defs>
-                <path d="M130 8 L50 74" fill="none" stroke="url(#symptomLineGrad)" stroke-width="2"></path>
-                <path d="M130 8 L130 74" fill="none" stroke="url(#symptomLineGrad)" stroke-width="2"></path>
-                <path d="M130 8 L210 74" fill="none" stroke="url(#symptomLineGrad)" stroke-width="2"></path>
-                <circle cx="130" cy="8" r="4" fill="#3F6EA1"></circle>
-                <circle cx="50" cy="74" r="4" fill="#3F6EA1"></circle>
-                <circle cx="130" cy="74" r="4" fill="#3F6EA1"></circle>
-                <circle cx="210" cy="74" r="4" fill="#3F6EA1"></circle>
-              </svg>
-              <div class="symptom-driver-stack">
-                <div class="symptom-driver-chip">
-                  <strong id="symptomDriverLabel1">Approval density</strong>
-                  <div class="symptom-driver-bar"><span id="symptomDriverBar1" style="width:84%"></span></div>
-                </div>
-                <div class="symptom-driver-chip">
-                  <strong id="symptomDriverLabel2">Decision-right blur</strong>
-                  <div class="symptom-driver-bar"><span id="symptomDriverBar2" style="width:72%"></span></div>
-                </div>
-                <div class="symptom-driver-chip">
-                  <strong id="symptomDriverLabel3">Legacy control weight</strong>
-                  <div class="symptom-driver-bar"><span id="symptomDriverBar3" style="width:66%"></span></div>
-                </div>
-              </div>
+              <p class="symptom-graphic-kicker">Visual representation</p>
+              <p class="symptom-graphic-label" id="symptomSurfaceTitle">Structural Clarity</p>
+              <div class="symptom-graphic-stage" id="symptomGraphicStage" aria-hidden="true"></div>
+              <p class="symptom-graphic-note" id="symptomGraphicNote">This lens shows where formal structure forces repeated interpretation because ownership and authority are not clear enough in practice.</p>
             </div>
 
             <div class="symptom-detail">
-              <p class="cycle-figure-kicker" style="margin-bottom:0;">Underlying read</p>
-              <h3 id="symptomDetailTitle">Slow decisions often point to heavier control weight than the issue requires.</h3>
-              <p id="symptomDetailBody">What feels like a speed problem is often a mix of approval layering, ambiguous decision rights, and a system that has accumulated more review than the work now justifies.</p>
-              <div class="symptom-condition-grid">
-                <article class="symptom-condition-card">
-                  <h4 id="symptomConditionTitle1">Approval density</h4>
-                  <p id="symptomConditionBody1">Too many reviews or sign-offs are now sitting between issue recognition and actual movement.</p>
-                </article>
-                <article class="symptom-condition-card">
-                  <h4 id="symptomConditionTitle2">Decision-right blur</h4>
-                  <p id="symptomConditionBody2">People are unsure who can decide, so work escalates upward or sideways for reassurance.</p>
-                </article>
-                <article class="symptom-condition-card">
-                  <h4 id="symptomConditionTitle3">Legacy control weight</h4>
-                  <p id="symptomConditionBody3">Controls built for a prior risk environment remain in place long after their original need has changed.</p>
-                </article>
+              <p class="symptom-detail-kicker">Underlying read</p>
+              <h3 id="symptomDetailTitle">Structural Clarity makes ambiguous ownership and handoffs visible.</h3>
+              <p id="symptomDetailBody">When structure is legible, people know who owns the work, where authority sits, and how responsibility passes from one role to another. When it is not, execution depends on translation and rescue.</p>
+
+              <div class="symptom-read-points">
+                <div class="symptom-read-point">
+                  <span class="symptom-read-dot" aria-hidden="true"></span>
+                  <div>
+                    <strong id="symptomPointTitle1">Ownership clarity</strong>
+                    <span id="symptomPointBody1">Who is accountable is clear enough to support movement without repeated arbitration.</span>
+                  </div>
+                </div>
+                <div class="symptom-read-point">
+                  <span class="symptom-read-dot" aria-hidden="true"></span>
+                  <div>
+                    <strong id="symptomPointTitle2">Authority placement</strong>
+                    <span id="symptomPointBody2">Decision rights sit where the work can actually move, rather than escalating by default.</span>
+                  </div>
+                </div>
+                <div class="symptom-read-point">
+                  <span class="symptom-read-dot" aria-hidden="true"></span>
+                  <div>
+                    <strong id="symptomPointTitle3">Handoff legibility</strong>
+                    <span id="symptomPointBody3">Responsibility moves clearly between roles instead of being reconstructed through manual interpretation.</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+        </div></div></div>
   </section>
 
-
-  <section class="focus-section" aria-labelledby="suite-title" style="background:#FFFFFF; border-top:none; border-bottom:1px solid rgba(21,32,43,0.04);">
+<section class="focus-section" aria-labelledby="suite-title" style="background:#FFFFFF; border-top:none; border-bottom:1px solid rgba(21,32,43,0.04);">
     <div class="focus-inner">
       <div class="section-intro reveal">
         <div class="section-label">How Monderman reads administrative reality</div>
@@ -2566,112 +2538,174 @@
 
 
 
+    
     const symptomContent = {
-      slow_decisions: {
-        surface: 'Slow decisions',
-        title: 'Slow decisions often point to heavier control weight than the issue requires.',
-        body: 'What feels like a speed problem is often a mix of approval layering, ambiguous decision rights, and a system that has accumulated more review than the work now justifies.',
-        drivers: [
-          { label: 'Approval density', body: 'Too many reviews or sign-offs are now sitting between issue recognition and actual movement.', weight: 84 },
-          { label: 'Decision-right blur', body: 'People are unsure who can decide, so work escalates upward or sideways for reassurance.', weight: 72 },
-          { label: 'Legacy control weight', body: 'Controls built for a prior risk environment remain in place long after their original need has changed.', weight: 66 }
-        ]
+      structural_clarity: {
+        surface: "Structural Clarity",
+        graphicNote: "This lens shows where formal structure forces repeated interpretation because ownership and authority are not clear enough in practice.",
+        title: "Structural Clarity makes ambiguous ownership and handoffs visible.",
+        body: "When structure is legible, people know who owns the work, where authority sits, and how responsibility passes from one role to another. When it is not, execution depends on translation and rescue.",
+        points: [
+          {
+            title: "Ownership clarity",
+            body: "Who is accountable is clear enough to support movement without repeated arbitration."
+          },
+          {
+            title: "Authority placement",
+            body: "Decision rights sit where the work can actually move, rather than escalating by default."
+          },
+          {
+            title: "Handoff legibility",
+            body: "Responsibility moves clearly between roles instead of being reconstructed through manual interpretation."
+          }
+        ],
+        svg: `
+          <svg viewBox="0 0 320 170" role="presentation" aria-hidden="true">
+            <rect x="18" y="26" width="88" height="36" rx="10" fill="#FFFFFF" stroke="#CED7E1"/>
+            <rect x="116" y="26" width="88" height="36" rx="10" fill="#FFFFFF" stroke="#CED7E1"/>
+            <rect x="214" y="26" width="88" height="36" rx="10" fill="#FFFFFF" stroke="#CED7E1"/>
+            <rect x="58" y="108" width="88" height="36" rx="10" fill="#FFFFFF" stroke="#CED7E1"/>
+            <rect x="174" y="108" width="88" height="36" rx="10" fill="#FFFFFF" stroke="#CED7E1"/>
+            <line x1="106" y1="44" x2="116" y2="44" stroke="#5D85B3" stroke-width="2.4"/>
+            <line x1="204" y1="44" x2="214" y2="44" stroke="#5D85B3" stroke-width="2.4"/>
+            <line x1="95" y1="62" x2="102" y2="108" stroke="#A8BDD5" stroke-width="2.4" stroke-dasharray="6 5"/>
+            <line x1="220" y1="62" x2="218" y2="108" stroke="#A8BDD5" stroke-width="2.4" stroke-dasharray="6 5"/>
+            <circle cx="160" cy="86" r="6" fill="#3F6EA1"/>
+          </svg>
+        `
       },
-      coordination_overload: {
-        surface: 'Coordination overload',
-        title: 'Coordination overload often signals weak structural joins between teams, roles, and systems.',
-        body: 'What looks like a collaboration problem is often a legibility problem: unclear handoffs, fragmented ownership, and too much translation required to keep work aligned.',
-        drivers: [
-          { label: 'Boundary ambiguity', body: 'Teams overlap, but nobody is fully clear where one operating responsibility ends and another begins.', weight: 82 },
-          { label: 'Handoff incompleteness', body: 'Work moves forward without enough context, so downstream actors must reconstruct intent and requirements.', weight: 76 },
-          { label: 'System fragmentation', body: 'Important information is spread across tools, channels, and informal memory rather than one coherent path.', weight: 68 }
-        ]
+      decision_velocity: {
+        surface: "Decision Velocity",
+        graphicNote: "This lens shows where reviews, approvals, and escalation layers add more control weight than the issue now requires.",
+        title: "Decision Velocity shows where decisions slow under accumulated control weight.",
+        body: "A decision path can look orderly while still becoming too heavy. This lens reads how many review steps, routing layers, and escalation points sit between recognition and movement.",
+        points: [
+          {
+            title: "Approval layering",
+            body: "More sign-offs or review stages than the situation warrants extend time without improving judgment."
+          },
+          {
+            title: "Escalation dependence",
+            body: "Work moves upward too often because the path is not calibrated for proportionate decision-making."
+          },
+          {
+            title: "Cycle burden",
+            body: "Time is lost between recognition and action because control architecture has become heavier than the work."
+          }
+        ],
+        svg: `
+          <svg viewBox="0 0 320 170" role="presentation" aria-hidden="true">
+            <line x1="34" y1="84" x2="286" y2="84" stroke="#AFC2D8" stroke-width="3"/>
+            <circle cx="58" cy="84" r="12" fill="#FFFFFF" stroke="#5D85B3" stroke-width="3"/>
+            <circle cx="126" cy="84" r="12" fill="#FFFFFF" stroke="#5D85B3" stroke-width="3"/>
+            <circle cx="194" cy="84" r="12" fill="#FFFFFF" stroke="#5D85B3" stroke-width="3"/>
+            <circle cx="262" cy="84" r="12" fill="#FFFFFF" stroke="#5D85B3" stroke-width="3"/>
+            <rect x="96" y="42" width="60" height="20" rx="10" fill="#EAF1F8" stroke="#CED7E1"/>
+            <rect x="164" y="24" width="60" height="20" rx="10" fill="#EAF1F8" stroke="#CED7E1"/>
+            <line x1="126" y1="72" x2="126" y2="62" stroke="#AFC2D8" stroke-width="2"/>
+            <line x1="194" y1="72" x2="194" y2="44" stroke="#AFC2D8" stroke-width="2"/>
+          </svg>
+        `
       },
-      management_lift: {
-        surface: 'Management lift',
-        title: 'Management lift often means the structure no longer carries enough of the work by itself.',
-        body: 'When managers spend too much time rescuing, translating, and stitching follow-through together, the institution is borrowing coherence from people instead of generating it structurally.',
-        drivers: [
-          { label: 'Compensatory supervision', body: 'Managers are filling in for weak process discipline, unclear ownership, or fragile coordination.', weight: 86 },
-          { label: 'Escalation dependence', body: 'Routine issues keep rising because people do not trust the default pathway to hold.', weight: 74 },
-          { label: 'Follow-through fragility', body: 'Once work is assigned, it still requires repeated manual intervention to stay on track.', weight: 70 }
-        ]
+      operational_systems: {
+        surface: "Operational Systems",
+        graphicNote: "This lens shows the administrative load surrounding the work when systems, reports, and process layers start absorbing too much effort.",
+        title: "Operational Systems reveals when the environment around the work has become heavy.",
+        body: "Work is not only shaped by structure and decisions. It is also shaped by the surrounding process density, reporting demand, and systems friction that absorb effort before the mission moves.",
+        points: [
+          {
+            title: "Process density",
+            body: "More steps, checks, or reporting obligations sit around the work than the work itself requires."
+          },
+          {
+            title: "System friction",
+            body: "Tool switching, duplication, and manual workarounds increase the cost of ordinary execution."
+          },
+          {
+            title: "Administrative drag",
+            body: "Capacity is consumed by servicing the operating environment rather than advancing the task."
+          }
+        ],
+        svg: `
+          <svg viewBox="0 0 320 170" role="presentation" aria-hidden="true">
+            <rect x="44" y="28" width="232" height="24" rx="12" fill="#EAF1F8" stroke="#CED7E1"/>
+            <rect x="58" y="66" width="204" height="24" rx="12" fill="#DCE7F3" stroke="#CED7E1"/>
+            <rect x="76" y="104" width="168" height="28" rx="14" fill="#FFFFFF" stroke="#5D85B3" stroke-width="2.6"/>
+            <line x1="92" y1="52" x2="92" y2="66" stroke="#AFC2D8" stroke-width="2"/>
+            <line x1="160" y1="90" x2="160" y2="104" stroke="#AFC2D8" stroke-width="2"/>
+            <line x1="228" y1="52" x2="228" y2="66" stroke="#AFC2D8" stroke-width="2"/>
+          </svg>
+        `
       },
-      workarounds: {
-        surface: 'Workarounds everywhere',
-        title: 'Workarounds usually appear when the formal path has lost credibility with the people closest to the work.',
-        body: 'Local adaptation can be healthy, but widespread workaround behavior often means the official system is too slow, too confusing, or too burdensome to use as designed.',
-        drivers: [
-          { label: 'Path unusability', body: 'The formal route now feels too expensive in time or friction relative to the work people need to complete.', weight: 88 },
-          { label: 'Trust erosion', body: 'People no longer believe the official process will produce a clean or timely outcome.', weight: 73 },
-          { label: 'Informal dependency', body: 'Relationships and side channels become the real operating system because the formal one no longer carries enough load.', weight: 79 }
-        ]
-      },
-      heavy_execution: {
-        surface: 'Execution feels heavy',
-        title: 'Heavy execution often points to accumulated administrative burden around otherwise ordinary work.',
-        body: 'When basic output suddenly requires more touchpoints, more reporting, and more energy, the surrounding operating environment may have become heavier than the work itself.',
-        drivers: [
-          { label: 'Process accretion', body: 'Requirements have been added over time without enough removal, simplification, or recalibration.', weight: 83 },
-          { label: 'Reporting burden', body: 'Work is increasingly shaped by the need to service oversight, updates, and documentation around the work.', weight: 69 },
-          { label: 'Tool friction', body: 'Systems meant to support execution now absorb attention through switching, duplication, and manual upkeep.', weight: 71 }
-        ]
-      },
-      fragile_performance: {
-        surface: 'Performance looks fragile',
-        title: 'Fragile performance often means results are being preserved through compensation rather than durable institutional strength.',
-        body: 'Output can still look acceptable while the condition underneath it weakens. The risk is not visible failure first, but growing dependence on extra lift, heroics, and manual stabilization.',
-        drivers: [
-          { label: 'Compensatory dependence', body: 'Visible output increasingly depends on unusually capable people or extra effort to stay intact.', weight: 87 },
-          { label: 'Adaptive strain', body: 'The institution appears less able to absorb change, pressure, or disruption without performance slippage.', weight: 75 },
-          { label: 'Confidence erosion', body: 'People rely less on the institution itself and more on workarounds, intervention, and local interpretation.', weight: 72 }
-        ]
+      institutional_performance: {
+        surface: "Institutional Performance",
+        graphicNote: "This lens shows whether visible output is resting on durable institutional condition or increasingly on extra lift and compensation.",
+        title: "Institutional Performance reads whether performance is durable or merely being held together.",
+        body: "Output can still appear acceptable while the institution underneath it weakens. This lens looks beneath visible performance to see whether confidence, adaptability, and resilience are holding—or being substituted by heroics.",
+        points: [
+          {
+            title: "Compensatory dependence",
+            body: "Visible results increasingly rely on extra lift, manual stabilization, and heroic effort."
+          },
+          {
+            title: "Adaptive strain",
+            body: "The institution looks less able to absorb pressure, change, or disruption without wobbling."
+          },
+          {
+            title: "Confidence erosion",
+            body: "People trust the formal system less and rely more on workarounds, interpretation, and rescue."
+          }
+        ],
+        svg: `
+          <svg viewBox="0 0 320 170" role="presentation" aria-hidden="true">
+            <rect x="100" y="26" width="120" height="28" rx="12" fill="#FFFFFF" stroke="#5D85B3" stroke-width="2.4"/>
+            <line x1="160" y1="54" x2="160" y2="112" stroke="#5D85B3" stroke-width="3"/>
+            <line x1="160" y1="74" x2="114" y2="112" stroke="#AFC2D8" stroke-width="3"/>
+            <line x1="160" y1="74" x2="206" y2="112" stroke="#AFC2D8" stroke-width="3"/>
+            <circle cx="114" cy="112" r="8" fill="#FFFFFF" stroke="#5D85B3" stroke-width="2.4"/>
+            <circle cx="160" cy="112" r="8" fill="#FFFFFF" stroke="#5D85B3" stroke-width="2.4"/>
+            <circle cx="206" cy="112" r="8" fill="#FFFFFF" stroke="#5D85B3" stroke-width="2.4"/>
+            <rect x="84" y="126" width="152" height="18" rx="9" fill="#EAF1F8" stroke="#CED7E1"/>
+          </svg>
+        `
       }
     };
 
-    const symptomButtons = document.querySelectorAll('[data-symptom-key]');
+const symptomButtons = document.querySelectorAll('[data-symptom-key]');
     const symptomSurfaceTitle = document.getElementById('symptomSurfaceTitle');
     const symptomDetailTitle = document.getElementById('symptomDetailTitle');
     const symptomDetailBody = document.getElementById('symptomDetailBody');
-    const symptomDriverLabel1 = document.getElementById('symptomDriverLabel1');
-    const symptomDriverLabel2 = document.getElementById('symptomDriverLabel2');
-    const symptomDriverLabel3 = document.getElementById('symptomDriverLabel3');
-    const symptomDriverBar1 = document.getElementById('symptomDriverBar1');
-    const symptomDriverBar2 = document.getElementById('symptomDriverBar2');
-    const symptomDriverBar3 = document.getElementById('symptomDriverBar3');
-    const symptomConditionTitle1 = document.getElementById('symptomConditionTitle1');
-    const symptomConditionTitle2 = document.getElementById('symptomConditionTitle2');
-    const symptomConditionTitle3 = document.getElementById('symptomConditionTitle3');
-    const symptomConditionBody1 = document.getElementById('symptomConditionBody1');
-    const symptomConditionBody2 = document.getElementById('symptomConditionBody2');
-    const symptomConditionBody3 = document.getElementById('symptomConditionBody3');
+    const symptomGraphicStage = document.getElementById('symptomGraphicStage');
+    const symptomGraphicNote = document.getElementById('symptomGraphicNote');
+    const symptomPointTitle1 = document.getElementById('symptomPointTitle1');
+    const symptomPointTitle2 = document.getElementById('symptomPointTitle2');
+    const symptomPointTitle3 = document.getElementById('symptomPointTitle3');
+    const symptomPointBody1 = document.getElementById('symptomPointBody1');
+    const symptomPointBody2 = document.getElementById('symptomPointBody2');
+    const symptomPointBody3 = document.getElementById('symptomPointBody3');
 
     function setSymptomState(key) {
       const content = symptomContent[key];
       if (!content) return;
 
       if (symptomSurfaceTitle) symptomSurfaceTitle.textContent = content.surface;
+      if (symptomGraphicNote) symptomGraphicNote.textContent = content.graphicNote;
+      if (symptomGraphicStage) symptomGraphicStage.innerHTML = content.svg;
       if (symptomDetailTitle) symptomDetailTitle.textContent = content.title;
       if (symptomDetailBody) symptomDetailBody.textContent = content.body;
 
-      const [d1, d2, d3] = content.drivers;
-      if (d1) {
-        symptomDriverLabel1.textContent = d1.label;
-        symptomConditionTitle1.textContent = d1.label;
-        symptomConditionBody1.textContent = d1.body;
-        symptomDriverBar1.style.width = `${d1.weight}%`;
+      const [p1, p2, p3] = content.points;
+      if (p1) {
+        symptomPointTitle1.textContent = p1.title;
+        symptomPointBody1.textContent = p1.body;
       }
-      if (d2) {
-        symptomDriverLabel2.textContent = d2.label;
-        symptomConditionTitle2.textContent = d2.label;
-        symptomConditionBody2.textContent = d2.body;
-        symptomDriverBar2.style.width = `${d2.weight}%`;
+      if (p2) {
+        symptomPointTitle2.textContent = p2.title;
+        symptomPointBody2.textContent = p2.body;
       }
-      if (d3) {
-        symptomDriverLabel3.textContent = d3.label;
-        symptomConditionTitle3.textContent = d3.label;
-        symptomConditionBody3.textContent = d3.body;
-        symptomDriverBar3.style.width = `${d3.weight}%`;
+      if (p3) {
+        symptomPointTitle3.textContent = p3.title;
+        symptomPointBody3.textContent = p3.body;
       }
 
       symptomButtons.forEach((button) => {
