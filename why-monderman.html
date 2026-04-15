@@ -2017,22 +2017,24 @@
     </div>
   </section>
 
-  
-  <section class="symptom-map-section" aria-labelledby="symptom-map-title">
-    <div class="symptom-map-inner">
+<section class="focus-section" aria-labelledby="suite-title" style="background:#FFFFFF; border-top:none; border-bottom:1px solid rgba(21,32,43,0.04);">
+    <div class="focus-inner">
       <div class="section-intro reveal">
-        <div class="section-label">Each lens makes a different problem visible</div>
-        <h2 id="symptom-map-title">Four diagnostics. Four distinct reads of administrative reality.</h2>
+        <div class="section-label">How Monderman reads administrative reality</div>
+        <h2 id="suite-title">Four lenses. One clearer picture of administrative reality.</h2>
+        <p>
+          Monderman’s tools are powered by a proprietary diagnostic engine built to generate structured, repeatable, and high-fidelity reads of administrative reality across four distinct diagnostic lenses. Unlike generic prompt-based tools, the engine produces outputs designed to be compared, revisited, and interpreted across runs.
+        </p>
       </div>
 
-      <div class="symptom-map-grid">
+      <div class="symptom-map-grid" style="margin-top:36px; grid-template-columns:minmax(0,0.92fr) minmax(420px,1.08fr);">
         <div class="symptom-copy reveal reveal-delay-1">
           <p>
-            The Monderman suite is most useful when leaders can see that not every organizational problem is the same kind of problem. Slow decisions, structural ambiguity, operating burden, and fragile performance are related—but they should not be diagnosed through the same lens.
+            Monderman’s tools are powered by a proprietary diagnostic engine built to generate structured, repeatable, and high-fidelity reads of administrative reality across four distinct diagnostic lenses. Each lens is built to make a different kind of problem visible.
           </p>
 
           <p>
-            Select a diagnostic to see the kind of condition it is built to make visible. The point is not visual decoration. It is to show, simply and clearly, what each lens is actually reading underneath the surface.
+            Select a diagnostic to see the kind of condition it is built to reveal. The goal is not to restate the suite in words. It is to show, simply and clearly, what each lens is actually reading underneath the surface.
           </p>
 
           <div class="symptom-note">
@@ -2043,10 +2045,10 @@
         <div class="symptom-interactive reveal reveal-delay-2">
           <div class="symptom-interactive-head">
             <div>
-              <p class="section-label" style="margin-bottom:0; color: var(--accent);">Interactive diagnostic read</p>
+              <p class="section-label" style="margin-bottom:0; color: var(--accent);">Interactive suite view</p>
               <h3>Choose the lens you want to understand first.</h3>
             </div>
-            <span class="chip ghost">Suite overview</span>
+            <span class="chip ghost">Four diagnostics</span>
           </div>
 
           <div class="symptom-grid">
@@ -2110,48 +2112,6 @@
               </div>
             </div>
           </div>
-        </div></div></div>
-  </section>
-
-<section class="focus-section" aria-labelledby="suite-title" style="background:#FFFFFF; border-top:none; border-bottom:1px solid rgba(21,32,43,0.04);">
-    <div class="focus-inner">
-      <div class="section-intro reveal">
-        <div class="section-label">How Monderman reads administrative reality</div>
-        <h2 id="suite-title">Four lenses. One clearer picture of administrative reality.</h2>
-        <p>
-          Monderman’s tools are powered by a proprietary diagnostic engine built to generate structured, repeatable, and high-fidelity reads of administrative reality across four distinct diagnostic lenses. Unlike generic prompt-based tools, the engine produces outputs designed to be compared, revisited, and interpreted across runs.
-        </p>
-      </div>
-
-      <div class="suite-top-row">
-        <div class="focus-grid" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
-          <article class="focus-card reveal reveal-delay-1">
-            <h3>Structural Clarity</h3>
-            <p>
-              Reveals where ambiguity in ownership, authority, handoffs, and role boundaries is forcing repeated interpretation and rescue work.
-            </p>
-          </article>
-
-          <article class="focus-card reveal reveal-delay-2">
-            <h3>Decision Velocity</h3>
-            <p>
-              Shows where approvals, escalation, review layering, and routing burden are slowing important decisions and extending cycle delay.
-            </p>
-          </article>
-
-          <article class="focus-card reveal reveal-delay-3">
-            <h3>Operational Systems</h3>
-            <p>
-              Surfaces process density, reporting burden, and recurring administrative overhead across the operating environment where the work gets done.
-            </p>
-          </article>
-
-          <article class="focus-card reveal reveal-delay-1">
-            <h3>Institutional Performance</h3>
-            <p>
-              Reads the broader condition of the system—whether the institution is sustaining resilience, confidence, and adaptive capacity or quietly weakening.
-            </p>
-          </article>
         </div>
       </div>
 
@@ -2719,7 +2679,7 @@ const symptomButtons = document.querySelectorAll('[data-symptom-key]');
       button.addEventListener('click', () => setSymptomState(button.dataset.symptomKey));
     });
 
-    setSymptomState('slow_decisions');
+    setSymptomState('structural_clarity');
 
     const revealItems = document.querySelectorAll(".reveal");
 
