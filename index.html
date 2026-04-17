@@ -354,12 +354,12 @@
       animation-delay: 820ms;
     }
     .hero-signal {
-      margin: 18px 0 0;
-      max-width: 48ch;
-      font-size: 0.82rem;
-      line-height: 1.55;
-      letter-spacing: 0.015em;
-      color: rgba(245,247,250,0.76);
+      margin: 16px 0 0;
+      max-width: 62ch;
+      font-size: 0.84rem;
+      line-height: 1.58;
+      letter-spacing: 0.01em;
+      color: rgba(245,247,250,0.78);
       opacity: 0;
       transform: translateY(16px);
       animation: heroFadeUp 900ms cubic-bezier(0.22,1,0.36,1) forwards;
@@ -415,7 +415,62 @@
       color: #FFFFFF;
     }
 
-    .section-with-bar {
+    
+    .differentiators {
+      position: relative;
+      background: #FFFFFF;
+      color: var(--text-dark);
+      padding: 34px 34px 38px;
+      border-top: 1px solid rgba(21,32,43,0.04);
+      border-bottom: 1px solid rgba(21,32,43,0.06);
+    }
+    .differentiators-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+    .differentiators-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+    .diff-card {
+      background: rgba(255,255,255,0.98);
+      border: 1px solid rgba(21,32,43,0.08);
+      border-radius: var(--card-radius);
+      padding: 24px 22px 22px;
+      box-shadow: var(--soft-shadow);
+      transition: transform var(--transition-slow), box-shadow var(--transition-slow), border-color var(--transition);
+    }
+    .diff-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(63,110,161,0.14);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.035);
+    }
+    .diff-kicker {
+      margin: 0 0 10px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .diff-title {
+      margin: 0 0 10px;
+      font-size: 1.1rem;
+      line-height: 1.12;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-wrap: balance;
+    }
+    .diff-text {
+      margin: 0;
+      font-size: 0.93rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+      max-width: 30ch;
+    }
+.section-with-bar {
       position: relative;
     }
 
@@ -669,6 +724,13 @@
       line-height: 1.68;
       color: var(--muted-dark);
     }
+.approach-taxonomy {
+      margin: 14px 0 0;
+      max-width: 58ch;
+      font-size: 0.94rem;
+      line-height: 1.6;
+      color: var(--muted-dark-2);
+    }
     .approach-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -705,11 +767,17 @@
     }
     .approach-card:hover::before { width: 100%; }
     .card-title {
-      margin-bottom: 18px;
+      margin-bottom: 8px;
       font-size: 1.42rem;
       line-height: 1.12;
       font-weight: 700;
       color: var(--text-dark);
+    }
+    .card-subhead {
+      margin: 0 0 14px;
+      font-size: 0.88rem;
+      line-height: 1.35;
+      color: var(--muted-dark-2);
     }
     .card-desc {
       font-size: 1.01rem;
@@ -1073,6 +1141,44 @@
       flex-wrap: wrap;
       margin-top: 20px;
     }
+.connect-choice-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 4px;
+    }
+    .connect-choice-card {
+      display: grid;
+      gap: 6px;
+      padding: 18px 18px 16px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: transform var(--transition), border-color var(--transition), background var(--transition), box-shadow var(--transition);
+    }
+    .connect-choice-card strong {
+      font-size: 1rem;
+      line-height: 1.2;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: -0.02em;
+    }
+    .connect-choice-card span {
+      font-size: 0.9rem;
+      line-height: 1.56;
+      color: rgba(245,247,250,0.68);
+    }
+    .connect-choice-card:hover,
+    .connect-choice-card:focus-visible {
+      transform: translateY(-2px);
+      border-color: rgba(118,165,211,0.22);
+      background: rgba(255,255,255,0.06);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.10);
+      outline: none;
+    }
+    .connect-inline-embedded {
+      font-size: 0.92rem;
+      color: rgba(245,247,250,0.86);
+    }
     .connect-inline-link {
       display: inline-flex;
       align-items: center;
@@ -1188,6 +1294,7 @@
     }
 
     @media (max-width: 1100px) {
+      .differentiators-grid { grid-template-columns: 1fr; }
       .approach-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .cost-grid, .estimate-grid { grid-template-columns: 1fr; gap: 20px; }
       .estimate-controls { grid-template-columns: 1fr; }
@@ -1324,6 +1431,7 @@
         flex-direction: column;
       }
       .latest-card { flex-basis: 100%; }
+      .differentiators { padding-left: 20px; padding-right: 20px; }
       .connect-panel { padding: 24px 22px 22px; }
       .footer-top,
       .footer-bottom {
@@ -1365,17 +1473,47 @@
           <span class="hero-line">administrative reality.</span>
         </h1>
         <p class="hero-dek">
-          Monderman is a diagnostic platform for measuring, interpreting, and governing administrative reality over time—so institutions can reduce drag, compare conditions, and strengthen execution with more discipline.
+          Monderman is the diagnostic platform institutions use to measure, compare, and govern administrative reality — repeatedly, across perspectives, over time.
+        </p>
+        <p class="hero-signal">
+          Built for leaders of complex institutions — defense, healthcare, government, and regulated enterprise — where structural drag accumulates faster than one-time assessments can surface it.
         </p>
         <div class="hero-actions">
-          <a class="btn btn-accent" href="why-monderman.html">Why Monderman</a>
-          <a class="btn btn-secondary" href="diagnostic-tools.html">Diagnostic Hub</a>
-          <a class="btn btn-secondary" href="advisory-services.html">Platform Services</a>
+          <a class="btn btn-accent" href="diagnostic-tools.html">Run a First Diagnostic</a>
+          <a class="btn btn-secondary" href="advisory-services-connect.html">Request a Structured Conversation</a>
         </div>
       </div>
     </div>
-  </section>
+  
+  <section class="differentiators" aria-labelledby="differentiators-title">
+    <div class="differentiators-inner">
+      <div class="differentiators-grid">
+        <article class="diff-card reveal reveal-delay-1">
+          <p class="diff-kicker">Repeated measurement</p>
+          <h2 id="differentiators-title" class="diff-title">Not one-time assessment.</h2>
+          <p class="diff-text">
+            The same instrument, run again after change, is where value compounds. Monderman is built for the second, third, and tenth read.
+          </p>
+        </article>
 
+        <article class="diff-card reveal reveal-delay-2">
+          <p class="diff-kicker">Perspective lenses</p>
+          <h3 class="diff-title">Three vantage points on the same system.</h3>
+          <p class="diff-text">
+            Operational, managerial, and executive readings of the same reality rarely match perfectly. The divergence is often the signal.
+          </p>
+        </article>
+
+        <article class="diff-card reveal reveal-delay-3">
+          <p class="diff-kicker">Cross-diagnostic synthesis</p>
+          <h3 class="diff-title">Not isolated scores.</h3>
+          <p class="diff-text">
+            Results from the four diagnostics can compose into a broader institutional read, making patterns legible across lenses rather than one score at a time.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
 
   <section class="bureaucracy-cost section-with-bar snap-anchor" id="cost-section" aria-labelledby="cost-title">
     <div class="section-bar" aria-hidden="true">Cost of Bureaucratic Friction</div>
@@ -1390,28 +1528,28 @@
       <div class="cost-grid">
         <div class="cost-card reveal reveal-delay-1">
           <div class="cost-card-title">Time<span class="asterisk">*</span></div>
-          <p class="cost-card-source"><em>* HBR / management reporting research</em></p>
+          <p class="cost-card-source"><em>* Harvard Business Review, 2016</em></p>
           <div class="cost-card-number" data-count-type="percent" data-target="40">0%</div>
           <p class="cost-card-text">of managers' time can be consumed by reports alone.</p>
         </div>
 
         <div class="cost-card reveal reveal-delay-2">
           <div class="cost-card-title">Money<span class="asterisk">*</span></div>
-          <p class="cost-card-source"><em>* Harvard Business Review</em></p>
+          <p class="cost-card-source"><em>* Gary Hamel &amp; Michele Zanini, HBR, 2018</em></p>
           <div class="cost-card-number" data-count-type="currency-trillion" data-target="3">$0T</div>
           <p class="cost-card-text">estimated annual cost of excess management in the U.S. economy.</p>
         </div>
 
         <div class="cost-card reveal reveal-delay-3">
           <div class="cost-card-title">Productive Capacity<span class="asterisk">*</span></div>
-          <p class="cost-card-source"><em>* OECD / administrative burden guidance</em></p>
+          <p class="cost-card-source"><em>* OECD administrative burden guidance, 2010s</em></p>
           <div class="cost-card-number" data-count-type="range-percent" data-target="30">0–0%</div>
           <p class="cost-card-text">of productive capacity can be absorbed by administrative burden.</p>
         </div>
       </div>
 
       <p class="cost-footer reveal reveal-delay-4">
-        Selected sources: Harvard Business Review; OECD administrative burden guidance.
+        Sources: Harvard Business Review reporting research (2016); Gary Hamel and Michele Zanini, Harvard Business Review (2018); OECD administrative burden guidance.
       </p>
     </div>
   </section>
@@ -1424,11 +1562,15 @@
         <p class="approach-bridge">
           Monderman gives institutions a set of diagnostic lenses for reading where strategy becomes execution — or stalls under the weight of unclear structures, slower decisions, and administrative systems that no longer support the work.
         </p>
+        <p class="approach-taxonomy">
+          Four lenses on the same institutional system — time through it, legibility of it, weight of it, and whether it still holds.
+        </p>
       </div>
 
       <div class="approach-grid">
         <div class="approach-card reveal reveal-delay-1" data-effect-target="clarity">
           <div class="card-title">Structural Clarity</div>
+          <div class="card-subhead"><em>Is the system legible?</em></div>
           <div class="card-desc">
             Monderman identifies where ambiguity in ownership, authority, handoffs, and role boundaries is forcing people to compensate around the structure instead of relying on it.
           </div>
@@ -1437,6 +1579,7 @@
 
         <div class="approach-card reveal reveal-delay-2" data-effect-target="velocity">
           <div class="card-title">Decision Velocity</div>
+          <div class="card-subhead"><em>Does time move through it?</em></div>
           <div class="card-desc">
             Monderman surfaces where approvals, escalation, review layering, and routing burden are slowing movement through important decisions.
           </div>
@@ -1445,6 +1588,7 @@
 
         <div class="approach-card reveal reveal-delay-3" data-effect-target="systems">
           <div class="card-title">Operational Systems</div>
+          <div class="card-subhead"><em>How much weight is it carrying?</em></div>
           <div class="card-desc">
             Monderman identifies where process density, reporting burden, and recurring administrative overhead are absorbing time and effort that should be supporting delivery.
           </div>
@@ -1453,6 +1597,7 @@
 
         <div class="approach-card reveal reveal-delay-4" data-effect-target="performance">
           <div class="card-title">Institutional Performance</div>
+          <div class="card-subhead"><em>Does it still hold?</em></div>
           <div class="card-desc">
             Monderman reads the broader institutional condition — whether the system is sustaining resilience, confidence, and adaptive capacity or quietly weakening beneath the work.
           </div>
@@ -1469,22 +1614,22 @@
           <a class="approach-synthesis-item" data-effect="clarity" href="structural-clarity-article.html">
             <strong>Confident Action</strong>
             <span class="approach-synthesis-link">Structural Clarity</span>
-            <span class="approach-synthesis-body">When structural clarity restores confidence in who owns what, who decides, and how execution moves.</span>
+            <span class="approach-synthesis-body">When people can see who owns what, who decides, and how execution should move.</span>
           </a>
           <a class="approach-synthesis-item" data-effect="velocity" href="decision-velocity-article.html">
             <strong>Sustained Advantage</strong>
             <span class="approach-synthesis-link">Decision Velocity</span>
-            <span class="approach-synthesis-body">When decision velocity remains faster than the drag, delay, and caution accumulating beneath the work.</span>
+            <span class="approach-synthesis-body">When important decisions move faster than the drag, delay, and review weight accumulating beneath the work.</span>
           </a>
           <a class="approach-synthesis-item" data-effect="systems" href="operational-systems-article.html">
             <strong>Reclaimed Capacity</strong>
             <span class="approach-synthesis-link">Operational Systems</span>
-            <span class="approach-synthesis-body">When operational systems stop absorbing time and effort that should be available for delivery, judgment, and innovation.</span>
+            <span class="approach-synthesis-body">When administrative systems stop absorbing time and effort that should be available for delivery and judgment.</span>
           </a>
           <a class="approach-synthesis-item" data-effect="performance" href="institutional-performance-article.html">
             <strong>Organizational Credibility</strong>
             <span class="approach-synthesis-link">Institutional Performance</span>
-            <span class="approach-synthesis-body">When institutional performance holds under complexity in ways leaders, employees, and stakeholders can trust.</span>
+            <span class="approach-synthesis-body">When the institution continues to hold under pressure without depending on heroic effort or hidden compensation.</span>
           </a>
         </div>
         <div class="approach-foundation">Sustained Institutional Advantage</div>
@@ -1498,7 +1643,7 @@
       <div class="diagnostic-estimate-heading reveal">
                 <h2 id="estimate-title">Estimate the hidden cost of structural drag.</h2>
         <p class="estimate-context">
-          This directional estimate gives a high-level platform-style read on how much time, money, and productive capacity may be absorbed by administrative and bureaucratic burden inside a complex organization.
+          This directional estimate gives a high-level read on how much time, money, and productive capacity may be absorbed by administrative and bureaucratic burden inside a complex organization.
         </p>
         <p class="estimate-bridge">
           The deeper cost is rarely workforce size alone. It is the accumulation of administrative and bureaucratic systems beneath operations and strategy that, when poorly maintained, steadily absorb time, money, and productive capacity.
@@ -1591,7 +1736,7 @@
             These are directional estimates based on public research on management overhead, administrative burden, and compliance costs. They are intended to provide a high-level signal, not an audited organizational measurement.
           </p>
           <p>
-            Use the diagnostic suite to establish a baseline, then return as systems and surrounding conditions evolve. Repeated runs help institutions compare conditions over time and see whether interventions restored velocity or whether new administrative drag is quietly accumulating.
+            Use the diagnostic suite to establish a baseline, then return as systems and surrounding conditions evolve. The value compounds on the second and third run, when institutions can compare conditions over time and see whether interventions restored velocity or whether new administrative drag is quietly accumulating.
           </p>
         </div>
         <a class="btn btn-accent" href="diagnostic-tools.html">Enter the Diagnostic Hub</a>
@@ -1697,26 +1842,28 @@
   <section class="connect" id="connect" aria-labelledby="connect-title">
     <div class="connect-inner">
       <div class="connect-copy reveal">
-        <h2 id="connect-title">Explore Monderman for your institution.</h2>
-        <p class="connect-signal">Monderman works with institutions looking for a stronger diagnostic platform for understanding consequential structural challenges.</p>
+        <h2 id="connect-title">Choose the right next step.</h2>
+        <p class="connect-signal">Monderman supports both self-serve first reads and more structured conversations about fit, pilots, and platform use.</p>
         <p class="connect-text">
-          If you are navigating institutional drag, decision friction, execution misalignment, or considering a diagnostic pilot, Monderman would welcome a conversation about fit. The platform is designed for institutions that want more than one-off insight and need a repeatable way to diagnose, compare, and govern administrative reality over time.
+          Some institutions are ready to run a first diagnostic immediately. Others need a more structured conversation about platform fit, support, or how repeated measurement would work in their environment.
         </p>
       </div>
 
       <div class="connect-panel reveal reveal-delay-2">
-        <p class="connect-kicker">Primary Contact</p>
-        <a class="connect-link" href="mailto:connect@monderman.com">
-          <span class="connect-link-mark" aria-hidden="true"></span>
-          connect@monderman.com
-        </a>
-        <p class="connect-note">
-          For platform support, pilot discussions, platform support, or product-related inquiries, reach out directly, or use the structured request form for a more focused start.
-        </p>
-        <div class="connect-actions">
-          <a class="btn btn-secondary" href="advisory-services-connect.html">Request Platform Support</a>
-          <a class="connect-inline-link" href="mailto:connect@monderman.com">Or email directly &#8594;</a>
+        <p class="connect-kicker">Next Step</p>
+        <div class="connect-choice-grid">
+          <a class="connect-choice-card" href="diagnostic-tools.html">
+            <strong>Run a First Diagnostic</strong>
+            <span>Start in the Diagnostic Hub and establish a first baseline.</span>
+          </a>
+          <a class="connect-choice-card" href="advisory-services-connect.html">
+            <strong>Request a Structured Conversation</strong>
+            <span>Discuss platform fit, pilot structure, or support needs in a more guided way.</span>
+          </a>
         </div>
+        <p class="connect-note">
+          Or reach out directly at <a class="connect-inline-link connect-inline-embedded" href="mailto:connect@monderman.com">connect@monderman.com &#8594;</a>
+        </p>
       </div>
     </div>
   </section>
