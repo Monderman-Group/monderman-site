@@ -508,7 +508,131 @@
       color: var(--muted-dark);
     }
 
-    .intro-section {
+    
+    .manifesto-section {
+      position: relative;
+      background:
+        linear-gradient(rgba(247, 248, 249, 0.97), rgba(247, 248, 249, 0.97)),
+        linear-gradient(90deg, rgba(63, 110, 161, 0.018) 1px, transparent 1px),
+        linear-gradient(rgba(63, 110, 161, 0.018) 1px, transparent 1px);
+      background-size: auto, 28px 28px, 28px 28px;
+      border-top: 1px solid rgba(21, 32, 43, 0.04);
+      padding: 94px 34px 80px;
+      color: var(--text-dark);
+      overflow: hidden;
+    }
+
+    .manifesto-section::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 85% 20%, rgba(63, 110, 161, 0.04), transparent 34%);
+      pointer-events: none;
+    }
+
+    .manifesto-inner {
+      position: relative;
+      z-index: 1;
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .manifesto-grid {
+      display: grid;
+      gap: 22px;
+      margin-top: 42px;
+    }
+
+    .commitment-card {
+      background: rgba(255,255,255,0.98);
+      border: 1px solid rgba(21,32,43,0.08);
+      border-radius: 20px;
+      padding: 28px 28px 26px;
+      box-shadow: var(--soft-shadow);
+      display: grid;
+      gap: 18px;
+    }
+
+    .commitment-head {
+      display: grid;
+      gap: 10px;
+      max-width: 64ch;
+    }
+
+    .commitment-kicker {
+      margin: 0;
+      font-size: 0.68rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .commitment-card h3 {
+      margin: 0;
+      font-size: clamp(1.4rem, 2vw, 1.74rem);
+      line-height: 1.02;
+      font-weight: 700;
+      color: var(--text-dark);
+      letter-spacing: -0.05em;
+      text-wrap: balance;
+      max-width: 18ch;
+    }
+
+    .commitment-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .commitment-copy p {
+      margin: 0;
+      max-width: 62ch;
+      font-size: 0.98rem;
+      line-height: 1.78;
+      color: var(--muted-dark);
+    }
+
+    .commitment-copy p + p {
+      margin-top: 14px;
+    }
+
+    .rules-out {
+      background: linear-gradient(180deg, rgba(63,110,161,0.06) 0%, rgba(63,110,161,0.02) 100%);
+      border: 1px solid rgba(63,110,161,0.12);
+      border-radius: 18px;
+      padding: 18px 18px 16px;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .rules-out-label {
+      margin: 0 0 8px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .rules-out p {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+    }
+
+    .practice-intro-note {
+      margin-top: 16px;
+      max-width: 58ch;
+      font-size: 0.94rem;
+      line-height: 1.64;
+      color: var(--muted-dark-2);
+    }
+
+.intro-section {
       position: relative;
       background:
         linear-gradient(rgba(247, 248, 249, 0.97), rgba(247, 248, 249, 0.97)),
@@ -1707,6 +1831,7 @@
     }
 
     @media (max-width: 1180px) {
+      .commitment-body,
       .intro-grid,
       .difference-band,
       .cta-inner,
@@ -1758,6 +1883,7 @@
       }
 
       .hero-inner,
+      .manifesto-section,
       .intro-section,
       .difference-section,
       .focus-section,
@@ -1816,6 +1942,7 @@
         font-size: 0.98rem;
       }
 
+      .manifesto-section,
       .intro-section,
       .difference-section,
       .focus-section,
@@ -1826,6 +1953,7 @@
         padding-right: 20px;
       }
 
+      .manifesto-section,
       .intro-section,
       .difference-section,
       .focus-section,
@@ -1969,69 +2097,136 @@
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero-inner">
       <div class="hero-copy">
-        <p class="hero-eyebrow">The condition beneath performance</p>
-        <h1 id="hero-title">Organizations perform at the speed of their administrative reality.</h1>
+        <p class="hero-eyebrow">Four commitments</p>
+        <h1 id="hero-title">Bureaucracy is a governable condition, not a background one.</h1>
         <p class="hero-dek">
-          Monderman makes that reality visible, interpretable, and governable. While most consultants, generic tools, and standard benchmarking approaches treat slow execution or coordination overload as isolated problems, our proprietary diagnostic engine reads the deeper structural conditions—ownership blur, decision-rights diffusion, compensatory behaviors, and accumulated administrative weight—that quietly shape institutional performance.
+          Monderman is built on four commitments about how institutional performance is actually sustained: bureaucracy drifts, repeated measurement matters, different vantage points reveal different truths, and the work is to make administrative reality legible rather than pretend it can be eliminated.
         </p>
 
         <div class="hero-actions">
-          <a class="btn btn-accent" href="diagnostic-tools.html">Open Diagnostic Hub</a>
-          <a class="btn btn-secondary" href="advisory-services-connect.html">Start a Conversation</a>
+          <a class="btn btn-secondary" href="advisory-services-connect.html">Start a Structured Conversation</a>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="intro-section" aria-labelledby="why-title">
-    <div class="intro-inner">
+  
+  <section class="manifesto-section" aria-labelledby="why-title">
+    <div class="manifesto-inner">
       <div class="section-intro reveal">
-        <div class="section-label">Why organizations come to Monderman</div>
-        <h2 id="why-title">Because administrative reality is often mistaken for a series of separate problems.</h2>
+        <div class="section-label">Why Monderman</div>
+        <h2 id="why-title">Monderman is built on four commitments about how institutional performance is actually sustained.</h2>
+        <p>
+          This page is not a generic company overview. It is the argument underneath the platform: what Monderman believes about bureaucracy, drift, repeated measurement, perspective, and the disciplined work of making administrative reality more legible over time.
+        </p>
       </div>
 
-      <div class="intro-grid">
-        <div class="intro-copy reveal reveal-delay-1">
-          <p>
-            Many organizations are not short on intelligence, effort, or commitment. They are constrained by accumulated controls, inherited structures, unclear decision rights, fragmented accountability, and operating systems that no longer fit the work.
-          </p>
+      <div class="manifesto-grid">
+        <article class="commitment-card reveal reveal-delay-1">
+          <div class="commitment-head">
+            <p class="commitment-kicker">Commitment 1</p>
+            <h3>Bureaucracy is a live operating condition, not a static one.</h3>
+          </div>
+          <div class="commitment-body">
+            <div class="commitment-copy">
+              <p>
+                Bureaucracy is not just an administrative backdrop. It is an active condition inside the institution, shaping how work moves, how authority accumulates, and how coordination either supports or constrains execution.
+              </p>
+              <p>
+                Some mechanisms accelerate the work, some modulate it proportionately, and some increasingly restrict it. They do not remain fixed. They drift. That drift is governable, and it is one of the central reasons repeated diagnosis matters.
+              </p>
+            </div>
+            <aside class="rules-out">
+              <p class="rules-out-label">What this rules out</p>
+              <p>
+                The view that bureaucracy is an administrative afterthought to be cleaned up occasionally during reform cycles.
+              </p>
+            </aside>
+          </div>
+        </article>
 
-          <p>
-            Those conditions rarely present themselves as an obvious structural problem. They appear instead as slower execution, heavier approvals, repeated coordination, overextended managers, local workarounds, and rising effort just to preserve ordinary output.
-          </p>
+        <article class="commitment-card reveal reveal-delay-1">
+          <div class="commitment-head">
+            <p class="commitment-kicker">Commitment 2</p>
+            <h3>One-time assessment is insufficient. Repeated measurement is the unit of value.</h3>
+          </div>
+          <div class="commitment-body">
+            <div class="commitment-copy">
+              <p>
+                A baseline matters, but its value appears most clearly when there is a second read against the same structure. Institutions usually know how the system feels today. They are far less clear on whether today is better, worse, or simply different than six months ago on the same measure.
+              </p>
+              <p>
+                The comparison across runs is where drift becomes visible, where recovery becomes credible, and where administrative reality stops being anecdotal and starts becoming governable over time.
+              </p>
+            </div>
+            <aside class="rules-out">
+              <p class="rules-out-label">What this rules out</p>
+              <p>
+                Annual culture surveys and one-shot consulting assessments as substitutes for sustained governance.
+              </p>
+            </aside>
+          </div>
+        </article>
 
-          <p>
-            That is why many institutions misread the problem. They respond with reorganizations, generic efficiency work, headcount moves, or new layers of oversight while the deeper condition remains intact.
-          </p>
+        <article class="commitment-card reveal reveal-delay-2">
+          <div class="commitment-head">
+            <p class="commitment-kicker">Commitment 3</p>
+            <h3>Multiple perspective lenses on the same system reveal different truths.</h3>
+          </div>
+          <div class="commitment-body">
+            <div class="commitment-copy">
+              <p>
+                The same structural system feels different from the operational, managerial, and senior leader vantage points. That is not noise to be normalized away. The divergence itself is often the diagnostic signal.
+              </p>
+              <p>
+                When those readings converge, the institution may be experiencing the same reality coherently. When they diverge sharply, the system is often being absorbed unevenly, hidden by local compensation, or interpreted differently at different levels.
+              </p>
+            </div>
+            <aside class="rules-out">
+              <p class="rules-out-label">What this rules out</p>
+              <p>
+                Executive-only diagnosis that treats leadership perception as a sufficient proxy for institutional condition.
+              </p>
+            </aside>
+          </div>
+        </article>
 
-          <p>
-            Monderman’s proprietary engine is built to do something more disciplined: generate repeatable, directional signals about the architecture beneath execution—signals that can be revisited across runs, compared across lenses, and interpreted over time rather than consumed as one-off commentary.
-          </p>
-        </div>
-
-        <aside class="signal-panel reveal reveal-delay-2" aria-label="Typical executive signals">
-          <h3>What leaders usually see</h3>
-          <p>Organizations often arrive here when performance still appears intact, but the cost, effort, and leadership attention required to sustain it are rising.</p>
-          <ul class="signal-list">
-            <li>Execution feels heavier than the work should require.</li>
-            <li>Senior attention is repeatedly pulled into coordination.</li>
-            <li>Performance holds, but only through extra lift and intervention.</li>
-            <li>The same frictions return despite repeated fixes.</li>
-          </ul>
-        </aside>
+        <article class="commitment-card reveal reveal-delay-2">
+          <div class="commitment-head">
+            <p class="commitment-kicker">Commitment 4</p>
+            <h3>The work is to make administrative reality legible, not to eliminate it.</h3>
+          </div>
+          <div class="commitment-body">
+            <div class="commitment-copy">
+              <p>
+                Complex institutions need governance. They need controls, sequencing, review, and administrative structure. The question is not whether bureaucracy should exist. The question is whether it remains proportionate to the work it is meant to support.
+              </p>
+              <p>
+                The discipline is calibration, not subtraction. Monderman is not built on anti-bureaucracy posturing. It is built on the belief that administrative reality should be read clearly enough to govern with precision rather than flattened through slogans about simplification.
+              </p>
+            </div>
+            <aside class="rules-out">
+              <p class="rules-out-label">What this rules out</p>
+              <p>
+                Anti-bureaucracy theater, zero-based review posturing, and the reflex to streamline everything regardless of institutional need.
+              </p>
+            </aside>
+          </div>
+        </article>
       </div>
     </div>
   </section>
 
-  
-  
 <section class="focus-section" aria-labelledby="suite-title" style="background:#FFFFFF; border-top:none; border-bottom:1px solid rgba(21,32,43,0.04);">
     <div class="focus-inner">
       <div class="section-intro reveal">
-        <div class="section-label">How Monderman reads administrative reality</div>
-        <h2 id="suite-title">Four lenses. One clearer picture of administrative reality.</h2>
+        <div class="section-label">What this means in practice</div>
+        <h2 id="suite-title">The commitments become platform mechanics.</h2>
         <p>
-          Monderman’s tools are powered by a proprietary diagnostic engine built to generate structured, repeatable, and high-fidelity reads of administrative reality across four distinct diagnostic lenses. Unlike generic prompt-based tools, the engine produces outputs designed to be compared, revisited, and interpreted across runs.
+          The diagnostic suite exists because one-time assessment is insufficient. The perspective lanes exist because the same system is experienced differently from different vantage points. The platform’s underlying logic exists because bureaucracy drifts, and because the work is to make that drift more legible rather than pretend complexity can be abolished.
+        </p>
+        <p class="practice-intro-note">
+          What follows is not a separate product pitch. It is how the four commitments become a diagnostic platform built for repeated institutional use.
         </p>
       </div>
 
@@ -2290,90 +2485,18 @@
     </div>
   </section>
 
-  <section class="trust-section" aria-labelledby="trust-title">
-    <div class="trust-inner">
-      <div class="section-intro reveal">
-        <div class="section-label">Why this builds confidence</div>
-        <h2 id="trust-title">More disciplined than generic tools. More serious than standard benchmarking.</h2>
-        <p>
-          Monderman is built for organizations that need a more disciplined read on institutional movement: grounded in the realities of complexity, bureaucracy, and execution pressure, and usable at senior level over time.
-        </p>
-      </div>
-
-      <div class="trust-grid">
-        <article class="trust-card reveal reveal-delay-1">
-          <h3>Grounded in a proprietary structural model</h3>
-          <p>
-            Fast text generation can summarize symptoms quickly. Monderman’s proprietary engine is calibrated to the mechanics of real organizations: ownership, decision rights, compensatory behavior, governance weight, and institutional strain.
-          </p>
-        </article>
-
-        <article class="trust-card reveal reveal-delay-2">
-          <h3>Built for repeatable institutional use</h3>
-          <p>
-            The value is not confined to one run or one project. The suite is designed to create structured, comparable outputs that can be revisited as conditions change.
-          </p>
-        </article>
-
-        <article class="trust-card reveal reveal-delay-3">
-          <h3>Designed to clarify consequential action</h3>
-          <p>
-            A useful readout should help leadership understand what kind of problem exists, why it persists, what it is costing, and where to intervene first without pretending to false precision.
-          </p>
-        </article>
-      </div>
-    </div>
-  </section>
-
   
-  <section class="difference-section" aria-labelledby="why-different-title" style="padding-top:82px; padding-bottom:64px;">
-    <div class="difference-inner">
-      <div class="section-intro reveal">
-        <div class="section-label">Why this is different</div>
-        <h2 id="why-different-title">Built for a different order of problem—and a different standard of readout.</h2>
-        <p>
-          Monderman is not designed just to generate fast suggestions or tidy up a single process in isolation. It is built to help organizations understand the wider administrative condition shaping performance—and to do so in a way that can be revisited, compared, and governed over time.
-        </p>
-      </div>
-
-      <div class="trust-grid" style="margin-top:38px;">
-        <article class="trust-card reveal reveal-delay-1">
-          <h3>Structural, not just symptomatic</h3>
-          <p>
-            Monderman focuses on the operating structure beneath visible problems, not just the visible problem itself.
-          </p>
-        </article>
-
-        <article class="trust-card reveal reveal-delay-2">
-          <h3>Repeatable, not just momentary</h3>
-          <p>
-            The suite is designed to be used again as conditions shift, making administrative reality more visible over time rather than only in one conversation.
-          </p>
-        </article>
-
-        <article class="trust-card reveal reveal-delay-3">
-          <h3>Governable, not just descriptive</h3>
-          <p>
-            The output is meant to support institutional judgment: what kind of condition exists, what it is costing, what is compounding, and what should be acted on first.
-          </p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-
   <section class="cta-section" id="next-step" aria-labelledby="cta-title">
     <div class="cta-inner">
       <div class="cta-copy reveal">
         <div class="section-label">Next step</div>
-        <h2 id="cta-title">Start with the Diagnostic Hub—or move directly into a more serious conversation.</h2>
+        <h2 id="cta-title">Start a structured conversation.</h2>
         <p>
-          Start with the Diagnostic Hub for immediate signal. When the pattern is broader, more embedded, or more consequential, move into a selective advisory conversation.
+          The point of this page is not to sell a generic service. It is to help you decide whether Monderman’s commitments fit the kind of institutional problem you are trying to govern.
         </p>
 
         <div class="cta-actions">
-          <a class="btn btn-accent" href="diagnostic-tools.html">Open Diagnostic Hub</a>
-          <a class="btn btn-secondary" href="advisory-services-connect.html">Request an Initial Conversation</a>
+          <a class="btn btn-secondary" href="advisory-services-connect.html">Start a Structured Conversation</a>
         </div>
       </div>
 
@@ -2384,7 +2507,7 @@
           connect@monderman.com
         </a>
         <p class="cta-note">
-          For pilot inquiries, advisory discussions, or institutional performance conversations, reach out directly.
+          For platform fit, structured conversation, or institutional-use questions, reach out directly.
         </p>
       </div>
     </div>
@@ -2396,7 +2519,7 @@
         <div class="footer-brand">
           <div class="footer-mark">Monderman</div>
           <p class="footer-copy">
-            Advisory thinking on institutional performance, decision velocity, and the design of systems that sustain clarity under complexity.
+            Diagnostic platform software and support for institutions using repeated measurement to understand and govern administrative reality with greater clarity.
           </p>
         </div>
 
@@ -2411,6 +2534,7 @@
 
           <div class="footer-nav-col">
             <p class="footer-nav-title">Connect</p>
+            <a href="advisory-services-connect.html">Open Connect Form</a>
             <a href="mailto:connect@monderman.com">connect@monderman.com</a>
           </div>
         </div>
