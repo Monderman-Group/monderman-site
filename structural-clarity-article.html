@@ -120,24 +120,10 @@
     .hero {
       position: relative;
       overflow: hidden;
-      background: linear-gradient(135deg, #0F1720 0%, #182331 100%);
+      background: var(--dark);
       color: #fff;
-      min-height: 520px;
-      padding: 92px 0 76px;
-    }
-
-    .hero-media {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-    }
-
-    .hero-media img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center center;
-      opacity: 0.34;
+      min-height: 560px;
+      padding: 112px 0 88px;
     }
 
     .hero::before {
@@ -146,8 +132,15 @@
       inset: 0;
       pointer-events: none;
       background:
-        linear-gradient(90deg, rgba(10,14,20,0.88) 0%, rgba(10,14,20,0.74) 30%, rgba(10,14,20,0.46) 58%, rgba(10,14,20,0.18) 100%),
-        linear-gradient(180deg, rgba(10,14,20,0.16) 0%, rgba(10,14,20,0.10) 100%);
+        radial-gradient(circle at 79% 18%, rgba(63,110,161,0.17) 0%, rgba(63,110,161,0.07) 18%, transparent 34%),
+        linear-gradient(
+          90deg,
+          rgba(10,14,20,0.92) 0%,
+          rgba(10,14,20,0.78) 24%,
+          rgba(10,14,20,0.50) 52%,
+          rgba(10,14,20,0.18) 100%
+        );
+      z-index: 0;
     }
 
     .hero::after {
@@ -155,35 +148,82 @@
       position: absolute;
       inset: 0;
       pointer-events: none;
-      background: radial-gradient(circle at 78% 28%, rgba(63,110,161,0.18) 0%, rgba(63,110,161,0.06) 22%, transparent 44%);
-      opacity: 0.95;
+      background:
+        linear-gradient(180deg, rgba(10,14,20,0.10) 0%, rgba(10,14,20,0.18) 100%),
+        linear-gradient(135deg, rgba(63,110,161,0.028) 1px, transparent 1px);
+      background-size: auto, 34px 34px;
+      opacity: 0.48;
+      z-index: 0;
     }
 
     .hero-inner {
       position: relative;
       z-index: 1;
       display: flex;
-      align-items: flex-end;
-      min-height: 352px;
+      align-items: center;
+      min-height: 360px;
     }
 
-    .hero-copy { max-width: 720px; }
+    .hero-copy { max-width: 780px; }
+
+    .hero-head {
+      display: grid;
+      grid-template-columns: 46px minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 18px;
+    }
+
+    .hero-glyph {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--accent);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .hero-glyph svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+    }
+
+    .hero-head-copy {
+      min-width: 0;
+    }
 
     .eyebrow {
-      margin: 0 0 18px;
+      margin: 0 0 10px;
       font-size: 0.76rem;
       font-weight: 700;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.68);
+      color: rgba(255,255,255,0.64);
     }
 
     .hero h1 {
-      margin: 0 0 18px;
+      margin: 0;
       max-width: 11ch;
-      font-size: clamp(2.7rem, 5vw, 4.7rem);
-      line-height: 0.96;
+      font-size: clamp(2.8rem, 5vw, 4.7rem);
+      line-height: 0.95;
       letter-spacing: -0.052em;
+      color: #FFFFFF;
+      text-wrap: balance;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.16);
+    }
+
+    .hero-taxonomy {
+      margin: 0 0 16px 62px;
+      font-size: 0.92rem;
+      line-height: 1.4;
+      color: rgba(255,255,255,0.68);
     }
 
     .hero p {
@@ -192,6 +232,34 @@
       font-size: 1.06rem;
       line-height: 1.7;
       color: rgba(255,255,255,0.82);
+    }
+
+    .inline-glyph-row {
+      display: inline-grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      margin-bottom: 10px;
+    }
+
+    .inline-glyph {
+      width: 28px;
+      height: 28px;
+      border-radius: 9px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(63,110,161,0.045);
+      border: 1px solid rgba(63,110,161,0.10);
+      color: var(--accent);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.74);
+      vertical-align: top;
+    }
+
+    .inline-glyph svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
     }
 
     .hero-actions {
@@ -525,9 +593,29 @@
         align-items: flex-end;
       }
 
+      .hero-head {
+        grid-template-columns: 40px minmax(0, 1fr);
+        gap: 12px;
+      }
+
+      .hero-glyph {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+      }
+
+      .hero-glyph svg {
+        width: 18px;
+        height: 18px;
+      }
+
       .hero h1 {
         max-width: 100%;
         font-size: clamp(2.4rem, 10vw, 3.4rem);
+      }
+
+      .hero-taxonomy {
+        margin-left: 52px;
       }
 
       .content { padding: 28px 22px; }
@@ -543,7 +631,7 @@
       <a href="index.html" class="brand">Monderman</a>
       <nav class="nav">
         <a href="index.html#approach">Approach</a>
-        <a href="diagnostic-tools.html">Diagnostic Tools</a>
+        <a href="diagnostic-tools.html">Diagnostic Hub</a>
         <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
       </nav>
@@ -551,19 +639,26 @@
   </header>
 
   <section class="hero">
-    <div class="hero-media" aria-hidden="true">
-      <img src="Article-image.jpg" alt="" />
-    </div>
     <div class="hero-inner">
       <div class="hero-copy">
-        <p class="eyebrow">Our Approach</p>
-        <h1>Structural Clarity</h1>
+        <div class="hero-head">
+          <span class="hero-glyph" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
+            </svg>
+          </span>
+          <div class="hero-head-copy">
+            <p class="eyebrow">Our Approach</p>
+            <h1>Structural Clarity</h1>
+          </div>
+        </div>
+        <p class="hero-taxonomy"><em>Is the system legible?</em></p>
         <p>
           Structural Clarity shows whether the underlying structure is clear enough to support execution, where ownership and authority are blurring, and where hidden ambiguity is forcing people to compensate around the system.
         </p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="structural-clarity.html">Run Structural Clarity Diagnostic</a>
-          <a class="btn btn-secondary" href="advisory-services-connect.html">Start a Conversation</a>
+          <a class="btn btn-secondary" href="advisory-services-connect.html">Start a Structured Conversation</a>
         </div>
       </div>
     </div>
@@ -595,7 +690,14 @@
 
           <div class="signal-figure">
             <p class="figure-kicker">Diagnostic reading model</p>
-            <h3 class="figure-title">The tool is built to detect four recurring structural failure patterns</h3>
+            <div class="inline-glyph-row">
+              <span class="inline-glyph" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
+                </svg>
+              </span>
+              <h3 class="figure-title">The tool is built to detect four recurring structural failure patterns</h3>
+            </div>
             <div class="signal-grid">
               <div class="signal-card">
                 <strong>Ownership ambiguity</strong>
@@ -759,7 +861,7 @@
     <div class="footer-inner">
       <p>Monderman — clarity for complex institutions.</p>
       <p style="margin-top:10px; font-size:0.88rem; color:rgba(255,255,255,0.58);">
-        <a href="diagnostic-tools.html">Diagnostic Tools</a> ·
+        <a href="diagnostic-tools.html">Diagnostic Hub</a> ·
         <a href="research.html">Research</a> ·
         <a href="advisory-services-connect.html">Connect</a>
       </p>
