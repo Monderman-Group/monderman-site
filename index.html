@@ -766,6 +766,39 @@
       box-shadow: 0 8px 18px rgba(0,0,0,0.04), 0 18px 30px rgba(0,0,0,0.04);
     }
     .approach-card:hover::before { width: 100%; }
+    .approach-card-head {
+      display: grid;
+      grid-template-columns: 40px minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+      margin-bottom: 8px;
+    }
+    .approach-glyph {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(63,110,161,0.05);
+      border: 1px solid rgba(63,110,161,0.10);
+      color: var(--accent);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.72);
+      transition: border-color var(--transition), background var(--transition), transform var(--transition);
+    }
+    .approach-glyph svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+    }
+    .approach-card:hover .approach-glyph {
+      background: rgba(63,110,161,0.08);
+      border-color: rgba(63,110,161,0.18);
+      transform: translateY(-1px);
+    }
+    .approach-card-head-copy {
+      min-width: 0;
+    }
     .card-title {
       margin-bottom: 8px;
       font-size: 1.42rem;
@@ -778,6 +811,31 @@
       font-size: 0.88rem;
       line-height: 1.35;
       color: var(--muted-dark-2);
+    }
+    .approach-synthesis-item-head {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      width: 100%;
+    }
+    .approach-synthesis-glyph {
+      width: 28px;
+      height: 28px;
+      border-radius: 9px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(63,110,161,0.045);
+      border: 1px solid rgba(63,110,161,0.10);
+      color: var(--accent);
+      margin-top: -1px;
+      transition: border-color 200ms ease, background 200ms ease, transform 200ms ease;
+    }
+    .approach-synthesis-glyph svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
     }
     .card-desc {
       font-size: 1.01rem;
@@ -883,6 +941,12 @@
       border-color: rgba(63,110,161,0.18);
       box-shadow: 0 10px 22px rgba(0,0,0,0.04);
       background: #FFFFFF;
+    }
+    .approach-synthesis-item.is-linked .approach-synthesis-glyph,
+    .approach-synthesis-item:hover .approach-synthesis-glyph {
+      background: rgba(63,110,161,0.07);
+      border-color: rgba(63,110,161,0.16);
+      transform: translateY(-1px);
     }
     .approach-foundation {
       margin: 20px auto 0;
@@ -1412,6 +1476,19 @@
         letter-spacing: 0.12em;
       }
 
+      .approach-card-head {
+        grid-template-columns: 36px minmax(0, 1fr);
+        gap: 12px;
+      }
+      .approach-glyph {
+        width: 36px;
+        height: 36px;
+        border-radius: 11px;
+      }
+      .approach-glyph svg {
+        width: 16px;
+        height: 16px;
+      }
       .approach-synthesis {
         margin-top: 44px;
         padding: 30px 22px 12px;
@@ -1570,8 +1647,17 @@
 
       <div class="approach-grid">
         <div class="approach-card reveal reveal-delay-1" data-effect-target="clarity">
-          <div class="card-title">Structural Clarity</div>
-          <div class="card-subhead"><em>Is the system legible?</em></div>
+          <div class="approach-card-head">
+            <span class="approach-glyph" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
+              </svg>
+            </span>
+            <div class="approach-card-head-copy">
+              <div class="card-title">Structural Clarity</div>
+              <div class="card-subhead"><em>Is the system legible?</em></div>
+            </div>
+          </div>
           <div class="card-desc">
             Monderman identifies where ambiguity in ownership, authority, handoffs, and role boundaries is forcing people to compensate around the structure instead of relying on it.
           </div>
@@ -1579,8 +1665,17 @@
         </div>
 
         <div class="approach-card reveal reveal-delay-2" data-effect-target="velocity">
-          <div class="card-title">Decision Velocity</div>
-          <div class="card-subhead"><em>Does time move through it?</em></div>
+          <div class="approach-card-head">
+            <span class="approach-glyph" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
+              </svg>
+            </span>
+            <div class="approach-card-head-copy">
+              <div class="card-title">Decision Velocity</div>
+              <div class="card-subhead"><em>Does time move through it?</em></div>
+            </div>
+          </div>
           <div class="card-desc">
             Monderman surfaces where approvals, escalation, review layering, and routing burden are slowing movement through important decisions.
           </div>
@@ -1588,8 +1683,17 @@
         </div>
 
         <div class="approach-card reveal reveal-delay-3" data-effect-target="systems">
-          <div class="card-title">Operational Systems</div>
-          <div class="card-subhead"><em>How much weight is it carrying?</em></div>
+          <div class="approach-card-head">
+            <span class="approach-glyph" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
+              </svg>
+            </span>
+            <div class="approach-card-head-copy">
+              <div class="card-title">Operational Systems</div>
+              <div class="card-subhead"><em>How much weight is it carrying?</em></div>
+            </div>
+          </div>
           <div class="card-desc">
             Monderman identifies where process density, reporting burden, and recurring administrative overhead are absorbing time and effort that should be supporting delivery.
           </div>
@@ -1597,8 +1701,17 @@
         </div>
 
         <div class="approach-card reveal reveal-delay-4" data-effect-target="performance">
-          <div class="card-title">Institutional Performance</div>
-          <div class="card-subhead"><em>Does it still hold?</em></div>
+          <div class="approach-card-head">
+            <span class="approach-glyph" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
+              </svg>
+            </span>
+            <div class="approach-card-head-copy">
+              <div class="card-title">Institutional Performance</div>
+              <div class="card-subhead"><em>Does it still hold?</em></div>
+            </div>
+          </div>
           <div class="card-desc">
             Monderman reads the broader institutional condition — whether the system is sustaining resilience, confidence, and adaptive capacity or quietly weakening beneath the work.
           </div>
@@ -1613,22 +1726,50 @@
         </p>
         <div class="approach-synthesis-grid">
           <a class="approach-synthesis-item" data-effect="clarity" href="structural-clarity-article.html">
-            <strong>Confident Action</strong>
+            <div class="approach-synthesis-item-head">
+              <span class="approach-synthesis-glyph" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
+                </svg>
+              </span>
+              <strong>Confident Action</strong>
+            </div>
             <span class="approach-synthesis-link">Structural Clarity</span>
             <span class="approach-synthesis-body">When people can see who owns what, who decides, and how execution should move.</span>
           </a>
           <a class="approach-synthesis-item" data-effect="velocity" href="decision-velocity-article.html">
-            <strong>Sustained Advantage</strong>
+            <div class="approach-synthesis-item-head">
+              <span class="approach-synthesis-glyph" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
+                </svg>
+              </span>
+              <strong>Sustained Advantage</strong>
+            </div>
             <span class="approach-synthesis-link">Decision Velocity</span>
             <span class="approach-synthesis-body">When important decisions move faster than the drag, delay, and review weight accumulating beneath the work.</span>
           </a>
           <a class="approach-synthesis-item" data-effect="systems" href="operational-systems-article.html">
-            <strong>Reclaimed Capacity</strong>
+            <div class="approach-synthesis-item-head">
+              <span class="approach-synthesis-glyph" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
+                </svg>
+              </span>
+              <strong>Reclaimed Capacity</strong>
+            </div>
             <span class="approach-synthesis-link">Operational Systems</span>
             <span class="approach-synthesis-body">When administrative systems stop absorbing time and effort that should be available for delivery and judgment.</span>
           </a>
           <a class="approach-synthesis-item" data-effect="performance" href="institutional-performance-article.html">
-            <strong>Organizational Credibility</strong>
+            <div class="approach-synthesis-item-head">
+              <span class="approach-synthesis-glyph" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
+                </svg>
+              </span>
+              <strong>Organizational Credibility</strong>
+            </div>
             <span class="approach-synthesis-link">Institutional Performance</span>
             <span class="approach-synthesis-body">When the institution continues to hold under pressure without depending on heroic effort or hidden compensation.</span>
           </a>
