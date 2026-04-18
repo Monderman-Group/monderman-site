@@ -953,13 +953,6 @@ async function submitDiagnostic(){
     showStage(questionStage);
     renderQuestion();
   }
-
-  try{
-    console.error("renderResults failed:", err);
-    setHeader("Output error","The scoring run completed, but the results view failed to render. Start over after applying the front-end fix.","Render error");
-    alert("The diagnostic finished scoring, but the results view hit a front-end rendering error. Check the browser console.");
-    showStage(questionStage);
-  }
 }
 function renderQuadrant(result){
   const state=result.__interpretiveState || buildInterpretiveState(result,{});
