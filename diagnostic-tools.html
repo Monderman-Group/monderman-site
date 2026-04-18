@@ -1025,6 +1025,30 @@
       line-height:1.58;
       color:var(--muted-dark-2);
     }
+    .saved-context-row{
+      padding:12px 14px 11px;
+      border-radius:14px;
+      background:linear-gradient(180deg,#FFFFFF 0%, #FBFCFE 100%);
+      border:1px solid rgba(21,32,43,.08);
+      box-shadow:var(--shadow-soft);
+    }
+    .saved-context-label{
+      margin:0 0 6px;
+      font-size:.68rem;
+      line-height:1;
+      font-weight:700;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:var(--muted-dark-2);
+    }
+    .saved-context-value{
+      margin:0;
+      font-size:.9rem;
+      line-height:1.52;
+      color:var(--text-dark);
+      font-weight:600;
+      word-break:break-word;
+    }
 
     .synthesis-shell{
       margin-top:22px;
@@ -2020,25 +2044,14 @@
           </div>
 
           <div style="display:grid; gap:18px;">
+            
+          <div style="display:grid; gap:18px;">
             <aside class="recent-runs-card" id="savedContextCard">
               <p class="recent-runs-kicker">Saved context</p>
               <h4 class="recent-runs-title">Current shared baseline</h4>
               <p id="savedContextIntro">Use this tile to confirm what baseline is currently saved in this browser before launching diagnostics.</p>
-              <div class="context-summary show" id="savedContextCardSummary" style="display:grid; grid-template-columns:1fr; gap:10px; margin-top:14px;">
-                <div class="context-pill">
-                  <p class="context-pill-label">Current path</p>
-                  <p class="context-pill-value" id="savedCardPath">Not set</p>
-                </div>
-                <div class="context-pill">
-                  <p class="context-pill-label">Participant lens</p>
-                  <p class="context-pill-value" id="savedCardLens">Not set</p>
-                </div>
-                <div class="context-pill">
-                  <p class="context-pill-label">Run depth</p>
-                  <p class="context-pill-value" id="savedCardDepth">Not set</p>
-                </div>
-              </div>
-              <div class="recent-run-empty" id="savedContextEmpty" style="display:block;">No shared context saved yet. Save a baseline on the left to reuse it across diagnostics.</div>
+              <div id="savedContextDynamic" style="display:grid; gap:10px; margin-top:14px;"></div>
+              <div class="recent-run-empty" id="savedContextEmpty">No shared context saved yet. Save a baseline on the left to reuse it across diagnostics.</div>
             </aside>
 
             <aside class="recent-runs-card">
@@ -2835,19 +2848,42 @@
     function renderSavedContextCard() {
       const context = readHubContext() || {};
       const empty = document.getElementById("savedContextEmpty");
-      const path = document.getElementById("savedCardPath");
-      const lens = document.getElementById("savedCardLens");
-      const depth = document.getElementById("savedCardDepth");
       const intro = document.getElementById("savedContextIntro");
-      if (!empty || !path || !lens || !depth || !intro) return;
-      const hasContext = !!context.pathName;
-      empty.style.display = hasContext ? "none" : "block";
-      path.textContent = context.pathName || "Not set";
-      lens.textContent = context.lensLabel || "Not set";
-      depth.textContent = context.depthLabel || "Not set";
-      intro.textContent = hasContext
-        ? "This is the currently saved local baseline that will be carried into eligible diagnostic launches from this browser."
-        : "Use this tile to confirm what baseline is currently saved in this browser before launching diagnostics.";
+      const dynamic = document.getElementById("savedContextDynamic");
+      if (!empty || !intro || !dynamic) return;
+
+      const fieldMap = [
+        ["Current path", context.pathName],
+        ["Participant lens", context.lensLabel],
+        ["Run depth", context.depthLabel],
+        ["Team or function", context.businessUnit],
+        ["Decision type", context.decisionType],
+        ["Industry", context.industry],
+        ["Regulatory intensity", context.regulatoryIntensity],
+        ["Organization size", context.employeeCount],
+        ["Short issue summary", context.description]
+      ].filter(([, value]) => value && String(value).trim());
+
+      dynamic.innerHTML = "";
+
+      if (!context.pathName) {
+        empty.style.display = "block";
+        intro.textContent = "Use this tile to confirm what baseline is currently saved in this browser before launching diagnostics.";
+        return;
+      }
+
+      empty.style.display = "none";
+      intro.textContent = "This tile reflects the live shared baseline currently saved in this browser for cross-diagnostic reuse.";
+
+      fieldMap.forEach(([label, value]) => {
+        const row = document.createElement("div");
+        row.className = "saved-context-row";
+        row.innerHTML = `
+          <p class="saved-context-label">${label}</p>
+          <p class="saved-context-value">${value}</p>
+        `;
+        dynamic.appendChild(row);
+      });
     }
 
     function renderHubContextForm() {
@@ -2906,11 +2942,24 @@
     }
     function saveHubContextFromForm() {
       const context = collectHubContext();
+      const status = document.getElementById("hubContextStatus");
+
       if (!context.pathName) {
-        const status = document.getElementById("hubContextStatus");
         if (status) status.textContent = "Enter a current event path before saving shared context.";
         return;
       }
+
+      try {
+        writeHubContext(context);
+        renderCurrentPathChip();
+        renderHubContextForm();
+        renderSavedContextCard();
+        if (status) status.textContent = `Shared context saved locally for ${context.pathName}.`;
+      } catch (error) {
+        console.error("Shared context save failed:", error);
+        if (status) status.textContent = "Shared context could not be saved in this browser.";
+      }
+    }
       const status = document.getElementById("hubContextStatus");
       if (status) status.textContent = "Saving shared context locally...";
       writeHubContext(context);
@@ -2919,10 +2968,22 @@
       renderSavedContextCard();
     }
     function clearHubContext() {
+      const ids = [
+        "ctxPathName", "ctxLens", "ctxDepth", "ctxBusinessUnit", "ctxDecisionType",
+        "ctxIndustry", "ctxRegulatoryIntensity", "ctxEmployeeCount", "ctxDescription"
+      ];
+      ids.forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+      });
+
       safeRemoveLocal(HUB_CONTEXT_KEY);
       renderCurrentPathChip();
       renderHubContextForm();
       renderSavedContextCard();
+
+      const status = document.getElementById("hubContextStatus");
+      if (status) status.textContent = "Shared context cleared from this browser.";
     }
     function readRecentRuns() {
       const raw = safeReadLocal(HUB_RECENT_RUNS_KEY);
