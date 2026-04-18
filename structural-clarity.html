@@ -2387,6 +2387,56 @@ function renderBenchmarkBar(result, payload={}){
 }
 
 
+function avg(values){
+  const nums = (Array.isArray(values) ? values : []).map(v=>Number(v)).filter(v=>Number.isFinite(v));
+  if(!nums.length) return 0;
+  return nums.reduce((sum,v)=>sum+v,0) / nums.length;
+}
+
+function normalizeValue(id, value){
+  if(value == null) return "";
+  const raw = typeof value === "string" ? value.trim() : value;
+  const numericIds = new Set(["employeeCount","peopleInvolved","hourlyCost","annualVolume","meetingHours"]);
+  if(numericIds.has(id)){
+    const num = Number(raw);
+    return Number.isFinite(num) ? num : "";
+  }
+  return raw;
+}
+
+function confidenceLabel(value){
+  const v = String(value || "").toLowerCase();
+  if(v === "high") return "High confidence";
+  if(v === "moderate") return "Moderate confidence";
+  if(v === "low") return "Lower confidence";
+  return "Confidence not specified";
+}
+
+function currentQuestion(){
+  const id = currentQuestionId();
+  return id ? getQuestionDef(id) : null;
+}
+
+function rebuildPathPreserveCurrent(){
+  const activeId = currentQuestionId();
+  buildPath();
+  if(activeId){
+    const nextIndex = state.path.indexOf(activeId);
+    if(nextIndex >= 0) state.index = nextIndex;
+  }
+}
+
+function buildAppliedContextSummary(){
+  const lines = [];
+  if(state.answers?.processName) lines.push(`Path: ${state.answers.processName}`);
+  if(state.mode) lines.push(`Lens: ${displayModeLabel(state.mode)}`);
+  if(state.depth) lines.push(`Depth: ${state.depth}-minute`);
+  if(state.answers?.businessUnit) lines.push(`Team/function: ${state.answers.businessUnit}`);
+  if(state.answers?.decisionType) lines.push(`Path type: ${humanize(state.answers.decisionType)}`);
+  if(state.answers?.industry) lines.push(`Industry: ${humanize(state.answers.industry)}`);
+  return lines;
+}
+
 const HUB_CONTEXT_SESSION_KEY = "mondermanPendingHubContext";
 
 function currentQuestionId(){
@@ -2416,18 +2466,25 @@ function setHeader(headline, subcopy, status){
 
 function renderCurrentPathChip(){
   const chip = document.getElementById("currentPathChip");
+  const proof = document.getElementById("heroProof");
+  const lines = buildAppliedContextSummary();
   if(!chip) return;
-  const parts = [];
-  if(state.answers?.processName) parts.push(state.answers.processName);
-  if(state.mode) parts.push(`${displayModeLabel(state.mode)} lens`);
-  if(state.depth) parts.push(`${state.depth}-minute depth`);
-  if(!parts.length){
+  if(!lines.length){
     chip.innerHTML = "";
     chip.classList.remove("show");
+    if(proof){
+      proof.textContent = "Real teams use this to spot where unclear ownership, blurred authority, weak handoffs, and hidden translation work are keeping the structure usable.";
+    }
     return;
   }
-  chip.innerHTML = `<strong>Current path:</strong> ${parts.join(" | ")}`;
+  chip.innerHTML = `<strong>Applied cross-tool context:</strong> ${escapeHtml(lines.slice(0,3).join(" | "))}`;
   chip.classList.add("show");
+  if(proof){
+    const extra = lines.slice(3);
+    proof.textContent = extra.length
+      ? `Cross-tool context applied: ${extra.join(" • ")}.`
+      : "Cross-tool context from the Diagnostic Hub has been applied to this run.";
+  }
 }
 
 function updateHeroHelp(){
