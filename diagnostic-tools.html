@@ -2054,8 +2054,13 @@
 
             <aside class="recent-runs-card">
               <p class="recent-runs-kicker">Local continuity</p>
-              <h4 class="recent-runs-title">Recent runs on this device</h4>
-              <p>Quick return links for the last few diagnostics launched from this browser. This stays local to this device and can be cleared any time.</p>
+              <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+                <div>
+                  <h4 class="recent-runs-title">Recent runs on this device</h4>
+                  <p>Quick return links for the last few diagnostics launched from this browser. This stays local to this device and can be cleared any time.</p>
+                </div>
+                <button class="btn btn-subtle" type="button" id="clearRecentRunsBtn" style="min-height:40px; min-width:0; padding:0 14px;">Clear recent runs</button>
+              </div>
               <div class="recent-runs-list" id="recentRunsList"></div>
               <div class="recent-run-empty" id="recentRunsEmpty">No recent runs yet. Once you complete diagnostics, the last 3–5 runs will appear here.</div>
             </aside>
@@ -2067,7 +2072,11 @@
             <a class="tool-card-link diagnostic-link" href="structural-clarity.html" aria-label="Open Structural Clarity Diagnostic">
               <div class="tool-card-top">
                 <div class="tool-badge">Live</div>
-                
+              </div>
+              <div class="tool-glyph" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 7h16"></path><path d="M4 12h10"></path><path d="M4 17h13"></path><path d="M18 6v12"></path>
+                </svg>
               </div>
               <h3 class="tool-title">Structural Clarity Diagnostic</h3>
               <p class="tool-subline">Roles · ownership · handoffs</p>
@@ -2088,6 +2097,11 @@
               <div class="tool-card-top">
                 <div class="tool-badge">Live</div>
               </div>
+              <div class="tool-glyph" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
+                </svg>
+              </div>
               <h3 class="tool-title">Decision Velocity Diagnostic</h3>
               <p class="tool-subline">Approvals · escalation · delay</p>
               <p class="tool-text">
@@ -2106,6 +2120,11 @@
               <div class="tool-card-top">
                 <div class="tool-badge">Live</div>
               </div>
+              <div class="tool-glyph" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
+                </svg>
+              </div>
               <h3 class="tool-title">Operational Systems Diagnostic</h3>
               <p class="tool-subline">Process load · reporting · overhead</p>
               <p class="tool-text">
@@ -2123,6 +2142,11 @@
             <a class="tool-card-link diagnostic-link" href="institutional-performance.html" aria-label="Open Institutional Performance Diagnostic">
               <div class="tool-card-top">
                 <div class="tool-badge">Live</div>
+              </div>
+              <div class="tool-glyph" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
+                </svg>
               </div>
               <h3 class="tool-title">Institutional Performance Diagnostic</h3>
               <p class="tool-subline">System health · adaptation · reliability</p>
@@ -2999,6 +3023,14 @@
         return [];
       }
     }
+    function clearRecentRuns() {
+      try {
+        safeRemoveLocal(HUB_RECENT_RUNS_KEY);
+        renderRecentRuns();
+      } catch (error) {
+        console.error("Clear recent runs failed:", error);
+      }
+    }
     function renderRecentRuns() {
       const list = document.getElementById("recentRunsList");
       const empty = document.getElementById("recentRunsEmpty");
@@ -3025,6 +3057,7 @@
     function bindHubContextControls() {
       const saveBtn = document.getElementById("saveHubContextBtn");
       const clearBtn = document.getElementById("clearHubContextBtn");
+      const clearRecentBtn = document.getElementById("clearRecentRunsBtn");
       if (saveBtn && !saveBtn.dataset.boundSharedContext) {
         saveBtn.dataset.boundSharedContext = "true";
         saveBtn.addEventListener("click", saveHubContextFromForm);
@@ -3032,6 +3065,10 @@
       if (clearBtn && !clearBtn.dataset.boundSharedContext) {
         clearBtn.dataset.boundSharedContext = "true";
         clearBtn.addEventListener("click", clearHubContext);
+      }
+      if (clearRecentBtn && !clearRecentBtn.dataset.boundSharedContext) {
+        clearRecentBtn.dataset.boundSharedContext = "true";
+        clearRecentBtn.addEventListener("click", clearRecentRuns);
       }
     }
 
