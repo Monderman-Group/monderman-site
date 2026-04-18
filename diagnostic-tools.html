@@ -2013,19 +2013,42 @@
             </details>
 
             <div class="context-actions">
-              <button class="btn btn-accent" type="button" id="saveHubContextBtn">Save shared context</button>
-              <button class="btn btn-subtle" type="button" id="clearHubContextBtn">Clear context</button>
+              <button class="btn btn-accent" type="button" id="saveHubContextBtn" onclick="saveHubContextFromForm(); return false;">Save shared context</button>
+              <button class="btn btn-subtle" type="button" id="clearHubContextBtn" onclick="clearHubContext(); return false;">Clear context</button>
             </div>
             <p class="context-status" id="hubContextStatus">No shared context saved in this browser yet.</p>
           </div>
 
-          <aside class="recent-runs-card">
-            <p class="recent-runs-kicker">Local continuity</p>
-            <h4 class="recent-runs-title">Recent runs on this device</h4>
-            <p>Quick return links for the last few diagnostics launched from this browser. This stays local to this device and can be cleared any time.</p>
-            <div class="recent-runs-list" id="recentRunsList"></div>
-            <div class="recent-run-empty" id="recentRunsEmpty">No recent runs yet. Once you complete diagnostics, the last 3–5 runs will appear here.</div>
-          </aside>
+          <div style="display:grid; gap:18px;">
+            <aside class="recent-runs-card" id="savedContextCard">
+              <p class="recent-runs-kicker">Saved context</p>
+              <h4 class="recent-runs-title">Current shared baseline</h4>
+              <p id="savedContextIntro">Use this tile to confirm what baseline is currently saved in this browser before launching diagnostics.</p>
+              <div class="context-summary show" id="savedContextCardSummary" style="display:grid; grid-template-columns:1fr; gap:10px; margin-top:14px;">
+                <div class="context-pill">
+                  <p class="context-pill-label">Current path</p>
+                  <p class="context-pill-value" id="savedCardPath">Not set</p>
+                </div>
+                <div class="context-pill">
+                  <p class="context-pill-label">Participant lens</p>
+                  <p class="context-pill-value" id="savedCardLens">Not set</p>
+                </div>
+                <div class="context-pill">
+                  <p class="context-pill-label">Run depth</p>
+                  <p class="context-pill-value" id="savedCardDepth">Not set</p>
+                </div>
+              </div>
+              <div class="recent-run-empty" id="savedContextEmpty" style="display:block;">No shared context saved yet. Save a baseline on the left to reuse it across diagnostics.</div>
+            </aside>
+
+            <aside class="recent-runs-card">
+              <p class="recent-runs-kicker">Local continuity</p>
+              <h4 class="recent-runs-title">Recent runs on this device</h4>
+              <p>Quick return links for the last few diagnostics launched from this browser. This stays local to this device and can be cleared any time.</p>
+              <div class="recent-runs-list" id="recentRunsList"></div>
+              <div class="recent-run-empty" id="recentRunsEmpty">No recent runs yet. Once you complete diagnostics, the last 3–5 runs will appear here.</div>
+            </aside>
+          </div>
         </section>
 
         <div class="tools-grid">
@@ -2809,6 +2832,24 @@
       chip.innerHTML = formatContextChip(context);
       chip.classList.add("show");
     }
+    function renderSavedContextCard() {
+      const context = readHubContext() || {};
+      const empty = document.getElementById("savedContextEmpty");
+      const path = document.getElementById("savedCardPath");
+      const lens = document.getElementById("savedCardLens");
+      const depth = document.getElementById("savedCardDepth");
+      const intro = document.getElementById("savedContextIntro");
+      if (!empty || !path || !lens || !depth || !intro) return;
+      const hasContext = !!context.pathName;
+      empty.style.display = hasContext ? "none" : "block";
+      path.textContent = context.pathName || "Not set";
+      lens.textContent = context.lensLabel || "Not set";
+      depth.textContent = context.depthLabel || "Not set";
+      intro.textContent = hasContext
+        ? "This is the currently saved local baseline that will be carried into eligible diagnostic launches from this browser."
+        : "Use this tile to confirm what baseline is currently saved in this browser before launching diagnostics.";
+    }
+
     function renderHubContextForm() {
       const context = readHubContext() || {};
       const map = {
@@ -2870,14 +2911,18 @@
         if (status) status.textContent = "Enter a current event path before saving shared context.";
         return;
       }
+      const status = document.getElementById("hubContextStatus");
+      if (status) status.textContent = "Saving shared context locally...";
       writeHubContext(context);
       renderCurrentPathChip();
       renderHubContextForm();
+      renderSavedContextCard();
     }
     function clearHubContext() {
       safeRemoveLocal(HUB_CONTEXT_KEY);
       renderCurrentPathChip();
       renderHubContextForm();
+      renderSavedContextCard();
     }
     function readRecentRuns() {
       const raw = safeReadLocal(HUB_RECENT_RUNS_KEY);
@@ -2916,7 +2961,23 @@
     document.getElementById("clearHubContextBtn")?.addEventListener("click", clearHubContext);
     renderCurrentPathChip();
     renderHubContextForm();
+    renderSavedContextCard();
     renderRecentRuns();
+
+    function bindHubContextControls() {
+      const saveBtn = document.getElementById("saveHubContextBtn");
+      const clearBtn = document.getElementById("clearHubContextBtn");
+      if (saveBtn && !saveBtn.dataset.boundSharedContext) {
+        saveBtn.dataset.boundSharedContext = "true";
+        saveBtn.addEventListener("click", saveHubContextFromForm);
+      }
+      if (clearBtn && !clearBtn.dataset.boundSharedContext) {
+        clearBtn.dataset.boundSharedContext = "true";
+        clearBtn.addEventListener("click", clearHubContext);
+      }
+    }
+
+    bindHubContextControls();
 
     document.querySelectorAll("a.diagnostic-link[href]").forEach((link) => {
       link.addEventListener("click", (event) => {
