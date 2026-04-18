@@ -4,16 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Research | Monderman</title>
-  <link
-    rel="icon"
-    type="image/svg+xml"
-    href='data:image/svg+xml;utf8,
+  <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
       <rect width="64" height="64" rx="10" fill="%230F1720"/>
       <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text>
       <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
-    </svg>'
-  />
+    </svg>' />
   <style>
     @font-face {
       font-family: "Neue Haas Grotesk";
@@ -40,66 +36,73 @@
     :root {
       --accent: #3F6EA1;
       --accent-dark: #2F5886;
-      --accent-soft: rgba(63,110,161,0.08);
-      --bg-dark: #0F1720;
-      --bg-dark-2: #111B25;
-      --bg-page: #F6F7F8;
-      --bg-white: #FFFFFF;
-      --text-light: #F5F7FA;
-      --text-dark: #15202B;
-      --muted-dark: #556270;
-      --muted-dark-2: #7A8794;
-      --line: rgba(21,32,43,0.08);
-      --header-solid: rgba(14,20,28,0.88);
-      --header-border: rgba(255,255,255,0.08);
+      --bg: #0F1720;
+      --bg-2: #131C26;
+      --panel: rgba(255,255,255,0.05);
+      --panel-2: rgba(255,255,255,0.035);
+      --line: rgba(255,255,255,0.11);
+      --line-soft: rgba(255,255,255,0.08);
+      --text: #F5F7FA;
+      --muted: rgba(245,247,250,0.72);
+      --muted-2: rgba(245,247,250,0.52);
+      --paper: #F7F8FA;
+      --ink: #15202B;
+      --ink-soft: #5A6673;
+      --ink-muted: #7A8794;
+      --card-line: rgba(21,32,43,0.09);
       --max: 1320px;
-      --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
-      --shadow-soft: 0 1px 0 rgba(0,0,0,0.015), 0 10px 24px rgba(0,0,0,0.035);
-      --shadow-card: 0 1px 0 rgba(0,0,0,0.012), 0 14px 30px rgba(0,0,0,0.03);
+      --radius-xl: 30px;
+      --radius-lg: 22px;
+      --radius-md: 18px;
+      --shadow: 0 22px 60px rgba(0,0,0,0.16);
+      --shadow-soft: 0 10px 30px rgba(0,0,0,0.08);
+      --transition: 220ms cubic-bezier(.22,1,.36,1);
     }
 
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
       margin: 0;
-      background: var(--bg-page);
-      color: var(--text-dark);
+      background:
+        radial-gradient(circle at 80% 8%, rgba(63,110,161,0.12), transparent 24%),
+        radial-gradient(circle at 18% 20%, rgba(63,110,161,0.06), transparent 26%),
+        linear-gradient(180deg, #0D141C 0%, #111B25 38%, #0F1720 100%);
+      color: var(--text);
       font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       text-rendering: optimizeLegibility;
     }
     a { color: inherit; text-decoration: none; }
-    h1, h2, h3 { letter-spacing: -0.045em; }
-    p { letter-spacing: -0.01em; }
+    img { display: block; max-width: 100%; }
+    h1, h2, h3, h4, p { margin: 0; }
 
     .header {
-      position: fixed;
-      inset: 0 0 auto 0;
-      width: 100%;
-      height: 72px;
+      position: sticky;
+      top: 0;
       z-index: 100;
-      background: var(--header-solid);
-      border-bottom: 1px solid var(--header-border);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
+      background: rgba(12,18,26,0.72);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
     }
     .header-inner {
       max-width: var(--max);
-      height: 100%;
       margin: 0 auto;
       padding: 0 34px;
+      min-height: 74px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 24px;
+      gap: 20px;
     }
     .brand {
       display: inline-flex;
       align-items: center;
-      font-size: 1.32rem;
+      font-size: 1.28rem;
       font-weight: 700;
-      color: #FFFFFF;
+      letter-spacing: -0.02em;
+      color: #fff;
       white-space: nowrap;
     }
     .brand::after {
@@ -109,7 +112,6 @@
       margin-left: 10px;
       background: var(--accent);
       border-radius: 1px;
-      display: inline-block;
       transform: translateY(-1px);
     }
     .nav {
@@ -120,37 +122,17 @@
       justify-content: flex-end;
     }
     .nav a {
-      position: relative;
-      font-size: 0.98rem;
-      font-weight: 500;
-      color: rgba(255,255,255,0.88);
+      font-size: 0.96rem;
+      color: rgba(245,247,250,0.84);
       transition: color var(--transition), transform var(--transition);
-    }
-    .nav a::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: -6px;
-      width: 100%;
-      height: 1px;
-      background: rgba(255,255,255,0.74);
-      transform: scaleX(0);
-      transform-origin: left center;
-      transition: transform 180ms ease;
     }
     .nav a:hover,
     .nav a:focus-visible {
-      color: #FFFFFF;
+      color: #fff;
       transform: translateY(-1px);
       outline: none;
     }
-    .nav a:hover::after,
-    .nav a:focus-visible::after,
-    .nav a.is-current::after {
-      transform: scaleX(1);
-    }
-    .nav a.is-current { color: #FFFFFF; }
-    .nav a.workspace-link {
+    .nav .workspace-link {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -159,468 +141,450 @@
       border-radius: 999px;
       border: 1px solid rgba(255,255,255,0.16);
       background: rgba(255,255,255,0.06);
-      color: #FFFFFF;
     }
-    .nav a.workspace-link::after { display: none; }
 
     .hero {
-      position: relative;
-      overflow: hidden;
-      background:
-        radial-gradient(circle at 78% 18%, rgba(63,110,161,0.18), transparent 24%),
-        linear-gradient(180deg, #0F1720 0%, #111B25 100%);
-      color: var(--text-light);
-      padding: 148px 34px 96px;
+      padding: 54px 34px 26px;
     }
-    .hero::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background:
-        linear-gradient(135deg, rgba(255,255,255,0.03) 1px, transparent 1px),
-        radial-gradient(circle at 18% 82%, rgba(63,110,161,0.10), transparent 28%);
-      background-size: 34px 34px, auto;
-      opacity: 0.32;
+    .hero-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(280px, .92fr);
+      gap: 54px;
+      align-items: end;
     }
-    .hero-inner,
-    .section-inner,
+    .eyebrow {
+      margin-bottom: 18px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.62);
+    }
+    .hero h1 {
+      max-width: 8.5ch;
+      font-size: clamp(3rem, 5vw, 4.6rem);
+      line-height: 0.94;
+      letter-spacing: -0.06em;
+      font-weight: 700;
+      color: #fff;
+    }
+    .hero-copy {
+      margin-top: 24px;
+      max-width: 39ch;
+      font-size: 1.02rem;
+      line-height: 1.72;
+      color: var(--muted);
+    }
+    .hero-meta {
+      display: grid;
+      gap: 18px;
+      justify-self: start;
+      align-self: center;
+    }
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+      padding: 0 15px;
+      border-radius: 11px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.02);
+      color: rgba(245,247,250,0.92);
+      font-size: 0.86rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+    .library-stamp {
+      font-size: 0.84rem;
+      color: var(--muted-2);
+    }
+
+    .featured {
+      padding: 16px 34px 0;
+    }
+    .featured-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(320px, .92fr);
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.04));
+    }
+    .featured-main,
+    .featured-side {
+      padding: 34px 32px 34px;
+    }
+    .featured-main { border-right: 1px solid var(--line); }
+    .section-kicker {
+      margin-bottom: 24px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.66);
+    }
+    .featured-title {
+      max-width: 9ch;
+      font-size: clamp(2rem, 3.2vw, 3rem);
+      line-height: 1.02;
+      letter-spacing: -0.045em;
+      color: #fff;
+    }
+    .featured-desc {
+      margin-top: 18px;
+      max-width: 34ch;
+      font-size: 1rem;
+      line-height: 1.78;
+      color: var(--muted);
+    }
+    .featured-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 28px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #fff;
+    }
+    .featured-link:hover { color: #d8e7f8; }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 18px 20px;
+    }
+    .meta-item strong {
+      display: block;
+      font-size: 1.9rem;
+      line-height: 1;
+      letter-spacing: -0.05em;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .meta-item span {
+      font-size: 0.82rem;
+      line-height: 1.45;
+      color: var(--muted);
+    }
+    .featured-quote {
+      margin-top: 42px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+      font-size: 0.96rem;
+      line-height: 1.72;
+      color: rgba(245,247,250,0.84);
+      max-width: 34ch;
+    }
+
+    .library {
+      padding: 42px 34px 0;
+    }
+    .library-inner,
+    .onsite-inner,
+    .cta-inner,
     .footer-inner {
-      position: relative;
-      z-index: 1;
       max-width: var(--max);
       margin: 0 auto;
     }
-    .hero-eyebrow {
-      margin: 0 0 24px;
-      font-size: 0.76rem;
-      line-height: 1;
-      font-weight: 700;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: rgba(245,247,250,0.64);
-    }
-    .hero h1 {
-      margin: 0 0 18px;
-      max-width: 11ch;
-      font-size: clamp(3rem, 4.4vw, 4.6rem);
-      line-height: 0.95;
-      font-weight: 700;
-      color: #FFFFFF;
-      text-wrap: balance;
-    }
-    .hero-copy {
-      margin: 0;
-      max-width: 52ch;
-      font-size: 1.08rem;
-      line-height: 1.72;
-      color: rgba(245,247,250,0.78);
-    }
-    .hero-actions {
+    .band-head {
       display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 30px;
-    }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 46px;
-      padding: 0 19px;
-      border-radius: 999px;
-      font-size: 0.92rem;
-      font-weight: 500;
-      white-space: nowrap;
-      border: 1px solid rgba(63,110,161,0.78);
-      transition: background var(--transition), color var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition);
-    }
-    .btn:hover,
-    .btn:focus-visible {
-      transform: translateY(-1px);
-      outline: none;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.08);
-    }
-    .btn-accent {
-      background: var(--accent-dark);
-      color: #FFFFFF;
-      border-color: rgba(63,110,161,0.24);
-    }
-    .btn-secondary {
-      background: rgba(255,255,255,0.96);
-      color: var(--accent-dark);
-    }
-
-    .section {
-      padding: 74px 34px 82px;
-    }
-    .section + .section {
-      border-top: 1px solid rgba(21,32,43,0.05);
-    }
-    .section-intro {
-      display: grid;
-      gap: 14px;
-      margin-bottom: 34px;
-    }
-    .section-kicker {
-      margin: 0;
-      font-size: 0.7rem;
-      line-height: 1;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
-    .section-intro h2 {
-      margin: 0;
-      max-width: 18ch;
-      font-size: clamp(2rem, 2.7vw, 2.8rem);
-      line-height: 1.06;
-      font-weight: 700;
-      color: var(--text-dark);
-      text-wrap: balance;
-    }
-    .section-intro p {
-      margin: 0;
-      max-width: 64ch;
-      font-size: 1.02rem;
-      line-height: 1.7;
-      color: var(--muted-dark);
-    }
-
-    .featured-grid {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 24px;
-      align-items: stretch;
-    }
-    .featured-card,
-    .feature-side {
-      background: rgba(255,255,255,0.98);
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      box-shadow: var(--shadow-card);
-    }
-    .featured-card {
-      padding: 34px 34px 30px;
-      display: grid;
-      gap: 18px;
-      min-height: 340px;
-      background:
-        radial-gradient(circle at 84% 16%, rgba(63,110,161,0.12), transparent 28%),
-        linear-gradient(180deg, rgba(255,255,255,0.99), rgba(250,252,255,0.98));
-    }
-    .featured-meta,
-    .card-meta {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      min-height: 26px;
-      padding: 0 10px;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent-dark);
-      font-size: 0.73rem;
-      line-height: 1;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-    .featured-card h3 {
-      margin: 0;
-      max-width: 12ch;
-      font-size: clamp(2rem, 3vw, 3rem);
-      line-height: 0.98;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-    .featured-card p {
-      margin: 0;
-      max-width: 56ch;
-      font-size: 1rem;
-      line-height: 1.72;
-      color: var(--muted-dark);
-    }
-    .featured-actions {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: auto;
-    }
-    .feature-side {
-      padding: 28px 26px 24px;
-      display: grid;
-      gap: 18px;
-    }
-    .feature-side h4 {
-      margin: 0;
-      font-size: 1.18rem;
-      line-height: 1.08;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-    .feature-side p {
-      margin: 0;
-      font-size: 0.96rem;
-      line-height: 1.68;
-      color: var(--muted-dark);
-    }
-    .feature-list {
-      display: grid;
-      gap: 12px;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-    .feature-list li {
-      display: grid;
-      gap: 4px;
-      padding-left: 16px;
-      position: relative;
-    }
-    .feature-list li::before {
-      content: "";
-      position: absolute;
-      top: 10px;
-      left: 0;
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: var(--accent);
-      box-shadow: 0 0 0 4px rgba(63,110,161,0.08);
-    }
-    .feature-list strong {
-      font-size: 0.95rem;
-      line-height: 1.3;
-      color: var(--text-dark);
-    }
-    .feature-list span {
-      font-size: 0.88rem;
-      line-height: 1.56;
-      color: var(--muted-dark);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 20px;
-    }
-    .card {
-      background: rgba(255,255,255,0.98);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      box-shadow: var(--shadow-soft);
-      padding: 24px 22px 22px;
-      display: grid;
-      gap: 14px;
-      min-height: 262px;
-      transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
-    }
-    .card:hover,
-    .card:focus-within {
-      transform: translateY(-3px);
-      border-color: rgba(63,110,161,0.16);
-      box-shadow: var(--shadow-card);
-    }
-    .card h3 {
-      margin: 0;
-      font-size: 1.12rem;
-      line-height: 1.12;
-      font-weight: 700;
-      color: var(--text-dark);
-      text-wrap: balance;
-    }
-    .card p {
-      margin: 0;
-      font-size: 0.92rem;
-      line-height: 1.62;
-      color: var(--muted-dark);
-    }
-    .card-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: auto;
-      font-size: 0.88rem;
-      line-height: 1;
-      font-weight: 600;
-      color: var(--accent-dark);
-      transition: color var(--transition), transform var(--transition);
-    }
-    .card-link:hover,
-    .card-link:focus-visible {
-      color: var(--accent-dark);
-      transform: translateX(1px);
-      outline: none;
-    }
-
-    .footer {
-      background: #0D141C;
-      color: rgba(245,247,250,0.88);
-      padding: 50px 34px 38px;
-    }
-    .footer-top {
-      display: flex;
-      align-items: flex-start;
       justify-content: space-between;
-      gap: 40px;
-      padding-bottom: 28px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
+      align-items: end;
+      gap: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 0;
     }
-    .footer-brand { max-width: 420px; }
-    .footer-mark {
-      display: inline-flex;
-      align-items: center;
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #FFFFFF;
-      margin-bottom: 14px;
-    }
-    .footer-mark::after {
-      content: "";
-      width: 6px;
-      height: 6px;
-      margin-left: 10px;
-      background: var(--accent);
-      border-radius: 1px;
-      display: inline-block;
-      transform: translateY(-1px);
-    }
-    .footer-copy {
-      margin: 0;
-      max-width: 38ch;
-      font-size: 0.98rem;
-      line-height: 1.65;
-      color: rgba(245,247,250,0.68);
-    }
-    .footer-nav {
-      display: flex;
-      gap: 48px;
-      flex-wrap: wrap;
-    }
-    .footer-nav-col { min-width: 120px; }
-    .footer-nav-title {
-      margin: 0 0 12px;
+    .band-head .left,
+    .band-head .right {
       font-size: 0.72rem;
       font-weight: 700;
       line-height: 1;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: rgba(245,247,250,0.50);
+      color: rgba(245,247,250,0.68);
     }
-    .footer-nav a {
-      display: block;
-      margin-bottom: 10px;
-      font-size: 0.95rem;
-      line-height: 1.45;
-      color: rgba(245,247,250,0.82);
+    .research-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
     }
-    .footer-bottom {
+    .paper-card {
+      padding: 24px 20px 22px;
+      border-bottom: 1px solid var(--line);
+      border-right: 1px solid var(--line-soft);
+      min-height: 228px;
+      display: grid;
+      align-content: start;
+      gap: 12px;
+    }
+    .paper-card:nth-child(2n) { border-right: none; }
+    .paper-card.wide {
+      grid-column: 1 / -1;
+      min-height: 180px;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 20px 36px;
+      align-items: end;
+      border-right: none;
+    }
+    .paper-top {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 20px;
-      padding-top: 18px;
+      gap: 12px;
+      align-items: start;
+      font-size: 0.64rem;
+      font-weight: 700;
+      line-height: 1.3;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.6);
     }
-    .footer-meta,
-    .footer-contact {
+    .paper-title {
+      max-width: 14ch;
+      font-size: 1.72rem;
+      line-height: 1.08;
+      letter-spacing: -0.036em;
+      color: #fff;
+    }
+    .paper-card:not(.wide) .paper-title { font-size: 1.2rem; max-width: 15ch; }
+    .paper-body {
+      max-width: 38ch;
+      font-size: 0.96rem;
+      line-height: 1.72;
+      color: var(--muted);
+    }
+    .paper-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 18px;
+      margin-top: auto;
+    }
+    .paper-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px 16px;
+      font-size: 0.82rem;
+      color: var(--muted-2);
+    }
+    .paper-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+    }
+    .paper-action:hover { color: #d8e7f8; }
+
+    .divider-quote {
+      padding: 34px 34px 0;
+    }
+    .divider-quote-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 28px 0 30px;
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: 180px minmax(0,1fr);
+      gap: 24px;
+      align-items: center;
+    }
+    .divider-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.64);
+    }
+    .divider-quote blockquote {
       margin: 0;
-      font-size: 0.88rem;
-      line-height: 1.6;
-      color: rgba(245,247,250,0.54);
+      max-width: 34ch;
+      font-size: clamp(1.55rem, 2.2vw, 2.2rem);
+      line-height: 1.38;
+      letter-spacing: -0.025em;
+      color: #fff;
     }
 
-    @media (max-width: 1100px) {
-      .featured-grid,
-      .grid {
+    .onsite {
+      padding: 0 34px 0;
+    }
+    .essay-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+    }
+    .essay-card {
+      padding: 24px 20px 22px;
+      border-bottom: 1px solid var(--line);
+      border-right: 1px solid var(--line-soft);
+      min-height: 212px;
+      display: grid;
+      align-content: start;
+      gap: 12px;
+    }
+    .essay-card:nth-child(2n) { border-right: none; }
+    .essay-title {
+      max-width: 16ch;
+      font-size: 1.18rem;
+      line-height: 1.16;
+      letter-spacing: -0.03em;
+      color: #fff;
+    }
+    .essay-body {
+      max-width: 34ch;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    .cta-band {
+      padding: 38px 34px 48px;
+    }
+    .cta-inner {
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.045));
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      padding: 34px 34px 32px;
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto;
+      gap: 28px;
+      align-items: center;
+      box-shadow: var(--shadow);
+    }
+    .cta-kicker {
+      margin-bottom: 12px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.62);
+    }
+    .cta-title {
+      max-width: 15ch;
+      font-size: clamp(2rem, 3vw, 2.9rem);
+      line-height: 1.02;
+      letter-spacing: -0.045em;
+      color: #fff;
+    }
+    .cta-copy {
+      margin-top: 14px;
+      max-width: 48ch;
+      font-size: 1rem;
+      line-height: 1.72;
+      color: var(--muted);
+    }
+    .cta-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 20px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.04);
+      color: #fff;
+      font-size: 0.92rem;
+      font-weight: 600;
+      transition: transform var(--transition), background var(--transition), border-color var(--transition);
+    }
+    .btn:hover,
+    .btn:focus-visible {
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.28);
+      outline: none;
+    }
+    .btn-accent {
+      background: var(--accent-dark);
+      border-color: rgba(63,110,161,0.4);
+    }
+    .btn-accent:hover,
+    .btn-accent:focus-visible { background: #2a4d74; }
+
+    .footer {
+      padding: 0 34px 34px;
+    }
+    .footer-inner {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 22px;
+      display: flex;
+      justify-content: space-between;
+      gap: 22px;
+      align-items: center;
+      flex-wrap: wrap;
+      color: rgba(245,247,250,0.56);
+      font-size: 0.88rem;
+    }
+
+    @media (max-width: 1040px) {
+      .hero-inner,
+      .featured-inner,
+      .cta-inner,
+      .divider-quote-inner {
         grid-template-columns: 1fr;
       }
+      .featured-main { border-right: none; border-bottom: 1px solid var(--line); }
+      .cta-actions { justify-content: flex-start; }
+      .research-grid,
+      .essay-grid { grid-template-columns: 1fr; }
+      .paper-card,
+      .essay-card { border-right: none !important; }
     }
-    @media (max-width: 980px) {
-      .header {
-        height: auto;
-      }
+
+    @media (max-width: 760px) {
+      .header-inner,
+      .hero,
+      .featured,
+      .library,
+      .divider-quote,
+      .onsite,
+      .cta-band,
+      .footer { padding-left: 20px; padding-right: 20px; }
       .header-inner {
-        padding: 16px 24px;
+        min-height: auto;
+        padding-top: 14px;
+        padding-bottom: 12px;
         align-items: flex-start;
         flex-direction: column;
-        gap: 14px;
-      }
-      .hero,
-      .section,
-      .footer {
-        padding-left: 24px;
-        padding-right: 24px;
-      }
-    }
-    @media (max-width: 760px) {
-      .header-inner {
-        padding: 14px 20px 10px;
-        gap: 10px;
-      }
-      .brand {
-        font-size: 1.05rem;
       }
       .nav {
-        width: calc(100% + 4px);
+        width: 100%;
         gap: 10px;
-        flex-wrap: nowrap;
-        justify-content: flex-start;
         overflow-x: auto;
-        padding: 2px 4px 6px 0;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
+        flex-wrap: nowrap;
       }
-      .nav::-webkit-scrollbar { display: none; }
       .nav a {
-        flex: 0 0 auto;
-        font-size: 0.84rem;
-        line-height: 1;
+        white-space: nowrap;
         padding: 10px 12px;
         border-radius: 999px;
-        background: rgba(255,255,255,0.06);
-        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.05);
       }
-      .nav a::after { display: none; }
-      .hero {
-        padding: 162px 20px 82px;
-      }
-      .hero h1 {
-        max-width: 100%;
-        font-size: clamp(2.3rem, 9vw, 3.2rem);
-      }
-      .hero-copy {
-        max-width: 100%;
-        font-size: 1rem;
-        line-height: 1.62;
-      }
-      .hero-actions {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .btn {
-        width: 100%;
-      }
-      .section,
-      .footer {
-        padding-left: 20px;
-        padding-right: 20px;
-      }
-      .featured-card,
-      .feature-side,
-      .card {
-        padding: 22px 20px 20px;
-      }
-      .footer-top,
-      .footer-bottom {
-        flex-direction: column;
-        align-items: flex-start;
-      }
+      .hero { padding-top: 36px; }
+      .hero h1 { max-width: 9.5ch; font-size: clamp(2.4rem, 12vw, 3.4rem); }
+      .featured-main,
+      .featured-side,
+      .cta-inner { padding: 24px 22px; }
+      .meta-grid { grid-template-columns: 1fr 1fr; }
+      .paper-card.wide { grid-template-columns: 1fr; }
+      .divider-quote blockquote { font-size: 1.45rem; }
     }
   </style>
 </head>
@@ -631,7 +595,7 @@
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
         <a href="diagnostic-tools.html">Diagnostic Hub</a>
-        <a href="research.html" class="is-current">Research</a>
+        <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
         <a href="advisory-services-connect.html">Connect</a>
         <a href="signin.html" class="workspace-link">Workspace</a>
@@ -641,152 +605,157 @@
 
   <section class="hero">
     <div class="hero-inner">
-      <p class="hero-eyebrow">Monderman Research</p>
-      <h1>Research, briefs, and perspectives.</h1>
-      <p class="hero-copy">A dedicated library for Monderman publications on administrative burden, structural drag, decision systems, and institutional performance. This page is built to be browsed directly, not buried inside the home page carousel.</p>
-      <div class="hero-actions">
-        <a class="btn btn-accent" href="#library">Browse the library</a>
-        <a class="btn btn-secondary" href="diagnostic-tools.html">Enter the Diagnostic Hub</a>
+      <div>
+        <p class="eyebrow">Research library</p>
+        <h1>Briefs, perspectives, and working papers.</h1>
+        <p class="hero-copy">Monderman publications on administrative burden, structural drag, decision systems, and institutional performance. Downloadable briefs and on-site essays organized as a serious reading library rather than a content feed.</p>
+      </div>
+      <div class="hero-meta">
+        <div class="filter-row" aria-label="Library groupings">
+          <span class="filter-chip">All</span>
+          <span class="filter-chip">Defense</span>
+          <span class="filter-chip">Healthcare</span>
+          <span class="filter-chip">Enterprise</span>
+          <span class="filter-chip">Perspective</span>
+        </div>
+        <p class="library-stamp">8 items · Updated April 2026</p>
       </div>
     </div>
   </section>
 
-  <section class="section">
-    <div class="section-inner">
-      <div class="section-intro">
-        <p class="section-kicker">Featured publication</p>
-        <h2>Start with the core brief.</h2>
-        <p>The featured brief anchors the broader research set and gives visitors a clean first entry into the Monderman frame before they move into sector briefs, perspectives, and essays.</p>
+  <section class="featured">
+    <div class="featured-inner">
+      <div class="featured-main">
+        <p class="section-kicker">Anchor brief · Start here</p>
+        <h2 class="featured-title">Active Bureaucratic Management</h2>
+        <p class="featured-desc">The central Monderman thesis: bureaucracy is not a problem to solve once, but a condition to govern continuously. This brief introduces the ABM framework — the diagnostic lens that anchors subsequent Monderman work across sectors.</p>
+        <a class="featured-link" href="Monderman_Active_Bureaucratic_Management.pdf" target="_blank" rel="noopener noreferrer">Download the executive brief ↗</a>
       </div>
-      <div class="featured-grid">
-        <article class="featured-card">
-          <div class="featured-meta">
-            <span class="pill">Featured</span>
-            <span class="pill">Executive brief</span>
+      <div class="featured-side">
+        <div class="meta-grid">
+          <div class="meta-item"><strong>2024</strong><span>Publication year</span></div>
+          <div class="meta-item"><strong>18</strong><span>Pages</span></div>
+          <div class="meta-item"><strong>~14 min</strong><span>Read time</span></div>
+          <div class="meta-item"><strong>PDF</strong><span>Format</span></div>
+        </div>
+        <p class="featured-quote">“Bureaucracy does not fail suddenly. It accumulates — layer by layer, policy by policy — until execution becomes the exception rather than the norm.”</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="library">
+    <div class="library-inner">
+      <div class="band-head">
+        <div class="left">Downloadable research</div>
+        <div class="right">PDF · 6 documents</div>
+      </div>
+      <div class="research-grid">
+        <article class="paper-card">
+          <div class="paper-top"><span>Defense</span><span>Research brief · PDF</span></div>
+          <h3 class="paper-title">Accumulated Drag in the Department of War</h3>
+          <p class="paper-body">Structural friction in one of the world’s most complex public institutions — measured, located, and named.</p>
+          <div class="paper-foot">
+            <div class="paper-stats"><span>22 pp</span><span>~17 min</span></div>
+            <a class="paper-action" href="Monderman%20Accumulated%20Drag%20DoW.pdf" target="_blank" rel="noopener noreferrer">Download →</a>
           </div>
-          <h3>Active Bureaucratic Management</h3>
-          <p>A Monderman executive brief introducing Active Bureaucratic Management as a more continuous way to detect friction, govern bureaucracy, and improve institutional performance.</p>
-          <div class="featured-actions">
-            <a class="btn btn-accent" href="Monderman_Active_Bureaucratic_Management.pdf" target="_blank" rel="noopener noreferrer">Download brief</a>
+        </article>
+
+        <article class="paper-card">
+          <div class="paper-top"><span>Healthcare</span><span>Research brief · PDF</span></div>
+          <h3 class="paper-title">Quarter-Trillion Friction in U.S. Healthcare</h3>
+          <p class="paper-body">The administrative burden complicating performance in U.S. healthcare — quantified and mapped to structural causes.</p>
+          <div class="paper-foot">
+            <div class="paper-stats"><span>19 pp</span><span>~15 min</span></div>
+            <a class="paper-action" href="Monderman%20Quarter%20Trillion%20Friction%20Healthcare.pdf" target="_blank" rel="noopener noreferrer">Download →</a>
           </div>
         </article>
-        <aside class="feature-side">
-          <h4>What this page should do</h4>
-          <p>Give Monderman’s research a home of its own, make the library feel intentional, and create a cleaner place for future additions without forcing visitors back through the homepage.</p>
-          <ul class="feature-list">
-            <li><strong>Direct access</strong><span>No carousel dependency. Every item is visible and browsable from one place.</span></li>
-            <li><strong>Clear grouping</strong><span>Briefs and downloadable research can sit alongside HTML insights without feeling mixed up.</span></li>
-            <li><strong>Easy expansion</strong><span>New PDFs, essays, and sector pieces can be added card by card as the library grows.</span></li>
-          </ul>
-        </aside>
-      </div>
-    </div>
-  </section>
 
-  <section class="section" id="library">
-    <div class="section-inner">
-      <div class="section-intro">
-        <p class="section-kicker">Downloadable research</p>
-        <h2>Briefs, monographs, and PDF downloads.</h2>
-        <p>This group captures the PDF-based research and downloadable Monderman documents surfaced from the current home page, plus the new Culture Trap file you asked to add.</p>
-      </div>
-      <div class="grid">
-        <article class="card">
-          <div class="card-meta"><span class="pill">Executive brief</span><span class="pill">PDF</span></div>
-          <h3>Active Bureaucratic Management</h3>
-          <p>A Monderman executive brief introducing Active Bureaucratic Management as a more continuous way to detect friction, govern bureaucracy, and improve institutional performance.</p>
-          <a class="card-link" href="Monderman_Active_Bureaucratic_Management.pdf" target="_blank" rel="noopener noreferrer">Download brief →</a>
+        <article class="paper-card">
+          <div class="paper-top"><span>Enterprise</span><span>Perspective · PDF</span></div>
+          <h3 class="paper-title">How Workarounds Preserve Output While Masking Dysfunction</h3>
+          <p class="paper-body">Organizations appear to function because people compensate for structural weakness. Output survives. The system deteriorates.</p>
+          <div class="paper-foot">
+            <div class="paper-stats"><span>12 pp</span><span>~9 min</span></div>
+            <a class="paper-action" href="Monderman%20Compensatory%20Systems.pdf" target="_blank" rel="noopener noreferrer">Read →</a>
+          </div>
         </article>
-        <article class="card">
-          <div class="card-meta"><span class="pill">Defense</span><span class="pill">PDF</span></div>
-          <h3>Accumulated Drag in the Department of War</h3>
-          <p>A Monderman research brief on accumulated drag, administrative burden, and institutional friction in one of the world’s most complex public institutions.</p>
-          <a class="card-link" href="Monderman%20Accumulated%20Drag%20DoW.pdf" target="_blank" rel="noopener noreferrer">Download research →</a>
+
+        <article class="paper-card">
+          <div class="paper-top"><span>Enterprise</span><span>Research brief · PDF</span></div>
+          <h3 class="paper-title">How the Collapse of Eastman Kodak Is Misunderstood</h3>
+          <p class="paper-body">Kodak did not fail because it missed technology. It failed because its decision systems could not adapt. The distinction matters.</p>
+          <div class="paper-foot">
+            <div class="paper-stats"><span>16 pp</span><span>~12 min</span></div>
+            <a class="paper-action" href="the-collapse-of-eastman-kodak.pdf" target="_blank" rel="noopener noreferrer">Download →</a>
+          </div>
         </article>
-        <article class="card">
-          <div class="card-meta"><span class="pill">Healthcare</span><span class="pill">PDF</span></div>
-          <h3>Quarter-Trillion Friction in U.S. Healthcare</h3>
-          <p>A Monderman brief on quarter-trillion friction, administrative burden, and the structural drag complicating performance in healthcare systems.</p>
-          <a class="card-link" href="Monderman%20Quarter%20Trillion%20Friction%20Healthcare.pdf" target="_blank" rel="noopener noreferrer">Download research →</a>
-        </article>
-        <article class="card">
-          <div class="card-meta"><span class="pill">Perspective</span><span class="pill">PDF</span></div>
-          <h3>How Workarounds Preserve Output While Masking Institutional Dysfunction</h3>
-          <p>Organizations often appear to function because people compensate for structural weakness. Output is preserved, but the underlying system continues to deteriorate.</p>
-          <a class="card-link" href="Monderman%20Compensatory%20Systems.pdf" target="_blank" rel="noopener noreferrer">Read perspective →</a>
-        </article>
-        <article class="card">
-          <div class="card-meta"><span class="pill">Research brief</span><span class="pill">PDF</span></div>
-          <h3>How the Collapse of Eastman Kodak Is Misunderstood</h3>
-          <p>Kodak did not fail because it missed technology. It failed because its administrative and decision systems could not adapt.</p>
-          <a class="card-link" href="the-collapse-of-eastman-kodak.pdf" target="_blank" rel="noopener noreferrer">Download research →</a>
-        </article>
-        <article class="card">
-          <div class="card-meta"><span class="pill">New</span><span class="pill">PDF</span></div>
-          <h3>The Culture Trap</h3>
-          <p>An added placeholder for the Monderman Culture Trap PDF in the repo, so the research library reflects the next document you want exposed here.</p>
-          <a class="card-link" href="Monderman_Culture_Trap.pdf" target="_blank" rel="noopener noreferrer">Download research →</a>
+
+        <article class="paper-card wide">
+          <div>
+            <div class="paper-top"><span>Enterprise · Culture</span><span>New · PDF</span></div>
+            <h3 class="paper-title">The Culture Trap</h3>
+            <p class="paper-body">Why culture-first diagnosis mislocates the problem — and why organizations that fix sentiment before structure often fix the wrong thing first.</p>
+          </div>
+          <div class="paper-foot">
+            <div class="paper-stats"><span>2026</span><span>~11 min</span></div>
+            <a class="paper-action" href="Monderman_Culture_Trap.pdf" target="_blank" rel="noopener noreferrer">Download →</a>
+          </div>
         </article>
       </div>
     </div>
   </section>
 
-  <section class="section">
-    <div class="section-inner">
-      <div class="section-intro">
-        <p class="section-kicker">HTML insights</p>
-        <h2>On-site essays and shorter perspective pieces.</h2>
-        <p>These are the HTML-based items currently surfaced from the home page. Keeping them here gives the Research page a clearer split between downloadable research and on-site reading.</p>
+  <section class="divider-quote">
+    <div class="divider-quote-inner">
+      <div class="divider-label">On-site essays</div>
+      <blockquote>“Complexity does not appear all at once. It accumulates — faster than most institutions can absorb it.”</blockquote>
+    </div>
+  </section>
+
+  <section class="onsite">
+    <div class="onsite-inner">
+      <div class="essay-grid">
+        <article class="essay-card">
+          <div class="paper-top"><span>Insight</span><span>HTML · Essay</span></div>
+          <h3 class="essay-title">Governing Complexity</h3>
+          <p class="essay-body">Institutions rarely fail because complexity appears. They fail because it accumulates faster than their structures can absorb it.</p>
+          <div class="paper-foot">
+            <div class="paper-stats"><span>~8 min</span></div>
+            <a class="paper-action" href="governing-complexity.html">Read on site →</a>
+          </div>
+        </article>
+
+        <article class="essay-card">
+          <div class="paper-top"><span>Insight</span><span>HTML · Essay</span></div>
+          <h3 class="essay-title">Designing for Decision Velocity</h3>
+          <p class="essay-body">Institutions move well when governance, pathways, and role clarity support sound judgment without generating drag in the process.</p>
+          <div class="paper-foot">
+            <div class="paper-stats"><span>~7 min</span></div>
+            <a class="paper-action" href="designing-for-decision-velocity.html">Read on site →</a>
+          </div>
+        </article>
       </div>
-      <div class="grid">
-        <article class="card">
-          <div class="card-meta"><span class="pill">Insight</span><span class="pill">HTML</span></div>
-          <h3>Governing Complexity</h3>
-          <p>Why institutions rarely fail because complexity appears, and more often fail because it accumulates faster than their structures can absorb.</p>
-          <a class="card-link" href="governing-complexity.html">Read insight →</a>
-        </article>
-        <article class="card">
-          <div class="card-meta"><span class="pill">Insight</span><span class="pill">HTML</span></div>
-          <h3>Designing for Decision Velocity</h3>
-          <p>Institutions move well when governance, pathways, and role clarity support sound judgment without generating unnecessary drag.</p>
-          <a class="card-link" href="designing-for-decision-velocity.html">Read insight →</a>
-        </article>
-        <article class="card">
-          <div class="card-meta"><span class="pill">Next step</span><span class="pill">Platform</span></div>
-          <h3>Move from reading to diagnosis.</h3>
-          <p>When the research resonates, the next move is not usually more reading. It is testing the condition directly in the Diagnostic Hub.</p>
-          <a class="card-link" href="diagnostic-tools.html">Enter the Diagnostic Hub →</a>
-        </article>
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <div class="cta-inner">
+      <div>
+        <p class="cta-kicker">From reading to diagnosis</p>
+        <h2 class="cta-title">Move from research into application.</h2>
+        <p class="cta-copy">The library explains how structural drag forms. The Diagnostic Hub helps make those conditions legible inside a specific institution. Platform Services is where repeated measurement, support, and implementation become operational.</p>
+      </div>
+      <div class="cta-actions">
+        <a class="btn btn-accent" href="diagnostic-tools.html">Enter the Diagnostic Hub</a>
+        <a class="btn" href="advisory-services-connect.html">Platform Services</a>
       </div>
     </div>
   </section>
 
   <footer class="footer">
     <div class="footer-inner">
-      <div class="footer-top">
-        <div class="footer-brand">
-          <div class="footer-mark">Monderman</div>
-          <p class="footer-copy">Research, diagnostics, and advisory work on the structural conditions that shape execution, drag, and institutional performance.</p>
-        </div>
-        <div class="footer-nav" aria-label="Footer navigation">
-          <div class="footer-nav-col">
-            <p class="footer-nav-title">Explore</p>
-            <a href="index.html#approach">Approach</a>
-            <a href="diagnostic-tools.html">Diagnostic Hub</a>
-            <a href="research.html">Research</a>
-            <a href="why-monderman.html">Why Monderman</a>
-          </div>
-          <div class="footer-nav-col">
-            <p class="footer-nav-title">Connect</p>
-            <a href="advisory-services-connect.html">Open connect form</a>
-            <a href="mailto:connect@monderman.com">connect@monderman.com</a>
-          </div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
-        <p class="footer-contact">Where structure enables execution, performance follows.</p>
-      </div>
+      <span>© 2026 Monderman. All rights reserved.</span>
+      <span>Research library for administrative reality, structural drag, and institutional performance.</span>
     </div>
   </footer>
 </body>
