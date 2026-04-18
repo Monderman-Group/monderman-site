@@ -2037,14 +2037,12 @@
             </details>
 
             <div class="context-actions">
-              <button class="btn btn-accent" type="button" id="saveHubContextBtn" onclick="saveHubContextFromForm(); return false;">Save shared context</button>
-              <button class="btn btn-subtle" type="button" id="clearHubContextBtn" onclick="clearHubContext(); return false;">Clear context</button>
+              <button class="btn btn-accent" type="button" id="saveHubContextBtn">Save shared context</button>
+              <button class="btn btn-subtle" type="button" id="clearHubContextBtn">Clear context</button>
             </div>
             <p class="context-status" id="hubContextStatus">No shared context saved in this browser yet.</p>
           </div>
 
-          <div style="display:grid; gap:18px;">
-            
           <div style="display:grid; gap:18px;">
             <aside class="recent-runs-card" id="savedContextCard">
               <p class="recent-runs-kicker">Saved context</p>
@@ -2940,6 +2938,16 @@
         description: (document.getElementById("ctxDescription")?.value || "").trim()
       };
     }
+    function refreshAllContextUI() {
+      try {
+        renderCurrentPathChip();
+        renderHubContextForm();
+        renderSavedContextCard();
+        renderRecentRuns();
+      } catch (error) {
+        console.error("Shared context UI refresh failed:", error);
+      }
+    }
     function saveHubContextFromForm() {
       const context = collectHubContext();
       const status = document.getElementById("hubContextStatus");
@@ -2950,40 +2958,34 @@
       }
 
       try {
+        if (status) status.textContent = "Saving shared context locally...";
         writeHubContext(context);
-        renderCurrentPathChip();
-        renderHubContextForm();
-        renderSavedContextCard();
-        if (status) status.textContent = `Shared context saved locally for ${context.pathName}.`;
+        refreshAllContextUI();
+        if (status) status.textContent = `Shared context saved locally for ${context.pathName}. Launch any tool below to reuse it.`;
       } catch (error) {
         console.error("Shared context save failed:", error);
         if (status) status.textContent = "Shared context could not be saved in this browser.";
       }
     }
-      const status = document.getElementById("hubContextStatus");
-      if (status) status.textContent = "Saving shared context locally...";
-      writeHubContext(context);
-      renderCurrentPathChip();
-      renderHubContextForm();
-      renderSavedContextCard();
-    }
     function clearHubContext() {
+      const status = document.getElementById("hubContextStatus");
       const ids = [
         "ctxPathName", "ctxLens", "ctxDepth", "ctxBusinessUnit", "ctxDecisionType",
         "ctxIndustry", "ctxRegulatoryIntensity", "ctxEmployeeCount", "ctxDescription"
       ];
-      ids.forEach((id) => {
-        const el = document.getElementById(id);
-        if (el) el.value = "";
-      });
 
-      safeRemoveLocal(HUB_CONTEXT_KEY);
-      renderCurrentPathChip();
-      renderHubContextForm();
-      renderSavedContextCard();
-
-      const status = document.getElementById("hubContextStatus");
-      if (status) status.textContent = "Shared context cleared from this browser.";
+      try {
+        ids.forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.value = "";
+        });
+        safeRemoveLocal(HUB_CONTEXT_KEY);
+        refreshAllContextUI();
+        if (status) status.textContent = "Shared context cleared from this browser.";
+      } catch (error) {
+        console.error("Clear context failed:", error);
+        if (status) status.textContent = "Failed to clear context.";
+      }
     }
     function readRecentRuns() {
       const raw = safeReadLocal(HUB_RECENT_RUNS_KEY);
@@ -3018,13 +3020,6 @@
       });
     }
 
-    document.getElementById("saveHubContextBtn")?.addEventListener("click", saveHubContextFromForm);
-    document.getElementById("clearHubContextBtn")?.addEventListener("click", clearHubContext);
-    renderCurrentPathChip();
-    renderHubContextForm();
-    renderSavedContextCard();
-    renderRecentRuns();
-
     function bindHubContextControls() {
       const saveBtn = document.getElementById("saveHubContextBtn");
       const clearBtn = document.getElementById("clearHubContextBtn");
@@ -3039,6 +3034,7 @@
     }
 
     bindHubContextControls();
+    refreshAllContextUI();
 
     document.querySelectorAll("a.diagnostic-link[href]").forEach((link) => {
       link.addEventListener("click", (event) => {
