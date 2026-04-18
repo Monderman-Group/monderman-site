@@ -134,6 +134,7 @@
   </style>
 </head>
 <body>
+  <div id="bootErrorBanner" style="display:none;position:fixed;top:14px;left:14px;right:14px;z-index:500;padding:12px 14px;border-radius:14px;background:#FFF8EC;border:1px solid #F0D29D;color:#795B22;font:500 14px/1.45 Arial,sans-serif;box-shadow:0 8px 24px rgba(15,23,32,.12)"></div>
   <div class="loading-screen" id="pageLoader" aria-live="polite"><div class="loading-box"><div class="spinner" aria-hidden="true"></div><p class="loading-title">Loading diagnostic environment</p><p class="loading-copy">Preparing Monderman’s decision velocity environment.</p></div></div>
   <div class="shell"><main class="app">
     <section class="frame-top"><div class="engine-note"><div><p class="eyebrow">Decision velocity diagnostic</p><p class="engine-copy">Powered by Monderman’s proprietary diagnostic engine.</p></div><div class="hero-step"><span class="hero-step-dot" aria-hidden="true"></span><span>Step 1 of 3 · choose perspective and run depth</span></div></div><div class="tool-title"><div><h1>Decision Velocity</h1></div><p>See exactly where decisions slow down in your daily work, what’s really causing the drag, and where hidden time, effort, and frustration are building up.</p></div></section>
@@ -2454,7 +2455,43 @@ function renderBenchmarkBar(result,payload){
   benchmarkMarker.style.left=`${Math.max(0,Math.min(100,adjustedScore))}%`;
 }
 
-function syncBeginButton(){const allowed=!!preStartConsent&&preStartConsent.checked&&!!state.mode&&!!state.depth; beginBtn.disabled=!allowed; beginBtn.classList.toggle("btn-disabled",!allowed)} document.querySelectorAll(".lane-btn").forEach(btn=>btn.addEventListener("click",()=>selectLane(btn.dataset.lane))); document.querySelectorAll("[data-depth]").forEach(btn=>btn.addEventListener("click",()=>selectDepth(btn.dataset.depth))); preStartConsent?.addEventListener("change",syncBeginButton); heroBeginBtn?.addEventListener("click",()=>{ if(state.mode && state.depth){ showStage(introStage); const target=document.getElementById("beginBtn"); target?.scrollIntoView({behavior:"smooth",block:"center"}); } else { const target=state.mode ? document.getElementById("depthStage") : document.querySelector(".lane-buttons"); target?.scrollIntoView({behavior:"smooth",block:"center"}); } }); learnMoreToggle?.addEventListener("click",()=>learnMorePanel?.classList.toggle("show")); updateHeroHelp(); syncBeginButton(); beginBtn.addEventListener("click",()=>{if(beginBtn.disabled||!state.mode||!state.depth) return; startDiagnostic()}); continueBtn.addEventListener("click",()=>moveNext(false)); backBtn.addEventListener("click",moveBack); skipBtn.addEventListener("click",skipCurrent); restartBtn.addEventListener("click",restartDiagnostic); exportBtn.addEventListener("click",()=>{if(!state.result) return; exportExecutiveReport(state.result, buildPayload());}); downloadPdfBtn.addEventListener("click",()=>{if(!state.result) return; downloadExecutiveReportPdf(state.result, buildPayload());}); downloadReportBtn.addEventListener("click",()=>{if(!state.result) return; downloadExecutiveReport(state.result, buildPayload());}); saveCrossDiagnosticBtn?.addEventListener("click",()=>{if(!state.result) return; downloadCrossDiagnosticResult(state.result, buildPayload());}); newRunBtn.addEventListener("click",startDiagnostic); window.addEventListener("keydown",event=>{if(!questionStage.classList.contains("active")) return; if(event.key==="Enter"&&continueBtn.style.display!=="none"){const target=event.target; if(target&&target.tagName==="TEXTAREA") return; event.preventDefault(); moveNext(false)}}); applyHubContextDefaults(); renderCurrentPathChip(); syncHubContextSelections(); hideLoader(); setHeader("Choose participant perspective","Select the perspective that best matches your role in the pathway, then choose the appropriate diagnostic depth.","Awaiting selection"); showStage(laneStage); questionFooter.style.display="none"; loadAssignmentContext().then(()=>{ applyHubContextDefaults(); updateHeroHelp(); syncBeginButton(); syncHubContextSelections(); renderCurrentPathChip(); }).catch(error=>console.warn("Assignment boot failed", error));
+function syncBeginButton(){const allowed=!!preStartConsent&&preStartConsent.checked&&!!state.mode&&!!state.depth; if(beginBtn){ beginBtn.disabled=!allowed; beginBtn.classList.toggle("btn-disabled",!allowed); }}
+function showBootError(message){ const banner=document.getElementById("bootErrorBanner"); if(banner){ banner.textContent=`Decision Velocity boot error: ${message}`; banner.style.display="block"; } console.error("Decision Velocity boot error:", message); try{ pageLoader.classList.add("hidden"); }catch(e){} }
+function bootDecisionVelocity(){
+  try {
+    document.querySelectorAll(".lane-btn").forEach(btn=>btn.addEventListener("click",()=>selectLane(btn.dataset.lane)));
+    document.querySelectorAll("[data-depth]").forEach(btn=>btn.addEventListener("click",()=>selectDepth(btn.dataset.depth)));
+    preStartConsent?.addEventListener("change",syncBeginButton);
+    heroBeginBtn?.addEventListener("click",()=>{ if(state.mode && state.depth){ showStage(introStage); const target=document.getElementById("beginBtn"); target?.scrollIntoView({behavior:"smooth",block:"center"}); } else { const target=state.mode ? document.getElementById("depthStage") : document.querySelector(".lane-buttons"); target?.scrollIntoView({behavior:"smooth",block:"center"}); } });
+    learnMoreToggle?.addEventListener("click",()=>learnMorePanel?.classList.toggle("show"));
+    beginBtn?.addEventListener("click",()=>{if(beginBtn.disabled||!state.mode||!state.depth) return; startDiagnostic()});
+    continueBtn?.addEventListener("click",()=>moveNext(false));
+    backBtn?.addEventListener("click",moveBack);
+    skipBtn?.addEventListener("click",skipCurrent);
+    restartBtn?.addEventListener("click",restartDiagnostic);
+    exportBtn?.addEventListener("click",()=>{if(!state.result) return; exportExecutiveReport(state.result, buildPayload());});
+    downloadPdfBtn?.addEventListener("click",()=>{if(!state.result) return; downloadExecutiveReportPdf(state.result, buildPayload());});
+    downloadReportBtn?.addEventListener("click",()=>{if(!state.result) return; downloadExecutiveReport(state.result, buildPayload());});
+    saveCrossDiagnosticBtn?.addEventListener("click",()=>{if(!state.result) return; downloadCrossDiagnosticResult(state.result, buildPayload());});
+    newRunBtn?.addEventListener("click",startDiagnostic);
+    window.addEventListener("keydown",event=>{if(!questionStage.classList.contains("active")) return; if(event.key==="Enter"&&continueBtn&&continueBtn.style.display!=="none"){const target=event.target; if(target&&target.tagName==="TEXTAREA") return; event.preventDefault(); moveNext(false)}});
+    applyHubContextDefaults();
+    renderCurrentPathChip();
+    syncHubContextSelections();
+    updateHeroHelp();
+    syncBeginButton();
+    hideLoader();
+    setHeader("Choose participant perspective","Select the perspective that best matches your role in the pathway, then choose the appropriate diagnostic depth.","Awaiting selection");
+    showStage(laneStage);
+    if(questionFooter) questionFooter.style.display="none";
+    loadAssignmentContext().then(()=>{ try { applyHubContextDefaults(); updateHeroHelp(); syncBeginButton(); syncHubContextSelections(); renderCurrentPathChip(); } catch(error){ showBootError(error?.message || String(error)); } }).catch(error=>console.warn("Assignment boot failed", error));
+  } catch(error) {
+    showBootError(error?.message || String(error));
+  }
+}
+window.addEventListener("error", event=>showBootError(event?.error?.message || event?.message || "Unknown script error"));
+window.addEventListener("unhandledrejection", event=>showBootError(event?.reason?.message || String(event?.reason || "Unhandled promise rejection")));
+bootDecisionVelocity();
 </script>
 </body>
 </html>
