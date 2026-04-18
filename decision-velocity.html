@@ -456,6 +456,85 @@ const state={path:["symptom"],index:0,answers:{},result:null,mode:null,depth:nul
 const assignmentState={id:null,token:null,row:null,user:null,client:null,persistenceMode:"unknown",lastPersistenceStatus:"not_attempted"};
 const SUPABASE_URL = window.MONDERMAN_SUPABASE_URL || window.SUPABASE_URL || window.__MONDERMAN_SUPABASE_URL__ || "https://ptkxrzgmeldalrkfruth.supabase.co";
 const SUPABASE_KEY = window.MONDERMAN_SUPABASE_ANON_KEY || window.SUPABASE_ANON_KEY || window.SUPABASE_KEY || window.__MONDERMAN_SUPABASE_ANON_KEY__ || "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
+const HUB_CONTEXT_KEY="mondermanHubContextV1";
+const HUB_CONTEXT_SESSION_KEY="mondermanPendingHubContext";
+function readHubContext(){
+  try{
+    const raw=sessionStorage.getItem(HUB_CONTEXT_SESSION_KEY)||localStorage.getItem(HUB_CONTEXT_KEY);
+    return raw?JSON.parse(raw):null;
+  }catch(error){
+    console.warn("Unable to read shared hub context.", error);
+    return null;
+  }
+}
+function buildAppliedContextSummary(){
+  const ctx=readHubContext();
+  if(!ctx || typeof ctx!=="object") return [];
+  const parts=[];
+  if(ctx.pathName) parts.push(ctx.pathName);
+  if(ctx.lensLabel) parts.push(ctx.lensLabel);
+  else if(ctx.lens) parts.push(displayModeLabel(ctx.lens)+" lens");
+  if(ctx.depthLabel) parts.push(ctx.depthLabel);
+  else if(ctx.depth) parts.push(depthLabelFromValue(ctx.depth));
+  if(ctx.businessUnit) parts.push(`Business unit: ${ctx.businessUnit}`);
+  if(ctx.decisionType) parts.push(`Decision type: ${humanize(String(ctx.decisionType).replace(/_/g," "))}`);
+  if(ctx.industry) parts.push(`Industry: ${humanize(String(ctx.industry).replace(/_/g," "))}`);
+  if(ctx.regulatoryIntensity) parts.push(`Regulatory intensity: ${humanize(String(ctx.regulatoryIntensity).replace(/_/g," "))}`);
+  if(ctx.employeeCount) parts.push(`Employees: ${ctx.employeeCount}`);
+  if(ctx.description) parts.push(`Context: ${String(ctx.description).trim()}`);
+  return parts.filter(Boolean);
+}
+function applyHubContextDefaults(){
+  const context=readHubContext();
+  if(!context || typeof context!=="object") return;
+  if(!state.explicitLane && context.lens){
+    const normalized=normalizeMode(context.lens);
+    if(normalized) state.mode=normalized;
+  }
+  if(!state.explicitDepth && context.depth){
+    const depthValue=String(context.depth);
+    if(depthConfigs[depthValue]) state.depth=depthValue;
+  }
+  const map={
+    processName: context.pathName || "",
+    businessUnit: context.businessUnit || "",
+    decisionType: context.decisionType || "",
+    industry: context.industry || "",
+    regulatoryIntensity: context.regulatoryIntensity || "",
+    employeeCount: context.employeeCount || "",
+    description: context.description || ""
+  };
+  Object.entries(map).forEach(([key,value])=>{
+    if(value && !state.answers[key]) state.answers[key]=value;
+  });
+}
+function renderCurrentPathChip(){
+  const chip=document.getElementById("currentPathChip");
+  const proof=document.getElementById("heroProof");
+  const lines=buildAppliedContextSummary();
+  if(!chip) return;
+  if(!lines.length){
+    chip.innerHTML="";
+    chip.classList.remove("show");
+    if(proof) proof.textContent="Real teams use this to spot where manual chases, extra approvals, and quiet workarounds are burning time.";
+    return;
+  }
+  chip.innerHTML=`<strong>Applied cross-tool context:</strong> ${escapeHtml(lines.slice(0,3).join(" | "))}`;
+  chip.classList.add("show");
+  if(proof){
+    const extra=lines.slice(3);
+    proof.textContent=extra.length ? `Cross-tool context applied: ${extra.join(" • ")}.` : "Cross-tool context from the Diagnostic Hub has been applied to this run.";
+  }
+}
+function syncHubContextSelections(){
+  document.querySelectorAll('.lane-btn').forEach((btn)=>{ btn.classList.toggle('active', btn.dataset.lane===state.mode); });
+  document.querySelectorAll('[data-lane-tile]').forEach((tile)=>{ tile.classList.toggle('selected', tile.dataset.laneTile===state.mode); });
+  document.querySelectorAll('[data-depth]').forEach((btn)=>{ btn.classList.toggle('selected', btn.dataset.depth===String(state.depth||'')); });
+  if(state.mode){
+    const lane=laneConfigs[state.mode] || laneConfigs.executive;
+    laneAsideTitle.textContent=lane.aside;
+  }
+}
 
 document.addEventListener("pointerdown", (event)=>{
   if(!event.target.closest || !event.target.closest(".question-help-shell")) closeAllInfoPanels();
