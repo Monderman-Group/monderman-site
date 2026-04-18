@@ -2426,14 +2426,7 @@
       return true;
     }
 
-    if (shouldRunHubCalibration()) {
-      window.addEventListener("load", () => {
-        requestAnimationFrame(() => {
-          startHubCalibration();
-          safeWriteLocal(HUB_LOADER_SUPPRESS_KEY, String(Date.now()));
-        });
-      });
-    }
+    // calibration gate is initialized after local-storage helpers/constants are declared
 
     const dropzone = document.getElementById("dropzone");
     const fileInput = document.getElementById("synthesisFileInput");
@@ -2808,6 +2801,15 @@
     const HUB_RECENT_RUNS_KEY = "mondermanRecentRunsV1";
     const HUB_LOADER_SUPPRESS_KEY = "mondermanHubLoaderSeenAt";
     const HUB_LOADER_SUPPRESS_MS = 24 * 60 * 60 * 1000;
+
+    if (shouldRunHubCalibration()) {
+      window.addEventListener("load", () => {
+        requestAnimationFrame(() => {
+          startHubCalibration();
+          safeWriteLocal(HUB_LOADER_SUPPRESS_KEY, String(Date.now()));
+        });
+      });
+    }
 
     function safeReadLocal(key) {
       try { return localStorage.getItem(key); } catch (error) { return null; }
