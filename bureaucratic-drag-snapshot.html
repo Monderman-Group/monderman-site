@@ -336,6 +336,35 @@ const state={path:["symptom"],index:0,answers:{},result:null,mode:null,depth:nul
 
 const HUB_CONTEXT_KEY="mondermanHubContextV1";
 const HUB_RECENT_RUNS_KEY="mondermanRecentRunsV1";
+
+const HUB_CONTEXT_SESSION_KEY = "mondermanPendingHubContext";
+function readHubContext(){
+  try{
+    const raw = sessionStorage.getItem(HUB_CONTEXT_SESSION_KEY);
+    if(!raw) return null;
+    const parsed = JSON.parse(raw);
+    return (parsed && typeof parsed === "object") ? parsed : null;
+  }catch(error){
+    console.warn("Unable to read shared hub context.", error);
+    return null;
+  }
+}
+function buildAppliedContextSummary(){
+  const ctx = readHubContext();
+  if(!ctx || typeof ctx !== "object") return [];
+  const parts = [];
+  if(ctx.pathName) parts.push(ctx.pathName);
+  if(ctx.lensLabel) parts.push(ctx.lensLabel);
+  if(ctx.depthLabel) parts.push(ctx.depthLabel);
+  if(ctx.businessUnit) parts.push(`Business unit: ${ctx.businessUnit}`);
+  if(ctx.decisionType) parts.push(`Decision type: ${humanize(String(ctx.decisionType).replace(/_/g,' '))}`);
+  if(ctx.industry) parts.push(`Industry: ${humanize(String(ctx.industry).replace(/_/g,' '))}`);
+  if(ctx.regulatoryIntensity) parts.push(`Regulatory intensity: ${humanize(String(ctx.regulatoryIntensity).replace(/_/g,' '))}`);
+  if(ctx.employeeCount) parts.push(`Employees: ${ctx.employeeCount}`);
+  if(ctx.description) parts.push(`Context: ${String(ctx.description).trim()}`);
+  return parts.filter(Boolean);
+}
+
 function readHubContext(){
   try{
     const raw=localStorage.getItem(HUB_CONTEXT_KEY)||sessionStorage.getItem("mondermanPendingHubContext");
@@ -343,33 +372,57 @@ function readHubContext(){
   }catch(error){return null;}
 }
 function renderCurrentPathChip(){
-  const chip=document.getElementById("currentPathChip");
+  const chip = document.getElementById("currentPathChip");
+  const proof = document.getElementById("heroProof");
+  const lines = buildAppliedContextSummary();
   if(!chip) return;
-  const ctx=readHubContext();
-  if(!ctx||!ctx.pathName){chip.classList.remove("show"); chip.innerHTML=""; return;}
-  const parts=[ctx.pathName,ctx.lensLabel||"",ctx.depthLabel||""].filter(Boolean);
-  chip.innerHTML=`<strong>Current path:</strong> ${parts.join(" | ")}`;
+  if(!lines.length){
+    chip.innerHTML = "";
+    chip.classList.remove("show");
+    if(proof){
+      proof.textContent = 'Real teams use this to spot where reporting load, manual workarounds, duplicate entry, and recurring process burden are quietly consuming capacity.';
+    }
+    return;
+  }
+  chip.innerHTML = `<strong>Applied cross-tool context:</strong> ${escapeHtml(lines.slice(0,3).join(" | "))}`;
   chip.classList.add("show");
+  if(proof){
+    const extra = lines.slice(3);
+    proof.textContent = extra.length ? `Cross-tool context applied: ${extra.join(" • ")}.` : "Cross-tool context from the Diagnostic Hub has been applied to this run.";
+  }
 }
 function applyHubContextDefaults(){
-  const ctx=readHubContext();
-  if(!ctx) return;
-  if(ctx.lens && !state.mode) state.mode=ctx.lens;
-  if(ctx.depth && !state.depth) state.depth=String(ctx.depth);
-  state.answers={...state.answers,
-    processName: state.answers.processName || ctx.pathName || "",
-    businessUnit: state.answers.businessUnit || ctx.businessUnit || "",
-    decisionType: state.answers.decisionType || ctx.decisionType || "",
-    industry: state.answers.industry || ctx.industry || "",
-    regulatoryIntensity: state.answers.regulatoryIntensity || ctx.regulatoryIntensity || "",
-    employeeCount: state.answers.employeeCount || ctx.employeeCount || "",
-    description: state.answers.description || ctx.description || ""
+  const context = readHubContext();
+  if(!context || typeof context !== "object") return;
+  if(!state.explicitLane && context.lens){
+    const normalized = normalizeMode(context.lens);
+    if(normalized) state.mode = normalized;
+  }
+  if(!state.explicitDepth && context.depth){
+    const depthValue = String(context.depth);
+    if(depthConfigs[depthValue]) state.depth = depthValue;
+  }
+  const map = {
+    processName: context.pathName || "",
+    businessUnit: context.businessUnit || "",
+    decisionType: context.decisionType || "",
+    industry: context.industry || "",
+    regulatoryIntensity: context.regulatoryIntensity || "",
+    employeeCount: context.employeeCount || "",
+    description: context.description || ""
   };
+  Object.entries(map).forEach(([key, value])=>{
+    if(value && !state.answers[key]) state.answers[key] = value;
+  });
 }
 function syncHubContextSelections(){
-  document.querySelectorAll(".lane-btn").forEach(btn=>btn.classList.toggle("active", btn.dataset.lane===state.mode));
-  document.querySelectorAll("[data-lane-tile]").forEach(tile=>tile.classList.toggle("selected", tile.dataset.laneTile===state.mode));
-  document.querySelectorAll("[data-depth]").forEach(btn=>btn.classList.toggle("selected", btn.dataset.depth===String(state.depth||"")));
+  document.querySelectorAll('.lane-btn').forEach((btn)=>{ btn.classList.toggle('active', btn.dataset.lane === state.mode); });
+  document.querySelectorAll('[data-lane-tile]').forEach((tile)=>{ tile.classList.toggle('selected', tile.dataset.laneTile === state.mode); });
+  document.querySelectorAll('[data-depth]').forEach((btn)=>{ btn.classList.toggle('selected', btn.dataset.depth === String(state.depth || '')); });
+  if(state.mode){
+    const lane = laneConfigs[state.mode] || laneConfigs.executive;
+    laneAsideTitle.textContent = lane.aside;
+  }
 }
 function saveRecentRun(result,payload){
   try{
