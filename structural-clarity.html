@@ -1263,21 +1263,36 @@ async function submitDiagnostic(){
   state.result=finalResult;
 
   try{
-    await persistDiagnosticRun(finalResult,payload);
     saveRecentRun(finalResult,payload);
-    renderResults(finalResult,payload,outputMode);
-    setHeader("Diagnostic output","Your results reflect the specific structural signal you surfaced and the information you provided.","Output generated");
-    showStage(resultsStage);
   } catch (err){
-    console.error("diagnostic completion blocked:", err);
+    console.warn("recent run save failed:", err);
+  }
+
+  let persistenceError=null;
+  try{
+    await persistDiagnosticRun(finalResult,payload);
+    assignmentState.lastPersistenceStatus = "saved";
+  } catch (err){
+    persistenceError=err;
+    console.error("diagnostic persistence failed:", err);
     assignmentState.lastPersistenceStatus = "error";
     if(persistenceNotice){
       persistenceNotice.style.display = "block";
       persistenceNotice.classList.add("show");
-      persistenceNotice.textContent = err?.message || "The diagnostic could not confirm a durable save to diagnostic_runs.";
+      persistenceNotice.textContent = (err?.message || "The diagnostic could not confirm a durable save to diagnostic_runs.") + " Results are shown below, but this run may not have been durably saved.";
     }
-    setHeader("Persistence required","The diagnostic generated a result, but it did not confirm a durable database save. The run is being held open until that succeeds.","Save required");
-    alert(err?.message || "The diagnostic could not confirm a durable save to diagnostic_runs.");
+  }
+
+  try{
+    renderResults(finalResult,payload,outputMode);
+    setHeader("Diagnostic output", persistenceError
+      ? "Your results are ready, but the diagnostic could not confirm a durable database save for this run."
+      : "Your results reflect the specific structural signal you surfaced and the information you provided.", persistenceError ? "Output generated · save warning" : "Output generated");
+    showStage(resultsStage);
+  } catch (err){
+    console.error("renderResults failed:", err);
+    setHeader("Output error","The scoring run completed, but the results view failed to render. Check the browser console and retry after the front-end fix.","Render error");
+    alert("The diagnostic finished scoring, but the results view hit a front-end rendering error. Check the browser console.");
     showStage(questionStage);
     renderQuestion();
   }
