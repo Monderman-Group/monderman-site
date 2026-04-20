@@ -46,7 +46,7 @@
     .current-path-chip strong{color:var(--ink);font-weight:600}
 
     .hidden{display:none!important}
-    .processing-stage{height:100%;display:grid;place-items:center}.processing-card{width:min(680px,100%);text-align:center;padding:38px 28px;border-radius:28px;background:linear-gradient(180deg,#FFF 0%, #F7FAFD 100%);border:1px solid rgba(21,32,43,.08);box-shadow:var(--shadow-md);display:grid;justify-items:center;gap:18px}.processing-card h3{margin:0;font-size:1.6rem;line-height:1.06;letter-spacing:-.04em}.processing-card p{margin:0;max-width:40ch;color:var(--ink-soft);line-height:1.65}.processing-list{display:grid;gap:9px;margin-top:6px;text-align:left}.processing-item{display:flex;gap:10px;align-items:flex-start;color:var(--ink-soft);font-size:.95rem;line-height:1.55}.pulse{width:8px;height:8px;margin-top:7px;border-radius:999px;background:var(--accent);box-shadow:0 0 0 0 rgba(63,110,161,.34);animation:pulse 1.7s infinite}@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(63,110,161,.34)}70%{box-shadow:0 0 0 10px rgba(63,110,161,0)}100%{box-shadow:0 0 0 0 rgba(63,110,161,0)}}
+    .processing-stage{height:100%;display:grid;place-items:center}.processing-card{width:min(680px,100%);text-align:center;padding:38px 28px;border-radius:28px;background:linear-gradient(180deg,#FFF 0%, #F7FAFD 100%);border:1px solid rgba(21,32,43,.08);box-shadow:var(--shadow-md);display:grid;justify-items:center;gap:18px}.processing-card h3{margin:0;font-size:1.6rem;line-height:1.06;letter-spacing:-.04em}.processing-card p{margin:0;max-width:40ch;color:var(--ink-soft);line-height:1.65}.processing-list{display:grid;gap:9px;margin-top:6px;text-align:left}.processing-item{display:flex;gap:10px;align-items:flex-start;color:var(--ink-soft);font-size:.95rem;line-height:1.55}.pulse{width:8px;height:8px;margin-top:7px;border-radius:999px;background:var(--accent);box-shadow:0 0 0 0 rgba(63,110,161,.34);animation:pulse 1.7s infinite}@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(63,110,161,.34)}70%{box-shadow:0 0 0 10px rgba(63,110,161,0)}100%{box-shadow:0 0 0 0 rgba(63,110,161,0)}}.processing-status{margin:0;font-size:.9rem;line-height:1.55;color:var(--ink);font-weight:600}.processing-help{margin:0;font-size:.84rem;line-height:1.55;color:var(--ink-muted);max-width:44ch}.processing-item{transition:color var(--transition),opacity var(--transition),transform var(--transition)}.processing-item.is-active{color:var(--ink);transform:translateX(2px)}.processing-item.is-complete{opacity:.72}.processing-item.is-active .pulse{background:var(--accent-dark)}
     .results-layout{display:grid;gap:18px}.score-panel{background:linear-gradient(180deg,var(--dark) 0%, var(--dark-2) 100%);color:#FFF;border-radius:24px;padding:28px 24px 24px;border:1px solid rgba(255,255,255,.06);position:relative;overflow:hidden}.score-panel::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 84% 14%, rgba(63,110,161,.26), transparent 24%), linear-gradient(135deg, rgba(63,110,161,.05) 1px, transparent 1px);background-size:auto, 30px 30px;opacity:.55}.score-inner{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:end}.score-kicker{margin:0 0 8px;font-size:.76rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.62)}.score-number{margin:0;font-size:clamp(3rem,6vw,5rem);line-height:.88;letter-spacing:-.08em;font-weight:700}.score-band{margin:8px 0 0;font-size:1rem;color:rgba(255,255,255,.88)}.score-summary{margin:14px 0 0;max-width:62ch;font-size:.96rem;line-height:1.68;color:rgba(255,255,255,.76)}.score-badge{padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);font-size:.84rem;font-weight:600;white-space:nowrap}
     .score-rubric{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:18px}.rubric-band{padding:12px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);min-height:92px}.rubric-band strong{display:block;font-size:.8rem}.rubric-band span{display:block;margin-top:6px;color:rgba(255,255,255,.78);font-size:.82rem;line-height:1.45}
     .diagnosis-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.diagnosis-card{background:linear-gradient(180deg,#FFF 0%,#FBFCFE 100%);border:1px solid rgba(21,32,43,.08);border-radius:18px;box-shadow:var(--shadow-sm);padding:18px 16px 16px;min-height:136px;display:grid;align-content:start}.diagnosis-card .summary-label{color:var(--accent)}.diagnosis-card .summary-value{font-size:1.06rem}.diagnosis-card .summary-sub{font-size:.82rem}.premium-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#FFF;border:1px solid rgba(21,32,43,.08);font-size:.82rem;line-height:1.55;color:var(--ink-soft)}
@@ -148,7 +148,7 @@
       <div class="stage" id="depthStage"><div class="intro-layout"><div class="card"><div class="step-chip"><strong>Step 2</strong><span>Choose how deep you want this run to go.</span></div><h3>Choose diagnostic depth</h3><p class="depth-intro">Pick the shortest run that still fits the importance of the workflow. For most first passes, the 30-minute version is the best starting point.</p><div class="depth-card-grid"><button class="depth-card" type="button" data-depth="10"><h4>10-minute diagnostic</h4><p>Best for fast baselining, a first pass, or repeated checks after a change.</p><div class="depth-meta">Lower burden • directional signal</div></button><button class="depth-card" type="button" data-depth="30"><span class="depth-recommend">Recommended default</span><h4>30-minute diagnostic</h4><p>Best default option. Balances burden with stronger explanatory power and better pattern detection.</p><div class="depth-meta">Balanced depth • stronger interpretation</div></button><button class="depth-card" type="button" data-depth="60"><h4>60-minute diagnostic</h4><p>Best when the pathway is politically important, chronically slow, or costly enough to justify a richer readout.</p><div class="depth-meta">Deepest branch logic • strongest self-guided read</div></button></div><div class="depth-footnote">Shorter runs still deliver useful signal. Longer runs simply uncover more hidden patterning and stronger opportunity framing over time.</div></div><aside class="card soft"><div class="depth-support"><div><h3>Why time depth matters</h3><ul><li><strong>Get a baseline:</strong> understand how the pathway works today</li><li><strong>Re-run later:</strong> measure whether changes actually improved the workflow</li><li><strong>Compare perspectives:</strong> see where different roles experience the pathway differently</li><li><strong>Track drift:</strong> longer runs surface accumulating burden more clearly</li></ul></div><div class="sidebar-note"><strong>Best starting point</strong>Use the 30-minute diagnostic when the goal is a strong first read without adding unnecessary friction to the run.</div></div></aside></div></div>
       <div class="stage" id="introStage"><div class="intro-layout"><div class="card"><div class="step-chip"><strong>Step 3</strong><span>Confirm the input guardrail, then begin the run.</span></div><h3>Before you begin</h3><div class="notice-block"><div class="notice"><strong>Notice</strong><div class="tiny" id="openingNotice"></div></div><div class="notice"><strong>What to expect</strong><div class="tiny">This run is intentionally more detailed than a light survey. The workflow adjusts based on your answers, and some responses open additional question tiles so the Monderman engine has enough signal to generate a more useful readout.</div></div></div><div class="gentle-note tiny">Output quality depends on the quality and quantity of the information you provide. Some pathways require a bit more detail so the Monderman engine can generate a more precise and useful readout. Brief patience here improves the value of the output.</div><div class="checkbox-card" style="margin-top:18px;"><div class="checkbox-row"><input id="preStartConsent" type="checkbox" /><label for="preStartConsent">I agree not to enter classified, export-controlled, sensitive, proprietary, personally identifiable, protected health, or otherwise restricted information into this tool. I understand that I am solely responsible for the information I submit.</label></div></div><div class="actions" style="margin-top:22px;justify-content:flex-start;"><div class="actions-left"><a class="btn" href="diagnostic-tools.html">Back to Diagnostic Hub</a><button class="btn btn-accent btn-disabled" id="beginBtn" type="button" disabled>Begin diagnostic</button></div></div></div><aside class="card soft"><h3 id="laneAsideTitle">What this tool is built to detect</h3><ul><li>Recurring process density and administrative overhead</li><li>Systems friction, duplicate effort, and manual workaround dependence</li><li>Reporting burden and low-value oversight accumulation</li><li>Operating-environment weight that is crowding out real work</li><li>Directionally sized time, money, and capacity exposure</li></ul></aside></div></div>
       <div class="stage" id="questionStage"><div class="question-shell"><div class="question-card"><div class="question-meta"><p class="question-label" id="questionCluster">Diagnostic question</p><p class="question-step" id="questionStep">Question 1</p></div><h3 class="question-title" id="questionTitle"></h3><p class="question-copy" id="questionCopy"></p><div class="required-note" id="requiredNotice">This question is required for the diagnostic logic to work.</div><div class="required-note" id="persistenceNotice" style="display:none;background:#FFF8EC;border-color:#F0D29D;color:#795B22;">Durable save status will appear here if the database write is blocked.</div><div id="questionBody"></div></div></div></div>
-      <div class="stage" id="processingStage"><div class="processing-stage"><div class="processing-card"><div class="spinner spinner-sm" aria-hidden="true"></div><h3>Generating output</h3><p>The diagnostic engine is interpreting your pathway and preparing a leadership-facing readout.</p><div class="processing-list"><div class="processing-item"><span class="pulse"></span><span>Scoring process load, systems friction, reporting burden, and control weight</span></div><div class="processing-item"><span class="pulse"></span><span>Checking for contradiction, overload, and drag-accumulation signals</span></div><div class="processing-item"><span class="pulse"></span><span>Estimating directional time, cost, and resource exposure</span></div><div class="processing-item"><span class="pulse"></span><span>Preparing report-ready operational systems output modules</span></div></div></div></div></div>
+      <div class="stage" id="processingStage"><div class="processing-stage"><div class="processing-card"><div class="spinner spinner-sm" aria-hidden="true"></div><h3>Generating output</h3><p>The diagnostic engine is interpreting your pathway and preparing a leadership-facing readout.</p><p class="processing-status" id="processingStatus">Initializing output sequence...</p><p class="processing-help" id="processingHelp">This can take a few seconds. If cloud services lag, Monderman will fall back to local output rather than stalling.</p><div class="processing-list"><div class="processing-item" id="processingItem1"><span class="pulse"></span><span>Scoring process load, systems friction, reporting burden, and control weight</span></div><div class="processing-item" id="processingItem2"><span class="pulse"></span><span>Checking for contradiction, overload, and drag-accumulation signals</span></div><div class="processing-item" id="processingItem3"><span class="pulse"></span><span>Estimating directional time, cost, and resource exposure</span></div><div class="processing-item" id="processingItem4"><span class="pulse"></span><span>Preparing report-ready operational systems output modules</span></div></div></div></div></div>
       
 <div class="stage" id="resultsStage"><div class="results-layout">
         <section class="report-only report-header"><p class="report-kicker">M O N D E R M A N</p><p class="tiny">Operational Systems Diagnostic • Institutional Performance Research</p><h1 class="report-title" id="reportTitle">Operational Systems Diagnostic</h1><p class="report-sub" id="reportSubtitle">Leadership-ready operational systems summary.</p><div class="report-meta"><span class="meta-pill" id="metaProcess">Pathway: —</span><span class="meta-pill" id="metaBench">Benchmark: —</span><span class="meta-pill" id="metaDate">Generated: —</span></div></section>
@@ -411,6 +411,35 @@ function saveRecentRun(result,payload){
     const next=[entry, ...runs.filter(r=>!(r.toolLabel===entry.toolLabel && r.pathName===entry.pathName))].slice(0,5);
     localStorage.setItem(HUB_RECENT_RUNS_KEY, JSON.stringify(next));
   }catch(error){}
+}
+
+
+const PROCESSING_OVERALL_TIMEOUT_MS = 25000;
+const processingStatus = document.getElementById("processingStatus");
+const processingHelp = document.getElementById("processingHelp");
+const processingItems = Array.from(document.querySelectorAll("#processingStage .processing-item"));
+function setProcessingStep(index, message){
+  if(processingStatus) processingStatus.textContent = message || "Generating output...";
+  if(processingItems && processingItems.length){
+    processingItems.forEach((item, idx) => {
+      item.classList.toggle("is-active", idx === index);
+      item.classList.toggle("is-complete", index >= 0 && idx < index);
+    });
+  }
+}
+function resetProcessingUI(){
+  if(processingHelp){
+    processingHelp.textContent = "This can take a few seconds. If cloud services lag, Monderman will fall back to local output rather than stalling.";
+  }
+  setProcessingStep(-1, "Initializing output sequence...");
+}
+function withOverallTimeout(promise, timeoutMs=PROCESSING_OVERALL_TIMEOUT_MS){
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      setTimeout(() => reject(new Error("Generation took longer than expected. Showing the best available local output.")), timeoutMs);
+    })
+  ]);
 }
 
 function hideLoader(){setTimeout(()=>pageLoader.classList.add("hidden"),LOADER_MS)} function showStage(stage){[laneStage,depthStage,introStage,questionStage,processingStage,resultsStage].forEach(el=>el.classList.remove("active")); stage.classList.add("active"); questionFooter.style.display=stage===questionStage?"grid":"none"} function setHeader(h,s,st){envHeadline.textContent=h; envSubcopy.textContent=s; statusPill.textContent=st} function currentQuestionId(){return state.path[state.index]} function currentQuestion(){return q[currentQuestionId()]}
@@ -854,82 +883,99 @@ async function submitDiagnostic(){
   saveCurrentQuestion();
   setHeader("Generating output","The diagnostic engine is interpreting your pathway and preparing a leadership-facing readout.","Output in progress");
   showStage(processingStage);
+  resetProcessingUI();
+  setProcessingStep(0, "Calculating operational baseline from your answers...");
 
-  const payload=buildPayload(), localResult=buildLocalResult(payload);
+  const payload=buildPayload();
+  const localResult=buildLocalResult(payload);
   let finalResult=localResult, outputMode="Local fallback";
 
   try{
-    const [scoreResponse]=await Promise.all([
-      fetchWithTimeout(`${API_BASE}/api/operational-systems-score`,{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify(payload)
-      }, SCORE_TIMEOUT_MS),
-      wait(RESULTS_LOADER_MS)
-    ]);
+    const remoteOutcome = await withOverallTimeout((async()=>{
+      setProcessingStep(1, "Requesting scored operational-systems output...");
+      const [scoreResponse]=await Promise.all([
+        fetchWithTimeout(`${API_BASE}/api/operational-systems-score`,{
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify(payload)
+        }, SCORE_TIMEOUT_MS),
+        wait(RESULTS_LOADER_MS)
+      ]);
 
-    const scoreData=await scoreResponse.json().catch(()=>null);
-    if(!scoreResponse.ok || !scoreData?.ok || !scoreData?.result) throw new Error("Unable to generate score output.");
+      const scoreData=await scoreResponse.json().catch(()=>null);
+      if(!scoreResponse.ok || !scoreData?.ok || !scoreData?.result) throw new Error("Unable to generate score output.");
 
-    finalResult=scoreData.result;
-    outputMode="Scored";
+      let remoteResult=scoreData.result;
+      let remoteMode="Scored";
 
-    try{
-      const topBurdenSummary=(scoreData.result?.burden_breakdown
-        ? Object.entries(scoreData.result.burden_breakdown)
-            .filter(([,value])=>Number.isFinite(value))
-            .sort((a,b)=>b[1]-a[1])
-            .slice(0,2)
-            .map(([code,value])=>`${String(code).replace(/_/g," ")} (${Math.round(value)})`)
-            .join("; ")
-        : "");
+      try{
+        setProcessingStep(2, "Generating operational narrative insights...");
+        const topBurdenSummary=(scoreData.result?.burden_breakdown
+          ? Object.entries(scoreData.result.burden_breakdown)
+              .filter(([,value])=>Number.isFinite(value))
+              .sort((a,b)=>b[1]-a[1])
+              .slice(0,2)
+              .map(([code,value])=>`${String(code).replace(/_/g," ")} (${Math.round(value)})`)
+              .join("; ")
+          : "");
 
-      const narrativeContext={
-        tool_type:"operational_systems",
-        process_name:payload.processName,
-        business_unit:payload.businessUnit,
-        user_context_note:payload.description||"",
-        industry_label:scoreData.result.industry_label||humanize(payload.industry||"other"),
-        organization_size_label:scoreData.result.organization_size_label||humanize(payload.organizationSize||"unknown"),
-        regulatory_intensity_label:scoreData.result.regulatory_intensity_label||humanize(payload.regulatoryIntensity||"unknown"),
-        input_confidence_label:scoreData.result.input_confidence_label||confidenceLabel(payload.confidenceLevel),
-        participant_mode:payload.participantMode||state.mode||"executive",
-        route_family:scoreData.result.route_family||"",
-        primary_constraint:scoreData.result.primary_constraint||"",
-        trajectory_direction:scoreData.result.trajectory?.direction||"",
-        trajectory_label:scoreData.result.trajectory?.label||"",
-        benchmark_position:scoreData.result.benchmark_position||"",
-        top_intervention_focus:(scoreData.result.intervention_priority_ladder&&scoreData.result.intervention_priority_ladder[0]?.focus)||"",
-        peer_advantage_display:scoreData.result.peer_advantage?.display||"",
-        top_burdens:topBurdenSummary,
-        decision_type:payload.decisionType||"",
-        value_judgment:scoreData.result.value_judgment?.label||""
-      };
+        const narrativeContext={
+          tool_type:"operational_systems",
+          process_name:payload.processName,
+          business_unit:payload.businessUnit,
+          user_context_note:payload.description||"",
+          industry_label:scoreData.result.industry_label||humanize(payload.industry||"other"),
+          organization_size_label:scoreData.result.organization_size_label||humanize(payload.organizationSize||"unknown"),
+          regulatory_intensity_label:scoreData.result.regulatory_intensity_label||humanize(payload.regulatoryIntensity||"unknown"),
+          input_confidence_label:scoreData.result.input_confidence_label||confidenceLabel(payload.confidenceLevel),
+          participant_mode:payload.participantMode||state.mode||"executive",
+          route_family:scoreData.result.route_family||"",
+          primary_constraint:scoreData.result.primary_constraint||"",
+          trajectory_direction:scoreData.result.trajectory?.direction||"",
+          trajectory_label:scoreData.result.trajectory?.label||"",
+          benchmark_position:scoreData.result.benchmark_position||"",
+          top_intervention_focus:(scoreData.result.intervention_priority_ladder&&scoreData.result.intervention_priority_ladder[0]?.focus)||"",
+          peer_advantage_display:scoreData.result.peer_advantage?.display||"",
+          top_burdens:topBurdenSummary,
+          decision_type:payload.decisionType||"",
+          value_judgment:scoreData.result.value_judgment?.label||""
+        };
 
-      const narrativeRequestBody={...scoreData.result,result:scoreData.result,context:narrativeContext};
-      const narrativeResponse=await fetchWithTimeout(`${API_BASE}/api/operational-systems-narrative`,{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify(narrativeRequestBody)
-      }, NARRATIVE_TIMEOUT_MS);
+        const narrativeRequestBody={...scoreData.result,result:scoreData.result,context:narrativeContext};
+        const narrativeResponse=await fetchWithTimeout(`${API_BASE}/api/operational-systems-narrative`,{
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify(narrativeRequestBody)
+        }, NARRATIVE_TIMEOUT_MS);
 
-      const narrativeData=await narrativeResponse.json().catch(()=>null);
-      if(narrativeResponse.ok && narrativeData?.ok && narrativeData?.narrative){
-        finalResult={...scoreData.result,narrative:narrativeData.narrative};
-        outputMode="Full output";
-      } else {
-        finalResult={...scoreData.result,narrative:localResult.narrative};
-        outputMode="Scored + local narrative";
+        const narrativeData=await narrativeResponse.json().catch(()=>null);
+        if(narrativeResponse.ok && narrativeData?.ok && narrativeData?.narrative){
+          remoteResult={...scoreData.result,narrative:narrativeData.narrative};
+          remoteMode="Full output";
+        } else {
+          remoteResult={...scoreData.result,narrative:localResult.narrative};
+          remoteMode="Scored + local narrative";
+        }
+      } catch (err){
+        console.warn("Remote narrative fell back to local narrative:", err);
+        remoteResult={...scoreData.result,narrative:localResult.narrative};
+        remoteMode="Scored + local narrative";
       }
-    } catch (err){
-      console.warn("Remote narrative fell back to local narrative:", err);
-      finalResult={...scoreData.result,narrative:localResult.narrative};
-      outputMode="Scored + local narrative";
-    }
+
+      return { finalResult: remoteResult, outputMode: remoteMode };
+    })());
+
+    finalResult=remoteOutcome.finalResult;
+    outputMode=remoteOutcome.outputMode;
   } catch (err){
     console.warn("Remote scoring fell back to local output:", err);
     finalResult=localResult;
-    outputMode="Timed out or failed + local fallback";
+    outputMode=/longer than expected/i.test(String(err?.message||"")) ? "Generation timeout + local fallback" : "Timed out or failed + local fallback";
+    if(processingHelp){
+      processingHelp.textContent = /longer than expected/i.test(String(err?.message||""))
+        ? "Cloud services ran long, so Monderman switched to local output to avoid stalling the run."
+        : "Cloud scoring was unavailable, so Monderman switched to local output for this run.";
+    }
   }
 
   state.result=finalResult;
@@ -940,26 +986,11 @@ async function submitDiagnostic(){
     console.warn("recent run save failed:", err);
   }
 
-  let persistenceError=null;
-  try{
-    await persistDiagnosticRun(finalResult,payload);
-    assignmentState.lastPersistenceStatus = "saved";
-  } catch (err){
-    persistenceError=err;
-    console.error("diagnostic persistence failed:", err);
-    assignmentState.lastPersistenceStatus = "error";
-    if(persistenceNotice){
-      persistenceNotice.style.display = "block";
-      persistenceNotice.classList.add("show");
-      persistenceNotice.textContent = (err?.message || "The diagnostic could not confirm a durable save to diagnostic_runs.") + " Results are shown below, but this run may not have been durably saved.";
-    }
-  }
+  setProcessingStep(3, "Rendering charts and preparing the report...");
 
   try{
     renderResults(finalResult,payload,outputMode);
-    setHeader("Diagnostic output", persistenceError
-      ? "Your results are ready, but the diagnostic could not confirm a durable database save for this run."
-      : "Your results reflect the specific signal path you surfaced and the information you provided.", persistenceError ? "Output generated · save warning" : "Output generated");
+    setHeader("Diagnostic output","Your results reflect the specific signal path you surfaced and the information you provided.","Output generated");
     showStage(resultsStage);
   } catch (err){
     console.error("renderResults failed:", err);
@@ -967,7 +998,18 @@ async function submitDiagnostic(){
     alert("The diagnostic finished scoring, but the results view hit a front-end rendering error. Check the browser console.");
     showStage(questionStage);
     renderQuestion();
+    return;
   }
+
+  persistDiagnosticRun(finalResult,payload)
+    .then(() => {
+      assignmentState.lastPersistenceStatus = "saved";
+    })
+    .catch((err) => {
+      console.error("diagnostic persistence failed:", err);
+      assignmentState.lastPersistenceStatus = "error";
+      setHeader("Diagnostic output","Your results are ready, but the diagnostic could not confirm a durable database save for this run.","Output generated · save warning");
+    });
 }
 function renderQuadrant(result){
   const state=result.__interpretiveState || buildInterpretiveState(result,{});
