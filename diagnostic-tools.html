@@ -2052,9 +2052,6 @@
               <p class="recent-runs-kicker">Local continuity</p>
               <h4 class="recent-runs-title">Recent runs on this device</h4>
               <p>Quick return links for the last few diagnostics launched from this browser. This stays local to this device and can be cleared any time.</p>
-              <div style="display:flex; justify-content:flex-end; margin-top:-2px;">
-                <button class="btn btn-subtle" type="button" id="clearRecentRunsBtn" style="min-height:38px; padding:0 14px;">Clear recent runs</button>
-              </div>
               <div class="recent-runs-list" id="recentRunsList"></div>
               <div class="recent-run-empty" id="recentRunsEmpty">No recent runs yet. Once you complete diagnostics, the last 3–5 runs will appear here.</div>
             </aside>
@@ -2285,9 +2282,7 @@
         <div id="turnstileWidget"></div>
       </div>
       <p class="cf-modal-status" id="turnstileStatus">Waiting to initialize human check...</p>
-      <p class="synthesis-note" style="margin:0 0 18px; max-width:none;">If the check does not complete, try retrying it here. Some privacy or ad-blocking extensions can interfere with Cloudflare Turnstile.</p>
       <div class="cf-modal-actions">
-        <button class="btn btn-subtle" id="turnstileRetryBtn" type="button">Retry check</button>
         <button class="btn btn-subtle" id="turnstileCancelBtn" type="button">Cancel</button>
       </div>
     </div>
@@ -2595,22 +2590,6 @@
     }
 
     const SYNTHESIS_API_URL = "https://monderman-api.onrender.com/api/cross-diagnostic-synthesis";
-    const SYNTHESIS_TIMEOUT_MS = 30000;
-
-    async function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
-      const controller = new AbortController();
-      const timer = window.setTimeout(() => controller.abort(), timeoutMs);
-      try {
-        return await fetch(url, { ...options, signal: controller.signal });
-      } catch (error) {
-        if (error && error.name === "AbortError") {
-          throw new Error("Request timed out. Please try again.");
-        }
-        throw error;
-      } finally {
-        window.clearTimeout(timer);
-      }
-    }
 
     async function runCrossDiagnosticSynthesis(validFiles) {
       const payload = {
@@ -2622,20 +2601,15 @@
         }
       };
 
-      const response = await fetchWithTimeout(SYNTHESIS_API_URL, {
+      const response = await fetch(SYNTHESIS_API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify(payload)
-      }, SYNTHESIS_TIMEOUT_MS);
+      });
 
-      let data = null;
-      try {
-        data = await response.json();
-      } catch (error) {
-        throw new Error("The synthesis service returned an unreadable response. Please try again.");
-      }
+      const data = await response.json();
 
       if (!response.ok || !data.ok) {
         throw new Error(data.message || data.error || "Cross-diagnostic synthesis failed.");
@@ -2654,7 +2628,7 @@
         }
 
         synthesizeBtn.disabled = true;
-        showValidation("Uploading files and generating synthesis. This can take a few moments...", "ok");
+        showValidation("Uploading files and generating synthesis...", "ok");
 
         try {
           const synthesisResult = await runCrossDiagnosticSynthesis(validFiles);
@@ -2672,7 +2646,7 @@
         } catch (error) {
           console.error(error);
           showValidation(
-            error.message || "Synthesis failed. Please try again or refresh the page.",
+            error.message || "Synthesis failed. Please try again.",
             "error"
           );
         } finally {
@@ -2684,8 +2658,6 @@
 
     const TURNSTILE_SITE_KEY = "0x4AAAAAAC8JOwWXoDDTTFef";
     const TURNSTILE_VERIFY_URL = "https://monderman-api.onrender.com/api/turnstile-verify";
-    const TURNSTILE_CLIENT_TIMEOUT_MS = 25000;
-    const TURNSTILE_VERIFY_TIMEOUT_MS = 15000;
     const PROTECTED_DIAGNOSTIC_PATHS = new Set([
       "structural-clarity.html",
       "decision-velocity.html",
@@ -2697,13 +2669,10 @@
     const turnstileWidget = document.getElementById("turnstileWidget");
     const turnstileStatus = document.getElementById("turnstileStatus");
     const turnstileCancelBtn = document.getElementById("turnstileCancelBtn");
-    const turnstileRetryBtn = document.getElementById("turnstileRetryBtn");
 
     let pendingDiagnosticUrl = "";
     let turnstileWidgetId = null;
     let turnstileToken = "";
-    let turnstileSafetyTimeout = null;
-    let turnstileLoadInterval = null;
 
     function setTurnstileStatus(message, type = "") {
       if (!turnstileStatus) return;
@@ -2713,44 +2682,8 @@
       if (type === "ok") turnstileStatus.classList.add("is-ok");
     }
 
-    function clearTurnstileSafetyTimeout() {
-      if (turnstileSafetyTimeout) {
-        window.clearTimeout(turnstileSafetyTimeout);
-        turnstileSafetyTimeout = null;
-      }
-    }
-
-    function scheduleTurnstileSafetyTimeout() {
-      clearTurnstileSafetyTimeout();
-      turnstileSafetyTimeout = window.setTimeout(() => {
-        setTurnstileStatus("Human check is taking too long. Retry it here or refresh the page.", "error");
-        if (window.turnstile && turnstileWidgetId) {
-          try { window.turnstile.reset(turnstileWidgetId); } catch (error) {}
-        }
-      }, TURNSTILE_CLIENT_TIMEOUT_MS);
-    }
-
-    function clearTurnstileLoadInterval() {
-      if (turnstileLoadInterval) {
-        window.clearInterval(turnstileLoadInterval);
-        turnstileLoadInterval = null;
-      }
-    }
-
-    function resetTurnstileWidget() {
-      turnstileToken = "";
-      clearTurnstileSafetyTimeout();
-      if (window.turnstile && turnstileWidgetId) {
-        try { window.turnstile.reset(turnstileWidgetId); } catch (error) {}
-      }
-      scheduleTurnstileSafetyTimeout();
-      setTurnstileStatus("Complete the human check to continue.");
-    }
-
     function closeTurnstileModal() {
       if (!turnstileModal) return;
-      clearTurnstileSafetyTimeout();
-      clearTurnstileLoadInterval();
       turnstileModal.classList.remove("show");
       turnstileModal.setAttribute("aria-hidden", "true");
       document.body.style.overflow = "";
@@ -2765,20 +2698,15 @@
     }
 
     async function verifyTurnstileToken(token) {
-      const response = await fetchWithTimeout(TURNSTILE_VERIFY_URL, {
+      const response = await fetch(TURNSTILE_VERIFY_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({ token })
-      }, TURNSTILE_VERIFY_TIMEOUT_MS);
+      });
 
-      let data = null;
-      try {
-        data = await response.json();
-      } catch (error) {
-        throw new Error("Verification service returned an unreadable response. Please try again.");
-      }
+      const data = await response.json();
       if (!response.ok || !data.ok) {
         throw new Error(data.error || data.message || "Human verification failed.");
       }
@@ -2787,65 +2715,22 @@
 
     async function handleTurnstileSuccess(token) {
       turnstileToken = token;
-      clearTurnstileSafetyTimeout();
       setTurnstileStatus("Human check complete. Confirming access...", "ok");
 
       try {
         await verifyTurnstileToken(token);
         setTurnstileStatus("Access confirmed. Opening diagnostic...", "ok");
         const target = pendingDiagnosticUrl;
-        window.setTimeout(() => {
+        setTimeout(() => {
           closeTurnstileModal();
           if (target) window.location.href = target;
         }, 350);
       } catch (error) {
         console.error(error);
         setTurnstileStatus(error.message || "Human verification failed. Please try again.", "error");
-        resetTurnstileWidget();
-      }
-    }
-
-    function renderTurnstileWidget() {
-      if (!window.turnstile) {
-        setTurnstileStatus("Cloudflare widget failed to load. Please refresh and try again.", "error");
-        return;
-      }
-      clearTurnstileSafetyTimeout();
-      if (turnstileWidgetId) {
-        try { window.turnstile.remove(turnstileWidgetId); } catch (error) {}
-        turnstileWidgetId = null;
-      }
-      turnstileWidget.innerHTML = "";
-      try {
-        turnstileWidgetId = window.turnstile.render("#turnstileWidget", {
-          sitekey: TURNSTILE_SITE_KEY,
-          theme: "light",
-          appearance: "always",
-          callback: handleTurnstileSuccess,
-          "expired-callback": () => {
-            turnstileToken = "";
-            setTurnstileStatus("Human check expired. Please try again.", "error");
-            resetTurnstileWidget();
-          },
-          "error-callback": (errorCode) => {
-            console.error("Turnstile error:", errorCode);
-            turnstileToken = "";
-            let msg = "Human check failed. Please retry or refresh the page.";
-            if (errorCode === "300030" || errorCode === "110620") msg = "Human check timed out. Please retry it here.";
-            setTurnstileStatus(msg, "error");
-            resetTurnstileWidget();
-          },
-          "timeout-callback": () => {
-            turnstileToken = "";
-            setTurnstileStatus("Human check timed out. Please retry it here.", "error");
-            resetTurnstileWidget();
-          }
-        });
-        scheduleTurnstileSafetyTimeout();
-        setTurnstileStatus("Complete the human check to continue.");
-      } catch (error) {
-        console.error(error);
-        setTurnstileStatus("Cloudflare check could not be rendered. Please verify the site key.", "error");
+        if (window.turnstile && turnstileWidgetId) {
+          try { window.turnstile.reset(turnstileWidgetId); } catch (resetError) {}
+        }
       }
     }
 
@@ -2857,19 +2742,50 @@
       turnstileModal.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
       setTurnstileStatus("Loading human check...");
-      clearTurnstileLoadInterval();
+
+      const renderWidget = () => {
+        if (!window.turnstile) {
+          setTurnstileStatus("Cloudflare widget failed to load. Please refresh and try again.", "error");
+          return;
+        }
+        if (turnstileWidgetId) {
+          try { window.turnstile.remove(turnstileWidgetId); } catch (error) {}
+          turnstileWidgetId = null;
+        }
+        turnstileWidget.innerHTML = "";
+        try {
+          turnstileWidgetId = window.turnstile.render("#turnstileWidget", {
+            sitekey: TURNSTILE_SITE_KEY,
+            theme: "light",
+            appearance: "always",
+            callback: handleTurnstileSuccess,
+            "expired-callback": () => {
+              turnstileToken = "";
+              setTurnstileStatus("Human check expired. Please complete it again.", "error");
+            },
+            "error-callback": () => {
+              turnstileToken = "";
+              setTurnstileStatus("Cloudflare check failed to initialize. Please try again.", "error");
+            }
+          });
+          setTurnstileStatus("Complete the human check to continue.");
+        } catch (error) {
+          console.error(error);
+          setTurnstileStatus("Cloudflare check could not be rendered. Please verify the site key.", "error");
+        }
+      };
 
       if (window.turnstile) {
-        renderTurnstileWidget();
+        renderWidget();
       } else {
         let attempts = 0;
-        turnstileLoadInterval = window.setInterval(() => {
+        const waitForTurnstile = setInterval(() => {
           attempts += 1;
           if (window.turnstile) {
-            clearTurnstileLoadInterval();
-            renderTurnstileWidget();
+            clearInterval(waitForTurnstile);
+            renderWidget();
           } else if (attempts > 30) {
-            clearTurnstileLoadInterval();
+            clearInterval(waitForTurnstile);
             setTurnstileStatus("Cloudflare widget failed to load. Please refresh and try again.", "error");
           }
         }, 250);
@@ -2878,15 +2794,6 @@
 
     if (turnstileCancelBtn) {
       turnstileCancelBtn.addEventListener("click", closeTurnstileModal);
-    }
-    if (turnstileRetryBtn) {
-      turnstileRetryBtn.addEventListener("click", () => {
-        if (turnstileWidgetId && window.turnstile) {
-          resetTurnstileWidget();
-        } else {
-          renderTurnstileWidget();
-        }
-      });
     }
 
     if (turnstileModal) {
@@ -3104,19 +3011,13 @@
         return [];
       }
     }
-    function clearRecentRuns() {
-      safeRemoveLocal(HUB_RECENT_RUNS_KEY);
-      renderRecentRuns();
-    }
     function renderRecentRuns() {
       const list = document.getElementById("recentRunsList");
       const empty = document.getElementById("recentRunsEmpty");
-      const clearBtn = document.getElementById("clearRecentRunsBtn");
       if (!list || !empty) return;
       const runs = readRecentRuns().slice(0, 5);
       list.innerHTML = "";
       empty.style.display = runs.length ? "none" : "block";
-      if (clearBtn) clearBtn.disabled = !runs.length;
       runs.forEach((run) => {
         const item = document.createElement("div");
         item.className = "recent-run-item";
@@ -3136,7 +3037,6 @@
     function bindHubContextControls() {
       const saveBtn = document.getElementById("saveHubContextBtn");
       const clearBtn = document.getElementById("clearHubContextBtn");
-      const clearRecentRunsBtn = document.getElementById("clearRecentRunsBtn");
       if (saveBtn && !saveBtn.dataset.boundSharedContext) {
         saveBtn.dataset.boundSharedContext = "true";
         saveBtn.addEventListener("click", saveHubContextFromForm);
@@ -3144,10 +3044,6 @@
       if (clearBtn && !clearBtn.dataset.boundSharedContext) {
         clearBtn.dataset.boundSharedContext = "true";
         clearBtn.addEventListener("click", clearHubContext);
-      }
-      if (clearRecentRunsBtn && !clearRecentRunsBtn.dataset.boundSharedContext) {
-        clearRecentRunsBtn.dataset.boundSharedContext = "true";
-        clearRecentRunsBtn.addEventListener("click", clearRecentRuns);
       }
     }
 
