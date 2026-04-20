@@ -308,6 +308,35 @@ document.getElementById("openingNotice").textContent = openingNotice; document.g
 const pageLoader=document.getElementById("pageLoader"), heroBeginBtn=document.getElementById("heroBeginBtn"), learnMoreToggle=document.getElementById("learnMoreToggle"), learnMorePanel=document.getElementById("learnMorePanel"), laneStage=document.getElementById("laneStage"), depthStage=document.getElementById("depthStage"), introStage=document.getElementById("introStage"), questionStage=document.getElementById("questionStage"), processingStage=document.getElementById("processingStage"), resultsStage=document.getElementById("resultsStage"), questionFooter=document.getElementById("questionFooter"), beginBtn=document.getElementById("beginBtn"), preStartConsent=document.getElementById("preStartConsent"), backBtn=document.getElementById("backBtn"), skipBtn=document.getElementById("skipBtn"), restartBtn=document.getElementById("restartBtn"), continueBtn=document.getElementById("continueBtn"), exportBtn=document.getElementById("exportBtn"), downloadPdfBtn=document.getElementById("downloadPdfBtn"), downloadReportBtn=document.getElementById("downloadReportBtn"), saveCrossDiagnosticBtn=document.getElementById("saveCrossDiagnosticBtn"), reportDownloadLink=document.getElementById("reportDownloadLink"), crossDiagnosticDownloadLink=document.getElementById("crossDiagnosticDownloadLink"), newRunBtn=document.getElementById("newRunBtn"), envHeadline=document.getElementById("envHeadline"), envSubcopy=document.getElementById("envSubcopy"), statusPill=document.getElementById("statusPill"), questionCluster=document.getElementById("questionCluster"), questionStep=document.getElementById("questionStep"), questionTitle=document.getElementById("questionTitle"), questionCopy=document.getElementById("questionCopy"), questionBody=document.getElementById("questionBody"), requiredNotice=document.getElementById("requiredNotice"), progressBar=document.getElementById("progressBar"), progressCopy=document.getElementById("progressCopy"), pathHint=document.getElementById("pathHint"), laneAsideTitle=document.getElementById("laneAsideTitle"), persistenceNotice=document.getElementById("persistenceNotice");
 let gapChart=null, dimensionChart=null;
 
+const PROCESSING_OVERALL_TIMEOUT_MS = 25000;
+const processingStatus = document.getElementById("processingStatus");
+const processingHelp = document.getElementById("processingHelp");
+const processingItems = Array.from(document.querySelectorAll("#processingStage .processing-item"));
+function setProcessingStep(index, message){
+  if(processingStatus) processingStatus.textContent = message || "Generating output...";
+  if(processingItems && processingItems.length){
+    processingItems.forEach((item, idx) => {
+      item.classList.toggle("is-active", idx === index);
+      item.classList.toggle("is-complete", index >= 0 && idx < index);
+    });
+  }
+}
+function resetProcessingUI(){
+  if(processingHelp){
+    processingHelp.textContent = "This can take a few seconds. If cloud services lag, Monderman will fall back to local output rather than stalling.";
+  }
+  setProcessingStep(-1, "Initializing output sequence...");
+}
+function withOverallTimeout(promise, timeoutMs=PROCESSING_OVERALL_TIMEOUT_MS){
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      setTimeout(() => reject(new Error("Generation took longer than expected. Showing the best available local output.")), timeoutMs);
+    })
+  ]);
+}
+
+
 const laneConfigs={operational:{label:"Operational",header:"Operational perspective selected",subcopy:"This version is built for people closest to the work. It surfaces where reporting, re-entry, manual patching, and recurring process weight are quietly consuming time in day-to-day operations.",aside:"What the operational version is built to surface"},managerial:{label:"Managerial",header:"Managerial perspective selected",subcopy:"This version is tuned for people coordinating teams and execution. It emphasizes recurring process density, systems switching, reporting burden, and where operational overhead is consuming management attention.",aside:"What the managerial version is built to surface"},executive:{label:"Executive",header:"Executive perspective selected",subcopy:"This version is tuned for leaders shaping operating design and governance. It emphasizes process accumulation, control burden, administrative drag, and where the operating environment itself is becoming harder to adapt.",aside:"What the executive version is built to surface"}};
 const depthConfigs={"10":{label:"10-minute diagnostic",header:"10-minute diagnostic selected",subcopy:"Quick first read. Best for fast baselining, pulse checks, or repeat checks after a change.",extra:[]},"30":{label:"30-minute diagnostic",header:"30-minute diagnostic selected",subcopy:"Balanced default. Stronger explanatory power without becoming burdensome for teams or managers.",extra:["issueTrajectory"]},"60":{label:"60-minute diagnostic",header:"60-minute diagnostic selected",subcopy:"Deepest version. Captures process accumulation, system friction, reporting burden, workaround dependence, and governance-drift signals with more precision.",extra:["issueTrajectory","changeDriver","controlClimate","approvalRemovalRate","governanceFit","dragVisibility"]}};
 function updateHeroHelp(){
@@ -342,38 +371,14 @@ function readHubContext(){
     return raw?JSON.parse(raw):null;
   }catch(error){return null;}
 }
-function buildAppliedContextSummary(){
-  const ctx=readHubContext();
-  if(!ctx || typeof ctx !== "object") return [];
-  const parts=[];
-  if(ctx.pathName) parts.push(ctx.pathName);
-  if(ctx.lensLabel) parts.push(ctx.lensLabel);
-  if(ctx.depthLabel) parts.push(ctx.depthLabel);
-  if(ctx.businessUnit) parts.push(`Business unit: ${ctx.businessUnit}`);
-  if(ctx.decisionType) parts.push(`Decision type: ${humanize(String(ctx.decisionType).replace(/_/g,' '))}`);
-  if(ctx.industry) parts.push(`Industry: ${humanize(String(ctx.industry).replace(/_/g,' '))}`);
-  if(ctx.regulatoryIntensity) parts.push(`Regulatory intensity: ${humanize(String(ctx.regulatoryIntensity).replace(/_/g,' '))}`);
-  if(ctx.employeeCount) parts.push(`Employees: ${ctx.employeeCount}`);
-  if(ctx.description) parts.push(`Context: ${String(ctx.description).trim()}`);
-  return parts.filter(Boolean);
-}
 function renderCurrentPathChip(){
   const chip=document.getElementById("currentPathChip");
-  const proof=document.getElementById("heroProof");
-  const lines=buildAppliedContextSummary();
   if(!chip) return;
-  if(!lines.length){
-    chip.classList.remove("show");
-    chip.innerHTML="";
-    if(proof) proof.textContent='Real teams use this to spot where reporting load, manual workarounds, duplicate entry, and recurring process burden are quietly consuming capacity.';
-    return;
-  }
-  chip.innerHTML=`<strong>Applied cross-tool context:</strong> ${escapeHtml(lines.slice(0,3).join(" | "))}`;
+  const ctx=readHubContext();
+  if(!ctx||!ctx.pathName){chip.classList.remove("show"); chip.innerHTML=""; return;}
+  const parts=[ctx.pathName,ctx.lensLabel||"",ctx.depthLabel||""].filter(Boolean);
+  chip.innerHTML=`<strong>Current path:</strong> ${parts.join(" | ")}`;
   chip.classList.add("show");
-  if(proof){
-    const extra=lines.slice(3);
-    proof.textContent = extra.length ? `Cross-tool context applied: ${extra.join(" • ")}.` : 'Cross-tool context from the Diagnostic Hub has been applied to this run.';
-  }
 }
 function applyHubContextDefaults(){
   const ctx=readHubContext();
@@ -413,35 +418,6 @@ function saveRecentRun(result,payload){
   }catch(error){}
 }
 
-
-const PROCESSING_OVERALL_TIMEOUT_MS = 25000;
-const processingStatus = document.getElementById("processingStatus");
-const processingHelp = document.getElementById("processingHelp");
-const processingItems = Array.from(document.querySelectorAll("#processingStage .processing-item"));
-function setProcessingStep(index, message){
-  if(processingStatus) processingStatus.textContent = message || "Generating output...";
-  if(processingItems && processingItems.length){
-    processingItems.forEach((item, idx) => {
-      item.classList.toggle("is-active", idx === index);
-      item.classList.toggle("is-complete", index >= 0 && idx < index);
-    });
-  }
-}
-function resetProcessingUI(){
-  if(processingHelp){
-    processingHelp.textContent = "This can take a few seconds. If cloud services lag, Monderman will fall back to local output rather than stalling.";
-  }
-  setProcessingStep(-1, "Initializing output sequence...");
-}
-function withOverallTimeout(promise, timeoutMs=PROCESSING_OVERALL_TIMEOUT_MS){
-  return Promise.race([
-    promise,
-    new Promise((_, reject) => {
-      setTimeout(() => reject(new Error("Generation took longer than expected. Showing the best available local output.")), timeoutMs);
-    })
-  ]);
-}
-
 function hideLoader(){setTimeout(()=>pageLoader.classList.add("hidden"),LOADER_MS)} function showStage(stage){[laneStage,depthStage,introStage,questionStage,processingStage,resultsStage].forEach(el=>el.classList.remove("active")); stage.classList.add("active"); questionFooter.style.display=stage===questionStage?"grid":"none"} function setHeader(h,s,st){envHeadline.textContent=h; envSubcopy.textContent=s; statusPill.textContent=st} function currentQuestionId(){return state.path[state.index]} function currentQuestion(){return q[currentQuestionId()]}
 function buildPath(){
   const branch=branchMap[state.answers.symptom]||[];
@@ -458,7 +434,7 @@ function buildPath(){
   state.path=Array.from(new Set(state.path));
   if(state.index>=state.path.length) state.index=state.path.length-1;
 }
-function startDiagnostic(){state.index=0; state.answers={}; applyHubContextDefaults(); state.result=null; state.path=["symptom"]; destroyCharts(); const lane=laneConfigs[state.mode]||laneConfigs.executive; const depth=depthConfigs[state.depth]||depthConfigs["30"]; setHeader(`${lane.header} • ${depth.label}`,`${lane.subcopy} ${depth.subcopy}`,"Question path active"); updateHeroHelp(); showStage(questionStage); renderQuestion()} function restartDiagnostic(){startDiagnostic()} function selectLane(mode){state.mode=mode; state.explicitLane=true; document.querySelectorAll(".lane-btn").forEach(btn=>btn.classList.toggle("active",btn.dataset.lane===mode)); document.querySelectorAll("[data-lane-tile]").forEach(tile=>tile.classList.toggle("selected",tile.dataset.laneTile===mode)); const lane=laneConfigs[mode]||laneConfigs.executive; laneAsideTitle.textContent=lane.aside; setHeader(lane.header,lane.subcopy,"Perspective selected"); updateHeroHelp(); syncBeginButton(); showStage(depthStage)} function selectDepth(depth){state.depth=depth; state.explicitDepth=true; document.querySelectorAll("[data-depth]").forEach(btn=>btn.classList.toggle("selected",btn.dataset.depth===depth)); const lane=laneConfigs[state.mode]||laneConfigs.executive; const cfg=depthConfigs[depth]||depthConfigs["30"]; setHeader(cfg.header,`${lane.label} perspective • ${cfg.subcopy}`,"Depth selected"); updateHeroHelp(); syncBeginButton(); showStage(introStage)} function getQuestionDef(id){const base=q[id]; const override=((laneOverrides[state.mode]||{})[id])||{}; return {...base,...override}} 
+function startDiagnostic(){state.index=0; state.answers={}; applyHubContextDefaults(); state.result=null; state.path=["symptom"]; destroyCharts(); const lane=laneConfigs[state.mode]||laneConfigs.executive; const depth=depthConfigs[state.depth]||depthConfigs["30"]; setHeader(`${lane.header} • ${depth.label}`,`${lane.subcopy} ${depth.subcopy}`,"Question path active"); updateHeroHelp(); showStage(questionStage); renderQuestion()} function restartDiagnostic(){startDiagnostic()} function selectLane(mode){state.mode=mode; document.querySelectorAll(".lane-btn").forEach(btn=>btn.classList.toggle("active",btn.dataset.lane===mode)); document.querySelectorAll("[data-lane-tile]").forEach(tile=>tile.classList.toggle("selected",tile.dataset.laneTile===mode)); const lane=laneConfigs[mode]||laneConfigs.executive; laneAsideTitle.textContent=lane.aside; setHeader(lane.header,lane.subcopy,"Perspective selected"); updateHeroHelp(); syncBeginButton(); showStage(depthStage)} function selectDepth(depth){state.depth=depth; document.querySelectorAll("[data-depth]").forEach(btn=>btn.classList.toggle("selected",btn.dataset.depth===depth)); const lane=laneConfigs[state.mode]||laneConfigs.executive; const cfg=depthConfigs[depth]||depthConfigs["30"]; setHeader(cfg.header,`${lane.label} perspective • ${cfg.subcopy}`,"Depth selected"); updateHeroHelp(); syncBeginButton(); showStage(introStage)} function getQuestionDef(id){const base=q[id]; const override=((laneOverrides[state.mode]||{})[id])||{}; return {...base,...override}} 
 
 function renderQuestion(){
   const question=getQuestionDef(currentQuestionId());
