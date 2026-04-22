@@ -1,24 +1,18 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Monderman</title>
-
-  <link
-    rel="icon"
-    type="image/svg+xml"
-    href='data:image/svg+xml;utf8,
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-      <rect width="64" height="64" rx="10" fill="%230F1720"/>
-      <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text>
-      <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
-    </svg>'
-  />
-
-  <link rel="preload" as="image" href="Decision Velocity.jpg" />
-
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Monderman</title>
+<link href='data:image/svg+xml;utf8,
+    &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"&gt;
+      &lt;rect width="64" height="64" rx="10" fill="%230F1720"/&gt;
+      &lt;text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA"&gt;M&lt;/text&gt;
+      &lt;rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/&gt;
+    &lt;/svg&gt;' rel="icon" type="image/svg+xml"/>
+<link as="image" href="Decision Velocity.jpg" rel="preload"/>
+<style>
     @font-face {
       font-family: "Neue Haas Grotesk";
       src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff");
@@ -59,8 +53,8 @@
       --header-solid: rgba(14,20,28,0.87);
       --header-border: rgba(255,255,255,0.08);
       --max: 1320px;
-      --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
-      --transition-slow: 420ms cubic-bezier(0.22, 1, 0.36, 1);
+      --transition: 220ms cubic-bezier(0.16, 1, 0.3, 1);
+      --transition-slow: 420ms cubic-bezier(0.16, 1, 0.3, 1);
       --rail-gap: 18px;
       --soft-shadow: 0 1px 0 rgba(0,0,0,0.012);
       --reveal-distance: 10px;
@@ -194,7 +188,7 @@
       padding: 0 14px;
       border-radius: 999px;
       border: 1px solid rgba(255,255,255,0.16);
-      background: rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.04);
       color: #FFFFFF;
       box-shadow: 0 1px 0 rgba(255,255,255,0.04);
     }
@@ -292,9 +286,10 @@
     .hero h1 {
       margin: 0 0 16px;
       max-width: 16.2ch;
-      font-size: clamp(3rem, 4.3vw, 4.45rem);
-      line-height: 0.95;
+      font-size: 64px;
+      line-height: 1.0;
       font-weight: 700;
+      letter-spacing: -0.04em;
       color: #FFFFFF;
       text-wrap: balance;
       text-shadow: 0 1px 2px rgba(0,0,0,0.16);
@@ -309,41 +304,13 @@
     .hero-line {
       display: block;
     }
-    .hero-line-top {
-      display: inline-flex;
-      align-items: baseline;
-      gap: 0.16ch;
-      flex-wrap: nowrap;
-    }
-    .hero-line-label {
-      display: inline-block;
-    }
-    .hero-rotator {
-      display: inline-block;
-      min-width: 6.2ch;
-      color: var(--accent);
-      white-space: nowrap;
-      position: relative;
-      line-height: 0.9;
-    }
-    .hero-rotate-word {
-      display: inline-block;
-      will-change: opacity;
-    }
-    .hero-rotate-word.is-fading {
-      animation: heroWordFade 760ms cubic-bezier(0.22,1,0.36,1);
-    }
-    @keyframes heroWordFade {
-      0% { opacity: 0.18; }
-      100% { opacity: 1; }
-    }
 
     .hero-dek {
       max-width: 38ch;
       margin: 0;
-      font-size: clamp(1.12rem, 1.5vw, 1.22rem);
-      line-height: 1.6;
-      letter-spacing: -0.014em;
+      font-size: 17px;
+      line-height: 1.65;
+      letter-spacing: -0.01em;
       color: var(--muted-light);
       text-shadow: 0 1px 2px rgba(0,0,0,0.12);
       animation-delay: 640ms;
@@ -356,18 +323,6 @@
       flex-wrap: wrap;
       margin-top: 30px;
       animation-delay: 820ms;
-    }
-    .hero-signal {
-      margin: 16px 0 0;
-      max-width: 62ch;
-      font-size: 0.84rem;
-      line-height: 1.58;
-      letter-spacing: 0.01em;
-      color: rgba(245,247,250,0.78);
-      opacity: 0;
-      transform: translateY(16px);
-      animation: heroFadeUp 900ms cubic-bezier(0.22,1,0.36,1) forwards;
-      animation-delay: 940ms;
     }
     @keyframes heroFadeUp {
       from { opacity: 0; transform: translateY(16px); }
@@ -437,32 +392,42 @@
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 20px;
     }
+
+    .diff-section-heading {
+      margin: 0 0 24px;
+      font-size: 28px;
+      line-height: 1.15;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text-dark);
+    }
+
     .diff-card {
       background: rgba(255,255,255,0.98);
       border: 1px solid rgba(21,32,43,0.08);
       border-radius: var(--card-radius);
       padding: 24px 22px 22px;
-      box-shadow: var(--soft-shadow);
+      box-shadow: none;
       transition: transform var(--transition-slow), box-shadow var(--transition-slow), border-color var(--transition);
     }
     .diff-card:hover {
       transform: translateY(-3px);
       border-color: rgba(63,110,161,0.14);
-      box-shadow: 0 10px 22px rgba(0,0,0,0.035);
+      box-shadow: none;
     }
     .diff-kicker {
       margin: 0 0 10px;
-      font-size: 0.68rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.18em;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.4;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
       color: var(--accent);
     }
     .diff-title {
       margin: 0 0 10px;
-      font-size: 1.1rem;
-      line-height: 1.12;
+      font-size: 17px;
+      line-height: 1.2;
       font-weight: 700;
       color: var(--text-dark);
       text-wrap: balance;
@@ -541,17 +506,18 @@
     .section-intro h2 {
       margin: 0 0 16px;
       max-width: 760px;
-      font-size: clamp(1.95rem, 2.45vw, 2.35rem);
-      line-height: 1.12;
+      font-size: 28px;
+      line-height: 1.15;
       font-weight: 700;
+      letter-spacing: -0.03em;
       color: var(--text-dark);
       text-wrap: balance;
     }
     .section-intro p {
       margin: 0;
       max-width: 58ch;
-      font-size: 1.04rem;
-      line-height: 1.7;
+      font-size: 17px;
+      line-height: 1.65;
       color: var(--muted-dark);
     }
 
@@ -559,11 +525,7 @@
     .bureaucracy-cost,
     .diagnostic-estimate {
       position: relative;
-      background:
-        linear-gradient(rgba(247,248,249,0.97), rgba(247,248,249,0.97)),
-        linear-gradient(90deg, rgba(63,110,161,0.02) 1px, transparent 1px),
-        linear-gradient(rgba(63,110,161,0.02) 1px, transparent 1px);
-      background-size: auto, 28px 28px, 28px 28px;
+      background: #F7F8F9;
       border-top: 1px solid #E7EBEF;
       border-bottom: 1px solid #E7EBEF;
       color: var(--text-dark);
@@ -573,11 +535,7 @@
     .diagnostic-estimate { padding: 78px 34px 92px; }
     .bureaucracy-cost::before,
     .diagnostic-estimate::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at 85% 20%, rgba(63,110,161,0.04), transparent 34%);
-      pointer-events: none;
+      content: none;
     }
 
     .cost-inner,
@@ -601,10 +559,10 @@
     .estimate-label,
     .latest-label {
       margin: 0 0 18px;
-      font-size: 0.66rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.20em;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.4;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
       color: var(--accent);
       opacity: 0.85;
@@ -613,9 +571,10 @@
     .diagnostic-estimate-heading h2 {
       margin: 0 0 14px;
       max-width: 760px;
-      font-size: clamp(2.05rem, 2.9vw, 2.7rem);
-      line-height: 1.12;
+      font-size: 28px;
+      line-height: 1.15;
       font-weight: 700;
+      letter-spacing: -0.03em;
       color: var(--text-dark);
       text-wrap: balance;
     }
@@ -624,8 +583,8 @@
     .estimate-bridge {
       margin: 0;
       max-width: 64ch;
-      font-size: 0.96rem;
-      line-height: 1.64;
+      font-size: 15px;
+      line-height: 1.65;
       color: var(--muted-dark);
     }
     .estimate-bridge { margin-top: 12px; }
@@ -643,7 +602,7 @@
       border: 1px solid rgba(21,32,43,0.06);
       border-radius: var(--panel-radius);
       padding: 42px 34px 38px;
-      box-shadow: var(--soft-shadow);
+      box-shadow: none;
       transition: transform var(--transition-slow), box-shadow var(--transition-slow), border-color var(--transition);
     }
     .cost-card { min-height: 310px; }
@@ -652,13 +611,13 @@
     .estimate-card:hover {
       transform: translateY(-3px);
       border-color: rgba(63,110,161,0.12);
-      box-shadow: 0 1px 0 rgba(0,0,0,0.014), 0 8px 18px rgba(0,0,0,0.016), 0 16px 28px rgba(0,0,0,0.014);
+      box-shadow: none;
     }
     .cost-card-title,
     .estimate-card-title {
       margin: 0 0 8px;
-      font-size: 1.02rem;
-      line-height: 1.12;
+      font-size: 17px;
+      line-height: 1.2;
       font-weight: 700;
       color: var(--text-dark);
     }
@@ -724,7 +683,7 @@
       background: #FFFFFF;
       color: var(--text-dark);
       outline: none;
-      box-shadow: var(--soft-shadow);
+      box-shadow: none;
       transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
     }
     .estimate-field select:hover {
@@ -809,7 +768,7 @@
       transform: translateY(-4px);
       border-color: rgba(0,0,0,0.06);
       background: #FFFFFF;
-      box-shadow: 0 8px 18px rgba(0,0,0,0.04), 0 18px 30px rgba(0,0,0,0.04);
+      box-shadow: none;
     }
     .approach-card:hover::before { width: 100%; }
     .approach-card-head {
@@ -847,8 +806,8 @@
     }
     .card-title {
       margin-bottom: 8px;
-      font-size: 1.42rem;
-      line-height: 1.12;
+      font-size: 17px;
+      line-height: 1.2;
       font-weight: 700;
       color: var(--text-dark);
     }
@@ -884,8 +843,8 @@
       stroke: currentColor;
     }
     .card-desc {
-      font-size: 1.01rem;
-      line-height: 1.74;
+      font-size: 17px;
+      line-height: 1.65;
       color: var(--muted-dark);
     }
     .approach-card-link {
@@ -942,7 +901,7 @@
       background: #FFFFFF;
       border: 1px solid rgba(21,32,43,0.08);
       border-radius: 16px;
-      box-shadow: var(--soft-shadow);
+      box-shadow: none;
       color: var(--text-dark);
       transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease, background 200ms ease;
     }
@@ -985,7 +944,7 @@
     .approach-synthesis-item:hover {
       transform: translateY(-2px);
       border-color: rgba(63,110,161,0.18);
-      box-shadow: 0 10px 22px rgba(0,0,0,0.04);
+      box-shadow: none;
       background: #FFFFFF;
     }
     .approach-synthesis-item.is-linked .approach-synthesis-glyph,
@@ -993,6 +952,37 @@
       background: rgba(63,110,161,0.07);
       border-color: rgba(63,110,161,0.16);
       transform: translateY(-1px);
+    }
+
+    .synthesis {
+      position: relative;
+      background: #FFFFFF;
+      padding: 78px 34px 88px;
+      color: var(--text-dark);
+      border-top: 1px solid rgba(21,32,43,0.04);
+      border-bottom: 1px solid rgba(21,32,43,0.04);
+    }
+    .synthesis-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .synthesis-panel {
+      margin-top: 28px;
+      padding: 0;
+      background: transparent;
+      border: 0;
+      text-align: left;
+    }
+    .synthesis-panel .approach-synthesis-grid {
+      margin: 0;
+      max-width: none;
+    }
+    .synthesis-panel .approach-synthesis-item {
+      border-radius: 14px;
+      box-shadow: none;
+      border: 1px solid rgba(21,32,43,0.08);
     }
     .approach-foundation {
       margin: 20px auto 0;
@@ -1049,7 +1039,7 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: var(--soft-shadow);
+      box-shadow: none;
       transition: border-color 180ms ease, color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
     }
     .rail-arrow:hover,
@@ -1057,7 +1047,7 @@
       color: var(--accent-dark);
       border-color: rgba(63,110,161,0.22);
       transform: translateY(-1px);
-      box-shadow: 0 8px 18px rgba(0,0,0,0.04);
+      box-shadow: none;
       outline: none;
     }
     .latest-viewport {
@@ -1077,14 +1067,14 @@
       background: #FFFFFF;
       border: 1px solid rgba(21,32,43,0.08);
       border-radius: var(--card-radius);
-      box-shadow: var(--soft-shadow);
+      box-shadow: none;
       overflow: hidden;
       transition: transform var(--transition-slow), box-shadow var(--transition-slow), border-color var(--transition);
     }
     .latest-card:hover {
       transform: translateY(-3px);
       border-color: rgba(63,110,161,0.14);
-      box-shadow: 0 10px 22px rgba(0,0,0,0.035);
+      box-shadow: none;
     }
     .latest-card-image {
       aspect-ratio: 16 / 8.2;
@@ -1119,8 +1109,8 @@
     }
     .latest-card-text {
       margin: 0 0 14px;
-      font-size: 0.88rem;
-      line-height: 1.58;
+      font-size: 15px;
+      line-height: 1.65;
       color: var(--muted-dark);
     }
     .latest-card-link {
@@ -1170,15 +1160,7 @@
       border-bottom: 1px solid rgba(255,255,255,0.06);
     }
     .connect::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at 80% 20%, rgba(63,110,161,0.10), transparent 28%),
-        linear-gradient(135deg, rgba(63,110,161,0.03) 1px, transparent 1px);
-      background-size: auto, 34px 34px;
-      opacity: 0.36;
-      pointer-events: none;
+      content: none;
     }
     .connect-inner {
       display: grid;
@@ -1201,18 +1183,18 @@
     .connect-text {
       margin: 0;
       max-width: 54ch;
-      font-size: 1.04rem;
-      line-height: 1.72;
+      font-size: 17px;
+      line-height: 1.65;
       color: rgba(245,247,250,0.74);
     }
     .connect-panel {
-      background: rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.10);
       border-radius: var(--panel-radius);
       padding: 30px 30px 27px;
-      box-shadow: 0 1px 0 rgba(255,255,255,0.02), 0 14px 28px rgba(0,0,0,0.10);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
     }
     .connect-kicker {
       margin: 0 0 14px;
@@ -1227,7 +1209,7 @@
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      font-size: clamp(1.06rem, 1.6vw, 1.22rem);
+      font-size: 17px;
       line-height: 1.3;
       font-weight: 500;
       letter-spacing: -0.015em;
@@ -1285,7 +1267,7 @@
       transform: translateY(-2px);
       border-color: rgba(118,165,211,0.22);
       background: rgba(255,255,255,0.06);
-      box-shadow: 0 10px 22px rgba(0,0,0,0.10);
+      box-shadow: none;
       outline: none;
     }
     .connect-inline-embedded {
@@ -1438,7 +1420,7 @@
         align-items: flex-start;
       }
     }
-    @media (max-width: 760px) {
+    @media (max-width: 640px) {
       .header-inner {
         padding: 14px 20px 10px;
         gap: 10px;
@@ -1480,20 +1462,11 @@
       .hero-copy { max-width: 100%; }
       .hero h1 {
         max-width: 100%;
-        font-size: clamp(2.15rem, 10vw, 3rem);
-        line-height: 0.92;
+        font-size: 44px;
+        line-height: 1.0;
       }
       .hero-title {
         gap: 0.06em;
-      }
-      .hero-line-top {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.02em;
-      }
-      .hero-rotator {
-        min-width: auto;
       }
       .hero-dek {
         max-width: 100%;
@@ -1505,11 +1478,6 @@
         align-items: stretch;
         gap: 14px;
         max-width: 420px;
-      }
-      .hero-signal {
-        max-width: 100%;
-        font-size: 0.8rem;
-        line-height: 1.5;
       }
       .btn {
         width: 100%;
@@ -1577,554 +1545,496 @@
   </style>
 </head>
 <body>
-  <header class="header" id="siteHeader">
-    <div class="header-inner">
-      <a href="index.html" class="brand">Monderman</a>
-      <nav class="nav" aria-label="Primary navigation">
-        <a href="#approach">Approach</a>
-        <a href="diagnostic-tools.html">Diagnostic Hub</a>
-        <a href="research.html">Research</a>
-        <a href="why-monderman.html">Why Monderman</a>
-        <a href="advisory-services-connect.html">Connect</a>
-        <a href="signin.html" class="workspace-link">Workspace</a>
-      </nav>
-    </div>
-  </header>
-
-  <section class="hero" aria-labelledby="hero-title">
-    <div class="hero-media-wrap" aria-hidden="true">
-      <img class="hero-image" id="heroImage" src="Decision Velocity.jpg" alt="" decoding="async" fetchpriority="high" />
-      <div class="hero-overlay"></div>
-    </div>
-    <div class="hero-inner">
-      <div class="hero-copy">
-        <p class="hero-eyebrow">Diagnostic Platform for Administrative Reality</p>
-        <h1 id="hero-title" class="hero-title">
-          <span class="hero-line hero-line-top">
-            <span class="hero-line-label">Organizations</span>
-            <span class="hero-rotator" aria-live="polite" aria-atomic="true"><span class="hero-rotate-word" id="heroRotateWord">deliver</span></span>
-          </span>
-          <span class="hero-line">at the speed of their</span>
-          <span class="hero-line">administrative reality.</span>
-        </h1>
-        <p class="hero-dek">
+<header class="header" id="siteHeader">
+<div class="header-inner">
+<a class="brand" href="index.html">Monderman</a>
+<nav aria-label="Primary navigation" class="nav">
+<a href="#approach">Approach</a>
+<a href="diagnostic-tools.html">Diagnostic Hub</a>
+<a href="research.html">Research</a>
+<a href="why-monderman.html">Why Monderman</a>
+<a href="advisory-services-connect.html">Connect</a>
+<a class="workspace-link" href="workspace.html">Workspace</a>
+</nav>
+</div>
+</header>
+<section aria-labelledby="hero-title" class="hero">
+<div aria-hidden="true" class="hero-media-wrap">
+<img alt="" class="hero-image" decoding="async" fetchpriority="high" id="heroImage" src="Decision Velocity.jpg"/>
+<div class="hero-overlay"></div>
+</div>
+<div class="hero-inner">
+<div class="hero-copy">
+<p class="hero-eyebrow">Administrative reality is a governable variable.</p>
+<h1 class="hero-title" id="hero-title"><span class="hero-line">Organizations deliver at the</span><span class="hero-line">speed of their</span><span class="hero-line">administrative reality.</span></h1>
+<p class="hero-dek">
           Monderman is the diagnostic platform institutions use to measure, compare, and govern administrative reality — repeatedly, across perspectives, over time.
         </p>
-        <p class="hero-signal">
-          Built for leaders of complex institutions — defense, healthcare, government, and regulated enterprise — where structural drag accumulates faster than one-time assessments can surface it.
-        </p>
-        <div class="hero-actions">
-          <a class="btn btn-accent" href="diagnostic-tools.html">Run a First Diagnostic</a>
-          <a class="btn btn-secondary" href="advisory-services-connect.html">Request Platform Support</a>
-        </div>
-              </div>
-      </div>
-  </section>
-
-  <section class="differentiators" aria-labelledby="differentiators-title">
-    <div class="differentiators-inner">
-      <div class="differentiators-grid">
-        <article class="diff-card reveal reveal-delay-1">
-          <p class="diff-kicker">Repeated measurement</p>
-          <h2 id="differentiators-title" class="diff-title">Not one-time assessment.</h2>
-          <p class="diff-text">
+<div class="hero-actions">
+<a class="btn btn-accent" href="diagnostic-tools.html">Run a First Diagnostic</a>
+<a class="btn btn-secondary" href="advisory-services-connect.html">Request Platform Support</a>
+</div>
+</div>
+</div>
+</section>
+<section aria-labelledby="differentiators-title" class="differentiators">
+<div class="differentiators-inner"><h2 class="diff-section-heading" id="differentiators-title">What makes Monderman different.</h2>
+<div class="differentiators-grid">
+<article class="diff-card reveal reveal-delay-1">
+<p class="diff-kicker">Repeated measurement</p>
+<h3 class="diff-title">Not one-time assessment.</h3>
+<p class="diff-text">
             The same instrument, run again after change, is where value compounds. Monderman is built for the second, third, and tenth read.
           </p>
-        </article>
-
-        <article class="diff-card reveal reveal-delay-2">
-          <p class="diff-kicker">Perspective lenses</p>
-          <h3 class="diff-title">Three vantage points on the same system.</h3>
-          <p class="diff-text">
+</article>
+<article class="diff-card reveal reveal-delay-2">
+<p class="diff-kicker">Perspective lenses</p>
+<h3 class="diff-title">Three vantage points on the same system.</h3>
+<p class="diff-text">
             Operational, managerial, and senior leader readings of the same reality rarely match perfectly. The divergence is often the signal.
           </p>
-        </article>
-
-        <article class="diff-card reveal reveal-delay-3">
-          <p class="diff-kicker">Cross-diagnostic synthesis</p>
-          <h3 class="diff-title">Not isolated scores.</h3>
-          <p class="diff-text">
+</article>
+<article class="diff-card reveal reveal-delay-3">
+<p class="diff-kicker">Cross-diagnostic synthesis</p>
+<h3 class="diff-title">Not isolated scores.</h3>
+<p class="diff-text">
             Results from the four diagnostics can compose into a broader institutional read, making patterns legible across lenses rather than one score at a time.
           </p>
-        </article>
-
-        <article class="diff-card reveal reveal-delay-4">
-          <p class="diff-kicker">Longitudinal governance</p>
-          <h3 class="diff-title">Comparable run after run.</h3>
-          <p class="diff-text">
+</article>
+<article class="diff-card reveal reveal-delay-4">
+<p class="diff-kicker">Longitudinal governance</p>
+<h3 class="diff-title">Comparable run after run.</h3>
+<p class="diff-text">
             One instrument, administered the same way, run after run. Stable scoring, locked question paths, controlled visibility states, and auditable administration across teams and time.
           </p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="bureaucracy-cost section-with-bar snap-anchor" id="cost-section" aria-labelledby="cost-title">
-    <div class="section-bar" aria-hidden="true">Cost of Bureaucratic Friction</div>
-    <div class="cost-inner">
-      <div class="cost-heading reveal">
-                <h2 id="cost-title">Where performance is quietly lost.</h2>
-        <p class="cost-context">
+</article>
+</div>
+</div>
+</section>
+<section aria-labelledby="cost-title" class="bureaucracy-cost section-with-bar snap-anchor" id="cost-section">
+<div aria-hidden="true" class="section-bar">Cost of Bureaucratic Friction</div>
+<div class="cost-inner">
+<div class="cost-heading reveal">
+<h2 id="cost-title">Where performance is quietly lost.</h2>
+<p class="cost-context">
           Many institutions are already paying these costs in time, money, and productive capacity without fully seeing where the losses originate or why repeated fixes fail to resolve them.
         </p>
-      </div>
-
-      <div class="cost-grid">
-        <div class="cost-card reveal reveal-delay-1">
-          <div class="cost-card-title">Time<span class="asterisk">*</span></div>
-          <p class="cost-card-source"><em>* Harvard Business Review, 2016</em></p>
-          <div class="cost-card-number" data-count-type="percent" data-target="40">0%</div>
-          <p class="cost-card-text">of managers' time can be consumed by reports alone.</p>
-        </div>
-
-        <div class="cost-card reveal reveal-delay-2">
-          <div class="cost-card-title">Money<span class="asterisk">*</span></div>
-          <p class="cost-card-source"><em>* Gary Hamel &amp; Michele Zanini, HBR, 2018</em></p>
-          <div class="cost-card-number" data-count-type="currency-trillion" data-target="3">$0T</div>
-          <p class="cost-card-text">estimated annual cost of excess management in the U.S. economy.</p>
-        </div>
-
-        <div class="cost-card reveal reveal-delay-3">
-          <div class="cost-card-title">Productive Capacity<span class="asterisk">*</span></div>
-          <p class="cost-card-source"><em>* OECD administrative burden guidance, 2010s</em></p>
-          <div class="cost-card-number" data-count-type="range-percent" data-target="30">0–0%</div>
-          <p class="cost-card-text">of productive capacity can be absorbed by administrative burden.</p>
-        </div>
-      </div>
-
-      <p class="cost-footer reveal reveal-delay-4">
+</div>
+<div class="cost-grid">
+<div class="cost-card reveal reveal-delay-1">
+<div class="cost-card-title">Time<span class="asterisk">*</span></div>
+<p class="cost-card-source"><em>* Harvard Business Review, 2016</em></p>
+<div class="cost-card-number" data-count-type="percent" data-target="40">0%</div>
+<p class="cost-card-text">of managers' time can be consumed by reports alone.</p>
+</div>
+<div class="cost-card reveal reveal-delay-2">
+<div class="cost-card-title">Money<span class="asterisk">*</span></div>
+<p class="cost-card-source"><em>* Gary Hamel &amp; Michele Zanini, HBR, 2018</em></p>
+<div class="cost-card-number" data-count-type="currency-trillion" data-target="3">$0T</div>
+<p class="cost-card-text">estimated annual cost of excess management in the U.S. economy.</p>
+</div>
+<div class="cost-card reveal reveal-delay-3">
+<div class="cost-card-title">Productive Capacity<span class="asterisk">*</span></div>
+<p class="cost-card-source"><em>* OECD administrative burden guidance, 2010s</em></p>
+<div class="cost-card-number" data-count-type="range-percent" data-target="30">0–0%</div>
+<p class="cost-card-text">of productive capacity can be absorbed by administrative burden.</p>
+</div>
+</div>
+<p class="cost-footer reveal reveal-delay-4">
         Sources: Harvard Business Review reporting research (2016); Gary Hamel and Michele Zanini, Harvard Business Review (2018); OECD administrative burden guidance.
       </p>
-    </div>
-  </section>
-
-  <section class="approach section-with-bar snap-anchor" id="approach" aria-labelledby="approach-title">
-    <div class="section-bar" aria-hidden="true">Our Approach</div>
-    <div class="approach-inner">
-      <div class="section-intro reveal">
-        <h2 id="approach-title">Designing systems for clarity and execution.</h2>
-        <p class="approach-bridge">
+</div>
+</section>
+<section aria-labelledby="approach-title" class="approach section-with-bar snap-anchor" id="approach">
+<div aria-hidden="true" class="section-bar">Our Approach</div>
+<div class="approach-inner">
+<div class="section-intro reveal">
+<h2 id="approach-title">Designing systems for clarity and execution.</h2>
+<p class="approach-bridge">
           Monderman gives institutions a set of diagnostic lenses for reading where strategy becomes execution — or stalls under the weight of unclear structures, slower decisions, and administrative systems that no longer support the work.
         </p>
-        <p class="approach-taxonomy">
+<p class="approach-taxonomy">
           Four lenses on the same institutional system — time through it, legibility of it, weight of it, and whether it still holds.
         </p>
-      </div>
-
-      <div class="approach-grid">
-        <div class="approach-card reveal reveal-delay-1" data-effect-target="clarity">
-          <div class="approach-card-head">
-            <span class="approach-glyph" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
-              </svg>
-            </span>
-            <div class="approach-card-head-copy">
-              <div class="card-title">Structural Clarity</div>
-              <div class="card-subhead"><em>Is the system legible?</em></div>
-            </div>
-          </div>
-          <div class="card-desc">
+</div>
+<div class="approach-grid">
+<div class="approach-card reveal reveal-delay-1" data-effect-target="clarity">
+<div class="approach-card-head">
+<span aria-hidden="true" class="approach-glyph">
+<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
+</svg>
+</span>
+<div class="approach-card-head-copy">
+<div class="card-title">Structural Clarity</div>
+<div class="card-subhead"><em>Is the system legible?</em></div>
+</div>
+</div>
+<div class="card-desc">
             Monderman identifies where ambiguity in ownership, authority, handoffs, and role boundaries is forcing people to compensate around the structure instead of relying on it.
           </div>
-          <a class="approach-card-link" href="structural-clarity-article.html">Read article &#8594;</a>
-        </div>
-
-        <div class="approach-card reveal reveal-delay-2" data-effect-target="velocity">
-          <div class="approach-card-head">
-            <span class="approach-glyph" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
-              </svg>
-            </span>
-            <div class="approach-card-head-copy">
-              <div class="card-title">Decision Velocity</div>
-              <div class="card-subhead"><em>Does time move through it?</em></div>
-            </div>
-          </div>
-          <div class="card-desc">
+<a class="approach-card-link" href="structural-clarity-article.html">Read article →</a>
+</div>
+<div class="approach-card reveal reveal-delay-2" data-effect-target="velocity">
+<div class="approach-card-head">
+<span aria-hidden="true" class="approach-glyph">
+<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
+</svg>
+</span>
+<div class="approach-card-head-copy">
+<div class="card-title">Decision Velocity</div>
+<div class="card-subhead"><em>Does time move through it?</em></div>
+</div>
+</div>
+<div class="card-desc">
             Monderman surfaces where approvals, escalation, review layering, and routing burden are slowing movement through important decisions.
           </div>
-          <a class="approach-card-link" href="decision-velocity-article.html">Read article &#8594;</a>
-        </div>
-
-        <div class="approach-card reveal reveal-delay-3" data-effect-target="systems">
-          <div class="approach-card-head">
-            <span class="approach-glyph" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
-              </svg>
-            </span>
-            <div class="approach-card-head-copy">
-              <div class="card-title">Operational Systems</div>
-              <div class="card-subhead"><em>How much weight is it carrying?</em></div>
-            </div>
-          </div>
-          <div class="card-desc">
+<a class="approach-card-link" href="decision-velocity-article.html">Read article →</a>
+</div>
+<div class="approach-card reveal reveal-delay-3" data-effect-target="systems">
+<div class="approach-card-head">
+<span aria-hidden="true" class="approach-glyph">
+<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
+<rect height="14" rx="2" width="16" x="4" y="5"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
+</svg>
+</span>
+<div class="approach-card-head-copy">
+<div class="card-title">Operational Systems</div>
+<div class="card-subhead"><em>How much weight is it carrying?</em></div>
+</div>
+</div>
+<div class="card-desc">
             Monderman identifies where process density, reporting burden, and recurring administrative overhead are absorbing time and effort that should be supporting delivery.
           </div>
-          <a class="approach-card-link" href="operational-systems-article.html">Read article &#8594;</a>
-        </div>
-
-        <div class="approach-card reveal reveal-delay-4" data-effect-target="performance">
-          <div class="approach-card-head">
-            <span class="approach-glyph" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
-              </svg>
-            </span>
-            <div class="approach-card-head-copy">
-              <div class="card-title">Institutional Performance</div>
-              <div class="card-subhead"><em>Does it still hold?</em></div>
-            </div>
-          </div>
-          <div class="card-desc">
+<a class="approach-card-link" href="operational-systems-article.html">Read article →</a>
+</div>
+<div class="approach-card reveal reveal-delay-4" data-effect-target="performance">
+<div class="approach-card-head">
+<span aria-hidden="true" class="approach-glyph">
+<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
+<circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
+</svg>
+</span>
+<div class="approach-card-head-copy">
+<div class="card-title">Institutional Performance</div>
+<div class="card-subhead"><em>Does it still hold?</em></div>
+</div>
+</div>
+<div class="card-desc">
             Monderman reads the broader institutional condition — whether the system is sustaining resilience, confidence, and adaptive capacity or quietly weakening beneath the work.
           </div>
-          <a class="approach-card-link" href="institutional-performance-article.html">Read article &#8594;</a>
-        </div>
-      </div>
-
-      <div class="approach-synthesis reveal">
-        <p class="cost-label">Reinforcing Outcomes</p>
-        <p class="approach-synthesis-copy">
-          Four reinforcing outcomes that strengthen when institutions use Monderman repeatedly to govern structural conditions over time.
-        </p>
-        <div class="approach-synthesis-grid">
-          <a class="approach-synthesis-item" data-effect="clarity" href="structural-clarity-article.html">
-            <div class="approach-synthesis-item-head">
-              <span class="approach-synthesis-glyph" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
-                </svg>
-              </span>
-              <strong>Confident Action</strong>
-            </div>
-            <span class="approach-synthesis-link">Structural Clarity</span>
-            <span class="approach-synthesis-body">When people can see who owns what, who decides, and how execution should move.</span>
-          </a>
-          <a class="approach-synthesis-item" data-effect="velocity" href="decision-velocity-article.html">
-            <div class="approach-synthesis-item-head">
-              <span class="approach-synthesis-glyph" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
-                </svg>
-              </span>
-              <strong>Sustained Advantage</strong>
-            </div>
-            <span class="approach-synthesis-link">Decision Velocity</span>
-            <span class="approach-synthesis-body">When important decisions move faster than the drag, delay, and review weight accumulating beneath the work.</span>
-          </a>
-          <a class="approach-synthesis-item" data-effect="systems" href="operational-systems-article.html">
-            <div class="approach-synthesis-item-head">
-              <span class="approach-synthesis-glyph" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
-                </svg>
-              </span>
-              <strong>Reclaimed Capacity</strong>
-            </div>
-            <span class="approach-synthesis-link">Operational Systems</span>
-            <span class="approach-synthesis-body">When administrative systems stop absorbing time and effort that should be available for delivery and judgment.</span>
-          </a>
-          <a class="approach-synthesis-item" data-effect="performance" href="institutional-performance-article.html">
-            <div class="approach-synthesis-item-head">
-              <span class="approach-synthesis-glyph" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
-                </svg>
-              </span>
-              <strong>Organizational Credibility</strong>
-            </div>
-            <span class="approach-synthesis-link">Institutional Performance</span>
-            <span class="approach-synthesis-body">When the institution continues to hold under pressure without depending on heroic effort or hidden compensation.</span>
-          </a>
-        </div>
-        <div class="approach-foundation">Sustained Institutional Advantage</div>
-      </div>
-    </div>
-  </section>
-
-  <section class="diagnostic-estimate section-with-bar snap-anchor" id="diagnostic-estimate" aria-labelledby="estimate-title">
-    <div class="section-bar" aria-hidden="true">Diagnostic Hub</div>
-    <div class="diagnostic-estimate-inner">
-      <div class="diagnostic-estimate-heading reveal">
-                <h2 id="estimate-title">Estimate the hidden cost of structural drag.</h2>
-        <p class="estimate-context">
+<a class="approach-card-link" href="institutional-performance-article.html">Read article →</a>
+</div>
+</div>
+</div>
+</section><section aria-labelledby="synthesis-title" class="synthesis section-with-bar snap-anchor" id="synthesis"><div aria-hidden="true" class="section-bar">Synthesis</div><div class="synthesis-inner"><div class="section-intro reveal"><h2 id="synthesis-title">The compound result</h2><p>What institutions gain when all four diagnostics are used together is not just four scores, but a broader institutional read that clarifies what to protect, what to fix, and where capacity can be recovered.</p></div><div class="synthesis-panel reveal reveal-delay-1">
+<div class="approach-synthesis-grid">
+<a class="approach-synthesis-item" data-effect="clarity" href="structural-clarity-article.html">
+<div class="approach-synthesis-item-head">
+<span aria-hidden="true" class="approach-synthesis-glyph">
+<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
+</svg>
+</span>
+<strong>Confident Action</strong>
+</div>
+<span class="approach-synthesis-link">Structural Clarity</span>
+<span class="approach-synthesis-body">When people can see who owns what, who decides, and how execution should move.</span>
+</a>
+<a class="approach-synthesis-item" data-effect="velocity" href="decision-velocity-article.html">
+<div class="approach-synthesis-item-head">
+<span aria-hidden="true" class="approach-synthesis-glyph">
+<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
+</svg>
+</span>
+<strong>Sustained Advantage</strong>
+</div>
+<span class="approach-synthesis-link">Decision Velocity</span>
+<span class="approach-synthesis-body">When important decisions move faster than the drag, delay, and review weight accumulating beneath the work.</span>
+</a>
+<a class="approach-synthesis-item" data-effect="systems" href="operational-systems-article.html">
+<div class="approach-synthesis-item-head">
+<span aria-hidden="true" class="approach-synthesis-glyph">
+<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
+<rect height="14" rx="2" width="16" x="4" y="5"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
+</svg>
+</span>
+<strong>Reclaimed Capacity</strong>
+</div>
+<span class="approach-synthesis-link">Operational Systems</span>
+<span class="approach-synthesis-body">When administrative systems stop absorbing time and effort that should be available for delivery and judgment.</span>
+</a>
+<a class="approach-synthesis-item" data-effect="performance" href="institutional-performance-article.html">
+<div class="approach-synthesis-item-head">
+<span aria-hidden="true" class="approach-synthesis-glyph">
+<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
+<circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
+</svg>
+</span>
+<strong>Organizational Credibility</strong>
+</div>
+<span class="approach-synthesis-link">Institutional Performance</span>
+<span class="approach-synthesis-body">When the institution continues to hold under pressure without depending on heroic effort or hidden compensation.</span>
+</a>
+</div>
+</div></div></section>
+<section aria-labelledby="estimate-title" class="diagnostic-estimate section-with-bar snap-anchor" id="diagnostic-estimate">
+<div aria-hidden="true" class="section-bar">Diagnostic Hub</div>
+<div class="diagnostic-estimate-inner">
+<div class="diagnostic-estimate-heading reveal">
+<h2 id="estimate-title">Estimate the hidden cost of structural drag.</h2>
+<p class="estimate-context">
           This directional estimate gives a high-level read on how much time, money, and productive capacity may be absorbed by administrative and bureaucratic burden inside a complex organization.
         </p>
-        <p class="estimate-bridge">
+<p class="estimate-bridge">
           The deeper cost is rarely workforce size alone. It is the accumulation of administrative and bureaucratic systems beneath operations and strategy that, when poorly maintained, steadily absorb time, money, and productive capacity.
         </p>
-      </div>
-
-      <div class="estimate-controls reveal reveal-delay-1">
-        <div class="estimate-field">
-          <label for="estimateOrgSize">Organization size</label>
-          <select id="estimateOrgSize" aria-label="Organization size">
-            <option value="" selected>---</option>
-            <option value="50">1–50</option>
-            <option value="250">51–250</option>
-            <option value="1000">251–1,000</option>
-            <option value="5000">1,001–5,000</option>
-            <option value="25000">5,001–25,000</option>
-            <option value="100000">25,000+</option>
-          </select>
-        </div>
-
-        <div class="estimate-field">
-          <label for="estimateComplexity">Organizational complexity</label>
-          <select id="estimateComplexity" aria-label="Organizational complexity">
-            <option value="" selected>---</option>
-            <option value="light">Light</option>
-            <option value="moderate">Moderate</option>
-            <option value="heavy">Heavy</option>
-            <option value="excessive">Excessive</option>
-          </select>
-        </div>
-
-        <div class="estimate-field">
-          <label for="estimateSector">Sector</label>
-          <select id="estimateSector" aria-label="Sector">
-            <option value="" selected>---</option>
-            <option value="general">General private sector</option>
-            <option value="defense-department">Defense Department</option>
-            <option value="defense-production">Defense production</option>
-            <option value="federal-civilian">Federal civilian government</option>
-            <option value="state-government">State government</option>
-            <option value="local-government">Local government</option>
-            <option value="intelligence">Intelligence / national security</option>
-            <option value="healthcare-provider">Healthcare provider</option>
-            <option value="health-insurer">Health insurer / payer</option>
-            <option value="higher-education">Higher education</option>
-            <option value="manufacturing">Manufacturing</option>
-            <option value="financial-services">Financial services</option>
-            <option value="insurance">Insurance</option>
-            <option value="technology">Technology / software</option>
-            <option value="energy">Energy / utilities</option>
-            <option value="logistics">Logistics / transportation</option>
-            <option value="professional-services">Professional services</option>
-            <option value="nonprofit">Nonprofit / mission organization</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="estimate-grid">
-        <div class="estimate-card reveal reveal-delay-2">
-          <div class="estimate-card-title">Time</div>
-          <p class="estimate-card-source"><em>Directional annual labor hours</em></p>
-          <div class="estimate-card-number" id="estimateTime">0</div>
-          <p class="estimate-card-text">
+</div>
+<div class="estimate-controls reveal reveal-delay-1">
+<div class="estimate-field">
+<label for="estimateOrgSize">Organization size</label>
+<select aria-label="Organization size" id="estimateOrgSize">
+<option selected="" value="">---</option>
+<option value="50">1–50</option>
+<option value="250">51–250</option>
+<option value="1000">251–1,000</option>
+<option value="5000">1,001–5,000</option>
+<option value="25000">5,001–25,000</option>
+<option value="100000">25,000+</option>
+</select>
+</div>
+<div class="estimate-field">
+<label for="estimateComplexity">Organizational complexity</label>
+<select aria-label="Organizational complexity" id="estimateComplexity">
+<option selected="" value="">---</option>
+<option value="light">Light</option>
+<option value="moderate">Moderate</option>
+<option value="heavy">Heavy</option>
+<option value="excessive">Excessive</option>
+</select>
+</div>
+<div class="estimate-field">
+<label for="estimateSector">Sector</label>
+<select aria-label="Sector" id="estimateSector">
+<option selected="" value="">---</option>
+<option value="general">General private sector</option>
+<option value="defense-department">Defense Department</option>
+<option value="defense-production">Defense production</option>
+<option value="federal-civilian">Federal civilian government</option>
+<option value="state-government">State government</option>
+<option value="local-government">Local government</option>
+<option value="intelligence">Intelligence / national security</option>
+<option value="healthcare-provider">Healthcare provider</option>
+<option value="health-insurer">Health insurer / payer</option>
+<option value="higher-education">Higher education</option>
+<option value="manufacturing">Manufacturing</option>
+<option value="financial-services">Financial services</option>
+<option value="insurance">Insurance</option>
+<option value="technology">Technology / software</option>
+<option value="energy">Energy / utilities</option>
+<option value="logistics">Logistics / transportation</option>
+<option value="professional-services">Professional services</option>
+<option value="nonprofit">Nonprofit / mission organization</option>
+</select>
+</div>
+</div>
+<div class="estimate-grid">
+<div class="estimate-card reveal reveal-delay-2">
+<div class="estimate-card-title">Time</div>
+<p class="estimate-card-source"><em>Directional annual labor hours</em></p>
+<div class="estimate-card-number" id="estimateTime">0</div>
+<p class="estimate-card-text">
             estimated labor hours absorbed each year by coordination, compliance, review, and process burden.
           </p>
-        </div>
-
-        <div class="estimate-card reveal reveal-delay-3">
-          <div class="estimate-card-title">Money</div>
-          <p class="estimate-card-source"><em>Directional annual cost equivalent</em></p>
-          <div class="estimate-card-number" id="estimateMoney">$0</div>
-          <p class="estimate-card-text">
+</div>
+<div class="estimate-card reveal reveal-delay-3">
+<div class="estimate-card-title">Money</div>
+<p class="estimate-card-source"><em>Directional annual cost equivalent</em></p>
+<div class="estimate-card-number" id="estimateMoney">$0</div>
+<p class="estimate-card-text">
             estimated annual cost of overhead absorbed by administrative and bureaucratic systems.
           </p>
-        </div>
-
-        <div class="estimate-card reveal reveal-delay-4">
-          <div class="estimate-card-title">Productive Capacity</div>
-          <p class="estimate-card-source"><em>Directional productive capacity absorbed</em></p>
-          <div class="estimate-card-number" id="estimateResources">0%</div>
-          <p class="estimate-card-text">
+</div>
+<div class="estimate-card reveal reveal-delay-4">
+<div class="estimate-card-title">Productive Capacity</div>
+<p class="estimate-card-source"><em>Directional productive capacity absorbed</em></p>
+<div class="estimate-card-number" id="estimateResources">0%</div>
+<p class="estimate-card-text">
             estimated share of productive capacity absorbed by administrative overhead rather than mission or operational output.
           </p>
-        </div>
-      </div>
-
-      <div class="estimate-footer reveal reveal-delay-4">
-        <div class="estimate-foot-copy">
-          <p>
+</div>
+</div>
+<div class="estimate-footer reveal reveal-delay-4">
+<div class="estimate-foot-copy">
+<p>
             These are directional estimates based on public research on management overhead, administrative burden, and compliance costs. They are intended to provide a high-level signal, not an audited organizational measurement.
           </p>
-          <p>
+<p>
             Use the diagnostic suite to establish a baseline, then return as systems and surrounding conditions evolve. The value compounds on the second and third run, when institutions can compare conditions over time and see whether interventions restored velocity or whether new administrative drag is quietly accumulating.
           </p>
-        </div>
-        <a class="btn btn-accent" href="diagnostic-tools.html">Enter the Diagnostic Hub</a>
-      </div>
-    </div>
-  </section>
-
-  <section class="latest section-with-bar snap-anchor" id="latest" aria-labelledby="latest-title">
-    <div class="section-bar" aria-hidden="true">Latest from Monderman</div>
-    <div class="latest-inner">
-      <div class="latest-head">
-        <div class="latest-intro section-intro reveal">
-                    <h2 id="latest-title">Research, briefs, and perspectives</h2>
-          <p>
+</div>
+<a class="btn btn-accent" href="diagnostic-tools.html">Enter the Diagnostic Hub</a>
+</div>
+</div>
+</section>
+<section aria-labelledby="latest-title" class="latest section-with-bar snap-anchor" id="latest">
+<div aria-hidden="true" class="section-bar">Latest from Monderman</div>
+<div class="latest-inner">
+<div class="latest-head">
+<div class="latest-intro section-intro reveal">
+<h2 id="latest-title">Research, briefs, and perspectives</h2>
+<p>
             Current publications and featured work on administrative burden, institutional design, decision velocity, and the hidden conditions Monderman is designed to diagnose under complexity.
           </p>
-        </div>
-
-        <div class="latest-controls reveal reveal-delay-2" aria-label="Latest content controls">
-          <button class="rail-arrow" id="latestPrev" type="button" aria-label="Show previous latest items">&#8592;</button>
-          <button class="rail-arrow" id="latestNext" type="button" aria-label="Show next latest items">&#8594;</button>
-        </div>
-      </div>
-
-      <div class="latest-viewport" id="latestViewport">
-        <div class="latest-track" id="latestTrack">
-          <article class="latest-card">
-            <div class="latest-card-image"><img src="ABM_brief_image.png" alt="Abstract institutional pathway network image for Active Bureaucratic Management brief" /></div>
-            <div class="latest-card-body">
-              <p class="latest-card-kicker">Featured · Executive Brief</p>
-              <h3 class="latest-card-title">Active Bureaucratic Management</h3>
-              <p class="latest-card-text">A Monderman executive brief introducing Active Bureaucratic Management as a more continuous way to detect friction, govern bureaucracy, and improve institutional performance.</p>
-              <a class="latest-card-link" href="Monderman_Active_Bureaucratic_Management.pdf" target="_blank" rel="noopener noreferrer">Download brief &#8594;</a>
-            </div>
-          </article>
-
-          <article class="latest-card">
-            <div class="latest-card-image"><img src="Washington DC.jpg" alt="Washington, D.C. skyline for Monderman defense research" /></div>
-            <div class="latest-card-body">
-              <p class="latest-card-kicker">Defense · Research Brief</p>
-              <h3 class="latest-card-title">Accumulated Drag in the Department of War</h3>
-              <p class="latest-card-text">A Monderman research brief on accumulated drag, administrative burden, and institutional friction in one of the world’s most complex public institutions.</p>
-              <a class="latest-card-link" href="Monderman%20Accumulated%20Drag%20DoW.pdf" target="_blank" rel="noopener noreferrer">Download research &#8594;</a>
-            </div>
-          </article>
-
-          <article class="latest-card">
-            <div class="latest-card-image"><img src="Healthcare costs.jpg" alt="Healthcare costs graphic for Monderman healthcare research" /></div>
-            <div class="latest-card-body">
-              <p class="latest-card-kicker">Healthcare · Research Brief</p>
-              <h3 class="latest-card-title">Quarter-Trillion Friction in U.S. Healthcare</h3>
-              <p class="latest-card-text">A Monderman brief on quarter-trillion friction, administrative burden, and the structural drag complicating performance in healthcare systems.</p>
-              <a class="latest-card-link" href="Monderman%20Quarter%20Trillion%20Friction%20Healthcare.pdf" target="_blank" rel="noopener noreferrer">Download research &#8594;</a>
-            </div>
-          </article>
-
-          <article class="latest-card">
-            <div class="latest-card-image"><img src="Trees.jpg" alt="Tree canopy image for Monderman perspective on compensatory systems" /></div>
-            <div class="latest-card-body">
-              <p class="latest-card-kicker">Perspective · Institutional Performance</p>
-              <h3 class="latest-card-title">How Workarounds Preserve Output While Masking Institutional Dysfunction</h3>
-              <p class="latest-card-text">Organizations often appear to function because people compensate for structural weakness. Output is preserved, but the underlying system continues to deteriorate.</p>
-              <a class="latest-card-link" href="Monderman%20Compensatory%20Systems.pdf" target="_blank" rel="noopener noreferrer">Read perspective &#8594;</a>
-            </div>
-          </article>
-
-          <article class="latest-card">
-            <div class="latest-card-image"><img src="apature.jpg" alt="Kodak aperture image for Monderman research brief" /></div>
-            <div class="latest-card-body">
-              <p class="latest-card-kicker">Research Brief</p>
-              <h3 class="latest-card-title">How the Collapse of Eastman Kodak Is Misunderstood</h3>
-              <p class="latest-card-text">Kodak did not fail because it missed technology. It failed because its administrative and decision systems could not adapt.</p>
-              <a class="latest-card-link" href="the-collapse-of-eastman-kodak.pdf" target="_blank" rel="noopener noreferrer">Download research &#8594;</a>
-            </div>
-          </article>
-
-          <article class="latest-card">
-            <div class="latest-card-image latest-card-image--placeholder latest-card-image--culture" aria-hidden="true" style="background:#1B2E43;">
-              <div class="placeholder-cover">
-                <h3 class="placeholder-cover-title">The Culture Trap</h3>
-              </div>
-            </div>
-            <div class="latest-card-body">
-              <p class="latest-card-kicker">Enterprise · Culture</p>
-              <h3 class="latest-card-title">The Culture Trap</h3>
-              <p class="latest-card-text">Why culture-first diagnosis mislocates the problem — and why organizations that fix sentiment before structure often fix the wrong thing first.</p>
-              <a class="latest-card-link" href="Monderman_Culture_Trap.pdf" target="_blank" rel="noopener noreferrer">Download research &#8594;</a>
-            </div>
-          </article>
-
-          <article class="latest-card">
-            <div class="latest-card-image"><img src="iStock-511677736.jpg" alt="Abstract institutional image for Monderman insight" /></div>
-            <div class="latest-card-body">
-              <p class="latest-card-kicker">Insight</p>
-              <h3 class="latest-card-title">Governing Complexity</h3>
-              <p class="latest-card-text">Why institutions rarely fail because complexity appears, and more often fail because it accumulates faster than their structures can absorb.</p>
-              <a class="latest-card-link" href="governing-complexity.html">Read insight &#8594;</a>
-            </div>
-          </article>
-
-          <article class="latest-card">
-            <div class="latest-card-image"><img src="Decision Velocity.jpg" alt="Decision velocity visual for Monderman insight" /></div>
-            <div class="latest-card-body">
-              <p class="latest-card-kicker">Insight</p>
-              <h3 class="latest-card-title">Designing for Decision Velocity</h3>
-              <p class="latest-card-text">Institutions move well when governance, pathways, and role clarity support sound judgment without generating unnecessary drag.</p>
-              <a class="latest-card-link" href="designing-for-decision-velocity.html">Read insight &#8594;</a>
-            </div>
-          </article>
-        </div>
-      </div>
-
-      <div class="latest-dots" id="latestDots" aria-label="Latest content position"></div>
-    </div>
-  </section>
-
-  <section class="connect" id="connect" aria-labelledby="connect-title">
-    <div class="connect-inner">
-      <div class="connect-copy reveal">
-        <h2 id="connect-title">Choose the right next step.</h2>
-        <p class="connect-signal">Monderman supports both self-serve first reads and more structured conversations about fit, pilots, and platform use.</p>
-        <p class="connect-text">
+</div>
+<div aria-label="Latest content controls" class="latest-controls reveal reveal-delay-2">
+<button aria-label="Show previous latest items" class="rail-arrow" id="latestPrev" type="button">←</button>
+<button aria-label="Show next latest items" class="rail-arrow" id="latestNext" type="button">→</button>
+</div>
+</div>
+<div class="latest-viewport" id="latestViewport">
+<div class="latest-track" id="latestTrack">
+<article class="latest-card">
+<div class="latest-card-image"><img alt="Abstract institutional pathway network image for Active Bureaucratic Management brief" src="ABM_brief_image.png"/></div>
+<div class="latest-card-body">
+<p class="latest-card-kicker">Featured · Executive Brief</p>
+<h3 class="latest-card-title">Active Bureaucratic Management</h3>
+<p class="latest-card-text">A Monderman executive brief introducing Active Bureaucratic Management as a more continuous way to detect friction, govern bureaucracy, and improve institutional performance.</p>
+<a class="latest-card-link" href="Monderman_Active_Bureaucratic_Management.pdf" rel="noopener noreferrer" target="_blank">Download brief →</a>
+</div>
+</article>
+<article class="latest-card">
+<div class="latest-card-image"><img alt="Washington, D.C. skyline for Monderman defense research" src="Washington DC.jpg"/></div>
+<div class="latest-card-body">
+<p class="latest-card-kicker">Defense · Research Brief</p>
+<h3 class="latest-card-title">Accumulated Drag in the Department of War</h3>
+<p class="latest-card-text">A Monderman research brief on accumulated drag, administrative burden, and institutional friction in one of the world’s most complex public institutions.</p>
+<a class="latest-card-link" href="Monderman%20Accumulated%20Drag%20DoW.pdf" rel="noopener noreferrer" target="_blank">Download research →</a>
+</div>
+</article>
+<article class="latest-card">
+<div class="latest-card-image"><img alt="Healthcare costs graphic for Monderman healthcare research" src="Healthcare costs.jpg"/></div>
+<div class="latest-card-body">
+<p class="latest-card-kicker">Healthcare · Research Brief</p>
+<h3 class="latest-card-title">Quarter-Trillion Friction in U.S. Healthcare</h3>
+<p class="latest-card-text">A Monderman brief on quarter-trillion friction, administrative burden, and the structural drag complicating performance in healthcare systems.</p>
+<a class="latest-card-link" href="Monderman%20Quarter%20Trillion%20Friction%20Healthcare.pdf" rel="noopener noreferrer" target="_blank">Download research →</a>
+</div>
+</article>
+<article class="latest-card">
+<div class="latest-card-image"><img alt="Tree canopy image for Monderman perspective on compensatory systems" src="Trees.jpg"/></div>
+<div class="latest-card-body">
+<p class="latest-card-kicker">Perspective · Institutional Performance</p>
+<h3 class="latest-card-title">How Workarounds Preserve Output While Masking Institutional Dysfunction</h3>
+<p class="latest-card-text">Organizations often appear to function because people compensate for structural weakness. Output is preserved, but the underlying system continues to deteriorate.</p>
+<a class="latest-card-link" href="Monderman%20Compensatory%20Systems.pdf" rel="noopener noreferrer" target="_blank">Read perspective →</a>
+</div>
+</article>
+<article class="latest-card">
+<div class="latest-card-image"><img alt="Kodak aperture image for Monderman research brief" src="apature.jpg"/></div>
+<div class="latest-card-body">
+<p class="latest-card-kicker">Research Brief</p>
+<h3 class="latest-card-title">How the Collapse of Eastman Kodak Is Misunderstood</h3>
+<p class="latest-card-text">Kodak did not fail because it missed technology. It failed because its administrative and decision systems could not adapt.</p>
+<a class="latest-card-link" href="the-collapse-of-eastman-kodak.pdf" rel="noopener noreferrer" target="_blank">Download research →</a>
+</div>
+</article>
+<article class="latest-card">
+<div aria-hidden="true" class="latest-card-image latest-card-image--placeholder latest-card-image--culture" style="background:#1B2E43;">
+<div class="placeholder-cover">
+<h3 class="placeholder-cover-title">The Culture Trap</h3>
+</div>
+</div>
+<div class="latest-card-body">
+<p class="latest-card-kicker">Enterprise · Culture</p>
+<h3 class="latest-card-title">The Culture Trap</h3>
+<p class="latest-card-text">Why culture-first diagnosis mislocates the problem — and why organizations that fix sentiment before structure often fix the wrong thing first.</p>
+<a class="latest-card-link" href="Monderman_Culture_Trap.pdf" rel="noopener noreferrer" target="_blank">Download research →</a>
+</div>
+</article>
+<article class="latest-card">
+<div class="latest-card-image"><img alt="Abstract institutional image for Monderman insight" src="iStock-511677736.jpg"/></div>
+<div class="latest-card-body">
+<p class="latest-card-kicker">Insight</p>
+<h3 class="latest-card-title">Governing Complexity</h3>
+<p class="latest-card-text">Why institutions rarely fail because complexity appears, and more often fail because it accumulates faster than their structures can absorb.</p>
+<a class="latest-card-link" href="governing-complexity.html">Read insight →</a>
+</div>
+</article>
+<article class="latest-card">
+<div class="latest-card-image"><img alt="Decision velocity visual for Monderman insight" src="Decision Velocity.jpg"/></div>
+<div class="latest-card-body">
+<p class="latest-card-kicker">Insight</p>
+<h3 class="latest-card-title">Designing for Decision Velocity</h3>
+<p class="latest-card-text">Institutions move well when governance, pathways, and role clarity support sound judgment without generating unnecessary drag.</p>
+<a class="latest-card-link" href="designing-for-decision-velocity.html">Read insight →</a>
+</div>
+</article>
+</div>
+</div>
+<div aria-label="Latest content position" class="latest-dots" id="latestDots"></div>
+</div>
+</section>
+<section aria-labelledby="connect-title" class="connect" id="connect">
+<div class="connect-inner">
+<div class="connect-copy reveal">
+<h2 id="connect-title">Choose the right next step.</h2>
+<p class="connect-signal">Monderman supports both self-serve first reads and more structured conversations about fit, pilots, and platform use.</p>
+<p class="connect-text">
           Some institutions are ready to run a first diagnostic immediately. Others need a more structured conversation about platform fit, support, or how repeated measurement would work in their environment.
         </p>
-      </div>
-
-      <div class="connect-panel reveal reveal-delay-2">
-        <p class="connect-kicker">Next Step</p>
-        <div class="connect-choice-grid">
-          <a class="connect-choice-card" href="diagnostic-tools.html">
-            <strong>Run a First Diagnostic</strong>
-            <span>Start in the Diagnostic Hub and establish a first baseline.</span>
-          </a>
-          <a class="connect-choice-card" href="advisory-services-connect.html">
-            <strong>Request a Structured Conversation</strong>
-            <span>Discuss platform fit, pilot structure, or support needs in a more guided way.</span>
-          </a>
-        </div>
-        <p class="connect-note">
-          Or reach out directly at <a class="connect-inline-link connect-inline-embedded" href="mailto:connect@monderman.com">connect@monderman.com &#8594;</a>
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <footer class="footer">
-    <div class="footer-inner">
-      <div class="footer-top">
-        <div class="footer-brand">
-          <div class="footer-mark">Monderman</div>
-          <p class="footer-copy">
+</div>
+<div class="connect-panel reveal reveal-delay-2">
+<p class="connect-kicker">Next Step</p>
+<div class="connect-choice-grid">
+<a class="connect-choice-card" href="diagnostic-tools.html">
+<strong>Run a First Diagnostic</strong>
+<span>Start in the Diagnostic Hub and establish a first baseline.</span>
+</a>
+<a class="connect-choice-card" href="advisory-services-connect.html">
+<strong>Request a Structured Conversation</strong>
+<span>Discuss platform fit, pilot structure, or support needs in a more guided way.</span>
+</a>
+</div>
+<p class="connect-note">
+          Or reach out directly at <a class="connect-inline-link connect-inline-embedded" href="mailto:connect@monderman.com">connect@monderman.com →</a>
+</p>
+</div>
+</div>
+</section>
+<footer class="footer">
+<div class="footer-inner">
+<div class="footer-top">
+<div class="footer-brand">
+<div class="footer-mark">Monderman</div>
+<p class="footer-copy">
             Diagnostic platform software and support for institutions using repeated measurement to understand and govern administrative reality with greater clarity.
           </p>
-        </div>
-
-        <div class="footer-nav" aria-label="Footer navigation">
-          <div class="footer-nav-col">
-            <p class="footer-nav-title">Explore</p>
-            <a href="#approach">Approach</a>
-            <a href="diagnostic-tools.html">Diagnostic Hub</a>
-            <a href="research.html">Research</a>
-            <a href="why-monderman.html">Why Monderman</a>
-          </div>
-
-          <div class="footer-nav-col">
-            <p class="footer-nav-title">Connect</p>
-            <a href="advisory-services-connect.html">Open Connect Form</a>
-            <a href="mailto:connect@monderman.com">connect@monderman.com</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="footer-bottom">
-        <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
-        <p class="footer-contact">Where structure enables execution, performance follows.</p>
-      </div>
-    </div>
-  </footer>
-
-  <script>
+</div>
+<div aria-label="Footer navigation" class="footer-nav">
+<div class="footer-nav-col">
+<p class="footer-nav-title">Explore</p>
+<a href="#approach">Approach</a>
+<a href="diagnostic-tools.html">Diagnostic Hub</a>
+<a href="research.html">Research</a>
+<a href="why-monderman.html">Why Monderman</a>
+</div>
+<div class="footer-nav-col">
+<p class="footer-nav-title">Connect</p>
+<a href="advisory-services-connect.html">Open Connect Form</a>
+<a href="mailto:connect@monderman.com">connect@monderman.com</a>
+</div>
+</div>
+</div>
+<div class="footer-bottom">
+<p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
+<p class="footer-contact">Where structure enables execution, performance follows.</p>
+</div>
+</div>
+</footer>
+<script>
     const heroImage = document.getElementById("heroImage");
     const header = document.getElementById("siteHeader");
 
@@ -2156,33 +2066,6 @@
       requestAnimationFrame(revealHero);
     } else if (heroImage) {
       heroImage.addEventListener("load", revealHero, { once: true });
-    }
-
-    const heroRotateWord = document.getElementById("heroRotateWord");
-    const heroWords = ["deliver", "adapt", "compete", "scale", "innovate", "perform"];
-
-    function runHeroWordRotationOnce() {
-      if (!heroRotateWord || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-      let index = 0;
-      const initialDelay = 1800;
-      const holdMs = 1850;
-      const fadeMs = 520;
-
-      function step() {
-        if (index >= heroWords.length - 1) return;
-        index += 1;
-        heroRotateWord.classList.remove("is-fading");
-        void heroRotateWord.offsetWidth;
-        heroRotateWord.textContent = heroWords[index];
-        heroRotateWord.classList.add("is-fading");
-        if (index < heroWords.length - 1) {
-          window.setTimeout(step, holdMs);
-        } else {
-          window.setTimeout(() => heroRotateWord.classList.remove("is-fading"), fadeMs);
-        }
-      }
-
-      window.setTimeout(step, initialDelay);
     }
 
     function updateHeader() {
@@ -2403,6 +2286,7 @@
       return `${Math.round(value)} hrs`;
     }
     function updateEstimate() {
+      if (!estimateOrgSize || !estimateComplexity || !estimateSector || !estimateMoney || !estimateTime || !estimateResources) return;
       const orgSizeValue = estimateOrgSize.value;
       const complexityValue = estimateComplexity.value;
       const sectorValue = estimateSector.value;
@@ -2426,7 +2310,7 @@
       estimateMoney.textContent = `${abbrevMoney(lowMoney)}–${abbrevMoney(highMoney).replace("$", "")}`;
       estimateResources.textContent = formatPercentRange(lowBurden * 100, highBurden * 100);
     }
-    [estimateOrgSize, estimateComplexity, estimateSector].forEach((el) => el.addEventListener("change", updateEstimate));
+    [estimateOrgSize, estimateComplexity, estimateSector].forEach((el) => el?.addEventListener("change", updateEstimate));
     updateEstimate();
 
     function initSoftSnap() {
@@ -2506,7 +2390,6 @@
       updateLatestCarousel();
       startAutoScroll();
       initSoftSnap();
-      runHeroWordRotationOnce();
     });
   </script>
 </body>
