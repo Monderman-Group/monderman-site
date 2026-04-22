@@ -197,31 +197,21 @@
     }
 
     .hero{
-      position:relative;
-      min-height:88vh;
-      overflow:hidden;
-      background:linear-gradient(180deg, #0F1720 0%, #121B25 100%);
-    }
-    .hero::before{content:"";position:absolute;inset:0;background:none;pointer-events:none;z-index:0;}
-    .hero::after{content:"";position:absolute;inset:auto 0 0 0;height:0;background:none;z-index:0;pointer-events:none;}
-    .hero{
       position:sticky;
       top:0;
       z-index:1;
-    }
-    .hero-inner::after{
-      content:"";
-      grid-column:2;
-      background:var(--hero-image) center/cover no-repeat;
-      border-radius:14px;
-      min-height:420px;
-      align-self:center;
-      opacity:0;
-      transition:opacity 600ms cubic-bezier(0.16,1,0.3,1);
-      border:1px solid rgba(255,255,255,.10);
-    }
-    .hero.hero-image-loaded .hero-inner::after{
-      opacity:.9;
+      min-height:88vh;
+      overflow:hidden;
+      background:
+        linear-gradient(90deg,
+          rgba(15,23,32,.92) 0%,
+          rgba(15,23,32,.78) 28%,
+          rgba(15,23,32,.42) 54%,
+          rgba(15,23,32,.08) 78%,
+          rgba(15,23,32,0) 100%
+        ),
+        var(--hero-image) center/cover no-repeat,
+        linear-gradient(180deg, #0F1720 0%, #121B25 100%);
     }
     .page{
       position:relative;
@@ -236,12 +226,11 @@
       min-height:88vh;
       margin:0 auto;
       padding:148px 34px 110px;
-      display:grid;
-      grid-template-columns:minmax(0,1fr) minmax(0,40%);
-      align-items:center;
-      gap:32px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
     }
-    .hero-copy{ max-width:820px; }
+    .hero-copy{ max-width:620px; }
     .hero-eyebrow{
       display:block;
       margin:0 0 12px;
@@ -251,12 +240,6 @@
       font-weight:700;
       text-transform:uppercase;
       color:rgba(245,247,250,.64);
-    }
-    .hero-subeyebrow{
-      margin:0 0 28px;
-      font-size:.94rem;
-      line-height:1.5;
-      color:rgba(245,247,250,.76);
     }
     .hero h1{
       margin:0 0 22px;
@@ -283,49 +266,45 @@
       flex-wrap:wrap;
       margin-top:34px;
     }
-    .hero-signal{
-      margin:24px 0 0;
-      max-width:48ch;
-      font-size:.88rem;
-      line-height:1.58;
-      color:rgba(245,247,250,.74);
+    .page-rail {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      max-width: var(--max);
+      margin: 0 auto 36px;
+      padding: 36px 34px 0;
     }
-    .hero-rail{
-      display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:16px;
-      margin-top:42px;
-      max-width:920px;
+
+    .page-rail-item {
+      min-width: 0;
+      padding: 22px 22px 20px;
+      background: #FFF;
+      border: 1px solid rgba(21,32,43,.08);
+      border-radius: 14px;
     }
-    .hero-rail-item{
-      background:rgba(255,255,255,.02);
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:16px;
-      padding:18px 18px 16px;
-      backdrop-filter:none;
-      -webkit-backdrop-filter:none;
-      min-height:118px;
+
+    .page-rail-label {
+      margin: 0 0 8px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
     }
-    .hero-rail-label{
-      margin:0 0 8px;
-      font-size:.7rem;
-      font-weight:700;
-      letter-spacing:.16em;
-      text-transform:uppercase;
-      color:rgba(245,247,250,.56);
+
+    .page-rail-value {
+      margin: 0 0 6px;
+      font-size: 17px;
+      line-height: 1.3;
+      font-weight: 700;
+      color: var(--text-dark);
     }
-    .hero-rail-value{
-      margin:0 0 6px;
-      font-size:1rem;
-      line-height:1.22;
-      font-weight:700;
-      color:#FFF;
-    }
-    .hero-rail-copy{
-      margin:0;
-      font-size:.86rem;
-      line-height:1.5;
-      color:rgba(245,247,250,.74);
+
+    .page-rail-copy {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--muted-dark);
     }
 
     .btn{
@@ -1578,13 +1557,12 @@
 
     
     .hero h1{letter-spacing:-0.04em;}
-    .hero-visual-spacer{display:none;}
-    .hero-copy{display:grid;gap:0;}
+        .hero-copy{display:grid;gap:0;}
     .card-kicker, .use-step, .matrix-kicker, .shared-context-kicker, .recent-runs-kicker, .best-for-repeat, .tool-subline, .tool-meta-label, .footer-nav-title, .hero-eyebrow{font-size:11px;line-height:1.4;font-weight:600;letter-spacing:.16em;text-transform:uppercase;}
     .tool-text, .use-text, .card-text, .matrix-text, .footer-copy-top, .shared-context-copy, .context-helper, .hero-dek{font-size:17px;line-height:1.65;font-weight:400;}
-    .hero-subeyebrow, .note, .tool-meta, .context-status, .recent-run-copy, .recent-run-meta, .dropzone p, .validation-message{font-size:13px;line-height:1.5;}
+    .note, .tool-meta, .context-status, .recent-run-copy, .recent-run-meta, .dropzone p, .validation-message{font-size:13px;line-height:1.5;}
     .brand, .footer-mark{ text-shadow:none; }
-    .hero-rail-item, .shared-context-card, .recent-runs-card, .context-pill, .recent-run-item, .saved-context-row, .dropzone, .file-item, .panel, .tools-head, .bridge, .synthesis-shell, .note, .card, .use-card, .tool-card, .dynamic-card, .matrix-card{box-shadow:none !important;border:1px solid rgba(21,32,43,.08) !important;background:#FFF;}
+    .page-rail-item, .shared-context-card, .recent-runs-card, .context-pill, .recent-run-item, .saved-context-row, .dropzone, .file-item, .panel, .tools-head, .bridge, .synthesis-shell, .note, .card, .use-card, .tool-card, .dynamic-card, .matrix-card{box-shadow:none !important;border:1px solid rgba(21,32,43,.08) !important;background:#FFF;}
     .tool-card-link, .dynamic-toggle{background:transparent;}
     .tool-card.is-recommended .tool-badge{color:var(--accent);border-color:rgba(63,110,161,.22);}
     
@@ -1593,7 +1571,7 @@
     .tool-card.is-recommended .tool-card-top .tool-badge{font-weight:700;}
     .tool-card.is-recommended .tool-card-top .tool-badge{padding-left:10px;padding-right:10px;}
     .tool-card.is-recommended .tool-title{font-size:1.14rem;}
-    .hero-rail-item, .context-chip{backdrop-filter:none;-webkit-backdrop-filter:none;}
+    .page-rail-item, .context-chip{backdrop-filter:none;-webkit-backdrop-filter:none;}
     .context-chip{background:rgba(63,110,161,.10);border-color:rgba(63,110,161,.22);color:#FFF;}
     .context-chip strong{color:#FFF;}
     .tool-card, .card, .use-card, .dynamic-card, .matrix-card, .dropzone, .recent-run-item, .context-pill, .saved-context-row, .file-item, .panel, .tools-head, .bridge, .synthesis-shell, .note, .shared-context-card, .recent-runs-card{transition:border-color var(--transition), background var(--transition), color var(--transition), transform var(--transition);}
@@ -1607,7 +1585,7 @@
     .hero-actions .btn:not(.btn-accent), .context-actions .btn-subtle, .synthesis-actions .btn-subtle{background:#FFF;color:var(--text-dark);border-color:rgba(21,32,43,.12);}
     .footer-nav a{color:rgba(245,247,250,.62);}
     .footer-nav a:hover, .footer-nav a:focus-visible{color:#FFF;}
-    .hero-rail-label, .card-kicker, .use-step, .matrix-kicker, .shared-context-kicker, .recent-runs-kicker, .best-for-repeat, .tool-meta-label, .footer-nav-title, .context-field label, .context-pill-label, .saved-context-label{color:var(--muted-dark-2);}
+    .page-rail-label, .card-kicker, .use-step, .matrix-kicker, .shared-context-kicker, .recent-runs-kicker, .best-for-repeat, .tool-meta-label, .footer-nav-title, .context-field label, .context-pill-label, .saved-context-label{color:var(--muted-dark-2);}
     .tool-card.is-recommended .tool-meta-label, .tool-card.is-recommended .tool-subline{color:var(--accent);}
     .tool-card.is-recommended .tool-card-link{min-height:396px;}
     .shared-context-card::before, .recent-runs-card::before{content:none;}
@@ -1615,8 +1593,12 @@
     .shared-context-card::before{content:none;}
     .recent-runs-card::before{content:none;}
     .recent-runs-card{border-top:1px solid var(--accent);}
+
+@media (max-width: 920px) {
+  .page-rail { grid-template-columns: 1fr; }
+}
 @media (max-width:1180px){
-      .hero-rail,
+      .page-rail,
       .tools-grid,
       .split-grid,
       .dynamic-grid,
@@ -1628,11 +1610,6 @@
       .bridge{ grid-template-columns:1fr; align-items:start; }
     }
     
-    @media (max-width:980px){
-      .hero{position:relative;}
-      .hero-inner{grid-template-columns:1fr;}
-      .hero-inner::after{grid-column:auto; min-height:300px; margin-top:12px;}
-    }
 
 @media (max-width:980px){
       .header{ height:auto; }
@@ -1655,7 +1632,6 @@
       .nav{ gap:18px; }
       .hero-inner{ padding:136px 20px 110px; }
       .hero-eyebrow{ margin-bottom:10px; font-size:.74rem; letter-spacing:.18em; }
-      .hero-subeyebrow{ margin-bottom:22px; }
       .hero h1{
         max-width:100%;
         font-size:48px;
@@ -1671,7 +1647,7 @@
         gap:14px;
         max-width:420px;
       }
-      .hero-rail,
+      .page-rail,
       .tools-grid,
       .split-grid,
       .dynamic-grid,
@@ -1746,8 +1722,7 @@
     <div class="hero-inner">
       <div class="hero-copy">
         <p class="hero-eyebrow">Monderman Diagnostic Suite</p>
-        <p class="hero-subeyebrow">An instrument for institutional performance over time</p>
-        <h1>See where your operating environment is strengthening, drifting, or quietly accumulating drag.</h1>
+                <h1>See how your organization is actually performing over time.</h1>
         <p class="hero-dek">
           Use repeated diagnostics to see where structure, decision flow, process burden, and institutional performance are strengthening, drifting, or accumulating drag.
         </p>
@@ -1758,31 +1733,31 @@
         </div>
 
         <div class="context-chip" id="currentPathChip"></div>
-        <p class="hero-signal">Use one bounded run to establish a baseline. Use repeated runs to see whether interventions restored strength or whether new drag is quietly accumulating.</p>
 
-        <div class="hero-rail" aria-label="How the suite is designed to be used">
-          <div class="hero-rail-item">
-            <p class="hero-rail-label">Bounded first run</p>
-            <p class="hero-rail-value">Start with one visible issue</p>
-            <p class="hero-rail-copy">One team, one workflow, one function, or one environment is enough for a stronger first read.</p>
-          </div>
-          <div class="hero-rail-item">
-            <p class="hero-rail-label">Repeatable use</p>
-            <p class="hero-rail-value">Return after a change</p>
-            <p class="hero-rail-copy">Use the same instrument again after redesign, growth, or new external pressure changes how the system behaves.</p>
-          </div>
-          <div class="hero-rail-item">
-            <p class="hero-rail-label">Participant lenses</p>
-            <p class="hero-rail-value">Compare how the system is experienced</p>
-            <p class="hero-rail-copy">The same organizational system can feel very different across operational, managerial, and leadership vantage points.</p>
-          </div>
-        </div>
       </div>
       
     </div>
   </section>
 
   <main class="page">
+
+        <div class="page-rail" aria-label="How the suite is designed to be used">
+          <div class="page-rail-item">
+            <p class="page-rail-label">Bounded first run</p>
+            <p class="page-rail-value">Start with one visible issue</p>
+            <p class="page-rail-copy">One team, one workflow, one function, or one environment is enough for a stronger first read.</p>
+          </div>
+          <div class="page-rail-item">
+            <p class="page-rail-label">Repeatable use</p>
+            <p class="page-rail-value">Return after a change</p>
+            <p class="page-rail-copy">Use the same instrument again after redesign, growth, or new external pressure changes how the system behaves.</p>
+          </div>
+          <div class="page-rail-item">
+            <p class="page-rail-label">Participant lenses</p>
+            <p class="page-rail-value">Compare how the system is experienced</p>
+            <p class="page-rail-copy">The same organizational system can feel very different across operational, managerial, and leadership vantage points.</p>
+          </div>
+        </div>
     <div class="page-inner">
       <div class="head">
         <div>
@@ -2083,13 +2058,8 @@
           <article class="tool-card" data-tool-key="structural-clarity">
             <a class="tool-card-link diagnostic-link" href="structural-clarity.html" aria-label="Open Structural Clarity Diagnostic">
               <div class="tool-glyph" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 5v5"></path>
-                  <path d="M12 10H6"></path>
-                  <path d="M12 10h6"></path>
-                  <path d="M6 10v6"></path>
-                  <path d="M12 10v6"></path>
-                  <path d="M18 10v6"></path>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
                 </svg>
               </div>
               <div class="tool-card-top">
@@ -2113,14 +2083,8 @@
           <article class="tool-card" data-tool-key="decision-velocity">
             <a class="tool-card-link diagnostic-link" href="decision-velocity.html" aria-label="Open Decision Velocity Diagnostic">
               <div class="tool-glyph" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="16" cy="8" r="4"></circle>
-                  <path d="M4 20L13 11"></path>
-                  <path d="M9 20H4v-5"></path>
-                  <path d="M16 2v2"></path>
-                  <path d="M16 12v2"></path>
-                  <path d="M10 8h2"></path>
-                  <path d="M20 8h2"></path>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
                 </svg>
               </div>
               <div class="tool-card-top">
@@ -2142,10 +2106,8 @@
           <article class="tool-card is-recommended" data-tool-key="bureaucratic-drag-snapshot">
             <a class="tool-card-link diagnostic-link" href="bureaucratic-drag-snapshot.html" aria-label="Open Operational Systems Diagnostic">
               <div class="tool-glyph" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M4 7h10"></path>
-                  <path d="M4 12h16"></path>
-                  <path d="M4 17h12"></path>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
                 </svg>
               </div>
               <div class="tool-card-top">
@@ -2167,12 +2129,8 @@
           <article class="tool-card" data-tool-key="institutional-performance">
             <a class="tool-card-link diagnostic-link" href="institutional-performance.html" aria-label="Open Institutional Performance Diagnostic">
               <div class="tool-glyph" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 12m-1.5 0a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0 -3 0"></path>
-                  <path d="M12 12l5-5"></path>
-                  <path d="M6 18a9 9 0 0 1 12-12"></path>
-                  <path d="M4 18a11 11 0 0 1 16-14"></path>
-                  <path d="M4 18h16"></path>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
                 </svg>
               </div>
               <div class="tool-card-top">
@@ -2385,18 +2343,15 @@
         "Diagnostic-Hub-Hero-Image.jpeg",
         "diagnostic-hub-hero.jpg"
       ];
-
-      const tryNext = (index) => {
-        if (index >= candidates.length) return;
+      const tryNext = (i) => {
+        if (i >= candidates.length) return;
         const img = new Image();
         img.onload = () => {
-          hero.style.setProperty("--hero-image", `url("${candidates[index]}")`);
-          hero.classList.add("hero-image-loaded");
+          hero.style.setProperty("--hero-image", `url("${candidates[i]}")`);
         };
-        img.onerror = () => tryNext(index + 1);
-        img.src = candidates[index];
+        img.onerror = () => tryNext(i + 1);
+        img.src = candidates[i];
       };
-
       tryNext(0);
     }
 
