@@ -2846,32 +2846,38 @@
   </script>
 
   <script>
-    (function(){
-      const runsKey = "mondermanRecentRunsV1";
-      const toolMap = {
-        "bureaucratic-drag-snapshot.html":"institutional-performance",
-        "institutional-performance.html":"structural-clarity",
-        "structural-clarity.html":"decision-velocity",
-        "decision-velocity.html":"bureaucratic-drag-snapshot"
-      };
-      function recommendTool(){
-        let next = 'institutional-performance';
-        try {
-          const runs = JSON.parse(localStorage.getItem(runsKey) || '[]');
-          if (runs.length){
-            const href = runs[0].href || '';
-            next = toolMap[href] || next;
-          }
-        } catch(_e){}
-        document.querySelectorAll('.tool-card[data-tool-key]').forEach((card)=>{
-          const isRec = card.dataset.toolKey === next;
-          card.classList.toggle('is-recommended', isRec);
-        });
+(function(){
+  const runsKey = "mondermanRecentRunsV1";
+  const toolMap = {
+    "bureaucratic-drag-snapshot.html":"institutional-performance",
+    "institutional-performance.html":"structural-clarity",
+    "structural-clarity.html":"decision-velocity",
+    "decision-velocity.html":"bureaucratic-drag-snapshot"
+  };
+
+  function recommendTool(){
+    let next = null; // no default recommended tile
+
+    try {
+      const runs = JSON.parse(localStorage.getItem(runsKey) || '[]');
+      if (runs.length){
+        const href = runs[0].href || '';
+        next = toolMap[href] || null;
       }
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', recommendTool, {once:true});
-      } else { recommendTool(); }
-    })();
+    } catch(_e){}
+
+    document.querySelectorAll('.tool-card[data-tool-key]').forEach((card)=>{
+      const isRec = !!next && card.dataset.toolKey === next;
+      card.classList.toggle('is-recommended', isRec);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', recommendTool, { once: true });
+  } else {
+    recommendTool();
+  }
+})();
   </script>
 </body>
 </html>
