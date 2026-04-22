@@ -784,6 +784,7 @@ function renderCurrentPathChip() {
 function applyHubContextDefaults() {
   const ctx = readHubContext();
   if (!ctx) return;
+  try { sessionStorage.removeItem("mondermanPendingHubContext"); } catch (_error) {}
   if (ctx.lens && !state.mode) state.mode = ctx.lens === "executive" ? "executive" : ctx.lens;
   if (ctx.depth && !state.depth) state.depth = String(ctx.depth);
   state.preflight.processName = state.preflight.processName || ctx.pathName || "";
