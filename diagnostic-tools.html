@@ -47,7 +47,7 @@
       --gold-soft:rgba(178,141,60,.11);
       --bg-dark:#0F1720;
       --bg-dark-2:#121B25;
-      --bg-offwhite:#F6F7F9;
+      --bg-offwhite:#F6F8FB;
       --panel:#FFFFFF;
       --panel-soft:#FBFCFE;
       --text-light:#F5F7FA;
@@ -69,7 +69,7 @@
       --transition:220ms cubic-bezier(0.16,1,0.3,1);
       --transition-slow:420ms cubic-bezier(0.16,1,0.3,1);
       --panel-radius:22px;
-      --card-radius:18px;
+      --card-radius:14px;
     }
 
     * { box-sizing:border-box; }
@@ -204,6 +204,31 @@
     }
     .hero::before{content:"";position:absolute;inset:0;background:none;pointer-events:none;z-index:0;}
     .hero::after{content:"";position:absolute;inset:auto 0 0 0;height:0;background:none;z-index:0;pointer-events:none;}
+    .hero{
+      position:sticky;
+      top:0;
+      z-index:1;
+    }
+    .hero-inner::after{
+      content:"";
+      grid-column:2;
+      background:var(--hero-image) center/cover no-repeat;
+      border-radius:14px;
+      min-height:420px;
+      align-self:center;
+      opacity:0;
+      transition:opacity 600ms cubic-bezier(0.16,1,0.3,1);
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .hero.hero-image-loaded .hero-inner::after{
+      opacity:.9;
+    }
+    .page{
+      position:relative;
+      z-index:2;
+      background:var(--bg-offwhite);
+    }
+
     .hero-inner{
       position:relative;
       z-index:1;
@@ -572,7 +597,7 @@
     .tool-glyph{
       width:40px;
       height:40px;
-      border-radius:12px;
+      border-radius:10px;
       display:inline-flex;
       align-items:center;
       justify-content:center;
@@ -1602,7 +1627,14 @@
       .use-grid{ grid-template-columns:1fr; }
       .bridge{ grid-template-columns:1fr; align-items:start; }
     }
+    
     @media (max-width:980px){
+      .hero{position:relative;}
+      .hero-inner{grid-template-columns:1fr;}
+      .hero-inner::after{grid-column:auto; min-height:300px; margin-top:12px;}
+    }
+
+@media (max-width:980px){
       .header{ height:auto; }
       .header-inner{
         padding:16px 24px;
@@ -1660,7 +1692,7 @@
       .tool-glyph{
         width:36px;
         height:36px;
-        border-radius:11px;
+        border-radius:10px;
       }
       .tool-glyph svg{
         width:16px;
@@ -1714,8 +1746,8 @@
     <div class="hero-inner">
       <div class="hero-copy">
         <p class="hero-eyebrow">Monderman Diagnostic Suite</p>
-        <p class="hero-subeyebrow">A repeatable governance instrument</p>
-        <h1>Build a clearer picture of administrative reality over time.</h1>
+        <p class="hero-subeyebrow">An instrument for institutional performance over time</p>
+        <h1>See where your operating environment is strengthening, drifting, or quietly accumulating drag.</h1>
         <p class="hero-dek">
           Use repeated diagnostics to see where structure, decision flow, process burden, and institutional performance are strengthening, drifting, or accumulating drag.
         </p>
@@ -1755,7 +1787,7 @@
       <div class="head">
         <div>
           <div class="section-label">Diagnostic Hub</div>
-          <h2>A calmer, clearer launch point for repeated institutional diagnosis.</h2>
+          <h2>Choose the diagnostic that matches the signal you are seeing.</h2>
           <p>
             Begin with the strongest visible signal, choose the right diagnostic lens, and return with discipline as the system changes. The hub is designed for repeated professional use, not one-time novelty.
           </p>
@@ -1799,7 +1831,7 @@
         
         <div class="matrix-grid">
           <article class="matrix-card">
-            <p class="matrix-kicker">Starting point</p>
+            <p class="matrix-kicker">Ambiguity</p>
             <div class="symptom-head">
               <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
@@ -1822,7 +1854,7 @@
           </article>
 
           <article class="matrix-card">
-            <p class="matrix-kicker">Starting point</p>
+            <p class="matrix-kicker">Latency</p>
             <div class="symptom-head">
               <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
@@ -1845,7 +1877,7 @@
           </article>
 
           <article class="matrix-card">
-            <p class="matrix-kicker">Starting point</p>
+            <p class="matrix-kicker">Burden</p>
             <div class="symptom-head">
               <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
@@ -1868,7 +1900,7 @@
           </article>
 
           <article class="matrix-card">
-            <p class="matrix-kicker">Starting point</p>
+            <p class="matrix-kicker">Fragility</p>
             <div class="symptom-head">
               <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
@@ -2050,6 +2082,16 @@
         <div class="tools-grid">
           <article class="tool-card" data-tool-key="structural-clarity">
             <a class="tool-card-link diagnostic-link" href="structural-clarity.html" aria-label="Open Structural Clarity Diagnostic">
+              <div class="tool-glyph" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 5v5"></path>
+                  <path d="M12 10H6"></path>
+                  <path d="M12 10h6"></path>
+                  <path d="M6 10v6"></path>
+                  <path d="M12 10v6"></path>
+                  <path d="M18 10v6"></path>
+                </svg>
+              </div>
               <div class="tool-card-top">
                 <div class="tool-badge">Live</div>
                 
@@ -2070,6 +2112,17 @@
 
           <article class="tool-card" data-tool-key="decision-velocity">
             <a class="tool-card-link diagnostic-link" href="decision-velocity.html" aria-label="Open Decision Velocity Diagnostic">
+              <div class="tool-glyph" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="16" cy="8" r="4"></circle>
+                  <path d="M4 20L13 11"></path>
+                  <path d="M9 20H4v-5"></path>
+                  <path d="M16 2v2"></path>
+                  <path d="M16 12v2"></path>
+                  <path d="M10 8h2"></path>
+                  <path d="M20 8h2"></path>
+                </svg>
+              </div>
               <div class="tool-card-top">
                 <div class="tool-badge">Live</div>
               </div>
@@ -2088,6 +2141,13 @@
 
           <article class="tool-card is-recommended" data-tool-key="bureaucratic-drag-snapshot">
             <a class="tool-card-link diagnostic-link" href="bureaucratic-drag-snapshot.html" aria-label="Open Operational Systems Diagnostic">
+              <div class="tool-glyph" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 7h10"></path>
+                  <path d="M4 12h16"></path>
+                  <path d="M4 17h12"></path>
+                </svg>
+              </div>
               <div class="tool-card-top">
                 <div class="tool-badge">Live</div>
               </div>
@@ -2106,6 +2166,15 @@
 
           <article class="tool-card" data-tool-key="institutional-performance">
             <a class="tool-card-link diagnostic-link" href="institutional-performance.html" aria-label="Open Institutional Performance Diagnostic">
+              <div class="tool-glyph" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 12m-1.5 0a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0 -3 0"></path>
+                  <path d="M12 12l5-5"></path>
+                  <path d="M6 18a9 9 0 0 1 12-12"></path>
+                  <path d="M4 18a11 11 0 0 1 16-14"></path>
+                  <path d="M4 18h16"></path>
+                </svg>
+              </div>
               <div class="tool-card-top">
                 <div class="tool-badge">Live</div>
               </div>
@@ -2168,7 +2237,7 @@
           <div class="dynamic-grid">
             <article class="dynamic-card active">
               <button class="dynamic-toggle" type="button" aria-expanded="true">
-                <p class="dynamic-kicker">Mode of use</p>
+                <p class="dynamic-kicker">Bounded</p>
                 <div class="dynamic-title-row">
                   <h4 class="dynamic-title">Baseline</h4>
                   <span class="dynamic-plus" aria-hidden="true">+</span>
@@ -2182,7 +2251,7 @@
 
             <article class="dynamic-card">
               <button class="dynamic-toggle" type="button" aria-expanded="false">
-                <p class="dynamic-kicker">Mode of use</p>
+                <p class="dynamic-kicker">Comparative</p>
                 <div class="dynamic-title-row">
                   <h4 class="dynamic-title">Participant lens</h4>
                   <span class="dynamic-plus" aria-hidden="true">+</span>
@@ -2196,7 +2265,7 @@
 
             <article class="dynamic-card">
               <button class="dynamic-toggle" type="button" aria-expanded="false">
-                <p class="dynamic-kicker">Mode of use</p>
+                <p class="dynamic-kicker">Longitudinal</p>
                 <div class="dynamic-title-row">
                   <h4 class="dynamic-title">Changing context</h4>
                   <span class="dynamic-plus" aria-hidden="true">+</span>
@@ -2210,7 +2279,7 @@
 
             <article class="dynamic-card">
               <button class="dynamic-toggle" type="button" aria-expanded="false">
-                <p class="dynamic-kicker">Mode of use</p>
+                <p class="dynamic-kicker">Synthesis</p>
                 <div class="dynamic-title-row">
                   <h4 class="dynamic-title">Structural change</h4>
                   <span class="dynamic-plus" aria-hidden="true">+</span>
@@ -2831,7 +2900,7 @@
         "decision-velocity.html":"bureaucratic-drag-snapshot"
       };
       function recommendTool(){
-        let next = 'bureaucratic-drag-snapshot';
+        let next = 'institutional-performance';
         try {
           const runs = JSON.parse(localStorage.getItem(runsKey) || '[]');
           if (runs.length){
