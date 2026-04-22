@@ -2846,38 +2846,19 @@
   </script>
 
   <script>
-(function(){
-  const runsKey = "mondermanRecentRunsV1";
-  const toolMap = {
-    "bureaucratic-drag-snapshot.html":"institutional-performance",
-    "institutional-performance.html":"structural-clarity",
-    "structural-clarity.html":"decision-velocity",
-    "decision-velocity.html":"bureaucratic-drag-snapshot"
-  };
-
-  function recommendTool(){
-    let next = null; // no default recommended tile
-
-    try {
-      const runs = JSON.parse(localStorage.getItem(runsKey) || '[]');
-      if (runs.length){
-        const href = runs[0].href || '';
-        next = toolMap[href] || null;
+    (function(){
+      function clearRecommendations(){
+        document.querySelectorAll('.tool-card[data-tool-key]').forEach((card) => {
+          card.classList.remove('is-recommended');
+        });
       }
-    } catch(_e){}
 
-    document.querySelectorAll('.tool-card[data-tool-key]').forEach((card)=>{
-      const isRec = !!next && card.dataset.toolKey === next;
-      card.classList.toggle('is-recommended', isRec);
-    });
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', recommendTool, { once: true });
-  } else {
-    recommendTool();
-  }
-})();
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', clearRecommendations, { once: true });
+      } else {
+        clearRecommendations();
+      }
+    })();
   </script>
 </body>
 </html>
