@@ -2896,6 +2896,7 @@
     ]);
     const TURNSTILE_TOKEN_KEY = "mondermanTurnstileTokenV1";
     const TURNSTILE_TIMEOUT_MS = 5000;
+    const TURNSTILE_SESSION_MS = 5 * 60 * 1000;
 
     const turnstileModal = document.getElementById("turnstileModal");
     const turnstileWidget = document.getElementById("turnstileWidget");
@@ -2908,6 +2909,8 @@
     let preloadTurnstileId = null;
     let turnstileScriptReady = false;
     let turnstileScriptFailed = false;
+    let preloadVerificationInFlight = false;
+    let visibleVerificationInFlight = false;
 
     function setTurnstileStatus(message, type = "") {
       if (!turnstileStatus) return;
@@ -2917,7 +2920,7 @@
       if (type === "ok") turnstileStatus.classList.add("is-ok");
     }
     function writeTurnstileSession(token) {
-      sessionStorage.setItem(TURNSTILE_TOKEN_KEY, JSON.stringify({ token, expiresAt: Date.now() + 5 * 60 * 1000 }));
+      sessionStorage.setItem(TURNSTILE_TOKEN_KEY, JSON.stringify({ token, expiresAt: Date.now() + TURNSTILE_SESSION_MS }));
     }
     function readTurnstileSession() {
       try {
@@ -2949,6 +2952,12 @@
       }
       return data;
     }
+    function openTurnstileModal() {
+      if (!turnstileModal) return;
+      turnstileModal.classList.add("show");
+      turnstileModal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
     function closeTurnstileModal() {
       if (!turnstileModal) return;
       turnstileModal.classList.remove("show");
@@ -2958,11 +2967,16 @@
       if (window.turnstile && visibleTurnstileId) {
         try { window.turnstile.reset(visibleTurnstileId); } catch (_error) {}
       }
+      visibleVerificationInFlight = false;
       setTurnstileStatus("Waiting to initialize human check...");
     }
     function onTurnstileUnavailable() {
       turnstileScriptFailed = true;
       setTurnstileStatus("Verification service unavailable. Please try again in a moment or contact support.", "error");
+    }
+    function navigateToProtectedDiagnostic(target) {
+      if (!target) return;
+      window.location.href = target;
     }
     function preloadTurnstileWidget() {
       if (!window.turnstile || !turnstilePreload || preloadTurnstileId) return;
@@ -2974,18 +2988,46 @@
           try {
             await verifyTurnstileToken(token);
             writeTurnstileSession(token);
+            const target = pendingDiagnosticUrl;
+            if (target && turnstileModal?.classList.contains("show")) {
+              closeTurnstileModal();
+              navigateToProtectedDiagnostic(target);
+            }
           } catch (_error) {
             clearTurnstileSession();
+          } finally {
+            preloadVerificationInFlight = false;
           }
         },
-        "expired-callback": clearTurnstileSession,
-        "error-callback": clearTurnstileSession
+        "expired-callback": () => {
+          clearTurnstileSession();
+          preloadVerificationInFlight = false;
+        },
+        "error-callback": () => {
+          clearTurnstileSession();
+          preloadVerificationInFlight = false;
+        }
       });
+      ensurePreloadedVerification(true);
+    }
+    function ensurePreloadedVerification(force = false) {
+      if (!window.turnstile || !preloadTurnstileId || preloadVerificationInFlight) return;
+      if (!force && readTurnstileSession()?.token) return;
+      preloadVerificationInFlight = true;
+      try {
+        window.turnstile.execute(preloadTurnstileId);
+      } catch (_error) {
+        preloadVerificationInFlight = false;
+      }
     }
     function renderVisibleTurnstile() {
       if (!window.turnstile || !turnstileWidget) {
         onTurnstileUnavailable();
         return;
+      }
+      if (visibleTurnstileId) {
+        try { window.turnstile.remove(visibleTurnstileId); } catch (_error) {}
+        visibleTurnstileId = null;
       }
       turnstileWidget.innerHTML = "";
       visibleTurnstileId = window.turnstile.render("#turnstileWidget", {
@@ -2994,22 +3036,29 @@
         appearance: "always",
         callback: async (token) => {
           setTurnstileStatus("Human check complete. Confirming access...", "ok");
+          visibleVerificationInFlight = true;
           try {
             await verifyTurnstileToken(token);
             writeTurnstileSession(token);
             const target = pendingDiagnosticUrl;
             closeTurnstileModal();
-            if (target) window.location.href = target;
+            navigateToProtectedDiagnostic(target);
           } catch (error) {
             clearTurnstileSession();
             setTurnstileStatus(error.message || "Human verification failed. Please try again.", "error");
+          } finally {
+            visibleVerificationInFlight = false;
           }
         },
         "expired-callback": () => {
           clearTurnstileSession();
+          visibleVerificationInFlight = false;
           setTurnstileStatus("Human check expired. Please complete it again.", "error");
         },
-        "error-callback": onTurnstileUnavailable
+        "error-callback": () => {
+          visibleVerificationInFlight = false;
+          onTurnstileUnavailable();
+        }
       });
       setTurnstileStatus("Complete the human check to continue.");
     }
@@ -3058,19 +3107,22 @@
         event.preventDefault();
         const token = readTurnstileSession();
         if (token?.token) {
-          window.location.href = href;
+          navigateToProtectedDiagnostic(href);
           return;
         }
         pendingDiagnosticUrl = href;
         if (!turnstileScriptFailed && turnstileScriptReady) {
-          turnstileModal.classList.add("show");
-          turnstileModal.setAttribute("aria-hidden", "false");
-          document.body.style.overflow = "hidden";
+          ensurePreloadedVerification();
+          const cached = readTurnstileSession();
+          if (cached?.token) {
+            navigateToProtectedDiagnostic(href);
+            return;
+          }
+          openTurnstileModal();
+          setTurnstileStatus("Completing human check...");
           renderVisibleTurnstile();
         } else {
-          turnstileModal.classList.add("show");
-          turnstileModal.setAttribute("aria-hidden", "false");
-          document.body.style.overflow = "hidden";
+          openTurnstileModal();
           onTurnstileUnavailable();
         }
       });
