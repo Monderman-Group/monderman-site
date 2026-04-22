@@ -1289,13 +1289,12 @@
       color:var(--muted-dark);
     }
 
-.footer{
-  position:relative;
-  z-index:2;
-  background:#0D141C;
-  color:rgba(245,247,250,.88);
-  padding:50px 34px 38px;
-}
+    .footer{
+      position:relative;
+      z-index:2;
+      background:#0D141C;
+      color:rgba(245,247,250,.88);
+      padding:50px 34px 38px;
     }
     .footer-inner{
       max-width:var(--max);
@@ -2440,6 +2439,236 @@
     }
 
     // calibration gate is initialized after local-storage helpers/constants are declared
+
+
+    const HUB_CONTEXT_KEY = "mondermanHubContextV1";
+    const HUB_RECENT_RUNS_KEY = "mondermanRecentRunsV1";
+    const HUB_LOADER_SUPPRESS_KEY = "mondermanHubLoaderSeenAt";
+    const HUB_LOADER_SUPPRESS_MS = 24 * 60 * 60 * 1000;
+
+    function safeReadLocal(key) {
+      try { return localStorage.getItem(key); } catch (_error) { return null; }
+    }
+    function safeWriteLocal(key, value) {
+      try { localStorage.setItem(key, value); } catch (_error) {}
+    }
+    function safeRemoveLocal(key) {
+      try { localStorage.removeItem(key); } catch (_error) {}
+    }
+    function readHubContext() {
+      try {
+        const raw = safeReadLocal(HUB_CONTEXT_KEY) || sessionStorage.getItem("mondermanPendingHubContext");
+        return raw ? JSON.parse(raw) : null;
+      } catch (_error) {
+        return null;
+      }
+    }
+    function writeHubContext(context) {
+      safeWriteLocal(HUB_CONTEXT_KEY, JSON.stringify({ ...context, savedAt: new Date().toISOString() }));
+    }
+    function formatContextChip(context) {
+      if (!context || !context.pathName) return "";
+      const parts = [context.pathName, context.lensLabel || "", context.depthLabel || ""].filter(Boolean);
+      return `<strong>Current path:</strong> ${parts.join(" | ")}`;
+    }
+    function renderCurrentPathChip() {
+      const chip = document.getElementById("currentPathChip");
+      if (!chip) return;
+      const context = readHubContext();
+      if (!context || !context.pathName) {
+        chip.classList.remove("show");
+        chip.innerHTML = "";
+        return;
+      }
+      chip.innerHTML = formatContextChip(context);
+      chip.classList.add("show");
+    }
+    function renderSavedContextCard() {
+      const context = readHubContext() || {};
+      const empty = document.getElementById("savedContextEmpty");
+      const intro = document.getElementById("savedContextIntro");
+      const dynamic = document.getElementById("savedContextDynamic");
+      if (!empty || !intro || !dynamic) return;
+
+      const fieldMap = [
+        ["Current path", context.pathName],
+        ["Participant lens", context.lensLabel],
+        ["Run depth", context.depthLabel],
+        ["Team or function", context.businessUnit],
+        ["Path type", context.decisionType],
+        ["Industry", context.industry],
+        ["Regulatory intensity", context.regulatoryIntensity],
+        ["Organization size", context.employeeCount],
+        ["Short issue summary", context.description]
+      ].filter(([, value]) => value && String(value).trim());
+
+      dynamic.innerHTML = "";
+      if (!context.pathName) {
+        empty.style.display = "block";
+        intro.textContent = "Use this tile to confirm what baseline is currently saved in this browser before launching diagnostics.";
+        return;
+      }
+
+      empty.style.display = "none";
+      intro.textContent = "This tile reflects the live shared baseline currently saved in this browser for cross-diagnostic reuse.";
+      fieldMap.forEach(([label, value]) => {
+        const row = document.createElement("div");
+        row.className = "saved-context-row";
+        row.innerHTML = `
+          <p class="saved-context-label">${label}</p>
+          <p class="saved-context-value">${value}</p>
+        `;
+        dynamic.appendChild(row);
+      });
+    }
+    function renderHubContextForm() {
+      const context = readHubContext() || {};
+      const map = {
+        ctxPathName: context.pathName || "",
+        ctxLens: context.lens || "",
+        ctxDepth: context.depth || "",
+        ctxBusinessUnit: context.businessUnit || "",
+        ctxDecisionType: context.decisionType || "",
+        ctxIndustry: context.industry || "",
+        ctxRegulatoryIntensity: context.regulatoryIntensity || "",
+        ctxEmployeeCount: context.employeeCount || "",
+        ctxDescription: context.description || ""
+      };
+      Object.entries(map).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el) el.value = value;
+      });
+      const status = document.getElementById("hubContextStatus");
+      const summary = document.getElementById("hubContextSummary");
+      const summaryPath = document.getElementById("summaryPath");
+      const summaryLens = document.getElementById("summaryLens");
+      const summaryDepth = document.getElementById("summaryDepth");
+      if (summary && summaryPath && summaryLens && summaryDepth) {
+        const hasContext = !!context.pathName;
+        summary.classList.toggle("show", hasContext);
+        summaryPath.textContent = context.pathName || "Not set";
+        summaryLens.textContent = context.lensLabel || "Not set";
+        summaryDepth.textContent = context.depthLabel || "Not set";
+      }
+      if (status) {
+        status.textContent = context.pathName
+          ? `Shared context saved locally for ${context.pathName}. Launch any tool below to reuse it.`
+          : "No shared context saved in this browser yet.";
+      }
+    }
+    function collectHubContext() {
+      const lens = document.getElementById("ctxLens")?.value || "";
+      const depth = document.getElementById("ctxDepth")?.value || "";
+      const lensLabelMap = { operational: "Operational lens", managerial: "Managerial lens", executive: "Executive lens" };
+      const depthLabelMap = { "10": "10-minute depth", "30": "30-minute depth", "60": "60-minute depth" };
+      return {
+        pathName: (document.getElementById("ctxPathName")?.value || "").trim(),
+        lens,
+        lensLabel: lensLabelMap[lens] || "",
+        depth,
+        depthLabel: depthLabelMap[depth] || "",
+        businessUnit: (document.getElementById("ctxBusinessUnit")?.value || "").trim(),
+        decisionType: document.getElementById("ctxDecisionType")?.value || "",
+        industry: document.getElementById("ctxIndustry")?.value || "",
+        regulatoryIntensity: document.getElementById("ctxRegulatoryIntensity")?.value || "",
+        employeeCount: (document.getElementById("ctxEmployeeCount")?.value || "").trim(),
+        description: (document.getElementById("ctxDescription")?.value || "").trim()
+      };
+    }
+    function readRecentRuns() {
+      const raw = safeReadLocal(HUB_RECENT_RUNS_KEY);
+      if (!raw) return [];
+      try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (_error) {
+        return [];
+      }
+    }
+    function renderRecentRuns() {
+      const list = document.getElementById("recentRunsList");
+      const empty = document.getElementById("recentRunsEmpty");
+      if (!list || !empty) return;
+      const runs = readRecentRuns().slice(0, 5);
+      list.innerHTML = "";
+      empty.style.display = runs.length ? "none" : "block";
+      runs.forEach((run) => {
+        const item = document.createElement("div");
+        item.className = "recent-run-item";
+        const timestamp = run.timestamp ? new Date(run.timestamp).toLocaleString() : "Recent run";
+        item.innerHTML = `
+          <div class="recent-run-top">
+            <div class="recent-run-title">${run.toolLabel || "Diagnostic run"}</div>
+            <a class="recent-run-link" href="${run.href || '#'}">Open</a>
+          </div>
+          <div class="recent-run-meta">${timestamp}</div>
+          <div class="recent-run-copy">${[run.pathName, run.lensLabel, run.depthLabel].filter(Boolean).join(" | ") || "No shared context attached."}</div>
+        `;
+        list.appendChild(item);
+      });
+    }
+    function refreshAllContextUI() {
+      try {
+        renderCurrentPathChip();
+        renderHubContextForm();
+        renderSavedContextCard();
+        renderRecentRuns();
+      } catch (error) {
+        console.error("Shared context UI refresh failed:", error);
+      }
+    }
+    function saveHubContextFromForm() {
+      const context = collectHubContext();
+      const status = document.getElementById("hubContextStatus");
+      if (!context.pathName) {
+        if (status) status.textContent = "Enter a current event path before saving shared context.";
+        return;
+      }
+      try {
+        if (status) status.textContent = "Saving shared context locally...";
+        writeHubContext(context);
+        refreshAllContextUI();
+        if (status) status.textContent = `Shared context saved locally for ${context.pathName}. Launch any tool below to reuse it.`;
+      } catch (error) {
+        console.error("Shared context save failed:", error);
+        if (status) status.textContent = "Shared context could not be saved in this browser.";
+      }
+    }
+    function clearHubContext() {
+      const status = document.getElementById("hubContextStatus");
+      const ids = [
+        "ctxPathName", "ctxLens", "ctxDepth", "ctxBusinessUnit", "ctxDecisionType",
+        "ctxIndustry", "ctxRegulatoryIntensity", "ctxEmployeeCount", "ctxDescription"
+      ];
+      try {
+        ids.forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.value = "";
+        });
+        safeRemoveLocal(HUB_CONTEXT_KEY);
+        sessionStorage.removeItem("mondermanPendingHubContext");
+        refreshAllContextUI();
+        if (status) status.textContent = "Shared context cleared from this browser.";
+      } catch (error) {
+        console.error("Clear context failed:", error);
+        if (status) status.textContent = "Failed to clear context.";
+      }
+    }
+    function bindHubContextControls() {
+      const saveBtn = document.getElementById("saveHubContextBtn");
+      const clearBtn = document.getElementById("clearHubContextBtn");
+      if (saveBtn && !saveBtn.dataset.boundSharedContext) {
+        saveBtn.dataset.boundSharedContext = "true";
+        saveBtn.addEventListener("click", saveHubContextFromForm);
+      }
+      if (clearBtn && !clearBtn.dataset.boundSharedContext) {
+        clearBtn.dataset.boundSharedContext = "true";
+        clearBtn.addEventListener("click", clearHubContext);
+      }
+    }
+
+    bindHubContextControls();
+    refreshAllContextUI();
 
     const dropzone = document.getElementById("dropzone");
     const fileInput = document.getElementById("synthesisFileInput");
