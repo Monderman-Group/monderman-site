@@ -37,7 +37,7 @@
     .checkbox-card{padding:18px;border-radius:18px;border:1px solid rgba(21,32,43,.08);background:var(--panel-soft)}.checkbox-row{display:flex;gap:12px;align-items:flex-start}.checkbox-row input{margin-top:3px;accent-color:var(--accent);transform:scale(1.08)}.checkbox-row label{font-size:.95rem;line-height:1.62;color:var(--ink)}
 
     .lane-layout{display:grid;grid-template-columns:280px minmax(0,1fr);gap:22px;align-items:start}.lane-buttons{display:grid;gap:12px}.lane-btn{justify-content:flex-start;min-height:52px;padding:0 20px;background:var(--accent);border-color:rgba(63,110,161,.18);color:#FFF}.lane-btn:hover,.lane-btn:focus-visible{background:var(--accent-dark)}.lane-btn.active{box-shadow:0 0 0 4px rgba(63,110,161,.12)}.lane-tiles{display:grid;gap:14px}.lane-tile{background:#FFF;border:1px solid rgba(21,32,43,.08);border-radius:20px;box-shadow:var(--shadow-sm);padding:18px 18px 16px}.lane-tile h4{margin:0 0 8px;font-size:1rem;line-height:1.2}.lane-tile p{margin:0;font-size:.9rem;line-height:1.6;color:var(--ink-soft)}.lane-tile.selected{border-color:rgba(63,110,161,.24);background:rgba(63,110,161,.04)}.lane-note{font-size:.9rem;line-height:1.6;color:var(--ink-soft);margin-top:14px}.step-chip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:#FFF;border:1px solid rgba(21,32,43,.08);box-shadow:var(--shadow-sm);font-size:.8rem;color:var(--ink-soft);margin-bottom:12px}.step-chip strong{color:var(--ink)}.depth-recommend{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:rgba(63,110,161,.08);border:1px solid rgba(63,110,161,.18);font-size:.74rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}.mini-proof{margin-top:14px;padding:14px 16px;border-radius:16px;background:#FFF;border:1px solid rgba(21,32,43,.08);font-size:.88rem;line-height:1.6;color:var(--ink-soft)}
-    .question-shell{display:grid;gap:20px;height:100%;align-content:start}.question-card{width:min(100%, 820px);min-height:420px;margin:0 auto;background:#FFF;border:1px solid rgba(21,32,43,.08);border-radius:28px;box-shadow:none;padding:28px 28px 24px;display:grid;align-content:start;gap:18px;overflow:hidden}.question-meta{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.question-label{margin:0;font-size:.76rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}.question-step{margin:0;font-size:.86rem;color:var(--ink-muted)}.question-title{margin:0;font-size:22px;line-height:1.2;letter-spacing:-.02em;font-weight:600}.question-copy{margin:0;font-size:15px;line-height:1.65;color:var(--ink-soft)}.required-note{display:none;padding:12px 14px;border-radius:14px;background:#FFF7F8;border:1px solid rgba(184,80,94,.22);color:#8B2F3A;font-size:.9rem;line-height:1.5}.required-note.show{display:block}.required-note.pulse{animation:errorPulse .45s ease}.question-body-error{border-radius:18px;box-shadow:0 0 0 3px rgba(184,80,94,.12)}@keyframes errorPulse{0%{transform:scale(1)}50%{transform:scale(1.01)}100%{transform:scale(1)}}.cross-level-note{display:none;padding:12px 14px;border-radius:14px;background:#F5F8FC;border:1px solid rgba(63,110,161,.18);color:var(--ink-soft);font-size:.9rem;line-height:1.6}.cross-level-note.show{display:block}.question-card.cross-level{background:#FBFCFE;border-color:rgba(63,110,161,.18)}.skip-btn-emphasis{border-color:rgba(63,110,161,.22);background:rgba(63,110,161,.06);color:var(--accent);font-weight:600}
+    .question-shell{display:grid;gap:20px;height:100%;align-content:start}.question-card{width:min(100%, 820px);min-height:420px;margin:0 auto;background:#FFF;border:1px solid rgba(21,32,43,.08);border-radius:28px;box-shadow:none;padding:28px 28px 24px;display:grid;align-content:start;gap:18px;overflow:hidden;transition:opacity 140ms cubic-bezier(0.16, 1, 0.3, 1), transform 140ms cubic-bezier(0.16, 1, 0.3, 1)}.question-card.question-transitioning{opacity:.35;transform:translateY(-4px)}.question-card.question-entered{animation:questionSlideIn 280ms cubic-bezier(0.16, 1, 0.3, 1)}@keyframes questionSlideIn{0%{opacity:.35;transform:translateY(6px)}100%{opacity:1;transform:translateY(0)}}.question-meta{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.question-label{margin:0;font-size:.76rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}.question-step{margin:0;font-size:.86rem;color:var(--ink-muted)}.question-step.step-advanced{animation:stepPulse 500ms cubic-bezier(0.16, 1, 0.3, 1)}@keyframes stepPulse{0%{color:var(--ink-muted)}40%{color:var(--accent);transform:scale(1.04)}100%{color:var(--ink-muted);transform:scale(1)}}.question-title{margin:0;font-size:22px;line-height:1.2;letter-spacing:-.02em;font-weight:600}.question-copy{margin:0;font-size:15px;line-height:1.65;color:var(--ink-soft)}.required-note{display:none;padding:12px 14px;border-radius:14px;background:#FFF7F8;border:1px solid rgba(184,80,94,.22);color:#8B2F3A;font-size:.9rem;line-height:1.5}.required-note.show{display:block}.required-note.pulse{animation:errorPulse .45s ease}.question-body-error{border-radius:18px;box-shadow:0 0 0 3px rgba(184,80,94,.12)}@keyframes errorPulse{0%{transform:scale(1)}50%{transform:scale(1.01)}100%{transform:scale(1)}}.cross-level-note{display:none;padding:12px 14px;border-radius:14px;background:#F5F8FC;border:1px solid rgba(63,110,161,.18);color:var(--ink-soft);font-size:.9rem;line-height:1.6}.cross-level-note.show{display:block}.question-card.cross-level{background:#FBFCFE;border-color:rgba(63,110,161,.18)}.skip-btn-emphasis{border-color:rgba(63,110,161,.22);background:rgba(63,110,161,.06);color:var(--accent);font-weight:600}
     .choices{display:grid;gap:12px}.choice{width:100%;text-align:left;cursor:pointer;background:#FFF;border:1px solid rgba(21,32,43,.10);border-radius:18px;padding:15px 16px 14px;transition:transform var(--transition), border-color var(--transition), background var(--transition), box-shadow var(--transition)}.choice.selected{border-color:rgba(63,110,161,.34);background:rgba(63,110,161,.06)}.choice:hover,.choice:focus-visible{outline:none;transform:translateY(-1px);border-color:rgba(63,110,161,.24);background:rgba(63,110,161,.04);box-shadow:none}.choice-title{display:block;font-size:.96rem;font-weight:600;line-height:1.4;color:var(--ink)}.choice-note{display:block;margin-top:4px;font-size:.83rem;line-height:1.5;color:var(--ink-soft)}
     .field-group{display:grid;gap:14px}.field label{display:block;margin-bottom:8px;font-size:.85rem;font-weight:600;color:var(--ink)}.field input,.field select,.field textarea{width:100%;max-width:100%;min-height:50px;padding:0 14px;border-radius:16px;border:1px solid rgba(21,32,43,.12);background:#FFF;color:var(--ink);transition:border-color var(--transition), box-shadow var(--transition), background var(--transition)}.field textarea{min-height:118px;padding:14px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:rgba(63,110,161,.40);box-shadow:0 0 0 4px rgba(63,110,161,.10)}.field.has-error input,.field.has-error select,.field.has-error textarea{border-color:#B8505E;background:#FFF7F8;box-shadow:0 0 0 3px rgba(184,80,94,.12)}.field-error-msg{display:none;margin-top:6px;font-size:13px;color:#8B2F3A;line-height:1.5}.field.has-error .field-error-msg{display:block}.checkbox-card.has-error{border-color:#B8505E;background:#FFF7F8;box-shadow:0 0 0 3px rgba(184,80,94,.12)}.inline-error-msg{display:none;margin-top:8px;font-size:13px;line-height:1.5;color:#8B2F3A}.inline-error-msg.show{display:block}
     .title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.info-btn{width:26px;height:26px;border-radius:999px;border:1px solid rgba(63,110,161,.22);background:#FFF;color:var(--accent);font-size:.82rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow-sm)}.info-panel{margin-top:10px;padding:12px 12px 10px;border-radius:14px;background:rgba(63,110,161,.05);border:1px solid rgba(63,110,161,.12);font-size:.84rem;line-height:1.55;color:var(--ink-soft);display:none}.info-panel.show{display:block}
@@ -157,7 +157,7 @@
     .accordion-section.open .accordion-chevron{transform:rotate(180deg)}
     .insight-pill{position:relative;display:inline-flex;align-items:center;gap:8px}
     .insight-help{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:999px;border:1px solid rgba(255,255,255,.24);font-size:.72rem;cursor:pointer}
-    .tooltip-panel{position:absolute;top:calc(100% + 10px);left:0;z-index:60;width:min(420px,calc(100vw - 48px));padding:14px 16px;border-radius:16px;background:#0F1720;color:#fff;box-shadow:var(--shadow-md);font-size:.8rem;line-height:1.55;display:none;white-space:normal}
+    .tooltip-panel{position:absolute;top:calc(100% + 4px);left:0;z-index:60;width:min(420px,calc(100vw - 48px));padding:14px 16px;border-radius:16px;background:#0F1720;color:#fff;box-shadow:var(--shadow-md);font-size:.8rem;line-height:1.55;display:none;white-space:normal}.tooltip-panel::before{content:"";position:absolute;left:0;right:0;top:-10px;height:10px}
     .tooltip-panel.show{display:block}.table-empty,.viz-empty{font-size:.88rem;line-height:1.6;color:var(--ink-soft)}.table-empty{text-align:left}.viz-empty{display:grid;place-items:center;min-height:150px;border:1px dashed rgba(21,32,43,.14);border-radius:14px;background:#FBFCFE;padding:18px;text-align:center}.treemap-empty{display:grid;place-items:center;min-height:190px;border:1px dashed rgba(21,32,43,.14);border-radius:14px;background:#FBFCFE;padding:18px;text-align:center;color:var(--ink-soft)}.dim-note{margin-top:10px;padding:12px 14px;border-radius:14px;background:#FBFCFE;border:1px solid rgba(21,32,43,.08);font-size:.84rem;line-height:1.55;color:var(--ink-soft)}
     .viz-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
     .viz-card{background:#FFF;border:1px solid rgba(21,32,43,.08);border-radius:18px;box-shadow:none;padding:18px}
@@ -207,14 +207,14 @@
       <header class="env-head"><div class="env-head-row"><div><p class="env-kicker">Monderman diagnostic environment</p><h2 id="envHeadline">Structured diagnostic sequence</h2></div><div class="env-status"><span class="env-status-dot" aria-hidden="true"></span><span id="statusPill">Ready to begin</span></div></div><p id="envSubcopy">This tool adapts to the burden signal you surface first. You can move back, skip non-required questions, or restart without breaking the rest of the run.</p><div class="env-head-actions"><div class="current-path-chip" id="currentPathChip"></div><button class="learnmore-toggle" id="learnMoreToggle" type="button">Learn more about this perspective</button><button class="btn btn-accent" id="heroBeginBtn" type="button">Begin diagnostic</button></div><div class="learnmore-panel" id="learnMorePanel"></div><div class="micro-proof" id="heroProof">Real teams use this to spot where reporting load, manual workarounds, duplicate entry, and recurring process burden are quietly consuming capacity.</div></header>
 
       <div class="stage active" id="laneStage"><div class="lane-layout"><div class="card"><div class="step-chip"><strong>Step 1</strong><span>Select the perspective closest to the work you can actually observe.</span></div><h3>Choose the perspective that best matches your role.</h3><p class="tiny">Each version looks at the same structural issue from a different vantage point. Pick the lane that best matches what you can see firsthand.</p><div class="lane-buttons" style="margin-top:18px;"><button class="btn lane-btn" type="button" data-lane="operational">Operational</button><button class="btn lane-btn" type="button" data-lane="managerial">Managerial</button><button class="btn lane-btn" type="button" data-lane="executive">Executive</button></div><div class="lane-note">You can change lanes later by starting over. The underlying diagnostic engine remains the same; the questions shift to fit what each perspective can observe most credibly.</div></div><div class="lane-tiles"><div class="lane-tile" data-lane-tile="operational"><h4>Operational</h4><p>Built for people closest to the work. Best for surfacing duplicate entry, manual workarounds, process density, and where the operating environment quietly consumes effort.</p></div><div class="lane-tile" data-lane-tile="managerial"><h4>Managerial</h4><p>Built for people coordinating teams and execution. Best for identifying reporting burden, systems friction, recurring review load, and where administrative work is crowding out operating work.</p></div><div class="lane-tile" data-lane-tile="executive"><h4>Executive</h4><p>Built for leaders shaping operating design and governance. Best for assessing process accumulation, control creep, redesign readiness, and where administrative overhead is weakening system responsiveness.</p></div></div></div></div>
-      <div class="stage" id="depthStage"><div class="intro-layout"><div class="card"><div class="step-chip"><strong>Step 2</strong><span>Choose how deep you want this run to go.</span></div><h3>Choose diagnostic depth</h3><p class="depth-intro">Pick the shortest run that still fits the importance of the workflow. For most first passes, the 30-minute version is the best starting point.</p><div class="depth-card-grid"><button class="depth-card" type="button" data-depth="10"><h4>10-minute diagnostic</h4><p>Best for fast baselining, a first pass, or repeated checks after a change.</p><div class="depth-meta">Lower burden • directional signal</div></button><button class="depth-card" type="button" data-depth="30"><span class="depth-recommend">Recommended default</span><h4>30-minute diagnostic</h4><p>Best default option. Balances burden with stronger explanatory power and better pattern detection.</p><div class="depth-meta">Balanced depth • stronger interpretation</div></button><button class="depth-card" type="button" data-depth="60"><h4>60-minute diagnostic</h4><p>Best when the pathway is politically important, chronically slow, or costly enough to justify a richer readout.</p><div class="depth-meta">Deepest branch logic • strongest self-guided read</div></button></div><div class="depth-footnote">Shorter runs still deliver useful signal. Longer runs simply uncover more hidden patterning and stronger opportunity framing over time.</div></div><aside class="card soft"><div class="depth-support"><div><h3>Why time depth matters</h3><ul><li><strong>Get a baseline:</strong> understand how the pathway works today</li><li><strong>Re-run later:</strong> measure whether changes actually improved the workflow</li><li><strong>Compare perspectives:</strong> see where different roles experience the pathway differently</li><li><strong>Track drift:</strong> longer runs surface accumulating burden more clearly</li></ul></div><div class="sidebar-note"><strong>Best starting point</strong>Use the 30-minute diagnostic when the goal is a strong first read without adding unnecessary friction to the run.</div></div></aside></div></div>
-      <div class="stage" id="introStage"><div class="intro-layout"><div class="card"><div class="step-chip"><strong>Step 3</strong><span>Confirm the input guardrail, then begin the run.</span></div><h3>Before you begin</h3><div class="notice-block"><div class="notice"><strong>Notice</strong><div class="tiny" id="openingNotice"></div></div><div class="notice"><strong>What to expect</strong><div class="tiny">This run is intentionally more detailed than a light survey. The workflow adjusts based on your answers, and some responses open additional question tiles so the Monderman engine has enough signal to generate a more useful readout.</div></div></div><div class="gentle-note tiny">Output quality depends on the quality and quantity of the information you provide. Some pathways require a bit more detail so the Monderman engine can generate a more precise and useful readout. Brief patience here improves the value of the output.</div><div class="checkbox-card" style="margin-top:18px;"><div class="checkbox-row"><input id="preStartConsent" type="checkbox" /><label for="preStartConsent">I agree not to enter classified, export-controlled, sensitive, proprietary, personally identifiable, protected health, or otherwise restricted information into this tool. I understand that I am solely responsible for the information I submit.</label></div></div><div class="actions" style="margin-top:22px;justify-content:flex-start;"><div class="actions-left"><a class="btn" href="diagnostic-tools.html">Back to Diagnostic Hub</a><button class="btn btn-accent btn-disabled" id="beginBtn" type="button" disabled>Begin diagnostic</button></div></div></div><aside class="card soft"><h3 id="laneAsideTitle">What this tool is built to detect</h3><ul><li>Recurring process density and administrative overhead</li><li>Systems friction, duplicate effort, and manual workaround dependence</li><li>Reporting burden and low-value oversight accumulation</li><li>Operating-environment weight that is crowding out real work</li><li>Directionally sized time, money, and capacity exposure</li></ul></aside></div></div>
+      <div class="stage" id="depthStage"><div class="intro-layout"><div class="card"><div class="step-chip"><strong>Step 2</strong><span>Choose how deep you want this run to go.</span></div><h3>Choose diagnostic depth</h3><p class="depth-intro">Pick the shortest run that still fits the importance of the workflow. For most first passes, the 30-minute version is the best starting point.</p><div class="depth-card-grid"><button class="depth-card" type="button" data-depth="10"><h4>10-minute diagnostic</h4><p>Best for fast baselining, a first pass, or repeated checks after a change.</p><div class="depth-meta">Lower burden • directional signal</div></button><button class="depth-card" type="button" data-depth="30"><span class="depth-recommend">Recommended default</span><h4>30-minute diagnostic</h4><p>Best default option. Balances burden with stronger explanatory power and better pattern detection.</p><div class="depth-meta">Balanced depth • stronger interpretation</div></button><button class="depth-card" type="button" data-depth="60"><h4>60-minute diagnostic</h4><p>Best when the workflow is politically important, chronically slow, or costly enough to justify a richer readout.</p><div class="depth-meta">Deepest branch logic • fullest self-run read</div></button></div><div class="depth-footnote">Shorter runs still deliver useful signal. Longer runs simply uncover more hidden patterning and stronger opportunity framing over time.</div></div><aside class="card soft"><div class="depth-support"><div><h3>Why time depth matters</h3><ul><li><strong>Get a baseline:</strong> understand how the workflow operates today</li><li><strong>Re-run later:</strong> measure whether changes actually improved the workflow</li><li><strong>Compare perspectives:</strong> see where different roles see the workflow differently</li><li><strong>Track drift:</strong> longer runs surface accumulating burden more clearly</li></ul></div><div class="sidebar-note"><strong>Best starting point</strong>Use the 30-minute diagnostic when the goal is a strong first read without adding unnecessary friction to the run.</div></div></aside></div></div>
+      <div class="stage" id="introStage"><div class="intro-layout"><div class="card"><div class="step-chip"><strong>Step 3</strong><span>Confirm the input guardrail, then begin the run.</span></div><h3>Before you begin</h3><div class="notice-block"><div class="notice"><strong>Notice</strong><div class="tiny" id="openingNotice"></div></div><div class="notice"><strong>What to expect</strong><div class="tiny">This run is intentionally more detailed than a light survey. Questions adapt based on what you answer, and some responses open additional question tiles so the Monderman engine has enough signal to generate a more useful readout.</div></div></div><div class="gentle-note tiny">Output quality depends on the quality and quantity of the information you provide. Some pathways require a bit more detail so the Monderman engine can generate a more precise and useful readout. Brief patience here improves the value of the output.</div><div class="checkbox-card" style="margin-top:18px;"><div class="checkbox-row"><input id="preStartConsent" type="checkbox" /><label for="preStartConsent">I agree not to enter classified, export-controlled, sensitive, proprietary, personally identifiable, protected health, or otherwise restricted information into this tool. I understand that I am solely responsible for the information I submit.</label></div></div><div class="actions" style="margin-top:22px;justify-content:flex-start;"><div class="actions-left"><a class="btn" href="diagnostic-tools.html">Back to Diagnostic Hub</a><button class="btn btn-accent btn-disabled" id="beginBtn" type="button" disabled>Begin diagnostic</button></div></div></div><aside class="card soft"><h3 id="laneAsideTitle">What this tool is built to detect</h3><ul><li>Recurring process density and administrative overhead</li><li>Systems friction, duplicate effort, and manual workaround dependence</li><li>Reporting burden and low-value oversight accumulation</li><li>Operating-environment weight that is crowding out real work</li><li>Directionally sized time, money, and capacity exposure</li></ul></aside></div></div>
       <div class="stage" id="questionStage"><div class="question-shell"><div class="question-card"><div class="question-meta"><p class="question-label" id="questionCluster">Diagnostic question</p><p class="question-step" id="questionStep">Question 1</p></div><h3 class="question-title" id="questionTitle"></h3><p class="question-copy" id="questionCopy"></p><div class="required-note" id="requiredNotice">This question is required for the diagnostic logic to work.</div><div class="required-note" id="persistenceNotice" style="display:none;background:#FFF8EC;border-color:#F0D29D;color:#795B22;">Durable save status will appear here if the database write is blocked.</div><div class="cross-level-note" id="crossLevelNote"></div><div id="questionBody"></div></div></div></div>
-      <div class="stage" id="processingStage"><div class="processing-stage"><div class="processing-card"><div class="spinner spinner-sm" aria-hidden="true"></div><h3>Generating output</h3><p>The diagnostic engine is interpreting your pathway and preparing a leadership-facing readout.</p><div class="processing-list"><div class="processing-item"><span class="pulse"></span><span>Scoring process load, systems friction, reporting burden, and control weight</span></div><div class="processing-item"><span class="pulse"></span><span>Checking for contradiction, overload, and drag-accumulation signals</span></div><div class="processing-item"><span class="pulse"></span><span>Estimating directional time, cost, and resource exposure</span></div><div class="processing-item"><span class="pulse"></span><span>Preparing report-ready operational systems output modules</span></div></div></div></div></div>
+      <div class="stage" id="processingStage"><div class="processing-stage"><div class="processing-card"><div class="spinner spinner-sm" aria-hidden="true"></div><h3>Generating output</h3><p>The diagnostic engine is interpreting your workflow and preparing a leadership-facing readout.</p><div class="processing-list"><div class="processing-item"><span class="pulse"></span><span>Scoring where the workflow is heaviest</span></div><div class="processing-item"><span class="pulse"></span><span>Checking for contradictions, overload, and buildup</span></div><div class="processing-item"><span class="pulse"></span><span>Estimating rough time, cost, and capacity impact</span></div><div class="processing-item"><span class="pulse"></span><span>Preparing the leadership readout</span></div></div></div></div></div>
       
 
 <div class="stage" id="resultsStage"><div class="results-layout">
-        <section class="report-only report-header"><p class="report-kicker">M O N D E R M A N</p><p class="tiny">Operational Systems Diagnostic • Institutional Performance Research</p><h1 class="report-title" id="reportTitle">Operational Systems Diagnostic</h1><p class="report-sub" id="reportSubtitle">Leadership-ready operational systems summary.</p><div class="report-meta"><span class="meta-pill" id="metaProcess">Pathway: —</span><span class="meta-pill" id="metaBench">Benchmark: —</span><span class="meta-pill" id="metaDate">Generated: —</span></div></section>
+        <section class="report-only report-header"><p class="report-kicker">M O N D E R M A N</p><p class="tiny">Operational Systems Diagnostic • Institutional Performance Research</p><h1 class="report-title" id="reportTitle">Operational Systems Diagnostic</h1><p class="report-sub" id="reportSubtitle">Leadership-ready operational systems summary.</p><div class="report-meta"><span class="meta-pill" id="metaProcess">Workflow: —</span><span class="meta-pill" id="metaBench">Benchmark: —</span><span class="meta-pill" id="metaDate">Generated: —</span></div></section>
 
         <section class="score-panel"><div class="score-inner">
           <div class="primary-anchor">
@@ -226,11 +226,11 @@
               </div>
             </div>
             <div class="score-ref">
-              <p class="score-kicker">Reference score</p>
+              <p class="score-kicker">Operational Systems Score</p>
               <div class="score-number-wrap">
                 <p class="score-number" id="scoreNumber">0</p>
                 <span class="insight-help" id="scoreRubricInfo" tabindex="0">ⓘ</span>
-                <span class="tooltip-panel" id="scoreRubricTooltip"><strong>Operational systems score bands</strong><br>82–100: Light and proportionate<br>65–81: Manageable but accumulating<br>45–64: Burdened and process-heavy<br>0–44: Administratively overloaded</span>
+                <span class="tooltip-panel" id="scoreRubricTooltip"><strong>Operational systems score bands</strong><br>82–100: Light and manageable<br>65–81: Workable but quietly getting heavier<br>45–64: Heavy and process-clogged<br>0–44: Overloaded by admin weight</span>
               </div>
               <p class="score-band" id="scoreBand">—</p>
               <div class="score-badge" id="scoreBadge">Operational Systems Diagnostic</div>
@@ -269,7 +269,7 @@
               <div class="accordion-body">
                 <section class="economic-strip">
                   <article class="economic-card"><p class="summary-label">Burden hours*</p><p class="summary-value" id="economicHoursValue">—</p><p class="summary-sub tight" id="economicHoursSub">Directional yearly labor-hours signal tied to current operating burden.</p></article>
-                  <article class="economic-card"><p class="summary-label">Cost exposure*</p><p class="summary-value" id="economicCostValue">—</p><p class="summary-sub tight" id="economicCostSub">Directional labor-cost exposure required to sustain the current operating environment.</p></article>
+                  <article class="economic-card"><p class="summary-label">Estimated cost*</p><p class="summary-value" id="economicCostValue">—</p><p class="summary-sub tight" id="economicCostSub">Directional labor-cost exposure required to sustain the current operating environment.</p></article>
                   <article class="economic-card"><p class="summary-label">Capacity drag*</p><p class="summary-value" id="economicCapacityValue">—</p><p class="summary-sub tight" id="economicCapacitySub">Estimated productive capacity being absorbed by recurring process, systems, and reporting burden.</p></article>
                 </section>
                 <section class="economic-strip" style="margin-top:14px;">
@@ -286,7 +286,7 @@
               <div class="accordion-body">
                 <div class="viz-grid">
                   <div class="viz-card"><h4>Burden composition</h4><div class="canvas-wrap"><canvas id="burdenDonutChart"></canvas><div class="donut-center"><span><small>Dominant burden</small><strong id="donutCenterValue">—</strong></span></div></div><p class="viz-note" id="burdenDonutNote">Burden composition will appear here after scoring.</p></div>
-                  <div class="viz-card"><h4>Burden source map</h4><div class="treemap" id="burdenTreemap"></div><p class="viz-note">Larger blocks indicate heavier burden sources inside the current pathway.</p></div>
+                  <div class="viz-card"><h4>Burden source map</h4><div class="treemap" id="burdenTreemap"></div><p class="viz-note">Larger blocks show where burden is heaviest in this workflow.</p></div>
                 </div>
                 <section class="economic-strip">
                   <article class="result-card"><h3>Current operating burden</h3><div class="section-divider"></div><div id="trajectorySignalWrap" class="result-copy" style="margin-bottom:12px;">Trajectory signal will appear here after scoring.</div><p class="result-copy" id="executiveText"></p><div class="premium-note" id="conditionSupportText">This section explains how heavy the operating environment appears to be, what is most likely creating the drag, and whether the organization appears to be compensating for the workflow rather than benefiting from it.</div></article>
@@ -309,7 +309,7 @@
                     <div class="viz-card"><h4>Trajectory</h4><div class="trajectory-inline"><div id="trajectoryChipMount"></div><div class="sparkline-wrap"><svg class="sparkline" id="trajectorySparkline" viewBox="0 0 120 34" preserveAspectRatio="none"></svg></div></div><p class="viz-note" id="trajectorySparklineNote">Trajectory interpretation will appear here after scoring.</p></div>
                   </div>
                   <section class="summary-grid">
-                    <article class="summary-card"><p class="summary-label">Benchmark</p><p class="summary-value" id="benchmarkValue">—</p><div class="benchmark-band"><div class="benchmark-track"><div class="benchmark-range industry-range" id="industryRange"></div><div class="benchmark-range opportunity-range" id="opportunityRange"></div><div class="benchmark-marker" id="benchmarkMarker"></div></div><div class="benchmark-legend"><span><span class="legend-dot dot-gold"></span>Comparable range</span><span><span class="legend-dot dot-green"></span>Opportunity range</span><span><span class="legend-dot dot-blue"></span>Your pathway</span></div><div class="benchmark-caption" id="benchmarkCaption"><strong>Your operating environment vs. comparable peers – reclaimable operating drag visible.</strong> Even an operating environment inside the comparable range may still be carrying recoverable operating drag, administrative weight, or reporting burden.</div></div><p class="summary-sub tight" id="benchmarkSub">Comparable range context</p></article>
+                    <article class="summary-card"><p class="summary-label">Benchmark</p><p class="summary-value" id="benchmarkValue">—</p><div class="benchmark-band"><div class="benchmark-track"><div class="benchmark-range industry-range" id="industryRange"></div><div class="benchmark-range opportunity-range" id="opportunityRange"></div><div class="benchmark-marker" id="benchmarkMarker"></div></div><div class="benchmark-legend"><span><span class="legend-dot dot-gold"></span>Comparable range</span><span><span class="legend-dot dot-green"></span>Opportunity range</span><span><span class="legend-dot dot-blue"></span>Your workflow</span></div><div class="benchmark-caption" id="benchmarkCaption"><strong>Where you stand versus similar organizations — with room to lighten the load</strong><br>Even sitting inside the comparable range, there's usually recoverable drag.</div></div><p class="summary-sub tight" id="benchmarkSub">Similar-workflow context</p></article>
                     <article class="summary-card"><p class="summary-label">Trajectory</p><p class="summary-value" id="trajectoryValue">—</p><p class="summary-sub tight" id="trajectoryValueSub">Directional signal</p></article>
                   </section>
                 </div>
@@ -323,7 +323,7 @@
               </button>
               <div class="accordion-body">
                 <section class="standalone-opportunity">
-                  <article class="result-card"><h3>Opportunity: Lighter operating burden without weakening essential control</h3><div class="section-divider"></div><div class="opportunity-tile"><strong>Guided opportunity view</strong><div id="opportunityGateWrap"><p class="result-copy" style="margin-bottom:10px;">Before revealing Monderman’s guided opportunity view, acknowledge that this narrative is directional, based on user inputs Monderman has not independently audited, and that implementation decisions remain your responsibility.</p><div class="checkbox-card" style="margin-bottom:12px;"><div class="checkbox-row"><input id="opportunityGateCheckbox" type="checkbox" /><label for="opportunityGateCheckbox">I understand and accept these terms for the guided opportunity view.</label></div></div><div class="actions" style="justify-content:flex-start;"><div class="actions-left"><button class="btn btn-soft" id="revealOpportunityBtn" type="button">Reveal guided opportunity view</button><a class="btn btn-accent" href="https://www.monderman.com/advisory-services-connect.html">Discuss with Monderman Platform Services</a></div></div></div><div id="opportunityRevealWrap" class="hidden"><div class="opportunity-shell"><div class="opportunity-brief"><p class="lead" id="opportunityLeadText">Opportunity framing will appear here after scoring.</p><p id="opportunitySectorText">Sector and pathway interpretation will appear here after scoring.</p><p id="opportunityActionReasonText">Why the first moves matter will appear here after scoring.</p><p id="leadershipWatchoutText">Leadership watchout will appear here after scoring.</p></div></div><div class="opportunity-disclaimer" id="opportunityDisclaimer">Guided insights are directional, generated from user-provided inputs Monderman has not independently audited. Any interpretation, implementation, or resulting decisions remain the user’s responsibility.</div><div class="actions" style="justify-content:flex-start;margin-top:12px;"><div class="actions-left"><a class="btn btn-accent" href="https://www.monderman.com/advisory-services-connect.html">Discuss with Monderman Platform Services</a></div></div></div></div></article>
+                  <article class="result-card"><h3>Opportunity: Lighter operating burden without weakening essential control</h3><div class="section-divider"></div><div class="opportunity-tile"><strong>Guided opportunity view</strong><div id="opportunityGateWrap"><p class="result-copy" style="margin-bottom:10px;">Before opening the guided view, please acknowledge: this is a directional read based on your inputs, which Monderman hasn't verified, and any decisions from here are yours.</p><div class="checkbox-card" style="margin-bottom:12px;"><div class="checkbox-row"><input id="opportunityGateCheckbox" type="checkbox" /><label for="opportunityGateCheckbox">I understand and accept these terms for the guided opportunity view.</label></div></div><div class="actions" style="justify-content:flex-start;"><div class="actions-left"><button class="btn btn-soft" id="revealOpportunityBtn" type="button">Reveal guided opportunity view</button><a class="btn btn-accent" href="https://www.monderman.com/advisory-services-connect.html" target="_blank" rel="noopener noreferrer">Discuss with Monderman Platform Services</a></div></div></div><div id="opportunityRevealWrap" class="hidden"><div class="opportunity-shell"><div class="opportunity-brief"><p class="lead" id="opportunityLeadText">Opportunity framing will appear here after scoring.</p><p id="opportunitySectorText">Sector and pathway interpretation will appear here after scoring.</p><p id="opportunityActionReasonText">Why the first moves matter will appear here after scoring.</p><p id="leadershipWatchoutText">Leadership watchout will appear here after scoring.</p></div></div><div class="opportunity-disclaimer" id="opportunityDisclaimer">Guided insights are directional, based on your inputs, which Monderman hasn't verified. Any interpretation or decisions from here are yours.</div><div class="actions" style="justify-content:flex-start;margin-top:12px;"><div class="actions-left"><a class="btn btn-accent" href="https://www.monderman.com/advisory-services-connect.html" target="_blank" rel="noopener noreferrer">Discuss with Monderman Platform Services</a></div></div></div></div></article>
                 </section>
               </div>
             </article>
@@ -374,7 +374,7 @@
           </div>
         </section>
 
-        <section class="advisory-card"><div><p class="summary-label" style="margin-bottom:8px;color:var(--accent);">Next step</p><h3 style="margin:0 0 8px;">Bring this into a deeper platform services conversation.</h3><p class="result-copy" style="margin:0;">If the pattern appears broader, more persistent, or more costly than a directional tool can resolve, Monderman can go deeper on workflows, approvals, operating burden, and compensatory behaviors.</p></div><div class="export-cta-stack"><div class="export-primary-row"><button class="btn btn-accent" id="downloadPdfBtn" type="button">Download executive report (PDF)</button><a class="btn" href="https://www.monderman.com/advisory-services-connect.html">Discuss with Monderman Platform Services</a></div><div class="export-inline-row"><button class="action-link" id="downloadReportBtn" type="button">Download as HTML</button><span aria-hidden="true" style="color:rgba(21,32,43,.18)">|</span><button class="action-link" id="saveCrossDiagnosticBtn" type="button">Save for cross-diagnostic synthesis</button></div><div class="export-utility-row"><button class="utility-btn" id="newRunBtn" type="button">Run another diagnostic</button><span aria-hidden="true" style="color:rgba(21,32,43,.18)">|</span><a class="utility-btn" href="diagnostic-tools.html">Return to hub</a></div><a id="reportDownloadLink" class="hidden-download" download="monderman-operational-systems-report.html"></a><a id="crossDiagnosticDownloadLink" class="hidden-download" download="monderman-operational-systems-result.json"></a></div></section>
+        <section class="advisory-card"><div><p class="summary-label" style="margin-bottom:8px;color:var(--accent);">Next step</p><h3 style="margin:0 0 8px;">Bring this into a deeper platform services conversation.</h3><p class="result-copy" style="margin:0;">If the pattern appears broader, more persistent, or more costly than a directional tool can resolve, Monderman can go deeper on workflows, approvals, operating burden, and compensatory behaviors.</p></div><div class="export-cta-stack"><div class="export-primary-row"><button class="btn btn-accent" id="downloadPdfBtn" type="button">Download executive report (PDF)</button><a class="btn" href="https://www.monderman.com/advisory-services-connect.html" target="_blank" rel="noopener noreferrer">Discuss with Monderman Platform Services</a></div><div class="export-inline-row"><button class="action-link" id="downloadReportBtn" type="button">Download as HTML</button><span aria-hidden="true" style="color:rgba(21,32,43,.18)">|</span><button class="action-link" id="saveCrossDiagnosticBtn" type="button">Save for cross-diagnostic synthesis</button></div><div class="export-utility-row"><button class="utility-btn" id="newRunBtn" type="button">Run another diagnostic</button><span aria-hidden="true" style="color:rgba(21,32,43,.18)">|</span><a class="utility-btn" href="diagnostic-tools.html" target="_blank" rel="noopener noreferrer">Return to hub</a></div><a id="reportDownloadLink" class="hidden-download" download="monderman-operational-systems-report.html"></a><a id="crossDiagnosticDownloadLink" class="hidden-download" download="monderman-operational-systems-result.json"></a></div><p class="estimate-disclaimer" style="margin-top:18px;padding:14px 16px;border-radius:14px;background:#F8FAFC;border:1px solid rgba(21,32,43,.08);font-size:13px;line-height:1.55;color:var(--ink-soft);"><strong>*</strong> Figures marked with an asterisk are directional estimates generated from your inputs, not guaranteed financial outcomes. They are intended to indicate rough order of magnitude so leadership can decide whether the pattern is worth investigating further.</p></section>
         <section class="results-disclaimer" id="bottomDisclaimer"></section>
       </div></div>
       <footer class="env-foot" id="questionFooter"><div class="progress-wrap"><div class="progress-top"><p id="progressCopy">0% complete</p><p id="pathHint">Waiting for first signal.</p></div><div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div></div><div class="actions"><div class="actions-left"><button class="btn" id="backBtn" type="button">Back</button><button class="btn" id="skipBtn" type="button">Skip</button></div><div class="actions-right"><button class="btn btn-soft" id="restartBtn" type="button">Start over</button><button class="btn btn-accent" id="continueBtn" type="button">Continue</button></div></div></footer>
@@ -390,7 +390,7 @@ const FINALIZE_TIMEOUT_MS = 30000;
 
 const openingNotice = "This diagnostic generates directional insights based on the information you provide. Results are only as accurate as your inputs and should be used as an interpretive aid, not as a substitute for independent review, professional judgment, or organization-specific analysis.";
 const finalAcknowledgment = "I acknowledge that this diagnostic provides directional insights only, that Monderman has not independently verified my inputs, and that I am solely responsible for how these results are interpreted or used.";
-const bottomDisclaimer = "* All figures, including time, cost, and resource estimates, are directional estimates generated from user-provided information. They are intended to support additional analysis, discussion, and advisory review, and should not be used in isolation for formal decision-making.";
+const bottomDisclaimer = "* Figures marked with an asterisk are directional estimates generated from your inputs, not guaranteed financial outcomes. They are intended to indicate rough order of magnitude so leadership can decide whether the pattern is worth investigating further.";
 
 document.getElementById("openingNotice").textContent = openingNotice;
 document.getElementById("bottomDisclaimer").textContent = bottomDisclaimer;
@@ -445,7 +445,7 @@ const HUB_CONTEXT_KEY = "mondermanHubContextV1";
 const HUB_RECENT_RUNS_KEY = "mondermanRecentRunsV1";
 const PRESTART_FIELDS = [
   { id: "processName", label: "What workflow, operating environment, or administrative system are you evaluating?", kind: "text", required: true, placeholder: "e.g. External partner onboarding" },
-  { id: "businessUnit", label: "Which function or business unit does this pathway primarily sit in?", kind: "text", required: true, placeholder: "e.g. Operations" },
+  { id: "businessUnit", label: "Which function or business unit does this workflow primarily sit in?", kind: "text", required: true, placeholder: "e.g. Operations" },
   {
     id: "industry",
     label: "What industry or operating sector best matches your organization?",
@@ -482,7 +482,7 @@ const PRESTART_FIELDS = [
       { value: "other", label: "Other" }
     ]
   },
-  { id: "description", label: "Anything important leaders are currently experiencing in this pathway?", kind: "textarea", required: false, placeholder: "Briefly describe recent friction, complaints, or what leaders are noticing." },
+  { id: "description", label: "Anything important leaders are currently experiencing in this workflow?", kind: "textarea", required: false, placeholder: "Briefly describe recent friction, complaints, or what leaders are noticing." },
   { id: "peopleInvolved", label: "Roughly how many different people are typically involved in one normal run of this workflow?", kind: "number", required: true, placeholder: "e.g. 8" },
   { id: "hourlyCost", label: "Roughly what is the average hourly cost for the people involved in this workflow, including benefits and overhead?", kind: "number", required: true, placeholder: "e.g. 95" },
   { id: "annualVolume", label: "How many times does this workflow normally run in a typical year?", kind: "number", required: true, placeholder: "e.g. 120" },
@@ -509,14 +509,14 @@ const laneConfigs = {
     header: "Executive perspective selected",
     subcopy: "This version is tuned for senior leaders shaping governance and operating design. It emphasizes control accumulation, drag visibility, upkeep burden, and whether the environment is heavier than the work really requires.",
     aside: "What the executive version is built to surface",
-    long: "Built for leaders shaping governance, operating design, and control climate. Best for assessing whether burden is visible, proportionate, and actively governed."
+    long: "For leaders shaping how the organization is designed and run. Best for checking whether burden is visible, sized right, and being actively managed."
   }
 };
 
 const depthConfigs = {
   "10": { label: "10-minute diagnostic", header: "10-minute diagnostic selected", subcopy: "Quick first read. Best for fast baselining, pulse checks, or repeat checks after a change." },
   "30": { label: "30-minute diagnostic", header: "30-minute diagnostic selected", subcopy: "Balanced default. Strong enough to surface a real burden picture without becoming unnecessarily long." },
-  "60": { label: "60-minute diagnostic", header: "60-minute diagnostic selected", subcopy: "Deepest version. Best when the pathway is politically important, persistently burdened, or expensive enough to justify a richer readout." }
+  "60": { label: "60-minute diagnostic", header: "60-minute diagnostic selected", subcopy: "Deepest version. Best when the workflow is politically important, consistently heavy, or expensive enough to justify a richer readout." }
 };
 
 const state = {
@@ -618,8 +618,8 @@ const IndustryNarrativeLayer = {
   other: {
     sectorName: "this sector",
     benchmarkWithin: "A within-range score can still hide real recoverable drag even when the path looks normal on the surface.",
-    benchmarkAbove: "An above-range score usually means the work is in a cleaner place than comparable pathways.",
-    benchmarkBelow: "A below-range score usually means the structural burden is heavier than comparable pathways need to carry.",
+    benchmarkAbove: "An above-range score usually means the work is in a cleaner place than comparable workflows.",
+    benchmarkBelow: "A below-range score usually means the structural burden is heavier than comparable workflows need to carry.",
     opportunityPattern: "Comparable institutions often treat drag as normal even when it's still leaving meaningful time, money, and capacity on the table.",
     openingClause: "operational responsiveness",
     marginTerm: "usable capacity"
@@ -682,6 +682,11 @@ function formatCurrency(value) {
   const n = Number(value);
   if (!Number.isFinite(n)) return "—";
   return new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+}
+
+function formatEstimateCurrency(value) {
+  const formatted = formatCurrency(value);
+  return formatted === "—" ? formatted : `${formatted}*`;
 }
 
 function hasMeaningfulValue(value) {
@@ -903,7 +908,9 @@ function updateHeroHelp() {
 function ensureHubCtas() {
   document.querySelectorAll('a[href="diagnostic-tools.html"]').forEach((a) => {
     a.href = DIAGNOSTIC_HUB_URL;
-    a.textContent = a.textContent || "Return to Diagnostic Hub";
+    a.textContent = a.textContent || "Return to hub";
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
   });
 
   const makeAnchor = (key) => {
@@ -911,6 +918,8 @@ function ensureHubCtas() {
     a.className = "btn btn-soft";
     a.href = DIAGNOSTIC_HUB_URL;
     a.textContent = "Return to hub";
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
     a.dataset.hubCta = key;
     return a;
   };
@@ -1000,6 +1009,24 @@ function renderPreflightForm() {
     msg.id = 'consentErrorMsg';
     checkboxCard.appendChild(msg);
   }
+  mount.querySelectorAll('input, select, textarea').forEach((el) => {
+    el.addEventListener('input', () => {
+      const field = el.closest('.field');
+      if (field?.classList.contains('has-error')) {
+        field.classList.remove('has-error');
+        const msg = field.querySelector('.field-error-msg');
+        if (msg) msg.textContent = '';
+      }
+    });
+    el.addEventListener('change', () => {
+      const field = el.closest('.field');
+      if (field?.classList.contains('has-error')) {
+        field.classList.remove('has-error');
+        const msg = field.querySelector('.field-error-msg');
+        if (msg) msg.textContent = '';
+      }
+    });
+  });
 }
 
 function readPreflightForm() {
@@ -1093,8 +1120,10 @@ function validatePreflightForm() {
   }
   if (firstError) {
     firstError.scrollIntoView({ behavior: "smooth", block: "center" });
-    const focusTarget = firstError.querySelector('input, select, textarea, button');
-    focusTarget?.focus();
+    setTimeout(() => {
+      const focusTarget = firstError.querySelector('input, select, textarea, button');
+      focusTarget?.focus({ preventScroll: true });
+    }, 380);
     return false;
   }
   values.organizationSize = deriveOrganizationSize(values.employeeCount);
@@ -1144,18 +1173,37 @@ function renderQuestion() {
   const item = state.currentItem;
   if (!item) return;
   const dimLabel = item.dimension ? humanize(item.dimension) : "Adaptive diagnostic";
-  questionCluster.textContent = dimLabel;
   const answered = Number(state.currentProgress?.answeredCount || 0);
   const target = Number(state.currentProgress?.targetItemCount || 0);
-  questionStep.textContent = target ? `Question ${answered + 1} of ~${target}` : `Question ${answered + 1}`;
-  questionTitle.textContent = getQuestionRoleText(item.text || {}) || "Next question";
-  questionCopy.textContent = item.questionType === "numeric"
-    ? "Enter your best directional estimate. Exact precision is not necessary."
-    : "Choose the option that best matches what you can observe directly.";
-  clearQuestionRequired();
-  questionBody.innerHTML = "";
-  questionBody.appendChild(renderQuestionContent(item));
-  updateQuestionAffordance(item);
+  const card = document.querySelector("#questionStage .question-card");
+
+  const applyQuestionContent = () => {
+    questionCluster.textContent = dimLabel;
+    questionStep.textContent = target ? `Question ${answered + 1} of ~${target}` : `Question ${answered + 1}`;
+    questionStep.classList.add("step-advanced");
+    setTimeout(() => questionStep.classList.remove("step-advanced"), 520);
+    questionTitle.textContent = getQuestionRoleText(item.text || {}) || "Next question";
+    questionCopy.textContent = item.questionType === "numeric"
+      ? "Enter your best directional estimate. Exact precision is not necessary."
+      : "Choose the option that best matches what you can observe directly.";
+    clearQuestionRequired();
+    questionBody.innerHTML = "";
+    questionBody.appendChild(renderQuestionContent(item));
+    updateQuestionAffordance(item);
+  };
+
+  if (card) {
+    card.classList.add("question-transitioning");
+    setTimeout(() => {
+      applyQuestionContent();
+      card.classList.remove("question-transitioning");
+      card.classList.add("question-entered");
+      setTimeout(() => card.classList.remove("question-entered"), 300);
+    }, 140);
+  } else {
+    applyQuestionContent();
+  }
+
   backBtn.disabled = true;
   backBtn.title = "Back is disabled in this adaptive version. Use Start over if you need to change earlier answers.";
   skipBtn.disabled = !item.isOptional;
@@ -1479,10 +1527,10 @@ function getOperationalDimensions(result) {
 
 function deriveOperatingBurdenCondition(result) {
   const score = Number(result.score || 0);
-  if (score >= 82) return { label: "Light and proportionate", note: "The operating environment appears comparatively manageable and is supporting the work without excessive visible burden." };
-  if (score >= 65) return { label: "Manageable but accumulating", note: "The environment is still functioning, but recurring administrative weight is consuming more effort than it should." };
-  if (score >= 45) return { label: "Burdened and process-heavy", note: "The environment appears materially heavier than the underlying work likely requires because process, systems, or reporting weight have accumulated." };
-  return { label: "Administratively overloaded", note: "The environment appears to preserve output through workaround effort, exception handling, and manual burden rather than a lighter operating design." };
+  if (score >= 82) return { label: "Light and manageable", note: "The operating environment appears genuinely manageable and is supporting the work without excessive visible burden." };
+  if (score >= 65) return { label: "Workable but quietly getting heavier", note: "The environment is still functioning, but recurring administrative weight is consuming more effort than it should." };
+  if (score >= 45) return { label: "Heavy and process-clogged", note: "The environment appears heavier than the underlying work really needs because process, systems, or reporting weight have built up." };
+  return { label: "Overloaded by admin weight", note: "The environment appears to preserve output through workaround effort, exception handling, and manual burden rather than a lighter operating design." };
 }
 
 function derivePrimaryBurdenSource(result) {
@@ -1490,7 +1538,7 @@ function derivePrimaryBurdenSource(result) {
   const candidates = [
     { label: "Process and control density", value: Number(breakdown.approval || 0), note: "Too many process or control layers appear to be carrying the work." },
     { label: "Systems and coordination friction", value: Math.max(Number(breakdown.coordination || 0), Number(breakdown.handoff || 0)), note: "System switching, coordination burden, or handoff density appear to be driving the drag condition." },
-    { label: "Reporting and exception burden", value: Number(breakdown.escalation || 0), note: "Reporting weight or exception handling appear to be consuming disproportionate operating effort." },
+    { label: "Reporting and exception burden", value: Number(breakdown.escalation || 0), note: "Reporting weight or exception handling appear to be eating up more effort than they should." },
     { label: "Manual workaround dependence", value: Number(breakdown.key_person || 0), note: "The environment appears to depend too heavily on compensatory effort and specific people to keep moving." }
   ].sort((a, b) => b.value - a.value);
   return candidates[0] || { label: "Mixed burden pattern", value: 0, note: "No single burden source clearly dominates the run." };
@@ -1499,10 +1547,10 @@ function derivePrimaryBurdenSource(result) {
 function deriveBurdenDiagnosis(result, payload) {
   const score = Number(result.score || 0);
   const reg = normalizeChoice(payload?.regulatoryIntensity || payload?.regulatory_intensity);
-  if (score >= 70 && reg === "high") return { label: "Risk-justified caution", note: "Some of the current burden may be justified by a genuinely higher-control environment, but the pathway should still be governed actively." };
+  if (score >= 70 && reg === "high") return { label: "Risk-justified caution", note: "Some of the current burden may be justified by a genuinely higher-control environment, but the workflow should still be governed actively." };
   if (score < 45) return { label: "Too much burden to stay workable", note: "The environment appears to be paying too much in time, money, and capacity for the amount of operational value being preserved." };
   if (score < 65) return { label: "Heavier than the workflow requires", note: "The environment appears heavier than the underlying workflow likely requires." };
-  return { label: "Borderline trade-off", note: "The pathway is still workable, but the cost of preserving it is drifting toward a less acceptable trade-off." };
+  return { label: "Borderline trade-off", note: "The workflow is still workable, but the cost of preserving it is drifting toward a less acceptable trade-off." };
 }
 
 function buildInterpretiveState(result, payload) {
@@ -1552,7 +1600,7 @@ function buildSectorSpecificOpportunity(stateObj, payload = {}) {
   return {
     title: stateObj.benchmarkPos === "Above industry range" ? "Preserve and extend advantage" : "Lighter operating burden without weakening essential control",
     sectorPattern: industry.opportunityPattern,
-    opportunityGuidance: `This run suggests the strongest immediate opportunity sits in ${String(stateObj.topFocus || "the heaviest visible burden").toLowerCase()}, because that burden appears to be carrying more of the pathway than it should in ${industry.sectorName}.`,
+    opportunityGuidance: `This run suggests the strongest immediate opportunity sits in ${String(stateObj.topFocus || "the heaviest visible burden").toLowerCase()}, because that burden appears to be carrying more of the workflow than it should in ${industry.sectorName}.`,
     rationale: `The first moves matter because they target the structure carrying the work rather than only the symptoms people are compensating for, which is especially important where ${industry.openingClause} matters most.`,
     watchout: stateObj.benchmarkPos === "Above industry range"
       ? `Leadership should avoid assuming current advantage is self-sustaining if new burden continues to accumulate.`
@@ -1562,7 +1610,7 @@ function buildSectorSpecificOpportunity(stateObj, payload = {}) {
 
 function buildSpecificDiagnosisReads(result, payload, burdenCondition, burdenConstraint, burdenDiagnosis, stateObj) {
   const industry = getIndustryNarrative(payload);
-  const process = payload?.processName || payload?.process_name || "this pathway";
+  const process = payload?.processName || payload?.process_name || "this workflow";
   const breakdown = asObject(result?.burden_breakdown);
   const approval = Number(breakdown.approval || 0);
   const coordination = Math.max(Number(breakdown.coordination || 0), Number(breakdown.handoff || 0));
@@ -1571,7 +1619,7 @@ function buildSpecificDiagnosisReads(result, payload, burdenCondition, burdenCon
   const sourceSentence = burdenConstraint.label === "Systems and coordination friction"
     ? `Duplicate entry, manual handoffs, and coordination friction appear to account for most of the visible drag in ${process.toLowerCase()}.`
     : burdenConstraint.label === "Reporting and exception burden"
-    ? `Reporting weight and exception handling appear to be absorbing disproportionate operating effort in ${process.toLowerCase()}.`
+    ? `Reporting weight and exception handling appear to be eating up more effort than they should in ${process.toLowerCase()}.`
     : burdenConstraint.label === "Manual workaround dependence"
     ? `The path appears to rely on informal fixes and specific people to keep moving when the formal route is not carrying the work cleanly.`
     : `Process and control layers appear to be carrying more of ${process.toLowerCase()} than the underlying work requires.`;
@@ -1586,7 +1634,7 @@ function buildSpecificDiagnosisReads(result, payload, burdenCondition, burdenCon
     ? `The current operating trade-off appears too expensive in time, money, and ${industry.marginTerm} for the amount of value being protected.`
     : burdenDiagnosis.label === "Heavier than the workflow requires"
     ? `The environment appears heavier than the workflow requires, even by the standards that are normal in ${industry.sectorName}.`
-    : `The pathway is still workable, but the burden profile suggests it is drifting toward a less acceptable trade-off for ${industry.openingClause}.`;
+    : `The workflow is still workable, but the burden profile suggests it is becoming a harder trade to defend for ${industry.openingClause}.`;
   return {
     burdenRead: `${burdenCondition.note} ${burdenSentence}`,
     sourceRead: sourceSentence,
@@ -1610,7 +1658,7 @@ function buildHeadlineFinding(result, payload, burdenConstraint, stateObj) {
   const sourceClause = burdenConstraint.label === "Reporting and exception burden"
     ? `Reporting and exception burden appears to be absorbing roughly ${capacity}% of usable operating capacity in this workflow.`
     : burdenConstraint.label === "Systems and coordination friction"
-    ? `Systems friction and handoff coordination appear to be carrying a disproportionate share of the drag in this workflow.`
+    ? `Systems friction and handoff coordination appear to be carrying too much of the drag in this workflow.`
     : burdenConstraint.label === "Manual workaround dependence"
     ? `Manual workaround dependence appears to be preserving movement where the formal route is no longer carrying the work cleanly.`
     : `Process and control density appears to be heavier than the workflow requires in its current state.`;
@@ -1620,7 +1668,7 @@ function buildHeadlineFinding(result, payload, burdenConstraint, stateObj) {
     ? "Trajectory signals suggest the burden is easing, but the current environment is still carrying material recoverable drag."
     : "Trajectory signals suggest the burden is holding relatively steady rather than improving on its own.";
   const exposureSentence = annualHours > 0
-    ? `At the current run assumptions, the pathway is sustaining about ${annualHours.toLocaleString()} annual burden hours*, which is meaningful in ${industry.sectorName} where ${industry.openingClause} matters.`
+    ? `At the current run assumptions, the workflow is sustaining about ${annualHours.toLocaleString()} annual burden hours*, which is meaningful in ${industry.sectorName} where ${industry.openingClause} matters.`
     : `The surface signal suggests a meaningful capacity cost in ${industry.sectorName}, even before any deeper audit of the workflow.`;
   return `${sourceClause} ${shapeSentence} ${trajectorySentence} ${exposureSentence}`;
 }
@@ -1628,7 +1676,7 @@ function buildHeadlineFinding(result, payload, burdenConstraint, stateObj) {
 function buildHarmonizedNarrative(result, payload) {
   const stateObj = buildInterpretiveState(result, payload);
   stateObj.burdenProfileShape = deriveBurdenProfileShape(result, payload);
-  const process = payload?.processName || payload?.process_name || "This pathway";
+  const process = payload?.processName || payload?.process_name || "This workflow";
   const burdenCondition = deriveOperatingBurdenCondition(result);
   const burdenConstraint = derivePrimaryBurdenSource(result);
   const burdenDiagnosis = deriveBurdenDiagnosis(result, payload);
@@ -1643,7 +1691,7 @@ function buildHarmonizedNarrative(result, payload) {
     ? String(narrative.leadership_implication).split(/\n+/).map((s) => s.trim()).filter(Boolean)
     : buildPriorityActions(result, payload);
   const tradeoff = narrative.tradeoff_note || burdenDiagnosis.note;
-  const tmr = narrative.time_money_resources_summary || `Directional modeling suggests roughly ${Math.round(Number(result?.exposure?.annual_hours || 0)).toLocaleString()} annual hours* and about ${formatCurrency(result?.exposure?.annual_cost)} in labor exposure*, with capacity drag around ${Math.round(Number(result?.exposure?.capacity_drag_percent || 0))}%*.`;
+  const tmr = narrative.time_money_resources_summary || `Directional modeling suggests roughly ${Math.round(Number(result?.exposure?.annual_hours || 0)).toLocaleString()} annual hours* and about ${formatEstimateCurrency(result?.exposure?.annual_cost)} in labor exposure, with capacity drag around ${Math.round(Number(result?.exposure?.capacity_drag_percent || 0))}%*.`;
 
   return {
     state: stateObj,
@@ -1670,7 +1718,7 @@ function buildHarmonizedNarrative(result, payload) {
 }
 
 function buildPriorityActions(result, payload) {
-  const process = (payload?.processName || payload?.process_name || "this pathway").trim();
+  const process = (payload?.processName || payload?.process_name || "this workflow").trim();
   const breakdown = asObject(result.burden_breakdown);
   const industry = getIndustryNarrative(payload);
   const actions = [];
@@ -1702,7 +1750,7 @@ function buildRemedyPaths(result, payload) {
       kicker: "Low disruption",
       summary: "Fix the biggest visible problem without redesigning everything.",
       actions: [actions[0] || "Reduce the heaviest visible burden first."],
-      benefit: `Possible upside of about ${formatCurrency(reclaim.amount * 0.22)} if the first fix sticks quickly.`,
+      benefit: `Possible upside of about ${formatEstimateCurrency(reclaim.amount * 0.22)} if the first fix sticks quickly.`,
       risk: `Risk: the surface looks better while the real problem stays.`
     },
     {
@@ -1710,7 +1758,7 @@ function buildRemedyPaths(result, payload) {
       kicker: "Targeted redesign",
       summary: "Redesign how the normal case flows and clarify who decides what.",
       actions: actions.slice(0, 2),
-      benefit: `Possible upside of about ${formatCurrency(reclaim.amount * 0.48)} if the redesigned path holds.`,
+      benefit: `Possible upside of about ${formatEstimateCurrency(reclaim.amount * 0.48)} if the redesigned path holds.`,
       risk: `Risk: you end up in a better but still burdened middle state.`
     },
     {
@@ -1718,14 +1766,14 @@ function buildRemedyPaths(result, payload) {
       kicker: "Fastest structural reset",
       summary: "Remove several burden layers at once and separate normal cases from exceptions cleanly.",
       actions: actions.slice(0, 4),
-      benefit: `Possible upside of about ${formatCurrency(reclaim.amount * 0.72)} if leadership can hold the new design.`,
+      benefit: `Possible upside of about ${formatEstimateCurrency(reclaim.amount * 0.72)} if leadership can hold the new design.`,
       risk: `Risk: pushback from people who thought the old controls were protecting them.`
     }
   ];
 }
 
 function buildExecutiveSummary(result, payload) {
-  const process = payload?.processName || payload?.process_name || "This pathway";
+  const process = payload?.processName || payload?.process_name || "This workflow";
   const harmonized = buildHarmonizedNarrative(result, payload);
   let headline = `${process} is still getting work done, but it is carrying enough drag to leave real value on the table.`;
   if ((result.benchmark_position || "").includes("Above")) {
@@ -1744,11 +1792,11 @@ function buildBenchmarkInterpretationText(result, payload) {
   const calibration = DiagnosticInterpretationLayer.getSectorCalibration(payload || {});
   const score = Number(result?.score || 50);
   const industry = getIndustryNarrative(payload);
-  let text = `This pathway sits in the ${result?.benchmark_position || "industry range"}. `;
+  let text = `This workflow sits in the ${result?.benchmark_position || "industry range"}. `;
   if (score > 75) text += `${industry.benchmarkAbove} `;
   else if (score < 55) text += `${industry.benchmarkBelow} `;
   else text += `${industry.benchmarkWithin} `;
-  text += `Comparable paths in ${industry.sectorName} still often carry about ${calibration.typicalDrag}% recoverable drag even when people think the setup is just normal.`;
+  text += `Similar workflows in ${industry.sectorName} still often carry about ${calibration.typicalDrag}% recoverable drag even when people think the setup is just normal.`;
   return text;
 }
 
@@ -1760,7 +1808,7 @@ function buildQuadrantInterpretation(result) {
   const stateObj = result.__interpretiveState || buildInterpretiveState(result, {});
   if (stateObj.quadrantKey === "upper_left") return "Movement is relatively strong and governance weight is comparatively light. This is the strongest structural position on the chart, but it still needs to be preserved rather than assumed permanent.";
   if (stateObj.quadrantKey === "upper_right") return "The organization is still getting movement, but it is paying for that movement with heavier governance weight than it likely wants. The task is to strip out non-proportionate burden without weakening control quality.";
-  if (stateObj.quadrantKey === "lower_left") return "Formal governance density is not the main problem. The issue is that the pathway is not carrying movement well through ownership, coordination, and handoff design.";
+  if (stateObj.quadrantKey === "lower_left") return "Formal governance density is not the main problem. The issue is that the workflow is not carrying movement well through ownership, coordination, and handoff design.";
   return "Movement is weak while governance weight is already heavy. Time, cost, and capacity are likely being consumed at the same time.";
 }
 
@@ -2145,14 +2193,12 @@ function renderTrajectorySparkline(result) {
 function buildExecutiveReportHtml(result, payload) {
   const harmonized = buildHarmonizedNarrative(result, payload);
   const summary = buildExecutiveSummary(result, payload);
-  const actions = buildPriorityActions(result, payload);
+  const actions = buildPriorityActions(result, payload).slice(0, 4);
   const benchmark = buildBenchmarkInterpretationText(result, payload);
-  const burdenConstraint = derivePrimaryBurdenSource(result);
   const generated = nowLabel();
   const insight = calculateInsightDepth(getInsightDepthInputs(payload));
   const industry = getIndustryNarrative(payload);
   const remedyPaths = buildRemedyPaths(result, payload);
-  const exportCal = DiagnosticInterpretationLayer.getSectorCalibration(payload || {});
   const exportScore = Math.max(0, Math.min(100, Number(result?.score || 0)));
 
   const dragPct = Number(result?.exposure?.capacity_drag_percent || 0);
@@ -2184,99 +2230,86 @@ function buildExecutiveReportHtml(result, payload) {
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" /><title>${escapeHtml(payload?.processName || "Operational Systems Diagnostic")}</title><style>
     @page { size: letter; margin: 0.5in; }
     body{font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;margin:0;color:#15202B;background:#fff;line-height:1.65}
-    .page{padding:42pt 46pt;page-break-after:always;min-height:10.2in;position:relative}
+    .page{padding:38pt 42pt;page-break-after:always;min-height:10.0in;position:relative}
     .page:last-child{page-break-after:auto}
-    .header{display:flex;justify-content:space-between;align-items:center;font-size:10pt;color:#5B6774;margin-bottom:24pt}
-    .footer{position:absolute;left:46pt;right:46pt;bottom:20pt;display:flex;justify-content:space-between;gap:12pt;padding-top:10pt;border-top:1px solid rgba(21,32,43,.12);font-size:9pt;color:#5B6774}
+    .header{display:flex;justify-content:space-between;align-items:center;font-size:10pt;color:#5B6774;margin-bottom:20pt}
+    .footer{position:absolute;left:42pt;right:42pt;bottom:18pt;display:flex;justify-content:space-between;gap:12pt;padding-top:10pt;border-top:1px solid rgba(21,32,43,.12);font-size:9pt;color:#5B6774}
     .wordmark{font-size:10pt;letter-spacing:.22em;text-transform:uppercase;font-weight:700;color:#3F6EA1}
-    .doc-type{font-size:12pt;letter-spacing:.12em;text-transform:uppercase;color:#5B6774}
-    .cover-title{font-size:36pt;line-height:1.0;letter-spacing:-.05em;margin:14pt 0 10pt}
-    .cover-sub{font-size:12pt;color:#5B6774;margin:0 0 28pt}
-    .condition-line{position:absolute;left:46pt;right:46pt;bottom:58pt;font-size:13pt;line-height:1.5;color:#15202B}
-    h2{font-size:22pt;line-height:1.1;letter-spacing:-.03em;margin:0 0 18pt}
-    p{margin:0 0 12pt;font-size:11pt}
-    .waterfall{display:flex;height:30pt;border-radius:999px;overflow:hidden;border:1px solid rgba(21,32,43,.08);margin-top:18pt}
-    .seg-productive{background:#6E8F72}.seg-admin{background:#B28D3C}.seg-drag{background:#B8505E}
-    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:22pt;align-items:start}
-    .donut{width:100%;height:240pt;display:grid;place-items:center;border:1px solid rgba(21,32,43,.08);border-radius:18pt;background:#FBFCFE}
-    .donut-center{font-size:12pt;color:#5B6774;text-align:center}.donut-center strong{display:block;font-size:24pt;color:#15202B}
-    .gauge{height:180pt;border:1px solid rgba(21,32,43,.08);border-radius:18pt;background:#FBFCFE;display:grid;place-items:center}
+    .doc-type{font-size:11pt;letter-spacing:.12em;text-transform:uppercase;color:#5B6774}
+    .cover-title{font-size:30pt;line-height:1.0;letter-spacing:-.05em;margin:12pt 0 8pt}
+    .cover-sub{font-size:11pt;color:#5B6774;margin:0 0 20pt}
+    h2{font-size:21pt;line-height:1.1;letter-spacing:-.03em;margin:0 0 16pt}
+    p{margin:0 0 11pt;font-size:11pt}
     ol{margin:0;padding-left:18pt} li{margin:0 0 8pt;font-size:11pt}
-    .remedy-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12pt;margin-top:14pt}
-    .remedy-card{border:1px solid rgba(21,32,43,.08);border-radius:14pt;padding:14pt;background:#FBFCFE}.remedy-card strong{display:block;font-size:11pt;margin-bottom:6pt}
-    .ring-wrap{display:flex;align-items:center;gap:14pt;margin-top:14pt}.ring-wrap svg{width:72pt;height:72pt}.small{font-size:10pt;color:#5B6774}
-    @media print { .page { margin: 0; padding: 36pt 42pt; } }
+    .waterfall{display:flex;height:28pt;border-radius:999px;overflow:hidden;border:1px solid rgba(21,32,43,.08);margin-top:16pt}
+    .seg-productive{background:#6E8F72}.seg-admin{background:#B28D3C}.seg-drag{background:#B8505E}
+    .two-col{display:grid;grid-template-columns:1.1fr .9fr;gap:18pt;align-items:start}
+    .gauge{height:190pt;border:1px solid rgba(21,32,43,.08);border-radius:18pt;background:#FBFCFE;display:grid;place-items:center}
+    .remedy-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12pt;margin-top:12pt}
+    .remedy-card{border:1px solid rgba(21,32,43,.08);border-radius:14pt;padding:12pt;background:#FBFCFE}
+    .remedy-card strong{display:block;font-size:11pt;margin-bottom:6pt}
+    .small{font-size:10pt;color:#5B6774}
+    .ring-wrap{display:flex;align-items:center;gap:14pt;margin:14pt 0}
+    .ring-wrap svg{width:72pt;height:72pt}
+    .method-note{padding:12pt 14pt;border-radius:12pt;background:#F8FAFC;border:1px solid rgba(21,32,43,.08)}
+    @media print { .page { margin: 0; padding: 34pt 40pt; } }
   </style></head><body>
     <section class="page">
       <div class="header"><div class="wordmark">Monderman</div><div>Operational Systems Diagnostic • Page 1</div></div>
       <div class="doc-type">Operational Systems Diagnostic</div>
       <h1 class="cover-title">${escapeHtml(payload?.processName || "Operational Systems Diagnostic")}</h1>
       <p class="cover-sub">${escapeHtml(humanize(payload?.industry || "other"))} • ${escapeHtml(payload?.businessUnit || "Business unit")} • ${escapeHtml(generated)}</p>
-      <div class="condition-line">${escapeHtml(summary.headline)}</div>
-      <div class="footer"><span>${escapeHtml(payload?.processName || "Operational Systems Diagnostic")}</span><span>${escapeHtml(generated)}</span></div>
-    </section>
-    <section class="page">
-      <div class="header"><div class="wordmark">Monderman Operational Systems Diagnostic</div><div>Page 2</div></div>
       <h2>Headline finding</h2>
       <p>${escapeHtml(harmonized.headlineFinding)}</p>
       <p>${escapeHtml(`In ${industry.sectorName}, this matters because ${industry.opportunityPattern.toLowerCase()}.`)}</p>
       <p>${escapeHtml(harmonized.tmr)}</p>
-      <p>${escapeHtml(`Insight depth for this read is ${insight.score} (${insight.band}). That tells you how broad the signal is, not whether the answers are magically more correct.`)}</p>
       <div class="waterfall"><div class="seg-productive" style="width:${productive}%"></div><div class="seg-admin" style="width:${admin}%"></div><div class="seg-drag" style="width:${drag}%"></div></div>
+      <p class="small" style="margin-top:10pt;">Condition: ${escapeHtml(summary.headline)} • Benchmark: ${escapeHtml(result?.benchmark_position || "Industry range comparison")}</p>
       <div class="footer"><span>${escapeHtml(payload?.processName || "Operational Systems Diagnostic")}</span><span>${escapeHtml(generated)}</span></div>
     </section>
     <section class="page">
-      <div class="header"><div class="wordmark">Monderman Operational Systems Diagnostic</div><div>Page 3</div></div>
-      <h2>Where the burden sits</h2>
+      <div class="header"><div class="wordmark">Monderman Operational Systems Diagnostic</div><div>Page 2</div></div>
       <div class="two-col">
-        <div class="donut"><div class="donut-center"><span class="small">Dominant visible burden source</span><strong>${escapeHtml(burdenConstraint.label)}</strong></div></div>
         <div>
+          <h2>Where to focus first</h2>
           <p>${escapeHtml(harmonized.diagnosisReads.sourceRead)}</p>
-          <p>${escapeHtml(harmonized.diagnosisReads.burdenRead)}</p>
-          <p>${escapeHtml(`The practical implication is that ${burdenConstraint.label.toLowerCase()} is now costing ${industry.marginTerm} rather than just sitting in the background.`)}</p>
+          <p>${escapeHtml(`In ${industry.sectorName}, that matters because ${industry.opportunityPattern.toLowerCase()}`)}</p>
+          <ol>${actions.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol>
+        </div>
+        <div class="gauge">
+          <svg viewBox="0 0 320 180" width="320" height="180" aria-label="Industry positioning gauge">
+            <path d="${exportDescribeArc(160,150,104,-90,90)}" fill="none" stroke="rgba(21,32,43,.12)" stroke-width="14" stroke-linecap="round"></path>
+            <path d="${exportDescribeArc(160,150,104,-90,exportNeedleAngle)}" fill="none" stroke="#3F6EA1" stroke-width="14" stroke-linecap="round"></path>
+            <line x1="160" y1="150" x2="${exportNeedle.x}" y2="${exportNeedle.y}" stroke="#15202B" stroke-width="3.5" stroke-linecap="round"></line>
+            <circle cx="160" cy="150" r="7" fill="#15202B"></circle>
+            <text x="36" y="36" font-size="10" fill="#7C8794">Below</text>
+            <text x="106" y="18" font-size="10" fill="#7C8794">Within</text>
+            <text x="206" y="18" font-size="10" fill="#7C8794">Above</text>
+            <text x="270" y="36" font-size="10" fill="#7C8794">Opportunity</text>
+            <text x="160" y="116" text-anchor="middle" font-size="26" font-weight="700" fill="#15202B">${exportScore}</text>
+            <text x="160" y="134" text-anchor="middle" font-size="10" fill="#5B6774">${escapeHtml(result?.benchmark_position || "Industry range comparison")}</text>
+          </svg>
         </div>
       </div>
-      <div class="footer"><span>${escapeHtml(payload?.processName || "Operational Systems Diagnostic")}</span><span>${escapeHtml(generated)}</span></div>
-    </section>
-    <section class="page">
-      <div class="header"><div class="wordmark">Monderman Operational Systems Diagnostic</div><div>Page 4</div></div>
-      <h2>Benchmark and trajectory</h2>
-      <div class="gauge">
-        <svg viewBox="0 0 320 180" width="320" height="180" aria-label="Industry positioning gauge">
-          <path d="${exportDescribeArc(160,150,104,-90,90)}" fill="none" stroke="rgba(21,32,43,.12)" stroke-width="14" stroke-linecap="round"></path>
-          <path d="${exportDescribeArc(160,150,104,-90,exportNeedleAngle)}" fill="none" stroke="#3F6EA1" stroke-width="14" stroke-linecap="round"></path>
-          <line x1="160" y1="150" x2="${exportNeedle.x}" y2="${exportNeedle.y}" stroke="#15202B" stroke-width="3.5" stroke-linecap="round"></line>
-          <circle cx="160" cy="150" r="7" fill="#15202B"></circle>
-          <text x="36" y="36" font-size="10" fill="#7C8794">Below</text>
-          <text x="106" y="18" font-size="10" fill="#7C8794">Within</text>
-          <text x="206" y="18" font-size="10" fill="#7C8794">Above</text>
-          <text x="270" y="36" font-size="10" fill="#7C8794">Opportunity</text>
-          <text x="160" y="116" text-anchor="middle" font-size="26" font-weight="700" fill="#15202B">${exportScore}</text>
-          <text x="160" y="134" text-anchor="middle" font-size="10" fill="#5B6774">${escapeHtml(result?.benchmark_position || "Industry range comparison")}</text>
-        </svg>
-      </div>
-      <p>${escapeHtml(benchmark)}</p>
-      <p>${escapeHtml(result?.trajectory?.note || "Trajectory does not yet show a strong directional shift.")}</p>
-      <div class="footer"><span>${escapeHtml(payload?.processName || "Operational Systems Diagnostic")}</span><span>${escapeHtml(generated)}</span></div>
-    </section>
-    <section class="page">
-      <div class="header"><div class="wordmark">Monderman Operational Systems Diagnostic</div><div>Page 5</div></div>
-      <h2>Priority actions and remedy paths</h2>
-      <ol>${actions.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol>
-      <h2 style="margin-top:24pt;">Three remedy paths</h2>
+      <p style="margin-top:12pt;">${escapeHtml(benchmark)}</p>
+      <h2 style="margin-top:20pt;">Three remedy paths</h2>
       <div class="remedy-grid">${remedyPaths.map((path) => `<div class="remedy-card"><strong>${escapeHtml(path.label)}</strong><p>${escapeHtml(path.summary)}</p><p class="small">${escapeHtml(path.benefit)}</p><p class="small">${escapeHtml(path.risk)}</p></div>`).join("")}</div>
       <div class="footer"><span>${escapeHtml(payload?.processName || "Operational Systems Diagnostic")}</span><span>${escapeHtml(generated)}</span></div>
     </section>
     <section class="page">
-      <div class="header"><div class="wordmark">Monderman Operational Systems Diagnostic</div><div>Page 6</div></div>
-      <h2>Methodology and confidence</h2>
-      <p>This diagnostic measures recurring operating burden across process density, systems friction, reporting burden, workaround dependence, and the amount of productive capacity being absorbed by sustaining the route. It does not independently verify user inputs, and it should be read as a directional operating read rather than a full audit.</p>
+      <div class="header"><div class="wordmark">Monderman Operational Systems Diagnostic</div><div>Page 3</div></div>
+      <h2>How this was produced</h2>
+      <p>This diagnostic measures recurring operating burden across process density, systems friction, reporting burden, workaround dependence, and the amount of productive capacity being absorbed by sustaining the workflow. It does not independently verify user inputs, and it should be read as a directional operating read rather than a full audit.</p>
       <div class="ring-wrap">
         <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="none" stroke="rgba(21,32,43,.10)" stroke-width="4"></circle><circle cx="20" cy="20" r="16" fill="none" stroke="${ringColor}" stroke-width="4" stroke-linecap="round" transform="rotate(-90 20 20)" stroke-dasharray="${circumference}" stroke-dashoffset="${ringOffset}"></circle></svg>
         <div><strong style="display:block;font-size:26pt;line-height:1">${insight.score}</strong><span class="small">${insight.band} insight depth</span></div>
       </div>
-      <p>${escapeHtml(`This Insight Depth score tells you how broad and defensible the signal is. Higher depth means more perspective and stronger pattern detection, not a guarantee that every answer is right.`)}</p>
-      <div class="footer"><span>${escapeHtml(payload?.processName || "Operational Systems Diagnostic")}</span><span>Directional output based on user-provided inputs</span></div>
+      <p>${escapeHtml(`This Insight Depth score tells you how broad the signal is. Higher depth means more perspective and a stronger read, not a guarantee that every answer is right.`)}</p>
+      <div class="method-note">
+        <p style="margin:0;"><strong>*</strong> Figures marked with an asterisk are directional estimates generated from your inputs, not guaranteed financial outcomes. They are intended to indicate rough order of magnitude so leadership can decide whether the pattern is worth investigating further.</p>
+      </div>
+      <p style="margin-top:16pt;" class="small">Prepared by Monderman’s diagnostic engine.</p>
+      <div class="footer"><span>${escapeHtml(payload?.processName || "Operational Systems Diagnostic")}</span><span>${escapeHtml(generated)}</span></div>
     </section>
   </body></html>`;
 }
@@ -2305,10 +2338,13 @@ function downloadExecutiveReportPdf() {
   const html = buildExecutiveReportHtml(state.result, state.renderPayload);
   const parsed = new DOMParser().parseFromString(html, "text/html");
   const container = document.createElement('div');
-  container.style.position = 'absolute';
-  container.style.left = '-99999px';
+  container.style.position = 'fixed';
+  container.style.left = '0';
   container.style.top = '0';
   container.style.width = '816px';
+  container.style.opacity = '0';
+  container.style.pointerEvents = 'none';
+  container.style.zIndex = '-1';
   const style = parsed.querySelector('style');
   if (style) {
     const styleEl = document.createElement('style');
@@ -2385,13 +2421,29 @@ function bindResultTooltips() {
     const trigger = document.getElementById(triggerId);
     const tooltip = document.getElementById(tipId);
     if (!trigger || !tooltip) return;
-    const show = () => tooltip.classList.add("show");
-    const hide = () => tooltip.classList.remove("show");
-    trigger.onmouseenter = show;
-    trigger.onmouseleave = hide;
-    trigger.onfocus = show;
-    trigger.onblur = hide;
-    trigger.onclick = (event) => { event.stopPropagation(); tooltip.classList.toggle("show"); };
+    let hideTimer = null;
+    const show = () => {
+      if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+      tooltip.classList.add("show");
+    };
+    const scheduleHide = () => {
+      if (hideTimer) clearTimeout(hideTimer);
+      hideTimer = setTimeout(() => tooltip.classList.remove("show"), 220);
+    };
+    trigger.addEventListener("mouseenter", show);
+    trigger.addEventListener("mouseleave", scheduleHide);
+    trigger.addEventListener("focus", show);
+    trigger.addEventListener("blur", scheduleHide);
+    tooltip.addEventListener("mouseenter", show);
+    tooltip.addEventListener("mouseleave", scheduleHide);
+    trigger.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (tooltip.classList.contains("show")) {
+        tooltip.classList.remove("show");
+      } else {
+        show();
+      }
+    });
   });
   document.addEventListener("click", (event) => {
     document.querySelectorAll(".tooltip-panel.show").forEach((panel) => {
@@ -2542,8 +2594,8 @@ function renderResults(result, payload, outputMode) {
 
   renderTableBody("costCompositionBody", [
     { label: "Average hourly cost*", value: formatCurrency(result?.exposure?.average_hourly_cost || payload?.hourlyCost), note: "Directional labor-cost assumption per materially involved participant." },
-    { label: "Annual labor hours*", value: result?.exposure?.annual_hours ? `${Math.round(Number(result.exposure.annual_hours))} hrs` : "—", note: "Modeled across the pathway volume you provided." },
-    { label: "Annual labor exposure*", value: formatCurrency(result?.exposure?.annual_cost), note: "Directional labor-cost impact from keeping the pathway moving." },
+    { label: "Annual labor hours*", value: result?.exposure?.annual_hours ? `${Math.round(Number(result.exposure.annual_hours))} hrs` : "—", note: "Modeled across the workflow volume you provided." },
+    { label: "Annual labor exposure*", value: formatCurrency(result?.exposure?.annual_cost), note: "Directional labor-cost impact from keeping the workflow moving." },
     { label: "Capacity drag*", value: result?.exposure?.capacity_drag_percent != null ? `${Math.round(Number(result.exposure.capacity_drag_percent))}%` : "—", note: "Estimated share of capacity absorbed by structural drag." }
   ], (row) => [`<td>${escapeHtml(row.label)}</td>`, `<td>${escapeHtml(row.value)}</td>`, `<td>${escapeHtml(row.note)}</td>`]);
 
@@ -2670,7 +2722,7 @@ renderPreflightForm();
 syncHubSelections();
 updateHeroHelp();
 syncBeginButton();
-setHeader("Choose participant perspective", "Select the perspective that best matches your role in the pathway, then choose the appropriate diagnostic depth.", "Awaiting selection");
+setHeader("Choose participant perspective", "Select the perspective that best matches your role in the workflow, then choose the appropriate diagnostic depth.", "Awaiting selection");
 showStage(laneStage);
 questionFooter.style.display = "none";
 </script>
