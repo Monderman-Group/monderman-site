@@ -1517,11 +1517,11 @@ function avg(values) {
 function getOperationalDimensions(result) {
   const dims = asObject(result?.dimensions);
   return {
-    process_load: Number.isFinite(Number(dims.process_load)) ? Number(dims.process_load) : Number(dims.cycle_velocity || 0),
-    systems_friction: Number.isFinite(Number(dims.systems_friction)) ? Number(dims.systems_friction) : Number(dims.approval_efficiency || 0),
-    control_review_burden: Number.isFinite(Number(dims.control_review_burden)) ? Number(dims.control_review_burden) : Number(dims.coordination_load || 0),
-    reporting_oversight_load: Number.isFinite(Number(dims.reporting_oversight_load)) ? Number(dims.reporting_oversight_load) : Number(dims.execution_stability || 0),
-    adaptation_drag: Number.isFinite(Number(dims.adaptation_drag)) ? Number(dims.adaptation_drag) : 0
+    process_load: Number(dims.process_density || 0),
+    systems_friction: Number(dims.systems_friction || 0),
+    control_review_burden: Number(dims.control_load || 0),
+    reporting_oversight_load: Number(dims.reporting_exception_burden || 0),
+    adaptation_drag: Number(dims.upkeep_burden || 0)
   };
 }
 
@@ -1536,10 +1536,10 @@ function deriveOperatingBurdenCondition(result) {
 function derivePrimaryBurdenSource(result) {
   const breakdown = asObject(result.burden_breakdown);
   const candidates = [
-    { label: "Process and control density", value: Number(breakdown.approval || 0), note: "Too many process or control layers appear to be carrying the work." },
-    { label: "Systems and coordination friction", value: Math.max(Number(breakdown.coordination || 0), Number(breakdown.handoff || 0)), note: "System switching, coordination burden, or handoff density appear to be driving the drag condition." },
-    { label: "Reporting and exception burden", value: Number(breakdown.escalation || 0), note: "Reporting weight or exception handling appear to be eating up more effort than they should." },
-    { label: "Manual workaround dependence", value: Number(breakdown.key_person || 0), note: "The environment appears to depend too heavily on compensatory effort and specific people to keep moving." }
+    { label: "Process and control density", value: Number(breakdown.process_density || 0), note: "Too many process or control layers appear to be carrying the work." },
+    { label: "Systems and coordination friction", value: Math.max(Number(breakdown.systems_friction || 0), Number(breakdown.workaround_dependence || 0)), note: "System switching, coordination burden, or handoff density appear to be driving the drag condition." },
+    { label: "Reporting and exception burden", value: Number(breakdown.reporting_exception_burden || 0), note: "Reporting weight or exception handling appear to be eating up more effort than they should." },
+    { label: "Manual workaround dependence", value: Number(breakdown.control_load || 0), note: "The environment appears to depend too heavily on compensatory effort and specific people to keep moving." }
   ].sort((a, b) => b.value - a.value);
   return candidates[0] || { label: "Mixed burden pattern", value: 0, note: "No single burden source clearly dominates the run." };
 }
@@ -1557,10 +1557,10 @@ function buildInterpretiveState(result, payload) {
   const breakdown = asObject(result.burden_breakdown);
   const score = Number(result.score || 50);
   const governanceWeight = Math.max(8, Math.min(96, avg([
-    Number(breakdown.approval || 0),
-    Number(breakdown.coordination || 0),
-    Number(breakdown.handoff || 0),
-    Number(breakdown.escalation || 0)
+    Number(breakdown.process_density || 0),
+    Number(breakdown.systems_friction || 0),
+    Number(breakdown.workaround_dependence || 0),
+    Number(breakdown.control_load || 0)
   ]) + (normalizeChoice(payload?.regulatoryIntensity) === "high" ? 8 : normalizeChoice(payload?.regulatoryIntensity) === "moderate" ? 4 : 0)));
   const execResponsive = Math.max(6, Math.min(94, 100 - score));
   const benchmarkPos = result.benchmark_position || "Industry range comparison";
@@ -1612,10 +1612,10 @@ function buildSpecificDiagnosisReads(result, payload, burdenCondition, burdenCon
   const industry = getIndustryNarrative(payload);
   const process = payload?.processName || payload?.process_name || "this workflow";
   const breakdown = asObject(result?.burden_breakdown);
-  const approval = Number(breakdown.approval || 0);
-  const coordination = Math.max(Number(breakdown.coordination || 0), Number(breakdown.handoff || 0));
-  const escalation = Number(breakdown.escalation || 0);
-  const keyPerson = Number(breakdown.key_person || 0);
+  const approval = Number(breakdown.process_density || 0);
+  const coordination = Math.max(Number(breakdown.systems_friction || 0), Number(breakdown.workaround_dependence || 0));
+  const escalation = Number(breakdown.reporting_exception_burden || 0);
+  const keyPerson = Number(breakdown.control_load || 0);
   const sourceSentence = burdenConstraint.label === "Systems and coordination friction"
     ? `Duplicate entry, manual handoffs, and coordination friction appear to account for most of the visible drag in ${process.toLowerCase()}.`
     : burdenConstraint.label === "Reporting and exception burden"
@@ -1722,16 +1722,16 @@ function buildPriorityActions(result, payload) {
   const breakdown = asObject(result.burden_breakdown);
   const industry = getIndustryNarrative(payload);
   const actions = [];
-  if (Number(breakdown.approval || 0) >= 45) {
+  if (Number(breakdown.process_density || 0) >= 45) {
     actions.push(`Cut review layers in ${process.toLowerCase()} that are not catching real problems, so routine work doesn't get treated like high-risk work.`);
   }
-  if (Math.max(Number(breakdown.coordination || 0), Number(breakdown.handoff || 0)) >= 40) {
+  if (Math.max(Number(breakdown.systems_friction || 0), Number(breakdown.workaround_dependence || 0)) >= 40) {
     actions.push(`Make ownership and handoffs clearer so less gets redone and the work moves without constant follow-up.`);
   }
-  if (Number(breakdown.escalation || 0) >= 35) {
+  if (Number(breakdown.reporting_exception_burden || 0) >= 35) {
     actions.push(`Stop escalating things that should be decided where they are, so routine cases do not keep moving upward.`);
   }
-  if (Number(breakdown.key_person || 0) >= 40) {
+  if (Number(breakdown.control_load || 0) >= 40) {
     actions.push(`Write down the decisions currently kept in specific people's heads, so the work doesn't depend on one person being available.`);
   }
   if (!actions.length) {
@@ -2069,10 +2069,10 @@ function renderBurdenDonut(result) {
   const breakdown = asObject(result?.burden_breakdown);
   const labels = ["Process density", "Systems friction", "Reporting burden", "Workaround dependence"];
   const values = [
-    Number(breakdown.approval || 0),
-    Math.max(Number(breakdown.coordination || 0), Number(breakdown.handoff || 0)),
-    Number(breakdown.escalation || 0),
-    Number(breakdown.key_person || 0)
+    Number(breakdown.process_density || 0),
+    Math.max(Number(breakdown.systems_friction || 0), Number(breakdown.workaround_dependence || 0)),
+    Number(breakdown.reporting_exception_burden || 0),
+    Number(breakdown.control_load || 0)
   ];
   const center = document.getElementById("donutCenterValue");
   const note = document.getElementById("burdenDonutNote");
@@ -2127,10 +2127,10 @@ function renderBurdenTreemap(result) {
   if (!mount) return;
   const breakdown = asObject(result?.burden_breakdown);
   const cells = [
-    { label: "Process density", value: Number(breakdown.approval || 0), color: "#3F6EA1" },
-    { label: "Systems friction", value: Math.max(Number(breakdown.coordination || 0), Number(breakdown.handoff || 0)), color: "#B28D3C" },
-    { label: "Reporting burden", value: Number(breakdown.escalation || 0), color: "#C67B2D" },
-    { label: "Workaround dependence", value: Number(breakdown.key_person || 0), color: "#B8505E" }
+    { label: "Process density", value: Number(breakdown.process_density || 0), color: "#3F6EA1" },
+    { label: "Systems friction", value: Math.max(Number(breakdown.systems_friction || 0), Number(breakdown.workaround_dependence || 0)), color: "#B28D3C" },
+    { label: "Reporting burden", value: Number(breakdown.reporting_exception_burden || 0), color: "#C67B2D" },
+    { label: "Control load", value: Number(breakdown.control_load || 0), color: "#B8505E" }
   ].sort((a,b) => b.value-a.value);
   const values = cells.map((cell) => cell.value);
   if (!hasMeaningfulSeries(values)) {
