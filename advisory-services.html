@@ -62,8 +62,6 @@
       --max: 1320px;
       --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
       --transition-slow: 420ms cubic-bezier(0.22, 1, 0.36, 1);
-      --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
-      --card-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
       --reveal-distance: 18px;
       --panel-radius: 18px;
       --card-radius: 16px;
@@ -204,7 +202,6 @@
       letter-spacing: -0.02em;
       color: #FFFFFF;
       white-space: nowrap;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
     }
 
     .brand::after {
@@ -252,7 +249,6 @@
     .nav a:focus-visible {
       color: #FFFFFF;
       transform: translateY(-1px);
-      outline: none;
     }
 
     .nav a:hover::after,
@@ -273,13 +269,13 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(circle at 79% 18%, rgba(63, 110, 161, 0.17) 0%, rgba(63, 110, 161, 0.07) 18%, transparent 34%),
+        radial-gradient(circle at 79% 18%, rgba(63, 110, 161, 0.14) 0%, rgba(63, 110, 161, 0.06) 18%, transparent 34%),
         linear-gradient(
           90deg,
-          rgba(10, 14, 20, 0.92) 0%,
-          rgba(10, 14, 20, 0.78) 24%,
-          rgba(10, 14, 20, 0.50) 52%,
-          rgba(10, 14, 20, 0.18) 100%
+          rgba(10, 14, 20, 0.88) 0%,
+          rgba(10, 14, 20, 0.72) 28%,
+          rgba(10, 14, 20, 0.42) 56%,
+          rgba(10, 14, 20, 0.12) 100%
         );
       pointer-events: none;
       z-index: 0;
@@ -289,11 +285,12 @@
       content: "";
       position: absolute;
       inset: 0;
-      background:
-        linear-gradient(180deg, rgba(10, 14, 20, 0.10) 0%, rgba(10, 14, 20, 0.18) 100%),
-        linear-gradient(135deg, rgba(63, 110, 161, 0.028) 1px, transparent 1px);
-      background-size: auto, 34px 34px;
-      opacity: 0.48;
+      background: linear-gradient(
+        180deg,
+        rgba(10, 14, 20, 0.06) 0%,
+        rgba(10, 14, 20, 0.20) 100%
+      );
+      opacity: 0.52;
       pointer-events: none;
       z-index: 0;
     }
@@ -344,7 +341,6 @@
       font-weight: 700;
       color: #FFFFFF;
       text-wrap: balance;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
       animation-delay: 480ms;
     }
 
@@ -355,7 +351,6 @@
       line-height: 1.6;
       letter-spacing: -0.014em;
       color: var(--muted-light);
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
       text-wrap: balance;
       animation-delay: 640ms;
     }
@@ -384,9 +379,6 @@
       background: rgba(255, 255, 255, 0.98);
       color: var(--accent);
       border: 1.25px solid rgba(63, 110, 161, 0.9);
-      box-shadow:
-        0 8px 20px rgba(0, 0, 0, 0.045),
-        0 0 0 1px rgba(255, 255, 255, 0.08);
       transition:
         background 180ms cubic-bezier(0.22, 1, 0.36, 1),
         color 180ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -402,10 +394,6 @@
       color: var(--accent-dark);
       border-color: var(--accent-dark);
       transform: translateY(-1px);
-      box-shadow:
-        0 12px 24px rgba(0, 0, 0, 0.06),
-        0 0 0 1px rgba(255, 255, 255, 0.10);
-      outline: none;
     }
 
     .btn-secondary {
@@ -425,9 +413,6 @@
       background: var(--accent);
       color: #FFFFFF;
       border: 1.25px solid rgba(63, 110, 161, 0.28);
-      box-shadow:
-        0 10px 24px rgba(63, 110, 161, 0.22),
-        0 0 0 1px rgba(255, 255, 255, 0.05);
     }
 
     .btn-accent:hover,
@@ -435,9 +420,6 @@
       background: var(--accent-dark);
       color: #FFFFFF;
       border-color: rgba(47, 88, 134, 0.42);
-      box-shadow:
-        0 12px 26px rgba(47, 88, 134, 0.26),
-        0 0 0 1px rgba(255, 255, 255, 0.08);
     }
 
     @keyframes heroFadeUp {
@@ -544,7 +526,6 @@
       background: rgba(255, 255, 255, 0.96);
       border: 1px solid rgba(21, 32, 43, 0.08);
       border-radius: var(--panel-radius);
-      box-shadow: var(--soft-shadow);
       cursor: pointer;
       transition:
         transform var(--transition-slow),
@@ -557,16 +538,11 @@
     .entry-option:focus-visible {
       transform: translateY(-2px);
       border-color: rgba(63, 110, 161, 0.16);
-      box-shadow: var(--card-shadow);
-      outline: none;
     }
 
     .entry-option.is-active {
       border-color: rgba(63, 110, 161, 0.24);
       background: #FFFFFF;
-      box-shadow:
-        0 1px 0 rgba(0, 0, 0, 0.012),
-        0 14px 30px rgba(0, 0, 0, 0.05);
     }
 
     .entry-option-step {
@@ -613,9 +589,6 @@
       background: #FFFFFF;
       border: 1px solid rgba(21, 32, 43, 0.08);
       border-radius: var(--panel-radius);
-      box-shadow:
-        0 1px 0 rgba(0, 0, 0, 0.012),
-        0 18px 36px rgba(0, 0, 0, 0.03);
       padding: 30px 28px 26px;
     }
 
@@ -704,7 +677,6 @@
       background: #FFFFFF;
       border: 1px solid rgba(21, 32, 43, 0.08);
       border-radius: var(--card-radius);
-      box-shadow: var(--soft-shadow);
       padding: 28px 24px 24px;
       transition:
         transform var(--transition-slow),
@@ -715,9 +687,6 @@
     .signal-card:hover {
       transform: translateY(-3px);
       border-color: rgba(63, 110, 161, 0.12);
-      box-shadow:
-        0 1px 0 rgba(0, 0, 0, 0.012),
-        0 10px 24px rgba(0, 0, 0, 0.04);
     }
 
     .signal-card h3 {
@@ -765,7 +734,6 @@
       background: rgba(255, 255, 255, 0.96);
       border: 1px solid rgba(21, 32, 43, 0.08);
       border-radius: var(--panel-radius);
-      box-shadow: var(--soft-shadow);
       padding: 34px 30px 30px;
       min-height: 270px;
       transition:
@@ -777,9 +745,6 @@
     .process-step:hover {
       transform: translateY(-3px);
       border-color: rgba(63, 110, 161, 0.12);
-      box-shadow:
-        0 1px 0 rgba(0, 0, 0, 0.012),
-        0 10px 24px rgba(0, 0, 0, 0.04);
     }
 
     .process-step-number {
@@ -856,7 +821,6 @@
       border: 1px solid rgba(21, 32, 43, 0.08);
       border-radius: var(--panel-radius);
       padding: 28px 24px 24px;
-      box-shadow: var(--soft-shadow);
     }
 
     .qualifier-panel h3 {
@@ -953,9 +917,6 @@
       border: 1px solid rgba(255, 255, 255, 0.10);
       border-radius: var(--panel-radius);
       padding: 30px 30px 28px;
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.02),
-        0 14px 28px rgba(0, 0, 0, 0.10);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
     }
@@ -986,7 +947,6 @@
     .connect-link:focus-visible {
       color: #FFFFFF;
       transform: translateX(2px);
-      outline: none;
     }
 
     .connect-link-mark {
@@ -1091,7 +1051,6 @@
     .footer-nav a:focus-visible {
       color: #FFFFFF;
       transform: translateX(2px);
-      outline: none;
     }
 
     .footer-bottom {
@@ -1108,6 +1067,25 @@
       font-size: 0.88rem;
       line-height: 1.6;
       color: rgba(245, 247, 250, 0.58);
+    }
+
+
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 4px;
+      border-radius: 4px;
+    }
+
+    .reading-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      width: 0%;
+      background: var(--accent);
+      z-index: 200;
+      transition: width 60ms linear;
+      pointer-events: none;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1134,7 +1112,8 @@
       .signal-card,
       .process-step,
       .footer-nav a,
-      .connect-link {
+      .connect-link,
+      .reading-progress {
         transition: none;
       }
     }
@@ -1305,6 +1284,7 @@
   </style>
 </head>
 <body>
+  <div class="reading-progress" id="readingProgress" role="progressbar" aria-label="Reading progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
   <header class="header" id="siteHeader">
     <div class="header-inner">
       <a href="index.html" class="brand">Monderman</a>
@@ -1731,6 +1711,21 @@
         }
       });
     });
+
+    (function () {
+      const bar = document.getElementById("readingProgress");
+      if (!bar) return;
+      function updateProgress() {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
+        bar.style.width = pct + "%";
+        bar.setAttribute("aria-valuenow", Math.round(pct));
+      }
+      window.addEventListener("scroll", updateProgress, { passive: true });
+      updateProgress();
+    })();
+
   </script>
 </body>
 </html>
