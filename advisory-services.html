@@ -383,8 +383,7 @@
         background 180ms cubic-bezier(0.22, 1, 0.36, 1),
         color 180ms cubic-bezier(0.22, 1, 0.36, 1),
         border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
-        transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
-        box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1);
+        transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
       cursor: pointer;
     }
 
@@ -529,7 +528,6 @@
       cursor: pointer;
       transition:
         transform var(--transition-slow),
-        box-shadow var(--transition-slow),
         border-color var(--transition),
         background var(--transition);
     }
@@ -680,7 +678,6 @@
       padding: 28px 24px 24px;
       transition:
         transform var(--transition-slow),
-        box-shadow var(--transition-slow),
         border-color var(--transition);
     }
 
@@ -738,7 +735,6 @@
       min-height: 270px;
       transition:
         transform var(--transition-slow),
-        box-shadow var(--transition-slow),
         border-color var(--transition);
     }
 
@@ -858,10 +854,7 @@
       content: "";
       position: absolute;
       inset: 0;
-      background:
-        radial-gradient(circle at 80% 20%, rgba(63, 110, 161, 0.10), transparent 28%),
-        linear-gradient(135deg, rgba(63, 110, 161, 0.03) 1px, transparent 1px);
-      background-size: auto, 34px 34px;
+      background: radial-gradient(circle at 80% 20%, rgba(63, 110, 161, 0.10), transparent 28%);
       opacity: 0.36;
       pointer-events: none;
     }
