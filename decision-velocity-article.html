@@ -40,10 +40,13 @@
       --dark: #0F1720;
       --soft: #F8FAFC;
       --max: 980px;
-      --shadow: 0 1px 0 rgba(0,0,0,0.012);
     }
 
     * { box-sizing: border-box; }
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 80px;
+    }
     body {
       margin: 0;
       background: var(--bg);
@@ -116,7 +119,6 @@
     .nav a:focus-visible {
       color: #fff;
       transform: translateY(-1px);
-      outline: none;
     }
 
     .hero {
@@ -133,15 +135,11 @@
       position: absolute;
       inset: 0;
       pointer-events: none;
-      background:
-        radial-gradient(circle at 79% 18%, rgba(63,110,161,0.17) 0%, rgba(63,110,161,0.07) 18%, transparent 34%),
-        linear-gradient(
-          90deg,
-          rgba(10,14,20,0.92) 0%,
-          rgba(10,14,20,0.78) 24%,
-          rgba(10,14,20,0.50) 52%,
-          rgba(10,14,20,0.18) 100%
-        );
+      background: radial-gradient(
+        circle at 78% 22%,
+        rgba(63, 110, 161, 0.12) 0%,
+        transparent 38%
+      );
       z-index: 0;
     }
 
@@ -150,11 +148,11 @@
       position: absolute;
       inset: 0;
       pointer-events: none;
-      background:
-        linear-gradient(180deg, rgba(10,14,20,0.10) 0%, rgba(10,14,20,0.18) 100%),
-        linear-gradient(135deg, rgba(63,110,161,0.028) 1px, transparent 1px);
-      background-size: auto, 34px 34px;
-      opacity: 0.48;
+      background: linear-gradient(
+        180deg,
+        rgba(10, 14, 20, 0.06) 0%,
+        rgba(10, 14, 20, 0.22) 100%
+      );
       z-index: 0;
     }
 
@@ -188,7 +186,6 @@
       background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.12);
       color: var(--accent);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
     }
@@ -205,7 +202,7 @@
 
     .eyebrow {
       margin: 0 0 10px;
-      font-size: 0.76rem;
+      font-size: 0.74rem;
       font-weight: 700;
       letter-spacing: 0.18em;
       text-transform: uppercase;
@@ -216,11 +213,10 @@
       margin: 0;
       max-width: 11ch;
       font-size: clamp(2.8rem, 5vw, 4.7rem);
-      line-height: 0.95;
+      line-height: 1.0;
       letter-spacing: -0.052em;
       color: #FFFFFF;
       text-wrap: balance;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.16);
     }
 
     .hero-taxonomy {
@@ -233,7 +229,7 @@
     .hero p {
       margin: 0;
       max-width: 48ch;
-      font-size: 1.06rem;
+      font-size: 1.03rem;
       line-height: 1.7;
       color: rgba(255,255,255,0.82);
     }
@@ -256,7 +252,6 @@
       background: rgba(63,110,161,0.045);
       border: 1px solid rgba(63,110,161,0.10);
       color: var(--accent);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.74);
       vertical-align: top;
     }
 
@@ -295,7 +290,6 @@
     .btn-primary:focus-visible {
       background: var(--accent-dark);
       color: #fff;
-      outline: none;
     }
 
     .btn-secondary {
@@ -304,7 +298,7 @@
       border-color: rgba(255,255,255,0.18);
     }
 
-    .article { padding: 62px 0 84px; }
+    .article { padding: 72px 0 96px; }
 
     .article-layout {
       display: grid;
@@ -317,22 +311,22 @@
       background: var(--white);
       border: 1px solid var(--line);
       border-radius: 16px;
-      box-shadow: var(--shadow);
     }
 
-    .content { padding: 38px 34px; }
+    .content { padding: 44px 38px; }
 
     .content p {
       margin: 0 0 20px;
       font-size: 1.03rem;
       line-height: 1.8;
+      letter-spacing: -0.01em;
       color: var(--muted);
     }
 
     .content h2 {
       margin: 38px 0 14px;
-      font-size: 1.55rem;
-      line-height: 1.12;
+      font-size: 1.52rem;
+      line-height: 1.15;
       letter-spacing: -0.04em;
       color: var(--text);
     }
@@ -341,12 +335,13 @@
       margin: 30px 0 10px;
       font-size: 1.08rem;
       line-height: 1.2;
+      letter-spacing: -0.02em;
       color: var(--text);
     }
 
     .pullquote {
       margin: 28px 0;
-      padding: 24px;
+      padding: 28px;
       border-left: 3px solid var(--accent);
     }
 
@@ -358,13 +353,13 @@
     .signal-figure,
     .output-figure {
       margin: 28px 0;
-      padding: 24px;
-      background: linear-gradient(180deg, #FFFFFF 0%, #FBFCFE 100%);
+      padding: 28px;
+      background: #FFFFFF;
     }
 
     .figure-kicker {
       margin: 0 0 8px;
-      font-size: 0.72rem;
+      font-size: 0.74rem;
       font-weight: 700;
       letter-spacing: 0.18em;
       text-transform: uppercase;
@@ -385,7 +380,7 @@
     }
 
     .signal-card {
-      padding: 16px;
+      padding: 18px 16px;
       border-radius: 14px;
       background: var(--soft);
       border: 1px solid var(--line);
@@ -420,13 +415,13 @@
     .score-block {
       padding: 20px 16px;
       border-radius: 16px;
-      background: linear-gradient(180deg, #0F1720 0%, #172231 100%);
+      background: #0F1720;
       color: #fff;
       text-align: center;
     }
 
     .score-block .score-label {
-      font-size: 0.72rem;
+      font-size: 0.74rem;
       letter-spacing: 0.16em;
       text-transform: uppercase;
       color: rgba(255,255,255,0.68);
@@ -455,6 +450,7 @@
     .output-copy p {
       margin: 0;
       font-size: 0.94rem;
+      letter-spacing: -0.01em;
       line-height: 1.65;
       color: var(--muted);
     }
@@ -466,7 +462,7 @@
     }
 
     .metric {
-      padding: 14px 14px 12px;
+      padding: 16px 14px 14px;
       border-radius: 14px;
       background: var(--soft);
       border: 1px solid var(--line);
@@ -483,7 +479,7 @@
 
     .metric span {
       display: block;
-      font-size: 1rem;
+      font-size: 1.08rem;
       font-weight: 700;
       color: var(--text);
       margin-bottom: 5px;
@@ -510,11 +506,11 @@
       top: 96px;
     }
 
-    .sidebar-card { padding: 22px 20px; }
+    .sidebar-card { padding: 28px 24px; }
 
     .sidebar-kicker {
       margin: 0 0 10px;
-      font-size: 0.72rem;
+      font-size: 0.74rem;
       font-weight: 700;
       letter-spacing: 0.18em;
       text-transform: uppercase;
@@ -529,6 +525,7 @@
     .sidebar-card p {
       margin: 0;
       font-size: 0.94rem;
+      letter-spacing: -0.01em;
       line-height: 1.65;
       color: var(--muted);
     }
@@ -546,7 +543,7 @@
 
     .cta {
       margin-top: 38px;
-      padding: 26px 24px;
+      padding: 32px 28px;
       background: #F8F9FA;
     }
 
@@ -557,16 +554,121 @@
 
     .cta p { margin: 0 0 18px; }
 
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 4px;
+      border-radius: 4px;
+    }
+
+    .reading-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      width: 0%;
+      background: var(--accent);
+      z-index: 200;
+      transition: width 60ms linear;
+      pointer-events: none;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(14px);
+      transition:
+        opacity 760ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 760ms cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: opacity, transform;
+    }
+
+    .reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 80ms; }
+    .reveal-delay-2 { transition-delay: 160ms; }
+    .reveal-delay-3 { transition-delay: 240ms; }
+
     .footer {
       background: var(--dark);
       color: rgba(255,255,255,0.72);
-      padding: 34px 0;
+      padding: 40px 0 36px;
     }
 
-    .footer p {
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+
+    .footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .footer-mark {
       margin: 0;
-      font-size: 0.9rem;
-      line-height: 1.6;
+      font-size: 1.06rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: -0.02em;
+    }
+
+    .footer-nav {
+      display: flex;
+      gap: 22px;
+      flex-wrap: wrap;
+    }
+
+    .footer-nav a {
+      font-size: 0.94rem;
+      color: rgba(255, 255, 255, 0.72);
+      transition: color 180ms ease;
+    }
+
+    .footer-nav a:hover,
+    .footer-nav a:focus-visible {
+      color: #FFFFFF;
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding-top: 16px;
+    }
+
+    .footer-meta,
+    .footer-tagline {
+      margin: 0;
+      font-size: 0.86rem;
+      color: rgba(255, 255, 255, 0.46);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+
+      .reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+
+      .reading-progress {
+        transition: none;
+      }
+
+      .btn-primary,
+      .btn-secondary,
+      .nav a {
+        transition: none;
+      }
     }
 
     @media (max-width: 900px) {
@@ -618,7 +720,7 @@
 
       .hero h1 {
         max-width: 100%;
-        font-size: clamp(2.4rem, 10vw, 3.4rem);
+        font-size: 44px;
       }
 
       .hero-taxonomy {
@@ -633,6 +735,7 @@
   </style>
 </head>
 <body>
+  <div class="reading-progress" id="readingProgress" role="progressbar" aria-label="Reading progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
   <header class="header">
     <div class="header-inner">
       <a href="index.html" class="brand">Monderman</a>
@@ -641,6 +744,7 @@
         <a href="diagnostic-tools.html">Diagnostic Hub</a>
         <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
+        <a href="advisory-services-connect.html" target="_blank" rel="noopener noreferrer">Connect</a>
       </nav>
     </div>
   </header>
@@ -665,7 +769,7 @@
         </p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="decision-velocity.html">Run Decision Velocity Diagnostic</a>
-          <a class="btn btn-secondary" href="advisory-services-connect.html">Start a Structured Conversation</a>
+          <a class="btn btn-secondary" href="advisory-services-connect.html" target="_blank" rel="noopener noreferrer">Start a Structured Conversation</a>
         </div>
       </div>
     </div>
@@ -683,7 +787,7 @@
             That is what Decision Velocity is designed to surface. Not speed for its own sake, but the performance of the path itself: how quickly it moves, how much structural burden it is carrying, and whether the organization is paying too much in time and effort to preserve the current decision cycle.
           </p>
 
-          <div class="pullquote">
+          <div class="pullquote reveal">
             <p>
               Decision velocity is not recklessness. It is the disciplined ability to move a routine decision at the clock speed of reality without relying on unnecessary review, hidden coordination, or repeated escalation.
             </p>
@@ -695,7 +799,7 @@
             The tool does not look only at whether a decision feels slow. It reads the pathway beneath the decision: how approvals are arranged, how many handoffs the work passes through, whether escalation has become normal, and whether the process depends on specific people to keep moving. It also distinguishes between visible governance and hidden compensatory effort — the manual chasing, side-channel coordination, and informal rescue work that often keeps a burdened path alive.
           </p>
 
-          <div class="signal-figure">
+          <div class="signal-figure reveal">
             <p class="figure-kicker">Diagnostic reading model</p>
             <div class="inline-glyph-row">
               <span class="inline-glyph" aria-hidden="true">
@@ -744,7 +848,7 @@
             The Decision Velocity diagnostic is not a generic survey score. It is built to return a leadership-facing readout: a directional score, a benchmark position, a trajectory signal, a view of likely reclaim potential, and a practical first-action sequence. In other words, it is designed to help leaders decide whether the pathway is fast and proportionate, functional but burdened, slow and over-governed, or unstable enough that escalation has become part of the operating model.
           </p>
 
-          <div class="output-figure">
+          <div class="output-figure reveal">
             <p class="figure-kicker">What the tool returns</p>
             <h3 class="figure-title">A leadership readout, not just a questionnaire result</h3>
             <div class="output-shell">
@@ -815,7 +919,7 @@
             The goal is not permanent acceleration. Some decisions should be slower. Many should be faster. The real task is to make the path proportionate to the decision it is carrying — and to make that proportion visible enough that leaders can govern it deliberately rather than inherit it passively.
           </p>
 
-          <div class="cta">
+          <div class="cta reveal">
             <h3>Common signs decision velocity is degrading</h3>
             <p>
               Approval paths keep expanding. Routine work starts needing repeated follow-up. More cases are escalated upward. Specific people become informal fixers. The process still moves, but only because someone keeps rescuing it.
@@ -825,7 +929,7 @@
         </article>
 
         <aside class="sidebar">
-          <div class="sidebar-card">
+          <div class="sidebar-card reveal reveal-delay-1">
             <p class="sidebar-kicker">What this affects</p>
             <h3>Tempo, trust, and maneuverability</h3>
             <p>
@@ -833,7 +937,7 @@
             </p>
           </div>
 
-          <div class="sidebar-card">
+          <div class="sidebar-card reveal reveal-delay-2">
             <p class="sidebar-kicker">The tool is looking for</p>
             <ul class="mini-list">
               <li>Approval cycles heavier than the decision warrants</li>
@@ -843,7 +947,7 @@
             </ul>
           </div>
 
-          <div class="sidebar-card">
+          <div class="sidebar-card reveal reveal-delay-3">
             <p class="sidebar-kicker">Monderman view</p>
             <p>
               Decision Velocity is about the performance of the path: how quickly work moves, how much burden the path is carrying, and how much value may be recoverable if the route becomes clearer and lighter.
@@ -856,13 +960,54 @@
 
   <footer class="footer">
     <div class="footer-inner">
-      <p>Monderman — clarity for complex institutions.</p>
-      <p style="margin-top:10px; font-size:0.88rem; color:rgba(255,255,255,0.58);">
-        <a href="diagnostic-tools.html">Diagnostic Hub</a> ·
-        <a href="research.html">Research</a> ·
-        <a href="advisory-services-connect.html">Connect</a>
-      </p>
+      <div class="footer-top">
+        <p class="footer-mark">Monderman</p>
+        <nav class="footer-nav" aria-label="Footer navigation">
+          <a href="index.html#approach">Approach</a>
+          <a href="diagnostic-tools.html">Diagnostic Hub</a>
+          <a href="research.html">Research</a>
+          <a href="advisory-services-connect.html">Connect</a>
+        </nav>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
+        <p class="footer-tagline">Clarity for complex institutions.</p>
+      </div>
     </div>
   </footer>
+
+  <script>
+    (function () {
+      const bar = document.getElementById("readingProgress");
+      if (!bar) return;
+      function updateProgress() {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
+        bar.style.width = pct + "%";
+        bar.setAttribute("aria-valuenow", Math.round(pct));
+      }
+      window.addEventListener("scroll", updateProgress, { passive: true });
+      updateProgress();
+    })();
+
+    (function () {
+      const revealItems = document.querySelectorAll(".reveal");
+      if (!revealItems.length) return;
+      const obs = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              obs.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.10, rootMargin: "0px 0px -6% 0px" }
+      );
+      revealItems.forEach(function (el) { obs.observe(el); });
+    })();
+  </script>
+
 </body>
 </html>
