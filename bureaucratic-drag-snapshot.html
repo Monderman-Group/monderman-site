@@ -11,6 +11,7 @@
       <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
     </svg>' />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
 <script>
@@ -99,7 +100,14 @@
     .quad-guide{padding:14px 16px;border-radius:16px;background:#F8FAFC;border:1px solid rgba(21,32,43,.08)}
     .quad-guide strong{display:block;margin-bottom:6px;font-size:.84rem;line-height:1.3}
     .trajectory-note{margin-top:10px;font-size:.9rem;line-height:1.6;color:var(--ink-soft)}
-    .export-actions{display:flex;gap:10px;flex-wrap:wrap}
+    .export-cta-stack{display:grid;gap:12px;width:100%;margin-top:8px}
+    .export-primary-row{display:flex;gap:10px;flex-wrap:wrap}
+    .export-inline-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+    .export-utility-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .action-link{font-size:.9rem;line-height:1.5;color:var(--accent);font-weight:600;cursor:pointer;background:none;border:none;padding:0}
+    .action-link:hover,.action-link:focus-visible{color:var(--accent-dark);outline:none}
+    .utility-btn{font-size:.84rem;line-height:1.45;color:var(--ink-soft);background:none;border:none;padding:0;cursor:pointer}
+    .utility-btn:hover,.utility-btn:focus-visible{color:var(--ink);outline:none}
     .hidden-download{display:none!important}
     .export-summary-card{background:#FFF;border:1px solid rgba(21,32,43,.08);border-radius:24px;box-shadow:none;padding:24px}
     .export-summary-head{display:grid;gap:10px;margin-bottom:14px}
@@ -188,7 +196,7 @@
     @media (max-width:1260px){.intro-layout,.score-inner,.summary-grid,.grid-2,.tiles-grid{grid-template-columns:1fr}.summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.environment,.environment-inner{min-height:unset}.score-rubric{grid-template-columns:1fr 1fr}} @media (max-width:920px){.lane-layout{grid-template-columns:1fr}}
     @media (max-width:760px){.shell{padding:26px 14px 34px}.env-head,.stage,.env-foot,.question-card{padding-left:18px;padding-right:18px}.summary-grid{grid-template-columns:1fr}.tool-title h1{font-size:2.35rem}.question-card{min-height:340px}.actions{align-items:stretch}.actions-left,.actions-right{width:100%}.actions-left .btn,.actions-right .btn{flex:1}.score-rubric{grid-template-columns:1fr}.bar-row{grid-template-columns:1fr}.lane-buttons{grid-template-columns:1fr}.lane-btn{min-height:48px}.lane-tiles{gap:10px}.lane-tile{padding:15px 15px 14px}.depth-card{padding:16px 16px 14px}}
     @media (max-width:480px){.tool-title p{font-size:.95rem;line-height:1.58}.lane-layout{gap:16px}.lane-buttons{gap:10px}.lane-btn{padding:0 16px;font-size:.9rem}.lane-tiles{grid-template-columns:1fr}.lane-tile h4{font-size:.95rem}.lane-tile p{font-size:.86rem;line-height:1.55}.depth-card-grid{gap:10px}.depth-card h4{font-size:.95rem}.depth-card p{font-size:.86rem;line-height:1.55}.depth-meta{font-size:.78rem}.step-chip{width:100%;justify-content:flex-start;flex-wrap:wrap;border-radius:18px}.micro-proof{font-size:.82rem;line-height:1.5}}
-    @media print{body{background:#FFF}.loading-screen,.env-foot,.frame-top,#questionStage,#processingStage,#exportBtn,#downloadPdfBtn,#downloadReportBtn,#newRunBtn{display:none!important}.shell{padding:0}.app{width:100%}.environment{width:100%;box-shadow:none;border:none;border-radius:0;min-height:auto}.environment::before{display:none}.env-head{display:none}.stage{display:none!important}#resultsStage{display:block!important;padding:0}.report-only{display:block}.results-layout{gap:18px;padding:22px 26px}.score-panel,.summary-card,.result-card,.chart-card,.signal-tile,.report-header,.export-summary-card{break-inside:avoid;page-break-inside:avoid}.score-panel{background:#0F1720!important;color:#FFF!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.summary-grid,.grid-2,.tiles-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.chart-wrap{height:220px;min-height:220px}body.print-summary-mode #resultsStage > *{display:none!important}body.print-summary-mode #resultsStage .report-header,body.print-summary-mode #resultsStage .score-panel,body.print-summary-mode #resultsStage .export-summary-card,body.print-summary-mode #resultsStage .results-disclaimer{display:block!important}body.print-summary-mode #resultsStage .score-panel{margin-top:0!important}body.print-summary-mode #resultsStage .report-header{margin-bottom:14px!important}body.print-summary-mode #resultsStage .export-summary-card{margin-top:14px!important}.results-layout::after{content:"Prepared by Monderman’s diagnostic engine • Directional, user-input-based operational systems output";display:block;margin-top:20px;padding-top:14px;border-top:1px solid rgba(21,32,43,.10);font-size:.8rem;color:#5B6774}}
+    @media print{body{background:#FFF}.loading-screen,.env-foot,.frame-top,#questionStage,#processingStage,#downloadPdfBtn,#downloadReportBtn,#newRunBtn{display:none!important}.shell{padding:0}.app{width:100%}.environment{width:100%;box-shadow:none;border:none;border-radius:0;min-height:auto}.environment::before{display:none}.env-head{display:none}.stage{display:none!important}#resultsStage{display:block!important;padding:0}.report-only{display:block}.results-layout{gap:18px;padding:22px 26px}.score-panel,.summary-card,.result-card,.chart-card,.signal-tile,.report-header,.export-summary-card{break-inside:avoid;page-break-inside:avoid}.score-panel{background:#0F1720!important;color:#FFF!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.summary-grid,.grid-2,.tiles-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.chart-wrap{height:220px;min-height:220px}body.print-summary-mode #resultsStage > *{display:none!important}body.print-summary-mode #resultsStage .report-header,body.print-summary-mode #resultsStage .score-panel,body.print-summary-mode #resultsStage .export-summary-card,body.print-summary-mode #resultsStage .results-disclaimer{display:block!important}body.print-summary-mode #resultsStage .score-panel{margin-top:0!important}body.print-summary-mode #resultsStage .report-header{margin-bottom:14px!important}body.print-summary-mode #resultsStage .export-summary-card{margin-top:14px!important}.results-layout::after{content:"Prepared by Monderman’s diagnostic engine • Directional, user-input-based operational systems output";display:block;margin-top:20px;padding-top:14px;border-top:1px solid rgba(21,32,43,.10);font-size:.8rem;color:#5B6774}}
   </style>
 </head>
 <body>
@@ -232,17 +240,7 @@
                   <span class="insight-depth-value" id="insightDepthValue">—</span>
                   <span class="score-meta-pill" id="insightDepthBand">—</span>
                   <span class="insight-help" id="insightDepthInfo" tabindex="0">ⓘ</span>
-                  <span class="tooltip-panel" id="insightDepthTooltip">Insight Depth measures how rich the underlying data is — not how accurate any single finding is. A single thoughtful participant can produce valid observations, but the broader and more cross-synthesized the input, the more defensible the resulting pattern.
-
-This score grows as more people across more levels complete diagnostics for the same organization.
-
-This score reflects:
-• Number of completed participants relative to organization size.
-• Organizational levels covered across completed runs (operational, managerial, senior leader).
-• Diagnostic depth selected (10, 30, or 60 minute run).
-• Cross-synthesis with other Monderman diagnostics for the same organization.
-
-Higher Insight Depth means broader perspective and stronger pattern detection. It does not mean the findings are 'more correct.' Self-reported confidence in your input quality is also factored in — a rich dataset from a limited-confidence participant is weighted less heavily than the same dataset from a high-confidence one. Limited-depth runs are still useful as a directional first read.</span>
+                  <span class="tooltip-panel" id="insightDepthTooltip">A quality-of-signal score, not a quality-of-answer score. It reflects how many people, at how many levels, across how much depth, have contributed to this read — plus self-reported confidence in the inputs. Higher depth means broader perspective, not 'more correct.' <a href="https://www.monderman.com/research.html" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:8px;color:#8fb0d6;">Learn more about how this is calculated →</a></span>
                 </div>
                 <p class="insight-depth-copy" id="insightDepthCopy">Broader participation, depth, and cross-synthesis make the output more defensible.</p>
               </div>
@@ -376,7 +374,7 @@ Higher Insight Depth means broader perspective and stronger pattern detection. I
           </div>
         </section>
 
-        <section class="advisory-card"><div><p class="summary-label" style="margin-bottom:8px;color:var(--accent);">Next step</p><h3 style="margin:0 0 8px;">Bring this into a deeper platform services conversation.</h3><p class="result-copy" style="margin:0;">If the pattern appears broader, more persistent, or more costly than a directional tool can resolve, Monderman can go deeper on workflows, approvals, operating burden, and compensatory behaviors.</p></div><div class="actions" style="justify-content:flex-start;"><div class="actions-left"><a class="btn btn-accent" href="https://www.monderman.com/advisory-services-connect.html">Visit Platform Services</a><div class="export-actions"><button class="btn" id="exportBtn" type="button">Open executive report</button><button class="btn btn-soft" id="downloadPdfBtn" type="button">Download executive report PDF</button><button class="btn btn-soft" id="downloadReportBtn" type="button">Download report HTML</button><button class="btn btn-soft" id="saveCrossDiagnosticBtn" type="button">Save result for cross-diagnostic analysis</button><a class="btn btn-accent" href="diagnostic-tools.html">Return to Diagnostic Hub</a><button class="btn btn-soft" id="newRunBtn" type="button">Run again</button></div><a id="reportDownloadLink" class="hidden-download" download="monderman-operational-systems-report.html"></a><a id="crossDiagnosticDownloadLink" class="hidden-download" download="monderman-operational-systems-result.json"></a></div></div></section>
+        <section class="advisory-card"><div><p class="summary-label" style="margin-bottom:8px;color:var(--accent);">Next step</p><h3 style="margin:0 0 8px;">Bring this into a deeper platform services conversation.</h3><p class="result-copy" style="margin:0;">If the pattern appears broader, more persistent, or more costly than a directional tool can resolve, Monderman can go deeper on workflows, approvals, operating burden, and compensatory behaviors.</p></div><div class="export-cta-stack"><div class="export-primary-row"><button class="btn btn-accent" id="downloadPdfBtn" type="button">Download executive report (PDF)</button><a class="btn" href="https://www.monderman.com/advisory-services-connect.html">Discuss with Monderman Platform Services</a></div><div class="export-inline-row"><button class="action-link" id="downloadReportBtn" type="button">Download as HTML</button><span aria-hidden="true" style="color:rgba(21,32,43,.18)">|</span><button class="action-link" id="saveCrossDiagnosticBtn" type="button">Save for cross-diagnostic synthesis</button></div><div class="export-utility-row"><button class="utility-btn" id="newRunBtn" type="button">Run another diagnostic</button><span aria-hidden="true" style="color:rgba(21,32,43,.18)">|</span><a class="utility-btn" href="diagnostic-tools.html">Return to hub</a></div><a id="reportDownloadLink" class="hidden-download" download="monderman-operational-systems-report.html"></a><a id="crossDiagnosticDownloadLink" class="hidden-download" download="monderman-operational-systems-result.json"></a></div></section>
         <section class="results-disclaimer" id="bottomDisclaimer"></section>
       </div></div>
       <footer class="env-foot" id="questionFooter"><div class="progress-wrap"><div class="progress-top"><p id="progressCopy">0% complete</p><p id="pathHint">Waiting for first signal.</p></div><div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div></div><div class="actions"><div class="actions-left"><button class="btn" id="backBtn" type="button">Back</button><button class="btn" id="skipBtn" type="button">Skip</button></div><div class="actions-right"><button class="btn btn-soft" id="restartBtn" type="button">Start over</button><button class="btn btn-accent" id="continueBtn" type="button">Continue</button></div></div></footer>
@@ -415,7 +413,6 @@ const backBtn = document.getElementById("backBtn");
 const skipBtn = document.getElementById("skipBtn");
 const restartBtn = document.getElementById("restartBtn");
 const continueBtn = document.getElementById("continueBtn");
-const exportBtn = document.getElementById("exportBtn");
 const downloadPdfBtn = document.getElementById("downloadPdfBtn");
 const downloadReportBtn = document.getElementById("downloadReportBtn");
 const saveCrossDiagnosticBtn = document.getElementById("saveCrossDiagnosticBtn");
@@ -539,91 +536,91 @@ const state = {
 const IndustryNarrativeLayer = {
   government_defense: {
     sectorName: "government / defense",
-    benchmarkWithin: "Within-range scores in government and defense can still mask mission drag because oversight accumulation often becomes normalized as prudence.",
-    benchmarkAbove: "Above-range scores in government and defense usually mean the workflow is still carrying mission responsiveness despite a control-heavy environment.",
-    benchmarkBelow: "Below-range scores in government and defense usually indicate that acquisition, compliance, or oversight layering is now impairing mission responsiveness rather than protecting it.",
-    opportunityPattern: "In government and defense environments, the common burden pattern is oversight accumulation, control proliferation, and exception handling that gradually becomes routine mission-adjacent work.",
+    benchmarkWithin: "A within-range score in government or defense can still hide real mission drag — oversight that quietly became routine doesn't feel like drag, but it is.",
+    benchmarkAbove: "An above-range score here usually means the work is still getting through to the mission, even though the control environment is heavy.",
+    benchmarkBelow: "A below-range score here usually means acquisition, compliance, or oversight steps are now slowing the mission, not protecting it.",
+    opportunityPattern: "In government and defense, the common pattern is that extra oversight, extra controls, and handling exceptions as routine work all build up until they feel normal.",
     openingClause: "mission responsiveness",
     marginTerm: "capacity returned to mission work"
   },
   financial_services: {
     sectorName: "financial services",
-    benchmarkWithin: "Within-range scores in financial services can still conceal meaningful audit-preparation load and risk-response layering.",
-    benchmarkAbove: "Above-range scores in financial services typically mean the workflow is holding regulatory discipline without letting control addition dominate the path.",
-    benchmarkBelow: "Below-range scores in financial services usually indicate that regulatory overhead and audit preparation are crowding out cleaner execution.",
-    opportunityPattern: "In financial services environments, burden often accumulates through control addition as the default response to uncertainty, especially around audit readiness and risk review.",
+    benchmarkWithin: "A within-range score in financial services can still hide serious audit prep and review layering.",
+    benchmarkAbove: "An above-range score here usually means the work is holding regulatory discipline without letting control stacking take over.",
+    benchmarkBelow: "A below-range score here usually means regulatory overhead and audit prep are crowding out cleaner execution.",
+    opportunityPattern: "In financial services, burden often grows because adding controls is the default answer to any uncertainty — especially around audit readiness and risk review.",
     openingClause: "regulatory responsiveness",
     marginTerm: "operating capacity returned to productive work"
   },
   healthcare_life_sciences: {
     sectorName: "healthcare / life sciences",
-    benchmarkWithin: "Within-range scores in healthcare and life sciences can still hide documentation load and coordination burden across clinical and administrative layers.",
-    benchmarkAbove: "Above-range scores in healthcare and life sciences usually mean the workflow is preserving protocol discipline without letting documentation dominate execution.",
-    benchmarkBelow: "Below-range scores in healthcare and life sciences usually indicate that documentation and coordination burdens are eroding usable capacity.",
-    opportunityPattern: "In healthcare and life sciences settings, burden typically shows up as protocol adherence work, documentation density, and coordination friction between clinical and administrative layers.",
+    benchmarkWithin: "A within-range score here can still hide documentation load and coordination burden between clinical and administrative work.",
+    benchmarkAbove: "An above-range score here usually means the work is keeping protocol discipline without letting documentation dominate.",
+    benchmarkBelow: "A below-range score here usually means documentation and coordination work are eating into usable capacity.",
+    opportunityPattern: "In healthcare and life sciences, burden usually shows up as protocol paperwork, documentation density, and friction between clinical and administrative layers.",
     openingClause: "clinical and operational responsiveness",
     marginTerm: "usable care-supporting capacity"
   },
   technology_software: {
     sectorName: "technology / software",
-    benchmarkWithin: "Within-range scores in technology and software can still carry process debt, tooling proliferation, and coordination overhead that slows delivery.",
-    benchmarkAbove: "Above-range scores in technology and software usually mean the organization is keeping process debt from overrunning cross-functional delivery.",
-    benchmarkBelow: "Below-range scores in technology and software usually indicate that process debt and tool sprawl are now materially slowing delivery.",
-    opportunityPattern: "In technology and software environments, burden often concentrates in tooling proliferation, process debt, and coordination overhead across functions that should move quickly together.",
+    benchmarkWithin: "A within-range score in tech can still carry process debt, tool sprawl, and coordination overhead that slows delivery.",
+    benchmarkAbove: "An above-range score here usually means the organization is keeping process debt from running over delivery.",
+    benchmarkBelow: "A below-range score here usually means process debt and tool sprawl are now meaningfully slowing delivery.",
+    opportunityPattern: "In tech, burden often builds up through tool sprawl, process debt, and coordination overhead between teams that should move quickly together.",
     openingClause: "delivery responsiveness",
     marginTerm: "engineering and delivery capacity"
   },
   manufacturing_industrial: {
     sectorName: "manufacturing / industrial",
-    benchmarkWithin: "Within-range scores in manufacturing and industrial environments can still leave meaningful drag in standard-work maintenance and shift-to-shift coordination.",
-    benchmarkAbove: "Above-range scores in manufacturing and industrial settings usually mean the workflow is protecting operating control without overburdening the route.",
-    benchmarkBelow: "Below-range scores in manufacturing and industrial settings usually indicate that control density and coordination burden are now impairing throughput.",
-    opportunityPattern: "In manufacturing and industrial environments, burden usually accumulates through standard-work maintenance, operational control density, and coordination across handoffs and shifts.",
+    benchmarkWithin: "A within-range score here can still leave real drag in standard-work upkeep and shift-to-shift coordination.",
+    benchmarkAbove: "An above-range score here usually means the work is protecting operating control without overburdening the line.",
+    benchmarkBelow: "A below-range score here usually means control density and coordination burden are now cutting into throughput.",
+    opportunityPattern: "In manufacturing and industrial environments, burden usually builds up through standard-work maintenance, operating controls, and coordination across shifts and handoffs.",
     openingClause: "throughput and operating control",
     marginTerm: "throughput-supporting capacity"
   },
   energy_utilities: {
     sectorName: "energy / utilities",
-    benchmarkWithin: "Within-range scores in energy and utilities can still conceal regulatory documentation burden and safety-control accumulation.",
-    benchmarkAbove: "Above-range scores in energy and utilities usually mean the workflow is preserving safety and control without letting documentation dominate movement.",
-    benchmarkBelow: "Below-range scores in energy and utilities usually indicate that control proliferation and documentation load are materially burdening the route.",
-    opportunityPattern: "In energy and utilities environments, the usual burden pattern is regulatory documentation, control proliferation, and an increasingly heavy balance between safety needs and operating responsiveness.",
+    benchmarkWithin: "A within-range score here can still hide regulatory documentation work and safety-control buildup.",
+    benchmarkAbove: "An above-range score here usually means the work is preserving safety and control without letting paperwork dominate.",
+    benchmarkBelow: "A below-range score here usually means control layers and documentation load are now meaningfully weighing down the work.",
+    opportunityPattern: "In energy and utilities, the usual pattern is regulatory paperwork, control stacking, and a heavier and heavier balance between safety needs and getting work done.",
     openingClause: "operational-safety responsiveness",
     marginTerm: "operating capacity"
   },
   retail_consumer: {
     sectorName: "retail / consumer",
-    benchmarkWithin: "Within-range scores in retail and consumer environments can still hide throughput cost and front-line labor absorbed by system friction.",
-    benchmarkAbove: "Above-range scores in retail and consumer settings usually mean the workflow is sustaining throughput without making front-line labor carry the burden invisibly.",
-    benchmarkBelow: "Below-range scores in retail and consumer settings usually indicate that system friction and administrative work are now leaking into customer-facing performance.",
-    opportunityPattern: "In retail and consumer environments, burden often appears as throughput cost, front-line labor absorbed by system friction, and customer-facing consequences from slow internal movement.",
+    benchmarkWithin: "A within-range score here can still hide throughput cost and front-line labor that's quietly absorbing system friction.",
+    benchmarkAbove: "An above-range score here usually means the work is holding throughput without making front-line labor carry the burden invisibly.",
+    benchmarkBelow: "A below-range score here usually means system friction and admin work are now leaking into how customers experience the business.",
+    opportunityPattern: "In retail and consumer environments, burden often shows up as throughput cost, front-line labor absorbing system friction, and customers feeling slow internal movement.",
     openingClause: "throughput and customer responsiveness",
     marginTerm: "front-line capacity"
   },
   education_nonprofit: {
     sectorName: "education / nonprofit",
-    benchmarkWithin: "Within-range scores in education and nonprofit environments can still conceal mission-versus-maintenance tension and administrative crowd-out.",
-    benchmarkAbove: "Above-range scores in education and nonprofit environments usually mean the workflow is protecting mission work from excessive maintenance burden.",
-    benchmarkBelow: "Below-range scores in education and nonprofit environments usually indicate that limited capacity is being crowded out by administrative upkeep.",
-    opportunityPattern: "In education and nonprofit environments, burden typically appears as mission-versus-maintenance tension, scarce resource absorption, and administrative crowd-out.",
+    benchmarkWithin: "A within-range score here can still hide the tension between mission work and keeping the lights on.",
+    benchmarkAbove: "An above-range score here usually means mission work is getting protected from maintenance overhead.",
+    benchmarkBelow: "A below-range score here usually means limited capacity is being crowded out by administrative upkeep.",
+    opportunityPattern: "In education and nonprofit environments, burden usually shows up as mission-versus-maintenance tension, scarce resources getting absorbed, and admin work crowding out the work the institution exists to do.",
     openingClause: "mission responsiveness",
     marginTerm: "mission-serving capacity"
   },
   professional_services: {
     sectorName: "professional services",
-    benchmarkWithin: "Within-range scores in professional services can still hide billable-to-nonbillable drift and client-facing time erosion.",
-    benchmarkAbove: "Above-range scores in professional services usually mean the workflow is protecting client-facing time and margin from internal burden accumulation.",
-    benchmarkBelow: "Below-range scores in professional services usually indicate that nonbillable administrative burden is compressing margin and client-facing capacity.",
-    opportunityPattern: "In professional services environments, burden usually shows up as billable-versus-nonbillable tension, client-facing time erosion, and margin compression from internal maintenance work.",
+    benchmarkWithin: "A within-range score here can still hide billable-to-nonbillable drift and client-facing time getting eaten up.",
+    benchmarkAbove: "An above-range score here usually means the work is protecting client-facing time and margin from internal burden.",
+    benchmarkBelow: "A below-range score here usually means nonbillable admin work is compressing both margin and client-facing capacity.",
+    opportunityPattern: "In professional services, burden usually shows up as billable-versus-nonbillable drift, client-facing time getting eroded, and margin getting compressed by internal maintenance work.",
     openingClause: "client responsiveness and margin preservation",
     marginTerm: "client-facing and billable capacity"
   },
   other: {
     sectorName: "this sector",
-    benchmarkWithin: "Within-range scores can still conceal recoverable operating drag even when the pathway looks normal on the surface.",
-    benchmarkAbove: "Above-range scores usually mean the workflow is holding a cleaner operating position than comparable pathways.",
-    benchmarkBelow: "Below-range scores usually indicate that structural burden is materially heavier than comparable pathways typically require.",
-    opportunityPattern: "Comparable institutions often normalize drag that still leaves meaningful time, money, and capacity on the table.",
+    benchmarkWithin: "A within-range score can still hide real recoverable drag even when the path looks normal on the surface.",
+    benchmarkAbove: "An above-range score usually means the work is in a cleaner place than comparable pathways.",
+    benchmarkBelow: "A below-range score usually means the structural burden is heavier than comparable pathways need to carry.",
+    opportunityPattern: "Comparable institutions often treat drag as normal even when it's still leaving meaningful time, money, and capacity on the table.",
     openingClause: "operational responsiveness",
     marginTerm: "usable capacity"
   }
@@ -913,7 +910,7 @@ function ensureHubCtas() {
     const a = document.createElement("a");
     a.className = "btn btn-soft";
     a.href = DIAGNOSTIC_HUB_URL;
-    a.textContent = "Return to Diagnostic Hub";
+    a.textContent = "Return to hub";
     a.dataset.hubCta = key;
     return a;
   };
@@ -1678,21 +1675,21 @@ function buildPriorityActions(result, payload) {
   const industry = getIndustryNarrative(payload);
   const actions = [];
   if (Number(breakdown.approval || 0) >= 45) {
-    actions.push(`Reduce serial review and low-yield control layering in ${process.toLowerCase()} so routine cases do not inherit the full weight of exceptional scrutiny.`);
+    actions.push(`Cut review layers in ${process.toLowerCase()} that are not catching real problems, so routine work doesn't get treated like high-risk work.`);
   }
   if (Math.max(Number(breakdown.coordination || 0), Number(breakdown.handoff || 0)) >= 40) {
-    actions.push(`Tighten ownership, handoffs, and required inputs so the pathway can move with less manual coordination and less hidden follow-up work.`);
+    actions.push(`Make ownership and handoffs clearer so less gets redone and the work moves without constant follow-up.`);
   }
   if (Number(breakdown.escalation || 0) >= 35) {
-    actions.push(`Reset exception thresholds so routine cases resolve where they should instead of repeatedly climbing upward through caution or habit.`);
+    actions.push(`Stop escalating things that should be decided where they are, so routine cases do not keep moving upward.`);
   }
   if (Number(breakdown.key_person || 0) >= 40) {
-    actions.push(`Reduce dependence on specific people by standardizing criteria, routing logic, and decision rights so the path does not rely on informal fixers.`);
+    actions.push(`Write down the decisions currently kept in specific people's heads, so the work doesn't depend on one person being available.`);
   }
   if (!actions.length) {
-    actions.push(`Protect the current operating condition while removing the recurring sources of burden most likely to accumulate into a heavier workflow over time.`);
+    actions.push(`Keep what is working in ${process.toLowerCase()} while removing the recurring burden that is making normal work heavier than it needs to be.`);
   }
-  actions.push(`Re-run the diagnostic after the first material intervention to confirm that the pathway actually became lighter rather than merely shifting the burden elsewhere, especially where ${industry.openingClause} matters most.`);
+  actions.push(`Run this again after the first real change, especially where ${industry.openingClause} matters, so you can see whether the path actually got lighter or the burden just moved somewhere else.`);
   return actions.slice(0, 4);
 }
 
@@ -1703,26 +1700,26 @@ function buildRemedyPaths(result, payload) {
     {
       label: "Light remedy path",
       kicker: "Low disruption",
-      summary: "Tighten the most visible burden source without materially redesigning the full route.",
+      summary: "Fix the biggest visible problem without redesigning everything.",
       actions: [actions[0] || "Reduce the heaviest visible burden first."],
-      benefit: `Directional upside around ${formatCurrency(reclaim.amount * 0.22)} if the workflow responds quickly.`,
-      risk: `Risk: visible friction may improve while deeper burden stays in place.`
+      benefit: `Possible upside of about ${formatCurrency(reclaim.amount * 0.22)} if the first fix sticks quickly.`,
+      risk: `Risk: the surface looks better while the real problem stays.`
     },
     {
       label: "Moderate remedy path",
       kicker: "Targeted redesign",
-      summary: "Redesign the normal path and clarify decision rights around the heaviest visible burden.",
+      summary: "Redesign how the normal case flows and clarify who decides what.",
       actions: actions.slice(0, 2),
-      benefit: `Directional upside around ${formatCurrency(reclaim.amount * 0.48)} if redesign holds.`,
-      risk: `Risk: partial redesign can leave the organization in a better but still burdened middle state.`
+      benefit: `Possible upside of about ${formatCurrency(reclaim.amount * 0.48)} if the redesigned path holds.`,
+      risk: `Risk: you end up in a better but still burdened middle state.`
     },
     {
       label: "Aggressive remedy path",
       kicker: "Fastest structural reset",
-      summary: "Remove multiple layers of low-yield operating burden at once and force a cleaner separation between normal cases and exceptions.",
+      summary: "Remove several burden layers at once and separate normal cases from exceptions cleanly.",
       actions: actions.slice(0, 4),
-      benefit: `Directional upside around ${formatCurrency(reclaim.amount * 0.72)} if leadership can hold the redesign.`,
-      risk: `Risk: pushback, confusion about decision rights, and the perception that oversight is being weakened even if the real goal is better proportion.`
+      benefit: `Possible upside of about ${formatCurrency(reclaim.amount * 0.72)} if leadership can hold the new design.`,
+      risk: `Risk: pushback from people who thought the old controls were protecting them.`
     }
   ];
 }
@@ -1730,11 +1727,11 @@ function buildRemedyPaths(result, payload) {
 function buildExecutiveSummary(result, payload) {
   const process = payload?.processName || payload?.process_name || "This pathway";
   const harmonized = buildHarmonizedNarrative(result, payload);
-  let headline = `${process} is functioning, but carrying enough structural drag to leave meaningful value unreclaimed.`;
+  let headline = `${process} is still getting work done, but it is carrying enough drag to leave real value on the table.`;
   if ((result.benchmark_position || "").includes("Above")) {
-    headline = `${process} is currently performing from a stronger position, but that advantage will erode if new burden continues to accumulate.`;
+    headline = `${process} is in a stronger place right now, but that edge will fade if the burden keeps building.`;
   } else if ((result.benchmark_position || "").includes("Below")) {
-    headline = `${process} is carrying a heavier structural burden than a comparable pathway likely should.`;
+    headline = `${process} is carrying more burden than a comparable path likely should.`;
   }
   return {
     headline,
@@ -1747,11 +1744,11 @@ function buildBenchmarkInterpretationText(result, payload) {
   const calibration = DiagnosticInterpretationLayer.getSectorCalibration(payload || {});
   const score = Number(result?.score || 50);
   const industry = getIndustryNarrative(payload);
-  let text = `Your pathway sits in the ${result?.benchmark_position || "industry range"}. `;
+  let text = `This pathway sits in the ${result?.benchmark_position || "industry range"}. `;
   if (score > 75) text += `${industry.benchmarkAbove} `;
   else if (score < 55) text += `${industry.benchmarkBelow} `;
   else text += `${industry.benchmarkWithin} `;
-  text += `Comparable environments in ${industry.sectorName} often still carry around ${calibration.typicalDrag}% reclaimable drag even when their pathways look normal on the surface.`;
+  text += `Comparable paths in ${industry.sectorName} still often carry about ${calibration.typicalDrag}% recoverable drag even when people think the setup is just normal.`;
   return text;
 }
 
@@ -1903,6 +1900,7 @@ function bindOpportunityGate() {
     revealWrap.classList.remove("hidden");
     const remedyWrap = document.getElementById("remedyTreeWrap");
     if (remedyWrap) remedyWrap.classList.remove("hidden");
+    revealWrap.closest('.accordion-section')?.__syncHeight?.();
   };
 }
 
@@ -1957,25 +1955,30 @@ function renderAccordionBindings() {
     const syncHeight = () => {
       body.style.maxHeight = section.classList.contains("open") ? `${body.scrollHeight + 24}px` : "0px";
     };
+    section.__syncHeight = syncHeight;
     header.onclick = () => {
       section.classList.toggle("open");
       syncHeight();
     };
+    new MutationObserver(() => syncHeight()).observe(body, {
+      attributes: true,
+      childList: true,
+      subtree: true,
+      attributeFilter: ["class", "style"]
+    });
     syncHeight();
     window.requestAnimationFrame(syncHeight);
   });
   document.getElementById("expandAllBtn")?.addEventListener("click", () => {
     document.querySelectorAll(".accordion-section").forEach((section) => {
       section.classList.add("open");
-      const body = section.querySelector(".accordion-body");
-      if (body) body.style.maxHeight = `${body.scrollHeight + 24}px`;
+      section.__syncHeight?.();
     });
   });
   document.getElementById("collapseAllBtn")?.addEventListener("click", () => {
     document.querySelectorAll(".accordion-section").forEach((section) => {
       section.classList.remove("open");
-      const body = section.querySelector(".accordion-body");
-      if (body) body.style.maxHeight = "0px";
+      section.__syncHeight?.();
     });
   });
 }
@@ -2144,7 +2147,6 @@ function buildExecutiveReportHtml(result, payload) {
   const summary = buildExecutiveSummary(result, payload);
   const actions = buildPriorityActions(result, payload);
   const benchmark = buildBenchmarkInterpretationText(result, payload);
-  const burdenCondition = deriveOperatingBurdenCondition(result);
   const burdenConstraint = derivePrimaryBurdenSource(result);
   const generated = nowLabel();
   const insight = calculateInsightDepth(getInsightDepthInputs(payload));
@@ -2152,6 +2154,16 @@ function buildExecutiveReportHtml(result, payload) {
   const remedyPaths = buildRemedyPaths(result, payload);
   const exportCal = DiagnosticInterpretationLayer.getSectorCalibration(payload || {});
   const exportScore = Math.max(0, Math.min(100, Number(result?.score || 0)));
+
+  const dragPct = Number(result?.exposure?.capacity_drag_percent || 0);
+  let admin = Math.max(10, Math.min(45, Math.round(dragPct * 0.55)));
+  let drag = Math.max(8, Math.min(50, Math.round(dragPct * 0.75)));
+  let productive = Math.max(0, 100 - admin - drag);
+  const total = productive + admin + drag || 1;
+  productive = Math.round((productive / total) * 100);
+  admin = Math.round((admin / total) * 100);
+  drag = 100 - productive - admin;
+
   const exportScoreToAngle = (value) => -90 + (value * 1.8);
   const exportPolar = (cx, cy, r, angle) => {
     const radians = angle * Math.PI / 180.0;
@@ -2165,14 +2177,12 @@ function buildExecutiveReportHtml(result, payload) {
   };
   const exportNeedleAngle = exportScoreToAngle(exportScore);
   const exportNeedle = exportPolar(160, 150, 104, exportNeedleAngle);
-  const exportBelowEnd = exportScoreToAngle(exportCal.industryMin);
-  const exportWithinEnd = exportScoreToAngle(exportCal.industryMax);
-  const exportAboveEnd = exportScoreToAngle(exportCal.opportunityMin);
-  const exportOpportunityEnd = exportScoreToAngle(Math.min(100, exportCal.opportunityMax));
   const ringColor = insight.score <= 25 ? "#B8505E" : insight.score <= 50 ? "#B28D3C" : insight.score <= 75 ? "#3F6EA1" : "#6E8F72";
   const circumference = 100.53;
   const ringOffset = circumference * (1 - insight.score / 100);
+
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" /><title>${escapeHtml(payload?.processName || "Operational Systems Diagnostic")}</title><style>
+    @page { size: letter; margin: 0.5in; }
     body{font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;margin:0;color:#15202B;background:#fff;line-height:1.65}
     .page{padding:42pt 46pt;page-break-after:always;min-height:10.2in;position:relative}
     .page:last-child{page-break-after:auto}
@@ -2189,16 +2199,13 @@ function buildExecutiveReportHtml(result, payload) {
     .seg-productive{background:#6E8F72}.seg-admin{background:#B28D3C}.seg-drag{background:#B8505E}
     .two-col{display:grid;grid-template-columns:1fr 1fr;gap:22pt;align-items:start}
     .donut{width:100%;height:240pt;display:grid;place-items:center;border:1px solid rgba(21,32,43,.08);border-radius:18pt;background:#FBFCFE}
-    .donut-center{font-size:12pt;color:#5B6774;text-align:center}
-    .donut-center strong{display:block;font-size:24pt;color:#15202B}
+    .donut-center{font-size:12pt;color:#5B6774;text-align:center}.donut-center strong{display:block;font-size:24pt;color:#15202B}
     .gauge{height:180pt;border:1px solid rgba(21,32,43,.08);border-radius:18pt;background:#FBFCFE;display:grid;place-items:center}
     ol{margin:0;padding-left:18pt} li{margin:0 0 8pt;font-size:11pt}
     .remedy-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12pt;margin-top:14pt}
-    .remedy-card{border:1px solid rgba(21,32,43,.08);border-radius:14pt;padding:14pt;background:#FBFCFE}
-    .remedy-card strong{display:block;font-size:11pt;margin-bottom:6pt}
-    .ring-wrap{display:flex;align-items:center;gap:14pt;margin-top:14pt}
-    .ring-wrap svg{width:72pt;height:72pt}
-    .small{font-size:10pt;color:#5B6774}
+    .remedy-card{border:1px solid rgba(21,32,43,.08);border-radius:14pt;padding:14pt;background:#FBFCFE}.remedy-card strong{display:block;font-size:11pt;margin-bottom:6pt}
+    .ring-wrap{display:flex;align-items:center;gap:14pt;margin-top:14pt}.ring-wrap svg{width:72pt;height:72pt}.small{font-size:10pt;color:#5B6774}
+    @media print { .page { margin: 0; padding: 36pt 42pt; } }
   </style></head><body>
     <section class="page">
       <div class="header"><div class="wordmark">Monderman</div><div>Operational Systems Diagnostic • Page 1</div></div>
@@ -2206,30 +2213,30 @@ function buildExecutiveReportHtml(result, payload) {
       <h1 class="cover-title">${escapeHtml(payload?.processName || "Operational Systems Diagnostic")}</h1>
       <p class="cover-sub">${escapeHtml(humanize(payload?.industry || "other"))} • ${escapeHtml(payload?.businessUnit || "Business unit")} • ${escapeHtml(generated)}</p>
       <div class="condition-line">${escapeHtml(summary.headline)}</div>
-      <div class="footer"><span>${escapeHtml(payload?.processName || "Operational Systems Diagnostic")} • ${escapeHtml(generated)}</span><span>Directional output based on user-provided inputs</span></div>
+      <div class="footer"><span>${escapeHtml(payload?.processName || "Operational Systems Diagnostic")}</span><span>${escapeHtml(generated)}</span></div>
     </section>
     <section class="page">
       <div class="header"><div class="wordmark">Monderman Operational Systems Diagnostic</div><div>Page 2</div></div>
       <h2>Headline finding</h2>
       <p>${escapeHtml(harmonized.headlineFinding)}</p>
-      <p>${escapeHtml(`In ${industry.sectorName}, this matters because ${industry.opportunityPattern.toLowerCase()}`)}</p>
+      <p>${escapeHtml(`In ${industry.sectorName}, this matters because ${industry.opportunityPattern.toLowerCase()}.`)}</p>
       <p>${escapeHtml(harmonized.tmr)}</p>
-      <p>${escapeHtml(`Insight depth for this read is ${insight.score} (${insight.band}), which means the signal should be read as ${insight.band.toLowerCase()} rather than exhaustive.`)}</p>
-      <div class="waterfall"><div class="seg-productive" style="width:${Math.max(5, 100 - Math.max(10, Math.round(Number(result?.exposure?.capacity_drag_percent || 0) * 0.55)) - Math.max(8, Math.round(Number(result?.exposure?.capacity_drag_percent || 0) * 0.75)))}%"></div><div class="seg-admin" style="width:${Math.max(10, Math.min(45, Math.round(Number(result?.exposure?.capacity_drag_percent || 0) * 0.55)))}%"></div><div class="seg-drag" style="width:${Math.max(8, Math.min(50, Math.round(Number(result?.exposure?.capacity_drag_percent || 0) * 0.75)))}%"></div></div>
-      <div class="footer"><span>${escapeHtml(payload?.processName || "Operational Systems Diagnostic")} • ${escapeHtml(generated)}</span><span>Directional output based on user-provided inputs</span></div>
+      <p>${escapeHtml(`Insight depth for this read is ${insight.score} (${insight.band}). That tells you how broad the signal is, not whether the answers are magically more correct.`)}</p>
+      <div class="waterfall"><div class="seg-productive" style="width:${productive}%"></div><div class="seg-admin" style="width:${admin}%"></div><div class="seg-drag" style="width:${drag}%"></div></div>
+      <div class="footer"><span>${escapeHtml(payload?.processName || "Operational Systems Diagnostic")}</span><span>${escapeHtml(generated)}</span></div>
     </section>
     <section class="page">
       <div class="header"><div class="wordmark">Monderman Operational Systems Diagnostic</div><div>Page 3</div></div>
       <h2>Where the burden sits</h2>
       <div class="two-col">
-        <div class="donut"><div class="donut-center"><span>Dominant burden</span><strong>${escapeHtml(burdenConstraint.label)}</strong><span class="small">${Math.round(Math.max(Number(result?.burden_breakdown?.approval||0),Math.max(Number(result?.burden_breakdown?.coordination||0),Number(result?.burden_breakdown?.handoff||0)),Number(result?.burden_breakdown?.escalation||0),Number(result?.burden_breakdown?.key_person||0)))} signal intensity</span></div></div>
+        <div class="donut"><div class="donut-center"><span class="small">Dominant visible burden source</span><strong>${escapeHtml(burdenConstraint.label)}</strong></div></div>
         <div>
           <p>${escapeHtml(harmonized.diagnosisReads.sourceRead)}</p>
           <p>${escapeHtml(harmonized.diagnosisReads.burdenRead)}</p>
-          <p>${escapeHtml(`The diagnostic implication is that ${burdenCondition.label.toLowerCase()} conditions are now affecting ${industry.marginTerm} rather than remaining a tolerable background cost.`)}</p>
+          <p>${escapeHtml(`The practical implication is that ${burdenConstraint.label.toLowerCase()} is now costing ${industry.marginTerm} rather than just sitting in the background.`)}</p>
         </div>
       </div>
-      <div class="footer"><span>${escapeHtml(payload?.processName || "Operational Systems Diagnostic")} • ${escapeHtml(generated)}</span><span>Directional output based on user-provided inputs</span></div>
+      <div class="footer"><span>${escapeHtml(payload?.processName || "Operational Systems Diagnostic")}</span><span>${escapeHtml(generated)}</span></div>
     </section>
     <section class="page">
       <div class="header"><div class="wordmark">Monderman Operational Systems Diagnostic</div><div>Page 4</div></div>
@@ -2250,7 +2257,7 @@ function buildExecutiveReportHtml(result, payload) {
       </div>
       <p>${escapeHtml(benchmark)}</p>
       <p>${escapeHtml(result?.trajectory?.note || "Trajectory does not yet show a strong directional shift.")}</p>
-      <div class="footer"><span>${escapeHtml(payload?.processName || "Operational Systems Diagnostic")} • ${escapeHtml(generated)}</span><span>Directional output based on user-provided inputs</span></div>
+      <div class="footer"><span>${escapeHtml(payload?.processName || "Operational Systems Diagnostic")}</span><span>${escapeHtml(generated)}</span></div>
     </section>
     <section class="page">
       <div class="header"><div class="wordmark">Monderman Operational Systems Diagnostic</div><div>Page 5</div></div>
@@ -2258,7 +2265,7 @@ function buildExecutiveReportHtml(result, payload) {
       <ol>${actions.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol>
       <h2 style="margin-top:24pt;">Three remedy paths</h2>
       <div class="remedy-grid">${remedyPaths.map((path) => `<div class="remedy-card"><strong>${escapeHtml(path.label)}</strong><p>${escapeHtml(path.summary)}</p><p class="small">${escapeHtml(path.benefit)}</p><p class="small">${escapeHtml(path.risk)}</p></div>`).join("")}</div>
-      <div class="footer"><span>${escapeHtml(payload?.processName || "Operational Systems Diagnostic")} • ${escapeHtml(generated)}</span><span>Directional output based on user-provided inputs</span></div>
+      <div class="footer"><span>${escapeHtml(payload?.processName || "Operational Systems Diagnostic")}</span><span>${escapeHtml(generated)}</span></div>
     </section>
     <section class="page">
       <div class="header"><div class="wordmark">Monderman Operational Systems Diagnostic</div><div>Page 6</div></div>
@@ -2268,8 +2275,8 @@ function buildExecutiveReportHtml(result, payload) {
         <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="none" stroke="rgba(21,32,43,.10)" stroke-width="4"></circle><circle cx="20" cy="20" r="16" fill="none" stroke="${ringColor}" stroke-width="4" stroke-linecap="round" transform="rotate(-90 20 20)" stroke-dasharray="${circumference}" stroke-dashoffset="${ringOffset}"></circle></svg>
         <div><strong style="display:block;font-size:26pt;line-height:1">${insight.score}</strong><span class="small">${insight.band} insight depth</span></div>
       </div>
-      <p>${escapeHtml(`This Insight Depth score means the findings should be read as ${insight.band.toLowerCase()} in breadth. Higher insight depth signals broader perspective and stronger pattern detection, not that the findings are intrinsically more correct.`)}</p>
-      <div class="footer"><span>${escapeHtml(payload?.processName || "Operational Systems Diagnostic")} • ${escapeHtml(generated)}</span><span>Directional output based on user-provided inputs</span></div>
+      <p>${escapeHtml(`This Insight Depth score tells you how broad and defensible the signal is. Higher depth means more perspective and stronger pattern detection, not a guarantee that every answer is right.`)}</p>
+      <div class="footer"><span>${escapeHtml(payload?.processName || "Operational Systems Diagnostic")}</span><span>Directional output based on user-provided inputs</span></div>
     </section>
   </body></html>`;
 }
@@ -2291,21 +2298,44 @@ function exportExecutiveReport(result, payload) {
 
 function downloadExecutiveReportPdf() {
   if (!state.result || !state.renderPayload) return;
-  const html = buildExecutiveReportHtml(state.result, state.renderPayload);
-  const printWindow = window.open("", "_blank", "noopener,noreferrer,width=1100,height=900");
-  if (!printWindow) {
-    showToast("Please allow pop-ups to generate the executive PDF view.");
+  if (typeof html2pdf === "undefined") {
+    showToast("PDF generation is unavailable right now. Please try the HTML download instead.");
     return;
   }
-  printWindow.document.open();
-  printWindow.document.write(html);
-  printWindow.document.close();
-  printWindow.focus();
-  const runPrint = () => {
-    try { printWindow.print(); } catch (_error) {}
-  };
-  printWindow.addEventListener("load", () => setTimeout(runPrint, 250), { once: true });
-  setTimeout(runPrint, 600);
+  const html = buildExecutiveReportHtml(state.result, state.renderPayload);
+  const parsed = new DOMParser().parseFromString(html, "text/html");
+  const container = document.createElement('div');
+  container.style.position = 'absolute';
+  container.style.left = '-99999px';
+  container.style.top = '0';
+  container.style.width = '816px';
+  const style = parsed.querySelector('style');
+  if (style) {
+    const styleEl = document.createElement('style');
+    styleEl.textContent = style.textContent;
+    container.appendChild(styleEl);
+  }
+  const bodyWrap = document.createElement('div');
+  bodyWrap.innerHTML = parsed.body.innerHTML;
+  container.appendChild(bodyWrap);
+  document.body.appendChild(container);
+  const filename = buildExecutiveReportFilename(state.renderPayload).replace(/\.html$/, '.pdf');
+  html2pdf()
+    .set({
+      margin: 0,
+      filename,
+      image: { type: 'jpeg', quality: 0.95 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'pt', format: 'letter', orientation: 'portrait' },
+      pagebreak: { mode: ['css', 'legacy'] }
+    })
+    .from(container)
+    .save()
+    .then(() => container.remove())
+    .catch(() => {
+      container.remove();
+      showToast('PDF generation failed. Please try the HTML download instead.');
+    });
 }
 
 function buildCrossDiagnosticArtifact(result, payload) {
@@ -2625,11 +2655,10 @@ skipBtn.addEventListener("click", async () => {
   await submitAnswer(state.currentItem.id, "", meta);
 });
 restartBtn.addEventListener("click", restartDiagnostic);
-exportBtn.addEventListener("click", () => { if (state.result && state.renderPayload) exportExecutiveReport(state.result, state.renderPayload); });
-downloadReportBtn.addEventListener("click", () => { if (state.result && state.renderPayload) exportExecutiveReport(state.result, state.renderPayload); });
-downloadPdfBtn.addEventListener("click", () => { if (state.result) downloadExecutiveReportPdf(); });
-saveCrossDiagnosticBtn.addEventListener("click", () => { if (state.result && state.renderPayload) downloadCrossDiagnosticResult(state.result, state.renderPayload); });
-newRunBtn.addEventListener("click", restartDiagnostic);
+downloadReportBtn?.addEventListener("click", () => { if (state.result && state.renderPayload) exportExecutiveReport(state.result, state.renderPayload); });
+downloadPdfBtn?.addEventListener("click", () => { if (state.result) downloadExecutiveReportPdf(); });
+saveCrossDiagnosticBtn?.addEventListener("click", () => { if (state.result && state.renderPayload) downloadCrossDiagnosticResult(state.result, state.renderPayload); });
+newRunBtn?.addEventListener("click", restartDiagnostic);
 document.querySelectorAll(".lane-btn").forEach((btn) => btn.addEventListener("click", () => selectLane(btn.dataset.lane)));
 document.querySelectorAll("[data-depth]").forEach((btn) => btn.addEventListener("click", () => selectDepth(btn.dataset.depth)));
 
