@@ -1205,9 +1205,9 @@ function renderQuestion() {
     applyQuestionContent();
   }
 
-  backBtn.disabled = true;
-  backBtn.title = "Back is disabled in this adaptive version. Use Start over if you need to change earlier answers.";
-  skipBtn.disabled = !item.isOptional;
+  backBtn.disabled = false;
+  backBtn.title = "";
+  skipBtn.disabled = false;
   continueBtn.disabled = false;
   skipBtn.textContent = item.isOptional ? skipBtn.textContent : "Skip";
   continueBtn.textContent = "Continue";
@@ -1442,7 +1442,7 @@ async function submitAnswer(itemId, value, meta = {}) {
   } finally {
     if (!renderedNextQuestion) {
       continueBtn.disabled = false;
-      skipBtn.disabled = !(state.currentItem?.isOptional);
+      skipBtn.disabled = false;
     }
   }
 }
@@ -2701,7 +2701,10 @@ continueBtn.addEventListener("click", async () => {
 });
 backBtn.addEventListener("click", () => showToast("Back is disabled in this adaptive version. Use Start over if you need to change earlier answers."));
 skipBtn.addEventListener("click", async () => {
-  if (!state.currentItem?.isOptional) return;
+  if (!state.currentItem?.isOptional) {
+    showToast("This question is required. Please select an answer to continue.");
+    return;
+  }
   const meta = getCrossLevelPrompt(state.currentItem) ? { skipReason: "cross_level_optional" } : { skipReason: "optional_skipped" };
   await submitAnswer(state.currentItem.id, "", meta);
 });
