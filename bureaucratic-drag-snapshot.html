@@ -23,7 +23,7 @@
     @font-face { font-family:"Neue Haas Grotesk"; src:url("65font.woff2") format("woff2"),url("65font.woff") format("woff"); font-weight:500; }
     @font-face { font-family:"Neue Haas Grotesk"; src:url("75font.woff2") format("woff2"),url("75font.woff") format("woff"); font-weight:700; }
 
-    :root{--ink:#15202B;--ink-soft:#5B6774;--ink-muted:#7C8794;--page:#F4F6F9;--panel:#FFF;--panel-soft:#F8FAFC;--dark:#0F1720;--dark-2:#111B25;--accent:#3F6EA1;--accent-dark:#315983;--accent-muted:rgba(63,110,161,.35);--green:#6E8F72;--gold:#B28D3C;--amber:#C67B2D;--rose:#B8505E;--shadow-lg:0 28px 70px rgba(15,23,32,.10);--shadow-md:0 18px 40px rgba(15,23,32,.08);--shadow-sm:0 8px 18px rgba(15,23,32,.05);--transition:220ms cubic-bezier(.22,1,.36,1)}
+    :root{--ink:#15202B;--ink-soft:#5B6774;--ink-muted:#7C8794;--page:#F4F6F9;--panel:#FFF;--panel-soft:#F8FAFC;--dark:#0F1720;--dark-2:#111B25;--accent:#3F6EA1;--accent-dark:#315983;--accent-muted:rgba(63,110,161,.35);--green:#4E9A7A;--gold:#C49A3C;--amber:#C49A3C;--rose:#B85C52;--shadow-lg:0 28px 70px rgba(15,23,32,.10);--shadow-md:0 18px 40px rgba(15,23,32,.08);--shadow-sm:0 8px 18px rgba(15,23,32,.05);--transition:220ms cubic-bezier(.22,1,.36,1)}
     *{box-sizing:border-box} html,body{margin:0;padding:0}
     body{min-height:100vh;font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;color:var(--ink);background:var(--page);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
     button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
@@ -70,8 +70,8 @@
     .table-wrap{overflow:auto;border:1px solid rgba(21,32,43,.08);border-radius:16px} table.matrix{width:100%;border-collapse:collapse;background:#FFF} table.matrix th,table.matrix td{padding:12px 14px;border-bottom:1px solid rgba(21,32,43,.08);text-align:left;font-size:.9rem;vertical-align:top;overflow-wrap:normal;word-break:normal;hyphens:none} table.matrix th{font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);background:#FBFCFE} table.matrix tr:last-child td{border-bottom:none}
     .severity-pill{display:inline-flex;align-items:center;justify-content:center;min-width:36px;padding:4px 10px;border-radius:999px;font-weight:700;font-size:.82rem}.sev-0,.sev-1{background:#EDF1F6;color:#62717F}.sev-2{background:#F3E9CF;color:#8B6A1D}.sev-3{background:#F0DAB8;color:#9A5D14}.sev-4,.sev-5{background:#EBC5CB;color:#8B2F3A}
     .bar-stack{display:grid;gap:10px}.bar-row{display:grid;grid-template-columns:170px 1fr 56px;gap:12px;align-items:center}.bar-label{font-size:.88rem;color:var(--ink)}.bar-track{height:12px;border-radius:999px;background:#EEF2F7;overflow:hidden}.bar-fill{height:100%;border-radius:999px}.fill-blue{background:#6A93BE}.fill-green{background:#91AB95}.fill-gold{background:#D1AA56}.fill-amber{background:#D79B59}.fill-rose{background:#D27986}.bar-value{font-size:.84rem;color:var(--ink-soft);text-align:right}
-    .benchmark-band{display:grid;gap:12px;margin-top:8px}.benchmark-track{position:relative;height:30px;border-radius:999px;background:#F0F3F7;overflow:hidden;border:1px solid rgba(21,32,43,.08)}.benchmark-range{position:absolute;top:0;height:100%}.industry-range{background:rgba(184,80,94,.16)}.opportunity-range{background:rgba(178,141,60,.20)}.benchmark-marker{position:absolute;top:2px;width:14px;height:24px;border-radius:999px;background:var(--accent);transform:translateX(-50%);box-shadow:0 0 0 3px rgba(63,110,161,.12)}.benchmark-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.84rem;color:var(--ink-soft)}.legend-dot{display:inline-block;width:10px;height:10px;border-radius:999px;margin-right:6px;vertical-align:middle}.dot-gold{background:rgba(178,141,60,.75)} .dot-green{background:rgba(110,143,114,.7)} .dot-blue{background:var(--accent)}.benchmark-caption{font-size:.84rem;line-height:1.55;color:var(--ink-soft)}.benchmark-caption strong{color:var(--ink)}
-    .quadrant-wrap{display:grid;gap:10px}.quadrant-box{position:relative;height:320px;border:1px solid rgba(21,32,43,.10);border-radius:18px;background:linear-gradient(to right, transparent calc(50% - 1px), rgba(21,32,43,.10) calc(50% - 1px), rgba(21,32,43,.10) calc(50% + 1px), transparent calc(50% + 1px)),linear-gradient(to top, transparent calc(50% - 1px), rgba(21,32,43,.10) calc(50% - 1px), rgba(21,32,43,.10) calc(50% + 1px), transparent calc(50% + 1px)),#FFF;overflow:hidden}.q-label{position:absolute;font-size:.8rem;line-height:1.35;color:var(--ink-soft);max-width:120px}.q-tl{top:12px;left:12px}.q-tr{top:12px;right:12px;text-align:right}.q-bl{bottom:12px;left:12px}.q-br{bottom:12px;right:12px;text-align:right}.quad-dot{position:absolute;width:18px;height:18px;border-radius:999px;background:var(--accent);border:3px solid rgba(255,255,255,.94);box-shadow:0 10px 24px rgba(63,110,161,.28);transform:translate(-50%,-50%)}.axis-x,.axis-y{font-size:.84rem;color:var(--ink-soft)}.axis-x{text-align:center}.axis-y{writing-mode:vertical-rl;position:absolute;left:-34px;top:50%;transform:translateY(-50%) rotate(180deg)}
+    .benchmark-band{display:grid;gap:12px;margin-top:8px}.benchmark-track{position:relative;height:30px;border-radius:999px;background:#F0F3F7;overflow:hidden;border:1px solid rgba(21,32,43,.08)}.benchmark-range{position:absolute;top:0;height:100%}.industry-range{background:rgba(196,154,60,.12)}.opportunity-range{background:rgba(78,154,122,.10)}.benchmark-marker{position:absolute;top:2px;width:14px;height:24px;border-radius:999px;background:var(--accent);transform:translateX(-50%);box-shadow:0 0 0 3px rgba(63,110,161,.12)}.benchmark-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.84rem;color:var(--ink-soft)}.legend-dot{display:inline-block;width:10px;height:10px;border-radius:999px;margin-right:6px;vertical-align:middle}.dot-gold{background:rgba(196,154,60,.85)} .dot-green{background:rgba(78,154,122,.80)} .dot-blue{background:var(--accent)}.benchmark-caption{font-size:.84rem;line-height:1.55;color:var(--ink-soft)}.benchmark-caption strong{color:var(--ink)}
+    .quadrant-wrap{display:grid;gap:10px}.quadrant-box{position:relative;height:320px;border:1px solid rgba(21,32,43,.16);border-radius:18px;background:radial-gradient(ellipse at 25% 28%, rgba(63,110,161,.06) 0%, transparent 50%),linear-gradient(to right, transparent calc(50% - 1px), rgba(21,32,43,.15) calc(50% - 1px), rgba(21,32,43,.15) calc(50% + 1px), transparent calc(50% + 1px)),linear-gradient(to top, transparent calc(50% - 1px), rgba(21,32,43,.15) calc(50% - 1px), rgba(21,32,43,.15) calc(50% + 1px), transparent calc(50% + 1px)),#FAFBFC;overflow:hidden;flex:1}.q-label{position:absolute;font-size:.8rem;line-height:1.35;color:var(--ink-soft);max-width:120px}.q-tl{top:12px;left:12px}.q-tr{top:12px;right:12px;text-align:right}.q-bl{bottom:12px;left:12px}.q-br{bottom:12px;right:12px;text-align:right}.quad-dot{position:absolute;width:22px;height:22px;border-radius:999px;background:var(--accent);border:3px solid rgba(255,255,255,.98);box-shadow:0 4px 14px rgba(63,110,161,.40),0 0 0 7px rgba(63,110,161,.10);transform:translate(-50%,-50%)}.axis-x,.axis-y{font-size:.78rem;color:var(--ink-soft)}.axis-x{text-align:center}.axis-y{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;flex:0 0 auto;padding:8px 0;align-self:stretch;display:flex;align-items:center;justify-content:center}.quad-with-yaxis{display:flex;align-items:stretch;gap:8px}
     .signal-tile{background:#FFF;border:1px solid rgba(21,32,43,.08);border-radius:18px;box-shadow:none;padding:16px}.signal-tile h4{margin:0 0 8px;font-size:.96rem;line-height:1.2}.signal-tile p{margin:0;font-size:.88rem;line-height:1.55;color:var(--ink-soft)}.signal-tile.high{border-color:rgba(184,80,94,.22);background:#FFF}.signal-tile.mod{border-color:rgba(198,123,45,.22);background:#FFF}.signal-tile.low{border-color:rgba(63,110,161,.16)}
     .report-only{display:none}.report-header{display:grid;gap:12px;padding:24px;border-radius:24px;border:1px solid rgba(21,32,43,.08);background:#FFF;box-shadow:none}.report-meta{display:flex;flex-wrap:wrap;gap:10px}.meta-pill{display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;border:1px solid rgba(21,32,43,.08);background:#FFF;font-size:.82rem;color:var(--ink-soft)}.report-kicker{margin:0;font-size:.76rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-muted)}.report-title{margin:0;font-size:2rem;line-height:1;letter-spacing:-.04em;color:var(--dark)}.report-sub{margin:0;max-width:72ch;font-size:.98rem;line-height:1.7;color:var(--ink-soft)}
     .advisory-card{display:grid;gap:12px;padding:20px;border-radius:20px;border:1px solid rgba(21,32,43,.08);background:#FFF}.results-disclaimer{padding:16px 18px;border-radius:16px;background:#F8FAFC;border:1px solid rgba(21,32,43,.08);font-size:.88rem;line-height:1.6;color:var(--ink-soft)}
@@ -164,16 +164,17 @@
     .viz-card h4{margin:0 0 10px;font-size:.94rem;line-height:1.2}
     .viz-note{margin-top:10px;font-size:.84rem;line-height:1.55;color:var(--ink-soft)}
     .canvas-wrap{position:relative;height:240px}
-    .donut-center{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
-    .donut-center span{display:inline-grid;justify-items:center;padding:12px 14px;border-radius:999px;background:rgba(255,255,255,.92);border:1px solid rgba(21,32,43,.08);box-shadow:var(--shadow-sm);font-size:.76rem;color:var(--ink-soft)}
-    .donut-center strong{font-size:1.2rem;line-height:1;color:var(--ink)}
+    .donut-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+    .donut-center span{display:flex;flex-direction:column;align-items:center;gap:3px}
+    .donut-center small{font-size:.68rem;font-weight:600;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-muted)}
+    .donut-center strong{font-size:1.55rem;line-height:1;letter-spacing:-.03em;font-weight:700;color:var(--ink)}
     .capacity-waterfall{display:grid;gap:10px}
     .capacity-track{display:grid;grid-template-columns:1fr;gap:8px}
     .capacity-bar{display:flex;height:120px;border-radius:22px;overflow:hidden;background:#EEF2F7;border:1px solid rgba(21,32,43,.08)}
     .capacity-segment{height:100%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;transition:width 1.2s cubic-bezier(0.16, 1, 0.3, 1)}
-    .segment-productive{background:#6E8F72}
-    .segment-admin{background:#B28D3C}
-    .segment-drag{background:#B8505E}
+    .segment-productive{background:#4E9A7A}
+    .segment-admin{background:#C49A3C}
+    .segment-drag{background:#B85C52}
     .capacity-legend{display:flex;flex-wrap:wrap;gap:12px;font-size:.82rem;color:var(--ink-soft)}
     .treemap{display:grid;gap:8px;min-height:190px}
     .treemap-row{display:grid;gap:8px}
@@ -249,7 +250,7 @@
           <div class="score-meta-strip"><div class="score-meta-note"><span class="score-meta-pill" id="scoreMetaIndustry">Industry: —</span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaShapeText">Profile shape: —</span> <span class="insight-help" id="profileShapeInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="profileShapeTooltip"><strong>Profile shape</strong><br>Concentrated means one burden source dominates. Distributed means multiple sources materially contribute. Hidden means the visible workflow likely understates the real upkeep cost.</span></span></span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaTrajectoryText">Trajectory: —</span> <span class="insight-help" id="trajectoryInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="trajectoryTooltip"><strong>Trajectory</strong><br>Trajectory indicates whether burden pressure appears to be rising, holding steady, or easing based on the current signal pattern.</span></span></span></div></div>
         </div></section>
 
-        <section class="primary-waterfall"><div class="viz-card"><h4>Capacity allocation</h4><div class="capacity-waterfall"><div class="capacity-bar" id="capacityWaterfall"></div><div class="capacity-legend"><span><span class="legend-dot dot-green"></span>Productive work</span><span><span class="legend-dot dot-gold"></span>Necessary administrative load</span><span><span class="legend-dot" style="background:#B8505E"></span>Recoverable drag</span></div><p class="viz-note" id="capacityWaterfallNote">Capacity allocation view will appear here after scoring.</p></div></div></section>
+        <section class="primary-waterfall"><div class="viz-card"><h4>Capacity allocation</h4><div class="capacity-waterfall"><div class="capacity-bar" id="capacityWaterfall"></div><div class="capacity-legend"><span><span class="legend-dot dot-green"></span>Productive work</span><span><span class="legend-dot dot-gold"></span>Necessary administrative load</span><span><span class="legend-dot" style="background:#B85C52"></span>Recoverable drag</span></div><p class="viz-note" id="capacityWaterfallNote">Capacity allocation view will appear here after scoring.</p></div></div></section>
 
         <section class="diagnosis-grid">
           <article class="diagnosis-card"><p class="summary-label">Current operating burden</p><p class="summary-value" id="cycleConditionValue">—</p><p class="summary-sub tight" id="cycleConditionSub">Overall operating-environment diagnosis</p></article>
@@ -348,7 +349,7 @@
               <div class="accordion-body">
                 <div class="detail-content" id="detailContent">
                   <section class="grid-2">
-                    <article class="chart-card"><h3>Governance Weight × Execution Responsiveness</h3><div class="quadrant-wrap"><div class="quadrant-box"><div class="axis-y">Execution responsiveness</div><div class="q-label q-tl">Fast movement,<br>lighter governance</div><div class="q-label q-tr">Fast movement,<br>heavier governance</div><div class="q-label q-bl">Slow movement,<br>lighter governance</div><div class="q-label q-br">Slow movement,<br>heavier governance</div><div class="quad-dot" id="quadDot"></div></div><div class="axis-x">Governance weight</div><div class="quad-guide-grid"><div class="quad-guide"><strong>Quadrant interpretation</strong><p class="tiny" id="quadrantInterpretationText">Quadrant interpretation will appear here after scoring.</p></div></div></div></article>
+                    <article class="chart-card"><h3>Governance Weight × Execution Responsiveness</h3><div class="quadrant-wrap"><div class="quad-with-yaxis"><div class="axis-y">Execution responsiveness</div><div class="quadrant-box"><div class="q-label q-tl">Fast movement,<br>lighter governance</div><div class="q-label q-tr">Fast movement,<br>heavier governance</div><div class="q-label q-bl">Slow movement,<br>lighter governance</div><div class="q-label q-br">Slow movement,<br>heavier governance</div><div class="quad-dot" id="quadDot"></div></div></div><div class="axis-x">Governance weight</div><div class="quad-guide-grid"><div class="quad-guide"><strong>Quadrant interpretation</strong><p class="tiny" id="quadrantInterpretationText">Quadrant interpretation will appear here after scoring.</p></div></div></div></article>
                     <article class="result-card"><h3>Time, money, and resources</h3><p class="result-copy" id="tmrText"></p><div class="compact-card" style="margin-top:14px;"><h3>Trade-off note</h3><p class="result-copy" id="tradeoffText"></p></div></article>
                   </section>
                   <section class="grid-2"><article class="chart-card"><h3>Structural gaps</h3><div class="chart-wrap"><canvas id="gapChart"></canvas></div></article><article class="chart-card"><h3>Dimension profile</h3><div class="chart-wrap"><canvas id="dimensionChart"></canvas></div></article></section>
@@ -2051,7 +2052,7 @@ function renderInsightDepth(payload) {
   const arc = document.getElementById("confidenceRingArc");
   const value = document.getElementById("confidenceRingValue");
   const label = document.getElementById("confidenceRingLabel");
-  const color = insight.score <= 25 ? "#B8505E" : insight.score <= 50 ? "#B28D3C" : insight.score <= 75 ? "#3F6EA1" : "#6E8F72";
+  const color = insight.score <= 25 ? "#B85C52" : insight.score <= 50 ? "#C49A3C" : insight.score <= 75 ? "#3F6EA1" : "#4E9A7A";
   if (arc) {
     arc.setAttribute("stroke", color);
     arc.setAttribute("stroke-dashoffset", String(circumference * (1 - insight.score / 100)));
@@ -2089,7 +2090,7 @@ function renderBurdenDonut(result) {
   if (note) note.textContent = `${labels[values.indexOf(dominant)]} is the dominant visible burden source in this run.`;
   burdenDonutChart = new Chart(ctx, {
     type: "doughnut",
-    data: { labels, datasets: [{ data: values, backgroundColor: ["#3F6EA1","#B28D3C","#C67B2D","#B8505E"], borderWidth: 0 }] },
+    data: { labels, datasets: [{ data: values, backgroundColor: ["#3F6EA1","#6B8FA6","#8E7FA8","#B85C52"], borderWidth: 0 }] },
     options: { responsive: true, maintainAspectRatio: false, cutout: "65%", plugins: { legend: { position: "bottom" } } }
   });
 }
@@ -2128,9 +2129,9 @@ function renderBurdenTreemap(result) {
   const breakdown = asObject(result?.burden_breakdown);
   const cells = [
     { label: "Process density", value: Number(breakdown.process_density || 0), color: "#3F6EA1" },
-    { label: "Systems friction", value: Math.max(Number(breakdown.systems_friction || 0), Number(breakdown.workaround_dependence || 0)), color: "#B28D3C" },
-    { label: "Reporting burden", value: Number(breakdown.reporting_exception_burden || 0), color: "#C67B2D" },
-    { label: "Control load", value: Number(breakdown.control_load || 0), color: "#B8505E" }
+    { label: "Systems friction", value: Math.max(Number(breakdown.systems_friction || 0), Number(breakdown.workaround_dependence || 0)), color: "#6B8FA6" },
+    { label: "Reporting burden", value: Number(breakdown.reporting_exception_burden || 0), color: "#8E7FA8" },
+    { label: "Control load", value: Number(breakdown.control_load || 0), color: "#B85C52" }
   ].sort((a,b) => b.value-a.value);
   const values = cells.map((cell) => cell.value);
   if (!hasMeaningfulSeries(values)) {
@@ -2164,10 +2165,10 @@ function renderIndustryGauge(result, payload) {
   const needleAngle = scoreToAngle(score);
   const needle = polarToCartesian(150, 150, 92, needleAngle);
   mount.innerHTML = `<svg class="gauge-svg" viewBox="0 0 300 170">
-    <path d="${describeArc(150,150,92,180,110)}" fill="none" stroke="#B8505E" stroke-width="18" stroke-linecap="round"></path>
-    <path d="${describeArc(150,150,92,110,70)}" fill="none" stroke="#B28D3C" stroke-width="18" stroke-linecap="round"></path>
+    <path d="${describeArc(150,150,92,180,110)}" fill="none" stroke="#B85C52" stroke-width="18" stroke-linecap="round"></path>
+    <path d="${describeArc(150,150,92,110,70)}" fill="none" stroke="#C49A3C" stroke-width="18" stroke-linecap="round"></path>
     <path d="${describeArc(150,150,92,70,35)}" fill="none" stroke="#3F6EA1" stroke-width="18" stroke-linecap="round"></path>
-    <path d="${describeArc(150,150,92,35,0)}" fill="none" stroke="#6E8F72" stroke-width="18" stroke-linecap="round"></path>
+    <path d="${describeArc(150,150,92,35,0)}" fill="none" stroke="#4E9A7A" stroke-width="18" stroke-linecap="round"></path>
     <line x1="150" y1="150" x2="${needle.x}" y2="${needle.y}" stroke="#15202B" stroke-width="4" stroke-linecap="round"></line>
     <circle cx="150" cy="150" r="8" fill="#15202B"></circle>
     <text x="150" y="118" text-anchor="middle" font-size="28" font-weight="700" fill="#15202B">${score}</text>
@@ -2182,7 +2183,7 @@ function renderTrajectorySparkline(result) {
   if (!mount || !chipMount) return;
   const dir = result?.trajectory?.direction || "flat";
   const values = dir === "up" ? [18,20,22,25,28,31] : dir === "down" ? [31,29,27,25,23,20] : [24,24,25,24,24,24];
-  const color = dir === "up" ? "#B8505E" : dir === "down" ? "#6E8F72" : "#B28D3C";
+  const color = dir === "up" ? "#B85C52" : dir === "down" ? "#4E9A7A" : "#C49A3C";
   const points = values.map((v, i) => `${i * 24},${34 - v}`).join(" ");
   mount.innerHTML = `<polyline fill="none" stroke="${color}" stroke-width="3" points="${points}" />`;
   chipMount.innerHTML = document.getElementById("trajectorySignalWrap")?.innerHTML || "";
@@ -2223,7 +2224,7 @@ function buildExecutiveReportHtml(result, payload) {
   };
   const exportNeedleAngle = exportScoreToAngle(exportScore);
   const exportNeedle = exportPolar(160, 150, 104, exportNeedleAngle);
-  const ringColor = insight.score <= 25 ? "#B8505E" : insight.score <= 50 ? "#B28D3C" : insight.score <= 75 ? "#3F6EA1" : "#6E8F72";
+  const ringColor = insight.score <= 25 ? "#B85C52" : insight.score <= 50 ? "#C49A3C" : insight.score <= 75 ? "#3F6EA1" : "#4E9A7A";
   const circumference = 100.53;
   const ringOffset = circumference * (1 - insight.score / 100);
 
@@ -2242,7 +2243,7 @@ function buildExecutiveReportHtml(result, payload) {
     p{margin:0 0 11pt;font-size:11pt}
     ol{margin:0;padding-left:18pt} li{margin:0 0 8pt;font-size:11pt}
     .waterfall{display:flex;height:28pt;border-radius:999px;overflow:hidden;border:1px solid rgba(21,32,43,.08);margin-top:16pt}
-    .seg-productive{background:#6E8F72}.seg-admin{background:#B28D3C}.seg-drag{background:#B8505E}
+    .seg-productive{background:#4E9A7A}.seg-admin{background:#C49A3C}.seg-drag{background:#B85C52}
     .two-col{display:grid;grid-template-columns:1.1fr .9fr;gap:18pt;align-items:start}
     .gauge{height:190pt;border:1px solid rgba(21,32,43,.08);border-radius:18pt;background:#FBFCFE;display:grid;place-items:center}
     .remedy-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12pt;margin-top:12pt}
@@ -2335,15 +2336,11 @@ function downloadExecutiveReportPdf() {
     showToast("PDF generation is unavailable right now. Please try the HTML download instead.");
     return;
   }
+  showToast("Generating PDF…");
   const html = buildExecutiveReportHtml(state.result, state.renderPayload);
   const parsed = new DOMParser().parseFromString(html, "text/html");
   const container = document.createElement('div');
-  container.style.position = 'fixed';
-  container.style.left = '-9999px';
-  container.style.top = '0px';
-  container.style.width = '816px';
-  container.style.background = '#ffffff';
-  container.style.pointerEvents = 'none';
+  container.style.cssText = 'position:fixed;top:0;left:0;width:816px;background:#fff;color:#15202B;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;line-height:1.65;z-index:9999;pointer-events:none;';
   const style = parsed.querySelector('style');
   if (style) {
     const styleEl = document.createElement('style');
@@ -2351,26 +2348,29 @@ function downloadExecutiveReportPdf() {
     container.appendChild(styleEl);
   }
   const bodyWrap = document.createElement('div');
+  bodyWrap.style.cssText = 'color:#15202B;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;';
   bodyWrap.innerHTML = parsed.body.innerHTML;
   container.appendChild(bodyWrap);
   document.body.appendChild(container);
   const filename = buildExecutiveReportFilename(state.renderPayload).replace(/\.html$/, '.pdf');
-  html2pdf()
-    .set({
-      margin: 0,
-      filename,
-      image: { type: 'jpeg', quality: 0.95 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'pt', format: 'letter', orientation: 'portrait' },
-      pagebreak: { mode: ['css', 'legacy'] }
-    })
-    .from(container)
-    .save()
-    .then(() => container.remove())
-    .catch(() => {
-      container.remove();
-      showToast('PDF generation failed. Please try the HTML download instead.');
-    });
+  setTimeout(() => {
+    html2pdf()
+      .set({
+        margin: 0,
+        filename,
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: { scale: 2, useCORS: true, allowTaint: true, logging: false },
+        jsPDF: { unit: 'pt', format: 'letter', orientation: 'portrait' },
+        pagebreak: { mode: ['css', 'legacy'] }
+      })
+      .from(container)
+      .save()
+      .then(() => container.remove())
+      .catch(() => {
+        container.remove();
+        showToast('PDF generation failed. Please try the HTML download instead.');
+      });
+  }, 150);
 }
 
 function buildCrossDiagnosticArtifact(result, payload) {
