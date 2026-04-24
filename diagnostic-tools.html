@@ -555,8 +555,8 @@
       gap:22px;
       margin-top:28px;
     }
-    .tool-card{ min-height:356px; }
-    .tool-card.is-recommended{border-color:rgba(21,32,43,.08);background:#FFF;min-height:396px;border-left:1px solid var(--accent);}
+    .tool-card{ min-height:356px; border-left:3px solid rgba(63,110,161,.22)!important; }
+    .tool-card.is-recommended{border-color:rgba(63,110,161,.24)!important;background:#F7FAFE;min-height:396px;border-left:3px solid var(--accent)!important;}
     .tool-card.is-recommended::before{content:none;}
     .tool-card-link{
       position:relative;
@@ -1564,7 +1564,7 @@
     .tool-text, .use-text, .card-text, .matrix-text, .footer-copy-top, .shared-context-copy, .context-helper, .hero-dek{font-size:17px;line-height:1.65;font-weight:400;}
     .note, .tool-meta, .context-status, .recent-run-copy, .recent-run-meta, .dropzone p, .validation-message{font-size:13px;line-height:1.5;}
     .brand, .footer-mark{ text-shadow:none; }
-    .page-rail-item, .shared-context-card, .recent-runs-card, .context-pill, .recent-run-item, .saved-context-row, .dropzone, .file-item, .panel, .tools-head, .bridge, .synthesis-shell, .note, .card, .use-card, .tool-card, .dynamic-card, .matrix-card{box-shadow:none !important;border:1px solid rgba(21,32,43,.08) !important;background:#FFF;}
+    .page-rail-item, .shared-context-card, .recent-runs-card, .context-pill, .recent-run-item, .saved-context-row, .dropzone, .file-item, .panel, .tools-head, .bridge, .synthesis-shell, .note, .card, .use-card, .tool-card, .dynamic-card, .matrix-card{box-shadow:none !important;border:1px solid rgba(21,32,43,.12) !important;background:#FAFBFC;}
     .tool-card-link, .dynamic-toggle{background:transparent;}
     .tool-card.is-recommended .tool-badge{color:var(--accent);border-color:rgba(63,110,161,.22);}
     
@@ -1577,7 +1577,7 @@
     .context-chip{background:rgba(63,110,161,.10);border-color:rgba(63,110,161,.22);color:#FFF;}
     .context-chip strong{color:#FFF;}
     .tool-card, .card, .use-card, .dynamic-card, .matrix-card, .dropzone, .recent-run-item, .context-pill, .saved-context-row, .file-item, .panel, .tools-head, .bridge, .synthesis-shell, .note, .shared-context-card, .recent-runs-card{transition:border-color var(--transition), background var(--transition), color var(--transition), transform var(--transition);}
-    .tool-card:hover, .card:hover, .use-card:hover, .dynamic-card:hover, .matrix-card:hover, .dropzone:hover{transform:none;border-color:rgba(21,32,43,.16);}
+    .tool-card:hover, .use-card:hover, .dynamic-card:hover, .matrix-card:hover, .dropzone:hover{transform:translateY(-2px);border-color:rgba(63,110,161,.28);box-shadow:0 6px 20px rgba(21,32,43,.07)!important;} .card:hover{transform:none;border-color:rgba(21,32,43,.16);}
     .nav a, .btn, .tool-card, .tool-card-link, .dynamic-toggle, .footer-nav a, .context-field input, .context-field select, .context-field textarea, .file-remove, .dropzone, .workspace-link{transition:all var(--transition);}
     a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .tool-card-link:focus-visible, .dynamic-toggle:focus-visible, .dropzone:focus-visible, .file-remove:focus-visible, .nav a:focus-visible{outline:2px solid var(--accent);outline-offset:4px;box-shadow:none !important;}
     .tool-card-link:focus-visible{outline-offset:-2px;}
@@ -1723,7 +1723,7 @@
   <section class="hero">
     <div class="hero-inner">
       <div class="hero-copy">
-        <p class="hero-eyebrow">Monderman Diagnostic Suite</p>
+        <p class="hero-eyebrow">Monderman Diagnostic Hub</p>
                 <h1>See how your organization is actually performing over time.</h1>
         <p class="hero-dek">
           Use repeated diagnostics to see where structure, decision flow, process burden, and institutional performance are strengthening, drifting, or accumulating drag.
@@ -1743,7 +1743,7 @@
 
   <main class="page">
 
-        <div class="page-rail" aria-label="How the suite is designed to be used">
+        <div class="page-rail" aria-label="How the hub is designed to be used">
           <div class="page-rail-item">
             <p class="page-rail-label">Bounded first run</p>
             <p class="page-rail-value">Start with one visible issue</p>
@@ -1907,7 +1907,7 @@
           <div class="section-label">Live Diagnostics</div>
           <h3>Launch the right diagnostic.</h3>
           <p>
-            Each diagnostic opens in its own dedicated environment. Start with the strongest fit, then return to the suite as your understanding of the structural issue becomes clearer.
+            Each diagnostic opens in its own dedicated environment. Start with the strongest fit, then return to the hub as your understanding of the structural issue becomes clearer.
           </p>
           <div style="margin-top:18px; display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; padding:16px 18px; border-radius:16px; background:#FFF; border:1px solid rgba(21,32,43,.08); box-shadow:none;">
             <div style="max-width:44ch;">
@@ -2056,6 +2056,11 @@
           </div>
         </section>
 
+        <div class="tools-section-header" style="display:flex;align-items:center;gap:14px;margin:8px 0 22px;">
+          <p style="margin:0;font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);">Diagnostic portals</p>
+          <div style="flex:1;height:1px;background:rgba(63,110,161,.14);"></div>
+          <p style="margin:0;font-size:.82rem;color:var(--text-muted);">Select a diagnostic to begin</p>
+        </div>
         <div class="tools-grid">
           <article class="tool-card" data-tool-key="structural-clarity">
             <a class="tool-card-link diagnostic-link" href="structural-clarity.html" aria-label="Open Structural Clarity Diagnostic">
@@ -2191,7 +2196,7 @@
 
       <section class="panel">
         <h3>How repeated use creates value</h3>
-        <p>The suite delivers its strongest value when it is used repeatedly to govern organizational systems over time, across changing conditions, and through different participant lenses.</p>
+        <p>The hub delivers its strongest value when it is used repeatedly to govern organizational systems over time, across changing conditions, and through different participant lenses.</p>
 
         <div class="dynamic-wrap">
           <div class="dynamic-grid">
@@ -2269,7 +2274,7 @@
       </section>
 
       <p class="footer-copy-top">
-        The Monderman Diagnostic Suite is built to support clearer entry, stronger interpretation, and more disciplined return as organizational systems and surrounding conditions evolve.
+        The Monderman Diagnostic Hub is built to support clearer entry, stronger interpretation, and more disciplined return as organizational systems and surrounding conditions evolve.
       </p>
     </div>
   </main>
