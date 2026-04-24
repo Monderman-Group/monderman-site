@@ -384,7 +384,7 @@
 const API_BASE = "https://monderman-api.onrender.com";
 const DIAGNOSTIC_HUB_URL = "https://www.monderman.com/diagnostic-tools.html";
 const LOADER_MS = 3600;
-const START_TIMEOUT_MS = 15000;
+const START_TIMEOUT_MS = 45000;
 const ANSWER_TIMEOUT_MS = 15000;
 const FINALIZE_TIMEOUT_MS = 30000;
 
@@ -1318,14 +1318,25 @@ async function startAdaptiveRun() {
     shared_context: readHubContext() || {}
   };
 
-  // Warm up the API instance before starting — Render.com spins down after
-  // inactivity and a cold start (30-60s) exceeds the answer timeout.
-  try {
-    const wakeCtrl = new AbortController();
-    const wakeTimer = setTimeout(() => wakeCtrl.abort(), 8000);
-    await fetch(`${API_BASE}/api/health`, { method: "GET", signal: wakeCtrl.signal }).catch(() => {});
-    clearTimeout(wakeTimer);
-  } catch (_e) {}
+  // Poll until the API instance is awake. Render.com cold start takes 30-60s.
+  // We retry every 4s for up to 52s before giving up and proceeding anyway.
+  setProcessingStep(0, "Starting diagnostic engine… this may take up to 30 seconds on first load.");
+  await (async () => {
+    const maxWait = 52000;
+    const interval = 4000;
+    const started = Date.now();
+    while (Date.now() - started < maxWait) {
+      try {
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), 3500);
+        const res = await fetch(`${API_BASE}/api/health`, { method: "GET", signal: ctrl.signal });
+        clearTimeout(t);
+        if (res.ok) return; // backend is awake
+      } catch (_e) {}
+      await new Promise((r) => setTimeout(r, interval));
+    }
+  })();
+  setProcessingStep(0, "Initializing adaptive run...");
 
   try {
     const response = await fetchWithTimeout(`${API_BASE}/api/operational-systems/run/start`, {
@@ -1492,10 +1503,14 @@ async function replayAnswersAndResume(changedItemId, changedValue) {
   }
   replayCache[changedItemId] = changedValue;
 
-  // Full restart — state will be reset by startAdaptiveRun
+  // Full restart — state will be reset by restartDiagnostic, so save everything needed
   const savedPreflight = { ...state.preflight };
+  const savedMode = state.mode;
+  const savedDepth = state.depth;
   restartDiagnostic();
   state.preflight = savedPreflight;
+  state.mode = savedMode;
+  state.depth = savedDepth;
   state._replayCache = replayCache;
   state._replaying = true;
 
