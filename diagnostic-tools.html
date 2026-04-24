@@ -555,7 +555,11 @@
       gap:22px;
       margin-top:28px;
     }
-    .tool-card{ min-height:356px; border-left:3px solid rgba(63,110,161,.22)!important; }
+    .tool-card{ min-height:356px; border-left:3px solid rgba(63,110,161,.22)!important; border-top:3px solid rgba(63,110,161,.14)!important; }
+    .tool-card:nth-child(1){ border-top-color:rgba(63,110,161,.55)!important; }
+    .tool-card:nth-child(2){ border-top-color:rgba(110,143,114,.55)!important; }
+    .tool-card:nth-child(3){ border-top-color:rgba(196,154,60,.55)!important; }
+    .tool-card:nth-child(4){ border-top-color:rgba(184,80,94,.45)!important; }
     .tool-card.is-recommended{border-color:rgba(63,110,161,.24)!important;background:#F7FAFE;min-height:396px;border-left:3px solid var(--accent)!important;}
     .tool-card.is-recommended::before{content:none;}
     .tool-card-link{
@@ -574,28 +578,28 @@
       outline-offset:3px;
     }
     .tool-glyph{
-      width:40px;
-      height:40px;
-      border-radius:10px;
+      width:48px;
+      height:48px;
+      border-radius:14px;
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      background:#FFF;
-      border:1px solid rgba(21,32,43,.08);
-      color:var(--muted-dark-2);
+      background:rgba(63,110,161,.08);
+      border:1px solid rgba(63,110,161,.16);
+      color:var(--accent);
       box-shadow:none;
-      margin-bottom:14px;
-      transition:border-color var(--transition), background var(--transition), transform var(--transition);
+      margin-bottom:16px;
+      transition:border-color var(--transition), background var(--transition);
     }
     .tool-glyph svg{
-      width:18px;
-      height:18px;
+      width:22px;
+      height:22px;
       stroke:currentColor;
     }
     .tool-card:hover .tool-glyph,
     .tool-card-link:focus-visible .tool-glyph{
-      background:rgba(63,110,161,.08);
-      border-color:rgba(63,110,161,.18);
+      background:rgba(63,110,161,.16);
+      border-color:rgba(63,110,161,.30);
       transform:none;
     }
 
@@ -685,8 +689,8 @@
     }
     .tool-card:hover .tool-open,
     .tool-card-link:focus-visible .tool-open{
-      color:var(--text-dark);
-      transform:none;
+      color:var(--accent-dark, #2E5482);
+      gap:10px;
     }
 
 
@@ -1730,7 +1734,7 @@
         </p>
 
         <div class="hero-actions">
-          <a class="btn btn-accent" href="#tool-launch">Launch diagnostics</a>
+          <a class="btn btn-accent" href="#diagnostic-portals">Launch diagnostics</a>
           <a class="btn" href="#cross-diagnostic-synthesis">Cross-diagnostic analysis</a>
         </div>
 
@@ -2056,7 +2060,7 @@
           </div>
         </section>
 
-        <div class="tools-section-header" style="display:flex;align-items:center;gap:14px;margin:8px 0 22px;">
+        <div id="diagnostic-portals" class="tools-section-header" style="display:flex;align-items:center;gap:14px;margin:8px 0 22px;scroll-margin-top:88px;">
           <p style="margin:0;font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);">Diagnostic portals</p>
           <div style="flex:1;height:1px;background:rgba(63,110,161,.14);"></div>
           <p style="margin:0;font-size:.82rem;color:var(--text-muted);">Select a diagnostic to begin</p>
