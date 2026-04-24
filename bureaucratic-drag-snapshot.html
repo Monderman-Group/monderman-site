@@ -1284,10 +1284,11 @@ async function startAdaptiveRun() {
   state.roleForText = role;
   const inferredCoverage = inferParticipantCoverage();
 
-  setHeader("Preparing adaptive run", "Initializing the Operational Systems diagnostic.", "Starting run");
-  showStage(processingStage);
-  resetProcessingUI();
-  setProcessingStep(0, "Initializing adaptive run...");
+  // Keep the user on introStage during warmup+start — processingStage is
+  // reserved for actual output generation so it doesn't look like questions were skipped.
+  beginBtn.disabled = true;
+  beginBtn.textContent = "Starting…";
+  setHeader("Starting adaptive run", "The diagnostic engine is initializing. This may take a moment.", "Starting…");
 
   const participantLevels = inferredCoverage.levelsCovered;
   const body = {
@@ -1320,7 +1321,7 @@ async function startAdaptiveRun() {
 
   // Poll until the API instance is awake. Render.com cold start takes 30-60s.
   // We retry every 4s for up to 52s before giving up and proceeding anyway.
-  setProcessingStep(0, "Starting diagnostic engine… this may take up to 30 seconds on first load.");
+  setHeader("Starting adaptive run", "Warming up the diagnostic engine — this takes up to 30 seconds on first load.", "Starting…");
   await (async () => {
     const maxWait = 52000;
     const interval = 4000;
@@ -1331,12 +1332,12 @@ async function startAdaptiveRun() {
         const t = setTimeout(() => ctrl.abort(), 3500);
         const res = await fetch(`${API_BASE}/api/health`, { method: "GET", signal: ctrl.signal });
         clearTimeout(t);
-        if (res.ok) return; // backend is awake
+        if (res.ok) break; // backend is awake — exit loop
       } catch (_e) {}
       await new Promise((r) => setTimeout(r, interval));
     }
   })();
-  setProcessingStep(0, "Initializing adaptive run...");
+  setHeader("Starting adaptive run", "Initializing your diagnostic session.", "Starting…");
 
   try {
     const response = await fetchWithTimeout(`${API_BASE}/api/operational-systems/run/start`, {
@@ -1357,6 +1358,8 @@ async function startAdaptiveRun() {
     state.answerCache = {};
     state.questionHistory = [];
 
+    beginBtn.disabled = false;
+    beginBtn.textContent = "Begin diagnostic";
     setHeader(
       `${laneConfigs[state.mode]?.header || "Perspective selected"} • ${depthConfigs[state.depth]?.label || "Adaptive run"}`,
       "Adaptive question path active.",
@@ -1366,6 +1369,8 @@ async function startAdaptiveRun() {
     renderQuestion();
   } catch (error) {
     console.error("Adaptive run start failed", error);
+    beginBtn.disabled = false;
+    beginBtn.textContent = "Begin diagnostic";
     setHeader("Adaptive run unavailable", "The diagnostic could not start. Please refresh and try again.", "Start failed");
     showStage(introStage);
     showToast(error?.message || "Unable to start adaptive run.");
@@ -1491,9 +1496,8 @@ async function submitAnswer(itemId, value, meta = {}) {
 // Silently replay all cached answers from the beginning when the user
 // goes back and changes an answer mid-run.
 async function replayAnswersAndResume(changedItemId, changedValue) {
-  showStage(processingStage);
-  resetProcessingUI();
-  setProcessingStep(0, "Restarting run with corrected answer...");
+  beginBtn.disabled = true;
+  beginBtn.textContent = "Restarting…";
 
   // Build the replay cache: all history up to (not including) the changed item,
   // plus the new answer for the changed item.
