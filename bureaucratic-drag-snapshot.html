@@ -1319,25 +1319,9 @@ async function startAdaptiveRun() {
     shared_context: readHubContext() || {}
   };
 
-  // Poll until the API instance is awake. Render.com cold start takes 30-60s.
-  // We retry every 4s for up to 52s before giving up and proceeding anyway.
-  setHeader("Starting adaptive run", "Warming up the diagnostic engine — this takes up to 30 seconds on first load.", "Starting…");
-  await (async () => {
-    const maxWait = 52000;
-    const interval = 4000;
-    const started = Date.now();
-    while (Date.now() - started < maxWait) {
-      try {
-        const ctrl = new AbortController();
-        const t = setTimeout(() => ctrl.abort(), 3500);
-        const res = await fetch(`${API_BASE}/api/health`, { method: "GET", signal: ctrl.signal });
-        clearTimeout(t);
-        if (res.ok) break; // backend is awake — exit loop
-      } catch (_e) {}
-      await new Promise((r) => setTimeout(r, interval));
-    }
-  })();
   setHeader("Starting adaptive run", "Initializing your diagnostic session.", "Starting…");
+  // Give any in-progress background warmup a moment to resolve
+  await new Promise((r) => setTimeout(r, 400));
 
   try {
     const response = await fetchWithTimeout(`${API_BASE}/api/operational-systems/run/start`, {
@@ -1421,7 +1405,16 @@ async function submitAnswer(itemId, value, meta = {}) {
       return;
     }
     state.preflight.confidenceLevel = value;
-    await finalizeAdaptiveRun();
+    continueBtn.disabled = true;
+    skipBtn.disabled = true;
+    continueBtn.textContent = "Generating output…";
+    try {
+      await finalizeAdaptiveRun();
+    } finally {
+      continueBtn.disabled = false;
+      skipBtn.disabled = false;
+      continueBtn.textContent = "Continue";
+    }
     return;
   }
   if (!state.runId) return;
@@ -1588,9 +1581,29 @@ async function finalizeAdaptiveRun(force = false) {
         document.getElementById("forceRestartBtn")?.addEventListener("click", restartDiagnostic);
       }
     } else {
-      setHeader("Output generation failed", "The adaptive run completed or nearly completed, but the final output could not be generated.", "Finalize failed");
+      setHeader("Output generation failed", "The run completed but the output could not be generated. You can try again.", "Finalize failed");
       showStage(questionStage);
-      showToast(error?.message || "Unable to finalize adaptive run.");
+      renderQuestion();
+      // Replace the question card with a clean retry UI
+      const qCard = document.querySelector(".question-card");
+      if (qCard) {
+        qCard.innerHTML = `
+          <div style="display:grid;gap:18px;padding:4px 0;">
+            <p style="margin:0;font-size:1rem;font-weight:600;color:var(--ink);">Output generation failed.</p>
+            <p style="margin:0;font-size:.95rem;line-height:1.65;color:var(--ink-soft);">The diagnostic run is complete but the output could not be generated — the server may be temporarily unavailable. You can try again or start over.</p>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;">
+              <button class="btn btn-accent" id="retryFinalizeBtn" type="button">Try again</button>
+              <button class="btn" id="retryRestartBtn" type="button">Start over</button>
+            </div>
+          </div>`;
+        document.getElementById("retryFinalizeBtn")?.addEventListener("click", async () => {
+          document.getElementById("retryFinalizeBtn").disabled = true;
+          document.getElementById("retryFinalizeBtn").textContent = "Generating…";
+          await finalizeAdaptiveRun(true);
+        });
+        document.getElementById("retryRestartBtn")?.addEventListener("click", restartDiagnostic);
+      }
+      showToast(error?.message || "Unable to finalize adaptive run. Please try again.");
     }
   }
 }
@@ -2846,6 +2859,25 @@ document.querySelectorAll(".lane-btn").forEach((btn) => btn.addEventListener("cl
 document.querySelectorAll("[data-depth]").forEach((btn) => btn.addEventListener("click", () => selectDepth(btn.dataset.depth)));
 
 hideLoader();
+
+// Silently warm up the Render.com API instance in the background as soon as
+// the page loads — this gives the backend 60+ seconds to wake before the
+// user reaches "Begin diagnostic", eliminating the cold-start wait.
+(function warmupApiInBackground() {
+  const maxWait = 60000;
+  const interval = 5000;
+  const started = Date.now();
+  function ping() {
+    if (Date.now() - started >= maxWait) return;
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 4000);
+    fetch(API_BASE + "/api/health", { method: "GET", signal: ctrl.signal })
+      .then((r) => { clearTimeout(t); if (!r.ok) setTimeout(ping, interval); })
+      .catch(() => { clearTimeout(t); setTimeout(ping, interval); });
+  }
+  ping();
+})();
+
 ensureHubCtas();
 applyHubContextDefaults();
 renderCurrentPathChip();
