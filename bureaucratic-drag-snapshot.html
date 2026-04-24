@@ -10,10 +10,9 @@
       <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text>
       <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
     </svg>' />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <script>
     window.MONDERMAN_SUPABASE_URL = "https://ptkxrzgmeldalrkfruth.supabase.co";
     window.MONDERMAN_SUPABASE_ANON_KEY = "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
@@ -378,7 +377,9 @@
       </div></div>
       <footer class="env-foot" id="questionFooter"><div class="progress-wrap"><div class="progress-top"><p id="progressCopy">0% complete</p><p id="pathHint">Waiting for first signal.</p></div><div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div></div><div class="actions"><div class="actions-left"><button class="btn" id="backBtn" type="button">Back</button><button class="btn" id="skipBtn" type="button">Skip</button></div><div class="actions-right"><button class="btn btn-soft" id="restartBtn" type="button">Start over</button><button class="btn btn-accent" id="continueBtn" type="button">Continue</button></div></div></footer>
     </div></section>
-  </main></div>
+  </main>
+<div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
+</div>
 <script>
 const API_BASE = "https://monderman-api.onrender.com";
 const DIAGNOSTIC_HUB_URL = "https://www.monderman.com/diagnostic-tools.html";
@@ -2785,8 +2786,9 @@ continueBtn.addEventListener("click", async () => {
   // differs from what's currently selected, the user went back and changed it —
   // restart and replay.
   const hadCachedAnswer = state.answerCache[itemId] !== undefined;
+  const previousValue = state.answerCache[itemId];
+  const valueChanged = hadCachedAnswer && previousValue !== value;
   state.answerCache[itemId] = value;
-  const valueChanged = hadCachedAnswer && state.answerCache[itemId] !== value;
   if (valueChanged && !state._replaying) {
     await replayAnswersAndResume(itemId, value);
     return;
