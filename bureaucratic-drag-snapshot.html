@@ -1319,7 +1319,12 @@ async function startAdaptiveRun() {
 
   // Warm up the API instance before starting — Render.com spins down after
   // inactivity and a cold start (30-60s) exceeds the answer timeout.
-  try { await fetch(`${API_BASE}/api/health`, { method: "GET", signal: AbortSignal.timeout(8000) }).catch(() => {}); } catch (_e) {}
+  try {
+    const wakeCtrl = new AbortController();
+    const wakeTimer = setTimeout(() => wakeCtrl.abort(), 8000);
+    await fetch(`${API_BASE}/api/health`, { method: "GET", signal: wakeCtrl.signal }).catch(() => {});
+    clearTimeout(wakeTimer);
+  } catch (_e) {}
 
   try {
     const response = await fetchWithTimeout(`${API_BASE}/api/operational-systems/run/start`, {
