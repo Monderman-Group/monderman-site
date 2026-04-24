@@ -2895,8 +2895,8 @@
       "institutional-performance.html"
     ]);
     const TURNSTILE_TOKEN_KEY = "mondermanTurnstileTokenV1";
-    const TURNSTILE_TIMEOUT_MS = 5000;
-    const TURNSTILE_SESSION_MS = 5 * 60 * 1000;
+    const TURNSTILE_TIMEOUT_MS = 10000;
+    const TURNSTILE_SESSION_MS = 25 * 60 * 1000;
 
     const turnstileModal = document.getElementById("turnstileModal");
     const turnstileWidget = document.getElementById("turnstileWidget");
@@ -2984,19 +2984,15 @@
         sitekey: TURNSTILE_SITE_KEY,
         theme: "light",
         size: "invisible",
-        callback: async (token) => {
-          try {
-            await verifyTurnstileToken(token);
-            writeTurnstileSession(token);
-            const target = pendingDiagnosticUrl;
-            if (target && turnstileModal?.classList.contains("show")) {
-              closeTurnstileModal();
-              navigateToProtectedDiagnostic(target);
-            }
-          } catch (_error) {
-            clearTurnstileSession();
-          } finally {
-            preloadVerificationInFlight = false;
+        callback: (token) => {
+          // Store the raw token without verifying — verification is deferred
+          // to launch time so a cold backend doesn't eat the token silently.
+          writeTurnstileSession(token);
+          preloadVerificationInFlight = false;
+          const target = pendingDiagnosticUrl;
+          if (target && turnstileModal?.classList.contains("show")) {
+            closeTurnstileModal();
+            navigateToProtectedDiagnostic(target);
           }
         },
         "expired-callback": () => {
@@ -3045,7 +3041,7 @@
             navigateToProtectedDiagnostic(target);
           } catch (error) {
             clearTurnstileSession();
-            setTurnstileStatus(error.message || "Human verification failed. Please try again.", "error");
+            setTurnstileStatus("Verification could not complete — the service may be starting up. Please wait a moment and try again.", "error");
           } finally {
             visibleVerificationInFlight = false;
           }
