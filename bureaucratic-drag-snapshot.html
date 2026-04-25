@@ -386,7 +386,7 @@ const DIAGNOSTIC_HUB_URL = "https://www.monderman.com/diagnostic-tools.html";
 const LOADER_MS = 3600;
 const START_TIMEOUT_MS = 45000;
 const ANSWER_TIMEOUT_MS = 15000;
-const FINALIZE_TIMEOUT_MS = 30000;
+const FINALIZE_TIMEOUT_MS = 90000;
 
 const openingNotice = "This diagnostic generates directional insights based on the information you provide. Results are only as accurate as your inputs and should be used as an interpretive aid, not as a substitute for independent review, professional judgment, or organization-specific analysis.";
 const finalAcknowledgment = "I acknowledge that this diagnostic provides directional insights only, that Monderman has not independently verified my inputs, and that I am solely responsible for how these results are interpreted or used.";
@@ -1532,9 +1532,20 @@ async function finalizeAdaptiveRun(force = false) {
       })
     }, FINALIZE_TIMEOUT_MS);
 
-    const data = await response.json().catch(() => null);
+    // Capture the raw response text first — if the backend returns HTML
+    // (e.g. an error page) or non-JSON we want to know.
+    const rawText = await response.text();
+    let data = null;
+    try { data = JSON.parse(rawText); } catch (_e) {}
+
     if (!response.ok || !data?.ok) {
-      throw new Error(data?.error || "Unable to finalize adaptive run.");
+      // Surface the actual backend error rather than swallowing it
+      const backendError = data?.error || data?.message || rawText.slice(0, 200) || `HTTP ${response.status}`;
+      console.error("Finalize backend error:", { status: response.status, body: rawText.slice(0, 500), parsed: data });
+      const err = new Error(backendError);
+      err.status = response.status;
+      err.responseBody = rawText.slice(0, 500);
+      throw err;
     }
 
     setProcessingStep(2, "Preparing leadership-facing output...");
@@ -1587,10 +1598,18 @@ async function finalizeAdaptiveRun(force = false) {
       // Replace the question card with a clean retry UI
       const qCard = document.querySelector(".question-card");
       if (qCard) {
+        const errMsg = error?.message || "Unknown error";
+        const errStatus = error?.status ? ` (HTTP ${error.status})` : "";
+        const errBody = error?.responseBody ? `<details style="margin-top:8px;"><summary style="cursor:pointer;font-size:.82rem;color:var(--ink-muted);">Show technical details</summary><pre style="margin-top:8px;padding:10px;background:#F5F7FA;border:1px solid rgba(21,32,43,.10);border-radius:8px;font-size:.78rem;overflow:auto;max-height:160px;white-space:pre-wrap;">${error.responseBody.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</pre></details>` : "";
         qCard.innerHTML = `
           <div style="display:grid;gap:18px;padding:4px 0;">
             <p style="margin:0;font-size:1rem;font-weight:600;color:var(--ink);">Output generation failed.</p>
-            <p style="margin:0;font-size:.95rem;line-height:1.65;color:var(--ink-soft);">The diagnostic run is complete but the output could not be generated — the server may be temporarily unavailable. You can try again or start over.</p>
+            <p style="margin:0;font-size:.95rem;line-height:1.65;color:var(--ink-soft);">The diagnostic run is complete but the output could not be generated.</p>
+            <div style="padding:12px 14px;background:#FEF2F2;border:1px solid rgba(184,92,82,.30);border-radius:8px;">
+              <p style="margin:0 0 4px;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#B85C52;">Error${errStatus}</p>
+              <p style="margin:0;font-size:.88rem;color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;">${errMsg.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</p>
+              ${errBody}
+            </div>
             <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;">
               <button class="btn btn-accent" id="retryFinalizeBtn" type="button">Try again</button>
               <button class="btn" id="retryRestartBtn" type="button">Start over</button>
@@ -1603,7 +1622,6 @@ async function finalizeAdaptiveRun(force = false) {
         });
         document.getElementById("retryRestartBtn")?.addEventListener("click", restartDiagnostic);
       }
-      showToast(error?.message || "Unable to finalize adaptive run. Please try again.");
     }
   }
 }
