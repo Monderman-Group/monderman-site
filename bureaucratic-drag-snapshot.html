@@ -1782,6 +1782,32 @@ function buildHeadlineFinding(result, payload, burdenConstraint, stateObj) {
   return `${sourceClause} ${shapeSentence} ${trajectorySentence} ${exposureSentence}`;
 }
 
+// Sanitize numbers in narrative prose so the AI's raw numeric output renders
+// cleanly in the PDF and on-screen. This is a display-only transform — it does
+// not modify stored narrative state, only the string that hits the DOM.
+//
+// Handles three patterns the Anthropic output reliably produces:
+//   1. Bare 4+ digit integers → comma-separate (3924 → 3,924)
+//   2. Dollar values with no separators → comma-separate ($706320 → $706,320)
+//   3. Inline bullet markers (" • ") splitting prose → split into separate sentences
+function sanitizeNarrativeNumbers(text) {
+  if (!text || typeof text !== "string") return text || "";
+  let out = text;
+  // Comma-separate dollar amounts: $706320 → $706,320
+  out = out.replace(/\$(\d{4,})/g, (_m, n) => "$" + Number(n).toLocaleString());
+  // Comma-separate bare 4+ digit integers (avoid touching 4-digit years 1900-2099)
+  out = out.replace(/\b(\d{4,})\b/g, (m, n) => {
+    const num = Number(n);
+    if (num >= 1900 && num <= 2099) return m; // leave years alone
+    return num.toLocaleString();
+  });
+  // Inline bullet markers split prose into separate sentences
+  out = out.replace(/\s+•\s+/g, ". ");
+  // Tidy doubled punctuation introduced by the bullet split
+  out = out.replace(/\.\s*\./g, ".").replace(/,\s*\./g, ".");
+  return out;
+}
+
 function buildHarmonizedNarrative(result, payload) {
   const stateObj = buildInterpretiveState(result, payload);
   stateObj.burdenProfileShape = deriveBurdenProfileShape(result, payload);
@@ -1795,12 +1821,14 @@ function buildHarmonizedNarrative(result, payload) {
   const diagnosisReads = buildSpecificDiagnosisReads(result, payload, burdenCondition, burdenConstraint, burdenDiagnosis, stateObj);
   const headlineFinding = buildHeadlineFinding(result, payload, burdenConstraint, stateObj);
 
-  const executive = narrative.executive_interpretation || `${process} currently reads as ${burdenCondition.label.toLowerCase()}. In ${industry.sectorName}, that usually means ${fallbackOpportunity.sectorPattern.toLowerCase()}`;
+  const rawExecutive = narrative.executive_interpretation || `${process} currently reads as ${burdenCondition.label.toLowerCase()}. In ${industry.sectorName}, that usually means ${fallbackOpportunity.sectorPattern.toLowerCase()}`;
+  const executive = sanitizeNarrativeNumbers(rawExecutive);
   const leadership = narrative.leadership_implication
     ? String(narrative.leadership_implication).split(/\n+/).map((s) => s.trim()).filter(Boolean)
     : buildPriorityActions(result, payload);
   const tradeoff = narrative.tradeoff_note || burdenDiagnosis.note;
-  const tmr = narrative.time_money_resources_summary || `Directional modeling suggests roughly ${Math.round(Number(result?.exposure?.annual_hours || 0)).toLocaleString()} annual hours* and about ${formatEstimateCurrency(result?.exposure?.annual_cost)} in labor exposure, with capacity drag around ${Math.round(Number(result?.exposure?.capacity_drag_percent || 0))}%*.`;
+  const rawTmr = narrative.time_money_resources_summary || `Directional modeling suggests roughly ${Math.round(Number(result?.exposure?.annual_hours || 0)).toLocaleString()} annual hours* and about ${formatEstimateCurrency(result?.exposure?.annual_cost)} in labor exposure, with capacity drag around ${Math.round(Number(result?.exposure?.capacity_drag_percent || 0))}%*.`;
+  const tmr = sanitizeNarrativeNumbers(rawTmr);
 
   return {
     state: stateObj,
@@ -2194,12 +2222,43 @@ function renderBurdenDonut(result) {
   const total = values.reduce((a,b) => a+b, 0) || 1;
   const dominant = Math.max(...values);
   const dominantPct = Math.round((dominant / total) * 100);
-  if (center) center.textContent = `${dominantPct}%`;
+  if (center) center.textContent = "";
   if (note) note.textContent = `${labels[values.indexOf(dominant)]} is the dominant visible burden source in this run.`;
+
+  // Plugin draws "DOMINANT BURDEN" + percentage at the geometric center of
+  // the donut hole — uses Chart.js chartArea coords so it's immune to legend
+  // height changes that previously pushed the HTML overlay off-center.
+  const burdenCenterPlugin = {
+    id: "burdenCenter",
+    afterDraw(chart) {
+      const { ctx: cctx, chartArea } = chart;
+      if (!chartArea) return;
+      const ds = chart.data.datasets[0]?.data || [];
+      const total = ds.reduce((a, b) => a + b, 0);
+      if (!total) return;
+      const pct = Math.round((Math.max(...ds) / total) * 100);
+      const cx = chartArea.left + chartArea.width / 2;
+      const cy = chartArea.top + chartArea.height / 2;
+      cctx.save();
+      cctx.textAlign = "center";
+      cctx.textBaseline = "middle";
+      // Eyebrow label sits above center
+      cctx.font = '700 9px "Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif';
+      cctx.fillStyle = "#7C8794";
+      cctx.fillText("DOMINANT BURDEN", cx, cy - 12);
+      // Percentage sits below center
+      cctx.font = '700 24px "Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif';
+      cctx.fillStyle = "#15202B";
+      cctx.fillText(pct + "%", cx, cy + 8);
+      cctx.restore();
+    }
+  };
+
   burdenDonutChart = new Chart(ctx, {
     type: "doughnut",
     data: { labels, datasets: [{ data: values, backgroundColor: ["#3F6EA1","#6B8FA6","#8E7FA8","#B85C52"], borderWidth: 0 }] },
-    options: { responsive: true, maintainAspectRatio: false, cutout: "65%", plugins: { legend: { position: "bottom" } } }
+    options: { responsive: true, maintainAspectRatio: false, cutout: "65%", plugins: { legend: { position: "bottom" } } },
+    plugins: [burdenCenterPlugin]
   });
 }
 
