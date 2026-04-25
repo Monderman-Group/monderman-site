@@ -1514,7 +1514,7 @@ async function replayAnswersAndResume(changedItemId, changedValue) {
   await startAdaptiveRun();
 }
 
-async function finalizeAdaptiveRun(force = false) {
+async function finalizeAdaptiveRun() {
   if (!state.runId) return;
   showStage(processingStage);
   resetProcessingUI();
@@ -1525,10 +1525,9 @@ async function finalizeAdaptiveRun(force = false) {
     const response = await fetchWithTimeout(`${API_BASE}/api/operational-systems/run/${state.runId}/finalize`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        force,
+      body: JSON.stringify({
         confidenceLevel: state.preflight.confidenceLevel,
-        confidence_level: state.preflight.confidenceLevel 
+        confidence_level: state.preflight.confidenceLevel
       })
     }, FINALIZE_TIMEOUT_MS);
 
@@ -1567,31 +1566,7 @@ async function finalizeAdaptiveRun(force = false) {
     showStage(resultsStage);
   } catch (error) {
     console.error("Adaptive finalize failed", error);
-    const msg = String(error?.message || "").toLowerCase();
-    const isDataError = msg.includes("not enough") || msg.includes("insufficient") || msg.includes("minimum");
-    if (isDataError && !force) {
-      setHeader(
-        "More context may improve output",
-        "The run captured enough signal to generate a directional read, but the output may be limited. You can generate with available data or continue answering.",
-        "Limited signal"
-      );
-      showStage(questionStage);
-      // Show recovery options in the question area
-      const questionCard = document.querySelector(".question-card");
-      if (questionCard) {
-        questionCard.innerHTML = `
-          <div style="display:grid;gap:18px;padding:4px 0;">
-            <p style="margin:0;font-size:1rem;font-weight:600;color:var(--ink);">The run reached a stopping point with limited signal.</p>
-            <p style="margin:0;font-size:.95rem;line-height:1.65;color:var(--ink-soft);">You can generate a directional output from what was captured, or start over with more detail.</p>
-            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;">
-              <button class="btn btn-accent" id="forceGenerateBtn" type="button">Generate with available data</button>
-              <button class="btn" id="forceRestartBtn" type="button">Start over</button>
-            </div>
-          </div>`;
-        document.getElementById("forceGenerateBtn")?.addEventListener("click", () => finalizeAdaptiveRun(true));
-        document.getElementById("forceRestartBtn")?.addEventListener("click", restartDiagnostic);
-      }
-    } else {
+    {
       setHeader("Output generation failed", "The run completed but the output could not be generated. You can try again.", "Finalize failed");
       showStage(questionStage);
       renderQuestion();
@@ -1618,7 +1593,7 @@ async function finalizeAdaptiveRun(force = false) {
         document.getElementById("retryFinalizeBtn")?.addEventListener("click", async () => {
           document.getElementById("retryFinalizeBtn").disabled = true;
           document.getElementById("retryFinalizeBtn").textContent = "Generating…";
-          await finalizeAdaptiveRun(true);
+          await finalizeAdaptiveRun();
         });
         document.getElementById("retryRestartBtn")?.addEventListener("click", restartDiagnostic);
       }
