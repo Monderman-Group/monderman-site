@@ -1668,10 +1668,22 @@ function buildInterpretiveState(result, payload) {
   // Governance weight: how much formal governance/control structure the workflow carries.
   // Process density + control load are the dimensions most directly tied to formal governance.
   // Add regulatory intensity boost for high-regulation environments.
+  // Sector context drives a base governance weight: regulated sectors carry
+  // structural governance load by default, before any dimension-level signal.
+  // This makes a heavy run in energy/utilities read differently from a heavy
+  // run in tech, even when their breakdown values look similar.
+  const sectorKey = normalizeChoice(payload?.industry || result?.industry || "");
+  const heavyRegulation = ["energy_utilities", "healthcare_life_sciences", "financial_services", "government_defense"];
+  const moderateRegulation = ["manufacturing_industrial", "professional_services"];
+  const sectorBase = heavyRegulation.includes(sectorKey) ? 18 :
+                     moderateRegulation.includes(sectorKey) ? 9 : 0;
+  // Explicit regulatoryIntensity flag (when present) adds on top of sector base.
+  const regBoost = normalizeChoice(payload?.regulatoryIntensity) === "high" ? 12 :
+                   normalizeChoice(payload?.regulatoryIntensity) === "moderate" ? 6 : 0;
   const rawGovernance = avg([
     Number(breakdown.process_density || 0),
     Number(breakdown.control_load || 0)
-  ]) + (normalizeChoice(payload?.regulatoryIntensity) === "high" ? 12 : normalizeChoice(payload?.regulatoryIntensity) === "moderate" ? 6 : 0);
+  ]) + sectorBase + regBoost;
 
   // Execution responsiveness: how well the workflow carries movement.
   // Workarounds and reporting/exception burden directly indicate when execution is
@@ -2920,7 +2932,9 @@ function downloadExecutiveReportPdf() {
         image: { type: 'jpeg', quality: 0.95 },
         html2canvas: { scale: 2, useCORS: true, allowTaint: true, logging: false, scrollX: 0, scrollY: 0, width: 816, height: fullH },
         jsPDF: { unit: 'pt', format: 'letter', orientation: 'portrait' },
-        pagebreak: { mode: 'avoid-all', before: '.page' }
+        // No pagebreak config — with .page=1056px (= 1 letter page at 96dpi),
+        // html2pdf's default image-slicing at letter boundaries puts one section
+        // per PDF page automatically. Adding pagebreak hints created extra blanks.
       })
       .from(container)
       .save()
