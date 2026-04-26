@@ -1665,13 +1665,26 @@ function deriveBurdenDiagnosis(result, payload) {
 function buildInterpretiveState(result, payload) {
   const breakdown = asObject(result.burden_breakdown);
   const score = Number(result.score || 50);
+  // Governance weight: how much formal governance/control structure the workflow carries.
+  // Process density + control load are the dimensions most directly tied to formal governance.
+  // Add regulatory intensity boost for high-regulation environments.
   const governanceWeight = Math.max(8, Math.min(96, avg([
     Number(breakdown.process_density || 0),
-    Number(breakdown.systems_friction || 0),
-    Number(breakdown.workaround_dependence || 0),
     Number(breakdown.control_load || 0)
-  ]) + (normalizeChoice(payload?.regulatoryIntensity) === "high" ? 8 : normalizeChoice(payload?.regulatoryIntensity) === "moderate" ? 4 : 0)));
-  const execResponsive = Math.max(6, Math.min(94, 100 - score));
+  ]) + (normalizeChoice(payload?.regulatoryIntensity) === "high" ? 12 : normalizeChoice(payload?.regulatoryIntensity) === "moderate" ? 6 : 0)));
+
+  // Execution responsiveness: how well the workflow carries movement.
+  // Workarounds and reporting/exception burden directly indicate when execution is
+  // NOT responsive — they're compensating behaviors. High values here = low responsiveness.
+  // We invert so high execResponsive = healthy execution.
+  // This is independent of score (which weights ALL dimensions); these two dimensions
+  // specifically measure movement-blocking patterns.
+  const movementBlockers = avg([
+    Number(breakdown.workaround_dependence || 0),
+    Number(breakdown.reporting_exception_burden || 0),
+    Number(breakdown.systems_friction || 0)
+  ]);
+  const execResponsive = Math.max(6, Math.min(94, 100 - movementBlockers));
   const benchmarkPos = result.benchmark_position || "Industry range comparison";
   const topFocus = (asArray(result.intervention_priority_ladder)[0]?.focus) || derivePrimaryBurdenSource(result).label;
   const quadrantKey = execResponsive >= 50 && governanceWeight < 50
@@ -2480,11 +2493,11 @@ function buildExecutiveReportHtml(result, payload) {
     body{font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;margin:0;color:#15202B;background:#fff;line-height:1.68;-webkit-font-smoothing:antialiased}
 
     /* ─── PAGE STRUCTURE ─── */
-    .page{padding:54pt 56pt 76pt;page-break-after:always;break-after:page;min-height:10.0in;position:relative;background:#fff}
+    .page{padding:54pt 56pt 76pt;page-break-after:always;break-after:page;position:relative;background:#fff}
     .page:last-child{page-break-after:auto;break-after:auto}
     .header{display:flex;justify-content:space-between;align-items:baseline;font-size:9pt;color:#5B6774;margin-bottom:32pt;padding-bottom:14pt;border-bottom:1px solid rgba(21,32,43,.10)}
     .header-meta{letter-spacing:.06em}
-    .footer{position:absolute;left:56pt;right:56pt;bottom:32pt;display:flex;justify-content:space-between;gap:12pt;padding-top:12pt;border-top:1px solid rgba(21,32,43,.10);font-size:9pt;color:#7C8794}
+    .footer{margin-top:32pt;padding-top:12pt;border-top:1px solid rgba(21,32,43,.10);display:flex;justify-content:space-between;gap:12pt;font-size:9pt;color:#7C8794}
     .wordmark{font-size:10pt;letter-spacing:.24em;text-transform:uppercase;font-weight:700;color:#3F6EA1}
 
     /* ─── TYPOGRAPHIC HIERARCHY (4 entry points per page) ─── */
