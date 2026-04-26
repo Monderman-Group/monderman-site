@@ -1668,23 +1668,48 @@ function buildInterpretiveState(result, payload) {
   // Governance weight: how much formal governance/control structure the workflow carries.
   // Process density + control load are the dimensions most directly tied to formal governance.
   // Add regulatory intensity boost for high-regulation environments.
-  const governanceWeight = Math.max(8, Math.min(96, avg([
+  // Sector context drives a base governance weight: regulated sectors carry
+  // structural governance load by default, before any dimension-level signal.
+  // This makes a heavy run in energy/utilities read differently from a heavy
+  // run in tech, even when their breakdown values look similar.
+  const sectorKey = normalizeChoice(payload?.industry || result?.industry || "");
+  const heavyRegulation = ["energy_utilities", "healthcare_life_sciences", "financial_services", "government_defense"];
+  const moderateRegulation = ["manufacturing_industrial", "professional_services"];
+  const sectorBase = heavyRegulation.includes(sectorKey) ? 18 :
+                     moderateRegulation.includes(sectorKey) ? 9 : 0;
+  // Explicit regulatoryIntensity flag (when present) adds on top of sector base.
+  const regBoost = normalizeChoice(payload?.regulatoryIntensity) === "high" ? 12 :
+                   normalizeChoice(payload?.regulatoryIntensity) === "moderate" ? 6 : 0;
+  const rawGovernance = avg([
     Number(breakdown.process_density || 0),
     Number(breakdown.control_load || 0)
-  ]) + (normalizeChoice(payload?.regulatoryIntensity) === "high" ? 12 : normalizeChoice(payload?.regulatoryIntensity) === "moderate" ? 6 : 0)));
+  ]) + sectorBase + regBoost;
 
   // Execution responsiveness: how well the workflow carries movement.
   // Workarounds and reporting/exception burden directly indicate when execution is
-  // NOT responsive — they're compensating behaviors. High values here = low responsiveness.
-  // We invert so high execResponsive = healthy execution.
-  // This is independent of score (which weights ALL dimensions); these two dimensions
-  // specifically measure movement-blocking patterns.
+  // NOT responsive — they're compensating behaviors.
   const movementBlockers = avg([
     Number(breakdown.workaround_dependence || 0),
     Number(breakdown.reporting_exception_burden || 0),
     Number(breakdown.systems_friction || 0)
   ]);
-  const execResponsive = Math.max(6, Math.min(94, 100 - movementBlockers));
+  // Calibration: individual breakdown dimensions cluster around 30-50, so
+  // 100-avg lands at 50-70 which incorrectly puts typical runs in "fast movement"
+  // territory. We recenter by subtracting 10 so an average run lands near 50,
+  // putting "below industry range" runs into the lower half (slow movement).
+  const rawExecResponsive = 100 - movementBlockers - 10;
+
+  // Range stretch: most real-world breakdowns cluster in 25-75. Map that range
+  // to the visible 10-90% of the chart so differences between runs are easier
+  // to see. Values outside [25, 75] clamp to [5, 95] — still shown, just at edges.
+  // This is honest framing — relative position is preserved, the scale is just
+  // tightened to where signal actually lives.
+  function stretchAxis(raw) {
+    const stretched = ((raw - 25) / 50) * 80 + 10;
+    return Math.max(5, Math.min(95, stretched));
+  }
+  const governanceWeight = stretchAxis(rawGovernance);
+  const execResponsive = stretchAxis(rawExecResponsive);
   const benchmarkPos = result.benchmark_position || "Industry range comparison";
   const topFocus = (asArray(result.intervention_priority_ladder)[0]?.focus) || derivePrimaryBurdenSource(result).label;
   const quadrantKey = execResponsive >= 50 && governanceWeight < 50
@@ -2493,11 +2518,11 @@ function buildExecutiveReportHtml(result, payload) {
     body{font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;margin:0;color:#15202B;background:#fff;line-height:1.68;-webkit-font-smoothing:antialiased}
 
     /* ─── PAGE STRUCTURE ─── */
-    .page{padding:54pt 56pt 76pt;page-break-after:always;break-after:page;position:relative;background:#fff}
-    .page:last-child{page-break-after:auto;break-after:auto}
-    .header{display:flex;justify-content:space-between;align-items:baseline;font-size:9pt;color:#5B6774;margin-bottom:32pt;padding-bottom:14pt;border-bottom:1px solid rgba(21,32,43,.10)}
+    .page{padding:54pt 56pt 76pt;position:relative;background:#fff;height:1056px;overflow:hidden;display:flex;flex-direction:column}
+    
+    .header{display:flex;justify-content:space-between;align-items:baseline;font-size:9pt;color:#5B6774;margin-bottom:32pt;padding-bottom:14pt;border-bottom:1px solid rgba(21,32,43,.10);flex-shrink:0}
     .header-meta{letter-spacing:.06em}
-    .footer{margin-top:32pt;padding-top:12pt;border-top:1px solid rgba(21,32,43,.10);display:flex;justify-content:space-between;gap:12pt;font-size:9pt;color:#7C8794}
+    .footer{margin-top:auto;padding-top:12pt;border-top:1px solid rgba(21,32,43,.10);display:flex;justify-content:space-between;gap:12pt;font-size:9pt;color:#7C8794;flex-shrink:0}
     .wordmark{font-size:10pt;letter-spacing:.24em;text-transform:uppercase;font-weight:700;color:#3F6EA1}
 
     /* ─── TYPOGRAPHIC HIERARCHY (4 entry points per page) ─── */
@@ -2664,7 +2689,7 @@ function buildExecutiveReportHtml(result, payload) {
       <div class="alert-callout">
         <div class="alert-icon">!</div>
         <div class="alert-body">
-          <p class="alert-eyebrow">Read this carefully</p>
+          <p class="alert-eyebrow">Important note</p>
           <p>This run shows rising trajectory combined with limited input depth. The pattern points toward worsening drag, but the signal underlying that pattern is thin. Treat the direction of the read seriously while treating the magnitude as provisional — a follow-up run with broader participant coverage is the right next step before committing to large interventions.</p>
         </div>
       </div>` : ""}
@@ -2907,7 +2932,9 @@ function downloadExecutiveReportPdf() {
         image: { type: 'jpeg', quality: 0.95 },
         html2canvas: { scale: 2, useCORS: true, allowTaint: true, logging: false, scrollX: 0, scrollY: 0, width: 816, height: fullH },
         jsPDF: { unit: 'pt', format: 'letter', orientation: 'portrait' },
-        pagebreak: { mode: ['css', 'legacy'] }
+        // No pagebreak config — with .page=1056px (= 1 letter page at 96dpi),
+        // html2pdf's default image-slicing at letter boundaries puts one section
+        // per PDF page automatically. Adding pagebreak hints created extra blanks.
       })
       .from(container)
       .save()
