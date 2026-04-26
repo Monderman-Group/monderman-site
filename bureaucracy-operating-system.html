@@ -1681,7 +1681,11 @@ function buildInterpretiveState(result, payload) {
     Number(breakdown.reporting_exception_burden || 0),
     Number(breakdown.systems_friction || 0)
   ]);
-  const rawExecResponsive = 100 - movementBlockers;
+  // Calibration: individual breakdown dimensions cluster around 30-50, so
+  // 100-avg lands at 50-70 which incorrectly puts typical runs in "fast movement"
+  // territory. We recenter by subtracting 10 so an average run lands near 50,
+  // putting "below industry range" runs into the lower half (slow movement).
+  const rawExecResponsive = 100 - movementBlockers - 10;
 
   // Range stretch: most real-world breakdowns cluster in 25-75. Map that range
   // to the visible 10-90% of the chart so differences between runs are easier
@@ -2502,8 +2506,8 @@ function buildExecutiveReportHtml(result, payload) {
     body{font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;margin:0;color:#15202B;background:#fff;line-height:1.68;-webkit-font-smoothing:antialiased}
 
     /* ─── PAGE STRUCTURE ─── */
-    .page{padding:54pt 56pt 76pt;page-break-after:always;break-after:page;position:relative;background:#fff;height:1056px;overflow:hidden;display:flex;flex-direction:column}
-    .page:last-child{page-break-after:auto;break-after:auto}
+    .page{padding:54pt 56pt 76pt;position:relative;background:#fff;height:1056px;overflow:hidden;display:flex;flex-direction:column}
+    
     .header{display:flex;justify-content:space-between;align-items:baseline;font-size:9pt;color:#5B6774;margin-bottom:32pt;padding-bottom:14pt;border-bottom:1px solid rgba(21,32,43,.10);flex-shrink:0}
     .header-meta{letter-spacing:.06em}
     .footer{margin-top:auto;padding-top:12pt;border-top:1px solid rgba(21,32,43,.10);display:flex;justify-content:space-between;gap:12pt;font-size:9pt;color:#7C8794;flex-shrink:0}
@@ -2916,7 +2920,7 @@ function downloadExecutiveReportPdf() {
         image: { type: 'jpeg', quality: 0.95 },
         html2canvas: { scale: 2, useCORS: true, allowTaint: true, logging: false, scrollX: 0, scrollY: 0, width: 816, height: fullH },
         jsPDF: { unit: 'pt', format: 'letter', orientation: 'portrait' },
-        pagebreak: { mode: ['css', 'legacy'] }
+        pagebreak: { mode: 'avoid-all', before: '.page' }
       })
       .from(container)
       .save()
