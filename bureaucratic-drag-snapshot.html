@@ -2371,17 +2371,17 @@ function buildExecutiveReportHtml(result, payload) {
   const processName = payload?.processName || "Operational Systems Diagnostic";
   const benchmarkPosition = result?.benchmark_position || "Industry range comparison";
 
-  // Capacity composition (waterfall)
+  // ─── Capacity composition (waterfall) ──────────────────────────────────
   const dragPct = Number(result?.exposure?.capacity_drag_percent || 0);
   let admin = Math.max(10, Math.min(45, Math.round(dragPct * 0.55)));
   let drag = Math.max(8, Math.min(50, Math.round(dragPct * 0.75)));
   let productive = Math.max(0, 100 - admin - drag);
-  const total = productive + admin + drag || 1;
-  productive = Math.round((productive / total) * 100);
-  admin = Math.round((admin / total) * 100);
+  const capTotal = productive + admin + drag || 1;
+  productive = Math.round((productive / capTotal) * 100);
+  admin = Math.round((admin / capTotal) * 100);
   drag = 100 - productive - admin;
 
-  // Burden composition (donut input)
+  // ─── Burden composition (donut) ────────────────────────────────────────
   const breakdown = asObject(result?.burden_breakdown);
   const donutSegments = [
     { label: "Process density",       value: Number(breakdown.process_density || 0),                                                color: "#3F6EA1" },
@@ -2393,45 +2393,35 @@ function buildExecutiveReportHtml(result, payload) {
   const donutDominant = donutSegments.slice().sort((a, b) => b.value - a.value)[0];
   const donutDominantPct = donutTotal > 0 ? Math.round((donutDominant.value / donutTotal) * 100) : 0;
   const donutHasSignal = donutTotal > 0;
-
-  // Concentration analysis: is one source dominant or are they distributed?
   const isConcentrated = donutHasSignal && donutDominantPct >= 38;
   const isDistributed = donutHasSignal && donutDominantPct < 32;
 
-  // Trajectory signal
+  // ─── Trajectory ────────────────────────────────────────────────────────
   const trajectoryLabel = result?.trajectory?.label || null;
   const trajectoryDirection = result?.trajectory?.direction || "flat";
 
-  // Gauge math
-  const exportScoreToAngle = (value) => -90 + (value * 1.8);
-  const exportPolar = (cx, cy, r, angle) => {
-    const radians = angle * Math.PI / 180.0;
-    return { x: cx + (r * Math.cos(radians)), y: cy + (r * Math.sin(radians)) };
-  };
-  const exportDescribeArc = (cx, cy, r, startAngle, endAngle) => {
-    const start = exportPolar(cx, cy, r, startAngle);
-    const end = exportPolar(cx, cy, r, endAngle);
-    const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
-    return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 1 ${end.x} ${end.y}`;
-  };
-  const exportNeedleAngle = exportScoreToAngle(exportScore);
-  const exportNeedle = exportPolar(160, 150, 104, exportNeedleAngle);
+  // ─── Alert pattern detection (earned, not gimmicky) ────────────────────
+  // Visual flag fires only when trajectory is rising AND insight depth is low.
+  // That combination genuinely warrants a flag because the run is showing
+  // worsening drag with thin signal — premature conclusions are riskiest here.
+  const showAlertCallout = trajectoryDirection === "up" && insight.score <= 35;
 
-  // Insight ring math
-  const ringColor = insight.score <= 25 ? "#B85C52" : insight.score <= 50 ? "#C49A3C" : insight.score <= 75 ? "#3F6EA1" : "#4E9A7A";
-  const ringCircumference = 100.53;
-  const ringOffset = ringCircumference * (1 - insight.score / 100);
-
-  // Donut SVG builder — hand-built so it renders deterministically in PDF
+  // ─── Donut: hand-built SVG with simple slice paths (html2canvas-reliable) ─
+  // We use cumulative angle math but each slice is a single path element with
+  // straight L commands and a single A arc — patterns html2canvas handles well.
+  const polar = (cx, cy, r, angle) => {
+    const rad = (angle * Math.PI) / 180;
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+  };
   function donutSlicePath(cx, cy, rOuter, rInner, startAngle, endAngle) {
-    const startOuter = exportPolar(cx, cy, rOuter, startAngle);
-    const endOuter = exportPolar(cx, cy, rOuter, endAngle);
-    const startInner = exportPolar(cx, cy, rInner, endAngle);
-    const endInner = exportPolar(cx, cy, rInner, startAngle);
+    const startOuter = polar(cx, cy, rOuter, startAngle);
+    const endOuter = polar(cx, cy, rOuter, endAngle);
+    const startInner = polar(cx, cy, rInner, endAngle);
+    const endInner = polar(cx, cy, rInner, startAngle);
     const largeArc = endAngle - startAngle > 180 ? 1 : 0;
-    return `M ${startOuter.x} ${startOuter.y} A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${endOuter.x} ${endOuter.y} L ${startInner.x} ${startInner.y} A ${rInner} ${rInner} 0 ${largeArc} 0 ${endInner.x} ${endInner.y} Z`;
+    return `M ${startOuter.x.toFixed(2)} ${startOuter.y.toFixed(2)} A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${endOuter.x.toFixed(2)} ${endOuter.y.toFixed(2)} L ${startInner.x.toFixed(2)} ${startInner.y.toFixed(2)} A ${rInner} ${rInner} 0 ${largeArc} 0 ${endInner.x.toFixed(2)} ${endInner.y.toFixed(2)} Z`;
   }
-  const donutCx = 90, donutCy = 90, donutROuter = 76, donutRInner = 50;
+  const donutCx = 100, donutCy = 100, donutROuter = 86, donutRInner = 56;
   let donutAngle = -90;
   const donutPaths = donutHasSignal ? donutSegments.map((seg) => {
     const sweep = (seg.value / donutTotal) * 360;
@@ -2442,7 +2432,23 @@ function buildExecutiveReportHtml(result, payload) {
     return `<path d="${donutSlicePath(donutCx, donutCy, donutROuter, donutRInner, startAngle, endAngle)}" fill="${seg.color}"></path>`;
   }).join("") : `<circle cx="${donutCx}" cy="${donutCy}" r="${donutROuter}" fill="#F5F7FA"/><circle cx="${donutCx}" cy="${donutCy}" r="${donutRInner}" fill="#FFFFFF"/>`;
 
-  // Conditional concentration analysis prose
+  // ─── Gauge: hand-built SVG with arc paths (simpler than the original) ────
+  // viewBox 0 0 200 130 so the SVG renders at predictable aspect ratio.
+  const gaugeAngle = -90 + (exportScore * 1.8);
+  const gaugeNeedle = polar(100, 100, 70, gaugeAngle);
+  function arcPath(cx, cy, r, startAngle, endAngle) {
+    const start = polar(cx, cy, r, startAngle);
+    const end = polar(cx, cy, r, endAngle);
+    const largeArc = endAngle - startAngle <= 180 ? "0" : "1";
+    return `M ${start.x.toFixed(2)} ${start.y.toFixed(2)} A ${r} ${r} 0 ${largeArc} 1 ${end.x.toFixed(2)} ${end.y.toFixed(2)}`;
+  }
+
+  // ─── Insight ring: simple stroke-dasharray (html2canvas-friendly) ────────
+  const ringColor = insight.score <= 25 ? "#B85C52" : insight.score <= 50 ? "#C49A3C" : insight.score <= 75 ? "#3F6EA1" : "#4E9A7A";
+  const ringCircumference = 100.53;
+  const ringOffset = ringCircumference * (1 - insight.score / 100);
+
+  // ─── Conditional concentration analysis prose ──────────────────────────
   let concentrationProse = "";
   if (isConcentrated) {
     concentrationProse = `The composition is concentrated rather than distributed. ${escapeHtml(donutDominant.label)} carries ${donutDominantPct}% of the visible burden by itself, which makes the condition more fixable: leadership can target one source first and expect a real shift in the workflow. Distributed conditions look the same from the outside but require redesigning the path itself, not just removing a layer.`;
@@ -2454,7 +2460,7 @@ function buildExecutiveReportHtml(result, payload) {
     concentrationProse = "Burden composition signal is too low in this run to identify a dominant source. This usually indicates either an exceptionally light operating environment or insufficient diagnostic input depth — re-run with broader participant coverage to confirm which.";
   }
 
-  // Conditional trajectory prose
+  // ─── Conditional trajectory prose ──────────────────────────────────────
   let trajectoryProse = "";
   if (trajectoryDirection === "up") {
     trajectoryProse = "The trajectory signal indicates the burden is growing rather than holding steady. Early correction is more valuable here than late correction, because the cost of waiting compounds.";
@@ -2464,58 +2470,85 @@ function buildExecutiveReportHtml(result, payload) {
     trajectoryProse = "The trajectory signal suggests relative stability. Stability here should not be confused with strength — a steady-state burden can still be carrying meaningful drag that the organization has simply learned to tolerate.";
   }
 
-  // Page header / footer helpers
-  const wordmark = `<div class="wordmark">Monderman</div>`;
-  const docHeader = (page) => `<div class="header">${wordmark}<div class="header-meta">Operational Systems Diagnostic &nbsp;·&nbsp; Page ${page}</div></div>`;
+  // ─── Page header / footer helpers ──────────────────────────────────────
+  const docHeader = (page) => `<div class="header"><div class="wordmark">Monderman</div><div class="header-meta">Operational Systems Diagnostic &nbsp;·&nbsp; Page ${page}</div></div>`;
   const docFooter = `<div class="footer"><span>${escapeHtml(processName)}</span><span>${escapeHtml(generated)}</span></div>`;
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" /><title>${escapeHtml(processName)}</title><style>
     @page { size: letter; margin: 0; }
     *,*::before,*::after { box-sizing: border-box; }
     body{font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;margin:0;color:#15202B;background:#fff;line-height:1.68;-webkit-font-smoothing:antialiased}
+
+    /* ─── PAGE STRUCTURE ─── */
     .page{padding:54pt 56pt 76pt;page-break-after:always;break-after:page;min-height:10.0in;position:relative;background:#fff}
     .page:last-child{page-break-after:auto;break-after:auto}
     .header{display:flex;justify-content:space-between;align-items:baseline;font-size:9pt;color:#5B6774;margin-bottom:32pt;padding-bottom:14pt;border-bottom:1px solid rgba(21,32,43,.10)}
     .header-meta{letter-spacing:.06em}
     .footer{position:absolute;left:56pt;right:56pt;bottom:32pt;display:flex;justify-content:space-between;gap:12pt;padding-top:12pt;border-top:1px solid rgba(21,32,43,.10);font-size:9pt;color:#7C8794}
     .wordmark{font-size:10pt;letter-spacing:.24em;text-transform:uppercase;font-weight:700;color:#3F6EA1}
-    .doc-type{font-size:9.5pt;letter-spacing:.18em;text-transform:uppercase;color:#7C8794;margin-bottom:14pt}
-    .cover-title{font-size:32pt;line-height:1.02;letter-spacing:-.045em;margin:0 0 14pt;font-weight:700}
+
+    /* ─── TYPOGRAPHIC HIERARCHY (4 entry points per page) ─── */
+    .doc-type{font-size:9.5pt;letter-spacing:.18em;text-transform:uppercase;color:#7C8794;margin-bottom:14pt;font-weight:700}
+    .cover-title{font-size:34pt;line-height:1.0;letter-spacing:-.05em;margin:0 0 14pt;font-weight:700;color:#15202B}
     .cover-sub{font-size:11pt;color:#5B6774;margin:0 0 30pt;letter-spacing:-.005em}
-    h2{font-size:21pt;line-height:1.12;letter-spacing:-.03em;margin:0 0 18pt;font-weight:700;break-after:avoid;page-break-after:avoid}
-    h3{font-size:13pt;line-height:1.2;letter-spacing:-.02em;margin:0 0 8pt;font-weight:700;break-after:avoid;page-break-after:avoid}
-    p{margin:0 0 12pt;font-size:11pt;line-height:1.7}
+    h2{font-size:22pt;line-height:1.1;letter-spacing:-.035em;margin:0 0 8pt;font-weight:700;break-after:avoid;page-break-after:avoid;color:#15202B}
+    .h2-eyebrow{font-size:8.5pt;letter-spacing:.16em;text-transform:uppercase;color:#3F6EA1;font-weight:700;margin:0 0 4pt}
+    h3{font-size:13pt;line-height:1.2;letter-spacing:-.02em;margin:0 0 8pt;font-weight:700;break-after:avoid;page-break-after:avoid;color:#15202B}
+    .lede{font-size:13.5pt;line-height:1.5;color:#15202B;margin:0 0 20pt;letter-spacing:-.012em;font-weight:400}
+    p{margin:0 0 12pt;font-size:11pt;line-height:1.7;color:#15202B}
+    .caption{font-size:9pt;line-height:1.55;color:#7C8794;margin:6pt 0 0;letter-spacing:.01em}
     ol,ul{margin:0 0 14pt;padding-left:18pt} li{margin:0 0 8pt;font-size:11pt;line-height:1.7}
 
-    .lede{font-size:13pt;line-height:1.55;color:#15202B;margin:0 0 18pt;letter-spacing:-.012em}
-    .pullquote{margin:18pt 0;padding:18pt 22pt;background:#F8FAFC;border-left:3pt solid #3F6EA1;border-radius:0 12pt 12pt 0}
+    /* ─── PULL-QUOTES (rhythm: every 2 pages) ─── */
+    .pullquote{margin:18pt 0;padding:18pt 22pt;background:#F8FAFC;border-left:3pt solid #3F6EA1;border-radius:0 12pt 12pt 0;break-inside:avoid;page-break-inside:avoid}
     .pullquote p{margin:0;font-size:12pt;line-height:1.6;color:#15202B}
+    .pullquote-eyebrow{font-size:8pt;letter-spacing:.16em;text-transform:uppercase;color:#3F6EA1;font-weight:700;margin:0 0 6pt}
 
-    /* CAPACITY WATERFALL — full chart with labels */
-    .capacity-bar{display:flex;height:36pt;border-radius:999px;overflow:hidden;border:1px solid rgba(21,32,43,.08);margin:14pt 0 6pt}
+    /* ─── ALERT CALLOUT (earned, not gimmicky) ─── */
+    .alert-callout{display:flex;align-items:flex-start;gap:14pt;margin:18pt 0;padding:16pt 18pt;background:#FEF6F4;border:1px solid rgba(184,92,82,.30);border-left:3pt solid #B85C52;border-radius:0 12pt 12pt 0;break-inside:avoid;page-break-inside:avoid}
+    .alert-icon{flex:0 0 auto;width:24pt;height:24pt;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(184,92,82,.12);color:#B85C52;font-weight:700;font-size:13pt;line-height:1}
+    .alert-body{flex:1}
+    .alert-eyebrow{font-size:8pt;letter-spacing:.16em;text-transform:uppercase;color:#B85C52;font-weight:700;margin:0 0 4pt}
+    .alert-body p{margin:0;font-size:10.5pt;line-height:1.6;color:#15202B}
+
+    /* ─── COVER PAGE ─── */
+    .cover-page{display:flex;flex-direction:column;justify-content:flex-start}
+    .cover-rule{height:3pt;width:60pt;background:#3F6EA1;margin:6pt 0 22pt;border-radius:2pt}
+    .cover-meta{display:grid;grid-template-columns:auto 1fr;gap:8pt 18pt;margin-top:18pt;font-size:10.5pt;color:#5B6774;break-inside:avoid;page-break-inside:avoid}
+    .cover-meta dt{font-weight:700;color:#15202B;letter-spacing:.04em;text-transform:uppercase;font-size:9pt}
+    .cover-meta dd{margin:0;color:#15202B}
+    .cover-stat-strip{margin-top:32pt;display:grid;grid-template-columns:repeat(3,1fr);border:1px solid rgba(21,32,43,.10);border-radius:14pt;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
+    .cover-stat{padding:18pt;border-right:1px solid rgba(21,32,43,.08);background:#FBFCFE}
+    .cover-stat:last-child{border-right:none}
+    .cover-stat-label{font-size:9pt;letter-spacing:.14em;text-transform:uppercase;color:#7C8794;margin:0 0 6pt;font-weight:700}
+    .cover-stat-value{font-size:24pt;line-height:1;letter-spacing:-.03em;font-weight:700;color:#15202B;margin:0}
+    .cover-stat-sub{font-size:9.5pt;color:#5B6774;margin:6pt 0 0}
+
+    /* ─── CAPACITY WATERFALL (HTML/CSS, not SVG) ─── */
+    .capacity-bar{display:flex;height:36pt;border-radius:999px;overflow:hidden;border:1px solid rgba(21,32,43,.08);margin:14pt 0 6pt;break-inside:avoid;page-break-inside:avoid}
     .capacity-seg{display:flex;align-items:center;justify-content:center;color:#fff;font-size:10pt;font-weight:700;letter-spacing:-.005em}
-    .capacity-legend{display:flex;gap:20pt;flex-wrap:wrap;font-size:9.5pt;color:#5B6774;margin-top:8pt}
+    .capacity-legend{display:flex;gap:20pt;flex-wrap:wrap;font-size:9.5pt;color:#5B6774;margin-top:10pt;break-inside:avoid;page-break-inside:avoid}
     .capacity-legend-item{display:flex;align-items:center;gap:7pt}
     .capacity-legend-dot{width:10pt;height:10pt;border-radius:3pt;display:inline-block}
 
-    /* TWO-COLUMN LAYOUT */
-    .two-col{display:grid;grid-template-columns:1.2fr .8fr;gap:26pt;align-items:start;margin-top:12pt}
-
-    /* GAUGE PANEL */
-    .gauge{height:200pt;border:1px solid rgba(21,32,43,.10);border-radius:14pt;background:#FBFCFE;display:grid;place-items:center;padding:12pt}
-    .gauge svg{width:100%;height:100%}
-
-    /* DONUT PANEL */
-    .donut-panel{border:1px solid rgba(21,32,43,.10);border-radius:14pt;background:#FBFCFE;padding:18pt;break-inside:avoid;page-break-inside:avoid}
-    .donut-row{display:grid;grid-template-columns:180pt 1fr;gap:20pt;align-items:center}
-    .donut-row svg{width:180pt;height:180pt}
-    .donut-legend{display:grid;gap:8pt;font-size:10pt}
-    .donut-legend-item{display:flex;align-items:center;gap:8pt;color:#15202B}
+    /* ─── DONUT PANEL ─── */
+    .donut-panel{border:1px solid rgba(21,32,43,.10);border-radius:14pt;background:#FBFCFE;padding:20pt;break-inside:avoid;page-break-inside:avoid;margin-top:6pt}
+    .donut-row{display:flex;gap:26pt;align-items:center}
+    .donut-svg-wrap{flex:0 0 auto;position:relative}
+    .donut-legend{flex:1;display:grid;gap:10pt;font-size:10.5pt;min-width:0}
+    .donut-legend-item{display:flex;align-items:center;gap:10pt;color:#15202B}
     .donut-legend-swatch{width:11pt;height:11pt;border-radius:3pt;flex:0 0 auto}
-    .donut-legend-pct{margin-left:auto;color:#5B6774;font-variant-numeric:tabular-nums}
+    .donut-legend-pct{margin-left:auto;color:#5B6774;font-variant-numeric:tabular-nums;font-weight:600}
 
-    /* REMEDY CARDS — own page, larger, premium */
-    .remedy-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14pt;margin-top:18pt}
+    /* ─── GAUGE PANEL ─── */
+    .gauge-panel{border:1px solid rgba(21,32,43,.10);border-radius:14pt;background:#FBFCFE;padding:18pt;display:flex;flex-direction:column;align-items:center;break-inside:avoid;page-break-inside:avoid}
+    .gauge-svg-wrap{display:flex;justify-content:center;width:100%}
+
+    /* ─── TWO-COLUMN ─── */
+    .two-col{display:grid;grid-template-columns:1.15fr .85fr;gap:22pt;align-items:start;margin-top:14pt}
+
+    /* ─── REMEDY CARDS ─── */
+    .remedy-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14pt;margin-top:18pt;break-inside:avoid;page-break-inside:avoid}
     .remedy-card{border:1px solid rgba(21,32,43,.10);border-radius:14pt;padding:18pt 16pt;background:#FBFCFE;break-inside:avoid;page-break-inside:avoid;display:flex;flex-direction:column;gap:10pt}
     .remedy-tag{display:inline-block;font-size:8.5pt;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3pt 8pt;border-radius:999px;align-self:flex-start}
     .remedy-tag-light{background:rgba(78,154,122,.14);color:#357554}
@@ -2524,44 +2557,30 @@ function buildExecutiveReportHtml(result, payload) {
     .remedy-card h3{margin:0;font-size:13pt}
     .remedy-card .summary{margin:0;font-size:10.5pt;line-height:1.6;color:#15202B}
     .remedy-card .meta{margin:0;font-size:9.5pt;color:#5B6774;line-height:1.55}
-    .remedy-card .meta strong{color:#15202B;font-weight:700}
 
-    /* BENCHMARK / METHODOLOGY */
-    .benchmark-context{padding:16pt 18pt;background:#F8FAFC;border:1px solid rgba(21,32,43,.08);border-radius:12pt;margin-top:14pt;font-size:10.5pt;color:#15202B;line-height:1.62}
-    .ring-wrap{display:flex;align-items:center;gap:18pt;margin:18pt 0}
-    .ring-wrap svg{width:84pt;height:84pt;flex:0 0 auto}
+    /* ─── BENCHMARK / METHODOLOGY ─── */
+    .benchmark-context{padding:16pt 18pt;background:#F8FAFC;border:1px solid rgba(21,32,43,.08);border-radius:12pt;margin-top:14pt;font-size:10.5pt;color:#15202B;line-height:1.62;break-inside:avoid;page-break-inside:avoid}
+    .ring-wrap{display:flex;align-items:center;gap:18pt;margin:18pt 0;break-inside:avoid;page-break-inside:avoid}
+    .ring-wrap .ring-svg-wrap{flex:0 0 auto}
     .ring-text strong{display:block;font-size:32pt;line-height:1;font-weight:700;letter-spacing:-.04em;color:#15202B}
     .ring-text span{display:block;font-size:10pt;color:#5B6774;margin-top:2pt}
-    .method-note{padding:14pt 16pt;border-radius:12pt;background:#F8FAFC;border:1px solid rgba(21,32,43,.08);margin-top:18pt}
+    .method-note{padding:14pt 16pt;border-radius:12pt;background:#F8FAFC;border:1px solid rgba(21,32,43,.08);margin-top:18pt;break-inside:avoid;page-break-inside:avoid}
     .method-note p{margin:0;font-size:10pt;line-height:1.6}
 
-    /* SECTION RULE */
-    .rule{height:1px;background:rgba(21,32,43,.10);margin:24pt 0}
-    .rule-tight{height:1px;background:rgba(21,32,43,.08);margin:14pt 0}
-
-    /* COVER PAGE */
-    .cover-page{display:flex;flex-direction:column;justify-content:flex-start}
-    .cover-rule{height:3pt;width:60pt;background:#3F6EA1;margin:6pt 0 22pt;border-radius:2pt}
-    .cover-meta{display:grid;grid-template-columns:auto 1fr;gap:8pt 18pt;margin-top:18pt;font-size:10.5pt;color:#5B6774}
-    .cover-meta dt{font-weight:700;color:#15202B;letter-spacing:.04em;text-transform:uppercase;font-size:9pt}
-    .cover-meta dd{margin:0;color:#15202B}
-    .cover-stat-strip{margin-top:32pt;display:grid;grid-template-columns:repeat(3,1fr);border:1px solid rgba(21,32,43,.10);border-radius:14pt;overflow:hidden}
-    .cover-stat{padding:18pt;border-right:1px solid rgba(21,32,43,.08);background:#FBFCFE}
-    .cover-stat:last-child{border-right:none}
-    .cover-stat-label{font-size:9pt;letter-spacing:.14em;text-transform:uppercase;color:#7C8794;margin:0 0 6pt;font-weight:700}
-    .cover-stat-value{font-size:22pt;line-height:1;letter-spacing:-.03em;font-weight:700;color:#15202B;margin:0}
-    .cover-stat-sub{font-size:9.5pt;color:#5B6774;margin:6pt 0 0}
-
-    /* OPPORTUNITY SECTIONS */
-    .opp-block{break-inside:avoid;page-break-inside:avoid;margin-bottom:14pt}
-    .opp-block h3{margin-top:0}
-    .opp-block p{margin-bottom:0}
-
-    /* DEFINITION GRID */
+    /* ─── DEFINITION GRID ─── */
     .def-grid{display:grid;grid-template-columns:1fr 1fr;gap:16pt;margin-top:14pt}
     .def-card{padding:14pt 16pt;background:#FBFCFE;border:1px solid rgba(21,32,43,.08);border-radius:12pt;break-inside:avoid;page-break-inside:avoid}
     .def-card h3{font-size:11pt;margin:0 0 6pt;color:#3F6EA1}
     .def-card p{margin:0;font-size:10pt;color:#15202B;line-height:1.55}
+
+    /* ─── OPPORTUNITY SECTIONS ─── */
+    .opp-block{break-inside:avoid;page-break-inside:avoid;margin-bottom:14pt}
+    .opp-block h3{margin-top:0}
+    .opp-block p{margin-bottom:0}
+
+    /* ─── RULES ─── */
+    .rule{height:1px;background:rgba(21,32,43,.10);margin:24pt 0}
+    .rule-tight{height:1px;background:rgba(21,32,43,.08);margin:14pt 0}
   </style></head><body>
 
     <!-- ════════════ PAGE 1: COVER ════════════ -->
@@ -2604,8 +2623,9 @@ function buildExecutiveReportHtml(result, payload) {
     <!-- ════════════ PAGE 2: HEADLINE FINDING ════════════ -->
     <section class="page">
       ${docHeader(2)}
+      <p class="h2-eyebrow">The pattern this run is detecting</p>
       <h2>Headline finding</h2>
-      <p>${escapeHtml(harmonized.headlineFinding)}</p>
+      <p class="lede">${escapeHtml(harmonized.headlineFinding)}</p>
       <p>${escapeHtml(harmonized.tmr)}</p>
 
       <div class="capacity-bar">
@@ -2618,15 +2638,26 @@ function buildExecutiveReportHtml(result, payload) {
         <div class="capacity-legend-item"><span class="capacity-legend-dot" style="background:#C49A3C"></span>Admin upkeep</div>
         <div class="capacity-legend-item"><span class="capacity-legend-dot" style="background:#B85C52"></span>Recoverable drag*</div>
       </div>
+      <p class="caption">Estimates of how this workflow's available capacity is currently allocated. Recoverable drag* is the portion that could be returned to productive use through structural intervention.</p>
 
       <div class="rule"></div>
 
       <h3>Why this matters in ${escapeHtml(industry.sectorName)}</h3>
       <p>${escapeHtml(`In ${industry.sectorName}, this matters because ${industry.opportunityPattern.toLowerCase()}.`)}</p>
-      <!-- trajectoryProse: hardcoded prose with no dynamic interpolation; safe to render raw -->
+      <!-- trajectoryProse: hardcoded prose, no dynamic interpolation; safe to render raw -->
       <p>${trajectoryProse}</p>
 
+      ${showAlertCallout ? `
+      <div class="alert-callout">
+        <div class="alert-icon">!</div>
+        <div class="alert-body">
+          <p class="alert-eyebrow">Read this carefully</p>
+          <p>This run shows rising trajectory combined with limited input depth. The pattern points toward worsening drag, but the signal underlying that pattern is thin. Treat the direction of the read seriously while treating the magnitude as provisional — a follow-up run with broader participant coverage is the right next step before committing to large interventions.</p>
+        </div>
+      </div>` : ""}
+
       <div class="pullquote">
+        <p class="pullquote-eyebrow">At a glance</p>
         <p><strong>Condition:</strong> ${escapeHtml(summary.headline)} &nbsp;·&nbsp; <strong>Benchmark:</strong> ${escapeHtml(benchmarkPosition)}${trajectoryLabel ? ` &nbsp;·&nbsp; <strong>Trajectory:</strong> ${escapeHtml(trajectoryLabel)}` : ""}</p>
       </div>
 
@@ -2636,18 +2667,21 @@ function buildExecutiveReportHtml(result, payload) {
     <!-- ════════════ PAGE 3: BURDEN COMPOSITION ════════════ -->
     <section class="page">
       ${docHeader(3)}
+      <p class="h2-eyebrow">Where the burden is coming from</p>
       <h2>Burden composition</h2>
       <p>The composition view shows where the visible burden is coming from across the four primary dimensions Monderman measures: process density, systems friction, reporting burden, and workaround dependence.</p>
 
       <div class="donut-panel">
         <div class="donut-row">
-          <svg viewBox="0 0 180 180" aria-label="Burden composition donut">
-            ${donutPaths}
-            ${donutHasSignal ? `
-              <text x="90" y="84" text-anchor="middle" font-size="8" fill="#7C8794" font-weight="700" letter-spacing="1">DOMINANT</text>
-              <text x="90" y="98" text-anchor="middle" font-size="20" font-weight="700" fill="#15202B">${donutDominantPct}%</text>
-            ` : `<text x="90" y="94" text-anchor="middle" font-size="10" fill="#7C8794">No signal</text>`}
-          </svg>
+          <div class="donut-svg-wrap">
+            <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              ${donutPaths}
+              ${donutHasSignal ? `
+                <text x="100" y="94" text-anchor="middle" font-size="8" fill="#7C8794" font-weight="700" letter-spacing="1">DOMINANT</text>
+                <text x="100" y="112" text-anchor="middle" font-size="22" font-weight="700" fill="#15202B">${donutDominantPct}%</text>
+              ` : `<text x="100" y="104" text-anchor="middle" font-size="11" fill="#7C8794">No signal</text>`}
+            </svg>
+          </div>
           <div class="donut-legend">
             ${donutSegments.map((seg) => {
               const pct = donutTotal > 0 ? Math.round((seg.value / donutTotal) * 100) : 0;
@@ -2682,41 +2716,45 @@ function buildExecutiveReportHtml(result, payload) {
     <!-- ════════════ PAGE 4: WHERE TO FOCUS FIRST ════════════ -->
     <section class="page">
       ${docHeader(4)}
+      <p class="h2-eyebrow">The first move</p>
       <h2>Where to focus first</h2>
-      <p>${escapeHtml(harmonized.diagnosisReads.sourceRead)}</p>
+      <p class="lede">${escapeHtml(harmonized.diagnosisReads.sourceRead)}</p>
 
       <div class="two-col">
         <div>
           <h3>Priority actions</h3>
           <ol>${actions.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol>
-          <p>${escapeHtml(`In ${industry.sectorName}, that matters because ${industry.opportunityPattern.toLowerCase()}.`)}</p>
+          <p class="caption">${escapeHtml(`In ${industry.sectorName}, that matters because ${industry.opportunityPattern.toLowerCase()}.`)}</p>
         </div>
-        <div class="gauge">
-          <svg viewBox="0 0 320 200" aria-label="Industry positioning gauge">
-            <path d="${exportDescribeArc(160,150,104,-90,90)}" fill="none" stroke="rgba(21,32,43,.12)" stroke-width="14" stroke-linecap="round"></path>
-            <path d="${exportDescribeArc(160,150,104,-90,exportNeedleAngle)}" fill="none" stroke="#3F6EA1" stroke-width="14" stroke-linecap="round"></path>
-            <line x1="160" y1="150" x2="${exportNeedle.x}" y2="${exportNeedle.y}" stroke="#15202B" stroke-width="3.5" stroke-linecap="round"></line>
-            <circle cx="160" cy="150" r="7" fill="#15202B"></circle>
-            <text x="36" y="36" font-size="10" fill="#7C8794">Below</text>
-            <text x="106" y="18" font-size="10" fill="#7C8794">Within</text>
-            <text x="206" y="18" font-size="10" fill="#7C8794">Above</text>
-            <text x="270" y="36" font-size="10" fill="#7C8794">Opportunity</text>
-            <text x="160" y="118" text-anchor="middle" font-size="28" font-weight="700" fill="#15202B" letter-spacing="-1">${exportScore}</text>
-            <text x="160" y="138" text-anchor="middle" font-size="9.5" fill="#5B6774">${escapeHtml(benchmarkPosition)}</text>
-          </svg>
+        <div class="gauge-panel">
+          <div class="gauge-svg-wrap">
+            <svg width="200" height="130" viewBox="0 0 200 130" xmlns="http://www.w3.org/2000/svg">
+              <path d="${arcPath(100, 100, 70, -90, 90)}" fill="none" stroke="rgba(21,32,43,.12)" stroke-width="12" stroke-linecap="round"></path>
+              <path d="${arcPath(100, 100, 70, -90, gaugeAngle)}" fill="none" stroke="#3F6EA1" stroke-width="12" stroke-linecap="round"></path>
+              <line x1="100" y1="100" x2="${gaugeNeedle.x.toFixed(2)}" y2="${gaugeNeedle.y.toFixed(2)}" stroke="#15202B" stroke-width="3" stroke-linecap="round"></line>
+              <circle cx="100" cy="100" r="6" fill="#15202B"></circle>
+              <text x="22" y="32" font-size="9" fill="#7C8794">Below</text>
+              <text x="76" y="20" font-size="9" fill="#7C8794">Within</text>
+              <text x="128" y="20" font-size="9" fill="#7C8794">Above</text>
+              <text x="170" y="32" font-size="9" fill="#7C8794">Opportunity</text>
+              <text x="100" y="80" text-anchor="middle" font-size="26" font-weight="700" fill="#15202B" letter-spacing="-1">${exportScore}</text>
+            </svg>
+          </div>
+          <p class="caption" style="margin-top:6pt;text-align:center">${escapeHtml(benchmarkPosition)}</p>
         </div>
       </div>
 
       <div class="benchmark-context">
-        ${escapeHtml(benchmark)}
+        <strong>Benchmark context.</strong> ${escapeHtml(benchmark)}
       </div>
 
       ${docFooter}
     </section>
 
-    <!-- ════════════ PAGE 5: THREE REMEDY PATHS (own page) ════════════ -->
+    <!-- ════════════ PAGE 5: THREE REMEDY PATHS ════════════ -->
     <section class="page">
       ${docHeader(5)}
+      <p class="h2-eyebrow">How leadership could respond</p>
       <h2>Three remedy paths</h2>
       <p>Three distinct intervention strategies, ordered by ambition and risk. Each path implies different leadership posture, time horizon, and tolerance for short-term disruption.</p>
       <div class="remedy-grid">
@@ -2742,9 +2780,10 @@ function buildExecutiveReportHtml(result, payload) {
     <!-- ════════════ PAGE 6: OPPORTUNITY READ ════════════ -->
     <section class="page">
       ${docHeader(6)}
+      <p class="h2-eyebrow">What the upside looks like</p>
       <h2>What the opportunity looks like</h2>
       <div class="opp-block">
-        <p>${escapeHtml(harmonized.opportunityFields.opening)}</p>
+        <p class="lede">${escapeHtml(harmonized.opportunityFields.opening)}</p>
       </div>
       <div class="opp-block">
         <h3>Sector dynamic</h3>
@@ -2759,7 +2798,8 @@ function buildExecutiveReportHtml(result, payload) {
         <p>${escapeHtml(harmonized.opportunityFields.buildAdvantage)}</p>
       </div>
       <div class="pullquote">
-        <p><strong>Leadership watchout.</strong> ${escapeHtml(harmonized.opportunityFields.watchout)}</p>
+        <p class="pullquote-eyebrow">Leadership watchout</p>
+        <p>${escapeHtml(harmonized.opportunityFields.watchout)}</p>
       </div>
 
       ${docFooter}
@@ -2768,16 +2808,19 @@ function buildExecutiveReportHtml(result, payload) {
     <!-- ════════════ PAGE 7: METHODOLOGY ════════════ -->
     <section class="page">
       ${docHeader(7)}
+      <p class="h2-eyebrow">How to read this report</p>
       <h2>How this was produced</h2>
       <p>This diagnostic measures recurring operating burden across four primary dimensions: process density, systems friction, reporting burden, and workaround dependence. It also measures the amount of productive capacity being absorbed by sustaining the workflow itself rather than producing outcomes. The diagnostic does not independently verify user inputs; it should be read as a directional operating read rather than a full audit.</p>
 
       <div class="rule-tight"></div>
 
       <div class="ring-wrap">
-        <svg viewBox="0 0 40 40">
-          <circle cx="20" cy="20" r="16" fill="none" stroke="rgba(21,32,43,.10)" stroke-width="4"></circle>
-          <circle cx="20" cy="20" r="16" fill="none" stroke="${ringColor}" stroke-width="4" stroke-linecap="round" transform="rotate(-90 20 20)" stroke-dasharray="${ringCircumference}" stroke-dashoffset="${ringOffset}"></circle>
-        </svg>
+        <div class="ring-svg-wrap">
+          <svg width="112" height="112" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="16" fill="none" stroke="rgba(21,32,43,.10)" stroke-width="4"></circle>
+            <circle cx="20" cy="20" r="16" fill="none" stroke="${ringColor}" stroke-width="4" stroke-linecap="round" transform="rotate(-90 20 20)" stroke-dasharray="${ringCircumference}" stroke-dashoffset="${ringOffset}"></circle>
+          </svg>
+        </div>
         <div class="ring-text">
           <strong>${insight.score}</strong>
           <span>${escapeHtml(insight.band)} insight depth</span>
@@ -2864,9 +2907,22 @@ function downloadExecutiveReportPdf() {
 }
 
 function buildCrossDiagnosticArtifact(result, payload) {
+  // Generate a stable run identifier so cross-synth can deduplicate uploads.
+  // Uses crypto.randomUUID where available, falls back to a timestamp-random hybrid.
+  const runId = (typeof crypto !== "undefined" && crypto.randomUUID)
+    ? crypto.randomUUID()
+    : `run_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+  const generated = new Date().toISOString();
   return {
+    // ─── Cross-synth required metadata (top level) ────────────────────────
+    schema_version: "1.0.0",
+    run_id: runId,
+    tool_type: "operational_systems",
+    tool_label: "Operational Systems Diagnostic",
+    generated_at: generated,
+    // ─── Legacy/display fields (kept for backwards compatibility) ──────────
     tool: "operational_systems",
-    generatedAt: new Date().toISOString(),
+    generatedAt: generated,
     processName: payload?.processName || payload?.process_name || "Operating environment",
     participantMode: payload?.participantMode || payload?.participant_mode || state.mode || "executive",
     diagnosticDepth: payload?.diagnosticDepth || payload?.diagnostic_depth || state.depth || "30",
