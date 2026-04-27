@@ -407,6 +407,13 @@ const MondermanDiagnostic = (() => {
   // ═══════════════════════════════════════════════════════════
   // DOM HELPER
   // ═══════════════════════════════════════════════════════════
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<script>
+    window.MONDERMAN_SUPABASE_URL = "https://ptkxrzgmeldalrkfruth.supabase.co";
+    window.MONDERMAN_SUPABASE_ANON_KEY = "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
+  </script>
     <style>
     @font-face { font-family:"Neue Haas Grotesk"; src:url("55font.woff2") format("woff2"),url("55font.woff") format("woff"); font-weight:400; }
     @font-face { font-family:"Neue Haas Grotesk"; src:url("65font.woff2") format("woff2"),url("65font.woff") format("woff"); font-weight:500; }
@@ -4006,45 +4013,20 @@ renderPreflightForm();
 syncHubSelections();
 updateHeroHelp();
 syncBeginButton();
-  setHeader("Choose participant perspective", "Select the perspective that best matches your role in the workflow, then choose the appropriate diagnostic depth.", "Awaiting selection");
-  showStage(laneStage);
-  questionFooter.style.display = "none";
-
-    setHeader("Choose participant perspective", "Select the perspective that best matches your role in the workflow, then choose the appropriate diagnostic depth.", "Awaiting selection");
-  showStage(laneStage);
-  questionFooter.style.display = "none";
+setHeader("Choose participant perspective", "Select the perspective that best matches your role in the workflow, then choose the appropriate diagnostic depth.", "Awaiting selection");
+showStage(laneStage);
+questionFooter.style.display = "none";
 
   // ═══════════════════════════════════════════════════════════
   // INITIALIZATION
   // ═══════════════════════════════════════════════════════════
-  hideLoader();
+  // All code above runs immediately. Event listeners are attached
+  // throughout the code at their relevant sections.
 
-  (function warmupApiInBackground() {
-    const maxWait = 60000;
-    const interval = 5000;
-    const started = Date.now();
-    function ping() {
-      if (Date.now() - started >= maxWait) return;
-      const ctrl = new AbortController();
-      const t = setTimeout(() => ctrl.abort(), 4000);
-      fetch(API_BASE + "/api/health", { method: "GET", signal: ctrl.signal })
-        .then((r) => { clearTimeout(t); if (!r.ok) setTimeout(ping, interval); })
-        .catch(() => { clearTimeout(t); setTimeout(ping, interval); });
-    }
-    ping();
-  })();
-
-  ensureHubCtas();
-  applyHubContextDefaults();
-  renderCurrentPathChip();
-  renderPreflightForm();
-  syncHubSelections();
-  updateHeroHelp();
-  syncBeginButton();
-
+  // Return empty object (all code runs in IIFE context)
   return {};
 })();
 
-</script>
+  </script>
 </body>
 </html>
