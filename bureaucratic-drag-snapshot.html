@@ -376,7 +376,7 @@
           </div>
         </section>
 
-        <section class="advisory-card"><div><p class="summary-label" style="margin-bottom:8px;color:var(--accent);">Next step</p><h3 style="margin:0 0 8px;">Bring this into a deeper platform services conversation.</h3><p class="result-copy" style="margin:0;">If the pattern appears broader, more persistent, or more costly than a directional tool can resolve, Monderman can go deeper on workflows, approvals, operating burden, and compensatory behaviors.</p></div><div class="export-cta-stack"><div class="export-primary-row"><button class="btn btn-accent" id="downloadPdfBtn" type="button">Download executive report (PDF)</button><a class="btn" href="https://www.monderman.com/advisory-services-connect.html" target="_blank" rel="noopener noreferrer">Discuss with Monderman Platform Services</a></div><div class="export-inline-row"><button class="action-link" id="downloadReportBtn" type="button">Download as HTML</button><span aria-hidden="true" style="color:rgba(21,32,43,.18)">|</span><button class="action-link" id="saveCrossDiagnosticBtn" type="button">Save for cross-diagnostic synthesis</button></div><div class="export-utility-row"><button class="utility-btn" id="newRunBtn" type="button">Run another diagnostic</button><span aria-hidden="true" style="color:rgba(21,32,43,.18)">|</span><a class="utility-btn" href="diagnostic-tools.html" target="_blank" rel="noopener noreferrer">Return to hub</a></div><a id="reportDownloadLink" class="hidden-download" download="monderman-operational-systems-report.html"></a><a id="crossDiagnosticDownloadLink" class="hidden-download" download="monderman-operational-systems-result.json"></a></div><p class="estimate-disclaimer" style="margin-top:18px;padding:14px 16px;border-radius:14px;background:#F8FAFC;border:1px solid rgba(21,32,43,.08);font-size:13px;line-height:1.55;color:var(--ink-soft);"><strong>*</strong> Figures marked with an asterisk are directional estimates generated from your inputs, not guaranteed financial outcomes. They are intended to indicate rough order of magnitude so leadership can decide whether the pattern is worth investigating further.</p></section>
+        <section class="advisory-card"><div><p class="summary-label" style="margin-bottom:8px;color:var(--accent);">Next step</p><h3 style="margin:0 0 8px;">Bring this into a deeper platform services conversation.</h3><p class="result-copy" style="margin:0;">If the pattern appears broader, more persistent, or more costly than a directional tool can resolve, Monderman can go deeper on workflows, approvals, operating burden, and compensatory behaviors.</p></div><div class="export-cta-stack"><div class="export-primary-row"><button class="btn btn-accent" id="downloadPdfBtn" type="button">Open PDF / print report</button><a class="btn" href="https://www.monderman.com/advisory-services-connect.html" target="_blank" rel="noopener noreferrer">Discuss with Monderman Platform Services</a></div><div class="export-inline-row"><button class="action-link" id="downloadReportBtn" type="button">Download as HTML</button><span aria-hidden="true" style="color:rgba(21,32,43,.18)">|</span><button class="action-link" id="saveCrossDiagnosticBtn" type="button">Save for cross-diagnostic synthesis</button></div><div class="export-utility-row"><button class="utility-btn" id="newRunBtn" type="button">Run another diagnostic</button><span aria-hidden="true" style="color:rgba(21,32,43,.18)">|</span><a class="utility-btn" href="diagnostic-tools.html" target="_blank" rel="noopener noreferrer">Return to hub</a></div><a id="reportDownloadLink" class="hidden-download" download="monderman-operational-systems-report.html"></a><a id="crossDiagnosticDownloadLink" class="hidden-download" download="monderman-operational-systems-result.json"></a></div><p class="estimate-disclaimer" style="margin-top:18px;padding:14px 16px;border-radius:14px;background:#F8FAFC;border:1px solid rgba(21,32,43,.08);font-size:13px;line-height:1.55;color:var(--ink-soft);"><strong>*</strong> Figures marked with an asterisk are directional estimates generated from your inputs, not guaranteed financial outcomes. They are intended to indicate rough order of magnitude so leadership can decide whether the pattern is worth investigating further.</p></section>
         <section class="results-disclaimer" id="bottomDisclaimer"></section>
       </div></div>
       <footer class="env-foot" id="questionFooter"><div class="progress-wrap"><div class="progress-top"><p id="progressCopy">0% complete</p><p id="pathHint">Waiting for first signal.</p></div><div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div></div><div class="actions"><div class="actions-left"><button class="btn" id="backBtn" type="button">Back</button><button class="btn" id="skipBtn" type="button">Skip</button></div><div class="actions-right"><button class="btn btn-soft" id="restartBtn" type="button">Start over</button><button class="btn btn-accent" id="continueBtn" type="button">Continue</button></div></div></footer>
@@ -846,21 +846,12 @@ function applyHubContextDefaults() {
   const ctx = readHubContext();
   if (!ctx) return;
   try { sessionStorage.removeItem("mondermanPendingHubContext"); } catch (_error) {}
-  // Do not silently select the participant lane or diagnostic depth from prior
-  // localStorage context. That was the source of the “numbers/selection changed
-  // by themselves” behavior on the Choose participant perspective screen.
-  // Hub context may still prefill descriptive fields and display the current path.
-  state.preflight.processName = state.preflight.processName || ctx.pathName || "";
-  state.preflight.businessUnit = state.preflight.businessUnit || ctx.businessUnit || "";
-  state.preflight.industry = state.preflight.industry || ctx.industry || "";
-  state.preflight.regulatoryIntensity = state.preflight.regulatoryIntensity || ctx.regulatoryIntensity || "";
-  state.preflight.description = state.preflight.description || ctx.description || "";
-  if (Number.isFinite(Number(ctx.employeeCount))) {
-    state.preflight.employeeCount = state.preflight.employeeCount || Number(ctx.employeeCount);
-    state.preflight.organizationSize = state.preflight.organizationSize || deriveOrganizationSize(Number(ctx.employeeCount));
-  }
-  state.preflight.decisionType = state.preflight.decisionType || ctx.decisionType || "";
+  // Do not silently write hub/localStorage values into visible fields.
+  // The saved context chip may still display the prior path, but all visible
+  // selections and numbers must be authored in the current run.
 }
+
+
 
 function buildOrganizationId(source = {}) {
   const industry = normalizeChoice(source.industry || source.industrySelection || "other");
@@ -870,21 +861,16 @@ function buildOrganizationId(source = {}) {
 }
 
 function inferParticipantCoverage() {
-  const currentOrgId = buildOrganizationId(state.preflight);
-  const currentPathName = String(state.preflight.processName || "").trim();
-  try {
-    const runs = JSON.parse(localStorage.getItem(HUB_RECENT_RUNS_KEY) || "[]");
-    const sameOrg = runs.filter((r) => r.organizationId === currentOrgId || (currentPathName && r.pathName === currentPathName));
-    const participantCount = Math.max(1, sameOrg.length + 1);
-    const levelsCovered = [...new Set([
-      ...sameOrg.map((r) => mapFrontendModeToBackendRole(r.lens || r.participantMode || r.participant_mode || r.mode || "")).filter(Boolean),
-      mapFrontendModeToBackendRole(state.mode)
-    ])];
-    return { participantCount, levelsCovered: levelsCovered.length ? levelsCovered : [mapFrontendModeToBackendRole(state.mode)] };
-  } catch (_error) {
-    return { participantCount: 1, levelsCovered: [mapFrontendModeToBackendRole(state.mode)] };
-  }
+  // Deterministic single-run coverage. Do not infer participant counts from
+  // localStorage recent runs; that made numbers change simply from repeated
+  // testing.
+  return {
+    participantCount: 1,
+    levelsCovered: [mapFrontendModeToBackendRole(state.mode)]
+  };
 }
+
+
 
 function getInsightDepthInputs(payload = {}) {
   const inferred = inferParticipantCoverage();
@@ -1594,7 +1580,29 @@ async function finalizeAdaptiveRun() {
     setProcessingStep(2, "Preparing leadership-facing output...");
     const result = asObject(data.result);
     const inferredCoverage = inferParticipantCoverage();
-    const payload = { ...asObject(data.legacyPayload), employeeCount: state.preflight.employeeCount, organizationSize: state.preflight.organizationSize, participantCount: inferredCoverage.participantCount, levelsCovered: inferredCoverage.levelsCovered };
+    const legacyPayload = asObject(data.legacyPayload);
+    const payload = {
+      ...legacyPayload,
+      processName: legacyPayload.processName || legacyPayload.process_name || state.preflight.processName,
+      process_name: legacyPayload.process_name || legacyPayload.processName || state.preflight.processName,
+      businessUnit: legacyPayload.businessUnit || legacyPayload.business_unit || state.preflight.businessUnit,
+      business_unit: legacyPayload.business_unit || legacyPayload.businessUnit || state.preflight.businessUnit,
+      industry: legacyPayload.industry || state.preflight.industry,
+      regulatoryIntensity: legacyPayload.regulatoryIntensity || legacyPayload.regulatory_intensity || state.preflight.regulatoryIntensity,
+      regulatory_intensity: legacyPayload.regulatory_intensity || legacyPayload.regulatoryIntensity || state.preflight.regulatoryIntensity,
+      decisionType: legacyPayload.decisionType || legacyPayload.decision_type || state.preflight.decisionType,
+      decision_type: legacyPayload.decision_type || legacyPayload.decisionType || state.preflight.decisionType,
+      employeeCount: state.preflight.employeeCount,
+      organizationSize: state.preflight.organizationSize,
+      peopleInvolved: state.preflight.peopleInvolved,
+      peopleAffected: state.preflight.peopleInvolved,
+      hourlyCost: state.preflight.hourlyCost,
+      annualVolume: state.preflight.annualVolume,
+      meetingHours: state.preflight.meetingHours,
+      confidenceLevel: state.preflight.confidenceLevel,
+      participantCount: inferredCoverage.participantCount,
+      levelsCovered: inferredCoverage.levelsCovered
+    };
     const narrativeEnvelope = asObject(data.narrative);
     if (narrativeEnvelope.narrative && !result.narrative) {
       result.narrative = narrativeEnvelope.narrative;
@@ -1725,35 +1733,53 @@ function buildInterpretiveState(result, payload) {
     workaround_dependence: pick(rawBreakdown.workaround_dependence, rawDimensions.workaround_dependence, rawDimensions.upkeep_burden)
   };
 
-  // Governance weight must not depend only on burden_breakdown. Several backend
-  // responses send the stronger signal under result.dimensions, which made the
-  // quadrant read artificially light even when the user entered a heavy-control
-  // workflow. Use both sources and treat the dominant governance/control signal
-  // as material, not averaged away.
-  const regulatory = normalizeChoice(payload?.regulatoryIntensity || payload?.regulatory_intensity);
-  const decisionType = normalizeChoice(payload?.decisionType || payload?.decision_type);
-  const regBoost = regulatory === "high" ? 16 : regulatory === "moderate" ? 8 : 0;
-  const policyBoost = ["policy", "risk", "procurement", "budget"].includes(decisionType) ? 8 : 0;
-  const meetingLoad = Number(payload?.meetingHours || payload?.meeting_hours || 0);
-  const participantLoad = Number(payload?.peopleInvolved || payload?.peopleAffected || payload?.participantCount || 0);
-  const exposureBoost = Math.min(10, Math.max(0, (meetingLoad / 8) * 4 + (participantLoad / 12) * 4));
+  const clampAxis = (value) => Math.max(5, Math.min(95, Number(value) || 0));
+  const regulatory = normalizeChoice(payload?.regulatoryIntensity || payload?.regulatory_intensity || state.preflight.regulatoryIntensity);
+  const decisionType = normalizeChoice(payload?.decisionType || payload?.decision_type || state.preflight.decisionType);
+  const meetingLoad = Number(payload?.meetingHours || payload?.meeting_hours || state.preflight.meetingHours || 0);
+  const participantLoad = Number(payload?.peopleInvolved || payload?.peopleAffected || payload?.participant_count || state.preflight.peopleInvolved || 0);
+  const employeeCount = Number(payload?.employeeCount || payload?.employee_count || state.preflight.employeeCount || 0);
+  const orgSize = deriveOrganizationSize(employeeCount);
+
+  const regPoints = regulatory === "high" ? 26 : regulatory === "moderate" ? 14 : regulatory === "low" ? 5 : 0;
+  const typePoints = ["policy", "risk", "procurement", "budget"].includes(decisionType) ? 14 : decisionType === "program" ? 8 : 0;
+  const peoplePoints = participantLoad >= 20 ? 18 : participantLoad >= 12 ? 13 : participantLoad >= 8 ? 9 : participantLoad >= 4 ? 5 : 0;
+  const meetingPoints = meetingLoad >= 12 ? 20 : meetingLoad >= 8 ? 15 : meetingLoad >= 5 ? 10 : meetingLoad >= 2 ? 5 : 0;
+  const sizePoints = orgSize === "enterprise" ? 7 : orgSize === "large" ? 5 : orgSize === "midsize" ? 3 : 0;
+
+  // Input-derived governance floor. If the current run is explicitly high
+  // control/high coordination/high regulation, the X-axis must not render as
+  // light governance just because a backend dimension is conservative.
+  const governanceFromInputs = clampAxis(18 + regPoints + typePoints + peoplePoints + meetingPoints + sizePoints);
+
+  const answerText = [
+    ...Object.values(state.answerCache || {}),
+    ...asArray(state.questionHistory).map((entry) => entry?.value)
+  ].map((value) => String(value || "").toLowerCase()).join(" ");
+  const governanceHits = (answerText.match(/\b(high|heavy|many|multiple|frequent|always|formal|review|approval|control|oversight|reporting|exception|duplicate|manual|workaround|escalat\w+)\b/g) || []).length;
+  const governanceFromAnswers = governanceHits >= 3 ? clampAxis(35 + governanceHits * 6) : 0;
 
   const dominantGovernanceSignal = Math.max(
     breakdown.process_density,
     breakdown.control_load,
-    breakdown.reporting_exception_burden * 0.85
+    breakdown.reporting_exception_burden * 0.9,
+    governanceFromInputs,
+    governanceFromAnswers
   );
   const blendedGovernanceSignal =
-    breakdown.process_density * 0.34 +
-    breakdown.control_load * 0.34 +
-    breakdown.reporting_exception_burden * 0.18 +
-    breakdown.systems_friction * 0.08 +
-    breakdown.workaround_dependence * 0.06;
-  const rawGovernance = Math.max(dominantGovernanceSignal, blendedGovernanceSignal) + regBoost + policyBoost + exposureBoost;
+    breakdown.process_density * 0.30 +
+    breakdown.control_load * 0.30 +
+    breakdown.reporting_exception_burden * 0.20 +
+    breakdown.systems_friction * 0.10 +
+    breakdown.workaround_dependence * 0.10;
 
-  // Execution responsiveness: how well the workflow carries movement.
-  // Workarounds, reporting/exception burden, and systems friction directly indicate when execution is
-  // NOT responsive — they're compensating behaviors. Use the dominant blocker.
+  function stretchAxis(raw) {
+    const stretched = ((raw - 25) / 50) * 80 + 10;
+    return clampAxis(stretched);
+  }
+
+  const governanceWeight = Math.max(stretchAxis(blendedGovernanceSignal), clampAxis(dominantGovernanceSignal));
+
   const movementBlockers = [
     breakdown.workaround_dependence,
     breakdown.reporting_exception_burden,
@@ -1761,20 +1787,11 @@ function buildInterpretiveState(result, payload) {
     breakdown.process_density * 0.55,
     breakdown.control_load * 0.55
   ];
-  const dominantBlocker = Math.max(...movementBlockers);
-  const rawExecResponsive = 100 - dominantBlocker;
+  const dominantBlocker = Math.max(...movementBlockers, 0);
+  const dimensionResponsive = stretchAxis(100 - dominantBlocker);
+  const scoreResponsive = clampAxis(score);
+  const execResponsive = clampAxis((dimensionResponsive * 0.55) + (scoreResponsive * 0.45));
 
-  // Range stretch: most real-world breakdowns cluster in 25-75. Map that range
-  // to the visible 10-90% of the chart so differences between runs are easier
-  // to see. Values outside [25, 75] clamp to [5, 95] — still shown, just at edges.
-  // This is honest framing — relative position is preserved, the scale is just
-  // tightened to where signal actually lives.
-  function stretchAxis(raw) {
-    const stretched = ((raw - 25) / 50) * 80 + 10;
-    return Math.max(5, Math.min(95, stretched));
-  }
-  const governanceWeight = stretchAxis(rawGovernance);
-  const execResponsive = stretchAxis(rawExecResponsive);
   const benchmarkPos = result.benchmark_position || "Industry range comparison";
   const topFocus = (asArray(result.intervention_priority_ladder)[0]?.focus) || derivePrimaryBurdenSource(result).label;
   const quadrantKey = execResponsive >= 50 && governanceWeight < 50
@@ -1784,6 +1801,7 @@ function buildInterpretiveState(result, payload) {
     : execResponsive < 50 && governanceWeight < 50
     ? "lower_left"
     : "lower_right";
+
   return {
     governanceWeight,
     execResponsive,
@@ -1792,9 +1810,20 @@ function buildInterpretiveState(result, payload) {
     quadrantKey,
     sectorLabel: humanize(payload?.industry || result?.industry_label || "this sector"),
     trajectoryDirection: result?.trajectory?.direction || "flat",
-    directionSummary: result?.trajectory?.direction === "up" ? "burden pressure is rising" : result?.trajectory?.direction === "down" ? "burden pressure is easing" : "burden pressure is relatively steady"
+    directionSummary: result?.trajectory?.direction === "up" ? "burden pressure is rising" : result?.trajectory?.direction === "down" ? "burden pressure is easing" : "burden pressure is relatively steady",
+    governanceInputs: {
+      regulatory,
+      decisionType,
+      meetingLoad,
+      participantLoad,
+      employeeCount,
+      governanceFromInputs,
+      governanceFromAnswers
+    }
   };
 }
+
+
 
 function deriveBurdenProfileShape(result, payload) {
   const candidate = payload?.routing_meta?.burdenProfileShapeCandidate || result?.routing_meta?.burdenProfileShapeCandidate || result?.burden_profile_shape;
@@ -1894,22 +1923,12 @@ function buildHeadlineFinding(result, payload, burdenConstraint, stateObj) {
 //   2. Dollar values with no separators → comma-separate ($706320 → $706,320)
 //   3. Inline bullet markers (" • ") splitting prose → split into separate sentences
 function sanitizeNarrativeNumbers(text) {
-  if (!text || typeof text !== "string") return text || "";
-  let out = text;
-  // Comma-separate dollar amounts: $706320 → $706,320
-  out = out.replace(/\$(\d{4,})/g, (_m, n) => "$" + Number(n).toLocaleString());
-  // Comma-separate bare 4+ digit integers (avoid touching 4-digit years 1900-2099)
-  out = out.replace(/\b(\d{4,})\b/g, (m, n) => {
-    const num = Number(n);
-    if (num >= 1900 && num <= 2099) return m; // leave years alone
-    return num.toLocaleString();
-  });
-  // Inline bullet markers split prose into separate sentences
-  out = out.replace(/\s+•\s+/g, ". ");
-  // Tidy doubled punctuation introduced by the bullet split
-  out = out.replace(/\.\s*\./g, ".").replace(/,\s*\./g, ".");
-  return out;
+  // Leave authored/generated numbers exactly as provided. Formatting transforms
+  // made numbers appear to mutate after render.
+  return (text === null || text === undefined) ? "" : String(text);
 }
+
+
 
 function buildHarmonizedNarrative(result, payload) {
   const stateObj = buildInterpretiveState(result, payload);
@@ -3220,7 +3239,9 @@ function loadHtml2PdfScript() {
 }
 
 function openExecutiveReportPrintWindow(html, filename) {
-  const win = window.open("", "_blank", "noopener,noreferrer,width=960,height=1200");
+  // Do not use noopener/noreferrer here. In many browsers that returns null,
+  // which broke the fallback PDF path.
+  const win = window.open("", "_blank", "width=960,height=1200");
   if (!win) {
     const blob = new Blob([html], { type: "text/html;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -3228,16 +3249,23 @@ function openExecutiveReportPrintWindow(html, filename) {
     reportDownloadLink.download = filename.replace(/\.pdf$/, ".html");
     reportDownloadLink.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    showToast("PDF rendering was blocked by the browser. I downloaded the HTML report instead.");
-    return;
+    showToast("The browser blocked the PDF window, so I downloaded the HTML report instead.");
+    return null;
   }
   win.document.open();
-  win.document.write(html.replace("</body>", `<script>window.addEventListener('load',function(){setTimeout(function(){window.print();},350);});<\/script></body>`));
+  win.document.write(html.replace("</body>", `<script>
+    window.addEventListener('load', function(){
+      setTimeout(function(){ window.focus(); window.print(); }, 450);
+    });
+  <\/script></body>`));
   win.document.close();
-  showToast("Opened a print-ready report. Choose Save as PDF in the print dialog.");
+  showToast("Opened the print-ready PDF report. Choose Save as PDF in the print dialog.");
+  return win;
 }
 
-async function downloadExecutiveReportPdf() {
+
+
+function downloadExecutiveReportPdf() {
   if (!state.result || !state.renderPayload) {
     showToast("The report is not ready yet. Finish the diagnostic output first.");
     return;
@@ -3246,96 +3274,13 @@ async function downloadExecutiveReportPdf() {
   const html = buildExecutiveReportHtml(state.result, state.renderPayload);
   const filename = buildExecutiveReportFilename(state.renderPayload).replace(/\.html$/, ".pdf");
 
-  try {
-    await loadHtml2PdfScript();
-  } catch (error) {
-    console.error("html2pdf load failed", error);
-    openExecutiveReportPrintWindow(html, filename);
-    return;
-  }
-
-  if (typeof html2pdf === "undefined") {
-    openExecutiveReportPrintWindow(html, filename);
-    return;
-  }
-
-  showToast("Generating PDF…");
-
-  const parsed = new DOMParser().parseFromString(html, "text/html");
-  const container = document.createElement("div");
-  container.setAttribute("data-monderman-pdf-render", "true");
-  container.style.cssText = [
-    "position:fixed",
-    "top:0",
-    "left:-10000px",
-    "width:816px",
-    "min-height:1056px",
-    "background:#fff",
-    "color:#15202B",
-    "font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif",
-    "line-height:1.65",
-    "z-index:-1",
-    "pointer-events:none",
-    "overflow:visible"
-  ].join(";") + ";";
-
-  const style = parsed.querySelector("style");
-  if (style) {
-    const styleEl = document.createElement("style");
-    styleEl.textContent = style.textContent;
-    container.appendChild(styleEl);
-  }
-
-  const bodyWrap = document.createElement("div");
-  bodyWrap.style.cssText = "width:816px;min-height:1056px;background:#fff;color:#15202B;font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif;line-height:1.65;overflow:visible;";
-  bodyWrap.innerHTML = parsed.body.innerHTML;
-  container.appendChild(bodyWrap);
-  document.body.appendChild(container);
-
-  const cleanup = () => {
-    if (container && container.parentNode) container.parentNode.removeChild(container);
-  };
-
-  try {
-    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    const fullH = Math.ceil(Math.max(
-      container.scrollHeight || 0,
-      container.offsetHeight || 0,
-      bodyWrap.scrollHeight || 0,
-      bodyWrap.offsetHeight || 0,
-      1056
-    ));
-
-    await html2pdf()
-      .set({
-        margin: [0, 0, 0, 0],
-        filename,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          logging: false,
-          scrollX: 0,
-          scrollY: 0,
-          width: 816,
-          windowWidth: 816,
-          height: fullH,
-          windowHeight: fullH,
-          backgroundColor: "#ffffff"
-        },
-        jsPDF: { unit: "pt", format: "letter", orientation: "portrait", compress: true },
-        pagebreak: { mode: ["css", "legacy"], before: ".page" }
-      })
-      .from(bodyWrap)
-      .save();
-  } catch (error) {
-    console.error("PDF generation failed", error);
-    openExecutiveReportPrintWindow(html, filename);
-  } finally {
-    cleanup();
-  }
+  // Use the browser-native print/PDF pipeline as the primary path. This is more
+  // stable than html2canvas/html2pdf in this single-file diagnostic because it
+  // does not depend on CDN timing or offscreen DOM measurement.
+  openExecutiveReportPrintWindow(html, filename);
 }
+
+
 
 function buildCrossDiagnosticArtifact(result, payload) {
   // Generate a stable run identifier so cross-synth can deduplicate uploads.
@@ -3379,18 +3324,13 @@ function downloadCrossDiagnosticResult(result, payload) {
 }
 
 function animateNumber(element, target) {
+  // No count-up animation: numeric output should not visibly change after render.
   if (!element) return;
-  const duration = 1200;
-  const start = performance.now();
-  const initial = 0;
-  const step = (now) => {
-    const progress = Math.min(1, (now - start) / duration);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    element.textContent = String(Math.round(initial + (target - initial) * eased));
-    if (progress < 1) requestAnimationFrame(step);
-  };
-  requestAnimationFrame(step);
+  const n = Number(target);
+  element.textContent = Number.isFinite(n) ? String(Math.round(n)) : String(target || "");
 }
+
+
 
 function bindResultTooltips() {
   [["insightDepthInfo","insightDepthTooltip"],["scoreRubricInfo","scoreRubricTooltip"],["profileShapeInfo","profileShapeTooltip"],["trajectoryInfo","trajectoryTooltip"]].forEach(([triggerId, tipId]) => {
@@ -3659,6 +3599,7 @@ function selectDepth(depth) {
 
 heroBeginBtn.addEventListener("click", () => {
   showStage(laneStage, { scroll: true });
+  document.querySelector("#laneStage .step-chip")?.scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
 learnMoreToggle.addEventListener("click", () => learnMorePanel.classList.toggle("show"));
