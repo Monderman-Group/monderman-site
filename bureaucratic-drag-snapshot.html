@@ -422,6 +422,7 @@ const MondermanDiagnostic = (() => {
   const START_TIMEOUT_MS = 45000;
   const ANSWER_TIMEOUT_MS = 15000;
   const FINALIZE_TIMEOUT_MS = 90000;
+  const EXPERIENCE_REFINE_TIMEOUT_MS = 25000;
 
   const openingNotice = "This diagnostic generates directional insights based on the information you provide. Results are only as accurate as your inputs and should be used as an interpretive aid, not as a substitute for independent review, professional judgment, or organization-specific analysis.";
   const finalAcknowledgment = "I acknowledge that this diagnostic provides directional insights only, that Monderman has not independently verified my inputs, and that I am solely responsible for how these results are interpreted or used.";
@@ -1503,7 +1504,7 @@ function queueExperienceQuestion(index = 0) {
 }
 
 function normalizeExperienceText(value) {
-  return String(value || "").replace(/s+/g, " ").trim();
+  return String(value || "").replace(/\s+/g, " ").trim();
 }
 
 function recordExperienceAnswer(itemId, value) {
@@ -1521,6 +1522,69 @@ function buildExperienceLayer(source = state.experiential) {
   return { participantPerspective: laneConfigs[mode]?.label || humanize(mode), entries, hasInput: entries.length > 0 };
 }
 
+async function refineExperientialLayerForOutput(rawLayer) {
+  if (!rawLayer || !rawLayer.hasInput) return rawLayer;
+
+  const rawExperience = {
+    self: state.experiential.self || "",
+    observedOperational: state.experiential.observedOperational || "",
+    observedManagerial: state.experiential.observedManagerial || "",
+    observedSeniorLeader: state.experiential.observedSeniorLeader || "",
+    observedExecutive: state.experiential.observedSeniorLeader || ""
+  };
+
+  try {
+    const response = await fetchWithTimeout(`${API_BASE}/api/diagnostics/refine-experience`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        diagnosticType: "operational_systems",
+        participantMode: state.mode || "executive",
+        workflow: state.preflight.processName || "Operational Systems Diagnostic",
+        rawExperience
+      })
+    }, EXPERIENCE_REFINE_TIMEOUT_MS);
+
+    const data = await response.json().catch(() => null);
+    if (!response.ok || !data?.experiential_layer) {
+      throw new Error(data?.error || data?.message || "Experiential layer refinement failed.");
+    }
+
+    const refined = data.experiential_layer;
+    const entries = Array.isArray(refined.entries)
+      ? refined.entries.map((entry) => {
+          const text = normalizeExperienceText(entry.cleaned || entry.text || entry.raw || "");
+          return {
+            key: entry.key,
+            label: entry.label || humanize(entry.key),
+            raw: normalizeExperienceText(entry.raw || ""),
+            cleaned: text,
+            text
+          };
+        }).filter((entry) => entry.text)
+      : [];
+
+    if (!entries.length) return rawLayer;
+
+    return {
+      ...rawLayer,
+      hasInput: true,
+      entries,
+      synthesis: normalizeExperienceText(refined.synthesis || ""),
+      caveat: normalizeExperienceText(refined.caveat || ""),
+      source: refined.source || "anthropic_refined",
+      rawLayer
+    };
+  } catch (error) {
+    console.warn("Experiential refinement unavailable; using raw participant notes.", error);
+    return {
+      ...rawLayer,
+      source: "unedited_participant_input",
+      caveat: "These notes are participant-provided and were not refined by the backend."
+    };
+  }
+}
+
 function renderExperienceLayer(payload = {}) {
   const layer = payload?.experientialLayer || payload?.experiential_layer || buildExperienceLayer();
   const accordion = $("experienceAccordion");
@@ -1534,7 +1598,10 @@ function renderExperienceLayer(payload = {}) {
   }
   accordion.classList.remove("hidden");
   if (intro) intro.textContent = "These optional notes were supplied from the " + (layer.participantPerspective || "selected") + " perspective. They are experiential signals: useful for interpretation, not a substitute for broader evidence.";
-  grid.innerHTML = layer.entries.map((entry) => '<article class="experience-card"><h4>' + escapeHtml(entry.label) + '</h4><p>' + escapeHtml(entry.text) + '</p></article>').join("");
+  grid.innerHTML = layer.entries.map((entry) => {
+    const text = entry.text || entry.cleaned || entry.raw || "";
+    return '<article class="experience-card"><h4>' + escapeHtml(entry.label) + '</h4><p>' + escapeHtml(text) + '</p></article>';
+  }).join("");
 }
 
 function queueConfidenceQuestion() {
@@ -1725,6 +1792,8 @@ async function finalizeAdaptiveRun() {
     const result = asObject(data.result);
     const inferredCoverage = inferParticipantCoverage();
     const legacyPayload = asObject(data.legacyPayload);
+    const rawExperienceLayer = buildExperienceLayer();
+    const refinedExperienceLayer = await refineExperientialLayerForOutput(rawExperienceLayer);
     const payload = {
       ...legacyPayload,
       processName: legacyPayload.processName || legacyPayload.process_name || state.preflight.processName,
@@ -1746,8 +1815,10 @@ async function finalizeAdaptiveRun() {
       confidenceLevel: state.preflight.confidenceLevel,
       participantCount: inferredCoverage.participantCount,
       levelsCovered: inferredCoverage.levelsCovered,
-      experientialLayer: buildExperienceLayer(),
-      experiential_layer: buildExperienceLayer()
+      rawExperientialLayer: rawExperienceLayer,
+      raw_experiential_layer: rawExperienceLayer,
+      experientialLayer: refinedExperienceLayer,
+      experiential_layer: refinedExperienceLayer
     };
     const narrativeEnvelope = asObject(data.narrative);
     if (narrativeEnvelope.narrative && !result.narrative) {
@@ -3019,7 +3090,10 @@ function renderTrajectorySparkline(result) {
   const footer = (page) => `<div class="top"><span class="brand">MONDERMAN</span><span class="meta">Operational Systems Diagnostic · Page ${page}</span></div><div class="bottom">Operational Systems Diagnostic <span class="date">${safe(generated)}</span></div>`;
   const experienceLayer = payload?.experientialLayer || payload?.experiential_layer || buildExperienceLayer();
   const hasExperienceLayer = Boolean(experienceLayer?.hasInput && Array.isArray(experienceLayer.entries) && experienceLayer.entries.length);
-  const experienceCards = hasExperienceLayer ? experienceLayer.entries.map((entry) => '<div class="exp-card"><h3>' + safe(entry.label) + '</h3><p>' + safeWords(entry.text, 70) + '</p></div>').join("") : "";
+  const experienceCards = hasExperienceLayer ? experienceLayer.entries.map((entry) => {
+    const text = entry.text || entry.cleaned || entry.raw || "";
+    return '<div class="exp-card"><h3>' + safe(entry.label) + '</h3><p>' + safeWords(text, 70) + '</p></div>';
+  }).join("") : "";
   const remedyPageNumber = hasExperienceLayer ? 7 : 6;
   const methodPageNumber = hasExperienceLayer ? 8 : 7;
   const experienceReportPage = hasExperienceLayer ? '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p>This optional layer records how the workflow is experienced from the selected vantage point and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal process description and lived operating reality diverge.</p><div class="exp-grid">' + experienceCards + '</div><div class="panel bench"><p><b>How to use this layer.</b> Treat these notes as a way to plan follow-up conversations. A strong experiential pattern deserves comparison across roles; a missing note means only that this run did not include that narrative signal.</p></div></div></section>' : "";
@@ -3317,7 +3391,7 @@ async function downloadExecutiveReportPdf() {
     "width:816px",
     "background:#fff",
     "color:#15202B",
-    "z-index:-1",
+    "z-index:0",
     "pointer-events:none",
     "overflow:visible"
   ].join(";") + ";";
