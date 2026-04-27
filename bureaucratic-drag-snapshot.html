@@ -23,7 +23,7 @@
     @font-face { font-family:"Neue Haas Grotesk"; src:url("75font.woff2") format("woff2"),url("75font.woff") format("woff"); font-weight:700; }
 
     :root{--ink:#15202B;--ink-soft:#5B6774;--ink-muted:#7C8794;--page:#F4F6F9;--panel:#FFF;--panel-soft:#F8FAFC;--dark:#0F1720;--dark-2:#111B25;--accent:#3F6EA1;--accent-dark:#315983;--accent-muted:rgba(63,110,161,.35);--green:#4E9A7A;--gold:#C49A3C;--amber:#C49A3C;--rose:#B85C52;--shadow-lg:0 28px 70px rgba(15,23,32,.10);--shadow-md:0 18px 40px rgba(15,23,32,.08);--shadow-sm:0 8px 18px rgba(15,23,32,.05);--transition:220ms cubic-bezier(.22,1,.36,1)}
-    *{box-sizing:border-box} html,body{margin:0;padding:0}
+    *{box-sizing:border-box} html{scroll-behavior:smooth;scroll-padding-top:24px} html,body{margin:0;padding:0}
     body{min-height:100vh;font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;color:var(--ink);background:var(--page);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
     button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
     .shell{min-height:100vh;display:grid;place-items:center;padding:44px 20px 56px}.app{width:min(1240px,100%)}
@@ -206,7 +206,11 @@
 
       <div class="stage active" id="laneStage"><div class="lane-layout"><div class="card"><div class="step-chip"><strong>Step 1</strong><span>Select the perspective closest to the work you can actually observe.</span></div><h3>Choose the perspective that best matches your role.</h3><p class="tiny">Each version looks at the same structural issue from a different vantage point. Pick the lane that best matches what you can see firsthand.</p><div class="lane-buttons" style="margin-top:18px;"><button class="btn lane-btn" type="button" data-lane="operational">Operational</button><button class="btn lane-btn" type="button" data-lane="managerial">Managerial</button><button class="btn lane-btn" type="button" data-lane="executive">Executive</button></div><div class="lane-note">You can change lanes later by starting over. The underlying diagnostic engine remains the same; the questions shift to fit what each perspective can observe most credibly.</div></div><div class="lane-tiles"><div class="lane-tile" data-lane-tile="operational"><h4>Operational</h4><p>Built for people closest to the work. Best for surfacing duplicate entry, manual workarounds, process density, and where the operating environment quietly consumes effort.</p></div><div class="lane-tile" data-lane-tile="managerial"><h4>Managerial</h4><p>Built for people coordinating teams and execution. Best for identifying reporting burden, systems friction, recurring review load, and where administrative work is crowding out operating work.</p></div><div class="lane-tile" data-lane-tile="executive"><h4>Executive</h4><p>Built for leaders shaping operating design and governance. Best for assessing process accumulation, control creep, redesign readiness, and where administrative overhead is weakening system responsiveness.</p></div></div></div></div>
       <div class="stage" id="depthStage"><div class="intro-layout"><div class="card"><div class="step-chip"><strong>Step 2</strong><span>Choose how deep you want this run to go.</span></div><h3>Choose diagnostic depth</h3><p class="depth-intro">Pick the shortest run that still fits the importance of the workflow. For most first passes, the 30-minute version is the best starting point.</p><div class="depth-card-grid"><button class="depth-card" type="button" data-depth="10"><h4>10-minute diagnostic</h4><p>Best for fast baselining, a first pass, or repeated checks after a change.</p><div class="depth-meta">Lower burden • directional signal</div></button><button class="depth-card" type="button" data-depth="30"><span class="depth-recommend">Recommended default</span><h4>30-minute diagnostic</h4><p>Best default option. Balances burden with stronger explanatory power and better pattern detection.</p><div class="depth-meta">Balanced depth • stronger interpretation</div></button><button class="depth-card" type="button" data-depth="60"><h4>60-minute diagnostic</h4><p>Best when the workflow is politically important, chronically slow, or costly enough to justify a richer readout.</p><div class="depth-meta">Deepest branch logic • fullest self-run read</div></button></div><div class="depth-footnote">Shorter runs still deliver useful signal. Longer runs simply uncover more hidden patterning and stronger opportunity framing over time.</div></div><aside class="card soft"><div class="depth-support"><div><h3>Why time depth matters</h3><ul><li><strong>Get a baseline:</strong> understand how the workflow operates today</li><li><strong>Re-run later:</strong> measure whether changes actually improved the workflow</li><li><strong>Compare perspectives:</strong> see where different roles see the workflow differently</li><li><strong>Track drift:</strong> longer runs surface accumulating burden more clearly</li></ul></div><div class="sidebar-note"><strong>Best starting point</strong>Use the 30-minute diagnostic when the goal is a strong first read without adding unnecessary friction to the run.</div></div></aside></div></div>
-      <div class="stage" id="introStage"><div class="intro-layout"><div class="card"><div class="step-chip"><strong>Step 3</strong><span>Confirm the input guardrail, then begin the run.</span></div><h3>Before you begin</h3><div class="notice-block"><div class="notice"><strong>Notice</strong><div class="tiny" id="openingNotice"></div></div><div class="notice"><strong>What to expect</strong><div class="tiny">This run is intentionally more detailed than a light survey. Questions adapt based on what you answer, and some responses open additional question tiles so the Monderman engine has enough signal to generate a more useful readout.</div></div></div><div class="gentle-note tiny">Output quality depends on the quality and quantity of the information you provide. Some workflows require a bit more detail so the Monderman engine can generate a more precise and useful readout. Brief patience here improves the value of the output.</div><div class="checkbox-card" style="margin-top:18px;"><div class="checkbox-row"><input id="preStartConsent" type="checkbox" /><label for="preStartConsent">I agree not to enter classified, export-controlled, sensitive, proprietary, personally identifiable, protected health, or otherwise restricted information into this tool. I understand that I am solely responsible for the information I submit.</label></div></div><div class="actions" style="margin-top:22px;justify-content:flex-start;"><div class="actions-left"><a class="btn" href="diagnostic-tools.html">Back to Diagnostic Hub</a><button class="btn btn-accent btn-disabled" id="beginBtn" type="button" disabled>Begin diagnostic</button></div></div></div><aside class="card soft"><h3 id="laneAsideTitle">What this tool is built to detect</h3><ul><li>Recurring process density and administrative overhead</li><li>Systems friction, duplicate effort, and manual workaround dependence</li><li>Reporting burden and low-value oversight accumulation</li><li>Operating-environment weight that is crowding out real work</li><li>Directionally sized time, money, and capacity exposure</li></ul></aside></div></div>
+      <div class="stage" id="introStage"><div class="intro-layout"><div class="card"><div class="step-chip"><strong>Step 3</strong><span>Confirm the input guardrail, then begin the run.</span></div><h3>Before you begin</h3><div class="notice-block"><div class="notice"><strong>Notice</strong><div class="tiny" id="openingNotice">
+                  <p style="margin:0 0 8px;"><strong>1.</strong> This diagnostic generates directional insights based on the information you provide.</p>
+                  <p style="margin:0 0 8px;"><strong>2.</strong> Results are only as accurate as the inputs entered during the run.</p>
+                  <p style="margin:0;"><strong>3.</strong> Use the output as an interpretive aid, not as a substitute for independent review, professional judgment, or organization-specific analysis.</p>
+                </div></div><div class="notice"><strong>What to expect</strong><div class="tiny">This run is intentionally more detailed than a light survey. Questions adapt based on what you answer, and some responses open additional question tiles so the Monderman engine has enough signal to generate a more useful readout.</div></div></div><div class="gentle-note tiny">Output quality depends on the quality and quantity of the information you provide. Some workflows require a bit more detail so the Monderman engine can generate a more precise and useful readout. Brief patience here improves the value of the output.</div><div class="checkbox-card" style="margin-top:18px;"><div class="checkbox-row"><input id="preStartConsent" type="checkbox" /><label for="preStartConsent">I agree not to enter classified, export-controlled, sensitive, proprietary, personally identifiable, protected health, or otherwise restricted information into this tool. I understand that I am solely responsible for the information I submit.</label></div></div><div class="actions" style="margin-top:22px;justify-content:flex-start;"><div class="actions-left"><a class="btn" href="diagnostic-tools.html">Back to Diagnostic Hub</a><button class="btn btn-accent btn-disabled" id="beginBtn" type="button" disabled>Start diagnostic run</button></div></div></div><aside class="card soft"><h3 id="laneAsideTitle">What this tool is built to detect</h3><ul><li>Recurring process density and administrative overhead</li><li>Systems friction, duplicate effort, and manual workaround dependence</li><li>Reporting burden and low-value oversight accumulation</li><li>Operating-environment weight that is crowding out real work</li><li>Directionally sized time, money, and capacity exposure</li></ul></aside></div></div>
       <div class="stage" id="questionStage"><div class="question-shell"><div class="question-card"><div class="question-meta"><p class="question-label" id="questionCluster">Diagnostic question</p><p class="question-step" id="questionStep">Question 1</p></div><h3 class="question-title" id="questionTitle"></h3><p class="question-copy" id="questionCopy"></p><div class="required-note" id="requiredNotice">This question is required for the diagnostic logic to work.</div><div class="required-note" id="persistenceNotice" style="display:none;background:#FFF8EC;border-color:#F0D29D;color:#795B22;">Durable save status will appear here if the database write is blocked.</div><div class="cross-level-note" id="crossLevelNote"></div><div id="questionBody"></div></div></div></div>
       <div class="stage" id="processingStage"><div class="processing-stage"><div class="processing-card"><div class="spinner spinner-sm" aria-hidden="true"></div><h3>Generating output</h3><p>The diagnostic engine is interpreting your workflow and preparing a leadership-facing readout.</p><div class="processing-list"><div class="processing-item"><span class="pulse"></span><span>Scoring where the workflow is heaviest</span></div><div class="processing-item"><span class="pulse"></span><span>Checking for contradictions, overload, and buildup</span></div><div class="processing-item"><span class="pulse"></span><span>Estimating rough time, cost, and capacity impact</span></div><div class="processing-item"><span class="pulse"></span><span>Preparing the leadership readout</span></div></div></div></div></div>
       
@@ -402,7 +406,10 @@ const MondermanDiagnostic = (() => {
   // ═══════════════════════════════════════════════════════════
   const $ = (id) => document.getElementById(id);
 
-  $("openingNotice").textContent = openingNotice;
+  const openingNoticeEl = $("openingNotice");
+  if (openingNoticeEl && !openingNoticeEl.textContent.trim()) {
+    openingNoticeEl.textContent = openingNotice;
+  }
   $("bottomDisclaimer").textContent = bottomDisclaimer;
 
 
@@ -755,16 +762,33 @@ function hideLoader() {
   setTimeout(() => pageLoader.classList.add("hidden"), LOADER_MS);
 }
 
-function showStage(stage) {
+function scrollToStage(stage) {
+  if (!stage) return;
+  const target = stage.querySelector(".step-chip") || stage;
+  requestAnimationFrame(() => target.scrollIntoView({ behavior: "smooth", block: "start" }));
+}
+
+function syncHeroBeginCta(stage) {
+  if (!heroBeginBtn) return;
+  // This top CTA is only an entry affordance. Once the user is inside a selected
+  // diagnostic path, keeping a second “Begin diagnostic” button creates a dead,
+  // misleading control. The real start action is the guarded footer button.
+  const showEntryCta = stage === laneStage && !state.mode && !state.depth;
+  heroBeginBtn.classList.toggle("hidden", !showEntryCta);
+}
+
+function showStage(stage, options = {}) {
   [laneStage, depthStage, introStage, questionStage, processingStage, resultsStage].forEach((el) => el.classList.remove("active"));
   stage.classList.add("active");
   questionFooter.style.display = stage === questionStage ? "grid" : "none";
+  syncHeroBeginCta(stage);
+  if (options.scroll) scrollToStage(stage);
 }
 
 function setHeader(headline, subcopy, pill) {
-  envHeadline.textContent = headline;
-  envSubcopy.textContent = subcopy;
-  statusPill.textContent = pill;
+  if (envHeadline && headline !== undefined) envHeadline.textContent = headline;
+  if (envSubcopy && subcopy !== undefined) envSubcopy.textContent = subcopy;
+  if (statusPill && pill !== undefined) statusPill.textContent = pill;
 }
 
 function setProcessingStep(index, message) {
@@ -822,8 +846,10 @@ function applyHubContextDefaults() {
   const ctx = readHubContext();
   if (!ctx) return;
   try { sessionStorage.removeItem("mondermanPendingHubContext"); } catch (_error) {}
-  if (ctx.lens && !state.mode) state.mode = ctx.lens === "executive" ? "executive" : ctx.lens;
-  if (ctx.depth && !state.depth) state.depth = String(ctx.depth);
+  // Do not silently select the participant lane or diagnostic depth from prior
+  // localStorage context. That was the source of the “numbers/selection changed
+  // by themselves” behavior on the Choose participant perspective screen.
+  // Hub context may still prefill descriptive fields and display the current path.
   state.preflight.processName = state.preflight.processName || ctx.pathName || "";
   state.preflight.businessUnit = state.preflight.businessUnit || ctx.businessUnit || "";
   state.preflight.industry = state.preflight.industry || ctx.industry || "";
@@ -1361,7 +1387,7 @@ async function startAdaptiveRun() {
     state.questionHistory = [];
 
     beginBtn.disabled = false;
-    beginBtn.textContent = "Begin diagnostic";
+    beginBtn.textContent = "Start diagnostic run";
     setHeader(
       `${laneConfigs[state.mode]?.header || "Perspective selected"} • ${depthConfigs[state.depth]?.label || "Adaptive run"}`,
       "Adaptive question path active.",
@@ -1372,7 +1398,7 @@ async function startAdaptiveRun() {
   } catch (error) {
     console.error("Adaptive run start failed", error);
     beginBtn.disabled = false;
-    beginBtn.textContent = "Begin diagnostic";
+    beginBtn.textContent = "Start diagnostic run";
     setHeader("Adaptive run unavailable", "The diagnostic could not start. Please refresh and try again.", "Start failed");
     showStage(introStage);
     showToast(error?.message || "Unable to start adaptive run.");
@@ -1681,28 +1707,59 @@ function deriveBurdenDiagnosis(result, payload) {
 }
 
 function buildInterpretiveState(result, payload) {
-  const breakdown = asObject(result.burden_breakdown);
+  const rawBreakdown = asObject(result.burden_breakdown);
+  const rawDimensions = asObject(result.dimensions);
   const score = Number(result.score || 50);
-  // Governance weight: how much formal governance/control structure the workflow carries.
-  // Process density + control load are the dimensions most directly tied to formal governance.
-  // Add regulatory intensity boost for high-regulation environments.
-  // Governance weight: align with PRIMARY burden source (what the narrative identifies)
-  // Use the maximum of process_density and control_load to reflect the dominant governance burden
-  const governanceComponents = [
-    Number(breakdown.process_density || 0),
-    Number(breakdown.control_load || 0)
-  ];
-  const maxGovernanceComponent = Math.max(...governanceComponents);
-  const regBoost = normalizeChoice(payload?.regulatoryIntensity) === "high" ? 12 : normalizeChoice(payload?.regulatoryIntensity) === "moderate" ? 6 : 0;
-  const rawGovernance = maxGovernanceComponent + regBoost;
+  const pick = (...values) => {
+    for (const value of values) {
+      const n = Number(value);
+      if (Number.isFinite(n) && n > 0) return n;
+    }
+    return 0;
+  };
+  const breakdown = {
+    process_density: pick(rawBreakdown.process_density, rawDimensions.process_density),
+    control_load: pick(rawBreakdown.control_load, rawDimensions.control_load),
+    reporting_exception_burden: pick(rawBreakdown.reporting_exception_burden, rawDimensions.reporting_exception_burden),
+    systems_friction: pick(rawBreakdown.systems_friction, rawDimensions.systems_friction),
+    workaround_dependence: pick(rawBreakdown.workaround_dependence, rawDimensions.workaround_dependence, rawDimensions.upkeep_burden)
+  };
+
+  // Governance weight must not depend only on burden_breakdown. Several backend
+  // responses send the stronger signal under result.dimensions, which made the
+  // quadrant read artificially light even when the user entered a heavy-control
+  // workflow. Use both sources and treat the dominant governance/control signal
+  // as material, not averaged away.
+  const regulatory = normalizeChoice(payload?.regulatoryIntensity || payload?.regulatory_intensity);
+  const decisionType = normalizeChoice(payload?.decisionType || payload?.decision_type);
+  const regBoost = regulatory === "high" ? 16 : regulatory === "moderate" ? 8 : 0;
+  const policyBoost = ["policy", "risk", "procurement", "budget"].includes(decisionType) ? 8 : 0;
+  const meetingLoad = Number(payload?.meetingHours || payload?.meeting_hours || 0);
+  const participantLoad = Number(payload?.peopleInvolved || payload?.peopleAffected || payload?.participantCount || 0);
+  const exposureBoost = Math.min(10, Math.max(0, (meetingLoad / 8) * 4 + (participantLoad / 12) * 4));
+
+  const dominantGovernanceSignal = Math.max(
+    breakdown.process_density,
+    breakdown.control_load,
+    breakdown.reporting_exception_burden * 0.85
+  );
+  const blendedGovernanceSignal =
+    breakdown.process_density * 0.34 +
+    breakdown.control_load * 0.34 +
+    breakdown.reporting_exception_burden * 0.18 +
+    breakdown.systems_friction * 0.08 +
+    breakdown.workaround_dependence * 0.06;
+  const rawGovernance = Math.max(dominantGovernanceSignal, blendedGovernanceSignal) + regBoost + policyBoost + exposureBoost;
 
   // Execution responsiveness: how well the workflow carries movement.
   // Workarounds, reporting/exception burden, and systems friction directly indicate when execution is
   // NOT responsive — they're compensating behaviors. Use the dominant blocker.
   const movementBlockers = [
-    Number(breakdown.workaround_dependence || 0),
-    Number(breakdown.reporting_exception_burden || 0),
-    Number(breakdown.systems_friction || 0)
+    breakdown.workaround_dependence,
+    breakdown.reporting_exception_burden,
+    breakdown.systems_friction,
+    breakdown.process_density * 0.55,
+    breakdown.control_load * 0.55
   ];
   const dominantBlocker = Math.max(...movementBlockers);
   const rawExecResponsive = 100 - dominantBlocker;
@@ -3148,50 +3205,136 @@ function exportExecutiveReport(result, payload) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-function downloadExecutiveReportPdf() {
-  if (!state.result || !state.renderPayload) return;
-  if (typeof html2pdf === "undefined") {
-    showToast("PDF generation is unavailable right now. Please try the HTML download instead.");
+function loadHtml2PdfScript() {
+  if (typeof html2pdf !== "undefined") return Promise.resolve();
+  if (window.__mondermanHtml2PdfLoading) return window.__mondermanHtml2PdfLoading;
+  window.__mondermanHtml2PdfLoading = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("html2pdf could not be loaded"));
+    document.head.appendChild(script);
+  });
+  return window.__mondermanHtml2PdfLoading;
+}
+
+function openExecutiveReportPrintWindow(html, filename) {
+  const win = window.open("", "_blank", "noopener,noreferrer,width=960,height=1200");
+  if (!win) {
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    reportDownloadLink.href = url;
+    reportDownloadLink.download = filename.replace(/\.pdf$/, ".html");
+    reportDownloadLink.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showToast("PDF rendering was blocked by the browser. I downloaded the HTML report instead.");
     return;
   }
-  showToast("Generating PDF\u2026");
+  win.document.open();
+  win.document.write(html.replace("</body>", `<script>window.addEventListener('load',function(){setTimeout(function(){window.print();},350);});<\/script></body>`));
+  win.document.close();
+  showToast("Opened a print-ready report. Choose Save as PDF in the print dialog.");
+}
+
+async function downloadExecutiveReportPdf() {
+  if (!state.result || !state.renderPayload) {
+    showToast("The report is not ready yet. Finish the diagnostic output first.");
+    return;
+  }
+
   const html = buildExecutiveReportHtml(state.result, state.renderPayload);
+  const filename = buildExecutiveReportFilename(state.renderPayload).replace(/\.html$/, ".pdf");
+
+  try {
+    await loadHtml2PdfScript();
+  } catch (error) {
+    console.error("html2pdf load failed", error);
+    openExecutiveReportPrintWindow(html, filename);
+    return;
+  }
+
+  if (typeof html2pdf === "undefined") {
+    openExecutiveReportPrintWindow(html, filename);
+    return;
+  }
+
+  showToast("Generating PDF…");
+
   const parsed = new DOMParser().parseFromString(html, "text/html");
-  const container = document.createElement('div');
-  // position:absolute (not fixed) — full multi-page height extends the document
-  // so html2canvas can measure and capture all pages, not just the viewport slice.
-  container.style.cssText = 'position:absolute;top:0;left:0;width:816px;background:#fff;color:#15202B;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;line-height:1.65;z-index:9999;pointer-events:none;';
-  const style = parsed.querySelector('style');
+  const container = document.createElement("div");
+  container.setAttribute("data-monderman-pdf-render", "true");
+  container.style.cssText = [
+    "position:fixed",
+    "top:0",
+    "left:-10000px",
+    "width:816px",
+    "min-height:1056px",
+    "background:#fff",
+    "color:#15202B",
+    "font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif",
+    "line-height:1.65",
+    "z-index:-1",
+    "pointer-events:none",
+    "overflow:visible"
+  ].join(";") + ";";
+
+  const style = parsed.querySelector("style");
   if (style) {
-    const styleEl = document.createElement('style');
+    const styleEl = document.createElement("style");
     styleEl.textContent = style.textContent;
     container.appendChild(styleEl);
   }
-  const bodyWrap = document.createElement('div');
-  bodyWrap.style.cssText = 'color:#15202B;background:#fff;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;';
+
+  const bodyWrap = document.createElement("div");
+  bodyWrap.style.cssText = "width:816px;min-height:1056px;background:#fff;color:#15202B;font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif;line-height:1.65;overflow:visible;";
   bodyWrap.innerHTML = parsed.body.innerHTML;
   container.appendChild(bodyWrap);
   document.body.appendChild(container);
-  const filename = buildExecutiveReportFilename(state.renderPayload).replace(/\.html$/, '.pdf');
-  setTimeout(() => {
-    const fullH = container.scrollHeight || 3300;
-    html2pdf()
+
+  const cleanup = () => {
+    if (container && container.parentNode) container.parentNode.removeChild(container);
+  };
+
+  try {
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    const fullH = Math.ceil(Math.max(
+      container.scrollHeight || 0,
+      container.offsetHeight || 0,
+      bodyWrap.scrollHeight || 0,
+      bodyWrap.offsetHeight || 0,
+      1056
+    ));
+
+    await html2pdf()
       .set({
-        margin: 0,
+        margin: [0, 0, 0, 0],
         filename,
-        image: { type: 'jpeg', quality: 0.95 },
-        html2canvas: { scale: 2, useCORS: true, allowTaint: true, logging: false, scrollX: 0, scrollY: 0, width: 816, height: fullH },
-        jsPDF: { unit: 'pt', format: 'letter', orientation: 'portrait' },
-        pagebreak: { mode: ['css', 'legacy'] }
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          scrollX: 0,
+          scrollY: 0,
+          width: 816,
+          windowWidth: 816,
+          height: fullH,
+          windowHeight: fullH,
+          backgroundColor: "#ffffff"
+        },
+        jsPDF: { unit: "pt", format: "letter", orientation: "portrait", compress: true },
+        pagebreak: { mode: ["css", "legacy"], before: ".page" }
       })
-      .from(container)
-      .save()
-      .then(() => container.remove())
-      .catch(() => {
-        container.remove();
-        showToast('PDF generation failed. Please try the HTML download instead.');
-      });
-  }, 300);
+      .from(bodyWrap)
+      .save();
+  } catch (error) {
+    console.error("PDF generation failed", error);
+    openExecutiveReportPrintWindow(html, filename);
+  } finally {
+    cleanup();
+  }
 }
 
 function buildCrossDiagnosticArtifact(result, payload) {
@@ -3499,7 +3642,7 @@ function selectLane(mode) {
   setHeader(laneConfigs[mode]?.header || "Perspective selected", laneConfigs[mode]?.subcopy || "", "Perspective selected");
   updateHeroHelp();
   syncBeginButton();
-  showStage(depthStage);
+  showStage(depthStage, { scroll: true });
 }
 
 function selectDepth(depth) {
@@ -3511,19 +3654,11 @@ function selectDepth(depth) {
   setHeader(cfg.header, `${lane.label} perspective • ${cfg.subcopy}`, "Depth selected");
   updateHeroHelp();
   syncBeginButton();
-  showStage(introStage);
+  showStage(introStage, { scroll: true });
 }
 
 heroBeginBtn.addEventListener("click", () => {
-  if (!state.mode) {
-    showStage(laneStage);
-    return;
-  }
-  if (!state.depth) {
-    showStage(depthStage);
-    return;
-  }
-  showStage(introStage);
+  showStage(laneStage, { scroll: true });
 });
 
 learnMoreToggle.addEventListener("click", () => learnMorePanel.classList.toggle("show"));
@@ -3570,7 +3705,7 @@ skipBtn.addEventListener("click", async () => {
 });
 restartBtn.addEventListener("click", restartDiagnostic);
 downloadReportBtn?.addEventListener("click", () => { if (state.result && state.renderPayload) exportExecutiveReport(state.result, state.renderPayload); });
-downloadPdfBtn?.addEventListener("click", () => { if (state.result) downloadExecutiveReportPdf(); });
+downloadPdfBtn?.addEventListener("click", () => { downloadExecutiveReportPdf(); });
 saveCrossDiagnosticBtn?.addEventListener("click", () => { if (state.result && state.renderPayload) downloadCrossDiagnosticResult(state.result, state.renderPayload); });
 newRunBtn?.addEventListener("click", restartDiagnostic);
 document.querySelectorAll(".lane-btn").forEach((btn) => btn.addEventListener("click", () => selectLane(btn.dataset.lane)));
