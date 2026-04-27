@@ -3016,6 +3016,7 @@ function renderTrajectorySparkline(result) {
     return `${parts.slice(0, limit).join(" ")}...`;
   };
   const safeWords = (value, limit) => escapeHtml(words(value, limit));
+  const footer = (page) => `<div class="top"><span class="brand">MONDERMAN</span><span class="meta">Operational Systems Diagnostic · Page ${page}</span></div><div class="bottom">Operational Systems Diagnostic <span class="date">${safe(generated)}</span></div>`;
   const experienceLayer = payload?.experientialLayer || payload?.experiential_layer || buildExperienceLayer();
   const hasExperienceLayer = Boolean(experienceLayer?.hasInput && Array.isArray(experienceLayer.entries) && experienceLayer.entries.length);
   const experienceCards = hasExperienceLayer ? experienceLayer.entries.map((entry) => '<div class="exp-card"><h3>' + safe(entry.label) + '</h3><p>' + safeWords(entry.text, 70) + '</p></div>').join("") : "";
@@ -3028,7 +3029,6 @@ function renderTrajectorySparkline(result) {
   ];
   const lede = words(harmonized.headlineFinding || summary.body || burdenCondition.note, 76);
   const metaLine = `${sectorMeta} · ${levelMeta} · ${generated}`;
-  const footer = (page) => `<div class="top"><span class="brand">MONDERMAN</span><span class="meta">Operational Systems Diagnostic · Page ${page}</span></div><div class="bottom">Operational Systems Diagnostic <span class="date">${safe(generated)}</span></div>`;
   const segmentLegend = donutSegments.map((seg) => {
     if (!donutTotal || Number(seg.value || 0) <= 0) return "";
     const pct = Math.round((Number(seg.value || 0) / donutTotal) * 100);
