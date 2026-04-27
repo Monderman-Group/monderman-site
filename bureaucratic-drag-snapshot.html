@@ -4013,20 +4013,42 @@ renderPreflightForm();
 syncHubSelections();
 updateHeroHelp();
 syncBeginButton();
-setHeader("Choose participant perspective", "Select the perspective that best matches your role in the workflow, then choose the appropriate diagnostic depth.", "Awaiting selection");
-showStage(laneStage);
-questionFooter.style.display = "none";
+  setHeader("Choose participant perspective", "Select the perspective that best matches your role in the workflow, then choose the appropriate diagnostic depth.", "Awaiting selection");
+  showStage(laneStage);
+  questionFooter.style.display = "none";
 
   // ═══════════════════════════════════════════════════════════
   // INITIALIZATION
   // ═══════════════════════════════════════════════════════════
-  // All code above runs immediately. Event listeners are attached
-  // throughout the code at their relevant sections.
+  hideLoader();
 
-  // Return empty object (all code runs in IIFE context)
+  // Silently warm up the Render.com API instance in the background
+  (function warmupApiInBackground() {
+    const maxWait = 60000;
+    const interval = 5000;
+    const started = Date.now();
+    function ping() {
+      if (Date.now() - started >= maxWait) return;
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 4000);
+      fetch(API_BASE + "/api/health", { method: "GET", signal: ctrl.signal })
+        .then((r) => { clearTimeout(t); if (!r.ok) setTimeout(ping, interval); })
+        .catch(() => { clearTimeout(t); setTimeout(ping, interval); });
+    }
+    ping();
+  })();
+
+  ensureHubCtas();
+  applyHubContextDefaults();
+  renderCurrentPathChip();
+  renderPreflightForm();
+  syncHubSelections();
+  updateHeroHelp();
+  syncBeginButton();
+
   return {};
 })();
 
-  </script>
+</script>
 </body>
 </html>
