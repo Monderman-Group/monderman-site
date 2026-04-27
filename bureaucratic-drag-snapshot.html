@@ -407,13 +407,6 @@ const MondermanDiagnostic = (() => {
   // ═══════════════════════════════════════════════════════════
   // DOM HELPER
   // ═══════════════════════════════════════════════════════════
-  </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-<script>
-    window.MONDERMAN_SUPABASE_URL = "https://ptkxrzgmeldalrkfruth.supabase.co";
-    window.MONDERMAN_SUPABASE_ANON_KEY = "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
-  </script>
     <style>
     @font-face { font-family:"Neue Haas Grotesk"; src:url("55font.woff2") format("woff2"),url("55font.woff") format("woff"); font-weight:400; }
     @font-face { font-family:"Neue Haas Grotesk"; src:url("65font.woff2") format("woff2"),url("65font.woff") format("woff"); font-weight:500; }
@@ -4017,12 +4010,15 @@ syncBeginButton();
   showStage(laneStage);
   questionFooter.style.display = "none";
 
+    setHeader("Choose participant perspective", "Select the perspective that best matches your role in the workflow, then choose the appropriate diagnostic depth.", "Awaiting selection");
+  showStage(laneStage);
+  questionFooter.style.display = "none";
+
   // ═══════════════════════════════════════════════════════════
   // INITIALIZATION
   // ═══════════════════════════════════════════════════════════
   hideLoader();
 
-  // Silently warm up the Render.com API instance in the background
   (function warmupApiInBackground() {
     const maxWait = 60000;
     const interval = 5000;
