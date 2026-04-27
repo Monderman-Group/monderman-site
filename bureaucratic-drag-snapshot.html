@@ -342,20 +342,6 @@
               </div>
             </article>
 
-            <article class="accordion-section hidden" data-accordion="experience" id="experienceAccordion">
-              <button class="accordion-header" type="button">
-                <div class="accordion-header-main"><span class="accordion-title">Experiential layer</span><span class="accordion-sub">Optional first-person and cross-level observations supplied by the participant.</span></div>
-                <span class="accordion-chevron">⌄</span>
-              </button>
-              <div class="accordion-body">
-                <section class="result-card">
-                  <h3>What the participant added</h3>
-                  <p class="result-copy" id="experienceIntroText">Optional experience notes will appear here when provided.</p>
-                  <div class="experience-grid" id="experienceGrid" style="margin-top:14px;"></div>
-                </section>
-              </div>
-            </article>
-
             <article class="accordion-section" data-accordion="remedy">
               <button class="accordion-header" type="button">
                 <div class="accordion-header-main"><span class="accordion-title">Three remedy paths</span><span class="accordion-sub">Light, moderate, and aggressive intervention paths with benefits and risks.</span></div>
@@ -388,6 +374,21 @@
                 </div>
               </div>
             </article>
+
+            <article class="accordion-section hidden" data-accordion="experience" id="experienceAccordion">
+              <button class="accordion-header" type="button">
+                <div class="accordion-header-main"><span class="accordion-title">Experiential layer</span><span class="accordion-sub">Optional first-person and cross-level observations supplied by the participant.</span></div>
+                <span class="accordion-chevron">⌄</span>
+              </button>
+              <div class="accordion-body">
+                <section class="result-card">
+                  <h3>What the participant added</h3>
+                  <p class="result-copy" id="experienceIntroText">Optional experience notes will appear here when provided.</p>
+                  <div class="experience-grid" id="experienceGrid" style="margin-top:14px;"></div>
+                </section>
+              </div>
+            </article>
+
 
             <article class="accordion-section" data-accordion="export">
               <button class="accordion-header" type="button">
@@ -918,23 +919,10 @@ function getInsightDepthInputs(payload = {}) {
   };
 }
 
-function saveRecentRun(result, payload) {
-  try {
-    const runs = JSON.parse(localStorage.getItem(HUB_RECENT_RUNS_KEY) || "[]");
-    const entry = {
-      toolLabel: "Operational Systems",
-      href: window.location.pathname.split("/").pop() || "bureaucratic-drag-snapshot.html",
-      timestamp: new Date().toISOString(),
-      pathName: payload.processName || "",
-      organizationId: buildOrganizationId(payload),
-      lens: state.mode,
-      lensLabel: laneConfigs[state.mode]?.label || "Executive",
-      depthLabel: `${state.depth}-minute depth`,
-      exportName: result?.tool_label || "Operational Systems"
-    };
-    const next = [entry, ...runs.filter((r) => !(r.toolLabel === entry.toolLabel && r.pathName === entry.pathName))].slice(0, 5);
-    localStorage.setItem(HUB_RECENT_RUNS_KEY, JSON.stringify(next));
-  } catch (_error) {}
+function saveRecentRun(_result, _payload) {
+  // Intentional no-op for the public diagnostic page. Saving a completed run to
+  // localStorage here made later runs appear to change numbers on their own.
+  // Users can still explicitly export JSON for cross-diagnostic synthesis.
 }
 
 function getQuestionRoleText(textObj) {
@@ -1597,11 +1585,23 @@ function renderExperienceLayer(payload = {}) {
     return;
   }
   accordion.classList.remove("hidden");
-  if (intro) intro.textContent = "These optional notes were supplied from the " + (layer.participantPerspective || "selected") + " perspective. They are experiential signals: useful for interpretation, not a substitute for broader evidence.";
-  grid.innerHTML = layer.entries.map((entry) => {
+  const perspective = layer.participantPerspective || "selected";
+  const refinedNote = layer.source === "anthropic_refined"
+    ? " The notes below have been lightly cleaned for spelling, grammar, and report clarity without changing the participant's meaning."
+    : " These notes are shown as participant-provided context.";
+  const synthesis = normalizeExperienceText(layer.synthesis || "");
+  const caveat = normalizeExperienceText(layer.caveat || "");
+  if (intro) {
+    intro.textContent = "These optional notes were supplied from the " + perspective + " perspective. They are experiential signals: useful for interpretation, not a substitute for broader evidence." + refinedNote;
+  }
+  const cards = layer.entries.map((entry) => {
     const text = entry.text || entry.cleaned || entry.raw || "";
     return '<article class="experience-card"><h4>' + escapeHtml(entry.label) + '</h4><p>' + escapeHtml(text) + '</p></article>';
   }).join("");
+  const synthesisHtml = synthesis
+    ? '<article class="experience-card" style="grid-column:1/-1;background:#FBFCFE;"><h4>Experiential synthesis</h4><p>' + escapeHtml(synthesis) + (caveat ? ' ' + escapeHtml(caveat) : '') + '</p></article>'
+    : "";
+  grid.innerHTML = synthesisHtml + cards;
 }
 
 function queueConfidenceQuestion() {
@@ -1622,19 +1622,7 @@ async function submitAnswer(itemId, value, meta = {}) {
     }
     return;
   }
-  // If replaying after a back-and-change, auto-advance using cached values
-  if (state._replaying && state._replayCache && itemId !== "__confidenceLevel__") {
-    const replayVal = state._replayCache[itemId];
-    if (replayVal !== undefined) {
-      // Silently submit the cached replay value
-      value = replayVal;
-      meta = { ...meta, _replayed: true };
-    } else {
-      // We've reached the point past the replay cache — resume normal flow
-      state._replaying = false;
-      state._replayCache = null;
-    }
-  }
+  // Do not auto-replay cached answers. Every value in this run must be user-authored in the current pass.
   if (itemId === "__confidenceLevel__") {
     if (!value) {
       showQuestionRequired('This question is required.');
@@ -2454,9 +2442,9 @@ function calculateInsightDepth(inputs) {
     limited: 0.65
   })[inputs?.confidenceLevel] || 0.85;
   const raw = coverageScore * levelMultiplier * depthWeight * synthesisMultiplier * confidenceMultiplier;
-  const score = Math.min(100, Math.round(raw));
+  const score = participantCount > 0 ? Math.max(1, Math.min(100, Math.round(raw))) : 0;
   const band = score <= 25 ? "Limited" : score <= 50 ? "Directional" : score <= 75 ? "Substantive" : "Comprehensive";
-  return { score, band };
+  return { score, band, participantCount, levelsCoveredCount: levelsCovered.length, crossSynthesisCount };
 }
 
 function getCrossSynthesisCount() {
@@ -2510,13 +2498,14 @@ function renderInsightDepth(payload) {
   if (valueEl) valueEl.textContent = String(insight.score);
   if (bandEl) bandEl.textContent = insight.band;
   if (copyEl) {
+    const participantPhrase = `${insight.participantCount || 1} participant lens${(insight.participantCount || 1) === 1 ? "" : "es"}`;
     copyEl.textContent = insight.band === "Comprehensive"
-      ? "This run is drawing on broad enough coverage to read as a comparatively defensible pattern, not just a directional pulse."
+      ? `This run draws on ${participantPhrase} with enough depth to read as a comparatively defensible pattern, not just a directional pulse.`
       : insight.band === "Substantive"
-      ? "This run reflects meaningful coverage, but it should still be read as a strong directional pattern rather than an exhaustive organizational census."
+      ? `This run reflects meaningful depth from ${participantPhrase}, but it should still be read as a strong directional pattern rather than an exhaustive organizational census.`
       : insight.band === "Directional"
-      ? "This run is useful as a first read, but additional participants or lenses would make the pattern more defensible."
-      : "This run should be read as a narrow first signal rather than a broadly representative organizational read.";
+      ? `This run is useful as a first read from ${participantPhrase}; additional participants or lenses would make the pattern more defensible.`
+      : `This run reflects ${participantPhrase} and should be read as a narrow first signal rather than a broadly representative organizational read.`;
   }
   const circumference = 100.53;
   const arc = $("confidenceRingArc");
@@ -3090,13 +3079,15 @@ function renderTrajectorySparkline(result) {
   const footer = (page) => `<div class="top"><span class="brand">MONDERMAN</span><span class="meta">Operational Systems Diagnostic · Page ${page}</span></div><div class="bottom">Operational Systems Diagnostic <span class="date">${safe(generated)}</span></div>`;
   const experienceLayer = payload?.experientialLayer || payload?.experiential_layer || buildExperienceLayer();
   const hasExperienceLayer = Boolean(experienceLayer?.hasInput && Array.isArray(experienceLayer.entries) && experienceLayer.entries.length);
+  const experienceSynthesis = clean(experienceLayer?.synthesis || "The experiential layer adds participant-supplied context about how this workflow is being felt across organizational levels. Treat it as interpretive evidence, not proof.");
+  const experienceCaveat = clean(experienceLayer?.caveat || "These notes should be compared across roles before being treated as a stable organizational pattern.");
   const experienceCards = hasExperienceLayer ? experienceLayer.entries.map((entry) => {
     const text = entry.text || entry.cleaned || entry.raw || "";
-    return '<div class="exp-card"><h3>' + safe(entry.label) + '</h3><p>' + safeWords(text, 70) + '</p></div>';
+    return '<div class="exp-card"><h3>' + safe(entry.label) + '</h3><p>' + safeWords(text, 82) + '</p></div>';
   }).join("") : "";
   const remedyPageNumber = hasExperienceLayer ? 7 : 6;
   const methodPageNumber = hasExperienceLayer ? 8 : 7;
-  const experienceReportPage = hasExperienceLayer ? '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p>This optional layer records how the workflow is experienced from the selected vantage point and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal process description and lived operating reality diverge.</p><div class="exp-grid">' + experienceCards + '</div><div class="panel bench"><p><b>How to use this layer.</b> Treat these notes as a way to plan follow-up conversations. A strong experiential pattern deserves comparison across roles; a missing note means only that this run did not include that narrative signal.</p></div></div></section>' : "";
+  const experienceReportPage = hasExperienceLayer ? '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p>This optional layer records how the workflow is experienced from the selected vantage point and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal process description and lived operating reality diverge.</p><div class="panel" style="margin:16px 0 18px"><h3>Experiential synthesis</h3><p>' + safeWords(experienceSynthesis, 72) + '</p><p class="muted">' + safeWords(experienceCaveat, 42) + '</p></div><div class="exp-grid">' + experienceCards + '</div><div class="panel bench"><p><b>How to use this layer.</b> Treat these notes as a way to plan follow-up conversations. If the same signal appears across operational, managerial, and senior-leader runs, it becomes more useful as a governance input. If it appears in only one lens, it is still valuable, but it should be read as a clue rather than a conclusion.</p></div></div></section>' : "";
   const firstTwoActions = actions.slice(0, 2).length ? actions.slice(0, 2) : [
     "Reduce the heaviest visible burden first.",
     "Run the diagnostic again after the first real change."
@@ -3209,6 +3200,7 @@ function renderTrajectorySparkline(result) {
     <div class="accent-rule"></div>
     <p class="run-meta">${safe(metaLine)}</p>
     <p class="lede">${safe(lede)}</p>
+    <p>This summary is written for leaders who need to understand whether the workflow is simply busy or structurally expensive to sustain. The score, exposure estimate, and capacity drag should be read together: one describes the condition, one translates the labor cost, and one shows how much productive attention may be tied up in maintaining the process.</p>
     <div class="stat-strip">
       <div class="stat"><div class="stat-label">Burden score</div><div class="stat-value">${exportScore}</div><div class="stat-sub">${safe(burdenCondition.label)}</div></div>
       <div class="stat"><div class="stat-label">Annual exposure</div><div class="stat-value">${safe(annualCostText)}</div><div class="stat-sub">labor exposure*</div></div>
@@ -3239,7 +3231,7 @@ function renderTrajectorySparkline(result) {
   ${footer(3)}
   <div class="content">
     <p class="eyebrow">Where the burden is coming from</p><h2>Burden composition</h2>
-    <p>The composition view shows where the visible burden is coming from across the four primary dimensions Monderman measures: process density, systems friction, reporting burden, and workaround dependence.</p>
+    <p>The composition view shows where the visible burden is coming from across the four primary dimensions Monderman measures: process density, systems friction, reporting burden, and workaround dependence.</p><p class="muted">The important signal is not only which dimension is largest. The distribution also matters. A concentrated pattern usually points to a more targeted intervention; a distributed pattern usually means the workflow has absorbed burden into its normal operating design.</p>
     <div class="panel donut-panel"><div class="donut-wrap"><svg width="150" height="150" viewBox="0 0 200 200">${donutPaths}</svg><div class="donut-center"><div><small>DOMINANT</small><b>${dominantPct}%</b></div></div></div><div>${segmentLegend}</div></div>
     <h3 style="margin-top:24px">What the composition tells us</h3>
     <p>${safeWords(concentrationProse, 76)}</p>
