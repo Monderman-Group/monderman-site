@@ -1239,13 +1239,7 @@ function renderQuestionContent(item) {
   }
 
   if (item.questionType === "numeric") {
-    wrap.innerHTML = `<div class="field"><label for="field_${item.id}">Your answer</label><input id="field_${item.id}" type="number" step="any" min="0" autocomplete="off" value="${escapeHtml(String(cached ?? ""))}" placeholder="Enter a number" /></div>`;
-    const numInput = wrap.querySelector('input[type="number"]');
-    if (numInput) {
-      numInput.addEventListener('wheel', (e) => {
-        e.preventDefault();
-      }, { passive: false });
-    }
+    wrap.innerHTML = `<div class="field"><label for="field_${item.id}">Your answer</label><input id="field_${item.id}" type="number" step="any" min="0" autocomplete="off" onwheel="return false" value="${escapeHtml(String(cached ?? ""))}" placeholder="Enter a number" /></div>`;
     return wrap;
   }
 
@@ -1674,20 +1668,26 @@ function buildInterpretiveState(result, payload) {
   // Governance weight: how much formal governance/control structure the workflow carries.
   // Process density + control load are the dimensions most directly tied to formal governance.
   // Add regulatory intensity boost for high-regulation environments.
-  const rawGovernance = avg([
+  // Governance weight: align with PRIMARY burden source (what the narrative identifies)
+  // Use the maximum of process_density and control_load to reflect the dominant governance burden
+  const governanceComponents = [
     Number(breakdown.process_density || 0),
     Number(breakdown.control_load || 0)
-  ]) + (normalizeChoice(payload?.regulatoryIntensity) === "high" ? 12 : normalizeChoice(payload?.regulatoryIntensity) === "moderate" ? 6 : 0);
+  ];
+  const maxGovernanceComponent = Math.max(...governanceComponents);
+  const regBoost = normalizeChoice(payload?.regulatoryIntensity) === "high" ? 12 : normalizeChoice(payload?.regulatoryIntensity) === "moderate" ? 6 : 0;
+  const rawGovernance = maxGovernanceComponent + regBoost;
 
   // Execution responsiveness: how well the workflow carries movement.
-  // Workarounds and reporting/exception burden directly indicate when execution is
-  // NOT responsive — they're compensating behaviors.
-  const movementBlockers = avg([
+  // Workarounds, reporting/exception burden, and systems friction directly indicate when execution is
+  // NOT responsive — they're compensating behaviors. Use the dominant blocker.
+  const movementBlockers = [
     Number(breakdown.workaround_dependence || 0),
     Number(breakdown.reporting_exception_burden || 0),
     Number(breakdown.systems_friction || 0)
-  ]);
-  const rawExecResponsive = 100 - movementBlockers;
+  ];
+  const dominantBlocker = Math.max(...movementBlockers);
+  const rawExecResponsive = 100 - dominantBlocker;
 
   // Range stretch: most real-world breakdowns cluster in 25-75. Map that range
   // to the visible 10-90% of the chart so differences between runs are easier
@@ -2508,7 +2508,7 @@ function buildExecutiveReportHtml(result, payload) {
     body{font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;margin:0;color:#15202B;background:#fff;line-height:1.68;-webkit-font-smoothing:antialiased}
 
     /* ─── PAGE STRUCTURE ─── */
-    .page{padding:54pt 56pt 76pt;page-break-after:always;break-after:page;position:relative;background:#fff;height:1056px;overflow:hidden;display:flex;flex-direction:column}
+    .page{padding:54pt 56pt 76pt;page-break-after:always;break-after:page;position:relative;background:#fff;min-height:1056px;display:flex;flex-direction:column}
     .page:last-child{page-break-after:auto;break-after:auto}
     .header{display:flex;justify-content:space-between;align-items:baseline;font-size:9pt;color:#5B6774;margin-bottom:32pt;padding-bottom:14pt;border-bottom:1px solid rgba(21,32,43,.10);flex-shrink:0}
     .header-meta{letter-spacing:.06em}
@@ -2533,7 +2533,7 @@ function buildExecutiveReportHtml(result, payload) {
     .pullquote-eyebrow{font-size:8pt;letter-spacing:.16em;text-transform:uppercase;color:#3F6EA1;font-weight:700;margin:0 0 6pt}
 
     /* ─── ALERT CALLOUT (earned, not gimmicky) ─── */
-    .alert-callout{display:flex;align-items:flex-start;gap:14pt;margin:12pt 0;padding:16pt 18pt;background:#FEF6F4;border:1px solid rgba(184,92,82,.30);border-left:3pt solid #B85C52;border-radius:0 12pt 12pt 0;break-inside:avoid;page-break-inside:avoid}
+    .alert-callout{display:flex;align-items:flex-start;gap:14pt;margin:8pt 0;padding:14pt 16pt;background:#FEF6F4;border:1px solid rgba(184,92,82,.30);border-left:3pt solid #B85C52;border-radius:0 12pt 12pt 0;break-inside:avoid;page-break-inside:avoid}
     .alert-icon{flex:0 0 auto;width:24pt;height:24pt;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(184,92,82,.12);color:#B85C52;font-weight:700;font-size:13pt;line-height:1}
     .alert-body{flex:1}
     .alert-eyebrow{font-size:8pt;letter-spacing:.16em;text-transform:uppercase;color:#B85C52;font-weight:700;margin:0 0 4pt}
