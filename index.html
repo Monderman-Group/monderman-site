@@ -229,10 +229,12 @@
       --hero-shift-x: 14%;
       opacity: 0;
       transform: translateX(var(--hero-shift-x)) scale(0.88);
-      transition: opacity 720ms cubic-bezier(0.22,1,0.36,1), transform 1800ms cubic-bezier(0.22,1,0.36,1);
+      transition:
+        opacity 1100ms cubic-bezier(0.22,1,0.36,1) 120ms,
+        transform 2200ms cubic-bezier(0.22,1,0.36,1);
       will-change: transform, opacity;
     }
-    .hero-image.is-loaded { opacity: 0.94; }
+    .hero-image.is-loaded { opacity: 0.90; }
     .hero-overlay {
       position: absolute;
       inset: 0;
