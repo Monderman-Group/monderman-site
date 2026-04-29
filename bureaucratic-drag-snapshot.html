@@ -717,6 +717,7 @@ financial_services: { industryMin: 58, industryMax: 71, opportunityMin: 75, oppo
 healthcare_life_sciences: { industryMin: 55, industryMax: 68, opportunityMin: 72, opportunityMax: 85, typicalDrag: 25 },
 manufacturing_industrial: { industryMin: 60, industryMax: 73, opportunityMin: 77, opportunityMax: 89, typicalDrag: 15 },
 government_defense: { industryMin: 54, industryMax: 67, opportunityMin: 71, opportunityMax: 84, typicalDrag: 24 },
+retail_consumer: { industryMin: 58, industryMax: 73, opportunityMin: 76, opportunityMax: 88, typicalDrag: 20 },
 other: { industryMin: 58, industryMax: 69, opportunityMin: 70, opportunityMax: 84, typicalDrag: 20 }
 },
 mapSectorKey(payload) {
@@ -766,6 +767,127 @@ return new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", ma
 function formatEstimateCurrency(value) {
 const formatted = formatCurrency(value);
 return formatted === "--" ? formatted : `${formatted}*`;
+}
+
+function roundDirectionalCurrency(value) {
+const n = Number(value);
+if (!Number.isFinite(n) || n <= 0) return 0;
+const step = n < 250000 ? 25000 : 50000;
+return Math.max(step, Math.round(n / step) * step);
+}
+
+function buildCurrencyConfidenceBand(value) {
+const n = Number(value);
+if (!Number.isFinite(n) || n <= 0) return { midpoint: 0, low: 0, high: 0, label: "Not estimated" };
+const step = n < 250000 ? 25000 : 50000;
+const low = Math.max(step, Math.round((n * 0.8) / step) * step);
+const high = Math.max(low + step, Math.round((n * 1.25) / step) * step);
+const midpoint = Math.max(step, Math.round(n / step) * step);
+return { midpoint, low, high, label: `${formatCurrency(low)}–${formatCurrency(high)}*`, step };
+}
+
+function formatEstimateCurrencyRange(value) {
+const band = buildCurrencyConfidenceBand(value);
+return band.label || "Not estimated";
+}
+
+const SectorWorkflowKnowledge = {
+retail_consumer: {
+default: {
+knownBottlenecks: ["throughput pressure", "front-line labor absorbing system friction", "customer-facing delay created by internal routing"],
+knownRemedies: ["risk-tiered workflows", "standard playbooks", "self-service intake", "exception routing"],
+knownFailureModes: ["margin leakage", "customer-impacting delay", "front-line workaround normalization"]
+},
+legal_review: {
+knownBottlenecks: ["vendor contract review competing with launch and shipping windows", "marketing and supplier approvals moving faster than legal review queues", "low-risk agreements being routed through the same path as higher-risk contracts", "legal review being bypassed when commercial timing pressure is high"],
+knownRemedies: ["risk-tiered legal intake under dollar, data, brand, and indemnity thresholds", "pre-approved vendor contract playbooks and fallback clauses", "self-service templates for low-risk supplier and marketing agreements", "AI-assisted first-pass contract review with counsel-owned exception criteria"],
+knownFailureModes: ["compliance drift when the formal legal path is routinely bypassed", "audit exposure because the documented process no longer matches operating reality", "legal control that exists on paper but is not reliably producing control benefit", "commercial teams learning that workaround skill matters more than process legitimacy"]
+}
+},
+government_defense: {
+procurement: {
+knownBottlenecks: ["serial concurrence", "documentation stacking", "procurement thresholds triggering review regardless of operational urgency"],
+knownRemedies: ["threshold-based routing", "authority mapping", "concurrence reduction", "clear decision rights"],
+knownFailureModes: ["mission delay", "paper compliance without operating control", "avoidance behavior"]
+}
+},
+default: {
+knownBottlenecks: ["unclear routing", "duplicate handling", "manual coordination", "control layers that are not risk-tiered"],
+knownRemedies: ["risk-tiering", "standard work redesign", "clear exception thresholds", "pathway ownership"],
+knownFailureModes: ["hidden compensation", "normalized workarounds", "control without control benefit"]
+}
+};
+
+function detectWorkflowKey(payload = {}) {
+const text = [payload.processName, payload.process_name, payload.decisionType, payload.decision_type].join(" ").toLowerCase();
+if (/legal|contract|counsel|vendor agreement|supplier agreement|terms|clause/.test(text)) return "legal_review";
+if (/procure|contract|vendor|supplier|sourcing/.test(text)) return "procurement";
+if (/marketing|campaign|creative|brand/.test(text)) return "marketing_approval";
+return "default";
+}
+
+function getSectorWorkflowKnowledge(payload = {}) {
+const industryKey = normalizeChoice(payload?.industry || payload?.industrySelection || "other");
+const workflowKey = detectWorkflowKey(payload);
+const sector = SectorWorkflowKnowledge[industryKey] || {};
+return { industryKey, workflowKey, knowledge: sector[workflowKey] || sector.default || SectorWorkflowKnowledge.default };
+}
+
+function getExperienceText(payload = {}) {
+const layer = payload?.experientialLayer || payload?.experiential_layer || payload?.rawExperientialLayer || payload?.raw_experiential_layer || {};
+const entries = Array.isArray(layer.entries) ? layer.entries : [];
+return [layer.synthesis, layer.caveat, ...entries.flatMap((entry) => [entry.text, entry.cleaned, entry.raw])].filter(Boolean).join(" ").toLowerCase();
+}
+
+function detectQualitativeOverride(payload = {}) {
+const text = getExperienceText(payload);
+const hasWorkaround = /workaround|work around|bypass|bypassed|circumvent|informal|shadow|off[-\s]?path/.test(text);
+const hasManager = /manager|managerial|top cover|cover|accommodat|allow|aware|shield/.test(text);
+const hasSeniorBlind = /senior|leader|executive|oblivious|unaware|do not see|don't see|visibility|blind|missing/.test(text);
+const hasLegal = /legal|contract|counsel|vendor|supplier|approval|review/.test(text);
+if (hasWorkaround && hasManager && (hasSeniorBlind || hasLegal)) {
+return { strength: "high", type: "bypass_control_risk", label: "Bypass and control-risk signal", summary: "The experiential layer indicates that the formal path may be routinely bypassed in practice, with managerial accommodation and limited senior-leader visibility." };
+}
+if (hasWorkaround) return { strength: "moderate", type: "workaround_dependence", label: "Workaround-dependence signal", summary: "The experiential layer indicates that informal workarounds may be preserving movement where the formal path is too heavy." };
+return { strength: "low", type: "none", label: "No qualitative override", summary: "No experiential signal clearly overrides the structured scoring read." };
+}
+
+function getBurdenCompositionPattern(result = {}) {
+const breakdown = asObject(result?.burden_breakdown);
+const segments = [
+{ label: "Process density", value: Number(breakdown.process_density || 0) },
+{ label: "Systems friction", value: Math.max(Number(breakdown.systems_friction || 0), Number(breakdown.workaround_dependence || 0)) },
+{ label: "Reporting burden", value: Number(breakdown.reporting_exception_burden || 0) },
+{ label: "Control load", value: Number(breakdown.control_load || 0) }
+].filter((seg) => Number.isFinite(seg.value) && seg.value > 0);
+const total = segments.reduce((sum, seg) => sum + seg.value, 0);
+const dominant = segments.slice().sort((a, b) => b.value - a.value)[0] || { label: "No dominant source", value: 0 };
+const dominantPct = total ? Math.round((dominant.value / total) * 100) : 0;
+const shape = !total ? "insufficient" : dominantPct >= 38 ? "concentrated" : dominantPct < 32 ? "distributed" : "mixed";
+return { segments, total, dominant, dominantPct, shape };
+}
+
+function applyCompositionConsistency(text, result = {}) {
+let output = String(text || "");
+const pattern = getBurdenCompositionPattern(result);
+if (pattern.shape === "distributed") {
+output = output.replace(/concentrated in one primary dimension rather than distributed/gi, "distributed across multiple dimensions rather than concentrated in one place");
+output = output.replace(/burden appears concentrated/gi, "burden appears distributed");
+}
+if (pattern.shape === "concentrated") {
+output = output.replace(/distributed rather than concentrated/gi, "concentrated rather than distributed");
+}
+return output;
+}
+
+function buildBenchmarkTension(result, payload = {}) {
+const score = Number(result?.score || 0);
+const position = result?.benchmark_position || "Industry range comparison";
+const industry = getIndustryNarrative(payload);
+if (/within/i.test(position) && score < 67) {
+return `This is heavy in absolute terms but within the comparable range for ${industry.sectorName}. That means peer benchmarks will not create urgency by themselves; the case for change comes from trajectory, qualitative operating evidence, and recoverable capacity.`;
+}
+return buildBenchmarkInterpretationText(result, payload);
 }
 
 function hasMeaningfulValue(value) {
@@ -1867,6 +1989,37 @@ if (narrativeEnvelope.narrative && !result.narrative) {
   result.narrative = narrativeEnvelope.narrative;
 }
 
+if (refinedExperienceLayer?.hasInput) {
+  try {
+    setProcessingStep(2, "Running premium consistency review against experiential evidence...");
+    const narrativeResponse = await fetchWithTimeout(`${API_BASE}/api/operational-systems-narrative`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...result,
+        tool_type: "operational_systems",
+        process_name: payload.processName || payload.process_name,
+        industry: payload.industry,
+        industry_label: payload.industry,
+        participantMode: payload.participantMode || state.mode,
+        participant_mode: payload.participantMode || state.mode,
+        payload_context: payload,
+        experiential_layer: refinedExperienceLayer,
+        experientialLayer: refinedExperienceLayer
+      })
+    }, FINALIZE_TIMEOUT_MS);
+    const narrativeData = await narrativeResponse.json().catch(() => null);
+    if (narrativeResponse.ok && narrativeData?.narrative) {
+      result.narrative = narrativeData.narrative;
+      result.anthropic = narrativeData.anthropic || result.anthropic;
+    } else {
+      console.warn("Premium narrative refresh did not return narrative.", narrativeData);
+    }
+  } catch (error) {
+    console.warn("Premium narrative refresh failed; using finalize narrative.", error?.message || error);
+  }
+}
+
 state.result = result;
 state.renderPayload = payload;
 
@@ -2073,26 +2226,37 @@ governanceFromAnswers
 function deriveBurdenProfileShape(result, payload) {
 const candidate = payload?.routing_meta?.burdenProfileShapeCandidate || result?.routing_meta?.burdenProfileShapeCandidate || result?.burden_profile_shape;
 const value = normalizeChoice(candidate || "");
-if (["concentrated", "distributed", "hidden"].includes(value)) return value;
-const breakdown = asObject(result?.burden_breakdown);
-const values = Object.values(breakdown).map((v) => Number(v || 0)).sort((a, b) => b - a);
+if (["hidden"].includes(value)) return value;
+const pattern = getBurdenCompositionPattern(result);
 if ((payload?.dragVisibility || payload?.drag_visibility) === "mostly_hidden") return "hidden";
-if (values.length >= 3 && values[1] >= 32 && Math.abs((values[0] || 0) - (values[1] || 0)) <= 10) return "distributed";
-return "concentrated";
+return pattern.shape === "insufficient" ? "distributed" : pattern.shape;
 }
+
 
 function buildSectorSpecificOpportunity(stateObj, payload = {}) {
 const industry = getIndustryNarrative(payload);
+const { workflowKey, knowledge } = getSectorWorkflowKnowledge(payload);
+const qualitative = detectQualitativeOverride(payload);
+if (qualitative.type === "bypass_control_risk") {
+return {
+title: "Bring the formal path and operating reality back into alignment",
+sectorPattern: `For this ${workflowKey.replace(/_/g, " ")} workflow, common bottlenecks include ${knowledge.knownBottlenecks.slice(0, 3).join(", ")}.`,
+opportunityGuidance: "The immediate opportunity is to reconcile the documented workflow with the operating pattern people are actually using.",
+rationale: `That means either formalizing legitimate workarounds through ${knowledge.knownRemedies.slice(0, 3).join(", ")}, or removing the friction that is forcing the bypass pattern in the first place.`,
+watchout: "Do not add another review layer to a path people are already bypassing. That creates control theater without fixing control reality."
+};
+}
 return {
 title: stateObj.benchmarkPos === "Above industry range" ? "Preserve and extend advantage" : "Lighter operating burden without weakening essential control",
-sectorPattern: industry.opportunityPattern,
+sectorPattern: knowledge.knownBottlenecks?.length ? `For this ${workflowKey.replace(/_/g, " ")} workflow, common bottlenecks include ${knowledge.knownBottlenecks.slice(0, 3).join(", ")}.` : industry.opportunityPattern,
 opportunityGuidance: `This run suggests the strongest immediate opportunity sits in ${String(stateObj.topFocus || "the heaviest visible burden").toLowerCase()}, because that burden appears to be carrying more of the workflow than it should in ${industry.sectorName}.`,
-rationale: `The first moves matter because they target the structure carrying the work rather than only the symptoms people are compensating for, which is especially important where ${industry.openingClause} matters most.`,
+rationale: `The first moves should target the structure carrying the work, using remedies such as ${knowledge.knownRemedies.slice(0, 3).join(", ")}.`,
 watchout: stateObj.benchmarkPos === "Above industry range"
 ? `Leadership should avoid assuming current advantage is self-sustaining if new burden continues to accumulate.`
 : `Leadership should avoid responding by simply adding more review, more documentation, or more oversight without redesigning the operating path itself.`
 };
 }
+
 
 function buildSpecificDiagnosisReads(result, payload, burdenCondition, burdenConstraint, burdenDiagnosis, stateObj) {
 const industry = getIndustryNarrative(payload);
@@ -2133,16 +2297,22 @@ severityRead: approval >= 45 || coordination >= 45 || escalation >= 35 || keyPer
 
 function buildHeadlineFinding(result, payload, burdenConstraint, stateObj) {
 const industry = getIndustryNarrative(payload);
+const { workflowKey, knowledge } = getSectorWorkflowKnowledge(payload);
+const qualitative = detectQualitativeOverride(payload);
 const annualHours = Math.round(Number(result?.exposure?.annual_hours || 0));
-const capacity = Math.round(Number(result?.exposure?.capacity_drag_percent || 0));
-const profileShape = stateObj.burdenProfileShape;
-const shapeSentence = profileShape === "hidden"
+const pattern = getBurdenCompositionPattern(result);
+if (qualitative.type === "bypass_control_risk") {
+return `The primary finding is not simply that ${String(payload?.processName || payload?.process_name || "this workflow").toLowerCase()} is heavy; it is that the formal path appears structurally bypassable. Participants describe workarounds around the prescribed process, managerial accommodation of those workarounds, and likely limited senior-leader visibility. In a ${workflowKey.replace(/_/g, " ")} workflow, that changes the read from ordinary process drag to a potential control and compliance exposure: the organization may be paying for a formal process that is not reliably producing the control benefit it was designed to provide.`;
+}
+const shapeSentence = pattern.shape === "hidden"
 ? "The burden appears partly hidden rather than fully visible, which means the real upkeep cost may be heavier than the surface workflow suggests."
-: profileShape === "distributed"
-? "The burden appears distributed across multiple dimensions rather than concentrated in one place, which makes it feel systemic to people inside the path."
-: "The burden appears concentrated in one primary dimension rather than distributed, which makes the condition more fixable if leadership targets that source first.";
+: pattern.shape === "distributed"
+? `The burden is distributed across multiple dimensions rather than concentrated in one place; no single source carries more than ${pattern.dominantPct}% of the visible burden.`
+: pattern.shape === "concentrated"
+? `The burden is concentrated in ${pattern.dominant.label.toLowerCase()}, which creates a clearer first target if leadership can prevent burden from reappearing elsewhere.`
+: `The burden is mixed: ${pattern.dominant.label.toLowerCase()} is the largest visible source, but the remaining dimensions are still material.`;
 const sourceClause = burdenConstraint.label === "Reporting and exception burden"
-? `Reporting and exception burden appears to be absorbing roughly ${capacity}% of usable operating capacity in this workflow.`
+? `Reporting and exception burden appears to be absorbing more usable capacity than this workflow should require.`
 : burdenConstraint.label === "Systems and coordination friction"
 ? `Systems friction and handoff coordination appear to be carrying too much of the drag in this workflow.`
 : burdenConstraint.label === "Manual workaround dependence"
@@ -2154,10 +2324,11 @@ const trajectorySentence = stateObj.trajectoryDirection === "up"
 ? "Trajectory signals suggest the burden is easing, but the current environment is still carrying material recoverable drag."
 : "Trajectory signals suggest the burden is holding relatively steady rather than improving on its own.";
 const exposureSentence = annualHours > 0
-? `At the current run assumptions, the workflow is sustaining about ${annualHours.toLocaleString()} annual burden hours*, which is meaningful in ${industry.sectorName} where ${industry.openingClause} matters.`
+? `At the current run assumptions, the workflow is sustaining about ${annualHours.toLocaleString()} annual burden hours*, which is meaningful in ${industry.sectorName}.`
 : `The surface signal suggests a meaningful capacity cost in ${industry.sectorName}, even before any deeper audit of the workflow.`;
-return `${sourceClause} ${shapeSentence} ${trajectorySentence} ${exposureSentence}`;
+return applyCompositionConsistency(`${sourceClause} ${shapeSentence} ${trajectorySentence} ${exposureSentence}`, result);
 }
+
 
 // Sanitize numbers in narrative prose so the AI's raw numeric output renders
 // cleanly in the PDF and on-screen. This is a display-only transform -- it does
@@ -2197,15 +2368,16 @@ const fallbackOpportunity = buildSectorSpecificOpportunity(stateObj, payload);
 const narrative = typeof result?.narrative === "object" ? result.narrative : {};
 const industry = getIndustryNarrative(payload);
 const diagnosisReads = buildSpecificDiagnosisReads(result, payload, burdenCondition, burdenConstraint, burdenDiagnosis, stateObj);
-const headlineFinding = buildHeadlineFinding(result, payload, burdenConstraint, stateObj);
+let headlineFinding = narrative.primary_signal || buildHeadlineFinding(result, payload, burdenConstraint, stateObj);
+headlineFinding = applyCompositionConsistency(headlineFinding, result);
 
-const rawExecutive = narrative.executive_interpretation || `${process} currently reads as ${burdenCondition.label.toLowerCase()}. In ${industry.sectorName}, that usually means ${fallbackOpportunity.sectorPattern.toLowerCase()}`;
-const executive = sanitizeNarrativeNumbers(rawExecutive);
+const rawExecutive = narrative.executive_interpretation || narrative.primary_signal || `${process} currently reads as ${burdenCondition.label.toLowerCase()}. In ${industry.sectorName}, that usually means ${fallbackOpportunity.sectorPattern.toLowerCase()}`;
+const executive = applyCompositionConsistency(sanitizeNarrativeNumbers(rawExecutive), result);
 const leadership = narrative.leadership_implication
 ? String(narrative.leadership_implication).split(/\n+/).map((s) => s.trim()).filter(Boolean)
 : buildPriorityActions(result, payload);
 const tradeoff = narrative.tradeoff_note || burdenDiagnosis.note;
-const rawTmr = narrative.time_money_resources_summary || `Directional modeling suggests roughly ${Math.round(Number(result?.exposure?.annual_hours || 0)).toLocaleString()} annual hours* and about ${formatEstimateCurrency(result?.exposure?.annual_cost)} in labor exposure, with capacity drag around ${Math.round(Number(result?.exposure?.capacity_drag_percent || 0))}%*.`;
+const rawTmr = narrative.time_money_resources_summary || `Directional modeling suggests roughly ${Math.round(Number(result?.exposure?.annual_hours || 0)).toLocaleString()} annual hours* and a labor-exposure range of ${formatEstimateCurrencyRange(result?.exposure?.annual_cost)}, with capacity drag around ${Math.round(Number(result?.exposure?.capacity_drag_percent || 0))}%*.`;
 const tmr = sanitizeNarrativeNumbers(rawTmr);
 
 const fallbackActions = buildPriorityActions(result, payload);
@@ -2237,7 +2409,7 @@ headlineFinding,
 leadership,
 tradeoff,
 tmr,
-benchmark: buildBenchmarkInterpretationText(result, payload),
+benchmark: narrative.benchmark_tension || buildBenchmarkInterpretationText(result, payload),
 opportunity,
 diagnosisReads,
 opportunityFields,
@@ -2249,57 +2421,52 @@ recommendedActions: narrativeActions
 function buildPriorityActions(result, payload) {
 const process = (payload?.processName || payload?.process_name || "this workflow").trim();
 const breakdown = asObject(result.burden_breakdown);
-const industry = getIndustryNarrative(payload);
+const { knowledge } = getSectorWorkflowKnowledge(payload);
+const qualitative = detectQualitativeOverride(payload);
 const actions = [];
+if (qualitative.type === "bypass_control_risk") {
+actions.push(`Reconcile the documented ${process.toLowerCase()} process with the operating pattern people are actually using: either formalize the workarounds through risk tiering and playbooks, or remove the friction that is forcing them.`);
+actions.push(`Create explicit low-risk and exception paths using ${knowledge.knownRemedies.slice(0, 3).join(", ")}, so routine work does not require informal managerial cover.`);
+actions.push(`Test senior-leader visibility: verify whether leaders believe the formal path is being followed and whether audit evidence matches actual practice.`);
+return actions;
+}
 if (Number(breakdown.process_density || 0) >= 45) {
-actions.push(`Cut review layers in ${process.toLowerCase()} that are not catching real problems, so routine work doesn't get treated like high-risk work.`);
+actions.push(`Cut review or control layers in ${process.toLowerCase()} that are not catching real problems, so routine work does not get treated like high-risk work.`);
 }
 if (Math.max(Number(breakdown.systems_friction || 0), Number(breakdown.workaround_dependence || 0)) >= 40) {
 actions.push(`Make ownership and handoffs clearer so less gets redone and the work moves without constant follow-up.`);
 }
 if (Number(breakdown.reporting_exception_burden || 0) >= 35) {
-actions.push(`Stop escalating things that should be decided where they are, so routine cases do not keep moving upward.`);
+actions.push(`Separate true exceptions from normal cases so routine work does not keep moving upward or sideways for avoidable review.`);
 }
 if (Number(breakdown.control_load || 0) >= 40) {
-actions.push(`Write down the decisions currently kept in specific people's heads, so the work doesn't depend on one person being available.`);
+actions.push(`Write down the decisions currently kept in specific people's heads, so the work does not depend on one person being available.`);
 }
-if (!actions.length) {
-actions.push(`Keep what is working in ${process.toLowerCase()} while removing the recurring burden that is making normal work heavier than it needs to be.`);
-}
-actions.push(`Run this again after the first real change, especially where ${industry.openingClause} matters, so you can see whether the path actually got lighter or the burden just moved somewhere else.`);
+if (!actions.length) actions.push(`Keep what is working in ${process.toLowerCase()} while removing the recurring burden that is making normal work heavier than it needs to be.`);
+actions.push(`Run this again after the first real change and compare operational, managerial, and senior-leader lenses to see whether the burden was removed or merely displaced.`);
 return actions.slice(0, 4);
 }
+
 
 function buildRemedyPaths(result, payload) {
 const reclaim = estimateReclaimPotential(result, payload);
 const actions = buildPriorityActions(result, payload);
+const qualitative = detectQualitativeOverride(payload);
+const rangeText = (amount) => formatEstimateCurrencyRange(amount);
+if (qualitative.type === "bypass_control_risk") {
 return [
-{
-label: "Light remedy path",
-kicker: "Low disruption",
-summary: "Fix the biggest visible problem without redesigning everything.",
-actions: [actions[0] || "Reduce the heaviest visible burden first."],
-benefit: `Possible upside of about ${formatEstimateCurrency(reclaim.amount * 0.22)} if the first fix sticks quickly.`,
-risk: `Risk: the surface looks better while the real problem stays.`
-},
-{
-label: "Moderate remedy path",
-kicker: "Targeted redesign",
-summary: "Redesign how the normal case flows and clarify who decides what.",
-actions: actions.slice(0, 2),
-benefit: `Possible upside of about ${formatEstimateCurrency(reclaim.amount * 0.48)} if the redesigned path holds.`,
-risk: `Risk: you end up in a better but still burdened middle state.`
-},
-{
-label: "Aggressive remedy path",
-kicker: "Fastest structural reset",
-summary: "Remove several burden layers at once and separate normal cases from exceptions cleanly.",
-actions: actions.slice(0, 4),
-benefit: `Possible upside of about ${formatEstimateCurrency(reclaim.amount * 0.72)} if leadership can hold the new design.`,
-risk: `Risk: pushback from people who thought the old controls were protecting them.`
-}
+{ label: "Stabilize the real path", kicker: "Low disruption", summary: "Document where the formal path is being bypassed and stop treating informal compensation as invisible.", actions: [actions[0] || "Map the workaround pattern."], benefit: `Possible upside in the range of ${rangeText(reclaim.amount * 0.22)} if the first fixes stick.`, risk: "Risk: the surface looks cleaner while informal bypass behavior continues." },
+{ label: "Risk-tier the workflow", kicker: "Targeted redesign", summary: "Separate routine legal review from true exceptions and formalize playbooks for low-risk work.", actions: actions.slice(0, 2), benefit: `Possible upside in the range of ${rangeText(reclaim.amount * 0.48)} if the redesigned path holds.`, risk: "Risk: the organization creates a better process on paper but does not change actual behavior." },
+{ label: "Control reset", kicker: "Fastest structural reset", summary: "Realign legal control, managerial cover, and senior-leader visibility around the same operating model.", actions: actions.slice(0, 4), benefit: `Possible upside in the range of ${rangeText(reclaim.amount * 0.72)} if leadership can hold the new design.`, risk: "Risk: pushback from teams that relied on the old workaround economy to meet business timing." }
 ];
 }
+return [
+{ label: "Light remedy path", kicker: "Low disruption", summary: "Fix the biggest visible problem without redesigning everything.", actions: [actions[0] || "Reduce the heaviest visible burden first."], benefit: `Possible upside in the range of ${rangeText(reclaim.amount * 0.22)} if the first fix sticks quickly.`, risk: `Risk: the surface looks better while the real problem stays.` },
+{ label: "Moderate remedy path", kicker: "Targeted redesign", summary: "Redesign how the normal case flows and clarify who decides what.", actions: actions.slice(0, 2), benefit: `Possible upside in the range of ${rangeText(reclaim.amount * 0.48)} if the redesigned path holds.`, risk: `Risk: you end up in a better but still burdened middle state.` },
+{ label: "Aggressive remedy path", kicker: "Fastest structural reset", summary: "Remove several burden layers at once and separate normal cases from exceptions cleanly.", actions: actions.slice(0, 4), benefit: `Possible upside in the range of ${rangeText(reclaim.amount * 0.72)} if leadership can hold the new design.`, risk: `Risk: pushback from people who thought the old controls were protecting them.` }
+];
+}
+
 
 function buildExecutiveSummary(result, payload) {
 const process = payload?.processName || payload?.process_name || "This workflow";
@@ -2315,7 +2482,7 @@ headline = `${process} is carrying more burden than a comparable path likely sho
 }
 return {
 headline,
-body: narrative.executive_interpretation || harmonized.headlineFinding,
+body: narrative.executive_interpretation || narrative.primary_signal || harmonized.headlineFinding,
 opportunity: narrative.opportunity_guidance || joinNarrativeParts([
   narrative.what_this_run_indicates,
   narrative.how_advantage_is_built_here,
@@ -2328,13 +2495,18 @@ function buildBenchmarkInterpretationText(result, payload) {
 const calibration = DiagnosticInterpretationLayer.getSectorCalibration(payload || {});
 const score = Number(result?.score || 50);
 const industry = getIndustryNarrative(payload);
-let text = `This workflow sits in the ${result?.benchmark_position || "industry range"}. `;
+const position = result?.benchmark_position || "industry range";
+if (/within/i.test(position) && score < 67) {
+return `This workflow is heavy in absolute terms but still ${String(position).toLowerCase()} for ${industry.sectorName}. That is analytically important: peer comparison will not create urgency by itself. The case for action comes from trajectory, qualitative operating evidence, and the fact that similar workflows still often carry about ${calibration.typicalDrag}% recoverable drag even when the setup feels normal.`;
+}
+let text = `This workflow sits in the ${position}. `;
 if (score > 75) text += `${industry.benchmarkAbove} `;
 else if (score < 55) text += `${industry.benchmarkBelow} `;
 else text += `${industry.benchmarkWithin} `;
 text += `Similar workflows in ${industry.sectorName} still often carry about ${calibration.typicalDrag}% recoverable drag even when people think the setup is just normal.`;
 return text;
 }
+
 
 function estimateReclaimPotential(result, payload) {
 return DiagnosticInterpretationLayer.estimateReclaimPotential(result, payload || {});
@@ -2951,7 +3123,7 @@ return `<svg width="220" height="140" viewBox="0 0 220 140" xmlns="http://www.w3
 - Builds cover page stats strip (three key metrics)
   */
   function buildCoverStatsStrip(exportScore, result, benchmarkPosition) {
-  const annualCost = formatEstimateCurrency(result?.exposure?.annual_cost);
+  const annualCost = formatEstimateCurrencyRange(result?.exposure?.annual_cost);
   const dragPct = Math.round(Number(result?.exposure?.capacity_drag_percent || 0));
   return `<div class="cover-stat-strip">
   
@@ -3158,7 +3330,7 @@ const sectorMeta = humanize(payload?.industry || result?.industry_label || "sect
 const levelMeta = humanize(payload?.organizationLevel || payload?.organization_level || payload?.unitType || payload?.unit_type || "Business unit");
 const annualHours = Math.round(Number(result?.exposure?.annual_hours || 0));
 const annualHoursText = annualHours ? `${annualHours.toLocaleString()} annual burden hours*` : "annual burden hours* not estimated";
-const annualCostText = formatEstimateCurrency(result?.exposure?.annual_cost);
+const annualCostText = formatEstimateCurrencyRange(result?.exposure?.annual_cost);
 const dragPct = Math.max(0, Math.min(100, Math.round(Number(result?.exposure?.capacity_drag_percent || 0))));
 const capacity = calculateCapacityComposition(dragPct);
 const breakdown = asObject(result?.burden_breakdown);
@@ -3193,9 +3365,26 @@ const experienceCards = hasExperienceLayer ? experienceLayer.entries.map((entry)
 const text = entry.text || entry.cleaned || entry.raw || "";
 return '<div class="exp-card"><h3>' + safe(entry.label) + '</h3><p>' + safeWords(text, 82) + '</p></div>';
 }).join("") : "";
-const remedyPageNumber = hasExperienceLayer ? 7 : 6;
-const methodPageNumber = hasExperienceLayer ? 8 : 7;
+const decisionReviewPageNumber = hasExperienceLayer ? 7 : 6;
+const remedyPageNumber = decisionReviewPageNumber + 1;
+const methodPageNumber = remedyPageNumber + 1;
 const experienceReportPage = hasExperienceLayer ? '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p>This optional layer records how the workflow is experienced from the selected vantage point and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal process description and lived operating reality diverge.</p><div class="panel" style="margin:16px 0 18px"><h3>Experiential synthesis</h3><p>' + safeWords(experienceSynthesis, 72) + '</p><p class="muted">' + safeWords(experienceCaveat, 42) + '</p></div><div class="exp-grid">' + experienceCards + '</div><div class="panel bench"><p><b>How to use this layer.</b> Treat these notes as a way to plan follow-up conversations. If the same signal appears across operational, managerial, and senior-leader runs, it becomes more useful as a governance input. If it appears in only one lens, it is still valuable, but it should be read as a clue rather than a conclusion.</p></div></div></section>' : "";
+const narrativeForReport = asObject(result?.narrative);
+const defaultReadings = [
+{ label: "Structural burden read", interpretation: "The workflow is too heavy because the formal path carries more process and control density than the underlying work requires.", what_would_distinguish_it: "Cycle-time data would show delay concentrated in formal review stages." },
+{ label: "Bypass/control-risk read", interpretation: "The documented workflow may no longer be the real workflow; workarounds preserve output while weakening control visibility.", what_would_distinguish_it: "Managerial and senior-leader runs would confirm a gap between formal process design and actual practice." },
+{ label: "Equilibrium-with-workarounds read", interpretation: "The system may be stable only because managers and operators have learned how to compensate around it.", what_would_distinguish_it: "Removing informal cover would quickly worsen cycle time, exception volume, or compliance friction." }
+];
+const competingReadings = (Array.isArray(narrativeForReport.competing_readings) && narrativeForReport.competing_readings.length ? narrativeForReport.competing_readings : defaultReadings).slice(0, 3);
+const updateReadItems = (Array.isArray(narrativeForReport.what_would_update_this_read) && narrativeForReport.what_would_update_this_read.length ? narrativeForReport.what_would_update_this_read : [
+"A managerial-perspective run showing the same workaround pattern would elevate the read from suggestive to confirmed.",
+"A senior-leader run showing confidence that the formal path is followed would expose a possible visibility gap.",
+"Actual volume and cycle-time data would recalibrate the exposure range and show whether the issue is occasional or normalized.",
+"Risk-tier data would show whether low-risk work is being trapped in a high-control path."
+]).slice(0, 4);
+const readingHtml = competingReadings.map((item) => '<div class="mini-card"><b>' + safe(item.label || "Reading") + '</b><p>' + safeWords(item.interpretation || item, 34) + '</p><p class="muted">Signal test: ' + safeWords(item.what_would_distinguish_it || "Additional cross-role evidence would clarify this reading.", 28) + '</p></div>').join("");
+const updateHtml = updateReadItems.map((item) => '<p>• ' + safeWords(item, 28) + '</p>').join("");
+const decisionReviewPage = '<section class="page">' + footer(decisionReviewPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>Competing readings and what would update the diagnosis</h2><p>A premium diagnostic should not pretend that one interpretation is the only possible read. This section names the plausible readings and the evidence that would distinguish them.</p><div class="card-row" style="grid-template-columns:1fr;gap:12px">' + readingHtml + '</div><div class="panel bench"><h3>What would update this read</h3>' + updateHtml + '</div></div></section>';
 const firstTwoActions = actions.slice(0, 2).length ? actions.slice(0, 2) : [
 "Reduce the heaviest visible burden first.",
 "Run the diagnostic again after the first real change."
@@ -3372,6 +3561,7 @@ return `<!doctype html>
 </section>
 
 ${experienceReportPage}
+${decisionReviewPage}
 
 <section class="page">
   ${footer(remedyPageNumber)}
