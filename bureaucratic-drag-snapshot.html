@@ -442,7 +442,7 @@ const LOADER_MS = 3600;
 const START_TIMEOUT_MS = 45000;
 const ANSWER_TIMEOUT_MS = 15000;
 const FINALIZE_TIMEOUT_MS = 90000;
-const EXPERIENCE_REFINE_TIMEOUT_MS = 25000;
+const EXPERIENCE_REFINE_TIMEOUT_MS = 45000;
 
 const openingNotice = "This diagnostic generates directional insights based on the information you provide. Results are only as accurate as your inputs and should be used as an interpretive aid, not as a substitute for independent review, professional judgment, or organization-specific analysis.";
 const finalAcknowledgment = "I acknowledge that this diagnostic provides directional insights only, that Monderman has not independently verified my inputs, and that I am solely responsible for how these results are interpreted or used.";
@@ -959,6 +959,20 @@ if (count < 5000) return "large";
 return "enterprise";
 }
 
+function parseDirectionalNumber(value) {
+const raw = String(value ?? "").trim();
+if (!raw) return "";
+const cleaned = raw.replace(/[$,%\s]/g, "").replace(/,/g, "");
+if (!cleaned || cleaned === "." || cleaned === "-" || cleaned === "-.") return "";
+const num = Number(cleaned);
+return Number.isFinite(num) ? num : NaN;
+}
+
+function renderStableNumericInput(field, value, idPrefix = "preflight") {
+const displayValue = value === null || value === undefined ? "" : String(value);
+return `<input id="${idPrefix}_${field.id}" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" data-numeric-input="true" placeholder="${escapeHtml(field.placeholder || "")}" value="${escapeHtml(displayValue)}" />`;
+}
+
 function updateHeroHelp() {
 const lane = laneConfigs[state.mode] || null;
 if (!lane) {
@@ -1064,7 +1078,10 @@ return `<div class="field" data-field-id="${escapeHtml(field.id)}"><label for="p
 if (field.kind === "textarea") {
 return `<div class="field" data-field-id="${escapeHtml(field.id)}"><label for="preflight_${field.id}">${escapeHtml(field.label)}</label><textarea id="preflight_${field.id}" placeholder="${escapeHtml(field.placeholder || "")}">${escapeHtml(String(value))}</textarea><div class="field-error-msg"></div></div>`;
 }
-return `<div class="field" data-field-id="${escapeHtml(field.id)}"><label for="preflight_${field.id}">${escapeHtml(field.label)}</label><input id="preflight_${field.id}" type="${field.kind === "number" ? "number" : "text"}" ${field.kind === "number" ? 'step="any" min="0"' : ""} placeholder="${escapeHtml(field.placeholder || "")}" value="${escapeHtml(String(value))}" /><div class="field-error-msg"></div></div>`;
+const inputHtml = field.kind === "number"
+? renderStableNumericInput(field, value, "preflight")
+: `<input id="preflight_${field.id}" type="text" autocomplete="off" placeholder="${escapeHtml(field.placeholder || "")}" value="${escapeHtml(String(value))}" />`;
+return `<div class="field" data-field-id="${escapeHtml(field.id)}"><label for="preflight_${field.id}">${escapeHtml(field.label)}</label>${inputHtml}<div class="field-error-msg"></div></div>`;
 }).join("");
 mount.innerHTML = `<div class="card soft" style="margin-top:18px;"><h3 style="margin-bottom:10px;">Context for this run</h3><p class="tiny" style="margin-bottom:16px;">These fields provide workflow context, sector framing, and exposure sizing for the final output.</p><div class="field-group">${html}</div></div>`;
 const checkboxCard = introCard.querySelector('.checkbox-card');
@@ -1075,6 +1092,12 @@ msg.id = 'consentErrorMsg';
 checkboxCard.appendChild(msg);
 }
 mount.querySelectorAll('input, select, textarea').forEach((el) => {
+if (el.dataset.numericInput === "true") {
+el.addEventListener('wheel', (event) => event.preventDefault(), { passive: false });
+el.addEventListener('keydown', (event) => {
+if (event.key === 'ArrowUp' || event.key === 'ArrowDown') event.preventDefault();
+});
+}
 el.addEventListener('input', () => {
 const field = el.closest('.field');
 if (field?.classList.contains('has-error')) {
@@ -1099,7 +1122,7 @@ const next = {};
 PRESTART_FIELDS.forEach((field) => {
 const el = $(`preflight_${field.id}`);
 if (!el) return;
-next[field.id] = field.kind === "number" ? (el.value === "" ? "" : Number(el.value)) : el.value;
+next[field.id] = field.kind === "number" ? parseDirectionalNumber(el.value) : el.value;
 });
 return next;
 }
@@ -1307,7 +1330,12 @@ return wrap;
 }
 
 if (item.questionType === "numeric") {
-wrap.innerHTML = `<div class="field"><label for="field_${item.id}">Your answer</label><input id="field_${item.id}" type="number" step="any" min="0" autocomplete="off" onwheel="return false" value="${escapeHtml(String(cached ?? ""))}" placeholder="Enter a number" /></div>`;
+wrap.innerHTML = `<div class="field"><label for="field_${item.id}">Your answer</label><input id="field_${item.id}" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" data-numeric-input="true" value="${escapeHtml(String(cached ?? ""))}" placeholder="Enter a number" /></div>`;
+const numericEl = wrap.querySelector('[data-numeric-input="true"]');
+numericEl?.addEventListener('wheel', (event) => event.preventDefault(), { passive: false });
+numericEl?.addEventListener('keydown', (event) => {
+if (event.key === 'ArrowUp' || event.key === 'ArrowDown') event.preventDefault();
+});
 return wrap;
 }
 
@@ -1321,7 +1349,7 @@ if (!item) return "";
 if (item.questionType === "numeric") {
 const el = $(`field_${item.id}`);
 if (!el || el.value === "") return "";
-return Number(el.value);
+return parseDirectionalNumber(el.value);
 }
 const textEl = $(`field_${item.id}`);
 return textEl ? textEl.value : state.answerCache[item.id];
@@ -1806,6 +1834,7 @@ const result = asObject(data.result);
 const inferredCoverage = inferParticipantCoverage();
 const legacyPayload = asObject(data.legacyPayload);
 const rawExperienceLayer = buildExperienceLayer();
+if (rawExperienceLayer?.hasInput) setProcessingStep(2, "Refining experiential notes into a report-ready readback...");
 const refinedExperienceLayer = await refineExperientialLayerForOutput(rawExperienceLayer);
 const payload = {
   ...legacyPayload,
@@ -2144,6 +2173,19 @@ function sanitizeNarrativeNumbers(text) {
 return (text === null || text === undefined) ? "" : String(text);
 }
 
+function normalizeNarrativeList(value, fallback = []) {
+if (Array.isArray(value)) return value.map((item) => String(item || "").trim()).filter(Boolean);
+if (typeof value === "string") {
+const lines = value.split(/\n+|(?:^|\s)[•\-]\s+/).map((item) => item.trim()).filter(Boolean);
+return lines.length ? lines : fallback;
+}
+return fallback;
+}
+
+function joinNarrativeParts(parts) {
+return parts.map((part) => String(part || "").trim()).filter(Boolean).join(" ");
+}
+
 function buildHarmonizedNarrative(result, payload) {
 const stateObj = buildInterpretiveState(result, payload);
 stateObj.burdenProfileShape = deriveBurdenProfileShape(result, payload);
@@ -2166,6 +2208,28 @@ const tradeoff = narrative.tradeoff_note || burdenDiagnosis.note;
 const rawTmr = narrative.time_money_resources_summary || `Directional modeling suggests roughly ${Math.round(Number(result?.exposure?.annual_hours || 0)).toLocaleString()} annual hours* and about ${formatEstimateCurrency(result?.exposure?.annual_cost)} in labor exposure, with capacity drag around ${Math.round(Number(result?.exposure?.capacity_drag_percent || 0))}%*.`;
 const tmr = sanitizeNarrativeNumbers(rawTmr);
 
+const fallbackActions = buildPriorityActions(result, payload);
+const narrativeActions = normalizeNarrativeList(narrative.recommended_interventions, fallbackActions);
+const narrativeFlags = normalizeNarrativeList(narrative.key_friction_flags, asArray(result.key_findings).length ? result.key_findings : [burdenConstraint.note]);
+const opportunityFields = {
+  title: narrative.opportunity_title || fallbackOpportunity.title,
+  opening: narrative.opportunity_opening || narrative.opportunity_guidance || fallbackOpportunity.opportunityGuidance,
+  sectorDynamic: narrative.sector_dynamic || narrative.sector_pattern || fallbackOpportunity.sectorPattern,
+  runIndicates: narrative.what_this_run_indicates || `In ${industry.sectorName}, the current read suggests the heaviest visible burden is not just incidental friction but a pattern worth governing directly.`,
+  buildAdvantage: narrative.how_advantage_is_built_here || narrative.opportunity_rationale || fallbackOpportunity.rationale,
+  firstMoves: joinNarrativeParts([
+    narrative.first_move_1_reason,
+    narrative.first_move_2_reason,
+    narrative.recommended_actions_rationale
+  ]) || fallbackActions.join(" "),
+  watchout: narrative.leadership_watchout || fallbackOpportunity.watchout
+};
+const opportunity = narrative.opportunity_guidance || joinNarrativeParts([
+  opportunityFields.opening,
+  opportunityFields.runIndicates,
+  opportunityFields.buildAdvantage
+]) || fallbackOpportunity.opportunityGuidance;
+
 return {
 state: stateObj,
 executive,
@@ -2174,19 +2238,11 @@ leadership,
 tradeoff,
 tmr,
 benchmark: buildBenchmarkInterpretationText(result, payload),
-opportunity: fallbackOpportunity.opportunityGuidance,
+opportunity,
 diagnosisReads,
-opportunityFields: {
-title: fallbackOpportunity.title,
-opening: fallbackOpportunity.opportunityGuidance,
-sectorDynamic: fallbackOpportunity.sectorPattern,
-runIndicates: `In ${industry.sectorName}, the current read suggests the heaviest visible burden is not just incidental friction but a pattern worth governing directly.`,
-buildAdvantage: fallbackOpportunity.rationale,
-firstMoves: buildPriorityActions(result, payload).join(" "),
-watchout: fallbackOpportunity.watchout
-},
-keyFlags: asArray(result.key_findings).length ? result.key_findings : [burdenConstraint.note],
-recommendedActions: buildPriorityActions(result, payload)
+opportunityFields,
+keyFlags: narrativeFlags,
+recommendedActions: narrativeActions
 };
 }
 
@@ -2248,16 +2304,23 @@ risk: `Risk: pushback from people who thought the old controls were protecting t
 function buildExecutiveSummary(result, payload) {
 const process = payload?.processName || payload?.process_name || "This workflow";
 const harmonized = buildHarmonizedNarrative(result, payload);
+const narrative = typeof result?.narrative === "object" ? result.narrative : {};
 let headline = `${process} is still getting work done, but it is carrying enough drag to leave real value on the table.`;
-if ((result.benchmark_position || "").includes("Above")) {
+if (narrative.opportunity_title) {
+headline = `${process}: ${narrative.opportunity_title}`;
+} else if ((result.benchmark_position || "").includes("Above")) {
 headline = `${process} is in a stronger place right now, but that edge will fade if the burden keeps building.`;
 } else if ((result.benchmark_position || "").includes("Below")) {
 headline = `${process} is carrying more burden than a comparable path likely should.`;
 }
 return {
 headline,
-body: harmonized.headlineFinding,
-opportunity: harmonized.opportunityFields.opening
+body: narrative.executive_interpretation || harmonized.headlineFinding,
+opportunity: narrative.opportunity_guidance || joinNarrativeParts([
+  narrative.what_this_run_indicates,
+  narrative.how_advantage_is_built_here,
+  narrative.opportunity_rationale
+]) || harmonized.opportunity
 };
 }
 
