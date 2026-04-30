@@ -982,6 +982,73 @@ const sector = SectorWorkflowKnowledge[industryKey] || {};
 return { industryKey, workflowKey, knowledge: sector[workflowKey] || sector.default || SectorWorkflowKnowledge.default };
 }
 
+function getWorkflowDisplayName(payload = {}) {
+const raw = String(
+  payload?.processName ||
+  payload?.process_name ||
+  payload?.assessmentScope ||
+  payload?.assessment_scope ||
+  "this workflow"
+).replace(/\s+/g, " ").trim();
+return raw || "this workflow";
+}
+
+function getWorkflowSubject(payload = {}) {
+const raw = getWorkflowDisplayName(payload);
+const lower = raw.toLowerCase();
+if (lower === "this workflow" || /\bworkflow\b|\bprocess\b|\bpath\b/.test(lower)) {
+  return lower === "this workflow" ? "this workflow" : `the ${lower}`;
+}
+return `the ${lower} workflow`;
+}
+
+function getWorkflowRemedyLanguage(payload = {}) {
+const { workflowKey } = getSectorWorkflowKnowledge(payload);
+const display = getWorkflowDisplayName(payload).toLowerCase();
+const generic = display === "this workflow" ? "workflow" : display;
+if (workflowKey === "legal_review") {
+  return {
+    routineWork: "routine legal review",
+    trueExceptions: "true exceptions",
+    playbooks: "legal playbooks",
+    controlReset: "legal control, managerial cover, and senior-leader visibility"
+  };
+}
+if (workflowKey === "procurement") {
+  return {
+    routineWork: /vendor/.test(display) ? "routine vendor approvals" : "routine procurement approvals",
+    trueExceptions: "true exceptions",
+    playbooks: "approval playbooks",
+    controlReset: "approval control, managerial cover, and senior-leader visibility"
+  };
+}
+if (workflowKey === "marketing_approval") {
+  return {
+    routineWork: "routine marketing approvals",
+    trueExceptions: "true exceptions",
+    playbooks: "approval playbooks",
+    controlReset: "brand/control accountability, managerial cover, and senior-leader visibility"
+  };
+}
+return {
+  routineWork: `routine ${generic}`,
+  trueExceptions: "true exceptions",
+  playbooks: "standard playbooks",
+  controlReset: "formal control, managerial cover, and senior-leader visibility"
+};
+}
+
+function stripSectorLead(value, sectorName = "") {
+let text = String(value ?? "").replace(/\s+/g, " ").trim();
+text = text.replace(/^in\s+[^,]+,\s*/i, "");
+text = text.replace(/^that\s+matters\s+in\s+[^,]+\s+because\s+/i, "");
+if (sectorName) {
+  const escapedSector = String(sectorName).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  text = text.replace(new RegExp(`^${escapedSector}\\s*,?\\s*`, "i"), "");
+}
+return text ? text.charAt(0).toLowerCase() + text.slice(1) : "burden appears as recoverable operating drag.";
+}
+
 function getExperienceText(payload = {}) {
 const layer = payload?.experientialLayer || payload?.experiential_layer || payload?.rawExperientialLayer || payload?.raw_experiential_layer || {};
 const entries = Array.isArray(layer.entries) ? layer.entries : [];
@@ -2449,7 +2516,8 @@ const qualitative = detectQualitativeOverride(payload);
 const annualHours = Math.round(Number(result?.exposure?.annual_hours || 0));
 const pattern = getBurdenCompositionPattern(result);
 if (qualitative.type === "bypass_control_risk") {
-return `The primary finding is not simply that ${String(payload?.processName || payload?.process_name || "this workflow").toLowerCase()} is heavy; it is that the formal path appears structurally bypassable. Participants describe workarounds around the prescribed process, managerial accommodation of those workarounds, and likely limited senior-leader visibility. In a ${workflowKey.replace(/_/g, " ")} workflow, that changes the read from ordinary process drag to a potential control and compliance exposure: the organization may be paying for a formal process that is not reliably producing the control benefit it was designed to provide.`;
+const workflowSubject = getWorkflowSubject(payload);
+return `The primary finding is not simply that ${workflowSubject} is heavy; it is that ${workflowSubject} appears structurally bypassable. Participants describe workarounds around the prescribed process, managerial accommodation of those workarounds, and likely limited senior-leader visibility. In a ${workflowKey.replace(/_/g, " ")} workflow, that changes the read from ordinary process drag to a potential control and compliance exposure: the organization may be paying for a formal process that is not reliably producing the control benefit it was designed to provide.`;
 }
 const shapeSentence = pattern.shape === "hidden"
 ? "The burden appears partly hidden rather than fully visible, which means the real upkeep cost may be heavier than the surface workflow suggests."
@@ -2601,10 +2669,11 @@ const actions = buildPriorityActions(result, payload);
 const qualitative = detectQualitativeOverride(payload);
 const rangeText = (amount) => formatEstimateCurrencyRange(amount);
 if (qualitative.type === "bypass_control_risk") {
+const remedyLanguage = getWorkflowRemedyLanguage(payload);
 return [
 { label: "Stabilize the real path", kicker: "Low disruption", summary: "Document where the formal path is being bypassed and stop treating informal compensation as invisible.", actions: [actions[0] || "Map the workaround pattern."], benefit: `Possible upside in the range of ${rangeText(reclaim.amount * 0.22)} if the first fixes stick.`, risk: "Risk: the surface looks cleaner while informal bypass behavior continues." },
-{ label: "Risk-tier the workflow", kicker: "Targeted redesign", summary: "Separate routine legal review from true exceptions and formalize playbooks for low-risk work.", actions: actions.slice(0, 2), benefit: `Possible upside in the range of ${rangeText(reclaim.amount * 0.48)} if the redesigned path holds.`, risk: "Risk: the organization creates a better process on paper but does not change actual behavior." },
-{ label: "Control reset", kicker: "Fastest structural reset", summary: "Realign legal control, managerial cover, and senior-leader visibility around the same operating model.", actions: actions.slice(0, 4), benefit: `Possible upside in the range of ${rangeText(reclaim.amount * 0.72)} if leadership can hold the new design.`, risk: "Risk: pushback from teams that relied on the old workaround economy to meet business timing." }
+{ label: "Risk-tier the workflow", kicker: "Targeted redesign", summary: `Separate ${remedyLanguage.routineWork} from ${remedyLanguage.trueExceptions} and formalize ${remedyLanguage.playbooks} for low-risk work.`, actions: actions.slice(0, 2), benefit: `Possible upside in the range of ${rangeText(reclaim.amount * 0.48)} if the redesigned path holds.`, risk: "Risk: the organization creates a better process on paper but does not change actual behavior." },
+{ label: "Control reset", kicker: "Fastest structural reset", summary: `Realign ${remedyLanguage.controlReset} around the same operating model.`, actions: actions.slice(0, 4), benefit: `Possible upside in the range of ${rangeText(reclaim.amount * 0.72)} if leadership can hold the new design.`, risk: "Risk: pushback from teams that relied on the old workaround economy to meet business timing." }
 ];
 }
 return [
@@ -3491,6 +3560,7 @@ const benchmark = buildBenchmarkInterpretationText(result, payload || {});
 const generated = nowLabel();
 const insight = calculateInsightDepth(getInsightDepthInputs(payload || {}));
 const industry = getIndustryNarrative(payload || {});
+const sectorPatternFragment = stripSectorLead(industry.opportunityPattern, industry.sectorName);
 const remedyPaths = buildRemedyPaths(result, payload || {});
 const burdenCondition = deriveOperatingBurdenCondition(result || {});
 const primarySource = derivePrimaryBurdenSource(result || {});
@@ -3530,10 +3600,20 @@ const remedyQuestion = buildLeadershipQuestion(result || {}, payload || {}, "rem
 const clean = (value) => String(value ?? "").replace(/\s+/g, " ").trim();
 const polishReportCopy = (value) => {
 let text = clean(value);
-text = text.replace(/(legal approvals|vendor approvals|contract approvals|procurement approvals) appears/gi, (match, workflow) => `the ${workflow.toLowerCase()} workflow appears`);
-text = text.replace(/(workflow) is simply busy or structurally expensive to sustain/gi, "$1 is simply busy or structurally expensive to sustain");
-text = text.replace(/In ([^,]+), that matters because in ,\s*/gi, "That matters in $1 because ");
-text = text.replace(/In ([^,]+), that matters because /gi, "That matters in $1 because ");
+text = text.replace(/\bIt is that\s+(.{2,80}?)\s+appears\s+structurally\s+bypassable\b/gi, (_match, workflow) => {
+  const cleanedWorkflow = String(workflow || "").replace(/^the\s+/i, "").replace(/\s+/g, " ").trim().toLowerCase();
+  if (!cleanedWorkflow || /formal path|workflow|process|path/.test(cleanedWorkflow)) return `It is that ${workflow.trim()} appears structurally bypassable`;
+  return `It is that the ${cleanedWorkflow} workflow appears structurally bypassable`;
+});
+text = text.replace(/\bthat\s+(.{2,80}?)\s+appears\s+structurally\s+bypassable\b/gi, (_match, workflow) => {
+  const cleanedWorkflow = String(workflow || "").replace(/^the\s+/i, "").replace(/\s+/g, " ").trim().toLowerCase();
+  if (!cleanedWorkflow || /formal path|workflow|process|path/.test(cleanedWorkflow)) return `that ${workflow.trim()} appears structurally bypassable`;
+  return `that the ${cleanedWorkflow} workflow appears structurally bypassable`;
+});
+text = text.replace(/\b(legal approvals|vendor approvals|contract approvals|procurement approvals|supplier approvals)\s+appears\b/gi, (_match, workflow) => `the ${workflow.toLowerCase()} workflow appears`);
+text = text.replace(/\bThat matters in ([^,]+) because in \1,\s*/gi, "That matters in $1 because ");
+text = text.replace(/\bIn ([^,]+), that matters because\s+/gi, "That matters in $1 because ");
+text = text.replace(/\bThat matters in ([^,]+) because in [^,]+,\s*/gi, "That matters in $1 because ");
 text = text.replace(/\s+\.\s*/g, ". ");
 return text.trim();
 };
@@ -3745,7 +3825,7 @@ return `<!doctype html>
   <div class="content">
     <p class="eyebrow">The first move</p><h2>Where to focus first</h2>
     <p class="lede">${safe(primarySource.note || harmonized.opportunityFields?.opening || "Start with the source that is carrying the most visible burden.")}</p>
-    <div class="two-col"><div><h3>Priority actions</h3>${firstTwoActions.map((action, i) => `<p>${i + 1}. ${safeWords(action, 40)}</p>`).join("")}<p class="muted" style="font-size:9px">That matters in ${safe(sectorName)} because ${safeWords(industry.opportunityPattern, 30).toLowerCase()}</p></div>
+    <div class="two-col"><div><h3>Priority actions</h3>${firstTwoActions.map((action, i) => `<p>${i + 1}. ${safeWords(action, 40)}</p>`).join("")}<p class="muted" style="font-size:9px">That matters in ${safe(sectorName)} because ${safeWords(sectorPatternFragment, 30)}</p></div>
     <div class="panel gauge"><svg viewBox="0 0 220 130"><path d="M45 100 A65 65 0 0 1 175 100" fill="none" stroke="#D7DEE8" stroke-width="14" stroke-linecap="round"/><path d="M45 100 A65 65 0 0 1 175 100" fill="none" stroke="#3F6EA1" stroke-width="14" stroke-linecap="round" stroke-dasharray="${gaugeArc} 220"/><line x1="110" y1="100" x2="${needleX.toFixed(1)}" y2="${needleY.toFixed(1)}" stroke="#15202B" stroke-width="3"/><circle cx="110" cy="100" r="5" fill="#15202B"/><text x="42" y="48" font-size="7" fill="#7C8794">Below</text><text x="86" y="32" font-size="7" fill="#7C8794">Within</text><text x="135" y="32" font-size="7" fill="#7C8794">Above</text><text x="172" y="48" font-size="7" fill="#7C8794">Opport.</text></svg><div class="gauge-score">${exportScore}</div><div class="gauge-label">${safe(benchmarkPosition)}</div></div></div>
     <div class="panel bench"><p><b>Benchmark context.</b> ${safeWords(benchmark, 62)}</p></div>
   </div>
