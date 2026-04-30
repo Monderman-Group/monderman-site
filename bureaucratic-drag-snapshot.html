@@ -706,7 +706,7 @@ marginTerm: "usable capacity"
 // 3. UTILITY & HELPER FUNCTIONS
 // ═══════════════════════════════════════════════════════════
 function getIndustryNarrative(payload = {}) {
-const key = normalizeChoice(payload?.industry || payload?.industrySelection || "other");
+const key = toIndustryKey(payload?.industry || payload?.industrySelection || "other");
 return IndustryNarrativeLayer[key] || IndustryNarrativeLayer.other;
 }
 
@@ -718,10 +718,12 @@ healthcare_life_sciences: { industryMin: 55, industryMax: 68, opportunityMin: 72
 manufacturing_industrial: { industryMin: 60, industryMax: 73, opportunityMin: 77, opportunityMax: 89, typicalDrag: 15 },
 government_defense: { industryMin: 54, industryMax: 67, opportunityMin: 71, opportunityMax: 84, typicalDrag: 24 },
 retail_consumer: { industryMin: 58, industryMax: 73, opportunityMin: 76, opportunityMax: 88, typicalDrag: 20 },
+education_nonprofit: { industryMin: 54, industryMax: 69, opportunityMin: 72, opportunityMax: 84, typicalDrag: 21 },
+professional_services: { industryMin: 58, industryMax: 73, opportunityMin: 76, opportunityMax: 88, typicalDrag: 20 },
 other: { industryMin: 58, industryMax: 69, opportunityMin: 70, opportunityMax: 84, typicalDrag: 20 }
 },
 mapSectorKey(payload) {
-const raw = String(payload?.industrySelection || payload?.industry || "other").toLowerCase();
+const raw = toIndustryKey(payload?.industrySelection || payload?.industry || "other");
 return this.sectorBenchmarks[raw] ? raw : "other";
 },
 getSectorCalibration(payload) {
@@ -755,6 +757,26 @@ function humanize(value) {
 return String(value || "")
 .replace(/_/g, " ")
 .replace(/\b\w/g, (m) => m.toUpperCase());
+}
+
+function toIndustryKey(value) {
+const raw = String(value ?? "").trim().toLowerCase().replace(/[\s-]+/g, "_");
+if (raw && IndustryNarrativeLayer[raw]) return raw;
+const displayMatch = Object.entries(IndustryNarrativeLayer).find(([, meta]) => normalizeChoice(meta?.sectorName).replace(/[\s-]+/g, "_") === raw);
+return displayMatch ? displayMatch[0] : "other";
+}
+
+function displayIndustryLabel(value, options = {}) {
+const key = toIndustryKey(value);
+const label = IndustryNarrativeLayer[key]?.sectorName || humanize(value || "other").toLowerCase();
+return options.titleCase ? humanize(label) : String(label).toLowerCase();
+}
+
+function resolveIndustryLabel(result = {}, payload = {}, options = {}) {
+return displayIndustryLabel(
+  payload?.industry || payload?.industrySelection || result?.industry || result?.industry_label || payload?.industry_label || "other",
+  options
+);
 }
 
 function formatCurrency(value) {
@@ -827,7 +849,7 @@ return "default";
 }
 
 function getSectorWorkflowKnowledge(payload = {}) {
-const industryKey = normalizeChoice(payload?.industry || payload?.industrySelection || "other");
+const industryKey = toIndustryKey(payload?.industry || payload?.industrySelection || "other");
 const workflowKey = detectWorkflowKey(payload);
 const sector = SectorWorkflowKnowledge[industryKey] || {};
 return { industryKey, workflowKey, knowledge: sector[workflowKey] || sector.default || SectorWorkflowKnowledge.default };
@@ -2000,7 +2022,7 @@ if (refinedExperienceLayer?.hasInput) {
         tool_type: "operational_systems",
         process_name: payload.processName || payload.process_name,
         industry: payload.industry,
-        industry_label: payload.industry,
+        industry_label: displayIndustryLabel(payload.industry, { titleCase: true }),
         participantMode: payload.participantMode || state.mode,
         participant_mode: payload.participantMode || state.mode,
         payload_context: payload,
@@ -2208,7 +2230,7 @@ execResponsive,
 benchmarkPos,
 topFocus,
 quadrantKey,
-sectorLabel: humanize(payload?.industry || result?.industry_label || "this sector"),
+sectorLabel: resolveIndustryLabel(result, payload, { titleCase: false }),
 trajectoryDirection: result?.trajectory?.direction || "flat",
 directionSummary: result?.trajectory?.direction === "up" ? "burden pressure is rising" : result?.trajectory?.direction === "down" ? "burden pressure is easing" : "burden pressure is relatively steady",
 governanceInputs: {
@@ -3310,6 +3332,31 @@ return `<div class="donut-panel">
 
 }
 
+function buildPrimaryReadLabel(result = {}, payload = {}) {
+const qualitative = detectQualitativeOverride(payload);
+if (qualitative.type !== "none") return qualitative.label;
+const primary = derivePrimaryBurdenSource(result);
+return `${primary.label || "Operating burden"} pattern`;
+}
+
+function buildPrimaryReadSummary(result = {}, payload = {}) {
+const qualitative = detectQualitativeOverride(payload);
+if (qualitative.type !== "none") return qualitative.summary;
+const primary = derivePrimaryBurdenSource(result);
+const trajectory = result?.trajectory?.direction === "up" ? " and the burden appears to be rising" : result?.trajectory?.direction === "down" ? " while some pressure may be easing" : " with no clear easing signal yet";
+return `${primary.note || "The workflow is carrying a visible operating burden"}${trajectory}.`;
+}
+
+function buildLeadershipQuestion(result = {}, payload = {}, section = "executive") {
+const qualitative = detectQualitativeOverride(payload);
+const pattern = getBurdenCompositionPattern(result);
+if (section === "experience" || qualitative.type === "bypass_control_risk") return "Does the documented process still describe the process people actually use?";
+if (section === "composition") return pattern.shape === "concentrated" ? "Is the burden concentrated enough to remove surgically before it spreads?" : "Has the workflow absorbed burden so broadly that path-level redesign is now more realistic than single-point cleanup?";
+if (section === "quadrant") return "Is the organization paying more governance weight than the execution responsiveness it receives in return?";
+if (section === "remedy") return "Is leadership trying to preserve control, reclaim capacity, or realign the formal path with operating reality?";
+return "What operating reality would leadership have to acknowledge before the next intervention is credible?";
+}
+
 function buildExecutiveReportHtml(result, payload) {
 const harmonized = buildHarmonizedNarrative(result, payload || {});
 const summary = buildExecutiveSummary(result, payload || {});
@@ -3325,8 +3372,8 @@ const stateObj = buildInterpretiveState(result || {}, payload || {});
 const exportScore = Math.max(0, Math.min(100, Math.round(Number(result?.score || 0))));
 const processName = payload?.processName || payload?.process_name || "Operational Systems Diagnostic";
 const benchmarkPosition = result?.benchmark_position || "Industry range comparison";
-const sectorName = industry?.sectorName || humanize(payload?.industry || result?.industry_label || "this sector").toLowerCase();
-const sectorMeta = humanize(payload?.industry || result?.industry_label || "sector");
+const sectorName = resolveIndustryLabel(result, payload, { titleCase: false });
+const sectorMeta = resolveIndustryLabel(result, payload, { titleCase: true });
 const levelMeta = humanize(payload?.organizationLevel || payload?.organization_level || payload?.unitType || payload?.unit_type || "Business unit");
 const annualHours = Math.round(Number(result?.exposure?.annual_hours || 0));
 const annualHoursText = annualHours ? `${annualHours.toLocaleString()} annual burden hours*` : "annual burden hours* not estimated";
@@ -3347,6 +3394,12 @@ const contradictions = asArray(result?.contradictions);
 const quadrantText = buildQuadrantInterpretation({ ...(result || {}), __interpretiveState: stateObj });
 const qLeft = Math.max(8, Math.min(92, Number(stateObj.governanceWeight || 50)));
 const qTop = Math.max(8, Math.min(92, 100 - Number(stateObj.execResponsive || 50)));
+const primaryReadLabel = buildPrimaryReadLabel(result || {}, payload || {});
+const primaryReadSummary = buildPrimaryReadSummary(result || {}, payload || {});
+const executiveQuestion = buildLeadershipQuestion(result || {}, payload || {}, "executive");
+const compositionQuestion = buildLeadershipQuestion(result || {}, payload || {}, "composition");
+const quadrantQuestion = buildLeadershipQuestion(result || {}, payload || {}, "quadrant");
+const remedyQuestion = buildLeadershipQuestion(result || {}, payload || {}, "remedy");
 
 const clean = (value) => String(value ?? "").replace(/\s+/g, " ").trim();
 const safe = (value) => escapeHtml(clean(value));
@@ -3368,7 +3421,7 @@ return '<div class="exp-card"><h3>' + safe(entry.label) + '</h3><p>' + safeWords
 const decisionReviewPageNumber = hasExperienceLayer ? 7 : 6;
 const remedyPageNumber = decisionReviewPageNumber + 1;
 const methodPageNumber = remedyPageNumber + 1;
-const experienceReportPage = hasExperienceLayer ? '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p>This optional layer records how the workflow is experienced from the selected vantage point and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal process description and lived operating reality diverge.</p><div class="panel" style="margin:16px 0 18px"><h3>Experiential synthesis</h3><p>' + safeWords(experienceSynthesis, 72) + '</p><p class="muted">' + safeWords(experienceCaveat, 42) + '</p></div><div class="exp-grid">' + experienceCards + '</div><div class="panel bench"><p><b>How to use this layer.</b> Treat these notes as a way to plan follow-up conversations. If the same signal appears across operational, managerial, and senior-leader runs, it becomes more useful as a governance input. If it appears in only one lens, it is still valuable, but it should be read as a clue rather than a conclusion.</p></div></div></section>' : "";
+const experienceReportPage = hasExperienceLayer ? '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p>This optional layer records how the workflow is experienced from the selected vantage point and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal process description and lived operating reality diverge.</p><div class="panel" style="margin:16px 0 18px"><h3>Experiential synthesis</h3><p>' + safeWords(experienceSynthesis, 72) + '</p><p class="muted">' + safeWords(experienceCaveat, 42) + '</p></div><div class="exp-grid">' + experienceCards + '</div><div class="panel bench"><p><b>Leadership question.</b> ' + safe(buildLeadershipQuestion(result || {}, payload || {}, "experience")) + '</p><p><b>How to use this layer.</b> Treat these notes as a way to plan follow-up conversations. If the same signal appears across operational, managerial, and senior-leader runs, it becomes more useful as a governance input. If it appears in only one lens, it is still valuable, but it should be read as a clue rather than a conclusion.</p></div></div></section>' : "";
 const narrativeForReport = asObject(result?.narrative);
 const defaultReadings = [
 { label: "Structural burden read", interpretation: "The workflow is too heavy because the formal path carries more process and control density than the underlying work requires.", what_would_distinguish_it: "Cycle-time data would show delay concentrated in formal review stages." },
@@ -3384,7 +3437,7 @@ const updateReadItems = (Array.isArray(narrativeForReport.what_would_update_this
 ]).slice(0, 4);
 const readingHtml = competingReadings.map((item) => '<div class="mini-card"><b>' + safe(item.label || "Reading") + '</b><p>' + safeWords(item.interpretation || item, 34) + '</p><p class="muted">Signal test: ' + safeWords(item.what_would_distinguish_it || "Additional cross-role evidence would clarify this reading.", 28) + '</p></div>').join("");
 const updateHtml = updateReadItems.map((item) => '<p>• ' + safeWords(item, 28) + '</p>').join("");
-const decisionReviewPage = '<section class="page">' + footer(decisionReviewPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>Competing readings and what would update the diagnosis</h2><p>A premium diagnostic should not pretend that one interpretation is the only possible read. This section names the plausible readings and the evidence that would distinguish them.</p><div class="card-row" style="grid-template-columns:1fr;gap:12px">' + readingHtml + '</div><div class="panel bench"><h3>What would update this read</h3>' + updateHtml + '</div></div></section>';
+const decisionReviewPage = '<section class="page">' + footer(decisionReviewPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>Competing readings and what would update the diagnosis</h2><p>This section names the plausible interpretations of the same signal and identifies the evidence that would confirm, weaken, or reframe the current read.</p><div class="card-row" style="grid-template-columns:1fr;gap:12px">' + readingHtml + '</div><div class="panel bench"><h3>What would update this read</h3>' + updateHtml + '</div></div></section>';
 const firstTwoActions = actions.slice(0, 2).length ? actions.slice(0, 2) : [
 "Reduce the heaviest visible burden first.",
 "Run the diagnostic again after the first real change."
@@ -3432,6 +3485,12 @@ return `<!doctype html>
   p { font-size: 10.6px; line-height: 1.55; margin: 0 0 12px; }
   .lede { font-size: 12.3px; line-height: 1.48; margin-bottom: 18px; }
   .muted { color: #5B6774; }
+  .primary-read { border: 1px solid #DCE5EF; background: #F7FAFD; border-radius: 15px; padding: 14px 16px; margin: -12px 0 18px; }
+  .primary-read span, .leadership-question b { display: block; color: #3F6EA1; font-size: 8px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; margin-bottom: 5px; }
+  .primary-read strong { display: block; font-size: 13px; line-height: 1.25; margin-bottom: 5px; }
+  .primary-read p { margin: 0; color: #4E5B68; font-size: 10px; line-height: 1.45; }
+  .leadership-question { border-left: 4px solid #3F6EA1; background: #FBFCFE; padding: 12px 14px; margin: 18px 0 20px; }
+  .leadership-question p { margin: 0; font-size: 11px; line-height: 1.45; color: #15202B; }
   .accent-rule { width: 74px; height: 4px; border-radius: 2px; background: #3F6EA1; margin: 0 0 28px; }
   .run-meta { color: #5B6774; font-size: 10px; margin-bottom: 44px; }
   .stat-strip { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid #E6EAF0; border-radius: 16px; overflow: hidden; background: #FBFCFE; margin-top: 32px; margin-bottom: 28px; }
@@ -3497,12 +3556,14 @@ return `<!doctype html>
     <h1>Operational Systems Diagnostic</h1>
     <div class="accent-rule"></div>
     <p class="run-meta">${safe(metaLine)}</p>
+    <div class="primary-read"><span>Primary read</span><strong>${safe(primaryReadLabel)}</strong><p>${safeWords(primaryReadSummary, 38)}</p></div>
     <p class="lede">${safe(lede)}</p>
     <p>This summary is written for leaders who need to understand whether the workflow is simply busy or structurally expensive to sustain. The score, exposure estimate, and capacity drag should be read together: one describes the condition, one translates the labor cost, and one shows how much productive attention may be tied up in maintaining the process.</p>
+    <div class="leadership-question"><b>Leadership question</b><p>${safe(executiveQuestion)}</p></div>
     <div class="stat-strip">
-      <div class="stat"><div class="stat-label">Burden score</div><div class="stat-value">${exportScore}</div><div class="stat-sub">${safe(burdenCondition.label)}</div></div>
-      <div class="stat"><div class="stat-label">Annual exposure</div><div class="stat-value">${safe(annualCostText)}</div><div class="stat-sub">labor exposure*</div></div>
-      <div class="stat"><div class="stat-label">Capacity drag</div><div class="stat-value">${dragPct}%</div><div class="stat-sub">of available capacity</div></div>
+      <div class="stat"><div class="stat-label">Operating burden score</div><div class="stat-value">${exportScore}</div><div class="stat-sub">${safe(burdenCondition.label)}</div></div>
+      <div class="stat"><div class="stat-label">Exposure range</div><div class="stat-value">${safe(annualCostText)}</div><div class="stat-sub">labor exposure*</div></div>
+      <div class="stat"><div class="stat-label">Capacity absorbed</div><div class="stat-value">${dragPct}%</div><div class="stat-sub">of available capacity</div></div>
     </div>
     <div class="kv"><b>WORKFLOW</b><span>${safe(processName)}</span><b>SECTOR</b><span>${safe(sectorName)}</span><b>GENERATED</b><span>${safe(generated)}</span></div>
   </div>
@@ -3513,6 +3574,7 @@ return `<!doctype html>
   <div class="content">
     <p class="eyebrow">The pattern this run is detecting</p><h2>Headline finding</h2>
     <p class="lede">${safeWords(harmonized.headlineFinding || summary.body, 84)}</p>
+    <div class="leadership-question"><b>Leadership question</b><p>${safe(executiveQuestion)}</p></div>
     <p>Directional modeling suggests roughly ${safe(annualHoursText)} and about ${safe(annualCostText)} in labor exposure, with capacity drag around ${dragPct}%*. These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
     <p>The practical question is not whether work is still getting done. It is how much organizational energy is now required to make it happen. When a workflow needs repeated coordination, compensating behavior, workaround maintenance, or control translation, the visible output may remain acceptable while the operating system underneath becomes increasingly expensive to sustain.</p>
     <div class="capacity"><div class="seg" style="width:${capacity.productive}%;background:#4E9A7A">${capacity.productive}%</div><div class="seg" style="width:${capacity.admin}%;background:#C49A3C">${capacity.admin}%</div><div class="seg" style="width:${capacity.drag}%;background:#B85C52">${capacity.drag}%</div></div>
@@ -3533,6 +3595,7 @@ return `<!doctype html>
     <div class="panel donut-panel"><div class="donut-wrap"><svg width="150" height="150" viewBox="0 0 200 200">${donutPaths}</svg><div class="donut-center"><div><small>DOMINANT</small><b>${dominantPct}%</b></div></div></div><div>${segmentLegend}</div></div>
     <h3 style="margin-top:24px">What the composition tells us</h3>
     <p>${safeWords(concentrationProse, 76)}</p>
+    <div class="leadership-question"><b>Leadership question</b><p>${safe(compositionQuestion)}</p></div>
     <div class="card-row"><div class="mini-card"><b>Concentrated burden</b><p>One source dominates. Faster to fix because targeted intervention has high yield.</p></div><div class="mini-card"><b>Distributed burden</b><p>No single source dominates. Slower to fix; usually requires path-level redesign.</p></div></div>
   </div>
 </section>
@@ -3555,6 +3618,7 @@ return `<!doctype html>
     <p>This view places the run on two axes: how much governance weight the workflow is carrying, and how responsive execution appears under that weight. It is intended to prevent a midrange score from being mistaken for a low-friction operating path.</p>
     <div class="panel quadbox"><div class="axis-y">Execution responsiveness</div><div class="quad"><div class="qlabel" style="left:12px;top:12px">Fast movement,<br>lighter governance</div><div class="qlabel" style="right:12px;top:12px;text-align:right">Fast movement,<br>heavier governance</div><div class="qlabel" style="left:12px;bottom:12px">Slow movement,<br>lighter governance</div><div class="qlabel" style="right:12px;bottom:12px;text-align:right">Slow movement,<br>heavier governance</div><div class="qdot" style="left:${qLeft}%;top:${qTop}%"></div></div><div class="axis-x">Governance weight</div></div>
     <h3>How to read this quadrant</h3><p>${safeWords(quadrantText, 60)}</p>
+    <div class="leadership-question"><b>Leadership question</b><p>${safe(quadrantQuestion)}</p></div>
     <p>This quadrant is designed to keep the score honest. A midrange score can still conceal a heavy governance environment if execution is being held together through managerial effort, informal workarounds, or exceptional performers. The position of the dot should therefore be read alongside the burden composition, the experiential layer, and the remedy path rather than as a standalone grade.</p>
     ${contradictionHtml}
   </div>
@@ -3568,6 +3632,7 @@ ${decisionReviewPage}
   <div class="content">
     <p class="eyebrow">How leadership could respond</p><h2>Three remedy paths</h2>
     <p>Three distinct intervention strategies, ordered by ambition and risk. Each path implies a different leadership posture, time horizon, and tolerance for short-term disruption.</p>
+    <div class="leadership-question"><b>Leadership question</b><p>${safe(remedyQuestion)}</p></div>
     <div class="remedy-grid">${remedyHtml}</div>
     <div class="rule"></div><h3>Choosing between them</h3><p>The right choice depends less on the current burden score than on three things: how much stability the organization needs while changes happen, how much trust leadership has earned to redesign rather than tweak, and whether the workflow is on a path that is already worsening. Light paths preserve continuity; aggressive paths buy more capacity but require a stronger mandate.</p>
   </div>
@@ -3581,6 +3646,7 @@ ${decisionReviewPage}
     <div class="rule"></div>
     <div class="ring-row"><svg class="ring" viewBox="0 0 58 58"><circle cx="29" cy="29" r="23" fill="none" stroke="#E6EAF0" stroke-width="7"/><circle cx="29" cy="29" r="23" fill="none" stroke="#3F6EA1" stroke-width="7" stroke-dasharray="${Math.round(insight.score * 1.45)} 145" transform="rotate(-90 29 29)"/></svg><div><div style="font-size:24px;font-weight:700">${Math.round(insight.score)}</div><p class="muted">Insight depth score<br>Directional input coverage; not a correctness score.</p></div></div>
     <p>The Insight Depth score above tells you how broad the input signal is. Higher depth means more perspective and a stronger read; it does not mean every individual answer is correct. A high score with shallow inputs is still shallow; a moderate score with broad inputs is more durable than it looks.</p>
+    <h3>What would strengthen the next read</h3><div class="method-box">${updateReadItems.slice(0, 3).map((item) => `<p>• ${safeWords(item, 28)}</p>`).join("")}</div>
     <h3>What the figures represent</h3><div class="method-box"><p>* Figures marked with an asterisk are directional estimates generated from your inputs, not guaranteed financial outcomes. They are intended to indicate rough order of magnitude so leadership can decide whether the pattern is worth investigating further. They should not be cited externally as audited measurements, and they should not be used as the basis for compensation decisions, performance reviews, or formal financial planning.</p></div>
     <h3 style="margin-top:20px">Where Monderman fits</h3><p>Monderman is built for leaders who want a structured, repeatable read on operating burden - not a one-off consulting engagement. The diagnostic surfaces patterns; the leadership decides what to do about them. This report is the artifact of that read, suitable for distribution to peers, leadership, and trusted advisors who need to engage with the same picture.</p><p class="muted" style="font-size:9px;margin-top:18px">Prepared by Monderman's diagnostic engine.</p>
   </div>
@@ -3920,7 +3986,7 @@ $("tradeoffText").textContent = harmonized.tradeoff;
 
 $("execSummaryHeadline").textContent = executiveSummary.headline;
 $("execSummaryBody").textContent = executiveSummary.body;
-$("scoreMetaIndustry").textContent = `Industry: ${humanize(payload?.industry || "other")}`;
+$("scoreMetaIndustry").textContent = `Industry: ${resolveIndustryLabel(result, payload, { titleCase: true })}`;
 $("scoreMetaShapeText").textContent = `Profile shape: ${humanize(harmonized.state.burdenProfileShape || "concentrated")}`;
 $("scoreMetaTrajectoryText").textContent = `Trajectory: ${result?.trajectory?.label || "No strong directional signal"}`;
 const insight = renderInsightDepth(payload);
@@ -4042,7 +4108,7 @@ remedyGrid.innerHTML = remedies.map((path) => `<div class="remedy-card"><span cl
 }
 
 $("reportTitle").textContent = `${payload?.processName || payload?.process_name || "Workflow"} • Operational Systems Diagnostic`;
-$("reportSubtitle").textContent = `${result.benchmark_position || "Industry range comparison"} • ${humanize(payload?.participantMode || payload?.participant_mode || state.mode || "executive")} perspective • ${humanize(payload?.industry || result?.industry_label || "other")} • ${payload?.employeeCount ? `${Number(payload.employeeCount).toLocaleString()} employees` : humanize(payload?.organizationSize || result?.organization_size_label || "unknown")}`;
+$("reportSubtitle").textContent = `${result.benchmark_position || "Industry range comparison"} • ${humanize(payload?.participantMode || payload?.participant_mode || state.mode || "executive")} perspective • ${resolveIndustryLabel(result, payload, { titleCase: true })} • ${payload?.employeeCount ? `${Number(payload.employeeCount).toLocaleString()} employees` : humanize(payload?.organizationSize || result?.organization_size_label || "unknown")}`;
 $("metaProcess").textContent = `Pathway: ${payload?.processName || payload?.process_name || "Unnamed workflow"}`;
 $("metaBench").textContent = `Benchmark: ${result.benchmark_position || "Industry range comparison"}`;
 $("metaDate").textContent = `Generated: ${nowLabel()}`;
