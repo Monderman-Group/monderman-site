@@ -549,7 +549,7 @@ options: [
 { value: "other", label: "Other" }
 ]
 },
-{ id: "description", label: "Anything important leaders are currently experiencing in this workflow?", kind: "textarea", required: false, placeholder: "Briefly describe recent friction, complaints, or what leaders are noticing." },
+{ id: "description", label: "Describe the current situation or operational context", kind: "textarea", required: false, placeholder: "Briefly describe the workflow or operating environment you want to assess — what's happening, what prompted this diagnostic, or any relevant background.", helper: "This helps calibrate the diagnostic to your specific situation. It is not scored." },
 { id: "peopleInvolved", label: "Roughly how many different people are typically involved in one normal run of this workflow?", kind: "number", required: true, placeholder: "e.g. 8" },
 { id: "hourlyCost", label: "Roughly what is the average hourly cost for the people involved in this workflow, including benefits and overhead?", kind: "number", required: true, placeholder: "e.g. 95" },
 { id: "annualVolume", label: "How many times does this workflow normally run in a typical year?", kind: "number", required: true, placeholder: "e.g. 120" },
@@ -1198,7 +1198,7 @@ if (field.kind === "select") {
 return `<div class="field" data-field-id="${escapeHtml(field.id)}"><label for="preflight_${field.id}">${escapeHtml(field.label)}</label><select id="preflight_${field.id}">${field.options.map((opt) => `<option value="${escapeHtml(opt.value)}" ${String(value) === String(opt.value) ? "selected" : ""}>${escapeHtml(opt.label)}</option>`).join("")}</select><div class="field-error-msg"></div></div>`;
 }
 if (field.kind === "textarea") {
-return `<div class="field" data-field-id="${escapeHtml(field.id)}"><label for="preflight_${field.id}">${escapeHtml(field.label)}</label><textarea id="preflight_${field.id}" placeholder="${escapeHtml(field.placeholder || "")}">${escapeHtml(String(value))}</textarea><div class="field-error-msg"></div></div>`;
+return `<div class="field" data-field-id="${escapeHtml(field.id)}"><label for="preflight_${field.id}">${escapeHtml(field.label)}</label><textarea id="preflight_${field.id}" placeholder="${escapeHtml(field.placeholder || "")}">${escapeHtml(String(value))}</textarea>${field.helper ? `<p class="tiny" style="margin:8px 0 0;">${escapeHtml(field.helper)}</p>` : ""}<div class="field-error-msg"></div></div>`;
 }
 const inputHtml = field.kind === "number"
 ? renderStableNumericInput(field, value, "preflight")
