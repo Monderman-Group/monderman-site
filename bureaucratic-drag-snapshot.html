@@ -2155,7 +2155,7 @@ resetProcessingUI();
 setProcessingStep(0, "Finalizing adaptive run...");
 
 try {
-setProcessingStep(1, "Translating run state into scored output...");
+setProcessingStep(1, "Translating run state into structured output...");
 const response = await fetchWithTimeout(`${API_BASE}/api/operational-systems/run/${state.runId}/finalize`, {
 method: "POST",
 headers: { "Content-Type": "application/json" },
@@ -3713,22 +3713,49 @@ return `<!doctype html>
   .bottom { position: absolute; bottom: .32in; left: .76in; right: .76in; border-top: 1px solid #E6EAF0; padding-top: .18in; color: #7C8794; font-size: 8.5px; }
   .bottom .date { float: right; }
   .content { position: relative; margin-top: .74in; }
-  .cover-page { background: #FFFFFF; }
-  .cover-page::before { content: ""; position: absolute; right: -2.05in; bottom: -1.72in; width: 6.95in; height: 6.95in; border-radius: 50%; background-image: url('HERO_IMAGE_2.jpg'); background-size: cover; background-position: center; opacity: .105; filter: saturate(.78) contrast(.96); }
-  .cover-page::after { content: ""; position: absolute; right: -1.55in; bottom: -1.35in; width: 6.2in; height: 6.2in; border-radius: 50%; background: radial-gradient(circle at 48% 48%, rgba(255,255,255,0) 0%, rgba(255,255,255,.05) 22%, rgba(255,255,255,.48) 56%, rgba(255,255,255,.92) 82%, rgba(255,255,255,1) 100%); }
-  .cover-content { position: relative; z-index: 2; margin-top: .82in; max-width: 5.35in; }
-  .cover-mark { color: #3F6EA1; font-size: 9px; font-weight: 700; letter-spacing: .24em; text-transform: uppercase; margin: 0 0 52px; }
-  .cover-kicker { color: #7C8794; font-size: 8.5px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; margin: 0 0 12px; }
-  .cover-title { font-size: 38px; line-height: .98; letter-spacing: -.055em; margin: 0 0 12px; color: #15202B; max-width: 5.4in; }
-  .cover-subtitle { font-size: 14px; line-height: 1.45; color: #5B6774; margin: 0 0 24px; max-width: 4.6in; }
-  .cover-accent { width: 1.12in; height: 3px; border-radius: 3px; background: linear-gradient(90deg, #3F6EA1 0%, rgba(63,110,161,.18) 100%); margin: 0 0 28px; }
-  .cover-framing { font-size: 12px; line-height: 1.55; color: #15202B; max-width: 4.9in; margin: 0 0 40px; }
+  .cover-page { background: linear-gradient(180deg, #FFFFFF 0%, #FCFDFE 100%); }
+  .cover-content { position: relative; z-index: 2; margin-top: .78in; max-width: 5.1in; }
+  .cover-mark { color: #244E7E; font-size: 15px; font-weight: 700; letter-spacing: .20em; text-transform: uppercase; margin: 0 0 44px; }
+  .cover-kicker { color: #7C8794; font-size: 8.3px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; margin: 0 0 10px; }
+  .cover-title { font-size: 35px; line-height: 1.00; letter-spacing: -.05em; margin: 0 0 10px; color: #15202B; max-width: 5.05in; }
+  .cover-subtitle { font-size: 15px; line-height: 1.4; color: #586474; margin: 0 0 24px; max-width: 4.2in; }
+  .cover-accent { width: 1.18in; height: 3px; border-radius: 3px; background: linear-gradient(90deg, #3F6EA1 0%, rgba(63,110,161,.16) 100%); margin: 0 0 26px; }
+  .cover-framing { font-size: 11.8px; line-height: 1.58; color: #15202B; max-width: 4.55in; margin: 0 0 36px; }
   .cover-meta { display: grid; grid-template-columns: 92px 1fr; gap: 10px 18px; margin: 0; max-width: 4.6in; padding-top: 20px; border-top: 1px solid #E6EAF0; }
   .cover-meta dt { color: #7C8794; font-size: 8px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; margin: 0; }
   .cover-meta dd { margin: 0; font-size: 11px; color: #15202B; }
-  .cover-note { position: absolute; left: .76in; bottom: .74in; z-index: 3; max-width: 3.75in; color: #7C8794; font-size: 8.6px; line-height: 1.55; margin: 0; }
-  .cover-brandline { position: absolute; right: .78in; bottom: .55in; z-index: 3; display: flex; align-items: center; gap: 8px; color: #7C8794; font-size: 7.5px; letter-spacing: .14em; text-transform: uppercase; }
+  .cover-note { position: absolute; left: .76in; bottom: .70in; z-index: 3; max-width: 3.55in; color: #7C8794; font-size: 8.55px; line-height: 1.58; margin: 0; }
+  .cover-brandline { position: absolute; right: .80in; bottom: .56in; z-index: 3; display: flex; align-items: center; gap: 8px; color: #7C8794; font-size: 7.4px; letter-spacing: .14em; text-transform: uppercase; }
   .cover-brandline::before { content: ""; width: 34px; height: 1px; background: rgba(63,110,161,.35); }
+  .cover-rings { position: absolute; right: -1.48in; bottom: -1.88in; width: 6.25in; height: 6.25in; border-radius: 50%; overflow: hidden; z-index: 1; opacity: .97; }
+  .cover-rings::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background:
+      conic-gradient(from 232deg,
+        rgba(96,24,76,.78) 0deg,
+        rgba(224,62,114,.84) 46deg,
+        rgba(246,201,218,.88) 88deg,
+        rgba(114,208,255,.92) 132deg,
+        rgba(38,100,173,.98) 192deg,
+        rgba(247,206,219,.88) 242deg,
+        rgba(88,45,98,.82) 290deg,
+        rgba(96,24,76,.78) 360deg);
+      filter: saturate(1.02) contrast(1.02);
+  }
+  .cover-rings::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background:
+      radial-gradient(circle at center,
+        rgba(255,255,255,0) 0 17%,
+        rgba(12,25,60,.98) 17% 28%,
+        rgba(255,255,255,0) 28% 35%,
+        rgba(76,201,255,.50) 35% 44%,
+        rgba(255,255,255,0) 44% 50%,
+        rgba(255,174,202,.44) 50% 59%,
+        rgba(255,255,255,0) 59% 66%,
+        rgba(84,133,184,.26) 66% 74%,
+        rgba(255,255,255,0) 74% 100%),
+      radial-gradient(circle at center,
+        transparent 0 80%,
+        rgba(255,255,255,.82) 86%,
+        rgba(255,255,255,1) 100%);
+  }
   .eyebrow { color: #3F6EA1; font-size: 8.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; margin: 0 0 10px; }
   .doctype { color: #7C8794; font-size: 9px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; margin: 0 0 24px; }
   h1 { font-size: 32px; line-height: 1.04; letter-spacing: -.05em; margin: 0 0 22px; color: #15202B; }
@@ -3804,13 +3831,14 @@ return `<!doctype html>
 <section class="page cover-page">
   <div class="cover-content">
     <p class="cover-mark">MONDERMAN</p>
-    <p class="cover-kicker">Operational Systems Diagnostic</p>
-    <h1 class="cover-title">Executive Summary</h1>
-    <p class="cover-subtitle">A structured diagnostic read of workflow burden, operating friction, and administrative reality.</p>
+    <p class="cover-kicker">Diagnostic report</p>
+    <h1 class="cover-title">Operational Systems Diagnostic</h1>
+    <p class="cover-subtitle">Executive Summary</p>
     <div class="cover-accent"></div>
-    <p class="cover-framing">Prepared to help readers understand where recurring process load, workaround dependence, and governance weight may be consuming usable capacity.</p>
+    <p class="cover-framing">A structured read of workflow burden, operating friction, reclaimable drag, and the administrative reality shaping how the work is actually sustained.</p>
     ${buildCoverMetadata(processName, industry, generated)}
   </div>
+  <div class="cover-rings" aria-hidden="true"></div>
   <p class="cover-note">Figures and findings in this report are directional outputs generated from user-provided inputs. They are intended to support review, discussion, and follow-up inquiry rather than substitute for audit-grade measurement.</p>
   <div class="cover-brandline">Administrative reality is a governable condition</div>
 </section>
@@ -4053,9 +4081,9 @@ const pdf = new libs.jsPDF({ unit: "pt", format: "letter", orientation: "portrai
 for (let i = 0; i < pages.length; i += 1) {
   const page = pages[i];
   const canvas = await libs.html2canvas(page, {
-    scale: 2,
+    scale: Math.min(3, window.devicePixelRatio ? Math.max(2, window.devicePixelRatio) : 3),
     useCORS: true,
-    allowTaint: true,
+    allowTaint: false,
     logging: false,
     backgroundColor: "#ffffff",
     width: 816,
@@ -4065,9 +4093,9 @@ for (let i = 0; i < pages.length; i += 1) {
     scrollX: 0,
     scrollY: 0
   });
-  const imgData = canvas.toDataURL("image/jpeg", 0.96);
+  const imgData = canvas.toDataURL("image/png");
   if (i > 0) pdf.addPage("letter", "portrait");
-  pdf.addImage(imgData, "JPEG", 0, 0, 612, 792, undefined, "FAST");
+  pdf.addImage(imgData, "PNG", 0, 0, 612, 792, undefined, "FAST");
 }
 pdf.save(filename);
 showToast("Executive Summary PDF downloaded.");
