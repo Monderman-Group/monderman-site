@@ -1701,6 +1701,77 @@
         align-items:stretch;
       }
     }
+
+    /* Under-development diagnostic modal: hidden until triggered */
+    .under-development-modal{
+      position:fixed;
+      inset:0;
+      z-index:180;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:rgba(15,23,32,.58);
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+    }
+    .under-development-modal.show{display:flex;}
+    .under-development-panel{
+      width:min(640px,100%);
+      background:#FFFFFF;
+      border:1px solid rgba(21,32,43,.08);
+      border-radius:28px;
+      box-shadow:0 30px 80px rgba(15,23,32,.18);
+      padding:34px 30px 28px;
+      display:grid;
+      gap:16px;
+      text-align:left;
+      position:relative;
+      color:var(--text-dark);
+    }
+    .under-development-kicker{
+      margin:0;
+      font-size:.72rem;
+      font-weight:700;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:#B85C52;
+    }
+    .under-development-panel h3{
+      margin:0;
+      font-size:clamp(1.8rem,3.2vw,2.5rem);
+      line-height:.96;
+      letter-spacing:-.04em;
+      color:var(--text-dark);
+    }
+    .under-development-panel p{
+      margin:0;
+      font-size:1rem;
+      line-height:1.68;
+      color:var(--muted-dark);
+      max-width:52ch;
+    }
+    .under-development-note{
+      padding:14px 16px;
+      border-radius:18px;
+      border:1px solid rgba(184,92,82,.18);
+      background:rgba(184,92,82,.06);
+      color:var(--text-dark);
+      font-size:.92rem;
+      line-height:1.62;
+    }
+    .under-development-actions{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top:2px;
+    }
+    .under-development-actions .btn{min-height:46px;}
+    @media (max-width:640px){
+      .under-development-panel{padding:28px 22px 22px;border-radius:24px;}
+    }
+
   </style>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
 </head>
