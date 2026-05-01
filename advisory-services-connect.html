@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Platform Support | Monderman</title>
+  <title>Platform Services | Monderman</title>
 
   <link
     rel="icon"
@@ -1030,7 +1030,88 @@
         align-items: flex-start;
       }
     }
-  </style>
+  
+
+/* Monderman harmonization polish: shared footer, micro-interactions, and editorial rhythm */
+.footer {
+  padding-top: 56px;
+  padding-bottom: 40px;
+}
+.footer-top {
+  gap: 52px;
+  padding-bottom: 32px;
+}
+.footer-copy {
+  max-width: 47ch;
+  line-height: 1.72;
+  color: rgba(245,247,250,0.72);
+}
+.footer-mark {
+  letter-spacing: -0.018em;
+}
+.footer-nav {
+  gap: 46px;
+}
+.footer-nav-title {
+  letter-spacing: 0.18em;
+  color: rgba(245,247,250,0.54);
+}
+.footer-nav a {
+  margin-bottom: 9px;
+  color: rgba(245,247,250,0.78);
+  transition: color var(--transition), transform var(--transition), opacity var(--transition);
+}
+.footer-nav a:hover,
+.footer-nav a:focus-visible {
+  color: #FFFFFF;
+  transform: translateX(2px);
+  outline: none;
+}
+.footer-bottom {
+  padding-top: 21px;
+}
+.footer-meta,
+.footer-contact {
+  color: rgba(245,247,250,0.56);
+}
+.footer-contact {
+  max-width: 46ch;
+  text-align: right;
+}
+.btn {
+  transition: background 180ms cubic-bezier(0.22,1,0.36,1), color 180ms cubic-bezier(0.22,1,0.36,1), border-color 180ms cubic-bezier(0.22,1,0.36,1), transform 180ms cubic-bezier(0.22,1,0.36,1), box-shadow 180ms cubic-bezier(0.22,1,0.36,1), opacity 180ms cubic-bezier(0.22,1,0.36,1);
+}
+.card,
+.entry-card,
+.commitment-card,
+.connect-card,
+.latest-card,
+.service-card {
+  transition: transform var(--transition-slow), border-color var(--transition), box-shadow var(--transition-slow), background var(--transition);
+}
+.latest-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(63,110,161,0.18);
+  box-shadow: 0 12px 28px rgba(15,23,32,0.045);
+}
+.hero-eyebrow,
+.section-label,
+.footer-nav-title,
+.diff-kicker,
+.latest-card-kicker {
+  letter-spacing: 0.18em;
+}
+@media (max-width: 760px) {
+  .footer-top,
+  .footer-bottom {
+    align-items: flex-start;
+  }
+  .footer-contact {
+    text-align: left;
+  }
+}
+
+</style>
 </head>
 <body>
   <header class="header" id="siteHeader">
@@ -1057,7 +1138,7 @@
         </p>
 
         <div class="hero-actions">
-          <a class="btn btn-accent" href="#contact-form">Request Platform Support</a>
+          <a class="btn btn-accent" href="#contact-form">Start Platform Services Request</a>
           <a class="btn btn-secondary" href="advisory-services.html">Platform Services</a>
         </div>
       </div>
@@ -1326,7 +1407,7 @@
         <div class="footer-brand">
           <div class="footer-mark">Monderman</div>
           <p class="footer-copy">
-            Software and platform support for institutions using diagnostics to govern administrative reality with greater clarity.
+            Monderman is the diagnostic platform institutions use to measure, compare, and govern administrative reality — repeatedly, across perspectives, over time.
           </p>
         </div>
 
@@ -1341,6 +1422,7 @@
 
           <div class="footer-nav-col">
             <p class="footer-nav-title">Connect</p>
+            <a href="#contact-form">Open Connect Form</a>
             <a href="mailto:connect@monderman.com">connect@monderman.com</a>
           </div>
         </div>
@@ -1348,7 +1430,7 @@
 
       <div class="footer-bottom">
         <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
-        <p class="footer-contact">Clarity for complex institutions.</p>
+        <p class="footer-contact">Organizations deliver at the speed of their administrative reality.</p>
       </div>
     </div>
   </footer>
