@@ -940,6 +940,22 @@ const band = buildCurrencyConfidenceBand(value);
 return band.label || "Not estimated";
 }
 
+
+function roundDirectionalHours(value) {
+const n = Number(value);
+if (!Number.isFinite(n) || n <= 0) return 0;
+const step = n < 1000 ? 50 : n < 10000 ? 100 : 500;
+return Math.max(step, Math.round(n / step) * step);
+}
+
+function formatRoundedHours(value, options = {}) {
+const rounded = roundDirectionalHours(value);
+if (!rounded) return options.fallback || "not estimated";
+const prefix = options.approximate === false ? "" : "about ";
+const suffix = options.suffix || "";
+return `${prefix}${rounded.toLocaleString()}${suffix}`.trim();
+}
+
 const SectorWorkflowKnowledge = {
 retail_consumer: {
 default: {
@@ -3344,17 +3360,17 @@ return `<svg width="220" height="140" viewBox="0 0 220 140" xmlns="http://www.w3
   return `<div class="cover-stat-strip">
   
    <div class="cover-stat">
-     <p class="cover-stat-label">Burden score</p>
+     <p class="cover-stat-label">Operating burden score</p>
      <p class="cover-stat-value">${exportScore}</p>
      <p class="cover-stat-sub">${escapeHtml(benchmarkPosition)}</p>
    </div>
    <div class="cover-stat">
-     <p class="cover-stat-label">Annual exposure</p>
+     <p class="cover-stat-label">Exposure range</p>
      <p class="cover-stat-value">${annualCost}</p>
      <p class="cover-stat-sub">labor exposure*</p>
    </div>
    <div class="cover-stat">
-     <p class="cover-stat-label">Capacity drag</p>
+     <p class="cover-stat-label">Capacity absorbed</p>
      <p class="cover-stat-value">${dragPct}%</p>
      <p class="cover-stat-sub">of available capacity</p>
    </div>
@@ -3572,7 +3588,7 @@ const sectorName = resolveIndustryLabel(result, payload, { titleCase: false });
 const sectorMeta = resolveIndustryLabel(result, payload, { titleCase: true });
 const levelMeta = humanize(payload?.organizationLevel || payload?.organization_level || payload?.unitType || payload?.unit_type || "Business unit");
 const annualHours = Math.round(Number(result?.exposure?.annual_hours || 0));
-const annualHoursText = annualHours ? `${annualHours.toLocaleString()} annual burden hours*` : "annual burden hours* not estimated";
+const annualHoursText = annualHours ? formatRoundedHours(annualHours, { suffix: " annual burden hours*" }) : "annual burden hours* not estimated";
 const annualCostText = formatEstimateCurrencyRange(result?.exposure?.annual_cost);
 const dragPct = Math.max(0, Math.min(100, Math.round(Number(result?.exposure?.capacity_drag_percent || 0))));
 const capacity = calculateCapacityComposition(dragPct);
@@ -3697,6 +3713,26 @@ return `<!doctype html>
   .bottom { position: absolute; bottom: .32in; left: .76in; right: .76in; border-top: 1px solid #E6EAF0; padding-top: .18in; color: #7C8794; font-size: 8.5px; }
   .bottom .date { float: right; }
   .content { position: relative; margin-top: .74in; }
+  .cover-page { background: linear-gradient(180deg, #F7FAFD 0%, #FFFFFF 100%); }
+  .cover-page .content { margin-top: .98in; }
+  .cover-mark { color: #3F6EA1; font-size: 9px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; margin: 0 0 22px; }
+  .cover-title { font-size: 34px; line-height: 1.02; letter-spacing: -.05em; margin: 0 0 10px; color: #15202B; max-width: 5.7in; }
+  .cover-subtitle { font-size: 13px; line-height: 1.45; color: #5B6774; margin: 0 0 24px; max-width: 4.8in; }
+  .cover-accent { width: 1.05in; height: 2px; background: linear-gradient(90deg, #3F6EA1 0%, rgba(63,110,161,.16) 100%); margin: 0 0 22px; }
+  .cover-stat-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 22px 0 20px; }
+  .cover-stat { border: 1px solid #E3EAF2; border-radius: 14px; background: rgba(255,255,255,.92); padding: 14px 14px 12px; }
+  .cover-stat-label { margin: 0 0 6px; color: #5B6774; font-size: 8px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+  .cover-stat-value { margin: 0 0 4px; font-size: 18px; line-height: 1.06; letter-spacing: -.03em; font-weight: 700; color: #15202B; }
+  .cover-stat-sub { margin: 0; font-size: 8.5px; color: #7C8794; }
+  .cover-meta { display: grid; grid-template-columns: 86px 1fr; gap: 8px 14px; margin: 18px 0 0; max-width: 4.4in; }
+  .cover-meta dt { color: #7C8794; font-size: 8px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; margin: 0; }
+  .cover-meta dd { margin: 0; font-size: 11px; color: #15202B; }
+  .cover-note { margin-top: 18px; max-width: 4.8in; color: #5B6774; font-size: 10px; line-height: 1.55; }
+  .cover-art { position: absolute; right: -.78in; bottom: -.62in; width: 4.7in; height: 4.7in; pointer-events: none; opacity: .18; }
+  .cover-art::before { content: ""; position: absolute; inset: 0; background-image: url('HERO_IMAGE_2.jpg'); background-size: cover; background-position: center; border-top-left-radius: 100%; }
+  .cover-art::after { content: ""; position: absolute; inset: -18% -8% -6% 18%; background: radial-gradient(circle at 42% 42%, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 26%, rgba(255,255,255,0.24) 42%, rgba(255,255,255,0.68) 66%, rgba(255,255,255,0.96) 86%, rgba(255,255,255,1) 100%); }
+  .cover-brandline { position: absolute; right: .86in; bottom: .62in; display: flex; align-items: center; gap: 8px; color: #7C8794; font-size: 8px; letter-spacing: .14em; text-transform: uppercase; }
+  .cover-brandline::before { content: ""; width: 34px; height: 1px; background: rgba(63,110,161,.35); }
   .eyebrow { color: #3F6EA1; font-size: 8.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; margin: 0 0 10px; }
   .doctype { color: #7C8794; font-size: 9px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; margin: 0 0 24px; }
   h1 { font-size: 32px; line-height: 1.04; letter-spacing: -.05em; margin: 0 0 22px; color: #15202B; }
@@ -3768,6 +3804,21 @@ return `<!doctype html>
 </style>
 </head>
 <body>
+
+<section class="page cover-page">
+  <div class="content">
+    <p class="cover-mark">Monderman</p>
+    <h1 class="cover-title">Operational Systems Diagnostic</h1>
+    <p class="cover-subtitle">Executive Summary</p>
+    <div class="cover-accent"></div>
+    <p class="lede">A structured executive read on operating burden, reclaimable drag, and the underlying administrative reality shaping this workflow.</p>
+    ${buildCoverStatsStrip(exportScore, result || {}, benchmarkPosition)}
+    ${buildCoverMetadata(processName, industry, generated)}
+    <p class="cover-note">This summary translates the strongest signals from this run into an executive artifact that can be reviewed, shared, and used to guide the next conversation. Figures marked with an asterisk are directional estimates, not audited measurements.</p>
+  </div>
+  <div class="cover-art" aria-hidden="true"></div>
+  <div class="cover-brandline">Administrative reality is a governable condition</div>
+</section>
 
 <section class="page">
   ${footer(1)}
@@ -4173,14 +4224,14 @@ $("burdenConstraintSub").textContent = harmonized.diagnosisReads.sourceRead;
 $("tradeoffDiagnosisValue").textContent = burdenDiagnosis.label;
 $("tradeoffDiagnosisSub").textContent = harmonized.diagnosisReads.diagnosisRead;
 
-$("economicHoursValue").textContent = result?.exposure?.annual_hours != null ? `${Math.round(Number(result.exposure.annual_hours)).toLocaleString()} hrs` : "--";
-$("economicCostValue").textContent = formatCurrency(result?.exposure?.annual_cost);
+$("economicHoursValue").textContent = result?.exposure?.annual_hours != null ? formatRoundedHours(result.exposure.annual_hours, { suffix: " hrs" }) : "--";
+$("economicCostValue").textContent = formatEstimateCurrencyRange(result?.exposure?.annual_cost);
 $("economicCapacityValue").textContent = result?.exposure?.capacity_drag_percent != null ? `${Math.round(Number(result.exposure.capacity_drag_percent))}%` : "--";
 $("benchmarkValue").textContent = result.benchmark_position || "--";
 $("benchmarkSub").textContent = "Read as context, not comfort.";
 $("trajectoryValue").textContent = result?.trajectory?.label || "--";
 $("trajectoryValueSub").textContent = result?.trajectory?.note || "Directional signal";
-$("reclaimValue").textContent = reclaim.amount ? formatCurrency(reclaim.amount) : "--";
+$("reclaimValue").textContent = reclaim.amount ? formatEstimateCurrencyRange(reclaim.amount) : "--";
 $("reclaimSub").textContent = reclaim.driverText;
 
 const trajectoryWrap = $("trajectorySignalWrap");
@@ -4291,8 +4342,8 @@ renderUnavailableTable("laborCompositionBody", 3, "N/A -- not enough signal is a
 
 renderTableBody("costCompositionBody", [
 { label: "Average hourly cost*", value: formatCurrency(result?.exposure?.average_hourly_cost || payload?.hourlyCost), note: "Directional labor-cost assumption per materially involved participant." },
-{ label: "Annual labor hours*", value: result?.exposure?.annual_hours ? `${Math.round(Number(result.exposure.annual_hours))} hrs` : "--", note: "Modeled across the workflow volume you provided." },
-{ label: "Annual labor exposure*", value: formatCurrency(result?.exposure?.annual_cost), note: "Directional labor-cost impact from keeping the workflow moving." },
+{ label: "Annual labor hours*", value: result?.exposure?.annual_hours ? formatRoundedHours(result.exposure.annual_hours, { suffix: " hrs" }) : "--", note: "Modeled across the workflow volume you provided." },
+{ label: "Annual labor exposure*", value: formatEstimateCurrencyRange(result?.exposure?.annual_cost), note: "Directional labor-cost impact from keeping the workflow moving." },
 { label: "Capacity drag*", value: result?.exposure?.capacity_drag_percent != null ? `${Math.round(Number(result.exposure.capacity_drag_percent))}%` : "--", note: "Estimated share of capacity absorbed by structural drag." }
 ], (row) => [`<td>${escapeHtml(row.label)}</td>`, `<td>${escapeHtml(row.value)}</td>`, `<td>${escapeHtml(row.note)}</td>`]);
 
