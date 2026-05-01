@@ -345,14 +345,14 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
     <div class="processing-flow-step" style="--flow-step:2"><span class="processing-flow-dot"></span></div>
     <div class="processing-flow-step" style="--flow-step:3"><span class="processing-flow-dot"></span></div>
   </div>
-  <h3>Generating executive output</h3>
-  <p id="processingStatus">The diagnostic engine is interpreting your workflow and preparing a leadership-facing readout.</p>
-  <p class="tiny" id="processingHelp">The output sequence is assembling scoring, contradiction checks, exposure ranges, and the executive narrative.</p>
+  <h3>Generating diagnostic output</h3>
+  <p id="processingStatus">The diagnostic engine is interpreting your workflow and preparing the final diagnostic readout.</p>
+  <p class="tiny" id="processingHelp">The output sequence is assembling scoring, contradiction checks, exposure ranges, and the final narrative.</p>
   <div class="processing-list">
     <div class="processing-item"><span class="pulse"></span><span>Scoring where the workflow is heaviest</span></div>
     <div class="processing-item"><span class="pulse"></span><span>Checking for contradiction and bypass signals</span></div>
     <div class="processing-item"><span class="pulse"></span><span>Estimating rough time, cost, and capacity impact</span></div>
-    <div class="processing-item"><span class="pulse"></span><span>Preparing the leadership readout</span></div>
+    <div class="processing-item"><span class="pulse"></span><span>Preparing the final readout</span></div>
   </div>
 </div></div></div>
 
@@ -1209,7 +1209,7 @@ item.classList.toggle("is-complete", idx < index);
 
 function resetProcessingUI() {
 if (processingHelp) {
-processingHelp.textContent = "This usually takes a few seconds. The adaptive engine is selecting the next best question path and then generating the final readout.";
+processingHelp.textContent = "This usually takes a few seconds. The adaptive engine is finalizing scoring, checking contradiction and bypass signals, estimating directional exposure, and assembling the final readout.";
 }
 setProcessingStep(-1, "Initializing output sequence...");
 }
@@ -2181,7 +2181,7 @@ if (!response.ok || !data?.ok) {
   throw err;
 }
 
-setProcessingStep(2, "Preparing leadership-facing output...");
+setProcessingStep(2, "Preparing the diagnostic narrative...");
 const result = asObject(data.result);
 const inferredCoverage = inferParticipantCoverage();
 const legacyPayload = asObject(data.legacyPayload);
@@ -2253,7 +2253,7 @@ if (refinedExperienceLayer?.hasInput) {
 state.result = result;
 state.renderPayload = payload;
 
-setProcessingStep(3, "Rendering charts and report modules...");
+setProcessingStep(3, "Rendering charts and final report modules...");
 renderResults(result, payload, "Operational Systems Diagnostic");
 // Do not write this run into localStorage automatically; repeated testing should not mutate future visible context or counts.
 setHeader("Diagnostic output", "Your results reflect the adaptive path generated from your inputs.", "Output generated");
@@ -3713,25 +3713,21 @@ return `<!doctype html>
   .bottom { position: absolute; bottom: .32in; left: .76in; right: .76in; border-top: 1px solid #E6EAF0; padding-top: .18in; color: #7C8794; font-size: 8.5px; }
   .bottom .date { float: right; }
   .content { position: relative; margin-top: .74in; }
-  .cover-page { background: linear-gradient(180deg, #F7FAFD 0%, #FFFFFF 100%); }
-  .cover-page .content { margin-top: .98in; }
-  .cover-mark { color: #3F6EA1; font-size: 9px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; margin: 0 0 22px; }
-  .cover-title { font-size: 34px; line-height: 1.02; letter-spacing: -.05em; margin: 0 0 10px; color: #15202B; max-width: 5.7in; }
-  .cover-subtitle { font-size: 13px; line-height: 1.45; color: #5B6774; margin: 0 0 24px; max-width: 4.8in; }
-  .cover-accent { width: 1.05in; height: 2px; background: linear-gradient(90deg, #3F6EA1 0%, rgba(63,110,161,.16) 100%); margin: 0 0 22px; }
-  .cover-stat-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 22px 0 20px; }
-  .cover-stat { border: 1px solid #E3EAF2; border-radius: 14px; background: rgba(255,255,255,.92); padding: 14px 14px 12px; }
-  .cover-stat-label { margin: 0 0 6px; color: #5B6774; font-size: 8px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
-  .cover-stat-value { margin: 0 0 4px; font-size: 18px; line-height: 1.06; letter-spacing: -.03em; font-weight: 700; color: #15202B; }
-  .cover-stat-sub { margin: 0; font-size: 8.5px; color: #7C8794; }
-  .cover-meta { display: grid; grid-template-columns: 86px 1fr; gap: 8px 14px; margin: 18px 0 0; max-width: 4.4in; }
+  .cover-page { background: #FFFFFF; }
+  .cover-page::before { content: ""; position: absolute; right: -2.05in; bottom: -1.72in; width: 6.95in; height: 6.95in; border-radius: 50%; background-image: url('HERO_IMAGE_2.jpg'); background-size: cover; background-position: center; opacity: .105; filter: saturate(.78) contrast(.96); }
+  .cover-page::after { content: ""; position: absolute; right: -1.55in; bottom: -1.35in; width: 6.2in; height: 6.2in; border-radius: 50%; background: radial-gradient(circle at 48% 48%, rgba(255,255,255,0) 0%, rgba(255,255,255,.05) 22%, rgba(255,255,255,.48) 56%, rgba(255,255,255,.92) 82%, rgba(255,255,255,1) 100%); }
+  .cover-content { position: relative; z-index: 2; margin-top: .82in; max-width: 5.35in; }
+  .cover-mark { color: #3F6EA1; font-size: 9px; font-weight: 700; letter-spacing: .24em; text-transform: uppercase; margin: 0 0 52px; }
+  .cover-kicker { color: #7C8794; font-size: 8.5px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; margin: 0 0 12px; }
+  .cover-title { font-size: 38px; line-height: .98; letter-spacing: -.055em; margin: 0 0 12px; color: #15202B; max-width: 5.4in; }
+  .cover-subtitle { font-size: 14px; line-height: 1.45; color: #5B6774; margin: 0 0 24px; max-width: 4.6in; }
+  .cover-accent { width: 1.12in; height: 3px; border-radius: 3px; background: linear-gradient(90deg, #3F6EA1 0%, rgba(63,110,161,.18) 100%); margin: 0 0 28px; }
+  .cover-framing { font-size: 12px; line-height: 1.55; color: #15202B; max-width: 4.9in; margin: 0 0 40px; }
+  .cover-meta { display: grid; grid-template-columns: 92px 1fr; gap: 10px 18px; margin: 0; max-width: 4.6in; padding-top: 20px; border-top: 1px solid #E6EAF0; }
   .cover-meta dt { color: #7C8794; font-size: 8px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; margin: 0; }
   .cover-meta dd { margin: 0; font-size: 11px; color: #15202B; }
-  .cover-note { margin-top: 18px; max-width: 4.8in; color: #5B6774; font-size: 10px; line-height: 1.55; }
-  .cover-art { position: absolute; right: -.78in; bottom: -.62in; width: 4.7in; height: 4.7in; pointer-events: none; opacity: .18; }
-  .cover-art::before { content: ""; position: absolute; inset: 0; background-image: url('HERO_IMAGE_2.jpg'); background-size: cover; background-position: center; border-top-left-radius: 100%; }
-  .cover-art::after { content: ""; position: absolute; inset: -18% -8% -6% 18%; background: radial-gradient(circle at 42% 42%, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 26%, rgba(255,255,255,0.24) 42%, rgba(255,255,255,0.68) 66%, rgba(255,255,255,0.96) 86%, rgba(255,255,255,1) 100%); }
-  .cover-brandline { position: absolute; right: .86in; bottom: .62in; display: flex; align-items: center; gap: 8px; color: #7C8794; font-size: 8px; letter-spacing: .14em; text-transform: uppercase; }
+  .cover-note { position: absolute; left: .76in; bottom: .74in; z-index: 3; max-width: 3.75in; color: #7C8794; font-size: 8.6px; line-height: 1.55; margin: 0; }
+  .cover-brandline { position: absolute; right: .78in; bottom: .55in; z-index: 3; display: flex; align-items: center; gap: 8px; color: #7C8794; font-size: 7.5px; letter-spacing: .14em; text-transform: uppercase; }
   .cover-brandline::before { content: ""; width: 34px; height: 1px; background: rgba(63,110,161,.35); }
   .eyebrow { color: #3F6EA1; font-size: 8.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; margin: 0 0 10px; }
   .doctype { color: #7C8794; font-size: 9px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; margin: 0 0 24px; }
@@ -3806,17 +3802,16 @@ return `<!doctype html>
 <body>
 
 <section class="page cover-page">
-  <div class="content">
-    <p class="cover-mark">Monderman</p>
-    <h1 class="cover-title">Operational Systems Diagnostic</h1>
-    <p class="cover-subtitle">Executive Summary</p>
+  <div class="cover-content">
+    <p class="cover-mark">MONDERMAN</p>
+    <p class="cover-kicker">Operational Systems Diagnostic</p>
+    <h1 class="cover-title">Executive Summary</h1>
+    <p class="cover-subtitle">A structured diagnostic read of workflow burden, operating friction, and administrative reality.</p>
     <div class="cover-accent"></div>
-    <p class="lede">A structured executive read on operating burden, reclaimable drag, and the underlying administrative reality shaping this workflow.</p>
-    ${buildCoverStatsStrip(exportScore, result || {}, benchmarkPosition)}
+    <p class="cover-framing">Prepared to help readers understand where recurring process load, workaround dependence, and governance weight may be consuming usable capacity.</p>
     ${buildCoverMetadata(processName, industry, generated)}
-    <p class="cover-note">This summary translates the strongest signals from this run into an executive artifact that can be reviewed, shared, and used to guide the next conversation. Figures marked with an asterisk are directional estimates, not audited measurements.</p>
   </div>
-  <div class="cover-art" aria-hidden="true"></div>
+  <p class="cover-note">Figures and findings in this report are directional outputs generated from user-provided inputs. They are intended to support review, discussion, and follow-up inquiry rather than substitute for audit-grade measurement.</p>
   <div class="cover-brandline">Administrative reality is a governable condition</div>
 </section>
 
