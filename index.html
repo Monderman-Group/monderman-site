@@ -11,7 +11,7 @@
       &lt;text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA"&gt;M&lt;/text&gt;
       &lt;rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/&gt;
     &lt;/svg&gt;' rel="icon" type="image/svg+xml"/>
-<link as="image" href="HERO_IMAGE_2.jpg" rel="preload"/>
+<link as="image" href="Decision Velocity.jpg" rel="preload"/>
 <style>
     @font-face {
       font-family: "Neue Haas Grotesk";
@@ -218,30 +218,27 @@
     }
     .hero-image {
       position: absolute;
-      top: -9%;
-      right: -16%;
+      top: -6%;
+      right: -8%;
       bottom: auto;
       left: auto;
-      width: 122%;
-      height: 118%;
+      width: 112%;
+      height: 112%;
       object-fit: cover;
-      object-position: 50% 50%;
-      --hero-shift-x: 14%;
+      object-position: 100% 50%;
+      --hero-shift-x: 24%;
       opacity: 0;
       transform: translateX(var(--hero-shift-x)) scale(0.88);
-      transition:
-        opacity 1100ms cubic-bezier(0.22,1,0.36,1) 120ms,
-        transform 2200ms cubic-bezier(0.22,1,0.36,1);
+      transition: opacity 720ms cubic-bezier(0.22,1,0.36,1), transform 1800ms cubic-bezier(0.22,1,0.36,1);
       will-change: transform, opacity;
     }
-    .hero-image.is-loaded { opacity: 0.90; }
+    .hero-image.is-loaded { opacity: 0.91; }
     .hero-overlay {
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(90deg, rgba(6,10,16,0.985) 0%, rgba(6,10,16,0.95) 23%, rgba(6,10,16,0.78) 44%, rgba(6,10,16,0.48) 63%, rgba(6,10,16,0.20) 84%, rgba(6,10,16,0.10) 100%),
-        radial-gradient(circle at 19% 50%, rgba(5,8,12,0.44) 0%, rgba(5,8,12,0.24) 24%, transparent 56%),
-        linear-gradient(180deg, rgba(8,12,18,0.20) 0%, rgba(8,12,18,0.08) 34%, rgba(8,12,18,0.22) 100%);
+        linear-gradient(90deg, rgba(8,12,18,0.975) 0%, rgba(8,12,18,0.90) 27%, rgba(8,12,18,0.58) 52%, rgba(8,12,18,0.26) 77%, rgba(8,12,18,0.10) 100%),
+        linear-gradient(180deg, rgba(8,12,18,0.18) 0%, rgba(8,12,18,0.08) 34%, rgba(8,12,18,0.20) 100%);
     }
     .hero::after {
       content: "";
@@ -250,7 +247,7 @@
       pointer-events: none;
       z-index: 1;
       background:
-        radial-gradient(circle at 86% 22%, rgba(63,110,161,0.12) 0%, rgba(63,110,161,0.05) 18%, transparent 36%),
+        radial-gradient(circle at 82% 18%, rgba(63,110,161,0.10) 0%, rgba(63,110,161,0.04) 18%, transparent 34%),
         linear-gradient(180deg, rgba(7,10,16,0.04) 0%, rgba(7,10,16,0.18) 100%);
     }
     .hero-inner {
@@ -475,21 +472,6 @@
       font-weight: 700;
       text-wrap: balance;
       color: #FFFFFF;
-    }
-    .placeholder-cover-stack {
-      display: grid;
-      gap: 10px;
-      align-items: end;
-      max-width: 82%;
-    }
-    .placeholder-cover-subline {
-      margin: 0;
-      max-width: 28ch;
-      font-size: 0.84rem;
-      line-height: 1.32;
-      letter-spacing: -0.01em;
-      color: rgba(255,255,255,0.82);
-      text-wrap: balance;
     }
     .placeholder-cover-top,
     .placeholder-cover-main,
@@ -1546,12 +1528,12 @@
       .differentiators { padding-left: 20px; padding-right: 20px; }
       .differentiators-grid { grid-template-columns: 1fr; }
       .hero-image {
-        top: -6%;
-        right: -24%;
-        width: 148%;
-        height: 122%;
-        --hero-shift-x: 6%;
-        object-position: 50% 50%;
+        top: -4%;
+        right: -12%;
+        width: 118%;
+        height: 118%;
+        --hero-shift-x: 10%;
+        object-position: 86% 50%;
       }
       .connect-panel { padding: 24px 22px 22px; }
       .footer-top,
@@ -1560,7 +1542,113 @@
         align-items: flex-start;
       }
     }
-  </style>
+  
+
+/* Monderman harmonization polish: shared footer, micro-interactions, and editorial rhythm */
+.footer {
+  padding-top: 56px;
+  padding-bottom: 40px;
+}
+.footer-top {
+  gap: 52px;
+  padding-bottom: 32px;
+}
+.footer-copy {
+  max-width: 47ch;
+  line-height: 1.72;
+  color: rgba(245,247,250,0.72);
+}
+.footer-mark {
+  letter-spacing: -0.018em;
+}
+.footer-nav {
+  gap: 46px;
+}
+.footer-nav-title {
+  letter-spacing: 0.18em;
+  color: rgba(245,247,250,0.54);
+}
+.footer-nav a {
+  margin-bottom: 9px;
+  color: rgba(245,247,250,0.78);
+  transition: color var(--transition), transform var(--transition), opacity var(--transition);
+}
+.footer-nav a:hover,
+.footer-nav a:focus-visible {
+  color: #FFFFFF;
+  transform: translateX(2px);
+  outline: none;
+}
+.footer-bottom {
+  padding-top: 21px;
+}
+.footer-meta,
+.footer-contact {
+  color: rgba(245,247,250,0.56);
+}
+.footer-contact {
+  max-width: 46ch;
+  text-align: right;
+}
+.btn {
+  transition: background 180ms cubic-bezier(0.22,1,0.36,1), color 180ms cubic-bezier(0.22,1,0.36,1), border-color 180ms cubic-bezier(0.22,1,0.36,1), transform 180ms cubic-bezier(0.22,1,0.36,1), box-shadow 180ms cubic-bezier(0.22,1,0.36,1), opacity 180ms cubic-bezier(0.22,1,0.36,1);
+}
+.card,
+.entry-card,
+.commitment-card,
+.connect-card,
+.latest-card,
+.service-card {
+  transition: transform var(--transition-slow), border-color var(--transition), box-shadow var(--transition-slow), background var(--transition);
+}
+.latest-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(63,110,161,0.18);
+  box-shadow: 0 12px 28px rgba(15,23,32,0.045);
+}
+.hero-eyebrow,
+.section-label,
+.footer-nav-title,
+.diff-kicker,
+.latest-card-kicker {
+  letter-spacing: 0.18em;
+}
+@media (max-width: 760px) {
+  .footer-top,
+  .footer-bottom {
+    align-items: flex-start;
+  }
+  .footer-contact {
+    text-align: left;
+  }
+}
+
+
+/* Editorial carousel tile subtitle alignment */
+.placeholder-cover {
+  align-items: flex-end;
+}
+.placeholder-cover-stack {
+  display: grid;
+  gap: 10px;
+  align-items: end;
+  max-width: 84%;
+}
+.placeholder-cover-subline {
+  display: block;
+  margin: 0;
+  max-width: 29ch;
+  font-size: 0.84rem;
+  line-height: 1.34;
+  letter-spacing: -0.01em;
+  color: rgba(255,255,255,0.82);
+  text-wrap: balance;
+}
+.placeholder-cover-title {
+  max-width: 100%;
+}
+
+</style>
 </head>
 <body>
 <header class="header" id="siteHeader">
@@ -1578,19 +1666,19 @@
 </header>
 <section aria-labelledby="hero-title" class="hero">
 <div aria-hidden="true" class="hero-media-wrap">
-<img alt="" class="hero-image" decoding="async" fetchpriority="high" id="heroImage" src="HERO_IMAGE_2.jpg"/>
+<img alt="" class="hero-image" decoding="async" fetchpriority="high" id="heroImage" src="Decision Velocity.jpg"/>
 <div class="hero-overlay"></div>
 </div>
 <div class="hero-inner">
 <div class="hero-copy">
-<p class="hero-eyebrow">Administrative reality is a governable condition.</p>
-<h1 class="hero-title" id="hero-title"><span class="hero-line">Organizations perform at the</span><span class="hero-line">speed of their</span><span class="hero-line">administrative reality.</span></h1>
+<p class="hero-eyebrow">Administrative reality is a governable variable.</p>
+<h1 class="hero-title" id="hero-title"><span class="hero-line">Organizations deliver at the</span><span class="hero-line">speed of their</span><span class="hero-line">administrative reality.</span></h1>
 <p class="hero-dek">
           Monderman is the diagnostic platform institutions use to measure, compare, and govern administrative reality — repeatedly, across perspectives, over time.
         </p>
 <div class="hero-actions">
 <a class="btn btn-accent" href="diagnostic-tools.html">Run a First Diagnostic</a>
-<a class="btn btn-secondary" href="advisory-services.html">Platform Services</a>
+<a class="btn btn-secondary" href="advisory-services-connect.html">Platform Services</a>
 </div>
 </div>
 </div>
@@ -1962,7 +2050,10 @@
 <article class="latest-card">
 <div aria-hidden="true" class="latest-card-image latest-card-image--placeholder latest-card-image--culture" style="background:#1B2E43;">
 <div class="placeholder-cover">
+<div class="placeholder-cover-stack">
 <h3 class="placeholder-cover-title">The Culture Trap</h3>
+<p class="placeholder-cover-subline">Why Organizations Measure Sentiment<br/>and Miss the System</p>
+</div>
 </div>
 </div>
 <div class="latest-card-body">
@@ -1970,22 +2061,6 @@
 <h3 class="latest-card-title">The Culture Trap</h3>
 <p class="latest-card-text">Why culture-first diagnosis mislocates the problem — and why organizations that fix sentiment before structure often fix the wrong thing first.</p>
 <a class="latest-card-link" href="Monderman_Culture_Trap.pdf" rel="noopener noreferrer" target="_blank">Download research →</a>
-</div>
-</article>
-<article class="latest-card">
-<div aria-hidden="true" class="latest-card-image latest-card-image--placeholder latest-card-image--culture" style="background:#1B2E43;">
-<div class="placeholder-cover">
-<div class="placeholder-cover-stack">
-<h3 class="placeholder-cover-title">Off the Line</h3>
-<p class="placeholder-cover-subline">The Vast Decision Space That Binary Framing Makes Invisible</p>
-</div>
-</div>
-</div>
-<div class="latest-card-body">
-<p class="latest-card-kicker">Perspective · Decision Design</p>
-<h3 class="latest-card-title">Off the Line</h3>
-<p class="latest-card-text">A Monderman perspective on the decision space that binary framing makes invisible — and why institutions miss viable options when complex choices are reduced too early.</p>
-<a class="latest-card-link" href="Monderman_Off_the_Line.pdf" rel="noopener noreferrer" target="_blank">Download research →</a>
 </div>
 </article>
 <article class="latest-card">
@@ -2044,7 +2119,7 @@
 <div class="footer-brand">
 <div class="footer-mark">Monderman</div>
 <p class="footer-copy">
-            Diagnostic platform software and support for institutions using repeated measurement to understand and govern administrative reality with greater clarity.
+            Monderman is the diagnostic platform institutions use to measure, compare, and govern administrative reality — repeatedly, across perspectives, over time.
           </p>
 </div>
 <div aria-label="Footer navigation" class="footer-nav">
@@ -2064,7 +2139,7 @@
 </div>
 <div class="footer-bottom">
 <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
-<p class="footer-contact">Where structure enables execution, performance follows.</p>
+<p class="footer-contact">Organizations deliver at the speed of their administrative reality.</p>
 </div>
 </div>
 </footer>
