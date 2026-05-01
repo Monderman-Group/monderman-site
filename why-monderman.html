@@ -1802,6 +1802,83 @@
       line-height: 1.5;
       color: var(--muted-dark);
     }
+
+
+    .infographic-section {
+      position: relative;
+      background: #FFFFFF;
+      padding: 82px 34px 76px;
+      color: var(--text-dark);
+      border-top: 1px solid rgba(21, 32, 43, 0.04);
+      border-bottom: 1px solid rgba(21, 32, 43, 0.04);
+      overflow: hidden;
+    }
+
+    .infographic-section::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 84% 16%, rgba(63, 110, 161, 0.055), transparent 32%),
+        linear-gradient(90deg, rgba(63, 110, 161, 0.014) 1px, transparent 1px),
+        linear-gradient(rgba(63, 110, 161, 0.014) 1px, transparent 1px);
+      background-size: auto, 28px 28px, 28px 28px;
+      pointer-events: none;
+    }
+
+    .infographic-inner {
+      position: relative;
+      z-index: 1;
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .infographic-frame {
+      margin: 36px 0 0;
+      padding: 10px;
+      background: #FFFFFF;
+      border: 1px solid rgba(21, 32, 43, 0.08);
+      border-radius: 22px;
+      box-shadow:
+        0 1px 0 rgba(0, 0, 0, 0.012),
+        0 16px 34px rgba(15, 23, 32, 0.055);
+      overflow: hidden;
+    }
+
+    .infographic-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 14px;
+    }
+
+    .infographic-caption {
+      margin: 14px 4px 0;
+      max-width: 74ch;
+      font-size: 0.88rem;
+      line-height: 1.58;
+      color: var(--muted-dark-2);
+    }
+
+    @media (max-width: 760px) {
+      .infographic-section {
+        padding: 68px 20px 62px;
+      }
+
+      .infographic-frame {
+        margin-top: 28px;
+        padding: 8px;
+        border-radius: 20px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .infographic-frame img {
+        min-width: 980px;
+        border-radius: 13px;
+      }
+    }
+
 @media (prefers-reduced-motion: reduce) {
       html {
         scroll-behavior: auto;
@@ -2191,7 +2268,30 @@
     </div>
   </section>
 
-  
+  <section class="infographic-section" aria-labelledby="monderman-glance-title">
+    <div class="infographic-inner reveal">
+      <div class="section-intro">
+        <div class="section-label">Monderman at a glance</div>
+        <h2 id="monderman-glance-title">A diagnostic platform for governing administrative reality over time.</h2>
+        <p>
+          Monderman helps complex institutions make administrative reality visible, comparable, and governable through repeated diagnostics, cross-perspective measurement, and structured synthesis.
+        </p>
+      </div>
+
+      <figure class="infographic-frame" aria-label="Monderman platform overview infographic">
+        <img
+          src="Monderman_Infographic.png"
+          alt="Infographic explaining why Monderman exists, what the platform measures, how it works, what makes it different, and what it produces."
+          loading="lazy"
+          decoding="async"
+        />
+        <figcaption class="infographic-caption">
+          The platform turns hidden administrative reality into a repeated, comparable diagnostic read across decision velocity, structural clarity, operational systems, and institutional performance.
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
   <section class="manifesto-section" aria-labelledby="why-title">
     <div class="manifesto-inner">
       <div class="section-intro reveal">
