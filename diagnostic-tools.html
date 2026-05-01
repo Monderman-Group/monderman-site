@@ -204,11 +204,11 @@
       overflow:hidden;
       background:
         linear-gradient(90deg,
-          rgba(15,23,32,.92) 0%,
-          rgba(15,23,32,.78) 28%,
-          rgba(15,23,32,.42) 54%,
-          rgba(15,23,32,.08) 78%,
-          rgba(15,23,32,0) 100%
+          rgba(15,23,32,.95) 0%,
+          rgba(15,23,32,.84) 28%,
+          rgba(15,23,32,.52) 54%,
+          rgba(15,23,32,.16) 78%,
+          rgba(15,23,32,.04) 100%
         ),
         var(--hero-image) center/cover no-repeat,
         linear-gradient(180deg, #0F1720 0%, #121B25 100%);
@@ -630,6 +630,16 @@
       background:var(--gold-soft);
       color:#7D6320;
       border-color:rgba(178,141,60,.26);
+    }
+    .tool-badge.status-under-development{
+      background:rgba(184,92,82,.12);
+      color:#B85C52;
+      border-color:rgba(184,92,82,.30);
+    }
+    .tool-badge.status-beta{
+      background:rgba(196,154,60,.16);
+      color:#9B7519;
+      border-color:rgba(196,154,60,.34);
     }
     .tool-title{
       margin:0 0 8px;
@@ -1690,148 +1700,6 @@
         align-items:stretch;
       }
     }
-  
-
-/* Monderman site harmonization pass: footer, labels, and restrained premium micro-interactions */
-.footer {
-  padding-top: 56px;
-  padding-bottom: 40px;
-}
-.footer-top {
-  gap: 52px;
-  padding-bottom: 32px;
-}
-.footer-brand { max-width: 500px; }
-.footer-copy {
-  max-width: 47ch;
-  line-height: 1.72;
-  color: rgba(245,247,250,0.72);
-}
-.footer-mark {
-  font-weight: 700;
-  letter-spacing: -0.018em;
-}
-.footer-nav { gap: 46px; }
-.footer-nav-title {
-  letter-spacing: 0.18em;
-  color: rgba(245,247,250,0.54);
-}
-.footer-nav a {
-  margin-bottom: 9px;
-  color: rgba(245,247,250,0.78);
-  transition: color var(--transition), transform var(--transition), opacity var(--transition);
-}
-.footer-nav a:hover,
-.footer-nav a:focus-visible {
-  color: #FFFFFF;
-  transform: translateX(2px);
-  outline: none;
-}
-.footer-bottom { padding-top: 21px; }
-.footer-meta,
-.footer-contact { color: rgba(245,247,250,0.56); }
-.footer-contact {
-  max-width: 46ch;
-  text-align: right;
-}
-.hero-eyebrow,
-.section-label,
-.card-kicker,
-.use-step,
-.matrix-kicker,
-.shared-context-kicker,
-.recent-runs-kicker,
-.best-for-repeat,
-.tool-subline,
-.tool-meta-label,
-.footer-nav-title,
-.context-field label,
-.context-pill-label,
-.saved-context-label {
-  letter-spacing: 0.18em;
-}
-.brand,
-.nav a,
-.btn,
-.tool-card,
-.tool-card-link,
-.dynamic-toggle,
-.footer-nav a,
-.context-field input,
-.context-field select,
-.context-field textarea,
-.file-remove,
-.dropzone,
-.workspace-link {
-  transition: background var(--transition), color var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition), opacity var(--transition);
-}
-.nav a:hover,
-.nav a:focus-visible,
-.nav a.workspace-link:hover,
-.nav a.workspace-link:focus-visible {
-  transform: translateY(-1px);
-}
-.card,
-.use-card,
-.tool-card,
-.dynamic-card,
-.matrix-card,
-.page-rail-item,
-.shared-context-card,
-.recent-runs-card,
-.context-pill,
-.recent-run-item,
-.saved-context-row,
-.file-item,
-.panel,
-.tools-head,
-.bridge,
-.synthesis-shell,
-.note {
-  box-shadow: none;
-}
-.tool-card:hover,
-.use-card:hover,
-.dynamic-card:hover,
-.matrix-card:hover,
-.dropzone:hover {
-  transform: translateY(-2px);
-  border-color: rgba(63,110,161,0.24) !important;
-  box-shadow: 0 12px 28px rgba(15,23,32,0.045) !important;
-}
-.card:hover,
-.page-rail-item:hover,
-.recent-run-item:hover,
-.context-pill:hover,
-.saved-context-row:hover {
-  border-color: rgba(63,110,161,0.16) !important;
-}
-.tool-card:hover .tool-open,
-.tool-card-link:focus-visible .tool-open,
-.tool-inline-link:hover,
-.tool-inline-link:focus-visible {
-  color: var(--accent-dark);
-}
-a:focus-visible,
-button:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible,
-.tool-card-link:focus-visible,
-.dynamic-toggle:focus-visible,
-.dropzone:focus-visible,
-.file-remove:focus-visible,
-.nav a:focus-visible {
-  outline: 2px solid rgba(63,110,161,0.72);
-  outline-offset: 4px;
-}
-.tool-card-link:focus-visible { outline-offset: -2px; }
-@media (max-width: 760px) {
-  .footer-top,
-  .footer-bottom { align-items: flex-start; }
-  .footer-contact { text-align: left; }
-}
-
   </style>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
 </head>
@@ -1903,7 +1771,7 @@ textarea:focus-visible,
           <div class="page-rail-item">
             <p class="page-rail-label">Participant lenses</p>
             <p class="page-rail-value">Compare how the system is experienced</p>
-            <p class="page-rail-copy">The same organizational system can feel different across operational, managerial, and senior-level vantage points.</p>
+            <p class="page-rail-copy">The same organizational system can feel very different across operational, managerial, and leadership vantage points.</p>
           </div>
         </div>
     <div class="page-inner">
@@ -2216,7 +2084,7 @@ textarea:focus-visible,
                 </svg>
               </div>
               <div class="tool-card-top">
-                <div class="tool-badge">Live</div>
+                <div class="tool-badge status-under-development">Under Development</div>
                 
               </div>
               <h3 class="tool-title">Structural Clarity Diagnostic</h3>
@@ -2241,7 +2109,7 @@ textarea:focus-visible,
                 </svg>
               </div>
               <div class="tool-card-top">
-                <div class="tool-badge">Live</div>
+                <div class="tool-badge status-under-development">Under Development</div>
               </div>
               <h3 class="tool-title">Decision Velocity Diagnostic</h3>
               <p class="tool-subline">Approvals · escalation · delay</p>
@@ -2264,7 +2132,7 @@ textarea:focus-visible,
                 </svg>
               </div>
               <div class="tool-card-top">
-                <div class="tool-badge">Live</div>
+                <div class="tool-badge status-beta">Beta</div>
               </div>
               <h3 class="tool-title">Operational Systems Diagnostic</h3>
               <p class="tool-subline">Process load · reporting · overhead</p>
@@ -2287,7 +2155,7 @@ textarea:focus-visible,
                 </svg>
               </div>
               <div class="tool-card-top">
-                <div class="tool-badge">Live</div>
+                <div class="tool-badge status-under-development">Under Development</div>
               </div>
               <h3 class="tool-title">Institutional Performance Diagnostic</h3>
               <p class="tool-subline">System health · adaptation · reliability</p>
@@ -2426,6 +2294,18 @@ textarea:focus-visible,
   </main>
 
 
+  <div class="under-development-modal" id="underDevelopmentModal" aria-hidden="true">
+    <div class="under-development-panel" role="dialog" aria-modal="true" aria-labelledby="underDevelopmentTitle">
+      <p class="under-development-kicker">Diagnostic portal</p>
+      <h3 id="underDevelopmentTitle">Under Development</h3>
+      <p id="underDevelopmentCopy">This diagnostic is currently under development and is not yet available from the hub.</p>
+      <div class="under-development-note">Operational Systems remains available in beta while the other diagnostic portals continue through development and refinement.</div>
+      <div class="under-development-actions">
+        <button class="btn btn-accent" id="underDevelopmentCloseBtn" type="button">Return to hub</button>
+      </div>
+    </div>
+  </div>
+
   <div id="turnstilePreload" aria-hidden="true" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;"></div>
   <div class="cf-modal" id="turnstileModal" aria-hidden="true">
     <div class="cf-modal-panel" role="dialog" aria-modal="true" aria-labelledby="turnstileTitle">
@@ -2448,7 +2328,7 @@ textarea:focus-visible,
         <div class="footer-brand">
           <div class="footer-mark">Monderman</div>
           <p class="footer-copy">
-            Monderman is the diagnostic platform institutions use to measure, compare, and govern administrative reality — repeatedly, across perspectives, over time.
+            Platform-level thinking on institutional performance, decision velocity, and the design of systems that sustain clarity under complexity.
           </p>
         </div>
 
@@ -2462,13 +2342,6 @@ textarea:focus-visible,
           </div>
 
           <div class="footer-nav-col">
-            <p class="footer-nav-title">Platform</p>
-            <a href="advisory-services.html">Platform Services</a>
-            <a href="workspace.html">Workspace</a>
-            <a href="advisory-services-connect.html">Connect</a>
-          </div>
-
-          <div class="footer-nav-col">
             <p class="footer-nav-title">Connect</p>
             <a href="mailto:connect@monderman.com">connect@monderman.com</a>
           </div>
@@ -2477,7 +2350,7 @@ textarea:focus-visible,
 
       <div class="footer-bottom">
         <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
-        <p class="footer-contact">Organizations deliver at the speed of their administrative reality.</p>
+        <p class="footer-contact">Precision instruments for complex institutions.</p>
       </div>
     </div>
   </footer>
@@ -3047,10 +2920,12 @@ textarea:focus-visible,
     const TURNSTILE_SITE_KEY = "0x4AAAAAAC8JOwWXoDDTTFef";
     const TURNSTILE_VERIFY_URL = "https://monderman-api.onrender.com/api/turnstile-verify";
     const PROTECTED_DIAGNOSTIC_PATHS = new Set([
-      "structural-clarity.html",
-      "decision-velocity.html",
-      "bureaucratic-drag-snapshot.html",
-      "institutional-performance.html"
+      "bureaucratic-drag-snapshot.html"
+    ]);
+    const UNDER_DEVELOPMENT_PATHS = new Map([
+      ["structural-clarity.html", "Structural Clarity Diagnostic"],
+      ["decision-velocity.html", "Decision Velocity Diagnostic"],
+      ["institutional-performance.html", "Institutional Performance Diagnostic"]
     ]);
     const TURNSTILE_TOKEN_KEY = "mondermanTurnstileTokenV1";
     const TURNSTILE_TIMEOUT_MS = 10000;
@@ -3061,6 +2936,10 @@ textarea:focus-visible,
     const turnstilePreload = document.getElementById("turnstilePreload");
     const turnstileStatus = document.getElementById("turnstileStatus");
     const turnstileCancelBtn = document.getElementById("turnstileCancelBtn");
+    const underDevelopmentModal = document.getElementById("underDevelopmentModal");
+    const underDevelopmentTitle = document.getElementById("underDevelopmentTitle");
+    const underDevelopmentCopy = document.getElementById("underDevelopmentCopy");
+    const underDevelopmentCloseBtn = document.getElementById("underDevelopmentCloseBtn");
 
     let pendingDiagnosticUrl = "";
     let visibleTurnstileId = null;
@@ -3131,6 +3010,22 @@ textarea:focus-visible,
     function onTurnstileUnavailable() {
       turnstileScriptFailed = true;
       setTurnstileStatus("Verification service unavailable. Please try again in a moment or contact support.", "error");
+    }
+    function openUnderDevelopmentModal(toolName) {
+      if (!underDevelopmentModal) return;
+      if (underDevelopmentTitle) underDevelopmentTitle.textContent = "Under Development";
+      if (underDevelopmentCopy) {
+        underDevelopmentCopy.textContent = `${toolName || "This diagnostic"} is currently under development and is not yet available from the hub.`;
+      }
+      underDevelopmentModal.classList.add("show");
+      underDevelopmentModal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+    function closeUnderDevelopmentModal() {
+      if (!underDevelopmentModal) return;
+      underDevelopmentModal.classList.remove("show");
+      underDevelopmentModal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
     }
     function navigateToProtectedDiagnostic(target) {
       if (!target) return;
@@ -3234,6 +3129,18 @@ textarea:focus-visible,
       });
     }
 
+    if (underDevelopmentCloseBtn) {
+      underDevelopmentCloseBtn.addEventListener("click", closeUnderDevelopmentModal);
+    }
+
+    if (underDevelopmentModal) {
+      underDevelopmentModal.addEventListener("click", (event) => {
+        if (event.target === underDevelopmentModal) {
+          closeUnderDevelopmentModal();
+        }
+      });
+    }
+
     if (turnstileModal) {
       turnstileModal.addEventListener("click", (event) => {
         if (event.target === turnstileModal) {
@@ -3248,11 +3155,19 @@ textarea:focus-visible,
         pendingDiagnosticUrl = "";
         closeTurnstileModal();
       }
+      if (event.key === "Escape" && underDevelopmentModal && underDevelopmentModal.classList.contains("show")) {
+        closeUnderDevelopmentModal();
+      }
     });
 
     document.querySelectorAll("a.diagnostic-link[href]").forEach((link) => {
       link.addEventListener("click", (event) => {
         const href = link.getAttribute("href") || "";
+        if (UNDER_DEVELOPMENT_PATHS.has(href)) {
+          event.preventDefault();
+          openUnderDevelopmentModal(UNDER_DEVELOPMENT_PATHS.get(href));
+          return;
+        }
         if (!PROTECTED_DIAGNOSTIC_PATHS.has(href)) return;
         const context = readHubContext();
         if (context && context.pathName) {
