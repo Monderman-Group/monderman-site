@@ -3727,35 +3727,10 @@ return `<!doctype html>
   .cover-note { position: absolute; left: .76in; bottom: .70in; z-index: 3; max-width: 3.55in; color: #7C8794; font-size: 8.55px; line-height: 1.58; margin: 0; }
   .cover-brandline { position: absolute; right: .80in; bottom: .56in; z-index: 3; display: flex; align-items: center; gap: 8px; color: #7C8794; font-size: 7.4px; letter-spacing: .14em; text-transform: uppercase; }
   .cover-brandline::before { content: ""; width: 34px; height: 1px; background: rgba(63,110,161,.35); }
-  .cover-rings { position: absolute; right: -1.48in; bottom: -1.88in; width: 6.25in; height: 6.25in; border-radius: 50%; overflow: hidden; z-index: 1; opacity: .97; }
-  .cover-rings::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background:
-      conic-gradient(from 232deg,
-        rgba(96,24,76,.78) 0deg,
-        rgba(224,62,114,.84) 46deg,
-        rgba(246,201,218,.88) 88deg,
-        rgba(114,208,255,.92) 132deg,
-        rgba(38,100,173,.98) 192deg,
-        rgba(247,206,219,.88) 242deg,
-        rgba(88,45,98,.82) 290deg,
-        rgba(96,24,76,.78) 360deg);
-      filter: saturate(1.02) contrast(1.02);
-  }
-  .cover-rings::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background:
-      radial-gradient(circle at center,
-        rgba(255,255,255,0) 0 17%,
-        rgba(12,25,60,.98) 17% 28%,
-        rgba(255,255,255,0) 28% 35%,
-        rgba(76,201,255,.50) 35% 44%,
-        rgba(255,255,255,0) 44% 50%,
-        rgba(255,174,202,.44) 50% 59%,
-        rgba(255,255,255,0) 59% 66%,
-        rgba(84,133,184,.26) 66% 74%,
-        rgba(255,255,255,0) 74% 100%),
-      radial-gradient(circle at center,
-        transparent 0 80%,
-        rgba(255,255,255,.82) 86%,
-        rgba(255,255,255,1) 100%);
-  }
+  .cover-motif-wrap { position: absolute; right: -2.78in; bottom: -2.82in; width: 5.95in; height: 5.95in; z-index: 1; pointer-events: none; overflow: hidden; opacity: .72; }
+  .cover-motif { display: block; width: 100%; height: 100%; object-fit: contain; filter: saturate(.95) contrast(.98); }
+  .cover-motif-wrap::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 0%, rgba(255,255,255,.08) 52%, rgba(255,255,255,.78) 83%, rgba(255,255,255,1) 100%); pointer-events: none; }
+  .cover-page::after { content: ""; position: absolute; right: 0; bottom: 0; width: 4.05in; height: 3.55in; background: linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.24) 44%, rgba(255,255,255,.92) 100%); z-index: 1; pointer-events: none; }
   .eyebrow { color: #3F6EA1; font-size: 8.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; margin: 0 0 10px; }
   .doctype { color: #7C8794; font-size: 9px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; margin: 0 0 24px; }
   h1 { font-size: 32px; line-height: 1.04; letter-spacing: -.05em; margin: 0 0 22px; color: #15202B; }
@@ -3838,7 +3813,7 @@ return `<!doctype html>
     <p class="cover-framing">A structured read of workflow burden, operating friction, reclaimable drag, and the administrative reality shaping how the work is actually sustained.</p>
     ${buildCoverMetadata(processName, industry, generated)}
   </div>
-  <div class="cover-rings" aria-hidden="true"></div>
+  <div class="cover-motif-wrap" aria-hidden="true"><img class="cover-motif" src="Monderman_Report_Motif..png" alt="" crossorigin="anonymous" /></div>
   <p class="cover-note">Figures and findings in this report are directional outputs generated from user-provided inputs. They are intended to support review, discussion, and follow-up inquiry rather than substitute for audit-grade measurement.</p>
   <div class="cover-brandline">Administrative reality is a governable condition</div>
 </section>
@@ -4066,6 +4041,15 @@ if (container && container.parentNode) container.parentNode.removeChild(containe
 
 try {
 await (document.fonts?.ready || Promise.resolve());
+const pdfImages = Array.from(bodyWrap.querySelectorAll("img"));
+await Promise.all(pdfImages.map((img) => {
+  if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+  return new Promise((resolve) => {
+    img.addEventListener("load", resolve, { once: true });
+    img.addEventListener("error", resolve, { once: true });
+  });
+}));
+await Promise.all(pdfImages.map((img) => (typeof img.decode === "function" ? img.decode().catch(() => null) : Promise.resolve())));
 await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
 const pages = Array.from(bodyWrap.querySelectorAll(".page"));
