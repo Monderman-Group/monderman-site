@@ -1690,6 +1690,148 @@
         align-items:stretch;
       }
     }
+  
+
+/* Monderman site harmonization pass: footer, labels, and restrained premium micro-interactions */
+.footer {
+  padding-top: 56px;
+  padding-bottom: 40px;
+}
+.footer-top {
+  gap: 52px;
+  padding-bottom: 32px;
+}
+.footer-brand { max-width: 500px; }
+.footer-copy {
+  max-width: 47ch;
+  line-height: 1.72;
+  color: rgba(245,247,250,0.72);
+}
+.footer-mark {
+  font-weight: 700;
+  letter-spacing: -0.018em;
+}
+.footer-nav { gap: 46px; }
+.footer-nav-title {
+  letter-spacing: 0.18em;
+  color: rgba(245,247,250,0.54);
+}
+.footer-nav a {
+  margin-bottom: 9px;
+  color: rgba(245,247,250,0.78);
+  transition: color var(--transition), transform var(--transition), opacity var(--transition);
+}
+.footer-nav a:hover,
+.footer-nav a:focus-visible {
+  color: #FFFFFF;
+  transform: translateX(2px);
+  outline: none;
+}
+.footer-bottom { padding-top: 21px; }
+.footer-meta,
+.footer-contact { color: rgba(245,247,250,0.56); }
+.footer-contact {
+  max-width: 46ch;
+  text-align: right;
+}
+.hero-eyebrow,
+.section-label,
+.card-kicker,
+.use-step,
+.matrix-kicker,
+.shared-context-kicker,
+.recent-runs-kicker,
+.best-for-repeat,
+.tool-subline,
+.tool-meta-label,
+.footer-nav-title,
+.context-field label,
+.context-pill-label,
+.saved-context-label {
+  letter-spacing: 0.18em;
+}
+.brand,
+.nav a,
+.btn,
+.tool-card,
+.tool-card-link,
+.dynamic-toggle,
+.footer-nav a,
+.context-field input,
+.context-field select,
+.context-field textarea,
+.file-remove,
+.dropzone,
+.workspace-link {
+  transition: background var(--transition), color var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition), opacity var(--transition);
+}
+.nav a:hover,
+.nav a:focus-visible,
+.nav a.workspace-link:hover,
+.nav a.workspace-link:focus-visible {
+  transform: translateY(-1px);
+}
+.card,
+.use-card,
+.tool-card,
+.dynamic-card,
+.matrix-card,
+.page-rail-item,
+.shared-context-card,
+.recent-runs-card,
+.context-pill,
+.recent-run-item,
+.saved-context-row,
+.file-item,
+.panel,
+.tools-head,
+.bridge,
+.synthesis-shell,
+.note {
+  box-shadow: none;
+}
+.tool-card:hover,
+.use-card:hover,
+.dynamic-card:hover,
+.matrix-card:hover,
+.dropzone:hover {
+  transform: translateY(-2px);
+  border-color: rgba(63,110,161,0.24) !important;
+  box-shadow: 0 12px 28px rgba(15,23,32,0.045) !important;
+}
+.card:hover,
+.page-rail-item:hover,
+.recent-run-item:hover,
+.context-pill:hover,
+.saved-context-row:hover {
+  border-color: rgba(63,110,161,0.16) !important;
+}
+.tool-card:hover .tool-open,
+.tool-card-link:focus-visible .tool-open,
+.tool-inline-link:hover,
+.tool-inline-link:focus-visible {
+  color: var(--accent-dark);
+}
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+.tool-card-link:focus-visible,
+.dynamic-toggle:focus-visible,
+.dropzone:focus-visible,
+.file-remove:focus-visible,
+.nav a:focus-visible {
+  outline: 2px solid rgba(63,110,161,0.72);
+  outline-offset: 4px;
+}
+.tool-card-link:focus-visible { outline-offset: -2px; }
+@media (max-width: 760px) {
+  .footer-top,
+  .footer-bottom { align-items: flex-start; }
+  .footer-contact { text-align: left; }
+}
+
   </style>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
 </head>
@@ -1761,7 +1903,7 @@
           <div class="page-rail-item">
             <p class="page-rail-label">Participant lenses</p>
             <p class="page-rail-value">Compare how the system is experienced</p>
-            <p class="page-rail-copy">The same organizational system can feel very different across operational, managerial, and leadership vantage points.</p>
+            <p class="page-rail-copy">The same organizational system can feel different across operational, managerial, and senior-level vantage points.</p>
           </div>
         </div>
     <div class="page-inner">
@@ -2306,7 +2448,7 @@
         <div class="footer-brand">
           <div class="footer-mark">Monderman</div>
           <p class="footer-copy">
-            Platform-level thinking on institutional performance, decision velocity, and the design of systems that sustain clarity under complexity.
+            Monderman is the diagnostic platform institutions use to measure, compare, and govern administrative reality — repeatedly, across perspectives, over time.
           </p>
         </div>
 
@@ -2320,6 +2462,13 @@
           </div>
 
           <div class="footer-nav-col">
+            <p class="footer-nav-title">Platform</p>
+            <a href="advisory-services.html">Platform Services</a>
+            <a href="workspace.html">Workspace</a>
+            <a href="advisory-services-connect.html">Connect</a>
+          </div>
+
+          <div class="footer-nav-col">
             <p class="footer-nav-title">Connect</p>
             <a href="mailto:connect@monderman.com">connect@monderman.com</a>
           </div>
@@ -2328,7 +2477,7 @@
 
       <div class="footer-bottom">
         <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
-        <p class="footer-contact">Precision instruments for complex institutions.</p>
+        <p class="footer-contact">Organizations deliver at the speed of their administrative reality.</p>
       </div>
     </div>
   </footer>
