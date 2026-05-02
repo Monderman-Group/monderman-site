@@ -1094,18 +1094,44 @@ return { strength: "low", type: "none", label: "No experiential interpretive sig
 }
 
 function getBurdenCompositionPattern(result = {}) {
+// Read from canonical_composition returned by the backend scorer.
+// This is the single authoritative source — all 6 dimensions included,
+// pre-sorted, pre-percentaged, consistent with the priority ladder.
+const c = result?.canonical_composition;
+if (c && Array.isArray(c.segments) && c.segments.length > 0) {
+  return {
+    segments:    c.segments,
+    total:       c.total,
+    dominant:    c.dominant,
+    dominantPct: c.dominant_pct,
+    shape:       c.shape
+  };
+}
+// Legacy fallback for runs that predate the canonical descriptor (read-only, not recalculated)
 const breakdown = asObject(result?.burden_breakdown);
-const segments = [
-{ label: "Process density", value: Number(breakdown.process_density || 0) },
-{ label: "Systems friction", value: Math.max(Number(breakdown.systems_friction || 0), Number(breakdown.workaround_dependence || 0)) },
-{ label: "Reporting burden", value: Number(breakdown.reporting_exception_burden || 0) },
-{ label: "Control load", value: Number(breakdown.control_load || 0) }
-].filter((seg) => Number.isFinite(seg.value) && seg.value > 0);
-const total = segments.reduce((sum, seg) => sum + seg.value, 0);
-const dominant = segments.slice().sort((a, b) => b.value - a.value)[0] || { label: "No dominant source", value: 0 };
-const dominantPct = total ? Math.round((dominant.value / total) * 100) : 0;
-const shape = !total ? "insufficient" : dominantPct >= 38 ? "concentrated" : dominantPct < 32 ? "distributed" : "mixed";
-return { segments, total, dominant, dominantPct, shape };
+const LABELS = {
+  process_density:            "Process density",
+  systems_friction:           "Systems friction",
+  reporting_exception_burden: "Reporting burden",
+  workaround_dependence:      "Workaround dependence",
+  control_load:               "Control load",
+  upkeep_burden:              "Administrative upkeep burden"
+};
+const segments = Object.entries(LABELS)
+  .map(([key, label]) => ({ label, value: Math.max(0, Number(breakdown[key] || 0)) }))
+  .filter(s => s.value > 0)
+  .sort((a, b) => b.value - a.value);
+const total = segments.reduce((sum, s) => sum + s.value, 0);
+let assigned = 0;
+const withPct = segments.map((s, i) => {
+  const p = i < segments.length - 1 ? Math.round((s.value / total) * 100) : 100 - assigned;
+  assigned += p;
+  return { ...s, pct: p };
+});
+const dominant = withPct[0] || { label: "No dominant source", value: 0, pct: 0 };
+const dominantPct = dominant.pct || 0;
+const shape = !total ? "insufficient" : dominantPct >= 42 ? "concentrated" : dominantPct <= 28 ? "distributed" : "mixed";
+return { segments: withPct, total, dominant, dominantPct, shape };
 }
 
 function applyCompositionConsistency(text, result = {}) {
@@ -2343,14 +2369,27 @@ return { label: "Overloaded by admin weight", note: "The environment appears to 
 }
 
 function derivePrimaryBurdenSource(result) {
-const breakdown = asObject(result.burden_breakdown);
-const candidates = [
-{ label: "Process and control density", value: Number(breakdown.process_density || 0), note: "Too many process or control layers appear to be carrying the work." },
-{ label: "Systems and coordination friction", value: Math.max(Number(breakdown.systems_friction || 0), Number(breakdown.workaround_dependence || 0)), note: "System switching, coordination burden, or handoff density appear to be driving the drag condition." },
-{ label: "Reporting and exception burden", value: Number(breakdown.reporting_exception_burden || 0), note: "Reporting weight or exception handling appear to be eating up more effort than they should." },
-{ label: "Manual workaround dependence", value: Number(breakdown.control_load || 0), note: "The environment appears to depend too heavily on compensatory effort and specific people to keep moving." }
-].sort((a, b) => b.value - a.value);
-return candidates[0] || { label: "Mixed burden pattern", value: 0, note: "No single burden source clearly dominates the run." };
+// Read from canonical_composition — single source of truth.
+// Eliminates the incorrect control_load → "Manual workaround dependence" mapping
+// and the Math.max(systems_friction, workaround_dependence) merger that was
+// silently dropping whichever value was smaller.
+const pattern = getBurdenCompositionPattern(result);
+if (pattern.dominant && pattern.dominant.label !== "No dominant source") {
+  const NOTES = {
+    "Process density":                "Process and control layers appear to be carrying more of the workflow than the underlying work requires.",
+    "Systems friction":               "System switching, duplicate entry, or re-entry burden appears to be driving meaningful drag.",
+    "Reporting burden":               "Reporting weight or exception handling appears to be consuming more effort than light oversight would require.",
+    "Workaround dependence":          "The environment appears to rely on off-path effort or specific people to keep work moving.",
+    "Control load":                   "Control accumulation appears heavier than the real operating need may require.",
+    "Administrative upkeep burden":   "Administrative upkeep itself appears to be consuming meaningful capacity."
+  };
+  return {
+    label: pattern.dominant.label,
+    value: pattern.dominant.value,
+    note:  NOTES[pattern.dominant.label] || "The primary burden source is constraining movement in this workflow."
+  };
+}
+return { label: "Mixed burden pattern", value: 0, note: "No single burden source clearly dominates the run." };
 }
 
 function deriveBurdenDiagnosis(result, payload) {
@@ -3023,31 +3062,34 @@ const canvas = $("burdenDonutChart");
 const ctx = canvas?.getContext("2d");
 if (!ctx || !canvas) return;
 if (burdenDonutChart) burdenDonutChart.destroy();
-const breakdown = asObject(result?.burden_breakdown);
-const labels = ["Process density", "Systems friction", "Reporting burden", "Workaround dependence"];
-const values = [
-Number(breakdown.process_density || 0),
-Math.max(Number(breakdown.systems_friction || 0), Number(breakdown.workaround_dependence || 0)),
-Number(breakdown.reporting_exception_burden || 0),
-Number(breakdown.control_load || 0)
-];
-const center = $("donutCenterValue");
-const note = $("burdenDonutNote");
-if (!hasMeaningfulSeries(values)) {
-if (center) center.textContent = "N/A";
-if (note) note.textContent = "Not enough signal is available to render burden composition for this run.";
-ctx.clearRect(0, 0, canvas.width, canvas.height);
-return;
-}
-const total = values.reduce((a,b) => a+b, 0) || 1;
-const dominant = Math.max(...values);
-const dominantPct = Math.round((dominant / total) * 100);
-if (center) center.textContent = "";
-if (note) note.textContent = `${labels[values.indexOf(dominant)]} is the dominant visible burden source in this run.`;
 
-// Plugin draws "DOMINANT BURDEN" + percentage at the geometric center of
-// the donut hole -- uses Chart.js chartArea coords so it's immune to legend
-// height changes that previously pushed the HTML overlay off-center.
+const pattern = getBurdenCompositionPattern(result);
+const center  = $("donutCenterValue");
+const note    = $("burdenDonutNote");
+
+if (!pattern.segments.length) {
+  if (center) center.textContent = "N/A";
+  if (note)   note.textContent   = "Not enough signal is available to render burden composition for this run.";
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  return;
+}
+
+// Labels and values come directly from canonical segments — 6 dimensions, all represented
+const labels = pattern.segments.map(s => s.label);
+const values = pattern.segments.map(s => s.value);
+const COLORS  = ["#3F6EA1", "#C49A3C", "#8E7FA8", "#4E9A7A", "#B85C52", "#6B8FA6"];
+const bgColors = pattern.segments.map((_, i) => COLORS[i % COLORS.length]);
+
+if (center) center.textContent = "";
+
+const dominantLabel = pattern.dominant?.label || labels[0];
+const noteText = pattern.shape === "concentrated"
+  ? `${dominantLabel} is the dominant visible burden source in this run.`
+  : pattern.shape === "distributed"
+  ? "Burden is spread across multiple sources; no single dimension dominates."
+  : `${dominantLabel} leads, but multiple sources are material.`;
+if (note) note.textContent = noteText;
+
 const burdenCenterPlugin = {
 id: "burdenCenter",
 afterDraw(chart) {
@@ -3058,16 +3100,14 @@ const total = ds.reduce((a, b) => a + b, 0);
 if (!total) return;
 const pct = Math.round((Math.max(...ds) / total) * 100);
 const cx = chartArea.left + chartArea.width / 2;
-const cy = chartArea.top + chartArea.height / 2;
+const cy = chartArea.top  + chartArea.height / 2;
 cctx.save();
-cctx.textAlign = "center";
+cctx.textAlign    = "center";
 cctx.textBaseline = "middle";
-// Eyebrow label sits above center
-cctx.font = '700 9px "Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif';
+cctx.font      = '700 9px "Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif';
 cctx.fillStyle = "#7C8794";
 cctx.fillText("DOMINANT BURDEN", cx, cy - 12);
-// Percentage sits below center
-cctx.font = '700 24px "Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif';
+cctx.font      = '700 24px "Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif';
 cctx.fillStyle = "#15202B";
 cctx.fillText(pct + "%", cx, cy + 8);
 cctx.restore();
@@ -3076,7 +3116,7 @@ cctx.restore();
 
 burdenDonutChart = new Chart(ctx, {
 type: "doughnut",
-data: { labels, datasets: [{ data: values, backgroundColor: ["#3F6EA1","#6B8FA6","#8E7FA8","#B85C52"], borderWidth: 0 }] },
+data: { labels, datasets: [{ data: values, backgroundColor: bgColors, borderWidth: 0 }] },
 options: { responsive: true, maintainAspectRatio: false, animation: false, cutout: "65%", plugins: { legend: { position: "bottom" } } },
 plugins: [burdenCenterPlugin]
 });
@@ -3113,21 +3153,16 @@ if (note) note.textContent = `${Math.round(productive)}% productive work, ${Math
 function renderBurdenTreemap(result) {
 const mount = $("burdenTreemap");
 if (!mount) return;
-const breakdown = asObject(result?.burden_breakdown);
-const cells = [
-{ label: "Process density", value: Number(breakdown.process_density || 0), color: "#3F6EA1" },
-{ label: "Systems friction", value: Math.max(Number(breakdown.systems_friction || 0), Number(breakdown.workaround_dependence || 0)), color: "#6B8FA6" },
-{ label: "Reporting burden", value: Number(breakdown.reporting_exception_burden || 0), color: "#8E7FA8" },
-{ label: "Control load", value: Number(breakdown.control_load || 0), color: "#B85C52" }
-].sort((a,b) => b.value-a.value);
-const values = cells.map((cell) => cell.value);
-if (!hasMeaningfulSeries(values)) {
+const pattern = getBurdenCompositionPattern(result);
+if (!pattern.segments.length) {
 mount.innerHTML = `<div class="treemap-empty">N/A -- not enough signal is available to render a burden source map for this run.</div>`;
 return;
 }
+const COLORS = ["#3F6EA1", "#6B8FA6", "#8E7FA8", "#4E9A7A", "#B85C52", "#C49A3C"];
+const cells = pattern.segments.map((s, i) => ({ label: s.label, value: s.value, pct: s.pct, color: COLORS[i % COLORS.length] }));
 const total = cells.reduce((sum, c) => sum + c.value, 0) || 1;
-const major = cells.slice(0,2).map((cell) => `<div class="treemap-cell" style="background:${cell.color};flex:${Math.max(1, cell.value)}"><div>${cell.label}<small>${Math.round((cell.value/total)*100)}%</small></div></div>`).join("");
-const minor = cells.slice(2).map((cell) => `<div class="treemap-cell" style="background:${cell.color};flex:${Math.max(1, cell.value)}"><div>${cell.label}<small>${Math.round((cell.value/total)*100)}%</small></div></div>`).join("");
+const major = cells.slice(0,2).map((cell) => `<div class="treemap-cell" style="background:${cell.color};flex:${Math.max(1, cell.value)}"><div>${cell.label}<small>${cell.pct != null ? cell.pct : Math.round((cell.value/total)*100)}%</small></div></div>`).join("");
+const minor = cells.slice(2).map((cell) => `<div class="treemap-cell" style="background:${cell.color};flex:${Math.max(1, cell.value)}"><div>${cell.label}<small>${cell.pct != null ? cell.pct : Math.round((cell.value/total)*100)}%</small></div></div>`).join("");
 mount.innerHTML = `<div class="treemap-row" style="grid-template-columns:${cells.slice(0,2).map(c=>Math.max(1,c.value)).join("fr ")}fr">${major}</div><div class="treemap-row" style="grid-template-columns:${cells.slice(2).map(c=>Math.max(1,c.value)).join("fr ")}fr">${minor}</div>`;
 }
 
@@ -3195,34 +3230,34 @@ if (note) note.textContent = result?.trajectory?.note || "Directional signal";
 - @param {object} breakdown - Burden breakdown data
 - @returns {array} - Segment objects with label, value, color
   */
-  function buildDonutSegments(breakdown) {
-  return [
-  { label: "Process density",       value: Number(breakdown.process_density || 0),                                                color: "#3F6EA1" },
-  { label: "Systems friction",      value: Math.max(Number(breakdown.systems_friction || 0), Number(breakdown.workaround_dependence || 0)), color: "#6B8FA6" },
-  { label: "Reporting burden",      value: Number(breakdown.reporting_exception_burden || 0),                                     color: "#8E7FA8" },
-  { label: "Workaround dependence", value: Number(breakdown.control_load || 0),                                                   color: "#B85C52" }
-  ];
+  // buildDonutSegments and analyzeDonutPattern are superseded by
+  // getBurdenCompositionPattern(result), which reads from canonical_composition.
+  // These stubs remain for any legacy call sites but delegate to the canonical function.
+  function buildDonutSegments(breakdown, result) {
+    const pattern = getBurdenCompositionPattern(result || { burden_breakdown: breakdown });
+    return pattern.segments.map((s, i) => {
+      const COLORS = ["#3F6EA1","#6B8FA6","#8E7FA8","#4E9A7A","#B85C52","#C49A3C"];
+      return { label: s.label, value: s.value, color: COLORS[i % COLORS.length] };
+    });
   }
 
 /**
 
-- Analyzes donut composition pattern
-- @param {array} segments - Donut segments
+- Analyzes donut composition pattern (delegates to canonical)
+- @param {array} segments - ignored; use result object instead
+- @param {object} result  - full result object
 - @returns {object} - Pattern analysis
   */
-  function analyzeDonutPattern(segments) {
-  const total = segments.reduce((s, x) => s + x.value, 0);
-  const dominant = segments.slice().sort((a, b) => b.value - a.value)[0];
-  const dominantPct = total > 0 ? Math.round((dominant.value / total) * 100) : 0;
-  const hasSignal = total > 0;
-  return {
-  total,
-  dominant,
-  dominantPct,
-  hasSignal,
-  isConcentrated: hasSignal && dominantPct >= 38,
-  isDistributed: hasSignal && dominantPct < 32
-  };
+  function analyzeDonutPattern(segments, result) {
+    const pattern = getBurdenCompositionPattern(result || {});
+    return {
+      total:         pattern.total,
+      dominant:      pattern.dominant,
+      dominantPct:   pattern.dominantPct,
+      hasSignal:     pattern.total > 0,
+      isConcentrated: pattern.shape === "concentrated",
+      isDistributed:  pattern.shape === "distributed"
+    };
   }
 
 /**
@@ -4318,7 +4353,7 @@ $("tradeoffText").textContent = harmonized.tradeoff;
 $("execSummaryHeadline").textContent = executiveSummary.headline;
 $("execSummaryBody").textContent = executiveSummary.body;
 $("scoreMetaIndustry").textContent = `Industry: ${resolveIndustryLabel(result, payload, { titleCase: true })}`;
-$("scoreMetaShapeText").textContent = `Profile shape: ${humanize(harmonized.state.burdenProfileShape || "concentrated")}`;
+$("scoreMetaShapeText").textContent = `Profile shape: ${humanize(result?.canonical_descriptor?.burden_distribution_type || harmonized.state.burdenProfileShape || "concentrated")}`;
 $("scoreMetaTrajectoryText").textContent = `Trajectory: ${result?.trajectory?.label || "No strong directional signal"}`;
 const insight = renderInsightDepth(payload);
 $("execMeaningText").textContent = executiveSummary.opportunity;
