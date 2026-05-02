@@ -320,6 +320,32 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
 }
 
 @media print{body{background:#FFF}.loading-screen,.env-foot,.frame-top,#questionStage,#processingStage,#downloadPdfBtn,#downloadReportBtn,#newRunBtn{display:none!important}.shell{padding:0}.app{width:100%}.environment{width:100%;box-shadow:none;border:none;border-radius:0;min-height:auto}.environment::before{display:none}.env-head{display:none}.stage{display:none!important}#resultsStage{display:block!important;padding:0}.report-only{display:block}.results-layout{gap:18px;padding:22px 26px}.score-panel,.summary-card,.result-card,.chart-card,.signal-tile,.report-header,.export-summary-card{break-inside:avoid;page-break-inside:avoid}.score-panel{background:#0F1720!important;color:#FFF!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.summary-grid,.grid-2,.tiles-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.chart-wrap{height:220px;min-height:220px}body.print-summary-mode #resultsStage > *{display:none!important}body.print-summary-mode #resultsStage .report-header,body.print-summary-mode #resultsStage .score-panel,body.print-summary-mode #resultsStage .export-summary-card,body.print-summary-mode #resultsStage .results-disclaimer{display:block!important}body.print-summary-mode #resultsStage .score-panel{margin-top:0!important}body.print-summary-mode #resultsStage .report-header{margin-bottom:14px!important}body.print-summary-mode #resultsStage .export-summary-card{margin-top:14px!important}.results-layout::after{content:"Prepared by Monderman's diagnostic engine • Directional, user-input-based operational systems output";display:block;margin-top:20px;padding-top:14px;border-top:1px solid rgba(21,32,43,.10);font-size:.8rem;color:#5B6774}}
+/* ── Cover page ─────────────────────────────────── */
+#coverPage{display:none}
+@media print{
+#coverPage{display:block;page-break-after:always;width:100%;font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif}
+}
+.cover-dark{background:#0D1820;padding:52px 60px 48px;position:relative;overflow:hidden;min-height:260px;box-sizing:border-box}
+.cover-mark{font-size:9px;letter-spacing:.32em;color:rgba(255,255,255,.38);font-weight:600;text-transform:uppercase;margin-bottom:20px}
+.cover-rule{width:32px;height:2px;background:#3F6EA1;margin-bottom:28px}
+.cover-headline{font-size:38px;font-weight:700;color:#fff;line-height:1.08;letter-spacing:-.03em;margin-bottom:14px}
+.cover-sub{font-size:13px;color:rgba(255,255,255,.36);font-weight:400;letter-spacing:.04em}
+.cover-stripe{height:3px;background:linear-gradient(90deg,#3F6EA1 0%,#5B8FBF 60%,rgba(91,143,191,.2) 100%)}
+.cover-white{background:#fff;padding:48px 60px 60px;position:relative;overflow:hidden;min-height:420px;box-sizing:border-box}
+.cover-kicker{font-size:8px;letter-spacing:.26em;color:#99A8B4;text-transform:uppercase;font-weight:600;margin-bottom:22px;border-left:2px solid #3F6EA1;padding-left:10px}
+.cover-workflow{font-size:26px;font-weight:700;color:#0D1820;letter-spacing:-.022em;margin-bottom:6px}
+.cover-meta{font-size:13px;color:#4A5968;margin-bottom:3px}
+.cover-date{font-size:11px;color:#99A8B4;margin-bottom:28px;letter-spacing:.01em}
+.cover-pills{display:flex;gap:7px;flex-wrap:wrap}
+.cover-pill-accent{padding:4px 11px;border:1px solid rgba(63,110,161,.28);border-radius:99px;font-size:10px;color:#3F6EA1;background:rgba(63,110,161,.05);white-space:nowrap}
+.cover-pill-neutral{padding:4px 11px;border:1px solid rgba(13,24,32,.13);border-radius:99px;font-size:10px;color:#4A5968;white-space:nowrap}
+.cover-footer{position:absolute;bottom:36px;left:60px;right:60px;border-top:.5px solid rgba(13,24,32,.10);padding-top:10px;display:flex;justify-content:space-between;align-items:center}
+.cover-footer-text{font-size:8.5px;color:#BCC7D0;letter-spacing:.12em;text-transform:uppercase}
+.cover-motif{position:absolute;bottom:-62px;right:-62px;pointer-events:none}
+@media print{
+.cover-dark{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.cover-stripe{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
 </style>
 
 </head>
@@ -355,6 +381,54 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
     <div class="processing-item"><span class="pulse"></span><span>Preparing the final readout</span></div>
   </div>
 </div></div></div>
+
+<!-- ═══════════════════════════════════════════════════
+     COVER PAGE — print only, populated by renderResults()
+     ═══════════════════════════════════════════════════ -->
+<div id="coverPage">
+  <div class="cover-dark">
+    <div class="cover-mark">M O N D E R M A N</div>
+    <div class="cover-rule"></div>
+    <div class="cover-headline">Operational Systems<br>Diagnostic</div>
+    <div class="cover-sub">Executive Summary</div>
+  </div>
+  <div class="cover-stripe"></div>
+  <div class="cover-white">
+    <div class="cover-kicker">Diagnostic Output &nbsp;/&nbsp; Operational Systems</div>
+    <div class="cover-workflow" id="coverWorkflow">—</div>
+    <div class="cover-meta"    id="coverMeta">—</div>
+    <div class="cover-date"    id="coverDate">—</div>
+    <div class="cover-pills">
+      <span class="cover-pill-accent"  id="coverScorePill">—</span>
+      <span class="cover-pill-neutral" id="coverBenchmarkPill">—</span>
+      <span class="cover-pill-neutral" id="coverPerspectivePill">—</span>
+    </div>
+    <div class="cover-footer">
+      <span class="cover-footer-text">Administrative reality is a governable condition</span>
+      <span class="cover-footer-text">1</span>
+    </div>
+    <div class="cover-motif">
+      <svg width="300" height="300" viewBox="-150 -150 300 300" xmlns="http://www.w3.org/2000/svg">
+        <circle r="130" fill="none" stroke="#4A6FA5" stroke-width="0.7" opacity="0.18"/>
+        <circle r="114" fill="none" stroke="#5B7A9B" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/>
+        <circle r="99"  fill="none" stroke="#4A6FA5" stroke-width="0.8" opacity="0.20"/>
+        <circle r="84"  fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/>
+        <circle r="69"  fill="none" stroke="#5B7A9B" stroke-width="0.7" opacity="0.22"/>
+        <circle r="54"  fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/>
+        <circle r="40"  fill="none" stroke="#6B8FA6" stroke-width="0.6" opacity="0.20"/>
+        <circle r="27"  fill="none" stroke="#8BADC5" stroke-width="0.4" opacity="0.16"/>
+        <circle r="16"  fill="none" stroke="#9FBDD1" stroke-width="0.4" opacity="0.13"/>
+        <circle r="8"   fill="none" stroke="#B0C8D8" stroke-width="0.3" opacity="0.11"/>
+        <circle cx="97.0"  cy="-39.3" r="2.8" fill="#3F6EA1" opacity="0.55"/>
+        <circle cx="-88.9" cy="28.9"  r="2.8" fill="#5B7A9B" opacity="0.50"/>
+        <circle cx="25.3"  cy="54.3"  r="2.4" fill="#3F6EA1" opacity="0.52"/>
+        <circle cx="39.6"  cy="-84.7" r="2.2" fill="#7C5CE8" opacity="0.60"/>
+        <circle cx="-44.0" cy="-52.5" r="2.2" fill="#5B7A9B" opacity="0.48"/>
+        <circle cx="82"    cy="0"     r="2.0" fill="#2E86DE" opacity="0.58"/>
+      </svg>
+    </div>
+  </div>
+</div>
 
 <div class="stage" id="resultsStage"><div class="results-layout">
         <section class="report-only report-header"><p class="report-kicker">M O N D E R M A N</p><p class="tiny">Operational Systems Diagnostic • Institutional Performance Research</p><h1 class="report-title" id="reportTitle">Operational Systems Diagnostic</h1><p class="report-sub" id="reportSubtitle">Leadership-ready operational systems summary.</p><div class="report-meta"><span class="meta-pill" id="metaProcess">Workflow: --</span><span class="meta-pill" id="metaBench">Benchmark: --</span><span class="meta-pill" id="metaDate">Generated: --</span></div></section>
@@ -4504,6 +4578,32 @@ renderTrajectorySparkline(result);
 renderAccordionBindings();
 bindResultTooltips();
 bindOpportunityGate();
+
+// ── Populate cover page ───────────────────────────────
+const coverPerspectiveMap = {
+  operational:   "Operational perspective",
+  managerial:    "Managerial perspective",
+  executive:     "Senior-leader perspective",
+  senior_leader: "Senior-leader perspective"
+};
+const coverWorkflowName = result.process_name || payload?.processName || payload?.process_name || "Operating environment";
+const coverIndustry = resolveIndustryLabel(result, payload, { titleCase: true }) || "";
+const coverEmployeeRaw = Number(payload?.employeeCount || payload?.employee_count || 0);
+const coverEmployees = coverEmployeeRaw >= 1000
+  ? `${(coverEmployeeRaw / 1000).toFixed(coverEmployeeRaw % 1000 === 0 ? 0 : 1)}k employees`
+  : coverEmployeeRaw > 0 ? `${coverEmployeeRaw} employees` : null;
+const coverMetaStr = [coverIndustry, coverEmployees].filter(Boolean).join(" · ");
+const coverDateStr = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+const coverScoreLabel = `Score: ${result.score || "—"} · ${burdenCondition.label || "—"}`;
+const coverBenchmark  = result.benchmark_position || "—";
+const coverPerspective = coverPerspectiveMap[normalizeChoice(result.participant_mode || result.participantMode)] || "—";
+const setCover = (id, val) => { const el = $(id); if (el) el.textContent = val; };
+setCover("coverWorkflow",        coverWorkflowName);
+setCover("coverMeta",            coverMetaStr);
+setCover("coverDate",            `Generated ${coverDateStr}`);
+setCover("coverScorePill",       coverScoreLabel);
+setCover("coverBenchmarkPill",   coverBenchmark);
+setCover("coverPerspectivePill", coverPerspective);
 }
 
 function selectLane(mode) {
