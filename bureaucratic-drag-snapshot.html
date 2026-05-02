@@ -347,10 +347,10 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   </div>
   <h3>Generating diagnostic output</h3>
   <p id="processingStatus">The diagnostic engine is interpreting your workflow and preparing the final diagnostic readout.</p>
-  <p class="tiny" id="processingHelp">The output sequence is assembling scoring, contradiction checks, exposure ranges, and the final narrative.</p>
+  <p class="tiny" id="processingHelp">The output sequence is assembling quantitative scoring, structured checks, interpretive context, exposure ranges, and the final narrative.</p>
   <div class="processing-list">
     <div class="processing-item"><span class="pulse"></span><span>Scoring where the workflow is heaviest</span></div>
-    <div class="processing-item"><span class="pulse"></span><span>Checking for contradiction and bypass signals</span></div>
+    <div class="processing-item"><span class="pulse"></span><span>Checking structured contradictions and interpretive bypass signals</span></div>
     <div class="processing-item"><span class="pulse"></span><span>Estimating rough time, cost, and capacity impact</span></div>
     <div class="processing-item"><span class="pulse"></span><span>Preparing the final readout</span></div>
   </div>
@@ -1077,7 +1077,7 @@ return text ? text.charAt(0).toLowerCase() + text.slice(1) : "burden appears as 
 function getExperienceText(payload = {}) {
 const layer = payload?.experientialLayer || payload?.experiential_layer || payload?.rawExperientialLayer || payload?.raw_experiential_layer || {};
 const entries = Array.isArray(layer.entries) ? layer.entries : [];
-return [layer.synthesis, layer.caveat, ...entries.flatMap((entry) => [entry.text, entry.cleaned, entry.raw])].filter(Boolean).join(" ").toLowerCase();
+return entries.flatMap((entry) => [entry.text, entry.cleaned, entry.raw]).filter(Boolean).join(" ").toLowerCase();
 }
 
 function detectQualitativeOverride(payload = {}) {
@@ -1087,10 +1087,10 @@ const hasManager = /manager|managerial|top cover|cover|accommodat|allow|aware|sh
 const hasSeniorBlind = /senior|leader|executive|oblivious|unaware|do not see|don't see|visibility|blind|missing/.test(text);
 const hasLegal = /legal|contract|counsel|vendor|supplier|approval|review/.test(text);
 if (hasWorkaround && hasManager && (hasSeniorBlind || hasLegal)) {
-return { strength: "high", type: "bypass_control_risk", label: "Bypass and control-risk signal", summary: "The experiential layer indicates that the formal path may be routinely bypassed in practice, with managerial accommodation and limited senior-leader visibility." };
+return { strength: "high", type: "bypass_control_risk", label: "Experiential bypass/control-risk signal", summary: "The experiential layer suggests that the formal path may be routinely bypassed in practice, with managerial accommodation and possible senior-leader visibility gaps. This is interpretive context and does not affect the quantitative score." };
 }
-if (hasWorkaround) return { strength: "moderate", type: "workaround_dependence", label: "Workaround-dependence signal", summary: "The experiential layer indicates that informal workarounds may be preserving movement where the formal path is too heavy." };
-return { strength: "low", type: "none", label: "No qualitative override", summary: "No experiential signal clearly overrides the structured scoring read." };
+if (hasWorkaround) return { strength: "moderate", type: "workaround_dependence", label: "Experiential workaround-dependence signal", summary: "The experiential layer suggests that informal workarounds may be preserving movement where the formal path is too heavy. This is interpretive context and does not affect the quantitative score." };
+return { strength: "low", type: "none", label: "No experiential interpretive signal", summary: "No experiential signal materially reframes the structured quantitative read." };
 }
 
 function getBurdenCompositionPattern(result = {}) {
@@ -3630,6 +3630,8 @@ const executiveQuestion = buildLeadershipQuestion(result || {}, payload || {}, "
 const compositionQuestion = buildLeadershipQuestion(result || {}, payload || {}, "composition");
 const quadrantQuestion = buildLeadershipQuestion(result || {}, payload || {}, "quadrant");
 const remedyQuestion = buildLeadershipQuestion(result || {}, payload || {}, "remedy");
+const experientialSignal = detectQualitativeOverride(payload || {});
+const hasExperientialTension = experientialSignal.type !== "none";
 
 const clean = (value) => String(value ?? "").replace(/\s+/g, " ").trim();
 const polishReportCopy = (value) => {
@@ -3704,8 +3706,10 @@ const pct = Math.round((Number(seg.value || 0) / donutTotal) * 100);
 return `<div class="comp-row"><span class="dot" style="background:${seg.color}"></span><span>${safe(seg.label)}</span><b>${pct}%</b></div>`;
 }).join("") || `<p class="muted">Not enough burden composition signal was available for this run.</p>`;
 const contradictionHtml = contradictions.length
-? `<div class="panel"><h3>Contradiction signals surfaced</h3>${contradictions.slice(0, 3).map((item) => `<p><b>${safe(item?.severity || "Signal")}.</b> ${safeWords(item?.message || item?.code || "Contradiction signal", 32)}</p>`).join("")}</div>`
-: `<div class="panel"><p><b>No major structured-answer contradiction surfaced in this run.</b> That does not prove the system is healthy. It only means the scored answer pattern did not show a major internal conflict; any experiential formal-process-versus-operating-reality signal should still be tested through managerial and senior-leader runs.</p></div>`;
+? `<div class="panel"><h3>Structured-answer contradiction signals surfaced</h3>${contradictions.slice(0, 3).map((item) => `<p><b>${safe(item?.severity || "Signal")}.</b> ${safeWords(item?.message || item?.code || "Contradiction signal", 32)}</p>`).join("")}</div>`
+: hasExperientialTension
+? `<div class="panel"><p><b>No major structured-answer contradiction surfaced in this run.</b> The scored answer pattern did not show a major internal conflict. Separately, the experiential layer surfaced an operating-reality tension: ${safeWords(experientialSignal.summary, 44)} This should be tested through managerial and senior-leader runs rather than treated as part of the quantitative score.</p></div>`
+: `<div class="panel"><p><b>No major structured-answer contradiction surfaced in this run.</b> That does not prove the system is healthy. It only means the scored answer pattern did not show a major internal conflict; experiential notes, if added later, should be tested through managerial and senior-leader runs.</p></div>`;
 const remedyHtml = remedyPaths.slice(0, 3).map((path) => `<div class="remedy"><div class="tag">${safe(path.kicker)}</div><h3>${safe(path.label)}</h3><p>${safeWords(path.summary, 18)}</p><p class="muted">Benefit: ${safeWords(path.benefit, 18)}</p><p class="muted">${safeWords(path.risk, 18)}</p></div>`).join("");
 const gaugeArc = Math.max(12, Math.min(206, Math.round(2.2 * exportScore)));
 const needleAngle = Math.PI * (1 + exportScore / 100);
@@ -3731,51 +3735,30 @@ return `<!doctype html>
   .bottom { position: absolute; bottom: .32in; left: .76in; right: .76in; border-top: 1px solid #E6EAF0; padding-top: .18in; color: #7C8794; font-size: 8.5px; }
   .bottom .date { float: right; }
   .content { position: relative; margin-top: .74in; }
-  .cover-page { background: linear-gradient(180deg, #FFFFFF 0%, #FCFDFE 100%); }
-  .cover-content { position: relative; z-index: 2; margin-top: .62in; max-width: 5.25in; }
-  .cover-doc-type { display:inline-flex; align-items:center; gap:8px; margin:0 0 26px; color:#7C8794; font-size:8px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; }
-  .cover-doc-type::before { content:""; width:8px; height:8px; border-radius:2px; background:#3F6EA1; display:inline-block; }
-  .cover-mark { color: #244E7E; font-size: 19px; font-weight: 700; letter-spacing: .21em; text-transform: uppercase; margin: 0 0 34px; }
-  .cover-kicker { color: #7C8794; font-size: 8.3px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; margin: 0 0 10px; }
-  .cover-title { font-size: 38px; line-height: .98; letter-spacing: -.055em; margin: 0 0 10px; color: #15202B; max-width: 5.10in; }
-  .cover-subtitle { font-size: 15px; line-height: 1.4; color: #586474; margin: 0 0 24px; max-width: 4.2in; }
-  .cover-accent { width: 1.18in; height: 3px; border-radius: 3px; background: linear-gradient(90deg, #3F6EA1 0%, rgba(63,110,161,.16) 100%); margin: 0 0 26px; }
-  .cover-framing { font-size: 11.8px; line-height: 1.58; color: #15202B; max-width: 4.55in; margin: 0 0 36px; }
-  .cover-meta { display: grid; grid-template-columns: 92px 1fr; gap: 10px 18px; margin: 0; max-width: 4.6in; padding-top: 20px; border-top: 1px solid #E6EAF0; }
-  .cover-meta dt { color: #7C8794; font-size: 8px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; margin: 0; }
-  .cover-meta dd { margin: 0; font-size: 11px; color: #15202B; }
-  .cover-note { position: absolute; left: .76in; bottom: .70in; z-index: 3; max-width: 3.55in; color: #7C8794; font-size: 8.55px; line-height: 1.58; margin: 0; }
-  .cover-brandline { position: absolute; right: .80in; bottom: .56in; z-index: 3; display: flex; align-items: center; gap: 8px; color: #7C8794; font-size: 7.4px; letter-spacing: .14em; text-transform: uppercase; }
-  .cover-brandline::before { content: ""; width: 34px; height: 1px; background: rgba(63,110,161,.35); }
-  .cover-rings { position: absolute; right: -1.48in; bottom: -1.88in; width: 6.25in; height: 6.25in; border-radius: 50%; overflow: hidden; z-index: 1; opacity: .97; }
-  .cover-rings::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background:
-      conic-gradient(from 232deg,
-        rgba(96,24,76,.78) 0deg,
-        rgba(224,62,114,.84) 46deg,
-        rgba(246,201,218,.88) 88deg,
-        rgba(114,208,255,.92) 132deg,
-        rgba(38,100,173,.98) 192deg,
-        rgba(247,206,219,.88) 242deg,
-        rgba(88,45,98,.82) 290deg,
-        rgba(96,24,76,.78) 360deg);
-      filter: saturate(1.02) contrast(1.02);
-  }
-  .cover-rings::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background:
-      radial-gradient(circle at center,
-        rgba(255,255,255,0) 0 17%,
-        rgba(12,25,60,.98) 17% 28%,
-        rgba(255,255,255,0) 28% 35%,
-        rgba(76,201,255,.50) 35% 44%,
-        rgba(255,255,255,0) 44% 50%,
-        rgba(255,174,202,.44) 50% 59%,
-        rgba(255,255,255,0) 59% 66%,
-        rgba(84,133,184,.26) 66% 74%,
-        rgba(255,255,255,0) 74% 100%),
-      radial-gradient(circle at center,
-        transparent 0 80%,
-        rgba(255,255,255,.82) 86%,
-        rgba(255,255,255,1) 100%);
-  }
+  .cover-page { background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%); padding: 0; }
+  .cover-topline { position:absolute; top:.58in; left:.72in; right:.72in; display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:.22in; border-bottom:1px solid #DDE5EE; z-index:4; }
+  .cover-mark { color:#244E7E; font-size:20px; font-weight:700; letter-spacing:.24em; text-transform:uppercase; margin:0; }
+  .cover-classification { color:#7C8794; font-size:7.8px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; text-align:right; line-height:1.5; max-width:2.65in; }
+  .cover-content { position:relative; z-index:3; margin:1.58in .72in 0 .72in; max-width:5.75in; }
+  .cover-doc-type { display:inline-flex; align-items:center; gap:9px; margin:0 0 24px; color:#7C8794; font-size:8px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; }
+  .cover-doc-type::before { content:""; width:9px; height:9px; border-radius:2px; background:#3F6EA1; display:inline-block; }
+  .cover-kicker { color:#7C8794; font-size:8.2px; font-weight:700; letter-spacing:.20em; text-transform:uppercase; margin:0 0 12px; }
+  .cover-title-block { border-left:4px solid #3F6EA1; padding-left:.22in; margin:0 0 .32in; }
+  .cover-title { font-size:43px; line-height:.96; letter-spacing:-.06em; margin:0 0 12px; color:#15202B; max-width:5.15in; }
+  .cover-subtitle { font-size:17px; line-height:1.35; color:#4E5B68; margin:0; max-width:4.6in; }
+  .cover-accent { width:1.55in; height:3px; border-radius:3px; background:linear-gradient(90deg,#3F6EA1 0%,rgba(63,110,161,.18) 100%); margin:.34in 0 .28in; }
+  .cover-framing { font-size:12px; line-height:1.58; color:#15202B; max-width:4.75in; margin:0 0 .34in; }
+  .cover-meta-panel { width:5.15in; border:1px solid #DDE5EE; border-radius:16px; background:rgba(255,255,255,.86); overflow:hidden; box-shadow:0 12px 30px rgba(15,23,32,.045); }
+  .cover-meta-row { display:grid; grid-template-columns:1.35in 1fr; min-height:.40in; border-bottom:1px solid #E7ECF2; }
+  .cover-meta-row:last-child { border-bottom:0; }
+  .cover-meta-label { padding:.13in .16in; color:#7C8794; font-size:7.8px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; }
+  .cover-meta-value { padding:.13in .16in; color:#15202B; font-size:10.8px; line-height:1.35; }
+  .cover-note { position:absolute; left:.72in; bottom:.54in; z-index:4; max-width:3.9in; color:#7C8794; font-size:8.35px; line-height:1.55; margin:0; }
+  .cover-brandline { position:absolute; right:.72in; bottom:.48in; z-index:4; display:flex; align-items:center; gap:8px; color:#6B7684; font-size:7.2px; letter-spacing:.14em; text-transform:uppercase; }
+  .cover-brandline::before { content:""; width:36px; height:1px; background:rgba(63,110,161,.40); }
+  .cover-motif { position:absolute; right:-1.22in; bottom:-1.52in; width:5.95in; z-index:1; opacity:.92; }
+  .cover-motif::before { content:""; position:absolute; inset:-.18in; background:radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 0 58%, rgba(248,250,252,.78) 72%, #F8FAFC 100%); z-index:2; pointer-events:none; }
+  .cover-motif img { display:block; width:100%; height:auto; }
   .eyebrow { color: #3F6EA1; font-size: 8.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; margin: 0 0 10px; }
   .doctype { color: #7C8794; font-size: 9px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; margin: 0 0 24px; }
   h1 { font-size: 32px; line-height: 1.04; letter-spacing: -.05em; margin: 0 0 22px; color: #15202B; }
@@ -3849,18 +3832,27 @@ return `<!doctype html>
 <body>
 
 <section class="page cover-page">
-  <div class="cover-content">
+  <div class="cover-topline">
     <p class="cover-mark">MONDERMAN</p>
-    <p class="cover-doc-type">Diagnostic output / Operational Systems</p>
-    <p class="cover-kicker">Diagnostic report</p>
-    <h1 class="cover-title">Operational Systems Diagnostic</h1>
-    <p class="cover-subtitle">Executive Summary</p>
-    <div class="cover-accent"></div>
-    <p class="cover-framing">A structured read of workflow burden, operating friction, reclaimable drag, and the administrative reality shaping how the work is actually sustained.</p>
-    ${buildCoverMetadata(processName, industry, generated)}
+    <div class="cover-classification">Diagnostic output / Operational Systems<br>Prepared for leadership review</div>
   </div>
-  <div class="cover-rings" aria-hidden="true"></div>
-  <p class="cover-note">Figures and findings in this report are directional outputs generated from user-provided inputs. They are intended to support review, discussion, and follow-up inquiry rather than substitute for audit-grade measurement.</p>
+  <div class="cover-content">
+    <p class="cover-doc-type">Operational Systems Diagnostic</p>
+    <div class="cover-title-block">
+      <p class="cover-kicker">Executive Summary</p>
+      <h1 class="cover-title">Operational Systems Diagnostic</h1>
+      <p class="cover-subtitle">Administrative burden, operating friction, reclaimable drag, and structured follow-up priorities.</p>
+    </div>
+    <p class="cover-framing">A directional diagnostic artifact for reviewing how the selected workflow is sustained, where administrative weight is accumulating, and what structured evidence should be gathered next.</p>
+    <div class="cover-meta-panel">
+      <div class="cover-meta-row"><div class="cover-meta-label">Workflow</div><div class="cover-meta-value">${safe(processName)}</div></div>
+      <div class="cover-meta-row"><div class="cover-meta-label">Sector</div><div class="cover-meta-value">${safe(sectorName)}</div></div>
+      <div class="cover-meta-row"><div class="cover-meta-label">Perspective</div><div class="cover-meta-value">${safe(displayPerspectiveLabel(payload?.participantMode || payload?.participant_mode || "senior_leader"))} perspective</div></div>
+      <div class="cover-meta-row"><div class="cover-meta-label">Generated</div><div class="cover-meta-value">${safe(generated)}</div></div>
+    </div>
+  </div>
+  <div class="cover-motif" aria-hidden="true"><img src="https://www.monderman.com/Monderman_Report_Motif.png" crossorigin="anonymous" alt="" /></div>
+  <p class="cover-note">Figures and findings in this report are directional outputs generated from user-provided structured diagnostic inputs. The experiential layer, when present, is used as interpretive context only and does not modify the quantitative score.</p>
   <div class="cover-brandline">Administrative reality is a governable condition</div>
 </section>
 
@@ -3891,7 +3883,7 @@ return `<!doctype html>
     <p class="lede">${safeWords(harmonized.headlineFinding || summary.body, 84)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(executiveQuestion)}</p></div>
     <p>Directional modeling suggests roughly ${safe(annualHoursText)} and about ${safe(annualCostText)} in labor exposure, with capacity drag around ${dragPct}%*. These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
-    <p>The practical question is not whether work is still getting done. It is how much organizational energy is now required to make it happen. The score should be read as an operating-burden indicator, not as a severity ceiling; qualitative bypass signals can carry higher governance significance than the number alone suggests.</p><p>When a workflow needs repeated coordination, compensating behavior, workaround maintenance, or control translation, the visible output may remain acceptable while the operating system underneath becomes increasingly expensive to sustain.</p>
+    <p>The practical question is not whether work is still getting done. It is how much organizational energy is now required to make it happen. The score should be read as a structured quantitative operating-burden indicator. Experiential bypass signals, when present, do not change the score; they provide interpretive context about how the formal process may differ from operating reality.</p><p>When a workflow needs repeated coordination, compensating behavior, workaround maintenance, or control translation, the visible output may remain acceptable while the operating system underneath becomes increasingly expensive to sustain.</p>
     <div class="capacity"><div class="seg" style="width:${capacity.productive}%;background:#4E9A7A">${capacity.productive}%</div><div class="seg" style="width:${capacity.admin}%;background:#C49A3C">${capacity.admin}%</div><div class="seg" style="width:${capacity.drag}%;background:#B85C52">${capacity.drag}%</div></div>
     <div class="legend"><span><span class="dot" style="background:#4E9A7A"></span>Productive work</span><span><span class="dot" style="background:#C49A3C"></span>Admin upkeep</span><span><span class="dot" style="background:#B85C52"></span>Recoverable drag*</span></div>
     <p class="muted" style="font-size:8.5px">Estimates of how this workflow's available capacity is currently allocated. Recoverable drag* is the portion that could be returned to productive use through structural intervention.</p>
@@ -3975,6 +3967,11 @@ const base = String(payload?.processName || "operational-systems-diagnostic").tr
 return `${base}-executive-report.html`;
 }
 
+function buildFullReportFilename(payload) {
+const base = String(payload?.processName || payload?.process_name || "operational-systems-diagnostic").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "operational-systems-diagnostic";
+return `${base}-full-report.html`;
+}
+
 function exportExecutiveReport(result, payload) {
 const html = buildExecutiveReportHtml(result, payload);
 const blob = new Blob([html], { type: "text/html;charset=utf-8" });
@@ -4024,6 +4021,22 @@ if (typeof window.html2canvas !== "function" || !jsPDF) {
 throw new Error("PDF rendering libraries were not available.");
 }
 return { html2canvas: window.html2canvas, jsPDF };
+}
+
+function waitForImages(scope) {
+const root = scope || document;
+const images = Array.from(root.querySelectorAll("img"));
+if (!images.length) return Promise.resolve();
+return Promise.allSettled(images.map((img) => new Promise((resolve) => {
+const done = () => resolve();
+if (img.complete && img.naturalWidth > 0) {
+resolve();
+return;
+}
+img.addEventListener("load", done, { once: true });
+img.addEventListener("error", done, { once: true });
+setTimeout(done, 3500);
+})));
 }
 
 function downloadHtmlReportFallback(html, filename) {
@@ -4089,6 +4102,7 @@ if (container && container.parentNode) container.parentNode.removeChild(containe
 
 try {
 await (document.fonts?.ready || Promise.resolve());
+await waitForImages(bodyWrap);
 await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
 const pages = Array.from(bodyWrap.querySelectorAll(".page"));
@@ -4322,7 +4336,12 @@ renderList("flagsList", harmonized.keyFlags);
 renderList("actionsList", harmonized.recommendedActions);
 renderList("actionsListDetail", harmonized.recommendedActions);
 renderList("patternsList", asArray(result.patterns).map(humanize));
-renderList("contradictionsList", asArray(result.contradictions).length ? asArray(result.contradictions).map((item) => item.message || humanize(item.code || "contradiction")) : ["No material contradiction signals surfaced in this run."]);
+const experientialSignalForDisplay = detectQualitativeOverride(payload || {});
+renderList("contradictionsList", asArray(result.contradictions).length
+? asArray(result.contradictions).map((item) => item.message || humanize(item.code || "contradiction"))
+: experientialSignalForDisplay.type !== "none"
+? [`No structured-answer contradiction surfaced. Separately, the experiential layer surfaced an operating-reality tension: ${experientialSignalForDisplay.summary}`]
+: ["No material structured-answer contradiction signals surfaced in this run."]);
 renderList("execSummaryActions", harmonized.recommendedActions);
 
 const contradictionTiles = $("contradictionTiles");
@@ -4331,7 +4350,9 @@ const contradictions = asArray(result.contradictions);
 contradictionTiles.classList.toggle("single-signal", contradictions.length <= 1);
 contradictionTiles.innerHTML = contradictions.length
 ? contradictions.map((item) => `<div class="signal-tile ${contradictionClass(item)}"><h4>${item.severity === "high" ? "High-severity signal" : "Contradiction signal"}</h4><p>${escapeHtml(item.message || "")}</p></div>`).join("")
-: `<div class="signal-tile low"><h4>No major contradiction signals</h4><p>The current answer pattern does not show a strong surface-versus-reality gap.</p></div>`;
+: experientialSignalForDisplay.type !== "none"
+? `<div class="signal-tile medium"><h4>Experiential operating-reality tension</h4><p>${escapeHtml(experientialSignalForDisplay.summary)} The quantitative score remains based only on structured diagnostic inputs.</p></div>`
+: `<div class="signal-tile low"><h4>No major structured-answer contradiction</h4><p>The current scored answer pattern does not show a strong internal conflict.</p></div>`;
 }
 
 const burdenBarRows = [
@@ -4486,14 +4507,10 @@ const reportHTML = buildFullReportHTML(result, payload, title);
 const blob = new Blob([reportHTML], { type: "text/html;charset=utf-8" });
 const url = URL.createObjectURL(blob);
 
-const link = document.createElement("a");
-link.href = url;
-link.download = buildFullReportFilename(payload);
-link.style.display = "none";
-document.body.appendChild(link);
-link.click();
-document.body.removeChild(link);
-URL.revokeObjectURL(url);
+reportDownloadLink.href = url;
+reportDownloadLink.download = buildFullReportFilename(payload);
+reportDownloadLink.click();
+setTimeout(() => URL.revokeObjectURL(url), 1500);
 
 showToast("Full operational systems report downloaded.", "success");
 
