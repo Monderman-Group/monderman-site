@@ -907,6 +907,14 @@ return displayIndustryLabel(
 );
 }
 
+function displayPerspectiveLabel(value) {
+const mode = String(value || "").trim().toLowerCase().replace(/[\s-]+/g, "_");
+if (["operational", "operator", "frontline", "front_line"].includes(mode)) return "Operational";
+if (["managerial", "manager", "management"].includes(mode)) return "Managerial";
+if (["executive", "exec", "senior", "senior_leader", "senior_leaders", "seniorleader", "seniorleaders", "leader", "leadership"].includes(mode)) return "Senior-leader";
+return humanize(mode || "senior_leader");
+}
+
 function formatCurrency(value) {
 if (value === null || value === undefined || value === "") return "--";
 const n = Number(value);
@@ -4417,7 +4425,7 @@ remedyGrid.innerHTML = remedies.map((path) => `<div class="remedy-card"><span cl
 }
 
 $("reportTitle").textContent = `${payload?.processName || payload?.process_name || "Workflow"} • Operational Systems Diagnostic`;
-$("reportSubtitle").textContent = `${result.benchmark_position || "Industry range comparison"} • ${displayPerspectiveLabel(payload?.participantMode || payload?.participant_mode || state.mode || "executive")} perspective • ${resolveIndustryLabel(result, payload, { titleCase: true })} • ${payload?.employeeCount ? `${Number(payload.employeeCount).toLocaleString()} employees` : humanize(payload?.organizationSize || result?.organization_size_label || "unknown")}`;
+$("reportSubtitle").textContent = `${result.benchmark_position || "Industry range comparison"} • ${displayPerspectiveLabel(payload?.participantMode || payload?.participant_mode || state.mode || "senior_leader")} perspective • ${resolveIndustryLabel(result, payload, { titleCase: true })} • ${payload?.employeeCount ? `${Number(payload.employeeCount).toLocaleString()} employees` : humanize(payload?.organizationSize || result?.organization_size_label || "unknown")}`;
 $("metaProcess").textContent = `Pathway: ${payload?.processName || payload?.process_name || "Unnamed workflow"}`;
 $("metaBench").textContent = `Benchmark: ${result.benchmark_position || "Industry range comparison"}`;
 $("metaDate").textContent = `Generated: ${nowLabel()}`;
