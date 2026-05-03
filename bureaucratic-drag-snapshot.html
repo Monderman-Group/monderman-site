@@ -3317,20 +3317,45 @@ if (note) note.textContent = result?.trajectory?.note || "Directional signal";
 
 /**
 
-- Analyzes donut composition pattern (delegates to canonical)
-- @param {array} segments - ignored; use result object instead
-- @param {object} result  - full result object
+- Analyzes donut composition pattern.
+- Uses canonical composition when result is available; falls back to
+- analyzing the passed segments directly (for PDF export which passes
+- pre-computed segments without a result object).
+- @param {array} segments - pre-computed segment array
+- @param {object} result  - full result object (optional)
 - @returns {object} - Pattern analysis
   */
   function analyzeDonutPattern(segments, result) {
-    const pattern = getBurdenCompositionPattern(result || {});
+    // Try canonical path first (live UI calls pass result)
+    if (result) {
+      const pattern = getBurdenCompositionPattern(result);
+      if (pattern.total > 0) {
+        return {
+          total:         pattern.total,
+          dominant:      pattern.dominant,
+          dominantPct:   pattern.dominant_pct || pattern.dominantPct || 0,
+          hasSignal:     true,
+          isConcentrated: pattern.shape === "concentrated",
+          isDistributed:  pattern.shape === "distributed"
+        };
+      }
+    }
+    // Fallback: analyze the passed segments directly.
+    // PDF export calls analyzeDonutPattern(donutSegments) with no result arg —
+    // segments are already correctly computed by buildDonutSegments.
+    const segs = Array.isArray(segments) ? segments.filter(s => Number(s.value || 0) > 0) : [];
+    const total = segs.reduce((sum, s) => sum + Number(s.value || 0), 0);
+    const sorted = segs.slice().sort((a, b) => Number(b.value || 0) - Number(a.value || 0));
+    const dominant = sorted[0] || null;
+    const dominantPct = total > 0 && dominant ? Math.round((Number(dominant.value) / total) * 100) : 0;
+    const hasSignal = total > 0;
     return {
-      total:         pattern.total,
-      dominant:      pattern.dominant,
-      dominantPct:   pattern.dominantPct,
-      hasSignal:     pattern.total > 0,
-      isConcentrated: pattern.shape === "concentrated",
-      isDistributed:  pattern.shape === "distributed"
+      total,
+      dominant,
+      dominantPct,
+      hasSignal,
+      isConcentrated: hasSignal && dominantPct >= 42,
+      isDistributed:  hasSignal && dominantPct <= 28
     };
   }
 
@@ -3844,30 +3869,26 @@ return `<!doctype html>
   .bottom { position: absolute; bottom: .32in; left: .76in; right: .76in; border-top: 1px solid #E6EAF0; padding-top: .18in; color: #7C8794; font-size: 8.5px; }
   .bottom .date { float: right; }
   .content { position: relative; margin-top: .74in; }
-  .cover-page { background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%); padding: 0; }
-  .cover-topline { position:absolute; top:.58in; left:.72in; right:.72in; display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:.22in; border-bottom:1px solid #DDE5EE; z-index:4; }
-  .cover-mark { color:#244E7E; font-size:20px; font-weight:700; letter-spacing:.24em; text-transform:uppercase; margin:0; }
+  .cover-page { padding: 0; overflow: hidden; background: #fff; }
+  .cover-dark { background: #0D1820; width: 100%; padding: .72in .80in .64in; box-sizing: border-box; min-height: 3.62in; position: relative; overflow: hidden; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .cover-mark { font-size: 9px; letter-spacing: .32em; color: rgba(255,255,255,.38); font-weight: 700; text-transform: uppercase; margin: 0 0 .26in; }
+  .cover-rule { width: 36px; height: 2px; background: #3F6EA1; margin-bottom: .34in; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .cover-title { font-size: 44px; line-height: 1.06; letter-spacing: -.04em; margin: 0 0 .18in; color: #ffffff; font-weight: 700; max-width: 5.4in; }
+  .cover-sub { font-size: 13px; color: rgba(255,255,255,.36); font-weight: 400; letter-spacing: .03em; margin: 0; }
+  .cover-stripe { height: 3px; width: 100%; background: linear-gradient(90deg,#3F6EA1 0%,#5B8FBF 60%,rgba(91,143,191,.2) 100%); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .cover-white { background: #ffffff; padding: .58in .80in .76in; position: relative; overflow: hidden; box-sizing: border-box; flex: 1; }
+  .cover-kicker { font-size: 8px; letter-spacing: .24em; color: #99A8B4; text-transform: uppercase; font-weight: 700; margin: 0 0 .26in; border-left: 2.5px solid #3F6EA1; padding-left: 10px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .cover-workflow { font-size: 28px; font-weight: 700; color: #0D1820; letter-spacing: -.024em; margin: 0 0 7px; }
+  .cover-meta-line { font-size: 13px; color: #4A5968; margin: 0 0 3px; }
+  .cover-date-line { font-size: 11px; color: #99A8B4; margin: 0 0 .32in; letter-spacing: .01em; }
+  .cover-pills { display: flex; gap: 7px; flex-wrap: wrap; }
+  .cover-pill-accent { padding: 4px 12px; border: 1px solid rgba(63,110,161,.28); border-radius: 99px; font-size: 10px; color: #3F6EA1; background: rgba(63,110,161,.05); white-space: nowrap; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .cover-pill-neutral { padding: 4px 12px; border: 1px solid rgba(13,24,32,.13); border-radius: 99px; font-size: 10px; color: #4A5968; white-space: nowrap; }
+  .cover-brandline { position: absolute; bottom: .44in; left: .80in; right: .80in; border-top: .5px solid rgba(13,24,32,.10); padding-top: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .cover-brandline-text { font-size: 8px; color: #BCC7D0; letter-spacing: .12em; text-transform: uppercase; }
+  .cover-note-text { font-size: 8px; color: #BCC7D0; line-height: 1.5; max-width: 3.8in; }
+  .cover-motif { position: absolute; bottom: -.82in; right: -.82in; pointer-events: none; }
   .cover-classification { color:#7C8794; font-size:7.8px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; text-align:right; line-height:1.5; max-width:2.65in; }
-  .cover-content { position:relative; z-index:3; margin:1.58in .72in 0 .72in; max-width:5.75in; }
-  .cover-doc-type { display:inline-flex; align-items:center; gap:9px; margin:0 0 24px; color:#7C8794; font-size:8px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; }
-  .cover-doc-type::before { content:""; width:9px; height:9px; border-radius:2px; background:#3F6EA1; display:inline-block; }
-  .cover-kicker { color:#7C8794; font-size:8.2px; font-weight:700; letter-spacing:.20em; text-transform:uppercase; margin:0 0 12px; }
-  .cover-title-block { border-left:4px solid #3F6EA1; padding-left:.22in; margin:0 0 .32in; }
-  .cover-title { font-size:43px; line-height:.96; letter-spacing:-.06em; margin:0 0 12px; color:#15202B; max-width:5.15in; }
-  .cover-subtitle { font-size:17px; line-height:1.35; color:#4E5B68; margin:0; max-width:4.6in; }
-  .cover-accent { width:1.55in; height:3px; border-radius:3px; background:linear-gradient(90deg,#3F6EA1 0%,rgba(63,110,161,.18) 100%); margin:.34in 0 .28in; }
-  .cover-framing { font-size:12px; line-height:1.58; color:#15202B; max-width:4.75in; margin:0 0 .34in; }
-  .cover-meta-panel { width:5.15in; border:1px solid #DDE5EE; border-radius:16px; background:rgba(255,255,255,.86); overflow:hidden; box-shadow:0 12px 30px rgba(15,23,32,.045); }
-  .cover-meta-row { display:grid; grid-template-columns:1.35in 1fr; min-height:.40in; border-bottom:1px solid #E7ECF2; }
-  .cover-meta-row:last-child { border-bottom:0; }
-  .cover-meta-label { padding:.13in .16in; color:#7C8794; font-size:7.8px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; }
-  .cover-meta-value { padding:.13in .16in; color:#15202B; font-size:10.8px; line-height:1.35; }
-  .cover-note { position:absolute; left:.72in; bottom:.54in; z-index:4; max-width:3.9in; color:#7C8794; font-size:8.35px; line-height:1.55; margin:0; }
-  .cover-brandline { position:absolute; right:.72in; bottom:.48in; z-index:4; display:flex; align-items:center; gap:8px; color:#6B7684; font-size:7.2px; letter-spacing:.14em; text-transform:uppercase; }
-  .cover-brandline::before { content:""; width:36px; height:1px; background:rgba(63,110,161,.40); }
-  .cover-motif { position:absolute; right:-1.22in; bottom:-1.52in; width:5.95in; z-index:1; opacity:.92; }
-  .cover-motif::before { content:""; position:absolute; inset:-.18in; background:radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 0 58%, rgba(248,250,252,.78) 72%, #F8FAFC 100%); z-index:2; pointer-events:none; }
-  .cover-motif img { display:block; width:100%; height:auto; }
   .eyebrow { color: #3F6EA1; font-size: 8.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; margin: 0 0 10px; }
   .doctype { color: #7C8794; font-size: 9px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; margin: 0 0 24px; }
   h1 { font-size: 32px; line-height: 1.04; letter-spacing: -.05em; margin: 0 0 22px; color: #15202B; }
@@ -3941,28 +3962,48 @@ return `<!doctype html>
 <body>
 
 <section class="page cover-page">
-  <div class="cover-topline">
-    <p class="cover-mark">MONDERMAN</p>
-    <div class="cover-classification">Diagnostic output / Operational Systems<br>Prepared for leadership review</div>
+  <div class="cover-dark">
+    <div class="cover-mark">M O N D E R M A N</div>
+    <div class="cover-rule"></div>
+    <h1 class="cover-title">Operational Systems<br>Diagnostic</h1>
+    <p class="cover-sub">Executive Summary</p>
   </div>
-  <div class="cover-content">
-    <p class="cover-doc-type">Operational Systems Diagnostic</p>
-    <div class="cover-title-block">
-      <p class="cover-kicker">Executive Summary</p>
-      <h1 class="cover-title">Operational Systems Diagnostic</h1>
-      <p class="cover-subtitle">Administrative burden, operating friction, reclaimable drag, and structured follow-up priorities.</p>
+  <div class="cover-stripe"></div>
+  <div class="cover-white">
+    <p class="cover-kicker">Diagnostic Output &nbsp;/&nbsp; Operational Systems</p>
+    <div class="cover-workflow">${safe(processName)}</div>
+    <div class="cover-meta-line">${safe(sectorMeta)} · ${safe(levelMeta)}</div>
+    <div class="cover-date-line">${safe(generated)}</div>
+    <div class="cover-pills">
+      <span class="cover-pill-accent">${exportScore} · ${safe(burdenCondition.label)}</span>
+      <span class="cover-pill-neutral">${safe(benchmarkPosition)}</span>
+      <span class="cover-pill-neutral">${safe(displayPerspectiveLabel(payload?.participantMode || payload?.participant_mode || "senior_leader"))} perspective</span>
     </div>
-    <p class="cover-framing">A directional diagnostic artifact for reviewing how the selected workflow is sustained, where administrative weight is accumulating, and what structured evidence should be gathered next.</p>
-    <div class="cover-meta-panel">
-      <div class="cover-meta-row"><div class="cover-meta-label">Workflow</div><div class="cover-meta-value">${safe(processName)}</div></div>
-      <div class="cover-meta-row"><div class="cover-meta-label">Sector</div><div class="cover-meta-value">${safe(sectorName)}</div></div>
-      <div class="cover-meta-row"><div class="cover-meta-label">Perspective</div><div class="cover-meta-value">${safe(displayPerspectiveLabel(payload?.participantMode || payload?.participant_mode || "senior_leader"))} perspective</div></div>
-      <div class="cover-meta-row"><div class="cover-meta-label">Generated</div><div class="cover-meta-value">${safe(generated)}</div></div>
+    <div class="cover-brandline">
+      <span class="cover-note-text">Figures and findings in this report are directional outputs generated from user-provided structured diagnostic inputs. The experiential layer, when present, is used as interpretive context only and does not modify the quantitative score.</span>
+      <span class="cover-brandline-text">Administrative reality is a governable condition</span>
+    </div>
+    <div class="cover-motif" aria-hidden="true">
+      <svg width="320" height="320" viewBox="-160 -160 320 320" xmlns="http://www.w3.org/2000/svg">
+        <circle r="138" fill="none" stroke="#4A6FA5" stroke-width="0.8" opacity="0.18"/>
+        <circle r="122" fill="none" stroke="#5B7A9B" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/>
+        <circle r="107" fill="none" stroke="#4A6FA5" stroke-width="0.9" opacity="0.20"/>
+        <circle r="92"  fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/>
+        <circle r="77"  fill="none" stroke="#5B7A9B" stroke-width="0.8" opacity="0.22"/>
+        <circle r="62"  fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/>
+        <circle r="48"  fill="none" stroke="#6B8FA6" stroke-width="0.6" opacity="0.20"/>
+        <circle r="35"  fill="none" stroke="#8BADC5" stroke-width="0.4" opacity="0.16"/>
+        <circle r="23"  fill="none" stroke="#9FBDD1" stroke-width="0.4" opacity="0.13"/>
+        <circle r="13"  fill="none" stroke="#B0C8D8" stroke-width="0.3" opacity="0.11"/>
+        <circle cx="97.0"  cy="-39.3" r="3.0" fill="#3F6EA1" opacity="0.55"/>
+        <circle cx="-88.9" cy="28.9"  r="3.0" fill="#5B7A9B" opacity="0.50"/>
+        <circle cx="25.3"  cy="54.3"  r="2.6" fill="#3F6EA1" opacity="0.52"/>
+        <circle cx="39.6"  cy="-84.7" r="2.4" fill="#7C5CE8" opacity="0.60"/>
+        <circle cx="-44.0" cy="-52.5" r="2.4" fill="#5B7A9B" opacity="0.48"/>
+        <circle cx="82"    cy="0"     r="2.2" fill="#2E86DE" opacity="0.58"/>
+      </svg>
     </div>
   </div>
-  <div class="cover-motif" aria-hidden="true"><img src="https://www.monderman.com/Monderman_Report_Motif.png" crossorigin="anonymous" alt="" /></div>
-  <p class="cover-note">Figures and findings in this report are directional outputs generated from user-provided structured diagnostic inputs. The experiential layer, when present, is used as interpretive context only and does not modify the quantitative score.</p>
-  <div class="cover-brandline">Administrative reality is a governable condition</div>
 </section>
 
 <section class="page">
