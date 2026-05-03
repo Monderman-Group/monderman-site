@@ -447,7 +447,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
           <div class="score-number-wrap">
             <p class="score-number" id="scoreNumber">0</p>
             <span class="insight-help" id="scoreRubricInfo" tabindex="0">ⓘ</span>
-            <span class="tooltip-panel" id="scoreRubricTooltip"><strong>Operational systems score bands</strong><br>82-100: Light and manageable<br>65-81: Workable but quietly getting heavier<br>45-64: Heavy and process-clogged<br>0-44: Overloaded by admin weight</span>
+            <span class="tooltip-panel" id="scoreRubricTooltip"><strong>Operational systems score bands</strong><br>83-100: Light operating burden<br>67-82: Manageable but compounding burden<br>49-66: Heavy administrative environment<br>0-48: Operational drag condition</span>
           </div>
           <p class="score-band" id="scoreBand">--</p>
           <div class="score-badge" id="scoreBadge">Operational Systems Diagnostic</div>
@@ -506,10 +506,10 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
               <div class="viz-card"><h4>Burden source map</h4><div class="treemap" id="burdenTreemap"></div><p class="viz-note">Larger blocks show where burden is heaviest in this workflow.</p></div>
             </div>
             <section class="economic-strip">
-              <article class="result-card"><h3>Current operating burden</h3><div class="section-divider"></div><div id="trajectorySignalWrap" class="result-copy" style="margin-bottom:12px;">Trajectory signal will appear here after scoring.</div><p class="result-copy" id="executiveText"></p><div class="premium-note" id="conditionSupportText">This section explains how heavy the operating environment appears to be, what is most likely creating the drag, and whether the organization appears to be compensating for the workflow rather than benefiting from it.</div></article>
+              <article class="result-card"><h3>Current operating burden</h3><div class="section-divider"></div><div id="trajectorySignalWrap" class="result-copy" style="margin-bottom:12px;">Trajectory signal will appear here after scoring.</div><p class="result-copy" id="executiveText"></p><div class="premium-note" id="conditionSupportText" style="display:none"></div></article>
               <article class="result-card"><h3>Cost of current administrative burden</h3><div class="section-divider"></div><p class="result-copy" id="roiNarrativeText">This section translates recurring process burden into labor cost, management attention, and the specific capacity leadership could reclaim by reducing unnecessary administrative load.</p></article>
               <article class="result-card"><h3>Priority actions</h3><div class="section-divider"></div><ul class="result-list" id="actionsList"></ul><div class="compact-card" style="margin-top:14px;"><h3>Leadership implication</h3><ul class="result-list" id="leadershipList"></ul></div></article>
-              <article class="result-card"><h3>Benchmark and operating read</h3><div class="section-divider"></div><p class="result-copy" id="benchmarkInterpretationText">Benchmark interpretation will appear here after scoring.</p><div class="premium-note" id="tradeoffReadingText">This section keeps the high-level read concise so the opportunity section can stay focused on burden reduction and remedy paths.</div></article>
+              <article class="result-card"><h3>Benchmark and operating read</h3><div class="section-divider"></div><p class="result-copy" id="benchmarkInterpretationText">Benchmark interpretation will appear here after scoring.</p><div class="premium-note" id="tradeoffReadingText" style="display:none"></div></article>
             </section>
           </div>
         </article>
@@ -569,7 +569,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
                 <article class="result-card"><h3>Time, money, and resources</h3><p class="result-copy" id="tmrText"></p><div class="compact-card" style="margin-top:14px;"><h3>Trade-off note</h3><p class="result-copy" id="tradeoffText"></p></div></article>
               </section>
               <section class="grid-2"><article class="chart-card"><h3>Structural gaps</h3><div class="chart-wrap"><canvas id="gapChart"></canvas></div></article><article class="chart-card"><h3>Dimension profile</h3><div class="chart-wrap"><canvas id="dimensionChart"></canvas></div></article></section>
-              <section class="grid-2"><article class="result-card"><h3>Intervention priority ladder</h3><div class="table-wrap"><table class="matrix"><thead><tr><th>Priority</th><th>Focus</th><th>Severity</th></tr></thead><tbody id="priorityBody"></tbody></table></div></article><article class="result-card"><h3>Contradiction signals</h3><div class="tiles-grid" id="contradictionTiles"></div></article></section>
+              <section class="grid-2"><article class="result-card"><h3>Intervention priority ladder</h3><div class="table-wrap"><table class="matrix"><thead><tr><th>Priority</th><th>Focus</th><th>Share</th></tr></thead><tbody id="priorityBody"></tbody></table></div></article><article class="result-card"><h3>Contradiction signals</h3><div class="tiles-grid" id="contradictionTiles"></div></article></section>
               <section class="grid-2"><article class="result-card"><h3>Labor exposure composition</h3><div class="table-wrap"><table class="matrix"><thead><tr><th>Category</th><th>Hours*</th><th>Meaning</th></tr></thead><tbody id="laborCompositionBody"></tbody></table></div></article><article class="result-card"><h3>Estimated labor-cost composition*</h3><div class="table-wrap"><table class="matrix"><thead><tr><th>Component</th><th>Value</th><th>Note</th></tr></thead><tbody id="costCompositionBody"></tbody></table></div></article></section>
               <section class="grid-2"><article class="result-card"><h3>Role cluster exposure</h3><div class="table-wrap"><table class="matrix"><thead><tr><th>Role cluster</th><th>People</th><th>Exposure significance</th></tr></thead><tbody id="roleClusterBody"></tbody></table></div></article><article class="result-card"><h3>Impact severity matrix</h3><div class="table-wrap"><table class="matrix"><thead><tr><th>Consequence</th><th>Severity</th><th>Meaning</th></tr></thead><tbody id="impactBody"></tbody></table></div></article></section>
               <section class="grid-2"><article class="result-card"><h3>Key friction flags</h3><ul class="result-list" id="flagsList"></ul></article><article class="result-card"><h3>Detailed contradiction notes</h3><ul class="result-list" id="contradictionsList"></ul></article></section>
@@ -2436,10 +2436,10 @@ adaptation_drag: Number(dims.upkeep_burden || 0)
 
 function deriveOperatingBurdenCondition(result) {
 const score = Number(result.score || 0);
-if (score >= 82) return { label: "Light and manageable", note: "The operating environment appears genuinely manageable and is supporting the work without excessive visible burden." };
-if (score >= 65) return { label: "Workable but quietly getting heavier", note: "The environment is still functioning, but recurring administrative weight is consuming more effort than it should." };
-if (score >= 45) return { label: "Heavy and process-clogged", note: "The environment appears heavier than the underlying work really needs because process, systems, or reporting weight have built up." };
-return { label: "Overloaded by admin weight", note: "The environment appears to preserve output through workaround effort, exception handling, and manual burden rather than a lighter operating design." };
+if (score >= 83) return { label: "Light operating burden", note: "The operating environment appears genuinely manageable and is supporting the work without excessive visible burden." };
+if (score >= 67) return { label: "Manageable but compounding burden", note: "The environment is still functioning, but recurring administrative weight is consuming more effort than it should." };
+if (score >= 49) return { label: "Heavy administrative environment", note: "The environment appears heavier than the underlying work really needs because process, systems, or reporting weight have built up." };
+return { label: "Operational drag condition", note: "The environment appears to preserve output through workaround effort, exception handling, and manual burden rather than a lighter operating design." };
 }
 
 function derivePrimaryBurdenSource(result) {
@@ -2627,11 +2627,11 @@ const approval = Number(breakdown.process_density || 0);
 const coordination = Math.max(Number(breakdown.systems_friction || 0), Number(breakdown.workaround_dependence || 0));
 const escalation = Number(breakdown.reporting_exception_burden || 0);
 const keyPerson = Number(breakdown.control_load || 0);
-const sourceSentence = burdenConstraint.label === "Systems and coordination friction"
+const sourceSentence = burdenConstraint.label === "Systems friction"
 ? `Duplicate entry, manual handoffs, and coordination friction appear to account for most of the visible drag in ${process.toLowerCase()}.`
-: burdenConstraint.label === "Reporting and exception burden"
+: burdenConstraint.label === "Reporting burden"
 ? `Reporting weight and exception handling appear to be eating up more effort than they should in ${process.toLowerCase()}.`
-: burdenConstraint.label === "Manual workaround dependence"
+: burdenConstraint.label === "Workaround dependence"
 ? `The path appears to rely on informal fixes and specific people to keep moving when the formal route is not carrying the work cleanly.`
 : `Process and control layers appear to be carrying more of ${process.toLowerCase()} than the underlying work requires.`;
 const burdenSentence = stateObj.burdenProfileShape === "hidden"
@@ -2673,11 +2673,11 @@ const shapeSentence = pattern.shape === "hidden"
 : pattern.shape === "concentrated"
 ? `The burden is concentrated in ${pattern.dominant.label.toLowerCase()}, which creates a clearer first target if leadership can prevent burden from reappearing elsewhere.`
 : `The burden is mixed: ${pattern.dominant.label.toLowerCase()} is the largest visible source, but the remaining dimensions are still material.`;
-const sourceClause = burdenConstraint.label === "Reporting and exception burden"
+const sourceClause = burdenConstraint.label === "Reporting burden"
 ? `Reporting and exception burden appears to be absorbing more usable capacity than this workflow should require.`
-: burdenConstraint.label === "Systems and coordination friction"
+: burdenConstraint.label === "Systems friction"
 ? `Systems friction and handoff coordination appear to be carrying too much of the drag in this workflow.`
-: burdenConstraint.label === "Manual workaround dependence"
+: burdenConstraint.label === "Workaround dependence"
 ? `Manual workaround dependence appears to be preserving movement where the formal route is no longer carrying the work cleanly.`
 : `Process and control density appears to be heavier than the workflow requires in its current state.`;
 const trajectorySentence = stateObj.trajectoryDirection === "up"
@@ -4457,7 +4457,11 @@ trajectoryWrap.innerHTML = trajectoryChipHtml;
 $("executiveText").textContent = harmonized.executive;
 $("roiNarrativeText").textContent = harmonized.tmr;
 $("benchmarkInterpretationText").textContent = harmonized.benchmark;
-$("tradeoffReadingText").textContent = burdenDiagnosis.note;
+const tradeoffEl = $("tradeoffReadingText");
+if (tradeoffEl && burdenDiagnosis.note) {
+  tradeoffEl.textContent = burdenDiagnosis.note;
+  tradeoffEl.style.display = "";
+}
 $("opportunityLeadText").textContent = harmonized.opportunityFields.opening;
 $("opportunitySectorText").textContent = harmonized.opportunityFields.sectorDynamic;
 $("opportunityActionReasonText").textContent = [harmonized.opportunityFields.runIndicates, harmonized.opportunityFields.buildAdvantage, harmonized.opportunityFields.firstMoves].filter(Boolean).join(" ");
@@ -4535,10 +4539,11 @@ if (mount) mount.innerHTML = '<div class="viz-empty">N/A -- not enough signal is
 
 const priorityRows = asArray(result.intervention_priority_ladder);
 if (priorityRows.length) {
+const totalSeverity = priorityRows.reduce((sum, r) => sum + Number(r.severity || 0), 0) || 1;
 renderTableBody("priorityBody", priorityRows, (row) => [
 `<td>${escapeHtml(row.priority || "Priority")}</td>`,
 `<td>${escapeHtml(row.focus || "Focus area")}</td>`,
-`<td>${hasMeaningfulValue(row.severity) ? Math.round(Number(row.severity || 0)) : "N/A"}</td>`
+`<td>${row.pct != null ? row.pct + "%" : hasMeaningfulValue(row.severity) ? Math.round(Number(row.severity || 0) / totalSeverity * 100) + "%" : "N/A"}</td>`
 ]);
 } else {
 renderUnavailableTable("priorityBody", 3, "N/A -- not enough signal is available to order intervention priority for this run.");
