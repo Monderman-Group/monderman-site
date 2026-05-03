@@ -3839,8 +3839,12 @@ if (!donutTotal || Number(seg.value || 0) <= 0) return "";
 const pct = Math.round((Number(seg.value || 0) / donutTotal) * 100);
 return `<div class="comp-row"><span class="dot" style="background:${seg.color}"></span><span>${safe(seg.label)}</span><b>${pct}%</b></div>`;
 }).join("") || `<p class="muted">Not enough burden composition signal was available for this run.</p>`;
+const serverGapForExport = result?.canonical_descriptor?.experiential_structural_gap
+  || result?.experiential_structural_gap || { type: "none" };
 const contradictionHtml = contradictions.length
 ? `<div class="panel"><h3>Structured-answer contradiction signals surfaced</h3>${contradictions.slice(0, 3).map((item) => `<p><b>${safe(item?.severity || "Signal")}.</b> ${safeWords(item?.message || item?.code || "Contradiction signal", 32)}</p>`).join("")}</div>`
+: serverGapForExport.type !== "none"
+? `<div class="panel"><p><b>Experiential-structural gap detected.</b> ${safe(serverGapForExport.description)} This does not affect the quantitative score.</p></div>`
 : hasExperientialTension
 ? `<div class="panel"><p><b>No major structured-answer contradiction surfaced in this run.</b> The scored answer pattern did not show a major internal conflict. Separately, the experiential layer surfaced an operating-reality tension: ${safeWords(experientialSignal.summary, 44)} This should be tested through managerial and senior-leader runs rather than treated as part of the quantitative score.</p></div>`
 : `<div class="panel"><p><b>No major structured-answer contradiction surfaced in this run.</b> That does not prove the system is healthy. It only means the scored answer pattern did not show a major internal conflict; experiential notes, if added later, should be tested through managerial and senior-leader runs.</p></div>`;
@@ -4501,12 +4505,21 @@ renderList("execSummaryActions", harmonized.recommendedActions);
 const contradictionTiles = $("contradictionTiles");
 if (contradictionTiles) {
 const contradictions = asArray(result.contradictions);
-contradictionTiles.classList.toggle("single-signal", contradictions.length <= 1);
-contradictionTiles.innerHTML = contradictions.length
-? contradictions.map((item) => `<div class="signal-tile ${contradictionClass(item)}"><h4>${item.severity === "high" ? "High-severity signal" : "Contradiction signal"}</h4><p>${escapeHtml(item.message || "")}</p></div>`).join("")
-: experientialSignalForDisplay.type !== "none"
-? `<div class="signal-tile medium"><h4>Experiential operating-reality tension</h4><p>${escapeHtml(experientialSignalForDisplay.summary)} The quantitative score remains based only on structured diagnostic inputs.</p></div>`
-: `<div class="signal-tile low"><h4>No major structured-answer contradiction</h4><p>The current scored answer pattern does not show a strong internal conflict.</p></div>`;
+const serverGap = result?.canonical_descriptor?.experiential_structural_gap
+  || result?.experiential_structural_gap || { type: "none" };
+const hasServerGap = serverGap.type !== "none";
+const hasAnyExp = hasServerGap || experientialSignalForDisplay.type !== "none";
+contradictionTiles.classList.toggle("single-signal", contradictions.length <= 1 && !hasAnyExp);
+const structuredHtml = contradictions.length
+  ? contradictions.map((item) => `<div class="signal-tile ${contradictionClass(item)}"><h4>${item.severity === "high" ? "High-severity signal" : "Contradiction signal"}</h4><p>${escapeHtml(item.message || "")}</p></div>`).join("")
+  : "";
+const gapHtml = hasServerGap
+  ? `<div class="signal-tile medium"><h4>Experiential-structural gap</h4><p>${escapeHtml(serverGap.description || "The participant's description diverges from what the structured inputs indicate.")}</p><p style="margin-top:6px;font-size:.82rem;color:var(--ink-soft)">This does not affect the quantitative score.</p></div>`
+  : experientialSignalForDisplay.type !== "none"
+  ? `<div class="signal-tile medium"><h4>Experiential operating-reality tension</h4><p>${escapeHtml(experientialSignalForDisplay.summary)} The quantitative score remains based only on structured diagnostic inputs.</p></div>`
+  : "";
+contradictionTiles.innerHTML = structuredHtml + gapHtml
+  || `<div class="signal-tile low"><h4>No major structured-answer contradiction</h4><p>The current scored answer pattern does not show a strong internal conflict.</p></div>`;
 }
 
 const burdenBarRows = [
