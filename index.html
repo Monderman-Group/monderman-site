@@ -139,8 +139,7 @@
       white-space: nowrap;
       text-shadow: 0 1px 2px rgba(0,0,0,0.16);
     }
-    .brand::after {
-      content: "";
+    .brand-dot {
       width: 6px;
       height: 6px;
       margin-left: 10px;
@@ -148,16 +147,17 @@
       border-radius: 1px;
       display: inline-block;
       transform: translateY(-1px);
+      flex-shrink: 0;
     }
     .brand-tagline {
-      margin-left: 14px;
-      padding-left: 14px;
-      border-left: 1px solid rgba(255,255,255,0.2);
-      font-size: 0.6rem;
+      margin-left: 12px;
+      padding-left: 12px;
+      border-left: 1px solid rgba(255,255,255,0.18);
+      font-size: 0.54rem;
       font-weight: 500;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.45);
+      color: rgba(255,255,255,0.4);
       text-shadow: none;
       line-height: 1;
       align-self: center;
@@ -1685,7 +1685,7 @@
 <body>
 <header class="header" id="siteHeader">
 <div class="header-inner">
-<a class="brand" href="index.html">Monderman<span class="brand-tagline">Measure the conditions. Own the outcome.</span></a>
+<a class="brand" href="index.html">Monderman<span class="brand-dot"></span><span class="brand-tagline">Measure the conditions. Own the outcome.</span></a>
 <nav aria-label="Primary navigation" class="nav">
 <a href="#approach">Approach</a>
 <a href="diagnostic-hub.html">Diagnostic Hub</a>
