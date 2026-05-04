@@ -273,36 +273,53 @@
       align-items: center;
       justify-content: center;
       min-height: 46px;
-      padding: 0 18px;
+      padding: 0 20px;
       border-radius: 999px;
-      border: 1px solid transparent;
-      font-size: 0.95rem;
+      border: 1.5px solid rgba(63,110,161,0.72);
+      font-size: 0.93rem;
       font-weight: 600;
+      letter-spacing: -0.01em;
+      transition: background 170ms ease, color 170ms ease, border-color 170ms ease, box-shadow 170ms ease, transform 170ms ease;
+      cursor: pointer;
     }
 
     .btn-primary {
       background: var(--accent);
       color: #fff;
-      border-color: rgba(63,110,161,0.28);
+      border-color: rgba(63,110,161,0.72);
+      box-shadow: 0 6px 14px rgba(63,110,161,0.18), 0 0 0 1px rgba(63,110,161,0.08);
     }
 
     .btn-primary:hover,
     .btn-primary:focus-visible {
       background: var(--accent-dark);
       color: #fff;
+      border-color: var(--accent-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 9px 18px rgba(63,110,161,0.24), 0 0 0 1px rgba(63,110,161,0.10);
+      outline: none;
     }
 
     .btn-secondary {
-      background: rgba(255,255,255,0.08);
-      color: #fff;
-      border-color: rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.92);
+      border-color: rgba(255,255,255,0.32);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.10);
+    }
+
+    .btn-secondary:hover,
+    .btn-secondary:focus-visible {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.52);
+      transform: translateY(-1px);
+      outline: none;
     }
 
     .article { padding: 72px 0 96px; }
 
     .article-layout {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 280px;
+      grid-template-columns: minmax(0, 1fr) 300px;
       gap: 36px;
       align-items: start;
     }
@@ -506,7 +523,7 @@
       top: 96px;
     }
 
-    .sidebar-card { padding: 28px 24px; }
+    .sidebar-card { padding: 32px 24px; min-height: 180px; }
 
     .sidebar-kicker {
       margin: 0 0 10px;
@@ -741,10 +758,10 @@
       <a href="index.html" class="brand">Monderman</a>
       <nav class="nav">
         <a href="index.html#approach">Approach</a>
-        <a href="diagnostic-tools.html">Diagnostic Hub</a>
+        <a href="diagnostic-hub.html">Diagnostic Hub</a>
         <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
-        <a href="advisory-services-connect.html" target="_blank" rel="noopener noreferrer">Connect</a>
+        <a href="connect.html" target="_blank" rel="noopener noreferrer">Connect</a>
       </nav>
     </div>
   </header>
@@ -768,8 +785,8 @@
           Operational Systems shows where process load, systems friction, reporting burden, and control accumulation are absorbing time, labor, and productive capacity before that weight is mistaken for normal work.
         </p>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="bureaucratic-drag-snapshot.html">Run Operational Systems Diagnostic</a>
-          <a class="btn btn-secondary" href="advisory-services-connect.html" target="_blank" rel="noopener noreferrer">Start a Structured Conversation</a>
+          <a class="btn btn-primary" href="operational-systems.html">Run Operational Systems Diagnostic</a>
+          <a class="btn btn-secondary" href="connect.html" target="_blank" rel="noopener noreferrer">Start a Structured Conversation</a>
         </div>
       </div>
     </div>
@@ -946,7 +963,7 @@
             <p>
               Teams re-enter the same data across systems. Meetings keep the workflow alive. Reporting expands without obvious value. Routine work starts needing manual follow-up, side-channel coordination, and exception handling just to keep moving.
             </p>
-            <a class="btn btn-primary" href="bureaucratic-drag-snapshot.html">Run Operational Systems Diagnostic</a>
+            <a class="btn btn-primary" href="operational-systems.html">Run Operational Systems Diagnostic</a>
           </div>
         </article>
 
@@ -986,9 +1003,9 @@
         <p class="footer-mark">Monderman</p>
         <nav class="footer-nav" aria-label="Footer navigation">
           <a href="index.html#approach">Approach</a>
-          <a href="diagnostic-tools.html">Diagnostic Hub</a>
+          <a href="diagnostic-hub.html">Diagnostic Hub</a>
           <a href="research.html">Research</a>
-          <a href="advisory-services-connect.html">Connect</a>
+          <a href="connect.html">Connect</a>
         </nav>
       </div>
       <div class="footer-bottom">
