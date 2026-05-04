@@ -130,29 +130,14 @@
     }
     .brand {
       display: inline-flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 2px;
+      align-items: center;
+      gap: 0;
       font-size: 1.32rem;
       font-weight: 700;
       letter-spacing: -0.02em;
       color: #FFFFFF;
       white-space: nowrap;
       text-shadow: 0 1px 2px rgba(0,0,0,0.16);
-      line-height: 1;
-    }
-    .brand-name {
-      display: flex;
-      align-items: center;
-    }
-    .brand-tagline {
-      font-size: 0.58rem;
-      font-weight: 500;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.55);
-      text-shadow: none;
-      line-height: 1;
     }
     .brand::after {
       content: "";
@@ -163,6 +148,19 @@
       border-radius: 1px;
       display: inline-block;
       transform: translateY(-1px);
+    }
+    .brand-tagline {
+      margin-left: 14px;
+      padding-left: 14px;
+      border-left: 1px solid rgba(255,255,255,0.2);
+      font-size: 0.6rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      text-shadow: none;
+      line-height: 1;
+      align-self: center;
     }
     .nav {
       display: flex;
@@ -1687,7 +1685,7 @@
 <body>
 <header class="header" id="siteHeader">
 <div class="header-inner">
-<a class="brand" href="index.html"><span class="brand-name">Monderman</span><span class="brand-tagline">Measure the conditions. Own the outcome.</span></a>
+<a class="brand" href="index.html">Monderman<span class="brand-tagline">Measure the conditions. Own the outcome.</span></a>
 <nav aria-label="Primary navigation" class="nav">
 <a href="#approach">Approach</a>
 <a href="diagnostic-hub.html">Diagnostic Hub</a>
