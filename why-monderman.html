@@ -197,6 +197,7 @@
     .brand {
       display: inline-flex;
       align-items: center;
+      gap: 0;
       font-size: 1.32rem;
       font-weight: 700;
       letter-spacing: -0.02em;
@@ -205,10 +206,35 @@
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
     }
 
+    .brand-dot {
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+      flex-shrink: 0;
+    }
+
+    .brand-tagline {
+      margin-left: 12px;
+      padding-left: 12px;
+      border-left: 1px solid rgba(255, 255, 255, 0.25);
+      font-size: 0.62rem;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.68);
+      text-shadow: none;
+      line-height: 1;
+      align-self: center;
+    }
+
     .nav {
       display: flex;
       align-items: center;
-      gap: 28px;
+      gap: 24px;
       flex-wrap: wrap;
       justify-content: flex-end;
     }
@@ -257,8 +283,9 @@
       padding: 0 14px;
       border-radius: 999px;
       border: 1px solid rgba(255, 255, 255, 0.16);
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
+      background: rgba(255, 255, 255, 0.04);
+      color: #FFFFFF;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04);
     }
 
     .nav a.workspace-link::after {
@@ -346,7 +373,7 @@
     .hero h1 {
       margin: 0 0 20px;
       max-width: 19ch;
-      font-size: clamp(3rem, 4.3vw, 4.45rem);
+      font-size: clamp(3rem, 4.44vw, 64px);
       line-height: 0.95;
       font-weight: 700;
       color: #FFFFFF;
@@ -358,7 +385,7 @@
     .hero-dek {
       max-width: 39ch;
       margin: 0;
-      font-size: clamp(1.12rem, 1.5vw, 1.22rem);
+      font-size: 17px;
       line-height: 1.6;
       letter-spacing: -0.014em;
       color: var(--muted-light);
@@ -2741,7 +2768,7 @@
         </p>
 
         <div class="hero-actions">
-          <a class="btn btn-secondary" href="connect.html">Start a Structured Conversation</a>
+          <a class="btn btn-secondary" href="connect.html">Start Platform Services Request</a>
         </div>
       </div>
     </div>
@@ -2765,7 +2792,7 @@
     <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="4" y="4" width="36" height="36" rx="3" fill="white" fill-opacity="0.15"/>
       <text x="8" y="33" font-family="Helvetica Neue,Helvetica,Arial" font-weight="700" font-size="30" fill="white">M</text>
-      <circle cx="37" cy="37" r="5" fill="#2563EB"/>
+      <rect x="32" y="31" width="8" height="8" rx="1.2" fill="#3F6EA1"/>
     </svg>
   </div>
 
@@ -3537,7 +3564,7 @@
         </p>
 
         <div class="cta-actions">
-          <a class="btn btn-secondary" href="connect.html">Start a Structured Conversation</a>
+          <a class="btn btn-secondary" href="connect.html">Start Platform Services Request</a>
         </div>
       </div>
 
