@@ -201,18 +201,20 @@
       position:relative;
       top:0;
       z-index:1;
-      min-height:88vh;
+      min-height:52vh;
       overflow:hidden;
       background:
         linear-gradient(90deg,
-          rgba(15,23,32,.95) 0%,
-          rgba(15,23,32,.84) 28%,
-          rgba(15,23,32,.52) 54%,
-          rgba(15,23,32,.16) 78%,
-          rgba(15,23,32,.04) 100%
+          rgba(8,13,20,.97) 0%,
+          rgba(8,13,20,.92) 24%,
+          rgba(8,13,20,.72) 46%,
+          rgba(8,13,20,.38) 68%,
+          rgba(8,13,20,.14) 88%,
+          rgba(8,13,20,.06) 100%
         ),
+        radial-gradient(circle at 18% 50%, rgba(5,8,12,.40) 0%, transparent 54%),
         var(--hero-image) center/cover no-repeat,
-        linear-gradient(180deg, #0F1720 0%, #121B25 100%);
+        linear-gradient(180deg, #080D14 0%, #0F1720 100%);
     }
     .page{
       position:relative;
@@ -224,9 +226,9 @@
       position:relative;
       z-index:1;
       max-width:var(--max);
-      min-height:88vh;
+      min-height:52vh;
       margin:0 auto;
-      padding:148px 34px 110px;
+      padding:110px 34px 80px;
       display:flex;
       flex-direction:column;
       justify-content:center;
@@ -245,8 +247,8 @@
     .hero h1{
       margin:0 0 22px;
       max-width:12.8ch;
-      font-size:64px;
-      line-height:.93;
+      font-size:48px;
+      line-height:.96;
       font-weight:700;
       color:#FFF;
       text-wrap:balance;
@@ -1647,7 +1649,7 @@
     @media (max-width:760px){
       .brand{ font-size:1.24rem; }
       .nav{ gap:18px; }
-      .hero-inner{ padding:136px 20px 110px; }
+      .hero-inner{ padding:90px 20px 72px; }
       .hero-eyebrow{ margin-bottom:10px; font-size:.74rem; letter-spacing:.18em; }
       .hero h1{
         max-width:100%;
@@ -1834,40 +1836,41 @@
         </p>
 
 ```
-    <div class="hero-actions">
-      <a class="btn btn-accent" href="#diagnostic-portals">Launch diagnostics</a>
-      <a class="btn" href="#cross-diagnostic-synthesis">Cross-diagnostic analysis</a>
-    </div>
-
-    <div class="context-chip" id="currentPathChip"></div>
-
-  </div>
-  
+<div class="hero-actions">
+  <a class="btn btn-accent" href="#diagnostic-portals">Launch diagnostics</a>
+  <a class="btn" href="#cross-diagnostic-synthesis">Cross-diagnostic analysis</a>
 </div>
+
+<div class="context-chip" id="currentPathChip"></div>
 ```
 
+  </div>
+
+</div>
   </section>
 
   <main class="page">
 
 ```
-    <div class="page-rail" aria-label="How the hub is designed to be used">
-      <div class="page-rail-item">
-        <p class="page-rail-label">Bounded first run</p>
-        <p class="page-rail-value">Start with one visible issue</p>
-        <p class="page-rail-copy">One team, one workflow, one function, or one environment is enough for a stronger first read.</p>
-      </div>
-      <div class="page-rail-item">
-        <p class="page-rail-label">Repeatable use</p>
-        <p class="page-rail-value">Return after a change</p>
-        <p class="page-rail-copy">Use the same instrument again after redesign, growth, or new external pressure changes how the system behaves.</p>
-      </div>
-      <div class="page-rail-item">
-        <p class="page-rail-label">Participant lenses</p>
-        <p class="page-rail-value">Compare how the system is experienced</p>
-        <p class="page-rail-copy">The same organizational system can feel very different across operational, managerial, and leadership vantage points.</p>
-      </div>
-    </div>
+<div class="page-rail" aria-label="How the hub is designed to be used">
+  <div class="page-rail-item">
+    <p class="page-rail-label">Bounded first run</p>
+    <p class="page-rail-value">Start with one visible issue</p>
+    <p class="page-rail-copy">One team, one workflow, one function, or one environment is enough for a stronger first read.</p>
+  </div>
+  <div class="page-rail-item">
+    <p class="page-rail-label">Repeatable use</p>
+    <p class="page-rail-value">Return after a change</p>
+    <p class="page-rail-copy">Use the same instrument again after redesign, growth, or new external pressure changes how the system behaves.</p>
+  </div>
+  <div class="page-rail-item">
+    <p class="page-rail-label">Participant lenses</p>
+    <p class="page-rail-value">Compare how the system is experienced</p>
+    <p class="page-rail-copy">The same organizational system can feel very different across operational, managerial, and leadership vantage points.</p>
+  </div>
+</div>
+```
+
 <div class="page-inner">
   <div class="head">
     <div>
@@ -1888,125 +1891,129 @@
       Start with the strongest visible issue, keep the first run bounded, and return when the surrounding conditions change. The hub is designed to help you choose quickly without losing the discipline needed for repeat use.
     </p>
 
-    <div class="use-grid">
-      <div class="use-card">
-        <p class="use-step">01</p>
-        <h4 class="use-title">Choose the clearest signal</h4>
-        <p class="use-text">Start with what is most visible now: ambiguity, delay, burden, or broader institutional weakening.</p>
-      </div>
+```
+<div class="use-grid">
+  <div class="use-card">
+    <p class="use-step">01</p>
+    <h4 class="use-title">Choose the clearest signal</h4>
+    <p class="use-text">Start with what is most visible now: ambiguity, delay, burden, or broader institutional weakening.</p>
+  </div>
 
-      <div class="use-card">
-        <p class="use-step">02</p>
-        <h4 class="use-title">Keep the first run bounded</h4>
-        <p class="use-text">Use one workflow, one function, one team, or one operating environment so the first read is cleaner and easier to interpret.</p>
-      </div>
+  <div class="use-card">
+    <p class="use-step">02</p>
+    <h4 class="use-title">Keep the first run bounded</h4>
+    <p class="use-text">Use one workflow, one function, one team, or one operating environment so the first read is cleaner and easier to interpret.</p>
+  </div>
 
-      <div class="use-card">
-        <p class="use-step">03</p>
-        <h4 class="use-title">Return with discipline</h4>
-        <p class="use-text">Reassess after redesign, growth, or external change to see whether the system improved, held, or absorbed new strain.</p>
-      </div>
-    </div>
+  <div class="use-card">
+    <p class="use-step">03</p>
+    <h4 class="use-title">Return with discipline</h4>
+    <p class="use-text">Reassess after redesign, growth, or external change to see whether the system improved, held, or absorbed new strain.</p>
+  </div>
+</div>
+```
+
   </section>
 
   <section class="panel">
     <h3>Choose the right starting point</h3>
     <p>Start with the clearest visible issue. Use the matrix below to choose the best first lens quickly.</p>
 
-    
-    <div class="matrix-grid">
-      <article class="matrix-card">
-        <p class="matrix-kicker">Ambiguity</p>
-        <div class="symptom-head">
-          <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
-          </svg>
-          <div>
-            <h4 class="matrix-title">Ownership, roles, or handoffs feel blurred.</h4>
-            <p class="matrix-text">Start with the tool best suited for ambiguity, ownership blur, authority confusion, and handoff instability.</p>
-          </div>
-        </div>
-        <div class="matrix-meta">
-          <div class="matrix-meta-item">
-            <span class="matrix-meta-label">Open diagnostic</span>
-            <span class="matrix-meta-value"><a href="structural-clarity.html" class="tool-inline-link diagnostic-link" aria-label="Open Structural Clarity Diagnostic">Structural Clarity Diagnostic</a></span>
-          </div>
-          <div class="matrix-meta-item">
-            <span class="matrix-meta-label">Use first when</span>
-            <span class="matrix-meta-value">Ownership is unclear, roles overlap, or handoffs require repeated interpretation.</span>
-          </div>
-        </div>
-      </article>
-
-      <article class="matrix-card">
-        <p class="matrix-kicker">Latency</p>
-        <div class="symptom-head">
-          <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
-          </svg>
-          <div>
-            <h4 class="matrix-title">Decisions feel slow, stuck, or approval-heavy.</h4>
-            <p class="matrix-text">Start with the tool best suited for approvals, escalation, review layering, routing burden, and cycle delay.</p>
-          </div>
-        </div>
-        <div class="matrix-meta">
-          <div class="matrix-meta-item">
-            <span class="matrix-meta-label">Open diagnostic</span>
-            <span class="matrix-meta-value"><a href="decision-velocity.html" class="tool-inline-link diagnostic-link" aria-label="Open Decision Velocity Diagnostic">Decision Velocity Diagnostic</a></span>
-          </div>
-          <div class="matrix-meta-item">
-            <span class="matrix-meta-label">Use first when</span>
-            <span class="matrix-meta-value">Approvals, escalation, or review layering are slowing movement through decisions.</span>
-          </div>
-        </div>
-      </article>
-
-      <article class="matrix-card">
-        <p class="matrix-kicker">Burden</p>
-        <div class="symptom-head">
-          <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
-          </svg>
-          <div>
-            <h4 class="matrix-title">The environment feels overloaded by process.</h4>
-            <p class="matrix-text">Start with the tool best suited for recurring burden, overhead, and process density.</p>
-          </div>
-        </div>
-        <div class="matrix-meta">
-          <div class="matrix-meta-item">
-            <span class="matrix-meta-label">Open diagnostic</span>
-            <span class="matrix-meta-value"><a href="operational-systems.html" class="tool-inline-link diagnostic-link" aria-label="Open Operational Systems Diagnostic">Operational Systems Diagnostic</a></span>
-          </div>
-          <div class="matrix-meta-item">
-            <span class="matrix-meta-label">Use first when</span>
-            <span class="matrix-meta-value">Process load, reporting demand, or coordination overhead is absorbing too much time and attention.</span>
-          </div>
-        </div>
-      </article>
-
-      <article class="matrix-card">
-        <p class="matrix-kicker">Fragility</p>
-        <div class="symptom-head">
-          <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
-          </svg>
-          <div>
-            <h4 class="matrix-title">The whole system seems to be weakening.</h4>
-            <p class="matrix-text">Start with the tool best suited for broader system health and institutional performance.</p>
-          </div>
-        </div>
-        <div class="matrix-meta">
-          <div class="matrix-meta-item">
-            <span class="matrix-meta-label">Open diagnostic</span>
-            <span class="matrix-meta-value"><a href="institutional-performance.html" class="tool-inline-link diagnostic-link" aria-label="Open Institutional Performance Diagnostic">Institutional Performance Diagnostic</a></span>
-          </div>
-          <div class="matrix-meta-item">
-            <span class="matrix-meta-label">Use first when</span>
-            <span class="matrix-meta-value">The issue feels broader than one workflow and the system itself may be weakening.</span>
-          </div>
-        </div>
-      </article>
+```
+<div class="matrix-grid">
+  <article class="matrix-card">
+    <p class="matrix-kicker">Ambiguity</p>
+    <div class="symptom-head">
+      <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
+      </svg>
+      <div>
+        <h4 class="matrix-title">Ownership, roles, or handoffs feel blurred.</h4>
+        <p class="matrix-text">Start with the tool best suited for ambiguity, ownership blur, authority confusion, and handoff instability.</p>
+      </div>
     </div>
+    <div class="matrix-meta">
+      <div class="matrix-meta-item">
+        <span class="matrix-meta-label">Open diagnostic</span>
+        <span class="matrix-meta-value"><a href="structural-clarity.html" class="tool-inline-link diagnostic-link" aria-label="Open Structural Clarity Diagnostic">Structural Clarity Diagnostic</a></span>
+      </div>
+      <div class="matrix-meta-item">
+        <span class="matrix-meta-label">Use first when</span>
+        <span class="matrix-meta-value">Ownership is unclear, roles overlap, or handoffs require repeated interpretation.</span>
+      </div>
+    </div>
+  </article>
+
+  <article class="matrix-card">
+    <p class="matrix-kicker">Latency</p>
+    <div class="symptom-head">
+      <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
+      </svg>
+      <div>
+        <h4 class="matrix-title">Decisions feel slow, stuck, or approval-heavy.</h4>
+        <p class="matrix-text">Start with the tool best suited for approvals, escalation, review layering, routing burden, and cycle delay.</p>
+      </div>
+    </div>
+    <div class="matrix-meta">
+      <div class="matrix-meta-item">
+        <span class="matrix-meta-label">Open diagnostic</span>
+        <span class="matrix-meta-value"><a href="decision-velocity.html" class="tool-inline-link diagnostic-link" aria-label="Open Decision Velocity Diagnostic">Decision Velocity Diagnostic</a></span>
+      </div>
+      <div class="matrix-meta-item">
+        <span class="matrix-meta-label">Use first when</span>
+        <span class="matrix-meta-value">Approvals, escalation, or review layering are slowing movement through decisions.</span>
+      </div>
+    </div>
+  </article>
+
+  <article class="matrix-card">
+    <p class="matrix-kicker">Burden</p>
+    <div class="symptom-head">
+      <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
+      </svg>
+      <div>
+        <h4 class="matrix-title">The environment feels overloaded by process.</h4>
+        <p class="matrix-text">Start with the tool best suited for recurring burden, overhead, and process density.</p>
+      </div>
+    </div>
+    <div class="matrix-meta">
+      <div class="matrix-meta-item">
+        <span class="matrix-meta-label">Open diagnostic</span>
+        <span class="matrix-meta-value"><a href="operational-systems.html" class="tool-inline-link diagnostic-link" aria-label="Open Operational Systems Diagnostic">Operational Systems Diagnostic</a></span>
+      </div>
+      <div class="matrix-meta-item">
+        <span class="matrix-meta-label">Use first when</span>
+        <span class="matrix-meta-value">Process load, reporting demand, or coordination overhead is absorbing too much time and attention.</span>
+      </div>
+    </div>
+  </article>
+
+  <article class="matrix-card">
+    <p class="matrix-kicker">Fragility</p>
+    <div class="symptom-head">
+      <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
+      </svg>
+      <div>
+        <h4 class="matrix-title">The whole system seems to be weakening.</h4>
+        <p class="matrix-text">Start with the tool best suited for broader system health and institutional performance.</p>
+      </div>
+    </div>
+    <div class="matrix-meta">
+      <div class="matrix-meta-item">
+        <span class="matrix-meta-label">Open diagnostic</span>
+        <span class="matrix-meta-value"><a href="institutional-performance.html" class="tool-inline-link diagnostic-link" aria-label="Open Institutional Performance Diagnostic">Institutional Performance Diagnostic</a></span>
+      </div>
+      <div class="matrix-meta-item">
+        <span class="matrix-meta-label">Use first when</span>
+        <span class="matrix-meta-value">The issue feels broader than one workflow and the system itself may be weakening.</span>
+      </div>
+    </div>
+  </article>
+</div>
+```
 
   </section>
 
@@ -2029,345 +2036,347 @@
       </div>
     </div>
 
-
-    <section class="shared-context-shell" id="hub-context-panel" aria-label="Shared run context">
-      <div class="shared-context-card">
-        <div class="shared-context-top">
-          <div>
-            <p class="shared-context-kicker">Optional workflow accelerator</p>
-            <h4 class="shared-context-title">Shared run context</h4>
-            <p class="shared-context-copy">Use this only when you plan to launch more than one diagnostic against the same event path. Save the common context once, then carry it across tools from this browser.</p>
-          </div>
-          <div class="shared-context-flag">Repeated use only</div>
-        </div>
-        <p class="context-helper">Keep it narrow: one event path, one participant lens, one depth, and one operating slice. Skip this if you are only running one diagnostic or if the context will change between runs.</p>
-
-        <div class="context-summary" id="hubContextSummary" aria-live="polite">
-          <div class="context-pill">
-            <p class="context-pill-label">Current path</p>
-            <p class="context-pill-value" id="summaryPath">Not set</p>
-          </div>
-          <div class="context-pill">
-            <p class="context-pill-label">Participant lens</p>
-            <p class="context-pill-value" id="summaryLens">Not set</p>
-          </div>
-          <div class="context-pill">
-            <p class="context-pill-label">Run depth</p>
-            <p class="context-pill-value" id="summaryDepth">Not set</p>
-          </div>
-        </div>
-
-        <div class="context-form">
-          <div class="context-field context-span-2">
-            <label for="ctxPathName">Current event path</label>
-            <input id="ctxPathName" type="text" placeholder="e.g. Contract review escalation" />
-          </div>
-          <div class="context-field">
-            <label for="ctxLens">Participant lens</label>
-            <select id="ctxLens">
-              <option value="">Select one</option>
-              <option value="operational">Operational</option>
-              <option value="managerial">Managerial</option>
-              <option value="executive">Executive</option>
-            </select>
-          </div>
-          <div class="context-field">
-            <label for="ctxDepth">Run depth</label>
-            <select id="ctxDepth">
-              <option value="">Select one</option>
-              <option value="10">10-minute diagnostic</option>
-              <option value="30">30-minute diagnostic</option>
-              <option value="60">60-minute diagnostic</option>
-            </select>
-          </div>
-          <div class="context-field context-span-2">
-            <label for="ctxBusinessUnit">Team or function</label>
-            <input id="ctxBusinessUnit" type="text" placeholder="e.g. Operations" />
-          </div>
-        </div>
-
-        <details class="context-disclosure">
-          <summary>Add more context</summary>
-          <div class="context-secondary-grid">
-            <div class="context-field">
-              <label for="ctxDecisionType">Path type</label>
-              <select id="ctxDecisionType">
-                <option value="">Select one</option>
-                <option value="procurement">Procurement / vendor</option>
-                <option value="hiring">Hiring / staffing</option>
-                <option value="budget">Budget / funding</option>
-                <option value="policy">Policy / governance</option>
-                <option value="program">Program / project</option>
-                <option value="risk">Risk / exception</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            <div class="context-field">
-              <label for="ctxIndustry">Industry</label>
-              <select id="ctxIndustry">
-                <option value="">Select one</option>
-                <option value="government_defense">Government / defense</option>
-                <option value="financial_services">Financial services</option>
-                <option value="healthcare_life_sciences">Healthcare / life sciences</option>
-                <option value="technology_software">Technology / software</option>
-                <option value="manufacturing_industrial">Manufacturing / industrial</option>
-                <option value="energy_utilities">Energy / utilities</option>
-                <option value="retail_consumer">Retail / consumer</option>
-                <option value="education_nonprofit">Education / nonprofit</option>
-                <option value="professional_services">Professional services</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            <div class="context-field">
-              <label for="ctxRegulatoryIntensity">Regulatory intensity</label>
-              <select id="ctxRegulatoryIntensity">
-                <option value="">Select one</option>
-                <option value="low">Lower-regulation environment</option>
-                <option value="moderate">Moderate-regulation environment</option>
-                <option value="high">High-regulation environment</option>
-              </select>
-            </div>
-            <div class="context-field">
-              <label for="ctxEmployeeCount">Organization size</label>
-              <input id="ctxEmployeeCount" type="number" min="1" placeholder="e.g. 2400" />
-            </div>
-            <div class="context-field context-span-2">
-              <label for="ctxDescription">Short issue summary</label>
-              <textarea id="ctxDescription" placeholder="Brief note to carry across runs."></textarea>
-            </div>
-          </div>
-        </details>
-
-        <div class="context-actions">
-          <button class="btn btn-accent" type="button" id="saveHubContextBtn">Save shared context</button>
-          <button class="btn btn-subtle" type="button" id="clearHubContextBtn">Clear context</button>
-        </div>
-        <p class="context-status" id="hubContextStatus">No shared context saved in this browser yet.</p>
+```
+<section class="shared-context-shell" id="hub-context-panel" aria-label="Shared run context">
+  <div class="shared-context-card">
+    <div class="shared-context-top">
+      <div>
+        <p class="shared-context-kicker">Optional workflow accelerator</p>
+        <h4 class="shared-context-title">Shared run context</h4>
+        <p class="shared-context-copy">Use this only when you plan to launch more than one diagnostic against the same event path. Save the common context once, then carry it across tools from this browser.</p>
       </div>
-
-      <div style="display:grid; gap:18px;">
-        <aside class="recent-runs-card" id="savedContextCard">
-          <p class="recent-runs-kicker">Saved context</p>
-          <h4 class="recent-runs-title">Current shared baseline</h4>
-          <p id="savedContextIntro">Use this tile to confirm what baseline is currently saved in this browser before launching diagnostics.</p>
-          <div id="savedContextDynamic" style="display:grid; gap:10px; margin-top:14px;"></div>
-          <div class="recent-run-empty" id="savedContextEmpty">No shared context saved yet. Save a baseline on the left to reuse it across diagnostics.</div>
-        </aside>
-
-        <aside class="recent-runs-card">
-          <p class="recent-runs-kicker">Local continuity</p>
-          <h4 class="recent-runs-title">Recent runs on this device</h4>
-          <p>Quick return links for the last few diagnostics launched from this browser. This stays local to this device and can be cleared any time.</p>
-          <div class="recent-runs-list" id="recentRunsList"></div>
-          <div class="recent-run-empty" id="recentRunsEmpty">No recent runs yet. Once you complete diagnostics, the last 3–5 runs will appear here.</div>
-        </aside>
-      </div>
-    </section>
-
-    <div id="diagnostic-portals" class="tools-section-header" style="display:flex;align-items:center;gap:14px;margin:8px 0 22px;scroll-margin-top:88px;">
-      <p style="margin:0;font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);">Diagnostic portals</p>
-      <div style="flex:1;height:1px;background:rgba(63,110,161,.14);"></div>
-      <p style="margin:0;font-size:.82rem;color:var(--text-muted);">Select a diagnostic to begin</p>
+      <div class="shared-context-flag">Repeated use only</div>
     </div>
-    <div class="tools-grid">
-      <article class="tool-card" data-tool-key="structural-clarity">
-        <a class="tool-card-link diagnostic-link" href="structural-clarity.html" aria-label="Open Structural Clarity Diagnostic">
-          <div class="tool-glyph" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
-            </svg>
-          </div>
-          <div class="tool-card-top">
-            <div class="tool-badge status-under-development">Under Development</div>
-            
-          </div>
-          <h3 class="tool-title">Structural Clarity Diagnostic</h3>
-          <p class="tool-subline">Roles · ownership · handoffs</p>
-          <p class="tool-text">
-            Assess whether ownership, authority, and review logic are clear enough for one bounded workflow or operating slice.
-          </p>
-          <p class="tool-meta-label">Best when</p>
-          <p class="tool-meta">
-            The issue feels like ambiguity, ownership confusion, handoff multiplication, or role-boundary drift.
-          </p>
-          
-          <span class="tool-open">Open diagnostic &#8594;</span>
-        </a>
-      </article>
+    <p class="context-helper">Keep it narrow: one event path, one participant lens, one depth, and one operating slice. Skip this if you are only running one diagnostic or if the context will change between runs.</p>
 
-      <article class="tool-card" data-tool-key="decision-velocity">
-        <a class="tool-card-link diagnostic-link" href="decision-velocity.html" aria-label="Open Decision Velocity Diagnostic">
-          <div class="tool-glyph" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
-            </svg>
-          </div>
-          <div class="tool-card-top">
-            <div class="tool-badge status-under-development">Under Development</div>
-          </div>
-          <h3 class="tool-title">Decision Velocity Diagnostic</h3>
-          <p class="tool-subline">Approvals · escalation · delay</p>
-          <p class="tool-text">
-            Diagnose where approvals, escalation patterns, and routing complexity are slowing movement through important decisions.
-          </p>
-          <p class="tool-meta-label">Best when</p>
-          <p class="tool-meta">
-            The issue feels like slowness, delay, stalled action, or approval drag.
-          </p>
-          <span class="tool-open">Open diagnostic &#8594;</span>
-        </a>
-      </article>
-
-      <article class="tool-card is-recommended" data-tool-key="operational-systems">
-        <a class="tool-card-link diagnostic-link" href="operational-systems.html" aria-label="Open Operational Systems Diagnostic">
-          <div class="tool-glyph" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
-            </svg>
-          </div>
-          <div class="tool-card-top">
-            <div class="tool-badge status-beta">Beta</div>
-          </div>
-          <h3 class="tool-title">Operational Systems Diagnostic</h3>
-          <p class="tool-subline">Process load · reporting · overhead</p>
-          <p class="tool-text">
-            Surface recurring administrative burden, process density, and non-value-adding overhead across a selected workflow or environment.
-          </p>
-          <p class="tool-meta-label">Best when</p>
-          <p class="tool-meta">
-            The issue feels like too much process, too much reporting, or too much coordination.
-          </p>
-          <span class="tool-open">Open diagnostic &#8594;</span>
-        </a>
-      </article>
-
-      <article class="tool-card" data-tool-key="institutional-performance">
-        <a class="tool-card-link diagnostic-link" href="institutional-performance.html" aria-label="Open Institutional Performance Diagnostic">
-          <div class="tool-glyph" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
-            </svg>
-          </div>
-          <div class="tool-card-top">
-            <div class="tool-badge status-under-development">Under Development</div>
-          </div>
-          <h3 class="tool-title">Institutional Performance Diagnostic</h3>
-          <p class="tool-subline">System health · adaptation · reliability</p>
-          <p class="tool-text">
-            Estimate how well an institution is converting structure into sustained performance across execution, resilience, and institutional confidence.
-          </p>
-          <p class="tool-meta-label">Best when</p>
-          <p class="tool-meta">
-            The issue feels broader than one workflow and the system itself may be weakening.
-          </p>
-          <span class="tool-open">Open diagnostic &#8594;</span>
-        </a>
-      </article>
+    <div class="context-summary" id="hubContextSummary" aria-live="polite">
+      <div class="context-pill">
+        <p class="context-pill-label">Current path</p>
+        <p class="context-pill-value" id="summaryPath">Not set</p>
+      </div>
+      <div class="context-pill">
+        <p class="context-pill-label">Participant lens</p>
+        <p class="context-pill-value" id="summaryLens">Not set</p>
+      </div>
+      <div class="context-pill">
+        <p class="context-pill-label">Run depth</p>
+        <p class="context-pill-value" id="summaryDepth">Not set</p>
+      </div>
     </div>
 
-    <section class="synthesis-shell" id="cross-diagnostic-synthesis" aria-labelledby="synthesis-title">
-      <div class="synthesis-head">
-        <div class="section-label">Cross-Diagnostic Synthesis</div>
-        <h3 id="synthesis-title">Combine saved results for a broader institutional read.</h3>
-        <div class="best-for-repeat">Best for repeated institutional use</div>
-        <p>
-          Drag and drop 2 or more saved Monderman JSON result files to compare patterns across tools, pathways, or participant lenses without storing anything on the site.
-        </p>
+    <div class="context-form">
+      <div class="context-field context-span-2">
+        <label for="ctxPathName">Current event path</label>
+        <input id="ctxPathName" type="text" placeholder="e.g. Contract review escalation" />
       </div>
+      <div class="context-field">
+        <label for="ctxLens">Participant lens</label>
+        <select id="ctxLens">
+          <option value="">Select one</option>
+          <option value="operational">Operational</option>
+          <option value="managerial">Managerial</option>
+          <option value="executive">Executive</option>
+        </select>
+      </div>
+      <div class="context-field">
+        <label for="ctxDepth">Run depth</label>
+        <select id="ctxDepth">
+          <option value="">Select one</option>
+          <option value="10">10-minute diagnostic</option>
+          <option value="30">30-minute diagnostic</option>
+          <option value="60">60-minute diagnostic</option>
+        </select>
+      </div>
+      <div class="context-field context-span-2">
+        <label for="ctxBusinessUnit">Team or function</label>
+        <input id="ctxBusinessUnit" type="text" placeholder="e.g. Operations" />
+      </div>
+    </div>
 
-      <div class="dropzone-wrap">
-        <label class="dropzone" id="dropzone" for="synthesisFileInput" tabindex="0" aria-label="Drag and drop saved diagnostic result JSON files">
-          <div>
-            <div class="dropzone-icon" aria-hidden="true">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 16V4"></path>
-                <path d="M7 9l5-5 5 5"></path>
-                <path d="M4 20h16"></path>
-              </svg>
-            </div>
-            <h4>Drag &amp; drop saved diagnostic results (2+ files)</h4>
-            <p>Or click to browse • Supports monderman-*.json files from any diagnostic</p>
-          </div>
-          <input id="synthesisFileInput" type="file" accept=".json,application/json" multiple aria-label="Upload saved Monderman JSON result files" />
-        </label>
-
-        <div class="validation-message" id="validationMessage" aria-live="polite"></div>
-        <div class="file-list" id="fileList" aria-live="polite"></div>
-
-        <div class="synthesis-actions">
-          <p class="synthesis-note">Your saved result files stay on your device until you choose to upload them for synthesis in this session. Monderman does not retain them automatically.</p>
-          <button class="btn btn-accent" id="synthesizeBtn" type="button" disabled>Synthesize Results</button>
+    <details class="context-disclosure">
+      <summary>Add more context</summary>
+      <div class="context-secondary-grid">
+        <div class="context-field">
+          <label for="ctxDecisionType">Path type</label>
+          <select id="ctxDecisionType">
+            <option value="">Select one</option>
+            <option value="procurement">Procurement / vendor</option>
+            <option value="hiring">Hiring / staffing</option>
+            <option value="budget">Budget / funding</option>
+            <option value="policy">Policy / governance</option>
+            <option value="program">Program / project</option>
+            <option value="risk">Risk / exception</option>
+            <option value="other">Other</option>
+          </select>
         </div>
+        <div class="context-field">
+          <label for="ctxIndustry">Industry</label>
+          <select id="ctxIndustry">
+            <option value="">Select one</option>
+            <option value="government_defense">Government / defense</option>
+            <option value="financial_services">Financial services</option>
+            <option value="healthcare_life_sciences">Healthcare / life sciences</option>
+            <option value="technology_software">Technology / software</option>
+            <option value="manufacturing_industrial">Manufacturing / industrial</option>
+            <option value="energy_utilities">Energy / utilities</option>
+            <option value="retail_consumer">Retail / consumer</option>
+            <option value="education_nonprofit">Education / nonprofit</option>
+            <option value="professional_services">Professional services</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="context-field">
+          <label for="ctxRegulatoryIntensity">Regulatory intensity</label>
+          <select id="ctxRegulatoryIntensity">
+            <option value="">Select one</option>
+            <option value="low">Lower-regulation environment</option>
+            <option value="moderate">Moderate-regulation environment</option>
+            <option value="high">High-regulation environment</option>
+          </select>
+        </div>
+        <div class="context-field">
+          <label for="ctxEmployeeCount">Organization size</label>
+          <input id="ctxEmployeeCount" type="number" min="1" placeholder="e.g. 2400" />
+        </div>
+        <div class="context-field context-span-2">
+          <label for="ctxDescription">Short issue summary</label>
+          <textarea id="ctxDescription" placeholder="Brief note to carry across runs."></textarea>
+        </div>
+      </div>
+    </details>
+
+    <div class="context-actions">
+      <button class="btn btn-accent" type="button" id="saveHubContextBtn">Save shared context</button>
+      <button class="btn btn-subtle" type="button" id="clearHubContextBtn">Clear context</button>
+    </div>
+    <p class="context-status" id="hubContextStatus">No shared context saved in this browser yet.</p>
+  </div>
+
+  <div style="display:grid; gap:18px;">
+    <aside class="recent-runs-card" id="savedContextCard">
+      <p class="recent-runs-kicker">Saved context</p>
+      <h4 class="recent-runs-title">Current shared baseline</h4>
+      <p id="savedContextIntro">Use this tile to confirm what baseline is currently saved in this browser before launching diagnostics.</p>
+      <div id="savedContextDynamic" style="display:grid; gap:10px; margin-top:14px;"></div>
+      <div class="recent-run-empty" id="savedContextEmpty">No shared context saved yet. Save a baseline on the left to reuse it across diagnostics.</div>
+    </aside>
+
+    <aside class="recent-runs-card">
+      <p class="recent-runs-kicker">Local continuity</p>
+      <h4 class="recent-runs-title">Recent runs on this device</h4>
+      <p>Quick return links for the last few diagnostics launched from this browser. This stays local to this device and can be cleared any time.</p>
+      <div class="recent-runs-list" id="recentRunsList"></div>
+      <div class="recent-run-empty" id="recentRunsEmpty">No recent runs yet. Once you complete diagnostics, the last 3–5 runs will appear here.</div>
+    </aside>
+  </div>
+</section>
+
+<div id="diagnostic-portals" class="tools-section-header" style="display:flex;align-items:center;gap:14px;margin:8px 0 22px;scroll-margin-top:88px;">
+  <p style="margin:0;font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);">Diagnostic portals</p>
+  <div style="flex:1;height:1px;background:rgba(63,110,161,.14);"></div>
+  <p style="margin:0;font-size:.82rem;color:var(--text-muted);">Select a diagnostic to begin</p>
+</div>
+<div class="tools-grid">
+  <article class="tool-card" data-tool-key="structural-clarity">
+    <a class="tool-card-link diagnostic-link" href="structural-clarity.html" aria-label="Open Structural Clarity Diagnostic">
+      <div class="tool-glyph" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
+        </svg>
+      </div>
+      <div class="tool-card-top">
+        <div class="tool-badge status-under-development">Under Development</div>
+        
+      </div>
+      <h3 class="tool-title">Structural Clarity Diagnostic</h3>
+      <p class="tool-subline">Roles · ownership · handoffs</p>
+      <p class="tool-text">
+        Assess whether ownership, authority, and review logic are clear enough for one bounded workflow or operating slice.
+      </p>
+      <p class="tool-meta-label">Best when</p>
+      <p class="tool-meta">
+        The issue feels like ambiguity, ownership confusion, handoff multiplication, or role-boundary drift.
+      </p>
+      
+      <span class="tool-open">Open diagnostic &#8594;</span>
+    </a>
+  </article>
+
+  <article class="tool-card" data-tool-key="decision-velocity">
+    <a class="tool-card-link diagnostic-link" href="decision-velocity.html" aria-label="Open Decision Velocity Diagnostic">
+      <div class="tool-glyph" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
+        </svg>
+      </div>
+      <div class="tool-card-top">
+        <div class="tool-badge status-under-development">Under Development</div>
+      </div>
+      <h3 class="tool-title">Decision Velocity Diagnostic</h3>
+      <p class="tool-subline">Approvals · escalation · delay</p>
+      <p class="tool-text">
+        Diagnose where approvals, escalation patterns, and routing complexity are slowing movement through important decisions.
+      </p>
+      <p class="tool-meta-label">Best when</p>
+      <p class="tool-meta">
+        The issue feels like slowness, delay, stalled action, or approval drag.
+      </p>
+      <span class="tool-open">Open diagnostic &#8594;</span>
+    </a>
+  </article>
+
+  <article class="tool-card is-recommended" data-tool-key="operational-systems">
+    <a class="tool-card-link diagnostic-link" href="operational-systems.html" aria-label="Open Operational Systems Diagnostic">
+      <div class="tool-glyph" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
+        </svg>
+      </div>
+      <div class="tool-card-top">
+        <div class="tool-badge status-beta">Beta</div>
+      </div>
+      <h3 class="tool-title">Operational Systems Diagnostic</h3>
+      <p class="tool-subline">Process load · reporting · overhead</p>
+      <p class="tool-text">
+        Surface recurring administrative burden, process density, and non-value-adding overhead across a selected workflow or environment.
+      </p>
+      <p class="tool-meta-label">Best when</p>
+      <p class="tool-meta">
+        The issue feels like too much process, too much reporting, or too much coordination.
+      </p>
+      <span class="tool-open">Open diagnostic &#8594;</span>
+    </a>
+  </article>
+
+  <article class="tool-card" data-tool-key="institutional-performance">
+    <a class="tool-card-link diagnostic-link" href="institutional-performance.html" aria-label="Open Institutional Performance Diagnostic">
+      <div class="tool-glyph" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
+        </svg>
+      </div>
+      <div class="tool-card-top">
+        <div class="tool-badge status-under-development">Under Development</div>
+      </div>
+      <h3 class="tool-title">Institutional Performance Diagnostic</h3>
+      <p class="tool-subline">System health · adaptation · reliability</p>
+      <p class="tool-text">
+        Estimate how well an institution is converting structure into sustained performance across execution, resilience, and institutional confidence.
+      </p>
+      <p class="tool-meta-label">Best when</p>
+      <p class="tool-meta">
+        The issue feels broader than one workflow and the system itself may be weakening.
+      </p>
+      <span class="tool-open">Open diagnostic &#8594;</span>
+    </a>
+  </article>
+</div>
+
+<section class="synthesis-shell" id="cross-diagnostic-synthesis" aria-labelledby="synthesis-title">
+  <div class="synthesis-head">
+    <div class="section-label">Cross-Diagnostic Synthesis</div>
+    <h3 id="synthesis-title">Combine saved results for a broader institutional read.</h3>
+    <div class="best-for-repeat">Best for repeated institutional use</div>
+    <p>
+      Drag and drop 2 or more saved Monderman JSON result files to compare patterns across tools, pathways, or participant lenses without storing anything on the site.
+    </p>
+  </div>
+
+  <div class="dropzone-wrap">
+    <label class="dropzone" id="dropzone" for="synthesisFileInput" tabindex="0" aria-label="Drag and drop saved diagnostic result JSON files">
+      <div>
+        <div class="dropzone-icon" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 16V4"></path>
+            <path d="M7 9l5-5 5 5"></path>
+            <path d="M4 20h16"></path>
+          </svg>
+        </div>
+        <h4>Drag &amp; drop saved diagnostic results (2+ files)</h4>
+        <p>Or click to browse • Supports monderman-*.json files from any diagnostic</p>
+      </div>
+      <input id="synthesisFileInput" type="file" accept=".json,application/json" multiple aria-label="Upload saved Monderman JSON result files" />
+    </label>
+
+    <div class="validation-message" id="validationMessage" aria-live="polite"></div>
+    <div class="file-list" id="fileList" aria-live="polite"></div>
+
+    <div class="synthesis-actions">
+      <p class="synthesis-note">Your saved result files stay on your device until you choose to upload them for synthesis in this session. Monderman does not retain them automatically.</p>
+      <button class="btn btn-accent" id="synthesizeBtn" type="button" disabled>Synthesize Results</button>
+    </div>
 ```
 
 </div>
         </section>
       </section>
 
-```
   <section class="panel">
     <h3>How repeated use creates value</h3>
     <p>The hub delivers its strongest value when it is used repeatedly to govern organizational systems over time, across changing conditions, and through different participant lenses.</p>
 
-    <div class="dynamic-wrap">
-      <div class="dynamic-grid">
-        <article class="dynamic-card active">
-          <button class="dynamic-toggle" type="button" aria-expanded="true">
-            <p class="dynamic-kicker">Bounded</p>
-            <div class="dynamic-title-row">
-              <h4 class="dynamic-title">Baseline</h4>
-              <span class="dynamic-plus" aria-hidden="true">+</span>
-            </div>
-            <p class="dynamic-summary">Establish a reference point for one specific organizational system.</p>
-          </button>
-          <div class="dynamic-detail">
-            <p>Use one diagnostic to establish a clear reference point for a specific organizational system so future runs can be interpreted against something stronger than memory, impression, or isolated complaint.</p>
-          </div>
-        </article>
-
-        <article class="dynamic-card">
-          <button class="dynamic-toggle" type="button" aria-expanded="false">
-            <p class="dynamic-kicker">Comparative</p>
-            <div class="dynamic-title-row">
-              <h4 class="dynamic-title">Participant lens</h4>
-              <span class="dynamic-plus" aria-hidden="true">+</span>
-            </div>
-            <p class="dynamic-summary">Use the same diagnostic across different participant groups.</p>
-          </button>
-          <div class="dynamic-detail">
-            <p>Use the same diagnostic across different participant groups to see where perspectives on the same organizational system diverge, align, or conceal different kinds of strain over time.</p>
-          </div>
-        </article>
-
-        <article class="dynamic-card">
-          <button class="dynamic-toggle" type="button" aria-expanded="false">
-            <p class="dynamic-kicker">Longitudinal</p>
-            <div class="dynamic-title-row">
-              <h4 class="dynamic-title">Changing context</h4>
-              <span class="dynamic-plus" aria-hidden="true">+</span>
-            </div>
-            <p class="dynamic-summary">Return when the surrounding environment changes.</p>
-          </button>
-          <div class="dynamic-detail">
-            <p>Revisit an organizational system when the surrounding environment changes — even if the system itself has not. Growth, new tooling, dependencies, staffing pressure, or external demands can all change how a system behaves.</p>
-          </div>
-        </article>
-
-        <article class="dynamic-card">
-          <button class="dynamic-toggle" type="button" aria-expanded="false">
-            <p class="dynamic-kicker">Synthesis</p>
-            <div class="dynamic-title-row">
-              <h4 class="dynamic-title">Structural change</h4>
-              <span class="dynamic-plus" aria-hidden="true">+</span>
-            </div>
-            <p class="dynamic-summary">Reassess after a meaningful change to the system itself.</p>
-          </button>
-          <div class="dynamic-detail">
-            <p>Use the same diagnostic after redesigned workflows, new approvals, updated governance, platform changes, or shifts in accountability to see whether conditions improved, held, or worsened.</p>
-          </div>
-        </article>
+```
+<div class="dynamic-wrap">
+  <div class="dynamic-grid">
+    <article class="dynamic-card active">
+      <button class="dynamic-toggle" type="button" aria-expanded="true">
+        <p class="dynamic-kicker">Bounded</p>
+        <div class="dynamic-title-row">
+          <h4 class="dynamic-title">Baseline</h4>
+          <span class="dynamic-plus" aria-hidden="true">+</span>
+        </div>
+        <p class="dynamic-summary">Establish a reference point for one specific organizational system.</p>
+      </button>
+      <div class="dynamic-detail">
+        <p>Use one diagnostic to establish a clear reference point for a specific organizational system so future runs can be interpreted against something stronger than memory, impression, or isolated complaint.</p>
       </div>
-    </div>
+    </article>
+
+    <article class="dynamic-card">
+      <button class="dynamic-toggle" type="button" aria-expanded="false">
+        <p class="dynamic-kicker">Comparative</p>
+        <div class="dynamic-title-row">
+          <h4 class="dynamic-title">Participant lens</h4>
+          <span class="dynamic-plus" aria-hidden="true">+</span>
+        </div>
+        <p class="dynamic-summary">Use the same diagnostic across different participant groups.</p>
+      </button>
+      <div class="dynamic-detail">
+        <p>Use the same diagnostic across different participant groups to see where perspectives on the same organizational system diverge, align, or conceal different kinds of strain over time.</p>
+      </div>
+    </article>
+
+    <article class="dynamic-card">
+      <button class="dynamic-toggle" type="button" aria-expanded="false">
+        <p class="dynamic-kicker">Longitudinal</p>
+        <div class="dynamic-title-row">
+          <h4 class="dynamic-title">Changing context</h4>
+          <span class="dynamic-plus" aria-hidden="true">+</span>
+        </div>
+        <p class="dynamic-summary">Return when the surrounding environment changes.</p>
+      </button>
+      <div class="dynamic-detail">
+        <p>Revisit an organizational system when the surrounding environment changes — even if the system itself has not. Growth, new tooling, dependencies, staffing pressure, or external demands can all change how a system behaves.</p>
+      </div>
+    </article>
+
+    <article class="dynamic-card">
+      <button class="dynamic-toggle" type="button" aria-expanded="false">
+        <p class="dynamic-kicker">Synthesis</p>
+        <div class="dynamic-title-row">
+          <h4 class="dynamic-title">Structural change</h4>
+          <span class="dynamic-plus" aria-hidden="true">+</span>
+        </div>
+        <p class="dynamic-summary">Reassess after a meaningful change to the system itself.</p>
+      </button>
+      <div class="dynamic-detail">
+        <p>Use the same diagnostic after redesigned workflows, new approvals, updated governance, platform changes, or shifts in accountability to see whether conditions improved, held, or worsened.</p>
+      </div>
+    </article>
+  </div>
+</div>
+```
+
   </section>
 
   <section class="bridge" aria-labelledby="advisory-bridge-title">
@@ -2379,17 +2388,18 @@
       </p>
     </div>
 
-    <a class="btn btn-accent" href="platform-services.html">
-      Explore Platform Services
-    </a>
+```
+<a class="btn btn-accent" href="platform-services.html">
+  Explore Platform Services
+</a>
+```
+
   </section>
 
   <p class="footer-copy-top">
     The Monderman Diagnostic Hub is built to support clearer entry, stronger interpretation, and more disciplined return as organizational systems and surrounding conditions evolve.
   </p>
 </div>
-```
-
   </main>
 
   <div class="under-development-modal" id="underDevelopmentModal" aria-hidden="true">
@@ -2431,29 +2441,29 @@
         </div>
 
 ```
-    <div class="footer-nav" aria-label="Footer navigation">
-      <div class="footer-nav-col">
-        <p class="footer-nav-title">Explore</p>
-        <a href="index.html#approach">Approach</a>
-        <a href="diagnostic-hub.html">Diagnostic Hub</a>
-        <a href="research.html">Research</a>
-        <a href="why-monderman.html">Why Monderman</a>
-      </div>
+<div class="footer-nav" aria-label="Footer navigation">
+  <div class="footer-nav-col">
+    <p class="footer-nav-title">Explore</p>
+    <a href="index.html#approach">Approach</a>
+    <a href="diagnostic-hub.html">Diagnostic Hub</a>
+    <a href="research.html">Research</a>
+    <a href="why-monderman.html">Why Monderman</a>
+  </div>
 
-      <div class="footer-nav-col">
-        <p class="footer-nav-title">Connect</p>
-        <a href="connect.html">Open Connect Form</a>
-        <a href="mailto:connect@monderman.com">connect@monderman.com</a>
-      </div>
-    </div>
+  <div class="footer-nav-col">
+    <p class="footer-nav-title">Connect</p>
+    <a href="connect.html">Open Connect Form</a>
+    <a href="mailto:connect@monderman.com">connect@monderman.com</a>
+  </div>
+</div>
+```
+
   </div>
 
   <div class="footer-bottom">
     <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
     <p class="footer-contact">Organizations deliver at the speed of their administrative reality.</p>
   </div>
-```
-
 </div>
 <div class="footer-motif" aria-hidden="true"><svg width="260" height="260" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#4A6FA5" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#5B7A9B" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#4A6FA5" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#5B7A9B" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#6B8FA6" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8BADC5" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#9FBDD1" stroke-width="0.4" opacity="0.13"/><circle r="7" fill="none" stroke="#B0C8D8" stroke-width="0.3" opacity="0.11"/><circle cx="86" cy="-35" r="2.8" fill="#3F6EA1" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#5B7A9B" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#3F6EA1" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#7C5CE8" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#5B7A9B" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#2E86DE" opacity="0.58"/></svg></div>
 </footer>
