@@ -2650,8 +2650,7 @@
         row.className = "saved-context-row";
         row.innerHTML = `
           <p class="saved-context-label">${label}</p>
-          <p class="saved-context-value">${value}</p>
-        `;
+          <p class="saved-context-value">${value}</p>`;
         dynamic.appendChild(row);
       });
     }
@@ -2736,8 +2735,7 @@
             <a class="recent-run-link" href="${run.href || '#'}">Open</a>
           </div>
           <div class="recent-run-meta">${timestamp}</div>
-          <div class="recent-run-copy">${[run.pathName, run.lensLabel, run.depthLabel].filter(Boolean).join(" | ") || "No shared context attached."}</div>
-        `;
+          <div class="recent-run-copy">${[run.pathName, run.lensLabel, run.depthLabel].filter(Boolean).join(" | ") || "No shared context attached."}</div>`;
         list.appendChild(item);
       });
     }
@@ -2839,8 +2837,7 @@
           <div style="display:flex; align-items:center; gap:10px;">
             <span class="file-status ${entry.valid ? "ok" : "bad"}">${entry.valid ? "Valid" : "Invalid"}</span>
             <button class="file-remove" type="button" aria-label="Remove ${sanitizeFileName(entry.name)}">×</button>
-          </div>
-        `;
+          </div>`;
         item.querySelector(".file-remove").addEventListener("click", () => {
           uploadedFiles.splice(index, 1);
           syncSynthesisState();
