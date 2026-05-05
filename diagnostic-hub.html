@@ -205,14 +205,16 @@
       overflow:hidden;
       background:
         linear-gradient(90deg,
-          rgba(8,13,20,.97) 0%,
-          rgba(8,13,20,.92) 24%,
-          rgba(8,13,20,.72) 46%,
-          rgba(8,13,20,.38) 68%,
-          rgba(8,13,20,.14) 88%,
-          rgba(8,13,20,.06) 100%
+          rgba(8,13,20,.99) 0%,
+          rgba(8,13,20,.97) 20%,
+          rgba(8,13,20,.88) 38%,
+          rgba(8,13,20,.70) 55%,
+          rgba(8,13,20,.52) 72%,
+          rgba(8,13,20,.36) 86%,
+          rgba(8,13,20,.22) 100%
         ),
-        radial-gradient(circle at 18% 50%, rgba(5,8,12,.40) 0%, transparent 54%),
+        radial-gradient(circle at 16% 50%, rgba(4,7,12,.55) 0%, transparent 52%),
+        linear-gradient(180deg, rgba(8,13,20,.55) 0%, rgba(8,13,20,.18) 40%, rgba(8,13,20,.45) 100%),
         var(--hero-image) center/cover no-repeat,
         linear-gradient(180deg, #080D14 0%, #0F1720 100%);
     }
@@ -228,7 +230,7 @@
       max-width:var(--max);
       min-height:52vh;
       margin:0 auto;
-      padding:110px 34px 80px;
+      padding:110px 34px 90px;
       display:flex;
       flex-direction:column;
       justify-content:center;
@@ -1835,15 +1837,12 @@
           Track where structure, decision flow, process burden, and institutional performance are strengthening, drifting, or accumulating drag — across teams, levels, and time.
         </p>
 
-```
 <div class="hero-actions">
   <a class="btn btn-accent" href="#diagnostic-portals">Launch diagnostics</a>
   <a class="btn" href="#cross-diagnostic-synthesis">Cross-diagnostic analysis</a>
 </div>
 
 <div class="context-chip" id="currentPathChip"></div>
-```
-
   </div>
 
 </div>
@@ -1851,7 +1850,6 @@
 
   <main class="page">
 
-```
 <div class="page-rail" aria-label="How the hub is designed to be used">
   <div class="page-rail-item">
     <p class="page-rail-label">Bounded first run</p>
@@ -1869,8 +1867,6 @@
     <p class="page-rail-copy">The same organizational system can feel very different across operational, managerial, and leadership vantage points.</p>
   </div>
 </div>
-```
-
 <div class="page-inner">
   <div class="head">
     <div>
@@ -1891,7 +1887,6 @@
       Start with the strongest visible issue, keep the first run bounded, and return when the surrounding conditions change. The hub is designed to help you choose quickly without losing the discipline needed for repeat use.
     </p>
 
-```
 <div class="use-grid">
   <div class="use-card">
     <p class="use-step">01</p>
@@ -1911,15 +1906,12 @@
     <p class="use-text">Reassess after redesign, growth, or external change to see whether the system improved, held, or absorbed new strain.</p>
   </div>
 </div>
-```
-
   </section>
 
   <section class="panel">
     <h3>Choose the right starting point</h3>
     <p>Start with the clearest visible issue. Use the matrix below to choose the best first lens quickly.</p>
 
-```
 <div class="matrix-grid">
   <article class="matrix-card">
     <p class="matrix-kicker">Ambiguity</p>
@@ -2013,8 +2005,6 @@
     </div>
   </article>
 </div>
-```
-
   </section>
 
   <section class="tools-section" id="tool-launch">
@@ -2036,7 +2026,6 @@
       </div>
     </div>
 
-```
 <section class="shared-context-shell" id="hub-context-panel" aria-label="Shared run context">
   <div class="shared-context-card">
     <div class="shared-context-top">
@@ -2049,107 +2038,110 @@
     </div>
     <p class="context-helper">Keep it narrow: one event path, one participant lens, one depth, and one operating slice. Skip this if you are only running one diagnostic or if the context will change between runs.</p>
 
-    <div class="context-summary" id="hubContextSummary" aria-live="polite">
-      <div class="context-pill">
-        <p class="context-pill-label">Current path</p>
-        <p class="context-pill-value" id="summaryPath">Not set</p>
-      </div>
-      <div class="context-pill">
-        <p class="context-pill-label">Participant lens</p>
-        <p class="context-pill-value" id="summaryLens">Not set</p>
-      </div>
-      <div class="context-pill">
-        <p class="context-pill-label">Run depth</p>
-        <p class="context-pill-value" id="summaryDepth">Not set</p>
-      </div>
-    </div>
+```
+<div class="context-summary" id="hubContextSummary" aria-live="polite">
+  <div class="context-pill">
+    <p class="context-pill-label">Current path</p>
+    <p class="context-pill-value" id="summaryPath">Not set</p>
+  </div>
+  <div class="context-pill">
+    <p class="context-pill-label">Participant lens</p>
+    <p class="context-pill-value" id="summaryLens">Not set</p>
+  </div>
+  <div class="context-pill">
+    <p class="context-pill-label">Run depth</p>
+    <p class="context-pill-value" id="summaryDepth">Not set</p>
+  </div>
+</div>
 
-    <div class="context-form">
-      <div class="context-field context-span-2">
-        <label for="ctxPathName">Current event path</label>
-        <input id="ctxPathName" type="text" placeholder="e.g. Contract review escalation" />
-      </div>
-      <div class="context-field">
-        <label for="ctxLens">Participant lens</label>
-        <select id="ctxLens">
-          <option value="">Select one</option>
-          <option value="operational">Operational</option>
-          <option value="managerial">Managerial</option>
-          <option value="executive">Executive</option>
-        </select>
-      </div>
-      <div class="context-field">
-        <label for="ctxDepth">Run depth</label>
-        <select id="ctxDepth">
-          <option value="">Select one</option>
-          <option value="10">10-minute diagnostic</option>
-          <option value="30">30-minute diagnostic</option>
-          <option value="60">60-minute diagnostic</option>
-        </select>
-      </div>
-      <div class="context-field context-span-2">
-        <label for="ctxBusinessUnit">Team or function</label>
-        <input id="ctxBusinessUnit" type="text" placeholder="e.g. Operations" />
-      </div>
-    </div>
+<div class="context-form">
+  <div class="context-field context-span-2">
+    <label for="ctxPathName">Current event path</label>
+    <input id="ctxPathName" type="text" placeholder="e.g. Contract review escalation" />
+  </div>
+  <div class="context-field">
+    <label for="ctxLens">Participant lens</label>
+    <select id="ctxLens">
+      <option value="">Select one</option>
+      <option value="operational">Operational</option>
+      <option value="managerial">Managerial</option>
+      <option value="executive">Executive</option>
+    </select>
+  </div>
+  <div class="context-field">
+    <label for="ctxDepth">Run depth</label>
+    <select id="ctxDepth">
+      <option value="">Select one</option>
+      <option value="10">10-minute diagnostic</option>
+      <option value="30">30-minute diagnostic</option>
+      <option value="60">60-minute diagnostic</option>
+    </select>
+  </div>
+  <div class="context-field context-span-2">
+    <label for="ctxBusinessUnit">Team or function</label>
+    <input id="ctxBusinessUnit" type="text" placeholder="e.g. Operations" />
+  </div>
+</div>
 
-    <details class="context-disclosure">
-      <summary>Add more context</summary>
-      <div class="context-secondary-grid">
-        <div class="context-field">
-          <label for="ctxDecisionType">Path type</label>
-          <select id="ctxDecisionType">
-            <option value="">Select one</option>
-            <option value="procurement">Procurement / vendor</option>
-            <option value="hiring">Hiring / staffing</option>
-            <option value="budget">Budget / funding</option>
-            <option value="policy">Policy / governance</option>
-            <option value="program">Program / project</option>
-            <option value="risk">Risk / exception</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-        <div class="context-field">
-          <label for="ctxIndustry">Industry</label>
-          <select id="ctxIndustry">
-            <option value="">Select one</option>
-            <option value="government_defense">Government / defense</option>
-            <option value="financial_services">Financial services</option>
-            <option value="healthcare_life_sciences">Healthcare / life sciences</option>
-            <option value="technology_software">Technology / software</option>
-            <option value="manufacturing_industrial">Manufacturing / industrial</option>
-            <option value="energy_utilities">Energy / utilities</option>
-            <option value="retail_consumer">Retail / consumer</option>
-            <option value="education_nonprofit">Education / nonprofit</option>
-            <option value="professional_services">Professional services</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-        <div class="context-field">
-          <label for="ctxRegulatoryIntensity">Regulatory intensity</label>
-          <select id="ctxRegulatoryIntensity">
-            <option value="">Select one</option>
-            <option value="low">Lower-regulation environment</option>
-            <option value="moderate">Moderate-regulation environment</option>
-            <option value="high">High-regulation environment</option>
-          </select>
-        </div>
-        <div class="context-field">
-          <label for="ctxEmployeeCount">Organization size</label>
-          <input id="ctxEmployeeCount" type="number" min="1" placeholder="e.g. 2400" />
-        </div>
-        <div class="context-field context-span-2">
-          <label for="ctxDescription">Short issue summary</label>
-          <textarea id="ctxDescription" placeholder="Brief note to carry across runs."></textarea>
-        </div>
-      </div>
-    </details>
-
-    <div class="context-actions">
-      <button class="btn btn-accent" type="button" id="saveHubContextBtn">Save shared context</button>
-      <button class="btn btn-subtle" type="button" id="clearHubContextBtn">Clear context</button>
+<details class="context-disclosure">
+  <summary>Add more context</summary>
+  <div class="context-secondary-grid">
+    <div class="context-field">
+      <label for="ctxDecisionType">Path type</label>
+      <select id="ctxDecisionType">
+        <option value="">Select one</option>
+        <option value="procurement">Procurement / vendor</option>
+        <option value="hiring">Hiring / staffing</option>
+        <option value="budget">Budget / funding</option>
+        <option value="policy">Policy / governance</option>
+        <option value="program">Program / project</option>
+        <option value="risk">Risk / exception</option>
+        <option value="other">Other</option>
+      </select>
     </div>
-    <p class="context-status" id="hubContextStatus">No shared context saved in this browser yet.</p>
+    <div class="context-field">
+      <label for="ctxIndustry">Industry</label>
+      <select id="ctxIndustry">
+        <option value="">Select one</option>
+        <option value="government_defense">Government / defense</option>
+        <option value="financial_services">Financial services</option>
+        <option value="healthcare_life_sciences">Healthcare / life sciences</option>
+        <option value="technology_software">Technology / software</option>
+        <option value="manufacturing_industrial">Manufacturing / industrial</option>
+        <option value="energy_utilities">Energy / utilities</option>
+        <option value="retail_consumer">Retail / consumer</option>
+        <option value="education_nonprofit">Education / nonprofit</option>
+        <option value="professional_services">Professional services</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="context-field">
+      <label for="ctxRegulatoryIntensity">Regulatory intensity</label>
+      <select id="ctxRegulatoryIntensity">
+        <option value="">Select one</option>
+        <option value="low">Lower-regulation environment</option>
+        <option value="moderate">Moderate-regulation environment</option>
+        <option value="high">High-regulation environment</option>
+      </select>
+    </div>
+    <div class="context-field">
+      <label for="ctxEmployeeCount">Organization size</label>
+      <input id="ctxEmployeeCount" type="number" min="1" placeholder="e.g. 2400" />
+    </div>
+    <div class="context-field context-span-2">
+      <label for="ctxDescription">Short issue summary</label>
+      <textarea id="ctxDescription" placeholder="Brief note to carry across runs."></textarea>
+    </div>
+  </div>
+</details>
+
+<div class="context-actions">
+  <button class="btn btn-accent" type="button" id="saveHubContextBtn">Save shared context</button>
+  <button class="btn btn-subtle" type="button" id="clearHubContextBtn">Clear context</button>
+</div>
+<p class="context-status" id="hubContextStatus">No shared context saved in this browser yet.</p>
+```
+
   </div>
 
   <div style="display:grid; gap:18px;">
@@ -2161,13 +2153,16 @@
       <div class="recent-run-empty" id="savedContextEmpty">No shared context saved yet. Save a baseline on the left to reuse it across diagnostics.</div>
     </aside>
 
-    <aside class="recent-runs-card">
-      <p class="recent-runs-kicker">Local continuity</p>
-      <h4 class="recent-runs-title">Recent runs on this device</h4>
-      <p>Quick return links for the last few diagnostics launched from this browser. This stays local to this device and can be cleared any time.</p>
-      <div class="recent-runs-list" id="recentRunsList"></div>
-      <div class="recent-run-empty" id="recentRunsEmpty">No recent runs yet. Once you complete diagnostics, the last 3–5 runs will appear here.</div>
-    </aside>
+```
+<aside class="recent-runs-card">
+  <p class="recent-runs-kicker">Local continuity</p>
+  <h4 class="recent-runs-title">Recent runs on this device</h4>
+  <p>Quick return links for the last few diagnostics launched from this browser. This stays local to this device and can be cleared any time.</p>
+  <div class="recent-runs-list" id="recentRunsList"></div>
+  <div class="recent-run-empty" id="recentRunsEmpty">No recent runs yet. Once you complete diagnostics, the last 3–5 runs will appear here.</div>
+</aside>
+```
+
   </div>
 </section>
 
@@ -2186,20 +2181,23 @@
       </div>
       <div class="tool-card-top">
         <div class="tool-badge status-under-development">Under Development</div>
-        
-      </div>
-      <h3 class="tool-title">Structural Clarity Diagnostic</h3>
-      <p class="tool-subline">Roles · ownership · handoffs</p>
-      <p class="tool-text">
-        Assess whether ownership, authority, and review logic are clear enough for one bounded workflow or operating slice.
-      </p>
-      <p class="tool-meta-label">Best when</p>
-      <p class="tool-meta">
-        The issue feels like ambiguity, ownership confusion, handoff multiplication, or role-boundary drift.
-      </p>
-      
-      <span class="tool-open">Open diagnostic &#8594;</span>
-    </a>
+
+```
+  </div>
+  <h3 class="tool-title">Structural Clarity Diagnostic</h3>
+  <p class="tool-subline">Roles · ownership · handoffs</p>
+  <p class="tool-text">
+    Assess whether ownership, authority, and review logic are clear enough for one bounded workflow or operating slice.
+  </p>
+  <p class="tool-meta-label">Best when</p>
+  <p class="tool-meta">
+    The issue feels like ambiguity, ownership confusion, handoff multiplication, or role-boundary drift.
+  </p>
+  
+  <span class="tool-open">Open diagnostic &#8594;</span>
+</a>
+```
+
   </article>
 
   <article class="tool-card" data-tool-key="decision-velocity">
@@ -2298,13 +2296,14 @@
       <input id="synthesisFileInput" type="file" accept=".json,application/json" multiple aria-label="Upload saved Monderman JSON result files" />
     </label>
 
-    <div class="validation-message" id="validationMessage" aria-live="polite"></div>
-    <div class="file-list" id="fileList" aria-live="polite"></div>
+```
+<div class="validation-message" id="validationMessage" aria-live="polite"></div>
+<div class="file-list" id="fileList" aria-live="polite"></div>
 
-    <div class="synthesis-actions">
-      <p class="synthesis-note">Your saved result files stay on your device until you choose to upload them for synthesis in this session. Monderman does not retain them automatically.</p>
-      <button class="btn btn-accent" id="synthesizeBtn" type="button" disabled>Synthesize Results</button>
-    </div>
+<div class="synthesis-actions">
+  <p class="synthesis-note">Your saved result files stay on your device until you choose to upload them for synthesis in this session. Monderman does not retain them automatically.</p>
+  <button class="btn btn-accent" id="synthesizeBtn" type="button" disabled>Synthesize Results</button>
+</div>
 ```
 
 </div>
@@ -2315,7 +2314,6 @@
     <h3>How repeated use creates value</h3>
     <p>The hub delivers its strongest value when it is used repeatedly to govern organizational systems over time, across changing conditions, and through different participant lenses.</p>
 
-```
 <div class="dynamic-wrap">
   <div class="dynamic-grid">
     <article class="dynamic-card active">
@@ -2332,51 +2330,52 @@
       </div>
     </article>
 
-    <article class="dynamic-card">
-      <button class="dynamic-toggle" type="button" aria-expanded="false">
-        <p class="dynamic-kicker">Comparative</p>
-        <div class="dynamic-title-row">
-          <h4 class="dynamic-title">Participant lens</h4>
-          <span class="dynamic-plus" aria-hidden="true">+</span>
-        </div>
-        <p class="dynamic-summary">Use the same diagnostic across different participant groups.</p>
-      </button>
-      <div class="dynamic-detail">
-        <p>Use the same diagnostic across different participant groups to see where perspectives on the same organizational system diverge, align, or conceal different kinds of strain over time.</p>
-      </div>
-    </article>
-
-    <article class="dynamic-card">
-      <button class="dynamic-toggle" type="button" aria-expanded="false">
-        <p class="dynamic-kicker">Longitudinal</p>
-        <div class="dynamic-title-row">
-          <h4 class="dynamic-title">Changing context</h4>
-          <span class="dynamic-plus" aria-hidden="true">+</span>
-        </div>
-        <p class="dynamic-summary">Return when the surrounding environment changes.</p>
-      </button>
-      <div class="dynamic-detail">
-        <p>Revisit an organizational system when the surrounding environment changes — even if the system itself has not. Growth, new tooling, dependencies, staffing pressure, or external demands can all change how a system behaves.</p>
-      </div>
-    </article>
-
-    <article class="dynamic-card">
-      <button class="dynamic-toggle" type="button" aria-expanded="false">
-        <p class="dynamic-kicker">Synthesis</p>
-        <div class="dynamic-title-row">
-          <h4 class="dynamic-title">Structural change</h4>
-          <span class="dynamic-plus" aria-hidden="true">+</span>
-        </div>
-        <p class="dynamic-summary">Reassess after a meaningful change to the system itself.</p>
-      </button>
-      <div class="dynamic-detail">
-        <p>Use the same diagnostic after redesigned workflows, new approvals, updated governance, platform changes, or shifts in accountability to see whether conditions improved, held, or worsened.</p>
-      </div>
-    </article>
+```
+<article class="dynamic-card">
+  <button class="dynamic-toggle" type="button" aria-expanded="false">
+    <p class="dynamic-kicker">Comparative</p>
+    <div class="dynamic-title-row">
+      <h4 class="dynamic-title">Participant lens</h4>
+      <span class="dynamic-plus" aria-hidden="true">+</span>
+    </div>
+    <p class="dynamic-summary">Use the same diagnostic across different participant groups.</p>
+  </button>
+  <div class="dynamic-detail">
+    <p>Use the same diagnostic across different participant groups to see where perspectives on the same organizational system diverge, align, or conceal different kinds of strain over time.</p>
   </div>
-</div>
+</article>
+
+<article class="dynamic-card">
+  <button class="dynamic-toggle" type="button" aria-expanded="false">
+    <p class="dynamic-kicker">Longitudinal</p>
+    <div class="dynamic-title-row">
+      <h4 class="dynamic-title">Changing context</h4>
+      <span class="dynamic-plus" aria-hidden="true">+</span>
+    </div>
+    <p class="dynamic-summary">Return when the surrounding environment changes.</p>
+  </button>
+  <div class="dynamic-detail">
+    <p>Revisit an organizational system when the surrounding environment changes — even if the system itself has not. Growth, new tooling, dependencies, staffing pressure, or external demands can all change how a system behaves.</p>
+  </div>
+</article>
+
+<article class="dynamic-card">
+  <button class="dynamic-toggle" type="button" aria-expanded="false">
+    <p class="dynamic-kicker">Synthesis</p>
+    <div class="dynamic-title-row">
+      <h4 class="dynamic-title">Structural change</h4>
+      <span class="dynamic-plus" aria-hidden="true">+</span>
+    </div>
+    <p class="dynamic-summary">Reassess after a meaningful change to the system itself.</p>
+  </button>
+  <div class="dynamic-detail">
+    <p>Use the same diagnostic after redesigned workflows, new approvals, updated governance, platform changes, or shifts in accountability to see whether conditions improved, held, or worsened.</p>
+  </div>
+</article>
 ```
 
+  </div>
+</div>
   </section>
 
   <section class="bridge" aria-labelledby="advisory-bridge-title">
@@ -2388,12 +2387,9 @@
       </p>
     </div>
 
-```
 <a class="btn btn-accent" href="platform-services.html">
   Explore Platform Services
 </a>
-```
-
   </section>
 
   <p class="footer-copy-top">
@@ -2440,7 +2436,6 @@
           </p>
         </div>
 
-```
 <div class="footer-nav" aria-label="Footer navigation">
   <div class="footer-nav-col">
     <p class="footer-nav-title">Explore</p>
@@ -2456,8 +2451,6 @@
     <a href="mailto:connect@monderman.com">connect@monderman.com</a>
   </div>
 </div>
-```
-
   </div>
 
   <div class="footer-bottom">
