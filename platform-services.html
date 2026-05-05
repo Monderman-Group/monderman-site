@@ -197,15 +197,16 @@
     .brand {
       display: inline-flex;
       align-items: center;
+      gap: 0;
       font-size: 1.32rem;
       font-weight: 700;
       letter-spacing: -0.02em;
       color: #FFFFFF;
       white-space: nowrap;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.16);
     }
-
-    .brand::after {
-      content: "";
+    .brand::after { display: none; }
+    .brand-dot {
       width: 6px;
       height: 6px;
       margin-left: 10px;
@@ -213,6 +214,20 @@
       border-radius: 1px;
       display: inline-block;
       transform: translateY(-1px);
+      flex-shrink: 0;
+    }
+    .brand-tagline {
+      margin-left: 12px;
+      padding-left: 12px;
+      border-left: 1px solid rgba(255,255,255,0.25);
+      font-size: 0.62rem;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.68);
+      text-shadow: none;
+      line-height: 1;
+      align-self: center;
     }
 
     .nav {
@@ -1354,7 +1369,7 @@
     text-align: left;
   }
 }
-        .footer {
+    .footer {
       position: relative;
       overflow: hidden;
     }
@@ -1370,20 +1385,21 @@
       position: relative;
       z-index: 1;
     }
-    </style>
+
+</style>
 </head>
 <body>
   <div class="reading-progress" id="readingProgress" role="progressbar" aria-label="Reading progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
   <header class="header" id="siteHeader">
     <div class="header-inner">
-      <a href="index.html" class="brand">Monderman</a>
+      <a href="index.html" class="brand">Monderman<span class="brand-dot"></span><span class="brand-tagline">Measure the conditions. Own the outcome.</span></a>
 
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
-        <a href="diagnostic-hub.html">Diagnostic Hub</a>
+        <a href="diagnostic-tools.html">Diagnostic Hub</a>
         <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
-        <a href="connect.html">Connect</a>
+        <a href="advisory-services-connect.html">Connect</a>
         <a href="signin.html" class="workspace-link">Workspace</a>
       </nav>
     </div>
@@ -1392,17 +1408,17 @@
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero-inner">
       <div class="hero-copy">
-        <p class="hero-eyebrow">Platform Services</p>
+        <p class="hero-eyebrow">Monderman Platform Services</p>
 
-        <h1 id="hero-title">Structured support for institutions that need more than a diagnostic.</h1>
+        <h1 id="hero-title">Subscription access, analyst review, and platform support for institutions using Monderman over time.</h1>
 
         <p class="hero-dek">
-          Some institutional conditions require interpretation, calibration, or sustained diagnostic practice that a single run cannot provide. These offerings extend the platform's precision — through analyst review, subscription access, and direct configuration support — for organizations running Monderman across teams, cycles, and leadership levels.
+          Monderman is a software company. These offerings—subscription access, guided analysis, platform setup, and diagnostic tailoring—exist to help institutions adopt the platform correctly, extend its precision, and sustain recurring use across teams, cohorts, and time horizons.
         </p>
 
         <div class="hero-actions">
-          <a class="btn btn-accent" href="https://www.monderman.com/connect.html" target="_blank" rel="noopener noreferrer">Request platform support</a>
-          <a class="btn btn-secondary" href="diagnostic-hub.html">Open Diagnostic Hub</a>
+          <a class="btn btn-accent" href="https://www.monderman.com/advisory-services-connect.html" target="_blank" rel="noopener noreferrer">Request platform support</a>
+          <a class="btn btn-secondary" href="diagnostic-tools.html">Open Diagnostic Hub</a>
         </div>
       </div>
     </div>
@@ -1489,7 +1505,7 @@
             Best when the value is in longitudinal comparison, institutional adoption, and repeated measurement—not a one-time diagnostic run.
           </p>
 
-          <a class="btn btn-accent entry-detail-btn" href="https://www.monderman.com/connect.html" target="_blank" rel="noopener noreferrer">Request platform support</a>
+          <a class="btn btn-accent entry-detail-btn" href="https://www.monderman.com/advisory-services-connect.html" target="_blank" rel="noopener noreferrer">Request platform support</a>
         </aside>
       </div>
     </div>
@@ -1653,26 +1669,26 @@
           <div class="footer-nav-col">
             <p class="footer-nav-title">Explore</p>
             <a href="index.html#approach">Approach</a>
-            <a href="diagnostic-hub.html">Diagnostic Hub</a>
+            <a href="diagnostic-tools.html">Diagnostic Hub</a>
             <a href="research.html">Research</a>
             <a href="why-monderman.html">Why Monderman</a>
           </div>
 
           <div class="footer-nav-col">
             <p class="footer-nav-title">Connect</p>
-            <a href="connect.html">Open Connect Form</a>
+            <a href="advisory-services-connect.html">Open Connect Form</a>
             <a href="mailto:connect@monderman.com">connect@monderman.com</a>
           </div>
         </div>
       </div>
 
       <div class="footer-bottom">
+        <div class="footer-motif" aria-hidden="true"><svg width="260" height="260" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#4A6FA5" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#5B7A9B" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#4A6FA5" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#5B7A9B" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#6B8FA6" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8BADC5" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#9FBDD1" stroke-width="0.4" opacity="0.13"/><circle r="7" fill="none" stroke="#B0C8D8" stroke-width="0.3" opacity="0.11"/><circle cx="86" cy="-35" r="2.8" fill="#3F6EA1" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#5B7A9B" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#3F6EA1" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#7C5CE8" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#5B7A9B" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#2E86DE" opacity="0.58"/></svg></div>
         <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
         <p class="footer-contact">Organizations deliver at the speed of their administrative reality.</p>
       </div>
-</div>
-<div class="footer-motif" aria-hidden="true"><svg width="260" height="260" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#4A6FA5" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#5B7A9B" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#4A6FA5" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#5B7A9B" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#6B8FA6" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8BADC5" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#9FBDD1" stroke-width="0.4" opacity="0.13"/><circle r="7" fill="none" stroke="#B0C8D8" stroke-width="0.3" opacity="0.11"/><circle cx="86" cy="-35" r="2.8" fill="#3F6EA1" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#5B7A9B" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#3F6EA1" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#7C5CE8" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#5B7A9B" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#2E86DE" opacity="0.58"/></svg></div>
-</footer>
+    </div>
+  </footer>
 
   <script>
     const header = document.getElementById("siteHeader");
