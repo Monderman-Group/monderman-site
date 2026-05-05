@@ -205,32 +205,6 @@
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
     }
 
-    /* brand dot handled by .brand-dot span */
-    .brand::after { display: none; }
-    .brand-dot {
-      width: 6px;
-      height: 6px;
-      margin-left: 10px;
-      background: var(--accent);
-      border-radius: 1px;
-      display: inline-block;
-      transform: translateY(-1px);
-      flex-shrink: 0;
-    }
-    .brand-tagline {
-      margin-left: 12px;
-      padding-left: 12px;
-      border-left: 1px solid rgba(255,255,255,0.25);
-      font-size: 0.62rem;
-      font-weight: 500;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.68);
-      text-shadow: none;
-      line-height: 1;
-      align-self: center;
-    }
-
     .nav {
       display: flex;
       align-items: center;
@@ -2266,7 +2240,7 @@
     }
     </style>
 
-  <!-- Infographic embedded styles -->
+  <!-- Infographic embedded styles (scoped) -->
   <style>
 
 @font-face {
@@ -2279,7 +2253,7 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-:root {
+.infographic-embed {
   --navy:        #0D1B35;
   --navy-mid:    #1B3A6B;
   --blue:        #1E5799;
@@ -2739,11 +2713,6 @@
   margin-left: 16px;
 }
 
-
-  /* Mobile scroll for embedded infographic */
-  .infographic-frame .infographic-embed {
-    min-width: 1440px;
-  }
   </style>
 </head>
 <body>
@@ -3867,6 +3836,26 @@ const revealItems = document.querySelectorAll(".reveal");
 
       revealItems.forEach((item) => revealObserver.observe(item));
     }
+  </script>
+
+  <script>
+    (function() {
+      function scaleInfographic() {
+        var frame = document.querySelector('.infographic-frame');
+        var embed = document.querySelector('.infographic-embed');
+        if (!frame || !embed) return;
+        var scale = (frame.clientWidth - 20) / 1440;
+        embed.style.transform = 'scale(' + scale + ')';
+        embed.style.transformOrigin = 'top left';
+        frame.style.height = Math.round(embed.scrollHeight * scale) + 'px';
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', scaleInfographic);
+      } else {
+        scaleInfographic();
+      }
+      window.addEventListener('resize', scaleInfographic);
+    })();
   </script>
 </body>
 </html>
