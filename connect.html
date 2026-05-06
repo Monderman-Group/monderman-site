@@ -195,18 +195,19 @@
     .nav {
       display: flex;
       align-items: center;
-      gap: 24px;
-      flex-wrap: wrap;
+      gap: 20px;
+      flex-wrap: nowrap;
       justify-content: flex-end;
     }
 
     .nav a {
       position: relative;
-      font-size: 1rem;
+      font-size: 0.9rem;
       font-weight: 500;
       letter-spacing: 0.012em;
       color: rgba(255, 255, 255, 0.88);
       transition: color var(--transition), transform var(--transition);
+      white-space: nowrap;
     }
 
     .nav a::after {
@@ -874,6 +875,8 @@
       background: #0D141C;
       color: rgba(245, 247, 250, 0.88);
       padding: 50px 34px 38px;
+      position: relative;
+      overflow: hidden;
     }
 
     .footer-inner {
@@ -1125,8 +1128,24 @@
     text-align: left;
   }
 }
+    .footer-motif {
+      position: absolute;
+      bottom: -65px;
+      right: -65px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .footer-top, .footer-bottom, .footer-inner, .footer-brand,
+    .footer-nav, .footer-copy, .footer-meta, .footer-contact {
+      position: relative;
+      z-index: 1;
+    }
 
-</style>
+
+    @media (max-width: 1280px) {
+      .brand-tagline { display: none; }
+    }
+  </style>
 </head>
 <body>
   <header class="header" id="siteHeader">
