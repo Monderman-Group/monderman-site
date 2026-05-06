@@ -192,7 +192,14 @@
     .nav a:hover,
     .nav a:focus-visible { color: #FFFFFF; transform: translateY(-1px); outline: none; }
     .nav a:hover::after,
-    .nav a:focus-visible::after { transform: scaleX(1); }
+    .nav a:focus-visible::after,
+    .nav a.is-active::after { transform: scaleX(1); }
+
+    .nav a.is-active {
+      color: var(--accent);
+      transform: none;
+      outline: none;
+    }
 
     .nav a.workspace-link {
       display: inline-flex;
@@ -1691,6 +1698,7 @@
 <a href="diagnostic-hub.html">Diagnostic Hub</a>
 <a href="research.html">Research</a>
 <a href="why-monderman.html">Why Monderman</a>
+<a href="platform-services.html">Platform Services</a>
 <a href="connect.html">Connect</a>
 <a class="workspace-link" href="workspace.html">Workspace</a>
 </nav>
@@ -1710,7 +1718,7 @@
         </p>
 <div class="hero-actions">
 <a class="btn btn-accent" href="diagnostic-hub.html">Run a First Diagnostic</a>
-<a class="btn btn-secondary" href="connect.html">Platform Services</a>
+<a class="btn btn-secondary" href="platform-services.html">Platform Services</a>
 </div>
 </div>
 </div>
