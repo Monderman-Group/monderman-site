@@ -156,16 +156,17 @@
     .nav{
       display:flex;
       align-items:center;
-      gap:24px;
-      flex-wrap:wrap;
+      gap: 20px;
+      flex-wrap: nowrap;
       justify-content:flex-end;
     }
     .nav a{
       position:relative;
-      font-size:1rem;
+      font-size: 0.9rem;
       font-weight:500;
       color:rgba(245,247,250,.72);
       transition:color var(--transition), transform var(--transition);
+      white-space: nowrap;
     }
     .nav a::after{
       content:"";
@@ -1811,7 +1812,11 @@
       position: relative;
       z-index: 1;
     }
-    </style>
+    
+    @media (max-width: 1280px) {
+      .brand-tagline { display: none; }
+    }
+  </style>
 
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
 
