@@ -164,10 +164,11 @@
       color: #FFFFFF;
       white-space: nowrap;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
+      gap: 0;
     }
 
-    .brand::after {
-      content: "";
+    .brand::after { display: none; }
+    .brand-dot {
       width: 6px;
       height: 6px;
       margin-left: 10px;
@@ -175,6 +176,20 @@
       border-radius: 1px;
       display: inline-block;
       transform: translateY(-1px);
+      flex-shrink: 0;
+    }
+    .brand-tagline {
+      margin-left: 12px;
+      padding-left: 12px;
+      border-left: 1px solid rgba(255,255,255,0.25);
+      font-size: 0.62rem;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.68);
+      text-shadow: none;
+      line-height: 1;
+      align-self: center;
     }
 
     .nav {
@@ -210,8 +225,8 @@
     .nav a:hover,
     .nav a:focus-visible,
     .nav a.is-active {
-      color: #FFFFFF;
-      transform: translateY(-1px);
+      color: var(--accent);
+      transform: none;
       outline: none;
     }
 
@@ -297,7 +312,7 @@
     .hero h1 {
       margin: 0 0 20px;
       max-width: 16ch;
-      font-size: clamp(3rem, 4.3vw, 4.45rem);
+      font-size: clamp(3rem, 4.44vw, 64px);
       line-height: 0.95;
       font-weight: 700;
       color: #FFFFFF;
@@ -309,7 +324,7 @@
     .hero-dek {
       max-width: 43ch;
       margin: 0;
-      font-size: clamp(1.12rem, 1.5vw, 1.22rem);
+      font-size: 17px;
       line-height: 1.6;
       letter-spacing: -0.014em;
       color: var(--muted-light);
@@ -1116,13 +1131,14 @@
 <body>
   <header class="header" id="siteHeader">
     <div class="header-inner">
-      <a href="index.html" class="brand">Monderman</a>
+      <a href="index.html" class="brand">Monderman<span class="brand-dot"></span><span class="brand-tagline">Measure the conditions. Own the outcome.</span></a>
 
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
         <a href="diagnostic-hub.html">Diagnostic Hub</a>
         <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
+        <a href="platform-services.html">Platform Services</a>
         <a href="connect.html" class="is-active">Connect</a>
       </nav>
     </div>
@@ -1433,6 +1449,7 @@
         <p class="footer-contact">Organizations deliver at the speed of their administrative reality.</p>
       </div>
     </div>
+  <div class="footer-motif" aria-hidden="true"><svg width="260" height="260" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#4A6FA5" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#5B7A9B" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#4A6FA5" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#5B7A9B" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#6B8FA6" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8BADC5" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#9FBDD1" stroke-width="0.4" opacity="0.13"/><circle r="7" fill="none" stroke="#B0C8D8" stroke-width="0.3" opacity="0.11"/><circle cx="86" cy="-35" r="2.8" fill="#3F6EA1" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#5B7A9B" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#3F6EA1" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#7C5CE8" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#5B7A9B" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#2E86DE" opacity="0.58"/></svg></div>
   </footer>
 
   <script>
