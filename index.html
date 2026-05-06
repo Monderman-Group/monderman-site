@@ -166,7 +166,7 @@
       display: flex;
       align-items: center;
       gap: 24px;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       justify-content: flex-end;
     }
     .nav a {
@@ -1689,7 +1689,11 @@
       position: relative;
       z-index: 1;
     }
-    </style>
+    
+    @media (max-width: 1280px) {
+      .brand-tagline { display: none; }
+    }
+  </style>
 </head>
 <body>
 <header class="header" id="siteHeader">
@@ -1720,7 +1724,7 @@
         </p>
 <div class="hero-actions">
 <a class="btn btn-accent" href="diagnostic-hub.html">Run a First Diagnostic</a>
-<a class="btn btn-secondary" href="platform-services.html">Platform Services</a>
+<a class="btn btn-secondary" href="connect.html">Platform Services</a>
 </div>
 </div>
 </div>
