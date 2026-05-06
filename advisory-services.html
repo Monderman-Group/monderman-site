@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -977,6 +978,8 @@
       background: #0D141C;
       color: rgba(245, 247, 250, 0.88);
       padding: 50px 34px 38px;
+      position: relative;
+      overflow: hidden;
     }
 
     .footer-inner {
@@ -1369,10 +1372,6 @@
     text-align: left;
   }
 }
-    .footer {
-      position: relative;
-      overflow: hidden;
-    }
     .footer-motif {
       position: absolute;
       bottom: -65px;
@@ -1387,6 +1386,7 @@
     }
 
 </style>
+
 </head>
 <body>
   <div class="reading-progress" id="readingProgress" role="progressbar" aria-label="Reading progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
@@ -1394,15 +1394,18 @@
     <div class="header-inner">
       <a href="index.html" class="brand">Monderman<span class="brand-dot"></span><span class="brand-tagline">Measure the conditions. Own the outcome.</span></a>
 
-      <nav class="nav" aria-label="Primary navigation">
-        <a href="index.html#approach">Approach</a>
-        <a href="diagnostic-tools.html">Diagnostic Hub</a>
-        <a href="research.html">Research</a>
-        <a href="why-monderman.html">Why Monderman</a>
-        <a href="advisory-services-connect.html">Connect</a>
-        <a href="signin.html" class="workspace-link">Workspace</a>
-      </nav>
-    </div>
+```
+  <nav class="nav" aria-label="Primary navigation">
+    <a href="index.html#approach">Approach</a>
+    <a href="diagnostic-hub.html">Diagnostic Hub</a>
+    <a href="research.html">Research</a>
+    <a href="why-monderman.html">Why Monderman</a>
+    <a href="advisory-services-connect.html">Connect</a>
+    <a href="signin.html" class="workspace-link">Workspace</a>
+  </nav>
+</div>
+```
+
   </header>
 
   <section class="hero" aria-labelledby="hero-title">
@@ -1410,18 +1413,21 @@
       <div class="hero-copy">
         <p class="hero-eyebrow">Monderman Platform Services</p>
 
-        <h1 id="hero-title">Subscription access, analyst review, and platform support for institutions using Monderman over time.</h1>
+```
+    <h1 id="hero-title">Subscription access, analyst review, and platform support for institutions using Monderman over time.</h1>
 
-        <p class="hero-dek">
-          Monderman is a software company. These offerings—subscription access, guided analysis, platform setup, and diagnostic tailoring—exist to help institutions adopt the platform correctly, extend its precision, and sustain recurring use across teams, cohorts, and time horizons.
-        </p>
+    <p class="hero-dek">
+      Monderman is a software company. These offerings—subscription access, guided analysis, platform setup, and diagnostic tailoring—exist to help institutions adopt the platform correctly, extend its precision, and sustain recurring use across teams, cohorts, and time horizons.
+    </p>
 
-        <div class="hero-actions">
-          <a class="btn btn-accent" href="https://www.monderman.com/advisory-services-connect.html" target="_blank" rel="noopener noreferrer">Request platform support</a>
-          <a class="btn btn-secondary" href="diagnostic-tools.html">Open Diagnostic Hub</a>
-        </div>
-      </div>
+    <div class="hero-actions">
+      <a class="btn btn-accent" href="https://www.monderman.com/advisory-services-connect.html" target="_blank" rel="noopener noreferrer">Request platform support</a>
+      <a class="btn btn-secondary" href="diagnostic-hub.html">Open Diagnostic Hub</a>
     </div>
+  </div>
+</div>
+```
+
   </section>
 
   <section class="entry-section" aria-labelledby="services-title">
@@ -1434,81 +1440,84 @@
         </p>
       </div>
 
-      <div class="entry-layout">
-        <div class="entry-options reveal reveal-delay-1" role="tablist" aria-label="Select a platform service">
-          <button class="entry-option is-active" type="button" role="tab" aria-selected="true" aria-controls="entry-detail" id="entry-subscription" data-key="subscription">
-            <span class="entry-option-step">01</span>
-            <span>
-              <h3 class="entry-option-title">Subscription Access</h3>
-              <p class="entry-option-text">
-                Recurring access to the full diagnostic suite for institutions running repeated diagnostics across teams, cohorts, and time horizons.
-              </p>
-            </span>
-          </button>
+```
+  <div class="entry-layout">
+    <div class="entry-options reveal reveal-delay-1" role="tablist" aria-label="Select a platform service">
+      <button class="entry-option is-active" type="button" role="tab" aria-selected="true" aria-controls="entry-detail" id="entry-subscription" data-key="subscription">
+        <span class="entry-option-step">01</span>
+        <span>
+          <h3 class="entry-option-title">Subscription Access</h3>
+          <p class="entry-option-text">
+            Recurring access to the full diagnostic suite for institutions running repeated diagnostics across teams, cohorts, and time horizons.
+          </p>
+        </span>
+      </button>
 
-          <button class="entry-option" type="button" role="tab" aria-selected="false" aria-controls="entry-detail" id="entry-analysis" data-key="analysis">
-            <span class="entry-option-step">02</span>
-            <span>
-              <h3 class="entry-option-title">Guided Analysis</h3>
-              <p class="entry-option-text">
-                A Monderman analyst reviews your diagnostic output and delivers a calibrated written interpretation—human judgment applied to platform results.
-              </p>
-            </span>
-          </button>
+      <button class="entry-option" type="button" role="tab" aria-selected="false" aria-controls="entry-detail" id="entry-analysis" data-key="analysis">
+        <span class="entry-option-step">02</span>
+        <span>
+          <h3 class="entry-option-title">Guided Analysis</h3>
+          <p class="entry-option-text">
+            A Monderman analyst reviews your diagnostic output and delivers a calibrated written interpretation—human judgment applied to platform results.
+          </p>
+        </span>
+      </button>
 
-          <button class="entry-option" type="button" role="tab" aria-selected="false" aria-controls="entry-detail" id="entry-setup" data-key="setup">
-            <span class="entry-option-step">03</span>
-            <span>
-              <h3 class="entry-option-title">Platform Setup &amp; Enablement</h3>
-              <p class="entry-option-text">
-                Configure the platform correctly, connect it to surrounding systems, and equip internal admins to run recurring diagnostics without outside support.
-              </p>
-            </span>
-          </button>
+      <button class="entry-option" type="button" role="tab" aria-selected="false" aria-controls="entry-detail" id="entry-setup" data-key="setup">
+        <span class="entry-option-step">03</span>
+        <span>
+          <h3 class="entry-option-title">Platform Setup &amp; Enablement</h3>
+          <p class="entry-option-text">
+            Configure the platform correctly, connect it to surrounding systems, and equip internal admins to run recurring diagnostics without outside support.
+          </p>
+        </span>
+      </button>
 
-          <button class="entry-option" type="button" role="tab" aria-selected="false" aria-controls="entry-detail" id="entry-tailoring" data-key="tailoring">
-            <span class="entry-option-step">04</span>
-            <span>
-              <h3 class="entry-option-title">Diagnostic Tailoring &amp; Calibration</h3>
-              <p class="entry-option-text">
-                Adapt diagnostics to your operating context and refine interpretation logic so results stay precise, comparable, and credible over time.
-              </p>
-            </span>
-          </button>
+      <button class="entry-option" type="button" role="tab" aria-selected="false" aria-controls="entry-detail" id="entry-tailoring" data-key="tailoring">
+        <span class="entry-option-step">04</span>
+        <span>
+          <h3 class="entry-option-title">Diagnostic Tailoring &amp; Calibration</h3>
+          <p class="entry-option-text">
+            Adapt diagnostics to your operating context and refine interpretation logic so results stay precise, comparable, and credible over time.
+          </p>
+        </span>
+      </button>
+    </div>
+
+    <aside class="entry-detail reveal reveal-delay-2" id="entry-detail" role="tabpanel" aria-labelledby="entry-subscription">
+      <p class="entry-detail-label" id="detail-label">Subscription Access</p>
+      <h3 class="entry-detail-title" id="detail-title">Get a commercial home for ongoing diagnostic use rather than one-off interactions with the platform.</h3>
+      <p class="entry-detail-summary" id="detail-summary">
+        Subscription Access gives institutions a repeating relationship with Monderman—access to the full diagnostic suite, the Workspace administrator console, cross-diagnostic synthesis, and structured support touchpoints calibrated to the cadence and scale of use.
+      </p>
+
+      <div class="entry-detail-grid">
+        <div class="entry-detail-item">
+          <h4>Typical duration</h4>
+          <p id="detail-duration">Ongoing subscription. Term and cadence shaped by the scale of diagnostic use across teams or cohorts.</p>
         </div>
 
-        <aside class="entry-detail reveal reveal-delay-2" id="entry-detail" role="tabpanel" aria-labelledby="entry-subscription">
-          <p class="entry-detail-label" id="detail-label">Subscription Access</p>
-          <h3 class="entry-detail-title" id="detail-title">Get a commercial home for ongoing diagnostic use rather than one-off interactions with the platform.</h3>
-          <p class="entry-detail-summary" id="detail-summary">
-            Subscription Access gives institutions a repeating relationship with Monderman—access to the full diagnostic suite, the Workspace administrator console, cross-diagnostic synthesis, and structured support touchpoints calibrated to the cadence and scale of use.
-          </p>
+        <div class="entry-detail-item">
+          <h4>What you leave with</h4>
+          <p id="detail-deliverable">Recurring access, Workspace admin console, cross-diagnostic synthesis, and support touchpoints appropriate to continued institutional use.</p>
+        </div>
 
-          <div class="entry-detail-grid">
-            <div class="entry-detail-item">
-              <h4>Typical duration</h4>
-              <p id="detail-duration">Ongoing subscription. Term and cadence shaped by the scale of diagnostic use across teams or cohorts.</p>
-            </div>
-
-            <div class="entry-detail-item">
-              <h4>What you leave with</h4>
-              <p id="detail-deliverable">Recurring access, Workspace admin console, cross-diagnostic synthesis, and support touchpoints appropriate to continued institutional use.</p>
-            </div>
-
-            <div class="entry-detail-item">
-              <h4>Not the right fit</h4>
-              <p id="detail-notfit">Not the right fit for buyers exploring a single diagnostic event with no intention of establishing repeated measurement over time.</p>
-            </div>
-          </div>
-
-          <p class="entry-detail-note" id="detail-note">
-            Best when the value is in longitudinal comparison, institutional adoption, and repeated measurement—not a one-time diagnostic run.
-          </p>
-
-          <a class="btn btn-accent entry-detail-btn" href="https://www.monderman.com/advisory-services-connect.html" target="_blank" rel="noopener noreferrer">Request platform support</a>
-        </aside>
+        <div class="entry-detail-item">
+          <h4>Not the right fit</h4>
+          <p id="detail-notfit">Not the right fit for buyers exploring a single diagnostic event with no intention of establishing repeated measurement over time.</p>
+        </div>
       </div>
-    </div>
+
+      <p class="entry-detail-note" id="detail-note">
+        Best when the value is in longitudinal comparison, institutional adoption, and repeated measurement—not a one-time diagnostic run.
+      </p>
+
+      <a class="btn btn-accent entry-detail-btn" href="https://www.monderman.com/advisory-services-connect.html" target="_blank" rel="noopener noreferrer">Request platform support</a>
+    </aside>
+  </div>
+</div>
+```
+
   </section>
 
   <section class="signals" aria-labelledby="signals-title">
@@ -1521,50 +1530,53 @@
         </p>
       </div>
 
-      <div class="signals-grid">
-        <article class="signal-card reveal reveal-delay-1">
-          <h3>Decisions are made, but they stall before they land.</h3>
-          <p>
-            What looks like slowness is often overloaded pathways, diffused authority, or governance weight that no longer fits the work.
-          </p>
-        </article>
+```
+  <div class="signals-grid">
+    <article class="signal-card reveal reveal-delay-1">
+      <h3>Decisions are made, but they stall before they land.</h3>
+      <p>
+        What looks like slowness is often overloaded pathways, diffused authority, or governance weight that no longer fits the work.
+      </p>
+    </article>
 
-        <article class="signal-card reveal reveal-delay-2">
-          <h3>Strategy is clear at the top, but fragments in execution.</h3>
-          <p>
-            The issue is often not intent. It is the system through which interpretation, ownership, and action are expected to stay aligned.
-          </p>
-        </article>
+    <article class="signal-card reveal reveal-delay-2">
+      <h3>Strategy is clear at the top, but fragments in execution.</h3>
+      <p>
+        The issue is often not intent. It is the system through which interpretation, ownership, and action are expected to stay aligned.
+      </p>
+    </article>
 
-        <article class="signal-card reveal reveal-delay-3">
-          <h3>Leaders spend too much time compensating for the system.</h3>
-          <p>
-            Senior attention becomes a substitute for structural clarity when coordination, escalation, and intervention keep output moving.
-          </p>
-        </article>
+    <article class="signal-card reveal reveal-delay-3">
+      <h3>Leaders spend too much time compensating for the system.</h3>
+      <p>
+        Senior attention becomes a substitute for structural clarity when coordination, escalation, and intervention keep output moving.
+      </p>
+    </article>
 
-        <article class="signal-card reveal reveal-delay-1">
-          <h3>Accountability exists formally, but diffuses operationally.</h3>
-          <p>
-            Work crosses layers, teams, and approvals in ways that blur responsibility and weaken institutional traction.
-          </p>
-        </article>
+    <article class="signal-card reveal reveal-delay-1">
+      <h3>Accountability exists formally, but diffuses operationally.</h3>
+      <p>
+        Work crosses layers, teams, and approvals in ways that blur responsibility and weaken institutional traction.
+      </p>
+    </article>
 
-        <article class="signal-card reveal reveal-delay-2">
-          <h3>Administrative effort grows while performance becomes more fragile.</h3>
-          <p>
-            More coordination and more controls can signal a system compensating for lost coherence rather than restoring it.
-          </p>
-        </article>
+    <article class="signal-card reveal reveal-delay-2">
+      <h3>Administrative effort grows while performance becomes more fragile.</h3>
+      <p>
+        More coordination and more controls can signal a system compensating for lost coherence rather than restoring it.
+      </p>
+    </article>
 
-        <article class="signal-card reveal reveal-delay-3">
-          <h3>The same patterns keep returning after intervention.</h3>
-          <p>
-            When the root cause is structural, local fixes may relieve symptoms without changing the system that keeps producing them.
-          </p>
-        </article>
-      </div>
-    </div>
+    <article class="signal-card reveal reveal-delay-3">
+      <h3>The same patterns keep returning after intervention.</h3>
+      <p>
+        When the root cause is structural, local fixes may relieve symptoms without changing the system that keeps producing them.
+      </p>
+    </article>
+  </div>
+</div>
+```
+
   </section>
 
   <section class="process" aria-labelledby="process-title">
@@ -1577,32 +1589,35 @@
         </p>
       </div>
 
-      <div class="process-grid">
-        <article class="process-step reveal reveal-delay-1">
-          <p class="process-step-number">01</p>
-          <h3>Define the platform need</h3>
-          <p>
-            Clarify whether the constraint is setup, diagnostic fit, calibration, integration, or operator confidence.
-          </p>
-        </article>
+```
+  <div class="process-grid">
+    <article class="process-step reveal reveal-delay-1">
+      <p class="process-step-number">01</p>
+      <h3>Define the platform need</h3>
+      <p>
+        Clarify whether the constraint is setup, diagnostic fit, calibration, integration, or operator confidence.
+      </p>
+    </article>
 
-        <article class="process-step reveal reveal-delay-2">
-          <p class="process-step-number">02</p>
-          <h3>Select the right service layer</h3>
-          <p>
-            Match the request to the support model that improves product use without adding unnecessary service weight.
-          </p>
-        </article>
+    <article class="process-step reveal reveal-delay-2">
+      <p class="process-step-number">02</p>
+      <h3>Select the right service layer</h3>
+      <p>
+        Match the request to the support model that improves product use without adding unnecessary service weight.
+      </p>
+    </article>
 
-        <article class="process-step reveal reveal-delay-3">
-          <p class="process-step-number">03</p>
-          <h3>Strengthen recurring use</h3>
-          <p>
-            Configure, calibrate, connect, or train so the platform performs better over repeated runs and growing adoption.
-          </p>
-        </article>
-      </div>
-    </div>
+    <article class="process-step reveal reveal-delay-3">
+      <p class="process-step-number">03</p>
+      <h3>Strengthen recurring use</h3>
+      <p>
+        Configure, calibrate, connect, or train so the platform performs better over repeated runs and growing adoption.
+      </p>
+    </article>
+  </div>
+</div>
+```
+
   </section>
 
   <section class="qualifier" aria-labelledby="qualifier-title">
@@ -1618,17 +1633,20 @@
         </p>
       </div>
 
-      <aside class="qualifier-panel reveal reveal-delay-2" aria-label="Good fit indicators">
-        <h3>A strong fit usually includes one or more of the following:</h3>
-        <ul class="qualifier-list">
-          <li>You want Monderman configured correctly across teams, roles, or cohorts.</li>
-          <li>You need diagnostics adapted to your context, language, or environment.</li>
-          <li>You want more disciplined comparison logic or calibrated interpretation.</li>
-          <li>You need internal admins trained to run the platform well over time.</li>
-          <li>You want a recurring subscription model rather than a one-off interaction with the tools.</li>
-        </ul>
-      </aside>
-    </div>
+```
+  <aside class="qualifier-panel reveal reveal-delay-2" aria-label="Good fit indicators">
+    <h3>A strong fit usually includes one or more of the following:</h3>
+    <ul class="qualifier-list">
+      <li>You want Monderman configured correctly across teams, roles, or cohorts.</li>
+      <li>You need diagnostics adapted to your context, language, or environment.</li>
+      <li>You want more disciplined comparison logic or calibrated interpretation.</li>
+      <li>You need internal admins trained to run the platform well over time.</li>
+      <li>You want a recurring subscription model rather than a one-off interaction with the tools.</li>
+    </ul>
+  </aside>
+</div>
+```
+
   </section>
 
   <section class="connect" id="connect" aria-labelledby="connect-title">
@@ -1642,17 +1660,20 @@
         </p>
       </div>
 
-      <div class="connect-panel reveal reveal-delay-2">
-        <p class="connect-kicker">Primary Contact</p>
-        <a class="connect-link" href="mailto:connect@monderman.com">
-          <span class="connect-link-mark" aria-hidden="true"></span>
-          connect@monderman.com
-        </a>
-        <p class="connect-note">
-          For platform support, tailored diagnostic design, calibration, integration, or admin enablement inquiries, reach out directly and Monderman will respond as promptly as possible.
-        </p>
-      </div>
-    </div>
+```
+  <div class="connect-panel reveal reveal-delay-2">
+    <p class="connect-kicker">Primary Contact</p>
+    <a class="connect-link" href="mailto:connect@monderman.com">
+      <span class="connect-link-mark" aria-hidden="true"></span>
+      connect@monderman.com
+    </a>
+    <p class="connect-note">
+      For platform support, tailored diagnostic design, calibration, integration, or admin enablement inquiries, reach out directly and Monderman will respond as promptly as possible.
+    </p>
+  </div>
+</div>
+```
+
   </section>
 
   <footer class="footer">
@@ -1665,28 +1686,31 @@
           </p>
         </div>
 
-        <div class="footer-nav" aria-label="Footer navigation">
-          <div class="footer-nav-col">
-            <p class="footer-nav-title">Explore</p>
-            <a href="index.html#approach">Approach</a>
-            <a href="diagnostic-tools.html">Diagnostic Hub</a>
-            <a href="research.html">Research</a>
-            <a href="why-monderman.html">Why Monderman</a>
-          </div>
-
-          <div class="footer-nav-col">
-            <p class="footer-nav-title">Connect</p>
-            <a href="advisory-services-connect.html">Open Connect Form</a>
-            <a href="mailto:connect@monderman.com">connect@monderman.com</a>
-          </div>
-        </div>
+```
+    <div class="footer-nav" aria-label="Footer navigation">
+      <div class="footer-nav-col">
+        <p class="footer-nav-title">Explore</p>
+        <a href="index.html#approach">Approach</a>
+        <a href="diagnostic-hub.html">Diagnostic Hub</a>
+        <a href="research.html">Research</a>
+        <a href="why-monderman.html">Why Monderman</a>
       </div>
 
-      <div class="footer-bottom">
-        <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
-        <p class="footer-contact">Organizations deliver at the speed of their administrative reality.</p>
+      <div class="footer-nav-col">
+        <p class="footer-nav-title">Connect</p>
+        <a href="advisory-services-connect.html">Open Connect Form</a>
+        <a href="mailto:connect@monderman.com">connect@monderman.com</a>
       </div>
     </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
+    <p class="footer-contact">Organizations deliver at the speed of their administrative reality.</p>
+  </div>
+</div>
+```
+
   <div class="footer-motif" aria-hidden="true"><svg width="260" height="260" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#4A6FA5" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#5B7A9B" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#4A6FA5" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#5B7A9B" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#6B8FA6" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8BADC5" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#9FBDD1" stroke-width="0.4" opacity="0.13"/><circle r="7" fill="none" stroke="#B0C8D8" stroke-width="0.3" opacity="0.11"/><circle cx="86" cy="-35" r="2.8" fill="#3F6EA1" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#5B7A9B" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#3F6EA1" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#7C5CE8" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#5B7A9B" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#2E86DE" opacity="0.58"/></svg></div>
   </footer>
 
@@ -1834,5 +1858,6 @@
     })();
 
   </script>
+
 </body>
 </html>
