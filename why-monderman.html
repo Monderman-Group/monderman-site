@@ -234,18 +234,19 @@
     .nav {
       display: flex;
       align-items: center;
-      gap: 24px;
-      flex-wrap: wrap;
+      gap: 20px;
+      flex-wrap: nowrap;
       justify-content: flex-end;
     }
 
     .nav a {
       position: relative;
-      font-size: 1rem;
+      font-size: 0.9rem;
       font-weight: 500;
       letter-spacing: 0.012em;
       color: rgba(255, 255, 255, 0.88);
       transition: color var(--transition), transform var(--transition);
+      white-space: nowrap;
     }
 
     .nav a::after {
@@ -264,8 +265,8 @@
     .nav a:hover,
     .nav a:focus-visible,
     .nav a.is-active {
-      color: #FFFFFF;
-      transform: translateY(-1px);
+      color: var(--accent);
+      transform: none;
       outline: none;
     }
 
@@ -1141,6 +1142,8 @@
       background: #0D141C;
       color: rgba(245, 247, 250, 0.88);
       padding: 50px 34px 38px;
+      position: relative;
+      overflow: hidden;
     }
 
     .footer-inner {
@@ -2265,7 +2268,11 @@
       position: relative;
       z-index: 1;
     }
-    </style>
+    
+    @media (max-width: 1280px) {
+      .brand-tagline { display: none; }
+    }
+  </style>
 
   <!-- Infographic embedded styles (scoped) -->
   <style>
