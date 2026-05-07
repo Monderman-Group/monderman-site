@@ -362,7 +362,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
               <p style="margin:0 0 8px;"><strong>1.</strong> This diagnostic generates directional insights based on the information you provide.</p>
               <p style="margin:0 0 8px;"><strong>2.</strong> Results are only as accurate as the inputs entered during the run.</p>
               <p style="margin:0;"><strong>3.</strong> Use the output as an interpretive aid, not as a substitute for independent review, professional judgment, or organization-specific analysis.</p>
-            </div></div><div class="notice"><strong>What to expect</strong><div class="tiny">This run is intentionally more detailed than a light survey. Questions adapt based on what you answer, and some responses open additional question tiles so the Monderman engine has enough signal to generate a more useful readout.</div></div></div><div class="gentle-note tiny">Output quality depends on the quality and quantity of the information you provide. Some workflows require a bit more detail so the Monderman engine can generate a more precise and useful readout. Brief patience here improves the value of the output.</div><div class="checkbox-card" style="margin-top:18px;"><div class="checkbox-row"><input id="preStartConsent" type="checkbox" /><label for="preStartConsent">I agree not to enter classified, export-controlled, sensitive, proprietary, personally identifiable, protected health, or otherwise restricted information into this tool. I understand that I am solely responsible for the information I submit.</label></div></div><div class="actions" style="margin-top:22px;justify-content:flex-start;"><div class="actions-left"><a class="btn" href="diagnostic-tools.html">Back to Diagnostic Hub</a><button class="btn btn-accent btn-disabled" id="beginBtn" type="button" disabled>Start diagnostic run</button></div></div></div><aside class="card soft"><h3 id="laneAsideTitle">What this tool is built to detect</h3><ul><li>Recurring process density and administrative overhead</li><li>Systems friction, duplicate effort, and manual workaround dependence</li><li>Reporting burden and low-value oversight accumulation</li><li>Operating-environment weight that is crowding out real work</li><li>Directionally sized time, money, and capacity exposure</li></ul></aside></div></div>
+            </div></div><div class="notice"><strong>What to expect</strong><div class="tiny">This run is intentionally more detailed than a light survey. Questions adapt based on what you answer, and some responses open additional question tiles so the Monderman engine has enough signal to generate a more useful readout.</div></div></div><div class="gentle-note tiny">Output quality depends on the quality and quantity of the information you provide. Some workflows require a bit more detail so the Monderman engine can generate a more precise and useful readout. Brief patience here improves the value of the output.</div><div class="checkbox-card" style="margin-top:18px;"><div class="checkbox-row"><input id="preStartConsent" type="checkbox" /><label for="preStartConsent">I agree not to enter classified, export-controlled, sensitive, proprietary, personally identifiable, protected health, or otherwise restricted information into this tool. I understand that I am solely responsible for the information I submit.</label></div></div><div class="actions" style="margin-top:22px;justify-content:flex-start;"><div class="actions-left"><button class="btn btn-accent btn-disabled" id="beginBtn" type="button" disabled>Start diagnostic run</button></div></div><div style="margin-top:12px;"><a class="utility-btn" href="diagnostic-tools.html" style="font-size:12px;color:var(--ink-soft);">&#8592; Return to Diagnostic Hub</a></div></div><aside class="card soft"><h3 id="laneAsideTitle">What this tool is built to detect</h3><ul><li>Recurring process density and administrative overhead</li><li>Systems friction, duplicate effort, and manual workaround dependence</li><li>Reporting burden and low-value oversight accumulation</li><li>Operating-environment weight that is crowding out real work</li><li>Directionally sized time, money, and capacity exposure</li></ul></aside></div></div>
   <div class="stage" id="questionStage"><div class="question-shell"><div class="question-card"><div class="question-meta"><p class="question-label" id="questionCluster">Diagnostic question</p><p class="question-step" id="questionStep">Question 1</p></div><h3 class="question-title" id="questionTitle"></h3><p class="question-copy" id="questionCopy"></p><div class="required-note" id="requiredNotice">This question is required for the diagnostic logic to work.</div><div class="required-note" id="persistenceNotice" style="display:none;background:#FFF8EC;border-color:#F0D29D;color:#795B22;">Durable save status will appear here if the database write is blocked.</div><div class="cross-level-note" id="crossLevelNote"></div><div id="questionBody"></div></div></div></div>
   <div class="stage" id="processingStage"><div class="processing-stage"><div class="processing-card processing-card-dynamic">
   <div class="processing-flow" aria-hidden="true">
@@ -638,7 +638,7 @@ const MondermanDiagnostic = (() => {
 // ==============================================
 
 const API_BASE = "https://monderman-api.onrender.com";
-const DIAGNOSTIC_HUB_URL = "https://www.monderman.com/diagnostic-tools.html";
+const DIAGNOSTIC_HUB_URL = "https://www.monderman.com/diagnostic-hub.html";
 const LOADER_MS = 3600;
 const START_TIMEOUT_MS = 45000;
 const ANSWER_TIMEOUT_MS = 15000;
@@ -1778,7 +1778,41 @@ const cached = state.answerCache[item.id];
 if (item.questionType === "single_select") {
 const choices = document.createElement("div");
 choices.className = "choices";
-asArray(item.options).forEach((option) => {
+// Canonical severity order — lightest value first.
+// Any option set whose values are a subset of a known scale gets sorted
+// so the lightest option appears at the top of the list.
+const SEVERITY_SCALES = [
+  ["rarely","sometimes","often","nearly_every_time"],
+  ["lt_10","10_25","25_40","gt_40"],
+  ["rare","occasional","normalized","routine"],
+  ["exceptions_rare","exceptions_occasional","exceptions_common","exceptions_near_normal"],
+  ["no_informal_knowledge_required","known_but_informal","improvised_each_time",
+   "varies_by_person","official_and_actual_process_diverge"],
+  ["well_proportioned","slightly_heavier_than_needed","noticeably_heavier_than_needed",
+   "much_heavier_than_risk_warrants"],
+  ["clarify_or_redesign","add_control_first","nearly_always_add_control"],
+  ["balanced","additions_outpace_removals","removals_are_rare","almost_never_removed"],
+  ["mostly_visible","partly_visible","mostly_hidden","hidden_in_general_capacity"],
+  ["tracked_and_visible","partly_visible","not_formally_tracked","hidden_in_general_capacity"],
+  ["mostly_outcome_work","roughly_balanced","upkeep_takes_more_than_expected","upkeep_is_dominant"],
+  ["mostly_decision_driving","mixed","mostly_visibility_or_compliance","unclear_who_uses_them"],
+  ["somewhat_lighter","about_the_same","getting_heavier"],
+];
+function normalizeChoiceOrder(options) {
+  if (!Array.isArray(options) || options.length < 2) return options;
+  const vals = options.map(o => String(o.value || "").toLowerCase());
+  for (const scale of SEVERITY_SCALES) {
+    const scaleSet = new Set(scale);
+    if (vals.every(v => scaleSet.has(v))) {
+      const order = Object.fromEntries(scale.map((v, i) => [v, i]));
+      return [...options].sort((a, b) =>
+        (order[String(a.value).toLowerCase()] ?? 99) - (order[String(b.value).toLowerCase()] ?? 99)
+      );
+    }
+  }
+  return options;
+}
+normalizeChoiceOrder(asArray(item.options)).forEach((option) => {
 const btn = document.createElement("button");
 btn.type = "button";
 btn.className = `choice${String(cached) === String(option.value) ? " selected" : ""}`;
@@ -3288,8 +3322,11 @@ if (note) note.textContent = result?.trajectory?.note || "Directional signal";
 - @returns {object} - {productive, admin, drag} percentages
   */
   function calculateCapacityComposition(dragPct) {
-  let admin = Math.max(10, Math.min(45, Math.round(dragPct * 0.55)));
-  let drag = Math.max(8, Math.min(50, Math.round(dragPct * 0.75)));
+  // drag + admin must sum to exactly dragPct so the PDF capacity bar is
+  // consistent with the "X% capacity absorbed" figure in the stat strip.
+  // Split: ~60% of drag is recoverable, ~40% is necessary admin upkeep.
+  let drag  = Math.max(5,  Math.min(50, Math.round(dragPct * 0.60)));
+  let admin = Math.max(5,  Math.min(40, dragPct - drag));
   let productive = Math.max(0, 100 - admin - drag);
   const capTotal = productive + admin + drag || 1;
   productive = Math.round((productive / capTotal) * 100);
@@ -3873,14 +3910,14 @@ return `<!doctype html>
   .bottom { position: absolute; bottom: .32in; left: .76in; right: .76in; border-top: 1px solid #E6EAF0; padding-top: .18in; color: #7C8794; font-size: 8.5px; }
   .bottom .date { float: right; }
   .content { position: relative; margin-top: .74in; }
-  .cover-page { padding: 0; overflow: hidden; background: #fff; }
+  .cover-page { padding: 0; overflow: hidden; background: #fff; display: flex; flex-direction: column; }
   .cover-dark { background: #0D1820; width: 100%; padding: .72in .80in .64in; box-sizing: border-box; min-height: 3.62in; position: relative; overflow: hidden; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .cover-mark { font-size: 9px; letter-spacing: .32em; color: rgba(255,255,255,.38); font-weight: 700; text-transform: uppercase; margin: 0 0 .26in; }
   .cover-rule { width: 36px; height: 2px; background: #3F6EA1; margin-bottom: .34in; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .cover-title { font-size: 44px; line-height: 1.06; letter-spacing: -.04em; margin: 0 0 .18in; color: #ffffff; font-weight: 700; max-width: 5.4in; }
   .cover-sub { font-size: 13px; color: rgba(255,255,255,.36); font-weight: 400; letter-spacing: .03em; margin: 0; }
   .cover-stripe { height: 3px; width: 100%; background: linear-gradient(90deg,#3F6EA1 0%,#5B8FBF 60%,rgba(91,143,191,.2) 100%); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .cover-white { background: #ffffff; padding: .58in .80in .76in; position: relative; overflow: hidden; box-sizing: border-box; flex: 1; }
+  .cover-white { background: #ffffff; padding: .58in .80in .76in; position: relative; overflow: hidden; box-sizing: border-box; flex: 1; min-height: 0; }
   .cover-kicker { font-size: 8px; letter-spacing: .24em; color: #99A8B4; text-transform: uppercase; font-weight: 700; margin: 0 0 .26in; border-left: 2.5px solid #3F6EA1; padding-left: 10px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .cover-workflow { font-size: 28px; font-weight: 700; color: #0D1820; letter-spacing: -.024em; margin: 0 0 7px; }
   .cover-meta-line { font-size: 13px; color: #4A5968; margin: 0 0 3px; }
@@ -4052,7 +4089,7 @@ return `<!doctype html>
   ${footer(3)}
   <div class="content">
     <p class="eyebrow">Where the burden is coming from</p><h2>Burden composition</h2>
-    <p>The composition view shows where the visible burden is coming from across the four primary dimensions Monderman measures: process density, systems friction, reporting burden, and workaround dependence.</p><p class="muted">The important signal is not only which dimension is largest. The distribution also matters. A concentrated pattern usually points to a more targeted intervention; a distributed pattern usually means the workflow has absorbed burden into its normal operating design.</p>
+    <p>The composition view shows where the visible burden is coming from across the six dimensions Monderman measures: process density, systems friction, reporting burden, workaround dependence, control load, and administrative upkeep burden.</p><p class="muted">The important signal is not only which dimension is largest. The distribution also matters. A concentrated pattern usually points to a more targeted intervention; a distributed pattern usually means the workflow has absorbed burden into its normal operating design.</p>
     <div class="panel donut-panel"><div class="donut-wrap"><svg width="150" height="150" viewBox="0 0 200 200">${donutPaths}</svg><div class="donut-center"><div><small>DOMINANT</small><b>${dominantPct}%</b></div></div></div><div>${segmentLegend}</div></div>
     <h3 style="margin-top:24px">What the composition tells us</h3>
     <p>${safeWords(concentrationProse, 76)}</p>
@@ -4103,7 +4140,7 @@ ${decisionReviewPage}
   ${footer(methodPageNumber)}
   <div class="content">
     <p class="eyebrow">How to read this report</p><h2>How this was produced</h2>
-    <p>This diagnostic measures recurring operating burden across four primary dimensions: process density, systems friction, reporting burden, and workaround dependence. It also estimates the amount of productive capacity being absorbed by sustaining the workflow itself rather than producing outcomes. The diagnostic does not independently verify user inputs; it should be read as a directional operating read rather than a full audit.</p>
+    <p>This diagnostic measures recurring operating burden across six dimensions: process density, systems friction, reporting burden, workaround dependence, control load, and administrative upkeep burden. It also estimates the amount of productive capacity being absorbed by sustaining the workflow itself rather than producing outcomes. The diagnostic does not independently verify user inputs; it should be read as a directional operating read rather than a full audit.</p>
     <div class="rule"></div>
     <div class="ring-row"><svg class="ring" viewBox="0 0 58 58"><circle cx="29" cy="29" r="23" fill="none" stroke="#E6EAF0" stroke-width="7"/><circle cx="29" cy="29" r="23" fill="none" stroke="#3F6EA1" stroke-width="7" stroke-dasharray="${Math.round(insight.score * 1.45)} 145" transform="rotate(-90 29 29)"/></svg><div><div style="font-size:24px;font-weight:700">${Math.round(insight.score)}</div><p class="muted">Insight depth score<br>Directional input coverage; not a correctness score.</p></div></div>
     <p>The Insight Depth score above tells you how broad the input signal is. Higher depth means more perspective and a stronger read; it does not mean every individual answer is correct. A high score with shallow inputs is still shallow; a moderate score with broad inputs is more durable than it looks.</p>
