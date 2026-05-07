@@ -165,17 +165,18 @@
     .nav {
       display: flex;
       align-items: center;
-      gap: 24px;
+      gap: 20px;
       flex-wrap: nowrap;
       justify-content: flex-end;
     }
     .nav a {
       position: relative;
-      font-size: 0.98rem;
+      font-size: 0.9rem;
       font-weight: 500;
       letter-spacing: 0.012em;
       color: rgba(255,255,255,0.88);
       transition: color var(--transition), transform var(--transition), opacity var(--transition);
+      white-space: nowrap;
     }
     .nav a::after {
       content: "";
@@ -199,29 +200,6 @@
       color: var(--accent);
       transform: none;
       outline: none;
-    }
-
-    .nav a.workspace-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 38px;
-      padding: 0 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.16);
-      background: rgba(255,255,255,0.04);
-      color: #FFFFFF;
-      box-shadow: 0 1px 0 rgba(255,255,255,0.04);
-    }
-    .nav a.workspace-link::after {
-      display: none;
-    }
-    .nav a.workspace-link:hover,
-    .nav a.workspace-link:focus-visible {
-      background: rgba(255,255,255,0.10);
-      border-color: rgba(255,255,255,0.24);
-      color: #FFFFFF;
-      transform: translateY(-1px);
     }
 
 
@@ -1479,11 +1457,6 @@
       }
       .nav a::after { display: none; }
 
-      .nav a.workspace-link {
-        background: rgba(63,110,161,0.18);
-        border-color: rgba(118,165,211,0.24);
-      }
-
       .hero-inner { padding: 160px 20px 108px; }
       .hero-copy { max-width: 100%; }
       .hero h1 {
@@ -1690,6 +1663,30 @@
       z-index: 1;
     }
     
+    .nav a.workspace-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.06);
+      color: #FFFFFF;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .nav a.workspace-link::after {
+      display: none;
+    }
+    .nav a.workspace-link:hover,
+    .nav a.workspace-link:focus-visible {
+      background: rgba(255, 255, 255, 0.10);
+      border-color: rgba(255, 255, 255, 0.24);
+      color: #FFFFFF;
+      transform: none;
+    }
+
     @media (max-width: 1280px) {
       .brand-tagline { display: none; }
     }
