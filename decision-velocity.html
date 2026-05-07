@@ -68,7 +68,6 @@
       backdrop-filter: blur(10px);
     }
 
-    .header-inner,
     .hero-inner,
     .article-inner,
     .footer-inner {
@@ -133,17 +132,13 @@
     }
 
     .nav a {
+      position: relative;
       color: rgba(255,255,255,0.84);
       font-size: 0.9rem;
-      transition: color 180ms ease, transform 180ms ease;
       white-space: nowrap;
+      transition: color 180ms ease, transform 180ms ease;
     }
 
-    .nav a:hover,
-    .nav a:focus-visible {
-      color: #fff;
-      transform: translateY(-1px);
-    }
     .nav a::after {
       content: "";
       position: absolute;
@@ -155,6 +150,12 @@
       transform: scaleX(0);
       transform-origin: left;
       transition: transform 0.2s ease;
+    }
+
+    .nav a:hover,
+    .nav a:focus-visible {
+      color: #fff;
+      transform: translateY(-1px);
     }
 
     .nav a.is-active {
