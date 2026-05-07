@@ -3887,15 +3887,26 @@ const revealItems = document.querySelectorAll(".reveal");
         var frame = document.querySelector('.infographic-frame');
         var embed = document.querySelector('.infographic-embed');
         if (!frame || !embed) return;
-        var scale = (frame.clientWidth - 20) / 1440;
+
+        // Reset before measuring so stale height constraints don't affect scrollHeight
+        frame.style.height = 'auto';
+        embed.style.transform = 'none';
+
+        var naturalHeight = embed.scrollHeight;
+        var framePadding  = 20; // 10px top + 10px bottom
+        var scale = (frame.clientWidth - framePadding) / 1440;
+
         embed.style.transform = 'scale(' + scale + ')';
         embed.style.transformOrigin = 'top left';
-        frame.style.height = Math.round(embed.scrollHeight * scale) + 'px';
+        // Add frame padding back so the scaled content isn't clipped at the bottom
+        frame.style.height = Math.round(naturalHeight * scale + framePadding) + 'px';
       }
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', scaleInfographic);
-      } else {
+
+      // Run after fonts/images have a chance to load for accurate scrollHeight
+      if (document.readyState === 'complete') {
         scaleInfographic();
+      } else {
+        window.addEventListener('load', scaleInfographic);
       }
       window.addEventListener('resize', scaleInfographic);
     })();
