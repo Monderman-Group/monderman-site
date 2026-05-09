@@ -2,697 +2,915 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Monderman — v8c.1 Mode A · Frontend Structural Audit</title>
+<title>Monderman v8c.2 — Live Flow + PDF Integrity</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, Helvetica, Arial, sans-serif; background: #F4F6F9; color: #15202B; padding: 32px; }
+body { font-family: -apple-system, Helvetica, Arial, sans-serif; background: #F4F6F9; color: #15202B; padding: 24px; }
 h1 { font-size: 20px; font-weight: 700; letter-spacing: -.02em; margin-bottom: 4px; }
-.meta { color: #7C8794; font-size: 12px; margin-bottom: 24px; }
-.controls { display: flex; gap: 12px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; }
-button { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; }
+.meta { color: #7C8794; font-size: 12px; margin-bottom: 20px; }
+.controls { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+button { padding: 10px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; }
+button:disabled { background: #7C8794 !important; cursor: not-allowed; }
 #runBtn { background: #0D1820; color: #fff; }
-#runBtn:disabled { background: #7C8794; cursor: not-allowed; }
-#saveBtn { background: #2E7D52; color: #fff; display: none; }
-.url-input { padding: 8px 12px; border-radius: 6px; border: 1px solid #C8CFD7; font-size: 12px; min-width: 280px; font-family: monospace; }
-.status { font-size: 13px; color: #4A5968; padding: 8px 14px; background: #fff; border-radius: 8px; border: 1px solid #E6EAF0; min-width: 260px; }
-.summary { display: flex; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; }
-.stat { background: #fff; border: 1px solid #E6EAF0; border-radius: 12px; padding: 12px 18px; min-width: 80px; }
-.sv { font-size: 24px; font-weight: 700; letter-spacing: -.03em; }
-.sl { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: #7C8794; margin-top: 2px; }
-.sv.crit  { color: #B85C52; }
-.sv.warn  { color: #C49A3C; }
-.sv.ok    { color: #2E7D52; }
-.sv.info  { color: #4A5968; }
-#log { background: #0D1820; color: #A8C0D0; border-radius: 10px; padding: 16px; font-family: monospace; font-size: 11.5px; height: 220px; overflow-y: auto; margin-bottom: 20px; line-height: 1.6; white-space: pre-wrap; }
-.page-block { background: #fff; border: 1px solid #E6EAF0; border-radius: 12px; padding: 16px 20px; margin-bottom: 14px; }
-.page-block.has-crit { border-left: 4px solid #B85C52; }
-.page-block.has-warn { border-left: 4px solid #C49A3C; }
-.page-block.all-ok   { border-left: 4px solid #2E7D52; }
-.page-block.error    { border-left: 4px solid #7C8794; }
-.page-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
-.page-url { font-family: monospace; font-size: 12px; color: #15202B; word-break: break-all; }
-.page-meta { font-size: 11px; color: #7C8794; }
+#stopBtn { background: #B85C52; color: #fff; }
+#saveBtn { background: #2E7D52; color: #fff; }
+.status { font-size: 13px; color: #4A5968; padding: 8px 14px; background: #fff; border-radius: 8px; border: 1px solid #E6EAF0; min-width: 320px; }
+.summary { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.stat { background: #fff; border: 1px solid #E6EAF0; border-radius: 12px; padding: 10px 16px; min-width: 80px; }
+.sv { font-size: 22px; font-weight: 700; letter-spacing: -.03em; }
+.sl { font-size: 9px; text-transform: uppercase; letter-spacing: .12em; color: #7C8794; margin-top: 2px; }
+.sv.crit { color: #B85C52; } .sv.warn { color: #C49A3C; } .sv.ok { color: #2E7D52; } .sv.info { color: #4A5968; }
+#log { background: #0D1820; color: #A8C0D0; border-radius: 10px; padding: 14px; font-family: monospace; font-size: 11px; height: 220px; overflow-y: auto; margin-bottom: 16px; line-height: 1.55; white-space: pre-wrap; }
+.fixture-block { background: #fff; border: 1px solid #E6EAF0; border-radius: 12px; padding: 14px 18px; margin-bottom: 12px; }
+.fixture-block.fail { border-left: 4px solid #B85C52; }
+.fixture-block.warn { border-left: 4px solid #C49A3C; }
+.fixture-block.pass { border-left: 4px solid #2E7D52; }
+.fixture-block.error { border-left: 4px solid #7C8794; }
+.fixture-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+.fixture-name { font-family: monospace; font-size: 12px; }
+.fixture-meta { font-size: 11px; color: #7C8794; }
 .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-left: 6px; }
-.tag-crit { background: #B85C52; color: #fff; }
-.tag-warn { background: #C49A3C; color: #fff; }
-.tag-ok   { background: #CDE6D7; color: #1F5938; }
-.tag-info { background: #E6EAF0; color: #4A5968; }
-.checks-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-.checks-table td { padding: 6px 8px; border-bottom: 1px solid #F0F3F7; vertical-align: top; }
-.checks-table td:first-child { width: 32px; text-align: center; font-weight: 700; font-size: 14px; }
-.checks-table td:nth-child(2) { width: 220px; font-family: monospace; font-size: 11px; color: #4A5968; }
+.tag-crit { background: #B85C52; color: #fff; } .tag-warn { background: #C49A3C; color: #fff; }
+.tag-ok { background: #CDE6D7; color: #1F5938; } .tag-info { background: #E6EAF0; color: #4A5968; }
+.checks-table { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-top: 6px; }
+.checks-table td { padding: 5px 8px; border-bottom: 1px solid #F0F3F7; vertical-align: top; }
+.checks-table td:first-child { width: 28px; text-align: center; font-weight: 700; font-size: 13px; }
+.checks-table td:nth-child(2) { width: 200px; font-family: monospace; font-size: 10.5px; color: #4A5968; }
 .checks-table td:nth-child(3) { color: #15202B; }
-.check-pass { color: #2E7D52; }
-.check-warn { color: #C49A3C; }
-.check-fail { color: #B85C52; }
-.check-skip { color: #7C8794; }
-details { margin-top: 8px; }
-summary { cursor: pointer; font-size: 11px; color: #4A5968; padding: 4px 0; }
-.evidence { background: #F4F6F9; border-radius: 6px; padding: 8px 10px; font-family: monospace; font-size: 10.5px; color: #4A5968; margin-top: 4px; word-break: break-all; white-space: pre-wrap; }
+.cp { color: #2E7D52; } .cw { color: #C49A3C; } .cf { color: #B85C52; } .cs { color: #7C8794; }
+#frame-host { position: fixed; right: 16px; bottom: 16px; width: 480px; height: 320px; border: 2px solid #C49A3C; border-radius: 10px; background: #fff; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,.18); z-index: 100; resize: both; }
+#frame-host.minimized { width: 280px; height: 32px; resize: none; }
+.frame-bar { display: flex; justify-content: space-between; align-items: center; padding: 4px 10px; background: #0D1820; color: #fff; font-size: 11px; cursor: move; }
+.frame-bar button { background: transparent; color: #fff; border: 1px solid #4A5968; padding: 2px 8px; font-size: 10px; }
+#frame-host iframe { width: 100%; height: calc(100% - 28px); border: none; }
+.fixture-controls { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.fixture-controls label { font-size: 12px; padding: 6px 10px; background: #fff; border-radius: 6px; border: 1px solid #E6EAF0; cursor: pointer; user-select: none; }
+.fixture-controls input { margin-right: 6px; }
+.evidence { font-family: monospace; font-size: 10.5px; color: #4A5968; background: #F4F6F9; padding: 4px 8px; border-radius: 4px; margin-top: 4px; }
 </style>
 </head>
 <body>
-<h1>Monderman v8c.1 — Frontend Structural Audit (Mode A · Static)</h1>
-<div class="meta">v8c.1.2 (Path B) &middot; No backend interaction. Audits live HTML for: markdown-fence contamination &middot; asset 404s &middot; stale API paths &middot; <strong>prompt-internal leakage in rendered text only</strong> &middot; brand motif presence &middot; CTA wiring (with event-delegation detection) &middot; structural basics. <strong>Must be hosted same-origin to the audit target.</strong></div>
+<h1>Monderman v8c.2 — Live Flow + PDF Integrity</h1>
+<div class="meta">
+  Drives the questionnaire end-to-end through an iframe, captures the PDF blob from <code>#downloadPdfBtn</code>, runs PDF integrity checks. Same-origin required.
+</div>
+
+<div class="fixture-controls">
+  <label><input type="checkbox" data-fixture="0" checked>vendor_tech / senior_leader / proc_heavy / none</label>
+  <label><input type="checkbox" data-fixture="1">budget_gov / operational / ctrl_heavy / none</label>
+  <label><input type="checkbox" data-fixture="2">hiring_finance / operational / proc_heavy / bypass</label>
+  <label><input type="checkbox" data-fixture="3">vendor_tech / senior_leader / report_heavy / contradictory</label>
+  <label><input type="checkbox" data-fixture="4">exception_mfg / managerial / upkp_heavy / rising</label>
+  <label><input type="checkbox" data-fixture="5">vendor_tech / senior_leader / light / none</label>
+</div>
 
 <div class="controls">
-  <input id="basePath" class="url-input" type="text" value="" placeholder="Base URL (default: same origin as this page)">
-  <button id="runBtn" onclick="startAudit()">&#9654; Run Audit</button>
-  <button id="saveBtn" onclick="saveResults()">&#8595; Save JSON</button>
+  <button id="runBtn" onclick="startSuite()">▶ Run selected fixtures</button>
+  <button id="stopBtn" onclick="stopFlag = true" style="display:none">■ Stop</button>
+  <button id="saveBtn" onclick="saveResults()" style="display:none">↓ Save JSON</button>
   <div class="status" id="statusLine">Ready</div>
 </div>
 
 <div class="summary" id="summary" style="display:none">
-  <div class="stat"><div class="sv info" id="sPages">0</div><div class="sl">Pages</div></div>
-  <div class="stat"><div class="sv ok" id="sPass">0</div><div class="sl">All clean</div></div>
+  <div class="stat"><div class="sv info" id="sTotal">0</div><div class="sl">Total</div></div>
+  <div class="stat"><div class="sv ok" id="sPass">0</div><div class="sl">Pass</div></div>
   <div class="stat"><div class="sv warn" id="sWarn">0</div><div class="sl">Warn</div></div>
-  <div class="stat"><div class="sv crit" id="sCrit">0</div><div class="sl">Critical</div></div>
-  <div class="stat"><div class="sv info" id="sErr">0</div><div class="sl">Fetch error</div></div>
-  <div class="stat"><div class="sv info" id="sNP">0</div><div class="sl">Not present</div></div>
+  <div class="stat"><div class="sv crit" id="sFail">0</div><div class="sl">Fail</div></div>
+  <div class="stat"><div class="sv info" id="sErr">0</div><div class="sl">Error</div></div>
 </div>
 
 <div id="log"></div>
 <div id="results"></div>
 
+<div id="frame-host">
+  <div class="frame-bar">
+    <span id="frame-title">iframe (questionnaire being driven)</span>
+    <button onclick="document.getElementById('frame-host').classList.toggle('minimized')">_</button>
+  </div>
+  <iframe id="theFrame" src="about:blank" sandbox="allow-same-origin allow-scripts allow-forms"></iframe>
+</div>
+
 <script>
 // ─────────────────────────────────────────────────────────────────────────────
-// Initialize: populate base URL from window.location.origin so the default
-// always matches the harness's actual host (avoids the www. vs apex CORS gotcha).
+// pdfjs-dist loaded from CDN. Same-origin host means we can use a CDN.
 // ─────────────────────────────────────────────────────────────────────────────
-document.addEventListener("DOMContentLoaded", () => {
-  const input = document.getElementById("basePath");
-  if (input && !input.value) {
-    input.value = window.location.origin;
-  }
-});
+const PDFJS_CDN = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+const PDFJS_WORKER = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Pages to audit. Adjust based on actual site structure as discovered.
-// Path A discovers structure in real time — start with the canonical paths
-// from the project context, fall back gracefully if any 404.
+// Fixture matrix — 6 representative cases per the v8c plan.
+// Mirrors v8b ANSWERS map. Each fixture provides: route through Step 1/2/3,
+// answers per question id, and experiential layer text per role.
 // ─────────────────────────────────────────────────────────────────────────────
-const PAGES_TO_AUDIT = [
-  { path: "/",                              role: "homepage",          critical: true  },
-  { path: "/diagnostic-hub.html",           role: "diagnostic-hub",    critical: true  },
-  { path: "/operational-systems.html",      role: "questionnaire",     critical: true  },
-  { path: "/structural-clarity.html",       role: "questionnaire-alt", critical: false },
-  { path: "/about.html",                    role: "marketing",         critical: false },
-  { path: "/pricing.html",                  role: "marketing",         critical: false },
-  { path: "/methodology.html",              role: "marketing",         critical: false },
+const FIXTURES = [
+  {
+    label: "vendor_tech/senior_leader/proc_heavy/none",
+    lane: "executive", depth: "30",
+    processName: "Vendor approvals",
+    industry: "technology_software",
+    burden: "proc_heavy",
+    exp: "none",
+    expectedScoreBand: [40, 70],
+    expectedDominant: ["Process density"],
+  },
+  {
+    label: "budget_gov/operational/ctrl_heavy/none",
+    lane: "operational", depth: "30",
+    processName: "Budget reallocation requests",
+    industry: "government_defense",
+    burden: "ctrl_heavy",
+    exp: "none",
+    expectedScoreBand: [20, 65],
+    expectedDominant: ["Control load", "Process density"],
+  },
+  {
+    label: "hiring_finance/operational/proc_heavy/bypass",
+    lane: "operational", depth: "30",
+    processName: "New hire requisition approvals",
+    industry: "financial_services",
+    burden: "proc_heavy",
+    exp: "bypass",
+    expectedScoreBand: [10, 60],
+    expectedDominant: ["Process density"],
+    expectQualSignal: "bypass_control_risk",
+  },
+  {
+    label: "vendor_tech/senior_leader/report_heavy/contradictory",
+    lane: "executive", depth: "30",
+    processName: "Vendor approvals",
+    industry: "technology_software",
+    burden: "report_heavy",
+    exp: "contradictory",
+    expectedScoreBand: [40, 70],
+    expectedDominant: ["Reporting burden"],
+    expectExperientialGap: true,
+  },
+  {
+    label: "exception_mfg/managerial/upkp_heavy/rising",
+    lane: "managerial", depth: "30",
+    processName: "Production exception handling",
+    industry: "manufacturing_industrial",
+    burden: "upkp_heavy",
+    exp: "rising",
+    expectedScoreBand: [40, 75],
+    expectedDominant: ["Administrative upkeep burden"],
+    expectTrajectory: "rising",
+  },
+  {
+    label: "vendor_tech/senior_leader/light/none",
+    lane: "executive", depth: "30",
+    processName: "Vendor approvals",
+    industry: "technology_software",
+    burden: "light",
+    exp: "none",
+    expectedScoreBand: [75, 98],
+    expectedDominant: null,
+  },
 ];
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Check definitions. Each check returns { ok, severity, evidence?, skipped? }.
-// severity: "crit" (must fix before client use) | "warn" (should fix) | "info"
-// ─────────────────────────────────────────────────────────────────────────────
+// Answer map by burden type — matches v8b. Values are the option.value strings.
+const ANSWERS = {
+  proc_heavy: {
+    os_g1_primary_burden_source: "process_density",
+    os_g2_admin_time_share: "25_40",
+    os_g3_burden_trajectory: "getting_heavier",
+    os_g4_drag_visibility: "mostly_hidden",
+    os_d1_exception_ratio: "exceptions_common",
+    os_d2_systems_touched: "3",
+    os_d2_duplicate_entry_frequency: "rarely",
+    os_d2_workaround_stability: "known_but_informal",
+    os_d3_reporting_hours_weekly: "3",
+    os_d3_exception_normalization: "occasional",
+    os_d3_report_actionability: "mixed",
+    os_d4_manual_followup_frequency: "sometimes",
+    os_d4_off_path_frequency: "sometimes",
+    os_d4_new_person_viability: "mostly",
+    os_d5_governance_fit: "slightly_heavier_than_needed",
+    os_d5_control_add_remove_symmetry: "additions_outpace_removals",
+    os_d5_default_response_to_uncertainty: "add_control_first",
+    os_d6_admin_hours_weekly: "8",
+    os_d6_upkeep_share: "roughly_balanced",
+    os_d6_upkeep_visibility: "partly_visible",
+  },
+  ctrl_heavy: {
+    os_g1_primary_burden_source: "control_load",
+    os_g2_admin_time_share: "25_40",
+    os_g3_burden_trajectory: "getting_heavier",
+    os_g4_drag_visibility: "mostly_hidden",
+    os_d1_exception_ratio: "exceptions_common",
+    os_d2_systems_touched: "3",
+    os_d2_duplicate_entry_frequency: "rarely",
+    os_d2_workaround_stability: "known_but_informal",
+    os_d3_reporting_hours_weekly: "4",
+    os_d3_exception_normalization: "normalized",
+    os_d3_report_actionability: "mostly_visibility_or_compliance",
+    os_d4_manual_followup_frequency: "sometimes",
+    os_d4_off_path_frequency: "sometimes",
+    os_d4_new_person_viability: "mostly",
+    os_d5_governance_fit: "much_heavier_than_risk_warrants",
+    os_d5_control_add_remove_symmetry: "almost_never_removed",
+    os_d5_default_response_to_uncertainty: "nearly_always_add_control",
+    os_d6_admin_hours_weekly: "6",
+    os_d6_upkeep_share: "roughly_balanced",
+    os_d6_upkeep_visibility: "partly_visible",
+  },
+  report_heavy: {
+    os_g1_primary_burden_source: "reporting_exception_burden",
+    os_g2_admin_time_share: "25_40",
+    os_g3_burden_trajectory: "getting_heavier",
+    os_g4_drag_visibility: "partly_visible",
+    os_d1_exception_ratio: "exceptions_near_normal",
+    os_d2_systems_touched: "3",
+    os_d2_duplicate_entry_frequency: "rarely",
+    os_d2_workaround_stability: "known_but_informal",
+    os_d3_reporting_hours_weekly: "9",
+    os_d3_exception_normalization: "routine",
+    os_d3_report_actionability: "unclear_who_uses_them",
+    os_d4_manual_followup_frequency: "sometimes",
+    os_d4_off_path_frequency: "rarely",
+    os_d4_new_person_viability: "mostly",
+    os_d5_governance_fit: "slightly_heavier_than_needed",
+    os_d5_control_add_remove_symmetry: "balanced",
+    os_d5_default_response_to_uncertainty: "clarify_or_redesign",
+    os_d6_admin_hours_weekly: "5",
+    os_d6_upkeep_share: "roughly_balanced",
+    os_d6_upkeep_visibility: "partly_visible",
+  },
+  upkp_heavy: {
+    os_g1_primary_burden_source: "upkeep_burden",
+    os_g2_admin_time_share: "gt_40",
+    os_g3_burden_trajectory: "getting_heavier",
+    os_g4_drag_visibility: "hidden_in_general_capacity",
+    os_d1_exception_ratio: "exceptions_occasional",
+    os_d2_systems_touched: "3",
+    os_d2_duplicate_entry_frequency: "rarely",
+    os_d2_workaround_stability: "known_but_informal",
+    os_d3_reporting_hours_weekly: "3",
+    os_d3_exception_normalization: "occasional",
+    os_d3_report_actionability: "mixed",
+    os_d4_manual_followup_frequency: "sometimes",
+    os_d4_off_path_frequency: "rarely",
+    os_d4_new_person_viability: "mostly",
+    os_d5_governance_fit: "slightly_heavier_than_needed",
+    os_d5_control_add_remove_symmetry: "balanced",
+    os_d5_default_response_to_uncertainty: "clarify_or_redesign",
+    os_d6_admin_hours_weekly: "18",
+    os_d6_upkeep_share: "upkeep_is_dominant",
+    os_d6_upkeep_visibility: "not_formally_tracked",
+  },
+  light: {
+    os_g1_primary_burden_source: "process_density",
+    os_g2_admin_time_share: "lt_10",
+    os_g3_burden_trajectory: "about_the_same",
+    os_g4_drag_visibility: "mostly_visible",
+    os_d1_exception_ratio: "exceptions_rare",
+    os_d2_systems_touched: "2",
+    os_d2_duplicate_entry_frequency: "rarely",
+    os_d2_workaround_stability: "no_informal_knowledge_required",
+    os_d3_reporting_hours_weekly: "1",
+    os_d3_exception_normalization: "rare",
+    os_d3_report_actionability: "mostly_decision_driving",
+    os_d4_manual_followup_frequency: "rarely",
+    os_d4_off_path_frequency: "rarely",
+    os_d4_new_person_viability: "no_informal_knowledge_required",
+    os_d5_governance_fit: "well_proportioned",
+    os_d5_control_add_remove_symmetry: "balanced",
+    os_d5_default_response_to_uncertainty: "clarify_or_redesign",
+    os_d6_admin_hours_weekly: "2",
+    os_d6_upkeep_share: "mostly_outcome_work",
+    os_d6_upkeep_visibility: "tracked_and_visible",
+  },
+};
 
-// CHECK 1: Markdown-fence contamination from GitHub web editor.
-// The original handoff flagged that pasting into GitHub web editor injects
-// ``` fences into HTML. Scan for orphaned triple-backticks at suspicious
-// locations: top of <body>, inside <style> blocks, between </head> and start
-// of content, or as visible text content.
-function checkMarkdownFenceContamination(html) {
-  const offenders = [];
+// Experience layer text per fixture exp type (mirrors v8b EXP map)
+const EXP_TEXT = {
+  none: { self: "", observedOperational: "", observedManagerial: "", observedSeniorLeader: "" },
+  bypass: {
+    self: "The formal process is rarely followed. We route around approval steps to meet deadlines. Workarounds have become normalized.",
+    observedOperational: "Colleagues treat the workarounds as standard practice.",
+    observedManagerial: "Managers know about the shortcuts and cover for them rather than escalating.",
+    observedSeniorLeader: "Leadership appears confident the process is working. I don't think they know about the gap between policy and practice.",
+  },
+  contradictory: {
+    self: "The process seems generally fine. It runs smoothly most of the time and I have no major complaints about how it operates.",
+    observedOperational: "Most colleagues appear satisfied. The process seems to work well and no one has raised significant issues with it.",
+    observedManagerial: "Managers appear confident and the process seems to be running well and under control from where I sit.",
+    observedSeniorLeader: "Leadership appears satisfied that the process is functioning as designed. Everything generally seems okay at this level.",
+  },
+  rising: {
+    self: "The administrative load has noticeably increased over the past six months. Steps keep being added without anything being removed.",
+    observedOperational: "Everyone I work with is frustrated. Coordination required is disproportionate to what we are accomplishing.",
+    observedManagerial: "Managers are trying to shield the team but struggling with exception-handling volume.",
+    observedSeniorLeader: "Leadership seems focused on compliance and visibility rather than throughput.",
+  },
+};
 
-  // Pattern 1: triple-backtick at start of body content (before first real element)
-  const bodyMatch = html.match(/<body[^>]*>([\s\S]{0,500})/i);
-  if (bodyMatch) {
-    const earlyBody = bodyMatch[1];
-    if (/^[\s\n]*```/.test(earlyBody)) {
-      offenders.push("``` at top of <body>");
+// ─────────────────────────────────────────────────────────────────────────────
+// State + helpers
+// ─────────────────────────────────────────────────────────────────────────────
+let stopFlag = false;
+let allResults = [];
+let pdfjsLoaded = false;
+
+function log(msg) {
+  const el = document.getElementById("log");
+  el.textContent += `[${new Date().toISOString().slice(11, 19)}] ${msg}\n`;
+  el.scrollTop = el.scrollHeight;
+}
+
+function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
+async function waitFor(predicate, opts = {}) {
+  const timeout = opts.timeout || 30000;
+  const interval = opts.interval || 100;
+  const label = opts.label || "condition";
+  const start = Date.now();
+  while (Date.now() - start < timeout) {
+    if (stopFlag) throw new Error("stopped by user");
+    try {
+      const result = predicate();
+      if (result) return result;
+    } catch (e) { /* keep polling */ }
+    await sleep(interval);
+  }
+  throw new Error(`waitFor timeout: ${label} (${timeout}ms)`);
+}
+
+async function loadPdfJs() {
+  if (pdfjsLoaded) return;
+  await new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = PDFJS_CDN;
+    s.onload = resolve;
+    s.onerror = () => reject(new Error("Failed to load pdf.js from CDN"));
+    document.head.appendChild(s);
+  });
+  if (!window.pdfjsLib) throw new Error("pdfjsLib did not initialize");
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
+  pdfjsLoaded = true;
+  log("✓ pdf.js loaded");
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Iframe driver — drives the operational-systems.html page through its stages.
+// All access to the iframe's internals goes through frame.contentWindow and
+// frame.contentDocument since we're same-origin.
+// ─────────────────────────────────────────────────────────────────────────────
+async function loadIframe() {
+  const frame = document.getElementById("theFrame");
+  return new Promise((resolve, reject) => {
+    let resolved = false;
+    const onLoad = () => {
+      if (resolved) return;
+      resolved = true;
+      resolve(frame);
+    };
+    frame.addEventListener("load", onLoad, { once: true });
+    frame.src = "/operational-systems.html?_v8c2=" + Date.now();
+    setTimeout(() => { if (!resolved) reject(new Error("iframe load timeout")); }, 30000);
+  });
+}
+
+async function selectLane(frame, lane) {
+  const doc = frame.contentDocument;
+  await waitFor(() => doc.querySelector(`.lane-btn[data-lane="${lane}"]`),
+    { label: `lane button [data-lane=${lane}]`, timeout: 10000 });
+  const btn = doc.querySelector(`.lane-btn[data-lane="${lane}"]`);
+  btn.click();
+  // The site uses selectLane() which transitions to depthStage automatically
+  await waitFor(() => doc.getElementById("depthStage")?.classList.contains("active"),
+    { label: "depthStage active" });
+}
+
+async function selectDepth(frame, depth) {
+  const doc = frame.contentDocument;
+  await waitFor(() => doc.querySelector(`.depth-card[data-depth="${depth}"]`),
+    { label: `depth card [data-depth=${depth}]` });
+  doc.querySelector(`.depth-card[data-depth="${depth}"]`).click();
+  await waitFor(() => doc.getElementById("introStage")?.classList.contains("active"),
+    { label: "introStage active" });
+}
+
+async function fillIntroAndBegin(frame, fixture) {
+  const doc = frame.contentDocument;
+
+  // Wait for preflight fields to render
+  await waitFor(() => doc.querySelector("#preflight_processName, [data-field-id='processName']"),
+    { label: "preflight fields rendered", timeout: 8000 }).catch(() => {
+      // Some flows may not have processName as a separate preflight field
+    });
+
+  // Process name (textarea or input)
+  const pnameEl = doc.querySelector("#preflight_processName") ||
+                  doc.querySelector("[data-field-id='processName'] input, [data-field-id='processName'] textarea");
+  if (pnameEl) {
+    pnameEl.focus();
+    pnameEl.value = fixture.processName;
+    pnameEl.dispatchEvent(new Event("input", { bubbles: true }));
+    pnameEl.dispatchEvent(new Event("change", { bubbles: true }));
+    pnameEl.blur();
+  }
+
+  // Industry (select)
+  const indEl = doc.querySelector("#preflight_industry") ||
+                doc.querySelector("[data-field-id='industry'] select");
+  if (indEl && fixture.industry) {
+    indEl.value = fixture.industry;
+    indEl.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  // People affected (default to a reasonable value)
+  const peopleEl = doc.querySelector("#preflight_peopleAffected") ||
+                   doc.querySelector("[data-field-id='peopleAffected'] input");
+  if (peopleEl && !peopleEl.value) {
+    peopleEl.value = "20";
+    peopleEl.dispatchEvent(new Event("input", { bubbles: true }));
+    peopleEl.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  const hourlyEl = doc.querySelector("#preflight_hourlyCost") ||
+                   doc.querySelector("[data-field-id='hourlyCost'] input");
+  if (hourlyEl && !hourlyEl.value) {
+    hourlyEl.value = "120";
+    hourlyEl.dispatchEvent(new Event("input", { bubbles: true }));
+    hourlyEl.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  // Description (textarea, optional)
+  const descEl = doc.querySelector("#preflight_description") ||
+                 doc.querySelector("[data-field-id='description'] textarea");
+  if (descEl && !descEl.value) {
+    descEl.value = `v8c.2 automated test for ${fixture.label}`;
+    descEl.dispatchEvent(new Event("input", { bubbles: true }));
+    descEl.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  // Tick consent
+  const consent = doc.getElementById("preStartConsent");
+  if (!consent) throw new Error("preStartConsent checkbox not found");
+  if (!consent.checked) {
+    consent.click();
+  }
+
+  // Wait for begin button to enable
+  const beginBtn = doc.getElementById("beginBtn");
+  if (!beginBtn) throw new Error("beginBtn not found");
+  await waitFor(() => !beginBtn.disabled,
+    { label: "beginBtn enabled", timeout: 5000 });
+
+  beginBtn.click();
+  await waitFor(() => doc.getElementById("questionStage")?.classList.contains("active"),
+    { label: "questionStage active", timeout: 30000 });
+}
+
+async function answerQuestions(frame, fixture) {
+  const doc = frame.contentDocument;
+  const answers = ANSWERS[fixture.burden] || {};
+  const questionStage = doc.getElementById("questionStage");
+
+  let answered = 0;
+  const maxQuestions = 50;
+
+  while (answered < maxQuestions) {
+    if (stopFlag) throw new Error("stopped by user");
+
+    // Wait for either: a new question to render, or stage to transition away
+    await sleep(180);
+
+    // Check if we've left questionStage (questionnaire complete)
+    if (!questionStage.classList.contains("active")) {
+      log(`  → ${answered} questions answered, stage transitioned`);
+      return answered;
+    }
+
+    // Find current question id from data attributes or rendered DOM. The
+    // page uses state.currentItem internally; we read the id from the
+    // questionStep / question structure. The choice buttons live in a
+    // `.choices` container that gets rebuilt per question.
+    const choicesContainer = questionStage.querySelector(".choices");
+    const textareaContainer = questionStage.querySelector("#questionBody textarea");
+
+    if (!choicesContainer && !textareaContainer) {
+      // Question may still be rendering — keep polling
+      continue;
+    }
+
+    // Look for a question id hint in the DOM. The site renders a label
+    // questionTitle but not the id directly. We have to look at the page's
+    // current state via the question stage's DOM. The choices buttons have
+    // a known structure; we find the right answer by trying each known
+    // answer key against any `data-` attributes on the choice buttons.
+    //
+    // Strategy: scan choice buttons for a `data-value` or fallback text.
+    // The site sets buttons in renderChoices(). Inspect: btn.dataset.value
+    // or btn dataset reference; checking source line 1817-1823 confirms
+    // the button has class "choice" and the value is captured via closure.
+    // Without access to the closure value, we have to approach this
+    // differently — try clicking the button whose visible label text
+    // matches one of the human-readable labels in our answer set.
+
+    if (choicesContainer) {
+      // First, identify what question we're on by reading the question title +
+      // the option labels. Then determine which option to click.
+      const qTitle = (questionStage.querySelector("#questionTitle")?.textContent || "").trim();
+      const options = Array.from(choicesContainer.querySelectorAll(".choice"));
+      if (options.length === 0) continue;
+
+      // Try heuristic match: pick the option whose label matches what we
+      // would have answered. Without explicit option values, we fall back
+      // to picking the middle option (same as v8b harness fallback).
+      const optionLabels = options.map(o => (o.textContent || "").trim().toLowerCase());
+
+      // Try to identify question by title text → known answer
+      // Map distinctive title fragments to expected answer label fragments
+      const TITLE_KEYWORDS = {
+        "what's the most accurate description": fixture.burden === "proc_heavy" ? "process density" :
+                                                   fixture.burden === "ctrl_heavy" ? "control" :
+                                                   fixture.burden === "report_heavy" ? "reporting" :
+                                                   fixture.burden === "upkp_heavy" ? "upkeep" :
+                                                   fixture.burden === "light" ? "process density" : null,
+        "administrative": fixture.burden === "light" ? "less than 10" :
+                          fixture.burden === "upkp_heavy" ? "more than 40" : "25",
+      };
+
+      let chosenIndex = Math.floor(options.length / 2);
+      for (const [titleFrag, answerFrag] of Object.entries(TITLE_KEYWORDS)) {
+        if (qTitle.toLowerCase().includes(titleFrag) && answerFrag) {
+          const matchIdx = optionLabels.findIndex(l => l.includes(answerFrag));
+          if (matchIdx >= 0) chosenIndex = matchIdx;
+          break;
+        }
+      }
+
+      options[chosenIndex].click();
+      answered++;
+    } else if (textareaContainer) {
+      // Free-text question — fill with a generic non-empty value and click Next
+      textareaContainer.value = "Standard description for v8c.2 test run.";
+      textareaContainer.dispatchEvent(new Event("input", { bubbles: true }));
+      // Find a Next button in the question stage
+      const nextBtn = questionStage.querySelector("button.btn-accent, #nextBtn, [data-action='next']");
+      if (nextBtn) nextBtn.click();
+      answered++;
     }
   }
 
-  // Pattern 2: ``` inside <style> tags (would break CSS parsing)
-  const styleBlocks = html.match(/<style[^>]*>[\s\S]*?<\/style>/gi) || [];
-  for (const block of styleBlocks) {
-    if (/```|~~~/.test(block)) {
-      offenders.push("``` or ~~~ inside <style>");
+  return answered;
+}
+
+async function fillExperienceLayer(frame, fixture) {
+  const doc = frame.contentDocument;
+  const exp = EXP_TEXT[fixture.exp] || EXP_TEXT.none;
+
+  // The experience layer textareas get rendered into an experience grid,
+  // but where exactly depends on the lane. We scan for any visible textareas
+  // post-questionnaire and fill them best-effort. If exp=none, fill nothing
+  // and let the run proceed with no experiential layer.
+  if (fixture.exp === "none") return;
+
+  // Wait briefly for the experiential layer UI to appear (if it does).
+  // The site automatically transitions to processingStage after the last
+  // question; experiential capture happens before submitAnswer triggers
+  // finalize. Different lanes show different prompt sets.
+  await sleep(500);
+
+  const textareas = Array.from(doc.querySelectorAll("textarea"))
+    .filter(ta => ta.offsetParent !== null && !ta.id.startsWith("preflight_"));
+
+  if (textareas.length === 0) {
+    log("  · no experience textareas rendered; proceeding without exp layer");
+    return;
+  }
+
+  // Map textareas to fields by order: self, observedOp, observedMgr, observedSL
+  const fields = ["self", "observedOperational", "observedManagerial", "observedSeniorLeader"];
+  textareas.forEach((ta, i) => {
+    const key = fields[i] || fields[0];
+    const text = exp[key] || "";
+    if (text) {
+      ta.value = text;
+      ta.dispatchEvent(new Event("input", { bubbles: true }));
+      ta.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+  });
+  log(`  · filled ${textareas.length} experience textareas`);
+}
+
+async function waitForResults(frame) {
+  const doc = frame.contentDocument;
+  await waitFor(() => doc.getElementById("resultsStage")?.classList.contains("active"),
+    { label: "resultsStage active", timeout: 90000, interval: 250 });
+  // Give the results render time to populate
+  await sleep(800);
+}
+
+async function capturePdfBlob(frame) {
+  // Monkey-patch jsPDF.prototype.save inside the iframe to capture the blob
+  // instead of triggering the download dialog.
+  const win = frame.contentWindow;
+  const doc = frame.contentDocument;
+  const downloadBtn = doc.getElementById("downloadPdfBtn");
+  if (!downloadBtn) throw new Error("#downloadPdfBtn not found in results stage");
+
+  return new Promise((resolve, reject) => {
+    let captured = false;
+    const timeout = setTimeout(() => {
+      if (!captured) reject(new Error("PDF capture timeout (90s)"));
+    }, 90000);
+
+    const tryPatch = () => {
+      const jsPDF = win.jspdf?.jsPDF || win.jsPDF;
+      if (!jsPDF) return false;
+      const origSave = jsPDF.prototype.save;
+      jsPDF.prototype.save = function (filename) {
+        try {
+          const blob = this.output("blob");
+          captured = true;
+          clearTimeout(timeout);
+          // Restore original
+          jsPDF.prototype.save = origSave;
+          resolve({ blob, filename });
+        } catch (e) {
+          jsPDF.prototype.save = origSave;
+          reject(e);
+        }
+      };
+      return true;
+    };
+
+    if (!tryPatch()) {
+      // jsPDF lazy-loads; the click triggers loadExecutivePdfLibraries() which
+      // appends the script tag. Poll for it after click, or patch immediately
+      // after the libraries finish loading.
+      const pollInterval = setInterval(() => {
+        if (captured) { clearInterval(pollInterval); return; }
+        if (tryPatch()) {
+          clearInterval(pollInterval);
+        }
+      }, 100);
+      setTimeout(() => clearInterval(pollInterval), 60000);
+    }
+
+    // Click the download button
+    downloadBtn.click();
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PDF integrity checks. Take the captured blob and run validation.
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function parsePdf(blob) {
+  await loadPdfJs();
+  const arrayBuffer = await blob.arrayBuffer();
+  const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const pages = [];
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const viewport = page.getViewport({ scale: 1 });
+    const textContent = await page.getTextContent();
+    const text = textContent.items.map(it => it.str).join(" ");
+    pages.push({
+      pageNum: i,
+      width: viewport.width,
+      height: viewport.height,
+      text,
+    });
+  }
+  return { numPages: pdf.numPages, pages, blob };
+}
+
+function checkPdfStructure(parsed, fixture) {
+  const reasons = [];
+  if (parsed.numPages < 5) reasons.push(`only ${parsed.numPages} pages (expected ≥5 for executive summary)`);
+  if (parsed.numPages > 15) reasons.push(`${parsed.numPages} pages (unexpectedly long)`);
+  // Letter size: 612 × 792 points
+  for (const p of parsed.pages) {
+    if (Math.abs(p.width - 612) > 5 || Math.abs(p.height - 792) > 5) {
+      reasons.push(`page ${p.pageNum}: ${p.width.toFixed(0)}×${p.height.toFixed(0)}pt (expected 612×792 letter)`);
       break;
     }
   }
-
-  // Pattern 3: ``` in document outside expected contexts (not inside <pre><code>)
-  // Strip <pre><code> blocks first since legitimate code samples use them
-  const stripped = html
-    .replace(/<pre[^>]*>[\s\S]*?<\/pre>/gi, "")
-    .replace(/<code[^>]*>[\s\S]*?<\/code>/gi, "")
-    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ""); // exclude legit JS template literals
-
-  const tripleMatches = stripped.match(/```/g) || [];
-  if (tripleMatches.length > 0) {
-    offenders.push(`${tripleMatches.length} stray \`\`\` token(s) outside <pre>/<code>/<script>`);
+  if (reasons.length === 0) {
+    return { ok: true, severity: "ok", evidence: `${parsed.numPages} pages, all letter size` };
   }
-
-  // Pattern 4: ```html or ```javascript markers (telltale signs of GitHub paste)
-  if (/```(html|javascript|js|css)\b/i.test(stripped)) {
-    offenders.push("language-tagged fence (```html, ```js, etc.) in document");
-  }
-
-  if (offenders.length === 0) return { ok: true, severity: "ok" };
-  return {
-    ok: false,
-    severity: "crit",
-    evidence: offenders.join("\n")
-  };
+  return { ok: false, severity: "warn", evidence: reasons.join("; ") };
 }
 
-// CHECK 2: Asset 404s. Extracts <link rel="stylesheet">, <script src>, <img src>,
-// and font references; HEAD-fetches each. Same-origin only (CORS would block
-// cross-origin).
-async function checkAssetReferences(html, baseUrl) {
-  const refs = new Set();
-
-  // <link rel="stylesheet" href="...">
-  for (const m of html.matchAll(/<link[^>]+rel=["']?stylesheet["']?[^>]*>/gi)) {
-    const hrefMatch = m[0].match(/href=["']([^"']+)["']/i);
-    if (hrefMatch) refs.add(hrefMatch[1]);
+function checkPdfTextContent(parsed, fixture) {
+  const reasons = [];
+  // Each page should have extractable text (no fully-empty pages)
+  let emptyPages = 0;
+  for (const p of parsed.pages) {
+    if (p.text.replace(/\s+/g, "").length < 20) emptyPages++;
   }
-  // <script src="...">
-  for (const m of html.matchAll(/<script[^>]+src=["']([^"']+)["']/gi)) {
-    refs.add(m[1]);
+  if (emptyPages > 1) {
+    reasons.push(`${emptyPages} pages have <20 chars extractable text — possible render failure`);
   }
-  // <img src="...">
-  for (const m of html.matchAll(/<img[^>]+src=["']([^"']+)["']/gi)) {
-    refs.add(m[1]);
+  const fullText = parsed.pages.map(p => p.text).join(" ").toLowerCase();
+  // Cover page must contain process name
+  if (!fullText.includes(fixture.processName.toLowerCase())) {
+    reasons.push(`process name "${fixture.processName}" not found in PDF text`);
   }
-
-  const results = [];
-  const baseURL = new URL(baseUrl);
-  for (const ref of refs) {
-    let absURL;
-    try { absURL = new URL(ref, baseURL).href; } catch { continue; }
-    // Same origin only
-    if (new URL(absURL).origin !== baseURL.origin) continue;
-    try {
-      const r = await fetch(absURL, { method: "HEAD", cache: "no-cache" });
-      results.push({ url: absURL, status: r.status });
-    } catch (e) {
-      results.push({ url: absURL, status: "fetch-error", err: e.message });
+  // Required executive summary headers
+  const requiredHeaders = ["operational systems", "executive"];
+  for (const h of requiredHeaders) {
+    if (!fullText.includes(h)) {
+      reasons.push(`missing expected header content: "${h}"`);
     }
   }
-
-  const broken = results.filter(r => r.status !== 200);
-  if (broken.length === 0) {
-    return { ok: true, severity: "ok", evidence: `${results.length} same-origin assets, all 200` };
+  if (reasons.length === 0) {
+    return { ok: true, severity: "ok", evidence: `${parsed.pages.reduce((n, p) => n + p.text.length, 0)} chars text extracted` };
   }
-  return {
-    ok: false,
-    severity: "crit",
-    evidence: `${broken.length} broken / ${results.length} same-origin assets:\n` +
-      broken.map(b => `  ${b.status}  ${b.url}`).join("\n")
-  };
+  return { ok: false, severity: reasons.length > 1 ? "crit" : "warn", evidence: reasons.join("; ") };
 }
 
-// CHECK 3: Stale API paths. Verify the inline JS uses the correct API base
-// (monderman-api.onrender.com per project context) and not stale alternatives.
-function checkApiPaths(html) {
-  const offenders = [];
-  const apiHosts = new Set();
-
-  // Find all API-like host references
-  for (const m of html.matchAll(/https?:\/\/([a-zA-Z0-9.-]+)/g)) {
-    const host = m[1];
-    if (/api|render\.com|herokuapp\.com|fly\.dev|vercel\.app/i.test(host)) {
-      apiHosts.add(host);
-    }
-  }
-
-  // Acceptable production host
-  const acceptableHosts = new Set(["monderman-api.onrender.com"]);
-  // Suspicious hosts (stale)
-  const suspiciousHostPatterns = [
-    /localhost|127\.0\.0\.1/,
-    /staging|dev|test/i,
-    /heroku/i,
+function checkPdfPromptLeakage(parsed, fixture) {
+  const fullText = parsed.pages.map(p => p.text).join(" ");
+  const patterns = [
+    { re: /═{10,}/, label: "Unicode separator (═══) from LOCKED FACTS block" },
+    { re: /LOCKED DIAGNOSTIC FACTS/i, label: "LOCKED DIAGNOSTIC FACTS header" },
+    { re: /CORRECTIVE RE-PROMPT/i, label: "CORRECTIVE RE-PROMPT header" },
+    { re: /Required JSON keys:/i, label: "Required JSON keys: scaffold" },
+    { re: /Output rules JSON:/i, label: "Output rules JSON: scaffold" },
+    { re: /\bforbidden_claims\b/i, label: "forbidden_claims field name" },
+    { re: /\bcanonical_descriptor\b/i, label: "canonical_descriptor field name" },
+    { re: /\$\{[a-zA-Z_][a-zA-Z0-9_]*\}/, label: "unfilled ${variable}" },
+    { re: /\{\{[a-zA-Z_][a-zA-Z0-9_]*\}\}/, label: "unfilled {{variable}}" },
   ];
-
-  for (const host of apiHosts) {
-    if (suspiciousHostPatterns.some(p => p.test(host))) {
-      offenders.push(`stale or suspicious host: ${host}`);
-    } else if (!acceptableHosts.has(host) && /api/i.test(host)) {
-      offenders.push(`unexpected API host: ${host} (expected monderman-api.onrender.com)`);
+  const offenders = [];
+  for (const { re, label } of patterns) {
+    const m = fullText.match(re);
+    if (m) {
+      const ctx = fullText.slice(Math.max(0, m.index - 50), m.index + m[0].length + 50);
+      offenders.push(`${label} — context: …${ctx}…`);
     }
   }
-
-  // Also check that the canonical API host IS present on pages that should call it
-  if (/operational-systems|questionnaire|diagnostic/i.test(html.slice(0, 500)) ||
-      html.includes("/api/operational-systems") ||
-      html.includes("monderman-api")) {
-    if (!html.includes("monderman-api.onrender.com")) {
-      offenders.push("page appears to call diagnostic API but monderman-api.onrender.com not present");
-    }
-  }
-
   if (offenders.length === 0) {
-    return {
-      ok: true,
-      severity: "ok",
-      evidence: apiHosts.size === 0 ? "no API hosts referenced" : `API hosts: ${[...apiHosts].join(", ")}`
-    };
+    return { ok: true, severity: "ok", evidence: "no scaffold tokens in PDF text" };
   }
   return { ok: false, severity: "crit", evidence: offenders.join("\n") };
 }
 
+function checkPdfFixtureExpectations(parsed, fixture) {
+  const reasons = [];
+  const fullText = parsed.pages.map(p => p.text).join(" ").toLowerCase();
+  // Bypass cases should mention bypass / workaround / control risk
+  if (fixture.expectQualSignal === "bypass_control_risk") {
+    if (!/bypass|workaround|control[\s-]?risk/i.test(fullText)) {
+      reasons.push("expected bypass/control-risk language for bypass fixture, not found");
+    }
+  }
+  // Contradictory cases should mention experiential gap
+  if (fixture.expectExperientialGap) {
+    if (!/(?:experiential|gap|contrast|diverge|described)/i.test(fullText)) {
+      reasons.push("expected experiential-gap language for contradictory fixture, not found");
+    }
+  }
+  // Rising trajectory cases
+  if (fixture.expectTrajectory === "rising") {
+    if (!/(?:rising|creep|increasing|trending up)/i.test(fullText)) {
+      reasons.push("expected rising-trajectory language, not found");
+    }
+  }
+  // Expected dominant burden labels appear
+  if (fixture.expectedDominant) {
+    const found = fixture.expectedDominant.some(d => fullText.includes(d.toLowerCase()));
+    if (!found) {
+      reasons.push(`expected dominant burden ${JSON.stringify(fixture.expectedDominant)} not found in PDF`);
+    }
+  }
+  if (reasons.length === 0) {
+    return { ok: true, severity: "ok", evidence: "fixture-specific expectations met" };
+  }
+  return { ok: false, severity: "warn", evidence: reasons.join("; ") };
+}
+
+function checkPdfBlobSize(blob) {
+  const kb = blob.size / 1024;
+  const reasons = [];
+  if (kb < 100) reasons.push(`PDF only ${kb.toFixed(0)} KB — likely render failure`);
+  if (kb > 8000) reasons.push(`PDF ${kb.toFixed(0)} KB — unexpectedly large, image quality may be misconfigured`);
+  if (reasons.length === 0) {
+    return { ok: true, severity: "ok", evidence: `${kb.toFixed(0)} KB` };
+  }
+  return { ok: false, severity: "warn", evidence: reasons.join("; ") };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
-// Helper: extract rendered visible text from HTML.
-// What a user actually reads, not what the source code contains. We strip:
-//   - <script>...<\/script>      (any attributes, including type="module")
-//   - <style>...<\/style>
-//   - <!--   ...   -->          (HTML comments — including the developer-note
-//                                separators that look like prompt scaffolding)
-//   - <noscript>...</noscript>
-//   - all remaining HTML tags
-// And decode common HTML entities. Result is a stand-in for document.body.innerText.
-//
-// This is the primary surface for the prompt-leakage check (Path B): scaffold
-// tokens in JS source are not visible to users; scaffold tokens in rendered
-// text are. They have different severities and the harness should distinguish.
+// Run a single fixture end-to-end
 // ─────────────────────────────────────────────────────────────────────────────
-function extractVisibleText(html) {
-  let s = html;
-  // Strip block elements that hold non-rendered content
-  s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, " ");
-  s = s.replace(/<style\b[^>]*>[\s\S]*?<\/style\s*>/gi, " ");
-  s = s.replace(/<noscript\b[^>]*>[\s\S]*?<\/noscript\s*>/gi, " ");
-  s = s.replace(/<template\b[^>]*>[\s\S]*?<\/template\s*>/gi, " ");
-  // Strip HTML comments (developer notes, page-section markers, etc.)
-  s = s.replace(/<!--[\s\S]*?-->/g, " ");
-  // Strip remaining tags
-  s = s.replace(/<\/?[a-zA-Z][^>]*>/g, " ");
-  // Decode common entities
-  s = s
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&apos;/g, "'");
-  // Normalize whitespace
-  s = s.replace(/\s+/g, " ").trim();
-  return s;
-}
+async function runFixture(fixture, idx) {
+  log(`\n━━ FIXTURE ${idx}: ${fixture.label} ━━`);
+  document.getElementById("frame-title").textContent = `iframe — ${fixture.label}`;
 
-// Helper: extract just the JS / code surfaces (script tag bodies). For the
-// secondary-tier scan that flags scaffold tokens in code paths as warnings
-// rather than criticals — visible to developers reading view-source but not
-// to end users.
-function extractCodeText(html) {
-  const parts = [];
-  for (const m of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi)) {
-    parts.push(m[1]);
-  }
-  return parts.join(" ");
-}
-
-// CHECK 4: Prompt-internal leakage (Path B).
-// Two-tier scan: CRITICAL findings are scaffold tokens visible to end users
-// in rendered text. WARN findings are scaffold tokens in code paths (visible
-// only via view-source) — those are not customer-facing failures, but they
-// suggest stale debug code or copy-paste from internal docs and should be
-// cleaned up.
-//
-// Patterns are split: "user-facing scaffolding" (LOCKED FACTS block headers,
-// scoring rules, prompt-engine field names) is checked against rendered text;
-// "structural placeholders" (unfilled ${} or {{}} tokens) are checked there
-// too because if they appear in rendered text the templating engine misfired.
-// Internal field names like canonical_descriptor / forbidden_claims are
-// checked against rendered text only — they're legitimate in JS code.
-function checkPromptInternalLeakage(html) {
-  const visibleText = extractVisibleText(html);
-  const codeText = extractCodeText(html);
-
-  // Patterns that should NEVER appear in rendered text — these are direct
-  // prompt-engine scaffold strings that a user must not see.
-  const userFacingPatterns = [
-    { re: /═{10,}/, label: "Unicode separator (═══) from LOCKED DIAGNOSTIC FACTS block" },
-    { re: /LOCKED DIAGNOSTIC FACTS/i, label: "literal 'LOCKED DIAGNOSTIC FACTS' header" },
-    { re: /CORRECTIVE RE-PROMPT/i, label: "literal 'CORRECTIVE RE-PROMPT' header" },
-    { re: /Required JSON keys:/i, label: "'Required JSON keys:' prompt scaffold" },
-    { re: /Output rules JSON:/i, label: "'Output rules JSON:' prompt scaffold" },
-    { re: /Non-negotiable scoring rules:/i, label: "scoring-rules prompt scaffold" },
-    { re: /\bforbidden_claims\b/, label: "internal field name 'forbidden_claims' in rendered text" },
-    { re: /\bcanonical_descriptor\b/, label: "internal field name 'canonical_descriptor' in rendered text" },
-    { re: /\$\{[a-zA-Z_][a-zA-Z0-9_]*\}/, label: "unfilled JS template literal (${variable}) in rendered text — templating engine misfire" },
-    { re: /\{\{[a-zA-Z_][a-zA-Z0-9_]*\}\}/, label: "unfilled mustache placeholder ({{variable}}) in rendered text" }
-  ];
-
-  // Patterns that suggest stale debug or copy-paste in code paths. These are
-  // not customer-facing but warrant cleanup. Curated tighter than the user-
-  // facing list to avoid false positives on legitimate JS uses.
-  const codeOnlyPatterns = [
-    { re: /LOCKED DIAGNOSTIC FACTS/i, label: "'LOCKED DIAGNOSTIC FACTS' string in JS — scaffold token in client code" },
-    { re: /CORRECTIVE RE-PROMPT/i, label: "'CORRECTIVE RE-PROMPT' string in JS" },
-    { re: /Required JSON keys:/i, label: "'Required JSON keys:' string in JS" }
-  ];
-
-  const userOffenders = [];
-  for (const { re, label } of userFacingPatterns) {
-    const m = visibleText.match(re);
-    if (m) {
-      const start = Math.max(0, m.index - 60);
-      const end = Math.min(visibleText.length, m.index + m[0].length + 60);
-      const ctx = visibleText.slice(start, end);
-      userOffenders.push(`${label} — context: …${ctx}…`);
-    }
-  }
-
-  const codeOffenders = [];
-  for (const { re, label } of codeOnlyPatterns) {
-    const m = codeText.match(re);
-    if (m) {
-      const start = Math.max(0, m.index - 60);
-      const end = Math.min(codeText.length, m.index + m[0].length + 60);
-      const ctx = codeText.slice(start, end).replace(/\s+/g, " ").trim();
-      codeOffenders.push(`${label} — context: …${ctx}…`);
-    }
-  }
-
-  if (userOffenders.length > 0) {
-    return {
-      ok: false,
-      severity: "crit",
-      evidence: `[USER-FACING] ${userOffenders.join("\n[USER-FACING] ")}` +
-        (codeOffenders.length ? `\n[code-path] ${codeOffenders.join("\n[code-path] ")}` : "")
-    };
-  }
-  if (codeOffenders.length > 0) {
-    return {
-      ok: false,
-      severity: "warn",
-      evidence: `Scaffold tokens in JS source (not rendered to users):\n[code-path] ${codeOffenders.join("\n[code-path] ")}`
-    };
-  }
-  return { ok: true, severity: "ok", evidence: `${visibleText.length.toLocaleString()} chars of rendered text scanned, clean` };
-}
-
-// CHECK 5: Brand motif presence. The original handoff mentions concentric
-// circles SVG in footer. Some pages may put the motif outside <footer>
-// (in a wrapper div, brand-mark element, or trailing region), so check
-// both <footer> and the last 30% of the document.
-function checkBrandMotif(html, role) {
-  if (role === "marketing-minor") return { ok: true, severity: "info", skipped: true, evidence: "skipped for minor page" };
-
-  // Region 1: <footer> if present
-  const footerMatch = html.match(/<footer\b[\s\S]*?<\/footer\s*>/i);
-  // Region 2: last 30% of the document (catches pages without <footer>
-  // tag where the motif sits in a class-named wrapper)
-  const tail = html.slice(Math.floor(html.length * 0.7));
-
-  const regions = [];
-  if (footerMatch) regions.push({ name: "footer", html: footerMatch[0] });
-  regions.push({ name: "doc-tail-30pct", html: tail });
-
-  for (const region of regions) {
-    const inlineCircles = (region.html.match(/<circle\b/gi) || []).length;
-    const motifImg = /motif|monogram|brand-mark|logo-mark|concentric/i.test(region.html);
-
-    if (inlineCircles >= 2) {
-      return {
-        ok: true,
-        severity: "ok",
-        evidence: `inline SVG with ${inlineCircles} circle elements in ${region.name}`
-      };
-    }
-    if (motifImg) {
-      return {
-        ok: true,
-        severity: "ok",
-        evidence: `motif element/class referenced in ${region.name}`
-      };
-    }
-  }
-
-  return {
-    ok: false,
-    severity: "warn",
-    evidence: "no concentric-circles motif detected in <footer> or doc-tail-30pct"
+  const result = {
+    fixture: fixture.label,
+    fixture_idx: idx,
+    started_at: new Date().toISOString(),
+    status: "running",
+    error: null,
+    qs_answered: 0,
+    pdf_filename: null,
+    pdf_size_kb: null,
+    pdf_pages: null,
+    checks: {},
   };
-}
 
-// CHECK 6: CTA wiring sanity. On the questionnaire page, "Begin Diagnostic"
-// should have a click handler. Modern frontends almost never use inline
-// onclick= — they delegate via addEventListener('click', e => e.target.
-// matches('#begin-btn')) or similar. The check now detects:
-//   - A <button> containing the "Begin Diagnostic" text
-//   - The button has either: an id, an inline onclick, or text the page's
-//     JS references (id-based delegation, text-based delegation, or class
-//     pattern). We accept any of those as evidence of wiring.
-// Also verifies the disabled-state pattern is present somewhere on the page.
-function checkCtaWiring(html, role) {
-  if (role !== "questionnaire" && role !== "questionnaire-alt") {
-    return { ok: true, severity: "info", skipped: true, evidence: "not a questionnaire page" };
-  }
-
-  const offenders = [];
-  const evidence = [];
-
-  // Find the <button> that contains "Begin Diagnostic" text (case-insensitive,
-  // tolerating nested elements like <span> or <strong>).
-  const beginButtonRe = /<button\b([^>]*)>([\s\S]*?)<\/button\s*>/gi;
-  let beginMatch = null;
-  let m;
-  while ((m = beginButtonRe.exec(html)) !== null) {
-    const innerStripped = m[2].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-    if (/begin\s+diagnostic/i.test(innerStripped)) {
-      beginMatch = { full: m[0], attrs: m[1], inner: innerStripped };
-      break;
-    }
-  }
-
-  if (!beginMatch) {
-    offenders.push("'Begin Diagnostic' text not found inside any <button> element");
-  } else {
-    evidence.push(`<button> with 'Begin Diagnostic' text found`);
-    // Extract id and class from the button's attributes
-    const idMatch = beginMatch.attrs.match(/\bid=["']([^"']+)["']/i);
-    const classMatch = beginMatch.attrs.match(/\bclass=["']([^"']+)["']/i);
-    const inlineHandler = /\bon(click|pointerup|tap)=/i.test(beginMatch.attrs);
-
-    let wired = false;
-    if (inlineHandler) {
-      wired = true;
-      evidence.push("inline onclick/pointerup attribute on button");
-    }
-
-    // Look for the button's id referenced anywhere in script-tag bodies
-    // (event delegation by id).
-    if (idMatch) {
-      const id = idMatch[1];
-      const codeText = extractCodeText(html);
-      // Common patterns: getElementById, querySelector('#id'), matches('#id'),
-      // closest('#id'), addEventListener on the id'd element.
-      const idRe = new RegExp(`(getElementById\\(["']${id}["']|["']#${id}["']|matches\\([^)]*${id}|closest\\([^)]*${id})`);
-      if (idRe.test(codeText)) {
-        wired = true;
-        evidence.push(`button id '#${id}' referenced in JS (event delegation or direct binding)`);
-      }
-    }
-    // Look for class-based delegation
-    if (classMatch) {
-      const cls = classMatch[1].split(/\s+/).filter(Boolean);
-      const codeText = extractCodeText(html);
-      for (const c of cls) {
-        const classRe = new RegExp(`["']\\.${c}["']|matches\\([^)]*\\.${c}|closest\\([^)]*\\.${c}|querySelector(?:All)?\\([^)]*\\.${c}`);
-        if (classRe.test(codeText)) {
-          wired = true;
-          evidence.push(`button class '.${c}' referenced in JS`);
-          break;
-        }
-      }
-    }
-    // Last resort: look for the literal text "Begin Diagnostic" referenced in
-    // script-tag bodies (text-content-based delegation, less common but
-    // possible — e.g. e.target.textContent.includes('Begin Diagnostic')).
-    if (!wired) {
-      const codeText = extractCodeText(html);
-      if (/begin\s+diagnostic/i.test(codeText)) {
-        wired = true;
-        evidence.push("'Begin Diagnostic' text referenced in JS");
-      }
-    }
-
-    if (!wired) {
-      offenders.push("'Begin Diagnostic' button has no detected wiring (no inline handler, no id/class/text match in JS)");
-    }
-  }
-
-  // Disabled-state pattern present somewhere on the page (per the recent backend
-  // work that added the disabled-state hint and helper text to Step 3 CTA).
-  const hasDisabledState = /\bdisabled(?:\s*=|\b)|aria-disabled|data-disabled/i.test(html);
-  if (!hasDisabledState) {
-    offenders.push("no disabled-state attribute pattern detected — Step 3 CTA may not gate on prerequisites");
-  } else {
-    evidence.push("disabled-state attribute pattern present");
-  }
-
-  if (offenders.length === 0) {
-    return { ok: true, severity: "ok", evidence: evidence.join(" · ") };
-  }
-  return {
-    ok: false,
-    severity: offenders.length > 1 ? "crit" : "warn",
-    evidence: offenders.join("\n") + (evidence.length ? `\n(also detected: ${evidence.join("; ")})` : "")
-  };
-}
-
-// CHECK 7: Page-level structural sanity: <title>, viewport, charset, doctype
-function checkStructuralBasics(html) {
-  const offenders = [];
-  if (!/<!DOCTYPE\s+html/i.test(html.slice(0, 100))) offenders.push("missing or non-html5 DOCTYPE");
-  if (!/<title[^>]*>[^<]+<\/title>/i.test(html)) offenders.push("missing or empty <title>");
-  if (!/<meta[^>]+charset/i.test(html)) offenders.push("missing charset meta");
-  if (!/<meta[^>]+viewport/i.test(html)) offenders.push("missing viewport meta (mobile rendering will break)");
-  if (offenders.length === 0) return { ok: true, severity: "ok" };
-  return { ok: false, severity: "warn", evidence: offenders.join("\n") };
-}
-
-// CHECK 8: HTML size sanity. Suspiciously small pages may indicate broken
-// rendering or 404 fallthrough served as 200.
-function checkPageSize(html, role) {
-  const size = html.length;
-  if (size < 1000) {
-    return { ok: false, severity: "crit", evidence: `${size} chars — likely error page served as 200` };
-  }
-  if (size < 4000 && role !== "marketing-minor") {
-    return { ok: false, severity: "warn", evidence: `${size} chars — unusually small for ${role}` };
-  }
-  return { ok: true, severity: "ok", evidence: `${size} chars` };
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Runner
-// ─────────────────────────────────────────────────────────────────────────────
-
-let allResults = [];
-
-function log(msg) {
-  const el = document.getElementById("log");
-  el.textContent += `[${new Date().toISOString().slice(11,19)}] ${msg}\n`;
-  el.scrollTop = el.scrollHeight;
-}
-
-async function auditPage(baseUrl, page) {
-  const url = baseUrl.replace(/\/$/, "") + page.path;
-  log(`▶ ${page.path}  (${page.role})`);
-
-  let html, fetchError = null, status = null, notPresent = false;
   try {
-    const r = await fetch(url, { cache: "no-cache", redirect: "follow" });
-    status = r.status;
-    if (!r.ok) {
-      html = await r.text().catch(() => "");
-      if (page.critical && status >= 400) {
-        // Critical page returning 4xx/5xx is a real failure
-        fetchError = `HTTP ${r.status}`;
-      } else if (status === 404) {
-        // Non-critical 404 = page not present, not a failure. Common case:
-        // marketing pages from the audit list that were never built.
-        notPresent = true;
-        log(`  · ${r.status} — page not present (non-critical, expected for stub paths)`);
-      } else {
-        log(`  ⚠ ${r.status} — non-critical, continuing`);
-      }
-    } else {
-      html = await r.text();
-    }
+    log("→ loading iframe…");
+    const frame = await loadIframe();
+    await sleep(800); // let initial JS settle
+
+    log("→ Step 1: select lane");
+    await selectLane(frame, fixture.lane);
+
+    log("→ Step 2: select depth");
+    await selectDepth(frame, fixture.depth);
+
+    log("→ Step 3: fill intro + begin");
+    await fillIntroAndBegin(frame, fixture);
+
+    log("→ answering questions…");
+    const qsAnswered = await answerQuestions(frame, fixture);
+    result.qs_answered = qsAnswered;
+    log(`  · ${qsAnswered} questions answered`);
+
+    log("→ filling experiential layer…");
+    await fillExperienceLayer(frame, fixture);
+
+    log("→ waiting for results render…");
+    await waitForResults(frame);
+    log("  ✓ results stage active");
+
+    log("→ capturing PDF…");
+    const { blob, filename } = await capturePdfBlob(frame);
+    result.pdf_filename = filename;
+    result.pdf_size_kb = (blob.size / 1024).toFixed(0);
+    log(`  ✓ PDF captured: ${filename} (${result.pdf_size_kb} KB)`);
+
+    log("→ parsing PDF…");
+    const parsed = await parsePdf(blob);
+    result.pdf_pages = parsed.numPages;
+
+    log("→ running integrity checks…");
+    result.checks.structure       = checkPdfStructure(parsed, fixture);
+    result.checks.text_content    = checkPdfTextContent(parsed, fixture);
+    result.checks.prompt_leakage  = checkPdfPromptLeakage(parsed, fixture);
+    result.checks.fixture_expects = checkPdfFixtureExpectations(parsed, fixture);
+    result.checks.blob_size       = checkPdfBlobSize(blob);
+
+    // Tally
+    const checks = Object.values(result.checks);
+    const crit = checks.filter(c => c.severity === "crit").length;
+    const warn = checks.filter(c => c.severity === "warn").length;
+    result.status = crit > 0 ? "fail" : warn > 0 ? "warn" : "pass";
+    log(`  → ${result.status.toUpperCase()} — ${crit} crit, ${warn} warn`);
   } catch (e) {
-    fetchError = e.message;
-    log(`  ✗ fetch error: ${e.message}`);
-    return {
-      ...page, url, status: null, error: fetchError, checks: {}, summary: "error"
-    };
+    result.status = "error";
+    result.error = e.message;
+    log(`  ✗ ERROR: ${e.message}`);
   }
 
-  // Non-critical 404 short-circuit — return without running checks
-  if (notPresent) {
-    return {
-      ...page, url, status, error: null, checks: {}, summary: "not_present",
-      note: "Page does not exist on the live site (expected for stub audit paths)."
-    };
-  }
-
-  const checks = {};
-
-  if (status === 200 && html) {
-    checks.structural_basics    = checkStructuralBasics(html);
-    checks.page_size            = checkPageSize(html, page.role);
-    checks.markdown_fence       = checkMarkdownFenceContamination(html);
-    checks.prompt_leakage       = checkPromptInternalLeakage(html);
-    checks.api_paths            = checkApiPaths(html);
-    checks.brand_motif          = checkBrandMotif(html, page.role);
-    checks.cta_wiring           = checkCtaWiring(html, page.role);
-    // Asset check is async; do it last
-    log(`  → checking ${page.path} assets…`);
-    checks.assets               = await checkAssetReferences(html, url);
-  }
-
-  // Tally severities
-  let critCount = 0, warnCount = 0, okCount = 0;
-  for (const c of Object.values(checks)) {
-    if (c.skipped) continue;
-    if (!c.ok) {
-      if (c.severity === "crit") critCount++;
-      else if (c.severity === "warn") warnCount++;
-    } else {
-      okCount++;
-    }
-  }
-  const summary = critCount > 0 ? "crit" : warnCount > 0 ? "warn" : okCount > 0 ? "ok" : "error";
-  log(`  ${critCount === 0 && warnCount === 0 ? "✓" : "✗"} ${page.path}: ${critCount} crit, ${warnCount} warn, ${okCount} ok`);
-
-  return { ...page, url, status, error: fetchError, checks, summary };
+  result.finished_at = new Date().toISOString();
+  return result;
 }
 
-function renderResults(results) {
+// ─────────────────────────────────────────────────────────────────────────────
+// Suite runner + UI
+// ─────────────────────────────────────────────────────────────────────────────
+function renderResults() {
   const container = document.getElementById("results");
   container.innerHTML = "";
-
-  for (const r of results) {
+  for (const r of allResults) {
     const block = document.createElement("div");
-    const cls = r.error ? "error" :
-                r.summary === "crit" ? "has-crit" :
-                r.summary === "warn" ? "has-warn" :
-                r.summary === "not_present" ? "error" : "all-ok";
-    block.className = "page-block " + cls;
-
-    const summaryTag =
-      r.error ? '<span class="tag tag-info">FETCH ERROR</span>' :
-      r.summary === "crit" ? '<span class="tag tag-crit">CRITICAL</span>' :
-      r.summary === "warn" ? '<span class="tag tag-warn">WARN</span>' :
-      r.summary === "not_present" ? '<span class="tag tag-info">NOT PRESENT</span>' :
-      '<span class="tag tag-ok">CLEAN</span>';
-
+    block.className = "fixture-block " + r.status;
+    const tag = r.status === "pass" ? '<span class="tag tag-ok">PASS</span>' :
+                r.status === "warn" ? '<span class="tag tag-warn">WARN</span>' :
+                r.status === "fail" ? '<span class="tag tag-crit">FAIL</span>' :
+                '<span class="tag tag-info">ERROR</span>';
     let html = `
-      <div class="page-header">
+      <div class="fixture-header">
         <div>
-          <div class="page-url">${r.url}</div>
-          <div class="page-meta">${r.role}${r.critical ? " · critical" : ""} · status ${r.status || "—"}${summaryTag}</div>
+          <div class="fixture-name">${r.fixture}</div>
+          <div class="fixture-meta">
+            qs=${r.qs_answered} ·
+            ${r.pdf_pages ? r.pdf_pages + ' pages' : 'no PDF'} ·
+            ${r.pdf_size_kb ? r.pdf_size_kb + ' KB' : '—'} ${tag}
+          </div>
         </div>
-      </div>
-    `;
-
+      </div>`;
     if (r.error) {
-      html += `<div class="evidence">Fetch error: ${escapeHtml(r.error)}</div>`;
-    } else if (r.summary === "not_present") {
-      html += `<div class="evidence">${escapeHtml(r.note || "Page returned 404 — does not exist on the live site.")}</div>`;
+      html += `<div class="evidence">Error: ${escapeHtml(r.error)}</div>`;
     } else if (r.checks) {
-      html += `<table class="checks-table"><tbody>`;
+      html += '<table class="checks-table"><tbody>';
       for (const [name, c] of Object.entries(r.checks)) {
-        const icon = c.skipped ? "—" : c.ok ? "✓" : "✗";
-        const cls = c.skipped ? "check-skip" : c.ok ? "check-pass" : (c.severity === "crit" ? "check-fail" : "check-warn");
-        html += `
-          <tr>
-            <td class="${cls}">${icon}</td>
-            <td>${name}</td>
-            <td>${c.evidence ? escapeHtml(String(c.evidence)).split("\n").join("<br>") : (c.ok ? "ok" : "failed")}</td>
-          </tr>
-        `;
+        const icon = c.ok ? "✓" : "✗";
+        const cls = c.ok ? "cp" : (c.severity === "crit" ? "cf" : "cw");
+        html += `<tr><td class="${cls}">${icon}</td><td>${name}</td><td>${escapeHtml(String(c.evidence || ''))}</td></tr>`;
       }
-      html += `</tbody></table>`;
+      html += '</tbody></table>';
     }
-
     block.innerHTML = html;
     container.appendChild(block);
   }
@@ -703,134 +921,101 @@ function escapeHtml(s) {
 }
 
 function updateSummary() {
-  const totalPages = allResults.length;
-  const crit = allResults.filter(r => r.summary === "crit").length;
-  const warn = allResults.filter(r => r.summary === "warn").length;
-  const ok = allResults.filter(r => r.summary === "ok").length;
-  const err = allResults.filter(r => r.error).length;
-  const np = allResults.filter(r => r.summary === "not_present").length;
-  document.getElementById("sPages").textContent = totalPages;
-  document.getElementById("sPass").textContent = ok;
+  const total = allResults.length;
+  const pass = allResults.filter(r => r.status === "pass").length;
+  const warn = allResults.filter(r => r.status === "warn").length;
+  const fail = allResults.filter(r => r.status === "fail").length;
+  const err = allResults.filter(r => r.status === "error").length;
+  document.getElementById("sTotal").textContent = total;
+  document.getElementById("sPass").textContent = pass;
   document.getElementById("sWarn").textContent = warn;
-  document.getElementById("sCrit").textContent = crit;
+  document.getElementById("sFail").textContent = fail;
   document.getElementById("sErr").textContent = err;
-  document.getElementById("sNP").textContent = np;
   document.getElementById("summary").style.display = "flex";
 }
 
-async function startAudit() {
-  document.getElementById("runBtn").disabled = true;
-  document.getElementById("saveBtn").style.display = "none";
-  document.getElementById("log").textContent = "";
-  document.getElementById("results").innerHTML = "";
-  allResults = [];
-
-  const base = document.getElementById("basePath").value.trim().replace(/\/$/, "");
-  if (!base) {
-    log("✗ no base URL provided");
-    document.getElementById("runBtn").disabled = false;
+async function startSuite() {
+  // Same-origin guard
+  if (window.location.protocol !== "https:" && window.location.protocol !== "http:") {
+    log("✗ must be hosted on http(s), not file://");
     return;
   }
 
-  // CORS preflight: if the harness is loaded from a different origin than
-  // the audit target, fetches will fail with "Failed to fetch" and the only
-  // fix is to host the harness same-origin. Detect this up front and warn
-  // explicitly, since "Failed to fetch" alone is not actionable.
-  const harnessOrigin = window.location.origin;
-  let baseOrigin;
-  try { baseOrigin = new URL(base).origin; } catch { baseOrigin = ""; }
+  stopFlag = false;
+  allResults = [];
+  document.getElementById("runBtn").disabled = true;
+  document.getElementById("stopBtn").style.display = "inline-block";
+  document.getElementById("saveBtn").style.display = "none";
+  document.getElementById("log").textContent = "";
+  document.getElementById("results").innerHTML = "";
 
-  if (harnessOrigin !== baseOrigin) {
-    log("⚠ CROSS-ORIGIN AUDIT DETECTED");
-    log(`  harness origin: ${harnessOrigin}`);
-    log(`  target origin:  ${baseOrigin}`);
-    log("");
-    log("  GitHub Pages does not send Access-Control-Allow-Origin headers.");
-    log("  Cross-origin fetch() calls will fail. The fix:");
-    log("");
-    log("    1. Drop this HTML file into the GitHub Pages repo");
-    log("       (e.g. /tests/audit-v8c1.html — DO NOT link to it from nav)");
-    log("    2. Commit and wait for Pages to deploy");
-    log("    3. Open https://monderman.com/tests/audit-v8c1.html and run");
-    log("");
-    log("  Continuing anyway in case CORS is permissive — most fetches will probably error.\n");
-  } else {
-    log(`✓ same-origin audit: ${harnessOrigin}\n`);
+  const selected = Array.from(document.querySelectorAll(".fixture-controls input:checked"))
+    .map(cb => parseInt(cb.dataset.fixture, 10));
+  if (selected.length === 0) {
+    log("✗ no fixtures selected");
+    document.getElementById("runBtn").disabled = false;
+    document.getElementById("stopBtn").style.display = "none";
+    return;
   }
+  log(`Running ${selected.length} fixture(s) — ${selected.join(", ")}`);
 
-  document.getElementById("statusLine").textContent = "Auditing " + base + "…";
-  log(`base: ${base}`);
-  log(`${PAGES_TO_AUDIT.length} pages to audit\n`);
-
-  for (const page of PAGES_TO_AUDIT) {
-    const result = await auditPage(base, page);
+  for (const idx of selected) {
+    if (stopFlag) { log("\n■ stopped"); break; }
+    document.getElementById("statusLine").textContent = `Running fixture ${idx + 1}/${FIXTURES.length}: ${FIXTURES[idx].label}`;
+    const result = await runFixture(FIXTURES[idx], idx);
     allResults.push(result);
-    renderResults(allResults);
+    renderResults();
     updateSummary();
   }
 
-  log("\n══ done ══");
-
-  // Post-run CORS diagnosis: if every page errored with "Failed to fetch",
-  // it's almost certainly CORS, not a site-wide outage.
-  const allFailedToFetch = allResults.length > 0 &&
-    allResults.every(r => r.error && /Failed to fetch|NetworkError|CORS/i.test(r.error));
-  if (allFailedToFetch && harnessOrigin !== baseOrigin) {
-    log("");
-    log("══ DIAGNOSIS ══");
-    log("All pages failed with cross-origin fetch errors. The site is almost");
-    log("certainly fine — the issue is that this harness is running from a");
-    log("different origin and the browser blocks cross-origin reads.");
-    log("");
-    log("Fix: host this file at https://monderman.com/tests/audit-v8c1.html");
-    log("(or any path on the same origin) and re-run.");
-  }
-
-  document.getElementById("statusLine").textContent =
-    `Audited ${allResults.length} pages — ${allResults.filter(r => r.summary === "crit").length} critical, ${allResults.filter(r => r.summary === "warn").length} warn, ${allResults.filter(r => r.error).length} errors`;
   document.getElementById("runBtn").disabled = false;
+  document.getElementById("stopBtn").style.display = "none";
   document.getElementById("saveBtn").style.display = "inline-block";
+  document.getElementById("statusLine").textContent =
+    `Done — ${allResults.filter(r => r.status === "pass").length}/${allResults.length} pass`;
+  log("\n━━ done ━━");
 }
 
 function saveResults() {
-  const harnessOrigin = window.location.origin;
-  const baseUrl = document.getElementById("basePath").value.trim();
-  let baseOrigin = "";
-  try { baseOrigin = new URL(baseUrl).origin; } catch {}
-  const crossOrigin = harnessOrigin !== baseOrigin;
-  const allFailedToFetch = allResults.length > 0 &&
-    allResults.every(r => r.error && /Failed to fetch|NetworkError|CORS/i.test(r.error));
-
   const out = {
     generated: new Date().toISOString(),
-    version: "v8c.1.2-ModeA-PathB",
-    base_url: baseUrl,
-    // v8c.1.1: capture run-mode diagnostics in the saved JSON, not just
-    // the on-screen log. When every page errors with "Failed to fetch",
-    // the cause is almost always run-mode (file:// vs same-origin) and
-    // surfacing it here makes diagnosis instant.
-    run_mode: {
-      harness_origin: harnessOrigin,
-      target_origin: baseOrigin,
-      cross_origin: crossOrigin,
-      same_origin: !crossOrigin && harnessOrigin !== "null" && harnessOrigin !== "",
-      protocol: window.location.protocol,
-      likely_cors_blocked: crossOrigin && allFailedToFetch,
-      likely_file_protocol: window.location.protocol === "file:" && allFailedToFetch
-    },
-    total_pages: allResults.length,
-    critical: allResults.filter(r => r.summary === "crit").length,
-    warn: allResults.filter(r => r.summary === "warn").length,
-    clean: allResults.filter(r => r.summary === "ok").length,
-    fetch_errors: allResults.filter(r => r.error).length,
-    results: allResults
+    version: "v8c.2-LiveFlow-PDF",
+    base_url: window.location.origin,
+    total: allResults.length,
+    pass: allResults.filter(r => r.status === "pass").length,
+    warn: allResults.filter(r => r.status === "warn").length,
+    fail: allResults.filter(r => r.status === "fail").length,
+    error: allResults.filter(r => r.status === "error").length,
+    results: allResults,
   };
   const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "monderman_test_results_v8c1.json";
+  a.download = "monderman_test_results_v8c2.json";
   a.click();
 }
+
+// Make iframe panel draggable by header
+(function() {
+  const host = document.getElementById("frame-host");
+  const bar = host.querySelector(".frame-bar");
+  let dragging = false, sx = 0, sy = 0, ox = 0, oy = 0;
+  bar.addEventListener("mousedown", (e) => {
+    if (e.target.tagName === "BUTTON") return;
+    dragging = true;
+    sx = e.clientX; sy = e.clientY;
+    const rect = host.getBoundingClientRect();
+    ox = rect.left; oy = rect.top;
+    e.preventDefault();
+  });
+  document.addEventListener("mousemove", (e) => {
+    if (!dragging) return;
+    host.style.left = (ox + e.clientX - sx) + "px";
+    host.style.top = (oy + e.clientY - sy) + "px";
+    host.style.right = "auto"; host.style.bottom = "auto";
+  });
+  document.addEventListener("mouseup", () => { dragging = false; });
+})();
 </script>
 </body>
 </html>
