@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Monderman — v8c.1 Mode A · Frontend Structural Audit</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, Helvetica, Arial, sans-serif; background: #F4F6F9; color: #15202B; padding: 32px; }
+h1 { font-size: 20px; font-weight: 700; letter-spacing: -.02em; margin-bottom: 4px; }
+.meta { color: #7C8794; font-size: 12px; margin-bottom: 24px; }
+.controls { display: flex; gap: 12px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; }
+button { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; }
+#runBtn { background: #0D1820; color: #fff; }
+#runBtn:disabled { background: #7C8794; cursor: not-allowed; }
+#saveBtn { background: #2E7D52; color: #fff; display: none; }
+.url-input { padding: 8px 12px; border-radius: 6px; border: 1px solid #C8CFD7; font-size: 12px; min-width: 280px; font-family: monospace; }
+.status { font-size: 13px; color: #4A5968; padding: 8px 14px; background: #fff; border-radius: 8px; border: 1px solid #E6EAF0; min-width: 260px; }
+.summary { display: flex; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; }
+.stat { background: #fff; border: 1px solid #E6EAF0; border-radius: 12px; padding: 12px 18px; min-width: 80px; }
+.sv { font-size: 24px; font-weight: 700; letter-spacing: -.03em; }
+.sl { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: #7C8794; margin-top: 2px; }
+.sv.crit  { color: #B85C52; }
+.sv.warn  { color: #C49A3C; }
+.sv.ok    { color: #2E7D52; }
+.sv.info  { color: #4A5968; }
+#log { background: #0D1820; color: #A8C0D0; border-radius: 10px; padding: 16px; font-family: monospace; font-size: 11.5px; height: 220px; overflow-y: auto; margin-bottom: 20px; line-height: 1.6; white-space: pre-wrap; }
+.page-block { background: #fff; border: 1px solid #E6EAF0; border-radius: 12px; padding: 16px 20px; margin-bottom: 14px; }
+.page-block.has-crit { border-left: 4px solid #B85C52; }
+.page-block.has-warn { border-left: 4px solid #C49A3C; }
+.page-block.all-ok   { border-left: 4px solid #2E7D52; }
+.page-block.error    { border-left: 4px solid #7C8794; }
+.page-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+.page-url { font-family: monospace; font-size: 12px; color: #15202B; word-break: break-all; }
+.page-meta { font-size: 11px; color: #7C8794; }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-left: 6px; }
+.tag-crit { background: #B85C52; color: #fff; }
+.tag-warn { background: #C49A3C; color: #fff; }
+.tag-ok   { background: #CDE6D7; color: #1F5938; }
+.tag-info { background: #E6EAF0; color: #4A5968; }
+.checks-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.checks-table td { padding: 6px 8px; border-bottom: 1px solid #F0F3F7; vertical-align: top; }
+.checks-table td:first-child { width: 32px; text-align: center; font-weight: 700; font-size: 14px; }
+.checks-table td:nth-child(2) { width: 220px; font-family: monospace; font-size: 11px; color: #4A5968; }
+.checks-table td:nth-child(3) { color: #15202B; }
+.check-pass { color: #2E7D52; }
+.check-warn { color: #C49A3C; }
+.check-fail { color: #B85C52; }
+.check-skip { color: #7C8794; }
+details { margin-top: 8px; }
+summary { cursor: pointer; font-size: 11px; color: #4A5968; padding: 4px 0; }
+.evidence { background: #F4F6F9; border-radius: 6px; padding: 8px 10px; font-family: monospace; font-size: 10.5px; color: #4A5968; margin-top: 4px; word-break: break-all; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<h1>Monderman v8c.1 — Frontend Structural Audit (Mode A · Static)</h1>
+<div class="meta">v8c.1.2 (Path B) &middot; No backend interaction. Audits live HTML for: markdown-fence contamination &middot; asset 404s &middot; stale API paths &middot; <strong>prompt-internal leakage in rendered text only</strong> &middot; brand motif presence &middot; CTA wiring (with event-delegation detection) &middot; structural basics. <strong>Must be hosted same-origin to the audit target.</strong></div>
+
+<div class="controls">
+  <input id="basePath" class="url-input" type="text" value="" placeholder="Base URL (default: same origin as this page)">
+  <button id="runBtn" onclick="startAudit()">&#9654; Run Audit</button>
+  <button id="saveBtn" onclick="saveResults()">&#8595; Save JSON</button>
+  <div class="status" id="statusLine">Ready</div>
+</div>
+
+<div class="summary" id="summary" style="display:none">
+  <div class="stat"><div class="sv info" id="sPages">0</div><div class="sl">Pages</div></div>
+  <div class="stat"><div class="sv ok" id="sPass">0</div><div class="sl">All clean</div></div>
+  <div class="stat"><div class="sv warn" id="sWarn">0</div><div class="sl">Warn</div></div>
+  <div class="stat"><div class="sv crit" id="sCrit">0</div><div class="sl">Critical</div></div>
+  <div class="stat"><div class="sv info" id="sErr">0</div><div class="sl">Fetch error</div></div>
+  <div class="stat"><div class="sv info" id="sNP">0</div><div class="sl">Not present</div></div>
+</div>
+
+<div id="log"></div>
+<div id="results"></div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// Initialize: populate base URL from window.location.origin so the default
+// always matches the harness's actual host (avoids the www. vs apex CORS gotcha).
+// ─────────────────────────────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("basePath");
+  if (input && !input.value) {
+    input.value = window.location.origin;
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Pages to audit. Adjust based on actual site structure as discovered.
+// Path A discovers structure in real time — start with the canonical paths
+// from the project context, fall back gracefully if any 404.
+// ─────────────────────────────────────────────────────────────────────────────
+const PAGES_TO_AUDIT = [
+  { path: "/",                              role: "homepage",          critical: true  },
+  { path: "/diagnostic-hub.html",           role: "diagnostic-hub",    critical: true  },
+  { path: "/operational-systems.html",      role: "questionnaire",     critical: true  },
+  { path: "/structural-clarity.html",       role: "questionnaire-alt", critical: false },
+  { path: "/about.html",                    role: "marketing",         critical: false },
+  { path: "/pricing.html",                  role: "marketing",         critical: false },
+  { path: "/methodology.html",              role: "marketing",         critical: false },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Check definitions. Each check returns { ok, severity, evidence?, skipped? }.
+// severity: "crit" (must fix before client use) | "warn" (should fix) | "info"
+// ─────────────────────────────────────────────────────────────────────────────
+
+// CHECK 1: Markdown-fence contamination from GitHub web editor.
+// The original handoff flagged that pasting into GitHub web editor injects
+// ``` fences into HTML. Scan for orphaned triple-backticks at suspicious
+// locations: top of <body>, inside <style> blocks, between </head> and start
+// of content, or as visible text content.
+function checkMarkdownFenceContamination(html) {
+  const offenders = [];
+
+  // Pattern 1: triple-backtick at start of body content (before first real element)
+  const bodyMatch = html.match(/<body[^>]*>([\s\S]{0,500})/i);
+  if (bodyMatch) {
+    const earlyBody = bodyMatch[1];
+    if (/^[\s\n]*```/.test(earlyBody)) {
+      offenders.push("``` at top of <body>");
+    }
+  }
+
+  // Pattern 2: ``` inside <style> tags (would break CSS parsing)
+  const styleBlocks = html.match(/<style[^>]*>[\s\S]*?<\/style>/gi) || [];
+  for (const block of styleBlocks) {
+    if (/```|~~~/.test(block)) {
+      offenders.push("``` or ~~~ inside <style>");
+      break;
+    }
+  }
+
+  // Pattern 3: ``` in document outside expected contexts (not inside <pre><code>)
+  // Strip <pre><code> blocks first since legitimate code samples use them
+  const stripped = html
+    .replace(/<pre[^>]*>[\s\S]*?<\/pre>/gi, "")
+    .replace(/<code[^>]*>[\s\S]*?<\/code>/gi, "")
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ""); // exclude legit JS template literals
+
+  const tripleMatches = stripped.match(/```/g) || [];
+  if (tripleMatches.length > 0) {
+    offenders.push(`${tripleMatches.length} stray \`\`\` token(s) outside <pre>/<code>/<script>`);
+  }
+
+  // Pattern 4: ```html or ```javascript markers (telltale signs of GitHub paste)
+  if (/```(html|javascript|js|css)\b/i.test(stripped)) {
+    offenders.push("language-tagged fence (```html, ```js, etc.) in document");
+  }
+
+  if (offenders.length === 0) return { ok: true, severity: "ok" };
+  return {
+    ok: false,
+    severity: "crit",
+    evidence: offenders.join("\n")
+  };
+}
+
+// CHECK 2: Asset 404s. Extracts <link rel="stylesheet">, <script src>, <img src>,
+// and font references; HEAD-fetches each. Same-origin only (CORS would block
+// cross-origin).
+async function checkAssetReferences(html, baseUrl) {
+  const refs = new Set();
+
+  // <link rel="stylesheet" href="...">
+  for (const m of html.matchAll(/<link[^>]+rel=["']?stylesheet["']?[^>]*>/gi)) {
+    const hrefMatch = m[0].match(/href=["']([^"']+)["']/i);
+    if (hrefMatch) refs.add(hrefMatch[1]);
+  }
+  // <script src="...">
+  for (const m of html.matchAll(/<script[^>]+src=["']([^"']+)["']/gi)) {
+    refs.add(m[1]);
+  }
+  // <img src="...">
+  for (const m of html.matchAll(/<img[^>]+src=["']([^"']+)["']/gi)) {
+    refs.add(m[1]);
+  }
+
+  const results = [];
+  const baseURL = new URL(baseUrl);
+  for (const ref of refs) {
+    let absURL;
+    try { absURL = new URL(ref, baseURL).href; } catch { continue; }
+    // Same origin only
+    if (new URL(absURL).origin !== baseURL.origin) continue;
+    try {
+      const r = await fetch(absURL, { method: "HEAD", cache: "no-cache" });
+      results.push({ url: absURL, status: r.status });
+    } catch (e) {
+      results.push({ url: absURL, status: "fetch-error", err: e.message });
+    }
+  }
+
+  const broken = results.filter(r => r.status !== 200);
+  if (broken.length === 0) {
+    return { ok: true, severity: "ok", evidence: `${results.length} same-origin assets, all 200` };
+  }
+  return {
+    ok: false,
+    severity: "crit",
+    evidence: `${broken.length} broken / ${results.length} same-origin assets:\n` +
+      broken.map(b => `  ${b.status}  ${b.url}`).join("\n")
+  };
+}
+
+// CHECK 3: Stale API paths. Verify the inline JS uses the correct API base
+// (monderman-api.onrender.com per project context) and not stale alternatives.
+function checkApiPaths(html) {
+  const offenders = [];
+  const apiHosts = new Set();
+
+  // Find all API-like host references
+  for (const m of html.matchAll(/https?:\/\/([a-zA-Z0-9.-]+)/g)) {
+    const host = m[1];
+    if (/api|render\.com|herokuapp\.com|fly\.dev|vercel\.app/i.test(host)) {
+      apiHosts.add(host);
+    }
+  }
+
+  // Acceptable production host
+  const acceptableHosts = new Set(["monderman-api.onrender.com"]);
+  // Suspicious hosts (stale)
+  const suspiciousHostPatterns = [
+    /localhost|127\.0\.0\.1/,
+    /staging|dev|test/i,
+    /heroku/i,
+  ];
+
+  for (const host of apiHosts) {
+    if (suspiciousHostPatterns.some(p => p.test(host))) {
+      offenders.push(`stale or suspicious host: ${host}`);
+    } else if (!acceptableHosts.has(host) && /api/i.test(host)) {
+      offenders.push(`unexpected API host: ${host} (expected monderman-api.onrender.com)`);
+    }
+  }
+
+  // Also check that the canonical API host IS present on pages that should call it
+  if (/operational-systems|questionnaire|diagnostic/i.test(html.slice(0, 500)) ||
+      html.includes("/api/operational-systems") ||
+      html.includes("monderman-api")) {
+    if (!html.includes("monderman-api.onrender.com")) {
+      offenders.push("page appears to call diagnostic API but monderman-api.onrender.com not present");
+    }
+  }
+
+  if (offenders.length === 0) {
+    return {
+      ok: true,
+      severity: "ok",
+      evidence: apiHosts.size === 0 ? "no API hosts referenced" : `API hosts: ${[...apiHosts].join(", ")}`
+    };
+  }
+  return { ok: false, severity: "crit", evidence: offenders.join("\n") };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Helper: extract rendered visible text from HTML.
+// What a user actually reads, not what the source code contains. We strip:
+//   - <script>...</script>      (any attributes, including type="module")
+//   - <style>...</style>
+//   - <!--   ...   -->          (HTML comments — including the developer-note
+//                                separators that look like prompt scaffolding)
+//   - <noscript>...</noscript>
+//   - all remaining HTML tags
+// And decode common HTML entities. Result is a stand-in for document.body.innerText.
+//
+// This is the primary surface for the prompt-leakage check (Path B): scaffold
+// tokens in JS source are not visible to users; scaffold tokens in rendered
+// text are. They have different severities and the harness should distinguish.
+// ─────────────────────────────────────────────────────────────────────────────
+function extractVisibleText(html) {
+  let s = html;
+  // Strip block elements that hold non-rendered content
+  s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, " ");
+  s = s.replace(/<style\b[^>]*>[\s\S]*?<\/style\s*>/gi, " ");
+  s = s.replace(/<noscript\b[^>]*>[\s\S]*?<\/noscript\s*>/gi, " ");
+  s = s.replace(/<template\b[^>]*>[\s\S]*?<\/template\s*>/gi, " ");
+  // Strip HTML comments (developer notes, page-section markers, etc.)
+  s = s.replace(/<!--[\s\S]*?-->/g, " ");
+  // Strip remaining tags
+  s = s.replace(/<\/?[a-zA-Z][^>]*>/g, " ");
+  // Decode common entities
+  s = s
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'");
+  // Normalize whitespace
+  s = s.replace(/\s+/g, " ").trim();
+  return s;
+}
+
+// Helper: extract just the JS / code surfaces (script tag bodies). For the
+// secondary-tier scan that flags scaffold tokens in code paths as warnings
+// rather than criticals — visible to developers reading view-source but not
+// to end users.
+function extractCodeText(html) {
+  const parts = [];
+  for (const m of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi)) {
+    parts.push(m[1]);
+  }
+  return parts.join(" ");
+}
+
+// CHECK 4: Prompt-internal leakage (Path B).
+// Two-tier scan: CRITICAL findings are scaffold tokens visible to end users
+// in rendered text. WARN findings are scaffold tokens in code paths (visible
+// only via view-source) — those are not customer-facing failures, but they
+// suggest stale debug code or copy-paste from internal docs and should be
+// cleaned up.
+//
+// Patterns are split: "user-facing scaffolding" (LOCKED FACTS block headers,
+// scoring rules, prompt-engine field names) is checked against rendered text;
+// "structural placeholders" (unfilled ${} or {{}} tokens) are checked there
+// too because if they appear in rendered text the templating engine misfired.
+// Internal field names like canonical_descriptor / forbidden_claims are
+// checked against rendered text only — they're legitimate in JS code.
+function checkPromptInternalLeakage(html) {
+  const visibleText = extractVisibleText(html);
+  const codeText = extractCodeText(html);
+
+  // Patterns that should NEVER appear in rendered text — these are direct
+  // prompt-engine scaffold strings that a user must not see.
+  const userFacingPatterns = [
+    { re: /═{10,}/, label: "Unicode separator (═══) from LOCKED DIAGNOSTIC FACTS block" },
+    { re: /LOCKED DIAGNOSTIC FACTS/i, label: "literal 'LOCKED DIAGNOSTIC FACTS' header" },
+    { re: /CORRECTIVE RE-PROMPT/i, label: "literal 'CORRECTIVE RE-PROMPT' header" },
+    { re: /Required JSON keys:/i, label: "'Required JSON keys:' prompt scaffold" },
+    { re: /Output rules JSON:/i, label: "'Output rules JSON:' prompt scaffold" },
+    { re: /Non-negotiable scoring rules:/i, label: "scoring-rules prompt scaffold" },
+    { re: /\bforbidden_claims\b/, label: "internal field name 'forbidden_claims' in rendered text" },
+    { re: /\bcanonical_descriptor\b/, label: "internal field name 'canonical_descriptor' in rendered text" },
+    { re: /\$\{[a-zA-Z_][a-zA-Z0-9_]*\}/, label: "unfilled JS template literal (${variable}) in rendered text — templating engine misfire" },
+    { re: /\{\{[a-zA-Z_][a-zA-Z0-9_]*\}\}/, label: "unfilled mustache placeholder ({{variable}}) in rendered text" }
+  ];
+
+  // Patterns that suggest stale debug or copy-paste in code paths. These are
+  // not customer-facing but warrant cleanup. Curated tighter than the user-
+  // facing list to avoid false positives on legitimate JS uses.
+  const codeOnlyPatterns = [
+    { re: /LOCKED DIAGNOSTIC FACTS/i, label: "'LOCKED DIAGNOSTIC FACTS' string in JS — scaffold token in client code" },
+    { re: /CORRECTIVE RE-PROMPT/i, label: "'CORRECTIVE RE-PROMPT' string in JS" },
+    { re: /Required JSON keys:/i, label: "'Required JSON keys:' string in JS" }
+  ];
+
+  const userOffenders = [];
+  for (const { re, label } of userFacingPatterns) {
+    const m = visibleText.match(re);
+    if (m) {
+      const start = Math.max(0, m.index - 60);
+      const end = Math.min(visibleText.length, m.index + m[0].length + 60);
+      const ctx = visibleText.slice(start, end);
+      userOffenders.push(`${label} — context: …${ctx}…`);
+    }
+  }
+
+  const codeOffenders = [];
+  for (const { re, label } of codeOnlyPatterns) {
+    const m = codeText.match(re);
+    if (m) {
+      const start = Math.max(0, m.index - 60);
+      const end = Math.min(codeText.length, m.index + m[0].length + 60);
+      const ctx = codeText.slice(start, end).replace(/\s+/g, " ").trim();
+      codeOffenders.push(`${label} — context: …${ctx}…`);
+    }
+  }
+
+  if (userOffenders.length > 0) {
+    return {
+      ok: false,
+      severity: "crit",
+      evidence: `[USER-FACING] ${userOffenders.join("\n[USER-FACING] ")}` +
+        (codeOffenders.length ? `\n[code-path] ${codeOffenders.join("\n[code-path] ")}` : "")
+    };
+  }
+  if (codeOffenders.length > 0) {
+    return {
+      ok: false,
+      severity: "warn",
+      evidence: `Scaffold tokens in JS source (not rendered to users):\n[code-path] ${codeOffenders.join("\n[code-path] ")}`
+    };
+  }
+  return { ok: true, severity: "ok", evidence: `${visibleText.length.toLocaleString()} chars of rendered text scanned, clean` };
+}
+
+// CHECK 5: Brand motif presence. The original handoff mentions concentric
+// circles SVG in footer. Some pages may put the motif outside <footer>
+// (in a wrapper div, brand-mark element, or trailing region), so check
+// both <footer> and the last 30% of the document.
+function checkBrandMotif(html, role) {
+  if (role === "marketing-minor") return { ok: true, severity: "info", skipped: true, evidence: "skipped for minor page" };
+
+  // Region 1: <footer> if present
+  const footerMatch = html.match(/<footer\b[\s\S]*?<\/footer\s*>/i);
+  // Region 2: last 30% of the document (catches pages without <footer>
+  // tag where the motif sits in a class-named wrapper)
+  const tail = html.slice(Math.floor(html.length * 0.7));
+
+  const regions = [];
+  if (footerMatch) regions.push({ name: "footer", html: footerMatch[0] });
+  regions.push({ name: "doc-tail-30pct", html: tail });
+
+  for (const region of regions) {
+    const inlineCircles = (region.html.match(/<circle\b/gi) || []).length;
+    const motifImg = /motif|monogram|brand-mark|logo-mark|concentric/i.test(region.html);
+
+    if (inlineCircles >= 2) {
+      return {
+        ok: true,
+        severity: "ok",
+        evidence: `inline SVG with ${inlineCircles} circle elements in ${region.name}`
+      };
+    }
+    if (motifImg) {
+      return {
+        ok: true,
+        severity: "ok",
+        evidence: `motif element/class referenced in ${region.name}`
+      };
+    }
+  }
+
+  return {
+    ok: false,
+    severity: "warn",
+    evidence: "no concentric-circles motif detected in <footer> or doc-tail-30pct"
+  };
+}
+
+// CHECK 6: CTA wiring sanity. On the questionnaire page, "Begin Diagnostic"
+// should have a click handler. Modern frontends almost never use inline
+// onclick= — they delegate via addEventListener('click', e => e.target.
+// matches('#begin-btn')) or similar. The check now detects:
+//   - A <button> containing the "Begin Diagnostic" text
+//   - The button has either: an id, an inline onclick, or text the page's
+//     JS references (id-based delegation, text-based delegation, or class
+//     pattern). We accept any of those as evidence of wiring.
+// Also verifies the disabled-state pattern is present somewhere on the page.
+function checkCtaWiring(html, role) {
+  if (role !== "questionnaire" && role !== "questionnaire-alt") {
+    return { ok: true, severity: "info", skipped: true, evidence: "not a questionnaire page" };
+  }
+
+  const offenders = [];
+  const evidence = [];
+
+  // Find the <button> that contains "Begin Diagnostic" text (case-insensitive,
+  // tolerating nested elements like <span> or <strong>).
+  const beginButtonRe = /<button\b([^>]*)>([\s\S]*?)<\/button\s*>/gi;
+  let beginMatch = null;
+  let m;
+  while ((m = beginButtonRe.exec(html)) !== null) {
+    const innerStripped = m[2].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    if (/begin\s+diagnostic/i.test(innerStripped)) {
+      beginMatch = { full: m[0], attrs: m[1], inner: innerStripped };
+      break;
+    }
+  }
+
+  if (!beginMatch) {
+    offenders.push("'Begin Diagnostic' text not found inside any <button> element");
+  } else {
+    evidence.push(`<button> with 'Begin Diagnostic' text found`);
+    // Extract id and class from the button's attributes
+    const idMatch = beginMatch.attrs.match(/\bid=["']([^"']+)["']/i);
+    const classMatch = beginMatch.attrs.match(/\bclass=["']([^"']+)["']/i);
+    const inlineHandler = /\bon(click|pointerup|tap)=/i.test(beginMatch.attrs);
+
+    let wired = false;
+    if (inlineHandler) {
+      wired = true;
+      evidence.push("inline onclick/pointerup attribute on button");
+    }
+
+    // Look for the button's id referenced anywhere in script-tag bodies
+    // (event delegation by id).
+    if (idMatch) {
+      const id = idMatch[1];
+      const codeText = extractCodeText(html);
+      // Common patterns: getElementById, querySelector('#id'), matches('#id'),
+      // closest('#id'), addEventListener on the id'd element.
+      const idRe = new RegExp(`(getElementById\\(["']${id}["']|["']#${id}["']|matches\\([^)]*${id}|closest\\([^)]*${id})`);
+      if (idRe.test(codeText)) {
+        wired = true;
+        evidence.push(`button id '#${id}' referenced in JS (event delegation or direct binding)`);
+      }
+    }
+    // Look for class-based delegation
+    if (classMatch) {
+      const cls = classMatch[1].split(/\s+/).filter(Boolean);
+      const codeText = extractCodeText(html);
+      for (const c of cls) {
+        const classRe = new RegExp(`["']\\.${c}["']|matches\\([^)]*\\.${c}|closest\\([^)]*\\.${c}|querySelector(?:All)?\\([^)]*\\.${c}`);
+        if (classRe.test(codeText)) {
+          wired = true;
+          evidence.push(`button class '.${c}' referenced in JS`);
+          break;
+        }
+      }
+    }
+    // Last resort: look for the literal text "Begin Diagnostic" referenced in
+    // script-tag bodies (text-content-based delegation, less common but
+    // possible — e.g. e.target.textContent.includes('Begin Diagnostic')).
+    if (!wired) {
+      const codeText = extractCodeText(html);
+      if (/begin\s+diagnostic/i.test(codeText)) {
+        wired = true;
+        evidence.push("'Begin Diagnostic' text referenced in JS");
+      }
+    }
+
+    if (!wired) {
+      offenders.push("'Begin Diagnostic' button has no detected wiring (no inline handler, no id/class/text match in JS)");
+    }
+  }
+
+  // Disabled-state pattern present somewhere on the page (per the recent backend
+  // work that added the disabled-state hint and helper text to Step 3 CTA).
+  const hasDisabledState = /\bdisabled(?:\s*=|\b)|aria-disabled|data-disabled/i.test(html);
+  if (!hasDisabledState) {
+    offenders.push("no disabled-state attribute pattern detected — Step 3 CTA may not gate on prerequisites");
+  } else {
+    evidence.push("disabled-state attribute pattern present");
+  }
+
+  if (offenders.length === 0) {
+    return { ok: true, severity: "ok", evidence: evidence.join(" · ") };
+  }
+  return {
+    ok: false,
+    severity: offenders.length > 1 ? "crit" : "warn",
+    evidence: offenders.join("\n") + (evidence.length ? `\n(also detected: ${evidence.join("; ")})` : "")
+  };
+}
+
+// CHECK 7: Page-level structural sanity: <title>, viewport, charset, doctype
+function checkStructuralBasics(html) {
+  const offenders = [];
+  if (!/<!DOCTYPE\s+html/i.test(html.slice(0, 100))) offenders.push("missing or non-html5 DOCTYPE");
+  if (!/<title[^>]*>[^<]+<\/title>/i.test(html)) offenders.push("missing or empty <title>");
+  if (!/<meta[^>]+charset/i.test(html)) offenders.push("missing charset meta");
+  if (!/<meta[^>]+viewport/i.test(html)) offenders.push("missing viewport meta (mobile rendering will break)");
+  if (offenders.length === 0) return { ok: true, severity: "ok" };
+  return { ok: false, severity: "warn", evidence: offenders.join("\n") };
+}
+
+// CHECK 8: HTML size sanity. Suspiciously small pages may indicate broken
+// rendering or 404 fallthrough served as 200.
+function checkPageSize(html, role) {
+  const size = html.length;
+  if (size < 1000) {
+    return { ok: false, severity: "crit", evidence: `${size} chars — likely error page served as 200` };
+  }
+  if (size < 4000 && role !== "marketing-minor") {
+    return { ok: false, severity: "warn", evidence: `${size} chars — unusually small for ${role}` };
+  }
+  return { ok: true, severity: "ok", evidence: `${size} chars` };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Runner
+// ─────────────────────────────────────────────────────────────────────────────
+
+let allResults = [];
+
+function log(msg) {
+  const el = document.getElementById("log");
+  el.textContent += `[${new Date().toISOString().slice(11,19)}] ${msg}\n`;
+  el.scrollTop = el.scrollHeight;
+}
+
+async function auditPage(baseUrl, page) {
+  const url = baseUrl.replace(/\/$/, "") + page.path;
+  log(`▶ ${page.path}  (${page.role})`);
+
+  let html, fetchError = null, status = null, notPresent = false;
+  try {
+    const r = await fetch(url, { cache: "no-cache", redirect: "follow" });
+    status = r.status;
+    if (!r.ok) {
+      html = await r.text().catch(() => "");
+      if (page.critical && status >= 400) {
+        // Critical page returning 4xx/5xx is a real failure
+        fetchError = `HTTP ${r.status}`;
+      } else if (status === 404) {
+        // Non-critical 404 = page not present, not a failure. Common case:
+        // marketing pages from the audit list that were never built.
+        notPresent = true;
+        log(`  · ${r.status} — page not present (non-critical, expected for stub paths)`);
+      } else {
+        log(`  ⚠ ${r.status} — non-critical, continuing`);
+      }
+    } else {
+      html = await r.text();
+    }
+  } catch (e) {
+    fetchError = e.message;
+    log(`  ✗ fetch error: ${e.message}`);
+    return {
+      ...page, url, status: null, error: fetchError, checks: {}, summary: "error"
+    };
+  }
+
+  // Non-critical 404 short-circuit — return without running checks
+  if (notPresent) {
+    return {
+      ...page, url, status, error: null, checks: {}, summary: "not_present",
+      note: "Page does not exist on the live site (expected for stub audit paths)."
+    };
+  }
+
+  const checks = {};
+
+  if (status === 200 && html) {
+    checks.structural_basics    = checkStructuralBasics(html);
+    checks.page_size            = checkPageSize(html, page.role);
+    checks.markdown_fence       = checkMarkdownFenceContamination(html);
+    checks.prompt_leakage       = checkPromptInternalLeakage(html);
+    checks.api_paths            = checkApiPaths(html);
+    checks.brand_motif          = checkBrandMotif(html, page.role);
+    checks.cta_wiring           = checkCtaWiring(html, page.role);
+    // Asset check is async; do it last
+    log(`  → checking ${page.path} assets…`);
+    checks.assets               = await checkAssetReferences(html, url);
+  }
+
+  // Tally severities
+  let critCount = 0, warnCount = 0, okCount = 0;
+  for (const c of Object.values(checks)) {
+    if (c.skipped) continue;
+    if (!c.ok) {
+      if (c.severity === "crit") critCount++;
+      else if (c.severity === "warn") warnCount++;
+    } else {
+      okCount++;
+    }
+  }
+  const summary = critCount > 0 ? "crit" : warnCount > 0 ? "warn" : okCount > 0 ? "ok" : "error";
+  log(`  ${critCount === 0 && warnCount === 0 ? "✓" : "✗"} ${page.path}: ${critCount} crit, ${warnCount} warn, ${okCount} ok`);
+
+  return { ...page, url, status, error: fetchError, checks, summary };
+}
+
+function renderResults(results) {
+  const container = document.getElementById("results");
+  container.innerHTML = "";
+
+  for (const r of results) {
+    const block = document.createElement("div");
+    const cls = r.error ? "error" :
+                r.summary === "crit" ? "has-crit" :
+                r.summary === "warn" ? "has-warn" :
+                r.summary === "not_present" ? "error" : "all-ok";
+    block.className = "page-block " + cls;
+
+    const summaryTag =
+      r.error ? '<span class="tag tag-info">FETCH ERROR</span>' :
+      r.summary === "crit" ? '<span class="tag tag-crit">CRITICAL</span>' :
+      r.summary === "warn" ? '<span class="tag tag-warn">WARN</span>' :
+      r.summary === "not_present" ? '<span class="tag tag-info">NOT PRESENT</span>' :
+      '<span class="tag tag-ok">CLEAN</span>';
+
+    let html = `
+      <div class="page-header">
+        <div>
+          <div class="page-url">${r.url}</div>
+          <div class="page-meta">${r.role}${r.critical ? " · critical" : ""} · status ${r.status || "—"}${summaryTag}</div>
+        </div>
+      </div>
+    `;
+
+    if (r.error) {
+      html += `<div class="evidence">Fetch error: ${escapeHtml(r.error)}</div>`;
+    } else if (r.summary === "not_present") {
+      html += `<div class="evidence">${escapeHtml(r.note || "Page returned 404 — does not exist on the live site.")}</div>`;
+    } else if (r.checks) {
+      html += `<table class="checks-table"><tbody>`;
+      for (const [name, c] of Object.entries(r.checks)) {
+        const icon = c.skipped ? "—" : c.ok ? "✓" : "✗";
+        const cls = c.skipped ? "check-skip" : c.ok ? "check-pass" : (c.severity === "crit" ? "check-fail" : "check-warn");
+        html += `
+          <tr>
+            <td class="${cls}">${icon}</td>
+            <td>${name}</td>
+            <td>${c.evidence ? escapeHtml(String(c.evidence)).split("\n").join("<br>") : (c.ok ? "ok" : "failed")}</td>
+          </tr>
+        `;
+      }
+      html += `</tbody></table>`;
+    }
+
+    block.innerHTML = html;
+    container.appendChild(block);
+  }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function updateSummary() {
+  const totalPages = allResults.length;
+  const crit = allResults.filter(r => r.summary === "crit").length;
+  const warn = allResults.filter(r => r.summary === "warn").length;
+  const ok = allResults.filter(r => r.summary === "ok").length;
+  const err = allResults.filter(r => r.error).length;
+  const np = allResults.filter(r => r.summary === "not_present").length;
+  document.getElementById("sPages").textContent = totalPages;
+  document.getElementById("sPass").textContent = ok;
+  document.getElementById("sWarn").textContent = warn;
+  document.getElementById("sCrit").textContent = crit;
+  document.getElementById("sErr").textContent = err;
+  document.getElementById("sNP").textContent = np;
+  document.getElementById("summary").style.display = "flex";
+}
+
+async function startAudit() {
+  document.getElementById("runBtn").disabled = true;
+  document.getElementById("saveBtn").style.display = "none";
+  document.getElementById("log").textContent = "";
+  document.getElementById("results").innerHTML = "";
+  allResults = [];
+
+  const base = document.getElementById("basePath").value.trim().replace(/\/$/, "");
+  if (!base) {
+    log("✗ no base URL provided");
+    document.getElementById("runBtn").disabled = false;
+    return;
+  }
+
+  // CORS preflight: if the harness is loaded from a different origin than
+  // the audit target, fetches will fail with "Failed to fetch" and the only
+  // fix is to host the harness same-origin. Detect this up front and warn
+  // explicitly, since "Failed to fetch" alone is not actionable.
+  const harnessOrigin = window.location.origin;
+  let baseOrigin;
+  try { baseOrigin = new URL(base).origin; } catch { baseOrigin = ""; }
+
+  if (harnessOrigin !== baseOrigin) {
+    log("⚠ CROSS-ORIGIN AUDIT DETECTED");
+    log(`  harness origin: ${harnessOrigin}`);
+    log(`  target origin:  ${baseOrigin}`);
+    log("");
+    log("  GitHub Pages does not send Access-Control-Allow-Origin headers.");
+    log("  Cross-origin fetch() calls will fail. The fix:");
+    log("");
+    log("    1. Drop this HTML file into the GitHub Pages repo");
+    log("       (e.g. /tests/audit-v8c1.html — DO NOT link to it from nav)");
+    log("    2. Commit and wait for Pages to deploy");
+    log("    3. Open https://monderman.com/tests/audit-v8c1.html and run");
+    log("");
+    log("  Continuing anyway in case CORS is permissive — most fetches will probably error.\n");
+  } else {
+    log(`✓ same-origin audit: ${harnessOrigin}\n`);
+  }
+
+  document.getElementById("statusLine").textContent = "Auditing " + base + "…";
+  log(`base: ${base}`);
+  log(`${PAGES_TO_AUDIT.length} pages to audit\n`);
+
+  for (const page of PAGES_TO_AUDIT) {
+    const result = await auditPage(base, page);
+    allResults.push(result);
+    renderResults(allResults);
+    updateSummary();
+  }
+
+  log("\n══ done ══");
+
+  // Post-run CORS diagnosis: if every page errored with "Failed to fetch",
+  // it's almost certainly CORS, not a site-wide outage.
+  const allFailedToFetch = allResults.length > 0 &&
+    allResults.every(r => r.error && /Failed to fetch|NetworkError|CORS/i.test(r.error));
+  if (allFailedToFetch && harnessOrigin !== baseOrigin) {
+    log("");
+    log("══ DIAGNOSIS ══");
+    log("All pages failed with cross-origin fetch errors. The site is almost");
+    log("certainly fine — the issue is that this harness is running from a");
+    log("different origin and the browser blocks cross-origin reads.");
+    log("");
+    log("Fix: host this file at https://monderman.com/tests/audit-v8c1.html");
+    log("(or any path on the same origin) and re-run.");
+  }
+
+  document.getElementById("statusLine").textContent =
+    `Audited ${allResults.length} pages — ${allResults.filter(r => r.summary === "crit").length} critical, ${allResults.filter(r => r.summary === "warn").length} warn, ${allResults.filter(r => r.error).length} errors`;
+  document.getElementById("runBtn").disabled = false;
+  document.getElementById("saveBtn").style.display = "inline-block";
+}
+
+function saveResults() {
+  const harnessOrigin = window.location.origin;
+  const baseUrl = document.getElementById("basePath").value.trim();
+  let baseOrigin = "";
+  try { baseOrigin = new URL(baseUrl).origin; } catch {}
+  const crossOrigin = harnessOrigin !== baseOrigin;
+  const allFailedToFetch = allResults.length > 0 &&
+    allResults.every(r => r.error && /Failed to fetch|NetworkError|CORS/i.test(r.error));
+
+  const out = {
+    generated: new Date().toISOString(),
+    version: "v8c.1.2-ModeA-PathB",
+    base_url: baseUrl,
+    // v8c.1.1: capture run-mode diagnostics in the saved JSON, not just
+    // the on-screen log. When every page errors with "Failed to fetch",
+    // the cause is almost always run-mode (file:// vs same-origin) and
+    // surfacing it here makes diagnosis instant.
+    run_mode: {
+      harness_origin: harnessOrigin,
+      target_origin: baseOrigin,
+      cross_origin: crossOrigin,
+      same_origin: !crossOrigin && harnessOrigin !== "null" && harnessOrigin !== "",
+      protocol: window.location.protocol,
+      likely_cors_blocked: crossOrigin && allFailedToFetch,
+      likely_file_protocol: window.location.protocol === "file:" && allFailedToFetch
+    },
+    total_pages: allResults.length,
+    critical: allResults.filter(r => r.summary === "crit").length,
+    warn: allResults.filter(r => r.summary === "warn").length,
+    clean: allResults.filter(r => r.summary === "ok").length,
+    fetch_errors: allResults.filter(r => r.error).length,
+    results: allResults
+  };
+  const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "monderman_test_results_v8c1.json";
+  a.click();
+}
+</script>
+</body>
+</html>
