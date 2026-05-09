@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -34,7 +33,6 @@
       font-weight: 700;
       font-display: swap;
     }
-
     :root {
       --accent: #3F6EA1;
       --accent-dark: #2F5886;
@@ -63,7 +61,6 @@
       --snap-offset: 72px;
       --snap-landing-offset: 10px;
     }
-
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; scroll-padding-top: var(--snap-offset); }
     body {
@@ -76,7 +73,6 @@
       -moz-osx-font-smoothing: grayscale;
       text-rendering: optimizeLegibility;
     }
-
     a { color: inherit; text-decoration: none; }
     img { max-width: 100%; display: block; }
     h1, h2, h3 { letter-spacing: -0.048em; }
@@ -85,11 +81,9 @@
       outline: 2px solid rgba(118,165,211,0.95);
       outline-offset: 3px;
     }
-
     .snap-anchor {
       scroll-margin-top: 0;
     }
-
     .reveal {
       opacity: 0;
       transform: translateY(var(--reveal-distance));
@@ -101,7 +95,6 @@
     .reveal-delay-2 { transition-delay: 180ms; }
     .reveal-delay-3 { transition-delay: 270ms; }
     .reveal-delay-4 { transition-delay: 360ms; }
-
     .header {
       position: fixed;
       inset: 0 0 auto 0;
@@ -195,14 +188,11 @@
     .nav a:hover::after,
     .nav a:focus-visible::after,
     .nav a.is-active::after { transform: scaleX(1); }
-
     .nav a.is-active {
       color: var(--accent);
       transform: none;
       outline: none;
     }
-
-
     .hero {
       position: relative;
       min-height: 100vh;
@@ -263,7 +253,6 @@
       align-items: center;
     }
     .hero-copy { max-width: 940px; }
-
     .hero-eyebrow,
     .hero h1,
     .hero p,
@@ -306,7 +295,6 @@
     .hero-line {
       display: block;
     }
-
     .hero-dek {
       max-width: 38ch;
       margin: 0;
@@ -330,7 +318,6 @@
       from { opacity: 0; transform: translateY(16px); }
       to { opacity: 1; transform: translateY(0); }
     }
-
     .btn {
       display: inline-flex;
       align-items: center;
@@ -375,7 +362,6 @@
       background: #294D75;
       color: #FFFFFF;
     }
-
     
     .differentiators {
       position: relative;
@@ -394,7 +380,6 @@
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 20px;
     }
-
     .diff-section-heading {
       margin: 0 0 24px;
       font-size: 28px;
@@ -403,7 +388,6 @@
       letter-spacing: -0.03em;
       color: var(--text-dark);
     }
-
     .diff-card {
       background: rgba(255,255,255,0.98);
       border: 1px solid rgba(21,32,43,0.08);
@@ -486,7 +470,6 @@
 .section-with-bar {
       position: relative;
     }
-
     .section-with-bar .section-bar {
       position: absolute;
       top: 26px;
@@ -504,7 +487,6 @@
       box-shadow: none;
       pointer-events: none;
     }
-
     .section-intro h2 {
       margin: 0 0 16px;
       max-width: 760px;
@@ -522,8 +504,6 @@
       line-height: 1.65;
       color: var(--muted-dark);
     }
-
-
     .bureaucracy-cost,
     .diagnostic-estimate {
       position: relative;
@@ -539,7 +519,6 @@
     .diagnostic-estimate::before {
       content: none;
     }
-
     .cost-inner,
     .diagnostic-estimate-inner,
     .approach-inner,
@@ -551,7 +530,6 @@
       position: relative;
       z-index: 1;
     }
-
     .cost-heading,
     .diagnostic-estimate-heading {
       max-width: 900px;
@@ -590,7 +568,6 @@
       color: var(--muted-dark);
     }
     .estimate-bridge { margin-top: 12px; }
-
     .cost-grid,
     .estimate-grid {
       display: grid;
@@ -662,7 +639,6 @@
       line-height: 1.6;
       color: var(--muted-dark-2);
     }
-
     .estimate-controls {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -717,7 +693,6 @@
       color: var(--muted-dark-2);
       font-size: 0.86rem;
     }
-
     .approach {
       position: relative;
       background: var(--bg-white);
@@ -868,7 +843,6 @@
       transform: translateX(1px);
       outline: none;
     }
-
     .approach-synthesis {
       margin-top: 52px;
       padding: 40px 34px 10px;
@@ -955,7 +929,6 @@
       border-color: rgba(63,110,161,0.16);
       transform: translateY(-1px);
     }
-
     .synthesis {
       position: relative;
       background: #FFFFFF;
@@ -1006,7 +979,6 @@
       box-shadow: none;
       text-align: center;
     }
-
     .latest {
       position: relative;
       background: var(--bg-offwhite);
@@ -1151,7 +1123,6 @@
       width: 22px;
       background: var(--accent);
     }
-
     .connect {
       position: relative;
       background: linear-gradient(180deg, #0F1720 0%, #111B25 100%);
@@ -1291,7 +1262,6 @@
       transform: translateX(1px);
       outline: none;
     }
-
     .footer {
       background: #0D141C;
       color: rgba(245,247,250,0.88);
@@ -1377,8 +1347,6 @@
       line-height: 1.6;
       color: rgba(245,247,250,0.54);
     }
-
-
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       *, *::before, *::after {
@@ -1391,7 +1359,6 @@
         transform: none !important;
       }
     }
-
     @media (max-width: 1100px) {
       .differentiators-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .approach-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -1456,7 +1423,6 @@
         border: 1px solid rgba(255,255,255,0.08);
       }
       .nav a::after { display: none; }
-
       .hero-inner { padding: 160px 20px 108px; }
       .hero-copy { max-width: 100%; }
       .hero h1 {
@@ -1491,7 +1457,6 @@
         font-size: 0.64rem;
         letter-spacing: 0.12em;
       }
-
       .approach-card-head {
         grid-template-columns: 36px minmax(0, 1fr);
         gap: 12px;
@@ -1542,7 +1507,6 @@
       }
     }
   
-
 /* Monderman harmonization polish: shared footer, micro-interactions, and editorial rhythm */
 .footer {
   padding-top: 56px;
@@ -1621,8 +1585,6 @@
     text-align: left;
   }
 }
-
-
 /* Editorial carousel tile subtitle alignment */
 .placeholder-cover {
   align-items: flex-end;
@@ -1686,7 +1648,6 @@
       color: #FFFFFF;
       transform: none;
     }
-
     @media (max-width: 1280px) {
       .brand-tagline { display: none; }
     }
@@ -2046,6 +2007,15 @@
 <div class="latest-viewport" id="latestViewport">
 <div class="latest-track" id="latestTrack">
 <article class="latest-card">
+<div class="latest-card-image"><img alt="After the First Lap hero graphic — two curves showing per-token price falling and total enterprise AI bills rising" src="hero_after_first_lap.png"/></div>
+<div class="latest-card-body">
+<p class="latest-card-kicker">Featured · Research</p>
+<h3 class="latest-card-title">After the First Lap</h3>
+<p class="latest-card-text">A Monderman research paper on how token economics will define the next phase of enterprise AI — and why the second wave will be won on cost, not capability.</p>
+<a class="latest-card-link" href="after-the-first-lap.pdf" rel="noopener noreferrer" target="_blank">Download research →</a>
+</div>
+</article>
+<article class="latest-card">
 <div class="latest-card-image"><img alt="Abstract institutional pathway network image for Active Bureaucratic Management brief" src="ABM_brief_image.png"/></div>
 <div class="latest-card-body">
 <p class="latest-card-kicker">Featured · Executive Brief</p>
@@ -2206,22 +2176,18 @@
 <script>
     const heroImage = document.getElementById("heroImage");
     const header = document.getElementById("siteHeader");
-
     let heroScale = 0.88;
     let zoomStarted = false;
-
     function revealHero() {
       if (!heroImage) return;
       heroImage.classList.add("is-loaded");
       startHeroZoom();
     }
-
     function startHeroZoom() {
       if (zoomStarted || !heroImage) return;
       zoomStarted = true;
       const start = performance.now();
       const duration = 26000;
-
       function tick(now) {
         const progress = Math.min((now - start) / duration, 1);
         heroScale = 0.88 + (0.015 * progress);
@@ -2230,13 +2196,11 @@
       }
       requestAnimationFrame(tick);
     }
-
     if (heroImage && heroImage.complete) {
       requestAnimationFrame(revealHero);
     } else if (heroImage) {
       heroImage.addEventListener("load", revealHero, { once: true });
     }
-
     function updateHeader() {
       if (!header) return;
       if (window.scrollY > 12) header.classList.add("scrolled");
@@ -2244,13 +2208,10 @@
     }
     updateHeader();
     window.addEventListener("scroll", updateHeader, { passive: true });
-
     const costSection = document.getElementById("cost-section");
     const counters = document.querySelectorAll(".cost-card-number");
     let hasCounted = false;
-
     function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
-
     function formatCounter(type, value) {
       if (type === "percent") return `${Math.round(value)}%`;
       if (type === "currency-trillion") return `$${Math.round(value)}T`;
@@ -2261,13 +2222,11 @@
       }
       return Math.round(value).toString();
     }
-
     function animateCounter(el) {
       const type = el.dataset.countType;
       const target = Number(el.dataset.target);
       const duration = 1500;
       const start = performance.now();
-
       function step(now) {
         const progress = Math.min((now - start) / duration, 1);
         const eased = easeOutCubic(progress);
@@ -2278,7 +2237,6 @@
       }
       requestAnimationFrame(step);
     }
-
     if (costSection && counters.length) {
       const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
@@ -2291,7 +2249,6 @@
       }, { threshold: 0.35 });
       observer.observe(costSection);
     }
-
     const revealItems = document.querySelectorAll(".reveal");
     if (revealItems.length) {
       const revealObserver = new IntersectionObserver((entries) => {
@@ -2304,18 +2261,15 @@
       }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
       revealItems.forEach((item) => revealObserver.observe(item));
     }
-
     const latestTrack = document.getElementById("latestTrack");
     const latestViewport = document.getElementById("latestViewport");
     const latestPrev = document.getElementById("latestPrev");
     const latestNext = document.getElementById("latestNext");
     const latestDots = document.getElementById("latestDots");
     const latestCards = latestTrack ? Array.from(latestTrack.querySelectorAll(".latest-card")) : [];
-
     let latestIndex = 0;
     let latestCardsPerView = window.innerWidth <= 760 ? 1 : 2;
     let autoScrollInterval = null;
-
     function getLatestMaxIndex() {
       return Math.max(0, latestCards.length - latestCardsPerView);
     }
@@ -2364,7 +2318,6 @@
         updateLatestCarousel();
       }, 8600);
     }
-
     latestPrev?.addEventListener("click", () => {
       latestIndex = latestIndex <= 0 ? getLatestMaxIndex() : latestIndex - 1;
       updateLatestCarousel();
@@ -2379,7 +2332,6 @@
     latestViewport?.addEventListener("mouseleave", startAutoScroll);
     latestViewport?.addEventListener("focusin", stopAutoScroll);
     latestViewport?.addEventListener("focusout", startAutoScroll);
-
     const approachCards = Array.from(document.querySelectorAll(".approach-card[data-effect-target]"));
     const effectItems = Array.from(document.querySelectorAll(".approach-synthesis-item[data-effect]"));
     function clearEffectLinks() {
@@ -2400,14 +2352,12 @@
       });
       card.addEventListener("focusout", clearEffectLinks);
     });
-
     const estimateOrgSize = document.getElementById("estimateOrgSize");
     const estimateComplexity = document.getElementById("estimateComplexity");
     const estimateSector = document.getElementById("estimateSector");
     const estimateMoney = document.getElementById("estimateMoney");
     const estimateTime = document.getElementById("estimateTime");
     const estimateResources = document.getElementById("estimateResources");
-
     const complexityProfiles = {
       light: { low: 0.06, high: 0.10 },
       moderate: { low: 0.10, high: 0.16 },
@@ -2434,7 +2384,6 @@
       "professional-services": { multiplier: 1.06, rate: 78 },
       "nonprofit": { multiplier: 0.92, rate: 44 }
     };
-
     function formatHoursRange(low, high) {
       const lowRounded = Math.round(low / 1000) * 1000;
       const highRounded = Math.round(high / 1000) * 1000;
@@ -2481,21 +2430,17 @@
     }
     [estimateOrgSize, estimateComplexity, estimateSector].forEach((el) => el?.addEventListener("change", updateEstimate));
     updateEstimate();
-
     function initSoftSnap() {
       const snapAnchors = Array.from(document.querySelectorAll(".snap-anchor"));
       let snapTimer = null;
       let isAutoSnapping = false;
-
       function isDesktopSnap() {
         return window.innerWidth > 980 && window.matchMedia("(prefers-reduced-motion: no-preference)").matches;
       }
-
       function getHeaderHeight() {
         const headerEl = document.getElementById("siteHeader");
         return headerEl ? headerEl.getBoundingClientRect().height : 72;
       }
-
       function getTargetTop(anchor) {
         const headerHeight = getHeaderHeight();
         const anchorStyles = window.getComputedStyle(anchor);
@@ -2503,12 +2448,10 @@
         const landingOffset = 10;
         return Math.max(0, anchor.offsetTop - headerHeight - landingOffset + anchorPaddingTop);
       }
-
       function getNearestAnchor() {
         const viewportTop = window.scrollY;
         let nearest = null;
         let nearestDistance = Infinity;
-
         snapAnchors.forEach((anchor) => {
           const targetTop = getTargetTop(anchor);
           const distance = Math.abs(targetTop - viewportTop);
@@ -2517,44 +2460,34 @@
             nearest = anchor;
           }
         });
-
         return { nearest, nearestDistance };
       }
-
       function softSnapToNearestAnchor() {
         if (!isDesktopSnap() || !snapAnchors.length || isAutoSnapping) return;
-
         const { nearest, nearestDistance } = getNearestAnchor();
         if (!nearest) return;
-
         const targetTop = getTargetTop(nearest);
-
         if (nearestDistance > 64) return;
         if (Math.abs(window.scrollY - targetTop) < 6) return;
-
         isAutoSnapping = true;
         window.scrollTo({
           top: targetTop,
           behavior: "smooth"
         });
-
         window.setTimeout(() => {
           isAutoSnapping = false;
         }, 280);
       }
-
       window.addEventListener("scroll", () => {
         if (!isDesktopSnap() || isAutoSnapping) return;
         clearTimeout(snapTimer);
         snapTimer = setTimeout(softSnapToNearestAnchor, 420);
       }, { passive: true });
     }
-
     window.addEventListener("resize", () => {
       updateLatestCarousel();
       startAutoScroll();
     });
-
     window.addEventListener("load", () => {
       updateLatestCarousel();
       startAutoScroll();
