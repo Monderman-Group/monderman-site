@@ -56,7 +56,7 @@ summary { cursor: pointer; font-size: 11px; color: #4A5968; padding: 4px 0; }
 <div class="meta">No backend interaction. Audits live HTML for: markdown-fence contamination &middot; asset 404s &middot; stale API paths &middot; prompt-internal leakage &middot; brand motif presence &middot; CTA wiring &middot; inline JS sanity. <strong>Must be hosted same-origin to the audit target</strong> — drop into the GitHub Pages repo (e.g. /tests/audit-v8c1.html) and open from there. CORS will block cross-origin fetches.</div>
 
 <div class="controls">
-  <input id="basePath" class="url-input" type="text" value="https://monderman.com" placeholder="Base URL (e.g. https://monderman.com)">
+  <input id="basePath" class="url-input" type="text" value="" placeholder="Base URL (default: same origin as this page)">
   <button id="runBtn" onclick="startAudit()">&#9654; Run Audit</button>
   <button id="saveBtn" onclick="saveResults()">&#8595; Save JSON</button>
   <div class="status" id="statusLine">Ready</div>
@@ -74,6 +74,17 @@ summary { cursor: pointer; font-size: 11px; color: #4A5968; padding: 4px 0; }
 <div id="results"></div>
 
 <script>
+// ─────────────────────────────────────────────────────────────────────────────
+// Initialize: populate base URL from window.location.origin so the default
+// always matches the harness's actual host (avoids the www. vs apex CORS gotcha).
+// ─────────────────────────────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("basePath");
+  if (input && !input.value) {
+    input.value = window.location.origin;
+  }
+});
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Pages to audit. Adjust based on actual site structure as discovered.
 // Path A discovers structure in real time — start with the canonical paths
@@ -587,10 +598,31 @@ async function startAudit() {
 }
 
 function saveResults() {
+  const harnessOrigin = window.location.origin;
+  const baseUrl = document.getElementById("basePath").value.trim();
+  let baseOrigin = "";
+  try { baseOrigin = new URL(baseUrl).origin; } catch {}
+  const crossOrigin = harnessOrigin !== baseOrigin;
+  const allFailedToFetch = allResults.length > 0 &&
+    allResults.every(r => r.error && /Failed to fetch|NetworkError|CORS/i.test(r.error));
+
   const out = {
     generated: new Date().toISOString(),
     version: "v8c.1-ModeA",
-    base_url: document.getElementById("basePath").value.trim(),
+    base_url: baseUrl,
+    // v8c.1.1: capture run-mode diagnostics in the saved JSON, not just
+    // the on-screen log. When every page errors with "Failed to fetch",
+    // the cause is almost always run-mode (file:// vs same-origin) and
+    // surfacing it here makes diagnosis instant.
+    run_mode: {
+      harness_origin: harnessOrigin,
+      target_origin: baseOrigin,
+      cross_origin: crossOrigin,
+      same_origin: !crossOrigin && harnessOrigin !== "null" && harnessOrigin !== "",
+      protocol: window.location.protocol,
+      likely_cors_blocked: crossOrigin && allFailedToFetch,
+      likely_file_protocol: window.location.protocol === "file:" && allFailedToFetch
+    },
     total_pages: allResults.length,
     critical: allResults.filter(r => r.summary === "crit").length,
     warn: allResults.filter(r => r.summary === "warn").length,
