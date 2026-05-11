@@ -583,39 +583,82 @@ async function capturePdfBlob(frame) {
   const downloadBtn = doc.getElementById("downloadPdfBtn");
   if (!downloadBtn) throw new Error("#downloadPdfBtn not found in iframe");
 
+  // Capture strategy: intercept URL.createObjectURL in the iframe window.
+  // The page's PDF builder (downloadExecutiveReportPdf) generates a jsPDF
+  // instance and calls pdf.save(filename), which internally calls
+  // pdf.output("blob") → URL.createObjectURL(blob) → anchor.click() to
+  // trigger download. By hooking URL.createObjectURL, we observe the blob
+  // regardless of which jsPDF reference the page uses (the previous
+  // jsPDF.prototype patching approach was fragile because jsPDF UMD has
+  // multiple global exports and the page may capture an unpatched reference).
+  //
+  // This is a passive intercept: we record the blob but still call the
+  // original URL.createObjectURL so the page's download flow continues
+  // unaffected (the user gets a file on disk AND we get the blob).
+  //
+  // We filter to PDF blobs only — other createObjectURL calls in the page
+  // (canvas exports, image previews, etc.) pass through untouched.
+
   return new Promise((resolve, reject) => {
     let captured = false;
+    let observedFilename = null;
+
     const overallTimeout = setTimeout(() => {
-      if (!captured) reject(new Error("PDF capture timeout (90s)"));
+      if (!captured) {
+        restore();
+        reject(new Error("PDF capture timeout (90s after click)"));
+      }
     }, 90000);
 
-    const tryPatch = () => {
-      const jsPDF = win.jspdf?.jsPDF || win.jsPDF;
-      if (!jsPDF) return false;
-      const origSave = jsPDF.prototype.save;
-      jsPDF.prototype.save = function (filename) {
-        try {
-          const blob = this.output("blob");
-          captured = true;
-          clearTimeout(overallTimeout);
-          jsPDF.prototype.save = origSave;
-          resolve({ blob, filename });
-        } catch (e) {
-          jsPDF.prototype.save = origSave;
-          reject(e);
-        }
-      };
-      return true;
+    const origCreateObjectURL = win.URL.createObjectURL.bind(win.URL);
+    const origAnchorClick = win.HTMLAnchorElement.prototype.click;
+
+    const restore = () => {
+      try { win.URL.createObjectURL = origCreateObjectURL; } catch (_) {}
+      try { win.HTMLAnchorElement.prototype.click = origAnchorClick; } catch (_) {}
     };
 
-    if (!tryPatch()) {
-      const pollInterval = setInterval(() => {
-        if (captured) { clearInterval(pollInterval); return; }
-        if (tryPatch()) clearInterval(pollInterval);
-      }, 100);
-      setTimeout(() => clearInterval(pollInterval), 60000);
-    }
+    // Hook URL.createObjectURL to observe PDF blobs.
+    win.URL.createObjectURL = function (blobOrSource) {
+      if (
+        !captured &&
+        blobOrSource instanceof win.Blob &&
+        (blobOrSource.type === "application/pdf" || blobOrSource.type === "")  // jsPDF sometimes leaves type blank
+      ) {
+        // Heuristic: PDF blobs from jsPDF are typically >50KB and the first
+        // bytes are "%PDF". Verify before claiming it's the report.
+        // Use blob.size as a quick sanity check — anything under 5KB is
+        // unlikely to be a multi-page diagnostic report.
+        if (blobOrSource.size >= 5000) {
+          captured = true;
+          clearTimeout(overallTimeout);
+          restore();
+          // Schedule resolution off-thread so the original createObjectURL
+          // call still completes synchronously and the page's download
+          // chain continues.
+          setTimeout(() => {
+            resolve({ blob: blobOrSource, filename: observedFilename || "report.pdf" });
+          }, 0);
+        }
+      }
+      return origCreateObjectURL(blobOrSource);
+    };
 
+    // Hook anchor.click() to observe the filename. The PDF download chain
+    // sets anchor.download = filename before clicking. We sniff the download
+    // attribute on any anchor click to capture the intended filename.
+    win.HTMLAnchorElement.prototype.click = function () {
+      try {
+        if (this.download && /\.pdf$/i.test(this.download)) {
+          observedFilename = this.download;
+        }
+      } catch (_) {}
+      return origAnchorClick.call(this);
+    };
+
+    // Hooks installed. Click the button — the page's PDF builder will
+    // construct the PDF, create an object URL, and trigger download. Our
+    // createObjectURL hook captures the blob before resolution.
     downloadBtn.click();
   });
 }
