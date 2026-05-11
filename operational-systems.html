@@ -4875,9 +4875,45 @@ renderPreflightForm();
 syncHubSelections();
 updateHeroHelp();
 syncBeginButton();
-setHeader("Choose participant perspective", "Select the perspective that best matches your role in the workflow, then choose the appropriate diagnostic depth.", "Awaiting selection");
-showStage(laneStage);
-questionFooter.style.display = "none";
+
+// ═══════════════════════════════════════════════════════════
+// TEST-HARNESS INJECTION HOOK (v8c PDF integrity testing)
+// ═══════════════════════════════════════════════════════════
+// When window.__mondermanInjectedResult is present at page load, the v8c
+// test harness has driven the API directly and pre-computed a real result.
+// We bypass the lane→depth→intro→question flow entirely and render results
+// from the injected data, so the PDF generation path can be exercised with
+// known-good inputs without driving a real questionnaire.
+//
+// Safe in production: the global window.__mondermanInjectedResult is set
+// only by the test harness (in audit-v8c-pdf.html) immediately before the
+// iframe loads this page. Normal site visitors never have this set. The
+// hook short-circuits ONLY when both the injected result and its payload
+// are well-formed objects from the test harness.
+const __injected = (typeof window !== "undefined") ? window.__mondermanInjectedResult : null;
+if (__injected && typeof __injected === "object" && __injected.result && __injected.payload) {
+  try {
+    state.result = __injected.result;
+    state.renderPayload = __injected.payload;
+    if (__injected.payload.participantMode) state.mode = __injected.payload.participantMode;
+    if (__injected.payload.diagnostic_depth) state.depth = String(__injected.payload.diagnostic_depth);
+    renderResults(__injected.result, __injected.payload, "Operational Systems Diagnostic");
+    setHeader("Diagnostic output", "Your results reflect the adaptive path generated from your inputs.", "Output generated");
+    showStage(resultsStage);
+    questionFooter.style.display = "none";
+    // Signal that injection completed so the harness can proceed to PDF capture
+    if (typeof window !== "undefined") window.__mondermanInjectionApplied = true;
+  } catch (injectionError) {
+    console.error("Test injection failed; falling back to normal lane stage.", injectionError);
+    setHeader("Choose participant perspective", "Select the perspective that best matches your role in the workflow, then choose the appropriate diagnostic depth.", "Awaiting selection");
+    showStage(laneStage);
+    questionFooter.style.display = "none";
+  }
+} else {
+  setHeader("Choose participant perspective", "Select the perspective that best matches your role in the workflow, then choose the appropriate diagnostic depth.", "Awaiting selection");
+  showStage(laneStage);
+  questionFooter.style.display = "none";
+}
 
 // ═══════════════════════════════════════════════════════════
 // INITIALIZATION
