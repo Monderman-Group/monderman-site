@@ -3885,6 +3885,47 @@ const safe = (value) => escapeHtml(polishReportCopy(value));
 const words = (value, limit) => {
 const parts = polishReportCopy(value).split(" ").filter(Boolean);
 if (parts.length <= limit) return parts.join(" ");
+
+// Sentence-aware truncation. Priority:
+//   1. If a sentence terminator (. ! ?) exists at or below the word limit
+//      (and at least 8 words in), cut at that boundary.
+//   2. Else if a sentence terminator exists within OVERSHOOT_TOLERANCE words
+//      ABOVE the limit, cut at that boundary (preferring complete sentences
+//      over strict adherence to the word ceiling).
+//   3. Else fall back to mid-clause clip + weak-tail strip + period. This
+//      is the LAST resort; sentence-aware paths above prevent the
+//      "trails off mid-sentence with a fake period" failure mode.
+const SENTENCE_TERMINATOR = /[.!?]$/;
+const MIN_WORDS_FOR_SENTENCE_CUT = 8;
+const OVERSHOOT_TOLERANCE = 15;  // cut above limit if a sentence ends nearby
+
+// Search at-or-below the limit
+let sentenceEndIdx = -1;
+for (let i = Math.min(limit - 1, parts.length - 1); i >= MIN_WORDS_FOR_SENTENCE_CUT - 1; i--) {
+  if (SENTENCE_TERMINATOR.test(parts[i])) {
+    sentenceEndIdx = i;
+    break;
+  }
+}
+
+// Fallback: search up to OVERSHOOT_TOLERANCE words above the limit
+if (sentenceEndIdx < 0) {
+  const maxOvershoot = Math.min(parts.length - 1, limit - 1 + OVERSHOOT_TOLERANCE);
+  for (let i = limit; i <= maxOvershoot; i++) {
+    if (SENTENCE_TERMINATOR.test(parts[i])) {
+      sentenceEndIdx = i;
+      break;
+    }
+  }
+}
+
+if (sentenceEndIdx >= 0) {
+  return parts.slice(0, sentenceEndIdx + 1).join(" ");
+}
+
+// Last-resort fallback: mid-clause clip. Only fires when no sentence
+// terminator exists within (limit + OVERSHOOT_TOLERANCE) words. Rare for
+// well-formed narrative output.
 const weakTail = /^(and|or|the|a|an|to|with|without|through|using|by|from|of|for|in|on|at|as|that|which|because|while|into|around|under|over|remove|formalize)$/i;
 let clipped = parts.slice(0, limit);
 while (clipped.length > 8 && weakTail.test(clipped[clipped.length - 1])) clipped.pop();
@@ -3919,8 +3960,8 @@ const updateReadItems = (Array.isArray(narrativeForReport.what_would_update_this
 "Actual volume and cycle-time data would recalibrate the exposure range and show whether the issue is occasional or normalized.",
 "Risk-tier data would show whether low-risk work is being trapped in a high-control path."
 ]).slice(0, 4);
-const readingHtml = competingReadings.map((item) => '<div class="mini-card"><b>' + safe(item.label || "Reading") + '</b><p>' + safeWords(item.interpretation || item, 34) + '</p><p class="muted">Signal test: ' + safeWords(item.what_would_distinguish_it || "Additional cross-role evidence would clarify this reading.", 28) + '</p></div>').join("");
-const updateHtml = updateReadItems.map((item) => '<p>• ' + safeWords(item, 28) + '</p>').join("");
+const readingHtml = competingReadings.map((item) => '<div class="mini-card"><b>' + safe(item.label || "Reading") + '</b><p>' + safeWords(item.interpretation || item, 44) + '</p><p class="muted">Signal test: ' + safeWords(item.what_would_distinguish_it || "Additional cross-role evidence would clarify this reading.", 50) + '</p></div>').join("");
+const updateHtml = updateReadItems.map((item) => '<p>• ' + safeWords(item, 42) + '</p>').join("");
 const decisionReviewPage = '<section class="page">' + footer(decisionReviewPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>Competing readings and what would update the diagnosis</h2><p>This section names the plausible interpretations of the same signal and identifies the evidence that would confirm, weaken, or reframe the current read.</p><div class="card-row" style="grid-template-columns:1fr;gap:12px">' + readingHtml + '</div><div class="panel bench"><h3>What would update this read</h3>' + updateHtml + '</div></div></section>';
 const firstTwoActions = actions.slice(0, 2).length ? actions.slice(0, 2) : [
 "Reduce the heaviest visible burden first.",
