@@ -543,9 +543,10 @@ async function waitForResultsStage(frame) {
 
   try {
     // The injection hook sets __mondermanInjectionApplied = true when it
-    // successfully short-circuits to results.
+    // successfully short-circuits to results. Allow 25s — the hook polls
+    // for Chart.js to load (up to 10s) before rendering, so 15s was tight.
     await waitFor(() => win.__mondermanInjectionApplied === true,
-      { label: "injection hook applied (window.__mondermanInjectionApplied)", timeout: 15000 });
+      { label: "injection hook applied (window.__mondermanInjectionApplied)", timeout: 25000 });
     await waitFor(() => doc.getElementById("resultsStage")?.classList.contains("active"),
       { label: "resultsStage active", timeout: 5000 });
     // Allow time for charts/render to settle
