@@ -3069,36 +3069,41 @@ toggle.onclick = () => shell.classList.toggle("open");
 let burdenDonutChart = null;
 
 function calculateInsightDepth(inputs) {
-  // Proprietary scoring logic moved to the backend (scoreOperationalSystems.js).
-  // This function is now a thin reader of result.insight_depth, which the
-  // backend computes and returns in the finalize response.
+  // Proprietary scoring logic lives ENTIRELY on the backend
+  // (scoreOperationalSystems.js). This function is a thin reader of
+  // result.insight_depth from the API finalize response.
   //
-  // The `inputs` arg is the legacy shape ({ ...payload, ...result }); we look
-  // for the API-provided insight_depth there. If absent (e.g. older API
-  // response or test fixture), we fall back to conservative neutral defaults
-  // that always read as "narrow" — never inflate the score client-side.
+  // If the backend response is missing insight_depth (older API version,
+  // failed run, test fixture bypassing the backend), we return a sentinel
+  // "awaiting data" object — NOT a hardcoded score or band label. This
+  // ensures no scoring logic, no numeric thresholds, and no band string
+  // values ship in the public HTML.
+  //
+  // The renderer below handles the sentinel by showing "—" instead of a
+  // misleading default score.
 
   const fromApi = inputs?.insight_depth || inputs?.insightDepth;
   if (fromApi && typeof fromApi === "object" && fromApi.score != null) {
     return {
-      score: Number(fromApi.score) || 1,
-      band: String(fromApi.band || "Narrow — first signal"),
-      runDepth: Number(fromApi.run_depth ?? fromApi.runDepth ?? 30),
-      confidenceLevel: String(fromApi.confidence_level || fromApi.confidenceLevel || "moderate"),
+      available: true,
+      score: Number(fromApi.score),
+      band: String(fromApi.band || ""),
+      runDepth: Number(fromApi.run_depth ?? fromApi.runDepth ?? 0) || null,
+      confidenceLevel: String(fromApi.confidence_level || fromApi.confidenceLevel || ""),
       participantCount: 1,
       levelsCoveredCount: 1,
       crossSynthesisCount: 1
     };
   }
 
-  // Fallback: backend didn't provide insight_depth. Return a conservative
-  // single-run default so the UI shows a defensible narrow read rather than
-  // a misleading high score. No client-side scoring formula.
+  // Sentinel: API did not provide insight_depth. No client-side fallback
+  // value. Renderer displays "—" and an "awaiting backend data" message.
   return {
-    score: 3,
-    band: "Narrow — first signal",
-    runDepth: 30,
-    confidenceLevel: "moderate",
+    available: false,
+    score: null,
+    band: "",
+    runDepth: null,
+    confidenceLevel: "",
     participantCount: 1,
     levelsCoveredCount: 1,
     crossSynthesisCount: 1
@@ -3149,35 +3154,58 @@ section.__syncHeight?.();
 }
 
 function renderInsightDepth(payload) {
-  // New model: calculateInsightDepth reads result.insight_depth from the API
-  // response (the backend is the single source of truth). state.result is the
-  // canonical place to find it client-side. Fallback to payload if result
-  // isn't yet populated (defensive — shouldn't happen in normal flow).
+  // Read from API response (state.result.insight_depth). The new
+  // calculateInsightDepth is a pure reader — no client-side scoring formula.
+  // If the backend didn't provide insight_depth, the reader returns
+  // available:false and this renderer shows "—" + an "awaiting data" message.
   const insight = calculateInsightDepth(state?.result || payload || {});
   const valueEl = $("insightDepthValue");
   const bandEl = $("insightDepthBand");
   const copyEl = $("insightDepthCopy");
+
+  if (!insight.available) {
+    // Sentinel branch: API did not return insight_depth. Show neutral
+    // placeholder; do NOT compute or display any score client-side.
+    if (valueEl) valueEl.textContent = "—";
+    if (bandEl) bandEl.textContent = "Awaiting data";
+    if (copyEl) {
+      copyEl.textContent = "Insight depth could not be loaded from the diagnostic backend. The score and band are computed server-side; retry the run or contact support if this persists.";
+    }
+    const arc = $("confidenceRingArc");
+    const value = $("confidenceRingValue");
+    const label = $("confidenceRingLabel");
+    if (arc) {
+      arc.setAttribute("stroke", "#C49A3C");
+      arc.setAttribute("stroke-dashoffset", "100.53");  // fully unfilled
+    }
+    if (value) value.textContent = "—";
+    if (label) label.textContent = "Awaiting data";
+    return insight;
+  }
+
+  // Available branch: render the backend-supplied values.
   if (valueEl) valueEl.textContent = String(insight.score);
   if (bandEl) bandEl.textContent = insight.band;
   if (copyEl) {
-    // Single-run copy: every band frames this run honestly as one perspective
-    // at one moment. The qualifier varies with depth/confidence, but the
-    // headline framing is consistent across all three bands.
+    // Descriptive copy framing the run honestly. Phrasing varies with depth
+    // and confidence, but the framing — that a single run is a narrow first
+    // signal regardless of depth — is consistent.
     const depthPhrase = insight.runDepth === 60 ? "a 60-minute run"
                       : insight.runDepth === 10 ? "a 10-minute run"
-                      :                            "a 30-minute run";
+                      : insight.runDepth === 30 ? "a 30-minute run"
+                      :                            "this run";
     const confPhrase = insight.confidenceLevel === "high" ? "high self-reported confidence"
                      : insight.confidenceLevel === "limited" ? "limited self-reported confidence"
-                     :                                          "moderate self-reported confidence";
+                     : insight.confidenceLevel === "moderate" ? "moderate self-reported confidence"
+                     :                                          "the reported confidence level";
     copyEl.textContent = `This score reflects ${depthPhrase} from a single perspective with ${confPhrase}. A single run is a narrow first signal regardless of how thoughtful it was. To strengthen the read, run this diagnostic again from other perspectives (operational, managerial, senior leader) and over time — the cross-diagnostic synthesis tool combines those runs and computes a broader insight depth score.`;
   }
   const circumference = 100.53;
   const arc = $("confidenceRingArc");
   const value = $("confidenceRingValue");
   const label = $("confidenceRingLabel");
-  // Single-run ring always renders in amber — visual signal that the score is
-  // "useful but limited," never green/comprehensive. Green/blue thresholds
-  // belong to the cross-synth tool where comprehensive reads can be earned.
+  // Ring color reads "useful but limited" — never green/comprehensive for
+  // single runs. The visual band belongs to the cross-synth tool.
   const color = "#C49A3C";
   if (arc) {
     arc.setAttribute("stroke", color);
@@ -3816,7 +3844,10 @@ const dominantPct = donutPattern.hasSignal ? donutPattern.dominantPct : 0;
 const concentrationProse = buildConcentrationNarrative(donutPattern);
 const trajectoryDirection = result?.trajectory?.direction || "flat";
 const trajectoryProse = buildTrajectoryNarrative(trajectoryDirection);
-const showAlertCallout = trajectoryDirection === "up" && insight.score <= 35;
+// Under the single-run scoring model, every insight.score is in the
+// "narrow" range — the alert callout fires whenever trajectory is rising
+// and we have a real score (suppressed if the score is the sentinel).
+const showAlertCallout = trajectoryDirection === "up" && insight.available;
 const contradictions = asArray(result?.contradictions);
 const quadrantText = buildQuadrantInterpretation({ ...(result || {}), __interpretiveState: stateObj });
 const qLeft = Math.max(8, Math.min(92, Number(stateObj.governanceWeight || 50)));
@@ -3897,10 +3928,26 @@ const firstTwoActions = actions.slice(0, 2).length ? actions.slice(0, 2) : [
 ];
 const lede = words(harmonized.headlineFinding || summary.body || burdenCondition.note, 76);
 const metaLine = `${sectorMeta} · ${levelMeta} · ${generated}`;
-const segmentLegend = donutSegments.map((seg) => {
-if (!donutTotal || Number(seg.value || 0) <= 0) return "";
-const pct = Math.round((Number(seg.value || 0) / donutTotal) * 100);
-return `<div class="comp-row"><span class="dot" style="background:${seg.color}"></span><span>${safe(seg.label)}</span><b>${pct}%</b></div>`;
+// Compute segment percentages with last-segment-absorbs-remainder so the
+// six values always sum to exactly 100. Independent Math.round of each
+// segment can sum to 99 or 101.
+const visibleSegments = donutSegments.filter((s) => donutTotal && Number(s.value || 0) > 0);
+const sortedSegments = visibleSegments
+  .map((s, i) => ({ ...s, _origIdx: i }))
+  .sort((a, b) => Number(b.value || 0) - Number(a.value || 0));
+let _pctAssigned = 0;
+const segmentsWithPct = sortedSegments.map((seg, i) => {
+  const isLast = i === sortedSegments.length - 1;
+  const p = isLast
+    ? 100 - _pctAssigned
+    : Math.round((Number(seg.value || 0) / donutTotal) * 100);
+  _pctAssigned += p;
+  return { ...seg, _pct: p };
+});
+// Restore original render order (the order they appear in donutSegments)
+segmentsWithPct.sort((a, b) => a._origIdx - b._origIdx);
+const segmentLegend = segmentsWithPct.map((seg) => {
+  return `<div class="comp-row"><span class="dot" style="background:${seg.color}"></span><span>${safe(seg.label)}</span><b>${seg._pct}%</b></div>`;
 }).join("") || `<p class="muted">Not enough burden composition signal was available for this run.</p>`;
 const serverGapForExport = result?.canonical_descriptor?.experiential_structural_gap
   || result?.experiential_structural_gap || { type: "none" };
@@ -4063,7 +4110,7 @@ return `<!doctype html>
         <circle r="23"  fill="none" stroke="#9FBDD1" stroke-width="0.4" opacity="0.13"/>
         <circle r="13"  fill="none" stroke="#B0C8D8" stroke-width="0.3" opacity="0.11"/>
         <circle cx="97.0"  cy="-39.3" r="3.0" fill="#3F6EA1" opacity="0.55"/>
-        <circle cx="-88.9" cy="28.9"  r="3.0" fill="#5B7A9B" opacity="0.50"/>
+        <!-- Removed: <circle cx="-108.0" cy="-58.0" r="3.0" ...> — this dot was colliding with the "V" in "GOVERNABLE" in the cover tagline. -->
         <circle cx="25.3"  cy="54.3"  r="2.6" fill="#3F6EA1" opacity="0.52"/>
         <circle cx="39.6"  cy="-84.7" r="2.4" fill="#7C5CE8" opacity="0.60"/>
         <circle cx="-44.0" cy="-52.5" r="2.4" fill="#5B7A9B" opacity="0.48"/>
@@ -4168,8 +4215,8 @@ ${decisionReviewPage}
     <p class="eyebrow">How to read this report</p><h2>How this was produced</h2>
     <p>This diagnostic measures recurring operating burden across six dimensions: process density, systems friction, reporting burden, workaround dependence, control load, and administrative upkeep burden. It also estimates the amount of productive capacity being absorbed by sustaining the workflow itself rather than producing outcomes. The diagnostic does not independently verify user inputs; it should be read as a directional operating read rather than a full audit.</p>
     <div class="rule"></div>
-    <div class="ring-row"><svg class="ring" viewBox="0 0 58 58"><circle cx="29" cy="29" r="23" fill="none" stroke="#E6EAF0" stroke-width="7"/><circle cx="29" cy="29" r="23" fill="none" stroke="#C49A3C" stroke-width="7" stroke-dasharray="${Math.round(insight.score * 1.45)} 145" transform="rotate(-90 29 29)"/></svg><div><div style="font-size:24px;font-weight:700">${Math.round(insight.score)}</div><p class="muted">Insight depth score · ${escapeHtml(insight.band)}<br>Single-run signal-quality indicator, not a correctness score.</p></div></div>
-    <p>For a single run from a single perspective, this score reflects only the depth of the run (10/30/60-minute) and self-reported confidence in the inputs. A single run is always a narrow first signal regardless of how thoughtful it was — the ceiling for any single-run score is 8 out of 100. To strengthen the read, run this diagnostic from other organizational perspectives and over time; the cross-diagnostic synthesis tool combines those runs and computes a broader insight depth score.</p>
+    <div class="ring-row"><svg class="ring" viewBox="0 0 58 58"><circle cx="29" cy="29" r="23" fill="none" stroke="#E6EAF0" stroke-width="7"/><circle cx="29" cy="29" r="23" fill="none" stroke="#C49A3C" stroke-width="7" stroke-dasharray="${insight.available ? Math.round(insight.score * 1.45) : 0} 145" transform="rotate(-90 29 29)"/></svg><div><div style="font-size:24px;font-weight:700">${insight.available ? Math.round(insight.score) : "—"}</div><p class="muted">Insight depth score${insight.available ? ` · ${escapeHtml(insight.band)}` : " · Awaiting data"}<br>${insight.available ? "Single-run signal-quality indicator, not a correctness score." : "Insight depth could not be loaded from the diagnostic backend."}</p></div></div>
+    <p>${insight.available ? "For a single run from a single perspective, this score reflects the depth of the run and self-reported confidence in the inputs. A single run is always a narrow first signal regardless of how thoughtful it was. To strengthen the read, run this diagnostic from other organizational perspectives and over time; the cross-diagnostic synthesis tool combines those runs and computes a broader insight depth score." : "The insight depth score is computed by the Monderman diagnostic backend. It could not be retrieved for this run; the rest of the report remains valid."}</p>
     <h3>What would strengthen the next read</h3><div class="method-box">${updateReadItems.slice(0, 3).map((item) => `<p>• ${safeWords(item, 28)}</p>`).join("")}</div>
     <h3>What the figures represent</h3><div class="method-box"><p>* Figures marked with an asterisk are directional estimates generated from your inputs, not guaranteed financial outcomes. They are intended to indicate rough order of magnitude so leadership can decide whether the pattern is worth investigating further. They should not be cited externally as audited measurements, and they should not be used as the basis for compensation decisions, performance reviews, or formal financial planning.</p></div>
     <h3 style="margin-top:20px">Where Monderman fits</h3><p>Monderman is built for leaders who want a structured, repeatable read on operating burden - not a one-off consulting engagement. The diagnostic surfaces patterns; the leadership decides what to do about them. This report is the artifact of that read, suitable for distribution to peers, leadership, and trusted advisors who need to engage with the same picture.</p><p class="muted" style="font-size:9px;margin-top:18px">Prepared by Monderman's diagnostic engine.</p>
