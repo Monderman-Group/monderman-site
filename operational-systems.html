@@ -4890,24 +4890,58 @@ syncBeginButton();
 // iframe loads this page. Normal site visitors never have this set. The
 // hook short-circuits ONLY when both the injected result and its payload
 // are well-formed objects from the test harness.
+//
+// Library-load timing: the page loads Chart.js, html2canvas, and jsPDF as
+// `defer` scripts in <head>. In normal user flow the user spends seconds
+// clicking through Step 1/2/3 before results render, so these libraries
+// have always loaded by then. With test injection firing at init time, we
+// race the library load. The hook polls window.Chart up to 10 seconds
+// before calling renderResults to avoid a ReferenceError on Chart.
 const __injected = (typeof window !== "undefined") ? window.__mondermanInjectedResult : null;
 if (__injected && typeof __injected === "object" && __injected.result && __injected.payload) {
-  try {
-    state.result = __injected.result;
-    state.renderPayload = __injected.payload;
-    if (__injected.payload.participantMode) state.mode = __injected.payload.participantMode;
-    if (__injected.payload.diagnostic_depth) state.depth = String(__injected.payload.diagnostic_depth);
-    renderResults(__injected.result, __injected.payload, "Operational Systems Diagnostic");
-    setHeader("Diagnostic output", "Your results reflect the adaptive path generated from your inputs.", "Output generated");
-    showStage(resultsStage);
-    questionFooter.style.display = "none";
-    // Signal that injection completed so the harness can proceed to PDF capture
-    if (typeof window !== "undefined") window.__mondermanInjectionApplied = true;
-  } catch (injectionError) {
-    console.error("Test injection failed; falling back to normal lane stage.", injectionError);
-    setHeader("Choose participant perspective", "Select the perspective that best matches your role in the workflow, then choose the appropriate diagnostic depth.", "Awaiting selection");
-    showStage(laneStage);
-    questionFooter.style.display = "none";
+  const __applyInjection = () => {
+    try {
+      state.result = __injected.result;
+      state.renderPayload = __injected.payload;
+      if (__injected.payload.participantMode) state.mode = __injected.payload.participantMode;
+      if (__injected.payload.diagnostic_depth) state.depth = String(__injected.payload.diagnostic_depth);
+      renderResults(__injected.result, __injected.payload, "Operational Systems Diagnostic");
+      setHeader("Diagnostic output", "Your results reflect the adaptive path generated from your inputs.", "Output generated");
+      showStage(resultsStage);
+      questionFooter.style.display = "none";
+      // Signal that injection completed so the harness can proceed to PDF capture
+      if (typeof window !== "undefined") window.__mondermanInjectionApplied = true;
+    } catch (injectionError) {
+      console.error("Test injection failed; falling back to normal lane stage.", injectionError);
+      setHeader("Choose participant perspective", "Select the perspective that best matches your role in the workflow, then choose the appropriate diagnostic depth.", "Awaiting selection");
+      showStage(laneStage);
+      questionFooter.style.display = "none";
+    }
+  };
+
+  // Wait for deferred dependencies (Chart.js most critical; html2canvas + jsPDF
+  // are lazy-loaded on PDF click, so only Chart needs to be present at render).
+  const __chartReady = () => typeof window !== "undefined" && typeof window.Chart !== "undefined";
+  if (__chartReady()) {
+    __applyInjection();
+  } else {
+    // Poll for Chart.js. 10s ceiling — Chart.js typically loads from CDN in
+    // <1s; 10s catches slow networks while still failing predictably if the
+    // CDN is unreachable.
+    let __pollAttempts = 0;
+    const __chartPoll = setInterval(() => {
+      __pollAttempts++;
+      if (__chartReady()) {
+        clearInterval(__chartPoll);
+        __applyInjection();
+      } else if (__pollAttempts > 100) { // 100 × 100ms = 10s
+        clearInterval(__chartPoll);
+        console.error("Test injection: Chart.js failed to load within 10s; falling back to lane stage.");
+        setHeader("Choose participant perspective", "Select the perspective that best matches your role in the workflow, then choose the appropriate diagnostic depth.", "Awaiting selection");
+        showStage(laneStage);
+        questionFooter.style.display = "none";
+      }
+    }, 100);
   }
 } else {
   setHeader("Choose participant perspective", "Select the perspective that best matches your role in the workflow, then choose the appropriate diagnostic depth.", "Awaiting selection");
