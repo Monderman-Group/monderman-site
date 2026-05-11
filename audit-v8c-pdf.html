@@ -471,19 +471,54 @@ async function loadIframeWithInjection_v2(result, payload) {
   if (!resp.ok) throw new Error(`failed to fetch operational-systems.html: ${resp.status}`);
   let pageHtml = await resp.text();
 
-  // Inject a script that sets the injection variable, immediately after <head>
+  // Build the injection script + a console-error capture shim that runs
+  // BEFORE the page's main IIFE. This lets us catch exceptions thrown during
+  // init (when the hook code itself runs) — without it, the hook's
+  // try/catch silently swallows errors and we see only a generic timeout.
+  const captureShim = `
+<` + `script>
+window.__mondermanCapturedErrors = [];
+(function() {
+  var origErr = console.error;
+  console.error = function() {
+    try {
+      var parts = [];
+      for (var i = 0; i < arguments.length; i++) {
+        var a = arguments[i];
+        if (a instanceof Error) parts.push(a.message + (a.stack ? "\\n" + a.stack.split("\\n").slice(0, 4).join("\\n") : ""));
+        else if (typeof a === "object" && a !== null) { try { parts.push(JSON.stringify(a).slice(0, 400)); } catch(_) { parts.push(String(a)); } }
+        else parts.push(String(a).slice(0, 400));
+      }
+      window.__mondermanCapturedErrors.push(parts.join(" "));
+    } catch(_) {}
+    try { origErr.apply(console, arguments); } catch(_) {}
+  };
+  window.addEventListener("error", function(ev) {
+    window.__mondermanCapturedErrors.push("uncaught: " + ev.message + " @ " + (ev.filename || "?") + ":" + (ev.lineno || "?"));
+  });
+})();
+</` + `script>`;
+
+  // Inject the test result variable. Note: closing-script-tag escape inside
+  // the JSON string is necessary because JSON may contain script-close
+  // sequences (in narrative text); escaping prevents the HTML parser from
+  // prematurely closing the script block.
   const injectedScript = `
 <` + `script>
 window.__mondermanInjectedResult = ${JSON.stringify({ result, payload }).replace(/<\/script>/gi, "<\\/script>")};
 </` + `script>`;
 
+  // Both shim and injection must be inside <head> BEFORE the main script.
+  // Insert in order: shim first (so it captures init errors), then injection
+  // (so the global is set before the IIFE reads it).
+  const combinedInjection = captureShim + injectedScript;
+
   if (pageHtml.includes("<head>")) {
-    pageHtml = pageHtml.replace("<head>", "<head>" + injectedScript);
+    pageHtml = pageHtml.replace("<head>", "<head>" + combinedInjection);
   } else if (pageHtml.includes("<head ")) {
-    pageHtml = pageHtml.replace(/<head[^>]*>/, (m) => m + injectedScript);
+    pageHtml = pageHtml.replace(/<head[^>]*>/, (m) => m + combinedInjection);
   } else {
-    // No <head>; insert at start of <html> or document
-    pageHtml = injectedScript + pageHtml;
+    pageHtml = combinedInjection + pageHtml;
   }
 
   // Use srcdoc to load this modified page. Browsers treat srcdoc documents
@@ -504,14 +539,41 @@ window.__mondermanInjectedResult = ${JSON.stringify({ result, payload }).replace
 
 async function waitForResultsStage(frame) {
   const doc = frame.contentDocument;
-  // The injection hook sets __mondermanInjectionApplied = true when it
-  // successfully short-circuits to results.
-  await waitFor(() => frame.contentWindow.__mondermanInjectionApplied === true,
-    { label: "injection hook applied (window.__mondermanInjectionApplied)", timeout: 15000 });
-  await waitFor(() => doc.getElementById("resultsStage")?.classList.contains("active"),
-    { label: "resultsStage active", timeout: 5000 });
-  // Allow time for charts/render to settle
-  await sleep(800);
+  const win = frame.contentWindow;
+
+  try {
+    // The injection hook sets __mondermanInjectionApplied = true when it
+    // successfully short-circuits to results.
+    await waitFor(() => win.__mondermanInjectionApplied === true,
+      { label: "injection hook applied (window.__mondermanInjectionApplied)", timeout: 15000 });
+    await waitFor(() => doc.getElementById("resultsStage")?.classList.contains("active"),
+      { label: "resultsStage active", timeout: 5000 });
+    // Allow time for charts/render to settle
+    await sleep(800);
+  } catch (timeoutError) {
+    // Read captured errors from the in-iframe shim (which catches even
+    // errors thrown during the initial IIFE execution, before this function
+    // could attach its own listener).
+    const capturedErrors = Array.isArray(win.__mondermanCapturedErrors)
+      ? win.__mondermanCapturedErrors.slice(0, 10)  // cap at 10 to avoid bloat
+      : [];
+
+    const diag = {
+      timeout_message: timeoutError.message,
+      injection_applied: win.__mondermanInjectionApplied === true,
+      injection_present: typeof win.__mondermanInjectedResult === "object" && win.__mondermanInjectedResult !== null,
+      stage_active: {
+        lane:       !!doc.getElementById("laneStage")?.classList.contains("active"),
+        depth:      !!doc.getElementById("depthStage")?.classList.contains("active"),
+        intro:      !!doc.getElementById("introStage")?.classList.contains("active"),
+        question:   !!doc.getElementById("questionStage")?.classList.contains("active"),
+        processing: !!doc.getElementById("processingStage")?.classList.contains("active"),
+        results:    !!doc.getElementById("resultsStage")?.classList.contains("active"),
+      },
+      iframe_console_errors: capturedErrors,
+    };
+    throw new Error(`Results stage not reached. Diagnostic: ${JSON.stringify(diag, null, 2)}`);
+  }
 }
 
 async function capturePdfBlob(frame) {
