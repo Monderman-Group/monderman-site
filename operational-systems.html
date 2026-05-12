@@ -2846,7 +2846,15 @@ if (Number(breakdown.control_load || 0) >= 40) {
 actions.push(`Write down the decisions currently kept in specific people's heads, so the work does not depend on one person being available.`);
 }
 if (!actions.length) actions.push(`Keep what is working in ${process.toLowerCase()} while removing the recurring burden that is making normal work heavier than it needs to be.`);
-actions.push(`Run this again after the first real change and compare operational, managerial, and senior-leader lenses to see whether the burden was removed or merely displaced.`);
+// Append the "rerun and compare lenses" meta-action only when there are
+// already at least 2 substantive actions. For low-burden runs where only the
+// fallback line above fired, this meta-action used to become Action 2, which
+// read as "do this generic thing, then run the diagnostic again" rather than
+// as a priority recommendation. A single concrete action is preferable to
+// padding with rerun-and-compare filler.
+if (actions.length >= 2) {
+  actions.push(`Run this again after the first real change and compare operational, managerial, and senior-leader lenses to see whether the burden was removed or merely displaced.`);
+}
 return actions.slice(0, 4);
 }
 
@@ -2918,9 +2926,54 @@ return DiagnosticInterpretationLayer.estimateReclaimPotential(result, payload ||
 
 function buildQuadrantInterpretation(result) {
 const stateObj = result.__interpretiveState || buildInterpretiveState(result, {});
-if (stateObj.quadrantKey === "upper_left") return "Movement is relatively strong and governance weight is comparatively light. This is the strongest structural position on the chart, but it still needs to be preserved rather than assumed permanent.";
-if (stateObj.quadrantKey === "upper_right") return "The organization is still getting movement, but it is paying for that movement with heavier governance weight than it likely wants. The task is to strip out non-proportionate burden without weakening control quality.";
-if (stateObj.quadrantKey === "lower_left") return "Formal governance density is not the main problem. The issue is that the workflow is not carrying movement well through ownership, coordination, and handoff design.";
+const score = Number(result?.score || 50);
+// Score-band tiers (matches scoreOperationalSystems.js scoreBand):
+//   >= 83  Light operating burden
+//   >= 67  Manageable but compounding burden
+//   >= 49  Heavy administrative environment
+//   < 49   Operational drag condition
+const isLight       = score >= 83;
+const isCompounding = score >= 67 && score < 83;
+const isHeavy       = score >= 49 && score < 67;
+const isDragged     = score < 49;
+// "Severe" = score below the manageable threshold. Used to flag when a
+// quadrant interpretation that normally reads as "strong position" needs
+// tension acknowledgment because the overall score is poor.
+const isSevere = score < 67;
+
+if (stateObj.quadrantKey === "upper_left") {
+  if (isSevere) {
+    // Upper-left placement with a poor score: governance weight is computed
+    // as comparatively light AND execution responsiveness as comparatively
+    // strong, but the overall environment is reading as heavy. The drag is
+    // appearing somewhere the quadrant axes do not surface — read alongside
+    // burden composition and remedy path, not as the headline.
+    return "On these two axes the run lands at lighter visible governance with relatively strong responsiveness, but the overall score band indicates the burden is appearing somewhere these axes do not fully surface. Read the quadrant position as one view, not the full picture: the burden composition and remedy path describe where the drag is actually concentrated.";
+  }
+  if (isCompounding) {
+    return "Movement is relatively strong and visible governance weight is comparatively light, but the overall score sits in the compounding range. The position is favorable on these two axes — preserve it actively rather than assume permanence, and watch the burden composition for dimensions the quadrant view does not surface.";
+  }
+  return "Movement is relatively strong and governance weight is comparatively light. This is the strongest structural position on the chart, but it still needs to be preserved rather than assumed permanent.";
+}
+
+if (stateObj.quadrantKey === "upper_right") {
+  if (isLight) {
+    // Unusual but possible: upper-right placement (heavier governance) with
+    // a light overall score. The score says the environment is functioning;
+    // the position says it is doing so with heavy governance scaffolding.
+    return "Movement is reading as relatively strong despite heavier governance weight. The overall score is favorable, which suggests the heavier governance is currently producing the control benefit it implies. Preserve the responsiveness; watch whether governance weight remains proportionate as conditions change.";
+  }
+  return "The organization is still getting movement, but it is paying for that movement with heavier governance weight than it likely wants. The task is to strip out non-proportionate burden without weakening control quality.";
+}
+
+if (stateObj.quadrantKey === "lower_left") {
+  if (isLight) {
+    return "Formal governance density is light and responsiveness is currently lower than that lightness would predict. The overall score is favorable, but the lower responsiveness suggests ownership, coordination, or handoff design may be the next constraint — these are typically harder to surface in burden-focused scoring.";
+  }
+  return "Formal governance density is not the main problem. The issue is that the workflow is not carrying movement well through ownership, coordination, and handoff design.";
+}
+
+// lower_right
 return "Movement is weak while governance weight is already heavy. Time, cost, and capacity are likely being consumed at the same time.";
 }
 
