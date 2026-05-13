@@ -811,139 +811,84 @@ observedSeniorLeader: ""
 }
 };
 
-const IndustryNarrativeLayer = {
-government_defense: {
-sectorName: "government / defense",
-benchmarkWithin: "A within-range score in government or defense can still hide real mission drag -- oversight that quietly became routine doesn't feel like drag, but it is.",
-benchmarkAbove: "An above-range score here usually means the work is still getting through to the mission, even though the control environment is heavy.",
-benchmarkBelow: "A below-range score here usually means acquisition, compliance, or oversight steps are now slowing the mission, not protecting it.",
-opportunityPattern: "In government and defense, the common pattern is that extra oversight, extra controls, and handling exceptions as routine work all build up until they feel normal.",
-openingClause: "mission responsiveness",
-marginTerm: "capacity returned to mission work"
-},
-financial_services: {
-sectorName: "financial services",
-benchmarkWithin: "A within-range score in financial services can still hide serious audit prep and review layering.",
-benchmarkAbove: "An above-range score here usually means the work is holding regulatory discipline without letting control stacking take over.",
-benchmarkBelow: "A below-range score here usually means regulatory overhead and audit prep are crowding out cleaner execution.",
-opportunityPattern: "In financial services, burden often grows because adding controls is the default answer to any uncertainty -- especially around audit readiness and risk review.",
-openingClause: "regulatory responsiveness",
-marginTerm: "operating capacity returned to productive work"
-},
-healthcare_life_sciences: {
-sectorName: "healthcare / life sciences",
-benchmarkWithin: "A within-range score here can still hide documentation load and coordination burden between clinical and administrative work.",
-benchmarkAbove: "An above-range score here usually means the work is keeping protocol discipline without letting documentation dominate.",
-benchmarkBelow: "A below-range score here usually means documentation and coordination work are eating into usable capacity.",
-opportunityPattern: "In healthcare and life sciences, burden usually shows up as protocol paperwork, documentation density, and friction between clinical and administrative layers.",
-openingClause: "clinical and operational responsiveness",
-marginTerm: "usable care-supporting capacity"
-},
-technology_software: {
-sectorName: "technology / software",
-benchmarkWithin: "A within-range score in tech can still carry process debt, tool sprawl, and coordination overhead that slows delivery.",
-benchmarkAbove: "An above-range score here usually means the organization is keeping process debt from running over delivery.",
-benchmarkBelow: "A below-range score here usually means process debt and tool sprawl are now meaningfully slowing delivery.",
-opportunityPattern: "In tech, burden often builds up through tool sprawl, process debt, and coordination overhead between teams that should move quickly together.",
-openingClause: "delivery responsiveness",
-marginTerm: "engineering and delivery capacity"
-},
-manufacturing_industrial: {
-sectorName: "manufacturing / industrial",
-benchmarkWithin: "A within-range score here can still leave real drag in standard-work upkeep and shift-to-shift coordination.",
-benchmarkAbove: "An above-range score here usually means the work is protecting operating control without overburdening the line.",
-benchmarkBelow: "A below-range score here usually means control density and coordination burden are now cutting into throughput.",
-opportunityPattern: "In manufacturing and industrial environments, burden usually builds up through standard-work maintenance, operating controls, and coordination across shifts and handoffs.",
-openingClause: "throughput and operating control",
-marginTerm: "throughput-supporting capacity"
-},
-energy_utilities: {
-sectorName: "energy / utilities",
-benchmarkWithin: "A within-range score here can still hide regulatory documentation work and safety-control buildup.",
-benchmarkAbove: "An above-range score here usually means the work is preserving safety and control without letting paperwork dominate.",
-benchmarkBelow: "A below-range score here usually means control layers and documentation load are now meaningfully weighing down the work.",
-opportunityPattern: "In energy and utilities, the usual pattern is regulatory paperwork, control stacking, and a heavier and heavier balance between safety needs and getting work done.",
-openingClause: "operational-safety responsiveness",
-marginTerm: "operating capacity"
-},
-retail_consumer: {
-sectorName: "retail / consumer",
-benchmarkWithin: "A within-range score here can still hide throughput cost and front-line labor that's quietly absorbing system friction.",
-benchmarkAbove: "An above-range score here usually means the work is holding throughput without making front-line labor carry the burden invisibly.",
-benchmarkBelow: "A below-range score here usually means system friction and admin work are now leaking into how customers experience the business.",
-opportunityPattern: "In retail and consumer environments, burden often shows up as throughput cost, front-line labor absorbing system friction, and customers feeling slow internal movement.",
-openingClause: "throughput and customer responsiveness",
-marginTerm: "front-line capacity"
-},
-education_nonprofit: {
-sectorName: "education / nonprofit",
-benchmarkWithin: "A within-range score here can still hide the tension between mission work and keeping the lights on.",
-benchmarkAbove: "An above-range score here usually means mission work is getting protected from maintenance overhead.",
-benchmarkBelow: "A below-range score here usually means limited capacity is being crowded out by administrative upkeep.",
-opportunityPattern: "In education and nonprofit environments, burden usually shows up as mission-versus-maintenance tension, scarce resources getting absorbed, and admin work crowding out the work the institution exists to do.",
-openingClause: "mission responsiveness",
-marginTerm: "mission-serving capacity"
-},
-professional_services: {
-sectorName: "professional services",
-benchmarkWithin: "A within-range score here can still hide billable-to-nonbillable drift and client-facing time getting eaten up.",
-benchmarkAbove: "An above-range score here usually means the work is protecting client-facing time and margin from internal burden.",
-benchmarkBelow: "A below-range score here usually means nonbillable admin work is compressing both margin and client-facing capacity.",
-opportunityPattern: "In professional services, burden usually shows up as billable-versus-nonbillable drift, client-facing time getting eroded, and margin getting compressed by internal maintenance work.",
-openingClause: "client responsiveness and margin preservation",
-marginTerm: "client-facing and billable capacity"
-},
-other: {
-sectorName: "this sector",
-benchmarkWithin: "A within-range score can still hide real recoverable drag even when the path looks normal on the surface.",
-benchmarkAbove: "An above-range score usually means the work is in a cleaner place than comparable workflows.",
-benchmarkBelow: "A below-range score usually means the structural burden is heavier than comparable workflows need to carry.",
-opportunityPattern: "Comparable institutions often treat drag as normal even when it's still leaving meaningful time, money, and capacity on the table.",
-openingClause: "operational responsiveness",
-marginTerm: "usable capacity"
-}
+// ─── Sector display names (pre-scoring UI fallback only) ────────────────────
+// The proprietary sector narrative — benchmark prose, opportunity patterns,
+// calibration values, workflow knowledge — was migrated to the backend
+// sectorIntelligence.js in the 2026-05-13 IP migration. After scoring, the
+// frontend reads result.sector_context for all rich sector content. This
+// minimal map exists only so pre-scoring UI elements (the questioning flow)
+// can display a human-readable sector name without a backend round-trip.
+const SectorDisplayNames = {
+  government_defense:        "government / defense",
+  financial_services:        "financial services",
+  healthcare_life_sciences:  "healthcare / life sciences",
+  technology_software:       "technology / software",
+  manufacturing_industrial:  "manufacturing / industrial",
+  energy_utilities:          "energy / utilities",
+  retail_consumer:           "retail / consumer",
+  education_nonprofit:       "education / nonprofit",
+  professional_services:     "professional services",
+  other:                     "this sector"
 };
+
+// Empty narrative shape returned during pre-scoring UI states. After scoring,
+// callers should read result.sector_context, which has the populated fields.
+const EmptyNarrativeShape = {
+  sectorName:        "this sector",
+  benchmarkWithin:   "",
+  benchmarkAbove:    "",
+  benchmarkBelow:    "",
+  opportunityPattern: "",
+  openingClause:     "",
+  marginTerm:        ""
+};
+
+const IndustryNarrativeLayer = EmptyNarrativeShape; // legacy alias retained for any pre-scoring caller
 
 // ═══════════════════════════════════════════════════════════
 // 3. UTILITY & HELPER FUNCTIONS
 // ═══════════════════════════════════════════════════════════
-function getIndustryNarrative(payload = {}) {
+
+// getIndustryNarrative is now a backend-aware passthrough. Pre-2026-05-13
+// it held the proprietary sector narrative table inline. After the IP
+// migration, the rich sector content arrives on result.sector_context and
+// this function just surfaces it. Accepts either the legacy (payload) form
+// or the new (result, payload) form; the legacy form returns a stub with
+// only the sector display name (used during pre-scoring UI).
+function getIndustryNarrative(resultOrPayload, payloadOpt) {
+const result = (payloadOpt !== undefined) ? resultOrPayload : null;
+const payload = (payloadOpt !== undefined) ? payloadOpt : (resultOrPayload || {});
+if (result?.sector_context) return result.sector_context;
 const key = toIndustryKey(payload?.industry || payload?.industrySelection || "other");
-return IndustryNarrativeLayer[key] || IndustryNarrativeLayer.other;
+return { ...EmptyNarrativeShape, sectorName: SectorDisplayNames[key] || "this sector" };
 }
 
+// DiagnosticInterpretationLayer used to carry sectorBenchmarks calibration
+// (industryMin, industryMax, opportunityMin, opportunityMax, typicalDrag per
+// sector) and the estimateReclaimPotential formula. Both moved to backend
+// sectorIntelligence.js in the 2026-05-13 IP migration. This stub remains
+// only so legacy callers that read DiagnosticInterpretationLayer.* do not
+// throw; live values come from result.sector_context.calibration and
+// result.reclaim_potential.
 const DiagnosticInterpretationLayer = {
-sectorBenchmarks: {
-technology_software: { industryMin: 62, industryMax: 74, opportunityMin: 78, opportunityMax: 91, typicalDrag: 18 },
-financial_services: { industryMin: 58, industryMax: 71, opportunityMin: 75, opportunityMax: 88, typicalDrag: 22 },
-healthcare_life_sciences: { industryMin: 55, industryMax: 68, opportunityMin: 72, opportunityMax: 85, typicalDrag: 25 },
-manufacturing_industrial: { industryMin: 60, industryMax: 73, opportunityMin: 77, opportunityMax: 89, typicalDrag: 15 },
-government_defense: { industryMin: 54, industryMax: 67, opportunityMin: 71, opportunityMax: 84, typicalDrag: 24 },
-retail_consumer: { industryMin: 58, industryMax: 73, opportunityMin: 76, opportunityMax: 88, typicalDrag: 20 },
-education_nonprofit: { industryMin: 54, industryMax: 69, opportunityMin: 72, opportunityMax: 84, typicalDrag: 21 },
-professional_services: { industryMin: 58, industryMax: 73, opportunityMin: 76, opportunityMax: 88, typicalDrag: 20 },
-other: { industryMin: 58, industryMax: 69, opportunityMin: 70, opportunityMax: 84, typicalDrag: 20 }
-},
-mapSectorKey(payload) {
-const raw = toIndustryKey(payload?.industrySelection || payload?.industry || "other");
-return this.sectorBenchmarks[raw] ? raw : "other";
-},
-getSectorCalibration(payload) {
-const key = this.mapSectorKey(payload || {});
-return { ...(this.sectorBenchmarks[key] || this.sectorBenchmarks.other) };
-},
-estimateReclaimPotential(result, payload) {
-const annualCost = Number(result?.exposure?.annual_cost || 0);
-const score = Number(result?.score || 50);
-const calibration = this.getSectorCalibration(payload || {});
-const recoverableFactor = Math.max(0.12, Math.min(0.42, ((100 - score) / 100) * 0.34 + (calibration.typicalDrag / 100) * 0.22));
-return {
-amount: Math.round(annualCost * recoverableFactor),
-factor: Math.round(recoverableFactor * 100),
-impact: recoverableFactor < 0.18 ? "Low" : recoverableFactor < 0.3 ? "Moderate" : "High",
-driverText: `Directional estimate based on current burden pattern and comparable operating conditions in this sector.`
-};
-}
+  sectorBenchmarks: {},
+  getSectorCalibration(resultOrPayload, payloadOpt) {
+    const result  = (payloadOpt !== undefined) ? resultOrPayload : null;
+    // No fallback constants exposed in source — calibration is proprietary
+    // and lives in backend sectorIntelligence.js. When result.sector_context
+    // is unavailable, return a neutral object so downstream prose code does
+    // not crash; it simply skips calibration-dependent claims.
+    return result?.sector_context?.calibration || {
+      industryMin: 0, industryMax: 0, opportunityMin: 0, opportunityMax: 0, typicalDrag: 0
+    };
+  },
+  estimateReclaimPotential(result) {
+    // Passthrough — backend computes this and attaches as result.reclaim_potential.
+    return result?.reclaim_potential || {
+      amount: 0, factor: 0, impact: "Low",
+      driverText: "Directional estimate could not be loaded for this run."
+    };
+  }
 };
 
 function escapeHtml(value) {
@@ -1044,46 +989,44 @@ const suffix = options.suffix || "";
 return `${prefix}${rounded.toLocaleString()}${suffix}`.trim();
 }
 
-const SectorWorkflowKnowledge = {
-retail_consumer: {
-default: {
-knownBottlenecks: ["throughput pressure", "front-line labor absorbing system friction", "customer-facing delay created by internal routing"],
-knownRemedies: ["risk-tiered workflows", "standard playbooks", "self-service intake", "exception routing"],
-knownFailureModes: ["margin leakage", "customer-impacting delay", "front-line workaround normalization"]
-},
-legal_review: {
-knownBottlenecks: ["vendor contract review competing with launch and shipping windows", "marketing and supplier approvals moving faster than legal review queues", "low-risk agreements being routed through the same path as higher-risk contracts", "legal review being bypassed when commercial timing pressure is high"],
-knownRemedies: ["risk-tiered legal intake under dollar, data, brand, and indemnity thresholds", "pre-approved vendor contract playbooks and fallback clauses", "self-service templates for low-risk supplier and marketing agreements", "AI-assisted first-pass contract review with counsel-owned exception criteria"],
-knownFailureModes: ["compliance drift when the formal legal path is routinely bypassed", "audit exposure because the documented process no longer matches operating reality", "legal control that exists on paper but is not reliably producing control benefit", "commercial teams learning that workaround skill matters more than process legitimacy"]
-}
-},
-government_defense: {
-procurement: {
-knownBottlenecks: ["serial concurrence", "documentation stacking", "procurement thresholds triggering review regardless of operational urgency"],
-knownRemedies: ["threshold-based routing", "authority mapping", "concurrence reduction", "clear decision rights"],
-knownFailureModes: ["mission delay", "paper compliance without operating control", "avoidance behavior"]
-}
-},
-default: {
-knownBottlenecks: ["unclear routing", "duplicate handling", "manual coordination", "control layers that are not risk-tiered"],
-knownRemedies: ["risk-tiering", "standard work redesign", "clear exception thresholds", "pathway ownership"],
-knownFailureModes: ["hidden compensation", "normalized workarounds", "control without control benefit"]
-}
+// SectorWorkflowKnowledge — the sector × workflow knowledge tuples
+// (bottlenecks/remedies/failure modes) — was migrated to backend
+// sectorIntelligence.js on 2026-05-13. The frontend now reads
+// result.sector_context.knowledge (post-scoring) or returns a default
+// stub (pre-scoring). detectWorkflowKey is preserved as a small frontend
+// helper because it's used for the regex-based workflow keyword match,
+// which is sector-table-independent; it's not IP and is also computed
+// backend-side, where its result lands in result.sector_context.workflowKey.
+
+const _DEFAULT_KNOWLEDGE_STUB = {
+  knownBottlenecks: [],
+  knownRemedies: [],
+  knownFailureModes: []
 };
 
 function detectWorkflowKey(payload = {}) {
-const text = [payload.processName, payload.process_name, payload.decisionType, payload.decision_type].join(" ").toLowerCase();
+const text = [payload.processName, payload.process_name, payload.decisionType, payload.decision_type].filter(Boolean).join(" ").toLowerCase();
 if (/legal|contract|counsel|vendor agreement|supplier agreement|terms|clause/.test(text)) return "legal_review";
 if (/procure|contract|vendor|supplier|sourcing/.test(text)) return "procurement";
 if (/marketing|campaign|creative|brand/.test(text)) return "marketing_approval";
 return "default";
 }
 
-function getSectorWorkflowKnowledge(payload = {}) {
-const industryKey = toIndustryKey(payload?.industry || payload?.industrySelection || "other");
-const workflowKey = detectWorkflowKey(payload);
-const sector = SectorWorkflowKnowledge[industryKey] || {};
-return { industryKey, workflowKey, knowledge: sector[workflowKey] || sector.default || SectorWorkflowKnowledge.default };
+function getSectorWorkflowKnowledge(resultOrPayload, payloadOpt) {
+const result = (payloadOpt !== undefined) ? resultOrPayload : null;
+const payload = (payloadOpt !== undefined) ? payloadOpt : (resultOrPayload || {});
+if (result?.sector_context) {
+  return {
+    industryKey: result.sector_context.industryKey,
+    workflowKey: result.sector_context.workflowKey,
+    knowledge: result.sector_context.knowledge || _DEFAULT_KNOWLEDGE_STUB
+  };
+}
+return {
+  industryKey: toIndustryKey(payload?.industry || payload?.industrySelection || "other"),
+  workflowKey: detectWorkflowKey(payload),
+  knowledge: _DEFAULT_KNOWLEDGE_STUB
+};
 }
 
 function getWorkflowDisplayName(payload = {}) {
@@ -1106,34 +1049,13 @@ if (lower === "this workflow" || /\bworkflow\b|\bprocess\b|\bpath\b/.test(lower)
 return `the ${lower} workflow`;
 }
 
-function getWorkflowRemedyLanguage(payload = {}) {
-const { workflowKey } = getSectorWorkflowKnowledge(payload);
+function getWorkflowRemedyLanguage(resultOrPayload, payloadOpt) {
+const result = (payloadOpt !== undefined) ? resultOrPayload : null;
+const payload = (payloadOpt !== undefined) ? payloadOpt : (resultOrPayload || {});
+if (result?.sector_context?.workflowRemedyLanguage) return result.sector_context.workflowRemedyLanguage;
+// Pre-scoring fallback — minimal generic shape; rich language comes from backend.
 const display = getWorkflowDisplayName(payload).toLowerCase();
 const generic = display === "this workflow" ? "workflow" : display;
-if (workflowKey === "legal_review") {
-  return {
-    routineWork: "routine legal review",
-    trueExceptions: "true exceptions",
-    playbooks: "legal playbooks",
-    controlReset: "legal control, managerial cover, and senior-leader visibility"
-  };
-}
-if (workflowKey === "procurement") {
-  return {
-    routineWork: /vendor/.test(display) ? "routine vendor approvals" : "routine procurement approvals",
-    trueExceptions: "true exceptions",
-    playbooks: "approval playbooks",
-    controlReset: "approval control, managerial cover, and senior-leader visibility"
-  };
-}
-if (workflowKey === "marketing_approval") {
-  return {
-    routineWork: "routine marketing approvals",
-    trueExceptions: "true exceptions",
-    playbooks: "approval playbooks",
-    controlReset: "brand/control accountability, managerial cover, and senior-leader visibility"
-  };
-}
 return {
   routineWork: `routine ${generic}`,
   trueExceptions: "true exceptions",
@@ -1209,7 +1131,12 @@ const withPct = segments.map((s, i) => {
 });
 const dominant = withPct[0] || { label: "No dominant source", value: 0, pct: 0 };
 const dominantPct = dominant.pct || 0;
-const shape = !total ? "insufficient" : dominantPct >= 42 ? "concentrated" : dominantPct <= 28 ? "distributed" : "mixed";
+// Shape thresholds (formerly inline 42/28 cutoffs) are now canonical in
+// backend buildCanonicalDescriptor.js. This legacy fallback path fires
+// only when canonical_composition is absent on the result — in which case
+// no descriptor is available, so shape is reported as undefined rather
+// than recomputed against a duplicate threshold table.
+const shape = !total ? "insufficient" : (result?.canonical_descriptor?.burden_distribution_type || "");
 return { segments: withPct, total, dominant, dominantPct, shape };
 }
 
@@ -1229,7 +1156,7 @@ return output;
 function buildBenchmarkTension(result, payload = {}) {
 const score = Number(result?.score || 0);
 const position = result?.benchmark_position || "Industry range comparison";
-const industry = getIndustryNarrative(payload);
+const industry = getIndustryNarrative(result, payload);
 if (/within/i.test(position) && score < 67) {
 return `This is heavy in absolute terms but within the comparable range for ${industry.sectorName}. That means peer benchmarks will not create urgency by themselves; the case for change comes from trajectory, qualitative operating evidence, and recoverable capacity.`;
 }
@@ -2476,11 +2403,13 @@ adaptation_drag: Number(dims.upkeep_burden || 0)
 }
 
 function deriveOperatingBurdenCondition(result) {
-const score = Number(result.score || 0);
-if (score >= 83) return { label: "Light operating burden", note: "The operating environment appears genuinely manageable and is supporting the work without excessive visible burden." };
-if (score >= 67) return { label: "Manageable but compounding burden", note: "The environment is still functioning, but recurring administrative weight is consuming more effort than it should." };
-if (score >= 49) return { label: "Heavy administrative environment", note: "The environment appears heavier than the underlying work really needs because process, systems, or reporting weight have built up." };
-return { label: "Operational drag condition", note: "The environment appears to preserve output through workaround effort, exception handling, and manual burden rather than a lighter operating design." };
+// Passthrough — backend scoreOperationalSystems.js writes result.score_band
+// and result.score_band_note. The proprietary band cutoffs and prose used to
+// live here; migrated to backend on 2026-05-13.
+return {
+  label: result?.score_band || "Operating burden read",
+  note:  result?.score_band_note || ""
+};
 }
 
 function derivePrimaryBurdenSource(result) {
@@ -2490,138 +2419,52 @@ function derivePrimaryBurdenSource(result) {
 // silently dropping whichever value was smaller.
 const pattern = getBurdenCompositionPattern(result);
 if (pattern.dominant && pattern.dominant.label !== "No dominant source") {
-  const NOTES = {
-    "Process density":                "Process and control layers appear to be carrying more of the workflow than the underlying work requires.",
-    "Systems friction":               "System switching, duplicate entry, or re-entry burden appears to be driving meaningful drag.",
-    "Reporting burden":               "Reporting weight or exception handling appears to be consuming more effort than light oversight would require.",
-    "Workaround dependence":          "The environment appears to rely on off-path effort or specific people to keep work moving.",
-    "Control load":                   "Control accumulation appears heavier than the real operating need may require.",
-    "Administrative upkeep burden":   "Administrative upkeep itself appears to be consuming meaningful capacity."
-  };
+  // Note prose now sourced from canonical_descriptor.dominant_burden_note,
+  // populated backend by buildCanonicalDescriptor.js. Migrated 2026-05-13.
+  const backendNote = result?.canonical_descriptor?.dominant_burden_note;
   return {
     label: pattern.dominant.label,
     value: pattern.dominant.value,
-    note:  NOTES[pattern.dominant.label] || "The primary burden source is constraining movement in this workflow."
+    note:  backendNote || "The primary burden source is constraining movement in this workflow."
   };
 }
 return { label: "Mixed burden pattern", value: 0, note: "No single burden source clearly dominates the run." };
 }
 
 function deriveBurdenDiagnosis(result, payload) {
-const score = Number(result.score || 0);
-const reg = normalizeChoice(payload?.regulatoryIntensity || payload?.regulatory_intensity);
-if (score >= 70 && reg === "high") return { label: "Risk-justified caution", note: "Some of the current burden may be justified by a genuinely higher-control environment, but the workflow should still be governed actively." };
-if (score < 45) return { label: "Too much burden to stay workable", note: "The environment appears to be paying too much in time, money, and capacity for the amount of operational value being preserved." };
-if (score < 65) return { label: "Heavier than the workflow requires", note: "The environment appears heavier than the underlying workflow likely requires." };
-return { label: "Borderline trade-off", note: "The workflow is still workable, but the cost of preserving it is drifting toward a less acceptable trade-off." };
+// Passthrough — backend scoreOperationalSystems.js writes
+// result.burden_diagnosis (regulatory-aware label + note). The classifier
+// thresholds and prose used to live here; migrated to backend on 2026-05-13.
+return result?.burden_diagnosis || {
+  label: "Burden diagnosis pending",
+  note:  ""
+};
 }
 
 function buildInterpretiveState(result, payload) {
-const rawBreakdown = asObject(result.burden_breakdown);
-const rawDimensions = asObject(result.dimensions);
-const score = Number(result.score || 50);
-const pick = (...values) => {
-for (const value of values) {
-const n = Number(value);
-if (Number.isFinite(n) && n > 0) return n;
-}
-return 0;
-};
-const breakdown = {
-process_density: pick(rawBreakdown.process_density, rawDimensions.process_density),
-control_load: pick(rawBreakdown.control_load, rawDimensions.control_load),
-reporting_exception_burden: pick(rawBreakdown.reporting_exception_burden, rawDimensions.reporting_exception_burden),
-systems_friction: pick(rawBreakdown.systems_friction, rawDimensions.systems_friction),
-workaround_dependence: pick(rawBreakdown.workaround_dependence, rawDimensions.workaround_dependence, rawDimensions.upkeep_burden)
-};
-
-const clampAxis = (value) => Math.max(5, Math.min(95, Number(value) || 0));
-const regulatory = normalizeChoice(payload?.regulatoryIntensity || payload?.regulatory_intensity || state.preflight.regulatoryIntensity);
-const decisionType = normalizeChoice(payload?.decisionType || payload?.decision_type || state.preflight.decisionType);
-const meetingLoad = Number(payload?.meetingHours || payload?.meeting_hours || state.preflight.meetingHours || 0);
-const participantLoad = Number(payload?.peopleInvolved || payload?.peopleAffected || payload?.participant_count || state.preflight.peopleInvolved || 0);
-const employeeCount = Number(payload?.employeeCount || payload?.employee_count || state.preflight.employeeCount || 0);
-const orgSize = deriveOrganizationSize(employeeCount);
-
-const regPoints = regulatory === "high" ? 26 : regulatory === "moderate" ? 14 : regulatory === "low" ? 5 : 0;
-const typePoints = ["policy", "risk", "procurement", "budget"].includes(decisionType) ? 14 : decisionType === "program" ? 8 : 0;
-const peoplePoints = participantLoad >= 20 ? 18 : participantLoad >= 12 ? 13 : participantLoad >= 8 ? 9 : participantLoad >= 4 ? 5 : 0;
-const meetingPoints = meetingLoad >= 12 ? 20 : meetingLoad >= 8 ? 15 : meetingLoad >= 5 ? 10 : meetingLoad >= 2 ? 5 : 0;
-const sizePoints = orgSize === "enterprise" ? 7 : orgSize === "large" ? 5 : orgSize === "midsize" ? 3 : 0;
-
-// Input-derived governance floor. If the current run is explicitly high
-// control/high coordination/high regulation, the X-axis must not render as
-// light governance just because a backend dimension is conservative.
-const governanceFromInputs = clampAxis(18 + regPoints + typePoints + peoplePoints + meetingPoints + sizePoints);
-
-const answerText = [
-...Object.values(state.answerCache || {}),
-...asArray(state.questionHistory).map((entry) => entry?.value)
-].map((value) => String(value || "").toLowerCase()).join(" ");
-const governanceHits = (answerText.match(/\b(high|heavy|many|multiple|frequent|always|formal|review|approval|control|oversight|reporting|exception|duplicate|manual|workaround|escalat\w+)\b/g) || []).length;
-const governanceFromAnswers = governanceHits >= 3 ? clampAxis(35 + governanceHits * 6) : 0;
-
-const dominantGovernanceSignal = Math.max(
-breakdown.process_density,
-breakdown.control_load,
-breakdown.reporting_exception_burden * 0.9,
-governanceFromInputs,
-governanceFromAnswers
-);
-const blendedGovernanceSignal =
-breakdown.process_density * 0.30 +
-breakdown.control_load * 0.30 +
-breakdown.reporting_exception_burden * 0.20 +
-breakdown.systems_friction * 0.10 +
-breakdown.workaround_dependence * 0.10;
-
-function stretchAxis(raw) {
-const stretched = ((raw - 25) / 50) * 80 + 10;
-return clampAxis(stretched);
-}
-
-const governanceWeight = Math.max(stretchAxis(blendedGovernanceSignal), clampAxis(dominantGovernanceSignal));
-
-const movementBlockers = [
-breakdown.workaround_dependence,
-breakdown.reporting_exception_burden,
-breakdown.systems_friction,
-breakdown.process_density * 0.55,
-breakdown.control_load * 0.55
-];
-const dominantBlocker = Math.max(...movementBlockers, 0);
-const dimensionResponsive = stretchAxis(100 - dominantBlocker);
-const scoreResponsive = clampAxis(score);
-const execResponsive = clampAxis((dimensionResponsive * 0.55) + (scoreResponsive * 0.45));
-
-const benchmarkPos = result.benchmark_position || "Industry range comparison";
-const topFocus = (asArray(result.intervention_priority_ladder)[0]?.focus) || derivePrimaryBurdenSource(result).label;
-const quadrantKey = execResponsive >= 50 && governanceWeight < 50
-? "upper_left"
-: execResponsive >= 50 && governanceWeight >= 50
-? "upper_right"
-: execResponsive < 50 && governanceWeight < 50
-? "lower_left"
-: "lower_right";
-
+// Passthrough — backend scoreOperationalSystems.js writes
+// result.interpretive_state with governanceWeight, execResponsive,
+// quadrantKey, and governanceInputs. The axis blend weights, regPoints/
+// typePoints/peoplePoints/meetingPoints/sizePoints scales, and
+// stretchAxis calibration constants used to live here; migrated to
+// backend on 2026-05-13.
+const backendState = result?.interpretive_state || {};
+const benchmarkPos = result?.benchmark_position || "Industry range comparison";
+const topFocus = (asArray(result?.intervention_priority_ladder)[0]?.focus) || derivePrimaryBurdenSource(result).label;
+const directionSummary =
+  result?.trajectory?.direction === "up" ? "burden pressure is rising" :
+  result?.trajectory?.direction === "down" ? "burden pressure is easing" :
+                                              "burden pressure is relatively steady";
 return {
-governanceWeight,
-execResponsive,
-benchmarkPos,
-topFocus,
-quadrantKey,
-sectorLabel: resolveIndustryLabel(result, payload, { titleCase: false }),
-trajectoryDirection: result?.trajectory?.direction || "flat",
-directionSummary: result?.trajectory?.direction === "up" ? "burden pressure is rising" : result?.trajectory?.direction === "down" ? "burden pressure is easing" : "burden pressure is relatively steady",
-governanceInputs: {
-regulatory,
-decisionType,
-meetingLoad,
-participantLoad,
-employeeCount,
-governanceFromInputs,
-governanceFromAnswers
-}
+  governanceWeight:     Number(backendState.governanceWeight ?? 50),
+  execResponsive:       Number(backendState.execResponsive   ?? 50),
+  quadrantKey:          backendState.quadrantKey || "lower_right",
+  benchmarkPos,
+  topFocus,
+  sectorLabel:          resolveIndustryLabel(result, payload, { titleCase: false }),
+  trajectoryDirection:  backendState.trajectoryDirection || result?.trajectory?.direction || "flat",
+  directionSummary,
+  governanceInputs:     backendState.governanceInputs || {}
 };
 }
 
@@ -2635,9 +2478,9 @@ return pattern.shape === "insufficient" ? "distributed" : pattern.shape;
 }
 
 
-function buildSectorSpecificOpportunity(stateObj, payload = {}) {
-const industry = getIndustryNarrative(payload);
-const { workflowKey, knowledge } = getSectorWorkflowKnowledge(payload);
+function buildSectorSpecificOpportunity(stateObj, result, payload = {}) {
+const industry = getIndustryNarrative(result, payload);
+const { workflowKey, knowledge } = getSectorWorkflowKnowledge(result, payload);
 const qualitative = detectQualitativeOverride(payload);
 if (qualitative.type === "bypass_control_risk") {
 return {
@@ -2661,7 +2504,7 @@ watchout: stateObj.benchmarkPos === "Above industry range"
 
 
 function buildSpecificDiagnosisReads(result, payload, burdenCondition, burdenConstraint, burdenDiagnosis, stateObj) {
-const industry = getIndustryNarrative(payload);
+const industry = getIndustryNarrative(result, payload);
 const process = payload?.processName || payload?.process_name || "this workflow";
 const breakdown = asObject(result?.burden_breakdown);
 const approval = Number(breakdown.process_density || 0);
@@ -2698,8 +2541,8 @@ severityRead: approval >= 45 || coordination >= 45 || escalation >= 35 || keyPer
 }
 
 function buildHeadlineFinding(result, payload, burdenConstraint, stateObj) {
-const industry = getIndustryNarrative(payload);
-const { workflowKey, knowledge } = getSectorWorkflowKnowledge(payload);
+const industry = getIndustryNarrative(result, payload);
+const { workflowKey, knowledge } = getSectorWorkflowKnowledge(result, payload);
 const qualitative = detectQualitativeOverride(payload);
 const annualHours = Math.round(Number(result?.exposure?.annual_hours || 0));
 const pattern = getBurdenCompositionPattern(result);
@@ -2727,7 +2570,7 @@ const trajectorySentence = stateObj.trajectoryDirection === "up"
 ? "Trajectory signals suggest the burden is easing, but the current environment is still carrying material recoverable drag."
 : "Trajectory signals suggest the burden is holding relatively steady rather than improving on its own.";
 const exposureSentence = annualHours > 0
-? `At the current run assumptions, the workflow is sustaining about ${annualHours.toLocaleString()} annual burden hours*, which is meaningful in ${industry.sectorName}.`
+? `At the current run assumptions, the workflow is sustaining ${formatRoundedHours(annualHours, { suffix: " annual burden hours*" })}, which is meaningful in ${industry.sectorName}.`
 : `The surface signal suggests a meaningful capacity cost in ${industry.sectorName}, even before any deeper audit of the workflow.`;
 return applyCompositionConsistency(`${sourceClause} ${shapeSentence} ${trajectorySentence} ${exposureSentence}`, result);
 }
@@ -2767,9 +2610,9 @@ const process = payload?.processName || payload?.process_name || "This workflow"
 const burdenCondition = deriveOperatingBurdenCondition(result);
 const burdenConstraint = derivePrimaryBurdenSource(result);
 const burdenDiagnosis = deriveBurdenDiagnosis(result, payload);
-const fallbackOpportunity = buildSectorSpecificOpportunity(stateObj, payload);
+const fallbackOpportunity = buildSectorSpecificOpportunity(stateObj, result, payload);
 const narrative = typeof result?.narrative === "object" ? result.narrative : {};
-const industry = getIndustryNarrative(payload);
+const industry = getIndustryNarrative(result, payload);
 const diagnosisReads = buildSpecificDiagnosisReads(result, payload, burdenCondition, burdenConstraint, burdenDiagnosis, stateObj);
 let headlineFinding = narrative.primary_signal || buildHeadlineFinding(result, payload, burdenConstraint, stateObj);
 headlineFinding = applyCompositionConsistency(headlineFinding, result);
@@ -2824,7 +2667,7 @@ recommendedActions: narrativeActions
 function buildPriorityActions(result, payload) {
 const process = (payload?.processName || payload?.process_name || "this workflow").trim();
 const breakdown = asObject(result.burden_breakdown);
-const { knowledge } = getSectorWorkflowKnowledge(payload);
+const { knowledge } = getSectorWorkflowKnowledge(result, payload);
 const qualitative = detectQualitativeOverride(payload);
 const actions = [];
 if (qualitative.type === "bypass_control_risk") {
@@ -2865,7 +2708,7 @@ const actions = buildPriorityActions(result, payload);
 const qualitative = detectQualitativeOverride(payload);
 const rangeText = (amount) => formatEstimateCurrencyRange(amount);
 if (qualitative.type === "bypass_control_risk") {
-const remedyLanguage = getWorkflowRemedyLanguage(payload);
+const remedyLanguage = getWorkflowRemedyLanguage(result, payload);
 return [
 { label: "Stabilize the real path", kicker: "Low disruption", summary: "Document where the formal path is being bypassed and stop treating informal compensation as invisible.", actions: [actions[0] || "Map the workaround pattern."], benefit: `Possible upside in the range of ${rangeText(reclaim.amount * 0.22)} if the first fixes stick.`, risk: "Risk: the surface looks cleaner while informal bypass behavior continues." },
 { label: "Risk-tier the workflow", kicker: "Targeted redesign", summary: `Separate ${remedyLanguage.routineWork} from ${remedyLanguage.trueExceptions} and formalize ${remedyLanguage.playbooks} for low-risk work.`, actions: actions.slice(0, 2), benefit: `Possible upside in the range of ${rangeText(reclaim.amount * 0.48)} if the redesigned path holds.`, risk: "Risk: the organization creates a better process on paper but does not change actual behavior." },
@@ -2904,9 +2747,9 @@ opportunity: narrative.opportunity_guidance || joinNarrativeParts([
 }
 
 function buildBenchmarkInterpretationText(result, payload) {
-const calibration = DiagnosticInterpretationLayer.getSectorCalibration(payload || {});
+const calibration = DiagnosticInterpretationLayer.getSectorCalibration(result, payload || {});
 const score = Number(result?.score || 50);
-const industry = getIndustryNarrative(payload);
+const industry = getIndustryNarrative(result, payload);
 const position = result?.benchmark_position || "industry range";
 if (/within/i.test(position) && score < 67) {
 return `This workflow is heavy in absolute terms but still ${String(position).toLowerCase()} for ${industry.sectorName}. That is analytically important: peer comparison will not create urgency by itself. The case for action comes from trajectory, qualitative operating evidence, and the fact that similar workflows still often carry about ${calibration.typicalDrag}% recoverable drag even when the setup feels normal.`;
@@ -2925,56 +2768,11 @@ return DiagnosticInterpretationLayer.estimateReclaimPotential(result, payload ||
 }
 
 function buildQuadrantInterpretation(result) {
-const stateObj = result.__interpretiveState || buildInterpretiveState(result, {});
-const score = Number(result?.score || 50);
-// Score-band tiers (matches scoreOperationalSystems.js scoreBand):
-//   >= 83  Light operating burden
-//   >= 67  Manageable but compounding burden
-//   >= 49  Heavy administrative environment
-//   < 49   Operational drag condition
-const isLight       = score >= 83;
-const isCompounding = score >= 67 && score < 83;
-const isHeavy       = score >= 49 && score < 67;
-const isDragged     = score < 49;
-// "Severe" = score below the manageable threshold. Used to flag when a
-// quadrant interpretation that normally reads as "strong position" needs
-// tension acknowledgment because the overall score is poor.
-const isSevere = score < 67;
-
-if (stateObj.quadrantKey === "upper_left") {
-  if (isSevere) {
-    // Upper-left placement with a poor score: governance weight is computed
-    // as comparatively light AND execution responsiveness as comparatively
-    // strong, but the overall environment is reading as heavy. The drag is
-    // appearing somewhere the quadrant axes do not surface — read alongside
-    // burden composition and remedy path, not as the headline.
-    return "On these two axes the run lands at lighter visible governance with relatively strong responsiveness, but the overall score band indicates the burden is appearing somewhere these axes do not fully surface. Read the quadrant position as one view, not the full picture: the burden composition and remedy path describe where the drag is actually concentrated.";
-  }
-  if (isCompounding) {
-    return "Movement is relatively strong and visible governance weight is comparatively light, but the overall score sits in the compounding range. The position is favorable on these two axes — preserve it actively rather than assume permanence, and watch the burden composition for dimensions the quadrant view does not surface.";
-  }
-  return "Movement is relatively strong and governance weight is comparatively light. This is the strongest structural position on the chart, but it still needs to be preserved rather than assumed permanent.";
-}
-
-if (stateObj.quadrantKey === "upper_right") {
-  if (isLight) {
-    // Unusual but possible: upper-right placement (heavier governance) with
-    // a light overall score. The score says the environment is functioning;
-    // the position says it is doing so with heavy governance scaffolding.
-    return "Movement is reading as relatively strong despite heavier governance weight. The overall score is favorable, which suggests the heavier governance is currently producing the control benefit it implies. Preserve the responsiveness; watch whether governance weight remains proportionate as conditions change.";
-  }
-  return "The organization is still getting movement, but it is paying for that movement with heavier governance weight than it likely wants. The task is to strip out non-proportionate burden without weakening control quality.";
-}
-
-if (stateObj.quadrantKey === "lower_left") {
-  if (isLight) {
-    return "Formal governance density is light and responsiveness is currently lower than that lightness would predict. The overall score is favorable, but the lower responsiveness suggests ownership, coordination, or handoff design may be the next constraint — these are typically harder to surface in burden-focused scoring.";
-  }
-  return "Formal governance density is not the main problem. The issue is that the workflow is not carrying movement well through ownership, coordination, and handoff design.";
-}
-
-// lower_right
-return "Movement is weak while governance weight is already heavy. Time, cost, and capacity are likely being consumed at the same time.";
+// Passthrough — backend scoreOperationalSystems.js writes
+// result.quadrant_interpretation_text based on (score band × quadrant key).
+// The proprietary cell-by-cell prose used to live here; migrated to backend
+// on 2026-05-13.
+return result?.quadrant_interpretation_text || "Quadrant interpretation will appear once the run is scored.";
 }
 
 function contradictionClass(item) {
@@ -3009,7 +2807,7 @@ return `<div class="bar-row"><div class="bar-label">${escapeHtml(row.label)}</di
 }
 
 function renderBenchmarkBar(result, payload) {
-const cal = DiagnosticInterpretationLayer.getSectorCalibration(payload || {});
+const cal = DiagnosticInterpretationLayer.getSectorCalibration(result, payload || {});
 const score = Math.max(0, Math.min(100, Number(result.score || 0)));
 const industryRange = $("industryRange");
 const opportunityRange = $("opportunityRange");
@@ -3401,7 +3199,7 @@ return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 0 ${end.x} ${end.y
 function renderIndustryGauge(result, payload) {
 const mount = $("industryGauge");
 if (!mount) return;
-const cal = DiagnosticInterpretationLayer.getSectorCalibration(payload || {});
+const cal = DiagnosticInterpretationLayer.getSectorCalibration(result, payload || {});
 const score = Math.max(0, Math.min(100, Number(result?.score || 0)));
 const scoreToAngle = (value) => 180 - (value * 1.8);
 const needleAngle = scoreToAngle(score);
@@ -3503,8 +3301,13 @@ if (note) note.textContent = result?.trajectory?.note || "Directional signal";
       dominant,
       dominantPct,
       hasSignal,
-      isConcentrated: hasSignal && dominantPct >= 42,
-      isDistributed:  hasSignal && dominantPct <= 28
+      // Shape classification deferred — canonical thresholds live in
+      // backend buildCanonicalDescriptor.js. This branch only fires when
+      // analyzeDonutPattern is called without a result arg (no descriptor
+      // context available); callers that need shape should pass result so
+      // the primary path reads pattern.shape from canonical_composition.
+      isConcentrated: false,
+      isDistributed:  false
     };
   }
 
@@ -3850,12 +3653,42 @@ const primary = derivePrimaryBurdenSource(result);
 return `${primary.label || "Operating burden"} pattern`;
 }
 
+function buildNextRunRecommendation(result = {}, payload = {}, industry = {}, processName = "this workflow") {
+const role = String(payload?.participantMode || payload?.participant_mode || result?.participant_mode || "senior_leader").toLowerCase();
+const trajectoryDirection = result?.trajectory?.direction || "flat";
+const sectorName = industry?.sectorName || "this sector";
+const workflowLower = String(processName || "this workflow").toLowerCase();
+
+// Cross-perspective coverage: name the perspectives this run did NOT capture.
+const otherRoles = role === "senior_leader"
+? "operational and managerial perspectives"
+: role === "managerial"
+? "operational and senior-leader perspectives"
+: "managerial and senior-leader perspectives";
+const crossRoleBullet = `Run this diagnostic from ${otherRoles} to test whether the burden pattern is consistent across organizational levels or concentrated in specific roles. Divergence between perspectives reframes the diagnosis from structural to distributional.`;
+
+// Longitudinal comparison: gated on trajectory direction so the cadence
+// recommendation matches what this run actually surfaced.
+const longitudinalBullet = trajectoryDirection === "up"
+? "Re-run this diagnostic in six months to confirm whether the rising trajectory holds. Structured comparison turns a directional signal into measurable change and distinguishes real drift from a temporary spike."
+: trajectoryDirection === "down"
+? "Re-run this diagnostic in six months to confirm the easing trajectory is durable rather than a temporary lull. Sustained improvement under repeated measurement is how earlier structural work is shown to be paying off."
+: "Re-run this diagnostic in six to twelve months to detect drift before it becomes structural. Flat trajectories often mask gradual accumulation that only becomes visible through repeated measurement.";
+
+// Adjacent-workflow coverage: tests whether the pattern is workflow-specific
+// or part of a broader operating-environment signal.
+const adjacentBullet = `Run the diagnostic against adjacent workflows in ${sectorName} that share dependencies with ${workflowLower}. The same pattern surfacing in adjacent workflows distinguishes a workflow-specific issue from a systemic operating-environment issue.`;
+
+return [crossRoleBullet, longitudinalBullet, adjacentBullet];
+}
+
 function buildPrimaryReadSummary(result = {}, payload = {}) {
 const qualitative = detectQualitativeOverride(payload);
 if (qualitative.type !== "none") return qualitative.summary;
 const primary = derivePrimaryBurdenSource(result);
 const trajectory = result?.trajectory?.direction === "up" ? " and the burden appears to be rising" : result?.trajectory?.direction === "down" ? " while some pressure may be easing" : " with no clear easing signal yet";
-return `${primary.note || "The workflow is carrying a visible operating burden"}${trajectory}.`;
+const primaryNoteBase = (primary.note || "The workflow is carrying a visible operating burden").replace(/\.\s*$/, "");
+return `${primaryNoteBase}${trajectory}.`;
 }
 
 function buildLeadershipQuestion(result = {}, payload = {}, section = "executive") {
@@ -3876,7 +3709,7 @@ const actions = buildPriorityActions(result, payload || {}).filter(Boolean);
 const benchmark = buildBenchmarkInterpretationText(result, payload || {});
 const generated = nowLabel();
 const insight = calculateInsightDepth(result || payload || {});
-const industry = getIndustryNarrative(payload || {});
+const industry = getIndustryNarrative(result, payload || {});
 const sectorPatternFragment = stripSectorLead(industry.opportunityPattern, industry.sectorName);
 const remedyPaths = buildRemedyPaths(result, payload || {});
 const burdenCondition = deriveOperatingBurdenCondition(result || {});
@@ -3895,13 +3728,14 @@ const dragPct = Math.max(0, Math.min(100, Math.round(Number(result?.exposure?.ca
 const capacity = calculateCapacityComposition(dragPct);
 const breakdown = asObject(result?.burden_breakdown);
 const donutSegments = buildDonutSegments(breakdown);
-const donutPattern = analyzeDonutPattern(donutSegments);
+const donutPattern = analyzeDonutPattern(donutSegments, result);
 const donutPaths = buildDonutSvgPaths(donutSegments);
 const donutTotal = donutSegments.reduce((s, x) => s + Number(x.value || 0), 0);
 const dominantPct = donutPattern.hasSignal ? donutPattern.dominantPct : 0;
 const concentrationProse = buildConcentrationNarrative(donutPattern);
 const trajectoryDirection = result?.trajectory?.direction || "flat";
 const trajectoryProse = buildTrajectoryNarrative(trajectoryDirection);
+const nextRunBullets = buildNextRunRecommendation(result, payload, industry, processName);
 // Under the single-run scoring model, every insight.score is in the
 // "narrow" range — the alert callout fires whenever trajectory is rising
 // and we have a real score (suppressed if the score is the sentinel).
@@ -4025,7 +3859,6 @@ const firstTwoActions = actions.slice(0, 2).length ? actions.slice(0, 2) : [
 "Reduce the heaviest visible burden first.",
 "Run the diagnostic again after the first real change."
 ];
-const lede = words(harmonized.headlineFinding || summary.body || burdenCondition.note, 76);
 const metaLine = `${sectorMeta} · ${levelMeta} · ${generated}`;
 // Compute segment percentages with last-segment-absorbs-remainder so the
 // six values always sum to exactly 100. Independent Math.round of each
@@ -4227,7 +4060,6 @@ return `<!doctype html>
     <div class="accent-rule"></div>
     <p class="run-meta">${safe(metaLine)}</p>
     <div class="primary-read"><span>Primary read</span><strong>${safe(primaryReadLabel)}</strong><p>${safeWords(primaryReadSummary, 38)}</p></div>
-    <p class="lede">${safe(lede)}</p>
     <p>This summary is written for leaders who need to understand whether the workflow is simply busy or structurally expensive to sustain. The score, exposure estimate, and capacity drag should be read together: one describes the condition, one translates the labor cost, and one shows how much productive attention may be tied up in maintaining the process.</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(executiveQuestion)}</p></div>
     <div class="stat-strip">
@@ -4245,7 +4077,7 @@ return `<!doctype html>
     <p class="eyebrow">The pattern this run is detecting</p><h2>Headline finding</h2>
     <p class="lede">${safeWords(harmonized.headlineFinding || summary.body, 84)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(executiveQuestion)}</p></div>
-    <p>Directional modeling suggests roughly ${safe(annualHoursText)} and about ${safe(annualCostText)} in labor exposure, with capacity drag around ${dragPct}%*. These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
+    <p>Directional modeling suggests ${safe(annualHoursText)} and about ${safe(annualCostText)} in labor exposure, with capacity drag around ${dragPct}%*. These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
     <p>The practical question is not whether work is still getting done. It is how much organizational energy is now required to make it happen. The score should be read as a structured quantitative operating-burden indicator. Experiential bypass signals, when present, do not change the score; they provide interpretive context about how the formal process may differ from operating reality.</p><p>When a workflow needs repeated coordination, compensating behavior, workaround maintenance, or control translation, the visible output may remain acceptable while the operating system underneath becomes increasingly expensive to sustain.</p>
     <div class="capacity"><div class="seg" style="width:${capacity.productive}%;background:#4E9A7A">${capacity.productive}%</div><div class="seg" style="width:${capacity.admin}%;background:#C49A3C">${capacity.admin}%</div><div class="seg" style="width:${capacity.drag}%;background:#B85C52">${capacity.drag}%</div></div>
     <div class="legend"><span><span class="dot" style="background:#4E9A7A"></span>Productive work</span><span><span class="dot" style="background:#C49A3C"></span>Admin upkeep</span><span><span class="dot" style="background:#B85C52"></span>Recoverable drag*</span></div>
@@ -4315,7 +4147,7 @@ ${decisionReviewPage}
     <div class="rule"></div>
     <div class="ring-row"><svg class="ring" viewBox="0 0 58 58"><circle cx="29" cy="29" r="23" fill="none" stroke="#E6EAF0" stroke-width="7"/><circle cx="29" cy="29" r="23" fill="none" stroke="#C49A3C" stroke-width="7" stroke-dasharray="${insight.available ? Math.round(insight.score * 1.45) : 0} 145" transform="rotate(-90 29 29)"/></svg><div><div style="font-size:24px;font-weight:700">${insight.available ? Math.round(insight.score) : "—"}</div><p class="muted">Insight depth score${insight.available ? ` · ${escapeHtml(insight.band)}` : " · Awaiting data"}<br>${insight.available ? "Single-run signal-quality indicator, not a correctness score." : "Insight depth could not be loaded from the diagnostic backend."}</p></div></div>
     <p>${insight.available ? "For a single run from a single perspective, this score reflects the depth of the run and self-reported confidence in the inputs. A single run is always a narrow first signal regardless of how thoughtful it was. To strengthen the read, run this diagnostic from other organizational perspectives and over time; the cross-diagnostic synthesis tool combines those runs and computes a broader insight depth score." : "The insight depth score is computed by the Monderman diagnostic backend. It could not be retrieved for this run; the rest of the report remains valid."}</p>
-    <h3>What would strengthen the next read</h3><div class="method-box">${updateReadItems.slice(0, 3).map((item) => `<p>• ${safeWords(item, 42)}</p>`).join("")}</div>
+    <h3>What would strengthen the next read</h3><div class="method-box">${nextRunBullets.map((item) => `<p>• ${safeWords(item, 42)}</p>`).join("")}</div>
     <h3>What the figures represent</h3><div class="method-box"><p>* Figures marked with an asterisk are directional estimates generated from your inputs, not guaranteed financial outcomes. They are intended to indicate rough order of magnitude so leadership can decide whether the pattern is worth investigating further. They should not be cited externally as audited measurements, and they should not be used as the basis for compensation decisions, performance reviews, or formal financial planning.</p></div>
     <h3 style="margin-top:20px">Where Monderman fits</h3><p>Monderman is built for leaders who want a structured, repeatable read on operating burden - not a one-off consulting engagement. The diagnostic surfaces patterns; the leadership decides what to do about them. This report is the artifact of that read, suitable for distribution to peers, leadership, and trusted advisors who need to engage with the same picture.</p><p class="muted" style="font-size:9px;margin-top:18px">Prepared by Monderman's diagnostic engine.</p>
   </div>
