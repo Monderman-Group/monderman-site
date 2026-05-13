@@ -1153,7 +1153,7 @@ async function startSuite() {
 function saveResults() {
   const out = {
     generated: new Date().toISOString(),
-    version: "v8e-PDF-Integrity-API-direct-fix-verification-fixture1-role-gating-corrected",
+    version: "v8f-PDF-Integrity-page6-clip-verification-post-html-deploy",
     base_url: window.location.origin,
     total: allResults.length,
     pass: allResults.filter((r) => r.status === "pass").length,
@@ -1176,7 +1176,7 @@ function saveResults() {
   const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "monderman_test_results_v8d_pdf.json";
+  a.download = "monderman_test_results_v8f_pdf.json";
   a.click();
 }
 
