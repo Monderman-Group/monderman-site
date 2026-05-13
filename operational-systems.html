@@ -404,7 +404,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
       <span class="cover-pill-neutral" id="coverPerspectivePill">—</span>
     </div>
     <div class="cover-footer">
-      <span class="cover-footer-text">Administrative reality is a governable condition</span>
+      <span class="cover-footer-text">Measure the conditions. Own the outcome.</span>
       <span class="cover-footer-text">1</span>
     </div>
     <div class="cover-motif">
@@ -2517,6 +2517,10 @@ const sourceSentence = burdenConstraint.label === "Systems friction"
 ? `Reporting weight and exception handling appear to be eating up more effort than they should in ${process.toLowerCase()}.`
 : burdenConstraint.label === "Workaround dependence"
 ? `The path appears to rely on informal fixes and specific people to keep moving when the formal route is not carrying the work cleanly.`
+: burdenConstraint.label === "Control load"
+? `Control accumulation in ${process.toLowerCase()} appears heavier than the real operating need may require.`
+: burdenConstraint.label === "Administrative upkeep burden"
+? `Administrative upkeep in ${process.toLowerCase()} appears to be consuming meaningful capacity on its own, separately from the work the path was designed to produce.`
 : `Process and control layers appear to be carrying more of ${process.toLowerCase()} than the underlying work requires.`;
 const burdenSentence = stateObj.burdenProfileShape === "hidden"
 ? `The visible burden likely understates the real condition because some of the upkeep cost appears hidden inside normal operating expectations.`
@@ -2563,6 +2567,10 @@ const sourceClause = burdenConstraint.label === "Reporting burden"
 ? `Systems friction and handoff coordination appear to be carrying too much of the drag in this workflow.`
 : burdenConstraint.label === "Workaround dependence"
 ? `Manual workaround dependence appears to be preserving movement where the formal route is no longer carrying the work cleanly.`
+: burdenConstraint.label === "Control load"
+? `Control accumulation appears heavier than the real operating need requires in this workflow.`
+: burdenConstraint.label === "Administrative upkeep burden"
+? `Administrative upkeep itself appears to be consuming meaningful capacity in this workflow, separately from the work the path was designed to deliver.`
 : `Process and control density appears to be heavier than the workflow requires in its current state.`;
 const trajectorySentence = stateObj.trajectoryDirection === "up"
 ? "Trajectory signals suggest the burden is growing rather than holding steady."
@@ -4027,7 +4035,7 @@ return `<!doctype html>
     </div>
     <div class="cover-brandline">
       <span class="cover-note-text">Figures and findings in this report are directional outputs generated from user-provided structured diagnostic inputs. The experiential layer, when present, is used as interpretive context only and does not modify the quantitative score.</span>
-      <span class="cover-brandline-text">Administrative reality is a governable condition</span>
+      <span class="cover-brandline-text">Measure the conditions. Own the outcome.</span>
     </div>
     <div class="cover-motif" aria-hidden="true">
       <svg width="320" height="320" viewBox="-160 -160 320 320" xmlns="http://www.w3.org/2000/svg">
