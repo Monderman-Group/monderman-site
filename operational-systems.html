@@ -3684,7 +3684,8 @@ const text = entry.text || entry.cleaned || entry.raw || "";
 return '<div class="exp-card"><h3>' + safe(entry.label) + '</h3><p>' + safeWords(text, 82) + '</p></div>';
 }).join("") : "";
 const decisionReviewPageNumber = hasExperienceLayer ? 7 : 6;
-const remedyPageNumber = decisionReviewPageNumber + 1;
+const updateReadPageNumber = decisionReviewPageNumber + 1;
+const remedyPageNumber = updateReadPageNumber + 1;
 const methodPageNumber = remedyPageNumber + 1;
 const experienceReportPage = hasExperienceLayer ? '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p>This optional layer records how the workflow is experienced from the selected vantage point and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal process description and lived operating reality diverge.</p><div class="panel" style="margin:16px 0 18px"><h3>Experiential synthesis</h3><p>' + safeWords(experienceSynthesis, 88) + '</p><p class="muted">' + safeWords(experienceCaveat, 50) + '</p></div><div class="exp-grid">' + experienceCards + '</div><div class="panel bench"><p><b>Leadership question.</b> ' + safe(buildLeadershipQuestion(result || {}, payload || {}, "experience")) + '</p><p><b>How to use this layer.</b> Treat these notes as a way to plan follow-up conversations. If the same signal appears across operational, managerial, and senior-leader runs, it becomes more useful as a governance input. If it appears in only one lens, it is still valuable, but it should be read as a clue rather than a conclusion.</p></div></div></section>' : "";
 const narrativeForReport = asObject(result?.narrative);
@@ -3699,10 +3700,11 @@ const updateReadItems = (Array.isArray(narrativeForReport.what_would_update_this
 "A senior-leader run showing confidence that the formal path is followed would expose a possible visibility gap.",
 "Actual volume and cycle-time data would recalibrate the exposure range and show whether the issue is occasional or normalized.",
 "Risk-tier data would show whether low-risk work is being trapped in a high-control path."
-]).slice(0, 4);
+]).slice(0, 3);
 const readingHtml = competingReadings.map((item) => '<div class="mini-card"><b>' + safe(item.label || "Reading") + '</b><p>' + safeWords(item.interpretation || item, 44) + '</p><p class="muted">Signal test: ' + safeWords(item.what_would_distinguish_it || "Additional cross-role evidence would clarify this reading.", 50) + '</p></div>').join("");
-const updateHtml = updateReadItems.map((item) => '<p>• ' + safeWords(item, 42) + '</p>').join("");
-const decisionReviewPage = '<section class="page">' + footer(decisionReviewPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>Competing readings and what would update the diagnosis</h2><p>This section names the plausible interpretations of the same signal and identifies the evidence that would confirm, weaken, or reframe the current read.</p><div class="card-row" style="grid-template-columns:1fr;gap:12px">' + readingHtml + '</div><div class="panel bench"><h3>What would update this read</h3>' + updateHtml + '</div></div></section>';
+const updateHtml = updateReadItems.map((item) => '<p style="margin:0 0 8px">• ' + safeWords(item, 42) + '</p>').join("");
+const decisionReviewPage = '<section class="page">' + footer(decisionReviewPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>Competing readings</h2><p>This section names the plausible interpretations of the same signal and identifies the evidence that would confirm, weaken, or reframe the current read.</p><div class="card-row" style="grid-template-columns:1fr;gap:12px">' + readingHtml + '</div></div></section>'
++ '<section class="page">' + footer(updateReadPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>What would update this read</h2><p>The current diagnosis rests on a single run from a single perspective. The items below describe the evidence that would confirm, weaken, or reframe the read before leadership commits to a remedy path.</p><div class="panel bench" style="margin-top:18px">' + updateHtml + '</div></div></section>';
 const firstTwoActions = actions.slice(0, 2).length ? actions.slice(0, 2) : [
 "Reduce the heaviest visible burden first.",
 "Run the diagnostic again after the first real change."
