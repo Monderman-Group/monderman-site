@@ -3732,7 +3732,7 @@ const segmentLegend = segmentsWithPct.map((seg) => {
 const serverGapForExport = result?.canonical_descriptor?.experiential_structural_gap
   || result?.experiential_structural_gap || { type: "none" };
 const contradictionHtml = contradictions.length
-? `<div class="panel"><h3>Structured-answer contradiction signals surfaced</h3>${contradictions.slice(0, 3).map((item) => `<p><b>${safe(item?.severity || "Signal")}.</b> ${safeWords(item?.message || item?.code || "Contradiction signal", 32)}</p>`).join("")}</div>`
+? `<div class="panel" style="font-size:11.5px;padding:14px 20px"><h3 style="margin-bottom:6px">Structured-answer contradiction signals surfaced</h3>${contradictions.slice(0, 3).map((item) => `<p style="margin-bottom:6px"><b>${safe(item?.severity || "Signal")}.</b> ${safeWords(item?.message || item?.code || "Contradiction signal", 28)}</p>`).join("")}</div>`
 : serverGapForExport.type !== "none"
 ? `<div class="panel" style="font-size:11.5px;padding:14px 20px"><p><b>Experiential-structural gap detected.</b> ${safeWords(serverGapForExport.description, 34)} This does not affect the quantitative score.</p></div>`
 : hasExperientialTension
@@ -3964,10 +3964,10 @@ return `<!doctype html>
 <section class="page">
   ${footer(5)}
   <div class="content">
-    <p class="eyebrow">Evidence and detail</p><h2>Governance weight x execution responsiveness</h2>
-    <p>This view places the run on two axes: how much governance weight the workflow is carrying, and how responsive execution appears under that weight. It is intended to prevent a midrange score from being mistaken for a low-friction operating path.</p>
+    <p class="eyebrow">Evidence and detail</p><h2 style="font-size:21px;margin-bottom:8px">Governance weight x execution responsiveness</h2>
+    <p style="margin-bottom:8px">This view places the run on two axes: how much governance weight the workflow is carrying, and how responsive execution appears under that weight.</p>
     <div class="panel quadbox"><div class="axis-y">Execution responsiveness</div><div class="quad"><div class="qlabel" style="left:12px;top:12px">Fast movement,<br>lighter governance</div><div class="qlabel" style="right:12px;top:12px;text-align:right">Fast movement,<br>heavier governance</div><div class="qlabel" style="left:12px;bottom:12px">Slow movement,<br>lighter governance</div><div class="qlabel" style="right:12px;bottom:12px;text-align:right">Slow movement,<br>heavier governance</div><div class="qdot" style="left:${qLeft}%;top:${qTop}%"></div></div><div class="axis-x">Governance weight</div></div>
-    <h3>How to read this quadrant</h3><p>${safeWords(quadrantText, 36)}</p>
+    <h3>How to read this quadrant</h3><p>${safeWords(quadrantText, 28)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(quadrantQuestion)}</p></div>
     ${contradictionHtml}
   </div>
