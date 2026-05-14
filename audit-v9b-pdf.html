@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Monderman v8d PDF Integrity Test (post-fix verification)</title>
+<title>Monderman v9b PDF Integrity Test (post-IP-migration verification)</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, Helvetica, Arial, sans-serif; background: #F4F6F9; color: #15202B; padding: 24px; }
@@ -52,9 +52,9 @@ button:disabled { background: #7C8794 !important; cursor: not-allowed; }
 </style>
 </head>
 <body>
-<h1>Monderman v8d — PDF Integrity + Fix Verification (API-direct + result-level checks)</h1>
+<h1>Monderman v9b — PDF Integrity + IP-Migration Verification</h1>
 <div class="meta">
-  For each fixture: (1) drive the API directly to produce a real diagnostic result, (2) <strong>verify fixes at the API result level</strong> (F1 page-6 gap type, F3 dominant burden match) — these checks work regardless of whether the PDF has extractable text, (3) inject the result into <code>operational-systems.html</code> via <code>window.__mondermanInjectedResult</code>, (4) capture and save the PDF for visual review of F2 (quadrant interpretation) and F4 (priority actions). <strong>Two new fixtures (6, 7) exercise post-fix edge cases the original sweep did not cover.</strong>
+  Post-migration PDF verification. For each fixture: (1) drive the API to produce a diagnostic result with <code>interpretive_prose</code>, <code>sector_context</code>, and <code>concentration_penalty</code>, (2) verify backend-computed fields are present, (3) inject the result into <code>operational-systems.html</code> via <code>window.__mondermanInjectedResult</code>, (4) capture the PDF for visual review. Confirms the five passthrough builders render correctly from backend data.
 </div>
 
 <div class="fixture-controls">
@@ -937,6 +937,46 @@ function checkFixtureExpects(parsed, fixture) {
   return { ok: true, severity: "ok", evidence: "replaced by API-level checkFixVerification (v8d)" };
 }
 
+// v9b: verify backend IP-migration fields are present and populated
+function checkIPMigration(apiResult) {
+  const issues = [];
+  const passed = [];
+
+  // interpretive_prose — the five builders should produce this
+  const ip = apiResult?.interpretive_prose;
+  if (!ip) {
+    issues.push("interpretive_prose missing from result");
+  } else {
+    if (ip.harmonized_narrative?.executive) passed.push("harmonized_narrative ✓");
+    else issues.push("harmonized_narrative.executive missing");
+    if (ip.executive_summary?.headline) passed.push("executive_summary ✓");
+    else issues.push("executive_summary.headline missing");
+    if (Array.isArray(ip.priority_actions) && ip.priority_actions.length > 0) passed.push(`priority_actions (${ip.priority_actions.length}) ✓`);
+    else issues.push("priority_actions missing or empty");
+    if (Array.isArray(ip.remedy_paths) && ip.remedy_paths.length === 3) passed.push("remedy_paths (3) ✓");
+    else issues.push("remedy_paths missing or wrong count");
+    if (typeof ip.benchmark_interpretation === "string" && ip.benchmark_interpretation.length > 20) passed.push("benchmark_interpretation ✓");
+    else issues.push("benchmark_interpretation missing or empty");
+  }
+
+  // sector_context
+  const sc = apiResult?.sector_context;
+  if (sc?.industryKey && sc?.calibration) passed.push(`sector_context (${sc.industryKey}) ✓`);
+  else issues.push("sector_context missing or incomplete");
+
+  // concentration_penalty
+  if (apiResult?.concentration_penalty != null) passed.push(`concentration_penalty=${apiResult.concentration_penalty} ✓`);
+  else issues.push("concentration_penalty missing");
+
+  if (apiResult?.max_burden_severity != null) passed.push(`max_burden_severity=${apiResult.max_burden_severity} ✓`);
+  else issues.push("max_burden_severity missing");
+
+  const evidence = passed.join(" · ") + (issues.length ? " · MISSING: " + issues.join(", ") : "");
+  return issues.length
+    ? { ok: false, severity: issues.some(i => i.includes("interpretive_prose")) ? "crit" : "warn", evidence }
+    : { ok: true, severity: "ok", evidence };
+}
+
 function checkBlobSize(blob) {
   const kb = blob.size / 1024;
   if (kb < 100) return { ok: false, severity: "warn", evidence: `${kb.toFixed(0)} KB — likely render failure` };
@@ -987,7 +1027,11 @@ async function runFixture(fixture, idx) {
     const gap = apiResult.experiential_structural_gap || { type: "none" };
     result.api_gap_type = gap.type || "none";
     result.api_gap_description = gap.description ? String(gap.description).slice(0, 200) : null;
-    log(`  ✓ API: score=${result.api_score} dominant=${result.api_dominant} (${result.api_dominant_pct || "?"}%) gap_type=${result.api_gap_type}`);
+    result.has_interpretive_prose = Boolean(apiResult.interpretive_prose);
+    result.has_sector_context = Boolean(apiResult.sector_context?.industryKey);
+    result.concentration_penalty = apiResult.concentration_penalty ?? null;
+    result.max_burden_severity = apiResult.max_burden_severity ?? null;
+    log(`  ✓ API: score=${result.api_score} dominant=${result.api_dominant} (${result.api_dominant_pct || "?"}%) gap_type=${result.api_gap_type} conc=${result.concentration_penalty} ip=${result.has_interpretive_prose}`);
 
     // ── F1+F3 verification at API result level (v8d) ─────────────────────
     // Runs BEFORE iframe injection so we know the fix status even if PDF
@@ -995,6 +1039,8 @@ async function runFixture(fixture, idx) {
     // object below.
     const fixCheck = checkFixVerification(apiResult, fixture);
     log(`  ${fixCheck.ok ? "✓" : "✗"} fix verification: ${fixCheck.evidence}`);
+    const ipCheck = checkIPMigration(apiResult);
+    log(`  ${ipCheck.ok ? "✓" : "✗"} IP migration: ${ipCheck.evidence.slice(0, 200)}`);
 
     // 2. Inject + render
     log("→ step 2: load iframe with injection");
@@ -1022,7 +1068,8 @@ async function runFixture(fixture, idx) {
     result.checks.structure        = checkStructure(parsed);
     result.checks.text_content     = checkTextContent(parsed, fixture);
     result.checks.prompt_leakage   = checkPromptLeakage(parsed);
-    result.checks.fix_verification = fixCheck;  // ← v8d: replaces fixture_expects
+    result.checks.fix_verification = fixCheck;
+    result.checks.ip_migration     = checkIPMigration(apiResult);
     result.checks.blob_size        = checkBlobSize(blob);
 
     const checks = Object.values(result.checks);
@@ -1153,7 +1200,7 @@ async function startSuite() {
 function saveResults() {
   const out = {
     generated: new Date().toISOString(),
-    version: "v8f-PDF-Integrity-page6-clip-verification-post-html-deploy",
+    version: "v9b-PDF-IP-migration-verification",
     base_url: window.location.origin,
     total: allResults.length,
     pass: allResults.filter((r) => r.status === "pass").length,
@@ -1176,7 +1223,7 @@ function saveResults() {
   const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "monderman_test_results_v8f_pdf.json";
+  a.download = "monderman_test_results_v9b_pdf.json";
   a.click();
 }
 
