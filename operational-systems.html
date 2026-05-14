@@ -3734,10 +3734,10 @@ const serverGapForExport = result?.canonical_descriptor?.experiential_structural
 const contradictionHtml = contradictions.length
 ? `<div class="panel"><h3>Structured-answer contradiction signals surfaced</h3>${contradictions.slice(0, 3).map((item) => `<p><b>${safe(item?.severity || "Signal")}.</b> ${safeWords(item?.message || item?.code || "Contradiction signal", 32)}</p>`).join("")}</div>`
 : serverGapForExport.type !== "none"
-? `<div class="panel"><p><b>Experiential-structural gap detected.</b> ${safe(serverGapForExport.description)} This does not affect the quantitative score.</p></div>`
+? `<div class="panel" style="font-size:12px"><p><b>Experiential-structural gap detected.</b> ${safeWords(serverGapForExport.description, 44)} This does not affect the quantitative score.</p></div>`
 : hasExperientialTension
-? `<div class="panel"><p><b>No major structured-answer contradiction surfaced in this run.</b> The scored answer pattern did not show a major internal conflict. Separately, the experiential layer surfaced an operating-reality tension: ${safeWords(experientialSignal.summary, 44)} This should be tested through managerial and senior-leader runs rather than treated as part of the quantitative score.</p></div>`
-: `<div class="panel"><p><b>No major structured-answer contradiction surfaced in this run.</b> That does not prove the system is healthy. It only means the scored answer pattern did not show a major internal conflict; experiential notes, if added later, should be tested through managerial and senior-leader runs.</p></div>`;
+? `<div class="panel" style="font-size:12px"><p><b>No major structured-answer contradiction surfaced in this run.</b> The scored answer pattern did not show a major internal conflict. Separately, the experiential layer surfaced an operating-reality tension: ${safeWords(experientialSignal.summary, 44)} This should be tested through managerial and senior-leader runs rather than treated as part of the quantitative score.</p></div>`
+: `<div class="panel" style="font-size:12px"><p><b>No major structured-answer contradiction surfaced in this run.</b> That does not prove the system is healthy. It only means the scored answer pattern did not show a major internal conflict; experiential notes, if added later, should be tested through managerial and senior-leader runs.</p></div>`;
 const remedyHtml = remedyPaths.slice(0, 3).map((path) => `<div class="remedy"><div class="tag">${safe(path.kicker)}</div><h3>${safe(path.label)}</h3><p>${safeWords(path.summary, 18)}</p><p class="muted">Benefit: ${safeWords(path.benefit, 18)}</p><p class="muted">${safeWords(path.risk, 18)}</p></div>`).join("");
 const gaugeArc = Math.max(12, Math.min(206, Math.round(2.2 * exportScore)));
 const needleAngle = Math.PI * (1 + exportScore / 100);
@@ -3831,7 +3831,7 @@ return `<!doctype html>
   .gauge-score { position: absolute; top: 74px; left: 0; right: 0; text-align: center; font-size: 24px; font-weight: 700; }
   .gauge-label { position: absolute; bottom: 18px; left: 0; right: 0; text-align: center; color: #5B6774; font-size: 9px; }
   .bench { margin-top: 28px; padding: 18px; }
-  .quadbox { height: 278px; position: relative; padding: 44px 50px 48px; }
+  .quadbox { height: 262px; position: relative; padding: 40px 50px 44px; }
   .quad { position: absolute; left: 84px; right: 62px; top: 74px; bottom: 54px; border: 1px solid #D7DEE8; }
   .quad:before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; border-left: 1px solid #D7DEE8; }
   .quad:after { content: ''; position: absolute; top: 50%; left: 0; right: 0; border-top: 1px solid #D7DEE8; }
