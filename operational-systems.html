@@ -2478,110 +2478,18 @@ return pattern.shape === "insufficient" ? "distributed" : pattern.shape;
 }
 
 
-function buildSectorSpecificOpportunity(stateObj, result, payload = {}) {
-const industry = getIndustryNarrative(result, payload);
-const { workflowKey, knowledge } = getSectorWorkflowKnowledge(result, payload);
-const qualitative = detectQualitativeOverride(payload);
-if (qualitative.type === "bypass_control_risk") {
-return {
-title: "Bring the formal path and operating reality back into alignment",
-sectorPattern: `For this ${workflowKey.replace(/_/g, " ")} workflow, common bottlenecks include ${knowledge.knownBottlenecks.slice(0, 3).join(", ")}.`,
-opportunityGuidance: "The immediate opportunity is to reconcile the documented workflow with the operating pattern people are actually using.",
-rationale: `That means either formalizing legitimate workarounds through ${knowledge.knownRemedies.slice(0, 3).join(", ")}, or removing the friction that is forcing the bypass pattern in the first place.`,
-watchout: "Do not add another review layer to a path people are already bypassing. That creates control theater without fixing control reality."
-};
-}
-return {
-title: stateObj.benchmarkPos === "Above industry range" ? "Preserve and extend advantage" : "Lighter operating burden without weakening essential control",
-sectorPattern: knowledge.knownBottlenecks?.length ? `For this ${workflowKey.replace(/_/g, " ")} workflow, common bottlenecks include ${knowledge.knownBottlenecks.slice(0, 3).join(", ")}.` : industry.opportunityPattern,
-opportunityGuidance: `This run suggests the strongest immediate opportunity sits in ${String(stateObj.topFocus || "the heaviest visible burden").toLowerCase()}, because that burden appears to be carrying more of the workflow than it should in ${industry.sectorName}.`,
-rationale: `The first moves should target the structure carrying the work, using remedies such as ${knowledge.knownRemedies.slice(0, 3).join(", ")}.`,
-watchout: stateObj.benchmarkPos === "Above industry range"
-? `Leadership should avoid assuming current advantage is self-sustaining if new burden continues to accumulate.`
-: `Leadership should avoid responding by simply adding more review, more documentation, or more oversight without redesigning the operating path itself.`
-};
-}
+// buildSectorSpecificOpportunity — removed 2026-05-14.
+// Branching logic migrated to backend narrativeBuilders.js.
+// Frontend reads from result.interpretive_prose.
 
 
-function buildSpecificDiagnosisReads(result, payload, burdenCondition, burdenConstraint, burdenDiagnosis, stateObj) {
-const industry = getIndustryNarrative(result, payload);
-const process = payload?.processName || payload?.process_name || "this workflow";
-const breakdown = asObject(result?.burden_breakdown);
-const approval = Number(breakdown.process_density || 0);
-const coordination = Math.max(Number(breakdown.systems_friction || 0), Number(breakdown.workaround_dependence || 0));
-const escalation = Number(breakdown.reporting_exception_burden || 0);
-const keyPerson = Number(breakdown.control_load || 0);
-const sourceSentence = burdenConstraint.label === "Systems friction"
-? `Duplicate entry, manual handoffs, and coordination friction appear to account for most of the visible drag in ${process.toLowerCase()}.`
-: burdenConstraint.label === "Reporting burden"
-? `Reporting weight and exception handling appear to be eating up more effort than they should in ${process.toLowerCase()}.`
-: burdenConstraint.label === "Workaround dependence"
-? `The path appears to rely on informal fixes and specific people to keep moving when the formal route is not carrying the work cleanly.`
-: burdenConstraint.label === "Control load"
-? `Control accumulation in ${process.toLowerCase()} appears heavier than the real operating need may require.`
-: burdenConstraint.label === "Administrative upkeep burden"
-? `Administrative upkeep in ${process.toLowerCase()} appears to be consuming meaningful capacity on its own, separately from the work the path was designed to produce.`
-: `Process and control layers appear to be carrying more of ${process.toLowerCase()} than the underlying work requires.`;
-const burdenSentence = stateObj.burdenProfileShape === "hidden"
-? `The visible burden likely understates the real condition because some of the upkeep cost appears hidden inside normal operating expectations.`
-: stateObj.burdenProfileShape === "distributed"
-? `The burden is spread across several dimensions at once, which makes the environment feel heavier even when no single layer looks dominant in isolation.`
-: `The burden appears concentrated rather than distributed, which makes the condition more fixable if leadership targets the heaviest dimension first.`;
-const diagnosisSentence = burdenDiagnosis.label === "Risk-justified caution"
-? `Some burden may be justified in ${industry.sectorName}, but the current pattern still suggests room to preserve ${industry.openingClause} with less maintenance work.`
-: burdenDiagnosis.label === "Too much burden to stay workable"
-? `The current operating trade-off appears too expensive in time, money, and ${industry.marginTerm} for the amount of value being protected.`
-: burdenDiagnosis.label === "Heavier than the workflow requires"
-? `The environment appears heavier than the workflow requires, even by the standards that are normal in ${industry.sectorName}.`
-: `The workflow is still workable, but the burden profile suggests it is becoming a harder trade to defend for ${industry.openingClause}.`;
-return {
-burdenRead: `${burdenCondition.note} ${burdenSentence}`,
-sourceRead: sourceSentence,
-diagnosisRead: diagnosisSentence,
-severityRead: approval >= 45 || coordination >= 45 || escalation >= 35 || keyPerson >= 40
-? `The heaviest visible drag is strong enough that leadership should expect measurable recovery if the first intervention is well chosen.`
-: `The drag appears manageable rather than acute, but still large enough to justify active attention rather than passive tolerance.`
-};
-}
+// buildSpecificDiagnosisReads — removed 2026-05-14.
+// Branching logic migrated to backend narrativeBuilders.js.
+// Frontend reads from result.interpretive_prose.
 
-function buildHeadlineFinding(result, payload, burdenConstraint, stateObj) {
-const industry = getIndustryNarrative(result, payload);
-const { workflowKey, knowledge } = getSectorWorkflowKnowledge(result, payload);
-const qualitative = detectQualitativeOverride(payload);
-const annualHours = Math.round(Number(result?.exposure?.annual_hours || 0));
-const pattern = getBurdenCompositionPattern(result);
-if (qualitative.type === "bypass_control_risk") {
-const workflowSubject = getWorkflowSubject(payload);
-return `The primary finding is not simply that ${workflowSubject} is heavy; it is that ${workflowSubject} appears structurally bypassable. Participants describe workarounds around the prescribed process, managerial accommodation of those workarounds, and likely limited senior-leader visibility. In a ${workflowKey.replace(/_/g, " ")} workflow, that changes the read from ordinary process drag to a potential control and compliance exposure: the organization may be paying for a formal process that is not reliably producing the control benefit it was designed to provide.`;
-}
-const shapeSentence = pattern.shape === "hidden"
-? "The burden appears partly hidden rather than fully visible, which means the real upkeep cost may be heavier than the surface workflow suggests."
-: pattern.shape === "distributed"
-? `The burden is distributed across multiple dimensions rather than concentrated in one place; no single source carries more than ${pattern.dominantPct}% of the visible burden.`
-: pattern.shape === "concentrated"
-? `The burden is concentrated in ${pattern.dominant.label.toLowerCase()}, which creates a clearer first target if leadership can prevent burden from reappearing elsewhere.`
-: `The burden is mixed: ${pattern.dominant.label.toLowerCase()} is the largest visible source, but the remaining dimensions are still material.`;
-const sourceClause = burdenConstraint.label === "Reporting burden"
-? `Reporting and exception burden appears to be absorbing more usable capacity than this workflow should require.`
-: burdenConstraint.label === "Systems friction"
-? `Systems friction and handoff coordination appear to be carrying too much of the drag in this workflow.`
-: burdenConstraint.label === "Workaround dependence"
-? `Manual workaround dependence appears to be preserving movement where the formal route is no longer carrying the work cleanly.`
-: burdenConstraint.label === "Control load"
-? `Control accumulation appears heavier than the real operating need requires in this workflow.`
-: burdenConstraint.label === "Administrative upkeep burden"
-? `Administrative upkeep itself appears to be consuming meaningful capacity in this workflow, separately from the work the path was designed to deliver.`
-: `Process and control density appears to be heavier than the workflow requires in its current state.`;
-const trajectorySentence = stateObj.trajectoryDirection === "up"
-? "Trajectory signals suggest the burden is growing rather than holding steady."
-: stateObj.trajectoryDirection === "down"
-? "Trajectory signals suggest the burden is easing, but the current environment is still carrying material recoverable drag."
-: "Trajectory signals suggest the burden is holding relatively steady rather than improving on its own.";
-const exposureSentence = annualHours > 0
-? `At the current run assumptions, the workflow is sustaining ${formatRoundedHours(annualHours, { suffix: " annual burden hours*" })}, which is meaningful in ${industry.sectorName}.`
-: `The surface signal suggests a meaningful capacity cost in ${industry.sectorName}, even before any deeper audit of the workflow.`;
-return applyCompositionConsistency(`${sourceClause} ${shapeSentence} ${trajectorySentence} ${exposureSentence}`, result);
-}
+// buildHeadlineFinding — removed 2026-05-14.
+// Branching logic migrated to backend narrativeBuilders.js.
+// Frontend reads from result.interpretive_prose.
 
 
 // Sanitize numbers in narrative prose so the AI's raw numeric output renders
@@ -2612,162 +2520,94 @@ return parts.map((part) => String(part || "").trim()).filter(Boolean).join(" ");
 }
 
 function buildHarmonizedNarrative(result, payload) {
-const stateObj = buildInterpretiveState(result, payload);
-stateObj.burdenProfileShape = deriveBurdenProfileShape(result, payload);
-const process = payload?.processName || payload?.process_name || "This workflow";
-const burdenCondition = deriveOperatingBurdenCondition(result);
-const burdenConstraint = derivePrimaryBurdenSource(result);
-const burdenDiagnosis = deriveBurdenDiagnosis(result, payload);
-const fallbackOpportunity = buildSectorSpecificOpportunity(stateObj, result, payload);
-const narrative = typeof result?.narrative === "object" ? result.narrative : {};
+// Passthrough — backend narrativeBuilders.js produces the complete harmonized
+// narrative layer and attaches it as result.interpretive_prose.harmonized_narrative.
+// The branching interpretive prose keyed off burdenConstraint.label, pattern.shape,
+// qualitative override type, and sector × workflow knowledge previously lived here;
+// migrated to backend on 2026-05-14.
+if (result?.interpretive_prose?.harmonized_narrative) {
+  return result.interpretive_prose.harmonized_narrative;
+}
+// Minimal fallback shape if backend field is absent (should not happen in production)
 const industry = getIndustryNarrative(result, payload);
-const diagnosisReads = buildSpecificDiagnosisReads(result, payload, burdenCondition, burdenConstraint, burdenDiagnosis, stateObj);
-let headlineFinding = narrative.primary_signal || buildHeadlineFinding(result, payload, burdenConstraint, stateObj);
-headlineFinding = applyCompositionConsistency(headlineFinding, result);
-
-const rawExecutive = narrative.executive_interpretation || narrative.primary_signal || `${process} currently reads as ${burdenCondition.label.toLowerCase()}. In ${industry.sectorName}, that usually means ${fallbackOpportunity.sectorPattern.toLowerCase()}`;
-const executive = applyCompositionConsistency(sanitizeNarrativeNumbers(rawExecutive), result);
-const leadership = narrative.leadership_implication
-? String(narrative.leadership_implication).split(/\n+/).map((s) => s.trim()).filter(Boolean)
-: buildPriorityActions(result, payload);
-const tradeoff = narrative.tradeoff_note || burdenDiagnosis.note;
-const rawTmr = narrative.time_money_resources_summary || `Directional modeling suggests roughly ${Math.round(Number(result?.exposure?.annual_hours || 0)).toLocaleString()} annual hours* and a labor-exposure range of ${formatEstimateCurrencyRange(result?.exposure?.annual_cost)}, with capacity drag around ${Math.round(Number(result?.exposure?.capacity_drag_percent || 0))}%*.`;
-const tmr = sanitizeNarrativeNumbers(rawTmr);
-
-const fallbackActions = buildPriorityActions(result, payload);
-const narrativeActions = normalizeNarrativeList(narrative.recommended_interventions, fallbackActions);
-const narrativeFlags = normalizeNarrativeList(narrative.key_friction_flags, asArray(result.key_findings).length ? result.key_findings : [burdenConstraint.note]);
-const opportunityFields = {
-  title: narrative.opportunity_title || fallbackOpportunity.title,
-  opening: narrative.opportunity_opening || narrative.opportunity_guidance || fallbackOpportunity.opportunityGuidance,
-  sectorDynamic: narrative.sector_dynamic || narrative.sector_pattern || fallbackOpportunity.sectorPattern,
-  runIndicates: narrative.what_this_run_indicates || `In ${industry.sectorName}, the current read suggests the heaviest visible burden is not just incidental friction but a pattern worth governing directly.`,
-  buildAdvantage: narrative.how_advantage_is_built_here || narrative.opportunity_rationale || fallbackOpportunity.rationale,
-  firstMoves: joinNarrativeParts([
-    narrative.first_move_1_reason,
-    narrative.first_move_2_reason,
-    narrative.recommended_actions_rationale
-  ]) || fallbackActions.join(" "),
-  watchout: narrative.leadership_watchout || fallbackOpportunity.watchout
-};
-const opportunity = narrative.opportunity_guidance || joinNarrativeParts([
-  opportunityFields.opening,
-  opportunityFields.runIndicates,
-  opportunityFields.buildAdvantage
-]) || fallbackOpportunity.opportunityGuidance;
-
+const narrative = typeof result?.narrative === "object" ? result.narrative : {};
 return {
-state: stateObj,
-executive,
-headlineFinding,
-leadership,
-tradeoff,
-tmr,
-benchmark: narrative.benchmark_tension || buildBenchmarkInterpretationText(result, payload),
-opportunity,
-diagnosisReads,
-opportunityFields,
-keyFlags: narrativeFlags,
-recommendedActions: narrativeActions
+  state: result?.interpretive_state || {},
+  executive: narrative.executive_interpretation || "Executive interpretation will appear once the backend generates it.",
+  headlineFinding: narrative.primary_signal || "Headline finding will appear once the backend generates it.",
+  leadership: [],
+  tradeoff: result?.burden_diagnosis?.note || "",
+  tmr: narrative.time_money_resources_summary || "",
+  benchmark: "",
+  opportunity: narrative.opportunity_guidance || "",
+  diagnosisReads: { burdenRead: "", sourceRead: "", diagnosisRead: "", severityRead: "" },
+  opportunityFields: { title: "", opening: "", sectorDynamic: "", runIndicates: "", buildAdvantage: "", firstMoves: "", watchout: "" },
+  keyFlags: asArray(result?.key_findings),
+  recommendedActions: asArray(result?.priority_actions)
 };
 }
 
 function buildPriorityActions(result, payload) {
-const process = (payload?.processName || payload?.process_name || "this workflow").trim();
-const breakdown = asObject(result.burden_breakdown);
-const { knowledge } = getSectorWorkflowKnowledge(result, payload);
-const qualitative = detectQualitativeOverride(payload);
-const actions = [];
-if (qualitative.type === "bypass_control_risk") {
-actions.push(`Reconcile the documented ${process.toLowerCase()} process with the operating pattern people are actually using: either formalize the workarounds through risk tiering and playbooks, or remove the friction that is forcing them.`);
-actions.push(`Create explicit low-risk and exception paths using ${knowledge.knownRemedies.slice(0, 3).join(", ")}, so routine work does not require informal managerial cover.`);
-actions.push(`Test senior-leader visibility: verify whether leaders believe the formal path is being followed and whether audit evidence matches actual practice.`);
-return actions;
+// Passthrough — backend narrativeBuilders.js produces priority actions and
+// attaches them as result.interpretive_prose.priority_actions. The branching
+// logic keyed off burden_breakdown thresholds, sector workflow knowledge, and
+// qualitative override type previously lived here; migrated to backend 2026-05-14.
+if (result?.interpretive_prose?.priority_actions) {
+  return result.interpretive_prose.priority_actions;
 }
-if (Number(breakdown.process_density || 0) >= 45) {
-actions.push(`Cut review or control layers in ${process.toLowerCase()} that are not catching real problems, so routine work does not get treated like high-risk work.`);
-}
-if (Math.max(Number(breakdown.systems_friction || 0), Number(breakdown.workaround_dependence || 0)) >= 40) {
-actions.push(`Make ownership and handoffs clearer so less gets redone and the work moves without constant follow-up.`);
-}
-if (Number(breakdown.reporting_exception_burden || 0) >= 35) {
-actions.push(`Separate true exceptions from normal cases so routine work does not keep moving upward or sideways for avoidable review.`);
-}
-if (Number(breakdown.control_load || 0) >= 40) {
-actions.push(`Write down the decisions currently kept in specific people's heads, so the work does not depend on one person being available.`);
-}
-if (!actions.length) actions.push(`Keep what is working in ${process.toLowerCase()} while removing the recurring burden that is making normal work heavier than it needs to be.`);
-// Append the "rerun and compare lenses" meta-action only when there are
-// already at least 2 substantive actions. For low-burden runs where only the
-// fallback line above fired, this meta-action used to become Action 2, which
-// read as "do this generic thing, then run the diagnostic again" rather than
-// as a priority recommendation. A single concrete action is preferable to
-// padding with rerun-and-compare filler.
-if (actions.length >= 2) {
-  actions.push(`Run this again after the first real change and compare operational, managerial, and senior-leader lenses to see whether the burden was removed or merely displaced.`);
-}
-return actions.slice(0, 4);
+// Minimal fallback
+return asArray(result?.priority_actions).length
+  ? result.priority_actions
+  : ["Priority actions will appear once the backend generates them."];
 }
 
 
 function buildRemedyPaths(result, payload) {
-const reclaim = estimateReclaimPotential(result, payload);
-const actions = buildPriorityActions(result, payload);
-const qualitative = detectQualitativeOverride(payload);
-const rangeText = (amount) => formatEstimateCurrencyRange(amount);
-if (qualitative.type === "bypass_control_risk") {
-const remedyLanguage = getWorkflowRemedyLanguage(result, payload);
-return [
-{ label: "Stabilize the real path", kicker: "Low disruption", summary: "Document where the formal path is being bypassed and stop treating informal compensation as invisible.", actions: [actions[0] || "Map the workaround pattern."], benefit: `Possible upside in the range of ${rangeText(reclaim.amount * 0.22)} if the first fixes stick.`, risk: "Risk: the surface looks cleaner while informal bypass behavior continues." },
-{ label: "Risk-tier the workflow", kicker: "Targeted redesign", summary: `Separate ${remedyLanguage.routineWork} from ${remedyLanguage.trueExceptions} and formalize ${remedyLanguage.playbooks} for low-risk work.`, actions: actions.slice(0, 2), benefit: `Possible upside in the range of ${rangeText(reclaim.amount * 0.48)} if the redesigned path holds.`, risk: "Risk: the organization creates a better process on paper but does not change actual behavior." },
-{ label: "Control reset", kicker: "Fastest structural reset", summary: `Realign ${remedyLanguage.controlReset} around the same operating model.`, actions: actions.slice(0, 4), benefit: `Possible upside in the range of ${rangeText(reclaim.amount * 0.72)} if leadership can hold the new design.`, risk: "Risk: pushback from teams that relied on the old workaround economy to meet business timing." }
-];
+// Passthrough — backend narrativeBuilders.js produces remedy paths and
+// attaches them as result.interpretive_prose.remedy_paths. The branching
+// logic keyed off qualitative override type, sector workflow knowledge,
+// and reclaim potential previously lived here; migrated to backend 2026-05-14.
+if (result?.interpretive_prose?.remedy_paths) {
+  return result.interpretive_prose.remedy_paths;
 }
+// Minimal fallback
 return [
-{ label: "Light remedy path", kicker: "Low disruption", summary: "Fix the biggest visible problem without redesigning everything.", actions: [actions[0] || "Reduce the heaviest visible burden first."], benefit: `Possible upside in the range of ${rangeText(reclaim.amount * 0.22)} if the first fix sticks quickly.`, risk: `Risk: the surface looks better while the real problem stays.` },
-{ label: "Moderate remedy path", kicker: "Targeted redesign", summary: "Redesign how the normal case flows and clarify who decides what.", actions: actions.slice(0, 2), benefit: `Possible upside in the range of ${rangeText(reclaim.amount * 0.48)} if the redesigned path holds.`, risk: `Risk: you end up in a better but still burdened middle state.` },
-{ label: "Aggressive remedy path", kicker: "Fastest structural reset", summary: "Remove several burden layers at once and separate normal cases from exceptions cleanly.", actions: actions.slice(0, 4), benefit: `Possible upside in the range of ${rangeText(reclaim.amount * 0.72)} if leadership can hold the new design.`, risk: `Risk: pushback from people who thought the old controls were protecting them.` }
+  { label: "Light remedy path", kicker: "Low disruption", summary: "Remedy paths will appear once the backend generates them.", actions: [], benefit: "", risk: "" },
+  { label: "Moderate remedy path", kicker: "Targeted redesign", summary: "", actions: [], benefit: "", risk: "" },
+  { label: "Aggressive remedy path", kicker: "Fastest structural reset", summary: "", actions: [], benefit: "", risk: "" }
 ];
 }
 
 
 function buildExecutiveSummary(result, payload) {
-const process = payload?.processName || payload?.process_name || "This workflow";
-const harmonized = buildHarmonizedNarrative(result, payload);
-const narrative = typeof result?.narrative === "object" ? result.narrative : {};
-let headline = `${process} is still getting work done, but it is carrying enough drag to leave real value on the table.`;
-if (narrative.opportunity_title) {
-headline = `${process}: ${narrative.opportunity_title}`;
-} else if ((result.benchmark_position || "").includes("Above")) {
-headline = `${process} is in a stronger place right now, but that edge will fade if the burden keeps building.`;
-} else if ((result.benchmark_position || "").includes("Below")) {
-headline = `${process} is carrying more burden than a comparable path likely should.`;
+// Passthrough — backend narrativeBuilders.js produces the executive summary
+// and attaches it as result.interpretive_prose.executive_summary. The
+// headline branching and harmonized narrative composition previously lived
+// here; migrated to backend on 2026-05-14.
+if (result?.interpretive_prose?.executive_summary) {
+  return result.interpretive_prose.executive_summary;
 }
+// Minimal fallback
+const process = payload?.processName || payload?.process_name || "This workflow";
+const narrative = typeof result?.narrative === "object" ? result.narrative : {};
 return {
-headline,
-body: narrative.executive_interpretation || narrative.primary_signal || harmonized.headlineFinding,
-opportunity: narrative.opportunity_guidance || joinNarrativeParts([
-  narrative.what_this_run_indicates,
-  narrative.how_advantage_is_built_here,
-  narrative.opportunity_rationale
-]) || harmonized.opportunity
+  headline: narrative.opportunity_title ? `${process}: ${narrative.opportunity_title}` : `${process} diagnostic summary`,
+  body: narrative.executive_interpretation || narrative.primary_signal || "Executive summary will appear once the backend generates it.",
+  opportunity: narrative.opportunity_guidance || ""
 };
 }
 
 function buildBenchmarkInterpretationText(result, payload) {
-const calibration = DiagnosticInterpretationLayer.getSectorCalibration(result, payload || {});
-const score = Number(result?.score || 50);
-const industry = getIndustryNarrative(result, payload);
-const position = result?.benchmark_position || "industry range";
-if (/within/i.test(position) && score < 67) {
-return `This workflow is heavy in absolute terms but still ${String(position).toLowerCase()} for ${industry.sectorName}. That is analytically important: peer comparison will not create urgency by itself. The case for action comes from trajectory, qualitative operating evidence, and the fact that similar workflows still often carry about ${calibration.typicalDrag}% recoverable drag even when the setup feels normal.`;
+// Passthrough — backend narrativeBuilders.js produces benchmark interpretation
+// and attaches it as result.interpretive_prose.benchmark_interpretation. The
+// sector calibration lookups and position-keyed prose previously lived here;
+// migrated to backend on 2026-05-14.
+if (result?.interpretive_prose?.benchmark_interpretation) {
+  return result.interpretive_prose.benchmark_interpretation;
 }
-let text = `This workflow sits in the ${position}. `;
-if (score > 75) text += `${industry.benchmarkAbove} `;
-else if (score < 55) text += `${industry.benchmarkBelow} `;
-else text += `${industry.benchmarkWithin} `;
-text += `Similar workflows in ${industry.sectorName} still often carry about ${calibration.typicalDrag}% recoverable drag even when people think the setup is just normal.`;
-return text;
+// Minimal fallback
+const position = result?.benchmark_position || "industry range";
+return `This workflow sits in the ${position}.`;
 }
 
 
