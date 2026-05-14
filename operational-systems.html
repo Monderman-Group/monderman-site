@@ -3544,7 +3544,15 @@ const qualitative = detectQualitativeOverride(payload);
 const pattern = getBurdenCompositionPattern(result);
 if (section === "experience") return "Does the documented process still describe the process people actually use?";
 if (section === "composition") return pattern.shape === "concentrated" ? "Is the burden concentrated enough to remove surgically before it spreads?" : "Is burden distributed because the whole path is overbuilt, or because people have normalized compensating behavior?";
-if (section === "quadrant") return "Is the organization buying responsiveness with hidden managerial effort or excess governance weight?";
+if (section === "quadrant") {
+  // Quadrant-aware so the question matches the placement instead of always
+  // asking the upper-right-quadrant question regardless of where the dot lands.
+  const qk = String(result?.interpretive_state?.quadrantKey || result?.__interpretiveState?.quadrantKey || "upper_right").toLowerCase();
+  if (qk === "upper_left")  return "Is the lighter governance model durable as the workflow scales, or is current responsiveness masking gaps that have not yet surfaced?";
+  if (qk === "lower_left")  return "Is execution underpowered for the load it carries, or is governance too light to surface real friction?";
+  if (qk === "lower_right") return "Is governance load now absorbing the capacity that should be producing outcomes?";
+  return "Is the organization buying responsiveness with hidden managerial effort or excess governance weight?";
+}
 if (section === "remedy") return qualitative.type === "bypass_control_risk" ? "Is leadership trying to preserve formal control, or restore control that has already drifted into informal practice?" : "Is leadership trying to preserve control, reclaim capacity, or realign the formal path with operating reality?";
 if (qualitative.type === "bypass_control_risk") return "Does the documented process still describe the process people actually use?";
 return "What operating reality would leadership have to acknowledge before the next intervention is credible?";
@@ -3733,10 +3741,21 @@ const segmentLegend = segmentsWithPct.map((seg) => {
 }).join("") || `<p class="muted">Not enough burden composition signal was available for this run.</p>`;
 const serverGapForExport = result?.canonical_descriptor?.experiential_structural_gap
   || result?.experiential_structural_gap || { type: "none" };
+// Distinct headers per gap_type so the callout's framing matches the signal,
+// not just the generic "Experiential-structural gap detected" used previously
+// for every variant.
+const gapCalloutHeader = (() => {
+  const t = String(serverGapForExport.type || "").toLowerCase();
+  if (t === "bypass_corroborated") return "Bypass signal corroborates structural read.";
+  if (t === "positive_experiential_heavy_structured") return "Experiential layer reads lighter than structural.";
+  if (t === "concerning_experiential_compounding_structured") return "Experiential concern matches rising structural load.";
+  if (t === "concerning_experiential_light_structured") return "Experiential concern despite light structural read.";
+  return "Experiential-structural gap detected.";
+})();
 const contradictionHtml = contradictions.length
 ? `<div class="panel" style="font-size:11.5px;padding:14px 20px"><h3 style="margin-bottom:6px">Structured-answer contradiction signals surfaced</h3>${contradictions.slice(0, 3).map((item) => `<p style="margin-bottom:6px"><b>${safe(item?.severity || "Signal")}.</b> ${safeWords(item?.message || item?.code || "Contradiction signal", 28)}</p>`).join("")}</div>`
 : serverGapForExport.type !== "none"
-? `<div class="panel" style="font-size:11.5px;padding:14px 20px"><p><b>Experiential-structural gap detected.</b> ${safeWords(serverGapForExport.description, 34)} This does not affect the quantitative score.</p></div>`
+? `<div class="panel" style="font-size:11.5px;padding:14px 20px"><p><b>${gapCalloutHeader}</b> ${safeWords(serverGapForExport.description, 34)} This does not affect the quantitative score.</p></div>`
 : hasExperientialTension
 ? `<div class="panel" style="font-size:11.5px;padding:14px 20px"><p><b>No major structured-answer contradiction surfaced in this run.</b> The scored answer pattern did not show a major internal conflict. Separately, the experiential layer surfaced an operating-reality tension: ${safeWords(experientialSignal.summary, 30)} This should be tested through managerial and senior-leader runs.</p></div>`
 : `<div class="panel" style="font-size:11.5px;padding:14px 20px"><p><b>No major structured-answer contradiction surfaced in this run.</b> That does not prove the system is healthy. It only means the scored answer pattern did not show a major internal conflict; experiential notes, if added later, should be tested through managerial and senior-leader runs.</p></div>`;
