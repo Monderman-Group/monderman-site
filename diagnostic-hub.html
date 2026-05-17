@@ -362,18 +362,21 @@
       border-color:rgba(63,110,161,.24);
       box-shadow:none;
     }
-    .btn-hero-secondary{
-      background:#FFF;
+    .btn-hero-secondary,
+    .btn-secondary{
+      background:rgba(255,255,255,0.98);
       color:var(--accent);
-      border:1px solid rgba(255,255,255,.16);
-      box-shadow:none;
+      border:1.25px solid rgba(63,110,161,0.9);
+      box-shadow:0 7px 16px rgba(0,0,0,0.038), 0 0 0 1px rgba(255,255,255,0.07);
     }
     .btn-hero-secondary:hover,
-    .btn-hero-secondary:focus-visible{
-      background:#FFF;
+    .btn-hero-secondary:focus-visible,
+    .btn-secondary:hover,
+    .btn-secondary:focus-visible{
+      background:#FFFFFF;
       color:var(--accent-dark);
-      border-color:rgba(255,255,255,.32);
-      box-shadow:none;
+      border-color:var(--accent-dark);
+      box-shadow:0 10px 20px rgba(0,0,0,0.052), 0 0 0 1px rgba(255,255,255,0.09);
     }
     .btn[disabled]{
       cursor:not-allowed;
@@ -1969,7 +1972,7 @@
 
 <div class="hero-actions">
   <a class="btn btn-accent" href="#diagnostic-portals">Launch diagnostics</a>
-  <a class="btn btn-hero-secondary" href="#match-by-symptom">Where to start</a>
+  <a class="btn btn-secondary" href="#match-by-symptom">Where to start</a>
 </div>
 
 <div class="context-chip" id="currentPathChip"></div>
