@@ -551,7 +551,7 @@
       color:var(--muted-dark-2);
     }
 
-    .tools-section{ scroll-margin-top:88px; }
+    .tools-section{ scroll-margin-top:88px; margin-bottom:18px; }
     .tools-grid{
       display:grid;
       grid-template-columns:repeat(4, minmax(0,1fr));
@@ -1716,9 +1716,10 @@
       align-items: center;
       gap: 14px;
       margin: 0 0 22px;
-      padding: 14px 18px;
+      padding: 14px 18px 14px 16px;
       border-radius: var(--card-radius);
       border: 1px solid rgba(63,110,161,.18);
+      border-left: 3px solid var(--ok);
       background: var(--accent-soft);
     }
     .status-strip-dot {
@@ -1737,29 +1738,33 @@
     }
     .status-strip-text strong { font-weight: 700; color: var(--text-dark); }
 
-    /* Shared-context disclosure — collapses the heavy form below the cards */
+    /* Shared-context disclosure — a self-explaining feature card.
+       Stays collapsed by default to protect the first-run flow, but the
+       summary itself carries the full pitch so multi-run users see the value. */
     .hub-disclosure {
-      margin: 36px 0 0;
-      border: 1px solid var(--line-mid);
+      margin: 0 0 18px;
+      border: 1px solid var(--line-soft);
+      border-left: 3px solid var(--gold);
       border-radius: var(--panel-radius);
-      background: var(--panel);
+      background: rgba(255,255,255,.98);
       overflow: hidden;
       transition: border-color var(--transition);
     }
-    .hub-disclosure[open] { border-color: rgba(63,110,161,.28); }
+    .hub-disclosure[open] { border-color: rgba(178,141,60,.34); }
     .hub-disclosure > summary {
       list-style: none;
       cursor: pointer;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      grid-template-areas:
-        "kicker icon"
-        "label icon"
-        "helper icon";
-      column-gap: 18px;
-      row-gap: 4px;
-      padding: 22px 26px;
+      padding: 30px 32px 28px;
       transition: background var(--transition);
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto;
+      grid-template-areas:
+        "head action"
+        "lead lead"
+        "when when"
+        "status status";
+      column-gap: 36px;
+      row-gap: 20px;
     }
     .hub-disclosure > summary::-webkit-details-marker { display: none; }
     .hub-disclosure > summary:hover { background: var(--panel-soft); }
@@ -1767,53 +1772,143 @@
       outline: 2px solid var(--accent);
       outline-offset: -2px;
     }
-    .hub-disclosure-kicker {
-      grid-area: kicker;
-      font-size: .68rem;
-      font-weight: 700;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      color: var(--muted-dark-2);
+    .hub-disclosure-head {
+      grid-area: head;
+      display: grid;
+      gap: 8px;
+      align-content: start;
     }
-    .hub-disclosure-label {
-      grid-area: label;
-      font-size: 1.08rem;
+    .hub-disclosure-kicker {
+      margin: 0;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .hub-disclosure-title {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.2;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-dark);
+    }
+    .hub-disclosure-action {
+      grid-area: action;
+      align-self: start;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: 1px solid var(--line-mid);
+      background: var(--panel);
+      font-size: .88rem;
       font-weight: 500;
       color: var(--text-dark);
-      letter-spacing: -0.01em;
+      white-space: nowrap;
+      transition: background var(--transition), color var(--transition), border-color var(--transition);
     }
-    .hub-disclosure-helper {
-      grid-area: helper;
-      font-size: .9rem;
-      line-height: 1.5;
-      color: var(--muted-dark);
-      max-width: 64ch;
-    }
-    .hub-disclosure-icon {
-      grid-area: icon;
-      align-self: center;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      border: 1px solid var(--line-mid);
+    .hub-disclosure-action-icon {
+      width: 14px;
+      height: 14px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.2rem;
-      font-weight: 400;
-      color: var(--muted-dark);
-      background: var(--panel-soft);
-      transition: transform var(--transition), border-color var(--transition), color var(--transition);
+      transition: transform var(--transition-slow);
     }
-    .hub-disclosure[open] .hub-disclosure-icon {
-      transform: rotate(45deg);
-      border-color: var(--accent);
-      color: var(--accent);
+    .hub-disclosure-action-icon svg { display: block; }
+    .hub-disclosure > summary:hover .hub-disclosure-action {
+      border-color: rgba(178,141,60,.42);
+    }
+    .hub-disclosure[open] .hub-disclosure-action {
+      background: var(--text-dark);
+      color: #FFF;
+      border-color: var(--text-dark);
+    }
+    .hub-disclosure[open] .hub-disclosure-action-icon {
+      transform: rotate(180deg);
+    }
+    .hub-disclosure-lead {
+      grid-area: lead;
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.65;
+      color: var(--muted-dark);
+      max-width: 76ch;
+    }
+    .hub-disclosure-when {
+      grid-area: when;
+      display: grid;
+      gap: 10px;
+      padding: 16px 18px;
+      border-radius: var(--card-radius);
+      background: var(--gold-soft);
+      border: 1px solid rgba(178,141,60,.18);
+    }
+    .hub-disclosure-when-label {
+      margin: 0;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+    }
+    .hub-disclosure-when-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 7px;
+      font-size: .94rem;
+      line-height: 1.55;
+      color: var(--muted-dark);
+    }
+    .hub-disclosure-when-list li {
+      padding-left: 18px;
+      position: relative;
+    }
+    .hub-disclosure-when-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: .72em;
+      width: 8px;
+      height: 1px;
+      background: var(--gold);
+      opacity: .65;
+    }
+    .hub-disclosure-status {
+      grid-area: status;
+      margin: 0;
+      padding-top: 16px;
+      border-top: 1px solid var(--line-soft);
+      font-size: .9rem;
+      line-height: 1.55;
+      color: var(--muted-dark-2);
+    }
+    .hub-disclosure-status strong {
+      color: var(--text-dark);
+      font-weight: 500;
     }
     .hub-disclosure > .shared-context-shell {
-      margin-top: 0;
+      margin: 0;
       padding-top: 8px;
       border-top: 1px solid var(--line-soft);
+    }
+
+    @media (max-width: 760px) {
+      .hub-disclosure > summary {
+        grid-template-columns: minmax(0,1fr);
+        grid-template-areas:
+          "head"
+          "lead"
+          "when"
+          "action"
+          "status";
+      }
+      .hub-disclosure-action { justify-self: start; }
     }
   </style>
 
@@ -2099,10 +2194,32 @@
 
   <details class="hub-disclosure" id="shared-context-disclosure">
     <summary>
-      <span class="hub-disclosure-kicker">Repeated use only</span>
-      <span class="hub-disclosure-label">Set shared context for this session</span>
-      <span class="hub-disclosure-helper">Optional. Only useful when launching more than one diagnostic against the same event path.</span>
-      <span class="hub-disclosure-icon" aria-hidden="true">+</span>
+      <div class="hub-disclosure-head">
+        <p class="hub-disclosure-kicker">Workflow accelerator · Optional</p>
+        <h3 class="hub-disclosure-title">Shared run context</h3>
+      </div>
+      <span class="hub-disclosure-action">
+        <span>Set shared context</span>
+        <span class="hub-disclosure-action-icon" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3.5 5.25l3.5 3.5 3.5-3.5"></path>
+          </svg>
+        </span>
+      </span>
+      <p class="hub-disclosure-lead">
+        Save the event path, participant lens, run depth, and team once — Monderman carries them into every diagnostic you launch from this browser. Skip retyping the same setup, keep your comparisons honest across lenses, and build continuity across repeat assessments of the same situation.
+      </p>
+      <div class="hub-disclosure-when">
+        <p class="hub-disclosure-when-label">Use this when</p>
+        <ul class="hub-disclosure-when-list">
+          <li>Running the same diagnostic across operational, managerial, and executive lenses on one event path.</li>
+          <li>Returning to the same event path after a redesign, structural change, or new external pressure.</li>
+          <li>Preparing a cross-tool synthesis where consistent inputs across diagnostics matter.</li>
+        </ul>
+      </div>
+      <p class="hub-disclosure-status" id="hubDisclosureStatus">
+        <strong>No shared baseline saved in this browser.</strong> Open to set one for this session.
+      </p>
     </summary>
 
 <section class="shared-context-shell" id="hub-context-panel" aria-label="Shared run context">
@@ -2556,12 +2673,29 @@
         list.appendChild(item);
       });
     }
+    function renderDisclosureStatus() {
+      const statusEl = document.getElementById("hubDisclosureStatus");
+      const disclosure = document.getElementById("shared-context-disclosure");
+      if (!statusEl) return;
+      const context = readHubContext();
+      if (context && context.pathName) {
+        const parts = [context.pathName, context.lensLabel, context.depthLabel].filter(Boolean);
+        statusEl.innerHTML = `<strong>Baseline saved:</strong> ${parts.join(" \u00b7 ")}. Reused automatically on every diagnostic launched from this browser.`;
+        // Auto-open so returning users see their saved state without hunting for it.
+        if (disclosure && !disclosure.dataset.userToggled) {
+          disclosure.open = true;
+        }
+      } else {
+        statusEl.innerHTML = "<strong>No shared baseline saved in this browser.</strong> Open to set one for this session.";
+      }
+    }
     function refreshAllContextUI() {
       try {
         renderCurrentPathChip();
         renderHubContextForm();
         renderSavedContextCard();
         renderRecentRuns();
+        renderDisclosureStatus();
       } catch (error) {
         console.error("Shared context UI refresh failed:", error);
       }
@@ -2606,6 +2740,7 @@
     function bindHubContextControls() {
       const saveBtn = document.getElementById("saveHubContextBtn");
       const clearBtn = document.getElementById("clearHubContextBtn");
+      const disclosure = document.getElementById("shared-context-disclosure");
       if (saveBtn && !saveBtn.dataset.boundSharedContext) {
         saveBtn.dataset.boundSharedContext = "true";
         saveBtn.addEventListener("click", saveHubContextFromForm);
@@ -2613,6 +2748,15 @@
       if (clearBtn && !clearBtn.dataset.boundSharedContext) {
         clearBtn.dataset.boundSharedContext = "true";
         clearBtn.addEventListener("click", clearHubContext);
+      }
+      if (disclosure && !disclosure.dataset.boundToggle) {
+        disclosure.dataset.boundToggle = "true";
+        const summary = disclosure.querySelector("summary");
+        if (summary) {
+          summary.addEventListener("click", () => {
+            disclosure.dataset.userToggled = "true";
+          });
+        }
       }
     }
 
