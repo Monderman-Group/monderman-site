@@ -362,6 +362,19 @@
       border-color:rgba(63,110,161,.24);
       box-shadow:none;
     }
+    .btn-hero-secondary{
+      background:#FFF;
+      color:var(--accent);
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow:none;
+    }
+    .btn-hero-secondary:hover,
+    .btn-hero-secondary:focus-visible{
+      background:#FFF;
+      color:var(--accent-dark);
+      border-color:rgba(255,255,255,.32);
+      box-shadow:none;
+    }
     .btn[disabled]{
       cursor:not-allowed;
       opacity:.56;
@@ -441,9 +454,10 @@
       scroll-margin-top:88px;
     }
     .panel.panel-soft{
-      background:transparent;
-      border:none;
-      padding:20px 0 8px;
+      background:transparent !important;
+      border:none !important;
+      box-shadow:none !important;
+      padding:36px 0 16px;
     }
     .panel.panel-soft > h3{
       font-size:22px;
@@ -1955,7 +1969,7 @@
 
 <div class="hero-actions">
   <a class="btn btn-accent" href="#diagnostic-portals">Launch diagnostics</a>
-  <a class="btn" href="#match-by-symptom">Where to start</a>
+  <a class="btn btn-hero-secondary" href="#match-by-symptom">Where to start</a>
 </div>
 
 <div class="context-chip" id="currentPathChip"></div>
