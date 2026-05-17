@@ -440,6 +440,19 @@
       margin-bottom:18px;
       scroll-margin-top:88px;
     }
+    .panel.panel-soft{
+      background:transparent;
+      border:none;
+      padding:20px 0 8px;
+    }
+    .panel.panel-soft > h3{
+      font-size:22px;
+      line-height:1.2;
+    }
+    .panel.panel-soft > p{
+      font-size:15px;
+      color:var(--muted-dark-2);
+    }
     .bridge{
       padding:34px 32px 30px;
       margin-bottom:18px;
@@ -1942,6 +1955,7 @@
 
 <div class="hero-actions">
   <a class="btn btn-accent" href="#diagnostic-portals">Launch diagnostics</a>
+  <a class="btn" href="#match-by-symptom">Where to start</a>
 </div>
 
 <div class="context-chip" id="currentPathChip"></div>
@@ -2089,105 +2103,6 @@
       </p>
       <span class="tool-open">Open diagnostic &#8594;</span>
     </a>
-  </article>
-</div>
-  </section>
-
-  <section class="panel" id="match-by-symptom">
-    <h3>Not sure which to pick?</h3>
-    <p>Match the most visible symptom in the environment to its diagnostic lens.</p>
-
-<div class="matrix-grid">
-  <article class="matrix-card">
-    <p class="matrix-kicker">Ambiguity</p>
-    <div class="symptom-head">
-      <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
-      </svg>
-      <div>
-        <h4 class="matrix-title">Ownership, roles, or handoffs feel blurred.</h4>
-        <p class="matrix-text">Start with the tool best suited for ambiguity, ownership blur, authority confusion, and handoff instability.</p>
-      </div>
-    </div>
-    <div class="matrix-meta">
-      <div class="matrix-meta-item">
-        <span class="matrix-meta-label">Open diagnostic</span>
-        <span class="matrix-meta-value"><a href="structural-clarity.html" class="tool-inline-link diagnostic-link" aria-label="Open Structural Clarity Diagnostic">Structural Clarity Diagnostic</a></span>
-      </div>
-      <div class="matrix-meta-item">
-        <span class="matrix-meta-label">Use first when</span>
-        <span class="matrix-meta-value">Ownership is unclear, roles overlap, or handoffs require repeated interpretation.</span>
-      </div>
-    </div>
-  </article>
-
-  <article class="matrix-card">
-    <p class="matrix-kicker">Latency</p>
-    <div class="symptom-head">
-      <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
-      </svg>
-      <div>
-        <h4 class="matrix-title">Decisions feel slow, stuck, or approval-heavy.</h4>
-        <p class="matrix-text">Start with the tool best suited for approvals, escalation, review layering, routing burden, and cycle delay.</p>
-      </div>
-    </div>
-    <div class="matrix-meta">
-      <div class="matrix-meta-item">
-        <span class="matrix-meta-label">Open diagnostic</span>
-        <span class="matrix-meta-value"><a href="decision-velocity.html" class="tool-inline-link diagnostic-link" aria-label="Open Decision Velocity Diagnostic">Decision Velocity Diagnostic</a></span>
-      </div>
-      <div class="matrix-meta-item">
-        <span class="matrix-meta-label">Use first when</span>
-        <span class="matrix-meta-value">Approvals, escalation, or review layering are slowing movement through decisions.</span>
-      </div>
-    </div>
-  </article>
-
-  <article class="matrix-card">
-    <p class="matrix-kicker">Burden</p>
-    <div class="symptom-head">
-      <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
-      </svg>
-      <div>
-        <h4 class="matrix-title">The environment feels overloaded by process.</h4>
-        <p class="matrix-text">Start with the tool best suited for recurring burden, overhead, and process density.</p>
-      </div>
-    </div>
-    <div class="matrix-meta">
-      <div class="matrix-meta-item">
-        <span class="matrix-meta-label">Open diagnostic</span>
-        <span class="matrix-meta-value"><a href="operational-systems.html" class="tool-inline-link diagnostic-link" aria-label="Open Operational Systems Diagnostic">Operational Systems Diagnostic</a></span>
-      </div>
-      <div class="matrix-meta-item">
-        <span class="matrix-meta-label">Use first when</span>
-        <span class="matrix-meta-value">Process load, reporting demand, or coordination overhead is absorbing too much time and attention.</span>
-      </div>
-    </div>
-  </article>
-
-  <article class="matrix-card">
-    <p class="matrix-kicker">Fragility</p>
-    <div class="symptom-head">
-      <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
-      </svg>
-      <div>
-        <h4 class="matrix-title">The whole system seems to be weakening.</h4>
-        <p class="matrix-text">Start with the tool best suited for broader system health and institutional performance.</p>
-      </div>
-    </div>
-    <div class="matrix-meta">
-      <div class="matrix-meta-item">
-        <span class="matrix-meta-label">Open diagnostic</span>
-        <span class="matrix-meta-value"><a href="institutional-performance.html" class="tool-inline-link diagnostic-link" aria-label="Open Institutional Performance Diagnostic">Institutional Performance Diagnostic</a></span>
-      </div>
-      <div class="matrix-meta-item">
-        <span class="matrix-meta-label">Use first when</span>
-        <span class="matrix-meta-value">The issue feels broader than one workflow and the system itself may be weakening.</span>
-      </div>
-    </div>
   </article>
 </div>
   </section>
@@ -2392,6 +2307,105 @@
 </div>
 </div>
         </section>
+
+  <section class="panel panel-soft" id="match-by-symptom">
+    <h3>Not sure which to pick?</h3>
+    <p>Match the most visible symptom in the environment to its diagnostic lens.</p>
+
+<div class="matrix-grid">
+  <article class="matrix-card">
+    <p class="matrix-kicker">Ambiguity</p>
+    <div class="symptom-head">
+      <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
+      </svg>
+      <div>
+        <h4 class="matrix-title">Ownership, roles, or handoffs feel blurred.</h4>
+        <p class="matrix-text">Start with the tool best suited for ambiguity, ownership blur, authority confusion, and handoff instability.</p>
+      </div>
+    </div>
+    <div class="matrix-meta">
+      <div class="matrix-meta-item">
+        <span class="matrix-meta-label">Open diagnostic</span>
+        <span class="matrix-meta-value"><a href="structural-clarity.html" class="tool-inline-link diagnostic-link" aria-label="Open Structural Clarity Diagnostic">Structural Clarity Diagnostic</a></span>
+      </div>
+      <div class="matrix-meta-item">
+        <span class="matrix-meta-label">Use first when</span>
+        <span class="matrix-meta-value">Ownership is unclear, roles overlap, or handoffs require repeated interpretation.</span>
+      </div>
+    </div>
+  </article>
+
+  <article class="matrix-card">
+    <p class="matrix-kicker">Latency</p>
+    <div class="symptom-head">
+      <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
+      </svg>
+      <div>
+        <h4 class="matrix-title">Decisions feel slow, stuck, or approval-heavy.</h4>
+        <p class="matrix-text">Start with the tool best suited for approvals, escalation, review layering, routing burden, and cycle delay.</p>
+      </div>
+    </div>
+    <div class="matrix-meta">
+      <div class="matrix-meta-item">
+        <span class="matrix-meta-label">Open diagnostic</span>
+        <span class="matrix-meta-value"><a href="decision-velocity.html" class="tool-inline-link diagnostic-link" aria-label="Open Decision Velocity Diagnostic">Decision Velocity Diagnostic</a></span>
+      </div>
+      <div class="matrix-meta-item">
+        <span class="matrix-meta-label">Use first when</span>
+        <span class="matrix-meta-value">Approvals, escalation, or review layering are slowing movement through decisions.</span>
+      </div>
+    </div>
+  </article>
+
+  <article class="matrix-card">
+    <p class="matrix-kicker">Burden</p>
+    <div class="symptom-head">
+      <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
+      </svg>
+      <div>
+        <h4 class="matrix-title">The environment feels overloaded by process.</h4>
+        <p class="matrix-text">Start with the tool best suited for recurring burden, overhead, and process density.</p>
+      </div>
+    </div>
+    <div class="matrix-meta">
+      <div class="matrix-meta-item">
+        <span class="matrix-meta-label">Open diagnostic</span>
+        <span class="matrix-meta-value"><a href="operational-systems.html" class="tool-inline-link diagnostic-link" aria-label="Open Operational Systems Diagnostic">Operational Systems Diagnostic</a></span>
+      </div>
+      <div class="matrix-meta-item">
+        <span class="matrix-meta-label">Use first when</span>
+        <span class="matrix-meta-value">Process load, reporting demand, or coordination overhead is absorbing too much time and attention.</span>
+      </div>
+    </div>
+  </article>
+
+  <article class="matrix-card">
+    <p class="matrix-kicker">Fragility</p>
+    <div class="symptom-head">
+      <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
+      </svg>
+      <div>
+        <h4 class="matrix-title">The whole system seems to be weakening.</h4>
+        <p class="matrix-text">Start with the tool best suited for broader system health and institutional performance.</p>
+      </div>
+    </div>
+    <div class="matrix-meta">
+      <div class="matrix-meta-item">
+        <span class="matrix-meta-label">Open diagnostic</span>
+        <span class="matrix-meta-value"><a href="institutional-performance.html" class="tool-inline-link diagnostic-link" aria-label="Open Institutional Performance Diagnostic">Institutional Performance Diagnostic</a></span>
+      </div>
+      <div class="matrix-meta-item">
+        <span class="matrix-meta-label">Use first when</span>
+        <span class="matrix-meta-value">The issue feels broader than one workflow and the system itself may be weakening.</span>
+      </div>
+    </div>
+  </article>
+</div>
+  </section>
 
   <section class="bridge" aria-labelledby="advisory-bridge-title">
     <div class="bridge-copy">
