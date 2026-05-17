@@ -1393,116 +1393,6 @@
       color:rgba(245,247,250,.58);
     }
 
-    .loading-overlay{
-      position:fixed;
-      inset:0;
-      display:grid;
-      place-items:center;
-      background:
-        radial-gradient(circle at 50% 30%, rgba(63,110,161,.08), transparent 22%),
-        linear-gradient(180deg, #F8FAFD 0%, #F4F7FB 100%);
-      z-index:200;
-      opacity:0;
-      visibility:hidden;
-      pointer-events:none;
-      transition:opacity 260ms ease, visibility 260ms ease;
-    }
-    .loading-overlay.show{
-      opacity:1;
-      visibility:visible;
-      pointer-events:auto;
-    }
-    .loading-box{
-      width:min(560px, calc(100vw - 40px));
-      padding:34px 30px 30px;
-      border-radius:24px;
-      background:rgba(255,255,255,.96);
-      border:1px solid rgba(21,32,43,.08);
-      box-shadow:none;
-      text-align:center;
-      color:var(--text-dark);
-    }
-    .loading-mark{
-      position:relative;
-      width:72px;
-      height:72px;
-      margin:0 auto 18px;
-      display:grid;
-      place-items:center;
-    }
-    .loading-m{
-      position:relative;
-      z-index:2;
-      width:52px;
-      height:52px;
-      border-radius:14px;
-      background:#0F1720;
-      color:#FFF;
-      display:grid;
-      place-items:center;
-      font-size:1.38rem;
-      font-weight:700;
-      box-shadow:none;
-    }
-    .loading-ring{
-      position:absolute;
-      inset:0;
-      border-radius:999px;
-      border:2px solid rgba(63,110,161,.14);
-      border-top-color:var(--muted-dark-2);
-      animation:spin 1.2s linear infinite;
-    }
-    .loading-dot{
-      position:absolute;
-      right:9px;
-      bottom:12px;
-      width:10px;
-      height:10px;
-      border-radius:2px;
-      background:var(--accent);
-      animation:pulse 1.6s ease-in-out infinite;
-      z-index:3;
-    }
-    @keyframes spin { to { transform:rotate(360deg); } }
-    @keyframes pulse {
-      0%, 100% { transform:scale(1); opacity:1; }
-      50% { transform:scale(.82); opacity:.62; }
-    }
-    .loading-title{
-      margin:0 0 8px;
-      font-size:1.28rem;
-      line-height:1.15;
-      color:var(--text-dark);
-    }
-    .loading-copy{
-      margin:0 0 18px;
-      font-size:.96rem;
-      line-height:1.62;
-      color:var(--muted-dark);
-    }
-    .loading-status{
-      min-height:26px;
-      margin:0 0 14px;
-      font-size:.88rem;
-      line-height:1.55;
-      color:var(--accent-dark);
-      font-weight:500;
-    }
-    .loading-progress{
-      width:100%;
-      height:8px;
-      overflow:hidden;
-      border-radius:999px;
-      background:rgba(21,32,43,.08);
-    }
-    .loading-bar{
-      width:0%;
-      height:100%;
-      border-radius:999px;
-      background:var(--accent);
-      transition:width 240ms linear;
-    }
-
 
     .cf-modal{
       position:fixed;
@@ -1819,28 +1709,118 @@
     @media (max-width: 1280px) {
       .brand-tagline { display: none; }
     }
+
+    /* Status strip — sets expectations above the tool cards */
+    .status-strip {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 0 0 22px;
+      padding: 14px 18px;
+      border-radius: var(--card-radius);
+      border: 1px solid rgba(63,110,161,.18);
+      background: var(--accent-soft);
+    }
+    .status-strip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 4px rgba(94,138,102,.16);
+    }
+    .status-strip-dot-live { background: var(--ok); }
+    .status-strip-text {
+      margin: 0;
+      font-size: .92rem;
+      line-height: 1.55;
+      color: var(--text-dark);
+    }
+    .status-strip-text strong { font-weight: 700; color: var(--text-dark); }
+
+    /* Shared-context disclosure — collapses the heavy form below the cards */
+    .hub-disclosure {
+      margin: 36px 0 0;
+      border: 1px solid var(--line-mid);
+      border-radius: var(--panel-radius);
+      background: var(--panel);
+      overflow: hidden;
+      transition: border-color var(--transition);
+    }
+    .hub-disclosure[open] { border-color: rgba(63,110,161,.28); }
+    .hub-disclosure > summary {
+      list-style: none;
+      cursor: pointer;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      grid-template-areas:
+        "kicker icon"
+        "label icon"
+        "helper icon";
+      column-gap: 18px;
+      row-gap: 4px;
+      padding: 22px 26px;
+      transition: background var(--transition);
+    }
+    .hub-disclosure > summary::-webkit-details-marker { display: none; }
+    .hub-disclosure > summary:hover { background: var(--panel-soft); }
+    .hub-disclosure > summary:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+    .hub-disclosure-kicker {
+      grid-area: kicker;
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+    }
+    .hub-disclosure-label {
+      grid-area: label;
+      font-size: 1.08rem;
+      font-weight: 500;
+      color: var(--text-dark);
+      letter-spacing: -0.01em;
+    }
+    .hub-disclosure-helper {
+      grid-area: helper;
+      font-size: .9rem;
+      line-height: 1.5;
+      color: var(--muted-dark);
+      max-width: 64ch;
+    }
+    .hub-disclosure-icon {
+      grid-area: icon;
+      align-self: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--line-mid);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 400;
+      color: var(--muted-dark);
+      background: var(--panel-soft);
+      transition: transform var(--transition), border-color var(--transition), color var(--transition);
+    }
+    .hub-disclosure[open] .hub-disclosure-icon {
+      transform: rotate(45deg);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .hub-disclosure > .shared-context-shell {
+      margin-top: 0;
+      padding-top: 8px;
+      border-top: 1px solid var(--line-soft);
+    }
   </style>
 
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
 
 </head>
 <body>
-  <div class="loading-overlay" id="calibrationOverlay" aria-hidden="true">
-    <div class="loading-box" role="status" aria-live="polite">
-      <div class="loading-mark" aria-hidden="true">
-        <div class="loading-ring"></div>
-        <div class="loading-m">M</div>
-        <div class="loading-dot"></div>
-      </div>
-      <h3 class="loading-title">Calibrating diagnostic environment...</h3>
-      <p class="loading-copy">Preparing Monderman’s structured diagnostic instrument for a clean, bounded run.</p>
-      <p class="loading-status" id="loadingStatus">Aligning structural signals...</p>
-      <div class="loading-progress" aria-hidden="true">
-        <div class="loading-bar" id="loadingBar"></div>
-      </div>
-    </div>
-  </div>
-
   <header class="header" id="siteHeader">
     <div class="header-inner">
       <a href="index.html" class="brand">Monderman<span class="brand-dot"></span><span class="brand-tagline">Measure the conditions. Own the outcome.</span></a>
@@ -1867,7 +1847,6 @@
 
 <div class="hero-actions">
   <a class="btn btn-accent" href="#diagnostic-portals">Launch diagnostics</a>
-  <a class="btn" href="#cross-diagnostic-synthesis">Cross-diagnostic analysis</a>
 </div>
 
 <div class="context-chip" id="currentPathChip"></div>
@@ -1878,23 +1857,6 @@
 
   <main class="page">
 
-<div class="page-rail" aria-label="How the hub is designed to be used">
-  <div class="page-rail-item">
-    <p class="page-rail-label">Bounded first run</p>
-    <p class="page-rail-value">Start with one visible issue</p>
-    <p class="page-rail-copy">One team, one workflow, one function, or one environment is enough for a stronger first read.</p>
-  </div>
-  <div class="page-rail-item">
-    <p class="page-rail-label">Repeatable use</p>
-    <p class="page-rail-value">Return after a change</p>
-    <p class="page-rail-copy">Use the same instrument again after redesign, growth, or new external pressure changes how the system behaves.</p>
-  </div>
-  <div class="page-rail-item">
-    <p class="page-rail-label">Participant lenses</p>
-    <p class="page-rail-value">Compare how the system is experienced</p>
-    <p class="page-rail-copy">The same organizational system can feel very different across operational, managerial, and leadership vantage points.</p>
-  </div>
-</div>
 <div class="page-inner">
   <div class="head">
     <div>
@@ -1909,36 +1871,136 @@
     </p>
   </div>
 
-  <section class="panel">
-    <h3>How to use the hub</h3>
-    <p>
-      Start with the strongest visible issue, keep the first run bounded, and return when the surrounding conditions change. The hub is designed to help you choose quickly without losing the discipline needed for repeat use.
-    </p>
+  <section class="tools-section" id="tool-launch">
+    <div class="tools-head">
+      <div class="section-label">Live Diagnostics</div>
+      <h3>Launch the right diagnostic.</h3>
+      <p>
+        Each diagnostic opens in its own dedicated environment. Start with the strongest fit, then return to the hub as your understanding of the structural issue becomes clearer.
+      </p>
+      <div style="margin-top:18px; display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; padding:16px 18px; border-radius:16px; background:#FFF; border:1px solid rgba(21,32,43,.08); box-shadow:none;">
+        <div style="max-width:44ch;">
+          <div style="margin:0 0 6px; font-size:.72rem; line-height:1; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--muted-dark-2);">Workspace continuity</div>
+          <div style="font-size:.96rem; line-height:1.6; color:var(--muted-dark);">Save runs, return to the same event path, and build continuity across repeated diagnostic use in your Monderman Workspace.</div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a class="btn btn-subtle" href="signin.html?next=workspace.html">Sign in</a>
+          <a class="btn btn-accent" href="workspace.html">Open Workspace</a>
+        </div>
+      </div>
+    </div>
 
-<div class="use-grid">
-  <div class="use-card">
-    <p class="use-step">01</p>
-    <h4 class="use-title">Choose the clearest signal</h4>
-    <p class="use-text">Start with what is most visible now: ambiguity, delay, burden, or broader institutional weakening.</p>
-  </div>
+<div class="status-strip" role="status" aria-label="Diagnostic availability">
+  <span class="status-strip-dot status-strip-dot-live" aria-hidden="true"></span>
+  <p class="status-strip-text"><strong>Operational Systems is live in beta.</strong> The other three diagnostics are in active development and not yet available from the hub.</p>
+</div>
 
-  <div class="use-card">
-    <p class="use-step">02</p>
-    <h4 class="use-title">Keep the first run bounded</h4>
-    <p class="use-text">Use one workflow, one function, one team, or one operating environment so the first read is cleaner and easier to interpret.</p>
-  </div>
+<div id="diagnostic-portals" class="tools-section-header" style="display:flex;align-items:center;gap:14px;margin:8px 0 22px;scroll-margin-top:88px;">
+  <p style="margin:0;font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);">Diagnostic portals</p>
+  <div style="flex:1;height:1px;background:rgba(63,110,161,.14);"></div>
+  <p style="margin:0;font-size:.82rem;color:var(--text-muted);">Select a diagnostic to begin</p>
+</div>
+<div class="tools-grid">
+  <article class="tool-card" data-tool-key="structural-clarity">
+    <a class="tool-card-link diagnostic-link" href="structural-clarity.html" aria-label="Open Structural Clarity Diagnostic">
+      <div class="tool-glyph" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
+        </svg>
+      </div>
+      <div class="tool-card-top">
+        <div class="tool-badge status-under-development">Under Development</div>
 
-  <div class="use-card">
-    <p class="use-step">03</p>
-    <h4 class="use-title">Return with discipline</h4>
-    <p class="use-text">Reassess after redesign, growth, or external change to see whether the system improved, held, or absorbed new strain.</p>
   </div>
+  <h3 class="tool-title">Structural Clarity Diagnostic</h3>
+  <p class="tool-subline">Roles · ownership · handoffs</p>
+  <p class="tool-text">
+    Assess whether ownership, authority, and review logic are clear enough for one bounded workflow or operating slice.
+  </p>
+  <p class="tool-meta-label">Best when</p>
+  <p class="tool-meta">
+    The issue feels like ambiguity, ownership confusion, handoff multiplication, or role-boundary drift.
+  </p>
+
+<span class="tool-open">Open diagnostic →</span>
+</a>
+
+  </article>
+
+  <article class="tool-card" data-tool-key="decision-velocity">
+    <a class="tool-card-link diagnostic-link" href="decision-velocity.html" aria-label="Open Decision Velocity Diagnostic">
+      <div class="tool-glyph" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
+        </svg>
+      </div>
+      <div class="tool-card-top">
+        <div class="tool-badge status-under-development">Under Development</div>
+      </div>
+      <h3 class="tool-title">Decision Velocity Diagnostic</h3>
+      <p class="tool-subline">Approvals · escalation · delay</p>
+      <p class="tool-text">
+        Diagnose where approvals, escalation patterns, and routing complexity are slowing movement through important decisions.
+      </p>
+      <p class="tool-meta-label">Best when</p>
+      <p class="tool-meta">
+        The issue feels like slowness, delay, stalled action, or approval drag.
+      </p>
+      <span class="tool-open">Open diagnostic &#8594;</span>
+    </a>
+  </article>
+
+  <article class="tool-card is-recommended" data-tool-key="operational-systems">
+    <a class="tool-card-link diagnostic-link" href="operational-systems.html" aria-label="Open Operational Systems Diagnostic">
+      <div class="tool-glyph" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
+        </svg>
+      </div>
+      <div class="tool-card-top">
+        <div class="tool-badge status-beta">Beta</div>
+      </div>
+      <h3 class="tool-title">Operational Systems Diagnostic</h3>
+      <p class="tool-subline">Process load · reporting · overhead</p>
+      <p class="tool-text">
+        Surface recurring administrative burden, process density, and non-value-adding overhead across a selected workflow or environment.
+      </p>
+      <p class="tool-meta-label">Best when</p>
+      <p class="tool-meta">
+        The issue feels like too much process, too much reporting, or too much coordination.
+      </p>
+      <span class="tool-open">Open diagnostic &#8594;</span>
+    </a>
+  </article>
+
+  <article class="tool-card" data-tool-key="institutional-performance">
+    <a class="tool-card-link diagnostic-link" href="institutional-performance.html" aria-label="Open Institutional Performance Diagnostic">
+      <div class="tool-glyph" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
+        </svg>
+      </div>
+      <div class="tool-card-top">
+        <div class="tool-badge status-under-development">Under Development</div>
+      </div>
+      <h3 class="tool-title">Institutional Performance Diagnostic</h3>
+      <p class="tool-subline">System health · adaptation · reliability</p>
+      <p class="tool-text">
+        Estimate how well an institution is converting structure into sustained performance across execution, resilience, and institutional confidence.
+      </p>
+      <p class="tool-meta-label">Best when</p>
+      <p class="tool-meta">
+        The issue feels broader than one workflow and the system itself may be weakening.
+      </p>
+      <span class="tool-open">Open diagnostic &#8594;</span>
+    </a>
+  </article>
 </div>
   </section>
 
-  <section class="panel">
-    <h3>Choose the right starting point</h3>
-    <p>Start with the clearest visible issue. Use the matrix below to choose the best first lens quickly.</p>
+  <section class="panel" id="match-by-symptom">
+    <h3>Not sure which to pick?</h3>
+    <p>Match the most visible symptom in the environment to its diagnostic lens.</p>
 
 <div class="matrix-grid">
   <article class="matrix-card">
@@ -2035,24 +2097,13 @@
 </div>
   </section>
 
-  <section class="tools-section" id="tool-launch">
-    <div class="tools-head">
-      <div class="section-label">Live Diagnostics</div>
-      <h3>Launch the right diagnostic.</h3>
-      <p>
-        Each diagnostic opens in its own dedicated environment. Start with the strongest fit, then return to the hub as your understanding of the structural issue becomes clearer.
-      </p>
-      <div style="margin-top:18px; display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; padding:16px 18px; border-radius:16px; background:#FFF; border:1px solid rgba(21,32,43,.08); box-shadow:none;">
-        <div style="max-width:44ch;">
-          <div style="margin:0 0 6px; font-size:.72rem; line-height:1; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--muted-dark-2);">Workspace continuity</div>
-          <div style="font-size:.96rem; line-height:1.6; color:var(--muted-dark);">Save runs, return to the same event path, and build continuity across repeated diagnostic use in your Monderman Workspace.</div>
-        </div>
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <a class="btn btn-subtle" href="signin.html?next=workspace.html">Sign in</a>
-          <a class="btn btn-accent" href="workspace.html">Open Workspace</a>
-        </div>
-      </div>
-    </div>
+  <details class="hub-disclosure" id="shared-context-disclosure">
+    <summary>
+      <span class="hub-disclosure-kicker">Repeated use only</span>
+      <span class="hub-disclosure-label">Set shared context for this session</span>
+      <span class="hub-disclosure-helper">Optional. Only useful when launching more than one diagnostic against the same event path.</span>
+      <span class="hub-disclosure-icon" aria-hidden="true">+</span>
+    </summary>
 
 <section class="shared-context-shell" id="hub-context-panel" aria-label="Shared run context">
   <div class="shared-context-card">
@@ -2187,108 +2238,7 @@
 </aside>
   </div>
 </section>
-
-<div id="diagnostic-portals" class="tools-section-header" style="display:flex;align-items:center;gap:14px;margin:8px 0 22px;scroll-margin-top:88px;">
-  <p style="margin:0;font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);">Diagnostic portals</p>
-  <div style="flex:1;height:1px;background:rgba(63,110,161,.14);"></div>
-  <p style="margin:0;font-size:.82rem;color:var(--text-muted);">Select a diagnostic to begin</p>
-</div>
-<div class="tools-grid">
-  <article class="tool-card" data-tool-key="structural-clarity">
-    <a class="tool-card-link diagnostic-link" href="structural-clarity.html" aria-label="Open Structural Clarity Diagnostic">
-      <div class="tool-glyph" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
-        </svg>
-      </div>
-      <div class="tool-card-top">
-        <div class="tool-badge status-under-development">Under Development</div>
-
-  </div>
-  <h3 class="tool-title">Structural Clarity Diagnostic</h3>
-  <p class="tool-subline">Roles · ownership · handoffs</p>
-  <p class="tool-text">
-    Assess whether ownership, authority, and review logic are clear enough for one bounded workflow or operating slice.
-  </p>
-  <p class="tool-meta-label">Best when</p>
-  <p class="tool-meta">
-    The issue feels like ambiguity, ownership confusion, handoff multiplication, or role-boundary drift.
-  </p>
-
-<span class="tool-open">Open diagnostic →</span>
-</a>
-
-  </article>
-
-  <article class="tool-card" data-tool-key="decision-velocity">
-    <a class="tool-card-link diagnostic-link" href="decision-velocity.html" aria-label="Open Decision Velocity Diagnostic">
-      <div class="tool-glyph" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
-        </svg>
-      </div>
-      <div class="tool-card-top">
-        <div class="tool-badge status-under-development">Under Development</div>
-      </div>
-      <h3 class="tool-title">Decision Velocity Diagnostic</h3>
-      <p class="tool-subline">Approvals · escalation · delay</p>
-      <p class="tool-text">
-        Diagnose where approvals, escalation patterns, and routing complexity are slowing movement through important decisions.
-      </p>
-      <p class="tool-meta-label">Best when</p>
-      <p class="tool-meta">
-        The issue feels like slowness, delay, stalled action, or approval drag.
-      </p>
-      <span class="tool-open">Open diagnostic &#8594;</span>
-    </a>
-  </article>
-
-  <article class="tool-card is-recommended" data-tool-key="operational-systems">
-    <a class="tool-card-link diagnostic-link" href="operational-systems.html" aria-label="Open Operational Systems Diagnostic">
-      <div class="tool-glyph" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
-        </svg>
-      </div>
-      <div class="tool-card-top">
-        <div class="tool-badge status-beta">Beta</div>
-      </div>
-      <h3 class="tool-title">Operational Systems Diagnostic</h3>
-      <p class="tool-subline">Process load · reporting · overhead</p>
-      <p class="tool-text">
-        Surface recurring administrative burden, process density, and non-value-adding overhead across a selected workflow or environment.
-      </p>
-      <p class="tool-meta-label">Best when</p>
-      <p class="tool-meta">
-        The issue feels like too much process, too much reporting, or too much coordination.
-      </p>
-      <span class="tool-open">Open diagnostic &#8594;</span>
-    </a>
-  </article>
-
-  <article class="tool-card" data-tool-key="institutional-performance">
-    <a class="tool-card-link diagnostic-link" href="institutional-performance.html" aria-label="Open Institutional Performance Diagnostic">
-      <div class="tool-glyph" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
-        </svg>
-      </div>
-      <div class="tool-card-top">
-        <div class="tool-badge status-under-development">Under Development</div>
-      </div>
-      <h3 class="tool-title">Institutional Performance Diagnostic</h3>
-      <p class="tool-subline">System health · adaptation · reliability</p>
-      <p class="tool-text">
-        Estimate how well an institution is converting structure into sustained performance across execution, resilience, and institutional confidence.
-      </p>
-      <p class="tool-meta-label">Best when</p>
-      <p class="tool-meta">
-        The issue feels broader than one workflow and the system itself may be weakening.
-      </p>
-      <span class="tool-open">Open diagnostic &#8594;</span>
-    </a>
-  </article>
-</div>
+  </details>
 
 <section class="synthesis-shell" id="cross-diagnostic-synthesis" aria-labelledby="synthesis-title">
   <div class="synthesis-head">
@@ -2325,72 +2275,6 @@
 </div>
 </div>
         </section>
-      </section>
-
-  <section class="panel">
-    <h3>How repeated use creates value</h3>
-    <p>The hub delivers its strongest value when it is used repeatedly to govern organizational systems over time, across changing conditions, and through different participant lenses.</p>
-
-<div class="dynamic-wrap">
-  <div class="dynamic-grid">
-    <article class="dynamic-card active">
-      <button class="dynamic-toggle" type="button" aria-expanded="true">
-        <p class="dynamic-kicker">Bounded</p>
-        <div class="dynamic-title-row">
-          <h4 class="dynamic-title">Baseline</h4>
-          <span class="dynamic-plus" aria-hidden="true">+</span>
-        </div>
-        <p class="dynamic-summary">Establish a reference point for one specific organizational system.</p>
-      </button>
-      <div class="dynamic-detail">
-        <p>Use one diagnostic to establish a clear reference point for a specific organizational system so future runs can be interpreted against something stronger than memory, impression, or isolated complaint.</p>
-      </div>
-    </article>
-
-<article class="dynamic-card">
-  <button class="dynamic-toggle" type="button" aria-expanded="false">
-    <p class="dynamic-kicker">Comparative</p>
-    <div class="dynamic-title-row">
-      <h4 class="dynamic-title">Participant lens</h4>
-      <span class="dynamic-plus" aria-hidden="true">+</span>
-    </div>
-    <p class="dynamic-summary">Use the same diagnostic across different participant groups.</p>
-  </button>
-  <div class="dynamic-detail">
-    <p>Use the same diagnostic across different participant groups to see where perspectives on the same organizational system diverge, align, or conceal different kinds of strain over time.</p>
-  </div>
-</article>
-
-<article class="dynamic-card">
-  <button class="dynamic-toggle" type="button" aria-expanded="false">
-    <p class="dynamic-kicker">Longitudinal</p>
-    <div class="dynamic-title-row">
-      <h4 class="dynamic-title">Changing context</h4>
-      <span class="dynamic-plus" aria-hidden="true">+</span>
-    </div>
-    <p class="dynamic-summary">Return when the surrounding environment changes.</p>
-  </button>
-  <div class="dynamic-detail">
-    <p>Revisit an organizational system when the surrounding environment changes — even if the system itself has not. Growth, new tooling, dependencies, staffing pressure, or external demands can all change how a system behaves.</p>
-  </div>
-</article>
-
-<article class="dynamic-card">
-  <button class="dynamic-toggle" type="button" aria-expanded="false">
-    <p class="dynamic-kicker">Synthesis</p>
-    <div class="dynamic-title-row">
-      <h4 class="dynamic-title">Structural change</h4>
-      <span class="dynamic-plus" aria-hidden="true">+</span>
-    </div>
-    <p class="dynamic-summary">Reassess after a meaningful change to the system itself.</p>
-  </button>
-  <div class="dynamic-detail">
-    <p>Use the same diagnostic after redesigned workflows, new approvals, updated governance, platform changes, or shifts in accountability to see whether conditions improved, held, or worsened.</p>
-  </div>
-</article>
-  </div>
-</div>
-  </section>
 
   <section class="bridge" aria-labelledby="advisory-bridge-title">
     <div class="bridge-copy">
@@ -2510,92 +2394,8 @@
 
     applyHeroImage();
 
-    const dynamicCards = document.querySelectorAll(".dynamic-card");
-    dynamicCards.forEach((card) => {
-      const btn = card.querySelector(".dynamic-toggle");
-      btn.addEventListener("click", () => {
-        const isActive = card.classList.contains("active");
-        dynamicCards.forEach((other) => {
-          other.classList.remove("active");
-          const otherBtn = other.querySelector(".dynamic-toggle");
-          if (otherBtn) otherBtn.setAttribute("aria-expanded", "false");
-        });
-        if (!isActive) {
-          card.classList.add("active");
-          btn.setAttribute("aria-expanded", "true");
-        }
-      });
-    });
-
-    const overlay = document.getElementById("calibrationOverlay");
-    const loadingBar = document.getElementById("loadingBar");
-    const loadingStatus = document.getElementById("loadingStatus");
-    const loadingMessages = [
-      "Aligning structural signals...",
-      "Mapping participant lenses...",
-      "Preparing repeatable governance instrument...",
-      "Environment ready."
-    ];
-    const HUB_CALIBRATION_MS = 4700;
-    let loadingTimer = null;
-    let progressTimer = null;
-    let messageTimer = null;
-
-    function startHubCalibration() {
-      if (!overlay || !loadingBar || !loadingStatus) return;
-
-      overlay.classList.add("show");
-      overlay.setAttribute("aria-hidden", "false");
-      loadingBar.style.width = "0%";
-      loadingStatus.textContent = loadingMessages[0];
-      document.body.style.overflow = "hidden";
-
-      let progress = 0;
-      let messageIndex = 0;
-
-      clearInterval(progressTimer);
-      clearInterval(messageTimer);
-      clearTimeout(loadingTimer);
-
-      progressTimer = setInterval(() => {
-        progress = Math.min(progress + 2, 96);
-        loadingBar.style.width = progress + "%";
-      }, 100);
-
-      messageTimer = setInterval(() => {
-        messageIndex = Math.min(messageIndex + 1, loadingMessages.length - 1);
-        loadingStatus.textContent = loadingMessages[messageIndex];
-      }, 1200);
-
-      loadingTimer = setTimeout(() => {
-        clearInterval(progressTimer);
-        clearInterval(messageTimer);
-        loadingBar.style.width = "100%";
-        loadingStatus.textContent = loadingMessages[loadingMessages.length - 1];
-        setTimeout(() => {
-          overlay.classList.remove("show");
-          overlay.setAttribute("aria-hidden", "true");
-          document.body.style.overflow = "";
-        }, 240);
-      }, HUB_CALIBRATION_MS);
-    }
-
-    function shouldRunHubCalibration() {
-      const navEntry = performance.getEntriesByType("navigation")[0];
-      const navType = navEntry?.type || "navigate";
-      const seenAt = Number(safeReadLocal(HUB_LOADER_SUPPRESS_KEY) || 0);
-      if (seenAt && (Date.now() - seenAt) < HUB_LOADER_SUPPRESS_MS) return false;
-      if (navType === "reload" || navType === "back_forward") return false;
-      return true;
-    }
-
-    // calibration gate is initialized after local-storage helpers/constants are declared
-
-
     const HUB_CONTEXT_KEY = "mondermanHubContextV1";
     const HUB_RECENT_RUNS_KEY = "mondermanRecentRunsV1";
-    const HUB_LOADER_SUPPRESS_KEY = "mondermanHubLoaderSeenAt";
-    const HUB_LOADER_SUPPRESS_MS = 24 * 60 * 60 * 1000;
 
     function safeReadLocal(key) {
       try { return localStorage.getItem(key); } catch (_error) { return null; }
