@@ -2020,7 +2020,7 @@
 
 <div class="status-strip" role="status" aria-label="Diagnostic availability">
   <span class="status-strip-dot status-strip-dot-live" aria-hidden="true"></span>
-  <p class="status-strip-text"><strong>Operational Systems is live in beta.</strong> The other three diagnostics are in active development and not yet available from the hub.</p>
+  <p class="status-strip-text"><strong>Operational Systems and Decision Velocity are live in beta.</strong> The other two diagnostics are in active development and not yet available from the hub.</p>
 </div>
 
 <div id="diagnostic-portals" class="tools-section-header" style="display:flex;align-items:center;gap:14px;margin:8px 0 22px;scroll-margin-top:88px;">
@@ -2063,7 +2063,7 @@
         </svg>
       </div>
       <div class="tool-card-top">
-        <div class="tool-badge status-under-development">Under Development</div>
+        <div class="tool-badge status-beta">Beta</div>
       </div>
       <h3 class="tool-title">Decision Velocity Diagnostic</h3>
       <p class="tool-subline">Approvals · escalation · delay</p>
@@ -2451,7 +2451,7 @@
       <p class="under-development-kicker">Diagnostic portal</p>
       <h3 id="underDevelopmentTitle">Under Development</h3>
       <p id="underDevelopmentCopy">This diagnostic is currently under development and is not yet available from the hub.</p>
-      <div class="under-development-note">Operational Systems remains available in beta while the other diagnostic portals continue through development and refinement.</div>
+      <div class="under-development-note">Operational Systems and Decision Velocity remain available in beta while the other diagnostic portals continue through development and refinement.</div>
       <div class="under-development-actions">
         <button class="btn btn-accent" id="underDevelopmentCloseBtn" type="button">Return to hub</button>
       </div>
@@ -3014,11 +3014,11 @@
     const TURNSTILE_SITE_KEY = "0x4AAAAAAC8JOwWXoDDTTFef";
     const TURNSTILE_VERIFY_URL = "https://monderman-api.onrender.com/api/turnstile-verify";
     const PROTECTED_DIAGNOSTIC_PATHS = new Set([
-      "operational-systems.html"
+      "operational-systems.html",
+      "decision-velocity.html"
     ]);
     const UNDER_DEVELOPMENT_PATHS = new Map([
       ["structural-clarity.html", "Structural Clarity Diagnostic"],
-      ["decision-velocity.html", "Decision Velocity Diagnostic"],
       ["institutional-performance.html", "Institutional Performance Diagnostic"]
     ]);
     const TURNSTILE_TOKEN_KEY = "mondermanTurnstileTokenV1";
