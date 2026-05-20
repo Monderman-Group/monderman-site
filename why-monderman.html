@@ -396,19 +396,6 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Quiet four-quadrant motif in the hero (only visible on large screens) */
-    .hero-motif {
-      position: absolute;
-      right: 5%;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 360px;
-      height: 360px;
-      z-index: 0;
-      opacity: 0.42;
-      pointer-events: none;
-    }
-
     /* ─── SECTION SCAFFOLDING ────────────────────────────────────────────── */
     .section-inner { max-width: var(--max); margin: 0 auto; }
     .section-label {
@@ -697,8 +684,36 @@
     .wm-funnel-tile:hover .wm-funnel-tile-link svg {
       transform: translateX(3px);
     }
+    .wm-funnel-foot {
+      margin-top: 28px;
+      display: flex;
+      justify-content: center;
+    }
+    .wm-funnel-foot-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: var(--accent);
+      border-bottom: 1px solid transparent;
+      transition: color var(--transition), border-color var(--transition);
+    }
+    .wm-funnel-foot-link svg {
+      width: 14px;
+      height: 14px;
+      transition: transform var(--transition);
+    }
+    .wm-funnel-foot-link:hover {
+      color: var(--accent-dark);
+      border-color: var(--accent);
+    }
+    .wm-funnel-foot-link:hover svg {
+      transform: translateX(3px);
+    }
 
-    /* ─── THE FOUR INSTRUMENTS (approach-card pattern) ───────────────────── */
+    /* ─── THE FOUR DIAGNOSTIC TOOLS (infographic strip layout) ───────────── */
     .wm-instruments {
       background: var(--bg-white);
       color: var(--text-dark);
@@ -709,42 +724,28 @@
       margin-top: 52px;
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 28px;
+      border-top: 1.5px solid var(--text-dark);
+      border-bottom: 1.5px solid var(--text-dark);
     }
     .wm-instrument-card {
       position: relative;
       display: flex;
       flex-direction: column;
-      min-height: 400px;
-      background: rgba(255,255,255,0.99);
-      border: 1px solid var(--line-dark);
-      border-radius: var(--panel-radius);
-      padding: 34px 28px 32px;
-      overflow: hidden;
-      transition: transform var(--transition-slow),
-                  border-color var(--transition),
-                  background var(--transition);
+      padding: 28px 24px 30px;
+      border-right: 1px solid var(--line-cool);
+      transition: background var(--transition);
     }
-    .wm-instrument-card::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0;
-      height: 3px;
-      width: 0%;
-      background: var(--accent);
-      transition: width 420ms cubic-bezier(0.22,1,0.36,1);
+    .wm-instrument-card:last-child {
+      border-right: none;
     }
     .wm-instrument-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(0,0,0,0.06);
-      background: #FFFFFF;
+      background: var(--bg-paper);
     }
-    .wm-instrument-card:hover::before { width: 100%; }
     .wm-instrument-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
     .wm-instrument-glyph {
       width: 40px;
@@ -757,7 +758,7 @@
       border: 1px solid rgba(63,110,161,0.10);
       color: var(--accent);
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.72);
-      transition: border-color var(--transition), background var(--transition), transform var(--transition);
+      transition: border-color var(--transition), background var(--transition);
     }
     .wm-instrument-glyph svg {
       width: 18px;
@@ -767,7 +768,6 @@
     .wm-instrument-card:hover .wm-instrument-glyph {
       background: rgba(63,110,161,0.08);
       border-color: rgba(63,110,161,0.18);
-      transform: translateY(-1px);
     }
     .wm-instrument-number {
       font-size: 11px;
@@ -776,21 +776,18 @@
       color: var(--muted-dark-2);
     }
     .wm-instrument-name {
-      margin: 0 0 12px;
+      margin: 0 0 6px;
       font-size: 17px;
       line-height: 1.2;
       font-weight: 700;
       color: var(--text-dark);
     }
     .wm-instrument-question {
-      margin: 0 0 24px;
-      padding-left: 12px;
-      border-left: 2px solid var(--line-dark);
-      font-size: 14.5px;
-      line-height: 1.55;
+      margin: 0 0 22px;
+      font-size: 13.5px;
+      line-height: 1.5;
       font-style: italic;
       color: var(--muted-dark);
-      flex-grow: 1;
     }
     .wm-instrument-divider {
       display: flex;
@@ -818,10 +815,25 @@
       letter-spacing: -0.02em;
     }
     .wm-instrument-outcome-tag {
-      margin: 0;
-      font-size: 13.5px;
+      margin: 0 0 18px;
+      font-size: 13px;
       line-height: 1.55;
       color: var(--muted-dark);
+      flex-grow: 1;
+    }
+    .wm-instrument-link {
+      margin-top: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.86rem;
+      font-weight: 500;
+      color: var(--accent);
+      transition: color var(--transition), transform var(--transition);
+    }
+    .wm-instrument-link:hover {
+      color: var(--accent-dark);
+      transform: translateX(2px);
     }
     .wm-instruments-caption {
       margin-top: 32px;
@@ -1064,57 +1076,7 @@
       color: var(--muted-dark);
     }
 
-    /* ─── WHAT MONDERMAN IS NOT (dark inverted strip) ────────────────────── */
-    .wm-negation {
-      background: var(--bg-dark);
-      color: var(--text-light);
-      padding: 76px 34px 80px;
-    }
-    .wm-negation-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 220px 1fr;
-      gap: 56px;
-      align-items: start;
-    }
-    .wm-negation-header h3 {
-      margin: 0;
-      font-size: 22px;
-      line-height: 1.18;
-      font-weight: 700;
-      color: var(--text-light);
-    }
-    .wm-negation-label {
-      margin: 0 0 18px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: rgba(245,247,250,0.50);
-    }
-    .wm-negation-items {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 32px;
-    }
-    .wm-negation-item strong {
-      display: block;
-      margin: 0 0 10px;
-      font-size: 13.5px;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--text-light);
-    }
-    .wm-negation-item p {
-      margin: 0;
-      font-size: 15px;
-      line-height: 1.6;
-      color: rgba(245,247,250,0.78);
-    }
-
-    /* ─── DIFFERENCE ─────────────────────────────────────────────────────── */
+    /* ─── HOW MONDERMAN IS DIFFERENT (two-column contrast) ───────────────── */
     .wm-difference {
       background: var(--bg-paper);
       color: var(--text-dark);
@@ -1122,55 +1084,64 @@
       border-top: 1px solid var(--line-cool);
       border-bottom: 1px solid var(--line-cool);
     }
-    .wm-difference-band {
+    .wm-difference-columns {
       margin-top: 46px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
       background: #FFFFFF;
       border: 1px solid var(--line-dark);
       border-radius: var(--panel-radius);
-      padding: 40px 44px;
-      display: grid;
-      grid-template-columns: 1.2fr 1fr;
-      gap: 48px;
-      align-items: start;
+      overflow: hidden;
     }
-    .wm-difference-main h3 {
-      margin: 0 0 14px;
-      font-size: 22px;
-      line-height: 1.25;
-      font-weight: 700;
-      color: var(--text-dark);
+    .wm-diff-col {
+      padding: 36px 40px 40px;
+      border-right: 1px solid var(--line-dark);
     }
-    .wm-difference-main p {
-      margin: 0;
-      font-size: 16px;
-      line-height: 1.65;
-      color: var(--muted-dark);
+    .wm-diff-col:last-child { border-right: none; }
+    .wm-diff-col--negative {
+      background: var(--bg-paper);
     }
-    .wm-difference-points { display: grid; gap: 22px; }
-    .wm-difference-point {
-      display: grid;
-      grid-template-columns: 18px 1fr;
-      gap: 14px;
-      align-items: start;
+    .wm-diff-col-label {
+      margin: 0 0 24px;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.4;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.85;
     }
-    .wm-difference-point::before {
+    .wm-diff-col--negative .wm-diff-col-label {
+      color: var(--muted-dark-2);
+    }
+    .wm-diff-col-label::before {
       content: "";
-      width: 14px;
-      height: 1.5px;
-      background: var(--text-dark);
-      margin-top: 8px;
-    }
-    .wm-difference-point strong {
       display: block;
-      margin: 0 0 4px;
-      font-size: 14.5px;
+      width: 36px;
+      height: 1.5px;
+      background: var(--accent);
+      margin-bottom: 14px;
+    }
+    .wm-diff-col--negative .wm-diff-col-label::before {
+      background: var(--muted-dark-2);
+    }
+    .wm-diff-items {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+    .wm-diff-item strong {
+      display: block;
+      margin: 0 0 6px;
+      font-size: 15px;
       font-weight: 700;
       color: var(--text-dark);
       letter-spacing: -0.01em;
     }
-    .wm-difference-point span {
+    .wm-diff-item span {
       display: block;
-      font-size: 13.5px;
+      font-size: 14px;
       line-height: 1.6;
       color: var(--muted-dark);
     }
@@ -1362,16 +1333,18 @@
       .nav { gap: 16px; }
       .nav a { font-size: 0.84rem; }
       .hero h1 { font-size: 52px; }
-      .hero-motif { display: none; }
       .wm-instruments-grid { grid-template-columns: repeat(2, 1fr); }
+      .wm-instrument-card:nth-child(2) { border-right: none; }
+      .wm-instrument-card:nth-child(1),
+      .wm-instrument-card:nth-child(2) { border-bottom: 1px solid var(--line-cool); }
       .wm-method-flow { grid-template-columns: repeat(5, 1fr); gap: 8px; }
       .wm-roi-grid { grid-template-columns: 1fr; gap: 36px; }
       .wm-condition-grid { grid-template-columns: 1fr; gap: 28px; }
       .wm-commitments-grid { grid-template-columns: 1fr; }
       .wm-funnel-grid { grid-template-columns: 1fr; }
-      .wm-negation-inner { grid-template-columns: 1fr; gap: 28px; }
-      .wm-negation-items { grid-template-columns: 1fr; gap: 20px; }
-      .wm-difference-band { grid-template-columns: 1fr; gap: 32px; padding: 32px; }
+      .wm-difference-columns { grid-template-columns: 1fr; }
+      .wm-diff-col { border-right: none; border-bottom: 1px solid var(--line-dark); }
+      .wm-diff-col:last-child { border-bottom: none; }
       .wm-cta-inner { grid-template-columns: 1fr; gap: 40px; }
       .footer-top { flex-direction: column; }
     }
@@ -1380,8 +1353,9 @@
       .hero h1 { font-size: 40px; }
       .hero-inner { padding: 110px 24px 80px; }
       .wm-condition, .wm-commitments, .wm-instruments, .wm-method, .wm-roi, .wm-difference, .wm-cta, .wm-funnel { padding: 60px 24px 64px; }
-      .wm-negation { padding: 60px 24px; }
       .wm-instruments-grid { grid-template-columns: 1fr; }
+      .wm-instrument-card { border-right: none; border-bottom: 1px solid var(--line-cool); }
+      .wm-instrument-card:last-child { border-bottom: none; }
       .wm-method-flow { grid-template-columns: 1fr; gap: 20px; }
       .wm-method-flow::before { display: none; }
       .wm-method-loop { flex-direction: column; align-items: flex-start; gap: 14px; }
@@ -1417,21 +1391,6 @@
 
   <!-- ═══ HERO ═══════════════════════════════════════════════════════════ -->
   <section class="hero" aria-labelledby="hero-title">
-    <!-- Quiet four-quadrant motif -->
-    <svg class="hero-motif" viewBox="0 0 360 360" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <rect x="0.5" y="0.5" width="359" height="359" stroke="rgba(118,165,211,0.34)" stroke-width="1"/>
-      <line x1="0" y1="180" x2="360" y2="180" stroke="rgba(118,165,211,0.18)" stroke-width="0.7"/>
-      <line x1="180" y1="0" x2="180" y2="360" stroke="rgba(118,165,211,0.18)" stroke-width="0.7"/>
-      <circle cx="90" cy="90" r="3" fill="rgba(118,165,211,0.7)"/>
-      <circle cx="270" cy="90" r="3" fill="rgba(118,165,211,0.7)"/>
-      <circle cx="90" cy="270" r="3" fill="rgba(118,165,211,0.7)"/>
-      <circle cx="270" cy="270" r="3" fill="rgba(118,165,211,0.7)"/>
-      <text x="62" y="66" font-family="Neue Haas Grotesk, Helvetica Neue, Arial" font-size="9" letter-spacing="2" fill="rgba(118,165,211,0.55)">OPERATIONAL</text>
-      <text x="232" y="66" font-family="Neue Haas Grotesk, Helvetica Neue, Arial" font-size="9" letter-spacing="2" fill="rgba(118,165,211,0.55)">DECISION</text>
-      <text x="68" y="306" font-family="Neue Haas Grotesk, Helvetica Neue, Arial" font-size="9" letter-spacing="2" fill="rgba(118,165,211,0.55)">STRUCTURAL</text>
-      <text x="226" y="306" font-family="Neue Haas Grotesk, Helvetica Neue, Arial" font-size="9" letter-spacing="2" fill="rgba(118,165,211,0.55)">INSTITUTIONAL</text>
-    </svg>
-
     <div class="hero-inner">
       <div class="hero-copy">
         <p class="hero-eyebrow">Why Monderman</p>
@@ -1560,11 +1519,11 @@
     <div class="wm-funnel-inner">
       <div class="wm-funnel-head reveal">
         <h3>Continue reading on the argument.</h3>
-        <p class="section-label" style="margin: 0;">Research briefs</p>
+        <p class="section-label" style="margin: 0;">Selected briefs</p>
       </div>
       <div class="wm-funnel-grid">
         <a href="research.html" class="wm-funnel-tile reveal reveal-delay-1">
-          <p class="wm-funnel-tile-kicker">Research brief</p>
+          <p class="wm-funnel-tile-kicker">Example brief</p>
           <h4>Accumulated drag in defense systems</h4>
           <p>A structural read of how administrative load compounds across program offices over time.</p>
           <span class="wm-funnel-tile-link">Read the brief
@@ -1572,7 +1531,7 @@
           </span>
         </a>
         <a href="research.html" class="wm-funnel-tile reveal reveal-delay-2">
-          <p class="wm-funnel-tile-kicker">Research brief</p>
+          <p class="wm-funnel-tile-kicker">Example brief</p>
           <h4>The quarter-trillion-dollar friction</h4>
           <p>What administrative reality costs the US healthcare system, measured at the institutional baseline.</p>
           <span class="wm-funnel-tile-link">Read the brief
@@ -1580,12 +1539,17 @@
           </span>
         </a>
         <a href="research.html" class="wm-funnel-tile reveal reveal-delay-3">
-          <p class="wm-funnel-tile-kicker">Research brief</p>
+          <p class="wm-funnel-tile-kicker">Example brief</p>
           <h4>Active bureaucratic management</h4>
           <p>The discipline of stewarding administrative conditions, distinct from process reform or change initiatives.</p>
           <span class="wm-funnel-tile-link">Read the brief
             <svg viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7.5 2.5L12 7l-4.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </span>
+        </a>
+      </div>
+      <div class="wm-funnel-foot reveal reveal-delay-4">
+        <a href="research.html" class="wm-funnel-foot-link">Browse the full Research library
+          <svg viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7.5 2.5L12 7l-4.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
       </div>
     </div>
@@ -1606,72 +1570,75 @@
         <article class="wm-instrument-card reveal reveal-delay-1">
           <div class="wm-instrument-head">
             <span class="wm-instrument-glyph" aria-hidden="true">
-              <svg viewBox="0 0 18 18" fill="none">
-                <rect x="2" y="11" width="14" height="5.5" stroke="currentColor" stroke-width="1.4"/>
-                <rect x="4" y="7" width="10" height="4" stroke="currentColor" stroke-width="1.4"/>
-                <rect x="6" y="3" width="6" height="4" stroke="currentColor" stroke-width="1.4"/>
+              <svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                <rect height="14" rx="2" width="16" x="4" y="5"></rect>
+                <path d="M8 9h8"></path>
+                <path d="M8 13h8"></path>
               </svg>
             </span>
             <span class="wm-instrument-number">01</span>
           </div>
           <h3 class="wm-instrument-name">Operational Systems</h3>
-          <p class="wm-instrument-question">How much weight is the operating system carrying?</p>
+          <p class="wm-instrument-question">How much weight is it carrying?</p>
           <p class="wm-instrument-divider">Produces</p>
           <p class="wm-instrument-outcome">Reclaimed Capacity</p>
           <p class="wm-instrument-outcome-tag">Burden measured. Drag relieved at the structural source, not at the symptom.</p>
+          <a class="wm-instrument-link" href="operational-systems-article.html">Read article →</a>
         </article>
 
         <article class="wm-instrument-card reveal reveal-delay-2">
           <div class="wm-instrument-head">
             <span class="wm-instrument-glyph" aria-hidden="true">
-              <svg viewBox="0 0 18 18" fill="none">
-                <circle cx="9" cy="9" r="6.5" stroke="currentColor" stroke-width="1.4"/>
-                <path d="M9 5v4l3 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+              <svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                <path d="M5 19L19 5"></path>
+                <path d="M9 5h10v10"></path>
               </svg>
             </span>
             <span class="wm-instrument-number">02</span>
           </div>
           <h3 class="wm-instrument-name">Decision Velocity</h3>
-          <p class="wm-instrument-question">Does time move through the system at a governable rate?</p>
+          <p class="wm-instrument-question">Does time move through it?</p>
           <p class="wm-instrument-divider">Produces</p>
           <p class="wm-instrument-outcome">Sustained Advantage</p>
           <p class="wm-instrument-outcome-tag">The interval between recognition and decision held at institutional speed.</p>
+          <a class="wm-instrument-link" href="decision-velocity-article.html">Read article →</a>
         </article>
 
         <article class="wm-instrument-card reveal reveal-delay-3">
           <div class="wm-instrument-head">
             <span class="wm-instrument-glyph" aria-hidden="true">
-              <svg viewBox="0 0 18 18" fill="none">
-                <rect x="2.5" y="2.5" width="5.5" height="5.5" stroke="currentColor" stroke-width="1.4"/>
-                <rect x="10" y="2.5" width="5.5" height="5.5" stroke="currentColor" stroke-width="1.4"/>
-                <rect x="2.5" y="10" width="5.5" height="5.5" stroke="currentColor" stroke-width="1.4"/>
-                <rect x="10" y="10" width="5.5" height="5.5" fill="currentColor" fill-opacity="0.12" stroke="currentColor" stroke-width="1.4"/>
+              <svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                <path d="M4 7h8"></path>
+                <path d="M4 12h16"></path>
+                <path d="M4 17h11"></path>
               </svg>
             </span>
             <span class="wm-instrument-number">03</span>
           </div>
           <h3 class="wm-instrument-name">Structural Clarity</h3>
-          <p class="wm-instrument-question">Is the system legible to the people working inside it?</p>
+          <p class="wm-instrument-question">Is the system legible?</p>
           <p class="wm-instrument-divider">Produces</p>
           <p class="wm-instrument-outcome">Confident Action</p>
           <p class="wm-instrument-outcome-tag">Authority, boundary, and pathway visible to those who must act on them.</p>
+          <a class="wm-instrument-link" href="structural-clarity-article.html">Read article →</a>
         </article>
 
         <article class="wm-instrument-card reveal reveal-delay-4">
           <div class="wm-instrument-head">
             <span class="wm-instrument-glyph" aria-hidden="true">
-              <svg viewBox="0 0 18 18" fill="none">
-                <path d="M9 2l6 2.5v5.5c0 3.2-2.5 5.4-6 6.5-3.5-1.1-6-3.3-6-6.5V4.5L9 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
-                <line x1="5" y1="9" x2="13" y2="9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              <svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="8"></circle>
+                <path d="M12 8v4l3 2"></path>
               </svg>
             </span>
             <span class="wm-instrument-number">04</span>
           </div>
           <h3 class="wm-instrument-name">Institutional Performance</h3>
-          <p class="wm-instrument-question">Does the institution still hold under load?</p>
+          <p class="wm-instrument-question">Does it still hold?</p>
           <p class="wm-instrument-divider">Produces</p>
           <p class="wm-instrument-outcome">Organizational Credibility</p>
           <p class="wm-instrument-outcome-tag">Coherence between what the institution says, decides, and delivers.</p>
+          <a class="wm-instrument-link" href="institutional-performance-article.html">Read article →</a>
         </article>
 
       </div>
@@ -1839,62 +1806,49 @@
     </div>
   </section>
 
-  <!-- ═══ WHAT MONDERMAN IS NOT ══════════════════════════════════════════ -->
-  <section class="wm-negation section-with-bar section-on-dark snap-anchor" id="negation" aria-labelledby="negation-title">
-    <div aria-hidden="true" class="section-bar">Negative Space</div>
-    <div class="wm-negation-inner">
-      <div class="wm-negation-header reveal">
-        <h3 id="negation-title">What Monderman is not.</h3>
-      </div>
-      <div class="wm-negation-items">
-        <div class="wm-negation-item reveal reveal-delay-1">
-          <strong>Not a culture survey</strong>
-          <p>It does not measure sentiment, engagement, or morale. It measures the structural conditions under which sentiment, engagement, and morale are formed.</p>
-        </div>
-        <div class="wm-negation-item reveal reveal-delay-2">
-          <strong>Not workflow software</strong>
-          <p>It does not change how work moves through tools. It changes what the institution can see about how work moves through itself.</p>
-        </div>
-        <div class="wm-negation-item reveal reveal-delay-3">
-          <strong>Not a one-time assessment</strong>
-          <p>A single read establishes a baseline. The diagnostic value compounds on repetition.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ THE DIFFERENCE ═════════════════════════════════════════════════ -->
+  <!-- ═══ HOW MONDERMAN IS DIFFERENT ═════════════════════════════════════ -->
   <section class="wm-difference section-with-bar snap-anchor" id="difference" aria-labelledby="difference-title">
     <div aria-hidden="true" class="section-bar">Difference</div>
     <div class="section-inner">
       <div class="section-intro reveal">
-        <p class="section-label">The Monderman difference</p>
-        <h2 id="difference-title">More structural than surface-level analysis. More durable than one-off projects.</h2>
-        <p>Monderman is built for organizations that suspect the visible problem is not the real problem. We focus less on isolated symptoms and more on the underlying mechanics shaping them: ownership boundaries, decision pathways, accountability structure, administrative weight, and the compensatory behaviors that keep strained systems looking healthier than they are.</p>
+        <p class="section-label">Positioning</p>
+        <h2 id="difference-title">How Monderman is Different.</h2>
+        <p>Monderman is built for organizations that suspect the visible problem is not the real problem. The differentiation is methodological, not promotional — what Monderman is, and what it is deliberately not.</p>
       </div>
 
-      <div class="wm-difference-band reveal reveal-delay-1">
-        <div class="wm-difference-main">
-          <h3>We help organizations distinguish between normal complexity and the avoidable burden layered on top of it.</h3>
-          <p>Complexity is not the enemy. Mature institutions need governance, coordination, and control. The question is whether those structures are still appropriately calibrated, still earning their cost, and still supporting execution rather than quietly consuming additional leadership attention, labor, and maneuverability.</p>
-        </div>
-        <div class="wm-difference-points">
-          <div class="wm-difference-point">
-            <div>
+      <div class="wm-difference-columns reveal reveal-delay-1">
+        <div class="wm-diff-col">
+          <p class="wm-diff-col-label">What Monderman is</p>
+          <div class="wm-diff-items">
+            <div class="wm-diff-item">
               <strong>Beyond symptom checklists</strong>
               <span>Most surface-level approaches start and end with what feels slow, heavy, or frustrating. Monderman reads the structural condition producing those symptoms.</span>
             </div>
-          </div>
-          <div class="wm-difference-point">
-            <div>
+            <div class="wm-diff-item">
               <strong>Beyond one-time advisory work</strong>
               <span>The diagnostic engine is designed for repeatable runs that create institutional memory rather than one-off observations that disappear with the project.</span>
             </div>
-          </div>
-          <div class="wm-difference-point">
-            <div>
+            <div class="wm-diff-item">
               <strong>Beyond static comparisons</strong>
               <span>Instead of only showing where you sit against a benchmark, Monderman helps track drift, hidden burden, and reclaimable drag over time.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="wm-diff-col wm-diff-col--negative">
+          <p class="wm-diff-col-label">What Monderman is not</p>
+          <div class="wm-diff-items">
+            <div class="wm-diff-item">
+              <strong>Not a culture survey</strong>
+              <span>It does not measure sentiment, engagement, or morale. It measures the structural conditions under which sentiment, engagement, and morale are formed.</span>
+            </div>
+            <div class="wm-diff-item">
+              <strong>Not workflow software</strong>
+              <span>It does not change how work moves through tools. It changes what the institution can see about how work moves through itself.</span>
+            </div>
+            <div class="wm-diff-item">
+              <strong>Not a one-time assessment</strong>
+              <span>A single read establishes a baseline. The diagnostic value compounds on repetition.</span>
             </div>
           </div>
         </div>
