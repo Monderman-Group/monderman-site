@@ -93,13 +93,6 @@ body {
   margin-top: 4px;
 }
 
-.header-wordmark .tagline {
-  font-size: 12.5px;
-  color: var(--text-2);
-  margin-top: 2px;
-  font-weight: 400;
-}
-
 .header-deco {
   position: absolute;
   right: 0;
@@ -627,7 +620,6 @@ body {
   <div class="header-wordmark">
     <h1>MONDERMAN<span>.</span></h1>
     <div class="sub">Measuring, comparing, and governing administrative reality</div>
-    <div class="tagline">Organizations deliver at the speed of their administrative reality.</div>
   </div>
 
   <!-- decorative concentric arcs, top-right -->
@@ -709,46 +701,54 @@ body {
 
         <!-- LEFT: Decision Velocity -->
         <rect x="0" y="84" width="90" height="72" rx="6" fill="white" stroke="#E2E8F0" stroke-width="1"/>
-        <!-- icon -->
-        <circle cx="18" cy="102" r="9" fill="#EDE9FE"/>
-        <circle cx="18" cy="102" r="5" stroke="#5B21B6" stroke-width="1.5" fill="none"/>
-        <line x1="18" y1="99" x2="18" y2="102" stroke="#5B21B6" stroke-width="1.5" stroke-linecap="round"/>
-        <line x1="18" y1="102" x2="21" y2="104" stroke="#5B21B6" stroke-width="1.5" stroke-linecap="round"/>
-        <text x="31" y="100" font-family="'NeueHaasGrotesk','Helvetica Neue',Arial" font-size="10.5" font-weight="700" fill="#0D1B35">Decision</text>
-        <text x="31" y="113" font-family="'NeueHaasGrotesk','Helvetica Neue',Arial" font-size="10.5" font-weight="700" fill="#0D1B35">Velocity</text>
+        <!-- icon: canonical diagonal up-arrow -->
+        <circle cx="18" cy="102" r="11" fill="#EDE9FE"/>
+        <g transform="translate(11, 95) scale(0.58)" fill="none" stroke="#5B21B6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 19L19 5"/>
+          <path d="M9 5h10v10"/>
+        </g>
+        <text x="34" y="100" font-family="'NeueHaasGrotesk','Helvetica Neue',Arial" font-size="10.5" font-weight="700" fill="#0D1B35">Decision</text>
+        <text x="34" y="113" font-family="'NeueHaasGrotesk','Helvetica Neue',Arial" font-size="10.5" font-weight="700" fill="#0D1B35">Velocity</text>
         <text x="9" y="130" font-family="'NeueHaasGrotesk','Helvetica Neue',Arial" font-size="9.5" fill="#6B7280">Does time move</text>
         <text x="9" y="142" font-family="'NeueHaasGrotesk','Helvetica Neue',Arial" font-size="9.5" fill="#6B7280">through it?</text>
 
         <!-- RIGHT: Structural Clarity -->
         <rect x="374" y="84" width="90" height="72" rx="6" fill="white" stroke="#E2E8F0" stroke-width="1"/>
-        <!-- icon -->
-        <circle cx="392" cy="102" r="9" fill="#EDE9FE"/>
-        <rect x="387" y="97" width="5" height="5" rx="0.5" stroke="#5B21B6" stroke-width="1.2" fill="none"/>
-        <rect x="393" y="97" width="5" height="5" rx="0.5" stroke="#5B21B6" stroke-width="1.2" fill="none"/>
-        <rect x="387" y="103" width="5" height="5" rx="0.5" stroke="#5B21B6" stroke-width="1.2" fill="none"/>
-        <rect x="393" y="103" width="5" height="5" rx="0.5" stroke="#5B21B6" stroke-width="1.2" fill="none"/>
-        <text x="405" y="100" font-family="'NeueHaasGrotesk','Helvetica Neue',Arial" font-size="10.5" font-weight="700" fill="#0D1B35">Structural</text>
-        <text x="405" y="113" font-family="'NeueHaasGrotesk','Helvetica Neue',Arial" font-size="10.5" font-weight="700" fill="#0D1B35">Clarity</text>
+        <!-- icon: canonical three horizontal lines -->
+        <circle cx="392" cy="102" r="11" fill="#EDE9FE"/>
+        <g transform="translate(385, 95) scale(0.58)" fill="none" stroke="#5B21B6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 7h8"/>
+          <path d="M4 12h16"/>
+          <path d="M4 17h11"/>
+        </g>
+        <text x="408" y="100" font-family="'NeueHaasGrotesk','Helvetica Neue',Arial" font-size="10.5" font-weight="700" fill="#0D1B35">Structural</text>
+        <text x="408" y="113" font-family="'NeueHaasGrotesk','Helvetica Neue',Arial" font-size="10.5" font-weight="700" fill="#0D1B35">Clarity</text>
         <text x="383" y="130" font-family="'NeueHaasGrotesk','Helvetica Neue',Arial" font-size="9.5" fill="#6B7280">Is the system</text>
         <text x="383" y="142" font-family="'NeueHaasGrotesk','Helvetica Neue',Arial" font-size="9.5" fill="#6B7280">legible?</text>
 
         <!-- TOP: Operational Systems -->
         <rect x="152" y="0" width="160" height="60" rx="6" fill="white" stroke="#E2E8F0" stroke-width="1"/>
-        <!-- gear icon -->
-        <circle cx="176" cy="30" r="9" fill="#DBEAFE"/>
-        <circle cx="176" cy="30" r="4" stroke="#1E5799" stroke-width="1.5" fill="none"/>
-        <path d="M176 19v2M176 39v2M165 30h2M185 30h2M168.5 22.5l1.4 1.4M182.1 36.1l1.4 1.4M168.5 37.5l1.4-1.4M182.1 23.9l1.4-1.4" stroke="#1E5799" stroke-width="1.2" stroke-linecap="round"/>
-        <text x="192" y="24" font-family="'NeueHaasGrotesk','Helvetica Neue',Arial" font-size="10.5" font-weight="700" fill="#0D1B35">Operational</text>
-        <text x="192" y="36" font-family="'NeueHaasGrotesk','Helvetica Neue',Arial" font-size="10.5" font-weight="700" fill="#0D1B35">Systems</text>
+        <!-- icon: canonical rectangle with two horizontal lines -->
+        <circle cx="176" cy="30" r="11" fill="#DBEAFE"/>
+        <g transform="translate(169, 23) scale(0.58)" fill="none" stroke="#1E5799" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="5" width="16" height="14" rx="2"/>
+          <path d="M8 9h8"/>
+          <path d="M8 13h8"/>
+        </g>
+        <text x="194" y="24" font-family="'NeueHaasGrotesk','Helvetica Neue',Arial" font-size="10.5" font-weight="700" fill="#0D1B35">Operational</text>
+        <text x="194" y="36" font-family="'NeueHaasGrotesk','Helvetica Neue',Arial" font-size="10.5" font-weight="700" fill="#0D1B35">Systems</text>
         <text x="170" y="52" font-family="'NeueHaasGrotesk','Helvetica Neue',Arial" font-size="9.5" fill="#6B7280">How much weight is it carrying?</text>
 
         <!-- BOTTOM: Institutional Performance -->
         <rect x="140" y="180" width="184" height="60" rx="6" fill="white" stroke="#E2E8F0" stroke-width="1"/>
-        <!-- shield icon -->
-        <circle cx="165" cy="210" r="9" fill="#DBEAFE"/>
-        <path d="M165 203l6 2.5v4.5c0 3-2.5 5-6 6.5-3.5-1.5-6-3.5-6-6.5v-4.5l6-2.5z" stroke="#1E5799" stroke-width="1.3" fill="none"/>
-        <text x="180" y="205" font-family="'NeueHaasGrotesk','Helvetica Neue',Arial" font-size="10.5" font-weight="700" fill="#0D1B35">Institutional</text>
-        <text x="180" y="217" font-family="'NeueHaasGrotesk','Helvetica Neue',Arial" font-size="10.5" font-weight="700" fill="#0D1B35">Performance</text>
+        <!-- icon: canonical clock -->
+        <circle cx="165" cy="210" r="11" fill="#DBEAFE"/>
+        <g transform="translate(158, 203) scale(0.58)" fill="none" stroke="#1E5799" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="8"/>
+          <path d="M12 8v4l3 2"/>
+        </g>
+        <text x="182" y="205" font-family="'NeueHaasGrotesk','Helvetica Neue',Arial" font-size="10.5" font-weight="700" fill="#0D1B35">Institutional</text>
+        <text x="182" y="217" font-family="'NeueHaasGrotesk','Helvetica Neue',Arial" font-size="10.5" font-weight="700" fill="#0D1B35">Performance</text>
         <text x="152" y="233" font-family="'NeueHaasGrotesk','Helvetica Neue',Arial" font-size="9.5" fill="#6B7280">Does it still hold under load?</text>
       </svg>
     </div>
@@ -935,31 +935,45 @@ body {
     <div class="produces-icons">
 
       <div class="produce-item">
-        <svg viewBox="0 0 36 36" fill="none"><rect x="6" y="10" width="24" height="18" rx="1.5" stroke="#0D1B35" stroke-width="1.4" fill="none"/><line x1="6" y1="16" x2="30" y2="16" stroke="#0D1B35" stroke-width="1.2"/><line x1="14" y1="10" x2="14" y2="28" stroke="#0D1B35" stroke-width="1.2"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0D1B35" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 7h8"/>
+          <path d="M4 12h16"/>
+          <path d="M4 17h11"/>
+        </svg>
         <span class="produce-pair">Structural Clarity</span>
         <span><strong>Confident Action</strong></span>
       </div>
 
       <div class="produce-item">
-        <svg viewBox="0 0 36 36" fill="none"><polyline points="6,28 14,18 20,22 30,8" stroke="#0D1B35" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><polygon points="26,8 30,8 30,12" fill="#0D1B35"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0D1B35" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 19L19 5"/>
+          <path d="M9 5h10v10"/>
+        </svg>
         <span class="produce-pair">Decision Velocity</span>
         <span><strong>Sustained Advantage</strong></span>
       </div>
 
       <div class="produce-item">
-        <svg viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="11" stroke="#0D1B35" stroke-width="1.4" fill="none"/><path d="M18 7 A11 11 0 0 1 29 18" stroke="#2563EB" stroke-width="2" stroke-linecap="round"/><path d="M25 10 L29 18 L21 17" fill="#2563EB"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0D1B35" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="5" width="16" height="14" rx="2"/>
+          <path d="M8 9h8"/>
+          <path d="M8 13h8"/>
+        </svg>
         <span class="produce-pair">Operational Systems</span>
         <span><strong>Reclaimed Capacity</strong></span>
       </div>
 
       <div class="produce-item">
-        <svg viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="11" stroke="#0D1B35" stroke-width="1.4" fill="none"/><path d="M11 18l5 5 9-10" stroke="#0D1B35" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0D1B35" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="8"/>
+          <path d="M12 8v4l3 2"/>
+        </svg>
         <span class="produce-pair">Institutional Performance</span>
         <span><strong>Organizational Credibility</strong></span>
       </div>
 
     </div>
-    <div class="produces-cta">» Organizations deliver at the speed of their administrative reality. «</div>
+    <div class="produces-cta">» Each Tool produces a governable outcome. Together they compose institutional credibility. «</div>
   </div>
 
 </div><!-- /bottom-grid -->
