@@ -1199,6 +1199,47 @@
       color: var(--muted-dark);
     }
 
+    /* ─── METHODOLOGICAL RIGOR BAND ──────────────────────────────────────── */
+    .wm-rigor {
+      background: var(--bg-paper);
+      padding: 76px 34px 84px;
+      border-top: 1px solid var(--line-cool);
+      border-bottom: 1px solid var(--line-cool);
+    }
+    .wm-rigor-inner {
+      max-width: 880px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .wm-rigor-statements {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+      margin: 0 0 26px;
+    }
+    .wm-rigor-statements > span:not(.sep) {
+      font-size: clamp(1.02rem, 1.55vw, 1.18rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-dark);
+      line-height: 1.3;
+    }
+    .wm-rigor-statements .sep {
+      font-size: 1.18rem;
+      color: var(--accent);
+      opacity: 0.6;
+      font-weight: 400;
+    }
+    .wm-rigor-dek {
+      margin: 0 auto;
+      max-width: 62ch;
+      font-size: 15.5px;
+      line-height: 1.66;
+      color: var(--muted-dark);
+    }
+
     /* ─── HOW MONDERMAN IS DIFFERENT (two-column contrast — light/dark) ─── */
     .wm-difference {
       background: var(--bg-paper);
@@ -1474,6 +1515,9 @@
       .wm-funnel-grid { grid-template-columns: 1fr; }
       .wm-difference-columns { grid-template-columns: 1fr; }
       .wm-diff-col--negative { border-left: none; border-top: 1px solid rgba(255,255,255,0.06); }
+      .wm-rigor { padding: 60px 24px 64px; }
+      .wm-rigor-statements { flex-direction: column; gap: 8px; }
+      .wm-rigor-statements .sep { display: none; }
       .wm-cta-inner { grid-template-columns: 1fr; gap: 40px; }
       .footer-top { flex-direction: column; }
     }
@@ -1545,7 +1589,7 @@
     <div class="section-inner">
       <div class="section-intro reveal">
         <p class="section-label">The premise</p>
-        <h2 id="condition-title">Administrative reality is the real operating condition under which complex institutions actually perform — or stall.</h2>
+        <h2 id="condition-title">It is measurable. It is governable. Few institutions are tracking it.</h2>
       </div>
 
       <div class="wm-condition-grid reveal reveal-delay-1">
@@ -1561,7 +1605,7 @@
 
       <div class="wm-thesis-pull reveal reveal-delay-2">
         <p class="wm-thesis-pull-quote">Organizations perform to the speed of their administrative reality.</p>
-        <p class="wm-thesis-pull-note">The platform's operating thesis — and the standard by which every diagnostic is calibrated.</p>
+        <p class="wm-thesis-pull-note">The platform's operating thesis — and how every diagnostic is calibrated.</p>
       </div>
     </div>
   </section>
@@ -1582,7 +1626,7 @@
     <div class="section-inner">
       <div class="section-intro reveal">
         <p class="section-label">The argument underneath</p>
-        <h2 id="commitments-title">Monderman is built on four commitments about how institutional performance is actually sustained.</h2>
+        <h2 id="commitments-title">Four commitments about how institutions actually perform.</h2>
         <p>These commitments are the platform's operating premise. They are what the four Diagnostic Tools are designed to operationalize, and what distinguishes Monderman from sentiment platforms, org-design consultancies, and workflow tools.</p>
       </div>
 
@@ -1819,7 +1863,7 @@
     <div class="section-inner">
       <div class="section-intro reveal">
         <p class="section-label">The approach</p>
-        <h2 id="method-title">How every engagement works.</h2>
+        <h2 id="method-title">One discipline. Every run. By design.</h2>
         <p>Every engagement follows the same repeatable approach so results stay comparable across Tools, perspectives, and time.</p>
       </div>
 
@@ -1879,7 +1923,7 @@
     <div class="section-inner">
       <div class="section-intro reveal">
         <p class="section-label">Where capacity returns</p>
-        <h2 id="roi-title">Where reclaimed capacity comes from.</h2>
+        <h2 id="roi-title">Capacity isn't created. It's reclaimed.</h2>
         <p>ROI is not a multiplier. It is a structural mechanism — administrative load is measured, the source of drag is identified, and a portion of absorbed capacity is returned to mission. Monderman models the path conservatively, in named conditions, and at the institution's own measured baseline.</p>
       </div>
 
@@ -1947,6 +1991,21 @@
     </div>
   </section>
 
+  <!-- ═══ METHODOLOGICAL RIGOR ═══════════════════════════════════════════ -->
+  <section class="wm-rigor section-with-bar snap-anchor" id="rigor" aria-label="Methodological rigor">
+    <div aria-hidden="true" class="section-bar">Rigor</div>
+    <div class="wm-rigor-inner">
+      <div class="wm-rigor-statements reveal">
+        <span>Peer-reviewed.</span>
+        <span class="sep">·</span>
+        <span>Methodologically transparent.</span>
+        <span class="sep">·</span>
+        <span>Built inside the institutions it diagnoses.</span>
+      </div>
+      <p class="wm-rigor-dek reveal reveal-delay-1">The platform operationalizes peer-reviewed theory of institutional administrative reality, developed across two decades inside complex bureaucracies. The full assumption set is published with every diagnostic engagement.</p>
+    </div>
+  </section>
+
   <!-- ═══ FUNNEL #2 → Platform Services ═════════════════════════════════ -->
   <section class="wm-funnel section-with-bar snap-anchor" id="pathways" aria-label="Engagement pathway">
     <div aria-hidden="true" class="section-bar">Pathways</div>
@@ -1989,8 +2048,7 @@
     <div aria-hidden="true" class="section-bar">Difference</div>
     <div class="section-inner">
       <div class="section-intro reveal">
-        <p class="section-label">Positioning</p>
-        <h2 id="difference-title">How Monderman is Different.</h2>
+        <h2 id="difference-title">Built to measure, not to infer.</h2>
         <p>Monderman is built for organizations that suspect the visible problem is not the real problem. The differentiation is methodological, not promotional — what Monderman is, and what it is deliberately not.</p>
       </div>
 
@@ -1999,15 +2057,15 @@
           <p class="wm-diff-col-label">What Monderman is</p>
           <div class="wm-diff-items">
             <div class="wm-diff-item">
-              <strong>Beyond symptom checklists</strong>
+              <strong>Reads the structural condition, not the symptom.</strong>
               <span>Most surface-level approaches start and end with what feels slow, heavy, or frustrating. Monderman reads the structural condition producing those symptoms.</span>
             </div>
             <div class="wm-diff-item">
-              <strong>Beyond one-time advisory work</strong>
+              <strong>Built for repeated measurement.</strong>
               <span>The diagnostic engine is designed for repeatable runs that create institutional memory rather than one-off observations that disappear with the project.</span>
             </div>
             <div class="wm-diff-item">
-              <strong>Beyond static comparisons</strong>
+              <strong>Tracks drift, not just position.</strong>
               <span>Instead of only showing where you sit against a benchmark, Monderman helps track drift, hidden burden, and reclaimable drag over time.</span>
             </div>
           </div>
