@@ -353,7 +353,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   <div class="loading-screen" id="pageLoader" aria-live="polite"><div class="loading-box"><div class="spinner" aria-hidden="true"></div><p class="loading-title">Loading diagnostic environment</p><p class="loading-copy">Preparing Monderman's decision velocity environment.</p></div></div>
   <div class="shell"><main class="app">
     <section class="frame-top"><div class="engine-note"><div><p class="eyebrow">Reading where decision pathways slow, where time disappears, and where governance weight has outgrown the decision</p><p class="engine-copy">Powered by Monderman's proprietary diagnostic engine.</p></div><div class="hero-step"><span class="hero-step-dot" aria-hidden="true"></span><span>Step 1 of 3 · choose perspective and run depth</span></div></div><div class="tool-title"><div><h1>Decision Velocity Diagnostic</h1></div><p>See where approval density, coordination burden, escalation dependence, and key-person brittleness are slowing decision pathways before they are mistaken for normal pace.</p></div></section>
-    <section class="environment" aria-label="Operational systems diagnostic environment"><div class="environment-inner">
+    <section class="environment" aria-label="Decision velocity diagnostic environment"><div class="environment-inner">
       <header class="env-head"><div class="env-head-row"><div><p class="env-kicker">Monderman diagnostic environment</p><h2 id="envHeadline">Structured diagnostic sequence</h2></div><div class="env-status"><span class="env-status-dot" aria-hidden="true"></span><span id="statusPill">Ready to begin</span></div></div><p id="envSubcopy">This tool adapts to the burden signal you surface first. You can move back, skip non-required questions, or restart without breaking the rest of the run.</p><div class="env-head-actions"><div class="current-path-chip" id="currentPathChip"></div><button class="learnmore-toggle" id="learnMoreToggle" type="button">Learn more about this perspective</button><button class="btn btn-accent" id="heroBeginBtn" type="button">Begin diagnostic</button></div><div class="learnmore-panel" id="learnMorePanel"></div><div class="micro-proof" id="heroProof">Real teams use this to spot where reporting load, manual workarounds, duplicate entry, and recurring process burden are quietly consuming capacity.</div></header>
 
   <div class="stage active" id="laneStage"><div class="lane-layout"><div class="card"><div class="step-chip"><strong>Step 1</strong><span>Select the perspective closest to the decision pathway you can actually observe.</span></div><h3>Choose the perspective that best matches your role.</h3><p class="tiny">Each version looks at the same pathway from a different vantage point. Pick the lane that best matches what you can see firsthand.</p><div class="lane-buttons" style="margin-top:18px;"><button class="btn lane-btn" type="button" data-lane="operational">Operational</button><button class="btn lane-btn" type="button" data-lane="managerial">Managerial</button><button class="btn lane-btn" type="button" data-lane="executive">Senior Leaders</button></div><div class="lane-note">You can change lanes later by starting over. The underlying diagnostic engine remains the same; the questions shift to fit what each perspective can observe most credibly.</div></div><div class="lane-tiles"><div class="lane-tile" data-lane-tile="operational"><h4>Operational</h4><p>Built for people closest to the work. Best for surfacing manual follow-up, off-path coordination, instruction variance, and where pathways quietly absorb chase effort.</p></div><div class="lane-tile" data-lane-tile="managerial"><h4>Managerial</h4><p>Built for people coordinating teams and execution. Best for identifying manager-intervention dependence, exception normalization, and where pathway weight is growing fastest.</p></div><div class="lane-tile" data-lane-tile="executive"><h4>Senior Leaders</h4><p>Built for leaders shaping how decisions get made. Best for assessing governance fit, control accumulation bias, drag visibility, and whether pathway pace is proportionate to the decision class.</p></div></div></div></div>
@@ -389,12 +389,12 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   <div class="cover-dark">
     <div class="cover-mark">M O N D E R M A N</div>
     <div class="cover-rule"></div>
-    <div class="cover-headline">Operational Systems<br>Diagnostic</div>
+    <div class="cover-headline">Decision Velocity<br>Diagnostic</div>
     <div class="cover-sub">Executive Summary</div>
   </div>
   <div class="cover-stripe"></div>
   <div class="cover-white">
-    <div class="cover-kicker">Diagnostic Output &nbsp;/&nbsp; Operational Systems</div>
+    <div class="cover-kicker">Diagnostic Output &nbsp;/&nbsp; Decision Velocity</div>
     <div class="cover-workflow" id="coverWorkflow">—</div>
     <div class="cover-meta"    id="coverMeta">—</div>
     <div class="cover-date"    id="coverDate">—</div>
@@ -436,14 +436,14 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
     <section class="score-panel"><div class="score-inner">
       <div class="primary-anchor">
         <div class="anchor-finding">
-          <p class="score-kicker">Operational systems finding</p>
+          <p class="score-kicker">Decision velocity finding</p>
           <div id="headlineFindingBlock">
             <p class="finding-lead" id="findingLead">Your headline finding will appear here after the diagnostic is complete.</p>
             <p class="finding-body" id="findingBody">The broader interpretive read will appear here after the diagnostic is complete.</p>
           </div>
         </div>
         <div class="score-ref">
-          <p class="score-kicker">Operational Systems Score</p>
+          <p class="score-kicker">Decision Velocity Score</p>
           <div class="score-number-wrap">
             <p class="score-number" id="scoreNumber">0</p>
             <span class="insight-help" id="scoreRubricInfo" tabindex="0">ⓘ</span>
@@ -3906,12 +3906,12 @@ return `<!doctype html>
   <div class="cover-dark">
     <div class="cover-mark">M O N D E R M A N</div>
     <div class="cover-rule"></div>
-    <h1 class="cover-title">Operational Systems<br>Diagnostic</h1>
+    <h1 class="cover-title">Decision Velocity<br>Diagnostic</h1>
     <p class="cover-sub">Executive Summary</p>
   </div>
   <div class="cover-stripe"></div>
   <div class="cover-white">
-    <p class="cover-kicker">Diagnostic Output &nbsp;/&nbsp; Operational Systems</p>
+    <p class="cover-kicker">Diagnostic Output &nbsp;/&nbsp; Decision Velocity</p>
     <div class="cover-workflow">${safe(processName)}</div>
     <div class="cover-meta-line">${safe(sectorMeta)} · ${safe(levelMeta)}</div>
     <div class="cover-date-line">${safe(generated)}</div>
@@ -4627,7 +4627,7 @@ showStage(laneStage, { scroll: true });
 document.querySelector("#laneStage .step-chip")?.scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
-function exportFullReportHTML(result, payload, title = "Monderman Operational Systems Report") {
+function exportFullReportHTML(result, payload, title = "Monderman Decision Velocity Report") {
 if (!result || !payload) return;
 
 try {
@@ -4651,7 +4651,7 @@ showToast("Report download failed: " + (error.message || "Unknown error"));
 
 function buildFullReportHTML(result, payload, title) {
 const docTitle = escapeHtml(title);
-const processName = escapeHtml(payload.processName || payload.process_name || "Operational Systems");
+const processName = escapeHtml(payload.processName || payload.process_name || "Decision Velocity");
 const generated = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 
 // Get current results HTML from DOM
@@ -4737,7 +4737,7 @@ await submitAnswer(state.currentItem.id, "", meta);
 });
 restartBtn.addEventListener("click", restartDiagnostic);
 downloadReportBtn?.addEventListener("click", () => { if (state.result && state.renderPayload) exportExecutiveReport(state.result, state.renderPayload); });
-downloadFullReportBtn?.addEventListener("click", () => { if (state.result && state.renderPayload) exportFullReportHTML(state.result, state.renderPayload, "Monderman Operational Systems Report"); });
+downloadFullReportBtn?.addEventListener("click", () => { if (state.result && state.renderPayload) exportFullReportHTML(state.result, state.renderPayload, "Monderman Decision Velocity Report"); });
 downloadPdfBtn?.addEventListener("click", () => { downloadExecutiveReportPdf(); });
 saveCrossDiagnosticBtn?.addEventListener("click", () => { if (state.result && state.renderPayload) downloadCrossDiagnosticResult(state.result, state.renderPayload); });
 newRunBtn?.addEventListener("click", restartDiagnostic);
