@@ -710,7 +710,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
 
         <article class="accordion-section accordion-priority" data-accordion="narrative">
           <button class="accordion-header" type="button">
-            <div class="accordion-header-main"><span class="accordion-title">Burden narrative</span><span class="accordion-sub">Operating burden, cost of burden, priority actions, and leadership read.</span></div>
+            <div class="accordion-header-main"><span class="accordion-title">Drag narrative</span><span class="accordion-sub">Pathway drag, cost of drag, priority actions, and leadership read.</span></div>
             <span class="accordion-chevron">⌄</span>
           </button>
           <div class="accordion-body">
@@ -2675,7 +2675,7 @@ function deriveOperatingBurdenCondition(result) {
 // and result.score_band_note. The proprietary band cutoffs and prose used to
 // live here; migrated to backend on 2026-05-13.
 return {
-  label: result?.score_band || "Operating burden read",
+  label: result?.score_band || "Decision velocity read",
   note:  result?.score_band_note || ""
 };
 }
@@ -3580,7 +3580,7 @@ return `<svg width="220" height="140" viewBox="0 0 220 140" xmlns="http://www.w3
   return `<div class="cover-stat-strip">
   
    <div class="cover-stat">
-     <p class="cover-stat-label">Operating burden score</p>
+     <p class="cover-stat-label">Decision velocity score</p>
      <p class="cover-stat-value">${exportScore}</p>
      <p class="cover-stat-sub">${escapeHtml(benchmarkPosition)}</p>
    </div>
@@ -3628,7 +3628,7 @@ return `<svg width="220" height="140" viewBox="0 0 220 140" xmlns="http://www.w3
 </div>
 <div class="capacity-legend">
   <div class="capacity-legend-item"><span class="capacity-legend-dot" style="background:#4E9A7A"></span>Productive work</div>
-  <div class="capacity-legend-item"><span class="capacity-legend-dot" style="background:#C49A3C"></span>Admin upkeep</div>
+  <div class="capacity-legend-item"><span class="capacity-legend-dot" style="background:#C49A3C"></span>Routine coordination</div>
   <div class="capacity-legend-item"><span class="capacity-legend-dot" style="background:#B85C52"></span>Recoverable drag*</div>
 </div>
 <p class="caption">Estimates of how this workflow's available capacity is currently allocated. Recoverable drag* is the portion that could be returned to productive use through structural intervention.</p>`;
@@ -3766,7 +3766,7 @@ function buildPrimaryReadLabel(result = {}, payload = {}) {
 const qualitative = detectQualitativeOverride(payload);
 if (qualitative.type !== "none") return qualitative.label;
 const primary = derivePrimaryBurdenSource(result);
-return `${primary.label || "Operating burden"} pattern`;
+return `${primary.label || "Decision pathway drag"} pattern`;
 }
 
 function buildNextRunRecommendation(result = {}, payload = {}, industry = {}, processName = "this workflow") {
@@ -3803,7 +3803,7 @@ const qualitative = detectQualitativeOverride(payload);
 if (qualitative.type !== "none") return qualitative.summary;
 const primary = derivePrimaryBurdenSource(result);
 const trajectory = result?.trajectory?.direction === "up" ? " and the burden appears to be rising" : result?.trajectory?.direction === "down" ? " while some pressure may be easing" : " with no clear easing signal yet";
-const primaryNoteBase = (primary.note || "The workflow is carrying a visible operating burden").replace(/\.\s*$/, "");
+const primaryNoteBase = (primary.note || "The pathway is carrying visible decision drag").replace(/\.\s*$/, "");
 return `${primaryNoteBase}${trajectory}.`;
 }
 
@@ -4200,7 +4200,7 @@ return `<!doctype html>
     <p>This summary is written for leaders who need to understand whether the workflow is simply busy or structurally expensive to sustain. The score, exposure estimate, and capacity drag should be read together: one describes the condition, one translates the labor cost, and one shows how much productive attention may be tied up in maintaining the process.</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(executiveQuestion)}</p></div>
     <div class="stat-strip">
-      <div class="stat"><div class="stat-label">Operating burden score</div><div class="stat-value">${exportScore}</div><div class="stat-sub">${safe(burdenCondition.label)}</div></div>
+      <div class="stat"><div class="stat-label">Decision velocity score</div><div class="stat-value">${exportScore}</div><div class="stat-sub">${safe(burdenCondition.label)}</div></div>
       <div class="stat"><div class="stat-label">Exposure range</div><div class="stat-value">${safe(annualCostText)}</div><div class="stat-sub">labor exposure*</div></div>
       <div class="stat"><div class="stat-label">Capacity absorbed</div><div class="stat-value">${dragPct}%</div><div class="stat-sub">of available capacity</div></div>
     </div>
@@ -4217,7 +4217,7 @@ return `<!doctype html>
     <p>Directional modeling suggests ${safe(annualHoursText)} and about ${safe(annualCostText)} in labor exposure, with capacity drag around ${dragPct}%*. These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
     <p>The practical question is not whether decisions are still getting made. It is how much organizational energy is now required to move them. The score should be read as a structured quantitative pathway-drag indicator. Experiential bypass signals, when present, do not change the score; they provide interpretive context about how the formal pathway may differ from operating reality.</p><p>When a pathway needs repeated chase effort, manager intervention, workaround maintenance, or escalation to move forward, the visible output may remain acceptable while the formal decision system underneath becomes increasingly expensive to sustain.</p>
     <div class="capacity"><div class="seg" style="width:${capacity.productive}%;background:#4E9A7A">${capacity.productive}%</div><div class="seg" style="width:${capacity.admin}%;background:#C49A3C">${capacity.admin}%</div><div class="seg" style="width:${capacity.drag}%;background:#B85C52">${capacity.drag}%</div></div>
-    <div class="legend"><span><span class="dot" style="background:#4E9A7A"></span>Productive work</span><span><span class="dot" style="background:#C49A3C"></span>Admin upkeep</span><span><span class="dot" style="background:#B85C52"></span>Recoverable drag*</span></div>
+    <div class="legend"><span><span class="dot" style="background:#4E9A7A"></span>Productive work</span><span><span class="dot" style="background:#C49A3C"></span>Routine coordination</span><span><span class="dot" style="background:#B85C52"></span>Recoverable drag*</span></div>
     <p class="muted" style="font-size:8.5px">Estimates of how this pathway's available capacity is currently allocated. Recoverable drag* is the portion that could be returned to productive use through structural intervention.</p>
     <h3 style="margin-top:26px">Why this matters in ${safe(sectorName)}</h3>
     <p>${safeWords(industry.opportunityPattern, 44)}</p>
