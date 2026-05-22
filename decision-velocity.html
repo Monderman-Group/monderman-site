@@ -4230,7 +4230,7 @@ return `<!doctype html>
   ${footer(3)}
   <div class="content">
     <p class="eyebrow">Where the drag is coming from</p><h2>Drag composition</h2>
-    <p>The composition view shows where the visible drag is coming from across the six dimensions Monderman measures: approval density, coordination burden, handoff burden, escalation dependence, rework friction, and key-person brittleness.</p><p class="muted">The important signal is not only which dimension is largest. The distribution also matters. A concentrated pattern usually points to a more targeted intervention; a distributed pattern usually means the pathway has absorbed drag into its normal operating design.</p>
+    <p>The composition view shows where the visible drag is coming from across the dimensions Monderman measures: approval density, coordination burden, handoff burden, escalation dependence, rework friction, and key-person brittleness. Dimensions with no material contribution to this run may be omitted from the chart below for clarity.</p><p class="muted">The important signal is not only which dimension is largest. The distribution also matters. A concentrated pattern usually points to a more targeted intervention; a distributed pattern usually means the pathway has absorbed drag into its normal operating design.</p>
     <div class="panel donut-panel"><div class="donut-wrap"><svg width="150" height="150" viewBox="0 0 200 200">${donutPaths}</svg><div class="donut-center"><div><small>DOMINANT</small><b>${dominantPct}%</b></div></div></div><div>${segmentLegend}</div></div>
     <h3 style="margin-top:24px">What the composition tells us</h3>
     <p>${safeWords(concentrationProse, 76)}</p>
@@ -4244,7 +4244,7 @@ return `<!doctype html>
   <div class="content">
     <p class="eyebrow">The first move</p><h2>Where to focus first</h2>
     <p class="lede">${safe(primarySource.note || harmonized.opportunityFields?.opening || "Start with the source that is carrying the most visible burden.")}</p>
-    <div class="two-col"><div><h3>Priority actions</h3>${firstTwoActions.map((action, i) => `<p>${i + 1}. ${safeWords(action, 40)}</p>`).join("")}<p class="muted" style="font-size:9px">That matters in ${safe(sectorName)} because ${safeWords(sectorPatternFragment, 30)}</p></div>
+    <div class="two-col"><div><h3>Priority actions</h3>${firstTwoActions.map((action, i) => `<p>${i + 1}. ${safeWords(action, 40)}</p>`).join("")}</div>
     <div class="panel gauge"><svg viewBox="0 0 220 130"><path d="M45 100 A65 65 0 0 1 175 100" fill="none" stroke="#D7DEE8" stroke-width="14" stroke-linecap="round"/><path d="M45 100 A65 65 0 0 1 175 100" fill="none" stroke="#3F6EA1" stroke-width="14" stroke-linecap="round" stroke-dasharray="${gaugeArc} 220"/><line x1="110" y1="100" x2="${needleX.toFixed(1)}" y2="${needleY.toFixed(1)}" stroke="#15202B" stroke-width="3"/><circle cx="110" cy="100" r="5" fill="#15202B"/><text x="34" y="52" font-size="6.5" fill="#7C8794">Below</text><text x="78" y="26" font-size="6.5" fill="#7C8794">Within</text><text x="128" y="26" font-size="6.5" fill="#7C8794">Above</text><text x="164" y="52" font-size="6.5" fill="#7C8794">Opportunity</text></svg><div class="gauge-score">${exportScore}</div><div class="gauge-label">${safe(benchmarkPosition)}</div></div></div>
     <div class="panel bench"><p><b>Benchmark context.</b> ${safeWords(benchmark, 62)}</p></div>
   </div>
@@ -4256,7 +4256,7 @@ return `<!doctype html>
     <p class="eyebrow">Evidence and detail</p><h2 style="font-size:21px;margin-bottom:8px">Governance weight × execution responsiveness</h2>
     <p style="margin-bottom:8px">This view places the run on two axes: how much governance weight the pathway is carrying, and how responsive execution appears under that weight.</p>
     <div class="panel quadbox"><div class="axis-y">Execution responsiveness</div><div class="quad"><div class="qlabel" style="left:12px;top:12px">Fast movement,<br>lighter governance</div><div class="qlabel" style="right:12px;top:12px;text-align:right">Fast movement,<br>heavier governance</div><div class="qlabel" style="left:12px;bottom:12px">Slow movement,<br>lighter governance</div><div class="qlabel" style="right:12px;bottom:12px;text-align:right">Slow movement,<br>heavier governance</div><div class="qdot" style="left:${qLeft}%;top:${qTop}%"></div></div><div class="axis-x">Governance weight</div></div>
-    <h3>How to read this quadrant</h3><p>${safeWords(quadrantText, 28)}</p>
+    <h3>How to read this quadrant</h3><p>${safeWords(quadrantText, 80)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(quadrantQuestion)}</p></div>
     ${contradictionHtml}
   </div>
