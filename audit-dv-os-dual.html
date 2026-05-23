@@ -359,69 +359,74 @@ async function renderInProductionPage(fixture, result, payload) {
   const pageUrl = fixture.tool === "decision-velocity" ? $("dvPage").value : $("osPage").value;
   const frame = $("renderFrame");
 
-  // Set the injection BEFORE the iframe loads so the page picks it up on init
-  // We use sessionStorage as a bridge — the production page checks
-  // window.__mondermanInjectedResult, which we set via the iframe's window.
+  // Working pattern (ported from audit-v9b-pdf.html):
+  // 1. Fetch the production page HTML as text
+  // 2. Inject a <script> into <head> that sets window.__mondermanInjectedResult
+  //    BEFORE the page's main IIFE runs and reads that global
+  // 3. Load the modified HTML via srcdoc (parent same-origin context)
+  // 4. The page's existing injection hook reads the global, calls renderResults,
+  //    sets state.result + state.renderPayload, shows resultsStage automatically.
+  // Setting frame.src and trying to call renderResults after load does NOT work
+  // because (a) the injection global is never set, so the page takes its normal
+  // init path, and (b) renderResults is module-scoped, not on the iframe window.
+
+  const pageResp = await fetchWithTimeout(pageUrl + "?_t=" + Date.now(), { cache: "no-cache" }, 30000);
+  if (!pageResp.ok) throw new Error(`failed to fetch ${pageUrl}: ${pageResp.status}`);
+  let pageHtml = await pageResp.text();
+
+  // Inject the global BEFORE the IIFE runs. Escape any </script> inside the
+  // JSON (narrative prose may contain it).
+  const injectedScript = '<' + 'script>window.__mondermanInjectedResult = ' +
+    JSON.stringify({ result, payload }).replace(/<\/script>/gi, "<\\/script>") +
+    ';</' + 'script>';
+
+  if (pageHtml.includes("<head>")) {
+    pageHtml = pageHtml.replace("<head>", "<head>" + injectedScript);
+  } else {
+    pageHtml = injectedScript + pageHtml;
+  }
+
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error("iframe render timed out (60s)")), 60000);
+    const timer = setTimeout(() => reject(new Error("iframe srcdoc render timed out (60s)")), 60000);
 
     const onLoad = async () => {
       try {
         const win = frame.contentWindow;
-        // Set injection AFTER load and force a re-render via the page's hook
-        // The page's injection hook runs at module init, so we set the global
-        // and reload the iframe to trigger it
+        if (!win) { clearTimeout(timer); reject(new Error("iframe contentWindow not accessible (cross-origin)")); return; }
+
+        // Wait for the page's injection hook to run + Chart.js to load. The
+        // hook sets window.__mondermanInjectionApplied = true when complete.
+        let waited = 0;
+        while (waited < 15000 && !win.__mondermanInjectionApplied) {
+          await sleep(500);
+          waited += 500;
+        }
+
         clearTimeout(timer);
 
-        // Strategy: write a small wrapper page that sets the global, then redirects.
-        // Simpler: we set the variable, then call renderResults directly on the loaded page.
-        if (typeof win.renderResults !== "function") {
-          reject(new Error("renderResults not found on iframe page — page may not have loaded fully"));
+        if (!win.__mondermanInjectionApplied) {
+          reject(new Error("page's injection hook did not complete within 15s — check console for errors"));
           return;
         }
 
-        // Call the production page's render path directly with synthetic data
-        win.state = win.state || {};
-        win.state.result = result;
-        win.state.renderPayload = payload;
-        if (payload.participantMode) win.state.mode = payload.participantMode;
-        if (payload.diagnostic_depth) win.state.depth = String(payload.diagnostic_depth);
+        // Give the DOM time to settle after render
+        await sleep(2000);
 
-        // Wait for Chart.js if needed (the production page does this internally;
-        // we mirror the wait here)
-        let chartWaits = 0;
-        while (typeof win.Chart === "undefined" && chartWaits < 30) { await sleep(500); chartWaits++; }
-
-        try {
-          win.renderResults(result, payload, fixture.tool === "decision-velocity" ? "Decision Velocity Diagnostic" : "Operational Systems Diagnostic");
-        } catch (renderErr) {
-          reject(new Error("renderResults threw: " + renderErr.message));
-          return;
-        }
-
-        // Show resultsStage so the DOM is populated
+        // Scrape the rendered web output
         const resultsStage = win.document.getElementById("resultsStage");
-        if (resultsStage) resultsStage.classList.add("active");
-
-        await sleep(2000); // Give the page time to settle (charts, etc.)
-
-        // Scrape the web output DOM text
         const webOutputDom = resultsStage ? resultsStage.cloneNode(true) : null;
         const webOutputText = webOutputDom ? extractStructuredWebOutput(webOutputDom) : null;
 
-        // Capture the PDF HTML (pre-rasterization — same prose as the PDF)
+        // Capture the PDF HTML by calling the page's own builder
         let pdfHtml = null;
         if (typeof win.buildExecutiveReportHtml === "function") {
           try { pdfHtml = win.buildExecutiveReportHtml(result, payload); }
           catch (e) { console.warn("buildExecutiveReportHtml threw:", e.message); }
+        } else if (typeof win.buildExecutiveReportHtmlDV === "function") {
+          try { pdfHtml = win.buildExecutiveReportHtmlDV(result, payload); }
+          catch (e) { console.warn("buildExecutiveReportHtmlDV threw:", e.message); }
         }
 
-        // Capture the actual PDF blob via exportExecutiveReport — but it triggers
-        // a real download. We intercept by overriding URL.createObjectURL temporarily.
-        // Simpler approach: render the PDF HTML into a Blob ourselves (it's a full HTML doc)
-        // For a real PDF blob, we'd need to invoke html2canvas + jsPDF, which the page does.
-        // We capture the PDF HTML as the "real PDF prose" since the rasterized PDF
-        // contains identical text — and we also offer the HTML for download.
         let pdfBlobUrl = null;
         if (pdfHtml) {
           const blob = new Blob([pdfHtml], { type: "text/html" });
@@ -438,7 +443,8 @@ async function renderInProductionPage(fixture, result, payload) {
     };
 
     frame.addEventListener("load", onLoad);
-    frame.src = pageUrl + "?_test=" + Date.now();
+    frame.removeAttribute("src");
+    frame.srcdoc = pageHtml;
   });
 }
 
