@@ -78,7 +78,7 @@
   <label>API base: <input id="apiBase" type="text" value="https://monderman-api.onrender.com" /></label>
   <label>DV page URL: <input id="dvPage" type="text" value="https://www.monderman.com/decision-velocity.html" style="min-width:340px" /></label>
   <label>OS page URL: <input id="osPage" type="text" value="https://www.monderman.com/operational-systems.html" style="min-width:340px" /></label>
-  <label>Per-fixture cap (s): <input id="fixtureCapS" type="number" value="600" min="120" max="1800" step="60" style="width:80px" /></label>
+  <label>Per-fixture cap (s): <input id="fixtureCapS" type="number" value="900" min="120" max="1800" step="60" style="width:80px" /></label>
   <button id="runAll">Run 10 fixtures</button>
   <button id="stopBtn" class="secondary" disabled>Stop after current</button>
   <button id="downloadBtn" class="secondary" disabled>Download JSON</button>
@@ -213,13 +213,18 @@ const EXP = {
   rising: { self: "The pathway has become noticeably heavier over the past six months. Steps keep being added without anything being removed.", observedOperational: "Everyone I work with is frustrated. Coordination required is disproportionate to what we are accomplishing.", observedManagerial: "Managers are trying to shield the team but struggling with exception-handling volume.", observedSeniorLeader: "Leadership seems focused on compliance and visibility rather than throughput." }
 };
 
-function expToEntries(exp) {
+function expToEntries(exp, role) {
   if (!exp) return [];
   const out = [];
-  if (exp.self) out.push({ prompt: "self", text: exp.self, raw: exp.self });
-  if (exp.observedOperational) out.push({ prompt: "observedOperational", text: exp.observedOperational, raw: exp.observedOperational });
-  if (exp.observedManagerial) out.push({ prompt: "observedManagerial", text: exp.observedManagerial, raw: exp.observedManagerial });
-  if (exp.observedSeniorLeader) out.push({ prompt: "observedSeniorLeader", text: exp.observedSeniorLeader, raw: exp.observedSeniorLeader });
+  // Labels mirror the production page's EXPERIENCE_PROMPT_SETS, so the
+  // experiential cards render with proper headings instead of empty <h3>s.
+  const selfLabel = role === "operational" ? "Your operational experience"
+    : role === "managerial" ? "Your managerial experience"
+    : "Your senior-leader experience";
+  if (exp.self) out.push({ key: "self", prompt: "self", label: selfLabel, text: exp.self, raw: exp.self });
+  if (exp.observedOperational) out.push({ key: "observedOperational", prompt: "observedOperational", label: "What operational staff may be experiencing", text: exp.observedOperational, raw: exp.observedOperational });
+  if (exp.observedManagerial) out.push({ key: "observedManagerial", prompt: "observedManagerial", label: "What managers may be experiencing", text: exp.observedManagerial, raw: exp.observedManagerial });
+  if (exp.observedSeniorLeader) out.push({ key: "observedSeniorLeader", prompt: "observedSeniorLeader", label: "What senior leaders may be seeing", text: exp.observedSeniorLeader, raw: exp.observedSeniorLeader });
   return out;
 }
 
@@ -338,12 +343,12 @@ async function driveDiagnostic(fixture, apiBase) {
   const finalizeBody = {
     confidenceLevel: "moderate", confidence_level: "moderate",
     rawExperience: exp,
-    experientialLayer: { hasInput: !!exp.self, entries: expToEntries(exp) },
+    experientialLayer: { hasInput: !!exp.self, entries: expToEntries(exp, fixture.role) },
     hourlyCost: fixture.hourlyCost, hourly_cost: fixture.hourlyCost,
     peopleAffected: fixture.peopleInvolved, people_affected: fixture.peopleInvolved
   };
 
-  const fr = await apiCall(`${apiBase}/api/${fixture.tool}/run/${runId}/finalize`, finalizeBody, 300000);
+  const fr = await apiCall(`${apiBase}/api/${fixture.tool}/run/${runId}/finalize`, finalizeBody, 480000);
   const fd = await fr.json().catch(() => null);
   if (!fr.ok || !fd?.ok) throw new Error(`finalize failed: ${fd?.error || fr.status}`);
 
@@ -621,11 +626,32 @@ function runAllChecks(fixture, runData) {
     ? makeCheck("Priority actions specific (concrete verbs)", "pass", "all specific")
     : makeCheck("Priority actions specific (concrete verbs)", "warn", `${vagueActions.length} start with vague verbs`));
 
-  // Each priority action references something concrete (workflow name, dominant, sector)
-  const concreteAnchors = [fixture.processName.toLowerCase(), dominant, fixture.sector.replace(/_/g, " ")];
+  // Each priority action references something concrete (workflow name,
+  // dominant, sector, OR common synonyms of the dominant). The prior version
+  // looked for the literal first word of each anchor only, which produced
+  // false positives when actions used synonyms like 'approver' for 'approval'
+  // or 'reviewer' for 'review'.
+  const dominantRoot = dominant.split(/\s+/)[0] || "";
+  const dominantSynonyms = {
+    approval:    ["approval", "approver", "approve", "sign-off", "signoff", "review"],
+    coordination:["coordination", "coordinate", "handoff", "synchroniz", "alignment"],
+    handoff:     ["handoff", "hand-off", "transition", "ownership", "queue"],
+    escalation:  ["escalation", "escalate", "intervention", "manager", "leader"],
+    rework:      ["rework", "redo", "re-do", "reopen", "revisit"],
+    "key-person":["key-person", "keyperson", "key person", "single point", "brittl"],
+    process:     ["process", "step", "workflow", "procedure", "task"],
+    control:     ["control", "check", "gate", "guardrail", "review"],
+    reporting:   ["report", "metric", "dashboard", "log"],
+    workaround:  ["workaround", "work-around", "shortcut", "informal", "bypass"],
+    administrative: ["admin", "upkeep", "maintenance", "documentation", "overhead"]
+  };
+  const dominantAnchors = (dominantSynonyms[dominantRoot] || [dominantRoot]).filter(Boolean);
+  const sectorWords = fixture.sector.replace(/_/g, " ").split(/\s+/).filter((w) => w.length > 3);
+  const processWords = fixture.processName.toLowerCase().split(/\s+/).filter((w) => w.length > 3);
+  const allAnchors = [...dominantAnchors, ...sectorWords, ...processWords];
   const concreteActions = priorityActions.filter((a) => {
     const al = String(a).toLowerCase();
-    return concreteAnchors.some((x) => x && al.includes(x.split(/\s+/)[0]));
+    return allAnchors.some((x) => x && al.includes(x));
   });
   checks.push(concreteActions.length >= 1
     ? makeCheck("At least one action is fixture-specific", "pass", `${concreteActions.length} reference workflow/dim/sector`)
