@@ -374,7 +374,7 @@ async function renderInProductionPage(fixture, result, payload) {
   if (!pageResp.ok) throw new Error(`failed to fetch ${pageUrl}: ${pageResp.status}`);
   let pageHtml = await pageResp.text();
 
-  // Inject the global BEFORE the IIFE runs. Escape any </script> inside the
+  // Inject the global BEFORE the IIFE runs. Escape any closing-script tags inside the
   // JSON (narrative prose may contain it).
   const injectedScript = '<' + 'script>window.__mondermanInjectedResult = ' +
     JSON.stringify({ result, payload }).replace(/<\/script>/gi, "<\\/script>") +
