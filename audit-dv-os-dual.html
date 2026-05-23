@@ -412,19 +412,24 @@ async function renderInProductionPage(fixture, result, payload) {
         // Give the DOM time to settle after render
         await sleep(2000);
 
-        // Scrape the rendered web output
+        // Scrape the rendered web output. Read score from state.result (the
+        // real value) rather than the #scoreNumber DOM element (which is
+        // animated and may still be at 0 when we scrape).
         const resultsStage = win.document.getElementById("resultsStage");
         const webOutputDom = resultsStage ? resultsStage.cloneNode(true) : null;
-        const webOutputText = webOutputDom ? extractStructuredWebOutput(webOutputDom) : null;
+        const hooks = win.__mondermanTestHooks || null;
+        const trueResult = hooks && hooks.getResult ? hooks.getResult() : null;
+        const webOutputText = webOutputDom ? extractStructuredWebOutput(webOutputDom, trueResult) : null;
 
-        // Capture the PDF HTML by calling the page's own builder
+        // Capture the PDF HTML by calling the page's exposed test hook.
+        // Functions defined inside the page's IIFE are NOT on window directly;
+        // they're only reachable via window.__mondermanTestHooks.
         let pdfHtml = null;
-        if (typeof win.buildExecutiveReportHtml === "function") {
-          try { pdfHtml = win.buildExecutiveReportHtml(result, payload); }
+        if (hooks && typeof hooks.buildExecutiveReportHtml === "function") {
+          try { pdfHtml = hooks.buildExecutiveReportHtml(result, payload); }
           catch (e) { console.warn("buildExecutiveReportHtml threw:", e.message); }
-        } else if (typeof win.buildExecutiveReportHtmlDV === "function") {
-          try { pdfHtml = win.buildExecutiveReportHtmlDV(result, payload); }
-          catch (e) { console.warn("buildExecutiveReportHtmlDV threw:", e.message); }
+        } else {
+          console.warn("window.__mondermanTestHooks not exposed by page — PDF capture skipped. Update production page with test hooks.");
         }
 
         let pdfBlobUrl = null;
@@ -449,7 +454,7 @@ async function renderInProductionPage(fixture, result, payload) {
 }
 
 // Extract a structured representation of the web output DOM
-function extractStructuredWebOutput(rootEl) {
+function extractStructuredWebOutput(rootEl, trueResult) {
   const get = (sel) => {
     const el = rootEl.querySelector(sel);
     return el ? el.textContent.trim() : "";
@@ -457,9 +462,13 @@ function extractStructuredWebOutput(rootEl) {
   const getAll = (sel) => {
     return Array.from(rootEl.querySelectorAll(sel)).map((el) => el.textContent.trim()).filter(Boolean);
   };
+  // Score comes from the page's own result object — the #scoreNumber DOM
+  // element animates from 0 to the target value, so reading it via
+  // textContent often returns "0" if we scrape mid-animation.
+  const realScore = trueResult && typeof trueResult.score === "number" ? String(trueResult.score) : get("#scoreNumber");
   return {
     headlineFinding: get("#findingLead") + "\n" + get("#findingBody"),
-    score: get("#scoreNumber"),
+    score: realScore,
     scoreBand: get("#scoreBand"),
     insightDepth: get("#insightDepthValue") + " · " + get("#insightDepthBand"),
     industry: get("#scoreMetaIndustry"),
