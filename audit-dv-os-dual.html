@@ -590,10 +590,18 @@ function runAllChecks(fixture, runData) {
   }
 
   if (web.economicCost && pdfProse.scoreNumbers) {
-    const webCost = (web.economicCost || "").replace(/[^0-9k$\-,.]/gi, "");
-    const pdfHasCost = (pdfProse.scoreNumbers.join(" ") + " " + pdfProse.fullText).includes(webCost.split("–")[0] || "$$$");
-    checks.push(webCost
-      ? makeCheck("Exposure figure in both outputs", pdfHasCost ? "pass" : "warn", `web=${webCost} ${pdfHasCost?"":"(not found in PDF)"}`)
+    // Extract the first dollar amount from the web exposure (e.g.,
+    // "$50,000–$80,000" → "$50,000") and check that PDF mentions it.
+    // The original check was too strict: it stripped en-dashes which broke
+    // the split, then matched the entire range as one literal string.
+    const webCostRaw = web.economicCost || "";
+    const firstDollarMatch = webCostRaw.match(/\$\s*[\d,]+/);
+    const firstDollar = firstDollarMatch ? firstDollarMatch[0].replace(/\s+/g, "") : "";
+    // Normalize PDF text the same way for comparison
+    const pdfHaystack = ((pdfProse.scoreNumbers || []).join(" ") + " " + (pdfProse.fullText || "")).replace(/\s+/g, "");
+    const pdfHasCost = firstDollar && pdfHaystack.includes(firstDollar);
+    checks.push(firstDollar
+      ? makeCheck("Exposure figure in both outputs", pdfHasCost ? "pass" : "warn", `web=${firstDollarMatch[0]} ${pdfHasCost ? "matches in PDF" : "(not found in PDF)"}`)
       : makeCheck("Exposure figure in both outputs", "warn", "web exposure not captured"));
   }
 
