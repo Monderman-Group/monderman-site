@@ -4197,6 +4197,7 @@ return `<!doctype html>
     <div class="accent-rule"></div>
     <p class="run-meta">${safe(metaLine)}</p>
     <div class="primary-read"><span>Primary read</span><strong>${safe(primaryReadLabel)}</strong><p>${safeWords(primaryReadSummary, 38)}</p></div>
+    ${serverGapForExport && serverGapForExport.type && serverGapForExport.type !== "none" ? `<p class="muted" style="font-size:9.5px;font-style:italic;margin:-12px 0 14px;line-height:1.5">Experiential context: ${safeWords(serverGapForExport.description || "An experiential signal was detected.", 22)} See page 6 for the full read.</p>` : ""}
     <p>This summary is written for leaders who need to understand whether the workflow is simply busy or structurally expensive to sustain. The score, exposure estimate, and capacity drag should be read together: one describes the condition, one translates the labor cost, and one shows how much productive attention may be tied up in maintaining the process.</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(executiveQuestion)}</p></div>
     <div class="stat-strip">
