@@ -350,9 +350,23 @@ async function driveDiagnostic(fixture, apiBase) {
 
   const fr = await apiCall(`${apiBase}/api/${fixture.tool}/run/${runId}/finalize`, finalizeBody, 480000);
   const fd = await fr.json().catch(() => null);
-  if (!fr.ok || !fd?.ok) throw new Error(`finalize failed: ${fd?.error || fr.status}`);
+  if (!fr.ok || !fd?.ok) throw new Error(`finalize failed: ${fd?.error || fr.status}${fd?.message ? ` — ${fd.message}` : ""}`);
 
-  return { result: fd.result || {}, narrative: fd.narrative?.narrative || fd.narrative || {}, qs, payload: startBody };
+  // Merge finalizeBody fields into the payload returned to the harness.
+  // The PDF builder reads payload.experientialLayer to decide whether to
+  // render the experiential page — without this merge, the PDF gets
+  // startBody only (which doesn't have experientialLayer), so the page is
+  // silently omitted even though the API processed the experiential signal.
+  const mergedPayload = {
+    ...startBody,
+    experientialLayer: finalizeBody.experientialLayer,
+    rawExperience: finalizeBody.rawExperience,
+    confidenceLevel: finalizeBody.confidenceLevel,
+    hourlyCost: finalizeBody.hourlyCost,
+    peopleAffected: finalizeBody.peopleAffected
+  };
+
+  return { result: fd.result || {}, narrative: fd.narrative?.narrative || fd.narrative || {}, qs, payload: mergedPayload };
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
