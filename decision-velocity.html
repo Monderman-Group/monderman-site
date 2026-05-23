@@ -187,6 +187,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
 .remedy-card .remedy-kicker{display:block;margin-bottom:6px;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
 .remedy-card p,.remedy-card li{font-size:.85rem;line-height:1.62;color:var(--ink-soft)}
 .remedy-card ul{margin:8px 0 0;padding-left:16px;display:grid;gap:5px}
+.remedy-calibration-note{margin:14px 0 0;padding:10px 12px;background:rgba(63,110,161,.04);border-left:2px solid rgba(63,110,161,.18);border-radius:0 6px 6px 0;font-size:.78rem;line-height:1.55;color:var(--ink-soft);font-style:italic}
 .remedy-path-risk{margin-top:8px;padding-top:8px;border-top:1px solid rgba(21,32,43,.08)}
 .opportunity-disclaimer{margin-top:12px;padding:10px 12px;border-radius:12px;background:#FFF;border:1px dashed rgba(21,32,43,.14);font-size:.78rem;line-height:1.55;color:var(--ink-muted)}
 .opportunity-tile strong,.benchmark-interpretation strong{display:block;margin-bottom:6px;font-size:.84rem;letter-spacing:.06em;color:var(--ink)}
@@ -765,7 +766,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
           </button>
           <div class="accordion-body">
             <section class="remedy-standalone">
-              <div id="remedyTreeWrap" class="remedy-band hidden"><div class="remedy-band-head"><strong>Three remedy paths</strong><p>These paths are not arranged as one automatic best answer. They show the trade space between burden of recovery, implementation burden, and organizational risk.</p></div><div class="remedy-grid" id="remedyGrid"></div></div>
+              <div id="remedyTreeWrap" class="remedy-band hidden"><div class="remedy-band-head"><strong>Three remedy paths</strong><p>These paths are not arranged as one automatic best answer. They show the trade space between burden of recovery, implementation burden, and organizational risk.</p></div><div class="remedy-grid" id="remedyGrid"></div><p class="remedy-calibration-note">* Calibrate against Insight depth before acting. A single short-form run produces directional remedy guidance, not engineering specifications &mdash; the breadth, depth, and cross-validation of inputs governs how confidently any of these paths should be pursued.</p></div>
             </section>
           </div>
         </article>
@@ -4272,6 +4273,7 @@ ${decisionReviewPage}
     <p>Three distinct intervention strategies, ordered by ambition and risk. Each path implies a different leadership posture, time horizon, and tolerance for short-term disruption.</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(remedyQuestion)}</p></div>
     <div class="remedy-grid">${remedyHtml}</div>
+    <p class="remedy-calibration-note" style="margin:14px 0 0;padding:10px 12px;background:#F4F6F8;border-left:2px solid #B8C7DA;border-radius:0 6px 6px 0;font-size:11px;line-height:1.55;color:#5B6774;font-style:italic">* Calibrate against Insight depth before acting. A single short-form run produces directional remedy guidance, not engineering specifications &mdash; the breadth, depth, and cross-validation of inputs governs how confidently any of these paths should be pursued.</p>
     <div class="rule"></div><h3>Choosing between them</h3><p>The right choice depends less on the current drag score than on three things: how much stability the organization needs while changes happen, how much trust leadership has earned to redesign rather than tweak, and whether the pathway is on a path that is already worsening. Light paths preserve continuity; aggressive paths buy more capacity but require a stronger mandate.</p>
   </div>
 </section>
