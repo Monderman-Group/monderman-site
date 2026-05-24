@@ -3955,7 +3955,7 @@ const footer = (page) => `<div class="top"><span class="brand">MONDERMAN</span><
 const experienceLayer = payload?.experientialLayer || payload?.experiential_layer || buildExperienceLayer();
 const hasExperienceLayer = Boolean(experienceLayer?.hasInput && Array.isArray(experienceLayer.entries) && experienceLayer.entries.length);
 const experienceSynthesis = clean(
-  narrative?.experiential_synthesis ||
+  result?.narrative?.experiential_synthesis ||
   experienceLayer?.synthesis ||
   ""
 );
