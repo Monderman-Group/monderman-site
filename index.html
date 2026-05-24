@@ -2186,7 +2186,7 @@
     const costSection = document.getElementById("cost-section");
     const counters = document.querySelectorAll(".cost-card-number");
     let hasCounted = false;
-    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+    function easeOutQuart(t) { return 1 - Math.pow(1 - t, 4); }
     function formatCounter(type, value) {
       if (type === "percent") return `${Math.round(value)}%`;
       if (type === "currency-trillion") return `$${Math.round(value)}T`;
@@ -2197,31 +2197,34 @@
       }
       return Math.round(value).toString();
     }
-    function animateCounter(el) {
+    function animateCounter(el, delay) {
       const type = el.dataset.countType;
       const target = Number(el.dataset.target);
-      const duration = 1500;
-      const start = performance.now();
-      function step(now) {
-        const progress = Math.min((now - start) / duration, 1);
-        const eased = easeOutCubic(progress);
-        const current = target * eased;
-        el.textContent = formatCounter(type, current);
-        if (progress < 1) requestAnimationFrame(step);
-        else el.textContent = formatCounter(type, target);
-      }
-      requestAnimationFrame(step);
+      const duration = 1800;
+      const beginDelay = delay || 0;
+      window.setTimeout(() => {
+        const start = performance.now();
+        function step(now) {
+          const progress = Math.min((now - start) / duration, 1);
+          const eased = easeOutQuart(progress);
+          const current = target * eased;
+          el.textContent = formatCounter(type, current);
+          if (progress < 1) requestAnimationFrame(step);
+          else el.textContent = formatCounter(type, target);
+        }
+        requestAnimationFrame(step);
+      }, beginDelay);
     }
     if (costSection && counters.length) {
       const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && !hasCounted) {
             hasCounted = true;
-            counters.forEach((counter) => animateCounter(counter));
+            counters.forEach((counter, idx) => animateCounter(counter, idx * 130));
             observer.disconnect();
           }
         });
-      }, { threshold: 0.35 });
+      }, { threshold: 0.28 });
       observer.observe(costSection);
     }
     const revealItems = document.querySelectorAll(".reveal");
