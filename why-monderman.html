@@ -58,7 +58,6 @@
       --max: 1320px;
       --transition: 220ms cubic-bezier(0.16, 1, 0.3, 1);
       --transition-slow: 420ms cubic-bezier(0.16, 1, 0.3, 1);
-      --soft-shadow: 0 1px 0 rgba(0,0,0,0.012);
       --reveal-distance: 10px;
       --panel-radius: 18px;
       --card-radius: 16px;
@@ -147,18 +146,6 @@
       display: inline-block;
       transform: translateY(-1px);
       flex-shrink: 0;
-    }
-    .brand-tagline {
-      margin-left: 12px;
-      padding-left: 12px;
-      border-left: 1px solid rgba(255,255,255,0.25);
-      font-size: 0.62rem;
-      font-weight: 500;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.68);
-      line-height: 1;
-      align-self: center;
     }
     .nav {
       display: flex;
@@ -1567,7 +1554,6 @@
 
     /* ─── RESPONSIVE ─────────────────────────────────────────────────────── */
     @media (max-width: 1100px) {
-      .brand-tagline { display: none; }
       .nav { gap: 16px; }
       .nav a { font-size: 0.84rem; }
       .hero h1 { font-size: 52px; }
@@ -1591,10 +1577,49 @@
       .footer-top { flex-direction: column; }
     }
     @media (max-width: 720px) {
-      .nav { display: none; }
+      .header { height: auto; }
+      .header-inner {
+        padding: 14px 20px 10px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .nav {
+        display: flex;
+        width: 100%;
+        gap: 10px;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+      }
+      .nav::-webkit-scrollbar { display: none; }
+      .nav a {
+        flex: 0 0 auto;
+        font-size: 0.84rem;
+        line-height: 1;
+        padding: 10px 12px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.08);
+        white-space: nowrap;
+      }
+      .nav a::after { display: none; }
+      .hero { min-height: 0; }
       .hero h1 { font-size: 40px; }
-      .hero-inner { padding: 110px 24px 80px; }
-      .wm-condition, .wm-commitments, .wm-instruments, .wm-method, .wm-roi, .wm-difference, .wm-cta, .wm-funnel { padding: 60px 24px 64px; }
+      .hero-inner { padding: 130px 20px 72px; }
+      .hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        max-width: 420px;
+      }
+      .hero-actions .btn { width: 100%; min-width: 0; }
+      .wm-sector-bar { padding: 20px; }
+      .wm-condition, .wm-commitments, .wm-instruments, .wm-method, .wm-roi, .wm-difference, .wm-cta, .wm-funnel { padding: 52px 20px 56px; }
+      .wm-brief-band { padding: 32px 20px 36px; }
       .wm-instruments-grid { grid-template-columns: 1fr; }
       .wm-instrument-card { border-right: none; border-bottom: 1px solid var(--line-cool); }
       .wm-instrument-card:last-child { border-bottom: none; }
@@ -1611,6 +1636,17 @@
       .wm-roi-axis:first-child { padding-top: 0; }
       .wm-roi-diagram-inner { padding: 28px 24px; }
       .section-intro h2, .wm-cta-copy h2 { font-size: 24px; }
+      .wm-cta-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        max-width: 420px;
+      }
+      .wm-cta-actions .btn { width: 100%; min-width: 0; }
+      .footer { padding: 40px 20px 30px; }
+      .footer-top { flex-direction: column; gap: 28px; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .footer-nav { gap: 32px; }
     }
   </style>
 </head>
@@ -1620,7 +1656,7 @@
   <header class="header" id="siteHeader">
     <div class="header-inner">
       <a href="index.html" class="brand">
-        Monderman<span class="brand-dot"></span><span class="brand-tagline">Measure the conditions. Own the outcome.</span>
+        Monderman<span class="brand-dot"></span>
       </a>
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
@@ -2223,7 +2259,6 @@
       </div>
       <div class="footer-bottom">
         <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
-        <p class="footer-contact">Organizations deliver at the speed of their administrative reality.</p>
       </div>
     </div>
     <div class="footer-motif" aria-hidden="true"><svg width="260" height="260" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#4A6FA5" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#5B7A9B" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#4A6FA5" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#5B7A9B" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#6B8FA6" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8BADC5" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#9FBDD1" stroke-width="0.4" opacity="0.13"/><circle r="7" fill="none" stroke="#B0C8D8" stroke-width="0.3" opacity="0.11"/><circle cx="86" cy="-35" r="2.8" fill="#3F6EA1" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#5B7A9B" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#3F6EA1" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#7C5CE8" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#5B7A9B" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#2E86DE" opacity="0.58"/></svg></div>
