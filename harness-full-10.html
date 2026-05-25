@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Research | Monderman</title>
+  <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="10" fill="%230F1720"/>
+      <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text>
+      <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
+    </svg>' />
+  <style>
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff");
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff");
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff");
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+    }
+    :root {
+      --accent: #3F6EA1;
+      --accent-dark: #2F5886;
+      --bg: #0F1720;
+      --bg-2: #131C26;
+      --panel: rgba(255,255,255,0.05);
+      --panel-2: rgba(255,255,255,0.035);
+      --line: rgba(255,255,255,0.11);
+      --line-soft: rgba(255,255,255,0.08);
+      --text: #F5F7FA;
+      --muted: rgba(245,247,250,0.72);
+      --muted-2: rgba(245,247,250,0.52);
+      --paper: #F7F8FA;
+      --ink: #15202B;
+      --ink-soft: #5A6673;
+      --ink-muted: #7A8794;
+      --card-line: rgba(21,32,43,0.09);
+      --max: 1320px;
+      --radius-xl: 30px;
+      --radius-lg: 22px;
+      --radius-md: 18px;
+      --shadow: 0 22px 60px rgba(0,0,0,0.16);
+      --shadow-soft: 0 10px 30px rgba(0,0,0,0.08);
+      --transition: 220ms cubic-bezier(.22,1,.36,1);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 80% 8%, rgba(63,110,161,0.12), transparent 24%),
+        radial-gradient(circle at 18% 20%, rgba(63,110,161,0.06), transparent 26%),
+        linear-gradient(180deg, #0D141C 0%, #111B25 38%, #0F1720 100%);
+      color: var(--text);
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    h1, h2, h3, h4, p { margin: 0; }
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: rgba(12,18,26,0.72);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .header-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 34px;
+      min-height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0;
+      font-size: 1.32rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #fff;
+      white-space: nowrap;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.16);
+    }
+    .brand::after { display: none; }
+    .brand-dot {
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+      flex-shrink: 0;
+    }
+    .brand-tagline {
+      margin-left: 12px;
+      padding-left: 12px;
+      border-left: 1px solid rgba(255,255,255,0.25);
+      font-size: 0.62rem;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.68);
+      text-shadow: none;
+      line-height: 1;
+      align-self: center;
+    }
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: nowrap;
+      justify-content: flex-end;
+    }
+    .nav a {
+      font-size: 0.9rem;
+      color: rgba(245,247,250,0.84);
+      transition: color var(--transition), transform var(--transition);
+      white-space: nowrap;
+    }
+    .nav a:hover,
+    .nav a:focus-visible {
+      color: #fff;
+      transform: translateY(-1px);
+      outline: none;
+    }
+    .nav a::after {
+      content: "";
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: currentColor;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.2s ease;
+    }
+    .nav a.is-active {
+      color: var(--accent);
+      transform: none;
+      outline: none;
+    }
+    .nav a:hover::after,
+    .nav a:focus-visible::after,
+    .nav a.is-active::after {
+      transform: scaleX(1);
+    }
+    .hero {
+      padding: 54px 34px 26px;
+    }
+    .hero-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(280px, .92fr);
+      gap: 54px;
+      align-items: end;
+    }
+    .eyebrow {
+      margin-bottom: 18px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.62);
+    }
+    .hero h1 {
+      max-width: 8.5ch;
+      font-size: 64px;
+      line-height: 0.94;
+      letter-spacing: -0.06em;
+      font-weight: 700;
+      color: #fff;
+    }
+    .hero-copy {
+      margin-top: 24px;
+      max-width: 39ch;
+      font-size: 1.02rem;
+      line-height: 1.72;
+      color: var(--muted);
+    }
+    .hero-meta {
+      display: grid;
+      gap: 18px;
+      justify-self: start;
+      align-self: center;
+    }
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+      padding: 0 15px;
+      border-radius: 11px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.02);
+      color: rgba(245,247,250,0.92);
+      font-size: 0.86rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+    .library-stamp {
+      font-size: 0.84rem;
+      color: var(--muted-2);
+    }
+    .featured {
+      padding: 16px 34px 0;
+    }
+    .featured-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(320px, .92fr);
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.04));
+    }
+    .featured-main,
+    .featured-side {
+      padding: 34px 32px 34px;
+    }
+    .featured-main { border-right: 1px solid var(--line); }
+    .section-kicker {
+      margin-bottom: 24px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.66);
+    }
+    .featured-title {
+      max-width: 9ch;
+      font-size: clamp(2rem, 3.2vw, 3rem);
+      line-height: 1.02;
+      letter-spacing: -0.045em;
+      color: #fff;
+    }
+    .featured-desc {
+      margin-top: 18px;
+      max-width: 34ch;
+      font-size: 1rem;
+      line-height: 1.78;
+      color: var(--muted);
+    }
+    .featured-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 28px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #fff;
+    }
+    .featured-link:hover { color: #d8e7f8; }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 18px 20px;
+    }
+    .meta-item strong {
+      display: block;
+      font-size: 1.9rem;
+      line-height: 1;
+      letter-spacing: -0.05em;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .meta-item span {
+      font-size: 0.82rem;
+      line-height: 1.45;
+      color: var(--muted);
+    }
+    .featured-quote {
+      margin-top: 42px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+      font-size: 0.96rem;
+      line-height: 1.72;
+      color: rgba(245,247,250,0.84);
+      max-width: 34ch;
+    }
+    .library {
+      padding: 42px 34px 0;
+    }
+    .library-inner,
+    .onsite-inner,
+    .cta-inner,
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+    .band-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 0;
+    }
+    .band-head .left,
+    .band-head .right {
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.68);
+    }
+    .research-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+    }
+    .paper-card {
+      padding: 24px 20px 22px;
+      border-bottom: 1px solid var(--line);
+      border-right: 1px solid var(--line-soft);
+      min-height: 228px;
+      display: grid;
+      align-content: start;
+      gap: 12px;
+    }
+    .paper-card:nth-child(2n) { border-right: none; }
+    .paper-card.wide {
+      grid-column: 1 / -1;
+      min-height: 180px;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 20px 36px;
+      align-items: end;
+      border-right: none;
+    }
+    .paper-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+      font-size: 0.64rem;
+      font-weight: 700;
+      line-height: 1.3;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.6);
+    }
+    .paper-title {
+      max-width: 14ch;
+      font-size: 1.72rem;
+      line-height: 1.08;
+      letter-spacing: -0.036em;
+      color: #fff;
+    }
+    .paper-card:not(.wide) .paper-title { font-size: 1.2rem; max-width: 15ch; }
+    .paper-body {
+      max-width: 38ch;
+      font-size: 0.96rem;
+      line-height: 1.72;
+      color: var(--muted);
+    }
+    .paper-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 18px;
+      margin-top: auto;
+    }
+    .paper-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px 16px;
+      font-size: 0.82rem;
+      color: var(--muted-2);
+    }
+    .paper-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+    }
+    .paper-action:hover { color: #d8e7f8; }
+    .divider-quote {
+      padding: 34px 34px 0;
+    }
+    .divider-quote-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 28px 0 30px;
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: 180px minmax(0,1fr);
+      gap: 24px;
+      align-items: center;
+    }
+    .divider-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.64);
+    }
+    .divider-quote blockquote {
+      margin: 0;
+      max-width: 34ch;
+      font-size: clamp(1.55rem, 2.2vw, 2.2rem);
+      line-height: 1.38;
+      letter-spacing: -0.025em;
+      color: #fff;
+    }
+    .onsite {
+      padding: 0 34px 0;
+    }
+    .essay-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+    }
+    .essay-card {
+      padding: 24px 20px 22px;
+      border-bottom: 1px solid var(--line);
+      border-right: 1px solid var(--line-soft);
+      min-height: 212px;
+      display: grid;
+      align-content: start;
+      gap: 12px;
+    }
+    .essay-card:nth-child(2n) { border-right: none; }
+    .essay-title {
+      max-width: 16ch;
+      font-size: 1.18rem;
+      line-height: 1.16;
+      letter-spacing: -0.03em;
+      color: #fff;
+    }
+    .essay-body {
+      max-width: 34ch;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+    .cta-band {
+      padding: 38px 34px 48px;
+    }
+    .cta-inner {
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.045));
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      padding: 34px 34px 32px;
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto;
+      gap: 28px;
+      align-items: center;
+      box-shadow: var(--shadow);
+    }
+    .cta-kicker {
+      margin-bottom: 12px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.62);
+    }
+    .cta-title {
+      max-width: 15ch;
+      font-size: clamp(2rem, 3vw, 2.9rem);
+      line-height: 1.02;
+      letter-spacing: -0.045em;
+      color: #fff;
+    }
+    .cta-copy {
+      margin-top: 14px;
+      max-width: 48ch;
+      font-size: 1rem;
+      line-height: 1.72;
+      color: var(--muted);
+    }
+    .cta-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 20px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.04);
+      color: #fff;
+      font-size: 0.92rem;
+      font-weight: 600;
+      transition: transform var(--transition), background var(--transition), border-color var(--transition);
+    }
+    .btn:hover,
+    .btn:focus-visible {
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.28);
+      outline: none;
+    }
+    .btn-accent {
+      background: var(--accent-dark);
+      border-color: rgba(63,110,161,0.4);
+    }
+    .btn-accent:hover,
+    .btn-accent:focus-visible { background: #2a4d74; }
+    .footer {
+      padding: 0 34px 34px;
+      position: relative;
+      overflow: hidden;
+    }
+    .footer-inner {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 22px;
+      display: flex;
+      justify-content: space-between;
+      gap: 22px;
+      align-items: center;
+      flex-wrap: wrap;
+      color: rgba(245,247,250,0.56);
+      font-size: 0.88rem;
+    }
+    @media (max-width: 1040px) {
+      .hero-inner,
+      .featured-inner,
+      .cta-inner,
+      .divider-quote-inner {
+        grid-template-columns: 1fr;
+      }
+      .featured-main { border-right: none; border-bottom: 1px solid var(--line); }
+      .cta-actions { justify-content: flex-start; }
+      .research-grid,
+      .essay-grid { grid-template-columns: 1fr; }
+      .paper-card,
+      .essay-card { border-right: none !important; }
+    }
+    @media (max-width: 760px) {
+      .header-inner,
+      .hero,
+      .featured,
+      .library,
+      .divider-quote,
+      .onsite,
+      .cta-band,
+      .footer { padding-left: 20px; padding-right: 20px; }
+      .header-inner {
+        min-height: auto;
+        padding-top: 14px;
+        padding-bottom: 12px;
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .nav {
+        width: 100%;
+        gap: 10px;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+      }
+      .nav a {
+        white-space: nowrap;
+        padding: 10px 12px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.05);
+      }
+      .hero { padding-top: 36px; }
+      .hero h1 { max-width: 9.5ch; font-size: clamp(2.4rem, 12vw, 3.4rem); }
+      .featured-main,
+      .featured-side,
+      .cta-inner { padding: 24px 22px; }
+      .meta-grid { grid-template-columns: 1fr 1fr; }
+      .paper-card.wide { grid-template-columns: 1fr; }
+      .divider-quote blockquote { font-size: 1.45rem; }
+    }
+  
+    .nav a.workspace-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.06);
+      color: #FFFFFF;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .nav a.workspace-link::after {
+      display: none;
+    }
+    .nav a.workspace-link:hover,
+    .nav a.workspace-link:focus-visible {
+      background: rgba(255, 255, 255, 0.10);
+      border-color: rgba(255, 255, 255, 0.24);
+      color: #FFFFFF;
+      transform: none;
+    }
+    @media (max-width: 1280px) {
+      .brand-tagline { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="brand">Monderman<span class="brand-dot"></span><span class="brand-tagline">Measure the conditions. Own the outcome.</span></a>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="index.html#approach">Approach</a>
+        <a href="diagnostic-hub.html">Diagnostic Hub</a>
+        <a href="research.html" class="is-active">Research</a>
+        <a href="why-monderman.html">Why Monderman</a>
+        <a href="platform-services.html">Platform Services</a>
+        <a href="connect.html">Connect</a>
+        <a href="signin.html" class="workspace-link">Workspace</a>
+      </nav>
+    </div>
+  </header>
+  <section class="hero">
+    <div class="hero-inner">
+      <div>
+        <p class="eyebrow">Research library</p>
+        <h1>Briefs, perspectives, and working papers.</h1>
+        <p class="hero-copy">Monderman publications on administrative burden, structural drag, decision systems, and institutional performance. Downloadable briefs and on-site essays organized as a serious reading library rather than a content feed.</p>
+      </div>
+      <div class="hero-meta">
+        <div class="filter-row" aria-label="Library groupings">
+          <span class="filter-chip">All</span>
+          <span class="filter-chip">Defense</span>
+          <span class="filter-chip">Healthcare</span>
+          <span class="filter-chip">Enterprise</span>
+          <span class="filter-chip">Perspective</span>
+        </div>
+        <p class="library-stamp">10 items · Updated May 2026</p>
+      </div>
+    </div>
+  </section>
+  <section class="featured">
+    <div class="featured-inner">
+      <div class="featured-main">
+        <p class="section-kicker">Signature paper · Start here</p>
+        <h2 class="featured-title">After the First Lap</h2>
+        <p class="featured-desc">A Monderman insight paper synthesizing analyst forecasts and industry reporting into a structural argument about where enterprise AI economics are heading. The first wave of enterprise AI rewarded speed of capability adoption. The second will reward engineering discipline applied to AI consumption — and a new tier of intermediaries, Deterministic AI Infrastructure, sitting between foundation labs and end-user enterprises.</p>
+        <a class="featured-link" href="after-the-first-lap.pdf" target="_blank" rel="noopener noreferrer">Download the insight paper ↗</a>
+      </div>
+      <div class="featured-side">
+        <div class="meta-grid">
+          <div class="meta-item"><strong>May 2026</strong><span>Publication</span></div>
+          <div class="meta-item"><strong>19</strong><span>Pages</span></div>
+          <div class="meta-item"><strong>~25 min</strong><span>Read time</span></div>
+          <div class="meta-item"><strong>PDF</strong><span>Format</span></div>
+        </div>
+        <p class="featured-quote">“AI is not free. The companies that internalize that fact first — and engineer accordingly — will define the next decade of enterprise AI.”</p>
+      </div>
+    </div>
+  </section>
+  <section class="divider-quote">
+    <div class="divider-quote-inner">
+      <div class="divider-label">From the new research</div>
+      <blockquote>“The first wave of enterprise AI rewarded urgency. The second will reward engineering discipline applied to AI consumption.”</blockquote>
+    </div>
+  </section>
+  <section class="library">
+    <div class="library-inner">
+      <div class="band-head">
+        <div class="left">Downloadable research</div>
+        <div class="right">PDF · 7 documents</div>
+      </div>
+      <div class="research-grid">
+        <article class="paper-card">
+          <div class="paper-top"><span>Foundational brief</span><span>Executive brief · PDF</span></div>
+          <h3 class="paper-title">Active Bureaucratic Management</h3>
+          <p class="paper-body">The framework anchoring Monderman's diagnostic work: bureaucracy is not a problem to solve once, but a condition to govern continuously.</p>
+          <div class="paper-foot">
+            <div class="paper-stats"><span>April 2026</span><span>18 pp</span><span>~14 min</span></div>
+            <a class="paper-action" href="Monderman_Active_Bureaucratic_Management.pdf" target="_blank" rel="noopener noreferrer">Download →</a>
+          </div>
+        </article>
+        <article class="paper-card">
+          <div class="paper-top"><span>Defense</span><span>Research brief · PDF</span></div>
+          <h3 class="paper-title">Accumulated Drag in the Department of War</h3>
+          <p class="paper-body">Structural friction in one of the world’s most complex public institutions — measured, located, and named.</p>
+          <div class="paper-foot">
+            <div class="paper-stats"><span>22 pp</span><span>~17 min</span></div>
+            <a class="paper-action" href="Monderman%20Accumulated%20Drag%20DoW.pdf" target="_blank" rel="noopener noreferrer">Download →</a>
+          </div>
+        </article>
+        <article class="paper-card">
+          <div class="paper-top"><span>Healthcare</span><span>Research brief · PDF</span></div>
+          <h3 class="paper-title">Quarter-Trillion Friction in U.S. Healthcare</h3>
+          <p class="paper-body">The administrative burden complicating performance in U.S. healthcare — quantified and mapped to structural causes.</p>
+          <div class="paper-foot">
+            <div class="paper-stats"><span>19 pp</span><span>~15 min</span></div>
+            <a class="paper-action" href="Monderman%20Quarter%20Trillion%20Friction%20Healthcare.pdf" target="_blank" rel="noopener noreferrer">Download →</a>
+          </div>
+        </article>
+        <article class="paper-card">
+          <div class="paper-top"><span>Enterprise</span><span>Perspective · PDF</span></div>
+          <h3 class="paper-title">How Workarounds Preserve Output While Masking Dysfunction</h3>
+          <p class="paper-body">Organizations appear to function because people compensate for structural weakness. Output survives. The system deteriorates.</p>
+          <div class="paper-foot">
+            <div class="paper-stats"><span>12 pp</span><span>~9 min</span></div>
+            <a class="paper-action" href="Monderman%20Compensatory%20Systems.pdf" target="_blank" rel="noopener noreferrer">Read →</a>
+          </div>
+        </article>
+        <article class="paper-card">
+          <div class="paper-top"><span>Enterprise</span><span>Research brief · PDF</span></div>
+          <h3 class="paper-title">How the Collapse of Eastman Kodak Is Misunderstood</h3>
+          <p class="paper-body">Kodak did not fail because it missed technology. It failed because its decision systems could not adapt. The distinction matters.</p>
+          <div class="paper-foot">
+            <div class="paper-stats"><span>16 pp</span><span>~12 min</span></div>
+            <a class="paper-action" href="the-collapse-of-eastman-kodak.pdf" target="_blank" rel="noopener noreferrer">Download →</a>
+          </div>
+        </article>
+        <article class="paper-card wide">
+          <div>
+            <div class="paper-top"><span>Enterprise · Culture</span><span>New · PDF</span></div>
+            <h3 class="paper-title">The Culture Trap</h3>
+            <p class="paper-body">Why culture-first diagnosis mislocates the problem — and why organizations that fix sentiment before structure often fix the wrong thing first.</p>
+          </div>
+          <div class="paper-foot">
+            <div class="paper-stats"><span>2026</span><span>~11 min</span></div>
+            <a class="paper-action" href="Monderman_Culture_Trap.pdf" target="_blank" rel="noopener noreferrer">Download →</a>
+          </div>
+        </article>
+        <article class="paper-card wide">
+          <div>
+            <div class="paper-top"><span>Perspective · Decision Design</span><span>New · PDF</span></div>
+            <h3 class="paper-title">Off the Line</h3>
+            <p class="paper-body">The vast decision space that binary framing makes invisible — and why institutions miss viable options when complex choices are reduced too early.</p>
+          </div>
+          <div class="paper-foot">
+            <div class="paper-stats"><span>2026</span><span>PDF</span></div>
+            <a class="paper-action" href="Monderman_Off_the_Line.pdf" target="_blank" rel="noopener noreferrer">Download →</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+  <section class="divider-quote">
+    <div class="divider-quote-inner">
+      <div class="divider-label">On-site essays</div>
+      <blockquote>“Complexity does not appear all at once. It accumulates — faster than most institutions can absorb it.”</blockquote>
+    </div>
+  </section>
+  <section class="onsite">
+    <div class="onsite-inner">
+      <div class="essay-grid">
+        <article class="essay-card">
+          <div class="paper-top"><span>Insight</span><span>HTML · Essay</span></div>
+          <h3 class="essay-title">Governing Complexity</h3>
+          <p class="essay-body">Institutions rarely fail because complexity appears. They fail because it accumulates faster than their structures can absorb it.</p>
+          <div class="paper-foot">
+            <div class="paper-stats"><span>~8 min</span></div>
+            <a class="paper-action" href="governing-complexity.html">Read on site →</a>
+          </div>
+        </article>
+        <article class="essay-card">
+          <div class="paper-top"><span>Insight</span><span>HTML · Essay</span></div>
+          <h3 class="essay-title">Designing for Decision Velocity</h3>
+          <p class="essay-body">Institutions move well when governance, pathways, and role clarity support sound judgment without generating drag in the process.</p>
+          <div class="paper-foot">
+            <div class="paper-stats"><span>~7 min</span></div>
+            <a class="paper-action" href="designing-for-decision-velocity.html">Read on site →</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+  <section class="cta-band">
+    <div class="cta-inner">
+      <div>
+        <p class="cta-kicker">From reading to diagnosis</p>
+        <h2 class="cta-title">Move from research into application.</h2>
+        <p class="cta-copy">The library explains how structural drag forms. The Diagnostic Hub helps make those conditions legible inside a specific institution. Platform Services is where repeated measurement, support, and implementation become operational.</p>
+      </div>
+      <div class="cta-actions">
+        <a class="btn btn-accent" href="diagnostic-hub.html">Enter the Diagnostic Hub</a>
+        <a class="btn" href="connect.html">Platform Services</a>
+      </div>
+    </div>
+  </section>
+  <footer class="footer">
+    <div class="footer-inner">
+      <span>© 2026 Monderman. All rights reserved.</span>
+      <span>Organizations deliver at the speed of their administrative reality.</span>
+    </div>
+  </footer>
+</body>
+</html>
