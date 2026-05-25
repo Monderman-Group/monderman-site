@@ -1360,6 +1360,21 @@
       .hero-inner { padding: 120px 24px 82px; }
       .hero h1 { font-size: 52px; }
       .section-with-bar .section-bar { left: 24px; }
+      .hero-image {
+        top: -5%;
+        right: -8%;
+        bottom: auto;
+        left: auto;
+        width: 110%;
+        height: 112%;
+        object-position: 60% 50%;
+        --hero-shift-x: 4%;
+      }
+      .hero-overlay {
+        background:
+          linear-gradient(90deg, rgba(6,10,16,0.97) 0%, rgba(6,10,16,0.88) 30%, rgba(6,10,16,0.62) 58%, rgba(6,10,16,0.28) 80%, rgba(6,10,16,0.12) 100%),
+          linear-gradient(180deg, rgba(8,12,18,0.22) 0%, rgba(8,12,18,0.10) 40%, rgba(8,12,18,0.28) 100%);
+      }
       .bureaucracy-cost { padding-top: 62px; padding-bottom: 72px; }
       .approach,
       .synthesis,
@@ -1494,12 +1509,25 @@
       .diagnostic-estimate-heading { margin-bottom: 28px; }
       .differentiators-grid { grid-template-columns: 1fr; }
       .hero-image {
-        top: -7%;
-        right: -22%;
-        width: 134%;
-        height: 120%;
-        --hero-shift-x: 8%;
-        object-position: 50% 50%;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-position: 60% 50%;
+        --hero-shift-x: 0%;
+        opacity: 0;
+        transform: scale(0.96);
+      }
+      .hero-image.is-loaded {
+        opacity: 0.75;
+        transform: scale(1);
+      }
+      .hero-overlay {
+        background:
+          linear-gradient(180deg, rgba(6,10,16,0.82) 0%, rgba(6,10,16,0.58) 45%, rgba(6,10,16,0.76) 100%),
+          linear-gradient(0deg, rgba(6,10,16,0.70) 0%, transparent 50%);
       }
       .connect-panel { padding: 24px 22px 22px; }
       .footer-top,
@@ -2175,6 +2203,7 @@
     }
     function startHeroZoom() {
       if (zoomStarted || !heroImage) return;
+      if (window.innerWidth <= 980) return;
       zoomStarted = true;
       const start = performance.now();
       const duration = 26000;
