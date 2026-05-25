@@ -54,7 +54,6 @@
       --transition: 220ms cubic-bezier(0.16, 1, 0.3, 1);
       --transition-slow: 420ms cubic-bezier(0.16, 1, 0.3, 1);
       --rail-gap: 18px;
-      --soft-shadow: 0 1px 0 rgba(0,0,0,0.012);
       --reveal-distance: 10px;
       --panel-radius: 18px;
       --card-radius: 16px;
@@ -142,19 +141,7 @@
       transform: translateY(-1px);
       flex-shrink: 0;
     }
-    .brand-tagline {
-      margin-left: 12px;
-      padding-left: 12px;
-      border-left: 1px solid rgba(255,255,255,0.25);
-      font-size: 0.62rem;
-      font-weight: 500;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.68);
-      text-shadow: none;
-      line-height: 1;
-      align-self: center;
-    }
+
     .nav {
       display: flex;
       align-items: center;
@@ -738,7 +725,7 @@
       transform: translateY(-4px);
       border-color: rgba(0,0,0,0.06);
       background: #FFFFFF;
-      box-shadow: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.045);
     }
     .approach-card:hover::before { width: 100%; }
     .approach-card-head {
@@ -897,7 +884,7 @@
       border-radius: 0;
       background: transparent;
       border: 0;
-      font-size: 0.66rem;
+      font-size: 0.74rem;
       line-height: 1;
       font-weight: 700;
       letter-spacing: 0.14em;
@@ -1124,9 +1111,6 @@
       overflow: hidden;
       border-top: 1px solid rgba(255,255,255,0.06);
       border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-    .connect::before {
-      content: none;
     }
     .connect-inner {
       display: grid;
@@ -1363,8 +1347,11 @@
       }
       .nav { gap: 22px; }
       .hero-inner { padding: 120px 24px 82px; }
+      .hero h1 { font-size: 52px; }
+      .section-with-bar .section-bar { left: 24px; }
       .bureaucracy-cost,
       .approach,
+      .synthesis,
       .diagnostic-estimate,
       .latest,
       .connect,
@@ -1474,6 +1461,9 @@
         align-items: flex-start;
         flex-direction: column;
       }
+      .approach-grid { grid-template-columns: 1fr; }
+      .approach-synthesis-grid { grid-template-columns: 1fr; }
+      .rail-arrow { min-width: 44px; min-height: 44px; }
       .latest-card { flex-basis: 100%; }
       .differentiators { padding-left: 20px; padding-right: 20px; }
       .differentiators-grid { grid-template-columns: 1fr; }
@@ -1557,6 +1547,10 @@
 .latest-card-kicker {
   letter-spacing: 0.18em;
 }
+@media (max-width: 768px) {
+  .approach-synthesis-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .footer-nav { gap: 32px; }
+}
 @media (max-width: 760px) {
   .footer-top,
   .footer-bottom {
@@ -1629,15 +1623,12 @@
       color: #FFFFFF;
       transform: none;
     }
-    @media (max-width: 1280px) {
-      .brand-tagline { display: none; }
-    }
   </style>
 </head>
 <body>
 <header class="header" id="siteHeader">
 <div class="header-inner">
-<a class="brand" href="index.html">Monderman<span class="brand-dot"></span><span class="brand-tagline">Measure the conditions. Own the outcome.</span></a>
+<a class="brand" href="index.html">Monderman<span class="brand-dot"></span></a>
 <nav aria-label="Primary navigation" class="nav">
 <a href="#approach">Approach</a>
 <a href="diagnostic-hub.html">Diagnostic Hub</a>
@@ -1727,7 +1718,7 @@
 <div class="cost-card reveal reveal-delay-3">
 <div class="cost-card-title">Productive Capacity<span class="asterisk">*</span></div>
 <p class="cost-card-source"><em>* OECD administrative burden guidance, 2010s</em></p>
-<div class="cost-card-number" data-count-type="range-percent" data-target="30">0–0%</div>
+<div class="cost-card-number" data-count-type="range-percent" data-target="30">—</div>
 <p class="cost-card-text">of productive capacity can be absorbed by administrative burden.</p>
 </div>
 </div>
@@ -1749,7 +1740,7 @@
 <div class="approach-card reveal reveal-delay-1" data-effect-target="clarity">
 <div class="approach-card-head">
 <span aria-hidden="true" class="approach-glyph">
-<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
+<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
 <path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
 </svg>
 </span>
@@ -1766,7 +1757,7 @@
 <div class="approach-card reveal reveal-delay-2" data-effect-target="velocity">
 <div class="approach-card-head">
 <span aria-hidden="true" class="approach-glyph">
-<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
+<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
 <path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
 </svg>
 </span>
@@ -1783,7 +1774,7 @@
 <div class="approach-card reveal reveal-delay-3" data-effect-target="systems">
 <div class="approach-card-head">
 <span aria-hidden="true" class="approach-glyph">
-<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
+<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
 <rect height="14" rx="2" width="16" x="4" y="5"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
 </svg>
 </span>
@@ -1800,7 +1791,7 @@
 <div class="approach-card reveal reveal-delay-4" data-effect-target="performance">
 <div class="approach-card-head">
 <span aria-hidden="true" class="approach-glyph">
-<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
+<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
 <circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
 </svg>
 </span>
@@ -1821,7 +1812,7 @@
 <a class="approach-synthesis-item" data-effect="clarity" href="structural-clarity-article.html">
 <div class="approach-synthesis-item-head">
 <span aria-hidden="true" class="approach-synthesis-glyph">
-<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
+<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
 <path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
 </svg>
 </span>
@@ -1833,7 +1824,7 @@
 <a class="approach-synthesis-item" data-effect="velocity" href="decision-velocity-article.html">
 <div class="approach-synthesis-item-head">
 <span aria-hidden="true" class="approach-synthesis-glyph">
-<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
+<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
 <path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
 </svg>
 </span>
@@ -1845,7 +1836,7 @@
 <a class="approach-synthesis-item" data-effect="systems" href="operational-systems-article.html">
 <div class="approach-synthesis-item-head">
 <span aria-hidden="true" class="approach-synthesis-glyph">
-<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
+<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
 <rect height="14" rx="2" width="16" x="4" y="5"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
 </svg>
 </span>
@@ -1857,7 +1848,7 @@
 <a class="approach-synthesis-item" data-effect="performance" href="institutional-performance-article.html">
 <div class="approach-synthesis-item-head">
 <span aria-hidden="true" class="approach-synthesis-glyph">
-<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
+<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
 <circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
 </svg>
 </span>
@@ -1884,7 +1875,7 @@
 <div class="estimate-field">
 <label for="estimateOrgSize">Organization size</label>
 <select aria-label="Organization size" id="estimateOrgSize">
-<option selected="" value="">---</option>
+<option selected="" value="">Select size</option>
 <option value="50">1–50</option>
 <option value="250">51–250</option>
 <option value="1000">251–1,000</option>
@@ -1896,8 +1887,7 @@
 <div class="estimate-field">
 <label for="estimateComplexity">Organizational complexity</label>
 <select aria-label="Organizational complexity" id="estimateComplexity">
-<option selected="" value="">---</option>
-<option value="light">Light</option>
+<option selected="" value="">Select complexity</option>
 <option value="moderate">Moderate</option>
 <option value="heavy">Heavy</option>
 <option value="excessive">Excessive</option>
@@ -1906,8 +1896,7 @@
 <div class="estimate-field">
 <label for="estimateSector">Sector</label>
 <select aria-label="Sector" id="estimateSector">
-<option selected="" value="">---</option>
-<option value="general">General private sector</option>
+<option selected="" value="">Select sector</option>
 <option value="defense-department">Defense Department</option>
 <option value="defense-production">Defense production</option>
 <option value="federal-civilian">Federal civilian government</option>
