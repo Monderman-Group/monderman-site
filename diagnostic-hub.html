@@ -2031,7 +2031,7 @@
 
 <div class="status-strip" role="status" aria-label="Diagnostic availability">
   <span class="status-strip-dot status-strip-dot-live" aria-hidden="true"></span>
-  <p class="status-strip-text"><strong>Operational Systems and Decision Velocity are live in beta.</strong> The other two diagnostics are in active development and not yet available from the hub.</p>
+  <p class="status-strip-text"><strong>Operational Systems, Decision Velocity, and Structural Clarity are live in beta.</strong> Institutional Performance is in active development and not yet available from the hub.</p>
 </div>
 
 <div id="diagnostic-portals" class="tools-section-header" style="display:flex;align-items:center;gap:14px;margin:8px 0 22px;scroll-margin-top:88px;">
@@ -2048,22 +2048,19 @@
         </svg>
       </div>
       <div class="tool-card-top">
-        <div class="tool-badge status-under-development">Under Development</div>
-
-  </div>
-  <h3 class="tool-title">Structural Clarity Diagnostic</h3>
-  <p class="tool-subline">Roles · ownership · handoffs</p>
-  <p class="tool-text">
-    Assess whether ownership, authority, and review logic are clear enough for one bounded workflow or operating slice.
-  </p>
-  <p class="tool-meta-label">Best when</p>
-  <p class="tool-meta">
-    The issue feels like ambiguity, ownership confusion, handoff multiplication, or role-boundary drift.
-  </p>
-
-<span class="tool-open">Open diagnostic →</span>
-</a>
-
+        <div class="tool-badge status-beta">Beta</div>
+      </div>
+      <h3 class="tool-title">Structural Clarity Diagnostic</h3>
+      <p class="tool-subline">Roles · ownership · handoffs</p>
+      <p class="tool-text">
+        Assess whether ownership, authority, and review logic are clear enough for one bounded workflow or operating slice.
+      </p>
+      <p class="tool-meta-label">Best when</p>
+      <p class="tool-meta">
+        The issue feels like ambiguity, ownership confusion, handoff multiplication, or role-boundary drift.
+      </p>
+      <span class="tool-open">Open diagnostic →</span>
+    </a>
   </article>
 
   <article class="tool-card" data-tool-key="decision-velocity">
@@ -3025,10 +3022,10 @@
     const TURNSTILE_VERIFY_URL = "https://monderman-api.onrender.com/api/turnstile-verify";
     const PROTECTED_DIAGNOSTIC_PATHS = new Set([
       "operational-systems.html",
-      "decision-velocity.html"
+      "decision-velocity.html",
+      "structural-clarity.html"
     ]);
     const UNDER_DEVELOPMENT_PATHS = new Map([
-      ["structural-clarity.html", "Structural Clarity Diagnostic"],
       ["institutional-performance.html", "Institutional Performance Diagnostic"]
     ]);
     const TURNSTILE_TOKEN_KEY = "mondermanTurnstileTokenV1";
