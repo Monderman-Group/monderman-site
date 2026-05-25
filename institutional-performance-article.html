@@ -110,20 +110,6 @@
       transform: translateY(-1px);
       flex-shrink: 0;
     }
-    .brand-tagline {
-      margin-left: 12px;
-      padding-left: 12px;
-      border-left: 1px solid rgba(255,255,255,0.25);
-      font-size: 0.62rem;
-      font-weight: 500;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.68);
-      text-shadow: none;
-      line-height: 1;
-      align-self: center;
-    }
-
     .nav {
       display: flex;
       align-items: center;
@@ -133,6 +119,7 @@
     }
 
     .nav a {
+      position: relative;
       color: rgba(255,255,255,0.84);
       font-size: 0.9rem;
       transition: color 180ms ease, transform 180ms ease;
@@ -740,6 +727,7 @@
     @media (max-width: 900px) {
       .article-layout { grid-template-columns: 1fr; }
       .sidebar { position: static; }
+      .sidebar-card { min-height: 0; }
     }
 
     @media (max-width: 720px) {
@@ -752,15 +740,42 @@
       }
 
       .header-inner {
-        padding-top: 16px;
-        padding-bottom: 16px;
+        padding-top: 14px;
+        padding-bottom: 10px;
         align-items: flex-start;
         flex-direction: column;
+        gap: 10px;
       }
+
+      .nav {
+        width: 100%;
+        gap: 10px;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+      }
+
+      .nav::-webkit-scrollbar { display: none; }
+
+      .nav a {
+        flex: 0 0 auto;
+        font-size: 0.84rem;
+        line-height: 1;
+        padding: 10px 12px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.08);
+        white-space: nowrap;
+      }
+
+      .nav a::after { display: none; }
 
       .hero {
         min-height: auto;
-        padding: 78px 0 62px;
+        padding: 56px 0 48px;
       }
 
       .hero-inner {
@@ -789,14 +804,36 @@
         font-size: 44px;
       }
 
-      .hero-taxonomy {
-        margin-left: 52px;
+      .hero-taxonomy { margin-left: 52px; }
+
+      .hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        max-width: 420px;
+      }
+
+      .hero-actions .btn {
+        width: 100%;
+        justify-content: center;
       }
 
       .content { padding: 28px 22px; }
       .signal-grid,
       .output-metrics,
       .output-top { grid-template-columns: 1fr; }
+
+      .footer-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
     }
   
     .nav a.workspace-link {
@@ -823,17 +860,14 @@
       transform: none;
     }
 
-    @media (max-width: 1280px) {
-      .brand-tagline { display: none; }
-    }
   </style>
 </head>
 <body>
   <div class="reading-progress" id="readingProgress" role="progressbar" aria-label="Reading progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
   <header class="header">
     <div class="header-inner">
-      <a href="index.html" class="brand">Monderman<span class="brand-dot"></span><span class="brand-tagline">Measure the conditions. Own the outcome.</span></a>
-      <nav class="nav">
+      <a href="index.html" class="brand">Monderman<span class="brand-dot"></span></a>
+      <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
         <a href="diagnostic-hub.html">Diagnostic Hub</a>
         <a href="research.html">Research</a>
@@ -1090,7 +1124,6 @@
       </div>
       <div class="footer-bottom">
         <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
-        <p class="footer-tagline">Organizations deliver at the speed of their administrative reality.</p>
       </div>
     </div>
   </footer>
