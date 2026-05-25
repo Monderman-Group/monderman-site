@@ -4818,7 +4818,7 @@ $("metaDate").textContent = `Generated: ${nowLabel()}`;
 
 renderBenchmarkBar(result, payload);
 renderQuadrant(resultWithState);
-renderCharts(result);
+try { renderCharts(result); } catch(e) { console.warn("renderCharts non-blocking:", e.message); }
 const dimensionCard = $("dimensionChart")?.closest(".chart-card");
 if (dimensionCard && !dimensionCard.querySelector(".dim-note")) {
 const note = document.createElement("p");
@@ -4828,9 +4828,9 @@ dimensionCard.appendChild(note);
 }
 renderBurdenDonut(result);
 renderClarityDimensionBars(result);
-renderBurdenTreemap(result);
-renderIndustryGauge(result, payload);
-renderTrajectorySparkline(result);
+try { renderBurdenTreemap(result); } catch(e) { console.warn("renderBurdenTreemap(result); non-blocking:", e.message); }
+try { renderIndustryGauge(result, payload); } catch(e) { console.warn("renderIndustryGauge(result, payload); non-blocking:", e.message); }
+try { renderTrajectorySparkline(result); } catch(e) { console.warn("renderTrajectorySparkline(result); non-blocking:", e.message); }
 renderAccordionBindings();
 bindResultTooltips();
 bindOpportunityGate();
