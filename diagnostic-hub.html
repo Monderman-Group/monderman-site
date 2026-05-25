@@ -140,19 +140,6 @@
       transform: translateY(-1px);
       flex-shrink: 0;
     }
-    .brand-tagline {
-      margin-left: 12px;
-      padding-left: 12px;
-      border-left: 1px solid rgba(255,255,255,0.25);
-      font-size: 0.62rem;
-      font-weight: 500;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.68);
-      text-shadow: none;
-      line-height: 1;
-      align-self: center;
-    }
     .nav{
       display:flex;
       align-items:center;
@@ -1556,12 +1543,33 @@
 @media (max-width:980px){
       .header{ height:auto; }
       .header-inner{
-        padding:16px 24px;
+        padding:14px 24px 10px;
         align-items:flex-start;
         flex-direction:column;
-        gap:14px;
+        gap:10px;
       }
-      .nav{ gap:22px; }
+      .nav{
+        width:100%;
+        gap:10px;
+        overflow-x:auto;
+        flex-wrap:nowrap;
+        justify-content:flex-start;
+        scrollbar-width:none;
+        -webkit-overflow-scrolling:touch;
+        padding-bottom:4px;
+      }
+      .nav::-webkit-scrollbar{ display:none; }
+      .nav a{
+        flex:0 0 auto;
+        font-size:0.84rem;
+        line-height:1;
+        padding:10px 12px;
+        border-radius:999px;
+        background:rgba(255,255,255,0.06);
+        border:1px solid rgba(255,255,255,0.08);
+        white-space:nowrap;
+      }
+      .nav a::after{ display:none; }
       .hero-inner,
       .page,
       .footer{
@@ -1571,12 +1579,11 @@
     }
     @media (max-width:760px){
       .brand{ font-size:1.24rem; }
-      .nav{ gap:18px; }
-      .hero-inner{ padding:90px 20px 72px; }
+      .hero-inner{ padding:120px 20px 60px; min-height:0; }
       .hero-eyebrow{ margin-bottom:10px; font-size:.74rem; letter-spacing:.18em; }
       .hero h1{
         max-width:100%;
-        font-size:64px;
+        font-size:44px;
       }
       .hero-dek{
         max-width:100%;
@@ -1593,7 +1600,8 @@
       .tools-grid,
       .split-grid,
       .dynamic-grid,
-      .matrix-grid{
+      .matrix-grid,
+      .shared-context-shell{
         grid-template-columns:1fr;
       }
       .btn{
@@ -1603,7 +1611,7 @@
         padding:0 20px;
         font-size:.98rem;
       }
-      .page{ padding:76px 20px 74px; }
+      .page{ padding:60px 20px 60px; }
       .panel, .tools-head, .bridge, .synthesis-shell{ padding:24px 20px 22px; }
       .tool-card, .tool-card-link{ min-height:auto; }
       .tool-card-link{ padding:22px 20px 20px; }
@@ -1626,6 +1634,13 @@
       .synthesis-actions, .synthesis-fallback{
         align-items:stretch;
       }
+    }
+    @media (max-width:640px){
+      .context-form,
+      .context-secondary-grid{
+        grid-template-columns:1fr;
+      }
+      .context-span-2{ grid-column:span 1; }
     }
 
     /* Under-development diagnostic modal: hidden until triggered */
@@ -1736,10 +1751,6 @@
       border-color: rgba(255, 255, 255, 0.24);
       color: #FFFFFF;
       transform: none;
-    }
-
-    @media (max-width: 1280px) {
-      .brand-tagline { display: none; }
     }
 
     /* Status strip — sets expectations above the tool cards */
@@ -1950,7 +1961,7 @@
 <body>
   <header class="header" id="siteHeader">
     <div class="header-inner">
-      <a href="index.html" class="brand">Monderman<span class="brand-dot"></span><span class="brand-tagline">Measure the conditions. Own the outcome.</span></a>
+      <a href="index.html" class="brand">Monderman<span class="brand-dot"></span></a>
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
         <a href="diagnostic-hub.html" class="is-active">Diagnostic Hub</a>
@@ -2503,7 +2514,6 @@
 
   <div class="footer-bottom">
     <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
-    <p class="footer-contact">Organizations deliver at the speed of their administrative reality.</p>
   </div>
 </div>
 <div class="footer-motif" aria-hidden="true"><svg width="260" height="260" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#4A6FA5" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#5B7A9B" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#4A6FA5" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#5B7A9B" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#6B8FA6" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8BADC5" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#9FBDD1" stroke-width="0.4" opacity="0.13"/><circle r="7" fill="none" stroke="#B0C8D8" stroke-width="0.3" opacity="0.11"/><circle cx="86" cy="-35" r="2.8" fill="#3F6EA1" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#5B7A9B" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#3F6EA1" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#7C5CE8" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#5B7A9B" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#2E86DE" opacity="0.58"/></svg></div>
