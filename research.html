@@ -115,19 +115,7 @@
       transform: translateY(-1px);
       flex-shrink: 0;
     }
-    .brand-tagline {
-      margin-left: 12px;
-      padding-left: 12px;
-      border-left: 1px solid rgba(255,255,255,0.25);
-      font-size: 0.62rem;
-      font-weight: 500;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.68);
-      text-shadow: none;
-      line-height: 1;
-      align-self: center;
-    }
+
     .nav {
       display: flex;
       align-items: center;
@@ -136,6 +124,7 @@
       justify-content: flex-end;
     }
     .nav a {
+      position: relative;
       font-size: 0.9rem;
       color: rgba(245,247,250,0.84);
       transition: color var(--transition), transform var(--transition);
@@ -228,6 +217,18 @@
       font-size: 0.86rem;
       font-weight: 500;
       letter-spacing: -0.01em;
+      cursor: pointer;
+      transition: background 180ms ease, border-color 180ms ease, color 180ms ease;
+    }
+    .filter-chip:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.32);
+    }
+    .filter-chip.is-active,
+    .filter-chip:first-child {
+      background: rgba(63,110,161,0.18);
+      border-color: rgba(63,110,161,0.44);
+      color: #fff;
     }
     .library-stamp {
       font-size: 0.84rem;
@@ -568,6 +569,32 @@
       .essay-grid { grid-template-columns: 1fr; }
       .paper-card,
       .essay-card { border-right: none !important; }
+      .header-inner {
+        min-height: auto;
+        padding-top: 14px;
+        padding-bottom: 12px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .nav {
+        width: 100%;
+        gap: 10px;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+      }
+      .nav::-webkit-scrollbar { display: none; }
+      .nav a {
+        flex: 0 0 auto;
+        padding: 10px 12px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.05);
+        white-space: nowrap;
+      }
     }
     @media (max-width: 760px) {
       .header-inner,
@@ -578,33 +605,26 @@
       .onsite,
       .cta-band,
       .footer { padding-left: 20px; padding-right: 20px; }
-      .header-inner {
-        min-height: auto;
-        padding-top: 14px;
-        padding-bottom: 12px;
-        align-items: flex-start;
-        flex-direction: column;
-      }
-      .nav {
-        width: 100%;
-        gap: 10px;
-        overflow-x: auto;
-        flex-wrap: nowrap;
-      }
-      .nav a {
-        white-space: nowrap;
-        padding: 10px 12px;
-        border-radius: 999px;
-        background: rgba(255,255,255,0.05);
-      }
-      .hero { padding-top: 36px; }
+      .hero { padding-top: 28px; padding-bottom: 20px; }
       .hero h1 { max-width: 9.5ch; font-size: clamp(2.4rem, 12vw, 3.4rem); }
       .featured-main,
       .featured-side,
       .cta-inner { padding: 24px 22px; }
       .meta-grid { grid-template-columns: 1fr 1fr; }
       .paper-card.wide { grid-template-columns: 1fr; }
+      .paper-card,
+      .essay-card { min-height: 0; }
+      .divider-quote { padding-top: 24px; }
       .divider-quote blockquote { font-size: 1.45rem; }
+      .library { padding-top: 28px; }
+      .onsite { padding-top: 0; padding-bottom: 0; }
+      .cta-band { padding-top: 28px; padding-bottom: 32px; }
+      .cta-actions {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+      }
+      .cta-actions .btn { width: 100%; justify-content: center; }
     }
   
     .nav a.workspace-link {
@@ -630,15 +650,12 @@
       color: #FFFFFF;
       transform: none;
     }
-    @media (max-width: 1280px) {
-      .brand-tagline { display: none; }
-    }
   </style>
 </head>
 <body>
   <header class="header">
     <div class="header-inner">
-      <a href="index.html" class="brand">Monderman<span class="brand-dot"></span><span class="brand-tagline">Measure the conditions. Own the outcome.</span></a>
+      <a href="index.html" class="brand">Monderman<span class="brand-dot"></span></a>
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
         <a href="diagnostic-hub.html">Diagnostic Hub</a>
@@ -686,12 +703,6 @@
         </div>
         <p class="featured-quote">“AI is not free. The companies that internalize that fact first — and engineer accordingly — will define the next decade of enterprise AI.”</p>
       </div>
-    </div>
-  </section>
-  <section class="divider-quote">
-    <div class="divider-quote-inner">
-      <div class="divider-label">From the new research</div>
-      <blockquote>“AI is not free. The companies that internalize that fact first — and engineer accordingly — will define the next decade of enterprise AI.”</blockquote>
     </div>
   </section>
   <section class="library">
@@ -810,14 +821,14 @@
       </div>
       <div class="cta-actions">
         <a class="btn btn-accent" href="diagnostic-hub.html">Enter the Diagnostic Hub</a>
-        <a class="btn" href="connect.html">Platform Services</a>
+        <a class="btn" href="platform-services.html">Platform Services</a>
       </div>
     </div>
   </section>
   <footer class="footer">
     <div class="footer-inner">
       <span>© 2026 Monderman. All rights reserved.</span>
-      <span>Organizations deliver at the speed of their administrative reality.</span>
+      
     </div>
   </footer>
 </body>
