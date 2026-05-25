@@ -1345,10 +1345,27 @@
         flex-direction: column;
         gap: 14px;
       }
+      .nav {
+        width: 100%;
+        gap: 10px;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+      }
+      .nav::-webkit-scrollbar { display: none; }
       .nav { gap: 22px; }
       .hero-inner { padding: 120px 24px 82px; }
       .hero h1 { font-size: 52px; }
       .section-with-bar .section-bar { left: 24px; }
+      .bureaucracy-cost { padding-top: 62px; padding-bottom: 72px; }
+      .approach,
+      .synthesis,
+      .diagnostic-estimate,
+      .latest { padding-top: 60px; padding-bottom: 64px; }
+      .connect { padding-top: 60px; padding-bottom: 60px; }
       .bureaucracy-cost,
       .approach,
       .synthesis,
@@ -1396,7 +1413,7 @@
         border: 1px solid rgba(255,255,255,0.08);
       }
       .nav a::after { display: none; }
-      .hero-inner { padding: 160px 20px 108px; }
+      .hero-inner { padding: 120px 20px 72px; }
       .hero-copy { max-width: 100%; }
       .hero h1 {
         max-width: 100%;
@@ -1462,10 +1479,19 @@
         flex-direction: column;
       }
       .approach-grid { grid-template-columns: 1fr; }
+      .approach-card { min-height: 0; }
       .approach-synthesis-grid { grid-template-columns: 1fr; }
       .rail-arrow { min-width: 44px; min-height: 44px; }
       .latest-card { flex-basis: 100%; }
       .differentiators { padding-left: 20px; padding-right: 20px; }
+      .bureaucracy-cost { padding-top: 52px; padding-bottom: 60px; }
+      .approach,
+      .synthesis,
+      .diagnostic-estimate,
+      .latest { padding-top: 52px; padding-bottom: 56px; }
+      .connect { padding-top: 52px; padding-bottom: 52px; }
+      .cost-heading,
+      .diagnostic-estimate-heading { margin-bottom: 28px; }
       .differentiators-grid { grid-template-columns: 1fr; }
       .hero-image {
         top: -7%;
