@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Institutional Performance | Monderman</title>
+  <style>
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff");
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff");
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff");
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+    }
+
+    :root {
+      --accent: #3F6EA1;
+      --accent-dark: #2F5886;
+      --bg: #F6F7F8;
+      --white: #FFFFFF;
+      --text: #15202B;
+      --muted: #556270;
+      --line: #E3E7EB;
+      --dark: #0F1720;
+      --soft: #F8FAFC;
+      --max: 980px;
+    }
+
+    * { box-sizing: border-box; }
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 80px;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .header {
+      background: rgba(15, 23, 32, 0.96);
+      color: #fff;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(10px);
+    }
+
+    .header-inner,
+    .hero-inner,
+    .article-inner,
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding-left: 28px;
+      padding-right: 28px;
+    }
+
+    .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 34px;
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+    }
+
+.brand::after { display: none; }
+    .brand-dot {
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+      flex-shrink: 0;
+    }
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: nowrap;
+      justify-content: flex-end;
+    }
+
+    .nav a {
+      position: relative;
+      color: rgba(255,255,255,0.84);
+      font-size: 0.9rem;
+      transition: color 180ms ease, transform 180ms ease;
+      white-space: nowrap;
+    }
+
+    .nav a:hover,
+    .nav a:focus-visible {
+      color: #fff;
+      transform: translateY(-1px);
+    }
+    .nav a::after {
+      content: "";
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: currentColor;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.2s ease;
+    }
+
+    .nav a.is-active {
+      color: var(--accent);
+      transform: none;
+      outline: none;
+    }
+    .nav a:hover::after,
+    .nav a:focus-visible::after,
+    .nav a.is-active::after {
+      transform: scaleX(1);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background: var(--dark);
+      color: #fff;
+      min-height: 560px;
+      padding: 112px 0 88px;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(
+        circle at 78% 22%,
+        rgba(63, 110, 161, 0.12) 0%,
+        transparent 38%
+      );
+      z-index: 0;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(
+        180deg,
+        rgba(10, 14, 20, 0.06) 0%,
+        rgba(10, 14, 20, 0.22) 100%
+      );
+      z-index: 0;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      min-height: 360px;
+    }
+
+    .hero-copy {
+      max-width: 780px;
+    }
+
+    .hero-head {
+      display: grid;
+      grid-template-columns: 46px minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 18px;
+    }
+
+    .hero-glyph {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--accent);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .hero-glyph svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+    }
+
+    .hero-head-copy {
+      min-width: 0;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.64);
+    }
+
+    .hero h1 {
+      margin: 0;
+      max-width: 11ch;
+      font-size: clamp(2.8rem, 5vw, 4.7rem);
+      line-height: 1.0;
+      letter-spacing: -0.052em;
+      color: #FFFFFF;
+      text-wrap: balance;
+    }
+
+    .hero-taxonomy {
+      margin: 0 0 16px 62px;
+      font-size: 0.92rem;
+      line-height: 1.4;
+      color: rgba(255,255,255,0.68);
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 50ch;
+      font-size: 1.03rem;
+      line-height: 1.7;
+      color: rgba(255,255,255,0.82);
+    }
+
+    .inline-glyph-row {
+      display: inline-grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      margin-bottom: 10px;
+    }
+
+    .inline-glyph {
+      width: 28px;
+      height: 28px;
+      border-radius: 9px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(63,110,161,0.045);
+      border: 1px solid rgba(63,110,161,0.10);
+      color: var(--accent);
+      vertical-align: top;
+    }
+
+    .inline-glyph svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+    }
+
+    .hero-actions {
+      margin-top: 30px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 20px;
+      border-radius: 999px;
+      border: 1.5px solid rgba(63,110,161,0.72);
+      font-size: 0.93rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      transition: background 170ms ease, color 170ms ease, border-color 170ms ease, box-shadow 170ms ease, transform 170ms ease;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: rgba(63,110,161,0.72);
+      box-shadow: 0 6px 14px rgba(63,110,161,0.18), 0 0 0 1px rgba(63,110,161,0.08);
+    }
+
+    .btn-primary:hover,
+    .btn-primary:focus-visible {
+      background: var(--accent-dark);
+      color: #fff;
+      border-color: var(--accent-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 9px 18px rgba(63,110,161,0.24), 0 0 0 1px rgba(63,110,161,0.10);
+      outline: none;
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.92);
+      border-color: rgba(255,255,255,0.32);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.10);
+    }
+
+    .btn-secondary:hover,
+    .btn-secondary:focus-visible {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.52);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .article { padding: 72px 0 96px; }
+
+    .article-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 36px;
+      align-items: start;
+    }
+
+    .content, .sidebar-card, .pullquote, .cta, .signal-figure, .output-figure {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+
+    .content { padding: 44px 38px; }
+
+    .content p {
+      margin: 0 0 20px;
+      font-size: 1.03rem;
+      line-height: 1.8;
+      letter-spacing: -0.01em;
+      color: var(--muted);
+    }
+
+    .content h2 {
+      margin: 38px 0 14px;
+      font-size: 1.52rem;
+      line-height: 1.15;
+      letter-spacing: -0.04em;
+      color: var(--text);
+    }
+
+    .content h3 {
+      margin: 30px 0 10px;
+      font-size: 1.08rem;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .pullquote {
+      margin: 28px 0;
+      padding: 28px;
+      border-left: 3px solid var(--accent);
+    }
+
+    .pullquote p {
+      margin: 0;
+      color: var(--text);
+    }
+
+    .signal-figure,
+    .output-figure {
+      margin: 28px 0;
+      padding: 28px;
+      background: #FFFFFF;
+    }
+
+    .figure-kicker {
+      margin: 0 0 8px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .figure-title {
+      margin: 0 0 16px;
+      font-size: 1.04rem;
+      line-height: 1.25;
+      color: var(--text);
+    }
+
+    .signal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .signal-card {
+      padding: 18px 16px;
+      border-radius: 14px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+    }
+
+    .signal-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.92rem;
+      color: var(--text);
+    }
+
+    .signal-card span {
+      display: block;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .output-shell {
+      display: grid;
+      gap: 16px;
+    }
+
+    .output-top {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 18px;
+      align-items: center;
+    }
+
+    .score-block {
+      padding: 20px 16px;
+      border-radius: 16px;
+      background: #0F1720;
+      color: #fff;
+      text-align: center;
+    }
+
+    .score-block .score-label {
+      font-size: 0.74rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.68);
+      margin-bottom: 8px;
+    }
+
+    .score-block .score-num {
+      font-size: 3rem;
+      line-height: 0.92;
+      font-weight: 700;
+      letter-spacing: -0.06em;
+      margin: 0;
+    }
+
+    .score-block .score-band {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.82);
+    }
+
+    .output-copy {
+      display: grid;
+      gap: 10px;
+    }
+
+    .output-copy p {
+      margin: 0;
+      font-size: 0.94rem;
+      letter-spacing: -0.01em;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    .output-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      padding: 16px 14px 14px;
+      border-radius: 14px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 0.74rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .metric span {
+      display: block;
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 5px;
+    }
+
+    .metric small {
+      display: block;
+      font-size: 0.84rem;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .figure-note {
+      margin-top: 14px;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .sidebar {
+      display: grid;
+      gap: 18px;
+      position: sticky;
+      top: 96px;
+    }
+
+    .sidebar-card { padding: 32px 24px; min-height: 180px; }
+
+    .sidebar-kicker {
+      margin: 0 0 10px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+
+    .sidebar-card.sidebar-outcome {
+      border-left: 3px solid var(--accent);
+      background: rgba(63, 110, 161, 0.04);
+    }
+    .sidebar-outcome-phrase {
+      font-size: 1.04rem;
+      font-weight: 700;
+      font-style: italic;
+      color: var(--accent);
+      margin: 6px 0 12px;
+      letter-spacing: -0.012em;
+    }
+    .sidebar-card h3 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+    }
+
+    .sidebar-card p {
+      margin: 0;
+      font-size: 0.94rem;
+      letter-spacing: -0.01em;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    .mini-list {
+      margin: 12px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    .mini-list li {
+      margin-bottom: 10px;
+      line-height: 1.55;
+    }
+
+    .cta {
+      margin-top: 38px;
+      padding: 32px 28px;
+      background: #F8F9FA;
+    }
+
+    .cta h3 {
+      margin: 0 0 10px;
+      font-size: 1.12rem;
+    }
+
+    .cta p { margin: 0 0 18px; }
+
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 4px;
+      border-radius: 4px;
+    }
+
+    .reading-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      width: 0%;
+      background: var(--accent);
+      z-index: 200;
+      transition: width 60ms linear;
+      pointer-events: none;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(14px);
+      transition:
+        opacity 760ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 760ms cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: opacity, transform;
+    }
+
+    .reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 80ms; }
+    .reveal-delay-2 { transition-delay: 160ms; }
+    .reveal-delay-3 { transition-delay: 240ms; }
+
+    .footer {
+      background: var(--dark);
+      color: rgba(255,255,255,0.72);
+      padding: 40px 0 36px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+
+    .footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .footer-mark {
+      margin: 0;
+      font-size: 1.06rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: -0.02em;
+    }
+
+    .footer-nav {
+      display: flex;
+      gap: 22px;
+      flex-wrap: wrap;
+    }
+
+    .footer-nav a {
+      font-size: 0.94rem;
+      color: rgba(255, 255, 255, 0.72);
+      transition: color 180ms ease;
+    }
+
+    .footer-nav a:hover,
+    .footer-nav a:focus-visible {
+      color: #FFFFFF;
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding-top: 16px;
+    }
+
+    .footer-meta,
+    .footer-tagline {
+      margin: 0;
+      font-size: 0.86rem;
+      color: rgba(255, 255, 255, 0.46);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+
+      .reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+
+      .reading-progress {
+        transition: none;
+      }
+
+      .btn-primary,
+      .btn-secondary,
+      .nav a {
+        transition: none;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .article-layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      .sidebar-card { min-height: 0; }
+    }
+
+    @media (max-width: 720px) {
+      .header-inner,
+      .hero-inner,
+      .article-inner,
+      .footer-inner {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .header-inner {
+        padding-top: 14px;
+        padding-bottom: 10px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .nav {
+        width: 100%;
+        gap: 10px;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+      }
+
+      .nav::-webkit-scrollbar { display: none; }
+
+      .nav a {
+        flex: 0 0 auto;
+        font-size: 0.84rem;
+        line-height: 1;
+        padding: 10px 12px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.08);
+        white-space: nowrap;
+      }
+
+      .nav a::after { display: none; }
+
+      .hero {
+        min-height: auto;
+        padding: 56px 0 48px;
+      }
+
+      .hero-inner {
+        min-height: auto;
+        align-items: flex-end;
+      }
+
+      .hero-head {
+        grid-template-columns: 40px minmax(0, 1fr);
+        gap: 12px;
+      }
+
+      .hero-glyph {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+      }
+
+      .hero-glyph svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      .hero h1 {
+        max-width: 100%;
+        font-size: 44px;
+      }
+
+      .hero-taxonomy { margin-left: 52px; }
+
+      .hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        max-width: 420px;
+      }
+
+      .hero-actions .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .content { padding: 28px 22px; }
+      .signal-grid,
+      .output-metrics,
+      .output-top { grid-template-columns: 1fr; }
+
+      .footer-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+    }
+  
+    .nav a.workspace-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.06);
+      color: #FFFFFF;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .nav a.workspace-link::after {
+      display: none;
+    }
+    .nav a.workspace-link:hover,
+    .nav a.workspace-link:focus-visible {
+      background: rgba(255, 255, 255, 0.10);
+      border-color: rgba(255, 255, 255, 0.24);
+      color: #FFFFFF;
+      transform: none;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress" role="progressbar" aria-label="Reading progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="brand">Monderman<span class="brand-dot"></span></a>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="index.html#approach">Approach</a>
+        <a href="diagnostic-hub.html">Diagnostic Hub</a>
+        <a href="research.html">Research</a>
+        <a href="why-monderman.html">Why Monderman</a>
+        <a href="about.html">About</a>
+        <a href="platform-services.html">Platform Services</a>
+        <a href="connect.html">Connect</a>
+        <a href="signin.html" class="workspace-link">Workspace</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <div class="hero-head">
+          <span class="hero-glyph" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
+            </svg>
+          </span>
+          <div class="hero-head-copy">
+            <p class="eyebrow">Our Approach</p>
+            <h1>Institutional Performance</h1>
+          </div>
+        </div>
+        <p class="hero-taxonomy"><em>Does it still hold?</em></p>
+        <p>
+          Institutional Performance shows whether an institution is still converting structure into sustained execution, confidence, adaptive capacity, and performance stability — or whether visible output is increasingly being preserved through fragility, management lift, and compensatory effort.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="institutional-performance.html">Run Institutional Performance Diagnostic</a>
+          <a class="btn btn-secondary" href="connect.html" target="_blank" rel="noopener noreferrer">Start a Structured Conversation</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="article">
+    <div class="article-inner">
+      <div class="article-layout">
+        <article class="content">
+          <p>
+            Many institutions do not first decline through visible failure. They decline through weakening condition. Output may still appear acceptable. Teams still work hard. Managers still intervene. Leaders still see movement. But underneath that visible performance, the institution may be losing coherence, confidence, adaptive range, and the ability to carry its own weight.
+          </p>
+
+          <p>
+            That is what the Institutional Performance diagnostic is designed to surface. Not whether the organization looks busy, serious, or well governed, but whether the institution is still converting structure into durable performance — or relying more heavily on compensation, informal stabilization, and extra management lift to preserve acceptable results.
+          </p>
+
+          <div class="pullquote reveal">
+            <p>
+              Institutional performance is not just whether outcomes still appear. It is whether the institution itself can still produce them with enough coherence, confidence, and resilience to remain credible over time.
+            </p>
+          </div>
+
+          <h2>What the diagnostic is actually reading</h2>
+
+          <p>
+            The tool does not treat performance as a single output number. It reads the institutional condition beneath visible results: whether leadership intent translates into execution, whether decisions hold once made, whether confidence in the system is weakening, whether performance degrades under pressure, and whether the institution is increasingly borrowing performance from compensatory effort rather than generating it through sound underlying conditions.
+          </p>
+
+          <div class="signal-figure reveal">
+            <p class="figure-kicker">Diagnostic reading model</p>
+            <div class="inline-glyph-row">
+              <span class="inline-glyph" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
+                </svg>
+              </span>
+              <h3 class="figure-title">Four recurring institutional risk patterns</h3>
+            </div>
+            <div class="signal-grid">
+              <div class="signal-card">
+                <strong>Execution fragility</strong>
+                <span>Leadership intent, priorities, or follow-through are not translating cleanly enough into day-to-day execution.</span>
+              </div>
+              <div class="signal-card">
+                <strong>Confidence erosion</strong>
+                <span>People rely less on the institution itself and more on workarounds, relationships, local interpretation, or management intervention.</span>
+              </div>
+              <div class="signal-card">
+                <strong>Adaptive strain</strong>
+                <span>The institution appears less able to maintain performance when conditions shift, pressure rises, or disruption enters the environment.</span>
+              </div>
+              <div class="signal-card">
+                <strong>Compensatory dependence</strong>
+                <span>Visible output still appears, but too much of it depends on extra effort, heroics, or quiet manual stabilization.</span>
+              </div>
+            </div>
+            <p class="figure-note">
+              The live diagnostic adapts its question path around these signals and reads them differently across operational, managerial, and executive perspectives.
+            </p>
+          </div>
+
+          <h2>Why institutions can look functional while weakening underneath</h2>
+
+          <p>
+            Institutional weakness rarely begins with open collapse. More often, it begins when the system stops carrying performance on its own. Decisions need more translation. Managers need to intervene more often. Teams rely more heavily on informal coordination. Recurring issues are managed repeatedly rather than resolved structurally. Under stable conditions, the institution may still look capable. Under strain, its underlying condition becomes much easier to see.
+          </p>
+
+          <p>
+            This is why institutional performance has to be read differently from simple process efficiency. The real question is not only whether outcomes are still being produced. It is whether the institution remains coherent and adaptive enough to keep producing them without steadily increasing the hidden cost of maintaining them.
+          </p>
+
+          <h2>What strong institutional performance actually looks like</h2>
+
+          <h3>Leadership intent travels cleanly</h3>
+          <p>
+            Decisions do not dissolve into local reinterpretation, uneven follow-through, or repeated management rescue. Direction translates into action with relatively little distortion.
+          </p>
+
+          <h3>Confidence in the system remains intact</h3>
+          <p>
+            People do not need to constantly route around the institution to get acceptable outcomes. The formal system remains usable enough to be trusted.
+          </p>
+
+          <h3>Performance holds under pressure</h3>
+          <p>
+            The institution does not become brittle every time complexity rises, priorities shift, or volume increases. It can absorb change without losing coherence.
+          </p>
+
+          <h3>Compensation stays proportionate</h3>
+          <p>
+            Exceptional effort exists, but it does not become the invisible operating model that keeps the institution looking healthier than it really is.
+          </p>
+
+          <h2>What the output is meant to give leaders</h2>
+
+          <p>
+            The Institutional Performance diagnostic is not a generic culture survey or morale score. It is built to return a leadership-facing readout: a directional institutional-performance score, a current condition read, a primary exposure source, a coherence diagnosis, a benchmark position, a trajectory signal, and a directional estimate of reclaimable capacity if the weakest conditions are strengthened first.
+          </p>
+
+          <div class="output-figure reveal">
+            <p class="figure-kicker">What the tool returns</p>
+            <h3 class="figure-title">A leadership readout about institutional condition, not just visible output</h3>
+            <div class="output-shell">
+              <div class="output-top">
+                <div class="score-block">
+                  <div class="score-label">Condition score</div>
+                  <p class="score-num">64</p>
+                  <div class="score-band">Fragile but still performing</div>
+                </div>
+                <div class="output-copy">
+                  <p><strong>Current condition.</strong> A concise read of whether the institution appears strong, exposed, fragile, or degraded beneath visible performance.</p>
+                  <p><strong>Primary exposure source.</strong> The heaviest likely fragility driver, such as execution coherence weakness, confidence erosion, adaptive strain, or compensatory dependence.</p>
+                  <p><strong>Coherence diagnosis.</strong> Whether current performance appears durable enough for the demands being placed on the institution — or increasingly borrowed through compensation and management lift.</p>
+                </div>
+              </div>
+              <div class="output-metrics">
+                <div class="metric">
+                  <strong>Benchmark</strong>
+                  <span>Within range</span>
+                  <small>How the institution compares with similar environments.</small>
+                </div>
+                <div class="metric">
+                  <strong>Trajectory</strong>
+                  <span>Rising strain</span>
+                  <small>Whether underlying institutional strain appears stable, worsening, or easing.</small>
+                </div>
+                <div class="metric">
+                  <strong>Reclaim potential</strong>
+                  <span>Directional upside</span>
+                  <small>Approximate recoverable value if the weakest conditions are strengthened first.</small>
+                </div>
+              </div>
+            </div>
+            <p class="figure-note">
+              The actual tool also includes priority actions, a gated opportunity view, supporting evidence panels, and a downloadable executive report.
+            </p>
+          </div>
+
+          <h2>The hidden cost of weakening institutional condition</h2>
+
+          <h3>Managers become part of the mechanism</h3>
+          <p>
+            When the system no longer carries performance cleanly, managers spend more time stabilizing, clarifying, escalating, and compensating. That is not just a leadership burden. It is a structural warning.
+          </p>
+
+          <h3>Visible performance becomes more expensive to preserve</h3>
+          <p>
+            Outcomes may still appear acceptable, but the institution may now require more labor, more coordination, and more intervention to keep producing them.
+          </p>
+
+          <h3>Adaptation narrows</h3>
+          <p>
+            Institutions with weakening condition often remain passable in stable periods but degrade quickly when conditions change. That is where fragility becomes strategically relevant.
+          </p>
+
+          <h3>Confidence falls before collapse becomes obvious</h3>
+          <p>
+            By the time leaders see broad institutional distrust or visible performance failure, the weaker condition beneath it has often been developing for some time.
+          </p>
+
+          <h2>How Monderman approaches institutional performance</h2>
+
+          <p>
+            Monderman looks beneath visible output to the institutional conditions producing it. Where is follow-through weakening? Where is confidence being lost? Where is adaptation narrowing? Where is performance still visible mainly because people keep compensating for a system that is no longer carrying enough of the load itself?
+          </p>
+
+          <p>
+            The goal is not cosmetic reassurance. It is to help leaders see whether the institution still possesses durable performance capacity — and, if not, where strengthening coherence, confidence, and resilience is likely to yield the greatest return in time, money, resources, and long-run maneuverability.
+          </p>
+
+          <div class="cta reveal">
+            <h3>Common signs institutional performance is weakening</h3>
+            <p>
+              Managers intervene too often. Recurring problems keep resurfacing. People rely more on informal relationships and workarounds than on the formal system. Output still appears, but it increasingly feels borrowed rather than produced by a strong institution.
+            </p>
+            <a class="btn btn-primary" href="institutional-performance.html">Run Institutional Performance Diagnostic</a>
+          </div>
+        </article>
+
+        <aside class="sidebar">
+          <div class="sidebar-card reveal reveal-delay-1">
+            <p class="sidebar-kicker">What this affects</p>
+            <h3>What this diagnostic measures</h3>
+            <p>
+              Weak institutional performance does not just reduce efficiency. It undermines the institution’s ability to remain credible, adaptive, and dependable under pressure.
+            </p>
+          </div>
+
+          <div class="sidebar-card reveal reveal-delay-2">
+            <p class="sidebar-kicker">The tool is looking for</p>
+            <ul class="mini-list">
+              <li>Execution that depends too heavily on intervention or translation</li>
+              <li>Confidence weakening beneath still-visible performance</li>
+              <li>Institutions that degrade under pressure or change</li>
+              <li>Performance preserved through compensation more than sound condition</li>
+            </ul>
+          </div>
+
+          <div class="sidebar-card reveal reveal-delay-3">
+            <p class="sidebar-kicker">Monderman view</p>
+            <p>
+              Institutional Performance is about the condition beneath visible output: whether the institution still converts structure into sustained execution, confidence, adaptability, and performance stability.
+            </p>
+          </div>
+
+          <div class="sidebar-card sidebar-outcome reveal reveal-delay-3">
+            <p class="sidebar-kicker">What changes after this diagnostic</p>
+            <p class="sidebar-outcome-phrase">Organizational credibility.</p>
+            <p>Leaders see whether the institution can still meet its stated commitments — and act before the gap becomes public. The diagnostic surfaces where structural conditions and stated commitments are quietly diverging.</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <p class="footer-mark">Monderman</p>
+        <nav class="footer-nav" aria-label="Footer navigation">
+          <a href="index.html#approach">Approach</a>
+          <a href="diagnostic-hub.html">Diagnostic Hub</a>
+          <a href="research.html">Research</a>
+          <a href="platform-services.html">Platform Services</a>
+        <a href="connect.html">Connect</a>
+          <a href="privacy.html">Privacy</a>
+        </nav>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const bar = document.getElementById("readingProgress");
+      if (!bar) return;
+      function updateProgress() {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
+        bar.style.width = pct + "%";
+        bar.setAttribute("aria-valuenow", Math.round(pct));
+      }
+      window.addEventListener("scroll", updateProgress, { passive: true });
+      updateProgress();
+    })();
+
+    (function () {
+      const revealItems = document.querySelectorAll(".reveal");
+      if (!revealItems.length) return;
+      const obs = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              obs.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.10, rootMargin: "0px 0px -6% 0px" }
+      );
+      revealItems.forEach(function (el) { obs.observe(el); });
+    })();
+  </script>
+
+</body>
+</html>
