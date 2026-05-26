@@ -1781,6 +1781,215 @@
     }
     .status-strip-text strong { font-weight: 700; color: var(--text-dark); }
 
+    /* Environment trust line — sits below status strip */
+    .environment-line {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      margin: 0 0 8px;
+      background: rgba(63,110,161,0.04);
+      border: 1px solid rgba(63,110,161,0.14);
+      border-radius: 10px;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      color: var(--text-dark);
+    }
+    .environment-line-dot {
+      flex: 0 0 8px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-top: 6px;
+    }
+    .environment-line strong { font-weight: 600; }
+    .environment-line a {
+      color: var(--accent);
+      font-weight: 500;
+      border-bottom: 1px solid rgba(63,110,161,0.3);
+      transition: border-color 180ms ease;
+    }
+    .environment-line a:hover { border-color: var(--accent); }
+
+    /* Framing line — under environment line */
+    .hub-framing {
+      padding: 10px 0 24px;
+      font-size: 0.94rem;
+      line-height: 1.6;
+      color: var(--muted-dark);
+      max-width: 78ch;
+    }
+    .hub-framing em { font-style: italic; }
+    .hub-framing-book {
+      display: block;
+      margin-top: 8px;
+      font-size: 0.84rem;
+      color: var(--muted-dark);
+    }
+
+    /* What you'll receive strip */
+    .what-you-get-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0;
+      margin: 0 0 28px;
+      padding: 18px 0;
+      border-top: 1px solid rgba(21,32,43,0.08);
+      border-bottom: 1px solid rgba(21,32,43,0.08);
+    }
+    .what-you-get-item {
+      padding: 0 18px;
+      border-right: 1px solid rgba(21,32,43,0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .what-you-get-item:last-child { border-right: none; }
+    .what-you-get-label {
+      font-size: 0.66rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0;
+    }
+    .what-you-get-value {
+      font-size: 0.92rem;
+      line-height: 1.4;
+      color: var(--text-dark);
+      font-weight: 500;
+      margin: 0;
+    }
+    @media (max-width: 760px) {
+      .what-you-get-strip {
+        grid-template-columns: 1fr 1fr;
+        gap: 14px 0;
+      }
+      .what-you-get-item {
+        padding: 8px 14px;
+        border-right: 1px solid rgba(21,32,43,0.06);
+      }
+      .what-you-get-item:nth-child(2n) { border-right: none; }
+    }
+    @media (max-width: 460px) {
+      .what-you-get-strip { grid-template-columns: 1fr; }
+      .what-you-get-item {
+        padding: 8px 0;
+        border-right: none;
+        border-bottom: 1px solid rgba(21,32,43,0.06);
+      }
+      .what-you-get-item:last-child { border-bottom: none; }
+    }
+
+    /* Tool card meta line — sits between subline and text */
+    .tool-card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      margin: 4px 0 12px;
+      padding: 0;
+    }
+    .tool-card-meta span {
+      font-size: 0.74rem;
+      letter-spacing: 0.01em;
+      color: var(--muted-dark);
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tool-card-meta span::before {
+      content: "";
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0.6;
+    }
+    .tool-card-meta span:first-child::before { display: none; }
+    .tool-card[data-tool-key="institutional-performance"] .tool-card-meta { display: none; }
+
+    /* FAQ disclosure block */
+    .hub-faq {
+      margin: 36px 0 12px;
+      padding: 28px 24px 22px;
+      background: var(--panel-soft, #F6F7F8);
+      border: 1px solid rgba(21,32,43,0.08);
+      border-radius: 14px;
+    }
+    .hub-faq-title {
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 4px;
+    }
+    .hub-faq-lead {
+      font-size: 1.04rem;
+      line-height: 1.4;
+      font-weight: 700;
+      color: var(--text-dark);
+      letter-spacing: -0.02em;
+      margin: 0 0 18px;
+      max-width: 60ch;
+    }
+    .hub-faq-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+    .hub-faq-item {
+      border-top: 1px solid rgba(21,32,43,0.08);
+      padding: 14px 0;
+    }
+    .hub-faq-item:last-child { border-bottom: 1px solid rgba(21,32,43,0.08); }
+    .hub-faq-item summary {
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      font-size: 0.98rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      letter-spacing: -0.01em;
+    }
+    .hub-faq-item summary::-webkit-details-marker { display: none; }
+    .hub-faq-item summary::after {
+      content: "+";
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: var(--accent);
+      transition: transform 200ms ease;
+    }
+    .hub-faq-item[open] summary::after {
+      content: "−";
+    }
+    .hub-faq-answer {
+      font-size: 0.96rem;
+      line-height: 1.55;
+      color: var(--text-dark);
+      margin: 10px 0 4px;
+      max-width: 64ch;
+    }
+
+    /* Turnstile callout — sits inside the modal */
+    .cf-modal-trust {
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: rgba(63,110,161,0.05);
+      border: 1px solid rgba(63,110,161,0.16);
+      border-radius: 8px;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: var(--text-dark);
+      text-align: left;
+    }
+    .cf-modal-trust strong { font-weight: 600; color: var(--text-dark); }
+
     /* Shared-context disclosure — a self-explaining feature card.
        Stays collapsed by default to protect the first-run flow, but the
        summary itself carries the full pitch so multi-run users see the value. */
@@ -1967,6 +2176,7 @@
         <a href="diagnostic-hub.html" class="is-active">Diagnostic Hub</a>
         <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
+        <a href="about.html">About</a>
         <a href="platform-services.html">Platform Services</a>
         <a href="connect.html">Connect</a>
         <a href="workspace.html" class="workspace-link">Workspace</a>
@@ -2034,6 +2244,37 @@
   <p class="status-strip-text"><strong>Operational Systems, Decision Velocity, and Structural Clarity are live in beta.</strong> Institutional Performance is in active development and not yet available from the hub.</p>
 </div>
 
+<div class="environment-line" role="note" aria-label="Data handling">
+  <span class="environment-line-dot" aria-hidden="true"></span>
+  <p style="margin:0;">
+    <strong>Diagnostic data stays in your environment.</strong> Responses, scores, and exports are processed in your browser. Nothing is transmitted to or stored on Monderman servers. <a href="privacy.html">Read the data policy →</a>
+  </p>
+</div>
+
+<p class="hub-framing">
+  Monderman is not a survey platform. Each diagnostic is an <em>instrument</em> — a calibrated, repeatable measurement designed to be run again over time. The distinction is what gives results their value: a baseline you can return to, not a one-off snapshot.
+  <span class="hub-framing-book">Diagnostics built on the framework from <em>Governance and Bureaucracy in Complex Organizations</em> (Routledge, forthcoming).</span>
+</p>
+
+<div class="what-you-get-strip" aria-label="What you receive from each diagnostic">
+  <div class="what-you-get-item">
+    <p class="what-you-get-label">What you receive</p>
+    <p class="what-you-get-value">Executive PDF read</p>
+  </div>
+  <div class="what-you-get-item">
+    <p class="what-you-get-label">Quantified</p>
+    <p class="what-you-get-value">Diagnostic score</p>
+  </div>
+  <div class="what-you-get-item">
+    <p class="what-you-get-label">Identified</p>
+    <p class="what-you-get-value">Primary structural signal</p>
+  </div>
+  <div class="what-you-get-item">
+    <p class="what-you-get-label">Portable</p>
+    <p class="what-you-get-value">JSON export</p>
+  </div>
+</div>
+
 <div id="diagnostic-portals" class="tools-section-header" style="display:flex;align-items:center;gap:14px;margin:8px 0 22px;scroll-margin-top:88px;">
   <p style="margin:0;font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);">Diagnostic portals</p>
   <div style="flex:1;height:1px;background:rgba(63,110,161,.14);"></div>
@@ -2052,6 +2293,11 @@
       </div>
       <h3 class="tool-title">Structural Clarity Diagnostic</h3>
       <p class="tool-subline">Roles · ownership · handoffs</p>
+      <div class="tool-card-meta">
+        <span>~25 minutes</span>
+        <span>Runs in your browser</span>
+        <span>No account required</span>
+      </div>
       <p class="tool-text">
         Assess whether ownership, authority, and review logic are clear enough for one bounded workflow or operating slice.
       </p>
@@ -2075,6 +2321,11 @@
       </div>
       <h3 class="tool-title">Decision Velocity Diagnostic</h3>
       <p class="tool-subline">Approvals · escalation · delay</p>
+      <div class="tool-card-meta">
+        <span>~25 minutes</span>
+        <span>Runs in your browser</span>
+        <span>No account required</span>
+      </div>
       <p class="tool-text">
         Diagnose where approvals, escalation patterns, and routing complexity are slowing movement through important decisions.
       </p>
@@ -2098,6 +2349,11 @@
       </div>
       <h3 class="tool-title">Operational Systems Diagnostic</h3>
       <p class="tool-subline">Process load · reporting · overhead</p>
+      <div class="tool-card-meta">
+        <span>~25 minutes</span>
+        <span>Runs in your browser</span>
+        <span>No account required</span>
+      </div>
       <p class="tool-text">
         Surface recurring administrative burden, process density, and non-value-adding overhead across a selected workflow or environment.
       </p>
@@ -2131,6 +2387,33 @@
       <span class="tool-open">Open diagnostic &#8594;</span>
     </a>
   </article>
+</div>
+
+<div class="hub-faq" aria-label="Questions before running a diagnostic">
+  <p class="hub-faq-title">Before you run a diagnostic</p>
+  <p class="hub-faq-lead">Questions most people ask before clicking — answered candidly.</p>
+  <div class="hub-faq-list">
+    <details class="hub-faq-item">
+      <summary>Will my responses leave this device?</summary>
+      <p class="hub-faq-answer">No. The diagnostic runs in your browser. Your responses, the AI-generated narrative, and the resulting score are not transmitted to or stored on Monderman servers. If you export a report or close the tab, that action happens on your device.</p>
+    </details>
+    <details class="hub-faq-item">
+      <summary>Do I need an account or login to run a diagnostic?</summary>
+      <p class="hub-faq-answer">No. The first read is free and requires no signup. Workspace registration is optional and exists for institutions that want to save runs, compare baselines over time, or share results across colleagues — none of which is required to use the platform.</p>
+    </details>
+    <details class="hub-faq-item">
+      <summary>How long does a diagnostic actually take?</summary>
+      <p class="hub-faq-answer">Most users complete a single diagnostic in 20 to 30 minutes. The first run is typically slower as you adjust to the framing; subsequent runs against the same instrument move faster because the prompts are familiar.</p>
+    </details>
+    <details class="hub-faq-item">
+      <summary>What happens if I close the browser mid-run?</summary>
+      <p class="hub-faq-answer">Your progress is preserved locally for the active session. Returning to the same page in the same browser will resume where you left off. Clearing browser data or switching devices will reset the run.</p>
+    </details>
+    <details class="hub-faq-item">
+      <summary>Can I share or export results?</summary>
+      <p class="hub-faq-answer">Yes. Each diagnostic produces a PDF executive read and a JSON export. Both download directly to your device. Sharing them with colleagues — by email, internal drive, or document system — is your choice and your action. Monderman has no record that the diagnostic was run.</p>
+    </details>
+  </div>
 </div>
   </section>
 
@@ -2476,6 +2759,9 @@
         <div id="turnstileWidget"></div>
       </div>
       <p class="cf-modal-status" id="turnstileStatus">Waiting to initialize human check...</p>
+      <p class="cf-modal-trust">
+        <strong>Verification only.</strong> No diagnostic content is collected at this step. Cloudflare Turnstile checks that the request is human; nothing about your responses leaves your device.
+      </p>
       <div class="cf-modal-actions">
         <button class="btn btn-subtle" id="turnstileCancelBtn" type="button">Cancel</button>
       </div>
@@ -2499,12 +2785,14 @@
     <a href="diagnostic-hub.html">Diagnostic Hub</a>
     <a href="research.html">Research</a>
     <a href="why-monderman.html">Why Monderman</a>
+    <a href="about.html">About</a>
   </div>
 
   <div class="footer-nav-col">
     <p class="footer-nav-title">Connect</p>
     <a href="connect.html">Open Connect Form</a>
     <a href="mailto:connect@monderman.com">connect@monderman.com</a>
+    <a href="privacy.html">Privacy</a>
   </div>
 </div>
   </div>
