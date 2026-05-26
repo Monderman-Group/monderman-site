@@ -67,19 +67,27 @@
 
     /* Header */
     .header {
-      position: sticky;
-      top: 0;
+      position: fixed;
+      inset: 0 0 auto 0;
+      width: 100%;
+      height: 72px;
       z-index: 100;
-      background: var(--header-solid);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--header-border);
+      background: transparent;
+      border-bottom: 1px solid transparent;
+      transition: background 220ms ease, border-color 220ms ease, backdrop-filter 220ms ease, -webkit-backdrop-filter 220ms ease;
       color: var(--text-light);
+    }
+    .header.scrolled {
+      background: var(--header-solid);
+      border-bottom-color: var(--header-border);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
     }
     .header-inner {
       max-width: var(--max);
       margin: 0 auto;
-      padding: 18px 28px;
+      height: 100%;
+      padding: 0 28px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -602,5 +610,17 @@
   </div>
 </footer>
 
+<script>
+  (function () {
+    var header = document.querySelector('.header');
+    if (!header) return;
+    function update() {
+      if (window.scrollY > 8) header.classList.add('scrolled');
+      else header.classList.remove('scrolled');
+    }
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+  })();
+</script>
 </body>
 </html>
