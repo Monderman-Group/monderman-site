@@ -264,6 +264,49 @@
       font-weight: 500;
     }
 
+    /* Outcomes */
+    .outcomes-list {
+      list-style: none;
+      padding: 0;
+      margin: 36px 0 0;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+      max-width: 72ch;
+      border-top: 1px solid var(--line-dark);
+    }
+    .outcomes-list li {
+      padding: 22px 0;
+      border-bottom: 1px solid var(--line-dark);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 28px;
+      align-items: baseline;
+    }
+    .outcomes-instrument {
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      letter-spacing: -0.01em;
+    }
+    .outcomes-result {
+      font-size: 1rem;
+      color: var(--accent);
+      font-weight: 500;
+      font-style: italic;
+      text-align: right;
+      white-space: nowrap;
+    }
+    @media (max-width: 600px) {
+      .outcomes-list li {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+      .outcomes-result {
+        text-align: left;
+      }
+    }
+
     /* Quiet CTA */
     .quiet-cta {
       padding: 56px 0 78px;
@@ -430,7 +473,7 @@
     <p class="hero-eyebrow">About</p>
     <h1>The difference between delivery and drift is measurable.</h1>
     <p class="hero-dek">
-      Monderman exists because almost no one measures it. The platform was built by an operator who has spent two decades inside the kinds of institutions it is designed to serve.
+      Monderman makes administrative drag visible, measurable, and governable — the structural conditions that determine whether institutions deliver on their missions or quietly lose capacity to friction. The platform was built by an operator, not a researcher.
     </p>
   </div>
 </section>
@@ -446,10 +489,10 @@
           Jason built Monderman after twenty years of doing the work it is now designed to support. He started as an intelligence analyst at NSA, joined CrowdStrike during its growth phase as a senior threat intelligence analyst and analytic support team lead, and currently serves as a senior all-source analyst supporting U.S. Special Operations Command Europe (SOCEUR). Across those roles, the recurring problem has been the same: institutions with serious missions losing capacity to administrative conditions no one is measuring.
         </p>
         <p>
-          He holds a Master of Science in Organization Development from Pepperdine University and a Bachelor of Arts in Russian and Eurasian Studies from the University of Texas at Austin. The frameworks behind Monderman are documented in a forthcoming book from Routledge, but the platform is built for the operator, not the reader.
+          He holds a Master of Science in Organization Development from Pepperdine University and a Bachelor of Arts in Russian and Eurasian Studies from the University of Texas at Austin. The frameworks behind Monderman are documented in a forthcoming book from Routledge. The platform is built for operators — chiefs of staff, division heads, program leads, transformation officers — who need to see what is actually slowing their organization and act on it.
         </p>
         <blockquote class="founder-quote">
-          Administrative reality is not a workflow problem. It is a governing condition — and it can be measured.
+          What Monderman measures is not how people feel about their work. It is the structural conditions that determine whether their work gets done.
         </blockquote>
       </div>
     </div>
@@ -461,11 +504,29 @@
     <p class="section-eyebrow">Why This Platform</p>
     <h2>The market measures sentiment. Monderman measures the system.</h2>
     <p>
-      Most platforms in the organizational health space measure how people feel about their work — engagement scores, culture indices, sentiment trends. That work is not wrong, but it answers a different question than the one institutional leaders have to act on.
+      Most platforms in the organizational health space measure how people feel about their work — engagement scores, culture indices, sentiment trends. Monderman measures the structural conditions that produce those feelings in the first place: where authority is clear and where it is ambiguous, where decisions move quickly and where they stall, where administrative systems accelerate work and where they restrict it.
     </p>
     <p>
-      Monderman measures the structural conditions that produce those feelings in the first place: where authority is clear and where it is ambiguous, where decisions move quickly and where they stall, where administrative systems accelerate work and where they restrict it. The diagnostics are built to be re-run. Value compounds across the second, third, and tenth read.
+      The platform runs four diagnostics. Each one measures a different structural condition and produces a different operational outcome.
     </p>
+    <ul class="outcomes-list">
+      <li>
+        <span class="outcomes-instrument">Structural Clarity</span>
+        <span class="outcomes-result">Confident action</span>
+      </li>
+      <li>
+        <span class="outcomes-instrument">Decision Velocity</span>
+        <span class="outcomes-result">Sustained advantage</span>
+      </li>
+      <li>
+        <span class="outcomes-instrument">Operational Systems</span>
+        <span class="outcomes-result">Reclaimed capacity</span>
+      </li>
+      <li>
+        <span class="outcomes-instrument">Institutional Performance</span>
+        <span class="outcomes-result">Organizational credibility</span>
+      </li>
+    </ul>
   </div>
 </section>
 
