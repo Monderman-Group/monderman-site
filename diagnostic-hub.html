@@ -1822,6 +1822,86 @@
       margin: 0;
     }
 
+    /* Promoted single-line sample report panel */
+    .sample-panel {
+      margin: 0 0 12px;
+      padding: 20px 24px;
+      background: rgba(63,110,161,0.05);
+      border: 1px solid rgba(63,110,161,0.18);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .sample-panel-content {
+      flex: 1 1 320px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.98rem;
+      line-height: 1.5;
+      color: var(--text-dark);
+    }
+    .sample-panel-content p { margin: 0; }
+    .sample-panel-content strong { font-weight: 600; }
+    .sample-panel-dot {
+      flex: 0 0 8px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-top: 7px;
+    }
+    .sample-panel-cta {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #FFFFFF;
+      font-size: 0.88rem;
+      font-weight: 500;
+      letter-spacing: -0.005em;
+      text-decoration: none;
+      transition: background 180ms ease, transform 120ms ease;
+      white-space: nowrap;
+    }
+    .sample-panel-cta:hover {
+      background: var(--accent-strong, #2F5886);
+      color: #FFFFFF;
+      transform: translateY(-1px);
+    }
+    .sample-panel-cta:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    /* Quiet data line — sits above the tool grid */
+    .data-line {
+      margin: 0 0 14px;
+      padding: 10px 0 0;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: var(--muted-dark);
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      border-top: 1px solid rgba(21,32,43,0.06);
+    }
+    .data-line p { margin: 0; }
+    .data-line strong { color: var(--text-dark); font-weight: 500; }
+    .data-line a {
+      color: var(--accent);
+      font-weight: 500;
+      border-bottom: 1px solid rgba(63,110,161,0.3);
+      padding-bottom: 1px;
+      transition: border-color 180ms ease;
+    }
+    .data-line a:hover { border-color: var(--accent); }
+
     /* Tools section eyebrow — small framing line above section header */
     .tools-framing {
       margin: 0 0 14px;
@@ -2296,20 +2376,17 @@
   <p class="status-strip-text"><strong>Operational Systems, Decision Velocity, and Structural Clarity are live in beta.</strong> Institutional Performance is in active development and not yet available from the hub.</p>
 </div>
 
-<div class="trust-panel" role="note" aria-label="Trust commitments">
-  <div class="trust-line">
-    <span class="trust-line-dot" aria-hidden="true"></span>
+<div class="sample-panel" role="note" aria-label="Sample report">
+  <div class="sample-panel-content">
+    <span class="sample-panel-dot" aria-hidden="true"></span>
     <p>
-      <strong>Diagnostic data stays in your environment.</strong> Responses, scores, and exports are processed in your browser. Nothing is transmitted to or stored on Monderman servers. <a href="privacy.html">Read the data policy →</a>
+      <strong>See what you'll receive.</strong> A complete sample executive read — anonymized but real — showing the structure, depth, and format every Monderman diagnostic produces.
     </p>
   </div>
-  <div class="trust-divider" aria-hidden="true"></div>
-  <div class="trust-line">
-    <span class="trust-line-dot" aria-hidden="true"></span>
-    <p>
-      <strong>See what you'll receive.</strong> A complete sample executive read — anonymized but real — showing the structure, depth, and format every Monderman diagnostic produces. <a href="sample-report.html">View the sample report →</a>
-    </p>
-  </div>
+  <a class="sample-panel-cta" href="sample-report.html">
+    View the sample report
+    <span aria-hidden="true">→</span>
+  </a>
 </div>
 
 <div class="hub-faq" aria-label="Questions before running a diagnostic">
@@ -2342,6 +2419,12 @@
 <p class="tools-framing">
   Each diagnostic is an <em>instrument</em> — a calibrated, repeatable measurement designed to be run again over time. The distinction is what gives results their value: a baseline you can return to, not a one-off snapshot.
 </p>
+
+<div class="data-line" role="note" aria-label="Data handling">
+  <p>
+    <strong>Diagnostics run in your browser.</strong> Diagnostic data stays in your environment — nothing is transmitted to or stored on Monderman servers. <a href="privacy.html">Read the data policy →</a>
+  </p>
+</div>
 
 <div class="what-you-get-strip" aria-label="What you receive from each diagnostic">
   <div class="what-you-get-item">
