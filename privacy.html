@@ -111,7 +111,30 @@
       color: rgba(255,255,255,0.84);
       transition: color 180ms ease;
     }
-    .nav a:hover { color: #FFFFFF; }
+    .nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -6px;
+      width: 100%;
+      height: 1px;
+      background: currentColor;
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 180ms ease;
+    }
+    .nav a:hover,
+    .nav a:focus-visible { color: #FFFFFF; outline: none; }
+    .nav a.is-active {
+      color: var(--accent);
+      outline: none;
+    }
+    .nav a:hover::after,
+    .nav a:focus-visible::after,
+    .nav a.is-active::after {
+      transform: scaleX(1);
+    }
+    .nav a.workspace-link::after { display: none; }
     .workspace-link {
       display: inline-flex;
       align-items: center;
@@ -326,6 +349,7 @@
       transition: color 180ms ease;
     }
     .footer-nav a:hover { color: #FFFFFF; }
+    .footer-nav a.is-active { color: var(--accent); }
     .footer-bottom {
       display: flex;
       justify-content: space-between;
@@ -568,7 +592,7 @@
         <a href="why-monderman.html">Why Monderman</a>
         <a href="about.html">About</a>
         <a href="connect.html">Connect</a>
-        <a href="privacy.html">Privacy</a>
+        <a href="privacy.html" class="is-active">Privacy</a>
       </nav>
     </div>
     <div class="footer-bottom">
