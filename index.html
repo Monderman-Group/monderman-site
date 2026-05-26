@@ -626,6 +626,110 @@
       line-height: 1.6;
       color: var(--muted-dark-2);
     }
+    .cost-action {
+      margin: 28px 0 0;
+      padding: 20px 24px;
+      background: rgba(63,110,161,0.04);
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
+      font-size: 1.02rem;
+      line-height: 1.55;
+      color: var(--text-dark);
+      max-width: 70ch;
+    }
+    .cost-action strong { font-weight: 600; }
+    .cost-action a {
+      display: inline-block;
+      margin-top: 8px;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.94rem;
+      border-bottom: 1px solid rgba(63,110,161,0.3);
+      transition: border-color 180ms ease;
+    }
+    .cost-action a:hover { border-color: var(--accent); }
+
+    /* How It Works strip */
+    .how-it-works {
+      background: #FFFFFF;
+      border-top: 1px solid rgba(21,32,43,0.06);
+      border-bottom: 1px solid rgba(21,32,43,0.06);
+      padding: 72px 34px 80px;
+    }
+    .how-it-works-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+    .how-it-works-eyebrow {
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 14px;
+    }
+    .how-it-works h2 {
+      font-size: clamp(28px, 3vw, 38px);
+      line-height: 1.18;
+      max-width: 22ch;
+      font-weight: 700;
+      margin: 0 0 36px;
+      color: var(--text-dark);
+      letter-spacing: -0.048em;
+    }
+    .how-it-works-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0;
+      border-top: 1px solid rgba(21,32,43,0.08);
+    }
+    .how-it-works-step {
+      padding: 28px 28px 28px 0;
+      border-bottom: 1px solid rgba(21,32,43,0.08);
+      border-right: 1px solid rgba(21,32,43,0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .how-it-works-step:last-child {
+      border-right: none;
+      padding-right: 0;
+    }
+    .how-it-works-step:not(:first-child) {
+      padding-left: 28px;
+    }
+    .how-it-works-num {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0;
+    }
+    .how-it-works-name {
+      font-size: 1.22rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-dark);
+      margin: 0;
+    }
+    .how-it-works-text {
+      font-size: 0.98rem;
+      line-height: 1.55;
+      color: var(--muted-dark);
+      margin: 4px 0 0;
+    }
+    @media (max-width: 900px) {
+      .how-it-works-grid { grid-template-columns: 1fr; }
+      .how-it-works-step {
+        padding: 24px 0;
+        border-right: none;
+      }
+      .how-it-works-step:not(:first-child) { padding-left: 0; }
+    }
+    @media (max-width: 720px) {
+      .how-it-works { padding: 56px 20px 60px; }
+    }
     .estimate-controls {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1702,10 +1806,10 @@
 </div>
 <div class="hero-inner">
 <div class="hero-copy">
-<p class="hero-eyebrow">Administrative reality is a governable variable.</p>
-<h1 class="hero-title" id="hero-title"><span class="hero-line">Organizations deliver at the</span><span class="hero-line">speed of their</span><span class="hero-line">administrative reality.</span></h1>
+<p class="hero-eyebrow">Organizations deliver at the speed of their administrative reality.</p>
+<h1 class="hero-title" id="hero-title"><span class="hero-line">See what's actually</span><span class="hero-line">slowing your organization</span><span class="hero-line">— and act on it.</span></h1>
 <p class="hero-dek">
-          Monderman is the diagnostic platform institutions use to measure, compare, and govern administrative reality — repeatedly, across perspectives, over time. Built on the framework from <em>Governance and Bureaucracy in Complex Organizations</em> (Routledge, forthcoming). Diagnostic data stays in your environment.
+          Built for chiefs of staff, division heads, transformation officers, and operators inside institutions where administrative drift quietly costs millions. Monderman is the diagnostic platform institutions use to measure, compare, and govern administrative reality — repeatedly, across perspectives, over time. Built on the framework from <em>Governance and Bureaucracy in Complex Organizations</em> (Routledge, forthcoming). Diagnostic data stays in your environment.
         </p>
 <div class="hero-actions">
 <a class="btn btn-accent" href="diagnostic-hub.html">Start Your First Diagnostic — Free</a>
@@ -1777,6 +1881,11 @@
 <p class="cost-card-text">of productive capacity can be absorbed by administrative burden.</p>
 </div>
 </div>
+<p class="cost-action reveal reveal-delay-4">
+        <strong>Monderman is the instrument that surfaces where these losses originate</strong> — and shows what to do about them.
+        <br>
+        <a href="diagnostic-hub.html">Start your first diagnostic — free →</a>
+      </p>
 <p class="cost-footer reveal reveal-delay-4">
         Sources: Harvard Business Review reporting research (2016); Gary Hamel and Michele Zanini, Harvard Business Review (2018); OECD administrative burden guidance.
       </p>
@@ -1862,7 +1971,33 @@
 </div>
 </div>
 </div>
-</section><section aria-labelledby="synthesis-title" class="synthesis section-with-bar snap-anchor" id="synthesis"><div aria-hidden="true" class="section-bar">Synthesis</div><div class="synthesis-inner"><div class="section-intro reveal"><h2 id="synthesis-title">Where the systems become legible.</h2><p>What institutions gain when all four diagnostics are used together is not just four scores, but a broader institutional read that clarifies what to protect, what to fix, and where capacity can be recovered.</p></div><div class="synthesis-panel reveal reveal-delay-1">
+</section>
+
+<section class="how-it-works snap-anchor" aria-labelledby="hiw-title">
+  <div class="how-it-works-inner">
+    <p class="how-it-works-eyebrow">How it works</p>
+    <h2 id="hiw-title">Three steps from first read to first action.</h2>
+    <div class="how-it-works-grid">
+      <div class="how-it-works-step reveal">
+        <p class="how-it-works-num">01</p>
+        <p class="how-it-works-name">Choose your strongest signal.</p>
+        <p class="how-it-works-text">Slowness, ambiguity, drag, or drift. Pick the diagnostic that maps to what you're actually feeling inside the organization.</p>
+      </div>
+      <div class="how-it-works-step reveal reveal-delay-1">
+        <p class="how-it-works-num">02</p>
+        <p class="how-it-works-name">Run the diagnostic in your browser.</p>
+        <p class="how-it-works-text">20–30 minutes. No account required for the first read. Nothing leaves your environment.</p>
+      </div>
+      <div class="how-it-works-step reveal reveal-delay-2">
+        <p class="how-it-works-num">03</p>
+        <p class="how-it-works-name">Receive a read you can act on.</p>
+        <p class="how-it-works-text">Executive PDF, quantified score, primary structural signal, JSON export. Act on it. Re-run when conditions change.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="synthesis-title" class="synthesis section-with-bar snap-anchor" id="synthesis"><div aria-hidden="true" class="section-bar">Synthesis</div><div class="synthesis-inner"><div class="section-intro reveal"><h2 id="synthesis-title">Where the systems become legible.</h2><p>What institutions gain when all four diagnostics are used together is not just four scores, but a broader institutional read that clarifies what to protect, what to fix, and where capacity can be recovered.</p></div><div class="synthesis-panel reveal reveal-delay-1">
 <div class="approach-synthesis-grid">
 <a class="approach-synthesis-item" data-effect="clarity" href="structural-clarity-article.html">
 <div class="approach-synthesis-item-head">
@@ -1874,7 +2009,7 @@
 <strong>Confident Action</strong>
 </div>
 <span class="approach-synthesis-link">Structural Clarity</span>
-<span class="approach-synthesis-body">When people can see who owns what, who decides, and how execution should move.</span>
+<span class="approach-synthesis-body">People see who owns what, who decides, and how execution moves.</span>
 </a>
 <a class="approach-synthesis-item" data-effect="velocity" href="decision-velocity-article.html">
 <div class="approach-synthesis-item-head">
@@ -1886,7 +2021,7 @@
 <strong>Sustained Advantage</strong>
 </div>
 <span class="approach-synthesis-link">Decision Velocity</span>
-<span class="approach-synthesis-body">When important decisions move faster than the drag, delay, and review weight accumulating beneath the work.</span>
+<span class="approach-synthesis-body">Important decisions move faster than the drag, delay, and review weight accumulating beneath the work.</span>
 </a>
 <a class="approach-synthesis-item" data-effect="systems" href="operational-systems-article.html">
 <div class="approach-synthesis-item-head">
@@ -1898,7 +2033,7 @@
 <strong>Reclaimed Capacity</strong>
 </div>
 <span class="approach-synthesis-link">Operational Systems</span>
-<span class="approach-synthesis-body">When administrative systems stop absorbing time and effort that should be available for delivery and judgment.</span>
+<span class="approach-synthesis-body">Administrative systems stop absorbing time and effort that should be available for delivery and judgment.</span>
 </a>
 <a class="approach-synthesis-item" data-effect="performance" href="institutional-performance-article.html">
 <div class="approach-synthesis-item-head">
@@ -1910,7 +2045,7 @@
 <strong>Organizational Credibility</strong>
 </div>
 <span class="approach-synthesis-link">Institutional Performance</span>
-<span class="approach-synthesis-body">When the institution continues to hold under pressure without depending on heroic effort or hidden compensation.</span>
+<span class="approach-synthesis-body">The institution continues to hold under pressure without depending on heroic effort or hidden compensation.</span>
 </a>
 </div>
 </div></div></section>
@@ -2001,13 +2136,13 @@
 <div class="estimate-footer reveal reveal-delay-4">
 <div class="estimate-foot-copy">
 <p>
-            These are directional estimates based on public research on management overhead, administrative burden, and compliance costs. They are intended to provide a high-level signal, not an audited organizational measurement.
+            <strong>This estimate is directional.</strong> A Monderman diagnostic identifies the specific structural conditions producing these losses inside your organization — and what to do about them.
           </p>
 <p>
-            Use the diagnostic suite to establish a baseline, then return as systems and surrounding conditions evolve. The value compounds on the second and third run, when institutions can compare conditions over time and see whether interventions restored velocity or whether new administrative drag is quietly accumulating.
+            These figures are based on public research on management overhead, administrative burden, and compliance costs. They are intended to provide a high-level signal, not an audited organizational measurement. Use the diagnostic suite to establish a baseline, then return as systems and surrounding conditions evolve. The value compounds on the second and third run, when institutions can compare conditions over time.
           </p>
 </div>
-<a class="btn btn-accent" href="diagnostic-hub.html">Enter the Diagnostic Hub</a>
+<a class="btn btn-accent" href="diagnostic-hub.html">Start Your First Diagnostic — Free</a>
 </div>
 </div>
 </section>
@@ -2020,6 +2155,7 @@
 <p>
             Current publications and featured work on administrative burden, institutional design, decision velocity, and the hidden conditions Monderman is designed to diagnose under complexity.
           </p>
+<a class="latest-card-link" href="research.html" style="margin-top:14px;display:inline-block;">See all research →</a>
 </div>
 <div aria-label="Latest content controls" class="latest-controls reveal reveal-delay-2">
 <button aria-label="Show previous latest items" class="rail-arrow" id="latestPrev" type="button">←</button>
@@ -2183,6 +2319,7 @@
 <p class="footer-nav-title">Connect</p>
 <a href="connect.html">Open Connect Form</a>
 <a href="mailto:connect@monderman.com">connect@monderman.com</a>
+<a href="privacy.html">Privacy</a>
 </div>
 </div>
 </div>
