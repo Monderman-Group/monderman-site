@@ -65,8 +65,8 @@
       --max: 1320px;
       --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
       --transition-slow: 420ms cubic-bezier(0.22, 1, 0.36, 1);
-      --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
       --card-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
+      --soft-shadow: 0 1px 0 rgba(0, 0, 0, 0.012);
       --reveal-distance: 18px;
       --panel-radius: 18px;
       --card-radius: 16px;
@@ -178,20 +178,6 @@
       transform: translateY(-1px);
       flex-shrink: 0;
     }
-    .brand-tagline {
-      margin-left: 12px;
-      padding-left: 12px;
-      border-left: 1px solid rgba(255,255,255,0.25);
-      font-size: 0.62rem;
-      font-weight: 500;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.68);
-      text-shadow: none;
-      line-height: 1;
-      align-self: center;
-    }
-
     .nav {
       display: flex;
       align-items: center;
@@ -1007,12 +993,33 @@
     @media (max-width: 980px) {
       .header { height: auto; }
       .header-inner {
-        padding: 16px 24px;
+        padding: 14px 24px 10px;
         align-items: flex-start;
         flex-direction: column;
-        gap: 14px;
+        gap: 10px;
       }
-      .nav { gap: 22px; }
+      .nav {
+        width: 100%;
+        gap: 10px;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+      }
+      .nav::-webkit-scrollbar { display: none; }
+      .nav a {
+        flex: 0 0 auto;
+        font-size: 0.84rem;
+        line-height: 1;
+        padding: 10px 12px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.08);
+        white-space: nowrap;
+      }
+      .nav a::after { display: none; }
       .hero-inner, .connect-section, .expectations, .footer {
         padding-left: 24px;
         padding-right: 24px;
@@ -1021,7 +1028,7 @@
 
     @media (max-width: 760px) {
       .hero-inner {
-        padding: 136px 20px 108px;
+        padding: 120px 20px 64px;
         min-height: auto;
       }
       .hero-actions {
@@ -1166,21 +1173,19 @@
       transform: none;
     }
 
-    @media (max-width: 1280px) {
-      .brand-tagline { display: none; }
-    }
   </style>
 </head>
 <body>
   <header class="header" id="siteHeader">
     <div class="header-inner">
-      <a href="index.html" class="brand">Monderman<span class="brand-dot"></span><span class="brand-tagline">Measure the conditions. Own the outcome.</span></a>
+      <a href="index.html" class="brand">Monderman<span class="brand-dot"></span></a>
 
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
         <a href="diagnostic-hub.html">Diagnostic Hub</a>
         <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
+        <a href="about.html">About</a>
         <a href="platform-services.html">Platform Services</a>
         <a href="connect.html" class="is-active">Connect</a>
         <a href="signin.html" class="workspace-link">Workspace</a>
@@ -1191,15 +1196,15 @@
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero-inner">
       <div class="hero-copy">
-        <p class="hero-eyebrow">Platform Support</p>
-        <h1 id="hero-title">Request the right layer of platform support.</h1>
+        <p class="hero-eyebrow">Connect</p>
+        <h1 id="hero-title">Discuss platform fit with Monderman.</h1>
         <p class="hero-dek">
-          Use this form to describe what you need — implementation, diagnostic design, calibration, integration, or admin enablement. Requests map directly to Monderman's platform services and are routed quickly to the right support layer.
+          This form is for institutions exploring whether Monderman fits their environment, scoping a pilot, or seeking the right layer of platform support. Submissions are reviewed against actual service categories — not routed through a generic queue. Diagnostic data stays in your environment.
         </p>
 
         <div class="hero-actions">
-          <a class="btn btn-accent" href="#contact-form">Start Platform Services Request</a>
-          <a class="btn btn-secondary" href="platform-services.html">Platform Services</a>
+          <a class="btn btn-accent" href="#contact-form">Open the Connect Form</a>
+          <a class="btn btn-secondary" href="about.html">About Monderman</a>
         </div>
       </div>
     </div>
@@ -1430,31 +1435,31 @@
     <div class="expectations-inner">
       <div class="section-intro reveal">
         <div class="section-label">What to expect</div>
-        <h2 id="expectations-title">A more deliberate support intake, not a generic contact form.</h2>
+        <h2 id="expectations-title">What happens after you submit.</h2>
         <p>
-          The objective is not volume. It is to make serious platform support requests easier to assess, easier to align to the right service layer, and easier to answer well.
+          The objective is not volume. It is to make serious requests easier to assess, easier to align to the right service category, and easier to answer well.
         </p>
       </div>
 
       <div class="expectations-grid">
         <article class="expectation-card reveal reveal-delay-1">
-          <h3>Structured from the start</h3>
+          <h3>Structured intake</h3>
           <p>
             The form is designed to surface product fit, support need, and service-category alignment without requiring a long intake process.
           </p>
         </article>
 
         <article class="expectation-card reveal reveal-delay-2">
-          <h3>Selective by design</h3>
+          <h3>Reviewed by a human</h3>
           <p>
-            Monderman reviews requests with an eye toward product relevance, customer seriousness, and which platform service category is actually warranted.
+            Submissions are read directly against Monderman's platform service categories. Routing is judgment, not a workflow.
           </p>
         </article>
 
         <article class="expectation-card reveal reveal-delay-3">
-          <h3>Lightweight, but intentional</h3>
+          <h3>Routed to the right next step</h3>
           <p>
-            The process remains simple while still preserving enough information to distinguish a meaningful support request from a generic contact submission.
+            If there is a credible fit, the response typically follows by email with the most appropriate next step — a call, a scoping document, or direct access.
           </p>
         </article>
       </div>
@@ -1478,6 +1483,7 @@
             <a href="diagnostic-hub.html">Diagnostic Hub</a>
             <a href="research.html">Research</a>
             <a href="why-monderman.html">Why Monderman</a>
+            <a href="about.html">About</a>
           </div>
 
           <div class="footer-nav-col">
@@ -1490,7 +1496,6 @@
 
       <div class="footer-bottom">
         <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
-        <p class="footer-contact">Organizations deliver at the speed of their administrative reality.</p>
       </div>
     </div>
   <div class="footer-motif" aria-hidden="true"><svg width="260" height="260" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#4A6FA5" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#5B7A9B" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#4A6FA5" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#5B7A9B" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#6B8FA6" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8BADC5" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#9FBDD1" stroke-width="0.4" opacity="0.13"/><circle r="7" fill="none" stroke="#B0C8D8" stroke-width="0.3" opacity="0.11"/><circle cx="86" cy="-35" r="2.8" fill="#3F6EA1" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#5B7A9B" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#3F6EA1" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#7C5CE8" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#5B7A9B" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#2E86DE" opacity="0.58"/></svg></div>
