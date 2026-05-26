@@ -1781,6 +1781,58 @@
     }
     .status-strip-text strong { font-weight: 700; color: var(--text-dark); }
 
+    /* Trust callouts — merged into a single panel with two lines */
+    .trust-panel {
+      margin: 0 0 12px;
+      padding: 18px 22px;
+      background: rgba(63,110,161,0.04);
+      border: 1px solid rgba(63,110,161,0.14);
+      border-radius: 10px;
+      display: grid;
+      gap: 12px;
+    }
+    .trust-line {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.94rem;
+      line-height: 1.5;
+      color: var(--text-dark);
+    }
+    .trust-line-dot {
+      flex: 0 0 8px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-top: 7px;
+    }
+    .trust-line p { margin: 0; }
+    .trust-line strong { font-weight: 600; }
+    .trust-line a {
+      color: var(--accent);
+      font-weight: 500;
+      border-bottom: 1px solid rgba(63,110,161,0.3);
+      transition: border-color 180ms ease;
+    }
+    .trust-line a:hover { border-color: var(--accent); }
+    .trust-divider {
+      height: 1px;
+      background: rgba(63,110,161,0.10);
+      margin: 0;
+    }
+
+    /* Tools section eyebrow — small framing line above section header */
+    .tools-framing {
+      margin: 0 0 14px;
+      padding: 0;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      color: var(--muted-dark);
+      max-width: 78ch;
+    }
+    .tools-framing em { font-style: italic; color: var(--text-dark); font-weight: 500; }
+
     /* Environment trust line — sits below status strip */
     .environment-line {
       display: flex;
@@ -2244,23 +2296,51 @@
   <p class="status-strip-text"><strong>Operational Systems, Decision Velocity, and Structural Clarity are live in beta.</strong> Institutional Performance is in active development and not yet available from the hub.</p>
 </div>
 
-<div class="environment-line" role="note" aria-label="Data handling">
-  <span class="environment-line-dot" aria-hidden="true"></span>
-  <p style="margin:0;">
-    <strong>Diagnostic data stays in your environment.</strong> Responses, scores, and exports are processed in your browser. Nothing is transmitted to or stored on Monderman servers. <a href="privacy.html">Read the data policy →</a>
-  </p>
+<div class="trust-panel" role="note" aria-label="Trust commitments">
+  <div class="trust-line">
+    <span class="trust-line-dot" aria-hidden="true"></span>
+    <p>
+      <strong>Diagnostic data stays in your environment.</strong> Responses, scores, and exports are processed in your browser. Nothing is transmitted to or stored on Monderman servers. <a href="privacy.html">Read the data policy →</a>
+    </p>
+  </div>
+  <div class="trust-divider" aria-hidden="true"></div>
+  <div class="trust-line">
+    <span class="trust-line-dot" aria-hidden="true"></span>
+    <p>
+      <strong>See what you'll receive.</strong> A complete sample executive read — anonymized but real — showing the structure, depth, and format every Monderman diagnostic produces. <a href="sample-report.html">View the sample report →</a>
+    </p>
+  </div>
 </div>
 
-<div class="environment-line" role="note" aria-label="Sample report">
-  <span class="environment-line-dot" aria-hidden="true"></span>
-  <p style="margin:0;">
-    <strong>See what you'll receive.</strong> A complete sample executive read — anonymized but real — showing the structure, depth, and format every Monderman diagnostic produces. <a href="sample-report.html">View the sample report →</a>
-  </p>
+<div class="hub-faq" aria-label="Questions before running a diagnostic">
+  <p class="hub-faq-title">Before you run a diagnostic</p>
+  <p class="hub-faq-lead">Questions most people ask before clicking — answered candidly.</p>
+  <div class="hub-faq-list">
+    <details class="hub-faq-item">
+      <summary>Will my responses leave this device?</summary>
+      <p class="hub-faq-answer">No. The diagnostic runs in your browser. Your responses, the AI-generated narrative, and the resulting score are not transmitted to or stored on Monderman servers. If you export a report or close the tab, that action happens on your device.</p>
+    </details>
+    <details class="hub-faq-item">
+      <summary>Do I need an account or login to run a diagnostic?</summary>
+      <p class="hub-faq-answer">No. The first read is free and requires no signup. Workspace registration is optional and exists for institutions that want to save runs, compare baselines over time, or share results across colleagues — none of which is required to use the platform.</p>
+    </details>
+    <details class="hub-faq-item">
+      <summary>How long does a diagnostic actually take?</summary>
+      <p class="hub-faq-answer">Most users complete a single diagnostic in 20 to 30 minutes. The first run is typically slower as you adjust to the framing; subsequent runs against the same instrument move faster because the prompts are familiar.</p>
+    </details>
+    <details class="hub-faq-item">
+      <summary>What happens if I close the browser mid-run?</summary>
+      <p class="hub-faq-answer">Your progress is preserved locally for the active session. Returning to the same page in the same browser will resume where you left off. Clearing browser data or switching devices will reset the run.</p>
+    </details>
+    <details class="hub-faq-item">
+      <summary>Can I share or export results?</summary>
+      <p class="hub-faq-answer">Yes. Each diagnostic produces a PDF executive read and a JSON export. Both download directly to your device. Sharing them with colleagues — by email, internal drive, or document system — is your choice and your action. Monderman has no record that the diagnostic was run.</p>
+    </details>
+  </div>
 </div>
 
-<p class="hub-framing">
-  Monderman is not a survey platform. Each diagnostic is an <em>instrument</em> — a calibrated, repeatable measurement designed to be run again over time. The distinction is what gives results their value: a baseline you can return to, not a one-off snapshot.
-  <span class="hub-framing-book">Diagnostics built on the framework from <em>Governance and Bureaucracy in Complex Organizations</em> (Routledge, forthcoming).</span>
+<p class="tools-framing">
+  Each diagnostic is an <em>instrument</em> — a calibrated, repeatable measurement designed to be run again over time. The distinction is what gives results their value: a baseline you can return to, not a one-off snapshot.
 </p>
 
 <div class="what-you-get-strip" aria-label="What you receive from each diagnostic">
@@ -2394,33 +2474,6 @@
       <span class="tool-open">Open diagnostic &#8594;</span>
     </a>
   </article>
-</div>
-
-<div class="hub-faq" aria-label="Questions before running a diagnostic">
-  <p class="hub-faq-title">Before you run a diagnostic</p>
-  <p class="hub-faq-lead">Questions most people ask before clicking — answered candidly.</p>
-  <div class="hub-faq-list">
-    <details class="hub-faq-item">
-      <summary>Will my responses leave this device?</summary>
-      <p class="hub-faq-answer">No. The diagnostic runs in your browser. Your responses, the AI-generated narrative, and the resulting score are not transmitted to or stored on Monderman servers. If you export a report or close the tab, that action happens on your device.</p>
-    </details>
-    <details class="hub-faq-item">
-      <summary>Do I need an account or login to run a diagnostic?</summary>
-      <p class="hub-faq-answer">No. The first read is free and requires no signup. Workspace registration is optional and exists for institutions that want to save runs, compare baselines over time, or share results across colleagues — none of which is required to use the platform.</p>
-    </details>
-    <details class="hub-faq-item">
-      <summary>How long does a diagnostic actually take?</summary>
-      <p class="hub-faq-answer">Most users complete a single diagnostic in 20 to 30 minutes. The first run is typically slower as you adjust to the framing; subsequent runs against the same instrument move faster because the prompts are familiar.</p>
-    </details>
-    <details class="hub-faq-item">
-      <summary>What happens if I close the browser mid-run?</summary>
-      <p class="hub-faq-answer">Your progress is preserved locally for the active session. Returning to the same page in the same browser will resume where you left off. Clearing browser data or switching devices will reset the run.</p>
-    </details>
-    <details class="hub-faq-item">
-      <summary>Can I share or export results?</summary>
-      <p class="hub-faq-answer">Yes. Each diagnostic produces a PDF executive read and a JSON export. Both download directly to your device. Sharing them with colleagues — by email, internal drive, or document system — is your choice and your action. Monderman has no record that the diagnostic was run.</p>
-    </details>
-  </div>
 </div>
   </section>
 
