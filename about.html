@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>About — Monderman</title>
+<meta name="description" content="Monderman was built by a practitioner. Twenty years inside organizations that fail expensively when their administrative reality drifts."/>
+<link href='data:image/svg+xml;utf8,
+    &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"&gt;
+      &lt;rect width="64" height="64" rx="10" fill="%230F1720"/&gt;
+      &lt;text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA"&gt;M&lt;/text&gt;
+      &lt;rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/&gt;
+    &lt;/svg&gt;' rel="icon" type="image/svg+xml"/>
+<style>
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff");
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff");
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff");
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+    }
+    :root {
+      --accent: #3F6EA1;
+      --accent-dark: #2F5886;
+      --bg-dark: #0F1720;
+      --bg-dark-2: #111B25;
+      --bg-offwhite: #F6F7F8;
+      --bg-white: #FFFFFF;
+      --text-light: #F5F7FA;
+      --muted-light: rgba(245,247,250,0.82);
+      --text-dark: #15202B;
+      --muted-dark: #556270;
+      --line-dark: #E3E7EB;
+      --header-solid: rgba(14,20,28,0.87);
+      --header-border: rgba(255,255,255,0.08);
+      --max: 1100px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg-white);
+      color: var(--text-dark);
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    h1, h2, h3 { letter-spacing: -0.048em; margin: 0; }
+    p { letter-spacing: -0.01em; margin: 0; }
+
+    /* Header */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--header-solid);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--header-border);
+      color: var(--text-light);
+    }
+    .header-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .brand {
+      font-weight: 700;
+      font-size: 1.32rem;
+      letter-spacing: -0.02em;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-dot {
+      width: 8px; height: 8px;
+      background: var(--accent);
+      border-radius: 2px;
+      display: inline-block;
+    }
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .nav a {
+      position: relative;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.84);
+      transition: color 180ms ease;
+    }
+    .nav a:hover { color: #FFFFFF; }
+    .nav a.is-active { color: #FFFFFF; }
+    .workspace-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.06);
+      color: #FFFFFF !important;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .workspace-link:hover {
+      background: rgba(255,255,255,0.10);
+      border-color: rgba(255,255,255,0.24);
+    }
+
+    /* Hero */
+    .hero {
+      background: var(--bg-dark);
+      color: var(--text-light);
+      padding: 92px 0 80px;
+    }
+    .hero-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+    .hero-eyebrow {
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.62);
+      margin-bottom: 18px;
+    }
+    .hero h1 {
+      font-size: clamp(40px, 5.4vw, 64px);
+      line-height: 1.05;
+      max-width: 18ch;
+      font-weight: 700;
+    }
+    .hero-dek {
+      margin-top: 22px;
+      max-width: 56ch;
+      font-size: 1.12rem;
+      line-height: 1.55;
+      color: var(--muted-light);
+    }
+
+    /* Sections */
+    .section {
+      padding: 78px 0;
+      border-bottom: 1px solid var(--line-dark);
+    }
+    .section-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+    .section-eyebrow {
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+    .section h2 {
+      font-size: clamp(28px, 3vw, 38px);
+      line-height: 1.18;
+      max-width: 22ch;
+      font-weight: 700;
+      margin-bottom: 28px;
+    }
+    .section p {
+      font-size: 1.06rem;
+      line-height: 1.65;
+      color: var(--text-dark);
+      max-width: 68ch;
+    }
+    .section p + p { margin-top: 18px; }
+
+    /* Founder section */
+    .founder {
+      background: var(--bg-offwhite);
+    }
+    .founder-grid {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      gap: 56px;
+      align-items: start;
+    }
+    .founder-photo {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 12px;
+      background: #E3E7EB;
+    }
+    .founder-name {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+    .founder-role {
+      font-size: 0.92rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted-dark);
+      margin-bottom: 22px;
+    }
+    .founder-quote {
+      margin-top: 28px;
+      padding-left: 18px;
+      border-left: 2px solid var(--accent);
+      font-size: 1.12rem;
+      line-height: 1.5;
+      font-weight: 500;
+      color: var(--text-dark);
+      max-width: 52ch;
+    }
+
+    /* Principles */
+    .principles {
+      background: var(--bg-offwhite);
+    }
+    .principle-list {
+      list-style: none;
+      padding: 0;
+      margin: 32px 0 0;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      max-width: 72ch;
+    }
+    .principle-list li {
+      padding: 22px 26px;
+      background: var(--bg-white);
+      border: 1px solid var(--line-dark);
+      border-radius: 12px;
+      font-size: 1.02rem;
+      line-height: 1.55;
+      color: var(--text-dark);
+      font-weight: 500;
+    }
+
+    /* Outcomes */
+    .outcomes-list {
+      list-style: none;
+      padding: 0;
+      margin: 36px 0 0;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+      max-width: 72ch;
+      border-top: 1px solid var(--line-dark);
+    }
+    .outcomes-list li {
+      padding: 22px 0;
+      border-bottom: 1px solid var(--line-dark);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 28px;
+      align-items: baseline;
+    }
+    .outcomes-instrument {
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      letter-spacing: -0.01em;
+    }
+    .outcomes-result {
+      font-size: 1rem;
+      color: var(--accent);
+      font-weight: 500;
+      font-style: italic;
+      text-align: right;
+      white-space: nowrap;
+    }
+    @media (max-width: 600px) {
+      .outcomes-list li {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+      .outcomes-result {
+        text-align: left;
+      }
+    }
+
+    /* Quiet CTA */
+    .quiet-cta {
+      padding: 56px 0 78px;
+    }
+    .quiet-cta-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+    .quiet-cta p {
+      font-size: 1.06rem;
+      line-height: 1.6;
+      color: var(--muted-dark);
+    }
+    .quiet-cta a {
+      color: var(--accent);
+      font-weight: 500;
+      border-bottom: 1px solid rgba(63,110,161,0.3);
+      transition: border-color 180ms ease;
+    }
+    .quiet-cta a:hover { border-color: var(--accent); }
+
+    /* Footer */
+    .footer {
+      background: var(--bg-dark);
+      color: rgba(255,255,255,0.72);
+      padding: 40px 0 36px;
+    }
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+    .footer-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 22px;
+    }
+    .footer-brand {
+      font-weight: 700;
+      color: #FFFFFF;
+      font-size: 1.18rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .footer-nav {
+      display: flex;
+      gap: 28px;
+    }
+    .footer-nav a {
+      color: rgba(255,255,255,0.72);
+      font-size: 0.9rem;
+      transition: color 180ms ease;
+    }
+    .footer-nav a:hover { color: #FFFFFF; }
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.86rem;
+    }
+    .footer-meta {
+      color: rgba(255,255,255,0.52);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .founder-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+      .founder-photo {
+        max-width: 220px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .header-inner,
+      .hero-inner,
+      .section-inner,
+      .quiet-cta-inner,
+      .footer-inner {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .header-inner {
+        padding-top: 14px;
+        padding-bottom: 10px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .nav {
+        width: 100%;
+        gap: 10px;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+      }
+      .nav::-webkit-scrollbar { display: none; }
+      .nav a {
+        flex: 0 0 auto;
+        font-size: 0.84rem;
+        line-height: 1;
+        padding: 10px 12px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.08);
+        white-space: nowrap;
+      }
+      .nav a.workspace-link { padding: 10px 14px; }
+
+      .hero { padding: 56px 0 52px; }
+      .hero h1 { font-size: 38px; }
+
+      .section { padding: 52px 0; }
+      .quiet-cta { padding: 40px 0 56px; }
+
+      .footer-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 18px;
+      }
+      .footer-nav {
+        flex-wrap: wrap;
+        gap: 18px 22px;
+      }
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <a class="brand" href="index.html">Monderman<span class="brand-dot"></span></a>
+    <nav class="nav" aria-label="Primary navigation">
+      <a href="index.html#approach">Approach</a>
+      <a href="diagnostic-hub.html">Diagnostic Hub</a>
+      <a href="research.html">Research</a>
+      <a href="why-monderman.html">Why Monderman</a>
+      <a href="about.html" class="is-active">About</a>
+      <a href="connect.html">Connect</a>
+      <a href="workspace.html" class="workspace-link">Workspace</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-inner">
+    <p class="hero-eyebrow">About</p>
+    <h1>The difference between delivery and drift is measurable.</h1>
+    <p class="hero-dek">
+      Monderman makes administrative drag visible, measurable, and governable — the structural conditions that determine whether institutions deliver on their missions or quietly lose capacity to friction. The platform was built by an operator, not a researcher.
+    </p>
+  </div>
+</section>
+
+<section class="section founder">
+  <div class="section-inner">
+    <div class="founder-grid">
+      <img class="founder-photo" src="IMG_2361.jpeg" alt="Jason Adamson, founder of Monderman" />
+      <div>
+        <p class="founder-name">Jason Adamson</p>
+        <p class="founder-role">Founder</p>
+        <p>
+          Jason built Monderman after twenty years of doing the work it is now designed to support. He started as an intelligence analyst at NSA, joined CrowdStrike during its growth phase as a senior threat intelligence analyst and analytic support team lead, and currently serves as a senior all-source analyst supporting U.S. Special Operations Command Europe (SOCEUR). Across those roles, the recurring problem has been the same: institutions with serious missions losing capacity to administrative conditions no one is measuring.
+        </p>
+        <p>
+          He holds a Master of Science in Organization Development from Pepperdine University and a Bachelor of Arts in Russian and Eurasian Studies from the University of Texas at Austin. The frameworks behind Monderman are documented in a forthcoming book from Routledge. The platform is built for operators — chiefs of staff, division heads, program leads, transformation officers — who need to see what is actually slowing their organization and act on it.
+        </p>
+        <blockquote class="founder-quote">
+          What Monderman measures is not how people feel about their work. It is the structural conditions that determine whether their work gets done.
+        </blockquote>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-inner">
+    <p class="section-eyebrow">Why This Platform</p>
+    <h2>The market measures sentiment. Monderman measures the system.</h2>
+    <p>
+      Most platforms in the organizational health space measure how people feel about their work — engagement scores, culture indices, sentiment trends. Monderman measures the structural conditions that produce those feelings in the first place: where authority is clear and where it is ambiguous, where decisions move quickly and where they stall, where administrative systems accelerate work and where they restrict it.
+    </p>
+    <p>
+      The platform runs four diagnostics. Each one measures a different structural condition and produces a different operational outcome.
+    </p>
+    <ul class="outcomes-list">
+      <li>
+        <span class="outcomes-instrument">Structural Clarity</span>
+        <span class="outcomes-result">Confident action</span>
+      </li>
+      <li>
+        <span class="outcomes-instrument">Decision Velocity</span>
+        <span class="outcomes-result">Sustained advantage</span>
+      </li>
+      <li>
+        <span class="outcomes-instrument">Operational Systems</span>
+        <span class="outcomes-result">Reclaimed capacity</span>
+      </li>
+      <li>
+        <span class="outcomes-instrument">Institutional Performance</span>
+        <span class="outcomes-result">Organizational credibility</span>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="section principles">
+  <div class="section-inner">
+    <p class="section-eyebrow">Practitioner Principles</p>
+    <h2>Commitments that govern how this platform operates.</h2>
+    <ul class="principle-list">
+      <li>Diagnostic data stays in your environment. Nothing is stored on Monderman servers.</li>
+      <li>Results are read by humans, not just rendered by software. Synthesis is the work the platform exists to do.</li>
+      <li>No client logo will appear on this site without explicit, written permission.</li>
+      <li>The platform is built to be re-run. Value compounds with longitudinal use, and the architecture reflects that.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="quiet-cta">
+  <div class="quiet-cta-inner">
+    <p>
+      Reach out at <a href="mailto:connect@monderman.com">connect@monderman.com</a>, or <a href="diagnostic-hub.html">open the Diagnostic Hub</a>.
+    </p>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <a class="footer-brand" href="index.html">Monderman<span class="brand-dot"></span></a>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        <a href="diagnostic-hub.html">Diagnostic Hub</a>
+        <a href="research.html">Research</a>
+        <a href="why-monderman.html">Why Monderman</a>
+        <a href="about.html">About</a>
+        <a href="connect.html">Connect</a>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
