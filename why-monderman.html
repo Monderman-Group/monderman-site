@@ -1186,6 +1186,127 @@
       color: var(--muted-dark);
     }
 
+    /* ─── WHAT YOU GET ─────────────────────────────────────────────────────── */
+    .wm-whatyouget {
+      padding: 96px 34px 100px;
+      background: var(--bg-offwhite);
+      border-top: 1px solid var(--line-cool);
+      border-bottom: 1px solid var(--line-cool);
+    }
+    .wm-whatyouget .section-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+    .wm-wyg-list {
+      list-style: none;
+      padding: 0;
+      margin: 48px 0 0;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+      border-top: 1px solid var(--line-cool);
+    }
+    .wm-wyg-item {
+      padding: 36px 0;
+      border-bottom: 1px solid var(--line-cool);
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 48px;
+      align-items: start;
+    }
+    .wm-wyg-lead {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .wm-wyg-num {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .wm-wyg-name {
+      font-size: 1.32rem;
+      font-weight: 700;
+      letter-spacing: -0.018em;
+      color: var(--text-dark);
+      margin: 0;
+    }
+    .wm-wyg-measures {
+      font-size: 0.94rem;
+      line-height: 1.5;
+      color: var(--muted-dark);
+      margin: 0;
+    }
+    .wm-wyg-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px 40px;
+    }
+    .wm-wyg-block {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .wm-wyg-block-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted-dark);
+      margin: 0;
+    }
+    .wm-wyg-block-value {
+      font-size: 0.98rem;
+      line-height: 1.55;
+      color: var(--text-dark);
+      margin: 0;
+    }
+    .wm-wyg-block-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .wm-wyg-block-list li {
+      font-size: 0.96rem;
+      line-height: 1.5;
+      color: var(--text-dark);
+      padding-left: 14px;
+      position: relative;
+    }
+    .wm-wyg-block-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 9px;
+      width: 5px;
+      height: 5px;
+      background: var(--accent);
+      border-radius: 1px;
+    }
+    .wm-wyg-outcome {
+      color: var(--accent);
+      font-weight: 500;
+      font-style: italic;
+    }
+    @media (max-width: 980px) {
+      .wm-whatyouget { padding: 72px 24px 76px; }
+      .wm-wyg-item {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+      .wm-wyg-body { grid-template-columns: 1fr; gap: 22px; }
+    }
+    @media (max-width: 720px) {
+      .wm-whatyouget { padding: 52px 20px 56px; }
+      .wm-wyg-list { margin-top: 32px; }
+      .wm-wyg-item { padding: 28px 0; }
+    }
+
     /* ─── PLATFORM BRIEF DOWNLOAD BAND ────────────────────────────────────── */
     .wm-brief-band {
       padding: 44px 34px 48px;
@@ -1663,6 +1784,7 @@
         <a href="diagnostic-hub.html">Diagnostic Hub</a>
         <a href="research.html">Research</a>
         <a href="why-monderman.html" class="is-active">Why Monderman</a>
+        <a href="about.html">About</a>
         <a href="platform-services.html">Platform Services</a>
         <a href="connect.html">Connect</a>
         <a class="workspace-link" href="workspace.html">Workspace</a>
@@ -1681,8 +1803,8 @@
         </h1>
         <p class="hero-dek">Four Tools. Three perspectives. Repeated measurement. Built for institutions ready to see — and steer — the conditions they run on.</p>
         <div class="hero-actions">
-          <a class="btn btn-accent" href="connect.html">Start Platform Services Request</a>
-          <a class="btn btn-secondary" href="#diagnostic-tools">See the Diagnostic Tools</a>
+          <a class="btn btn-accent" href="diagnostic-hub.html">Start Your First Diagnostic — Free</a>
+          <a class="btn btn-secondary" href="#whatyouget">See What You Get</a>
         </div>
       </div>
     </div>
@@ -1962,6 +2084,122 @@
     </div>
   </section>
 
+  <!-- ═══ WHAT YOU GET ════════════════════════════════════════════════════ -->
+  <section class="wm-whatyouget section-with-bar snap-anchor" id="whatyouget" aria-labelledby="wyg-title">
+    <div aria-hidden="true" class="section-bar">What You Get</div>
+    <div class="section-inner">
+      <div class="section-intro reveal">
+        <p class="section-label">Concrete deliverables</p>
+        <h2 id="wyg-title">What you receive, and what changes after you act on it.</h2>
+        <p>Every diagnostic produces the same set of outputs: an executive read, a quantified score, the primary structural signal, and a machine-readable export. What differs is what each diagnostic surfaces — and what becomes possible once you act on it.</p>
+      </div>
+
+      <ul class="wm-wyg-list reveal reveal-delay-1">
+
+        <li class="wm-wyg-item">
+          <div class="wm-wyg-lead">
+            <p class="wm-wyg-num">01 · Diagnostic</p>
+            <h3 class="wm-wyg-name">Structural Clarity</h3>
+            <p class="wm-wyg-measures">Where authority, ownership, and decision rights are clear — and where they aren't.</p>
+          </div>
+          <div class="wm-wyg-body">
+            <div class="wm-wyg-block">
+              <p class="wm-wyg-block-label">What you receive</p>
+              <ul class="wm-wyg-block-list">
+                <li>Executive read (PDF), 2–3 pages</li>
+                <li>Clarity score across roles, authority, and handoffs</li>
+                <li>Primary structural signal: where the system is illegible</li>
+                <li>JSON export for internal analysis</li>
+              </ul>
+            </div>
+            <div class="wm-wyg-block">
+              <p class="wm-wyg-block-label">What changes</p>
+              <p class="wm-wyg-block-value">Teams stop arguing over who owns what. Decisions move because the path is visible. <span class="wm-wyg-outcome">Outcome: confident action.</span></p>
+              <p class="wm-wyg-block-label" style="margin-top:10px;">Re-run cadence</p>
+              <p class="wm-wyg-block-value">After any restructure, leadership change, or every 6–9 months.</p>
+            </div>
+          </div>
+        </li>
+
+        <li class="wm-wyg-item">
+          <div class="wm-wyg-lead">
+            <p class="wm-wyg-num">02 · Diagnostic</p>
+            <h3 class="wm-wyg-name">Decision Velocity</h3>
+            <p class="wm-wyg-measures">How quickly decisions move through the institution — and where they stall.</p>
+          </div>
+          <div class="wm-wyg-body">
+            <div class="wm-wyg-block">
+              <p class="wm-wyg-block-label">What you receive</p>
+              <ul class="wm-wyg-block-list">
+                <li>Executive read (PDF), 2–3 pages</li>
+                <li>Velocity score with stall-point map</li>
+                <li>Primary structural signal: where time is being absorbed</li>
+                <li>JSON export for internal analysis</li>
+              </ul>
+            </div>
+            <div class="wm-wyg-block">
+              <p class="wm-wyg-block-label">What changes</p>
+              <p class="wm-wyg-block-value">Cycle time tightens at the named stall point — not across the board. Speed becomes a function of structure, not effort. <span class="wm-wyg-outcome">Outcome: sustained advantage.</span></p>
+              <p class="wm-wyg-block-label" style="margin-top:10px;">Re-run cadence</p>
+              <p class="wm-wyg-block-value">Quarterly during transformation, otherwise every 6 months.</p>
+            </div>
+          </div>
+        </li>
+
+        <li class="wm-wyg-item">
+          <div class="wm-wyg-lead">
+            <p class="wm-wyg-num">03 · Diagnostic</p>
+            <h3 class="wm-wyg-name">Operational Systems</h3>
+            <p class="wm-wyg-measures">Where administrative systems accelerate work — and where they restrict it.</p>
+          </div>
+          <div class="wm-wyg-body">
+            <div class="wm-wyg-block">
+              <p class="wm-wyg-block-label">What you receive</p>
+              <ul class="wm-wyg-block-list">
+                <li>Executive read (PDF), 2–3 pages</li>
+                <li>Burden score with directional reclaim estimate (hours, cost)</li>
+                <li>Primary structural signal: where drag is sourced</li>
+                <li>JSON export for internal analysis</li>
+              </ul>
+            </div>
+            <div class="wm-wyg-block">
+              <p class="wm-wyg-block-label">What changes</p>
+              <p class="wm-wyg-block-value">A measurable share of senior time returns to mission once the structural source is corrected — not the symptom. <span class="wm-wyg-outcome">Outcome: reclaimed capacity.</span></p>
+              <p class="wm-wyg-block-label" style="margin-top:10px;">Re-run cadence</p>
+              <p class="wm-wyg-block-value">Every 6 months, or after any major system change.</p>
+            </div>
+          </div>
+        </li>
+
+        <li class="wm-wyg-item">
+          <div class="wm-wyg-lead">
+            <p class="wm-wyg-num">04 · Diagnostic</p>
+            <h3 class="wm-wyg-name">Institutional Performance</h3>
+            <p class="wm-wyg-measures">How structural conditions compound — over time — into delivery on stated commitments.</p>
+          </div>
+          <div class="wm-wyg-body">
+            <div class="wm-wyg-block">
+              <p class="wm-wyg-block-label">What you receive</p>
+              <ul class="wm-wyg-block-list">
+                <li>Executive read (PDF), 2–3 pages</li>
+                <li>Coherence score across what the institution says, decides, and delivers</li>
+                <li>Primary structural signal: where commitment and capacity diverge</li>
+                <li>JSON export for internal analysis</li>
+              </ul>
+            </div>
+            <div class="wm-wyg-block">
+              <p class="wm-wyg-block-label">What changes</p>
+              <p class="wm-wyg-block-value">Leaders see whether the institution can still meet its stated commitments — and act before the gap becomes public. <span class="wm-wyg-outcome">Outcome: organizational credibility.</span></p>
+              <p class="wm-wyg-block-label" style="margin-top:10px;">Re-run cadence</p>
+              <p class="wm-wyg-block-value">Annually, or before any major commitment cycle.</p>
+            </div>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+  </section>
+
   <!-- ═══ PLATFORM BRIEF DOWNLOAD ════════════════════════════════════════ -->
   <div class="wm-brief-band">
     <div class="wm-brief-band-inner">
@@ -2218,8 +2456,8 @@
         <h2 id="cta-title">Start a structured conversation.</h2>
         <p>The point of this page is not to sell a generic service. It is to help you decide whether Monderman's method fits the kind of institutional condition you are trying to govern. If it might, the next step is a structured conversation — not a sales call.</p>
         <div class="wm-cta-actions">
-          <a class="btn btn-accent" href="connect.html">Start Platform Services Request</a>
-          <a class="btn btn-secondary" href="diagnostic-hub.html">Diagnostic Hub</a>
+          <a class="btn btn-accent" href="diagnostic-hub.html">Start Your First Diagnostic — Free</a>
+          <a class="btn btn-secondary" href="connect.html">Discuss Platform Fit</a>
         </div>
       </div>
       <div class="wm-cta-panel reveal reveal-delay-2">
@@ -2248,6 +2486,7 @@
             <a href="diagnostic-hub.html">Diagnostic Hub</a>
             <a href="research.html">Research</a>
             <a href="why-monderman.html">Why Monderman</a>
+            <a href="about.html">About</a>
             <a href="platform-services.html">Platform Services</a>
           </div>
           <div class="footer-nav-col">
