@@ -1,0 +1,2612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Why Monderman</title>
+
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href='data:image/svg+xml;utf8,
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="10" fill="%230F1720"/>
+      <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text>
+      <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
+    </svg>'
+  />
+
+  <style>
+    /* ─── FONTS ──────────────────────────────────────────────────────────── */
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff");
+      font-style: normal; font-weight: 400; font-display: swap;
+    }
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff");
+      font-style: normal; font-weight: 500; font-display: swap;
+    }
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff");
+      font-style: normal; font-weight: 700; font-display: swap;
+    }
+
+    /* ─── DESIGN TOKENS (matched to homepage) ────────────────────────────── */
+    :root {
+      --accent: #3F6EA1;
+      --accent-dark: #2F5886;
+      --accent-light: #76A5D3;
+      --bg-dark: #0F1720;
+      --bg-dark-2: #111B25;
+      --bg-dark-3: #0D141C;
+      --bg-hero-fallback: #121922;
+      --bg-offwhite: #F6F7F8;
+      --bg-white: #FFFFFF;
+      --bg-paper: #F7F8F9;
+      --text-light: #F5F7FA;
+      --muted-light: rgba(245,247,250,0.82);
+      --text-dark: #15202B;
+      --muted-dark: #556270;
+      --muted-dark-2: #7A8794;
+      --line-dark: #E3E7EB;
+      --line-cool: #E7EBEF;
+      --header-solid: rgba(14,20,28,0.87);
+      --header-border: rgba(255,255,255,0.08);
+      --max: 1320px;
+      --transition: 220ms cubic-bezier(0.16, 1, 0.3, 1);
+      --transition-slow: 420ms cubic-bezier(0.16, 1, 0.3, 1);
+      --reveal-distance: 10px;
+      --panel-radius: 18px;
+      --card-radius: 16px;
+      --snap-offset: 72px;
+    }
+
+    /* ─── BASE ───────────────────────────────────────────────────────────── */
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: var(--snap-offset); }
+    body {
+      margin: 0;
+      background: var(--bg-dark);
+      color: var(--text-light);
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    h1, h2, h3 { letter-spacing: -0.048em; margin: 0; }
+    p { letter-spacing: -0.01em; margin: 0; }
+    :focus-visible {
+      outline: 2px solid rgba(118,165,211,0.95);
+      outline-offset: 3px;
+    }
+
+    /* ─── REVEAL ─────────────────────────────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(var(--reveal-distance));
+      transition: opacity 820ms cubic-bezier(0.22,1,0.36,1),
+                  transform 820ms cubic-bezier(0.22,1,0.36,1);
+      will-change: opacity, transform;
+    }
+    .reveal.is-visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 90ms; }
+    .reveal-delay-2 { transition-delay: 180ms; }
+    .reveal-delay-3 { transition-delay: 270ms; }
+    .reveal-delay-4 { transition-delay: 360ms; }
+
+    /* ─── HEADER ─────────────────────────────────────────────────────────── */
+    .header {
+      position: fixed;
+      inset: 0 0 auto 0;
+      width: 100%;
+      height: 72px;
+      z-index: 100;
+      background: transparent;
+      border-bottom: 1px solid transparent;
+      transition: background var(--transition), border-color var(--transition), backdrop-filter var(--transition);
+    }
+    .header.scrolled {
+      background: var(--header-solid);
+      border-bottom-color: var(--header-border);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .header-inner {
+      max-width: var(--max);
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 34px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0;
+      font-size: 1.32rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      white-space: nowrap;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.16);
+    }
+    .brand-dot {
+      width: 6px; height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+      flex-shrink: 0;
+    }
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: nowrap;
+      justify-content: flex-end;
+    }
+    .nav a {
+      position: relative;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.012em;
+      color: rgba(255,255,255,0.88);
+      transition: color var(--transition), transform var(--transition);
+      white-space: nowrap;
+    }
+    .nav a::after {
+      content: "";
+      position: absolute;
+      left: 0; bottom: -6px;
+      width: 100%; height: 1px;
+      background: currentColor;
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 180ms ease;
+    }
+    .nav a:hover, .nav a:focus-visible {
+      color: #FFFFFF;
+      transform: translateY(-1px);
+      outline: none;
+    }
+    .nav a:hover::after,
+    .nav a:focus-visible::after,
+    .nav a.is-active::after { transform: scaleX(1); }
+    .nav a.is-active { color: var(--accent); transform: none; }
+
+    /* Workspace pill (matched to homepage) */
+    .nav a.workspace-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.06);
+      color: #FFFFFF;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .nav a.workspace-link::after { display: none; }
+    .nav a.workspace-link:hover,
+    .nav a.workspace-link:focus-visible {
+      background: rgba(255,255,255,0.10);
+      border-color: rgba(255,255,255,0.24);
+      color: #FFFFFF;
+      transform: none;
+    }
+
+    /* ─── SECTION-BAR (corner labels — homepage signature wayfinding) ────── */
+    .section-with-bar { position: relative; }
+    .section-with-bar .section-bar {
+      position: absolute;
+      top: 26px;
+      left: 34px;
+      z-index: 2;
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      color: rgba(21,32,43,0.48);
+      font-size: 0.68rem;
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+    /* Section-bar on dark sections needs lighter color */
+    .section-with-bar.section-on-dark .section-bar {
+      color: rgba(245,247,250,0.40);
+    }
+    .snap-anchor { scroll-margin-top: 0; }
+
+    /* ─── BUTTONS (pill — matched to homepage) ───────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      min-width: 156px;
+      padding: 0 19px;
+      border-radius: 999px;
+      font-size: 0.91rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      background: rgba(255,255,255,0.98);
+      color: var(--accent);
+      border: 1px solid rgba(63,110,161,0.78);
+      box-shadow: 0 7px 16px rgba(0,0,0,0.038), 0 0 0 1px rgba(255,255,255,0.07);
+      transition: background 180ms cubic-bezier(0.22,1,0.36,1),
+                  color 180ms cubic-bezier(0.22,1,0.36,1),
+                  border-color 180ms cubic-bezier(0.22,1,0.36,1),
+                  transform 180ms cubic-bezier(0.22,1,0.36,1),
+                  box-shadow 180ms cubic-bezier(0.22,1,0.36,1);
+      cursor: pointer;
+    }
+    .btn:hover, .btn:focus-visible {
+      background: #FFFFFF;
+      color: var(--accent-dark);
+      border-color: var(--accent-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.052), 0 0 0 1px rgba(255,255,255,0.09);
+      outline: none;
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,0.98);
+      color: var(--accent);
+      border: 1.25px solid rgba(63,110,161,0.9);
+    }
+    .btn-accent {
+      background: var(--accent-dark);
+      color: #FFFFFF;
+      border: 1px solid rgba(63,110,161,0.24);
+      box-shadow: 0 9px 20px rgba(63,110,161,0.20), 0 0 0 1px rgba(255,255,255,0.04);
+    }
+    .btn-accent:hover, .btn-accent:focus-visible {
+      background: #294D75;
+      color: #FFFFFF;
+    }
+
+    /* ─── HERO ───────────────────────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
+      background: var(--bg-hero-fallback);
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 78% 22%, rgba(63,110,161,0.20) 0%, rgba(63,110,161,0.08) 20%, transparent 38%),
+        linear-gradient(90deg,
+          rgba(10,14,20,0.94) 0%,
+          rgba(10,14,20,0.80) 26%,
+          rgba(10,14,20,0.48) 56%,
+          rgba(10,14,20,0.18) 100%);
+      z-index: 0;
+      pointer-events: none;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(10,14,20,0.10) 0%, rgba(10,14,20,0.20) 100%),
+        linear-gradient(135deg, rgba(63,110,161,0.030) 1px, transparent 1px);
+      background-size: auto, 34px 34px;
+      opacity: 0.48;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      max-width: var(--max);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 132px 34px 96px;
+      display: flex;
+      align-items: center;
+    }
+    .hero-copy { max-width: 940px; }
+    .hero-eyebrow, .hero h1, .hero-dek, .hero-actions {
+      opacity: 0;
+      transform: translateY(16px);
+      animation: heroFadeUp 900ms cubic-bezier(0.22,1,0.36,1) forwards;
+      will-change: transform, opacity;
+    }
+    .hero-eyebrow {
+      display: block;
+      margin: 0 0 34px;
+      padding-left: 1px;
+      font-size: 0.78rem;
+      line-height: 1;
+      letter-spacing: 0.22em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.64);
+      animation-delay: 340ms;
+    }
+    .hero h1 {
+      margin: 0 0 16px;
+      max-width: 17ch;
+      font-size: 64px;
+      line-height: 1.0;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: #FFFFFF;
+      text-wrap: balance;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.16);
+      animation-delay: 480ms;
+    }
+    .hero-title {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.02em;
+    }
+    .hero-line { display: block; }
+    .hero-dek {
+      max-width: 44ch;
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.65;
+      letter-spacing: -0.01em;
+      color: var(--muted-light);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.12);
+      animation-delay: 640ms;
+      text-wrap: balance;
+    }
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 30px;
+      animation-delay: 820ms;
+    }
+    @keyframes heroFadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── SECTION SCAFFOLDING ────────────────────────────────────────────── */
+    .section-inner { max-width: var(--max); margin: 0 auto; }
+    .section-label {
+      margin: 0 0 18px;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.4;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.85;
+    }
+    .section-intro h2 {
+      margin: 0 0 14px;
+      max-width: 780px;
+      font-size: 28px;
+      line-height: 1.15;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-wrap: balance;
+    }
+    .section-intro p {
+      margin: 0;
+      max-width: 64ch;
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--muted-dark);
+    }
+
+    /* ─── THE CONDITION ──────────────────────────────────────────────────── */
+    .wm-condition {
+      background: var(--bg-white);
+      color: var(--text-dark);
+      padding: 84px 34px 92px;
+      border-bottom: 1px solid rgba(21,32,43,0.04);
+    }
+    .wm-condition-grid {
+      margin-top: 46px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 72px;
+      align-items: start;
+    }
+    .wm-condition-grid p {
+      margin: 0 0 16px;
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--muted-dark);
+    }
+    .wm-condition-grid p:last-child { margin-bottom: 0; }
+    .wm-condition-grid strong {
+      color: var(--text-dark);
+      font-weight: 700;
+    }
+    .wm-thesis-pull {
+      margin-top: 48px;
+      padding: 32px 36px;
+      background: var(--bg-paper);
+      border: 1px solid var(--line-cool);
+      border-left: 3px solid var(--accent);
+      border-radius: var(--card-radius);
+      max-width: 920px;
+    }
+    .wm-thesis-pull-quote {
+      font-size: 22px;
+      line-height: 1.32;
+      font-weight: 500;
+      color: var(--text-dark);
+      letter-spacing: -0.025em;
+      margin: 0 0 10px;
+    }
+    .wm-thesis-pull-note {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--muted-dark-2);
+      font-style: italic;
+    }
+
+    /* ─── SECTOR BAR (dark thin band) ────────────────────────────────────── */
+    .wm-sector-bar {
+      background: var(--bg-dark);
+      color: var(--text-light);
+      padding: 22px 34px;
+    }
+    .wm-sector-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+      flex-wrap: wrap;
+    }
+    .wm-sector-label {
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.50);
+      font-weight: 600;
+    }
+    .wm-sector-list {
+      font-size: 0.86rem;
+      letter-spacing: 0.08em;
+      color: rgba(245,247,250,0.82);
+      font-weight: 500;
+    }
+    .wm-sector-list .sep {
+      color: var(--accent);
+      margin: 0 12px;
+      opacity: 0.7;
+    }
+
+    /* ─── COMMITMENTS (cards in homepage panel style) ────────────────────── */
+    .wm-commitments {
+      background: var(--bg-paper);
+      color: var(--text-dark);
+      padding: 84px 34px 96px;
+      border-top: 1px solid var(--line-cool);
+      border-bottom: 1px solid var(--line-cool);
+    }
+    .wm-commitments-grid {
+      margin-top: 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+    }
+    .wm-commitment-card {
+      position: relative;
+      background: rgba(255,255,255,0.99);
+      border: 1px solid var(--line-dark);
+      border-radius: var(--panel-radius);
+      padding: 36px 36px 34px;
+      overflow: hidden;
+      transition: transform var(--transition-slow),
+                  border-color var(--transition),
+                  background var(--transition);
+    }
+    .wm-commitment-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      height: 3px;
+      width: 0%;
+      background: var(--accent);
+      transition: width 420ms cubic-bezier(0.22,1,0.36,1);
+    }
+    .wm-commitment-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(0,0,0,0.06);
+      background: #FFFFFF;
+    }
+    .wm-commitment-card:hover::before { width: 100%; }
+    .wm-commitment-kicker {
+      margin: 0 0 10px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.85;
+    }
+    .wm-commitment-card h3 {
+      margin: 0 0 18px;
+      font-size: 19px;
+      line-height: 1.25;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+    .wm-commitment-card-body p {
+      margin: 0 0 12px;
+      font-size: 15.5px;
+      line-height: 1.65;
+      color: var(--muted-dark);
+    }
+    .wm-commitment-card-body p:last-of-type { margin-bottom: 18px; }
+    .wm-rules-out {
+      margin: 0;
+      padding: 14px 16px;
+      background: var(--bg-paper);
+      border-radius: 12px;
+    }
+    .wm-rules-out-label {
+      margin: 0 0 4px;
+      font-size: 10.5px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--accent);
+      opacity: 0.85;
+    }
+    .wm-rules-out p:not(.wm-rules-out-label) {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--muted-dark);
+      font-style: italic;
+    }
+
+    /* ─── FUNNEL TILES (homepage latest-card style) ──────────────────────── */
+    .wm-funnel {
+      background: var(--bg-white);
+      color: var(--text-dark);
+      padding: 72px 34px 80px;
+      border-bottom: 1px solid var(--line-cool);
+    }
+    .wm-funnel-inner { max-width: var(--max); margin: 0 auto; }
+    .wm-funnel-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+    .wm-funnel-head h3 {
+      margin: 0;
+      font-size: 21px;
+      line-height: 1.2;
+      font-weight: 700;
+      color: var(--text-dark);
+      max-width: 540px;
+    }
+    .wm-funnel-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 22px;
+    }
+    .wm-funnel-tile {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      background: #FFFFFF;
+      border: 1px solid rgba(21,32,43,0.08);
+      border-radius: var(--card-radius);
+      padding: 26px 26px 28px;
+      overflow: hidden;
+      transition: transform var(--transition-slow),
+                  border-color var(--transition);
+    }
+    .wm-funnel-tile:hover {
+      transform: translateY(-3px);
+      border-color: rgba(63,110,161,0.14);
+    }
+    .wm-funnel-tile-kicker {
+      margin: 0 0 9px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .wm-funnel-tile h4 {
+      margin: 0 0 9px;
+      font-size: 1.08rem;
+      line-height: 1.18;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-wrap: balance;
+    }
+    .wm-funnel-tile p {
+      margin: 0 0 16px;
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--muted-dark);
+    }
+    .wm-funnel-tile-link {
+      margin-top: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.89rem;
+      font-weight: 500;
+      color: var(--text-dark);
+      transition: color var(--transition), transform var(--transition);
+    }
+    .wm-funnel-tile-link svg {
+      width: 14px;
+      height: 14px;
+      transition: transform var(--transition);
+    }
+    .wm-funnel-tile:hover .wm-funnel-tile-link {
+      color: var(--accent-dark);
+    }
+    .wm-funnel-tile:hover .wm-funnel-tile-link svg {
+      transform: translateX(3px);
+    }
+    .wm-funnel-foot {
+      margin-top: 28px;
+      display: flex;
+      justify-content: center;
+    }
+    .wm-funnel-foot-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: var(--accent);
+      border-bottom: 1px solid transparent;
+      transition: color var(--transition), border-color var(--transition);
+    }
+    .wm-funnel-foot-link svg {
+      width: 14px;
+      height: 14px;
+      transition: transform var(--transition);
+    }
+    .wm-funnel-foot-link:hover {
+      color: var(--accent-dark);
+      border-color: var(--accent);
+    }
+    .wm-funnel-foot-link:hover svg {
+      transform: translateX(3px);
+    }
+
+    /* ─── THE FOUR DIAGNOSTIC TOOLS (infographic strip layout) ───────────── */
+    .wm-instruments {
+      background: var(--bg-white);
+      color: var(--text-dark);
+      padding: 84px 34px 96px;
+      border-bottom: 1px solid var(--line-cool);
+    }
+    .wm-instruments-grid {
+      margin-top: 52px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      border-top: 1.5px solid var(--text-dark);
+      border-bottom: 1.5px solid var(--text-dark);
+    }
+    .wm-instrument-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding: 28px 24px 30px;
+      border-right: 1px solid var(--line-cool);
+      transition: background var(--transition);
+    }
+    .wm-instrument-card:last-child {
+      border-right: none;
+    }
+    .wm-instrument-card:hover {
+      background: var(--bg-paper);
+    }
+    .wm-instrument-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .wm-instrument-glyph {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(63,110,161,0.05);
+      border: 1px solid rgba(63,110,161,0.10);
+      color: var(--accent);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.72);
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .wm-instrument-glyph svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+    }
+    .wm-instrument-card:hover .wm-instrument-glyph {
+      background: rgba(63,110,161,0.08);
+      border-color: rgba(63,110,161,0.18);
+    }
+    .wm-instrument-number {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      color: var(--muted-dark-2);
+    }
+    .wm-instrument-name {
+      margin: 0 0 6px;
+      font-size: 17px;
+      line-height: 1.2;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+    .wm-instrument-question {
+      margin: 0 0 22px;
+      font-size: 13.5px;
+      line-height: 1.5;
+      font-style: italic;
+      color: var(--muted-dark);
+    }
+    .wm-instrument-divider {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 8px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+    }
+    .wm-instrument-divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--line-cool);
+    }
+    .wm-instrument-outcome {
+      margin: 0 0 8px;
+      font-size: 17px;
+      line-height: 1.22;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: -0.02em;
+    }
+    .wm-instrument-outcome-tag {
+      margin: 0 0 18px;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--muted-dark);
+      flex-grow: 1;
+    }
+    .wm-instrument-link {
+      margin-top: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.86rem;
+      font-weight: 500;
+      color: var(--accent);
+      transition: color var(--transition), transform var(--transition);
+    }
+    .wm-instrument-link:hover {
+      color: var(--accent-dark);
+      transform: translateX(2px);
+    }
+    .wm-instruments-caption {
+      margin-top: 32px;
+      text-align: center;
+      font-size: 14px;
+      color: var(--muted-dark-2);
+      font-style: italic;
+    }
+
+    /* Compound read (synthesis diagram inside Tools section) */
+    .wm-compound {
+      margin-top: 56px;
+      padding-top: 52px;
+      border-top: 1px solid var(--line-cool);
+      text-align: center;
+    }
+    .wm-compound-label {
+      margin: 0 0 28px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.85;
+    }
+    .wm-compound-diagram {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    .wm-compound-streams {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 0 0 4px;
+    }
+    .wm-compound-streams span {
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text-dark);
+      line-height: 1.2;
+    }
+    .wm-compound-converge {
+      width: 100%;
+      height: 78px;
+      display: block;
+    }
+    .wm-compound-result {
+      display: inline-block;
+      padding: 12px 22px;
+      background: var(--bg-paper);
+      border: 1px solid var(--accent);
+      border-radius: 999px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.72);
+    }
+    .wm-compound-result strong {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-dark);
+      letter-spacing: -0.01em;
+    }
+    .wm-compound-axes {
+      margin-top: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .wm-compound-axes-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+      margin-right: 6px;
+    }
+    .wm-compound-axes > span:not(.wm-compound-axes-label):not(.sep) {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-dark);
+      letter-spacing: -0.01em;
+    }
+    .wm-compound-axes .sep {
+      color: var(--accent);
+      opacity: 0.6;
+      font-weight: 700;
+    }
+
+    /* ─── METHOD (5-step workflow) ───────────────────────────────────────── */
+    .wm-method {
+      background: var(--bg-paper);
+      color: var(--text-dark);
+      padding: 84px 34px 96px;
+      border-bottom: 1px solid var(--line-cool);
+    }
+    .wm-method-flow {
+      margin-top: 52px;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 14px;
+      position: relative;
+    }
+    .wm-method-flow::before {
+      content: "";
+      position: absolute;
+      top: 28px;
+      left: 8%;
+      right: 8%;
+      height: 1px;
+      background: var(--line-dark);
+      z-index: 0;
+    }
+    .wm-method-step {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 0 12px;
+    }
+    .wm-method-marker {
+      width: 56px;
+      height: 56px;
+      border-radius: 999px;
+      background: #FFFFFF;
+      border: 1.5px solid var(--text-dark);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.72);
+    }
+    .wm-method-name {
+      margin: 0 0 6px;
+      font-size: 15px;
+      line-height: 1.2;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+    .wm-method-desc {
+      margin: 0;
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--muted-dark);
+    }
+    .wm-method-loop {
+      margin-top: 48px;
+      padding: 22px 28px;
+      border: 1px solid var(--line-dark);
+      border-radius: var(--card-radius);
+      background: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .wm-method-loop-left {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    .wm-method-loop-icon {
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+      color: var(--text-dark);
+    }
+    .wm-method-loop-icon svg { width: 100%; height: 100%; stroke: currentColor; }
+    .wm-method-loop-text strong {
+      display: block;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+    .wm-method-loop-text span {
+      display: block;
+      margin-top: 4px;
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--muted-dark);
+    }
+    .wm-method-loop-right {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+      text-align: right;
+    }
+    .wm-method-cta {
+      margin-top: 48px;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* ─── ROI MECHANISM ──────────────────────────────────────────────────── */
+    .wm-roi {
+      background: var(--bg-white);
+      color: var(--text-dark);
+      padding: 84px 34px 96px;
+      border-bottom: 1px solid var(--line-cool);
+    }
+    .wm-roi-grid {
+      margin-top: 52px;
+      display: grid;
+      grid-template-columns: 1fr 1.3fr;
+      gap: 56px;
+      align-items: start;
+    }
+    .wm-roi-left p {
+      margin: 0 0 16px;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--muted-dark);
+    }
+    .wm-roi-left strong {
+      color: var(--text-dark);
+      font-weight: 700;
+    }
+    .wm-roi-disclosure {
+      margin-top: 24px;
+      padding: 18px 20px;
+      background: var(--bg-paper);
+      border: 1px solid var(--line-cool);
+      border-left: 3px solid var(--accent);
+      border-radius: 12px;
+    }
+    .wm-roi-disclosure strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--accent);
+      opacity: 0.85;
+    }
+    .wm-roi-disclosure p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--muted-dark);
+    }
+    .wm-roi-diagram {
+      background: #FFFFFF;
+      border: 1px solid var(--line-dark);
+      border-radius: var(--panel-radius);
+      overflow: hidden;
+    }
+    .wm-roi-diagram-inner { padding: 36px 40px 38px; }
+    .wm-roi-diagram-title {
+      margin: 0 0 28px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+    }
+    .wm-roi-steps {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 28px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .wm-roi-step {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 22px;
+      align-items: start;
+      padding: 22px 0;
+      border-bottom: 1px solid var(--line-cool);
+      position: relative;
+    }
+    .wm-roi-step:last-child { border-bottom: none; }
+    .wm-roi-step:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      left: 23.25px;
+      top: 70px;
+      height: calc(100% - 50px);
+      width: 1.5px;
+      background: var(--line-dark);
+    }
+    .wm-roi-step-marker {
+      width: 48px;
+      height: 48px;
+      border-radius: 999px;
+      background: #FFFFFF;
+      border: 1.5px solid var(--text-dark);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--text-dark);
+      position: relative;
+      z-index: 1;
+    }
+    .wm-roi-step--accent .wm-roi-step-marker {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #FFFFFF;
+    }
+    .wm-roi-step-body { padding-top: 2px; }
+    .wm-roi-step-label {
+      margin: 0 0 10px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+    }
+    .wm-roi-step-value {
+      margin: 0 0 8px;
+      font-size: clamp(2.1rem, 3.4vw, 2.5rem);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: var(--text-dark);
+    }
+    .wm-roi-step--accent .wm-roi-step-value { color: var(--accent); }
+    .wm-roi-step-unit {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--muted-dark);
+      max-width: 48ch;
+    }
+    .wm-roi-axes {
+      padding-top: 26px;
+      border-top: 1px solid var(--line-cool);
+    }
+    .wm-roi-axes-label {
+      margin: 0 0 16px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted-dark-2);
+    }
+    .wm-roi-axes-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .wm-roi-axis { padding: 0; }
+    .wm-roi-axis-label {
+      margin: 0 0 6px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-dark);
+      letter-spacing: -0.01em;
+    }
+    .wm-roi-axis-desc {
+      margin: 0;
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--muted-dark);
+    }
+
+    /* ─── WHAT YOU GET ─────────────────────────────────────────────────────── */
+    .wm-whatyouget {
+      padding: 96px 34px 100px;
+      background: var(--bg-offwhite);
+      border-top: 1px solid var(--line-cool);
+      border-bottom: 1px solid var(--line-cool);
+    }
+    .wm-whatyouget .section-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+    .wm-wyg-list {
+      list-style: none;
+      padding: 0;
+      margin: 48px 0 0;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+      border-top: 1px solid var(--line-cool);
+    }
+    .wm-wyg-item {
+      padding: 36px 0;
+      border-bottom: 1px solid var(--line-cool);
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 48px;
+      align-items: start;
+    }
+    .wm-wyg-lead {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .wm-wyg-num {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .wm-wyg-name {
+      font-size: 1.32rem;
+      font-weight: 700;
+      letter-spacing: -0.018em;
+      color: var(--text-dark);
+      margin: 0;
+    }
+    .wm-wyg-measures {
+      font-size: 0.94rem;
+      line-height: 1.5;
+      color: var(--muted-dark);
+      margin: 0;
+    }
+    .wm-wyg-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px 40px;
+    }
+    .wm-wyg-block {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .wm-wyg-block-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted-dark);
+      margin: 0;
+    }
+    .wm-wyg-block-value {
+      font-size: 0.98rem;
+      line-height: 1.55;
+      color: var(--text-dark);
+      margin: 0;
+    }
+    .wm-wyg-block-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .wm-wyg-block-list li {
+      font-size: 0.96rem;
+      line-height: 1.5;
+      color: var(--text-dark);
+      padding-left: 14px;
+      position: relative;
+    }
+    .wm-wyg-block-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 9px;
+      width: 5px;
+      height: 5px;
+      background: var(--accent);
+      border-radius: 1px;
+    }
+    .wm-wyg-outcome {
+      color: var(--accent);
+      font-weight: 500;
+      font-style: italic;
+    }
+    @media (max-width: 980px) {
+      .wm-whatyouget { padding: 72px 24px 76px; }
+      .wm-wyg-item {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+      .wm-wyg-body { grid-template-columns: 1fr; gap: 22px; }
+    }
+    @media (max-width: 720px) {
+      .wm-whatyouget { padding: 52px 20px 56px; }
+      .wm-wyg-list { margin-top: 32px; }
+      .wm-wyg-item { padding: 28px 0; }
+    }
+
+    /* ─── PLATFORM BRIEF DOWNLOAD BAND ────────────────────────────────────── */
+    .wm-brief-band {
+      padding: 44px 34px 48px;
+      border-top: 1px solid var(--line-cool);
+      border-bottom: 1px solid var(--line-cool);
+      background: #FFFFFF;
+      text-align: center;
+    }
+    .wm-brief-band-inner {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .wm-brief-band-label {
+      margin: 0 0 14px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.85;
+    }
+    .wm-brief-band-label::before {
+      content: "";
+      display: block;
+      width: 36px;
+      height: 1.5px;
+      background: var(--accent);
+      margin: 0 auto 12px;
+    }
+    .wm-brief-band-link {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.018em;
+      color: var(--text-dark);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 22px;
+      border: 1.5px solid var(--text-dark);
+      border-radius: 999px;
+      transition: background 180ms cubic-bezier(0.16, 1, 0.3, 1),
+                  color 180ms cubic-bezier(0.16, 1, 0.3, 1),
+                  border-color 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .wm-brief-band-link:hover {
+      background: var(--text-dark);
+      color: #FFFFFF;
+      border-color: var(--text-dark);
+    }
+    .wm-brief-band-arrow {
+      font-size: 1.1rem;
+      transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .wm-brief-band-link:hover .wm-brief-band-arrow {
+      transform: translateX(4px);
+    }
+    .wm-brief-band-meta {
+      margin: 16px 0 0;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--muted-dark);
+      max-width: 56ch;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ─── METHODOLOGICAL RIGOR BAND ──────────────────────────────────────── */
+    .wm-rigor {
+      background: var(--bg-paper);
+      padding: 76px 34px 84px;
+      border-top: 1px solid var(--line-cool);
+      border-bottom: 1px solid var(--line-cool);
+    }
+    .wm-rigor-inner {
+      max-width: 880px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .wm-rigor-statements {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+      margin: 0 0 26px;
+    }
+    .wm-rigor-statements > span:not(.sep) {
+      font-size: clamp(1.02rem, 1.55vw, 1.18rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-dark);
+      line-height: 1.3;
+    }
+    .wm-rigor-statements .sep {
+      font-size: 1.18rem;
+      color: var(--accent);
+      opacity: 0.6;
+      font-weight: 400;
+    }
+    .wm-rigor-dek {
+      margin: 0 auto;
+      max-width: 62ch;
+      font-size: 15.5px;
+      line-height: 1.66;
+      color: var(--muted-dark);
+    }
+
+    /* ─── HOW MONDERMAN IS DIFFERENT (two-column contrast — light/dark) ─── */
+    .wm-difference {
+      background: var(--bg-paper);
+      color: var(--text-dark);
+      padding: 84px 34px 96px;
+      border-top: 1px solid var(--line-cool);
+      border-bottom: 1px solid var(--line-cool);
+    }
+    .wm-difference-columns {
+      margin-top: 46px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border-radius: var(--panel-radius);
+      overflow: hidden;
+      border: 1px solid var(--line-dark);
+    }
+    .wm-diff-col {
+      padding: 40px 40px 42px;
+    }
+    .wm-diff-col--positive { background: #FFFFFF; }
+    .wm-diff-col--negative {
+      background: var(--bg-dark);
+      color: var(--text-light);
+      border-left: 1px solid rgba(255,255,255,0.06);
+    }
+    .wm-diff-col-label {
+      margin: 0 0 26px;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.4;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.85;
+    }
+    .wm-diff-col--negative .wm-diff-col-label {
+      color: var(--accent-light);
+      opacity: 1;
+    }
+    .wm-diff-col-label::before {
+      content: "";
+      display: block;
+      width: 36px;
+      height: 1.5px;
+      background: var(--accent);
+      margin-bottom: 14px;
+    }
+    .wm-diff-col--negative .wm-diff-col-label::before {
+      background: var(--accent-light);
+    }
+    .wm-diff-items {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .wm-diff-item strong {
+      display: block;
+      margin: 0 0 8px;
+      font-size: 15.5px;
+      font-weight: 700;
+      color: var(--text-dark);
+      letter-spacing: -0.01em;
+    }
+    .wm-diff-col--negative .wm-diff-item strong {
+      color: var(--text-light);
+    }
+    .wm-diff-item span {
+      display: block;
+      font-size: 14px;
+      line-height: 1.62;
+      color: var(--muted-dark);
+    }
+    .wm-diff-col--negative .wm-diff-item span {
+      color: rgba(245,247,250,0.74);
+    }
+
+    /* ─── CTA ─────────────────────────────────────────────────────────────── */
+    .wm-cta {
+      background: var(--bg-dark);
+      color: var(--text-light);
+      padding: 88px 34px 96px;
+    }
+    .wm-cta-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 56px;
+      align-items: start;
+    }
+    .wm-cta-copy .section-label { color: rgba(245,247,250,0.55); }
+    .wm-cta-copy h2 {
+      margin: 0 0 16px;
+      font-size: 28px;
+      line-height: 1.15;
+      font-weight: 700;
+      color: var(--text-light);
+      max-width: 22ch;
+    }
+    .wm-cta-copy p {
+      margin: 0 0 28px;
+      max-width: 60ch;
+      font-size: 16px;
+      line-height: 1.65;
+      color: rgba(245,247,250,0.78);
+    }
+    .wm-cta-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .wm-cta-panel {
+      padding: 28px 30px;
+      background: var(--bg-dark-2);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--card-radius);
+    }
+    .wm-cta-kicker {
+      margin: 0 0 12px;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: rgba(245,247,250,0.55);
+    }
+    .wm-cta-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-light);
+      margin-bottom: 14px;
+      letter-spacing: -0.02em;
+    }
+    .wm-cta-link-mark {
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .wm-cta-note {
+      margin: 0;
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: rgba(245,247,250,0.68);
+    }
+
+    /* ─── FOOTER (matched to homepage) ───────────────────────────────────── */
+    .footer {
+      background: #0D141C;
+      color: rgba(245,247,250,0.88);
+      padding: 50px 34px 38px;
+      position: relative;
+      overflow: hidden;
+    }
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .footer-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 40px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .footer-brand { max-width: 420px; }
+    .footer-mark {
+      display: inline-flex;
+      align-items: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      margin-bottom: 14px;
+    }
+    .footer-mark::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+    .footer-copy {
+      margin: 0;
+      max-width: 36ch;
+      font-size: 0.98rem;
+      line-height: 1.65;
+      color: rgba(245,247,250,0.68);
+    }
+    .footer-nav { display: flex; gap: 48px; flex-wrap: wrap; }
+    .footer-nav-col { min-width: 120px; }
+    .footer-nav-title {
+      margin: 0 0 12px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245,247,250,0.50);
+    }
+    .footer-nav a {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      color: rgba(245,247,250,0.82);
+      transition: color var(--transition), transform var(--transition);
+    }
+    .footer-nav a:hover, .footer-nav a:focus-visible {
+      color: #FFFFFF;
+      transform: translateX(1px);
+      outline: none;
+    }
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding-top: 18px;
+    }
+    .footer-meta, .footer-contact {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: rgba(245,247,250,0.54);
+    }
+
+    /* Footer motif (concentric circles, bottom-right — matched to homepage) */
+    .footer-motif {
+      position: absolute;
+      bottom: -65px;
+      right: -65px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .footer-top, .footer-bottom, .footer-inner, .footer-brand,
+    .footer-nav, .footer-copy, .footer-meta, .footer-contact {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ─── REDUCED MOTION ─────────────────────────────────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { opacity: 1; transform: none; transition: none; }
+      .hero-eyebrow, .hero h1, .hero-dek, .hero-actions {
+        animation: none;
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    /* ─── RESPONSIVE ─────────────────────────────────────────────────────── */
+    @media (max-width: 1100px) {
+      .nav { gap: 16px; }
+      .nav a { font-size: 0.84rem; }
+      .hero h1 { font-size: 52px; }
+      .wm-instruments-grid { grid-template-columns: repeat(2, 1fr); }
+      .wm-instrument-card:nth-child(2) { border-right: none; }
+      .wm-instrument-card:nth-child(1),
+      .wm-instrument-card:nth-child(2) { border-bottom: 1px solid var(--line-cool); }
+      .wm-method-flow { grid-template-columns: repeat(5, 1fr); gap: 8px; }
+      .wm-roi-grid { grid-template-columns: 1fr; gap: 36px; }
+      .wm-condition-grid { grid-template-columns: 1fr; gap: 28px; }
+      .wm-commitments-grid { grid-template-columns: 1fr; }
+      .wm-funnel-grid { grid-template-columns: 1fr; }
+      .wm-difference-columns { grid-template-columns: 1fr; }
+      .wm-diff-col--negative { border-left: none; border-top: 1px solid rgba(255,255,255,0.06); }
+      .wm-rigor { padding: 60px 24px 64px; }
+      .wm-rigor-statements { flex-direction: column; gap: 8px; }
+      .wm-rigor-statements .sep { display: none; }
+      .wm-brief-band { padding: 36px 24px 40px; }
+      .wm-brief-band-link { font-size: 17px; }
+      .wm-cta-inner { grid-template-columns: 1fr; gap: 40px; }
+      .footer-top { flex-direction: column; }
+    }
+    @media (max-width: 720px) {
+      .header { height: auto; }
+      .header-inner {
+        padding: 14px 20px 10px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .nav {
+        display: flex;
+        width: 100%;
+        gap: 10px;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+      }
+      .nav::-webkit-scrollbar { display: none; }
+      .nav a {
+        flex: 0 0 auto;
+        font-size: 0.84rem;
+        line-height: 1;
+        padding: 10px 12px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.08);
+        white-space: nowrap;
+      }
+      .nav a::after { display: none; }
+      .hero { min-height: 0; }
+      .hero h1 { font-size: 40px; }
+      .hero-inner { padding: 130px 20px 72px; }
+      .hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        max-width: 420px;
+      }
+      .hero-actions .btn { width: 100%; min-width: 0; }
+      .wm-sector-bar { padding: 20px; }
+      .wm-condition, .wm-commitments, .wm-instruments, .wm-method, .wm-roi, .wm-difference, .wm-cta, .wm-funnel { padding: 52px 20px 56px; }
+      .wm-brief-band { padding: 32px 20px 36px; }
+      .wm-instruments-grid { grid-template-columns: 1fr; }
+      .wm-instrument-card { border-right: none; border-bottom: 1px solid var(--line-cool); }
+      .wm-instrument-card:last-child { border-bottom: none; }
+      .wm-compound-streams { grid-template-columns: 1fr; gap: 6px; text-align: center; }
+      .wm-compound-converge { display: none; }
+      .wm-compound-result { margin-top: 20px; }
+      .wm-method-flow { grid-template-columns: 1fr; gap: 20px; }
+      .wm-method-flow::before { display: none; }
+      .wm-method-loop { flex-direction: column; align-items: flex-start; gap: 14px; }
+      .wm-method-loop-right { text-align: left; }
+      .wm-roi-axes-grid { grid-template-columns: 1fr; gap: 18px; }
+      .wm-roi-axis { padding: 16px 0; border-bottom: 1px solid var(--line-cool); }
+      .wm-roi-axis:last-child { border-bottom: none; padding-bottom: 0; }
+      .wm-roi-axis:first-child { padding-top: 0; }
+      .wm-roi-diagram-inner { padding: 28px 24px; }
+      .section-intro h2, .wm-cta-copy h2 { font-size: 24px; }
+      .wm-cta-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        max-width: 420px;
+      }
+      .wm-cta-actions .btn { width: 100%; min-width: 0; }
+      .footer { padding: 40px 20px 30px; }
+      .footer-top { flex-direction: column; gap: 28px; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .footer-nav { gap: 32px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ HEADER ═════════════════════════════════════════════════════════ -->
+  <header class="header" id="siteHeader">
+    <div class="header-inner">
+      <a href="index.html" class="brand">
+        Monderman<span class="brand-dot"></span>
+      </a>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="index.html#approach">Approach</a>
+        <a href="diagnostic-hub.html">Diagnostic Hub</a>
+        <a href="research.html">Research</a>
+        <a href="why-monderman.html" class="is-active">Why Monderman</a>
+        <a href="about.html">About</a>
+        <a href="platform-services.html">Platform Services</a>
+        <a href="connect.html">Connect</a>
+        <a class="workspace-link" href="workspace.html">Workspace</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ═══ HERO ═══════════════════════════════════════════════════════════ -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <p class="hero-eyebrow">Why Monderman</p>
+        <h1 class="hero-title" id="hero-title">
+          <span class="hero-line">Administrative reality isn't background noise.</span>
+          <span class="hero-line">It's the real operating condition.</span>
+        </h1>
+        <p class="hero-dek">Four Tools. Three perspectives. Repeated measurement. Built for institutions ready to see — and steer — the conditions they run on.</p>
+        <div class="hero-actions">
+          <a class="btn btn-accent" href="diagnostic-hub.html">Start Your First Diagnostic — Free</a>
+          <a class="btn btn-secondary" href="#whatyouget">See What You Get</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ THE CONDITION ══════════════════════════════════════════════════ -->
+  <section class="wm-condition section-with-bar snap-anchor" id="condition" aria-labelledby="condition-title">
+    <div aria-hidden="true" class="section-bar">The Condition</div>
+    <div class="section-inner">
+      <div class="section-intro reveal">
+        <p class="section-label">The premise</p>
+        <h2 id="condition-title">It is measurable. It is governable. Few institutions are tracking it.</h2>
+      </div>
+
+      <div class="wm-condition-grid reveal reveal-delay-1">
+        <div>
+          <p><strong>Complex institutions accumulate structural drag, process burden, and decision friction</strong> as a natural byproduct of growth, change, and governance layering. Left ungoverned, that accumulation quietly determines how fast decisions move, how legible the system remains to those inside it, and whether institutional performance still holds under load.</p>
+          <p>The accumulation is not a culture deficit, a morale signal, or a change-management problem. It is a measurable structural condition — one that drifts, compensates, and absorbs leadership capacity at rates leaders rarely see directly.</p>
+        </div>
+        <div>
+          <p><strong>Monderman makes that reality visible, comparable, and steerable</strong> — so leaders can act on measurable conditions instead of gut feel alone.</p>
+          <p>The platform reads the institution through four Diagnostic Tools, across three perspectives, on a repeated cadence. Each Tool produces a specific, named outcome leaders can act on. Run together, the four form one coherent institutional read.</p>
+        </div>
+      </div>
+
+      <div class="wm-thesis-pull reveal reveal-delay-2">
+        <p class="wm-thesis-pull-quote">Organizations deliver at the speed of their administrative reality.</p>
+        <p class="wm-thesis-pull-note">The platform's operating thesis — and how every diagnostic is calibrated.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ SECTOR BAR ═════════════════════════════════════════════════════ -->
+  <div class="wm-sector-bar">
+    <div class="wm-sector-inner">
+      <span class="wm-sector-label">Built for complex institutions</span>
+      <span class="wm-sector-list">
+        Defense<span class="sep">/</span>Intelligence Community<span class="sep">/</span>Federal Civilian<span class="sep">/</span>Healthcare<span class="sep">/</span>Higher Education<span class="sep">/</span>Technology
+      </span>
+    </div>
+  </div>
+
+  <!-- ═══ FOUR COMMITMENTS ═══════════════════════════════════════════════ -->
+  <section class="wm-commitments section-with-bar snap-anchor" id="commitments" aria-labelledby="commitments-title">
+    <div aria-hidden="true" class="section-bar">Commitments</div>
+    <div class="section-inner">
+      <div class="section-intro reveal">
+        <p class="section-label">The argument underneath</p>
+        <h2 id="commitments-title">Four commitments about how institutions actually perform.</h2>
+        <p>These commitments are the platform's operating premise. They are what the four Diagnostic Tools are designed to operationalize, and what distinguishes Monderman from sentiment platforms, org-design consultancies, and workflow tools.</p>
+      </div>
+
+      <div class="wm-commitments-grid">
+
+        <article class="wm-commitment-card reveal reveal-delay-1">
+          <p class="wm-commitment-kicker">Commitment 01</p>
+          <h3>Bureaucracy is a live operating condition, not a static one.</h3>
+          <div class="wm-commitment-card-body">
+            <p>Bureaucracy is not an administrative backdrop. It is an active condition inside the institution, shaping how work moves, how authority accumulates, and how coordination either supports or constrains execution.</p>
+            <p>Some mechanisms accelerate the work, some modulate it proportionately, and some increasingly restrict it. They do not remain fixed. They drift. That drift is measurable — and that’s why repeated diagnosis matters.</p>
+            <div class="wm-rules-out">
+              <p class="wm-rules-out-label">This rules out</p>
+              <p>The old view that bureaucracy is just an administrative afterthought, to be cleaned up in occasional reform cycles.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="wm-commitment-card reveal reveal-delay-2">
+          <p class="wm-commitment-kicker">Commitment 02</p>
+          <h3>One-time assessment is insufficient. Repeated measurement is the unit of value.</h3>
+          <div class="wm-commitment-card-body">
+            <p>A baseline matters, but its value appears most clearly when there is a second read against the same structure. Institutions usually know how the system feels today. They are far less clear on whether today is better, worse, or simply different than six months ago on the same measure.</p>
+            <p>The comparison across runs is where drift becomes visible, where recovery becomes credible, and where administrative reality stops being anecdotal and starts becoming governable over time.</p>
+            <div class="wm-rules-out">
+              <p class="wm-rules-out-label">This rules out</p>
+              <p>Treating annual culture surveys or one-shot assessments as real substitutes for sustained governance.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="wm-commitment-card reveal reveal-delay-3">
+          <p class="wm-commitment-kicker">Commitment 03</p>
+          <h3>Multiple perspective lenses on the same system reveal different truths.</h3>
+          <div class="wm-commitment-card-body">
+            <p>The same structural system feels different from the operational, managerial, and senior leader vantage points. That is not noise to be normalized away. The divergence itself is often the diagnostic signal.</p>
+            <p>When those readings converge, the institution may be experiencing the same reality coherently. When they diverge sharply, the system is often being absorbed unevenly, hidden by local compensation, or interpreted differently at different levels.</p>
+            <div class="wm-rules-out">
+              <p class="wm-rules-out-label">This rules out</p>
+              <p>Executive-only diagnosis that treats leadership perception as a sufficient proxy for the full institutional condition.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="wm-commitment-card reveal reveal-delay-4">
+          <p class="wm-commitment-kicker">Commitment 04</p>
+          <h3>The work is to make administrative reality legible, not to eliminate it.</h3>
+          <div class="wm-commitment-card-body">
+            <p>Complex institutions need governance. They need controls, sequencing, review, and administrative structure. The question is not whether bureaucracy should exist. The question is whether it remains proportionate to the work it is meant to support.</p>
+            <p>The discipline is calibration, not subtraction. Monderman is not built on anti-bureaucracy posturing. It is built on the belief that administrative reality should be read clearly enough to govern with precision rather than flattened through slogans about simplification.</p>
+            <div class="wm-rules-out">
+              <p class="wm-rules-out-label">This rules out</p>
+              <p>Anti-bureaucracy theater, zero-based review posturing, and the reflex to "streamline everything" regardless of what the institution actually needs.</p>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FUNNEL #1 → Research ══════════════════════════════════════════ -->
+  <section class="wm-funnel section-with-bar snap-anchor" id="research-paths" aria-label="Continue reading">
+    <div aria-hidden="true" class="section-bar">Research</div>
+    <div class="wm-funnel-inner">
+      <div class="wm-funnel-head reveal">
+        <h3>Continue reading on the argument.</h3>
+        <p class="section-label" style="margin: 0;">Selected briefs</p>
+      </div>
+      <div class="wm-funnel-grid">
+        <a href="research.html" class="wm-funnel-tile reveal reveal-delay-1">
+          <p class="wm-funnel-tile-kicker">Example brief</p>
+          <h4>Accumulated drag in defense systems</h4>
+          <p>A structural read of how administrative load compounds across program offices over time.</p>
+          <span class="wm-funnel-tile-link">Read the brief
+            <svg viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7.5 2.5L12 7l-4.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </a>
+        <a href="research.html" class="wm-funnel-tile reveal reveal-delay-2">
+          <p class="wm-funnel-tile-kicker">Example brief</p>
+          <h4>The quarter-trillion-dollar friction</h4>
+          <p>What administrative reality costs the US healthcare system, measured at the institutional baseline.</p>
+          <span class="wm-funnel-tile-link">Read the brief
+            <svg viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7.5 2.5L12 7l-4.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </a>
+        <a href="research.html" class="wm-funnel-tile reveal reveal-delay-3">
+          <p class="wm-funnel-tile-kicker">Example brief</p>
+          <h4>Active bureaucratic management</h4>
+          <p>The discipline of stewarding administrative conditions, distinct from process reform or change initiatives.</p>
+          <span class="wm-funnel-tile-link">Read the brief
+            <svg viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7.5 2.5L12 7l-4.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </a>
+      </div>
+      <div class="wm-funnel-foot reveal reveal-delay-4">
+        <a href="research.html" class="wm-funnel-foot-link">Browse the full Research library
+          <svg viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7.5 2.5L12 7l-4.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FOUR DIAGNOSTIC TOOLS ══════════════════════════════════════════ -->
+  <section class="wm-instruments section-with-bar snap-anchor" id="diagnostic-tools" aria-labelledby="tools-title">
+    <div aria-hidden="true" class="section-bar">Diagnostic Tools</div>
+    <div class="section-inner">
+      <div class="section-intro reveal">
+        <p class="section-label">The four tools</p>
+        <h2 id="tools-title">Four Diagnostic Tools. Each reads the institution from a different angle.</h2>
+        <p>Each diagnostic produces a governable outcome. Run together, the four Tools compose into a single institutional read. Run over time, they make drift visible and interventions comparable.</p>
+      </div>
+
+      <div class="wm-instruments-grid">
+
+        <article class="wm-instrument-card reveal reveal-delay-1">
+          <div class="wm-instrument-head">
+            <span class="wm-instrument-glyph" aria-hidden="true">
+              <svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                <path d="M4 7h8"></path>
+                <path d="M4 12h16"></path>
+                <path d="M4 17h11"></path>
+              </svg>
+            </span>
+            <span class="wm-instrument-number">01</span>
+          </div>
+          <h3 class="wm-instrument-name">Structural Clarity</h3>
+          <p class="wm-instrument-question">Is the system legible?</p>
+          <p class="wm-instrument-divider">Produces</p>
+          <p class="wm-instrument-outcome">Confident Action</p>
+          <p class="wm-instrument-outcome-tag">Authority, boundary, and pathway visible to those who must act on them.</p>
+          <a class="wm-instrument-link" href="structural-clarity.html">Open this Tool →</a>
+        </article>
+
+        <article class="wm-instrument-card reveal reveal-delay-2">
+          <div class="wm-instrument-head">
+            <span class="wm-instrument-glyph" aria-hidden="true">
+              <svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                <path d="M5 19L19 5"></path>
+                <path d="M9 5h10v10"></path>
+              </svg>
+            </span>
+            <span class="wm-instrument-number">02</span>
+          </div>
+          <h3 class="wm-instrument-name">Decision Velocity</h3>
+          <p class="wm-instrument-question">Does time move through it?</p>
+          <p class="wm-instrument-divider">Produces</p>
+          <p class="wm-instrument-outcome">Sustained Advantage</p>
+          <p class="wm-instrument-outcome-tag">The interval between recognition and decision held at institutional speed.</p>
+          <a class="wm-instrument-link" href="decision-velocity.html">Open this Tool →</a>
+        </article>
+
+        <article class="wm-instrument-card reveal reveal-delay-3">
+          <div class="wm-instrument-head">
+            <span class="wm-instrument-glyph" aria-hidden="true">
+              <svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                <rect height="14" rx="2" width="16" x="4" y="5"></rect>
+                <path d="M8 9h8"></path>
+                <path d="M8 13h8"></path>
+              </svg>
+            </span>
+            <span class="wm-instrument-number">03</span>
+          </div>
+          <h3 class="wm-instrument-name">Operational Systems</h3>
+          <p class="wm-instrument-question">How much weight is it carrying?</p>
+          <p class="wm-instrument-divider">Produces</p>
+          <p class="wm-instrument-outcome">Reclaimed Capacity</p>
+          <p class="wm-instrument-outcome-tag">Burden measured. Drag relieved at the structural source, not at the symptom.</p>
+          <a class="wm-instrument-link" href="operational-systems.html">Open this Tool →</a>
+        </article>
+
+        <article class="wm-instrument-card reveal reveal-delay-4">
+          <div class="wm-instrument-head">
+            <span class="wm-instrument-glyph" aria-hidden="true">
+              <svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="8"></circle>
+                <path d="M12 8v4l3 2"></path>
+              </svg>
+            </span>
+            <span class="wm-instrument-number">04</span>
+          </div>
+          <h3 class="wm-instrument-name">Institutional Performance</h3>
+          <p class="wm-instrument-question">Does it still hold?</p>
+          <p class="wm-instrument-divider">Produces</p>
+          <p class="wm-instrument-outcome">Organizational Credibility</p>
+          <p class="wm-instrument-outcome-tag">Coherence between what the institution says, decides, and delivers.</p>
+          <a class="wm-instrument-link" href="institutional-performance-article.html">Open this Tool →</a>
+        </article>
+
+      </div>
+
+      <div class="wm-compound reveal reveal-delay-4">
+        <p class="wm-compound-label">Four Tools. One institutional signal.</p>
+
+        <div class="wm-compound-diagram">
+          <div class="wm-compound-streams">
+            <span>Structural Clarity</span>
+            <span>Decision Velocity</span>
+            <span>Operational Systems</span>
+            <span>Institutional Performance</span>
+          </div>
+          <svg class="wm-compound-converge" viewBox="0 0 800 80" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="flowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#3F6EA1" stop-opacity="0.35"/>
+                <stop offset="100%" stop-color="#3F6EA1" stop-opacity="0.65"/>
+              </linearGradient>
+            </defs>
+            <path d="M120 8 Q260 42 400 74" fill="none" stroke="url(#flowGrad)" stroke-width="3.2" stroke-linecap="round"/>
+            <path d="M280 8 Q340 42 400 74" fill="none" stroke="url(#flowGrad)" stroke-width="3.2" stroke-linecap="round"/>
+            <path d="M520 8 Q460 42 400 74" fill="none" stroke="url(#flowGrad)" stroke-width="3.2" stroke-linecap="round"/>
+            <path d="M680 8 Q540 42 400 74" fill="none" stroke="url(#flowGrad)" stroke-width="3.2" stroke-linecap="round"/>
+            <circle cx="400" cy="74" r="6" fill="#3F6EA1"/>
+            <circle cx="400" cy="74" r="3.5" fill="#FFFFFF" opacity="0.95"/>
+          </svg>
+          <div class="wm-compound-result">
+            <strong>One scored, structured institutional read</strong>
+          </div>
+        </div>
+
+        <div class="wm-compound-axes">
+          <span class="wm-compound-axes-label">Reported across</span>
+          <span>Time</span><span class="sep">·</span>
+          <span>Cost</span><span class="sep">·</span>
+          <span>Capacity</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ WHAT YOU GET ════════════════════════════════════════════════════ -->
+  <section class="wm-whatyouget section-with-bar snap-anchor" id="whatyouget" aria-labelledby="wyg-title">
+    <div aria-hidden="true" class="section-bar">What You Get</div>
+    <div class="section-inner">
+      <div class="section-intro reveal">
+        <p class="section-label">Concrete deliverables</p>
+        <h2 id="wyg-title">What you receive, and what changes after you act on it.</h2>
+        <p>Every diagnostic produces the same set of outputs: an executive read, a quantified score, the primary structural signal, and a machine-readable export. What differs is what each diagnostic surfaces — and what becomes possible once you act on it.</p>
+      </div>
+
+      <ul class="wm-wyg-list reveal reveal-delay-1">
+
+        <li class="wm-wyg-item">
+          <div class="wm-wyg-lead">
+            <p class="wm-wyg-num">01 · Diagnostic</p>
+            <h3 class="wm-wyg-name">Structural Clarity</h3>
+            <p class="wm-wyg-measures">Where authority, ownership, and decision rights are clear — and where they aren't.</p>
+          </div>
+          <div class="wm-wyg-body">
+            <div class="wm-wyg-block">
+              <p class="wm-wyg-block-label">What you receive</p>
+              <ul class="wm-wyg-block-list">
+                <li>Executive read (PDF), 2–3 pages</li>
+                <li>Clarity score across roles, authority, and handoffs</li>
+                <li>Primary structural signal: where the system is illegible</li>
+                <li>JSON export for internal analysis</li>
+              </ul>
+            </div>
+            <div class="wm-wyg-block">
+              <p class="wm-wyg-block-label">What changes</p>
+              <p class="wm-wyg-block-value">Teams stop arguing over who owns what. Decisions move because the path is visible. <span class="wm-wyg-outcome">Outcome: confident action.</span></p>
+              <p class="wm-wyg-block-label" style="margin-top:10px;">Re-run cadence</p>
+              <p class="wm-wyg-block-value">After any restructure, leadership change, or every 6–9 months.</p>
+            </div>
+          </div>
+        </li>
+
+        <li class="wm-wyg-item">
+          <div class="wm-wyg-lead">
+            <p class="wm-wyg-num">02 · Diagnostic</p>
+            <h3 class="wm-wyg-name">Decision Velocity</h3>
+            <p class="wm-wyg-measures">How quickly decisions move through the institution — and where they stall.</p>
+          </div>
+          <div class="wm-wyg-body">
+            <div class="wm-wyg-block">
+              <p class="wm-wyg-block-label">What you receive</p>
+              <ul class="wm-wyg-block-list">
+                <li>Executive read (PDF), 2–3 pages</li>
+                <li>Velocity score with stall-point map</li>
+                <li>Primary structural signal: where time is being absorbed</li>
+                <li>JSON export for internal analysis</li>
+              </ul>
+            </div>
+            <div class="wm-wyg-block">
+              <p class="wm-wyg-block-label">What changes</p>
+              <p class="wm-wyg-block-value">Cycle time tightens at the named stall point — not across the board. Speed becomes a function of structure, not effort. <span class="wm-wyg-outcome">Outcome: sustained advantage.</span></p>
+              <p class="wm-wyg-block-label" style="margin-top:10px;">Re-run cadence</p>
+              <p class="wm-wyg-block-value">Quarterly during transformation, otherwise every 6 months.</p>
+            </div>
+          </div>
+        </li>
+
+        <li class="wm-wyg-item">
+          <div class="wm-wyg-lead">
+            <p class="wm-wyg-num">03 · Diagnostic</p>
+            <h3 class="wm-wyg-name">Operational Systems</h3>
+            <p class="wm-wyg-measures">Where administrative systems accelerate work — and where they restrict it.</p>
+          </div>
+          <div class="wm-wyg-body">
+            <div class="wm-wyg-block">
+              <p class="wm-wyg-block-label">What you receive</p>
+              <ul class="wm-wyg-block-list">
+                <li>Executive read (PDF), 2–3 pages</li>
+                <li>Burden score with directional reclaim estimate (hours, cost)</li>
+                <li>Primary structural signal: where drag is sourced</li>
+                <li>JSON export for internal analysis</li>
+              </ul>
+            </div>
+            <div class="wm-wyg-block">
+              <p class="wm-wyg-block-label">What changes</p>
+              <p class="wm-wyg-block-value">A measurable share of senior time returns to mission once the structural source is corrected — not the symptom. <span class="wm-wyg-outcome">Outcome: reclaimed capacity.</span></p>
+              <p class="wm-wyg-block-label" style="margin-top:10px;">Re-run cadence</p>
+              <p class="wm-wyg-block-value">Every 6 months, or after any major system change.</p>
+            </div>
+          </div>
+        </li>
+
+        <li class="wm-wyg-item">
+          <div class="wm-wyg-lead">
+            <p class="wm-wyg-num">04 · Diagnostic</p>
+            <h3 class="wm-wyg-name">Institutional Performance</h3>
+            <p class="wm-wyg-measures">How structural conditions compound — over time — into delivery on stated commitments.</p>
+          </div>
+          <div class="wm-wyg-body">
+            <div class="wm-wyg-block">
+              <p class="wm-wyg-block-label">What you receive</p>
+              <ul class="wm-wyg-block-list">
+                <li>Executive read (PDF), 2–3 pages</li>
+                <li>Coherence score across what the institution says, decides, and delivers</li>
+                <li>Primary structural signal: where commitment and capacity diverge</li>
+                <li>JSON export for internal analysis</li>
+              </ul>
+            </div>
+            <div class="wm-wyg-block">
+              <p class="wm-wyg-block-label">What changes</p>
+              <p class="wm-wyg-block-value">Leaders see whether the institution can still meet its stated commitments — and act before the gap becomes public. <span class="wm-wyg-outcome">Outcome: organizational credibility.</span></p>
+              <p class="wm-wyg-block-label" style="margin-top:10px;">Re-run cadence</p>
+              <p class="wm-wyg-block-value">Annually, or before any major commitment cycle.</p>
+            </div>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+  </section>
+
+  <!-- ═══ PLATFORM BRIEF DOWNLOAD ════════════════════════════════════════ -->
+  <div class="wm-brief-band">
+    <div class="wm-brief-band-inner">
+      <p class="wm-brief-band-label">For circulation</p>
+      <a class="wm-brief-band-link" href="Monderman_Platform_Brief.html">
+        Download the Monderman platform brief
+        <span class="wm-brief-band-arrow" aria-hidden="true">→</span>
+      </a>
+      <p class="wm-brief-band-meta">Single-page reference covering the platform's thesis, four Diagnostic Tools, workflow, and engagement pathways. Built for senior leaders evaluating internally.</p>
+    </div>
+  </div>
+
+  <!-- ═══ THE METHOD ═════════════════════════════════════════════════════ -->
+  <section class="wm-method section-with-bar snap-anchor" id="workflow" aria-labelledby="method-title">
+    <div aria-hidden="true" class="section-bar">Workflow</div>
+    <div class="section-inner">
+      <div class="section-intro reveal">
+        <p class="section-label">The approach</p>
+        <h2 id="method-title">One discipline. Every run. By design.</h2>
+        <p>Every engagement follows the same repeatable approach so results stay comparable across Tools, perspectives, and time.</p>
+      </div>
+
+      <div class="wm-method-flow">
+        <div class="wm-method-step reveal reveal-delay-1">
+          <div class="wm-method-marker">01</div>
+          <p class="wm-method-name">Frame the context</p>
+          <p class="wm-method-desc">Workflow, sector, perspective, time depth.</p>
+        </div>
+        <div class="wm-method-step reveal reveal-delay-2">
+          <div class="wm-method-marker">02</div>
+          <p class="wm-method-name">Administer the Tool</p>
+          <p class="wm-method-desc">Operational, managerial, and senior leader lenses on the same system.</p>
+        </div>
+        <div class="wm-method-step reveal reveal-delay-3">
+          <div class="wm-method-marker">03</div>
+          <p class="wm-method-name">Score the read</p>
+          <p class="wm-method-desc">Quantified output on burden, clarity, velocity, and institutional condition.</p>
+        </div>
+        <div class="wm-method-step reveal reveal-delay-4">
+          <div class="wm-method-marker">04</div>
+          <p class="wm-method-name">Compare across angles</p>
+          <p class="wm-method-desc">Divergence between perspectives is itself a diagnostic signal.</p>
+        </div>
+        <div class="wm-method-step reveal reveal-delay-4">
+          <div class="wm-method-marker">05</div>
+          <p class="wm-method-name">Govern over time</p>
+          <p class="wm-method-desc">Repeated reads make drift visible and interventions comparable.</p>
+        </div>
+      </div>
+
+      <div class="wm-method-loop reveal reveal-delay-4">
+        <div class="wm-method-loop-left">
+          <span class="wm-method-loop-icon" aria-hidden="true">
+            <svg viewBox="0 0 36 36" fill="none">
+              <path d="M18 6 A12 12 0 1 1 6 18" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+              <polyline points="2,15 6,18 8,13" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <div class="wm-method-loop-text">
+            <strong>Designed for repeated measurement, not one-time assessment.</strong>
+            <span>Diagnostic value compounds on the second and third run. Drift is only visible against a prior read.</span>
+          </div>
+        </div>
+        <div class="wm-method-loop-right">Same Tool · Same protocol · Different points in time</div>
+      </div>
+
+      <div class="wm-method-cta reveal reveal-delay-4">
+        <a class="btn btn-accent" href="diagnostic-hub.html">Enter the Diagnostic Hub</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ ROI MECHANISM ══════════════════════════════════════════════════ -->
+  <section class="wm-roi section-with-bar snap-anchor" id="mechanism" aria-labelledby="roi-title">
+    <div aria-hidden="true" class="section-bar">Mechanism</div>
+    <div class="section-inner">
+      <div class="section-intro reveal">
+        <p class="section-label">Where capacity returns</p>
+        <h2 id="roi-title">Capacity isn't created. It's reclaimed.</h2>
+        <p>ROI is not a multiplier. It is a structural mechanism — administrative load is measured, the source of drag is identified, and a portion of absorbed capacity is returned to mission. Monderman models the path conservatively, in named conditions, and at the institution's own measured baseline.</p>
+      </div>
+
+      <div class="wm-roi-grid">
+        <div class="wm-roi-left reveal reveal-delay-1">
+          <p><strong>The mechanism, plainly stated.</strong> A measurable share of every senior workweek is absorbed by structural friction — reconciliations, approval queues, ambiguous authority, redundant reporting, decision-stage handoffs. The Diagnostic Tools quantify that absorption against the institution's own structure, not an industry average.</p>
+          <p>Structural correction — not workflow optimization — returns a directional, measurable portion of that capacity to its intended use. The mechanism is the same whether the institution is a combatant command, a federal agency, a hospital system, or a research university; only the structural conditions differ.</p>
+          <div class="wm-roi-disclosure">
+            <strong>Methodological note</strong>
+            <p>Ranges shown are directional, modeled at the institution's measured baseline, and conditioned on identified structural corrections being adopted. Monderman publishes the assumption set with every engagement read.</p>
+          </div>
+        </div>
+
+        <div class="wm-roi-diagram reveal reveal-delay-2">
+          <div class="wm-roi-diagram-inner">
+            <p class="wm-roi-diagram-title">Senior workweek impact (early engagements)</p>
+
+            <ol class="wm-roi-steps">
+              <li class="wm-roi-step">
+                <div class="wm-roi-step-marker">01</div>
+                <div class="wm-roi-step-body">
+                  <p class="wm-roi-step-label">Current absorption</p>
+                  <p class="wm-roi-step-value">26–41%</p>
+                  <p class="wm-roi-step-unit">of senior time absorbed by administrative reality.</p>
+                </div>
+              </li>
+              <li class="wm-roi-step">
+                <div class="wm-roi-step-marker">02</div>
+                <div class="wm-roi-step-body">
+                  <p class="wm-roi-step-label">Drag sources identified</p>
+                  <p class="wm-roi-step-value">4 conditions</p>
+                  <p class="wm-roi-step-unit">structural conditions named, scored, and located within the institution.</p>
+                </div>
+              </li>
+              <li class="wm-roi-step wm-roi-step--accent">
+                <div class="wm-roi-step-marker">03</div>
+                <div class="wm-roi-step-body">
+                  <p class="wm-roi-step-label">Capacity returned</p>
+                  <p class="wm-roi-step-value">7–12%</p>
+                  <p class="wm-roi-step-unit">of a senior workweek returned to mission, directionally, once structural corrections are adopted.</p>
+                </div>
+              </li>
+            </ol>
+
+            <div class="wm-roi-axes">
+              <p class="wm-roi-axes-label">Reported across three axes</p>
+              <div class="wm-roi-axes-grid">
+                <div class="wm-roi-axis">
+                  <p class="wm-roi-axis-label">Time</p>
+                  <p class="wm-roi-axis-desc">Senior hours returned to mission per week.</p>
+                </div>
+                <div class="wm-roi-axis">
+                  <p class="wm-roi-axis-label">Cost</p>
+                  <p class="wm-roi-axis-desc">Fully-burdened cost of absorbed administrative time.</p>
+                </div>
+                <div class="wm-roi-axis">
+                  <p class="wm-roi-axis-label">Capacity</p>
+                  <p class="wm-roi-axis-desc">Decisions per cycle the institution can sustain without drift.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ METHODOLOGICAL RIGOR ═══════════════════════════════════════════ -->
+  <section class="wm-rigor section-with-bar snap-anchor" id="rigor" aria-label="Methodological rigor">
+    <div aria-hidden="true" class="section-bar">Rigor</div>
+    <div class="wm-rigor-inner">
+      <div class="wm-rigor-statements reveal">
+        <span>Peer-reviewed.</span>
+        <span class="sep">·</span>
+        <span>Methodologically transparent.</span>
+        <span class="sep">·</span>
+        <span>Built inside the institutions it diagnoses.</span>
+      </div>
+      <p class="wm-rigor-dek reveal reveal-delay-1">The platform operationalizes peer-reviewed theory of institutional administrative reality, developed across two decades inside complex bureaucracies. The full assumption set is published with every diagnostic engagement.</p>
+    </div>
+  </section>
+
+  <!-- ═══ FUNNEL #2 → Platform Services ═════════════════════════════════ -->
+  <section class="wm-funnel section-with-bar snap-anchor" id="pathways" aria-label="Engagement pathway">
+    <div aria-hidden="true" class="section-bar">Pathways</div>
+    <div class="wm-funnel-inner">
+      <div class="wm-funnel-head reveal">
+        <h3>Ready to test this against your own institution?</h3>
+        <p class="section-label" style="margin: 0;">Choose a path</p>
+      </div>
+      <div class="wm-funnel-grid">
+        <a href="diagnostic-hub.html" class="wm-funnel-tile reveal reveal-delay-1">
+          <p class="wm-funnel-tile-kicker">Self-administered</p>
+          <h4>Open the Diagnostic Hub</h4>
+          <p>Run a Tool directly through the platform. Useful for baselining before a structured engagement.</p>
+          <span class="wm-funnel-tile-link">Enter the Diagnostic Hub
+            <svg viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7.5 2.5L12 7l-4.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </a>
+        <a href="platform-services.html" class="wm-funnel-tile reveal reveal-delay-2">
+          <p class="wm-funnel-tile-kicker">Platform Services</p>
+          <h4>Structured diagnostic engagement</h4>
+          <p>The full Diagnostic Tools suite administered across three perspectives, scored, synthesized, and delivered with the assumption set.</p>
+          <span class="wm-funnel-tile-link">See the Engagement Model
+            <svg viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7.5 2.5L12 7l-4.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </a>
+        <a href="connect.html" class="wm-funnel-tile reveal reveal-delay-3">
+          <p class="wm-funnel-tile-kicker">Direct conversation</p>
+          <h4>Talk to us first</h4>
+          <p>Some institutional conditions warrant a scoping conversation before measurement. We are direct about which.</p>
+          <span class="wm-funnel-tile-link">Start a Conversation
+            <svg viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7.5 2.5L12 7l-4.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ HOW MONDERMAN IS DIFFERENT ═════════════════════════════════════ -->
+  <section class="wm-difference section-with-bar snap-anchor" id="difference" aria-labelledby="difference-title">
+    <div aria-hidden="true" class="section-bar">Difference</div>
+    <div class="section-inner">
+      <div class="section-intro reveal">
+        <h2 id="difference-title">Built to measure, not to infer.</h2>
+        <p>Monderman is built for organizations that suspect the visible problem is not the real problem. The differentiation is methodological, not promotional — what Monderman is, and what it is deliberately not.</p>
+      </div>
+
+      <div class="wm-difference-columns reveal reveal-delay-1">
+        <div class="wm-diff-col wm-diff-col--positive">
+          <p class="wm-diff-col-label">What Monderman is</p>
+          <div class="wm-diff-items">
+            <div class="wm-diff-item">
+              <strong>Reads the structural condition, not the symptom.</strong>
+              <span>Most surface-level approaches start and end with what feels slow, heavy, or frustrating. Monderman reads the structural condition producing those symptoms.</span>
+            </div>
+            <div class="wm-diff-item">
+              <strong>Built for repeated measurement.</strong>
+              <span>The diagnostic engine is designed for repeatable runs that create institutional memory rather than one-off observations that disappear with the project.</span>
+            </div>
+            <div class="wm-diff-item">
+              <strong>Tracks drift, not just position.</strong>
+              <span>Instead of only showing where you sit against a benchmark, Monderman helps track drift, hidden burden, and reclaimable drag over time.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="wm-diff-col wm-diff-col--negative">
+          <p class="wm-diff-col-label">What Monderman is not</p>
+          <div class="wm-diff-items">
+            <div class="wm-diff-item">
+              <strong>Not a culture survey</strong>
+              <span>It does not measure sentiment, engagement, or morale. It measures the structural conditions under which sentiment, engagement, and morale are formed.</span>
+            </div>
+            <div class="wm-diff-item">
+              <strong>Not workflow software</strong>
+              <span>It does not change how work moves through tools. It changes what the institution can see about how work moves through itself.</span>
+            </div>
+            <div class="wm-diff-item">
+              <strong>Not a one-time assessment</strong>
+              <span>A single read establishes a baseline. The diagnostic value compounds on repetition.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ CTA ════════════════════════════════════════════════════════════ -->
+  <section class="wm-cta section-with-bar section-on-dark snap-anchor" id="next-step" aria-labelledby="cta-title">
+    <div aria-hidden="true" class="section-bar">Next Step</div>
+    <div class="wm-cta-inner">
+      <div class="wm-cta-copy reveal">
+        <p class="section-label">Begin</p>
+        <h2 id="cta-title">Start a structured conversation.</h2>
+        <p>The point of this page is not to sell a generic service. It is to help you decide whether Monderman's method fits the kind of institutional condition you are trying to govern. If it might, the next step is a structured conversation — not a sales call.</p>
+        <div class="wm-cta-actions">
+          <a class="btn btn-accent" href="diagnostic-hub.html">Start Your First Diagnostic — Free</a>
+          <a class="btn btn-secondary" href="connect.html">Discuss Platform Fit</a>
+        </div>
+      </div>
+      <div class="wm-cta-panel reveal reveal-delay-2">
+        <p class="wm-cta-kicker">Primary contact</p>
+        <a class="wm-cta-link" href="mailto:connect@monderman.com">
+          <span class="wm-cta-link-mark" aria-hidden="true"></span>
+          connect@monderman.com
+        </a>
+        <p class="wm-cta-note">For platform fit, structured conversation, or institutional-use questions, reach out directly.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ═════════════════════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-mark">Monderman</div>
+          <p class="footer-copy">Monderman is the diagnostic platform institutions use to measure, compare, and govern administrative reality — repeatedly, across perspectives, over time.</p>
+        </div>
+        <div class="footer-nav" aria-label="Footer navigation">
+          <div class="footer-nav-col">
+            <p class="footer-nav-title">Explore</p>
+            <a href="index.html#approach">Approach</a>
+            <a href="diagnostic-hub.html">Diagnostic Hub</a>
+            <a href="research.html">Research</a>
+            <a href="why-monderman.html">Why Monderman</a>
+            <a href="about.html">About</a>
+            <a href="platform-services.html">Platform Services</a>
+          </div>
+          <div class="footer-nav-col">
+            <p class="footer-nav-title">Connect</p>
+            <a href="connect.html">Open Connect Form</a>
+            <a href="mailto:connect@monderman.com">connect@monderman.com</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
+      </div>
+    </div>
+    <div class="footer-motif" aria-hidden="true"><svg width="260" height="260" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#4A6FA5" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#5B7A9B" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#4A6FA5" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#5B7A9B" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#6B8FA6" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8BADC5" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#9FBDD1" stroke-width="0.4" opacity="0.13"/><circle r="7" fill="none" stroke="#B0C8D8" stroke-width="0.3" opacity="0.11"/><circle cx="86" cy="-35" r="2.8" fill="#3F6EA1" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#5B7A9B" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#3F6EA1" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#7C5CE8" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#5B7A9B" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#2E86DE" opacity="0.58"/></svg></div>
+  </footer>
+
+  <script>
+    // Header scroll behavior
+    const header = document.getElementById("siteHeader");
+    function updateHeader() {
+      if (!header) return;
+      header.classList.toggle("scrolled", window.scrollY > 12);
+    }
+    updateHeader();
+    window.addEventListener("scroll", updateHeader, { passive: true });
+
+    // Reveal-on-scroll with failsafes
+    function initReveal() {
+      const revealEls = document.querySelectorAll(".reveal");
+      if (!revealEls.length) return;
+
+      // Failsafe: if anything is still hidden after 2.5s, force-show it.
+      const failsafe = window.setTimeout(() => {
+        revealEls.forEach((el) => el.classList.add("is-visible"));
+      }, 2500);
+
+      // Reveal any elements already in viewport on load.
+      const viewportH = window.innerHeight || document.documentElement.clientHeight;
+      revealEls.forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < viewportH * 0.92 && rect.bottom > 0) {
+          el.classList.add("is-visible");
+        }
+      });
+
+      if ("IntersectionObserver" in window) {
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              io.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+        revealEls.forEach((el) => {
+          if (!el.classList.contains("is-visible")) io.observe(el);
+        });
+      } else {
+        revealEls.forEach((el) => el.classList.add("is-visible"));
+        window.clearTimeout(failsafe);
+      }
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initReveal);
+    } else {
+      initReveal();
+    }
+
+    // Soft scroll-snap to nearest section (matches homepage initSoftSnap)
+    function initSoftSnap() {
+      const snapAnchors = Array.from(document.querySelectorAll(".snap-anchor"));
+      let snapTimer = null;
+      let isAutoSnapping = false;
+      function isDesktopSnap() {
+        return window.innerWidth > 980 && window.matchMedia("(prefers-reduced-motion: no-preference)").matches;
+      }
+      function getHeaderHeight() {
+        const headerEl = document.getElementById("siteHeader");
+        return headerEl ? headerEl.getBoundingClientRect().height : 72;
+      }
+      function getTargetTop(anchor) {
+        const headerHeight = getHeaderHeight();
+        const anchorStyles = window.getComputedStyle(anchor);
+        const anchorPaddingTop = parseFloat(anchorStyles.paddingTop) || 0;
+        const landingOffset = 10;
+        return Math.max(0, anchor.offsetTop - headerHeight - landingOffset + anchorPaddingTop);
+      }
+      function getNearestAnchor() {
+        const viewportTop = window.scrollY;
+        let nearest = null;
+        let nearestDistance = Infinity;
+        snapAnchors.forEach((anchor) => {
+          const targetTop = getTargetTop(anchor);
+          const distance = Math.abs(targetTop - viewportTop);
+          if (distance < nearestDistance) {
+            nearestDistance = distance;
+            nearest = anchor;
+          }
+        });
+        return { nearest, nearestDistance };
+      }
+      function softSnapToNearestAnchor() {
+        if (!isDesktopSnap() || !snapAnchors.length || isAutoSnapping) return;
+        const { nearest, nearestDistance } = getNearestAnchor();
+        if (!nearest) return;
+        const targetTop = getTargetTop(nearest);
+        if (nearestDistance > 64) return;
+        if (Math.abs(window.scrollY - targetTop) < 6) return;
+        isAutoSnapping = true;
+        window.scrollTo({ top: targetTop, behavior: "smooth" });
+        window.setTimeout(() => { isAutoSnapping = false; }, 280);
+      }
+      window.addEventListener("scroll", () => {
+        if (!isDesktopSnap() || isAutoSnapping) return;
+        clearTimeout(snapTimer);
+        snapTimer = setTimeout(softSnapToNearestAnchor, 420);
+      }, { passive: true });
+    }
+    window.addEventListener("load", initSoftSnap);
+  </script>
+</body>
+</html>
