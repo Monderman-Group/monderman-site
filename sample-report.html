@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sample Report — Decision Velocity Diagnostic | Monderman</title>
+<meta name="description" content="A complete sample of the executive read produced by a Monderman diagnostic. Anonymized, full-length, representative of what every Monderman run delivers."/>
+<link href='data:image/svg+xml;utf8,
+    &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"&gt;
+      &lt;rect width="64" height="64" rx="10" fill="%230F1720"/&gt;
+      &lt;text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA"&gt;M&lt;/text&gt;
+      &lt;rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/&gt;
+    &lt;/svg&gt;' rel="icon" type="image/svg+xml"/>
+<style>
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff");
+      font-style: normal; font-weight: 400; font-display: swap;
+    }
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff");
+      font-style: normal; font-weight: 500; font-display: swap;
+    }
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff");
+      font-style: normal; font-weight: 700; font-display: swap;
+    }
+
+    :root {
+      --accent: #3F6EA1;
+      --accent-soft: rgba(63,110,161,0.06);
+      --accent-border: rgba(63,110,161,0.18);
+      --bg-dark: #0D1820;
+      --bg-soft: #FBFCFE;
+      --bg-white: #FFFFFF;
+      --text-light: #F5F7FA;
+      --text-dark: #15202B;
+      --muted: #5B6774;
+      --muted-2: #7C8794;
+      --line: #E6EAF0;
+      --line-2: #DCE5EF;
+      --header-solid: rgba(14,20,28,0.92);
+      --warn-bg: #FEF6F4;
+      --warn-border: #E9C8C3;
+      --warn-icon-bg: #F3DAD6;
+      --warn-icon-text: #B85C52;
+      --max-doc: 760px;
+      --rail-width: 240px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg-white);
+      color: var(--text-dark);
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      line-height: 1.55;
+    }
+    a { color: inherit; text-decoration: none; }
+    h1, h2, h3, h4 { margin: 0; letter-spacing: -0.024em; color: var(--text-dark); }
+    p { margin: 0; }
+
+    /* Site header */
+    .header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--header-solid);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      color: var(--text-light);
+    }
+    .header-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 16px 28px;
+      display: flex; align-items: center; justify-content: space-between; gap: 24px;
+    }
+    .brand {
+      font-weight: 700; font-size: 1.24rem; letter-spacing: -0.02em;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .brand-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 2px; display: inline-block; }
+    .nav { display: flex; align-items: center; gap: 22px; }
+    .nav a {
+      font-size: 0.88rem; font-weight: 500;
+      color: rgba(255,255,255,0.84);
+      transition: color 180ms ease;
+    }
+    .nav a:hover { color: #FFFFFF; }
+    .workspace-link {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-height: 36px; padding: 0 13px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.06);
+      color: #FFFFFF !important;
+      font-weight: 500; white-space: nowrap;
+    }
+    .workspace-link:hover { background: rgba(255,255,255,0.10); }
+
+    /* Report meta bar */
+    .meta-bar {
+      background: var(--bg-soft);
+      border-bottom: 1px solid var(--line);
+    }
+    .meta-bar-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 14px 28px;
+      display: flex; align-items: center; justify-content: space-between; gap: 24px;
+      flex-wrap: wrap;
+    }
+    .meta-bar-label {
+      font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--muted); font-weight: 600;
+    }
+    .meta-bar-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .meta-bar-actions a {
+      font-size: 0.84rem; font-weight: 500;
+      color: var(--accent);
+      border-bottom: 1px solid rgba(63,110,161,0.3);
+      padding-bottom: 1px;
+      transition: border-color 180ms ease;
+    }
+    .meta-bar-actions a:hover { border-color: var(--accent); }
+    .meta-bar-actions .meta-divider { color: var(--line-2); }
+
+    /* Mobile TOC select */
+    .toc-mobile {
+      display: none;
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 12px 28px;
+      border-bottom: 1px solid var(--line);
+      background: var(--bg-white);
+    }
+    .toc-mobile select {
+      width: 100%;
+      padding: 12px 14px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--bg-white);
+      color: var(--text-dark);
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%233F6EA1' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      background-size: 12px;
+    }
+
+    /* Notice banner */
+    .notice {
+      background: rgba(63,110,161,0.04);
+      border-bottom: 1px solid var(--accent-border);
+    }
+    .notice-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 14px 28px;
+      display: flex; align-items: flex-start; gap: 12px;
+      font-size: 0.92rem; line-height: 1.5; color: var(--text-dark);
+    }
+    .notice-dot {
+      flex: 0 0 8px; width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent); margin-top: 7px;
+    }
+    .notice strong { font-weight: 600; }
+
+    /* Document layout */
+    .doc-shell {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 64px 28px 96px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) var(--rail-width);
+      gap: 56px;
+      align-items: start;
+    }
+    .doc {
+      max-width: var(--max-doc);
+      margin: 0 auto;
+    }
+
+    /* Right rail TOC */
+    .toc-rail {
+      position: sticky;
+      top: 110px;
+      align-self: start;
+    }
+    .toc-rail-label {
+      font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--muted); font-weight: 700;
+      margin: 0 0 14px;
+    }
+    .toc-rail ol {
+      list-style: none;
+      padding: 0; margin: 0;
+      border-left: 1px solid var(--line);
+    }
+    .toc-rail li {
+      position: relative;
+    }
+    .toc-rail a {
+      display: block;
+      padding: 8px 0 8px 16px;
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.45;
+      transition: color 180ms ease;
+      border-left: 2px solid transparent;
+      margin-left: -1px;
+    }
+    .toc-rail a:hover { color: var(--text-dark); }
+    .toc-rail a.is-active {
+      color: var(--accent);
+      border-left-color: var(--accent);
+      font-weight: 500;
+    }
+    .toc-num {
+      display: inline-block;
+      width: 24px;
+      color: var(--muted-2);
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      font-size: 0.78rem;
+    }
+
+    /* Cover */
+    .cover {
+      background: var(--bg-dark);
+      color: var(--text-light);
+      border-radius: 18px;
+      overflow: hidden;
+      margin-bottom: 56px;
+    }
+    .cover-dark {
+      padding: 56px 48px 48px;
+    }
+    .cover-mark {
+      font-size: 0.66rem; letter-spacing: 0.32em;
+      color: rgba(255,255,255,0.42); font-weight: 700;
+      text-transform: uppercase; margin: 0 0 22px;
+    }
+    .cover-rule { width: 36px; height: 2px; background: var(--accent); margin-bottom: 26px; }
+    .cover-title {
+      font-size: clamp(34px, 4.4vw, 48px);
+      line-height: 1.04;
+      letter-spacing: -0.04em;
+      margin: 0 0 14px;
+      color: #FFFFFF;
+      font-weight: 700;
+      max-width: 14ch;
+    }
+    .cover-sub {
+      font-size: 0.96rem;
+      color: rgba(255,255,255,0.5);
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      margin: 0;
+    }
+    .cover-stripe {
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent) 0%, #5B8FBF 60%, rgba(91,143,191,0.2) 100%);
+    }
+    .cover-white {
+      background: #FFFFFF;
+      padding: 38px 48px 42px;
+    }
+    .cover-kicker {
+      font-size: 0.66rem; letter-spacing: 0.24em;
+      color: var(--muted-2); text-transform: uppercase; font-weight: 700;
+      margin: 0 0 18px;
+      border-left: 2.5px solid var(--accent);
+      padding-left: 10px;
+    }
+    .cover-workflow {
+      font-size: 1.74rem; font-weight: 700;
+      color: var(--text-dark); letter-spacing: -0.024em;
+      margin: 0 0 6px;
+    }
+    .cover-meta-line { font-size: 0.92rem; color: #4A5968; margin: 0 0 3px; }
+    .cover-date-line { font-size: 0.82rem; color: var(--muted-2); margin: 0 0 24px; letter-spacing: 0.01em; }
+    .cover-pills { display: flex; gap: 7px; flex-wrap: wrap; }
+    .cover-pill {
+      padding: 5px 12px; border-radius: 99px; font-size: 0.74rem;
+      white-space: nowrap;
+    }
+    .cover-pill-accent {
+      border: 1px solid var(--accent-border);
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .cover-pill-neutral {
+      border: 1px solid rgba(13,24,32,0.13);
+      color: #4A5968;
+    }
+
+    /* Section structure */
+    .section { margin: 0 0 64px; scroll-margin-top: 100px; }
+    .section-eyebrow {
+      font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); font-weight: 700;
+      margin: 0 0 12px;
+      display: flex; align-items: baseline; gap: 12px;
+    }
+    .section-eyebrow .pg {
+      color: var(--muted-2); font-weight: 600;
+      letter-spacing: 0.18em;
+      font-size: 0.66rem;
+    }
+    .section h2 {
+      font-size: clamp(26px, 3vw, 34px);
+      line-height: 1.1;
+      letter-spacing: -0.035em;
+      margin: 0 0 18px;
+      max-width: 28ch;
+      font-weight: 700;
+    }
+    .section h3 {
+      font-size: 1rem;
+      line-height: 1.3;
+      margin: 22px 0 10px;
+      font-weight: 700;
+    }
+    .section p {
+      font-size: 1rem;
+      line-height: 1.62;
+      color: var(--text-dark);
+      margin: 0 0 14px;
+    }
+    .section p.lede {
+      font-size: 1.12rem;
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+    .section .muted {
+      color: var(--muted);
+    }
+    .section p + h3 { margin-top: 28px; }
+
+    /* Components */
+    .leadership-question {
+      border-left: 4px solid var(--accent);
+      background: #FBFCFE;
+      padding: 14px 18px;
+      margin: 18px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .leadership-question b {
+      display: block;
+      color: var(--accent);
+      font-size: 0.66rem; font-weight: 700;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .leadership-question p {
+      margin: 0 !important;
+      font-size: 0.98rem;
+      line-height: 1.45;
+      color: var(--text-dark);
+    }
+
+    .panel {
+      background: var(--bg-soft);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 22px 24px;
+      margin: 18px 0;
+    }
+    .panel p:last-child { margin-bottom: 0; }
+
+    .capacity {
+      height: 26px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      display: flex;
+      margin: 22px 0 10px;
+    }
+    .seg {
+      color: #FFFFFF;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-align: center;
+      padding-top: 7px;
+    }
+    .legend {
+      display: flex; gap: 28px; flex-wrap: wrap;
+      color: var(--muted); font-size: 0.8rem;
+      margin: 14px 0 12px;
+    }
+    .dot { width: 9px; height: 9px; border-radius: 2px; display: inline-block; margin-right: 8px; vertical-align: -1px; }
+
+    .note {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      display: grid; grid-template-columns: 36px 1fr; gap: 14px;
+      margin-top: 24px;
+    }
+    .note .bang {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--warn-icon-bg);
+      color: var(--warn-icon-text);
+      display: grid; place-items: center;
+      font-weight: 700; font-size: 0.95rem;
+    }
+    .note-title {
+      font-size: 0.74rem; font-weight: 700;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .note p { margin-bottom: 0; font-size: 0.94rem; line-height: 1.5; }
+
+    /* Composition donut + breakdown */
+    .donut-panel {
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      gap: 32px;
+      align-items: center;
+      padding: 28px;
+    }
+    .donut-wrap { width: 180px; height: 180px; margin: 0 auto; position: relative; }
+    .donut-center {
+      position: absolute; inset: 56px;
+      border-radius: 50%;
+      background: var(--bg-soft);
+      display: grid; place-items: center; text-align: center;
+    }
+    .donut-center small {
+      color: var(--muted-2);
+      font-size: 0.6rem; font-weight: 700;
+      letter-spacing: 0.16em;
+      display: block; text-transform: uppercase;
+    }
+    .donut-center b { display: block; font-size: 1.5rem; font-weight: 700; }
+    .comp-row {
+      display: grid;
+      grid-template-columns: 18px 1fr 50px;
+      gap: 10px;
+      align-items: center;
+      margin: 12px 0;
+      font-size: 0.92rem;
+    }
+    .comp-row b { text-align: right; font-variant-numeric: tabular-nums; }
+
+    /* Two-column with gauge */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 32px;
+      align-items: stretch;
+      margin: 22px 0;
+    }
+    .gauge-panel {
+      background: var(--bg-soft);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 24px;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 8px;
+    }
+    .gauge-svg { width: 100%; max-width: 240px; height: auto; }
+    .gauge-score { font-size: 2.2rem; font-weight: 700; letter-spacing: -0.03em; }
+    .gauge-label { color: var(--muted); font-size: 0.86rem; }
+
+    .panel.bench {
+      background: #FBFCFE;
+      border-color: var(--line);
+    }
+
+    /* Card rows */
+    .card-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 22px 0;
+    }
+    .card-row-1 { grid-template-columns: 1fr; }
+    .mini-card {
+      background: var(--bg-soft);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px 18px;
+    }
+    .mini-card b {
+      color: var(--accent);
+      font-size: 0.92rem;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .mini-card p {
+      font-size: 0.92rem !important;
+      line-height: 1.5;
+      color: var(--text-dark);
+      margin: 0 !important;
+    }
+    .mini-card p + p { margin-top: 8px !important; }
+
+    /* Quadrant */
+    .quadbox {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      grid-template-rows: 1fr 24px;
+      gap: 12px;
+      margin: 22px 0;
+      padding: 22px;
+      background: var(--bg-soft);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+    .axis-y {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      grid-column: 1; grid-row: 1;
+      color: var(--muted);
+      font-size: 0.76rem;
+      letter-spacing: 0.06em;
+      text-align: center;
+      align-self: center;
+    }
+    .quad {
+      position: relative;
+      aspect-ratio: 1.4 / 1;
+      background: #FFFFFF;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      grid-column: 2; grid-row: 1;
+    }
+    .quad::before, .quad::after {
+      content: "";
+      position: absolute;
+      background: var(--line);
+    }
+    .quad::before { left: 0; right: 0; top: 50%; height: 1px; }
+    .quad::after { top: 0; bottom: 0; left: 50%; width: 1px; }
+    .qlabel {
+      position: absolute;
+      color: var(--muted);
+      font-size: 0.72rem;
+      line-height: 1.35;
+    }
+    .qdot {
+      position: absolute;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 3px solid #FFFFFF;
+      box-shadow: 0 0 0 1px rgba(63,110,161,0.4);
+      transform: translate(-50%, -50%);
+    }
+    .axis-x {
+      grid-column: 2; grid-row: 2;
+      color: var(--muted);
+      font-size: 0.76rem;
+      letter-spacing: 0.06em;
+      text-align: center;
+    }
+
+    /* Experiential grid */
+    .exp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 18px 0;
+    }
+    .exp-card {
+      background: var(--bg-soft);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px 18px;
+    }
+    .exp-card h3 {
+      font-size: 0.84rem !important;
+      color: var(--accent);
+      margin: 0 0 6px;
+      letter-spacing: 0;
+    }
+    .exp-card p {
+      font-size: 0.92rem !important;
+      margin: 0 !important;
+      color: var(--text-dark);
+    }
+
+    /* Remedy grid */
+    .remedy-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin: 22px 0;
+    }
+    .remedy {
+      background: var(--bg-white);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 20px;
+    }
+    .remedy .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 99px;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-border);
+      color: var(--accent);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      margin-bottom: 12px;
+    }
+    .remedy h3 {
+      font-size: 0.98rem !important;
+      margin: 0 0 10px !important;
+    }
+    .remedy p {
+      font-size: 0.9rem !important;
+      line-height: 1.5;
+      margin: 0 0 10px !important;
+    }
+    .remedy p:last-child { margin-bottom: 0 !important; }
+    .remedy-calibration-note {
+      margin: 16px 0 0 !important;
+      padding: 12px 14px;
+      background: #F4F6F8;
+      border-left: 2px solid #B8C7DA;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.84rem !important;
+      line-height: 1.55;
+      color: var(--muted) !important;
+      font-style: italic;
+    }
+
+    /* Method box */
+    .method-box {
+      background: var(--bg-soft);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin: 12px 0;
+    }
+    .method-box p {
+      font-size: 0.92rem !important;
+      line-height: 1.55;
+      margin: 0 0 8px !important;
+    }
+    .method-box p:last-child { margin-bottom: 0 !important; }
+
+    .ring-row {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 18px;
+      align-items: center;
+      margin: 18px 0;
+    }
+    .ring { width: 80px; height: 80px; }
+
+    .rule { height: 1px; background: var(--line); margin: 28px 0; }
+
+    /* Footer */
+    .footer {
+      background: var(--bg-dark);
+      color: rgba(255,255,255,0.72);
+      padding: 36px 0 32px;
+      margin-top: 64px;
+    }
+    .footer-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+    .footer-top {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-bottom: 22px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 20px;
+    }
+    .footer-brand {
+      font-weight: 700; color: #FFFFFF; font-size: 1.12rem;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .footer-nav { display: flex; gap: 26px; flex-wrap: wrap; }
+    .footer-nav a {
+      color: rgba(255,255,255,0.72);
+      font-size: 0.88rem;
+      transition: color 180ms ease;
+    }
+    .footer-nav a:hover { color: #FFFFFF; }
+    .footer-bottom {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.84rem;
+    }
+    .footer-meta { color: rgba(255,255,255,0.52); }
+
+    /* Responsive */
+    @media (max-width: 1080px) {
+      .doc-shell {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
+      }
+      .toc-rail { display: none; }
+      .toc-mobile { display: block; }
+    }
+
+    @media (max-width: 760px) {
+      .header-inner {
+        padding: 12px 20px 10px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .nav {
+        width: 100%;
+        gap: 10px;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+      }
+      .nav::-webkit-scrollbar { display: none; }
+      .nav a {
+        flex: 0 0 auto;
+        font-size: 0.82rem;
+        line-height: 1;
+        padding: 10px 12px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.08);
+        white-space: nowrap;
+      }
+      .meta-bar-inner { padding: 12px 20px; }
+      .notice-inner { padding: 12px 20px; font-size: 0.88rem; }
+      .toc-mobile { padding: 10px 20px; }
+
+      .doc-shell { padding: 36px 20px 56px; }
+      .cover-dark { padding: 40px 28px 32px; }
+      .cover-white { padding: 28px 28px 32px; }
+      .cover-title { font-size: 32px; }
+      .cover-workflow { font-size: 1.4rem; }
+      .section { margin-bottom: 48px; }
+      .section h2 { font-size: 24px; }
+      .donut-panel {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 22px;
+      }
+      .two-col { grid-template-columns: 1fr; }
+      .card-row { grid-template-columns: 1fr; }
+      .exp-grid { grid-template-columns: 1fr; }
+      .remedy-grid { grid-template-columns: 1fr; }
+      .ring-row { grid-template-columns: 64px 1fr; gap: 14px; }
+
+      .footer-top { flex-direction: column; align-items: flex-start; gap: 14px; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; gap: 6px; }
+    }
+
+    @media print {
+      .header, .meta-bar, .notice, .toc-rail, .toc-mobile, .footer { display: none; }
+      .doc-shell { padding: 0; grid-template-columns: 1fr; }
+      .section { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <a class="brand" href="index.html">Monderman<span class="brand-dot"></span></a>
+    <nav class="nav" aria-label="Primary navigation">
+      <a href="index.html#approach">Approach</a>
+      <a href="diagnostic-hub.html">Diagnostic Hub</a>
+      <a href="research.html">Research</a>
+      <a href="why-monderman.html">Why Monderman</a>
+      <a href="about.html">About</a>
+      <a href="connect.html">Connect</a>
+      <a href="workspace.html" class="workspace-link">Workspace</a>
+    </nav>
+  </div>
+</header>
+
+<div class="meta-bar">
+  <div class="meta-bar-inner">
+    <p class="meta-bar-label">Sample Report · Decision Velocity Diagnostic</p>
+    <div class="meta-bar-actions">
+      <a href="diagnostic-hub.html">← Back to Diagnostic Hub</a>
+      <span class="meta-divider">·</span>
+      <a href="javascript:window.print()">Print or save as PDF</a>
+    </div>
+  </div>
+</div>
+
+<div class="notice">
+  <div class="notice-inner">
+    <span class="notice-dot" aria-hidden="true"></span>
+    <p>
+      <strong>This is a sample report.</strong> The content below is anonymized but representative — a complete, unedited example of the executive read produced by a Monderman diagnostic. The hypothetical organization and workflow are illustrative; the structure, depth, and format are identical to a real run.
+    </p>
+  </div>
+</div>
+
+<div class="toc-mobile">
+  <select onchange="if(this.value) window.location.hash=this.value">
+    <option value="">Jump to section…</option>
+    <option value="cover">Cover</option>
+    <option value="headline">Headline finding</option>
+    <option value="composition">Drag composition</option>
+    <option value="focus">Where to focus first</option>
+    <option value="quadrant">Governance × Execution</option>
+    <option value="experiential">Experiential layer</option>
+    <option value="readings">Competing readings</option>
+    <option value="update">What would update this read</option>
+    <option value="remedies">Three remedy paths</option>
+    <option value="method">How this was produced</option>
+  </select>
+</div>
+
+<div class="doc-shell">
+  <main class="doc">
+
+    <!-- Cover -->
+    <section class="cover" id="cover">
+      <div class="cover-dark">
+        <p class="cover-mark">Decision Velocity Diagnostic</p>
+        <div class="cover-rule"></div>
+        <h1 class="cover-title">Executive Summary</h1>
+        <p class="cover-sub">Single-run pathway diagnostic · Substantiated first signal</p>
+      </div>
+      <div class="cover-stripe"></div>
+      <div class="cover-white">
+        <p class="cover-kicker">Workflow under diagnosis</p>
+        <h2 class="cover-workflow">Senior hire approvals</h2>
+        <p class="cover-meta-line">Financial services · Mid-sized institution · Managerial vantage point</p>
+        <p class="cover-date-line">Diagnostic run · May 25, 2026</p>
+        <div class="cover-pills">
+          <span class="cover-pill cover-pill-accent">Functional but burdened</span>
+          <span class="cover-pill cover-pill-neutral">Rising trajectory</span>
+          <span class="cover-pill cover-pill-neutral">~21% drag</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Headline finding -->
+    <section class="section" id="headline">
+      <p class="section-eyebrow">The pattern this run is detecting <span class="pg">Page 2</span></p>
+      <h2>Headline finding</h2>
+      <p class="lede"><strong>Functional but burdened</strong> is the active condition for this decision pathway. The senior hire approval pathway is carrying a coordination weight that managers are actively absorbing to maintain acceptable cycle times. The evidence points to a pathway where escalation pressure and exception-handling volume have become routine management tasks rather than occasional interventions — a pattern that consumes managerial capacity, slows decision tempo at the front end, and leaves operational staff navigating a coordination requirement that is disproportionate to what the decisions themselves demand.</p>
+
+      <div class="leadership-question">
+        <b>Leadership question</b>
+        <p>What operating reality would leadership have to acknowledge before the next intervention is credible?</p>
+      </div>
+
+      <p>Directional modeling suggests about <strong>550 annual burden hours*</strong> and about <strong>$50,000–$80,000*</strong> in labor exposure, with capacity drag around <strong>21%*</strong>. These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
+
+      <p>The practical question is not whether decisions are still getting made. It is how much organizational energy is now required to move them. The score should be read as a structured quantitative pathway-drag indicator. Experiential bypass signals, when present, do not change the score; they provide interpretive context about how the formal pathway may differ from operating reality.</p>
+
+      <p>When a pathway needs repeated chase effort, manager intervention, workaround maintenance, or escalation to move forward, the visible output may remain acceptable while the formal decision system underneath becomes increasingly expensive to sustain.</p>
+
+      <div class="capacity">
+        <div class="seg" style="width:79%;background:#4E9A7A">79%</div>
+        <div class="seg" style="width:8%;background:#C49A3C">8%</div>
+        <div class="seg" style="width:13%;background:#B85C52">13%</div>
+      </div>
+      <div class="legend">
+        <span><span class="dot" style="background:#4E9A7A"></span>Productive work</span>
+        <span><span class="dot" style="background:#C49A3C"></span>Routine coordination</span>
+        <span><span class="dot" style="background:#B85C52"></span>Recoverable drag*</span>
+      </div>
+      <p class="muted" style="font-size:0.84rem;">Estimates of how this pathway's available capacity is currently allocated. Recoverable drag* is the portion that could be returned to productive use through structural intervention.</p>
+
+      <h3>Why this matters in financial services</h3>
+      <p>In financial services, decision pathways accumulate weight because regulatory framing is the default lens applied to any choice — every decision gets reviewed as if it carries audit exposure, and the approval architecture for risk-class decisions becomes the architecture for routine ones too.</p>
+      <p>The trajectory signal indicates the burden is growing rather than holding steady. Early correction is more valuable here than late correction, because the cost of waiting compounds.</p>
+
+      <div class="note">
+        <div class="bang">!</div>
+        <div>
+          <div class="note-title">Important note</div>
+          <p>This run shows rising trajectory combined with limited input depth. Treat the direction seriously while treating the magnitude as provisional. A follow-up run with broader participant coverage is the right next step before committing to large interventions.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Drag composition -->
+    <section class="section" id="composition">
+      <p class="section-eyebrow">Where the drag is coming from <span class="pg">Page 3</span></p>
+      <h2>Drag composition</h2>
+      <p>The composition view shows where the visible drag is coming from across the dimensions Monderman measures: approval density, coordination burden, handoff burden, escalation dependence, rework friction, and key-person brittleness. Dimensions with no material contribution to this run may be omitted from the chart below for clarity.</p>
+      <p class="muted">The important signal is not only which dimension is largest. The distribution also matters. A concentrated pattern usually points to a more targeted intervention; a distributed pattern usually means the pathway has absorbed drag into its normal operating design.</p>
+
+      <div class="panel donut-panel">
+        <div class="donut-wrap">
+          <svg width="180" height="180" viewBox="0 0 200 200">
+            <path d="M 100.00 14.00 A 86 86 0 1 1 39.75 161.37 L 60.77 139.96 A 56 56 0 1 0 100.00 44.00 Z" fill="#3F6EA1"></path>
+            <path d="M 39.75 161.37 A 86 86 0 0 1 14.37 92.06 L 44.24 94.83 A 56 56 0 0 0 60.77 139.96 Z" fill="#6B8FA6"></path>
+            <path d="M 14.37 92.06 A 86 86 0 0 1 42.06 36.45 L 62.27 58.62 A 56 56 0 0 0 44.24 94.83 Z" fill="#8E7FA8"></path>
+            <path d="M 42.06 36.45 A 86 86 0 0 1 100.00 14.00 L 100.00 44.00 A 56 56 0 0 0 62.27 58.62 Z" fill="#4E9A7A"></path>
+          </svg>
+          <div class="donut-center"><div><small>Dominant</small><b>62%</b></div></div>
+        </div>
+        <div>
+          <div class="comp-row"><span class="dot" style="background:#3F6EA1"></span><span>Approval density</span><b>62%</b></div>
+          <div class="comp-row"><span class="dot" style="background:#6B8FA6"></span><span>Escalation dependence</span><b>14%</b></div>
+          <div class="comp-row"><span class="dot" style="background:#8E7FA8"></span><span>Rework friction</span><b>12%</b></div>
+          <div class="comp-row"><span class="dot" style="background:#4E9A7A"></span><span>Key-person brittleness</span><b>12%</b></div>
+        </div>
+      </div>
+
+      <h3>What the composition tells us</h3>
+      <p>The composition is concentrated rather than distributed. Approval density carries 62% of the visible burden by itself, which makes the condition more fixable: leadership can target one source first and expect a real shift in the workflow. Distributed conditions look the same from the outside but require redesigning the path itself, not just removing a layer.</p>
+
+      <div class="leadership-question">
+        <b>Leadership question</b>
+        <p>Is the burden concentrated enough to remove surgically before it spreads?</p>
+      </div>
+
+      <div class="card-row">
+        <div class="mini-card">
+          <b>Concentrated drag</b>
+          <p>One drag source dominates. Faster to fix because targeted intervention has high yield.</p>
+        </div>
+        <div class="mini-card">
+          <b>Distributed drag</b>
+          <p>No single drag source dominates. Slower to fix; usually requires path-level redesign.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Where to focus first -->
+    <section class="section" id="focus">
+      <p class="section-eyebrow">The first move <span class="pg">Page 4</span></p>
+      <h2>Where to focus first</h2>
+      <p class="lede">Approval layers appear to be adding more time to the path than the decision likely requires.</p>
+
+      <div class="two-col">
+        <div>
+          <h3>Priority actions</h3>
+          <p><strong>1.</strong> Lighten the normal decision pathway by reducing unnecessary serial approvals and reserving expanded review for cases that genuinely warrant it.</p>
+          <p><strong>2.</strong> Re-run the diagnostic after the first material intervention to verify that the cycle actually became faster and lighter rather than merely shifting drag elsewhere.</p>
+        </div>
+        <div class="gauge-panel">
+          <svg class="gauge-svg" viewBox="0 0 220 130">
+            <path d="M45 100 A65 65 0 0 1 175 100" fill="none" stroke="#D7DEE8" stroke-width="14" stroke-linecap="round"/>
+            <path d="M45 100 A65 65 0 0 1 175 100" fill="none" stroke="#3F6EA1" stroke-width="14" stroke-linecap="round" stroke-dasharray="123 220"/>
+            <line x1="110" y1="100" x2="120.1" y2="47.0" stroke="#15202B" stroke-width="3"/>
+            <circle cx="110" cy="100" r="5" fill="#15202B"/>
+            <text x="34" y="52" font-size="6.5" fill="#7C8794">Below</text>
+            <text x="78" y="26" font-size="6.5" fill="#7C8794">Within</text>
+            <text x="128" y="26" font-size="6.5" fill="#7C8794">Above</text>
+            <text x="164" y="52" font-size="6.5" fill="#7C8794">Opportunity</text>
+          </svg>
+          <div class="gauge-score">56</div>
+          <div class="gauge-label">Within industry range</div>
+        </div>
+      </div>
+
+      <div class="panel bench">
+        <p><strong>Benchmark context.</strong> This pathway is heavy in absolute terms but still within industry range for financial services. That is analytically important: peer comparison will not create urgency by itself. The case for action comes from trajectory, qualitative operating evidence, and the fact that similar pathways still often carry about 22% recoverable drag even when the setup feels normal.</p>
+      </div>
+    </section>
+
+    <!-- Section 5: Quadrant -->
+    <section class="section" id="quadrant">
+      <p class="section-eyebrow">Evidence and detail <span class="pg">Page 5</span></p>
+      <h2>Governance weight × execution responsiveness</h2>
+      <p>This view places the run on two axes: how much governance weight the pathway is carrying, and how responsive execution appears under that weight.</p>
+
+      <div class="quadbox">
+        <div class="axis-y">Execution responsiveness</div>
+        <div class="quad">
+          <div class="qlabel" style="left:12px;top:12px">Fast movement,<br>lighter governance</div>
+          <div class="qlabel" style="right:12px;top:12px;text-align:right">Fast movement,<br>heavier governance</div>
+          <div class="qlabel" style="left:12px;bottom:12px">Slow movement,<br>lighter governance</div>
+          <div class="qlabel" style="right:12px;bottom:12px;text-align:right">Slow movement,<br>heavier governance</div>
+          <div class="qdot" style="left:78%;top:30%"></div>
+        </div>
+        <div class="axis-x">Governance weight</div>
+      </div>
+
+      <h3>How to read this quadrant</h3>
+      <p>The pathway is moving acceptably fast despite carrying heavy governance — but that responsiveness may be subsidized by compensatory effort (workarounds, manager intervention, key-person dependence) that is not visible at the surface. Audit the real cost of preserving this pace before assuming the architecture is stable. The current run reads as significant friction, so the priority is structural intervention rather than incremental tuning.</p>
+
+      <div class="leadership-question">
+        <b>Leadership question</b>
+        <p>Is the organization buying responsiveness with hidden managerial effort or excess governance weight?</p>
+      </div>
+
+      <div class="panel" style="font-size:0.92rem; padding: 16px 20px;">
+        <p style="margin:0;"><strong>No major structured-answer contradiction surfaced in this run.</strong> That does not prove the system is healthy. It only means the scored answer pattern did not show a major internal conflict; experiential notes, if added later, should be tested through managerial and senior-leader runs.</p>
+      </div>
+    </section>
+
+    <!-- Section 6: Experiential -->
+    <section class="section" id="experiential">
+      <p class="section-eyebrow">Experiential layer <span class="pg">Page 6</span></p>
+      <h2>What the participant added</h2>
+      <p>This optional layer records how the workflow is experienced from the selected vantage point and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal process description and lived operating reality diverge.</p>
+
+      <div class="panel">
+        <h3 style="margin-top:0;">Experiential synthesis</h3>
+        <p>The notes recorded below describe the texture of working inside this pathway — repetition, friction, the way standard cases are handled as if they were exceptions.</p>
+        <p class="muted" style="margin-bottom:0;">These notes should be compared across roles before being treated as a stable organizational pattern.</p>
+      </div>
+
+      <div class="exp-grid">
+        <div class="exp-card">
+          <h3>Your managerial experience</h3>
+          <p>The pathway has become noticeably heavier over the past six months. Steps keep being added without anything being removed.</p>
+        </div>
+        <div class="exp-card">
+          <h3>What operational staff may be experiencing</h3>
+          <p>Everyone I work with is frustrated. Coordination required is disproportionate to what we are accomplishing.</p>
+        </div>
+        <div class="exp-card">
+          <h3>What managers may be experiencing</h3>
+          <p>Managers are trying to shield the team but struggling with exception-handling volume.</p>
+        </div>
+        <div class="exp-card">
+          <h3>What senior leaders may be seeing</h3>
+          <p>Leadership seems focused on compliance and visibility rather than throughput.</p>
+        </div>
+      </div>
+
+      <div class="panel bench">
+        <p><strong>Leadership question.</strong> Does the documented process still describe the process people actually use?</p>
+        <p style="margin-bottom:0;"><strong>How to use this layer.</strong> Treat these notes as a way to plan follow-up conversations. If the same signal appears across operational, managerial, and senior-leader runs, it becomes more useful as a governance input. If it appears in only one lens, it is still valuable, but it should be read as a clue rather than a conclusion.</p>
+      </div>
+    </section>
+
+    <!-- Section 7: Competing readings -->
+    <section class="section" id="readings">
+      <p class="section-eyebrow">Analytical review <span class="pg">Page 7</span></p>
+      <h2>Competing readings</h2>
+      <p>This section names the plausible interpretations of the same signal and identifies the evidence that would confirm, weaken, or reframe the current read.</p>
+
+      <div class="card-row card-row-1">
+        <div class="mini-card">
+          <b>Structural burden read</b>
+          <p>The workflow is too heavy because the formal path carries more process and control density than the underlying work requires.</p>
+          <p class="muted"><em>Signal test:</em> Cycle-time data would show delay concentrated in formal review stages.</p>
+        </div>
+        <div class="mini-card">
+          <b>Bypass / control-risk read</b>
+          <p>The documented workflow may no longer be the real workflow; workarounds preserve output while weakening control visibility.</p>
+          <p class="muted"><em>Signal test:</em> Managerial and senior-leader runs would confirm a gap between formal process design and actual practice.</p>
+        </div>
+        <div class="mini-card">
+          <b>Equilibrium-with-workarounds read</b>
+          <p>The system may be stable only because managers and operators have learned how to compensate around it.</p>
+          <p class="muted"><em>Signal test:</em> Removing informal cover would quickly worsen cycle time, exception volume, or compliance friction.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 8: What would update this read -->
+    <section class="section" id="update">
+      <p class="section-eyebrow">Analytical review <span class="pg">Page 8</span></p>
+      <h2>What would update this read</h2>
+      <p>The current diagnosis rests on a single run from a single perspective. The items below describe the evidence that would confirm, weaken, or reframe the read before leadership commits to a remedy path.</p>
+
+      <div class="panel bench">
+        <p>• A managerial-perspective run showing the same workaround pattern would elevate the read from suggestive to confirmed.</p>
+        <p>• A senior-leader run showing confidence that the formal path is followed would expose a possible visibility gap.</p>
+        <p style="margin-bottom:0;">• Actual volume and cycle-time data would recalibrate the exposure range and show whether the issue is occasional or normalized.</p>
+      </div>
+    </section>
+
+    <!-- Section 9: Three remedy paths -->
+    <section class="section" id="remedies">
+      <p class="section-eyebrow">How leadership could respond <span class="pg">Page 9</span></p>
+      <h2>Three remedy paths</h2>
+      <p>Three distinct intervention strategies, ordered by ambition and risk. Each path implies a different leadership posture, time horizon, and tolerance for short-term disruption.</p>
+
+      <div class="leadership-question">
+        <b>Leadership question</b>
+        <p>Is leadership trying to preserve control, reclaim capacity, or realign the formal path with operating reality?</p>
+      </div>
+
+      <div class="remedy-grid">
+        <div class="remedy">
+          <div class="tag">Low disruption</div>
+          <h3>Approval sequence triage</h3>
+          <p>Map the current approval sequence for senior hire approvals and identify steps that duplicate coverage or apply exception-class scrutiny to cases that meet standard criteria.</p>
+          <p class="muted"><strong>Benefit:</strong> Reduces front-end delay and shortens cycle time for standard cases immediately, freeing reviewer capacity for cases that genuinely require deliberation.</p>
+          <p class="muted"><strong>Risk:</strong> Reviewers whose steps are removed may reinsert themselves informally or flag the change as a compliance risk, recreating the weight through a different mechanism.</p>
+        </div>
+        <div class="remedy">
+          <div class="tag">Targeted redesign</div>
+          <h3>Risk-tiered routing redesign</h3>
+          <p>Redesign the approval routing for senior hire approvals around a formal risk-tiering framework that distinguishes standard cases from true exceptions.</p>
+          <p class="muted"><strong>Benefit:</strong> Creates a durable reduction in approval weight for the majority of cases while preserving full review for genuinely complex or exception-class decisions.</p>
+          <p class="muted"><strong>Risk:</strong> Tiering criteria may be contested during design, and without clear ownership of the routing decision, cases may default to the heavier path as a risk-averse choice.</p>
+        </div>
+        <div class="remedy">
+          <div class="tag">Fastest structural reset</div>
+          <h3>Authority redistribution and pathway ownership reset</h3>
+          <p>Redistribute approval authority for standard senior hire decisions to a defined pathway owner with pre-authorized decision rights, removing the multi-approver sequence for cases below a defined exception threshold.</p>
+          <p class="muted"><strong>Benefit:</strong> Eliminates the structural source of cycle drag for standard cases and creates a single point of accountability that makes escalation volume and pathway performance visible and governable.</p>
+          <p class="muted"><strong>Risk:</strong> Authority redistribution in a moderate-regulation environment requires formal governance sign-off, and resistance from displaced approvers or compliance functions could stall implementation or produce a nominal change with no operational effect.</p>
+        </div>
+      </div>
+
+      <p class="remedy-calibration-note">* Calibrate against insight depth before acting. A single short-form run produces directional remedy guidance, not engineering specifications — the breadth, depth, and cross-validation of inputs governs how confidently any of these paths should be pursued.</p>
+
+      <div class="rule"></div>
+
+      <h3>Choosing between them</h3>
+      <p>The right choice depends less on the current drag score than on three things: how much stability the organization needs while changes happen, how much trust leadership has earned to redesign rather than tweak, and whether the pathway is on a path that is already worsening. Light paths preserve continuity; aggressive paths buy more capacity but require a stronger mandate.</p>
+    </section>
+
+    <!-- Section 10: Method -->
+    <section class="section" id="method">
+      <p class="section-eyebrow">How to read this report <span class="pg">Page 10</span></p>
+      <h2>How this was produced</h2>
+      <p>This diagnostic measures pathway drag across six dimensions: approval density, coordination burden, handoff burden, escalation dependence, rework friction, and key-person brittleness. It also estimates the amount of productive capacity being absorbed by sustaining the pathway itself rather than producing decisions. The diagnostic does not independently verify user inputs; it should be read as a directional pathway read rather than a full audit.</p>
+
+      <div class="rule"></div>
+
+      <div class="ring-row">
+        <svg class="ring" viewBox="0 0 58 58">
+          <circle cx="29" cy="29" r="23" fill="none" stroke="#E6EAF0" stroke-width="7"/>
+          <circle cx="29" cy="29" r="23" fill="none" stroke="#C49A3C" stroke-width="7" stroke-dasharray="12 145" transform="rotate(-90 29 29)"/>
+        </svg>
+        <div>
+          <div style="font-size:1.6rem;font-weight:700;line-height:1;">8</div>
+          <p class="muted" style="margin-top:6px;font-size:0.9rem;"><strong>Insight depth score · Substantiated first signal.</strong> Single-run signal-quality indicator, not a correctness score.</p>
+        </div>
+      </div>
+
+      <p>For a single run from a single perspective, this score reflects the depth of the run and self-reported confidence in the inputs. A single run is always a narrow first signal regardless of how thoughtful it was. To strengthen the read, run this diagnostic from other organizational perspectives and over time; the cross-diagnostic synthesis tool combines those runs and computes a broader insight depth score.</p>
+
+      <h3>What would strengthen the next read</h3>
+      <div class="method-box">
+        <p>• Run this diagnostic from operational and senior-leader perspectives to test whether the burden pattern is consistent across organizational levels or concentrated in specific roles. Divergence between perspectives reframes the diagnosis from structural to distributional.</p>
+        <p>• Re-run this diagnostic in six months to confirm whether the rising trajectory holds. Structured comparison turns a directional signal into measurable change and distinguishes real drift from a temporary spike.</p>
+        <p>• Run the diagnostic against adjacent workflows in financial services that share dependencies with senior hire approvals. The same pattern surfacing in adjacent workflows distinguishes a workflow-specific issue from a systemic operating-environment issue.</p>
+      </div>
+
+      <h3>What the figures represent</h3>
+      <div class="method-box">
+        <p>* Figures marked with an asterisk are directional estimates generated from your inputs, not guaranteed financial outcomes. They are intended to indicate rough order of magnitude so leadership can decide whether the pattern is worth investigating further. They should not be cited externally as audited measurements, and they should not be used as the basis for compensation decisions, performance reviews, or formal financial planning.</p>
+      </div>
+
+      <h3 style="margin-top:24px">Where Monderman fits</h3>
+      <p>Monderman is built for leaders who want a structured, repeatable read on decision-pathway drag — not a one-off consulting engagement. The diagnostic surfaces patterns; the leadership decides what to do about them. This report is the artifact of that read, suitable for distribution to peers, leadership, and trusted advisors who need to engage with the same picture.</p>
+      <p class="muted" style="font-size:0.78rem;margin-top:22px;">Prepared by Monderman's diagnostic engine.</p>
+    </section>
+
+  </main>
+
+  <!-- Right rail TOC -->
+  <aside class="toc-rail" aria-label="Table of contents">
+    <p class="toc-rail-label">Contents</p>
+    <ol>
+      <li><a href="#cover" data-section="cover"><span class="toc-num">01</span>Cover</a></li>
+      <li><a href="#headline" data-section="headline"><span class="toc-num">02</span>Headline finding</a></li>
+      <li><a href="#composition" data-section="composition"><span class="toc-num">03</span>Drag composition</a></li>
+      <li><a href="#focus" data-section="focus"><span class="toc-num">04</span>Where to focus first</a></li>
+      <li><a href="#quadrant" data-section="quadrant"><span class="toc-num">05</span>Governance × Execution</a></li>
+      <li><a href="#experiential" data-section="experiential"><span class="toc-num">06</span>Experiential layer</a></li>
+      <li><a href="#readings" data-section="readings"><span class="toc-num">07</span>Competing readings</a></li>
+      <li><a href="#update" data-section="update"><span class="toc-num">08</span>What would update this read</a></li>
+      <li><a href="#remedies" data-section="remedies"><span class="toc-num">09</span>Three remedy paths</a></li>
+      <li><a href="#method" data-section="method"><span class="toc-num">10</span>How this was produced</a></li>
+    </ol>
+  </aside>
+</div>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <a class="footer-brand" href="index.html">Monderman<span class="brand-dot"></span></a>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        <a href="diagnostic-hub.html">Diagnostic Hub</a>
+        <a href="research.html">Research</a>
+        <a href="why-monderman.html">Why Monderman</a>
+        <a href="about.html">About</a>
+        <a href="connect.html">Connect</a>
+        <a href="privacy.html">Privacy</a>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-meta">© 2026 Monderman. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Active TOC tracking
+  (function () {
+    var sections = document.querySelectorAll('main .section, main .cover');
+    var links = document.querySelectorAll('.toc-rail a');
+    if (!sections.length || !links.length) return;
+
+    var byId = {};
+    links.forEach(function (l) { byId[l.getAttribute('data-section')] = l; });
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          var id = entry.target.id;
+          links.forEach(function (l) { l.classList.remove('is-active'); });
+          if (byId[id]) byId[id].classList.add('is-active');
+        }
+      });
+    }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+
+    sections.forEach(function (s) { observer.observe(s); });
+  })();
+</script>
+
+</body>
+</html>
