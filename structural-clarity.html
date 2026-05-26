@@ -5200,6 +5200,9 @@ if (__injected && typeof __injected === "object" && __injected.result && __injec
   if (__chartReady()) {
     __applyInjection();
   } else {
+    // Fallback: if Chart.js takes more than 3s, fire injection anyway.
+    // renderCharts is wrapped in try/catch so Chart absence is safe.
+    setTimeout(() => { if (!window.__mondermanInjectionApplied) { __applyInjection(); } }, 3000);
     // Poll for Chart.js. 10s ceiling — Chart.js typically loads from CDN in
     // <1s; 10s catches slow networks while still failing predictably if the
     // CDN is unreachable.
@@ -5209,7 +5212,7 @@ if (__injected && typeof __injected === "object" && __injected.result && __injec
       if (__chartReady()) {
         clearInterval(__chartPoll);
         __applyInjection();
-      } else if (__pollAttempts > 100) { // 100 × 100ms = 10s
+      } else if (__pollAttempts > 250) { // 100 × 100ms = 10s
         clearInterval(__chartPoll);
         console.error("Test injection: Chart.js failed to load within 10s; falling back to lane stage.");
         setHeader("Choose participant perspective", "Select the perspective that best matches your role in the workflow, then choose the appropriate diagnostic depth.", "Awaiting selection");
