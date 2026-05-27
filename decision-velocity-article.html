@@ -371,7 +371,7 @@
       outline: none;
     }
 
-    .article { padding: 72px 0 96px; min-height: 90vh; }
+    .article { padding: 72px 0 96px; }
 
     .article-layout {
       display: grid;
@@ -573,6 +573,7 @@
     }
 
     .sidebar {
+      align-self: start;
       display: grid;
       gap: 18px;
       position: sticky;
@@ -761,7 +762,8 @@
 
     @media (max-width: 900px) {
       .article-layout { grid-template-columns: 1fr; }
-      .sidebar { position: static; }
+      .sidebar {
+      align-self: start; position: static; }
       .sidebar-card { min-height: 0; }
     }
 
