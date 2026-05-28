@@ -779,7 +779,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
           <div class="accordion-body">
             <div class="detail-content" id="detailContent">
               <section class="grid-2">
-                <article class="chart-card"><h3>Governance Weight × Execution Responsiveness</h3><div class="quadrant-wrap"><div class="quad-with-yaxis"><div class="axis-y">Execution responsiveness</div><div class="quadrant-box"><div class="q-label q-tl">High legibility<br>Low governance</div><div class="q-label q-tr">High legibility<br>High governance</div><div class="q-label q-bl">Low legibility<br>Low governance</div><div class="q-label q-br">Low legibility<br>High governance</div><div class="quad-dot" id="quadDot"></div></div></div><div class="axis-x">Governance weight</div><div class="quad-guide-grid"><div class="quad-guide"><strong>Quadrant interpretation</strong><p class="tiny" id="quadrantInterpretationText">Quadrant interpretation will appear here after scoring.</p></div></div></div></article>
+                <article class="chart-card"><h3>Governance Weight × Execution Responsiveness</h3><div class="quadrant-wrap"><div class="quad-with-yaxis"><div class="axis-y">Structural legibility</div><div class="quadrant-box"><div class="q-label q-tl">High legibility<br>Low governance</div><div class="q-label q-tr">High legibility<br>High governance</div><div class="q-label q-bl">Low legibility<br>Low governance</div><div class="q-label q-br">Low legibility<br>High governance</div><div class="quad-dot" id="quadDot"></div></div></div><div class="axis-x">Governance weight</div><div class="quad-guide-grid"><div class="quad-guide"><strong>Quadrant interpretation</strong><p class="tiny" id="quadrantInterpretationText">Quadrant interpretation will appear here after scoring.</p></div></div></div></article>
                 <article class="result-card"><h3>Time, money, and resources</h3><p class="result-copy" id="tmrText"></p><div class="compact-card" style="margin-top:14px;"><h3>Trade-off note</h3><p class="result-copy" id="tradeoffText"></p></div></article>
               </section>
               <section class="grid-2"><article class="chart-card"><h3>Structural gaps</h3><div class="chart-wrap"><canvas id="gapChart"></canvas></div></article><article class="chart-card"><h3>Dimension profile</h3><div class="chart-wrap"><canvas id="dimensionChart"></canvas></div></article></section>
@@ -2697,7 +2697,7 @@ if (pattern.dominant && pattern.dominant.label !== "No dominant source") {
     note:  backendNote || "The primary clarity constraint is constraining movement in this workflow."
   };
 }
-return { label: "Mixed burden pattern", value: 0, note: "No single clarity constraint clearly dominates the run." };
+return { label: "Distributed clarity constraint", value: 0, note: "No single clarity constraint clearly dominates the run." };
 }
 
 function deriveBurdenDiagnosis(result, payload) {
@@ -3204,7 +3204,7 @@ const note    = $("burdenDonutNote");
 
 if (!pattern.segments.length) {
   if (center) center.textContent = "N/A";
-  if (note)   note.textContent   = "Not enough signal is available to render burden composition for this run.";
+  if (note)   note.textContent   = "Not enough clarity dimension signal was available for this run.";
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   return;
 }
@@ -3644,9 +3644,9 @@ return `<svg width="220" height="140" viewBox="0 0 220 140" xmlns="http://www.w3
 <div class="capacity-legend">
   <div class="capacity-legend-item"><span class="capacity-legend-dot" style="background:#4E9A7A"></span>Productive work</div>
   <div class="capacity-legend-item"><span class="capacity-legend-dot" style="background:#C49A3C"></span>Routine coordination</div>
-  <div class="capacity-legend-item"><span class="capacity-legend-dot" style="background:#B85C52"></span>Recoverable drag*</div>
+  <div class="capacity-legend-item"><span class="capacity-legend-dot" style="background:#B85C52"></span>Recoverable ambiguity cost*</div>
 </div>
-<p class="caption">Estimates of how this workflow's available capacity is currently allocated. Recoverable drag* is the portion that could be returned to productive use through structural intervention.</p>`;
+<p class="caption">Estimates of how this workflow's available capacity is currently allocated. Recoverable ambiguity cost* is the portion that could be returned to productive use through structural intervention.</p>`;
 
 }
 
@@ -4025,7 +4025,7 @@ const segmentsWithPct = sortedSegments.map((seg, i) => {
 segmentsWithPct.sort((a, b) => a._origIdx - b._origIdx);
 const segmentLegend = segmentsWithPct.map((seg) => {
   return `<div class="comp-row"><span class="dot" style="background:${seg.color}"></span><span>${safe(seg.label)}</span><b>${seg._pct}%</b></div>`;
-}).join("") || `<p class="muted">Not enough burden composition signal was available for this run.</p>`;
+}).join("") || `<p class="muted">Not enough clarity dimension signal was available for this run.</p>`;
 const serverGapForExport = result?.canonical_descriptor?.experiential_structural_gap
   || result?.experiential_structural_gap || { type: "none" };
 // Distinct headers per gap_type so the callout's framing matches the signal,
@@ -4167,7 +4167,7 @@ return `<!doctype html>
   <div class="cover-dark">
     <div class="cover-mark">M O N D E R M A N</div>
     <div class="cover-rule"></div>
-    <h1 class="cover-title">Decision Velocity<br>Diagnostic</h1>
+    <h1 class="cover-title">Structural Clarity<br>Diagnostic</h1>
     <p class="cover-sub">Executive Summary</p>
   </div>
   <div class="cover-stripe"></div>
@@ -4236,8 +4236,8 @@ return `<!doctype html>
     <p>Directional modeling suggests ${safe(annualHoursText)} and about ${safe(annualCostText)} in labor exposure, with capacity drag around ${dragPct}%*. These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
     <p>The practical question is not whether decisions are still getting made. It is how much organizational energy is now required to move them. The score should be read as a structured quantitative pathway-drag indicator. Experiential bypass signals, when present, do not change the score; they provide interpretive context about how the formal pathway may differ from operating reality.</p><p>When a pathway needs repeated chase effort, manager intervention, workaround maintenance, or escalation to move forward, the visible output may remain acceptable while the formal decision system underneath becomes increasingly expensive to sustain.</p>
     <div class="capacity"><div class="seg" style="width:${capacity.productive}%;background:#4E9A7A">${capacity.productive}%</div><div class="seg" style="width:${capacity.admin}%;background:#C49A3C">${capacity.admin}%</div><div class="seg" style="width:${capacity.drag}%;background:#B85C52">${capacity.drag}%</div></div>
-    <div class="legend"><span><span class="dot" style="background:#4E9A7A"></span>Productive work</span><span><span class="dot" style="background:#C49A3C"></span>Routine coordination</span><span><span class="dot" style="background:#B85C52"></span>Recoverable drag*</span></div>
-    <p class="muted" style="font-size:8.5px">Estimates of how this pathway's available capacity is currently allocated. Recoverable drag* is the portion that could be returned to productive use through structural intervention.</p>
+    <div class="legend"><span><span class="dot" style="background:#4E9A7A"></span>Productive work</span><span><span class="dot" style="background:#C49A3C"></span>Routine coordination</span><span><span class="dot" style="background:#B85C52"></span>Recoverable ambiguity cost*</span></div>
+    <p class="muted" style="font-size:8.5px">Estimates of how this pathway's available capacity is currently allocated. Recoverable ambiguity cost* is the portion that could be returned to productive use through structural intervention.</p>
     <h3 style="margin-top:26px">Why this matters in ${safe(sectorName)}</h3>
     <p>${safeWords(industry.opportunityPattern, 44)}</p>
     <p>${safeWords(trajectoryProse, 36)}</p>
@@ -4248,8 +4248,8 @@ return `<!doctype html>
 <section class="page">
   ${footer(3)}
   <div class="content">
-    <p class="eyebrow">Where the drag is coming from</p><h2>Drag composition</h2>
-    <p>The composition view shows where the visible drag is coming from across the dimensions Monderman measures: approval density, coordination burden, handoff burden, escalation dependence, rework friction, and key-person brittleness. Dimensions with no material contribution to this run may be omitted from the chart below for clarity.</p><p class="muted">The important signal is not only which dimension is largest. The distribution also matters. A concentrated pattern usually points to a more targeted intervention; a distributed pattern usually means the pathway has absorbed drag into its normal operating design.</p>
+    <p class="eyebrow">Where clarity is breaking down</p><h2>Clarity dimension breakdown</h2>
+    <p>The clarity dimension view shows where structural legibility is weakest across the five dimensions Monderman measures: role clarity, decision rights clarity, handoff integrity, accountability clarity, and governance proportionality. Lower scores indicate where the structure is least readable and most likely to require informal compensation.</p><p class="muted">The important signal is not only which dimension is lowest. The distribution also matters. A concentrated pattern points to a targeted legibility fix; a distributed pattern usually means structural redesign is needed across multiple dimensions.</p>
     <div class="panel donut-panel"><div class="donut-wrap"><svg width="150" height="150" viewBox="0 0 200 200">${donutPaths}</svg><div class="donut-center"><div><small>DOMINANT</small><b>${dominantPct}%</b></div></div></div><div>${segmentLegend}</div></div>
     <h3 style="margin-top:24px">What the composition tells us</h3>
     <p>${safeWords(concentrationProse, 76)}</p>
@@ -4274,7 +4274,7 @@ return `<!doctype html>
   <div class="content">
     <p class="eyebrow">Evidence and detail</p><h2 style="font-size:21px;margin-bottom:8px">Governance weight × execution responsiveness</h2>
     <p style="margin-bottom:8px">This view places the run on two axes: how much governance weight the pathway is carrying, and how responsive execution appears under that weight.</p>
-    <div class="panel quadbox"><div class="axis-y">Execution responsiveness</div><div class="quad"><div class="qlabel" style="left:12px;top:12px">Fast movement,<br>lighter governance</div><div class="qlabel" style="right:12px;top:12px;text-align:right">Fast movement,<br>heavier governance</div><div class="qlabel" style="left:12px;bottom:12px">Slow movement,<br>lighter governance</div><div class="qlabel" style="right:12px;bottom:12px;text-align:right">Slow movement,<br>heavier governance</div><div class="qdot" style="left:${qLeft}%;top:${qTop}%"></div></div><div class="axis-x">Governance weight</div></div>
+    <div class="panel quadbox"><div class="axis-y">Structural legibility</div><div class="quad"><div class="qlabel" style="left:12px;top:12px">High legibility,<br>lighter governance</div><div class="qlabel" style="right:12px;top:12px;text-align:right">High legibility,<br>heavier governance</div><div class="qlabel" style="left:12px;bottom:12px">Low legibility,<br>lighter governance</div><div class="qlabel" style="right:12px;bottom:12px;text-align:right">Low legibility,<br>heavier governance</div><div class="qdot" style="left:${qLeft}%;top:${qTop}%"></div></div><div class="axis-x">Governance weight</div></div>
     <h3>How to read this quadrant</h3><p>${safeWords(quadrantText, 80)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(quadrantQuestion)}</p></div>
     ${contradictionHtml}
@@ -4300,7 +4300,7 @@ ${decisionReviewPage}
   ${footer(methodPageNumber)}
   <div class="content">
     <p class="eyebrow">How to read this report</p><h2>How this was produced</h2>
-    <p>This diagnostic measures structural ambiguity across six dimensions: approval density, coordination burden, handoff burden, escalation dependence, rework friction, and key-person brittleness. It also estimates the amount of productive capacity being absorbed by sustaining the pathway itself rather than producing decisions. The diagnostic does not independently verify user inputs; it should be read as a directional pathway read rather than a full audit.</p>
+    <p>This diagnostic measures structural clarity across five dimensions: role clarity, decision rights clarity, handoff integrity, accountability clarity, and governance proportionality. It also estimates the amount of productive capacity being absorbed by structural ambiguity — the compensation, clarification, and escalation that occurs when the structure is not legible enough to act on directly. The diagnostic does not independently verify user inputs; it should be read as a directional structural read rather than a full audit.</p>
     <div class="rule"></div>
     <div class="ring-row"><svg class="ring" viewBox="0 0 58 58"><circle cx="29" cy="29" r="23" fill="none" stroke="#E6EAF0" stroke-width="7"/><circle cx="29" cy="29" r="23" fill="none" stroke="#C49A3C" stroke-width="7" stroke-dasharray="${insight.available ? Math.round(insight.score * 1.45) : 0} 145" transform="rotate(-90 29 29)"/></svg><div><div style="font-size:24px;font-weight:700">${insight.available ? Math.round(insight.score) : "—"}</div><p class="muted">Insight depth score${insight.available ? ` · ${escapeHtml(insight.band)}` : " · Awaiting data"}<br>${insight.available ? "Single-run signal-quality indicator, not a correctness score." : "Insight depth could not be loaded from the diagnostic backend."}</p></div></div>
     <p>${insight.available ? "For a single run from a single perspective, this score reflects the depth of the run and self-reported confidence in the inputs. A single run is always a narrow first signal regardless of how thoughtful it was. To strengthen the read, run this diagnostic from other organizational perspectives and over time; the cross-diagnostic synthesis tool combines those runs and computes a broader insight depth score." : "The insight depth score is computed by the Monderman diagnostic backend. It could not be retrieved for this run; the rest of the report remains valid."}</p>
