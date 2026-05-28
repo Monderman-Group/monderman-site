@@ -3865,6 +3865,7 @@ const annualHoursText = annualHours ? formatRoundedHours(annualHours, { suffix: 
 const annualCostText = formatEstimateCurrencyRange(result?.exposure?.annual_cost);
 const dragPct = Math.max(0, Math.min(100, Math.round(Number(result?.exposure?.capacity_drag_percent || 0))));
 const capacity = calculateCapacityComposition(dragPct);
+// SC: build clarity dimension bars instead of DV burden donut
 const breakdown = asObject(result?.burden_breakdown);
 const donutSegments = buildDonutSegments(breakdown);
 const donutPattern = analyzeDonutPattern(donutSegments, result);
@@ -3872,6 +3873,23 @@ const donutPaths = buildDonutSvgPaths(donutSegments);
 const donutTotal = donutSegments.reduce((s, x) => s + Number(x.value || 0), 0);
 const dominantPct = donutPattern.hasSignal ? donutPattern.dominantPct : 0;
 const concentrationProse = buildConcentrationNarrative(donutPattern);
+const scDimDefs = [
+  { key: "role_clarity", label: "Role clarity" },
+  { key: "decision_rights_clarity", label: "Decision rights clarity" },
+  { key: "handoff_clarity", label: "Handoff integrity" },
+  { key: "accountability_clarity", label: "Accountability clarity" },
+  { key: "duplicate_approvals_inverse", label: "Governance proportionality" }
+];
+const scDimsData = result?.dimensions || {};
+const scDimBars = scDimDefs
+  .filter(d => Number.isFinite(scDimsData[d.key]))
+  .sort((a,b) => scDimsData[a.key] - scDimsData[b.key])
+  .map(d => {
+    const v = Math.round(scDimsData[d.key]);
+    const band = v >= 82 ? "Clear" : v >= 66 ? "Softening" : v >= 48 ? "Ambiguous" : "Breakdown";
+    const color = v >= 66 ? "#3F6EA1" : v >= 48 ? "#C49A3C" : "#E05252";
+    return `<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:11px;color:#5B6774;margin-bottom:4px"><span>${d.label}</span><span style="color:${color}">${v} — ${band}</span></div><div style="height:7px;background:#E8ECF0;border-radius:3px;overflow:hidden"><div style="height:7px;width:${v}%;background:${color};border-radius:3px"></div></div></div>`;
+  }).join("") || `<p class="muted">Not enough clarity dimension signal was available for this run.</p>`;
 const trajectoryDirection = result?.trajectory?.direction || "flat";
 const trajectoryProse = buildTrajectoryNarrative(trajectoryDirection);
 const nextRunBullets = buildNextRunRecommendation(result, payload, industry, processName);
@@ -3881,8 +3899,12 @@ const nextRunBullets = buildNextRunRecommendation(result, payload, industry, pro
 const showAlertCallout = trajectoryDirection === "up" && insight.available;
 const contradictions = asArray(result?.contradictions);
 const quadrantText = buildQuadrantInterpretation({ ...(result || {}), __interpretiveState: stateObj });
-const qLeft = Math.max(8, Math.min(92, Number(stateObj.governanceWeight || 50)));
-const qTop = Math.max(8, Math.min(92, 100 - Number(stateObj.execResponsive || 50)));
+// SC quadrant: X = governance weight (duplicate_approvals), Y = legibility (score)
+const scDims = result?.dimensions || {};
+const scGovWeight = Math.max(8, Math.min(92, 100 - Number(scDims.duplicate_approvals_inverse ?? stateObj.governanceWeight ?? 50)));
+const scLegibility = Math.max(8, Math.min(92, Number(result?.score ?? stateObj.execResponsive ?? 50)));
+const qLeft = scGovWeight;
+const qTop = Math.max(8, Math.min(92, 100 - scLegibility));
 const primaryReadLabel = buildPrimaryReadLabel(result || {}, payload || {});
 const primaryReadSummary = buildPrimaryReadSummary(result || {}, payload || {});
 const executiveQuestion = buildLeadershipQuestion(result || {}, payload || {}, "executive");
@@ -4234,7 +4256,7 @@ return `<!doctype html>
     <p class="lede">${safeWords(harmonized.headlineFinding || summary.body, 84)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(executiveQuestion)}</p></div>
     <p>Directional modeling suggests ${safe(annualHoursText)} and about ${safe(annualCostText)} in labor exposure, with capacity drag around ${dragPct}%*. These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
-    <p>The practical question is not whether decisions are still getting made. It is how much organizational energy is now required to move them. The score should be read as a structured quantitative pathway-drag indicator. Experiential bypass signals, when present, do not change the score; they provide interpretive context about how the formal pathway may differ from operating reality.</p><p>When a pathway needs repeated chase effort, manager intervention, workaround maintenance, or escalation to move forward, the visible output may remain acceptable while the formal decision system underneath becomes increasingly expensive to sustain.</p>
+    <p>The practical question is not whether people are still getting work done. It is how much organizational energy is now required to navigate a structure that is not fully legible — how much inference, clarification, and informal coordination is being absorbed to compensate for what the structure should be carrying directly. Experiential notes, when present, do not change the quantitative score; they provide interpretive context about how structural ambiguity is experienced at different organizational levels.</p><p>When a structure requires repeated managerial interpretation, informal ownership negotiation, or escalation to resolve what the design should make clear, visible output may remain acceptable while the underlying legibility cost continues to accumulate.</p>
     <div class="capacity"><div class="seg" style="width:${capacity.productive}%;background:#4E9A7A">${capacity.productive}%</div><div class="seg" style="width:${capacity.admin}%;background:#C49A3C">${capacity.admin}%</div><div class="seg" style="width:${capacity.drag}%;background:#B85C52">${capacity.drag}%</div></div>
     <div class="legend"><span><span class="dot" style="background:#4E9A7A"></span>Productive work</span><span><span class="dot" style="background:#C49A3C"></span>Routine coordination</span><span><span class="dot" style="background:#B85C52"></span>Recoverable ambiguity cost*</span></div>
     <p class="muted" style="font-size:8.5px">Estimates of how this pathway's available capacity is currently allocated. Recoverable ambiguity cost* is the portion that could be returned to productive use through structural intervention.</p>
@@ -4250,11 +4272,11 @@ return `<!doctype html>
   <div class="content">
     <p class="eyebrow">Where clarity is breaking down</p><h2>Clarity dimension breakdown</h2>
     <p>The clarity dimension view shows where structural legibility is weakest across the five dimensions Monderman measures: role clarity, decision rights clarity, handoff integrity, accountability clarity, and governance proportionality. Lower scores indicate where the structure is least readable and most likely to require informal compensation.</p><p class="muted">The important signal is not only which dimension is lowest. The distribution also matters. A concentrated pattern points to a targeted legibility fix; a distributed pattern usually means structural redesign is needed across multiple dimensions.</p>
-    <div class="panel donut-panel"><div class="donut-wrap"><svg width="150" height="150" viewBox="0 0 200 200">${donutPaths}</svg><div class="donut-center"><div><small>DOMINANT</small><b>${dominantPct}%</b></div></div></div><div>${segmentLegend}</div></div>
+    <div class="panel" style="padding:16px">${scDimBars}</div>
     <h3 style="margin-top:24px">What the composition tells us</h3>
     <p>${safeWords(concentrationProse, 76)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(compositionQuestion)}</p></div>
-    <div class="card-row"><div class="mini-card"><b>Concentrated drag</b><p>One drag source dominates. Faster to fix because targeted intervention has high yield.</p></div><div class="mini-card"><b>Distributed drag</b><p>No single drag source dominates. Slower to fix; usually requires path-level redesign.</p></div></div>
+    <div class="card-row"><div class="mini-card"><b>Concentrated constraint</b><p>One clarity dimension clearly dominates. Targeted legibility fix has high yield.</p></div><div class="mini-card"><b>Distributed constraint</b><p>No single dimension dominates. Structural redesign likely needed across multiple dimensions.</p></div></div>
   </div>
 </section>
 
