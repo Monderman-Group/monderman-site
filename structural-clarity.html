@@ -3831,7 +3831,7 @@ const qualitative = detectQualitativeOverride(payload);
 if (qualitative.type !== "none") return qualitative.summary;
 // SC: read from canonical_descriptor
 const scNote = result?.canonical_descriptor?.primary_constraint_note;
-const trajectory = result?.trajectory?.direction === "up" ? " with rising structural drift risk" : result?.trajectory?.direction === "down" ? " with some easing signal" : " with no clear easing signal yet";
+const trajectory = result?.trajectory?.direction === "up" ? " and the trajectory suggests it is still slipping" : result?.trajectory?.direction === "down" ? " though there are early signs it is easing" : "";
 if (scNote) return `${scNote.replace(/\.\s*$/, "")}${trajectory}.`;
 const primary = derivePrimaryBurdenSource(result);
 const primaryNoteBase = (primary.note || "The structure is showing clarity constraints that require informal compensation").replace(/\.\s*$/, "");
@@ -3850,7 +3850,7 @@ if (section === "quadrant") {
   if (qk === "upper_left")  return "Will this lighter-touch setup hold as the team grows, or is it hiding gaps that haven't shown up yet?";
   if (qk === "lower_left")  return "Is the team under-resourced for its workload, or is oversight too light to catch real problems?";
   if (qk === "lower_right") return "Is the weight of oversight now eating the capacity that should be producing results?";
-  return "Is the team getting its speed from hidden manager effort or from too much process effort or excess governance weight?";
+  return "Is the team getting its speed from hidden manager effort, or is governance heavier than it needs to be?";
 }
 if (section === "remedy") return qualitative.type === "bypass_control_risk" ? "Is leadership trying to preserve formal control, or restore control that has already drifted into informal practice?" : "Is leadership trying to preserve control, reclaim capacity, or realign the formal path with operating reality?";
 if (qualitative.type === "bypass_control_risk") return "Does the documented process still describe the process people actually use?";
@@ -3858,6 +3858,7 @@ return "What does leadership need to admit about how this really works before a 
 }
 
 function buildExecutiveReportHtml(result, payload) {
+const capitalizeFirst = (s) => { const t = String(s || "").trimStart(); return t ? t.charAt(0).toUpperCase() + t.slice(1) : t; };
 const harmonized = buildHarmonizedNarrative(result, payload || {});
 const summary = buildExecutiveSummary(result, payload || {});
 const actions = buildPriorityActions(result, payload || {}).filter(Boolean);
@@ -4313,7 +4314,7 @@ return `<!doctype html>
   ${footer(2)}
   <div class="content">
     <p class="eyebrow">The pattern this run is detecting</p><h2>Headline finding</h2>
-    <p class="lede">${safeWords(harmonized.headlineFinding || summary.body, 84)}</p>
+    <p class="lede">${capitalizeFirst(safeWords(harmonized.headlineFinding || summary.body, 84))}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(executiveQuestion)}</p></div>
     <p>Directional modeling suggests ${safe(annualHoursText)} and about ${safe(annualCostText)} in labor exposure, with capacity drag around ${dragPct}%*. These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
     <p>The question is not whether work is getting done — it is how much extra effort it takes to get there. When the structure is not clear, people spend time figuring out who owns what, asking for clarification, and coordinating around the gaps. That effort is the hidden cost. Notes added by participants do not change the score; they just show how the ambiguity feels at different levels of the organization.</p><p>When a team has to keep asking managers to settle ownership, or escalating to get unstuck, the work may still look fine on the surface while the cost of working around the structure keeps climbing.</p>
