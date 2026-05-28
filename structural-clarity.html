@@ -3780,8 +3780,11 @@ return `<div class="donut-panel">
 function buildPrimaryReadLabel(result = {}, payload = {}) {
 const qualitative = detectQualitativeOverride(payload);
 if (qualitative.type !== "none") return qualitative.label;
+// SC: read from canonical_descriptor primary constraint label
+const scLabel = result?.canonical_descriptor?.primary_constraint_label;
+if (scLabel) return `${scLabel} pattern`;
 const primary = derivePrimaryBurdenSource(result);
-return `${primary.label || "Decision structural ambiguity"} pattern`;
+return `${primary.label || "Distributed clarity constraint"} pattern`;
 }
 
 function buildNextRunRecommendation(result = {}, payload = {}, industry = {}, processName = "this workflow") {
@@ -3816,12 +3819,15 @@ return [crossRoleBullet, longitudinalBullet, adjacentBullet];
 function buildPrimaryReadSummary(result = {}, payload = {}) {
 const qualitative = detectQualitativeOverride(payload);
 if (qualitative.type !== "none") return qualitative.summary;
+// SC: read from canonical_descriptor
+const scNote = result?.canonical_descriptor?.primary_constraint_note;
+const trajectory = result?.trajectory?.direction === "up" ? " with rising structural drift risk" : result?.trajectory?.direction === "down" ? " with some easing signal" : " with no clear easing signal yet";
+if (scNote) return `${scNote.replace(/\.\s*$/, "")}${trajectory}.`;
 const primary = derivePrimaryBurdenSource(result);
-const trajectory = result?.trajectory?.direction === "up" ? " and the burden appears to be rising" : result?.trajectory?.direction === "down" ? " while some pressure may be easing" : " with no clear easing signal yet";
-const primaryNoteBase = (primary.note || "The pathway is carrying visible decision drag").replace(/\.\s*$/, "");
-return `${primaryNoteBase}${trajectory}.`;
+const primaryNoteBase = (primary.note || "The structure is showing clarity constraints that require informal compensation").replace(/\.\s*$/, "");
+return `${primaryNoteBase}${trajectory}.
+`;
 }
-
 function buildLeadershipQuestion(result = {}, payload = {}, section = "executive") {
 const qualitative = detectQualitativeOverride(payload);
 const pattern = getBurdenCompositionPattern(result);
@@ -4007,15 +4013,15 @@ const methodPageNumber = remedyPageNumber + 1;
 const experienceReportPage = hasExperienceLayer ? '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p>This optional layer records how the workflow is experienced from the selected vantage point and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal process description and lived operating reality diverge.</p><div class="panel" style="margin:16px 0 18px"><h3>Experiential synthesis</h3><p>' + safeWords(experienceSynthesis, 88) + '</p><p class="muted">' + safeWords(experienceCaveat, 50) + '</p></div><div class="exp-grid">' + experienceCards + '</div><div class="panel bench"><p><b>Leadership question.</b> ' + safe(buildLeadershipQuestion(result || {}, payload || {}, "experience")) + '</p><p><b>How to use this layer.</b> Treat these notes as a way to plan follow-up conversations. If the same signal appears across operational, managerial, and senior-leader runs, it becomes more useful as a governance input. If it appears in only one lens, it is still valuable, but it should be read as a clue rather than a conclusion.</p></div></div></section>' : '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p style="margin-top:24px;color:var(--ink-soft);">No participant notes were provided for this run. This section will populate when the participant adds first-person observations about how the pathway is experienced across operational, managerial, and senior-leader levels.</p></div></section>';
 const narrativeForReport = asObject(result?.narrative);
 const defaultReadings = [
-{ label: "Structural burden read", interpretation: "The workflow is too heavy because the formal path carries more process and control density than the underlying work requires.", what_would_distinguish_it: "Cycle-time data would show delay concentrated in formal review stages." },
-{ label: "Bypass/control-risk read", interpretation: "The documented workflow may no longer be the real workflow; workarounds preserve output while weakening control visibility.", what_would_distinguish_it: "Managerial and senior-leader runs would confirm a gap between formal process design and actual practice." },
-{ label: "Equilibrium-with-workarounds read", interpretation: "The system may be stable only because managers and operators have learned how to compensate around it.", what_would_distinguish_it: "Removing informal cover would quickly worsen cycle time, exception volume, or compliance friction." }
+{ label: "Legibility failure read", interpretation: "The structure exists on paper but cannot be read clearly enough in practice — ownership, authority, or handoffs require interpretation rather than observation.", what_would_distinguish_it: "A cross-role run would show whether multiple perspectives describe the same ambiguity or whether it is concentrated at one level." },
+{ label: "Structural drift read", interpretation: "The structure was once clearer and has softened through change, growth, or accumulated exception-handling that was never formalized back into the design.", what_would_distinguish_it: "A longitudinal re-run would detect whether ambiguity is stable or accumulating. Rising scores would suggest drift." },
+{ label: "Compensatory stability read", interpretation: "The system may appear functional because experienced people are navigating informally around structural ambiguity — removing them would expose the design gap.", what_would_distinguish_it: "Key-person dependency signals in the run, or evidence that onboarding is disproportionately difficult, would support this read." }
 ];
 const competingReadings = (Array.isArray(narrativeForReport.competing_readings) && narrativeForReport.competing_readings.length ? narrativeForReport.competing_readings : defaultReadings).slice(0, 3);
 const updateReadItems = (Array.isArray(narrativeForReport.what_would_update_this_read) && narrativeForReport.what_would_update_this_read.length ? narrativeForReport.what_would_update_this_read : [
-"A managerial-perspective run showing the same workaround pattern would elevate the read from suggestive to confirmed.",
-"A senior-leader run showing confidence that the formal path is followed would expose a possible visibility gap.",
-"Actual volume and cycle-time data would recalibrate the exposure range and show whether the issue is occasional or normalized.",
+"A managerial-perspective run showing the same legibility pattern would elevate the read from suggestive to confirmed.",
+"A senior-leader run showing confidence in the structure would expose a possible visibility gap between leadership perception and operational reality.",
+"A re-run after deliberate structural change would show whether the ambiguity is structural or situational.",
 "Risk-tier data would show whether low-risk work is being trapped in a high-control path."
 ]).slice(0, 3);
 const readingHtml = competingReadings.map((item) => '<div class="mini-card"><b>' + safe(item.label || "Reading") + '</b><p>' + safeWords(item.interpretation || item, 44) + '</p><p class="muted">Signal test: ' + safeWords(item.what_would_distinguish_it || "Additional cross-role evidence would clarify this reading.", 50) + '</p></div>').join("");
@@ -5198,7 +5204,12 @@ const __injected = (typeof window !== "undefined") ? window.__mondermanInjectedR
 if (__injected && typeof __injected === "object" && __injected.result && __injected.payload) {
   const __applyInjection = () => {
     try {
-      state.result = __injected.result;
+      // Ensure narrative is attached to result for PDF builder
+      const __injResult = { ...__injected.result };
+      if (__injected.narrative && !__injResult.narrative) {
+        __injResult.narrative = __injected.narrative?.narrative || __injected.narrative;
+      }
+      state.result = __injResult;
       state.renderPayload = __injected.payload;
       if (__injected.payload.participantMode) state.mode = __injected.payload.participantMode;
       if (__injected.payload.diagnostic_depth) state.depth = String(__injected.payload.diagnostic_depth);
