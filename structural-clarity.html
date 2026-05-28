@@ -856,7 +856,7 @@ const DIAGNOSTIC_HUB_URL = "https://www.monderman.com/diagnostic-hub.html";
 const LOADER_MS = 3600;
 const START_TIMEOUT_MS = 45000;
 const ANSWER_TIMEOUT_MS = 15000;
-const FINALIZE_TIMEOUT_MS = 90000;
+const FINALIZE_TIMEOUT_MS = 280000;
 const EXPERIENCE_REFINE_TIMEOUT_MS = 45000;
 
 const openingNotice = "This diagnostic generates directional insights based on the information you provide. Results are only as accurate as your inputs and should be used as an interpretive aid, not as a substitute for independent review, professional judgment, or organization-specific analysis.";
@@ -3482,7 +3482,7 @@ if (note) note.textContent = result?.trajectory?.note || "Directional signal";
   } else if (direction === "down") {
   return "The trajectory signal suggests some pressure may be easing. Verify that with measurement before assuming the problem is self-correcting; perceived improvement and structural improvement are not the same.";
   } else {
-  return "The trajectory signal suggests relative stability. Stability here should not be confused with strength -- a steady-state burden can still be carrying meaningful drag that the organization has simply learned to tolerate.";
+  return "The trajectory signal suggests relative stability. Stability here should not be confused with strength -- a structure that looks stable can still be carrying real cost that people have simply gotten used to.";
   }
   }
 
@@ -3809,7 +3809,7 @@ const otherRoles = role === "senior_leader"
 : role === "managerial"
 ? "operational and senior-leader perspectives"
 : "managerial and senior-leader perspectives";
-const crossRoleBullet = `Run this diagnostic from ${otherRoles} to test whether the burden pattern is consistent across organizational levels or concentrated in specific roles. Divergence between perspectives reframes the diagnosis from structural to distributional.`;
+const crossRoleBullet = `Run this diagnostic from ${otherRoles} to test whether the same weak spot shows up at every level or is concentrated in specific roles. If different levels see it differently, the issue is about distribution, not the structure itself.`;
 
 // Longitudinal comparison: gated on trajectory direction so the cadence
 // recommendation matches what this run actually surfaced.
@@ -3841,20 +3841,20 @@ return `${primaryNoteBase}${trajectory}.
 function buildLeadershipQuestion(result = {}, payload = {}, section = "executive") {
 const qualitative = detectQualitativeOverride(payload);
 const pattern = getBurdenCompositionPattern(result);
-if (section === "experience") return "Does the documented process still describe the process people actually use?";
-if (section === "composition") return pattern.shape === "concentrated" ? "Is the burden concentrated enough to remove surgically before it spreads?" : "Is the lowest-scoring dimension a targeted fix, or a symptom of structure that needs broader redesign?";
+if (section === "experience") return "Does the structure on paper match how people actually work day to day?";
+if (section === "composition") return pattern.shape === "concentrated" ? "Can we fix the one weak dimension directly, or will it spread if we wait?" : "Is this one weak spot to fix, or a sign the whole structure needs rework?";
 if (section === "quadrant") {
   // Quadrant-aware so the question matches the placement instead of always
   // asking the upper-right-quadrant question regardless of where the dot lands.
   const qk = String(result?.interpretive_state?.quadrantKey || result?.__interpretiveState?.quadrantKey || "upper_right").toLowerCase();
-  if (qk === "upper_left")  return "Is the lighter governance model durable as the workflow scales, or is current responsiveness masking gaps that have not yet surfaced?";
-  if (qk === "lower_left")  return "Is execution underpowered for the load it carries, or is governance too light to surface real friction?";
-  if (qk === "lower_right") return "Is governance load now absorbing the capacity that should be producing outcomes?";
-  return "Is the organization buying responsiveness with hidden managerial effort or excess governance weight?";
+  if (qk === "upper_left")  return "Will this lighter-touch setup hold as the team grows, or is it hiding gaps that haven't shown up yet?";
+  if (qk === "lower_left")  return "Is the team under-resourced for its workload, or is oversight too light to catch real problems?";
+  if (qk === "lower_right") return "Is the weight of oversight now eating the capacity that should be producing results?";
+  return "Is the team getting its speed from hidden manager effort or from too much process effort or excess governance weight?";
 }
 if (section === "remedy") return qualitative.type === "bypass_control_risk" ? "Is leadership trying to preserve formal control, or restore control that has already drifted into informal practice?" : "Is leadership trying to preserve control, reclaim capacity, or realign the formal path with operating reality?";
 if (qualitative.type === "bypass_control_risk") return "Does the documented process still describe the process people actually use?";
-return "What operating reality would leadership have to acknowledge before the next intervention is credible?";
+return "What does leadership need to admit about how this really works before a fix will stick?";
 }
 
 function buildExecutiveReportHtml(result, payload) {
@@ -3868,7 +3868,14 @@ const industry = getIndustryNarrative(result, payload || {});
 const sectorPatternFragment = stripSectorLead(industry.opportunityPattern, industry.sectorName);
 const remedyPaths = buildRemedyPaths(result, payload || {});
 const burdenCondition = deriveOperatingBurdenCondition(result || {});
-const primarySource = derivePrimaryBurdenSource(result || {});
+const primarySource = (() => {
+  // SC: prefer canonical_descriptor's primary constraint (score-aware, correct concentration read)
+  const cd = result?.canonical_descriptor || {};
+  if (cd.primary_constraint_label && cd.primary_constraint_note) {
+    return { label: cd.primary_constraint_label, value: cd.primary_constraint_pct || 0, note: cd.primary_constraint_note };
+  }
+  return derivePrimaryBurdenSource(result || {});
+})();
 const stateObj = buildInterpretiveState(result || {}, payload || {});
 const exportScore = Math.max(0, Math.min(100, Math.round(Number(result?.score || 0))));
 const processName = payload?.processName || payload?.process_name || "Structural Clarity Diagnostic";
@@ -4309,7 +4316,7 @@ return `<!doctype html>
     <p class="lede">${safeWords(harmonized.headlineFinding || summary.body, 84)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(executiveQuestion)}</p></div>
     <p>Directional modeling suggests ${safe(annualHoursText)} and about ${safe(annualCostText)} in labor exposure, with capacity drag around ${dragPct}%*. These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
-    <p>The practical question is not whether people are still getting work done. It is how much organizational energy is now required to navigate a structure that is not fully legible — how much inference, clarification, and informal coordination is being absorbed to compensate for what the structure should be carrying directly. Experiential notes, when present, do not change the quantitative score; they provide interpretive context about how structural ambiguity is experienced at different organizational levels.</p><p>When a structure requires repeated managerial interpretation, informal ownership negotiation, or escalation to resolve what the design should make clear, visible output may remain acceptable while the underlying legibility cost continues to accumulate.</p>
+    <p>The question is not whether work is getting done — it is how much extra effort it takes to get there. When the structure is not clear, people spend time figuring out who owns what, asking for clarification, and coordinating around the gaps. That effort is the hidden cost. Notes added by participants do not change the score; they just show how the ambiguity feels at different levels of the organization.</p><p>When a team has to keep asking managers to settle ownership, or escalating to get unstuck, the work may still look fine on the surface while the cost of working around the structure keeps climbing.</p>
     <div class="capacity"><div class="seg" style="width:${capacity.productive}%;background:#4E9A7A">${capacity.productive}%</div><div class="seg" style="width:${capacity.admin}%;background:#C49A3C">${capacity.admin}%</div><div class="seg" style="width:${capacity.drag}%;background:#B85C52">${capacity.drag}%</div></div>
     <div class="legend"><span><span class="dot" style="background:#4E9A7A"></span>Productive work</span><span><span class="dot" style="background:#C49A3C"></span>Routine coordination</span><span><span class="dot" style="background:#B85C52"></span>Recoverable ambiguity cost*</span></div>
     <p class="muted" style="font-size:8.5px">Estimates of how this pathway's available capacity is currently allocated. Recoverable ambiguity cost* is the portion that could be returned to productive use through structural intervention.</p>
@@ -4337,7 +4344,7 @@ return `<!doctype html>
   ${footer(4)}
   <div class="content">
     <p class="eyebrow">The first move</p><h2>Where to focus first</h2>
-    <p class="lede">${safe(primarySource.note || harmonized.opportunityFields?.opening || "Start with the source that is carrying the most visible burden.")}</p>
+    <p class="lede">${safe(primarySource.note || harmonized.opportunityFields?.opening || "Start with the dimension that is least clear.")}</p>
     <div class="two-col"><div><h3>Priority actions</h3>${firstTwoActions.map((action, i) => `<p>${i + 1}. ${safeWords(action, 40)}</p>`).join("")}</div>
     <div class="panel gauge"><svg viewBox="0 0 220 130"><path d="M45 100 A65 65 0 0 1 175 100" fill="none" stroke="#D7DEE8" stroke-width="14" stroke-linecap="round"/><path d="M45 100 A65 65 0 0 1 175 100" fill="none" stroke="#3F6EA1" stroke-width="14" stroke-linecap="round" stroke-dasharray="${gaugeArc} 220"/><line x1="110" y1="100" x2="${needleX.toFixed(1)}" y2="${needleY.toFixed(1)}" stroke="#15202B" stroke-width="3"/><circle cx="110" cy="100" r="5" fill="#15202B"/><text x="34" y="52" font-size="6.5" fill="#7C8794">Below</text><text x="78" y="26" font-size="6.5" fill="#7C8794">Within</text><text x="128" y="26" font-size="6.5" fill="#7C8794">Above</text><text x="164" y="52" font-size="6.5" fill="#7C8794">Opportunity</text></svg><div class="gauge-score">${exportScore}</div><div class="gauge-label">${safe(benchmarkPosition)}</div></div></div>
     <div class="panel bench"><p><b>Benchmark context.</b> ${safeWords(benchmark, 62)}</p></div>
@@ -4367,7 +4374,7 @@ ${decisionReviewPage}
     <div class="leadership-question"><b>Leadership question</b><p>${safe(remedyQuestion)}</p></div>
     <div class="remedy-grid">${remedyHtml}</div>
     <p class="remedy-calibration-note" style="margin:14px 0 0;padding:10px 12px;background:#F4F6F8;border-left:2px solid #B8C7DA;border-radius:0 6px 6px 0;font-size:11px;line-height:1.55;color:#5B6774;font-style:italic">* Calibrate against Insight depth before acting. A single short-form run produces directional remedy guidance, not engineering specifications &mdash; the breadth, depth, and cross-validation of inputs governs how confidently any of these paths should be pursued.</p>
-    <div class="rule"></div><h3>Choosing between them</h3><p>The right choice depends less on the current drag score than on three things: how much stability the organization needs while changes happen, how much trust leadership has earned to redesign rather than tweak, and whether the pathway is on a path that is already worsening. Light paths preserve continuity; aggressive paths buy more capacity but require a stronger mandate.</p>
+    <div class="rule"></div><h3>Choosing between them</h3><p>The right choice depends less on the current score than on three things: how much stability the organization needs while changes happen, how much trust leadership has earned to redesign rather than tweak, and whether the pathway is on a path that is already worsening. Light paths preserve continuity; aggressive paths buy more capacity but require a stronger mandate.</p>
   </div>
 </section>
 
