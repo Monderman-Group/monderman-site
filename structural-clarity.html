@@ -608,7 +608,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   </div>
   <div class="cover-stripe"></div>
   <div class="cover-white">
-    <div class="cover-kicker">Diagnostic Output &nbsp;/&nbsp; Decision Velocity</div>
+    <div class="cover-kicker">Diagnostic Output &nbsp;/&nbsp; Structural Clarity</div>
     <div class="cover-workflow" id="coverWorkflow">—</div>
     <div class="cover-meta"    id="coverMeta">—</div>
     <div class="cover-date"    id="coverDate">—</div>
@@ -2889,7 +2889,17 @@ function buildQuadrantInterpretation(result) {
 // result.quadrant_interpretation_text based on (score band × quadrant key).
 // The proprietary cell-by-cell prose used to live here; migrated to backend
 // on 2026-05-13.
-return result?.quadrant_interpretation_text || "Quadrant interpretation will appear once the run is scored.";
+if (result?.quadrant_interpretation_text) return result.quadrant_interpretation_text;
+// SC-specific quadrant interpretation from legibility × governance
+const dims = result?.dimensions || {};
+const legib = Number(result?.score ?? 50);
+const govInv = Number(dims.duplicate_approvals_inverse ?? 50);
+const heavyGov = govInv < 50; // low inverse = heavy governance
+const lowLegib = legib < 66;
+if (lowLegib && heavyGov) return "This structure sits in the most expensive quadrant: low legibility under heavy governance weight. The review and approval architecture is consuming effort without producing the clarity that would let people act on the structure directly. Governance is compensating for ambiguity rather than resolving it.";
+if (lowLegib && !heavyGov) return "This structure shows low legibility with relatively light governance. The ambiguity is structural rather than process-driven — people are inferring ownership, authority, and handoffs because the design does not make them readable, not because review layers are in the way.";
+if (!lowLegib && heavyGov) return "This structure is reasonably legible but carries heavy governance weight. The clarity is real, but it may be coming at the cost of more review and approval layering than the underlying risk warrants. The opportunity is to preserve legibility while reducing governance drag.";
+return "This structure sits in the healthiest quadrant: legible enough to act on directly, with governance weight proportionate to the work. The priority is stewardship — protecting this clarity as the structure changes rather than allowing drift to accumulate.";
 }
 
 function contradictionClass(item) {
@@ -3832,7 +3842,7 @@ function buildLeadershipQuestion(result = {}, payload = {}, section = "executive
 const qualitative = detectQualitativeOverride(payload);
 const pattern = getBurdenCompositionPattern(result);
 if (section === "experience") return "Does the documented process still describe the process people actually use?";
-if (section === "composition") return pattern.shape === "concentrated" ? "Is the burden concentrated enough to remove surgically before it spreads?" : "Is burden distributed because the whole path is overbuilt, or because people have normalized compensating behavior?";
+if (section === "composition") return pattern.shape === "concentrated" ? "Is the burden concentrated enough to remove surgically before it spreads?" : "Is the lowest-scoring dimension a targeted fix, or a symptom of structure that needs broader redesign?";
 if (section === "quadrant") {
   // Quadrant-aware so the question matches the placement instead of always
   // asking the upper-right-quadrant question regardless of where the dot lands.
@@ -3878,7 +3888,26 @@ const donutPattern = analyzeDonutPattern(donutSegments, result);
 const donutPaths = buildDonutSvgPaths(donutSegments);
 const donutTotal = donutSegments.reduce((s, x) => s + Number(x.value || 0), 0);
 const dominantPct = donutPattern.hasSignal ? donutPattern.dominantPct : 0;
-const concentrationProse = buildConcentrationNarrative(donutPattern);
+const concentrationProse = (() => {
+  const dims = result?.dimensions || {};
+  const dimDefs = [
+    { key: "role_clarity", label: "role clarity" },
+    { key: "decision_rights_clarity", label: "decision rights clarity" },
+    { key: "handoff_clarity", label: "handoff integrity" },
+    { key: "accountability_clarity", label: "accountability clarity" },
+    { key: "duplicate_approvals_inverse", label: "governance proportionality" }
+  ];
+  const entries = dimDefs.filter(d => Number.isFinite(dims[d.key])).sort((a,b) => dims[a.key] - dims[b.key]);
+  if (entries.length < 2) return "Not enough clarity dimension signal was available for this run to characterize the distribution.";
+  const weakest = entries[0];
+  const weakestVal = Math.round(dims[weakest.key]);
+  const secondVal = Math.round(dims[entries[1].key]);
+  const gap = secondVal - weakestVal;
+  if (gap >= 12) {
+    return `The clarity profile is concentrated rather than distributed. ${weakest.label.charAt(0).toUpperCase() + weakest.label.slice(1)} scores ${weakestVal} — meaningfully below the next-weakest dimension at ${secondVal}. This makes the condition more targetable: leadership can focus on the single weakest dimension and expect a real shift in overall legibility, rather than redesigning the whole structure.`;
+  }
+  return `The clarity profile is distributed rather than concentrated. The weakest dimensions cluster closely together (${weakestVal}–${secondVal}), which means legibility is softening across the structure rather than failing at one point. This pattern resists single-fix intervention; it usually indicates the structure needs broader redesign rather than a targeted repair of one dimension.`;
+})();
 const scDimDefs = [
   { key: "role_clarity", label: "Role clarity" },
   { key: "decision_rights_clarity", label: "Decision rights clarity" },
@@ -3887,15 +3916,33 @@ const scDimDefs = [
   { key: "duplicate_approvals_inverse", label: "Governance proportionality" }
 ];
 const scDimsData = result?.dimensions || {};
-const scDimBars = scDimDefs
+const scDimSorted = scDimDefs
   .filter(d => Number.isFinite(scDimsData[d.key]))
-  .sort((a,b) => scDimsData[a.key] - scDimsData[b.key])
-  .map(d => {
-    const v = Math.round(scDimsData[d.key]);
-    const band = v >= 82 ? "Clear" : v >= 66 ? "Softening" : v >= 48 ? "Ambiguous" : "Breakdown";
-    const color = v >= 66 ? "#3F6EA1" : v >= 48 ? "#C49A3C" : "#E05252";
-    return `<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:11px;color:#5B6774;margin-bottom:4px"><span>${d.label}</span><span style="color:${color}">${v} — ${band}</span></div><div style="height:7px;background:#E8ECF0;border-radius:3px;overflow:hidden"><div style="height:7px;width:${v}%;background:${color};border-radius:3px"></div></div></div>`;
-  }).join("") || `<p class="muted">Not enough clarity dimension signal was available for this run.</p>`;
+  .sort((a,b) => scDimsData[a.key] - scDimsData[b.key]);
+const scDimBars = scDimSorted.length
+  ? `<div style="margin-top:8px">` + scDimSorted.map((d, i) => {
+      const v = Math.round(scDimsData[d.key]);
+      const band = v >= 82 ? "Clear" : v >= 66 ? "Softening" : v >= 48 ? "Ambiguous" : "Breakdown";
+      const color = v >= 82 ? "#3F6EA1" : v >= 66 ? "#5B89B8" : v >= 48 ? "#C49A3C" : "#E05252";
+      const chipBg = v >= 82 ? "#EAF0F7" : v >= 66 ? "#EEF3F9" : v >= 48 ? "#FBF4E6" : "#FBEAEA";
+      const weakest = i === 0 ? `<span style="font-size:9px;letter-spacing:.08em;color:#9AA7B4;text-transform:uppercase;margin-left:8px">Weakest</span>` : "";
+      return `<div style="margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px">
+          <div style="font-size:12.5px;color:#2A3542;font-weight:600">${d.label}${weakest}</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:17px;font-weight:700;color:${color};line-height:1">${v}</span>
+            <span style="font-size:9.5px;letter-spacing:.04em;color:${color};background:${chipBg};padding:2px 8px;border-radius:10px;text-transform:uppercase;font-weight:600">${band}</span>
+          </div>
+        </div>
+        <div style="position:relative;height:9px;background:#EDF1F5;border-radius:5px;overflow:hidden">
+          <div style="position:absolute;left:48%;top:0;bottom:0;width:1px;background:#D2DAE2"></div>
+          <div style="position:absolute;left:66%;top:0;bottom:0;width:1px;background:#D2DAE2"></div>
+          <div style="position:absolute;left:82%;top:0;bottom:0;width:1px;background:#D2DAE2"></div>
+          <div style="height:9px;width:${v}%;background:${color};border-radius:5px"></div>
+        </div>
+      </div>`;
+    }).join("") + `<div style="display:flex;justify-content:space-between;font-size:8.5px;color:#AEB8C2;letter-spacing:.05em;text-transform:uppercase;margin-top:-6px;padding:0 1px"><span>Breakdown</span><span>Ambiguous</span><span>Softening</span><span>Clear</span></div></div>`
+  : `<p class="muted">Not enough clarity dimension signal was available for this run.</p>`;
 const trajectoryDirection = result?.trajectory?.direction || "flat";
 const trajectoryProse = buildTrajectoryNarrative(trajectoryDirection);
 const nextRunBullets = buildNextRunRecommendation(result, payload, industry, processName);
@@ -4200,7 +4247,7 @@ return `<!doctype html>
   </div>
   <div class="cover-stripe"></div>
   <div class="cover-white">
-    <p class="cover-kicker">Diagnostic Output &nbsp;/&nbsp; Decision Velocity</p>
+    <p class="cover-kicker">Diagnostic Output &nbsp;/&nbsp; Structural Clarity</p>
     <div class="cover-workflow">${safe(processName)}</div>
     <div class="cover-meta-line">${safe(sectorMeta)} · ${safe(levelMeta)}</div>
     <div class="cover-date-line">${safe(generated)}</div>
@@ -4279,7 +4326,7 @@ return `<!doctype html>
     <p class="eyebrow">Where clarity is breaking down</p><h2>Clarity dimension breakdown</h2>
     <p>The clarity dimension view shows where structural legibility is weakest across the five dimensions Monderman measures: role clarity, decision rights clarity, handoff integrity, accountability clarity, and governance proportionality. Lower scores indicate where the structure is least readable and most likely to require informal compensation.</p><p class="muted">The important signal is not only which dimension is lowest. The distribution also matters. A concentrated pattern points to a targeted legibility fix; a distributed pattern usually means structural redesign is needed across multiple dimensions.</p>
     <div class="panel" style="padding:16px">${scDimBars}</div>
-    <h3 style="margin-top:24px">What the composition tells us</h3>
+    <h3 style="margin-top:24px">What the clarity profile tells us</h3>
     <p>${safeWords(concentrationProse, 76)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(compositionQuestion)}</p></div>
     <div class="card-row"><div class="mini-card"><b>Concentrated constraint</b><p>One clarity dimension clearly dominates. Targeted legibility fix has high yield.</p></div><div class="mini-card"><b>Distributed constraint</b><p>No single dimension dominates. Structural redesign likely needed across multiple dimensions.</p></div></div>
