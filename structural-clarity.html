@@ -2885,21 +2885,9 @@ return DiagnosticInterpretationLayer.estimateReclaimPotential(result, payload ||
 }
 
 function buildQuadrantInterpretation(result) {
-// Passthrough — backend scoreOperationalSystems.js writes
-// result.quadrant_interpretation_text based on (score band × quadrant key).
-// The proprietary cell-by-cell prose used to live here; migrated to backend
-// on 2026-05-13.
-if (result?.quadrant_interpretation_text) return result.quadrant_interpretation_text;
-// SC-specific quadrant interpretation from legibility × governance
-const dims = result?.dimensions || {};
-const legib = Number(result?.score ?? 50);
-const govInv = Number(dims.duplicate_approvals_inverse ?? 50);
-const heavyGov = govInv < 50; // low inverse = heavy governance
-const lowLegib = legib < 66;
-if (lowLegib && heavyGov) return "This structure sits in the most expensive quadrant: low legibility under heavy governance weight. The review and approval architecture is consuming effort without producing the clarity that would let people act on the structure directly. Governance is compensating for ambiguity rather than resolving it.";
-if (lowLegib && !heavyGov) return "This structure shows low legibility with relatively light governance. The ambiguity is structural rather than process-driven — people are inferring ownership, authority, and handoffs because the design does not make them readable, not because review layers are in the way.";
-if (!lowLegib && heavyGov) return "This structure is reasonably legible but carries heavy governance weight. The clarity is real, but it may be coming at the cost of more review and approval layering than the underlying risk warrants. The opportunity is to preserve legibility while reducing governance drag.";
-return "This structure sits in the healthiest quadrant: legible enough to act on directly, with governance weight proportionate to the work. The priority is stewardship — protecting this clarity as the structure changes rather than allowing drift to accumulate.";
+// Passthrough — backend scoreStructuralClarity.js writes
+// result.quadrant_interpretation_text from (legibility × governance).
+return result?.quadrant_interpretation_text || "Quadrant interpretation will appear once the run is scored.";
 }
 
 function contradictionClass(item) {
@@ -3852,7 +3840,7 @@ if (section === "quadrant") {
   if (qk === "lower_right") return "Is the weight of oversight now eating the capacity that should be producing results?";
   return "Is the team getting its speed from hidden manager effort, or is governance heavier than it needs to be?";
 }
-if (section === "remedy") return qualitative.type === "bypass_control_risk" ? "Is leadership trying to preserve formal control, or restore control that has already drifted into informal practice?" : "Is leadership trying to preserve control, reclaim capacity, or realign the formal path with operating reality?";
+if (section === "remedy") return qualitative.type === "bypass_control_risk" ? "Is leadership trying to preserve formal control, or restore control that has already drifted into informal practice?" : "Is leadership trying to preserve control, reclaim capacity, or realign the formal structure with how the work actually runs?";
 if (qualitative.type === "bypass_control_risk") return "Does the documented process still describe the process people actually use?";
 return "What does leadership need to admit about how this really works before a fix will stick?";
 }
