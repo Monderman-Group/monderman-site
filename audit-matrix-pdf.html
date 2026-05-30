@@ -45,7 +45,7 @@
 </head>
 <body>
 <header>
-  <h1>Monderman · Fixture-Matrix PDF Audit <span style="font-size:11px;color:#6FD3A0;font-weight:400">BUILD v2 · varied-inputs+cost+notes</span></h1>
+  <h1>Monderman · Fixture-Matrix PDF Audit <span style="font-size:11px;color:#6FD3A0;font-weight:400">BUILD v3 · id-mapped ratings</span></h1>
   <p>For each fixture: drives the live API to produce a real diagnostic run, injects the result into the production page via <code>srcdoc</code> (same-origin from anywhere — works locally), scrapes the rendered web output + the executive-report PDF source, runs standard + diagnostic-specific QC, and lets you download the real PDF on demand to feed into a review chat.</p>
 </header>
 
@@ -98,6 +98,17 @@ const BANNED = ["operating reality","legibility cost","structural noise","compen
 
 /* ───────── real, valence-correct answer maps (IP + SC built this session) ───────── */
 const IP_RATING_FIELDS = ["leadershipClarity","followthroughStrength","adaptationCapacity","confidenceInSystem","performanceConsistency","issueResolutionPower"];
+// Item id -> scorerField, from the IP routing config. The API's sanitizeNextItem
+// historically did NOT send scorerField, so we resolve the field from the stable id.
+const IP_ID_FIELD = {
+  ip_g1_assessment_scope:"assessmentScope", ip_g2_operating_condition:"operatingCondition",
+  ip_d1_leadership_clarity:"leadershipClarity", ip_d2_followthrough:"followthroughStrength",
+  ip_d3_issue_resolution:"issueResolutionPower", ip_d4_confidence:"confidenceInSystem",
+  ip_d5_adaptation:"adaptationCapacity", ip_d6_stability:"performanceConsistency",
+  ip_s1_signal_profile:"signalProfile", ip_d7_compensation:"compensationDependence",
+  ip_d8_management_lift:"managementLift", ip_d9_continuity:"leadershipContinuity",
+  ip_n1_people_impacted:"peopleImpacted", ip_n2_annual_cycles:"annualCycles", ip_n3_hourly_cost:"hourlyCost"
+};
 function ipAnswers(profile){
   // VARIED per-dimension ratings (not all-same) so the report shows a real weakest
   // dimension and a distributed/concentrated profile, plus realistic cost inputs
@@ -169,7 +180,7 @@ function pickAnswerValue(fx, item){
   // IP: use the real answer map
   if(key==="ip"){
     const a = ipAnswers(prof);
-    const field = (item.scorerField)||"";
+    const field = item.scorerField || IP_ID_FIELD[item.id] || "";
     if(qt==="multi_select" || field==="signalProfile"){
       // return array of signal tokens that exist in options
       const want = new Set(a.signals);
