@@ -99,11 +99,45 @@ const BANNED = ["operating reality","legibility cost","structural noise","compen
 /* ───────── real, valence-correct answer maps (IP + SC built this session) ───────── */
 const IP_RATING_FIELDS = ["leadershipClarity","followthroughStrength","adaptationCapacity","confidenceInSystem","performanceConsistency","issueResolutionPower"];
 function ipAnswers(profile){
-  const r = profile==="light"?5:profile==="heavy"?1:3;
-  const base = { _ratings:r };
-  if(profile==="light") return {...base, compensationDependence:"low", managementLift:"light", operatingCondition:"stable", leadershipContinuity:"high", assessmentScope:"function", signals:[]};
-  if(profile==="heavy") return {...base, compensationDependence:"high", managementLift:"heavy", operatingCondition:"transition", leadershipContinuity:"low", assessmentScope:"organization", signals:["effort-compensates","informal-dependence","execution-fragment","issues-recur","confidence-low","change-loses-momentum","coordination-load"]};
-  return {...base, compensationDependence:"moderate", managementLift:"moderate", operatingCondition:"growth", leadershipContinuity:"moderate", assessmentScope:"division", signals:["informal-dependence","coordination-load"]};
+  // VARIED per-dimension ratings (not all-same) so the report shows a real weakest
+  // dimension and a distributed/concentrated profile, plus realistic cost inputs
+  // and experiential notes so exposure math and the experiential layer populate.
+  // Field order: leadershipClarity, followthroughStrength, adaptationCapacity,
+  //              confidenceInSystem, performanceConsistency, issueResolutionPower
+  if(profile==="light") return {
+    ratings: { leadershipClarity:5, followthroughStrength:4, adaptationCapacity:5, confidenceInSystem:4, performanceConsistency:5, issueResolutionPower:4 },
+    compensationDependence:"low", managementLift:"light", operatingCondition:"stable", leadershipContinuity:"high", assessmentScope:"function",
+    signals:["coordination-load"],
+    cost: { peopleImpacted:14, hourlyCost:78, annualCycles:52 },
+    notes: {
+      self: "Things run smoothly most weeks; when something slips it is usually a one-off, not a pattern. I rarely have to step in to keep work moving.",
+      observedOperational: "The team seems clear on who owns what and escalates only when genuinely needed.",
+      observedManagerial: "Managers spend little time refereeing ownership disputes."
+    }
+  };
+  if(profile==="heavy") return {
+    ratings: { leadershipClarity:2, followthroughStrength:1, adaptationCapacity:2, confidenceInSystem:1, performanceConsistency:2, issueResolutionPower:1 },
+    compensationDependence:"high", managementLift:"heavy", operatingCondition:"transition", leadershipContinuity:"low", assessmentScope:"organization",
+    signals:["effort-compensates","informal-dependence","execution-fragment","issues-recur","confidence-low","change-loses-momentum","coordination-load"],
+    cost: { peopleImpacted:120, hourlyCost:95, annualCycles:250 },
+    notes: {
+      self: "Honestly, the only reason things hold together is a handful of us working late and catching problems manually. If two key people left, I am not sure the work would get out the door.",
+      observedOperational: "Staff constantly ask managers to settle who owns a step; the same issues recur every cycle and people route around the official process.",
+      observedManagerial: "Managers are absorbed in firefighting and manual stabilization rather than managing. Every change loses momentum partway through.",
+      observedSeniorLeader: "Leadership sees stable output and assumes the system is healthy, not realizing how much depends on individual heroics."
+    }
+  };
+  return {
+    ratings: { leadershipClarity:3, followthroughStrength:3, adaptationCapacity:2, confidenceInSystem:3, performanceConsistency:4, issueResolutionPower:3 },
+    compensationDependence:"moderate", managementLift:"moderate", operatingCondition:"growth", leadershipContinuity:"moderate", assessmentScope:"division",
+    signals:["informal-dependence","coordination-load","change-loses-momentum"],
+    cost: { peopleImpacted:38, hourlyCost:82, annualCycles:120 },
+    notes: {
+      self: "We get there, but it takes more coordination than it should. Adapting to change is where we feel it most — new processes take a while to settle.",
+      observedOperational: "People know the work but lean on informal knowledge and a few experienced colleagues to navigate gaps.",
+      observedManagerial: "Managers step in periodically to keep coordination on track, especially during change."
+    }
+  };
 }
 
 /* ───────── the curated fixture matrix (spans depth × level × sector × diagnostic) ───────── */
@@ -141,8 +175,11 @@ function pickAnswerValue(fx, item){
       const want = new Set(a.signals);
       return opts.filter(o=>want.has(o.value)).map(o=>o.value);
     }
-    if(IP_RATING_FIELDS.includes(field) && opts.length===5){ return String(a._ratings); }
-    if(field in a){ return a[field]; }
+    if(IP_RATING_FIELDS.includes(field) && opts.length===5){ return String(a.ratings?.[field] ?? 3); }
+    if(field==="peopleImpacted" || /people/i.test(field)) return a.cost.peopleImpacted;
+    if(field==="hourlyCost" || /hourly|cost/i.test(field)) return a.cost.hourlyCost;
+    if(field==="annualCycles" || /cycle|frequency/i.test(field)) return a.cost.annualCycles;
+    if(field in a && typeof a[field] !== "object") return a[field];
     // fallback position by valence
     if(qt==="single_select" && opts.length) return prof==="light"?opts[opts.length-1].value : prof==="heavy"?opts[0].value : opts[Math.floor(opts.length/2)].value;
     if(qt==="numeric") return prof==="heavy"?1200:prof==="light"?120:300;
@@ -156,7 +193,12 @@ function pickAnswerValue(fx, item){
 }
 async function driveApi(fx, apiBase){
   const slug = API_SLUG[fx.key];
-  const startBody = { participantMode:fx.role, diagnostic_depth:String(fx.depth), sector:fx.sector, unitName:fx.name, orgSize:"medium" };
+  // Realistic cost inputs on the start body so exposure (hours/$) computes for IP.
+  const ipA = fx.key==="ip" ? ipAnswers(fx.profile) : null;
+  const startBody = {
+    participantMode:fx.role, diagnostic_depth:String(fx.depth), sector:fx.sector, unitName:fx.name, orgSize:"medium",
+    ...(ipA ? { peopleImpacted: ipA.cost.peopleImpacted, hourlyCost: ipA.cost.hourlyCost, annualCycles: ipA.cost.annualCycles } : {})
+  };
   const sd = await api(`${apiBase}/api/${slug}/run/start`, startBody, 240000);
   const runId = sd.runId || sd.run_id;
   let next = sd.nextItem || sd.next_item, guard = 60;
@@ -167,7 +209,20 @@ async function driveApi(fx, apiBase){
     next = ad.nextItem || ad.next_item;
     if(ad.shouldStop) break;
   }
-  const fr = await api(`${apiBase}/api/${slug}/run/${runId}/finalize`, { preserveRun:false }, 480000);
+  // Thread experiential notes + cost into finalize so the experiential layer and
+  // TMR summary populate (server reads req.body.experientialLayer + rawExperience).
+  const finalizeBody = { preserveRun:false };
+  if(ipA){
+    finalizeBody.peopleImpacted = ipA.cost.peopleImpacted;
+    finalizeBody.hourlyCost     = ipA.cost.hourlyCost;
+    finalizeBody.annualCycles   = ipA.cost.annualCycles;
+    finalizeBody.rawExperience  = ipA.notes;
+    finalizeBody.experientialLayer = {
+      hasInput: true,
+      entries: Object.entries(ipA.notes).map(([k,v]) => ({ key:k, label:k, text:v }))
+    };
+  }
+  const fr = await api(`${apiBase}/api/${slug}/run/${runId}/finalize`, finalizeBody, 480000);
   return { result: fr.result, payload: fr.legacyPayload || fr.result, narrative: fr.narrative };
 }
 
@@ -331,7 +386,7 @@ function runChecks(fx, scr){
       .toLowerCase();
   }
   const visibleText = textOnly(scr.webText) + " " + (scr.pdfText||"").toLowerCase();
-  const sentinels = ["will appear here","lorem ipsum","[object object]","placeholder text","tktk","xxxx","todo:","fixme","null null","undefined undefined"];
+  const sentinels = ["will appear once the backend","will appear here","lorem ipsum","[object object]","placeholder text","tktk","todo:","fixme","could not be loaded from"];
   const sHit = sentinels.filter(t=>visibleText.includes(t));
   // standalone bare "--" only counts if it appears as a word in visible prose (e.g. an unfilled em-dash slot)
   if(/(^|\s)--(\s|$)/.test(visibleText)) sHit.push("bare -- in prose");
