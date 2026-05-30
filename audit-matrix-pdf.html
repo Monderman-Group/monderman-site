@@ -253,9 +253,22 @@ function runChecks(fx, scr){
   const bannedHit = BANNED.filter(t=>blob.includes(t)).filter(t=>!(t==="operating reality"&&blob.includes("lived operating reality")));
   add("No banned terms", bannedHit.length?"fail":"pass", bannedHit.length?bannedHit.join(", "):"clean");
 
-  // sentinels / placeholders
-  const sentinels = ["will appear here","lorem ipsum","undefined","null,null","[object object]","--","placeholder"];
-  const sHit = sentinels.filter(t=>blob.includes(t));
+  // sentinels / placeholders — scan VISIBLE TEXT only (strip tags/style/script so CSS like
+  // "--accent" and inline styles never false-trigger), and use precise placeholder phrases.
+  function textOnly(htmlStr){
+    return String(htmlStr||"")
+      .replace(/<style[\s\S]*?<\/style>/gi," ")
+      .replace(/<script[\s\S]*?<\/script>/gi," ")
+      .replace(/<[^>]+>/g," ")
+      .replace(/&[a-z]+;/gi," ")
+      .replace(/\s+/g," ")
+      .toLowerCase();
+  }
+  const visibleText = textOnly(scr.webText) + " " + textOnly(scr.pdfHtml);
+  const sentinels = ["will appear here","lorem ipsum","[object object]","placeholder text","tktk","xxxx","todo:","fixme","null null","undefined undefined"];
+  const sHit = sentinels.filter(t=>visibleText.includes(t));
+  // standalone bare "--" only counts if it appears as a word in visible prose (e.g. an unfilled em-dash slot)
+  if(/(^|\s)--(\s|$)/.test(visibleText)) sHit.push("bare -- in prose");
   add("No placeholders/sentinels reach output", sHit.length?"fail":"pass", sHit.length?sHit.slice(0,3).join(", "):"clean");
 
   // IP-specific
