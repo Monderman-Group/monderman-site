@@ -220,6 +220,26 @@ async function renderAndScrape(fx, result, payload){
     // you can see whether it's a wrong URL, a redirect/login, or an interstitial.
     throw new Error(`Fetched ${url} but the response does not contain the expected page markers (injection hook / resultsStage / beginBtn). Got ${html.length} chars. Check the URL is correct and reachable from where this harness is served. First 140 chars: ${html.slice(0,140).replace(/\s+/g," ")}`);
   }
+  // Defensive sanitize: the production page does path.actions.map(...) on
+  // result.interpretive_prose.remedy_paths and crashes if any path lacks actions.
+  // Guarantee every remedy path has actions[] + kicker before injecting, so a
+  // backend that omits them can never abort the render.
+  try {
+    const rp = result && result.interpretive_prose && result.interpretive_prose.remedy_paths;
+    if (Array.isArray(rp)) {
+      const KICK = ["Low disruption","Targeted redesign","Fastest structural reset"];
+      result.interpretive_prose.remedy_paths = rp.map((p, i) => ({
+        kicker:  (p && p.kicker) || KICK[i] || "Remedy path",
+        label:   (p && p.label) || ("Remedy path " + (i+1)),
+        summary: (p && p.summary) || "",
+        actions: Array.isArray(p && p.actions) ? p.actions
+                 : (p && typeof p.actions === "string" && p.actions.trim() ? [p.actions.trim()] : []),
+        benefit: (p && p.benefit) || "",
+        risk:    (p && p.risk) || ""
+      }));
+    }
+  } catch (e) { console.warn("remedy_paths sanitize skipped:", e && e.message); }
+
   const inj = '<'+'script>window.__mondermanInjectedResult = ' +
               JSON.stringify({result, payload}).replace(/<\/script>/gi,"<\\/script>") +
               ';</'+'script>';
