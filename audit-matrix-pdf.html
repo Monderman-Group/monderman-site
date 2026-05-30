@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Monderman · Fixture-Matrix PDF Audit</title>
 <!-- jsPDF for real downloadable PDFs (matches the proven audit harnesses) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>if(window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";</script>
 <style>
   :root{--ink:#15202B;--soft:#5B6774;--line:rgba(21,32,43,.12);--accent:#3F6EA1;--good:#16804A;--bad:#B8505E;--warn:#B07A20;--bg:#F4F6F8;}
   *{box-sizing:border-box;}
@@ -170,6 +171,41 @@ async function driveApi(fx, apiBase){
   return { result: fr.result, payload: fr.legacyPayload || fr.result, narrative: fr.narrative };
 }
 
+/* ───────── REAL PDF capture (click page's own button + hook createObjectURL) ───────── */
+function capturePdfBlob(win, downloadBtn){
+  return new Promise((resolve, reject)=>{
+    let captured=false, observedFilename=null;
+    const to=setTimeout(()=>{ if(!captured){ restore(); reject(new Error("PDF capture timeout (90s)")); } }, 90000);
+    const origCOU = win.URL.createObjectURL.bind(win.URL);
+    const origClick = win.HTMLAnchorElement.prototype.click;
+    function restore(){ try{win.URL.createObjectURL=origCOU;}catch(_){ } try{win.HTMLAnchorElement.prototype.click=origClick;}catch(_){ } }
+    win.URL.createObjectURL = function(b){
+      if(!captured && b instanceof win.Blob && (b.type==="application/pdf"||b.type==="") && b.size>=5000){
+        captured=true; clearTimeout(to); restore();
+        setTimeout(()=>resolve({ blob:b, filename:observedFilename||"report.pdf" }),0);
+      }
+      return origCOU(b);
+    };
+    win.HTMLAnchorElement.prototype.click = function(){
+      try{ if(this.download && /\.pdf$/i.test(this.download)) observedFilename=this.download; }catch(_){ }
+      return origClick.call(this);
+    };
+    downloadBtn.click();
+  });
+}
+async function parsePdf(blob){
+  const ab = await blob.arrayBuffer();
+  const pdf = await window.pdfjsLib.getDocument({ data: ab }).promise;
+  const pages=[];
+  for(let i=1;i<=pdf.numPages;i++){
+    const page=await pdf.getPage(i);
+    const vp=page.getViewport({scale:1});
+    const tc=await page.getTextContent();
+    pages.push({ pageNum:i, width:vp.width, height:vp.height, text:tc.items.map(it=>it.str).join(" ") });
+  }
+  return { numPages:pdf.numPages, pages };
+}
+
 /* ───────── inject result into the live page via srcdoc, scrape web + PDF source ───────── */
 async function renderAndScrape(fx, result, payload){
   const url = ($("url_"+fx.key) && $("url_"+fx.key).value.trim()) || (PAGE_FILE[fx.key]);
@@ -204,13 +240,23 @@ async function renderAndScrape(fx, result, payload){
         const trueResult = hooks?.getResult ? hooks.getResult() : result;
         const resultsStage = win.document.getElementById("resultsStage");
         const webText = resultsStage ? (resultsStage.innerText||resultsStage.textContent||"") : "";
-        let pdfHtml = null;
-        if(hooks && typeof hooks.buildExecutiveReportHtml==="function"){
-          try{ pdfHtml = hooks.buildExecutiveReportHtml(trueResult, payload); }catch(e){ console.warn("buildExecutiveReportHtml threw", e); }
+
+        // Capture the REAL PDF: click the page's own #downloadPdfBtn and intercept the
+        // blob via URL.createObjectURL (proven method from the prior audit harnesses).
+        let pdfBlob = null, pdfFilename = null, pdfText = "";
+        const dlBtn = win.document.getElementById("downloadPdfBtn");
+        if(dlBtn){
+          try{
+            const cap = await capturePdfBlob(win, dlBtn);
+            pdfBlob = cap.blob; pdfFilename = cap.filename;
+            const parsed = await parsePdf(pdfBlob);
+            pdfText = parsed.pages.map(p=>p.text).join("\n");
+            pdfBlob._numPages = parsed.numPages;
+          }catch(e){ console.warn("PDF capture/parse failed:", e.message); }
         }
         clearTimeout(timer);
         frame.removeEventListener("load", onLoad);
-        resolve({ trueResult, webText, pdfHtml });
+        resolve({ trueResult, webText, pdfBlob, pdfFilename, pdfText });
       }catch(err){ clearTimeout(timer); frame.removeEventListener("load", onLoad); reject(err); }
     };
     frame.addEventListener("load", onLoad);
@@ -225,12 +271,12 @@ function runChecks(fx, scr){
   const add=(name,status,val="")=>checks.push({name,status,val});
   const result = scr.trueResult||{};
   const web = (scr.webText||"").toLowerCase();
-  const pdf = (scr.pdfHtml||"").toLowerCase();
+  const pdf = (scr.pdfText||"").toLowerCase();
   const blob = web + " " + pdf;
 
   // render presence
   add("Web output rendered (non-trivial)", scr.webText && scr.webText.length>200 ? "pass":"fail", `${scr.webText?scr.webText.length:0} chars`);
-  add("PDF source built", scr.pdfHtml && scr.pdfHtml.length>500 ? "pass":"fail", `${scr.pdfHtml?scr.pdfHtml.length:0} chars`);
+  add("Real PDF captured & parsed", scr.pdfBlob ? "pass":"fail", scr.pdfBlob ? `${(scr.pdfBlob.size/1024|0)}KB · ${scr.pdfBlob._numPages||"?"} pages` : "no PDF captured");
 
   // score sanity
   const score = Number(result.score);
@@ -264,7 +310,7 @@ function runChecks(fx, scr){
       .replace(/\s+/g," ")
       .toLowerCase();
   }
-  const visibleText = textOnly(scr.webText) + " " + textOnly(scr.pdfHtml);
+  const visibleText = textOnly(scr.webText) + " " + (scr.pdfText||"").toLowerCase();
   const sentinels = ["will appear here","lorem ipsum","[object object]","placeholder text","tktk","xxxx","todo:","fixme","null null","undefined undefined"];
   const sHit = sentinels.filter(t=>visibleText.includes(t));
   // standalone bare "--" only counts if it appears as a word in visible prose (e.g. an unfilled em-dash slot)
@@ -291,35 +337,12 @@ function runChecks(fx, scr){
 }
 
 /* ───────── PDF download on demand (real jsPDF file) ───────── */
-function downloadPdf(fx, pdfHtml){
-  if(!pdfHtml){ alert("No PDF source captured for this fixture."); return; }
-  // Render the report HTML into the hidden frame, then jsPDF.html() → save.
-  const { jsPDF } = window.jspdf;
-  const tmp = document.createElement("iframe");
-  tmp.style.cssText="position:absolute;left:-9999px;top:0;width:900px;height:1200px;border:0;";
-  document.body.appendChild(tmp);
-  tmp.srcdoc = pdfHtml;
-  tmp.addEventListener("load", ()=>{
-    setTimeout(()=>{
-      try{
-        const doc = new jsPDF({unit:"pt",format:"letter"});
-        doc.html(tmp.contentDocument.body, {
-          callback:(d)=>{ d.save(`monderman-${fx.key}-${fx.profile}-${fx.depth}min.pdf`); document.body.removeChild(tmp); },
-          x:24, y:24, width:540, windowWidth:900
-        });
-      }catch(e){ alert("PDF generation error: "+e.message); document.body.removeChild(tmp); }
-    }, 800);
-  });
-}
-
-/* ───────── download PDF SOURCE as .html (lighter alternative, always works) ───────── */
-function downloadHtml(fx, pdfHtml){
-  if(!pdfHtml){ alert("No PDF source captured."); return; }
-  const blob = new Blob([pdfHtml], {type:"text/html"});
+function downloadPdf(fx, blob, filename){
+  if(!blob){ alert("No PDF was captured for this fixture (run it first, and ensure it completed)."); return; }
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = `monderman-${fx.key}-${fx.profile}-${fx.depth}min-report.html`;
-  a.click();
+  a.download = filename || `monderman-${fx.key}-${fx.profile}-${fx.depth}min.pdf`;
+  document.body.appendChild(a); a.click(); a.remove();
 }
 
 /* ───────── UI ───────── */
@@ -335,18 +358,16 @@ function renderFixtures(){
       <div class="fx-body" id="body${i}">
         <div id="checks${i}"></div>
         <div class="dlrow">
-          <button class="btn-mini" onclick="window._dlPdf(${i})">Download PDF</button>
-          <button class="btn-mini" onclick="window._dlHtml(${i})">Download report HTML</button>
+          <button class="btn-mini" onclick="window._dlPdf(${i})">Download the real PDF</button>
         </div>
         <h4 class="sec">Scraped web output</h4>
         <div class="scrape" id="web${i}">—</div>
-        <h4 class="sec">PDF source (prose)</h4>
+        <h4 class="sec">Real PDF text (extracted)</h4>
         <div class="scrape" id="pdf${i}">—</div>
       </div>
     </div>`).join("");
 }
-window._dlPdf = i => { const s=STORE[i]; downloadPdf(FIXTURES[i], s?.scr?.pdfHtml); };
-window._dlHtml = i => { const s=STORE[i]; downloadHtml(FIXTURES[i], s?.scr?.pdfHtml); };
+window._dlPdf = i => { const s=STORE[i]; downloadPdf(FIXTURES[i], s?.scr?.pdfBlob, s?.scr?.pdfFilename); };
 
 function paintChecks(i, res){
   $("checks"+i).innerHTML = res.checks.map(c=>
@@ -366,7 +387,7 @@ async function runOne(i, apiBase){
     STORE[i] = { scr, res };
     paintChecks(i, res);
     $("web"+i).textContent = scr.webText ? scr.webText.slice(0,1500) : "(empty)";
-    $("pdf"+i).textContent = scr.pdfHtml ? scr.pdfHtml.replace(/<[^>]+>/g," ").replace(/\s+/g," ").slice(0,1500) : "(no PDF source)";
+    $("pdf"+i).textContent = scr.pdfText ? scr.pdfText.replace(/\s+/g," ").slice(0,1500) : "(no PDF captured)";
     setPill(i, res.fails?`${res.fails} fail`:res.warns?`pass · ${res.warns} warn`:"all pass", res.fails?"fail":"pass");
     return res.fails===0;
   }catch(e){
