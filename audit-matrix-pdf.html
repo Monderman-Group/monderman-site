@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monderman · Fixture-Matrix PDF Audit</title>
+<!-- jsPDF for real downloadable PDFs (matches the proven audit harnesses) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{--ink:#15202B;--soft:#5B6774;--line:rgba(21,32,43,.12);--accent:#3F6EA1;--good:#16804A;--bad:#B8505E;--warn:#B07A20;--bg:#F4F6F8;}
+  *{box-sizing:border-box;}
+  body{margin:0;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--bg);}
+  header{padding:14px 20px;background:#0F1720;color:#fff;}
+  header h1{margin:0;font-size:16px;font-weight:600;}
+  header p{margin:4px 0 0;font-size:12px;color:#9FB1C2;max-width:900px;}
+  .bar{padding:12px 20px;background:#fff;border-bottom:1px solid var(--line);display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  label.fld{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:600;color:var(--soft);text-transform:uppercase;letter-spacing:.04em;}
+  select,input[type=text]{font:13px inherit;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);}
+  button{font:600 13px inherit;padding:8px 14px;border:0;border-radius:8px;cursor:pointer;}
+  .btn-go{background:var(--accent);color:#fff;} .btn-go:disabled{opacity:.5;cursor:not-allowed;}
+  .btn-stop{background:#eceff2;color:var(--ink);}
+  .btn-mini{background:#eef2f6;color:var(--accent);padding:5px 10px;font-size:12px;}
+  main{padding:16px 20px;}
+  .fixture{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden;}
+  .fx-head{display:flex;align-items:center;gap:12px;padding:11px 14px;cursor:pointer;}
+  .fx-head:hover{background:#fafbfc;}
+  .fx-title{font-weight:600;font-size:13.5px;flex:1;}
+  .fx-meta{font-size:11.5px;color:var(--soft);}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap;}
+  .pill.idle{background:#eceff2;color:var(--soft);} .pill.run{background:#1d3a57;color:#8Fc0ef;}
+  .pill.pass{background:#16432F;color:#6FD3A0;} .pill.fail{background:#4A1F25;color:#F08C8C;} .pill.err{background:#3a1d22;color:#f0a0a0;}
+  .fx-body{display:none;padding:0 14px 14px;border-top:1px solid var(--line);}
+  .fx-body.open{display:block;}
+  .check-row{display:flex;justify-content:space-between;gap:8px;padding:5px 8px;border-radius:6px;font-size:12.5px;}
+  .check-row.pass{background:rgba(22,128,74,.07);} .check-row.fail{background:rgba(184,80,94,.08);} .check-row.warn{background:rgba(176,122,32,.09);}
+  .check-row .name{font-weight:600;} .check-row .val{color:var(--soft);text-align:right;max-width:55%;}
+  h4.sec{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--soft);margin:14px 0 6px;}
+  .scrape{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;background:#F8FAFC;border:1px solid var(--line);border-radius:8px;padding:8px 10px;white-space:pre-wrap;max-height:220px;overflow:auto;}
+  .dlrow{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  .note{font-size:11.5px;color:var(--soft);background:#F8FAFC;border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:0 20px 12px;}
+  .summary{font-size:12px;color:var(--soft);}
+  iframe#renderFrame{position:absolute;width:1100px;height:1400px;left:-9999px;top:0;border:0;}
+</style>
+</head>
+<body>
+<header>
+  <h1>Monderman · Fixture-Matrix PDF Audit</h1>
+  <p>For each fixture: drives the live API to produce a real diagnostic run, injects the result into the production page via <code>srcdoc</code> (same-origin from anywhere — works locally), scrapes the rendered web output + the executive-report PDF source, runs standard + diagnostic-specific QC, and lets you download the real PDF on demand to feed into a review chat.</p>
+</header>
+
+<div class="note">
+  <b>Deploy this file to your site</b> (same repo as the diagnostic pages) and open it by URL — the same way your earlier audit harnesses ran. Being served same-origin lets the plain page-fetch return your real page (and inherits your browser's session), and <code>srcdoc</code> injection keeps the iframe drivable. It needs network access to the API (<code>monderman-api.onrender.com</code>). The four page URLs are editable below.
+</div>
+
+<div class="bar">
+  <label class="fld">API base<input type="text" id="apiBase" value="https://monderman-api.onrender.com" style="width:260px"></label>
+  <label class="fld">&nbsp;<button class="btn-go" id="runAllBtn">Run all fixtures</button></label>
+  <label class="fld">&nbsp;<button class="btn-stop" id="stopBtn">Stop</button></label>
+  <label class="fld">&nbsp;<span id="status" class="summary"></span></label>
+</div>
+<div class="bar" style="border-top:0;padding-top:0;">
+  <label class="fld">IP page URL<input type="text" id="url_ip" value="https://www.monderman.com/institutional-performance.html" style="width:330px"></label>
+  <label class="fld">SC page URL<input type="text" id="url_sc" value="https://www.monderman.com/structural-clarity.html" style="width:330px"></label>
+  <label class="fld">DV page URL<input type="text" id="url_dv" value="https://www.monderman.com/decision-velocity.html" style="width:330px"></label>
+  <label class="fld">OS page URL<input type="text" id="url_os" value="https://www.monderman.com/operational-systems.html" style="width:330px"></label>
+</div>
+
+<main id="fixtures"></main>
+<iframe id="renderFrame" title="render"></iframe>
+
+<script>
+const $ = id => document.getElementById(id);
+const frame = $("renderFrame");
+let RUN = { abort:false };
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+
+/* ───────── page filenames (clean names as deployed) ───────── */
+const PAGE_FILE = {
+  ip: "institutional-performance.html",
+  sc: "structural-clarity.html",
+  dv: "decision-velocity.html",
+  os: "operational-systems.html"
+};
+const API_SLUG = {
+  ip: "institutional-performance", sc: "structural-clarity",
+  dv: "decision-velocity", os: "operational-systems"
+};
+
+/* ───────── lane / vocabulary dictionaries (for cross-bleed checks) ───────── */
+const LANES = {
+  sc:["structural legibility","legibility","legible","ownership ambiguity","authority gap","handoff integrity"],
+  dv:["decision velocity","approval density","cycle time","escalation dependence","key-person brittleness","serial approvals"],
+  os:["process density","systems friction","reporting burden","control load","administrative upkeep","workaround dependence"],
+  ip:["execution coherence","decision reliability","institutional confidence","adaptive capacity","performance stability","compensatory dependence","management lift","institutional condition"]
+};
+const BANNED = ["operating reality","legibility cost","structural noise","compensatory behavior","normalized middle","maneuverability","steady-state burden","diffusing across too many nodes"];
+
+/* ───────── real, valence-correct answer maps (IP + SC built this session) ───────── */
+const IP_RATING_FIELDS = ["leadershipClarity","followthroughStrength","adaptationCapacity","confidenceInSystem","performanceConsistency","issueResolutionPower"];
+function ipAnswers(profile){
+  const r = profile==="light"?5:profile==="heavy"?1:3;
+  const base = { _ratings:r };
+  if(profile==="light") return {...base, compensationDependence:"low", managementLift:"light", operatingCondition:"stable", leadershipContinuity:"high", assessmentScope:"function", signals:[]};
+  if(profile==="heavy") return {...base, compensationDependence:"high", managementLift:"heavy", operatingCondition:"transition", leadershipContinuity:"low", assessmentScope:"organization", signals:["effort-compensates","informal-dependence","execution-fragment","issues-recur","confidence-low","change-loses-momentum","coordination-load"]};
+  return {...base, compensationDependence:"moderate", managementLift:"moderate", operatingCondition:"growth", leadershipContinuity:"moderate", assessmentScope:"division", signals:["informal-dependence","coordination-load"]};
+}
+
+/* ───────── the curated fixture matrix (spans depth × level × sector × diagnostic) ───────── */
+const FIXTURES = [
+  { key:"ip", profile:"light",    role:"managerial",    depth:30, sector:"technology_software",        name:"Platform reliability program" },
+  { key:"ip", profile:"moderate", role:"operational",   depth:10, sector:"healthcare_life_sciences",   name:"Clinical intake operations" },
+  { key:"ip", profile:"heavy",    role:"senior_leader", depth:60, sector:"government_defense",         name:"Mission support directorate" },
+  { key:"sc", profile:"moderate", role:"managerial",    depth:30, sector:"financial_services",         name:"Credit exception ownership" },
+  { key:"sc", profile:"heavy",    role:"operational",   depth:10, sector:"manufacturing_industrial",   name:"Line changeover authority" },
+  { key:"dv", profile:"moderate", role:"senior_leader", depth:60, sector:"professional_services",      name:"Engagement staffing decisions" },
+  { key:"dv", profile:"heavy",    role:"managerial",    depth:30, sector:"technology_software",        name:"Release approval pathway" },
+  { key:"os", profile:"moderate", role:"operational",   depth:10, sector:"healthcare_life_sciences",   name:"Patient records workflow" },
+  { key:"os", profile:"heavy",    role:"senior_leader", depth:60, sector:"government_defense",         name:"Acquisition reporting load" }
+];
+
+/* ───────── API drive: produce a real result + payload ───────── */
+function fetchTimeout(url, opts, ms){
+  return Promise.race([ fetch(url, opts), new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")), ms)) ]);
+}
+async function api(url, body, ms){
+  const r = await fetchTimeout(url, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body) }, ms);
+  const d = await r.json().catch(()=>null);
+  if(!r.ok || !d) throw new Error(`${url.split("/api/")[1]} → ${r.status} ${d?.error||""}`);
+  return d;
+}
+function pickAnswerValue(fx, item){
+  const key = fx.key, prof = fx.profile;
+  const qt = item.questionType, id = item.id, opts = item.options||[];
+  // IP: use the real answer map
+  if(key==="ip"){
+    const a = ipAnswers(prof);
+    const field = (item.scorerField)||"";
+    if(qt==="multi_select" || field==="signalProfile"){
+      // return array of signal tokens that exist in options
+      const want = new Set(a.signals);
+      return opts.filter(o=>want.has(o.value)).map(o=>o.value);
+    }
+    if(IP_RATING_FIELDS.includes(field) && opts.length===5){ return String(a._ratings); }
+    if(field in a){ return a[field]; }
+    // fallback position by valence
+    if(qt==="single_select" && opts.length) return prof==="light"?opts[opts.length-1].value : prof==="heavy"?opts[0].value : opts[Math.floor(opts.length/2)].value;
+    if(qt==="numeric") return prof==="heavy"?1200:prof==="light"?120:300;
+    return opts[0]?.value || "";
+  }
+  // sc/dv/os: position-pick by profile (light=last,heavy=first assuming worst→best ordering) — RENDER test
+  if(qt==="single_select" && opts.length) return prof==="light"?opts[opts.length-1].value : prof==="heavy"?opts[0].value : opts[Math.floor(opts.length/2)].value;
+  if(qt==="multi_select" && opts.length) return prof==="heavy"?opts.map(o=>o.value):[opts[0].value];
+  if(qt==="numeric") return 5;
+  return opts[0]?.value || "";
+}
+async function driveApi(fx, apiBase){
+  const slug = API_SLUG[fx.key];
+  const startBody = { participantMode:fx.role, diagnostic_depth:String(fx.depth), sector:fx.sector, unitName:fx.name, orgSize:"medium" };
+  const sd = await api(`${apiBase}/api/${slug}/run/start`, startBody, 240000);
+  const runId = sd.runId || sd.run_id;
+  let next = sd.nextItem || sd.next_item, guard = 60;
+  while(next && guard-- > 0){
+    if(RUN.abort) throw new Error("aborted");
+    const value = pickAnswerValue(fx, next);
+    const ad = await api(`${apiBase}/api/${slug}/run/${runId}/answer`, { itemId: next.id||next.itemId, value }, 120000);
+    next = ad.nextItem || ad.next_item;
+    if(ad.shouldStop) break;
+  }
+  const fr = await api(`${apiBase}/api/${slug}/run/${runId}/finalize`, { preserveRun:false }, 480000);
+  return { result: fr.result, payload: fr.legacyPayload || fr.result, narrative: fr.narrative };
+}
+
+/* ───────── inject result into the live page via srcdoc, scrape web + PDF source ───────── */
+async function renderAndScrape(fx, result, payload){
+  const url = ($("url_"+fx.key) && $("url_"+fx.key).value.trim()) || (PAGE_FILE[fx.key]);
+  const resp = await fetchTimeout(url + "?_t="+Date.now(), { cache:"no-cache" }, 30000);
+  if(!resp.ok) throw new Error(`fetch page ${url} → ${resp.status}`);
+  let html = await resp.text();
+  const lower = html.toLowerCase();
+  const looksLikePage = lower.includes("__mondermaninjectedresult") || lower.includes("resultsstage") || lower.includes("beginbtn");
+  if(!looksLikePage){
+    // Neutral diagnostic: when deployed same-origin (as intended), a normal fetch returns the
+    // real page and this passes. If it doesn't look like the page, surface what came back so
+    // you can see whether it's a wrong URL, a redirect/login, or an interstitial.
+    throw new Error(`Fetched ${url} but the response does not contain the expected page markers (injection hook / resultsStage / beginBtn). Got ${html.length} chars. Check the URL is correct and reachable from where this harness is served. First 140 chars: ${html.slice(0,140).replace(/\s+/g," ")}`);
+  }
+  const inj = '<'+'script>window.__mondermanInjectedResult = ' +
+              JSON.stringify({result, payload}).replace(/<\/script>/gi,"<\\/script>") +
+              ';</'+'script>';
+  html = html.includes("<head>") ? html.replace("<head>","<head>"+inj) : inj+html;
+
+  return await new Promise((resolve, reject)=>{
+    const timer = setTimeout(()=>reject(new Error("srcdoc render timeout (120s)")), 120000);
+    const onLoad = async ()=>{
+      try{
+        const win = frame.contentWindow;
+        if(!win){ throw new Error("iframe contentWindow not accessible"); }
+        let waited=0;
+        while(waited<15000 && !win.__mondermanInjectionApplied){ await sleep(400); waited+=400; }
+        if(!win.__mondermanInjectionApplied) throw new Error("page injection hook did not fire (15s)");
+        let hw=0; while(hw<5000 && !win.__mondermanTestHooks){ await sleep(250); hw+=250; }
+        await sleep(2000);
+        const hooks = win.__mondermanTestHooks || null;
+        const trueResult = hooks?.getResult ? hooks.getResult() : result;
+        const resultsStage = win.document.getElementById("resultsStage");
+        const webText = resultsStage ? (resultsStage.innerText||resultsStage.textContent||"") : "";
+        let pdfHtml = null;
+        if(hooks && typeof hooks.buildExecutiveReportHtml==="function"){
+          try{ pdfHtml = hooks.buildExecutiveReportHtml(trueResult, payload); }catch(e){ console.warn("buildExecutiveReportHtml threw", e); }
+        }
+        clearTimeout(timer);
+        frame.removeEventListener("load", onLoad);
+        resolve({ trueResult, webText, pdfHtml });
+      }catch(err){ clearTimeout(timer); frame.removeEventListener("load", onLoad); reject(err); }
+    };
+    frame.addEventListener("load", onLoad);
+    frame.removeAttribute("src");
+    frame.srcdoc = html;
+  });
+}
+
+/* ───────── checks (standard + IP-specific), run against scraped web+PDF text ───────── */
+function runChecks(fx, scr){
+  const checks = [];
+  const add=(name,status,val="")=>checks.push({name,status,val});
+  const result = scr.trueResult||{};
+  const web = (scr.webText||"").toLowerCase();
+  const pdf = (scr.pdfHtml||"").toLowerCase();
+  const blob = web + " " + pdf;
+
+  // render presence
+  add("Web output rendered (non-trivial)", scr.webText && scr.webText.length>200 ? "pass":"fail", `${scr.webText?scr.webText.length:0} chars`);
+  add("PDF source built", scr.pdfHtml && scr.pdfHtml.length>500 ? "pass":"fail", `${scr.pdfHtml?scr.pdfHtml.length:0} chars`);
+
+  // score sanity
+  const score = Number(result.score);
+  add("Score numeric 1–100", Number.isFinite(score)&&score>=1&&score<=100 ? "pass":"fail", String(result.score));
+  add("Band present", result.score_band||result.band ? "pass":"fail", result.score_band||result.band||"(none)");
+
+  // cross-bleed: this diagnostic's output must not contain OTHER lanes' terms
+  const foreign=[];
+  for(const k of ["sc","dv","os","ip"]){
+    if(k===fx.key) continue;
+    LANES[k].forEach(t=>{ if(blob.includes(t.toLowerCase())) foreign.push(`${k}:${t}`); });
+  }
+  add("No cross-lane vocabulary bleed", foreign.length?"fail":"pass", foreign.length?foreign.slice(0,4).join(" · "):"clean");
+
+  // own-lane vocabulary present
+  const ownHit = LANES[fx.key].some(t=>blob.includes(t.toLowerCase()));
+  add("Own-lane vocabulary present", ownHit?"pass":"warn", ownHit?"yes":"no distinctive term found");
+
+  // banned terms
+  const bannedHit = BANNED.filter(t=>blob.includes(t)).filter(t=>!(t==="operating reality"&&blob.includes("lived operating reality")));
+  add("No banned terms", bannedHit.length?"fail":"pass", bannedHit.length?bannedHit.join(", "):"clean");
+
+  // sentinels / placeholders
+  const sentinels = ["will appear here","lorem ipsum","undefined","null,null","[object object]","--","placeholder"];
+  const sHit = sentinels.filter(t=>blob.includes(t));
+  add("No placeholders/sentinels reach output", sHit.length?"fail":"pass", sHit.length?sHit.slice(0,3).join(", "):"clean");
+
+  // IP-specific
+  if(fx.key==="ip"){
+    const patterns=["execution fragility","confidence erosion","adaptive strain","compensatory dependence"];
+    add("IP: a risk pattern named", patterns.some(p=>blob.includes(p))?"pass":"warn", patterns.filter(p=>blob.includes(p)).join(", ")||"none");
+    const inst=["institution","sustain","reliability","adaptive","confidence","performance"].filter(w=>blob.includes(w)).length;
+    add("IP: institutional register", inst>=2?"pass":"warn", `${inst} cues`);
+    const comp=/compensat|heroics|propp|extra effort|management lift|borrowed/.test(blob);
+    add("IP: compensation framing", comp?"pass":"warn", comp?"present":"absent");
+    // valence sanity for IP (we sent real answers)
+    if(fx.profile==="light") add("IP: light fixture scored healthy (≥70)", score>=70?"pass":"warn", String(score));
+    if(fx.profile==="heavy") add("IP: heavy fixture scored low (≤45)", score<=45?"pass":"warn", String(score));
+  }
+
+  const fails = checks.filter(c=>c.status==="fail").length;
+  const warns = checks.filter(c=>c.status==="warn").length;
+  const tier = fails>0?"fail":"pass";
+  return { checks, tier, fails, warns };
+}
+
+/* ───────── PDF download on demand (real jsPDF file) ───────── */
+function downloadPdf(fx, pdfHtml){
+  if(!pdfHtml){ alert("No PDF source captured for this fixture."); return; }
+  // Render the report HTML into the hidden frame, then jsPDF.html() → save.
+  const { jsPDF } = window.jspdf;
+  const tmp = document.createElement("iframe");
+  tmp.style.cssText="position:absolute;left:-9999px;top:0;width:900px;height:1200px;border:0;";
+  document.body.appendChild(tmp);
+  tmp.srcdoc = pdfHtml;
+  tmp.addEventListener("load", ()=>{
+    setTimeout(()=>{
+      try{
+        const doc = new jsPDF({unit:"pt",format:"letter"});
+        doc.html(tmp.contentDocument.body, {
+          callback:(d)=>{ d.save(`monderman-${fx.key}-${fx.profile}-${fx.depth}min.pdf`); document.body.removeChild(tmp); },
+          x:24, y:24, width:540, windowWidth:900
+        });
+      }catch(e){ alert("PDF generation error: "+e.message); document.body.removeChild(tmp); }
+    }, 800);
+  });
+}
+
+/* ───────── download PDF SOURCE as .html (lighter alternative, always works) ───────── */
+function downloadHtml(fx, pdfHtml){
+  if(!pdfHtml){ alert("No PDF source captured."); return; }
+  const blob = new Blob([pdfHtml], {type:"text/html"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `monderman-${fx.key}-${fx.profile}-${fx.depth}min-report.html`;
+  a.click();
+}
+
+/* ───────── UI ───────── */
+const STORE = {}; // fixture index → {scr, checks}
+function renderFixtures(){
+  $("fixtures").innerHTML = FIXTURES.map((fx,i)=>`
+    <div class="fixture" id="fx${i}">
+      <div class="fx-head" onclick="document.getElementById('body${i}').classList.toggle('open')">
+        <span class="pill idle" id="pill${i}">idle</span>
+        <span class="fx-title">${fx.key.toUpperCase()} · ${fx.name}</span>
+        <span class="fx-meta">${fx.depth}min · ${fx.role} · ${fx.profile} · ${fx.sector}</span>
+      </div>
+      <div class="fx-body" id="body${i}">
+        <div id="checks${i}"></div>
+        <div class="dlrow">
+          <button class="btn-mini" onclick="window._dlPdf(${i})">Download PDF</button>
+          <button class="btn-mini" onclick="window._dlHtml(${i})">Download report HTML</button>
+        </div>
+        <h4 class="sec">Scraped web output</h4>
+        <div class="scrape" id="web${i}">—</div>
+        <h4 class="sec">PDF source (prose)</h4>
+        <div class="scrape" id="pdf${i}">—</div>
+      </div>
+    </div>`).join("");
+}
+window._dlPdf = i => { const s=STORE[i]; downloadPdf(FIXTURES[i], s?.scr?.pdfHtml); };
+window._dlHtml = i => { const s=STORE[i]; downloadHtml(FIXTURES[i], s?.scr?.pdfHtml); };
+
+function paintChecks(i, res){
+  $("checks"+i).innerHTML = res.checks.map(c=>
+    `<div class="check-row ${c.status}"><span class="name">${c.status==="pass"?"✓":c.status==="warn"?"!":"✗"} ${c.name}</span><span class="val">${c.val||""}</span></div>`
+  ).join("");
+}
+function setPill(i, txt, cls){ const p=$("pill"+i); p.className="pill "+cls; p.textContent=txt; }
+
+async function runOne(i, apiBase){
+  const fx = FIXTURES[i];
+  setPill(i,"running","run");
+  try{
+    const drv = await driveApi(fx, apiBase);
+    if(!drv.result) throw new Error("no result from finalize");
+    const scr = await renderAndScrape(fx, drv.result, drv.payload);
+    const res = runChecks(fx, scr);
+    STORE[i] = { scr, res };
+    paintChecks(i, res);
+    $("web"+i).textContent = scr.webText ? scr.webText.slice(0,1500) : "(empty)";
+    $("pdf"+i).textContent = scr.pdfHtml ? scr.pdfHtml.replace(/<[^>]+>/g," ").replace(/\s+/g," ").slice(0,1500) : "(no PDF source)";
+    setPill(i, res.fails?`${res.fails} fail`:res.warns?`pass · ${res.warns} warn`:"all pass", res.fails?"fail":"pass");
+    return res.fails===0;
+  }catch(e){
+    setPill(i,"error","err");
+    $("checks"+i).innerHTML = `<div class="check-row fail"><span class="name">✗ Run error</span><span class="val">${e.message}</span></div>`;
+    $("body"+i).classList.add("open");
+    return false;
+  }
+}
+
+async function runAll(){
+  RUN.abort=false;
+  $("runAllBtn").disabled=true;
+  const apiBase=$("apiBase").value.trim();
+  let pass=0, fail=0;
+  for(let i=0;i<FIXTURES.length;i++){
+    if(RUN.abort){ $("status").textContent="Stopped."; break; }
+    $("status").textContent = `Running fixture ${i+1}/${FIXTURES.length}…`;
+    const ok = await runOne(i, apiBase);
+    ok?pass++:fail++;
+  }
+  $("status").textContent = `Done — ${pass} passed · ${fail} failed/error of ${FIXTURES.length}. Open a fixture to scrape output and download its PDF.`;
+  $("runAllBtn").disabled=false;
+}
+
+$("runAllBtn").addEventListener("click", runAll);
+$("stopBtn").addEventListener("click", ()=>{ RUN.abort=true; $("status").textContent="Stop requested…"; });
+renderFixtures();
+</script>
+</body>
+</html>
