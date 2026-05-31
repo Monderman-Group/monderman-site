@@ -409,7 +409,10 @@ function runChecks(fx, scr){
       .toLowerCase();
   }
   const visibleText = textOnly(scr.webText) + " " + (scr.pdfText||"").toLowerCase();
-  const sentinels = ["will appear once the backend","will appear here","lorem ipsum","[object object]","placeholder text","tktk","todo:","fixme","could not be loaded from","diagnosis pending","clarity constraint","clarity dimension"];
+  const baseSentinels = ["will appear once the backend","will appear here","lorem ipsum","[object object]","placeholder text","tktk","todo:","fixme","could not be loaded from","diagnosis pending"];
+  // "clarity constraint"/"clarity dimension" are legitimate Structural Clarity vocabulary,
+  // so they are only treated as stray-placeholder sentinels for the OTHER diagnostics.
+  const sentinels = fx.key==="sc" ? baseSentinels : baseSentinels.concat(["clarity constraint","clarity dimension"]);
   // Pinpoint: for each sentinel found, capture ~40 chars of surrounding context so the
   // failure says WHERE it is, not just that it exists.
   const sHits = [];
@@ -430,8 +433,10 @@ function runChecks(fx, scr){
   for(const [k,v] of Object.entries(reqStr)){ if(!v || String(v).trim().length<10) missing.push(k); }
   const reqArr = { "priority_actions": ip.priority_actions, "remedy_paths": ip.remedy_paths, "leadership": hn.leadership, "keyFlags": hn.keyFlags, "recommendedActions": hn.recommendedActions };
   for(const [k,v] of Object.entries(reqArr)){ if(!Array.isArray(v) || !v.length) missing.push(k); }
-  // remedy paths must each have actions[]
-  if(Array.isArray(ip.remedy_paths)){ const noAct = ip.remedy_paths.filter(p=>!Array.isArray(p.actions)||!p.actions.length).length; if(noAct) missing.push(`${noAct} remedy_path(s) missing actions`); }
+  // remedy paths must each have actions[] — IP only. SC/OS/DV remedy paths carry
+  // label/summary/benefit/risk and put step-level guidance in priority_actions, so an
+  // empty actions[] is correct for them and must NOT be flagged.
+  if(fx.key==="ip" && Array.isArray(ip.remedy_paths)){ const noAct = ip.remedy_paths.filter(p=>!Array.isArray(p.actions)||!p.actions.length).length; if(noAct) missing.push(`${noAct} remedy_path(s) missing actions`); }
   add("Field completeness (all sections populated)", missing.length?"fail":"pass", missing.length?missing.slice(0,5).join(", "):"all populated");
 
   // ── Numeric coherence: dims ↔ score ↔ exposure agree (diagnostic-aware) ──
@@ -440,7 +445,7 @@ function runChecks(fx, scr){
     ip: ["execution_coherence","decision_reliability","adaptive_capacity","institutional_confidence","performance_stability"],
     sc: ["role_clarity","decision_rights_clarity","handoff_clarity","accountability_clarity","duplicate_approvals_inverse"],
     os: ["process_density","systems_friction","reporting_exception_burden","workaround_dependence","control_load","upkeep_burden"],
-    dv: ["decision_latency","approval_density","escalation_dependence","rework_rate","ownership_clarity"]
+    dv: ["cycle_velocity","approval_efficiency","coordination_load","execution_stability"]
   };
   const dims = result.dimensions || {};
   const keys = DIM_KEYS[fx.key] || [];
