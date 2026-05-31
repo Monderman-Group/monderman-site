@@ -4741,8 +4741,14 @@ $("trajectoryValueSub").textContent = result?.trajectory?.note || "Re-run over t
     // Recoverable portion: ~60% of labor exposure is addressable if the primary weakness is fixed first.
     reclaimAmount = Math.round(Number(result.exposure.annual_cost) * 0.6);
   }
-  $("reclaimValue").textContent = reclaimAmount ? formatEstimateCurrencyRange(reclaimAmount) : "Not estimated";
-  $("reclaimSub").textContent = (reclaim && reclaim.driverText) || "Directional estimate of capacity that may be recoverable if the primary institutional weakness is addressed first.";
+  const haveReclaim = !!reclaimAmount;
+  $("reclaimValue").textContent = haveReclaim ? formatEstimateCurrencyRange(reclaimAmount) : "Not estimated";
+  // Only use the backend driverText when the backend actually produced a reclaim figure.
+  // The fallback object's driverText reads "could not be loaded for this run" — it must never
+  // sit under a value we DID compute from the 60% exposure fallback (IP/SC send no reclaim_potential).
+  $("reclaimSub").textContent = haveReclaim
+    ? ((reclaim && reclaim.amount && reclaim.driverText) || "Directional estimate of capacity that may be recoverable if the primary institutional weakness is addressed first.")
+    : "Directional estimate could not be loaded for this run.";
 })();
 
 const trajectoryWrap = $("trajectorySignalWrap");
