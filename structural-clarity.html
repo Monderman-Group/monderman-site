@@ -4715,7 +4715,11 @@ $("benchmarkValue").textContent = result.benchmark_position || "--";
 $("benchmarkSub").textContent = "Read as context, not comfort.";
 $("trajectoryValue").textContent = result?.trajectory?.label || "--";
 $("trajectoryValueSub").textContent = result?.trajectory?.note || "Directional signal";
-$("reclaimValue").textContent = reclaim.amount ? formatEstimateCurrencyRange(reclaim.amount) : "--";
+(function(){
+  let amt = reclaim && reclaim.amount ? reclaim.amount : null;
+  if(!amt && result?.exposure?.annual_cost) amt = Math.round(Number(result.exposure.annual_cost) * 0.6);
+  $("reclaimValue").textContent = amt ? formatEstimateCurrencyRange(amt) : "Not estimated";
+})();
 $("reclaimSub").textContent = reclaim.driverText;
 
 const trajectoryWrap = $("trajectorySignalWrap");
