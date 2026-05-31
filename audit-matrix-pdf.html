@@ -53,7 +53,7 @@
 </head>
 <body>
 <header>
-  <h1>Monderman · Fixture-Matrix PDF Audit <span style="font-size:11px;color:#6FD3A0;font-weight:400">BUILD v10 · PDF-capture cadence fix + DV-heavy worst-case inputs</span></h1>
+  <h1>Monderman · Fixture-Matrix PDF Audit <span style="font-size:11px;color:#6FD3A0;font-weight:400">BUILD v11 · edge-case battery (all-best / all-worst / magnitude-max / degenerate-zero)</span></h1>
   <p>For each fixture: drives the live API to produce a real diagnostic run, injects the result into the production page via <code>srcdoc</code> (same-origin from anywhere — works locally), scrapes the rendered web output + the executive-report PDF source, runs standard + diagnostic-specific QC, and lets you download the real PDF on demand to feed into a review chat.</p>
 </header>
 
@@ -146,6 +146,52 @@ function ipAnswers(profile){
       observedSeniorLeader: "Leadership sees stable output and assumes the system is healthy, not realizing how much depends on individual heroics."
     }
   };
+  // ── Edge profiles ──────────────────────────────────────────────────────────
+  if(profile==="best") return {
+    ratings: { leadershipClarity:5, followthroughStrength:5, adaptationCapacity:5, confidenceInSystem:5, performanceConsistency:5, issueResolutionPower:5 },
+    compensationDependence:"low", managementLift:"light", operatingCondition:"stable", leadershipContinuity:"high", assessmentScope:"function",
+    signals:[],
+    cost: { peopleImpacted:8, hourlyCost:70, annualCycles:24 },
+    notes: {
+      self: "The system carries the work on its own; I almost never have to intervene to keep things moving.",
+      observedOperational: "Ownership is clear and routines hold without escalation.",
+      observedManagerial: "Managers manage rather than firefight."
+    }
+  };
+  if(profile==="worst") return {
+    ratings: { leadershipClarity:1, followthroughStrength:1, adaptationCapacity:1, confidenceInSystem:1, performanceConsistency:1, issueResolutionPower:1 },
+    compensationDependence:"high", managementLift:"heavy", operatingCondition:"transition", leadershipContinuity:"low", assessmentScope:"organization",
+    signals:["effort-compensates","informal-dependence","execution-fragment","issues-recur","confidence-low","change-loses-momentum","coordination-load"],
+    cost: { peopleImpacted:200, hourlyCost:110, annualCycles:300 },
+    notes: {
+      self: "Nothing holds together without constant manual intervention; every cycle is a scramble.",
+      observedOperational: "Staff route around the formal process entirely; the same failures recur endlessly.",
+      observedManagerial: "Managers do nothing but firefight; no improvement ever lands.",
+      observedSeniorLeader: "Leadership has no visibility into how fragile the output really is."
+    }
+  };
+  if(profile==="max") return {  // magnitude probe: worst-ish ratings + HUGE cost inputs
+    ratings: { leadershipClarity:1, followthroughStrength:2, adaptationCapacity:1, confidenceInSystem:2, performanceConsistency:1, issueResolutionPower:2 },
+    compensationDependence:"high", managementLift:"heavy", operatingCondition:"transition", leadershipContinuity:"low", assessmentScope:"organization",
+    signals:["effort-compensates","informal-dependence","execution-fragment","issues-recur","confidence-low","change-loses-momentum","coordination-load"],
+    cost: { peopleImpacted:50000, hourlyCost:50000, annualCycles:50000 },
+    notes: {
+      self: "Enormous, sprawling operation held together by sheer effort across thousands of people.",
+      observedOperational: "Workarounds everywhere at massive scale.",
+      observedManagerial: "Firefighting across the entire organization."
+    }
+  };
+  if(profile==="zero") return {  // degenerate probe: mid ratings + ZERO cost inputs
+    ratings: { leadershipClarity:3, followthroughStrength:3, adaptationCapacity:3, confidenceInSystem:3, performanceConsistency:3, issueResolutionPower:3 },
+    compensationDependence:"moderate", managementLift:"moderate", operatingCondition:"growth", leadershipContinuity:"moderate", assessmentScope:"function",
+    signals:["coordination-load"],
+    cost: { peopleImpacted:0, hourlyCost:0, annualCycles:0 },
+    notes: {
+      self: "Hard to say; the situation is genuinely ambiguous from where I sit.",
+      observedOperational: "Mixed signals across the team.",
+      observedManagerial: "No clear pattern either way."
+    }
+  };
   return {
     ratings: { leadershipClarity:3, followthroughStrength:3, adaptationCapacity:2, confidenceInSystem:3, performanceConsistency:4, issueResolutionPower:3 },
     compensationDependence:"moderate", managementLift:"moderate", operatingCondition:"growth", leadershipContinuity:"moderate", assessmentScope:"division",
@@ -169,7 +215,29 @@ const FIXTURES = [
   { key:"dv", profile:"moderate", role:"senior_leader", depth:60, sector:"professional_services",      name:"Engagement staffing decisions" },
   { key:"dv", profile:"heavy",    role:"managerial",    depth:60, sector:"technology_software",        name:"Release approval pathway" },
   { key:"os", profile:"moderate", role:"operational",   depth:10, sector:"healthcare_life_sciences",   name:"Patient records workflow" },
-  { key:"os", profile:"heavy",    role:"senior_leader", depth:60, sector:"government_defense",         name:"Acquisition reporting load" }
+  { key:"os", profile:"heavy",    role:"senior_leader", depth:60, sector:"government_defense",         name:"Acquisition reporting load" },
+
+  /* ── Edge battery (Tier A boundary + Tier B magnitude). Big set — comment out rows to prune. ──
+     best  = all-healthy (ceiling cap + no fabricated dominant constraint)
+     worst = all-unhealthy (floor)
+     max   = huge numeric inputs (exposure-math overflow probe)
+     zero  = degenerate zero inputs (divide-by-zero probe). Roles varied to exercise all modes. */
+  { key:"ip", profile:"best",  role:"senior_leader", depth:60, sector:"technology_software",      name:"EDGE · IP all-best ceiling" },
+  { key:"ip", profile:"worst", role:"operational",   depth:60, sector:"government_defense",        name:"EDGE · IP all-worst floor" },
+  { key:"ip", profile:"max",   role:"managerial",    depth:60, sector:"financial_services",        name:"EDGE · IP magnitude max" },
+  { key:"ip", profile:"zero",  role:"operational",   depth:60, sector:"healthcare_life_sciences",  name:"EDGE · IP degenerate zero" },
+  { key:"sc", profile:"best",  role:"managerial",    depth:60, sector:"professional_services",     name:"EDGE · SC all-best ceiling" },
+  { key:"sc", profile:"worst", role:"operational",   depth:60, sector:"manufacturing_industrial",  name:"EDGE · SC all-worst floor" },
+  { key:"sc", profile:"max",   role:"senior_leader", depth:60, sector:"financial_services",        name:"EDGE · SC magnitude max" },
+  { key:"sc", profile:"zero",  role:"operational",   depth:60, sector:"technology_software",       name:"EDGE · SC degenerate zero" },
+  { key:"dv", profile:"best",  role:"senior_leader", depth:60, sector:"professional_services",     name:"EDGE · DV all-best ceiling" },
+  { key:"dv", profile:"worst", role:"managerial",    depth:60, sector:"technology_software",       name:"EDGE · DV all-worst floor" },
+  { key:"dv", profile:"max",   role:"operational",   depth:60, sector:"government_defense",         name:"EDGE · DV magnitude max" },
+  { key:"dv", profile:"zero",  role:"managerial",    depth:60, sector:"healthcare_life_sciences",  name:"EDGE · DV degenerate zero" },
+  { key:"os", profile:"best",  role:"operational",   depth:60, sector:"healthcare_life_sciences",  name:"EDGE · OS all-best ceiling" },
+  { key:"os", profile:"worst", role:"senior_leader", depth:60, sector:"government_defense",         name:"EDGE · OS all-worst floor" },
+  { key:"os", profile:"max",   role:"managerial",    depth:60, sector:"manufacturing_industrial",  name:"EDGE · OS magnitude max" },
+  { key:"os", profile:"zero",  role:"operational",   depth:60, sector:"professional_services",     name:"EDGE · OS degenerate zero" }
 ];
 
 /* ───────── API drive: produce a real result + payload ───────── */
@@ -201,36 +269,65 @@ function pickAnswerValue(fx, item){
     if(field in a && typeof a[field] !== "object") return a[field];
     // fallback position by valence
     if(qt==="single_select" && opts.length) return prof==="light"?opts[0].value : prof==="heavy"?opts[opts.length-1].value : opts[Math.floor(opts.length/2)].value;
-    if(qt==="numeric") return prof==="heavy"?1200:prof==="light"?120:300;
+    if(qt==="numeric") return prof==="max"?50000:prof==="zero"?0:(prof==="heavy"||prof==="worst")?1200:(prof==="light"||prof==="best")?120:300;
     return opts[0]?.value || "";
   }
-  // ── DV heavy: force a GENUINELY worst-case input set ─────────────────────────
-  // Positional picking can't reliably hit "worst" for DV: its questionnaire orders
-  // options inconsistently (velocity/approval/coordination run worst→best, key-person
-  // the other way), so heavy was landing HEALTHIER than moderate (raw dim avg 93 vs 63)
-  // and scoring 56 — higher than moderate's 54, tripping the monotonicity gate. Fix:
-  // for dv/heavy set numeric drivers to clearly-bad values and pick the option the
-  // SCORER treats as worst, matched against the live options already in hand (so the
-  // value is always valid). Anything with no match falls through to the positional
-  // pick below — we never POST an option value the API didn't give us.
+  // Shared edge-profile + DV-semantic helpers (used by heavy and the edge batteries).
+  const EDGE_NUM = { best:2, worst:40, max:50000, zero:0 };
+  const isEdge = prof in EDGE_NUM;
+  const WORST_LIKE = prof==="worst" || prof==="max";   // pick the unhealthy option
+  const BEST_LIKE  = prof==="best"  || prof==="zero";  // pick a healthy / non-worst option
+  const DV_ID_FIELD = { dv_g2:"pathwayPace", dv_g3:"pathwayTrajectory", dv_g4:"dragVisibility", dv_g6:"delayPoint" };
+  const dvField = item.scorerField || DV_ID_FIELD[item.id] || "";
+  const DV_WORST_NUM = { decisionDays:60, approvalCount:12, handoffCount:12, meetingCount:12, systemsTouched:10, peopleInvolved:12, meetingHours:12 };
+  const DV_WORST_CHOICE = {
+    approvalFlow:"sequential", lateApprovals:"frequently", ownerClarity:"unclear", escalationClarity:"unclear",
+    keyPersonDependency:"heavily", reopenRate:"often", escalationRate:"often", workaroundRate:"often",
+    instructionVariance:"often", compensatoryEffort:"often", managerIntervention:"often",
+    approvalTrend:"up_material", pathwayTrajectory:"up_material", controlClimate:"high", controlBias:"yes",
+    governanceFit:"over", approvalRemovalRate:"never", pathwayPace:"much_slower", delayPoint:"varies"
+  };
+  const norm = s => String(s).trim().toLowerCase().replace(/[\s-]+/g,"_");
+
+  // ── DV heavy: GENUINELY worst-case inputs (UNCHANGED behavior). DV's questionnaire
+  // orders options inconsistently, so positional picking can't reliably hit "worst";
+  // map numeric drivers to bad values and match the scorer's worst option token against
+  // the live options. Unmatched falls through to the positional pick (we never POST a
+  // value the API didn't give us). ──────────────────────────────────────────────────
   if(key==="dv" && prof==="heavy"){
-    const DV_ID_FIELD = { dv_g2:"pathwayPace", dv_g3:"pathwayTrajectory", dv_g4:"dragVisibility", dv_g6:"delayPoint" };
-    const field = item.scorerField || DV_ID_FIELD[item.id] || "";
-    const DV_WORST_NUM = { decisionDays:60, approvalCount:12, handoffCount:12, meetingCount:12, systemsTouched:10, peopleInvolved:12, meetingHours:12 };
-    const DV_WORST_CHOICE = {
-      approvalFlow:"sequential", lateApprovals:"frequently", ownerClarity:"unclear", escalationClarity:"unclear",
-      keyPersonDependency:"heavily", reopenRate:"often", escalationRate:"often", workaroundRate:"often",
-      instructionVariance:"often", compensatoryEffort:"often", managerIntervention:"often",
-      approvalTrend:"up_material", pathwayTrajectory:"up_material", controlClimate:"high", controlBias:"yes",
-      governanceFit:"over", approvalRemovalRate:"never", pathwayPace:"much_slower", delayPoint:"varies"
-    };
-    const norm = s => String(s).trim().toLowerCase().replace(/[\s-]+/g,"_");
-    if(qt==="numeric" && field in DV_WORST_NUM) return DV_WORST_NUM[field];
-    if(qt==="single_select" && opts.length && DV_WORST_CHOICE[field]){
-      const hit = opts.find(o => norm(o.value) === DV_WORST_CHOICE[field]);
+    if(qt==="numeric" && dvField in DV_WORST_NUM) return DV_WORST_NUM[dvField];
+    if(qt==="single_select" && opts.length && DV_WORST_CHOICE[dvField]){
+      const hit = opts.find(o => norm(o.value) === DV_WORST_CHOICE[dvField]);
       if(hit) return hit.value;
     }
-    // fall through to the positional pick below for anything not matched
+    // fall through to positional
+  }
+  // DV worst / max edges: same semantic-worst choices; max also forces huge numerics.
+  if(key==="dv" && WORST_LIKE){
+    if(qt==="numeric") return prof==="max" ? EDGE_NUM.max : (dvField in DV_WORST_NUM ? DV_WORST_NUM[dvField] : 40);
+    if(qt==="single_select" && opts.length && DV_WORST_CHOICE[dvField]){
+      const hit = opts.find(o => norm(o.value) === DV_WORST_CHOICE[dvField]);
+      if(hit) return hit.value;
+    }
+    if(qt==="multi_select" && opts.length) return opts.map(o=>o.value);
+    // unmatched single_select falls through to the isEdge positional pick below
+  }
+  // DV best / zero edges: can't reliably name the healthy token, so pick any option
+  // that is NOT the scorer's worst one; best/zero force small/zero numerics.
+  if(key==="dv" && BEST_LIKE){
+    if(qt==="numeric") return EDGE_NUM[prof];
+    if(qt==="single_select" && opts.length){
+      const worstHit = DV_WORST_CHOICE[dvField] ? opts.find(o=>norm(o.value)===DV_WORST_CHOICE[dvField]) : null;
+      return (opts.find(o => o!==worstHit) || opts[0]).value;
+    }
+    if(qt==="multi_select" && opts.length) return [opts[0].value];
+  }
+  // SC/OS edges (and any leftover non-DV edge): positional. Options are best→worst.
+  if(isEdge){
+    if(qt==="single_select" && opts.length) return WORST_LIKE ? opts[opts.length-1].value : opts[0].value;
+    if(qt==="multi_select" && opts.length) return WORST_LIKE ? opts.map(o=>o.value) : [opts[0].value];
+    if(qt==="numeric") return EDGE_NUM[prof];
+    return opts[0]?.value || "";
   }
   // sc/os (and dv moderate/light): position-pick by profile. Options are ordered
   // best→worst (opts[0] = healthiest): light=opts[0], heavy=opts[last], moderate=middle.
@@ -444,6 +541,30 @@ function runChecks(fx, scr){
   const score = Number(result.score);
   add("Score numeric 1–100", Number.isFinite(score)&&score>=1&&score<=100 ? "pass":"fail", String(result.score));
   add("Band present", result.score_band||result.band ? "pass":"fail", result.score_band||result.band||"(none)");
+
+  // ── Edge-profile probes (best / worst / max / zero): crash/cap/NaN-focused, NOT exact-score.
+  //    These fixtures stress ceiling/floor and exposure-math extremes; an imperfect "best" is
+  //    tolerable (warn, not fail). They still fall through to the bleed/banned/placeholder
+  //    checks below, so they get that coverage for free. ─────────────────────────────────────
+  if(["best","worst","max","zero"].includes(fx.profile)){
+    const ex = result.exposure || {};
+    const hrs = Number(ex.annual_hours), cost = Number(ex.annual_cost), drag = Number(ex.capacity_drag_percent);
+    const rawBlob = (scr.webText||"") + " " + (scr.pdfText||"");
+    const numJunk = /\b(NaN|Infinity|undefined|\[object Object\])\b/.test(rawBlob) || /\$\s?(NaN|Infinity)/.test(rawBlob);
+    add("Edge: no NaN/Infinity/undefined in output", numJunk?"fail":"pass", numJunk?"junk token found":"clean");
+    add("Edge: capacity drag 0–100%", Number.isFinite(drag)&&drag>=0&&drag<=100?"pass":"fail", String(ex.capacity_drag_percent));
+    add("Edge: hours & cost finite ≥0", (Number.isFinite(hrs)&&hrs>=0&&Number.isFinite(cost)&&cost>=0)?"pass":"fail", `${ex.annual_hours}h / $${ex.annual_cost}`);
+    if(fx.profile==="best"){
+      add("Edge(best): not below benchmark", /below/i.test(String(result.benchmark_position||""))?"warn":"pass", String(result.benchmark_position||"(none)"));
+      const cd = result.canonical_descriptor || {};
+      const shape = cd.composition?.shape || cd.burden_distribution_type || "";
+      const domPct = Number(cd.dominant_burden_pct ?? cd.dominant_pct ?? 0);
+      add("Edge(best): no fabricated dominant constraint", (shape==="distributed"||(Number.isFinite(domPct)&&domPct<=40))?"pass":"warn", `shape=${shape||"?"} dominant=${domPct}%`);
+    }
+    if(fx.profile==="worst") add("Edge(worst): lands in a weak band", Number.isFinite(score)&&score<=40?"pass":"warn", `score ${score}`);
+    if(fx.profile==="max")   add("Edge(max): exposure finite under huge inputs", (Number.isFinite(hrs)&&Number.isFinite(cost))?"pass":"fail", `${ex.annual_hours}h / $${ex.annual_cost}`);
+    if(fx.profile==="zero")  add("Edge(zero): no divide-by-zero artifact", numJunk?"fail":"pass", numJunk?"NaN/Inf present":"clean");
+  }
 
   // cross-bleed: this diagnostic's output must not contain OTHER lanes' terms
   const foreign=[];
@@ -691,7 +812,7 @@ async function runAll(){
   // ── Cross-fixture consistency: within each diagnostic, light should score higher than
   //    moderate, which should score higher than heavy. Flag violations. ──
   const byKey = {};
-  FIXTURES.forEach((fx,i)=>{ const r=STORE[i]?.scr?.trueResult; if(r&&Number.isFinite(Number(r.score))){ (byKey[fx.key]=byKey[fx.key]||[]).push({profile:fx.profile, score:Number(r.score), i}); }});
+  FIXTURES.forEach((fx,i)=>{ const r=STORE[i]?.scr?.trueResult; const canon=["light","moderate","heavy"].includes(fx.profile); if(canon&&r&&Number.isFinite(Number(r.score))){ (byKey[fx.key]=byKey[fx.key]||[]).push({profile:fx.profile, score:Number(r.score), i}); }});
   const order = { light:3, moderate:2, heavy:1 };
   const consistencyIssues = [];
   for(const [key,arr] of Object.entries(byKey)){
