@@ -167,7 +167,7 @@ const FIXTURES = [
   { key:"sc", profile:"moderate", role:"managerial",    depth:30, sector:"financial_services",         name:"Credit exception ownership" },
   { key:"sc", profile:"heavy",    role:"operational",   depth:10, sector:"manufacturing_industrial",   name:"Line changeover authority" },
   { key:"dv", profile:"moderate", role:"senior_leader", depth:60, sector:"professional_services",      name:"Engagement staffing decisions" },
-  { key:"dv", profile:"heavy",    role:"managerial",    depth:30, sector:"technology_software",        name:"Release approval pathway" },
+  { key:"dv", profile:"heavy",    role:"managerial",    depth:60, sector:"technology_software",        name:"Release approval pathway" },
   { key:"os", profile:"moderate", role:"operational",   depth:10, sector:"healthcare_life_sciences",   name:"Patient records workflow" },
   { key:"os", profile:"heavy",    role:"senior_leader", depth:60, sector:"government_defense",         name:"Acquisition reporting load" }
 ];
@@ -204,8 +204,36 @@ function pickAnswerValue(fx, item){
     if(qt==="numeric") return prof==="heavy"?1200:prof==="light"?120:300;
     return opts[0]?.value || "";
   }
-  // sc/dv/os: position-pick by profile. Options are ordered best→worst (opts[0] = healthiest),
-  // so light=opts[0] (best → high score), heavy=opts[last] (worst → low score), moderate=middle.
+  // ── DV heavy: force a GENUINELY worst-case input set ─────────────────────────
+  // Positional picking can't reliably hit "worst" for DV: its questionnaire orders
+  // options inconsistently (velocity/approval/coordination run worst→best, key-person
+  // the other way), so heavy was landing HEALTHIER than moderate (raw dim avg 93 vs 63)
+  // and scoring 56 — higher than moderate's 54, tripping the monotonicity gate. Fix:
+  // for dv/heavy set numeric drivers to clearly-bad values and pick the option the
+  // SCORER treats as worst, matched against the live options already in hand (so the
+  // value is always valid). Anything with no match falls through to the positional
+  // pick below — we never POST an option value the API didn't give us.
+  if(key==="dv" && prof==="heavy"){
+    const DV_ID_FIELD = { dv_g2:"pathwayPace", dv_g3:"pathwayTrajectory", dv_g4:"dragVisibility", dv_g6:"delayPoint" };
+    const field = item.scorerField || DV_ID_FIELD[item.id] || "";
+    const DV_WORST_NUM = { decisionDays:60, approvalCount:12, handoffCount:12, meetingCount:12, systemsTouched:10, peopleInvolved:12, meetingHours:12 };
+    const DV_WORST_CHOICE = {
+      approvalFlow:"sequential", lateApprovals:"frequently", ownerClarity:"unclear", escalationClarity:"unclear",
+      keyPersonDependency:"heavily", reopenRate:"often", escalationRate:"often", workaroundRate:"often",
+      instructionVariance:"often", compensatoryEffort:"often", managerIntervention:"often",
+      approvalTrend:"up_material", pathwayTrajectory:"up_material", controlClimate:"high", controlBias:"yes",
+      governanceFit:"over", approvalRemovalRate:"never", pathwayPace:"much_slower", delayPoint:"varies"
+    };
+    const norm = s => String(s).trim().toLowerCase().replace(/[\s-]+/g,"_");
+    if(qt==="numeric" && field in DV_WORST_NUM) return DV_WORST_NUM[field];
+    if(qt==="single_select" && opts.length && DV_WORST_CHOICE[field]){
+      const hit = opts.find(o => norm(o.value) === DV_WORST_CHOICE[field]);
+      if(hit) return hit.value;
+    }
+    // fall through to the positional pick below for anything not matched
+  }
+  // sc/os (and dv moderate/light): position-pick by profile. Options are ordered
+  // best→worst (opts[0] = healthiest): light=opts[0], heavy=opts[last], moderate=middle.
   if(qt==="single_select" && opts.length) return prof==="light"?opts[0].value : prof==="heavy"?opts[opts.length-1].value : opts[Math.floor(opts.length/2)].value;
   if(qt==="multi_select" && opts.length) return prof==="heavy"?opts.map(o=>o.value):[opts[0].value];
   if(qt==="numeric") return 5;
@@ -266,17 +294,19 @@ function capturePdfBlob(win, downloadBtn){
       try{ if(this.download && /\.pdf$/i.test(this.download)) observedFilename=this.download; }catch(_){ }
       return origClick.call(this);
     };
-    // Click, then RE-CLICK every 10s until a blob is captured. The 3/9 "no PDF captured"
-    // failures were a race: the page's #downloadPdfBtn handler was not yet wired inside the
-    // freshly-rendered srcdoc iframe (or html2canvas dropped a frame), so the first click did
-    // nothing and we waited out the timeout. Most fixtures capture on attempt 1 within a few
-    // seconds; the retry only fires for the ones that missed. 90s timeout still bounds total wait.
+    // Click once, then RE-CLICK on a SLOW cadence until a blob is captured. The earlier
+    // 10s re-click was too aggressive: an 11-page html2canvas render can take >10s, so the
+    // retries were firing INTO in-progress renders and clobbering them — which is why 4/9
+    // fixtures captured nothing at all (pdf_pages:null) rather than a blank page. A 30s
+    // cadence (max 3 attempts) gives each render a clean window while still re-firing for the
+    // genuine "first click was a no-op because the button handler wasn't wired yet" case.
+    // 90s timeout still bounds total wait (3 × 30s).
     function fire(){
       attempts++;
       try{ (win.document.getElementById("downloadPdfBtn") || downloadBtn).click(); }catch(_){ }
     }
     fire();
-    retry=setInterval(()=>{ if(captured || attempts>=8){ clearInterval(retry); return; } fire(); }, 10000);
+    retry=setInterval(()=>{ if(captured || attempts>=3){ clearInterval(retry); return; } fire(); }, 30000);
   });
 }
 async function parsePdf(blob){
