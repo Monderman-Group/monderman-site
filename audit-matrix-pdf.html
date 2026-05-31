@@ -53,7 +53,7 @@
 </head>
 <body>
 <header>
-  <h1>Monderman · Fixture-Matrix PDF Audit <span style="font-size:11px;color:#6FD3A0;font-weight:400">BUILD v6 · diagnostic-aware QC</span></h1>
+  <h1>Monderman · Fixture-Matrix PDF Audit <span style="font-size:11px;color:#6FD3A0;font-weight:400">BUILD v7 · master JSON always-on</span></h1>
   <p>For each fixture: drives the live API to produce a real diagnostic run, injects the result into the production page via <code>srcdoc</code> (same-origin from anywhere — works locally), scrapes the rendered web output + the executive-report PDF source, runs standard + diagnostic-specific QC, and lets you download the real PDF on demand to feed into a review chat.</p>
 </header>
 
@@ -65,6 +65,7 @@
   <label class="fld">API base<input type="text" id="apiBase" value="https://monderman-api.onrender.com" style="width:260px"></label>
   <label class="fld">&nbsp;<button class="btn-go" id="runAllBtn">Run all fixtures</button></label>
   <label class="fld">&nbsp;<button class="btn-stop" id="stopBtn">Stop</button></label>
+  <label class="fld">&nbsp;<button class="btn-mini" id="masterJsonBtn" style="padding:8px 14px;font-size:13px">⬇ Master JSON</button></label>
   <label class="fld">&nbsp;<span id="status" class="summary"></span></label>
 </div>
 <div class="bar" style="border-top:0;padding-top:0;">
@@ -642,13 +643,43 @@ async function runAll(){
 }
 
 let LAST_RUN_SUMMARY = null;
+function buildMasterSummary(){
+  // Assemble from whatever is in STORE right now — works after a full run, a partial run, or errors.
+  const checkFailMap = {};
+  let totalChecks=0, totalFails=0, totalWarns=0, ran=0, passed=0;
+  FIXTURES.forEach((fx,i)=>{
+    const res=STORE[i]?.res; if(!res) return;
+    ran++; if(res.fails===0) passed++;
+    res.checks.forEach(c=>{ totalChecks++; if(c.status==="fail"){ totalFails++; (checkFailMap[c.name]=checkFailMap[c.name]||[]).push(`${fx.key}/${fx.profile}`);} if(c.status==="warn") totalWarns++; });
+  });
+  return {
+    generated: new Date().toISOString(),
+    api_base: $("apiBase").value.trim(),
+    totals: { fixtures: FIXTURES.length, ran, passed, checks: totalChecks, check_fails: totalFails, check_warns: totalWarns },
+    failing_checks: checkFailMap,
+    fixtures: FIXTURES.map((fx,i)=>({
+      key:fx.key, name:fx.name, profile:fx.profile, role:fx.role, depth:fx.depth, sector:fx.sector,
+      score: STORE[i]?.scr?.trueResult?.score ?? null,
+      band: STORE[i]?.scr?.trueResult?.score_band ?? null,
+      run_error: STORE[i]?.error ?? null,
+      check_fails: (STORE[i]?.res?.checks||[]).filter(c=>c.status==="fail").map(c=>({name:c.name, detail:c.val})),
+      check_warns: (STORE[i]?.res?.checks||[]).filter(c=>c.status==="warn").map(c=>c.name),
+      result: STORE[i]?.scr?.trueResult ?? null,
+      pdf_text: STORE[i]?.scr?.pdfText ?? "",
+      web_text: STORE[i]?.scr?.webText ?? ""
+    }))
+  };
+}
 window._dlMaster = () => {
-  if(!LAST_RUN_SUMMARY){ alert("Run all fixtures first."); return; }
-  const blob=new Blob([JSON.stringify(LAST_RUN_SUMMARY,null,2)],{type:"application/json"});
+  const summary = LAST_RUN_SUMMARY || buildMasterSummary();
+  const anyData = summary.fixtures.some(f=>f.result || f.run_error);
+  if(!anyData){ alert("No fixture data yet — run at least one fixture first."); return; }
+  const blob=new Blob([JSON.stringify(summary,null,2)],{type:"application/json"});
   const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
   a.download=`monderman-audit-master-${new Date().toISOString().slice(0,16).replace(/[:T]/g,"-")}.json`;
   document.body.appendChild(a); a.click(); a.remove();
 };
+$("masterJsonBtn").addEventListener("click", window._dlMaster);
 
 $("runAllBtn").addEventListener("click", runAll);
 $("stopBtn").addEventListener("click", ()=>{ RUN.abort=true; $("status").textContent="Stop requested…"; });
