@@ -53,7 +53,7 @@
 </head>
 <body>
 <header>
-  <h1>Monderman · Fixture-Matrix PDF Audit <span style="font-size:11px;color:#6FD3A0;font-weight:400">BUILD v5 · master JSON + scorecard + QC</span></h1>
+  <h1>Monderman · Fixture-Matrix PDF Audit <span style="font-size:11px;color:#6FD3A0;font-weight:400">BUILD v6 · diagnostic-aware QC</span></h1>
   <p>For each fixture: drives the live API to produce a real diagnostic run, injects the result into the production page via <code>srcdoc</code> (same-origin from anywhere — works locally), scrapes the rendered web output + the executive-report PDF source, runs standard + diagnostic-specific QC, and lets you download the real PDF on demand to feed into a review chat.</p>
 </header>
 
@@ -433,25 +433,45 @@ function runChecks(fx, scr){
   if(Array.isArray(ip.remedy_paths)){ const noAct = ip.remedy_paths.filter(p=>!Array.isArray(p.actions)||!p.actions.length).length; if(noAct) missing.push(`${noAct} remedy_path(s) missing actions`); }
   add("Field completeness (all sections populated)", missing.length?"fail":"pass", missing.length?missing.slice(0,5).join(", "):"all populated");
 
-  // ── Numeric coherence: dims ↔ score ↔ exposure agree ──
+  // ── Numeric coherence: dims ↔ score ↔ exposure agree (diagnostic-aware) ──
+  // Each diagnostic uses different dimension keys and a different exposure formula.
+  const DIM_KEYS = {
+    ip: ["execution_coherence","decision_reliability","adaptive_capacity","institutional_confidence","performance_stability"],
+    sc: ["role_clarity","decision_rights_clarity","handoff_clarity","accountability_clarity","duplicate_approvals_inverse"],
+    os: ["process_density","systems_friction","reporting_exception_burden","workaround_dependence","control_load","upkeep_burden"],
+    dv: ["decision_latency","approval_density","escalation_dependence","rework_rate","ownership_clarity"]
+  };
   const dims = result.dimensions || {};
-  const dimVals = ["execution_coherence","decision_reliability","adaptive_capacity","institutional_confidence","performance_stability"].map(k=>Number(dims[k])).filter(Number.isFinite);
+  const keys = DIM_KEYS[fx.key] || [];
+  const dimVals = keys.map(k=>Number(dims[k])).filter(Number.isFinite);
   const numIssues = [];
-  if(dimVals.length===5){
-    const avg = dimVals.reduce((a,b)=>a+b,0)/5;
-    // score should be within a sane band of the dimension average (IP score isn't a pure mean, allow ±20)
-    if(Number.isFinite(score) && Math.abs(score-avg)>20) numIssues.push(`score ${score} vs dim-avg ${Math.round(avg)} (>20 apart)`);
-    // weakest dimension should match the named primary weakness direction
-    const weakest = Object.entries(dims).filter(([k])=>k!=="compensatory_effort").sort((a,b)=>a[1]-b[1])[0];
-    if(weakest && weakest[1]>=98) numIssues.push(`all dims ≥98 (suspiciously flat: ${weakest[0]}=${weakest[1]})`);
-  } else { numIssues.push(`only ${dimVals.length}/5 dimensions numeric`); }
+  if(keys.length && dimVals.length===keys.length){
+    // For burden-style diagnostics (os) higher dim = more burden, so score≈100-avgBurden; for
+    // condition-style (ip/sc) higher dim = healthier, so score≈avg. Only flag a flat-all-100 case
+    // and (for ip/sc) a wide score vs dimension-average gap.
+    const avg = dimVals.reduce((a,b)=>a+b,0)/dimVals.length;
+    if(fx.key==="ip" || fx.key==="sc"){
+      if(Number.isFinite(score) && Math.abs(score-avg)>20) numIssues.push(`score ${score} vs dim-avg ${Math.round(avg)} (>20 apart)`);
+    }
+    const flat = dimVals.every(v=>v>=98);
+    if(flat) numIssues.push(`all dims ≥98 (suspiciously flat)`);
+  } else if(keys.length) {
+    numIssues.push(`only ${dimVals.length}/${keys.length} dimensions numeric`);
+  }
   const exp = result.exposure || {};
-  // annual_hours = directionalHours × cycles (NOT × people); annual_cost = hours × people × rate.
-  // So validate cost = hours × people × rate when peopleImpacted is known; otherwise skip.
-  const people = Number(result?.peopleImpacted ?? result?.exposure?.people_impacted ?? payloadPeople(scr));
-  if(exp.annual_cost!=null && exp.annual_hours!=null && exp.average_hourly_cost!=null && people>0){
-    const implied = Number(exp.annual_hours)*people*Number(exp.average_hourly_cost);
-    if(implied>0 && Math.abs(implied-Number(exp.annual_cost))/Number(exp.annual_cost) > 0.15) numIssues.push(`exposure: ${exp.annual_hours}h × ${people}ppl × $${exp.average_hourly_cost} = $${implied} ≠ $${exp.annual_cost}`);
+  // Exposure formula differs by diagnostic. IP: annual_cost = annual_hours × people × rate.
+  // SC/OS/DV: annual_cost = annual_hours × rate (their average_hourly_cost is already a blended
+  // per-hour figure across participants, so people are not multiplied again).
+  if(exp.annual_cost!=null && exp.annual_hours!=null && exp.average_hourly_cost!=null && Number(exp.annual_cost)>0){
+    let implied;
+    if(fx.key==="ip"){
+      const people = Number(result?.peopleImpacted ?? result?.exposure?.people_impacted ?? payloadPeople(scr));
+      implied = people>0 ? Number(exp.annual_hours)*people*Number(exp.average_hourly_cost) : null;
+    } else {
+      implied = Number(exp.annual_hours)*Number(exp.average_hourly_cost);
+    }
+    if(implied && Math.abs(implied-Number(exp.annual_cost))/Number(exp.annual_cost) > 0.15)
+      numIssues.push(`exposure: hours×rate(×people for ip) = $${Math.round(implied)} ≠ $${exp.annual_cost}`);
   }
   add("Numeric coherence (dims↔score↔exposure)", numIssues.length?"fail":"pass", numIssues.length?numIssues.slice(0,3).join("; "):"coherent");
 
@@ -541,6 +561,7 @@ async function runOne(i, apiBase){
     setPill(i, res.fails?`${res.fails} fail`:res.warns?`pass · ${res.warns} warn`:"all pass", res.fails?"fail":"pass");
     return res.fails===0;
   }catch(e){
+    STORE[i] = { error: e.message || String(e) };
     setPill(i,"error","err");
     $("checks"+i).innerHTML = `<div class="check-row fail"><span class="name">✗ Run error</span><span class="val">${e.message}</span></div>`;
     $("body"+i).classList.add("open");
@@ -595,6 +616,7 @@ async function runAll(){
       band: STORE[i]?.scr?.trueResult?.score_band ?? null,
       check_fails: (STORE[i]?.res?.checks||[]).filter(c=>c.status==="fail").map(c=>({name:c.name, detail:c.val})),
       check_warns: (STORE[i]?.res?.checks||[]).filter(c=>c.status==="warn").map(c=>c.name),
+      run_error: STORE[i]?.error ?? null,
       result: STORE[i]?.scr?.trueResult ?? null,
       pdf_text: STORE[i]?.scr?.pdfText ?? "",
       web_text: STORE[i]?.scr?.webText ?? ""
