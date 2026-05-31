@@ -2697,17 +2697,19 @@ if (pattern.dominant && pattern.dominant.label !== "No dominant source") {
     note:  backendNote || "The primary clarity constraint is constraining movement in this workflow."
   };
 }
-return { label: "Distributed clarity constraint", value: 0, note: "No single clarity constraint clearly dominates the run." };
+return { label: "Distributed clarity weakness", value: 0, note: "No single clarity constraint clearly dominates the run." };
 }
 
 function deriveBurdenDiagnosis(result, payload) {
 // Passthrough — backend scoreOperationalSystems.js writes
 // result.burden_diagnosis (regulatory-aware label + note). The classifier
 // thresholds and prose used to live here; migrated to backend on 2026-05-13.
-return result?.burden_diagnosis || {
-  label: "Burden diagnosis pending",
-  note:  ""
-};
+if (result?.burden_diagnosis) return result.burden_diagnosis;
+const cd = result?.canonical_descriptor || {};
+if (cd.legibility_failure_label || cd.primary_constraint_label) {
+  return { label: cd.legibility_failure_label || cd.primary_constraint_label, note: cd.legibility_failure_note || cd.primary_constraint_note || "" };
+}
+return { label: "Distributed clarity weakness", note: "No single clarity constraint clearly dominates this run." };
 }
 
 function buildInterpretiveState(result, payload) {
@@ -3782,7 +3784,7 @@ if (qualitative.type !== "none") return qualitative.label;
 const scLabel = result?.canonical_descriptor?.primary_constraint_label;
 if (scLabel) return `${scLabel} pattern`;
 const primary = derivePrimaryBurdenSource(result);
-return `${primary.label || "Distributed clarity constraint"} pattern`;
+return `${primary.label || "Distributed clarity weakness"} pattern`;
 }
 
 function buildNextRunRecommendation(result = {}, payload = {}, industry = {}, processName = "this workflow") {
