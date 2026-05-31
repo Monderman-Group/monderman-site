@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Sample Report — Decision Velocity Diagnostic | Monderman</title>
-<meta name="description" content="A complete sample of the executive read produced by a Monderman diagnostic. Anonymized, full-length, representative of what every Monderman run delivers."/>
+<title>Sample Reports — Monderman Diagnostics</title>
+<meta name="description" content="Complete, anonymized sample reads from all four Monderman diagnostics — Operational Systems, Decision Velocity, Structural Clarity, and Institutional Performance. Full-length, representative of what every Monderman run delivers."/>
 <link href='data:image/svg+xml;utf8,
     &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"&gt;
       &lt;rect width="64" height="64" rx="10" fill="%230F1720"/&gt;
@@ -770,6 +770,55 @@
       .doc-shell { padding: 0; grid-template-columns: 1fr; }
       .section { page-break-inside: avoid; }
     }
+  
+    /* ---- Diagnostic tab switcher ---- */
+    .dx-tabs-wrap { background: var(--bg-white); border-bottom: 1px solid var(--line); }
+    .dx-tabs {
+      max-width: 1240px; margin: 0 auto; padding: 14px 28px 16px;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+    }
+    .dx-tab {
+      text-align: left; cursor: pointer; font-family: inherit;
+      background: var(--bg-soft); border: 1px solid var(--line);
+      border-radius: 12px; padding: 12px 14px;
+      transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+      display: flex; flex-direction: column; gap: 3px;
+    }
+    .dx-tab:hover { border-color: var(--line-2); background: #fff; }
+    .dx-tab .dx-tab-name { font-size: 0.96rem; font-weight: 700; color: var(--text-dark); letter-spacing: -0.02em; }
+    .dx-tab .dx-tab-desc { font-size: 0.74rem; color: var(--muted); letter-spacing: 0.01em; }
+    .dx-tab.is-active {
+      border-color: var(--accent-border); background: var(--accent-soft);
+      box-shadow: inset 0 0 0 1px var(--accent-border);
+    }
+    .dx-tab.is-active .dx-tab-name { color: var(--accent); }
+    .report-shell[hidden] { display: none; }
+
+    /* ---- Horizontal clarity/condition bars (SC + IP) ---- */
+    .dimbars-panel { padding: 26px 28px; }
+    .dimbar { margin: 0 0 18px; }
+    .dimbar:last-of-type { margin-bottom: 6px; }
+    .dimbar-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+    .dimbar-name { font-size: 0.98rem; font-weight: 700; color: var(--text-dark); letter-spacing: -0.01em; }
+    .dimbar-name em { font-style: normal; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-2); margin-left: 9px; }
+    .dimbar-val { display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; }
+    .dimbar-val b { font-size: 1.12rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text-dark); }
+    .dimbar-pill { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; color: #fff; }
+    .dimbar-track { position: relative; height: 9px; border-radius: 5px; background: var(--line); overflow: hidden; }
+    .dimbar-fill { position: absolute; left: 0; top: 0; height: 100%; border-radius: 5px; }
+    .dimbar-tick { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(21,32,43,0.10); }
+    .dimscale { display: flex; justify-content: space-between; margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--line); }
+    .dimscale span { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted-2); }
+    .b-red { background: #B85C52; } .b-amber { background: #C49A3C; }
+    .b-slate { background: #6B8FA6; } .b-teal { background: #4E9A7A; }
+
+    @media (max-width: 760px) {
+      .dx-tabs { grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px 20px; }
+      .dx-tab .dx-tab-desc { display: none; }
+      .dimbars-panel { padding: 20px; }
+      .dimbar-name { font-size: 0.9rem; }
+    }
+    @media print { .dx-tabs-wrap { display: none; } }
   </style>
 </head>
 <body>
@@ -791,7 +840,7 @@
 
 <div class="meta-bar">
   <div class="meta-bar-inner">
-    <p class="meta-bar-label">Sample Report · Decision Velocity Diagnostic</p>
+    <p class="meta-bar-label" id="meta-label">Sample Report · Operational Systems Diagnostic</p>
     <div class="meta-bar-actions">
       <a href="diagnostic-hub.html">← Back to Diagnostic Hub</a>
       <span class="meta-divider">·</span>
@@ -804,32 +853,377 @@
   <div class="notice-inner">
     <span class="notice-dot" aria-hidden="true"></span>
     <p>
-      <strong>This is a sample report.</strong> The content below is anonymized but representative — a complete, unedited example of the executive read produced by a Monderman diagnostic. The hypothetical organization and workflow are illustrative; the structure, depth, and format are identical to a real run.
+      <strong>These are sample reports.</strong> Each tab below is a complete, anonymized example of the executive read produced by one of Monderman's four diagnostics. The hypothetical organizations and workflows are illustrative; the structure, depth, and format are identical to a real run.
     </p>
   </div>
 </div>
 
-<div class="toc-mobile">
-  <select onchange="if(this.value) window.location.hash=this.value">
-    <option value="">Jump to section…</option>
-    <option value="cover">Cover</option>
-    <option value="headline">Headline finding</option>
-    <option value="composition">Drag composition</option>
-    <option value="focus">Where to focus first</option>
-    <option value="quadrant">Governance × Execution</option>
-    <option value="experiential">Experiential layer</option>
-    <option value="readings">Competing readings</option>
-    <option value="update">What would update this read</option>
-    <option value="remedies">Three remedy paths</option>
-    <option value="method">How this was produced</option>
-  </select>
+<div class="dx-tabs-wrap">
+  <div class="dx-tabs" role="tablist" aria-label="Choose a diagnostic">
+    <button class="dx-tab is-active" data-target="os" role="tab" aria-selected="true">
+      <span class="dx-tab-name">Operational Systems</span>
+      <span class="dx-tab-desc">Operating burden · 6 dimensions</span>
+    </button>
+    <button class="dx-tab" data-target="dv" role="tab" aria-selected="false">
+      <span class="dx-tab-name">Decision Velocity</span>
+      <span class="dx-tab-desc">Decision-pathway drag · 6 dimensions</span>
+    </button>
+    <button class="dx-tab" data-target="sc" role="tab" aria-selected="false">
+      <span class="dx-tab-name">Structural Clarity</span>
+      <span class="dx-tab-desc">Structural legibility · 5 dimensions</span>
+    </button>
+    <button class="dx-tab" data-target="ip" role="tab" aria-selected="false">
+      <span class="dx-tab-name">Institutional Performance</span>
+      <span class="dx-tab-desc">Institutional condition · 5 dimensions</span>
+    </button>
+  </div>
 </div>
 
-<div class="doc-shell">
+<section class="report-shell" data-report="os">
+  <div class="toc-mobile">
+    <select onchange="if(this.value){var s=this.closest('.report-shell');var el=document.getElementById(s.dataset.report+'-'+this.value);if(el)el.scrollIntoView();}">
+        <option value="">Jump to section…</option>
+        <option value="cover">Cover</option>
+        <option value="headline">Headline finding</option>
+        <option value="composition">Burden composition</option>
+        <option value="focus">Where to focus first</option>
+        <option value="quadrant">Governance × Execution</option>
+        <option value="experiential">Experiential layer</option>
+        <option value="readings">Competing readings</option>
+        <option value="update">What would update this read</option>
+        <option value="remedies">Three remedy paths</option>
+        <option value="method">How this was produced</option>
+    </select>
+  </div>
+  <div class="doc-shell">
   <main class="doc">
 
+    <section class="cover" id="os-cover">
+      <div class="cover-dark">
+        <p class="cover-mark">Operational Systems Diagnostic</p>
+        <div class="cover-rule"></div>
+        <h1 class="cover-title">Executive Summary</h1>
+        <p class="cover-sub">Single-run operating diagnostic · Narrow — focused read</p>
+      </div>
+      <div class="cover-stripe"></div>
+      <div class="cover-white">
+        <p class="cover-kicker">Workflow under diagnosis</p>
+        <h2 class="cover-workflow">Procurement intake and vendor onboarding</h2>
+        <p class="cover-meta-line">Manufacturing · Mid-sized manufacturer · Operational vantage point</p>
+        <p class="cover-date-line">Diagnostic run · May 25, 2026</p>
+        <div class="cover-pills">
+          <span class="cover-pill cover-pill-accent">Heavy administrative environment</span>
+          <span class="cover-pill cover-pill-neutral">Holding steady</span>
+          <span class="cover-pill cover-pill-neutral">~22% drag</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="os-headline">
+      <p class="section-eyebrow">The pattern this run is detecting <span class="pg">Page 2</span></p>
+      <h2>Headline finding</h2>
+      <p class="lede"><strong>Heavy but holding</strong> is the active condition for this operating environment. The procurement intake workflow keeps moving largely because people route around the formal path when it stalls — and that off-path effort, not the documented process, is doing much of the work. The burden is mixed rather than concentrated in one place: workaround dependence is the largest single source, but systems friction, administrative upkeep, and process density are all material. The visible output stays acceptable while the operating system underneath quietly gets more expensive to sustain.</p>
+
+      <div class="leadership-question"><b>Leadership question</b><p>What does leadership need to admit about how this really works before the next change will stick?</p></div>
+
+      <p>Directional modeling suggests about <strong>4,700 annual burden hours*</strong> and about <strong>$300,000–$500,000*</strong> in labor exposure, with capacity drag around <strong>22%*</strong>. These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
+
+      <p>The practical question is not whether work is still getting done. It is how much organizational energy is now required to make it happen. The score should be read as a structured quantitative operating-burden indicator. Experiential bypass signals, when present, do not change the score; they provide interpretive context about how the formal process may differ from operating reality.</p>
+
+      <p>When a workflow needs repeated coordination, compensating behavior, workaround maintenance, or control translation, the visible output may remain acceptable while the operating system underneath becomes increasingly expensive to sustain.</p>
+
+      <div class="capacity">
+        <div class="seg" style="width:78%;background:#4E9A7A">78%</div>
+        <div class="seg" style="width:9%;background:#C49A3C">9%</div>
+        <div class="seg" style="width:13%;background:#B85C52">13%</div>
+      </div>
+      <div class="legend">
+        <span><span class="dot" style="background:#4E9A7A"></span>Productive work</span>
+        <span><span class="dot" style="background:#C49A3C"></span>Admin upkeep</span>
+        <span><span class="dot" style="background:#B85C52"></span>Recoverable drag*</span>
+      </div>
+      <p class="muted" style="font-size:0.84rem;">Estimates of how this workflow's available capacity is currently allocated. Recoverable drag* is the portion that could be returned to productive use through structural intervention.</p>
+
+      <h3>Why this matters in manufacturing</h3>
+      <p>In manufacturing, intake and onboarding workflows accumulate weight because every supplier exception is handled as if it carries the same risk, and the controls built for the hard cases become the controls applied to routine ones too. Comparable operations often treat that drag as normal even when it is still leaving meaningful time, money, and capacity on the table.</p>
+      <p>The trajectory signal suggests relative stability. Stability here should not be confused with strength — a steady-state burden can still be carrying meaningful drag that the organization has simply learned to tolerate.</p>
+    </section>
+
+    <section class="section" id="os-composition">
+      <p class="section-eyebrow">Where the burden is coming from <span class="pg">Page 3</span></p>
+      <h2>Burden composition</h2>
+      <p>The composition view shows where the visible burden is coming from across the six dimensions Monderman measures: process density, systems friction, reporting burden, workaround dependence, control load, and administrative upkeep burden.</p>
+      <p class="muted">The important signal is not only which dimension is largest. The distribution also matters. A concentrated pattern usually points to a more targeted intervention; a distributed pattern usually means the workflow has absorbed burden into its normal operating design.</p>
+
+      <div class="panel donut-panel">
+        <div class="donut-wrap">
+          <svg width="180" height="180" viewBox="0 0 200 200">
+            <path d="M 100.00 14.00 A 86 86 0 0 1 183.30 121.39 L 154.24 113.93 A 56 56 0 0 0 100.00 44.00 Z" fill="#3F6EA1"></path>
+            <path d="M 183.30 121.39 A 86 86 0 0 1 121.39 183.30 L 113.93 154.24 A 56 56 0 0 0 154.24 113.93 Z" fill="#6B8FA6"></path>
+            <path d="M 121.39 183.30 A 86 86 0 0 1 41.13 162.69 L 61.67 140.82 A 56 56 0 0 0 113.93 154.24 Z" fill="#8E7FA8"></path>
+            <path d="M 41.13 162.69 A 86 86 0 0 1 14.68 89.22 L 44.44 92.98 A 56 56 0 0 0 61.67 140.82 Z" fill="#4E9A7A"></path>
+            <path d="M 14.68 89.22 A 86 86 0 0 1 53.92 27.39 L 69.99 52.72 A 56 56 0 0 0 44.44 92.98 Z" fill="#B85C52"></path>
+            <path d="M 53.92 27.39 A 86 86 0 0 1 100.00 14.00 L 100.00 44.00 A 56 56 0 0 0 69.99 52.72 Z" fill="#C49A3C"></path>
+          </svg>
+          <div class="donut-center"><div><small>Dominant</small><b>29%</b></div></div>
+        </div>
+        <div>
+          <div class="comp-row"><span class="dot" style="background:#3F6EA1"></span><span>Workaround dependence</span><b>29%</b></div>
+          <div class="comp-row"><span class="dot" style="background:#6B8FA6"></span><span>Systems friction</span><b>17%</b></div>
+          <div class="comp-row"><span class="dot" style="background:#8E7FA8"></span><span>Administrative upkeep burden</span><b>16%</b></div>
+          <div class="comp-row"><span class="dot" style="background:#4E9A7A"></span><span>Process density</span><b>15%</b></div>
+          <div class="comp-row"><span class="dot" style="background:#B85C52"></span><span>Reporting burden</span><b>14%</b></div>
+          <div class="comp-row"><span class="dot" style="background:#C49A3C"></span><span>Control load</span><b>9%</b></div>
+        </div>
+      </div>
+
+      <h3>What the composition tells us</h3>
+      <p>The composition shows workaround dependence as the dominant visible burden source at 29% of the total, with the remaining burden meaningfully distributed across the other dimensions. This middle pattern usually responds to focused intervention on the dominant source while watching for compensation in the others.</p>
+
+      <div class="leadership-question"><b>Leadership question</b><p>Is burden distributed because the whole path is overbuilt, or because people have normalized compensating behavior?</p></div>
+
+      <div class="card-row">
+        <div class="mini-card"><b>Concentrated burden</b><p>One source dominates. Faster to fix because targeted intervention has high yield.</p></div>
+        <div class="mini-card"><b>Distributed burden</b><p>No single source dominates. Slower to fix; usually requires path-level redesign.</p></div>
+      </div>
+    </section>
+
+    <section class="section" id="os-focus">
+      <p class="section-eyebrow">The first move <span class="pg">Page 4</span></p>
+      <h2>Where to focus first</h2>
+      <p class="lede">The workflow relies on some off-path effort to keep moving, which adds fragility.</p>
+
+      <div class="two-col">
+        <div>
+          <h3>Priority actions</h3>
+          <p><strong>1.</strong> Make ownership and handoffs clearer so less gets redone and the work moves without constant follow-up — targeting the handful of intake steps that currently force people off-path.</p>
+          <p><strong>2.</strong> Re-run the diagnostic after the first material intervention to verify that the workflow actually became lighter rather than merely shifting burden elsewhere.</p>
+        </div>
+        <div class="gauge-panel">
+          <svg class="gauge-svg" viewBox="0 0 220 130">
+            <path d="M45 100 A65 65 0 0 1 175 100" fill="none" stroke="#D7DEE8" stroke-width="14" stroke-linecap="round"/>
+            <path d="M45 100 A65 65 0 0 1 175 100" fill="none" stroke="#3F6EA1" stroke-width="14" stroke-linecap="round" stroke-dasharray="114 220"/>
+            <line x1="110" y1="100" x2="119.9" y2="47.9" stroke="#15202B" stroke-width="3"/>
+            <circle cx="110" cy="100" r="5" fill="#15202B"/>
+            <text x="34" y="52" font-size="6.5" fill="#7C8794">Below</text>
+            <text x="78" y="26" font-size="6.5" fill="#7C8794">Within</text>
+            <text x="128" y="26" font-size="6.5" fill="#7C8794">Above</text>
+            <text x="164" y="52" font-size="6.5" fill="#7C8794">Opportunity</text>
+          </svg>
+          <div class="gauge-score">56</div>
+          <div class="gauge-label">Within industry range</div>
+        </div>
+      </div>
+
+      <div class="panel bench">
+        <p><strong>Benchmark context.</strong> This workflow is heavy in absolute terms but still within industry range for manufacturing. That is analytically important: peer comparison will not create urgency by itself. The case for action comes from trajectory, qualitative operating evidence, and the fact that similar workflows still often carry about 20% recoverable drag even when the setup feels normal.</p>
+      </div>
+    </section>
+
+    <section class="section" id="os-quadrant">
+      <p class="section-eyebrow">Evidence and detail <span class="pg">Page 5</span></p>
+      <h2>Governance weight × execution responsiveness</h2>
+      <p>This view places the run on two axes: how much governance weight the workflow is carrying, and how responsive execution appears under that weight.</p>
+
+      <div class="quadbox">
+        <div class="axis-y">Execution responsiveness</div>
+        <div class="quad">
+          <div class="qlabel" style="left:12px;top:12px">Fast movement,<br>lighter governance</div>
+          <div class="qlabel" style="right:12px;top:12px;text-align:right">Fast movement,<br>heavier governance</div>
+          <div class="qlabel" style="left:12px;bottom:12px">Slow movement,<br>lighter governance</div>
+          <div class="qlabel" style="right:12px;bottom:12px;text-align:right">Slow movement,<br>heavier governance</div>
+          <div class="qdot" style="left:40%;top:64%"></div>
+        </div>
+        <div class="axis-x">Governance weight</div>
+      </div>
+
+      <h3>How to read this quadrant</h3>
+      <p>Formal governance density is not the main problem. The issue is that the workflow is not carrying movement well through ownership, coordination, and handoff design. Adding more control on top of an already off-path workflow would deepen the burden rather than relieve it; the leverage is in legibility and ownership, not in heavier governance.</p>
+
+      <div class="leadership-question"><b>Leadership question</b><p>Is execution underpowered for the load it carries, or is governance too light to surface real friction?</p></div>
+
+      <div class="panel" style="font-size:0.92rem; padding: 16px 20px;">
+        <p style="margin:0;"><strong>No major structured-answer contradiction surfaced in this run.</strong> That does not prove the system is healthy. It only means the scored answer pattern did not show a major internal conflict; experiential notes, if added later, should be tested through managerial and senior-leader runs.</p>
+      </div>
+    </section>
+
+    <section class="section" id="os-experiential">
+      <p class="section-eyebrow">Experiential layer <span class="pg">Page 6</span></p>
+      <h2>What the participant added</h2>
+      <p>This optional layer records how the workflow is experienced from the selected vantage point and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal process description and lived operating reality diverge.</p>
+
+      <div class="panel">
+        <h3 style="margin-top:0;">Experiential synthesis</h3>
+        <p>The notes recorded below describe a workflow that runs on quiet workarounds — the documented intake path is followed when it is convenient and bypassed when it is not, and the people who hold those bypasses are absorbing the difference.</p>
+        <p class="muted" style="margin-bottom:0;">These notes should be compared across roles before being treated as a stable organizational pattern.</p>
+      </div>
+
+      <div class="exp-grid">
+        <div class="exp-card"><h3>Your operational experience</h3><p>Half of what keeps intake moving is not in the SOP. We have learned which steps to skip and who to call to unstick a supplier.</p></div>
+        <div class="exp-card"><h3>What operational staff may be experiencing</h3><p>The official process and the real process are not the same thing, and new people take months to learn the difference.</p></div>
+        <div class="exp-card"><h3>What managers may be experiencing</h3><p>Managers spend real time re-checking and re-entering work that the system should have carried cleanly the first time.</p></div>
+        <div class="exp-card"><h3>What senior leaders may be seeing</h3><p>Leadership sees orders going out on time and reads the workflow as healthy, missing how much rests on a few people's workarounds.</p></div>
+      </div>
+
+      <div class="panel bench">
+        <p><strong>Leadership question.</strong> Does the documented process still describe the process people actually use?</p>
+        <p style="margin-bottom:0;"><strong>How to use this layer.</strong> Treat these notes as a way to plan follow-up conversations. If the same signal appears across operational, managerial, and senior-leader runs, it becomes more useful as a governance input. If it appears in only one lens, it is still valuable, but it should be read as a clue rather than a conclusion.</p>
+      </div>
+    </section>
+
+    <section class="section" id="os-readings">
+      <p class="section-eyebrow">Analytical review <span class="pg">Page 7</span></p>
+      <h2>Competing readings</h2>
+      <p>This section names the plausible interpretations of the same signal and identifies the evidence that would confirm, weaken, or reframe the current read.</p>
+
+      <div class="card-row card-row-1">
+        <div class="mini-card">
+          <b>Structural burden read</b>
+          <p>The workflow is too heavy because the formal path carries more process and control density than the underlying work requires.</p>
+          <p class="muted"><em>Signal test:</em> Cycle-time data would show delay concentrated in formal review stages.</p>
+        </div>
+        <div class="mini-card">
+          <b>Bypass / control-risk read</b>
+          <p>The documented workflow may no longer be the real workflow; workarounds preserve output while weakening control visibility.</p>
+          <p class="muted"><em>Signal test:</em> Managerial and senior-leader runs would confirm a gap between formal process design and actual practice.</p>
+        </div>
+        <div class="mini-card">
+          <b>Equilibrium-with-workarounds read</b>
+          <p>The system may be stable only because managers and operators have learned how to compensate around it.</p>
+          <p class="muted"><em>Signal test:</em> Removing informal cover would quickly worsen cycle time, exception volume, or compliance friction.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="os-update">
+      <p class="section-eyebrow">Analytical review <span class="pg">Page 8</span></p>
+      <h2>What would update this read</h2>
+      <p>The current diagnosis rests on a single run from a single perspective. The items below describe the evidence that would confirm, weaken, or reframe the read before leadership commits to a remedy path.</p>
+
+      <div class="panel bench">
+        <p>• A managerial-perspective run showing the same workaround pattern would elevate the read from suggestive to confirmed.</p>
+        <p>• A senior-leader run showing confidence that the formal path is followed would expose a possible visibility gap.</p>
+        <p style="margin-bottom:0;">• Actual volume and cycle-time data would recalibrate the exposure range and show whether the issue is occasional or normalized.</p>
+      </div>
+    </section>
+
+    <section class="section" id="os-remedies">
+      <p class="section-eyebrow">How leadership could respond <span class="pg">Page 9</span></p>
+      <h2>Three remedy paths</h2>
+      <p>Three distinct intervention strategies, ordered by ambition and risk. Each path implies a different leadership posture, time horizon, and tolerance for short-term disruption.</p>
+
+      <div class="leadership-question"><b>Leadership question</b><p>Is leadership trying to preserve control, reclaim capacity, or realign the formal path with how the work actually runs?</p></div>
+
+      <div class="remedy-grid">
+        <div class="remedy">
+          <div class="tag">Low disruption</div>
+          <h3>Map and close top workaround routes</h3>
+          <p>Catalogue where people route around the formal intake process and fix the specific steps that force them off-path, without restructuring roles.</p>
+          <p class="muted"><strong>Benefit:</strong> Surfaces the real operating path and targets the highest-cost friction directly, recovering coordination and rework hours.</p>
+          <p class="muted"><strong>Risk:</strong> If treated as a one-time audit and operators are not consulted, the workarounds re-form within weeks.</p>
+        </div>
+        <div class="remedy">
+          <div class="tag">Targeted redesign</div>
+          <h3>Risk-tier the standard workflow</h3>
+          <p>Restructure intake so routine cases follow a light standard path and only true exceptions draw heavier handling, removing the systems friction and upkeep that drive workaround dependence.</p>
+          <p class="muted"><strong>Benefit:</strong> Cleaner exception flow, fewer manual handoffs and duplicate entries, and a faster standard route that becomes the path of least resistance.</p>
+          <p class="muted"><strong>Risk:</strong> Tiering thresholds set too tightly push routine work back into the exception lane, recreating the friction that started the workarounds.</p>
+        </div>
+        <div class="remedy">
+          <div class="tag">Fastest structural reset</div>
+          <h3>Rebuild the operating path end to end</h3>
+          <p>Reset the workflow architecture so process density, systems friction, and workaround dependence are designed out together, with clear ownership and exception thresholds built in from the start.</p>
+          <p class="muted"><strong>Benefit:</strong> Eliminates the structural gap between official and actual practice, sharply reducing administrative upkeep and freeing substantial capacity for results.</p>
+          <p class="muted"><strong>Risk:</strong> A full reset is disruptive and can stall if ownership is unclear; without sustained sponsorship, old workarounds and control layers reassert themselves and the burden returns.</p>
+        </div>
+      </div>
+
+      <p class="remedy-calibration-note">* Calibrate against insight depth before acting. A single short-form run produces directional remedy guidance, not engineering specifications — the breadth, depth, and cross-validation of inputs governs how confidently any of these paths should be pursued.</p>
+
+      <div class="rule"></div>
+
+      <h3>Choosing between them</h3>
+      <p>The right choice depends less on the current burden score than on three things: how much stability the organization needs while changes happen, how much trust leadership has earned to redesign rather than tweak, and whether the workflow is on a path that is already worsening. Light paths preserve continuity; aggressive paths buy more capacity but require a stronger mandate.</p>
+    </section>
+
+    <section class="section" id="os-method">
+      <p class="section-eyebrow">How to read this report <span class="pg">Page 10</span></p>
+      <h2>How this was produced</h2>
+      <p>This diagnostic measures recurring operating burden across six dimensions: process density, systems friction, reporting burden, workaround dependence, control load, and administrative upkeep burden. It also estimates the amount of productive capacity being absorbed by sustaining the workflow itself rather than producing outcomes. The diagnostic does not independently verify user inputs; it should be read as a directional operating read rather than a full audit.</p>
+
+      <div class="rule"></div>
+
+      <div class="ring-row">
+        <svg class="ring" viewBox="0 0 58 58">
+          <circle cx="29" cy="29" r="23" fill="none" stroke="#E6EAF0" stroke-width="7"/>
+          <circle cx="29" cy="29" r="23" fill="none" stroke="#C49A3C" stroke-width="7" stroke-dasharray="10 145" transform="rotate(-90 29 29)"/>
+        </svg>
+        <div>
+          <div style="font-size:1.6rem;font-weight:700;line-height:1;">7</div>
+          <p class="muted" style="margin-top:6px;font-size:0.9rem;"><strong>Insight depth score · Narrow — focused read.</strong> Single-run signal-quality indicator, not a correctness score.</p>
+        </div>
+      </div>
+
+      <p>For a single run from a single perspective, this score reflects the depth of the run and self-reported confidence in the inputs. A single run is always a narrow first signal regardless of how thoughtful it was. To strengthen the read, run this diagnostic from other organizational perspectives and over time; the cross-diagnostic synthesis tool combines those runs and computes a broader insight depth score.</p>
+
+      <h3>What would strengthen the next read</h3>
+      <div class="method-box">
+        <p>• Run this diagnostic from managerial and senior-leader perspectives to test whether the burden pattern is consistent across organizational levels or concentrated in specific roles. Divergence between perspectives reframes the diagnosis from structural to distributional.</p>
+        <p>• Re-run this diagnostic in six to twelve months to detect drift before it becomes structural. Flat trajectories often mask gradual accumulation that only becomes visible through repeated measurement.</p>
+        <p>• Run the diagnostic against adjacent workflows in manufacturing that share dependencies with procurement intake. The same pattern surfacing in adjacent workflows distinguishes a workflow-specific issue from a systemic operating-environment issue.</p>
+      </div>
+
+      <h3>What the figures represent</h3>
+      <div class="method-box">
+        <p>* Figures marked with an asterisk are directional estimates generated from your inputs, not guaranteed financial outcomes. They are intended to indicate rough order of magnitude so leadership can decide whether the pattern is worth investigating further. They should not be cited externally as audited measurements, and they should not be used as the basis for compensation decisions, performance reviews, or formal financial planning.</p>
+      </div>
+
+      <h3 style="margin-top:24px">Where Monderman fits</h3>
+      <p>Monderman is built for leaders who want a structured, repeatable read on operating burden — not a one-off consulting engagement. The diagnostic surfaces patterns; the leadership decides what to do about them. This report is the artifact of that read, suitable for distribution to peers, leadership, and trusted advisors who need to engage with the same picture.</p>
+      <p class="muted" style="font-size:0.78rem;margin-top:22px;">Prepared by Monderman's diagnostic engine.</p>
+    </section>
+  </main>
+
+  <aside class="toc-rail" aria-label="Table of contents">
+    <p class="toc-rail-label">Contents</p>
+    <ol>
+      <li><a href="#os-cover" data-section="os-cover"><span class="toc-num">01</span>Cover</a></li>
+      <li><a href="#os-headline" data-section="os-headline"><span class="toc-num">02</span>Headline finding</a></li>
+      <li><a href="#os-composition" data-section="os-composition"><span class="toc-num">03</span>Burden composition</a></li>
+      <li><a href="#os-focus" data-section="os-focus"><span class="toc-num">04</span>Where to focus first</a></li>
+      <li><a href="#os-quadrant" data-section="os-quadrant"><span class="toc-num">05</span>Governance × Execution</a></li>
+      <li><a href="#os-experiential" data-section="os-experiential"><span class="toc-num">06</span>Experiential layer</a></li>
+      <li><a href="#os-readings" data-section="os-readings"><span class="toc-num">07</span>Competing readings</a></li>
+      <li><a href="#os-update" data-section="os-update"><span class="toc-num">08</span>What would update this read</a></li>
+      <li><a href="#os-remedies" data-section="os-remedies"><span class="toc-num">09</span>Three remedy paths</a></li>
+      <li><a href="#os-method" data-section="os-method"><span class="toc-num">10</span>How this was produced</a></li>
+    </ol>
+  </aside>
+  </div>
+</section>
+
+<section class="report-shell" data-report="dv" hidden>
+  <div class="toc-mobile">
+    <select onchange="if(this.value){var s=this.closest('.report-shell');var el=document.getElementById(s.dataset.report+'-'+this.value);if(el)el.scrollIntoView();}">
+        <option value="">Jump to section…</option>
+        <option value="cover">Cover</option>
+        <option value="headline">Headline finding</option>
+        <option value="composition">Drag composition</option>
+        <option value="focus">Where to focus first</option>
+        <option value="quadrant">Governance × Execution</option>
+        <option value="experiential">Experiential layer</option>
+        <option value="readings">Competing readings</option>
+        <option value="update">What would update this read</option>
+        <option value="remedies">Three remedy paths</option>
+        <option value="method">How this was produced</option>
+    </select>
+  </div>
+  <div class="doc-shell">
+  <main class="doc">
+
+
     <!-- Cover -->
-    <section class="cover" id="cover">
+    <section class="cover" id="dv-cover">
       <div class="cover-dark">
         <p class="cover-mark">Decision Velocity Diagnostic</p>
         <div class="cover-rule"></div>
@@ -851,7 +1245,7 @@
     </section>
 
     <!-- Section 2: Headline finding -->
-    <section class="section" id="headline">
+    <section class="section" id="dv-headline">
       <p class="section-eyebrow">The pattern this run is detecting <span class="pg">Page 2</span></p>
       <h2>Headline finding</h2>
       <p class="lede"><strong>Functional but burdened</strong> is the active condition for this decision pathway. The senior hire approval pathway is carrying a coordination weight that managers are actively absorbing to maintain acceptable cycle times. The evidence points to a pathway where escalation pressure and exception-handling volume have become routine management tasks rather than occasional interventions — a pattern that consumes managerial capacity, slows decision tempo at the front end, and leaves operational staff navigating a coordination requirement that is disproportionate to what the decisions themselves demand.</p>
@@ -893,7 +1287,7 @@
     </section>
 
     <!-- Section 3: Drag composition -->
-    <section class="section" id="composition">
+    <section class="section" id="dv-composition">
       <p class="section-eyebrow">Where the drag is coming from <span class="pg">Page 3</span></p>
       <h2>Drag composition</h2>
       <p>The composition view shows where the visible drag is coming from across the dimensions Monderman measures: approval density, coordination burden, handoff burden, escalation dependence, rework friction, and key-person brittleness. Dimensions with no material contribution to this run may be omitted from the chart below for clarity.</p>
@@ -938,7 +1332,7 @@
     </section>
 
     <!-- Section 4: Where to focus first -->
-    <section class="section" id="focus">
+    <section class="section" id="dv-focus">
       <p class="section-eyebrow">The first move <span class="pg">Page 4</span></p>
       <h2>Where to focus first</h2>
       <p class="lede">Approval layers appear to be adding more time to the path than the decision likely requires.</p>
@@ -971,7 +1365,7 @@
     </section>
 
     <!-- Section 5: Quadrant -->
-    <section class="section" id="quadrant">
+    <section class="section" id="dv-quadrant">
       <p class="section-eyebrow">Evidence and detail <span class="pg">Page 5</span></p>
       <h2>Governance weight × execution responsiveness</h2>
       <p>This view places the run on two axes: how much governance weight the pathway is carrying, and how responsive execution appears under that weight.</p>
@@ -1002,7 +1396,7 @@
     </section>
 
     <!-- Section 6: Experiential -->
-    <section class="section" id="experiential">
+    <section class="section" id="dv-experiential">
       <p class="section-eyebrow">Experiential layer <span class="pg">Page 6</span></p>
       <h2>What the participant added</h2>
       <p>This optional layer records how the workflow is experienced from the selected vantage point and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal process description and lived operating reality diverge.</p>
@@ -1039,7 +1433,7 @@
     </section>
 
     <!-- Section 7: Competing readings -->
-    <section class="section" id="readings">
+    <section class="section" id="dv-readings">
       <p class="section-eyebrow">Analytical review <span class="pg">Page 7</span></p>
       <h2>Competing readings</h2>
       <p>This section names the plausible interpretations of the same signal and identifies the evidence that would confirm, weaken, or reframe the current read.</p>
@@ -1064,7 +1458,7 @@
     </section>
 
     <!-- Section 8: What would update this read -->
-    <section class="section" id="update">
+    <section class="section" id="dv-update">
       <p class="section-eyebrow">Analytical review <span class="pg">Page 8</span></p>
       <h2>What would update this read</h2>
       <p>The current diagnosis rests on a single run from a single perspective. The items below describe the evidence that would confirm, weaken, or reframe the read before leadership commits to a remedy path.</p>
@@ -1077,7 +1471,7 @@
     </section>
 
     <!-- Section 9: Three remedy paths -->
-    <section class="section" id="remedies">
+    <section class="section" id="dv-remedies">
       <p class="section-eyebrow">How leadership could respond <span class="pg">Page 9</span></p>
       <h2>Three remedy paths</h2>
       <p>Three distinct intervention strategies, ordered by ambition and risk. Each path implies a different leadership posture, time horizon, and tolerance for short-term disruption.</p>
@@ -1120,7 +1514,7 @@
     </section>
 
     <!-- Section 10: Method -->
-    <section class="section" id="method">
+    <section class="section" id="dv-method">
       <p class="section-eyebrow">How to read this report <span class="pg">Page 10</span></p>
       <h2>How this was produced</h2>
       <p>This diagnostic measures pathway drag across six dimensions: approval density, coordination burden, handoff burden, escalation dependence, rework friction, and key-person brittleness. It also estimates the amount of productive capacity being absorbed by sustaining the pathway itself rather than producing decisions. The diagnostic does not independently verify user inputs; it should be read as a directional pathway read rather than a full audit.</p>
@@ -1157,25 +1551,675 @@
       <p class="muted" style="font-size:0.78rem;margin-top:22px;">Prepared by Monderman's diagnostic engine.</p>
     </section>
 
+    </main>
+
+<aside class="toc-rail" aria-label="Table of contents">
+    <p class="toc-rail-label">Contents</p>
+    <ol>
+      <li><a href="#dv-cover" data-section="dv-cover"><span class="toc-num">01</span>Cover</a></li>
+      <li><a href="#dv-headline" data-section="dv-headline"><span class="toc-num">02</span>Headline finding</a></li>
+      <li><a href="#dv-composition" data-section="dv-composition"><span class="toc-num">03</span>Drag composition</a></li>
+      <li><a href="#dv-focus" data-section="dv-focus"><span class="toc-num">04</span>Where to focus first</a></li>
+      <li><a href="#dv-quadrant" data-section="dv-quadrant"><span class="toc-num">05</span>Governance × Execution</a></li>
+      <li><a href="#dv-experiential" data-section="dv-experiential"><span class="toc-num">06</span>Experiential layer</a></li>
+      <li><a href="#dv-readings" data-section="dv-readings"><span class="toc-num">07</span>Competing readings</a></li>
+      <li><a href="#dv-update" data-section="dv-update"><span class="toc-num">08</span>What would update this read</a></li>
+      <li><a href="#dv-remedies" data-section="dv-remedies"><span class="toc-num">09</span>Three remedy paths</a></li>
+      <li><a href="#dv-method" data-section="dv-method"><span class="toc-num">10</span>How this was produced</a></li>
+    </ol>
+  </aside>
+  </div>
+</section>
+
+<section class="report-shell" data-report="sc" hidden>
+  <div class="toc-mobile">
+    <select onchange="if(this.value){var s=this.closest('.report-shell');var el=document.getElementById(s.dataset.report+'-'+this.value);if(el)el.scrollIntoView();}">
+        <option value="">Jump to section…</option>
+        <option value="cover">Cover</option>
+        <option value="headline">Headline finding</option>
+        <option value="composition">Clarity dimension breakdown</option>
+        <option value="focus">Where to focus first</option>
+        <option value="quadrant">Governance × Legibility</option>
+        <option value="experiential">Experiential layer</option>
+        <option value="readings">Competing readings</option>
+        <option value="update">What would update this read</option>
+        <option value="remedies">Three remedy paths</option>
+        <option value="method">How this was produced</option>
+    </select>
+  </div>
+  <div class="doc-shell">
+  <main class="doc">
+
+    <section class="cover" id="sc-cover">
+      <div class="cover-dark">
+        <p class="cover-mark">Structural Clarity Diagnostic</p>
+        <div class="cover-rule"></div>
+        <h1 class="cover-title">Executive Summary</h1>
+        <p class="cover-sub">Single-run structural diagnostic · Narrow — focused read</p>
+      </div>
+      <div class="cover-stripe"></div>
+      <div class="cover-white">
+        <p class="cover-kicker">Structure under diagnosis</p>
+        <h2 class="cover-workflow">Care coordination structure</h2>
+        <p class="cover-meta-line">Healthcare · Regional hospital network · Operational vantage point</p>
+        <p class="cover-date-line">Diagnostic run · May 25, 2026</p>
+        <div class="cover-pills">
+          <span class="cover-pill cover-pill-accent">Readable but contested</span>
+          <span class="cover-pill cover-pill-neutral">Holding steady</span>
+          <span class="cover-pill cover-pill-neutral">~24% absorbed</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="sc-headline">
+      <p class="section-eyebrow">The pattern this run is detecting <span class="pg">Page 2</span></p>
+      <h2>Headline finding</h2>
+      <p class="lede"><strong>Readable but contested</strong> is the active condition for this structure. Care coordination is defined on paper, but decision rights are hard to read in practice — authority for the contested calls is unclear often enough that work stalls or gets re-litigated while people figure out who owns what. The ambiguity is concentrated rather than spread evenly: decision rights and accountability are markedly less legible than the rest of the structure, which makes the condition more fixable than a structure that is uniformly unclear.</p>
+
+      <div class="leadership-question"><b>Leadership question</b><p>What does leadership need to admit about how this really works before a fix will stick?</p></div>
+
+      <p>Directional modeling suggests about <strong>520 annual burden hours*</strong> and about <strong>$45,000–$70,000*</strong> in labor exposure, with capacity drag around <strong>24%*</strong>. These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
+
+      <p>The question is not whether work is getting done — it is how much extra effort it takes to get there. When the structure is not legible, people spend time figuring out who owns what, asking for clarification, and coordinating around the gaps. That effort is the hidden cost. Notes added by participants do not change the score; they just show how the ambiguity feels at different levels of the organization.</p>
+
+      <p>When a team has to keep asking managers to settle ownership, or escalating to get unstuck, the work may still look fine on the surface while the cost of working around the structure keeps climbing.</p>
+
+      <div class="capacity">
+        <div class="seg" style="width:76%;background:#4E9A7A">76%</div>
+        <div class="seg" style="width:8%;background:#C49A3C">8%</div>
+        <div class="seg" style="width:16%;background:#B85C52">16%</div>
+      </div>
+      <div class="legend">
+        <span><span class="dot" style="background:#4E9A7A"></span>Productive work</span>
+        <span><span class="dot" style="background:#C49A3C"></span>Routine coordination</span>
+        <span><span class="dot" style="background:#B85C52"></span>Recoverable ambiguity cost*</span>
+      </div>
+      <p class="muted" style="font-size:0.84rem;">Estimates of how this structure's available capacity is currently allocated. Recoverable ambiguity cost* is the portion that could be returned to productive use through structural intervention.</p>
+
+      <h3>Why this matters in healthcare</h3>
+      <p>In a hospital network, ambiguous ownership does not show up as missed work — it shows up as clarification, escalation, and re-litigated decisions that a clearer structure would not require. Comparable structures often treat that clarification effort as normal even when it is quietly absorbing meaningful time and capacity.</p>
+      <p>The trajectory signal suggests relative stability. Stability here should not be confused with strength — a structure that looks settled can still be carrying real cost that people have simply learned to work around.</p>
+    </section>
+
+    <section class="section" id="sc-composition">
+      <p class="section-eyebrow">Where clarity is breaking down <span class="pg">Page 3</span></p>
+      <h2>Clarity dimension breakdown</h2>
+      <p>The clarity dimension view shows where structural legibility is weakest across the five dimensions Monderman measures: role clarity, decision rights clarity, handoff integrity, accountability clarity, and governance proportionality. Lower scores indicate where the structure is least readable and most likely to require informal compensation.</p>
+      <p class="muted">The important signal is not only which dimension is lowest. The distribution also matters. A concentrated pattern points to a targeted legibility fix; a distributed pattern usually means structural redesign is needed across multiple dimensions.</p>
+
+      <div class="panel dimbars-panel">
+          <div class="dimbar">
+            <div class="dimbar-head"><span class="dimbar-name">Decision rights clarity<em>Weakest</em></span><span class="dimbar-val"><b>44</b><span class="dimbar-pill b-amber">Ambiguous</span></span></div>
+            <div class="dimbar-track"><span class="dimbar-fill b-amber" style="width:44%"></span><i class="dimbar-tick" style="left:25%"></i><i class="dimbar-tick" style="left:50%"></i><i class="dimbar-tick" style="left:75%"></i></div>
+          </div>
+          <div class="dimbar">
+            <div class="dimbar-head"><span class="dimbar-name">Accountability clarity</span><span class="dimbar-val"><b>51</b><span class="dimbar-pill b-slate">Softening</span></span></div>
+            <div class="dimbar-track"><span class="dimbar-fill b-slate" style="width:51%"></span><i class="dimbar-tick" style="left:25%"></i><i class="dimbar-tick" style="left:50%"></i><i class="dimbar-tick" style="left:75%"></i></div>
+          </div>
+          <div class="dimbar">
+            <div class="dimbar-head"><span class="dimbar-name">Handoff integrity</span><span class="dimbar-val"><b>57</b><span class="dimbar-pill b-slate">Softening</span></span></div>
+            <div class="dimbar-track"><span class="dimbar-fill b-slate" style="width:57%"></span><i class="dimbar-tick" style="left:25%"></i><i class="dimbar-tick" style="left:50%"></i><i class="dimbar-tick" style="left:75%"></i></div>
+          </div>
+          <div class="dimbar">
+            <div class="dimbar-head"><span class="dimbar-name">Role clarity</span><span class="dimbar-val"><b>63</b><span class="dimbar-pill b-slate">Softening</span></span></div>
+            <div class="dimbar-track"><span class="dimbar-fill b-slate" style="width:63%"></span><i class="dimbar-tick" style="left:25%"></i><i class="dimbar-tick" style="left:50%"></i><i class="dimbar-tick" style="left:75%"></i></div>
+          </div>
+          <div class="dimbar">
+            <div class="dimbar-head"><span class="dimbar-name">Governance proportionality</span><span class="dimbar-val"><b>78</b><span class="dimbar-pill b-teal">Clear</span></span></div>
+            <div class="dimbar-track"><span class="dimbar-fill b-teal" style="width:78%"></span><i class="dimbar-tick" style="left:25%"></i><i class="dimbar-tick" style="left:50%"></i><i class="dimbar-tick" style="left:75%"></i></div>
+          </div>
+        <div class="dimscale"><span>Breakdown</span><span>Ambiguous</span><span>Softening</span><span>Clear</span></div>
+      </div>
+
+      <h3>What the clarity profile tells us</h3>
+      <p>The clarity profile is concentrated rather than distributed. Decision rights clarity and accountability clarity are markedly weaker than the rest of the structure, which makes the condition more fixable: leadership can target where ownership is least legible first and expect a real shift. Distributed conditions look similar from the outside but require redesigning the structure itself, not clarifying one boundary.</p>
+
+      <div class="leadership-question"><b>Leadership question</b><p>Is this a contained ambiguity to clarify, or a sign the ownership model needs rework?</p></div>
+
+      <div class="card-row">
+        <div class="mini-card"><b>Concentrated constraint</b><p>One or two clarity dimensions clearly dominate. Targeted legibility fix has high yield.</p></div>
+        <div class="mini-card"><b>Distributed constraint</b><p>No single dimension dominates. Structural redesign likely needed across multiple dimensions.</p></div>
+      </div>
+    </section>
+
+    <section class="section" id="sc-focus">
+      <p class="section-eyebrow">The first move <span class="pg">Page 4</span></p>
+      <h2>Where to focus first</h2>
+      <p class="lede">Decision rights are hard to read — authority is contested or unclear often enough that decisions stall or get re-litigated.</p>
+
+      <div class="two-col">
+        <div>
+          <h3>Priority actions</h3>
+          <p><strong>1.</strong> First, clarify decision rights and ownership for the contested decisions — this is where the structure is least legible and where informal compensation is most likely filling the gap.</p>
+          <p><strong>2.</strong> Then, reset accountability boundaries and the weakest handoffs so responsibility is legible end to end rather than inferred case by case.</p>
+        </div>
+        <div class="gauge-panel">
+          <svg class="gauge-svg" viewBox="0 0 220 130">
+            <path d="M45 100 A65 65 0 0 1 175 100" fill="none" stroke="#D7DEE8" stroke-width="14" stroke-linecap="round"/>
+            <path d="M45 100 A65 65 0 0 1 175 100" fill="none" stroke="#3F6EA1" stroke-width="14" stroke-linecap="round" stroke-dasharray="110 220"/>
+            <line x1="110" y1="100" x2="116.6" y2="47.4" stroke="#15202B" stroke-width="3"/>
+            <circle cx="110" cy="100" r="5" fill="#15202B"/>
+            <text x="34" y="52" font-size="6.5" fill="#7C8794">Below</text>
+            <text x="78" y="26" font-size="6.5" fill="#7C8794">Within</text>
+            <text x="128" y="26" font-size="6.5" fill="#7C8794">Above</text>
+            <text x="164" y="52" font-size="6.5" fill="#7C8794">Opportunity</text>
+          </svg>
+          <div class="gauge-score">54</div>
+          <div class="gauge-label">Below industry range</div>
+        </div>
+      </div>
+
+      <div class="panel bench">
+        <p><strong>Benchmark context.</strong> Structural clarity sits below the typical range for a regional hospital network. This is not a communication problem — it is a design problem. A below-range score usually means ownership, decision rights, or accountability are less legible than comparable structures need, enough that clarification effort is doing work the design should be doing. Similar structures in this sector still often carry about 20% recoverable ambiguity cost even when the setup feels normal.</p>
+      </div>
+    </section>
+
+    <section class="section" id="sc-quadrant">
+      <p class="section-eyebrow">Evidence and detail <span class="pg">Page 5</span></p>
+      <h2>Governance weight × structural legibility</h2>
+      <p>This view places the run on two axes: how much governance weight the structure is carrying, and how legible the structure appears under that weight.</p>
+
+      <div class="quadbox">
+        <div class="axis-y">Structural legibility</div>
+        <div class="quad">
+          <div class="qlabel" style="left:12px;top:12px">High legibility,<br>lighter governance</div>
+          <div class="qlabel" style="right:12px;top:12px;text-align:right">High legibility,<br>heavier governance</div>
+          <div class="qlabel" style="left:12px;bottom:12px">Low legibility,<br>lighter governance</div>
+          <div class="qlabel" style="right:12px;bottom:12px;text-align:right">Low legibility,<br>heavier governance</div>
+          <div class="qdot" style="left:60%;top:66%"></div>
+        </div>
+        <div class="axis-x">Governance weight</div>
+      </div>
+
+      <h3>How to read this quadrant</h3>
+      <p>The structure is hard to read while governance weight is already moderate to heavy — clarification effort is doing the work that a legible design should be doing. The priority is restoring legibility through clear ownership and decision rights, not adding more governance on top of an ambiguous structure.</p>
+
+      <div class="leadership-question"><b>Leadership question</b><p>Is the structure illegible by design, or has clarity eroded under accumulated change?</p></div>
+
+      <div class="panel" style="font-size:0.92rem; padding: 16px 20px;">
+        <p style="margin:0;"><strong>No major structured-answer contradiction surfaced in this run.</strong> That does not prove the structure is healthy. It only means the scored answer pattern did not show a major internal conflict; experiential notes, if added later, should be tested through managerial and senior-leader runs.</p>
+      </div>
+    </section>
+
+    <section class="section" id="sc-experiential">
+      <p class="section-eyebrow">Experiential layer <span class="pg">Page 6</span></p>
+      <h2>What the participant added</h2>
+      <p>This optional layer records how the structure is experienced from the selected vantage point and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal structure and lived operating reality diverge.</p>
+
+      <div class="panel">
+        <h3 style="margin-top:0;">Experiential synthesis</h3>
+        <p>The notes recorded below describe a structure people cannot fully read — ownership of the harder decisions is inferred rather than stated, so the same questions about who decides keep coming back.</p>
+        <p class="muted" style="margin-bottom:0;">These notes should be compared across roles before being treated as a stable organizational pattern.</p>
+      </div>
+
+      <div class="exp-grid">
+        <div class="exp-card"><h3>Your operational experience</h3><p>For the calls that matter, it is never quite clear who owns the decision, so we end up checking with two or three people before anything moves.</p></div>
+        <div class="exp-card"><h3>What operational staff may be experiencing</h3><p>The same ownership questions come up every cycle, and the answer depends on who you ask rather than on the structure.</p></div>
+        <div class="exp-card"><h3>What managers may be experiencing</h3><p>Managers are pulled in to settle who owns what far more often than they should be, and it is starting to feel like the structure itself.</p></div>
+        <div class="exp-card"><h3>What senior leaders may be seeing</h3><p>Leadership sees the structure on paper and assumes it is clear, not seeing how much gets re-litigated below the surface.</p></div>
+      </div>
+
+      <div class="panel bench">
+        <p><strong>Leadership question.</strong> Does the structure on paper match how people actually work day to day?</p>
+        <p style="margin-bottom:0;"><strong>How to use this layer.</strong> Treat these notes as a way to plan follow-up conversations. If the same signal appears across operational, managerial, and senior-leader runs, it becomes more useful as a governance input. If it appears in only one lens, it is still valuable, but it should be read as a clue rather than a conclusion.</p>
+      </div>
+    </section>
+
+    <section class="section" id="sc-readings">
+      <p class="section-eyebrow">Analytical review <span class="pg">Page 7</span></p>
+      <h2>Competing readings</h2>
+      <p>This section names the plausible interpretations of the same signal and identifies the evidence that would confirm, weaken, or reframe the current read.</p>
+
+      <div class="card-row card-row-1">
+        <div class="mini-card">
+          <b>Legibility failure read</b>
+          <p>The structure exists on paper but cannot be read clearly enough in practice — ownership, authority, or handoffs require interpretation rather than observation.</p>
+          <p class="muted"><em>Signal test:</em> A cross-role run would show whether multiple perspectives describe the same ambiguity or whether it is concentrated at one level.</p>
+        </div>
+        <div class="mini-card">
+          <b>Structural drift read</b>
+          <p>The structure was once clearer and has softened through change, growth, or accumulated exception-handling that was never formalized back into the design.</p>
+          <p class="muted"><em>Signal test:</em> A longitudinal re-run would detect whether ambiguity is stable or accumulating. Rising scores would suggest drift.</p>
+        </div>
+        <div class="mini-card">
+          <b>Compensatory stability read</b>
+          <p>The system may appear functional because experienced people are navigating informally around structural ambiguity — removing them would expose the design gap.</p>
+          <p class="muted"><em>Signal test:</em> Key-person dependency signals in the run, or evidence that onboarding is disproportionately difficult, would support this read.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="sc-update">
+      <p class="section-eyebrow">Analytical review <span class="pg">Page 8</span></p>
+      <h2>What would update this read</h2>
+      <p>The current diagnosis rests on a single run from a single perspective. The items below describe the evidence that would confirm, weaken, or reframe the read before leadership commits to a remedy path.</p>
+
+      <div class="panel bench">
+        <p>• A managerial-perspective run showing the same legibility pattern would elevate the read from suggestive to confirmed.</p>
+        <p>• A senior-leader run showing confidence in the structure would expose a possible visibility gap between leadership perception and operational reality.</p>
+        <p style="margin-bottom:0;">• A re-run after deliberate structural change would show whether the ambiguity is structural or situational.</p>
+      </div>
+    </section>
+
+    <section class="section" id="sc-remedies">
+      <p class="section-eyebrow">How leadership could respond <span class="pg">Page 9</span></p>
+      <h2>Three remedy paths</h2>
+      <p>Three distinct intervention strategies, ordered by ambition and risk. Each path implies a different leadership posture, time horizon, and tolerance for short-term disruption.</p>
+
+      <div class="leadership-question"><b>Leadership question</b><p>Is leadership trying to preserve control, reclaim capacity, or make ownership and decision rights legible again?</p></div>
+
+      <div class="remedy-grid">
+        <div class="remedy">
+          <div class="tag">Low disruption</div>
+          <h3>Decision-rights map for routine work</h3>
+          <p>Document who holds the call for each common decision class in this structure, so decision rights clarity stops depending on inference.</p>
+          <p class="muted"><strong>Benefit:</strong> Routine decisions get claimed and made without waiting for someone to confirm they are allowed to act, cutting the daily re-confirmation cycle.</p>
+          <p class="muted"><strong>Risk:</strong> A map alone can drift back into ambiguity if the surrounding structure keeps changing and no one is charged with keeping it current.</p>
+        </div>
+        <div class="remedy">
+          <div class="tag">Targeted redesign</div>
+          <h3>Authority alignment across the unit</h3>
+          <p>Reconcile authority on paper with authority in practice across decision rights and the team boundaries that follow, so named owners actually hold their calls and handoffs carry accountability.</p>
+          <p class="muted"><strong>Benefit:</strong> Owners can act without escalating, and work moving across teams arrives with clear answerability instead of an open question about who is responsible.</p>
+          <p class="muted"><strong>Risk:</strong> Partial alignment can leave some boundaries clear and others still contradicted, which sustains confusion at the seams that remain unresolved.</p>
+        </div>
+        <div class="remedy">
+          <div class="tag">Fastest structural reset</div>
+          <h3>Structural redesign of rights and seams</h3>
+          <p>Rebuild decision rights, handoff integrity, and accountability design together as one coherent structure, removing the structural source of clarification effort.</p>
+          <p class="muted"><strong>Benefit:</strong> Establishes a structure people can read and act on directly, with authority, ownership, and handoffs that hold without informal workarounds carrying the load.</p>
+          <p class="muted"><strong>Risk:</strong> A full redesign is more disruption than a single boundary may need; without clear sponsorship and sequencing, it can harden the wrong assumptions or stall.</p>
+        </div>
+      </div>
+
+      <p class="remedy-calibration-note">* Calibrate against insight depth before acting. A single short-form run produces directional remedy guidance, not engineering specifications — the breadth, depth, and cross-validation of inputs governs how confidently any of these paths should be pursued.</p>
+
+      <div class="rule"></div>
+
+      <h3>Choosing between them</h3>
+      <p>The right choice depends less on the current clarity score than on three things: how much stability the organization needs while changes happen, how much trust leadership has earned to redesign rather than tweak, and whether the structure is on a path that is already eroding. Light paths preserve continuity; aggressive paths buy more legibility but require a stronger mandate.</p>
+    </section>
+
+    <section class="section" id="sc-method">
+      <p class="section-eyebrow">How to read this report <span class="pg">Page 10</span></p>
+      <h2>How this was produced</h2>
+      <p>This diagnostic measures structural clarity across five dimensions: role clarity, decision rights clarity, handoff integrity, accountability clarity, and governance proportionality. It also estimates the amount of productive capacity being absorbed by structural ambiguity — the compensation, clarification, and escalation that occurs when the structure is not legible enough to act on directly. The diagnostic does not independently verify user inputs; it should be read as a directional structural read rather than a full audit.</p>
+
+      <div class="rule"></div>
+
+      <div class="ring-row">
+        <svg class="ring" viewBox="0 0 58 58">
+          <circle cx="29" cy="29" r="23" fill="none" stroke="#E6EAF0" stroke-width="7"/>
+          <circle cx="29" cy="29" r="23" fill="none" stroke="#C49A3C" stroke-width="7" stroke-dasharray="9 145" transform="rotate(-90 29 29)"/>
+        </svg>
+        <div>
+          <div style="font-size:1.6rem;font-weight:700;line-height:1;">6</div>
+          <p class="muted" style="margin-top:6px;font-size:0.9rem;"><strong>Insight depth score · Narrow — focused read.</strong> Single-run signal-quality indicator, not a correctness score.</p>
+        </div>
+      </div>
+
+      <p>For a single run from a single perspective, this score reflects the depth of the run and self-reported confidence in the inputs. A single run is always a narrow first signal regardless of how thoughtful it was. To strengthen the read, run this diagnostic from other organizational perspectives and over time; the cross-diagnostic synthesis tool combines those runs and computes a broader insight depth score.</p>
+
+      <h3>What would strengthen the next read</h3>
+      <div class="method-box">
+        <p>• Run this diagnostic from managerial and senior-leader perspectives to test whether the same weak spot shows up at every level or is concentrated in specific roles. If different levels see it differently, the issue is about distribution, not the structure itself.</p>
+        <p>• Re-run this diagnostic in six to twelve months to detect drift before it becomes structural. Flat trajectories often mask gradual erosion that only becomes visible through repeated measurement.</p>
+        <p>• Run the diagnostic against adjacent structures that share ownership boundaries with care coordination. The same pattern surfacing in adjacent structures distinguishes a local ambiguity from a systemic operating-model issue.</p>
+      </div>
+
+      <h3>What the figures represent</h3>
+      <div class="method-box">
+        <p>* Figures marked with an asterisk are directional estimates generated from your inputs, not guaranteed financial outcomes. They are intended to indicate rough order of magnitude so leadership can decide whether the pattern is worth investigating further. They should not be cited externally as audited measurements, and they should not be used as the basis for compensation decisions, performance reviews, or formal financial planning.</p>
+      </div>
+
+      <h3 style="margin-top:24px">Where Monderman fits</h3>
+      <p>Monderman is built for leaders who want a structured, repeatable read on structural clarity — not a one-off consulting engagement. The diagnostic surfaces patterns; the leadership decides what to do about them. This report is the artifact of that read, suitable for distribution to peers, leadership, and trusted advisors who need to engage with the same picture.</p>
+      <p class="muted" style="font-size:0.78rem;margin-top:22px;">Prepared by Monderman's diagnostic engine.</p>
+    </section>
   </main>
 
-  <!-- Right rail TOC -->
   <aside class="toc-rail" aria-label="Table of contents">
     <p class="toc-rail-label">Contents</p>
     <ol>
-      <li><a href="#cover" data-section="cover"><span class="toc-num">01</span>Cover</a></li>
-      <li><a href="#headline" data-section="headline"><span class="toc-num">02</span>Headline finding</a></li>
-      <li><a href="#composition" data-section="composition"><span class="toc-num">03</span>Drag composition</a></li>
-      <li><a href="#focus" data-section="focus"><span class="toc-num">04</span>Where to focus first</a></li>
-      <li><a href="#quadrant" data-section="quadrant"><span class="toc-num">05</span>Governance × Execution</a></li>
-      <li><a href="#experiential" data-section="experiential"><span class="toc-num">06</span>Experiential layer</a></li>
-      <li><a href="#readings" data-section="readings"><span class="toc-num">07</span>Competing readings</a></li>
-      <li><a href="#update" data-section="update"><span class="toc-num">08</span>What would update this read</a></li>
-      <li><a href="#remedies" data-section="remedies"><span class="toc-num">09</span>Three remedy paths</a></li>
-      <li><a href="#method" data-section="method"><span class="toc-num">10</span>How this was produced</a></li>
+      <li><a href="#sc-cover" data-section="sc-cover"><span class="toc-num">01</span>Cover</a></li>
+      <li><a href="#sc-headline" data-section="sc-headline"><span class="toc-num">02</span>Headline finding</a></li>
+      <li><a href="#sc-composition" data-section="sc-composition"><span class="toc-num">03</span>Clarity dimension breakdown</a></li>
+      <li><a href="#sc-focus" data-section="sc-focus"><span class="toc-num">04</span>Where to focus first</a></li>
+      <li><a href="#sc-quadrant" data-section="sc-quadrant"><span class="toc-num">05</span>Governance × Legibility</a></li>
+      <li><a href="#sc-experiential" data-section="sc-experiential"><span class="toc-num">06</span>Experiential layer</a></li>
+      <li><a href="#sc-readings" data-section="sc-readings"><span class="toc-num">07</span>Competing readings</a></li>
+      <li><a href="#sc-update" data-section="sc-update"><span class="toc-num">08</span>What would update this read</a></li>
+      <li><a href="#sc-remedies" data-section="sc-remedies"><span class="toc-num">09</span>Three remedy paths</a></li>
+      <li><a href="#sc-method" data-section="sc-method"><span class="toc-num">10</span>How this was produced</a></li>
     </ol>
   </aside>
-</div>
+  </div>
+</section>
+
+<section class="report-shell" data-report="ip" hidden>
+  <div class="toc-mobile">
+    <select onchange="if(this.value){var s=this.closest('.report-shell');var el=document.getElementById(s.dataset.report+'-'+this.value);if(el)el.scrollIntoView();}">
+        <option value="">Jump to section…</option>
+        <option value="cover">Cover</option>
+        <option value="headline">Headline finding</option>
+        <option value="composition">Clarity dimension breakdown</option>
+        <option value="focus">Where to focus first</option>
+        <option value="quadrant">Condition × Dependence</option>
+        <option value="experiential">Experiential layer</option>
+        <option value="readings">Competing readings</option>
+        <option value="update">What would update this read</option>
+        <option value="remedies">Three remedy paths</option>
+        <option value="method">How this was produced</option>
+    </select>
+  </div>
+  <div class="doc-shell">
+  <main class="doc">
+
+    <section class="cover" id="ip-cover">
+      <div class="cover-dark">
+        <p class="cover-mark">Institutional Performance Diagnostic</p>
+        <div class="cover-rule"></div>
+        <h1 class="cover-title">Executive Summary</h1>
+        <p class="cover-sub">Single-run institutional diagnostic · Substantiated first signal</p>
+      </div>
+      <div class="cover-stripe"></div>
+      <div class="cover-white">
+        <p class="cover-kicker">Unit under diagnosis</p>
+        <h2 class="cover-workflow">Mission support directorate</h2>
+        <p class="cover-meta-line">Government · Defense · Senior-leader vantage point</p>
+        <p class="cover-date-line">Diagnostic run · May 25, 2026</p>
+        <div class="cover-pills">
+          <span class="cover-pill cover-pill-accent">Sound but compensating</span>
+          <span class="cover-pill cover-pill-neutral">Holding steady</span>
+          <span class="cover-pill cover-pill-neutral">~28% absorbed</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="ip-headline">
+      <p class="section-eyebrow">The pattern this run is detecting <span class="pg">Page 2</span></p>
+      <h2>Headline finding</h2>
+      <p class="lede"><strong>Sound but compensating</strong> is the active condition for this directorate. Visible output is being held up partly by extra effort and management lift rather than by the institution itself — a few people catching problems by hand and managers stepping in are absorbing the gap. The institution is not failing at one point; institutional confidence is the weakest condition while the rest holds, which means the exposure is concentrated and addressable rather than systemic.</p>
+
+      <div class="leadership-question"><b>Leadership question</b><p>What does leadership need to admit about how this really works before a fix will stick?</p></div>
+
+      <p>Directional modeling suggests about <strong>5,200 annual burden hours*</strong> and about <strong>$1,800,000–$2,900,000*</strong> in labor exposure, with capacity drag around <strong>28%*</strong>. These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
+
+      <p>The question is not whether work is getting done — it is how much extra effort it takes to get there. When the institution is not sound on its own, people absorb the difference through compensation, management lift, and rework. That effort is the hidden cost. Notes added by participants do not change the score; they just show how the strain feels at different levels of the organization.</p>
+
+      <p>When a unit has to keep relying on individual heroics or manager intervention to hold output together, the work may still look fine on the surface while the cost of compensating for the institution keeps climbing.</p>
+
+      <div class="capacity">
+        <div class="seg" style="width:72%;background:#4E9A7A">72%</div>
+        <div class="seg" style="width:11%;background:#C49A3C">11%</div>
+        <div class="seg" style="width:17%;background:#B85C52">17%</div>
+      </div>
+      <div class="legend">
+        <span><span class="dot" style="background:#4E9A7A"></span>Productive work</span>
+        <span><span class="dot" style="background:#C49A3C"></span>Routine coordination</span>
+        <span><span class="dot" style="background:#B85C52"></span>Recoverable ambiguity cost*</span>
+      </div>
+      <p class="muted" style="font-size:0.84rem;">Estimates of how this unit's available capacity is currently allocated. Recoverable ambiguity cost* is the portion that could be returned to productive use through structural intervention.</p>
+
+      <h3>Why this matters in government defense</h3>
+      <p>In a defense support directorate, borrowed performance does not show up as missed output — it shows up as the same few people working late, managers firefighting instead of managing, and recurring issues that compensation keeps absorbing. Comparable institutions often treat that strain as normal even when it is quietly concentrating risk in a handful of people.</p>
+      <p>The trajectory signal suggests relative stability. Stability here should not be confused with strength — a structure that looks stable can still be carrying real cost that people have simply gotten used to.</p>
+    </section>
+
+    <section class="section" id="ip-composition">
+      <p class="section-eyebrow">Where clarity is breaking down <span class="pg">Page 3</span></p>
+      <h2>Clarity dimension breakdown</h2>
+      <p>The condition view shows where institutional performance is weakest across the five dimensions Monderman measures: execution coherence, decision reliability, adaptive capacity, institutional confidence, and performance stability. Lower scores indicate where the institution is least able to sustain performance on its own.</p>
+      <p class="muted">The important signal is not only which dimension is lowest. The distribution also matters. A concentrated pattern points to a targeted institutional repair; a distributed pattern usually means a broader rebuild is needed across multiple dimensions.</p>
+
+      <div class="panel dimbars-panel">
+          <div class="dimbar">
+            <div class="dimbar-head"><span class="dimbar-name">Institutional confidence<em>Weakest</em></span><span class="dimbar-val"><b>47</b><span class="dimbar-pill b-amber">Ambiguous</span></span></div>
+            <div class="dimbar-track"><span class="dimbar-fill b-amber" style="width:47%"></span><i class="dimbar-tick" style="left:25%"></i><i class="dimbar-tick" style="left:50%"></i><i class="dimbar-tick" style="left:75%"></i></div>
+          </div>
+          <div class="dimbar">
+            <div class="dimbar-head"><span class="dimbar-name">Decision reliability</span><span class="dimbar-val"><b>54</b><span class="dimbar-pill b-slate">Softening</span></span></div>
+            <div class="dimbar-track"><span class="dimbar-fill b-slate" style="width:54%"></span><i class="dimbar-tick" style="left:25%"></i><i class="dimbar-tick" style="left:50%"></i><i class="dimbar-tick" style="left:75%"></i></div>
+          </div>
+          <div class="dimbar">
+            <div class="dimbar-head"><span class="dimbar-name">Execution coherence</span><span class="dimbar-val"><b>58</b><span class="dimbar-pill b-slate">Softening</span></span></div>
+            <div class="dimbar-track"><span class="dimbar-fill b-slate" style="width:58%"></span><i class="dimbar-tick" style="left:25%"></i><i class="dimbar-tick" style="left:50%"></i><i class="dimbar-tick" style="left:75%"></i></div>
+          </div>
+          <div class="dimbar">
+            <div class="dimbar-head"><span class="dimbar-name">Performance stability</span><span class="dimbar-val"><b>62</b><span class="dimbar-pill b-slate">Softening</span></span></div>
+            <div class="dimbar-track"><span class="dimbar-fill b-slate" style="width:62%"></span><i class="dimbar-tick" style="left:25%"></i><i class="dimbar-tick" style="left:50%"></i><i class="dimbar-tick" style="left:75%"></i></div>
+          </div>
+          <div class="dimbar">
+            <div class="dimbar-head"><span class="dimbar-name">Adaptive capacity</span><span class="dimbar-val"><b>67</b><span class="dimbar-pill b-slate">Softening</span></span></div>
+            <div class="dimbar-track"><span class="dimbar-fill b-slate" style="width:67%"></span><i class="dimbar-tick" style="left:25%"></i><i class="dimbar-tick" style="left:50%"></i><i class="dimbar-tick" style="left:75%"></i></div>
+          </div>
+        <div class="dimscale"><span>Breakdown</span><span>Ambiguous</span><span>Softening</span><span>Clear</span></div>
+      </div>
+
+      <h3>What the condition profile tells us</h3>
+      <p>The condition profile is concentrated rather than distributed. Institutional confidence is notably weaker than the other dimensions, which makes the condition more fixable: leadership can isolate the specific failures undermining trust in the system first and expect a real shift. Distributed conditions look similar from the outside but indicate a broader institutional rebuild rather than a targeted repair of one dimension.</p>
+
+      <div class="leadership-question"><b>Leadership question</b><p>Is this one weak spot to fix, or a sign the whole institution needs rework?</p></div>
+
+      <div class="card-row">
+        <div class="mini-card"><b>Concentrated constraint</b><p>One condition dimension clearly dominates. Targeted institutional repair has high yield.</p></div>
+        <div class="mini-card"><b>Distributed constraint</b><p>No single dimension dominates. Broader institutional rebuild likely needed across multiple dimensions.</p></div>
+      </div>
+    </section>
+
+    <section class="section" id="ip-focus">
+      <p class="section-eyebrow">The first move <span class="pg">Page 4</span></p>
+      <h2>Where to focus first</h2>
+      <p class="lede">Visible output is being preserved mainly through extra effort and management lift rather than sound institutional condition.</p>
+
+      <div class="two-col">
+        <div>
+          <h3>Priority actions</h3>
+          <p><strong>1.</strong> Fix now — reduce compensatory dependence by mapping where output currently relies on individual heroics and manager intervention, then converting the most load-bearing informal practices into owned, durable routines.</p>
+          <p><strong>2.</strong> Fix next — address confidence erosion by isolating the specific failures that keep undermining trust in the system, rather than treating the whole dimension at once.</p>
+        </div>
+        <div class="gauge-panel">
+          <svg class="gauge-svg" viewBox="0 0 220 130">
+            <path d="M45 100 A65 65 0 0 1 175 100" fill="none" stroke="#D7DEE8" stroke-width="14" stroke-linecap="round"/>
+            <path d="M45 100 A65 65 0 0 1 175 100" fill="none" stroke="#3F6EA1" stroke-width="14" stroke-linecap="round" stroke-dasharray="112 220"/>
+            <line x1="110" y1="100" x2="118.3" y2="47.7" stroke="#15202B" stroke-width="3"/>
+            <circle cx="110" cy="100" r="5" fill="#15202B"/>
+            <text x="34" y="52" font-size="6.5" fill="#7C8794">Below</text>
+            <text x="78" y="26" font-size="6.5" fill="#7C8794">Within</text>
+            <text x="128" y="26" font-size="6.5" fill="#7C8794">Above</text>
+            <text x="164" y="52" font-size="6.5" fill="#7C8794">Opportunity</text>
+          </svg>
+          <div class="gauge-score">55</div>
+          <div class="gauge-label">Within comparable range</div>
+        </div>
+      </div>
+
+      <div class="panel bench">
+        <p><strong>Benchmark context.</strong> This unit sits within the comparable range for a defense support directorate, but the institutional condition is leaning on compensation more than peers in the same band. A within-range score will not create urgency by itself; the case for action comes from how much of the visible output is borrowed from a few people's extra effort, and the fact that compensation-dependent conditions tend to fail suddenly rather than gradually when those people are unavailable.</p>
+      </div>
+    </section>
+
+    <section class="section" id="ip-quadrant">
+      <p class="section-eyebrow">Evidence and detail <span class="pg">Page 5</span></p>
+      <h2>Institutional condition × compensatory dependence</h2>
+      <p>This view places the run on two axes: how sound the institutional condition is, and how much visible output depends on compensatory effort and management lift.</p>
+
+      <div class="quadbox">
+        <div class="axis-y">Institutional condition</div>
+        <div class="quad">
+          <div class="qlabel" style="left:12px;top:12px">Sound condition,<br>low compensation</div>
+          <div class="qlabel" style="right:12px;top:12px;text-align:right">Sound condition,<br>high compensation</div>
+          <div class="qlabel" style="left:12px;bottom:12px">Weak condition,<br>low compensation</div>
+          <div class="qlabel" style="right:12px;bottom:12px;text-align:right">Weak condition,<br>high compensation</div>
+          <div class="qdot" style="left:66%;top:42%"></div>
+        </div>
+        <div class="axis-x">Compensatory dependence</div>
+      </div>
+
+      <h3>How to read this quadrant</h3>
+      <p>The institution is holding an acceptable condition, but it is doing so with elevated compensatory effort — output is being borrowed from people's extra work and management lift more than carried by the institution itself. That is the combination that looks stable right up until a key person is unavailable. The priority is converting the load-bearing informal effort into durable institutional routine before the dependence is tested.</p>
+
+      <div class="leadership-question"><b>Leadership question</b><p>Is the team getting its speed from hidden manager effort, or is governance heavier than it needs to be?</p></div>
+
+      <div class="panel" style="font-size:0.92rem; padding: 16px 20px;">
+        <p style="margin:0;"><strong>No major structured-answer contradiction surfaced in this run.</strong> That does not prove the system is healthy. It only means the scored answer pattern did not show a major internal conflict; experiential notes, if added later, should be tested through managerial and senior-leader runs.</p>
+      </div>
+    </section>
+
+    <section class="section" id="ip-experiential">
+      <p class="section-eyebrow">Experiential layer <span class="pg">Page 6</span></p>
+      <h2>What the participant added</h2>
+      <p>This optional layer records how the institution is experienced from the selected vantage point and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal picture and lived operating reality diverge.</p>
+
+      <div class="panel">
+        <h3 style="margin-top:0;">Experiential synthesis</h3>
+        <p>The notes recorded below describe an institution running partly on borrowed performance — a small group catching problems by hand, managers absorbing the gap, and the dependence largely invisible from the top.</p>
+        <p class="muted" style="margin-bottom:0;">These notes should be compared across roles before being treated as a stable organizational pattern.</p>
+      </div>
+
+      <div class="exp-grid">
+        <div class="exp-card"><h3>Your senior-leader experience</h3><p>Output looks steady, but I am increasingly aware that a few people are holding it together, and I am not confident it would survive losing them.</p></div>
+        <div class="exp-card"><h3>What operational staff may be experiencing</h3><p>The same issues recur every cycle, and the work gets out the door mainly because a couple of people stay late and catch them.</p></div>
+        <div class="exp-card"><h3>What managers may be experiencing</h3><p>Managers are firefighting and manually stabilizing more than managing, and every change seems to lose momentum partway through.</p></div>
+        <div class="exp-card"><h3>What senior leaders may be seeing</h3><p>Leadership reads stable output as institutional health, not accounting for how much delivery depends on individual heroics.</p></div>
+      </div>
+
+      <div class="panel bench">
+        <p><strong>Leadership question.</strong> Does the structure on paper match how people actually hold the work together day to day?</p>
+        <p style="margin-bottom:0;"><strong>How to use this layer.</strong> Treat these notes as a way to plan follow-up conversations. If the same signal appears across operational, managerial, and senior-leader runs, it becomes more useful as a governance input. If it appears in only one lens, it is still valuable, but it should be read as a clue rather than a conclusion.</p>
+      </div>
+    </section>
+
+    <section class="section" id="ip-readings">
+      <p class="section-eyebrow">Analytical review <span class="pg">Page 7</span></p>
+      <h2>Competing readings</h2>
+      <p>This section names the plausible interpretations of the same signal and identifies the evidence that would confirm, weaken, or reframe the current read.</p>
+
+      <div class="card-row card-row-1">
+        <div class="mini-card">
+          <b>Compensatory-dependence read</b>
+          <p>Visible output may be holding only because people absorb extra effort and managers step in — the institution looks healthier on paper than it is in practice.</p>
+          <p class="muted"><em>Signal test:</em> A cross-role run would show whether the compensation is acknowledged at every level or concentrated where the effort is actually absorbed.</p>
+        </div>
+        <div class="mini-card">
+          <b>Structural drift read</b>
+          <p>The structure was once clearer and has softened through change, growth, or accumulated exception-handling that was never formalized back into the design.</p>
+          <p class="muted"><em>Signal test:</em> A longitudinal re-run would detect whether ambiguity is stable or accumulating. Rising scores would suggest drift.</p>
+        </div>
+        <div class="mini-card">
+          <b>Compensatory stability read</b>
+          <p>The system may appear functional because experienced people are navigating informally around structural ambiguity — removing them would expose the design gap.</p>
+          <p class="muted"><em>Signal test:</em> Key-person dependency signals in the run, or evidence that onboarding is disproportionately difficult, would support this read.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="ip-update">
+      <p class="section-eyebrow">Analytical review <span class="pg">Page 8</span></p>
+      <h2>What would update this read</h2>
+      <p>The current diagnosis rests on a single run from a single perspective. The items below describe the evidence that would confirm, weaken, or reframe the read before leadership commits to a remedy path.</p>
+
+      <div class="panel bench">
+        <p>• A managerial-perspective run showing the same institutional pattern would elevate the read from suggestive to confirmed.</p>
+        <p>• A senior-leader run showing confidence in the structure would expose a possible visibility gap between leadership perception and operational reality.</p>
+        <p style="margin-bottom:0;">• A re-run after deliberate structural change would show whether the ambiguity is structural or situational.</p>
+      </div>
+    </section>
+
+    <section class="section" id="ip-remedies">
+      <p class="section-eyebrow">How leadership could respond <span class="pg">Page 9</span></p>
+      <h2>Three remedy paths</h2>
+      <p>Three distinct intervention strategies, ordered by ambition and risk. Each path implies a different leadership posture, time horizon, and tolerance for short-term disruption.</p>
+
+      <div class="leadership-question"><b>Leadership question</b><p>Is leadership trying to preserve control, reclaim capacity, or rebuild durable institutional performance?</p></div>
+
+      <div class="remedy-grid">
+        <div class="remedy">
+          <div class="tag">Low disruption</div>
+          <h3>Targeted condition repair</h3>
+          <p>Strengthen institutional confidence directly — the single weakest dimension — before touching anything else, so the institution carries more of its own performance.</p>
+          <p class="muted"><strong>Benefit:</strong> Lowest-disruption path; addresses the binding constraint without destabilizing what already works.</p>
+          <p class="muted"><strong>Risk:</strong> If the weakness is broader than one dimension, a targeted repair may need to be followed by wider work.</p>
+        </div>
+        <div class="remedy">
+          <div class="tag">Targeted redesign</div>
+          <h3>Condition and dependence review</h3>
+          <p>Pair the repair to institutional confidence with a review of where output currently depends on extra effort and management lift, so durable capacity replaces borrowed performance.</p>
+          <p class="muted"><strong>Benefit:</strong> Reduces compensatory dependence alongside the primary fix, lowering the risk of sudden failure when conditions shift.</p>
+          <p class="muted"><strong>Risk:</strong> Requires honest visibility into informal effort, which can be uncomfortable to surface.</p>
+        </div>
+        <div class="remedy">
+          <div class="tag">Fastest structural reset</div>
+          <h3>Full institutional rebuild</h3>
+          <p>Rebuild the unit's execution, confidence, and adaptive routines end to end so performance no longer rests on individual heroics.</p>
+          <p class="muted"><strong>Benefit:</strong> Would produce a fully rationalized institutional condition that carries its own output.</p>
+          <p class="muted"><strong>Risk:</strong> Heavy and disruptive, and only credible when the condition is genuinely degraded across most dimensions — more than this run currently indicates.</p>
+        </div>
+      </div>
+
+      <p class="remedy-calibration-note">* Calibrate against insight depth before acting. A single short-form run produces directional remedy guidance, not engineering specifications — the breadth, depth, and cross-validation of inputs governs how confidently any of these paths should be pursued.</p>
+
+      <div class="rule"></div>
+
+      <h3>Choosing between them</h3>
+      <p>The right choice depends less on the current score than on three things: how much stability the organization needs while changes happen, how much trust leadership has earned to redesign rather than tweak, and whether the institution is on a path that is already worsening. Light paths preserve continuity; aggressive paths buy more durable capacity but require a stronger mandate.</p>
+    </section>
+
+    <section class="section" id="ip-method">
+      <p class="section-eyebrow">How to read this report <span class="pg">Page 10</span></p>
+      <h2>How this was produced</h2>
+      <p>This diagnostic measures institutional performance across five dimensions: execution coherence, decision reliability, adaptive capacity, institutional confidence, and performance stability. It also estimates the amount of productive capacity being absorbed sustaining performance through compensation, management lift, and rework rather than sound institutional condition. The diagnostic does not independently verify user inputs; it should be read as a directional institutional read rather than a full audit.</p>
+
+      <div class="rule"></div>
+
+      <div class="ring-row">
+        <svg class="ring" viewBox="0 0 58 58">
+          <circle cx="29" cy="29" r="23" fill="none" stroke="#E6EAF0" stroke-width="7"/>
+          <circle cx="29" cy="29" r="23" fill="none" stroke="#C49A3C" stroke-width="7" stroke-dasharray="12 145" transform="rotate(-90 29 29)"/>
+        </svg>
+        <div>
+          <div style="font-size:1.6rem;font-weight:700;line-height:1;">8</div>
+          <p class="muted" style="margin-top:6px;font-size:0.9rem;"><strong>Insight depth score · Substantiated first signal.</strong> Single-run signal-quality indicator, not a correctness score.</p>
+        </div>
+      </div>
+
+      <p>For a single run from a single perspective, this score reflects the depth of the run and self-reported confidence in the inputs. A single run is always a narrow first signal regardless of how thoughtful it was. To strengthen the read, run this diagnostic from other organizational perspectives and over time; the cross-diagnostic synthesis tool combines those runs and computes a broader insight depth score.</p>
+
+      <h3>What would strengthen the next read</h3>
+      <div class="method-box">
+        <p>• Run this diagnostic from operational and managerial perspectives to test whether the same weak spot shows up at every level or is concentrated in specific roles. If different levels see it differently, the issue is about distribution, not the institution itself.</p>
+        <p>• Re-run this diagnostic in six to twelve months to detect drift before it becomes structural. Flat trajectories often mask gradual accumulation that only becomes visible through repeated measurement.</p>
+        <p>• Run the diagnostic against adjacent units that share dependencies with the mission support directorate. The same pattern surfacing in adjacent units distinguishes a unit-specific issue from a systemic operating-environment issue.</p>
+      </div>
+
+      <h3>What the figures represent</h3>
+      <div class="method-box">
+        <p>* Figures marked with an asterisk are directional estimates generated from your inputs, not guaranteed financial outcomes. They are intended to indicate rough order of magnitude so leadership can decide whether the pattern is worth investigating further. They should not be cited externally as audited measurements, and they should not be used as the basis for compensation decisions, performance reviews, or formal financial planning.</p>
+      </div>
+
+      <h3 style="margin-top:24px">Where Monderman fits</h3>
+      <p>Monderman is built for leaders who want a structured, repeatable read on institutional performance — not a one-off consulting engagement. The diagnostic surfaces patterns; the leadership decides what to do about them. This report is the artifact of that read, suitable for distribution to peers, leadership, and trusted advisors who need to engage with the same picture.</p>
+      <p class="muted" style="font-size:0.78rem;margin-top:22px;">Prepared by Monderman's diagnostic engine.</p>
+    </section>
+  </main>
+
+  <aside class="toc-rail" aria-label="Table of contents">
+    <p class="toc-rail-label">Contents</p>
+    <ol>
+      <li><a href="#ip-cover" data-section="ip-cover"><span class="toc-num">01</span>Cover</a></li>
+      <li><a href="#ip-headline" data-section="ip-headline"><span class="toc-num">02</span>Headline finding</a></li>
+      <li><a href="#ip-composition" data-section="ip-composition"><span class="toc-num">03</span>Clarity dimension breakdown</a></li>
+      <li><a href="#ip-focus" data-section="ip-focus"><span class="toc-num">04</span>Where to focus first</a></li>
+      <li><a href="#ip-quadrant" data-section="ip-quadrant"><span class="toc-num">05</span>Condition × Dependence</a></li>
+      <li><a href="#ip-experiential" data-section="ip-experiential"><span class="toc-num">06</span>Experiential layer</a></li>
+      <li><a href="#ip-readings" data-section="ip-readings"><span class="toc-num">07</span>Competing readings</a></li>
+      <li><a href="#ip-update" data-section="ip-update"><span class="toc-num">08</span>What would update this read</a></li>
+      <li><a href="#ip-remedies" data-section="ip-remedies"><span class="toc-num">09</span>Three remedy paths</a></li>
+      <li><a href="#ip-method" data-section="ip-method"><span class="toc-num">10</span>How this was produced</a></li>
+    </ol>
+  </aside>
+  </div>
+</section>
 
 <footer class="footer">
   <div class="footer-inner">
@@ -1197,26 +2241,64 @@
 </footer>
 
 <script>
-  // Active TOC tracking
   (function () {
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('.dx-tab'));
+    var shells = {};
+    document.querySelectorAll('.report-shell').forEach(function (s) { shells[s.getAttribute('data-report')] = s; });
+    var label = document.getElementById('meta-label');
+    var titles = {
+      os: 'Operational Systems Diagnostic',
+      dv: 'Decision Velocity Diagnostic',
+      sc: 'Structural Clarity Diagnostic',
+      ip: 'Institutional Performance Diagnostic'
+    };
+    var order = ['os','dv','sc','ip'];
+
+    function show(key, doScroll) {
+      if (!shells[key]) key = 'os';
+      tabs.forEach(function (t) {
+        var on = t.getAttribute('data-target') === key;
+        t.classList.toggle('is-active', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      order.forEach(function (k) { if (shells[k]) shells[k].hidden = (k !== key); });
+      if (label) label.textContent = 'Sample Report · ' + titles[key];
+      document.title = 'Sample Report — ' + titles[key] + ' | Monderman';
+      if (doScroll) window.scrollTo(0, 0);
+    }
+
+    tabs.forEach(function (t) {
+      t.addEventListener('click', function () {
+        var key = t.getAttribute('data-target');
+        show(key, true);
+        if (history && history.replaceState) history.replaceState(null, '', '#' + key);
+      });
+    });
+
+    var initial = (location.hash || '').replace('#', '');
+    show(shells[initial] ? initial : 'os', false);
+
+    // Active TOC tracking (scoped naturally: hidden shells' sections never intersect)
     var sections = document.querySelectorAll('main .section, main .cover');
     var links = document.querySelectorAll('.toc-rail a');
-    if (!sections.length || !links.length) return;
-
-    var byId = {};
-    links.forEach(function (l) { byId[l.getAttribute('data-section')] = l; });
-
-    var observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          var id = entry.target.id;
-          links.forEach(function (l) { l.classList.remove('is-active'); });
-          if (byId[id]) byId[id].classList.add('is-active');
-        }
-      });
-    }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
-
-    sections.forEach(function (s) { observer.observe(s); });
+    if (sections.length && links.length) {
+      var byId = {};
+      links.forEach(function (l) { byId[l.getAttribute('data-section')] = l; });
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            var id = entry.target.id;
+            var lk = byId[id];
+            if (lk) {
+              var rail = lk.closest('.toc-rail');
+              if (rail) rail.querySelectorAll('a').forEach(function (a) { a.classList.remove('is-active'); });
+              lk.classList.add('is-active');
+            }
+          }
+        });
+      }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+      sections.forEach(function (s) { observer.observe(s); });
+    }
   })();
 </script>
 
