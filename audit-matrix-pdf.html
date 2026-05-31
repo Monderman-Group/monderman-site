@@ -359,6 +359,10 @@ async function renderAndScrape(fx, result, payload){
 }
 
 /* ───────── checks (standard + IP-specific), run against scraped web+PDF text ───────── */
+function payloadPeople(scr){
+  // peopleImpacted may live on the legacyPayload the harness injected, not on result
+  try{ const p = scr?.trueResult?.peopleImpacted ?? scr?.payload?.peopleImpacted; return Number(p)||0; }catch(_){ return 0; }
+}
 function runChecks(fx, scr){
   const checks = [];
   const add=(name,status,val="")=>checks.push({name,status,val});
@@ -442,9 +446,12 @@ function runChecks(fx, scr){
     if(weakest && weakest[1]>=98) numIssues.push(`all dims ≥98 (suspiciously flat: ${weakest[0]}=${weakest[1]})`);
   } else { numIssues.push(`only ${dimVals.length}/5 dimensions numeric`); }
   const exp = result.exposure || {};
-  if(exp.annual_cost!=null && exp.annual_hours!=null && exp.average_hourly_cost!=null){
-    const implied = Number(exp.annual_hours)*Number(exp.average_hourly_cost);
-    if(implied>0 && Math.abs(implied-Number(exp.annual_cost))/Number(exp.annual_cost) > 0.5) numIssues.push(`exposure: ${exp.annual_hours}h × $${exp.average_hourly_cost} ≠ $${exp.annual_cost}`);
+  // annual_hours = directionalHours × cycles (NOT × people); annual_cost = hours × people × rate.
+  // So validate cost = hours × people × rate when peopleImpacted is known; otherwise skip.
+  const people = Number(result?.peopleImpacted ?? result?.exposure?.people_impacted ?? payloadPeople(scr));
+  if(exp.annual_cost!=null && exp.annual_hours!=null && exp.average_hourly_cost!=null && people>0){
+    const implied = Number(exp.annual_hours)*people*Number(exp.average_hourly_cost);
+    if(implied>0 && Math.abs(implied-Number(exp.annual_cost))/Number(exp.annual_cost) > 0.15) numIssues.push(`exposure: ${exp.annual_hours}h × ${people}ppl × $${exp.average_hourly_cost} = $${implied} ≠ $${exp.annual_cost}`);
   }
   add("Numeric coherence (dims↔score↔exposure)", numIssues.length?"fail":"pass", numIssues.length?numIssues.slice(0,3).join("; "):"coherent");
 
