@@ -4719,8 +4719,12 @@ $("trajectoryValueSub").textContent = result?.trajectory?.note || "Directional s
   let amt = reclaim && reclaim.amount ? reclaim.amount : null;
   if(!amt && result?.exposure?.annual_cost) amt = Math.round(Number(result.exposure.annual_cost) * 0.6);
   $("reclaimValue").textContent = amt ? formatEstimateCurrencyRange(amt) : "Not estimated";
+  // Caption must follow whether a value rendered. SC sends no reclaim_potential, so the
+  // fallback driverText ("could not be loaded") must never sit under the 60% fallback value.
+  $("reclaimSub").textContent = amt
+    ? ((reclaim && reclaim.amount && reclaim.driverText) || "Directional estimate of capacity that may be recoverable if the primary clarity constraint is addressed first.")
+    : "Directional estimate could not be loaded for this run.";
 })();
-$("reclaimSub").textContent = reclaim.driverText;
 
 const trajectoryWrap = $("trajectorySignalWrap");
 let trajectoryChipHtml = "";
