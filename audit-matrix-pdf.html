@@ -53,7 +53,7 @@
 </head>
 <body>
 <header>
-  <h1>Monderman · Fixture-Matrix PDF Audit <span style="font-size:11px;color:#6FD3A0;font-weight:400">BUILD v7 · master JSON always-on</span></h1>
+  <h1>Monderman · Fixture-Matrix PDF Audit <span style="font-size:11px;color:#6FD3A0;font-weight:400">BUILD v8 · master JSON always-on</span></h1>
   <p>For each fixture: drives the live API to produce a real diagnostic run, injects the result into the production page via <code>srcdoc</code> (same-origin from anywhere — works locally), scrapes the rendered web output + the executive-report PDF source, runs standard + diagnostic-specific QC, and lets you download the real PDF on demand to feed into a review chat.</p>
 </header>
 
@@ -200,12 +200,13 @@ function pickAnswerValue(fx, item){
     if(field==="annualCycles" || /cycle|frequency/i.test(field)) return a.cost.annualCycles;
     if(field in a && typeof a[field] !== "object") return a[field];
     // fallback position by valence
-    if(qt==="single_select" && opts.length) return prof==="light"?opts[opts.length-1].value : prof==="heavy"?opts[0].value : opts[Math.floor(opts.length/2)].value;
+    if(qt==="single_select" && opts.length) return prof==="light"?opts[0].value : prof==="heavy"?opts[opts.length-1].value : opts[Math.floor(opts.length/2)].value;
     if(qt==="numeric") return prof==="heavy"?1200:prof==="light"?120:300;
     return opts[0]?.value || "";
   }
-  // sc/dv/os: position-pick by profile (light=last,heavy=first assuming worst→best ordering) — RENDER test
-  if(qt==="single_select" && opts.length) return prof==="light"?opts[opts.length-1].value : prof==="heavy"?opts[0].value : opts[Math.floor(opts.length/2)].value;
+  // sc/dv/os: position-pick by profile. Options are ordered best→worst (opts[0] = healthiest),
+  // so light=opts[0] (best → high score), heavy=opts[last] (worst → low score), moderate=middle.
+  if(qt==="single_select" && opts.length) return prof==="light"?opts[0].value : prof==="heavy"?opts[opts.length-1].value : opts[Math.floor(opts.length/2)].value;
   if(qt==="multi_select" && opts.length) return prof==="heavy"?opts.map(o=>o.value):[opts[0].value];
   if(qt==="numeric") return 5;
   return opts[0]?.value || "";
@@ -277,7 +278,23 @@ async function parsePdf(blob){
     const tc=await page.getTextContent();
     pages.push({ pageNum:i, width:vp.width, height:vp.height, text:tc.items.map(it=>it.str).join(" ") });
   }
-  return { numPages:pdf.numPages, pages };
+  // The product PDF is rasterized via html2canvas (image, no text layer), so getTextContent
+  // returns nothing by design. Render page 1 and measure non-white pixels to verify the PDF
+  // actually rendered content rather than only confirming a blob exists.
+  let ink = null;
+  try{
+    const p1 = await pdf.getPage(1);
+    const ivp = p1.getViewport({ scale: 0.4 });
+    const c = document.createElement("canvas");
+    c.width = Math.max(1, Math.ceil(ivp.width)); c.height = Math.max(1, Math.ceil(ivp.height));
+    const cx = c.getContext("2d");
+    await p1.render({ canvasContext: cx, viewport: ivp }).promise;
+    const d = cx.getImageData(0,0,c.width,c.height).data;
+    let nonWhite=0, total=0;
+    for(let i=0;i<d.length;i+=4*16){ total++; if(d[i]<245||d[i+1]<245||d[i+2]<245) nonWhite++; }
+    ink = total ? nonWhite/total : 0;
+  }catch(_){ ink = null; }
+  return { numPages:pdf.numPages, pages, ink };
 }
 
 /* ───────── inject result into the live page via srcdoc, scrape web + PDF source ───────── */
@@ -346,6 +363,7 @@ async function renderAndScrape(fx, result, payload){
             const parsed = await parsePdf(pdfBlob);
             pdfText = parsed.pages.map(p=>p.text).join("\n");
             pdfBlob._numPages = parsed.numPages;
+            pdfBlob._ink = parsed.ink;
           }catch(e){ console.warn("PDF capture/parse failed:", e.message); }
         }
         clearTimeout(timer);
@@ -374,7 +392,12 @@ function runChecks(fx, scr){
 
   // render presence
   add("Web output rendered (non-trivial)", scr.webText && scr.webText.length>200 ? "pass":"fail", `${scr.webText?scr.webText.length:0} chars`);
-  add("Real PDF captured & parsed", scr.pdfBlob ? "pass":"fail", scr.pdfBlob ? `${(scr.pdfBlob.size/1024|0)}KB · ${scr.pdfBlob._numPages||"?"} pages` : "no PDF captured");
+  const _ink = scr.pdfBlob ? scr.pdfBlob._ink : undefined;
+  add("Real PDF captured & parsed",
+      scr.pdfBlob && (_ink == null || _ink > 0.01) ? "pass" : "fail",
+      scr.pdfBlob
+        ? `${(scr.pdfBlob.size/1024|0)}KB · ${scr.pdfBlob._numPages||"?"} pages` + (_ink != null ? ` · ${(_ink*100).toFixed(1)}% ink (image PDF — no text layer, so pdf_text is blank by design)` : "")
+        : "no PDF captured");
 
   // score sanity
   const score = Number(result.score);
