@@ -2431,6 +2431,47 @@
       .mond-footer .mf-motif svg { width: 220px; height: 220px; }
     }
 
+    /* ============================================================
+       Phone & tablet optimization (added)
+       Closes responsive gaps: the card/symptom grids stopped at
+       2 columns, two inline grids (.head's 300px column and the
+       3-step "How it works" row) override the existing stack rules
+       because inline styles beat the stylesheet, and inline side
+       padding is heavy on small screens.
+       ============================================================ */
+
+    /* Global overflow safety — nothing should force a horizontal scroll */
+    html, body { overflow-x: hidden; }
+    img, svg, canvas, video { max-width: 100%; height: auto; }
+    .status-strip, .sample-panel, .what-you-get-strip { flex-wrap: wrap; }
+
+    /* Tablet portrait: tighten the two-column grids so cards don't crowd */
+    @media (max-width: 1024px) {
+      .tools-grid, .matrix-grid { gap: 18px; }
+    }
+
+    /* Small tablets & phones: collapse inline grids that the 1180px
+       rules can't reach (inline grid-template-columns wins without !important) */
+    @media (max-width: 768px) {
+      .head { grid-template-columns: 1fr !important; gap: 20px !important; }
+      div[style*="repeat(3,1fr)"] { grid-template-columns: 1fr !important; }
+    }
+
+    /* Phones: one column for every multi-column grid, lighter padding */
+    @media (max-width: 640px) {
+      .tools-grid,
+      .matrix-grid,
+      .split-grid,
+      .dynamic-grid { grid-template-columns: 1fr !important; }
+
+      /* trim heavy inline horizontal padding (e.g. the 34px section shells) */
+      [style*="padding:0 34px"],
+      [style*="padding: 0 34px"] { padding-left: 18px !important; padding-right: 18px !important; }
+
+      .tool-card { padding: 22px 20px; }
+      .matrix-card { padding: 22px 20px; }
+    }
+
   </style>
 
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -2473,20 +2514,6 @@
 
 </div>
   </section>
-
-  <!-- Premium Trust Bar -->
-  <div style="max-width:1320px; margin:0 auto; padding:0 34px 32px;">
-    <div style="display:flex; align-items:center; gap:24px; flex-wrap:wrap; padding:18px 28px; background:#FFF; border:1px solid rgba(21,32,43,.08); border-radius:999px;">
-      <div style="font-size:0.82rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted-dark-2);">Built for institutions that return</div>
-      <div style="display:flex; align-items:center; gap:28px; flex-wrap:wrap; font-size:0.95rem; color:var(--text-dark); font-weight:500;">
-        <span>Government &amp; multilateral</span>
-        <span>Global consulting firms</span>
-        <span>Technology firms</span>
-        <span>Research universities</span>
-        <span>Complex regulated industries</span>
-      </div>
-    </div>
-  </div>
 
   <!-- Premium: How Monderman works (promoted) -->
   <section style="max-width:1320px; margin:0 auto 24px; padding:0 34px;">
