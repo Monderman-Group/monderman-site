@@ -740,7 +740,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
                 <div class="viz-card"><h4>Trajectory</h4><div class="trajectory-inline"><div id="trajectoryChipMount"></div><div class="sparkline-wrap"><svg class="sparkline" id="trajectorySparkline" viewBox="0 0 120 34" preserveAspectRatio="none"></svg></div></div><p class="viz-note" id="trajectorySparklineNote">Trajectory interpretation will appear here after scoring.</p></div>
               </div>
               <section class="summary-grid">
-                <article class="summary-card"><p class="summary-label">Benchmark</p><p class="summary-value" id="benchmarkValue">--</p><div class="benchmark-band"><div class="benchmark-track"><div class="benchmark-range industry-range" id="industryRange"></div><div class="benchmark-range opportunity-range" id="opportunityRange"></div><div class="benchmark-marker" id="benchmarkMarker"></div></div><div class="benchmark-legend"><span><span class="legend-dot dot-gold"></span>Comparable range</span><span><span class="legend-dot dot-green"></span>Opportunity range</span><span><span class="legend-dot dot-blue"></span>Your pathway</span></div><div class="benchmark-caption" id="benchmarkCaption"><strong>Where you stand versus similar organizations — with room to lighten the load</strong><br>Even sitting inside the comparable range, there's usually recoverable drag.</div></div><p class="summary-sub tight" id="benchmarkSub">Similar-pathway context</p></article>
+                <article class="summary-card"><p class="summary-label">Benchmark</p><p class="summary-value" id="benchmarkValue">--</p><div class="benchmark-band"><div class="benchmark-track"><div class="benchmark-range industry-range" id="industryRange"></div><div class="benchmark-range opportunity-range" id="opportunityRange"></div><div class="benchmark-marker" id="benchmarkMarker"></div></div><div class="benchmark-legend"><span><span class="legend-dot dot-gold"></span>Comparable range</span><span><span class="legend-dot dot-green"></span>Opportunity range</span><span><span class="legend-dot dot-blue"></span>Your pathway</span></div><div class="benchmark-caption" id="benchmarkCaption"><strong>Where you stand versus similar organizations -- with room to lighten the load</strong><br>Even sitting inside the comparable range, there's usually recoverable drag.</div></div><p class="summary-sub tight" id="benchmarkSub">Similar-pathway context</p></article>
                 <article class="summary-card"><p class="summary-label">Trajectory</p><p class="summary-value" id="trajectoryValue">--</p><p class="summary-sub tight" id="trajectoryValueSub">Directional signal</p></article>
               </section>
             </div>
@@ -1400,7 +1400,7 @@ function hasMeaningfulSeries(values) {
 return Array.isArray(values) && values.some((value) => hasMeaningfulValue(value));
 }
 
-function renderUnavailableTable(id, colspan, message = "N/A — not enough signal available for this run.") {
+function renderUnavailableTable(id, colspan, message = "N/A -- not enough signal available for this run.") {
 const body = $(id);
 if (!body) return;
 body.innerHTML = `<tr><td colspan="${colspan}" class="table-empty">${escapeHtml(message)}</td></tr>`;
@@ -2066,7 +2066,7 @@ const role = mapFrontendModeToBackendRole(state.mode);
 state.roleForText = role;
 const inferredCoverage = inferParticipantCoverage();
 
-// Keep the user on introStage during warmup+start — processingStage is
+// Keep the user on introStage during warmup+start -- processingStage is
 // reserved for actual output generation so it doesn't look like questions were skipped.
 beginBtn.disabled = true;
 beginBtn.textContent = "Starting...";
@@ -2438,7 +2438,7 @@ renderQuestion();
 renderedNextQuestion = true;
 return;
 } catch (error) {
-// Don't retry client errors (4xx) — only timeouts and server errors
+// Don't retry client errors (4xx) -- only timeouts and server errors
 const isClientError = error?.status >= 400 && error?.status < 500;
 if (attempt < 2 && !isClientError) {
 showToast('The question is taking longer than expected to advance. Retrying...');
@@ -2475,7 +2475,7 @@ replayCache[entry.item.id] = entry.value;
 }
 replayCache[changedItemId] = changedValue;
 
-// Full restart — state will be reset by restartDiagnostic, so save everything needed
+// Full restart -- state will be reset by restartDiagnostic, so save everything needed
 const savedPreflight = { ...state.preflight };
 const savedMode = state.mode;
 const savedDepth = state.depth;
@@ -2513,7 +2513,7 @@ rawExperience: {
 })
 }, FINALIZE_TIMEOUT_MS);
 
-// Capture the raw response text first — if the backend returns HTML
+// Capture the raw response text first -- if the backend returns HTML
 // (e.g. an error page) or non-JSON we want to know.
 const rawText = await response.text();
 let data = null;
@@ -2762,7 +2762,7 @@ return pattern.shape === "insufficient" ? "distributed" : pattern.shape;
 
 
 // Sanitize numbers in narrative prose so the AI's raw numeric output renders
-// cleanly in the PDF and on-screen. This is a display-only transform — it does
+// cleanly in the PDF and on-screen. This is a display-only transform -- it does
 // not modify stored narrative state, only the string that hits the DOM.
 //
 // Handles three patterns the Anthropic output reliably produces:
@@ -3152,7 +3152,7 @@ function renderInsightDepth(payload) {
     if (valueEl) valueEl.textContent = "—";
     if (bandEl) bandEl.textContent = "Awaiting data";
     if (copyEl) {
-      copyEl.textContent = "Insight depth could not be loaded from the diagnostic backend. The score and band are computed server-side; retry the run or contact support if this persists.";
+      copyEl.textContent = "Insight depth is computed from run depth and confidence. The score and band are computed server-side; retry the run or contact support if this persists.";
     }
     const arc = $("confidenceRingArc");
     const value = $("confidenceRingValue");
@@ -3286,7 +3286,7 @@ const entries = Object.entries(LABELS).map(([key, label], i) => ({
   color: COLORS[i % COLORS.length]
 })).sort((a, b) => a.value - b.value);
 if (!entries.length) {
-  if (note) note.textContent = "Clarity dimension breakdown will appear after scoring.";
+  if (note) note.textContent = "Condition dimension breakdown will appear after scoring.";
   return;
 }
 mount.innerHTML = entries.map(e => {
@@ -3314,7 +3314,7 @@ const mount = $("burdenTreemap");
 if (!mount) return;
 const pattern = getBurdenCompositionPattern(result);
 if (!pattern.segments.length) {
-mount.innerHTML = `<div class="treemap-empty">N/A — not enough signal is available to render a clarity constraint map for this run.</div>`;
+mount.innerHTML = `<div class="treemap-empty">N/A -- not enough signal is available to render a clarity constraint map for this run.</div>`;
 return;
 }
 const COLORS = ["#3F6EA1", "#6B8FA6", "#8E7FA8", "#4E9A7A", "#B85C52", "#C49A3C"];
@@ -3466,7 +3466,7 @@ if (note) note.textContent = result?.trajectory?.note || "Directional signal";
   } else if (pattern.hasSignal) {
   return `The composition shows ${escapeHtml(pattern.dominant.label.toLowerCase())} as the dominant visible clarity constraint at ${pattern.dominantPct}% of the total, with the remaining burden meaningfully distributed across the other dimensions. This middle pattern usually responds to focused intervention on the dominant source while watching for compensation in the others.`;
   } else {
-  return "Burden composition signal is too low in this run to identify a dominant source. This usually indicates either an exceptionally light operating environment or insufficient diagnostic input depth — re-run with broader participant coverage to confirm which.";
+  return "Burden composition signal is too low in this run to identify a dominant source. This usually indicates either an exceptionally light operating environment or insufficient diagnostic input depth -- re-run with broader participant coverage to confirm which.";
   }
   }
 
@@ -3482,7 +3482,7 @@ if (note) note.textContent = result?.trajectory?.note || "Directional signal";
   } else if (direction === "down") {
   return "The trajectory signal suggests some pressure may be easing. Verify that with measurement before assuming the problem is self-correcting; perceived improvement and structural improvement are not the same.";
   } else {
-  return "The trajectory signal suggests relative stability. Stability here should not be confused with strength — a structure that looks stable can still be carrying real cost that people have simply gotten used to.";
+  return "The trajectory signal suggests relative stability. Stability here should not be confused with strength -- a structure that looks stable can still be carrying real cost that people have simply gotten used to.";
   }
   }
 
@@ -3739,7 +3739,7 @@ return `<div class="donut-panel">
    <div class="alert-icon">!</div>
    <div class="alert-body">
      <p class="alert-eyebrow">Important note</p>
-     <p>This run shows rising trajectory combined with limited input depth. The pattern points toward worsening drag, but the signal underlying that pattern is thin. Treat the direction of the read seriously while treating the magnitude as provisional — a follow-up run with broader participant coverage is the right next step before committing to large interventions.</p>
+     <p>This run shows rising trajectory combined with limited input depth. The pattern points toward worsening drag, but the signal underlying that pattern is thin. Treat the direction of the read seriously while treating the magnitude as provisional -- a follow-up run with broader participant coverage is the right next step before committing to large interventions.</p>
    </div>
 
 </div>`;
@@ -4331,10 +4331,10 @@ return `<!doctype html>
 <section class="page">
   ${footer(3)}
   <div class="content">
-    <p class="eyebrow">Where clarity is breaking down</p><h2>Clarity dimension breakdown</h2>
+    <p class="eyebrow">Where the condition is weakest</p><h2>Condition dimension breakdown</h2>
     <p>The condition view shows where institutional performance is weakest across the five dimensions Monderman measures: execution coherence, decision reliability, adaptive capacity, institutional confidence, and performance stability. Lower scores indicate where the institution is least able to sustain performance on its own.</p><p class="muted">The important signal is not only which dimension is lowest. The distribution also matters. A concentrated pattern points to a targeted institutional repair; a distributed pattern usually means a broader rebuild is needed across multiple dimensions.</p>
     <div class="panel" style="padding:16px">${scDimBars}</div>
-    <h3 style="margin-top:24px">What the clarity profile tells us</h3>
+    <h3 style="margin-top:24px">What the condition profile tells us</h3>
     <p>${safeWords(concentrationProse, 76)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(compositionQuestion)}</p></div>
     <div class="card-row"><div class="mini-card"><b>Concentrated constraint</b><p>One condition dimension clearly dominates. Targeted institutional repair has high yield.</p></div><div class="mini-card"><b>Distributed constraint</b><p>No single dimension dominates. Broader institutional rebuild likely needed across multiple dimensions.</p></div></div>
@@ -4385,7 +4385,7 @@ ${decisionReviewPage}
     <p class="eyebrow">How to read this report</p><h2>How this was produced</h2>
     <p>This diagnostic measures institutional performance across five dimensions: execution coherence, decision reliability, adaptive capacity, institutional confidence, and performance stability. It also estimates the amount of productive capacity being absorbed sustaining performance through compensation, management lift, and rework rather than sound institutional condition. The diagnostic does not independently verify user inputs; it should be read as a directional institutional read rather than a full audit.</p>
     <div class="rule"></div>
-    <div class="ring-row"><svg class="ring" viewBox="0 0 58 58"><circle cx="29" cy="29" r="23" fill="none" stroke="#E6EAF0" stroke-width="7"/><circle cx="29" cy="29" r="23" fill="none" stroke="#C49A3C" stroke-width="7" stroke-dasharray="${insight.available ? Math.round(insight.score * 1.45) : 0} 145" transform="rotate(-90 29 29)"/></svg><div><div style="font-size:24px;font-weight:700">${insight.available ? Math.round(insight.score) : "—"}</div><p class="muted">Insight depth score${insight.available ? ` · ${escapeHtml(insight.band)}` : " · Awaiting data"}<br>${insight.available ? "Single-run signal-quality indicator, not a correctness score." : "Insight depth could not be loaded from the diagnostic backend."}</p></div></div>
+    <div class="ring-row"><svg class="ring" viewBox="0 0 58 58"><circle cx="29" cy="29" r="23" fill="none" stroke="#E6EAF0" stroke-width="7"/><circle cx="29" cy="29" r="23" fill="none" stroke="#C49A3C" stroke-width="7" stroke-dasharray="${insight.available ? Math.round(insight.score * 1.45) : 0} 145" transform="rotate(-90 29 29)"/></svg><div><div style="font-size:24px;font-weight:700">${insight.available ? Math.round(insight.score) : "—"}</div><p class="muted">Insight depth score${insight.available ? ` · ${escapeHtml(insight.band)}` : " · Awaiting data"}<br>${insight.available ? "Single-run signal-quality indicator, not a correctness score." : "Insight depth is computed from run depth and confidence."}</p></div></div>
     <p>${insight.available ? "For a single run from a single perspective, this score reflects the depth of the run and self-reported confidence in the inputs. A single run is always a narrow first signal regardless of how thoughtful it was. To strengthen the read, run this diagnostic from other organizational perspectives and over time; the cross-diagnostic synthesis tool combines those runs and computes a broader insight depth score." : "The insight depth score is computed by the Monderman diagnostic backend. It could not be retrieved for this run; the rest of the report remains valid."}</p>
     <h3>What would strengthen the next read</h3><div class="method-box">${nextRunBullets.map((item) => `<p>• ${safeWords(item, 42)}</p>`).join("")}</div>
     <h3>What the figures represent</h3><div class="method-box"><p>* Figures marked with an asterisk are directional estimates generated from your inputs, not guaranteed financial outcomes. They are intended to indicate rough order of magnitude so leadership can decide whether the pattern is worth investigating further. They should not be cited externally as audited measurements, and they should not be used as the basis for compensation decisions, performance reviews, or formal financial planning.</p></div>
@@ -4814,7 +4814,7 @@ if (hasMeaningfulSeries(burdenBarRows.map(r => r.value))) {
 renderBarRows("burdenStack", burdenBarRows);
 } else {
 const mount = $("burdenStack");
-if (mount) mount.innerHTML = '<div class="viz-empty">N/A — not enough signal is available to decompose burden components for this run.</div>';
+if (mount) mount.innerHTML = '<div class="viz-empty">N/A -- not enough signal is available to decompose burden components for this run.</div>';
 }
 
 const delayBarRows = [
@@ -4827,7 +4827,7 @@ if (hasMeaningfulSeries(delayBarRows.map(r => r.value))) {
 renderBarRows("delayStack", delayBarRows);
 } else {
 const mount = $("delayStack");
-if (mount) mount.innerHTML = '<div class="viz-empty">N/A — not enough signal is available to decompose delay concentration for this run.</div>';
+if (mount) mount.innerHTML = '<div class="viz-empty">N/A -- not enough signal is available to decompose delay concentration for this run.</div>';
 }
 
 const priorityRows = asArray(result.intervention_priority_ladder);
@@ -4839,7 +4839,7 @@ renderTableBody("priorityBody", priorityRows, (row) => [
 `<td>${row.pct != null ? row.pct + "%" : hasMeaningfulValue(row.severity) ? Math.round(Number(row.severity || 0) / totalSeverity * 100) + "%" : "N/A"}</td>`
 ]);
 } else {
-renderUnavailableTable("priorityBody", 3, "N/A — not enough signal is available to order intervention priority for this run.");
+renderUnavailableTable("priorityBody", 3, "N/A -- not enough signal is available to order intervention priority for this run.");
 }
 
 const composition = asObject(result?.exposure?.composition);
@@ -4852,7 +4852,7 @@ const laborRows = [
 if (hasMeaningfulSeries(laborRows.map((row) => row.value))) {
 renderTableBody("laborCompositionBody", laborRows, (row) => [`<td>${escapeHtml(row.label)}</td>`, `<td>${Math.round(Number(row.value || 0))}</td>`, `<td>${escapeHtml(row.note)}</td>`]);
 } else {
-renderUnavailableTable("laborCompositionBody", 3, "N/A — not enough signal is available to decompose labor exposure for this run.");
+renderUnavailableTable("laborCompositionBody", 3, "N/A -- not enough signal is available to decompose labor exposure for this run.");
 }
 
 renderTableBody("costCompositionBody", [
@@ -4870,7 +4870,7 @@ renderTableBody("roleClusterBody", roleRows, (row) => [
 `<td>${escapeHtml(row.significance || "Directional exposure signal only")}</td>`
 ]);
 } else {
-renderUnavailableTable("roleClusterBody", 3, "N/A — not enough signal is available to estimate role-cluster exposure for this run.");
+renderUnavailableTable("roleClusterBody", 3, "N/A -- not enough signal is available to estimate role-cluster exposure for this run.");
 }
 
 const impactRows = asArray(result?.impact_profile?.entries)
@@ -4883,7 +4883,7 @@ renderTableBody("impactBody", impactRows, (row) => [
 `<td>${row.score >= 4 ? "High impact" : row.score >= 3 ? "Moderate impact" : row.score >= 2 ? "Mild impact" : row.score >= 1 ? "Minimal impact" : "No meaningful impact"}</td>`
 ]);
 } else {
-renderUnavailableTable("impactBody", 3, "N/A — not enough signal is available to estimate an impact severity matrix for this run.");
+renderUnavailableTable("impactBody", 3, "N/A -- not enough signal is available to estimate an impact severity matrix for this run.");
 }
 
 const remedies = buildRemedyPaths(result, payload);
@@ -5209,7 +5209,7 @@ requestAnimationFrame(() => {
 hideLoader();
 
 // Silently warm up the Render.com API instance in the background as soon as
-// the page loads — this gives the backend 60+ seconds to wake before the
+// the page loads -- this gives the backend 60+ seconds to wake before the
 // user reaches "Begin diagnostic", eliminating the cold-start wait.
 (function warmupApiInBackground() {
 const maxWait = 60000;
