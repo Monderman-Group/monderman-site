@@ -53,7 +53,7 @@
 </head>
 <body>
 <header>
-  <h1>Monderman · Fixture-Matrix PDF Audit <span style="font-size:11px;color:#6FD3A0;font-weight:400">BUILD v8 · master JSON always-on</span></h1>
+  <h1>Monderman · Fixture-Matrix PDF Audit <span style="font-size:11px;color:#6FD3A0;font-weight:400">BUILD v9 · MVP gate (run-on + rate + PDF-metrics + monotonicity)</span></h1>
   <p>For each fixture: drives the live API to produce a real diagnostic run, injects the result into the production page via <code>srcdoc</code> (same-origin from anywhere — works locally), scrapes the rendered web output + the executive-report PDF source, runs standard + diagnostic-specific QC, and lets you download the real PDF on demand to feed into a review chat.</p>
 </header>
 
@@ -249,11 +249,12 @@ async function driveApi(fx, apiBase){
 /* ───────── REAL PDF capture (click page's own button + hook createObjectURL) ───────── */
 function capturePdfBlob(win, downloadBtn){
   return new Promise((resolve, reject)=>{
-    let captured=false, observedFilename=null;
-    const to=setTimeout(()=>{ if(!captured){ restore(); reject(new Error("PDF capture timeout (90s)")); } }, 90000);
+    let captured=false, observedFilename=null, attempts=0;
     const origCOU = win.URL.createObjectURL.bind(win.URL);
     const origClick = win.HTMLAnchorElement.prototype.click;
-    function restore(){ try{win.URL.createObjectURL=origCOU;}catch(_){ } try{win.HTMLAnchorElement.prototype.click=origClick;}catch(_){ } }
+    let retry=null;
+    function restore(){ try{clearInterval(retry);}catch(_){ } try{win.URL.createObjectURL=origCOU;}catch(_){ } try{win.HTMLAnchorElement.prototype.click=origClick;}catch(_){ } }
+    const to=setTimeout(()=>{ if(!captured){ restore(); reject(new Error("PDF capture timeout (90s)")); } }, 90000);
     win.URL.createObjectURL = function(b){
       if(!captured && b instanceof win.Blob && (b.type==="application/pdf"||b.type==="") && b.size>=5000){
         captured=true; clearTimeout(to); restore();
@@ -265,7 +266,17 @@ function capturePdfBlob(win, downloadBtn){
       try{ if(this.download && /\.pdf$/i.test(this.download)) observedFilename=this.download; }catch(_){ }
       return origClick.call(this);
     };
-    downloadBtn.click();
+    // Click, then RE-CLICK every 10s until a blob is captured. The 3/9 "no PDF captured"
+    // failures were a race: the page's #downloadPdfBtn handler was not yet wired inside the
+    // freshly-rendered srcdoc iframe (or html2canvas dropped a frame), so the first click did
+    // nothing and we waited out the timeout. Most fixtures capture on attempt 1 within a few
+    // seconds; the retry only fires for the ones that missed. 90s timeout still bounds total wait.
+    function fire(){
+      attempts++;
+      try{ (win.document.getElementById("downloadPdfBtn") || downloadBtn).click(); }catch(_){ }
+    }
+    fire();
+    retry=setInterval(()=>{ if(captured || attempts>=8){ clearInterval(retry); return; } fire(); }, 10000);
   });
 }
 async function parsePdf(blob){
@@ -504,6 +515,43 @@ function runChecks(fx, scr){
   }
   add("Numeric coherence (dims↔score↔exposure)", numIssues.length?"fail":"pass", numIssues.length?numIssues.slice(0,3).join("; "):"coherent");
 
+  // ── Labor-rate plausibility: $1/hr is the tell-tale of the annual_cost=hours bug ──
+  // The formula check above PASSES when cost == hours × $1, so a separate plausibility gate is
+  // required: no real labor costs $1/hr. OS overrides annual_cost = hours × rate (rate≈85);
+  // SC/DV currently do not, surfacing $1/hr and cost == hours. Catch both symptoms directly.
+  const rate = Number(exp.average_hourly_cost);
+  add("Labor rate realistic ($20–$500/hr)",
+      (Number.isFinite(rate) && rate>=20 && rate<=500) ? "pass" : "fail",
+      Number.isFinite(rate) ? `$${rate}/hr` : "(missing)");
+  const costEqHours = Number(exp.annual_cost)>0 && Number(exp.annual_hours)>0 && Number(exp.annual_cost)===Number(exp.annual_hours);
+  add("Cost ≠ hours (hourly rate actually applied)", costEqHours?"fail":"pass",
+      costEqHours ? `cost $${exp.annual_cost} == ${exp.annual_hours} hrs (rate defaulted to 1)` : "ok");
+
+  // ── Run-on / list-join artifact: a builder mashed an array into one string with ".," ──
+  // Signature: a sentence terminator immediately followed by a comma + capital ("…what.,Authority…").
+  // Happens when the builder splits a list field on "\n" but Claude returned comma-joined inline
+  // items. Lives in leadership / keyFlags / recommendedActions / priority_actions. IP & OS are
+  // clean; SC & DV currently are not. A single-element array that contains ".," is the giveaway.
+  const listFields = { leadership: hn.leadership, keyFlags: hn.keyFlags, recommendedActions: hn.recommendedActions, priority_actions: ip.priority_actions };
+  const joinRe = /[.!?]\s*,\s*[A-Z]/;
+  const joinHits = [];
+  for(const [k,v] of Object.entries(listFields)){
+    const arr = Array.isArray(v) ? v : (v!=null ? [v] : []);
+    arr.forEach(item=>{
+      if(typeof item==="string" && joinRe.test(item)){
+        const at = item.search(joinRe);
+        joinHits.push(`${k}: …${item.slice(Math.max(0,at-18), at+25).replace(/\s+/g," ").trim()}…`);
+      }
+    });
+  }
+  add('No run-on list-join artifacts (".,")', joinHits.length?"fail":"pass", joinHits.length?joinHits.slice(0,3).join("  ||  "):"clean");
+
+  // ── Literal formatting artifacts in rendered web text (warn — visible, not a hard gate) ──
+  const artHits = [];
+  if(/\\n/.test(scr.webText||"")) artHits.push("literal \\n");
+  if(/\*\*[^*\n]+\*\*/.test(scr.webText||"")) artHits.push("**markdown bold**");
+  add("No literal formatting artifacts", artHits.length?"warn":"pass", artHits.length?artHits.join(", "):"clean");
+
   // Insight depth present + populated
   add("Insight depth populated", (result.insight_depth?.score!=null && result.insight_depth?.band) ? "pass":"fail", result.insight_depth?.band ? `${result.insight_depth.score} · ${result.insight_depth.band}` : "missing");
 
@@ -633,6 +681,15 @@ async function runAll(){
     res.checks.forEach(c=>{ totalChecks++; if(c.status==="fail"){ totalFails++; (checkFailMap[c.name]=checkFailMap[c.name]||[]).push(`${fx.key}/${fx.profile}`);} if(c.status==="warn") totalWarns++; });
   });
 
+  // Monotonicity is a CROSS-fixture gate (worse inputs must score worse within a diagnostic),
+  // so it can't live in per-fixture runChecks. Fold each violation into the totals here so the
+  // master JSON reflects it as a real failure instead of an advisory note.
+  if(consistencyIssues.length){
+    totalChecks += consistencyIssues.length;
+    totalFails  += consistencyIssues.length;
+    checkFailMap["Cross-fixture monotonicity (worse inputs → worse score)"] = consistencyIssues.slice();
+  }
+
   LAST_RUN_SUMMARY = {
     generated: new Date().toISOString(),
     api_base: apiBase,
@@ -647,6 +704,9 @@ async function runAll(){
       check_warns: (STORE[i]?.res?.checks||[]).filter(c=>c.status==="warn").map(c=>c.name),
       run_error: STORE[i]?.error ?? null,
       result: STORE[i]?.scr?.trueResult ?? null,
+      pdf_pages: STORE[i]?.scr?.pdfBlob?._numPages ?? null,
+      pdf_kb: STORE[i]?.scr?.pdfBlob ? Math.round(STORE[i].scr.pdfBlob.size/1024) : null,
+      pdf_ink_pct: (STORE[i]?.scr?.pdfBlob && STORE[i].scr.pdfBlob._ink!=null) ? Math.round(STORE[i].scr.pdfBlob._ink*1000)/10 : null,
       pdf_text: STORE[i]?.scr?.pdfText ?? "",
       web_text: STORE[i]?.scr?.webText ?? ""
     }))
@@ -693,6 +753,9 @@ function buildMasterSummary(){
       check_fails: (STORE[i]?.res?.checks||[]).filter(c=>c.status==="fail").map(c=>({name:c.name, detail:c.val})),
       check_warns: (STORE[i]?.res?.checks||[]).filter(c=>c.status==="warn").map(c=>c.name),
       result: STORE[i]?.scr?.trueResult ?? null,
+      pdf_pages: STORE[i]?.scr?.pdfBlob?._numPages ?? null,
+      pdf_kb: STORE[i]?.scr?.pdfBlob ? Math.round(STORE[i].scr.pdfBlob.size/1024) : null,
+      pdf_ink_pct: (STORE[i]?.scr?.pdfBlob && STORE[i].scr.pdfBlob._ink!=null) ? Math.round(STORE[i].scr.pdfBlob._ink*1000)/10 : null,
       pdf_text: STORE[i]?.scr?.pdfText ?? "",
       web_text: STORE[i]?.scr?.webText ?? ""
     }))
