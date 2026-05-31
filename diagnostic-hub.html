@@ -2552,7 +2552,7 @@
 
 <div class="status-strip" role="status" aria-label="Diagnostic availability">
   <span class="status-strip-dot status-strip-dot-live" aria-hidden="true"></span>
-  <p class="status-strip-text"><strong>Operational Systems, Decision Velocity, and Structural Clarity are live in beta.</strong> Institutional Performance is in active development and not yet available from the hub.</p>
+  <p class="status-strip-text"><strong>All four diagnostics — Operational Systems, Decision Velocity, Structural Clarity, and Institutional Performance — are live in beta.</strong> Each opens in its own environment and returns a leadership-facing readout.</p>
 </div>
 
 <div class="sample-panel" role="note" aria-label="Sample report">
@@ -2695,10 +2695,15 @@
         </svg>
       </div>
       <div class="tool-card-top">
-        <div class="tool-badge status-under-development">Under Development</div>
+        <div class="tool-badge status-beta">Beta</div>
       </div>
       <h3 class="tool-title">Institutional Performance Diagnostic</h3>
       <p class="tool-subline">System health · adaptation · reliability</p>
+      <div class="tool-card-meta">
+        <span>~25 minutes</span>
+        <span>Runs in your browser</span>
+        <span>No account required</span>
+      </div>
       <p class="tool-text">
         Estimate how well an institution is converting structure into sustained performance across execution, resilience, and institutional confidence.
       </p>
@@ -3626,11 +3631,10 @@
     const PROTECTED_DIAGNOSTIC_PATHS = new Set([
       "operational-systems.html",
       "decision-velocity.html",
-      "structural-clarity.html"
+      "structural-clarity.html",
+      "institutional-performance.html"
     ]);
-    const UNDER_DEVELOPMENT_PATHS = new Map([
-      ["institutional-performance.html", "Institutional Performance Diagnostic"]
-    ]);
+    const UNDER_DEVELOPMENT_PATHS = new Map([]);
     const TURNSTILE_TOKEN_KEY = "mondermanTurnstileTokenV1";
     const TURNSTILE_TIMEOUT_MS = 10000;
     const TURNSTILE_SESSION_MS = 25 * 60 * 1000;
