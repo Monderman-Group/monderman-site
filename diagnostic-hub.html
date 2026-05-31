@@ -203,6 +203,20 @@
         var(--hero-image) center/cover no-repeat,
         linear-gradient(180deg, #080D14 0%, #0F1720 100%);
     }
+    /* Soften the hero's bottom edge: fade the dark image into the page
+       background instead of a hard horizontal cut. Sits above the hero
+       background layers but below the hero copy (.hero-inner, z-index:1). */
+    .hero::after{
+      content:"";
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:0;
+      height:150px;
+      background:linear-gradient(180deg, rgba(246,248,251,0) 0%, rgba(246,248,251,.85) 70%, var(--bg-offwhite) 100%);
+      pointer-events:none;
+      z-index:0;
+    }
     .page{
       position:relative;
       z-index:2;
@@ -2466,7 +2480,9 @@
 
       /* trim heavy inline horizontal padding (e.g. the 34px section shells) */
       [style*="padding:0 34px"],
-      [style*="padding: 0 34px"] { padding-left: 18px !important; padding-right: 18px !important; }
+      [style*="padding: 0 34px"],
+      [style*="padding:72px 34px"] { padding-left: 18px !important; padding-right: 18px !important; }
+      [style*="padding:72px 34px"] { padding-top: 44px !important; }
 
       .tool-card { padding: 22px 20px; }
       .matrix-card { padding: 22px 20px; }
@@ -2516,7 +2532,7 @@
   </section>
 
   <!-- Premium: How Monderman works (promoted) -->
-  <section style="max-width:1320px; margin:0 auto 24px; padding:0 34px;">
+  <section style="max-width:1320px; margin:0 auto 24px; padding:72px 34px 0;">
     <div style="text-align:center; margin-bottom:36px;">
       <div class="section-label">How it works</div>
       <h3 style="font-size:28px; line-height:1.15; margin:8px 0 12px; color:var(--text-dark);">Three disciplined steps. One repeatable system.</h3>
