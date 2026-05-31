@@ -1487,6 +1487,28 @@
     
     .hero h1{letter-spacing:-0.04em;}
         .hero-copy{display:grid;gap:0;}
+
+    /* Premium Quick-Start Rail */
+    .quick-start-rail {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 24px;
+      max-width: var(--max);
+      margin: 0 auto 52px;
+      padding: 0 34px;
+    }
+    .quick-card {
+      background: #FFF;
+      border: 1px solid rgba(21,32,43,.10);
+      border-radius: 18px;
+      padding: 32px 28px;
+      transition: all var(--transition);
+    }
+    .quick-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 12px 32px rgba(63,110,161,.08);
+    }
     .card-kicker, .use-step, .matrix-kicker, .shared-context-kicker, .recent-runs-kicker, .best-for-repeat, .tool-subline, .tool-meta-label, .footer-nav-title, .hero-eyebrow{font-size:11px;line-height:1.4;font-weight:600;letter-spacing:.16em;text-transform:uppercase;}
     .tool-text, .use-text, .card-text, .matrix-text, .footer-copy-top, .shared-context-copy, .context-helper, .hero-dek{font-size:17px;line-height:1.65;font-weight:400;}
     .note, .tool-meta, .context-status, .recent-run-copy, .recent-run-meta, .dropzone p, .validation-message{font-size:13px;line-height:1.5;}
@@ -2435,14 +2457,15 @@
     <div class="hero-inner">
       <div class="hero-copy">
         <p class="hero-eyebrow">Diagnostic Hub</p>
-                <h1>Repeated diagnostics reveal what single snapshots cannot.</h1>
+                <h1 style="font-size: 72px; line-height: 0.92; max-width: 15ch;">Repeated diagnostics reveal what single snapshots cannot.</h1>
         <p class="hero-dek">
-          Track where structure, decision flow, process burden, and institutional performance are strengthening, drifting, or accumulating drag — across teams, levels, and time.
+          The diagnostic platform institutions use to measure, compare, and govern administrative reality — repeatedly, across perspectives, over time.
         </p>
 
 <div class="hero-actions">
-  <a class="btn btn-accent" href="#diagnostic-portals">Launch diagnostics</a>
-  <a class="btn btn-secondary" href="#match-by-symptom">Where to start</a>
+  <a class="btn btn-accent" href="#diagnostic-portals">Launch Diagnostics</a>
+  <a class="btn btn-secondary" href="#match-by-symptom">Symptom Guide</a>
+  <a class="btn btn-hero-secondary" href="sample-report.html">View Sample Report</a>
 </div>
 
 <div class="context-chip" id="currentPathChip"></div>
@@ -2451,10 +2474,54 @@
 </div>
   </section>
 
-  <main class="page">
+  <!-- Premium Trust Bar -->
+  <div style="max-width:1320px; margin:0 auto; padding:0 34px 32px;">
+    <div style="display:flex; align-items:center; gap:24px; flex-wrap:wrap; padding:18px 28px; background:#FFF; border:1px solid rgba(21,32,43,.08); border-radius:999px;">
+      <div style="font-size:0.82rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted-dark-2);">Built for institutions that return</div>
+      <div style="display:flex; align-items:center; gap:28px; flex-wrap:wrap; font-size:0.95rem; color:var(--text-dark); font-weight:500;">
+        <span>Government &amp; multilateral</span>
+        <span>Global consulting firms</span>
+        <span>Technology firms</span>
+        <span>Research universities</span>
+        <span>Complex regulated industries</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Premium: How Monderman works (promoted) -->
+  <section style="max-width:1320px; margin:0 auto 24px; padding:0 34px;">
+    <div style="text-align:center; margin-bottom:36px;">
+      <div class="section-label">How it works</div>
+      <h3 style="font-size:28px; line-height:1.15; margin:8px 0 12px; color:var(--text-dark);">Three disciplined steps. One repeatable system.</h3>
+      <p style="max-width:52ch; margin:0 auto; font-size:17px; line-height:1.65; color:var(--muted-dark);">Designed for teams that treat diagnostics as ongoing governance, not one-off projects.</p>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:24px;">
+      <div style="background:#FFF; border:1px solid rgba(21,32,43,.08); border-radius:18px; padding:32px 28px;">
+        <div style="width:32px; height:32px; background:var(--accent); color:#FFF; border-radius:999px; display:flex; align-items:center; justify-content:center; font-weight:700; margin-bottom:20px;">1</div>
+        <h4 style="font-size:19px; margin:0 0 10px; color:var(--text-dark);">Choose your lens</h4>
+        <p style="font-size:15px; line-height:1.65; color:var(--muted-dark); margin:0;">Match the clearest signal in your environment to the right diagnostic instrument.</p>
+      </div>
+      <div style="background:#FFF; border:1px solid rgba(21,32,43,.08); border-radius:18px; padding:32px 28px;">
+        <div style="width:32px; height:32px; background:var(--accent); color:#FFF; border-radius:999px; display:flex; align-items:center; justify-content:center; font-weight:700; margin-bottom:20px;">2</div>
+        <h4 style="font-size:19px; margin:0 0 10px; color:var(--text-dark);">Run with shared context</h4>
+        <p style="font-size:15px; line-height:1.65; color:var(--muted-dark); margin:0;">Save the event path, lens, and depth once. Every subsequent run stays comparable by design.</p>
+      </div>
+      <div style="background:#FFF; border:1px solid rgba(21,32,43,.08); border-radius:18px; padding:32px 28px;">
+        <div style="width:32px; height:32px; background:var(--accent); color:#FFF; border-radius:999px; display:flex; align-items:center; justify-content:center; font-weight:700; margin-bottom:20px;">3</div>
+        <h4 style="font-size:19px; margin:0 0 10px; color:var(--text-dark);">Return and compare</h4>
+        <p style="font-size:15px; line-height:1.65; color:var(--muted-dark); margin:0;">See how structure, velocity, and burden are actually shifting over time — not just in the moment.</p>
+      </div>
+    </div>
+  </section>
+
+  <main class="page" style="padding-top:48px;">
 
 <div class="page-inner">
-  <div class="head">
+  <div class="head" style="grid-template-columns: 300px minmax(0,1fr); align-items: start; gap: 48px;">
+    <p class="note" style="margin: 0; align-self: start;">
+      <strong>Use bounded inputs.</strong> These diagnostics are designed for directional organizational analysis. Avoid entering confidential, classified, regulated, proprietary, or personally sensitive information.
+    </p>
     <div>
       <div class="section-label">Diagnostic Hub</div>
       <h2>Choose the diagnostic that matches the signal you are seeing.</h2>
@@ -2462,9 +2529,6 @@
         Begin with the strongest visible signal, choose the right diagnostic lens, and return with discipline as the system changes. The hub is designed for repeated professional use, not one-time novelty.
       </p>
     </div>
-    <p class="note">
-      <strong>Use bounded inputs.</strong> These diagnostics are designed for directional organizational analysis. Avoid entering confidential, classified, regulated, proprietary, or personally sensitive information.
-    </p>
   </div>
 
   <section class="tools-section" id="tool-launch">
@@ -2472,7 +2536,7 @@
       <div class="section-label">Live Diagnostics</div>
       <h3>Launch the right diagnostic.</h3>
       <p>
-        Each diagnostic opens in its own dedicated environment. Start with the strongest fit, then return to the hub as your understanding of the structural issue becomes clearer.
+        Each diagnostic is a distinct instrument. It opens in its own environment and returns a leadership-facing readout. Start with the strongest visible signal, then return as the picture becomes clearer.
       </p>
       <div style="margin-top:18px; display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; padding:16px 18px; border-radius:16px; background:#FFF; border:1px solid rgba(21,32,43,.08); box-shadow:none;">
         <div style="max-width:44ch;">
@@ -2502,33 +2566,6 @@
     View the sample report
     <span aria-hidden="true">→</span>
   </a>
-</div>
-
-<div class="hub-faq" aria-label="Questions before running a diagnostic">
-  <p class="hub-faq-title">Before you run a diagnostic</p>
-  <p class="hub-faq-lead">Questions most people ask before clicking — answered candidly.</p>
-  <div class="hub-faq-list">
-    <details class="hub-faq-item">
-      <summary>Will my responses leave this device?</summary>
-      <p class="hub-faq-answer">No. The diagnostic runs in your browser. Your responses, the AI-generated narrative, and the resulting score are not transmitted to or stored on Monderman servers. If you export a report or close the tab, that action happens on your device.</p>
-    </details>
-    <details class="hub-faq-item">
-      <summary>Do I need an account or login to run a diagnostic?</summary>
-      <p class="hub-faq-answer">No. The first read is free and requires no signup. Workspace registration is optional and exists for institutions that want to save runs, compare baselines over time, or share results across colleagues — none of which is required to use the platform.</p>
-    </details>
-    <details class="hub-faq-item">
-      <summary>How long does a diagnostic actually take?</summary>
-      <p class="hub-faq-answer">Most users complete a single diagnostic in 20 to 30 minutes. The first run is typically slower as you adjust to the framing; subsequent runs against the same instrument move faster because the prompts are familiar.</p>
-    </details>
-    <details class="hub-faq-item">
-      <summary>What happens if I close the browser mid-run?</summary>
-      <p class="hub-faq-answer">Your progress is preserved locally for the active session. Returning to the same page in the same browser will resume where you left off. Clearing browser data or switching devices will reset the run.</p>
-    </details>
-    <details class="hub-faq-item">
-      <summary>Can I share or export results?</summary>
-      <p class="hub-faq-answer">Yes. Each diagnostic produces a PDF executive read and a JSON export. Both download directly to your device. Sharing them with colleagues — by email, internal drive, or document system — is your choice and your action. Monderman has no record that the diagnostic was run.</p>
-    </details>
-  </div>
 </div>
 
 <p class="tools-framing">
@@ -2973,6 +3010,22 @@
     </div>
   </article>
 </div>
+  </section>
+
+  <!-- Premium: What teams discover -->
+  <section style="max-width:1320px; margin:0 auto 64px; padding:0 34px;">
+    <div style="background:#0F1720; color:#F5F7FA; border-radius:22px; padding:52px 48px; position:relative; overflow:hidden;">
+      <div style="max-width:620px; position:relative; z-index:1;">
+        <div style="font-size:11px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; opacity:0.6; margin-bottom:12px;">Real outcomes from repeated use</div>
+        <h3 style="font-size:26px; line-height:1.2; margin:0 0 20px;">What teams discover after 3–4 runs</h3>
+        <div style="display:grid; gap:12px; font-size:15px; line-height:1.6; opacity:0.92;">
+          <div>Ownership ambiguity invisible in run one becomes obvious by run three.</div>
+          <div>Approval drag once accepted as “how we work” is revealed as a 4–6 week hidden tax.</div>
+          <div>Process density that felt necessary drops 30–40% without losing control.</div>
+        </div>
+        <p style="margin:22px 0 0; font-size:14px; opacity:0.75;">These patterns only emerge when the same calibrated instrument is used with discipline over time.</p>
+      </div>
+    </div>
   </section>
 
   <section class="bridge" aria-labelledby="advisory-bridge-title">
