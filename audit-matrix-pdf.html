@@ -45,7 +45,7 @@
 </head>
 <body>
 <header>
-  <h1>Monderman · Fixture-Matrix PDF Audit <span style="font-size:11px;color:#6FD3A0;font-weight:400">BUILD v3 · id-mapped ratings</span></h1>
+  <h1>Monderman · Fixture-Matrix PDF Audit <span style="font-size:11px;color:#6FD3A0;font-weight:400">BUILD v4 · id-map + JSON export</span></h1>
   <p>For each fixture: drives the live API to produce a real diagnostic run, injects the result into the production page via <code>srcdoc</code> (same-origin from anywhere — works locally), scrapes the rendered web output + the executive-report PDF source, runs standard + diagnostic-specific QC, and lets you download the real PDF on demand to feed into a review chat.</p>
 </header>
 
@@ -98,8 +98,6 @@ const BANNED = ["operating reality","legibility cost","structural noise","compen
 
 /* ───────── real, valence-correct answer maps (IP + SC built this session) ───────── */
 const IP_RATING_FIELDS = ["leadershipClarity","followthroughStrength","adaptationCapacity","confidenceInSystem","performanceConsistency","issueResolutionPower"];
-// Item id -> scorerField, from the IP routing config. The API's sanitizeNextItem
-// historically did NOT send scorerField, so we resolve the field from the stable id.
 const IP_ID_FIELD = {
   ip_g1_assessment_scope:"assessmentScope", ip_g2_operating_condition:"operatingCondition",
   ip_d1_leadership_clarity:"leadershipClarity", ip_d2_followthrough:"followthroughStrength",
@@ -445,6 +443,7 @@ function renderFixtures(){
         <div id="checks${i}"></div>
         <div class="dlrow">
           <button class="btn-mini" onclick="window._dlPdf(${i})">Download the real PDF</button>
+          <button class="btn-mini" onclick="window._dlJson(${i})">Download JSON</button>
         </div>
         <h4 class="sec">Scraped web output</h4>
         <div class="scrape" id="web${i}">—</div>
@@ -454,6 +453,21 @@ function renderFixtures(){
     </div>`).join("");
 }
 window._dlPdf = i => { const s=STORE[i]; downloadPdf(FIXTURES[i], s?.scr?.pdfBlob, s?.scr?.pdfFilename); };
+window._dlJson = i => {
+  const s=STORE[i]; if(!s){ alert("Run this fixture first."); return; }
+  const fx=FIXTURES[i];
+  const payload = {
+    fixture: { key:fx.key, name:fx.name, profile:fx.profile, role:fx.role, depth:fx.depth, sector:fx.sector },
+    checks: s.res?.checks || [],
+    result: s.scr?.trueResult || null,
+    pdf_text: s.scr?.pdfText || "",
+    web_text: s.scr?.webText || ""
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download=`monderman-${fx.key}-${fx.profile}-${fx.depth}min.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+};
 
 function paintChecks(i, res){
   $("checks"+i).innerHTML = res.checks.map(c=>
@@ -470,7 +484,7 @@ async function runOne(i, apiBase){
     if(!drv.result) throw new Error("no result from finalize");
     const scr = await renderAndScrape(fx, drv.result, drv.payload);
     const res = runChecks(fx, scr);
-    STORE[i] = { scr, res };
+    STORE[i] = { scr, res, raw: { result: scr.trueResult, pdfText: scr.pdfText, webText: scr.webText, pdfFilename: scr.pdfFilename } };
     paintChecks(i, res);
     $("web"+i).textContent = scr.webText ? scr.webText.slice(0,1500) : "(empty)";
     $("pdf"+i).textContent = scr.pdfText ? scr.pdfText.replace(/\s+/g," ").slice(0,1500) : "(no PDF captured)";
