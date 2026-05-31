@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Workspace | Monderman</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Workspace (Under Development) | Monderman</title>
   <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
       <rect width="64" height="64" rx="10" fill="%230F1720"/>
@@ -181,6 +182,56 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
+<!-- ============================================================
+     WORKSPACE UNDER-DEVELOPMENT GATE
+     The Workspace is not yet released. The notice below is the only
+     thing that renders; the entire original page (header, workspace UI,
+     and ALL scripts, including the sign-in redirect) is wrapped in an
+     inert <template> so it neither renders nor executes.
+
+     TO RE-ENABLE THE WORKSPACE:
+       1. delete this whole gate block (the <style> + the #wsUnderDev div),
+       2. delete the line  <template id="workspace-wip" aria-hidden="true">
+          immediately below this block,
+       3. delete the matching  </template>  just before </body>.
+     Nothing else needs to change.
+     ============================================================ -->
+<style>
+  #wsUnderDev{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;
+    padding:24px;background:#F4F6F9;color:#15202B;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;overflow:auto;}
+  #wsUnderDev *{box-sizing:border-box;}
+  #wsUnderDev .ud-card{width:100%;max-width:560px;background:#FFFFFF;border:1px solid rgba(21,32,43,.10);
+    border-radius:20px;padding:40px 36px;box-shadow:0 18px 48px rgba(21,32,43,.10);text-align:left;}
+  #wsUnderDev .ud-kicker{margin:0 0 18px;font-size:.72rem;font-weight:700;letter-spacing:.18em;
+    text-transform:uppercase;color:#3F6EA1;}
+  #wsUnderDev .ud-badge{display:inline-block;margin:0 0 14px;padding:5px 11px;border-radius:999px;
+    font-size:.7rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;
+    color:#8A5A00;background:#FBF1DC;border:1px solid rgba(138,90,0,.18);}
+  #wsUnderDev h1{margin:0 0 12px;font-size:1.6rem;line-height:1.25;font-weight:700;letter-spacing:-.01em;}
+  #wsUnderDev p{margin:0 0 22px;font-size:1rem;line-height:1.6;color:#48566A;}
+  #wsUnderDev .ud-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;}
+  #wsUnderDev .ud-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:12px;
+    font-size:.95rem;font-weight:600;text-decoration:none;border:1px solid transparent;}
+  #wsUnderDev .ud-btn-primary{background:#3F6EA1;color:#FFFFFF;}
+  #wsUnderDev .ud-btn-primary:hover{background:#345C86;}
+  #wsUnderDev .ud-link{font-size:.92rem;color:#3F6EA1;text-decoration:none;font-weight:600;}
+  #wsUnderDev .ud-link:hover{text-decoration:underline;}
+</style>
+<div id="wsUnderDev" role="main" aria-label="Workspace under development">
+  <div class="ud-card">
+    <p class="ud-kicker">Monderman</p>
+    <span class="ud-badge">Under Development</span>
+    <h1>The Workspace isn&rsquo;t available yet.</h1>
+    <p>This area is still being built and isn&rsquo;t open to use right now. In the meantime, you can run any of Monderman&rsquo;s four diagnostics from the Diagnostic Hub.</p>
+    <div class="ud-actions">
+      <a class="ud-btn ud-btn-primary" href="diagnostic-tools.html">Go to the Diagnostic Hub &#8594;</a>
+      <a class="ud-link" href="index.html">Return home</a>
+    </div>
+  </div>
+</div>
+<template id="workspace-wip" aria-hidden="true">
   <div class="loading-overlay" id="workspaceLoadingOverlay" aria-hidden="true"><div class="loading-box" role="status" aria-live="polite"><div class="loading-mark" aria-hidden="true"><div class="loading-ring"></div><div class="loading-m">M</div><div class="loading-dot"></div></div><h3 class="loading-title">Assembling workspace environment...</h3><p class="loading-copy">Loading signed-in identity, organization context, assignments, results, and analytic governance state.</p><p class="loading-status" id="workspaceLoadingStatus">Resolving workspace state...</p><div class="loading-progress" aria-hidden="true"><div class="loading-bar" id="workspaceLoadingBar"></div></div></div></div>
   <header class="header" id="siteHeader"><div class="header-inner"><a href="index.html" class="brand">Monderman</a><nav class="nav" aria-label="Primary navigation"><a href="index.html#approach">Approach</a><a href="diagnostic-tools.html">Diagnostic Hub</a><a href="research.html">Research</a><a href="why-monderman.html">Why Monderman</a><a href="advisory-services-connect.html">Connect</a><a href="workspace.html" class="workspace-link is-active">Workspace</a></nav></div></header>
 
@@ -1509,5 +1560,7 @@
     if(shouldRunWorkspaceCalibration()){ window.addEventListener("load", ()=>{ requestAnimationFrame(()=>{ startWorkspaceCalibration(); safeWriteLocal(WORKSPACE_LOADER_KEY, String(Date.now())); }); }); }
     initialize();
   </script>
+</template>
+<!-- ===== END WORKSPACE UNDER-DEVELOPMENT GATE ===== -->
 </body>
 </html>
