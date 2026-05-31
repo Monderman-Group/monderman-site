@@ -41,11 +41,19 @@
   .note{font-size:11.5px;color:var(--soft);background:#F8FAFC;border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:0 20px 12px;}
   .summary{font-size:12px;color:var(--soft);}
   iframe#renderFrame{position:absolute;width:1100px;height:1400px;left:-9999px;top:0;border:0;}
+  .sc-head{font-weight:600;font-size:14px;margin-bottom:10px;}
+  .sc-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:12px;}
+  .sc-table th,.sc-table td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top;}
+  .sc-table th{color:var(--soft);font-size:11px;text-transform:uppercase;letter-spacing:.04em;}
+  .sc-clean{color:var(--good);font-weight:600;}
+  .sc-sub{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--soft);margin:6px 0 4px;}
+  .sc-cons{margin:0 0 8px;padding-left:18px;font-size:12.5px;}
+  .sc-cons li{margin:2px 0;}
 </style>
 </head>
 <body>
 <header>
-  <h1>Monderman · Fixture-Matrix PDF Audit <span style="font-size:11px;color:#6FD3A0;font-weight:400">BUILD v4 · id-map + JSON export</span></h1>
+  <h1>Monderman · Fixture-Matrix PDF Audit <span style="font-size:11px;color:#6FD3A0;font-weight:400">BUILD v5 · master JSON + scorecard + QC</span></h1>
   <p>For each fixture: drives the live API to produce a real diagnostic run, injects the result into the production page via <code>srcdoc</code> (same-origin from anywhere — works locally), scrapes the rendered web output + the executive-report PDF source, runs standard + diagnostic-specific QC, and lets you download the real PDF on demand to feed into a review chat.</p>
 </header>
 
@@ -66,6 +74,7 @@
   <label class="fld">OS page URL<input type="text" id="url_os" value="https://www.monderman.com/operational-systems.html" style="width:330px"></label>
 </div>
 
+<div id="scorecard" style="display:none;background:#fff;border:1px solid var(--line);border-radius:12px;margin:0 20px 14px;padding:14px 16px;"></div>
 <main id="fixtures"></main>
 <iframe id="renderFrame" title="render"></iframe>
 
@@ -395,11 +404,52 @@ function runChecks(fx, scr){
       .toLowerCase();
   }
   const visibleText = textOnly(scr.webText) + " " + (scr.pdfText||"").toLowerCase();
-  const sentinels = ["will appear once the backend","will appear here","lorem ipsum","[object object]","placeholder text","tktk","todo:","fixme","could not be loaded from"];
-  const sHit = sentinels.filter(t=>visibleText.includes(t));
-  // standalone bare "--" only counts if it appears as a word in visible prose (e.g. an unfilled em-dash slot)
-  if(/(^|\s)--(\s|$)/.test(visibleText)) sHit.push("bare -- in prose");
-  add("No placeholders/sentinels reach output", sHit.length?"fail":"pass", sHit.length?sHit.slice(0,3).join(", "):"clean");
+  const sentinels = ["will appear once the backend","will appear here","lorem ipsum","[object object]","placeholder text","tktk","todo:","fixme","could not be loaded from","diagnosis pending","clarity constraint","clarity dimension"];
+  // Pinpoint: for each sentinel found, capture ~40 chars of surrounding context so the
+  // failure says WHERE it is, not just that it exists.
+  const sHits = [];
+  for(const t of sentinels){
+    const idx = visibleText.indexOf(t);
+    if(idx>=0){ sHits.push(`"${t}" @ …${visibleText.slice(Math.max(0,idx-30), idx+t.length+20).replace(/\s+/g," ").trim()}…`); }
+  }
+  // standalone bare "--" — capture context to locate the unfilled slot
+  const dashM = visibleText.match(/.{0,35}(^|\s)--(\s|$).{0,35}/);
+  if(dashM) sHits.push(`bare -- @ …${dashM[0].replace(/\s+/g," ").trim()}…`);
+  add("No placeholders/sentinels reach output", sHits.length?"fail":"pass", sHits.length?sHits.slice(0,4).join("  ||  "):"clean");
+
+  // ── Field completeness: the interpretive_prose sections that must be populated ──
+  const ip = result.interpretive_prose || {};
+  const hn = ip.harmonized_narrative || {};
+  const missing = [];
+  const reqStr = { "executive": hn.executive, "headlineFinding": hn.headlineFinding, "tradeoff": hn.tradeoff, "tmr": hn.tmr, "benchmark": hn.benchmark, "executive_summary.body": ip.executive_summary?.body, "benchmark_interpretation": ip.benchmark_interpretation };
+  for(const [k,v] of Object.entries(reqStr)){ if(!v || String(v).trim().length<10) missing.push(k); }
+  const reqArr = { "priority_actions": ip.priority_actions, "remedy_paths": ip.remedy_paths, "leadership": hn.leadership, "keyFlags": hn.keyFlags, "recommendedActions": hn.recommendedActions };
+  for(const [k,v] of Object.entries(reqArr)){ if(!Array.isArray(v) || !v.length) missing.push(k); }
+  // remedy paths must each have actions[]
+  if(Array.isArray(ip.remedy_paths)){ const noAct = ip.remedy_paths.filter(p=>!Array.isArray(p.actions)||!p.actions.length).length; if(noAct) missing.push(`${noAct} remedy_path(s) missing actions`); }
+  add("Field completeness (all sections populated)", missing.length?"fail":"pass", missing.length?missing.slice(0,5).join(", "):"all populated");
+
+  // ── Numeric coherence: dims ↔ score ↔ exposure agree ──
+  const dims = result.dimensions || {};
+  const dimVals = ["execution_coherence","decision_reliability","adaptive_capacity","institutional_confidence","performance_stability"].map(k=>Number(dims[k])).filter(Number.isFinite);
+  const numIssues = [];
+  if(dimVals.length===5){
+    const avg = dimVals.reduce((a,b)=>a+b,0)/5;
+    // score should be within a sane band of the dimension average (IP score isn't a pure mean, allow ±20)
+    if(Number.isFinite(score) && Math.abs(score-avg)>20) numIssues.push(`score ${score} vs dim-avg ${Math.round(avg)} (>20 apart)`);
+    // weakest dimension should match the named primary weakness direction
+    const weakest = Object.entries(dims).filter(([k])=>k!=="compensatory_effort").sort((a,b)=>a[1]-b[1])[0];
+    if(weakest && weakest[1]>=98) numIssues.push(`all dims ≥98 (suspiciously flat: ${weakest[0]}=${weakest[1]})`);
+  } else { numIssues.push(`only ${dimVals.length}/5 dimensions numeric`); }
+  const exp = result.exposure || {};
+  if(exp.annual_cost!=null && exp.annual_hours!=null && exp.average_hourly_cost!=null){
+    const implied = Number(exp.annual_hours)*Number(exp.average_hourly_cost);
+    if(implied>0 && Math.abs(implied-Number(exp.annual_cost))/Number(exp.annual_cost) > 0.5) numIssues.push(`exposure: ${exp.annual_hours}h × $${exp.average_hourly_cost} ≠ $${exp.annual_cost}`);
+  }
+  add("Numeric coherence (dims↔score↔exposure)", numIssues.length?"fail":"pass", numIssues.length?numIssues.slice(0,3).join("; "):"coherent");
+
+  // Insight depth present + populated
+  add("Insight depth populated", (result.insight_depth?.score!=null && result.insight_depth?.band) ? "pass":"fail", result.insight_depth?.band ? `${result.insight_depth.score} · ${result.insight_depth.band}` : "missing");
 
   // IP-specific
   if(fx.key==="ip"){
@@ -442,7 +492,7 @@ function renderFixtures(){
       <div class="fx-body" id="body${i}">
         <div id="checks${i}"></div>
         <div class="dlrow">
-          <button class="btn-mini" onclick="window._dlPdf(${i})">Download the real PDF</button>
+          <button class="btn-mini" onclick="window._dlPdf(${i})">Download PDF</button>
           <button class="btn-mini" onclick="window._dlJson(${i})">Download JSON</button>
         </div>
         <h4 class="sec">Scraped web output</h4>
@@ -456,16 +506,9 @@ window._dlPdf = i => { const s=STORE[i]; downloadPdf(FIXTURES[i], s?.scr?.pdfBlo
 window._dlJson = i => {
   const s=STORE[i]; if(!s){ alert("Run this fixture first."); return; }
   const fx=FIXTURES[i];
-  const payload = {
-    fixture: { key:fx.key, name:fx.name, profile:fx.profile, role:fx.role, depth:fx.depth, sector:fx.sector },
-    checks: s.res?.checks || [],
-    result: s.scr?.trueResult || null,
-    pdf_text: s.scr?.pdfText || "",
-    web_text: s.scr?.webText || ""
-  };
+  const payload = { fixture:{key:fx.key,name:fx.name,profile:fx.profile,role:fx.role,depth:fx.depth,sector:fx.sector}, checks:s.res?.checks||[], result:s.scr?.trueResult||null, pdf_text:s.scr?.pdfText||"", web_text:s.scr?.webText||"" };
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
-  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
-  a.download=`monderman-${fx.key}-${fx.profile}-${fx.depth}min.json`;
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=`monderman-${fx.key}-${fx.profile}-${fx.depth}min.json`;
   document.body.appendChild(a); a.click(); a.remove();
 };
 
@@ -484,7 +527,7 @@ async function runOne(i, apiBase){
     if(!drv.result) throw new Error("no result from finalize");
     const scr = await renderAndScrape(fx, drv.result, drv.payload);
     const res = runChecks(fx, scr);
-    STORE[i] = { scr, res, raw: { result: scr.trueResult, pdfText: scr.pdfText, webText: scr.webText, pdfFilename: scr.pdfFilename } };
+    STORE[i] = { scr, res };
     paintChecks(i, res);
     $("web"+i).textContent = scr.webText ? scr.webText.slice(0,1500) : "(empty)";
     $("pdf"+i).textContent = scr.pdfText ? scr.pdfText.replace(/\s+/g," ").slice(0,1500) : "(no PDF captured)";
@@ -509,9 +552,74 @@ async function runAll(){
     const ok = await runOne(i, apiBase);
     ok?pass++:fail++;
   }
-  $("status").textContent = `Done — ${pass} passed · ${fail} failed/error of ${FIXTURES.length}. Open a fixture to scrape output and download its PDF.`;
+
+  // ── Cross-fixture consistency: within each diagnostic, light should score higher than
+  //    moderate, which should score higher than heavy. Flag violations. ──
+  const byKey = {};
+  FIXTURES.forEach((fx,i)=>{ const r=STORE[i]?.scr?.trueResult; if(r&&Number.isFinite(Number(r.score))){ (byKey[fx.key]=byKey[fx.key]||[]).push({profile:fx.profile, score:Number(r.score), i}); }});
+  const order = { light:3, moderate:2, heavy:1 };
+  const consistencyIssues = [];
+  for(const [key,arr] of Object.entries(byKey)){
+    const sorted = arr.slice().sort((a,b)=>order[b.profile]-order[a.profile]); // light→heavy
+    for(let j=0;j<sorted.length-1;j++){
+      if(sorted[j].score < sorted[j+1].score){
+        consistencyIssues.push(`${key.toUpperCase()}: ${sorted[j].profile}(${sorted[j].score}) < ${sorted[j+1].profile}(${sorted[j+1].score}) — expected higher`);
+      }
+    }
+  }
+
+  // ── Scorecard: pass/fail counts + which checks failed where ──
+  const checkFailMap = {}; // checkName -> [fixtureLabels]
+  let totalChecks=0, totalFails=0, totalWarns=0;
+  FIXTURES.forEach((fx,i)=>{
+    const res=STORE[i]?.res; if(!res) return;
+    res.checks.forEach(c=>{ totalChecks++; if(c.status==="fail"){ totalFails++; (checkFailMap[c.name]=checkFailMap[c.name]||[]).push(`${fx.key}/${fx.profile}`);} if(c.status==="warn") totalWarns++; });
+  });
+
+  LAST_RUN_SUMMARY = {
+    generated: new Date().toISOString(),
+    api_base: apiBase,
+    totals: { fixtures: FIXTURES.length, passed: pass, failed: fail, checks: totalChecks, check_fails: totalFails, check_warns: totalWarns },
+    failing_checks: checkFailMap,
+    cross_fixture_consistency: consistencyIssues.length ? consistencyIssues : "consistent (light ≥ moderate ≥ heavy within each diagnostic)",
+    fixtures: FIXTURES.map((fx,i)=>({
+      key:fx.key, name:fx.name, profile:fx.profile, role:fx.role, depth:fx.depth, sector:fx.sector,
+      score: STORE[i]?.scr?.trueResult?.score ?? null,
+      band: STORE[i]?.scr?.trueResult?.score_band ?? null,
+      check_fails: (STORE[i]?.res?.checks||[]).filter(c=>c.status==="fail").map(c=>({name:c.name, detail:c.val})),
+      check_warns: (STORE[i]?.res?.checks||[]).filter(c=>c.status==="warn").map(c=>c.name),
+      result: STORE[i]?.scr?.trueResult ?? null,
+      pdf_text: STORE[i]?.scr?.pdfText ?? "",
+      web_text: STORE[i]?.scr?.webText ?? ""
+    }))
+  };
+
+  // Render scorecard panel
+  const scEl = $("scorecard");
+  if(scEl){
+    const failRows = Object.entries(checkFailMap).map(([name,fxs])=>`<tr><td>${name}</td><td>${fxs.length}</td><td>${fxs.join(", ")}</td></tr>`).join("");
+    const consRows = Array.isArray(consistencyIssues)&&consistencyIssues.length ? consistencyIssues.map(c=>`<li>${c}</li>`).join("") : "<li>consistent (light ≥ moderate ≥ heavy)</li>";
+    scEl.innerHTML = `
+      <div class="sc-head">Scorecard · ${pass}/${FIXTURES.length} fixtures passed · ${totalFails} check-fails · ${totalWarns} warns</div>
+      ${failRows ? `<table class="sc-table"><thead><tr><th>Failing check</th><th>#</th><th>Fixtures</th></tr></thead><tbody>${failRows}</tbody></table>` : '<p class="sc-clean">No check failures across any fixture. ✓</p>'}
+      <div class="sc-sub">Cross-fixture consistency</div><ul class="sc-cons">${consRows}</ul>
+      <button class="btn-go" onclick="window._dlMaster()" style="margin-top:10px">Download master JSON (all fixtures + scorecard)</button>
+    `;
+    scEl.style.display="block";
+  }
+
+  $("status").textContent = `Done — ${pass} passed · ${fail} failed/error of ${FIXTURES.length}. ${totalFails} check-fails. Master JSON ready below.`;
   $("runAllBtn").disabled=false;
 }
+
+let LAST_RUN_SUMMARY = null;
+window._dlMaster = () => {
+  if(!LAST_RUN_SUMMARY){ alert("Run all fixtures first."); return; }
+  const blob=new Blob([JSON.stringify(LAST_RUN_SUMMARY,null,2)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download=`monderman-audit-master-${new Date().toISOString().slice(0,16).replace(/[:T]/g,"-")}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+};
 
 $("runAllBtn").addEventListener("click", runAll);
 $("stopBtn").addEventListener("click", ()=>{ RUN.abort=true; $("status").textContent="Stop requested…"; });
