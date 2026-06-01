@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Monderman · Model Eval Harness (4.6 vs 4.8)</title>
+<style>
+  :root{
+    --bg:#0b1017; --panel:#121a25; --panel-2:#0e1620; --line:#243140;
+    --text:#e7edf4; --muted:#93a2b4; --muted-2:#6b7c90;
+    --accent:#3f6ea1; --accent-2:#5b8fc4; --ok:#3fa45f; --warn:#c9a13f; --err:#c9533f;
+    --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 20px 80px}
+  h1{font-size:1.4rem;margin:0 0 4px;letter-spacing:-0.01em}
+  .sub{color:var(--muted);font-size:0.92rem;margin:0 0 22px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 18px;margin:0 0 16px}
+  .card h2{font-size:0.8rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:0 0 14px;font-weight:700}
+  label{display:block;font-size:0.82rem;color:var(--muted);margin:0 0 5px}
+  input[type=text],select{
+    width:100%;background:var(--panel-2);border:1px solid var(--line);color:var(--text);
+    border-radius:8px;padding:10px 11px;font-family:var(--mono);font-size:0.88rem}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  .field{margin:0 0 12px}
+  .hint{font-size:0.76rem;color:var(--muted-2);margin:5px 0 0;line-height:1.45}
+  .btn{
+    appearance:none;border:1px solid var(--accent);background:var(--accent);color:#fff;
+    font-weight:600;font-size:0.92rem;padding:11px 18px;border-radius:8px;cursor:pointer}
+  .btn:hover{background:var(--accent-2);border-color:var(--accent-2)}
+  .btn.secondary{background:transparent;color:var(--text);border-color:var(--line)}
+  .btn.secondary:hover{border-color:var(--accent-2);color:#fff}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:6px}
+  .checkbox-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 18px}
+  .checkbox-grid label{display:flex;align-items:center;gap:8px;color:var(--text);font-size:0.88rem;margin:0;cursor:pointer}
+  .checkbox-grid input{width:auto}
+  .bar{height:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:99px;overflow:hidden;margin:14px 0 8px}
+  .bar > span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .25s}
+  .status-line{font-family:var(--mono);font-size:0.82rem;color:var(--muted)}
+  .log{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;max-height:320px;overflow:auto;
+    font-family:var(--mono);font-size:0.78rem;padding:12px;white-space:pre-wrap;line-height:1.5}
+  .log .ok{color:var(--ok)} .log .err{color:var(--err)} .log .warn{color:var(--warn)} .log .dim{color:var(--muted-2)}
+  .pill{display:inline-block;font-family:var(--mono);font-size:0.72rem;padding:2px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted);margin-left:8px}
+  .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:6px}
+  .stat{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;text-align:center}
+  .stat .n{font-size:1.5rem;font-weight:700;font-family:var(--mono)}
+  .stat .l{font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+  code{font-family:var(--mono);background:var(--panel-2);padding:1px 5px;border-radius:4px;font-size:0.85em;border:1px solid var(--line)}
+  a{color:var(--accent-2)}
+  @media (max-width:680px){.row,.row-3,.summary,.checkbox-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Monderman · Model Eval Harness</h1>
+  <p class="sub">Runs one fixed fixture set against the live API and downloads a master JSON. Run it once per model (set <code>ANTHROPIC_MODEL</code> on Render, redeploy, then run) so the two files can be diffed. Scores are deterministic and will match across models — the comparison is the narrative prose.</p>
+
+  <div class="card">
+    <h2>1 · Configuration</h2>
+    <div class="row">
+      <div class="field">
+        <label for="apiBase">API base URL</label>
+        <input id="apiBase" type="text" value="https://monderman-api.onrender.com" />
+        <p class="hint">No trailing slash. The harness calls <code>/api/&lt;tool&gt;-score</code> then <code>/api/&lt;tool&gt;-narrative</code>.</p>
+      </div>
+      <div class="field">
+        <label for="modelLabel">Model label for this run</label>
+        <input id="modelLabel" type="text" placeholder="e.g. opus-4-8  or  sonnet-4-6" />
+        <p class="hint">Free text — just tags the output file. Set this to match whatever <code>ANTHROPIC_MODEL</code> is live on Render right now.</p>
+      </div>
+    </div>
+    <div class="row-3">
+      <div class="field">
+        <label for="repeats">Repeats per fixture</label>
+        <select id="repeats">
+          <option value="1">1 (fastest)</option>
+          <option value="2">2</option>
+          <option value="3">3 (measures within-model variance)</option>
+        </select>
+        <p class="hint">&gt;1 lets you see how much the same model varies run-to-run on identical input.</p>
+      </div>
+      <div class="field">
+        <label for="delayMs">Delay between calls (ms)</label>
+        <input id="delayMs" type="text" value="600" />
+        <p class="hint">Throttle to be gentle on the API. 600–1000 is safe.</p>
+      </div>
+      <div class="field">
+        <label for="timeoutMs">Per-call timeout (ms)</label>
+        <input id="timeoutMs" type="text" value="120000" />
+        <p class="hint">Render cold starts + Opus latency can be slow. 120s is conservative.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2 · Fixture matrix</h2>
+    <div class="field">
+      <label>Diagnostics to run</label>
+      <div class="checkbox-grid" id="toolBoxes">
+        <label><input type="checkbox" value="operational-systems" checked /> Operational Systems (OS)</label>
+        <label><input type="checkbox" value="decision-velocity" checked /> Decision Velocity (DV)</label>
+        <label><input type="checkbox" value="structural-clarity" checked /> Structural Clarity (SC)</label>
+        <label><input type="checkbox" value="institutional-performance" checked /> Institutional Performance (IP)</label>
+      </div>
+    </div>
+    <div class="row" style="margin-top:6px">
+      <div class="field">
+        <label>Sectors</label>
+        <div class="checkbox-grid" id="sectorBoxes">
+          <label><input type="checkbox" value="government_defense" checked /> Government / Defense</label>
+          <label><input type="checkbox" value="healthcare_life_sciences" checked /> Healthcare</label>
+          <label><input type="checkbox" value="financial_services" /> Financial services</label>
+          <label><input type="checkbox" value="technology_software" /> Technology</label>
+          <label><input type="checkbox" value="education_nonprofit" /> Higher ed / nonprofit</label>
+          <label><input type="checkbox" value="professional_services" /> Professional services</label>
+        </div>
+      </div>
+      <div class="field">
+        <label>Participant levels &amp; time depths</label>
+        <div class="checkbox-grid" id="roleBoxes">
+          <label><input type="checkbox" value="operational" checked /> Operational</label>
+          <label><input type="checkbox" value="managerial" checked /> Managerial</label>
+          <label><input type="checkbox" value="senior_leader" checked /> Senior leader</label>
+        </div>
+        <div class="checkbox-grid" id="depthBoxes" style="margin-top:10px">
+          <label><input type="checkbox" value="10" /> Depth 10 (quick)</label>
+          <label><input type="checkbox" value="30" checked /> Depth 30 (standard)</label>
+          <label><input type="checkbox" value="60" /> Depth 60 (deep)</label>
+        </div>
+      </div>
+    </div>
+    <div class="field" style="margin-top:4px">
+      <label>Condition profile (drives the score range so you compare prose across healthy → strained units)</label>
+      <div class="checkbox-grid" id="profileBoxes">
+        <label><input type="checkbox" value="healthy" checked /> Healthy / light</label>
+        <label><input type="checkbox" value="mid" checked /> Mid / compounding</label>
+        <label><input type="checkbox" value="strained" checked /> Strained / heavy</label>
+      </div>
+    </div>
+    <p class="hint" id="comboCount" style="margin-top:12px"></p>
+  </div>
+
+  <div class="card">
+    <h2>3 · Run</h2>
+    <div class="btn-row">
+      <button class="btn" id="runBtn">Run fixture set</button>
+      <button class="btn secondary" id="healthBtn">Ping API health</button>
+      <button class="btn secondary" id="downloadBtn" disabled>Download master JSON</button>
+      <button class="btn secondary" id="abortBtn" disabled>Abort</button>
+      <span class="status-line" id="phase"></span>
+    </div>
+    <div class="bar"><span id="barFill"></span></div>
+    <div class="status-line" id="progressText">Idle.</div>
+    <div class="summary" id="summary" style="display:none">
+      <div class="stat"><div class="n" id="statTotal">0</div><div class="l">Fixtures</div></div>
+      <div class="stat"><div class="n" id="statOk">0</div><div class="l">Succeeded</div></div>
+      <div class="stat"><div class="n" id="statErr">0</div><div class="l">Failed</div></div>
+      <div class="stat"><div class="n" id="statTime">0s</div><div class="l">Elapsed</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>4 · Live log</h2>
+    <div class="log" id="log"><span class="dim">Waiting to start…</span></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================================
+   Monderman Model Eval Harness
+   ----------------------------------------------------------------------------
+   Calls the live API's one-shot routes for each diagnostic:
+       POST /api/<tool>-score      -> { ok, result }      (deterministic scorer)
+       POST /api/<tool>-narrative  -> { ok, narrative... } (Claude two-pass)
+   The scorer output is identical across models for identical input; only the
+   narrative (and interpretive prose, if the route attaches it) varies by the
+   ANTHROPIC_MODEL set on the server. We capture both and bundle into one
+   master JSON tagged with the model label you enter.
+
+   Fixtures are FIXED and deterministic: the same matrix produces byte-identical
+   request payloads every run, so two master JSONs (one per model) are directly
+   comparable. No randomness anywhere.
+   ========================================================================== */
+
+const TOOLS = {
+  "operational-systems":      { tag:"OS", label:"Operational Systems" },
+  "decision-velocity":        { tag:"DV", label:"Decision Velocity" },
+  "structural-clarity":       { tag:"SC", label:"Structural Clarity" },
+  "institutional-performance":{ tag:"IP", label:"Institutional Performance" },
+};
+
+// ── Deterministic fixture payload builders ─────────────────────────────────
+// Each returns the structured input the corresponding scorer reads. Field
+// names taken directly from the scorer source. Three condition profiles tune
+// the inputs so the resulting score lands healthy / mid / strained, letting
+// you compare narrative tone across the band. Higher score = healthier.
+
+function osPayload(sector, role, depth, profile){
+  // OS scorer reads numeric load fields + categorical choices. Higher load => lower score.
+  const P = {
+    healthy:  { admin:3,  exc:2,  followup:"rare",     growth:"stable",     norm:"rare",      vis:"visible",       ctrl:"no",  off:5,  dup:1 },
+    mid:      { admin:9,  exc:5,  followup:"sometimes", growth:"reporting",  norm:"sometimes", vis:"partly_hidden", ctrl:"no",  off:18, dup:3 },
+    strained: { admin:17, exc:9,  followup:"often",     growth:"controls",   norm:"normalized",vis:"mostly_hidden", ctrl:"yes", off:34, dup:6 },
+  }[profile];
+  return {
+    industry: sector, participantMode: role, diagnosticDepth: String(depth),
+    assessmentScope: role === "senior_leader" ? "organization" : (role === "managerial" ? "division" : "team"),
+    adminHoursWeekly: P.admin, exceptionSteps: P.exc, offPathWork: P.off, duplicateEntryPoints: P.dup,
+    manualFollowup: P.followup, burdenGrowthArea: P.growth, exceptionNormalization: P.norm,
+    dragVisibility: P.vis, controlBias: P.ctrl, governanceFit: profile === "strained" ? "too_heavy" : "about_right",
+    instructionVariance: profile === "healthy" ? "low" : (profile === "mid" ? "some" : "high"),
+    confidenceLevel: "moderate", hourlyCost: 85, peopleAffected: role === "senior_leader" ? 120 : 25,
+    businessUnit: "Illustrative unit", description: "Eval fixture run.",
+  };
+}
+
+function dvPayload(sector, role, depth, profile){
+  const P = {
+    healthy:  { appr:1, hand:1, days:3,  esc:"clear",   trend:"falling", comp:"rare"      },
+    mid:      { appr:4, hand:3, days:11, esc:"mixed",   trend:"flat",    comp:"sometimes" },
+    strained: { appr:8, hand:6, days:27, esc:"unclear", trend:"rising",  comp:"often"     },
+  }[profile];
+  return {
+    industry: sector, participantMode: role, diagnosticDepth: String(depth),
+    assessmentScope: role === "senior_leader" ? "organization" : (role === "managerial" ? "division" : "team"),
+    decisionType: "hiring", approvalCount: P.appr, handoffCount: P.hand, decisionDays: P.days,
+    escalationClarity: P.esc, approvalTrend: P.trend, compensatoryEffort: P.comp,
+    governanceFit: profile === "strained" ? "too_heavy" : "about_right",
+    controlClimate: profile === "healthy" ? "light" : (profile === "mid" ? "moderate" : "heavy"),
+    dragVisibility: profile === "strained" ? "mostly_hidden" : "visible",
+    annualVolume: 120, confidenceLevel: "moderate", hourlyCost: 90,
+    peopleAffected: role === "senior_leader" ? 90 : 20, businessUnit: "Illustrative unit",
+    description: "Eval fixture run.",
+  };
+}
+
+function scPayload(sector, role, depth, profile){
+  // SC inputs are 1..5 clarity ratings; higher = clearer = healthier. duplicate_approvals higher = worse.
+  const P = {
+    healthy:  { c:5, dup:1, pace:"stable",   iss:2,  meet:4  },
+    mid:      { c:3, dup:4, pace:"moderate", iss:8,  meet:9  },
+    strained: { c:2, dup:8, pace:"high",     iss:16, meet:16 },
+  }[profile];
+  return {
+    industry: sector, participantMode: role, diagnosticDepth: String(depth),
+    role_clarity: P.c, decision_rights_clarity: P.c, handoff_clarity: P.c, accountability_clarity: P.c,
+    duplicate_approvals: P.dup, structure_type: role === "senior_leader" ? "division" : "functional",
+    change_pace: P.pace, issues_per_month: P.iss, meetings_per_week: P.meet,
+    confidenceLevel: "moderate", hourlyCost: 85, peopleAffected: role === "senior_leader" ? 120 : 25,
+    process_name: "Care coordination", businessUnit: "Illustrative unit",
+  };
+}
+
+function ipPayload(sector, role, depth, profile){
+  // IP inputs are 1..5 condition ratings; higher = healthier. compensationDependence higher = worse.
+  const P = {
+    healthy:  { v:5, comp:"low",      lift:"light",    cond:"stable",     signals:[] },
+    mid:      { v:3, comp:"moderate", lift:"moderate", cond:"pressure",   signals:["effort-compensates"] },
+    strained: { v:2, comp:"high",     lift:"heavy",    cond:"transition", signals:["effort-compensates","issues-recur","confidence-low"] },
+  }[profile];
+  return {
+    sector: sector, industry: sector, participantMode: role, diagnosticDepth: String(depth),
+    assessmentScope: role === "senior_leader" ? "organization" : (role === "managerial" ? "division" : "team"),
+    leadershipClarity: P.v, followthroughStrength: P.v, adaptationCapacity: P.v,
+    confidenceInSystem: P.v, performanceConsistency: P.v, issueResolutionPower: P.v,
+    compensationDependence: P.comp, managementLift: P.lift, operatingCondition: P.cond,
+    leadershipContinuity: "moderate", signalProfile: P.signals,
+    confidenceLevel: "moderate", hourlyCost: 90, peopleImpacted: role === "senior_leader" ? 90 : 20,
+    peopleAffected: role === "senior_leader" ? 90 : 20, annualCycles: 12, businessUnit: "Illustrative unit",
+  };
+}
+
+const PAYLOAD_BUILDERS = {
+  "operational-systems": osPayload,
+  "decision-velocity":   dvPayload,
+  "structural-clarity":  scPayload,
+  "institutional-performance": ipPayload,
+};
+
+// ── DOM helpers ────────────────────────────────────────────────────────────
+const $ = (id) => document.getElementById(id);
+const checkedValues = (containerId) =>
+  Array.from($(containerId).querySelectorAll("input:checked")).map(i => i.value);
+
+function logLine(msg, cls){
+  const el = $("log");
+  if (el.children.length === 1 && el.firstChild.className === "dim") el.innerHTML = "";
+  const span = document.createElement("span");
+  if (cls) span.className = cls;
+  span.textContent = msg + "\n";
+  el.appendChild(span);
+  el.scrollTop = el.scrollHeight;
+}
+
+function buildFixtureList(){
+  const tools    = checkedValues("toolBoxes");
+  const sectors  = checkedValues("sectorBoxes");
+  const roles    = checkedValues("roleBoxes");
+  const depths   = checkedValues("depthBoxes");
+  const profiles = checkedValues("profileBoxes");
+  const fixtures = [];
+  for (const tool of tools)
+    for (const sector of sectors)
+      for (const role of roles)
+        for (const depth of depths)
+          for (const profile of profiles)
+            fixtures.push({ tool, sector, role, depth:Number(depth), profile });
+  return fixtures;
+}
+
+function updateComboCount(){
+  const n = buildFixtureList().length;
+  const reps = Number($("repeats").value);
+  const calls = n * reps * 2; // score + narrative per repeat
+  $("comboCount").innerHTML =
+    `<strong>${n}</strong> fixtures × <strong>${reps}</strong> repeat(s) = <strong>${n*reps}</strong> reads ` +
+    `(~<strong>${calls}</strong> API calls). At your delay, allow rough wall-time accordingly.`;
+}
+["toolBoxes","sectorBoxes","roleBoxes","depthBoxes","profileBoxes"].forEach(id =>
+  $(id).addEventListener("change", updateComboCount));
+$("repeats").addEventListener("change", updateComboCount);
+updateComboCount();
+
+// ── Networking ─────────────────────────────────────────────────────────────
+let aborter = null;
+
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+async function postJSON(url, body, timeoutMs, signal){
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  const onAbort = () => ctrl.abort();
+  if (signal) signal.addEventListener("abort", onAbort);
+  const started = performance.now();
+  try {
+    const res = await fetch(url, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify(body),
+      signal: ctrl.signal,
+    });
+    const ms = Math.round(performance.now() - started);
+    let json = null, text = null;
+    try { json = await res.json(); } catch(e){ try { text = await res.text(); } catch(_){} }
+    return { status:res.status, ok:res.ok, json, text, ms };
+  } finally {
+    clearTimeout(t);
+    if (signal) signal.removeEventListener("abort", onAbort);
+  }
+}
+
+// Pull just the prose fields that vary by model, for a quick at-a-glance diff
+// without opening the full payload. Defensive: shapes differ slightly by tool.
+function extractNarrativeText(narrativeResp, result){
+  const out = {};
+  const n = narrativeResp || {};
+  const pick = (obj, keys) => {
+    for (const k of keys) if (obj && typeof obj[k] === "string" && obj[k].trim()) return obj[k];
+    return null;
+  };
+  out.headline       = pick(n, ["headline","title","pattern_sentence","patternSentence"]) ||
+                       pick(n.narrative||{}, ["headline","title"]);
+  out.executive      = pick(n, ["executive_summary","executiveSummary","summary"]) ||
+                       pick(n.narrative||{}, ["executive_summary","summary"]);
+  out.opportunity    = pick(n, ["opportunity","opportunity_text"]);
+  const ip = (result && result.interpretive_prose) || (n && n.interpretive_prose) || null;
+  if (ip && typeof ip === "object"){
+    out.interpretive_prose_keys = Object.keys(ip);
+    // capture the harmonized / quadrant prose which is the richest comparison surface
+    out.harmonized = pick(ip, ["harmonized_narrative","harmonized"]) ||
+                     (ip.harmonized_narrative && typeof ip.harmonized_narrative === "object"
+                        ? JSON.stringify(ip.harmonized_narrative) : null);
+  }
+  return out;
+}
+
+async function runOne(apiBase, tool, payload, timeoutMs, signal){
+  const scoreUrl = `${apiBase}/api/${tool}-score`;
+  const narrUrl  = `${apiBase}/api/${tool}-narrative`;
+  const rec = { score_call:null, narrative_call:null, result:null, narrative:null, narrative_text:null, error:null };
+
+  // 1) deterministic score
+  const s = await postJSON(scoreUrl, payload, timeoutMs, signal);
+  rec.score_call = { status:s.status, ms:s.ms, ok:s.ok };
+  if (!s.ok || !s.json || s.json.ok === false){
+    rec.error = `score ${s.status}: ${(s.json && (s.json.error||s.json.message)) || s.text || "unknown"}`;
+    return rec;
+  }
+  rec.result = s.json.result || s.json;
+
+  // 2) narrative (the model-dependent step). Body is the scorer result, matching the frontend contract.
+  const n = await postJSON(narrUrl, rec.result, timeoutMs, signal);
+  rec.narrative_call = { status:n.status, ms:n.ms, ok:n.ok };
+  if (!n.ok || !n.json){
+    rec.error = `narrative ${n.status}: ${(n.json && (n.json.error||n.json.message)) || n.text || "unknown"}`;
+    return rec;
+  }
+  if (n.json.ok === false){
+    rec.error = `narrative not-ok: ${n.json.error || n.json.message || "unknown"}`;
+    rec.narrative = n.json; // keep it for inspection
+    return rec;
+  }
+  rec.narrative = n.json;
+  rec.narrative_text = extractNarrativeText(n.json, rec.result);
+  return rec;
+}
+
+// ── Master JSON assembly ─────────────────────────────────────────────────────
+let master = null;
+
+function fixtureId(f, rep){
+  return `${TOOLS[f.tool].tag}__${f.sector}__${f.role}__d${f.depth}__${f.profile}__r${rep}`;
+}
+
+function downloadMaster(){
+  if (!master) return;
+  const safeLabel = (master.model_label || "unlabeled").replace(/[^a-z0-9._-]/gi,"-");
+  const stamp = new Date().toISOString().replace(/[:.]/g,"-").slice(0,19);
+  const blob = new Blob([JSON.stringify(master, null, 2)], { type:"application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `monderman-eval__${safeLabel}__${stamp}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+}
+$("downloadBtn").addEventListener("click", downloadMaster);
+
+// ── Health ping ───────────────────────────────────────────────────────────
+$("healthBtn").addEventListener("click", async () => {
+  const apiBase = $("apiBase").value.trim().replace(/\/$/,"");
+  logLine(`Pinging ${apiBase}/api/health …`, "dim");
+  try {
+    const res = await fetch(`${apiBase}/api/health`);
+    const j = await res.json();
+    logLine(`Health ${res.status}: ${JSON.stringify(j)}`, res.ok ? "ok" : "err");
+  } catch(e){
+    logLine(`Health failed: ${e.message}. (Cold start? Wait 30–60s and retry.)`, "err");
+  }
+});
+
+// ── Abort ───────────────────────────────────────────────────────────────────
+$("abortBtn").addEventListener("click", () => {
+  if (aborter){ aborter.abort(); logLine("Abort requested — finishing current call…", "warn"); }
+});
+
+// ── Main run ─────────────────────────────────────────────────────────────────
+$("runBtn").addEventListener("click", async () => {
+  const apiBase   = $("apiBase").value.trim().replace(/\/$/,"");
+  const modelLabel= $("modelLabel").value.trim();
+  const repeats   = Number($("repeats").value);
+  const delayMs   = Number($("delayMs").value) || 0;
+  const timeoutMs = Number($("timeoutMs").value) || 120000;
+
+  if (!modelLabel){
+    logLine("Enter a model label first (e.g. opus-4-8 or sonnet-4-6) so the output file is identifiable.", "err");
+    $("modelLabel").focus();
+    return;
+  }
+  const fixtures = buildFixtureList();
+  if (!fixtures.length){ logLine("No fixtures selected — pick at least one of each dimension.", "err"); return; }
+
+  const runList = [];
+  for (let rep=1; rep<=repeats; rep++) for (const f of fixtures) runList.push({ f, rep });
+
+  aborter = new AbortController();
+  $("runBtn").disabled = true; $("abortBtn").disabled = false; $("downloadBtn").disabled = true;
+  $("summary").style.display = "grid";
+  const t0 = performance.now();
+
+  master = {
+    harness:"monderman-model-eval",
+    harness_version:"1.0.0",
+    model_label: modelLabel,
+    api_base: apiBase,
+    generated_at: new Date().toISOString(),
+    config: { repeats, delayMs, timeoutMs },
+    matrix: {
+      tools: checkedValues("toolBoxes"),
+      sectors: checkedValues("sectorBoxes"),
+      roles: checkedValues("roleBoxes"),
+      depths: checkedValues("depthBoxes").map(Number),
+      profiles: checkedValues("profileBoxes"),
+    },
+    fixture_count: fixtures.length,
+    total_reads: runList.length,
+    runs: [],
+    summary: { ok:0, failed:0 },
+  };
+
+  let done=0, ok=0, err=0;
+  $("statTotal").textContent = runList.length;
+
+  logLine(`Starting ${runList.length} reads for model "${modelLabel}" against ${apiBase}`, "ok");
+  logLine(`(Reminder: confirm ANTHROPIC_MODEL on Render matches "${modelLabel}" right now.)`, "warn");
+
+  for (const { f, rep } of runList){
+    if (aborter.signal.aborted){ logLine("Aborted by user.", "warn"); break; }
+    const id = fixtureId(f, rep);
+    const payload = PAYLOAD_BUILDERS[f.tool](f.sector, f.role, f.depth, f.profile);
+    $("phase").textContent = `${TOOLS[f.tool].tag} · ${f.sector} · ${f.role} · d${f.depth} · ${f.profile}` + (repeats>1?` · r${rep}`:"");
+
+    let rec;
+    try {
+      rec = await runOne(apiBase, f.tool, payload, timeoutMs, aborter.signal);
+    } catch(e){
+      rec = { error: `exception: ${e.message}` };
+    }
+
+    const entry = {
+      id, tool:f.tool, tool_tag:TOOLS[f.tool].tag, sector:f.sector, role:f.role,
+      depth:f.depth, profile:f.profile, repeat:rep,
+      request_payload: payload,
+      score_call: rec.score_call || null,
+      narrative_call: rec.narrative_call || null,
+      score: (rec.result && (rec.result.score ?? rec.result.composite_score ?? null)) ?? null,
+      result: rec.result || null,
+      narrative: rec.narrative || null,
+      narrative_text: rec.narrative_text || null,
+      error: rec.error || null,
+    };
+    master.runs.push(entry);
+
+    done++;
+    if (rec.error){ err++; logLine(`✗ ${id} — ${rec.error}`, "err"); }
+    else {
+      ok++;
+      const sc = entry.score!=null ? `score ${entry.score}` : "scored";
+      const ms = (rec.score_call?.ms||0)+(rec.narrative_call?.ms||0);
+      logLine(`✓ ${id} — ${sc} · ${ms}ms`, "ok");
+    }
+
+    $("statOk").textContent = ok; $("statErr").textContent = err;
+    const pct = Math.round(done/runList.length*100);
+    $("barFill").style.width = pct+"%";
+    $("progressText").textContent = `${done}/${runList.length} done · ${pct}%`;
+    $("statTime").textContent = Math.round((performance.now()-t0)/1000)+"s";
+
+    if (delayMs && done < runList.length && !aborter.signal.aborted) await sleep(delayMs);
+  }
+
+  master.summary.ok = ok; master.summary.failed = err;
+  master.elapsed_seconds = Math.round((performance.now()-t0)/1000);
+
+  $("runBtn").disabled = false; $("abortBtn").disabled = true; $("downloadBtn").disabled = false;
+  $("phase").textContent = "";
+  logLine(`Done. ${ok} ok, ${err} failed, ${master.elapsed_seconds}s. Click “Download master JSON”.`, ok>0?"ok":"err");
+  if (err>0) logLine(`Tip: failures are usually cold-start timeouts or a payload field the scorer rejected — the error string per run tells you which.`, "dim");
+
+  // auto-download so a long run isn't lost if the tab closes
+  downloadMaster();
+});
+</script>
+</body>
+</html>
