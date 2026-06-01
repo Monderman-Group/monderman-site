@@ -19,7 +19,7 @@
       --text-light:#F5F7FA; --muted-light:rgba(245,247,250,.82); --muted-light-2:rgba(245,247,250,.62);
       --text-dark:#15202B; --muted-dark:#566473; --muted-dark-2:#7B8894;
       --line-soft:rgba(21,32,43,.08); --line-mid:rgba(21,32,43,.12);
-      --header-solid:rgba(14,20,28,.86); --header-border:rgba(255,255,255,.08);
+      --header-solid:rgba(14,20,28,0.87); --header-border:rgba(255,255,255,.08);
       --ok:#5E8A66; --danger:#B8505E;
       --shadow-soft:none; --shadow-card:none; --shadow-hover:none;
       --max:1320px;
@@ -31,7 +31,7 @@
 
     body{
       margin:0;
-      background:var(--bg-offwhite);
+      background:var(--bg-dark);
       color:var(--text-light);
       font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
       font-weight:400;
@@ -358,15 +358,16 @@
 
 
     .ps-wrap{max-width:var(--max);margin:0 auto;padding:0 34px}
-    main{padding-top:72px}
-    .header{background:var(--header-solid)!important;border-bottom:1px solid var(--header-border)!important;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+    main{padding-top:0}
+    .header{background:transparent;border-bottom:1px solid transparent;transition:background var(--transition),border-color var(--transition),backdrop-filter var(--transition),-webkit-backdrop-filter var(--transition)}
+    .header.scrolled{background:var(--header-solid);border-bottom-color:var(--header-border);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
     .ps-hero{position:relative;background:linear-gradient(180deg,#0B1218 0%,#0F1720 60%,#101A24 100%);color:var(--text-light)}
     .ps-hero-inner{max-width:var(--max);margin:0 auto;padding:128px 34px 84px}
     .ps-eyebrow{display:block;font-size:.74rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-light-2);margin:0 0 22px}
     .ps-hero h1{font-size:54px;line-height:1.02;font-weight:700;max-width:18ch;margin:0 0 20px;color:#fff;letter-spacing:-0.03em}
     .ps-hero p.lede{font-size:18px;line-height:1.6;color:var(--muted-light);max-width:56ch;margin:0 0 30px}
     .ps-hero-actions{display:flex;gap:12px;flex-wrap:wrap}
-    .ps-section{padding:74px 0}
+    .ps-section{padding:74px 0;background:var(--bg-offwhite)}
     .ps-section-label{display:block;font-size:.74rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:0 0 14px}
     .ps-h2{font-size:32px;line-height:1.1;font-weight:700;color:var(--text-dark);max-width:26ch;margin:0 0 16px;letter-spacing:-0.02em}
     .ps-sub{font-size:17px;line-height:1.65;color:var(--muted-dark);max-width:64ch;margin:0 0 8px}
@@ -432,7 +433,7 @@
     .ps-proc-item p{font-size:.94rem;line-height:1.58;color:var(--muted-dark);margin:0}
     .ps-proc-callout{margin-top:30px;background:var(--accent-soft);border:1px solid rgba(63,110,161,.25);border-radius:var(--card-radius);padding:20px 24px;font-size:.96rem;line-height:1.6;color:var(--text-dark)}
     .ps-proc-callout strong{color:var(--accent-dark)}
-    .ps-final{text-align:center;padding:84px 0}
+    .ps-final{text-align:center;padding:84px 0;background:var(--panel)}
     .ps-final .ps-h2{margin:0 auto 14px}.ps-final .ps-sub{margin:0 auto 26px}
     .ps-final-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
     .ps-contact{margin-top:30px;font-size:.92rem;color:var(--muted-dark)}.ps-contact a{color:var(--accent);font-weight:600}
@@ -499,7 +500,6 @@
 
       <div class="ps-tiers">
         <div class="ps-tier">
-          <div class="ps-tier-flag" style="background:var(--muted-dark-2)">Measure now</div>
           <div class="ps-tier-name">Baseline</div>
           <div class="ps-tier-for">For one person or a small team measuring their own corner of the organization.</div>
           <div class="ps-price"><span class="amt">$6,000</span><span class="per">/ year</span></div>
@@ -531,7 +531,6 @@
         </div>
 
         <div class="ps-tier">
-          <div class="ps-tier-flag" style="background:var(--gold)">Add a partner</div>
           <div class="ps-tier-name">Advisory</div>
           <div class="ps-tier-for">For an organization that wants a partner, not just a report. Capacity-limited.</div>
           <div class="ps-price"><span class="amt">From $75,000</span></div>
@@ -688,6 +687,6 @@
     </div>
   </footer>
 
-  <script>(function(){ var h=document.getElementById('siteHeader'); if(h) h.classList.add('scrolled'); })();</script>
+  <script>(function(){var h=document.getElementById('siteHeader');if(!h)return;var onScroll=function(){if(window.scrollY>12){h.classList.add('scrolled');}else{h.classList.remove('scrolled');}};window.addEventListener('scroll',onScroll,{passive:true});onScroll();})();</script>
 </body>
 </html>
