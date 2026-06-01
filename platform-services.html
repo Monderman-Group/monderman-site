@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Plans &amp; Pricing | Monderman</title>
+  <title>Tiers &amp; Pricing | Monderman</title>
   <meta name="description" content="Monderman pricing: the organizational intelligence serious institutions use to measure their structure, decisions, and systems. Tiers differ by seats, longitudinal tracking, and expert analyst review." />
   <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="10" fill="%230F1720"/><text x="17" y="42" font-family="Arial,Helvetica,sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text><rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/></svg>' />
   <style>
@@ -105,7 +105,7 @@
       position:relative;
       font-size: 0.9rem;
       font-weight:500;
-      color:rgba(245,247,250,.72);
+      color:rgba(255,255,255,0.88);
       transition:color var(--transition), transform var(--transition);
       white-space: nowrap;
     }
@@ -134,6 +134,28 @@
     .nav a:focus-visible::after,
     .nav a.is-active::after{
       transform:scaleX(1);
+    }
+    /* Workspace pill (matched to homepage) */
+    .nav a.workspace-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.16);
+      background:rgba(255,255,255,0.06);
+      color:#FFFFFF;
+      font-weight:500;
+      white-space:nowrap;
+    }
+    .nav a.workspace-link::after{ display:none; }
+    .nav a.workspace-link:hover,
+    .nav a.workspace-link:focus-visible{
+      background:rgba(255,255,255,0.10);
+      border-color:rgba(255,255,255,0.24);
+      color:#FFFFFF;
+      transform:none;
     }
 
 
@@ -359,8 +381,6 @@
 
     .ps-wrap{max-width:var(--max);margin:0 auto;padding:0 34px}
     main{padding-top:0}
-    .header{background:transparent;border-bottom:1px solid transparent;transition:background var(--transition),border-color var(--transition),backdrop-filter var(--transition),-webkit-backdrop-filter var(--transition)}
-    .header.scrolled{background:var(--header-solid);border-bottom-color:var(--header-border);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
     .ps-hero{position:relative;background:linear-gradient(180deg,#0B1218 0%,#0F1720 60%,#101A24 100%);color:var(--text-light)}
     .ps-hero-inner{max-width:var(--max);margin:0 auto;padding:128px 34px 84px}
     .ps-eyebrow{display:block;font-size:.74rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-light-2);margin:0 0 22px}
@@ -441,10 +461,14 @@
     @media (max-width:1024px){.ps-roi-grid,.ps-tiers,.ps-support{grid-template-columns:1fr}}
     @media (max-width:760px){
       .header-inner,.ps-wrap,.ps-hero-inner{padding-left:20px;padding-right:20px}
-      .ps-hero-inner{padding-top:104px;padding-bottom:64px}.ps-hero h1{font-size:38px}.ps-h2{font-size:26px}
+      .ps-hero-inner{padding-top:120px;padding-bottom:64px}.ps-hero h1{font-size:38px}.ps-h2{font-size:26px}
       .ps-roi-grid,.ps-proc-grid{grid-template-columns:1fr}.ps-section{padding:52px 0}
       .nav{width:100%;gap:8px;overflow-x:auto;flex-wrap:nowrap;justify-content:flex-start;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-      .nav::-webkit-scrollbar{display:none}.nav a{flex:0 0 auto;white-space:nowrap}
+      .header{height:auto}
+      .header-inner{flex-direction:column;align-items:flex-start;gap:14px;padding-top:16px;padding-bottom:12px}
+      .nav::-webkit-scrollbar{display:none}
+      .nav a{flex:0 0 auto;white-space:nowrap;font-size:0.84rem;line-height:1;padding:10px 12px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08)}
+      .nav a::after{display:none}
     }
 
   </style>
@@ -461,14 +485,14 @@
         <a href="about.html">About</a>
         <a href="platform-services.html" class="is-active">Platform Services</a>
         <a href="connect.html">Connect</a>
-        <a href="workspace.html" class="workspace-link">Workspace</a>
+        <a href="workspace.html" class="workspace-link">Sign In</a>
       </nav>
     </div>
   </header>
   <main>
   <section class="ps-hero">
     <div class="ps-hero-inner">
-      <span class="ps-eyebrow">Plans &amp; Pricing</span>
+      <span class="ps-eyebrow">Tiers &amp; Pricing</span>
       <h1>What each tier costs, and what it delivers.</h1>
       <p class="lede">Monderman is the organizational intelligence serious institutions use to see how their structure, decisions, and systems are really performing. The tiers below differ on three things you can count: how many people get access, whether you track change over time, and how much expert judgment is applied to your results.</p>
       <div class="ps-hero-actions">
@@ -485,7 +509,7 @@
       <p class="ps-sub">Every diagnostic estimates the fully-burdened cost of administrative drag at your own baseline &mdash; the senior hours absorbed by coordination, approvals, rework, and compensating effort. The subscription is sized so that recovering even a sliver of that capacity covers it many times over.</p>
       <div class="ps-roi-grid">
         <div class="ps-roi-card"><div class="n">26&ndash;41<span class="unit">%</span></div><div class="l">of senior capacity typically absorbed by administrative reality in early engagements &mdash; measured, not assumed.</div></div>
-        <div class="ps-roi-card"><div class="n">Count<span class="unit"> what differs</span></div><div class="l">Plans differ on seats, tracking over time, and analyst reviews &mdash; concrete things you can match to your situation.</div></div>
+        <div class="ps-roi-card"><div class="n">Count<span class="unit"> what differs</span></div><div class="l">Tiers differ on seats, tracking over time, and analyst reviews &mdash; concrete things you can match to your situation.</div></div>
         <div class="ps-roi-card"><div class="n">Human<span class="unit"> judgment</span></div><div class="l">Add a written analyst read, or a hands-on advisory partner, when you want expert interpretation on top of the platform.</div></div>
       </div>
       <p class="ps-roi-note">Figures are directional, modeled at your institution&rsquo;s measured baseline, and conditioned on identified structural corrections being adopted. Monderman publishes the assumption set with every read. They are an executive signal for scoping, not a guaranteed financial outcome.</p>
