@@ -1,211 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Platform Services | Monderman</title>
-
-  <link
-    rel="icon"
-    type="image/svg+xml"
-    href='data:image/svg+xml;utf8,
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-      <rect width="64" height="64" rx="10" fill="%230F1720"/>
-      <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text>
-      <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
-    </svg>'
-  />
-
+  <title>Platform Services &amp; Pricing | Monderman</title>
+  <meta name="description" content="Monderman platform pricing: published, predictable subscription tiers and analyst-led engagements for institutions measuring and governing administrative reality over time." />
+  <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="10" fill="%230F1720"/><text x="17" y="42" font-family="Arial,Helvetica,sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text><rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/></svg>' />
   <style>
-    @font-face {
-      font-family: "Neue Haas Grotesk";
-      src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff");
-      font-style: normal;
-      font-weight: 400;
-      font-display: swap;
-    }
+    @font-face { font-family:"Neue Haas Grotesk"; src:url("55font.woff2") format("woff2"),url("55font.woff") format("woff"); font-style:normal; font-weight:400; font-display:swap; }
+    @font-face { font-family:"Neue Haas Grotesk"; src:url("65font.woff2") format("woff2"),url("65font.woff") format("woff"); font-style:normal; font-weight:500; font-display:swap; }
+    @font-face { font-family:"Neue Haas Grotesk"; src:url("75font.woff2") format("woff2"),url("75font.woff") format("woff"); font-style:normal; font-weight:700; font-display:swap; }
 
-    @font-face {
-      font-family: "Neue Haas Grotesk";
-      src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff");
-      font-style: normal;
-      font-weight: 500;
-      font-display: swap;
+    :root{
+      --accent:#3F6EA1; --accent-dark:#2F5886; --accent-soft:rgba(63,110,161,.08);
+      --gold:#B28D3C; --gold-soft:rgba(178,141,60,.11);
+      --bg-dark:#0F1720; --bg-dark-2:#121B25; --bg-offwhite:#F6F8FB;
+      --panel:#FFFFFF; --panel-soft:#FBFCFE;
+      --text-light:#F5F7FA; --muted-light:rgba(245,247,250,.82); --muted-light-2:rgba(245,247,250,.62);
+      --text-dark:#15202B; --muted-dark:#566473; --muted-dark-2:#7B8894;
+      --line-soft:rgba(21,32,43,.08); --line-mid:rgba(21,32,43,.12);
+      --header-solid:rgba(14,20,28,.86); --header-border:rgba(255,255,255,.08);
+      --ok:#5E8A66; --danger:#B8505E;
+      --shadow-soft:none; --shadow-card:none; --shadow-hover:none;
+      --max:1320px;
+      --transition:220ms cubic-bezier(0.16,1,0.3,1); --transition-slow:420ms cubic-bezier(0.16,1,0.3,1);
+      --panel-radius:22px; --card-radius:14px;
     }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
 
-    @font-face {
-      font-family: "Neue Haas Grotesk";
-      src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff");
-      font-style: normal;
-      font-weight: 700;
-      font-display: swap;
+    body{
+      margin:0;
+      background:var(--bg-offwhite);
+      color:var(--text-light);
+      font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
+      font-weight:400;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      text-rendering:optimizeLegibility;
     }
-
-    :root {
-      --accent: #3F6EA1;
-      --accent-dark: #2F5886;
-      --bg-dark: #0F1720;
-      --bg-dark-2: #111B25;
-      --bg-dark-3: #0D141C;
-      --bg-hero-fallback: #121922;
-      --bg-offwhite: #F6F7F8;
-      --bg-white: #FFFFFF;
-      --text-light: #F5F7FA;
-      --muted-light: rgba(245, 247, 250, 0.82);
-      --muted-light-2: rgba(245, 247, 250, 0.62);
-      --text-dark: #15202B;
-      --muted-dark: #556270;
-      --muted-dark-2: #7A8794;
-      --line-dark: #E3E7EB;
-      --header-solid: rgba(14, 20, 28, 0.87);
-      --header-border: rgba(255, 255, 255, 0.08);
-      --max: 1320px;
-      --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
-      --transition-slow: 420ms cubic-bezier(0.22, 1, 0.36, 1);
-      --reveal-distance: 18px;
-      --panel-radius: 18px;
-      --card-radius: 16px;
-      --section-rule: rgba(21, 32, 43, 0.04);
+    html, body, button, input, textarea, select, option, a, p, li, dt, dd, span, small, strong, em, label, figcaption, blockquote, cite, div, section, article, nav, header, footer, main, h1, h2, h3, h4 {
+      font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
     }
+    a { color:inherit; text-decoration:none; }
+    h1, h2, h3, h4 { letter-spacing:-0.05em; }
+    p, li { letter-spacing:-0.01em; }
 
-    * {
-      box-sizing: border-box;
+    .header{
+      position:fixed;
+      inset:0 0 auto 0;
+      width:100%;
+      height:72px;
+      z-index:100;
+      background:transparent;
+      border-bottom:1px solid transparent;
+      transition:background var(--transition), border-color var(--transition), backdrop-filter var(--transition), -webkit-backdrop-filter var(--transition);
     }
-
-    html {
-      scroll-behavior: smooth;
-      scroll-padding-top: 72px;
+    .header.scrolled{
+      background:var(--header-solid);
+      border-bottom-color:var(--header-border);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
     }
-
-    body {
-      margin: 0;
-      background: var(--bg-offwhite);
-      color: var(--text-dark);
-      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-weight: 400;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      text-rendering: optimizeLegibility;
+    .header-inner{
+      max-width:var(--max);
+      height:100%;
+      margin:0 auto;
+      padding:0 34px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:24px;
     }
-
-    html,
-    body,
-    button,
-    input,
-    textarea,
-    select,
-    option,
-    a,
-    p,
-    li,
-    dt,
-    dd,
-    span,
-    small,
-    strong,
-    em,
-    label,
-    figcaption,
-    blockquote,
-    cite,
-    div,
-    section,
-    article,
-    nav,
-    header,
-    footer,
-    main,
-    h1,
-    h2,
-    h3,
-    h4 {
-      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    .brand{
+      display:inline-flex;
+      align-items:center;
+      gap:0;
+      font-size:1.32rem;
+      font-weight:700;
+      letter-spacing:-0.02em;
+      color:#FFFFFF;
+      white-space:nowrap;
+      text-shadow:0 1px 2px rgba(0,0,0,0.16);
     }
-
-    h1, h2, h3, h4 {
-      letter-spacing: -0.048em;
-    }
-
-    p, li {
-      letter-spacing: -0.01em;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    button,
-    input,
-    select,
-    textarea {
-      font: inherit;
-    }
-
-    .reveal {
-      opacity: 0;
-      transform: translateY(var(--reveal-distance));
-      transition:
-        opacity 820ms cubic-bezier(0.22, 1, 0.36, 1),
-        transform 820ms cubic-bezier(0.22, 1, 0.36, 1);
-      will-change: opacity, transform;
-    }
-
-    .reveal.is-visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .reveal-delay-1 { transition-delay: 90ms; }
-    .reveal-delay-2 { transition-delay: 180ms; }
-    .reveal-delay-3 { transition-delay: 270ms; }
-    .reveal-delay-4 { transition-delay: 360ms; }
-
-    .header {
-      position: fixed;
-      inset: 0 0 auto 0;
-      width: 100%;
-      height: 72px;
-      z-index: 100;
-      background: transparent;
-      border-bottom: 1px solid transparent;
-      transition:
-        background var(--transition),
-        border-color var(--transition),
-        backdrop-filter var(--transition),
-        -webkit-backdrop-filter var(--transition);
-    }
-
-    .header.scrolled {
-      background: var(--header-solid);
-      border-bottom-color: var(--header-border);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-    }
-
-    .header-inner {
-      max-width: var(--max);
-      height: 100%;
-      margin: 0 auto;
-      padding: 0 34px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-    }
-
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 0;
-      font-size: 1.32rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: #FFFFFF;
-      white-space: nowrap;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.16);
-    }
-    .brand::after { display: none; }
+    .brand::after{ display:none; }
     .brand-dot {
       width: 6px;
       height: 6px;
@@ -216,1215 +94,153 @@
       transform: translateY(-1px);
       flex-shrink: 0;
     }
-    .brand-tagline {
-      margin-left: 12px;
-      padding-left: 12px;
-      border-left: 1px solid rgba(255,255,255,0.25);
-      font-size: 0.62rem;
-      font-weight: 500;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.68);
-      text-shadow: none;
-      line-height: 1;
-      align-self: center;
-    }
-
-    .nav {
-      display: flex;
-      align-items: center;
+    .nav{
+      display:flex;
+      align-items:center;
       gap: 20px;
       flex-wrap: nowrap;
-      justify-content: flex-end;
+      justify-content:flex-end;
     }
-
-    .nav a {
-      position: relative;
+    .nav a{
+      position:relative;
       font-size: 0.9rem;
-      font-weight: 500;
-      letter-spacing: 0.012em;
-      color: rgba(255, 255, 255, 0.88);
-      transition: color var(--transition), transform var(--transition);
+      font-weight:500;
+      color:rgba(245,247,250,.72);
+      transition:color var(--transition), transform var(--transition);
       white-space: nowrap;
     }
-
-    .nav a::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: -6px;
-      width: 100%;
-      height: 1px;
-      background: currentColor;
-      transform: scaleX(0);
-      transform-origin: left center;
-      transition: transform 180ms ease;
+    .nav a::after{
+      content:"";
+      position:absolute;
+      left:0; bottom:-6px;
+      width:100%; height:1px;
+      background:currentColor;
+      transform:scaleX(0);
+      transform-origin:left center;
+      transition:transform 180ms ease;
     }
-
     .nav a:hover,
-    .nav a:focus-visible {
-      color: #FFFFFF;
-      transform: translateY(-1px);
+    .nav a:focus-visible{
+      color:#FFF;
+      transform:none;
+      outline:none;
     }
-
+    .nav a.is-active{
+      color:var(--accent);
+      transform:none;
+      outline:none;
+    }
     .nav a:hover::after,
     .nav a:focus-visible::after,
-    .nav a.is-active::after {
-      transform: scaleX(1);
+    .nav a.is-active::after{
+      transform:scaleX(1);
     }
 
-    .nav a.is-active {
-      color: var(--accent);
-      transform: none;
-      outline: none;
-    }
 
-    /* Hero matches Why Monderman */
-    .hero {
-      position: relative;
-      min-height: 88vh;
-      overflow: hidden;
-      background: var(--bg-hero-fallback);
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      min-width:168px;
+      padding:0 24px;
+      border-radius:999px;
+      font-size:15px;
+      font-weight:500;
+      white-space:nowrap;
+      background:#FFF;
+      color:var(--text-dark);
+      border:1px solid rgba(21,32,43,.12);
+      box-shadow:none;
+      transition:background var(--transition), color var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+      cursor:pointer;
     }
-
-    .hero::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at 79% 18%, rgba(63, 110, 161, 0.14) 0%, rgba(63, 110, 161, 0.06) 18%, transparent 34%),
-        linear-gradient(
-          90deg,
-          rgba(10, 14, 20, 0.88) 0%,
-          rgba(10, 14, 20, 0.72) 28%,
-          rgba(10, 14, 20, 0.42) 56%,
-          rgba(10, 14, 20, 0.12) 100%
-        );
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .hero::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(
-        180deg,
-        rgba(10, 14, 20, 0.06) 0%,
-        rgba(10, 14, 20, 0.20) 100%
-      );
-      opacity: 0.52;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .hero-inner {
-      position: relative;
-      z-index: 1;
-      max-width: var(--max);
-      min-height: 88vh;
-      margin: 0 auto;
-      padding: 136px 34px 100px;
-      display: flex;
-      align-items: center;
-    }
-
-    .hero-copy {
-      max-width: 940px;
-    }
-
-    .hero-eyebrow,
-    .hero h1,
-    .hero-dek,
-    .hero-actions {
-      opacity: 0;
-      transform: translateY(16px);
-      animation: heroFadeUp 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
-      will-change: transform, opacity;
-    }
-
-    .hero-eyebrow {
-      display: block;
-      margin: 0 0 40px;
-      padding-left: 1px;
-      font-size: 0.78rem;
-      line-height: 1;
-      letter-spacing: 0.22em;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: rgba(245, 247, 250, 0.64);
-      animation-delay: 340ms;
-    }
-
-    .hero h1 {
-      margin: 0 0 20px;
-      max-width: 18ch;
-      font-size: clamp(3rem, 4.44vw, 64px);
-      line-height: 0.95;
-      font-weight: 700;
-      color: #FFFFFF;
-      text-wrap: balance;
-      animation-delay: 480ms;
-    }
-
-    .hero-dek {
-      max-width: 40ch;
-      margin: 0;
-      font-size: 17px;
-      line-height: 1.6;
-      letter-spacing: -0.014em;
-      color: var(--muted-light);
-      text-wrap: balance;
-      animation-delay: 640ms;
-    }
-
-    .hero-actions {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 30px;
-      animation-delay: 800ms;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 50px;
-      min-width: 168px;
-      padding: 0 24px;
-      border-radius: 999px;
-      font-size: 0.97rem;
-      font-weight: 500;
-      letter-spacing: -0.012em;
-      white-space: nowrap;
-      background: rgba(255, 255, 255, 0.98);
-      color: var(--accent);
-      border: 1.25px solid rgba(63, 110, 161, 0.9);
-      transition:
-        background 180ms cubic-bezier(0.22, 1, 0.36, 1),
-        color 180ms cubic-bezier(0.22, 1, 0.36, 1),
-        border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
-        transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
-      cursor: pointer;
-    }
-
     .btn:hover,
-    .btn:focus-visible {
-      background: #FFFFFF;
-      color: var(--accent-dark);
-      border-color: var(--accent-dark);
-      transform: translateY(-1px);
+    .btn:focus-visible{
+      background:#FFF;
+      color:var(--accent-dark);
+      border-color:var(--accent-dark);
+      transform:none;
+      box-shadow:none;
+      outline:none;
     }
-
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.98);
-      color: var(--accent);
-      border: 1.25px solid rgba(63, 110, 161, 0.9);
+    .btn-accent{
+      background:var(--accent);
+      color:#FFF;
+      border:1px solid rgba(63,110,161,.28);
+      box-shadow:none;
     }
-
-    .btn-secondary:hover,
-    .btn-secondary:focus-visible {
-      background: #FFFFFF;
-      color: var(--accent-dark);
-      border-color: var(--accent-dark);
-    }
-
-    .btn-accent {
-      background: var(--accent);
-      color: #FFFFFF;
-      border: 1.25px solid rgba(63, 110, 161, 0.28);
-    }
-
     .btn-accent:hover,
-    .btn-accent:focus-visible {
-      background: var(--accent-dark);
-      color: #FFFFFF;
-      border-color: rgba(47, 88, 134, 0.42);
-    }
-
-    @keyframes heroFadeUp {
-      from {
-        opacity: 0;
-        transform: translateY(16px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .section-label {
-      margin-bottom: 16px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
-
-    .section-label::before {
-      content: "";
-      display: block;
-      width: 48px;
-      height: 2px;
-      background: var(--accent);
-      margin-bottom: 14px;
-    }
-
-    .section-intro h2 {
-      margin: 0 0 16px;
-      max-width: 760px;
-      font-size: clamp(1.95rem, 2.45vw, 2.35rem);
-      line-height: 1.12;
-      font-weight: 700;
-      color: var(--text-dark);
-      text-wrap: balance;
-    }
-
-    .section-intro p {
-      margin: 0;
-      max-width: 58ch;
-      font-size: 1.04rem;
-      line-height: 1.7;
-      color: var(--muted-dark);
-    }
-
-    .section-intro p + p {
-      margin-top: 18px;
-    }
-
-    .entry-section {
-      position: relative;
-      background:
-        linear-gradient(rgba(247, 248, 249, 0.97), rgba(247, 248, 249, 0.97)),
-        linear-gradient(90deg, rgba(63, 110, 161, 0.02) 1px, transparent 1px),
-        linear-gradient(rgba(63, 110, 161, 0.02) 1px, transparent 1px);
-      background-size: auto, 28px 28px, 28px 28px;
-      border-top: 1px solid #E7EBEF;
-      border-bottom: 1px solid #E7EBEF;
-      color: var(--text-dark);
-      overflow: hidden;
-      padding: 104px 34px 96px;
-    }
-
-    .entry-section::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at 85% 20%, rgba(63, 110, 161, 0.04), transparent 34%);
-      pointer-events: none;
-    }
-
-    .entry-inner {
-      position: relative;
-      z-index: 1;
-      max-width: var(--max);
-      margin: 0 auto;
-    }
-
-    .entry-layout {
-      margin-top: 50px;
-      display: grid;
-      grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
-      gap: 34px;
-      align-items: start;
-    }
-
-    .entry-options {
-      display: grid;
-      gap: 16px;
-    }
-
-    .entry-option {
-      width: 100%;
-      text-align: left;
-      display: grid;
-      grid-template-columns: 44px minmax(0, 1fr);
-      gap: 18px;
-      align-items: start;
-      padding: 24px 24px 22px;
-      background: rgba(255, 255, 255, 0.96);
-      border: 1px solid rgba(21, 32, 43, 0.08);
-      border-radius: var(--panel-radius);
-      cursor: pointer;
-      transition:
-        transform var(--transition-slow),
-        border-color var(--transition),
-        background var(--transition);
-    }
-
-    .entry-option:hover,
-    .entry-option:focus-visible {
-      transform: translateY(-2px);
-      border-color: rgba(63, 110, 161, 0.16);
-    }
-
-    .entry-option.is-active {
-      border-color: rgba(63, 110, 161, 0.24);
-      background: #FFFFFF;
-    }
-
-    .entry-option-step {
-      width: 44px;
-      height: 44px;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(63, 110, 161, 0.08);
-      color: var(--accent);
-      font-size: 0.92rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: -0.02em;
-      transition: background var(--transition), color var(--transition);
-    }
-
-    .entry-option.is-active .entry-option-step {
-      background: var(--accent);
-      color: #FFFFFF;
-    }
-
-    .entry-option-title {
-      margin: 0 0 8px;
-      font-size: 1.12rem;
-      line-height: 1.16;
-      font-weight: 700;
-      color: var(--text-dark);
-      text-wrap: balance;
-    }
-
-    .entry-option-text {
-      margin: 0;
-      font-size: 0.96rem;
-      line-height: 1.64;
-      color: var(--muted-dark);
-      max-width: 48ch;
-    }
-
-    .entry-detail {
-      position: sticky;
-      top: 96px;
-      background: #FFFFFF;
-      border: 1px solid rgba(21, 32, 43, 0.08);
-      border-radius: var(--panel-radius);
-      padding: 30px 28px 26px;
-    }
-
-    .entry-detail-label {
-      margin: 0 0 12px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.20em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
-
-    .entry-detail-title {
-      margin: 0 0 12px;
-      font-size: 1.46rem;
-      line-height: 1.12;
-      font-weight: 700;
-      color: var(--text-dark);
-      text-wrap: balance;
-    }
-
-    .entry-detail-summary {
-      margin: 0 0 22px;
-      font-size: 0.98rem;
-      line-height: 1.68;
-      color: var(--muted-dark);
-    }
-
-    .entry-detail-grid {
-      display: grid;
-      gap: 16px;
-      margin-bottom: 22px;
-    }
-
-    .entry-detail-item h4 {
-      margin: 0 0 6px;
-      font-size: 0.78rem;
-      line-height: 1.2;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-dark);
-    }
-
-    .entry-detail-item p {
-      margin: 0;
-      font-size: 0.94rem;
-      line-height: 1.62;
-      color: var(--muted-dark);
-    }
-
-    .entry-detail-note {
-      margin: 0 0 20px;
-      font-size: 0.90rem;
-      line-height: 1.62;
-      color: var(--muted-dark-2);
-    }
-
-    .entry-detail-btn {
-      width: 100%;
-      justify-content: center;
-    }
-
-    .signals {
-      position: relative;
-      background: var(--bg-white);
-      padding: 96px 34px 88px;
-      color: var(--text-dark);
-      overflow: hidden;
-    }
-
-    .signals-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-    }
-
-    .signals-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 22px;
-      margin-top: 44px;
-    }
-
-    .signal-card {
-      background: #FFFFFF;
-      border: 1px solid rgba(21, 32, 43, 0.08);
-      border-radius: var(--card-radius);
-      padding: 28px 24px 24px;
-      transition:
-        transform var(--transition-slow),
-        border-color var(--transition);
-    }
-
-    .signal-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(63, 110, 161, 0.12);
-    }
-
-    .signal-card h3 {
-      margin: 0 0 10px;
-      font-size: 1.06rem;
-      line-height: 1.18;
-      font-weight: 700;
-      color: var(--text-dark);
-      text-wrap: balance;
-      max-width: 22ch;
-    }
-
-    .signal-card p {
-      margin: 0;
-      font-size: 0.94rem;
-      line-height: 1.64;
-      color: var(--muted-dark);
-      max-width: 32ch;
-    }
-
-    .process {
-      position: relative;
-      background: var(--bg-offwhite);
-      padding: 94px 34px 92px;
-      color: var(--text-dark);
-      border-top: 1px solid var(--section-rule);
-      border-bottom: 1px solid var(--section-rule);
-      overflow: hidden;
-    }
-
-    .process-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-    }
-
-    .process-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 28px;
-      margin-top: 46px;
-    }
-
-    .process-step {
-      position: relative;
-      background: rgba(255, 255, 255, 0.96);
-      border: 1px solid rgba(21, 32, 43, 0.08);
-      border-radius: var(--panel-radius);
-      padding: 34px 30px 30px;
-      min-height: 270px;
-      transition:
-        transform var(--transition-slow),
-        border-color var(--transition);
-    }
-
-    .process-step:hover {
-      transform: translateY(-3px);
-      border-color: rgba(63, 110, 161, 0.12);
-    }
-
-    .process-step-number {
-      margin: 0 0 16px;
-      font-size: 2.3rem;
-      line-height: 0.9;
-      letter-spacing: -0.06em;
-      font-weight: 700;
-      color: var(--accent);
-    }
-
-    .process-step h3 {
-      margin: 0 0 10px;
-      font-size: 1.2rem;
-      line-height: 1.12;
-      font-weight: 700;
-      color: var(--text-dark);
-      max-width: 18ch;
-    }
-
-    .process-step p {
-      margin: 0;
-      font-size: 0.98rem;
-      line-height: 1.68;
-      color: var(--muted-dark);
-      max-width: 31ch;
-    }
-
-    .qualifier {
-      position: relative;
-      background: var(--bg-white);
-      padding: 94px 34px 86px;
-      color: var(--text-dark);
-      overflow: hidden;
-    }
-
-    .qualifier-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: minmax(0, 1.04fr) minmax(320px, 0.72fr);
-      gap: 34px;
-      align-items: start;
-    }
-
-    .qualifier-copy .section-label {
-      margin-bottom: 14px;
-    }
-
-    .qualifier-copy h2 {
-      margin: 0 0 14px;
-      max-width: 18ch;
-      font-size: clamp(2rem, 2.7vw, 2.45rem);
-      line-height: 1.1;
-      font-weight: 700;
-      color: var(--text-dark);
-      text-wrap: balance;
-    }
-
-    .qualifier-copy p {
-      margin: 0;
-      max-width: 56ch;
-      font-size: 1.02rem;
-      line-height: 1.7;
-      color: var(--muted-dark);
-    }
-
-    .qualifier-copy p + p {
-      margin-top: 16px;
-    }
-
-    .qualifier-panel {
-      background: #F8F9FA;
-      border: 1px solid rgba(21, 32, 43, 0.08);
-      border-radius: var(--panel-radius);
-      padding: 28px 24px 24px;
-    }
-
-    .qualifier-panel h3 {
-      margin: 0 0 12px;
-      font-size: 1rem;
-      line-height: 1.18;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-
-    .qualifier-list {
-      margin: 0;
-      padding-left: 18px;
-      display: grid;
-      gap: 8px;
-    }
-
-    .qualifier-list li {
-      font-size: 0.93rem;
-      line-height: 1.58;
-      color: var(--muted-dark);
-    }
-
-    .connect {
-      position: relative;
-      background: linear-gradient(180deg, #0F1720 0%, #111B25 100%);
-      color: var(--text-light);
-      padding: 84px 34px 82px;
-      overflow: hidden;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .connect::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at 80% 20%, rgba(63, 110, 161, 0.10), transparent 28%);
-      opacity: 0.36;
-      pointer-events: none;
-    }
-
-    .connect-inner {
-      position: relative;
-      z-index: 1;
-      max-width: var(--max);
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
-      gap: 56px;
-      align-items: start;
-    }
-
-    .connect-copy .section-label {
-      color: rgba(245, 247, 250, 0.82);
-    }
-
-    .connect-copy .section-label::before {
-      background: var(--accent);
-    }
-
-    .connect-copy h2 {
-      color: #FFFFFF;
-      margin: 0 0 18px;
-      max-width: 18ch;
-      font-size: clamp(2rem, 2.8vw, 2.6rem);
-      line-height: 1.12;
-      font-weight: 700;
-      text-wrap: balance;
-    }
-
-    .connect-signal {
-      margin: 0 0 14px;
-      font-size: 0.82rem;
-      line-height: 1.45;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: rgba(245, 247, 250, 0.54);
-    }
-
-    .connect-text {
-      margin: 0;
-      max-width: 54ch;
-      font-size: 1.04rem;
-      line-height: 1.72;
-      color: rgba(245, 247, 250, 0.74);
-    }
-
-    .connect-panel {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.10);
-      border-radius: var(--panel-radius);
-      padding: 30px 30px 28px;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-
-    .connect-kicker {
-      margin: 0 0 14px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.20em;
-      text-transform: uppercase;
-      color: rgba(245, 247, 250, 0.54);
-    }
-
-    .connect-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      font-size: clamp(1.06rem, 1.6vw, 1.22rem);
-      line-height: 1.3;
-      font-weight: 500;
-      letter-spacing: -0.015em;
-      color: #FFFFFF;
-      transition: color var(--transition), transform var(--transition);
-    }
-
-    .connect-link:hover,
-    .connect-link:focus-visible {
-      color: #FFFFFF;
-      transform: translateX(2px);
-    }
-
-    .connect-link-mark {
-      width: 7px;
-      height: 7px;
-      background: var(--accent);
-      border-radius: 1px;
-      flex: 0 0 auto;
-      transform: translateY(-1px);
-    }
-
-    .connect-note {
-      margin: 16px 0 0;
-      font-size: 0.92rem;
-      line-height: 1.64;
-      color: rgba(245, 247, 250, 0.60);
-    }
-
-    .footer {
-      background: #0D141C;
-      color: rgba(245, 247, 250, 0.88);
-      padding: 50px 34px 38px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .footer-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-    }
-
-    .footer-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 40px;
-      padding-bottom: 28px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .footer-brand {
-      max-width: 420px;
-    }
-
-    .footer-mark {
-      display: inline-flex;
-      align-items: center;
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: #FFFFFF;
-      margin-bottom: 14px;
-    }
-
-    .footer-mark::after {
-      content: "";
-      width: 6px;
-      height: 6px;
-      margin-left: 10px;
-      background: var(--accent);
-      border-radius: 1px;
-      display: inline-block;
-      transform: translateY(-1px);
-    }
-
-    .footer-copy {
-      margin: 0;
-      max-width: 36ch;
-      font-size: 0.98rem;
-      line-height: 1.65;
-      color: rgba(245, 247, 250, 0.68);
-    }
-
-    .footer-nav {
-      display: flex;
-      gap: 48px;
-      flex-wrap: wrap;
-    }
-
-    .footer-nav-col {
-      min-width: 120px;
-    }
-
-    .footer-nav-title {
-      margin: 0 0 12px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(245, 247, 250, 0.50);
-    }
-
-    .footer-nav a {
-      display: block;
-      margin-bottom: 10px;
-      font-size: 0.95rem;
-      line-height: 1.45;
-      color: rgba(245, 247, 250, 0.82);
-      transition: color var(--transition), transform var(--transition);
-    }
-
-    .footer-nav a:hover,
-    .footer-nav a:focus-visible {
-      color: #FFFFFF;
-      transform: translateX(2px);
-    }
-
-    .footer-bottom {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-      padding-top: 18px;
-    }
-
-    .footer-meta,
-    .footer-contact {
-      margin: 0;
-      font-size: 0.88rem;
-      line-height: 1.6;
-      color: rgba(245, 247, 250, 0.58);
-    }
-
-
-    :focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 4px;
-      border-radius: 4px;
-    }
-
-    .reading-progress {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 2px;
-      width: 0%;
-      background: var(--accent);
-      z-index: 200;
-      transition: width 60ms linear;
-      pointer-events: none;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      html {
-        scroll-behavior: auto;
-      }
-
-      .reveal,
-      .hero-eyebrow,
-      .hero h1,
-      .hero-dek,
-      .hero-actions {
-        animation: none;
-        opacity: 1;
-        transform: none;
-        transition: none;
-      }
-
-      .btn,
-      .header,
-      .nav a,
-      .nav a::after,
-      .entry-option,
-      .signal-card,
-      .process-step,
-      .footer-nav a,
-      .connect-link,
-      .reading-progress {
-        transition: none;
-      }
-    }
-
-    @media (max-width: 1180px) {
-      .entry-layout,
-      .qualifier-inner,
-      .connect-inner {
-        grid-template-columns: 1fr;
-      }
-
-      .entry-detail {
-        position: relative;
-        top: 0;
-      }
-
-      .signals-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .process-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 980px) {
-      .header {
-        height: auto;
-      }
-
-      .header-inner {
-        padding: 16px 24px;
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 14px;
-      }
-
-      .nav {
-        gap: 22px;
-      }
-
-      .hero-inner,
-      .entry-section,
-      .signals,
-      .process,
-      .qualifier,
-      .connect,
-      .footer {
-        padding-left: 24px;
-        padding-right: 24px;
-      }
-    }
-
-    @media (max-width: 760px) {
-      .brand {
-        font-size: 1.24rem;
-      }
-
-      .nav {
-        gap: 18px;
-      }
+    .btn-accent:focus-visible{
+      background:var(--accent-dark);
+      color:#FFF;
+      border-color:rgba(47,88,134,.42);
+      box-shadow:none;
+    }
+    .btn-subtle{
+      background:#FFF;
+      color:var(--text-dark);
+      border:1px solid var(--line-mid);
+      box-shadow:none;
+    }
+    .btn-subtle:hover,
+    .btn-subtle:focus-visible{
+      color:var(--accent-dark);
+      border-color:rgba(63,110,161,.24);
+      box-shadow:none;
+    }
+    .btn-hero-secondary,
+    .btn-secondary{
+      background:rgba(255,255,255,0.98);
+      color:var(--accent);
+      border:1.25px solid rgba(63,110,161,0.9);
+      box-shadow:0 7px 16px rgba(0,0,0,0.038), 0 0 0 1px rgba(255,255,255,0.07);
+    }
+    .btn-hero-secondary:hover,
+    .btn-hero-secondary:focus-visible,
+    .btn-secondary:hover,
+    .btn-secondary:focus-visible{
+      background:#FFFFFF;
+      color:var(--accent-dark);
+      border-color:var(--accent-dark);
+      box-shadow:0 10px 20px rgba(0,0,0,0.052), 0 0 0 1px rgba(255,255,255,0.09);
+    }
+    .btn[disabled]{
+      cursor:not-allowed;
+      opacity:.56;
+      transform:none !important;
+      box-shadow:none !important;
+    }
+
+    .page{
+      position:relative;
+      background:var(--bg-offwhite);
+      padding:102px 34px 96px;
+      color:var(--text-dark);
+      overflow:hidden;
+      border-top:1px solid rgba(21,32,43,.04);
+    }
+    .page::before{content:"";position:absolute;inset:0;background:none;pointer-events:none;}
+    .page-inner{
+      position:relative;
+      z-index:1;
+      max-width:var(--max);
+      margin:0 auto;
+    }
+
+
+    .section-label{
+      margin-bottom:16px;
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:var(--muted-dark-2);
+    }
+    .section-label::before{content:none;}
 
-      .hero-inner {
-        padding: 136px 20px 108px;
-        min-height: auto;
-      }
 
-      .hero-eyebrow {
-        margin-bottom: 30px;
-        font-size: 0.74rem;
-        letter-spacing: 0.18em;
-      }
 
-      .hero h1 {
-        max-width: 100%;
-        font-size: clamp(2.45rem, 8vw, 3.25rem);
-      }
-
-      .hero-dek {
-        max-width: 100%;
-        font-size: 1rem;
-        line-height: 1.58;
-      }
-
-      .hero-actions {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 14px;
-        max-width: 420px;
-      }
-
-      .btn {
-        width: 100%;
-        min-width: 0;
-        min-height: 52px;
-        padding: 0 20px;
-        font-size: 0.98rem;
-      }
-
-      .entry-section,
-      .signals,
-      .process,
-      .qualifier,
-      .connect {
-        padding-left: 20px;
-        padding-right: 20px;
-      }
-
-      .entry-section {
-        padding-top: 78px;
-        padding-bottom: 74px;
-      }
-
-      .signals,
-      .process,
-      .qualifier {
-        padding-top: 74px;
-        padding-bottom: 68px;
-      }
-
-      .connect {
-        padding-top: 64px;
-        padding-bottom: 60px;
-      }
-
-      .entry-option {
-        grid-template-columns: 38px minmax(0, 1fr);
-        gap: 14px;
-        padding: 20px 18px 18px;
-      }
-
-      .entry-option-step {
-        width: 38px;
-        height: 38px;
-        font-size: 0.86rem;
-      }
-
-      .entry-detail,
-      .qualifier-panel,
-      .connect-panel {
-        padding: 24px 22px 22px;
-      }
-
-      .signals-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .signal-card,
-      .process-step {
-        padding: 26px 22px 22px;
-        min-height: auto;
-      }
-
-      .footer {
-        padding: 34px 20px 28px;
-      }
-
-      .footer-top,
-      .footer-bottom {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .footer-nav {
-        gap: 28px;
-      }
-    }
-  
-
-/* Monderman harmonization polish: shared footer, micro-interactions, and editorial rhythm */
-.footer {
-  padding-top: 56px;
-  padding-bottom: 40px;
-}
-.footer-top {
-  gap: 52px;
-  padding-bottom: 32px;
-}
-.footer-copy {
-  max-width: 47ch;
-  line-height: 1.72;
-  color: rgba(245,247,250,0.72);
-}
-.footer-mark {
-  letter-spacing: -0.018em;
-}
-.footer-nav {
-  gap: 46px;
-}
-.footer-nav-title {
-  letter-spacing: 0.18em;
-  color: rgba(245,247,250,0.54);
-}
-.footer-nav a {
-  margin-bottom: 9px;
-  color: rgba(245,247,250,0.78);
-  transition: color var(--transition), transform var(--transition), opacity var(--transition);
-}
-.footer-nav a:hover,
-.footer-nav a:focus-visible {
-  color: #FFFFFF;
-  transform: translateX(2px);
-  outline: none;
-}
-.footer-bottom {
-  padding-top: 21px;
-}
-.footer-meta,
-.footer-contact {
-  color: rgba(245,247,250,0.56);
-}
-.footer-contact {
-  max-width: 46ch;
-  text-align: right;
-}
-.btn {
-  transition: background 180ms cubic-bezier(0.22,1,0.36,1), color 180ms cubic-bezier(0.22,1,0.36,1), border-color 180ms cubic-bezier(0.22,1,0.36,1), transform 180ms cubic-bezier(0.22,1,0.36,1), box-shadow 180ms cubic-bezier(0.22,1,0.36,1), opacity 180ms cubic-bezier(0.22,1,0.36,1);
-}
-.card,
-.entry-card,
-.commitment-card,
-.connect-card,
-.latest-card,
-.service-card {
-  transition: transform var(--transition-slow), border-color var(--transition), box-shadow var(--transition-slow), background var(--transition);
-}
-.latest-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(63,110,161,0.18);
-  box-shadow: 0 12px 28px rgba(15,23,32,0.045);
-}
-.hero-eyebrow,
-.section-label,
-.footer-nav-title,
-.diff-kicker,
-.latest-card-kicker {
-  letter-spacing: 0.18em;
-}
-@media (max-width: 760px) {
-  .footer-top,
-  .footer-bottom {
-    align-items: flex-start;
-  }
-  .footer-contact {
-    text-align: left;
-  }
-}
-    .footer {
-      position: relative;
-      overflow: hidden;
-    }
-    .footer-motif {
-      position: absolute;
-      bottom: -65px;
-      right: -65px;
-      pointer-events: none;
-      z-index: 0;
-    }
-    .footer-top, .footer-bottom, .footer-inner, .footer-brand,
-    .footer-nav, .footer-copy, .footer-meta, .footer-contact {
-      position: relative;
-      z-index: 1;
-    }
-
-
-    .nav a.workspace-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 38px;
-      padding: 0 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      background: rgba(255, 255, 255, 0.06);
-      color: #FFFFFF;
-      font-weight: 500;
-      white-space: nowrap;
-    }
-    .nav a.workspace-link::after {
-      display: none;
-    }
-    .nav a.workspace-link:hover,
-    .nav a.workspace-link:focus-visible {
-      background: rgba(255, 255, 255, 0.10);
-      border-color: rgba(255, 255, 255, 0.24);
-      color: #FFFFFF;
-      transform: none;
-    }
-
-    @media (max-width: 1280px) {
-      .brand-tagline { display: none; }
-    }
-  
     /* ===== Canonical uniform footer (mond-footer) ===== */
     .mond-footer {
       position: relative;
@@ -1539,275 +355,318 @@
       .mond-footer .mf-motif svg { width: 220px; height: 220px; }
     }
 
+
+
+    /* ===== Platform Services / pricing-specific ===== */
+    .ps-wrap{max-width:var(--max);margin:0 auto;padding:0 34px}
+    main{padding-top:72px}
+
+    /* Hero — dark, matches site */
+    .ps-hero{position:relative;background:linear-gradient(180deg,#0B1218 0%,#0F1720 60%,#101A24 100%);color:var(--text-light);overflow:hidden}
+    .ps-hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:140px;background:linear-gradient(180deg,rgba(246,248,251,0) 0%,rgba(246,248,251,.85) 72%,var(--bg-offwhite) 100%);pointer-events:none;z-index:0}
+    .ps-hero-inner{position:relative;z-index:1;max-width:var(--max);margin:0 auto;padding:128px 34px 104px}
+    .ps-eyebrow{display:block;font-size:.74rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-light-2);margin:0 0 22px}
+    .ps-hero h1{font-size:60px;line-height:1.0;font-weight:700;max-width:17ch;margin:0 0 20px;color:#fff}
+    .ps-hero p.lede{font-size:18px;line-height:1.6;color:var(--muted-light);max-width:52ch;margin:0 0 30px}
+    .ps-hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+
+    /* Section scaffolding */
+    .ps-section{padding:78px 0}
+    .ps-section.tight{padding:56px 0}
+    .ps-section-label{display:block;font-size:.74rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:0 0 14px}
+    .ps-h2{font-size:34px;line-height:1.1;font-weight:700;color:var(--text-dark);max-width:24ch;margin:0 0 16px}
+    .ps-sub{font-size:17px;line-height:1.65;color:var(--muted-dark);max-width:60ch;margin:0 0 8px}
+
+    /* ROI band — dark interstitial */
+    .ps-roi{background:var(--bg-dark);color:var(--text-light)}
+    .ps-roi .ps-h2{color:#fff}
+    .ps-roi .ps-sub{color:var(--muted-light)}
+    .ps-roi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:34px}
+    .ps-roi-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);border-radius:var(--card-radius);padding:26px 24px}
+    .ps-roi-card .n{font-size:2.2rem;font-weight:700;color:#fff;letter-spacing:-0.03em;line-height:1}
+    .ps-roi-card .n .unit{font-size:1.1rem;color:var(--muted-light-2);font-weight:500}
+    .ps-roi-card .l{margin-top:10px;font-size:.95rem;line-height:1.5;color:var(--muted-light)}
+    .ps-roi-note{margin-top:26px;font-size:.86rem;line-height:1.6;color:var(--muted-light-2);max-width:74ch}
+
+    /* Pricing tier cards */
+    .ps-tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:40px;align-items:start}
+    .ps-tier{background:var(--panel);border:1px solid var(--line-mid);border-radius:var(--panel-radius);padding:32px 28px;display:flex;flex-direction:column;height:100%}
+    .ps-tier.featured{border-color:var(--accent);border-width:1.5px;position:relative}
+    .ps-tier-flag{position:absolute;top:-11px;left:28px;background:var(--accent);color:#fff;font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:4px 12px;border-radius:99px}
+    .ps-tier-name{font-size:.78rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 6px}
+    .ps-tier-for{font-size:.92rem;color:var(--muted-dark);margin:0 0 22px;min-height:2.6em;line-height:1.45}
+    .ps-price{display:flex;align-items:baseline;gap:6px;margin:0 0 4px}
+    .ps-price .amt{font-size:2.5rem;font-weight:700;color:var(--text-dark);letter-spacing:-0.03em;line-height:1}
+    .ps-price .per{font-size:.95rem;color:var(--muted-dark-2)}
+    .ps-price-alt{font-size:.86rem;color:var(--muted-dark-2);margin:0 0 22px}
+    .ps-tier-cta{margin:0 0 24px}
+    .ps-tier-cta .btn{width:100%;justify-content:center;text-align:center}
+    .ps-feat{list-style:none;margin:0;padding:22px 0 0;border-top:1px solid var(--line-soft);display:grid;gap:11px}
+    .ps-feat li{position:relative;padding-left:26px;font-size:.95rem;line-height:1.5;color:var(--text-dark)}
+    .ps-feat li::before{content:"";position:absolute;left:0;top:7px;width:13px;height:13px;border-radius:50%;background:var(--accent-soft);border:1.5px solid var(--accent)}
+    .ps-feat li.muted{color:var(--muted-dark)}
+    .ps-feat-head{font-size:.74rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-dark-2);margin:0 0 2px}
+
+    /* Engagements (premium add-ons) */
+    .ps-eng-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:38px}
+    .ps-eng{background:var(--panel-soft);border:1px solid var(--line-soft);border-radius:var(--card-radius);padding:26px 24px}
+    .ps-eng h3{font-size:1.12rem;font-weight:700;color:var(--text-dark);margin:0 0 8px;letter-spacing:-0.02em}
+    .ps-eng .price{font-size:.92rem;font-weight:600;color:var(--accent);margin:0 0 12px}
+    .ps-eng p{font-size:.94rem;line-height:1.58;color:var(--muted-dark);margin:0}
+
+    /* Procurement / how-to-buy block */
+    .ps-proc{background:var(--bg-offwhite)}
+    .ps-proc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px 40px;margin-top:30px}
+    .ps-proc-item{padding:0}
+    .ps-proc-item h4{font-size:1.02rem;font-weight:700;color:var(--text-dark);margin:0 0 6px;letter-spacing:-0.02em}
+    .ps-proc-item p{font-size:.94rem;line-height:1.58;color:var(--muted-dark);margin:0}
+    .ps-proc-callout{margin-top:30px;background:var(--accent-soft);border:1px solid rgba(63,110,161,.25);border-radius:var(--card-radius);padding:20px 24px;font-size:.96rem;line-height:1.6;color:var(--text-dark)}
+    .ps-proc-callout strong{color:var(--accent-dark)}
+
+    /* Pilot strip */
+    .ps-pilot{background:var(--bg-dark);color:var(--text-light)}
+    .ps-pilot .ps-wrap{padding-top:64px;padding-bottom:64px}
+    .ps-pilot h2{font-size:30px;font-weight:700;color:#fff;margin:0 0 12px;max-width:24ch;letter-spacing:-0.03em}
+    .ps-pilot p{font-size:16px;line-height:1.6;color:var(--muted-light);max-width:58ch;margin:0 0 24px}
+
+    /* Final CTA */
+    .ps-final{text-align:center;padding:84px 0}
+    .ps-final .ps-h2{margin:0 auto 14px}
+    .ps-final .ps-sub{margin:0 auto 26px}
+    .ps-final-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+    .ps-contact{margin-top:30px;font-size:.92rem;color:var(--muted-dark)}
+    .ps-contact a{color:var(--accent);font-weight:600}
+
+    /* Honest beta line */
+    .ps-beta-note{font-size:.84rem;color:var(--muted-dark-2);max-width:64ch;margin:14px auto 0;line-height:1.55;text-align:center}
+
+    @media (max-width:1024px){
+      .ps-roi-grid,.ps-tiers,.ps-eng-grid{grid-template-columns:1fr 1fr}
+      .ps-tier.featured{grid-column:auto}
+    }
+    @media (max-width:760px){
+      .header-inner,.ps-wrap,.ps-hero-inner{padding-left:20px;padding-right:20px}
+      .ps-hero-inner{padding-top:104px;padding-bottom:72px}
+      .ps-hero h1{font-size:40px}
+      .ps-h2{font-size:27px}
+      .ps-roi-grid,.ps-tiers,.ps-eng-grid,.ps-proc-grid{grid-template-columns:1fr}
+      .ps-section{padding:54px 0}
+      .nav{width:100%;gap:8px;overflow-x:auto;flex-wrap:nowrap;justify-content:flex-start;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+      .nav::-webkit-scrollbar{display:none}
+      .nav a{flex:0 0 auto;white-space:nowrap}
+    }
+
   </style>
 </head>
 <body>
-  <div class="reading-progress" id="readingProgress" role="progressbar" aria-label="Reading progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
   <header class="header" id="siteHeader">
     <div class="header-inner">
-      <a href="index.html" class="brand">Monderman<span class="brand-dot"></span><span class="brand-tagline">Measure the conditions. Own the outcome.</span></a>
-
+      <a href="index.html" class="brand">Monderman<span class="brand-dot"></span></a>
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
         <a href="diagnostic-hub.html">Diagnostic Hub</a>
         <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
+        <a href="about.html">About</a>
         <a href="platform-services.html" class="is-active">Platform Services</a>
         <a href="connect.html">Connect</a>
-        <a href="signin.html" class="workspace-link">Workspace</a>
+        <a href="workspace.html" class="workspace-link">Workspace</a>
       </nav>
     </div>
   </header>
 
-  <section class="hero" aria-labelledby="hero-title">
-    <div class="hero-inner">
-      <div class="hero-copy">
-        <p class="hero-eyebrow">Monderman Platform Services</p>
+  <main>
+  <!-- HERO -->
+  <section class="ps-hero">
+    <div class="ps-hero-inner">
+      <span class="ps-eyebrow">Platform Services &amp; Pricing</span>
+      <h1>Priced to be approved, not negotiated.</h1>
+      <p class="lede">Monderman is a subscription diagnostic platform. Pricing is published, predictable, and scoped to how much of your organization you need to measure and govern over time &mdash; with optional analyst-led engagements when you want human judgment on top of the platform read.</p>
+      <div class="ps-hero-actions">
+        <a class="btn btn-accent" href="#plans">See plans &amp; pricing</a>
+        <a class="btn btn-secondary" href="#how-to-buy">How procurement works</a>
+      </div>
+    </div>
+  </section>
 
-        <h1 id="hero-title">Subscription access, analyst review, and platform support for institutions using Monderman over time.</h1>
+  <!-- ROI / WHY IT PAYS -->
+  <section class="ps-section ps-roi">
+    <div class="ps-wrap">
+      <span class="ps-section-label">What it returns</span>
+      <h2 class="ps-h2">The platform costs a fraction of the capacity it measures.</h2>
+      <p class="ps-sub">Every diagnostic estimates the fully-burdened cost of administrative drag at your own baseline &mdash; the senior hours absorbed by coordination, approvals, rework, and compensating effort. The subscription is sized so that recovering even a sliver of that capacity covers it many times over.</p>
+      <div class="ps-roi-grid">
+        <div class="ps-roi-card">
+          <div class="n">26&ndash;41<span class="unit">%</span></div>
+          <div class="l">of senior capacity typically absorbed by administrative reality in early engagements &mdash; measured, not assumed.</div>
+        </div>
+        <div class="ps-roi-card">
+          <div class="n">1<span class="unit"> senior FTE</span></div>
+          <div class="l">A fraction of one senior person&rsquo;s reclaimed time, fully burdened, exceeds the annual platform cost at every tier.</div>
+        </div>
+        <div class="ps-roi-card">
+          <div class="n">Every<span class="unit"> re-run</span></div>
+          <div class="l">Value compounds on the second and third measurement &mdash; drift only becomes visible against a prior read. Runs are generous by design.</div>
+        </div>
+      </div>
+      <p class="ps-roi-note">Figures are directional, modeled at your institution&rsquo;s measured baseline, and conditioned on identified structural corrections being adopted. Monderman publishes the assumption set with every engagement. They are an executive signal for scoping, not a guaranteed financial outcome.</p>
+    </div>
+  </section>
 
-        <p class="hero-dek">
-          Monderman is an administrative intelligence platform. These offerings—subscription access, guided analysis, platform setup, and diagnostic tailoring—exist to help institutions adopt the platform correctly, extend its precision, and sustain recurring use across teams, cohorts, and time horizons.
-        </p>
+  <!-- PLANS -->
+  <section class="ps-section" id="plans">
+    <div class="ps-wrap">
+      <span class="ps-section-label">Subscription plans</span>
+      <h2 class="ps-h2">Three tiers, scoped to how much of the organization you govern.</h2>
+      <p class="ps-sub">All plans include the full four-diagnostic suite, all three perspectives, and generous run volume. You are not metered per run &mdash; tiers differ by deployment scope, longitudinal tooling, and level of support. Annual billing.</p>
 
-        <div class="hero-actions">
-          <a class="btn btn-accent" href="https://www.monderman.com/connect.html" target="_blank" rel="noopener noreferrer">Request platform support</a>
-          <a class="btn btn-secondary" href="diagnostic-hub.html">Open Diagnostic Hub</a>
+      <div class="ps-tiers">
+        <!-- Baseline -->
+        <div class="ps-tier">
+          <div class="ps-tier-name">Baseline</div>
+          <div class="ps-tier-for">For a single team or business unit establishing its first measured baseline.</div>
+          <div class="ps-price"><span class="amt">$8,400</span><span class="per">/ year</span></div>
+          <div class="ps-price-alt">or $795/month &middot; one business unit</div>
+          <div class="ps-tier-cta"><a class="btn btn-accent" href="connect.html?plan=baseline">Start with Baseline</a></div>
+          <ul class="ps-feat">
+            <li>Full four-diagnostic suite (Structural Clarity, Decision Velocity, Operational Systems, Institutional Performance)</li>
+            <li>All three perspectives &mdash; operational, managerial, senior leader</li>
+            <li>Generous run volume; longitudinal re-runs included</li>
+            <li>Executive read (PDF), score, primary signal, and JSON export per diagnostic</li>
+            <li>Self-administered through the platform</li>
+            <li class="muted">Standard support &mdash; documentation and email</li>
+          </ul>
+        </div>
+
+        <!-- Institutional (featured) -->
+        <div class="ps-tier featured">
+          <div class="ps-tier-flag">Most common</div>
+          <div class="ps-tier-name">Institutional</div>
+          <div class="ps-tier-for">For leaders measuring across multiple units and tracking drift over time.</div>
+          <div class="ps-price"><span class="amt">$36,000</span><span class="per">/ year</span></div>
+          <div class="ps-price-alt">up to five business units &middot; volume pricing beyond</div>
+          <div class="ps-tier-cta"><a class="btn btn-accent" href="connect.html?plan=institutional">Talk through Institutional</a></div>
+          <ul class="ps-feat">
+            <li><span class="ps-feat-head">Everything in Baseline, plus</span></li>
+            <li>Up to five business units under one workspace</li>
+            <li>Workspace administrator console &mdash; manage runs, roles, and cohorts</li>
+            <li>Cross-diagnostic synthesis into one institutional read</li>
+            <li>Longitudinal comparison &mdash; drift, recovery, and trend across runs</li>
+            <li>Priority support and structured onboarding</li>
+          </ul>
+        </div>
+
+        <!-- Enterprise -->
+        <div class="ps-tier">
+          <div class="ps-tier-name">Enterprise</div>
+          <div class="ps-tier-for">For organization-wide governance, with analyst review and tailoring.</div>
+          <div class="ps-price"><span class="amt">From $95,000</span></div>
+          <div class="ps-price-alt">per year &middot; scoped to deployment</div>
+          <div class="ps-tier-cta"><a class="btn btn-accent" href="connect.html?plan=enterprise">Scope an Enterprise plan</a></div>
+          <ul class="ps-feat">
+            <li><span class="ps-feat-head">Everything in Institutional, plus</span></li>
+            <li>Unlimited business units, divisions, and cohorts</li>
+            <li>Analyst-reviewed reads &mdash; human judgment applied to platform results</li>
+            <li>Diagnostic tailoring and calibration to your operating context</li>
+            <li>Systems integration and administrator enablement</li>
+            <li>Named point of contact and defined response times</li>
+          </ul>
+        </div>
+      </div>
+      <p class="ps-beta-note">Monderman is in active beta. Plans include a direct feedback channel and, where a structural edge case affects your read, hands-on correction. You are an early customer of an instrument that is improving on a known cadence &mdash; not a buyer of finished, frozen software.</p>
+    </div>
+  </section>
+
+  <!-- ENGAGEMENTS -->
+  <section class="ps-section tight">
+    <div class="ps-wrap">
+      <span class="ps-section-label">Analyst-led engagements</span>
+      <h2 class="ps-h2">When you want human judgment on top of the platform.</h2>
+      <p class="ps-sub">Fixed-fee engagements that sit alongside any subscription. Useful when a read needs interpretation, when diagnostics need adapting to your context, or when leadership wants a structured baseline delivered with the assumption set.</p>
+      <div class="ps-eng-grid">
+        <div class="ps-eng">
+          <h3>Analyst Review</h3>
+          <div class="price">From $4,500 per read</div>
+          <p>A Monderman analyst reviews your diagnostic output and delivers a calibrated written interpretation &mdash; what the read means, what to weigh, and where to act first.</p>
+        </div>
+        <div class="ps-eng">
+          <h3>Structured Baseline</h3>
+          <div class="price">From $18,000</div>
+          <p>The full suite administered across three perspectives, scored, synthesized, and delivered with the published assumption set &mdash; a defensible institutional baseline to govern against.</p>
+        </div>
+        <div class="ps-eng">
+          <h3>Tailoring &amp; Calibration</h3>
+          <div class="price">Scoped per engagement</div>
+          <p>Adapt diagnostics to your operating context and refine interpretation logic so results stay precise, comparable, and credible as your organization changes.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="entry-section" aria-labelledby="services-title">
-    <div class="entry-inner">
-      <div class="section-intro reveal">
-        <div class="section-label">Platform services</div>
-        <h2 id="services-title">Commercial support that helps buyers adopt, extend, and govern the platform more deliberately.</h2>
-        <p>
-          These offerings are designed to make the platform more usable, better calibrated, more tailored to institutional context, and easier to operate over time—without forcing every buyer into the same support model.
-        </p>
-      </div>
-
-      <div class="entry-layout">
-        <div class="entry-options reveal reveal-delay-1" role="tablist" aria-label="Select a platform service">
-          <button class="entry-option is-active" type="button" role="tab" aria-selected="true" aria-controls="entry-detail" id="entry-subscription" data-key="subscription">
-            <span class="entry-option-step">01</span>
-            <span>
-              <h3 class="entry-option-title">Subscription Access</h3>
-              <p class="entry-option-text">
-                Recurring access to the full diagnostic suite for institutions running repeated diagnostics across teams, cohorts, and time horizons.
-              </p>
-            </span>
-          </button>
-
-          <button class="entry-option" type="button" role="tab" aria-selected="false" aria-controls="entry-detail" id="entry-analysis" data-key="analysis">
-            <span class="entry-option-step">02</span>
-            <span>
-              <h3 class="entry-option-title">Guided Analysis</h3>
-              <p class="entry-option-text">
-                A Monderman analyst reviews your diagnostic output and delivers a calibrated written interpretation—human judgment applied to platform results.
-              </p>
-            </span>
-          </button>
-
-          <button class="entry-option" type="button" role="tab" aria-selected="false" aria-controls="entry-detail" id="entry-setup" data-key="setup">
-            <span class="entry-option-step">03</span>
-            <span>
-              <h3 class="entry-option-title">Platform Setup &amp; Enablement</h3>
-              <p class="entry-option-text">
-                Configure the platform correctly, connect it to surrounding systems, and equip internal admins to run recurring diagnostics without outside support.
-              </p>
-            </span>
-          </button>
-
-          <button class="entry-option" type="button" role="tab" aria-selected="false" aria-controls="entry-detail" id="entry-tailoring" data-key="tailoring">
-            <span class="entry-option-step">04</span>
-            <span>
-              <h3 class="entry-option-title">Diagnostic Tailoring &amp; Calibration</h3>
-              <p class="entry-option-text">
-                Adapt diagnostics to your operating context and refine interpretation logic so results stay precise, comparable, and credible over time.
-              </p>
-            </span>
-          </button>
+  <!-- HOW TO BUY / PROCUREMENT -->
+  <section class="ps-section ps-proc" id="how-to-buy">
+    <div class="ps-wrap">
+      <span class="ps-section-label">How procurement works</span>
+      <h2 class="ps-h2">Built to clear approval without a six-month cycle.</h2>
+      <p class="ps-sub">Monderman is designed to be straightforward to buy and easy to justify &mdash; transparent pricing, predictable annual cost, and a data posture suited to sensitive environments.</p>
+      <div class="ps-proc-grid">
+        <div class="ps-proc-item">
+          <h4>Published, predictable pricing</h4>
+          <p>List pricing is on this page. No per-seat creep, no usage surprises, no quote required to see what a plan costs. Annual cost is fixed at signing.</p>
         </div>
-
-        <aside class="entry-detail reveal reveal-delay-2" id="entry-detail" role="tabpanel" aria-labelledby="entry-subscription">
-          <p class="entry-detail-label" id="detail-label">Subscription Access</p>
-          <h3 class="entry-detail-title" id="detail-title">Get a commercial home for ongoing diagnostic use rather than one-off interactions with the platform.</h3>
-          <p class="entry-detail-summary" id="detail-summary">
-            Subscription Access gives institutions a repeating relationship with Monderman—access to the full diagnostic suite, the Workspace administrator console, cross-diagnostic synthesis, and structured support touchpoints calibrated to the cadence and scale of use.
-          </p>
-
-          <div class="entry-detail-grid">
-            <div class="entry-detail-item">
-              <h4>Typical duration</h4>
-              <p id="detail-duration">Ongoing subscription. Term and cadence shaped by the scale of diagnostic use across teams or cohorts.</p>
-            </div>
-
-            <div class="entry-detail-item">
-              <h4>What you leave with</h4>
-              <p id="detail-deliverable">Recurring access, Workspace admin console, cross-diagnostic synthesis, and support touchpoints appropriate to continued institutional use.</p>
-            </div>
-
-            <div class="entry-detail-item">
-              <h4>Not the right fit</h4>
-              <p id="detail-notfit">Not the right fit for buyers exploring a single diagnostic event with no intention of establishing repeated measurement over time.</p>
-            </div>
-          </div>
-
-          <p class="entry-detail-note" id="detail-note">
-            Best when the value is in longitudinal comparison, institutional adoption, and repeated measurement—not a one-time diagnostic run.
-          </p>
-
-          <a class="btn btn-accent entry-detail-btn" href="https://www.monderman.com/connect.html" target="_blank" rel="noopener noreferrer">Request platform support</a>
-        </aside>
+        <div class="ps-proc-item">
+          <h4>Diagnostic data stays in your environment</h4>
+          <p>The platform is built for institutions handling sensitive information. Diagnostic inputs and reads remain under your control; the assumption set behind every score is published, not hidden.</p>
+        </div>
+        <div class="ps-proc-item">
+          <h4>Single-vendor simplicity</h4>
+          <p>One annual subscription, one line item, one renewal. Engagements are fixed-fee and scoped up front, so finance sees the full commitment before it starts.</p>
+        </div>
+        <div class="ps-proc-item">
+          <h4>Justification, built in</h4>
+          <p>Every read estimates the fully-burdened cost of the drag it measures &mdash; the figure your approval memo needs, generated from your own baseline rather than a vendor claim.</p>
+        </div>
+      </div>
+      <div class="ps-proc-callout">
+        <strong>For contractors operating under FAR.</strong> The Baseline plan is deliberately priced below the federal micro-purchase threshold, so a unit lead can establish a measured baseline as a discretionary purchase &mdash; before committing to a competitive procurement for a wider deployment.
       </div>
     </div>
   </section>
 
-  <section class="signals" aria-labelledby="signals-title">
-    <div class="signals-inner">
-      <div class="section-intro reveal">
-        <div class="section-label">Common signals</div>
-        <h2 id="signals-title">Leaders usually feel the problem before they fully name it.</h2>
-        <p>
-          Structural drag often appears first as repeated friction, heavier coordination, slower movement, or a growing gap between leadership intent and organizational reality.
-        </p>
-      </div>
-
-      <div class="signals-grid">
-        <article class="signal-card reveal reveal-delay-1">
-          <h3>Decisions are made, but they stall before they land.</h3>
-          <p>
-            What looks like slowness is often overloaded pathways, diffused authority, or governance weight that no longer fits the work.
-          </p>
-        </article>
-
-        <article class="signal-card reveal reveal-delay-2">
-          <h3>Strategy is clear at the top, but fragments in execution.</h3>
-          <p>
-            The issue is often not intent. It is the system through which interpretation, ownership, and action are expected to stay aligned.
-          </p>
-        </article>
-
-        <article class="signal-card reveal reveal-delay-3">
-          <h3>Leaders spend too much time compensating for the system.</h3>
-          <p>
-            Senior attention becomes a substitute for structural clarity when coordination, escalation, and intervention keep output moving.
-          </p>
-        </article>
-
-        <article class="signal-card reveal reveal-delay-1">
-          <h3>Accountability exists formally, but diffuses operationally.</h3>
-          <p>
-            Work crosses layers, teams, and approvals in ways that blur responsibility and weaken institutional traction.
-          </p>
-        </article>
-
-        <article class="signal-card reveal reveal-delay-2">
-          <h3>Administrative effort grows while performance becomes more fragile.</h3>
-          <p>
-            More coordination and more controls can signal a system compensating for lost coherence rather than restoring it.
-          </p>
-        </article>
-
-        <article class="signal-card reveal reveal-delay-3">
-          <h3>The same patterns keep returning after intervention.</h3>
-          <p>
-            When the root cause is structural, local fixes may relieve symptoms without changing the system that keeps producing them.
-          </p>
-        </article>
-      </div>
+  <!-- DEFENSE-CONTRACTOR FRAMING (Enterprise context) -->
+  <section class="ps-section">
+    <div class="ps-wrap">
+      <span class="ps-section-label">For defense and government contractors</span>
+      <h2 class="ps-h2">Overhead competitiveness is a structural condition. Measure it.</h2>
+      <p class="ps-sub">For organizations that bid and deliver against the government, how efficiently you run delivery and overhead shows up directly in two places: how competitive your proposals are, and how much margin survives execution. Administrative drag erodes both &mdash; quietly, and faster than most cost models capture.</p>
+      <p class="ps-sub">Monderman measures and governs that drag inside your own organization, repeatedly and across perspectives, so you can bid leaner and protect margin without cutting the capability you actually deliver. It is not a cost-pass-through story; it is a read on the institutional conditions that determine whether you stay competitive as you scale.</p>
     </div>
   </section>
 
-  <section class="process" aria-labelledby="process-title">
-    <div class="process-inner">
-      <div class="section-intro reveal">
-        <div class="section-label">How support starts</div>
-        <h2 id="process-title">Start with the product need, then apply the right level of support.</h2>
-        <p>
-          The goal is not to create a generic consulting engagement around the platform. It is to identify where subscription access, implementation, tailoring, calibration, integration, or enablement support will make Monderman more effective in practice.
-        </p>
-      </div>
-
-      <div class="process-grid">
-        <article class="process-step reveal reveal-delay-1">
-          <p class="process-step-number">01</p>
-          <h3>Define the platform need</h3>
-          <p>
-            Clarify whether the constraint is setup, diagnostic fit, calibration, integration, or operator confidence.
-          </p>
-        </article>
-
-        <article class="process-step reveal reveal-delay-2">
-          <p class="process-step-number">02</p>
-          <h3>Select the right service layer</h3>
-          <p>
-            Match the request to the support model that improves product use without adding unnecessary service weight.
-          </p>
-        </article>
-
-        <article class="process-step reveal reveal-delay-3">
-          <p class="process-step-number">03</p>
-          <h3>Strengthen recurring use</h3>
-          <p>
-            Configure, calibrate, connect, or train so the platform performs better over repeated runs and growing adoption.
-          </p>
-        </article>
-      </div>
+  <!-- PILOT -->
+  <section class="ps-pilot">
+    <div class="ps-wrap">
+      <span class="ps-section-label" style="color:var(--muted-light-2)">Start contained</span>
+      <h2>Prefer to prove it on one unit first?</h2>
+      <p>Most institutions begin with a single business unit on the Baseline plan, establish a measured baseline, and expand once the read has earned trust internally. That is the intended path &mdash; start where the evidence is cheap to gather, then scale on what you find.</p>
+      <a class="btn btn-accent" href="connect.html?plan=pilot">Scope a starting point</a>
     </div>
   </section>
 
-  <section class="qualifier" aria-labelledby="qualifier-title">
-    <div class="qualifier-inner">
-      <div class="qualifier-copy reveal">
-        <div class="section-label">Fit</div>
-        <h2 id="qualifier-title">These offerings fit when the product needs to be subscribed to, configured, tailored, or extended to match institutional reality.</h2>
-        <p>
-          Monderman platform services are most useful when customers are already serious about recurring use and want the product to reflect their actual operating environment rather than a generic default state.
-        </p>
-        <p>
-          This is support around implementation quality, diagnostic fit, calibration, systems connection, and internal operator capability—not broad strategy or management consulting.
-        </p>
+  <!-- FINAL CTA -->
+  <section class="ps-final">
+    <div class="ps-wrap">
+      <span class="ps-section-label">Begin</span>
+      <h2 class="ps-h2">Decide whether the method fits your institution.</h2>
+      <p class="ps-sub">If a measured, repeatable read on administrative reality is what you need to govern &mdash; not another survey or one-time assessment &mdash; the next step is a short, direct conversation about scope.</p>
+      <div class="ps-final-actions">
+        <a class="btn btn-accent" href="diagnostic-hub.html">Run a diagnostic free</a>
+        <a class="btn btn-secondary" href="connect.html">Discuss plan &amp; scope</a>
       </div>
-
-      <aside class="qualifier-panel reveal reveal-delay-2" aria-label="Good fit indicators">
-        <h3>A strong fit usually includes one or more of the following:</h3>
-        <ul class="qualifier-list">
-          <li>You want Monderman configured correctly across teams, roles, or cohorts.</li>
-          <li>You need diagnostics adapted to your context, language, or environment.</li>
-          <li>You want more disciplined comparison logic or calibrated interpretation.</li>
-          <li>You need internal admins trained to run the platform well over time.</li>
-          <li>You want a recurring subscription model rather than a one-off interaction with the tools.</li>
-        </ul>
-      </aside>
+      <p class="ps-contact">Or reach out directly &mdash; <a href="mailto:connect@monderman.com">connect@monderman.com</a></p>
     </div>
   </section>
-
-  <section class="connect" id="connect" aria-labelledby="connect-title">
-    <div class="connect-inner">
-      <div class="connect-copy reveal">
-        <div class="section-label">Connect</div>
-        <h2 id="connect-title">Request platform support.</h2>
-        <p class="connect-signal">Monderman offers selective platform support for customers with meaningful implementation, tailoring, or enablement needs.</p>
-        <p class="connect-text">
-          If you need subscription access, implementation help, diagnostic tailoring, calibration support, systems integration, or internal operator enablement, Monderman would welcome an initial conversation to determine the right support model.
-        </p>
-      </div>
-
-      <div class="connect-panel reveal reveal-delay-2">
-        <p class="connect-kicker">Primary Contact</p>
-        <a class="connect-link" href="mailto:connect@monderman.com">
-          <span class="connect-link-mark" aria-hidden="true"></span>
-          connect@monderman.com
-        </a>
-        <p class="connect-note">
-          For platform support, tailored diagnostic design, calibration, integration, or admin enablement inquiries, reach out directly and Monderman will respond as promptly as possible.
-        </p>
-      </div>
-    </div>
-  </section>
+  </main>
 
   <footer class="footer mond-footer">
     <div class="mf-motif" aria-hidden="true"><svg width="280" height="280" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#4A6FA5" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#5B7A9B" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#4A6FA5" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#5B7A9B" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#6B8FA6" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8BADC5" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#9FBDD1" stroke-width="0.4" opacity="0.13"/><circle cx="86" cy="-35" r="2.8" fill="#3F6EA1" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#5B7A9B" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#3F6EA1" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#7C5CE8" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#5B7A9B" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#2E86DE" opacity="0.58"/></svg></div>
@@ -1850,148 +709,13 @@
   </footer>
 
   <script>
-    const header = document.getElementById("siteHeader");
-
-    function updateHeader() {
-      if (!header) return;
-      if (window.scrollY > 12) {
-        header.classList.add("scrolled");
-      } else {
-        header.classList.remove("scrolled");
-      }
-    }
-
-    updateHeader();
-    window.addEventListener("scroll", updateHeader, { passive: true });
-
-    const revealItems = document.querySelectorAll(".reveal");
-
-    if (revealItems.length) {
-      const revealObserver = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            revealObserver.unobserve(entry.target);
-          }
-        });
-      }, {
-        threshold: 0.12,
-        rootMargin: "0px 0px -8% 0px"
-      });
-
-      revealItems.forEach((item) => revealObserver.observe(item));
-    }
-
-    const entryContent = {
-      subscription: {
-        label: "Subscription Access",
-        title: "Get a commercial home for ongoing diagnostic use rather than one-off interactions with the platform.",
-        summary: "Subscription Access gives institutions a repeating relationship with Monderman—access to the full diagnostic suite, the Workspace administrator console, cross-diagnostic synthesis, and structured support touchpoints calibrated to the cadence and scale of use.",
-        duration: "Ongoing subscription. Term and cadence shaped by the scale of diagnostic use across teams or cohorts.",
-        deliverable: "Recurring access, Workspace admin console, cross-diagnostic synthesis, and support touchpoints appropriate to continued institutional use.",
-        notfit: "Not the right fit for buyers exploring a single diagnostic event with no intention of establishing repeated measurement over time.",
-        note: "Best when the value is in longitudinal comparison, institutional adoption, and repeated measurement—not a one-time diagnostic run."
-      },
-      analysis: {
-        label: "Guided Analysis",
-        title: "Turn diagnostic output into a structured, analyst-reviewed interpretation that leadership can act on.",
-        summary: "This offering places a Monderman analyst in the loop after a diagnostic run. The analyst reviews the scored output, applies interpretive judgment to the results in context, and delivers a written read that goes beyond what automated output alone can provide—including pattern recognition, directional priority, and fit with comparable institutional environments.",
-        duration: "1–2 weeks following diagnostic completion, depending on output complexity and depth of interpretation requested.",
-        deliverable: "A written analyst interpretation of your diagnostic results, including pattern read, directional priorities, and context relative to comparable operating environments.",
-        notfit: "Not the right fit if the platform output is already sufficient and the buyer's need is product configuration or systems setup rather than interpretive review.",
-        note: "Best when leadership needs a human check on what the platform is detecting—especially for high-stakes decisions, politically sensitive workflows, or situations where a directional read alone carries real organizational weight."
-      },
-      setup: {
-        label: "Platform Setup & Enablement",
-        title: "Stand up Monderman so the platform performs well from the first run and keeps performing as adoption grows.",
-        summary: "This service covers the operating layer of platform adoption: workspace structure, cohorts, permissions, governance defaults, launch configuration, connections to internal reporting flows or enterprise systems, and the internal admin training needed to sustain recurring use. The goal is a platform that is embedded correctly from the start, with capable internal operators who do not depend on outside interpretation.",
-        duration: "3–8 weeks depending on rollout complexity, integration dependencies, and internal readiness.",
-        deliverable: "A configured platform environment, cleaner connections to surrounding systems, a capable internal admin team, and a governance structure built for repeated use.",
-        notfit: "Not the right fit if the need is broad strategy consulting rather than practical platform setup, systems connection, or structured operator training.",
-        note: "Best when the goal is durable internal capability from the start—not a setup that requires outside interpretation every time the platform is used."
-      },
-      tailoring: {
-        label: "Diagnostic Tailoring & Calibration",
-        title: "Make the diagnostic fit the institution rather than forcing the institution into a generic diagnostic frame.",
-        summary: "This service adjusts Monderman diagnostics to the customer's operating context, internal language, function, or regulatory environment—and then refines the comparison logic, thresholds, and interpretation consistency that determine how results are read across cohorts, runs, and changing conditions. It preserves the underlying platform logic while making outputs more precise, more credible, and more useful for the actual environment.",
-        duration: "2–6 weeks for focused tailoring and calibration work, longer if multiple diagnostic layers or cohort structures need adjustment.",
-        deliverable: "A tailored diagnostic configuration aligned to institutional language and operating conditions, a more disciplined comparison model, and stronger interpretive consistency across runs.",
-        notfit: "Not the right fit if the buyer mainly needs product setup or operator training rather than changes to the diagnostic structure or interpretation logic itself.",
-        note: "Best when the default configuration is close but not yet precise enough for the institution's real context—and when the value of repeated diagnostics depends on consistent, credible comparison over time."
-      }
-    };
-
-    const entryOptions = Array.from(document.querySelectorAll(".entry-option"));
-    const entryDetail = document.getElementById("entry-detail");
-    const detailLabel = document.getElementById("detail-label");
-    const detailTitle = document.getElementById("detail-title");
-    const detailSummary = document.getElementById("detail-summary");
-    const detailDuration = document.getElementById("detail-duration");
-    const detailDeliverable = document.getElementById("detail-deliverable");
-    const detailNotFit = document.getElementById("detail-notfit");
-    const detailNote = document.getElementById("detail-note");
-
-    function updateEntryDetail(key, option) {
-      const content = entryContent[key];
-      if (!content) return;
-
-      detailLabel.textContent = content.label;
-      detailTitle.textContent = content.title;
-      detailSummary.textContent = content.summary;
-      detailDuration.textContent = content.duration;
-      detailDeliverable.textContent = content.deliverable;
-      detailNotFit.textContent = content.notfit;
-      detailNote.textContent = content.note;
-
-      entryOptions.forEach((item) => {
-        const active = item === option;
-        item.classList.toggle("is-active", active);
-        item.setAttribute("aria-selected", active ? "true" : "false");
-      });
-
-      if (option && option.id && entryDetail) {
-        entryDetail.setAttribute("aria-labelledby", option.id);
-      }
-    }
-
-    entryOptions.forEach((option) => {
-      option.addEventListener("click", () => {
-        updateEntryDetail(option.dataset.key, option);
-      });
-
-      option.addEventListener("keydown", (event) => {
-        const index = entryOptions.indexOf(option);
-
-        if (event.key === "ArrowRight" || event.key === "ArrowDown") {
-          event.preventDefault();
-          const next = entryOptions[(index + 1) % entryOptions.length];
-          next.focus();
-          updateEntryDetail(next.dataset.key, next);
-        }
-
-        if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
-          event.preventDefault();
-          const prev = entryOptions[(index - 1 + entryOptions.length) % entryOptions.length];
-          prev.focus();
-          updateEntryDetail(prev.dataset.key, prev);
-        }
-      });
-    });
-
-    (function () {
-      const bar = document.getElementById("readingProgress");
-      if (!bar) return;
-      function updateProgress() {
-        const scrollTop = window.scrollY;
-        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
-        bar.style.width = pct + "%";
-        bar.setAttribute("aria-valuenow", Math.round(pct));
-      }
-      window.addEventListener("scroll", updateProgress, { passive: true });
-      updateProgress();
+    // Header solid-on-scroll — same behavior as the rest of the site
+    (function(){
+      var h=document.getElementById('siteHeader');
+      if(!h) return;
+      var onScroll=function(){ if(window.scrollY>12){h.classList.add('scrolled');}else{h.classList.remove('scrolled');} };
+      window.addEventListener('scroll',onScroll,{passive:true}); onScroll();
     })();
-
   </script>
 </body>
 </html>
