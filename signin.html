@@ -144,10 +144,14 @@
        at all (CDN/network), this still reveals the form so no one is trapped. -->
   <script>
     window.addEventListener("load", function(){
+      // If returning from an OAuth provider, the session is mid-exchange — don't
+      // flash the form. Only reveal as a last resort, and later.
+      var href = window.location.href;
+      var midOAuth = href.indexOf("code=") > -1 || href.indexOf("access_token") > -1;
       setTimeout(function(){
         var sc = document.getElementById("sessionCheck");
         if (sc) sc.classList.add("hidden");
-      }, 5000);
+      }, midOAuth ? 12000 : 5000);
     });
   </script>
 
@@ -210,28 +214,54 @@
 
     // ---- If already signed in (or just returned from OAuth), forward on ----
     let revealed = false;
+    let forwarded = false;
     function revealForm(){
-      if (revealed) return;
+      if (revealed || forwarded) return;
       revealed = true;
       ui.sessionCheck.classList.add("hidden");
     }
-    // Hard safety net: never trap the user on the spinner. If the session
-    // check hasn't resolved within 4s (slow network, CDN blip), show the form.
-    const revealTimer = setTimeout(revealForm, 4000);
+    function forwardOn(){
+      if (forwarded) return;
+      forwarded = true;
+      window.location.replace(nextTarget);
+    }
+
+    // Are we returning from an OAuth provider? Supabase appends a ?code=... (PKCE)
+    // or #access_token=... to the URL. If so, the session is mid-exchange — we must
+    // WAIT for it rather than immediately showing the form.
+    const url = new URL(window.location.href);
+    const returningFromOAuth =
+      url.searchParams.has("code") ||
+      url.hash.includes("access_token") ||
+      url.searchParams.has("error_description");
+
+    // Forward the instant Supabase finishes establishing the session.
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) forwardOn();
+    });
+
+    // Safety net: never trap the user on the spinner. Wait LONGER if we're
+    // mid-OAuth-exchange (so we don't flash the form before the session lands).
+    const revealTimer = setTimeout(revealForm, returningFromOAuth ? 9000 : 4000);
 
     async function checkExistingSession(){
-      try{
-        const { data } = await supabase.auth.getSession();
-        if (data?.session?.user){
-          clearTimeout(revealTimer);
-          window.location.replace(nextTarget);
-          return;
-        }
-      }catch(e){ /* fall through to show the form */ }
-      finally{
-        clearTimeout(revealTimer);
-        revealForm();
+      // Retry getSession a few times — right after an OAuth redirect the session
+      // can take a moment to be written to storage.
+      const attempts = returningFromOAuth ? 12 : 3;
+      for (let i = 0; i < attempts; i++){
+        try{
+          const { data } = await supabase.auth.getSession();
+          if (data?.session?.user){
+            clearTimeout(revealTimer);
+            forwardOn();
+            return;
+          }
+        }catch(e){ /* keep trying */ }
+        await new Promise(r => setTimeout(r, 600));
       }
+      // No session after retries — genuinely signed out; show the form.
+      clearTimeout(revealTimer);
+      revealForm();
     }
 
     // ---- OAuth handlers ----
