@@ -51,6 +51,8 @@
     .ws-avatar{width:48px;height:48px;border-radius:14px;background:#fff;color:var(--accent-dark);display:grid;place-items:center;font-size:1.2rem;font-weight:700;flex:0 0 auto}
     .ws-identity-meta .nm{font-size:.96rem;font-weight:700;color:#fff;line-height:1.2}
     .ws-identity-meta .em{font-size:.84rem;color:rgba(245,247,250,.6);line-height:1.3}
+    .ws-role-badge{display:inline-block;margin-top:7px;padding:3px 9px;border-radius:999px;font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border:1px solid rgba(245,247,250,.22);color:rgba(245,247,250,.78);background:rgba(245,247,250,.06)}
+    .ws-role-badge.is-admin{color:var(--gold);border-color:rgba(178,141,60,.4);background:var(--gold-soft)}
 
     .ws-usage{position:relative;z-index:3;margin-top:-22px;margin-bottom:34px}
     .ws-usage-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-soft);padding:24px 26px;display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
@@ -212,6 +214,7 @@
           <div class="ws-identity-meta">
             <div class="nm" id="wsUserName">Loading…</div>
             <div class="em" id="wsUserEmail">Checking session…</div>
+            <span class="ws-role-badge hidden" id="wsRoleBadge">Viewer</span>
           </div>
         </div>
       </div>
@@ -385,6 +388,7 @@
       avatar: document.getElementById("wsAvatar"),
       userName: document.getElementById("wsUserName"),
       userEmail: document.getElementById("wsUserEmail"),
+      roleBadge: document.getElementById("wsRoleBadge"),
       planPill: document.getElementById("wsPlanPill"),
       upgradeLink: document.getElementById("wsUpgradeLink"),
       runsUsed: document.getElementById("wsRunsUsed"),
@@ -447,6 +451,25 @@
       const { data, error } = await supabase.from("diagnostic_runs").select("*").eq("user_id", state.user.id).order("created_at", { ascending:false }).limit(12);
       if(error) throw error;
       return data || [];
+    }
+
+    // Role gating: set the role badge, and show/hide any element marked
+    // data-admin-only (owner/admin see them; viewers don't). Ready for future
+    // admin features (e.g. an assignment composer) — mark them data-admin-only.
+    const ADMIN_ROLES = ["owner", "admin"];
+    function setRoleState(role){
+      const r = role || "viewer";
+      const isAdmin = ADMIN_ROLES.includes(r);
+      // badge
+      if (ui.roleBadge){
+        ui.roleBadge.textContent = r.charAt(0).toUpperCase() + r.slice(1);
+        ui.roleBadge.classList.toggle("is-admin", isAdmin);
+        ui.roleBadge.classList.remove("hidden");
+      }
+      // any admin-only element shows only for owner/admin
+      document.querySelectorAll("[data-admin-only]").forEach(el => {
+        el.classList.toggle("hidden", !isAdmin);
+      });
     }
 
     function renderEntitlements(){
@@ -533,6 +556,7 @@
         state.membership = await ensureWorkspace(state.user);
         state.organization = state.membership?.organizations || null;
         state.role = state.membership?.role || "viewer";
+        setRoleState(state.role);
 
         try{
           state.runs = await loadRecentRuns();
