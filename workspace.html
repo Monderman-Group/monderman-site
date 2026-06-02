@@ -368,7 +368,14 @@
 
     const supabaseUrl = "https://ptkxrzgmeldalrkfruth.supabase.co";
     const supabaseKey = "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        flowType: "pkce"
+      }
+    });
 
     const state = { user:null, membership:null, organization:null, role:"viewer", runs:[] };
 
@@ -496,15 +503,25 @@
       });
     }
 
+    // Resolve the session robustly. Right after an OAuth redirect the session
+    // can take a moment to land in storage, so retry a few times before giving up.
+    async function resolveUser(){
+      for (let attempt = 0; attempt < 5; attempt++){
+        const { data } = await supabase.auth.getSession();
+        if (data?.session?.user) return data.session.user;
+        await new Promise(r => setTimeout(r, 350)); // wait, then retry
+      }
+      return null;
+    }
+
     async function initialize(){
       try{
-        const { data, error } = await supabase.auth.getUser();
-        if(error) throw error;
-        if(!data?.user){
+        const user = await resolveUser();
+        if(!user){
           window.location.replace("signin.html?next=workspace.html");
           return;
         }
-        state.user = data.user;
+        state.user = user;
 
         const name = state.user.user_metadata?.full_name || state.user.user_metadata?.name || state.user.email || "Monderman User";
         ui.avatar.textContent = initials(name, state.user.email);
