@@ -157,7 +157,14 @@
     // ---- Supabase (same project as the workspace) ----
     const supabaseUrl = "https://ptkxrzgmeldalrkfruth.supabase.co";
     const supabaseKey = "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        flowType: "pkce"
+      }
+    });
 
     // ---- Resolve the post-login destination from ?next= (default: workspace) ----
     // Only allow same-site relative targets to avoid open-redirect abuse.
