@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Diagnostic Tools | Monderman</title>
+  <title>The Diagnostics | Monderman</title>
 
   <link
     rel="icon"
@@ -2493,6 +2493,25 @@
 
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
 
+  <!-- Auth: lightweight Supabase client so diagnostic tiles can require sign-in -->
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const supabase = createClient(
+      "https://ptkxrzgmeldalrkfruth.supabase.co",
+      "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
+      { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" } }
+    );
+    // Resolve current session (null if signed out). Exposed for the tile click handler.
+    window.mondermanGetSession = async function(){
+      try {
+        const { data } = await supabase.auth.getSession();
+        return data?.session?.user ? data.session : null;
+      } catch (e) { return null; }
+    };
+    // Signal that the auth client is ready (handler waits briefly for this).
+    window.mondermanAuthReady = true;
+  </script>
+
 </head>
 <body>
   <header class="header" id="siteHeader">
@@ -2500,7 +2519,7 @@
       <a href="index.html" class="brand">Monderman<span class="brand-dot"></span></a>
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
-        <a href="diagnostic-hub.html" class="is-active">Diagnostic Hub</a>
+        <a href="diagnostic-hub.html" class="is-active">The Diagnostics</a>
         <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
         <a href="about.html">About</a>
@@ -2514,14 +2533,14 @@
   <section class="hero">
     <div class="hero-inner">
       <div class="hero-copy">
-        <p class="hero-eyebrow">Diagnostic Hub</p>
-                <h1 style="max-width: 15ch;">Repeated diagnostics reveal what single snapshots cannot.</h1>
+        <p class="hero-eyebrow">The Diagnostics</p>
+                <h1 style="max-width: 16ch;">Four instruments for how your organization actually works.</h1>
         <p class="hero-dek">
-          The organizational intelligence institutions use to measure, compare, and govern how their structure, decisions, and systems perform — repeatedly, across perspectives, over time.
+          Monderman measures structure, decisions, systems, and institutional performance — the conditions that determine whether strategy gets executed. Explore what each diagnostic reveals below, then sign in to run one against your own organization.
         </p>
 
 <div class="hero-actions">
-  <a class="btn btn-accent" href="#diagnostic-portals">Launch Diagnostics</a>
+  <a class="btn btn-accent" href="signin.html?next=workspace.html">Sign in to run</a>
   <a class="btn btn-secondary" href="#match-by-symptom">Symptom Guide</a>
   <a class="btn btn-hero-secondary" href="sample-report.html">View Sample Report</a>
 </div>
@@ -2567,10 +2586,10 @@
       <strong>Use bounded inputs.</strong> These diagnostics are designed for directional organizational analysis. Avoid entering confidential, classified, regulated, proprietary, or personally sensitive information.
     </p>
     <div>
-      <div class="section-label">Diagnostic Hub</div>
+      <div class="section-label">Choosing a diagnostic</div>
       <h2>Choose the diagnostic that matches the signal you are seeing.</h2>
       <p>
-        Begin with the strongest visible signal, choose the right diagnostic lens, and return with discipline as the system changes. The hub is designed for repeated professional use, not one-time novelty.
+        Begin with the strongest visible signal and choose the diagnostic that fits. Each one is built for repeated, professional use — sign in to run it against your organization and keep your results over time.
       </p>
     </div>
   </div>
@@ -2588,8 +2607,7 @@
           <div style="font-size:.96rem; line-height:1.6; color:var(--muted-dark);">Save runs, return to the same event path, and build continuity across repeated diagnostic use in your Monderman Workspace.</div>
         </div>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <a class="btn btn-subtle" href="signin.html?next=workspace.html">Sign in</a>
-          <a class="btn btn-accent" href="workspace.html">Open Workspace</a>
+          <a class="btn btn-accent" href="workspace.html">Sign in to your Workspace</a>
         </div>
       </div>
     </div>
@@ -2761,305 +2779,9 @@
 </div>
   </section>
 
-  <details class="hub-disclosure" id="shared-context-disclosure">
-    <summary>
-      <div class="hub-disclosure-head">
-        <p class="hub-disclosure-kicker">Workflow accelerator · Optional</p>
-        <h3 class="hub-disclosure-title">Shared run context</h3>
-      </div>
-      <span class="hub-disclosure-action">
-        <span>Set shared context</span>
-        <span class="hub-disclosure-action-icon" aria-hidden="true">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3.5 5.25l3.5 3.5 3.5-3.5"></path>
-          </svg>
-        </span>
-      </span>
-      <p class="hub-disclosure-lead">
-        Save the event path, participant lens, run depth, and team once — Monderman carries them into every diagnostic you launch from this browser. Skip retyping the same setup, keep your comparisons honest across lenses, and build continuity across repeat assessments of the same situation.
-      </p>
-      <div class="hub-disclosure-when">
-        <p class="hub-disclosure-when-label">Use this when</p>
-        <ul class="hub-disclosure-when-list">
-          <li>Running the same diagnostic across operational, managerial, and executive lenses on one event path.</li>
-          <li>Returning to the same event path after a redesign, structural change, or new external pressure.</li>
-          <li>Preparing a cross-tool synthesis where consistent inputs across diagnostics matter.</li>
-        </ul>
-      </div>
-      <p class="hub-disclosure-status" id="hubDisclosureStatus">
-        <strong>No shared baseline saved in this browser.</strong> Open to set one for this session.
-      </p>
-    </summary>
 
-<section class="shared-context-shell" id="hub-context-panel" aria-label="Shared run context">
-  <div class="shared-context-card">
-    <div class="shared-context-top">
-      <div>
-        <p class="shared-context-kicker">Optional workflow accelerator</p>
-        <h4 class="shared-context-title">Shared run context</h4>
-        <p class="shared-context-copy">Use this only when you plan to launch more than one diagnostic against the same event path. Save the common context once, then carry it across tools from this browser.</p>
-      </div>
-      <div class="shared-context-flag">Repeated use only</div>
-    </div>
-    <p class="context-helper">Keep it narrow: one event path, one participant lens, one depth, and one operating slice. Skip this if you are only running one diagnostic or if the context will change between runs.</p>
+  <!-- Interactive workspace machinery (shared context, saved runs, synthesis) lives behind Sign In — see workspace.html -->
 
-<div class="context-summary" id="hubContextSummary" aria-live="polite">
-  <div class="context-pill">
-    <p class="context-pill-label">Current path</p>
-    <p class="context-pill-value" id="summaryPath">Not set</p>
-  </div>
-  <div class="context-pill">
-    <p class="context-pill-label">Participant lens</p>
-    <p class="context-pill-value" id="summaryLens">Not set</p>
-  </div>
-  <div class="context-pill">
-    <p class="context-pill-label">Run depth</p>
-    <p class="context-pill-value" id="summaryDepth">Not set</p>
-  </div>
-</div>
-
-<div class="context-form">
-  <div class="context-field context-span-2">
-    <label for="ctxPathName">Current event path</label>
-    <input id="ctxPathName" type="text" placeholder="e.g. Contract review escalation" />
-  </div>
-  <div class="context-field">
-    <label for="ctxLens">Participant lens</label>
-    <select id="ctxLens">
-      <option value="">Select one</option>
-      <option value="operational">Operational</option>
-      <option value="managerial">Managerial</option>
-      <option value="executive">Executive</option>
-    </select>
-  </div>
-  <div class="context-field">
-    <label for="ctxDepth">Run depth</label>
-    <select id="ctxDepth">
-      <option value="">Select one</option>
-      <option value="10">10-minute diagnostic</option>
-      <option value="30">30-minute diagnostic</option>
-      <option value="60">60-minute diagnostic</option>
-    </select>
-  </div>
-  <div class="context-field context-span-2">
-    <label for="ctxBusinessUnit">Team or function</label>
-    <input id="ctxBusinessUnit" type="text" placeholder="e.g. Operations" />
-  </div>
-</div>
-
-<details class="context-disclosure">
-  <summary>Add more context</summary>
-  <div class="context-secondary-grid">
-    <div class="context-field">
-      <label for="ctxDecisionType">Path type</label>
-      <select id="ctxDecisionType">
-        <option value="">Select one</option>
-        <option value="procurement">Procurement / vendor</option>
-        <option value="hiring">Hiring / staffing</option>
-        <option value="budget">Budget / funding</option>
-        <option value="policy">Policy / governance</option>
-        <option value="program">Program / project</option>
-        <option value="risk">Risk / exception</option>
-        <option value="other">Other</option>
-      </select>
-    </div>
-    <div class="context-field">
-      <label for="ctxIndustry">Industry</label>
-      <select id="ctxIndustry">
-        <option value="">Select one</option>
-        <option value="government_defense">Government / defense</option>
-        <option value="financial_services">Financial services</option>
-        <option value="healthcare_life_sciences">Healthcare / life sciences</option>
-        <option value="technology_software">Technology / software</option>
-        <option value="manufacturing_industrial">Manufacturing / industrial</option>
-        <option value="energy_utilities">Energy / utilities</option>
-        <option value="retail_consumer">Retail / consumer</option>
-        <option value="education_nonprofit">Education / nonprofit</option>
-        <option value="professional_services">Professional services</option>
-        <option value="other">Other</option>
-      </select>
-    </div>
-    <div class="context-field">
-      <label for="ctxRegulatoryIntensity">Regulatory intensity</label>
-      <select id="ctxRegulatoryIntensity">
-        <option value="">Select one</option>
-        <option value="low">Lower-regulation environment</option>
-        <option value="moderate">Moderate-regulation environment</option>
-        <option value="high">High-regulation environment</option>
-      </select>
-    </div>
-    <div class="context-field">
-      <label for="ctxEmployeeCount">Organization size</label>
-      <input id="ctxEmployeeCount" type="number" min="1" placeholder="e.g. 2400" />
-    </div>
-    <div class="context-field context-span-2">
-      <label for="ctxDescription">Short issue summary</label>
-      <textarea id="ctxDescription" placeholder="Brief note to carry across runs."></textarea>
-    </div>
-  </div>
-</details>
-
-<div class="context-actions">
-  <button class="btn btn-accent" type="button" id="saveHubContextBtn">Save shared context</button>
-  <button class="btn btn-subtle" type="button" id="clearHubContextBtn">Clear context</button>
-</div>
-<p class="context-status" id="hubContextStatus">No shared context saved in this browser yet.</p>
-  </div>
-
-  <div style="display:grid; gap:18px;">
-    <aside class="recent-runs-card" id="savedContextCard">
-      <p class="recent-runs-kicker">Saved context</p>
-      <h4 class="recent-runs-title">Current shared baseline</h4>
-      <p id="savedContextIntro">Use this tile to confirm what baseline is currently saved in this browser before launching diagnostics.</p>
-      <div id="savedContextDynamic" style="display:grid; gap:10px; margin-top:14px;"></div>
-      <div class="recent-run-empty" id="savedContextEmpty">No shared context saved yet. Save a baseline on the left to reuse it across diagnostics.</div>
-    </aside>
-
-<aside class="recent-runs-card">
-  <p class="recent-runs-kicker">Local continuity</p>
-  <h4 class="recent-runs-title">Recent runs on this device</h4>
-  <p>Quick return links for the last few diagnostics launched from this browser. This stays local to this device and can be cleared any time.</p>
-  <div class="recent-runs-list" id="recentRunsList"></div>
-  <div class="recent-run-empty" id="recentRunsEmpty">No recent runs yet. Once you complete diagnostics, the last 3–5 runs will appear here.</div>
-</aside>
-  </div>
-</section>
-  </details>
-
-<section class="synthesis-shell" id="cross-diagnostic-synthesis" aria-labelledby="synthesis-title">
-  <div class="synthesis-head">
-    <div class="section-label">Cross-Diagnostic Synthesis</div>
-    <h3 id="synthesis-title">Combine saved results for a broader institutional read.</h3>
-    <div class="best-for-repeat">Best for repeated institutional use</div>
-    <p>
-      Drag and drop 2 or more saved Monderman JSON result files to compare patterns across tools, pathways, or participant lenses without storing anything on the site.
-    </p>
-  </div>
-
-  <div class="dropzone-wrap">
-    <label class="dropzone" id="dropzone" for="synthesisFileInput" tabindex="0" aria-label="Drag and drop saved diagnostic result JSON files">
-      <div>
-        <div class="dropzone-icon" aria-hidden="true">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 16V4"></path>
-            <path d="M7 9l5-5 5 5"></path>
-            <path d="M4 20h16"></path>
-          </svg>
-        </div>
-        <h4>Drag &amp; drop saved diagnostic results (2+ files)</h4>
-        <p>Or click to browse • Supports monderman-*.json files from any diagnostic</p>
-      </div>
-      <input id="synthesisFileInput" type="file" accept=".json,application/json" multiple aria-label="Upload saved Monderman JSON result files" />
-    </label>
-
-<div class="validation-message" id="validationMessage" aria-live="polite"></div>
-<div class="file-list" id="fileList" aria-live="polite"></div>
-
-<div class="synthesis-actions">
-  <p class="synthesis-note">Your saved result files stay on your device until you choose to upload them for synthesis in this session. Monderman does not retain them automatically.</p>
-  <button class="btn btn-accent" id="synthesizeBtn" type="button" disabled>Synthesize Results</button>
-</div>
-</div>
-        </section>
-
-  <section class="panel panel-soft" id="match-by-symptom">
-    <h3>Not sure which to pick?</h3>
-    <p>Match the most visible symptom in the environment to its diagnostic lens.</p>
-
-<div class="matrix-grid">
-  <article class="matrix-card">
-    <p class="matrix-kicker">Ambiguity</p>
-    <div class="symptom-head">
-      <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
-      </svg>
-      <div>
-        <h4 class="matrix-title">Ownership, roles, or handoffs feel blurred.</h4>
-        <p class="matrix-text">Start with the tool best suited for ambiguity, ownership blur, authority confusion, and handoff instability.</p>
-      </div>
-    </div>
-    <div class="matrix-meta">
-      <div class="matrix-meta-item">
-        <span class="matrix-meta-label">Open diagnostic</span>
-        <span class="matrix-meta-value"><a href="structural-clarity.html" class="tool-inline-link diagnostic-link" aria-label="Open Structural Clarity Diagnostic">Structural Clarity Diagnostic</a></span>
-      </div>
-      <div class="matrix-meta-item">
-        <span class="matrix-meta-label">Use first when</span>
-        <span class="matrix-meta-value">Ownership is unclear, roles overlap, or handoffs require repeated interpretation.</span>
-      </div>
-    </div>
-  </article>
-
-  <article class="matrix-card">
-    <p class="matrix-kicker">Latency</p>
-    <div class="symptom-head">
-      <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
-      </svg>
-      <div>
-        <h4 class="matrix-title">Decisions feel slow, stuck, or approval-heavy.</h4>
-        <p class="matrix-text">Start with the tool best suited for approvals, escalation, review layering, routing burden, and cycle delay.</p>
-      </div>
-    </div>
-    <div class="matrix-meta">
-      <div class="matrix-meta-item">
-        <span class="matrix-meta-label">Open diagnostic</span>
-        <span class="matrix-meta-value"><a href="decision-velocity.html" class="tool-inline-link diagnostic-link" aria-label="Open Decision Velocity Diagnostic">Decision Velocity Diagnostic</a></span>
-      </div>
-      <div class="matrix-meta-item">
-        <span class="matrix-meta-label">Use first when</span>
-        <span class="matrix-meta-value">Approvals, escalation, or review layering are slowing movement through decisions.</span>
-      </div>
-    </div>
-  </article>
-
-  <article class="matrix-card">
-    <p class="matrix-kicker">Burden</p>
-    <div class="symptom-head">
-      <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
-      </svg>
-      <div>
-        <h4 class="matrix-title">The environment feels overloaded by process.</h4>
-        <p class="matrix-text">Start with the tool best suited for recurring burden, overhead, and process density.</p>
-      </div>
-    </div>
-    <div class="matrix-meta">
-      <div class="matrix-meta-item">
-        <span class="matrix-meta-label">Open diagnostic</span>
-        <span class="matrix-meta-value"><a href="operational-systems.html" class="tool-inline-link diagnostic-link" aria-label="Open Operational Systems Diagnostic">Operational Systems Diagnostic</a></span>
-      </div>
-      <div class="matrix-meta-item">
-        <span class="matrix-meta-label">Use first when</span>
-        <span class="matrix-meta-value">Process load, reporting demand, or coordination overhead is absorbing too much time and attention.</span>
-      </div>
-    </div>
-  </article>
-
-  <article class="matrix-card">
-    <p class="matrix-kicker">Fragility</p>
-    <div class="symptom-head">
-      <svg class="symptom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
-      </svg>
-      <div>
-        <h4 class="matrix-title">The whole system seems to be weakening.</h4>
-        <p class="matrix-text">Start with the tool best suited for broader system health and institutional performance.</p>
-      </div>
-    </div>
-    <div class="matrix-meta">
-      <div class="matrix-meta-item">
-        <span class="matrix-meta-label">Open diagnostic</span>
-        <span class="matrix-meta-value"><a href="institutional-performance.html" class="tool-inline-link diagnostic-link" aria-label="Open Institutional Performance Diagnostic">Institutional Performance Diagnostic</a></span>
-      </div>
-      <div class="matrix-meta-item">
-        <span class="matrix-meta-label">Use first when</span>
-        <span class="matrix-meta-value">The issue feels broader than one workflow and the system itself may be weakening.</span>
-      </div>
-    </div>
-  </article>
-</div>
-  </section>
 
   <!-- Premium: What teams discover -->
   <section style="max-width:1320px; margin:0 auto 64px; padding:0 34px;">
@@ -3092,7 +2814,7 @@
   </section>
 
   <p class="footer-copy-top">
-    The Monderman Diagnostic Hub is built to support clearer entry, stronger interpretation, and more disciplined return as organizational systems and surrounding conditions evolve.
+    The Monderman diagnostics are built to support clearer entry, stronger interpretation, and more disciplined return as organizational systems and surrounding conditions evolve.
   </p>
 </div>
   </main>
@@ -3101,10 +2823,10 @@
     <div class="under-development-panel" role="dialog" aria-modal="true" aria-labelledby="underDevelopmentTitle">
       <p class="under-development-kicker">Diagnostic portal</p>
       <h3 id="underDevelopmentTitle">Under Development</h3>
-      <p id="underDevelopmentCopy">This diagnostic is currently under development and is not yet available from the hub.</p>
+      <p id="underDevelopmentCopy">This diagnostic is currently under development and is not yet available.</p>
       <div class="under-development-note">Operational Systems and Decision Velocity remain available in beta while the other diagnostic portals continue through development and refinement.</div>
       <div class="under-development-actions">
-        <button class="btn btn-accent" id="underDevelopmentCloseBtn" type="button">Return to hub</button>
+        <button class="btn btn-accent" id="underDevelopmentCloseBtn" type="button">Return</button>
       </div>
     </div>
   </div>
@@ -3148,7 +2870,7 @@
           <div class="mf-col">
             <p class="mf-col-title">Explore</p>
             <a href="index.html#approach">Approach</a>
-            <a href="diagnostic-hub.html">Diagnostic Hub</a>
+            <a href="diagnostic-hub.html">The Diagnostics</a>
             <a href="research.html">Research</a>
             <a href="why-monderman.html">Why Monderman</a>
             <a href="about.html">About</a>
