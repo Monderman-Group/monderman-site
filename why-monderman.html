@@ -280,6 +280,7 @@
 
     /* ─── HERO ───────────────────────────────────────────────────────────── */
     .hero {
+      border-bottom: 1px solid #3F6EA1;
       position: relative;
       min-height: 100vh;
       overflow: hidden;
@@ -1896,7 +1897,7 @@
       </a>
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
-        <a href="diagnostic-hub.html">Diagnostic Hub</a>
+        <a href="diagnostics.html">Diagnostics</a>
         <a href="research.html">Research</a>
         <a href="why-monderman.html" class="is-active">Why Monderman</a>
         <a href="about.html">About</a>
@@ -1919,7 +1920,7 @@
         <p class="hero-dek">Four Tools. Three perspectives. Repeated measurement. Built for institutions ready to see — and steer — the conditions they run on.</p>
         <div class="hero-actions">
           <a class="btn btn-accent" href="connect.html">Discuss a diagnostic</a>
-          <a class="btn btn-secondary" href="diagnostic-hub.html">Run one yourself — free</a>
+          <a class="btn btn-secondary" href="diagnostics.html">Run one yourself — free</a>
         </div>
       </div>
     </div>
@@ -2096,7 +2097,7 @@
             <span class="wm-instrument-number">01</span>
           </div>
           <h3 class="wm-instrument-name">Structural Clarity</h3>
-          <p class="wm-instrument-question">Is the system legible?</p>
+          <p class="wm-instrument-question">Is the structure clear?</p>
           <p class="wm-instrument-divider">Produces</p>
           <p class="wm-instrument-outcome">Confident Action</p>
           <p class="wm-instrument-outcome-tag">Authority, boundary, and pathway visible to those who must act on them.</p>
@@ -2144,8 +2145,10 @@
           <div class="wm-instrument-head">
             <span class="wm-instrument-glyph" aria-hidden="true">
               <svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="8"></circle>
-                <path d="M12 8v4l3 2"></path>
+                <path d="M4 20V10"></path>
+                <path d="M10 20V4"></path>
+                <path d="M16 20v-7"></path>
+                <path d="M22 20H2"></path>
               </svg>
             </span>
             <span class="wm-instrument-number">04</span>
@@ -2383,7 +2386,7 @@
       </div>
 
       <div class="wm-method-cta reveal reveal-delay-4">
-        <a class="btn btn-accent" href="diagnostic-hub.html">Enter the Diagnostic Hub</a>
+        <a class="btn btn-accent" href="diagnostics.html">Enter the Diagnostics</a>
       </div>
     </div>
   </section>
@@ -2486,11 +2489,11 @@
         <p class="section-label" style="margin: 0;">Choose a path</p>
       </div>
       <div class="wm-funnel-grid">
-        <a href="diagnostic-hub.html" class="wm-funnel-tile reveal reveal-delay-1">
+        <a href="diagnostics.html" class="wm-funnel-tile reveal reveal-delay-1">
           <p class="wm-funnel-tile-kicker">Self-administered</p>
-          <h4>Open the Diagnostic Hub</h4>
+          <h4>Open the Diagnostics</h4>
           <p>Run a Tool directly through Monderman. Useful for baselining before a structured engagement.</p>
-          <span class="wm-funnel-tile-link">Enter the Diagnostic Hub
+          <span class="wm-funnel-tile-link">Enter the Diagnostics
             <svg viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7.5 2.5L12 7l-4.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </span>
         </a>
@@ -2573,7 +2576,7 @@
         <p>The point of this page is not to sell a generic service. It is to help you decide whether Monderman's method fits the kind of institutional condition you are trying to govern. If it might, the next step is a structured conversation — not a sales call.</p>
         <div class="wm-cta-actions">
           <a class="btn btn-accent" href="connect.html">Discuss a diagnostic</a>
-          <a class="btn btn-secondary" href="diagnostic-hub.html">Run one yourself — free</a>
+          <a class="btn btn-secondary" href="diagnostics.html">Run one yourself — free</a>
         </div>
       </div>
       <div class="wm-cta-panel reveal reveal-delay-2">
@@ -2608,7 +2611,7 @@
           <div class="mf-col">
             <p class="mf-col-title">Explore</p>
             <a href="index.html#approach">Approach</a>
-            <a href="diagnostic-hub.html">Diagnostic Hub</a>
+            <a href="diagnostics.html">Diagnostics</a>
             <a href="research.html">Research</a>
             <a href="why-monderman.html">Why Monderman</a>
             <a href="about.html">About</a>
@@ -2732,6 +2735,22 @@
       }, { passive: true });
     }
     window.addEventListener("load", initSoftSnap);
+  </script>
+  <!-- Dynamic nav pill: Sign In (signed out) / Workspace (signed in) -->
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co",
+      "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
+      { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" }});
+    (async () => {
+      const link = document.querySelector("a.workspace-link");
+      if (!link) return;
+      link.setAttribute("href", "workspace.html");
+      try {
+        const { data } = await sb.auth.getSession();
+        link.textContent = data?.session?.user ? "Workspace" : "Sign In";
+      } catch (e) { link.textContent = "Sign In"; }
+    })();
   </script>
 </body>
 </html>
