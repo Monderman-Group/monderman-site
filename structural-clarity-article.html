@@ -157,6 +157,7 @@
     .hero {
       position: relative;
       overflow: hidden;
+      border-bottom: 1px solid #3F6EA1;
       background: var(--dark);
       color: #fff;
       min-height: 560px;
@@ -999,7 +1000,7 @@
       <a href="index.html" class="brand">Monderman<span class="brand-dot"></span></a>
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
-        <a href="diagnostic-hub.html">Diagnostic Hub</a>
+        <a href="diagnostics.html">Diagnostics</a>
         <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
         <a href="about.html">About</a>
@@ -1024,12 +1025,12 @@
             <h1>Structural Clarity</h1>
           </div>
         </div>
-        <p class="hero-taxonomy"><em>Is the system legible?</em></p>
+        <p class="hero-taxonomy"><em>Is the structure clear?</em></p>
         <p>
           Structural Clarity shows whether the underlying structure is clear enough to support execution, where ownership and authority are blurring, and where hidden ambiguity is forcing people to compensate around the system.
         </p>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="structural-clarity.html">Run Structural Clarity Diagnostic</a>
+          <a class="btn btn-primary" href="signin.html?next=structural-clarity.html">Run Structural Clarity Diagnostic</a>
           <a class="btn btn-secondary" href="connect.html" target="_blank" rel="noopener noreferrer">Start a Structured Conversation</a>
         </div>
       </div>
@@ -1230,7 +1231,7 @@
             <p>
               Teams revisit basic ownership questions, the same work is touched by multiple groups, managers spend too much time translating roles, routine cases escalate because boundaries are fuzzy, and the system still works mainly because capable people keep compensating around it.
             </p>
-            <a class="btn btn-primary" href="structural-clarity.html">Run Structural Clarity Diagnostic</a>
+            <a class="btn btn-primary" href="signin.html?next=structural-clarity.html">Run Structural Clarity Diagnostic</a>
           </div>
         </article>
 
@@ -1290,7 +1291,7 @@
           <div class="mf-col">
             <p class="mf-col-title">Explore</p>
             <a href="index.html#approach">Approach</a>
-            <a href="diagnostic-hub.html">Diagnostic Hub</a>
+            <a href="diagnostics.html">Diagnostics</a>
             <a href="research.html">Research</a>
             <a href="why-monderman.html">Why Monderman</a>
             <a href="about.html">About</a>
@@ -1341,6 +1342,57 @@
       );
       revealItems.forEach(function (el) { obs.observe(el); });
     })();
+  </script>
+
+    <!-- Monderman auth (single client): paints the nav pill + fast-paths signed-in users.
+       Gated CTAs already point at signin.html?next=<tool>, so the gate is fail-closed —
+       clicking one always lands on sign-in first, even if this script never loads. -->
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const sb = createClient(
+      "https://ptkxrzgmeldalrkfruth.supabase.co",
+      "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
+      { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" } }
+    );
+
+    const GATED = new Set([
+      "structural-clarity.html", "decision-velocity.html",
+      "operational-systems.html", "institutional-performance.html"
+    ]);
+
+    // Pull the tool name out of a signin.html?next=<tool> href, if it is a gated one.
+    function gatedTarget(href) {
+      const m = /^signin\.html\?next=([^&#]+)/.exec(href || "");
+      if (!m) return null;
+      try { const t = decodeURIComponent(m[1]); return GATED.has(t) ? t : null; }
+      catch (e) { return null; }
+    }
+
+    async function apply() {
+      let signedIn = false;
+      try {
+        const { data } = await sb.auth.getSession();
+        signedIn = !!(data && data.session && data.session.user);
+      } catch (e) { signedIn = false; }
+
+      // Nav pill: "Workspace" when signed in; "Sign In" -> the sign-in page when not.
+      const nav = document.querySelector("a.workspace-link");
+      if (nav) {
+        nav.textContent = signedIn ? "Workspace" : "Sign In";
+        nav.setAttribute("href", signedIn ? "workspace.html" : "signin.html?next=workspace.html");
+      }
+
+      // Smooth path for signed-in users: skip the sign-in hop on gated CTAs.
+      if (signedIn) {
+        document.querySelectorAll('a[href^="signin.html?next="]').forEach((a) => {
+          const t = gatedTarget(a.getAttribute("href"));
+          if (t) a.setAttribute("href", t);
+        });
+      }
+    }
+
+    apply();
+    sb.auth.onAuthStateChange(() => apply());
   </script>
 
 </body>
