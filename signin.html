@@ -116,11 +116,6 @@
         <span>Continue with Google</span>
       </button>
 
-      <button class="provider-btn" id="microsoftBtn" type="button">
-        <svg width="20" height="20" viewBox="0 0 23 23" aria-hidden="true"><path fill="#f25022" d="M1 1h10v10H1z"/><path fill="#7fba00" d="M12 1h10v10H12z"/><path fill="#00a4ef" d="M1 12h10v10H1z"/><path fill="#ffb900" d="M12 12h10v10H12z"/></svg>
-        <span>Continue with Microsoft</span>
-      </button>
-
       <div class="divider"><span>or</span></div>
 
       <!-- Email magic link -->
@@ -195,7 +190,6 @@
       heading: document.getElementById("signinHeading"),
       sub: document.getElementById("signinSub"),
       google: document.getElementById("googleBtn"),
-      microsoft: document.getElementById("microsoftBtn"),
       emailForm: document.getElementById("emailForm"),
       emailInput: document.getElementById("emailInput"),
       emailSubmit: document.getElementById("emailSubmit"),
@@ -208,7 +202,6 @@
     }
     function lockButtons(locked){
       ui.google.disabled = locked;
-      ui.microsoft.disabled = locked;
       ui.emailSubmit.disabled = locked;
     }
 
@@ -277,19 +270,12 @@
         // On success the browser redirects to the provider; nothing else to do.
       }catch(err){
         lockButtons(false);
-        setStatus(
-          provider === "azure"
-            ? "Microsoft sign-in isn’t available yet. Try Google or email, or contact us."
-            : "That sign-in method isn’t available yet. Try another option, or contact us.",
-          "error"
-        );
+        setStatus("That sign-in method isn’t available right now. Try email, or contact us.", "error");
         console.warn(`${provider} OAuth error:`, err?.message || err);
       }
     }
 
     ui.google.addEventListener("click", () => signInWithProvider("google"));
-    // Supabase's Microsoft provider key is "azure" (Entra ID / Azure AD).
-    ui.microsoft.addEventListener("click", () => signInWithProvider("azure"));
 
     // ---- Email magic link ----
     const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
@@ -313,7 +299,7 @@
         setStatus(`Check your inbox — we sent a sign-in link to ${email}. It expires shortly, so use it soon.`, "ok");
         ui.emailForm.reset();
       }catch(err){
-        setStatus("We couldn’t send the sign-in link. Email sign-in may not be configured yet — try Google or Microsoft, or contact us.", "error");
+        setStatus("We couldn’t send the sign-in link. Email sign-in may not be configured yet — try Google, or contact us.", "error");
         console.warn("Magic-link error:", err?.message || err);
       }finally{
         lockButtons(false);
