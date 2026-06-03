@@ -3642,33 +3642,61 @@
           return;
         }
         if (!PROTECTED_DIAGNOSTIC_PATHS.has(href)) return;
+
+        // Always intercept a protected diagnostic; decide sign-in vs. proceed.
+        event.preventDefault();
+
+        // Preserve any hub context the user set, regardless of path taken.
         const context = readHubContext();
         if (context && context.pathName) {
           sessionStorage.setItem("mondermanPendingHubContext", JSON.stringify(context));
         }
-        event.preventDefault();
-        const token = readTurnstileSession();
-        if (token?.token) {
+
+        // Auth gate: running a diagnostic requires sign-in.
+        // If signed out, send to sign-in and return to this diagnostic afterward.
+        proceedAfterAuthCheck(href);
+      });
+    });
+
+    // Checks Supabase session (added via window.mondermanGetSession). If signed in,
+    // continues to the existing human-check / navigation flow. If not, redirects to sign-in.
+    async function proceedAfterAuthCheck(href){
+      let signedIn = false;
+      try {
+        if (typeof window.mondermanGetSession === "function") {
+          const session = await window.mondermanGetSession();
+          signedIn = !!session;
+        }
+      } catch (e) { signedIn = false; }
+
+      if (!signedIn) {
+        // Not signed in → go run after authenticating, returning to this diagnostic.
+        window.location.href = "signin.html?next=" + encodeURIComponent(href);
+        return;
+      }
+
+      // Signed in → continue with the existing Turnstile (human-check) flow.
+      const token = readTurnstileSession();
+      if (token?.token) {
+        navigateToProtectedDiagnostic(href);
+        return;
+      }
+      pendingDiagnosticUrl = href;
+      if (!turnstileScriptFailed && turnstileScriptReady) {
+        ensurePreloadedVerification();
+        const cached = readTurnstileSession();
+        if (cached?.token) {
           navigateToProtectedDiagnostic(href);
           return;
         }
-        pendingDiagnosticUrl = href;
-        if (!turnstileScriptFailed && turnstileScriptReady) {
-          ensurePreloadedVerification();
-          const cached = readTurnstileSession();
-          if (cached?.token) {
-            navigateToProtectedDiagnostic(href);
-            return;
-          }
-          openTurnstileModal();
-          setTurnstileStatus("Completing human check...");
-          renderVisibleTurnstile();
-        } else {
-          openTurnstileModal();
-          onTurnstileUnavailable();
-        }
-      });
-    });
+        openTurnstileModal();
+        setTurnstileStatus("Completing human check...");
+        renderVisibleTurnstile();
+      } else {
+        openTurnstileModal();
+        onTurnstileUnavailable();
+      }
+    }
   </script>
 
   <script>
