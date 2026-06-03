@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- ✅ Monderman: standardized header nav + Diagnostics -> https://www.monderman.com/diagnostics.html -->
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -945,12 +946,13 @@
     <a class="brand" href="index.html">Monderman<span class="brand-dot"></span></a>
     <nav class="nav" aria-label="Primary navigation">
       <a href="index.html#approach">Approach</a>
-      <a href="diagnostic-hub.html">Diagnostic Hub</a>
+      <a href="https://www.monderman.com/diagnostics.html">Diagnostics</a>
       <a href="research.html">Research</a>
       <a href="why-monderman.html">Why Monderman</a>
       <a href="about.html">About</a>
+      <a href="platform-services.html">Platform Services</a>
       <a href="connect.html">Connect</a>
-      <a href="workspace.html" class="workspace-link">Workspace</a>
+      <a href="workspace.html" class="workspace-link">Sign In</a>
     </nav>
   </div>
 </header>
@@ -2440,5 +2442,25 @@
   })();
 </script>
 
+  <!-- Dynamic nav pill: Sign In (signed out) / Workspace (signed in) -->
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co",
+      "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
+      { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" }});
+    (async () => {
+      const link = document.querySelector("a.workspace-link");
+      if (!link) return;
+      try {
+        const { data } = await sb.auth.getSession();
+        const signedIn = !!(data && data.session && data.session.user);
+        link.textContent = signedIn ? "Workspace" : "Sign In";
+        link.setAttribute("href", signedIn ? "workspace.html" : "signin.html?next=workspace.html");
+      } catch (e) {
+        link.textContent = "Sign In";
+        link.setAttribute("href", "signin.html?next=workspace.html");
+      }
+    })();
+  </script>
 </body>
 </html>
