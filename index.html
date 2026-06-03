@@ -1917,7 +1917,7 @@
 <a class="brand" href="index.html">Monderman<span class="brand-dot"></span></a>
 <nav aria-label="Primary navigation" class="nav">
 <a href="#approach">Approach</a>
-<a href="diagnostic-hub.html">Diagnostic Hub</a>
+<a href="diagnostics.html">Diagnostics</a>
 <a href="research.html">Research</a>
 <a href="why-monderman.html">Why Monderman</a>
 <a href="about.html">About</a>
@@ -1941,7 +1941,7 @@
         </p>
 <div class="hero-actions">
 <a class="btn btn-accent" href="connect.html">Discuss a diagnostic</a>
-<a class="btn btn-secondary" href="diagnostic-hub.html">Run one yourself — free</a>
+<a class="btn btn-secondary" href="diagnostics.html">Run one yourself — free</a>
 </div>
 </div>
 </div>
@@ -2012,7 +2012,7 @@
 <p class="cost-action reveal reveal-delay-4">
         <strong>Monderman is the instrument that surfaces where these losses originate</strong> — and helps institutions stay ahead of where they're forming next.
         <br>
-        <a href="diagnostic-hub.html">Run a diagnostic — free →</a>
+        <a href="diagnostics.html">Run a diagnostic — free →</a>
       </p>
 <p class="cost-footer reveal reveal-delay-4">
         Sources: Harvard Business Review reporting research (2016); Gary Hamel and Michele Zanini, Harvard Business Review (2018); OECD administrative burden guidance.
@@ -2038,7 +2038,7 @@
 </span>
 <div class="approach-card-head-copy">
 <div class="card-title">Structural Clarity</div>
-<div class="card-subhead"><em>Is the system legible?</em></div>
+<div class="card-subhead"><em>Is the structure clear?</em></div>
 </div>
 </div>
 <div class="card-desc">
@@ -2084,7 +2084,7 @@
 <div class="approach-card-head">
 <span aria-hidden="true" class="approach-glyph">
 <svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
-<circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
+<path d="M4 20V10"></path><path d="M10 20V4"></path><path d="M16 20v-7"></path><path d="M22 20H2"></path>
 </svg>
 </span>
 <div class="approach-card-head-copy">
@@ -2167,7 +2167,7 @@
 <div class="approach-synthesis-item-head">
 <span aria-hidden="true" class="approach-synthesis-glyph">
 <svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
-<circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path>
+<path d="M4 20V10"></path><path d="M10 20V4"></path><path d="M16 20v-7"></path><path d="M22 20H2"></path>
 </svg>
 </span>
 <strong>Organizational Credibility</strong>
@@ -2178,7 +2178,7 @@
 </div>
 </div></div></section>
 <section aria-labelledby="estimate-title" class="diagnostic-estimate section-with-bar snap-anchor" id="diagnostic-estimate">
-<div aria-hidden="true" class="section-bar">Diagnostic Hub</div>
+<div aria-hidden="true" class="section-bar">Diagnostics</div>
 <div class="diagnostic-estimate-inner">
 <div class="diagnostic-estimate-heading reveal">
 <h2 id="estimate-title">Estimate the hidden cost of structural drag.</h2>
@@ -2270,7 +2270,7 @@
             These figures are based on public research on management overhead, administrative burden, and compliance costs. They are intended to provide a high-level signal, not an audited organizational measurement. Use the diagnostic suite to establish a baseline, then return as systems and surrounding conditions evolve. The value compounds on the second and third run, when institutions can compare conditions over time.
           </p>
 </div>
-<a class="btn btn-accent" href="diagnostic-hub.html">Run a diagnostic — free</a>
+<a class="btn btn-accent" href="diagnostics.html">Run a diagnostic — free</a>
 </div>
 </div>
 </section>
@@ -2408,9 +2408,9 @@
 <strong>Discuss a diagnostic</strong>
 <span>Talk through fit, pilot structure, or how repeated measurement would work in your environment.</span>
 </a>
-<a class="connect-choice-card" href="diagnostic-hub.html">
+<a class="connect-choice-card" href="diagnostics.html">
 <strong>Run one yourself — free</strong>
-<span>Start in the Diagnostic Hub and establish a first baseline. Your diagnostic inputs are handled in confidence and never sold or shared.</span>
+<span>Start in the Diagnostics and establish a first baseline. Your diagnostic inputs are handled in confidence and never sold or shared.</span>
 </a>
 </div>
 <p class="connect-note">
@@ -2439,7 +2439,7 @@
           <div class="mf-col">
             <p class="mf-col-title">Explore</p>
             <a href="index.html#approach">Approach</a>
-            <a href="diagnostic-hub.html">Diagnostic Hub</a>
+            <a href="diagnostics.html">Diagnostics</a>
             <a href="research.html">Research</a>
             <a href="why-monderman.html">Why Monderman</a>
             <a href="about.html">About</a>
@@ -2782,6 +2782,22 @@
       startAutoScroll();
       initSoftSnap();
     });
+  </script>
+  <!-- Dynamic nav pill: Sign In (signed out) / Workspace (signed in) -->
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co",
+      "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
+      { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" }});
+    (async () => {
+      const link = document.querySelector("a.workspace-link");
+      if (!link) return;
+      link.setAttribute("href", "workspace.html");
+      try {
+        const { data } = await sb.auth.getSession();
+        link.textContent = data?.session?.user ? "Workspace" : "Sign In";
+      } catch (e) { link.textContent = "Sign In"; }
+    })();
   </script>
 </body>
 </html>
