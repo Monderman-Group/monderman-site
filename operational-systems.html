@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- ✅ MONDERMAN GATING FIX (corrected tool page): sign-in guard in <head> + Bearer token wired into fetchWithTimeout. If you see this, this is the FIXED copy. -->
 
 <html lang="en">
 <head>
@@ -19,6 +20,60 @@
     window.MONDERMAN_SUPABASE_URL = "https://ptkxrzgmeldalrkfruth.supabase.co";
     window.MONDERMAN_SUPABASE_ANON_KEY = "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
   </script>
+  <!-- ===== Monderman access guard: require sign-in before this tool is usable ===== -->
+  <script>
+    /* Hide the page immediately so the tool never flashes before we confirm the
+       session. A timeout reveals it anyway if the auth library can't load, so no
+       one is ever trapped on a blank page. */
+    (function () {
+      var el = document.documentElement;
+      el.style.visibility = "hidden";
+      window.__mondermanReveal = function () { el.style.visibility = ""; };
+      window.__mondermanRevealTimer = setTimeout(window.__mondermanReveal, 8000);
+    })();
+  </script>
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const sb = createClient(
+      window.MONDERMAN_SUPABASE_URL,
+      window.MONDERMAN_SUPABASE_ANON_KEY,
+      { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" } }
+    );
+    window.__mondermanSB = sb; // reused by fetchWithTimeout to send the user's token
+
+    function reveal() {
+      clearTimeout(window.__mondermanRevealTimer);
+      if (window.__mondermanReveal) window.__mondermanReveal();
+    }
+    function toSignIn() {
+      const here = location.pathname.split("/").pop() || "workspace.html";
+      location.replace("signin.html?next=" + encodeURIComponent(here));
+    }
+
+    // Coming straight from an email magic-link? The session is mid-exchange in the
+    // URL — wait for it rather than bouncing someone who actually just signed in.
+    const midExchange = location.href.indexOf("code=") > -1 || location.href.indexOf("access_token") > -1;
+
+    let decided = false;
+    sb.auth.onAuthStateChange((_e, session) => {
+      if (!decided && session && session.user) { decided = true; reveal(); }
+    });
+    (async () => {
+      const attempts = midExchange ? 12 : 3;
+      for (let i = 0; i < attempts; i++) {
+        try {
+          const { data } = await sb.auth.getSession();
+          if (data && data.session && data.session.user) { decided = true; reveal(); return; }
+        } catch (e) { /* transient — retry */ }
+        await new Promise(r => setTimeout(r, 500));
+      }
+      if (decided) return;   // a session landed via onAuthStateChange while we waited
+      decided = true;
+      toSignIn();            // genuinely signed out -> go authenticate
+    })();
+  </script>
+  <!-- ===== end access guard ===== -->
+
     <style>
     @font-face { font-family:"Neue Haas Grotesk"; src:url("55font.woff2") format("woff2"),url("55font.woff") format("woff"); font-weight:400; }
     @font-face { font-family:"Neue Haas Grotesk"; src:url("65font.woff2") format("woff2"),url("65font.woff") format("woff"); font-weight:500; }
@@ -1372,7 +1427,18 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
 const controller = new AbortController();
 const timer = setTimeout(() => controller.abort(), timeoutMs);
 try {
-return await fetch(url, { ...options, signal: controller.signal });
+// Attach the signed-in user's Supabase token to API calls so the backend can
+// enforce the free-run limit and save the run. Sent only when a session exists;
+// anonymous calls behave exactly as before.
+let __opts = options;
+try {
+if (window.__mondermanSB && /\/api\//.test(url)) {
+const { data } = await window.__mondermanSB.auth.getSession();
+const __tok = data && data.session && data.session.access_token;
+if (__tok) __opts = { ...options, headers: { ...(options.headers || {}), Authorization: "Bearer " + __tok } };
+}
+} catch (e) { /* no session -> anonymous request, unchanged */ }
+return await fetch(url, { ...__opts, signal: controller.signal });
 } finally {
 clearTimeout(timer);
 }
