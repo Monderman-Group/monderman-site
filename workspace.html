@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- ✅ MONDERMAN GATING FIX (corrected file): per-diagnostic free runs + aligned copy. -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -480,10 +481,14 @@
       const used = Number(org.runs_used ?? state.runs.length ?? 0);
       const limit = org.run_limit;
       ui.runsUsed.textContent = String(used);
-      if (limit === null || limit === undefined) {
-        ui.runsSub.textContent = (plan === "free") ? "of 3 free" : "Unlimited (fair use)";
+      // Free tier is 3 runs PER DIAGNOSTIC (not a single pooled total), so show the
+      // per-diagnostic allowance rather than a misleading "X of 3" pooled counter.
+      if (plan === "free") {
+        ui.runsSub.textContent = "3 free per diagnostic";
+      } else if (limit === null || limit === undefined) {
+        ui.runsSub.textContent = "Unlimited (fair use)";
       } else {
-        ui.runsSub.textContent = (plan === "free") ? `of ${limit} free` : `of ${limit}`;
+        ui.runsSub.textContent = `of ${limit}`;
       }
 
       const seatLimit = org.seat_limit;
