@@ -1038,7 +1038,7 @@
           Operational Systems shows where process load, systems friction, reporting burden, and control accumulation are absorbing time, labor, and productive capacity before that weight is mistaken for normal work.
         </p>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="operational-systems.html">Run Operational Systems Diagnostic</a>
+          <a class="btn btn-primary" href="signin.html?next=operational-systems.html">Run Operational Systems Diagnostic</a>
           <a class="btn btn-secondary" href="connect.html" target="_blank" rel="noopener noreferrer">Start a Structured Conversation</a>
         </div>
       </div>
@@ -1251,7 +1251,7 @@
             <p>
               Teams re-enter the same data across systems. Meetings keep the workflow alive. Reporting expands without obvious value. Routine work starts needing manual follow-up, side-channel coordination, and exception handling just to keep moving.
             </p>
-            <a class="btn btn-primary" href="operational-systems.html">Run Operational Systems Diagnostic</a>
+            <a class="btn btn-primary" href="signin.html?next=operational-systems.html">Run Operational Systems Diagnostic</a>
           </div>
         </article>
 
@@ -1364,42 +1364,56 @@
     })();
   </script>
 
-  <!-- Dynamic nav pill: Sign In (signed out) / Workspace (signed in) -->
+    <!-- Monderman auth (single client): paints the nav pill + fast-paths signed-in users.
+       Gated CTAs already point at signin.html?next=<tool>, so the gate is fail-closed —
+       clicking one always lands on sign-in first, even if this script never loads. -->
   <script type="module">
     import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-    const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co",
+    const sb = createClient(
+      "https://ptkxrzgmeldalrkfruth.supabase.co",
       "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
-      { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" }});
-    (async () => {
-      const link = document.querySelector("a.workspace-link");
-      if (!link) return;
-      link.setAttribute("href", "workspace.html");
+      { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" } }
+    );
+
+    const GATED = new Set([
+      "structural-clarity.html", "decision-velocity.html",
+      "operational-systems.html", "institutional-performance.html"
+    ]);
+
+    // Pull the tool name out of a signin.html?next=<tool> href, if it is a gated one.
+    function gatedTarget(href) {
+      const m = /^signin\.html\?next=([^&#]+)/.exec(href || "");
+      if (!m) return null;
+      try { const t = decodeURIComponent(m[1]); return GATED.has(t) ? t : null; }
+      catch (e) { return null; }
+    }
+
+    async function apply() {
+      let signedIn = false;
       try {
         const { data } = await sb.auth.getSession();
-        link.textContent = data?.session?.user ? "Workspace" : "Sign In";
-      } catch (e) { link.textContent = "Sign In"; }
-    })();
+        signedIn = !!(data && data.session && data.session.user);
+      } catch (e) { signedIn = false; }
+
+      // Nav pill: "Workspace" when signed in; "Sign In" -> the sign-in page when not.
+      const nav = document.querySelector("a.workspace-link");
+      if (nav) {
+        nav.textContent = signedIn ? "Workspace" : "Sign In";
+        nav.setAttribute("href", signedIn ? "workspace.html" : "signin.html?next=workspace.html");
+      }
+
+      // Smooth path for signed-in users: skip the sign-in hop on gated CTAs.
+      if (signedIn) {
+        document.querySelectorAll('a[href^="signin.html?next="]').forEach((a) => {
+          const t = gatedTarget(a.getAttribute("href"));
+          if (t) a.setAttribute("href", t);
+        });
+      }
+    }
+
+    apply();
+    sb.auth.onAuthStateChange(() => apply());
   </script>
-  <!-- Auth gate: running a diagnostic requires sign-in -->
-  <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-    const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co",
-      "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
-      { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" }});
-    const DIAG = "operational-systems.html";
-    document.querySelectorAll('a[href="' + DIAG + '"]').forEach((link) => {
-      link.addEventListener("click", async (event) => {
-        event.preventDefault();
-        let signedIn = false;
-        try { const { data } = await sb.auth.getSession(); signedIn = !!(data && data.session && data.session.user); }
-        catch (e) { signedIn = false; }
-        if (signedIn) {
-          window.location.href = DIAG;
-        } else {
-          window.location.href = "signin.html?next=" + encodeURIComponent(DIAG);
-        }
-      });
-    });
-  </script>
+
 </body>
 </html>
