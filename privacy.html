@@ -4,542 +4,99 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Privacy — Monderman</title>
-<meta name="description" content="Monderman's commitments to how diagnostic data, contact information, and site activity are handled. Diagnostic data stays in your environment."/>
-<link href='data:image/svg+xml;utf8,
-    &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"&gt;
-      &lt;rect width="64" height="64" rx="10" fill="%230F1720"/&gt;
-      &lt;text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA"&gt;M&lt;/text&gt;
-      &lt;rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/&gt;
-    &lt;/svg&gt;' rel="icon" type="image/svg+xml"/>
+<meta name="description" content="Monderman's commitments to how diagnostic data, contact information, and site activity are handled."/>
+<link href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="10" fill="%230F1720"/><text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text><rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/></svg>' rel="icon" type="image/svg+xml"/>
 <style>
-    @font-face {
-      font-family: "Neue Haas Grotesk";
-      src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff");
-      font-style: normal;
-      font-weight: 400;
-      font-display: swap;
-    }
-    @font-face {
-      font-family: "Neue Haas Grotesk";
-      src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff");
-      font-style: normal;
-      font-weight: 500;
-      font-display: swap;
-    }
-    @font-face {
-      font-family: "Neue Haas Grotesk";
-      src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff");
-      font-style: normal;
-      font-weight: 700;
-      font-display: swap;
-    }
+    @font-face { font-family: "Neue Haas Grotesk"; src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff"); font-style: normal; font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Neue Haas Grotesk"; src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff"); font-style: normal; font-weight: 500; font-display: swap; }
+    @font-face { font-family: "Neue Haas Grotesk"; src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff"); font-style: normal; font-weight: 700; font-display: swap; }
     :root {
-      --accent: #3F6EA1;
-      --accent-dark: #2F5886;
-      --bg-dark: #0F1720;
-      --bg-dark-2: #111B25;
-      --bg-offwhite: #F6F7F8;
-      --bg-white: #FFFFFF;
-      --text-light: #F5F7FA;
-      --muted-light: rgba(245,247,250,0.82);
-      --text-dark: #15202B;
-      --muted-dark: #556270;
-      --line-dark: #E3E7EB;
-      --header-solid: rgba(14,20,28,0.87);
-      --header-border: rgba(255,255,255,0.08);
-      --max: 1100px;
+      --accent: #3F6EA1; --accent-dark: #2F5886; --bg-dark: #0F1720; --bg-dark-2: #111B25;
+      --bg-offwhite: #F6F7F8; --bg-white: #FFFFFF; --text-light: #F5F7FA; --muted-light: rgba(245,247,250,0.82);
+      --text-dark: #15202B; --muted-dark: #556270; --line-dark: #E3E7EB;
+      --header-solid: rgba(14,20,28,0.87); --header-border: rgba(255,255,255,0.08); --max: 1100px;
     }
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      background: var(--bg-white);
-      color: var(--text-dark);
-      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-weight: 400;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      text-rendering: optimizeLegibility;
-    }
+    body { margin: 0; background: var(--bg-white); color: var(--text-dark); font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 400; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
     a { color: inherit; text-decoration: none; }
     h1, h2, h3 { letter-spacing: -0.048em; margin: 0; }
     p { letter-spacing: -0.01em; margin: 0; }
-
-    /* Header */
-    .header {
-      position: fixed;
-      inset: 0 0 auto 0;
-      width: 100%;
-      height: 72px;
-      z-index: 100;
-      background: transparent;
-      border-bottom: 1px solid transparent;
-      transition: background 220ms ease, border-color 220ms ease, backdrop-filter 220ms ease, -webkit-backdrop-filter 220ms ease;
-      color: var(--text-light);
-    }
-    .header.scrolled {
-      background: var(--header-solid);
-      border-bottom-color: var(--header-border);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-    }
-    .header-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-      height: 100%;
-      padding: 0 28px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-    }
-    .brand {
-      font-weight: 700;
-      font-size: 1.32rem;
-      letter-spacing: -0.02em;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .brand-dot {
-      width: 8px; height: 8px;
-      background: var(--accent);
-      border-radius: 2px;
-      display: inline-block;
-    }
-    .nav {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-    }
-    .nav a {
-      position: relative;
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: rgba(255,255,255,0.84);
-      transition: color 180ms ease;
-    }
-    .nav a::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: -6px;
-      width: 100%;
-      height: 1px;
-      background: currentColor;
-      transform: scaleX(0);
-      transform-origin: left center;
-      transition: transform 180ms ease;
-    }
-    .nav a:hover,
-    .nav a:focus-visible { color: #FFFFFF; outline: none; }
-    .nav a.is-active {
-      color: var(--accent);
-      outline: none;
-    }
-    .nav a:hover::after,
-    .nav a:focus-visible::after,
-    .nav a.is-active::after {
-      transform: scaleX(1);
-    }
+    .header { position: fixed; inset: 0 0 auto 0; width: 100%; height: 72px; z-index: 100; background: transparent; border-bottom: 1px solid transparent; transition: background 220ms ease, border-color 220ms ease, backdrop-filter 220ms ease, -webkit-backdrop-filter 220ms ease; color: var(--text-light); }
+    .header.scrolled { background: var(--header-solid); border-bottom-color: var(--header-border); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+    .header-inner { max-width: var(--max); margin: 0 auto; height: 100%; padding: 0 28px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .brand { font-weight: 700; font-size: 1.32rem; letter-spacing: -0.02em; display: inline-flex; align-items: center; gap: 8px; }
+    .brand-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 2px; display: inline-block; }
+    .nav { display: flex; align-items: center; gap: 24px; }
+    .nav a { position: relative; font-size: 0.9rem; font-weight: 500; color: rgba(255,255,255,0.84); transition: color 180ms ease; }
+    .nav a::after { content: ""; position: absolute; left: 0; bottom: -6px; width: 100%; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: left center; transition: transform 180ms ease; }
+    .nav a:hover, .nav a:focus-visible { color: #FFFFFF; outline: none; }
+    .nav a.is-active { color: var(--accent); outline: none; }
+    .nav a:hover::after, .nav a:focus-visible::after, .nav a.is-active::after { transform: scaleX(1); }
     .nav a.workspace-link::after { display: none; }
-    .workspace-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 38px;
-      padding: 0 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.16);
-      background: rgba(255,255,255,0.06);
-      color: #FFFFFF !important;
-      font-weight: 500;
-      white-space: nowrap;
-    }
-    .workspace-link:hover {
-      background: rgba(255,255,255,0.10);
-      border-color: rgba(255,255,255,0.24);
-    }
-
-    /* Hero */
-    .hero {
-      background: var(--bg-dark);
-      color: var(--text-light);
-      padding: 92px 0 80px;
-    }
-    .hero-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 0 28px;
-    }
-    .hero-eyebrow {
-      font-size: 0.74rem;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.62);
-      margin-bottom: 18px;
-    }
-    .hero h1 {
-      font-size: clamp(40px, 5.4vw, 64px);
-      line-height: 1.05;
-      max-width: 22ch;
-      font-weight: 700;
-    }
-    .hero-dek {
-      margin-top: 22px;
-      max-width: 60ch;
-      font-size: 1.12rem;
-      line-height: 1.55;
-      color: var(--muted-light);
-    }
-    .hero-meta {
-      margin-top: 28px;
-      font-size: 0.86rem;
-      letter-spacing: 0.04em;
-      color: rgba(255,255,255,0.55);
-    }
-
-    /* Commitments band */
-    .commitments {
-      background: var(--bg-offwhite);
-      border-bottom: 1px solid var(--line-dark);
-      padding: 72px 0;
-    }
-    .commitments-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 0 28px;
-    }
-    .section-eyebrow {
-      font-size: 0.74rem;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 16px;
-    }
-    .commitments h2 {
-      font-size: clamp(28px, 3vw, 36px);
-      line-height: 1.18;
-      max-width: 22ch;
-      font-weight: 700;
-      margin-bottom: 28px;
-    }
-    .commitments-list {
-      list-style: none;
-      padding: 0;
-      margin: 32px 0 0;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 16px;
-      max-width: 72ch;
-    }
-    .commitments-list li {
-      padding: 22px 26px;
-      background: var(--bg-white);
-      border: 1px solid var(--line-dark);
-      border-radius: 12px;
-      font-size: 1.02rem;
-      line-height: 1.55;
-      color: var(--text-dark);
-      font-weight: 500;
-    }
-    .commitments-list strong {
-      display: block;
-      font-size: 0.92rem;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 8px;
-      font-weight: 700;
-    }
-
-    /* Body sections */
-    .section {
-      padding: 78px 0;
-      border-bottom: 1px solid var(--line-dark);
-    }
-    .section-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 0 28px;
-    }
-    .section h2 {
-      font-size: clamp(26px, 2.6vw, 32px);
-      line-height: 1.2;
-      max-width: 26ch;
-      font-weight: 700;
-      margin-bottom: 24px;
-    }
-    .section p {
-      font-size: 1.04rem;
-      line-height: 1.65;
-      color: var(--text-dark);
-      max-width: 68ch;
-    }
+    .workspace-link { display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.06); color: #FFFFFF !important; font-weight: 500; white-space: nowrap; }
+    .workspace-link:hover { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.24); }
+    .hero { position: relative; overflow: hidden; border-bottom: 1px solid #3F6EA1; background: var(--bg-dark); color: var(--text-light); padding: 92px 0 80px; }
+    .hero-inner { max-width: var(--max); margin: 0 auto; padding: 0 28px; }
+    .hero-eyebrow { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.62); margin-bottom: 18px; }
+    .hero h1 { font-size: clamp(40px, 5.4vw, 64px); line-height: 1.05; max-width: 22ch; font-weight: 700; }
+    .hero-dek { margin-top: 22px; max-width: 60ch; font-size: 1.12rem; line-height: 1.55; color: var(--muted-light); }
+    .hero-meta { margin-top: 28px; font-size: 0.86rem; letter-spacing: 0.04em; color: rgba(255,255,255,0.55); }
+    .commitments { background: var(--bg-offwhite); border-bottom: 1px solid var(--line-dark); padding: 72px 0; }
+    .commitments-inner { max-width: var(--max); margin: 0 auto; padding: 0 28px; }
+    .section-eyebrow { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
+    .commitments h2 { font-size: clamp(28px, 3vw, 36px); line-height: 1.18; max-width: 22ch; font-weight: 700; margin-bottom: 28px; }
+    .commitments-list { list-style: none; padding: 0; margin: 32px 0 0; display: grid; grid-template-columns: 1fr; gap: 16px; max-width: 72ch; }
+    .commitments-list li { padding: 22px 26px; background: var(--bg-white); border: 1px solid var(--line-dark); border-radius: 12px; font-size: 1.02rem; line-height: 1.55; color: var(--text-dark); font-weight: 500; }
+    .commitments-list strong { display: block; font-size: 0.92rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; font-weight: 700; }
+    .section { padding: 78px 0; border-bottom: 1px solid var(--line-dark); }
+    .section-inner { max-width: var(--max); margin: 0 auto; padding: 0 28px; }
+    .section h2 { font-size: clamp(26px, 2.6vw, 32px); line-height: 1.2; max-width: 26ch; font-weight: 700; margin-bottom: 24px; }
+    .section p { font-size: 1.04rem; line-height: 1.65; color: var(--text-dark); max-width: 68ch; }
     .section p + p { margin-top: 16px; }
-    .section ul {
-      margin: 16px 0 0;
-      padding-left: 22px;
-      max-width: 68ch;
-    }
-    .section ul li {
-      font-size: 1.04rem;
-      line-height: 1.6;
-      color: var(--text-dark);
-      margin-bottom: 8px;
-    }
-    .section a.inline {
-      color: var(--accent);
-      border-bottom: 1px solid rgba(63,110,161,0.3);
-      transition: border-color 180ms ease;
-    }
+    .section ul { margin: 16px 0 0; padding-left: 22px; max-width: 68ch; }
+    .section ul li { font-size: 1.04rem; line-height: 1.6; color: var(--text-dark); margin-bottom: 8px; }
+    .section a.inline { color: var(--accent); border-bottom: 1px solid rgba(63,110,161,0.3); transition: border-color 180ms ease; }
     .section a.inline:hover { border-color: var(--accent); }
-
-    /* Quiet CTA */
-    .quiet-cta {
-      padding: 56px 0 84px;
-    }
-    .quiet-cta-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 0 28px;
-    }
-    .quiet-cta p {
-      font-size: 1.04rem;
-      line-height: 1.6;
-      color: var(--muted-dark);
-      max-width: 68ch;
-    }
-    .quiet-cta a {
-      color: var(--accent);
-      font-weight: 500;
-      border-bottom: 1px solid rgba(63,110,161,0.3);
-      transition: border-color 180ms ease;
-    }
+    .quiet-cta { padding: 56px 0 84px; }
+    .quiet-cta-inner { max-width: var(--max); margin: 0 auto; padding: 0 28px; }
+    .quiet-cta p { font-size: 1.04rem; line-height: 1.6; color: var(--muted-dark); max-width: 68ch; }
+    .quiet-cta a { color: var(--accent); font-weight: 500; border-bottom: 1px solid rgba(63,110,161,0.3); transition: border-color 180ms ease; }
     .quiet-cta a:hover { border-color: var(--accent); }
-
-    /* Footer */
-    .footer {
-      background: var(--bg-dark);
-      color: rgba(255,255,255,0.72);
-      padding: 40px 0 36px;
-    }
-    .footer-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 0 28px;
-    }
-    .footer-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 24px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      margin-bottom: 22px;
-    }
-    .footer-brand {
-      font-weight: 700;
-      color: #FFFFFF;
-      font-size: 1.18rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .footer-nav {
-      display: flex;
-      gap: 28px;
-    }
-    .footer-nav a {
-      color: rgba(255,255,255,0.72);
-      font-size: 0.9rem;
-      transition: color 180ms ease;
-    }
-    .footer-nav a:hover { color: #FFFFFF; }
-    .footer-nav a.is-active { color: var(--accent); }
-    .footer-bottom {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.86rem;
-    }
-    .footer-meta {
-      color: rgba(255,255,255,0.52);
-    }
-
-    /* Responsive */
     @media (max-width: 720px) {
-      .header-inner,
-      .hero-inner,
-      .commitments-inner,
-      .section-inner,
-      .quiet-cta-inner,
-      .footer-inner {
-        padding-left: 20px;
-        padding-right: 20px;
-      }
-
-      .header-inner {
-        padding-top: 14px;
-        padding-bottom: 10px;
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .nav {
-        width: 100%;
-        gap: 10px;
-        overflow-x: auto;
-        flex-wrap: nowrap;
-        justify-content: flex-start;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
-        padding-bottom: 4px;
-      }
+      .header-inner, .hero-inner, .commitments-inner, .section-inner, .quiet-cta-inner { padding-left: 20px; padding-right: 20px; }
+      .header-inner { padding-top: 14px; padding-bottom: 10px; align-items: flex-start; flex-direction: column; gap: 10px; }
+      .nav { width: 100%; gap: 10px; overflow-x: auto; flex-wrap: nowrap; justify-content: flex-start; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
       .nav::-webkit-scrollbar { display: none; }
-      .nav a {
-        flex: 0 0 auto;
-        font-size: 0.84rem;
-        line-height: 1;
-        padding: 10px 12px;
-        border-radius: 999px;
-        background: rgba(255,255,255,0.06);
-        border: 1px solid rgba(255,255,255,0.08);
-        white-space: nowrap;
-      }
+      .nav a { flex: 0 0 auto; font-size: 0.84rem; line-height: 1; padding: 10px 12px; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); white-space: nowrap; }
       .nav a.workspace-link { padding: 10px 14px; }
-
       .hero { padding: 56px 0 52px; }
       .hero h1 { font-size: 38px; }
-
       .commitments { padding: 52px 0; }
       .section { padding: 52px 0; }
       .quiet-cta { padding: 40px 0 56px; }
-
-      .footer-top {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 18px;
-      }
-      .footer-nav {
-        flex-wrap: wrap;
-        gap: 18px 22px;
-      }
-      .footer-bottom {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 6px;
-      }
     }
-  
-    /* ===== Canonical uniform footer (mond-footer) ===== */
-    .mond-footer {
-      position: relative;
-      overflow: hidden;
-      background: #0D141C;
-      color: rgba(255,255,255,0.88);
-      padding: 56px 40px 36px;
-      border: 0;
-    }
+    .mond-footer { position: relative; overflow: hidden; background: #0D141C; color: rgba(255,255,255,0.88); padding: 56px 40px 36px; border: 0; }
     .mond-footer * { box-sizing: border-box; }
-    .mond-footer .mf-inner {
-      position: relative;
-      z-index: 1;
-      max-width: 1080px;
-      margin: 0 auto;
-    }
-    .mond-footer .mf-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 56px;
-      flex-wrap: wrap;
-      padding-bottom: 40px;
-    }
+    .mond-footer .mf-inner { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; }
+    .mond-footer .mf-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 56px; flex-wrap: wrap; padding-bottom: 40px; }
     .mond-footer .mf-brand { max-width: 360px; }
     .mond-footer .mf-mark-row { display: flex; align-items: center; gap: 9px; }
-    .mond-footer .mf-name {
-      color: #FFFFFF;
-      font-weight: 700;
-      font-size: 1.22rem;
-      letter-spacing: -0.01em;
-    }
-    .mond-footer .mf-dot {
-      width: 7px; height: 7px;
-      border-radius: 2px;
-      background: #6B7FD7;
-      display: inline-block;
-    }
-    .mond-footer .mf-copy {
-      color: rgba(255,255,255,0.56);
-      font-size: 0.93rem;
-      line-height: 1.65;
-      margin: 16px 0 0;
-    }
-    .mond-footer .mf-social {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-top: 26px;
-    }
-    .mond-footer .mf-social a {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 44px; height: 44px;
-      border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.18);
-      color: rgba(255,255,255,0.7);
-      transition: color 170ms ease, border-color 170ms ease, background-color 170ms ease;
-    }
-    .mond-footer .mf-social a:hover,
-    .mond-footer .mf-social a:focus-visible {
-      color: #FFFFFF;
-      border-color: rgba(255,255,255,0.5);
-      background: rgba(255,255,255,0.06);
-    }
-    .mond-footer .mf-social svg {
-      width: 20px; height: 20px;
-      display: block;
-      fill: currentColor;
-    }
+    .mond-footer .mf-name { color: #FFFFFF; font-weight: 700; font-size: 1.22rem; letter-spacing: -0.01em; }
+    .mond-footer .mf-dot { width: 7px; height: 7px; border-radius: 2px; background: #6B7FD7; display: inline-block; }
+    .mond-footer .mf-copy { color: rgba(255,255,255,0.56); font-size: 0.93rem; line-height: 1.65; margin: 16px 0 0; }
+    .mond-footer .mf-social { display: flex; align-items: center; gap: 16px; margin-top: 26px; }
+    .mond-footer .mf-social a { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.18); color: rgba(255,255,255,0.7); transition: color 170ms ease, border-color 170ms ease, background-color 170ms ease; }
+    .mond-footer .mf-social a:hover, .mond-footer .mf-social a:focus-visible { color: #FFFFFF; border-color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.06); }
+    .mond-footer .mf-social svg { width: 20px; height: 20px; display: block; fill: currentColor; }
     .mond-footer .mf-nav { display: flex; gap: 72px; }
-    .mond-footer .mf-col-title {
-      color: rgba(255,255,255,0.4);
-      font-size: 11px;
-      letter-spacing: 0.17em;
-      text-transform: uppercase;
-      font-weight: 500;
-      margin: 0 0 18px;
-    }
-    .mond-footer .mf-col a {
-      display: block;
-      color: rgba(255,255,255,0.66);
-      font-size: 0.95rem;
-      text-decoration: none;
-      margin-top: 13px;
-      transition: color 170ms ease;
-    }
+    .mond-footer .mf-col-title { color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 0.17em; text-transform: uppercase; font-weight: 500; margin: 0 0 18px; }
+    .mond-footer .mf-col a { display: block; color: rgba(255,255,255,0.66); font-size: 0.95rem; text-decoration: none; margin-top: 13px; transition: color 170ms ease; }
     .mond-footer .mf-col a:first-of-type { margin-top: 0; }
-    .mond-footer .mf-col a:hover,
-    .mond-footer .mf-col a:focus-visible { color: #FFFFFF; }
-    .mond-footer .mf-bottom {
-      border-top: 1px solid rgba(255,255,255,0.08);
-      padding-top: 22px;
-    }
-    .mond-footer .mf-copyright {
-      color: rgba(255,255,255,0.5);
-      font-size: 0.86rem;
-    }
-    .mond-footer .mf-motif {
-      position: absolute;
-      bottom: -72px;
-      right: -72px;
-      z-index: 0;
-      pointer-events: none;
-    }
+    .mond-footer .mf-col a:hover, .mond-footer .mf-col a:focus-visible { color: #FFFFFF; }
+    .mond-footer .mf-bottom { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 22px; }
+    .mond-footer .mf-copyright { color: rgba(255,255,255,0.5); font-size: 0.86rem; }
+    .mond-footer .mf-motif { position: absolute; bottom: -72px; right: -72px; z-index: 0; pointer-events: none; }
     @media (max-width: 860px) {
       .mond-footer { padding: 40px 22px 28px; }
       .mond-footer .mf-top { flex-direction: column; gap: 34px; }
@@ -547,58 +104,54 @@
       .mond-footer .mf-motif { bottom: -90px; right: -90px; }
       .mond-footer .mf-motif svg { width: 220px; height: 220px; }
     }
-
   </style>
 </head>
 <body>
-
 <header class="header">
   <div class="header-inner">
     <a class="brand" href="index.html">Monderman<span class="brand-dot"></span></a>
     <nav class="nav" aria-label="Primary navigation">
       <a href="index.html#approach">Approach</a>
-      <a href="diagnostic-hub.html">Diagnostic Hub</a>
+      <a href="diagnostics.html">Diagnostics</a>
       <a href="research.html">Research</a>
       <a href="why-monderman.html">Why Monderman</a>
       <a href="about.html">About</a>
       <a href="platform-services.html">Platform Services</a>
       <a href="connect.html">Connect</a>
-      <a href="workspace.html" class="workspace-link">Workspace</a>
+      <a href="workspace.html" class="workspace-link">Sign In</a>
     </nav>
   </div>
 </header>
-
 <section class="hero">
   <div class="hero-inner">
     <p class="hero-eyebrow">Privacy</p>
     <h1>How Monderman handles your data.</h1>
-    <p class="hero-dek">
-      Diagnostic data stays in your environment. Nothing about how you use the platform leaves it without your action. The rest of this page explains, plainly, what that means in practice — and what Monderman does collect, when, and why.
-    </p>
-    <p class="hero-meta">Last updated: November 2026</p>
+    <p class="hero-dek">This page explains, in plain language, how Monderman handles the information you provide and the diagnostic work you do on the platform — what is collected, when, why, and what control you have over it.</p>
+    <p class="hero-meta">Last updated: June 2026</p>
   </div>
 </section>
 
+<!-- CONTENT_START -->
 <section class="commitments">
   <div class="commitments-inner">
     <p class="section-eyebrow">Commitments</p>
     <h2>Four plain-language promises that govern this platform.</h2>
     <ul class="commitments-list">
       <li>
-        <strong>Diagnostic data stays in your environment.</strong>
-        Your responses, scores, exports, and the narrative content of any diagnostic run are processed in your browser and stored locally. They are not transmitted to, written to, or retained on Monderman servers.
+        <strong>Your data is used to run your diagnostics — and for nothing else.</strong>
+        The information you enter is used to produce your results, support your workspace, and—where you have an advisory engagement—inform that work. It is never sold, rented, licensed, or used for advertising. There are no advertising trackers on this site.
       </li>
       <li>
-        <strong>No sale, no sharing, no third-party advertising.</strong>
-        Monderman does not sell, rent, license, or share your data with advertisers, brokers, or any third party for marketing or analytics purposes. There are no advertising trackers on this site.
+        <strong>Diagnostic processing relies on a small set of trusted providers.</strong>
+        Generating your results involves secure processing by Monderman and a limited number of reputable third-party providers — for AI interpretation, cloud hosting, authentication, and email delivery. They process your data only to deliver the service, never to market to you, and never to train their own products on your content.
       </li>
       <li>
-        <strong>You can ask for what Monderman has on you, and it will be deleted on request.</strong>
-        If you have contacted Monderman or signed up for the workspace, you can request a copy of the information held about you, or its deletion, at any time. Both will be honored.
+        <strong>You can see what is held about you, and have it deleted on request.</strong>
+        If you have a workspace, contacted Monderman, or run a saved diagnostic, you can request a copy of the information held about you, or its deletion, at any time. Both will be honored.
       </li>
       <li>
         <strong>Security incidents will be disclosed quickly and honestly.</strong>
-        In the unlikely event of a security incident affecting information you have entrusted to Monderman, those affected will be notified directly and promptly, with a plain account of what happened and what is being done about it.
+        In the unlikely event of an incident affecting information you have entrusted to Monderman, those affected will be notified directly and promptly, with a plain account of what happened and what is being done about it.
       </li>
     </ul>
   </div>
@@ -606,41 +159,58 @@
 
 <section class="section">
   <div class="section-inner">
-    <p class="section-eyebrow">What Monderman Does Not Collect</p>
-    <h2>Diagnostic content, organizational data, and identifying details from diagnostic runs.</h2>
+    <p class="section-eyebrow">How Your Data Is Handled</p>
+    <h2>Two ways to use Monderman — and what each one means for your data.</h2>
     <p>
-      When you run a Monderman diagnostic, the platform asks you to describe the conditions inside your organization — its structure, its decision patterns, its administrative load. That content does not leave your browser. Monderman does not see it, log it, transmit it to any server, or hold it for later use. It is yours.
+      Monderman can be used two ways, and they are different in how your data is handled. This section explains both plainly, because the distinction matters.
     </p>
     <p>
-      This includes:
+      <strong>Without signing in.</strong> The public sample report and introductory material do not ask you to identify yourself or your organization, and do not tie anything you view to you.
     </p>
-    <ul>
-      <li>The free-text descriptions you provide during a diagnostic run.</li>
-      <li>The diagnostic scores, signals, and exports produced from those descriptions.</li>
-      <li>The identity of your organization, your role, or any colleagues you reference.</li>
-      <li>Any document, file, or pasted content used as context inside a diagnostic.</li>
-    </ul>
     <p>
-      If you choose to export a report or share it with a colleague, that action happens entirely on your device. Monderman has no record that the diagnostic was run.
+      <strong>Signed in, in your workspace.</strong> When you sign in and run a diagnostic, the platform is doing real work on your behalf, and that work involves processing your data. Specifically: the descriptions you enter are sent securely to Monderman's processing environment and to an AI provider that generates the written interpretation of your results; and the results — your scores, signals, and the narrative produced — are saved to your workspace so you can return to them, track them over time, and share them within your organization. This is how the platform delivers what it promises. It is not a tool that keeps everything on your device; it is a system that processes and stores your diagnostic work so it remains useful to you.
+    </p>
+    <p>
+      In every case, your data is used to operate the platform and serve you — not to build advertising profiles, and not for any purpose you have not engaged Monderman for.
     </p>
   </div>
 </section>
 
 <section class="section">
   <div class="section-inner">
-    <p class="section-eyebrow">What Monderman Does Collect</p>
-    <h2>Only what is necessary to operate the platform and respond to you.</h2>
+    <p class="section-eyebrow">What Monderman Collects</p>
+    <h2>Three categories, each for a specific purpose.</h2>
     <p>
-      Three categories of information are collected, each for a specific purpose, each kept only as long as it is needed.
+      <strong>Your diagnostic inputs and results.</strong> When you run a diagnostic while signed in, the conditions you describe and the results produced from them are processed and stored as described above, tied to your workspace. They are used to generate your read, support longitudinal tracking, and — for advisory clients — inform the advisory work you have engaged Monderman to do.
     </p>
     <p>
-      <strong>Contact information you provide.</strong> When you submit the Connect form, send an email to <a class="inline" href="mailto:connect@monderman.com">connect@monderman.com</a>, or sign up for workspace access, the information you provide — name, role, organization, the content of your message — is received and read by a person. It is used to respond to you and, where appropriate, to support an ongoing relationship. It is not added to any marketing list and it is not shared.
+      <strong>Contact and account information you provide.</strong> When you submit the Connect form, email <a class="inline" href="mailto:connect@monderman.com">connect@monderman.com</a>, or create a workspace, the information you provide — name, role, organization, the content of your message, your sign-in identity — is used to respond to you, to operate your account, and to support an ongoing relationship where appropriate. It is not added to a marketing list and it is not shared for marketing.
     </p>
     <p>
-      <strong>Bot verification on the Connect form.</strong> The Connect form uses Cloudflare Turnstile, a privacy-respecting alternative to traditional CAPTCHA, to prevent automated abuse. Turnstile does not use cookies for tracking and does not profile you. Cloudflare's handling of the verification request is governed by their own privacy policy.
+      <strong>Basic site activity.</strong> Server logs may record information needed to operate and secure the site — such as IP address, browser type, the page requested, and the time of the request — retained for a short period for security and operational purposes. The Connect form uses a privacy-respecting bot-verification tool to prevent automated abuse. There are no third-party advertising or behavioral-analytics scripts on this site.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-inner">
+    <p class="section-eyebrow">Advisory Engagements</p>
+    <h2>When Monderman works directly with your results.</h2>
+    <p>
+      If your organization has an advisory engagement with Monderman, that work necessarily involves Monderman personnel reviewing your diagnostic results in order to interpret them, advise on them, and help you act. This access exists to deliver the advisory service you have engaged, is governed by the terms of that engagement, and is limited to the people involved in delivering it. Your data is not used beyond the scope of that work.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-inner">
+    <p class="section-eyebrow">Third-Party Providers</p>
+    <h2>The limited set of services the platform depends on.</h2>
+    <p>
+      Monderman relies on a small number of established third-party providers to function — for hosting the site, authenticating sign-in, generating AI interpretation, and delivering email. These providers process your data only as needed to provide their part of the service, under their own security and privacy obligations. The AI provider used for interpretation does not use your content to train its models.
     </p>
     <p>
-      <strong>Basic site activity.</strong> Server logs may record information necessary to operate and secure the site — IP address, user agent string, the page requested, the time of the request. These logs are retained for a short period for security and operational purposes and are not used to build behavioral profiles or to identify individuals. There are no third-party analytics scripts on this site.
+      Monderman does not sell, rent, or share your information with advertisers, data brokers, or any third party for marketing or analytics purposes. A current account of the providers involved in a specific deployment can be provided on request.
     </p>
   </div>
 </section>
@@ -650,12 +220,12 @@
     <p class="section-eyebrow">Your Rights</p>
     <h2>What you can ask Monderman to do.</h2>
     <p>
-      Regardless of where you are based, you have the following rights with respect to any information Monderman holds about you:
+      Regardless of where you are based, you have the following rights with respect to information Monderman holds about you:
     </p>
     <ul>
       <li>Ask what is held about you, and receive a plain-language account of it.</li>
       <li>Request correction of anything inaccurate.</li>
-      <li>Request deletion. This will be honored unless there is a specific legal reason not to (and if so, that reason will be explained to you).</li>
+      <li>Request deletion. This will be honored unless there is a specific legal reason not to — and if so, that reason will be explained to you.</li>
       <li>Withdraw consent for any ongoing communication or service, at any time.</li>
       <li>Lodge a complaint with a relevant data protection authority if you believe your rights have not been respected.</li>
     </ul>
@@ -667,13 +237,10 @@
 
 <section class="section">
   <div class="section-inner">
-    <p class="section-eyebrow">Where Data Is Held</p>
-    <h2>Site infrastructure and the limited information passed through it.</h2>
+    <p class="section-eyebrow">Retention &amp; Deletion</p>
+    <h2>How long data is kept.</h2>
     <p>
-      The Monderman site is hosted on infrastructure operated by GitHub Pages and supporting services that route requests through Cloudflare. The Connect form submission is processed by a small server function whose only purpose is to deliver the message to a Monderman inbox. None of this infrastructure stores diagnostic data, because no diagnostic data is sent to it.
-    </p>
-    <p>
-      If Monderman's hosting arrangement changes in a way that affects how your data is handled, this page will be updated and the change will be noted in the "Last updated" line above.
+      Diagnostic results and account information are retained for as long as your workspace is active or as needed to support an ongoing relationship, and are deleted on request or when no longer needed for the purpose collected. Operational logs are kept only for a short period. If your organization's engagement specifies particular retention, deletion, or data-residency requirements, those are set out in your agreement and take precedence.
     </p>
   </div>
 </section>
@@ -683,7 +250,7 @@
     <p class="section-eyebrow">Children</p>
     <h2>This platform is not intended for use by minors.</h2>
     <p>
-      Monderman is a B2B platform designed for use by working adults inside institutions. It is not intended for, marketed to, or knowingly used by anyone under the age of eighteen. No data is knowingly collected from minors.
+      Monderman is a platform designed for use by working adults inside institutions. It is not intended for, marketed to, or knowingly used by anyone under the age of eighteen, and no data is knowingly collected from minors.
     </p>
   </div>
 </section>
@@ -693,18 +260,11 @@
     <p class="section-eyebrow">Changes to This Page</p>
     <h2>How updates will be handled.</h2>
     <p>
-      If this policy changes in any meaningful way, the change will be reflected here and the "Last updated" date at the top will be revised. Material changes affecting how data is collected, used, or shared will not be applied retroactively to information already held under the previous policy.
+      If this policy changes in any meaningful way, the change will be reflected here and the "Last updated" date at the top will be revised. Material changes affecting how data is collected, used, or shared will be noted clearly.
     </p>
   </div>
 </section>
-
-<section class="quiet-cta">
-  <div class="quiet-cta-inner">
-    <p>
-      Questions about anything on this page, or about how a specific deployment of Monderman would handle your data, are welcome. Reach out at <a href="mailto:connect@monderman.com">connect@monderman.com</a>.
-    </p>
-  </div>
-</section>
+<!-- CONTENT_END -->
 
   <footer class="footer mond-footer">
     <div class="mf-motif" aria-hidden="true"><svg width="280" height="280" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#4A6FA5" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#5B7A9B" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#4A6FA5" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#5B7A9B" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#6B8FA6" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8BADC5" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#9FBDD1" stroke-width="0.4" opacity="0.13"/><circle cx="86" cy="-35" r="2.8" fill="#3F6EA1" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#5B7A9B" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#3F6EA1" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#7C5CE8" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#5B7A9B" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#2E86DE" opacity="0.58"/></svg></div>
@@ -715,7 +275,7 @@
             <span class="mf-name">Monderman</span>
             <span class="mf-dot"></span>
           </div>
-          <p class="mf-copy">Monderman is the diagnostic platform institutions use to measure, compare, and govern administrative reality — repeatedly, across perspectives, over time.</p>
+          <p class="mf-copy">Monderman is the organizational intelligence institutions use to measure, compare, and govern how their structure, decisions, and systems perform — repeatedly, across perspectives, over time.</p>
           <div class="mf-social">
             <a href="https://www.linkedin.com/in/jason-adamson-627622412/" target="_blank" rel="noopener noreferrer" aria-label="Monderman on LinkedIn"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
             <a href="https://x.com/MondermanHQ" target="_blank" rel="noopener noreferrer" aria-label="Monderman on X"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
@@ -726,7 +286,7 @@
           <div class="mf-col">
             <p class="mf-col-title">Explore</p>
             <a href="index.html#approach">Approach</a>
-            <a href="diagnostic-hub.html">Diagnostic Hub</a>
+            <a href="diagnostics.html">Diagnostics</a>
             <a href="research.html">Research</a>
             <a href="why-monderman.html">Why Monderman</a>
             <a href="about.html">About</a>
@@ -745,17 +305,27 @@
       </div>
     </div>
   </footer>
-
 <script>
   (function () {
     var header = document.querySelector('.header');
     if (!header) return;
-    function update() {
-      if (window.scrollY > 8) header.classList.add('scrolled');
-      else header.classList.remove('scrolled');
-    }
+    function update() { if (window.scrollY > 8) header.classList.add('scrolled'); else header.classList.remove('scrolled'); }
     update();
     window.addEventListener('scroll', update, { passive: true });
+  })();
+</script>
+<!-- Dynamic nav pill: Sign In (signed out) / Workspace (signed in) -->
+<script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+  const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co",
+    "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
+    { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" }});
+  (async () => {
+    const link = document.querySelector("a.workspace-link");
+    if (!link) return;
+    link.setAttribute("href", "workspace.html");
+    try { const { data } = await sb.auth.getSession(); link.textContent = data?.session?.user ? "Workspace" : "Sign In"; }
+    catch (e) { link.textContent = "Sign In"; }
   })();
 </script>
 </body>
