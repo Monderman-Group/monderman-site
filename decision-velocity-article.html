@@ -180,6 +180,7 @@
     .hero {
       position: relative;
       overflow: hidden;
+      border-bottom: 1px solid #3F6EA1;
       background: var(--dark);
       color: #fff;
       min-height: 560px;
@@ -1009,7 +1010,7 @@
       <a href="index.html" class="brand">Monderman<span class="brand-dot"></span></a>
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
-        <a href="diagnostic-hub.html">Diagnostic Hub</a>
+        <a href="diagnostics.html">Diagnostics</a>
         <a href="research.html">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
         <a href="about.html">About</a>
@@ -1290,7 +1291,7 @@
           <div class="mf-col">
             <p class="mf-col-title">Explore</p>
             <a href="index.html#approach">Approach</a>
-            <a href="diagnostic-hub.html">Diagnostic Hub</a>
+            <a href="diagnostics.html">Diagnostics</a>
             <a href="research.html">Research</a>
             <a href="why-monderman.html">Why Monderman</a>
             <a href="about.html">About</a>
@@ -1343,5 +1344,21 @@
     })();
   </script>
 
+  <!-- Dynamic nav pill: Sign In (signed out) / Workspace (signed in) -->
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co",
+      "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
+      { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" }});
+    (async () => {
+      const link = document.querySelector("a.workspace-link");
+      if (!link) return;
+      link.setAttribute("href", "workspace.html");
+      try {
+        const { data } = await sb.auth.getSession();
+        link.textContent = data?.session?.user ? "Workspace" : "Sign In";
+      } catch (e) { link.textContent = "Sign In"; }
+    })();
+  </script>
 </body>
 </html>
