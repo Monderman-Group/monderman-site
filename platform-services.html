@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- ✅ MONDERMAN GATING FIX (corrected file): per-diagnostic free runs + aligned copy. -->
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -391,7 +392,8 @@
     .ps-section-label{display:block;font-size:.74rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:0 0 14px}
     .ps-h2{font-size:32px;line-height:1.1;font-weight:700;color:var(--text-dark);max-width:26ch;margin:0 0 16px;letter-spacing:-0.02em}
     .ps-sub{font-size:17px;line-height:1.65;color:var(--muted-dark);max-width:64ch;margin:0 0 8px}
-    .ps-roi{background:var(--bg-dark);color:var(--text-light)}
+    .ps-roi{background:var(--bg-dark);color:var(--text-light);border-top:1px solid rgba(255,255,255,.08)}
+    .ps-seam{height:120px;background:linear-gradient(180deg,var(--bg-dark),var(--bg-offwhite))}
     .ps-roi .ps-h2{color:#fff}.ps-roi .ps-sub{color:var(--muted-light)}
     .ps-roi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:34px}
     .ps-roi-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);border-radius:var(--card-radius);padding:26px 24px}
@@ -518,6 +520,7 @@
     </div>
   </section>
 
+  <div class="ps-seam" aria-hidden="true"></div>
   <section class="ps-section" id="plans">
     <div class="ps-wrap">
       <span class="ps-section-label">Three tiers</span>
@@ -576,7 +579,7 @@
       </div>
 
       <div class="ps-free">
-        <div class="t"><b>Try it first.</b> Create an account and run three diagnostics in full &mdash; read, score, and export &mdash; before you choose a tier.</div>
+        <div class="t"><b>Try it first.</b> Create an account and run each diagnostic three times in full &mdash; read, score, and export &mdash; before you choose a tier.</div>
         <a class="btn btn-secondary" href="workspace.html">Run a diagnostic &mdash; free</a>
       </div>
       <p class="ps-beta-note">Monderman is in active beta. Every tier includes a direct feedback channel and hands-on correction where a structural edge case affects your read. You are an early customer of an instrument improving on a known cadence &mdash; not a buyer of finished, frozen software.</p>
@@ -602,7 +605,7 @@
           <tbody>
             <tr><td class="rowlabel">Best for</td><td>One curious person</td><td>One person or small team</td><td>An organization</td><td>An org that wants a partner</td></tr>
             <tr><td class="rowlabel">Price</td><td>$0</td><td>$9,000/yr</td><td>$36,000/yr</td><td>From $108,000/yr</td></tr>
-            <tr><td class="rowlabel">Diagnostic runs</td><td class="num">3 total</td><td class="num">Unlimited*</td><td class="num">Unlimited*</td><td class="num">Unlimited*</td></tr>
+            <tr><td class="rowlabel">Diagnostic runs</td><td class="num">3 per diagnostic</td><td class="num">Unlimited*</td><td class="num">Unlimited*</td><td class="num">Unlimited*</td></tr>
             <tr><td class="rowlabel">Seats (named logins)</td><td class="num">1</td><td class="num">3</td><td class="num">15</td><td class="num">Unlimited</td></tr>
             <tr><td class="rowlabel">Full per-run deliverable</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td></tr>
             <tr><td class="rowlabel">Saved history</td><td class="no">&mdash;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td></tr>
