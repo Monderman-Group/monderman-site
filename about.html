@@ -607,6 +607,9 @@
       .mond-footer .mf-motif svg { width: 220px; height: 220px; }
     }
 
+  
+    .hero{position:relative;overflow:hidden}
+    .hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:#3F6EA1;pointer-events:none;z-index:2}
   </style>
 </head>
 <body>
@@ -616,7 +619,7 @@
     <a class="brand" href="index.html">Monderman<span class="brand-dot"></span></a>
     <nav class="nav" aria-label="Primary navigation">
       <a href="index.html#approach">Approach</a>
-      <a href="diagnostic-hub.html">Diagnostic Hub</a>
+      <a href="diagnostics.html">Diagnostics</a>
       <a href="research.html">Research</a>
       <a href="why-monderman.html">Why Monderman</a>
       <a href="about.html" class="is-active">About</a>
@@ -705,7 +708,7 @@
 <section class="quiet-cta">
   <div class="quiet-cta-inner">
     <p>
-      Reach out at <a href="mailto:connect@monderman.com">connect@monderman.com</a>, or <a href="diagnostic-hub.html">open the Diagnostic Hub</a>.
+      Reach out at <a href="mailto:connect@monderman.com">connect@monderman.com</a>, or <a href="diagnostics.html">open the Diagnostics</a>.
     </p>
   </div>
 </section>
@@ -730,7 +733,7 @@
           <div class="mf-col">
             <p class="mf-col-title">Explore</p>
             <a href="index.html#approach">Approach</a>
-            <a href="diagnostic-hub.html">Diagnostic Hub</a>
+            <a href="diagnostics.html">Diagnostics</a>
             <a href="research.html">Research</a>
             <a href="why-monderman.html">Why Monderman</a>
             <a href="about.html">About</a>
@@ -762,5 +765,21 @@
     window.addEventListener('scroll', update, { passive: true });
   })();
 </script>
+  <!-- Dynamic nav pill: Sign In (signed out) / Workspace (signed in) -->
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co",
+      "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
+      { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" }});
+    (async () => {
+      const link = document.querySelector("a.workspace-link");
+      if (!link) return;
+      link.setAttribute("href", "workspace.html");
+      try {
+        const { data } = await sb.auth.getSession();
+        link.textContent = data?.session?.user ? "Workspace" : "Sign In";
+      } catch (e) { link.textContent = "Sign In"; }
+    })();
+  </script>
 </body>
 </html>
