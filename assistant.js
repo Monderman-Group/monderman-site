@@ -30,6 +30,9 @@
     + '#mnd-head .mnd-sub{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-top:3px}'
     + '#mnd-close{background:transparent;border:none;color:rgba(255,255,255,.7);font-size:24px;line-height:1;cursor:pointer;padding:0 2px}'
     + '#mnd-close:hover{color:#fff}'
+    + '#mnd-head .mnd-head-actions{display:flex;align-items:center;gap:10px}'
+    + '#mnd-new{background:transparent;border:1px solid rgba(255,255,255,.28);color:rgba(255,255,255,.85);font:inherit;font-size:11.5px;font-weight:500;letter-spacing:.02em;padding:5px 10px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:background .15s ease,border-color .15s ease,color .15s ease}'
+    + '#mnd-new:hover{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.5);color:#fff}'
     + '#mnd-msgs{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px;background:#F4F6F9}'
     + '.mnd-msg{max-width:85%;padding:11px 14px;border-radius:14px;font-size:14px;line-height:1.55;white-space:pre-wrap;word-wrap:break-word}'
     + '.mnd-bot{align-self:flex-start;background:#fff;border:1px solid rgba(21,32,43,.10);color:#15202B}'
@@ -62,7 +65,7 @@
   panel.setAttribute("role", "dialog");
   panel.setAttribute("aria-label", "Monderman assistant");
   panel.innerHTML =
-    '<div id="mnd-head"><div><div class="mnd-title">Monderman assistant</div><div class="mnd-sub">Here to help you navigate</div></div><button id="mnd-close" aria-label="Close assistant">&times;</button></div>'
+    '<div id="mnd-head"><div><div class="mnd-title">Monderman assistant</div><div class="mnd-sub">Here to help you navigate</div></div><div class="mnd-head-actions"><button id="mnd-new" aria-label="Start a new chat">New chat</button><button id="mnd-close" aria-label="Close assistant">&times;</button></div></div>'
     + '<div id="mnd-msgs"></div>'
     + '<div id="mnd-foot"><textarea id="mnd-input" rows="1" placeholder="Ask about Monderman…" aria-label="Type your question"></textarea><button id="mnd-send">Send</button></div>';
 
@@ -150,6 +153,12 @@
   /* ---- events -------------------------------------------------------------- */
   launcher.addEventListener("click", open);
   panel.querySelector("#mnd-close").addEventListener("click", close);
+  panel.querySelector("#mnd-new").addEventListener("click", function () {
+    history = [];
+    saveHistory();   // clears the saved copy too, so the reset carries across pages
+    render();        // back to just the greeting
+    inputEl.focus();
+  });
   sendEl.addEventListener("click", send);
   inputEl.addEventListener("keydown", function (e) {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
