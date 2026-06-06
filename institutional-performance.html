@@ -502,7 +502,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   <div class="shell"><main class="app">
     <section class="frame-top"><div class="engine-note"><div><p class="eyebrow">Reading whether the institution still converts structure into sustained performance — or quietly preserves output through compensation</p><p class="engine-copy">Powered by Monderman's proprietary diagnostic engine.</p></div><div class="hero-step"><span class="hero-step-dot" aria-hidden="true"></span><span>Step 1 of 3 · choose perspective and run depth</span></div></div><div class="tool-title"><div><h1>Institutional Performance Diagnostic</h1></div><p>See whether execution coherence, institutional confidence, adaptive capacity, and performance stability are holding — or whether visible output is being propped up by extra effort and management lift.</p></div></section>
     <section class="environment" aria-label="Institutional performance diagnostic environment"><div class="environment-inner">
-      <header class="env-head"><div class="env-head-row"><div><p class="env-kicker">Monderman diagnostic environment</p><h2 id="envHeadline">Structured diagnostic sequence</h2></div><div class="env-status"><span class="env-status-dot" aria-hidden="true"></span><span id="statusPill">Ready to begin</span></div></div><p id="envSubcopy">This tool adapts to the institutional signal you surface first. You can move back, skip non-required questions, or restart without breaking the rest of the run.</p><div class="env-head-actions"><div class="current-path-chip" id="currentPathChip"></div><button class="learnmore-toggle" id="learnMoreToggle" type="button">Learn more about this perspective</button><button class="btn btn-accent" id="heroBeginBtn" type="button">Begin diagnostic</button></div><div class="learnmore-panel" id="learnMorePanel"></div><div class="micro-proof" id="heroProof">Leaders use this to see whether execution, confidence, and adaptive capacity are holding — or whether visible output is quietly propped up by extra effort and management lift.</div></header>
+      <header class="env-head"><div class="env-head-row"><div><p class="env-kicker">Monderman diagnostic environment</p><h2 id="envHeadline">Structured diagnostic sequence</h2></div><div class="env-status"><span class="env-status-dot" aria-hidden="true"></span><span id="statusPill">Ready to begin</span></div></div><p id="envSubcopy">This tool adapts to the institutional signal you surface first. You can move back, skip non-required questions, or restart without breaking the rest of the run.</p><div class="env-head-actions"><div class="current-path-chip" id="currentPathChip"></div><button class="learnmore-toggle" id="learnMoreToggle" type="button">Learn more about this perspective</button></div><div class="learnmore-panel" id="learnMorePanel"></div><div class="micro-proof" id="heroProof">Leaders use this to see whether execution, confidence, and adaptive capacity are holding — or whether visible output is quietly propped up by extra effort and management lift.</div></header>
 
   <div class="stage active" id="laneStage"><div class="intake-shell">
     <span class="step-chip" style="display:none">Step 1</span>
@@ -1832,6 +1832,166 @@ if (msg) msg.textContent = '';
 }
 });
 });
+
+initPreflightPager();
+}
+
+function initPreflightPager() {
+  try {
+    if (!document.getElementById("preflight-pager-style")) {
+      var st = document.createElement("style");
+      st.id = "preflight-pager-style";
+      st.textContent = ".preflight-step-header{margin-bottom:16px;}.preflight-step-kicker{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#6b7785;font-weight:700;margin:0 0 4px;}.preflight-step-progress{font-size:13px;color:#8a94a0;margin:0;}.preflight-pager,.preflight-gate-nav{margin-top:20px;}#preflightContextMount .card.soft .field>label{font-size:16px;font-weight:600;display:block;margin-bottom:8px;}#preflightContextMount .card.soft .field-group{grid-template-columns:1fr!important;gap:0!important;}";
+      document.head.appendChild(st);
+    }
+    var introCard = document.querySelector("#introStage .card");
+    if (!introCard) return;
+    var mountNode = document.getElementById("preflightContextMount");
+    var mountCard = mountNode ? mountNode.querySelector(".card.soft") : null;
+    var fieldEls = mountCard ? Array.prototype.slice.call(mountCard.querySelectorAll(".field")) : [];
+    var noticeBlock = introCard.querySelector(".intake-notice-block");
+    var checkboxCard = introCard.querySelector(".checkbox-card");
+    var actions = introCard.querySelector(".intake-actions");
+    var kicker = introCard.querySelector(".intake-step-kicker");
+    var titleEl = introCard.querySelector(".intake-step-title");
+    var copyEl = introCard.querySelector(".intake-step-copy");
+    var beginBtnReal = document.getElementById("beginBtn");
+    var consent = document.getElementById("preStartConsent");
+    if (!mountNode || !mountCard || fieldEls.length === 0 || !checkboxCard || !actions || !beginBtnReal || !consent) return;
+
+    var cardHeading = mountCard.querySelector("h3");
+    var cardIntro = mountCard.querySelector("p.tiny");
+    if (cardHeading) cardHeading.style.display = "none";
+    if (cardIntro) cardIntro.style.display = "none";
+
+    var stepHeader = mountCard.querySelector(".preflight-step-header");
+    if (!stepHeader) {
+      stepHeader = document.createElement("div");
+      stepHeader.className = "preflight-step-header";
+      stepHeader.innerHTML = '<p class="preflight-step-kicker">Run context</p><p class="preflight-step-progress"></p>';
+      mountCard.insertBefore(stepHeader, mountCard.firstChild);
+    }
+    var progressEl = stepHeader.querySelector(".preflight-step-progress");
+
+    var nav = mountCard.querySelector(".preflight-pager");
+    if (!nav) {
+      nav = document.createElement("div");
+      nav.className = "preflight-pager intake-actions";
+      nav.innerHTML = '<a class="intake-hub-link" href="https://www.monderman.com/diagnostics.html">&#8592; Back to diagnostics</a><div class="intake-actions-right"><button type="button" class="intake-pill-btn intake-pill-btn-secondary preflight-back">&#8592; Back</button><button type="button" class="intake-pill-btn intake-pill-btn-primary preflight-next">Continue &#8594;</button></div>';
+      mountCard.appendChild(nav);
+    }
+    var backBtn = nav.querySelector(".preflight-back");
+    var nextBtn = nav.querySelector(".preflight-next");
+
+    var gateNav = introCard.querySelector(".preflight-gate-nav");
+    if (!gateNav) {
+      gateNav = document.createElement("div");
+      gateNav.className = "preflight-gate-nav intake-actions";
+      gateNav.innerHTML = '<a class="intake-hub-link" href="https://www.monderman.com/diagnostics.html">&#8592; Back to diagnostics</a><div class="intake-actions-right"><button type="button" class="intake-pill-btn intake-pill-btn-secondary preflight-gate-back">&#8592; Back</button><button type="button" class="intake-pill-btn intake-pill-btn-primary preflight-gate-next">Continue &#8594;</button></div>';
+      introCard.appendChild(gateNav);
+    }
+    var gateBack = gateNav.querySelector(".preflight-gate-back");
+    var gateNext = gateNav.querySelector(".preflight-gate-next");
+
+    var total = fieldEls.length;
+    var idx = 0;
+
+    function fieldIsValid(el) {
+      var id = el.getAttribute("data-field-id");
+      var def = PRESTART_FIELDS.find(function (f) { return f.id === id; });
+      if (!def || !def.required) return true;
+      var input = document.getElementById("preflight_" + id);
+      var raw = input ? input.value : "";
+      if (def.kind === "number") return Number.isFinite(parseDirectionalNumber(raw));
+      return String(raw == null ? "" : raw).trim() !== "";
+    }
+
+    function showGate() {
+      if (kicker) kicker.style.display = "";
+      if (titleEl) titleEl.style.display = "";
+      if (copyEl) copyEl.style.display = "";
+      if (noticeBlock) noticeBlock.style.display = "";
+      checkboxCard.style.display = "";
+      mountNode.style.display = "none";
+      actions.style.display = "none";
+      gateNav.style.display = "";
+    }
+
+    function showField(i) {
+      idx = Math.max(0, Math.min(i, total - 1));
+      if (kicker) kicker.style.display = "none";
+      if (titleEl) titleEl.style.display = "none";
+      if (copyEl) copyEl.style.display = "none";
+      if (noticeBlock) noticeBlock.style.display = "none";
+      checkboxCard.style.display = "none";
+      actions.style.display = "none";
+      gateNav.style.display = "none";
+      mountNode.style.display = "";
+      if (stepHeader) stepHeader.style.display = "";
+      nav.style.display = "";
+      for (var n = 0; n < total; n++) { fieldEls[n].style.display = (n === idx) ? "" : "none"; }
+      var groupHeaders = mountCard.querySelectorAll(".preflight-group-header");
+      for (var g = 0; g < groupHeaders.length; g++) { groupHeaders[g].style.display = "none"; }
+      var groups = mountCard.querySelectorAll(".preflight-group");
+      for (var gi = 0; gi < groups.length; gi++) { groups[gi].style.display = groups[gi].contains(fieldEls[idx]) ? "" : "none"; }
+      if (progressEl) progressEl.textContent = "Question " + (idx + 1) + " of " + total;
+      backBtn.textContent = "\u2190 Back";
+      nextBtn.textContent = (idx === total - 1) ? "Begin Diagnostic \u2192" : "Continue \u2192";
+      var inp = fieldEls[idx].querySelector("input, select, textarea");
+      setTimeout(function () { try { if (inp) inp.focus({ preventScroll: true }); } catch (e) {} }, 60);
+    }
+
+    function startRun() {
+      try { nextBtn.disabled = true; } catch (e) {}
+      beginBtnReal.disabled = false;
+      beginBtnReal.click();
+    }
+
+    gateNext.onclick = function () {
+      if (!consent.checked) {
+        if (typeof setConsentError === "function") setConsentError("Please confirm the statement above to continue.");
+        try { consent.focus(); } catch (e) {}
+        return;
+      }
+      if (typeof setConsentError === "function") setConsentError("");
+      showField(0);
+    };
+    gateBack.onclick = function () {
+      if (typeof showStage === "function" && typeof depthStage !== "undefined" && depthStage) showStage(depthStage);
+    };
+    nextBtn.onclick = function () {
+      var cur = fieldEls[idx];
+      if (!fieldIsValid(cur)) { markFieldError(cur.getAttribute("data-field-id"), "This field is required."); return; }
+      if (idx < total - 1) showField(idx + 1);
+      else startRun();
+    };
+    backBtn.onclick = function () {
+      if (idx > 0) showField(idx - 1);
+      else showGate();
+    };
+
+    showGate();
+  } catch (e) {
+    try {
+      var ic = document.querySelector("#introStage");
+      if (ic) {
+        var mn = document.getElementById("preflightContextMount"); if (mn) mn.style.display = "";
+        ic.querySelectorAll(".field").forEach(function (el) { el.style.display = ""; });
+        ic.querySelectorAll(".preflight-group-header, .preflight-group").forEach(function (el) { el.style.display = ""; });
+        var k = ic.querySelector(".intake-step-kicker"); if (k) k.style.display = "";
+        var t = ic.querySelector(".intake-step-title"); if (t) t.style.display = "";
+        var c = ic.querySelector(".intake-step-copy"); if (c) c.style.display = "";
+        var nb = ic.querySelector(".intake-notice-block"); if (nb) nb.style.display = "";
+        var cc = ic.querySelector(".checkbox-card"); if (cc) cc.style.display = "";
+        var ac = ic.querySelector(".intake-actions"); if (ac) ac.style.display = "";
+        var gn = ic.querySelector(".preflight-gate-nav"); if (gn) gn.style.display = "none";
+        var pg = ic.querySelector(".preflight-pager"); if (pg) pg.style.display = "none";
+        var sh = ic.querySelector(".preflight-step-header"); if (sh) sh.style.display = "none";
+        var ch = mn ? mn.querySelector("h3") : null; if (ch) ch.style.display = "";
+        var ci = mn ? mn.querySelector("p.tiny") : null; if (ci) ci.style.display = "";
+      }
+    } catch (e2) {}
+  }
 }
 
 function readPreflightForm() {
@@ -5059,7 +5219,7 @@ syncBeginButton();
 // now owns the showStage(introStage) call.
 }
 
-heroBeginBtn.addEventListener("click", () => {
+heroBeginBtn?.addEventListener("click", () => {
 showStage(laneStage, { scroll: true });
 document.querySelector("#laneStage .step-chip")?.scrollIntoView({ behavior: "smooth", block: "start" });
 });
