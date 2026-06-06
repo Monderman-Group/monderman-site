@@ -1773,7 +1773,7 @@ function initPreflightPager() {
     if (!document.getElementById("preflight-pager-style")) {
       var st = document.createElement("style");
       st.id = "preflight-pager-style";
-      st.textContent = ".preflight-step-header{margin-bottom:16px;}.preflight-step-kicker{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#6b7785;font-weight:700;margin:0 0 4px;}.preflight-step-progress{font-size:13px;color:#8a94a0;margin:0;}.preflight-pager{margin-top:20px;}#preflightContextMount .card.soft .field>label{font-size:16px;font-weight:600;display:block;margin-bottom:8px;}";
+      st.textContent = ".preflight-step-header{margin-bottom:16px;}.preflight-step-kicker{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#6b7785;font-weight:700;margin:0 0 4px;}.preflight-step-progress{font-size:13px;color:#8a94a0;margin:0;}.preflight-pager,.preflight-gate-nav{margin-top:20px;}#preflightContextMount .card.soft .field>label{font-size:16px;font-weight:600;display:block;margin-bottom:8px;}";
       document.head.appendChild(st);
     }
     var introCard = document.querySelector("#introStage .card");
@@ -1784,7 +1784,12 @@ function initPreflightPager() {
     var noticeBlock = introCard.querySelector(".intake-notice-block");
     var checkboxCard = introCard.querySelector(".checkbox-card");
     var actions = introCard.querySelector(".intake-actions");
-    if (!mountCard || fieldEls.length === 0 || !checkboxCard || !actions) return;
+    var kicker = introCard.querySelector(".intake-step-kicker");
+    var titleEl = introCard.querySelector(".intake-step-title");
+    var copyEl = introCard.querySelector(".intake-step-copy");
+    var beginBtnReal = document.getElementById("beginBtn");
+    var consent = document.getElementById("preStartConsent");
+    if (!mountNode || !mountCard || fieldEls.length === 0 || !checkboxCard || !actions || !beginBtnReal || !consent) return;
 
     var cardHeading = mountCard.querySelector("h3");
     var cardIntro = mountCard.querySelector("p.tiny");
@@ -1810,6 +1815,16 @@ function initPreflightPager() {
     var backBtn = nav.querySelector(".preflight-back");
     var nextBtn = nav.querySelector(".preflight-next");
 
+    var gateNav = introCard.querySelector(".preflight-gate-nav");
+    if (!gateNav) {
+      gateNav = document.createElement("div");
+      gateNav.className = "preflight-gate-nav intake-actions";
+      gateNav.innerHTML = '<a class="intake-hub-link" href="https://www.monderman.com/diagnostics.html">&#8592; Back to diagnostics</a><div class="intake-actions-right"><button type="button" class="intake-pill-btn intake-pill-btn-secondary preflight-gate-back">&#8592; Back</button><button type="button" class="intake-pill-btn intake-pill-btn-primary preflight-gate-next">Continue &#8594;</button></div>';
+      introCard.appendChild(gateNav);
+    }
+    var gateBack = gateNav.querySelector(".preflight-gate-back");
+    var gateNext = gateNav.querySelector(".preflight-gate-next");
+
     var total = fieldEls.length;
     var idx = 0;
 
@@ -1823,56 +1838,84 @@ function initPreflightPager() {
       return String(raw == null ? "" : raw).trim() !== "";
     }
 
+    function showGate() {
+      if (kicker) kicker.style.display = "";
+      if (titleEl) titleEl.style.display = "";
+      if (copyEl) copyEl.style.display = "";
+      if (noticeBlock) noticeBlock.style.display = "";
+      checkboxCard.style.display = "";
+      mountNode.style.display = "none";
+      actions.style.display = "none";
+      gateNav.style.display = "";
+    }
+
     function showField(i) {
       idx = Math.max(0, Math.min(i, total - 1));
-      for (var n = 0; n < total; n++) {
-        fieldEls[n].style.display = (n === idx) ? "" : "none";
-      }
+      if (kicker) kicker.style.display = "none";
+      if (titleEl) titleEl.style.display = "none";
+      if (copyEl) copyEl.style.display = "none";
+      if (noticeBlock) noticeBlock.style.display = "none";
+      checkboxCard.style.display = "none";
+      actions.style.display = "none";
+      gateNav.style.display = "none";
+      mountNode.style.display = "";
+      if (stepHeader) stepHeader.style.display = "";
+      nav.style.display = "";
+      for (var n = 0; n < total; n++) { fieldEls[n].style.display = (n === idx) ? "" : "none"; }
       if (progressEl) progressEl.textContent = "Question " + (idx + 1) + " of " + total;
-      backBtn.textContent = (idx === 0) ? "\u2190 Back to setup" : "\u2190 Back";
-      var cur = fieldEls[idx];
-      var inp = cur.querySelector("input, select, textarea");
+      backBtn.textContent = "\u2190 Back";
+      nextBtn.textContent = (idx === total - 1) ? "Begin Diagnostic \u2192" : "Continue \u2192";
+      var inp = fieldEls[idx].querySelector("input, select, textarea");
       setTimeout(function () { try { if (inp) inp.focus({ preventScroll: true }); } catch (e) {} }, 60);
     }
 
-    function showFinal() {
-      for (var n = 0; n < total; n++) { fieldEls[n].style.display = "none"; }
-      if (stepHeader) stepHeader.style.display = "none";
-      nav.style.display = "none";
-      if (noticeBlock) noticeBlock.style.display = "";
-      checkboxCard.style.display = "";
-      actions.style.display = "";
-      try { checkboxCard.scrollIntoView({ behavior: "smooth", block: "center" }); } catch (e) {}
+    function startRun() {
+      try { nextBtn.disabled = true; } catch (e) {}
+      beginBtnReal.disabled = false;
+      beginBtnReal.click();
     }
 
-    nextBtn.onclick = function () {
-      var cur = fieldEls[idx];
-      if (!fieldIsValid(cur)) {
-        markFieldError(cur.getAttribute("data-field-id"), "This field is required.");
+    gateNext.onclick = function () {
+      if (!consent.checked) {
+        if (typeof setConsentError === "function") setConsentError("Please confirm the statement above to continue.");
+        try { consent.focus(); } catch (e) {}
         return;
       }
+      if (typeof setConsentError === "function") setConsentError("");
+      showField(0);
+    };
+    gateBack.onclick = function () {
+      if (typeof showStage === "function" && typeof depthStage !== "undefined" && depthStage) showStage(depthStage);
+    };
+    nextBtn.onclick = function () {
+      var cur = fieldEls[idx];
+      if (!fieldIsValid(cur)) { markFieldError(cur.getAttribute("data-field-id"), "This field is required."); return; }
       if (idx < total - 1) showField(idx + 1);
-      else showFinal();
+      else startRun();
     };
     backBtn.onclick = function () {
       if (idx > 0) showField(idx - 1);
-      else if (typeof showStage === "function" && typeof depthStage !== "undefined" && depthStage) showStage(depthStage);
+      else showGate();
     };
 
-    if (noticeBlock) noticeBlock.style.display = "none";
-    checkboxCard.style.display = "none";
-    actions.style.display = "none";
-    showField(0);
+    showGate();
   } catch (e) {
     try {
       var ic = document.querySelector("#introStage");
       if (ic) {
+        var mn = document.getElementById("preflightContextMount"); if (mn) mn.style.display = "";
         ic.querySelectorAll(".field").forEach(function (el) { el.style.display = ""; });
+        var k = ic.querySelector(".intake-step-kicker"); if (k) k.style.display = "";
+        var t = ic.querySelector(".intake-step-title"); if (t) t.style.display = "";
+        var c = ic.querySelector(".intake-step-copy"); if (c) c.style.display = "";
+        var nb = ic.querySelector(".intake-notice-block"); if (nb) nb.style.display = "";
         var cc = ic.querySelector(".checkbox-card"); if (cc) cc.style.display = "";
         var ac = ic.querySelector(".intake-actions"); if (ac) ac.style.display = "";
-        var nb = ic.querySelector(".intake-notice-block"); if (nb) nb.style.display = "";
+        var gn = ic.querySelector(".preflight-gate-nav"); if (gn) gn.style.display = "none";
         var pg = ic.querySelector(".preflight-pager"); if (pg) pg.style.display = "none";
         var sh = ic.querySelector(".preflight-step-header"); if (sh) sh.style.display = "none";
+        var ch = mn ? mn.querySelector("h3") : null; if (ch) ch.style.display = "";
+        var ci = mn ? mn.querySelector("p.tiny") : null; if (ci) ci.style.display = "";
       }
     } catch (e2) {}
   }
