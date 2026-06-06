@@ -48,7 +48,9 @@
     + '#mnd-input:focus{outline:none;border-color:#3F6EA1;box-shadow:0 0 0 3px rgba(63,110,161,.12)}'
     + '#mnd-send{flex:0 0 auto;border:none;border-radius:12px;background:#3F6EA1;color:#fff;font:inherit;font-size:14px;font-weight:500;padding:11px 16px;cursor:pointer}'
     + '#mnd-send:hover{background:#315983}#mnd-send:disabled{opacity:.5;cursor:not-allowed}'
-    + '@media (max-width:480px){#mnd-panel{right:0;bottom:0;width:100vw;max-width:100vw;height:88vh;max-height:88vh;border-radius:18px 18px 0 0}#mnd-launcher{right:16px;bottom:16px}}';
+    + '#mnd-launcher.mnd-dock-left{left:20px;right:auto}'
+    + '#mnd-panel.mnd-dock-left{left:20px;right:auto}'
+    + '@media (max-width:480px){#mnd-panel{right:0;bottom:0;width:100vw;max-width:100vw;height:88vh;max-height:88vh;border-radius:18px 18px 0 0}#mnd-launcher{right:16px;bottom:16px}#mnd-launcher.mnd-dock-left{left:16px;right:auto}#mnd-panel.mnd-dock-left{left:0;right:0;width:100vw;max-width:100vw}}';
 
   var style = document.createElement("style");
   style.textContent = css;
@@ -71,6 +73,15 @@
 
   document.body.appendChild(launcher);
   document.body.appendChild(panel);
+
+  // On the diagnostic tool pages, the run's own status messages sit bottom-right.
+  // Dock the assistant bottom-left there so it never covers them. Detected by the
+  // diagnostic's status container (#toastStack), which only those pages have —
+  // content pages keep the bubble bottom-right.
+  if (document.getElementById("toastStack") || document.querySelector(".toast-stack")) {
+    launcher.classList.add("mnd-dock-left");
+    panel.classList.add("mnd-dock-left");
+  }
 
   var msgsEl = panel.querySelector("#mnd-msgs");
   var inputEl = panel.querySelector("#mnd-input");
