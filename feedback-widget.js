@@ -33,7 +33,7 @@
     '  color:var(--fb-ink); position:fixed; z-index:2147483000;',
     '}',
     '.mdn-fb-launch{',
-    '  position:fixed; right:22px; bottom:22px; z-index:2147483000;',
+    '  position:fixed; right:22px; bottom:90px; z-index:2147483000;',
     '  display:inline-flex; align-items:center; gap:8px;',
     '  padding:11px 15px; border:1px solid var(--fb-line); border-radius:999px;',
     '  background:var(--fb-surface); color:var(--fb-ink); cursor:pointer;',
@@ -45,15 +45,19 @@
     '.mdn-fb-launch:focus-visible{outline:none; box-shadow:0 0 0 4px var(--fb-ring);}',
     '.mdn-fb-launch svg{width:16px;height:16px;display:block;}',
     '.mdn-fb-launch.mdn-fb-hidden{opacity:0; pointer-events:none; transform:translateY(6px);}',
+    '.mdn-fb-launch.mdn-fb-left{left:22px; right:auto;}',
+    '#mdn-fb-root.mdn-fb-chatopen .mdn-fb-launch{opacity:0; pointer-events:none; transform:translateY(6px);}',
+    '#mdn-fb-root.mdn-fb-solo .mdn-fb-launch{bottom:22px;}',
 
     '#mdn-fb-panel{',
-    '  position:fixed; right:22px; bottom:78px; width:342px; max-width:calc(100vw - 32px);',
+    '  position:fixed; right:22px; bottom:148px; width:342px; max-width:calc(100vw - 32px);',
     '  background:var(--fb-surface); border:1px solid var(--fb-line); border-radius:var(--fb-radius);',
     '  box-shadow:var(--fb-shadow); overflow:hidden;',
     '  opacity:0; transform:translateY(8px) scale(.99); pointer-events:none;',
     '  transition:opacity .18s ease, transform .18s ease;',
     '}',
     '#mdn-fb-panel.mdn-fb-open{opacity:1; transform:translateY(0) scale(1); pointer-events:auto;}',
+    '#mdn-fb-panel.mdn-fb-left{left:22px; right:auto;}',
     '.mdn-fb-head{display:flex; align-items:flex-start; justify-content:space-between; padding:16px 16px 4px;}',
     '.mdn-fb-title{font-size:14.5px; font-weight:600; margin:0; letter-spacing:.01em;}',
     '.mdn-fb-sub{font-size:12.5px; color:var(--fb-muted); margin:3px 0 0; line-height:1.4;}',
@@ -98,8 +102,11 @@
     '.mdn-fb-done-t{font-size:14.5px; font-weight:600; margin:0;}',
     '.mdn-fb-done-s{font-size:12.5px; color:var(--fb-muted); margin:5px 0 0;}',
     '@media (max-width:480px){',
-    '  .mdn-fb-launch{right:14px; bottom:14px;}',
-    '  #mdn-fb-panel{right:14px; left:14px; bottom:68px; width:auto;}',
+    '  .mdn-fb-launch{right:14px; bottom:84px;}',
+    '  .mdn-fb-launch.mdn-fb-left{left:14px; right:auto;}',
+    '  #mdn-fb-root.mdn-fb-solo .mdn-fb-launch{bottom:14px;}',
+    '  #mdn-fb-panel{right:14px; left:14px; bottom:140px; width:auto;}',
+    '  #mdn-fb-panel.mdn-fb-left{left:14px; right:14px;}',
     '}',
     '@media (prefers-reduced-motion:reduce){',
     '  .mdn-fb-launch,#mdn-fb-panel,.mdn-fb-star svg{transition:none;}',
@@ -309,5 +316,26 @@
         '</div>';
       setTimeout(function () { if (open) closePanel(); }, 1800);
     }
+
+    // --- sit above the chatbot, on whichever side it uses; hide while chat is open ---
+    (function placeRelativeToChat() {
+      var chatLauncher = document.getElementById('mnd-launcher');
+      var chatPanel = document.getElementById('mnd-panel');
+      var left = chatLauncher
+        ? chatLauncher.classList.contains('mnd-dock-left')                       // chat already tells us its side
+        : !!(document.getElementById('toastStack') || document.querySelector('.toast-stack')); // fallback: detect diagnostic pages
+      launch.classList.toggle('mdn-fb-left', !!left);
+      panel.classList.toggle('mdn-fb-left', !!left);
+      if (!chatLauncher) root.classList.add('mdn-fb-solo');                       // no chat bubble here -> drop to the corner
+      if (chatPanel) {
+        var sync = function () {
+          var chatOpen = chatPanel.classList.contains('mnd-open');
+          root.classList.toggle('mdn-fb-chatopen', chatOpen);                     // hide the feedback button while chatting
+          if (chatOpen && open) closePanel();                                     // and close the feedback panel if it was open
+        };
+        sync();
+        try { new MutationObserver(sync).observe(chatPanel, { attributes: true, attributeFilter: ['class'] }); } catch (e) {}
+      }
+    })();
   }
 })();
