@@ -388,6 +388,7 @@
    *    "Administrative load" branch and fans dims from it.
    * ════════════════════════════════════════════════════════════════════ */
   let _uid = 0;
+  const _chartToken = () => Math.random().toString(36).slice(2, 8);
   function fmtMoney(n) {
     const v = Math.abs(Number(n) || 0);
     const sign = Number(n) < 0 ? "-" : "";
@@ -474,7 +475,8 @@
     });
     /* dynamic height: ladder + footnote must fit */
     const lastLy = dims.length ? dims[dims.length - 1].ly : top + plotH;
-    const H = Math.max(top + plotH + 46, Math.ceil(lastLy + 14 + 22));
+    const noteLines = d.note ? Math.min(3, Math.ceil(String(d.note).length / 116)) : 0;
+    const H = Math.max(top + plotH + 46, Math.ceil(lastLy + 14 + 22)) + Math.max(0, noteLines - 1) * 13;
 
     const svg = mount(el, W, H, "Where annual labor capacity goes");
     if (!svg) return;
@@ -491,7 +493,7 @@
     let aOff = 0, bLabelBottom = -Infinity;
     bDefs.forEach((n, i) => {
       const aH = hA * (n.cost / totalCost);
-      ribbon(svg, xA + nodeW, yA + aOff, aH, xB, n.y, n.h, n.color, "mvg" + (++_uid));
+      ribbon(svg, xA + nodeW, yA + aOff, aH, xB, n.y, n.h, n.color, "mvg-" + _chartToken() + "-" + (++_uid));
       aOff += aH;
       S("rect", { x: xB, y: n.y, width: nodeW, height: n.h, rx: 3, fill: n.color }, svg);
       const ly = Math.max(n.y + 13, top + 8, bLabelBottom + 14);
@@ -505,7 +507,7 @@
     /* column C — burden dimensions on the label ladder */
     if (dims.length && fanCost > 0) {
       dims.forEach((x, i) => {
-        ribbon(svg, xB + nodeW, fanNode.y + dims.slice(0, i).reduce((s, p) => s + p.srcH, 0), x.srcH, xC, x.rectY, x.leafH, C_RECLAIM, "mvg" + (++_uid));
+        ribbon(svg, xB + nodeW, fanNode.y + dims.slice(0, i).reduce((s, p) => s + p.srcH, 0), x.srcH, xC, x.rectY, x.leafH, C_RECLAIM, "mvg-" + _chartToken() + "-" + (++_uid));
         S("rect", { x: xC, y: x.rectY, width: 9, height: x.leafH, rx: 2.5, fill: leafTints[i % leafTints.length] }, svg);
         /* leader tick when label displaced from rect center */
         const rectCenter = x.rectY + x.leafH / 2;
@@ -515,11 +517,21 @@
         let label = x.label;
         if (label.length > labelMaxChars) label = label.slice(0, Math.max(1, labelMaxChars - 1)).trimEnd() + "…";
         txt(svg, xC + 18, x.ly + 4, label, { fill: T.ink, size: "11.5px", weight: i === 0 ? 600 : 500 });
-        txt(svg, W, x.ly + 4, fmtMoney(x.cost) + " / yr", { anchor: "end", fill: T.danger, size: "11px", weight: 700 });
+        txt(svg, W - 4, x.ly + 4, fmtMoney(x.cost) + " / yr", { anchor: "end", fill: T.danger, size: "11px", weight: 700 });
       });
     }
 
-    if (d.note) txt(svg, 2, H - 8, String(d.note), { fill: T.muted, size: "10px" });
+    if (d.note) {
+      const words = String(d.note).split(" ");
+      const lines = [];
+      let line = "";
+      for (const w of words) {
+        if ((line + " " + w).trim().length > 116) { lines.push(line.trim()); line = w; }
+        else line = (line + " " + w);
+      }
+      if (line.trim()) lines.push(line.trim());
+      lines.slice(0, 3).forEach((l, i) => txt(svg, 2, H - 8 - (Math.min(lines.length, 3) - 1 - i) * 13, l, { fill: T.muted, size: "10px" }));
+    }
   }
 
   /* ── export ────────────────────────────────────────────────────────── */
