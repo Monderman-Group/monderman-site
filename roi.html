@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ROI &amp; the Monderman Engine | Monderman</title>
+  <meta name="description" content="How Monderman produces verifiable return: a deterministic diagnostic engine, AI-assisted interpretation, and repeated measurement at the cost of an instrument rather than a deployment." />
+  <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="10" fill="%230F1720"/>
+      <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text>
+      <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
+    </svg>' />
+  <style>
+    @font-face{font-family:"Neue Haas Grotesk";src:url("55font.woff2") format("woff2"),url("55font.woff") format("woff");font-style:normal;font-weight:400;font-display:swap;}
+    @font-face{font-family:"Neue Haas Grotesk";src:url("65font.woff2") format("woff2"),url("65font.woff") format("woff");font-style:normal;font-weight:500;font-display:swap;}
+    @font-face{font-family:"Neue Haas Grotesk";src:url("75font.woff2") format("woff2"),url("75font.woff") format("woff");font-style:normal;font-weight:700;font-display:swap;}
+    :root{
+      --accent:#3F6EA1;--accent-dark:#2F5886;--bg-dark:#0F1720;--bg-dark-2:#111B25;
+      --bg-offwhite:#F6F7F8;--bg-white:#FFFFFF;--text-light:#F5F7FA;--text-dark:#15202B;
+      --muted-dark:#556270;--muted-dark-2:#7A8794;--panel-line:rgba(21,32,43,.08);
+      --panel-soft:#FBFCFE;--success:#2E8B57;--warning:#B8860B;--danger:#B8505E;
+      --max:1320px;--soft-shadow:0 1px 0 rgba(0,0,0,.012),0 12px 28px rgba(0,0,0,.04);
+      --card-shadow:0 16px 32px rgba(0,0,0,.045);--transition:220ms cubic-bezier(.22,1,.36,1);
+    }
+    *{box-sizing:border-box;}
+    html{scroll-behavior:smooth;scroll-padding-top:72px;}
+    body{margin:0;background:var(--bg-offwhite);color:var(--text-dark);
+      font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
+      -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;}
+    a{color:inherit;text-decoration:none;}
+    h1,h2,h3,h4{letter-spacing:-.04em;}
+
+    .header{position:sticky;top:0;z-index:50;height:72px;background:rgba(15,23,32,.92);
+      border-bottom:1px solid rgba(255,255,255,.08);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
+    .header-inner{max-width:var(--max);height:100%;margin:0 auto;padding:0 28px;
+      display:flex;align-items:center;justify-content:space-between;gap:20px;}
+    .brand{color:var(--text-light);font-weight:700;font-size:19px;letter-spacing:-.02em;}
+    .nav{display:flex;gap:22px;flex-wrap:wrap;}
+    .nav a{color:rgba(245,247,250,.78);font-size:14px;transition:color var(--transition);}
+    .nav a:hover,.nav a.active{color:#fff;}
+    @media(max-width:900px){.nav{display:none;}}
+
+    .section{max-width:var(--max);margin:0 auto;padding:64px 28px;}
+    .eyebrow{font-size:12px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);}
+    .section h2{margin:10px 0 0;font-size:30px;}
+    .lede{color:var(--muted-dark);font-size:16.5px;line-height:1.6;max-width:760px;margin:14px 0 0;}
+    .card{background:var(--bg-white);border:1px solid var(--panel-line);border-radius:14px;box-shadow:var(--card-shadow);padding:28px;}
+
+    /* hero */
+    .hero{background:var(--bg-dark);color:var(--text-light);}
+    .hero .section{padding:88px 28px 84px;}
+    .hero h1{margin:14px 0 0;font-size:42px;line-height:1.08;max-width:840px;}
+    .hero .lede{color:rgba(245,247,250,.78);font-size:17.5px;max-width:780px;}
+    .cta-row{margin-top:30px;display:flex;gap:14px;flex-wrap:wrap;}
+    .btn{display:inline-flex;align-items:center;justify-content:center;border-radius:10px;
+      padding:14px 24px;font-weight:500;font-size:15px;transition:all var(--transition);cursor:pointer;}
+    .btn-primary{background:var(--accent);color:#fff;}
+    .btn-primary:hover{background:var(--accent-dark);}
+    .btn-outline{border:1px solid rgba(245,247,250,.35);color:var(--text-light);}
+    .btn-outline:hover{border-color:#fff;}
+    .btn-outline.on-light{border:1px solid var(--panel-line);color:var(--text-dark);}
+    @media(max-width:640px){.hero h1{font-size:31px;}}
+
+    /* mechanism steps */
+    .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:34px;}
+    .step{background:var(--bg-white);border:1px solid var(--panel-line);border-radius:14px;padding:24px;box-shadow:var(--soft-shadow);}
+    .step .n{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.06em;}
+    .step h3{margin:10px 0 8px;font-size:17px;}
+    .step p{margin:0;color:var(--muted-dark);font-size:14px;line-height:1.55;}
+    .step.proof{background:var(--bg-dark);color:var(--text-light);border-color:transparent;}
+    .step.proof p{color:rgba(245,247,250,.75);}
+    .step.proof .n{color:#8FB2D6;}
+    @media(max-width:980px){.steps{grid-template-columns:1fr 1fr;}}
+    @media(max-width:600px){.steps{grid-template-columns:1fr;}}
+    .keyline{margin-top:26px;font-size:16.5px;line-height:1.6;max-width:820px;color:var(--text-dark);}
+
+    /* figures */
+    .figgrid{display:grid;grid-template-columns:1fr;gap:26px;margin-top:34px;}
+    .fig{background:var(--bg-white);border:1px solid var(--panel-line);border-radius:14px;box-shadow:var(--card-shadow);padding:26px;}
+    .fig h4{margin:0 0 14px;font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted-dark);font-weight:500;}
+    .fig .cap{font-size:12.5px;color:var(--muted-dark-2);margin-top:10px;line-height:1.55;}
+    .axes{display:flex;gap:30px;flex-wrap:wrap;margin-top:26px;}
+    .axes div{flex:1;min-width:180px;}
+    .axes b{display:block;font-size:15px;}
+    .axes span{color:var(--muted-dark);font-size:13.5px;line-height:1.5;}
+
+    /* three ways */
+    .ways{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px;}
+    .way{border-radius:14px;padding:26px;border:1px solid var(--panel-line);background:var(--bg-white);box-shadow:var(--soft-shadow);display:flex;flex-direction:column;}
+    .way .tag{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted-dark);font-weight:500;}
+    .way h3{margin:8px 0 4px;font-size:20px;}
+    .way .good{color:var(--muted-dark);font-size:14px;line-height:1.55;margin:8px 0 16px;}
+    .way ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--panel-line);}
+    .way li{display:flex;gap:10px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--panel-line);font-size:13.5px;line-height:1.45;color:var(--text-dark);}
+    .way li .g{flex:0 0 16px;margin-top:1px;font-weight:700;}
+    .g.no{color:var(--danger);} .g.yes{color:var(--success);} .g.part{color:var(--warning);}
+    .way.instrument{background:var(--bg-dark);color:var(--text-light);border-color:transparent;}
+    .way.instrument .tag{color:#8FB2D6;}
+    .way.instrument .good{color:rgba(245,247,250,.72);}
+    .way.instrument li{color:rgba(245,247,250,.92);border-color:rgba(255,255,255,.1);}
+    .way.instrument ul{border-color:rgba(255,255,255,.1);}
+    @media(max-width:980px){.ways{grid-template-columns:1fr;}}
+    .concede{margin-top:30px;max-width:860px;}
+    .concede p{font-size:15.5px;line-height:1.65;color:var(--text-dark);margin:0 0 16px;}
+    .concede p:last-child{margin-bottom:0;}
+    .pull{border-left:3px solid var(--accent);padding:6px 0 6px 20px;margin:26px 0 0;font-size:18px;line-height:1.55;max-width:760px;color:var(--text-dark);}
+
+    /* architecture */
+    .arch{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:34px;}
+    .arch .card h3{margin:0 0 10px;font-size:18px;}
+    .arch .card p{margin:0 0 12px;color:var(--muted-dark);font-size:14.5px;line-height:1.6;}
+    .arch .card p:last-child{margin:0;}
+    @media(max-width:860px){.arch{grid-template-columns:1fr;}}
+    .archnote{margin-top:24px;font-size:14px;color:var(--muted-dark);max-width:860px;line-height:1.6;}
+    .archnote a{color:var(--accent);font-weight:500;}
+
+    /* foundation triangle */
+    .tri{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px;}
+    .tri .card h3{margin:0 0 6px;font-size:17px;}
+    .tri .card .sub{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:500;}
+    .tri .card p{margin:10px 0 0;color:var(--muted-dark);font-size:14px;line-height:1.6;}
+    @media(max-width:900px){.tri{grid-template-columns:1fr;}}
+
+    /* figures band (stats) */
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px;}
+    .stat{background:var(--bg-white);border:1px solid var(--panel-line);border-radius:14px;padding:26px;box-shadow:var(--soft-shadow);}
+    .stat b{font-size:32px;letter-spacing:-.04em;display:block;}
+    .stat span{color:var(--muted-dark);font-size:13.5px;line-height:1.5;display:block;margin-top:6px;}
+    @media(max-width:860px){.stats{grid-template-columns:1fr;}}
+    .methnote{margin-top:22px;font-size:12.5px;color:var(--muted-dark-2);max-width:840px;line-height:1.6;}
+
+    /* cta band */
+    .ctaband{background:var(--bg-dark);color:var(--text-light);}
+    .ctaband .section{display:flex;align-items:center;justify-content:space-between;gap:26px;flex-wrap:wrap;padding:56px 28px;}
+    .ctaband h2{margin:0;font-size:26px;max-width:640px;}
+
+    /* footer */
+    .footer{background:var(--bg-dark-2);color:var(--text-light);margin-top:40px;}
+    .footer-inner{max-width:var(--max);margin:0 auto;padding:56px 28px 28px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:34px;}
+    .footer h5{margin:0 0 14px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,247,250,.6);font-weight:500;}
+    .footer p{margin:12px 0 0;color:rgba(245,247,250,.7);font-size:14px;line-height:1.6;max-width:420px;}
+    .footer .flogo{font-weight:700;font-size:18px;}
+    .footer a{display:block;color:rgba(245,247,250,.75);font-size:14px;margin:0 0 10px;transition:color var(--transition);}
+    .footer a:hover{color:#fff;}
+    .social{display:flex;gap:12px;margin-top:18px;}
+    .social a{display:inline-flex;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.18);align-items:center;justify-content:center;margin:0;}
+    .social svg{width:15px;height:15px;fill:rgba(245,247,250,.8);}
+    .copyright{border-top:1px solid rgba(255,255,255,.08);text-align:center;color:rgba(245,247,250,.5);font-size:12.5px;padding:20px 28px;}
+    @media(max-width:860px){.footer-inner{grid-template-columns:1fr;}}
+      .brand-dot {
+      width: 6px; height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+      flex-shrink: 0;
+    }
+    .workspace-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.06);
+      color: #FFFFFF;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .workspace-link::after { display: none; }
+    .workspace-link:hover,
+    .nav a.workspace-link:focus-visible {
+      background: rgba(255,255,255,0.10);
+      border-color: rgba(255,255,255,0.24);
+      color: #FFFFFF;
+      transform: none;
+    }
+      .nav a.workspace-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.06);
+      color: #FFFFFF;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .nav a.workspace-link::after { display: none; }
+    .nav a.workspace-link:hover,
+    .nav a.workspace-link:focus-visible {
+      background: rgba(255,255,255,0.10);
+      border-color: rgba(255,255,255,0.24);
+      color: #FFFFFF;
+      transform: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header" id="siteHeader">
+    <div class="header-inner">
+      <a href="index.html" class="brand">
+        Monderman<span class="brand-dot"></span>
+      </a>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="index.html#approach">Approach</a>
+        <a href="diagnostics.html">Diagnostics</a>
+        <a href="research.html">Research</a>
+        <a href="why-monderman.html">Why Monderman</a>
+        <a href="about.html">About</a>
+        <a href="platform-services.html">Platform Services</a>
+        <a href="connect.html">Connect</a>
+        <a class="workspace-link" href="workspace.html">Sign In</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ── HERO ─────────────────────────────────────────────────────── -->
+  <div class="hero">
+    <div class="section">
+      <div class="eyebrow" style="color:#8FB2D6;">ROI &amp; Method</div>
+      <h1>Return that survives a second look.</h1>
+      <p class="lede">Most organizational diagnosis cannot prove it worked, because it cannot be run twice the same way. Monderman is built around the opposite premise: the return on a diagnostic is only real when a second read, on the same instrument, can verify it.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="connect.html">Discuss a diagnostic</a>
+        <a class="btn btn-outline" href="diagnostics.html">Run one yourself — free</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MECHANISM ────────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="eyebrow">The mechanism</div>
+    <h2>Capacity isn't created. It's reclaimed.</h2>
+    <p class="lede">ROI here is not a multiplier or a promise. It is a structural mechanism, executed in four disciplined steps — and the fourth step is the one almost nothing else in this market can perform.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="n">01</div>
+        <h3>Measure at your own baseline</h3>
+        <p>Burden, clarity, velocity, and institutional condition are scored against your structure and sector — not an industry anecdote.</p>
+      </div>
+      <div class="step">
+        <div class="n">02</div>
+        <h3>Locate the structural source</h3>
+        <p>The read names where drag originates — which dimension, at what severity, in what order to address it.</p>
+      </div>
+      <div class="step">
+        <div class="n">03</div>
+        <h3>Quantify the recoverable share</h3>
+        <p>Absorbed capacity is mapped to hours and dollars: what is proportionate overhead, and what is recoverable burden.</p>
+      </div>
+      <div class="step proof">
+        <div class="n">04</div>
+        <h3>Re-measure to verify</h3>
+        <p>The same instrument, run again after correction, shows whether capacity actually returned. This step is the ROI proof — and it requires a read that holds still.</p>
+      </div>
+    </div>
+    <p class="keyline">Step four is the entire argument. A return you cannot re-measure is a story. A return confirmed on the same calibrated instrument is a result.</p>
+  </div>
+
+  <!-- ── WHAT A READ RETURNS ──────────────────────────────────────── -->
+  <div style="background:var(--bg-white);border-top:1px solid var(--panel-line);border-bottom:1px solid var(--panel-line);">
+    <div class="section">
+      <div class="eyebrow">What a read returns</div>
+      <h2>The condition, in your hours and dollars.</h2>
+      <p class="lede">Every diagnostic returns a quantified score placed against calibrated sector ranges, and a capacity map that separates productive effort, the structural overhead proportionate to your sector, and the recoverable burden — priced.</p>
+      <div class="figgrid">
+        <div class="fig">
+          <h4>Score in sector context</h4>
+          <svg viewBox="0 0 640 132" width="100%" role="img" aria-label="Score in sector context" style="display:block;font-family:inherit;"><defs><pattern id="mv-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="rgba(63,110,161,.07)"></rect><line x1="0" y1="0" x2="0" y2="6" stroke="rgba(63,110,161,.35)" stroke-width="1.4"></line></pattern></defs><rect x="443.47999999999996" y="68" width="76.44" height="32" fill="url(#mv-hatch)" rx="3"></rect><text x="481.69999999999993" y="44" fill="#7A8794" font-size="11px" font-weight="400" text-anchor="middle" dominant-baseline="auto" letter-spacing=".08em">OPPORTUNITY RANGE</text><line x1="481.69999999999993" y1="49" x2="481.69999999999993" y2="64" stroke="rgba(21,32,43,.14)"></line><rect x="343.52000000000004" y="68" width="76.44" height="32" fill="rgba(63,110,161,.16)" rx="3"></rect><text x="381.74" y="118" fill="#2F5886" font-size="11px" font-weight="400" text-anchor="middle" dominant-baseline="auto" letter-spacing=".08em">TYPICAL INDUSTRY RANGE</text><line x1="381.74" y1="101" x2="381.74" y2="109" stroke="rgba(21,32,43,.14)"></line><line x1="26" y1="84" x2="614" y2="84" stroke="rgba(21,32,43,.14)" stroke-width="1"></line><line x1="26" y1="81" x2="26" y2="87" stroke="rgba(21,32,43,.14)"></line><text x="26" y="100" fill="#7A8794" font-size="11px" font-weight="400" text-anchor="middle" dominant-baseline="auto" letter-spacing="0">0</text><line x1="173" y1="81" x2="173" y2="87" stroke="rgba(21,32,43,.14)"></line><text x="173" y="100" fill="#7A8794" font-size="11px" font-weight="400" text-anchor="middle" dominant-baseline="auto" letter-spacing="0">25</text><line x1="320" y1="81" x2="320" y2="87" stroke="rgba(21,32,43,.14)"></line><text x="320" y="100" fill="#7A8794" font-size="11px" font-weight="400" text-anchor="middle" dominant-baseline="auto" letter-spacing="0">50</text><line x1="467" y1="81" x2="467" y2="87" stroke="rgba(21,32,43,.14)"></line><text x="467" y="100" fill="#7A8794" font-size="11px" font-weight="400" text-anchor="middle" dominant-baseline="auto" letter-spacing="0">75</text><line x1="614" y1="81" x2="614" y2="87" stroke="rgba(21,32,43,.14)"></line><text x="614" y="100" fill="#7A8794" font-size="11px" font-weight="400" text-anchor="middle" dominant-baseline="auto" letter-spacing="0">100</text><line x1="384.68" y1="62" x2="384.68" y2="106" stroke="#15202B" stroke-width="2.2"></line><rect x="356.68" y="24" width="56" height="30" rx="7" fill="#15202B"></rect><text x="384.68" y="44" fill="#fff" font-size="17px" font-weight="700" text-anchor="middle" dominant-baseline="auto" letter-spacing="0">61</text><path d="M 379.68 54 l 5 6 l 5 -6 Z" fill="#15202B"></path></svg>
+          <div class="cap">Illustrative, sample data. The score is placed against the typical industry range and the opportunity range for the organization's own sector — a number with reference, not a number in a dial.</div>
+        </div>
+        <div class="fig">
+          <h4>Where the capacity goes</h4>
+          <svg viewBox="0 0 640 320" width="100%" role="img" aria-label="Where annual labor capacity goes" style="display:block;font-family:inherit;"><defs><linearGradient id="mvg1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#3F6EA1" stop-opacity=".18"></stop><stop offset="100%" stop-color="#3F6EA1" stop-opacity=".34"></stop></linearGradient><linearGradient id="mvg2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#7A8794" stop-opacity=".18"></stop><stop offset="100%" stop-color="#7A8794" stop-opacity=".34"></stop></linearGradient><linearGradient id="mvg3" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#B8505E" stop-opacity=".18"></stop><stop offset="100%" stop-color="#B8505E" stop-opacity=".34"></stop></linearGradient><linearGradient id="mvg4" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#B8505E" stop-opacity=".18"></stop><stop offset="100%" stop-color="#B8505E" stop-opacity=".34"></stop></linearGradient><linearGradient id="mvg5" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#B8505E" stop-opacity=".18"></stop><stop offset="100%" stop-color="#B8505E" stop-opacity=".34"></stop></linearGradient><linearGradient id="mvg6" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#B8505E" stop-opacity=".18"></stop><stop offset="100%" stop-color="#B8505E" stop-opacity=".34"></stop></linearGradient><linearGradient id="mvg7" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#B8505E" stop-opacity=".18"></stop><stop offset="100%" stop-color="#B8505E" stop-opacity=".34"></stop></linearGradient><linearGradient id="mvg8" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#B8505E" stop-opacity=".18"></stop><stop offset="100%" stop-color="#B8505E" stop-opacity=".34"></stop></linearGradient></defs><rect x="2" y="34" width="11" height="240" rx="3" fill="#15202B"></rect><text x="2" y="16" fill="#7A8794" font-size="10px" font-weight="400" text-anchor="start" dominant-baseline="auto" letter-spacing=".11em">TOTAL ANNUAL CAPACITY</text><text x="2" y="29" fill="#15202B" font-size="13.5px" font-weight="700" text-anchor="start" dominant-baseline="auto" letter-spacing="0">$6.5M  ·  77K hrs</text><path d="M 13 34 C 134.5 34, 134.5 34, 256 34 L 256 216.4 C 134.5 216.4, 134.5 216.4, 13 216.4 Z" fill="url(#mvg1)"></path><rect x="256" y="34" width="11" height="182.4" rx="3" fill="#3F6EA1"></rect><text x="276" y="47" fill="#15202B" font-size="12.5px" font-weight="600" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Productive effort</text><text x="276" y="62" fill="#3F6EA1" font-size="12px" font-weight="700" text-anchor="start" dominant-baseline="auto" letter-spacing="0">$4.9M  ·  58K hrs</text><path d="M 13 216.4 C 134.5 216.4, 134.5 232.4, 256 232.4 L 256 273.8646153846154 C 134.5 273.8646153846154, 134.5 257.8646153846154, 13 257.8646153846154 Z" fill="url(#mvg2)"></path><rect x="256" y="232.4" width="11" height="41.464615384615385" rx="3" fill="#7A8794"></rect><text x="276" y="245.4" fill="#15202B" font-size="12.5px" font-weight="600" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Structural overhead</text><text x="276" y="260.4" fill="#3d4c5a" font-size="12px" font-weight="700" text-anchor="start" dominant-baseline="auto" letter-spacing="0">$1.1M</text><path d="M 13 257.8646153846154 C 134.5 257.8646153846154, 134.5 289.8646153846154, 256 289.8646153846154 L 256 306 C 134.5 306, 134.5 274, 13 274 Z" fill="url(#mvg3)"></path><rect x="256" y="289.8646153846154" width="11" height="16.135384615384616" rx="3" fill="#B8505E"></rect><text x="276" y="302.8646153846154" fill="#15202B" font-size="12.5px" font-weight="700" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Recoverable burden</text><text x="276" y="317.8646153846154" fill="#B8505E" font-size="12px" font-weight="700" text-anchor="start" dominant-baseline="auto" letter-spacing="0">$437K</text><path d="M 267 289.8646153846154 C 364.5 289.8646153846154, 364.5 221.86461538461538, 462 221.86461538461538 L 462 227.8347076923077 C 364.5 227.8347076923077, 364.5 295.8347076923077, 267 295.8347076923077 Z" fill="url(#mvg4)"></path><rect x="462" y="221.86461538461538" width="9" height="5.970092307692308" rx="2.5" fill="rgba(184,80,94,.95)"></rect><text x="478" y="226.84966153846153" fill="#15202B" font-size="11.5px" font-weight="500" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Process density</text><text x="478" y="240.84966153846153" fill="#B8505E" font-size="11px" font-weight="700" text-anchor="start" dominant-baseline="auto" letter-spacing="0">$162K / yr</text><path d="M 267 295.8347076923077 C 364.5 295.8347076923077, 364.5 236.8347076923077, 462 236.8347076923077 L 462 240.8347076923077 C 364.5 240.8347076923077, 364.5 299.7072, 267 299.7072 Z" fill="url(#mvg5)"></path><rect x="462" y="236.8347076923077" width="9" height="4" rx="2.5" fill="rgba(184,80,94,.75)"></rect><text x="478" y="240.8347076923077" fill="#15202B" font-size="11.5px" font-weight="500" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Reporting burden</text><text x="478" y="254.8347076923077" fill="#B8505E" font-size="11px" font-weight="700" text-anchor="start" dominant-baseline="auto" letter-spacing="0">$105K / yr</text><path d="M 267 299.7072 C 364.5 299.7072, 364.5 249.8347076923077, 462 249.8347076923077 L 462 253.8347076923077 C 364.5 253.8347076923077, 364.5 302.4502153846154, 267 302.4502153846154 Z" fill="url(#mvg6)"></path><rect x="462" y="249.8347076923077" width="9" height="4" rx="2.5" fill="rgba(184,80,94,.58)"></rect><text x="478" y="253.8347076923077" fill="#15202B" font-size="11.5px" font-weight="500" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Control load</text><text x="478" y="267.8347076923077" fill="#B8505E" font-size="11px" font-weight="700" text-anchor="start" dominant-baseline="auto" letter-spacing="0">$74K / yr</text><path d="M 267 302.4502153846154 C 364.5 302.4502153846154, 364.5 262.8347076923077, 462 262.8347076923077 L 462 266.8347076923077 C 364.5 266.8347076923077, 364.5 304.3864615384615, 267 304.3864615384615 Z" fill="url(#mvg7)"></path><rect x="462" y="262.8347076923077" width="9" height="4" rx="2.5" fill="rgba(184,80,94,.44)"></rect><text x="478" y="266.8347076923077" fill="#15202B" font-size="11.5px" font-weight="500" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Systems friction</text><text x="478" y="280.8347076923077" fill="#B8505E" font-size="11px" font-weight="700" text-anchor="start" dominant-baseline="auto" letter-spacing="0">$52K / yr</text><path d="M 267 304.3864615384615 C 364.5 304.3864615384615, 364.5 275.8347076923077, 462 275.8347076923077 L 462 279.8347076923077 C 364.5 279.8347076923077, 364.5 305.99999999999994, 267 305.99999999999994 Z" fill="url(#mvg8)"></path><rect x="462" y="275.8347076923077" width="9" height="4" rx="2.5" fill="rgba(184,80,94,.32)"></rect><text x="478" y="279.8347076923077" fill="#15202B" font-size="11.5px" font-weight="500" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Other burden</text><text x="478" y="293.8347076923077" fill="#B8505E" font-size="11px" font-weight="700" text-anchor="start" dominant-baseline="auto" letter-spacing="0">$44K / yr</text><text x="2" y="312" fill="#7A8794" font-size="10px" font-weight="400" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Illustrative sample data. Dimension dollars apportion the recoverable burden by burden composition — directional, not audited.</text></svg>
+          <div class="cap">Illustrative, sample data. Total annual labor capacity, split into productive effort, structural overhead proportionate to operating in this sector, and recoverable burden — mapped to dollars by burden dimension. Monderman is deliberate about the middle band: complex institutions need governance. The discipline is calibration, not subtraction.</div>
+        </div>
+      </div>
+      <div class="axes">
+        <div><b>Time</b><span>Senior hours returned to mission per week.</span></div>
+        <div><b>Cost</b><span>Fully-burdened cost of absorbed administrative time.</span></div>
+        <div><b>Capacity</b><span>Decisions per cycle the institution can sustain without drift.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── THREE WAYS ───────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="eyebrow">The comparison that matters</div>
+    <h2>Three ways to ask "what is our bureaucracy costing us?"</h2>
+    <p class="lede">Each has a legitimate use. Only one passes the test that ROI verification requires: ask the same question twice, get the same ruler.</p>
+
+    <div class="ways">
+      <div class="way">
+        <div class="tag">A conversation</div>
+        <h3>Ask a general AI chatbot</h3>
+        <p class="good">Genuinely useful for thinking out loud, exploring vocabulary, and pressure-testing intuitions. A capable model is a good conversation. It is not an instrument.</p>
+        <ul>
+          <li><span class="g no">✕</span>Ask twice, receive two different reads — there is no baseline to return to.</li>
+          <li><span class="g no">✕</span>Prose, not measurement: no score against your own inputs, no hours, no dollars.</li>
+          <li><span class="g no">✕</span>No calibrated sector reference, no comparison across teams or vantages.</li>
+          <li><span class="g no">✕</span>Nothing defensible to a board: no protocol, no assumption set, no audit trail.</li>
+        </ul>
+      </div>
+
+      <div class="way">
+        <div class="tag">A judgment</div>
+        <h3>Commission a traditional advisory study</h3>
+        <p class="good">Experienced people, on site, rendering a considered judgment — with the implementation muscle and political navigation some conditions genuinely warrant.</p>
+        <ul>
+          <li><span class="g part">~</span>A one-time event: the engagement model cannot economically recur, so drift after the binder lands goes unmeasured.</li>
+          <li><span class="g part">~</span>Method varies with the team in the room; the second study is never quite the first.</li>
+          <li><span class="g part">~</span>Six figures and a quarter on site — priced as a deployment of people, because it is one.</li>
+          <li><span class="g no">✕</span>Cannot verify its own ROI: re-running the study to check the result is rarely feasible.</li>
+        </ul>
+      </div>
+
+      <div class="way instrument">
+        <div class="tag">An instrument</div>
+        <h3>Run the Monderman engine</h3>
+        <p class="good">A calibrated diagnostic instrument: deterministic scoring, AI-assisted interpretation, your own baseline, repeated on a governance cadence.</p>
+        <ul>
+          <li><span class="g yes">✓</span>Same inputs, same score — every run, by architecture. The ruler holds still.</li>
+          <li><span class="g yes">✓</span>Quantified in your hours and dollars, against calibrated sector ranges.</li>
+          <li><span class="g yes">✓</span>Comparable across teams, vantages, and time — drift becomes visible, recovery becomes provable.</li>
+          <li><span class="g yes">✓</span>Assumption set published with every read; run in days, at the cost of an instrument rather than a deployment.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="concede">
+      <p><strong>To be direct about the boundary:</strong> some institutional conditions warrant a full advisory engagement — bespoke transformation, contested politics, sustained implementation support. Monderman does not replace that work. It is what disciplined institutions run <em>before</em> such an engagement, to aim it at the measured source rather than the loudest symptom — and <em>after</em> it, to verify the investment actually returned capacity.</p>
+      <p>The economics differ because the architecture differs, not because the rigor does. A deterministic engine costs what software costs to run; a deployed team costs what people cost to deploy. That is what makes a quarterly measurement cadence possible at all — a cadence no engagement model can sustain, and the cadence drift demands.</p>
+    </div>
+    <p class="pull">Diagnostics of this depth have traditionally required a six-figure study and a quarter on site. Monderman changes the economics of the read itself — run in days, repeated on a cadence no engagement model can sustain, at the cost of an instrument rather than a deployment.</p>
+  </div>
+
+  <!-- ── ARCHITECTURE ─────────────────────────────────────────────── -->
+  <div style="background:var(--bg-white);border-top:1px solid var(--panel-line);border-bottom:1px solid var(--panel-line);">
+    <div class="section">
+      <div class="eyebrow">The architecture</div>
+      <h2>Why the read holds still.</h2>
+      <p class="lede">Monderman splits the job in two — and keeps each half where it belongs.</p>
+      <div class="arch">
+        <div class="card">
+          <h3>A deterministic engine does the measuring.</h3>
+          <p>Scores are computed by versioned, proprietary scoring logic calibrated by sector and vantage. The same inputs produce the same score on every run — this year, next year, across every team you measure. Reproducibility is not a feature of the engine; it is the engine.</p>
+          <p>That is what makes baselines real, benchmarks meaningful, and step four of the mechanism — verification — possible.</p>
+        </div>
+        <div class="card">
+          <h3>AI explains — inside locked facts it cannot contradict.</h3>
+          <p>Frontier-model intelligence is applied where it adds value: turning a computed result into a precise executive narrative. The model writes within a locked set of computed facts — score, benchmark position, burden composition, intervention order — and its output is validated against them before it ever reaches you.</p>
+          <p>The model never decides the score. So when models change — and they change constantly — your read does not move, and neither does your baseline.</p>
+        </div>
+      </div>
+      <p class="archnote">This division is what Monderman's research calls <strong>Deterministic AI Infrastructure (DAII)</strong>: spend model capability only where judgment adds value, and hold everything that must be stable — measurement, comparison, cost — in deterministic systems. It is also why the economics of a Monderman read stay flat while model prices and capabilities churn: your ROI math doesn't decay with the AI market. The full argument is published in <a href="after-the-first-lap.pdf">After the First Lap</a>.</p>
+    </div>
+  </div>
+
+  <!-- ── FOUNDATION ───────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="eyebrow">The foundation</div>
+    <h2>Three foundations. Each checks the other two.</h2>
+    <p class="lede">State of the art is a claim others should make for you. What Monderman offers instead is receipts: formal training in the discipline, a quarter-century of practice inside the institutions being diagnosed, and peer-reviewed theory in print.</p>
+    <div class="tri">
+      <div class="card">
+        <div class="sub">Education</div>
+        <h3>Graduate training in the discipline</h3>
+        <p>MS in Organization Development, Pepperdine University — the formal grounding in how organizations are designed, measured, and changed. The degree supplies the discipline the practice is tested against.</p>
+      </div>
+      <div class="card">
+        <div class="sub">Experience</div>
+        <h3>Twenty-five years inside complex institutions</h3>
+        <p>Since 2001: the Department of Defense and the intelligence community, technology startups, and consulting firms. The instruments were built inside the kinds of institutions they diagnose — not abstracted from them.</p>
+      </div>
+      <div class="card">
+        <div class="sub">Research</div>
+        <h3>Peer-reviewed theory, in print</h3>
+        <p>The theoretical foundation is published in <em>Governance, Bureaucracy and Organization: Stewardship, Drift, and Administrative Capacity</em> (Routledge, forthcoming), with the platform's AI economics set out in the Monderman paper <em>After the First Lap</em>.</p>
+      </div>
+    </div>
+    <p class="keyline">The book explains why drift is continuous and stewardship must be too. The practice supplies the ground truth the theory had to survive. The training supplies the method that holds both honest. Remove any leg and the other two are weaker — together, they are why the instrument reads the way it does.</p>
+  </div>
+
+  <!-- ── EARLY FIGURES ────────────────────────────────────────────── -->
+  <div style="background:var(--bg-white);border-top:1px solid var(--panel-line);border-bottom:1px solid var(--panel-line);">
+    <div class="section">
+      <div class="eyebrow">Senior workweek impact — early engagements</div>
+      <h2>The numbers the mechanism produces.</h2>
+      <div class="stats">
+        <div class="stat"><b>26–41%</b><span>of senior time absorbed by administrative reality at current baseline.</span></div>
+        <div class="stat"><b>4 conditions</b><span>structural conditions named, scored, and located within the institution.</span></div>
+        <div class="stat"><b>7–12%</b><span>of a senior workweek returned to mission, directionally, once structural corrections are adopted.</span></div>
+      </div>
+      <p class="methnote"><strong>Methodological note.</strong> Ranges shown are directional, modeled at the institution's measured baseline, and conditioned on identified structural corrections being adopted. Monderman publishes the assumption set with every engagement read — the same discipline this page asks of every alternative.</p>
+    </div>
+  </div>
+
+  <!-- ── CTA ──────────────────────────────────────────────────────── -->
+  <div class="ctaband">
+    <div class="section">
+      <h2>Establish the baseline. The second read is where the value compounds.</h2>
+      <div class="cta-row" style="margin:0;">
+        <a class="btn btn-primary" href="diagnostics.html">Run a diagnostic — free</a>
+        <a class="btn btn-outline" href="connect.html">Discuss a diagnostic</a>
+      </div>
+      <p style="margin:16px 0 0;font-size:14px;color:#7A8794;">Or: <a href="sample-report.html" style="color:inherit;text-decoration:underline;">see a complete sample report</a> &middot; <a href="platform-services.html" style="color:inherit;text-decoration:underline;">plans &amp; pricing</a></p>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>
+        <div class="flogo">Monderman</div>
+        <p>Monderman is the diagnostic platform institutions use to measure, compare, and govern administrative reality — repeatedly, across perspectives, over time.</p>
+        <div class="social">
+          <a href="https://www.linkedin.com/in/jason-adamson-627622412/" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.22 8.31h4.56V23H.22V8.31zM8.34 8.31h4.37v2h.06c.61-1.16 2.1-2.38 4.32-2.38 4.62 0 5.47 3.04 5.47 6.99V23h-4.55v-6.71c0-1.6-.03-3.66-2.23-3.66-2.23 0-2.57 1.74-2.57 3.54V23H8.34V8.31z"/></svg></a>
+          <a href="https://x.com/MondermanHQ" aria-label="X"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.451-6.231zm-1.161 17.52h1.833L7.084 4.126H5.117l11.966 15.644z"/></svg></a>
+          <a href="https://www.facebook.com/profile.php?id=61590266649149" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047v-2.66c0-3.025 1.792-4.697 4.533-4.697 1.313 0 2.686.236 2.686.236v2.971H15.83c-1.491 0-1.956.93-1.956 1.886v2.264h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg></a>
+        </div>
+      </div>
+      <div>
+        <h5>Explore</h5>
+        <a href="index.html#approach">Approach</a>
+        <a href="diagnostics.html">Diagnostics</a>
+        <a href="research.html">Research</a>
+        <a href="why-monderman.html">Why Monderman</a>
+        <a href="about.html">About</a>
+        <a href="platform-services.html">Platform Services</a>
+      </div>
+      <div>
+        <h5>Connect</h5>
+        <a href="connect.html">Open Connect Form</a>
+        <a href="mailto:connect@monderman.com">connect@monderman.com</a>
+        <a href="privacy.html">Privacy</a>
+      </div>
+    </div>
+    <div class="copyright">© 2026 Monderman. All rights reserved.</div>
+  </footer>
+
+<script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const sb = createClient(
+      "https://ptkxrzgmeldalrkfruth.supabase.co",
+      "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
+      { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" } }
+    );
+
+    const GATED = new Set([
+      "structural-clarity.html", "decision-velocity.html",
+      "operational-systems.html", "institutional-performance.html"
+    ]);
+
+    // Pull the tool name out of a signin.html?next=<tool> href, if it is a gated one.
+    function gatedTarget(href) {
+      const m = /^signin\.html\?next=([^&#]+)/.exec(href || "");
+      if (!m) return null;
+      try { const t = decodeURIComponent(m[1]); return GATED.has(t) ? t : null; }
+      catch (e) { return null; }
+    }
+
+    async function apply() {
+      let signedIn = false;
+      try {
+        const { data } = await sb.auth.getSession();
+        signedIn = !!(data && data.session && data.session.user);
+      } catch (e) { signedIn = false; }
+
+      // Nav pill: "Workspace" when signed in; "Sign In" -> the sign-in page when not.
+      const nav = document.querySelector("a.workspace-link");
+      if (nav) {
+        nav.textContent = signedIn ? "Workspace" : "Sign In";
+        nav.setAttribute("href", signedIn ? "workspace.html" : "signin.html?next=workspace.html");
+      }
+
+      // Smooth path for signed-in users: skip the sign-in hop on gated CTAs.
+      if (signedIn) {
+        document.querySelectorAll('a[href^="signin.html?next="]').forEach((a) => {
+          const t = gatedTarget(a.getAttribute("href"));
+          if (t) a.setAttribute("href", t);
+        });
+      }
+    }
+
+    apply();
+    sb.auth.onAuthStateChange(() => apply());
+  </script>
+</body>
+</html>
