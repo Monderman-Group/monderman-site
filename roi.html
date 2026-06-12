@@ -22,6 +22,8 @@
       --panel-soft:#FBFCFE;--success:#2E8B57;--warning:#B8860B;--danger:#B8505E;
       --max:1320px;--soft-shadow:0 1px 0 rgba(0,0,0,.012),0 12px 28px rgba(0,0,0,.04);
       --card-shadow:0 16px 32px rgba(0,0,0,.045);--transition:220ms cubic-bezier(.22,1,.36,1);
+      --header-solid: rgba(14,20,28,0.87);
+      --header-border: rgba(255,255,255,0.08);
     }
     *{box-sizing:border-box;}
     html{scroll-behavior:smooth;scroll-padding-top:72px;}
@@ -31,14 +33,12 @@
     a{color:inherit;text-decoration:none;}
     h1,h2,h3,h4{letter-spacing:-.04em;}
 
-    .header{position:sticky;top:0;z-index:50;height:72px;background:rgba(15,23,32,.92);
-      border-bottom:1px solid rgba(255,255,255,.08);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
-    .header-inner{max-width:var(--max);height:100%;margin:0 auto;padding:0 28px;
-      display:flex;align-items:center;justify-content:space-between;gap:20px;}
-    .brand{color:var(--text-light);font-weight:700;font-size:19px;letter-spacing:-.02em;}
-    .nav{display:flex;gap:22px;flex-wrap:wrap;}
-    .nav a{color:rgba(245,247,250,.78);font-size:14px;transition:color var(--transition);}
-    .nav a:hover,.nav a.active{color:#fff;}
+    
+    
+    
+    
+    
+    
     @media(max-width:900px){.nav{display:none;}}
 
     .section{max-width:var(--max);margin:0 auto;padding:64px 28px;}
@@ -148,57 +148,13 @@
     
     .copyright{border-top:1px solid rgba(255,255,255,.08);text-align:center;color:rgba(245,247,250,.5);font-size:12.5px;padding:20px 28px;}
     @media(max-width:860px){.footer-inner{grid-template-columns:1fr;}}
-      .brand-dot {
-      width: 6px; height: 6px;
-      margin-left: 10px;
-      background: var(--accent);
-      border-radius: 1px;
-      display: inline-block;
-      transform: translateY(-1px);
-      flex-shrink: 0;
-    }
-    .workspace-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 38px;
-      padding: 0 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.16);
-      background: rgba(255,255,255,0.06);
-      color: #FFFFFF;
-      font-weight: 500;
-      white-space: nowrap;
-    }
-    .workspace-link::after { display: none; }
-    .workspace-link:hover,
-    .nav a.workspace-link:focus-visible {
-      background: rgba(255,255,255,0.10);
-      border-color: rgba(255,255,255,0.24);
-      color: #FFFFFF;
-      transform: none;
-    }
-      .nav a.workspace-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 38px;
-      padding: 0 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.16);
-      background: rgba(255,255,255,0.06);
-      color: #FFFFFF;
-      font-weight: 500;
-      white-space: nowrap;
-    }
-    .nav a.workspace-link::after { display: none; }
-    .nav a.workspace-link:hover,
-    .nav a.workspace-link:focus-visible {
-      background: rgba(255,255,255,0.10);
-      border-color: rgba(255,255,255,0.24);
-      color: #FFFFFF;
-      transform: none;
-    }
+      
+    
+    
+    
+      
+    
+    
   
     /* canonical footer (from index) */
     .cost-inner,
@@ -679,27 +635,135 @@
       .mond-footer .mf-motif { bottom: -90px; right: -90px; }
       .mond-footer .mf-motif svg { width: 220px; height: 220px; }
     }
+  
+    /* canonical header (from index) */
+    .header {
+      position: fixed;
+      inset: 0 0 auto 0;
+      width: 100%;
+      height: 72px;
+      z-index: 100;
+      background: transparent;
+      border-bottom: 1px solid transparent;
+      transition: background var(--transition), border-color var(--transition), backdrop-filter var(--transition), -webkit-backdrop-filter var(--transition);
+    }
+    .header.scrolled {
+      background: var(--header-solid);
+      border-bottom-color: var(--header-border);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .header-inner {
+      max-width: var(--max);
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 34px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0;
+      font-size: 1.32rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      white-space: nowrap;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.16);
+    }
+    .brand-dot {
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+      flex-shrink: 0;
+    }
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: nowrap;
+      justify-content: flex-end;
+    }
+    .nav a {
+      position: relative;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.012em;
+      color: rgba(255,255,255,0.88);
+      transition: color var(--transition), transform var(--transition), opacity var(--transition);
+      white-space: nowrap;
+    }
+    .nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -6px;
+      width: 100%;
+      height: 1px;
+      background: currentColor;
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 180ms ease;
+    }
+    .nav a:hover,
+    .nav a:focus-visible { color: #FFFFFF; transform: translateY(-1px); outline: none; }
+    .nav a:hover::after,
+    .nav a:focus-visible::after,
+    .nav a.is-active::after { transform: scaleX(1); }
+    .nav a.is-active {
+      color: var(--accent);
+      transform: none;
+      outline: none;
+    }
+    .nav a.workspace-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.06);
+      color: #FFFFFF;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .nav a.workspace-link::after {
+      display: none;
+    }
+    .nav a.workspace-link:hover,
+    .nav a.workspace-link:focus-visible {
+      background: rgba(255, 255, 255, 0.10);
+      border-color: rgba(255, 255, 255, 0.24);
+      color: #FFFFFF;
+      transform: none;
+    }
   </style>
 </head>
 <body>
 
   <header class="header" id="siteHeader">
-    <div class="header-inner">
-      <a href="index.html" class="brand">
-        Monderman<span class="brand-dot"></span>
-      </a>
-      <nav class="nav" aria-label="Primary navigation">
-        <a href="index.html#approach">Approach</a>
-        <a href="diagnostics.html">Diagnostics</a>
-        <a href="research.html">Research</a>
-        <a href="why-monderman.html">Why Monderman</a>
-        <a href="about.html">About</a>
-        <a href="platform-services.html">Platform Services</a>
-        <a href="connect.html">Connect</a>
-        <a class="workspace-link" href="workspace.html">Sign In</a>
-      </nav>
-    </div>
-  </header>
+<div class="header-inner">
+<a class="brand" href="index.html">Monderman<span class="brand-dot"></span></a>
+<nav aria-label="Primary navigation" class="nav">
+<a href="index.html#approach">Approach</a>
+<a href="diagnostics.html">Diagnostics</a>
+<a href="research.html">Research</a>
+<a href="why-monderman.html">Why Monderman</a>
+<a href="about.html">About</a>
+<a href="platform-services.html">Platform Services</a>
+<a href="connect.html">Connect</a>
+<a class="workspace-link" href="workspace.html">Sign In</a>
+</nav>
+</div>
+</header>
 
   <!-- ── HERO ─────────────────────────────────────────────────────── -->
   <div class="hero">
@@ -980,5 +1044,13 @@
     apply();
     sb.auth.onAuthStateChange(() => apply());
   </script>
+<script>
+(function(){
+  var h = document.getElementById("siteHeader");
+  function onScroll(){ if (h) h.classList.toggle("scrolled", window.scrollY > 8); }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+})();
+</script>
 </body>
 </html>
