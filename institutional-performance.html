@@ -2156,6 +2156,8 @@ questionCopy.textContent = item.questionCopy || (item.questionType === "numeric"
 ? "Enter your best directional estimate. Exact precision is not necessary."
 : item.questionType === "text"
 ? "Optional narrative input. Use plain language; skip it if you do not have a useful observation."
+: item.questionType === "multi_select"
+? "Select every option you can directly observe. You can choose more than one."
 : "Choose the option that best matches what you can observe directly.");
 clearQuestionRequired();
 questionBody.innerHTML = "";
@@ -2252,22 +2254,27 @@ return wrap;
 }
 
 if (item.questionType === "multi_select") {
+const hint = document.createElement("p");
+hint.style.cssText = "font-size:.85rem;color:#6b7785;margin:0 0 10px;";
+hint.textContent = "Select all that apply, then press Continue below.";
+wrap.appendChild(hint);
 const choices = document.createElement("div");
 choices.className = "choices";
 const selected = Array.isArray(cached) ? cached.slice() : [];
 state.answerCache[item.id] = selected;
+const paint = (btn, on) => { btn.classList.toggle("selected", on); btn.setAttribute("aria-pressed", on ? "true" : "false"); const box = btn.querySelector(".ms-box"); if (box) box.textContent = on ? "\u2611" : "\u2610"; };
 asArray(item.options).forEach((option) => {
 const btn = document.createElement("button");
 btn.type = "button";
 const on = selected.map(String).includes(String(option.value));
-btn.className = `choice${on ? " selected" : ""}`;
-btn.setAttribute("aria-pressed", on ? "true" : "false");
-btn.innerHTML = `<span class="choice-title">${escapeHtml(option.label)}</span>`;
+btn.className = "choice";
+btn.innerHTML = `<span class="choice-title"><span class="ms-box" aria-hidden="true"></span> ${escapeHtml(option.label)}</span>`;
+paint(btn, on);
 btn.addEventListener("click", () => {
 const v = String(option.value);
 const at = selected.map(String).indexOf(v);
-if (at >= 0) { selected.splice(at, 1); btn.classList.remove("selected"); btn.setAttribute("aria-pressed", "false"); }
-else { selected.push(option.value); btn.classList.add("selected"); btn.setAttribute("aria-pressed", "true"); }
+if (at >= 0) selected.splice(at, 1); else selected.push(option.value);
+paint(btn, at < 0);
 clearQuestionRequired();
 });
 choices.appendChild(btn);
