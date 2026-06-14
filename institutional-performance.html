@@ -2251,6 +2251,31 @@ if (event.key === 'ArrowUp' || event.key === 'ArrowDown') event.preventDefault()
 return wrap;
 }
 
+if (item.questionType === "multi_select") {
+const choices = document.createElement("div");
+choices.className = "choices";
+const selected = Array.isArray(cached) ? cached.slice() : [];
+state.answerCache[item.id] = selected;
+asArray(item.options).forEach((option) => {
+const btn = document.createElement("button");
+btn.type = "button";
+const on = selected.map(String).includes(String(option.value));
+btn.className = `choice${on ? " selected" : ""}`;
+btn.setAttribute("aria-pressed", on ? "true" : "false");
+btn.innerHTML = `<span class="choice-title">${escapeHtml(option.label)}</span>`;
+btn.addEventListener("click", () => {
+const v = String(option.value);
+const at = selected.map(String).indexOf(v);
+if (at >= 0) { selected.splice(at, 1); btn.classList.remove("selected"); btn.setAttribute("aria-pressed", "false"); }
+else { selected.push(option.value); btn.classList.add("selected"); btn.setAttribute("aria-pressed", "true"); }
+clearQuestionRequired();
+});
+choices.appendChild(btn);
+});
+wrap.appendChild(choices);
+return wrap;
+}
+
 wrap.innerHTML = `<div class="field"><label for="field_${item.id}">Your answer</label><textarea id="field_${item.id}" placeholder="Enter your answer">${escapeHtml(String(cached ?? ""))}</textarea></div>`;
 return wrap;
 }
@@ -2263,6 +2288,7 @@ const el = $(`field_${item.id}`);
 if (!el || el.value === "") return "";
 return parseDirectionalNumber(el.value);
 }
+if (item.questionType === "multi_select") return state.answerCache[item.id] || [];
 const textEl = $(`field_${item.id}`);
 return textEl ? textEl.value : state.answerCache[item.id];
 }
@@ -2615,7 +2641,7 @@ return;
 }
 if (!state.runId) return;
 const isOptionalSkip = meta?.skipReason === 'cross_level_optional' || meta?.skipReason === 'optional_skipped';
-const empty = value === "" || value === null || value === undefined || (typeof value === "number" && !Number.isFinite(value));
+const empty = value === "" || value === null || value === undefined || (typeof value === "number" && !Number.isFinite(value)) || (Array.isArray(value) && value.length === 0);
 if (empty && !isOptionalSkip) {
 showQuestionRequired('This question is required.');
 return;
