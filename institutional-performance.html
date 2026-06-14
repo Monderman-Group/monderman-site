@@ -508,7 +508,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
     <span class="step-chip" style="display:none">Step 1</span>
     <aside class="intake-sidebar">
       <p class="intake-brand-kicker">Monderman</p>
-      <p class="intake-brand-name">Decision Velocity</p>
+      <p class="intake-brand-name">Institutional Performance</p>
       <div class="intake-context" id="intakeContext" style="display:none">
         <p class="intake-context-label">Run context</p>
         <p class="intake-context-line" id="intakeContextName"></p>
@@ -545,7 +545,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
     <span class="step-chip" style="display:none">Step 2</span>
     <aside class="intake-sidebar">
       <p class="intake-brand-kicker">Monderman</p>
-      <p class="intake-brand-name">Decision Velocity</p>
+      <p class="intake-brand-name">Institutional Performance</p>
       <div class="intake-context" id="intakeContext_depth" style="display:none">
         <p class="intake-context-label">Run context</p>
         <p class="intake-context-line" id="intakeContextName_depth"></p>
@@ -582,7 +582,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
     <span class="step-chip" style="display:none">Step 3</span>
     <aside class="intake-sidebar">
       <p class="intake-brand-kicker">Monderman</p>
-      <p class="intake-brand-name">Decision Velocity</p>
+      <p class="intake-brand-name">Institutional Performance</p>
       <div class="intake-context" id="intakeContext_intro" style="display:none">
         <p class="intake-context-label">Run context</p>
         <p class="intake-context-line" id="intakeContextName_intro"></p>
@@ -658,7 +658,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   <div class="cover-dark">
     <div class="cover-mark">M O N D E R M A N</div>
     <div class="cover-rule"></div>
-    <div class="cover-headline">Decision Velocity<br>Diagnostic</div>
+    <div class="cover-headline">Institutional Performance<br>Diagnostic</div>
     <div class="cover-sub">Executive Summary</div>
   </div>
   <div class="cover-stripe"></div>
@@ -2348,8 +2348,10 @@ context_note: state.preflight.description || "",
 participantCount: inferredCoverage.participantCount,
 levelsCovered: participantLevels,
 peopleInvolved: state.preflight.peopleInvolved,
+peopleImpacted: state.preflight.peopleInvolved,
 hourlyCost: state.preflight.hourlyCost,
 annualVolume: state.preflight.annualVolume,
+annualCycles: state.preflight.annualVolume,
 meetingHours: state.preflight.meetingHours,
 employeeCount: state.preflight.employeeCount,
 metadata: {
@@ -2360,8 +2362,10 @@ levelsCovered: participantLevels,
 decisionType: state.preflight.decisionType,
 peopleAffected: state.preflight.peopleInvolved,
 peopleInvolved: state.preflight.peopleInvolved,
+peopleImpacted: state.preflight.peopleInvolved,
 hourlyCost: state.preflight.hourlyCost,
 annualVolume: state.preflight.annualVolume,
+annualCycles: state.preflight.annualVolume,
 meetingHours: state.preflight.meetingHours
 },
 shared_context: readHubContext() || {}
@@ -2810,8 +2814,10 @@ const payload = {
   organizationSize: state.preflight.organizationSize,
   peopleInvolved: state.preflight.peopleInvolved,
   peopleAffected: state.preflight.peopleInvolved,
+  peopleImpacted: state.preflight.peopleInvolved,
   hourlyCost: state.preflight.hourlyCost,
   annualVolume: state.preflight.annualVolume,
+  annualCycles: state.preflight.annualVolume,
   meetingHours: state.preflight.meetingHours,
   confidenceLevel: state.preflight.confidenceLevel,
   participantCount: inferredCoverage.participantCount,
@@ -3221,8 +3227,11 @@ const stateObj = result.__interpretiveState || buildInterpretiveState(result, {}
 const quadDot = $("quadDot");
 const text = $("quadrantInterpretationText");
 if (!quadDot) return;
-quadDot.style.left = `${stateObj.governanceWeight}%`;
-quadDot.style.top = `${100 - stateObj.execResponsive}%`;
+const _clamp01 = (v) => Math.max(0, Math.min(100, Number(v)));
+const _gx = Number.isFinite(Number(stateObj.governanceWeight)) ? _clamp01(stateObj.governanceWeight) : 50;
+const _ey = Number.isFinite(Number(stateObj.execResponsive)) ? _clamp01(stateObj.execResponsive) : 50;
+quadDot.style.left = `${_gx}%`;
+quadDot.style.top = `${100 - _ey}%`;
 if (text) text.textContent = buildQuadrantInterpretation(result);
 }
 
@@ -5278,7 +5287,7 @@ showStage(laneStage, { scroll: true });
 document.querySelector("#laneStage .step-chip")?.scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
-function exportFullReportHTML(result, payload, title = "Monderman Decision Velocity Report") {
+function exportFullReportHTML(result, payload, title = "Monderman Institutional Performance Report") {
 if (!result || !payload) return;
 
 try {
@@ -5388,7 +5397,7 @@ await submitAnswer(state.currentItem.id, "", meta);
 });
 restartBtn.addEventListener("click", restartDiagnostic);
 downloadReportBtn?.addEventListener("click", () => { if (state.result && state.renderPayload) exportExecutiveReport(state.result, state.renderPayload); });
-downloadFullReportBtn?.addEventListener("click", () => { if (state.result && state.renderPayload) exportFullReportHTML(state.result, state.renderPayload, "Monderman Decision Velocity Report"); });
+downloadFullReportBtn?.addEventListener("click", () => { if (state.result && state.renderPayload) exportFullReportHTML(state.result, state.renderPayload, "Monderman Institutional Performance Report"); });
 downloadPdfBtn?.addEventListener("click", () => { downloadExecutiveReportPdf(); });
 saveCrossDiagnosticBtn?.addEventListener("click", () => { if (state.result && state.renderPayload) downloadCrossDiagnosticResult(state.result, state.renderPayload); });
 newRunBtn?.addEventListener("click", restartDiagnostic);
