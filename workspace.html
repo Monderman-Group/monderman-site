@@ -579,8 +579,38 @@
       const has = runs.length > 0;
       ui.runsEmpty.classList.toggle("hidden", has);
       ui.runsList.classList.toggle("hidden", !has);
+
+      // Derive lock (mirrors the backend): a free org (run_limit = a number) unlocks only its
+      // earliest run_limit runs by created_at; the rest stay locked until the org goes paid
+      // (run_limit = null), at which point everything unlocks. Run data is the user's own, read via
+      // their authenticated session, so this is the display gate (server.js withholds it API-side too).
+      const _org = state.organization || {};
+      const _runLimit = _org.run_limit;
+      let _unlockedIds = null;
+      if (_runLimit !== null && _runLimit !== undefined) {
+        const _oldestFirst = [...runs].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        _unlockedIds = new Set(_oldestFirst.slice(0, Number(_runLimit)).map(r => r.id));
+      }
+      const _isLocked = (run) => _unlockedIds !== null && !_unlockedIds.has(run.id);
+
       runs.forEach((run, i) => {
         const el = document.createElement("div");
+
+        if (_isLocked(run)) {
+          el.className = "ws-locked";
+          const lkTool = run.tool_label || toolName(run.tool_type);
+          const lkDate = fmtDate(run.created_at);
+          const lkUnit = run.business_unit || run.pathway_name || "";
+          const lkMeta = [lkDate, lkUnit].filter(Boolean).join(" \u00b7 ");
+          el.innerHTML = `
+            <span class="lk-badge"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Locked</span>
+            <h4>${escapeHtml(lkTool)}</h4>
+            <p>${escapeHtml(lkMeta) || "Saved run"} &mdash; saved and ready. Sign up for a plan to unlock your full results.</p>
+            <a class="lk-cta" href="platform-services.html">See plans &amp; pricing &rarr;</a>`;
+          ui.runsList.appendChild(el);
+          return;
+        }
+
         el.className = "ws-run-item";
         // Real diagnostic_runs columns: tool_type, tool_label, pathway_name, business_unit, score, band, primary_driver, created_at (+ JSON fields shown on expand)
         const tool = run.tool_label || toolName(run.tool_type);
