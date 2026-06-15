@@ -699,6 +699,25 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   </div>
 </div>
 
+<div class="stage" id="exhaustedStage"><div class="exhausted-stage">
+  <style>
+    .exhausted-stage{max-width:560px;margin:0 auto;text-align:center;padding:8px 0;}
+    .exhausted-stage .ex-badge{width:56px;height:56px;border-radius:50%;background:rgba(63,110,161,.12);color:var(--accent,#3F6EA1);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;}
+    .exhausted-stage .ex-badge svg{width:26px;height:26px;}
+    .exhausted-stage h2{margin:0 0 10px;font-size:24px;letter-spacing:-.02em;color:#15202B;}
+    .exhausted-stage p{margin:0 auto;max-width:460px;color:#55606C;font-size:15px;line-height:1.6;}
+    .exhausted-stage .ex-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:26px;}
+    @media(max-width:560px){.exhausted-stage .ex-actions{flex-direction:column;}.exhausted-stage .ex-actions .btn{width:100%;}}
+  </style>
+  <div class="ex-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+  <h2>You&rsquo;ve used all your free diagnostic runs</h2>
+  <p id="exhaustedMessage">Good news &mdash; this run is saved. Sign up for a plan to unlock your full results and keep running diagnostics, or reach out and we&rsquo;ll help you get set up.</p>
+  <div class="ex-actions">
+    <a class="btn btn-accent" href="https://www.monderman.com/platform-services.html">See plans &amp; pricing</a>
+    <a class="btn" href="https://www.monderman.com/connect.html">Connect with us</a>
+    <a class="btn" href="mailto:connect@monderman.com">Email connect@monderman.com</a>
+  </div>
+</div></div>
 <div class="stage" id="resultsStage"><div class="results-layout">
         <section class="report-only report-header"><p class="report-kicker">M O N D E R M A N</p><p class="tiny">Decision Velocity Diagnostic • Institutional Performance Research</p><h1 class="report-title" id="reportTitle">Decision Velocity Diagnostic</h1><p class="report-sub" id="reportSubtitle">Leadership-ready decision velocity summary.</p><div class="report-meta"><span class="meta-pill" id="metaProcess">Pathway: --</span><span class="meta-pill" id="metaBench">Benchmark: --</span><span class="meta-pill" id="metaDate">Generated: --</span></div></section>
 
@@ -943,6 +962,7 @@ const introStage = $("introStage");
 const questionStage = $("questionStage");
 const processingStage = $("processingStage");
 const resultsStage = $("resultsStage");
+const exhaustedStage = $("exhaustedStage");
 const questionFooter = $("questionFooter");
 const beginBtn = $("beginBtn");
 const preStartConsent = $("preStartConsent");
@@ -1521,8 +1541,9 @@ const showEntryCta = stage === laneStage && !state.mode && !state.depth;
 heroBeginBtn.classList.toggle("hidden", !showEntryCta);
 }
 
+function showRunsExhausted() { showStage(exhaustedStage, { scroll: true }); }
 function showStage(stage, options = {}) {
-[laneStage, depthStage, introStage, questionStage, processingStage, resultsStage].forEach((el) => el.classList.remove("active"));
+[laneStage, depthStage, introStage, questionStage, processingStage, resultsStage, exhaustedStage].forEach((el) => el.classList.remove("active"));
 stage.classList.add("active");
 questionFooter.style.display = stage === questionStage ? "grid" : "none";
 syncHeroBeginCta(stage);
@@ -2156,6 +2177,8 @@ questionCopy.textContent = item.questionCopy || (item.questionType === "numeric"
 ? "Enter your best directional estimate. Exact precision is not necessary."
 : item.questionType === "text"
 ? "Optional narrative input. Use plain language; skip it if you do not have a useful observation."
+: item.questionType === "multi_select"
+? "Select every option you can directly observe. You can choose more than one."
 : "Choose the option that best matches what you can observe directly.");
 clearQuestionRequired();
 questionBody.innerHTML = "";
@@ -2251,6 +2274,36 @@ if (event.key === 'ArrowUp' || event.key === 'ArrowDown') event.preventDefault()
 return wrap;
 }
 
+if (item.questionType === "multi_select") {
+const hint = document.createElement("p");
+hint.style.cssText = "font-size:.85rem;color:#6b7785;margin:0 0 10px;";
+hint.textContent = "Select all that apply, then press Continue below.";
+wrap.appendChild(hint);
+const choices = document.createElement("div");
+choices.className = "choices";
+const selected = Array.isArray(cached) ? cached.slice() : [];
+state.answerCache[item.id] = selected;
+const paint = (btn, on) => { btn.classList.toggle("selected", on); btn.setAttribute("aria-pressed", on ? "true" : "false"); const box = btn.querySelector(".ms-box"); if (box) box.textContent = on ? "\u2611" : "\u2610"; };
+asArray(item.options).forEach((option) => {
+const btn = document.createElement("button");
+btn.type = "button";
+const on = selected.map(String).includes(String(option.value));
+btn.className = "choice";
+btn.innerHTML = `<span class="choice-title"><span class="ms-box" aria-hidden="true"></span> ${escapeHtml(option.label)}</span>`;
+paint(btn, on);
+btn.addEventListener("click", () => {
+const v = String(option.value);
+const at = selected.map(String).indexOf(v);
+if (at >= 0) selected.splice(at, 1); else selected.push(option.value);
+paint(btn, at < 0);
+clearQuestionRequired();
+});
+choices.appendChild(btn);
+});
+wrap.appendChild(choices);
+return wrap;
+}
+
 wrap.innerHTML = `<div class="field"><label for="field_${item.id}">Your answer</label><textarea id="field_${item.id}" placeholder="Enter your answer">${escapeHtml(String(cached ?? ""))}</textarea></div>`;
 return wrap;
 }
@@ -2263,6 +2316,7 @@ const el = $(`field_${item.id}`);
 if (!el || el.value === "") return "";
 return parseDirectionalNumber(el.value);
 }
+if (item.questionType === "multi_select") return state.answerCache[item.id] || [];
 const textEl = $(`field_${item.id}`);
 return textEl ? textEl.value : state.answerCache[item.id];
 }
@@ -2615,7 +2669,7 @@ return;
 }
 if (!state.runId) return;
 const isOptionalSkip = meta?.skipReason === 'cross_level_optional' || meta?.skipReason === 'optional_skipped';
-const empty = value === "" || value === null || value === undefined || (typeof value === "number" && !Number.isFinite(value));
+const empty = value === "" || value === null || value === undefined || (typeof value === "number" && !Number.isFinite(value)) || (Array.isArray(value) && value.length === 0);
 if (empty && !isOptionalSkip) {
 showQuestionRequired('This question is required.');
 return;
@@ -2744,6 +2798,11 @@ rawExperience: {
 const rawText = await response.text();
 let data = null;
 try { data = JSON.parse(rawText); } catch (_e) {}
+
+if ((data && data.locked === true) || (response.status === 402 && data?.error === "run_limit_reached")) {
+  showRunsExhausted();
+  return;
+}
 
 if (!response.ok || !data?.ok) {
   // Surface the actual backend error rather than swallowing it
