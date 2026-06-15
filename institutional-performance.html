@@ -711,10 +711,11 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   </style>
   <div class="ex-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
   <h2>You&rsquo;ve used all your free diagnostic runs</h2>
-  <p id="exhaustedMessage">Your free runs are complete. To run more, choose a plan that fits how you&rsquo;ll use Monderman.</p>
+  <p id="exhaustedMessage">Good news &mdash; this run is saved. Sign up for a plan to unlock your full results and keep running diagnostics, or reach out and we&rsquo;ll help you get set up.</p>
   <div class="ex-actions">
     <a class="btn btn-accent" href="https://www.monderman.com/platform-services.html">See plans &amp; pricing</a>
-    <a class="btn" href="https://www.monderman.com/diagnostics.html">Back to diagnostics</a>
+    <a class="btn" href="https://www.monderman.com/connect.html">Connect with us</a>
+    <a class="btn" href="mailto:connect@monderman.com">Email connect@monderman.com</a>
   </div>
 </div></div>
 <div class="stage" id="resultsStage"><div class="results-layout">
@@ -2805,7 +2806,7 @@ const rawText = await response.text();
 let data = null;
 try { data = JSON.parse(rawText); } catch (_e) {}
 
-if (response.status === 402 && data?.error === "run_limit_reached") {
+if ((data && data.locked === true) || (response.status === 402 && data?.error === "run_limit_reached")) {
   showRunsExhausted();
   return;
 }
