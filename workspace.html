@@ -460,14 +460,14 @@
         .select("id, name, slug, plan, run_limit, runs_used, seat_limit, features, analyst_reviews_included, hands_on_advisory, plan_period")
         .single();
       if(orgError) throw orgError;
-      const { error:memberError } = await supabase.from("organization_members").insert({ organization_id:org.id, user_id:user.id, role:"owner" });
+      const { error:memberError } = await supabase.from("organization_members").insert({ organization_id:org.id, user_id:user.id, role:"admin" });
       if(memberError) throw memberError;
-      return { organization_id:org.id, role:"owner", organizations:org };
+      return { organization_id:org.id, role:"admin", organizations:org };
     }
 
     async function loadRecentRuns(){
       if(!state.user) return [];
-      const { data, error } = await supabase.from("diagnostic_runs").select("*").eq("user_id", state.user.id).order("created_at", { ascending:false }).limit(50);
+      const { data, error } = await supabase.from("diagnostic_runs").select("*").eq("user_id", state.user.id).eq("status", "promoted").order("created_at", { ascending:false }).limit(50);
       if(error) throw error;
       return data || [];
     }
