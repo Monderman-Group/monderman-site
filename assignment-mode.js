@@ -58,11 +58,16 @@
     s.id = "ma-style";
     s.textContent =
       ".ma-banner{font-family:'Neue Haas Grotesk Display Pro','Helvetica Neue',Helvetica,Arial,sans-serif;" +
-      "background:" + INK + ";color:#fff;padding:11px 20px;display:flex;align-items:center;gap:12px;" +
-      "font-size:13.5px;line-height:1.4;flex-wrap:wrap;}" +
+      "background:" + INK + ";color:#fff;padding:16px 26px;display:flex;align-items:center;gap:14px;" +
+      "font-size:16px;line-height:1.45;flex-wrap:wrap;border-bottom:3px solid " + ACCENT + ";" +
+      "box-shadow:0 2px 10px rgba(15,23,32,.18);position:sticky;top:0;z-index:1200;}" +
       ".ma-banner b{font-weight:600;}" +
-      ".ma-banner .ma-dot{width:6px;height:6px;border-radius:50%;background:" + ACCENT + ";flex:0 0 6px;}" +
-      ".ma-banner .ma-tag{color:rgba(255,255,255,.62);}" +
+      ".ma-banner .ma-eyebrow{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;" +
+      "color:rgba(255,255,255,.55);}" +
+      ".ma-banner .ma-dot{width:9px;height:9px;border-radius:50%;background:" + ACCENT + ";flex:0 0 9px;}" +
+      ".ma-banner .ma-sep{color:rgba(255,255,255,.32);padding:0 2px;}" +
+      ".ma-banner .ma-tag{margin-left:auto;background:rgba(63,110,161,.22);color:#fff;font-size:13px;" +
+      "font-weight:500;padding:5px 13px;border-radius:999px;white-space:nowrap;}" +
       ".ma-overlay{position:fixed;inset:0;z-index:9999;background:" + PAPER + ";display:flex;" +
       "align-items:center;justify-content:center;padding:24px;" +
       "font-family:'Neue Haas Grotesk Display Pro','Helvetica Neue',Helvetica,Arial,sans-serif;}" +
@@ -140,8 +145,9 @@
       var lens = LENS_LABEL[cfg.participant_lens] || cfg.participant_lens || "";
       bar.innerHTML =
         "<span class='ma-dot'></span>" +
-        "<span>Assigned by your organization" +
-        (cfg.event_path_name ? " &middot; <b>" + escapeHtml(cfg.event_path_name) + "</b>" : "") +
+        "<span class='ma-eyebrow'>Assigned</span>" +
+        "<span>by your organization" +
+        (cfg.event_path_name ? "<span class='ma-sep'>&middot;</span><b>" + escapeHtml(cfg.event_path_name) + "</b>" : "") +
         "</span>" +
         (lens ? "<span class='ma-tag'>" + escapeHtml(lens) + " perspective</span>" : "");
       document.body.insertBefore(bar, document.body.firstChild);
