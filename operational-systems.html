@@ -5247,6 +5247,11 @@ syncBeginButton();
     syncHubSelections();
     syncBeginButton();
     showStage(introStage, { scroll: false });
+    setHeader(
+      (laneConfigs[cfg.participant_lens] && laneConfigs[cfg.participant_lens].header) || "Confirm and begin",
+      "Perspective and depth are set by your organization. Confirm the guardrail below, then begin.",
+      "Ready to begin"
+    );
   }
 })();
 
