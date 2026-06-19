@@ -727,7 +727,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
       <div class="score-meta-strip"><div class="score-meta-note"><span class="score-meta-pill" id="scoreMetaIndustry">Industry: --</span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaShapeText">Profile shape: --</span> <span class="insight-help" id="profileShapeInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="profileShapeTooltip"><strong>Profile shape</strong><br>Concentrated means one burden source dominates. Distributed means multiple sources materially contribute. Hidden means the visible workflow likely understates the real upkeep cost.</span></span></span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaTrajectoryText">Trajectory: --</span> <span class="insight-help" id="trajectoryInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="trajectoryTooltip"><strong>Trajectory</strong><br>Trajectory indicates whether burden pressure appears to be rising, holding steady, or easing based on the current signal pattern.</span></span></span></div></div>
     </div></section>
 
-    <section class="primary-waterfall"><div class="viz-card"><h4>Capacity allocation</h4><div class="capacity-waterfall"><div class="capacity-bar" id="capacityWaterfall"></div><div class="capacity-legend"><span><span class="legend-dot dot-green"></span>Productive work</span><span><span class="legend-dot dot-gold"></span>Necessary administrative load</span><span><span class="legend-dot" style="background:#B85C52"></span>Recoverable drag</span></div><p class="viz-note" id="capacityWaterfallNote">Capacity allocation view will appear here after scoring.</p></div></div></section>
+    <section class="primary-waterfall"><div class="viz-card"><h4>Capacity allocation</h4><div class="capacity-waterfall"><div id="effortFlowSankey" style="margin-bottom:6px;"></div><div class="capacity-bar" id="capacityWaterfall"></div><div class="capacity-legend"><span><span class="legend-dot dot-green"></span>Productive work</span><span><span class="legend-dot dot-gold"></span>Necessary administrative load</span><span><span class="legend-dot" style="background:#B85C52"></span>Recoverable drag</span></div><p class="viz-note" id="capacityWaterfallNote">Capacity allocation view will appear here after scoring.</p></div></div></section>
 
     <section class="diagnosis-grid">
       <article class="diagnosis-card"><p class="summary-label">Current operating burden</p><p class="summary-value" id="cycleConditionValue">--</p><p class="summary-sub tight" id="cycleConditionSub">Overall operating-environment diagnosis</p></article>
@@ -876,6 +876,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   </main>
 <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
 </div>
+  <script src="monderman-viz.js"></script>
   <script src="assignment-mode.js"></script>
   <script>
 const MondermanDiagnostic = (() => {
@@ -3464,6 +3465,58 @@ plugins: [burdenCenterPlugin]
 });
 }
 
+function renderEffortFlow(result) {
+  try {
+    const mountEl = document.getElementById("effortFlowSankey");
+    if (!mountEl || !window.MViz || typeof window.MViz.effortFlow !== "function") return;
+    const ex = (result && result.exposure) || {};
+    const burdenCost = Number(ex.annual_cost) || 0;
+    const burdenHours = Number(ex.annual_hours) || 0;
+    const dragPct = Number(ex.capacity_drag_percent) || 0;
+    if (burdenCost <= 0 || dragPct <= 0) return; // can't build a faithful flow — leave the bar as fallback
+
+    const totalCost = burdenCost / (dragPct / 100);
+    const totalHours = burdenHours > 0 ? burdenHours / (dragPct / 100) : null;
+    const reclaimCost = Number(result && result.reclaim_potential && result.reclaim_potential.amount) || 0;
+    const structuralCost = Math.max(0, burdenCost - reclaimCost);
+    const productiveCost = Math.max(0, totalCost - burdenCost);
+    const productiveHours = totalHours != null ? Math.max(0, totalHours - burdenHours) : null;
+
+    // recoverable burden, apportioned by canonical composition (fallback: burden_breakdown)
+    let dims = [];
+    const segs = (result && result.canonical_composition && result.canonical_composition.segments) || [];
+    if (segs.length) {
+      dims = segs.map(function (s) { return { label: s.label || s.key || "", cost: reclaimCost * ((Number(s.pct) || 0) / 100) }; })
+                 .filter(function (d) { return d.cost > 0; });
+    }
+    if (!dims.length && result && result.burden_breakdown) {
+      const bb = result.burden_breakdown;
+      const totalRaw = Object.keys(bb).reduce(function (s, k) { return s + (Number(bb[k]) || 0); }, 0) || 1;
+      dims = Object.keys(bb).map(function (k) {
+        return { label: k.replace(/_/g, " ").replace(/\b\w/g, function (c) { return c.toUpperCase(); }), cost: reclaimCost * ((Number(bb[k]) || 0) / totalRaw) };
+      }).filter(function (d) { return d.cost > 0; });
+    }
+
+    window.MViz.effortFlow(mountEl, {
+      totalCost: totalCost, totalHours: totalHours,
+      productiveCost: productiveCost, productiveHours: productiveHours,
+      structuralCost: structuralCost, reclaimCost: reclaimCost,
+      dims: dims,
+      note: "Directional estimate at the midpoint of the modeled range. Dimension dollars apportion the recoverable burden by composition \u2014 not audited."
+    });
+
+    // The Sankey supersedes the segmented bar — hide the now-redundant bar, legend, and note.
+    const bar = document.getElementById("capacityWaterfall");
+    const legend = mountEl.parentElement ? mountEl.parentElement.querySelector(".capacity-legend") : null;
+    const note = document.getElementById("capacityWaterfallNote");
+    if (bar) bar.style.display = "none";
+    if (legend) legend.style.display = "none";
+    if (note) note.style.display = "none";
+  } catch (e) {
+    console.warn("effort-flow render skipped:", e && e.message);
+  }
+}
+
 function renderCapacityWaterfall(result) {
 const mount = $("capacityWaterfall");
 const note = $("capacityWaterfallNote");
@@ -5021,6 +5074,7 @@ dimensionCard.appendChild(note);
 }
 renderBurdenDonut(result);
 renderCapacityWaterfall(result);
+renderEffortFlow(result);
 renderBurdenTreemap(result);
 renderIndustryGauge(result, payload);
 renderTrajectorySparkline(result);
