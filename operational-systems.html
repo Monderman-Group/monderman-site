@@ -876,6 +876,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   </main>
 <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
 </div>
+  <script src="assignment-mode.js"></script>
   <script>
 const MondermanDiagnostic = (() => {
 
@@ -2806,6 +2807,14 @@ if (refinedExperienceLayer?.hasInput) {
 state.result = result;
 state.renderPayload = payload;
 
+// Directed (campaign) mode: persist the run, close the assignment, gate output.
+if (window.MondermanAssignment && window.MondermanAssignment.active()) {
+  await window.MondermanAssignment.complete(result, payload);
+  if (!window.MondermanAssignment.showsResults()) {
+    window.MondermanAssignment.renderCompletion();
+    return;
+  }
+}
 setProcessingStep(3, "Rendering charts and final report modules...");
 renderResults(result, payload, "Operational Systems Diagnostic");
 // Do not write this run into localStorage automatically; repeated testing should not mutate future visible context or counts.
@@ -5217,6 +5226,29 @@ renderPreflightForm();
 syncHubSelections();
 updateHeroHelp();
 syncBeginButton();
+
+// ── Directed (campaign) mode: when opened from an assignment link, lock the
+//    vantage to the admin's choice and skip the chooser. No-op otherwise. ──
+(async function mondermanDirectedInit(){
+  if (!window.MondermanAssignment) return;
+  const token = window.MondermanAssignment.detect();
+  if (!token) return;
+  const cfg = await window.MondermanAssignment.resolve(token);
+  if (!cfg) { window.MondermanAssignment.renderInvalid(); return; }
+  if (!window.MondermanAssignment.active()) { window.MondermanAssignment.renderAlreadyDone(); return; }
+  window.MondermanAssignment.banner(cfg);
+  window.MondermanAssignment.lock();
+  if (cfg.depth_choice) {
+    selectLane(cfg.participant_lens); // sets mode, advances to depthStage for the taker to pick length
+  } else {
+    state.mode = cfg.participant_lens; // operational / managerial / executive — matches laneConfigs
+    state.depth = String(cfg.depth);
+    renderPreflightForm();
+    syncHubSelections();
+    syncBeginButton();
+    showStage(introStage, { scroll: false });
+  }
+})();
 
 // ═══════════════════════════════════════════════════════════
 // TEST-HARNESS INJECTION HOOK (v8c PDF integrity testing)
