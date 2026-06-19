@@ -201,8 +201,8 @@
     renderCompletion: function () {
       overlay(
         "&#10003;",
-        "Your responses are recorded",
-        "Thank you. Your input has been submitted to your organization. You can close this window."
+        "Thank you &mdash; your perspective is recorded",
+        "Your responses have been submitted to your organization. Readings like yours are combined into a single, measured view of how the work actually runs &mdash; one that informs where attention and effort go next. Your part is complete; you can close this window."
       );
     },
     renderInvalid: function () {
