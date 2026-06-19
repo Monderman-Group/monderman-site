@@ -151,6 +151,18 @@
         "</span>" +
         (lens ? "<span class='ma-tag'>" + escapeHtml(lens) + " perspective</span>" : "");
       document.body.insertBefore(bar, document.body.firstChild);
+
+      // The static hero-step label invites a perspective/depth choice the taker
+      // doesn't get in directed mode. Rewrite it to reflect the locked setup.
+      var heroStep = document.querySelector(".hero-step span:last-child");
+      if (heroStep) {
+        var depthTxt = cfg.depth_choice
+          ? "you choose the run length"
+          : (cfg.depth ? "about " + cfg.depth + " minutes" : "set run length");
+        heroStep.textContent =
+          (lens ? lens + " perspective" : "Assigned diagnostic") + " · " + depthTxt;
+      }
+      return;
     },
 
     // lock: disable the back-jumps to the vantage/depth chooser so the taker
