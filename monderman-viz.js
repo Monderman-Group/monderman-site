@@ -27,19 +27,19 @@
   /* ── theme ─────────────────────────────────────────────────────────── */
   const T = {
     ink: "#15202B",
-    inkSoft: "#3d4c5a",
-    muted: "#7A8794",
-    hairline: "rgba(21,32,43,.14)",
-    gridline: "rgba(21,32,43,.07)",
+    inkSoft: "#3A4754",
+    muted: "#828D99",
+    hairline: "rgba(21,32,43,.10)",
+    gridline: "rgba(21,32,43,.05)",
     accent: "#3F6EA1",
     accentDark: "#2F5886",
-    accentSoft: "rgba(63,110,161,.16)",
-    success: "#2E8B57",
-    warning: "#B8860B",
-    danger: "#B8505E",
-    zoneHealthy: "rgba(46,139,87,.06)",
-    zoneStrained: "rgba(184,134,11,.07)",
-    zoneSevere: "rgba(184,80,94,.08)",
+    accentSoft: "rgba(63,110,161,.11)",
+    success: "#4F8069",
+    warning: "#A07F3D",
+    danger: "#9C4A54",
+    zoneHealthy: "rgba(79,128,105,.055)",
+    zoneStrained: "rgba(160,127,61,.06)",
+    zoneSevere: "rgba(156,74,84,.06)",
     fontAxis: "11px",
     fontLabel: "12.5px",
     fontValue: "13px"
@@ -76,7 +76,7 @@
       width: "100%",
       role: "img",
       "aria-label": ariaLabel || "chart",
-      style: "display:block;font-family:inherit;"
+      style: "display:block;font-family:inherit;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision;"
     });
     host.appendChild(svg);
     return svg;
@@ -136,8 +136,8 @@
     const sx = X(score);
     S("line", { x1: sx, y1: bandY - 6, x2: sx, y2: bandY + bandH + 6, stroke: T.ink, "stroke-width": 2.2 }, svg);
     const lozW = 56, lozH = 30, lozX = clamp(sx - lozW / 2, L, W - R - lozW), lozY = bandY - 44;
-    S("rect", { x: lozX, y: lozY, width: lozW, height: lozH, rx: 7, fill: T.ink }, svg);
-    txt(svg, lozX + lozW / 2, lozY + 20, String(Math.round(score)), { anchor: "middle", fill: "#fff", size: "17px", weight: 700 });
+    S("rect", { x: lozX, y: lozY, width: lozW, height: lozH, rx: 3, fill: T.ink }, svg);
+    txt(svg, lozX + lozW / 2, lozY + 20, String(Math.round(score)), { anchor: "middle", fill: "#fff", size: "15px", weight: 600 });
     S("path", { d: `M ${clamp(sx, lozX + 8, lozX + lozW - 8) - 5} ${lozY + lozH} l 5 6 l 5 -6 Z`, fill: T.ink }, svg);
   }
 
@@ -186,7 +186,7 @@
       const dotColor = r.value >= th.severe ? T.danger : r.value >= th.strained ? T.warning : T.success;
       txt(svg, L - 12, cy + 4, r.label, { anchor: "end", fill: dominant ? T.ink : T.inkSoft, size: T.fontLabel, weight: dominant ? 700 : 400 });
       S("line", { x1: X(0), y1: cy, x2: X(r.value), y2: cy, stroke: T.hairline, "stroke-width": 1 }, svg);
-      S("circle", { cx: X(r.value), cy, r: dominant ? 7 : 5.5, fill: dotColor, stroke: "#fff", "stroke-width": 1.5 }, svg);
+      S("circle", { cx: X(r.value), cy, r: dominant ? 6.5 : 5, fill: dotColor, stroke: "#fff", "stroke-width": 1 }, svg);
       txt(svg, clamp(X(r.value) + 12, L, W - R - 8), cy + 4, String(Math.round(r.value)), { fill: T.ink, size: T.fontValue, weight: dominant ? 700 : 500 });
     });
   }
@@ -250,12 +250,12 @@
       const absorbed = i < cells;
       S("rect", {
         x: c * (size + gap), y: r * (size + gap),
-        width: size, height: size, rx: 3.5,
-        fill: absorbed ? "rgba(184,80,94,.78)" : "rgba(63,110,161,.13)"
+        width: size, height: size, rx: 1.5,
+        fill: absorbed ? "rgba(156,74,84,.72)" : "rgba(21,32,43,.07)"
       }, svg);
     }
     const tx = gridW + 36;
-    txt(svg, tx, 28, Math.round(pct) + "%", { fill: T.danger, size: "34px", weight: 700 });
+    txt(svg, tx, 28, Math.round(pct) + "%", { fill: T.danger, size: "30px", weight: 600 });
     txt(svg, tx, 52, "of productive capacity absorbed", { fill: T.inkSoft, size: T.fontLabel });
     txt(svg, tx, 70, "by administrative and structural drag", { fill: T.inkSoft, size: T.fontLabel });
     if (data && data.caption) {
@@ -306,7 +306,7 @@
       if (sev !== null) {
         const chipY = line2 ? 64 : 48;
         const chipColor = sev >= 55 ? T.danger : sev >= 35 ? T.warning : T.success;
-        S("rect", { x: cx + 34, y: chipY, width: 86, height: 20, rx: 10, fill: "rgba(21,32,43,.05)" }, svg);
+        S("rect", { x: cx + 34, y: chipY, width: 86, height: 20, rx: 3, fill: "rgba(21,32,43,.04)" }, svg);
         S("circle", { cx: cx + 45, cy: chipY + 10, r: 4, fill: chipColor }, svg);
         txt(svg, cx + 54, chipY + 14, "severity " + Math.round(sev), { fill: T.inkSoft, size: "11px" });
       }
@@ -370,7 +370,7 @@
     pts.forEach((p, i) => {
       const x = L + i * colW;
       S("line", { x1: x, y1: top, x2: x, y2: top + plotH, stroke: T.gridline }, svg);
-      S("circle", { cx: x, cy: Y(p.score), r: 6.5, fill: T.accentDark, stroke: "#fff", "stroke-width": 2 }, svg);
+      S("circle", { cx: x, cy: Y(p.score), r: 5.5, fill: T.accentDark, stroke: "#fff", "stroke-width": 1.25 }, svg);
       txt(svg, x, Y(p.score) - 13, String(Math.round(p.score)), { anchor: "middle", fill: T.ink, size: "13px", weight: 700 });
       txt(svg, x, H - 22, p.label, { anchor: "middle", fill: T.inkSoft, size: "11.5px", weight: 500 });
     });
@@ -407,8 +407,8 @@
     const cx = (x0 + x1) / 2;
     const g = S("linearGradient", { id, x1: "0", y1: "0", x2: "1", y2: "0" },
       svg.querySelector("defs") || S("defs", {}, svg));
-    S("stop", { offset: "0%", "stop-color": color, "stop-opacity": ".18" }, g);
-    S("stop", { offset: "100%", "stop-color": color, "stop-opacity": ".34" }, g);
+    S("stop", { offset: "0%", "stop-color": color, "stop-opacity": ".10" }, g);
+    S("stop", { offset: "100%", "stop-color": color, "stop-opacity": ".24" }, g);
     S("path", {
       d: `M ${x0} ${y0} C ${cx} ${y0}, ${cx} ${y1}, ${x1} ${y1}` +
          ` L ${x1} ${y1 + h1} C ${cx} ${y1 + h1}, ${cx} ${y0 + h0}, ${x0} ${y0 + h0} Z`,
@@ -481,11 +481,11 @@
     const svg = mount(el, W, H, "Where annual labor capacity goes");
     if (!svg) return;
     S("defs", {}, svg);
-    const leafTints = ["rgba(184,80,94,.95)", "rgba(184,80,94,.75)", "rgba(184,80,94,.58)", "rgba(184,80,94,.44)", "rgba(184,80,94,.32)"];
+    const leafTints = ["rgba(156,74,84,.90)", "rgba(156,74,84,.70)", "rgba(156,74,84,.54)", "rgba(156,74,84,.40)", "rgba(156,74,84,.28)"];
 
     /* column A — total */
     const hA = hOf(totalCost), yA = top;
-    S("rect", { x: xA, y: yA, width: nodeW, height: hA, rx: 3, fill: T.ink }, svg);
+    S("rect", { x: xA, y: yA, width: nodeW, height: hA, rx: 1.5, fill: T.ink }, svg);
     txt(svg, xA, yA - 18, "TOTAL ANNUAL CAPACITY", { fill: T.muted, size: "10px", spacing: ".11em" });
     txt(svg, xA, yA - 5, fmtMoney(totalCost) + (num(d.totalHours) ? "  ·  " + fmtHours(d.totalHours) : ""), { fill: T.ink, size: "13.5px", weight: 700 });
 
@@ -495,7 +495,7 @@
       const aH = hA * (n.cost / totalCost);
       ribbon(svg, xA + nodeW, yA + aOff, aH, xB, n.y, n.h, n.color, "mvg-" + _chartToken() + "-" + (++_uid));
       aOff += aH;
-      S("rect", { x: xB, y: n.y, width: nodeW, height: n.h, rx: 3, fill: n.color }, svg);
+      S("rect", { x: xB, y: n.y, width: nodeW, height: n.h, rx: 1.5, fill: n.color }, svg);
       const ly = Math.max(n.y + 13, top + 8, bLabelBottom + 14);
       txt(svg, xB + nodeW + 9, ly, n.label, { fill: T.ink, size: "12.5px", weight: i === bDefs.length - 1 && hasSplit ? 700 : 600 });
       txt(svg, xB + nodeW + 9, ly + 15, fmtMoney(n.cost) + (num(n.hours) ? "  ·  " + fmtHours(n.hours) : ""), { fill: n.color === C_STRUCT ? T.inkSoft : n.color, size: "12px", weight: 700 });
@@ -508,7 +508,7 @@
     if (dims.length && fanCost > 0) {
       dims.forEach((x, i) => {
         ribbon(svg, xB + nodeW, fanNode.y + dims.slice(0, i).reduce((s, p) => s + p.srcH, 0), x.srcH, xC, x.rectY, x.leafH, C_RECLAIM, "mvg-" + _chartToken() + "-" + (++_uid));
-        S("rect", { x: xC, y: x.rectY, width: 9, height: x.leafH, rx: 2.5, fill: leafTints[i % leafTints.length] }, svg);
+        S("rect", { x: xC, y: x.rectY, width: 9, height: x.leafH, rx: 1, fill: leafTints[i % leafTints.length] }, svg);
         /* leader tick when label displaced from rect center */
         const rectCenter = x.rectY + x.leafH / 2;
         if (Math.abs(x.ly - rectCenter) > 7) {
