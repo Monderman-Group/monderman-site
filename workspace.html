@@ -173,6 +173,7 @@
       .ws-top .wrap{flex-direction:column;align-items:flex-start}
     }
   </style>
+  <link rel="stylesheet" href="workspace-shell.css">
 </head>
 <body>
 
@@ -204,21 +205,33 @@
     })();
   </script>
 
-  <header class="header" id="siteHeader">
-    <div class="header-inner">
-      <a href="index.html" class="brand">Monderman</a>
-      <nav class="nav" aria-label="Primary navigation">
-        <a href="index.html#approach">Approach</a>
-        <a href="diagnostics.html">Diagnostics</a>
-        <a href="research.html">Research</a>
-        <a href="why-monderman.html">Why Monderman</a>
-        <a href="about.html">About</a>
-        <a href="platform-services.html">Platform Services</a>
-        <a href="connect.html">Connect</a>
-        <button class="workspace-link" id="signOutBtn" type="button">Sign out</button>
+  <div class="ws5-shell">
+    <aside class="ws5-rail">
+      <div class="ws5-brand">
+        <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><rect x="2" y="2" width="26" height="26" rx="5" fill="rgba(255,255,255,0.10)"/><text x="6.5" y="22" font-family="Helvetica Neue,Helvetica,Arial" font-weight="700" font-size="19" fill="#fff">M</text><rect x="21.5" y="21.5" width="6.2" height="6.2" rx="1" fill="#3F6EA1"/></svg>
+        <b>Monderman</b>
+      </div>
+      <nav class="ws5-nav">
+        <a href="workspace.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.4"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.4"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.4"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.4"/></svg>Overview</a>
+        <a href="workspace-diagnostics.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M8 9h8M8 13h8"/></svg>Diagnostics</a>
+        <a href="workspace-analysis.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Analysis</a>
+        <a href="workspace-actions.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l3.5 3.5L19 6"/><path d="M5 19h14" opacity=".5"/></svg>Actions</a>
+        <a href="workspace-settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h9M17 7h3"/><circle cx="15" cy="7" r="2"/><path d="M4 17h3M11 17h9"/><circle cx="9" cy="17" r="2"/></svg>Settings</a>
       </nav>
-    </div>
-  </header>
+      <div class="ws5-railfoot">
+        <div class="ws5-planchip">Plan · <b id="ws5Plan">—</b></div>
+        <button class="ws5-signout" id="signOutBtn" type="button">Sign out</button>
+      </div>
+    </aside>
+    <div class="ws5-main">
+      <header class="ws5-topbar">
+        <div class="ws5-crumb"><h1>Overview</h1><span id="ws5Org">—</span></div>
+        <div class="ws5-topright">
+          <a class="ws5-btn" href="#" onclick="document.querySelector('.ws-launch-grid')?.scrollIntoView({behavior:'smooth',block:'start'});return false;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Run a diagnostic</a>
+          <div class="ws5-user"><div class="ws5-ava" id="ws5Ava">—</div><div class="ws5-who"><b id="ws5UserName">—</b><span id="ws5UserRole">—</span></div></div>
+        </div>
+      </header>
+      <div class="ws5-content">
 
   <main>
     <section class="ws-top">
@@ -384,6 +397,9 @@
       </div>
     </div>
   </footer>
+      </div>
+    </div>
+  </div>
 
   <script type="module">
     import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -654,6 +670,15 @@
       return null;
     }
 
+    function syncChrome(){
+      var copy = function(id, el){ var t = document.getElementById(id); if (t && el) t.textContent = el.textContent; };
+      copy("ws5UserName", ui.userName);
+      copy("ws5UserRole", ui.roleBadge);
+      copy("ws5Ava", ui.avatar);
+      copy("ws5Plan", ui.planPill);
+      copy("ws5Org", ui.org);
+    }
+
     async function initialize(){
       try{
         const user = await resolveUser();
@@ -685,11 +710,13 @@
         }
 
         renderEntitlements();
+        syncChrome();
         hideOverlay();
       }catch(err){
         console.error(err);
         ui.userName.textContent = "Workspace unavailable";
         ui.userEmail.textContent = "Sign-in or workspace resolution failed.";
+        syncChrome();
         setStatus(err?.message || "Workspace initialization failed. Check auth configuration or Supabase policies.", "error");
         hideOverlay();
       }
