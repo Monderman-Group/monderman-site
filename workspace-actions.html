@@ -8,8 +8,108 @@
     @font-face { font-family:"Neue Haas Grotesk"; src:url("55font.woff2") format("woff2"),url("55font.woff") format("woff"); font-weight:400; font-style:normal; font-display:swap; }
     @font-face { font-family:"Neue Haas Grotesk"; src:url("65font.woff2") format("woff2"),url("65font.woff") format("woff"); font-weight:500; font-style:normal; font-display:swap; }
     @font-face { font-family:"Neue Haas Grotesk"; src:url("75font.woff2") format("woff2"),url("75font.woff") format("woff"); font-weight:700; font-style:normal; font-display:swap; }
+    :root{
+      --ink:#0F1720; --accent:#3F6EA1; --accent-d:#2E5684;
+      --burden:#B8505E; --reclaim:#2E8B57; --warn:#B8860B;
+      --canvas:#F4F6F8; --card:#FFFFFF; --line:rgba(21,32,43,.09);
+      --muted:#6B7785; --muted-2:#8A95A1; --text:#15202B;
+      --display:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
+    }
     html,body{margin:0;padding:0}
-    body{background:#F4F7FB;color:#15202B;font-family:"Neue Haas Grotesk","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+    body{background:var(--canvas);color:var(--text);font-family:var(--display);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+
+    .content{padding:30px;max-width:1000px}
+    .lead{margin:0 0 22px}
+    .lead .eyebrow{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-2)}
+    .lead h2{margin:6px 0 0;font-size:23px;font-weight:600;letter-spacing:-.03em}
+    .lead p{margin:8px 0 0;font-size:14px;color:var(--muted);max-width:620px;line-height:1.5}
+    .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+    .muted{color:var(--muted);font-size:13.5px}
+
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:26px 28px;box-shadow:0 1px 2px rgba(15,23,32,.03),0 10px 26px rgba(15,23,32,.04);margin-bottom:22px}
+    .card-h{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:18px}
+    .card-h h3{margin:0;font-size:16px;font-weight:600;letter-spacing:-.01em}
+    .card-h .sub{font-size:12.5px;color:var(--muted-2)}
+    .section-label{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);margin:22px 0 12px}
+
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 20px}
+    .field{display:flex;flex-direction:column;gap:6px}
+    .field.full{grid-column:1 / -1}
+    .field label{font-size:12.5px;font-weight:500;color:var(--text)}
+    .field .hint{font-size:11.5px;color:var(--muted-2)}
+    input[type=text],input[type=email],input[type=date],select,textarea{
+      font-family:inherit;font-size:13.5px;color:var(--text);background:var(--card);
+      border:1px solid var(--line);border-radius:9px;padding:9px 11px;width:100%;box-sizing:border-box}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(63,110,161,.12)}
+    textarea{resize:vertical;min-height:64px}
+    .toggles{display:flex;flex-wrap:wrap;gap:18px;grid-column:1 / -1}
+    .toggle{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--text)}
+    .toggle input{width:16px;height:16px;accent-color:var(--accent)}
+
+    /* recipients table */
+    .rtable{width:100%;border-collapse:collapse;margin-top:2px}
+    .rtable th{text-align:left;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-2);padding:0 8px 8px 0}
+    .rtable td{padding:0 8px 8px 0;vertical-align:top}
+    .rtable input{padding:8px 10px}
+    .rtable .col-rm{width:34px}
+    .rm-btn{border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:7px;width:30px;height:34px;cursor:pointer;font-size:15px;line-height:1}
+    .rm-btn:hover{border-color:var(--burden);color:var(--burden)}
+    .add-row{margin-top:6px;border:1px dashed var(--line);background:transparent;color:var(--accent);border-radius:9px;padding:8px 14px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit}
+    .add-row:hover{background:rgba(63,110,161,.05)}
+
+    .actions-row{display:flex;align-items:center;gap:12px;margin-top:24px}
+    .btn{display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 20px;border-radius:999px;font-size:13.5px;font-weight:500;border:0;cursor:pointer;font-family:inherit;transition:background .18s,opacity .15s}
+    .btn-primary{background:var(--accent);color:#fff}
+    .btn-primary:hover{background:var(--accent-d)}
+    .btn-secondary{background:rgba(21,32,43,.05);color:var(--text);border:1px solid var(--line)}
+    .btn-secondary:hover{background:rgba(21,32,43,.08)}
+    .btn:disabled{opacity:.45;cursor:not-allowed}
+
+    .note{margin-top:16px;font-size:13px;line-height:1.5;padding:12px 14px;border-radius:9px}
+    .note.ok{background:rgba(46,139,87,.10);color:#1F5C3B}
+    .note.bad{background:rgba(184,80,94,.10);color:#7A2C36}
+    .prev-summary{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+    .chip{font-size:12.5px;font-weight:600;padding:5px 11px;border-radius:999px}
+    .chip.ok{background:rgba(46,139,87,.12);color:#1F5C3B}
+    .chip.bad{background:rgba(184,80,94,.12);color:#7A2C36}
+    .chip.warn{background:rgba(184,134,11,.13);color:#6B4E0A}
+    .prev-issues{margin-top:14px;font-size:13px;color:var(--muted)}
+    .prev-issues b{color:var(--text);font-size:12.5px}
+    .prev-issues ul{margin:8px 0 0;padding-left:18px}
+    .prev-issues li{margin:3px 0}
+    .prev-note{margin:12px 0 0;font-size:13px;color:var(--muted)}
+
+    .lock{background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:40px 30px;text-align:center;color:var(--muted)}
+    .lock b{display:block;color:var(--text);font-weight:600;font-size:15px;margin-bottom:5px}
+
+    /* tracking */
+    .stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+    .stat{flex:1;min-width:96px;background:rgba(21,32,43,.025);border:1px solid var(--line);border-radius:11px;padding:14px 16px}
+    .stat-n{font-size:26px;font-weight:600;letter-spacing:-.03em;line-height:1}
+    .stat-l{font-size:11.5px;color:var(--muted-2);margin-top:5px;letter-spacing:.04em;text-transform:uppercase}
+    .alist{display:flex;flex-direction:column}
+    .arow{display:grid;grid-template-columns:1.4fr 1.4fr auto auto;align-items:center;gap:16px;padding:14px 2px;border-bottom:1px solid var(--line);font-size:13.5px}
+    .arow:last-child{border-bottom:0}
+    .ar-who{font-weight:500;color:var(--text);min-width:0}
+    .ar-who span{display:block;font-weight:400;color:var(--muted-2);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .ar-meta{color:var(--muted);min-width:0}
+    .ar-meta span{display:block;color:var(--muted-2);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .apill{font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;white-space:nowrap}
+    .pill-sent{background:rgba(21,32,43,.06);color:var(--muted)}
+    .pill-open{background:rgba(184,134,11,.13);color:#6B4E0A}
+    .pill-done{background:rgba(46,139,87,.12);color:#1F5C3B}
+    .ar-copy{border:1px solid var(--line);background:var(--card);color:var(--accent);border-radius:8px;padding:6px 12px;font-size:12.5px;font-weight:500;cursor:pointer;font-family:inherit;white-space:nowrap}
+    .ar-copy:hover{background:rgba(63,110,161,.06)}
+
+    .empty{background:transparent;border:1px dashed var(--line);border-radius:12px;padding:34px 26px;text-align:center;color:var(--muted)}
+    .empty b{display:block;color:var(--text);font-weight:600;font-size:14.5px;margin-bottom:5px}
+    .empty p{margin:0 auto;font-size:13px;max-width:380px;line-height:1.5}
+
+    @media (max-width:720px){
+      .grid{grid-template-columns:1fr}
+      .arow{grid-template-columns:1fr auto;gap:8px}
+      .ar-meta{grid-column:1 / -1;order:3}
+    }
   </style>
   <link rel="stylesheet" href="workspace-shell.css">
 </head>
@@ -28,37 +128,311 @@
         <a href="workspace-settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h9M17 7h3"/><circle cx="15" cy="7" r="2"/><path d="M4 17h3M11 17h9"/><circle cx="9" cy="17" r="2"/></svg>Settings</a>
       </nav>
       <div class="ws5-railfoot">
-        <div class="ws5-planchip">Plan · <b id="ws5Plan">—</b></div>
+        <div class="ws5-planchip">Plan &middot; <b id="ws5Plan">&mdash;</b></div>
         <button class="ws5-signout" id="signOutBtn" type="button">Sign out</button>
       </div>
     </aside>
+
     <div class="ws5-main">
       <header class="ws5-topbar">
-        <div class="ws5-crumb"><h1>Actions</h1><span id="ws5Org">—</span></div>
+        <div class="ws5-crumb"><h1>Actions</h1><span id="ws5Org">&mdash;</span></div>
         <div class="ws5-topright">
           <a class="ws5-btn" href="workspace.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Run a diagnostic</a>
-          <div class="ws5-user"><div class="ws5-ava" id="ws5Ava">—</div><div class="ws5-who"><b id="ws5UserName">—</b><span id="ws5UserRole">—</span></div></div>
+          <div class="ws5-user"><div class="ws5-ava" id="ws5Ava">&mdash;</div><div class="ws5-who"><b id="ws5UserName">&mdash;</b><span id="ws5UserRole">&mdash;</span></div></div>
         </div>
       </header>
-      <div class="ws5-content">
-        <div class="ws5-stub">
-          <div class="ws5-stub-card">
-            <p class="ws5-stub-kicker">Dispatch & follow through</p>
-            <h2>Actions</h2>
-            <p>Compose and send diagnostic campaigns, track responses, and turn findings into owned action plans.</p>
-            <p>Exact contents of this space are still to be confirmed as we build it.</p>
-            <ul class="ws5-stub-list">
-              <li>Compose Campaign — choose lens, depth, and survey-vs-interview, then pick recipients</li>
-              <li>Batch dispatch with per-recipient response tracking</li>
-              <li>Action plans with owners and due dates</li>
-              <li>A decision log tied to diagnostic findings</li>
-            </ul>
-            <span class="ws5-stub-soon">Coming soon</span>
-          </div>
+
+      <main class="content">
+        <div class="lead">
+          <div class="eyebrow">Campaigns</div>
+          <h2>Dispatch a diagnostic to the people who hold the answer</h2>
+          <p>Compose a directed run, send it to named recipients, and track who has responded. Each recipient gets their own link; completed runs flow into Analysis &mdash; and the vantage you choose powers the Across-vantages lens.</p>
         </div>
-      </div>
+
+        <!-- locked notice for non-admins -->
+        <div id="composeLock" class="lock" hidden>
+          <b>Composing campaigns is an admin action</b>
+          <p>Your role can view campaign tracking below, but only organization admins can compose and send. Ask an admin to grant access if you need it.</p>
+        </div>
+
+        <!-- COMPOSE -->
+        <section class="card" id="composeCard" hidden>
+          <div class="card-h"><h3>Compose a campaign</h3><span class="sub">Survey mode</span></div>
+
+          <div class="grid">
+            <div class="field full">
+              <label for="fPath">Pathway label</label>
+              <input type="text" id="fPath" placeholder="e.g. Q3 procurement intake review">
+              <span class="hint">Shown to recipients and used to group this batch in tracking.</span>
+            </div>
+            <div class="field">
+              <label for="fTool">Instrument</label>
+              <select id="fTool">
+                <option value="operational_systems">Operational Systems</option>
+                <option value="decision_velocity" selected>Decision Velocity</option>
+                <option value="structural_clarity">Structural Clarity</option>
+                <option value="institutional_performance">Institutional Performance</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="fVantage">Vantage</label>
+              <select id="fVantage">
+                <option value="operational" selected>Operational &mdash; front line</option>
+                <option value="managerial">Managerial</option>
+                <option value="executive">Executive</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="fDepth">Depth</label>
+              <select id="fDepth">
+                <option value="10">Quick &mdash; 10 items</option>
+                <option value="30" selected>Standard &mdash; 30 items</option>
+                <option value="60">Deep &mdash; 60 items</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="fDue">Due date <span class="hint">(optional)</span></label>
+              <input type="date" id="fDue">
+            </div>
+            <div class="field full">
+              <label for="fMessage">Message to recipients <span class="hint">(optional)</span></label>
+              <textarea id="fMessage" placeholder="A line of context that accompanies the invitation."></textarea>
+            </div>
+            <div class="toggles">
+              <label class="toggle"><input type="checkbox" id="fShowResults" checked> Show results to recipient</label>
+              <label class="toggle"><input type="checkbox" id="fAnon"> Anonymous responses</label>
+            </div>
+          </div>
+
+          <div class="section-label">Recipients</div>
+          <table class="rtable">
+            <thead><tr><th>Email</th><th>Name</th><th>Business unit</th><th>Team</th><th class="col-rm"></th></tr></thead>
+            <tbody id="rRows"></tbody>
+          </table>
+          <button class="add-row" id="btnAddRow" type="button">+ Add recipient</button>
+
+          <div class="actions-row">
+            <button class="btn btn-secondary" id="btnPreview" type="button">Preview</button>
+            <button class="btn btn-primary" id="btnSend" type="button" disabled>Send campaign</button>
+          </div>
+          <div id="previewOut"></div>
+          <div id="sendOut"></div>
+        </section>
+
+        <!-- TRACKING -->
+        <section class="card">
+          <div class="card-h"><h3>Tracking</h3><button class="btn btn-secondary" id="btnRefresh" type="button" style="height:32px;padding:0 14px">Refresh</button></div>
+          <div id="trackBody"><p class="muted">Loading&hellip;</p></div>
+        </section>
+      </main>
     </div>
   </div>
-  <script type="module" src="workspace-shell.js"></script>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const supabase = createClient(
+      "https://ptkxrzgmeldalrkfruth.supabase.co",
+      "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
+      { auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" } }
+    );
+    const API_BASE = "https://monderman-api.onrender.com";
+    const APP_BASE = "https://monderman.com";
+
+    const PLAN_LABEL = { free:"Free", baseline:"Baseline", signal:"Signal", advisory:"Advisory" };
+    const TOOL = { operational_systems:"Operational Systems", decision_velocity:"Decision Velocity", structural_clarity:"Structural Clarity", institutional_performance:"Institutional Performance" };
+    const TOOL_HTML = { operational_systems:"operational-systems.html", decision_velocity:"decision-velocity.html", structural_clarity:"structural-clarity.html", institutional_performance:"institutional-performance.html" };
+
+    const state = { user:null, orgId:null, userId:null, role:"viewer", recipients:[], lastReady:0 };
+
+    const $ = id => document.getElementById(id);
+    function setText(id,v){ const e=$(id); if(e&&v!=null) e.textContent=v; }
+    function cap(s){ return s ? s.charAt(0).toUpperCase()+s.slice(1) : (s||""); }
+    function toolLabel(t){ return TOOL[t]||t||"\u2014"; }
+    function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+    function initials(name,email){ const b=(name&&name.trim())||(email||"").split("@")[0]||""; const p=b.split(/\s+/).filter(Boolean); return (p.length>=2?(p[0][0]+p[p.length-1][0]):b.slice(0,2)||"M").toUpperCase(); }
+    function csvCell(v){ v=(v==null?"":String(v)); return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }
+
+    // ---- recipients ----
+    function renderRecipients(){
+      const tb=$("rRows");
+      tb.innerHTML = state.recipients.map((r,i)=>(
+        `<tr>
+          <td><input type="email" data-i="${i}" data-f="email" value="${esc(r.email)}" placeholder="name@org.com"></td>
+          <td><input type="text" data-i="${i}" data-f="full_name" value="${esc(r.full_name)}" placeholder="Full name"></td>
+          <td><input type="text" data-i="${i}" data-f="business_unit" value="${esc(r.business_unit)}" placeholder="Unit"></td>
+          <td><input type="text" data-i="${i}" data-f="team" value="${esc(r.team)}" placeholder="Team"></td>
+          <td class="col-rm"><button class="rm-btn" data-rm="${i}" type="button" title="Remove">\u00d7</button></td>
+        </tr>`
+      )).join("");
+      tb.querySelectorAll("input").forEach(inp=> inp.addEventListener("input", e=>{
+        const i=+e.target.dataset.i, f=e.target.dataset.f; state.recipients[i][f]=e.target.value;
+      }));
+      tb.querySelectorAll(".rm-btn").forEach(b=> b.addEventListener("click", e=>{
+        state.recipients.splice(+e.target.dataset.rm,1);
+        if(!state.recipients.length) state.recipients.push({email:"",full_name:"",business_unit:"",team:""});
+        renderRecipients();
+      }));
+    }
+
+    function buildCSV(){
+      const header="email,full_name,business_unit,team";
+      const lines=state.recipients.filter(r=>r.email && r.email.trim()).map(r=>[r.email,r.full_name,r.business_unit,r.team].map(csvCell).join(","));
+      return header+"\n"+lines.join("\n")+"\n";
+    }
+    function buildDefaults(){
+      const d={
+        event_path_name: $("fPath").value.trim(),
+        tool_type: $("fTool").value,
+        participant_lens: $("fVantage").value,
+        depth: $("fDepth").value,
+        show_results_to_assignee: $("fShowResults").checked,
+        is_anonymous_response: $("fAnon").checked
+      };
+      const msg=$("fMessage").value.trim(); if(msg) d.message=msg;
+      const due=$("fDue").value; if(due) d.custom_due_at=due;
+      return d;
+    }
+    function validate(){
+      if(!$("fPath").value.trim()) return "Add a pathway label.";
+      if(!state.recipients.some(r=>r.email && r.email.trim())) return "Add at least one recipient email.";
+      return null;
+    }
+    function flash(id,msg,kind){ $(id).innerHTML = `<div class="note ${kind}">${esc(msg)}</div>`; }
+    function busy(id,on,label){ const b=$(id); b.disabled=on; if(label!==undefined) b.textContent= on?label:b.dataset.label; }
+
+    // ---- preview ----
+    async function doPreview(){
+      const err=validate(); if(err){ flash("previewOut",err,"bad"); return; }
+      $("sendOut").innerHTML="";
+      const fd=new FormData();
+      fd.append("file", new Blob([buildCSV()],{type:"text/csv"}), "recipients.csv");
+      fd.append("defaults", JSON.stringify(buildDefaults()));
+      $("btnPreview").dataset.label="Preview"; busy("btnPreview",true,"Checking\u2026");
+      try{
+        const res=await fetch(`${API_BASE}/api/workspace/assignments/preview-batch`, { method:"POST", body:fd });
+        const data=await res.json().catch(()=>({}));
+        if(!res.ok || data.ok===false) throw new Error(data.error || ("HTTP "+res.status));
+        renderPreview(data);
+        state.lastReady = (data.ready_rows||[]).length || (data.summary && data.summary.valid) || 0;
+        $("btnSend").disabled = state.lastReady < 1;
+      }catch(e){ flash("previewOut","Preview failed: "+e.message,"bad"); state.lastReady=0; $("btnSend").disabled=true; }
+      finally{ busy("btnPreview",false); }
+    }
+    function renderPreview(d){
+      const ready=(d.ready_rows||[]).length, invalid=(d.invalid_rows||[]), dups=(d.duplicate_rows||[]);
+      let html=`<div class="prev-summary"><span class="chip ok">${ready} ready</span>`;
+      if(invalid.length) html+=`<span class="chip bad">${invalid.length} invalid</span>`;
+      if(dups.length) html+=`<span class="chip warn">${dups.length} duplicate</span>`;
+      html+=`</div>`;
+      if(invalid.length){
+        html+=`<div class="prev-issues"><b>Needs attention</b><ul>`+invalid.map(r=>`<li>${esc(r.email||"(no email)")} \u2014 ${esc((r.problems||[]).join(", ")||"invalid")}</li>`).join("")+`</ul></div>`;
+      }
+      if(ready>0) html+=`<p class="prev-note">${ready} recipient${ready>1?"s":""} ready. Send creates a directed run for each.</p>`;
+      else html+=`<p class="prev-note">No valid recipients yet.</p>`;
+      $("previewOut").innerHTML=html;
+    }
+
+    // ---- send ----
+    async function doSend(){
+      if(state.lastReady<1){ flash("sendOut","Run a preview first.","bad"); return; }
+      if(!state.orgId){ flash("sendOut","No organization is linked to your account.","bad"); return; }
+      const fd=new FormData();
+      fd.append("file", new Blob([buildCSV()],{type:"text/csv"}), "recipients.csv");
+      fd.append("defaults", JSON.stringify(buildDefaults()));
+      fd.append("organization_id", state.orgId);
+      fd.append("sender_user_id", state.userId);
+      fd.append("batch_label", buildDefaults().event_path_name || "");
+      $("btnSend").dataset.label="Send campaign"; busy("btnSend",true,"Sending\u2026");
+      try{
+        const res=await fetch(`${API_BASE}/api/workspace/assignments/send-batch`, { method:"POST", body:fd });
+        const data=await res.json().catch(()=>({}));
+        if(!res.ok || data.ok===false) throw new Error(data.error || ("HTTP "+res.status));
+        const sent = (data.sent ? data.sent.length : undefined) ?? data.sent_count ?? state.lastReady;
+        const failed = (data.failed ? data.failed.length : undefined) ?? data.failed_count ?? 0;
+        flash("sendOut", `Campaign sent \u2014 ${sent} assignment${sent===1?"":"s"} created${failed?`, ${failed} could not be emailed (their links are below)`:""}.`, "ok");
+        state.lastReady=0; $("btnSend").disabled=true; $("previewOut").innerHTML="";
+        loadTracking();
+      }catch(e){ flash("sendOut","Send failed: "+e.message,"bad"); }
+      finally{ busy("btnSend",false); $("btnSend").disabled = state.lastReady < 1; }
+    }
+
+    // ---- tracking ----
+    async function loadTracking(){
+      const board=$("trackBody"); board.innerHTML=`<p class="muted">Loading\u2026</p>`;
+      let counts=null;
+      if(state.orgId){
+        try{ const r=await fetch(`${API_BASE}/api/workspace/assignments/status-summary/${state.orgId}`); const j=await r.json().catch(()=>({})); if(r.ok && j.summary) counts=j.summary; }catch(e){}
+      }
+      let rows=[];
+      try{
+        const { data } = await supabase.from("diagnostic_assignments")
+          .select("recipient_email, recipient_name, tool_type, participant_lens, event_path_name, status, token, created_at, opened_at, completed_at")
+          .order("created_at",{ ascending:false }).limit(100);
+        rows=data||[];
+      }catch(e){}
+      renderTracking(counts, rows);
+    }
+    function renderTracking(counts, rows){
+      let html="";
+      if(counts){
+        html+=`<div class="stats">`+[["total","Total"],["sent","Sent"],["opened","Opened"],["completed","Completed"],["overdue","Overdue"]].map(([k,l])=>`<div class="stat"><div class="stat-n num">${counts[k]??0}</div><div class="stat-l">${l}</div></div>`).join("")+`</div>`;
+      }
+      if(!rows.length){
+        html+=`<div class="empty"><b>No campaigns yet</b><p>Compose one above. Sent recipients and their links appear here, and update as people open and complete.</p></div>`;
+        $("trackBody").innerHTML=html; return;
+      }
+      html+=`<div class="alist">`+rows.map(a=>{
+        const link=`${APP_BASE}/${TOOL_HTML[a.tool_type]||"index.html"}?assignment_token=${encodeURIComponent(a.token||"")}`;
+        const st=(a.status||"sent").toLowerCase();
+        const pill = st==="completed" ? "pill-done" : (st==="opened" ? "pill-open" : "pill-sent");
+        return `<div class="arow">
+          <div class="ar-who">${esc(a.recipient_name||a.recipient_email||"\u2014")}<span>${esc(a.recipient_email||"")}</span></div>
+          <div class="ar-meta">${toolLabel(a.tool_type)} \u00b7 ${cap(a.participant_lens)}<span>${esc(a.event_path_name||"")}</span></div>
+          <div><span class="apill ${pill}">${cap(st)}</span></div>
+          <button class="ar-copy" data-link="${esc(link)}" type="button">Copy link</button>
+        </div>`;
+      }).join("")+`</div>`;
+      $("trackBody").innerHTML=html;
+      $("trackBody").querySelectorAll(".ar-copy").forEach(b=> b.addEventListener("click", ()=>{
+        const t=b.dataset.link;
+        if(navigator.clipboard) navigator.clipboard.writeText(t);
+        const o=b.textContent; b.textContent="Copied"; setTimeout(()=>b.textContent=o,1200);
+      }));
+    }
+
+    async function boot(){
+      $("signOutBtn")?.addEventListener("click", async ()=>{ try{ await supabase.auth.signOut(); }catch(e){} window.location.href="index.html"; });
+      $("btnAddRow")?.addEventListener("click", ()=>{ state.recipients.push({email:"",full_name:"",business_unit:"",team:""}); renderRecipients(); });
+      $("btnPreview")?.addEventListener("click", doPreview);
+      $("btnSend")?.addEventListener("click", doSend);
+      $("btnRefresh")?.addEventListener("click", loadTracking);
+
+      let user=null;
+      try{ const { data } = await supabase.auth.getUser(); user=data?.user||null; }catch(e){}
+      if(!user){ window.location.replace("signin.html?next=workspace-actions.html"); return; }
+      state.user=user; state.userId=user.id;
+      const name=user.user_metadata?.full_name || user.user_metadata?.name || user.email || "Monderman User";
+      setText("ws5UserName",name); setText("ws5Ava", initials(name,user.email));
+      try{
+        const { data:m } = await supabase.from("organization_members").select("organization_id, role, organizations(name, plan)").limit(1).maybeSingle();
+        state.orgId = m?.organization_id || null;
+        state.role = m?.role || "viewer";
+        setText("ws5UserRole", cap(state.role));
+        setText("ws5Org", (m?.organizations?.name)||"Personal workspace");
+        setText("ws5Plan", PLAN_LABEL[m?.organizations?.plan]||m?.organizations?.plan||"Free");
+      }catch(e){ setText("ws5UserRole","Viewer"); setText("ws5Org","Workspace"); setText("ws5Plan","\u2014"); }
+
+      // gate compose to admins (matches the assignments_insert_admin policy)
+      if(state.role==="admin"){
+        $("composeCard").hidden=false;
+        state.recipients=[{email:"",full_name:"",business_unit:"",team:""}];
+        renderRecipients();
+      } else {
+        $("composeLock").hidden=false;
+      }
+      loadTracking();
+    }
+    boot();
+  </script>
 </body>
 </html>
