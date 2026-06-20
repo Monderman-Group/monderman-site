@@ -789,10 +789,10 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
             <span class="accordion-chevron">⌄</span>
           </button>
           <div class="accordion-body">
-            <div class="viz-grid">
-              <div class="viz-card"><h4>Burden composition</h4><div class="canvas-wrap"><canvas id="burdenDonutChart"></canvas><div class="donut-center"><strong id="donutCenterValue">--</strong></div></div><p class="viz-note" id="burdenDonutNote">Burden composition will appear here after scoring.</p></div>
-              <div class="viz-card"><h4>Drag source map</h4><div class="treemap" id="burdenTreemap"></div><p class="viz-note">Larger blocks show where drag is heaviest in this pathway.</p></div>
-            </div>
+            <div class="viz-card"><h4>Where the drag lands</h4><div id="severityDotsMount"></div><p class="viz-note">Higher values mark where this pathway carries the heaviest drag, by dimension.</p></div>
+            <div class="viz-card" style="margin-top:14px;"><h4>Burden composition</h4><div id="shareBarMount"></div><p class="viz-note" id="burdenDonutNote">Each dimension's share of the total visible burden.</p></div>
+            <div class="viz-card" style="margin-top:14px;"><h4>Intervention order</h4><div id="priorityPathMount"></div><p class="viz-note">Where to act first across the heaviest dimensions — fix now, fix next, monitor.</p></div>
+            <div style="display:none;" aria-hidden="true"><canvas id="burdenDonutChart"></canvas><div class="donut-center"><strong id="donutCenterValue">--</strong></div><div class="treemap" id="burdenTreemap"></div></div>
             <section class="economic-strip">
               <article class="result-card"><h3>Pathway condition</h3><div class="section-divider"></div><div id="trajectorySignalWrap" class="result-copy" style="margin-bottom:12px;">Trajectory signal will appear here after scoring.</div><p class="result-copy" id="executiveText"></p><div class="premium-note" id="conditionSupportText" style="display:none"></div></article>
               <article class="result-card"><h3>Cost of current administrative burden</h3><div class="section-divider"></div><p class="result-copy" id="roiNarrativeText">This section translates recurring process burden into labor cost, management attention, and the specific capacity the organization could reclaim by reducing unnecessary administrative load.</p></article>
@@ -1559,6 +1559,16 @@ if (statusPill && pill !== undefined) statusPill.textContent = pill;
 }
 
 function setProcessingStep(index, message) {
+var _ma = window.MondermanAssignment;
+if (_ma && _ma.active && _ma.active() && !_ma.showsResults()) {
+message = "Please keep this window open — closing it now will discard your responses.";
+var _h3 = document.querySelector("#processingStage .processing-card h3");
+if (_h3) _h3.textContent = "Submitting your responses";
+if (processingHelp) processingHelp.textContent = "Your responses are being scored and recorded for your organization. This takes just a few seconds.";
+processingItems.forEach(function (it, i) { it.style.display = i === 0 ? "" : "none"; });
+var _lbl = processingItems[0] && processingItems[0].querySelector("span:last-child");
+if (_lbl) _lbl.textContent = "Recording your responses securely";
+}
 if (processingStatus) processingStatus.textContent = message || "Generating output...";
 processingItems.forEach((item, idx) => {
 item.classList.toggle("is-active", idx === index);
@@ -2920,10 +2930,18 @@ $("retryFinalizeBtn").disabled = true;
 $("retryFinalizeBtn").textContent = "Generating...";
 await finalizeAdaptiveRun();
 });
-$("retryRestartBtn")?.addEventListener("click", restartDiagnostic);
+$("retryRestartBtn")?.addEventListener("click", confirmRestart);
 }
 }
 }
+}
+
+function confirmRestart() {
+  if ((state.runId || state.started) &&
+      !window.confirm("Start over? This clears all your answers and restarts the diagnostic from the beginning.")) {
+    return;
+  }
+  restartDiagnostic();
 }
 
 function restartDiagnostic() {
@@ -3489,6 +3507,44 @@ function renderInsightDepth(payload) {
 // ═══════════════════════════════════════════════════════════
 // 6. CHART & VISUALIZATION FUNCTIONS
 // ═══════════════════════════════════════════════════════════
+function renderShareBar(result) {
+  try {
+    var mountEl = document.getElementById("shareBarMount");
+    if (!mountEl || !window.MViz || typeof MViz.shareBar !== "function") return;
+    var segs = (result && result.canonical_composition && result.canonical_composition.segments) || [];
+    var segments = segs.map(function (s) { return { label: s.label || s.key || "", pct: Number(s.pct) || 0 }; })
+                       .filter(function (s) { return s.pct > 0; });
+    if (!segments.length) return;
+    MViz.shareBar(mountEl, { segments: segments });
+  } catch (e) { console.warn("shareBar skipped:", e && e.message); }
+}
+
+function renderSeverityDots(result) {
+  try {
+    var mountEl = document.getElementById("severityDotsMount");
+    if (!mountEl || !window.MViz || typeof MViz.severityDots !== "function") return;
+    var segs = (result && result.canonical_composition && result.canonical_composition.segments) || [];
+    var rows = segs.map(function (s) { return { label: s.label || s.key || "", value: Number(s.value) || 0 }; })
+                   .filter(function (r) { return r.value > 0; });
+    if (!rows.length) return;
+    MViz.severityDots(mountEl, { rows: rows });
+  } catch (e) { console.warn("severityDots skipped:", e && e.message); }
+}
+
+function renderPriorityPath(result) {
+  try {
+    var mountEl = document.getElementById("priorityPathMount");
+    if (!mountEl || !window.MViz || typeof MViz.priorityPath !== "function") return;
+    var segs = (result && result.canonical_composition && result.canonical_composition.segments) || [];
+    var steps = segs.map(function (s) { return { label: s.label || s.key || "", severity: Number(s.value) || 0 }; })
+                    .filter(function (s) { return s.severity > 0; })
+                    .sort(function (a, b) { return b.severity - a.severity; })
+                    .slice(0, 3);
+    if (!steps.length) return;
+    MViz.priorityPath(mountEl, { steps: steps });
+  } catch (e) { console.warn("priorityPath skipped:", e && e.message); }
+}
+
 function renderBurdenDonut(result) {
 const canvas = $("burdenDonutChart");
 const ctx = canvas?.getContext("2d");
@@ -5161,10 +5217,11 @@ note.className = "dim-note";
 note.textContent = "Higher values indicate where this run is surfacing heavier burden pressure: process, systems, control, reporting, or adaptation. The shape matters more than any single point.";
 dimensionCard.appendChild(note);
 }
-renderBurdenDonut(result);
+renderShareBar(result);
 renderCapacityWaterfall(result);
 renderEffortFlow(result);
-renderBurdenTreemap(result);
+renderSeverityDots(result);
+renderPriorityPath(result);
 renderIndustryGauge(result, payload);
 renderTrajectorySparkline(result);
 renderAccordionBindings();
@@ -5336,7 +5393,20 @@ return;
 const meta = getCrossLevelPrompt(state.currentItem) ? { skipReason: "cross_level_optional" } : { skipReason: "optional_skipped" };
 await submitAnswer(state.currentItem.id, "", meta);
 });
-restartBtn.addEventListener("click", restartDiagnostic);
+restartBtn.addEventListener("click", confirmRestart);
+
+// Enter advances to the next question (same as the Continue CTA) -- except inside a
+// textarea (Enter = newline) or when a button/link/select is focused (it handles Enter itself).
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" || e.shiftKey || e.isComposing) return;
+  const ae = document.activeElement;
+  const tag = ae && ae.tagName;
+  if (tag === "TEXTAREA" || tag === "BUTTON" || tag === "A" || tag === "SELECT") return;
+  if (!state.currentItem) return;
+  if (!continueBtn || continueBtn.style.display === "none" || continueBtn.disabled) return;
+  e.preventDefault();
+  continueBtn.click();
+});
 downloadReportBtn?.addEventListener("click", () => { if (state.result && state.renderPayload) exportExecutiveReport(state.result, state.renderPayload); });
 downloadFullReportBtn?.addEventListener("click", () => { if (state.result && state.renderPayload) exportFullReportHTML(state.result, state.renderPayload, "Monderman Decision Velocity Report"); });
 downloadPdfBtn?.addEventListener("click", () => { downloadExecutiveReportPdf(); });
