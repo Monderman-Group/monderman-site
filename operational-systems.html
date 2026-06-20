@@ -1517,6 +1517,16 @@ if (statusPill && pill !== undefined) statusPill.textContent = pill;
 }
 
 function setProcessingStep(index, message) {
+var _ma = window.MondermanAssignment;
+if (_ma && _ma.active && _ma.active() && !_ma.showsResults()) {
+message = "Please keep this window open — closing it now will discard your responses.";
+var _h3 = document.querySelector("#processingStage .processing-card h3");
+if (_h3) _h3.textContent = "Submitting your responses";
+if (processingHelp) processingHelp.textContent = "Your responses are being scored and recorded for your organization. This takes just a few seconds.";
+processingItems.forEach(function (it, i) { it.style.display = i === 0 ? "" : "none"; });
+var _lbl = processingItems[0] && processingItems[0].querySelector("span:last-child");
+if (_lbl) _lbl.textContent = "Recording your responses securely";
+}
 if (processingStatus) processingStatus.textContent = message || "Generating output...";
 processingItems.forEach((item, idx) => {
 item.classList.toggle("is-active", idx === index);
@@ -5292,6 +5302,19 @@ const meta = getCrossLevelPrompt(state.currentItem) ? { skipReason: "cross_level
 await submitAnswer(state.currentItem.id, "", meta);
 });
 restartBtn.addEventListener("click", confirmRestart);
+
+// Enter advances to the next question (same as the Continue CTA) -- except inside a
+// textarea (Enter = newline) or when a button/link/select is focused (it handles Enter itself).
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" || e.shiftKey || e.isComposing) return;
+  const ae = document.activeElement;
+  const tag = ae && ae.tagName;
+  if (tag === "TEXTAREA" || tag === "BUTTON" || tag === "A" || tag === "SELECT") return;
+  if (!state.currentItem) return;
+  if (!continueBtn || continueBtn.style.display === "none" || continueBtn.disabled) return;
+  e.preventDefault();
+  continueBtn.click();
+});
 downloadReportBtn?.addEventListener("click", () => { if (state.result && state.renderPayload) exportExecutiveReport(state.result, state.renderPayload); });
 downloadFullReportBtn?.addEventListener("click", () => { if (state.result && state.renderPayload) exportFullReportHTML(state.result, state.renderPayload, "Monderman Operational Systems Report"); });
 downloadPdfBtn?.addEventListener("click", () => { downloadExecutiveReportPdf(); });
