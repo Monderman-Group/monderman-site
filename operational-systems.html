@@ -2840,10 +2840,18 @@ $("retryFinalizeBtn").disabled = true;
 $("retryFinalizeBtn").textContent = "Generating...";
 await finalizeAdaptiveRun();
 });
-$("retryRestartBtn")?.addEventListener("click", restartDiagnostic);
+$("retryRestartBtn")?.addEventListener("click", confirmRestart);
 }
 }
 }
+}
+
+function confirmRestart() {
+  if ((state.runId || state.started) &&
+      !window.confirm("Start over? This clears all your answers and restarts the diagnostic from the beginning.")) {
+    return;
+  }
+  restartDiagnostic();
 }
 
 function restartDiagnostic() {
@@ -5283,7 +5291,7 @@ return;
 const meta = getCrossLevelPrompt(state.currentItem) ? { skipReason: "cross_level_optional" } : { skipReason: "optional_skipped" };
 await submitAnswer(state.currentItem.id, "", meta);
 });
-restartBtn.addEventListener("click", restartDiagnostic);
+restartBtn.addEventListener("click", confirmRestart);
 downloadReportBtn?.addEventListener("click", () => { if (state.result && state.renderPayload) exportExecutiveReport(state.result, state.renderPayload); });
 downloadFullReportBtn?.addEventListener("click", () => { if (state.result && state.renderPayload) exportFullReportHTML(state.result, state.renderPayload, "Monderman Operational Systems Report"); });
 downloadPdfBtn?.addEventListener("click", () => { downloadExecutiveReportPdf(); });
