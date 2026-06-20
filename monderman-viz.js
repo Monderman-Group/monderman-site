@@ -26,22 +26,26 @@
 
   /* ── theme ─────────────────────────────────────────────────────────── */
   const T = {
-    ink: "#15202B",
-    inkSoft: "#3A4754",
-    muted: "#828D99",
-    hairline: "rgba(21,32,43,.10)",
-    gridline: "rgba(21,32,43,.05)",
-    accent: "#3F6EA1",
-    accentDark: "#2F5886",
-    accentSoft: "rgba(63,110,161,.11)",
+    ink: "#14202B",
+    inkSoft: "#46535F",
+    muted: "#94A0AC",
+    faint: "#C6CED5",
+    hairline: "rgba(20,32,43,.09)",
+    gridline: "rgba(20,32,43,.045)",
+    accent: "#37618F",
+    accentDark: "#2A4E75",
+    accentSoft: "rgba(55,97,143,.10)",
+    alert: "#A23E48",
+    alertSoft: "rgba(162,62,72,.09)",
+    ramp: ["#37618F", "#6E8299", "#9BA7B3", "#C3CBD3", "#DFE4E9"],
     success: "#4F8069",
     warning: "#A07F3D",
-    danger: "#9C4A54",
-    zoneHealthy: "rgba(79,128,105,.055)",
-    zoneStrained: "rgba(160,127,61,.06)",
-    zoneSevere: "rgba(156,74,84,.06)",
-    fontAxis: "11px",
-    fontLabel: "12.5px",
+    danger: "#A23E48",
+    zoneHealthy: "rgba(79,128,105,.05)",
+    zoneStrained: "rgba(160,127,61,.05)",
+    zoneSevere: "rgba(162,62,72,.05)",
+    fontAxis: "10.5px",
+    fontLabel: "12px",
     fontValue: "13px"
   };
 
@@ -156,39 +160,35 @@
     if (!rows.length) return;
     const th = (data && data.thresholds) || { strained: 35, severe: 55 };
 
-    const rowH = 34, labelW = 188;
-    const W = 640, L = labelW, R = 30, topPad = 30, botPad = 26;
+    const rowH = 40, labelW = 210;
+    const W = 640, L = labelW, R = 54, topPad = 40, botPad = 30;
     const H = topPad + rows.length * rowH + botPad;
     const axW = W - L - R;
     const X = (v) => L + (clamp(v, 0, 100) / 100) * axW;
+    const colTop = topPad - 16, colBot = topPad + rows.length * rowH - 8;
 
     const svg = mount(el, W, H, "Burden severity by dimension");
     if (!svg) return;
 
-    /* zones */
-    const zoneTop = topPad - 8, zoneH = rows.length * rowH + 12;
-    S("rect", { x: X(0), y: zoneTop, width: X(th.strained) - X(0), height: zoneH, fill: T.zoneHealthy }, svg);
-    S("rect", { x: X(th.strained), y: zoneTop, width: X(th.severe) - X(th.strained), height: zoneH, fill: T.zoneStrained }, svg);
-    S("rect", { x: X(th.severe), y: zoneTop, width: X(100) - X(th.severe), height: zoneH, fill: T.zoneSevere }, svg);
-    txt(svg, X(th.strained / 2), zoneTop - 6, "CONTAINED", { anchor: "middle", fill: T.success, spacing: ".09em", size: "10px" });
-    txt(svg, X((th.strained + th.severe) / 2), zoneTop - 6, "STRAINED", { anchor: "middle", fill: T.warning, spacing: ".09em", size: "10px" });
-    txt(svg, X((th.severe + 100) / 2), zoneTop - 6, "SEVERE", { anchor: "middle", fill: T.danger, spacing: ".09em", size: "10px" });
-
-    /* gridlines */
-    [0, 25, 50, 75, 100].forEach((v) => {
-      S("line", { x1: X(v), y1: zoneTop, x2: X(v), y2: zoneTop + zoneH, stroke: T.gridline }, svg);
-      txt(svg, X(v), zoneTop + zoneH + 16, String(v), { anchor: "middle", fill: T.muted });
-    });
+    /* baseline + a single 'elevated' reference — position carries the meaning, not zone fills */
+    S("line", { x1: X(0), y1: colTop, x2: X(0), y2: colBot, stroke: T.gridline }, svg);
+    const refX = X(th.severe);
+    S("line", { x1: refX, y1: colTop, x2: refX, y2: colBot, stroke: T.hairline, "stroke-dasharray": "2 5" }, svg);
+    txt(svg, refX, colTop - 8, "ELEVATED", { anchor: "middle", fill: T.muted, size: "9px", weight: 600, spacing: ".16em" });
 
     rows.forEach((r, i) => {
-      const cy = topPad + i * rowH + rowH / 2 - 4;
+      const cy = topPad + i * rowH + rowH / 2 - 6;
       const dominant = i === 0;
-      const dotColor = r.value >= th.severe ? T.danger : r.value >= th.strained ? T.warning : T.success;
-      txt(svg, L - 12, cy + 4, r.label, { anchor: "end", fill: dominant ? T.ink : T.inkSoft, size: T.fontLabel, weight: dominant ? 700 : 400 });
-      S("line", { x1: X(0), y1: cy, x2: X(r.value), y2: cy, stroke: T.hairline, "stroke-width": 1 }, svg);
-      S("circle", { cx: X(r.value), cy, r: dominant ? 6.5 : 5, fill: dotColor, stroke: "#fff", "stroke-width": 1 }, svg);
-      txt(svg, clamp(X(r.value) + 12, L, W - R - 8), cy + 4, String(Math.round(r.value)), { fill: T.ink, size: T.fontValue, weight: dominant ? 700 : 500 });
+      const elevated = r.value >= th.severe;
+      const mark = elevated ? T.alert : (dominant ? T.ink : T.muted);
+      txt(svg, L - 18, cy + 4, r.label, { anchor: "end", fill: dominant ? T.ink : T.inkSoft, size: "12.5px", weight: dominant ? 600 : 500 });
+      S("line", { x1: X(0), y1: cy, x2: X(r.value), y2: cy, stroke: elevated ? T.alertSoft : T.hairline, "stroke-width": dominant ? 2 : 1.5 }, svg);
+      S("circle", { cx: X(r.value), cy, r: dominant ? 5.5 : 4.5, fill: mark }, svg);
+      txt(svg, W - R + 16, cy + 4, String(Math.round(r.value)), { anchor: "end", fill: dominant ? T.ink : T.inkSoft, size: "13.5px", weight: dominant ? 700 : 600 });
     });
+
+    const baseY = topPad + rows.length * rowH + 2;
+    [0, 50, 100].forEach((v) => txt(svg, X(v), baseY + 10, String(v), { anchor: "middle", fill: T.faint, size: "9.5px", weight: 500 }));
   }
 
   /* ════════════════════════════════════════════════════════════════════
@@ -205,27 +205,28 @@
       .sort((a, b) => b.pct - a.pct);
     if (!segs.length) return;
 
-    const W = 640, barH = 26, legendRowH = 24;
-    const legendRows = segs.length;
-    const H = 16 + barH + 18 + legendRows * legendRowH + 6;
+    const W = 640, barH = 18, legendRowH = 28, gapAbove = 20, gapBelow = 30;
+    const H = gapAbove + barH + gapBelow + segs.length * legendRowH;
     const svg = mount(el, W, H, "Burden composition — share of total");
     if (!svg) return;
 
-    const palette = [T.accentDark, T.accent, "#6E93BC", "#9DB6CF", "#C3D2E1", "#DCE5EE"];
+    const ramp = T.ramp;
+    const colorOf = (i) => ramp[Math.min(i, ramp.length - 1)];
     let x = 0;
     const total = segs.reduce((s, g) => s + g.pct, 0) || 100;
     segs.forEach((g, i) => {
-      const w = (g.pct / total) * (W - 0);
-      S("rect", { x, y: 16, width: Math.max(w - 1.5, 0.5), height: barH, fill: palette[i % palette.length], rx: i === 0 ? 4 : 0 }, svg);
-      if (w > 46) txt(svg, x + w / 2, 16 + barH / 2 + 4, Math.round(g.pct) + "%", { anchor: "middle", fill: i < 2 ? "#fff" : T.ink, size: "11.5px", weight: 600 });
+      const w = (g.pct / total) * W;
+      S("rect", { x, y: gapAbove, width: Math.max(w - 1.5, 0.5), height: barH, fill: colorOf(i) }, svg);
+      if (w > 40) txt(svg, x + w / 2, gapAbove + barH / 2 + 4, Math.round(g.pct) + "%", { anchor: "middle", fill: i === 0 ? "#fff" : T.inkSoft, size: "10.5px", weight: 600 });
       x += w;
     });
 
     segs.forEach((g, i) => {
-      const ly = 16 + barH + 18 + i * legendRowH + 8;
-      S("rect", { x: 0, y: ly - 9, width: 11, height: 11, rx: 2.5, fill: palette[i % palette.length] }, svg);
-      txt(svg, 18, ly, g.label, { fill: i === 0 ? T.ink : T.inkSoft, size: T.fontLabel, weight: i === 0 ? 700 : 400 });
-      txt(svg, W, ly, Math.round(g.pct) + "% of total burden", { anchor: "end", fill: T.muted, size: T.fontAxis });
+      const ly = gapAbove + barH + gapBelow + i * legendRowH;
+      if (i > 0) S("line", { x1: 0, y1: ly - 20, x2: W, y2: ly - 20, stroke: T.gridline }, svg);
+      S("rect", { x: 0, y: ly - 9, width: 10, height: 10, rx: 1.5, fill: colorOf(i) }, svg);
+      txt(svg, 18, ly, g.label, { fill: i === 0 ? T.ink : T.inkSoft, size: "12.5px", weight: i === 0 ? 600 : 500 });
+      txt(svg, W, ly, Math.round(g.pct) + "%", { anchor: "end", fill: i === 0 ? T.ink : T.inkSoft, size: "13.5px", weight: 700 });
     });
   }
 
@@ -277,38 +278,36 @@
     if (!steps.length) return;
     const titles = ["FIX NOW", "FIX NEXT", "MONITOR"];
 
-    const W = 640, colW = W / steps.length, H = 118;
+    const W = 640, colW = W / steps.length, H = 124;
     const svg = mount(el, W, H, "Intervention order");
     if (!svg) return;
 
     steps.forEach((s, i) => {
-      const cx = i * colW;
-      /* connecting arrow */
-      if (i > 0) {
-        S("line", { x1: cx - 26, y1: 56, x2: cx - 8, y2: 56, stroke: T.hairline, "stroke-width": 1.5 }, svg);
-        S("path", { d: `M ${cx - 12} 51 l 7 5 l -7 5`, fill: "none", stroke: T.hairline, "stroke-width": 1.5 }, svg);
-      }
-      /* number badge */
-      S("circle", { cx: cx + 14, cy: 18, r: 12, fill: i === 0 ? T.accentDark : "rgba(63,110,161,.14)" }, svg);
-      txt(svg, cx + 14, 22.5, String(i + 1), { anchor: "middle", fill: i === 0 ? "#fff" : T.accentDark, size: "12px", weight: 700 });
-      txt(svg, cx + 34, 14, titles[i] || "", { fill: T.muted, size: "10px", spacing: ".11em" });
-      /* label — wrap to two lines max */
+      const cx = i * colW + 2;
+      const active = i === 0;
+      const kColor = active ? T.accent : T.muted;
+      if (i > 0) S("line", { x1: i * colW, y1: 8, x2: i * colW, y2: H - 20, stroke: T.gridline }, svg);
+      /* large index */
+      txt(svg, cx, 34, "0" + (i + 1), { fill: active ? T.accent : T.faint, size: "27px", weight: 700 });
+      /* stage kicker + rule */
+      txt(svg, cx + 46, 18, titles[i] || "", { fill: kColor, size: "9.5px", weight: 600, spacing: ".15em" });
+      S("line", { x1: cx + 46, y1: 25, x2: cx + colW - 26, y2: 25, stroke: T.hairline }, svg);
+      /* label — wrap two lines max */
       const words = String(s.label).split(" ");
-      let line1 = "", line2 = "";
+      let l1 = "", l2 = "";
       words.forEach((w) => {
-        if ((line1 + " " + w).trim().length <= 20 && !line2) line1 = (line1 + " " + w).trim();
-        else line2 = (line2 + " " + w).trim();
+        if ((l1 + " " + w).trim().length <= 22 && !l2) l1 = (l1 + " " + w).trim();
+        else l2 = (l2 + " " + w).trim();
       });
-      txt(svg, cx + 34, 34, line1, { fill: T.ink, size: "13.5px", weight: i === 0 ? 700 : 500 });
-      if (line2) txt(svg, cx + 34, 52, line2, { fill: T.ink, size: "13.5px", weight: i === 0 ? 700 : 500 });
-      /* severity chip */
+      txt(svg, cx + 46, 44, l1, { fill: T.ink, size: "13px", weight: active ? 600 : 500 });
+      if (l2) txt(svg, cx + 46, 60, l2, { fill: T.ink, size: "13px", weight: active ? 600 : 500 });
+      /* severity — tabular figure with a thin tick, no chip */
       const sev = num(s.severity);
       if (sev !== null) {
-        const chipY = line2 ? 64 : 48;
-        const chipColor = sev >= 55 ? T.danger : sev >= 35 ? T.warning : T.success;
-        S("rect", { x: cx + 34, y: chipY, width: 86, height: 20, rx: 3, fill: "rgba(21,32,43,.04)" }, svg);
-        S("circle", { cx: cx + 45, cy: chipY + 10, r: 4, fill: chipColor }, svg);
-        txt(svg, cx + 54, chipY + 14, "severity " + Math.round(sev), { fill: T.inkSoft, size: "11px" });
+        const sy = l2 ? 86 : 74, high = sev >= 55;
+        S("line", { x1: cx + 46, y1: sy - 9, x2: cx + 46, y2: sy + 4, stroke: high ? T.alert : T.faint, "stroke-width": 2 }, svg);
+        txt(svg, cx + 54, sy - 2, "SEVERITY", { fill: T.muted, size: "8.5px", weight: 600, spacing: ".12em" });
+        txt(svg, cx + 54, sy + 14, String(Math.round(sev)), { fill: high ? T.alert : T.inkSoft, size: "15px", weight: 700 });
       }
     });
   }
@@ -481,7 +480,7 @@
     const svg = mount(el, W, H, "Where annual labor capacity goes");
     if (!svg) return;
     S("defs", {}, svg);
-    const leafTints = ["rgba(156,74,84,.90)", "rgba(156,74,84,.70)", "rgba(156,74,84,.54)", "rgba(156,74,84,.40)", "rgba(156,74,84,.28)"];
+    const leafTints = ["rgba(162,62,72,.92)", "rgba(162,62,72,.70)", "rgba(162,62,72,.52)", "rgba(162,62,72,.38)", "rgba(162,62,72,.26)"];
 
     /* column A — total */
     const hA = hOf(totalCost), yA = top;
