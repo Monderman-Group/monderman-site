@@ -565,9 +565,9 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
       <h3 class="intake-step-title">Choose diagnostic depth</h3>
       <p class="intake-step-copy">Pick the shortest run that still fits the importance of the decision pathway. For most first passes, the 30-minute version is the best starting point. Shorter runs still deliver useful signal; longer runs uncover more hidden patterning over time.</p>
       <div class="intake-options">
-        <button class="intake-option" type="button" data-depth="10"><span class="intake-option-radio"><span class="intake-option-radio-check">&#10003;</span></span><div class="intake-option-body"><p class="intake-option-name">10-minute diagnostic <span class="intake-option-tag">Lower burden &middot; directional signal</span></p><p class="intake-option-desc">Best for fast baselining, a first pass, or repeated checks after a change.</p></div></button>
-        <button class="intake-option has-recommended" type="button" data-depth="30"><span class="intake-option-recommended">Recommended</span><span class="intake-option-radio"><span class="intake-option-radio-check">&#10003;</span></span><div class="intake-option-body"><p class="intake-option-name">30-minute diagnostic <span class="intake-option-tag">Balanced depth &middot; stronger interpretation</span></p><p class="intake-option-desc">Best default option. Balances burden with stronger explanatory power and better pattern detection.</p></div></button>
-        <button class="intake-option" type="button" data-depth="60"><span class="intake-option-radio"><span class="intake-option-radio-check">&#10003;</span></span><div class="intake-option-body"><p class="intake-option-name">60-minute diagnostic <span class="intake-option-tag">Deepest branch logic &middot; fullest read</span></p><p class="intake-option-desc">Best when the decision pathway is politically important, chronically slow, or costly enough to justify a richer readout.</p></div></button>
+        <button class="intake-option" type="button" data-depth="10"><span class="intake-option-radio"><span class="intake-option-radio-check">&#10003;</span></span><div class="intake-option-body"><p class="intake-option-name">10-minute diagnostic <span class="intake-option-tag">Light &middot; directional signal</span></p><p class="intake-option-desc">Best for fast baselining, a first pass, or repeated checks after a change.</p></div></button>
+        <button class="intake-option has-recommended" type="button" data-depth="30"><span class="intake-option-recommended">Recommended</span><span class="intake-option-radio"><span class="intake-option-radio-check">&#10003;</span></span><div class="intake-option-body"><p class="intake-option-name">30-minute diagnostic <span class="intake-option-tag">Moderate &middot; stronger interpretation</span></p><p class="intake-option-desc">Best default option. Balances burden with stronger explanatory power and better pattern detection.</p></div></button>
+        <button class="intake-option" type="button" data-depth="60"><span class="intake-option-radio"><span class="intake-option-radio-check">&#10003;</span></span><div class="intake-option-body"><p class="intake-option-name">60-minute diagnostic <span class="intake-option-tag">In-depth &middot; fullest read</span></p><p class="intake-option-desc">Best when the decision pathway is politically important, chronically slow, or costly enough to justify a richer readout.</p></div></button>
       </div>
       <div class="intake-actions">
         <a class="intake-hub-link" href="diagnostics.html">&#8592; Back to diagnostics</a>
@@ -613,7 +613,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
         </div>
         <div class="intake-notice is-secondary">
           <p class="intake-notice-label">What to expect</p>
-          <p class="intake-notice-body">This run is intentionally more detailed than a light survey. Questions adapt based on what you answer, and some responses open additional question tiles so the Monderman engine has enough signal to generate a more useful readout.</p>
+          <p class="intake-notice-body">This run is intentionally more detailed than a quick checklist. Questions adapt based on what you answer, and some responses open additional question tiles so the Monderman engine has enough signal to generate a more useful readout.</p>
         </div>
       </div>
       <div class="checkbox-card">
@@ -754,7 +754,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
       <div class="score-meta-strip"><div class="score-meta-note"><span class="score-meta-pill" id="scoreMetaIndustry">Industry: --</span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaShapeText">Clarity profile: --</span> <span class="insight-help" id="profileShapeInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="profileShapeTooltip"><strong>Clarity profile</strong><br>Concentrated means one dimension is clearly the primary legibility constraint. Distributed means clarity weaknesses are spread across dimensions. Self-contradictory means structural layers are producing incompatible signals.</span></span></span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaTrajectoryText">Trajectory: --</span> <span class="insight-help" id="trajectoryInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="trajectoryTooltip"><strong>Trajectory</strong><br>Trajectory indicates whether structural clarity appears to be eroding, holding steady, or improving based on the current signal pattern.</span></span></span></div></div>
     </div></section>
 
-    <section class="primary-waterfall"><div class="viz-card"><h4>Structural clarity by dimension</h4><div class="bar-stack" id="clarityDimensionBars"><p class="viz-note" id="clarityDimensionNote">Clarity dimension breakdown will appear here after scoring.</p></div></div></section>
+    <section class="primary-waterfall"><div class="viz-card"><h4>Structural clarity by dimension</h4><div class="bar-stack" id="clarityDimensionBars"><p class="viz-note" id="clarityDimensionNote">Clarity dimension breakdown will appear here after scoring.</p></div></div><div class="viz-card"><h4>Where the capacity goes</h4><div id="effortFlowSankey"></div><p class="viz-note">Total annual capacity split across productive effort, structural overhead, and recoverable burden — midpoint of the modeled range, directional, not audited.</p></div></section>
 
     <section class="diagnosis-grid">
       <article class="diagnosis-card"><p class="summary-label">Legibility condition</p><p class="summary-value" id="cycleConditionValue">--</p><p class="summary-sub tight" id="cycleConditionSub">Overall structural clarity read</p></article>
@@ -903,6 +903,8 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   </main>
 <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
 </div>
+  <script src="monderman-viz.js"></script>
+  <script src="assignment-mode.js"></script>
   <script>
 const MondermanDiagnostic = (() => {
 
@@ -2886,6 +2888,14 @@ if (refinedExperienceLayer?.hasInput) {
 state.result = result;
 state.renderPayload = payload;
 
+// Directed (campaign) mode: persist the run, close the assignment, gate output.
+if (window.MondermanAssignment && window.MondermanAssignment.active()) {
+  await window.MondermanAssignment.complete(result, payload);
+  if (!window.MondermanAssignment.showsResults()) {
+    window.MondermanAssignment.renderCompletion();
+    return;
+  }
+}
 setProcessingStep(3, "Rendering charts and final report modules...");
 renderResults(result, payload, "Structural Clarity Diagnostic");
 // Do not write this run into localStorage automatically; repeated testing should not mutate future visible context or counts.
@@ -2914,6 +2924,15 @@ $("retryRestartBtn")?.addEventListener("click", restartDiagnostic);
 }
 }
 }
+}
+
+function confirmRestart() {
+  // Guard against accidental loss: only prompt once a run is actually underway.
+  if (state && state.runId &&
+      !window.confirm("Start over? This clears all your answers and restarts the diagnostic from the beginning.")) {
+    return;
+  }
+  restartDiagnostic();
 }
 
 function restartDiagnostic() {
@@ -3540,6 +3559,58 @@ data: { labels, datasets: [{ data: values, backgroundColor: bgColors, borderWidt
 options: { responsive: true, maintainAspectRatio: false, animation: false, cutout: "65%", plugins: { legend: { position: "bottom" } } },
 plugins: [burdenCenterPlugin]
 });
+}
+
+function renderEffortFlow(result) {
+  try {
+    const mountEl = document.getElementById("effortFlowSankey");
+    if (!mountEl || !window.MViz || typeof window.MViz.effortFlow !== "function") return;
+    const ex = (result && result.exposure) || {};
+    const burdenCost = Number(ex.annual_cost) || 0;
+    const burdenHours = Number(ex.annual_hours) || 0;
+    const dragPct = Number(ex.capacity_drag_percent) || 0;
+    if (burdenCost <= 0 || dragPct <= 0) return; // can't build a faithful flow — leave the bar as fallback
+
+    const totalCost = burdenCost / (dragPct / 100);
+    const totalHours = burdenHours > 0 ? burdenHours / (dragPct / 100) : null;
+    const reclaimCost = Number(result && result.reclaim_potential && result.reclaim_potential.amount) || 0;
+    const structuralCost = Math.max(0, burdenCost - reclaimCost);
+    const productiveCost = Math.max(0, totalCost - burdenCost);
+    const productiveHours = totalHours != null ? Math.max(0, totalHours - burdenHours) : null;
+
+    // recoverable burden, apportioned by canonical composition (fallback: burden_breakdown)
+    let dims = [];
+    const segs = (result && result.canonical_composition && result.canonical_composition.segments) || [];
+    if (segs.length) {
+      dims = segs.map(function (s) { return { label: s.label || s.key || "", cost: reclaimCost * ((Number(s.pct) || 0) / 100) }; })
+                 .filter(function (d) { return d.cost > 0; });
+    }
+    if (!dims.length && result && result.burden_breakdown) {
+      const bb = result.burden_breakdown;
+      const totalRaw = Object.keys(bb).reduce(function (s, k) { return s + (Number(bb[k]) || 0); }, 0) || 1;
+      dims = Object.keys(bb).map(function (k) {
+        return { label: k.replace(/_/g, " ").replace(/\b\w/g, function (c) { return c.toUpperCase(); }), cost: reclaimCost * ((Number(bb[k]) || 0) / totalRaw) };
+      }).filter(function (d) { return d.cost > 0; });
+    }
+
+    window.MViz.effortFlow(mountEl, {
+      totalCost: totalCost, totalHours: totalHours,
+      productiveCost: productiveCost, productiveHours: productiveHours,
+      structuralCost: structuralCost, reclaimCost: reclaimCost,
+      dims: dims,
+      note: "Directional estimate at the midpoint of the modeled range. Dimension dollars apportion the recoverable burden by composition \u2014 not audited."
+    });
+
+    // The Sankey supersedes the segmented bar — hide the now-redundant bar, legend, and note.
+    const bar = document.getElementById("capacityWaterfall");
+    const legend = mountEl.parentElement ? mountEl.parentElement.querySelector(".capacity-legend") : null;
+    const note = document.getElementById("capacityWaterfallNote");
+    if (bar) bar.style.display = "none";
+    if (legend) legend.style.display = "none";
+    if (note) note.style.display = "none";
+  } catch (e) {
+    console.warn("effort-flow render skipped:", e && e.message);
+  }
 }
 
 function renderClarityDimensionBars(result) {
@@ -5194,6 +5265,7 @@ dimensionCard.appendChild(note);
 }
 renderBurdenDonut(result);
 renderClarityDimensionBars(result);
+renderEffortFlow(result);
 try { renderBurdenTreemap(result); } catch(e) { console.warn("renderBurdenTreemap(result); non-blocking:", e.message); }
 try { renderIndustryGauge(result, payload); } catch(e) { console.warn("renderIndustryGauge(result, payload); non-blocking:", e.message); }
 try { renderTrajectorySparkline(result); } catch(e) { console.warn("renderTrajectorySparkline(result); non-blocking:", e.message); }
@@ -5366,7 +5438,7 @@ return;
 const meta = getCrossLevelPrompt(state.currentItem) ? { skipReason: "cross_level_optional" } : { skipReason: "optional_skipped" };
 await submitAnswer(state.currentItem.id, "", meta);
 });
-restartBtn.addEventListener("click", restartDiagnostic);
+restartBtn.addEventListener("click", confirmRestart);
 downloadReportBtn?.addEventListener("click", () => { if (state.result && state.renderPayload) exportExecutiveReport(state.result, state.renderPayload); });
 downloadFullReportBtn?.addEventListener("click", () => { if (state.result && state.renderPayload) exportFullReportHTML(state.result, state.renderPayload, "Monderman Decision Velocity Report"); });
 downloadPdfBtn?.addEventListener("click", () => { downloadExecutiveReportPdf(); });
@@ -5516,6 +5588,34 @@ renderPreflightForm();
 syncHubSelections();
 updateHeroHelp();
 syncBeginButton();
+
+// ── Directed (campaign) mode: when opened from an assignment link, lock the
+//    vantage to the admin's choice and skip the chooser. No-op otherwise. ──
+(async function mondermanDirectedInit(){
+  if (!window.MondermanAssignment) return;
+  const token = window.MondermanAssignment.detect();
+  if (!token) return;
+  const cfg = await window.MondermanAssignment.resolve(token);
+  if (!cfg) { window.MondermanAssignment.renderInvalid(); return; }
+  if (!window.MondermanAssignment.active()) { window.MondermanAssignment.renderAlreadyDone(); return; }
+  window.MondermanAssignment.banner(cfg);
+  window.MondermanAssignment.lock();
+  if (cfg.depth_choice) {
+    selectLane(cfg.participant_lens); // sets mode, advances to depthStage for the taker to pick length
+  } else {
+    state.mode = cfg.participant_lens; // operational / managerial / executive — matches laneConfigs
+    state.depth = String(cfg.depth);
+    renderPreflightForm();
+    syncHubSelections();
+    syncBeginButton();
+    showStage(introStage, { scroll: false });
+    setHeader(
+      (laneConfigs[cfg.participant_lens] && laneConfigs[cfg.participant_lens].header) || "Confirm and begin",
+      "Perspective and depth are set by your organization. Confirm the guardrail below, then begin.",
+      "Ready to begin"
+    );
+  }
+})();
 
 // ═══════════════════════════════════════════════════════════
 // TEST-HARNESS INJECTION HOOK (v8c PDF integrity testing)
