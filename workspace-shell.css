@@ -92,3 +92,66 @@
   .ws5-topbar{position:static;height:auto;min-height:54px;padding:10px 20px;flex-wrap:wrap;gap:8px 14px}
   .ws5-content,.ws5-stub{padding-left:20px;padding-right:20px}
 }
+
+/* ============================================================================
+   LIGHT / DARK THEME  (added 2026-06-21)
+   The content palette flows through CSS variables, so a dark override keyed to
+   <html data-theme="dark"> re-themes every page that opts in. Two schemes are
+   mapped: the newer pages (--canvas/--card/--text/--muted) and the Overview page
+   (--page/--panel/--ink/--ink-soft). The rail is dark in both modes; the content
+   and topbar chrome switch. Toggled + remembered by workspace-theme.js.
+   ============================================================================ */
+
+/* shared semantic tokens (status pills, chips, disabled fields) — LIGHT values */
+:root{
+  color-scheme: light;
+  --ok-bg:rgba(46,139,87,.12);    --ok-fg:#1F5C3B;
+  --warn-bg:rgba(184,134,11,.13); --warn-fg:#6B4E0A;
+  --rose-bg:rgba(184,80,94,.11);  --rose-fg:#7A2C36;
+  --neutral-bg:rgba(21,32,43,.06);
+  --accent-bg:rgba(63,110,161,.10); --accent-fg:#2E5684;
+  --field-disabled:rgba(21,32,43,.03);
+}
+
+html[data-theme="dark"]{
+  color-scheme: dark;
+  /* newer pages (Diagnostics / Analysis / Actions / Settings) */
+  --canvas:#10161D; --card:#19222C; --text:#DCE3EA; --ink:#ECF1F6;
+  --muted:#9BA7B3; --muted-2:#76828E; --line:rgba(255,255,255,.10);
+  --accent:#5B8AC0; --accent-d:#3F6EA1;
+  --burden:#E08593; --reclaim:#4FB07A; --warn:#D9A441;
+  /* Overview page */
+  --page:#10161D; --panel:#19222C; --ink-soft:#AEB8C2; --ink-muted:#8893A0;
+  --line-strong:rgba(255,255,255,.16);
+  --ok:#4FB07A; --ok-soft:rgba(79,176,122,.16);
+  --rose:#E08593; --rose-soft:rgba(224,133,147,.16);
+  --gold:#D9A441; --gold-soft:rgba(217,164,65,.16); --warn-soft:rgba(217,164,65,.16);
+  --accent-dark:#3F6EA1; --accent-soft:rgba(91,138,192,.16); --accent-softer:rgba(91,138,192,.10);
+  --header-solid:rgba(10,15,21,.92);
+  /* shared semantic tokens — DARK values */
+  --ok-bg:rgba(79,176,122,.20);    --ok-fg:#9FE3BC;
+  --warn-bg:rgba(217,164,65,.20);  --warn-fg:#F0CE8A;
+  --rose-bg:rgba(224,133,147,.20); --rose-fg:#F2B6BF;
+  --neutral-bg:rgba(255,255,255,.08);
+  --accent-bg:rgba(91,138,192,.20); --accent-fg:#A9CBEC;
+  --field-disabled:rgba(255,255,255,.05);
+}
+
+/* the topbar chrome is hardcoded light in the base rules; flip it for dark */
+html[data-theme="dark"] .ws5-topbar{background:#161E27;border-bottom-color:rgba(255,255,255,.08)}
+html[data-theme="dark"] .ws5-crumb h1,
+html[data-theme="dark"] .ws5-who b{color:#E6EBF0}
+html[data-theme="dark"] .ws5-crumb span,
+html[data-theme="dark"] .ws5-who span{color:#94A0AC}
+
+/* smooth the switch (no effect on first paint — theme is set before load) */
+body{transition:background-color .25s ease, color .25s ease}
+
+/* ---- theme toggle (injected into the rail footer by workspace-theme.js) ---- */
+.ws5-theme-toggle{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);color:#E7ECF1;
+  font:inherit;font-size:12.5px;font-weight:450;padding:7px 13px;border-radius:999px;cursor:pointer;
+  transition:background .15s,border-color .15s}
+.ws5-theme-toggle:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.30)}
+.ws5-theme-toggle svg{width:15px;height:15px;flex:0 0 15px;opacity:.9}
+@media (max-width:860px){ .ws5-theme-toggle{padding:6px 11px} }
