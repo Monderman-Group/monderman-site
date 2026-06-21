@@ -66,13 +66,13 @@
     .btn:disabled{opacity:.45;cursor:not-allowed}
 
     .note{margin-top:16px;font-size:13px;line-height:1.5;padding:12px 14px;border-radius:9px}
-    .note.ok{background:rgba(46,139,87,.10);color:#1F5C3B}
-    .note.bad{background:rgba(184,80,94,.10);color:#7A2C36}
+    .note.ok{background:var(--ok-bg);color:var(--ok-fg)}
+    .note.bad{background:var(--rose-bg);color:var(--rose-fg)}
     .prev-summary{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
     .chip{font-size:12.5px;font-weight:600;padding:5px 11px;border-radius:999px}
-    .chip.ok{background:rgba(46,139,87,.12);color:#1F5C3B}
-    .chip.bad{background:rgba(184,80,94,.12);color:#7A2C36}
-    .chip.warn{background:rgba(184,134,11,.13);color:#6B4E0A}
+    .chip.ok{background:var(--ok-bg);color:var(--ok-fg)}
+    .chip.bad{background:var(--rose-bg);color:var(--rose-fg)}
+    .chip.warn{background:var(--warn-bg);color:var(--warn-fg)}
     .prev-issues{margin-top:14px;font-size:13px;color:var(--muted)}
     .prev-issues b{color:var(--text);font-size:12.5px}
     .prev-issues ul{margin:8px 0 0;padding-left:18px}
@@ -96,8 +96,8 @@
     .ar-meta span{display:block;color:var(--muted-2);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .apill{font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;white-space:nowrap}
     .pill-sent{background:rgba(21,32,43,.06);color:var(--muted)}
-    .pill-open{background:rgba(184,134,11,.13);color:#6B4E0A}
-    .pill-done{background:rgba(46,139,87,.12);color:#1F5C3B}
+    .pill-open{background:var(--warn-bg);color:var(--warn-fg)}
+    .pill-done{background:var(--ok-bg);color:var(--ok-fg)}
     .ar-copy{border:1px solid var(--line);background:var(--card);color:var(--accent);border-radius:8px;padding:6px 12px;font-size:12.5px;font-weight:500;cursor:pointer;font-family:inherit;white-space:nowrap}
     .ar-copy:hover{background:rgba(63,110,161,.06)}
 
@@ -111,7 +111,8 @@
       .ar-meta{grid-column:1 / -1;order:3}
     }
   </style>
-  <link rel="stylesheet" href="workspace-shell.css?v=2">
+  <script>try{if(localStorage.getItem("mndTheme")==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}</script>
+    <link rel="stylesheet" href="workspace-shell.css?v=2">
   <style>
   /* Mobile shell override shipped inline so a cached external stylesheet on iOS
      Safari can't suppress it. display:flex !important defeats any stale
@@ -178,7 +179,7 @@
 
         <!-- COMPOSE -->
         <section class="card" id="composeCard" hidden>
-          <div class="card-h"><h3>Compose a campaign</h3><span class="sub">Survey mode</span><span id="draftInd" aria-live="polite" style="margin-left:auto;font-size:12px;color:#8A95A1;align-self:center"></span></div>
+          <div class="card-h"><h3>Compose a campaign</h3><span class="sub">Survey mode</span><span id="draftInd" aria-live="polite" style="margin-left:auto;font-size:12px;color:var(--muted-2);align-self:center"></span></div>
 
           <div class="grid">
             <div class="field full">
@@ -545,5 +546,6 @@
     boot();
   </script>
   <script src="workspace-assistant.js" defer></script>
+  <script src="workspace-theme.js" defer></script>
 </body>
 </html>
