@@ -8,8 +8,78 @@
     @font-face { font-family:"Neue Haas Grotesk"; src:url("55font.woff2") format("woff2"),url("55font.woff") format("woff"); font-weight:400; font-style:normal; font-display:swap; }
     @font-face { font-family:"Neue Haas Grotesk"; src:url("65font.woff2") format("woff2"),url("65font.woff") format("woff"); font-weight:500; font-style:normal; font-display:swap; }
     @font-face { font-family:"Neue Haas Grotesk"; src:url("75font.woff2") format("woff2"),url("75font.woff") format("woff"); font-weight:700; font-style:normal; font-display:swap; }
+    :root{
+      --ink:#0F1720; --accent:#3F6EA1; --accent-d:#2E5684;
+      --burden:#B8505E; --reclaim:#2E8B57; --warn:#B8860B;
+      --canvas:#F4F6F8; --card:#FFFFFF; --line:rgba(21,32,43,.09);
+      --muted:#6B7785; --muted-2:#8A95A1; --text:#15202B;
+      --display:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
+    }
     html,body{margin:0;padding:0}
-    body{background:#F4F7FB;color:#15202B;font-family:"Neue Haas Grotesk","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+    body{background:var(--canvas);color:var(--text);font-family:var(--display);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+    .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+    .content{padding:30px;max-width:900px}
+    .lead{margin:0 0 22px}
+    .lead .eyebrow{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-2)}
+    .lead h2{margin:6px 0 0;font-size:23px;font-weight:600;letter-spacing:-.03em}
+    .lead p{margin:8px 0 0;font-size:14px;color:var(--muted);max-width:620px;line-height:1.5}
+
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px 26px;box-shadow:0 1px 2px rgba(15,23,32,.03),0 10px 26px rgba(15,23,32,.04);margin-bottom:20px}
+    .card-h{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin-bottom:6px}
+    .card-h h3{margin:0;font-size:16px;font-weight:600;letter-spacing:-.01em}
+    .card-sub{font-size:13px;color:var(--muted);margin:0 0 18px;line-height:1.5}
+    .note{font-size:12.5px;color:var(--muted-2)}
+
+    .frow{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}
+    .field{display:flex;flex-direction:column;gap:6px;flex:1;min-width:200px}
+    .field label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-2)}
+    input[type=text],input[type=email],select{font:inherit;font-size:14px;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:9px;padding:10px 12px;width:100%;box-sizing:border-box}
+    input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(63,110,161,.12)}
+    input:disabled,select:disabled{background:rgba(21,32,43,.03);color:var(--muted);cursor:not-allowed}
+    select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238A95A1' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px}
+
+    .btn{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:9px;padding:10px 18px;font:inherit;font-size:13.5px;font-weight:500;cursor:pointer;white-space:nowrap;transition:background .15s}
+    .btn:hover{background:var(--accent-d)}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .btn.ghost{background:var(--card);color:var(--text);border-color:var(--line)}
+    .btn.ghost:hover{background:rgba(21,32,43,.04)}
+    .btn.sm{padding:7px 13px;font-size:12.5px}
+
+    .kv{display:flex;flex-direction:column;gap:13px}
+    .kv .row{display:flex;justify-content:space-between;align-items:center;gap:14px}
+    .kv .k{font-size:13px;color:var(--muted)}
+    .kv .v{font-size:14px;font-weight:500;color:var(--text)}
+    .chip{display:inline-block;font-size:12px;font-weight:600;padding:4px 12px;border-radius:999px;background:rgba(63,110,161,.10);color:var(--accent-d)}
+    .badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px}
+    .badge.active{background:rgba(46,139,87,.12);color:#1F5C3B}
+    .badge.pending{background:rgba(184,134,11,.13);color:#6B4E0A}
+    .badge.muted{background:rgba(21,32,43,.06);color:var(--muted-2)}
+
+    /* stat tiles */
+    .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .tile{border:1px solid var(--line);border-radius:11px;padding:16px 16px}
+    .tile .n{font-size:24px;font-weight:600;letter-spacing:-.02em}
+    .tile .l{font-size:12px;color:var(--muted);margin-top:3px}
+
+    /* list rows */
+    .lst{display:flex;flex-direction:column}
+    .lrow{display:flex;align-items:center;gap:12px;padding:13px 2px;border-bottom:1px solid var(--line)}
+    .lrow:last-child{border-bottom:0}
+    .lrow .main{min-width:0;flex:1}
+    .lrow .main b{font-size:14px;font-weight:600;display:block}
+    .lrow .main span{font-size:12.5px;color:var(--muted-2);display:block;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .lrow .act{display:flex;gap:7px;align-items:center}
+    .linkbtn{background:none;border:none;color:var(--accent);font:inherit;font-size:12.5px;cursor:pointer;padding:5px 6px}
+    .linkbtn.danger{color:var(--burden)}
+
+    .msg{font-size:13px;line-height:1.5;padding:11px 14px;border-radius:9px;margin:14px 0 4px}
+    .msg.ok{background:rgba(46,139,87,.10);color:#1F5C3B}
+    .msg.bad{background:rgba(184,80,94,.10);color:#7A2C36}
+    .empty{border:1px dashed var(--line);border-radius:11px;padding:26px;text-align:center;color:var(--muted);font-size:13px}
+    .danger-zone{border-color:rgba(184,80,94,.3)}
+
+    @media (max-width:720px){ .tiles{grid-template-columns:1fr 1fr} }
   </style>
   <link rel="stylesheet" href="workspace-shell.css">
 </head>
@@ -28,38 +98,319 @@
         <a href="workspace-settings.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h9M17 7h3"/><circle cx="15" cy="7" r="2"/><path d="M4 17h3M11 17h9"/><circle cx="9" cy="17" r="2"/></svg>Settings</a>
       </nav>
       <div class="ws5-railfoot">
-        <div class="ws5-planchip">Plan · <b id="ws5Plan">—</b></div>
+        <div class="ws5-planchip">Plan &middot; <b id="ws5Plan">&mdash;</b></div>
         <button class="ws5-signout" id="signOutBtn" type="button">Sign out</button>
       </div>
     </aside>
+
     <div class="ws5-main">
       <header class="ws5-topbar">
-        <div class="ws5-crumb"><h1>Settings</h1><span id="ws5Org">—</span></div>
+        <div class="ws5-crumb"><h1>Settings</h1><span id="ws5Org">&mdash;</span></div>
         <div class="ws5-topright">
-          <a class="ws5-btn" href="workspace.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Run a diagnostic</a>
-          <div class="ws5-user"><div class="ws5-ava" id="ws5Ava">—</div><div class="ws5-who"><b id="ws5UserName">—</b><span id="ws5UserRole">—</span></div></div>
+          <a class="ws5-btn" href="workspace-diagnostics.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Run a diagnostic</a>
+          <div class="ws5-user"><div class="ws5-ava" id="ws5Ava">&mdash;</div><div class="ws5-who"><b id="ws5UserName">&mdash;</b><span id="ws5UserRole">&mdash;</span></div></div>
         </div>
       </header>
-      <div class="ws5-content">
-        <div class="ws5-stub">
-          <div class="ws5-stub-card">
-            <p class="ws5-stub-kicker">Manage</p>
-            <h2>Settings</h2>
-            <p>Manage your organization, team, roles, and plan.</p>
-            <ul class="ws5-stub-list">
-              <li>Organization profile</li>
-              <li>Members and invitations</li>
-              <li>Roles — admin, analyst, participant</li>
-              <li>Plan and usage</li>
-              <li>Data and privacy</li>
-            </ul>
-            <span class="ws5-stub-soon">Coming soon</span>
-          </div>
+
+      <main class="content">
+        <div class="lead">
+          <div class="eyebrow">Settings</div>
+          <h2>Your organisation and workspace</h2>
+          <p>Manage the organisation profile, invite teammates and set their role, review usage, and export your data.</p>
         </div>
-      </div>
+
+        <!-- ORGANISATION -->
+        <section class="card">
+          <div class="card-h"><h3>Organisation</h3></div>
+          <p class="card-sub" id="orgSub">The name shown across your workspace.</p>
+          <div class="frow">
+            <div class="field"><label for="orgName">Organisation name</label><input type="text" id="orgName" placeholder="Organisation name" disabled></div>
+            <button class="btn" id="saveOrg" type="button" disabled>Save</button>
+          </div>
+          <div class="kv" style="margin-top:18px">
+            <div class="row"><span class="k">Plan</span><span class="v"><span class="chip" id="orgPlan">&mdash;</span></span></div>
+          </div>
+          <div id="orgMsg"></div>
+        </section>
+
+        <!-- ACCESS & INVITES -->
+        <section class="card">
+          <div class="card-h"><h3>Access &amp; invites</h3><span class="note" id="inviteCount"></span></div>
+          <p class="card-sub">Invite a teammate by email and choose what they can do. Send them the link the invite generates.</p>
+          <div id="inviteComposer">
+            <div class="frow">
+              <div class="field"><label for="invEmail">Email</label><input type="email" id="invEmail" placeholder="name@company.com"></div>
+              <div class="field" style="flex:0 0 180px;min-width:160px"><label for="invRole">Role</label>
+                <select id="invRole">
+                  <option value="participant">Participant — can be assigned diagnostics</option>
+                  <option value="analyst">Analyst — can view all results &amp; analysis</option>
+                  <option value="admin">Admin — full control</option>
+                </select>
+              </div>
+              <button class="btn" id="createInvite" type="button">Create invite</button>
+            </div>
+          </div>
+          <div id="inviteMsg"></div>
+          <div id="invitesBody" style="margin-top:16px"></div>
+        </section>
+
+        <!-- PEOPLE -->
+        <section class="card">
+          <div class="card-h"><h3>People</h3><span class="note" id="peopleCount"></span></div>
+          <p class="card-sub">Everyone in your organisation directory. People are added automatically as you run campaigns from Actions.</p>
+          <div id="peopleBody"></div>
+        </section>
+
+        <!-- PLAN & USAGE -->
+        <section class="card">
+          <div class="card-h"><h3>Plan &amp; usage</h3></div>
+          <p class="card-sub">A live snapshot of what your workspace holds.</p>
+          <div class="tiles" id="usageTiles">
+            <div class="tile"><div class="n num" id="uRuns">&mdash;</div><div class="l">Diagnostic runs</div></div>
+            <div class="tile"><div class="n num" id="uPromoted">&mdash;</div><div class="l">Promoted to record</div></div>
+            <div class="tile"><div class="n num" id="uPeople">&mdash;</div><div class="l">People</div></div>
+            <div class="tile"><div class="n num" id="uAssign">&mdash;</div><div class="l">Campaign assignments</div></div>
+          </div>
+        </section>
+
+        <!-- DATA -->
+        <section class="card danger-zone">
+          <div class="card-h"><h3>Data &amp; privacy</h3></div>
+          <p class="card-sub">Export the diagnostic runs you have access to as a JSON file. Your results belong to you.</p>
+          <button class="btn ghost" id="exportRuns" type="button">Export my runs (JSON)</button>
+          <div id="dataMsg"></div>
+        </section>
+      </main>
     </div>
   </div>
-  <script type="module" src="workspace-shell.js"></script>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const supabase = createClient(
+      "https://ptkxrzgmeldalrkfruth.supabase.co",
+      "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
+      { auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" } }
+    );
+
+    const PLAN_LABEL = { free:"Free", baseline:"Baseline", signal:"Signal", advisory:"Advisory" };
+    const ROLE_LABEL = { admin:"Admin", analyst:"Analyst", participant:"Participant", viewer:"Viewer" };
+    const ACCEPT_PATH = "accept-invite.html";
+
+    const state = { user:null, userId:null, orgId:null, role:"viewer", isOwner:false, org:null, invites:[], people:[] };
+
+    const $ = id => document.getElementById(id);
+    function setText(id,v){ const e=$(id); if(e&&v!=null) e.textContent=v; }
+    function cap(s){ return s ? s.charAt(0).toUpperCase()+s.slice(1) : (s||""); }
+    function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+    function initials(name,email){ const b=(name&&name.trim())||(email||"").split("@")[0]||""; const p=b.split(/\s+/).filter(Boolean); return (p.length>=2?(p[0][0]+p[p.length-1][0]):b.slice(0,2)||"M").toUpperCase(); }
+    function isAdmin(){ return state.role==="admin"; }
+    function isStaff(){ return state.role==="admin"||state.role==="analyst"; }
+    function validEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e||""); }
+    function flash(slot,kind,msg){ const e=$(slot); if(!e) return; e.innerHTML=`<div class="msg ${kind}">${esc(msg)}</div>`; if(kind==="ok") setTimeout(()=>{ if($(slot)) $(slot).innerHTML=""; },4000); }
+    function genToken(){
+      try{ if(crypto&&crypto.randomUUID) return crypto.randomUUID(); }catch(e){}
+      try{ const a=new Uint8Array(18); crypto.getRandomValues(a); return Array.from(a,b=>("0"+b.toString(16)).slice(-2)).join(""); }catch(e){}
+      return "t_"+Date.now().toString(36)+Math.random().toString(36).slice(2,12);
+    }
+    function inviteLink(token){ try{ return new URL(ACCEPT_PATH+"?token="+encodeURIComponent(token), location.href).href; }catch(e){ return "https://monderman.com/"+ACCEPT_PATH+"?token="+token; } }
+    function daysLeft(iso){ if(!iso) return null; return Math.ceil((new Date(iso).getTime()-Date.now())/86400000); }
+
+    // ── context: user + org + role (owner is always admin) ──
+    async function resolveContext(){
+      const { data:ures } = await supabase.auth.getUser();
+      const user = ures?.user || null;
+      if(!user){ window.location.replace("signin.html?next=workspace-settings.html"); return false; }
+      state.user=user; state.userId=user.id;
+      const name=user.user_metadata?.full_name || user.user_metadata?.name || user.email || "Monderman User";
+      setText("ws5UserName",name); setText("ws5Ava", initials(name,user.email));
+
+      let orgId=null, memberRole=null;
+      try{
+        const { data:m } = await supabase.from("organization_members").select("organization_id, role").limit(1).maybeSingle();
+        orgId=m?.organization_id||null; memberRole=m?.role||null;
+      }catch(e){}
+      let org=null;
+      try{
+        if(orgId){ const { data } = await supabase.from("organizations").select("id, name, plan, owner_user_id").eq("id",orgId).maybeSingle(); org=data||null; }
+        else { const { data } = await supabase.from("organizations").select("id, name, plan, owner_user_id").eq("owner_user_id",user.id).limit(1).maybeSingle(); org=data||null; orgId=org?.id||null; }
+      }catch(e){}
+      state.orgId=orgId; state.org=org;
+      state.isOwner = !!(org && org.owner_user_id===user.id);
+      state.role = state.isOwner ? "admin" : (memberRole||"viewer");
+
+      setText("ws5UserRole", ROLE_LABEL[state.role]||cap(state.role));
+      setText("ws5Org", org?.name || "Personal workspace");
+      setText("ws5Plan", PLAN_LABEL[org?.plan] || org?.plan || "Free");
+      return true;
+    }
+
+    // ── ORGANISATION ──
+    function renderOrg(){
+      $("orgName").value = state.org?.name || "";
+      setText("orgPlan", PLAN_LABEL[state.org?.plan] || state.org?.plan || "Free");
+      const can = isAdmin() && !!state.orgId;
+      $("orgName").disabled = !can;
+      $("saveOrg").disabled = !can;
+      $("orgSub").textContent = can ? "The name shown across your workspace." : "Only an organisation admin can change these settings.";
+    }
+    async function saveOrgName(){
+      const name=($("orgName").value||"").trim();
+      if(!name){ flash("orgMsg","bad","Give the organisation a name."); return; }
+      $("saveOrg").disabled=true;
+      try{
+        const { error } = await supabase.from("organizations").update({ name }).eq("id", state.orgId);
+        if(error) throw error;
+        state.org.name=name; setText("ws5Org",name);
+        flash("orgMsg","ok","Saved.");
+      }catch(e){ flash("orgMsg","bad","Couldn’t save — organisation changes are admin-only. ("+(e.message||"error")+")"); }
+      finally{ $("saveOrg").disabled=!isAdmin(); }
+    }
+
+    // ── ACCESS & INVITES ──
+    async function loadInvites(){
+      if(!isAdmin()){
+        $("inviteComposer").style.display="none";
+        $("invitesBody").innerHTML = `<div class="empty">Ask an organisation admin to invite teammates.</div>`;
+        return;
+      }
+      try{
+        const { data, error } = await supabase.from("organization_invites")
+          .select("id, email, role, token, created_at, expires_at, accepted_at").order("created_at",{ascending:false}).limit(100);
+        if(error) throw error;
+        state.invites = data || [];
+      }catch(e){ state.invites=[]; }
+      renderInvites();
+    }
+    function renderInvites(){
+      const pending = state.invites.filter(i=>!i.accepted_at);
+      setText("inviteCount", pending.length ? `${pending.length} pending` : "");
+      if(!state.invites.length){ $("invitesBody").innerHTML = `<div class="empty">No invites yet.</div>`; return; }
+      $("invitesBody").innerHTML = `<div class="lst">` + state.invites.map(inviteRow).join("") + `</div>`;
+      $("invitesBody").querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click",()=>copyLink(b.dataset.copy)));
+      $("invitesBody").querySelectorAll("[data-revoke]").forEach(b=>b.addEventListener("click",()=>revokeInvite(b.dataset.revoke)));
+    }
+    function inviteRow(i){
+      let badge, act;
+      if(i.accepted_at){ badge=`<span class="badge active">Accepted</span>`; act=""; }
+      else {
+        const d=daysLeft(i.expires_at);
+        badge = (d!=null && d<0) ? `<span class="badge muted">Expired</span>` : `<span class="badge pending">Pending${d!=null?` · ${d}d left`:""}</span>`;
+        act = `<button class="linkbtn" data-copy="${esc(i.token)}">Copy link</button><button class="linkbtn danger" data-revoke="${i.id}">Revoke</button>`;
+      }
+      return `<div class="lrow"><div class="main"><b>${esc(i.email)}</b><span>${esc(ROLE_LABEL[i.role]||i.role)}</span></div>${badge}<div class="act">${act}</div></div>`;
+    }
+    async function createInvite(){
+      if(!isAdmin()){ flash("inviteMsg","bad","Only admins can invite teammates."); return; }
+      const email=($("invEmail").value||"").trim().toLowerCase();
+      const role=$("invRole").value;
+      if(!validEmail(email)){ flash("inviteMsg","bad","Enter a valid email address."); return; }
+      if(!state.orgId){ flash("inviteMsg","bad","No organisation is set on your account."); return; }
+      $("createInvite").disabled=true;
+      const token=genToken();
+      try{
+        const { error } = await supabase.from("organization_invites").insert({
+          organization_id: state.orgId, email, role, token,
+          invited_by: state.userId, expires_at: new Date(Date.now()+14*864e5).toISOString()
+        });
+        if(error) throw error;
+        $("invEmail").value="";
+        await loadInvites();
+        flash("inviteMsg","ok","Invite created for "+email+" — copy the link below to send it.");
+      }catch(e){ flash("inviteMsg","bad","Couldn’t create the invite. ("+(e.message||"error")+")"); }
+      finally{ $("createInvite").disabled=false; }
+    }
+    async function revokeInvite(id){
+      try{
+        const { error } = await supabase.from("organization_invites").delete().eq("id", id);
+        if(error) throw error;
+        state.invites = state.invites.filter(i=>i.id!==id);
+        renderInvites();
+        flash("inviteMsg","ok","Invite revoked.");
+      }catch(e){ flash("inviteMsg","bad","Couldn’t revoke — admins only. ("+(e.message||"error")+")"); }
+    }
+    async function copyLink(token){
+      const link=inviteLink(token);
+      try{ await navigator.clipboard.writeText(link); flash("inviteMsg","ok","Link copied to clipboard."); }
+      catch(e){ flash("inviteMsg","ok","Invite link: "+link); }
+    }
+
+    // ── PEOPLE ──
+    async function loadPeople(){
+      try{
+        const { data, error } = await supabase.from("participants")
+          .select("id, display_name, email, team, business_unit, user_id, upgraded_at").order("created_at",{ascending:false}).limit(200);
+        if(error) throw error;
+        state.people = data || [];
+      }catch(e){ state.people=[]; }
+      renderPeople();
+    }
+    function renderPeople(){
+      setText("peopleCount", state.people.length ? `${state.people.length}` : "");
+      if(!state.people.length){
+        $("peopleBody").innerHTML = `<div class="empty">No people yet. They appear here as you run campaigns from Actions.</div>`;
+        return;
+      }
+      $("peopleBody").innerHTML = `<div class="lst">` + state.people.map(peopleRow).join("") + `</div>`;
+    }
+    function peopleRow(p){
+      const nm = (p.display_name && p.display_name.trim()) || (p.email||"").split("@")[0] || "—";
+      const sub = [p.email, [p.business_unit,p.team].filter(Boolean).join(" · ")].filter(Boolean).join("  ·  ");
+      const active = !!(p.user_id || p.upgraded_at);
+      const badge = active ? `<span class="badge active">Active</span>` : `<span class="badge muted">Recipient</span>`;
+      return `<div class="lrow"><div class="main"><b>${esc(nm)}</b><span>${esc(sub)}</span></div>${badge}</div>`;
+    }
+
+    // ── PLAN & USAGE ──
+    async function count(table, build){
+      try{
+        let q = supabase.from(table).select("*",{count:"exact",head:true});
+        if(build) q=build(q);
+        const { count, error } = await q;
+        if(error) throw error;
+        return count==null ? "—" : count;
+      }catch(e){ return "—"; }
+    }
+    async function loadUsage(){
+      const [runs, promoted, people, assign] = await Promise.all([
+        count("diagnostic_runs"),
+        count("diagnostic_runs", q=>q.eq("status","promoted")),
+        count("participants"),
+        count("diagnostic_assignments"),
+      ]);
+      setText("uRuns",runs); setText("uPromoted",promoted); setText("uPeople",people); setText("uAssign",assign);
+    }
+
+    // ── DATA EXPORT ──
+    async function exportRuns(){
+      $("exportRuns").disabled=true;
+      try{
+        const { data, error } = await supabase.from("diagnostic_runs")
+          .select("id, tool_type, tool_label, business_unit, pathway_name, score, band, primary_driver, benchmark_position, trajectory_label, status, created_at")
+          .order("created_at",{ascending:false});
+        if(error) throw error;
+        const payload = { exported_at:new Date().toISOString(), organization:state.org?.name||null, count:(data||[]).length, runs:data||[] };
+        const blob = new Blob([JSON.stringify(payload,null,2)], { type:"application/json" });
+        const url = URL.createObjectURL(blob);
+        const a=document.createElement("a"); a.href=url; a.download="monderman-runs.json"; document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(()=>URL.revokeObjectURL(url),1000);
+        flash("dataMsg","ok",`Exported ${payload.count} run${payload.count===1?"":"s"}.`);
+      }catch(e){ flash("dataMsg","bad","Couldn’t export right now. Please try again."); }
+      finally{ $("exportRuns").disabled=false; }
+    }
+
+    async function boot(){
+      $("signOutBtn")?.addEventListener("click", async ()=>{ try{ await supabase.auth.signOut(); }catch(e){} window.location.href="index.html"; });
+      $("saveOrg")?.addEventListener("click", saveOrgName);
+      $("createInvite")?.addEventListener("click", createInvite);
+      $("exportRuns")?.addEventListener("click", exportRuns);
+
+      const okc = await resolveContext();
+      if(!okc) return;
+      renderOrg();
+      await Promise.all([ loadInvites(), loadPeople(), loadUsage() ]);
+    }
+    boot();
+  </script>
   <script src="workspace-assistant.js" defer></script>
 </body>
 </html>
