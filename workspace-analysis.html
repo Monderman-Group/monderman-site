@@ -95,8 +95,8 @@
     .arrow-col{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 28px;align-self:stretch}
     .arrow-col svg{width:120px;height:90px;overflow:visible}
     .delta-chip{margin:14px 0 0;text-align:center}
-    .delta-chip .d1{display:inline-block;background:rgba(46,139,87,.12);color:#1F5C3B;font-weight:600;font-size:14px;padding:6px 13px;border-radius:999px}
-    .verify{margin:24px 0 0;padding:18px 20px;background:#0F1720;border-radius:11px;color:#E7ECF1;display:flex;align-items:center;gap:13px}
+    .delta-chip .d1{display:inline-block;background:var(--ok-bg);color:var(--ok-fg);font-weight:600;font-size:14px;padding:6px 13px;border-radius:999px}
+    .verify{margin:24px 0 0;padding:18px 20px;background:#0F1720;border:1px solid var(--line);border-radius:11px;color:#E7ECF1;display:flex;align-items:center;gap:13px}
     .verify svg{width:20px;height:20px;flex:0 0 20px;stroke-width:1.8;color:#8FB2D6}
     .verify p{margin:0;font-size:14px;line-height:1.55;color:rgba(255,255,255,.84)}
     .verify b{color:#fff;font-weight:500}
@@ -108,8 +108,8 @@
     .ix .ixn{font-weight:500} .ix .ixn span{display:block;font-weight:400;color:var(--muted-2);font-size:12px;margin-top:2px}
     .ix .ixm{display:flex;align-items:center;gap:22px}
     .ix .move{font-size:13.5px;color:var(--muted)} .ix .move b{color:var(--text);font-weight:500}
-    .pill-up{background:rgba(46,139,87,.12);color:#1F5C3B;font-weight:600;font-size:13px;padding:4px 10px;border-radius:999px}
-    .pill-watch{background:rgba(184,134,11,.13);color:#6B4E0A;font-weight:600;font-size:13px;padding:4px 10px;border-radius:999px}
+    .pill-up{background:var(--ok-bg);color:var(--ok-fg);font-weight:600;font-size:13px;padding:4px 10px;border-radius:999px}
+    .pill-watch{background:var(--warn-bg);color:var(--warn-fg);font-weight:600;font-size:13px;padding:4px 10px;border-radius:999px}
 
     .footnote{margin:22px 2px 0;font-size:11.5px;color:var(--muted-2)}
     @media (max-width:720px){
@@ -121,7 +121,8 @@
       .bench-row{grid-template-columns:120px 1fr 44px}
     }
   </style>
-  <link rel="stylesheet" href="workspace-shell.css?v=2">
+  <script>try{if(localStorage.getItem("mndTheme")==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}</script>
+    <link rel="stylesheet" href="workspace-shell.css?v=2">
   <style>
   /* Mobile shell override shipped inline so a cached external stylesheet on iOS
      Safari can't suppress it. display:flex !important defeats any stale
@@ -262,9 +263,9 @@
     function initials(name,email){ const b=(name&&name.trim())||(email||"").split("@")[0]||""; const p=b.split(/\s+/).filter(Boolean); return (p.length>=2?(p[0][0]+p[p.length-1][0]):b.slice(0,2)||"M").toUpperCase(); }
     function tone(s){
       if(s==null) return {c:"var(--muted-2)",bg:"rgba(21,32,43,.06)",fg:"var(--muted)"};
-      if(s>=67)   return {c:"var(--reclaim)",bg:"rgba(46,139,87,.12)",fg:"#1F5C3B"};
-      if(s>=45)   return {c:"var(--warn)",bg:"rgba(184,134,11,.13)",fg:"#6B4E0A"};
-      return {c:"var(--burden)",bg:"rgba(184,80,94,.12)",fg:"#7A2C36"};
+      if(s>=67)   return {c:"var(--reclaim)",bg:"var(--ok-bg)",fg:"var(--ok-fg)"};
+      if(s>=45)   return {c:"var(--warn)",bg:"var(--warn-bg)",fg:"var(--warn-fg)"};
+      return {c:"var(--burden)",bg:"var(--rose-bg)",fg:"var(--rose-fg)"};
     }
     function emptyHTML(title,msg){
       return `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-7"/></svg><b>${title}</b><p>${msg}</p></div>`;
@@ -370,9 +371,9 @@
       const W=680,H=240,padL=30,padR=18,padT=22,padB=34, iw=W-padL-padR, ih=H-padT-padB;
       const X=i=> padL+(points.length<=1 ? iw/2 : iw*i/(points.length-1));
       const Y=s=> padT+ih*(1-(Math.max(0,Math.min(100,s))/100));
-      let grid=""; [0,50,100].forEach(v=>{ const y=Y(v); grid+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="rgba(21,32,43,.08)" stroke-width="1"/><text x="${padL-6}" y="${y+3}" text-anchor="end" font-size="10" fill="#8A95A1">${v}</text>`; });
+      let grid=""; [0,50,100].forEach(v=>{ const y=Y(v); grid+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" style="stroke:var(--line)" stroke-width="1"/><text x="${padL-6}" y="${y+3}" text-anchor="end" font-size="10" style="fill:var(--muted-2)">${v}</text>`; });
       let line=""; if(points.length>=2){ line=`<polyline fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="${points.map((p,i)=>X(i)+","+Y(p.score)).join(" ")}"/>`; }
-      const dots=points.map((p,i)=>{ const tn=tone(p.score); return `<circle cx="${X(i)}" cy="${Y(p.score)}" r="4.5" fill="${tn.c}"/><text x="${X(i)}" y="${Y(p.score)-10}" text-anchor="middle" font-size="11" font-weight="600" fill="#15202B">${p.score}</text><text x="${X(i)}" y="${H-12}" text-anchor="middle" font-size="10" fill="#8A95A1">${p.label}</text>`; }).join("");
+      const dots=points.map((p,i)=>{ const tn=tone(p.score); return `<circle cx="${X(i)}" cy="${Y(p.score)}" r="4.5" fill="${tn.c}"/><text x="${X(i)}" y="${Y(p.score)-10}" text-anchor="middle" font-size="11" font-weight="600" style="fill:var(--text)">${p.score}</text><text x="${X(i)}" y="${H-12}" text-anchor="middle" font-size="10" style="fill:var(--muted-2)">${p.label}</text>`; }).join("");
       return `<svg class="trend-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img">${grid}${line}${dots}</svg>`;
     }
     function renderOverTime(){
@@ -414,7 +415,7 @@
       const b=pr.before, a=pr.after, bs=asNum(b.score), as_=asNum(a.score), d=(as_??0)-(bs??0), tb=tone(bs), ta=tone(as_), up=d>=0;
       body.innerHTML=`<section class="impact"><div class="impact-grid">
         <div class="state before"><div class="when">Before \u00b7 ${b.period_label||""}</div><div class="score num" style="color:${tb.c}">${bs??"\u2014"}</div>${b.band?`<span class="band" style="background:${tb.bg};color:${tb.fg}">${b.band}</span>`:""}<p class="exp">${toolLabel(b.tool_type)}${expLine(b)}</p></div>
-        <div class="arrow-col"><svg viewBox="0 0 120 90" fill="none"><line x1="6" y1="78" x2="104" y2="24" stroke="${up?'#2E8B57':'#B8505E'}" stroke-width="2.5" stroke-linecap="round"/><circle cx="6" cy="78" r="5" fill="${tb.c}"/><circle cx="104" cy="24" r="5" fill="${ta.c}"/><path d="M96 18l9 6-6 9" stroke="${up?'#2E8B57':'#B8505E'}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="delta-chip"><span class="d1 num"${up?"":' style="background:rgba(184,80,94,.12);color:#7A2C36"'}>${d>0?"+":""}${d} pts</span></div></div>
+        <div class="arrow-col"><svg viewBox="0 0 120 90" fill="none"><line x1="6" y1="78" x2="104" y2="24" stroke="${up?'#2E8B57':'#B8505E'}" stroke-width="2.5" stroke-linecap="round"/><circle cx="6" cy="78" r="5" fill="${tb.c}"/><circle cx="104" cy="24" r="5" fill="${ta.c}"/><path d="M96 18l9 6-6 9" stroke="${up?'#2E8B57':'#B8505E'}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="delta-chip"><span class="d1 num"${up?"":' style="background:var(--rose-bg);color:var(--rose-fg)"'}>${d>0?"+":""}${d} pts</span></div></div>
         <div class="state after"><div class="when">After \u00b7 ${a.period_label||""}</div><div class="score num" style="color:${ta.c}">${as_??"\u2014"}</div>${a.band?`<span class="band" style="background:${ta.bg};color:${ta.fg}">${a.band}</span>`:""}<p class="exp">${toolLabel(a.tool_type)}${expLine(a)}</p></div>
       </div>${d!==0?`<div class="verify"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12.5l2.5 2.5L16 9"/><circle cx="12" cy="12" r="9.5"/></svg><p><b>${Math.abs(d)} points ${up?"gained":"lost"}</b> on the same instrument between reads \u2014 observed in the second read, not asserted in a deck.</p></div>`:""}</section>`;
       const others=P.filter(p=>p.key!==key);
@@ -466,5 +467,6 @@
     boot();
   </script>
   <script src="workspace-assistant.js" defer></script>
+  <script src="workspace-theme.js" defer></script>
 </body>
 </html>
