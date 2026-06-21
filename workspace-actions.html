@@ -176,6 +176,8 @@
     .rcp-badge.done{background:var(--ok-bg);color:var(--ok-fg)}
     .rcp-badge.open{background:var(--warn-bg);color:var(--warn-fg)}
     .rcp-badge.pend{background:rgba(128,128,128,.13);color:var(--muted)}
+    .camp-tools{padding:9px 16px 2px;display:flex;justify-content:flex-end}
+    .rcp-act{display:flex;gap:6px;align-items:center}
     @media (max-width:680px){ .dash{grid-template-columns:1fr;gap:16px} .rcp-row{grid-template-columns:1fr auto;row-gap:6px} .rcp-when{grid-column:1/-1;text-align:left;order:3} }
     .lock b{display:block;color:var(--text);font-weight:600;font-size:15px;margin-bottom:5px}
 
@@ -671,7 +673,7 @@
       let rows=[];
       try{
         const { data } = await supabase.from("diagnostic_assignments")
-          .select("recipient_email, recipient_name, tool_type, participant_lens, event_path_name, campaign_label, campaign_id, status, token, created_at, opened_at, started_at, completed_at")
+          .select("id, recipient_email, recipient_name, tool_type, participant_lens, event_path_name, campaign_label, campaign_id, status, token, created_at, opened_at, started_at, completed_at")
           .order("created_at",{ ascending:false }).limit(2000);
         rows=data||[];
       }catch(e){}
@@ -715,18 +717,38 @@
       return { sent, opened, completed, pending: sent-opened-completed, pct: sent?Math.round(100*completed/sent):0,
         doneW: sent?Math.round(100*completed/sent):0, openW: sent?Math.round(100*opened/sent):0, camps };
     }
-    function recipientRow(a){
+    function recipientRow(a, admin){
       const link=`${APP_BASE}/${TOOL_HTML[a.tool_type]||"index.html"}?assignment_token=${encodeURIComponent(a.token||"")}`;
       const st=rState(a);
       const badge = st==="done" ? `<span class="rcp-badge done">Completed</span>` : st==="open" ? `<span class="rcp-badge open">Opened</span>` : `<span class="rcp-badge pend">Not started</span>`;
       const whenIso = st==="done" ? a.completed_at : st==="open" ? (a.opened_at||a.started_at) : a.created_at;
       const whenLbl = st==="done" ? "completed" : st==="open" ? "opened" : "sent";
+      const remindBtn = (admin && st!=="done" && a.id) ? `<button class="btn-mini ghost" data-remind="${esc(a.id)}" type="button">Remind</button>` : "";
       return `<div class="rcp-row">
         <div class="ar-who">${esc(a.recipient_name||a.recipient_email||"\u2014")}<span>${esc(a.recipient_email||"")}</span></div>
         <div class="rcp-when">${whenLbl}<span>${timeAgo(whenIso)}</span></div>
         ${badge}
-        <button class="ar-copy" data-link="${esc(link)}" type="button">Copy link</button>
+        <div class="rcp-act"><button class="ar-copy" data-link="${esc(link)}" type="button">Copy link</button>${remindBtn}</div>
       </div>`;
+    }
+    let _camps = [];
+    async function remind(ids, btn){
+      ids = (ids||[]).filter(Boolean);
+      if(!ids.length || !state.orgId) return;
+      const orig = btn ? btn.textContent : "";
+      if(btn){ btn.disabled=true; btn.textContent="Sending\u2026"; }
+      try{
+        const res = await fetch(`${API_BASE}/api/workspace/assignments/resend`, {
+          method:"POST", headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify({ organization_id: state.orgId, sender_user_id: state.userId, assignment_ids: ids, reminder: true })
+        });
+        const j = await res.json().catch(()=>({}));
+        if(!res.ok || j.ok===false) throw new Error(j.error || ("HTTP "+res.status));
+        const n = (Array.isArray(j.sent) && j.sent.length) || ids.length;
+        if(btn){ btn.textContent = "Reminded "+n; setTimeout(()=>{ if(btn){ btn.textContent=orig; btn.disabled=false; } }, 2400); }
+      }catch(e){
+        if(btn){ btn.textContent="Couldn\u2019t send"; setTimeout(()=>{ if(btn){ btn.textContent=orig; btn.disabled=false; } }, 2600); }
+      }
     }
     function renderTracking(rows){
       const board=$("trackBody"); if(!board) return;
@@ -734,7 +756,8 @@
         board.innerHTML=`<div class="empty"><b>No campaigns yet</b><p>Compose one above. Sent recipients and their links appear here, and update as people open and complete.</p></div>`;
         return;
       }
-      const t=computeTracking(rows);
+      const admin = state.role==="admin";
+      const t=computeTracking(rows); _camps = t.camps;
       let html=`<div class="dash">
         <div class="dash-tiles">
           <div class="stat"><div class="stat-n num">${t.sent}</div><div class="stat-l">Sent</div></div>
@@ -751,13 +774,16 @@
       if(rows.length>=2000) html+=`<p class="dash-note">Showing the most recent 2,000 invitations.</p>`;
       html+=t.camps.map(c=>{
         const range=(fmtDate(c.first)===fmtDate(c.last))?fmtDate(c.last):`${fmtDate(c.first)} \u2013 ${fmtDate(c.last)}`;
+        const nonResp=c.sent-c.completed;
+        const tools=(admin && nonResp>0) ? `<div class="camp-tools"><button class="btn-mini" data-remindcamp="${esc(String(c.key))}" type="button">Remind ${nonResp} non-responder${nonResp===1?"":"s"}</button></div>` : "";
         return `<div class="camp" data-cid="${esc(String(c.key))}">
           <button class="camp-head" type="button" aria-expanded="false">
             <div class="camp-title">${esc(c.label)}<span>${toolLabel(c.tool)} \u00b7 ${cap(c.vantage||"")} \u00b7 ${range}</span></div>
             <div class="camp-mini"><span class="camp-pct">${c.pct}%</span><span class="camp-count">${c.completed}/${c.sent}</span><span class="camp-caret">\u25b8</span></div>
           </button>
           <div class="camp-bar"><i class="seg-done" style="width:${c.doneW}%"></i><i class="seg-open" style="width:${c.openW}%"></i></div>
-          <div class="rcp-list" hidden>${c.recipients.map(recipientRow).join("")}</div>
+          ${tools}
+          <div class="rcp-list" hidden>${c.recipients.map(r=>recipientRow(r, admin)).join("")}</div>
         </div>`;
       }).join("");
       board.innerHTML=html;
@@ -771,6 +797,13 @@
         e.stopPropagation();
         const tx=b.dataset.link; if(navigator.clipboard) navigator.clipboard.writeText(tx);
         const o=b.textContent; b.textContent="Copied"; setTimeout(()=>b.textContent=o,1200);
+      }));
+      board.querySelectorAll("[data-remind]").forEach(b=> b.addEventListener("click", (e)=>{ e.stopPropagation(); remind([b.dataset.remind], b); }));
+      board.querySelectorAll("[data-remindcamp]").forEach(b=> b.addEventListener("click", (e)=>{
+        e.stopPropagation();
+        const c=_camps.find(x=>String(x.key)===b.dataset.remindcamp);
+        const ids=(c?c.recipients:[]).filter(r=>rState(r)!=="done").map(r=>r.id).filter(Boolean);
+        remind(ids, b);
       }));
     }
 
