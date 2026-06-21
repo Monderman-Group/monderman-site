@@ -36,6 +36,35 @@
     .selector{flex:0 0 auto;display:inline-flex;align-items:center;gap:9px;padding:9px 14px;border:1px solid var(--line);border-radius:10px;background:var(--card);font-size:13.5px;font-weight:500;color:var(--text);cursor:pointer;font-family:inherit;max-width:340px}
 
     .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:26px 28px;box-shadow:0 1px 2px rgba(15,23,32,.03),0 10px 26px rgba(15,23,32,.04)}
+    /* trust / data-quality layer */
+    .trust{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;box-shadow:0 1px 2px rgba(15,23,32,.03),0 10px 26px rgba(15,23,32,.04);margin-bottom:26px}
+    .trust[hidden]{display:none}
+    .trust-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+    .trust-title{display:flex;align-items:center;gap:9px;font-size:18px;font-weight:600;letter-spacing:-.02em;color:var(--text);margin-top:5px}
+    .trust-i{width:18px;height:18px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--muted);font-size:11px;font-weight:700;line-height:1;cursor:pointer;font-family:Georgia,'Times New Roman',serif;font-style:italic;display:inline-flex;align-items:center;justify-content:center;padding:0;flex:0 0 auto}
+    .trust-i:hover{color:var(--text);border-color:var(--muted-2)}
+    .trust-run{align-self:center;display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border:0;border-radius:9px;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
+    .trust-run:hover{background:var(--accent-d)}
+    .trust-run:disabled{opacity:.55;cursor:default}
+    .trust-info{margin:14px 0 0;padding:13px 15px;background:var(--accent-bg);border-radius:10px;font-size:12.5px;line-height:1.55;color:var(--text)}
+    .trust-info[hidden]{display:none}
+    .trust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+    .trust-stat{padding:13px 14px;border-radius:11px;background:rgba(128,128,128,.09)}
+    .trust-stat b{display:block;font-size:23px;font-weight:650;letter-spacing:-.02em;color:var(--text);font-variant-numeric:tabular-nums}
+    .trust-stat span{display:block;font-size:11.5px;color:var(--muted);margin-top:3px}
+    .trust-stat.ok{background:var(--ok-bg)} .trust-stat.ok b{color:var(--ok-fg)}
+    .trust-stat.warn{background:var(--warn-bg)} .trust-stat.warn b{color:var(--warn-fg)}
+    .trust-stat.rose{background:var(--rose-bg)} .trust-stat.rose b{color:var(--rose-fg)}
+    .trust-meter{margin-top:20px}
+    .trust-meter-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:7px}
+    .trust-meter-head span{font-size:12.5px;font-weight:500;color:var(--text)}
+    .trust-meter-head b{font-size:12.5px;font-weight:650;color:var(--text);font-variant-numeric:tabular-nums}
+    .trust-bar{height:9px;background:rgba(128,128,128,.16);border-radius:6px;overflow:hidden}
+    .trust-bar i{display:block;height:100%;border-radius:6px;background:var(--accent);transition:width .5s ease}
+    .trust-meter-sub{margin:7px 2px 0;font-size:11.5px;color:var(--muted-2)}
+    .trust-note{margin:16px 0 0;font-size:12.5px;line-height:1.55;color:var(--muted)}
+    .trust-note b{color:var(--text);font-weight:600}
+    @media (max-width:560px){ .trust-grid{grid-template-columns:repeat(2,1fr)} .trust-run{align-self:stretch;justify-content:center} }
 
     .empty{background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:42px 30px;text-align:center;color:var(--muted)}
     .empty svg{width:30px;height:30px;color:var(--muted-2);stroke-width:1.6;margin-bottom:12px}
@@ -184,6 +213,32 @@
       </nav>
 
       <main class="content">
+        <!-- DATA QUALITY / TRUST LAYER -->
+        <section class="trust" id="trustCard" hidden>
+          <div class="trust-head">
+            <div>
+              <div class="eyebrow">Data quality</div>
+              <div class="trust-title">How much of this can you trust?<button type="button" class="trust-i" id="trustInfoBtn" aria-label="About data-quality screening" aria-expanded="false">i</button></div>
+            </div>
+            <button type="button" class="trust-run" id="trustRunBtn" hidden>Run screening</button>
+          </div>
+          <div class="trust-info" id="trustInfo" hidden>
+            <p style="margin:0">Screening flags responses that look careless or inconsistent &mdash; internal contradictions, duplicate submissions, very low self-rated confidence, thin coverage, and (once you have ~30 reads of one instrument) statistical outliers. Flagged runs are set aside from group averages; nothing is deleted, and an admin can re-include any run. It&rsquo;s most meaningful once a cohort is large enough to compare against.</p>
+          </div>
+          <div class="trust-grid">
+            <div class="trust-stat"><b id="tsTotal">&mdash;</b><span>runs</span></div>
+            <div class="trust-stat ok"><b id="tsIncl">&mdash;</b><span>included</span></div>
+            <div class="trust-stat warn"><b id="tsCaut">&mdash;</b><span>caution</span></div>
+            <div class="trust-stat rose"><b id="tsExcl">&mdash;</b><span>set aside</span></div>
+          </div>
+          <div class="trust-meter">
+            <div class="trust-meter-head"><span>Analysis richness</span><b id="tsRichLabel">&mdash;</b></div>
+            <div class="trust-bar"><i id="tsRichFill" style="width:0%"></i></div>
+            <p class="trust-meter-sub" id="tsRichSub">&mdash;</p>
+          </div>
+          <p class="trust-note" id="tsNote">&mdash;</p>
+        </section>
+
         <!-- OVER TIME -->
         <section class="lens" data-lens="over-time" hidden>
           <div class="view-head">
@@ -249,6 +304,8 @@
       "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
       { auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" } }
     );
+    const API_BASE = "https://monderman-api.onrender.com";
+    let ws5OrgId = null, ws5Role = "viewer";
 
     const PLAN_LABEL = { free:"Free", baseline:"Baseline", signal:"Signal", advisory:"Advisory" };
     const TOOL = { operational_systems:"Operational Systems", decision_velocity:"Decision Velocity", structural_clarity:"Structural Clarity", institutional_performance:"Institutional Performance" };
@@ -437,9 +494,125 @@
       }));
     }
 
+    // ---- Trust / data-quality layer ----
+    const TRUST_TOOL_LABEL = { operational_systems:"Operational Systems", decision_velocity:"Decision Velocity", structural_clarity:"Structural Clarity", institutional_performance:"Institutional Performance" };
+    function trustToolLabel(t){
+      if(TRUST_TOOL_LABEL[t]) return TRUST_TOOL_LABEL[t];
+      try{ if(typeof toolLabel==="function"){ const v=toolLabel(t); if(v) return v; } }catch(e){}
+      return t || "this instrument";
+    }
+    async function fetchWorkspaceRuns(orgId){
+      const { data:sess } = await supabase.auth.getSession();
+      const token = sess?.session?.access_token;
+      const res = await fetch(`${API_BASE}/api/normalization/workspace-runs/${orgId}`, {
+        headers: token ? { Authorization:"Bearer "+token } : {}
+      });
+      if(!res.ok) throw new Error("HTTP "+res.status);
+      const j = await res.json();
+      return Array.isArray(j) ? j : (Array.isArray(j?.runs) ? j.runs : []);
+    }
+    function computeTrust(runs){
+      const total = runs.length;
+      let incl=0, caut=0, excl=0, screened=0, recent=0;
+      const byTool={}; const depths=new Set(), vants=new Set();
+      const now=Date.now(), NINETY=90*864e5;
+      runs.forEach(r=>{
+        const st = r.normalization_status || null;
+        if(st) screened++;
+        if(st==="excluded_from_aggregates") excl++;
+        else if(st==="included_with_caution") caut++;
+        else if(st==="included") incl++;
+        const inAgg = st!=="excluded_from_aggregates";   // caution + included + unscreened count toward aggregates
+        const t = r.tool_type || "?";
+        (byTool[t] = byTool[t] || {n:0,inAgg:0}).n++;
+        if(inAgg){
+          byTool[t].inAgg++;
+          if(r.diagnostic_depth!=null && r.diagnostic_depth!=="") depths.add(String(r.diagnostic_depth));
+          const v = r.vantage || r.participant_lens; if(v) vants.add(String(v).toLowerCase());
+          const ts = r.created_at ? Date.parse(r.created_at) : NaN;
+          if(!isNaN(ts) && (now-ts)<=NINETY) recent++;
+        }
+      });
+      const inAggN = total - excl;
+      let topTool=null, topN=0;
+      Object.keys(byTool).forEach(t=>{ if(byTool[t].inAgg>topN){ topN=byTool[t].inAgg; topTool=t; } });
+      const richness = Math.round(
+        Math.min(inAggN/30,1)*45 +
+        Math.min(depths.size/3,1)*15 +
+        Math.min(vants.size/3,1)*20 +
+        (inAggN ? Math.min(recent/inAggN,1)*20 : 0)
+      );
+      const richLabel = richness<34 ? "Limited" : richness<67 ? "Moderate" : "Strong";
+      return { total, incl, caut, excl, screened, inAggN, topTool, topN, depths:depths.size, vants:vants.size, recent, richness, richLabel };
+    }
+    function renderTrust(t, isAdmin){
+      const card=$("trustCard"); if(!card) return;
+      card.hidden = false;
+      const dash="\u2014";
+      setText("tsTotal", t.total);
+      setText("tsIncl", t.screened ? t.incl : dash);
+      setText("tsCaut", t.screened ? t.caut : dash);
+      setText("tsExcl", t.screened ? t.excl : dash);
+      const fill=$("tsRichFill"); if(fill) fill.style.width = t.richness + "%";
+      setText("tsRichLabel", t.richLabel + " \u00b7 " + t.richness + "/100");
+      setText("tsRichSub", `Based on ${t.inAggN} run${t.inAggN===1?"":"s"} in aggregates \u00b7 ${t.depths} depth${t.depths===1?"":"s"} \u00b7 ${t.vants} vantage${t.vants===1?"":"s"} \u00b7 ${t.recent} in the last 90 days`);
+      const bits=[];
+      if(!t.screened){
+        bits.push("These runs haven\u2019t been screened yet \u2014 averages currently include every response.");
+      } else {
+        bits.push(`Screened ${t.total} run${t.total===1?"":"s"}: <b>${t.incl} clean</b>, ${t.caut} flagged for caution, ${t.excl} set aside from averages.`);
+      }
+      if(t.topN < 30){
+        bits.push(`Outlier detection isn\u2019t statistically reliable yet \u2014 it needs ~30 reads of one instrument (most so far: ${t.topN}${t.topTool?(" on "+trustToolLabel(t.topTool)):""}). Every other screen works at any size.`);
+      } else {
+        bits.push(`You have enough volume on ${trustToolLabel(t.topTool)} (${t.topN}) for statistical outlier detection.`);
+      }
+      const note=$("tsNote"); if(note) note.innerHTML = bits.join(" ");
+      const btn=$("trustRunBtn");
+      if(btn){
+        btn.hidden = !isAdmin;
+        if(isAdmin) btn.textContent = t.screened ? "Re-run screening" : "Run screening";
+      }
+    }
+    async function loadAndRenderTrust(){
+      if(!ws5OrgId) return;                          // personal workspace → no org-level screening
+      let runs;
+      try{ runs = await fetchWorkspaceRuns(ws5OrgId); }
+      catch(e){ return; }                            // endpoint unreachable → card stays hidden, page still works
+      const isAdmin = (ws5Role==="admin" || ws5Role==="owner");
+      renderTrust(computeTrust(runs), isAdmin);
+    }
+    function wireTrust(){
+      $("trustInfoBtn")?.addEventListener("click", ()=>{
+        const box=$("trustInfo"), btn=$("trustInfoBtn");
+        if(!box) return;
+        const show = box.hidden; box.hidden = !show;
+        btn?.setAttribute("aria-expanded", show ? "true" : "false");
+      });
+      $("trustRunBtn")?.addEventListener("click", async ()=>{
+        const btn=$("trustRunBtn"); if(!btn || !ws5OrgId) return;
+        const orig=btn.textContent; btn.disabled=true; btn.textContent="Screening\u2026";
+        try{
+          const { data:sess } = await supabase.auth.getSession();
+          const token = sess?.session?.access_token;
+          const res = await fetch(`${API_BASE}/api/normalization/normalize-organization/${ws5OrgId}`, {
+            method:"POST", headers: token ? { Authorization:"Bearer "+token } : {}
+          });
+          if(!res.ok) throw new Error("HTTP "+res.status);
+          await loadAndRenderTrust();
+        }catch(e){
+          btn.textContent="Couldn\u2019t screen \u2014 retry";
+          setTimeout(()=>{ try{ btn.textContent=orig; }catch(_){} }, 2600);
+        }finally{
+          btn.disabled=false;
+        }
+      });
+    }
+
     async function boot(){
       $("signOutBtn")?.addEventListener("click", async ()=>{ try{ await supabase.auth.signOut(); }catch(e){} window.location.href="index.html"; });
       wireTabs();
+      wireTrust();
 
       let user=null;
       try{ const { data } = await supabase.auth.getUser(); user=data?.user||null; }catch(e){}
@@ -447,11 +620,14 @@
       const name = user.user_metadata?.full_name || user.user_metadata?.name || user.email || "Monderman User";
       setText("ws5UserName", name); setText("ws5Ava", initials(name, user.email));
       try{
-        const { data:m } = await supabase.from("organization_members").select("role, organizations(name, plan)").limit(1).maybeSingle();
+        const { data:m } = await supabase.from("organization_members").select("role, organization_id, organizations(name, plan)").limit(1).maybeSingle();
+        ws5Role = String(m?.role||"viewer").toLowerCase(); ws5OrgId = m?.organization_id || null;
         setText("ws5UserRole", cap(m?.role||"viewer"));
         setText("ws5Org", (m?.organizations?.name)||"Personal workspace");
         setText("ws5Plan", PLAN_LABEL[m?.organizations?.plan]||m?.organizations?.plan||"Free");
       }catch(e){ setText("ws5UserRole","Viewer"); setText("ws5Org","Workspace"); setText("ws5Plan","\u2014"); }
+
+      loadAndRenderTrust();
 
       try{
         const { data, error } = await supabase.from("org_snapshots").select("*").not("source_run_id","is",null).order("as_of",{ ascending:true });
