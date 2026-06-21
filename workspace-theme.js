@@ -1,7 +1,7 @@
 /* ============================================================================
    Monderman workspace — light / dark theme toggle (shared helper)
    ----------------------------------------------------------------------------
-   Injects a toggle button into the rail footer, flips <html data-theme>, and
+   Adds a small floating toggle near the Hans launcher, flips <html data-theme>, and
    remembers the choice in localStorage. Default is light; a saved choice wins.
    The theme is also applied by a tiny inline <head> script on each page so the
    first paint is correct (no flash) — this file handles the button + click.
@@ -35,8 +35,7 @@
   }
 
   function mount() {
-    var foot = document.querySelector(".ws5-railfoot");
-    if (!foot || foot.querySelector(".ws5-theme-toggle")) return;
+    if (document.querySelector(".ws5-theme-toggle")) return;
     var btn = document.createElement("button");
     btn.type = "button";
     btn.className = "ws5-theme-toggle";
@@ -48,7 +47,7 @@
       try { localStorage.setItem(KEY, next); } catch (e) {}
       render(btn);
     });
-    foot.insertBefore(btn, foot.firstChild);
+    document.body.appendChild(btn);
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount);
