@@ -70,7 +70,25 @@
   letter-spacing:.04em;color:#7B8792;border:1px solid rgba(21,32,43,.14);border-radius:999px;padding:5px 13px}
 
 @media (max-width:860px){
-  .ws5-rail{display:none}
+  /* The workspace isn't designed to be operated from a phone, but it should stay
+     recognizable: the left rail collapses into a slim, horizontally scrollable top
+     bar so all five spaces remain reachable. */
+  .ws5-shell{flex-direction:column}
+  .ws5-rail{flex:none;width:100%;height:auto;position:sticky;top:0;z-index:20;
+    flex-direction:row;align-items:center;gap:6px;
+    padding:9px 12px;border-right:0;border-bottom:1px solid rgba(255,255,255,.08);
+    overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .ws5-rail::-webkit-scrollbar{display:none}
+  .ws5-brand{padding:0 4px 0 2px;flex:0 0 auto}
+  .ws5-brand b{font-size:14px}
+  .ws5-nav{flex-direction:row;gap:3px;flex:0 0 auto}
+  .ws5-nav a{padding:7px 11px;white-space:nowrap;flex:0 0 auto}
+  .ws5-nav a.active::before{display:none}
+  .ws5-nav a.active{background:rgba(63,110,161,.32)}
+  .ws5-railfoot{margin:0 0 0 auto;padding:0 0 0 6px;border-top:0;
+    flex-direction:row;align-items:center;gap:8px;flex:0 0 auto}
+  .ws5-planchip{display:none}
+  .ws5-signout{align-self:center;white-space:nowrap}
+  .ws5-topbar{position:static;height:auto;min-height:54px;padding:10px 20px;flex-wrap:wrap;gap:8px 14px}
   .ws5-content,.ws5-stub{padding-left:20px;padding-right:20px}
-  .ws5-topbar{padding:0 20px}
 }
