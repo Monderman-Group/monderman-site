@@ -70,16 +70,6 @@
     .ws-section-head .ws-section-kicker{font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 6px}
     .ws-section-head p{font-size:.92rem;color:var(--ink-soft);margin:4px 0 0;max-width:60ch;line-height:1.5}
 
-    .ws-launch-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-    .ws-launch-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-sm);padding:24px 22px;display:flex;flex-direction:column;gap:8px;transition:border-color .18s ease,transform .18s ease,box-shadow .18s ease}
-    .ws-launch-card:hover{border-color:rgba(63,110,161,.28);transform:translateY(-2px);box-shadow:0 8px 22px rgba(21,32,43,.07)}
-    .ws-glyph{width:48px;height:48px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;background:rgba(63,110,161,.08);border:1px solid rgba(63,110,161,.16);color:var(--accent);margin-bottom:14px;transition:border-color .18s ease,background .18s ease}
-    .ws-glyph svg{width:22px;height:22px;stroke:currentColor}
-    .ws-launch-card:hover .ws-glyph{background:rgba(63,110,161,.16);border-color:rgba(63,110,161,.30)}
-    .ws-launch-card .lc-name{font-size:1rem;font-weight:700;color:var(--ink);line-height:1.25}
-    .ws-launch-card .lc-desc{font-size:.86rem;color:var(--ink-soft);line-height:1.5;flex:1}
-    .ws-launch-card .lc-open{font-size:.86rem;font-weight:600;color:var(--accent-dark);margin-top:6px}
-
     .ws-runs-list{display:grid;gap:12px}
     .ws-run-item{display:block;border-radius:var(--radius-sm);background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow-soft);overflow:hidden}
     .ws-run-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;width:100%;padding:16px 18px;cursor:pointer}
@@ -161,14 +151,12 @@
 
     @media (max-width:980px){
       .ws-usage-card{grid-template-columns:repeat(2,1fr)}
-      .ws-launch-grid{grid-template-columns:repeat(2,1fr)}
       .ws-locked-grid{grid-template-columns:1fr}
     }
     @media (max-width:640px){
       .header-inner{padding:0 20px} .wrap{padding:0 20px}
       .nav{gap:10px} .nav a:not(.workspace-link){display:none}
       .ws-usage-card{grid-template-columns:1fr;gap:18px}
-      .ws-launch-grid{grid-template-columns:1fr}
       .ws-greeting h1{font-size:1.5rem}
       .ws-top .wrap{flex-direction:column;align-items:flex-start}
     }
@@ -227,7 +215,7 @@
       <header class="ws5-topbar">
         <div class="ws5-crumb"><h1>Overview</h1><span id="ws5Org">—</span></div>
         <div class="ws5-topright">
-          <a class="ws5-btn" href="#" onclick="document.querySelector('.ws-launch-grid')?.scrollIntoView({behavior:'smooth',block:'start'});return false;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Run a diagnostic</a>
+          <a class="ws5-btn" href="workspace-diagnostics.html#launch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Run a diagnostic</a>
           <div class="ws5-user"><div class="ws5-ava" id="ws5Ava">—</div><div class="ws5-who"><b id="ws5UserName">—</b><span id="ws5UserRole">—</span></div></div>
         </div>
       </header>
@@ -281,41 +269,6 @@
     <div class="wrap ws-section">
       <div class="ws-section-head">
         <div>
-          <p class="ws-section-kicker">Run</p>
-          <h2>Launch a diagnostic</h2>
-        </div>
-      </div>
-      <div class="ws-launch-grid">
-        <a class="ws-launch-card" href="structural-clarity.html">
-          <div class="ws-glyph" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path></svg></div>
-          <div class="lc-name">Structural Clarity</div>
-          <div class="lc-desc">Roles, ownership, and decision rights — where authority is clear and where it blurs.</div>
-          <div class="lc-open">Open diagnostic →</div>
-        </a>
-        <a class="ws-launch-card" href="decision-velocity.html">
-          <div class="ws-glyph" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19L19 5"></path><path d="M9 5h10v10"></path></svg></div>
-          <div class="lc-name">Decision Velocity</div>
-          <div class="lc-desc">Approval density, escalation, and handoffs — how fast decisions actually move.</div>
-          <div class="lc-open">Open diagnostic →</div>
-        </a>
-        <a class="ws-launch-card" href="operational-systems.html">
-          <div class="ws-glyph" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path></svg></div>
-          <div class="lc-name">Operational Systems</div>
-          <div class="lc-desc">Process load, workarounds, and control burden — what the operating layer costs you.</div>
-          <div class="lc-open">Open diagnostic →</div>
-        </a>
-        <a class="ws-launch-card" href="institutional-performance.html">
-          <div class="ws-glyph" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"></path><path d="M10 20V4"></path><path d="M16 20v-7"></path><path d="M22 20H2"></path></svg></div>
-          <div class="lc-name">Institutional Performance</div>
-          <div class="lc-desc">Compensatory dependence and execution fragility — whether performance is borrowed or built.</div>
-          <div class="lc-open">Open diagnostic →</div>
-        </a>
-      </div>
-    </div>
-
-    <div class="wrap ws-section">
-      <div class="ws-section-head">
-        <div>
           <p class="ws-section-kicker">History</p>
           <h2>Your saved results</h2>
           <p id="wsRunsHint">Diagnostics you complete while signed in are saved here.</p>
@@ -323,7 +276,7 @@
       </div>
       <div class="ws-runs-list hidden" id="wsRunsList"></div>
       <div class="ws-run-empty" id="wsRunsEmpty">
-        No saved results yet. <a href="#" id="wsRunsEmptyLaunch">Launch a diagnostic</a> and your result will appear here, kept against your account.
+        No saved results yet. <a href="workspace-diagnostics.html#launch" id="wsRunsEmptyLaunch">Launch a diagnostic</a> and your result will appear here, kept against your account.
       </div>
     </div>
 
@@ -725,10 +678,6 @@
     ui.signOutBtn?.addEventListener("click", async () => {
       try{ await supabase.auth.signOut(); }catch(e){}
       window.location.href = "index.html";
-    });
-    document.getElementById("wsRunsEmptyLaunch")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      document.querySelector(".ws-launch-card")?.scrollIntoView({ behavior:"smooth", block:"center" });
     });
 
     initialize();
