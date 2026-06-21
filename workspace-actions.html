@@ -123,6 +123,25 @@
     .mini-select{height:30px;padding:0 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--text);font-size:12px;font-family:inherit;cursor:pointer;width:100%}
     @media (max-width:720px){ .lanes{grid-template-columns:1fr} }
     @media (max-width:560px){ .ai-card{flex-direction:column} .ai-actions.col{min-width:0} }
+    /* bulk recipient import + large-list view */
+    .bulk-box{margin:10px 0 4px;padding:15px 16px;border:1px solid var(--line);border-radius:12px;background:rgba(128,128,128,.04)}
+    .bulk-box[hidden]{display:none}
+    .bulk-help{margin:0 0 10px;font-size:12.5px;line-height:1.5;color:var(--muted)}
+    .bulk-help code{font-size:11.5px;background:rgba(128,128,128,.14);padding:1px 6px;border-radius:5px;color:var(--text)}
+    .bulk-text{width:100%;min-height:110px;resize:vertical;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--text);font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;line-height:1.5;box-sizing:border-box}
+    .bulk-text:focus{outline:2px solid var(--accent-bg);outline-offset:1px;border-color:var(--accent)}
+    .bulk-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:11px}
+    .file-btn{position:relative;overflow:hidden}
+    .bulk-tmpl{font-size:12.5px;color:var(--accent);text-decoration:none}
+    .bulk-tmpl:hover{text-decoration:underline}
+    .bulk-result{font-size:12.5px;color:var(--muted);font-weight:500}
+    .bulk-result.ok{color:var(--ok-fg)} .bulk-result.bad{color:var(--rose-fg)}
+    .rcount{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:2px 0 10px;font-size:13px;color:var(--text)}
+    .rcount[hidden]{display:none}
+    .rcount b{font-weight:650;font-variant-numeric:tabular-nums}
+    .rmore td{font-size:12px;color:var(--muted-2);font-style:italic;padding:10px 8px}
+    .roclear{background:transparent;border:1px solid var(--line);color:var(--muted);height:30px;padding:0 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+    .roclear:hover{color:var(--rose-fg);border-color:var(--rose-fg)}
     .lock b{display:block;color:var(--text);font-weight:600;font-size:15px;margin-bottom:5px}
 
     /* tracking */
@@ -277,11 +296,24 @@
           </div>
 
           <div class="section-label">Recipients</div>
+          <div class="rcount" id="rCount" hidden></div>
           <table class="rtable">
             <thead><tr><th>Email</th><th>Name</th><th>Business unit</th><th>Team</th><th class="col-rm"></th></tr></thead>
             <tbody id="rRows"></tbody>
           </table>
           <button class="add-row" id="btnAddRow" type="button">+ Add recipient</button>
+          <button class="add-row" id="btnBulkToggle" type="button">Bulk add / CSV import</button>
+
+          <div class="bulk-box" id="bulkBox" hidden>
+            <p class="bulk-help">Paste one recipient per line &mdash; just an email, or <code>email, name, business unit, team</code>. &ldquo;Name &lt;email&gt;&rdquo; works too. Or upload a CSV with those columns.</p>
+            <textarea id="bulkText" class="bulk-text" placeholder="alex@acme.com, Alex Stone, Operations, Intake&#10;jordan@acme.com&#10;Sam Rivera &lt;sam@acme.com&gt;"></textarea>
+            <div class="bulk-actions">
+              <button class="btn btn-secondary" id="btnBulkParse" type="button" style="height:34px;padding:0 16px">Add pasted rows</button>
+              <label class="btn btn-secondary file-btn" style="height:34px;padding:0 16px">Upload CSV<input type="file" id="bulkFile" accept=".csv,text/csv" hidden></label>
+              <a class="bulk-tmpl" id="bulkTemplate" href="#">Download template</a>
+              <span class="bulk-result" id="bulkResult" aria-live="polite"></span>
+            </div>
+          </div>
 
           <div class="actions-row">
             <button class="btn btn-secondary" id="btnPreview" type="button">Preview</button>
@@ -364,26 +396,156 @@
     function csvCell(v){ v=(v==null?"":String(v)); return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }
 
     // ---- recipients ----
-    function renderRecipients(){
-      const tb=$("rRows");
-      tb.innerHTML = state.recipients.map((r,i)=>(
-        `<tr>
-          <td><input type="email" data-i="${i}" data-f="email" value="${esc(r.email)}" placeholder="name@org.com"></td>
-          <td><input type="text" data-i="${i}" data-f="full_name" value="${esc(r.full_name)}" placeholder="Full name"></td>
-          <td><input type="text" data-i="${i}" data-f="business_unit" value="${esc(r.business_unit)}" placeholder="Unit"></td>
-          <td><input type="text" data-i="${i}" data-f="team" value="${esc(r.team)}" placeholder="Team"></td>
-          <td class="col-rm"><button class="rm-btn" data-rm="${i}" type="button" title="Remove">\u00d7</button></td>
-        </tr>`
-      )).join("");
-      tb.querySelectorAll("input").forEach(inp=> inp.addEventListener("input", e=>{
-        const i=+e.target.dataset.i, f=e.target.dataset.f; state.recipients[i][f]=e.target.value; scheduleSave();
-      }));
-      tb.querySelectorAll(".rm-btn").forEach(b=> b.addEventListener("click", e=>{
-        state.recipients.splice(+e.target.dataset.rm,1);
+    const MAX_EDITABLE = 40;   // beyond this, recipients render as a compact list (keeps hundreds fast)
+    function wireRecipientRows(tb){
+      if(tb.__wired) return; tb.__wired = true;
+      tb.addEventListener("input", (e)=>{
+        const t=e.target; if(t.dataset.i==null || t.dataset.f==null) return;
+        const i=+t.dataset.i; if(!state.recipients[i]) return;
+        state.recipients[i][t.dataset.f]=t.value; scheduleSave();
+      });
+      tb.addEventListener("click", (e)=>{
+        const b=e.target.closest(".rm-btn"); if(!b) return;
+        state.recipients.splice(+b.dataset.rm,1);
         if(!state.recipients.length) state.recipients.push({email:"",full_name:"",business_unit:"",team:""});
+        state.lastReady=0; const sb=$("btnSend"); if(sb) sb.disabled=true;
         renderRecipients();
-      }));
+      });
+    }
+    function recipientCount(){ return state.recipients.filter(r=>r.email && r.email.trim()).length; }
+    function renderRecipients(){
+      const tb=$("rRows"); if(!tb) return;
+      wireRecipientRows(tb);
+      const n=state.recipients.length, valid=recipientCount();
+      const cnt=$("rCount");
+      if(cnt){
+        cnt.innerHTML = valid
+          ? `<span><b>${valid}</b> recipient${valid===1?"":"s"} ready${n>valid?` &middot; ${n-valid} blank row${n-valid===1?"":"s"}`:""}</span>${n>MAX_EDITABLE?`<button type="button" class="roclear" id="rClear">Clear all</button>`:""}`
+          : "";
+        cnt.hidden = !valid;
+      }
+      if(n > MAX_EDITABLE){
+        const shown=Math.min(n,120); let rows="";
+        for(let i=0;i<shown;i++){ const r=state.recipients[i];
+          rows += `<tr><td>${esc(r.email)}</td><td>${esc(r.full_name)}</td><td>${esc(r.business_unit)}</td><td>${esc(r.team)}</td><td class="col-rm"><button class="rm-btn" data-rm="${i}" type="button" title="Remove">\u00d7</button></td></tr>`;
+        }
+        if(n>shown) rows += `<tr class="rmore"><td colspan="5">+ ${n-shown} more \u2014 all ${n} will be sent on dispatch. Use Clear all to start over.</td></tr>`;
+        tb.innerHTML = rows;
+      } else {
+        tb.innerHTML = state.recipients.map((r,i)=>(
+          `<tr>
+            <td><input type="email" data-i="${i}" data-f="email" value="${esc(r.email)}" placeholder="name@org.com"></td>
+            <td><input type="text" data-i="${i}" data-f="full_name" value="${esc(r.full_name)}" placeholder="Full name"></td>
+            <td><input type="text" data-i="${i}" data-f="business_unit" value="${esc(r.business_unit)}" placeholder="Unit"></td>
+            <td><input type="text" data-i="${i}" data-f="team" value="${esc(r.team)}" placeholder="Team"></td>
+            <td class="col-rm"><button class="rm-btn" data-rm="${i}" type="button" title="Remove">\u00d7</button></td>
+          </tr>`
+        )).join("");
+      }
       scheduleSave();
+    }
+
+    // ---- bulk recipient import ----
+    const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    function looksEmail(s){ return EMAIL_RE.test(String(s||"").trim()); }
+    function parsePasted(text){
+      const out=[];
+      String(text||"").split(/\r?\n/).forEach(line=>{
+        line=line.trim(); if(!line) return;
+        const m=line.match(/^(.*?)<\s*([^>]+?)\s*>$/);
+        if(m && looksEmail(m[2])){ out.push({email:m[2].trim(), full_name:m[1].trim().replace(/[",]/g,""), business_unit:"", team:""}); return; }
+        const parts=line.split(/[,\t;]/).map(s=>s.trim());
+        const ei=parts.findIndex(looksEmail); if(ei<0) return;
+        const rest=parts.filter((_,idx)=>idx!==ei);
+        out.push({email:parts[ei], full_name:rest[0]||"", business_unit:rest[1]||"", team:rest[2]||""});
+      });
+      return out;
+    }
+    function csvToRows(text){
+      const rows=[]; let row=[], field="", inq=false;
+      const s=String(text||"").replace(/\r\n?/g,"\n");
+      for(let i=0;i<s.length;i++){ const c=s[i];
+        if(inq){ if(c==='"'){ if(s[i+1]==='"'){ field+='"'; i++; } else inq=false; } else field+=c; }
+        else { if(c==='"') inq=true; else if(c===','){ row.push(field); field=""; } else if(c==='\n'){ row.push(field); rows.push(row); row=[]; field=""; } else field+=c; }
+      }
+      row.push(field); if(row.length>1 || row[0]!=="") rows.push(row);
+      return rows;
+    }
+    function parseCSVText(text){
+      const rows=csvToRows(text); if(!rows.length) return [];
+      let start=0, map={email:0,full_name:1,business_unit:2,team:3};
+      const head=rows[0].map(h=>String(h||"").trim().toLowerCase());
+      if(head.some(h=>h.includes("email")||h==="e-mail")){
+        const find=names=>head.findIndex(h=>names.includes(h));
+        map.email=find(["email","e-mail","email address"]);
+        map.full_name=find(["full_name","name","full name","fullname"]);
+        map.business_unit=find(["business_unit","business unit","unit","bu","department"]);
+        map.team=find(["team","group"]);
+        start=1;
+      }
+      const out=[];
+      for(let i=start;i<rows.length;i++){ const r=rows[i]; if(!r) continue;
+        const email=(map.email>=0?r[map.email]:r[0])||"";
+        if(!looksEmail(email)) continue;
+        out.push({ email:String(email).trim(),
+          full_name:String((map.full_name>=0?r[map.full_name]:"")||"").trim(),
+          business_unit:String((map.business_unit>=0?r[map.business_unit]:"")||"").trim(),
+          team:String((map.team>=0?r[map.team]:"")||"").trim() });
+      }
+      return out;
+    }
+    function importRecipients(incoming){
+      const have=new Set(state.recipients.filter(r=>looksEmail(r.email)).map(r=>r.email.trim().toLowerCase()));
+      let added=0, dup=0, invalid=0; const fresh=[];
+      (incoming||[]).forEach(r=>{
+        const e=String(r.email||"").trim();
+        if(!looksEmail(e)){ invalid++; return; }
+        const key=e.toLowerCase();
+        if(have.has(key)){ dup++; return; }
+        have.add(key); added++;
+        fresh.push({email:e, full_name:r.full_name||"", business_unit:r.business_unit||"", team:r.team||""});
+      });
+      if(added){
+        state.recipients=state.recipients.filter(r=>looksEmail(r.email)).concat(fresh);
+        if(!state.recipients.length) state.recipients=[{email:"",full_name:"",business_unit:"",team:""}];
+        state.lastReady=0; const sb=$("btnSend"); if(sb) sb.disabled=true;
+        renderRecipients();
+      }
+      return {added, dup, invalid};
+    }
+    function clearAllRecipients(){
+      state.recipients=[{email:"",full_name:"",business_unit:"",team:""}];
+      state.lastReady=0; const sb=$("btnSend"); if(sb) sb.disabled=true;
+      const r=$("bulkResult"); if(r){ r.textContent=""; r.className="bulk-result"; }
+      renderRecipients();
+    }
+    function showBulkResult(res){
+      const el=$("bulkResult"); if(!el) return;
+      if(!res.added && !res.dup && !res.invalid){ el.textContent="No recipients found to add."; el.className="bulk-result bad"; return; }
+      const bits=[`Added ${res.added}`];
+      if(res.dup) bits.push(`${res.dup} duplicate${res.dup===1?"":"s"} skipped`);
+      if(res.invalid) bits.push(`${res.invalid} invalid skipped`);
+      el.textContent=bits.join(" \u00b7 ");
+      el.className="bulk-result "+(res.added?"ok":"bad");
+    }
+    function wireBulkImport(){
+      $("btnBulkToggle")?.addEventListener("click", ()=>{ const b=$("bulkBox"); if(b){ b.hidden=!b.hidden; if(!b.hidden) $("bulkText")?.focus(); } });
+      $("btnBulkParse")?.addEventListener("click", ()=>{ const ta=$("bulkText"); const res=importRecipients(parsePasted(ta?.value)); showBulkResult(res); if(res.added && ta) ta.value=""; });
+      $("bulkFile")?.addEventListener("change", (e)=>{
+        const f=e.target.files && e.target.files[0]; if(!f) return;
+        const rd=new FileReader();
+        rd.onload=()=>{ const res=importRecipients(parseCSVText(String(rd.result||""))); showBulkResult(res); };
+        rd.onerror=()=>{ const el=$("bulkResult"); if(el){ el.textContent="Couldn\u2019t read that file."; el.className="bulk-result bad"; } };
+        rd.readAsText(f); e.target.value="";
+      });
+      $("bulkTemplate")?.addEventListener("click", (e)=>{
+        e.preventDefault();
+        const blob=new Blob(["email,full_name,business_unit,team\nalex@acme.com,Alex Stone,Operations,Intake\n"],{type:"text/csv"});
+        const url=URL.createObjectURL(blob); const a=document.createElement("a");
+        a.href=url; a.download="recipients-template.csv"; document.body.appendChild(a); a.click();
+        setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 0);
+      });
+      $("rCount")?.addEventListener("click", (e)=>{ if(e.target && e.target.id==="rClear") clearAllRecipients(); });
     }
 
     function buildCSV(){
@@ -822,6 +984,7 @@
       if(state.role==="admin"){
         $("composeCard").hidden=false;
         setupComposerAutosave();
+        wireBulkImport();
         if(!(await restoreDraft())){
           state.recipients=[{email:"",full_name:"",business_unit:"",team:""}];
           renderRecipients();
