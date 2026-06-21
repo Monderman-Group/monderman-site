@@ -110,7 +110,7 @@
     .ws-inline-status.error{color:var(--rose)}
     .ws-inline-status.ok{color:var(--ok)}
 
-    .ws-overlay{position:fixed;inset:0;display:grid;place-items:center;background:linear-gradient(180deg,#F8FAFD 0%, var(--page) 100%);z-index:200;transition:opacity .26s ease,visibility .26s ease}
+    .ws-overlay{position:fixed;inset:0;display:grid;place-items:center;background:linear-gradient(180deg,var(--panel) 0%, var(--page) 100%);z-index:200;transition:opacity .26s ease,visibility .26s ease}
     .ws-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none}
     .ws-overlay .ov-box{text-align:center;color:var(--ink-soft)}
     .ov-ring{width:46px;height:46px;margin:0 auto 16px;border-radius:999px;border:3px solid rgba(63,110,161,.16);border-top-color:var(--accent);animation:spin 1s linear infinite}
@@ -161,7 +161,8 @@
       .ws-top .wrap{flex-direction:column;align-items:flex-start}
     }
   </style>
-  <link rel="stylesheet" href="workspace-shell.css?v=2">
+  <script>try{if(localStorage.getItem("mndTheme")==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}</script>
+    <link rel="stylesheet" href="workspace-shell.css?v=2">
   <style>
   /* Mobile shell override shipped inline so a cached external stylesheet on iOS
      Safari can't suppress it. display:flex !important defeats any stale
@@ -704,5 +705,6 @@
     initialize();
   </script>
 <script src="workspace-assistant.js" defer></script>
+  <script src="workspace-theme.js" defer></script>
 </body>
 </html>
