@@ -176,8 +176,16 @@
     .rcp-badge.done{background:var(--ok-bg);color:var(--ok-fg)}
     .rcp-badge.open{background:var(--warn-bg);color:var(--warn-fg)}
     .rcp-badge.pend{background:rgba(128,128,128,.13);color:var(--muted)}
-    .camp-tools{padding:9px 16px 2px;display:flex;justify-content:flex-end}
+    .camp-tools{padding:9px 16px 2px;display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
     .rcp-act{display:flex;gap:6px;align-items:center}
+    .camp-cstate{font-size:11px;font-weight:600;border-radius:999px;padding:2px 9px;white-space:nowrap}
+    .camp-cstate.closed{background:var(--rose-bg);color:var(--rose-fg)}
+    .camp-cstate.sched{background:var(--warn-bg);color:var(--warn-fg)}
+    .camp-close{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:2px 16px 12px}
+    .camp-close[hidden]{display:none}
+    .cc-or{font-size:12px;color:var(--muted-2)}
+    .cc-date,.cc-pct{height:30px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--text);font-size:12.5px;font-family:inherit;padding:0 8px}
+    .cc-pct{width:64px}
     @media (max-width:680px){ .dash{grid-template-columns:1fr;gap:16px} .rcp-row{grid-template-columns:1fr auto;row-gap:6px} .rcp-when{grid-column:1/-1;text-align:left;order:3} }
     .lock b{display:block;color:var(--text);font-weight:600;font-size:15px;margin-bottom:5px}
 
@@ -673,7 +681,7 @@
       let rows=[];
       try{
         const { data } = await supabase.from("diagnostic_assignments")
-          .select("id, recipient_email, recipient_name, tool_type, participant_lens, event_path_name, campaign_label, campaign_id, status, token, created_at, opened_at, started_at, completed_at")
+          .select("id, recipient_email, recipient_name, tool_type, participant_lens, event_path_name, campaign_label, campaign_id, status, token, created_at, opened_at, started_at, completed_at, closed_at, close_at, close_pct")
           .order("created_at",{ ascending:false }).limit(2000);
         rows=data||[];
       }catch(e){}
@@ -712,6 +720,11 @@
         g.doneW=g.sent?Math.round(100*g.completed/g.sent):0;
         g.openW=g.sent?Math.round(100*g.opened/g.sent):0;
         g.recipients.sort((a,b)=> (rank[rState(a)]-rank[rState(b)]) || (Date.parse(b.created_at||0)-Date.parse(a.created_at||0)));
+        const f0=g.recipients[0]||{};
+        g.closed_at=f0.closed_at||null; g.close_at=f0.close_at||null; g.close_pct=(f0.close_pct!=null?f0.close_pct:null);
+        const _now=Date.now();
+        g.isClosed = !!g.closed_at || (!!g.close_at && _now>Date.parse(g.close_at)) || (g.close_pct!=null && g.pct>=g.close_pct);
+        g.closeLabel = g.isClosed ? "Closed" : (g.close_at ? ("Closes "+fmtDate(g.close_at)) : (g.close_pct!=null ? ("Auto-closes at "+g.close_pct+"%") : ""));
         return g;
       }).sort((a,b)=> Date.parse(b.last||0)-Date.parse(a.last||0));
       return { sent, opened, completed, pending: sent-opened-completed, pct: sent?Math.round(100*completed/sent):0,
@@ -750,6 +763,24 @@
         if(btn){ btn.textContent="Couldn\u2019t send"; setTimeout(()=>{ if(btn){ btn.textContent=orig; btn.disabled=false; } }, 2600); }
       }
     }
+    async function closeCamp(camp, mode, value, btn){
+      const ids=(camp?camp.recipients:[]).map(r=>r.id).filter(Boolean);
+      if(!ids.length || !state.orgId) return;
+      const body={ organization_id: state.orgId, sender_user_id: state.userId, assignment_ids: ids, mode };
+      if(mode==="date") body.close_at=value;
+      if(mode==="pct") body.close_pct=value;
+      const orig=btn?btn.textContent:""; if(btn){ btn.disabled=true; btn.textContent="Saving\u2026"; }
+      try{
+        const res=await fetch(`${API_BASE}/api/workspace/assignments/close`, {
+          method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(body)
+        });
+        const j=await res.json().catch(()=>({}));
+        if(!res.ok || j.ok===false) throw new Error(j.error || ("HTTP "+res.status));
+        await loadTracking();
+      }catch(e){
+        if(btn){ btn.textContent="Couldn\u2019t save"; setTimeout(()=>{ if(btn){ btn.textContent=orig; btn.disabled=false; } }, 2400); }
+      }
+    }
     function renderTracking(rows){
       const board=$("trackBody"); if(!board) return;
       if(!rows.length){
@@ -775,11 +806,21 @@
       html+=t.camps.map(c=>{
         const range=(fmtDate(c.first)===fmtDate(c.last))?fmtDate(c.last):`${fmtDate(c.first)} \u2013 ${fmtDate(c.last)}`;
         const nonResp=c.sent-c.completed;
-        const tools=(admin && nonResp>0) ? `<div class="camp-tools"><button class="btn-mini" data-remindcamp="${esc(String(c.key))}" type="button">Remind ${nonResp} non-responder${nonResp===1?"":"s"}</button></div>` : "";
+        const cstate = c.closeLabel ? `<span class="camp-cstate ${c.isClosed?"closed":"sched"}">${esc(c.closeLabel)}</span>` : "";
+        const tools = admin ? `<div class="camp-tools">
+            ${nonResp>0?`<button class="btn-mini" data-remindcamp="${esc(String(c.key))}" type="button">Remind ${nonResp} non-responder${nonResp===1?"":"s"}</button>`:""}
+            <button class="btn-mini ghost" data-closetoggle type="button">${c.isClosed?"Close options":"Close\u2026"}</button>
+          </div>
+          <div class="camp-close" hidden>
+            <button class="btn-mini ghost" data-closenow type="button">Close now</button>
+            <span class="cc-or">on</span><input type="date" class="cc-date" aria-label="Close on date"><button class="btn-mini ghost" data-closedateset type="button">Set</button>
+            <span class="cc-or">at</span><input type="number" min="1" max="100" class="cc-pct" placeholder="%" aria-label="Close at percent complete"><button class="btn-mini ghost" data-closepctset type="button">Set</button>
+            <button class="btn-mini ghost" data-reopen type="button">Reopen</button>
+          </div>` : "";
         return `<div class="camp" data-cid="${esc(String(c.key))}">
           <button class="camp-head" type="button" aria-expanded="false">
             <div class="camp-title">${esc(c.label)}<span>${toolLabel(c.tool)} \u00b7 ${cap(c.vantage||"")} \u00b7 ${range}</span></div>
-            <div class="camp-mini"><span class="camp-pct">${c.pct}%</span><span class="camp-count">${c.completed}/${c.sent}</span><span class="camp-caret">\u25b8</span></div>
+            <div class="camp-mini">${cstate}<span class="camp-pct">${c.pct}%</span><span class="camp-count">${c.completed}/${c.sent}</span><span class="camp-caret">\u25b8</span></div>
           </button>
           <div class="camp-bar"><i class="seg-done" style="width:${c.doneW}%"></i><i class="seg-open" style="width:${c.openW}%"></i></div>
           ${tools}
@@ -805,6 +846,21 @@
         const ids=(c?c.recipients:[]).filter(r=>rState(r)!=="done").map(r=>r.id).filter(Boolean);
         remind(ids, b);
       }));
+      const campOf = el => { const k=el.closest(".camp")?.dataset.cid; return _camps.find(x=>String(x.key)===k); };
+      board.querySelectorAll("[data-closetoggle]").forEach(b=> b.addEventListener("click",(e)=>{
+        e.stopPropagation();
+        const cc=b.closest(".camp")?.querySelector(".camp-close"); if(cc) cc.hidden=!cc.hidden;
+      }));
+      board.querySelectorAll("[data-closenow]").forEach(b=> b.addEventListener("click",(e)=>{ e.stopPropagation(); closeCamp(campOf(b),"now",null,b); }));
+      board.querySelectorAll("[data-closedateset]").forEach(b=> b.addEventListener("click",(e)=>{
+        e.stopPropagation();
+        const d=b.closest(".camp-close")?.querySelector(".cc-date")?.value; if(d) closeCamp(campOf(b),"date",d,b);
+      }));
+      board.querySelectorAll("[data-closepctset]").forEach(b=> b.addEventListener("click",(e)=>{
+        e.stopPropagation();
+        const p=b.closest(".camp-close")?.querySelector(".cc-pct")?.value; if(p) closeCamp(campOf(b),"pct",Number(p),b);
+      }));
+      board.querySelectorAll("[data-reopen]").forEach(b=> b.addEventListener("click",(e)=>{ e.stopPropagation(); closeCamp(campOf(b),"reopen",null,b); }));
     }
 
     // ---- draft autosave (saved per user, server-side, so it follows them across devices) ----
