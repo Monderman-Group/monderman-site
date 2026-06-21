@@ -9,8 +9,7 @@
    each workspace page:
        <script src="workspace-assistant.js" defer></script>
 
-   "Hans" is only a name — a quiet tribute to the engineer Hans Monderman. This
-   widget never presents itself as that person; the info panel says so plainly.
+   "Hans" is only a name; the widget never presents itself as a real person.
    Your Anthropic key never touches the browser.
    ============================================================================ */
 (function () {
@@ -21,7 +20,7 @@
   var API_URL     = "https://monderman-api.onrender.com/api/workspace-assistant";
   var STORAGE_KEY = "mndHansHistory";
   var GREETING    = "I’m Hans — your guide to the Monderman workspace. Ask me what an instrument is for, how to send a diagnostic to your team, or how to make sense of your analysis, and I’ll walk you through it.";
-  var INFO_TEXT   = "Hans is a workspace assistant, calibrated to help you use Monderman — what each of the four instruments is for, how to compose and track a campaign, and how to read your analysis. Hans explains how to operate the workspace; it won’t interpret your organisation’s results or reveal the methodology behind the scores.\n\nNamed in tribute to the engineer Hans Monderman — it isn’t him, and doesn’t speak for him.";
+  var INFO_TEXT   = "Hans is a workspace assistant, calibrated to help you use Monderman — what each of the four instruments is for, how to compose and track a campaign, and how to read your analysis. Hans explains how to operate the workspace; it won’t interpret your organisation’s results or reveal the methodology behind the scores.";
 
   /* ---- styles (scoped under #hans-*) -------------------------------------- */
   var css = ''
