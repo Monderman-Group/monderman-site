@@ -41,6 +41,17 @@
     .launch-tx span{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.45}
     .launch-go{margin-left:auto;align-self:center;color:var(--muted-2)}
 
+    /* purpose: lifecycle strip + section sublines */
+    .card-sub{margin:-4px 0 16px;font-size:13px;color:var(--muted);line-height:1.5;max-width:62ch}
+    .dx-flow{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap;margin:2px 0 22px}
+    .dx-step{display:flex;align-items:center;gap:11px;flex:1 1 0;min-width:190px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 15px}
+    .dx-n{flex:0 0 26px;width:26px;height:26px;border-radius:999px;background:var(--accent-bg);color:var(--accent-fg);display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:600}
+    .dx-step b{display:block;font-size:13.5px;font-weight:600;color:var(--text);line-height:1.2}
+    .dx-step .s{display:block;font-size:12px;color:var(--muted);margin-top:2px;line-height:1.3}
+    .dx-arrow{display:flex;align-items:center;color:var(--muted-2);flex:0 0 auto}
+    .dx-arrow svg{width:18px;height:18px}
+    @media (max-width:720px){ .dx-arrow{transform:rotate(90deg);align-self:center} .dx-step{flex:1 1 100%} }
+
     /* filters */
     .filters{display:inline-flex;gap:2px;background:rgba(21,32,43,.05);border-radius:999px;padding:3px;margin-bottom:18px}
     .filters button{border:none;background:transparent;font:inherit;font-size:12.5px;font-weight:500;color:var(--muted);padding:6px 14px;border-radius:999px;cursor:pointer;transition:background .15s,color .15s}
@@ -151,12 +162,21 @@
       <main class="content">
         <div class="lead">
           <div class="eyebrow">Diagnostics</div>
-          <h2>Run a diagnostic, and decide what counts</h2>
-          <p>Launch any of the four instruments, then manage your run history. Promoting a run adds it to your organisation’s record — that’s what the Analysis space reads.</p>
+          <h2>Run an instrument, review the result, promote what counts</h2>
+          <p>This is where measurement starts. Launch one of the four instruments; each completed run lands in your history below, where you promote the ones worth keeping into the organisation’s record. That record is what the Analysis space reads.</p>
+        </div>
+
+        <div class="dx-flow">
+          <div class="dx-step"><span class="dx-n">1</span><div><b>Run</b><span class="s">Launch an instrument below</span></div></div>
+          <span class="dx-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+          <div class="dx-step"><span class="dx-n">2</span><div><b>Review</b><span class="s">It lands in run history</span></div></div>
+          <span class="dx-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+          <div class="dx-step"><span class="dx-n">3</span><div><b>Promote</b><span class="s">It feeds Analysis</span></div></div>
         </div>
 
         <section class="card" id="launch">
           <div class="card-h"><h3>Launch a diagnostic</h3><span class="hist-note">About 20–30 minutes each</span></div>
+          <p class="card-sub">Each instrument is a different lens on the organisation. Pick the one whose question fits what you’re trying to see.</p>
           <div class="launch-grid">
             <a class="launch-card" href="structural-clarity.html">
               <span class="launch-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h8"/><path d="M4 12h16"/><path d="M4 17h11"/></svg></span>
@@ -186,6 +206,7 @@
             <h3>Run history</h3>
             <div class="right"><span class="hist-note" id="histNote"></span><button class="btn-refresh" id="btnRefresh" type="button">Refresh</button></div>
           </div>
+          <p class="card-sub">Every completed run collects here. Promote the ones that count and they’ll appear in Analysis; archive the rest to keep the list clean.</p>
           <div class="filters" id="filters">
             <button data-f="all" class="active">All</button>
             <button data-f="staged">Staged</button>
