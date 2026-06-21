@@ -80,6 +80,49 @@
     .prev-note{margin:12px 0 0;font-size:13px;color:var(--muted)}
 
     .lock{background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:40px 30px;text-align:center;color:var(--muted)}
+    /* subtabs + action board */
+    .subtabs{display:flex;gap:24px;margin:0 0 26px;border-bottom:1px solid var(--line)}
+    .subtabs a{padding:11px 2px;font-size:13.5px;color:var(--muted);text-decoration:none;font-weight:450;border-bottom:2px solid transparent;white-space:nowrap;cursor:pointer;transition:color .15s}
+    .subtabs a:hover{color:var(--text)}
+    .subtabs a.active{color:var(--text);font-weight:550;border-bottom-color:var(--accent)}
+    .tabwrap[hidden]{display:none}
+    .planbar-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .planbar-row + .planbar-row{margin-top:12px}
+    .planbar-label{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-2)}
+    .board-select{flex:1 1 220px;max-width:360px;height:40px;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--text);font-size:13.5px;font-family:inherit;cursor:pointer}
+    .board-inp{flex:1 1 200px;height:40px;padding:0 13px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--text);font-size:13.5px;font-family:inherit}
+    .board-inp:focus,.board-select:focus{outline:2px solid var(--accent-bg);outline-offset:1px;border-color:var(--accent)}
+    .inline-form{padding-top:12px;border-top:1px solid var(--line)}
+    #boardMsg:empty{display:none}
+    .board-group{margin-bottom:24px}
+    .board-grouphead{display:flex;align-items:baseline;gap:10px;margin:0 2px 12px}
+    .board-grouphead h3{margin:0;font-size:14px;font-weight:600;letter-spacing:-.01em;color:var(--text)}
+    .count{font-size:12px;font-weight:600;color:var(--muted-2);background:rgba(128,128,128,.12);border-radius:999px;padding:1px 9px;font-variant-numeric:tabular-nums}
+    .board-list{display:flex;flex-direction:column;gap:10px}
+    .lanes{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .lane{background:rgba(128,128,128,.05);border:1px solid var(--line);border-radius:12px;padding:13px 13px 15px}
+    .lane-head{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:11px;padding:0 2px}
+    .lane-list{display:flex;flex-direction:column;gap:9px;min-height:30px}
+    .ai-card{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:13px 14px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 1px 2px rgba(15,23,32,.03)}
+    .ai-card.muted{opacity:.62}
+    .ai-main{flex:1 1 auto;min-width:0}
+    .ai-title{font-size:13.5px;font-weight:550;color:var(--text);line-height:1.35;word-break:break-word}
+    .ai-detail{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.45;word-break:break-word}
+    .ai-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+    .ai-chip{font-size:11px;font-weight:500;color:var(--muted);background:rgba(128,128,128,.11);border-radius:6px;padding:2px 8px;white-space:nowrap}
+    .ai-chip.you{background:var(--accent-bg);color:var(--accent-fg)}
+    .ai-chip.done{background:var(--ok-bg);color:var(--ok-fg)}
+    .ai-actions{display:flex;align-items:center;gap:7px;flex:0 0 auto}
+    .ai-actions.col{flex-direction:column;align-items:stretch;gap:8px;min-width:130px}
+    .ai-row{display:flex;gap:5px;flex-wrap:wrap}
+    .btn-mini{height:30px;padding:0 12px;border-radius:8px;border:0;background:var(--accent);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
+    .btn-mini:hover{background:var(--accent-d,#2F5886)}
+    .btn-mini.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+    .btn-mini.ghost:hover{color:var(--text);border-color:var(--muted-2)}
+    .btn-mini.ghost.danger:hover{color:var(--rose-fg);border-color:var(--rose-fg)}
+    .mini-select{height:30px;padding:0 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--text);font-size:12px;font-family:inherit;cursor:pointer;width:100%}
+    @media (max-width:720px){ .lanes{grid-template-columns:1fr} }
+    @media (max-width:560px){ .ai-card{flex-direction:column} .ai-actions.col{min-width:0} }
     .lock b{display:block;color:var(--text);font-weight:600;font-size:15px;margin-bottom:5px}
 
     /* tracking */
@@ -165,6 +208,13 @@
       </header>
 
       <main class="content">
+
+        <nav class="subtabs" id="actionSubtabs">
+          <a data-tab="campaigns" class="active">Campaigns</a>
+          <a data-tab="board">Action board</a>
+        </nav>
+
+        <div class="tabwrap" data-tab="campaigns">
         <div class="lead">
           <div class="eyebrow">Campaigns</div>
           <h2>Dispatch a diagnostic to the people who hold the answer</h2>
@@ -247,6 +297,44 @@
           <div class="card-h"><h3>Tracking</h3><button class="btn btn-secondary" id="btnRefresh" type="button" style="height:32px;padding:0 14px">Refresh</button></div>
           <div id="trackBody"><p class="muted">Loading&hellip;</p></div>
         </section>
+        </div><!-- /campaigns -->
+
+        <!-- ACTION BOARD -->
+        <div class="tabwrap" data-tab="board" hidden>
+          <div class="lead">
+            <div class="eyebrow">Action board</div>
+            <h2>Turn findings into a plan &mdash; and track it to done</h2>
+            <p>Adopt the recommendations worth acting on, sequence them with an owner and a status, then close the loop by linking a re-measure. What you adopt becomes the working plan.</p>
+          </div>
+
+          <div id="boardLock" class="lock" hidden>
+            <b>Managing the plan is an admin action</b>
+            <p>Your role can view the plan below, but only organization admins can adopt, assign, or change items.</p>
+          </div>
+
+          <section class="card" id="planBar">
+            <div class="planbar-row">
+              <label class="planbar-label" for="planSelect">Plan</label>
+              <select id="planSelect" class="board-select" aria-label="Select an action plan"></select>
+              <button type="button" class="btn btn-secondary" id="btnNewPlan" hidden>New plan</button>
+              <button type="button" class="btn" id="btnAddAction" hidden>+ Add action</button>
+            </div>
+            <div class="planbar-row inline-form" id="newPlanRow" hidden>
+              <input type="text" id="newPlanName" class="board-inp" placeholder="Plan name &mdash; e.g. Q3 operating plan" maxlength="120">
+              <button type="button" class="btn" id="newPlanCreate">Create plan</button>
+              <button type="button" class="btn-mini ghost" id="newPlanCancel">Cancel</button>
+            </div>
+            <div class="planbar-row inline-form" id="addActionRow" hidden>
+              <input type="text" id="addActionTitle" class="board-inp" placeholder="What needs to happen?" maxlength="200">
+              <input type="text" id="addActionDetail" class="board-inp" placeholder="Optional detail" maxlength="400">
+              <button type="button" class="btn" id="addActionSubmit">Add</button>
+              <button type="button" class="btn-mini ghost" id="addActionCancel">Cancel</button>
+            </div>
+            <div id="boardMsg" aria-live="polite"></div>
+          </section>
+
+          <div id="boardBody"></div>
+        </div>
       </main>
     </div>
   </div>
@@ -265,7 +353,7 @@
     const TOOL = { operational_systems:"Operational Systems", decision_velocity:"Decision Velocity", structural_clarity:"Structural Clarity", institutional_performance:"Institutional Performance" };
     const TOOL_HTML = { operational_systems:"operational-systems.html", decision_velocity:"decision-velocity.html", structural_clarity:"structural-clarity.html", institutional_performance:"institutional-performance.html" };
 
-    const state = { user:null, orgId:null, userId:null, role:"viewer", recipients:[], lastReady:0 };
+    const state = { user:null, orgId:null, userId:null, role:"viewer", recipients:[], lastReady:0, plans:[], planId:null, items:[] };
 
     const $ = id => document.getElementById(id);
     function setText(id,v){ const e=$(id); if(e&&v!=null) e.textContent=v; }
@@ -508,6 +596,206 @@
       const b=$("btnDiscard"); if(b) b.addEventListener("click", discardDraft);
     }
 
+    // ============ Action board ============
+    function wireSubtabs(){
+      const tabs = Array.from(document.querySelectorAll("#actionSubtabs a"));
+      tabs.forEach(a=> a.addEventListener("click", (e)=>{
+        e.preventDefault();
+        const t = a.dataset.tab;
+        tabs.forEach(x=> x.classList.toggle("active", x===a));
+        document.querySelectorAll(".tabwrap").forEach(w=>{ w.hidden = (w.dataset.tab!==t); });
+      }));
+    }
+
+    const ITEM_COLS = "id, plan_id, organization_id, title, detail, decision, status, owner_user_id, position, source_run_id, source_campaign_id, source_finding_json, remeasure_run_id, created_at";
+
+    async function loadBoard(){
+      const admin = state.role==="admin";
+      const nb=$("btnNewPlan"); if(nb) nb.hidden=!admin;
+      const bl=$("boardLock"); if(bl) bl.hidden=admin;
+      await loadPlans();
+    }
+    async function loadPlans(){
+      if(!state.orgId){ renderBoardEmpty("No organization is linked to your account."); return; }
+      let plans=[];
+      try{
+        const { data, error } = await supabase.from("action_plans").select("id, name, status, created_at").order("created_at",{ascending:true});
+        if(error) throw error;
+        plans = data || [];
+      }catch(e){ renderBoardEmpty("Couldn\u2019t load action plans. If this persists, check the action_plans read policy."); return; }
+      state.plans = plans;
+      const sel=$("planSelect");
+      if(sel) sel.innerHTML = plans.length ? plans.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join("") : `<option value="">No plans yet</option>`;
+      if(plans.length){
+        if(!state.planId || !plans.some(p=>p.id===state.planId)) state.planId = plans[0].id;
+        if(sel) sel.value = state.planId;
+        await loadItems();
+      } else {
+        state.planId=null; state.items=[];
+        const ab=$("btnAddAction"); if(ab) ab.hidden=true;
+        renderBoardEmpty(state.role==="admin" ? "No action plan yet. Create one to start adopting findings." : "No action plan has been created yet.");
+      }
+    }
+    async function loadItems(){
+      if(!state.planId){ state.items=[]; renderBoard(); return; }
+      try{
+        const { data, error } = await supabase.from("action_items").select(ITEM_COLS).eq("plan_id", state.planId).order("position",{ascending:true}).order("created_at",{ascending:true});
+        if(error) throw error;
+        state.items = data || [];
+      }catch(e){ state.items=[]; flash("boardMsg","Couldn\u2019t load actions for this plan.","bad"); }
+      renderBoard();
+    }
+
+    function srcChip(it){
+      const f = it.source_finding_json;
+      if(f && (f.label||f.title)) return `<span class="ai-chip">${esc(f.label||f.title)}</span>`;
+      if(it.source_run_id) return `<span class="ai-chip">from a run</span>`;
+      if(it.source_campaign_id) return `<span class="ai-chip">from a campaign</span>`;
+      return `<span class="ai-chip">added manually</span>`;
+    }
+    function ownerChip(it){
+      if(!it.owner_user_id) return `<span class="ai-chip">Unassigned</span>`;
+      if(it.owner_user_id===state.userId) return `<span class="ai-chip you">You</span>`;
+      return `<span class="ai-chip">Assigned</span>`;
+    }
+    function proposedCard(it, admin){
+      return `<article class="ai-card" data-id="${it.id}">
+        <div class="ai-main"><div class="ai-title">${esc(it.title)}</div>${it.detail?`<div class="ai-detail">${esc(it.detail)}</div>`:""}<div class="ai-meta">${srcChip(it)}</div></div>
+        ${admin?`<div class="ai-actions"><button class="btn-mini" data-act="adopt" data-id="${it.id}">Adopt</button><button class="btn-mini ghost" data-act="reject" data-id="${it.id}">Dismiss</button></div>`:""}
+      </article>`;
+    }
+    function adoptedCard(it, admin){
+      const re = it.remeasure_run_id ? `<span class="ai-chip done">\u21bb re-measured</span>` : "";
+      const mine = it.owner_user_id===state.userId;
+      return `<article class="ai-card" data-id="${it.id}">
+        <div class="ai-main"><div class="ai-title">${esc(it.title)}</div>${it.detail?`<div class="ai-detail">${esc(it.detail)}</div>`:""}<div class="ai-meta">${srcChip(it)}${ownerChip(it)}${re}</div></div>
+        ${admin?`<div class="ai-actions col">
+          <select class="mini-select" data-statusfor="${it.id}" aria-label="Status">
+            <option value="todo"${it.status==="todo"?" selected":""}>To do</option>
+            <option value="in_progress"${it.status==="in_progress"?" selected":""}>In progress</option>
+            <option value="done"${it.status==="done"?" selected":""}>Done</option>
+          </select>
+          <div class="ai-row">
+            <button class="btn-mini ghost" data-act="up" data-id="${it.id}" title="Move up">\u2191</button>
+            <button class="btn-mini ghost" data-act="down" data-id="${it.id}" title="Move down">\u2193</button>
+            <button class="btn-mini ghost" data-act="${mine?"release":"take"}" data-id="${it.id}">${mine?"Release":"Take"}</button>
+            <button class="btn-mini ghost danger" data-act="reject" data-id="${it.id}" title="Set aside">Set aside</button>
+          </div>
+        </div>`:""}
+      </article>`;
+    }
+    function rejectedCard(it, admin){
+      return `<article class="ai-card muted" data-id="${it.id}">
+        <div class="ai-main"><div class="ai-title">${esc(it.title)}</div></div>
+        ${admin?`<div class="ai-actions"><button class="btn-mini ghost" data-act="restore" data-id="${it.id}">Restore</button></div>`:""}
+      </article>`;
+    }
+    function bySeq(a,b){ return (a.position-b.position) || (Date.parse(a.created_at||0)-Date.parse(b.created_at||0)); }
+    function laneHTML(label, items, admin){
+      const body = items.length ? items.map(it=>adoptedCard(it,admin)).join("") : `<p class="muted" style="font-size:12px;margin:4px 2px">\u2014</p>`;
+      return `<div class="lane"><div class="lane-head">${label}<span class="count">${items.length}</span></div><div class="lane-list">${body}</div></div>`;
+    }
+    function renderBoardEmpty(msg){
+      const ab=$("btnAddAction"); if(ab) ab.hidden = !(state.role==="admin" && state.planId);
+      const body=$("boardBody"); if(body) body.innerHTML = `<div class="lock" style="padding:34px 26px"><b>Nothing here yet</b><p>${esc(msg)}</p></div>`;
+    }
+    function renderBoard(){
+      const admin = state.role==="admin";
+      const ab=$("btnAddAction"); if(ab) ab.hidden = !(admin && state.planId);
+      const body=$("boardBody"); if(!body) return;
+      const items = state.items.slice();
+      const proposed = items.filter(i=>i.decision==="proposed").sort(bySeq);
+      const adopted  = items.filter(i=>i.decision==="adopted");
+      const rejected = items.filter(i=>i.decision==="rejected").sort(bySeq);
+      const todo = adopted.filter(i=>i.status==="todo").sort(bySeq);
+      const prog = adopted.filter(i=>i.status==="in_progress").sort(bySeq);
+      const done = adopted.filter(i=>i.status==="done").sort(bySeq);
+      let html = "";
+      html += `<div class="board-group"><div class="board-grouphead"><h3>Proposed</h3><span class="count">${proposed.length}</span></div><div class="board-list">${
+        proposed.length ? proposed.map(it=>proposedCard(it,admin)).join("") : `<p class="muted" style="margin:2px">Nothing waiting for a decision.</p>`
+      }</div></div>`;
+      html += `<div class="board-group"><div class="board-grouphead"><h3>Working plan</h3><span class="count">${adopted.length}</span></div><div class="lanes">${
+        laneHTML("To do", todo, admin) + laneHTML("In progress", prog, admin) + laneHTML("Done", done, admin)
+      }</div></div>`;
+      if(rejected.length){
+        html += `<div class="board-group"><div class="board-grouphead"><h3>Set aside</h3><span class="count">${rejected.length}</span></div><div class="board-list">${
+          rejected.map(it=>rejectedCard(it,admin)).join("")
+        }</div></div>`;
+      }
+      body.innerHTML = html;
+    }
+
+    async function patchItem(id, patch){
+      patch.updated_at = new Date().toISOString();
+      const { error } = await supabase.from("action_items").update(patch).eq("id", id);
+      if(error){ flash("boardMsg", state.role==="admin"?"Update failed.":"Only admins can change the plan.","bad"); return false; }
+      return true;
+    }
+    async function setDecision(id, decision){ if(await patchItem(id,{decision})) await loadItems(); }
+    async function setStatus(id, status){ if(await patchItem(id,{status})) await loadItems(); }
+    async function setOwner(id, uid){ if(await patchItem(id,{owner_user_id:uid})) await loadItems(); }
+    async function moveItem(id, dir){
+      const it = state.items.find(x=>x.id===id); if(!it) return;
+      const peers = state.items.filter(x=>x.decision===it.decision && x.status===it.status).sort(bySeq);
+      const idx = peers.findIndex(x=>x.id===id);
+      const j = dir==="up" ? idx-1 : idx+1;
+      if(j<0 || j>=peers.length) return;
+      const order = peers.map(x=>x.id);
+      const tmp = order[idx]; order[idx]=order[j]; order[j]=tmp;
+      try{
+        await Promise.all(order.map((pid,i)=> supabase.from("action_items").update({position:i, updated_at:new Date().toISOString()}).eq("id", pid)));
+      }catch(e){ flash("boardMsg","Couldn\u2019t reorder.","bad"); }
+      await loadItems();
+    }
+    async function createPlan(name){
+      name = (name||"").trim(); if(!name) return;
+      try{
+        const { data, error } = await supabase.from("action_plans").insert({ organization_id: state.orgId, name, created_by: state.userId }).select("id").maybeSingle();
+        if(error) throw error;
+        state.planId = data?.id || state.planId;
+      }catch(e){ flash("boardMsg","Couldn\u2019t create the plan \u2014 admins only.","bad"); return; }
+      const r=$("newPlanRow"); if(r) r.hidden=true; const inp=$("newPlanName"); if(inp) inp.value="";
+      await loadPlans();
+    }
+    async function addAction(title, detail){
+      title=(title||"").trim(); if(!title || !state.planId) return;
+      const pos = state.items.length;
+      try{
+        const { error } = await supabase.from("action_items").insert({ organization_id: state.orgId, plan_id: state.planId, title, detail:(detail||"").trim()||null, decision:"proposed", status:"todo", position:pos, created_by: state.userId });
+        if(error) throw error;
+      }catch(e){ flash("boardMsg","Couldn\u2019t add the action \u2014 admins only.","bad"); return; }
+      const r=$("addActionRow"); if(r) r.hidden=true; const t=$("addActionTitle"), d=$("addActionDetail"); if(t)t.value=""; if(d)d.value="";
+      await loadItems();
+    }
+
+    function wireBoard(){
+      $("planSelect")?.addEventListener("change", async (e)=>{ state.planId = e.target.value || null; const m=$("boardMsg"); if(m) m.innerHTML=""; await loadItems(); });
+      $("btnNewPlan")?.addEventListener("click", ()=>{ const r=$("newPlanRow"); if(r){ r.hidden=!r.hidden; if(!r.hidden) $("newPlanName")?.focus(); } });
+      $("newPlanCancel")?.addEventListener("click", ()=>{ const r=$("newPlanRow"); if(r) r.hidden=true; });
+      $("newPlanCreate")?.addEventListener("click", ()=> createPlan($("newPlanName")?.value));
+      $("newPlanName")?.addEventListener("keydown", (e)=>{ if(e.key==="Enter") createPlan(e.target.value); });
+      $("btnAddAction")?.addEventListener("click", ()=>{ const r=$("addActionRow"); if(r){ r.hidden=!r.hidden; if(!r.hidden) $("addActionTitle")?.focus(); } });
+      $("addActionCancel")?.addEventListener("click", ()=>{ const r=$("addActionRow"); if(r) r.hidden=true; });
+      $("addActionSubmit")?.addEventListener("click", ()=> addAction($("addActionTitle")?.value, $("addActionDetail")?.value));
+      $("addActionTitle")?.addEventListener("keydown", (e)=>{ if(e.key==="Enter") $("addActionDetail")?.focus(); });
+      const body=$("boardBody");
+      body?.addEventListener("click", (e)=>{
+        const b=e.target.closest("button[data-act]"); if(!b) return;
+        const id=b.dataset.id, act=b.dataset.act;
+        if(act==="adopt") setDecision(id,"adopted");
+        else if(act==="reject") setDecision(id,"rejected");
+        else if(act==="restore") setDecision(id,"proposed");
+        else if(act==="up") moveItem(id,"up");
+        else if(act==="down") moveItem(id,"down");
+        else if(act==="take") setOwner(id, state.userId);
+        else if(act==="release") setOwner(id, null);
+      });
+      body?.addEventListener("change", (e)=>{
+        const s=e.target.closest("select[data-statusfor]"); if(!s) return;
+        setStatus(s.dataset.statusfor, s.value);
+      });
+    }
+
     async function boot(){
       $("signOutBtn")?.addEventListener("click", async ()=>{ try{ await supabase.auth.signOut(); }catch(e){} window.location.href="index.html"; });
       $("btnAddRow")?.addEventListener("click", ()=>{ state.recipients.push({email:"",full_name:"",business_unit:"",team:""}); renderRecipients(); });
@@ -542,6 +830,9 @@
         $("composeLock").hidden=false;
       }
       loadTracking();
+      wireSubtabs();
+      wireBoard();
+      loadBoard();
     }
     boot();
   </script>
