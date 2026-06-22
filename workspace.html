@@ -302,6 +302,40 @@ a{color:inherit;text-decoration:none}
     .ws-planstrip .manage{margin-left:auto}
     .ws-status{font-size:13px;margin-top:14px}
     .ws-status.error{color:var(--critical)}
+
+/* ════ app layout: left rail + main ════ */
+.ws-app{display:flex;min-height:100vh}
+.ws-rail{width:224px;flex:0 0 224px;background:var(--ink);color:rgba(255,255,255,.62);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:22px 14px 16px;border-right:1px solid rgba(255,255,255,.06);z-index:20}
+.ws-rail .ws-brand{color:#fff;padding:2px 8px 22px;font-size:18px}
+.ws-rail .ws-brand .dot{background:var(--teal)}
+.ws-nav{display:flex;flex-direction:column;gap:2px;margin-left:0}
+.ws-nav a{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:8px;color:rgba(255,255,255,.62);text-decoration:none;font-size:14px;font-weight:450;border-bottom:0;white-space:nowrap;position:relative;transition:background .15s,color .15s}
+.ws-nav a svg{width:18px;height:18px;flex:0 0 18px;stroke-width:1.7;opacity:.85}
+.ws-nav a:hover{background:rgba(255,255,255,.05);color:#E7ECF1}
+.ws-nav a.active{background:rgba(12,110,120,.26);color:#fff;border-bottom:0}
+.ws-nav a.active::before{content:"";position:absolute;left:-14px;top:7px;bottom:7px;width:3px;border-radius:0 2px 2px 0;background:var(--teal)}
+.ws-nav a.active svg{opacity:1}
+.ws-rail-foot{margin-top:auto;padding:14px 11px 4px;border-top:1px solid rgba(255,255,255,.07)}
+.ws-plan-chip{font-size:12.5px;color:rgba(255,255,255,.55);line-height:1.5}
+.ws-plan-chip b{color:#E7ECF1;font-weight:500;font-size:13px}
+.ws-main{flex:1;min-width:0;display:flex;flex-direction:column}
+.ws-topbar{height:62px;flex:0 0 62px;background:var(--surface);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:10}
+.ws-crumb{display:flex;align-items:baseline;gap:10px;min-width:0}
+.ws-crumb h1{margin:0;font-size:18px;font-weight:600;letter-spacing:-.02em;color:var(--ink);font-family:var(--serif)}
+.ws-topright{margin-left:0;display:flex;align-items:center;gap:14px}
+.ws-main .ws-wrap{max-width:1080px;margin:0 auto;width:100%;padding:34px 34px 72px}
+@media (max-width:860px){
+  .ws-app{flex-direction:column}
+  .ws-rail{width:100%;flex-basis:auto;height:auto;position:sticky;top:0;flex-direction:row;align-items:center;gap:12px;padding:10px 16px;border-right:0;border-bottom:1px solid rgba(255,255,255,.08);overflow-x:auto;z-index:30}
+  .ws-rail .ws-brand{padding:0;flex:0 0 auto;font-size:17px}
+  .ws-nav{flex-direction:row;gap:4px;margin-left:8px}
+  .ws-nav a{padding:7px 10px}
+  .ws-nav a svg{display:none}
+  .ws-nav a.active::before{display:none}
+  .ws-rail-foot{display:none}
+  .ws-topbar{padding:0 16px}
+  .ws-main .ws-wrap{padding:24px 16px 56px}
+}
   </style>
   <script>
     /* capture any boot/module error so the watchdog can surface it on-screen (no console needed) */
@@ -334,25 +368,32 @@ a{color:inherit;text-decoration:none}
     });
   </script>
 
-  <!-- top-nav chrome (shared shell) -->
-  <header class="ws-top">
-    <a class="ws-brand" href="index.html" title="Back to monderman.com">Monderman<span class="dot"></span></a>
-    <nav class="ws-nav">
-      <a href="workspace.html" class="active">Overview</a>
-      <a href="workspace-diagnostics.html">Diagnostics</a>
-      <a href="workspace-analysis.html">Analysis</a>
-      <a href="workspace-actions.html">Actions</a>
-      <a href="workspace-settings.html">Settings</a>
-    </nav>
-    <div class="ws-topright">
-      <span class="ws-org" id="wsOrgName">—</span>
-      <div class="ws-user">
-        <div class="ws-ava" id="wsAva">—</div>
-        <div class="ws-who"><b id="wsUserName">—</b><span id="wsUserRole">—</span></div>
+  <!-- left rail + main (shared shell) -->
+  <div class="ws-app">
+    <aside class="ws-rail">
+      <a class="ws-brand" href="index.html" title="Back to monderman.com">Monderman<span class="dot"></span></a>
+      <nav class="ws-nav">
+      <a href="workspace.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.4"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.4"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.4"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.4"/></svg>Overview</a>
+      <a href="workspace-diagnostics.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M8 9h8M8 13h8"/></svg>Diagnostics</a>
+      <a href="workspace-analysis.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Analysis</a>
+      <a href="workspace-actions.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l3.5 3.5L19 6"/><path d="M5 19h14" opacity=".5"/></svg>Actions</a>
+      <a href="workspace-settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h9M17 7h3"/><circle cx="15" cy="7" r="2"/><path d="M4 17h3M11 17h9"/><circle cx="9" cy="17" r="2"/></svg>Settings</a>
+      </nav>
+      <div class="ws-rail-foot">
+        <div class="ws-plan-chip"><b class="ws-org" id="wsOrgName">—</b></div>
       </div>
-      <button class="ws-signout" id="wsSignOut" type="button">Sign out</button>
-    </div>
-  </header>
+    </aside>
+    <div class="ws-main">
+      <header class="ws-topbar">
+        <div class="ws-crumb"><h1>Overview</h1></div>
+        <div class="ws-topright">
+          <div class="ws-user">
+            <div class="ws-ava" id="wsAva">—</div>
+            <div class="ws-who"><b id="wsUserName">—</b><span id="wsUserRole">—</span></div>
+          </div>
+          <button class="ws-signout" id="wsSignOut" type="button">Sign out</button>
+        </div>
+      </header>
 
   <main class="ws-wrap">
     <!-- the read -->
@@ -404,6 +445,8 @@ a{color:inherit;text-decoration:none}
 
     <p class="ws-status" id="wsStatus"></p>
   </main>
+    </div>
+  </div>
 
   <script type="module">
     window.__wsBooted = "module-eval";
