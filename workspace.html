@@ -50,6 +50,9 @@
 
 *{box-sizing:border-box}
 html,body{margin:0}
+@font-face{font-family:"Neue Haas Grotesk";src:url("55font.woff2") format("woff2"),url("55font.woff") format("woff");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Neue Haas Grotesk";src:url("65font.woff2") format("woff2"),url("65font.woff") format("woff");font-weight:500;font-style:normal;font-display:swap}
+@font-face{font-family:"Neue Haas Grotesk";src:url("75font.woff2") format("woff2"),url("75font.woff") format("woff");font-weight:700;font-style:normal;font-display:swap}
 body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
 ::selection{background:var(--teal-bg)}
@@ -69,10 +72,8 @@ a{color:inherit;text-decoration:none}
   background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
 
 /* the ONE brand lockup — identical on every page; links home */
-.ws-brand{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-weight:600;
-  font-size:20px;letter-spacing:.01em;color:var(--ink);flex:0 0 auto}
-.ws-brand .mark{width:22px;height:22px;border:1.5px solid var(--ink);border-radius:50%;position:relative;flex:0 0 auto}
-.ws-brand .mark::after{content:"";position:absolute;inset:5px 5px auto auto;width:7px;height:7px;background:var(--teal);border-radius:50%}
+.ws-brand{display:inline-flex;align-items:center;font-family:"Neue Haas Grotesk",var(--sans);font-weight:700;font-size:20px;letter-spacing:-0.02em;color:var(--ink);flex:0 0 auto;text-decoration:none}
+.ws-brand .dot{width:6px;height:6px;margin-left:10px;background:var(--teal);border-radius:1px;display:inline-block;transform:translateY(-1px);flex:0 0 auto}
 
 .ws-nav{display:flex;gap:22px;margin-left:6px}
 .ws-nav a{font-size:13.5px;color:var(--muted);padding:21px 0;border-bottom:2px solid transparent;white-space:nowrap}
@@ -327,7 +328,7 @@ a{color:inherit;text-decoration:none}
 
   <!-- top-nav chrome (shared shell) -->
   <header class="ws-top">
-    <a class="ws-brand" href="index.html" title="Back to monderman.com"><span class="mark"></span>Monderman</a>
+    <a class="ws-brand" href="index.html" title="Back to monderman.com">Monderman<span class="dot"></span></a>
     <nav class="ws-nav">
       <a href="workspace.html" class="active">Overview</a>
       <a href="workspace-diagnostics.html">Diagnostics</a>
@@ -479,11 +480,11 @@ a{color:inherit;text-decoration:none}
       const reads = TOOLS.map(t=>byTool[t]).filter(Boolean).map(e=>e.run);
       const cls = reads.map(r=>bandClass(r.band, r.score));
       const worst = reads.slice().sort((a,b)=> (Number(a.score)||999)-(Number(b.score)||999))[0];
-      if(cls.includes("crit")) return `${toolName(worst.tool_type)} is reading critical.`;
+      if(cls.includes("crit")) return `${toolName(worst.tool_type)} is at a critical level.`;
       const nBad = cls.filter(c=>c==="crit"||c==="s").length;
-      if(nBad >= Math.ceil(reads.length/2)) return "Most of your instruments are reading strained.";
-      if(cls.length && cls.every(c=>c==="k")) return "Your instruments are reading stable.";
-      return "Your reads are mixed across the instruments.";
+      if(nBad >= Math.ceil(reads.length/2)) return "Most of your organization is under strain.";
+      if(cls.length && cls.every(c=>c==="k")) return "Your organization is holding steady.";
+      return "Strong in some areas, strained in others.";
     }
 
     // ---- data (preserved) ----
