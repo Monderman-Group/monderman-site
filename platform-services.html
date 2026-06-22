@@ -13,19 +13,19 @@
     @font-face { font-family:"Neue Haas Grotesk"; src:url("75font.woff2") format("woff2"),url("75font.woff") format("woff"); font-style:normal; font-weight:700; font-display:swap; }
 
     :root{
-      --accent:#3F6EA1; --accent-dark:#2F5886; --accent-soft:rgba(63,110,161,.08);
-      --gold:#B28D3C; --gold-soft:rgba(178,141,60,.11);
-      --bg-dark:#0F1720; --bg-dark-2:#121B25; --bg-offwhite:#F6F8FB;
-      --panel:#FFFFFF; --panel-soft:#FBFCFE;
-      --text-light:#F5F7FA; --muted-light:rgba(245,247,250,.82); --muted-light-2:rgba(245,247,250,.62);
-      --text-dark:#15202B; --muted-dark:#566473; --muted-dark-2:#7B8894;
-      --line-soft:rgba(21,32,43,.08); --line-mid:rgba(21,32,43,.12);
-      --header-solid:rgba(14,20,28,0.87); --header-border:rgba(255,255,255,.08);
-      --ok:#5E8A66; --danger:#B8505E;
+      --accent:#0C6E78; --accent-dark:#0A5B63; --accent-soft:rgba(12,110,120,.08);
+      --gold:#C9821F; --gold-soft:rgba(201,130,31,.11);
+      --bg-dark:#08383E; --bg-dark-2:#08373C; --bg-offwhite:#FAFAF8;
+      --panel:#FFFFFF; --panel-soft:#FCFBF8;
+      --text-light:#F4EFE6; --muted-light:rgba(245,241,232,.82); --muted-light-2:rgba(245,241,232,.62);
+      --text-dark:#18191C; --muted-dark:#6E6F73; --muted-dark-2:#8A8C88;
+      --line-soft:rgba(24,22,18,.08); --line-mid:rgba(24,22,18,.12);
+      --header-solid:rgba(9,57,62,0.87); --header-border:rgba(255,255,255,.08);
+      --ok:#3C8A60; --danger:#B0392F;
       --shadow-soft:none; --shadow-card:none; --shadow-hover:none;
       --max:1320px;
       --transition:220ms cubic-bezier(0.16,1,0.3,1); --transition-slow:420ms cubic-bezier(0.16,1,0.3,1);
-      --panel-radius:22px; --card-radius:14px;
+      --panel-radius:18px; --card-radius:16px;
     }
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
@@ -173,7 +173,7 @@
       white-space:nowrap;
       background:#FFF;
       color:var(--text-dark);
-      border:1px solid rgba(21,32,43,.12);
+      border:1px solid rgba(24,22,18,.12);
       box-shadow:none;
       transition:background var(--transition), color var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition);
       cursor:pointer;
@@ -190,14 +190,14 @@
     .btn-accent{
       background:var(--accent);
       color:#FFF;
-      border:1px solid rgba(63,110,161,.28);
+      border:1px solid rgba(12,110,120,.28);
       box-shadow:none;
     }
     .btn-accent:hover,
     .btn-accent:focus-visible{
       background:var(--accent-dark);
       color:#FFF;
-      border-color:rgba(47,88,134,.42);
+      border-color:rgba(10,91,99,.42);
       box-shadow:none;
     }
     .btn-subtle{
@@ -209,14 +209,14 @@
     .btn-subtle:hover,
     .btn-subtle:focus-visible{
       color:var(--accent-dark);
-      border-color:rgba(63,110,161,.24);
+      border-color:rgba(12,110,120,.24);
       box-shadow:none;
     }
     .btn-hero-secondary,
     .btn-secondary{
       background:rgba(255,255,255,0.98);
       color:var(--accent);
-      border:1.25px solid rgba(63,110,161,0.9);
+      border:1.25px solid rgba(12,110,120,0.9);
       box-shadow:0 7px 16px rgba(0,0,0,0.038), 0 0 0 1px rgba(255,255,255,0.07);
     }
     .btn-hero-secondary:hover,
@@ -241,7 +241,7 @@
       padding:102px 34px 96px;
       color:var(--text-dark);
       overflow:hidden;
-      border-top:1px solid rgba(21,32,43,.04);
+      border-top:1px solid rgba(24,22,18,.04);
     }
     .page::before{content:"";position:absolute;inset:0;background:none;pointer-events:none;}
     .page-inner{
@@ -268,7 +268,7 @@
     .mond-footer {
       position: relative;
       overflow: hidden;
-      background: #0D141C;
+      background: #073338;
       color: rgba(255,255,255,0.88);
       padding: 56px 40px 36px;
       border: 0;
@@ -299,7 +299,7 @@
     .mond-footer .mf-dot {
       width: 7px; height: 7px;
       border-radius: 2px;
-      background: #6B7FD7;
+      background: #0C6E78;
       display: inline-block;
     }
     .mond-footer .mf-copy {
@@ -382,7 +382,7 @@
 
     .ps-wrap{max-width:var(--max);margin:0 auto;padding:0 34px}
     main{padding-top:0}
-    .ps-hero{position:relative;background:linear-gradient(180deg,#0B1218 0%,#0F1720 60%,#101A24 100%);color:var(--text-light)}
+    .ps-hero{position:relative;background:linear-gradient(180deg,#07363B 0%,#08383E 60%,#04181B 100%);color:var(--text-light)}
     .ps-hero-inner{max-width:var(--max);margin:0 auto;padding:128px 34px 84px}
     .ps-eyebrow{display:block;font-size:.74rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-light-2);margin:0 0 22px}
     .ps-hero h1{font-size:54px;line-height:1.02;font-weight:700;max-width:18ch;margin:0 0 20px;color:#fff;letter-spacing:-0.03em}
@@ -396,7 +396,7 @@
     .ps-roi .ps-h2{color:#fff}.ps-roi .ps-sub{color:var(--muted-light)}
     .ps-roi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:34px}
     .ps-roi-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);border-radius:var(--card-radius);padding:26px 24px}
-    .ps-roi-card .n{font-size:2.0rem;font-weight:700;color:#fff;letter-spacing:-0.03em;line-height:1.05}
+    .ps-roi-card .n{font-size:2.0rem;font-weight:700;color:var(--gold);letter-spacing:-0.03em;line-height:1.05}
     .ps-roi-card .n .unit{font-size:1.0rem;color:var(--muted-light-2);font-weight:500}
     .ps-roi-card .l{margin-top:10px;font-size:.95rem;line-height:1.5;color:var(--muted-light)}
     .ps-roi-note{margin-top:26px;font-size:.86rem;line-height:1.6;color:var(--muted-light-2);max-width:74ch}
@@ -434,7 +434,7 @@
     table.ps-table thead th .price{display:block;font-size:.82rem;font-weight:500;color:var(--muted-light-2);margin-top:3px}
     table.ps-table thead th.featured{background:var(--accent)}
     table.ps-table th.rowlabel,table.ps-table td.rowlabel{text-align:left;font-weight:600;color:var(--text-dark);background:var(--panel-soft);position:sticky;left:0;min-width:200px}
-    table.ps-table tbody tr:nth-child(even) td:not(.rowlabel){background:rgba(63,110,161,.02)}
+    table.ps-table tbody tr:nth-child(even) td:not(.rowlabel){background:rgba(12,110,120,.02)}
     table.ps-table td.yes{color:var(--accent);font-weight:700}
     table.ps-table td.no{color:var(--muted-dark-2)}
     table.ps-table td.num{font-weight:700;color:var(--text-dark)}
@@ -447,14 +447,14 @@
     .ps-support .card{background:var(--panel);border:1px solid var(--line-soft);border-radius:var(--card-radius);padding:22px 22px}
     .ps-support .card h4{font-size:1rem;font-weight:700;color:var(--text-dark);margin:0 0 6px}
     .ps-support .card p{font-size:.92rem;line-height:1.55;color:var(--muted-dark);margin:0}
-    .ps-support-boundary{margin-top:22px;background:var(--accent-soft);border:1px solid rgba(63,110,161,.25);border-radius:var(--card-radius);padding:18px 22px;font-size:.96rem;line-height:1.6;color:var(--text-dark)}
+    .ps-support-boundary{margin-top:22px;background:var(--accent-soft);border:1px solid rgba(12,110,120,.25);border-radius:var(--card-radius);padding:18px 22px;font-size:.96rem;line-height:1.6;color:var(--text-dark)}
     .ps-support-boundary strong{color:var(--accent-dark)}
     /* procurement */
     .ps-proc{background:var(--panel)}
     .ps-proc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px 40px;margin-top:30px}
     .ps-proc-item h4{font-size:1.02rem;font-weight:700;color:var(--text-dark);margin:0 0 6px;letter-spacing:-0.02em}
     .ps-proc-item p{font-size:.94rem;line-height:1.58;color:var(--muted-dark);margin:0}
-    .ps-proc-callout{margin-top:30px;background:var(--accent-soft);border:1px solid rgba(63,110,161,.25);border-radius:var(--card-radius);padding:20px 24px;font-size:.96rem;line-height:1.6;color:var(--text-dark)}
+    .ps-proc-callout{margin-top:30px;background:var(--accent-soft);border:1px solid rgba(12,110,120,.25);border-radius:var(--card-radius);padding:20px 24px;font-size:.96rem;line-height:1.6;color:var(--text-dark)}
     .ps-proc-callout strong{color:var(--accent-dark)}
     .ps-final{text-align:center;padding:84px 0;background:var(--panel)}
     .ps-final .ps-h2{margin:0 auto 14px}.ps-final .ps-sub{margin:0 auto 26px}
@@ -502,8 +502,8 @@
   <section class="ps-hero">
     <div class="ps-hero-inner">
       <span class="ps-eyebrow">Tiers &amp; Pricing</span>
-      <h1>Bigger tiers put the instrument in more hands. Advisory puts a senior expert in the work with you.</h1>
-      <p class="lede">Every paid tier is the same instrument and the same workspace &mdash; what scales is reach, not capability.</p>
+      <h1>Higher tiers put the instruments in more hands. Advisory puts a senior expert in the work with you.</h1>
+      <p class="lede">Every paid tier gives you the same instruments and workspace &mdash; what scales is reach, not capability.</p>
       <div class="ps-hero-actions">
         <a class="btn btn-accent" href="#plans">Compare the tiers</a>
         <a class="btn btn-secondary" href="#how-to-buy">How procurement works</a>
@@ -518,23 +518,23 @@
       <p class="ps-sub">Every diagnostic estimates the fully-burdened cost of administrative drag at your own baseline &mdash; the productive capacity absorbed by coordination, approvals, rework, and compensating effort. The subscription is sized so that recovering even a sliver of that capacity covers it many times over.</p>
       <div class="ps-roi-grid">
         <div class="ps-roi-card"><div class="n">26&ndash;41<span class="unit">%</span></div><div class="l">of productive capacity typically absorbed by administrative burden in early deployments &mdash; measured, not assumed.</div></div>
-        <div class="ps-roi-card"><div class="n">Your whole<span class="unit"> org</span></div><div class="l">Tiers scale on reach &mdash; how much of your organization works from the diagnostics &mdash; and, at the top, on whose hands run the work. The instrument itself is the same at every level.</div></div>
-        <div class="ps-roi-card"><div class="n">Expert<span class="unit"> capacity</span></div><div class="l">At the top tier, a senior expert runs and interprets the work with you &mdash; capacity you buy instead of spending your own scarce senior time, never a different instrument.</div></div>
+        <div class="ps-roi-card"><div class="n">Your whole<span class="unit"> org</span></div><div class="l">Tiers scale on reach &mdash; how much of your organization works from the diagnostics. The instruments themselves are the same at every level.</div></div>
+        <div class="ps-roi-card"><div class="n">Expert<span class="unit"> capacity</span></div><div class="l">At the top tier, a senior expert runs and interprets the work with you &mdash; capacity, not different instruments.</div></div>
       </div>
-      <p class="ps-roi-note">Figures are directional, modeled at your institution&rsquo;s measured baseline, and conditioned on identified structural corrections being adopted. Monderman publishes the assumption set with every read. They are an executive signal for scoping, not a guaranteed financial outcome.</p>
+      <p class="ps-roi-note">Figures are directional &mdash; modeled at your measured baseline, conditioned on adopting the identified corrections, with the assumption set published on every read. An executive signal for scoping, not a guaranteed outcome.</p>
     </div>
   </section>
 
   <section class="ps-section" id="plans">
     <div class="ps-wrap">
       <span class="ps-section-label">Three tiers</span>
-      <h2 class="ps-h2">The same instrument at every tier. What changes is whose hands run it.</h2>
-      <p class="ps-sub">Every paid tier is the same engine &mdash; all four diagnostics, the full deliverable, unlimited runs, the same workspace. You can run a single diagnostic or a standing <b>campaign</b> that measures the same scope over time. What you move up for is <b>reach</b> &mdash; how much of your organization works from the diagnostics &mdash; and, at the top, <b>capacity</b>: a senior expert who runs that work with you. Signal and Advisory are the identical instrument; what differs is whose hands run it. Your team can run everything at Signal; Advisory is for organizations that would rather buy that capacity than spend their own scarce senior time.</p>
+      <h2 class="ps-h2">The same instruments at every tier. What changes is whose hands run them.</h2>
+      <p class="ps-sub">Every paid tier is the same engine &mdash; all four diagnostics, the full deliverable, unlimited runs, one workspace &mdash; run as a single diagnostic or a standing <b>campaign</b> that tracks the same scope over time. What you move up for is <b>reach</b>: how much of your organization works from the diagnostics. At the top, you also buy <b>capacity</b> &mdash; a senior expert who runs the work with you.</p>
 
       <div class="ps-tiers">
         <div class="ps-tier">
           <div class="ps-tier-name">Baseline</div>
-          <div class="ps-tier-for">The instrument, for one person or a small team measuring their own corner of the organization.</div>
+          <div class="ps-tier-for">The instruments, for one person or a small team measuring their own corner of the organization.</div>
           <div class="ps-price"><span class="amt">$9,000</span><span class="per">/ year</span></div>
           <div class="ps-price-alt">Up to 3 seats &middot; annual billing</div>
           <div class="ps-tier-cta"><a class="btn btn-accent" href="plan-baseline.html">Choose Baseline</a></div>
@@ -550,9 +550,9 @@
         </div>
 
         <div class="ps-tier featured">
-          <div class="ps-tier-flag" style="background:var(--accent)">Most common</div>
+          <div class="ps-tier-flag" style="background:var(--gold)">Most common</div>
           <div class="ps-tier-name">Signal</div>
-          <div class="ps-tier-for">The same instrument, deployed across your organization&rsquo;s units and people &mdash; with your own team running the diagnostics and any standing campaigns.</div>
+          <div class="ps-tier-for">The same instruments, deployed across your organization&rsquo;s units and people &mdash; with your own team running the diagnostics and any standing campaigns.</div>
           <div class="ps-price"><span class="amt">$36,000</span><span class="per">/ year</span></div>
           <div class="ps-price-alt">Up to 15 seats &middot; annual billing</div>
           <div class="ps-tier-cta"><a class="btn btn-accent" href="plan-signal.html">Choose Signal</a></div>
@@ -567,12 +567,12 @@
             <li class="soon">Trends &amp; comparison across every unit you measure</li>
             <li class="soon">Self-serve team invites</li>
           </ul>
-          <div class="ps-tier-trigger">Step up to <b>Advisory</b> when you&rsquo;d rather a senior expert ran the work with you than spend your own team&rsquo;s time on it.</div>
+          <div class="ps-tier-trigger">Step up to <b>Advisory</b> when you&rsquo;d rather a senior expert ran the work with you.</div>
         </div>
 
         <div class="ps-tier">
           <div class="ps-tier-name">Advisory</div>
-          <div class="ps-tier-for">The same instrument and workspace &mdash; with a senior expert running the work with you. For organizations that would rather buy that capacity than spend their own scarce senior time. Capacity-limited.</div>
+          <div class="ps-tier-for">The same instruments and workspace &mdash; with a senior expert running the work with you. For organizations that would rather buy that capacity than spend their own scarce senior time. Capacity-limited.</div>
           <div class="ps-price"><span class="amt">From $108,000</span></div>
           <div class="ps-price-alt">Unlimited seats &middot; scoped on your agreement</div>
           <div class="ps-tier-cta"><a class="btn btn-accent" href="plan-advisory.html">Scope Advisory</a></div>
@@ -584,7 +584,7 @@
             <li class="svc"><b>An advisor in the work</b> &mdash; outside experience and added hands to sequence and land the corrections, not just a readout</li>
             <li class="svc"><b>A named senior advisor on a contract</b> &mdash; one accountable person, as professional services on a vehicle you already use</li>
           </ul>
-          <div class="ps-tier-trigger">Advisory is capacity, not a different instrument &mdash; a senior expert in the work, for organizations that would rather buy that time than spend their own.</div>
+          <div class="ps-tier-trigger">Advisory is capacity-limited &mdash; each engagement is scoped to a named senior advisor, so the cohort stays small.</div>
         </div>
       </div>
 
@@ -592,7 +592,7 @@
         <div class="t"><b>Try it first.</b> Create an account and run each diagnostic three times in full &mdash; read and score every result &mdash; before you choose a tier.</div>
         <a class="btn btn-secondary" href="workspace.html">Run a diagnostic &mdash; free</a>
       </div>
-      <p class="ps-beta-note">Monderman is in active beta. Capabilities marked <b>rolling out</b> are real and arrive on a known cadence &mdash; they are not vapor. You are an early customer of an instrument that deepens on a published schedule, not a buyer of finished, frozen software. Founding-cohort pricing is available to early design partners.</p>
+      <p class="ps-beta-note">Monderman is in active beta. Capabilities marked <b>rolling out</b> are real and arrive on a published cadence &mdash; not vapor. You&rsquo;re an early customer of instruments that deepen on schedule, with founding-cohort pricing for early design partners.</p>
     </div>
   </section>
 
@@ -638,17 +638,17 @@
           </tbody>
         </table>
       </div>
-      <p class="ps-cmp-note">* Unlimited runs are subject to a fair-use standard that exists only to prevent abnormal or automated over-use. &nbsp;&dagger; Seats are named team logins; at launch we set your team up for you, with self-serve invites rolling out. Run allowances are generous ceilings, not meters &mdash; if usage approaches a limit, Monderman contacts you rather than cutting off access.</p>
+      <p class="ps-cmp-note">* Fair use exists only to prevent abnormal or automated over-use. &nbsp;&dagger; Seats are named logins; at launch we set your team up, with self-serve invites rolling out. Allowances are generous ceilings, not meters &mdash; if usage approaches a limit, Monderman contacts you rather than cutting off access.</p>
     </div>
   </section>
 
   <section class="ps-section mxps-why">
     <style>
-      .mxps-why .mxps-card{max-width:1100px;margin:0 auto;background:#0F1720;color:#F5F7FA;border-radius:14px;padding:30px 34px;display:flex;align-items:center;justify-content:space-between;gap:26px;flex-wrap:wrap;}
+      .mxps-why .mxps-card{max-width:1100px;margin:0 auto;background:#08383E;color:#F4EFE6;border-radius:14px;padding:30px 34px;display:flex;align-items:center;justify-content:space-between;gap:26px;flex-wrap:wrap;}
       .mxps-why h3{margin:0 0 10px;font-size:20px;letter-spacing:-.03em;}
-      .mxps-why p{margin:0;color:rgba(245,247,250,.78);font-size:14.5px;line-height:1.65;max-width:780px;}
-      .mxps-why a{flex:0 0 auto;background:#3F6EA1;color:#fff;border-radius:10px;padding:13px 22px;font-weight:500;font-size:14.5px;text-decoration:none;transition:background 220ms;}
-      .mxps-why a:hover{background:#2F5886;}
+      .mxps-why p{margin:0;color:rgba(245,241,232,.78);font-size:14.5px;line-height:1.65;max-width:780px;}
+      .mxps-why a{flex:0 0 auto;background:#0C6E78;color:#fff;border-radius:10px;padding:13px 22px;font-weight:500;font-size:14.5px;text-decoration:none;transition:background 220ms;}
+      .mxps-why a:hover{background:#0A5B63;}
     </style>
     <div class="mxps-card">
       <div>
@@ -665,7 +665,7 @@
       <h2 class="ps-h2">Platform support and analyst help are different things.</h2>
       <p class="ps-sub">So there&rsquo;s no ambiguity about what each tier includes:</p>
       <div class="ps-support">
-        <div class="card"><h4>Baseline &mdash; platform help</h4><p>Email support for using the platform: running diagnostics, exports, access, and bug reports. We aim to respond within two business days. This is an aim, not a guaranteed response time.</p></div>
+        <div class="card"><h4>Baseline &mdash; platform help</h4><p>Email support for using the platform: running diagnostics, exports, access, and bug reports. We aim to respond within two business days &mdash; an aim, not a guarantee.</p></div>
         <div class="card"><h4>Signal &mdash; priority + onboarding</h4><p>The same platform support, prioritized ahead of Baseline, plus a one-time onboarding session to get your team set up and running.</p></div>
         <div class="card"><h4>Advisory &mdash; subsumed</h4><p>No separate support line is needed &mdash; Advisory is a direct, ongoing relationship, so you are already in regular contact.</p></div>
       </div>
@@ -700,11 +700,11 @@
   <section class="ps-section">
     <div class="ps-wrap">
       <style>
-        .ps-faq{margin-top:1.6rem;border-top:1px solid var(--line-soft,rgba(21,32,43,.10));}
-        .ps-faq-item{padding:1.4rem 0;border-bottom:1px solid var(--line-soft,rgba(21,32,43,.10));}
-        .ps-faq-q{margin:0 0 .5rem;font-size:1.075rem;font-weight:600;color:var(--text-dark,#15202B);line-height:1.35;}
-        .ps-faq-a{margin:0;color:var(--muted-dark,#556270);line-height:1.62;}
-        .ps-faq-a a{color:var(--accent,#3F6EA1);}
+        .ps-faq{margin-top:1.6rem;border-top:1px solid var(--line-soft,rgba(24,22,18,.10));}
+        .ps-faq-item{padding:1.4rem 0;border-bottom:1px solid var(--line-soft,rgba(24,22,18,.10));}
+        .ps-faq-q{margin:0 0 .5rem;font-size:1.075rem;font-weight:600;color:var(--text-dark,#18191C);line-height:1.35;}
+        .ps-faq-a{margin:0;color:var(--muted-dark,#6E6F73);line-height:1.62;}
+        .ps-faq-a a{color:var(--accent,#0C6E78);}
       </style>
       <span class="ps-section-label">Common questions</span>
       <h2 class="ps-h2">The questions that come up most.</h2>
@@ -716,7 +716,7 @@
         </div>
         <div class="ps-faq-item">
           <p class="ps-faq-q">How do we know it worked?</p>
-          <p class="ps-faq-a">Re-running is free and unlimited on every paid tier, and that is the proof. Measure, change something, then measure again on the same instrument and see whether capacity actually returned. Verification is not a follow-on study &mdash; it is the next run, already included.</p>
+          <p class="ps-faq-a">Re-running is free and unlimited on every paid tier, and that is the proof. Measure, change something, then measure again on the same instruments and see whether capacity actually returned. Verification is not a follow-on study &mdash; it is the next run, already included.</p>
         </div>
         <div class="ps-faq-item">
           <p class="ps-faq-q">Are we locked into a long contract?</p>
@@ -724,11 +724,11 @@
         </div>
         <div class="ps-faq-item">
           <p class="ps-faq-q">What is the difference between Signal and Advisory?</p>
-          <p class="ps-faq-a">Both run the same instrument across your whole organization. At Signal, your own team interprets the results. Advisory adds a Monderman analyst &mdash; roughly monthly reviews that read your scored results and tell you what to weigh and where to act first. Advisory is where human judgment enters; Signal is interpreted by software alone.</p>
+          <p class="ps-faq-a">Both run the same instruments across your whole organization. At Signal, your own team interprets the results. Advisory adds a Monderman analyst &mdash; roughly monthly reviews that read your scored results and tell you what to weigh and where to act first. Advisory is where human judgment enters; Signal is interpreted by software alone.</p>
         </div>
         <div class="ps-faq-item">
           <p class="ps-faq-q">Is this another culture or sentiment survey?</p>
-          <p class="ps-faq-a">No. Monderman is a deterministic instrument: the same inputs produce the same score every run, and every result is quantified in your own hours and dollars against calibrated sector ranges &mdash; not mood, not opinion. It measures what those surveys ask you to assume.</p>
+          <p class="ps-faq-a">No. Monderman&rsquo;s instruments are deterministic: the same inputs produce the same score every run, and every result is quantified in your own hours and dollars against calibrated sector ranges &mdash; not mood, not opinion. They measure what those surveys ask you to assume.</p>
         </div>
       </div>
     </div>
@@ -748,7 +748,7 @@
   </section>
   </main>
   <footer class="footer mond-footer">
-    <div class="mf-motif" aria-hidden="true"><svg width="280" height="280" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#4A6FA5" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#5B7A9B" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#4A6FA5" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#5B7A9B" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#6B8FA6" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8BADC5" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#9FBDD1" stroke-width="0.4" opacity="0.13"/><circle cx="86" cy="-35" r="2.8" fill="#3F6EA1" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#5B7A9B" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#3F6EA1" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#7C5CE8" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#5B7A9B" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#2E86DE" opacity="0.58"/></svg></div>
+    <div class="mf-motif" aria-hidden="true"><svg width="280" height="280" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#146C75" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#3E8A92" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#146C75" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#146C75" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#3E8A92" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#146C75" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#4E9098" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8FC4C9" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#A9CFD2" stroke-width="0.4" opacity="0.13"/><circle cx="86" cy="-35" r="2.8" fill="#0C6E78" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#3E8A92" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#0C6E78" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#C9821F" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#3E8A92" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#0C6E78" opacity="0.58"/></svg></div>
     <div class="mf-inner">
       <div class="mf-top">
         <div class="mf-brand">
