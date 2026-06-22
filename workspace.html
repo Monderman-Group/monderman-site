@@ -336,7 +336,38 @@ a{color:inherit;text-decoration:none}
   .ws-topbar{padding:0 16px}
   .ws-main .ws-wrap{padding:24px 16px 56px}
 }
+
+/* ---- dark theme (first pass): warm-neutral surfaces + teal, matching the tabs ---- */
+html[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#16171B; --surface:#202125; --panel:#24252A;
+  --ink:#E7E4DD; --muted:#9E9C95; --faint:#7C7A74;
+  --line:rgba(255,255,255,.10); --line-soft:rgba(255,255,255,.06);
+  --teal:#2BA7B2; --teal-hover:#3CB8C3; --teal-ink:#9FD6DD; --teal-bg:rgba(43,167,178,.16);
+  --critical:#E0857B; --critical-bg:rgba(224,133,123,.16);
+  --strained:#D9A441; --strained-bg:rgba(217,164,65,.16);
+  --mixed:#C2B23A;    --mixed-bg:rgba(194,178,58,.15);
+  --stable:#4FB07A;   --stable-bg:rgba(79,176,122,.16); --strong:#5FBF8A;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.35); --shadow-card:0 1px 2px rgba(0,0,0,.4);
+}
+html[data-theme="dark"] .ws-rail{background:#18191C}   /* rail stays dark (it uses var(--ink)) */
+body{transition:background-color .25s ease,color .25s ease}
+
+/* ---- rail-foot utility glyphs (theme / notes / feedback) ---- */
+.ws-glyphs{display:flex;gap:6px;margin-top:11px}
+.ws-glyph{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:9px 0 7px;
+  border:1px solid rgba(255,255,255,.08);border-radius:9px;background:rgba(255,255,255,.03);
+  color:rgba(255,255,255,.60);cursor:pointer;font:inherit;transition:background .15s,color .15s,border-color .15s}
+.ws-glyph:hover{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.18)}
+.ws-glyph svg{width:17px;height:17px;stroke-width:1.7}
+.ws-glyph span{font-size:9px;letter-spacing:.05em;text-transform:uppercase;font-weight:600}
+
+/* utilities surface as rail-foot glyphs on desktop; suppress their floating
+   launchers there. Hans stays bottom-right. Theme toggle never floats here. */
+@media (min-width:861px){ .wsn-btn,.mdn-fb-launch{display:none!important} }
+.ws5-theme-toggle{display:none!important}
   </style>
+  <script>try{if(localStorage.getItem("mndTheme")==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}</script>
   <script>
     /* capture any boot/module error so the watchdog can surface it on-screen (no console needed) */
     window.__bootErrors = [];
@@ -381,6 +412,11 @@ a{color:inherit;text-decoration:none}
       </nav>
       <div class="ws-rail-foot">
         <div class="ws-plan-chip"><b class="ws-org" id="wsOrgName">—</b></div>
+        <div class="ws-glyphs">
+          <button class="ws-glyph" type="button" title="Toggle light / dark" onclick="document.querySelector('.ws5-theme-toggle')&&document.querySelector('.ws5-theme-toggle').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.6"/><path d="M12 3v1.6M12 19.4V21M3 12h1.6M19.4 12H21M5.2 5.2l1.1 1.1M17.7 17.7l1.1 1.1M5.2 18.8l1.1-1.1M17.7 6.3l1.1-1.1"/></svg><span>Theme</span></button>
+          <button class="ws-glyph" type="button" title="Notes" onclick="document.querySelector('.wsn-btn')&&document.querySelector('.wsn-btn').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h5"/></svg><span>Notes</span></button>
+          <button class="ws-glyph" type="button" title="Send feedback" onclick="document.querySelector('.mdn-fb-launch')&&document.querySelector('.mdn-fb-launch').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5a7.5 7.5 0 0 1-10.9 6.7L4 19.5l1.3-4.1A7.5 7.5 0 1 1 20 11.5z"/></svg><span>Feedback</span></button>
+        </div>
       </div>
     </aside>
     <div class="ws-main">
@@ -705,6 +741,7 @@ a{color:inherit;text-decoration:none}
 
   <script src="workspace-assistant.js" defer></script>
   <script src="feedback-widget.js" defer></script>
+  <script src="workspace-theme.js" defer></script>
   <script type="module" src="workspace-notes.js"></script>
 </body>
 </html>
