@@ -1911,7 +1911,7 @@
 
   </style>
 <style>
-.hero{background:linear-gradient(90deg,rgba(6,38,42,0.46) 0%,rgba(6,38,42,0.16) 30%,rgba(6,38,42,0) 54%),linear-gradient(157deg,#094E55 0%,#0C6E78 54%,#128A96 100%) !important}
+.hero{background:linear-gradient(180deg,#07303a 0%,#051c21 52%,#04161a 100%) !important}
 .hero-media-wrap,.hero-overlay{display:none !important}
 .hero-actions .btn-accent{background:#FAFAF8;color:#0A5B63;border-color:#FAFAF8;box-shadow:0 8px 22px rgba(8,40,44,.22)}
 .hero-actions .btn-accent:hover,.hero-actions .btn-accent:focus-visible{background:#FFFFFF;color:#08474E;border-color:#FFFFFF}
@@ -1927,10 +1927,14 @@
 .header.scrolled .nav a.is-active{color:#0C6E78}
 .hero h1,.hero-dek{text-shadow:none}
 .cost-card-number{color:#C9821F}
-.hero-motif{position:absolute;z-index:1;top:50%;right:-200px;width:900px;height:900px;transform:translateY(-50%);pointer-events:none}
-.hero-motif svg{width:100%;height:100%;display:block;overflow:visible}
-@media (max-width:980px){.hero-motif{right:-320px;opacity:0.6}}
-@media (max-width:640px){.hero-motif{width:600px;height:600px;right:-240px;top:30%;opacity:0.4}}
+.hero-bloom{position:absolute;z-index:0;pointer-events:none;border-radius:50%;will-change:transform}
+.hero-bloom.b1{width:1150px;height:950px;top:-15%;left:42%;background:radial-gradient(closest-side,rgba(30,158,170,0.50),rgba(18,138,150,0.20) 42%,rgba(7,42,47,0) 78%)}
+.hero-bloom.b2{width:820px;height:760px;top:40%;left:58%;background:radial-gradient(closest-side,rgba(18,138,150,0.24),rgba(10,78,86,0) 70%)}
+.hero-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,rgba(4,18,21,0.55) 0%,rgba(4,18,21,0.18) 38%,rgba(4,18,21,0) 64%)}
+@media (prefers-reduced-motion:no-preference){.hero-bloom.b1{animation:bloom1 26s ease-in-out infinite alternate}.hero-bloom.b2{animation:bloom2 34s ease-in-out infinite alternate}}
+@keyframes bloom1{from{transform:translate(0,0) scale(1)}to{transform:translate(-5%,4%) scale(1.08)}}
+@keyframes bloom2{from{transform:translate(0,0) scale(1)}to{transform:translate(6%,-4%) scale(1.12)}}
+@media (max-width:640px){.hero-bloom.b1{width:760px;height:680px;left:30%}.hero-bloom.b2{width:560px;height:520px;left:50%}}
 </style>
 </head>
 <body>
@@ -1950,7 +1954,7 @@
 </div>
 </header>
 <section aria-labelledby="hero-title" class="hero">
-<video class="hero-video" autoplay muted playsinline preload="auto" aria-hidden="true"><source src="Hero_Clip.mp4" type="video/mp4"></video><div class="hero-video-overlay" aria-hidden="true"></div>
+<div class="hero-bloom b1" aria-hidden="true"></div><div class="hero-bloom b2" aria-hidden="true"></div><div class="hero-scrim" aria-hidden="true"></div>
 <div aria-hidden="true" class="hero-media-wrap">
 <img alt="" class="hero-image" decoding="async" fetchpriority="high" id="heroImage" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="/>
 <div class="hero-overlay"></div>
@@ -2359,10 +2363,7 @@
     .mxidx-link{display:inline-flex;margin-top:28px;color:#fff;font-weight:500;border-bottom:1px solid rgba(255,255,255,.35);padding-bottom:2px;text-decoration:none;font-size:14.5px;}
     .mxidx-link:hover{border-color:#fff;}
     @media(max-width:900px){.mxidx-row{grid-template-columns:1fr;}}
-  
-.hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:58% 50%;z-index:0;background:#08383E}
-.hero-video-overlay{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,rgba(6,38,42,0.62) 0%,rgba(6,38,42,0.35) 40%,rgba(6,38,42,0.12) 70%,rgba(6,38,42,0) 100%),linear-gradient(180deg,rgba(6,38,42,0.20) 0%,rgba(6,38,42,0) 35%,rgba(6,38,42,0.30) 100%)}
-</style>
+  </style>
   <div class="mxidx-inner">
     <div class="mxidx-eyebrow">Measurement you can verify</div>
     <h2>A conversation. A judgment. An instrument.</h2>
