@@ -36,6 +36,12 @@
     .ws-status{font-size:13px;margin-top:14px}
     .ws-status.error{color:var(--critical)}
   </style>
+  <script>
+    /* capture any boot/module error so the watchdog can surface it on-screen (no console needed) */
+    window.__bootErrors = [];
+    window.addEventListener("error", function(e){ try{ window.__bootErrors.push((e && e.message ? e.message : "error") + (e && e.filename ? " @ " + e.filename.split("/").pop() + ":" + e.lineno : "")); }catch(_){} });
+    window.addEventListener("unhandledrejection", function(e){ try{ window.__bootErrors.push("promise: " + ((e && e.reason && e.reason.message) ? e.reason.message : (e && e.reason ? String(e.reason) : "rejection"))); }catch(_){} });
+  </script>
 </head>
 <body>
 
@@ -47,12 +53,17 @@
   </div>
 
   <script>
-    // overlay safety: never trap the user behind the loader
+    /* watchdog: if the data module hasn't finished ~4.5s after load, clear the loader and
+       surface the first captured error in the read line, so a silent failure is never just "blank". */
     window.addEventListener("load", function(){
       setTimeout(function(){
-        var ov = document.getElementById("wsOverlay");
-        if (ov && !ov.classList.contains("hidden")) ov.classList.add("hidden");
-      }, 6000);
+        var ov = document.getElementById("wsOverlay"); if (ov) ov.classList.add("hidden");
+        if (window.__wsBooted === "rendered") return;
+        var meta = document.getElementById("wsReadMeta");
+        var first = (window.__bootErrors && window.__bootErrors.length) ? window.__bootErrors[0]
+                    : ("the workspace script didn’t finish (reached: " + (window.__wsBooted || "not started") + ").");
+        if (meta){ meta.textContent = "Couldn’t load — " + first; meta.style.color = "var(--critical)"; }
+      }, 4500);
     });
   </script>
 
@@ -128,7 +139,19 @@
   </main>
 
   <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    window.__wsBooted = "module-eval";
+    let createClient;
+    try {
+      ({ createClient } = await import("https://esm.sh/@supabase/supabase-js@2"));
+    } catch (e1) {
+      try {
+        ({ createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"));
+      } catch (e2) {
+        (window.__bootErrors = window.__bootErrors || []).push("Supabase library failed to load from both esm.sh and jsdelivr: " + ((e2 && e2.message) ? e2.message : e2));
+        throw e2;
+      }
+    }
+    window.__wsBooted = "lib-loaded";
 
     const supabaseUrl = "https://ptkxrzgmeldalrkfruth.supabase.co";
     const supabaseKey = "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
@@ -351,6 +374,7 @@
         $("wsAllReadsN").textContent = `(${state.runs.length})`;
         renderEntitlements();
 
+        window.__wsBooted = "rendered";
         hideOverlay();
       }catch(err){
         console.error(err);
