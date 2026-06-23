@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Signal tier &mdash; scope &amp; start | Monderman</title>
-  <meta name="description" content="Signal tier: everything in Baseline, deployed organization-wide — up to 15 seats and measurement across every unit, operated entirely by your own team. Longitudinal tracking and cross-unit trends rolling out." />
+  <meta name="description" content="Signal tier: everything in Baseline, deployed organization-wide — up to 15 seats and measurement across every unit, operated entirely by your own team. Longitudinal tracking and cross-unit trends included." />
   <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="10" fill="%230F1720"/><text x="17" y="42" font-family="Arial,Helvetica,sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text><rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/></svg>' />
   <style>
     @font-face { font-family:"Neue Haas Grotesk"; src:url("55font.woff2") format("woff2"),url("55font.woff") format("woff"); font-style:normal; font-weight:400; font-display:swap; }
@@ -12,19 +12,19 @@
     @font-face { font-family:"Neue Haas Grotesk"; src:url("75font.woff2") format("woff2"),url("75font.woff") format("woff"); font-style:normal; font-weight:700; font-display:swap; }
 
     :root{
-      --accent:#3F6EA1; --accent-dark:#2F5886; --accent-soft:rgba(63,110,161,.08);
-      --gold:#B28D3C; --gold-soft:rgba(178,141,60,.11);
-      --bg-dark:#0F1720; --bg-dark-2:#121B25; --bg-offwhite:#F6F8FB;
-      --panel:#FFFFFF; --panel-soft:#FBFCFE;
-      --text-light:#F5F7FA; --muted-light:rgba(245,247,250,.82); --muted-light-2:rgba(245,247,250,.62);
-      --text-dark:#15202B; --muted-dark:#566473; --muted-dark-2:#7B8894;
-      --line-soft:rgba(21,32,43,.08); --line-mid:rgba(21,32,43,.12);
-      --header-solid:rgba(14,20,28,0.87); --header-border:rgba(255,255,255,.08);
-      --ok:#5E8A66; --danger:#B8505E;
+      --accent:#0C6E78; --accent-dark:#0A5B63; --accent-soft:rgba(12,110,120,.08);
+      --gold:#C9821F; --gold-soft:rgba(201,130,31,.11);
+      --bg-dark:#08383E; --bg-dark-2:#08373C; --bg-offwhite:#FAFAF8;
+      --panel:#FFFFFF; --panel-soft:#FCFBF8;
+      --text-light:#F4EFE6; --muted-light:rgba(245,241,232,.82); --muted-light-2:rgba(245,241,232,.62);
+      --text-dark:#18191C; --muted-dark:#6E6F73; --muted-dark-2:#8A8C88;
+      --line-soft:rgba(24,22,18,.08); --line-mid:rgba(24,22,18,.12);
+      --header-solid:rgba(9,57,62,0.87); --header-border:rgba(255,255,255,.08);
+      --ok:#3C8A60; --danger:#B0392F;
       --shadow-soft:none; --shadow-card:none; --shadow-hover:none;
       --max:1320px;
       --transition:220ms cubic-bezier(0.16,1,0.3,1); --transition-slow:420ms cubic-bezier(0.16,1,0.3,1);
-      --panel-radius:22px; --card-radius:14px;
+      --panel-radius:18px; --card-radius:16px;
     }
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
@@ -166,13 +166,13 @@
       min-height:50px;
       min-width:168px;
       padding:0 24px;
-      border-radius:999px;
+      border-radius:7px;
       font-size:15px;
       font-weight:500;
       white-space:nowrap;
       background:#FFF;
       color:var(--text-dark);
-      border:1px solid rgba(21,32,43,.12);
+      border:1px solid rgba(24,22,18,.12);
       box-shadow:none;
       transition:background var(--transition), color var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition);
       cursor:pointer;
@@ -189,14 +189,14 @@
     .btn-accent{
       background:var(--accent);
       color:#FFF;
-      border:1px solid rgba(63,110,161,.28);
+      border:1px solid rgba(12,110,120,.28);
       box-shadow:none;
     }
     .btn-accent:hover,
     .btn-accent:focus-visible{
       background:var(--accent-dark);
       color:#FFF;
-      border-color:rgba(47,88,134,.42);
+      border-color:rgba(10,91,99,.42);
       box-shadow:none;
     }
     .btn-subtle{
@@ -208,14 +208,14 @@
     .btn-subtle:hover,
     .btn-subtle:focus-visible{
       color:var(--accent-dark);
-      border-color:rgba(63,110,161,.24);
+      border-color:rgba(12,110,120,.24);
       box-shadow:none;
     }
     .btn-hero-secondary,
     .btn-secondary{
       background:rgba(255,255,255,0.98);
       color:var(--accent);
-      border:1.25px solid rgba(63,110,161,0.9);
+      border:1.25px solid rgba(12,110,120,0.9);
       box-shadow:0 7px 16px rgba(0,0,0,0.038), 0 0 0 1px rgba(255,255,255,0.07);
     }
     .btn-hero-secondary:hover,
@@ -240,7 +240,7 @@
       padding:102px 34px 96px;
       color:var(--text-dark);
       overflow:hidden;
-      border-top:1px solid rgba(21,32,43,.04);
+      border-top:1px solid rgba(24,22,18,.04);
     }
     .page::before{content:"";position:absolute;inset:0;background:none;pointer-events:none;}
     .page-inner{
@@ -280,7 +280,7 @@
       min-height:48px;
       padding:0 14px;
       border-radius:14px;
-      border:1px solid rgba(21,32,43,.10);
+      border:1px solid rgba(24,22,18,.10);
       background:#FFF;
       color:var(--text-dark);
       font-size:.94rem;
@@ -304,8 +304,8 @@
     .context-field select:focus,
     .context-field textarea:focus{
       outline:none;
-      border-color:rgba(63,110,161,.34);
-      box-shadow:0 0 0 4px rgba(63,110,161,.10);
+      border-color:rgba(12,110,120,.34);
+      box-shadow:0 0 0 4px rgba(12,110,120,.10);
     }
 
 
@@ -313,7 +313,7 @@
     .mond-footer {
       position: relative;
       overflow: hidden;
-      background: #0D141C;
+      background: #073338;
       color: rgba(255,255,255,0.88);
       padding: 56px 40px 36px;
       border: 0;
@@ -344,7 +344,7 @@
     .mond-footer .mf-dot {
       width: 7px; height: 7px;
       border-radius: 2px;
-      background: #6B7FD7;
+      background: #0C6E78;
       display: inline-block;
     }
     .mond-footer .mf-copy {
@@ -427,12 +427,12 @@
 
     main{padding-top:0}
     .pl-wrap{max-width:920px;margin:0 auto;padding:0 34px}
-    .pl-top{background:linear-gradient(180deg,#0B1218 0%,#0F1720 100%);color:var(--text-light)}
+    .pl-top{background:linear-gradient(180deg,#04181B 0%,#08383E 100%);color:var(--text-light)}
     .pl-top-inner{max-width:920px;margin:0 auto;padding:120px 34px 56px}
     .pl-back{display:inline-flex;align-items:center;gap:7px;font-size:.86rem;color:var(--muted-light-2);margin:0 0 22px}
     .pl-back:hover{color:#fff}
     .pl-legal-banner{font-size:.84rem;line-height:1.5;color:var(--muted-light-2);border:1px solid rgba(255,255,255,.16);border-radius:9px;padding:11px 15px;margin:0 0 24px;max-width:64ch}
-    .pl-eyebrow{display:block;font-size:.74rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#8FB4DD;margin:0 0 12px}
+    .pl-eyebrow{display:block;font-size:.74rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#8FC4C9;margin:0 0 12px}
     .pl-top h1{font-size:42px;line-height:1.05;font-weight:700;color:#fff;margin:0 0 14px;letter-spacing:-0.03em}
     .pl-top .price{display:flex;align-items:baseline;gap:8px;margin:0 0 6px}
     .pl-top .price .amt{font-size:2rem;font-weight:700;color:#fff;letter-spacing:-0.02em}
@@ -453,10 +453,10 @@
     .pl-roll-tag{display:inline-block;font-size:.66rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-dark-2);border:1px solid var(--line-mid);border-radius:99px;padding:1px 8px;margin-left:8px;vertical-align:middle}
     .pl-def{background:var(--panel-soft);border:1px solid var(--line-soft);border-radius:var(--card-radius);padding:16px 20px;margin-top:22px;font-size:.9rem;line-height:1.55;color:var(--muted-dark)}
     .pl-def strong{color:var(--text-dark)}
-    .pl-allot{background:var(--accent-soft);border:1px solid rgba(63,110,161,.25);border-radius:var(--card-radius);padding:18px 22px;margin-top:16px;font-size:.96rem;line-height:1.6;color:var(--text-dark)}
+    .pl-allot{background:var(--accent-soft);border:1px solid rgba(12,110,120,.25);border-radius:var(--card-radius);padding:18px 22px;margin-top:16px;font-size:.96rem;line-height:1.6;color:var(--text-dark)}
     .pl-allot strong{color:var(--accent-dark)}
     .pl-terms{background:var(--panel-soft);border:1px solid var(--line-soft);border-radius:var(--card-radius);padding:26px 28px;margin-top:8px}
-    .pl-advisory-box{background:var(--gold-soft);border:1px solid rgba(178,141,60,.32);border-radius:10px;padding:15px 18px;margin:0 0 20px;font-size:.93rem;line-height:1.55;color:var(--text-dark)}
+    .pl-advisory-box{background:var(--gold-soft);border:1px solid rgba(201,130,31,.32);border-radius:10px;padding:15px 18px;margin:0 0 20px;font-size:.93rem;line-height:1.55;color:var(--text-dark)}
     .pl-advisory-box strong{color:var(--accent-dark)}
     .pl-terms dl{margin:0;display:grid;gap:14px}
     .pl-terms dt{font-size:.96rem;font-weight:700;color:var(--text-dark);margin:0 0 3px}
@@ -487,7 +487,7 @@
 
   
     .pl-top{position:relative;overflow:hidden}
-    .pl-top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:#3F6EA1;pointer-events:none;z-index:2}
+    .pl-top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:#0C6E78;pointer-events:none;z-index:2}
   </style>
 </head>
 <body>
@@ -521,13 +521,13 @@
   <section class="pl-why">
     <style>
       .pl-why{max-width:880px;margin:0 auto;padding:34px 24px 6px;}
-      .pl-why-panel{background:#0F1720;color:#F5F7FA;border-radius:14px;padding:28px;}
+      .pl-why-panel{background:#08383E;color:#F4EFE6;border-radius:14px;padding:28px;}
       .pl-why-panel h2{margin:0 0 10px;font-size:19px;letter-spacing:-.03em;}
-      .pl-why-panel .pl-why-lead{margin:0;color:rgba(245,247,250,.78);font-size:14.5px;line-height:1.65;}
+      .pl-why-panel .pl-why-lead{margin:0;color:rgba(245,241,232,.78);font-size:14.5px;line-height:1.65;}
       .pl-why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px;}
       .pl-why-cell{border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:16px;}
       .pl-why-cell b{display:block;font-size:13px;margin-bottom:5px;}
-      .pl-why-cell span{color:rgba(245,247,250,.68);font-size:12.5px;line-height:1.55;}
+      .pl-why-cell span{color:rgba(245,241,232,.68);font-size:12.5px;line-height:1.55;}
       .pl-why-link{display:inline-block;margin-top:18px;color:#fff;font-size:13px;font-weight:500;border-bottom:1px solid rgba(255,255,255,.35);padding-bottom:2px;text-decoration:none;}
       .pl-why-link:hover{border-color:#fff;}
       @media(max-width:760px){.pl-why-grid{grid-template-columns:1fr;}}
@@ -536,7 +536,7 @@
       <h2>One ruler across the whole organization.</h2>
       <p class="pl-why-lead">What no study and no chatbot can do: measure every unit on the same calibrated instrument, so divergence between units &mdash; and between operational, managerial, and senior vantages &mdash; becomes signal instead of anecdote. Each diagnostic can be taken as a guided interview or a structured survey; same instrument, identical scoring.</p>
       <div class="pl-why-grid">
-        <div class="pl-why-cell"><b>Comparable by architecture</b><span>Fifteen seats, every unit, one deterministic engine. Cross-unit and cross-vantage differences mean something because the ruler never changes.</span></div>
+        <div class="pl-why-cell"><b>Comparable by architecture</b><span>Fifteen seats, every unit, one <a href="deterministic-ai-infrastructure.html" style="color:#A9CFD2;text-decoration:underline">deterministic engine</a>. Cross-unit and cross-vantage differences mean something because the ruler never changes.</span></div>
         <div class="pl-why-cell"><b>A cadence no study can match</b><span>$36,000 runs all year, organization-wide &mdash; a measurement cadence no engagement model can economically sustain, which is exactly the cadence drift demands.</span></div>
         <div class="pl-why-cell"><b>Drift visible, recovery provable</b><span>Re-measure after any change and see whether capacity actually returned &mdash; verified on the instrument, not asserted in a binder.</span></div>
       </div>
@@ -547,18 +547,18 @@
   <section class="pl-section">
     <div class="pl-wrap">
       <h2 class="pl-h2">What this tier includes</h2>
-      <p class="pl-lead">Everything in Baseline, deployed across your whole organization: room for <strong>everyone accountable across your organization</strong> on the same instrument, and measurement across <strong>every unit</strong> you run. Your own team runs the diagnostics &mdash; single runs or standing campaigns &mdash; with no analyst in the loop. Longitudinal tracking and cross-unit trend views are rolling out.</p>
+      <p class="pl-lead">Everything in Baseline, deployed across your whole organization: room for <strong>everyone accountable across your organization</strong> on the same instrument, and measurement across <strong>every unit</strong> you run. Your own team runs the diagnostics &mdash; single runs or standing campaigns &mdash; with no analyst in the loop. Longitudinal tracking and cross-unit trend views are included.</p>
       <ul class="pl-includes">
         <li>Everything in Baseline</li>
         <li><span class="num">Unlimited</span> diagnostics (fair use)</li>
         <li>Up to <span class="num">15</span> seats (named team logins) &mdash; org-wide, not just a working group</li>
         <li>Measure across as many business units as you need, organized in one workspace</li>
         <li>Priority platform support (ahead of Baseline) plus a one-time onboarding session for your team</li>
-        <li class="soon">Longitudinal tracking &mdash; measure the same unit over time and see the drift, recovery, and trend <span class="pl-roll-tag">rolling out</span></li>
-        <li class="soon">Dashboard trends across every unit, so change is visible at a glance <span class="pl-roll-tag">rolling out</span></li>
-        <li class="soon">Self-serve team invites <span class="pl-roll-tag">rolling out</span></li>
+        <li>Longitudinal tracking &mdash; measure the same unit over time and see the drift, recovery, and trend</li>
+        <li>Dashboard trends across every unit, so change is visible at a glance</li>
+        <li>Self-serve team invites</li>
       </ul>
-      <div class="pl-def"><strong>What a seat is, and what it adds:</strong> a named login for one person on your team. Each seat can run any diagnostic and see your organization&rsquo;s full saved history, so the people accountable for each part of the organization work from the same shared picture rather than bottlenecking through one administrator. More seats means more of your organization on the same instrument. Seats are separate from how much you measure: diagnostics are unlimited on every paid tier, within fair use. <em>At launch we set your team&rsquo;s seats up for you; self-serve invites &mdash; and assigning specific diagnostics to specific people to own &mdash; are rolling out.</em></div>
+      <div class="pl-def"><strong>What a seat is, and what it adds:</strong> a named login for one person on your team. Each seat can run any diagnostic and see your organization&rsquo;s full saved history, so the people accountable for each part of the organization work from the same shared picture rather than bottlenecking through one administrator. More seats means more of your organization on the same instrument. Seats are separate from how much you measure: diagnostics are unlimited on every paid tier, within fair use. <em>We set your team&rsquo;s seats up for you, and self-serve invites are available; assigning specific diagnostics to specific people to own is rolling out.</em></div>
       <div class="pl-allot"><strong>Fair use.</strong> Diagnostics are unlimited &mdash; measure as many units, as often, as you need; deploying across the whole organization is the point of the tier. A fair-use standard exists only to prevent abnormal or automated over-use.</div>
     </div>
   </section>
@@ -569,7 +569,7 @@
       <div class="pl-terms">
         <div class="pl-advisory-box"><strong>These are summary terms, not the binding agreement.</strong> They are provided so you know what to expect. Your subscription is governed by the order form or services agreement Monderman provides. We recommend your legal or contracts team review all terms before you sign.</div>
         <dl>
-          <div><dt>What you are buying</dt><dd>An annual subscription giving up to 15 seats everything in Baseline, deployed organization-wide across every unit you measure, for the subscription term. Longitudinal tracking and dashboard trend views are rolling out. Signal is self-serve: results are interpreted by the software (validated narrative; cross-diagnostic synthesis is rolling out). Expert human interpretation is the Advisory tier; it is not included here.</dd></div>
+          <div><dt>What you are buying</dt><dd>An annual subscription giving up to 15 seats everything in Baseline, deployed organization-wide across every unit you measure, for the subscription term. Longitudinal tracking and dashboard trend views are included. Signal is self-serve: results are interpreted by the software (validated narrative; cross-diagnostic synthesis is available). Expert human interpretation is the Advisory tier; it is not included here.</dd></div>
           <div><dt>Billing &amp; term</dt><dd>$36,000 per year, billed by invoice on a purchase order. Annual term from the start date on your order form.</dd></div>
           <div><dt>Seats &amp; diagnostics</dt><dd>Includes up to 15 seats (named logins) and unlimited diagnostics, subject to fair use. Additional seats are available on your order form.</dd></div>
           <div><dt>Fair use</dt><dd>Diagnostics are unlimited, subject to a fair-use standard that exists only to prevent abnormal or automated over-use. There is no per-run charge and no run meter. If usage looks automated, Monderman will contact you &mdash; access is not cut off without notice.</dd></div>
@@ -619,7 +619,7 @@
   </section>
   </main>
   <footer class="footer mond-footer">
-    <div class="mf-motif" aria-hidden="true"><svg width="280" height="280" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#4A6FA5" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#5B7A9B" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#4A6FA5" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#5B7A9B" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#6B8FA6" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8BADC5" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#9FBDD1" stroke-width="0.4" opacity="0.13"/><circle cx="86" cy="-35" r="2.8" fill="#3F6EA1" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#5B7A9B" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#3F6EA1" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#7C5CE8" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#5B7A9B" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#2E86DE" opacity="0.58"/></svg></div>
+    <div class="mf-motif" aria-hidden="true"><svg width="280" height="280" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#146C75" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#3E8A92" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#146C75" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#146C75" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#3E8A92" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#146C75" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#4E9098" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8FC4C9" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#A9CFD2" stroke-width="0.4" opacity="0.13"/><circle cx="86" cy="-35" r="2.8" fill="#0C6E78" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#3E8A92" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#0C6E78" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#C9821F" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#3E8A92" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#0C6E78" opacity="0.58"/></svg></div>
     <div class="mf-inner">
       <div class="mf-top">
         <div class="mf-brand">
