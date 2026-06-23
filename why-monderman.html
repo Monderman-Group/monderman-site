@@ -37,24 +37,25 @@
 
     /* ─── DESIGN TOKENS (matched to homepage) ────────────────────────────── */
     :root {
-      --accent: #3F6EA1;
-      --accent-dark: #2F5886;
-      --accent-light: #76A5D3;
-      --bg-dark: #0F1720;
-      --bg-dark-2: #111B25;
-      --bg-dark-3: #0D141C;
-      --bg-hero-fallback: #121922;
-      --bg-offwhite: #F6F7F8;
+      --accent: #0C6E78;
+      --accent-dark: #0A5B63;
+      --accent-light: #4FA7AE;
+  --spark: #C9821F;
+      --bg-dark: #08383E;
+      --bg-dark-2: #08373C;
+      --bg-dark-3: #073338;
+      --bg-hero-fallback: #08383E;
+      --bg-offwhite: #FAFAF8;
       --bg-white: #FFFFFF;
-      --bg-paper: #F7F8F9;
-      --text-light: #F5F7FA;
-      --muted-light: rgba(245,247,250,0.82);
-      --text-dark: #15202B;
-      --muted-dark: #556270;
-      --muted-dark-2: #7A8794;
-      --line-dark: #E3E7EB;
-      --line-cool: #E7EBEF;
-      --header-solid: rgba(14,20,28,0.87);
+      --bg-paper: #FAFAF8;
+      --text-light: #F4EFE6;
+      --muted-light: rgba(245,241,232,0.82);
+      --text-dark: #18191C;
+      --muted-dark: #6E6F73;
+      --muted-dark-2: #8A8C88;
+      --line-dark: #EAE6DD;
+      --line-cool: #F1EEE7;
+      --header-solid: rgba(9,57,62,0.87);
       --header-border: rgba(255,255,255,0.08);
       --max: 1320px;
       --transition: 220ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -83,7 +84,7 @@
     h1, h2, h3 { letter-spacing: -0.048em; margin: 0; }
     p { letter-spacing: -0.01em; margin: 0; }
     :focus-visible {
-      outline: 2px solid rgba(118,165,211,0.95);
+      outline: 2px solid rgba(79,167,174,0.95);
       outline-offset: 3px;
     }
 
@@ -217,7 +218,7 @@
       margin: 0;
       padding: 0;
       background: transparent;
-      color: rgba(21,32,43,0.48);
+      color: rgba(24,22,18,0.48);
       font-size: 0.68rem;
       line-height: 1;
       font-weight: 700;
@@ -227,7 +228,7 @@
     }
     /* Section-bar on dark sections needs lighter color */
     .section-with-bar.section-on-dark .section-bar {
-      color: rgba(245,247,250,0.40);
+      color: rgba(245,241,232,0.40);
     }
     .snap-anchor { scroll-margin-top: 0; }
 
@@ -239,14 +240,14 @@
       min-height: 46px;
       min-width: 156px;
       padding: 0 19px;
-      border-radius: 999px;
+      border-radius: 7px;
       font-size: 0.91rem;
       font-weight: 500;
       letter-spacing: -0.01em;
       white-space: nowrap;
       background: rgba(255,255,255,0.98);
       color: var(--accent);
-      border: 1px solid rgba(63,110,161,0.78);
+      border: 1px solid rgba(12,110,120,0.78);
       box-shadow: 0 7px 16px rgba(0,0,0,0.038), 0 0 0 1px rgba(255,255,255,0.07);
       transition: background 180ms cubic-bezier(0.22,1,0.36,1),
                   color 180ms cubic-bezier(0.22,1,0.36,1),
@@ -266,22 +267,22 @@
     .btn-secondary {
       background: rgba(255,255,255,0.98);
       color: var(--accent);
-      border: 1.25px solid rgba(63,110,161,0.9);
+      border: 1.25px solid rgba(12,110,120,0.9);
     }
     .btn-accent {
       background: var(--accent-dark);
       color: #FFFFFF;
-      border: 1px solid rgba(63,110,161,0.24);
-      box-shadow: 0 9px 20px rgba(63,110,161,0.20), 0 0 0 1px rgba(255,255,255,0.04);
+      border: 1px solid rgba(12,110,120,0.24);
+      box-shadow: 0 9px 20px rgba(12,110,120,0.20), 0 0 0 1px rgba(255,255,255,0.04);
     }
     .btn-accent:hover, .btn-accent:focus-visible {
-      background: #294D75;
+      background: #0A5B63;
       color: #FFFFFF;
     }
 
     /* ─── HERO ───────────────────────────────────────────────────────────── */
     .hero {
-      border-bottom: 1px solid #3F6EA1;
+      border-bottom: 1px solid #0C6E78;
       position: relative;
       min-height: 100vh;
       overflow: hidden;
@@ -292,12 +293,12 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(circle at 78% 22%, rgba(63,110,161,0.20) 0%, rgba(63,110,161,0.08) 20%, transparent 38%),
+        radial-gradient(circle at 78% 22%, rgba(12,110,120,0.20) 0%, rgba(12,110,120,0.08) 20%, transparent 38%),
         linear-gradient(90deg,
-          rgba(10,14,20,0.94) 0%,
-          rgba(10,14,20,0.80) 26%,
-          rgba(10,14,20,0.48) 56%,
-          rgba(10,14,20,0.18) 100%);
+          rgba(7,51,56,0.94) 0%,
+          rgba(7,51,56,0.80) 26%,
+          rgba(7,51,56,0.48) 56%,
+          rgba(7,51,56,0.18) 100%);
       z-index: 0;
       pointer-events: none;
     }
@@ -306,8 +307,8 @@
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(180deg, rgba(10,14,20,0.10) 0%, rgba(10,14,20,0.20) 100%),
-        linear-gradient(135deg, rgba(63,110,161,0.030) 1px, transparent 1px);
+        linear-gradient(180deg, rgba(7,51,56,0.10) 0%, rgba(7,51,56,0.20) 100%),
+        linear-gradient(135deg, rgba(12,110,120,0.030) 1px, transparent 1px);
       background-size: auto, 34px 34px;
       opacity: 0.48;
       z-index: 0;
@@ -339,7 +340,7 @@
       letter-spacing: 0.22em;
       font-weight: 700;
       text-transform: uppercase;
-      color: rgba(245,247,250,0.64);
+      color: rgba(245,241,232,0.64);
       animation-delay: 340ms;
     }
     .hero h1 {
@@ -419,7 +420,7 @@
       background: var(--bg-white);
       color: var(--text-dark);
       padding: 84px 34px 92px;
-      border-bottom: 1px solid rgba(21,32,43,0.04);
+      border-bottom: 1px solid rgba(24,22,18,0.04);
     }
     .wm-condition-grid {
       margin-top: 46px;
@@ -444,7 +445,7 @@
       padding: 32px 36px;
       background: var(--bg-paper);
       border: 1px solid var(--line-cool);
-      border-left: 3px solid var(--accent);
+      border-left: 3px solid var(--spark);
       border-radius: var(--card-radius);
       max-width: 920px;
     }
@@ -483,13 +484,13 @@
       font-size: 11px;
       letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: rgba(245,247,250,0.50);
+      color: rgba(245,241,232,0.50);
       font-weight: 600;
     }
     .wm-sector-list {
       font-size: 0.86rem;
       letter-spacing: 0.08em;
-      color: rgba(245,247,250,0.82);
+      color: rgba(245,241,232,0.82);
       font-weight: 500;
     }
     .wm-sector-list .sep {
@@ -618,7 +619,7 @@
       display: flex;
       flex-direction: column;
       background: #FFFFFF;
-      border: 1px solid rgba(21,32,43,0.08);
+      border: 1px solid rgba(24,22,18,0.08);
       border-radius: var(--card-radius);
       padding: 26px 26px 28px;
       overflow: hidden;
@@ -627,7 +628,7 @@
     }
     .wm-funnel-tile:hover {
       transform: translateY(-3px);
-      border-color: rgba(63,110,161,0.14);
+      border-color: rgba(12,110,120,0.14);
     }
     .wm-funnel-tile-kicker {
       margin: 0 0 9px;
@@ -743,8 +744,8 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      background: rgba(63,110,161,0.05);
-      border: 1px solid rgba(63,110,161,0.10);
+      background: rgba(12,110,120,0.05);
+      border: 1px solid rgba(12,110,120,0.10);
       color: var(--accent);
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.72);
       transition: border-color var(--transition), background var(--transition);
@@ -755,8 +756,8 @@
       stroke: currentColor;
     }
     .wm-instrument-card:hover .wm-instrument-glyph {
-      background: rgba(63,110,161,0.08);
-      border-color: rgba(63,110,161,0.18);
+      background: rgba(12,110,120,0.08);
+      border-color: rgba(12,110,120,0.18);
     }
     .wm-instrument-number {
       font-size: 11px;
@@ -808,7 +809,6 @@
       font-size: 13px;
       line-height: 1.55;
       color: var(--muted-dark);
-      flex-grow: 1;
     }
     .wm-instrument-link {
       margin-top: auto;
@@ -824,6 +824,49 @@
       color: var(--accent-dark);
       transform: translateX(2px);
     }
+    .wm-tool-detail {
+      border-top: 1px solid var(--line-cool);
+      padding-top: 14px;
+      margin-bottom: 18px;
+    }
+    .wm-tool-toggle {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      font: inherit;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      text-align: left;
+    }
+    .wm-tool-toggle:hover { color: var(--accent-dark); }
+    .wm-tool-chevron {
+      font-size: 15px;
+      line-height: 1;
+      transition: transform var(--transition);
+    }
+    .wm-tool-toggle[aria-expanded="true"] .wm-tool-chevron { transform: rotate(180deg); }
+    .wm-tool-body {
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height var(--transition-slow), opacity var(--transition);
+    }
+    .wm-tool-body.is-open {
+      max-height: 780px;
+      opacity: 1;
+      margin-top: 14px;
+    }
+    .wm-tool-body .wm-wyg-measures { margin: 0 0 12px; font-style: italic; }
+    .wm-tool-body .wm-wyg-block-list { margin: 0; }
     .wm-instruments-caption {
       margin-top: 32px;
       text-align: center;
@@ -1049,7 +1092,7 @@
       padding: 18px 20px;
       background: var(--bg-paper);
       border: 1px solid var(--line-cool);
-      border-left: 3px solid var(--accent);
+      border-left: 3px solid var(--spark);
       border-radius: 12px;
     }
     .wm-roi-disclosure strong {
@@ -1349,7 +1392,7 @@
       gap: 12px;
       padding: 12px 22px;
       border: 1.5px solid var(--text-dark);
-      border-radius: 999px;
+      border-radius: 7px;
       transition: background 180ms cubic-bezier(0.16, 1, 0.3, 1),
                   color 180ms cubic-bezier(0.16, 1, 0.3, 1),
                   border-color 180ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -1491,7 +1534,7 @@
       color: var(--muted-dark);
     }
     .wm-diff-col--negative .wm-diff-item span {
-      color: rgba(245,247,250,0.74);
+      color: rgba(245,241,232,0.74);
     }
 
     /* ─── CTA ─────────────────────────────────────────────────────────────── */
@@ -1508,7 +1551,7 @@
       gap: 56px;
       align-items: start;
     }
-    .wm-cta-copy .section-label { color: rgba(245,247,250,0.55); }
+    .wm-cta-copy .section-label { color: rgba(245,241,232,0.55); }
     .wm-cta-copy h2 {
       margin: 0 0 16px;
       font-size: 28px;
@@ -1522,7 +1565,7 @@
       max-width: 60ch;
       font-size: 16px;
       line-height: 1.65;
-      color: rgba(245,247,250,0.78);
+      color: rgba(245,241,232,0.78);
     }
     .wm-cta-actions { display: flex; gap: 12px; flex-wrap: wrap; }
     .wm-cta-panel {
@@ -1537,7 +1580,7 @@
       letter-spacing: 0.16em;
       text-transform: uppercase;
       font-weight: 600;
-      color: rgba(245,247,250,0.55);
+      color: rgba(245,241,232,0.55);
     }
     .wm-cta-link {
       display: flex;
@@ -1561,13 +1604,13 @@
       margin: 0;
       font-size: 13.5px;
       line-height: 1.55;
-      color: rgba(245,247,250,0.68);
+      color: rgba(245,241,232,0.68);
     }
 
     /* ─── FOOTER (matched to homepage) ───────────────────────────────────── */
     .footer {
-      background: #0D141C;
-      color: rgba(245,247,250,0.88);
+      background: #073338;
+      color: rgba(245,241,232,0.88);
       padding: 50px 34px 38px;
       position: relative;
       overflow: hidden;
@@ -1611,7 +1654,7 @@
       max-width: 36ch;
       font-size: 0.98rem;
       line-height: 1.65;
-      color: rgba(245,247,250,0.68);
+      color: rgba(245,241,232,0.68);
     }
     .footer-nav { display: flex; gap: 48px; flex-wrap: wrap; }
     .footer-nav-col { min-width: 120px; }
@@ -1622,14 +1665,14 @@
       line-height: 1;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: rgba(245,247,250,0.50);
+      color: rgba(245,241,232,0.50);
     }
     .footer-nav a {
       display: block;
       margin-bottom: 10px;
       font-size: 0.95rem;
       line-height: 1.45;
-      color: rgba(245,247,250,0.82);
+      color: rgba(245,241,232,0.82);
       transition: color var(--transition), transform var(--transition);
     }
     .footer-nav a:hover, .footer-nav a:focus-visible {
@@ -1648,7 +1691,7 @@
       margin: 0;
       font-size: 0.88rem;
       line-height: 1.6;
-      color: rgba(245,247,250,0.54);
+      color: rgba(245,241,232,0.54);
     }
 
     /* Footer motif (concentric circles, bottom-right — matched to homepage) */
@@ -1776,7 +1819,7 @@
     .mond-footer {
       position: relative;
       overflow: hidden;
-      background: #0D141C;
+      background: #073338;
       color: rgba(255,255,255,0.88);
       padding: 56px 40px 36px;
       border: 0;
@@ -1807,7 +1850,7 @@
     .mond-footer .mf-dot {
       width: 7px; height: 7px;
       border-radius: 2px;
-      background: #6B7FD7;
+      background: #0C6E78;
       display: inline-block;
     }
     .mond-footer .mf-copy {
@@ -1939,7 +1982,7 @@
       <div class="wm-condition-grid reveal reveal-delay-1">
         <div>
           <p><strong>Complex institutions accumulate structural drag, process burden, and decision friction</strong> as a natural byproduct of growth, change, and governance layering. Left ungoverned, that accumulation quietly determines how fast decisions move, how legible the system remains to those inside it, and whether institutional performance still holds under load.</p>
-          <p>The accumulation is not a culture deficit, a morale signal, or a change-management problem. It is a measurable structural condition — one that drifts, compensates, and absorbs productive capacity at rates rarely measured.</p>
+          <p>The accumulation is not a culture deficit, a morale signal, or a change-management problem. It is a measurable structural condition — one that drifts, compensates, and absorbs leadership capacity at rates leaders rarely see directly.</p>
         </div>
         <div>
           <p><strong>Monderman makes that reality visible, comparable, and steerable</strong> — so leaders can act on measurable conditions instead of gut feel alone.</p>
@@ -2033,47 +2076,6 @@
   </section>
 
   <!-- ═══ FUNNEL #1 → Research ══════════════════════════════════════════ -->
-  <section class="wm-funnel section-with-bar snap-anchor" id="research-paths" aria-label="Continue reading">
-    <div aria-hidden="true" class="section-bar">Research</div>
-    <div class="wm-funnel-inner">
-      <div class="wm-funnel-head reveal">
-        <h3>Continue reading on the argument.</h3>
-        <p class="section-label" style="margin: 0;">Selected briefs</p>
-      </div>
-      <div class="wm-funnel-grid">
-        <a href="research.html" class="wm-funnel-tile reveal reveal-delay-1">
-          <p class="wm-funnel-tile-kicker">Example brief</p>
-          <h4>Accumulated drag in defense systems</h4>
-          <p>A structural read of how administrative load compounds across program offices over time.</p>
-          <span class="wm-funnel-tile-link">Read the brief
-            <svg viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7.5 2.5L12 7l-4.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
-        </a>
-        <a href="research.html" class="wm-funnel-tile reveal reveal-delay-2">
-          <p class="wm-funnel-tile-kicker">Example brief</p>
-          <h4>The quarter-trillion-dollar friction</h4>
-          <p>What administrative reality costs the US healthcare system, measured at the institutional baseline.</p>
-          <span class="wm-funnel-tile-link">Read the brief
-            <svg viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7.5 2.5L12 7l-4.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
-        </a>
-        <a href="research.html" class="wm-funnel-tile reveal reveal-delay-3">
-          <p class="wm-funnel-tile-kicker">Example brief</p>
-          <h4>The culture trap</h4>
-          <p>Why culture-first diagnosis mislocates the problem — and why fixing sentiment before structure often fixes the wrong thing first.</p>
-          <span class="wm-funnel-tile-link">Read the brief
-            <svg viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7.5 2.5L12 7l-4.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
-        </a>
-      </div>
-      <div class="wm-funnel-foot reveal reveal-delay-4">
-        <a href="research.html" class="wm-funnel-foot-link">Browse the full Research library
-          <svg viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7.5 2.5L12 7l-4.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-      </div>
-    </div>
-  </section>
-
   <!-- ═══ FOUR DIAGNOSTIC TOOLS ══════════════════════════════════════════ -->
   <section class="wm-instruments section-with-bar snap-anchor" id="diagnostic-tools" aria-labelledby="tools-title">
     <div aria-hidden="true" class="section-bar">Diagnostic Tools</div>
@@ -2102,6 +2104,25 @@
           <p class="wm-instrument-divider">Produces</p>
           <p class="wm-instrument-outcome">Confident Action</p>
           <p class="wm-instrument-outcome-tag">Authority, boundary, and pathway visible to those who must act on them.</p>
+          <div class="wm-tool-detail">
+            <button class="wm-tool-toggle" type="button" aria-expanded="false">
+              <span>What you receive</span>
+              <span class="wm-tool-chevron" aria-hidden="true">⌄</span>
+            </button>
+            <div class="wm-tool-body">
+              <p class="wm-wyg-measures">Where authority, ownership, and decision rights are clear — and where they aren't.</p>
+              <ul class="wm-wyg-block-list">
+                <li>Executive read (PDF), 2–3 pages</li>
+                <li>Clarity score across roles, authority, and handoffs</li>
+                <li>Primary structural signal: where the system is illegible</li>
+                <li>JSON export for internal analysis</li>
+              </ul>
+              <p class="wm-wyg-block-label">What changes</p>
+              <p class="wm-wyg-block-value">Teams stop arguing over who owns what. Decisions move because the path is visible — and stays visible as the organization grows or restructures. <span class="wm-wyg-outcome">Outcome: confident action.</span></p>
+              <p class="wm-wyg-block-label" style="margin-top:10px;">Re-run cadence</p>
+              <p class="wm-wyg-block-value">After any restructure, leadership change, or every 6–9 months.</p>
+            </div>
+          </div>
           <a class="wm-instrument-link" href="signin.html?next=structural-clarity.html">Open this Tool →</a>
         </article>
 
@@ -2120,6 +2141,25 @@
           <p class="wm-instrument-divider">Produces</p>
           <p class="wm-instrument-outcome">Sustained Advantage</p>
           <p class="wm-instrument-outcome-tag">The interval between recognition and decision held at institutional speed.</p>
+          <div class="wm-tool-detail">
+            <button class="wm-tool-toggle" type="button" aria-expanded="false">
+              <span>What you receive</span>
+              <span class="wm-tool-chevron" aria-hidden="true">⌄</span>
+            </button>
+            <div class="wm-tool-body">
+              <p class="wm-wyg-measures">How quickly decisions move through the institution — and where they stall.</p>
+              <ul class="wm-wyg-block-list">
+                <li>Executive read (PDF), 2–3 pages</li>
+                <li>Velocity score with stall-point map</li>
+                <li>Primary structural signal: where time is being absorbed</li>
+                <li>JSON export for internal analysis</li>
+              </ul>
+              <p class="wm-wyg-block-label">What changes</p>
+              <p class="wm-wyg-block-value">Cycle time tightens at the named stall point — not across the board. Speed becomes a function of structure, not effort, and stays a function of structure as conditions shift. <span class="wm-wyg-outcome">Outcome: sustained advantage.</span></p>
+              <p class="wm-wyg-block-label" style="margin-top:10px;">Re-run cadence</p>
+              <p class="wm-wyg-block-value">Quarterly during transformation, otherwise every 6 months.</p>
+            </div>
+          </div>
           <a class="wm-instrument-link" href="signin.html?next=decision-velocity.html">Open this Tool →</a>
         </article>
 
@@ -2139,6 +2179,25 @@
           <p class="wm-instrument-divider">Produces</p>
           <p class="wm-instrument-outcome">Reclaimed Capacity</p>
           <p class="wm-instrument-outcome-tag">Burden measured. Drag relieved at the structural source, not at the symptom.</p>
+          <div class="wm-tool-detail">
+            <button class="wm-tool-toggle" type="button" aria-expanded="false">
+              <span>What you receive</span>
+              <span class="wm-tool-chevron" aria-hidden="true">⌄</span>
+            </button>
+            <div class="wm-tool-body">
+              <p class="wm-wyg-measures">Where administrative systems accelerate work — and where they restrict it.</p>
+              <ul class="wm-wyg-block-list">
+                <li>Executive read (PDF), 2–3 pages</li>
+                <li>Burden score with directional reclaim estimate (hours, cost)</li>
+                <li>Primary structural signal: where drag is sourced</li>
+                <li>JSON export for internal analysis</li>
+              </ul>
+              <p class="wm-wyg-block-label">What changes</p>
+              <p class="wm-wyg-block-value">A measurable share of senior time returns to mission once the structural source is corrected — and remains there, because the diagnostic surfaces when new burden is quietly accumulating. <span class="wm-wyg-outcome">Outcome: reclaimed capacity.</span></p>
+              <p class="wm-wyg-block-label" style="margin-top:10px;">Re-run cadence</p>
+              <p class="wm-wyg-block-value">Every 6 months, or after any major system change.</p>
+            </div>
+          </div>
           <a class="wm-instrument-link" href="signin.html?next=operational-systems.html">Open this Tool →</a>
         </article>
 
@@ -2159,6 +2218,25 @@
           <p class="wm-instrument-divider">Produces</p>
           <p class="wm-instrument-outcome">Organizational Credibility</p>
           <p class="wm-instrument-outcome-tag">Coherence between what the institution says, decides, and delivers.</p>
+          <div class="wm-tool-detail">
+            <button class="wm-tool-toggle" type="button" aria-expanded="false">
+              <span>What you receive</span>
+              <span class="wm-tool-chevron" aria-hidden="true">⌄</span>
+            </button>
+            <div class="wm-tool-body">
+              <p class="wm-wyg-measures">How structural conditions compound — over time — into delivery on stated commitments.</p>
+              <ul class="wm-wyg-block-list">
+                <li>Executive read (PDF), 2–3 pages</li>
+                <li>Coherence score across what the institution says, decides, and delivers</li>
+                <li>Primary structural signal: where commitment and capacity diverge</li>
+                <li>JSON export for internal analysis</li>
+              </ul>
+              <p class="wm-wyg-block-label">What changes</p>
+              <p class="wm-wyg-block-value">Leaders see whether the institution can still meet its stated commitments — and act before the gap becomes public. <span class="wm-wyg-outcome">Outcome: organizational credibility.</span></p>
+              <p class="wm-wyg-block-label" style="margin-top:10px;">Re-run cadence</p>
+              <p class="wm-wyg-block-value">Annually, or before any major commitment cycle.</p>
+            </div>
+          </div>
           <a class="wm-instrument-link" href="signin.html?next=institutional-performance.html">Open this Tool →</a>
         </article>
 
@@ -2177,15 +2255,15 @@
           <svg class="wm-compound-converge" viewBox="0 0 800 80" preserveAspectRatio="none" aria-hidden="true">
             <defs>
               <linearGradient id="flowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stop-color="#3F6EA1" stop-opacity="0.35"/>
-                <stop offset="100%" stop-color="#3F6EA1" stop-opacity="0.65"/>
+                <stop offset="0%" stop-color="#0C6E78" stop-opacity="0.35"/>
+                <stop offset="100%" stop-color="#0C6E78" stop-opacity="0.65"/>
               </linearGradient>
             </defs>
             <path d="M120 8 Q260 42 400 74" fill="none" stroke="url(#flowGrad)" stroke-width="3.2" stroke-linecap="round"/>
             <path d="M280 8 Q340 42 400 74" fill="none" stroke="url(#flowGrad)" stroke-width="3.2" stroke-linecap="round"/>
             <path d="M520 8 Q460 42 400 74" fill="none" stroke="url(#flowGrad)" stroke-width="3.2" stroke-linecap="round"/>
             <path d="M680 8 Q540 42 400 74" fill="none" stroke="url(#flowGrad)" stroke-width="3.2" stroke-linecap="round"/>
-            <circle cx="400" cy="74" r="6" fill="#3F6EA1"/>
+            <circle cx="400" cy="74" r="6" fill="#0C6E78"/>
             <circle cx="400" cy="74" r="3.5" fill="#FFFFFF" opacity="0.95"/>
           </svg>
           <div class="wm-compound-result">
@@ -2203,132 +2281,15 @@
     </div>
   </section>
 
-  <!-- ═══ WHAT YOU GET ════════════════════════════════════════════════════ -->
-  <section class="wm-whatyouget section-with-bar snap-anchor" id="whatyouget" aria-labelledby="wyg-title">
-    <div aria-hidden="true" class="section-bar">What You Get</div>
-    <div class="section-inner">
-      <div class="section-intro reveal">
-        <p class="section-label">Concrete deliverables</p>
-        <h2 id="wyg-title">What you receive, and what changes after you act on it.</h2>
-        <p>Most institutions only discover their administrative reality when it has become a problem. Monderman is built to be useful at both moments — when the problem is visible, and before it forms.</p>
-        <p>Every diagnostic produces the same set of outputs: an executive read, a quantified score, the primary structural signal, and a machine-readable export. What differs is what each diagnostic surfaces — what it lets you act on now, and what it lets you protect going forward.</p>
-      </div>
-
-      <ul class="wm-wyg-list reveal reveal-delay-1">
-
-        <li class="wm-wyg-item">
-          <div class="wm-wyg-lead">
-            <p class="wm-wyg-num">01 · Diagnostic</p>
-            <h3 class="wm-wyg-name">Structural Clarity</h3>
-            <p class="wm-wyg-measures">Where authority, ownership, and decision rights are clear — and where they aren't.</p>
-          </div>
-          <div class="wm-wyg-body">
-            <div class="wm-wyg-block">
-              <p class="wm-wyg-block-label">What you receive</p>
-              <ul class="wm-wyg-block-list">
-                <li>Executive read (PDF), 2–3 pages</li>
-                <li>Clarity score across roles, authority, and handoffs</li>
-                <li>Primary structural signal: where the system is illegible</li>
-                <li>JSON export for internal analysis</li>
-              </ul>
-            </div>
-            <div class="wm-wyg-block">
-              <p class="wm-wyg-block-label">What changes</p>
-              <p class="wm-wyg-block-value">Teams stop arguing over who owns what. Decisions move because the path is visible — and stays visible as the organization grows or restructures. <span class="wm-wyg-outcome">Outcome: confident action.</span></p>
-              <p class="wm-wyg-block-label" style="margin-top:10px;">Re-run cadence</p>
-              <p class="wm-wyg-block-value">After any restructure, leadership change, or every 6–9 months.</p>
-            </div>
-          </div>
-        </li>
-
-        <li class="wm-wyg-item">
-          <div class="wm-wyg-lead">
-            <p class="wm-wyg-num">02 · Diagnostic</p>
-            <h3 class="wm-wyg-name">Decision Velocity</h3>
-            <p class="wm-wyg-measures">How quickly decisions move through the institution — and where they stall.</p>
-          </div>
-          <div class="wm-wyg-body">
-            <div class="wm-wyg-block">
-              <p class="wm-wyg-block-label">What you receive</p>
-              <ul class="wm-wyg-block-list">
-                <li>Executive read (PDF), 2–3 pages</li>
-                <li>Velocity score with stall-point map</li>
-                <li>Primary structural signal: where time is being absorbed</li>
-                <li>JSON export for internal analysis</li>
-              </ul>
-            </div>
-            <div class="wm-wyg-block">
-              <p class="wm-wyg-block-label">What changes</p>
-              <p class="wm-wyg-block-value">Cycle time tightens at the named stall point — not across the board. Speed becomes a function of structure, not effort, and stays a function of structure as conditions shift. <span class="wm-wyg-outcome">Outcome: sustained advantage.</span></p>
-              <p class="wm-wyg-block-label" style="margin-top:10px;">Re-run cadence</p>
-              <p class="wm-wyg-block-value">Quarterly during transformation, otherwise every 6 months.</p>
-            </div>
-          </div>
-        </li>
-
-        <li class="wm-wyg-item">
-          <div class="wm-wyg-lead">
-            <p class="wm-wyg-num">03 · Diagnostic</p>
-            <h3 class="wm-wyg-name">Operational Systems</h3>
-            <p class="wm-wyg-measures">Where administrative systems accelerate work — and where they restrict it.</p>
-          </div>
-          <div class="wm-wyg-body">
-            <div class="wm-wyg-block">
-              <p class="wm-wyg-block-label">What you receive</p>
-              <ul class="wm-wyg-block-list">
-                <li>Executive read (PDF), 2–3 pages</li>
-                <li>Burden score with directional reclaim estimate (hours, cost)</li>
-                <li>Primary structural signal: where drag is sourced</li>
-                <li>JSON export for internal analysis</li>
-              </ul>
-            </div>
-            <div class="wm-wyg-block">
-              <p class="wm-wyg-block-label">What changes</p>
-              <p class="wm-wyg-block-value">A measurable share of productive capacity returns to mission once the structural source is corrected — and remains there, because the diagnostic surfaces when new burden is quietly accumulating. <span class="wm-wyg-outcome">Outcome: reclaimed capacity.</span></p>
-              <p class="wm-wyg-block-label" style="margin-top:10px;">Re-run cadence</p>
-              <p class="wm-wyg-block-value">Every 6 months, or after any major system change.</p>
-            </div>
-          </div>
-        </li>
-
-        <li class="wm-wyg-item">
-          <div class="wm-wyg-lead">
-            <p class="wm-wyg-num">04 · Diagnostic</p>
-            <h3 class="wm-wyg-name">Institutional Performance</h3>
-            <p class="wm-wyg-measures">How structural conditions compound — over time — into delivery on stated commitments.</p>
-          </div>
-          <div class="wm-wyg-body">
-            <div class="wm-wyg-block">
-              <p class="wm-wyg-block-label">What you receive</p>
-              <ul class="wm-wyg-block-list">
-                <li>Executive read (PDF), 2–3 pages</li>
-                <li>Coherence score across what the institution says, decides, and delivers</li>
-                <li>Primary structural signal: where commitment and capacity diverge</li>
-                <li>JSON export for internal analysis</li>
-              </ul>
-            </div>
-            <div class="wm-wyg-block">
-              <p class="wm-wyg-block-label">What changes</p>
-              <p class="wm-wyg-block-value">Leaders see whether the institution can still meet its stated commitments — and act before the gap becomes public. <span class="wm-wyg-outcome">Outcome: organizational credibility.</span></p>
-              <p class="wm-wyg-block-label" style="margin-top:10px;">Re-run cadence</p>
-              <p class="wm-wyg-block-value">Annually, or before any major commitment cycle.</p>
-            </div>
-          </div>
-        </li>
-
-      </ul>
-    </div>
-  </section>
-
-  <!-- ═══ EXECUTIVE BRIEF DOWNLOAD ════════════════════════════════════════ -->
+  <!-- ═══ READ FURTHER ═══════════════════════════════════════════════ -->
   <div class="wm-brief-band">
     <div class="wm-brief-band-inner">
-      <p class="wm-brief-band-label">For circulation</p>
-      <a class="wm-brief-band-link" href="Monderman_Platform_Brief.html">
-        Download the Monderman brief
+      <p class="wm-brief-band-label">Read further</p>
+      <a class="wm-brief-band-link" href="research.html">
+        The argument, in the Research library
         <span class="wm-brief-band-arrow" aria-hidden="true">→</span>
       </a>
-      <p class="wm-brief-band-meta">Single-page reference covering Monderman's thesis, four Diagnostic Tools, workflow, plans, and adoption pathways. Built for senior leaders evaluating internally.</p>
+      <p class="wm-brief-band-meta">Selected briefs on accumulated drag, the cost of administrative reality, and why culture-first diagnosis mislocates the problem — or the one-page <a href="Monderman_Platform_Brief.html" style="color:var(--accent);font-weight:600;text-decoration:underline;">Monderman brief</a> for internal circulation.</p>
     </div>
   </div>
 
@@ -2398,13 +2359,13 @@
     <div class="section-inner">
       <div class="section-intro reveal">
         <p class="section-label">Where capacity returns</p>
-        <h2 id="roi-title">We don't create capacity. We reclaim it.</h2>
+        <h2 id="roi-title">Capacity isn't created. It's reclaimed.</h2>
         <p>ROI is not a multiplier. It is a structural mechanism — administrative load is measured, the source of drag is identified, and a portion of absorbed capacity is returned to mission. Monderman models the path conservatively, in named conditions, and at the institution's own measured baseline.</p>
       </div>
 
       <div class="wm-roi-grid">
         <div class="wm-roi-left reveal reveal-delay-1">
-          <p><strong>The mechanism, plainly stated.</strong> A measurable share of productive capacity is absorbed by structural friction — reconciliations, approval queues, ambiguous authority, redundant reporting, decision-stage handoffs. The Diagnostic Tools quantify that absorption against the institution's own structure, not an industry average.</p>
+          <p><strong>The mechanism, plainly stated.</strong> A measurable share of every senior workweek is absorbed by structural friction — reconciliations, approval queues, ambiguous authority, redundant reporting, decision-stage handoffs. The Diagnostic Tools quantify that absorption against the institution's own structure, not an industry average.</p>
           <p>Structural correction — not workflow optimization — returns a directional, measurable portion of that capacity to its intended use. The mechanism is the same whether the institution is a combatant command, a federal agency, a hospital system, or a research university; only the structural conditions differ.</p>
           <p><strong>The fourth step is the proof.</strong> The same instrument, run again after correction, shows whether capacity actually returned. A return you cannot re-measure is a story; a return confirmed on the same calibrated instrument is a result. This step is the one almost nothing else in the market can perform — and it is the reason the engine is deterministic.</p>
           <div class="wm-roi-disclosure">
@@ -2415,7 +2376,7 @@
 
         <div class="wm-roi-diagram reveal reveal-delay-2">
           <div class="wm-roi-diagram-inner">
-            <p class="wm-roi-diagram-title">Capacity impact (early deployments)</p>
+            <p class="wm-roi-diagram-title">Senior workweek impact (early deployments)</p>
 
             <ol class="wm-roi-steps">
               <li class="wm-roi-step">
@@ -2423,7 +2384,7 @@
                 <div class="wm-roi-step-body">
                   <p class="wm-roi-step-label">Current absorption</p>
                   <p class="wm-roi-step-value">26–41%</p>
-                  <p class="wm-roi-step-unit">of productive capacity absorbed by administrative reality.</p>
+                  <p class="wm-roi-step-unit">of senior time absorbed by administrative reality.</p>
                 </div>
               </li>
               <li class="wm-roi-step">
@@ -2439,7 +2400,7 @@
                 <div class="wm-roi-step-body">
                   <p class="wm-roi-step-label">Capacity returned</p>
                   <p class="wm-roi-step-value">7–12%</p>
-                  <p class="wm-roi-step-unit">of productive capacity returned to mission, directionally, once structural corrections are adopted.</p>
+                  <p class="wm-roi-step-unit">of a senior workweek returned to mission, directionally, once structural corrections are adopted.</p>
                 </div>
               </li>
             </ol>
@@ -2449,7 +2410,7 @@
               <div class="wm-roi-axes-grid">
                 <div class="wm-roi-axis">
                   <p class="wm-roi-axis-label">Time</p>
-                  <p class="wm-roi-axis-desc">Productive capacity returned to mission.</p>
+                  <p class="wm-roi-axis-desc">Senior hours returned to mission per week.</p>
                 </div>
                 <div class="wm-roi-axis">
                   <p class="wm-roi-axis-label">Cost</p>
@@ -2479,7 +2440,7 @@
         <span>Built inside the institutions it diagnoses.</span>
       </div>
       <p class="wm-rigor-dek reveal reveal-delay-1">Three foundations, each checking the other two: graduate training in the discipline (MS in Organization Development, Pepperdine University); twenty-five years of practice since 2001 across the Department of Defense, the intelligence community, technology startups, and consulting firms; and peer-reviewed theory in print — <em>Governance, Bureaucracy and Organization: Stewardship, Drift, and Administrative Capacity</em> (Routledge, forthcoming). The full assumption set is published with every diagnostic read.</p>
-      <p class="wm-rigor-dek reveal reveal-delay-2">The platform is built as <strong>Deterministic AI Infrastructure (DAII)</strong>: a versioned scoring engine computes every result — same inputs, same score, on every run — and AI is applied only to interpretation, inside locked facts it is validated against and cannot contradict. Models change constantly; your baseline does not move with them, and neither does the cost of a read. The argument is published in <a href="after-the-first-lap.pdf" style="color:inherit;text-decoration:underline;">After the First Lap</a>.</p>
+      <p class="wm-rigor-dek reveal reveal-delay-2">The platform is built as <strong><a href="deterministic-ai-infrastructure.html" style="color:inherit;text-decoration:underline;">Deterministic AI Infrastructure (DAII)</a></strong>: a versioned scoring engine computes every result — same inputs, same score, on every run — and AI is applied only to interpretation, inside locked facts it is validated against and cannot contradict. Models change constantly; your baseline does not move with them, and neither does the cost of a read. The argument is published in <a href="after-the-first-lap.pdf" style="color:inherit;text-decoration:underline;">After the First Lap</a>.</p>
     </div>
   </section>
 
@@ -2526,58 +2487,20 @@
     <div class="section-inner">
       <div class="section-intro reveal">
         <h2 id="difference-title">Built to measure, not to infer.</h2>
-        <p>Monderman is built for organizations that suspect the visible problem is not the real problem. The differentiation is methodological, not promotional — what Monderman is, and what it is deliberately not.</p>
-      </div>
-
-      <div class="wm-difference-columns reveal reveal-delay-1">
-        <div class="wm-diff-col wm-diff-col--positive">
-          <p class="wm-diff-col-label">What Monderman is</p>
-          <div class="wm-diff-items">
-            <div class="wm-diff-item">
-              <strong>Reads the structural condition, not the symptom.</strong>
-              <span>Most surface-level approaches start and end with what feels slow, heavy, or frustrating. Monderman reads the structural condition producing those symptoms.</span>
-            </div>
-            <div class="wm-diff-item">
-              <strong>Built for repeated measurement.</strong>
-              <span>The diagnostic engine is designed for repeatable runs that create institutional memory rather than one-off observations that disappear with the project.</span>
-            </div>
-            <div class="wm-diff-item">
-              <strong>Tracks drift, not just position.</strong>
-              <span>Instead of only showing where you sit against a benchmark, Monderman helps track drift, hidden burden, and reclaimable drag over time.</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="wm-diff-col wm-diff-col--negative">
-          <p class="wm-diff-col-label">What Monderman is not</p>
-          <div class="wm-diff-items">
-            <div class="wm-diff-item">
-              <strong>Not a culture survey</strong>
-              <span>It does not measure sentiment, engagement, or morale. It measures the structural conditions under which sentiment, engagement, and morale are formed.</span>
-            </div>
-            <div class="wm-diff-item">
-              <strong>Not workflow software</strong>
-              <span>It does not change how work moves through tools. It changes what the institution can see about how work moves through itself.</span>
-            </div>
-            <div class="wm-diff-item">
-              <strong>Not a one-time assessment</strong>
-              <span>A single read establishes a baseline. The diagnostic value compounds on repetition.</span>
-            </div>
-          </div>
-        </div>
+        <p>Monderman is built for organizations that suspect the visible problem is not the real problem. The differentiation is methodological, not promotional — and it comes down to what kind of tool you are actually holding.</p>
       </div>
 
       <div class="wm-threeway reveal reveal-delay-2">
         <style>
           .wm-threeway{margin-top:34px;}
-          .wm-threeway-kicker{font-size:12px;font-weight:500;letter-spacing:.13em;text-transform:uppercase;color:#3F6EA1;margin:0 0 14px;}
+          .wm-threeway-kicker{font-size:12px;font-weight:500;letter-spacing:.13em;text-transform:uppercase;color:#0C6E78;margin:0 0 14px;}
           .wm-threeway-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
-          .wm-threeway-cell{border:1px solid rgba(21,32,43,.1);border-radius:12px;padding:22px;background:#FBFCFE;}
+          .wm-threeway-cell{border:1px solid rgba(24,22,18,.1);border-radius:12px;padding:22px;background:#FCFBF8;}
           .wm-threeway-cell h4{margin:0 0 8px;font-size:16px;letter-spacing:-.02em;}
-          .wm-threeway-cell p{margin:0;font-size:13.5px;line-height:1.6;color:#556270;}
-          .wm-threeway-cell.is-instrument{background:#0F1720;border-color:transparent;color:#F5F7FA;}
-          .wm-threeway-cell.is-instrument p{color:rgba(245,247,250,.78);}
-          .wm-threeway-note{margin:18px 0 0;font-size:13.5px;line-height:1.65;color:#556270;max-width:880px;}
+          .wm-threeway-cell p{margin:0;font-size:13.5px;line-height:1.6;color:#6E6F73;}
+          .wm-threeway-cell.is-instrument{background:#08383E;border-color:transparent;color:#F4EFE6;}
+          .wm-threeway-cell.is-instrument p{color:rgba(245,241,232,.78);}
+          .wm-threeway-note{margin:18px 0 0;font-size:13.5px;line-height:1.65;color:#6E6F73;max-width:880px;}
           @media(max-width:900px){.wm-threeway-grid{grid-template-columns:1fr;}}
         </style>
         <p class="wm-threeway-kicker">Three ways to ask what your bureaucracy is costing you</p>
@@ -2595,7 +2518,7 @@
             <p>Same inputs, same score, every run — by architecture. Quantified against calibrated sector ranges, comparable across teams, vantages, and time, repeatable on a cadence no study can sustain. Built so the return can be verified on the second read instead of asserted on the first.</p>
           </div>
         </div>
-        <p style="margin:22px 0 0;"><a href="roi.html" style="color:#8FB2D6;font-weight:500;font-size:14.5px;text-decoration:none;border-bottom:1px solid rgba(143,178,214,.4);padding-bottom:2px;">See the full ROI mechanism &rarr;</a></p>
+        <p style="margin:22px 0 0;"><a href="roi.html" style="color:#8FC4C9;font-weight:500;font-size:14.5px;text-decoration:none;border-bottom:1px solid rgba(143,196,201,.4);padding-bottom:2px;">See the full ROI mechanism &rarr;</a></p>
         <p class="wm-threeway-note">To be direct about the boundary: some conditions warrant bespoke advisory work — contested politics, sustained implementation. Monderman does not replace that. It is what disciplined organizations run before it, to aim it at the measured source, and after it, to verify the investment returned capacity. The economics differ because the architecture differs: a deterministic engine costs what software costs to run, which is what makes a quarterly cadence possible at all.</p>
       </div>
     </div>
@@ -2611,7 +2534,6 @@
         <p>The point of this page is not to sell a generic service. It is to help you decide whether Monderman's method fits the kind of institutional condition you are trying to govern. If it might, the next step is a structured conversation — not a sales call.</p>
         <div class="wm-cta-actions">
           <a class="btn btn-accent" href="connect.html">Discuss a diagnostic</a>
-          <a class="btn btn-secondary" href="diagnostics.html">Run one yourself — free</a>
         </div>
       </div>
       <div class="wm-cta-panel reveal reveal-delay-2">
@@ -2627,7 +2549,7 @@
 
   <!-- ═══ FOOTER ═════════════════════════════════════════════════════════ -->
   <footer class="footer mond-footer">
-    <div class="mf-motif" aria-hidden="true"><svg width="280" height="280" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#4A6FA5" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#5B7A9B" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#4A6FA5" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#5B7A9B" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#6B8FA6" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8BADC5" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#9FBDD1" stroke-width="0.4" opacity="0.13"/><circle cx="86" cy="-35" r="2.8" fill="#3F6EA1" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#5B7A9B" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#3F6EA1" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#7C5CE8" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#5B7A9B" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#2E86DE" opacity="0.58"/></svg></div>
+    <div class="mf-motif" aria-hidden="true"><svg width="280" height="280" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#146C75" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#3E8A92" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#146C75" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#146C75" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#3E8A92" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#146C75" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#4E9098" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8FC4C9" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#A9CFD2" stroke-width="0.4" opacity="0.13"/><circle cx="86" cy="-35" r="2.8" fill="#0C6E78" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#3E8A92" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#0C6E78" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#C9821F" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#3E8A92" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#0C6E78" opacity="0.58"/></svg></div>
     <div class="mf-inner">
       <div class="mf-top">
         <div class="mf-brand">
@@ -2823,5 +2745,16 @@
   </script>
 
     <script src="assistant.js" defer></script>
+  <script>
+    // Tool deliverable accordions (progressive disclosure)
+    document.querySelectorAll(".wm-tool-toggle").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const body = btn.nextElementSibling;
+        const open = btn.getAttribute("aria-expanded") === "true";
+        btn.setAttribute("aria-expanded", String(!open));
+        if (body) body.classList.toggle("is-open", !open);
+      });
+    });
+  </script>
 </body>
 </html>
