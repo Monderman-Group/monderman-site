@@ -480,6 +480,20 @@
       .nav a::after{display:none}
     }
 
+  
+    .ps-enterprise{margin:34px 0 0;background:#08383E;color:#fff;border-radius:16px;padding:40px;display:grid;grid-template-columns:1.08fr .92fr;gap:40px;align-items:start}
+    .ps-enterprise .ent-eyebrow{font-size:.78rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#A9CFD2;margin:0 0 12px}
+    .ps-enterprise h3{font-size:1.42rem;line-height:1.32;font-weight:600;letter-spacing:-.01em;color:#fff;margin:0 0 14px}
+    .ps-enterprise p{font-size:1rem;line-height:1.6;color:rgba(255,255,255,.84);margin:0 0 20px}
+    .ps-enterprise p a{color:#BFE0E3;text-decoration:underline;text-underline-offset:2px}
+    .ps-enterprise .ent-cta{display:inline-block;background:#fff;color:#08383E;font-weight:600;font-size:.92rem;padding:11px 22px;border-radius:7px;text-decoration:none;transition:transform .15s ease,background .15s ease}
+    .ps-enterprise .ent-cta:hover{transform:translateY(-1px);background:#EAF4F4}
+    .ps-enterprise ul{list-style:none;margin:6px 0 0;padding:0}
+    .ps-enterprise li{position:relative;padding-left:22px;margin:0 0 14px;font-size:.95rem;line-height:1.5;color:rgba(255,255,255,.9)}
+    .ps-enterprise li:last-child{margin-bottom:0}
+    .ps-enterprise li::before{content:"";position:absolute;left:0;top:7px;width:7px;height:7px;border-radius:1px;background:var(--gold)}
+    .ps-enterprise li b{color:#fff;font-weight:600}
+    @media(max-width:820px){.ps-enterprise{grid-template-columns:1fr;gap:26px;padding:30px 24px}}
   </style>
 </head>
 <body>
@@ -527,9 +541,9 @@
 
   <section class="ps-section" id="plans">
     <div class="ps-wrap">
-      <span class="ps-section-label">Three tiers</span>
+      <span class="ps-section-label">The tiers</span>
       <h2 class="ps-h2">The same instruments at every tier. What changes is whose hands run them.</h2>
-      <p class="ps-sub">Every paid tier is the same engine &mdash; all four diagnostics, the full deliverable, unlimited runs, one workspace &mdash; run as a single diagnostic or a standing <b>campaign</b> that tracks the same scope over time. What you move up for is <b>reach</b>: how much of your organization works from the diagnostics. At the top, you also buy <b>capacity</b> &mdash; a senior expert who runs the work with you.</p>
+      <p class="ps-sub">Every paid tier is the same engine &mdash; all four diagnostics, the full deliverable, unlimited runs, one workspace &mdash; run as a single diagnostic or a standing <b>campaign</b> that tracks the same scope over time. What you move up for is <b>reach</b>: how much of your organization works from the diagnostics. At the top, you also buy <b>capacity</b> &mdash; a senior expert who runs the work with you. These four instruments fit the vast majority of organizations; for the rare exceptions, <b>Enterprise</b> builds bespoke diagnostics on the same engine.</p>
 
       <div class="ps-tiers">
         <div class="ps-tier">
@@ -593,6 +607,21 @@
         <a class="btn btn-secondary" href="workspace.html">Run a diagnostic &mdash; free</a>
       </div>
       <p class="ps-beta-note">Monderman is in active beta. Capabilities marked <b>rolling out</b> are real and arrive on a published cadence &mdash; not vapor. You&rsquo;re an early customer of instruments that deepen on schedule, with founding-cohort pricing for early design partners.</p>
+
+        <div class="ps-enterprise">
+          <div class="ent-main">
+            <div class="ent-eyebrow">Enterprise</div>
+            <h3>Everything in Advisory, plus diagnostics built bespoke to your organization.</h3>
+            <p>The four standard instruments fit the vast majority of organizations. For the exceptions &mdash; structures the standard schema can&rsquo;t capture &mdash; Enterprise builds diagnostics bespoke to you on <a href="deterministic-ai-infrastructure.html">Deterministic AI Infrastructure (DAII)</a>, so they inherit the same determinism: custom questions, not custom math. Your results stay calibrated and comparable.</p>
+            <a class="ent-cta" href="connect.html">Talk to us &rarr;</a>
+          </div>
+          <ul>
+            <li><b>Bespoke diagnostics on DAII</b> &mdash; new instruments engineered to your structure, deterministic by construction</li>
+            <li><b>A dedicated analyst team</b> &mdash; not a single advisor, sized to the engagement</li>
+            <li><b>Configuration across scope, cadence, reporting, and integrations</b></li>
+            <li><b>Enterprise procurement, security, and data terms</b></li>
+          </ul>
+        </div>
     </div>
   </section>
 
@@ -609,31 +638,32 @@
               <th>Free<span class="price">$0</span></th>
               <th>Baseline<span class="price">$9,000/yr</span></th>
               <th class="featured">Signal<span class="price">$36,000/yr</span></th>
-              <th>Advisory<span class="price">from $108,000/yr</span></th>
+              <th>Advisory<span class="price">from $108,000/yr</span></th><th>Enterprise<span class="price">Custom</span></th>
             </tr>
           </thead>
           <tbody>
-            <tr><td class="rowlabel">Best for</td><td>One curious person</td><td>One person or small team</td><td>An organization, org-wide</td><td>An org that wants a partner</td></tr>
-            <tr><td class="rowlabel">Price</td><td>$0</td><td>$9,000/yr</td><td>$36,000/yr</td><td>From $108,000/yr</td></tr>
-            <tr><td class="rowlabel">All four diagnostics + full deliverable</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td></tr>
-            <tr><td class="rowlabel">Diagnostic runs</td><td class="num">3 per diagnostic</td><td class="num">Unlimited*</td><td class="num">Unlimited*</td><td class="num">Unlimited*</td></tr>
-            <tr><td class="rowlabel">Seats (named logins)&dagger;</td><td class="num">1</td><td class="num">3</td><td class="num">15</td><td class="num">Unlimited</td></tr>
-            <tr><td class="rowlabel">Saved history + results library</td><td class="no">&mdash;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td></tr>
-            <tr><td class="rowlabel">Cross-diagnostic synthesis</td><td class="no">&mdash;</td><td class="soon"><span>Rolling out</span></td><td class="soon"><span>Rolling out</span></td><td class="soon"><span>Rolling out</span></td></tr>
-            <tr><td class="rowlabel">The Monderman dashboard</td><td class="no">&mdash;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td></tr>
-            <tr><td class="rowlabel">Measure across business units</td><td class="no">&mdash;</td><td class="no">&mdash;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td></tr>
-            <tr><td class="rowlabel">Longitudinal tracking</td><td class="no">&mdash;</td><td class="no">&mdash;</td><td class="soon"><span>Rolling out</span></td><td class="soon"><span>Rolling out</span></td></tr>
-            <tr><td class="rowlabel">Cross-unit dashboard trends</td><td class="no">&mdash;</td><td class="no">&mdash;</td><td class="soon"><span>Rolling out</span></td><td class="soon"><span>Rolling out</span></td></tr>
-            <tr><td class="rowlabel">Self-serve team invites</td><td class="no">&mdash;</td><td class="soon"><span>Rolling out</span></td><td class="soon"><span>Rolling out</span></td><td class="soon"><span>Rolling out</span></td></tr>
-            <tr><td class="rowlabel">Analyst review of reads &mdash; expert layer</td><td class="no">&mdash;</td><td class="no">&mdash;</td><td class="no">&mdash;</td><td class="svc">12 / year</td></tr>
-            <tr><td class="rowlabel">Hands-on advisory &mdash; expert layer</td><td class="no">&mdash;</td><td class="no">&mdash;</td><td class="no">&mdash;</td><td class="svc">&#10003;</td></tr>
-            <tr><td class="rowlabel">Platform support</td><td>—</td><td>Email, ~2 business days</td><td>Priority + onboarding</td><td>Via advisory</td></tr>
+            <tr><td class="rowlabel">Best for</td><td>One curious person</td><td>One person or small team</td><td>An organization, org-wide</td><td>An org that wants a partner</td><td>An org that needs bespoke instruments</td></tr>
+            <tr><td class="rowlabel">Price</td><td>$0</td><td>$9,000/yr</td><td>$36,000/yr</td><td>From $108,000/yr</td><td>Custom</td></tr>
+            <tr><td class="rowlabel">All four diagnostics + full deliverable</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td></tr>
+            <tr><td class="rowlabel">Diagnostic runs</td><td class="num">3 per diagnostic</td><td class="num">Unlimited*</td><td class="num">Unlimited*</td><td class="num">Unlimited*</td><td class="num">Unlimited*</td></tr>
+            <tr><td class="rowlabel">Seats (named logins)&dagger;</td><td class="num">1</td><td class="num">3</td><td class="num">15</td><td class="num">Unlimited</td><td class="num">Unlimited</td></tr>
+            <tr><td class="rowlabel">Saved history + results library</td><td class="no">&mdash;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td></tr>
+            <tr><td class="rowlabel">Cross-diagnostic synthesis</td><td class="no">&mdash;</td><td class="soon"><span>Rolling out</span></td><td class="soon"><span>Rolling out</span></td><td class="soon"><span>Rolling out</span></td><td class="soon"><span>Rolling out</span></td></tr>
+            <tr><td class="rowlabel">The Monderman dashboard</td><td class="no">&mdash;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td></tr>
+            <tr><td class="rowlabel">Measure across business units</td><td class="no">&mdash;</td><td class="no">&mdash;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td></tr>
+            <tr><td class="rowlabel">Longitudinal tracking</td><td class="no">&mdash;</td><td class="no">&mdash;</td><td class="soon"><span>Rolling out</span></td><td class="soon"><span>Rolling out</span></td><td class="soon"><span>Rolling out</span></td></tr>
+            <tr><td class="rowlabel">Cross-unit dashboard trends</td><td class="no">&mdash;</td><td class="no">&mdash;</td><td class="soon"><span>Rolling out</span></td><td class="soon"><span>Rolling out</span></td><td class="soon"><span>Rolling out</span></td></tr>
+            <tr><td class="rowlabel">Self-serve team invites</td><td class="no">&mdash;</td><td class="soon"><span>Rolling out</span></td><td class="soon"><span>Rolling out</span></td><td class="soon"><span>Rolling out</span></td><td class="soon"><span>Rolling out</span></td></tr>
+            <tr><td class="rowlabel">Analyst review of reads &mdash; expert layer</td><td class="no">&mdash;</td><td class="no">&mdash;</td><td class="no">&mdash;</td><td class="svc">12 / year</td><td class="svc">Dedicated team</td></tr>
+            <tr><td class="rowlabel">Hands-on advisory &mdash; expert layer</td><td class="no">&mdash;</td><td class="no">&mdash;</td><td class="no">&mdash;</td><td class="svc">&#10003;</td><td class="svc">&#10003;</td></tr>
+            <tr><td class="rowlabel">Bespoke diagnostics built to your structure</td><td class="no">&mdash;</td><td class="no">&mdash;</td><td class="no">&mdash;</td><td class="no">&mdash;</td><td class="yes">&#10003;</td></tr>
+            <tr><td class="rowlabel">Platform support</td><td>—</td><td>Email, ~2 business days</td><td>Priority + onboarding</td><td>Via advisory</td><td>Via dedicated team</td></tr>
             <tr class="cta-row">
               <td class="rowlabel">&nbsp;</td>
               <td><a class="btn btn-secondary" href="workspace.html">Start free</a></td>
               <td><a class="btn btn-accent" href="plan-baseline.html">Baseline</a></td>
               <td><a class="btn btn-accent" href="plan-signal.html">Signal</a></td>
-              <td><a class="btn btn-accent" href="plan-advisory.html">Advisory</a></td>
+              <td><a class="btn btn-accent" href="plan-advisory.html">Advisory</a></td><td><a class="btn btn-accent" href="connect.html">Talk to us</a></td>
             </tr>
           </tbody>
         </table>
@@ -653,7 +683,7 @@
     <div class="mxps-card">
       <div>
         <h3>Why these prices hold.</h3>
-        <p>Every tier runs the same deterministic engine &mdash; same inputs, same score, on every run, with AI confined to interpretation inside locked facts it cannot contradict. That architecture is why $36,000 covers an organization all year: software economics, not deployment economics &mdash; and why the return is verifiable on the second read instead of asserted on the first. Each diagnostic can be taken as a guided interview or a structured survey; identical scoring either way.</p>
+        <p>Every tier runs the same <a href="deterministic-ai-infrastructure.html">deterministic engine</a> &mdash; same inputs, same score, on every run, with AI confined to interpretation inside locked facts it cannot contradict. That architecture is why $36,000 covers an organization all year: software economics, not deployment economics &mdash; and why the return is verifiable on the second read instead of asserted on the first. Each diagnostic can be taken as a guided interview or a structured survey; identical scoring either way.</p>
       </div>
       <a href="roi.html">How the engine produces verifiable ROI &rarr;</a>
     </div>
@@ -728,7 +758,11 @@
         </div>
         <div class="ps-faq-item">
           <p class="ps-faq-q">Is this another culture or sentiment survey?</p>
-          <p class="ps-faq-a">No. Monderman&rsquo;s instruments are deterministic: the same inputs produce the same score every run, and every result is quantified in your own hours and dollars against calibrated sector ranges &mdash; not mood, not opinion. They measure what those surveys ask you to assume.</p>
+          <p class="ps-faq-a">No. Monderman&rsquo;s instruments are <a href="deterministic-ai-infrastructure.html">deterministic</a>: the same inputs produce the same score every run, and every result is quantified in your own hours and dollars against calibrated sector ranges &mdash; not mood, not opinion. They measure what those surveys ask you to assume.</p>
+        </div>
+        <div class="ps-faq-item">
+          <p class="ps-faq-q">What if our organization doesn&rsquo;t fit the four instruments?</p>
+          <p class="ps-faq-a">The four standard instruments fit the vast majority of organizations. For the exceptions &mdash; structures the standard schema can&rsquo;t capture &mdash; <b>Enterprise</b> builds diagnostics bespoke to you on the same <a href="deterministic-ai-infrastructure.html">deterministic engine</a>: custom questions, not custom math, so your results stay calibrated and comparable. <a href="connect.html">Talk to us</a> to scope it.</p>
         </div>
       </div>
     </div>
