@@ -476,7 +476,7 @@
       .header{height:auto}
       .header-inner{flex-direction:column;align-items:flex-start;gap:14px;padding-top:16px;padding-bottom:12px}
       .nav::-webkit-scrollbar{display:none}
-      .nav a{flex:0 0 auto;white-space:nowrap;font-size:0.84rem;line-height:1;padding:10px 12px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08)}
+      .nav a{flex:0 0 auto;white-space:nowrap;font-size:0.84rem;line-height:1;padding:10px 12px;border-radius:5px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08)}
       .nav a::after{display:none}
     }
 
@@ -734,6 +734,22 @@
         .ps-faq-q{margin:0 0 .5rem;font-size:1.075rem;font-weight:600;color:var(--text-dark,#18191C);line-height:1.35;}
         .ps-faq-a{margin:0;color:var(--muted-dark,#6E6F73);line-height:1.62;}
         .ps-faq-a a{color:var(--accent,#0C6E78);}
+    /* orange hover-reveal — ROI card hover reveal */
+    .ps-roi-card { position: relative; overflow: hidden; }
+    .ps-roi-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0%;
+      background: #C9821F;
+      transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
+      pointer-events: none;
+      z-index: 2;
+    }
+    .ps-roi-card:hover::before { width: 100%; }
+
       </style>
       <span class="ps-section-label">Common questions</span>
       <h2 class="ps-h2">The questions that come up most.</h2>
