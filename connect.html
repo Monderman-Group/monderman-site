@@ -983,7 +983,7 @@
       .confirmation-grid { grid-template-columns: 1fr; }
     }
 
-    @media (max-width: 980px) {
+    @media (max-width: 760px) {
       .header { height: auto; }
       .header-inner {
         padding: 14px 24px 10px;
@@ -1007,7 +1007,7 @@
         font-size: 0.84rem;
         line-height: 1;
         padding: 10px 12px;
-        border-radius: 999px;
+        border-radius: 5px;
         background: rgba(255,255,255,0.06);
         border: 1px solid rgba(255,255,255,0.08);
         white-space: nowrap;
@@ -1280,6 +1280,17 @@
       .mond-footer .mf-motif { bottom: -90px; right: -90px; }
       .mond-footer .mf-motif svg { width: 220px; height: 220px; }
     }
+    /* orange — static kicker accent on expectations section-label */
+    .expectations .section-label::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: #C9821F;
+      margin-right: 9px;
+      vertical-align: 1px;
+    }
+
 
   </style>
 </head>
