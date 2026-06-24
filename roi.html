@@ -39,8 +39,6 @@
     
     
     
-    @media(max-width:900px){.nav{display:none;}}
-
     .section{max-width:var(--max);margin:0 auto;padding:64px 28px;}
     .eyebrow{font-size:12px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);}
     .section h2{margin:10px 0 0;font-size:30px;}
@@ -745,6 +743,59 @@
       color: #FFFFFF;
       transform: none;
     }
+
+    /* Canonical header polish: scrolled + past-hero behavior (matches index.html) */
+    .header.scrolled { background: rgba(5, 24, 27, 0.72); border-bottom-color: rgba(255, 255, 255, 0.07); }
+    .header.scrolled.past-hero { background: rgba(250, 250, 248, 0.90); border-bottom-color: rgba(24, 25, 28, 0.08); }
+    .header.past-hero .brand { color: #18191C; text-shadow: none; }
+    .header.past-hero .nav a { color: rgba(24, 25, 28, 0.74); }
+    .header.past-hero .nav a:hover, .header.past-hero .nav a:focus-visible { color: #18191C; }
+    .header.past-hero .nav a.is-active { color: #0C6E78; }
+
+    /* Canonical mobile header pattern (must come AFTER main .header CSS to win cascade — matches index.html) */
+    @media (max-width: 980px) {
+      .header { height: auto; }
+      .header-inner {
+        padding: 16px 24px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .nav {
+        width: 100%;
+        gap: 22px;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+      }
+      .nav::-webkit-scrollbar { display: none; }
+    }
+    @media (max-width: 640px) {
+      .header-inner {
+        padding: 14px 20px 10px;
+        gap: 10px;
+      }
+      .brand { font-size: 1.05rem; }
+      .brand::after { margin-left: 8px; }
+      .nav {
+        width: calc(100% + 4px);
+        gap: 10px;
+        padding: 2px 4px 6px 0;
+      }
+      .nav a {
+        flex: 0 0 auto;
+        font-size: 0.84rem;
+        line-height: 1;
+        padding: 10px 12px;
+        border-radius: 5px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .nav a::after { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -1047,7 +1098,13 @@
 <script>
 (function(){
   var h = document.getElementById("siteHeader");
-  function onScroll(){ if (h) h.classList.toggle("scrolled", window.scrollY > 8); }
+  var heroEl = document.querySelector(".hero");
+  function onScroll(){
+    if (!h) return;
+    var heroH = heroEl ? heroEl.offsetHeight : window.innerHeight;
+    h.classList.toggle("scrolled", window.scrollY > 24);
+    h.classList.toggle("past-hero", window.scrollY > heroH - 72);
+  }
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
 })();
