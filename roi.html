@@ -16,10 +16,10 @@
     @font-face{font-family:"Neue Haas Grotesk";src:url("65font.woff2") format("woff2"),url("65font.woff") format("woff");font-style:normal;font-weight:500;font-display:swap;}
     @font-face{font-family:"Neue Haas Grotesk";src:url("75font.woff2") format("woff2"),url("75font.woff") format("woff");font-style:normal;font-weight:700;font-display:swap;}
     :root{
-      --accent:#3F6EA1;--accent-dark:#2F5886;--bg-dark:#0F1720;--bg-dark-2:#111B25;
-      --bg-offwhite:#F6F7F8;--bg-white:#FFFFFF;--text-light:#F5F7FA;--text-dark:#15202B;
-      --muted-dark:#556270;--muted-dark-2:#7A8794;--panel-line:rgba(21,32,43,.08);
-      --panel-soft:#FBFCFE;--success:#2E8B57;--warning:#B8860B;--danger:#B8505E;
+      --accent:#0C6E78;--accent-dark:#0A5B63;--bg-dark:#08383E;--bg-dark-2:#073338;
+      --bg-offwhite:#F6F3EC;--bg-white:#FFFFFF;--text-light:#FAFAF8;--text-dark:#18191C;
+      --muted-dark:#6E6F73;--muted-dark-2:#9A9892;--panel-line:rgba(24,25,28,.08);
+      --panel-soft:#FAFAF8;--success:#3C8A60;--warning:#A06912;--danger:#B0392F;
       --max:1320px;--soft-shadow:0 1px 0 rgba(0,0,0,.012),0 12px 28px rgba(0,0,0,.04);
       --card-shadow:0 16px 32px rgba(0,0,0,.045);--transition:220ms cubic-bezier(.22,1,.36,1);
       --header-solid: rgba(14,20,28,0.87);
@@ -51,13 +51,13 @@
     .hero{background:var(--bg-dark);color:var(--text-light);}
     .hero .section{padding:88px 28px 84px;}
     .hero h1{margin:14px 0 0;font-size:42px;line-height:1.08;max-width:840px;}
-    .hero .lede{color:rgba(245,247,250,.78);font-size:17.5px;max-width:780px;}
+    .hero .lede{color:rgba(250,250,248,.78);font-size:17.5px;max-width:780px;}
     .cta-row{margin-top:30px;display:flex;gap:14px;flex-wrap:wrap;}
-    .btn{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;
+    .btn{display:inline-flex;align-items:center;justify-content:center;border-radius:7px;
       min-height:46px;min-width:156px;padding:0 19px;font-weight:500;font-size:0.91rem;letter-spacing:-0.01em;white-space:nowrap;transition:all var(--transition);cursor:pointer;}
     .btn-primary{background:var(--accent);color:#fff;}
     .btn-primary:hover{background:var(--accent-dark);}
-    .btn-outline{border:1px solid rgba(245,247,250,.35);color:var(--text-light);}
+    .btn-outline{border:1px solid rgba(250,250,248,.35);color:var(--text-light);}
     .btn-outline:hover{border-color:#fff;}
     .btn-outline.on-light{border:1px solid var(--panel-line);color:var(--text-dark);}
     @media(max-width:640px){.hero h1{font-size:31px;}}
@@ -69,8 +69,8 @@
     .step h3{margin:10px 0 8px;font-size:17px;}
     .step p{margin:0;color:var(--muted-dark);font-size:14px;line-height:1.55;}
     .step.proof{background:var(--bg-dark);color:var(--text-light);border-color:transparent;}
-    .step.proof p{color:rgba(245,247,250,.75);}
-    .step.proof .n{color:#8FB2D6;}
+    .step.proof p{color:rgba(250,250,248,.75);}
+    .step.proof .n{color:#A9CFD2;}
     @media(max-width:980px){.steps{grid-template-columns:1fr 1fr;}}
     @media(max-width:600px){.steps{grid-template-columns:1fr;}}
     .keyline{margin-top:26px;font-size:16.5px;line-height:1.6;max-width:820px;color:var(--text-dark);}
@@ -96,9 +96,9 @@
     .way li .g{flex:0 0 16px;margin-top:1px;font-weight:700;}
     .g.no{color:var(--danger);} .g.yes{color:var(--success);} .g.part{color:var(--warning);}
     .way.instrument{background:var(--bg-dark);color:var(--text-light);border-color:transparent;}
-    .way.instrument .tag{color:#8FB2D6;}
-    .way.instrument .good{color:rgba(245,247,250,.72);}
-    .way.instrument li{color:rgba(245,247,250,.92);border-color:rgba(255,255,255,.1);}
+    .way.instrument .tag{color:#A9CFD2;}
+    .way.instrument .good{color:rgba(250,250,248,.72);}
+    .way.instrument li{color:rgba(250,250,248,.92);border-color:rgba(255,255,255,.1);}
     .way.instrument ul{border-color:rgba(255,255,255,.1);}
     @media(max-width:980px){.ways{grid-template-columns:1fr;}}
     .concede{margin-top:30px;max-width:860px;}
@@ -146,7 +146,7 @@
     
     
     
-    .copyright{border-top:1px solid rgba(255,255,255,.08);text-align:center;color:rgba(245,247,250,.5);font-size:12.5px;padding:20px 28px;}
+    .copyright{border-top:1px solid rgba(255,255,255,.08);text-align:center;color:rgba(250,250,248,.5);font-size:12.5px;padding:20px 28px;}
     @media(max-width:860px){.footer-inner{grid-template-columns:1fr;}}
       
     
@@ -169,8 +169,8 @@
       z-index: 1;
     }
     .footer {
-      background: #0D141C;
-      color: rgba(245,247,250,0.88);
+      background: #073338;
+      color: rgba(250,250,248,0.88);
       padding: 50px 34px 38px;
       position: relative;
       overflow: hidden;
@@ -216,14 +216,14 @@
       line-height: 1;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: rgba(245,247,250,0.50);
+      color: rgba(250,250,248,0.50);
     }
     .footer-nav a {
       display: block;
       margin-bottom: 10px;
       font-size: 0.95rem;
       line-height: 1.45;
-      color: rgba(245,247,250,0.82);
+      color: rgba(250,250,248,0.82);
       transition: color var(--transition), transform var(--transition);
     }
     .footer-nav a:hover,
@@ -244,7 +244,7 @@
       margin: 0;
       font-size: 0.88rem;
       line-height: 1.6;
-      color: rgba(245,247,250,0.54);
+      color: rgba(250,250,248,0.54);
     }
     @media (max-width: 980px) {
       .header { height: auto; }
@@ -281,8 +281,8 @@
       }
       .hero-overlay {
         background:
-          linear-gradient(90deg, rgba(6,10,16,0.97) 0%, rgba(6,10,16,0.88) 30%, rgba(6,10,16,0.62) 58%, rgba(6,10,16,0.28) 80%, rgba(6,10,16,0.12) 100%),
-          linear-gradient(180deg, rgba(8,12,18,0.22) 0%, rgba(8,12,18,0.10) 40%, rgba(8,12,18,0.28) 100%);
+          linear-gradient(90deg, rgba(4,24,27,0.97) 0%, rgba(4,24,27,0.88) 30%, rgba(4,24,27,0.62) 58%, rgba(4,24,27,0.28) 80%, rgba(4,24,27,0.12) 100%),
+          linear-gradient(180deg, rgba(4,24,27,0.22) 0%, rgba(4,24,27,0.10) 40%, rgba(4,24,27,0.28) 100%);
       }
       .bureaucracy-cost { padding-top: 62px; padding-bottom: 72px; }
       .approach,
@@ -332,7 +332,7 @@
         font-size: 0.84rem;
         line-height: 1;
         padding: 10px 12px;
-        border-radius: 999px;
+        border-radius: 5px;
         background: rgba(255,255,255,0.06);
         border: 1px solid rgba(255,255,255,0.08);
       }
@@ -435,8 +435,8 @@
       }
       .hero-overlay {
         background:
-          linear-gradient(180deg, rgba(6,10,16,0.82) 0%, rgba(6,10,16,0.58) 45%, rgba(6,10,16,0.76) 100%),
-          linear-gradient(0deg, rgba(6,10,16,0.70) 0%, transparent 50%);
+          linear-gradient(180deg, rgba(4,24,27,0.82) 0%, rgba(4,24,27,0.58) 45%, rgba(4,24,27,0.76) 100%),
+          linear-gradient(0deg, rgba(4,24,27,0.70) 0%, transparent 50%);
       }
       .connect-panel { padding: 24px 22px 22px; }
       .footer-top,
@@ -462,11 +462,11 @@
 }
     .footer-nav-title {
   letter-spacing: 0.18em;
-  color: rgba(245,247,250,0.54);
+  color: rgba(250,250,248,0.54);
 }
     .footer-nav a {
   margin-bottom: 9px;
-  color: rgba(245,247,250,0.78);
+  color: rgba(250,250,248,0.78);
   transition: color var(--transition), transform var(--transition), opacity var(--transition);
 }
     .footer-nav a:hover,
@@ -480,7 +480,7 @@
 }
     .footer-meta,
 .footer-contact {
-  color: rgba(245,247,250,0.56);
+  color: rgba(250,250,248,0.56);
 }
     .footer-contact {
   max-width: 46ch;
@@ -526,7 +526,7 @@
     .mond-footer {
       position: relative;
       overflow: hidden;
-      background: #0D141C;
+      background: #073338;
       color: rgba(255,255,255,0.88);
       padding: 56px 40px 36px;
       border: 0;
@@ -557,7 +557,7 @@
     .mond-footer .mf-dot {
       width: 7px; height: 7px;
       border-radius: 2px;
-      background: #6B7FD7;
+      background: #0C6E78;
       display: inline-block;
     }
     .mond-footer .mf-copy {
@@ -728,7 +728,7 @@
       justify-content: center;
       min-height: 38px;
       padding: 0 14px;
-      border-radius: 999px;
+      border-radius: 7px;
       border: 1px solid rgba(255, 255, 255, 0.16);
       background: rgba(255, 255, 255, 0.06);
       color: #FFFFFF;
@@ -768,9 +768,9 @@
   <!-- ── HERO ─────────────────────────────────────────────────────── -->
   <div class="hero">
     <div class="section">
-      <div class="eyebrow" style="color:#8FB2D6;">ROI &amp; Method</div>
-      <h1>Return you can re-measure — and keep measuring.</h1>
-      <p class="lede">Most organizational diagnosis cannot prove it worked, because it cannot be run twice the same way. Monderman is built around the opposite premise: the return is only real when it can be re-measured on the same instrument — which is also how you use it. A standing read of your administrative condition, run on a cadence, not a study you commission once and file.</p>
+      <div class="eyebrow" style="color:#A9CFD2;">ROI &amp; Method</div>
+      <h1>Return that survives a second look.</h1>
+      <p class="lede">Most organizational diagnosis cannot prove it worked, because it cannot be run twice the same way. Monderman is built around the opposite premise: the return on a diagnostic is only real when a second read, on the same instrument, can verify it.</p>
       <div class="cta-row">
         <a class="btn btn-primary" href="connect.html">Discuss a diagnostic</a>
         <a class="btn btn-outline" href="diagnostics.html">Run one yourself — free</a>
@@ -781,8 +781,8 @@
   <!-- ── MECHANISM ────────────────────────────────────────────────── -->
   <div class="section">
     <div class="eyebrow">The mechanism</div>
-    <h2>A return you can keep measuring.</h2>
-    <p class="lede">ROI here is not a multiplier or a promise. It is a structural mechanism — measured in time, cost, and capacity, executed in four disciplined steps — and the fourth step is the one almost nothing else in this market can perform.</p>
+    <h2>Capacity isn't created. It's reclaimed.</h2>
+    <p class="lede">ROI here is not a multiplier or a promise. It is a structural mechanism, executed in four disciplined steps — and the fourth step is the one almost nothing else in this market can perform.</p>
     <div class="steps">
       <div class="step">
         <div class="n">01</div>
@@ -796,13 +796,13 @@
       </div>
       <div class="step">
         <div class="n">03</div>
-        <h3>Quantify the return</h3>
-        <p>The read maps it to time, cost, and capacity: what is proportionate overhead, what burden is recoverable, and the decision throughput a corrected structure can sustain.</p>
+        <h3>Quantify the recoverable share</h3>
+        <p>Absorbed capacity is mapped to hours and dollars: what is proportionate overhead, and what is recoverable burden.</p>
       </div>
       <div class="step proof">
         <div class="n">04</div>
-        <h3>Re-measure — and keep measuring</h3>
-        <p>The same instrument, run again after correction — and on a cadence after that — shows whether time, cost, and capacity actually moved. The second read proves the return; every read after is how the organization holds the line.</p>
+        <h3>Re-measure to verify</h3>
+        <p>The same instrument, run again after correction, shows whether capacity actually returned. This step is the ROI proof — and it requires a read that holds still.</p>
       </div>
     </div>
     <p class="keyline">Step four is the entire argument. A return you cannot re-measure is a story. A return confirmed on the same calibrated instrument is a result.</p>
@@ -817,12 +817,12 @@
       <div class="figgrid">
         <div class="fig">
           <h4>Score in sector context</h4>
-          <svg viewBox="0 0 640 132" width="100%" role="img" aria-label="Score in sector context" style="display:block;font-family:inherit;"><defs><pattern id="mv-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="rgba(63,110,161,.07)"></rect><line x1="0" y1="0" x2="0" y2="6" stroke="rgba(63,110,161,.35)" stroke-width="1.4"></line></pattern></defs><rect x="443.47999999999996" y="68" width="76.44" height="32" fill="url(#mv-hatch)" rx="3"></rect><text x="481.69999999999993" y="44" fill="#7A8794" font-size="11px" font-weight="400" text-anchor="middle" dominant-baseline="auto" letter-spacing=".08em">OPPORTUNITY RANGE</text><line x1="481.69999999999993" y1="49" x2="481.69999999999993" y2="64" stroke="rgba(21,32,43,.14)"></line><rect x="343.52000000000004" y="68" width="76.44" height="32" fill="rgba(63,110,161,.16)" rx="3"></rect><text x="381.74" y="118" fill="#2F5886" font-size="11px" font-weight="400" text-anchor="middle" dominant-baseline="auto" letter-spacing=".08em">TYPICAL INDUSTRY RANGE</text><line x1="381.74" y1="101" x2="381.74" y2="109" stroke="rgba(21,32,43,.14)"></line><line x1="26" y1="84" x2="614" y2="84" stroke="rgba(21,32,43,.14)" stroke-width="1"></line><line x1="26" y1="81" x2="26" y2="87" stroke="rgba(21,32,43,.14)"></line><text x="26" y="100" fill="#7A8794" font-size="11px" font-weight="400" text-anchor="middle" dominant-baseline="auto" letter-spacing="0">0</text><line x1="173" y1="81" x2="173" y2="87" stroke="rgba(21,32,43,.14)"></line><text x="173" y="100" fill="#7A8794" font-size="11px" font-weight="400" text-anchor="middle" dominant-baseline="auto" letter-spacing="0">25</text><line x1="320" y1="81" x2="320" y2="87" stroke="rgba(21,32,43,.14)"></line><text x="320" y="100" fill="#7A8794" font-size="11px" font-weight="400" text-anchor="middle" dominant-baseline="auto" letter-spacing="0">50</text><line x1="467" y1="81" x2="467" y2="87" stroke="rgba(21,32,43,.14)"></line><text x="467" y="100" fill="#7A8794" font-size="11px" font-weight="400" text-anchor="middle" dominant-baseline="auto" letter-spacing="0">75</text><line x1="614" y1="81" x2="614" y2="87" stroke="rgba(21,32,43,.14)"></line><text x="614" y="100" fill="#7A8794" font-size="11px" font-weight="400" text-anchor="middle" dominant-baseline="auto" letter-spacing="0">100</text><line x1="384.68" y1="62" x2="384.68" y2="106" stroke="#15202B" stroke-width="2.2"></line><rect x="356.68" y="24" width="56" height="30" rx="7" fill="#15202B"></rect><text x="384.68" y="44" fill="#fff" font-size="17px" font-weight="700" text-anchor="middle" dominant-baseline="auto" letter-spacing="0">61</text><path d="M 379.68 54 l 5 6 l 5 -6 Z" fill="#15202B"></path></svg>
+          <svg viewBox="0 0 640 132" width="100%" role="img" aria-label="Score in sector context" style="display:block;font-family:inherit;"><defs><pattern id="mv-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="rgba(12,110,120,.07)"></rect><line x1="0" y1="0" x2="0" y2="6" stroke="rgba(12,110,120,.35)" stroke-width="1.4"></line></pattern></defs><rect x="443.47999999999996" y="68" width="76.44" height="32" fill="url(#mv-hatch)" rx="3"></rect><text x="481.69999999999993" y="44" fill="#9A9892" font-size="11px" font-weight="400" text-anchor="middle" dominant-baseline="auto" letter-spacing=".08em">OPPORTUNITY RANGE</text><line x1="481.69999999999993" y1="49" x2="481.69999999999993" y2="64" stroke="rgba(24,25,28,.14)"></line><rect x="343.52000000000004" y="68" width="76.44" height="32" fill="rgba(12,110,120,.16)" rx="3"></rect><text x="381.74" y="118" fill="#0A5B63" font-size="11px" font-weight="400" text-anchor="middle" dominant-baseline="auto" letter-spacing=".08em">TYPICAL INDUSTRY RANGE</text><line x1="381.74" y1="101" x2="381.74" y2="109" stroke="rgba(24,25,28,.14)"></line><line x1="26" y1="84" x2="614" y2="84" stroke="rgba(24,25,28,.14)" stroke-width="1"></line><line x1="26" y1="81" x2="26" y2="87" stroke="rgba(24,25,28,.14)"></line><text x="26" y="100" fill="#9A9892" font-size="11px" font-weight="400" text-anchor="middle" dominant-baseline="auto" letter-spacing="0">0</text><line x1="173" y1="81" x2="173" y2="87" stroke="rgba(24,25,28,.14)"></line><text x="173" y="100" fill="#9A9892" font-size="11px" font-weight="400" text-anchor="middle" dominant-baseline="auto" letter-spacing="0">25</text><line x1="320" y1="81" x2="320" y2="87" stroke="rgba(24,25,28,.14)"></line><text x="320" y="100" fill="#9A9892" font-size="11px" font-weight="400" text-anchor="middle" dominant-baseline="auto" letter-spacing="0">50</text><line x1="467" y1="81" x2="467" y2="87" stroke="rgba(24,25,28,.14)"></line><text x="467" y="100" fill="#9A9892" font-size="11px" font-weight="400" text-anchor="middle" dominant-baseline="auto" letter-spacing="0">75</text><line x1="614" y1="81" x2="614" y2="87" stroke="rgba(24,25,28,.14)"></line><text x="614" y="100" fill="#9A9892" font-size="11px" font-weight="400" text-anchor="middle" dominant-baseline="auto" letter-spacing="0">100</text><line x1="384.68" y1="62" x2="384.68" y2="106" stroke="#18191C" stroke-width="2.2"></line><rect x="356.68" y="24" width="56" height="30" rx="7" fill="#18191C"></rect><text x="384.68" y="44" fill="#fff" font-size="17px" font-weight="700" text-anchor="middle" dominant-baseline="auto" letter-spacing="0">61</text><path d="M 379.68 54 l 5 6 l 5 -6 Z" fill="#18191C"></path></svg>
           <div class="cap">Illustrative, sample data. The score is placed against the typical industry range and the opportunity range for the organization's own sector — a number with reference, not a number in a dial.</div>
         </div>
         <div class="fig">
           <h4>Where the capacity goes</h4>
-          <svg viewBox="0 0 640 416" width="100%" role="img" aria-label="Where annual labor capacity goes" style="display:block;font-family:inherit;"><defs><linearGradient id="mvg-ba9dto-1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#3F6EA1" stop-opacity=".18"></stop><stop offset="100%" stop-color="#3F6EA1" stop-opacity=".34"></stop></linearGradient><linearGradient id="mvg-czmyz9-2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#7A8794" stop-opacity=".18"></stop><stop offset="100%" stop-color="#7A8794" stop-opacity=".34"></stop></linearGradient><linearGradient id="mvg-rw81nr-3" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#B8505E" stop-opacity=".18"></stop><stop offset="100%" stop-color="#B8505E" stop-opacity=".34"></stop></linearGradient><linearGradient id="mvg-6bhqvj-4" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#B8505E" stop-opacity=".18"></stop><stop offset="100%" stop-color="#B8505E" stop-opacity=".34"></stop></linearGradient><linearGradient id="mvg-vt2fdu-5" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#B8505E" stop-opacity=".18"></stop><stop offset="100%" stop-color="#B8505E" stop-opacity=".34"></stop></linearGradient><linearGradient id="mvg-xr1gpi-6" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#B8505E" stop-opacity=".18"></stop><stop offset="100%" stop-color="#B8505E" stop-opacity=".34"></stop></linearGradient><linearGradient id="mvg-eyqqzn-7" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#B8505E" stop-opacity=".18"></stop><stop offset="100%" stop-color="#B8505E" stop-opacity=".34"></stop></linearGradient><linearGradient id="mvg-ge8td4-8" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#B8505E" stop-opacity=".18"></stop><stop offset="100%" stop-color="#B8505E" stop-opacity=".34"></stop></linearGradient></defs><rect x="2" y="34" width="11" height="240" rx="3" fill="#15202B"></rect><text x="2" y="16" fill="#7A8794" font-size="10px" font-weight="400" text-anchor="start" dominant-baseline="auto" letter-spacing=".11em">TOTAL ANNUAL CAPACITY</text><text x="2" y="29" fill="#15202B" font-size="13.5px" font-weight="700" text-anchor="start" dominant-baseline="auto" letter-spacing="0">$6.5M  ·  77K hrs</text><path d="M 13 34 C 124.5 34, 124.5 34, 236 34 L 236 214.92307692307693 C 124.5 214.92307692307693, 124.5 214.9230769230769, 13 214.9230769230769 Z" fill="url(#mvg-ba9dto-1)"></path><rect x="236" y="34" width="11" height="180.92307692307693" rx="3" fill="#3F6EA1"></rect><text x="256" y="47" fill="#15202B" font-size="12.5px" font-weight="600" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Productive effort</text><text x="256" y="62" fill="#3F6EA1" font-size="12px" font-weight="700" text-anchor="start" dominant-baseline="auto" letter-spacing="0">$4.9M  ·  58K hrs</text><path d="M 13 214.9230769230769 C 124.5 214.9230769230769, 124.5 230.92307692307693, 236 230.92307692307693 L 236 271.53846153846155 C 124.5 271.53846153846155, 124.5 255.53846153846152, 13 255.53846153846152 Z" fill="url(#mvg-czmyz9-2)"></path><rect x="236" y="230.92307692307693" width="11" height="40.61538461538461" rx="3" fill="#7A8794"></rect><text x="256" y="243.92307692307693" fill="#15202B" font-size="12.5px" font-weight="600" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Structural overhead</text><text x="256" y="258.9230769230769" fill="#3d4c5a" font-size="12px" font-weight="700" text-anchor="start" dominant-baseline="auto" letter-spacing="0">$1.1M</text><path d="M 13 255.53846153846152 C 124.5 255.53846153846152, 124.5 287.53846153846155, 236 287.53846153846155 L 236 303.67384615384617 C 124.5 303.67384615384617, 124.5 271.6738461538461, 13 271.6738461538461 Z" fill="url(#mvg-rw81nr-3)"></path><rect x="236" y="287.53846153846155" width="11" height="16.135384615384616" rx="3" fill="#B8505E"></rect><text x="256" y="300.53846153846155" fill="#15202B" font-size="12.5px" font-weight="700" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Recoverable burden</text><text x="256" y="315.53846153846155" fill="#B8505E" font-size="12px" font-weight="700" text-anchor="start" dominant-baseline="auto" letter-spacing="0">$437K</text><path d="M 247 287.53846153846155 C 313.5 287.53846153846155, 313.5 287.53846153846155, 380 287.53846153846155 L 380 293.52 C 313.5 293.52, 313.5 293.52, 247 293.52 Z" fill="url(#mvg-6bhqvj-4)"></path><rect x="380" y="287.53846153846155" width="9" height="5.981538461538462" rx="2.5" fill="rgba(184,80,94,.95)"></rect><text x="398" y="294.52923076923076" fill="#15202B" font-size="11.5px" font-weight="600" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Process density</text><text x="636" y="294.52923076923076" fill="#B8505E" font-size="11px" font-weight="700" text-anchor="end" dominant-baseline="auto" letter-spacing="0">$162K / yr</text><path d="M 247 293.52 C 313.5 293.52, 313.5 297.52, 380 297.52 L 380 301.52 C 313.5 301.52, 313.5 297.39692307692303, 247 297.39692307692303 Z" fill="url(#mvg-vt2fdu-5)"></path><rect x="380" y="297.52" width="9" height="4" rx="2.5" fill="rgba(184,80,94,.75)"></rect><path d="M 391 299.52 L 393 309.52923076923076 L 394 309.52923076923076" fill="none" stroke="rgba(21,32,43,.14)" stroke-width="1"></path><text x="398" y="313.52923076923076" fill="#15202B" font-size="11.5px" font-weight="500" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Reporting burden</text><text x="636" y="313.52923076923076" fill="#B8505E" font-size="11px" font-weight="700" text-anchor="end" dominant-baseline="auto" letter-spacing="0">$105K / yr</text><path d="M 247 297.3969230769231 C 313.5 297.3969230769231, 313.5 305.52, 380 305.52 L 380 309.52 C 313.5 309.52, 313.5 300.1292307692308, 247 300.1292307692308 Z" fill="url(#mvg-xr1gpi-6)"></path><rect x="380" y="305.52" width="9" height="4" rx="2.5" fill="rgba(184,80,94,.58)"></rect><path d="M 391 307.52 L 393 328.52923076923076 L 394 328.52923076923076" fill="none" stroke="rgba(21,32,43,.14)" stroke-width="1"></path><text x="398" y="332.52923076923076" fill="#15202B" font-size="11.5px" font-weight="500" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Control load</text><text x="636" y="332.52923076923076" fill="#B8505E" font-size="11px" font-weight="700" text-anchor="end" dominant-baseline="auto" letter-spacing="0">$74K / yr</text><path d="M 247 300.1292307692308 C 313.5 300.1292307692308, 313.5 313.52, 380 313.52 L 380 317.52 C 313.5 317.52, 313.5 302.0492307692308, 247 302.0492307692308 Z" fill="url(#mvg-eyqqzn-7)"></path><rect x="380" y="313.52" width="9" height="4" rx="2.5" fill="rgba(184,80,94,.44)"></rect><path d="M 391 315.52 L 393 347.52923076923076 L 394 347.52923076923076" fill="none" stroke="rgba(21,32,43,.14)" stroke-width="1"></path><text x="398" y="351.52923076923076" fill="#15202B" font-size="11.5px" font-weight="500" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Systems friction</text><text x="636" y="351.52923076923076" fill="#B8505E" font-size="11px" font-weight="700" text-anchor="end" dominant-baseline="auto" letter-spacing="0">$52K / yr</text><path d="M 247 302.0492307692308 C 313.5 302.0492307692308, 313.5 321.52, 380 321.52 L 380 325.52 C 313.5 325.52, 313.5 303.67384615384617, 247 303.67384615384617 Z" fill="url(#mvg-ge8td4-8)"></path><rect x="380" y="321.52" width="9" height="4" rx="2.5" fill="rgba(184,80,94,.32)"></rect><path d="M 391 323.52 L 393 366.52923076923076 L 394 366.52923076923076" fill="none" stroke="rgba(21,32,43,.14)" stroke-width="1"></path><text x="398" y="370.52923076923076" fill="#15202B" font-size="11.5px" font-weight="500" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Other burden</text><text x="636" y="370.52923076923076" fill="#B8505E" font-size="11px" font-weight="700" text-anchor="end" dominant-baseline="auto" letter-spacing="0">$44K / yr</text><text x="2" y="395" fill="#7A8794" font-size="10px" font-weight="400" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Illustrative sample data. Dimension dollars apportion the recoverable burden by burden composition — directional,</text><text x="2" y="408" fill="#7A8794" font-size="10px" font-weight="400" text-anchor="start" dominant-baseline="auto" letter-spacing="0">not audited.</text></svg>
+          <svg viewBox="0 0 640 416" width="100%" role="img" aria-label="Where annual labor capacity goes" style="display:block;font-family:inherit;"><defs><linearGradient id="mvg-ba9dto-1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#0C6E78" stop-opacity=".18"></stop><stop offset="100%" stop-color="#0C6E78" stop-opacity=".34"></stop></linearGradient><linearGradient id="mvg-czmyz9-2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#9A9892" stop-opacity=".18"></stop><stop offset="100%" stop-color="#9A9892" stop-opacity=".34"></stop></linearGradient><linearGradient id="mvg-rw81nr-3" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#B0392F" stop-opacity=".18"></stop><stop offset="100%" stop-color="#B0392F" stop-opacity=".34"></stop></linearGradient><linearGradient id="mvg-6bhqvj-4" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#B0392F" stop-opacity=".18"></stop><stop offset="100%" stop-color="#B0392F" stop-opacity=".34"></stop></linearGradient><linearGradient id="mvg-vt2fdu-5" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#B0392F" stop-opacity=".18"></stop><stop offset="100%" stop-color="#B0392F" stop-opacity=".34"></stop></linearGradient><linearGradient id="mvg-xr1gpi-6" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#B0392F" stop-opacity=".18"></stop><stop offset="100%" stop-color="#B0392F" stop-opacity=".34"></stop></linearGradient><linearGradient id="mvg-eyqqzn-7" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#B0392F" stop-opacity=".18"></stop><stop offset="100%" stop-color="#B0392F" stop-opacity=".34"></stop></linearGradient><linearGradient id="mvg-ge8td4-8" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#B0392F" stop-opacity=".18"></stop><stop offset="100%" stop-color="#B0392F" stop-opacity=".34"></stop></linearGradient></defs><rect x="2" y="34" width="11" height="240" rx="3" fill="#18191C"></rect><text x="2" y="16" fill="#9A9892" font-size="10px" font-weight="400" text-anchor="start" dominant-baseline="auto" letter-spacing=".11em">TOTAL ANNUAL CAPACITY</text><text x="2" y="29" fill="#18191C" font-size="13.5px" font-weight="700" text-anchor="start" dominant-baseline="auto" letter-spacing="0">$6.5M  ·  77K hrs</text><path d="M 13 34 C 124.5 34, 124.5 34, 236 34 L 236 214.92307692307693 C 124.5 214.92307692307693, 124.5 214.9230769230769, 13 214.9230769230769 Z" fill="url(#mvg-ba9dto-1)"></path><rect x="236" y="34" width="11" height="180.92307692307693" rx="3" fill="#0C6E78"></rect><text x="256" y="47" fill="#18191C" font-size="12.5px" font-weight="600" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Productive effort</text><text x="256" y="62" fill="#0C6E78" font-size="12px" font-weight="700" text-anchor="start" dominant-baseline="auto" letter-spacing="0">$4.9M  ·  58K hrs</text><path d="M 13 214.9230769230769 C 124.5 214.9230769230769, 124.5 230.92307692307693, 236 230.92307692307693 L 236 271.53846153846155 C 124.5 271.53846153846155, 124.5 255.53846153846152, 13 255.53846153846152 Z" fill="url(#mvg-czmyz9-2)"></path><rect x="236" y="230.92307692307693" width="11" height="40.61538461538461" rx="3" fill="#9A9892"></rect><text x="256" y="243.92307692307693" fill="#18191C" font-size="12.5px" font-weight="600" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Structural overhead</text><text x="256" y="258.9230769230769" fill="#3d4c5a" font-size="12px" font-weight="700" text-anchor="start" dominant-baseline="auto" letter-spacing="0">$1.1M</text><path d="M 13 255.53846153846152 C 124.5 255.53846153846152, 124.5 287.53846153846155, 236 287.53846153846155 L 236 303.67384615384617 C 124.5 303.67384615384617, 124.5 271.6738461538461, 13 271.6738461538461 Z" fill="url(#mvg-rw81nr-3)"></path><rect x="236" y="287.53846153846155" width="11" height="16.135384615384616" rx="3" fill="#B0392F"></rect><text x="256" y="300.53846153846155" fill="#18191C" font-size="12.5px" font-weight="700" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Recoverable burden</text><text x="256" y="315.53846153846155" fill="#B0392F" font-size="12px" font-weight="700" text-anchor="start" dominant-baseline="auto" letter-spacing="0">$437K</text><path d="M 247 287.53846153846155 C 313.5 287.53846153846155, 313.5 287.53846153846155, 380 287.53846153846155 L 380 293.52 C 313.5 293.52, 313.5 293.52, 247 293.52 Z" fill="url(#mvg-6bhqvj-4)"></path><rect x="380" y="287.53846153846155" width="9" height="5.981538461538462" rx="2.5" fill="rgba(176,57,47,.95)"></rect><text x="398" y="294.52923076923076" fill="#18191C" font-size="11.5px" font-weight="600" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Process density</text><text x="636" y="294.52923076923076" fill="#B0392F" font-size="11px" font-weight="700" text-anchor="end" dominant-baseline="auto" letter-spacing="0">$162K / yr</text><path d="M 247 293.52 C 313.5 293.52, 313.5 297.52, 380 297.52 L 380 301.52 C 313.5 301.52, 313.5 297.39692307692303, 247 297.39692307692303 Z" fill="url(#mvg-vt2fdu-5)"></path><rect x="380" y="297.52" width="9" height="4" rx="2.5" fill="rgba(176,57,47,.75)"></rect><path d="M 391 299.52 L 393 309.52923076923076 L 394 309.52923076923076" fill="none" stroke="rgba(24,25,28,.14)" stroke-width="1"></path><text x="398" y="313.52923076923076" fill="#18191C" font-size="11.5px" font-weight="500" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Reporting burden</text><text x="636" y="313.52923076923076" fill="#B0392F" font-size="11px" font-weight="700" text-anchor="end" dominant-baseline="auto" letter-spacing="0">$105K / yr</text><path d="M 247 297.3969230769231 C 313.5 297.3969230769231, 313.5 305.52, 380 305.52 L 380 309.52 C 313.5 309.52, 313.5 300.1292307692308, 247 300.1292307692308 Z" fill="url(#mvg-xr1gpi-6)"></path><rect x="380" y="305.52" width="9" height="4" rx="2.5" fill="rgba(176,57,47,.58)"></rect><path d="M 391 307.52 L 393 328.52923076923076 L 394 328.52923076923076" fill="none" stroke="rgba(24,25,28,.14)" stroke-width="1"></path><text x="398" y="332.52923076923076" fill="#18191C" font-size="11.5px" font-weight="500" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Control load</text><text x="636" y="332.52923076923076" fill="#B0392F" font-size="11px" font-weight="700" text-anchor="end" dominant-baseline="auto" letter-spacing="0">$74K / yr</text><path d="M 247 300.1292307692308 C 313.5 300.1292307692308, 313.5 313.52, 380 313.52 L 380 317.52 C 313.5 317.52, 313.5 302.0492307692308, 247 302.0492307692308 Z" fill="url(#mvg-eyqqzn-7)"></path><rect x="380" y="313.52" width="9" height="4" rx="2.5" fill="rgba(176,57,47,.44)"></rect><path d="M 391 315.52 L 393 347.52923076923076 L 394 347.52923076923076" fill="none" stroke="rgba(24,25,28,.14)" stroke-width="1"></path><text x="398" y="351.52923076923076" fill="#18191C" font-size="11.5px" font-weight="500" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Systems friction</text><text x="636" y="351.52923076923076" fill="#B0392F" font-size="11px" font-weight="700" text-anchor="end" dominant-baseline="auto" letter-spacing="0">$52K / yr</text><path d="M 247 302.0492307692308 C 313.5 302.0492307692308, 313.5 321.52, 380 321.52 L 380 325.52 C 313.5 325.52, 313.5 303.67384615384617, 247 303.67384615384617 Z" fill="url(#mvg-ge8td4-8)"></path><rect x="380" y="321.52" width="9" height="4" rx="2.5" fill="rgba(176,57,47,.32)"></rect><path d="M 391 323.52 L 393 366.52923076923076 L 394 366.52923076923076" fill="none" stroke="rgba(24,25,28,.14)" stroke-width="1"></path><text x="398" y="370.52923076923076" fill="#18191C" font-size="11.5px" font-weight="500" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Other burden</text><text x="636" y="370.52923076923076" fill="#B0392F" font-size="11px" font-weight="700" text-anchor="end" dominant-baseline="auto" letter-spacing="0">$44K / yr</text><text x="2" y="395" fill="#9A9892" font-size="10px" font-weight="400" text-anchor="start" dominant-baseline="auto" letter-spacing="0">Illustrative sample data. Dimension dollars apportion the recoverable burden by burden composition — directional,</text><text x="2" y="408" fill="#9A9892" font-size="10px" font-weight="400" text-anchor="start" dominant-baseline="auto" letter-spacing="0">not audited.</text></svg>
           <div class="cap">Illustrative, sample data. Total annual labor capacity, split into productive effort, structural overhead proportionate to operating in this sector, and recoverable burden — mapped to dollars by burden dimension. Monderman is deliberate about the middle band: complex institutions need governance. The discipline is calibration, not subtraction.</div>
         </div>
       </div>
@@ -934,12 +934,12 @@
   <!-- ── EARLY FIGURES ────────────────────────────────────────────── -->
   <div style="background:var(--bg-white);border-top:1px solid var(--panel-line);border-bottom:1px solid var(--panel-line);">
     <div class="section">
-      <div class="eyebrow">Capacity impact — early deployments</div>
+      <div class="eyebrow">Senior workweek impact — early deployments</div>
       <h2>The numbers the mechanism produces.</h2>
       <div class="stats">
-        <div class="stat"><b>26–41%</b><span>of productive capacity absorbed by administrative reality at current baseline.</span></div>
+        <div class="stat"><b>26–41%</b><span>of senior time absorbed by administrative reality at current baseline.</span></div>
         <div class="stat"><b>4 conditions</b><span>structural conditions named, scored, and located within the institution.</span></div>
-        <div class="stat"><b>7–12%</b><span>of productive capacity returned to mission, directionally, once structural corrections are adopted.</span></div>
+        <div class="stat"><b>7–12%</b><span>of a senior workweek returned to mission, directionally, once structural corrections are adopted.</span></div>
       </div>
       <p class="methnote"><strong>Methodological note.</strong> Ranges shown are directional, modeled at the institution's measured baseline, and conditioned on identified structural corrections being adopted. Monderman publishes the assumption set with every read — the same discipline this page asks of every alternative.</p>
     </div>
@@ -948,17 +948,17 @@
   <!-- ── CTA ──────────────────────────────────────────────────────── -->
   <div class="ctaband">
     <div class="section">
-      <h2>Establish the baseline. The value compounds with every read after.</h2>
+      <h2>Establish the baseline. The second read is where the value compounds.</h2>
       <div class="cta-row" style="margin:0;">
         <a class="btn btn-primary" href="diagnostics.html">Run a diagnostic — free</a>
         <a class="btn btn-outline" href="connect.html">Discuss a diagnostic</a>
       </div>
-      <p style="margin:16px 0 0;font-size:14px;color:#7A8794;">Or: <a href="sample-report.html" style="color:inherit;text-decoration:underline;">see a complete sample report</a> &middot; <a href="platform-services.html" style="color:inherit;text-decoration:underline;">plans &amp; pricing</a></p>
+      <p style="margin:16px 0 0;font-size:14px;color:#9A9892;">Or: <a href="sample-report.html" style="color:inherit;text-decoration:underline;">see a complete sample report</a> &middot; <a href="platform-services.html" style="color:inherit;text-decoration:underline;">plans &amp; pricing</a></p>
     </div>
   </div>
 
   <footer class="footer mond-footer">
-    <div class="mf-motif" aria-hidden="true"><svg width="280" height="280" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#4A6FA5" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#5B7A9B" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#4A6FA5" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#5B7A9B" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#6B8FA6" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8BADC5" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#9FBDD1" stroke-width="0.4" opacity="0.13"/><circle cx="86" cy="-35" r="2.8" fill="#3F6EA1" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#5B7A9B" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#3F6EA1" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#7C5CE8" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#5B7A9B" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#2E86DE" opacity="0.58"/></svg></div>
+    <div class="mf-motif" aria-hidden="true"><svg width="280" height="280" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#146C75" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#3E8A92" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#146C75" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#146C75" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#3E8A92" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#146C75" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#4E9098" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8FC4C9" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#A9CFD2" stroke-width="0.4" opacity="0.13"/><circle cx="86" cy="-35" r="2.8" fill="#0C6E78" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#3E8A92" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#0C6E78" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#C9821F" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#3E8A92" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#0C6E78" opacity="0.58"/></svg></div>
     <div class="mf-inner">
       <div class="mf-top">
         <div class="mf-brand">
