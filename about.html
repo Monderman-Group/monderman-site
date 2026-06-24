@@ -144,7 +144,7 @@
       transform: scaleX(1);
     }
     .nav a.workspace-link::after { display: none; }
-    .workspace-link {
+    .nav a.workspace-link {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -157,7 +157,7 @@
       font-weight: 500;
       white-space: nowrap;
     }
-    .workspace-link:hover {
+    .nav a.workspace-link:hover {
       background: rgba(255,255,255,0.10);
       border-color: rgba(255,255,255,0.24);
     }
@@ -464,7 +464,7 @@
         font-size: 0.84rem;
         line-height: 1;
         padding: 10px 12px;
-        border-radius: 999px;
+        border-radius: 5px;
         background: rgba(255,255,255,0.06);
         border: 1px solid rgba(255,255,255,0.08);
         white-space: nowrap;
@@ -610,6 +610,17 @@
   
     .hero{position:relative;overflow:hidden}
     .hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:#0C6E78;pointer-events:none;z-index:2}
+    /* orange — static kicker accent on founder role */
+    .founder-role::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: #C9821F;
+      margin-right: 9px;
+      vertical-align: 1px;
+    }
+
   </style>
 </head>
 <body>
