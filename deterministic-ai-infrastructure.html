@@ -143,7 +143,7 @@
       justify-content:center;
       min-height:38px;
       padding:0 14px;
-      border-radius:999px;
+      border-radius:7px;
       border:1px solid rgba(255,255,255,0.16);
       background:rgba(255,255,255,0.06);
       color:#FFFFFF;
@@ -476,7 +476,7 @@
       .header{height:auto}
       .header-inner{flex-direction:column;align-items:flex-start;gap:14px;padding-top:16px;padding-bottom:12px}
       .nav::-webkit-scrollbar{display:none}
-      .nav a{flex:0 0 auto;white-space:nowrap;font-size:0.84rem;line-height:1;padding:10px 12px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08)}
+      .nav a{flex:0 0 auto;white-space:nowrap;font-size:0.84rem;line-height:1;padding:10px 12px;border-radius:5px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08)}
       .nav a::after{display:none}
     }
 
@@ -503,6 +503,22 @@
     .daii-props .p h4{margin:0 0 8px;font-size:1.02rem;font-weight:600;letter-spacing:-.01em;color:var(--text-dark)}
     .daii-props .p span{font-size:.9rem;line-height:1.55;color:var(--muted-dark-2)}
     @media(max-width:760px){.daii-props{grid-template-columns:1fr}}
+    /* orange hover-reveal — ROI card hover reveal */
+    .ps-roi-card { position: relative; overflow: hidden; }
+    .ps-roi-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0%;
+      background: #C9821F;
+      transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
+      pointer-events: none;
+      z-index: 2;
+    }
+    .ps-roi-card:hover::before { width: 100%; }
+
   </style>
 </head>
 <body>
