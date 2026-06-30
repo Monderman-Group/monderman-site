@@ -605,7 +605,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
       </div>
     </div>
   </div></div>
-  <div class="stage" id="questionStage"><div class="question-shell"><div class="question-card"><div class="question-meta"><p class="question-label" id="questionCluster">Diagnostic question</p><p class="question-step" id="questionStep">Question 1</p></div><h3 class="question-title" id="questionTitle"></h3><p class="question-copy" id="questionCopy"></p><div class="required-note" id="requiredNotice">This question is required for the diagnostic logic to work.</div><div class="required-note" id="persistenceNotice" style="display:none;background:#F6F3EC;border-color:#F6F3EC;color:#A06912;">Durable save status will appear here if the database write is blocked.</div><div class="cross-level-note" id="crossLevelNote"></div><div id="questionBody"></div></div></div></div>
+  <div class="stage" id="questionStage"><div class="question-shell"><div class="question-card"><div class="question-meta"><p class="question-label" id="questionCluster">Diagnostic question</p><p class="question-step" id="questionStep"></p></div><h3 class="question-title" id="questionTitle"></h3><p class="question-copy" id="questionCopy"></p><div class="required-note" id="requiredNotice">This question is required for the diagnostic logic to work.</div><div class="required-note" id="persistenceNotice" style="display:none;background:#F6F3EC;border-color:#F6F3EC;color:#A06912;">Durable save status will appear here if the database write is blocked.</div><div class="cross-level-note" id="crossLevelNote"></div><div id="questionBody"></div></div></div></div>
   <div class="stage" id="processingStage"><div class="processing-stage"><div class="processing-card processing-card-dynamic">
   <div class="processing-flow" aria-hidden="true">
     <div class="processing-flow-step" style="--flow-step:0"><span class="processing-flow-dot"></span></div>
@@ -1895,7 +1895,7 @@ function initPreflightPager() {
       if (stepHeader) stepHeader.style.display = "";
       nav.style.display = "";
       for (var n = 0; n < total; n++) { fieldEls[n].style.display = (n === idx) ? "" : "none"; }
-      if (progressEl) progressEl.textContent = "Question " + (idx + 1) + " of " + total;
+      if (progressEl) progressEl.textContent = "";
       backBtn.textContent = "\u2190 Back";
       nextBtn.textContent = (idx === total - 1) ? "Begin Diagnostic \u2192" : "Continue \u2192";
       var inp = fieldEls[idx].querySelector("input, select, textarea");
@@ -2102,8 +2102,6 @@ function renderQuestion() {
 const item = state.currentItem;
 if (!item) return;
 const dimLabel = item.dimension ? humanize(item.dimension) : "Adaptive diagnostic";
-const answered = Number(state.currentProgress?.answeredCount || 0);
-const target = Number(state.currentProgress?.targetItemCount || 0);
 const card = document.querySelector("#questionStage .question-card");
 
 const applyQuestionContent = () => {
