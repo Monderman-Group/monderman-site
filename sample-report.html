@@ -1039,6 +1039,182 @@
       letter-spacing: -0.008em;
     }
 
+    /* ─── Diagnosis hero card — deliberate cream borrow from diagnostic run pages ─── */
+    .syn-diagnosis-hero {
+      background: #F6F3EC;
+      border: 1px solid rgba(12,110,120,0.20);
+      border-left: 4px solid #0C6E78;
+      border-radius: 14px;
+      padding: 40px 44px 32px;
+      margin: 24px 0 36px;
+    }
+    .syn-diagnosis-eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: #0C6E78;
+      font-weight: 700;
+      margin: 0 0 14px;
+    }
+    .syn-diagnosis-title {
+      font-size: clamp(30px, 3.8vw, 44px);
+      line-height: 1.02;
+      letter-spacing: -0.032em;
+      color: #18191C;
+      font-weight: 700;
+      margin: 0 0 8px;
+      text-wrap: balance;
+    }
+    .syn-diagnosis-type {
+      font-size: 0.94rem;
+      color: #6E6F73;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      margin: 0 0 20px;
+    }
+    .syn-diagnosis-rule {
+      height: 2px;
+      width: 40px;
+      background: #0C6E78;
+      margin: 0 0 20px;
+    }
+    .syn-diagnosis-body {
+      font-size: 1.04rem;
+      line-height: 1.65;
+      color: #18191C;
+      margin: 0 0 24px;
+      max-width: 62ch;
+    }
+    .syn-diagnosis-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px 36px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(12,110,120,0.16);
+    }
+    .syn-diagnosis-meta-item {
+      font-size: 0.9rem;
+      color: #18191C;
+    }
+    .syn-diagnosis-meta-item strong {
+      display: block;
+      font-size: 0.68rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #0C6E78;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    @media (max-width: 640px) {
+      .syn-diagnosis-hero { padding: 32px 28px 28px; }
+    }
+
+    /* ─── Executive briefing block ─── */
+    .syn-executive-briefing {
+      background: #FFF;
+      border: 1px solid #EAE6DD;
+      border-left: 3px solid #08383E;
+      border-radius: 12px;
+      padding: 32px 40px;
+      margin: 8px 0 24px;
+    }
+    .syn-briefing-lede {
+      font-size: 1.28rem;
+      line-height: 1.42;
+      font-weight: 600;
+      color: #18191C;
+      margin: 0 0 20px;
+      letter-spacing: -0.012em;
+      text-wrap: balance;
+    }
+    .syn-briefing-body {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: #18191C;
+      margin: 0 0 16px;
+      max-width: 66ch;
+    }
+    .syn-briefing-body:last-child { margin-bottom: 0; }
+    @media (max-width: 640px) {
+      .syn-executive-briefing { padding: 24px 22px; }
+      .syn-briefing-lede { font-size: 1.14rem; }
+    }
+
+    /* ─── Hero synthesis map container ─── */
+    .syn-hero-map {
+      background: #FFF;
+      border: 1px solid #EAE6DD;
+      border-radius: 14px;
+      padding: 28px 24px 24px;
+      margin: 24px 0 28px;
+    }
+
+    /* ─── Leading indicators dashboard ─── */
+    .syn-indicators-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin: 24px 0 8px;
+    }
+    @media (max-width: 640px) {
+      .syn-indicators-grid { grid-template-columns: 1fr; }
+    }
+    .syn-indicator-tile {
+      background: #FFF;
+      border: 1px solid #EAE6DD;
+      border-radius: 12px;
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .syn-indicator-tile[data-lens="os"]    { border-left: 3px solid #0C6E78; }
+    .syn-indicator-tile[data-lens="dv"]    { border-left: 3px solid #08383E; }
+    .syn-indicator-tile[data-lens="sc"]    { border-left: 3px solid #C9821F; }
+    .syn-indicator-tile[data-lens="ip"]    { border-left: 3px solid #3C8A60; }
+    .syn-indicator-tile[data-lens="cross"] { border-left: 3px solid #6E6F73; }
+    .syn-indicator-lens {
+      font-size: 0.66rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #6E6F73;
+      font-weight: 700;
+      margin: 0;
+    }
+    .syn-indicator-tile[data-lens="os"] .syn-indicator-lens { color: #0C6E78; }
+    .syn-indicator-tile[data-lens="dv"] .syn-indicator-lens { color: #08383E; }
+    .syn-indicator-tile[data-lens="sc"] .syn-indicator-lens { color: #C9821F; }
+    .syn-indicator-tile[data-lens="ip"] .syn-indicator-lens { color: #3C8A60; }
+    .syn-indicator-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #18191C;
+      margin: 4px 0 6px;
+      letter-spacing: -0.008em;
+    }
+    .syn-indicator-detail {
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: #6E6F73;
+      margin: 0 0 8px;
+    }
+    .syn-indicator-current {
+      font-size: 0.82rem;
+      color: #18191C;
+      margin: 0;
+      padding-top: 8px;
+      border-top: 1px solid #EAE6DD;
+    }
+
+    /* ─── Cover elevation for synthesis specifically ─── */
+    [data-report="synthesis"] .cover {
+      padding-bottom: 8px;
+    }
+    [data-report="synthesis"] .cover-title {
+      font-size: clamp(42px, 5.8vw, 62px);
+      letter-spacing: -0.038em;
+    }
+
     /* Font precision — heading letter-spacing + text-wrap:balance for headlines */
     [data-report="synthesis"] h1,
     [data-report="synthesis"] h2 {
@@ -2580,11 +2756,14 @@
     <select onchange="if(this.value){var s=this.closest('.report-shell');var el=document.getElementById(s.dataset.report+'-'+this.value);if(el)el.scrollIntoView();}">
         <option value="">Jump to section…</option>
         <option value="cover">Cover</option>
+        <option value="diagnosis">Diagnosis</option>
         <option value="composite">Composite finding</option>
         <option value="lenses">Four lenses</option>
         <option value="convergence">Convergence signals</option>
         <option value="contradictions">Contradictions</option>
         <option value="actions">Priority actions</option>
+        <option value="experiential">Cross-organizational experience</option>
+        <option value="indicators">Leading indicators</option>
         <option value="narrative">Leadership read</option>
         <option value="strengthen">Evidence trail</option>
         <option value="method">How this was produced</option>
@@ -2614,10 +2793,110 @@
       </div>
     </section>
 
+    <section class="section" id="synthesis-diagnosis">
+      <p class="section-eyebrow">The diagnosis <span class="pg">Page 2</span></p>
+
+      <div class="syn-diagnosis-hero">
+        <p class="syn-diagnosis-eyebrow">Diagnosis</p>
+        <h2 class="syn-diagnosis-title">Compensatory Operating Envelope</h2>
+        <p class="syn-diagnosis-type">Type II &mdash; Upstream Structural Origin</p>
+        <div class="syn-diagnosis-rule"></div>
+        <p class="syn-diagnosis-body">Visible output is holding because four independent compensatory mechanisms are absorbing the gap between formal capacity and actual demand. The upstream root is structural. The correction path is sequenced, not parallel.</p>
+        <div class="syn-diagnosis-meta">
+          <span class="syn-diagnosis-meta-item"><strong>Composite</strong> 65 / 100</span>
+          <span class="syn-diagnosis-meta-item"><strong>Compensation cost</strong> $11&ndash;14M / yr<sup>*</sup></span>
+          <span class="syn-diagnosis-meta-item"><strong>Envelope drag</strong> ~20%<sup>*</sup></span>
+          <span class="syn-diagnosis-meta-item"><strong>Correction horizon</strong> 24&ndash;32 weeks</span>
+        </div>
+      </div>
+
+      <h2>Executive briefing</h2>
+      <div class="syn-executive-briefing">
+        <p class="syn-briefing-lede">Your operating envelope is compensating for structural strain rather than resolving it.</p>
+        <p class="syn-briefing-body">Four instruments independently confirm the same pattern &mdash; the differences between them identify the specific mechanisms doing the compensation work. Contradictions across the four are diagnostically valuable: they mark where each instrument sees a different facet of the same phenomenon. The window for structural correction is 24&ndash;32 weeks; the cost of not sequencing correction properly is not new burden but calcification of the compensation pattern into what leadership will come to experience as normal operations, at ~$35&ndash;56.5M annual labor exposure<sup>*</sup> and ~20% envelope drag<sup>*</sup>.</p>
+        <p class="syn-briefing-body">The path forward has one non-negotiable feature: <strong>order matters</strong>. Structural corrections must precede behavioral ones, which must precede cultural ones. Reversing the order regenerates the pattern. The four priority actions in the sequencing section encode this order.</p>
+      </div>
+    </section>
+
     <section class="section" id="synthesis-composite">
-      <p class="section-eyebrow">The pattern all four instruments are detecting <span class="pg">Page 2</span></p>
+      <p class="section-eyebrow">The pattern all four instruments are detecting <span class="pg">Page 3</span></p>
       <h2>Composite finding</h2>
       <p class="lede"><strong>A compensatory operating envelope</strong> is the composite condition. Visible output is holding across procurement, decisions, structure, and directorate performance &mdash; but the mechanism holding it up is not institutional strength; it is adaptation. Workarounds, escalations, coordination effort, and unusual management lift are absorbing the gap between formal capacity and actual demand. The upstream driver is structural: contested decision rights in a concentrated set of authority questions cascade into layered approvals, then routed-around processes, then compensatory management effort.</p>
+
+      <div class="syn-hero-map">
+        <p class="syn-viz-title">How the four instruments resolve into one read</p>
+        <p class="syn-viz-sub">Each instrument sees a facet of the same pattern from a different angle. The synthesis identifies the pattern they share, quantifies its cost, and orients the correction along the upstream-to-downstream axis.</p>
+        <div class="syn-cascade-scroll">
+          <svg viewBox="0 0 720 480" role="img" aria-label="Hero synthesis map — four instruments converging on shared pattern" style="display:block;font-family:inherit;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:&#39;tnum&#39; 1,&#39;lnum&#39; 1;-webkit-font-smoothing:antialiased;">
+            <defs>
+              <linearGradient id="synHeroSeqGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#0C6E78"/>
+                <stop offset="45%" stop-color="#08383E"/>
+                <stop offset="72%" stop-color="#C9821F"/>
+                <stop offset="100%" stop-color="#3C8A60"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Composite label at top -->
+            <text x="360" y="24" text-anchor="middle" font-size="10" font-weight="700" fill="#6E6F73" letter-spacing=".18em">COMPOSITE 65 &middot; MIXED CONDITION</text>
+            <line x1="240" y1="34" x2="480" y2="34" stroke="rgba(24,25,28,.14)" stroke-width="1"/>
+
+            <!-- Central pattern box (cream borrow from diagnostic run pages) -->
+            <rect x="210" y="150" width="300" height="180" fill="#F6F3EC" stroke="#0C6E78" stroke-width="1.5" rx="12"/>
+            <text x="360" y="182" text-anchor="middle" font-size="10" font-weight="700" fill="#0C6E78" letter-spacing=".18em">THE SHARED PATTERN</text>
+            <text x="360" y="218" text-anchor="middle" font-size="22" font-weight="700" fill="#18191C" letter-spacing="-.02em">Compensatory</text>
+            <text x="360" y="246" text-anchor="middle" font-size="22" font-weight="700" fill="#18191C" letter-spacing="-.02em">Operating Envelope</text>
+            <line x1="330" y1="264" x2="390" y2="264" stroke="#0C6E78" stroke-width="2"/>
+            <text x="360" y="288" text-anchor="middle" font-size="11" fill="#6E6F73">~110k compensation hours / yr<tspan fill="#9A9892">*</tspan></text>
+            <text x="360" y="306" text-anchor="middle" font-size="11" fill="#6E6F73">$11&ndash;14M compensation cost / yr<tspan fill="#9A9892">*</tspan></text>
+
+            <!-- OS: top-left lens -->
+            <rect x="30" y="60" width="150" height="90" fill="#FFF" stroke="#EAE6DD" stroke-width="1" rx="8"/>
+            <rect x="30" y="60" width="4" height="90" fill="#0C6E78" rx="2"/>
+            <text x="46" y="82" font-size="9" font-weight="700" fill="#0C6E78" letter-spacing=".14em">OS &middot; OPERATIONAL SYS</text>
+            <text x="46" y="110" font-size="28" font-weight="700" fill="#18191C" letter-spacing="-.03em">64</text>
+            <text x="46" y="128" font-size="10" fill="#6E6F73">workaround dep.</text>
+            <text x="46" y="142" font-size="10" font-weight="600" fill="#0C6E78">severity 59</text>
+
+            <!-- SC: top-right lens -->
+            <rect x="540" y="60" width="150" height="90" fill="#FFF" stroke="#EAE6DD" stroke-width="1" rx="8"/>
+            <rect x="686" y="60" width="4" height="90" fill="#C9821F" rx="2"/>
+            <text x="674" y="82" text-anchor="end" font-size="9" font-weight="700" fill="#C9821F" letter-spacing=".14em">SC &middot; STRUCTURAL CLAR</text>
+            <text x="674" y="110" text-anchor="end" font-size="28" font-weight="700" fill="#18191C" letter-spacing="-.03em">68</text>
+            <text x="674" y="128" text-anchor="end" font-size="10" fill="#6E6F73">decision rights</text>
+            <text x="674" y="142" text-anchor="end" font-size="10" font-weight="600" fill="#C9821F">contested</text>
+
+            <!-- DV: bottom-left lens -->
+            <rect x="30" y="330" width="150" height="90" fill="#FFF" stroke="#EAE6DD" stroke-width="1" rx="8"/>
+            <rect x="30" y="330" width="4" height="90" fill="#08383E" rx="2"/>
+            <text x="46" y="352" font-size="9" font-weight="700" fill="#08383E" letter-spacing=".14em">DV &middot; DECISION VELOC</text>
+            <text x="46" y="380" font-size="28" font-weight="700" fill="#18191C" letter-spacing="-.03em">58</text>
+            <text x="46" y="398" font-size="10" fill="#6E6F73">approval density</text>
+            <text x="46" y="412" font-size="10" font-weight="600" fill="#08383E">severity 88</text>
+
+            <!-- IP: bottom-right lens -->
+            <rect x="540" y="330" width="150" height="90" fill="#FFF" stroke="#EAE6DD" stroke-width="1" rx="8"/>
+            <rect x="686" y="330" width="4" height="90" fill="#3C8A60" rx="2"/>
+            <text x="674" y="352" text-anchor="end" font-size="9" font-weight="700" fill="#3C8A60" letter-spacing=".14em">IP &middot; INSTITUTIONAL P</text>
+            <text x="674" y="380" text-anchor="end" font-size="28" font-weight="700" fill="#18191C" letter-spacing="-.03em">72</text>
+            <text x="674" y="398" text-anchor="end" font-size="10" fill="#6E6F73">management lift</text>
+            <text x="674" y="412" text-anchor="end" font-size="10" font-weight="600" fill="#3C8A60">absorbing</text>
+
+            <!-- Arrows from each lens to center box -->
+            <line x1="180" y1="105" x2="212" y2="180" stroke="#08383E" stroke-width="1.5" opacity="0.55"/>
+            <line x1="180" y1="375" x2="212" y2="300" stroke="#08383E" stroke-width="1.5" opacity="0.55"/>
+            <line x1="540" y1="105" x2="508" y2="180" stroke="#08383E" stroke-width="1.5" opacity="0.55"/>
+            <line x1="540" y1="375" x2="508" y2="300" stroke="#08383E" stroke-width="1.5" opacity="0.55"/>
+
+            <!-- Bottom sequence axis -->
+            <text x="30" y="455" font-size="9" font-weight="700" fill="#0C6E78" letter-spacing=".18em">STRUCTURAL &middot; UPSTREAM</text>
+            <line x1="220" y1="450" x2="490" y2="450" stroke="url(#synHeroSeqGrad)" stroke-width="3" stroke-linecap="round"/>
+            <polygon points="490,444 502,450 490,456" fill="#3C8A60"/>
+            <text x="690" y="455" text-anchor="end" font-size="9" font-weight="700" fill="#3C8A60" letter-spacing=".18em">CULTURAL &middot; DOWNSTREAM</text>
+            <text x="360" y="472" text-anchor="middle" font-size="9" fill="#9A9892" letter-spacing=".14em">CORRECTION MUST FOLLOW THIS DIRECTION</text>
+          </svg>
+        </div>
+      </div>
 
       <div class="syn-gauge-panel">
         <svg class="syn-gauge-svg" viewBox="0 0 240 240" role="img" aria-label="Composite condition gauge — score 65 of 100" style="font-family:inherit;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:&#39;tnum&#39; 1,&#39;lnum&#39; 1;-webkit-font-smoothing:antialiased;">
@@ -2679,7 +2958,7 @@
     </section>
 
     <section class="section" id="synthesis-lenses">
-      <p class="section-eyebrow">The four inputs synthesized here <span class="pg">Page 3</span></p>
+      <p class="section-eyebrow">The four inputs synthesized here <span class="pg">Page 4</span></p>
       <h2>Four lenses, one envelope</h2>
       <p>Cross-diagnostic synthesis reads across four independent instruments, each looking at a different facet of the same operating envelope. Convergence between them is a strong signal; contradiction between them is a diagnostic lead.</p>
 
@@ -2759,7 +3038,7 @@
     </section>
 
     <section class="section" id="synthesis-convergence">
-      <p class="section-eyebrow">Where the four instruments agree <span class="pg">Page 4</span></p>
+      <p class="section-eyebrow">Where the four instruments agree <span class="pg">Page 5</span></p>
       <h2>Convergence signals</h2>
       <p>Convergence signals are patterns that show up in more than one diagnostic lens. When multiple independent instruments surface the same phenomenon, the pattern is unlikely to be an artifact of any single tool&#39;s methodology.</p>
 
@@ -2852,7 +3131,7 @@
     </section>
 
     <section class="section" id="synthesis-contradictions">
-      <p class="section-eyebrow">Where the four instruments disagree <span class="pg">Page 5</span></p>
+      <p class="section-eyebrow">Where the four instruments disagree <span class="pg">Page 6</span></p>
       <h2>Contradictions</h2>
       <p>Contradictions between lenses are as informative as convergence. A contradiction usually means the same thing looks different from two vantage points &mdash; which is often where the operational insight sits.</p>
 
@@ -2878,7 +3157,7 @@
     </section>
 
     <section class="section" id="synthesis-actions">
-      <p class="section-eyebrow">Where leadership should probably begin <span class="pg">Page 6</span></p>
+      <p class="section-eyebrow">Where leadership should probably begin <span class="pg">Page 7</span></p>
       <h2>Priority actions</h2>
       <p>Priority actions are sequenced, not parallel. Cross-lens synthesis identifies an upstream lever that, if pulled first, reduces the need for interventions downstream. Reversing the order tends to regenerate the compensation elsewhere.</p>
 
@@ -3005,8 +3284,68 @@
       </div>
     </section>
 
+    <section class="section" id="synthesis-experiential">
+      <p class="section-eyebrow">What the pattern feels like from each vantage point <span class="pg">Page 8</span></p>
+      <h2>Cross-organizational experience</h2>
+      <p class="lede">The compensation pattern manifests differently at each layer of the organization. Individual instruments capture pieces of this; the synthesis stitches them into a single cross-layer read that only the composite view can produce.</p>
+
+      <h3>What operational staff are experiencing</h3>
+      <p>Workaround dependence [OS severity 59] is not a discrete behavior; it is the operating rhythm. Staff report that the formal path stalls or produces the wrong answer often enough that anticipating the workaround becomes part of the job. Escalation dependence [DV severity 20] means many decisions require lifting cases up the hierarchy, adding coordination effort [SC] and management review time [IP]. Time is not the primary loss &mdash; the mental overhead of tracking which of parallel paths a given case is on is what accumulates. Staff-level exhaustion here reads as engagement decline; that reading is misleading because the underlying condition is structural, not motivational.</p>
+
+      <h3>What managers are experiencing</h3>
+      <p>Approval density [DV severity 88] converts a manager's day into a series of case-by-case reviews sized for exception handling but applied to routine decisions. Combined with contested decision rights [SC], this means managers spend time not just approving decisions but re-establishing the authority under which the decisions are being approved. Management lift [IP] represents the quantifiable portion of manager time absorbed by compensation rather than governance. What managers report as &ldquo;bandwidth&rdquo; problems is more precisely a compensation-vs-governance split in how their hours are being spent.</p>
+
+      <h3>What senior leaders are seeing</h3>
+      <p>Visible output holds. Institutional confidence [IP weakness] is where the pattern registers at the leadership level &mdash; as a slowly increasing sense that the operating envelope is running on effort rather than capacity. Individual instrument reads may look survivable; the synthesis-level pattern is what indicates the mechanism sustaining output is compensation, and compensation calcifies. At this vantage the priority becomes sequencing the correction, not adding more oversight to the compensation. Additional oversight applied to a compensating envelope tends to be absorbed by the compensation mechanism itself.</p>
+    </section>
+
+    <section class="section" id="synthesis-indicators">
+      <p class="section-eyebrow">What to watch <span class="pg">Page 9</span></p>
+      <h2>Leading indicators</h2>
+      <p class="lede">Six measurable signals leadership should watch to know whether the compensation pattern is worsening, holding, or receding. Each ties back to a specific instrument dimension. Movement in any of these is diagnostically meaningful before it shows up in the composite score.</p>
+
+      <div class="syn-indicators-grid">
+        <div class="syn-indicator-tile" data-lens="os">
+          <p class="syn-indicator-lens">OS &middot; Operational Systems</p>
+          <p class="syn-indicator-name">Escalation queue depth</p>
+          <p class="syn-indicator-detail">Watch for: sustained increase above baseline. Rising queue depth indicates workaround dependence is intensifying rather than resolving.</p>
+          <p class="syn-indicator-current">Current: <strong>elevated</strong></p>
+        </div>
+        <div class="syn-indicator-tile" data-lens="dv">
+          <p class="syn-indicator-lens">DV &middot; Decision Velocity</p>
+          <p class="syn-indicator-name">Approval-loop cycle time</p>
+          <p class="syn-indicator-detail">Watch for: median drifting past 5 business days. Longer cycle time hardens approval density from behavior into architecture.</p>
+          <p class="syn-indicator-current">Current: <strong>4.2 days median</strong></p>
+        </div>
+        <div class="syn-indicator-tile" data-lens="sc">
+          <p class="syn-indicator-lens">SC &middot; Structural Clarity</p>
+          <p class="syn-indicator-name">Time-to-decision, contested items</p>
+          <p class="syn-indicator-detail">Watch for: contested decisions running more than 2&times; standard decision time. Extended contested-decision time indicates unresolved decision-rights.</p>
+          <p class="syn-indicator-current">Current: <strong>2.4&times; standard</strong></p>
+        </div>
+        <div class="syn-indicator-tile" data-lens="ip">
+          <p class="syn-indicator-lens">IP &middot; Institutional Performance</p>
+          <p class="syn-indicator-name">Management-lift hours per manager</p>
+          <p class="syn-indicator-detail">Watch for: exceeding 15% of manager time. Above 15% indicates management lift is compensating rather than governing.</p>
+          <p class="syn-indicator-current">Current: <strong>~18%</strong></p>
+        </div>
+        <div class="syn-indicator-tile" data-lens="os">
+          <p class="syn-indicator-lens">OS &middot; Operational Systems</p>
+          <p class="syn-indicator-name">Workaround detection frequency</p>
+          <p class="syn-indicator-detail">Watch for: increased incidence of workflows executed outside the formal path. Rising frequency indicates the formal path is degrading rather than being repaired.</p>
+          <p class="syn-indicator-current">Current: <strong>elevated</strong></p>
+        </div>
+        <div class="syn-indicator-tile" data-lens="cross">
+          <p class="syn-indicator-lens">Cross-lens</p>
+          <p class="syn-indicator-name">Cross-functional handoff time</p>
+          <p class="syn-indicator-detail">Watch for: increased handoff time between operational and decision-authority boundaries. Rising handoff time indicates the structural correction has not landed.</p>
+          <p class="syn-indicator-current">Current: <strong>elevated</strong></p>
+        </div>
+      </div>
+    </section>
+
     <section class="section" id="synthesis-narrative">
-      <p class="section-eyebrow">Leadership implication and sequencing logic <span class="pg">Page 7</span></p>
+      <p class="section-eyebrow">Leadership implication and sequencing logic <span class="pg">Page 10</span></p>
       <h2>Leadership read</h2>
 
       <p class="lede">The four-lens read identifies a compensatory operating envelope. Visible output is holding, but the mechanism holding it up is not institutional strength &mdash; it is adaptation. Workarounds, escalations, management lift, and coordination effort are absorbing the gap between formal capacity and actual demand.</p>
@@ -3019,7 +3358,7 @@
     </section>
 
     <section class="section" id="synthesis-strengthen">
-      <p class="section-eyebrow">What would strengthen this read <span class="pg">Page 8</span></p>
+      <p class="section-eyebrow">What would strengthen this read <span class="pg">Page 11</span></p>
       <h2>Evidence trail &amp; what would update the composite</h2>
       <p class="lede">This synthesis is directional. Specific new information would either sharpen or challenge the composite reading. The signals below indicate where the read is strongest and where it would most benefit from independent evidence.</p>
 
@@ -3074,7 +3413,7 @@
     </section>
 
     <section class="section" id="synthesis-method">
-      <p class="section-eyebrow">How this was produced <span class="pg">Page 9</span></p>
+      <p class="section-eyebrow">How this was produced <span class="pg">Page 12</span></p>
       <h2>Method note</h2>
 
       <h3>How the composite score was calculated</h3>
@@ -3095,14 +3434,17 @@
     <p class="toc-rail-label">Contents</p>
     <ol>
       <li><a href="#synthesis-cover" data-section="synthesis-cover"><span class="toc-num">01</span>Cover</a></li>
-      <li><a href="#synthesis-composite" data-section="synthesis-composite"><span class="toc-num">02</span>Composite finding</a></li>
-      <li><a href="#synthesis-lenses" data-section="synthesis-lenses"><span class="toc-num">03</span>Four lenses</a></li>
-      <li><a href="#synthesis-convergence" data-section="synthesis-convergence"><span class="toc-num">04</span>Convergence signals</a></li>
-      <li><a href="#synthesis-contradictions" data-section="synthesis-contradictions"><span class="toc-num">05</span>Contradictions</a></li>
-      <li><a href="#synthesis-actions" data-section="synthesis-actions"><span class="toc-num">06</span>Priority actions</a></li>
-      <li><a href="#synthesis-narrative" data-section="synthesis-narrative"><span class="toc-num">07</span>Leadership read</a></li>
-      <li><a href="#synthesis-strengthen" data-section="synthesis-strengthen"><span class="toc-num">08</span>Evidence trail</a></li>
-      <li><a href="#synthesis-method" data-section="synthesis-method"><span class="toc-num">09</span>How this was produced</a></li>
+      <li><a href="#synthesis-diagnosis" data-section="synthesis-diagnosis"><span class="toc-num">02</span>Diagnosis</a></li>
+      <li><a href="#synthesis-composite" data-section="synthesis-composite"><span class="toc-num">03</span>Composite finding</a></li>
+      <li><a href="#synthesis-lenses" data-section="synthesis-lenses"><span class="toc-num">04</span>Four lenses</a></li>
+      <li><a href="#synthesis-convergence" data-section="synthesis-convergence"><span class="toc-num">05</span>Convergence signals</a></li>
+      <li><a href="#synthesis-contradictions" data-section="synthesis-contradictions"><span class="toc-num">06</span>Contradictions</a></li>
+      <li><a href="#synthesis-actions" data-section="synthesis-actions"><span class="toc-num">07</span>Priority actions</a></li>
+      <li><a href="#synthesis-experiential" data-section="synthesis-experiential"><span class="toc-num">08</span>Cross-org experience</a></li>
+      <li><a href="#synthesis-indicators" data-section="synthesis-indicators"><span class="toc-num">09</span>Leading indicators</a></li>
+      <li><a href="#synthesis-narrative" data-section="synthesis-narrative"><span class="toc-num">10</span>Leadership read</a></li>
+      <li><a href="#synthesis-strengthen" data-section="synthesis-strengthen"><span class="toc-num">11</span>Evidence trail</a></li>
+      <li><a href="#synthesis-method" data-section="synthesis-method"><span class="toc-num">12</span>How this was produced</a></li>
     </ol>
   </aside>
   </div>
