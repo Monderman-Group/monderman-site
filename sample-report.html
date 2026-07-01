@@ -919,6 +919,145 @@
       width: 12px; height: 12px;
       border-radius: 3px;
     }
+    /* Horizontal-scroll wrapper for the sequencing cascade on narrow screens */
+    .syn-cascade-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 -8px;
+      padding: 0 8px 4px;
+    }
+    .syn-cascade-scroll svg {
+      display: block;
+      width: 100%;
+      min-width: 620px;
+      height: auto;
+    }
+    @media (max-width: 640px) {
+      .syn-cascade-scroll svg { min-width: 640px; }
+    }
+    /* Composite gauge panel */
+    .syn-gauge-panel {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      padding: 32px 36px;
+      background: #FFF;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      margin: 28px 0 8px;
+    }
+    .syn-gauge-svg {
+      flex-shrink: 0;
+      width: 200px;
+      height: 200px;
+    }
+    .syn-gauge-caption { flex: 1; min-width: 0; }
+    .syn-gauge-band {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+      margin: 0 0 12px;
+    }
+    .syn-gauge-desc {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--text-dark);
+      margin: 0 0 12px;
+      letter-spacing: -0.005em;
+    }
+    .syn-gauge-context {
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: var(--muted);
+      margin: 0;
+    }
+    @media (max-width: 640px) {
+      .syn-gauge-panel { flex-direction: column; gap: 20px; padding: 24px; }
+      .syn-gauge-svg { width: 180px; height: 180px; }
+    }
+
+    /* Confidence heatmap */
+    .syn-confidence-panel {
+      background: #FFF;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 28px 32px;
+      margin: 20px 0 8px;
+    }
+    .syn-confidence-grid {
+      display: grid;
+      gap: 8px;
+      margin-top: 18px;
+    }
+    .syn-confidence-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 120px 90px;
+      gap: 16px;
+      padding: 12px 16px;
+      background: #FAFAF8;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      align-items: center;
+    }
+    .syn-confidence-row[data-tier="high"]        { border-left: 3px solid #0C6E78; }
+    .syn-confidence-row[data-tier="moderate"]    { border-left: 3px solid #C9821F; }
+    .syn-confidence-row[data-tier="directional"] { border-left: 3px solid #9A9892; }
+    .syn-confidence-label {
+      font-size: 0.94rem;
+      line-height: 1.4;
+      color: var(--text-dark);
+    }
+    .syn-confidence-bar { height: 8px; border-radius: 4px; }
+    .syn-confidence-bar-high        { background: linear-gradient(to right, #0C6E78 100%, #EAE6DD 100%); }
+    .syn-confidence-bar-moderate    { background: linear-gradient(to right, #C9821F 65%, #EAE6DD 65%); }
+    .syn-confidence-bar-directional { background: linear-gradient(to right, #9A9892 35%, #EAE6DD 35%); }
+    .syn-confidence-tier {
+      font-size: 0.7rem;
+      letter-spacing: 0.14em;
+      font-weight: 700;
+      text-align: right;
+      color: var(--muted);
+    }
+    .syn-confidence-row[data-tier="high"]        .syn-confidence-tier { color: #0C6E78; }
+    .syn-confidence-row[data-tier="moderate"]    .syn-confidence-tier { color: #C9821F; }
+    .syn-confidence-row[data-tier="directional"] .syn-confidence-tier { color: #6E6F73; }
+    @media (max-width: 600px) {
+      .syn-confidence-row { grid-template-columns: 1fr; gap: 8px; }
+    }
+
+    /* Vertical rhythm — subtle left-border accent on h3 subsections in synthesis */
+    [data-report="synthesis"] .section h3 {
+      position: relative;
+      padding-left: 14px;
+      border-left: 2px solid rgba(12,110,120,0.32);
+      margin-top: 28px;
+      margin-bottom: 12px;
+      font-size: 1.02rem;
+      line-height: 1.35;
+      letter-spacing: -0.008em;
+    }
+
+    /* Font precision — heading letter-spacing + text-wrap:balance for headlines */
+    [data-report="synthesis"] h1,
+    [data-report="synthesis"] h2 {
+      letter-spacing: -0.028em;
+      text-wrap: balance;
+    }
+    [data-report="synthesis"] .lede {
+      text-wrap: pretty;
+      max-width: 66ch;
+    }
+    [data-report="synthesis"] .section-eyebrow {
+      letter-spacing: 0.14em;
+    }
+
+    /* Priority action numbered circles tinted by tier position */
+    .syn-action:nth-of-type(1) .syn-action-order { background: #0C6E78; }
+    .syn-action:nth-of-type(2) .syn-action-order { background: #08383E; }
+    .syn-action:nth-of-type(3) .syn-action-order { background: #C9821F; }
+    .syn-action:nth-of-type(4) .syn-action-order { background: #3C8A60; }
     .report-shell[hidden] { display: none; }
 
     /* ---- Horizontal clarity/condition bars (SC + IP) ---- */
@@ -2447,6 +2586,7 @@
         <option value="contradictions">Contradictions</option>
         <option value="actions">Priority actions</option>
         <option value="narrative">Leadership read</option>
+        <option value="strengthen">Evidence trail</option>
         <option value="method">How this was produced</option>
     </select>
   </div>
@@ -2478,6 +2618,31 @@
       <p class="section-eyebrow">The pattern all four instruments are detecting <span class="pg">Page 2</span></p>
       <h2>Composite finding</h2>
       <p class="lede"><strong>A compensatory operating envelope</strong> is the composite condition. Visible output is holding across procurement, decisions, structure, and directorate performance &mdash; but the mechanism holding it up is not institutional strength; it is adaptation. Workarounds, escalations, coordination effort, and unusual management lift are absorbing the gap between formal capacity and actual demand. The upstream driver is structural: contested decision rights in a concentrated set of authority questions cascade into layered approvals, then routed-around processes, then compensatory management effort.</p>
+
+      <div class="syn-gauge-panel">
+        <svg class="syn-gauge-svg" viewBox="0 0 240 240" role="img" aria-label="Composite condition gauge — score 65 of 100" style="font-family:inherit;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:&#39;tnum&#39; 1,&#39;lnum&#39; 1;-webkit-font-smoothing:antialiased;">
+          <!-- Background ring -->
+          <circle cx="120" cy="120" r="92" fill="none" stroke="#EAE6DD" stroke-width="18"/>
+          <!-- Foreground arc: 65% of circumference (2π·92 ≈ 578). 65% = 375.7 -->
+          <circle cx="120" cy="120" r="92" fill="none" stroke="#0C6E78" stroke-width="18"
+                  stroke-dasharray="375.7 578" stroke-linecap="round"
+                  transform="rotate(-90 120 120)"/>
+          <!-- Threshold markers: amber tick at 60%, green tick at 70% -->
+          <circle cx="120" cy="120" r="92" fill="none" stroke="#C9821F" stroke-width="3"
+                  stroke-dasharray="4 574" transform="rotate(126 120 120)"/>
+          <circle cx="120" cy="120" r="92" fill="none" stroke="#3C8A60" stroke-width="3"
+                  stroke-dasharray="4 574" transform="rotate(162 120 120)"/>
+          <!-- Score number, unit, band -->
+          <text x="120" y="116" text-anchor="middle" font-size="60" font-weight="700" fill="#18191C" letter-spacing="-.04em">65</text>
+          <text x="120" y="140" text-anchor="middle" font-size="12" font-weight="600" fill="#6E6F73" letter-spacing=".14em">/ 100</text>
+          <text x="120" y="172" text-anchor="middle" font-size="10" font-weight="700" fill="#0C6E78" letter-spacing=".14em">MIXED CONDITION</text>
+        </svg>
+        <div class="syn-gauge-caption">
+          <p class="syn-gauge-band">Composite condition band</p>
+          <p class="syn-gauge-desc">The 65 composite is <strong>convergence-weighted</strong>, not a simple average (arithmetic mean of the four would be 65.5). It sits in the &ldquo;working but burdened&rdquo; band &mdash; below 60 is structurally compromised, above 70 is healthy.</p>
+          <p class="syn-gauge-context">Amber tick marks the 60 threshold (below which the operating envelope is not sustainably functioning). Green tick marks 70 (entry to the healthy range). This composite sits closer to the amber threshold than to green.</p>
+        </div>
+      </div>
 
       <div class="syn-composite">
         <div>
@@ -2525,7 +2690,7 @@
             <span class="syn-lens-card-score">64</span>
           </div>
           <p class="syn-lens-card-band">Heavy but holding</p>
-          <p class="syn-lens-card-driver">Primary driver: <strong>workaround dependence</strong>. The formal path stalls; off-path effort is doing much of the work.</p>
+          <p class="syn-lens-card-driver">Primary driver: <strong>workaround dependence</strong> · severity 59<sup>*</sup>. Secondary: systems friction (35), administrative upkeep (33). The formal path stalls; off-path effort is doing much of the work.</p>
         </div>
         <div class="syn-lens-card">
           <div class="syn-lens-card-head">
@@ -2533,7 +2698,7 @@
             <span class="syn-lens-card-score">58</span>
           </div>
           <p class="syn-lens-card-band">Functional but burdened</p>
-          <p class="syn-lens-card-driver">Primary driver: <strong>approval density</strong>. Layered approvals sized for exception cases applied to every decision.</p>
+          <p class="syn-lens-card-driver">Primary driver: <strong>approval density</strong> · severity 88<sup>*</sup>. Secondary: escalation dependence (20), rework friction (17). Layered approvals sized for exception cases applied to every decision.</p>
         </div>
         <div class="syn-lens-card">
           <div class="syn-lens-card-head">
@@ -2541,7 +2706,7 @@
             <span class="syn-lens-card-score">68</span>
           </div>
           <p class="syn-lens-card-band">Readable but contested</p>
-          <p class="syn-lens-card-driver">Primary driver: <strong>contested decision rights</strong>. Structure is legible in principle but not for the calls that matter.</p>
+          <p class="syn-lens-card-driver">Primary driver: <strong>contested decision rights</strong> · dimension-level weakness in decision rights and accountability. Structure is legible in principle but not for the calls that matter.</p>
         </div>
         <div class="syn-lens-card">
           <div class="syn-lens-card-head">
@@ -2549,7 +2714,7 @@
             <span class="syn-lens-card-score">72</span>
           </div>
           <p class="syn-lens-card-band">Sound but compensating</p>
-          <p class="syn-lens-card-driver">Primary driver: <strong>management lift</strong>. Visible output partly sustained by extra effort rather than by the institution itself.</p>
+          <p class="syn-lens-card-driver">Primary driver: <strong>management lift</strong> · institutional confidence is the weakest condition while the rest holds. Visible output partly sustained by extra effort rather than by the institution itself.</p>
         </div>
       </div>
 
@@ -2557,6 +2722,11 @@
         <p class="syn-viz-title">Lens scores &middot; composite</p>
         <p class="syn-viz-sub">Each lens scored 1&ndash;100 (higher is healthier). The vertical marker shows the composite across all four.</p>
         <svg viewBox="0 0 640 220" width="100%" role="img" aria-label="Four-lens comparison with composite marker" style="display:block;font-family:inherit;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:&#39;tnum&#39; 1,&#39;lnum&#39; 1;-webkit-font-smoothing:antialiased;">
+          <!-- Reference band shading: scores under 60 (amber) and scores 70+ (green) -->
+          <rect x="40" y="42" width="336" height="175" fill="#C9821F" opacity="0.05"/>
+          <rect x="432" y="42" width="168" height="175" fill="#3C8A60" opacity="0.06"/>
+          <text x="42" y="38" fill="#C9821F" font-size="8.5" font-weight="700" letter-spacing=".14em">&lt; 60 · WORKING BUT BURDENED</text>
+          <text x="598" y="38" fill="#3C8A60" font-size="8.5" font-weight="700" text-anchor="end" letter-spacing=".14em">70+ · HEALTHY RANGE</text>
           <!-- Composite reference line at x = 40 + (65/100)*560 = 40 + 364 = 404 -->
           <line x1="404" y1="8" x2="404" y2="212" stroke="#08383E" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.55"/>
           <text x="404" y="18" fill="#08383E" font-size="9.5" font-weight="700" text-anchor="middle" letter-spacing=".12em">COMPOSITE 65</text>
@@ -2645,7 +2815,7 @@
         <div class="syn-signal-body">
           <p><strong>Compensation is central across all four lenses.</strong> OS surfaces workaround dependence; DV surfaces escalation dependence; SC identifies coordination effort filling the decision-rights gap; IP shows unusual management lift absorbing operational pressure. Each lens sees a different modality of the same underlying pattern: the institution is running on adaptation, not on formal capacity.</p>
           <div class="syn-signal-tags">
-            <span class="syn-tag">OS</span><span class="syn-tag">DV</span><span class="syn-tag">SC</span><span class="syn-tag">IP</span>
+            <span class="syn-tag">OS · workaround [59]</span><span class="syn-tag">DV · escalation [20]</span><span class="syn-tag">SC · coordination effort</span><span class="syn-tag">IP · management lift</span>
           </div>
         </div>
       </div>
@@ -2655,7 +2825,7 @@
         <div class="syn-signal-body">
           <p><strong>Decision authority is contested in more than one venue.</strong> SC identifies decision-rights ambiguity structurally. DV shows the downstream effect: layered approvals substituting for authority clarity. OS shows the coping strategy: workarounds when the formal path can&#39;t produce a decision. Three lenses, one root.</p>
           <div class="syn-signal-tags">
-            <span class="syn-tag">OS</span><span class="syn-tag">DV</span><span class="syn-tag">SC</span>
+            <span class="syn-tag">OS · workaround [59]</span><span class="syn-tag">DV · approval density [88]</span><span class="syn-tag">SC · decision rights</span>
           </div>
         </div>
       </div>
@@ -2665,7 +2835,7 @@
         <div class="syn-signal-body">
           <p><strong>Administrative burden shows up in two lenses at different resolutions.</strong> OS measures it directly as systems friction and administrative upkeep. IP measures its shadow as management lift and control translation. Same institutional weight, seen from operating and directorate vantage points.</p>
           <div class="syn-signal-tags">
-            <span class="syn-tag">OS</span><span class="syn-tag">IP</span>
+            <span class="syn-tag">OS · systems friction [35] + admin upkeep [33]</span><span class="syn-tag">IP · management lift</span>
           </div>
         </div>
       </div>
@@ -2746,55 +2916,92 @@
 
       <div class="syn-viz-panel" id="synthesis-viz-sequence">
         <p class="syn-viz-title">Sequencing cascade</p>
-        <p class="syn-viz-sub">Upstream causes cascade into downstream compensation. Interventions must be sequenced left-to-right; reversing the order regenerates the pattern.</p>
-        <svg viewBox="0 0 640 150" width="100%" role="img" aria-label="Sequencing cascade — upstream to downstream" style="display:block;font-family:inherit;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:&#39;tnum&#39; 1,&#39;lnum&#39; 1;-webkit-font-smoothing:antialiased;">
-          <!-- Upstream to downstream label track -->
-          <text x="30" y="16" fill="#0C6E78" font-size="9" font-weight="700" letter-spacing=".14em">UPSTREAM</text>
-          <text x="610" y="16" fill="#6E6F73" font-size="9" font-weight="700" text-anchor="end" letter-spacing=".14em">DOWNSTREAM</text>
-          <line x1="30" y1="22" x2="610" y2="22" stroke="rgba(24,25,28,.12)"/>
+        <p class="syn-viz-sub">Upstream causes cascade into downstream compensation. Colors encode intervention tier: teal for structural, gold for behavioral, green for cultural. Interventions must be sequenced left-to-right; reversing the order regenerates the pattern.</p>
+        <div class="syn-cascade-scroll">
+          <svg viewBox="0 0 680 150" role="img" aria-label="Sequencing cascade — upstream to downstream" style="display:block;font-family:inherit;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:&#39;tnum&#39; 1,&#39;lnum&#39; 1;-webkit-font-smoothing:antialiased;">
+            <text x="30" y="16" fill="#0C6E78" font-size="9" font-weight="700" letter-spacing=".14em">UPSTREAM</text>
+            <text x="650" y="16" fill="#6E6F73" font-size="9" font-weight="700" text-anchor="end" letter-spacing=".14em">DOWNSTREAM</text>
+            <line x1="30" y1="22" x2="650" y2="22" stroke="rgba(24,25,28,.12)"/>
 
-          <!-- Step 1: Decision rights (upstream, strongest teal) -->
-          <rect x="14" y="46" width="130" height="70" fill="#0C6E78" rx="10"/>
-          <text x="79" y="66" fill="#FFF" font-size="10" font-weight="700" text-anchor="middle" letter-spacing=".14em">01</text>
-          <text x="79" y="88" fill="#FFF" font-size="13" font-weight="700" text-anchor="middle">Decision</text>
-          <text x="79" y="103" fill="#FFF" font-size="13" font-weight="700" text-anchor="middle">rights</text>
+            <!-- Step 1: Decision rights (structural, teal) -->
+            <rect x="20" y="46" width="130" height="70" fill="#0C6E78" rx="10"/>
+            <text x="85" y="66" fill="#FFF" font-size="10" font-weight="700" text-anchor="middle" letter-spacing=".14em">01</text>
+            <text x="85" y="88" fill="#FFF" font-size="13" font-weight="700" text-anchor="middle">Decision</text>
+            <text x="85" y="103" fill="#FFF" font-size="13" font-weight="700" text-anchor="middle">rights</text>
 
-          <!-- Arrow 1 -->
-          <line x1="152" y1="81" x2="182" y2="81" stroke="#08383E" stroke-width="2"/>
-          <polygon points="182,75 194,81 182,87" fill="#08383E"/>
+            <line x1="152" y1="81" x2="184" y2="81" stroke="#08383E" stroke-width="2"/>
+            <polygon points="184,75 196,81 184,87" fill="#08383E"/>
 
-          <!-- Step 2: Approval architecture -->
-          <rect x="202" y="46" width="130" height="70" fill="#146C75" rx="10"/>
-          <text x="267" y="66" fill="#FFF" font-size="10" font-weight="700" text-anchor="middle" letter-spacing=".14em">02</text>
-          <text x="267" y="88" fill="#FFF" font-size="13" font-weight="700" text-anchor="middle">Approval</text>
-          <text x="267" y="103" fill="#FFF" font-size="13" font-weight="700" text-anchor="middle">architecture</text>
+            <!-- Step 2: Approval architecture (structural, dark-teal) -->
+            <rect x="190" y="46" width="130" height="70" fill="#08383E" rx="10"/>
+            <text x="255" y="66" fill="#FFF" font-size="10" font-weight="700" text-anchor="middle" letter-spacing=".14em">02</text>
+            <text x="255" y="88" fill="#FFF" font-size="13" font-weight="700" text-anchor="middle">Approval</text>
+            <text x="255" y="103" fill="#FFF" font-size="13" font-weight="700" text-anchor="middle">architecture</text>
 
-          <!-- Arrow 2 -->
-          <line x1="340" y1="81" x2="370" y2="81" stroke="#08383E" stroke-width="2"/>
-          <polygon points="370,75 382,81 370,87" fill="#08383E"/>
+            <line x1="322" y1="81" x2="354" y2="81" stroke="#08383E" stroke-width="2"/>
+            <polygon points="354,75 366,81 354,87" fill="#08383E"/>
 
-          <!-- Step 3: Workaround dependence -->
-          <rect x="390" y="46" width="130" height="70" fill="#3E8A92" rx="10"/>
-          <text x="455" y="66" fill="#FFF" font-size="10" font-weight="700" text-anchor="middle" letter-spacing=".14em">03</text>
-          <text x="455" y="88" fill="#FFF" font-size="13" font-weight="700" text-anchor="middle">Workaround</text>
-          <text x="455" y="103" fill="#FFF" font-size="13" font-weight="700" text-anchor="middle">dependence</text>
+            <!-- Step 3: Workaround dependence (behavioral, gold) -->
+            <rect x="360" y="46" width="130" height="70" fill="#C9821F" rx="10"/>
+            <text x="425" y="66" fill="#FFF" font-size="10" font-weight="700" text-anchor="middle" letter-spacing=".14em">03</text>
+            <text x="425" y="88" fill="#FFF" font-size="13" font-weight="700" text-anchor="middle">Workaround</text>
+            <text x="425" y="103" fill="#FFF" font-size="13" font-weight="700" text-anchor="middle">dependence</text>
 
-          <!-- Arrow 3 -->
-          <line x1="528" y1="81" x2="558" y2="81" stroke="#08383E" stroke-width="2"/>
-          <polygon points="558,75 570,81 558,87" fill="#08383E"/>
+            <line x1="492" y1="81" x2="524" y2="81" stroke="#08383E" stroke-width="2"/>
+            <polygon points="524,75 536,81 524,87" fill="#08383E"/>
 
-          <!-- Step 4: Institutional confidence (downstream, palest) -->
-          <rect x="578" y="46" width="52" height="70" fill="#8FC4C9" rx="10"/>
-          <text x="604" y="66" fill="#FFF" font-size="9" font-weight="700" text-anchor="middle" letter-spacing=".14em">04</text>
-          <text x="604" y="86" fill="#FFF" font-size="10" font-weight="700" text-anchor="middle">Instit.</text>
-          <text x="604" y="99" fill="#FFF" font-size="10" font-weight="700" text-anchor="middle">confidence</text>
+            <!-- Step 4: Institutional confidence (cultural, green) — now equal width -->
+            <rect x="530" y="46" width="130" height="70" fill="#3C8A60" rx="10"/>
+            <text x="595" y="66" fill="#FFF" font-size="10" font-weight="700" text-anchor="middle" letter-spacing=".14em">04</text>
+            <text x="595" y="88" fill="#FFF" font-size="13" font-weight="700" text-anchor="middle">Institutional</text>
+            <text x="595" y="103" fill="#FFF" font-size="13" font-weight="700" text-anchor="middle">confidence</text>
 
-          <!-- Bottom rail: labels indicating structural / behavioral -->
-          <text x="79" y="137" fill="#6E6F73" font-size="9" font-weight="600" text-anchor="middle" letter-spacing=".08em">STRUCTURAL</text>
-          <text x="267" y="137" fill="#6E6F73" font-size="9" font-weight="600" text-anchor="middle" letter-spacing=".08em">STRUCTURAL</text>
-          <text x="455" y="137" fill="#6E6F73" font-size="9" font-weight="600" text-anchor="middle" letter-spacing=".08em">BEHAVIORAL</text>
-          <text x="604" y="137" fill="#6E6F73" font-size="9" font-weight="600" text-anchor="middle" letter-spacing=".08em">CULTURAL</text>
-        </svg>
+            <!-- Bottom rail: tier labels, colored to match boxes -->
+            <text x="85" y="137" fill="#0C6E78" font-size="9" font-weight="700" text-anchor="middle" letter-spacing=".08em">STRUCTURAL</text>
+            <text x="255" y="137" fill="#08383E" font-size="9" font-weight="700" text-anchor="middle" letter-spacing=".08em">STRUCTURAL</text>
+            <text x="425" y="137" fill="#C9821F" font-size="9" font-weight="700" text-anchor="middle" letter-spacing=".08em">BEHAVIORAL</text>
+            <text x="595" y="137" fill="#3C8A60" font-size="9" font-weight="700" text-anchor="middle" letter-spacing=".08em">CULTURAL</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="syn-viz-panel" id="synthesis-viz-timeline">
+        <p class="syn-viz-title">Sequencing horizon &mdash; when each action should happen</p>
+        <p class="syn-viz-sub">Actions overlap intentionally: each tier begins unlocking before the next starts, but the order is fixed. Bars show suggested engagement windows in weeks from decision-to-act.</p>
+        <div class="syn-cascade-scroll">
+          <svg viewBox="0 0 680 260" role="img" aria-label="Timeline horizon showing when each priority action should happen" style="display:block;font-family:inherit;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:&#39;tnum&#39; 1,&#39;lnum&#39; 1;-webkit-font-smoothing:antialiased;">
+            <line x1="140" y1="30" x2="660" y2="30" stroke="rgba(24,25,28,.14)" stroke-width="1"/>
+            <text x="140" y="22" fill="#6E6F73" font-size="10" font-weight="600" text-anchor="middle" letter-spacing=".06em">0w</text>
+            <text x="270" y="22" fill="#6E6F73" font-size="10" font-weight="600" text-anchor="middle" letter-spacing=".06em">8w</text>
+            <text x="400" y="22" fill="#6E6F73" font-size="10" font-weight="600" text-anchor="middle" letter-spacing=".06em">16w</text>
+            <text x="530" y="22" fill="#6E6F73" font-size="10" font-weight="600" text-anchor="middle" letter-spacing=".06em">24w</text>
+            <text x="660" y="22" fill="#6E6F73" font-size="10" font-weight="600" text-anchor="middle" letter-spacing=".06em">32w+</text>
+            <line x1="140" y1="30" x2="140" y2="210" stroke="rgba(24,25,28,.06)" stroke-dasharray="2 4"/>
+            <line x1="270" y1="30" x2="270" y2="210" stroke="rgba(24,25,28,.06)" stroke-dasharray="2 4"/>
+            <line x1="400" y1="30" x2="400" y2="210" stroke="rgba(24,25,28,.06)" stroke-dasharray="2 4"/>
+            <line x1="530" y1="30" x2="530" y2="210" stroke="rgba(24,25,28,.06)" stroke-dasharray="2 4"/>
+            <line x1="660" y1="30" x2="660" y2="210" stroke="rgba(24,25,28,.06)" stroke-dasharray="2 4"/>
+
+            <text x="128" y="72" fill="#18191C" font-size="12" font-weight="600" text-anchor="end">01 &middot; Decision rights</text>
+            <rect x="140" y="58" width="163" height="28" fill="#0C6E78" rx="4"/>
+            <text x="221" y="76" fill="#FFF" font-size="10" font-weight="600" text-anchor="middle" letter-spacing=".08em">STRUCTURAL &middot; 0&ndash;10w</text>
+
+            <text x="128" y="112" fill="#18191C" font-size="12" font-weight="600" text-anchor="end">02 &middot; Approval architecture</text>
+            <rect x="238" y="98" width="195" height="28" fill="#08383E" rx="4"/>
+            <text x="335" y="116" fill="#FFF" font-size="10" font-weight="600" text-anchor="middle" letter-spacing=".08em">STRUCTURAL &middot; 6&ndash;18w</text>
+
+            <text x="128" y="152" fill="#18191C" font-size="12" font-weight="600" text-anchor="end">03 &middot; Workaround dependence</text>
+            <rect x="368" y="138" width="195" height="28" fill="#C9821F" rx="4"/>
+            <text x="465" y="156" fill="#FFF" font-size="10" font-weight="600" text-anchor="middle" letter-spacing=".08em">BEHAVIORAL &middot; 14&ndash;26w</text>
+
+            <text x="128" y="192" fill="#18191C" font-size="12" font-weight="600" text-anchor="end">04 &middot; Institutional confidence</text>
+            <rect x="498" y="178" width="162" height="28" fill="#3C8A60" rx="4"/>
+            <text x="579" y="196" fill="#FFF" font-size="10" font-weight="600" text-anchor="middle" letter-spacing=".08em">CULTURAL &middot; 22w+</text>
+
+            <text x="140" y="238" fill="#6E6F73" font-size="10" font-weight="600" letter-spacing=".06em">EACH TIER BEGINS UNLOCKING BEFORE THE NEXT STARTS</text>
+            <text x="660" y="238" fill="#6E6F73" font-size="10" font-weight="600" text-anchor="end" letter-spacing=".06em">TOTAL HORIZON ~32 WEEKS</text>
+          </svg>
+        </div>
       </div>
     </section>
 
@@ -2811,12 +3018,76 @@
       <p>The synthesis is directional. Each of the four lenses has its own dimensional detail, and any specific intervention should be sized against that dimensional read, not against the composite score. Cross-diagnostic synthesis exists to identify the sequence and root, not to replace the individual instrument-level detail.</p>
     </section>
 
+    <section class="section" id="synthesis-strengthen">
+      <p class="section-eyebrow">What would strengthen this read <span class="pg">Page 8</span></p>
+      <h2>Evidence trail &amp; what would update the composite</h2>
+      <p class="lede">This synthesis is directional. Specific new information would either sharpen or challenge the composite reading. The signals below indicate where the read is strongest and where it would most benefit from independent evidence.</p>
+
+      <div class="syn-confidence-panel">
+        <p class="syn-viz-title">Confidence-by-finding heatmap</p>
+        <p class="syn-viz-sub">Each major finding in this synthesis, color-coded by evidence strength. High-confidence findings are anchored by independent convergence across multiple lenses; directional findings rest primarily on a single lens or on cross-lens inference.</p>
+        <div class="syn-confidence-grid">
+          <div class="syn-confidence-row" data-tier="high">
+            <div class="syn-confidence-label"><strong>Signal 01</strong> &middot; Compensation is central across all four lenses</div>
+            <div class="syn-confidence-bar syn-confidence-bar-high"></div>
+            <div class="syn-confidence-tier">HIGH</div>
+          </div>
+          <div class="syn-confidence-row" data-tier="high">
+            <div class="syn-confidence-label"><strong>Composite exposure math</strong> &middot; ~291k total, ~110k compensation subset</div>
+            <div class="syn-confidence-bar syn-confidence-bar-high"></div>
+            <div class="syn-confidence-tier">HIGH</div>
+          </div>
+          <div class="syn-confidence-row" data-tier="moderate">
+            <div class="syn-confidence-label"><strong>Signal 02</strong> &middot; Approval architecture &amp; decision-rights convergence</div>
+            <div class="syn-confidence-bar syn-confidence-bar-moderate"></div>
+            <div class="syn-confidence-tier">MODERATE</div>
+          </div>
+          <div class="syn-confidence-row" data-tier="moderate">
+            <div class="syn-confidence-label"><strong>Cascade upstream driver</strong> &middot; decision rights identified as root</div>
+            <div class="syn-confidence-bar syn-confidence-bar-moderate"></div>
+            <div class="syn-confidence-tier">MODERATE</div>
+          </div>
+          <div class="syn-confidence-row" data-tier="directional">
+            <div class="syn-confidence-label"><strong>Contradictions</strong> &middot; SC readable vs OS/DV/IP compensating</div>
+            <div class="syn-confidence-bar syn-confidence-bar-directional"></div>
+            <div class="syn-confidence-tier">DIRECTIONAL</div>
+          </div>
+          <div class="syn-confidence-row" data-tier="directional">
+            <div class="syn-confidence-label"><strong>Sequencing horizon estimates</strong> &middot; week ranges for each action</div>
+            <div class="syn-confidence-bar syn-confidence-bar-directional"></div>
+            <div class="syn-confidence-tier">DIRECTIONAL</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Where the composite is strongest</h3>
+      <p>Convergence signal 01 (compensation is central) is the highest-confidence finding &mdash; all four instruments independently surface a compensation-flavor phenomenon, and the specific dimensions (workaround dependence, escalation dependence, coordination effort, management lift) describe the same underlying pattern from four different vantage points. Confidence: <strong>high</strong> that the operating envelope is running on adaptation rather than formal capacity.</p>
+
+      <h3>Where the composite is directional but softer</h3>
+      <p>The upstream-driver claim (decision rights as the root of the cascade) rests primarily on SC's dimension-level detail. If SC's read on decision rights and accountability were revised, the sequencing logic (Decision rights &rarr; Approval architecture &rarr; Workaround dependence &rarr; Institutional confidence) would need to be reordered. Confidence: <strong>moderate</strong>; the pattern fits, but one lens is doing more work than the others in identifying the specific root.</p>
+
+      <h3>What new evidence would materially update the composite</h3>
+      <p>Independent evidence of any of the following would materially update this read: (1) time-in-approval-loop data showing whether DV's approval density is exception-case-appropriate or blanket-applied; (2) escalation-log analysis showing which decision types most often route around the formal path (OS workaround dependence detail); (3) direct participant testimony on which authority questions actually feel contested (SC decision-rights specificity); (4) manager time-allocation data showing where management lift is compensating rather than governing (IP institutional confidence).</p>
+
+      <h3>Where the composite would be softened by new evidence</h3>
+      <p>If either OS workaround dependence or DV approval density turned out to be workflow-specific rather than envelope-wide, the composite's identification of a shared upstream cause would weaken &mdash; the four lenses would still each be measuring something real, but the synthesis-level pattern would be less coherent than it currently reads. That is the most important sensitivity in this composite.</p>
+    </section>
+
     <section class="section" id="synthesis-method">
-      <p class="section-eyebrow">How this was produced <span class="pg">Page 8</span></p>
+      <p class="section-eyebrow">How this was produced <span class="pg">Page 9</span></p>
       <h2>Method note</h2>
-      <p>Cross-diagnostic synthesis reads across the four instrument-level outputs. The composite score is not a simple average of the four lens scores; it weights convergence signals higher than dimension-level scores because independent convergence is a stronger indicator than any single measurement. Compounded exposure is not a sum &mdash; where two lenses measure the same compensation activity, the synthesis avoids double-counting.</p>
-      <p>Contradictions are surfaced explicitly. When two lenses point in different directions, the synthesis does not average them; it reports the disagreement as a diagnostic lead worth investigating. Contradictions are usually more informative than convergence.</p>
-      <p>All figures marked with an asterisk (*) are directional estimates derived from participant self-reported inputs at run time. They are strategic signals, not audited measurements.</p>
+
+      <h3>How the composite score was calculated</h3>
+      <p>Composite score is a convergence-weighted read across the four instrument-level outputs, not a simple average. In this synthesis the four raw lens scores (OS 64, DV 58, SC 68, IP 72) roll up to a composite of 65, reflecting that all four lenses independently point to the same compensatory pattern &mdash; convergence at that level is a stronger indicator than any single lens score would be on its own. A pure arithmetic mean of the four (65.5) happens to be close in this case, but the synthesis does not compute it that way.</p>
+
+      <h3>How compounded exposure was estimated</h3>
+      <p>Compounded exposure is not a sum. The four diagnostic runs collectively measure ~291,000 burden hours across the operating envelope. The ~110,000-hour compensation subset is the portion attributable specifically to workarounds, escalations, coordination effort, and management lift &mdash; where the same activity is measured by more than one lens (e.g., OS workaround dependence and DV escalation dependence often describe the same event from two vantage points), the synthesis deduplicates rather than adding.</p>
+
+      <h3>How contradictions are treated</h3>
+      <p>When two lenses point in different directions, the synthesis does not average them; it reports the disagreement as a diagnostic lead worth investigating. Contradictions in this report (SC "readable" versus OS/DV/IP "heavy compensation"; IP institutional-confidence gap versus SC decision-rights ambiguity) are usually more informative than convergence for identifying where the operating envelope is actually most vulnerable.</p>
+
+      <h3>Where the figures are directional</h3>
+      <p>All figures marked with an asterisk (*) are directional estimates derived from participant self-reported inputs at run time, aggregated across the four diagnostic runs. They are strategic signals for leadership discussion, not audited measurements. Ranges are shown where the individual instrument outputs carried enough spread that a point estimate would misrepresent the underlying uncertainty.</p>
     </section>
 
   </main>
@@ -2830,7 +3101,8 @@
       <li><a href="#synthesis-contradictions" data-section="synthesis-contradictions"><span class="toc-num">05</span>Contradictions</a></li>
       <li><a href="#synthesis-actions" data-section="synthesis-actions"><span class="toc-num">06</span>Priority actions</a></li>
       <li><a href="#synthesis-narrative" data-section="synthesis-narrative"><span class="toc-num">07</span>Leadership read</a></li>
-      <li><a href="#synthesis-method" data-section="synthesis-method"><span class="toc-num">08</span>How this was produced</a></li>
+      <li><a href="#synthesis-strengthen" data-section="synthesis-strengthen"><span class="toc-num">08</span>Evidence trail</a></li>
+      <li><a href="#synthesis-method" data-section="synthesis-method"><span class="toc-num">09</span>How this was produced</a></li>
     </ol>
   </aside>
   </div>
