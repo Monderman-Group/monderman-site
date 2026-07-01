@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cross-Tool Synthesis | Monderman</title>
+  <title>Cross-Diagnostic Synthesis Tool | Monderman</title>
 
   <link
     rel="icon"
@@ -40,24 +40,26 @@
     }
 
     :root{
-      --accent:#3F6EA1;
-      --accent-dark:#2F5886;
-      --bg-dark:#0F1720;
-      --bg-dark-2:#111B25;
-      --bg-offwhite:#F6F7F8;
+      --accent:#0C6E78;
+      --accent-dark:#08383E;
+      --bg-dark:#04181B;
+      --bg-dark-2:#073338;
+      --bg-offwhite:#F6F3EC;
       --bg-white:#FFFFFF;
-      --text-light:#F5F7FA;
-      --text-dark:#15202B;
-      --muted-dark:#556270;
-      --muted-dark-2:#7A8794;
-      --panel-line:rgba(21,32,43,.08);
-      --panel-soft:#FBFCFE;
-      --success:#2E8B57;
-      --warning:#B8860B;
-      --danger:#B8505E;
+      --text-light:#FAFAF8;
+      --text-dark:#18191C;
+      --muted-dark:#6E6F73;
+      --muted-dark-2:#9A9892;
+      --panel-line:rgba(24,25,28,.08);
+      --panel-soft:#FAFAF8;
+      --success:#3C8A60;
+      --warning:#C9821F;
+      --danger:#B0392F;
+      --line:#EAE6DD;
+      --line-2:#EAE6DD;
       --max:1320px;
-      --soft-shadow:0 1px 0 rgba(0,0,0,.012), 0 12px 28px rgba(0,0,0,.04);
-      --card-shadow:0 16px 32px rgba(0,0,0,.045);
+      --soft-shadow:0 1px 0 rgba(0,0,0,.012), 0 12px 28px rgba(8,56,62,.05);
+      --card-shadow:0 16px 32px rgba(8,56,62,.06);
       --transition:220ms cubic-bezier(.22,1,.36,1);
     }
 
@@ -138,7 +140,7 @@
     }
 
     .hero{
-      background:linear-gradient(180deg,#0F1720 0%, #111B25 100%);
+      background:linear-gradient(180deg,#04181B 0%, #073338 100%);
       color:var(--text-light);
       border-radius:24px;
       overflow:hidden;
@@ -151,8 +153,8 @@
       position:absolute;
       inset:0;
       background:
-        radial-gradient(circle at 82% 18%, rgba(63,110,161,.22), transparent 28%),
-        linear-gradient(135deg, rgba(63,110,161,.05) 1px, transparent 1px);
+        radial-gradient(circle at 82% 18%, rgba(12,110,120,.22), transparent 28%),
+        linear-gradient(135deg, rgba(12,110,120,.05) 1px, transparent 1px);
       background-size:auto, 32px 32px;
       opacity:.55;
       pointer-events:none;
@@ -229,47 +231,139 @@
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      min-height:44px;
-      min-width:156px;
-      padding:0 18px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.96);
-      color:var(--text-dark);
-      font-size:.93rem;
+      min-height:50px;
+      min-width:168px;
+      padding:0 24px;
+      border-radius:7px;
+      font-size:15px;
       font-weight:500;
+      white-space:nowrap;
+      background:#FFF;
+      color:var(--text-dark);
+      border:1px solid rgba(24,25,28,.12);
+      box-shadow:none;
+      transition:background var(--transition), color var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition);
       cursor:pointer;
-      transition:transform var(--transition), box-shadow var(--transition), background var(--transition), border-color var(--transition), color var(--transition);
     }
     .btn:hover,
     .btn:focus-visible{
-      transform:translateY(-1px);
-      box-shadow:0 6px 14px rgba(0,0,0,.08);
+      background:#FFF;
+      color:var(--accent-dark);
+      border-color:var(--accent-dark);
+      transform:none;
+      box-shadow:none;
       outline:none;
     }
-    .btn-secondary{
+    .btn-on-dark{
       background:rgba(255,255,255,.06);
       color:#FFF;
       border-color:rgba(255,255,255,.16);
     }
-    .btn-secondary:hover,
-    .btn-secondary:focus-visible{
+    .btn-on-dark:hover,
+    .btn-on-dark:focus-visible{
       background:rgba(255,255,255,.10);
+      border-color:rgba(255,255,255,.24);
     }
+    .btn-soft{
+      background:rgba(12,110,120,.07);
+      border-color:rgba(12,110,120,.16);
+      color:var(--accent);
+    }
+    .btn-soft:hover,
+    .btn-soft:focus-visible{
+      background:rgba(12,110,120,.12);
+      border-color:rgba(12,110,120,.24);
+    }
+    .action-link{font-size:.9rem;line-height:1.5;color:var(--accent);font-weight:600;cursor:pointer;background:none;border:none;padding:0;text-decoration:none}
+    .action-link:hover,.action-link:focus-visible{color:var(--accent-dark);outline:none}
+    .utility-btn{font-size:.84rem;line-height:1.45;color:var(--muted-dark);background:none;border:none;padding:0;cursor:pointer;text-decoration:none}
+    .utility-btn:hover,.utility-btn:focus-visible{color:var(--text-dark);outline:none}
+    .export-cta-stack{display:grid;gap:12px;width:100%;margin-top:8px}
+    .export-primary-row{display:flex;gap:10px;flex-wrap:wrap}
+    .export-inline-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+    .export-utility-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
     .btn-accent{
       background:var(--accent);
       color:#FFF;
-      border-color:rgba(63,110,161,.20);
+      border:1px solid rgba(12,110,120,.28);
+      box-shadow:none;
     }
     .btn-accent:hover,
     .btn-accent:focus-visible{
       background:var(--accent-dark);
-      border-color:rgba(47,88,134,.24);
+      color:#FFF;
+      border-color:rgba(8,56,62,.42);
+      box-shadow:none;
     }
 
     .layout{
       display:grid;
       gap:20px;
+    }
+    .synthesis-schema-warning{
+      margin:0 0 16px;
+      padding:12px 16px;
+      background:rgba(184,134,11,.08);
+      border:1px solid rgba(184,134,11,.28);
+      border-radius:12px;
+      color:var(--warning);
+      font-size:.9rem;
+      line-height:1.5;
+    }
+    .synthesis-schema-warning p{
+      margin:0;
+    }
+    /* ---- Cross-synth visualization panels ---- */
+    .syn-viz {
+      margin: 16px 0 0;
+      padding: 20px 22px 18px;
+      background: var(--bg-white);
+      border: 1px solid var(--panel-line);
+      border-radius: 14px;
+    }
+    .syn-viz-title {
+      margin: 0 0 4px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted, #6E6F73);
+    }
+    .syn-viz-sub {
+      margin: 0 0 14px;
+      font-size: 0.86rem;
+      color: var(--text-muted, #6E6F73);
+      line-height: 1.45;
+    }
+    .syn-viz-empty {
+      margin: 0;
+      padding: 12px 0;
+      font-size: 0.86rem;
+      color: var(--text-muted, #6E6F73);
+      font-style: italic;
+    }
+    .syn-viz svg { display: block; width: 100%; height: auto;
+      font-family: inherit;
+      font-variant-numeric: tabular-nums lining-nums;
+      font-feature-settings: 'tnum' 1, 'lnum' 1;
+    }
+    .syn-viz-legend {
+      display: flex; gap: 18px; flex-wrap: wrap;
+      margin-top: 10px;
+      font-size: 0.82rem;
+    }
+    .syn-viz-legend-item { display: flex; align-items: center; gap: 6px; }
+    .syn-viz-legend-swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; }
+    .syn-cascade-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -8px; padding: 0 8px 4px; }
+    .syn-cascade-scroll svg { display: block; width: 100%; min-width: 620px; height: auto; }
+    @media (max-width: 640px) { .syn-cascade-scroll svg { min-width: 640px; } }
+    .signal-tools { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .signal-tool-chip {
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em;
+      padding: 2px 8px; border-radius: 20px;
+      background: rgba(12,110,120,.08);
+      color: var(--accent, #0C6E78);
+      border: 1px solid rgba(12,110,120,.20);
     }
     .panel{
       background:var(--bg-white);
@@ -280,7 +374,7 @@
     }
     .panel-head{
       padding:24px 26px 16px;
-      border-bottom:1px solid rgba(21,32,43,.06);
+      border-bottom:1px solid rgba(24,25,28,.06);
     }
     .panel-kicker{
       margin:0 0 10px;
@@ -314,7 +408,7 @@
       gap:14px;
       align-items:start;
       padding:22px 20px;
-      border:1px dashed rgba(21,32,43,.14);
+      border:1px dashed rgba(24,25,28,.14);
       border-radius:16px;
       background:#F8F9FA;
       color:var(--muted-dark);
@@ -333,7 +427,7 @@
       gap:16px;
     }
     .score-panel{
-      background:linear-gradient(180deg,#0F1720 0%, #111B25 100%);
+      background:linear-gradient(180deg,#04181B 0%, #073338 100%);
       color:#FFF;
       border-radius:18px;
       padding:24px 24px 22px;
@@ -346,8 +440,8 @@
       position:absolute;
       inset:0;
       background:
-        radial-gradient(circle at 85% 16%, rgba(63,110,161,.20), transparent 28%),
-        linear-gradient(135deg, rgba(63,110,161,.05) 1px, transparent 1px);
+        radial-gradient(circle at 85% 16%, rgba(12,110,120,.18), transparent 28%),
+        linear-gradient(135deg, rgba(12,110,120,.05) 1px, transparent 1px);
       background-size:auto, 28px 28px;
       opacity:.5;
       pointer-events:none;
@@ -388,7 +482,7 @@
 
     .mini-panel{
       background:#FFF;
-      border:1px solid rgba(21,32,43,.08);
+      border:1px solid rgba(24,25,28,.08);
       border-radius:18px;
       padding:20px;
       box-shadow:var(--soft-shadow);
@@ -418,7 +512,7 @@
     }
     .summary-card{
       background:#FFF;
-      border:1px solid rgba(21,32,43,.08);
+      border:1px solid rgba(24,25,28,.08);
       border-radius:14px;
       padding:16px 14px 14px;
       box-shadow:var(--soft-shadow);
@@ -460,7 +554,7 @@
     .action-card,
     .signal-card{
       background:#FFF;
-      border:1px solid rgba(21,32,43,.08);
+      border:1px solid rgba(24,25,28,.08);
       border-radius:16px;
       padding:18px 18px 16px;
       box-shadow:var(--soft-shadow);
@@ -487,7 +581,7 @@
       line-height:1;
       letter-spacing:.12em;
       text-transform:uppercase;
-      border:1px solid rgba(21,32,43,.08);
+      border:1px solid rgba(24,25,28,.08);
       background:#F8F9FA;
       color:var(--muted-dark);
       white-space:nowrap;
@@ -575,7 +669,7 @@
     .context-chip.show{display:inline-flex}
     .context-chip strong{color:#FFF;font-weight:700}
     .context-panel-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start}
-    .context-box{padding:18px;border:1px solid rgba(21,32,43,.08);border-radius:16px;background:#FFF;box-shadow:var(--soft-shadow)}
+    .context-box{padding:18px;border:1px solid rgba(24,25,28,.08);border-radius:16px;background:#FFF;box-shadow:var(--soft-shadow)}
     .context-box h3{margin:0 0 8px;font-size:1rem;line-height:1.15;color:var(--text-dark)}
     .context-box p{margin:0;font-size:.92rem;line-height:1.58;color:var(--muted-dark)}
     .context-meta{display:grid;gap:10px;margin-top:14px}
@@ -586,7 +680,7 @@
     .context-file{position:relative;overflow:hidden}
     .context-file input{position:absolute;inset:0;opacity:0;cursor:pointer}
     .tool-definition-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
-    .tool-definition{padding:14px 14px 12px;border-radius:14px;background:#FFF;border:1px solid rgba(21,32,43,.08);box-shadow:var(--soft-shadow)}
+    .tool-definition{padding:14px 14px 12px;border-radius:14px;background:#FFF;border:1px solid rgba(24,25,28,.08);box-shadow:var(--soft-shadow)}
     .tool-definition h4{margin:0 0 6px;font-size:.92rem;line-height:1.2;color:var(--text-dark)}
     .tool-definition p{margin:0;font-size:.84rem;line-height:1.5;color:var(--muted-dark)}
 
@@ -598,7 +692,7 @@
       gap:12px;
       padding:24px;
       border-radius:24px;
-      border:1px solid rgba(21,32,43,.08);
+      border:1px solid rgba(24,25,28,.08);
       background:linear-gradient(180deg,#FFF 0%,#F9FBFD 100%);
       box-shadow:var(--soft-shadow);
     }
@@ -612,14 +706,14 @@
       align-items:center;
       padding:8px 12px;
       border-radius:999px;
-      border:1px solid rgba(21,32,43,.08);
+      border:1px solid rgba(24,25,28,.08);
       background:#FFF;
       font-size:.82rem;
       color:var(--muted-dark);
     }
     .export-summary-card{
-      background:linear-gradient(180deg,#FFF 0%,#FBFCFE 100%);
-      border:1px solid rgba(21,32,43,.08);
+      background:linear-gradient(180deg,#FFF 0%,#FAFAF8 100%);
+      border:1px solid rgba(24,25,28,.08);
       border-radius:24px;
       box-shadow:var(--soft-shadow);
       padding:24px;
@@ -653,7 +747,7 @@
       padding:16px 18px;
       border-radius:18px;
       background:#FFF;
-      border:1px solid rgba(21,32,43,.08);
+      border:1px solid rgba(24,25,28,.08);
     }
     .export-block h4{
       margin:0 0 8px;
@@ -673,7 +767,7 @@
       align-items:center;
       padding:8px 12px;
       border-radius:999px;
-      border:1px solid rgba(21,32,43,.08);
+      border:1px solid rgba(24,25,28,.08);
       background:#FFF;
       font-size:.82rem;
       color:var(--muted-dark);
@@ -682,7 +776,7 @@
       padding:16px 18px;
       border-radius:16px;
       background:#F8FAFC;
-      border:1px solid rgba(21,32,43,.08);
+      border:1px solid rgba(24,25,28,.08);
       font-size:.88rem;
       line-height:1.6;
       color:var(--muted-dark);
@@ -756,13 +850,13 @@
       <div class="hero-inner">
         <div>
           <p class="eyebrow">Monderman Synthesis Layer</p>
-          <h1 id="synthesis-title">Cross-tool institutional synthesis.</h1>
+          <h1 id="synthesis-title">Cross-Diagnostic Synthesis Tool</h1>
           <p>
             This page renders the combined backend synthesis object created from 2 or more saved Monderman diagnostic results.
           </p>
           <div class="hero-actions">
             <a class="btn btn-accent" href="diagnostics.html">Return to Diagnostics</a>
-            <button class="btn btn-secondary" id="clearSavedDataBtn" type="button">Clear Current Synthesis</button>
+            <button class="btn btn-on-dark" id="clearSavedDataBtn" type="button">Clear Current Synthesis</button>
           </div>
           <div class="context-chip-shell">
             <div class="context-chip" id="currentPathChip"></div>
@@ -805,6 +899,9 @@
           </div>
 
           <div id="synthesisContent" class="hidden">
+            <div id="schemaWarningBanner" class="synthesis-schema-warning hidden" role="alert" aria-live="polite">
+              <p></p>
+            </div>
             <div class="score-shell">
               <div class="score-panel">
                 <div class="score-panel-inner">
@@ -850,6 +947,7 @@
                 <p class="summary-sub">Combined directional drag estimate</p>
               </div>
             </div>
+          <div class="syn-viz hidden" id="exposureSplit"></div>
           </div>
         </div>
       </section>
@@ -859,7 +957,7 @@
           <p class="panel-kicker">Shared Event Path Context</p>
           <h2 class="panel-title">Keep synthesis tied to the same operating path</h2>
           <p class="panel-copy">
-            Cross-tool synthesis is strongest when the uploaded diagnostics describe the same event path. This page can read the shared hub context saved in the current browser or accept an optional context JSON file so the readout stays linked to one bounded pathway.
+            Cross-diagnostic synthesis is strongest when the uploaded diagnostics describe the same event path. This page can read the shared hub context saved in the current browser or accept an optional context JSON file so the readout stays linked to one bounded pathway.
           </p>
         </div>
         <div class="panel-body">
@@ -870,11 +968,11 @@
               <div class="context-meta" id="contextMeta"></div>
             </div>
             <div class="context-actions">
-              <label class="btn btn-subtle context-file">Attach context JSON
+              <label class="btn btn-soft context-file">Attach context JSON
                 <input id="contextFileInput" type="file" accept="application/json,.json" />
               </label>
-              <button class="btn btn-subtle" id="useBrowserContextBtn" type="button">Use browser context</button>
-              <button class="btn btn-subtle" id="clearAttachedContextBtn" type="button">Clear attached context</button>
+              <button class="btn btn-soft" id="useBrowserContextBtn" type="button">Use browser context</button>
+              <button class="btn btn-soft" id="clearAttachedContextBtn" type="button">Clear attached context</button>
               <p class="muted-note">Use context only when the uploaded tools were run against the same event path.</p>
             </div>
           </div>
@@ -897,6 +995,7 @@
         </div>
         <div class="panel-body">
           <div class="tools-grid" id="toolsGrid"></div>
+          <div class="syn-viz hidden" id="lensComparisonBar"></div>
         </div>
       </section>
 
@@ -909,6 +1008,7 @@
           </p>
         </div>
         <div class="panel-body">
+          <div class="syn-viz hidden" id="convergenceMatrix"></div>
           <div class="signals-grid" id="signalsGrid"></div>
         </div>
       </section>
@@ -936,6 +1036,7 @@
         </div>
         <div class="panel-body">
           <div class="actions-grid" id="actionsGrid"></div>
+          <div class="syn-viz hidden" id="sequenceCascade"></div>
         </div>
       </section>
 
@@ -998,10 +1099,19 @@
             </div>
           </section>
 
-          <div class="footer-actions" style="margin-top:18px;">
-            <button class="btn btn-accent" id="exportBtn" type="button">Open executive report</button>
-            <button class="btn" id="downloadPdfBtn" type="button">Download executive report PDF</button>
-            <button class="btn" id="downloadReportBtn" type="button">Download report HTML</button>
+          <div class="export-cta-stack" style="margin-top:18px;">
+            <div class="export-primary-row">
+              <button class="btn btn-accent" id="exportBtn" type="button">Open executive report</button>
+              <a class="btn" href="connect.html" target="_blank" rel="noopener noreferrer">Discuss with Monderman Platform Services</a>
+            </div>
+            <div class="export-inline-row">
+              <button class="action-link" id="downloadPdfBtn" type="button">Download PDF</button>
+              <span aria-hidden="true" style="color:rgba(24,25,28,.18)">|</span>
+              <button class="action-link" id="downloadReportBtn" type="button">Download HTML</button>
+            </div>
+            <div class="export-utility-row">
+              <a class="utility-btn" href="diagnostics.html">Back to diagnostics</a>
+            </div>
             <a id="reportDownloadLink" class="hidden-download" download="monderman-cross-diagnostic-synthesis-report.html"></a>
           </div>
 
@@ -1202,13 +1312,23 @@
     }
 
     function renderSignals(signals) {
+      // Accepts both legacy string shape and new {text, tools, label} object shape.
       const signalsGrid = document.getElementById("signalsGrid");
       signalsGrid.innerHTML = "";
       signals.forEach((signal, index) => {
+        const isObj = signal && typeof signal === "object";
+        const text = isObj ? String(signal.text || "") : String(signal || "");
+        const label = isObj && signal.label ? String(signal.label) : `Signal ${index + 1}`;
+        const tools = isObj && Array.isArray(signal.tools) ? signal.tools : [];
+        const toolAbbrev = { operational_systems: "OS", decision_velocity: "DV",
+                             structural_clarity: "SC", institutional_performance: "IP" };
+        const toolChips = tools.map(t =>
+          `<span class="signal-tool-chip">${escapeHtml(toolAbbrev[t] || t)}</span>`).join("");
         signalsGrid.insertAdjacentHTML("beforeend", `
           <article class="signal-card">
-            <h3>Signal ${index + 1}</h3>
-            <p>${escapeHtml(signal)}</p>
+            <h3>${escapeHtml(label)}</h3>
+            <p>${escapeHtml(text)}</p>
+            ${toolChips ? `<div class="signal-tools">${toolChips}</div>` : ""}
           </article>
         `);
       });
@@ -1225,13 +1345,18 @@
     }
 
     function renderActions(actions) {
+      // Accepts both legacy string shape and new {text, label, tier} object shape.
       const actionsGrid = document.getElementById("actionsGrid");
       actionsGrid.innerHTML = "";
       actions.forEach((action, index) => {
+        const isObj = action && typeof action === "object";
+        const text = isObj ? String(action.text || "") : String(action || "");
+        const label = isObj && action.label ? String(action.label) : "";
+        const heading = index === 0 ? "First move" : index === 1 ? "Second move" : `Priority ${index + 1}`;
         actionsGrid.insertAdjacentHTML("beforeend", `
           <article class="action-card">
-            <h3>${escapeHtml(index === 0 ? "First move" : index === 1 ? "Second move" : `Priority ${index + 1}`)}</h3>
-            <p>${escapeHtml(action)}</p>
+            <h3>${escapeHtml(heading)}${label ? ` &middot; ${escapeHtml(label)}` : ""}</h3>
+            <p>${escapeHtml(text)}</p>
           </article>
         `);
       });
@@ -1266,6 +1391,264 @@
       });
     }
 
+
+    // ─── Cross-synth visualizations ─────────────────────────────────────
+    // renderLensComparisonBar: reads source_results[i].score + cross_diagnostic_score.
+    // Works with the existing backend contract; no new fields required.
+    function renderLensComparisonBar(sourceResults, compositeScore) {
+      const el = document.getElementById("lensComparisonBar");
+      if (!el) return;
+      if (!Array.isArray(sourceResults) || sourceResults.length === 0) {
+        el.classList.add("hidden");
+        return;
+      }
+      const rows = sourceResults.slice(0, 4).map(r => ({
+        label: String(r?.tool_label || r?.tool_type || "Tool"),
+        score: Number.isFinite(Number(r?.score)) ? Number(r.score) : null
+      })).filter(r => r.score !== null);
+      if (rows.length === 0) { el.classList.add("hidden"); return; }
+
+      const composite = Number(compositeScore);
+      const compositeValid = Number.isFinite(composite);
+      const compositeX = compositeValid ? 40 + (Math.max(0, Math.min(100, composite)) / 100) * 560 : null;
+      const rowSpacing = 45;
+      const svgHeight = 40 + rows.length * rowSpacing;
+
+      const rowSvg = rows.map((r, i) => {
+        const y = 40 + i * rowSpacing;
+        const barWidth = (r.score / 100) * 560;
+        return `
+          <text x="0" y="${y}" fill="#18191C" font-size="12" font-weight="600">${escapeHtml(r.label)}</text>
+          <text x="612" y="${y}" fill="#18191C" font-size="15" font-weight="700" text-anchor="end">${r.score}</text>
+          <rect x="40" y="${y+8}" width="560" height="12" fill="#EAE6DD" rx="6"/>
+          <rect x="40" y="${y+8}" width="${barWidth.toFixed(1)}" height="12" fill="#0C6E78" rx="6"/>
+        `;
+      }).join("");
+
+      const compositeSvg = compositeValid ? `
+        <line x1="${compositeX.toFixed(1)}" y1="8" x2="${compositeX.toFixed(1)}" y2="${svgHeight-8}"
+              stroke="#08383E" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.55"/>
+        <text x="${compositeX.toFixed(1)}" y="18" fill="#08383E" font-size="9.5" font-weight="700"
+              text-anchor="middle" letter-spacing=".12em">COMPOSITE ${Math.round(composite)}</text>
+      ` : "";
+
+      el.innerHTML = `
+        <p class="syn-viz-title">Lens scores &middot; composite</p>
+        <p class="syn-viz-sub">Each lens scored 1&ndash;100 (higher is healthier).${compositeValid ? " The vertical marker shows the composite across all four." : ""}</p>
+        <svg viewBox="0 0 640 ${svgHeight}" role="img" aria-label="Four-lens comparison">
+          ${compositeSvg}
+          ${rowSvg}
+        </svg>`;
+      el.classList.remove("hidden");
+    }
+
+    // renderSequenceCascade: reads priority_actions ordered array.
+    // Works with both new object-shape and legacy string-shape (labels derived).
+    // Uses tier-based color palette (structural=teal, behavioral=gold, cultural=green)
+    // and a scrollable wrapper so the diagram never truncates on narrow screens.
+    function renderSequenceCascade(priorityActions) {
+      const el = document.getElementById("sequenceCascade");
+      if (!el) return;
+      if (!Array.isArray(priorityActions) || priorityActions.length === 0) {
+        el.classList.add("hidden"); return;
+      }
+      const steps = priorityActions.slice(0, 4).map((a, i) => {
+        const isObj = a && typeof a === "object";
+        const text = isObj ? String(a.text || "") : String(a || "");
+        let label = isObj && a.label ? String(a.label) : "";
+        if (!label) {
+          const words = text.split(/\s+/).slice(0, 3).join(" ").replace(/[.,;:]$/, "");
+          label = words || `Step ${i+1}`;
+        }
+        const tier = isObj && a.tier ? String(a.tier).toLowerCase() : "";
+        return { label, tier };
+      });
+
+      // Tier palette. If tier is present, use it; otherwise position-based default.
+      const tierColor = (tier, i) => {
+        if (tier === "structural")  return i === 0 ? "#0C6E78" : "#08383E";
+        if (tier === "behavioral")  return "#C9821F";
+        if (tier === "cultural")    return "#3C8A60";
+        // Default sequence when no tier: teal, dark-teal, gold, green
+        return ["#0C6E78", "#08383E", "#C9821F", "#3C8A60"][i] || "#3C8A60";
+      };
+      const tierLabel = (tier, i) => {
+        if (tier === "structural") return "STRUCTURAL";
+        if (tier === "behavioral") return "BEHAVIORAL";
+        if (tier === "cultural")   return "CULTURAL";
+        return ["STRUCTURAL","STRUCTURAL","BEHAVIORAL","CULTURAL"][i] || "";
+      };
+
+      // Layout: viewBox 680 wide. All boxes 130-wide, all equal.
+      // Left margin 20 · Box 130 · Arrow 40 · Box 130 · Arrow 40 · Box 130 · Arrow 40 · Box 130 · Right margin 20 = 680
+      const n = steps.length;
+      const boxWidth = 130;
+      const gap = 40;
+      const startX = 20;
+      const boxes = steps.map((s, i) => {
+        const x = startX + i * (boxWidth + gap);
+        const cx = x + boxWidth / 2;
+        const words = s.label.split(/\s+/);
+        const line1 = words.slice(0, Math.ceil(words.length/2)).join(" ");
+        const line2 = words.slice(Math.ceil(words.length/2)).join(" ");
+        const color = tierColor(s.tier, i);
+        return `
+          <rect x="${x}" y="46" width="${boxWidth}" height="70" fill="${color}" rx="10"/>
+          <text x="${cx}" y="66" fill="#FFF" font-size="10" font-weight="700"
+                text-anchor="middle" letter-spacing=".14em">0${i+1}</text>
+          <text x="${cx}" y="88" fill="#FFF" font-size="13" font-weight="700"
+                text-anchor="middle">${escapeHtml(line1)}</text>
+          ${line2 ? `<text x="${cx}" y="103" fill="#FFF" font-size="13" font-weight="700"
+                text-anchor="middle">${escapeHtml(line2)}</text>` : ""}
+          <text x="${cx}" y="137" fill="${color}" font-size="9" font-weight="700"
+                text-anchor="middle" letter-spacing=".08em">${tierLabel(s.tier, i)}</text>
+        `;
+      }).join("");
+      const arrows = steps.slice(0, n-1).map((_, i) => {
+        const x = startX + boxWidth + i * (boxWidth + gap);
+        return `
+          <line x1="${x}" y1="81" x2="${x + gap - 16}" y2="81" stroke="#08383E" stroke-width="2"/>
+          <polygon points="${x + gap - 16},75 ${x + gap - 4},81 ${x + gap - 16},87" fill="#08383E"/>
+        `;
+      }).join("");
+
+      el.innerHTML = `
+        <p class="syn-viz-title">Sequencing cascade</p>
+        <p class="syn-viz-sub">Upstream causes cascade into downstream compensation. Colors encode intervention tier: teal for structural, gold for behavioral, green for cultural. Interventions must be sequenced left-to-right; reversing the order regenerates the pattern.</p>
+        <div class="syn-cascade-scroll">
+          <svg viewBox="0 0 680 150" role="img" aria-label="Sequencing cascade">
+            <text x="30" y="16" fill="#0C6E78" font-size="9" font-weight="700" letter-spacing=".14em">UPSTREAM</text>
+            <text x="650" y="16" fill="#6E6F73" font-size="9" font-weight="700" text-anchor="end" letter-spacing=".14em">DOWNSTREAM</text>
+            <line x1="30" y1="22" x2="650" y2="22" stroke="rgba(24,25,28,.12)"/>
+            ${boxes}
+            ${arrows}
+          </svg>
+        </div>`;
+      el.classList.remove("hidden");
+    }
+
+    // renderConvergenceMatrix: requires NEW shape — each signal must have .tools array.
+    // Skips (stays hidden) if backend hasn't been enhanced yet.
+    function renderConvergenceMatrix(signals, sourceResults) {
+      const el = document.getElementById("convergenceMatrix");
+      if (!el) return;
+      if (!Array.isArray(signals) || signals.length === 0) {
+        el.classList.add("hidden"); return;
+      }
+      // Only render if at least one signal has structured tools[]
+      const structured = signals.filter(s => s && typeof s === "object"
+        && Array.isArray(s.tools) && s.tools.length > 0);
+      if (structured.length === 0) {
+        el.classList.add("hidden"); return;  // graceful skip — no new-shape data
+      }
+
+      const CANONICAL_ORDER = ["operational_systems", "decision_velocity",
+                               "structural_clarity", "institutional_performance"];
+      const CANONICAL_LABELS = { operational_systems: "Operational Systems",
+                                 decision_velocity: "Decision Velocity",
+                                 structural_clarity: "Structural Clarity",
+                                 institutional_performance: "Institutional Performance" };
+
+      // Determine which lenses are actually in this synthesis (from source_results)
+      const activeLenses = Array.isArray(sourceResults)
+        ? CANONICAL_ORDER.filter(t => sourceResults.some(r => r?.tool_type === t))
+        : CANONICAL_ORDER;
+      if (activeLenses.length === 0) { el.classList.add("hidden"); return; }
+
+      const cols = structured.slice(0, 4);  // matrix supports up to 4 columns cleanly
+      const colX = [215, 315, 415, 515];
+      const rowY = [60, 100, 140, 180];
+
+      const headers = cols.map((sig, i) => {
+        const label = String(sig.label || `0${i+1}`).toUpperCase();
+        return `<text x="${colX[i]}" y="30" fill="#6E6F73" font-size="9.5" font-weight="700"
+                text-anchor="middle" letter-spacing=".13em">0${i+1} ${escapeHtml(label)}</text>`;
+      }).join("");
+      const gridLines = activeLenses.map((_, i) => {
+        const y = rowY[i] - 20;
+        return `<line x1="165" y1="${y}" x2="565" y2="${y}"
+                stroke="rgba(24,25,28,${i === 0 ? '.10' : '.06'})"/>`;
+      }).join("") + `<line x1="165" y1="${rowY[activeLenses.length-1]+20}" x2="565" y2="${rowY[activeLenses.length-1]+20}" stroke="rgba(24,25,28,.10)"/>`;
+
+      const rows = activeLenses.map((tool, i) => {
+        const label = CANONICAL_LABELS[tool] || tool;
+        const cells = cols.map((sig, ci) => {
+          const touches = sig.tools.includes(tool);
+          if (touches) return `<circle cx="${colX[ci]}" cy="${rowY[i]}" r="9" fill="#0C6E78"/>`;
+          return `<circle cx="${colX[ci]}" cy="${rowY[i]}" r="5" fill="none"
+                  stroke="rgba(24,25,28,.18)" stroke-width="1.2"/>`;
+        }).join("");
+        return `<text x="0" y="${rowY[i]+5}" fill="#18191C" font-size="12" font-weight="600">${escapeHtml(label)}</text>${cells}`;
+      }).join("");
+
+      const svgH = rowY[activeLenses.length-1] + 40;
+      el.innerHTML = `
+        <p class="syn-viz-title">Convergence matrix</p>
+        <p class="syn-viz-sub">Rows are lenses. Columns are signals. Filled cells show which lenses each convergence signal is grounded in.</p>
+        <svg viewBox="0 0 640 ${svgH}" role="img" aria-label="Convergence matrix">
+          ${headers}${gridLines}${rows}
+        </svg>`;
+      el.classList.remove("hidden");
+    }
+
+    // renderExposureSplit: requires NEW shape — compounded_exposure.total_burden_hours
+    // and compensation_hours. Skips if not present.
+    function renderExposureSplit(exposure) {
+      const el = document.getElementById("exposureSplit");
+      if (!el) return;
+      if (!exposure || typeof exposure !== "object") { el.classList.add("hidden"); return; }
+      const total = Number(exposure.total_burden_hours);
+      const comp = Number(exposure.compensation_hours);
+      if (!Number.isFinite(total) || !Number.isFinite(comp) || total <= 0 || comp < 0) {
+        el.classList.add("hidden"); return;
+      }
+      const compFrac = Math.max(0, Math.min(1, comp / total));
+      const compX = 640 * compFrac;
+      const other = total - comp;
+
+      const compCostLo = Number(exposure.compensation_cost_low);
+      const compCostHi = Number(exposure.compensation_cost_high);
+      const totalCostLo = Number(exposure.total_labor_exposure_low);
+      const totalCostHi = Number(exposure.total_labor_exposure_high);
+      const compCostStr = (Number.isFinite(compCostLo) && Number.isFinite(compCostHi))
+        ? `~${formatCurrency(compCostLo)}&ndash;${formatCurrency(compCostHi)}`
+        : "";
+      const totalCostStr = (Number.isFinite(totalCostLo) && Number.isFinite(totalCostHi))
+        ? `balance of ~${formatCurrency(totalCostLo)}&ndash;${formatCurrency(totalCostHi)}`
+        : "";
+
+      el.innerHTML = `
+        <p class="syn-viz-title">Where the burden is</p>
+        <p class="syn-viz-sub">Of the total measured burden, the shaded portion is compensation-specific activity &mdash; the subset cross-synthesis is designed to isolate.</p>
+        <svg viewBox="0 0 640 68" role="img" aria-label="Compensation subset of total burden">
+          <rect x="0" y="14" width="640" height="36" fill="#EAE6DD" rx="8"/>
+          <rect x="0" y="14" width="${compX.toFixed(1)}" height="36" fill="#0C6E78" rx="8"/>
+          <text x="${(compX/2).toFixed(1)}" y="37" fill="#FFF" font-size="12" font-weight="700" text-anchor="middle">
+            Compensation &middot; ${formatNumber(comp)} hrs
+          </text>
+          <text x="${(compX + (640-compX)/2).toFixed(1)}" y="37" fill="#18191C" font-size="12" font-weight="700" text-anchor="middle">
+            Other burden &middot; ${formatNumber(other)} hrs
+          </text>
+          <text x="0" y="65" fill="#6E6F73" font-size="9" font-weight="600" letter-spacing=".1em">0</text>
+          <text x="640" y="65" fill="#6E6F73" font-size="9" font-weight="600" text-anchor="end" letter-spacing=".1em">
+            TOTAL ${formatNumber(total)} HRS
+          </text>
+        </svg>
+        ${(compCostStr || totalCostStr) ? `
+          <div class="syn-viz-legend">
+            ${compCostStr ? `<div class="syn-viz-legend-item"><span class="syn-viz-legend-swatch" style="background:#0C6E78"></span>Compensation-specific &mdash; ${compCostStr}</div>` : ""}
+            ${totalCostStr ? `<div class="syn-viz-legend-item"><span class="syn-viz-legend-swatch" style="background:#EAE6DD"></span>Other operating burden &mdash; ${totalCostStr}</div>` : ""}
+          </div>
+        ` : ""}`;
+      el.classList.remove("hidden");
+    }
+
+    // Data-contract policy: cross-synth reads both canonical field names
+    // (tool_type, tool_label, generated_at) and legacy duplicates (tool,
+    // generatedAt). The defensive `||` and `??` fallbacks stay — they cost
+    // nothing at runtime and preserve compatibility with any older exported
+    // artifacts still in circulation. Canonical fields are the source of
+    // truth; legacy fields are read-only compatibility.
     function initSynthesisPage() {
       const result = loadSynthesisResult();
       let sharedContext = readSharedContext();
@@ -1279,11 +1662,56 @@
 
       document.getElementById("emptyState").classList.add("hidden");
       document.getElementById("synthesisContent").classList.remove("hidden");
+
+      // CS-4: sort source_results into canonical tool order (OS → DV → SC → IP)
+      // so the readout is stable across sessions regardless of upload order.
+      const CANONICAL_TOOL_ORDER = {
+        operational_systems: 0,
+        decision_velocity: 1,
+        structural_clarity: 2,
+        institutional_performance: 3
+      };
+      if (Array.isArray(result.source_results)) {
+        result.source_results.sort((a, b) => {
+          const oa = CANONICAL_TOOL_ORDER[a && a.tool_type] ?? 99;
+          const ob = CANONICAL_TOOL_ORDER[b && b.tool_type] ?? 99;
+          return oa - ob;
+        });
+      }
+
+      // CS-3: validate schema_version on each source_result. Show a soft-warning
+      // banner if any uploaded file was generated by an older Monderman version
+      // (or has no schema_version at all). Non-blocking — synthesis still renders.
+      const EXPECTED_SCHEMA_VERSION = "1.0.0";
+      const schemaBanner = document.getElementById("schemaWarningBanner");
+      if (schemaBanner) {
+        const sources = Array.isArray(result.source_results) ? result.source_results : [];
+        const mismatchCount = sources.filter(r => r && r.schema_version && r.schema_version !== EXPECTED_SCHEMA_VERSION).length;
+        const missingCount = sources.filter(r => r && !r.schema_version).length;
+        const notes = [];
+        if (mismatchCount) notes.push(`${mismatchCount} uploaded file${mismatchCount === 1 ? "" : "s"} declare an older schema version.`);
+        if (missingCount)  notes.push(`${missingCount} uploaded file${missingCount === 1 ? "" : "s"} do not declare a schema version.`);
+        if (notes.length) {
+          schemaBanner.querySelector("p").textContent =
+            `Note: ${notes.join(" ")} Synthesis will still render, but some fields may show as "—".`;
+          schemaBanner.classList.remove("hidden");
+        } else {
+          schemaBanner.classList.add("hidden");
+        }
+      }
+
+      // Structural panels always render.
       document.getElementById("toolReadoutPanel").classList.remove("hidden");
-      document.getElementById("signalsPanel").classList.remove("hidden");
-      document.getElementById("prioritiesPanel").classList.remove("hidden");
-      document.getElementById("narrativePanel").classList.remove("hidden");
       document.getElementById("footerPanel").classList.remove("hidden");
+
+      // CS-5: content-conditional panel reveals. If a panel has no content,
+      // keep it hidden so a partial synthesis doesn't render as broken.
+      const hasSignals    = Array.isArray(result.convergence_signals) && result.convergence_signals.length > 0;
+      const hasPriorities = Array.isArray(result.priority_actions)   && result.priority_actions.length > 0;
+      const hasNarrative  = result.narrative && (result.narrative.executive_summary || result.narrative.leadership_implication);
+      if (hasSignals)    document.getElementById("signalsPanel").classList.remove("hidden");
+      if (hasPriorities) document.getElementById("prioritiesPanel").classList.remove("hidden");
+      if (hasNarrative)  document.getElementById("narrativePanel").classList.remove("hidden");
 
       if ((result.contradictions || []).length) {
         document.getElementById("contradictionsPanel").classList.remove("hidden");
@@ -1331,6 +1759,13 @@
       renderSignals(result.convergence_signals || ["No convergence signals returned."]);
       renderActions(result.priority_actions || ["No priority actions returned."]);
       renderNarrative(result.narrative || {});
+
+      // Cross-synth visualizations (visuals 1 and 2 work with existing data;
+      // visuals 3 and 4 are dormant until backend produces the new shape)
+      renderLensComparisonBar(result.source_results || [], result.cross_diagnostic_score);
+      renderSequenceCascade(result.priority_actions || []);
+      renderConvergenceMatrix(result.convergence_signals || [], result.source_results || []);
+      renderExposureSplit(result.compounded_exposure || {});
 
       if ((result.contradictions || []).length) {
         renderContradictions(result.contradictions);
@@ -1426,7 +1861,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Monderman | Cross-Diagnostic Synthesis Executive Report</title>
 <style>
-  :root{--ink:#15202B;--soft:#5B6774;--muted:#7C8794;--accent:#3F6EA1;--line:#D8E0EA;--paper:#ffffff;--page:#F6F8FB}
+  :root{--ink:#18191C;--soft:#5B6774;--muted:#7C8794;--accent:#0C6E78;--line:#D8E0EA;--paper:#ffffff;--page:#F6F8FB}
   *{box-sizing:border-box}
   body{margin:0;background:var(--page);color:var(--ink);font-family:Georgia, "Times New Roman", serif}
   .page{max-width:920px;margin:0 auto;background:var(--paper);padding:54px 68px 64px;box-shadow:0 18px 48px rgba(15,23,32,.08)}
@@ -1451,8 +1886,8 @@
   li{margin:0 0 8px;line-height:1.7}
   .footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);font-size:.85rem;color:var(--soft)}
   .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px;font-family:"Helvetica Neue",Arial,sans-serif}
-  .btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 16px;border-radius:999px;border:1px solid #C8D3E0;background:#fff;color:#15202B;cursor:pointer;font-size:.92rem}
-  .btn.primary{background:#3F6EA1;color:#fff;border-color:#3F6EA1}
+  .btn{display:inline-flex;align-items:center;justify-content:center;min-height:50px;min-width:168px;padding:0 24px;border-radius:7px;font-size:15px;font-weight:500;white-space:nowrap;background:#FFF;color:var(--text-dark);border:1px solid rgba(24,25,28,.12);box-shadow:none;transition:background var(--transition), color var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition);cursor:pointer}
+  
   @media print{body{background:#fff}.page{box-shadow:none;max-width:none;padding:34px 42px}.actions{display:none!important}}
 </style>
 </head>
@@ -1506,7 +1941,7 @@
 
   <div class="footer">* All figures, including time, cost, and capacity estimates, are directional estimates derived from uploaded diagnostic results and user-provided source inputs.</div>
   <div class="actions">
-    <button class="btn primary" onclick="window.print()">Save / Print PDF</button>
+    <button class="btn btn-accent" onclick="window.print()">Save / Print PDF</button>
     <button class="btn" onclick="window.close()">Close report</button>
   </div>
 </div>
