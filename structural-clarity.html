@@ -913,7 +913,7 @@ const MondermanDiagnostic = (() => {
 // ═══════════════════════════════════════════════════════════
 
 // ==============================================
-// MONDERMAN OPERATIONAL SYSTEMS DIAGNOSTIC
+// MONDERMAN STRUCTURAL CLARITY DIAGNOSTIC
 // Enhanced Production Build
 // ==============================================
 //
@@ -4788,12 +4788,12 @@ ${decisionReviewPage}
 }
 
 function buildExecutiveReportFilename(payload) {
-const base = String(payload?.processName || "decision-velocity-diagnostic").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "decision-velocity-diagnostic";
+const base = String(payload?.processName || "structural-clarity-diagnostic").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "structural-clarity-diagnostic";
 return `${base}-executive-report.html`;
 }
 
 function buildFullReportFilename(payload) {
-const base = String(payload?.processName || payload?.process_name || "decision-velocity-diagnostic").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "decision-velocity-diagnostic";
+const base = String(payload?.processName || payload?.process_name || "structural-clarity-diagnostic").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "structural-clarity-diagnostic";
 return `${base}-full-report.html`;
 }
 
@@ -5006,7 +5006,7 @@ function downloadCrossDiagnosticResult(result, payload) {
 const artifact = buildCrossDiagnosticArtifact(result, payload);
 const blob = new Blob([JSON.stringify(artifact, null, 2)], { type: "application/json;charset=utf-8" });
 const url = URL.createObjectURL(blob);
-const filename = `${String(payload?.processName || "decision-velocity").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-") || "decision-velocity"}-result.json`;
+const filename = `${String(payload?.processName || "structural-clarity").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-") || "structural-clarity"}-result.json`;
 crossDiagnosticDownloadLink.href = url;
 crossDiagnosticDownloadLink.download = filename;
 crossDiagnosticDownloadLink.click();
