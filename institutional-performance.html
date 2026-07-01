@@ -913,7 +913,7 @@ const MondermanDiagnostic = (() => {
 // ═══════════════════════════════════════════════════════════
 
 // ==============================================
-// MONDERMAN OPERATIONAL SYSTEMS DIAGNOSTIC
+// MONDERMAN INSTITUTIONAL PERFORMANCE DIAGNOSTIC
 // Enhanced Production Build
 // ==============================================
 //
@@ -2558,7 +2558,7 @@ const response = await fetchWithTimeout(`${API_BASE}/api/diagnostics/refine-expe
 method: "POST",
 headers: { "Content-Type": "application/json" },
 body: JSON.stringify({
-diagnosticType: "structural_clarity",
+diagnosticType: "institutional_performance",
 participantMode: state.mode || "executive",
 workflow: state.preflight.processName || "Institutional Performance Diagnostic",
 rawExperience
@@ -2873,12 +2873,12 @@ if (narrativeEnvelope.narrative && !result.narrative) {
 if (refinedExperienceLayer?.hasInput) {
   try {
     setProcessingStep(2, "Running premium consistency review against experiential evidence...");
-    const narrativeResponse = await fetchWithTimeout(`${API_BASE}/api/structural-clarity-narrative`, {
+    const narrativeResponse = await fetchWithTimeout(`${API_BASE}/api/institutional-performance-narrative`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         ...result,
-        tool_type: "structural_clarity",
+        tool_type: "institutional_performance",
         process_name: payload.processName || payload.process_name,
         industry: payload.industry,
         industry_label: displayIndustryLabel(payload.industry, { titleCase: true }),
@@ -4768,12 +4768,12 @@ ${decisionReviewPage}
 }
 
 function buildExecutiveReportFilename(payload) {
-const base = String(payload?.processName || "decision-velocity-diagnostic").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "decision-velocity-diagnostic";
+const base = String(payload?.processName || "institutional-performance-diagnostic").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "institutional-performance-diagnostic";
 return `${base}-executive-report.html`;
 }
 
 function buildFullReportFilename(payload) {
-const base = String(payload?.processName || payload?.process_name || "decision-velocity-diagnostic").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "decision-velocity-diagnostic";
+const base = String(payload?.processName || payload?.process_name || "institutional-performance-diagnostic").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "institutional-performance-diagnostic";
 return `${base}-full-report.html`;
 }
 
@@ -4962,11 +4962,11 @@ return {
 // ─── Cross-synth required metadata (top level) ────────────────────────
 schema_version: "1.0.0",
 run_id: runId,
-tool_type: "structural_clarity",
+tool_type: "institutional_performance",
 tool_label: "Institutional Performance Diagnostic",
 generated_at: generated,
 // ─── Legacy/display fields (kept for backwards compatibility) ──────────
-tool: "structural_clarity",
+tool: "institutional_performance",
 generatedAt: generated,
 processName: payload?.processName || payload?.process_name || "Operating environment",
 participantMode: payload?.participantMode || payload?.participant_mode || state.mode || "executive",
@@ -4986,7 +4986,7 @@ function downloadCrossDiagnosticResult(result, payload) {
 const artifact = buildCrossDiagnosticArtifact(result, payload);
 const blob = new Blob([JSON.stringify(artifact, null, 2)], { type: "application/json;charset=utf-8" });
 const url = URL.createObjectURL(blob);
-const filename = `${String(payload?.processName || "decision-velocity").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-") || "decision-velocity"}-result.json`;
+const filename = `${String(payload?.processName || "institutional-performance").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-") || "institutional-performance"}-result.json`;
 crossDiagnosticDownloadLink.href = url;
 crossDiagnosticDownloadLink.download = filename;
 crossDiagnosticDownloadLink.click();
