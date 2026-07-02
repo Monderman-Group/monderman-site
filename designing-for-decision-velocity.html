@@ -1,77 +1,107 @@
 <!DOCTYPE html>
+<!-- ✅ MONDERMAN GATING FIX (corrected file): diagnostic CTAs route through signin.html?next= ; single Supabase client. If you see this line, this is the FIXED copy, not the original. -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Designing for Decision Velocity | Monderman</title>
-  <link
-    rel="icon"
-    type="image/svg+xml"
-    href='data:image/svg+xml;utf8,
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-      <rect width="64" height="64" rx="10" fill="%230F1720"/>
-      <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text>
-      <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
-    </svg>'
-  />
   <style>
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff");
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff");
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff");
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+    }
+
     :root {
-      --accent: #3F6EA1;
-      --bg-dark: #0F1720;
-      --bg-white: #FFFFFF;
-      --text-light: #F5F7FA;
-      --text-dark: #15202B;
-      --muted-dark: #5F6B78;
-      --line-dark: #E3E7EB;
-      --header-solid: rgba(18, 25, 34, 0.88);
-      --header-border: rgba(255, 255, 255, 0.08);
-      --max: 1240px;
+      --accent: #0C6E78;
+      --accent-dark: #0A5B63;
+      --bg: #F6F3EC;
+      --white: #FFFFFF;
+      --text: #18191C;
+      --muted: #6E6F73;
+      --line: #EAE6DD;
+      --dark: #08383E;
+      --soft: #FAFAF8;
+      --max: 980px;
     }
 
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 80px;
+    }
     body {
       margin: 0;
-      background: var(--bg-white);
-      color: var(--text-dark);
+      background: var(--bg);
+      color: var(--text);
       font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
       text-rendering: optimizeLegibility;
     }
+
     a { color: inherit; text-decoration: none; }
 
     .header {
+      background: rgba(8, 56, 62, 0.96);
+      color: #fff;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
       position: sticky;
       top: 0;
-      z-index: 100;
-      height: 72px;
-      background: var(--header-solid);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--header-border);
+      z-index: 20;
+      backdrop-filter: blur(10px);
     }
-    .header-inner {
+
+    .header-inner,
+    .hero-inner,
+    .article-inner,
+    .footer-inner {
       max-width: var(--max);
-      height: 100%;
+      margin: 0 auto;
+      padding-left: 28px;
+      padding-right: 28px;
+    }
+
+    .header-inner {
+      max-width: 1400px;
       margin: 0 auto;
       padding: 0 34px;
+      min-height: 72px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 28px;
+      gap: 24px;
     }
+
     .brand {
       display: inline-flex;
       align-items: center;
-      font-size: 1.28rem;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      color: #FFFFFF;
+      gap: 0;
+      font-size: 1.32rem;
+      font-weight: 700;
+      color: #fff;
       white-space: nowrap;
     }
-    .brand::after {
-      content: "";
+
+.brand::after { display: none; }
+    .brand-dot {
       width: 6px;
       height: 6px;
       margin-left: 10px;
@@ -79,113 +109,788 @@
       border-radius: 1px;
       display: inline-block;
       transform: translateY(-1px);
+      flex-shrink: 0;
     }
     .nav {
       display: flex;
       align-items: center;
-      gap: 30px;
+      gap: 20px;
+      flex-wrap: nowrap;
+      justify-content: flex-end;
     }
+
     .nav a {
-      font-size: 0.95rem;
-      color: rgba(255,255,255,0.86);
+      position: relative;
+      color: rgba(255,255,255,0.84);
+      font-size: 0.9rem;
+      transition: color 180ms ease, transform 180ms ease;
+      white-space: nowrap;
     }
-    .nav a:hover { color: #FFFFFF; }
+
+    .nav a:hover,
+    .nav a:focus-visible {
+      color: #fff;
+      transform: translateY(-1px);
+    }
+    .nav a::after {
+      content: "";
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: currentColor;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.2s ease;
+    }
+
+    .nav a.is-active {
+      color: var(--accent);
+      transform: none;
+      outline: none;
+    }
+    .nav a:hover::after,
+    .nav a:focus-visible::after,
+    .nav a.is-active::after {
+      transform: scaleX(1);
+    }
 
     .hero {
-      background: linear-gradient(180deg, #111B25 0%, #172331 100%);
-      color: var(--text-light);
-      padding: 84px 34px 70px;
-    }
-    .hero-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-    }
-    .eyebrow {
-      margin: 0 0 18px;
-      font-size: 0.72rem;
-      line-height: 1;
-      letter-spacing: 0.24em;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: rgba(245,247,250,0.68);
-    }
-    .hero h1 {
-      margin: 0 0 22px;
-      max-width: 11ch;
-      font-size: clamp(2.6rem, 5vw, 4.4rem);
-      line-height: 0.95;
-      letter-spacing: -0.05em;
-      font-weight: 600;
-    }
-    .hero-dek {
-      max-width: 62ch;
-      margin: 0;
-      font-size: 1.12rem;
-      line-height: 1.7;
-      color: rgba(245,247,250,0.78);
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid #0C6E78;
+      background: linear-gradient(180deg, #07363B 0%, #08383E 60%, #04181B 100%);
+      color: #fff;
+      min-height: 560px;
+      padding: 112px 0 88px;
     }
 
-    .article-wrap {
-      padding: 74px 34px 96px;
-      background:
-        linear-gradient(rgba(246,247,248,0.96), rgba(246,247,248,0.96)),
-        linear-gradient(135deg, rgba(63,110,161,0.025) 1px, transparent 1px);
-      background-size: auto, 36px 36px;
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(
+        circle at 78% 22%,
+        rgba(12, 110, 120, 0.12) 0%,
+        transparent 38%
+      );
+      z-index: 0;
     }
-    .article-inner {
-      max-width: 860px;
-      margin: 0 auto;
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(
+        180deg,
+        rgba(4, 24, 27, 0.06) 0%,
+        rgba(4, 24, 27, 0.22) 100%
+      );
+      z-index: 0;
     }
-    .article-inner p {
-      margin: 0 0 24px;
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      min-height: 360px;
+    }
+
+    .hero-copy {
+      max-width: 780px;
+    }
+
+    .hero-head {
+      display: grid;
+      grid-template-columns: 46px minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 18px;
+    }
+
+    .hero-glyph {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--accent);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .hero-glyph svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+    }
+
+    .hero-head-copy {
+      min-width: 0;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.64);
+    }
+
+    .hero h1 {
+      margin: 0;
+      max-width: 11ch;
+      font-size: clamp(2.8rem, 5vw, 4.7rem);
+      line-height: 1.0;
+      letter-spacing: -0.052em;
+      color: #FFFFFF;
+      text-wrap: balance;
+    }
+
+    .hero-taxonomy {
+      margin: 0 0 16px 62px;
+      font-size: 0.92rem;
+      line-height: 1.4;
+      color: rgba(255,255,255,0.68);
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 50ch;
+      font-size: 1.03rem;
+      line-height: 1.7;
+      color: rgba(255,255,255,0.82);
+    }
+
+    .inline-glyph-row {
+      display: inline-grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      margin-bottom: 10px;
+    }
+
+    .inline-glyph {
+      width: 28px;
+      height: 28px;
+      border-radius: 9px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(12,110,120,0.045);
+      border: 1px solid rgba(12,110,120,0.10);
+      color: var(--accent);
+      vertical-align: top;
+    }
+
+    .inline-glyph svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+    }
+
+    .hero-actions {
+      margin-top: 30px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 20px;
+      border-radius: 7px;
+      border: 1.5px solid rgba(12,110,120,0.72);
+      font-size: 0.93rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      transition: background 170ms ease, color 170ms ease, border-color 170ms ease, box-shadow 170ms ease, transform 170ms ease;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: rgba(12,110,120,0.72);
+      box-shadow: 0 6px 14px rgba(12,110,120,0.18), 0 0 0 1px rgba(12,110,120,0.08);
+    }
+
+    .btn-primary:hover,
+    .btn-primary:focus-visible {
+      background: var(--accent-dark);
+      color: #fff;
+      border-color: var(--accent-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 9px 18px rgba(12,110,120,0.24), 0 0 0 1px rgba(12,110,120,0.10);
+      outline: none;
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.92);
+      border-color: rgba(255,255,255,0.32);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.10);
+    }
+
+    .btn-secondary:hover,
+    .btn-secondary:focus-visible {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.52);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .article { padding: 72px 0 96px; }
+
+    .article-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 36px;
+      align-items: start;
+    }
+
+    .content, .sidebar-card, .pullquote, .cta, .signal-figure, .output-figure {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+
+    .content { padding: 44px 38px; }
+
+    .content p {
+      margin: 0 0 20px;
+      font-size: 1.03rem;
+      line-height: 1.8;
+      letter-spacing: -0.01em;
+      color: var(--muted);
+    }
+
+    .content h2 {
+      margin: 38px 0 14px;
+      font-size: 1.52rem;
+      line-height: 1.15;
+      letter-spacing: -0.04em;
+      color: var(--text);
+    }
+
+    .content h3 {
+      margin: 30px 0 10px;
       font-size: 1.08rem;
-      line-height: 1.9;
-      color: var(--muted-dark);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: var(--text);
     }
-    .article-inner p.lead {
-      font-size: 1.16rem;
-      line-height: 1.86;
-      color: var(--text-dark);
+
+    .pullquote {
+      margin: 28px 0;
+      padding: 28px;
+      border-left: 3px solid #C9821F;
+    }
+
+    .pullquote p {
+      margin: 0;
+      color: var(--text);
+    }
+
+    .signal-figure,
+    .output-figure {
+      margin: 28px 0;
+      padding: 28px;
+      background: #FFFFFF;
+    }
+
+    .figure-kicker {
+      margin: 0 0 8px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .figure-title {
+      margin: 0 0 16px;
+      font-size: 1.04rem;
+      line-height: 1.25;
+      color: var(--text);
+    }
+
+    .signal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .signal-card {
+      padding: 18px 16px;
+      border-radius: 14px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+    }
+
+    .signal-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.92rem;
+      color: var(--text);
+    }
+
+    .signal-card span {
+      display: block;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .output-shell {
+      display: grid;
+      gap: 16px;
+    }
+
+    .output-top {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 18px;
+      align-items: center;
+    }
+
+    .score-block {
+      padding: 20px 16px;
+      border-radius: 16px;
+      background: #08383E;
+      color: #fff;
+      text-align: center;
+    }
+
+    .score-block .score-label {
+      font-size: 0.74rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.68);
+      margin-bottom: 8px;
+    }
+
+    .score-block .score-num {
+      font-size: 3rem;
+      line-height: 0.92;
+      font-weight: 700;
+      letter-spacing: -0.06em;
+      margin: 0;
+    }
+
+    .score-block .score-band {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.82);
+    }
+
+    .output-copy {
+      display: grid;
+      gap: 10px;
+    }
+
+    .output-copy p {
+      margin: 0;
+      font-size: 0.94rem;
+      letter-spacing: -0.01em;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    .output-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      padding: 16px 14px 14px;
+      border-radius: 14px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 0.74rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .metric span {
+      display: block;
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 5px;
+    }
+
+    .metric small {
+      display: block;
+      font-size: 0.84rem;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+
+    .lens-matrix { width: 100%; border-collapse: collapse; margin: 1.75rem 0; font-size: 0.95rem; }
+    .lens-matrix th, .lens-matrix td { text-align: left; padding: 0.85rem 1rem; border-bottom: 1px solid rgba(8,56,62,0.10); vertical-align: top; }
+    .lens-matrix thead th { font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase; color: #5b6b78; font-weight: 600; border-bottom: 1.5px solid rgba(8,56,62,0.18); }
+    .lens-matrix td strong { color: #0f1720; }
+    .lens-matrix tbody tr:last-child td { border-bottom: none; }
+    .lens-matrix-self { background: rgba(12,110,120,0.07); }
+    .lens-matrix-self td:first-child strong { color: #3f6ea1; }
+    .figure-note {
+      margin-top: 14px;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .sidebar {
+      display: grid;
+      gap: 18px;
+      position: sticky;
+      top: 96px;
+    }
+
+    .sidebar-card { padding: 32px 24px; min-height: 180px; }
+
+    .sidebar-kicker {
+      margin: 0 0 10px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+
+    .sidebar-card.sidebar-outcome {
+      border-left: 3px solid var(--accent);
+      background: rgba(12, 110, 120, 0.04);
+    }
+    .sidebar-outcome-phrase {
+      font-size: 1.04rem;
+      font-weight: 700;
+      font-style: italic;
+      color: var(--accent);
+      margin: 6px 0 12px;
+      letter-spacing: -0.012em;
+    }
+    .sidebar-card h3 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+    }
+
+    .sidebar-card p {
+      margin: 0;
+      font-size: 0.94rem;
+      letter-spacing: -0.01em;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    .mini-list {
+      margin: 12px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    .mini-list li {
+      margin-bottom: 10px;
+      line-height: 1.55;
     }
 
     .cta {
-      margin-top: 50px;
-      padding-top: 26px;
-      border-top: 1px solid var(--line-dark);
-    }
-    .cta h2 {
-      margin: 0 0 14px;
-      font-size: 1.5rem;
-      line-height: 1.15;
-      letter-spacing: -0.03em;
-      color: var(--text-dark);
-    }
-    .cta p {
-      margin: 0 0 20px;
-      font-size: 1rem;
-      line-height: 1.72;
-      color: var(--muted-dark);
-    }
-    .cta-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 600;
-      color: var(--accent);
-    }
-    .cta-link-mark {
-      width: 7px;
-      height: 7px;
-      background: var(--accent);
-      border-radius: 1px;
-      display: inline-block;
-      transform: translateY(-1px);
+      margin-top: 38px;
+      padding: 32px 28px;
+      background: #F6F3EC;
     }
 
-.mond-footer {
+    .cta h3 {
+      margin: 0 0 10px;
+      font-size: 1.12rem;
+    }
+
+    .cta p { margin: 0 0 18px; }
+
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 4px;
+      border-radius: 4px;
+    }
+
+    .reading-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      width: 0%;
+      background: var(--accent);
+      z-index: 200;
+      transition: width 60ms linear;
+      pointer-events: none;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(14px);
+      transition:
+        opacity 760ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 760ms cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: opacity, transform;
+    }
+
+    .reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 80ms; }
+    .reveal-delay-2 { transition-delay: 160ms; }
+    .reveal-delay-3 { transition-delay: 240ms; }
+
+    .footer {
+      background: var(--dark);
+      color: rgba(255,255,255,0.72);
+      padding: 40px 0 36px;
       position: relative;
       overflow: hidden;
-      background: #0D141C;
+    }
+
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+
+    .footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .footer-mark {
+      margin: 0;
+      font-size: 1.06rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: -0.02em;
+    }
+
+    .footer-nav {
+      display: flex;
+      gap: 22px;
+      flex-wrap: wrap;
+    }
+
+    .footer-nav a {
+      font-size: 0.94rem;
+      color: rgba(255, 255, 255, 0.72);
+      transition: color 180ms ease;
+    }
+
+    .footer-nav a:hover,
+    .footer-nav a:focus-visible {
+      color: #FFFFFF;
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding-top: 16px;
+    }
+
+    .footer-meta,
+    .footer-tagline {
+      margin: 0;
+      font-size: 0.86rem;
+      color: rgba(255, 255, 255, 0.46);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+
+      .reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+
+      .reading-progress {
+        transition: none;
+      }
+
+      .btn-primary,
+      .btn-secondary,
+      .nav a {
+        transition: none;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .article-layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      .sidebar-card { min-height: 0; }
+    }
+
+    @media (max-width: 720px) {
+      .header-inner,
+      .hero-inner,
+      .article-inner,
+      .footer-inner {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .header-inner {
+        padding-top: 14px;
+        padding-bottom: 10px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .nav {
+        width: 100%;
+        gap: 10px;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+      }
+
+      .nav::-webkit-scrollbar { display: none; }
+
+      .nav a {
+        flex: 0 0 auto;
+        font-size: 0.84rem;
+        line-height: 1;
+        padding: 10px 12px;
+        border-radius: 5px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.08);
+        white-space: nowrap;
+      }
+
+      .nav a::after { display: none; }
+
+      .hero {
+        min-height: auto;
+        padding: 120px 0 48px;
+      }
+
+      .hero-inner {
+        min-height: auto;
+        align-items: flex-end;
+      }
+
+      .hero-head {
+        grid-template-columns: 40px minmax(0, 1fr);
+        gap: 12px;
+      }
+
+      .hero-glyph {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+      }
+
+      .hero-glyph svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      .hero h1 {
+        max-width: 100%;
+        font-size: 44px;
+      }
+
+      .hero-taxonomy {
+        margin-left: 52px;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        max-width: 420px;
+      }
+
+      .hero-actions .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .content { padding: 28px 22px; }
+      .signal-grid,
+      .output-metrics,
+      .output-top { grid-template-columns: 1fr; }
+
+      .footer-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+    }
+  
+    .nav a.workspace-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 7px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.06);
+      color: #FFFFFF;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .nav a.workspace-link::after {
+      display: none;
+    }
+    .nav a.workspace-link:hover,
+    .nav a.workspace-link:focus-visible {
+      background: rgba(255, 255, 255, 0.10);
+      border-color: rgba(255, 255, 255, 0.24);
+      color: #FFFFFF;
+      transform: none;
+    }
+
+  
+    /* ===== Canonical uniform footer (mond-footer) ===== */
+    .mond-footer {
+      position: relative;
+      overflow: hidden;
+      background: #073338;
       color: rgba(255,255,255,0.88);
       padding: 56px 40px 36px;
       border: 0;
@@ -216,7 +921,7 @@
     .mond-footer .mf-dot {
       width: 7px; height: 7px;
       border-radius: 2px;
-      background: #6B7FD7;
+      background: #0C6E78;
       display: inline-block;
     }
     .mond-footer .mf-copy {
@@ -294,24 +999,30 @@
       .mond-footer .mf-motif { bottom: -90px; right: -90px; }
       .mond-footer .mf-motif svg { width: 220px; height: 220px; }
     }
-
-    @media (max-width: 760px) {
-      .header { height: auto; }
-      .header-inner {
-        padding: 16px 20px;
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .hero { padding: 70px 20px 54px; }
-      .article-wrap { padding: 54px 20px 74px; }
-      .article-inner p { font-size: 1rem; line-height: 1.78; }
+    /* orange — hover-reveal on signal-cards (matches site grammar) */
+    .signal-card { position: relative; overflow: hidden; }
+    .signal-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0%;
+      background: #C9821F;
+      transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
+      pointer-events: none;
+      z-index: 2;
     }
+    .signal-card:hover::before { width: 100%; }
+
+
   </style>
 </head>
 <body>
+  <div class="reading-progress" id="readingProgress" role="progressbar" aria-label="Reading progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
   <header class="header">
     <div class="header-inner">
-      <a href="index.html" class="brand">Monderman</a>
+      <a href="index.html" class="brand">Monderman<span class="brand-dot"></span></a>
       <nav class="nav" aria-label="Primary navigation">
         <a href="index.html#approach">Approach</a>
         <a href="diagnostics.html">Diagnostics</a>
@@ -320,87 +1031,120 @@
         <a href="about.html">About</a>
         <a href="platform-services.html">Platform Services</a>
         <a href="connect.html">Connect</a>
-        <a href="workspace.html">Sign In</a>
+        <a class="workspace-link" href="workspace.html">Sign In</a>
       </nav>
     </div>
   </header>
 
   <section class="hero">
     <div class="hero-inner">
-      <p class="eyebrow">Our Thinking</p>
-      <h1>Designing for Decision Velocity</h1>
-      <p class="hero-dek">
-        Decision velocity is not about haste. It is the ability to convert information into sound
-        action at the pace the environment requires, without avoidable drag.
-      </p>
-    </div>
-  </section>
-
-  <section class="article-wrap">
-    <div class="article-inner">
-      <p class="lead">
-        Many organizations mistake decision problems for leadership problems. In practice, the issue
-        is often design. Institutions do not move slowly simply because leaders hesitate. They move
-        slowly because authority is unclear, approvals are layered, escalation routes are muddy, and
-        information must travel through too many hands before action becomes possible.
-      </p>
-
-      <p>
-        Decision velocity, properly understood, is not raw speed. It is the capacity to move with
-        coherence. Fast decisions in a poorly designed system can create confusion, rework, and risk.
-        Slow decisions in a high-friction system create stagnation. What matters is whether the
-        institution can convert signal into action with enough clarity, judgment, and follow-through
-        to sustain performance.
-      </p>
-
-      <p>
-        This is why decision velocity is fundamentally an organizational design issue. Institutions
-        with strong decision velocity tend to share several qualities: roles are clear, ownership is
-        legible, escalation pathways are understood, and approval structures are proportionate to the
-        actual level of risk. In those environments, work does not depend on constant improvisation
-        from above. The system itself supports movement.
-      </p>
-
-      <p>
-        The ROI implications are significant. When decisions move cleanly, execution cycles shorten.
-        Leadership attention is used more strategically. Teams spend less time waiting, chasing, and
-        clarifying. Opportunities are less likely to decay while sitting in internal queues. The
-        institution becomes more responsive not only externally, but internally as well. This is one
-        of the clearest ways organizational design translates into measurable performance.
-      </p>
-
-      <p>
-        Designing for decision velocity does not mean eliminating all controls. It means distinguishing
-        between the controls that create necessary rigor and the controls that merely create drag. Many
-        organizations have inherited structures built around risk conditions, political assumptions, or
-        operational realities that no longer apply. Without review, those structures continue shaping
-        decisions long after their original purpose has weakened.
-      </p>
-
-      <p>
-        The solution is to design for flow with judgment. Clarify ownership. Reduce avoidable handoffs.
-        Tighten escalation logic. Make visible which decisions require formal control and which decisions
-        should move at the level of the work itself. Institutions that do this well do not become less
-        disciplined. They become more capable. Decision velocity, in the end, is not a luxury. It is a
-        defining characteristic of organizations that can adapt, execute, and sustain results under
-        complexity. The best-run institutions don&rsquo;t assume their decisions move well&mdash;they measure it.
-      </p>
-
-      <div class="cta">
-        <h2>Measure it in your own organization</h2>
+      <div class="hero-copy">
+        <div class="hero-head">
+          <span class="hero-glyph" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13 2L4.5 13.5H12l-1 8.5L19.5 10.5H12z"></path>
+            </svg>
+          </span>
+          <div class="hero-head-copy">
+            <p class="eyebrow">Our Thinking</p>
+            <h1>Designing for Decision Velocity</h1>
+          </div>
+        </div>
+        <p class="hero-taxonomy"><em>How fast can sound decisions actually move?</em></p>
         <p>
-          If decisions are slowing, stalling, or routing through too many hands, the Decision Velocity diagnostic shows where the drag is, what it costs, and where to act — and you can run it again to confirm it improved.
+          Decision velocity is not about haste. It is the ability to convert information into sound action at the pace the environment requires, without avoidable drag.
         </p>
-        <a class="cta-link" href="decision-velocity.html">
-          <span class="cta-link-mark" aria-hidden="true"></span>
-          Run the Decision Velocity diagnostic
-        </a>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="signin.html?next=decision-velocity.html">Run the Decision Velocity Diagnostic</a>
+          <a class="btn btn-secondary" href="connect.html" target="_blank" rel="noopener noreferrer">Start a Structured Conversation</a>
+        </div>
       </div>
     </div>
   </section>
 
+  <main class="article">
+    <div class="article-inner">
+      <div class="article-layout">
+        <article class="content">
+          <p>
+            Many organizations mistake decision problems for leadership problems. In practice, the issue is often design. Institutions do not move slowly simply because leaders hesitate. They move slowly because authority is unclear, approvals are layered, escalation routes are muddy, and information must travel through too many hands before action becomes possible.
+          </p>
+
+          <h2>Velocity is coherence, not speed</h2>
+
+          <p>
+            Decision velocity, properly understood, is not raw speed. It is the capacity to move with coherence. Fast decisions in a poorly designed system can create confusion, rework, and risk. Slow decisions in a high-friction system create stagnation. What matters is whether the institution can convert signal into action with enough clarity, judgment, and follow-through to sustain performance.
+          </p>
+
+          <div class="pullquote reveal">
+            <p>
+              Decision velocity is not a luxury. It is a defining characteristic of organizations that can adapt, execute, and sustain results under complexity.
+            </p>
+          </div>
+
+          <h2>A design issue, not a leadership issue</h2>
+
+          <p>
+            This is why decision velocity is fundamentally an organizational design issue. Institutions with strong decision velocity tend to share several qualities: roles are clear, ownership is legible, escalation pathways are understood, and approval structures are proportionate to the actual level of risk. In those environments, work does not depend on constant improvisation from above. The system itself supports movement.
+          </p>
+
+          <h2>The ROI case</h2>
+
+          <p>
+            The ROI implications are significant. When decisions move cleanly, execution cycles shorten. Leadership attention is used more strategically. Teams spend less time waiting, chasing, and clarifying. Opportunities are less likely to decay while sitting in internal queues. The institution becomes more responsive not only externally, but internally as well. This is one of the clearest ways organizational design translates into measurable performance.
+          </p>
+
+          <h2>Necessary rigor versus inherited drag</h2>
+
+          <p>
+            Designing for decision velocity does not mean eliminating all controls. It means distinguishing between the controls that create necessary rigor and the controls that merely create drag. Many organizations have inherited structures built around risk conditions, political assumptions, or operational realities that no longer apply. Without review, those structures continue shaping decisions long after their original purpose has weakened.
+          </p>
+
+          <h2>Designing for flow with judgment</h2>
+
+          <p>
+            The solution is to design for flow with judgment. Clarify ownership. Reduce avoidable handoffs. Tighten escalation logic. Make visible which decisions require formal control and which decisions should move at the level of the work itself. Institutions that do this well do not become less disciplined. They become more capable. The best-run institutions don't assume their decisions move well — they measure it.
+          </p>
+        </article>
+
+        <aside class="sidebar">
+          <div class="sidebar-card reveal reveal-delay-1">
+            <p class="sidebar-kicker">What this affects</p>
+            <h3>Where decisions slow down</h3>
+            <p>
+              Institutions rarely stall because leaders hesitate. They stall because authority is unclear, approvals are layered, and signal travels through too many hands.
+            </p>
+          </div>
+
+          <div class="sidebar-card reveal reveal-delay-2">
+            <p class="sidebar-kicker">The tool is looking for</p>
+            <ul class="mini-list">
+              <li>Authority that is unclear or contested</li>
+              <li>Approval layers disproportionate to real risk</li>
+              <li>Escalation routes that are muddy or undefined</li>
+              <li>Handoffs that decay opportunities in internal queues</li>
+            </ul>
+          </div>
+
+          <div class="sidebar-card reveal reveal-delay-3">
+            <p class="sidebar-kicker">Monderman view</p>
+            <p>
+              Velocity is coherence, not haste: the capacity to convert information into sound action at the pace the environment requires, without avoidable drag.
+            </p>
+          </div>
+
+          <div class="sidebar-card sidebar-outcome reveal reveal-delay-3">
+            <p class="sidebar-kicker">What changes after this diagnostic</p>
+            <p class="sidebar-outcome-phrase">Decisions that move.</p>
+            <p>The Decision Velocity diagnostic shows where the drag is, what it costs, and where to act — and you can run it again to confirm it improved.</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
   <footer class="footer mond-footer">
-    <div class="mf-motif" aria-hidden="true"><svg width="280" height="280" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#4A6FA5" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#5B7A9B" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#4A6FA5" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#5B7A9B" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#4A6FA5" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#6B8FA6" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8BADC5" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#9FBDD1" stroke-width="0.4" opacity="0.13"/><circle cx="86" cy="-35" r="2.8" fill="#3F6EA1" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#5B7A9B" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#3F6EA1" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#7C5CE8" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#5B7A9B" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#2E86DE" opacity="0.58"/></svg></div>
+    <div class="mf-motif" aria-hidden="true"><svg width="280" height="280" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#146C75" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#3E8A92" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#146C75" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#146C75" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#3E8A92" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#146C75" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#4E9098" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8FC4C9" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#A9CFD2" stroke-width="0.4" opacity="0.13"/><circle cx="86" cy="-35" r="2.8" fill="#0C6E78" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#3E8A92" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#0C6E78" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#C9821F" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#3E8A92" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#0C6E78" opacity="0.58"/></svg></div>
     <div class="mf-inner">
       <div class="mf-top">
         <div class="mf-brand">
@@ -408,7 +1152,7 @@
             <span class="mf-name">Monderman</span>
             <span class="mf-dot"></span>
           </div>
-          <p class="mf-copy">Monderman is the diagnostic platform institutions use to measure, compare, and govern how their structure, decisions, and systems are performing — repeatedly, across perspectives, over time.</p>
+          <p class="mf-copy">Monderman is the diagnostic platform institutions use to measure, compare, and govern administrative reality — repeatedly, across perspectives, over time.</p>
           <div class="mf-social">
             <a href="https://www.linkedin.com/in/jason-adamson-627622412/" target="_blank" rel="noopener noreferrer" aria-label="Monderman on LinkedIn"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
             <a href="https://x.com/MondermanHQ" target="_blank" rel="noopener noreferrer" aria-label="Monderman on X"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
@@ -438,5 +1182,91 @@
       </div>
     </div>
   </footer>
+
+  <script>
+    (function () {
+      const bar = document.getElementById("readingProgress");
+      if (!bar) return;
+      function updateProgress() {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
+        bar.style.width = pct + "%";
+        bar.setAttribute("aria-valuenow", Math.round(pct));
+      }
+      window.addEventListener("scroll", updateProgress, { passive: true });
+      updateProgress();
+    })();
+
+    (function () {
+      const revealItems = document.querySelectorAll(".reveal");
+      if (!revealItems.length) return;
+      const obs = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              obs.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.10, rootMargin: "0px 0px -6% 0px" }
+      );
+      revealItems.forEach(function (el) { obs.observe(el); });
+    })();
+  </script>
+
+    <!-- Monderman auth (single client): paints the nav pill + fast-paths signed-in users.
+       Gated CTAs already point at signin.html?next=<tool>, so the gate is fail-closed —
+       clicking one always lands on sign-in first, even if this script never loads. -->
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const sb = createClient(
+      "https://ptkxrzgmeldalrkfruth.supabase.co",
+      "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
+      { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" } }
+    );
+
+    const GATED = new Set([
+      "structural-clarity.html", "decision-velocity.html",
+      "operational-systems.html", "institutional-performance.html"
+    ]);
+
+    // Pull the tool name out of a signin.html?next=<tool> href, if it is a gated one.
+    function gatedTarget(href) {
+      const m = /^signin\.html\?next=([^&#]+)/.exec(href || "");
+      if (!m) return null;
+      try { const t = decodeURIComponent(m[1]); return GATED.has(t) ? t : null; }
+      catch (e) { return null; }
+    }
+
+    async function apply() {
+      let signedIn = false;
+      try {
+        const { data } = await sb.auth.getSession();
+        signedIn = !!(data && data.session && data.session.user);
+      } catch (e) { signedIn = false; }
+
+      // Nav pill: "Workspace" when signed in; "Sign In" -> the sign-in page when not.
+      const nav = document.querySelector("a.workspace-link");
+      if (nav) {
+        nav.textContent = signedIn ? "Workspace" : "Sign In";
+        nav.setAttribute("href", signedIn ? "workspace.html" : "signin.html?next=workspace.html");
+      }
+
+      // Smooth path for signed-in users: skip the sign-in hop on gated CTAs.
+      if (signedIn) {
+        document.querySelectorAll('a[href^="signin.html?next="]').forEach((a) => {
+          const t = gatedTarget(a.getAttribute("href"));
+          if (t) a.setAttribute("href", t);
+        });
+      }
+    }
+
+    apply();
+    sb.auth.onAuthStateChange(() => apply());
+  </script>
+
+    <script src="assistant.js" defer></script>
 </body>
 </html>
