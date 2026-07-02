@@ -10,7 +10,7 @@
    Two adapters feed the model so every surface honors the four Diagnostics-tab
    promises (executive PDF read · quantified score · primary signal · portable JSON):
      • MondermanReport.fromRun(runResult)         — a single diagnostic run (its full_result_json / export shape)
-     • MondermanReport.fromSynthesis(synthResult) — a cross-diagnostic synthesis result (the /cross-diagnostic-synthesis payload)
+     • MondermanReport.fromSynthesis(synthResult) — a cross-assessment synthesis result (the /cross-assessment-synthesis payload, also served at legacy /cross-diagnostic-synthesis)
 
    No dependencies. The PDF path is the browser's own print-to-PDF of the styled
    report, exactly as the original synthesis tool did it.
@@ -66,7 +66,7 @@
   //   footnote, filenameBase, source (the raw result, for JSON export)
   // }
 
-  // ---- adapter: cross-diagnostic synthesis result --> model -----------------
+  // ---- adapter: cross-assessment synthesis result --> model -----------------
   function fromSynthesis(result) {
     const r = obj(result);
     const sources = arr(r.source_results);
@@ -247,7 +247,7 @@
       } : null,
 
       footnote: "* Time, cost, and capacity figures are directional estimates derived from the combined diagnostic results.",
-      filenameBase: "cross-diagnostic-synthesis-" + slug(sources.map((s) => s.tool_type).sort().join("-")),
+      filenameBase: "cross-assessment-synthesis-" + slug(sources.map((s) => s.tool_type).sort().join("-")),
       source: r
     };
   }
@@ -315,7 +315,7 @@
       kind: "run",
       mastline: "Monderman • " + (toolLabel || "Diagnostic"),
       title: (toolLabel || "Diagnostic") + " — Executive Report",
-      subtitle: "A leadership read of this diagnostic: its quantified condition, primary structural signal, and recommended first moves.",
+      subtitle: "A leadership read of this assessment: its quantified condition, primary structural signal, and recommended first moves.",
       meta: [
         { label: "Generated", value: nowLabel() },
         { label: "Instrument", value: toolLabel || "—" }
@@ -327,7 +327,7 @@
       bottomLine: bottomLine,
       kvs: kvs,
       sections: sections,
-      footnote: "* Time, cost, and capacity figures, where shown, are directional estimates derived from this diagnostic.",
+      footnote: "* Time, cost, and capacity figures, where shown, are directional estimates derived from this assessment.",
       filenameBase: slug(toolType || "diagnostic"),
       source: r
     };
@@ -745,7 +745,7 @@
   function renderMethodNote() {
     return '<section class="mr-method-section">' +
       '<h2>How this was produced</h2>' +
-      '<p>This synthesis is produced by combining the individual diagnostic outputs of the Monderman instruments used in this read (some combination of Operational Systems, Decision Velocity, Structural Clarity, and Institutional Performance) using a cross-diagnostic engine. The engine identifies where lenses agree (convergence), where they don\u2019t (contradictions), and stitches those into a shared pattern and correction sequence.</p>' +
+      '<p>This synthesis is produced by combining the individual diagnostic outputs of the Monderman instruments used in this read (some combination of Operational Systems, Decision Velocity, Structural Clarity, and Institutional Performance) using a cross-assessment engine. The engine identifies where lenses agree (convergence), where they don\u2019t (contradictions), and stitches those into a shared pattern and correction sequence.</p>' +
       '<p>The composite score is a weighted read across the instruments, not a simple average. Compensation-cost and envelope-drag numbers are directional estimates derived from the combined diagnostic results and typical labor-rate references. Correction-horizon estimates reflect typical sequencing for a compensation-pattern correction; they are not commitments and should be checked against local capacity.</p>' +
       '<p>This document is a directional executive read. Its strongest value is clarifying <em>where</em> the measured condition is pointing and <em>what</em> to address first. It is not a substitute for independent review or audited analysis.</p>' +
     '</section>';
