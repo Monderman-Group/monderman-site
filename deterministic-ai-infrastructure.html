@@ -556,7 +556,7 @@
       <p class="ps-sub">Most AI products hand the whole task to a large language model. Ask the same question twice and you can get two different answers &mdash; fine for a draft, disqualifying for a measurement an executive has to act on.</p>
       <p class="ps-sub">Deterministic AI Infrastructure (DAII) is a different design. The structured work &mdash; scoring, calibration, the math that turns answers into a number &mdash; is encoded in proprietary engineering that runs the same way every time. A language model is invoked only where its judgment genuinely adds value: reading the result back in plain language, inside facts it cannot contradict. Monderman is built this way: the inputs change, the engine does not.</p>
       <figure class="daii-fig">
-        <svg viewBox="0 0 720 318" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A deterministic engine returns the same score on every run; a raw model drifts">
+        <svg viewBox="0 0 720 318" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A deterministic engine returns the same score for the same inputs and a different score for different inputs; a raw model drifts on identical inputs">
   <defs>
     <marker id="aT" markerWidth="9" markerHeight="9" refX="5.5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="#0C6E78"/></marker>
     <marker id="aM" markerWidth="9" markerHeight="9" refX="5.5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="#9A9892"/></marker>
@@ -575,7 +575,14 @@
   <text x="542" y="71" text-anchor="middle" font-family="Inter,'Neue Haas Grotesk',Helvetica,Arial,sans-serif" font-size="21" font-weight="700" fill="#0A5B63">67</text>
   <rect x="592" y="40" width="84" height="48" rx="10" fill="#E2EEEF" stroke="#0C6E78" stroke-width="1.5"/>
   <text x="634" y="71" text-anchor="middle" font-family="Inter,'Neue Haas Grotesk',Helvetica,Arial,sans-serif" font-size="21" font-weight="700" fill="#0A5B63">67</text>
-  <text x="408" y="108" font-family="'Neue Haas Grotesk',Helvetica,Arial,sans-serif" font-size="12.5" fill="#6E6F73">Same score, every run</text>
+  <text x="408" y="106" font-family="'Neue Haas Grotesk',Helvetica,Arial,sans-serif" font-size="12.5" fill="#6E6F73">Same inputs &#8212; same score, every run</text>
+  <rect x="24" y="116" width="118" height="34" rx="10" fill="#FAFAF8" stroke="#EAE6DD" stroke-width="1.5"/>
+  <text x="83" y="137" text-anchor="middle" font-family="'Neue Haas Grotesk',Helvetica,Arial,sans-serif" font-size="12.5" fill="#18191C">Different inputs</text>
+  <line x1="146" y1="133" x2="404" y2="133" stroke="#0C6E78" stroke-width="1.5" marker-end="url(#aT)"/>
+  <text x="275" y="127" text-anchor="middle" font-family="'Neue Haas Grotesk',Helvetica,Arial,sans-serif" font-size="11" fill="#6E6F73">same engine</text>
+  <rect x="408" y="116" width="84" height="34" rx="10" fill="#E2EEEF" stroke="#0C6E78" stroke-width="1.5"/>
+  <text x="450" y="139" text-anchor="middle" font-family="Inter,'Neue Haas Grotesk',Helvetica,Arial,sans-serif" font-size="18" font-weight="700" fill="#0A5B63">41</text>
+  <text x="504" y="137" font-family="'Neue Haas Grotesk',Helvetica,Arial,sans-serif" font-size="12.5" fill="#6E6F73">Different score</text>
   <line x1="24" y1="158" x2="676" y2="158" stroke="#EAE6DD" stroke-width="1"/>
   <text x="24" y="196" font-family="'Neue Haas Grotesk',Helvetica,Arial,sans-serif" font-size="12" font-weight="700" fill="#9A9892" letter-spacing="0.08em">RAW LANGUAGE MODEL</text>
   <rect x="24" y="210" width="118" height="56" rx="11" fill="#FAFAF8" stroke="#EAE6DD" stroke-width="1.5"/>
@@ -592,7 +599,7 @@
   <text x="634" y="245" text-anchor="middle" font-family="Inter,'Neue Haas Grotesk',Helvetica,Arial,sans-serif" font-size="21" font-weight="700" fill="#9A9892">58</text>
   <text x="408" y="282" font-family="'Neue Haas Grotesk',Helvetica,Arial,sans-serif" font-size="12.5" fill="#9A9892">Drifts run to run</text>
 </svg>
-        <figcaption>The same inputs, run three times. The deterministic engine returns the same score; a raw model drifts.</figcaption>
+        <figcaption>Consistent, not constant. Run the same inputs three times and the deterministic engine returns the same score, while a raw model drifts. Run different inputs through the same engine and the score moves with them &#8212; 67 is this organization&#8217;s answer, not the engine&#8217;s only answer.</figcaption>
       </figure>
     </div>
   </section>
@@ -603,7 +610,7 @@
       <h2 class="ps-h2">A number that means the same thing every time.</h2>
       <p class="ps-sub">Determinism is what makes the rest of the platform trustworthy. Because the score is reproducible and quantified against calibrated sector ranges &mdash; not mood, not opinion &mdash; you can re-measure after a change and see, in the second read, whether capacity actually returned.</p>
       <div class="daii-props">
-        <div class="p"><h4>Reproducible</h4><span>Identical inputs produce an identical score on every run.</span></div>
+        <div class="p"><h4>Reproducible</h4><span>Identical inputs produce an identical score on every run; only different inputs move the number.</span></div>
         <div class="p"><h4>Bounded</h4><span>The language model interprets results inside locked facts &mdash; it never sets the score.</span></div>
         <div class="p"><h4>Calibrated</h4><span>Every result is positioned against sector ranges, in your own hours and dollars.</span></div>
       </div>
