@@ -3217,7 +3217,14 @@
         return;
       }
       if (validCount >= 2) {
-        showValidation(`${validCount} valid result files ready. You can now generate a combined readout.`, "ok");
+        const validTools = new Set(uploadedFiles.filter((f) => f.valid).map((f) => (f.parsed && f.parsed.tool_type) || ""));
+        validTools.delete("");
+        if (validTools.size === 1) {
+          const onlyLabel = uploadedFiles.find((f) => f.valid)?.toolLabel || "one instrument";
+          showValidation(`${validCount}\u00d7 ${onlyLabel} ready \u2014 this will run a DEPTH read: one instrument across ${validCount} respondents (population statistics, consensus vs. division, vantage gaps), not a cross-lens synthesis.`, "ok");
+        } else {
+          showValidation(`${validCount} valid result files across ${validTools.size} instruments ready. You can now generate a combined readout.`, "ok");
+        }
       } else {
         showValidation("Upload 2 or more valid Monderman JSON result files to continue.", "error");
       }
