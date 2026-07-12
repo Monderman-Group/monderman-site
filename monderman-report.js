@@ -148,6 +148,10 @@
         type: firstStr(diag.type),
         body: firstStr(diag.body),
         meta: [
+          ...(r.synthesis_mode ? [{ label: "Read type", value:
+            r.synthesis_mode === "depth" ? "Depth — " + (r.respondent_count || sources.length) + " respondents, 1 instrument"
+            : r.synthesis_mode === "mixed" ? "Mixed — " + r.lens_count + " instruments, " + r.respondent_count + " runs"
+            : "Cross-lens — " + r.lens_count + " instruments" }] : []),
           { label: "Composite", value: String(r.cross_diagnostic_score != null ? r.cross_diagnostic_score + " / 100" : "—") },
           { label: "Compensation cost", value: (compCostLow != null && compCostHigh != null ? compactCurRange([compCostLow, compCostHigh]) + " / yr*" : "—") },
           { label: "Envelope drag", value: (exp.capacity_drag_percent != null ? pct(exp.capacity_drag_percent) + "*" : "—") },
@@ -175,14 +179,47 @@
         capacityDrag: exp.capacity_drag_percent
       },
 
-      // ─── Lenses (four instruments) ───
-      lenses: sources.map((s) => ({
-        toolType: s.tool_type,
-        toolLabel: s.tool_label || s.tool_type,
-        score: s.score,
-        band: s.band || s.condition_band,
-        primaryDriver: firstStr(s.primary_driver, s.driver, "")
-      })),
+      // ─── Read mode + sample depth (schema 1.2, additive) ───
+      mode: r.synthesis_mode ? {
+        synthesisMode: firstStr(r.synthesis_mode),
+        lensCount: r.lens_count != null ? Number(r.lens_count) : null,
+        respondentCount: r.respondent_count != null ? Number(r.respondent_count) : null
+      } : null,
+      sampleReads: arr(r.sample_reads).map((sr) => {
+        const s = obj(sr); const sc = obj(s.score); const cons = obj(s.consensus);
+        return {
+          toolLabel: firstStr(s.tool_label, s.tool_type),
+          n: Number(s.n) || 0,
+          mean: sc.mean, median: sc.median, sd: sc.sd, min: sc.min, max: sc.max,
+          iqr: Array.isArray(sc.iqr) ? sc.iqr : null,
+          consensusRead: firstStr(cons.read),
+          consensusDetail: firstStr(cons.detail),
+          split: cons.split ? obj(cons.split) : null,
+          segments: arr(s.segments).map((g) => obj(g)),
+          vantageGap: s.vantage_gap ? obj(s.vantage_gap) : null,
+          depthLabel: firstStr(s.depth_confidence_label, s.depth_confidence)
+        };
+      }),
+
+      // ─── Lenses ───
+      // Depth/mixed shape: one row per INSTRUMENT (respondent mean, × n)
+      // instead of one row per respondent — 150 uploads no longer render
+      // 150 identical lens rows or a 150-column convergence matrix.
+      lenses: (arr(r.source_groups).length && sources.length > arr(r.source_groups).length)
+        ? arr(r.source_groups).map((g) => ({
+            toolType: g.tool_type,
+            toolLabel: (g.tool_label || g.tool_type) + (g.respondents > 1 ? " \u00d7 " + g.respondents : ""),
+            score: g.mean_score,
+            band: "Respondent mean",
+            primaryDriver: String(g.modal_driver_pattern || "").replace(/_/g, " ")
+          }))
+        : sources.map((s) => ({
+            toolType: s.tool_type,
+            toolLabel: s.tool_label || s.tool_type,
+            score: s.score,
+            band: s.band || s.condition_band,
+            primaryDriver: firstStr(s.primary_driver, s.driver, "")
+          })),
 
       // ─── Convergence signals (enriched — object shape with tools + dimensions) ───
       convergenceSignals: arr(r.convergence_signals).map((sig) => {
@@ -588,6 +625,37 @@
     '</section>';
   }
 
+  function renderSampleDepth(sampleReads, mode) {
+    if (!Array.isArray(sampleReads) || !sampleReads.length) return "";
+    const rows = sampleReads.map((sr) => {
+      const splitBar = sr.split
+        ? '<div style="display:flex;height:9px;border-radius:5px;overflow:hidden;margin:8px 0 4px;">'
+          + '<div style="width:' + Number(sr.split.lower_share_pct) + '%;background:#0A5B63"></div>'
+          + '<div style="width:' + Number(sr.split.upper_share_pct) + '%;background:rgba(12,110,120,.28)"></div></div>'
+          + '<p class="mr-copy" style="margin:0">' + esc(sr.split.lower_share_pct) + '% weaker read · '
+          + esc(sr.split.upper_share_pct) + '% stronger read · boundary ' + esc(sr.split.boundary) + '</p>'
+        : "";
+      const segs = (sr.segments || []).map((g) =>
+        '<span class="mr-pill">' + esc(g.participant_mode) + ": " + esc(g.mean_score) + " (n=" + esc(g.n) + ")</span>").join(" ");
+      const vg = sr.vantageGap
+        ? '<p class="mr-copy" style="margin-top:6px"><strong>Vantage gap:</strong> ' + esc(sr.vantageGap.high_segment) + " "
+          + esc(sr.vantageGap.high_mean) + " vs " + esc(sr.vantageGap.low_segment) + " " + esc(sr.vantageGap.low_mean)
+          + " (Δ" + esc(sr.vantageGap.gap) + ")</p>"
+        : "";
+      return '<div class="mr-card">'
+        + "<h3>" + esc(sr.toolLabel) + " · " + esc(sr.n) + " respondents · " + esc(sr.depthLabel) + " sample</h3>"
+        + '<p class="mr-copy"><strong>Mean ' + esc(sr.mean) + "</strong> · median " + esc(sr.median)
+        + " · sd " + esc(sr.sd) + " · range " + esc(sr.min) + "–" + esc(sr.max)
+        + (sr.iqr ? " · IQR " + esc(sr.iqr[0]) + "–" + esc(sr.iqr[1]) : "") + "</p>"
+        + '<p class="mr-copy"><strong>' + esc(String(sr.consensusRead || "").toUpperCase()) + "</strong> — " + esc(sr.consensusDetail) + "</p>"
+        + splitBar + (segs ? '<div style="margin-top:6px">' + segs + "</div>" : "") + vg
+        + "</div>";
+    }).join("");
+    return '<section class="mr-section"><h2>Sample depth</h2>'
+      + '<p class="mr-copy">Population statistics for instruments completed by two or more respondents. Dispersion and division are findings in their own right — a divided clarity read is the clarity finding, measured directly.</p>'
+      + rows + "</section>";
+  }
+
   function renderBriefing(brief) {
     if (!brief) return "";
     const paras = arr(brief.paragraphs).map((p) => '<p class="mr-briefing-body">' + esc(p) + '</p>').join("");
@@ -830,6 +898,7 @@
       const body =
         renderDiagnosis(m.diagnosis) +
         renderBriefing(m.briefing) +
+        renderSampleDepth(m.sampleReads, m.mode) +
         renderComposite(m.composite, heroSvg, gaugeSvg, exposureSvg) +
         renderLenses(m.lenses, lensBarSvg) +
         renderConvergence(m.convergenceSignals, matrixSvg) +
@@ -873,6 +942,12 @@
     '.cover-score{margin-top:30px;padding:18px 0 0;border-top:1px solid var(--line)}' +
     '.score-line{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;font-family:"Helvetica Neue",Arial,sans-serif}' +
     '.score-num{font-size:4rem;line-height:.9;font-weight:700;letter-spacing:-.08em}' +
+    '.mr-section{margin-top:34px}' +
+    '.mr-section h2{margin-top:0}' +
+    '.mr-card{border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:12px 0;background:#FCFBF8}' +
+    '.mr-card h3{font-size:1rem;margin-bottom:8px}' +
+    '.mr-copy{font-size:.95rem;color:var(--soft);margin:0 0 8px}' +
+    '.mr-pill{display:inline-block;font-family:"Helvetica Neue",Arial,sans-serif;font-size:.76rem;padding:3px 10px;border:1px solid var(--line);border-radius:999px;color:var(--soft);margin:2px 4px 2px 0}' +
     '.score-band{font-size:1rem;color:var(--soft);padding-bottom:8px}' +
     '.callout{margin:18px 0;padding:18px 20px;border-left:4px solid var(--accent);background:#F8FAFD}' +
     '.kvs{display:grid;grid-template-columns:190px 1fr;gap:8px 20px;margin:16px 0 8px}' +
