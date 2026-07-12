@@ -10,9 +10,9 @@
     type="image/svg+xml"
     href='data:image/svg+xml;utf8,
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-      <rect width="64" height="64" rx="10" fill="%230F1720"/>
-      <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text>
-      <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
+      <rect width="64" height="64" rx="10" fill="%2304181B"/>
+      <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23FAFAF8">M</text>
+      <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%230C6E78"/>
     </svg>'
   />
 
@@ -1424,6 +1424,38 @@
       });
     }
 
+    function insightDepthLabel(r) {
+      const lenses = Number(r.lens_count) || (r.source_groups || []).length || 1;
+      const depthTier = String(r.insight_depth?.depth_tier || "");
+      const levels = Number(r.insight_depth?.levels_covered_count) || 1;
+      if (lenses >= 4 && (depthTier === "high" || depthTier === "poll_grade") && levels >= 3) return "Cross-validated enterprise read";
+      if (lenses === 1 && (depthTier === "high" || depthTier === "poll_grade")) return "Population-validated, single-instrument read";
+      if (lenses === 1 && depthTier === "moderate") return "Population-informed, single-instrument read";
+      if (lenses >= 2) return "Cross-validated read";
+      return "Single-run read";
+    }
+
+    function renderInsightDepth(r) {
+      const grid = document.getElementById("confidenceGrid");
+      if (!grid || !r.insight_depth || typeof r.insight_depth.score !== "number") return;
+      const score = Math.max(0, Math.min(100, r.insight_depth.score));
+      const dash = (score / 100 * 144.5).toFixed(1);
+      grid.insertAdjacentHTML("beforeend", `
+        <article class="signal-card">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <svg viewBox="0 0 58 58" style="width:58px;height:58px;flex:0 0 58px;">
+              <circle cx="29" cy="29" r="23" fill="none" stroke="#EAE6DD" stroke-width="7"/>
+              <circle cx="29" cy="29" r="23" fill="none" stroke="#C9821F" stroke-width="7" stroke-dasharray="${dash} 145" transform="rotate(-90 29 29)"/>
+            </svg>
+            <div>
+              <div style="font-size:1.6rem;font-weight:700;line-height:1;">${escapeHtml(String(score))}</div>
+              <p class="tool-copy" style="margin-top:6px;"><strong>Insight depth score \u00b7 ${escapeHtml(insightDepthLabel(r))}.</strong> A quality-of-signal score, not a quality-of-answer score.</p>
+            </div>
+          </div>
+          ${r.insight_depth.basis ? `<p class="tool-copy" style="margin-top:10px;">${escapeHtml(r.insight_depth.basis)}</p>` : ""}
+        </article>`);
+    }
+
     function renderConfidence(conf) {
       const grid = document.getElementById("confidenceGrid");
       if (!grid) return;
@@ -1978,6 +2010,10 @@
       }
       if (result.confidence && (result.confidence.summary || result.confidence.breadth_confidence || result.confidence.composite_exposure_math)) {
         renderConfidence(result.confidence);
+        renderInsightDepth(result);
+        document.getElementById("confidencePanel")?.classList.remove("hidden");
+      } else if (result.insight_depth && typeof result.insight_depth.score === "number") {
+        renderInsightDepth(result);
         document.getElementById("confidencePanel")?.classList.remove("hidden");
       }
       if (result.synthesis_mode) {
