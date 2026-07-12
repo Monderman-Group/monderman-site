@@ -710,7 +710,7 @@ body{transition:background-color .25s ease, color .25s ease}
       if(body) body.innerHTML=`<p class="muted">Loading promoted reads\u2026</p>`;
       try{
         const { data, error } = await supabase.from("diagnostic_runs")
-          .select("id, tool_type, tool_label, business_unit, pathway_name, score, band, created_at, status, included_in_aggregates")
+          .select("id, tool_type, tool_label, business_unit, pathway_name, participant_mode, diagnostic_depth, score, band, created_at, status, included_in_aggregates")
           .eq("status","promoted").order("created_at",{ ascending:false }).limit(200);
         if(error) throw error;
         SYNTH_RUNS = (data||[]).filter(r=> r.included_in_aggregates!==false); // honor the quality screen
@@ -745,7 +745,18 @@ body{transition:background-color .25s ease, color .25s ease}
         if(cb.checked) synthSel.add(cb.dataset.srun); else synthSel.delete(cb.dataset.srun);
         const btn=document.getElementById("synthRun"), hint=document.getElementById("synthHint"), n=synthSel.size;
         if(btn) btn.disabled = n<2;
-        if(hint) hint.textContent = n<2 ? "Select two or more reads to combine." : (n+" reads selected.");
+        if(hint){
+          if(n<2){ hint.textContent="Select two or more reads to combine."; }
+          else{
+            const selTools=new Set((SYNTH_RUNS||[]).filter(r=>synthSel.has(r.id)).map(r=>r.tool_type));
+            if(selTools.size===1){
+              const lbl=toolLabel([...selTools][0]);
+              hint.textContent=n+"\u00d7 "+lbl+" selected \u2014 this runs a DEPTH read: one instrument across "+n+" respondents (population statistics, consensus/division, vantage gaps), not a cross-lens synthesis.";
+            }else{
+              hint.textContent=n+" reads across "+selTools.size+" instruments \u2014 cross-lens synthesis"+((n>selTools.size)?" with respondent depth behind repeated instruments.":".");
+            }
+          }
+        }
       }));
       document.getElementById("synthRun")?.addEventListener("click", runSynthesis);
     }
@@ -758,7 +769,7 @@ body{transition:background-color .25s ease, color .25s ease}
       if(btn){ btn.disabled=true; btn.textContent="Synthesizing\u2026"; }
       try{
         const { data, error } = await supabase.from("diagnostic_runs")
-          .select("id, full_result_json, tool_type, tool_label, score, band, primary_driver, benchmark_position, trajectory_label, business_unit")
+          .select("id, full_result_json, tool_type, tool_label, score, band, primary_driver, benchmark_position, trajectory_label, business_unit, participant_mode, diagnostic_depth, assignment_id, pathway_name")
           .in("id", ids);
         if(error) throw error;
         const results=(data||[]).map(row=>{
@@ -771,6 +782,13 @@ body{transition:background-color .25s ease, color .25s ease}
           if(m.trajectory==null && m.trajectory_label==null) m.trajectory=row.trajectory_label;
           if(m.primary_driver==null) m.primary_driver=row.primary_driver;
           if(m.business_unit==null) m.business_unit=row.business_unit;
+          // Lens identity for depth-mode synthesis: the vantage each run was
+          // taken from, its depth, and its campaign linkage survive into the
+          // engine (segment cuts + vantage-gap detection read these).
+          if(m.participant_mode==null) m.participant_mode=row.participant_mode;
+          if(m.diagnostic_depth==null) m.diagnostic_depth=row.diagnostic_depth;
+          if(m.assignment_id==null) m.assignment_id=row.assignment_id;
+          if(m.process_name==null && row.pathway_name) m.process_name=row.pathway_name;
           return m;
         });
         const res=await fetch(`${API_BASE}/api/cross-diagnostic-synthesis`, {
