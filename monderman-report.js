@@ -179,6 +179,15 @@
         capacityDrag: exp.capacity_drag_percent
       },
 
+      // ─── Insight depth (schema 1.2, additive) ───
+      insightDepth: (r.insight_depth && typeof r.insight_depth.score === "number") ? {
+        score: Number(r.insight_depth.score),
+        basis: firstStr(r.insight_depth.basis),
+        depthTier: firstStr(r.insight_depth.depth_tier),
+        lenses: r.lens_count != null ? Number(r.lens_count) : arr(r.source_groups).length || 1,
+        levels: Number(r.insight_depth.levels_covered_count) || 1
+      } : null,
+
       // ─── Read mode + sample depth (schema 1.2, additive) ───
       mode: r.synthesis_mode ? {
         synthesisMode: firstStr(r.synthesis_mode),
@@ -625,6 +634,29 @@
     '</section>';
   }
 
+  function insightDepthLabel(d) {
+    if (d.lenses >= 4 && (d.depthTier === "high" || d.depthTier === "poll_grade") && d.levels >= 3) return "Cross-validated enterprise read";
+    if (d.lenses === 1 && (d.depthTier === "high" || d.depthTier === "poll_grade")) return "Population-validated, single-instrument read";
+    if (d.lenses === 1 && d.depthTier === "moderate") return "Population-informed, single-instrument read";
+    if (d.lenses >= 2) return "Cross-validated read";
+    return "Single-run read";
+  }
+
+  function renderInsightDepth(d) {
+    if (!d) return "";
+    const score = Math.max(0, Math.min(100, d.score));
+    const dash = (score / 100 * 144.5).toFixed(1);
+    return '<section class="mr-section"><h2>Insight depth</h2>'
+      + '<div class="mr-card"><div style="display:flex;align-items:center;gap:14px;">'
+      + '<svg viewBox="0 0 58 58" style="width:58px;height:58px;flex:0 0 58px;">'
+      + '<circle cx="29" cy="29" r="23" fill="none" stroke="#EAE6DD" stroke-width="7"/>'
+      + '<circle cx="29" cy="29" r="23" fill="none" stroke="#C9821F" stroke-width="7" stroke-dasharray="' + dash + ' 145" transform="rotate(-90 29 29)"/></svg>'
+      + '<div><div style="font-size:1.6rem;font-weight:700;line-height:1;">' + esc(score) + '</div>'
+      + '<p class="mr-copy" style="margin-top:6px;"><strong>Insight depth score \u00b7 ' + esc(insightDepthLabel(d)) + '.</strong> A quality-of-signal score, not a quality-of-answer score.</p></div></div>'
+      + (d.basis ? '<p class="mr-copy" style="margin-top:10px;">' + esc(d.basis) + '</p>' : '')
+      + '</div></section>';
+  }
+
   function renderSampleDepth(sampleReads, mode) {
     if (!Array.isArray(sampleReads) || !sampleReads.length) return "";
     const rows = sampleReads.map((sr) => {
@@ -899,6 +931,7 @@
         renderDiagnosis(m.diagnosis) +
         renderBriefing(m.briefing) +
         renderSampleDepth(m.sampleReads, m.mode) +
+        renderInsightDepth(m.insightDepth) +
         renderComposite(m.composite, heroSvg, gaugeSvg, exposureSvg) +
         renderLenses(m.lenses, lensBarSvg) +
         renderConvergence(m.convergenceSignals, matrixSvg) +
