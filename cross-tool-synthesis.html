@@ -1053,6 +1053,62 @@
         </div>
       </section>
 
+      <section class="panel hidden" id="depthPanel">
+        <div class="panel-head">
+          <p class="panel-kicker">Depth Read</p>
+          <h2 class="panel-title">What the respondent sample says</h2>
+          <p class="panel-copy">
+            Population statistics for instruments taken by two or more respondents — central tendency, spread, consensus vs. division, and vantage segmentation.
+          </p>
+        </div>
+        <div class="panel-body">
+          <div class="patterns-grid" id="depthGrid"></div>
+        </div>
+      </section>
+
+      <section class="panel hidden" id="briefingPanel">
+        <div class="panel-head">
+          <p class="panel-kicker">Executive Briefing</p>
+          <h2 class="panel-title">The condition, named for leadership</h2>
+        </div>
+        <div class="panel-body">
+          <div class="patterns-grid" id="briefingGrid"></div>
+        </div>
+      </section>
+
+      <section class="panel hidden" id="experientialPanel">
+        <div class="panel-head">
+          <p class="panel-kicker">Experiential Layer</p>
+          <h2 class="panel-title">How the condition is experienced at each layer</h2>
+        </div>
+        <div class="panel-body">
+          <div class="patterns-grid" id="experientialGrid"></div>
+        </div>
+      </section>
+
+      <section class="panel hidden" id="indicatorsPanel">
+        <div class="panel-head">
+          <p class="panel-kicker">Leading Indicators</p>
+          <h2 class="panel-title">What to monitor from here</h2>
+        </div>
+        <div class="panel-body">
+          <div class="patterns-grid" id="indicatorsGrid"></div>
+        </div>
+      </section>
+
+      <section class="panel hidden" id="confidencePanel">
+        <div class="panel-head">
+          <p class="panel-kicker">Confidence</p>
+          <h2 class="panel-title">How firmly this read stands</h2>
+          <p class="panel-copy">
+            Breadth (distinct instruments triangulating) and depth (respondents behind each instrument) are scored separately — neither substitutes for the other.
+          </p>
+        </div>
+        <div class="panel-body">
+          <div class="patterns-grid" id="confidenceGrid"></div>
+        </div>
+      </section>
+
 
       <section class="panel hidden" id="executiveReportPanel">
         <div class="panel-head">
@@ -1290,9 +1346,131 @@
       }
     }
 
-    function renderSourceTools(sourceResults) {
+    function renderDepthReads(sampleReads, mode) {
+      const grid = document.getElementById("depthGrid");
+      if (!grid) return;
+      grid.innerHTML = "";
+      (sampleReads || []).forEach((sr) => {
+        const s = sr.score || {};
+        const cons = sr.consensus || {};
+        const splitBar = cons.split ? `
+            <div style="display:flex;height:10px;border-radius:6px;overflow:hidden;margin:10px 0 4px;">
+              <div style="width:${cons.split.lower_share_pct}%;background:var(--accent-dark,#0A5B63);"></div>
+              <div style="width:${cons.split.upper_share_pct}%;background:rgba(12,110,120,.28);"></div>
+            </div>
+            <p class="tool-copy" style="margin:0;">${cons.split.lower_share_pct}% weaker read &middot; ${cons.split.upper_share_pct}% stronger read &middot; boundary ${escapeHtml(String(cons.split.boundary))}</p>` : "";
+        const segs = (sr.segments || []).map(seg =>
+          `<span class="meta-pill">${escapeHtml(seg.participant_mode)}: ${escapeHtml(String(seg.mean_score))} (n=${seg.n})</span>`).join(" ");
+        const vg = sr.vantage_gap ? `<p class="tool-copy" style="margin-top:8px;"><strong>Vantage gap:</strong> ${escapeHtml(sr.vantage_gap.high_segment)} ${escapeHtml(String(sr.vantage_gap.high_mean))} vs ${escapeHtml(sr.vantage_gap.low_segment)} ${escapeHtml(String(sr.vantage_gap.low_mean))} (&Delta;${escapeHtml(String(sr.vantage_gap.gap))})</p>` : "";
+        grid.insertAdjacentHTML("beforeend", `
+          <article class="signal-card">
+            <h3>${escapeHtml(sr.tool_label || sr.tool_type)} &middot; ${escapeHtml(String(sr.n))} respondents &middot; ${escapeHtml(sr.depth_confidence_label || sr.depth_confidence || "")} sample</h3>
+            <p><strong>Mean ${escapeHtml(String(s.mean))}</strong> &middot; median ${escapeHtml(String(s.median))} &middot; sd ${escapeHtml(String(s.sd))} &middot; range ${escapeHtml(String(s.min))}&ndash;${escapeHtml(String(s.max))} &middot; IQR ${escapeHtml(String((s.iqr||[])[0]))}&ndash;${escapeHtml(String((s.iqr||[])[1]))}</p>
+            <p><strong>${escapeHtml(String(cons.read || "").toUpperCase())}</strong> &mdash; ${escapeHtml(cons.detail || "")}</p>
+            ${splitBar}
+            ${segs ? `<div class="report-meta" style="margin-top:8px;">${segs}</div>` : ""}
+            ${vg}
+          </article>`);
+      });
+    }
+
+    function renderBriefing(briefing, diagnosis) {
+      const grid = document.getElementById("briefingGrid");
+      if (!grid) return;
+      grid.innerHTML = "";
+      if (diagnosis && (diagnosis.name || diagnosis.body)) {
+        grid.insertAdjacentHTML("beforeend", `
+          <article class="signal-card">
+            <h3>${escapeHtml(diagnosis.name || "Diagnosis")}</h3>
+            <p class="tool-copy" style="margin-bottom:6px;">${escapeHtml(diagnosis.type || "")}</p>
+            <p>${escapeHtml(diagnosis.body || "")}</p>
+          </article>`);
+      }
+      if (briefing && (briefing.lede || (briefing.paragraphs || []).length)) {
+        const paras = (briefing.paragraphs || []).map(p => `<p>${escapeHtml(p)}</p>`).join("");
+        grid.insertAdjacentHTML("beforeend", `
+          <article class="signal-card">
+            <h3>Executive briefing</h3>
+            ${briefing.lede ? `<p><strong>${escapeHtml(briefing.lede)}</strong></p>` : ""}
+            ${paras}
+          </article>`);
+      }
+    }
+
+    function renderExperiential(exp) {
+      const grid = document.getElementById("experientialGrid");
+      if (!grid) return;
+      grid.innerHTML = "";
+      const rows = [["Operational staff", exp.operational_staff], ["Managers", exp.managers], ["Senior leaders", exp.senior_leaders]];
+      rows.forEach(([label, text]) => {
+        if (!text) return;
+        grid.insertAdjacentHTML("beforeend", `
+          <article class="signal-card"><h3>${escapeHtml(label)}</h3><p>${escapeHtml(text)}</p></article>`);
+      });
+    }
+
+    function renderIndicators(indicators) {
+      const grid = document.getElementById("indicatorsGrid");
+      if (!grid) return;
+      grid.innerHTML = "";
+      (indicators || []).forEach((i) => {
+        grid.insertAdjacentHTML("beforeend", `
+          <article class="signal-card">
+            <h3>${escapeHtml(i.name || "Indicator")}</h3>
+            <p class="tool-copy" style="margin-bottom:6px;">${escapeHtml(i.lens_label || "")}</p>
+            <p><strong>Watch for:</strong> ${escapeHtml(i.watch_for || "")}</p>
+            <p>${escapeHtml(i.description || "")}</p>
+          </article>`);
+      });
+    }
+
+    function renderConfidence(conf) {
+      const grid = document.getElementById("confidenceGrid");
+      if (!grid) return;
+      grid.innerHTML = "";
+      const tierPill = (t) => `<span class="meta-pill">${escapeHtml(String(t || ""))}</span>`;
+      const depthChips = (conf.depth_confidence || []).map(d =>
+        `<span class="meta-pill">${escapeHtml(d.tool_label || d.tool_type)}: ${escapeHtml(d.level_label || d.level)} (n=${d.n})</span>`).join(" ");
+      grid.insertAdjacentHTML("beforeend", `
+        <article class="signal-card">
+          <h3>Read confidence</h3>
+          ${conf.summary ? `<p>${escapeHtml(conf.summary)}</p>` : ""}
+          <div class="report-meta" style="margin-top:8px;">
+            ${conf.breadth_confidence ? `<span class="meta-pill">Breadth: ${escapeHtml(conf.breadth_confidence.level)} (${conf.breadth_confidence.lens_count} instrument${conf.breadth_confidence.lens_count === 1 ? "" : "s"})</span>` : ""}
+            ${depthChips}
+          </div>
+          <div class="report-meta" style="margin-top:8px;">
+            <span class="meta-pill">Exposure math: ${escapeHtml(conf.composite_exposure_math || "—")}</span>
+            <span class="meta-pill">Cascade attribution: ${escapeHtml(conf.cascade_upstream_driver || "—")}</span>
+          </div>
+        </article>`);
+    }
+
+    function renderSourceTools(sourceResults, sourceGroups) {
       const toolsGrid = document.getElementById("toolsGrid");
       toolsGrid.innerHTML = "";
+
+      // Depth/mixed shape: one card per INSTRUMENT with its respondent count
+      // and mean, instead of one card per respondent (150 uploads no longer
+      // render 150 near-identical cards).
+      const hasDepth = Array.isArray(sourceGroups) && sourceGroups.length &&
+        sourceResults.length > sourceGroups.length;
+      if (hasDepth) {
+        sourceGroups.forEach((g) => {
+          toolsGrid.insertAdjacentHTML("beforeend", `
+          <article class="tool-card">
+            <div class="tool-top">
+              <h3 class="tool-name">${escapeHtml(g.tool_label || g.tool_type || "Instrument")}</h3>
+              <div class="tool-status complete">${escapeHtml(String(g.respondents))} respondent${g.respondents === 1 ? "" : "s"}</div>
+            </div>
+            <p class="tool-score">${escapeHtml(String(g.mean_score ?? "—"))}</p>
+            <p class="tool-band">Respondent mean</p>
+            <p class="tool-copy">Modal driver pattern: ${escapeHtml(String(g.modal_driver_pattern || "—").replace(/_/g, " "))}</p>
+            <p class="tool-context">Population read across ${escapeHtml(String(g.respondents))} completed run${g.respondents === 1 ? "" : "s"}</p>
+          </article>`);
+        });
+        return;
+      }
 
       sourceResults.forEach((tool) => {
         toolsGrid.insertAdjacentHTML("beforeend", `
@@ -1755,20 +1933,61 @@
       }
 
       renderSharedContext(sharedContext);
-      renderSourceTools(result.source_results || []);
+      renderSourceTools(result.source_results || [], result.source_groups || null);
       renderSignals(result.convergence_signals || ["No convergence signals returned."]);
       renderActions(result.priority_actions || ["No priority actions returned."]);
       renderNarrative(result.narrative || {});
 
       // Cross-synth visualizations (visuals 1 and 2 work with existing data;
       // visuals 3 and 4 are dormant until backend produces the new shape)
-      renderLensComparisonBar(result.source_results || [], result.cross_diagnostic_score);
+      // Depth/mixed shape: feed the visuals one row per INSTRUMENT (mean, × n)
+      // so 150 respondents don't render as 150 bars / 150 matrix columns.
+      const vizRows = (Array.isArray(result.source_groups) && result.source_groups.length &&
+        (result.source_results || []).length > result.source_groups.length)
+        ? result.source_groups.map(g => ({
+            tool_type: g.tool_type,
+            tool_label: (g.tool_label || g.tool_type) + (g.respondents > 1 ? " \u00d7" + g.respondents : ""),
+            score: g.mean_score
+          }))
+        : (result.source_results || []);
+      renderLensComparisonBar(vizRows, result.cross_diagnostic_score);
       renderSequenceCascade(result.priority_actions || []);
-      renderConvergenceMatrix(result.convergence_signals || [], result.source_results || []);
+      renderConvergenceMatrix((result.convergence_signals || []).map(s => (s && typeof s === "object") ? String(s.text || "") : String(s || "")), vizRows);
       renderExposureSplit(result.compounded_exposure || {});
 
       if ((result.contradictions || []).length) {
         renderContradictions(result.contradictions);
+      }
+
+      // ── Schema 1.2 sections (additive; hidden when absent) ──────────────
+      if (Array.isArray(result.sample_reads) && result.sample_reads.length) {
+        renderDepthReads(result.sample_reads, result.synthesis_mode);
+        document.getElementById("depthPanel")?.classList.remove("hidden");
+      }
+      if (result.executive_briefing || result.diagnosis) {
+        renderBriefing(result.executive_briefing || {}, result.diagnosis || null);
+        document.getElementById("briefingPanel")?.classList.remove("hidden");
+      }
+      if (result.experiential && (result.experiential.operational_staff || result.experiential.managers || result.experiential.senior_leaders)) {
+        renderExperiential(result.experiential);
+        document.getElementById("experientialPanel")?.classList.remove("hidden");
+      }
+      if (Array.isArray(result.leading_indicators) && result.leading_indicators.length) {
+        renderIndicators(result.leading_indicators);
+        document.getElementById("indicatorsPanel")?.classList.remove("hidden");
+      }
+      if (result.confidence && (result.confidence.summary || result.confidence.breadth_confidence || result.confidence.composite_exposure_math)) {
+        renderConfidence(result.confidence);
+        document.getElementById("confidencePanel")?.classList.remove("hidden");
+      }
+      if (result.synthesis_mode) {
+        const modeLabel = result.synthesis_mode === "depth"
+          ? `Depth read \u2014 ${result.respondent_count} respondents on one instrument`
+          : result.synthesis_mode === "mixed"
+          ? `Mixed read \u2014 ${result.lens_count} instruments, ${result.respondent_count} runs`
+          : `Cross-lens read \u2014 ${result.lens_count} instruments`;
+        const tl = document.getElementById("toolsLoadedValue");
+        if (tl) tl.textContent = modeLabel;
       }
 
       const footerNote = document.getElementById("footerNote");
@@ -1848,8 +2067,9 @@
         ? `${Math.round(Number(result.compounded_exposure?.capacity_drag_percent))}%`
         : "—";
 
-      const actions = (result.priority_actions || []).map(item => `<li>${safe(item)}</li>`).join("");
-      const signals = (result.convergence_signals || []).map(item => `<li>${safe(item)}</li>`).join("");
+      const itemText = (item) => (item && typeof item === "object") ? String(item.text || "") : String(item || "");
+      const actions = (result.priority_actions || []).map(item => `<li>${safe(itemText(item))}</li>`).join("");
+      const signals = (result.convergence_signals || []).map(item => `<li>${safe(itemText(item))}${item && item.scope === "depth_consensus" ? " <em>(within-instrument consensus)</em>" : ""}</li>`).join("");
       const contradictions = (result.contradictions || []).length
         ? (result.contradictions || []).map(item => `<li>${safe(item)}</li>`).join("")
         : "<li>No major contradiction signals were returned in this run.</li>";
@@ -1923,6 +2143,10 @@
     <div class="k">Annual cost*</div><div>${safe(annualCost)}</div>
     <div class="k">Capacity drag*</div><div>${safe(drag)}</div>
   </div>
+
+  ${result.synthesis_mode ? `<p class="callout"><strong>Read type:</strong> ${safe(result.synthesis_mode === "depth" ? `Depth read — ${result.respondent_count} respondents on ${((result.source_groups||[])[0]||{}).tool_label || "one instrument"}` : result.synthesis_mode === "mixed" ? `Mixed read — ${result.lens_count} instruments, ${result.respondent_count} runs` : `Cross-lens read — ${result.lens_count} instruments`)}</p>` : ""}
+  ${result.executive_briefing ? `<h2>1b. Executive briefing</h2>${result.executive_briefing.lede ? `<p><strong>${safe(result.executive_briefing.lede)}</strong></p>` : ""}${(result.executive_briefing.paragraphs || []).map(p => `<p>${safe(p)}</p>`).join("")}` : ""}
+  ${Array.isArray(result.sample_reads) && result.sample_reads.length ? `<h2>1c. Sample depth</h2>${result.sample_reads.map(sr => `<p><strong>${safe(sr.tool_label)}</strong> — ${sr.n} respondents (${safe(sr.depth_confidence_label || sr.depth_confidence)} sample): mean ${safe(String(sr.score.mean))}, sd ${safe(String(sr.score.sd))}, range ${safe(String(sr.score.min))}–${safe(String(sr.score.max))}. ${safe(sr.consensus.detail)}${sr.vantage_gap ? ` Vantage gap: ${safe(sr.vantage_gap.high_segment)} ${safe(String(sr.vantage_gap.high_mean))} vs ${safe(sr.vantage_gap.low_segment)} ${safe(String(sr.vantage_gap.low_mean))} (Δ${safe(String(sr.vantage_gap.gap))}).` : ""}</p>`).join("")}` : ""}
 
   <h2>2. Convergence signals</h2>
   <ul>${signals || "<li>No convergence signals returned.</li>"}</ul>
