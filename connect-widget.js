@@ -76,7 +76,7 @@
 
     var launch = el('button', { class: 'mdn-cn-launch', type: 'button', 'aria-haspopup': 'dialog', 'aria-expanded': 'false' },
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
-      '<path d="M4 6h16v10H8l-4 4V6z"></path></svg><span>Connect</span>');
+      '<path d="M22 2 11 13"></path><path d="M22 2 15 22l-4-9-9-4 20-7z"></path></svg><span>Connect</span>');
 
     var panel = el('div', { id: 'mdn-cn-panel', role: 'dialog', 'aria-label': 'Connect with Monderman' },
       '<div class="mdn-cn-head">' +
