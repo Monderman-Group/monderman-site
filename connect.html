@@ -3,16 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Platform Services | Monderman</title>
+  <title>Connect | Monderman</title>
+  <meta name="description" content="Discuss platform fit with Monderman — a structured conversation, not a sales call. Tell us what you're trying to govern; we reply within two business days." />
 
   <link
     rel="icon"
     type="image/svg+xml"
     href='data:image/svg+xml;utf8,
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-      <rect width="64" height="64" rx="10" fill="%230F1720"/>
-      <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23F5F7FA">M</text>
-      <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%233F6EA1"/>
+      <rect width="64" height="64" rx="10" fill="%2304181B"/>
+      <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23FAFAF8">M</text>
+      <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%230C6E78"/>
     </svg>'
   />
 
@@ -1349,10 +1350,55 @@
 
             <div class="contact-form-body">
               <form id="connectForm">
-                <div class="form-grid">
-                  <div class="field">
-                    <label for="inquiryType">Support type<span class="required-mark">*</span></label>
-                    <select id="inquiryType" name="inquiryType" required>
+<style>
+.cn-progress{display:flex;align-items:center;gap:10px;margin:0 0 22px;font-size:12.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#6E6F73;}
+.cn-progress .cn-dot{width:8px;height:8px;border-radius:50%;background:#D8D4CB;}
+.cn-progress .cn-dot.is-on{background:#0C6E78;}
+.cn-step[hidden]{display:none;}
+.cn-nav{display:flex;justify-content:space-between;align-items:center;margin-top:26px;gap:12px;}
+.cn-pill{appearance:none;border:1px solid rgba(24,22,18,.18);background:#FFF;border-radius:999px;padding:10px 22px;font-size:14px;font-weight:600;cursor:pointer;}
+.cn-pill-primary{background:#0C6E78;border-color:#0C6E78;color:#FFF;}
+.cn-step-note{font-size:13px;color:#6E6F73;margin:4px 0 18px;}
+</style>
+<div class="cn-progress" id="cnProgress" aria-live="polite">
+  <span class="cn-dot is-on" data-dot="1"></span><span class="cn-dot" data-dot="2"></span>
+  <span id="cnProgressLabel">Step 1 of 2 &middot; Start the thread</span>
+</div>
+
+<div class="cn-step" id="cnStep1">
+<p class="cn-step-note">Four fields open the conversation. Everything else is optional.</p>
+<div class="form-grid">
+<div class="field">
+                    <label for="fullName">Name<span class="required-mark">*</span></label>
+                    <input id="fullName" name="fullName" type="text" required />
+                  </div>
+<div class="field">
+                    <label for="workEmail">Work email<span class="required-mark">*</span></label>
+                    <input id="workEmail" name="workEmail" type="email" required placeholder="name@organization.com" />
+                    <small>Use your professional email when possible.</small>
+                  </div>
+<div class="field">
+                    <label for="organization">Organization<span class="required-mark">*</span></label>
+                    <input id="organization" name="organization" type="text" required />
+                  </div>
+<div class="field full">
+                    <label for="issueSummary">What support do you need?<span class="required-mark">*</span></label>
+                    <textarea id="issueSummary" name="issueSummary" placeholder="Briefly describe the support need, the platform constraint, or which service category seems closest to the help you need." required></textarea>
+                    <small>A short, clear description is enough. Do not include classified, proprietary, regulated, or personally sensitive information.</small>
+                  </div>
+</div>
+<div class="cn-nav">
+<span></span>
+<button type="button" class="cn-pill cn-pill-primary" id="cnNext">Continue &rarr;</button>
+</div>
+</div>
+
+<div class="cn-step" id="cnStep2" hidden>
+<p class="cn-step-note">Optional context &mdash; anything here helps us prepare, none of it is required.</p>
+<div class="form-grid">
+<div class="field">
+                    <label for="inquiryType">Support type<span class="optional-mark">Optional</span></label>
+                    <select id="inquiryType" name="inquiryType">
                       <option value="">Select one</option>
                       <option value="Implementation support">Implementation support</option>
                       <option value="Diagnostic design and tailoring">Diagnostic design and tailoring</option>
@@ -1362,10 +1408,9 @@
                       <option value="Other platform support">Other platform support</option>
                     </select>
                   </div>
-
-                  <div class="field">
-                    <label for="institutionType">Institution type<span class="required-mark">*</span></label>
-                    <select id="institutionType" name="institutionType" required>
+<div class="field">
+                    <label for="institutionType">Institution type<span class="optional-mark">Optional</span></label>
+                    <select id="institutionType" name="institutionType">
                       <option value="">Select one</option>
                       <option value="Private company">Private company</option>
                       <option value="Public company">Public company</option>
@@ -1378,8 +1423,7 @@
                       <option value="Other">Other</option>
                     </select>
                   </div>
-
-                  <div class="field">
+<div class="field">
                     <label for="orgSize">Approximate organizational size<span class="optional-mark">Optional</span></label>
                     <select id="orgSize" name="orgSize">
                       <option value="">Optional</option>
@@ -1391,8 +1435,7 @@
                       <option value="25000+">25,000+</option>
                     </select>
                   </div>
-
-                  <div class="field">
+<div class="field">
                     <label for="timeline">Timing<span class="optional-mark">Optional</span></label>
                     <select id="timeline" name="timeline">
                       <option value="">Optional</option>
@@ -1402,48 +1445,21 @@
                       <option value="Exploratory">Exploratory</option>
                     </select>
                   </div>
-
-                  <div class="field">
-                    <label for="fullName">Name<span class="required-mark">*</span></label>
-                    <input id="fullName" name="fullName" type="text" required />
-                  </div>
-
-                  <div class="field">
-                    <label for="workEmail">Work email<span class="required-mark">*</span></label>
-                    <input id="workEmail" name="workEmail" type="email" required placeholder="name@organization.com" />
-                    <small>Use your professional email when possible.</small>
-                  </div>
-
-                  <div class="field">
-                    <label for="organization">Organization<span class="required-mark">*</span></label>
-                    <input id="organization" name="organization" type="text" required />
-                  </div>
-
-                  <div class="field">
+<div class="field">
                     <label for="roleTitle">Role or title<span class="optional-mark">Optional</span></label>
                     <input id="roleTitle" name="roleTitle" type="text" placeholder="Optional" />
                   </div>
-
-                  <div class="field full">
-                    <label for="subjectLine">Subject<span class="required-mark">*</span></label>
-                    <input id="subjectLine" name="subjectLine" type="text" placeholder="Briefly state the support request" required />
+<div class="field full">
+                    <label for="subjectLine">Subject<span class="optional-mark">Optional</span></label>
+                    <input id="subjectLine" name="subjectLine" type="text" placeholder="Briefly state the support request" />
                   </div>
-
-                  <div class="field full">
-                    <label for="issueSummary">What support do you need?<span class="required-mark">*</span></label>
-                    <textarea id="issueSummary" name="issueSummary" placeholder="Briefly describe the support need, the platform constraint, or which service category seems closest to the help you need." required></textarea>
-                    <small>A short, clear description is enough. Do not include classified, proprietary, regulated, or personally sensitive information.</small>
-                  </div>
-
-                  <div class="field full">
+<div class="field full">
                     <label for="additionalContext">Additional context<span class="optional-mark">Optional</span></label>
                     <textarea id="additionalContext" name="additionalContext" placeholder="Optional: add context about implementation goals, operating environment, internal language, technical constraints, or why now."></textarea>
                   </div>
-                </div>
-
-                <div class="form-divider"></div>
-
-                <div class="privacy-box">
+</div>
+<div class="form-divider"></div>
+<div class="privacy-box">
                   <h4>Privacy notice</h4>
                   <p>
                     Monderman does not sell, share, or distribute contact information for any reason. Information submitted through this form is used only to review the inquiry and determine whether a response is warranted.
@@ -1456,21 +1472,20 @@
                     <span>I understand and agree to the privacy notice above.<span class="required-mark">*</span></span>
                   </label>
                 </div>
-
-                <div class="form-actions">
-                  <div class="form-actions-copy">
-                    <p>
-                      Required fields are marked with *. Monderman reviews support requests selectively. Not every request will require direct support, but well-scoped platform needs receive the strongest consideration.
-                    </p>
-                  </div>
-
-                  <div>
-                    <button class="btn btn-accent" type="submit" id="submitButton">Submit Request</button>
-                  </div>
-                </div>
-
-                <p class="status-note" id="statusNote" aria-live="polite"></p>
-              </form>
+<div class="form-actions">
+<div class="form-actions-copy">
+<p>
+Monderman reviews every submission directly and replies within two business days. Requests are reviewed selectively; well-scoped platform needs receive the strongest consideration.
+</p>
+</div>
+<div style="display:flex;gap:12px;align-items:center;">
+<button type="button" class="cn-pill" id="cnBack">&larr; Back</button>
+<button class="btn btn-accent" type="submit" id="submitButton">Submit Request</button>
+</div>
+</div>
+<p class="status-note" id="statusNote" aria-live="polite"></p>
+</div>
+</form>
             </div>
           </div>
 
@@ -1710,6 +1725,28 @@
     }
 
     if (connectForm) {
+      
+      // ─── Two-step wizard navigation ───
+      const cnStep1 = document.getElementById("cnStep1");
+      const cnStep2 = document.getElementById("cnStep2");
+      const cnLabel = document.getElementById("cnProgressLabel");
+      const cnDots = document.querySelectorAll("#cnProgress .cn-dot");
+      function cnShow(step) {
+        cnStep1.hidden = step !== 1;
+        cnStep2.hidden = step !== 2;
+        cnDots.forEach((d) => d.classList.toggle("is-on", Number(d.dataset.dot) <= step));
+        cnLabel.textContent = step === 1 ? "Step 1 of 2 \u00b7 Start the thread" : "Step 2 of 2 \u00b7 Optional context";
+        (step === 1 ? cnStep1 : cnStep2).querySelector("input, select, textarea")?.focus();
+      }
+      document.getElementById("cnNext").addEventListener("click", () => {
+        const step1Fields = cnStep1.querySelectorAll("input, textarea");
+        for (const f of step1Fields) {
+          if (!f.checkValidity()) { f.reportValidity(); f.focus(); return; }
+        }
+        cnShow(2);
+      });
+      document.getElementById("cnBack").addEventListener("click", () => cnShow(1));
+
       connectForm.addEventListener("submit", async (event) => {
         event.preventDefault();
 
@@ -1737,7 +1774,7 @@
           workEmail: safeValue("workEmail"),
           organization: safeValue("organization"),
           roleTitle: safeValue("roleTitle"),
-          subjectLine: safeValue("subjectLine"),
+          subjectLine: safeValue("subjectLine") || safeValue("issueSummary").slice(0, 60),
           issueSummary: safeValue("issueSummary"),
           additionalContext: safeValue("additionalContext")
         };
