@@ -26,20 +26,20 @@
 
   /* ── theme ─────────────────────────────────────────────────────────── */
   const T = {
-    ink: "#15202B",
+    ink: "#18191C",
     inkSoft: "#3A4754",
-    muted: "#828D99",
-    hairline: "rgba(21,32,43,.10)",
-    gridline: "rgba(21,32,43,.05)",
-    accent: "#3F6EA1",
-    accentDark: "#2F5886",
-    accentSoft: "rgba(63,110,161,.11)",
-    success: "#4F8069",
-    warning: "#A07F3D",
-    danger: "#9C4A54",
-    zoneHealthy: "rgba(79,128,105,.055)",
-    zoneStrained: "rgba(160,127,61,.06)",
-    zoneSevere: "rgba(156,74,84,.06)",
+    muted: "#9A9892",
+    hairline: "rgba(24,25,28,.10)",
+    gridline: "rgba(24,25,28,.05)",
+    accent: "#0C6E78",
+    accentDark: "#0C4A50",
+    accentSoft: "rgba(12,110,120,.11)",
+    success: "#3C8A60",
+    warning: "#C9821F",
+    danger: "#B0392F",
+    zoneHealthy: "rgba(60,138,96,.055)",
+    zoneStrained: "rgba(201,130,31,.06)",
+    zoneSevere: "rgba(176,57,47,.06)",
     fontAxis: "11px",
     fontLabel: "12.5px",
     fontValue: "13px"
@@ -109,8 +109,8 @@
     /* hatch pattern for the opportunity range */
     const defs = S("defs", {}, svg);
     const pat = S("pattern", { id: "mv-hatch", width: 6, height: 6, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" }, defs);
-    S("rect", { width: 6, height: 6, fill: "rgba(63,110,161,.07)" }, pat);
-    S("line", { x1: 0, y1: 0, x2: 0, y2: 6, stroke: "rgba(63,110,161,.35)", "stroke-width": 1.4 }, pat);
+    S("rect", { width: 6, height: 6, fill: "rgba(12,110,120,.07)" }, pat);
+    S("line", { x1: 0, y1: 0, x2: 0, y2: 6, stroke: "rgba(12,110,120,.35)", "stroke-width": 1.4 }, pat);
 
     /* reference bands (drawn under the axis) */
     const bandY = axY - 16, bandH = 32;
@@ -211,7 +211,7 @@
     const svg = mount(el, W, H, "Burden composition — share of total");
     if (!svg) return;
 
-    const palette = [T.accentDark, T.accent, "#6E93BC", "#9DB6CF", "#C3D2E1", "#DCE5EE"];
+    const palette = [T.accentDark, T.accent, "#3E8A92", "#7FB0B6", "#B5D0D3", "#DCE8E9"];
     let x = 0;
     const total = segs.reduce((s, g) => s + g.pct, 0) || 100;
     segs.forEach((g, i) => {
@@ -251,7 +251,7 @@
       S("rect", {
         x: c * (size + gap), y: r * (size + gap),
         width: size, height: size, rx: 1.5,
-        fill: absorbed ? "rgba(156,74,84,.72)" : "rgba(21,32,43,.07)"
+        fill: absorbed ? "rgba(176,57,47,.72)" : "rgba(24,25,28,.07)"
       }, svg);
     }
     const tx = gridW + 36;
@@ -289,7 +289,7 @@
         S("path", { d: `M ${cx - 12} 51 l 7 5 l -7 5`, fill: "none", stroke: T.hairline, "stroke-width": 1.5 }, svg);
       }
       /* number badge */
-      S("circle", { cx: cx + 14, cy: 18, r: 12, fill: i === 0 ? T.accentDark : "rgba(63,110,161,.14)" }, svg);
+      S("circle", { cx: cx + 14, cy: 18, r: 12, fill: i === 0 ? T.accentDark : "rgba(12,110,120,.14)" }, svg);
       txt(svg, cx + 14, 22.5, String(i + 1), { anchor: "middle", fill: i === 0 ? "#fff" : T.accentDark, size: "12px", weight: 700 });
       txt(svg, cx + 34, 14, titles[i] || "", { fill: T.muted, size: "10px", spacing: ".11em" });
       /* label — wrap to two lines max */
@@ -306,7 +306,7 @@
       if (sev !== null) {
         const chipY = line2 ? 64 : 48;
         const chipColor = sev >= 55 ? T.danger : sev >= 35 ? T.warning : T.success;
-        S("rect", { x: cx + 34, y: chipY, width: 86, height: 20, rx: 3, fill: "rgba(21,32,43,.04)" }, svg);
+        S("rect", { x: cx + 34, y: chipY, width: 86, height: 20, rx: 3, fill: "rgba(24,25,28,.04)" }, svg);
         S("circle", { cx: cx + 45, cy: chipY + 10, r: 4, fill: chipColor }, svg);
         txt(svg, cx + 54, chipY + 14, "severity " + Math.round(sev), { fill: T.inkSoft, size: "11px" });
       }
@@ -481,7 +481,7 @@
     const svg = mount(el, W, H, "Where annual labor capacity goes");
     if (!svg) return;
     S("defs", {}, svg);
-    const leafTints = ["rgba(156,74,84,.90)", "rgba(156,74,84,.70)", "rgba(156,74,84,.54)", "rgba(156,74,84,.40)", "rgba(156,74,84,.28)"];
+    const leafTints = ["rgba(176,57,47,.90)", "rgba(176,57,47,.70)", "rgba(176,57,47,.54)", "rgba(176,57,47,.40)", "rgba(176,57,47,.28)"];
 
     /* column A — total */
     const hA = hOf(totalCost), yA = top;
