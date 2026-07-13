@@ -58,14 +58,15 @@
     '.mdn-cn-field label em{font-style:normal; font-weight:500; color:var(--cn-muted);}',
     '.mdn-cn-field input,.mdn-cn-field select,.mdn-cn-field textarea{',
     '  width:100%; border:1px solid var(--cn-line); border-radius:8px; background:#FCFBF8;',
-    '  padding:8px 10px; font:400 13px/1.45 inherit; color:var(--cn-ink);',
+    '  padding:8px 10px; font-family:inherit; font-size:13px; font-weight:400; line-height:1.45; color:var(--cn-ink);',
     '}',
     '.mdn-cn-field textarea{min-height:64px; resize:vertical;}',
+    '.mdn-cn-field input::placeholder,.mdn-cn-field textarea::placeholder{color:#9A9892; opacity:1; font-family:inherit;}',
     '.mdn-cn-field input:focus,.mdn-cn-field select:focus,.mdn-cn-field textarea:focus{outline:none; border-color:var(--cn-accent); box-shadow:0 0 0 3px var(--cn-ring);}',
     '.mdn-cn-consent{display:flex; gap:8px; align-items:flex-start; font-size:11.5px; color:var(--cn-muted); line-height:1.5; margin:10px 0 4px;}',
     '.mdn-cn-consent input{margin-top:2px; accent-color:var(--cn-accent);}',
     '.mdn-cn-nav{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:12px;}',
-    '.mdn-cn-pill{appearance:none; border:1px solid var(--cn-line); background:var(--cn-surface); border-radius:999px; padding:9px 18px; font:600 13px/1 inherit; cursor:pointer; color:var(--cn-ink);}',
+    '.mdn-cn-pill{appearance:none; border:1px solid var(--cn-line); background:var(--cn-surface); border-radius:999px; padding:9px 18px; font-family:inherit; font-size:13px; font-weight:600; line-height:1; cursor:pointer; color:var(--cn-ink);}',
     '.mdn-cn-pill-primary{background:var(--cn-accent); border-color:var(--cn-accent); color:var(--cn-accent-ink);}',
     '.mdn-cn-pill[disabled]{opacity:.55; cursor:default;}',
     '.mdn-cn-status{font-size:12px; margin:10px 0 0; color:var(--cn-muted); min-height:1em;}',
@@ -115,7 +116,7 @@
     field('fullName', 'Full name', inp('fullName', 'text', true)) +
     field('workEmail', 'Work email', inp('workEmail', 'email', true)) +
     field('organization', 'Organization', inp('organization', 'text', true)) +
-    field('issueSummary', 'What are you trying to govern?', ta('issueSummary', true, 'The condition, question, or decision in front of you.')) +
+    field('issueSummary', 'What would you like to discuss?', ta('issueSummary', true, 'A sentence or two is plenty.')) +
     '<div class="mdn-cn-nav"><span></span><button type="button" class="mdn-cn-pill mdn-cn-pill-primary" id="mdncn-next">Continue \u2192</button></div>';
 
   var STEP2 =
