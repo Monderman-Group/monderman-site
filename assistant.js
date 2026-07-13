@@ -167,16 +167,3 @@
   });
   render();
 })();
-/* ----------------------------------------------------------------------------
-   Feedback widget loader (added) — rides along on every page that already loads
-   assistant.js, so the feedback button needs no per-page edits. Requires
-   feedback-widget.js to also sit at the site root. Fully independent of the
-   assistant code above; delete this block to remove the feedback widget.
-   ---------------------------------------------------------------------------- */
-(function () {
-  if (window.__mondermanFeedbackLoaded) return;   // skip if a page already loads it directly
-  var s = document.createElement("script");
-  s.src = "feedback-widget.js";
-  s.defer = true;
-  document.head.appendChild(s);
-})();
