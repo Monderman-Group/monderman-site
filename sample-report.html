@@ -42,7 +42,10 @@
       --muted-2: #9A9892;
       --line: #EAE6DD;
       --line-2: #EAE6DD;
-      --header-solid: rgba(14,20,28,0.92);
+      --header-solid: rgba(9,57,62,0.87);
+      --header-border: rgba(255,255,255,0.08);
+      --max: 1320px;
+      --transition: 220ms cubic-bezier(0.16, 1, 0.3, 1);
       --warn-bg: #FAFAF8;
       --warn-border: #EAE6DD;
       --warn-icon-bg: #FAFAF8;
@@ -71,40 +74,90 @@
     /* Site header */
     .header {
       position: sticky; top: 0; z-index: 100;
+      height: 72px;
       background: var(--header-solid);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--header-border);
       color: var(--text-light);
     }
     .header-inner {
-      max-width: 1240px;
+      max-width: var(--max);
+      height: 100%;
       margin: 0 auto;
-      padding: 16px 28px;
+      padding: 0 34px;
       display: flex; align-items: center; justify-content: space-between; gap: 24px;
     }
     .brand {
-      font-weight: 700; font-size: 1.32rem; letter-spacing: -0.02em;
-      display: inline-flex; align-items: center; gap: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0;
+      font-size: 1.32rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      white-space: nowrap;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.16);
     }
-    .brand-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 1px; display: inline-block; }
-    .nav { display: flex; align-items: center; gap: 22px; }
+    .brand-dot {
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+      flex-shrink: 0;
+    }
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: nowrap;
+      justify-content: flex-end;
+    }
     .nav a {
-      font-size: 0.88rem; font-weight: 500;
-      color: rgba(255,255,255,0.84);
-      transition: color 180ms ease;
+      position: relative;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.012em;
+      color: rgba(255,255,255,0.88);
+      transition: color var(--transition), transform var(--transition), opacity var(--transition);
+      white-space: nowrap;
     }
-    .nav a:hover { color: #FFFFFF; }
+    .nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -6px;
+      width: 100%;
+      height: 1px;
+      background: currentColor;
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 180ms ease;
+    }
+    .nav a:hover,
+    .nav a:focus-visible { color: #FFFFFF; transform: translateY(-1px); outline: none; }
+    .nav a:hover::after,
+    .nav a:focus-visible::after { transform: scaleX(1); }
     .nav a.workspace-link {
       display: inline-flex; align-items: center; justify-content: center;
-      min-height: 36px; padding: 0 13px;
+      min-height: 38px; padding: 0 14px;
       border-radius: 7px;
       border: 1px solid rgba(255,255,255,0.16);
       background: rgba(255,255,255,0.06);
-      color: #FFFFFF !important;
+      color: #FFFFFF;
       font-weight: 500; white-space: nowrap;
     }
-    .nav a.workspace-link:hover { background: rgba(255,255,255,0.10); }
+    .nav a.workspace-link::after { display: none; }
+    .nav a.workspace-link:hover,
+    .nav a.workspace-link:focus-visible {
+      background: rgba(255,255,255,0.10);
+      border-color: rgba(255,255,255,0.24);
+      color: #FFFFFF;
+      transform: none;
+    }
 
     /* Report meta bar */
     .meta-bar {
@@ -176,6 +229,22 @@
       background: var(--accent); margin-top: 7px;
     }
     .notice strong { font-weight: 600; }
+
+    /* Pinned intro — the report sheet scrolls over it */
+    .intro-pin { position: relative; z-index: 1; }
+    .report-sheet { position: relative; z-index: 2; background: var(--bg-white); }
+    @media (min-width: 761px) {
+      .intro-pin { position: sticky; top: var(--pin-top, 64px); }
+      .report-sheet {
+        border-radius: 26px 26px 0 0;
+        box-shadow: 0 -24px 56px rgba(24,25,28,.16), 0 -1px 0 rgba(24,25,28,.06);
+      }
+      .report-sheet > .dx-tabs-wrap { border-radius: 26px 26px 0 0; }
+    }
+    @media print {
+      .intro-pin { position: static !important; opacity: 1 !important; transform: none !important; }
+      .report-sheet { box-shadow: none; border-radius: 0; }
+    }
 
     /* Document layout */
     .doc-shell {
@@ -713,7 +782,8 @@
       .toc-mobile { display: block; }
     }
 
-    @media (max-width: 760px) {
+    @media (max-width: 980px) {
+      .header { height: auto; }
       .header-inner {
         padding: 12px 20px 10px;
         align-items: flex-start;
@@ -723,6 +793,7 @@
       .nav {
         width: 100%;
         gap: 10px;
+        justify-content: flex-start;
         overflow-x: auto;
         flex-wrap: nowrap;
         scrollbar-width: none;
@@ -740,6 +811,11 @@
         border: 1px solid rgba(255,255,255,0.08);
         white-space: nowrap;
       }
+      .nav a::after { display: none; }
+      .nav a:hover,
+      .nav a:focus-visible { transform: none; }
+    }
+    @media (max-width: 760px) {
       .meta-bar-inner { padding: 12px 20px; }
       .notice-inner { padding: 12px 20px; font-size: 0.88rem; }
       .toc-mobile { padding: 10px 20px; }
@@ -1411,6 +1487,7 @@
   </div>
 </div>
 
+<div class="intro-pin">
 <div style="margin:0 auto 30px;max-width:1100px;padding:0 28px;box-sizing:border-box;">
         <p class="syn-gauge-band" style="margin-top:0;">Monderman &middot; Sample library</p>
         <h1 style="margin:8px 0 14px;">Sample reports</h1>
@@ -1425,10 +1502,10 @@
     </p>
   </div>
 </div>
+</div><!-- /intro-pin -->
 
-
-      
-      <div class="dx-tabs-wrap">
+<div class="report-sheet">
+<div class="dx-tabs-wrap">
   <div style="max-width:1100px;margin:0 auto;padding:14px 20px 0;font-size:13px;color:#6E6F73;">Four complete sample deliverables. How these numbers are produced &mdash; <a href="roi.html" style="color:#0C6E78;text-decoration:none;border-bottom:1px solid rgba(12,110,120,.35);padding-bottom:1px;">ROI &amp; Method &rarr;</a></div>
 <div class="dx-tabs" role="tablist" aria-label="Choose a diagnostic">
     <button class="dx-tab is-active" data-target="os" role="tab" aria-selected="true">
@@ -2256,18 +2333,6 @@
 </section>
 
 <section class="report-shell" data-report="synthesis" hidden>
-      <div class="syn-viz-panel" style="margin-top:22px;">
-        <p class="syn-viz-title">How the exposure figure is built</p>
-        <p class="syn-viz-sub">The overlap discount is applied before the composite is reported; the engine then identifies the share of the composite sustained by informal effort.</p>
-        <svg viewBox="0 0 640 300" role="img" aria-label="Composite exposure split" style="display:block;font-family:inherit;font-variant-numeric:tabular-nums lining-nums;-webkit-font-smoothing:antialiased;">
-  <text x="0" y="16" font-size="10" font-weight="700" fill="#6E6F73" letter-spacing=".14em">EXPOSURE FLOW &middot; MEDIAN OF 104 ESTIMATES &middot; OVERLAP FACTOR 0.85 ALREADY APPLIED</text>
-  <path d="M136,46 C233.0,46 233.0,46 330,46 L330,130 C233.0,130 233.0,130 136,130 Z" fill="#B0392F" opacity="0.5"/>
-  <path d="M136,130 C233.0,130 233.0,144 330,144 L330,280 C233.0,280 233.0,266 136,266 Z" fill="#9A9892" opacity="0.45"/>
-  <rect x="8" y="46" width="128" height="220" rx="7" fill="#E8E4DA"/><text x="144" y="59" font-size="10.5" font-weight="700" fill="#18191C">Composite exposure</text><text x="144" y="73" font-size="10" fill="#6E6F73">$3,349,960 &middot; 31,243 hrs</text>
-  <rect x="330" y="46" width="128" height="84" rx="7" fill="#B0392F"/><text x="466" y="59" font-size="10.5" font-weight="700" fill="#18191C">Informal-effort compensation</text><text x="466" y="73" font-size="10" fill="#6E6F73">$1,272,948 &middot; 11,872 hrs</text>
-  <rect x="330" y="144" width="128" height="136" rx="7" fill="#9A9892"/><text x="466" y="157" font-size="10.5" font-weight="700" fill="#18191C">Structural remainder</text><text x="466" y="171" font-size="10" fill="#6E6F73">$2,077,012 &middot; 19,371 hrs</text>
-</svg>
-      </div>
   <div class="doc-shell">
   <main class="doc-body">
 
@@ -2334,7 +2399,7 @@
         <div class="syn-gauge-caption">
           <p class="syn-gauge-band">Composite condition band</p>
           <p class="syn-gauge-desc">One number for the whole read: <strong>64 / 100</strong>, from 104 respondents across four instruments. The four instruments partly measure the same hours, so the engine discounts the overlap instead of double-counting it (factor 0.85).</p>
-          <p class="syn-gauge-context">Use the composite to track direction over time. Use the pages that follow to decide what to do. The composite tells you how heavy the condition is; it does not tell you where to start &mdash; the actions on page 7 do.</p>
+          <p class="syn-gauge-context">Use the composite to track direction over time. Use the pages that follow to decide what to do. The composite tells you how heavy the condition is; it does not tell you where to start &mdash; the actions on page 8 do.</p>
         </div>
       </div>
     </section>
@@ -2448,9 +2513,29 @@
       </div>
     </section>
 
-    <!-- 07. PRIORITY ACTIONS -->
+    <!-- 07. EXPOSURE -->
+    <section class="section" id="synthesis-exposure">
+      <p class="section-eyebrow">What the condition costs <span class="pg">Page 7</span></p>
+      <h2>Exposure: a median, not a sum</h2>
+      <p class="lede">Directional total exposure reads at $3,349,960 a year across 31,243 hours, with the respondent-estimate range running $2,877,792&ndash;$4,321,915. Estimated effective capacity drag: 25%.</p>
+      <div class="syn-viz-panel">
+        <p class="syn-viz-title">How the exposure figure is built</p>
+        <p class="syn-viz-sub">The overlap discount is applied before the composite is reported; the engine then identifies the share of the composite sustained by informal effort.</p>
+        <svg viewBox="0 0 640 300" role="img" aria-label="Composite exposure split" style="display:block;font-family:inherit;font-variant-numeric:tabular-nums lining-nums;-webkit-font-smoothing:antialiased;">
+  <text x="0" y="16" font-size="10" font-weight="700" fill="#6E6F73" letter-spacing=".14em">EXPOSURE FLOW &middot; MEDIAN OF 104 ESTIMATES &middot; OVERLAP FACTOR 0.85 ALREADY APPLIED</text>
+  <path d="M136,46 C233.0,46 233.0,46 330,46 L330,130 C233.0,130 233.0,130 136,130 Z" fill="#B0392F" opacity="0.5"/>
+  <path d="M136,130 C233.0,130 233.0,144 330,144 L330,280 C233.0,280 233.0,266 136,266 Z" fill="#9A9892" opacity="0.45"/>
+  <rect x="8" y="46" width="128" height="220" rx="7" fill="#E8E4DA"/><text x="144" y="59" font-size="10.5" font-weight="700" fill="#18191C">Composite exposure</text><text x="144" y="73" font-size="10" fill="#6E6F73">$3,349,960 &middot; 31,243 hrs</text>
+  <rect x="330" y="46" width="128" height="84" rx="7" fill="#B0392F"/><text x="466" y="59" font-size="10.5" font-weight="700" fill="#18191C">Informal-effort compensation</text><text x="466" y="73" font-size="10" fill="#6E6F73">$1,272,948 &middot; 11,872 hrs</text>
+  <rect x="330" y="144" width="128" height="136" rx="7" fill="#9A9892"/><text x="466" y="157" font-size="10.5" font-weight="700" fill="#18191C">Structural remainder</text><text x="466" y="171" font-size="10" fill="#6E6F73">$2,077,012 &middot; 19,371 hrs</text>
+</svg>
+      </div>
+      <p class="muted" style="margin-top:12px;">Informal-effort cost across the four instruments spans $2,847,466&ndash;$3,852,454 per year; the correction horizon the engine attaches to this condition is 24&ndash;32 weeks. Within each instrument, the exposure point is the median of respondent estimates (IQR carried as the range); across 4 instruments, points are summed with a ×0.85 cross-lens overlap discount.</p>
+    </section>
+
+    <!-- 08. PRIORITY ACTIONS -->
     <section class="section" id="synthesis-actions">
-      <p class="section-eyebrow">Where to start, and why in this order <span class="pg">Page 7</span></p>
+      <p class="section-eyebrow">Where to start, and why in this order <span class="pg">Page 8</span></p>
       <h2>Priority actions</h2>
       <p>Three moves, in sequence. The order is the point: fixing overhead before fixing decision authority treats the symptom and leaves the cause &mdash; and the cause will grow the overhead back.</p>
       <div class="syn-action">
@@ -2478,9 +2563,9 @@
       </div>
     </section>
 
-    <!-- 08. EXPERIENTIAL -->
+    <!-- 09. EXPERIENTIAL -->
     <section class="section" id="synthesis-experiential">
-      <p class="section-eyebrow">How the condition is experienced <span class="pg">Page 8</span></p>
+      <p class="section-eyebrow">How the condition is experienced <span class="pg">Page 9</span></p>
       <h2>Three seats, one condition</h2>
       <p>Each paragraph below is built from the 104 responses &mdash; how many people sit in that seat, what their numbers say, and what the pattern looks like from where they work.</p>
       <div class="syn-signal">
@@ -2497,11 +2582,11 @@
       </div>
     </section>
 
-    <!-- 09. LEADING INDICATORS -->
+    <!-- 10. LEADING INDICATORS -->
     <section class="section" id="synthesis-indicators">
-      <p class="section-eyebrow">What to watch from here <span class="pg">Page 9</span></p>
+      <p class="section-eyebrow">What to watch from here <span class="pg">Page 10</span></p>
       <h2>Leading indicators</h2>
-      <p>Five measures that will move before the composite does. If the actions on page 7 are working, these show it first.</p>
+      <p>Five measures that will move before the composite does. If the actions on page 8 are working, these show it first.</p>
       <div class="syn-indicators-grid">
         <div class="syn-indicator-tile" data-lens="os">
           <p class="syn-indicator-lens">OS · Operational Systems</p>
@@ -2536,18 +2621,18 @@
       </div>
     </section>
 
-    <!-- 10. LEADERSHIP READ -->
+    <!-- 11. LEADERSHIP READ -->
     <section class="section" id="synthesis-narrative">
-      <p class="section-eyebrow">The read in three paragraphs <span class="pg">Page 10</span></p>
+      <p class="section-eyebrow">The read in three paragraphs <span class="pg">Page 11</span></p>
       <h2>Leadership read</h2>
       <p class="lede">An assessment across 4 Monderman instruments and 104 runs (Operational Systems × 26, Decision Velocity × 26, Structural Clarity × 26, Institutional Performance × 26) reads the operating condition as broad administrative cost overhang. Unclear decision authority is driving downstream cost and reducing organizational responsiveness. Directional total exposure currently reads at roughly 31,243 annual hours, $3,349,960 (respondent-estimate range $2,877,792–$4,321,915) in annual labor cost, and about 25% effective capacity loss.</p>
       <p>The most important leadership implication is that multiple assessments are reinforcing one another rather than describing isolated local problems. Multiple assessments point to unclear decision authority as a structural cause, not isolated symptoms.</p>
       <p>First move: Clarify decision authority, ownership, and handoff logic before adding new controls or redesigning downstream process. Second move: Address decision-making cost only after the underlying authority questions are resolved. Do not ignore this contradiction: Structure appears clearer than the operating environment feels. Core organizational logic may be workable, but surrounding process overhead is too heavy.</p>
     </section>
 
-    <!-- 11. CONFIDENCE -->
+    <!-- 12. CONFIDENCE -->
     <section class="section" id="synthesis-strengthen">
-      <p class="section-eyebrow">How firmly this read stands <span class="pg">Page 11</span></p>
+      <p class="section-eyebrow">How firmly this read stands <span class="pg">Page 12</span></p>
       <h2>Confidence &amp; insight depth</h2>
       <p>Every claim above is graded. Because all four instruments were run with real respondent numbers behind each, the engine is allowed to say which problem is upstream &mdash; and it does.</p>
       <div class="syn-signal">
@@ -2573,9 +2658,9 @@
       <p>This score sits at the top of the scale because the read has all three things that raise it: four instruments, 26 respondents behind each, and all three seats represented. A single run scores 8&ndash;10 by design; everything above that is earned with data, not written into the report. Basis, from the engine: <em>&ldquo;Composite of instrument breadth (4 lenses → 48), respondent depth (max 26 per instrument → 30), and vantage coverage (3 vantages → 14). Single runs cap at 8 by design; this composite is where added data spends the remaining points.&rdquo;</em></p>
     </section>
 
-    <!-- 12. METHOD -->
+    <!-- 13. METHOD -->
     <section class="section" id="synthesis-method">
-      <p class="section-eyebrow">How this was produced <span class="pg">Page 12</span></p>
+      <p class="section-eyebrow">How this was produced <span class="pg">Page 13</span></p>
       <h2>How this was produced</h2>
       <p><strong>Collection.</strong> 104 people completed the four instruments through campaign administration &mdash; 26 per instrument, each with a single-use assignment and a declared seat (operational, managerial, or senior), so comparisons between seats are measurement, not self-selection. Respondents described units of roughly 60&ndash;180 people at loaded labor rates of $95&ndash;125 per hour; every dollar figure on these pages is computed by the per-instrument scoring formulas from those inputs. Every run was scored deterministically: same inputs, same score, every time.</p>
       <p><strong>Synthesis.</strong> The engine groups the runs by instrument, then works only with what the four readings jointly support. Exposure is the <strong>median</strong> of the 104 respondent estimates &mdash; estimates of one organization&rsquo;s cost do not add up 104 times &mdash; with the middle 50% carried as the honest range, and an overlap discount (factor 0.85) applied because the four instruments partly measure the same hours. In the engine&rsquo;s words: <em>&ldquo;Within each instrument, the exposure point is the median of respondent estimates (IQR carried as the range); across 4 instruments, points are summed with a ×0.85 cross-lens overlap discount.&rdquo;</em></p>
@@ -2593,12 +2678,13 @@
       <li><a href="#synthesis-lenses" data-section="synthesis-lenses"><span class="toc-num">04</span>Four assessments</a></li>
       <li><a href="#synthesis-convergence" data-section="synthesis-convergence"><span class="toc-num">05</span>Convergence signals</a></li>
       <li><a href="#synthesis-contradictions" data-section="synthesis-contradictions"><span class="toc-num">06</span>Contradictions</a></li>
-      <li><a href="#synthesis-actions" data-section="synthesis-actions"><span class="toc-num">07</span>Priority actions</a></li>
-      <li><a href="#synthesis-experiential" data-section="synthesis-experiential"><span class="toc-num">08</span>Cross-org experience</a></li>
-      <li><a href="#synthesis-indicators" data-section="synthesis-indicators"><span class="toc-num">09</span>Leading indicators</a></li>
-      <li><a href="#synthesis-narrative" data-section="synthesis-narrative"><span class="toc-num">10</span>Leadership read</a></li>
-      <li><a href="#synthesis-strengthen" data-section="synthesis-strengthen"><span class="toc-num">11</span>Evidence trail</a></li>
-      <li><a href="#synthesis-method" data-section="synthesis-method"><span class="toc-num">12</span>How this was produced</a></li>
+      <li><a href="#synthesis-exposure" data-section="synthesis-exposure"><span class="toc-num">07</span>Exposure</a></li>
+      <li><a href="#synthesis-actions" data-section="synthesis-actions"><span class="toc-num">08</span>Priority actions</a></li>
+      <li><a href="#synthesis-experiential" data-section="synthesis-experiential"><span class="toc-num">09</span>Cross-org experience</a></li>
+      <li><a href="#synthesis-indicators" data-section="synthesis-indicators"><span class="toc-num">10</span>Leading indicators</a></li>
+      <li><a href="#synthesis-narrative" data-section="synthesis-narrative"><span class="toc-num">11</span>Leadership read</a></li>
+      <li><a href="#synthesis-strengthen" data-section="synthesis-strengthen"><span class="toc-num">12</span>Evidence trail</a></li>
+      <li><a href="#synthesis-method" data-section="synthesis-method"><span class="toc-num">13</span>How this was produced</a></li>
     </ol>
   </aside>
   </div>
@@ -2764,7 +2850,7 @@
 </section>
 
   <footer class="footer mond-footer">
-    <div class="mf-motif" aria-hidden="true"><svg width="280" height="280" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#146C75" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#3E8A92" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#146C75" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#146C75" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#3E8A92" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#146C75" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#4E9098" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#9A9892" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#A9CFD2" stroke-width="0.4" opacity="0.13"/><circle cx="86" cy="-35" r="2.8" fill="#0C6E78" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#3E8A92" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#0C6E78" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#C9821F" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#3E8A92" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#0C6E78" opacity="0.58"/></svg></div>
+    <div class="mf-motif" aria-hidden="true"><svg width="280" height="280" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#146C75" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#3E8A92" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#146C75" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#146C75" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#3E8A92" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#146C75" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#4E9098" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8FC4C9" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#A9CFD2" stroke-width="0.4" opacity="0.13"/><circle cx="86" cy="-35" r="2.8" fill="#0C6E78" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#3E8A92" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#0C6E78" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#C9821F" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#3E8A92" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#0C6E78" opacity="0.58"/></svg></div>
     <div class="mf-inner">
       <div class="mf-top">
         <div class="mf-brand">
@@ -2802,6 +2888,7 @@
       </div>
     </div>
   </footer>
+</div><!-- /report-sheet -->
 
 <script>
   (function () {
@@ -2864,6 +2951,34 @@
       }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
       sections.forEach(function (s) { observer.observe(s); });
     }
+  })();
+
+  // Pinned intro: the report sheet scrolls over it. Measure the sticky
+  // header for the pin offset; fade + drift the intro as it gets covered.
+  (function () {
+    var header = document.querySelector('.header');
+    var pin = document.querySelector('.intro-pin');
+    var sheet = document.querySelector('.report-sheet');
+    if (!header || !pin || !sheet) return;
+    var mq = window.matchMedia('(min-width: 761px)');
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    function setTop() {
+      document.documentElement.style.setProperty('--pin-top', (header.offsetHeight + 8) + 'px');
+    }
+    var ticking = false;
+    function paint() {
+      ticking = false;
+      if (!mq.matches) { pin.style.opacity = ''; pin.style.transform = ''; return; }
+      var pr = pin.getBoundingClientRect();
+      var sr = sheet.getBoundingClientRect();
+      var covered = Math.min(Math.max((pr.bottom - sr.top) / Math.max(pr.height, 1), 0), 1);
+      pin.style.opacity = String(1 - covered * 0.65);
+      pin.style.transform = reduce.matches ? '' : 'translateY(' + (-covered * 20).toFixed(1) + 'px)';
+    }
+    function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(paint); } }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', function () { setTop(); onScroll(); });
+    setTop(); paint();
   })();
 </script>
 
