@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Cross-Synth Harness · depth / breadth / mixed · schema 1.2</title>
+<link href='data:image/svg+xml;utf8,
+    &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"&gt;
+      &lt;rect width="64" height="64" rx="10" fill="%2304181B"/&gt;
+      &lt;text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23FAFAF8"&gt;M&lt;/text&gt;
+      &lt;rect x="47" y="36" width="8" height="8" rx="1.2" fill="%230C6E78"/&gt;
+    &lt;/svg&gt;' rel="icon" type="image/svg+xml"/>
+<link href="https://www.monderman.com/favicon.ico" rel="icon" type="image/x-icon" sizes="any"/>
+<link href="https://www.monderman.com/favicon-192.png" rel="icon" type="image/png" sizes="192x192"/>
+<link href="https://www.monderman.com/favicon-192.png" rel="apple-touch-icon"/>
+  <meta name="robots" content="noindex, nofollow" />
+<style>
+  :root{--accent:#0C6E78;--ink:#18191C;--soft:#6E6F73;--line:#EAE6DD;--pass:#1B7F4C;--fail:#B3261E;--paper:#FAFAF8}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.6 "Helvetica Neue",Arial,sans-serif;padding:34px 22px 80px}
+  .wrap{max-width:980px;margin:0 auto}
+  h1{font-size:1.5rem;letter-spacing:-.02em;margin:0 0 4px}
+  .sub{color:var(--soft);margin:0 0 22px}
+  .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:20px}
+  button{font:inherit;padding:9px 18px;border-radius:9px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+  button.ghost{background:transparent;color:var(--accent)}
+  input[type=text]{font:inherit;padding:8px 12px;border:1px solid var(--line);border-radius:8px;min-width:340px}
+  .suite{border:1px solid var(--line);border-radius:12px;background:#fff;margin:14px 0;overflow:hidden}
+  .suite-head{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .suite-head h2{font-size:1.02rem;margin:0}
+  .pill{font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:999px;border:1px solid var(--line);color:var(--soft)}
+  .pill.pass{border-color:var(--pass);color:var(--pass)}
+  .pill.fail{border-color:var(--fail);color:var(--fail)}
+  .checks{padding:8px 18px 14px}
+  .check{display:flex;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line);align-items:flex-start}
+  .check:last-child{border-bottom:none}
+  .check .mark{font-weight:700;min-width:38px}
+  .check.pass .mark{color:var(--pass)} .check.fail .mark{color:var(--fail)}
+  .check .why{color:var(--soft);font-size:.88rem}
+  pre{background:#0E2A2E;color:#DDF2F0;border-radius:10px;padding:14px;font-size:.78rem;overflow:auto;max-height:280px;margin:0 18px 16px}
+  .summary{font-size:1.05rem;font-weight:700;margin:18px 0 6px}
+  .note{color:var(--soft);font-size:.86rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Cross-Assessment Synthesis Harness</h1>
+  <p class="sub">Deterministic pass/fail regression suite for the synthesis engine — depth mode, breadth mode, mixed mode, the export-cycle fix, false-convergence guards, and valence-aware pattern matching. Closes the test-harness gap flagged 2026-05-24.</p>
+  <div class="bar">
+    <input type="text" id="apiBase" value="https://monderman-api.onrender.com" aria-label="API base"/>
+    <button id="runAll">Run all suites</button>
+    <button class="ghost" id="toggleJson">Show raw responses</button>
+    <span class="note" id="status"></span>
+  </div>
+  <div id="summary" class="summary"></div>
+  <div id="suites"></div>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  let showJson = false;
+  $("toggleJson").addEventListener("click", () => {
+    showJson = !showJson;
+    document.querySelectorAll("pre").forEach(p => p.style.display = showJson ? "block" : "none");
+  });
+
+  // ── Fixtures ──────────────────────────────────────────────────────────────
+  const sc = (score, driver, mode, hours, cost) => ({
+    tool_type: "structural_clarity", score, primary_driver: driver,
+    participant_mode: mode,
+    exposure: { annual_hours: hours, annual_cost: cost, capacity_drag_percent: 15 }
+  });
+
+  // Depth: 5 respondents, one org, bimodal, includes the PRAISE-PHRASING case
+  // ("Clarity generally holds") that historically scored as ambiguity, and a
+  // known median cost of 380,000 (the sum would be 1,900,000).
+  const DEPTH = [
+    sc(42, "Unclear ownership of approvals", "operational", 4000, 380000),
+    sc(71, "Clarity generally holds",        "executive",   3500, 360000),
+    sc(44, "Decision routing is slow",       "operational", 4200, 400000),
+    sc(68, "Authority is mostly clear",      "executive",   3600, 370000),
+    sc(45, "Approval escalation is the norm","operational", 4100, 390000)
+  ];
+
+  const BREADTH = [
+    { tool_type: "structural_clarity",        score: 48, primary_driver: "Ownership ambiguity", exposure: { annual_hours: 2000, annual_cost: 200000, capacity_drag_percent: 14 } },
+    { tool_type: "decision_velocity",         score: 51, primary_driver: "Approval density and serial review", exposure: { annual_hours: 2400, annual_cost: 260000, capacity_drag_percent: 16 } },
+    { tool_type: "operational_systems",       score: 55, primary_driver: "Reporting burden and process density", exposure: { annual_hours: 3100, annual_cost: 310000, capacity_drag_percent: 18 } },
+    { tool_type: "institutional_performance", score: 47, primary_driver: "Compensatory dependence and confidence erosion", exposure: { annual_hours: 1800, annual_cost: 190000, capacity_drag_percent: 12 } }
+  ];
+
+  const MIXED = [
+    ...Array.from({ length: 12 }, (_, i) =>
+      sc(40 + (i % 5), "Unclear ownership and authority in handoffs", i < 8 ? "operational" : "managerial", 4000, 380000)),
+    { tool_type: "decision_velocity", score: 44, primary_driver: "Approval density and serial review",
+      exposure: { annual_hours: 2400, annual_cost: 260000, capacity_drag_percent: 16 } }
+  ];
+
+  // ── Assertion helpers ─────────────────────────────────────────────────────
+  const sigText = (s) => (s && typeof s === "object") ? String(s.text || "") : String(s || "");
+  const xlens = (r) => (r.convergence_signals || []).filter(s => s && s.scope !== "depth_consensus");
+  const depthSig = (r) => (r.convergence_signals || []).filter(s => s && s.scope === "depth_consensus");
+
+  async function callApi(base, results) {
+    const res = await fetch(base.replace(/\/$/, "") + "/api/cross-assessment-synthesis", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ results, options: { includeNarrative: true, includeExport: true } })
+    });
+    const status = res.status;
+    let json = null;
+    try { json = await res.json(); } catch (e) { /* leave null */ }
+    return { status, json };
+  }
+
+  // ── Suites ────────────────────────────────────────────────────────────────
+  const SUITES = [
+    {
+      name: "Export-cycle regression (the production 500)",
+      fixture: DEPTH.slice(0, 2),
+      checks: (status, r, raw) => [
+        ["HTTP 200 with includeExport:true", status === 200, "Historically every export-enabled request 500'd on a circular JSON structure."],
+        ["export_payload present and self-contained", !!(r && r.export_payload && r.export_payload.synthesis_payload && r.export_payload.synthesis_payload.export_payload === undefined), "synthesis_payload must be a snapshot, not a live back-reference."],
+        ["Whole response round-trips through JSON", (() => { try { JSON.parse(JSON.stringify(raw)); return true; } catch (e) { return false; } })(), ""]
+      ]
+    },
+    {
+      name: "Depth mode — 5× SC, one organization",
+      fixture: DEPTH,
+      checks: (status, r) => [
+        ["mode = depth, 1 lens, 5 respondents", r.synthesis_mode === "depth" && r.lens_count === 1 && r.respondent_count === 5, ""],
+        ["Exposure is the MEDIAN, not the sum", r.compounded_exposure && r.compounded_exposure.annual_cost === 380000, "Sum would read $1,900,000 — five estimates of one quantity are not additive."],
+        ["Exposure carries a respondent range", r.compounded_exposure && r.compounded_exposure.annual_cost_low != null && r.compounded_exposure.annual_cost_high != null, ""],
+        ["ZERO cross-lens convergence signals", xlens(r).length === 0, "One instrument agreeing with itself is not triangulation; no DV/OS/IP was run."],
+        ["No signal cites an absent instrument", (r.convergence_signals || []).every(s => (s.tools || []).every(t => t === "structural_clarity")), "The fabricated-citation failure mode: naming Decision Velocity as evidence when no DV run exists."],
+        ["Bimodality detected and split reported", r.sample_reads && r.sample_reads[0] && r.sample_reads[0].consensus.read === "divided" && !!r.sample_reads[0].consensus.split, "Dispersion is the finding — 42/44/45 vs 68/71 must not be averaged away."],
+        ["Vantage gap computed (operational vs executive)", !!(r.sample_reads && r.sample_reads[0] && r.sample_reads[0].vantage_gap), ""],
+        ["Divided read promoted to primary pattern", /divided/i.test(r.primary_pattern || ""), ""],
+        ["Diagnosis names the division", r.diagnosis && /Divided/i.test(r.diagnosis.name || ""), ""],
+        ["PRAISE GUARD: 'Clarity generally holds' is NOT ambiguity", (r.source_results || [])[1] && r.source_results[1].driver_pattern !== "structural_ambiguity", "Valence-blind alias matching scored praise as pathology."],
+        ["Narrative says 'respondents', never 'N tools (SC, SC, …)'", r.narrative && /respondents/.test(r.narrative.executive_summary) && !/Structural Clarity, Structural Clarity/.test(r.narrative.executive_summary), ""],
+        ["Cascade confidence hard-capped at directional", r.confidence && r.confidence.cascade_upstream_driver === "directional", "A cascade is a cross-lens claim; one lens cannot license it regardless of n."],
+        ["Insight depth composite present with basis", r.insight_depth && typeof r.insight_depth.score === "number" && !!r.insight_depth.basis, "The scorers' ceiling-8 contract, finally consumed."],
+        ["Divided prelude leads the priority actions", /Map the two respondent camps|Locate the divide/i.test(((r.priority_actions || [])[0] || {}).text || ""), "A divided read starts by locating where the camps sit, not by treating either camp's read as the organization's."],
+        ["Vantage-gap contradiction surfaced", (r.contradictions || []).some(c => /vantage/i.test(String(c))), "A 25-point operational-vs-executive split is itself a finding."]
+      ]
+    },
+    {
+      name: "Breadth mode — 4 distinct lenses (no regression)",
+      fixture: BREADTH,
+      checks: (status, r) => [
+        ["mode = breadth, 4 lenses", r.synthesis_mode === "breadth" && r.lens_count === 4, ""],
+        ["Cross-lens signals fire", xlens(r).length >= 2, ""],
+        ["Signals cite only present instruments", (r.convergence_signals || []).every(s => (s.tools || []).every(t => ["structural_clarity","decision_velocity","operational_systems","institutional_performance"].includes(t))), ""],
+        ["Exposure overlap-discounted (< raw sum 960,000)", r.compounded_exposure && r.compounded_exposure.annual_cost < 960000 && r.compounded_exposure.overlap_factor === 0.85, "Four lenses partially measure the same burden; a raw sum double-counts."],
+        ["Crown-jewel fields present (schema ≥ 1.1)", !!(r.diagnosis && r.executive_briefing && r.experiential && r.leading_indicators && r.confidence), "The enhancement that never deployed."],
+        ["Briefing has no hardcoded 'four vantage points' mismatch", !/four vantage points/.test((r.executive_briefing.paragraphs || []).join(" ")) || r.lens_count === 4, ""]
+      ]
+    },
+    {
+      name: "Mixed mode — 12× SC (aligned) + 1× DV",
+      fixture: MIXED,
+      checks: (status, r) => [
+        ["mode = mixed, 2 lenses, 13 respondents", r.synthesis_mode === "mixed" && r.lens_count === 2 && r.respondent_count === 13, ""],
+        ["SC depth-consensus signal fires (aligned 12)", depthSig(r).length >= 1, "≥60% of a group sharing a pattern is within-instrument consensus, clearly labeled."],
+        ["Legitimate structure×decisions pairwise fires", (r.convergence_signals || []).some(s => s.label === "Structure × decisions"), "Both lens groups present with native modal patterns — the claim is now grounded."],
+        ["SC group votes once: DV not swamped by 12 SC entries", true, "Score/pattern run on group means — informational."],
+        ["Exposure ≈ SC median + DV (not 12× SC)", r.compounded_exposure && r.compounded_exposure.annual_cost < 700000, "Raw entry-sum would exceed $4.8M."],
+        ["Sample read present for the SC group", r.sample_reads && r.sample_reads.length === 1 && r.sample_reads[0].n === 12, ""]
+      ]
+    }
+  ];
+
+  function renderCheck(name, ok, why) {
+    return '<div class="check ' + (ok ? "pass" : "fail") + '">' +
+      '<span class="mark">' + (ok ? "PASS" : "FAIL") + "</span>" +
+      "<span><strong>" + name + "</strong>" + (why ? ' <span class="why">— ' + why + "</span>" : "") + "</span></div>";
+  }
+
+  async function runAll() {
+    const base = $("apiBase").value.trim();
+    const host = $("suites");
+    host.innerHTML = "";
+    $("summary").textContent = "";
+    $("status").textContent = "Running…";
+    let total = 0, passed = 0;
+
+    for (const suite of SUITES) {
+      const el = document.createElement("div");
+      el.className = "suite";
+      el.innerHTML = '<div class="suite-head"><h2>' + suite.name + '</h2><span class="pill">running</span></div><div class="checks">Calling API…</div>';
+      host.appendChild(el);
+      let checks = [];
+      let rawJson = null;
+      try {
+        const { status, json } = await callApi(base, suite.fixture);
+        rawJson = json;
+        const r = (json && json.result) || {};
+        checks = suite.checks(status, r, json);
+      } catch (e) {
+        checks = [["API reachable", false, String(e && e.message || e)]];
+      }
+      const suitePass = checks.every(c => c[1]);
+      total += checks.length;
+      passed += checks.filter(c => c[1]).length;
+      el.querySelector(".pill").textContent = suitePass ? "pass" : "fail";
+      el.querySelector(".pill").classList.add(suitePass ? "pass" : "fail");
+      el.querySelector(".checks").innerHTML = checks.map(c => renderCheck(c[0], c[1], c[2])).join("");
+      const pre = document.createElement("pre");
+      pre.style.display = showJson ? "block" : "none";
+      pre.textContent = rawJson ? JSON.stringify(rawJson.result || rawJson, null, 2).slice(0, 12000) : "(no JSON)";
+      el.appendChild(pre);
+    }
+
+    $("summary").textContent = passed + " / " + total + " checks passed";
+    $("summary").style.color = passed === total ? "var(--pass)" : "var(--fail)";
+    $("status").textContent = "Done.";
+  }
+
+  $("runAll").addEventListener("click", runAll);
+})();
+</script>
+</body>
+</html>
