@@ -916,18 +916,18 @@
       .book-feature { padding: 34px 34px 0; }
       .book-feature-inner {
         max-width: var(--max); margin: 0 auto;
-        border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+        border-top: 1px solid var(--card-line); border-bottom: 1px solid var(--card-line);
         display: grid;
         grid-template-columns: auto minmax(0, 1.02fr) minmax(280px, .72fr);
-        background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.04));
+        background: transparent;
       }
-      .book-feature-cover { padding: 30px; border-right: 1px solid var(--line); display: flex; align-items: center; }
-      .bf-jacket { width: 178px; display: block; border-radius: 3px; box-shadow: 0 18px 36px rgba(0,0,0,0.35); }
+      .book-feature-cover { padding: 30px; border-right: 1px solid var(--card-line); display: flex; align-items: center; }
+      .bf-jacket { width: 178px; display: block; border-radius: 3px; box-shadow: 0 18px 36px rgba(148,94,18,0.22), 0 4px 10px rgba(24,22,18,0.14); }
       .bf-cover {
         width: 178px; aspect-ratio: 5 / 7.6; position: relative;
         background: linear-gradient(135deg,#D9953B 0%,#C9821F 55%,#A86A14 100%);
         border-radius: 2px 6px 6px 2px; color: #18191C;
-        box-shadow: 0 18px 36px rgba(0,0,0,0.35);
+        box-shadow: 0 18px 36px rgba(148,94,18,0.22), 0 4px 10px rgba(24,22,18,0.14);
         display: flex; flex-direction: column; justify-content: space-between;
         padding: 20px 18px 16px;
       }
@@ -939,17 +939,17 @@
       .bf-cover-sub { font-size:9.5px; line-height:1.5; color:rgba(24,25,28,0.74); display:block; }
       .bf-cover-imprint { font-size:9px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:rgba(24,25,28,0.55); }
       .book-feature-main { padding: 34px 32px; }
-      .bf-title { margin: 0; font-size: clamp(1.5rem, 2.3vw, 2.05rem); line-height: 1.08; letter-spacing: -0.04em; color: var(--text); }
-      .bf-subtitle { margin: 8px 0 0; font-size: 1rem; color: var(--muted); letter-spacing: -0.01em; }
-      .bf-desc { margin: 16px 0 0; font-size: 0.95rem; line-height: 1.65; color: var(--muted); max-width: 60ch; }
+      .bf-title { margin: 0; font-size: clamp(1.5rem, 2.3vw, 2.05rem); line-height: 1.08; letter-spacing: -0.04em; color: var(--ink); }
+      .bf-subtitle { margin: 8px 0 0; font-size: 1rem; color: rgba(24,22,18,0.66); letter-spacing: -0.01em; }
+      .bf-desc { margin: 16px 0 0; font-size: 0.95rem; line-height: 1.65; color: rgba(24,22,18,0.72); max-width: 60ch; }
       .bf-links { display: flex; gap: 26px; flex-wrap: wrap; }
-      .book-feature-side { padding: 34px 32px; border-left: 1px solid var(--line); }
-      .bf-series { margin: 22px 0 0; font-size: 0.82rem; line-height: 1.6; color: var(--muted-2); }
+      .book-feature-side { padding: 34px 32px; border-left: 1px solid var(--card-line); }
+      .bf-series { margin: 22px 0 0; font-size: 0.82rem; line-height: 1.6; color: rgba(24,22,18,0.56); }
       @media (max-width: 960px) {
         .book-feature { padding: 26px 20px 0; }
         .book-feature-inner { grid-template-columns: 1fr; }
-        .book-feature-cover { border-right: 0; border-bottom: 1px solid var(--line); }
-        .book-feature-side { border-left: 0; border-top: 1px solid var(--line); }
+        .book-feature-cover { border-right: 0; border-bottom: 1px solid var(--card-line); }
+        .book-feature-side { border-left: 0; border-top: 1px solid var(--card-line); }
       }
     </style>
     <div class="book-feature-inner">
