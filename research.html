@@ -923,6 +923,9 @@
       }
       .book-feature-cover { padding: 30px; border-right: 1px solid var(--card-line); display: flex; align-items: center; }
       .bf-jacket { width: 178px; display: block; border-radius: 3px; box-shadow: 0 18px 36px rgba(148,94,18,0.22), 0 4px 10px rgba(24,22,18,0.14); }
+      .bf-cover-link { display: inline-block; transition: transform 200ms ease; }
+      .bf-cover-link:hover { transform: translateY(-3px); }
+      .bf-cover-link:focus-visible { outline: 2px solid #0C6E78; outline-offset: 4px; }
       .bf-cover {
         width: 178px; aspect-ratio: 5 / 7.6; position: relative;
         background: linear-gradient(135deg,#D9953B 0%,#C9821F 55%,#A86A14 100%);
@@ -954,8 +957,8 @@
     </style>
     <div class="book-feature-inner">
       <div class="book-feature-cover">
-        <img class="bf-jacket" src="book-jacket.jpg" alt="Book jacket: Governance, Bureaucracy and Organization by Jason Adamson" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"/>
-        <div class="bf-cover" style="display:none;" aria-hidden="true">
+        <a class="bf-cover-link" href="https://www.routledge.com/Governance-Bureaucracy-and-Organization-Stewardship-Drift-and-Administrative-Capacity/Adamson/p/book/9781041403296" target="_blank" rel="noopener noreferrer" aria-label="View Governance, Bureaucracy and Organization at Routledge">
+        <div class="bf-cover" aria-hidden="true">
           <span class="bf-cover-author">Jason Adamson</span>
           <span>
             <span class="bf-cover-title">Governance,<br/>Bureaucracy and<br/>Organization</span>
@@ -964,6 +967,8 @@
           </span>
           <span class="bf-cover-imprint">Routledge</span>
         </div>
+        <img class="bf-jacket" src="book-jacket.jpg" alt="Book jacket: Governance, Bureaucracy and Organization by Jason Adamson" loading="lazy" style="display:none;" onload="this.style.display='block';this.previousElementSibling.style.display='none';"/>
+        </a>
       </div>
       <div class="book-feature-main">
         <p class="section-kicker">The Book · Routledge, 2027</p>
