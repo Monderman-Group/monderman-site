@@ -236,6 +236,70 @@
       border-color: rgba(12,110,120,0.44);
       color: #fff;
     }
+    /* the first chip is only pre-styled as active; real state is .is-active */
+    .filter-chip:first-child:not(.is-active) {
+      background: rgba(255,255,255,0.02);
+      border-color: rgba(255,255,255,0.2);
+      color: rgba(245,241,232,0.92);
+    }
+    button.filter-chip { font-family: inherit; }
+    .hero-search[hidden] { display: none; }
+    .hs-label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(79,167,174,0.9);
+    }
+    .hs-field {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 0 15px;
+      border: 1px solid rgba(79,167,174,0.45);
+      border-radius: 13px;
+      background: rgba(4,24,27,0.42);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+    }
+    .hs-field:focus-within {
+      border-color: #4FA7AE;
+      background: rgba(4,24,27,0.6);
+      box-shadow: 0 0 0 3px rgba(79,167,174,0.2);
+    }
+    .hs-field > svg { flex: 0 0 auto; color: #4FA7AE; }
+    .hs-field input {
+      flex: 1 1 auto;
+      min-width: 0;
+      border: 0;
+      outline: none;
+      background: transparent;
+      font: inherit;
+      font-size: 1rem;
+      letter-spacing: -0.01em;
+      color: #fff;
+      padding: 15px 0;
+    }
+    .hs-field input::placeholder { color: rgba(245,241,232,0.52); }
+    .hs-field input::-webkit-search-cancel-button { -webkit-appearance: none; }
+    .hs-clear {
+      flex: 0 0 auto;
+      border: 1px solid rgba(245,241,232,0.24);
+      background: transparent;
+      border-radius: 8px;
+      padding: 7px 11px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(245,241,232,0.78);
+      transition: color var(--transition), border-color var(--transition);
+    }
+    .hs-clear:hover, .hs-clear:focus-visible { color: #fff; border-color: rgba(245,241,232,0.5); }
     .library-stamp {
       font-size: 0.84rem;
       color: var(--muted-2);
@@ -898,15 +962,75 @@
         <p class="hero-copy">Original research on administrative burden, structural drag, decision systems, and institutional performance. Insights are longer, source-driven arguments; briefs are focused diagnostic reads; on-site essays extend the thinking. Built to be read and cited, not scrolled.</p>
       </div>
       <div class="hero-meta">
-        <div class="filter-row" aria-label="Library groupings">
-          <span class="filter-chip">All</span>
-          <span class="filter-chip">Defense</span>
-          <span class="filter-chip">Healthcare</span>
-          <span class="filter-chip">Enterprise</span>
-          <span class="filter-chip">Decision Design</span>
+        <div class="hero-search" id="heroSearch" hidden>
+          <span class="hs-label">Search the research</span>
+          <div class="hs-field">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="7"/><line x1="15.8" y1="15.8" x2="21" y2="21"/></svg>
+            <input id="rsearchInput" type="search" autocomplete="off" spellcheck="false" aria-label="Search the research on this page" placeholder="Search library content&hellip;"/>
+            <button type="button" class="hs-clear" id="rsearchClear" hidden>Clear</button>
+          </div>
+        </div>
+        <div class="filter-row" aria-label="Quick searches by category">
+          <button type="button" class="filter-chip is-active" data-q="">All</button>
+          <button type="button" class="filter-chip" data-q="Defense">Defense</button>
+          <button type="button" class="filter-chip" data-q="Healthcare">Healthcare</button>
+          <button type="button" class="filter-chip" data-q="Enterprise">Enterprise</button>
+          <button type="button" class="filter-chip" data-q="Decision Design">Decision Design</button>
         </div>
         <p class="library-stamp">12 items · Updated July 2026</p>
       </div>
+    </div>
+  </section>
+  <!-- Search results. Rendered from the client-side index; the book feature is never indexed. -->
+  <section class="rsearch" id="rsearchOut" hidden>
+    <style>
+      .rsearch[hidden] { display: none; }
+      .rsearch {
+        padding: 34px 34px 6px;
+        background: linear-gradient(180deg, rgba(12,110,120,0.055), rgba(12,110,120,0.012));
+        border-bottom: 1px solid rgba(12,110,120,0.12);
+      }
+      .rsearch-inner { max-width: var(--max); margin: 0 auto; }
+      .rs-grid { display: grid; grid-template-columns: 1fr 1fr; }
+      .rs-hit {
+        padding: 26px 30px 24px; display: grid; align-content: start; gap: 11px;
+        border-bottom: 1px solid var(--card-line); border-right: 1px solid var(--card-line);
+      }
+      .rs-hit:nth-child(2n) { border-right: none; }
+      .rs-top {
+        display: flex; justify-content: space-between; gap: 12px;
+        font-size: 0.64rem; font-weight: 700; line-height: 1.3; letter-spacing: 0.16em;
+        text-transform: uppercase; color: rgba(24,22,18,0.56);
+      }
+      .rs-title { margin: 0; font-size: 1.2rem; line-height: 1.12; letter-spacing: -0.03em; color: var(--ink); }
+      .rs-title a { color: inherit; }
+      .rs-title a:hover, .rs-title a:focus-visible { color: var(--accent-dark); }
+      .rs-snip { margin: 0; font-size: 0.92rem; line-height: 1.66; color: rgba(24,22,18,0.72); }
+      .rs-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-top: 3px; }
+      .rs-stats { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(24,22,18,0.52); }
+      .rs-action { font-size: 0.82rem; font-weight: 600; color: var(--accent-dark); white-space: nowrap; }
+      .rs-action:hover, .rs-action:focus-visible { color: var(--accent); }
+      .rsearch mark {
+        background: rgba(201,130,31,0.26); color: inherit;
+        border-radius: 2px; padding: 0 1px; box-shadow: 0 0 0 1px rgba(201,130,31,0.28);
+      }
+      .rs-empty { padding: 26px 0 10px; font-size: 0.95rem; line-height: 1.7; color: rgba(24,22,18,0.7); }
+      .rs-empty button {
+        border: 0; background: none; padding: 0; cursor: pointer; font: inherit;
+        color: var(--accent-dark); font-weight: 600; border-bottom: 1px solid rgba(12,110,120,0.35);
+      }
+      @media (max-width: 860px) {
+        .rsearch { padding: 26px 20px 4px; }
+        .rs-grid { grid-template-columns: 1fr; }
+        .rs-hit { border-right: none; padding: 22px 0; }
+      }
+    </style>
+    <div class="rsearch-inner">
+      <div class="band-head">
+        <div class="left">Search results</div>
+        <div class="right" id="rsearchCount" role="status" aria-live="polite"></div>
+      </div>
+      <div class="rs-grid" id="rsearchResults"></div>
     </div>
   </section>
   <section class="book-feature">
@@ -986,90 +1110,6 @@
           <div class="meta-item"><strong>Routledge</strong><span>Publisher</span></div>
         </div>
         <p class="bf-series">Routledge Studies in Business Organizations and Networks · Taylor &amp; Francis</p>
-      </div>
-    </div>
-  </section>
-  <!-- SEARCH: client-side index of the research corpus. The book feature is never indexed. -->
-  <section class="rsearch" id="researchSearch" hidden>
-    <style>
-      .rsearch[hidden], .rsearch-out[hidden] { display: none; }
-      .rsearch { padding: 42px 34px 0; }
-      .rsearch-inner { max-width: var(--max); margin: 0 auto; }
-      .rsearch-field {
-        display: flex; align-items: center; gap: 12px;
-        border: 1px solid var(--card-line); border-radius: 14px;
-        background: #FCFBF8; padding: 0 15px;
-        transition: border-color var(--transition), box-shadow var(--transition);
-      }
-      .rsearch-field:focus-within {
-        border-color: rgba(12,110,120,0.45);
-        box-shadow: 0 0 0 3px rgba(12,110,120,0.10);
-      }
-      .rsearch-field svg { flex: 0 0 auto; opacity: 0.48; }
-      .rsearch-field input {
-        flex: 1 1 auto; min-width: 0; border: 0; background: transparent; outline: none;
-        font: inherit; font-size: 1rem; letter-spacing: -0.01em; color: var(--ink); padding: 15px 0;
-      }
-      .rsearch-field input::placeholder { color: rgba(24,22,18,0.42); }
-      .rsearch-field input::-webkit-search-cancel-button { -webkit-appearance: none; }
-      .rsearch-clear {
-        flex: 0 0 auto; border: 1px solid var(--card-line); background: transparent;
-        border-radius: 8px; padding: 7px 11px; cursor: pointer;
-        font: inherit; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em;
-        text-transform: uppercase; color: rgba(24,22,18,0.6);
-        transition: color var(--transition), border-color var(--transition);
-      }
-      .rsearch-clear:hover, .rsearch-clear:focus-visible { color: var(--ink); border-color: rgba(24,22,18,0.24); }
-      .rsearch-hint { margin: 11px 0 0; font-size: 0.78rem; color: rgba(24,22,18,0.5); }
-      .rsearch-out { margin-top: 26px; }
-      .rs-grid { display: grid; grid-template-columns: 1fr 1fr; }
-      .rs-hit {
-        padding: 26px 30px 24px; display: grid; align-content: start; gap: 11px;
-        border-bottom: 1px solid var(--card-line); border-right: 1px solid var(--card-line);
-      }
-      .rs-hit:nth-child(2n) { border-right: none; }
-      .rs-top {
-        display: flex; justify-content: space-between; gap: 12px;
-        font-size: 0.64rem; font-weight: 700; line-height: 1.3; letter-spacing: 0.16em;
-        text-transform: uppercase; color: rgba(24,22,18,0.56);
-      }
-      .rs-title { margin: 0; font-size: 1.2rem; line-height: 1.12; letter-spacing: -0.03em; color: var(--ink); }
-      .rs-title a { color: inherit; }
-      .rs-title a:hover, .rs-title a:focus-visible { color: var(--accent-dark); }
-      .rs-snip { margin: 0; font-size: 0.92rem; line-height: 1.66; color: rgba(24,22,18,0.72); }
-      .rs-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-top: 3px; }
-      .rs-stats { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(24,22,18,0.52); }
-      .rs-action { font-size: 0.82rem; font-weight: 600; color: var(--accent-dark); white-space: nowrap; }
-      .rs-action:hover, .rs-action:focus-visible { color: var(--accent); }
-      .rsearch mark {
-        background: rgba(201,130,31,0.24); color: inherit;
-        border-radius: 2px; padding: 0 1px; box-shadow: 0 0 0 1px rgba(201,130,31,0.26);
-      }
-      .rs-empty { padding: 28px 0 4px; font-size: 0.95rem; line-height: 1.7; color: rgba(24,22,18,0.7); }
-      .rs-empty button {
-        border: 0; background: none; padding: 0; cursor: pointer;
-        font: inherit; color: var(--accent-dark); font-weight: 600;
-        border-bottom: 1px solid rgba(12,110,120,0.35);
-      }
-      @media (max-width: 860px) {
-        .rsearch { padding: 30px 20px 0; }
-        .rs-grid { grid-template-columns: 1fr; }
-        .rs-hit { border-right: none; padding: 22px 0; }
-      }
-    </style>
-    <div class="rsearch-inner">
-      <div class="rsearch-field">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="7"/><line x1="15.8" y1="15.8" x2="21" y2="21"/></svg>
-        <input id="rsearchInput" type="search" autocomplete="off" spellcheck="false" aria-label="Search the research on this page" placeholder="Search the research: drift, decision velocity, token economics&hellip;"/>
-        <button type="button" class="rsearch-clear" id="rsearchClear" hidden>Clear</button>
-      </div>
-      <p class="rsearch-hint" id="rsearchHint"></p>
-      <div class="rsearch-out" id="rsearchOut" hidden>
-        <div class="band-head">
-          <div class="left">Search results</div>
-          <div class="right" id="rsearchCount" role="status" aria-live="polite"></div>
-        </div>
-        <div class="rs-grid" id="rsearchResults"></div>
       </div>
     </div>
   </section>
@@ -1324,20 +1364,24 @@
 
   <!-- Research search: builds a client-side index from the page itself at load.
        The .book-feature section is excluded by design. Progressive enhancement:
-       the search UI stays hidden unless this script runs, so no-JS visitors see
-       the full library exactly as before. -->
+       the field stays hidden unless this script runs, so no-JS visitors see the
+       full library exactly as before. -->
   <script>
   (function () {
-    var sec = document.getElementById('researchSearch');
+    var wrap = document.getElementById('heroSearch');
     var input = document.getElementById('rsearchInput');
     var out = document.getElementById('rsearchOut');
     var grid = document.getElementById('rsearchResults');
     var countEl = document.getElementById('rsearchCount');
-    var hintEl = document.getElementById('rsearchHint');
     var clearBtn = document.getElementById('rsearchClear');
-    if (!sec || !input || !out || !grid || !countEl) return;
+    var chips = [].slice.call(document.querySelectorAll('.filter-chip[data-q]'));
+    if (!wrap || !input || !out || !grid || !countEl) return;
 
-    var corpusSections = [].slice.call(document.querySelectorAll('.featured, .divider-quote, .library, .onsite'));
+    // Sections hidden while a query is active. The book band is in this list for
+    // layout adjacency only; it is never part of the index.
+    var corpusSections = [].slice.call(
+      document.querySelectorAll('.book-feature, .featured, .divider-quote, .library, .onsite')
+    );
 
     function txt(el) { return el ? (el.textContent || '').replace(/\s+/g, ' ').trim() : ''; }
     function all(root, sel) { return [].slice.call(root.querySelectorAll(sel)); }
@@ -1373,8 +1417,7 @@
     all(document, '.essay-card').forEach(function (c) { var i = collect(c, '.essay-title', '.essay-body'); if (i) index.push(i); });
     if (!index.length) return;
 
-    hintEl.textContent = 'Searching ' + index.length + ' papers and essays on this page.';
-    sec.hidden = false;
+    wrap.hidden = false;
 
     // ---- matching -------------------------------------------------------
     function escRx(t) { return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
@@ -1400,8 +1443,8 @@
     // ---- safe highlighting ---------------------------------------------
     // Match on raw text using sentinels, escape everything, then swap the
     // sentinels for <mark>. Keeps user input out of the HTML entirely.
-    function esc(s) {
-      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    function esc(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
     // Highlights the whole word a term begins, so "govern" marks "governance".
     function rx(ts) {
@@ -1436,8 +1479,17 @@
       out.hidden = !on;
       clearBtn.hidden = !on;
     }
+    function syncChips(q) {
+      var low = q.trim().toLowerCase();
+      chips.forEach(function (c) {
+        var cq = (c.getAttribute('data-q') || '').toLowerCase();
+        var on = cq ? cq === low : low === '';
+        if (on) { c.classList.add('is-active'); } else { c.classList.remove('is-active'); }
+      });
+    }
 
     function render(q) {
+      syncChips(q);
       var ts = terms(q);
       if (!ts.length) { searchMode(false); grid.innerHTML = ''; countEl.textContent = ''; return; }
       var re = rx(ts);
@@ -1486,6 +1538,15 @@
       if (e.key === 'Escape') { input.value = ''; render(''); }
     });
     clearBtn.addEventListener('click', function () { input.value = ''; render(''); input.focus(); });
+
+    chips.forEach(function (c) {
+      c.addEventListener('click', function () {
+        var q = c.getAttribute('data-q') || '';
+        input.value = q;
+        render(q);
+        if (q && out.scrollIntoView) { out.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      });
+    });
 
     // ?q=term deep link
     try {
