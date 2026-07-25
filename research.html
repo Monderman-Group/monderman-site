@@ -5,12 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Research | Monderman</title>
   <meta name="description" content="Insights, briefs, and working papers on administrative burden, decision velocity, and institutional performance — the research behind the Monderman instruments." />
-  <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-      <rect width="64" height="64" rx="10" fill="%2304181B"/>
-      <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23FAFAF8">M</text>
-      <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%230C6E78"/>
-    </svg>' />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+  <link rel="icon" type="image/x-icon" sizes="any" href="/favicon.ico"/>
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png"/>
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
   <style>
     @font-face {
       font-family: "Neue Haas Grotesk";
@@ -991,6 +989,90 @@
       </div>
     </div>
   </section>
+  <!-- SEARCH: client-side index of the research corpus. The book feature is never indexed. -->
+  <section class="rsearch" id="researchSearch" hidden>
+    <style>
+      .rsearch[hidden], .rsearch-out[hidden] { display: none; }
+      .rsearch { padding: 42px 34px 0; }
+      .rsearch-inner { max-width: var(--max); margin: 0 auto; }
+      .rsearch-field {
+        display: flex; align-items: center; gap: 12px;
+        border: 1px solid var(--card-line); border-radius: 14px;
+        background: #FCFBF8; padding: 0 15px;
+        transition: border-color var(--transition), box-shadow var(--transition);
+      }
+      .rsearch-field:focus-within {
+        border-color: rgba(12,110,120,0.45);
+        box-shadow: 0 0 0 3px rgba(12,110,120,0.10);
+      }
+      .rsearch-field svg { flex: 0 0 auto; opacity: 0.48; }
+      .rsearch-field input {
+        flex: 1 1 auto; min-width: 0; border: 0; background: transparent; outline: none;
+        font: inherit; font-size: 1rem; letter-spacing: -0.01em; color: var(--ink); padding: 15px 0;
+      }
+      .rsearch-field input::placeholder { color: rgba(24,22,18,0.42); }
+      .rsearch-field input::-webkit-search-cancel-button { -webkit-appearance: none; }
+      .rsearch-clear {
+        flex: 0 0 auto; border: 1px solid var(--card-line); background: transparent;
+        border-radius: 8px; padding: 7px 11px; cursor: pointer;
+        font: inherit; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em;
+        text-transform: uppercase; color: rgba(24,22,18,0.6);
+        transition: color var(--transition), border-color var(--transition);
+      }
+      .rsearch-clear:hover, .rsearch-clear:focus-visible { color: var(--ink); border-color: rgba(24,22,18,0.24); }
+      .rsearch-hint { margin: 11px 0 0; font-size: 0.78rem; color: rgba(24,22,18,0.5); }
+      .rsearch-out { margin-top: 26px; }
+      .rs-grid { display: grid; grid-template-columns: 1fr 1fr; }
+      .rs-hit {
+        padding: 26px 30px 24px; display: grid; align-content: start; gap: 11px;
+        border-bottom: 1px solid var(--card-line); border-right: 1px solid var(--card-line);
+      }
+      .rs-hit:nth-child(2n) { border-right: none; }
+      .rs-top {
+        display: flex; justify-content: space-between; gap: 12px;
+        font-size: 0.64rem; font-weight: 700; line-height: 1.3; letter-spacing: 0.16em;
+        text-transform: uppercase; color: rgba(24,22,18,0.56);
+      }
+      .rs-title { margin: 0; font-size: 1.2rem; line-height: 1.12; letter-spacing: -0.03em; color: var(--ink); }
+      .rs-title a { color: inherit; }
+      .rs-title a:hover, .rs-title a:focus-visible { color: var(--accent-dark); }
+      .rs-snip { margin: 0; font-size: 0.92rem; line-height: 1.66; color: rgba(24,22,18,0.72); }
+      .rs-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-top: 3px; }
+      .rs-stats { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(24,22,18,0.52); }
+      .rs-action { font-size: 0.82rem; font-weight: 600; color: var(--accent-dark); white-space: nowrap; }
+      .rs-action:hover, .rs-action:focus-visible { color: var(--accent); }
+      .rsearch mark {
+        background: rgba(201,130,31,0.24); color: inherit;
+        border-radius: 2px; padding: 0 1px; box-shadow: 0 0 0 1px rgba(201,130,31,0.26);
+      }
+      .rs-empty { padding: 28px 0 4px; font-size: 0.95rem; line-height: 1.7; color: rgba(24,22,18,0.7); }
+      .rs-empty button {
+        border: 0; background: none; padding: 0; cursor: pointer;
+        font: inherit; color: var(--accent-dark); font-weight: 600;
+        border-bottom: 1px solid rgba(12,110,120,0.35);
+      }
+      @media (max-width: 860px) {
+        .rsearch { padding: 30px 20px 0; }
+        .rs-grid { grid-template-columns: 1fr; }
+        .rs-hit { border-right: none; padding: 22px 0; }
+      }
+    </style>
+    <div class="rsearch-inner">
+      <div class="rsearch-field">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="7"/><line x1="15.8" y1="15.8" x2="21" y2="21"/></svg>
+        <input id="rsearchInput" type="search" autocomplete="off" spellcheck="false" aria-label="Search the research on this page" placeholder="Search the research: drift, decision velocity, token economics&hellip;"/>
+        <button type="button" class="rsearch-clear" id="rsearchClear" hidden>Clear</button>
+      </div>
+      <p class="rsearch-hint" id="rsearchHint"></p>
+      <div class="rsearch-out" id="rsearchOut" hidden>
+        <div class="band-head">
+          <div class="left">Search results</div>
+          <div class="right" id="rsearchCount" role="status" aria-live="polite"></div>
+        </div>
+        <div class="rs-grid" id="rsearchResults"></div>
+      </div>
+    </div>
+  </section>
   <section class="featured">
     <div class="featured-inner">
       <div class="featured-main">
@@ -1240,6 +1322,178 @@
     sb.auth.onAuthStateChange(() => apply());
   </script>
 
+  <!-- Research search: builds a client-side index from the page itself at load.
+       The .book-feature section is excluded by design. Progressive enhancement:
+       the search UI stays hidden unless this script runs, so no-JS visitors see
+       the full library exactly as before. -->
+  <script>
+  (function () {
+    var sec = document.getElementById('researchSearch');
+    var input = document.getElementById('rsearchInput');
+    var out = document.getElementById('rsearchOut');
+    var grid = document.getElementById('rsearchResults');
+    var countEl = document.getElementById('rsearchCount');
+    var hintEl = document.getElementById('rsearchHint');
+    var clearBtn = document.getElementById('rsearchClear');
+    if (!sec || !input || !out || !grid || !countEl) return;
+
+    var corpusSections = [].slice.call(document.querySelectorAll('.featured, .divider-quote, .library, .onsite'));
+
+    function txt(el) { return el ? (el.textContent || '').replace(/\s+/g, ' ').trim() : ''; }
+    function all(root, sel) { return [].slice.call(root.querySelectorAll(sel)); }
+
+    // ---- index ----------------------------------------------------------
+    function collect(card, titleSel, bodySel) {
+      if (card.closest('.book-feature')) return null;          // book: never indexed
+      var link = card.querySelector('.paper-action, .featured-link');
+      var tags = all(card, '.paper-top span, .section-kicker').map(txt).filter(Boolean);
+      var stats = all(card, '.paper-stats span').map(txt).filter(Boolean);
+      var extra = all(card, '.meta-item, .featured-quote').map(txt).join(' ');
+      var it = {
+        title: txt(card.querySelector(titleSel)),
+        body: txt(card.querySelector(bodySel)),
+        tags: tags,
+        stats: stats,
+        href: link ? link.getAttribute('href') : '',
+        action: link ? txt(link) : '',
+        blank: !!(link && link.getAttribute('target') === '_blank')
+      };
+      if (!it.title) return null;
+      it.hay = (it.title + ' ' + tags.join(' ') + ' ' + it.body + ' ' + stats.join(' ') + ' ' + extra).toLowerCase();
+      it.titleLow = it.title.toLowerCase();
+      it.tagLow = tags.join(' ').toLowerCase();
+      it.bodyLow = it.body.toLowerCase();
+      return it;
+    }
+
+    var index = [];
+    var feat = document.querySelector('.featured .featured-inner');
+    if (feat) { var f = collect(feat, '.featured-title', '.featured-desc'); if (f) index.push(f); }
+    all(document, '.paper-card').forEach(function (c) { var i = collect(c, '.paper-title', '.paper-body'); if (i) index.push(i); });
+    all(document, '.essay-card').forEach(function (c) { var i = collect(c, '.essay-title', '.essay-body'); if (i) index.push(i); });
+    if (!index.length) return;
+
+    hintEl.textContent = 'Searching ' + index.length + ' papers and essays on this page.';
+    sec.hidden = false;
+
+    // ---- matching -------------------------------------------------------
+    function escRx(t) { return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+    // Terms match at word starts, so "govern" finds "governance" but "ai" does
+    // not fire inside "fail". Each term gets a reusable, non-global regex.
+    function terms(q) {
+      return q.toLowerCase().replace(/[\u0001\u0002]/g, ' ').split(/\s+/)
+        .filter(function (t) { return t.length > 1; })
+        .map(function (t) { return { t: t, re: new RegExp('\\b' + escRx(t), 'i') }; });
+    }
+    function score(it, ts) {
+      var s = 0;
+      for (var i = 0; i < ts.length; i++) {
+        var re = ts[i].re;
+        if (!re.test(it.hay)) return 0;                         // every term must appear
+        if (re.test(it.titleLow)) s += 6;
+        if (re.test(it.tagLow)) s += 3;
+        if (re.test(it.bodyLow)) s += 1;
+      }
+      return s;
+    }
+
+    // ---- safe highlighting ---------------------------------------------
+    // Match on raw text using sentinels, escape everything, then swap the
+    // sentinels for <mark>. Keeps user input out of the HTML entirely.
+    function esc(s) {
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    // Highlights the whole word a term begins, so "govern" marks "governance".
+    function rx(ts) {
+      return new RegExp('\\b(?:' + ts.map(function (x) { return escRx(x.t); }).join('|') + ')\\w*', 'gi');
+    }
+    function mark(text, re) {
+      if (!text) return '';
+      return esc(text.replace(re, '\u0001$&\u0002'))
+        .replace(/\u0001/g, '<mark>').replace(/\u0002/g, '</mark>');
+    }
+    function snippet(body, ts, len) {
+      if (!body) return '';
+      var pos = -1;
+      for (var i = 0; i < ts.length; i++) {
+        var p = body.search(ts[i].re);
+        if (p !== -1 && (pos === -1 || p < pos)) pos = p;
+      }
+      if (pos === -1) {
+        return body.length > len ? body.slice(0, len).replace(/\s+\S*$/, '') + '\u2026' : body;
+      }
+      var start = Math.max(0, pos - Math.floor(len / 3));
+      var end = Math.min(body.length, start + len);
+      var frag = body.slice(start, end);
+      if (start > 0) frag = '\u2026' + frag.replace(/^\S*\s+/, '');
+      if (end < body.length) frag = frag.replace(/\s+\S*$/, '') + '\u2026';
+      return frag;
+    }
+
+    // ---- render ---------------------------------------------------------
+    function searchMode(on) {
+      corpusSections.forEach(function (el) { el.hidden = on; });
+      out.hidden = !on;
+      clearBtn.hidden = !on;
+    }
+
+    function render(q) {
+      var ts = terms(q);
+      if (!ts.length) { searchMode(false); grid.innerHTML = ''; countEl.textContent = ''; return; }
+      var re = rx(ts);
+      var hits = index
+        .map(function (it) { return { it: it, s: score(it, ts) }; })
+        .filter(function (h) { return h.s > 0; })
+        .sort(function (a, b) { return b.s - a.s; });
+
+      searchMode(true);
+      countEl.textContent = hits.length === 0
+        ? 'No matches'
+        : hits.length + (hits.length === 1 ? ' match' : ' matches');
+
+      if (!hits.length) {
+        grid.innerHTML = '';
+        grid.insertAdjacentHTML('beforeend',
+          '<p class="rs-empty">Nothing in the research on this page matches those terms. ' +
+          'Try a single broader word, or <button type="button" id="rsearchReset">clear the search</button> ' +
+          'to browse the full library.</p>');
+        var reset = document.getElementById('rsearchReset');
+        if (reset) reset.addEventListener('click', function () { input.value = ''; render(''); input.focus(); });
+        return;
+      }
+
+      grid.innerHTML = hits.map(function (h) {
+        var it = h.it;
+        var left = it.tags.length ? it.tags[0] : '';
+        var right = it.tags.length > 1 ? it.tags[it.tags.length - 1] : '';
+        var tgt = it.blank ? ' target="_blank" rel="noopener noreferrer"' : '';
+        var href = esc(it.href || '#');
+        return '<article class="rs-hit">' +
+          '<div class="rs-top"><span>' + mark(left, re) + '</span><span>' + mark(right, re) + '</span></div>' +
+          '<h3 class="rs-title"><a href="' + href + '"' + tgt + '>' + mark(it.title, re) + '</a></h3>' +
+          '<p class="rs-snip">' + mark(snippet(it.body, ts, 190), re) + '</p>' +
+          '<div class="rs-foot">' +
+            '<span class="rs-stats">' + esc(it.stats.join(' \u00b7 ')) + '</span>' +
+            (it.href ? '<a class="rs-action" href="' + href + '"' + tgt + '>' + esc(it.action || 'Open') + '</a>' : '') +
+          '</div>' +
+        '</article>';
+      }).join('');
+    }
+
+    // ---- wiring ---------------------------------------------------------
+    input.addEventListener('input', function () { render(input.value); });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { input.value = ''; render(''); }
+    });
+    clearBtn.addEventListener('click', function () { input.value = ''; render(''); input.focus(); });
+
+    // ?q=term deep link
+    try {
+      var q = new URLSearchParams(window.location.search).get('q');
+      if (q) { input.value = q; render(q); }
+    } catch (e) { /* older browsers: skip */ }
+  })();
+  </script>
   <script src="assistant.js" defer></script>
   <script src="connect-widget.js" defer></script>
 </body>
