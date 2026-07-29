@@ -590,6 +590,19 @@ body{transition:background-color .25s ease,color .25s ease}
       const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
       const { error:userError } = await supabase.from("users").upsert({ id:user.id, email, full_name:fullName, avatar_url:avatarUrl, last_sign_in_at:new Date().toISOString() });
       if(userError) throw userError;
+      // Claim any pending organization invite addressed to this email BEFORE
+      // the membership lookup below. Without this, an already-registered
+      // invitee has no membership at this point and falls through to the
+      // bootstrap, which would create them a brand-new organization instead
+      // of adding them to the one that invited them. New signups are handled
+      // by the on_auth_user_created_redeem_invites trigger; this covers people
+      // who already had an account when the invite was sent.
+      // Non-blocking by design: a redemption failure must not break sign-in.
+      try {
+        await supabase.rpc("redeem_my_invites");
+      } catch(inviteError){
+        console.warn("invite redemption skipped:", inviteError?.message || inviteError);
+      }
       const { data:memberships, error:membershipError } = await supabase
         .from("organization_members")
         .select("organization_id, role, organizations(id, name, slug, plan, run_limit, runs_used, seat_limit, features, analyst_reviews_included, hands_on_advisory, plan_period)")
