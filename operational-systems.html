@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- ✅ MONDERMAN GATING FIX (corrected tool page): sign-in guard in <head> + Bearer token wired into fetchWithTimeout. If you see this, this is the FIXED copy. -->
 
 <html lang="en">
 <head>
@@ -607,7 +606,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
       </div>
     </div>
   </div></div>
-  <div class="stage" id="questionStage"><div class="question-shell"><div class="question-card"><div class="question-meta"><p class="question-label" id="questionCluster">Diagnostic question</p><p class="question-step" id="questionStep"></p></div><h3 class="question-title" id="questionTitle"></h3><p class="question-copy" id="questionCopy"></p><div class="required-note" id="requiredNotice">This question is required for the diagnostic logic to work.</div><div class="required-note" id="persistenceNotice" style="display:none;background:#F6F3EC;border-color:#F6F3EC;color:#A06912;">Durable save status will appear here if the database write is blocked.</div><div class="cross-level-note" id="crossLevelNote"></div><div id="questionBody"></div></div></div></div>
+  <div class="stage" id="questionStage"><div class="question-shell"><div class="question-card"><div class="question-meta"><p class="question-label" id="questionCluster">Diagnostic question</p><p class="question-step" id="questionStep"></p><div class="question-mode-host" id="questionModeHost"></div></div><h3 class="question-title" id="questionTitle"></h3><p class="question-copy" id="questionCopy"></p><div class="required-note" id="requiredNotice">This question is required for the diagnostic logic to work.</div><div class="required-note" id="persistenceNotice" style="display:none;background:#F6F3EC;border-color:#F6F3EC;color:#A06912;">Durable save status will appear here if the database write is blocked.</div><div class="cross-level-note" id="crossLevelNote"></div><div id="questionBody"></div></div></div></div>
   <div class="stage" id="processingStage"><div class="processing-stage"><div class="processing-card processing-card-dynamic">
   <div class="processing-flow" aria-hidden="true">
     <div class="processing-flow-step" style="--flow-step:0"><span class="processing-flow-dot"></span></div>
@@ -880,6 +879,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
 </div>
   <script src="monderman-viz.js"></script>
   <script src="assignment-mode.js"></script>
+  <script src="interview-mode.js"></script>
   <script>
 const MondermanDiagnostic = (() => {
 
@@ -2110,6 +2110,26 @@ const applyQuestionContent = () => {
 questionCluster.textContent = dimLabel;
 // Non-numeric: no "Question N of ~M". Dimension name in questionCluster is enough.
 questionStep.textContent = "";
+
+// ── Interview mode ────────────────────────────────────────────────────────
+// When the conversation is handling this item, it asks the question itself.
+// Rendering questionTitle/questionCopy as well would ask twice, and the
+// footer's Continue/Skip belong to the form control, not the transcript.
+if (window.MondermanInterview && window.MondermanInterview.shouldHandle(item)) {
+questionTitle.textContent = "";
+questionCopy.textContent = "";
+clearQuestionRequired();
+questionBody.innerHTML = "";
+updateQuestionAffordance(item);
+continueBtn.style.display = "none";
+skipBtn.style.display = "none";
+window.MondermanInterview.present(item);
+updateProgress();
+return;
+}
+continueBtn.style.display = "";
+skipBtn.style.display = "";
+
 questionTitle.textContent = getQuestionRoleText(item.text || {}) || "Next question";
 questionCopy.textContent = item.questionCopy || (item.questionType === "numeric"
 ? "Enter your best directional estimate. Exact precision is not necessary."
@@ -2142,7 +2162,17 @@ skipBtn.disabled = false;
 continueBtn.disabled = false;
 skipBtn.textContent = item.isOptional ? skipBtn.textContent : "Skip";
 continueBtn.textContent = "Continue";
+// In interview mode the transcript owns Send/Skip; the form footer stays hidden.
+// This tail runs on both render paths (immediately when there is no card to
+// animate, deferred behind the transition when there is), so it has to respect
+// the interview branch or it would reveal the buttons again.
+if (window.MondermanInterview && window.MondermanInterview.shouldHandle(item)) {
+continueBtn.style.display = "none";
+skipBtn.style.display = "none";
+} else {
+skipBtn.style.display = "";
 continueBtn.style.display = item.questionType === "single_select" ? "none" : "inline-flex";
+}
 updateProgress();
 }
 
@@ -5350,6 +5380,38 @@ syncHubSelections();
 updateHeroHelp();
 syncBeginButton();
 
+// ── Interview mode: register the conversational surface for this instrument.
+//    renderQuestion() consults shouldHandle(item) and hands the item over when
+//    interview mode is on. Everything downstream is unchanged: the coded value
+//    goes through submitAnswer() exactly as a form control's value would.
+(function mondermanInterviewInit(){
+  if (!window.MondermanInterview) return;
+  window.MondermanInterview.init({
+    tool: "operational_systems",
+    // The routing config speaks operational / managerial / senior_leader,
+    // while the lane chooser uses "executive" for the senior lane.
+    getRole: function(){
+      if (state.roleForText) return state.roleForText;
+      if (state.mode === "executive") return "senior_leader";
+      return state.mode || "senior_leader";
+    },
+    submit: function(itemId, value, meta){ return submitAnswer(itemId, value, meta); },
+    renderControl: function(item){ return renderQuestionContent(item); },
+    // Restore the form footer when an item falls back to its control, so the
+    // participant can actually submit it.
+    afterControl: function(item){
+      skipBtn.style.display = "";
+      continueBtn.style.display = item.questionType === "single_select" ? "none" : "inline-flex";
+      updateQuestionAffordance(item);
+    },
+    // Called when the participant flips the toggle mid-run; re-renders the
+    // current item in the newly chosen mode.
+    rerender: function(){ renderQuestion(); },
+    elements: { questionBody: questionBody }
+  });
+  window.MondermanInterview.mountToggle(document.getElementById("questionModeHost"));
+})();
+
 // ── Directed (campaign) mode: when opened from an assignment link, lock the
 //    vantage to the admin's choice and skip the chooser. No-op otherwise. ──
 (async function mondermanDirectedInit(){
@@ -5361,6 +5423,9 @@ syncBeginButton();
   if (!window.MondermanAssignment.active()) { window.MondermanAssignment.renderAlreadyDone(); return; }
   window.MondermanAssignment.banner(cfg);
   window.MondermanAssignment.lock();
+  // Interview vs guided form: locked when the admin chose one, left to the
+  // recipient when they delegated it. Legacy assignments resolve to "choice".
+  if (window.MondermanInterview) window.MondermanInterview.applyAssignment(cfg);
   if (cfg.depth_choice) {
     selectLane(cfg.participant_lens); // sets mode, advances to depthStage for the taker to pick length
   } else {
