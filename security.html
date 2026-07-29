@@ -654,7 +654,8 @@
   <div class="section-inner">
     <p class="section-eyebrow">ARCHITECTURE</p>
     <h2>One paragraph, end to end</h2>
-      <p>The Monderman site is static pages served over HTTPS. Diagnostics run against a single API service, which scores responses, builds the narrative through Anthropic&rsquo;s API, and stores results in a managed Postgres database (Supabase). There is no client-side database access: the browser talks only to the Monderman API, and the API talks to the database with server-held credentials.</p>
+      <p>The Monderman site is static pages served over HTTPS. Diagnostics run against a single API service, which scores responses, builds the narrative through Anthropic&rsquo;s API, and stores results in a managed Postgres database (Supabase). Scoring, narrative generation, and every write of a diagnostic result happen server-side: the API holds service-role credentials that the browser never sees, and no scoring logic or sector calibration is exposed to the client.</p>
+      <p>Once you are signed in, the workspace reads and updates your organization&rsquo;s own records &mdash; saved runs, action plans, notes, campaign tracking &mdash; directly against the database using a public, publishable key that carries no privileges of its own. Every table it touches is governed by row-level security, so that key can only ever reach rows belonging to the organization you are signed in to. Authorization is enforced by the database itself rather than by the browser.</p>
   </div>
 </section>
 <section class="section">
@@ -676,7 +677,9 @@
   <div class="section-inner">
     <p class="section-eyebrow">ACCESS</p>
     <h2>Who can read what</h2>
-      <p>Database access uses service-role credentials held only by the API service, with row-level security enabled on its tables. Workspace results are visible to your organization&rsquo;s signed-in users and to no other tenant.</p>
+      <p>Two credentials reach the database, and they are not equivalent. The API service holds a service-role credential, kept server-side and never sent to a browser; it performs scoring, result persistence, and administrative operations such as sending a campaign. The signed-in workspace holds only a public, publishable key, which grants nothing on its own.</p>
+      <p>Row-level security is enabled on every table and is the boundary that matters: each policy tests the signed-in user&rsquo;s organization membership before a row is returned or changed. Workspace results are visible to your organization&rsquo;s signed-in users and to no other tenant, and roles within your organization &mdash; participant, analyst, admin &mdash; govern what each person can see and do.</p>
+      <p>Diagnostics sent to named recipients use single-use links. The link itself is the credential: a recipient completes the assigned diagnostic without an account, sees their own result only if the sending admin chose to show it, and gains no access to your workspace.</p>
   </div>
 </section>
 <section class="section">
