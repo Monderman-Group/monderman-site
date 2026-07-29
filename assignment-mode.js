@@ -159,8 +159,15 @@
         var depthTxt = cfg.depth_choice
           ? "you choose the run length"
           : (cfg.depth ? "about " + cfg.depth + " minutes" : "set run length");
+        // How they answer is admin-settable too. When it is locked, say so —
+        // otherwise a recipient handed an interview-only run has no idea until
+        // the first question appears.
+        var modeTxt = cfg.response_mode === "interview" ? "interview"
+          : cfg.response_mode === "form" ? "guided form"
+          : "";
         heroStep.textContent =
-          (lens ? lens + " perspective" : "Assigned diagnostic") + " · " + depthTxt;
+          (lens ? lens + " perspective" : "Assigned diagnostic") + " · " + depthTxt +
+          (modeTxt ? " · " + modeTxt : "");
       }
       return;
     },
