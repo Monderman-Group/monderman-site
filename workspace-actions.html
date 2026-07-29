@@ -501,7 +501,7 @@ body{transition:background-color .25s ease, color .25s ease}
 
         <!-- COMPOSE -->
         <section class="card" id="composeCard" hidden>
-          <div class="card-h"><h3>Compose a campaign</h3><span class="sub">Survey mode</span><span id="draftInd" aria-live="polite" style="margin-left:auto;font-size:12px;color:var(--muted-2);align-self:center"></span></div>
+          <div class="card-h"><h3>Compose a campaign</h3><span class="sub">Directed campaign</span><span id="draftInd" aria-live="polite" style="margin-left:auto;font-size:12px;color:var(--muted-2);align-self:center"></span></div>
 
           <div class="grid">
             <div class="field full">
@@ -534,9 +534,17 @@ body{transition:background-color .25s ease, color .25s ease}
             <div class="field">
               <label for="fDepth">Depth</label>
               <select id="fDepth">
-                <option value="10">Quick &mdash; 10 items</option>
-                <option value="30" selected>Standard &mdash; 30 items</option>
-                <option value="60">Deep &mdash; 60 items</option>
+                <option value="10">Quick &mdash; about 10 minutes</option>
+                <option value="30" selected>Standard &mdash; about 30 minutes</option>
+                <option value="60">Deep &mdash; about 60 minutes</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="fResponseMode">How they answer</label>
+              <select id="fResponseMode">
+                <option value="choice" selected>Let the recipient choose</option>
+                <option value="interview">Interview &mdash; conversational</option>
+                <option value="form">Guided form &mdash; the instrument's own controls</option>
               </select>
             </div>
             <div class="field">
@@ -819,6 +827,7 @@ body{transition:background-color .25s ease, color .25s ease}
         tool_type: $("fTool").value,
         participant_lens: $("fVantage").value,
         depth: $("fDepth").value,
+        response_mode: $("fResponseMode").value,
         show_results_to_assignee: $("fShowResults").checked,
         is_anonymous_response: $("fAnon").checked
       };
@@ -1113,7 +1122,8 @@ body{transition:background-color .25s ease, color .25s ease}
     function collectDraft(){
       return { v:1, savedAt:Date.now(),
         fPath:$("fPath").value, fTool:$("fTool").value, fVantage:$("fVantage").value,
-        fDepth:$("fDepth").value, fDue:$("fDue").value, fMessage:$("fMessage").value,
+        fDepth:$("fDepth").value, fResponseMode:$("fResponseMode").value,
+        fDue:$("fDue").value, fMessage:$("fMessage").value,
         fShowResults:$("fShowResults").checked, fAnon:$("fAnon").checked,
         recipients: state.recipients };
     }
@@ -1152,6 +1162,7 @@ body{transition:background-color .25s ease, color .25s ease}
         if(d.fTool) $("fTool").value=d.fTool;
         if(d.fVantage) $("fVantage").value=d.fVantage;
         if(d.fDepth) $("fDepth").value=d.fDepth;
+        if(d.fResponseMode) $("fResponseMode").value=d.fResponseMode;
         if("fDue" in d) $("fDue").value=d.fDue||"";
         if("fMessage" in d) $("fMessage").value=d.fMessage||"";
         $("fShowResults").checked = d.fShowResults!==false;
