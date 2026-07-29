@@ -2859,6 +2859,11 @@ if (!response.ok || !data?.ok) {
   const err = new Error(backendError);
   err.status = response.status;
   err.responseBody = rawText.slice(0, 500);
+  // A 502 with narrativePending means the run WAS scored and saved; only the
+  // written interpretation failed. That is a materially different situation
+  // from a finalize failure and must not be reported as lost work.
+  err.narrativePending = data?.narrativePending === true;
+  err.savedRunId = data?.savedRunId || null;
   throw err;
 }
 
@@ -2953,7 +2958,12 @@ showStage(resultsStage);
 } catch (error) {
 console.error("Adaptive finalize failed", error);
 {
-setHeader("Output generation failed", "The run completed but the output could not be generated. You can try again.", "Finalize failed");
+setHeader(
+error?.narrativePending ? "Written interpretation didn\u2019t generate" : "Output generation failed",
+error?.narrativePending
+? "Your answers are saved and scored. Only the written interpretation failed \u2014 try again."
+: "The run completed but the output could not be generated. You can try again.",
+error?.narrativePending ? "Saved \u2014 retry the write-up" : "Finalize failed");
 showStage(questionStage);
 renderQuestion();
 // Replace the question card with a clean retry UI
@@ -2962,7 +2972,7 @@ if (qCard) {
 const errMsg = error?.message || "Unknown error";
 const errStatus = error?.status ? ` (HTTP ${error.status})` : "";
 const errBody = error?.responseBody ? `<details style="margin-top:8px;"><summary style="cursor:pointer;font-size:.82rem;color:var(--ink-muted);">Show technical details</summary><pre style="margin-top:8px;padding:10px;background:#FAFAF8;border:1px solid rgba(24,25,28,.10);border-radius:8px;font-size:.78rem;overflow:auto;max-height:160px;white-space:pre-wrap;">${error.responseBody.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</pre></details>` : "";
-qCard.innerHTML = ` <div style="display:grid;gap:18px;padding:4px 0;"> <p style="margin:0;font-size:1rem;font-weight:600;color:var(--ink);">Output generation failed.</p> <p style="margin:0;font-size:.95rem;line-height:1.65;color:var(--ink-soft);">The diagnostic run is complete but the output could not be generated.</p> <div style="padding:12px 14px;background:#FAFAF8;border:1px solid rgba(176,57,47,.30);border-radius:8px;"> <p style="margin:0 0 4px;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#B0392F;">Error${errStatus}</p> <p style="margin:0;font-size:.88rem;color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;">${errMsg.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</p> ${errBody} </div> <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;"> <button class="btn btn-accent" id="retryFinalizeBtn" type="button">Try again</button> <button class="btn" id="retryRestartBtn" type="button">Start over</button> </div> </div>`;
+qCard.innerHTML = ` <div style="display:grid;gap:18px;padding:4px 0;"> <p style="margin:0;font-size:1rem;font-weight:600;color:var(--ink);">${error?.narrativePending ? "Your read is saved. The write-up didn\u2019t generate." : "Output generation failed."}</p> <p style="margin:0;font-size:.95rem;line-height:1.65;color:var(--ink-soft);">${error?.narrativePending ? "Your answers and score are saved to your workspace. The written interpretation is generated separately and did not complete. Trying again regenerates it \u2014 your answers are not re-entered." : "The diagnostic run is complete but the output could not be generated."}</p> <div style="padding:12px 14px;background:#FAFAF8;border:1px solid rgba(176,57,47,.30);border-radius:8px;"> <p style="margin:0 0 4px;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#B0392F;">${error?.narrativePending ? "Write-up error" : "Error"}${errStatus}</p> <p style="margin:0;font-size:.88rem;color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;">${errMsg.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</p> ${errBody} </div> <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;"> <button class="btn btn-accent" id="retryFinalizeBtn" type="button">${error?.narrativePending ? "Generate the write-up" : "Try again"}</button> <button class="btn" id="retryRestartBtn" type="button">Start over</button> </div> </div>`;
 $("retryFinalizeBtn")?.addEventListener("click", async () => {
 $("retryFinalizeBtn").disabled = true;
 $("retryFinalizeBtn").textContent = "Generating...";
