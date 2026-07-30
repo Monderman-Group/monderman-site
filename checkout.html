@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout | Monderman</title>
+  <meta name="description" content="Secure subscription checkout for Monderman tiers. Card handling by Stripe — card details never touch Monderman." />
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <style>
+    @font-face{font-family:'Neue Haas Grotesk';src:url('55font.woff2') format('woff2'),url('55font.woff') format('woff');font-weight:400;font-style:normal;font-display:swap;}
+    @font-face{font-family:'Neue Haas Grotesk';src:url('65font.woff2') format('woff2'),url('65font.woff') format('woff');font-weight:500;font-style:normal;font-display:swap;}
+    @font-face{font-family:'Neue Haas Grotesk';src:url('75font.woff2') format('woff2'),url('75font.woff') format('woff');font-weight:700;font-style:normal;font-display:swap;}
+    :root{--ink:#18191C;--deep:#08383E;--accent:#0C6E78;--accent-dark:#0A5B63;--gold:#C9821F;--cream:#F7F4EC;--line:#E7E2D6;}
+    *{box-sizing:border-box;}
+    body{margin:0;background:var(--cream);color:var(--ink);font-family:'Neue Haas Grotesk',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+    header{display:flex;align-items:center;justify-content:space-between;padding:18px 26px;}
+    header a.brand{font-weight:700;font-size:18px;letter-spacing:-.02em;color:var(--deep);text-decoration:none;}
+    header a.back{font-size:13.5px;color:var(--accent);text-decoration:none;font-weight:500;}
+    main{max-width:560px;margin:26px auto 70px;padding:0 22px;}
+    .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:30px;box-shadow:0 10px 34px rgba(8,56,62,.07);}
+    .eyebrow{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700;margin:0 0 8px;}
+    h1{margin:0 0 4px;font-size:26px;letter-spacing:-.03em;color:var(--deep);}
+    .price{margin:16px 0 2px;font-size:34px;font-weight:700;color:var(--deep);letter-spacing:-.03em;}
+    .price small{font-size:14px;font-weight:500;color:#6E6F73;letter-spacing:0;}
+    .billing-line{margin:0 0 16px;font-size:13.5px;color:#6E6F73;}
+    ul.inc{list-style:none;margin:14px 0 4px;padding:0;font-size:14px;line-height:1.55;}
+    ul.inc li{padding:7px 0 7px 24px;position:relative;border-top:1px solid #F0ECE1;}
+    ul.inc li:first-child{border-top:0;}
+    ul.inc li::before{content:"\2713";position:absolute;left:2px;color:var(--accent);font-weight:700;}
+    .seatline{margin:16px 0 0;padding:12px 14px;background:#EDF4F4;border-radius:10px;font-size:12.8px;line-height:1.55;color:#3A4A4C;}
+    .btn{display:block;width:100%;margin-top:22px;padding:15px 18px;border:0;border-radius:11px;background:var(--accent);color:#fff;font-family:inherit;font-size:15.5px;font-weight:600;cursor:pointer;transition:background 200ms;}
+    .btn:hover{background:var(--accent-dark);}
+    .btn[disabled]{opacity:.55;cursor:default;}
+    .fine{margin:14px 0 0;font-size:12.3px;line-height:1.6;color:#8A8B90;text-align:center;}
+    .fine a{color:var(--accent);}
+    .panel{display:none;margin-top:18px;padding:15px 16px;border-radius:11px;font-size:13.5px;line-height:1.6;}
+    .panel.warn{background:#FBF3E3;border:1px solid rgba(201,130,31,.35);color:#6B4E14;}
+    .panel.err{background:#FBEBE9;border:1px solid rgba(170,50,40,.3);color:#7A2A22;}
+    .panel a{color:inherit;font-weight:600;}
+    .muted-note{margin-top:26px;text-align:center;font-size:12.8px;color:#8A8B90;}
+    .muted-note a{color:var(--accent);text-decoration:none;font-weight:500;}
+  </style>
+</head>
+<body>
+  <header>
+    <a class="brand" href="index.html">Monderman</a>
+    <a class="back" href="platform-services.html">&larr; All tiers &amp; pricing</a>
+  </header>
+  <main>
+    <div class="card">
+      <p class="eyebrow">Secure checkout</p>
+      <h1 id="tierName">Loading&hellip;</h1>
+      <div class="price" id="priceLine"></div>
+      <p class="billing-line" id="billingLine"></p>
+      <ul class="inc" id="incList"></ul>
+      <div class="seatline"><strong>People are never the meter.</strong> Every tier includes unlimited people at no charge &mdash; invite everyone whose vantage matters. Campaign responses never count against your runs.</div>
+      <button class="btn" id="payBtn" disabled>Continue to secure checkout</button>
+      <div class="panel warn" id="unavailablePanel">
+        Self-serve checkout is being enabled. In the meantime, request an order form and we will set your tier up by invoice: <a id="connectLink" href="connect.html">open the Connect form</a>.
+      </div>
+      <div class="panel err" id="errorPanel"></div>
+      <p class="fine">Payment and card handling by <strong>Stripe</strong>; your card details never touch Monderman. Subscriptions renew automatically and can be cancelled any time from your workspace, effective at the end of the paid period. By continuing you agree to the <a href="privacy.html">privacy notice</a>; the subscription terms are presented on the Stripe checkout page.</p>
+    </div>
+    <p class="muted-note">Prefer invoicing on a purchase order, or buying Advisory or Enterprise? <a href="connect.html">Talk to us</a>.</p>
+  </main>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co",
+      "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
+      { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" }});
+
+    const API_BASE = "https://monderman-api.onrender.com";
+
+    // Tier facts shown on this page. Prices are display-only; the amount Stripe
+    // charges comes from the server-selected Price ID, never from this file.
+    const TIERS = {
+      baseline: {
+        name: "Baseline",
+        includes: [
+          "One diagnostic of your choice \u2014 switch it at any quarter boundary",
+          "24 self-run diagnostics a year",
+          "One campaign per quarter, up to 15 recipients \u2014 responses never counted",
+          "Full workspace: saved history and the over-time lens on your instrument",
+          "Email platform support"
+        ],
+        prices: {
+          monthly:   { headline: "$1,000", line: "per month, billed monthly" },
+          quarterly: { headline: "$950",   line: "per month, billed quarterly \u2014 save 5%" },
+          annual:    { headline: "$850",   line: "per month, billed annually \u2014 save 15%" }
+        }
+      },
+      signal: {
+        name: "Signal",
+        includes: [
+          "All four diagnostics + cross-diagnostic synthesis",
+          "Unlimited campaigns \u2014 responses never counted",
+          "120 self-run diagnostics a year",
+          "Every analysis lens: over time, across units, across vantages, benchmarks, screening",
+          "Priority support + onboarding session"
+        ],
+        prices: {
+          monthly:   { headline: "$4,000", line: "per month, billed monthly" },
+          quarterly: { headline: "$3,800", line: "per month, billed quarterly \u2014 save 5%" },
+          annual:    { headline: "$3,400", line: "per month, billed annually \u2014 save 15%" }
+        }
+      }
+    };
+
+    const params = new URLSearchParams(location.search);
+    // Selection survives the sign-in hop via sessionStorage.
+    let tier = (params.get("tier") || sessionStorage.getItem("mdm_checkout_tier") || "").toLowerCase();
+    let interval = (params.get("interval") || sessionStorage.getItem("mdm_checkout_interval") || "").toLowerCase();
+    if (TIERS[tier]) sessionStorage.setItem("mdm_checkout_tier", tier);
+    if (["monthly","quarterly","annual"].includes(interval)) sessionStorage.setItem("mdm_checkout_interval", interval);
+
+    const el = (id) => document.getElementById(id);
+
+    if (!TIERS[tier] || !TIERS[tier].prices[interval]) {
+      el("tierName").textContent = "Pick a tier first";
+      el("billingLine").textContent = "This page needs a tier and billing choice.";
+      el("errorPanel").style.display = "block";
+      el("errorPanel").innerHTML = 'No valid selection found. <a href="platform-services.html">Choose a tier</a> and try again.';
+    } else {
+      const t = TIERS[tier], p = t.prices[interval];
+      el("tierName").textContent = t.name + " tier";
+      el("priceLine").innerHTML = p.headline + ' <small>' + p.line + "</small>";
+      el("billingLine").textContent = "Purchasing for your organization \u2014 the tier unlocks for everyone in your workspace.";
+      el("incList").innerHTML = t.includes.map((x) => "<li>" + x + "</li>").join("");
+      el("connectLink").href = "connect.html?plan=" + tier;
+      boot();
+    }
+
+    async function boot() {
+      const { data } = await sb.auth.getSession();
+      if (!data?.session) {
+        location.replace("signin.html?next=" + encodeURIComponent("checkout.html"));
+        return;
+      }
+      const btn = el("payBtn");
+      btn.disabled = false;
+      btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        btn.textContent = "Opening secure checkout\u2026";
+        try {
+          const { data: s } = await sb.auth.getSession();
+          const res = await fetch(API_BASE + "/api/billing/create-checkout-session", {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+              "authorization": "Bearer " + (s?.session?.access_token || "")
+            },
+            body: JSON.stringify({ tier, interval })
+          });
+          const out = await res.json().catch(() => ({}));
+          if (res.ok && out.url) { location.href = out.url; return; }
+          if (res.status === 503) { el("unavailablePanel").style.display = "block"; }
+          else if (res.status === 403) { showError("Only a workspace admin can purchase for the organization. Ask your admin to complete checkout, or contact us via the Connect form."); }
+          else if (res.status === 401) { location.replace("signin.html?next=" + encodeURIComponent("checkout.html")); return; }
+          else { showError("Checkout could not be started. Nothing was charged \u2014 please try again, or use the Connect form for an order form."); }
+        } catch (e) {
+          showError("Checkout could not be reached. Nothing was charged \u2014 please try again in a moment.");
+        }
+        btn.disabled = false;
+        btn.textContent = "Continue to secure checkout";
+      });
+    }
+
+    function showError(msg) {
+      const p = el("errorPanel");
+      p.style.display = "block";
+      p.textContent = msg;
+    }
+  </script>
+</body>
+</html>
