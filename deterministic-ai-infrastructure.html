@@ -542,7 +542,7 @@
     <div class="ps-hero-inner">
       <span class="ps-eyebrow">How the engine works</span>
       <h1>Deterministic AI Infrastructure</h1>
-      <p class="lede">Why a Monderman read is repeatable: the same inputs produce the same score, every run &mdash; with AI confined to interpretation inside facts it cannot change.</p>
+      <p class="lede">Why a Monderman read is repeatable: the same answers produce the same score on every run, in any year &mdash; with AI confined to interpretation inside facts it cannot change.</p>
       <div class="ps-hero-actions">
         <a class="btn btn-accent" href="Monderman_Insight_After_the_First_Lap.pdf">Read the full paper &rarr;</a>
       </div>
@@ -554,7 +554,11 @@
       <span class="ps-section-label">What it is</span>
       <h2 class="ps-h2">Custom questions, not custom math.</h2>
       <p class="ps-sub">Most AI products hand the whole task to a large language model. Ask the same question twice and you can get two different answers &mdash; fine for a draft, disqualifying for a measurement an executive has to act on.</p>
-      <p class="ps-sub">Deterministic AI Infrastructure (DAII) is a different design. The structured work &mdash; scoring, calibration, the math that turns answers into a number &mdash; is encoded in proprietary engineering that runs the same way every time. A language model is invoked only where its judgment genuinely adds value: reading the result back in plain language, inside facts it cannot contradict. Monderman is built this way: the inputs change, the engine does not.</p>
+      <p class="ps-sub">Deterministic AI Infrastructure (DAII) is a different design. The structured work &mdash; scoring, calibration, the math that turns answers into a number &mdash; is encoded in proprietary engineering that runs the same way every time. A language model is invoked only where its judgment genuinely adds value: reading the result back in plain language, inside facts it cannot contradict. There is no model in the scoring path, and nothing in it is probabilistic: no sampling, no temperature, no learned weights that shift between runs.</p>
+      <p class="ps-sub">It is worth being exact about what does and does not move a score, because &#8220;deterministic&#8221; is often read to mean &#8220;frozen,&#8221; and that is not what it means.</p>
+      <p class="ps-sub"><strong>Your answers move the score.</strong> That is the entire point. A different organization, or the same organization six months later, answers differently and scores differently.</p>
+      <p class="ps-sub"><strong>The engine does not.</strong> The arithmetic that turns answers into a number is fixed. It does not learn from prior runs, drift with usage, or vary by who is asking. Give it the same answers to the same questions in ten years and it returns the same number.</p>
+      <p class="ps-sub"><strong>The instruments are refined over time, deliberately.</strong> Questions get added as the method deepens. When that happens scores shift, because the instrument is measuring more than it did before. That is a correct result rather than drift: a new question that left the score untouched would mean the question was measuring nothing. What it demands is discipline about comparison. A before-and-after read is only evidence when both runs used the same version of the instrument, which is why a re-measure is run on the same version rather than the newest one.</p>
       <figure class="daii-fig">
         <svg viewBox="0 0 720 318" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A deterministic engine returns the same score for the same inputs and a different score for different inputs; a raw model drifts on identical inputs">
   <defs>
@@ -599,7 +603,7 @@
   <text x="634" y="245" text-anchor="middle" font-family="Inter,'Neue Haas Grotesk',Helvetica,Arial,sans-serif" font-size="21" font-weight="700" fill="#9A9892">58</text>
   <text x="408" y="282" font-family="'Neue Haas Grotesk',Helvetica,Arial,sans-serif" font-size="12.5" fill="#9A9892">Drifts run to run</text>
 </svg>
-        <figcaption>Consistent, not constant. Run the same inputs three times and the deterministic engine returns the same score, while a raw model drifts. Run different inputs through the same engine and the score moves with them &#8212; 67 is this organization&#8217;s answer, not the engine&#8217;s only answer.</figcaption>
+        <figcaption>Consistent, not constant. Run the same answers three times and the deterministic engine returns the same score, while a raw model drifts. Change the answers and the score moves with them &#8212; 67 is this organization&#8217;s answer, not the engine&#8217;s only answer.</figcaption>
       </figure>
     </div>
   </section>
@@ -610,8 +614,9 @@
       <h2 class="ps-h2">A number that means the same thing every time.</h2>
       <p class="ps-sub">Determinism is what makes the rest of the platform trustworthy. Because the score is reproducible and quantified against calibrated sector ranges &mdash; not mood, not opinion &mdash; you can re-measure after a change and see, in the second read, whether capacity actually returned.</p>
       <div class="daii-props">
-        <div class="p"><h4>Reproducible</h4><span>Identical inputs produce an identical score on every run; only different inputs move the number.</span></div>
-        <div class="p"><h4>Bounded</h4><span>The language model interprets results inside locked facts &mdash; it never sets the score.</span></div>
+        <div class="p"><h4>Reproducible</h4><span>The same answers to the same questions produce the same score, on every run and in any year. Nothing in the scoring path is probabilistic.</span></div>
+        <div class="p"><h4>Versioned</h4><span>Instruments are refined as the method deepens, and a refined instrument is a new version. Comparisons hold within a version &#8212; which is what makes a second read evidence rather than a story.</span></div>
+        <div class="p"><h4>Bounded</h4><span>The language model interprets a finished result inside locked facts &mdash; it never sets the score.</span></div>
         <div class="p"><h4>Calibrated</h4><span>Every result is positioned against sector ranges, in your own hours and dollars.</span></div>
       </div>
     </div>
