@@ -696,12 +696,12 @@ body{transition:background-color .25s ease,color .25s ease}
       const used = Number(org.runs_used ?? state.runs.length ?? 0);
       const seatLimit = org.seat_limit;
       const seats = (seatLimit==null) ? "Unlimited" : String(seatLimit);
-      const usage = plan==="free" ? "3 free per diagnostic"
-                   : (org.run_limit==null ? "Unlimited (fair use)" : `${used} of ${org.run_limit} run`);
+      const usage = plan==="free" ? `${Math.min(used,3)} of 3 free runs used`
+                   : (org.run_limit==null ? "Runs covered by your tier's allowance" : `${used} of ${org.run_limit} runs`);
       $("wsPlanStrip").innerHTML =
         `<span><b>${escapeHtml(PLAN_LABEL[plan]||plan)}</b> plan</span>`+
         `<span class="sep">·</span><span>${escapeHtml(usage)}</span>`+
-        `<span class="sep">·</span><span>${escapeHtml(seats)} seats</span>`;
+        `<span class="sep">·</span><span>Unlimited people</span>`;
       $("wsManageLink").textContent = plan==="free" ? "Upgrade →" : "Manage plan →";
     }
 
