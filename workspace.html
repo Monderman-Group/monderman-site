@@ -605,14 +605,14 @@ body{transition:background-color .25s ease,color .25s ease}
       }
       const { data:memberships, error:membershipError } = await supabase
         .from("organization_members")
-        .select("organization_id, role, organizations(id, name, slug, plan, run_limit, runs_used, seat_limit, features, analyst_reviews_included, hands_on_advisory, plan_period)")
+        .select("organization_id, role, organizations(id, name, slug, plan, run_limit, runs_used, seat_limit, features, analyst_reviews_included, hands_on_advisory, plan_period, allowed_tool_type)")
         .eq("user_id", user.id).limit(1);
       if(membershipError) throw membershipError;
       if(memberships?.length) return memberships[0];
       const slugBase = String(fullName).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"") || "workspace";
       const { data:org, error:orgError } = await supabase.from("organizations")
         .insert({ name:`${fullName} Workspace`, slug:`${slugBase}-workspace`, owner_user_id:user.id })
-        .select("id, name, slug, plan, run_limit, runs_used, seat_limit, features, analyst_reviews_included, hands_on_advisory, plan_period")
+        .select("id, name, slug, plan, run_limit, runs_used, seat_limit, features, analyst_reviews_included, hands_on_advisory, plan_period, allowed_tool_type")
         .single();
       if(orgError) throw orgError;
       const { error:memberError } = await supabase.from("organization_members").insert({ organization_id:org.id, user_id:user.id, role:"admin" });
@@ -651,7 +651,7 @@ body{transition:background-color .25s ease,color .25s ease}
       const thesis=$("wsThesis"), meta=$("wsReadMeta"), cta=$("wsHeroCta");
       if(readCount===0){
         thesis.innerHTML = 'Measure how your organization is really <em>performing</em>.';
-        meta.textContent = "Four instruments. About 20–30 minutes each.";
+        meta.textContent = "Four instruments. About 25 minutes each at the recommended depth.";
         cta.textContent = "Run a diagnostic"; cta.href = "workspace-diagnostics.html#launch";
       } else if(readCount < 2){
         thesis.textContent = `${readCount} of four instruments measured.`;
@@ -694,13 +694,14 @@ body{transition:background-color .25s ease,color .25s ease}
       const org = state.organization || {};
       const plan = org.plan || "free";
       const used = Number(org.runs_used ?? state.runs.length ?? 0);
-      const seatLimit = org.seat_limit;
-      const seats = (seatLimit==null) ? "Unlimited" : String(seatLimit);
       const usage = plan==="free" ? `${Math.min(used,3)} of 3 free runs used`
-                   : (org.run_limit==null ? "Runs covered by your tier's allowance" : `${used} of ${org.run_limit} runs`);
+                   : (org.run_limit==null ? "Runs covered by your tier's allowance" : `${used} of ${org.run_limit} runs this year`);
+      const instrument = (plan==="baseline" && org.allowed_tool_type)
+        ? `<span class="sep">·</span><span>Instrument: ${escapeHtml(toolName(org.allowed_tool_type))}</span>` : "";
       $("wsPlanStrip").innerHTML =
         `<span><b>${escapeHtml(PLAN_LABEL[plan]||plan)}</b> plan</span>`+
         `<span class="sep">·</span><span>${escapeHtml(usage)}</span>`+
+        instrument+
         `<span class="sep">·</span><span>Unlimited people</span>`;
       $("wsManageLink").textContent = plan==="free" ? "Upgrade →" : "Manage plan →";
     }
