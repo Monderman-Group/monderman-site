@@ -647,6 +647,12 @@ body{transition:background-color .25s ease, color .25s ease}
       { auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" } }
     );
     const API_BASE = "https://monderman-api.onrender.com";
+    // Campaign routes now require the caller's token (2 Aug 2026); attach it everywhere.
+    async function apiAuthHeaders(extra){
+      const { data } = await supabase.auth.getSession();
+      const t = data?.session?.access_token;
+      return { ...(extra || {}), ...(t ? { Authorization: "Bearer " + t } : {}) };
+    }
     const APP_BASE = "https://monderman.com";
 
     const PLAN_LABEL = { free:"Free", baseline:"Baseline", signal:"Signal", advisory:"Advisory" };
@@ -852,7 +858,7 @@ body{transition:background-color .25s ease, color .25s ease}
       fd.append("defaults", JSON.stringify(buildDefaults()));
       $("btnPreview").dataset.label="Preview"; busy("btnPreview",true,"Checking\u2026");
       try{
-        const res=await fetch(`${API_BASE}/api/workspace/assignments/preview-batch`, { method:"POST", body:fd });
+        const res=await fetch(`${API_BASE}/api/workspace/assignments/preview-batch`, { method:"POST", headers: await apiAuthHeaders(), body:fd });
         const data=await res.json().catch(()=>({}));
         if(!res.ok || data.ok===false) throw new Error(data.error || ("HTTP "+res.status));
         renderPreview(data);
@@ -887,7 +893,7 @@ body{transition:background-color .25s ease, color .25s ease}
       fd.append("batch_label", buildDefaults().event_path_name || "");
       $("btnSend").dataset.label="Send campaign"; busy("btnSend",true,"Sending\u2026");
       try{
-        const res=await fetch(`${API_BASE}/api/workspace/assignments/send-batch`, { method:"POST", body:fd });
+        const res=await fetch(`${API_BASE}/api/workspace/assignments/send-batch`, { method:"POST", headers: await apiAuthHeaders(), body:fd });
         const data=await res.json().catch(()=>({}));
         if(!res.ok || data.ok===false) throw new Error(data.error || ("HTTP "+res.status));
         const sent = (data.sent ? data.sent.length : undefined) ?? data.sent_count ?? state.lastReady;
@@ -977,7 +983,7 @@ body{transition:background-color .25s ease, color .25s ease}
       if(btn){ btn.disabled=true; btn.textContent="Sending\u2026"; }
       try{
         const res = await fetch(`${API_BASE}/api/workspace/assignments/resend`, {
-          method:"POST", headers:{ "Content-Type":"application/json" },
+          method:"POST", headers: await apiAuthHeaders({ "Content-Type":"application/json" }),
           body: JSON.stringify({ organization_id: state.orgId, sender_user_id: state.userId, assignment_ids: ids, reminder: true })
         });
         const j = await res.json().catch(()=>({}));
@@ -997,7 +1003,7 @@ body{transition:background-color .25s ease, color .25s ease}
       const orig=btn?btn.textContent:""; if(btn){ btn.disabled=true; btn.textContent="Saving\u2026"; }
       try{
         const res=await fetch(`${API_BASE}/api/workspace/assignments/close`, {
-          method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(body)
+          method:"POST", headers: await apiAuthHeaders({ "Content-Type":"application/json" }), body: JSON.stringify(body)
         });
         const j=await res.json().catch(()=>({}));
         if(!res.ok || j.ok===false) throw new Error(j.error || ("HTTP "+res.status));
