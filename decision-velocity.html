@@ -895,6 +895,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
       </div>
     </section>
 
+        <section class="viz-card" id="basisOfRead" style="margin:6px 0 0;"><h4>Basis of this read</h4><dl id="basisRows" style="display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:10px 0 0;font-size:.92rem;line-height:1.55;"></dl><p class="viz-note" style="margin-top:10px;">Published with every read: the same basis travels in the JSON export. Identical answers on this instrument version yield the identical score.</p></section>
     <section class="advisory-card"><div><p class="summary-label" style="margin-bottom:8px;color:var(--accent);">Next step</p><h3 style="margin:0 0 8px;">Bring this into a deeper platform services conversation.</h3><p class="result-copy" style="margin:0;">If the pattern appears broader, more persistent, or more costly than a directional tool can resolve, Monderman can go deeper on decision pathways, approval design, governance proportionality, and off-path workarounds.</p></div><div class="export-cta-stack"><div class="export-primary-row"><button class="btn btn-accent" id="downloadPdfBtn" type="button">Download Summary (PDF)</button><a class="btn" href="connect.html" target="_blank" rel="noopener noreferrer">Discuss with Monderman Platform Services</a></div><div class="export-inline-row"><button class="action-link" id="downloadReportBtn" type="button">Download Summary (HTML)</button><span aria-hidden="true" style="color:rgba(24,25,28,.18)">|</span><button class="action-link" id="downloadFullReportBtn" type="button">Download Full Report (HTML)</button><span aria-hidden="true" style="color:rgba(24,25,28,.18)">|</span><button class="action-link" id="saveCrossDiagnosticBtn" type="button">Save for cross-diagnostic synthesis</button></div><div class="export-utility-row"><button class="utility-btn" id="newRunBtn" type="button">Run another diagnostic</button><span aria-hidden="true" style="color:rgba(24,25,28,.18)">|</span><a class="utility-btn" href="diagnostics.html" target="_blank" rel="noopener noreferrer">Back to diagnostics</a></div><a id="reportDownloadLink" class="hidden-download" download="monderman-decision-velocity-report.html"></a><a id="crossDiagnosticDownloadLink" class="hidden-download" download="monderman-decision-velocity-result.json"></a></div></section>
     <section class="results-disclaimer" id="bottomDisclaimer"></section>
   </div></div>
@@ -2844,6 +2845,8 @@ if ((data && data.locked === true) || (response.status === 402 && data?.error ==
   showRunsExhausted();
   return;
 }
+
+state.configVersion = (data && data.routingMeta && data.routingMeta.configVersion) || state.configVersion || null;
 
 // Baseline gate outcomes (2 Aug 2026): surface lock/switch notes, and keep a
 // persistent notice when the run rendered but was not saved.
@@ -5064,7 +5067,42 @@ if (!panel.contains(event.target) && event.target !== trigger) panel.classList.r
 // ═══════════════════════════════════════════════════════════
 // 5. RENDERING FUNCTIONS (UI Components & Display)
 // ═══════════════════════════════════════════════════════════
+function renderBasisOfRead(result, payload) {
+  const host = document.getElementById("basisRows"); if (!host) return;
+  const esc = (v) => String(v).replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]));
+  const num = (v) => { const n = Number(v); return v !== "" && v != null && !Number.isNaN(n) ? n : null; };
+  const p = payload || {};
+  const sectorName = (typeof displayIndustryLabel === "function")
+    ? (displayIndustryLabel(p.industry, { titleCase: true }) || "") : String(p.industry || "");
+  const cal = (result && result.sector_context && result.sector_context.calibration) || {};
+  const calTxt = (cal.industryMin != null && cal.industryMax != null)
+    ? `${sectorName || "Sector"} calibration \u00b7 typical range ${cal.industryMin}\u2013${cal.industryMax}`
+    : (sectorName ? `${sectorName} calibration` : "Sector-family calibration");
+  const inputs = [];
+  const people = num(p.peopleInvolved) ?? num(p.peopleAffected) ?? num(p.peopleCount);
+  if (people != null) inputs.push(`${people} people involved`);
+  const rate = num(p.hourlyCost) ?? num(p.hourlyRate); if (rate != null) inputs.push(`$${rate}/hr loaded`);
+  const vol = num(p.annualVolume) ?? num(p.annualCycles); if (vol != null) inputs.push(`${vol} annual cycles`);
+  const mtg = num(p.meetingHours); if (mtg != null) inputs.push(`${mtg} meeting hrs/wk`);
+  const orgN = num(p.employeeCount); if (orgN != null) inputs.push(`organization of ${orgN}`);
+  const depthMin = p.diagnostic_depth || p.diagnosticDepth || (typeof state !== "undefined" ? state.depth : null);
+  const depthLabel = (typeof depthConfigs !== "undefined" && depthConfigs[String(depthMin)] && depthConfigs[String(depthMin)].label)
+    || (depthMin ? `${depthMin}-minute diagnostic` : "\u2014");
+  const mode = p.participantMode || p.participant_mode || (typeof state !== "undefined" ? state.mode : "");
+  const laneLabel = (typeof laneConfigs !== "undefined" && laneConfigs[mode] && laneConfigs[mode].label) || (mode ? String(mode) : "\u2014");
+  const cfg = (typeof state !== "undefined" && state.configVersion) ? state.configVersion : "\u2014";
+  const scorer = (result && result.scorer_version) ? result.scorer_version : "\u2014";
+  const rows = [
+    ["Sector", esc(calTxt)],
+    ["Disclosed inputs", esc(inputs.length ? inputs.join(" \u00b7 ") : "none beyond the structured answers")],
+    ["Depth \u00b7 vantage", esc(`${depthLabel} \u00b7 ${laneLabel}`)],
+    ["Instrument version", `<code style="font-size:.85em">config ${esc(cfg)} \u00b7 scorer ${esc(scorer)}</code>`]
+  ];
+  host.innerHTML = rows.map(([k, v]) => `<dt style="font-weight:700;">${esc(k)}</dt><dd style="margin:0;color:var(--ink-soft,#3A4754);">${v}</dd>`).join("");
+}
 function renderResults(result, payload, outputMode) {
+try { renderBasisOfRead(result, payload); } catch (_e) {}
+
 const harmonized = buildHarmonizedNarrative(result, payload);
 const resultWithState = { ...result, __interpretiveState: harmonized.state };
 const burdenCondition = deriveOperatingBurdenCondition(result);
