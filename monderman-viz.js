@@ -1,9 +1,9 @@
 /* monderman-viz.js
  * Monderman · Report Visualization Library (v1)
  *
- * Dependency-free SVG charts in an editorial register — band scales,
- * zone-shaded dot plots, composition bars, capacity waffles. Designed to
- * replace Chart.js gauges/donuts across the diagnostic report pages.
+ * Dependency-free SVG charts in an editorial register: zone-shaded dot
+ * plots, composition bars, priority ladders, and capacity-flow diagrams.
+ * Designed to replace Chart.js gauges/donuts across the report pages.
  *
  * Why SVG, not canvas: vector output stays crisp in the executive PDF
  * export at any scale; typography inherits the page font (Neue Haas);
@@ -12,14 +12,15 @@
  * Every renderer is defensive: missing data → it renders what it can or
  * nothing at all, never throws. All charts are responsive via viewBox.
  *
+ * v1.1 (2 Aug 2026): pruned renderers with no call sites anywhere in the
+ * site (scoreScale, capacityWaffle, trajectoryGlyph, quadProfile); the
+ * pages render those concepts via Chart.js and hand-built markup.
+ *
  * API (each takes a container element or id, plus a data object):
- *   MViz.scoreScale(el, { score, band, calibration, benchmarkText })
  *   MViz.severityDots(el, { rows:[{label,value}], thresholds })
  *   MViz.shareBar(el, { segments:[{label,pct}] })
- *   MViz.capacityWaffle(el, { percent, caption })
  *   MViz.priorityPath(el, { steps:[{label,severity}] })
- *   MViz.trajectoryGlyph(el, { label })
- *   MViz.quadProfile(el, { points:[{label,score}] })   // synthesis page
+ *   MViz.effortFlow(el, { totalCost, structuralCost, reclaimCost, dims, note })
  */
 (function (global) {
   "use strict";
@@ -86,63 +87,7 @@
   function fmt(n) { return Number(n).toLocaleString("en-US"); }
 
   /* ════════════════════════════════════════════════════════════════════
-   * 1. scoreScale — bullet/band chart replacing the gauge.
-   *    A 0–100 horizontal scale showing: the sector's typical industry
-   *    range (solid soft band), the opportunity range (hatched band),
-   *    and this run's score as a strong marker. The score finally has
-   *    visible reference context instead of floating in a dial.
-   * ════════════════════════════════════════════════════════════════════ */
-  function scoreScale(el, data) {
-    const score = num(data && data.score);
-    if (score === null) return;
-    const cal = (data && data.calibration) || {};
-    const iMin = num(cal.industryMin), iMax = num(cal.industryMax);
-    const oMin = num(cal.opportunityMin), oMax = num(cal.opportunityMax);
-
-    const W = 640, H = 132, L = 26, R = 26;
-    const axW = W - L - R, axY = 84;
-    const X = (v) => L + (clamp(v, 0, 100) / 100) * axW;
-
-    const svg = mount(el, W, H, "Score in sector context");
-    if (!svg) return;
-
-    /* hatch pattern for the opportunity range */
-    const defs = S("defs", {}, svg);
-    const pat = S("pattern", { id: "mv-hatch", width: 6, height: 6, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" }, defs);
-    S("rect", { width: 6, height: 6, fill: "rgba(12,110,120,.07)" }, pat);
-    S("line", { x1: 0, y1: 0, x2: 0, y2: 6, stroke: "rgba(12,110,120,.35)", "stroke-width": 1.4 }, pat);
-
-    /* reference bands (drawn under the axis) */
-    const bandY = axY - 16, bandH = 32;
-    if (oMin !== null && oMax !== null) {
-      S("rect", { x: X(oMin), y: bandY, width: X(oMax) - X(oMin), height: bandH, fill: "url(#mv-hatch)", rx: 3 }, svg);
-      txt(svg, (X(oMin) + X(oMax)) / 2, bandY - 24, "OPPORTUNITY RANGE", { anchor: "middle", fill: T.muted, spacing: ".08em" });
-      S("line", { x1: (X(oMin) + X(oMax)) / 2, y1: bandY - 19, x2: (X(oMin) + X(oMax)) / 2, y2: bandY - 4, stroke: T.hairline }, svg);
-    }
-    if (iMin !== null && iMax !== null) {
-      S("rect", { x: X(iMin), y: bandY, width: X(iMax) - X(iMin), height: bandH, fill: T.accentSoft, rx: 3 }, svg);
-      txt(svg, (X(iMin) + X(iMax)) / 2, axY + 34, "TYPICAL INDUSTRY RANGE", { anchor: "middle", fill: T.accentDark, spacing: ".08em" });
-      S("line", { x1: (X(iMin) + X(iMax)) / 2, y1: axY + 17, x2: (X(iMin) + X(iMax)) / 2, y2: axY + 25, stroke: T.hairline }, svg);
-    }
-
-    /* axis */
-    S("line", { x1: L, y1: axY, x2: W - R, y2: axY, stroke: T.hairline, "stroke-width": 1 }, svg);
-    [0, 25, 50, 75, 100].forEach((v) => {
-      S("line", { x1: X(v), y1: axY - 3, x2: X(v), y2: axY + 3, stroke: T.hairline }, svg);
-      txt(svg, X(v), axY + 16, String(v), { anchor: "middle", fill: T.muted });
-    });
-
-    /* score marker — lozenge + numeral above */
-    const sx = X(score);
-    S("line", { x1: sx, y1: bandY - 6, x2: sx, y2: bandY + bandH + 6, stroke: T.ink, "stroke-width": 2.2 }, svg);
-    const lozW = 56, lozH = 30, lozX = clamp(sx - lozW / 2, L, W - R - lozW), lozY = bandY - 44;
-    S("rect", { x: lozX, y: lozY, width: lozW, height: lozH, rx: 3, fill: T.ink }, svg);
-    txt(svg, lozX + lozW / 2, lozY + 20, String(Math.round(score)), { anchor: "middle", fill: "#fff", size: "15px", weight: 600 });
-    S("path", { d: `M ${clamp(sx, lozX + 8, lozX + lozW - 8) - 5} ${lozY + lozH} l 5 6 l 5 -6 Z`, fill: T.ink }, svg);
-  }
-
-  /* ════════════════════════════════════════════════════════════════════
-   * 2. severityDots — ranked dot plot replacing the donut.
+   * 1. severityDots — ranked dot plot replacing the donut.
    *    Each burden dimension as a dot on a 0–100 severity axis, with
    *    whisper-shaded zones (healthy <35 / strained 35–55 / severe >55,
    *    matching the engine's material-floor and note thresholds). Shows
@@ -192,7 +137,7 @@
   }
 
   /* ════════════════════════════════════════════════════════════════════
-   * 3. shareBar — single 100% composition bar + legend.
+   * 2. shareBar — single 100% composition bar + legend.
    *    Shows each dimension's SHARE of total burden — the authoritative
    *    composition the locked facts reference. Read together with
    *    severityDots, the pair makes the share-vs-absolute distinction
@@ -230,44 +175,7 @@
   }
 
   /* ════════════════════════════════════════════════════════════════════
-   * 4. capacityWaffle — 10×10 grid; each cell = 1% of productive capacity.
-   *    Absorbed share tinted. The most immediately legible way to show
-   *    "this much of your capacity is being consumed by drag."
-   * ════════════════════════════════════════════════════════════════════ */
-  function capacityWaffle(el, data) {
-    const pct = num(data && data.percent);
-    if (pct === null) return;
-    const cells = clamp(Math.round(pct), 0, 100);
-
-    const cols = 10, size = 17, gap = 4;
-    const gridW = cols * size + (cols - 1) * gap;
-    const W = 640, H = gridW + 34;
-    const svg = mount(el, W, H, "Productive capacity absorbed");
-    if (!svg) return;
-
-    for (let i = 0; i < 100; i++) {
-      const r = Math.floor(i / cols), c = i % cols;
-      const absorbed = i < cells;
-      S("rect", {
-        x: c * (size + gap), y: r * (size + gap),
-        width: size, height: size, rx: 1.5,
-        fill: absorbed ? "rgba(176,57,47,.72)" : "rgba(24,25,28,.07)"
-      }, svg);
-    }
-    const tx = gridW + 36;
-    txt(svg, tx, 28, Math.round(pct) + "%", { fill: T.danger, size: "30px", weight: 600 });
-    txt(svg, tx, 52, "of productive capacity absorbed", { fill: T.inkSoft, size: T.fontLabel });
-    txt(svg, tx, 70, "by administrative and structural drag", { fill: T.inkSoft, size: T.fontLabel });
-    if (data && data.caption) {
-      String(data.caption).split("\n").forEach((line, i) => {
-        txt(svg, tx, 98 + i * 18, line, { fill: T.muted, size: T.fontAxis });
-      });
-    }
-    txt(svg, 0, gridW + 22, "Each cell = 1% of capacity", { fill: T.muted, size: "10px", spacing: ".05em" });
-  }
-
-  /* ════════════════════════════════════════════════════════════════════
-   * 5. priorityPath — Fix now → Fix next → Monitor as an annotated
+   * 3. priorityPath — Fix now → Fix next → Monitor as an annotated
    *    sequence with severity chips, matching the canonical ladder.
    * ════════════════════════════════════════════════════════════════════ */
   function priorityPath(el, data) {
@@ -310,69 +218,6 @@
         S("circle", { cx: cx + 45, cy: chipY + 10, r: 4, fill: chipColor }, svg);
         txt(svg, cx + 54, chipY + 14, "severity " + Math.round(sev), { fill: T.inkSoft, size: "11px" });
       }
-    });
-  }
-
-  /* ════════════════════════════════════════════════════════════════════
-   * 6. trajectoryGlyph — small slope arrow inferred from the trajectory
-   *    label, with the label text beside it.
-   * ════════════════════════════════════════════════════════════════════ */
-  function trajectoryGlyph(el, data) {
-    const label = String((data && data.label) || "").trim();
-    if (!label) return;
-    const l = label.toLowerCase();
-    const dir = /(improv|lighter|recover|easing|better)/.test(l) ? 1
-              : /(worsen|declin|heavier|deterior|accumulat|growing|compound)/.test(l) ? -1 : 0;
-
-    const W = 640, H = 40;
-    const svg = mount(el, W, H, "Trajectory");
-    if (!svg) return;
-    const color = dir === 1 ? T.success : dir === -1 ? T.danger : T.muted;
-    const y1 = dir === 1 ? 28 : dir === -1 ? 12 : 20;
-    const y2 = dir === 1 ? 12 : dir === -1 ? 28 : 20;
-    S("line", { x1: 4, y1, x2: 40, y2, stroke: color, "stroke-width": 2.4, "stroke-linecap": "round" }, svg);
-    const ang = Math.atan2(y2 - y1, 36);
-    const ax = 40, ay = y2;
-    S("path", {
-      d: `M ${ax} ${ay} L ${ax - 9 * Math.cos(ang - 0.45)} ${ay - 9 * Math.sin(ang - 0.45)} M ${ax} ${ay} L ${ax - 9 * Math.cos(ang + 0.45)} ${ay - 9 * Math.sin(ang + 0.45)}`,
-      stroke: color, "stroke-width": 2.4, fill: "none", "stroke-linecap": "round"
-    }, svg);
-    txt(svg, 56, 25, label, { fill: T.ink, size: "13.5px", weight: 500 });
-  }
-
-  /* ════════════════════════════════════════════════════════════════════
-   * 7. quadProfile — the four diagnostics as one institutional profile
-   *    (for the cross-assessment synthesis page): four columns, score dots,
-   *    connecting profile line.
-   * ════════════════════════════════════════════════════════════════════ */
-  function quadProfile(el, data) {
-    const pts = ((data && data.points) || [])
-      .map((p) => ({ label: String(p.label || ""), score: num(p.score) }))
-      .filter((p) => p.score !== null);
-    if (pts.length < 2) return;
-
-    const W = 640, H = 230, L = 40, R = 24, top = 22, bot = 44;
-    const plotH = H - top - bot;
-    const colW = (W - L - R) / (pts.length - 1);
-    const Y = (v) => top + (1 - clamp(v, 0, 100) / 100) * plotH;
-
-    const svg = mount(el, W, H, "Institutional profile across diagnostics");
-    if (!svg) return;
-
-    [0, 25, 50, 75, 100].forEach((v) => {
-      S("line", { x1: L, y1: Y(v), x2: W - R, y2: Y(v), stroke: T.gridline }, svg);
-      txt(svg, L - 8, Y(v) + 4, String(v), { anchor: "end", fill: T.muted, size: "10px" });
-    });
-
-    const path = pts.map((p, i) => `${i ? "L" : "M"} ${L + i * colW} ${Y(p.score)}`).join(" ");
-    S("path", { d: path, fill: "none", stroke: T.accent, "stroke-width": 2.2 }, svg);
-
-    pts.forEach((p, i) => {
-      const x = L + i * colW;
-      S("line", { x1: x, y1: top, x2: x, y2: top + plotH, stroke: T.gridline }, svg);
-      S("circle", { cx: x, cy: Y(p.score), r: 5.5, fill: T.accentDark, stroke: "#fff", "stroke-width": 1.25 }, svg);
-      txt(svg, x, Y(p.score) - 13, String(Math.round(p.score)), { anchor: "middle", fill: T.ink, size: "13px", weight: 700 });
-      txt(svg, x, H - 22, p.label, { anchor: "middle", fill: T.inkSoft, size: "11.5px", weight: 500 });
     });
   }
 
@@ -537,13 +382,9 @@
   /* ── export ────────────────────────────────────────────────────────── */
   global.MViz = {
     theme: T,
-    scoreScale,
     severityDots,
     shareBar,
-    capacityWaffle,
     priorityPath,
-    trajectoryGlyph,
-    quadProfile,
     effortFlow,
     fmt,
     fmtMoney,
