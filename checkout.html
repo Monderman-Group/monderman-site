@@ -54,6 +54,16 @@
       <div class="price" id="priceLine"></div>
       <p class="billing-line" id="billingLine"></p>
       <ul class="inc" id="incList"></ul>
+      <div id="instrumentPick" style="display:none;margin:14px 0 4px;">
+        <label for="baselineInstrument" style="display:block;font-size:.92rem;line-height:1.5;margin:0 0 6px;"><strong>Your instrument.</strong> Baseline covers one diagnostic of your choice, switchable at any quarter boundary.</label>
+        <select id="baselineInstrument" style="width:100%;padding:10px 12px;font:inherit;border:1px solid rgba(24,22,18,.18);border-radius:8px;background:#fff;">
+          <option value="">Choose your diagnostic&hellip;</option>
+          <option value="structural_clarity">Structural Clarity</option>
+          <option value="decision_velocity">Decision Velocity</option>
+          <option value="operational_systems">Operational Systems</option>
+          <option value="institutional_performance">Institutional Performance</option>
+        </select>
+      </div>
       <div class="seatline"><strong>People are never the meter.</strong> Every tier includes unlimited people at no charge &mdash; invite everyone whose vantage matters. Campaign responses never count against your runs.</div>
       <button class="btn" id="payBtn" disabled>Continue to secure checkout</button>
       <div class="panel warn" id="unavailablePanel">
@@ -115,6 +125,16 @@
     if (TIERS[tier]) sessionStorage.setItem("mdm_checkout_tier", tier);
     if (["monthly","quarterly","annual"].includes(interval)) sessionStorage.setItem("mdm_checkout_interval", interval);
 
+    let sessionReady = false;
+    const INSTRUMENTS = ["structural_clarity","decision_velocity","operational_systems","institutional_performance"];
+    let baselineInstrument = (params.get("instrument") || sessionStorage.getItem("mdm_checkout_instrument") || "").toLowerCase();
+    if (!INSTRUMENTS.includes(baselineInstrument)) baselineInstrument = "";
+    if (baselineInstrument) sessionStorage.setItem("mdm_checkout_instrument", baselineInstrument);
+    function updatePayState() {
+      const b = document.getElementById("payBtn");
+      if (b) b.disabled = !sessionReady || (tier === "baseline" && !baselineInstrument);
+    }
+
     const el = (id) => document.getElementById(id);
 
     if (!TIERS[tier] || !TIERS[tier].prices[interval]) {
@@ -129,6 +149,16 @@
       el("billingLine").textContent = "Purchasing for your organization \u2014 the tier unlocks for everyone in your workspace.";
       el("incList").innerHTML = t.includes.map((x) => "<li>" + x + "</li>").join("");
       el("connectLink").href = "connect.html?plan=" + tier;
+      if (tier === "baseline") {
+        el("instrumentPick").style.display = "block";
+        const sel = el("baselineInstrument");
+        sel.value = baselineInstrument;
+        sel.addEventListener("change", () => {
+          baselineInstrument = INSTRUMENTS.includes(sel.value) ? sel.value : "";
+          if (baselineInstrument) sessionStorage.setItem("mdm_checkout_instrument", baselineInstrument);
+          updatePayState();
+        });
+      }
       boot();
     }
 
@@ -139,7 +169,8 @@
         return;
       }
       const btn = el("payBtn");
-      btn.disabled = false;
+      sessionReady = true;
+      updatePayState();
       btn.addEventListener("click", async () => {
         btn.disabled = true;
         btn.textContent = "Opening secure checkout\u2026";
@@ -151,7 +182,7 @@
               "content-type": "application/json",
               "authorization": "Bearer " + (s?.session?.access_token || "")
             },
-            body: JSON.stringify({ tier, interval })
+            body: JSON.stringify(tier === "baseline" && baselineInstrument ? { tier, interval, baseline_instrument: baselineInstrument } : { tier, interval })
           });
           const out = await res.json().catch(() => ({}));
           if (res.ok && out.url) { location.href = out.url; return; }
@@ -162,7 +193,7 @@
         } catch (e) {
           showError("Checkout could not be reached. Nothing was charged \u2014 please try again in a moment.");
         }
-        btn.disabled = false;
+        updatePayState();
         btn.textContent = "Continue to secure checkout";
       });
     }
