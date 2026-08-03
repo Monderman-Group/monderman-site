@@ -485,7 +485,7 @@ body{transition:background-color .25s ease,color .25s ease}
     <!-- slim account strip -->
     <div class="ws-planstrip">
       <span id="wsPlanStrip"><b>—</b> plan</span>
-      <a class="ws-link manage" id="wsManageLink" href="workspace-settings.html">Manage →</a>
+      <a class="ws-link manage" id="wsManageLink" href="platform-services.html">Manage →</a>
     </div>
 
     <p class="ws-status" id="wsStatus"></p>
@@ -690,6 +690,16 @@ body{transition:background-color .25s ease,color .25s ease}
       $("wsRecWhy").textContent = src ? `From your ${toolName(src.tool_type)} read${src.business_unit ? " · "+src.business_unit : ""}.` : "";
     }
 
+    function wsNotice(msg){
+      try {
+        const strip = $("wsPlanStrip");
+        let n = strip.querySelector("#wsBillingNotice");
+        if (!n) { n = document.createElement("span"); n.id = "wsBillingNotice"; n.style.cssText = "margin-left:10px;color:#B0392F;"; strip.appendChild(n); }
+        n.textContent = msg;
+        setTimeout(() => { if (n) n.textContent = ""; }, 6000);
+      } catch (_e) { alert(msg); }
+    }
+
     function renderEntitlements(){
       const org = state.organization || {};
       const plan = org.plan || "free";
@@ -703,7 +713,35 @@ body{transition:background-color .25s ease,color .25s ease}
         `<span class="sep">·</span><span>${escapeHtml(usage)}</span>`+
         instrument+
         `<span class="sep">·</span><span>Unlimited people</span>`;
-      $("wsManageLink").textContent = plan==="free" ? "Upgrade →" : "Manage plan →";
+      const manage = $("wsManageLink");
+      manage.textContent = plan==="free" ? "Upgrade →" : "Manage plan →";
+      // Free: the link is an upgrade path. Paid: it opens the Stripe billing
+      // portal (card, interval, cancel), which is what the plan pages promise.
+      manage.href = plan==="free" ? "platform-services.html" : "#billing";
+      if (plan !== "free" && !manage.dataset.billingWired) {
+        manage.dataset.billingWired = "1";
+        manage.addEventListener("click", async (e) => {
+          e.preventDefault();
+          const prior = manage.textContent;
+          manage.textContent = "Opening billing\u2026";
+          try {
+            const { data } = await supabase.auth.getSession();
+            const res = await fetch("https://monderman-api.onrender.com/api/billing/portal-session", {
+              method: "POST",
+              headers: { "content-type": "application/json", authorization: "Bearer " + (data?.session?.access_token || "") }
+            });
+            const out = await res.json().catch(() => ({}));
+            if (res.ok && out.url) { location.href = out.url; return; }
+            manage.textContent = prior;
+            wsNotice(res.status === 403 ? "Only a workspace admin can manage billing."
+                   : res.status === 404 ? "No self-serve billing account yet. Invoiced plans are managed via Connect."
+                   : "Billing portal is unavailable right now. Try again shortly.");
+          } catch (_e) {
+            manage.textContent = prior;
+            wsNotice("Billing portal could not be reached. Try again shortly.");
+          }
+        });
+      }
     }
 
     async function resolveUser(){
