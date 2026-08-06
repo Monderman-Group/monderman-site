@@ -501,12 +501,12 @@ body{transition:background-color .25s ease, color .25s ease}
         <!-- INTERVENTION IMPACT -->
         <section class="lens" data-lens="intervention" hidden>
           <div class="view-head">
-            <div><div class="eyebrow">Intervention impact</div><h2>Did the change return capacity?</h2><p>A before reading paired with an after reading on the same instrument, around a deliberate change. The delta is observed, not projected.</p></div>
+            <div><div class="eyebrow">Intervention impact</div><h2>Did the change return capacity?</h2><p>Uses the before reading and re-measure explicitly linked to the same action. The delta is observed, not projected.</p></div>
             <select class="selector" id="ivSel" aria-label="Choose a before/after pair"></select>
           </div>
           <div id="ivBody"></div>
           <div id="ivPanel"></div>
-          <p class="footnote">Before/after pairs require two promoted runs of the same diagnostic on the same unit; the second read closes the loop.</p>
+          <p class="footnote">A pair appears only after an action links both its source run and a later promoted re-measure.</p>
         </section>
         <section class="lens" data-lens="synthesis" hidden>
           <div class="view-head">
@@ -537,6 +537,7 @@ body{transition:background-color .25s ease, color .25s ease}
     const VANTAGE_ORDER = ["operational","managerial","executive"];
 
     const $ = id => document.getElementById(id);
+    function esc(v){ return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
     function setText(id,v){ const e=$(id); if(e&&v!=null) e.textContent=v; }
     function cap(s){ return s ? s.charAt(0).toUpperCase()+s.slice(1) : s; }
     function toolLabel(t){ return TOOL[t]||t||"\u2014"; }
@@ -548,11 +549,19 @@ body{transition:background-color .25s ease, color .25s ease}
       return {c:"var(--burden)",bg:"var(--rose-bg)",fg:"var(--rose-fg)"};
     }
     function emptyHTML(title,msg){
-      return `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-7"/></svg><b>${title}</b><p>${msg}</p></div>`;
+      return `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-7"/></svg><b>${esc(title)}</b><p>${esc(msg)}</p></div>`;
     }
 
     let SNAPS = [];
+    let ACTION_LINKS = [];
     const asNum = v => (v===null||v===undefined||v==="") ? null : Number(v);
+    function normalizeVantage(v){
+      const value=String(v||"").trim().toLowerCase();
+      if(["operational","operator","frontline","front_line"].includes(value)) return "operational";
+      if(["managerial","manager","management"].includes(value)) return "managerial";
+      if(["executive","senior_leader","senior leader","leadership","leader"].includes(value)) return "executive";
+      return value||null;
+    }
 
     // ---- data shaping ----
     function groupsTU(){
@@ -562,8 +571,15 @@ body{transition:background-color .25s ease, color .25s ease}
       return g;
     }
     function pairs(){
-      const g=groupsTU();
-      return Object.keys(g).map(k=>{ const arr=g[k]; if(arr.length<2) return null; return { key:k, before:arr[0], after:arr[arr.length-1] }; }).filter(Boolean);
+      const byRun=new Map(SNAPS.filter(s=>s.source_run_id).map(s=>[String(s.source_run_id),s]));
+      return ACTION_LINKS.map((link,index)=>{
+        const before=byRun.get(String(link.source_run_id||""));
+        const after=byRun.get(String(link.remeasure_run_id||""));
+        if(!before||!after||before.tool_type!==after.tool_type) return null;
+        if(before.business_unit && after.business_unit && before.business_unit!==after.business_unit) return null;
+        if(Date.parse(after.as_of||0)<=Date.parse(before.as_of||0)) return null;
+        return { key:String(link.id||("pair-"+index)), before, after, title:link.title||"Tracked action" };
+      }).filter(Boolean);
     }
 
     // ---- renderers ----
@@ -577,7 +593,7 @@ body{transition:background-color .25s ease, color .25s ease}
         const s=arr[arr.length-1], sc=asNum(s.score), tn=tone(sc);
         const reads=arr.length;
         const meta = s.benchmark_position ? `${s.benchmark_position} vs sector \u00b7 ${reads} read${reads>1?"s":""}` : `${reads} read${reads>1?"s":""}`;
-        cards+=`<div class="lens-card"><div class="lc-tool">${toolLabel(t)}</div><div class="lc-row"><span class="lc-score num" style="color:${tn.c}">${sc??"\u2014"}</span>${s.band?`<span class="lc-band" style="background:${tn.bg};color:${tn.fg}">${s.band}</span>`:""}</div><div class="lc-meta">${meta}</div></div>`;
+        cards+=`<div class="lens-card"><div class="lc-tool">${esc(toolLabel(t))}</div><div class="lc-row"><span class="lc-score num" style="color:${tn.c}">${sc??"\u2014"}</span>${s.band?`<span class="lc-band" style="background:${tn.bg};color:${tn.fg}">${esc(s.band)}</span>`:""}</div><div class="lc-meta">${esc(meta)}</div></div>`;
       });
       wrap.innerHTML=`<div class="lens-cards">${cards}</div>`;
     }
@@ -592,14 +608,14 @@ body{transition:background-color .25s ease, color .25s ease}
       drawUnits(sel.value);
     }
     function drawUnits(t){
-      const body=$("auBody"); const byU={};
+      const body=$("auBody"); const byU=Object.create(null);
       SNAPS.filter(s=>s.tool_type===t && s.business_unit).forEach(s=>{ byU[s.business_unit]=s; });
       const rows=Object.values(byU).sort((a,b)=>(asNum(b.score)??0)-(asNum(a.score)??0));
       if(!rows.length){ body.innerHTML=emptyHTML("No unit-level reads","Tag runs with a business unit to compare them."); return; }
       const head=`<p class="headline"><b>${rows.length} unit${rows.length>1?"s":""}</b> measured on ${toolLabel(t)}.</p>`;
       body.innerHTML=head+`<div class="card"><div class="bars">`+rows.map(s=>{
         const sc=asNum(s.score), tn=tone(sc), w=Math.max(2,Math.min(100,sc??0));
-        return `<div class="barrow"><div class="bar-label">${s.business_unit}<span>${s.period_label||""}</span></div><div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${tn.c}"></div></div><div><div class="bar-val num" style="color:${tn.c}">${sc??"\u2014"}</div>${s.band?`<div class="bar-band">${s.band}</div>`:""}</div></div>`;
+        return `<div class="barrow"><div class="bar-label">${esc(s.business_unit)}<span>${esc(s.period_label||"")}</span></div><div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${tn.c}"></div></div><div><div class="bar-val num" style="color:${tn.c}">${sc??"\u2014"}</div>${s.band?`<div class="bar-band">${esc(s.band)}</div>`:""}</div></div>`;
       }).join("")+`</div></div>`;
     }
 
@@ -613,7 +629,7 @@ body{transition:background-color .25s ease, color .25s ease}
       drawVantages(sel.value);
     }
     function drawVantages(t){
-      const body=$("avBody"); const byV={};
+      const body=$("avBody"); const byV=Object.create(null);
       SNAPS.filter(s=>s.tool_type===t && s.vantage).forEach(s=>{ byV[s.vantage]=s; });
       const rows=VANTAGE_ORDER.filter(v=>byV[v]).map(v=>byV[v]);
       if(!rows.length){ body.innerHTML=emptyHTML("No vantage reads","Dispatch a directed campaign to capture vantages."); return; }
@@ -623,19 +639,16 @@ body{transition:background-color .25s ease, color .25s ease}
       else head=`<p class="headline">One vantage captured on ${toolLabel(t)} so far.</p>`;
       body.innerHTML=head+`<div class="card"><div class="bars">`+rows.map(s=>{
         const sc=asNum(s.score), tn=tone(sc), w=Math.max(2,Math.min(100,sc??0));
-        return `<div class="barrow"><div class="bar-label">${VANTAGE[s.vantage]||s.vantage}<span>${s.period_label||""}</span></div><div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${tn.c}"></div></div><div><div class="bar-val num" style="color:${tn.c}">${sc??"\u2014"}</div>${s.band?`<div class="bar-band">${s.band}</div>`:""}</div></div>`;
+        return `<div class="barrow"><div class="bar-label">${esc(VANTAGE[s.vantage]||s.vantage)}<span>${esc(s.period_label||"")}</span></div><div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${tn.c}"></div></div><div><div class="bar-val num" style="color:${tn.c}">${sc??"\u2014"}</div>${s.band?`<div class="bar-band">${esc(s.band)}</div>`:""}</div></div>`;
       }).join("")+`</div></div>`;
     }
 
     function benchPct(s){
       const b=(s.benchmark_position||"").toLowerCase();
-      if(b.includes("top")) return 83;
-      if(b.includes("upper")) return 75;
-      if(b.includes("middle")||b.includes("mid")) return 50;
-      if(b.includes("lower")) return 25;
-      if(b.includes("bottom")) return 16;
-      const sc=asNum(s.score);
-      return sc!=null ? Math.max(3,Math.min(97,sc)) : null;
+      if(b.includes("below")||b.includes("lower")||b.includes("bottom")) return 17;
+      if(b.includes("above")||b.includes("upper")||b.includes("top")) return 83;
+      if(b.includes("within")||b.includes("middle")||b.includes("mid")||b.includes("comparable")) return 50;
+      return null;
     }
     function renderVsSector(){
       const body=$("vsBody");
@@ -643,7 +656,7 @@ body{transition:background-color .25s ease, color .25s ease}
       if(!rows.length){ body.innerHTML=emptyHTML("No benchmarked reads yet","Once a run records a sector position, each instrument plots against peers here."); return; }
       body.innerHTML=`<div class="card"><div class="bench">`+rows.map(s=>{
         const p=benchPct(s), sc=asNum(s.score), tn=tone(sc);
-        return `<div class="bench-row"><div class="bench-tool">${toolLabel(s.tool_type)}<span>${s.benchmark_position||"placed by score"}</span></div><div class="bench-scale"><div class="bench-seg">Bottom third</div><div class="bench-seg">Middle third</div><div class="bench-seg">Top third</div><div class="bench-marker" style="left:calc(${p}% - 1.5px)"></div></div><div class="bench-score num" style="color:${tn.c}">${sc??"\u2014"}</div></div>`;
+        return `<div class="bench-row"><div class="bench-tool">${esc(toolLabel(s.tool_type))}<span>${esc(s.benchmark_position)}</span></div><div class="bench-scale"><div class="bench-seg">Below range</div><div class="bench-seg">Within range</div><div class="bench-seg">Above range</div><div class="bench-marker" style="left:calc(${p}% - 1.5px)"></div></div><div class="bench-score num" style="color:${tn.c}">${sc??"\u2014"}</div></div>`;
       }).join("")+`</div></div>`;
     }
 
@@ -653,7 +666,7 @@ body{transition:background-color .25s ease, color .25s ease}
       const Y=s=> padT+ih*(1-(Math.max(0,Math.min(100,s))/100));
       let grid=""; [0,50,100].forEach(v=>{ const y=Y(v); grid+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" style="stroke:var(--line)" stroke-width="1"/><text x="${padL-6}" y="${y+3}" text-anchor="end" font-size="10" style="fill:var(--muted-2)">${v}</text>`; });
       let line=""; if(points.length>=2){ line=`<polyline fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="${points.map((p,i)=>X(i)+","+Y(p.score)).join(" ")}"/>`; }
-      const dots=points.map((p,i)=>{ const tn=tone(p.score); return `<circle cx="${X(i)}" cy="${Y(p.score)}" r="4.5" fill="${tn.c}"/><text x="${X(i)}" y="${Y(p.score)-10}" text-anchor="middle" font-size="11" font-weight="600" style="fill:var(--text)">${p.score}</text><text x="${X(i)}" y="${H-12}" text-anchor="middle" font-size="10" style="fill:var(--muted-2)">${p.label}</text>`; }).join("");
+      const dots=points.map((p,i)=>{ const tn=tone(p.score); return `<circle cx="${X(i)}" cy="${Y(p.score)}" r="4.5" fill="${tn.c}"/><text x="${X(i)}" y="${Y(p.score)-10}" text-anchor="middle" font-size="11" font-weight="600" style="fill:var(--text)">${p.score}</text><text x="${X(i)}" y="${H-12}" text-anchor="middle" font-size="10" style="fill:var(--muted-2)">${esc(p.label)}</text>`; }).join("");
       return `<svg class="trend-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img">${grid}${line}${dots}</svg>`;
     }
     function renderOverTime(){
@@ -661,7 +674,7 @@ body{transition:background-color .25s ease, color .25s ease}
       if(!keys.length){ sel.style.display="none"; body.innerHTML=emptyHTML("No reads yet","Promote a run, then a second read of the same instrument, and the trend draws here."); return; }
       sel.style.display="";
       keys.sort((a,b)=> g[b].length-g[a].length);
-      if(sel.dataset.filled!=="1"){ sel.innerHTML=keys.map(k=>{ const [t,u]=k.split("|"); return `<option value="${k}">${toolLabel(t)}${u&&u!=="\u2014"?" \u00b7 "+u:""}</option>`; }).join(""); sel.dataset.filled="1"; sel.onchange=()=>drawTrend(sel.value); }
+      if(sel.dataset.filled!=="1"){ sel.innerHTML=keys.map(k=>{ const [t,...rest]=k.split("|"); const u=rest.join("|"); return `<option value="${esc(k)}">${esc(toolLabel(t))}${u&&u!=="\u2014"?" \u00b7 "+esc(u):""}</option>`; }).join(""); sel.dataset.filled="1"; sel.onchange=()=>drawTrend(sel.value); }
       if(!keys.includes(sel.value)) sel.value=keys[0];
       drawTrend(sel.value);
     }
@@ -672,7 +685,7 @@ body{transition:background-color .25s ease, color .25s ease}
       let head;
       if(pts.length>=2){ const d=pts[pts.length-1].score-pts[0].score; head=`<p class="headline"><b>${d>0?"+":""}${d} points</b> across ${pts.length} reads &mdash; trending ${d>0?"up":(d<0?"down":"flat")}.</p>`; }
       else head=`<p class="headline">One read so far. A second read closes the trend.</p>`;
-      body.innerHTML=head+`<div class="card">${trendSVG(pts)}<div class="readings">`+arr.map(s=>`<div class="reading"><b class="num">${asNum(s.score)??"\u2014"}</b> \u00b7 ${s.period_label||""}${s.band?` \u00b7 ${s.band}`:""}</div>`).join("")+`</div></div>`;
+      body.innerHTML=head+`<div class="card">${trendSVG(pts)}<div class="readings">`+arr.map(s=>`<div class="reading"><b class="num">${asNum(s.score)??"\u2014"}</b> \u00b7 ${esc(s.period_label||"")}${s.band?` \u00b7 ${esc(s.band)}`:""}</div>`).join("")+`</div></div>`;
     }
 
     function expLine(s){
@@ -680,26 +693,26 @@ body{transition:background-color .25s ease, color .25s ease}
       const e=j.exposed ?? j.exposure ?? j.annual ?? j.at_risk ?? null;
       if(e==null) return "";
       const txt = (typeof e==="number") ? ("$"+e.toLocaleString()) : e;
-      return ` \u00b7 <b class="num">${txt}</b> exposed/yr`;
+      return ` \u00b7 <b class="num">${esc(txt)}</b> exposed/yr`;
     }
     function renderIntervention(){
       const sel=$("ivSel"), body=$("ivBody"), panel=$("ivPanel"); const P=pairs();
-      if(!P.length){ sel.style.display="none"; panel.innerHTML=""; body.innerHTML=emptyHTML("No before/after pairs yet","Two promoted reads of the same instrument on the same unit \u2014 taken around a change \u2014 close the loop and the delta appears here."); return; }
+      if(!P.length){ sel.style.display="none"; panel.innerHTML=""; body.innerHTML=emptyHTML("No linked before/after pairs yet","On the action board, connect an action to its source run and a later promoted re-measure."); return; }
       sel.style.display="";
-      if(sel.dataset.filled!=="1"){ sel.innerHTML=P.map(p=>{ const [t,u]=p.key.split("|"); return `<option value="${p.key}">${toolLabel(t)}${u&&u!=="\u2014"?" \u00b7 "+u:""}</option>`; }).join(""); sel.dataset.filled="1"; sel.onchange=()=>drawImpact(sel.value); }
+      if(sel.dataset.filled!=="1"){ sel.innerHTML=P.map(p=>`<option value="${esc(p.key)}">${esc(p.title)} \u00b7 ${esc(toolLabel(p.before.tool_type))}</option>`).join(""); sel.dataset.filled="1"; sel.onchange=()=>drawImpact(sel.value); }
       if(!P.find(p=>p.key===sel.value)) sel.value=P[0].key;
       drawImpact(sel.value);
     }
     function drawImpact(key){
       const body=$("ivBody"), panel=$("ivPanel"); const P=pairs(); const pr=P.find(p=>p.key===key)||P[0];
       const b=pr.before, a=pr.after, bs=asNum(b.score), as_=asNum(a.score), d=(as_??0)-(bs??0), tb=tone(bs), ta=tone(as_), up=d>=0;
-      body.innerHTML=`<section class="impact"><div class="impact-grid">
-        <div class="state before"><div class="when">Before \u00b7 ${b.period_label||""}</div><div class="score num" style="color:${tb.c}">${bs??"\u2014"}</div>${b.band?`<span class="band" style="background:${tb.bg};color:${tb.fg}">${b.band}</span>`:""}<p class="exp">${toolLabel(b.tool_type)}${expLine(b)}</p></div>
+      body.innerHTML=`<p class="headline">Linked action: <b>${esc(pr.title)}</b></p><section class="impact"><div class="impact-grid">
+        <div class="state before"><div class="when">Before \u00b7 ${esc(b.period_label||"")}</div><div class="score num" style="color:${tb.c}">${bs??"\u2014"}</div>${b.band?`<span class="band" style="background:${tb.bg};color:${tb.fg}">${esc(b.band)}</span>`:""}<p class="exp">${esc(toolLabel(b.tool_type))}${expLine(b)}</p></div>
         <div class="arrow-col"><svg viewBox="0 0 120 90" fill="none"><line x1="6" y1="78" x2="104" y2="24" stroke="${up?'#3C8A60':'#B0392F'}" stroke-width="2.5" stroke-linecap="round"/><circle cx="6" cy="78" r="5" fill="${tb.c}"/><circle cx="104" cy="24" r="5" fill="${ta.c}"/><path d="M96 18l9 6-6 9" stroke="${up?'#3C8A60':'#B0392F'}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="delta-chip"><span class="d1 num"${up?"":' style="background:var(--rose-bg);color:var(--rose-fg)"'}>${d>0?"+":""}${d} pts</span></div></div>
-        <div class="state after"><div class="when">After \u00b7 ${a.period_label||""}</div><div class="score num" style="color:${ta.c}">${as_??"\u2014"}</div>${a.band?`<span class="band" style="background:${ta.bg};color:${ta.fg}">${a.band}</span>`:""}<p class="exp">${toolLabel(a.tool_type)}${expLine(a)}</p></div>
+        <div class="state after"><div class="when">After \u00b7 ${esc(a.period_label||"")}</div><div class="score num" style="color:${ta.c}">${as_??"\u2014"}</div>${a.band?`<span class="band" style="background:${ta.bg};color:${ta.fg}">${esc(a.band)}</span>`:""}<p class="exp">${esc(toolLabel(a.tool_type))}${expLine(a)}</p></div>
       </div>${d!==0?`<div class="verify"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12.5l2.5 2.5L16 9"/><circle cx="12" cy="12" r="9.5"/></svg><p><b>${Math.abs(d)} points ${up?"gained":"lost"}</b> on the same instrument between reads \u2014 observed in the second read, not asserted in a deck.</p></div>`:""}</section>`;
       const others=P.filter(p=>p.key!==key);
-      panel.innerHTML = others.length ? `<section class="panel"><div class="panel-head"><h3>Other tracked interventions</h3></div>`+others.map(p=>{ const [t,u]=p.key.split("|"); const dd=(asNum(p.after.score)??0)-(asNum(p.before.score)??0); const u2=u&&u!=="\u2014"?u:toolLabel(t); return `<div class="ix"><div class="ixn">${u2}<span>${toolLabel(t)}</span></div><div class="ixm"><span class="move"><b class="num">${asNum(p.before.score)??"\u2014"}</b> \u2192 <b class="num">${asNum(p.after.score)??"\u2014"}</b></span><span class="${dd>=0?'pill-up':'pill-watch'} num">${dd>0?"+":""}${dd} pts</span></div></div>`; }).join("")+`</section>` : "";
+      panel.innerHTML = others.length ? `<section class="panel"><div class="panel-head"><h3>Other tracked interventions</h3></div>`+others.map(p=>{ const dd=(asNum(p.after.score)??0)-(asNum(p.before.score)??0); return `<div class="ix"><div class="ixn">${esc(p.title)}<span>${esc(toolLabel(p.before.tool_type))}</span></div><div class="ixm"><span class="move"><b class="num">${asNum(p.before.score)??"\u2014"}</b> \u2192 <b class="num">${asNum(p.after.score)??"\u2014"}</b></span><span class="${dd>=0?'pill-up':'pill-watch'} num">${dd>0?"+":""}${dd} pts</span></div></div>`; }).join("")+`</section>` : "";
     }
 
     function renderAll(){
@@ -976,11 +989,17 @@ body{transition:background-color .25s ease, color .25s ease}
       loadAndRenderTrust();
 
       try{
-        const { data, error } = await supabase.from("org_snapshots").select("*").not("source_run_id","is",null).order("as_of",{ ascending:true });
-        if(error) throw error;
-        SNAPS = data || [];
+        const [snapshotResult, linkResult] = await Promise.all([
+          supabase.from("org_snapshots").select("*").eq("organization_id",ws5OrgId).not("source_run_id","is",null).order("as_of",{ ascending:true }),
+          supabase.from("action_items").select("id, title, source_run_id, remeasure_run_id").eq("organization_id",ws5OrgId).not("source_run_id","is",null).not("remeasure_run_id","is",null)
+        ]);
+        if(snapshotResult.error) throw snapshotResult.error;
+        if(linkResult.error) throw linkResult.error;
+        SNAPS = (snapshotResult.data || []).map(s=>({ ...s, vantage:normalizeVantage(s.vantage) }));
+        ACTION_LINKS = linkResult.data || [];
       }catch(e){
         SNAPS = [];
+        ACTION_LINKS = [];
         $("alBody").innerHTML = emptyHTML("Couldn\u2019t load analysis data", "Your snapshots couldn\u2019t be read. If this persists, check the org_snapshots read policy in Supabase.");
         return;
       }
