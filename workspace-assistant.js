@@ -114,6 +114,24 @@
 
   var history = loadHistory();
   var busy = false;
+  var authClientPromise = null;
+
+  function accessToken() {
+    if (!authClientPromise) {
+      authClientPromise = import("https://esm.sh/@supabase/supabase-js@2").then(function (mod) {
+        return mod.createClient(
+          "https://ptkxrzgmeldalrkfruth.supabase.co",
+          "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
+          { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" } }
+        );
+      });
+    }
+    return authClientPromise.then(function (client) {
+      return client.auth.getSession();
+    }).then(function (result) {
+      return result && result.data && result.data.session ? result.data.session.access_token : null;
+    });
+  }
 
   /* ---- helpers ------------------------------------------------------------- */
   function loadHistory() {
@@ -155,9 +173,11 @@
     addMsg("user", text); history.push({ role: "user", content: text }); saveHistory();
     busy = true; sendEl.disabled = true; showTyping();
     try {
+      var token = await accessToken();
+      if (!token) throw new Error("sign_in_required");
       var res = await fetch(API_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
         body: JSON.stringify({ messages: history.slice(-12) })
       });
       var data = await res.json().catch(function () { return null; });
