@@ -617,6 +617,7 @@ body{transition:background-color .25s ease, color .25s ease}
               <select id="planSelect" class="board-select" aria-label="Select an action plan"></select>
               <button type="button" class="btn btn-secondary" id="btnNewPlan" hidden>New plan</button>
               <button type="button" class="btn" id="btnAddAction" hidden>+ Add action</button>
+              <button type="button" class="btn btn-secondary" id="btnImportFindings" hidden>From findings</button>
             </div>
             <div class="planbar-row inline-form" id="newPlanRow" hidden>
               <input type="text" id="newPlanName" class="board-inp" placeholder="Plan name &mdash; e.g. Q3 operating plan" maxlength="120">
@@ -628,6 +629,12 @@ body{transition:background-color .25s ease, color .25s ease}
               <input type="text" id="addActionDetail" class="board-inp" placeholder="Optional detail" maxlength="400">
               <button type="button" class="btn" id="addActionSubmit">Add</button>
               <button type="button" class="btn-mini ghost" id="addActionCancel">Cancel</button>
+            </div>
+            <div class="planbar-row inline-form" id="importRow" hidden style="flex-wrap:wrap">
+              <select id="importRunSel" class="board-select" aria-label="Choose a promoted run" style="min-width:260px"></select>
+              <button type="button" class="btn" id="importSubmit" disabled>Add selected</button>
+              <button type="button" class="btn-mini ghost" id="importCancel">Cancel</button>
+              <div id="importList" style="flex:1 1 100%;display:flex;flex-direction:column;gap:6px;margin-top:8px"></div>
             </div>
             <div id="boardMsg" aria-live="polite"></div>
           </section>
@@ -659,7 +666,8 @@ body{transition:background-color .25s ease, color .25s ease}
     const TOOL = { operational_systems:"Operational Systems", decision_velocity:"Decision Velocity", structural_clarity:"Structural Clarity", institutional_performance:"Institutional Performance" };
     const TOOL_HTML = { operational_systems:"operational-systems.html", decision_velocity:"decision-velocity.html", structural_clarity:"structural-clarity.html", institutional_performance:"institutional-performance.html" };
 
-    const state = { user:null, orgId:null, userId:null, role:"viewer", recipients:[], lastReady:0, plans:[], planId:null, items:[] };
+    const state = { user:null, orgId:null, userId:null, role:"viewer", recipients:[], lastReady:0, plans:[], planId:null, items:[], members:[], promotedRuns:[], promotedLoaded:false };
+    function isAdmin(){ return state.role==="admin" || state.role==="owner"; }
 
     const $ = id => document.getElementById(id);
     function setText(id,v){ const e=$(id); if(e&&v!=null) e.textContent=v; }
@@ -910,11 +918,15 @@ body{transition:background-color .25s ease, color .25s ease}
       const board=$("trackBody"); if(board) board.innerHTML=`<p class="muted">Loading\u2026</p>`;
       let rows=[];
       try{
-        const { data } = await supabase.from("diagnostic_assignments")
+        const { data, error } = await supabase.from("diagnostic_assignments")
           .select("id, recipient_email, recipient_name, tool_type, participant_lens, event_path_name, campaign_label, campaign_id, status, token, created_at, opened_at, started_at, completed_at, closed_at, close_at, close_pct, run_id")
-          .order("created_at",{ ascending:false }).limit(2000);
+          .eq("organization_id",state.orgId).order("created_at",{ ascending:false }).limit(2000);
+        if(error) throw error;
         rows=data||[];
-      }catch(e){}
+      }catch(e){
+        if(board) board.innerHTML=`<div class="empty"><b>Couldn’t load campaigns</b><p>${esc(e.message||"Check your connection and try again.")}</p></div>`;
+        return;
+      }
       renderTracking(rows);
     }
     function timeAgo(iso){
@@ -1044,7 +1056,7 @@ body{transition:background-color .25s ease, color .25s ease}
         board.innerHTML=`<div class="empty"><b>No campaigns yet</b><p>Compose one above. Sent recipients and their links appear here, and update as people open and complete.</p></div>`;
         return;
       }
-      const admin = state.role==="admin";
+      const admin = isAdmin();
       const t=computeTracking(rows); _camps = t.camps;
       let html=`<div class="dash">
         <div class="dash-tiles">
@@ -1222,16 +1234,20 @@ body{transition:background-color .25s ease, color .25s ease}
     const ITEM_COLS = "id, plan_id, organization_id, title, detail, decision, status, owner_user_id, position, source_run_id, source_campaign_id, source_finding_json, remeasure_run_id, created_at";
 
     async function loadBoard(){
-      const admin = state.role==="admin";
+      const admin = isAdmin();
       const nb=$("btnNewPlan"); if(nb) nb.hidden=!admin;
       const bl=$("boardLock"); if(bl) bl.hidden=admin;
+      if(admin){
+        loadMembers().then(()=>{ if(state.items.length) renderBoard(); });
+        loadPromotedRuns().then(()=>{ if(state.items.some(i=>i.status==="done")) renderBoard(); });
+      }
       await loadPlans();
     }
     async function loadPlans(){
       if(!state.orgId){ renderBoardEmpty("No organization is linked to your account."); return; }
       let plans=[];
       try{
-        const { data, error } = await supabase.from("action_plans").select("id, name, status, created_at").order("created_at",{ascending:true});
+        const { data, error } = await supabase.from("action_plans").select("id, name, status, created_at").eq("organization_id",state.orgId).order("created_at",{ascending:true});
         if(error) throw error;
         plans = data || [];
       }catch(e){ renderBoardEmpty("Couldn\u2019t load action plans. If this persists, check the action_plans read policy."); return; }
@@ -1245,13 +1261,14 @@ body{transition:background-color .25s ease, color .25s ease}
       } else {
         state.planId=null; state.items=[];
         const ab=$("btnAddAction"); if(ab) ab.hidden=true;
-        renderBoardEmpty(state.role==="admin" ? "No action plan yet. Create one to start adopting findings." : "No action plan has been created yet.");
+        const ib=$("btnImportFindings"); if(ib) ib.hidden=true;
+        renderBoardEmpty(isAdmin() ? "No action plan yet. Create one to start adopting findings." : "No action plan has been created yet.");
       }
     }
     async function loadItems(){
       if(!state.planId){ state.items=[]; renderBoard(); return; }
       try{
-        const { data, error } = await supabase.from("action_items").select(ITEM_COLS).eq("plan_id", state.planId).order("position",{ascending:true}).order("created_at",{ascending:true});
+        const { data, error } = await supabase.from("action_items").select(ITEM_COLS).eq("organization_id",state.orgId).eq("plan_id", state.planId).order("position",{ascending:true}).order("created_at",{ascending:true});
         if(error) throw error;
         state.items = data || [];
       }catch(e){ state.items=[]; flash("boardMsg","Couldn\u2019t load actions for this plan.","bad"); }
@@ -1265,10 +1282,46 @@ body{transition:background-color .25s ease, color .25s ease}
       if(it.source_campaign_id) return `<span class="ai-chip">from a campaign</span>`;
       return `<span class="ai-chip">added manually</span>`;
     }
+    function memberName(uid){
+      const m = (state.members||[]).find(x=>x.user_id===uid);
+      return m ? (m.name || m.email || "Member") : null;
+    }
     function ownerChip(it){
       if(!it.owner_user_id) return `<span class="ai-chip">Unassigned</span>`;
       if(it.owner_user_id===state.userId) return `<span class="ai-chip you">You</span>`;
-      return `<span class="ai-chip">Assigned</span>`;
+      const nm = memberName(it.owner_user_id);
+      return `<span class="ai-chip">${nm ? esc(nm) : "Assigned"}</span>`;
+    }
+    function ownerOptions(it){
+      const opts = [`<option value="">Unassigned</option>`];
+      const seen = new Set();
+      (state.members||[]).forEach(m=>{
+        seen.add(m.user_id);
+        opts.push(`<option value="${m.user_id}"${it.owner_user_id===m.user_id?" selected":""}>${esc(m.name||m.email||"Member")}</option>`);
+      });
+      if(it.owner_user_id && !seen.has(it.owner_user_id)) opts.push(`<option value="${it.owner_user_id}" selected>Assigned</option>`);
+      return opts.join("");
+    }
+    function remeasureRow(it){
+      if(it.status!=="done") return "";
+      const sourceRun = state.promotedRuns.find(r=>r.id===it.source_run_id) || null;
+      const srcTool = (it.source_finding_json && it.source_finding_json.tool_type) ||
+        sourceRun?.tool_type || null;
+      const after = Date.parse(sourceRun?.created_at || it.created_at || 0);
+      const cands = state.promotedRuns.filter(r=>
+        r.id!==it.source_run_id
+        && (!srcTool || r.tool_type===srcTool)
+        && (!sourceRun?.business_unit || r.business_unit===sourceRun.business_unit)
+        && Date.parse(r.created_at||0) > after
+      );
+      if(it.remeasure_run_id && !cands.some(r=>r.id===it.remeasure_run_id)){
+        const cur = state.promotedRuns.find(r=>r.id===it.remeasure_run_id);
+        if(cur) cands.unshift(cur);
+      }
+      if(!cands.length && !it.remeasure_run_id) return "";
+      const opts = [`<option value="">Link a re-measure\u2026</option>`]
+        .concat(cands.map(r=>`<option value="${r.id}"${it.remeasure_run_id===r.id?" selected":""}>${esc(toolLabel(r.tool_type))} \u00b7 ${fmtDate(r.created_at)}</option>`));
+      return `<div class="ai-row" style="margin-top:6px"><select class="mini-select" data-remeasurefor="${it.id}" aria-label="Link a re-measure" title="Link the after reading">${opts.join("")}</select></div>`;
     }
     function proposedCard(it, admin){
       return `<article class="ai-card" data-id="${it.id}">
@@ -1278,7 +1331,6 @@ body{transition:background-color .25s ease, color .25s ease}
     }
     function adoptedCard(it, admin){
       const re = it.remeasure_run_id ? `<span class="ai-chip done">\u21bb re-measured</span>` : "";
-      const mine = it.owner_user_id===state.userId;
       return `<article class="ai-card" data-id="${it.id}">
         <div class="ai-main"><div class="ai-title">${esc(it.title)}</div>${it.detail?`<div class="ai-detail">${esc(it.detail)}</div>`:""}<div class="ai-meta">${srcChip(it)}${ownerChip(it)}${re}</div></div>
         ${admin?`<div class="ai-actions col">
@@ -1290,9 +1342,10 @@ body{transition:background-color .25s ease, color .25s ease}
           <div class="ai-row">
             <button class="btn-mini ghost" data-act="up" data-id="${it.id}" title="Move up">\u2191</button>
             <button class="btn-mini ghost" data-act="down" data-id="${it.id}" title="Move down">\u2193</button>
-            <button class="btn-mini ghost" data-act="${mine?"release":"take"}" data-id="${it.id}">${mine?"Release":"Take"}</button>
+            <select class="mini-select" data-ownerfor="${it.id}" aria-label="Owner" title="Assign an owner">${ownerOptions(it)}</select>
             <button class="btn-mini ghost danger" data-act="reject" data-id="${it.id}" title="Set aside">Set aside</button>
           </div>
+          ${remeasureRow(it)}
         </div>`:""}
       </article>`;
     }
@@ -1308,12 +1361,14 @@ body{transition:background-color .25s ease, color .25s ease}
       return `<div class="lane"><div class="lane-head">${label}<span class="count">${items.length}</span></div><div class="lane-list">${body}</div></div>`;
     }
     function renderBoardEmpty(msg){
-      const ab=$("btnAddAction"); if(ab) ab.hidden = !(state.role==="admin" && state.planId);
+      const ab=$("btnAddAction"); if(ab) ab.hidden = !(isAdmin() && state.planId);
+      const ib=$("btnImportFindings"); if(ib) ib.hidden = !(isAdmin() && state.planId);
       const body=$("boardBody"); if(body) body.innerHTML = `<div class="lock" style="padding:34px 26px"><b>Nothing here yet</b><p>${esc(msg)}</p></div>`;
     }
     function renderBoard(){
-      const admin = state.role==="admin";
+      const admin = isAdmin();
       const ab=$("btnAddAction"); if(ab) ab.hidden = !(admin && state.planId);
+      const ib=$("btnImportFindings"); if(ib) ib.hidden = !(admin && state.planId);
       const body=$("boardBody"); if(!body) return;
       const items = state.items.slice();
       const proposed = items.filter(i=>i.decision==="proposed").sort(bySeq);
@@ -1339,8 +1394,8 @@ body{transition:background-color .25s ease, color .25s ease}
 
     async function patchItem(id, patch){
       patch.updated_at = new Date().toISOString();
-      const { error } = await supabase.from("action_items").update(patch).eq("id", id);
-      if(error){ flash("boardMsg", state.role==="admin"?"Update failed.":"Only admins can change the plan.","bad"); return false; }
+      const { error } = await supabase.from("action_items").update(patch).eq("organization_id",state.orgId).eq("plan_id",state.planId).eq("id", id);
+      if(error){ flash("boardMsg", isAdmin()?"Update failed.":"Only admins can change the plan.","bad"); return false; }
       return true;
     }
     async function setDecision(id, decision){ if(await patchItem(id,{decision})) await loadItems(); }
@@ -1355,7 +1410,9 @@ body{transition:background-color .25s ease, color .25s ease}
       const order = peers.map(x=>x.id);
       const tmp = order[idx]; order[idx]=order[j]; order[j]=tmp;
       try{
-        await Promise.all(order.map((pid,i)=> supabase.from("action_items").update({position:i, updated_at:new Date().toISOString()}).eq("id", pid)));
+        const results = await Promise.all(order.map((pid,i)=> supabase.from("action_items").update({position:i, updated_at:new Date().toISOString()}).eq("organization_id",state.orgId).eq("id", pid)));
+        const failed = results.find(result=>result.error);
+        if(failed) throw failed.error;
       }catch(e){ flash("boardMsg","Couldn\u2019t reorder.","bad"); }
       await loadItems();
     }
@@ -1380,6 +1437,91 @@ body{transition:background-color .25s ease, color .25s ease}
       await loadItems();
     }
 
+    async function loadMembers(){
+      try{
+        const res = await fetch(`${API_BASE}/api/workspace/members?organization_id=${encodeURIComponent(state.orgId||"")}`, { headers: await apiAuthHeaders() });
+        const j = await res.json().catch(()=>null);
+        if(!res.ok || !j?.ok) throw new Error(j?.error||("HTTP "+res.status));
+        state.members = (j && j.ok && Array.isArray(j.members)) ? j.members : [];
+      }catch(e){ state.members = []; }
+    }
+    async function loadPromotedRuns(){
+      if(state.promotedLoaded || !state.orgId) return;
+      try{
+        const { data, error } = await supabase.from("diagnostic_runs")
+          .select("id, tool_type, tool_label, pathway_name, business_unit, created_at, priority_actions_json, key_findings_json, full_result_json")
+          .eq("organization_id", state.orgId).eq("status","promoted")
+          .order("created_at",{ascending:false}).limit(40);
+        if(error) throw error;
+        state.promotedRuns = data || [];
+      }catch(e){ state.promotedRuns = []; }
+      state.promotedLoaded = true;
+    }
+    function findingLabel(f){
+      if(f==null) return "";
+      if(typeof f === "string") return f;
+      return f.label || f.title || f.action || f.priority || f.text || "";
+    }
+    function findingsOf(run){
+      const tryParse = v => { if(v==null) return null; if(typeof v==="string"){ try{ return JSON.parse(v); }catch(e){ return null; } } return v; };
+      const full = tryParse(run.full_result_json) || {};
+      const sources = [
+        tryParse(run.priority_actions_json),
+        tryParse(run.key_findings_json),
+        full.priority_actions,
+        full.priorityActions,
+        full.intervention_priorities,
+        full.intervention_order,
+        full.key_findings,
+        full.keyFindings
+      ];
+      const seen = new Set();
+      return sources.flatMap(value=>Array.isArray(value)?value:[]).map(f=>({ label:String(findingLabel(f)).trim(), raw:f }))
+        .filter(f=>{ const key=f.label.toLowerCase(); if(!key||seen.has(key)) return false; seen.add(key); return true; });
+    }
+    function renderImportList(){
+      const run = state.promotedRuns.find(r=>r.id===$("importRunSel")?.value);
+      const list=$("importList"), btn=$("importSubmit");
+      if(!list) return;
+      const fs = run ? findingsOf(run) : [];
+      list.innerHTML = fs.length
+        ? fs.map((f,i)=>`<label style="display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.45"><input type="checkbox" data-fidx="${i}" checked style="margin-top:3px">${esc(f.label)}</label>`).join("")
+        : `<p class="muted" style="font-size:13px;margin:2px 0">This run has no recorded findings or recommendations to import.</p>`;
+      if(btn) btn.disabled = !fs.length;
+    }
+    async function openImport(preselectId){
+      await loadPromotedRuns();
+      const row=$("importRow"), sel=$("importRunSel");
+      if(!row || !sel) return;
+      if(!state.promotedRuns.length){ flash("boardMsg","No promoted runs to import from yet.","bad"); return; }
+      sel.innerHTML = state.promotedRuns.map(r=>`<option value="${r.id}">${esc(toolLabel(r.tool_type))}${r.pathway_name?" \u00b7 "+esc(r.pathway_name):""}${r.business_unit?" \u00b7 "+esc(r.business_unit):""} \u00b7 ${fmtDate(r.created_at)}</option>`).join("");
+      if(preselectId && state.promotedRuns.some(r=>r.id===preselectId)) sel.value = preselectId;
+      row.hidden=false; renderImportList();
+    }
+    async function importSelected(){
+      const run = state.promotedRuns.find(r=>r.id===$("importRunSel")?.value);
+      if(!run || !state.planId) return;
+      const fs = findingsOf(run);
+      const chosen = Array.from($("importList")?.querySelectorAll("input[data-fidx]:checked")||[]).map(cb=>fs[Number(cb.dataset.fidx)]).filter(Boolean);
+      if(!chosen.length) return;
+      let pos = state.items.length;
+      const rows = chosen.map(f=>({
+        organization_id: state.orgId, plan_id: state.planId,
+        title: f.label.slice(0,200), detail: null,
+        decision:"proposed", status:"todo", position: pos++,
+        created_by: state.userId,
+        source_run_id: run.id,
+        source_finding_json: { label: f.label, tool_type: run.tool_type }
+      }));
+      try{
+        const { error } = await supabase.from("action_items").insert(rows);
+        if(error) throw error;
+      }catch(e){ flash("boardMsg","Couldn\u2019t import findings. Admins only \u2014 and the action_items insert policy must cover the source columns.","bad"); return; }
+      const row=$("importRow"); if(row) row.hidden=true;
+      flash("boardMsg", chosen.length+" finding"+(chosen.length>1?"s":"")+" added to Proposed.","ok");
+      await loadItems();
+    }
+
     function wireBoard(){
       $("planSelect")?.addEventListener("change", async (e)=>{ state.planId = e.target.value || null; const m=$("boardMsg"); if(m) m.innerHTML=""; await loadItems(); });
       $("btnNewPlan")?.addEventListener("click", ()=>{ const r=$("newPlanRow"); if(r){ r.hidden=!r.hidden; if(!r.hidden) $("newPlanName")?.focus(); } });
@@ -1387,6 +1529,10 @@ body{transition:background-color .25s ease, color .25s ease}
       $("newPlanCreate")?.addEventListener("click", ()=> createPlan($("newPlanName")?.value));
       $("newPlanName")?.addEventListener("keydown", (e)=>{ if(e.key==="Enter") createPlan(e.target.value); });
       $("btnAddAction")?.addEventListener("click", ()=>{ const r=$("addActionRow"); if(r){ r.hidden=!r.hidden; if(!r.hidden) $("addActionTitle")?.focus(); } });
+      $("btnImportFindings")?.addEventListener("click", ()=> openImport());
+      $("importCancel")?.addEventListener("click", ()=>{ const r=$("importRow"); if(r) r.hidden=true; });
+      $("importRunSel")?.addEventListener("change", renderImportList);
+      $("importSubmit")?.addEventListener("click", importSelected);
       $("addActionCancel")?.addEventListener("click", ()=>{ const r=$("addActionRow"); if(r) r.hidden=true; });
       $("addActionSubmit")?.addEventListener("click", ()=> addAction($("addActionTitle")?.value, $("addActionDetail")?.value));
       $("addActionTitle")?.addEventListener("keydown", (e)=>{ if(e.key==="Enter") $("addActionDetail")?.focus(); });
@@ -1403,8 +1549,12 @@ body{transition:background-color .25s ease, color .25s ease}
         else if(act==="release") setOwner(id, null);
       });
       body?.addEventListener("change", (e)=>{
-        const s=e.target.closest("select[data-statusfor]"); if(!s) return;
-        setStatus(s.dataset.statusfor, s.value);
+        const s=e.target.closest("select[data-statusfor]");
+        if(s){ setStatus(s.dataset.statusfor, s.value); return; }
+        const o=e.target.closest("select[data-ownerfor]");
+        if(o){ setOwner(o.dataset.ownerfor, o.value||null); return; }
+        const r=e.target.closest("select[data-remeasurefor]");
+        if(r){ patchItem(r.dataset.remeasurefor, { remeasure_run_id: r.value||null }).then(ok=>{ if(ok) loadItems(); }); }
       });
     }
 
@@ -1431,7 +1581,7 @@ body{transition:background-color .25s ease, color .25s ease}
       }catch(e){ setText("ws5UserRole","Viewer"); setText("ws5Org","Workspace"); setText("ws5Plan","\u2014"); }
 
       // gate compose to admins (matches the assignments_insert_admin policy)
-      if(state.role==="admin"){
+      if(isAdmin()){
         $("composeCard").hidden=false;
         setupComposerAutosave();
         wireBulkImport();
@@ -1445,7 +1595,11 @@ body{transition:background-color .25s ease, color .25s ease}
       loadTracking();
       wireSubtabs();
       wireBoard();
-      loadBoard();
+      await loadBoard();
+      // Deep link from the workspace overview: ?import_run=<id> opens the
+      // findings importer with that run preselected.
+      const importRunId = new URLSearchParams(location.search).get("import_run");
+      if(importRunId && isAdmin() && state.planId) openImport(importRunId);
     }
     boot();
   </script>
