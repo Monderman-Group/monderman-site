@@ -46,7 +46,9 @@
       if (window.__mondermanReveal) window.__mondermanReveal();
     }
     function toSignIn() {
-      const here = location.pathname.split("/").pop() || "workspace.html";
+      // Keep the query string: context like assignment_token must survive the
+      // sign-in round trip instead of being silently dropped.
+      const here = (location.pathname.split("/").pop() || "workspace.html") + (location.search || "");
       location.replace("signin.html?next=" + encodeURIComponent(here));
     }
 
@@ -59,6 +61,11 @@
       if (!decided && session && session.user) { decided = true; reveal(); }
     });
     (async () => {
+      // Directed-campaign exemption: an assignment link must open without an
+      // account — the backend promised recipients "no account needed", and the
+      // taker's run persists through /api/assignments/complete, not through a
+      // member session. Everyone else still goes through the session check.
+      if (new URLSearchParams(location.search).has("assignment_token")) { decided = true; reveal(); return; }
       const attempts = midExchange ? 12 : 3;
       for (let i = 0; i < attempts; i++) {
         try {
@@ -2823,6 +2830,9 @@ const response = await fetchWithTimeout(`${API_BASE}/api/structural-clarity/run/
 method: "POST",
 headers: { "Content-Type": "application/json" },
 body: JSON.stringify({
+// Campaign runs: the token lets this authoritative finalize persist and
+// close the assignment without charging a signed-in recipient's own quota.
+assignment_token: (window.MondermanAssignment && window.MondermanAssignment.active && window.MondermanAssignment.active()) ? window.MondermanAssignment.token() : undefined,
 confidenceLevel: state.preflight.confidenceLevel,
 confidence_level: state.preflight.confidenceLevel,
 rawExperience: {
@@ -2948,11 +2958,21 @@ state.renderPayload = payload;
 
 // Directed (campaign) mode: persist the run, close the assignment, gate output.
 if (window.MondermanAssignment && window.MondermanAssignment.active()) {
-  await window.MondermanAssignment.complete(result, payload);
+  // The overlay may only claim the perspective is recorded when the
+  // server confirmed it. On failure: honest state plus a retry that
+  // re-posts this same finished result.
+  const completion = await window.MondermanAssignment.complete(data.savedRunId);
+  const completionOk = !!(completion && completion.ok === true);
+  const retryCompletion = async () => {
+    const again = await window.MondermanAssignment.complete(data.savedRunId);
+    return !!(again && again.ok === true);
+  };
   if (!window.MondermanAssignment.showsResults()) {
-    window.MondermanAssignment.renderCompletion();
+    if (completionOk) window.MondermanAssignment.renderCompletion();
+    else window.MondermanAssignment.renderCompletionFailed(retryCompletion);
     return;
   }
+  if (!completionOk) window.MondermanAssignment.noteCompletionFailure(retryCompletion);
 }
 setProcessingStep(3, "Rendering charts and final report modules...");
 renderResults(result, payload, "Structural Clarity Diagnostic");
@@ -2975,12 +2995,17 @@ showStage(resultsStage);
 } catch (error) {
 console.error("Adaptive finalize failed", error);
 {
+const directedRun = Boolean(window.MondermanAssignment && window.MondermanAssignment.active && window.MondermanAssignment.active());
+const pendingTitle = directedRun ? "Your responses are recorded. The write-up didn\u2019t generate." : "Your read is saved. The write-up didn\u2019t generate.";
+const pendingBody = directedRun
+? "Your responses and score are recorded for your organization. The written interpretation did not complete. Trying again regenerates it \u2014 your answers are not re-entered."
+: "Your answers and score are saved to your workspace. The written interpretation did not complete. Trying again regenerates it \u2014 your answers are not re-entered.";
 setHeader(
-error?.narrativePending ? "Written interpretation didn\u2019t generate" : "Output generation failed",
-error?.narrativePending
+(error?.narrativePending && error?.savedRunId != null) ? "Written interpretation didn\u2019t generate" : "Output generation failed",
+(error?.narrativePending && error?.savedRunId != null)
 ? "Your answers are saved and scored. Only the written interpretation failed \u2014 try again."
 : "The run completed but the output could not be generated. You can try again.",
-error?.narrativePending ? "Saved \u2014 retry the write-up" : "Finalize failed");
+(error?.narrativePending && error?.savedRunId != null) ? (directedRun ? "Recorded \u2014 retry the write-up" : "Saved \u2014 retry the write-up") : "Finalize failed");
 showStage(questionStage);
 renderQuestion();
 // Replace the question card with a clean retry UI
@@ -2989,7 +3014,7 @@ if (qCard) {
 const errMsg = error?.message || "Unknown error";
 const errStatus = error?.status ? ` (HTTP ${error.status})` : "";
 const errBody = error?.responseBody ? `<details style="margin-top:8px;"><summary style="cursor:pointer;font-size:.82rem;color:var(--ink-muted);">Show technical details</summary><pre style="margin-top:8px;padding:10px;background:#FAFAF8;border:1px solid rgba(24,25,28,.10);border-radius:8px;font-size:.78rem;overflow:auto;max-height:160px;white-space:pre-wrap;">${error.responseBody.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</pre></details>` : "";
-qCard.innerHTML = ` <div style="display:grid;gap:18px;padding:4px 0;"> <p style="margin:0;font-size:1rem;font-weight:600;color:var(--ink);">${error?.narrativePending ? "Your read is saved. The write-up didn\u2019t generate." : "Output generation failed."}</p> <p style="margin:0;font-size:.95rem;line-height:1.65;color:var(--ink-soft);">${error?.narrativePending ? "Your answers and score are saved to your workspace. The written interpretation is generated separately and did not complete. Trying again regenerates it \u2014 your answers are not re-entered." : "The diagnostic run is complete but the output could not be generated."}</p> <div style="padding:12px 14px;background:#FAFAF8;border:1px solid rgba(176,57,47,.30);border-radius:8px;"> <p style="margin:0 0 4px;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#B0392F;">${error?.narrativePending ? "Write-up error" : "Error"}${errStatus}</p> <p style="margin:0;font-size:.88rem;color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;">${errMsg.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</p> ${errBody} </div> <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;"> <button class="btn btn-accent" id="retryFinalizeBtn" type="button">${error?.narrativePending ? "Generate the write-up" : "Try again"}</button> <button class="btn" id="retryRestartBtn" type="button">Start over</button> </div> </div>`;
+qCard.innerHTML = ` <div style="display:grid;gap:18px;padding:4px 0;"> <p style="margin:0;font-size:1rem;font-weight:600;color:var(--ink);">${(error?.narrativePending && error?.savedRunId != null) ? pendingTitle : "Output generation failed."}</p> <p style="margin:0;font-size:.95rem;line-height:1.65;color:var(--ink-soft);">${(error?.narrativePending && error?.savedRunId != null) ? pendingBody : "The diagnostic run is complete but the output could not be generated."}</p> <div style="padding:12px 14px;background:#FAFAF8;border:1px solid rgba(176,57,47,.30);border-radius:8px;"> <p style="margin:0 0 4px;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#B0392F;">${(error?.narrativePending && error?.savedRunId != null) ? "Write-up error" : "Error"}${errStatus}</p> <p style="margin:0;font-size:.88rem;color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;">${errMsg.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</p> ${errBody} </div> <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;"> <button class="btn btn-accent" id="retryFinalizeBtn" type="button">${(error?.narrativePending && error?.savedRunId != null) ? "Generate the write-up" : "Try again"}</button> <button class="btn" id="retryRestartBtn" type="button">Start over</button> </div> </div>`;
 $("retryFinalizeBtn")?.addEventListener("click", async () => {
 $("retryFinalizeBtn").disabled = true;
 $("retryFinalizeBtn").textContent = "Generating...";
