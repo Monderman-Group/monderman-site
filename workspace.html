@@ -469,7 +469,7 @@ body{transition:background-color .25s ease,color .25s ease}
         <h3 id="wsRecText">—</h3>
         <p class="ws-muted" id="wsRecWhy"></p>
         <div class="recfoot">
-          <a class="ws-btn ghost sm" href="workspace-actions.html">Open the action board</a>
+          <a class="ws-btn ghost sm" id="wsRecBoardLink" href="workspace-actions.html">Open the action board</a>
         </div>
       </div>
     </article>
@@ -597,32 +597,39 @@ body{transition:background-color .25s ease,color .25s ease}
       // of adding them to the one that invited them. New signups are handled
       // by the on_auth_user_created_redeem_invites trigger; this covers people
       // who already had an account when the invite was sent.
-      // Non-blocking by design: a redemption failure must not break sign-in.
-      try {
-        await supabase.rpc("redeem_my_invites");
-      } catch(inviteError){
-        console.warn("invite redemption skipped:", inviteError?.message || inviteError);
-      }
+      const { error:inviteError } = await supabase.rpc("redeem_my_invites");
       const { data:memberships, error:membershipError } = await supabase
         .from("organization_members")
         .select("organization_id, role, organizations(id, name, slug, plan, run_limit, runs_used, seat_limit, features, analyst_reviews_included, hands_on_advisory, plan_period, allowed_tool_type)")
         .eq("user_id", user.id).limit(1);
       if(membershipError) throw membershipError;
       if(memberships?.length) return memberships[0];
+      // If invite redemption failed and no existing membership was found, do
+      // not silently create a separate workspace. The caller can retry after
+      // the database/RPC issue is corrected without splitting their account.
+      if(inviteError) throw new Error(`invite_redemption_failed: ${inviteError.message}`);
       const slugBase = String(fullName).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"") || "workspace";
-      const { data:org, error:orgError } = await supabase.from("organizations")
-        .insert({ name:`${fullName} Workspace`, slug:`${slugBase}-workspace`, owner_user_id:user.id })
-        .select("id, name, slug, plan, run_limit, runs_used, seat_limit, features, analyst_reviews_included, hands_on_advisory, plan_period, allowed_tool_type")
-        .single();
-      if(orgError) throw orgError;
-      const { error:memberError } = await supabase.from("organization_members").insert({ organization_id:org.id, user_id:user.id, role:"admin" });
-      if(memberError) throw memberError;
-      return { organization_id:org.id, role:"admin", organizations:org };
+      const { data:bootstrap, error:bootstrapError } = await supabase.rpc("bootstrap_my_workspace", {
+        p_name: `${fullName} Workspace`,
+        p_slug_base: `${slugBase}-workspace`
+      });
+      if(bootstrapError) throw bootstrapError;
+      if(!bootstrap?.organization_id || !bootstrap?.organizations) throw new Error("workspace_bootstrap_returned_no_organization");
+      return bootstrap;
     }
 
     async function loadRecentRuns(){
       if(!state.user) return [];
-      const { data, error } = await supabase.from("diagnostic_runs").select("*").eq("user_id", state.user.id).eq("status","promoted").order("created_at",{ ascending:false }).limit(50);
+      // Workspace overview, not personal history: show every promoted run in
+      // the organization — colleagues' reads and directed-campaign runs
+      // included. Campaign runs carry no user_id, so the old user filter made
+      // the workspace's own campaigns invisible here. Falls back to
+      // personal-only when no organization is linked. Requires the org-scoped
+      // SELECT policy on diagnostic_runs (see deployment notes).
+      const orgId = state.membership?.organization_id || null;
+      let query = supabase.from("diagnostic_runs").select("*").eq("status","promoted").order("created_at",{ ascending:false }).limit(50);
+      query = orgId ? query.eq("organization_id", orgId) : query.eq("user_id", state.user.id);
+      const { data, error } = await query;
       if(error) throw error;
       return data || [];
     }
@@ -687,7 +694,14 @@ body{transition:background-color .25s ease,color .25s ease}
       if(!action){ $("wsRecSection").style.display="none"; $("wsRecCard").style.display="none"; return; }
       $("wsRecSection").style.display=""; $("wsRecCard").style.display="";
       $("wsRecText").textContent = action;
-      $("wsRecWhy").textContent = src ? `From your ${toolName(src.tool_type)} read${src.business_unit ? " · "+src.business_unit : ""}.` : "";
+      // "the" rather than "your": with the org-wide overview this read may be
+      // a colleague's or a campaign aggregate, not the viewer's own.
+      $("wsRecWhy").textContent = src ? `From the ${toolName(src.tool_type)} read${src.business_unit ? " · "+src.business_unit : ""}.` : "";
+      const boardLink = $("wsRecBoardLink");
+      if(boardLink && src){
+        boardLink.href = "workspace-actions.html?import_run=" + encodeURIComponent(src.id);
+        boardLink.textContent = "Send these findings to the action board \u2192";
+      }
     }
 
     function wsNotice(msg){
