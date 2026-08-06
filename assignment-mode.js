@@ -7,7 +7,7 @@
     - resolve it to the admin-locked config (tool, vantage, depth, visibility)
     - show a "assigned by your organization" banner
     - lock the vantage so the taker cannot change it
-    - persist the finished run + close the assignment
+    - confirm that authoritative finalize persisted and closed the assignment
     - gate the individual output on show_results_to_assignee
     - render invalid / already-done / recorded screens as a clean overlay
 
@@ -130,6 +130,9 @@
     config: function () {
       return _config;
     },
+    token: function () {
+      return _token;
+    },
     showsResults: function () {
       return !_config || _config.show_results_to_assignee !== false;
     },
@@ -185,23 +188,31 @@
       });
     },
 
-    // 3 · persist the finished run + close the assignment. Fire-and-await;
-    // server is idempotent. Never blocks the taker on failure.
-    complete: function (result, scoringPayload) {
-      if (!_token || !result) return Promise.resolve(null);
+    // 3 · confirm the finished run is persisted and the assignment closed.
+    // Resolves with a real outcome: { ok: true } only when the server confirmed persistence
+    // (an already-completed answer counts — the run is safely recorded).
+    // Anything else resolves { ok: false, error } so the page never tells the
+    // taker their perspective was recorded when it wasn't.
+    complete: function (runId) {
+      if (!_token || !runId) return Promise.resolve({ ok: false, error: "missing_token_or_run_id" });
       return fetch(API_BASE + "/api/assignments/complete/" + encodeURIComponent(_token), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ result: result, scoringPayload: scoringPayload || {} })
+        body: JSON.stringify({ runId: runId })
       })
         .then(function (r) {
-          return r.json().catch(function () {
-            return null;
+          return r.json().catch(function () { return null; }).then(function (body) {
+            if (body && (body.ok === true || body.already_completed === true)) {
+              return { ok: true, alreadyCompleted: body.already_completed === true, runId: body.run_id || null };
+            }
+            var reason = (body && (body.error || body.message)) || ("HTTP " + r.status);
+            console.warn("assignment complete not confirmed:", reason);
+            return { ok: false, error: reason };
           });
         })
         .catch(function (e) {
-          console.warn("assignment complete failed (non-blocking):", e && e.message);
-          return null;
+          console.warn("assignment complete failed:", e && e.message);
+          return { ok: false, error: (e && e.message) || "network_error" };
         });
     },
 
@@ -212,6 +223,71 @@
         "Your responses have been submitted to your organization. Readings like yours are combined into a single, measured view of how the work actually runs &mdash; one that informs where attention and effort go next. Your part is complete; you can close this window."
       );
     },
+    // Blocking variant for hidden-results runs: the honest state is "not
+    // recorded", with a retry that re-posts the same finished result.
+    renderCompletionFailed: function (onRetry) {
+      injectStyleOnce();
+      var prior = document.getElementById("ma-overlay");
+      if (prior) prior.remove();
+      var wrap = document.createElement("div");
+      wrap.className = "ma-overlay";
+      wrap.id = "ma-overlay";
+      wrap.innerHTML =
+        '<div class="ma-card"><div class="ma-mark">!</div>' +
+        "<h2>Your responses could not be recorded</h2>" +
+        "<p>Your answers are complete, but sending them to your organization failed. " +
+        "Keep this window open and try again &mdash; nothing has been lost.</p>" +
+        '<p style="margin-top:22px"><button id="ma-retry" style="font:inherit;font-size:14.5px;font-weight:600;' +
+        "color:#fff;background:" + INK + ";border:0;border-radius:10px;padding:11px 22px;cursor:pointer\">" +
+        "Try again</button></p>" +
+        '<p id="ma-retry-note" style="margin-top:10px;font-size:13px;color:' + MUTED + '"></p></div>';
+      document.body.appendChild(wrap);
+      var btn = document.getElementById("ma-retry");
+      var note = document.getElementById("ma-retry-note");
+      if (btn) btn.addEventListener("click", function () {
+        if (typeof onRetry !== "function") return;
+        btn.disabled = true; btn.textContent = "Retrying\u2026"; if (note) note.textContent = "";
+        Promise.resolve(onRetry()).then(function (okNow) {
+          if (okNow) { MondermanAssignment.renderCompletion(); return; }
+          btn.disabled = false; btn.textContent = "Try again";
+          if (note) note.textContent = "Still couldn\u2019t record it. Check your connection and try again, or contact whoever sent you this link.";
+        });
+      });
+    },
+
+    // Non-blocking variant for shown-results runs: the report stays readable,
+    // a strip states plainly that recording failed and offers to send again.
+    noteCompletionFailure: function (onRetry) {
+      injectStyleOnce();
+      if (document.getElementById("ma-failbar")) return;
+      var bar = document.createElement("div");
+      bar.id = "ma-failbar";
+      bar.style.cssText = "position:sticky;top:0;z-index:1300;background:#8C2F28;color:#fff;" +
+        "font-family:'Neue Haas Grotesk Display Pro','Helvetica Neue',Helvetica,Arial,sans-serif;" +
+        "font-size:14.5px;line-height:1.5;padding:12px 26px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;";
+      bar.innerHTML = "<span>Your results are shown below, but they could not be sent to your organization yet.</span>" +
+        '<button id="ma-failbar-retry" style="font:inherit;font-weight:600;color:#8C2F28;background:#fff;border:0;' +
+        'border-radius:8px;padding:7px 14px;cursor:pointer">Send again</button>' +
+        '<span id="ma-failbar-note" style="opacity:.85;font-size:13px"></span>';
+      document.body.insertBefore(bar, document.body.firstChild);
+      var btn = document.getElementById("ma-failbar-retry");
+      var note = document.getElementById("ma-failbar-note");
+      if (btn) btn.addEventListener("click", function () {
+        if (typeof onRetry !== "function") return;
+        btn.disabled = true; btn.textContent = "Sending\u2026"; if (note) note.textContent = "";
+        Promise.resolve(onRetry()).then(function (okNow) {
+          if (okNow) {
+            bar.style.background = "#2E6B4F";
+            bar.innerHTML = "<span>Recorded &mdash; your perspective has been sent to your organization.</span>";
+            setTimeout(function () { try { bar.remove(); } catch (e) {} }, 4000);
+            return;
+          }
+          btn.disabled = false; btn.textContent = "Send again";
+          if (note) note.textContent = "Still not sent \u2014 check your connection and try again.";
+        });
+      });
+    },
+
     renderInvalid: function () {
       overlay(
         "!",
