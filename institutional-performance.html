@@ -3218,7 +3218,7 @@ function buildInterpretiveState(result, payload) {
 // backend on 2026-05-13.
 const backendState = result?.interpretive_state || {};
 const benchmarkPos = result?.benchmark_position || "Industry range comparison";
-const topFocus = (asArray(result?.intervention_priority_ladder)[0]?.focus) || derivePrimaryBurdenSource(result).label;
+const topFocus = (asArray(result?.intervention_priority_ladder || result?.canonical_descriptor?.priority_ladder)[0]?.focus) || derivePrimaryBurdenSource(result).label;
 const directionSummary =
   result?.trajectory?.direction === "up" ? "burden pressure is rising" :
   result?.trajectory?.direction === "down" ? "burden pressure is easing" :
@@ -5455,7 +5455,12 @@ const mount = $("delayStack");
 if (mount) mount.innerHTML = '<div class="viz-empty">N/A — not enough signal is available to decompose delay concentration for this run.</div>';
 }
 
-const priorityRows = asArray(result.intervention_priority_ladder);
+// Structural Clarity publishes its ladder inside canonical_descriptor rather
+  // than at the top level like the other instruments, so this table found nothing
+  // and printed "not enough signal is available to order intervention priority"
+  // while other sections of the same report ordered those priorities. Top level
+  // first, so nothing changes for the instruments that already work.
+  const priorityRows = asArray(result.intervention_priority_ladder || result?.canonical_descriptor?.priority_ladder);
 if (priorityRows.length) {
 const totalSeverity = priorityRows.reduce((sum, r) => sum + Number(r.severity || 0), 0) || 1;
 renderTableBody("priorityBody", priorityRows, (row) => [
