@@ -9,7 +9,9 @@ const supabase = createClient(
   { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" } }
 );
 
-const PLAN_LABEL = { free: "Free", baseline: "Baseline", signal: "Signal", advisory: "Advisory" };
+const PLAN_LABEL = { trial: "Trial", signal: "Signal", pattern: "Pattern", enterprise: "Enterprise",
+  // legacy values kept so an old row still renders a name rather than a blank
+  free: "Trial", baseline: "Signal", advisory: "Pattern" };
 
 function initials(name, email) {
   const base = (name && name.trim()) || (email || "").split("@")[0] || "";
