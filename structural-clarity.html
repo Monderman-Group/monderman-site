@@ -3090,7 +3090,7 @@ if (qCard) {
 const errMsg = error?.message || "Unknown error";
 const errStatus = error?.status ? ` (HTTP ${error.status})` : "";
 const errBody = error?.responseBody ? `<details style="margin-top:8px;"><summary style="cursor:pointer;font-size:.82rem;color:var(--ink-muted);">Show technical details</summary><pre style="margin-top:8px;padding:10px;background:#FAFAF8;border:1px solid rgba(24,25,28,.10);border-radius:8px;font-size:.78rem;overflow:auto;max-height:160px;white-space:pre-wrap;">${error.responseBody.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</pre></details>` : "";
-qCard.innerHTML = ` <div style="display:grid;gap:18px;padding:4px 0;"> <p style="margin:0;font-size:1rem;font-weight:600;color:var(--ink);">${(error?.narrativePending && error?.savedRunId != null) ? pendingTitle : "Output generation failed."}</p> <p style="margin:0;font-size:.95rem;line-height:1.65;color:var(--ink-soft);">${(error?.narrativePending && error?.savedRunId != null) ? pendingBody : "The diagnostic run is complete but the output could not be generated."}</p> <div style="padding:12px 14px;background:#FAFAF8;border:1px solid rgba(176,57,47,.30);border-radius:8px;"> <p style="margin:0 0 4px;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#B0392F;">${(error?.narrativePending && error?.savedRunId != null) ? "Write-up error" : "Error"}${errStatus}</p> <p style="margin:0;font-size:.88rem;color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;">${errMsg.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</p> ${errBody} </div> <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;"> <button class="btn btn-accent" id="retryFinalizeBtn" type="button">${(error?.narrativePending && error?.savedRunId != null) ? "Generate the write-up" : "Try again"}</button> <button class="btn" id="retryRestartBtn" type="button">Start over</button> </div> </div>`;
+qCard.innerHTML = ` <div style="display:grid;gap:18px;padding:4px 0;"> <p style="margin:0;font-size:1rem;font-weight:600;color:var(--ink);">${(error?.narrativePending && error?.savedRunId != null) ? pendingTitle : "Output generation failed."}</p> <p style="margin:0;font-size:.95rem;line-height:1.65;color:var(--ink-soft);">${(error?.narrativePending && error?.savedRunId != null) ? pendingBody : "The diagnostic run is complete but the output could not be generated."}</p> <div style="padding:12px 14px;background:#FAFAF8;border:1px solid rgba(176,57,47,.30);border-radius:8px;"> <p style="margin:0 0 4px;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#B0392F;">${(error?.narrativePending && error?.savedRunId != null) ? "Write-up error" : "Error"}${errStatus}</p> <p style="margin:0;font-size:.88rem;color:var(--ink);font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;">${errMsg.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</p> ${errBody} </div> <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;"> <button class="btn btn-accent" id="retryFinalizeBtn" type="button">${(error?.narrativePending && error?.savedRunId != null) ? "Generate the write-up" : "Try again"}</button> <button class="btn" id="retryRestartBtn" type="button">Start over</button> </div> </div>`;
 $("retryFinalizeBtn")?.addEventListener("click", async () => {
 $("retryFinalizeBtn").disabled = true;
 $("retryFinalizeBtn").textContent = "Generating...";
@@ -3785,9 +3785,21 @@ function renderEffortFlow(result) {
     const dragPct = Number(ex.capacity_drag_percent) || 0;
     if (burdenCost <= 0 || dragPct <= 0) return; // can't build a faithful flow — leave the bar as fallback
 
-    const totalCost = burdenCost / (dragPct / 100);
-    const totalHours = burdenHours > 0 ? burdenHours / (dragPct / 100) : null;
-    const reclaimCost = Number(result && result.reclaim_potential && result.reclaim_potential.amount) || 0;
+    // Totals come from the published capacity fields. They used to be
+    // back-calculated from the drag percentage, so the capacity total was
+    // implied rather than measured and moved whenever drag changed meaning.
+    const totalCost = Number(ex.total_capacity_cost) > 0
+      ? Number(ex.total_capacity_cost)
+      : burdenCost / (dragPct / 100);
+    const totalHours = Number(ex.total_capacity_hours) > 0
+      ? Number(ex.total_capacity_hours)
+      : (burdenHours > 0 ? burdenHours / (dragPct / 100) : null);
+    // Recoverable is a published field on every instrument now. The
+    // reclaim_potential lookup remains only so runs stored before this field
+    // existed still render.
+    const reclaimCost = Number(ex.recoverable_cost) > 0
+      ? Number(ex.recoverable_cost)
+      : (Number(result && result.reclaim_potential && result.reclaim_potential.amount) || 0);
     const structuralCost = Math.max(0, burdenCost - reclaimCost);
     const productiveCost = Math.max(0, totalCost - burdenCost);
     const productiveHours = totalHours != null ? Math.max(0, totalHours - burdenHours) : null;
@@ -3932,17 +3944,24 @@ if (note) note.textContent = result?.trajectory?.note || "Directional signal";
 - @param {number} dragPct - Capacity drag percentage
 - @returns {object} - {productive, admin, drag} percentages
   */
-  function calculateCapacityComposition(dragPct) {
-  // drag + admin must sum to exactly dragPct so the PDF capacity bar is
-  // consistent with the "X% capacity absorbed" figure in the stat strip.
-  // Split: ~60% of drag is recoverable, ~40% is necessary admin upkeep.
-  let drag  = Math.max(5,  Math.min(50, Math.round(dragPct * 0.60)));
-  let admin = Math.max(5,  Math.min(40, dragPct - drag));
-  let productive = Math.max(0, 100 - admin - drag);
+  function calculateCapacityComposition(exposure) {
+  // Reads the three published exposure fields rather than inventing a split.
+  // This previously assumed 60% of the drag percentage was recoverable and 40%
+  // was necessary admin, producing a recoverable figure roughly 2.8x the one
+  // the engine computed, so the page and the export disagreed about one run.
+  // The scorers now publish capacity_drag_percent (burden as a share of
+  // capacity) and recoverable_share_percent (the share of that burden judged
+  // recoverable) separately, so both views build from one source.
+  const ex = exposure && typeof exposure === "object" ? exposure : {};
+  const dragPct = Math.max(0, Math.min(100, Math.round(Number(ex.capacity_drag_percent) || 0)));
+  const recShare = Math.max(0, Math.min(100, Number(ex.recoverable_share_percent) || 0));
+  let drag = Math.round(dragPct * (recShare / 100));
+  let admin = Math.max(0, dragPct - drag);
+  let productive = Math.max(0, 100 - dragPct);
   const capTotal = productive + admin + drag || 1;
   productive = Math.round((productive / capTotal) * 100);
   admin = Math.round((admin / capTotal) * 100);
-  drag = 100 - productive - admin;
+  drag = Math.max(0, 100 - productive - admin);
   return { productive, admin, drag };
   }
 
@@ -4448,7 +4467,7 @@ const annualHours = Math.round(Number(result?.exposure?.annual_hours || 0));
 const annualHoursText = annualHours ? formatRoundedHours(annualHours, { suffix: " annual burden hours*" }) : "annual burden hours* not estimated";
 const annualCostText = formatEstimateCurrencyRange(result?.exposure?.annual_cost);
 const dragPct = Math.max(0, Math.min(100, Math.round(Number(result?.exposure?.capacity_drag_percent || 0))));
-const capacity = calculateCapacityComposition(dragPct);
+const capacity = calculateCapacityComposition(result?.exposure);
 // SC: build clarity dimension bars instead of DV burden donut
 const breakdown = asObject(result?.burden_breakdown);
 const donutSegments = buildDonutSegments(breakdown);
@@ -4705,7 +4724,7 @@ return `<!doctype html>
   @page { size: letter; margin: 0; }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; width: 8.5in; background: #fff; }
-  body { color: #18191C; font-family: Helvetica, Arial, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { color: #18191C; font-family: "Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .page { width: 8.5in; height: 11in; padding: .78in .76in .62in .76in; page-break-after: always; position: relative; overflow: hidden; background: #fff; }
   .page:last-child { page-break-after: auto; }
   .top { position: absolute; top: .56in; left: .76in; right: .76in; height: .24in; border-bottom: 1px solid #EAE6DD; padding-bottom: .28in; }
@@ -4802,6 +4821,15 @@ return `<!doctype html>
   .exp-card p { margin: 0; font-size: 10.2px; line-height: 1.55; color: #6E6F73; }
   .ring-row { display: grid; grid-template-columns: 72px 1fr; gap: 18px; align-items: center; margin: 8px 0 20px; }
   .ring { width: 58px; height: 58px; }
+</style>
+<style>
+/* Neue Haas Grotesk must be loaded inside the exported document itself. This
+   template previously declared no @font-face at all, so every export rendered
+   in Helvetica or a system font regardless of what its CSS asked for. Absolute
+   URLs first because an exported document has no base URL to resolve against. */
+@font-face{font-family:"Neue Haas Grotesk";src:url("https://www.monderman.com/55font.woff2") format("woff2"),url("https://monderman.com/55font.woff2") format("woff2"),url("55font.woff2") format("woff2"),url("55font.woff") format("woff");font-weight:400;font-display:swap}
+@font-face{font-family:"Neue Haas Grotesk";src:url("https://www.monderman.com/65font.woff2") format("woff2"),url("https://monderman.com/65font.woff2") format("woff2"),url("65font.woff2") format("woff2"),url("65font.woff") format("woff");font-weight:500;font-display:swap}
+@font-face{font-family:"Neue Haas Grotesk";src:url("https://www.monderman.com/75font.woff2") format("woff2"),url("https://monderman.com/75font.woff2") format("woff2"),url("75font.woff2") format("woff2"),url("75font.woff") format("woff");font-weight:700;font-display:swap}
 </style>
 </head>
 <body>
@@ -5620,6 +5648,15 @@ return `<!DOCTYPE html>
   <style>
     ${getReportStyles()}
   </style>
+<style>
+/* Neue Haas Grotesk must be loaded inside the exported document itself. This
+   template previously declared no @font-face at all, so every export rendered
+   in Helvetica or a system font regardless of what its CSS asked for. Absolute
+   URLs first because an exported document has no base URL to resolve against. */
+@font-face{font-family:"Neue Haas Grotesk";src:url("https://www.monderman.com/55font.woff2") format("woff2"),url("https://monderman.com/55font.woff2") format("woff2"),url("55font.woff2") format("woff2"),url("55font.woff") format("woff");font-weight:400;font-display:swap}
+@font-face{font-family:"Neue Haas Grotesk";src:url("https://www.monderman.com/65font.woff2") format("woff2"),url("https://monderman.com/65font.woff2") format("woff2"),url("65font.woff2") format("woff2"),url("65font.woff") format("woff");font-weight:500;font-display:swap}
+@font-face{font-family:"Neue Haas Grotesk";src:url("https://www.monderman.com/75font.woff2") format("woff2"),url("https://monderman.com/75font.woff2") format("woff2"),url("75font.woff2") format("woff2"),url("75font.woff") format("woff");font-weight:700;font-display:swap}
+</style>
 </head>
 <body>
   <div class="report-wrapper">
@@ -5642,7 +5679,7 @@ return `<!DOCTYPE html>
 }
 
 function getReportStyles() {
-return `* { box-sizing: border-box; } html, body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; } body { background: #fff; color: #18191C; line-height: 1.6; } .report-wrapper { max-width: 1200px; margin: 0 auto; padding: 40px; } .report-header-section { margin-bottom: 40px; padding-bottom: 30px; border-bottom: 1px solid rgba(24, 25, 28, 0.1); } .report-wordmark { font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #0C6E78; margin-bottom: 16px; } .report-title-block h1 { margin: 0 0 8px; font-size: 2.5rem; line-height: 1; letter-spacing: -0.04em; } .report-meta { margin: 0; font-size: 0.95rem; color: #6E6F73; } .report-content { margin-bottom: 40px; } .report-footer-section { padding-top: 30px; border-top: 1px solid rgba(24, 25, 28, 0.1); font-size: 0.85rem; color: #9A9892; } @media print { body { background: #fff; } .report-wrapper { padding: 20px; } }`;
+return `* { box-sizing: border-box; } html, body { margin: 0; padding: 0; font-family: "Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif; } body { background: #fff; color: #18191C; line-height: 1.6; } .report-wrapper { max-width: 1200px; margin: 0 auto; padding: 40px; } .report-header-section { margin-bottom: 40px; padding-bottom: 30px; border-bottom: 1px solid rgba(24, 25, 28, 0.1); } .report-wordmark { font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #0C6E78; margin-bottom: 16px; } .report-title-block h1 { margin: 0 0 8px; font-size: 2.5rem; line-height: 1; letter-spacing: -0.04em; } .report-meta { margin: 0; font-size: 0.95rem; color: #6E6F73; } .report-content { margin-bottom: 40px; } .report-footer-section { padding-top: 30px; border-top: 1px solid rgba(24, 25, 28, 0.1); font-size: 0.85rem; color: #9A9892; } @media print { body { background: #fff; } .report-wrapper { padding: 20px; } }`;
 }
 
 learnMoreToggle.addEventListener("click", () => learnMorePanel.classList.toggle("show"));
