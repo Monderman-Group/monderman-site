@@ -516,7 +516,8 @@ body{transition:background-color .25s ease,color .25s ease}
 
     const state = { user:null, membership:null, organization:null, role:"viewer", runs:[] };
     const TOOLS = ["structural_clarity","decision_velocity","operational_systems","institutional_performance"];
-    const PLAN_LABEL = { free:"Free", baseline:"Baseline", signal:"Signal", advisory:"Advisory" };
+    const PLAN_LABEL = { trial:"Trial", signal:"Signal", pattern:"Pattern", enterprise:"Enterprise", // legacy values kept so an old row still renders a name rather than a blank
+                         free:"Trial", baseline:"Signal", advisory:"Pattern" };
     const ADMIN_ROLES = ["owner","admin"];
 
     // ---- helpers (preserved) ----
@@ -716,7 +717,7 @@ body{transition:background-color .25s ease,color .25s ease}
 
     function renderEntitlements(){
       const org = state.organization || {};
-      const plan = org.plan || "free";
+      const plan = org.plan || "trial";
       const used = Number(org.runs_used ?? state.runs.length ?? 0);
       const usage = plan==="free" ? `${Math.min(used,3)} of 3 free runs used`
                    : (org.run_limit==null ? "Runs covered by your tier's allowance" : `${used} of ${org.run_limit} runs this year`);
