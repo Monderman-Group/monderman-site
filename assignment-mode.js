@@ -165,7 +165,9 @@
           "<b>Your name is not attached to these answers.</b> Your organization sees this " +
           "response as a pseudonym, with the date you answered rather than the time. It does " +
           "see which business unit the response came from, because that is what this " +
-          "diagnostic measures. In a small unit, that could narrow down who answered.";
+          "diagnostic measures. In a small unit, that could narrow down who answered." +
+          "<br><br>You will see your results when you finish. They cannot be reopened " +
+          "afterwards, because nothing links this response back to you.";
       } else {
         box.innerHTML =
           "<span class='ma-pl'>Attributed run</span>" +
