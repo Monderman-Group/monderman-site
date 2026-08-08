@@ -1,15 +1,15 @@
 /*
-  assignment-mode.js — Monderman directed (campaign) mode.
+  assignment-mode.js - Monderman directed (campaign) mode.
 
   One small library, included by all four diagnostic pages. It handles
   everything page-agnostic about a campaign run:
-    - detect ?assignment_token in the URL
-    - resolve it to the admin-locked config (tool, vantage, depth, visibility)
-    - show a "assigned by your organization" banner
-    - lock the vantage so the taker cannot change it
-    - confirm that authoritative finalize persisted and closed the assignment
-    - gate the individual output on show_results_to_assignee
-    - render invalid / already-done / recorded screens as a clean overlay
+ - detect ?assignment_token in the URL
+ - resolve it to the admin-locked config (tool, vantage, depth, visibility)
+ - show a "assigned by your organization" banner
+ - lock the vantage so the taker cannot change it
+ - confirm that authoritative finalize persisted and closed the assignment
+ - gate the individual output on show_results_to_assignee
+ - render invalid / already-done / recorded screens as a clean overlay
 
   Each page wires three tiny hooks (see operational-systems.html):
     1. <script src="assignment-mode.js"></script>  (before the page's app script)
@@ -57,10 +57,18 @@
     var s = document.createElement("style");
     s.id = "ma-style";
     s.textContent =
-      ".ma-banner{font-family:'Neue Haas Grotesk Display Pro','Helvetica Neue',Helvetica,Arial,sans-serif;" +
+      ".ma-banner,.ma-privacy{font-family:'Neue Haas Grotesk','Helvetica Neue',Helvetica,Arial,sans-serif;" +
       "background:" + INK + ";color:#fff;padding:16px 26px;display:flex;align-items:center;gap:14px;" +
       "font-size:16px;line-height:1.45;flex-wrap:wrap;border-bottom:3px solid " + ACCENT + ";" +
       "box-shadow:0 2px 10px rgba(15,23,32,.18);position:sticky;top:0;z-index:1200;}" +
+      // Sits directly under the assigned banner, before the first question, so a
+      // recipient knows what is and is not attached to their answers before they
+      // start rather than afterwards.
+      ".ma-privacy{background:#FAFAF8;border-bottom:1px solid rgba(24,25,28,.12);" +
+      "padding:14px 26px;font-size:15px;line-height:1.55;color:#18191C;}" +
+      ".ma-privacy b{font-weight:600}" +
+      ".ma-privacy .ma-pl{display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;" +
+      "color:#5B6068;margin-bottom:4px}" +
       ".ma-banner b{font-weight:600;}" +
       ".ma-banner .ma-eyebrow{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;" +
       "color:rgba(255,255,255,.55);}" +
@@ -70,7 +78,7 @@
       "font-weight:500;padding:5px 13px;border-radius:999px;white-space:nowrap;}" +
       ".ma-overlay{position:fixed;inset:0;z-index:9999;background:" + PAPER + ";display:flex;" +
       "align-items:center;justify-content:center;padding:24px;" +
-      "font-family:'Neue Haas Grotesk Display Pro','Helvetica Neue',Helvetica,Arial,sans-serif;}" +
+      "font-family:'Neue Haas Grotesk','Helvetica Neue',Helvetica,Arial,sans-serif;}" +
       ".ma-card{max-width:440px;text-align:center;background:#fff;border:1px solid rgba(21,32,43,.09);" +
       "border-radius:16px;padding:40px 36px;box-shadow:0 1px 2px rgba(15,23,32,.04),0 18px 40px rgba(15,23,32,.07);}" +
       ".ma-card .ma-mark{width:44px;height:44px;border-radius:10px;background:" + INK + ";color:#fff;" +
@@ -138,6 +146,37 @@
     },
 
     // banner: prepend a strip signalling the run is organization-assigned
+
+    // What the recipient is told about attribution. Both branches are stated
+    // explicitly: saying nothing on a named run would let silence imply
+    // anonymity. The anonymous wording is deliberately narrow, because business
+    // unit is still shown and in a small unit that can narrow down who answered.
+    // Promising more than this would be misleading.
+    privacyNotice: function (cfg) {
+      cfg = cfg || _config;
+      if (!cfg || document.getElementById("ma-privacy")) return;
+      injectStyleOnce();
+      var box = document.createElement("div");
+      box.className = "ma-privacy";
+      box.id = "ma-privacy";
+      if (cfg.is_anonymous_response) {
+        box.innerHTML =
+          "<span class='ma-pl'>Anonymous run</span>" +
+          "<b>Your name is not attached to these answers.</b> Your organization sees this " +
+          "response as a pseudonym, with the date you answered rather than the time. It does " +
+          "see which business unit the response came from, because that is what this " +
+          "diagnostic measures. In a small unit, that could narrow down who answered.";
+      } else {
+        box.innerHTML =
+          "<span class='ma-pl'>Attributed run</span>" +
+          "<b>Your name is attached to these answers.</b> Your organization sees who answered, " +
+          "along with your business unit and when you completed it.";
+      }
+      var banner = document.getElementById("ma-banner");
+      if (banner && banner.parentNode) banner.parentNode.insertBefore(box, banner.nextSibling);
+      else document.body.insertBefore(box, document.body.firstChild);
+    },
+
     banner: function (cfg) {
       cfg = cfg || _config;
       if (!cfg || document.getElementById("ma-banner")) return;
@@ -154,6 +193,7 @@
         "</span>" +
         (lens ? "<span class='ma-tag'>" + escapeHtml(lens) + " perspective</span>" : "");
       document.body.insertBefore(bar, document.body.firstChild);
+      this.privacyNotice(cfg);
 
       // The static hero-step label invites a perspective/depth choice the taker
       // doesn't get in directed mode. Rewrite it to reflect the locked setup.
@@ -162,7 +202,7 @@
         var depthTxt = cfg.depth_choice
           ? "you choose the run length"
           : (cfg.depth ? "about " + cfg.depth + " minutes" : "set run length");
-        // How they answer is admin-settable too. When it is locked, say so —
+        // How they answer is admin-settable too. When it is locked, say so - 
         // otherwise a recipient handed an interview-only run has no idea until
         // the first question appears.
         var modeTxt = cfg.response_mode === "interview" ? "interview"
@@ -190,7 +230,7 @@
 
     // 3 · confirm the finished run is persisted and the assignment closed.
     // Resolves with a real outcome: { ok: true } only when the server confirmed persistence
-    // (an already-completed answer counts — the run is safely recorded).
+    // (an already-completed answer counts - the run is safely recorded).
     // Anything else resolves { ok: false, error } so the page never tells the
     // taker their perspective was recorded when it wasn't.
     complete: function (runId) {
@@ -263,7 +303,7 @@
       var bar = document.createElement("div");
       bar.id = "ma-failbar";
       bar.style.cssText = "position:sticky;top:0;z-index:1300;background:#8C2F28;color:#fff;" +
-        "font-family:'Neue Haas Grotesk Display Pro','Helvetica Neue',Helvetica,Arial,sans-serif;" +
+        "font-family:'Neue Haas Grotesk','Helvetica Neue',Helvetica,Arial,sans-serif;" +
         "font-size:14.5px;line-height:1.5;padding:12px 26px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;";
       bar.innerHTML = "<span>Your results are shown below, but they could not be sent to your organization yet.</span>" +
         '<button id="ma-failbar-retry" style="font:inherit;font-weight:600;color:#8C2F28;background:#fff;border:0;' +
