@@ -415,7 +415,8 @@ body{transition:background-color .25s ease, color .25s ease}
       { auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" } }
     );
 
-    const PLAN_LABEL = { free:"Free", baseline:"Baseline", signal:"Signal", advisory:"Advisory" };
+    const PLAN_LABEL = { trial:"Trial", signal:"Signal", pattern:"Pattern", enterprise:"Enterprise", // legacy values kept so an old row still renders a name rather than a blank
+                         free:"Trial", baseline:"Signal", advisory:"Pattern" };
     // "participant" was renamed to "member" by the roles migration, and the
     // organization_members / organization_invites CHECK now allows only
     // (admin, analyst, member). The old key is kept so rows written before the
