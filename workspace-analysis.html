@@ -818,8 +818,16 @@ body{transition:background-color .25s ease, color .25s ease}
           if(m.process_name==null && row.pathway_name) m.process_name=row.pathway_name;
           return m;
         });
+        // Synthesis is an entitlement now, so the call has to identify the
+        // workspace. Sent before the endpoint requires it: an unauthenticated
+        // call still works today and returns a teaser once the gate ships.
+        let synthToken = null;
+        try { const { data } = await supabase.auth.getSession(); synthToken = data?.session?.access_token || null; } catch(e){}
         const res=await fetch(`${API_BASE}/api/cross-diagnostic-synthesis`, {
-          method:"POST", headers:{ "Content-Type":"application/json" },
+          method:"POST",
+          headers: synthToken
+            ? { "Content-Type":"application/json", Authorization:"Bearer "+synthToken }
+            : { "Content-Type":"application/json" },
           body: JSON.stringify({ results, options:{ includeNarrative:true, includeExport:true } })
         });
         const j=await res.json().catch(()=>({}));
