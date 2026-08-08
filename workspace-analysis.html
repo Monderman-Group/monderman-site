@@ -530,7 +530,8 @@ body{transition:background-color .25s ease, color .25s ease}
     const API_BASE = "https://monderman-api.onrender.com";
     let ws5OrgId = null, ws5Role = "viewer";
 
-    const PLAN_LABEL = { free:"Free", baseline:"Baseline", signal:"Signal", advisory:"Advisory" };
+    const PLAN_LABEL = { trial:"Trial", signal:"Signal", pattern:"Pattern", enterprise:"Enterprise", // legacy values kept so an old row still renders a name rather than a blank
+                         free:"Trial", baseline:"Signal", advisory:"Pattern" };
     const TOOL = { operational_systems:"Operational Systems", decision_velocity:"Decision Velocity", structural_clarity:"Structural Clarity", institutional_performance:"Institutional Performance" };
     const TOOL_ORDER = ["operational_systems","decision_velocity","structural_clarity","institutional_performance"];
     const VANTAGE = { operational:"Operational", managerial:"Managerial", executive:"Executive" };
