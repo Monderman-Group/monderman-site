@@ -86,13 +86,14 @@
     // Tier facts shown on this page. Prices are display-only; the amount Stripe
     // charges comes from the server-selected Price ID, never from this file.
     const TIERS = {
-      baseline: {
-        name: "Baseline",
+      signal: {
+        name: "Signal",
         includes: [
-          "One diagnostic of your choice \u2014 switch it at any quarter boundary",
-          "24 self-run diagnostics a year",
-          "One campaign per quarter, up to 15 recipients \u2014 responses never counted",
-          "Full workspace: saved history and the over-time lens on your instrument",
+          "All four diagnostics \u2014 every depth, every vantage",
+          "Unlimited reads you run yourself \u2014 no annual ceiling",
+          "Full written deliverable on every read",
+          "Saved history, results library, and the over-time lens",
+          "One analyst account \u2014 unlimited people taking diagnostics",
           "Email platform support"
         ],
         prices: {
@@ -101,19 +102,22 @@
           annual:    { headline: "$850",   line: "per month, billed annually \u2014 save 15%" }
         }
       },
-      signal: {
-        name: "Signal",
+      pattern: {
+        name: "Pattern",
         includes: [
-          "All four diagnostics + cross-diagnostic synthesis",
-          "Unlimited campaigns \u2014 responses never counted",
-          "120 self-run diagnostics a year",
-          "Every analysis lens: over time, across units, across vantages, benchmarks, screening",
+          "Everything in Signal",
+          "Send a diagnostic to a group \u2014 500 responses a year",
+          "One combined read from many answers, with sample statistics",
+          "Across vantages \u2014 the front line against the executive seat",
+          "Cross-diagnostic synthesis \u2014 four instruments as one condition",
+          "Anonymous responses with pseudonyms",
+          "Five analyst accounts and two admin accounts",
           "Priority support + onboarding session"
         ],
         prices: {
-          monthly:   { headline: "$4,000", line: "per month, billed monthly" },
-          quarterly: { headline: "$3,800", line: "per month, billed quarterly \u2014 save 5%" },
-          annual:    { headline: "$3,400", line: "per month, billed annually \u2014 save 15%" }
+          monthly:   { headline: "$3,000", line: "per month, billed monthly" },
+          quarterly: { headline: "$2,850", line: "per month, billed quarterly \u2014 save 5%" },
+          annual:    { headline: "$2,550", line: "per month, billed annually \u2014 save 15%" }
         }
       }
     };
@@ -132,7 +136,7 @@
     if (baselineInstrument) sessionStorage.setItem("mdm_checkout_instrument", baselineInstrument);
     function updatePayState() {
       const b = document.getElementById("payBtn");
-      if (b) b.disabled = !sessionReady || (tier === "baseline" && !baselineInstrument);
+      if (b) b.disabled = !sessionReady;
     }
 
     const el = (id) => document.getElementById(id);
