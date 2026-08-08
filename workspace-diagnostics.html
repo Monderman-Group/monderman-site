@@ -650,6 +650,17 @@ body{transition:background-color .25s ease, color .25s ease}
             <div class="toggles">
               <label class="toggle"><input type="checkbox" id="fShowResults" checked> Show results to recipient</label>
               <label class="toggle"><input type="checkbox" id="fAnon"> Anonymous responses</label>
+              <!-- The admin is the one making this promise to their people, so
+                   they see the same limits the recipient is shown. Stating the
+                   business-unit exception here stops an admin promising more
+                   than the tool delivers. -->
+              <p class="tiny" id="anonNote" style="flex:1 1 100%;margin:6px 0 0">
+                <b>Anonymous responses:</b> names are not attached to answers. You see each
+                response as a pseudonym, with the date rather than the time. Business unit and
+                team are still shown, because that is what the diagnostic measures, so in a
+                small unit you may still work out who answered. Once a campaign is sent,
+                anonymity cannot be switched off.
+              </p>
             </div>
           </div>
           </details>
