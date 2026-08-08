@@ -1181,7 +1181,7 @@ body{transition:background-color .25s ease, color .25s ease}
       let rows=[];
       try{
         const { data, error } = await supabase.from("diagnostic_assignments")
-          .select("id, recipient_email, recipient_name, tool_type, participant_lens, event_path_name, campaign_label, campaign_id, status, token, created_at, opened_at, started_at, completed_at, closed_at, close_at, close_pct, run_id")
+          .select("id, recipient_email, recipient_name, tool_type, participant_lens, event_path_name, campaign_label, campaign_id, status, token, created_at, opened_at, started_at, completed_at, closed_at, close_at, close_pct, run_id, is_anonymous_response")
           .eq("organization_id",state.orgId).order("created_at",{ ascending:false }).limit(2000);
         if(error) throw error;
         rows=data||[];
@@ -1244,7 +1244,7 @@ body{transition:background-color .25s ease, color .25s ease}
       const reportBtns = (st==="done" && a.run_id) ? `<button class="btn-mini ghost" data-report="${esc(a.run_id)}" data-tt="${esc(a.tool_type||"diagnostic")}" type="button">Report</button><button class="btn-mini ghost" data-json="${esc(a.run_id)}" data-tt="${esc(a.tool_type||"diagnostic")}" type="button">JSON</button>` : "";
       return `<div class="rcp-row">
         <div class="ar-who">${esc(a.recipient_name||a.recipient_email||"\u2014")}<span>${esc(a.recipient_email||"")}</span></div>
-        <div class="rcp-when">${whenLbl}<span>${timeAgo(whenIso)}</span></div>
+        <div class="rcp-when">${whenLbl}<span>${a.is_anonymous_response ? fmtDate(whenIso) : timeAgo(whenIso)}</span></div>
         ${badge}
         <div class="rcp-act"><button class="ar-copy" data-link="${esc(link)}" type="button">Copy link</button>${reportBtns}${remindBtn}</div>
       </div>`;
