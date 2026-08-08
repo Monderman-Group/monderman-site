@@ -477,12 +477,16 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
 </style>
 
 <style>
-/* Intake alignment pass. Type scale matched to the question screens, and
-   option lists rendered as visible tiles instead of dropdowns. The value
-   submitted for each field is unchanged. */
+/* Intake alignment pass.
+   1. Type scale matched to the question screens.
+   2. Option lists now use the product's own .intake-option radio-card
+      pattern, the same component as the Perspective and Depth steps, rather
+      than a one-off control. A visually hidden mirror select keeps the
+      submitted value and all validation identical.
+   3. Intake CTAs keep the rounded-rectangle radius. */
 #preflightContextMount .field label,
 #preflightContextMount .card.soft .field>label,
-#introStage .intake-content #preflightContextMount .field label{font-size:22px;font-weight:600;line-height:1.25;letter-spacing:-.02em;margin:0 0 12px 0;display:block}
+#introStage .intake-content #preflightContextMount .field label{font-size:22px;font-weight:600;line-height:1.25;letter-spacing:-.02em;margin:0 0 14px 0;display:block}
 #preflightContextMount .field input,
 #preflightContextMount .field select,
 #preflightContextMount .field textarea,
@@ -497,14 +501,11 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
 .intake-step-title{font-size:22px;line-height:1.25;letter-spacing:-.02em}
 .intake-step-copy{font-size:15px;line-height:1.6}
 .intake-pill-btn{font-size:15px;border-radius:7px}
-#preflightContextMount .opt-tiles{display:flex;flex-wrap:wrap;gap:10px;margin:0}
-#preflightContextMount .opt-tile{font-family:inherit;font-size:15px;line-height:1.3;font-weight:500;color:var(--ink);background:#FFF;border:1px solid rgba(24,25,28,.16);border-radius:7px;padding:12px 16px;cursor:pointer;text-align:left;transition:border-color 140ms ease,background 140ms ease,box-shadow 140ms ease}
-#preflightContextMount .opt-tile:hover{border-color:rgba(12,110,120,.45);background:#FAFAF8}
-#preflightContextMount .opt-tile:focus-visible{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px rgba(12,110,120,.12)}
-#preflightContextMount .opt-tile.is-selected{border-color:var(--accent);background:rgba(12,110,120,.08);box-shadow:0 0 0 3px rgba(12,110,120,.10);font-weight:600}
-#preflightContextMount .field.has-error .opt-tile{border-color:rgba(184,80,94,.55)}
-#preflightContextMount select.opt-tile-mirror{position:absolute!important;width:1px!important;height:1px!important;min-height:0!important;padding:0!important;margin:-1px!important;border:0!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;white-space:nowrap!important}
-#preflightContextMount .opt-other-input{margin-top:10px}
+#preflightContextMount .intake-options.opt-choices{margin-bottom:0;gap:8px}
+#preflightContextMount .opt-choice .intake-option-name{font-size:15px;margin:0;font-weight:500}
+#preflightContextMount .field.has-error .opt-choice{border-color:rgba(184,80,94,.45)}
+#preflightContextMount select.opt-choice-mirror{position:absolute!important;width:1px!important;height:1px!important;min-height:0!important;padding:0!important;margin:-1px!important;border:0!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;white-space:nowrap!important}
+#preflightContextMount .opt-other-input{margin-top:12px}
 #preflightContextMount .opt-other-input[hidden]{display:none!important}
 </style>
 </head>
@@ -1804,13 +1805,13 @@ if (field.kind === "select") {
 const _otherVal = String(state.preflight[`${field.id}Other`] ?? "");
     const _isOther = String(value) === "other";
     const _hasOther = field.options.some((opt) => String(opt.value) === "other");
-    const _tiles = field.options.filter((opt) => String(opt.value) !== "").map((opt) => {
+    const _cards = field.options.filter((opt) => String(opt.value) !== "").map((opt) => {
       const on = String(value) === String(opt.value);
-      return `<button type="button" class="opt-tile${on ? " is-selected" : ""}" role="radio" aria-checked="${on ? "true" : "false"}" data-val="${escapeHtml(opt.value)}">${escapeHtml(opt.label)}</button>`;
+      return `<button type="button" class="intake-option opt-choice${on ? " selected" : ""}" role="radio" aria-checked="${on ? "true" : "false"}" data-val="${escapeHtml(opt.value)}"><span class="intake-option-radio"><span class="intake-option-radio-check">&#10003;</span></span><div class="intake-option-body"><p class="intake-option-name">${escapeHtml(opt.label)}</p></div></button>`;
     }).join("");
-    const _mirror = `<select class="opt-tile-mirror" id="preflight_${field.id}" tabindex="-1" aria-hidden="true">${field.options.map((opt) => `<option value="${escapeHtml(opt.value)}" ${String(value) === String(opt.value) ? "selected" : ""}>${escapeHtml(opt.label)}</option>`).join("")}</select>`;
+    const _mirror = `<select class="opt-choice-mirror" id="preflight_${field.id}" tabindex="-1" aria-hidden="true">${field.options.map((opt) => `<option value="${escapeHtml(opt.value)}" ${String(value) === String(opt.value) ? "selected" : ""}>${escapeHtml(opt.label)}</option>`).join("")}</select>`;
     const _otherBox = _hasOther ? `<input type="text" class="opt-other-input" id="preflight_${field.id}_other" autocomplete="off" placeholder="Tell us which one" value="${escapeHtml(_otherVal)}"${_isOther ? "" : " hidden"} />` : "";
-    return `<div class="field" data-field-id="${escapeHtml(field.id)}"><label for="preflight_${field.id}">${escapeHtml(field.label)}</label><div class="opt-tiles" role="radiogroup" aria-label="${escapeHtml(field.label)}">${_tiles}</div>${_mirror}${_otherBox}<div class="field-error-msg"></div></div>`;
+    return `<div class="field" data-field-id="${escapeHtml(field.id)}"><label for="preflight_${field.id}">${escapeHtml(field.label)}</label><div class="intake-options opt-choices" role="radiogroup" aria-label="${escapeHtml(field.label)}">${_cards}</div>${_mirror}${_otherBox}<div class="field-error-msg"></div></div>`;
 }
 if (field.kind === "textarea") {
 return `<div class="field" data-field-id="${escapeHtml(field.id)}"><label for="preflight_${field.id}">${escapeHtml(field.label)}</label><textarea id="preflight_${field.id}" placeholder="${escapeHtml(field.placeholder || "")}">${escapeHtml(String(value))}</textarea>${field.helper ? `<p class="tiny" style="margin:8px 0 0;">${escapeHtml(field.helper)}</p>` : ""}<div class="field-error-msg"></div></div>`;
@@ -1829,14 +1830,14 @@ msg.id = 'consentErrorMsg';
 checkboxCard.appendChild(msg);
 }
 mount.querySelectorAll('.field').forEach((fieldEl) => {
-const group = fieldEl.querySelector('.opt-tiles');
-const sel = fieldEl.querySelector('select.opt-tile-mirror');
+const group = fieldEl.querySelector('.opt-choices');
+const sel = fieldEl.querySelector('select.opt-choice-mirror');
 if (!group || !sel) return;
 const otherBox = fieldEl.querySelector('.opt-other-input');
 const sync = () => {
-group.querySelectorAll('.opt-tile').forEach((b) => {
+group.querySelectorAll('.opt-choice').forEach((b) => {
 const on = String(b.getAttribute('data-val')) === String(sel.value);
-b.classList.toggle('is-selected', on);
+b.classList.toggle('selected', on);
 b.setAttribute('aria-checked', on ? 'true' : 'false');
 });
 if (otherBox) {
@@ -1845,7 +1846,7 @@ otherBox.hidden = !showOther;
 if (!showOther) otherBox.value = '';
 }
 };
-group.querySelectorAll('.opt-tile').forEach((btn) => {
+group.querySelectorAll('.opt-choice').forEach((btn) => {
 btn.addEventListener('click', () => {
 sel.value = btn.getAttribute('data-val');
 sync();
