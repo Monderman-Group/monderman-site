@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Monderman - Live QC Matrix (144 fixtures)</title>
+<style>
+ body{font:14px/1.5 -apple-system,Helvetica,Arial,sans-serif;background:#F7F5F0;color:#18191C;margin:0;padding:22px}
+ h1{font-size:19px;margin:0 0 3px}
+ .sub{color:#5B6068;font-size:13px;margin:0 0 16px;max-width:1000px}
+ .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 14px}
+ select,input{font:inherit;padding:7px 9px;border:1px solid rgba(24,25,28,.2);border-radius:7px;background:#fff}
+ button{font:inherit;font-weight:600;padding:9px 16px;border:0;border-radius:7px;cursor:pointer}
+ .go{background:#0C6E78;color:#fff}.stop{background:#B3261E;color:#fff}.dl{background:#18191C;color:#fff}
+ button:disabled{opacity:.35;cursor:not-allowed}
+ .stats{display:flex;gap:18px;flex-wrap:wrap;background:#fff;border-radius:9px;padding:11px 15px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.06);font-variant-numeric:tabular-nums}
+ .stats b{font-size:17px;display:block}
+ .stats span{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#5B6068}
+ table{width:100%;border-collapse:collapse;background:#fff;border-radius:9px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);font-size:12.5px}
+ th,td{text-align:left;padding:6px 9px;border-bottom:1px solid #EFEDE7;vertical-align:top}
+ th{background:#F1EFE9;position:sticky;top:0;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+ tr.pass td:first-child{border-left:3px solid #0C6E78}
+ tr.fail td:first-child{border-left:3px solid #B3261E}
+ tr.warn td:first-child{border-left:3px solid #E0A100}
+ .chip{display:inline-block;padding:1px 6px;border-radius:4px;font-size:11px;font-weight:600;margin:1px 2px 1px 0}
+ .cP{background:#E4F1EC;color:#0C6E78}.cF{background:#FBE6E4;color:#B3261E}.cW{background:#FDF3DC;color:#8A6A00}
+ .num{font-variant-numeric:tabular-nums;white-space:nowrap}
+ .exp{cursor:pointer;color:#0C6E78;font-weight:600}
+ .prose{background:#F7F5F0;padding:9px 11px;border-radius:7px;margin:6px 0 0;white-space:pre-wrap;font-size:12.5px;max-height:260px;overflow:auto}
+ .log{margin-top:16px;background:#111;color:#B9E6D3;font:11.5px/1.5 ui-monospace,Menlo,monospace;padding:12px 14px;border-radius:9px;max-height:200px;overflow:auto;white-space:pre-wrap}
+ .warnbox{background:#FFF7E6;border:1px solid #F0C36D;padding:9px 13px;border-radius:7px;font-size:12.5px;margin-bottom:14px}
+</style>
+</head>
+<body>
+
+<h1>Live QC Matrix</h1>
+<p class="sub">
+  144 preset fixtures across all four instruments, three depths, three vantages, four answer patterns,
+  five sizing profiles and seven sectors. Nothing to configure. Each fixture drives the real API
+  (start, answer, finalize), then injects the result into the real instrument page to scrape the
+  actual deliverable prose, then runs QC on both the numbers and the language.
+  Stop is safe at any point and the JSON stays downloadable.
+</p>
+
+<div class="warnbox" id="authWarn">Checking session…</div>
+
+<div class="bar">
+  <label>Scope
+    <select id="scope">
+      <option value="12">Smoke (12: one per instrument per depth)</option>
+      <option value="48">Standard (48: all instruments, depths, vantages)</option>
+      <option value="144" selected>Full matrix (144)</option>
+    </select>
+  </label>
+  <label>Concurrency
+    <select id="conc"><option>1</option><option selected>3</option><option>5</option></select>
+  </label>
+  <label><input type="checkbox" id="scrape" checked> Scrape the real deliverable prose</label>
+  <button class="go" id="goBtn">Run</button>
+  <button class="stop" id="stopBtn" disabled>Stop</button>
+  <button class="dl" id="dlBtn" disabled>Download JSON</button>
+</div>
+
+<div class="stats">
+  <div><b id="sDone">0</b><span>Done</span></div>
+  <div><b id="sPass">0</b><span>Pass</span></div>
+  <div><b id="sWarn">0</b><span>Warn</span></div>
+  <div><b id="sFail">0</b><span>Fail</span></div>
+  <div><b id="sChecks">0</b><span>Checks run</span></div>
+  <div><b id="sFailed">0</b><span>Checks failed</span></div>
+  <div><b id="sElapsed">0:00</b><span>Elapsed</span></div>
+  <div><b id="sEta">-</b><span>Est. remaining</span></div>
+</div>
+
+<table>
+  <thead><tr><th>Fixture</th><th>Score</th><th>Band</th><th>Burden</th><th>Drag</th><th>Rec.</th><th>Checks</th><th>Prose</th></tr></thead>
+  <tbody id="rows"></tbody>
+</table>
+
+<div class="log" id="log">Ready.</div>
+
+<script type="module">
+const API_BASE  = "https://monderman-api.onrender.com/api";
+const PAGE_BASE = "https://www.monderman.com";
+
+const PROFILES = {
+  small:  { peopleInvolved:6,   hourlyCost:65,  annualVolume:12,   meetingHours:4 },
+  mid:    { peopleInvolved:50,  hourlyCost:180, annualVolume:50,   meetingHours:180 },
+  large:  { peopleInvolved:900, hourlyCost:320, annualVolume:2400, meetingHours:30 },
+  lowvol: { peopleInvolved:140, hourlyCost:92,  annualVolume:4,    meetingHours:160 },
+  hivol:  { peopleInvolved:45,  hourlyCost:110, annualVolume:5200, meetingHours:2 }
+};
+const INSTRUMENTS = [
+  ["sc","structural-clarity","structural_clarity","Structural Clarity"],
+  ["dv","decision-velocity","decision_velocity","Decision Velocity"],
+  ["os","operational-systems","operational_systems","Operational Systems"],
+  ["ip","institutional-performance","institutional_performance","Institutional Performance"]
+];
+const DEPTHS=[10,30,60], ROLES=["operational","managerial","senior_leader"], ANSWERS=["best","mid","worst","alt"];
+const SECTORS=["financial_services","government_defense","healthcare_life_sciences","technology_software","manufacturing_industrial","energy_utilities","other"];
+const PATHWAYS=["vendor approvals","hiring and offer approvals","capital expenditure requests","incident escalation","care coordination","change requests","tasking cycles"];
+const PROFKEYS=Object.keys(PROFILES);
+
+// Vocabulary that must not cross between instruments. Each instrument has its
+// own register; a term from another lane appearing in output is cross-bleed,
+// which was a recurring defect.
+const LANE_TERMS = {
+  sc: ["structural legibility","ownership clarity","authority visibility","handoff integrity"],
+  dv: ["decision latency","cycle velocity","escalation rate"],
+  os: ["systems friction","reporting burden","upkeep burden","process density"],
+  ip: ["institutional confidence","compensatory dependence","execution coherence"]
+};
+
+function buildFixtures() {
+  const out=[]; let i=0;
+  for (const [inst,path,tool,label] of INSTRUMENTS)
+    for (const depth of DEPTHS)
+      for (const role of ROLES)
+        for (const answers of ANSWERS) {
+          i++;
+          out.push({ id:`${inst}-${depth}-${role.slice(0,4)}-${answers}`, inst, path, tool, label,
+            depth, role, answers, profile:PROFKEYS[i%PROFKEYS.length],
+            sector:SECTORS[i%SECTORS.length], pathway:PATHWAYS[i%PATHWAYS.length] });
+        }
+  return out;
+}
+const ALL = buildFixtures();
+function scoped(n) {
+  if (n>=144) return ALL;
+  if (n>=48)  return ALL.filter(f=>f.answers==="mid" || f.answers==="worst").slice(0,48);
+  return ALL.filter(f=>f.answers==="mid" && f.role==="managerial");
+}
+
+const $=(id)=>document.getElementById(id);
+const results={}; let stopped=false, t0=0, doneCount=0, passC=0, warnC=0, failC=0, checkC=0, checkF=0;
+function log(m){ $("log").textContent += "\n"+new Date().toLocaleTimeString()+"  "+m; $("log").scrollTop=1e9; }
+
+let authToken=null;
+{
+  const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
+  const supa = createClient("https://ptkxrzgmeldalrkfruth.supabase.co",
+    "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
+    { auth:{ persistSession:true, autoRefreshToken:true } });
+  const { data } = await supa.auth.getSession();
+  authToken = data?.session?.access_token || null;
+  const w=$("authWarn");
+  if (authToken) { w.style.background="#E9F5EC"; w.style.borderColor="#8FCB9E"; w.textContent="Signed in. Ready."; }
+  else { w.textContent="No session. Open this page on monderman.com while signed in to the workspace in the same browser."; $("goBtn").disabled=true; }
+}
+const H=()=>authToken?{ "Content-Type":"application/json", Authorization:"Bearer "+authToken }:{ "Content-Type":"application/json" };
+
+function pick(item, mode, idx) {
+  const o=item.options||[];
+  if (item.questionType==="numeric" || o.length===0)
+    return ({best:1,mid:6,worst:40,alt:idx%2?2:30})[mode];
+  if (item.questionType==="multi_select")
+    return (mode==="best"?o.slice(0,1):mode==="worst"?o:o.slice(0,2)).map(x=>x.value);
+  const i = mode==="best"?0 : mode==="worst"?o.length-1 : mode==="mid"?Math.floor((o.length-1)/2) : (idx%2?0:o.length-1);
+  return o[i].value;
+}
+
+// Inject a finished result into the real instrument page and read back the
+// actual deliverable text. A <base> tag is required because srcdoc has no URL
+// of its own, so the page's relative asset paths would otherwise fail.
+async function scrapeDeliverable(fx, result) {
+  const html = await (await fetch(`${PAGE_BASE}/${fx.path}.html`)).text();
+  const inject = `<base href="${PAGE_BASE}/"><script>window.__mondermanInjectedResult=${JSON.stringify(result).replace(/</g,"\\u003c")};<\/script>`;
+  const doc = html.replace(/<head([^>]*)>/i, (m,a)=>`<head${a}>${inject}`);
+  const frame = Object.assign(document.createElement("iframe"), { style:"position:fixed;left:-9999px;width:1200px;height:900px" });
+  document.body.appendChild(frame);
+  try {
+    frame.srcdoc = doc;
+    await new Promise((res)=>{ frame.onload=res; setTimeout(res,12000); });
+    for (let i=0;i<40;i++){ if (frame.contentWindow?.__mondermanTestHooks) break; await new Promise(r=>setTimeout(r,300)); }
+    const hooks = frame.contentWindow?.__mondermanTestHooks;
+    if (!hooks?.buildExecutiveReportHtml) return { ok:false, reason:"hooks_unavailable" };
+    const reportHtml = hooks.buildExecutiveReportHtml();
+    const tmp = frame.contentDocument.createElement("div");
+    tmp.innerHTML = reportHtml;
+    return { ok:true, text:(tmp.textContent||"").replace(/\s+/g," ").trim(), length:reportHtml.length };
+  } catch(e) { return { ok:false, reason:e.message };
+  } finally { frame.remove(); }
+}
+
+function bandFor(score){ return score>=83?"healthy":score>=67?"moderate":score>=49?"material":"breakdown"; }
+
+function qc(fx, result, deliverable) {
+  const c=[]; const add=(name,ok,detail,soft)=>c.push({name,ok:!!ok,soft:!!soft,detail:detail??""});
+  const ex=result.exposure||{}, prof=PROFILES[fx.profile];
+  const score=Number(result.score);
+
+  add("score_in_range", Number.isFinite(score)&&score>=0&&score<=100, "score="+result.score);
+  add("dimensions_present", Object.values(result.dimensions||{}).some(v=>typeof v==="number"), "");
+  add("burden_breakdown_populated", Object.keys(result.burden_breakdown||{}).length>0, "");
+
+  // exposure identities
+  const priced = ex.priceable !== false;
+  add("priced_when_inputs_given", priced, "priceable="+ex.priceable);
+  if (priced) {
+    const hrs=Number(ex.annual_hours), cost=Number(ex.annual_cost), rate=Number(ex.average_hourly_cost);
+    const cap=Number(ex.total_capacity_hours), drag=Number(ex.capacity_drag_percent);
+    const rec=Number(ex.recoverable_cost), share=Number(ex.recoverable_share_percent);
+    add("cost_identity", rate>0 && Math.abs(cost-hrs*rate)<=Math.max(2,cost*0.01), `${cost} vs ${hrs}x${rate}`);
+    add("capacity_gte_burden", cap>=hrs, `cap=${cap} burden=${hrs}`);
+    add("drag_reconciles", cap>0 && Math.abs(cap*(drag/100)-hrs)<=Math.max(cap*0.02,50), `drag=${drag}%`);
+    add("recoverable_lte_burden", rec<=cost, `${rec} vs ${cost}`);
+    add("recoverable_share_sane", share>0&&share<=50, "share="+share);
+    add("rate_matches_input", Math.abs(rate-prof.hourlyCost)<=1, `${rate} vs ${prof.hourlyCost}`);
+  }
+  // band coherence: the printed band must agree with the numeric score
+  if (result.band) add("band_matches_score",
+    String(result.band).toLowerCase().includes(bandFor(score).slice(0,6)) || bandFor(score)==="moderate",
+    `band="${result.band}" score=${score}`, true);
+  // the ladder must exist when the condition is materially unhealthy
+  const ladder = result.intervention_priority_ladder || result.canonical_descriptor?.priority_ladder;
+  if (score<67) add("unhealthy_run_has_ladder", Array.isArray(ladder)&&ladder.length>0, "ladder="+(ladder?.length??"none"));
+
+  // prose
+  const prose = result.interpretive_prose||{};
+  const strings=[]; (function walk(n,p){ if(typeof n==="string"){strings.push([p,n]);return;}
+    if(Array.isArray(n)){n.forEach((v,i)=>walk(v,p+"["+i+"]"));return;}
+    if(n&&typeof n==="object"){for(const[k,v] of Object.entries(n))walk(v,p?p+"."+k:k);} })(prose,"");
+  const all = strings.map(s=>s[1]).join(" ");
+  add("prose_produced", strings.length>0, strings.length+" strings");
+  add("no_placeholder_leak", !/\b(undefined|NaN|\[object Object\])\b/.test(all), "");
+  add("no_em_dash", !all.includes("\u2014"), "");
+  const agree = new RegExp("the\\s+"+fx.pathway.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\s+(is|has|was|does)\\b","i");
+  add("pathway_subject_agreement", !agree.test(all), "");
+  // remedy cards
+  const paths = prose.remedy_paths;
+  add("three_remedy_paths", Array.isArray(paths)&&paths.length===3, "n="+(paths?.length??"none"));
+  if (Array.isArray(paths)) {
+    add("remedy_actions_non_empty", paths.every(p=>Array.isArray(p?.actions)&&p.actions.length>0), "");
+    add("remedy_kickers_present", paths.every(p=>!!p?.kicker), "");
+    add("remedy_paths_differ", new Set(paths.map(p=>(p?.actions||[]).join("|"))).size>1, "");
+  }
+  const pa=prose.priority_actions;
+  if (Array.isArray(pa)&&pa.length>1) add("priority_actions_distinct", new Set(pa).size===pa.length, pa.length+" / "+new Set(pa).size);
+  // cross-lane vocabulary bleed
+  const foreign=[];
+  for (const [lane,terms] of Object.entries(LANE_TERMS)) {
+    if (lane===fx.inst) continue;
+    for (const term of terms) if (all.toLowerCase().includes(term)) foreign.push(lane+":"+term);
+  }
+  add("no_cross_lane_bleed", foreign.length===0, foreign.join(", "));
+
+  // the real deliverable
+  if (deliverable) {
+    add("deliverable_built", deliverable.ok, deliverable.reason||"", true);
+    if (deliverable.ok) {
+      add("deliverable_non_trivial", (deliverable.text||"").length>800, (deliverable.text||"").length+" chars", true);
+      add("deliverable_no_em_dash", !(deliverable.text||"").includes("\u2014"), "", true);
+      add("deliverable_no_placeholder", !/\b(undefined|NaN)\b/.test(deliverable.text||""), "", true);
+      add("deliverable_carries_score", (deliverable.text||"").includes(String(Math.round(score))), "", true);
+    }
+  }
+  return c;
+}
+
+async function runFixture(fx) {
+  const prof=PROFILES[fx.profile];
+  const ctx={ processName:fx.pathway, industry:fx.sector, businessUnit:"operations",
+    confidenceLevel:"moderate", ...prof };
+  const body={ participantMode:fx.role, diagnosticDepth:fx.depth, ...ctx };
+  const s=await (await fetch(`${API_BASE}/${fx.path}/run/start`,{method:"POST",headers:H(),body:JSON.stringify(body)})).json();
+  if (!s.ok) throw new Error("start: "+(s.error||s.message));
+  let item=s.nextItem, steps=0;
+  while (item && !stopped) {
+    steps++;
+    const a=await (await fetch(`${API_BASE}/${fx.path}/run/${s.runId}/answer`,{method:"POST",headers:H(),
+      body:JSON.stringify({ itemId:item.id, value:pick(item,fx.answers,steps) })})).json();
+    if (!a.ok) throw new Error("answer@"+steps+": "+(a.error||a.message));
+    if (a.shouldStop) break;
+    item=a.nextItem;
+  }
+  if (stopped) return null;
+  const f=await (await fetch(`${API_BASE}/${fx.path}/run/${s.runId}/finalize`,{method:"POST",headers:H()})).json();
+  if (!f.ok) throw new Error("finalize: "+(f.error||f.message));
+  const result=f.result||f;
+  const deliverable = $("scrape").checked ? await scrapeDeliverable(fx,result) : null;
+  return { fixture:fx, inputs:ctx, steps, result, deliverable, checks:qc(fx,result,deliverable) };
+}
+
+function addRow(fx){ const tr=document.createElement("tr"); tr.id="r-"+fx.id;
+  tr.innerHTML=`<td>${fx.id}<br><span style="color:#5B6068;font-size:11px">${fx.profile} / ${fx.sector.slice(0,12)}</span></td>`+
+    "<td class='num'>-</td><td>-</td><td class='num'>-</td><td class='num'>-</td><td class='num'>-</td><td>waiting</td><td>-</td>";
+  $("rows").appendChild(tr); }
+
+function fillRow(entry, err) {
+  const fx=entry?.fixture, tr=document.getElementById("r-"+(fx?fx.id:""));
+  if (!tr) return;
+  const td=tr.querySelectorAll("td");
+  if (err) { tr.className="fail"; td[6].innerHTML=`<span class="chip cF">${err}</span>`; return; }
+  const r=entry.result, ex=r.exposure||{};
+  const hard=entry.checks.filter(c=>!c.soft), soft=entry.checks.filter(c=>c.soft);
+  const hf=hard.filter(c=>!c.ok), sf=soft.filter(c=>!c.ok);
+  tr.className = hf.length?"fail":(sf.length?"warn":"pass");
+  td[1].textContent=r.score ?? "-";
+  td[2].textContent=(r.band||"-").toString().slice(0,22);
+  td[3].textContent= ex.annual_cost?("$"+Number(ex.annual_cost).toLocaleString()):"unpriced";
+  td[4].textContent= (ex.capacity_drag_percent ?? "-")+"%";
+  td[5].textContent= ex.recoverable_cost?("$"+Number(ex.recoverable_cost).toLocaleString()):"-";
+  td[6].innerHTML = hf.length||sf.length
+    ? [...hf.map(c=>`<span class="chip cF">${c.name}</span>`), ...sf.map(c=>`<span class="chip cW">${c.name}</span>`)].join("")
+    : `<span class="chip cP">${hard.length+soft.length} ok</span>`;
+  const p=r.interpretive_prose||{}, h=p.harmonized_narrative||{};
+  const head=(h.headlineFinding||h.executive||p.executive_summary?.headline||"").toString();
+  td[7].innerHTML=`<span class="exp">view</span>`;
+  td[7].querySelector(".exp").onclick=()=>{
+    const ex2=document.createElement("div"); ex2.className="prose";
+    ex2.textContent=(head?head+"\n\n":"")+
+      ((p.remedy_paths||[]).map((x,i)=>`${i+1}. [${x.kicker||"-"}] ${x.label||"-"}\n   `+(x.actions||[]).join("\n   ")).join("\n\n"))+
+      (entry.deliverable?.ok?"\n\n--- deliverable (first 1200 chars) ---\n"+entry.deliverable.text.slice(0,1200):"");
+    td[7].appendChild(ex2); td[7].querySelector(".exp").remove();
+  };
+}
+
+function tick(total){
+  const el=Math.round((Date.now()-t0)/1000);
+  $("sElapsed").textContent=Math.floor(el/60)+":"+String(el%60).padStart(2,"0");
+  $("sDone").textContent=doneCount; $("sPass").textContent=passC; $("sWarn").textContent=warnC; $("sFail").textContent=failC;
+  $("sChecks").textContent=checkC; $("sFailed").textContent=checkF;
+  if (doneCount>0 && doneCount<total) {
+    const per=el/doneCount, rem=Math.round(per*(total-doneCount));
+    $("sEta").textContent=Math.floor(rem/60)+":"+String(rem%60).padStart(2,"0");
+  }
+}
+
+async function run() {
+  stopped=false; t0=Date.now(); doneCount=passC=warnC=failC=checkC=checkF=0;
+  for (const k of Object.keys(results)) delete results[k];
+  const list=scoped(Number($("scope").value));
+  const conc=Number($("conc").value);
+  $("rows").innerHTML=""; list.forEach(addRow);
+  $("goBtn").disabled=true; $("stopBtn").disabled=false; $("dlBtn").disabled=true;
+  log(`Running ${list.length} fixtures at concurrency ${conc}. Each is a real model call.`);
+  const timer=setInterval(()=>tick(list.length),1000);
+  let idx=0;
+  async function worker(){
+    while (idx<list.length && !stopped) {
+      const fx=list[idx++];
+      try {
+        const entry=await runFixture(fx);
+        if (!entry) break;
+        results[fx.id]=entry; fillRow(entry);
+        const hf=entry.checks.filter(c=>!c.ok&&!c.soft).length, sf=entry.checks.filter(c=>!c.ok&&c.soft).length;
+        checkC+=entry.checks.length; checkF+=hf+sf;
+        if (hf) { failC++; log(`FAIL ${fx.id}: `+entry.checks.filter(c=>!c.ok&&!c.soft).map(c=>c.name).join(", ")); }
+        else if (sf) warnC++; else passC++;
+      } catch(e) {
+        failC++; results[fx.id]={ fixture:fx, error:e.message };
+        fillRow({fixture:fx}, e.message.slice(0,40)); log(`ERROR ${fx.id}: ${e.message}`);
+      }
+      doneCount++; tick(list.length);
+    }
+  }
+  await Promise.all(Array.from({length:conc},worker));
+  clearInterval(timer); tick(list.length);
+  $("goBtn").disabled=false; $("stopBtn").disabled=true; $("dlBtn").disabled=Object.keys(results).length===0;
+  log(`Finished. ${passC} pass, ${warnC} warn, ${failC} fail of ${doneCount} run.`);
+}
+
+$("goBtn").onclick=run;
+$("stopBtn").onclick=()=>{ stopped=true; log("Stopping after in-flight fixtures finish."); };
+$("dlBtn").onclick=()=>{
+  const payload={ generated:new Date().toISOString(), stopped_early:stopped,
+    totals:{ done:doneCount, pass:passC, warn:warnC, fail:failC, checks:checkC, checks_failed:checkF },
+    profiles:PROFILES, cells:results };
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}));
+  a.download="monderman-qc-matrix-"+Date.now()+".json"; a.click();
+};
+</script>
+</body>
+</html>
