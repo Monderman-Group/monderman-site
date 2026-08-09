@@ -461,7 +461,7 @@ body{transition:background-color .25s ease, color .25s ease}
             <select class="selector" id="otSel" aria-label="Choose an instrument"></select>
           </div>
           <div id="otBody"></div>
-          <p class="footnote">A trend needs two or more promoted reads of the same diagnostic on the same unit.</p>
+          <p class="footnote">A trend needs two or more promoted reads of the same diagnostic on the same unit, taken on the same instrument version. Reads on different versions plot as separate lines &mdash; comparisons hold within a version.</p>
         </section>
 
         <!-- ACROSS UNITS -->
@@ -565,11 +565,34 @@ body{transition:background-color .25s ease, color .25s ease}
     }
 
     // ---- data shaping ----
+    let TREND_EXCLUDED = 0;
     function groupsTU(){
-      const g={};
-      SNAPS.forEach(s=>{ const u=s.business_unit||"\u2014"; const k=s.tool_type+"|"+u; (g[k]=g[k]||[]).push(s); });
+      // Grouped by tool | unit | config version | scorer version: a trend line
+      // only ever connects reads produced by the same instrument AND the same
+      // scorer (8 Aug 2026). A scorer can change without a config change, so
+      // both keys are required. Snaps whose versions could not be verified
+      // are excluded and counted, never pooled into a shared line. The known
+      // legacy cohort (runs predating scorer stamping) plots as its own
+      // labeled line so the baseline history stays visible.
+      const g={}; TREND_EXCLUDED = 0;
+      SNAPS.forEach(s=>{
+        // A missing config_version means the instrument identity cannot be
+        // asserted, so the read is excluded — never pooled into an "unknown"
+        // cohort (8 Aug 2026 correction).
+        if(!s.__v || !s.__v.cv){ TREND_EXCLUDED += 1; return; }
+        const u=s.business_unit||"\u2014";
+        const cv=s.__v.cv;
+        const sv=s.__v.sv||"legacy";
+        const k=s.tool_type+"|"+u+"|"+cv+"|"+sv;
+        (g[k]=g[k]||[]).push(s);
+      });
       Object.keys(g).forEach(k=> g[k].sort((a,b)=> new Date(a.as_of)-new Date(b.as_of)));
       return g;
+    }
+    function trendVersionLabel(cv, sv){
+      if(sv==="legacy") return "v"+cv+" \u00b7 legacy scorer";
+      const d=(String(sv).match(/20\d{2}_\d{2}_\d{2}/)||[])[0];
+      return "v"+cv+(d?" \u00b7 scorer "+d.replace(/_/g,"-"):"");
     }
     function pairs(){
       const byRun=new Map(SNAPS.filter(s=>s.source_run_id).map(s=>[String(s.source_run_id),s]));
@@ -675,7 +698,7 @@ body{transition:background-color .25s ease, color .25s ease}
       if(!keys.length){ sel.style.display="none"; body.innerHTML=emptyHTML("No reads yet","Promote a run, then a second read of the same instrument, and the trend draws here."); return; }
       sel.style.display="";
       keys.sort((a,b)=> g[b].length-g[a].length);
-      if(sel.dataset.filled!=="1"){ sel.innerHTML=keys.map(k=>{ const [t,...rest]=k.split("|"); const u=rest.join("|"); return `<option value="${esc(k)}">${esc(toolLabel(t))}${u&&u!=="\u2014"?" \u00b7 "+esc(u):""}</option>`; }).join(""); sel.dataset.filled="1"; sel.onchange=()=>drawTrend(sel.value); }
+      if(sel.dataset.filled!=="1"){ sel.innerHTML=keys.map(k=>{ const parts=k.split("|"); const t=parts[0]; const sv=parts[parts.length-1]; const cv=parts[parts.length-2]; const u=parts.slice(1,-2).join("|"); return `<option value="${esc(k)}">${esc(toolLabel(t))}${u&&u!=="\u2014"?" \u00b7 "+esc(u):""} \u00b7 ${esc(trendVersionLabel(cv,sv))}</option>`; }).join(""); sel.dataset.filled="1"; sel.onchange=()=>drawTrend(sel.value); }
       if(!keys.includes(sel.value)) sel.value=keys[0];
       drawTrend(sel.value);
     }
@@ -687,6 +710,7 @@ body{transition:background-color .25s ease, color .25s ease}
       if(pts.length>=2){ const d=pts[pts.length-1].score-pts[0].score; head=`<p class="headline"><b>${d>0?"+":""}${d} points</b> across ${pts.length} reads &mdash; trending ${d>0?"up":(d<0?"down":"flat")}.</p>`; }
       else head=`<p class="headline">One read so far. A second read closes the trend.</p>`;
       body.innerHTML=head+`<div class="card">${trendSVG(pts)}<div class="readings">`+arr.map(s=>`<div class="reading"><b class="num">${asNum(s.score)??"\u2014"}</b> \u00b7 ${esc(s.period_label||"")}${s.band?` \u00b7 ${esc(s.band)}`:""}</div>`).join("")+`</div></div>`;
+      if(TREND_EXCLUDED>0){ body.innerHTML += `<p class="footnote">${TREND_EXCLUDED} read${TREND_EXCLUDED===1?"":"s"} hidden from trends: instrument version could not be verified.</p>`; }
     }
 
     function expLine(s){
@@ -1011,6 +1035,29 @@ body{transition:background-color .25s ease, color .25s ease}
         if(linkResult.error) throw linkResult.error;
         SNAPS = (snapshotResult.data || []).map(s=>({ ...s, vantage:normalizeVantage(s.vantage) }));
         ACTION_LINKS = linkResult.data || [];
+        // 8 Aug 2026: carry each snapshot's instrument version so trends never
+        // compare across versions. "Comparisons hold within a version" is a
+        // published DAII commitment; the trend previously plotted 1.0.0 and
+        // 1.1.0 reads (and pre/post band-recut scorers) as one moving line.
+        // A version lookup failure degrades to unversioned grouping rather
+        // than blocking Analysis.
+        try{
+          const runIds = [...new Set(SNAPS.map(s=>s.source_run_id).filter(Boolean))];
+          if(runIds.length){
+            const { data: vRows, error: vErr } = await supabase.from("diagnostic_runs")
+              .select("id, config_version, scorer_version").in("id", runIds);
+            if(vErr) throw vErr;
+            const vById = {}; (vRows||[]).forEach(r=>{ vById[r.id] = { cv: r.config_version || null, sv: r.scorer_version || null }; });
+            SNAPS = SNAPS.map(s=>{ const v = vById[s.source_run_id]; return v ? { ...s, __v: v } : { ...s }; });
+          } else {
+            SNAPS = SNAPS.map(s=>({ ...s, __v: { cv: null, sv: null } }));
+          }
+        }catch(vLookupErr){
+          // A failed lookup must not pool incompatible reads into one line:
+          // snaps without verified versions are excluded from trends (with a
+          // notice) rather than grouped as "unversioned" (8 Aug 2026).
+          console.warn("instrument-version lookup for trends failed:", vLookupErr?.message || vLookupErr);
+        }
       }catch(e){
         SNAPS = [];
         ACTION_LINKS = [];
