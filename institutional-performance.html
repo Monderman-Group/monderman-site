@@ -567,8 +567,8 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
       <h3 class="intake-step-title">Choose the perspective that best matches your role.</h3>
       <p class="intake-step-copy">Each version looks at the same pathway from a different vantage point. Pick the lane that best matches what you can see firsthand. The diagnostic engine is unchanged across lanes; the questions shift to fit what each perspective can observe most credibly.</p>
       <div class="intake-options">
-        <button class="intake-option lane-btn" type="button" data-lane="operational" data-lane-tile="operational"><span class="intake-option-radio"><span class="intake-option-radio-check">&#10003;</span></span><div class="intake-option-body"><p class="intake-option-name">Operational <span class="intake-option-tag">Closest to the work</span></p><p class="intake-option-desc">Built for people closest to the work. Best for surfacing manual follow-up, off-path coordination, instruction variance, and where pathways quietly absorb chase effort.</p></div></button>
-        <button class="intake-option lane-btn" type="button" data-lane="managerial" data-lane-tile="managerial"><span class="intake-option-radio"><span class="intake-option-radio-check">&#10003;</span></span><div class="intake-option-body"><p class="intake-option-name">Managerial <span class="intake-option-tag">Coordinating teams</span></p><p class="intake-option-desc">Built for people coordinating teams and execution. Best for identifying manager-intervention dependence, exception normalization, and where pathway weight is growing fastest.</p></div></button>
+        <button class="intake-option lane-btn" type="button" data-lane="operational" data-lane-tile="operational"><span class="intake-option-radio"><span class="intake-option-radio-check">&#10003;</span></span><div class="intake-option-body"><p class="intake-option-name">Operational <span class="intake-option-tag">Closest to the work</span></p><p class="intake-option-desc">Built for people closest to the work. Best for surfacing manual follow-up, off-path coordination, instruction variance, and where the institution quietly absorbs chase effort.</p></div></button>
+        <button class="intake-option lane-btn" type="button" data-lane="managerial" data-lane-tile="managerial"><span class="intake-option-radio"><span class="intake-option-radio-check">&#10003;</span></span><div class="intake-option-body"><p class="intake-option-name">Managerial <span class="intake-option-tag">Coordinating teams</span></p><p class="intake-option-desc">Built for people coordinating teams and execution. Best for identifying manager-intervention dependence, exception normalization, and where institutional weight is growing fastest.</p></div></button>
         <button class="intake-option lane-btn" type="button" data-lane="executive" data-lane-tile="executive"><span class="intake-option-radio"><span class="intake-option-radio-check">&#10003;</span></span><div class="intake-option-body"><p class="intake-option-name">Senior Leaders <span class="intake-option-tag">Shaping the architecture</span></p><p class="intake-option-desc">Built for leaders shaping how decisions get made. Best for assessing governance fit, control accumulation bias, drag visibility, and whether pathway pace is proportionate to the decision class.</p></div></button>
       </div>
       <div class="intake-actions">
@@ -1046,8 +1046,8 @@ let dimensionChart = null;
 const HUB_CONTEXT_KEY = "mondermanHubContextV1";
 const HUB_RECENT_RUNS_KEY = "mondermanRecentRunsV1";
 const PRESTART_FIELDS = [
-{ id: "processName", group: "pathway", label: "What decision cycle are you evaluating?", kind: "text", required: true, placeholder: "e.g. Vendor approval" },
-{ id: "businessUnit", group: "pathway", label: "Which function or business unit does this pathway primarily sit in?", kind: "text", required: true, placeholder: "e.g. Operations" },
+{ id: "processName", group: "pathway", label: "What organization, division, or function are you assessing?", kind: "text", required: true, placeholder: "e.g. Regional operations division" },
+{ id: "businessUnit", group: "pathway", label: "Where in the organization is this read anchored?", kind: "text", required: true, placeholder: "e.g. Operations" },
 {
 id: "industry",
 group: "environment",
@@ -1072,7 +1072,7 @@ options: [
 {
 id: "regulatoryIntensity",
 group: "environment",
-label: "How regulated is the operating environment around this pathway?",
+label: "How regulated is the operating environment around this organization?",
 kind: "select",
 required: true,
 options: [
@@ -1085,7 +1085,7 @@ options: [
 {
 id: "decisionType",
 group: "environment",
-label: "What kind of decision is this, primarily?",
+label: "Which class of institutional activity are you assessing?",
 kind: "select",
 required: true,
 options: [
@@ -1099,11 +1099,11 @@ options: [
 { value: "other", label: "Other" }
 ]
 },
-{ id: "description", group: "context", label: "Describe the current situation or pathway context", kind: "textarea", required: false, placeholder: "What's happening with this pathway?", helper: "Helps calibrate the diagnostic to your specific situation. It is not scored." },
-{ id: "peopleInvolved", group: "volume", label: "Roughly how many different people are typically involved in one normal run of this pathway?", kind: "number", required: true, placeholder: "Approximate" },
-{ id: "hourlyCost", group: "volume", label: "Roughly what is the average hourly cost for the people involved in this pathway, including benefits and overhead?", kind: "number", required: true, placeholder: "USD per hour" },
-{ id: "annualVolume", group: "volume", label: "How many times does this decision cycle normally run in a typical year?", kind: "number", required: true, placeholder: "Approximate" },
-{ id: "meetingHours", group: "volume", label: "How many total meeting or coordination hours does one normal run usually consume across the people involved?", kind: "number", required: true, placeholder: "Approximate" }
+{ id: "description", group: "context", label: "Describe the current institutional situation or context", kind: "textarea", required: false, placeholder: "What's happening in this organization right now?", helper: "Helps calibrate the diagnostic to your specific situation. It is not scored." },
+{ id: "peopleInvolved", group: "volume", label: "Roughly how many different people are typically involved in one normal cycle of this work?", kind: "number", required: true, placeholder: "Approximate" },
+{ id: "hourlyCost", group: "volume", label: "Roughly what is the average hourly cost for the people involved in this work, including benefits and overhead?", kind: "number", required: true, placeholder: "USD per hour" },
+{ id: "annualVolume", group: "volume", label: "How many times does this operating cycle typically complete in a year?", kind: "number", required: true, placeholder: "Approximate" },
+{ id: "meetingHours", group: "volume", label: "How many total meeting or coordination hours does one normal cycle usually consume across the people involved?", kind: "number", required: true, placeholder: "Approximate" }
 ];
 
 const laneConfigs = {
@@ -1112,14 +1112,14 @@ label: "Operational",
 header: "Operational perspective selected",
 subcopy: "This version is built for people closest to the work. It surfaces where performance is held together in daily practice — extra effort, informal workarounds, and the rework required to keep things moving.",
 aside: "What the operational version is built to surface",
-long: "Built for people closest to the work. Best for surfacing manual follow-up, off-path coordination, instruction variance, and where pathways quietly absorb chase effort."
+long: "Built for people closest to the work. Best for surfacing manual follow-up, off-path coordination, instruction variance, and where the institution quietly absorbs chase effort."
 },
 managerial: {
 label: "Managerial",
 header: "Managerial perspective selected",
-subcopy: "This version is tuned for people coordinating teams and execution. It emphasizes where manager intervention, exception normalization, and growth in coordination drag are slowing pathway tempo.",
+subcopy: "This version is tuned for people coordinating teams and execution. It emphasizes where manager intervention, exception normalization, and growth in coordination drag are slowing institutional tempo.",
 aside: "What the managerial version is built to surface",
-long: "Built for people coordinating teams and execution. Best for identifying manager-intervention dependence, exception normalization, and where pathway weight is growing fastest."
+long: "Built for people coordinating teams and execution. Best for identifying manager-intervention dependence, exception normalization, and where institutional weight is growing fastest."
 },
 executive: {
 label: "Senior Leaders",
@@ -1597,6 +1597,38 @@ syncHeroBeginCta(stage);
 if (options.scroll) scrollToStage(stage);
 }
 
+function showSignupTeaser(data) {
+  // Teaser gate (8 Aug 2026): an unsigned visitor finished a full read. The
+  // server returned score + band only; the full report unlocks on sign-in.
+  // The run session is held server-side, so unlocking re-finalizes with the
+  // fresh token and never repeats the questions.
+  var t = (data && data.teaser) || {};
+  var prior = document.getElementById("mdmTeaserOverlay");
+  if (prior) prior.remove();
+  var escT = function (v) { return String(v == null ? "" : v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); };
+  var wrap = document.createElement("div");
+  wrap.id = "mdmTeaserOverlay";
+  wrap.style.cssText = "position:fixed;inset:0;z-index:1400;background:rgba(24,25,28,.55);display:flex;align-items:center;justify-content:center;padding:20px;";
+  wrap.innerHTML =
+    '<div style="max-width:520px;width:100%;background:#fff;border-radius:16px;padding:34px 36px;font-family:\'Neue Haas Grotesk\',\'Helvetica Neue\',Helvetica,Arial,sans-serif;box-shadow:0 24px 64px rgba(15,23,32,.25);">' +
+    '<p style="margin:0 0 8px;font-size:.74rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#0C6E78;">Your condition read is ready</p>' +
+    '<div style="display:flex;align-items:baseline;gap:12px;margin:6px 0 4px;">' +
+    '<span style="font-size:3.4rem;font-weight:700;letter-spacing:-.06em;color:#18191C;line-height:1;">' + escT(t.score != null ? t.score : "\u2014") + '</span>' +
+    '<span style="font-size:1rem;color:#6E6F73;">/ 100' + (t.band ? ' \u00b7 ' + escT(t.band) : '') + '</span></div>' +
+    '<p style="margin:12px 0 18px;font-size:.95rem;line-height:1.65;color:#18191C;">' + escT((data && data.message) || 'Create a free account to unlock the full report.') + '</p>' +
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">' +
+    '<a href="signin.html?next=institutional-performance.html" target="_blank" style="display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 22px;border-radius:8px;font-size:14.5px;font-weight:600;background:#0C6E78;color:#fff;text-decoration:none;">Create account / sign in</a>' +
+    '<button id="mdmTeaserUnlock" type="button" style="min-height:46px;padding:0 22px;border-radius:8px;font-size:14.5px;font-weight:600;background:#fff;color:#18191C;border:1px solid rgba(24,25,28,.18);cursor:pointer;">I\u2019ve signed in \u2014 unlock report</button>' +
+    '<a href="platform-services.html" target="_blank" style="font-size:13.5px;color:#6E6F73;">See plans</a></div>' +
+    '<p style="margin:16px 0 0;font-size:12.5px;color:#9A9892;">Your answers are held for this session \u2014 unlocking will not repeat the questions, and the run saves to your new workspace.</p></div>';
+  document.body.appendChild(wrap);
+  var btn = document.getElementById("mdmTeaserUnlock");
+  if (btn) btn.addEventListener("click", function () {
+    btn.disabled = true; btn.textContent = "Unlocking\u2026";
+    wrap.remove();
+    finalizeAdaptiveRun();
+  });
+}
 function showRunsExhausted() {
   showStage(exhaustedStage, { scroll: true });
 }
@@ -2935,6 +2967,10 @@ let data = null;
 try { data = JSON.parse(rawText); } catch (_e) {}
 
 if ((data && data.locked === true) || (response.status === 402 && data?.error === "run_limit_reached")) {
+  // Two locked shapes (8 Aug 2026): a signed-in org past its run allowance
+  // gets the runs-exhausted screen as before; an unsigned visitor gets the
+  // teaser card with score + band and a sign-in unlock.
+  if (data && data.reason === "signup_required" && data.teaser) { showSignupTeaser(data); return; }
   showRunsExhausted();
   return;
 }
@@ -3039,6 +3075,42 @@ if (refinedExperienceLayer?.hasInput) {
 }
 
 state.result = result;
+// Persist the premium pass (8 Aug 2026): the refined participant notes and
+// refreshed narrative shown on this screen are patched onto the saved run,
+// so reopening the same run from Workspace shows the same report. Prose
+// fields only; scores and bands are never client-writable. Awaited with a
+// nonfatal, visible notice on failure (8 Aug 2026 correction): a silent
+// fire-and-forget could leave the workspace copy stale with no signal.
+try {
+  if (data && data.savedRunId && rawExperienceLayer && rawExperienceLayer.hasInput) {
+    var __saveBody = {
+      run_id: data.savedRunId,
+      experiential_layer: refinedExperienceLayer,
+      narrative: result.narrative || null
+    };
+    try {
+      if (window.MondermanAssignment && window.MondermanAssignment.active() && typeof window.MondermanAssignment.token === "function") {
+        __saveBody.assignment_token = window.MondermanAssignment.token();
+      }
+    } catch (_tokErr) { /* not an assignment run */ }
+    try {
+      const __saveResp = await fetchWithTimeout(`${API_BASE}/api/runs/refined-experience`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(__saveBody)
+      }, 20000);
+      const __saveData = await __saveResp.json().catch(function () { return null; });
+      if (!__saveResp.ok || !__saveData || __saveData.ok !== true) {
+        console.warn("premium-pass save-back not confirmed:", (__saveData && __saveData.error) || ("HTTP " + __saveResp.status));
+        try { if (typeof showToast === "function") showToast("The refined notes shown here could not be saved to the workspace copy of this run."); } catch (_toastErr) {}
+      }
+    } catch (__saveErr) {
+      console.warn("premium-pass save-back failed:", __saveErr && __saveErr.message);
+      try { if (typeof showToast === "function") showToast("The refined notes shown here could not be saved to the workspace copy of this run."); } catch (_toastErr) {}
+    }
+  }
+} catch (_persistErr) { /* non-blocking */ }
+
 state.renderPayload = payload;
 
 // Directed (campaign) mode: persist the run, close the assignment, gate output.
