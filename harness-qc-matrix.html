@@ -1,4 +1,4 @@
-<!doctype html>
+\<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -137,12 +137,26 @@ const $=(id)=>document.getElementById(id);
 const results={}; let stopped=false, t0=0, doneCount=0, passC=0, warnC=0, failC=0, checkC=0, checkF=0;
 function log(m){ $("log").textContent += "\n"+new Date().toLocaleTimeString()+"  "+m; $("log").scrollTop=1e9; }
 
-let authToken=null;
+let authToken=null, supaClient=null;
+// The token is fetched fresh before every request rather than captured once.
+// supabase-js refreshes it internally, so getSession() returns a live token;
+// caching it meant every fixture after roughly the first hour was sent
+// unauthenticated and silently received the signup paywall instead of a result.
+async function freshToken() {
+  if (!supaClient) return authToken;
+  try {
+    const { data } = await supaClient.auth.getSession();
+    const tok = data?.session?.access_token || null;
+    if (tok) authToken = tok;
+  } catch (e) { log("token refresh failed: "+e.message); }
+  return authToken;
+}
 {
   const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
   const supa = createClient("https://ptkxrzgmeldalrkfruth.supabase.co",
     "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
     { auth:{ persistSession:true, autoRefreshToken:true } });
+  supaClient = supa;
   const { data } = await supa.auth.getSession();
   authToken = data?.session?.access_token || null;
   const w=$("authWarn");
@@ -155,6 +169,7 @@ let authToken=null;
 // cells to throttling and reports them as defects.
 async function postJSON(url, body, label) {
   for (let attempt = 1; attempt <= 6; attempt++) {
+    await freshToken();
     const res = await fetch(url, { method:"POST", headers:H(), body: body===undefined?undefined:JSON.stringify(body) });
     if (res.status === 429) {
       const j = await res.json().catch(()=>({}));
@@ -242,11 +257,17 @@ function qc(fx, result, deliverable) {
     if(Array.isArray(n)){n.forEach((v,i)=>walk(v,p+"["+i+"]"));return;}
     if(n&&typeof n==="object"){for(const[k,v] of Object.entries(n))walk(v,p?p+"."+k:k);} })(prose,"");
   const all = strings.map(s=>s[1]).join(" ");
-  add("prose_produced", strings.length>0, strings.length+" strings");
-  add("no_placeholder_leak", !/\b(undefined|NaN|\[object Object\])\b/.test(all), "");
-  add("no_em_dash", !all.includes("\u2014"), "");
+  // Guarded so an empty narrative cannot make the language checks pass. The
+  // first matrix run reported no_em_dash green on 144 cells that contained no
+  // prose at all, which is a false pass and worse than a failure.
+  const haveProse = strings.length>0 && all.trim().length>200;
+  add("prose_produced", haveProse, strings.length+" strings, "+all.length+" chars");
+  if (haveProse) {
+    add("no_placeholder_leak", !/\b(undefined|NaN|\[object Object\])\b/.test(all), "");
+    add("no_em_dash", !all.includes("\u2014"), (all.match(/[^.]{0,60}\u2014[^.]{0,60}/)||[""])[0]);
   const agree = new RegExp("the\\s+"+fx.pathway.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\s+(is|has|was|does)\\b","i");
-  add("pathway_subject_agreement", !agree.test(all), "");
+    add("pathway_subject_agreement", !agree.test(all), "");
+  }
   // remedy cards
   const paths = prose.remedy_paths;
   add("three_remedy_paths", Array.isArray(paths)&&paths.length===3, "n="+(paths?.length??"none"));
@@ -258,12 +279,14 @@ function qc(fx, result, deliverable) {
   const pa=prose.priority_actions;
   if (Array.isArray(pa)&&pa.length>1) add("priority_actions_distinct", new Set(pa).size===pa.length, pa.length+" / "+new Set(pa).size);
   // cross-lane vocabulary bleed
-  const foreign=[];
-  for (const [lane,terms] of Object.entries(LANE_TERMS)) {
-    if (lane===fx.inst) continue;
-    for (const term of terms) if (all.toLowerCase().includes(term)) foreign.push(lane+":"+term);
+  if (haveProse) {
+    const foreign=[];
+    for (const [lane,terms] of Object.entries(LANE_TERMS)) {
+      if (lane===fx.inst) continue;
+      for (const term of terms) if (all.toLowerCase().includes(term)) foreign.push(lane+":"+term);
+    }
+    add("no_cross_lane_bleed", foreign.length===0, foreign.join(", "));
   }
-  add("no_cross_lane_bleed", foreign.length===0, foreign.join(", "));
 
   // the real deliverable
   if (deliverable) {
@@ -297,7 +320,15 @@ async function runFixture(fx) {
   if (stopped) return null;
   const f=await postJSON(`${API_BASE}/${fx.path}/run/${s.runId}/finalize`, undefined, "finalize");
   if (!f.ok) throw new Error("finalize: "+(f.error||f.message));
+  // A paywalled response carries ok:true with locked:true and only a teaser.
+  // Treating that as a result made every language check pass vacuously.
+  if (f.locked === true || (f.result||f).locked === true) {
+    throw new Error("locked: "+((f.reason)||"signup_required")+" (token not accepted)");
+  }
   const result=f.result||f;
+  if (!result || typeof result.score !== "number") {
+    throw new Error("finalize returned no scored result");
+  }
   const deliverable = $("scrape").checked ? await scrapeDeliverable(fx,result) : null;
   return { fixture:fx, inputs:ctx, steps, result, deliverable, checks:qc(fx,result,deliverable) };
 }
