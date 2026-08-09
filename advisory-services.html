@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advisory services &mdash; scope &amp; enquire | Monderman</title>
+  <meta name="description" content="Advisory services from Monderman: fixed-scope engagements where a senior practitioner reads your diagnostic results with you, or redesigns a pathway alongside your team. Not part of any subscription. A small number of engagements each year." />
+  <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="10" fill="%2304181B"/><text x="17" y="42" font-family="Arial,Helvetica,sans-serif" font-size="30" font-weight="700" fill="%23FAFAF8">M</text><rect x="47" y="36" width="8" height="8" rx="1.2" fill="%230C6E78"/></svg>' />
+  <style>
+    @font-face { font-family:"Neue Haas Grotesk"; src:url("55font.woff2") format("woff2"),url("55font.woff") format("woff"); font-style:normal; font-weight:400; font-display:swap; }
+    @font-face { font-family:"Neue Haas Grotesk"; src:url("65font.woff2") format("woff2"),url("65font.woff") format("woff"); font-style:normal; font-weight:500; font-display:swap; }
+    @font-face { font-family:"Neue Haas Grotesk"; src:url("75font.woff2") format("woff2"),url("75font.woff") format("woff"); font-style:normal; font-weight:700; font-display:swap; }
+
+    :root{
+      --accent:#0C6E78; --accent-dark:#0A5B63; --accent-soft:rgba(12,110,120,.08);
+      --gold:#C9821F; --gold-soft:rgba(201,130,31,.11);
+      --bg-dark:#08383E; --bg-dark-2:#08373C; --bg-offwhite:#FAFAF8;
+      --panel:#FFFFFF; --panel-soft:#FCFBF8;
+      --text-light:#F4EFE6; --muted-light:rgba(245,241,232,.82); --muted-light-2:rgba(245,241,232,.62);
+      --text-dark:#18191C; --muted-dark:#6E6F73; --muted-dark-2:#8A8C88;
+      --line-soft:rgba(24,22,18,.08); --line-mid:rgba(24,22,18,.12);
+      --header-solid:rgba(9,57,62,0.87); --header-border:rgba(255,255,255,.08);
+      --ok:#3C8A60; --danger:#B0392F;
+      --shadow-soft:none; --shadow-card:none; --shadow-hover:none;
+      --max:1320px;
+      --transition:220ms cubic-bezier(0.16,1,0.3,1); --transition-slow:420ms cubic-bezier(0.16,1,0.3,1);
+      --panel-radius:18px; --card-radius:16px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+
+    body{
+      margin:0;
+      background:var(--bg-dark);
+      color:var(--text-light);
+      font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
+      font-weight:400;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      text-rendering:optimizeLegibility;
+    }
+    html, body, button, input, textarea, select, option, a, p, li, dt, dd, span, small, strong, em, label, figcaption, blockquote, cite, div, section, article, nav, header, footer, main, h1, h2, h3, h4 {
+      font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
+    }
+    a { color:inherit; text-decoration:none; }
+    h1, h2, h3, h4 { letter-spacing:-0.05em; }
+    p, li { letter-spacing:-0.01em; }
+
+    .header{
+      position:fixed;
+      inset:0 0 auto 0;
+      width:100%;
+      height:72px;
+      z-index:100;
+      background:transparent;
+      border-bottom:1px solid transparent;
+      transition:background var(--transition), border-color var(--transition), backdrop-filter var(--transition), -webkit-backdrop-filter var(--transition);
+    }
+    .header.scrolled{
+      background:var(--header-solid);
+      border-bottom-color:var(--header-border);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+    }
+    .header-inner{
+      max-width:var(--max);
+      height:100%;
+      margin:0 auto;
+      padding:0 34px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:24px;
+    }
+    .brand{
+      display:inline-flex;
+      align-items:center;
+      gap:0;
+      font-size:1.32rem;
+      font-weight:700;
+      letter-spacing:-0.02em;
+      color:#FFFFFF;
+      white-space:nowrap;
+      text-shadow:0 1px 2px rgba(0,0,0,0.16);
+    }
+    .brand::after{ display:none; }
+    .brand-dot {
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+      flex-shrink: 0;
+    }
+    .nav{
+      display:flex;
+      align-items:center;
+      gap: 20px;
+      flex-wrap: nowrap;
+      justify-content:flex-end;
+    }
+    .nav a{
+      position:relative;
+      font-size: 0.9rem;
+      font-weight:500;
+      color:rgba(255,255,255,0.88);
+      transition:color var(--transition), transform var(--transition);
+      white-space: nowrap;
+    }
+    .nav a::after{
+      content:"";
+      position:absolute;
+      left:0; bottom:-6px;
+      width:100%; height:1px;
+      background:currentColor;
+      transform:scaleX(0);
+      transform-origin:left center;
+      transition:transform 180ms ease;
+    }
+    .nav a:hover,
+    .nav a:focus-visible{
+      color:#FFF;
+      transform:none;
+      outline:none;
+    }
+    .nav a.is-active{
+      color:var(--accent);
+      transform:none;
+      outline:none;
+    }
+    .nav a:hover::after,
+    .nav a:focus-visible::after,
+    .nav a.is-active::after{
+      transform:scaleX(1);
+    }
+    /* Workspace pill (matched to homepage) */
+    .nav a.workspace-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:7px;
+      border:1px solid rgba(255,255,255,0.16);
+      background:rgba(255,255,255,0.06);
+      color:#FFFFFF;
+      font-weight:500;
+      white-space:nowrap;
+    }
+    .nav a.workspace-link::after{ display:none; }
+    .nav a.workspace-link:hover,
+    .nav a.workspace-link:focus-visible{
+      background:rgba(255,255,255,0.10);
+      border-color:rgba(255,255,255,0.24);
+      color:#FFFFFF;
+      transform:none;
+    }
+
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      min-width:168px;
+      padding:0 24px;
+      border-radius:7px;
+      font-size:15px;
+      font-weight:500;
+      white-space:nowrap;
+      background:#FFF;
+      color:var(--text-dark);
+      border:1px solid rgba(24,22,18,.12);
+      box-shadow:none;
+      transition:background var(--transition), color var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+      cursor:pointer;
+    }
+    .btn:hover,
+    .btn:focus-visible{
+      background:#FFF;
+      color:var(--accent-dark);
+      border-color:var(--accent-dark);
+      transform:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .btn-accent{
+      background:var(--accent);
+      color:#FFF;
+      border:1px solid rgba(12,110,120,.28);
+      box-shadow:none;
+    }
+    .btn-accent:hover,
+    .btn-accent:focus-visible{
+      background:var(--accent-dark);
+      color:#FFF;
+      border-color:rgba(10,91,99,.42);
+      box-shadow:none;
+    }
+    .btn-subtle{
+      background:#FFF;
+      color:var(--text-dark);
+      border:1px solid var(--line-mid);
+      box-shadow:none;
+    }
+    .btn-subtle:hover,
+    .btn-subtle:focus-visible{
+      color:var(--accent-dark);
+      border-color:rgba(12,110,120,.24);
+      box-shadow:none;
+    }
+    .btn-hero-secondary,
+    .btn-secondary{
+      background:rgba(255,255,255,0.98);
+      color:var(--accent);
+      border:1.25px solid rgba(12,110,120,0.9);
+      box-shadow:0 7px 16px rgba(0,0,0,0.038), 0 0 0 1px rgba(255,255,255,0.07);
+    }
+    .btn-hero-secondary:hover,
+    .btn-hero-secondary:focus-visible,
+    .btn-secondary:hover,
+    .btn-secondary:focus-visible{
+      background:#FFFFFF;
+      color:var(--accent-dark);
+      border-color:var(--accent-dark);
+      box-shadow:0 10px 20px rgba(0,0,0,0.052), 0 0 0 1px rgba(255,255,255,0.09);
+    }
+    .btn[disabled]{
+      cursor:not-allowed;
+      opacity:.56;
+      transform:none !important;
+      box-shadow:none !important;
+    }
+
+    .page{
+      position:relative;
+      background:var(--bg-offwhite);
+      padding:102px 34px 96px;
+      color:var(--text-dark);
+      overflow:hidden;
+      border-top:1px solid rgba(24,22,18,.04);
+    }
+    .page::before{content:"";position:absolute;inset:0;background:none;pointer-events:none;}
+    .page-inner{
+      position:relative;
+      z-index:1;
+      max-width:var(--max);
+      margin:0 auto;
+    }
+
+
+    .section-label{
+      margin-bottom:16px;
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:var(--muted-dark-2);
+    }
+    .section-label::before{content:none;}
+
+
+
+    .context-field{ display:grid; gap:7px; }
+    .context-span-2{ grid-column:span 2; }
+    .context-field label{
+      font-size:.76rem;
+      line-height:1;
+      font-weight:700;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      color:var(--muted-dark-2);
+    }
+    .context-field input,
+    .context-field select,
+    .context-field textarea{
+      width:100%;
+      min-height:48px;
+      padding:0 14px;
+      border-radius:14px;
+      border:1px solid rgba(24,22,18,.10);
+      background:#FFF;
+      color:var(--text-dark);
+      font-size:.94rem;
+      transition:border-color var(--transition), box-shadow var(--transition), background var(--transition);
+      appearance:none;
+      box-shadow:none;
+    }
+    .context-field select{
+      background-image:none;
+      background-position:calc(100% - 20px) calc(50% - 3px), calc(100% - 14px) calc(50% - 3px);
+      background-size:6px 6px, 6px 6px;
+      background-repeat:no-repeat;
+      padding-right:36px;
+    }
+    .context-field textarea{
+      min-height:92px;
+      padding:13px 14px;
+      resize:vertical;
+    }
+    .context-field input:focus,
+    .context-field select:focus,
+    .context-field textarea:focus{
+      outline:none;
+      border-color:rgba(12,110,120,.34);
+      box-shadow:0 0 0 4px rgba(12,110,120,.10);
+    }
+
+
+    /* ===== Canonical uniform footer (mond-footer) ===== */
+    .mond-footer {
+      position: relative;
+      overflow: hidden;
+      background: #073338;
+      color: rgba(255,255,255,0.88);
+      padding: 56px 40px 36px;
+      border: 0;
+    }
+    .mond-footer * { box-sizing: border-box; }
+    .mond-footer .mf-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+    .mond-footer .mf-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 56px;
+      flex-wrap: wrap;
+      padding-bottom: 40px;
+    }
+    .mond-footer .mf-brand { max-width: 360px; }
+    .mond-footer .mf-mark-row { display: flex; align-items: center; gap: 9px; }
+    .mond-footer .mf-name {
+      color: #FFFFFF;
+      font-weight: 700;
+      font-size: 1.22rem;
+      letter-spacing: -0.01em;
+    }
+    .mond-footer .mf-dot {
+      width: 7px; height: 7px;
+      border-radius: 2px;
+      background: #0C6E78;
+      display: inline-block;
+    }
+    .mond-footer .mf-copy {
+      color: rgba(255,255,255,0.56);
+      font-size: 0.93rem;
+      line-height: 1.65;
+      margin: 16px 0 0;
+    }
+    .mond-footer .mf-social {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 26px;
+    }
+    .mond-footer .mf-social a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.7);
+      transition: color 170ms ease, border-color 170ms ease, background-color 170ms ease;
+    }
+    .mond-footer .mf-social a:hover,
+    .mond-footer .mf-social a:focus-visible {
+      color: #FFFFFF;
+      border-color: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.06);
+    }
+    .mond-footer .mf-social svg {
+      width: 20px; height: 20px;
+      display: block;
+      fill: currentColor;
+    }
+    .mond-footer .mf-nav { display: flex; gap: 72px; }
+    .mond-footer .mf-col-title {
+      color: rgba(255,255,255,0.4);
+      font-size: 11px;
+      letter-spacing: 0.17em;
+      text-transform: uppercase;
+      font-weight: 500;
+      margin: 0 0 18px;
+    }
+    .mond-footer .mf-col a {
+      display: block;
+      color: rgba(255,255,255,0.66);
+      font-size: 0.95rem;
+      text-decoration: none;
+      margin-top: 13px;
+      transition: color 170ms ease;
+    }
+    .mond-footer .mf-col a:first-of-type { margin-top: 0; }
+    .mond-footer .mf-col a:hover,
+    .mond-footer .mf-col a:focus-visible { color: #FFFFFF; }
+    .mond-footer .mf-bottom {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 22px;
+    }
+    .mond-footer .mf-copyright {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.86rem;
+    }
+    .mond-footer .mf-motif {
+      position: absolute;
+      bottom: -72px;
+      right: -72px;
+      z-index: 0;
+      pointer-events: none;
+    }
+    @media (max-width: 860px) {
+      .mond-footer { padding: 40px 22px 28px; }
+      .mond-footer .mf-top { flex-direction: column; gap: 34px; }
+      .mond-footer .mf-nav { gap: 48px; flex-wrap: wrap; }
+      .mond-footer .mf-motif { bottom: -90px; right: -90px; }
+      .mond-footer .mf-motif svg { width: 220px; height: 220px; }
+    }
+
+
+
+    main{padding-top:0}
+    .pl-wrap{max-width:920px;margin:0 auto;padding:0 34px}
+    .pl-top{background:linear-gradient(180deg,#04181B 0%,#08383E 100%);color:var(--text-light)}
+    .pl-top-inner{max-width:920px;margin:0 auto;padding:120px 34px 56px}
+    .pl-back{display:inline-flex;align-items:center;gap:7px;font-size:.86rem;color:var(--muted-light-2);margin:0 0 22px}
+    .pl-back:hover{color:#fff}
+    .pl-legal-banner{font-size:.84rem;line-height:1.5;color:var(--muted-light-2);border:1px solid rgba(255,255,255,.16);border-radius:9px;padding:11px 15px;margin:0 0 24px;max-width:64ch}
+    .pl-eyebrow{display:block;font-size:.74rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#8FC4C9;margin:0 0 12px}
+    .pl-top h1{font-size:42px;line-height:1.05;font-weight:700;color:#fff;margin:0 0 14px;letter-spacing:-0.03em}
+    .pl-top .price{display:flex;align-items:baseline;gap:8px;margin:0 0 6px}
+    .pl-top .price .amt{font-size:2rem;font-weight:700;color:#fff;letter-spacing:-0.02em}
+    .pl-top .price .per{font-size:1rem;color:var(--muted-light-2)}
+    .pl-top .price-alt{font-size:.92rem;color:var(--muted-light-2);margin:0}
+    .pl-section{padding:54px 0;background:var(--bg-offwhite)}
+    .pl-section.tight{padding:40px 0}
+    .pl-h2{font-size:24px;font-weight:700;color:var(--text-dark);margin:0 0 8px;letter-spacing:-0.02em}
+    .pl-lead{font-size:1rem;line-height:1.6;color:var(--muted-dark);margin:0 0 20px;max-width:62ch}
+    .pl-includes{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+    .pl-includes li{position:relative;padding-left:28px;font-size:1rem;line-height:1.5;color:var(--text-dark)}
+    .pl-includes li::before{content:"";position:absolute;left:0;top:6px;width:14px;height:14px;border-radius:50%;background:var(--accent-soft);border:1.5px solid var(--accent)}
+    .pl-includes li.svc::before{background:var(--gold-soft);border-color:var(--gold)}
+    .pl-includes li .num{font-weight:700;color:var(--accent-dark)}
+    .pl-svc-tag{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-left:8px;vertical-align:middle}
+    .pl-includes li.soon{color:var(--muted-dark-2)}
+    .pl-includes li.soon::before{background:transparent;border-style:dashed;border-color:var(--muted-dark-2)}
+    .pl-roll-tag{display:inline-block;font-size:.66rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-dark-2);border:1px solid var(--line-mid);border-radius:99px;padding:1px 8px;margin-left:8px;vertical-align:middle}
+    .pl-def{background:var(--panel-soft);border:1px solid var(--line-soft);border-radius:var(--card-radius);padding:16px 20px;margin-top:22px;font-size:.9rem;line-height:1.55;color:var(--muted-dark)}
+    .pl-def strong{color:var(--text-dark)}
+    .pl-allot{background:var(--accent-soft);border:1px solid rgba(12,110,120,.25);border-radius:var(--card-radius);padding:18px 22px;margin-top:16px;font-size:.96rem;line-height:1.6;color:var(--text-dark)}
+    .pl-allot strong{color:var(--accent-dark)}
+    .pl-terms{background:var(--panel-soft);border:1px solid var(--line-soft);border-radius:var(--card-radius);padding:26px 28px;margin-top:8px}
+    .pl-advisory-box{background:var(--gold-soft);border:1px solid rgba(201,130,31,.32);border-radius:10px;padding:15px 18px;margin:0 0 20px;font-size:.93rem;line-height:1.55;color:var(--text-dark)}
+    .pl-advisory-box strong{color:var(--accent-dark)}
+    .pl-terms dl{margin:0;display:grid;gap:14px}
+    .pl-terms dt{font-size:.96rem;font-weight:700;color:var(--text-dark);margin:0 0 3px}
+    .pl-terms dd{margin:0;font-size:.94rem;line-height:1.55;color:var(--muted-dark)}
+    .pl-form{background:var(--panel);border:1px solid var(--line-mid);border-radius:var(--panel-radius);padding:32px 30px;margin-top:8px}
+    .pl-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .pl-form-grid .span-2{grid-column:1 / -1}
+    .pl-consent{display:flex;gap:10px;align-items:flex-start;margin-top:20px;font-size:.92rem;line-height:1.5;color:var(--muted-dark)}
+    .pl-consent input{margin-top:3px;flex:0 0 auto}
+    .pl-submit{margin-top:22px}
+    .pl-submit .btn{width:100%;justify-content:center;text-align:center}
+    .pl-note{font-size:.84rem;color:var(--muted-dark-2);margin:14px 0 0;line-height:1.55;text-align:center}
+    .pl-readonly{background:var(--bg-offwhite);border:1px solid var(--line-soft);border-radius:10px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 22px}
+    .pl-readonly .pl-ro-label{font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-dark-2)}
+    .pl-readonly .pl-ro-val{font-size:1rem;font-weight:700;color:var(--accent-dark)}
+    .pl-readonly a{font-size:.84rem;color:var(--accent);font-weight:600}
+    @media (max-width:760px){
+      .header-inner,.pl-wrap,.pl-top-inner{padding-left:20px;padding-right:20px}
+      .pl-top-inner{padding-top:120px}.pl-top h1{font-size:32px}
+      .pl-form-grid{grid-template-columns:1fr}
+      .nav{width:100%;gap:8px;overflow-x:auto;flex-wrap:nowrap;justify-content:flex-start;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+      .header{height:auto}
+      .header-inner{flex-direction:column;align-items:flex-start;gap:14px;padding-top:16px;padding-bottom:12px}
+      .nav::-webkit-scrollbar{display:none}
+      .nav a{flex:0 0 auto;white-space:nowrap;font-size:0.84rem;line-height:1;padding:10px 12px;border-radius:5px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08)}
+      .nav a::after{display:none}
+    }
+
+  
+    .pl-top{position:relative;overflow:hidden}
+    .pl-top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:#0C6E78;pointer-events:none;z-index:2}
+  </style>
+<style>
+      .pl-why{max-width:880px;margin:0 auto;padding:34px 24px 6px;}
+      .pl-why-panel{background:#08383E;color:#F4EFE6;border-radius:14px;padding:28px;}
+      .pl-why-panel h2{margin:0 0 10px;font-size:19px;letter-spacing:-.03em;}
+      .pl-why-panel .pl-why-lead{margin:0;color:rgba(245,241,232,.78);font-size:14.5px;line-height:1.65;}
+      .pl-why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px;}
+      .pl-why-cell{border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:16px;}
+      .pl-why-cell b{display:block;font-size:13px;margin-bottom:5px;}
+      .pl-why-cell span{color:rgba(245,241,232,.68);font-size:12.5px;line-height:1.55;}
+      .pl-why-link{display:inline-block;margin-top:18px;color:#fff;font-size:13px;font-weight:500;border-bottom:1px solid rgba(255,255,255,.35);padding-bottom:2px;text-decoration:none;}
+      .pl-why-link:hover{border-color:#fff;}
+      @media(max-width:760px){.pl-why-grid{grid-template-columns:1fr;}}
+    /* orange hover-reveal — feature list hover reveal */
+    .pl-includes { position: relative; overflow: hidden; }
+    .pl-includes::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0%;
+      background: #C9821F;
+      transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
+      pointer-events: none;
+      z-index: 2;
+    }
+    .pl-includes:hover::before { width: 100%; }
+
+    </style>
+<style>.pl-buy{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0 6px;}.pl-buy .btn{display:block;text-align:center;padding:14px 10px;font-size:14.5px;text-decoration:none;}.pl-buy .btn span{display:block;font-size:11.5px;font-weight:500;opacity:.85;margin-top:3px;}@media(max-width:700px){.pl-buy{grid-template-columns:1fr;}}</style>
+<style>
+  /* Advisory engagement cards. Defined here rather than in the shared plan CSS
+     so nothing on the subscription pages can be affected by them. */
+  .pl-eng{border:1px solid rgba(24,22,18,.14);border-radius:16px;padding:26px 26px 22px;margin:22px 0 0;background:#fff}
+  .pl-eng + .pl-eng{margin-top:20px}
+  .pl-eng-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:10px}
+  .pl-eng h3{margin:0;font-size:1.42rem;line-height:1.2;font-weight:700;letter-spacing:-.01em}
+  .pl-eng-price{font-size:1.18rem;font-weight:700;white-space:nowrap}
+  .pl-eng-price span{display:block;font-size:.78rem;font-weight:500;opacity:.62;letter-spacing:.02em}
+  .pl-eng-dur{margin:6px 0 14px;font-size:.9rem;letter-spacing:.02em;opacity:.66}
+  .pl-eng p{font-size:1.02rem;line-height:1.62}
+  @media (max-width:640px){.pl-eng{padding:20px 18px 18px}.pl-eng-price{font-size:1.06rem}}
+</style>
+</head>
+<body>
+  <header class="header" id="siteHeader">
+    <div class="header-inner">
+      <a href="index.html" class="brand">Monderman<span class="brand-dot"></span></a>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="index.html#approach">Approach</a>
+        <a href="diagnostics.html">Diagnostics</a>
+        <a href="research.html">Research</a>
+        <a href="why-monderman.html">Why Monderman</a>
+        <a href="about.html">About</a>
+        <a href="platform-services.html" class="is-active">Platform Services</a>
+        <a href="connect.html">Connect</a>
+        <a href="workspace.html" class="workspace-link">Sign In</a>
+      </nav>
+    </div>
+  </header>
+<main>
+<section class="pl-top">
+  <div class="pl-top-inner">
+    <span class="pl-eyebrow">Advisory services &middot; scope &amp; enquire</span>
+    <h1>The software tells you what is happening. Sometimes you want someone who has fixed it before.</h1>
+    <p class="pl-lead">Monderman&rsquo;s diagnostics are built to be read without help, and most organizations should use them that way. Advisory exists for the cases where the finding is uncomfortable, contested, or structural enough that leadership wants a practitioner in the room rather than a report.</p>
+    <div class="price"><span class="amt">Fixed scope</span></div>
+    <p class="price-alt">Priced per engagement &middot; not part of any subscription &middot; a small number each year</p>
+    <div class="pl-buy">
+      <a class="btn btn-accent" href="connect.html?inquiry=advisory">Enquire about an engagement</a>
+      <a class="btn" href="platform-services.html">See the software tiers</a>
+    </div>
+  </div>
+</section>
+
+<section class="pl-why">
+  <div class="pl-wrap">
+    <h2>This is not a tier.</h2>
+    <p class="pl-why-lead">Every Monderman subscription is software. It does not include people, hours, or judgment, and the price does not change if you want them. Advisory is contracted separately, scoped to a specific piece of work, with a fixed fee and a fixed end. That separation is deliberate: it keeps the software honestly priced for the organizations that will never need us in the room, and it keeps an engagement from quietly becoming a retainer.</p>
+    <div class="pl-why-grid">
+      <div class="pl-why-cell"><b>Fixed scope, fixed fee</b><span>Each engagement below has a defined deliverable and a defined end. No hourly billing, no open-ended retainer, no scope that grows while you are looking away.</span></div>
+      <div class="pl-why-cell"><b>Deliberately limited</b><span>A small number of engagements each year. This is one practitioner&rsquo;s attention, not a bench, and pretending otherwise would be the first broken promise.</span></div>
+      <div class="pl-why-cell"><b>Your data stays yours</b><span>Advisory reads the results you already own. Nothing about an engagement changes what the platform stores, who can see it, or the anonymity you promised your people.</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="pl-section">
+  <div class="pl-wrap">
+    <h2 class="pl-h2">The engagements</h2>
+    <p class="pl-lead">Three shapes, in ascending order of how much of the problem you want handed over. Each assumes you already have diagnostic results; if you do not, start with the software and come back when you have something to read.</p>
+
+    <div class="pl-eng">
+      <div class="pl-eng-head">
+        <h3>Calibration review</h3>
+        <div class="pl-eng-price">from $15,000 <span>one engagement</span></div>
+      </div>
+      <p class="pl-eng-dur">Two to three weeks &middot; remote &middot; one pathway or one population read</p>
+      <p>You have run a diagnostic, or sent one to a group, and the result is either surprising or contested. A calibration review is a senior second read: what the numbers support, what they do not, which competing interpretation the evidence actually favours, and what would have to be true for the uncomfortable reading to be wrong.</p>
+      <ul class="pl-includes">
+        <li>A written second read of your results, including where we disagree with the automated interpretation</li>
+        <li>An explicit account of the competing explanations and what would settle between them</li>
+        <li>The three or four moves the evidence genuinely supports, in order</li>
+        <li>One working session with whoever has to act on it</li>
+      </ul>
+      <div class="pl-def"><strong>What this is not.</strong> It is not an implementation plan and it does not produce new measurement. It tells you what your existing results mean and what to do about them.</div>
+    </div>
+
+    <div class="pl-eng">
+      <div class="pl-eng-head">
+        <h3>Pathway redesign</h3>
+        <div class="pl-eng-price">from $45,000 <span>one engagement</span></div>
+      </div>
+      <p class="pl-eng-dur">One quarter &middot; remote with optional onsite &middot; one pathway, end to end</p>
+      <p>One pathway is measurably costing you capacity and you want it structurally fixed, not documented. This takes a single approval chain, decision, or handoff sequence from diagnosis through redesign to re-measurement, working with the people who own it rather than around them.</p>
+      <ul class="pl-includes">
+        <li>Diagnosis across vantages, so the redesign answers what the front line sees and not only what leadership believes</li>
+        <li>A redesigned structure: ownership, decision rights, and handoff boundaries specified to the point of being actionable</li>
+        <li>Working sessions with the people who hold the pathway, because a design nobody agreed to does not survive contact</li>
+        <li>Re-measurement at the end on the same instrument, so recovery is demonstrated rather than asserted</li>
+      </ul>
+      <div class="pl-def"><strong>What this is not.</strong> It is not organization-wide transformation and it is not change management. One pathway, properly fixed, with evidence it held.</div>
+    </div>
+
+    <div class="pl-eng">
+      <div class="pl-eng-head">
+        <h3>Executive readout</h3>
+        <div class="pl-eng-price">from $7,500 <span>one engagement</span></div>
+      </div>
+      <p class="pl-eng-dur">One to two weeks &middot; remote or onsite &middot; one board or leadership session</p>
+      <p>The finding is clear enough and the difficulty is the room. A readout puts the evidence in front of a board or leadership team with someone independent presenting it, which is often the difference between a result being absorbed and a result being managed away.</p>
+      <ul class="pl-includes">
+        <li>A board-ready presentation of the evidence, written for people who will not read a diagnostic report</li>
+        <li>The session itself, presented independently, including the questions we expect and how the evidence answers them</li>
+        <li>A short written record of what was decided and what was contested</li>
+      </ul>
+      <div class="pl-def"><strong>Why independence matters here.</strong> Findings about structure are frequently findings about someone in the room. An outside presenter can say the difficult part without inheriting the politics of having said it.</div>
+    </div>
+
+    <div class="pl-allot"><strong>Anything else is scoped from scratch.</strong> Bespoke instrument design, multi-pathway programmes, and government work with security or contracting requirements are quoted against the actual scope. If what you need is not one of the three above, say what the problem is rather than which engagement you think fits.</div>
+  </div>
+</section>
+
+<section class="pl-section tight">
+  <div class="pl-wrap">
+    <h2 class="pl-h2">Terms, plainly</h2>
+    <dl class="pl-terms">
+      <div><dt>What you are buying</dt><dd>A named engagement with a defined deliverable and a defined end date, delivered by a senior practitioner. Advisory is a professional services agreement, separate from any software subscription, and buying it does not change your subscription or its price.</dd></div>
+      <div><dt>What it is not</dt><dd>Not a retainer, not an hourly arrangement, and not included in Signal, Pattern, or Enterprise. No tier grants advisory time, and no amount of subscription spend converts into it.</dd></div>
+      <div><dt>Prerequisites</dt><dd>Calibration review and executive readout require existing diagnostic results. Pathway redesign works best where a population read exists, so the redesign answers more than one vantage; where it does not, the engagement begins by producing one.</dd></div>
+      <div><dt>Fees &amp; scheduling</dt><dd>Fixed fee per engagement, quoted in writing before work begins, with the deliverable and end date named in the same document. Fees start at the figures above and rise with scope, not with hours. Engagements are scheduled in sequence, so start dates depend on what is already booked.</dd></div>
+      <div><dt>Capacity</dt><dd>A small number of engagements each year, deliberately. If the calendar is full we will say so and tell you when it is not, rather than accepting work we cannot do properly.</dd></div>
+      <div><dt>Confidentiality &amp; your data</dt><dd>Engagements work from results you already hold. An engagement does not alter platform access, retention, or the anonymity commitments made to people who took a diagnostic; where responses were collected anonymously, they remain anonymous to us as well, because the system stores no link back to the person.</dd></div>
+      <div><dt>Independence</dt><dd>Advisory reads what the instruments produced. We will tell you where we think the automated interpretation is wrong, and where the evidence does not support a conclusion you would prefer.</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section class="pl-section tight">
+  <div class="pl-wrap">
+    <h2 class="pl-h2">Start with the problem, not the engagement</h2>
+    <p class="pl-lead">Tell us what is going wrong and what you have already measured. If the software is enough on its own, we will say so, because a subscription that works without us is a better outcome for both of us than an engagement you did not need.</p>
+    <div class="pl-buy">
+      <a class="btn btn-accent" href="connect.html?inquiry=advisory">Enquire about an engagement</a>
+      <a class="btn" href="platform-services.html">Compare the software tiers</a>
+    </div>
+  </div>
+</section>
+  </main>
+  
+<div style="max-width:880px;margin:0 auto 46px;padding:0 24px;text-align:center;"><p style="font-size:14.5px;margin:0;"><a href="sample-report.html" style="color:#0C6E78;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(12,110,120,.35);">See exactly what every tier delivers &mdash; complete sample reports &rarr;</a></p></div>
+<footer class="footer mond-footer">
+    <div class="mf-motif" aria-hidden="true"><svg width="280" height="280" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#146C75" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#3E8A92" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#146C75" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#146C75" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#3E8A92" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#146C75" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#4E9098" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8FC4C9" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#A9CFD2" stroke-width="0.4" opacity="0.13"/><circle cx="86" cy="-35" r="2.8" fill="#0C6E78" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#3E8A92" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#0C6E78" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#C9821F" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#3E8A92" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#0C6E78" opacity="0.58"/></svg></div>
+    <div class="mf-inner">
+      <div class="mf-top">
+        <div class="mf-brand">
+          <div class="mf-mark-row">
+            <span class="mf-name">Monderman</span>
+            <span class="mf-dot"></span>
+          </div>
+          <p class="mf-copy">Monderman is the diagnostic platform institutions use to measure, compare, and govern how their structure, decisions, and systems are performing — repeatedly, across perspectives, over time.</p>
+          <div class="mf-social">
+            <a href="https://www.linkedin.com/in/jason-adamson-627622412/" target="_blank" rel="noopener noreferrer" aria-label="Monderman on LinkedIn"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+            <a href="https://x.com/MondermanHQ" target="_blank" rel="noopener noreferrer" aria-label="Monderman on X"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+            <a href="https://www.facebook.com/profile.php?id=61590266649149" target="_blank" rel="noopener noreferrer" aria-label="Monderman on Facebook"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+          </div>
+        </div>
+        <nav class="mf-nav" aria-label="Footer navigation">
+          <div class="mf-col">
+            <p class="mf-col-title">Explore</p>
+            <a href="index.html#approach">Approach</a>
+            <a href="diagnostics.html">Diagnostics</a>
+            <a href="research.html">Research</a>
+            <a href="why-monderman.html">Why Monderman</a>
+            <a href="about.html">About</a>
+            <a href="platform-services.html">Platform Services</a>
+          </div>
+          <div class="mf-col">
+            <p class="mf-col-title">Connect</p>
+            <a href="connect.html">Open Connect Form</a>
+            <a href="mailto:connect@monderman.com">connect@monderman.com</a>
+            <a href="privacy.html">Privacy</a>
+          </div>
+        </nav>
+      </div>
+      <div class="mf-bottom">
+        <span class="mf-copyright">© 2026 Monderman. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>(function(){var h=document.getElementById('siteHeader');if(!h)return;var onScroll=function(){if(window.scrollY>12){h.classList.add('scrolled');}else{h.classList.remove('scrolled');}};window.addEventListener('scroll',onScroll,{passive:true});onScroll();})();</script>
+  <!-- Dynamic nav pill: Sign In (signed out) / Workspace (signed in) -->
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co",
+      "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
+      { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" }});
+    (async () => {
+      const link = document.querySelector("a.workspace-link");
+      if (!link) return;
+      link.setAttribute("href", "workspace.html");
+      try {
+        const { data } = await sb.auth.getSession();
+        link.textContent = data?.session?.user ? "Workspace" : "Sign In";
+      } catch (e) { link.textContent = "Sign In"; }
+    })();
+  </script>
+
+      <!-- Monderman auth (single client): paints the nav pill + fast-paths signed-in users.
+       Gated CTAs already point at signin.html?next=<tool>, so the gate is fail-closed —
+       clicking one always lands on sign-in first, even if this script never loads. -->
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const sb = createClient(
+      "https://ptkxrzgmeldalrkfruth.supabase.co",
+      "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
+      { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" } }
+    );
+
+    const GATED = new Set([
+      "structural-clarity.html", "decision-velocity.html",
+      "operational-systems.html", "institutional-performance.html"
+    ]);
+
+    // Pull the tool name out of a signin.html?next=<tool> href, if it is a gated one.
+    function gatedTarget(href) {
+      const m = /^signin\.html\?next=([^&#]+)/.exec(href || "");
+      if (!m) return null;
+      try { const t = decodeURIComponent(m[1]); return GATED.has(t) ? t : null; }
+      catch (e) { return null; }
+    }
+
+    async function apply() {
+      let signedIn = false;
+      try {
+        const { data } = await sb.auth.getSession();
+        signedIn = !!(data && data.session && data.session.user);
+      } catch (e) { signedIn = false; }
+
+      // Nav pill: "Workspace" when signed in; "Sign In" -> the sign-in page when not.
+      const nav = document.querySelector("a.workspace-link");
+      if (nav) {
+        nav.textContent = signedIn ? "Workspace" : "Sign In";
+        nav.setAttribute("href", signedIn ? "workspace.html" : "signin.html?next=workspace.html");
+      }
+
+      // Smooth path for signed-in users: skip the sign-in hop on gated CTAs.
+      if (signedIn) {
+        document.querySelectorAll('a[href^="signin.html?next="]').forEach((a) => {
+          const t = gatedTarget(a.getAttribute("href"));
+          if (t) a.setAttribute("href", t);
+        });
+      }
+    }
+
+    apply();
+    sb.auth.onAuthStateChange(() => apply());
+  </script>
+
+  <script src="assistant.js" defer></script>
+  <script src="connect-widget.js" defer></script>
+</body>
+</html>
