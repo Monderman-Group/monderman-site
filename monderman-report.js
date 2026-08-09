@@ -48,7 +48,12 @@
   function firstStr() {
     for (let i = 0; i < arguments.length; i++) {
       const s = arguments[i];
-      if (s != null && String(s).trim()) return String(s).trim();
+      // 8 Aug 2026: objects and arrays are skipped, never stringified. Scorer
+      // results carry structured fields (trajectory, exposure) in slots this
+      // helper scans, and String(object) is "[object Object]" — which is what
+      // reopened workspace reports were printing in the Trajectory row.
+      if (s == null || typeof s === "object") continue;
+      if (String(s).trim()) return String(s).trim();
     }
     return "";
   }
@@ -301,6 +306,18 @@
   // ---- adapter: single diagnostic run --> model -----------------------------
   // Reads the run's exported result shape (full_result_json) with broad fallbacks,
   // mirroring the synthesis lib's extractor so field names line up.
+  // All four scorers emit `trajectory` as an object ({direction, label, ...}).
+  // Pull the human label out of it; fall back to plain direction words.
+  function labelFromTrajectory(t) {
+    if (!t || typeof t !== "object") return "";
+    if (typeof t.label === "string" && t.label.trim()) return t.label.trim();
+    const dir = String(t.direction || "").toLowerCase();
+    if (dir === "up") return "Rising";
+    if (dir === "down") return "Easing";
+    if (dir === "flat") return "Holding steady";
+    return "";
+  }
+
   function fromRun(run) {
     const r = obj(run);
     const exposure = obj(r.exposure);
@@ -311,7 +328,7 @@
     const score = r.score != null ? r.score : (r.cross_diagnostic_score != null ? r.cross_diagnostic_score : "—");
     const band = firstStr(r.band, r.score_band, r.condition_band, "—");
     const benchmark = firstStr(r.benchmark_position, r.benchmarkPosition, r.peer_position, "—");
-    const trajectory = firstStr(r.trajectory, r.trajectory_label, r.trajectory_signal, "—");
+    const trajectory = firstStr(r.trajectory_label, r.trajectory_signal, labelFromTrajectory(r.trajectory), r.trajectory, "—");
     const driver = firstStr(
       r.primary_driver, r.primary_constraint, r.primary_exposure_source,
       r.primary_burden_source, r.primary_structural_weakness, "—"
@@ -353,7 +370,7 @@
     if (annualHours) kvs.push({ k: "Annual hours*", v: num(annualHours) });
     if (annualCost) kvs.push({ k: "Annual cost*", v: cur(annualCost) });
     if (drag) kvs.push({ k: "Capacity drag*", v: pct(drag) });
-    if (depth) kvs.push({ k: "Depth", v: depth + " items" });
+    if (depth) kvs.push({ k: "Depth", v: depth + "-minute diagnostic" });
 
     const metaScope = firstStr(r.business_unit, r.businessUnit, r.assessment_scope, r.pathway_name);
 
@@ -870,7 +887,10 @@
         if (typeof i === "string") return i;
         if (typeof i === "object") {
           const label = i.label ? String(i.label) : "";
-          const text = i.text ? String(i.text) : "";
+          // 8 Aug 2026: contradiction objects carry their prose in `message`
+          // ({code, severity, message}); without it, SC watch items rendered
+          // as blank bullets.
+          const text = i.text ? String(i.text) : (i.message ? String(i.message) : "");
           if (label && text) return label + " — " + text;
           return text || label || "";
         }
