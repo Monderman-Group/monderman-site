@@ -39,6 +39,9 @@
   (start, answer, finalize), then injects the result into the real instrument page to scrape the
   actual deliverable prose, then runs QC on both the numbers and the language.
   Stop is safe at any point and the JSON stays downloadable.
+  Note: finalize is rate limited per IP, 12 per 10 minutes by default, so the full matrix takes
+  about two hours unless you raise AI_LIMIT_FINALIZE in Render for the duration of the run.
+  A 429 now pauses and retries rather than failing the fixture.
 </p>
 
 <div class="warnbox" id="authWarn">Checking session…</div>
@@ -52,7 +55,7 @@
     </select>
   </label>
   <label>Concurrency
-    <select id="conc"><option>1</option><option selected>3</option><option>5</option></select>
+    <select id="conc"><option selected>1</option><option>2</option><option>3</option><option>5</option></select>
   </label>
   <label><input type="checkbox" id="scrape" checked> Scrape the real deliverable prose</label>
   <button class="go" id="goBtn">Run</button>
@@ -146,6 +149,25 @@ let authToken=null;
   if (authToken) { w.style.background="#E9F5EC"; w.style.borderColor="#8FCB9E"; w.textContent="Signed in. Ready."; }
   else { w.textContent="No session. Open this page on monderman.com while signed in to the workspace in the same browser."; $("goBtn").disabled=true; }
 }
+// finalize is rate limited per IP (12 per 10 minutes by default). A 429 is a
+// pacing signal, not a failure, so this waits out Retry-After and retries
+// rather than burning the fixture. Without this, a matrix run loses most of its
+// cells to throttling and reports them as defects.
+async function postJSON(url, body, label) {
+  for (let attempt = 1; attempt <= 6; attempt++) {
+    const res = await fetch(url, { method:"POST", headers:H(), body: body===undefined?undefined:JSON.stringify(body) });
+    if (res.status === 429) {
+      const j = await res.json().catch(()=>({}));
+      const waitS = Number(res.headers.get("Retry-After") || j.retry_after_seconds || 30);
+      log(`rate limited on ${label}; waiting ${waitS}s (attempt ${attempt})`);
+      await new Promise(r=>setTimeout(r, (waitS+2)*1000));
+      continue;
+    }
+    return res.json();
+  }
+  throw new Error(label+": rate_limited after 6 waits");
+}
+
 const H=()=>authToken?{ "Content-Type":"application/json", Authorization:"Bearer "+authToken }:{ "Content-Type":"application/json" };
 
 function pick(item, mode, idx) {
@@ -261,19 +283,19 @@ async function runFixture(fx) {
   const ctx={ processName:fx.pathway, industry:fx.sector, businessUnit:"operations",
     confidenceLevel:"moderate", ...prof };
   const body={ participantMode:fx.role, diagnosticDepth:fx.depth, ...ctx };
-  const s=await (await fetch(`${API_BASE}/${fx.path}/run/start`,{method:"POST",headers:H(),body:JSON.stringify(body)})).json();
+  const s=await postJSON(`${API_BASE}/${fx.path}/run/start`, body, "start");
   if (!s.ok) throw new Error("start: "+(s.error||s.message));
   let item=s.nextItem, steps=0;
   while (item && !stopped) {
     steps++;
-    const a=await (await fetch(`${API_BASE}/${fx.path}/run/${s.runId}/answer`,{method:"POST",headers:H(),
-      body:JSON.stringify({ itemId:item.id, value:pick(item,fx.answers,steps) })})).json();
+    const a=await postJSON(`${API_BASE}/${fx.path}/run/${s.runId}/answer`,
+      { itemId:item.id, value:pick(item,fx.answers,steps) }, "answer@"+steps);
     if (!a.ok) throw new Error("answer@"+steps+": "+(a.error||a.message));
     if (a.shouldStop) break;
     item=a.nextItem;
   }
   if (stopped) return null;
-  const f=await (await fetch(`${API_BASE}/${fx.path}/run/${s.runId}/finalize`,{method:"POST",headers:H()})).json();
+  const f=await postJSON(`${API_BASE}/${fx.path}/run/${s.runId}/finalize`, undefined, "finalize");
   if (!f.ok) throw new Error("finalize: "+(f.error||f.message));
   const result=f.result||f;
   const deliverable = $("scrape").checked ? await scrapeDeliverable(fx,result) : null;
