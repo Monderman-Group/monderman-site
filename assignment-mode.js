@@ -235,12 +235,22 @@
     // (an already-completed answer counts - the run is safely recorded).
     // Anything else resolves { ok: false, error } so the page never tells the
     // taker their perspective was recorded when it wasn't.
+    // Read-only token accessor (8 Aug 2026): the premium-pass save-back needs
+    // the assignment token to authorize patching the run it just completed.
+    token: function () { return _token || null; },
+
     complete: function (runId) {
-      if (!_token || !runId) return Promise.resolve({ ok: false, error: "missing_token_or_run_id" });
+      // 8 Aug 2026: runId is optional. An anonymous assignment deliberately
+      // returns no run id from finalize (the run-to-assignment link is what
+      // anonymity severs), so requiring one here sent every anonymous
+      // recipient to the failure screen after a successful save. The server
+      // confirms persistence from the assignment's own completed state; when
+      // a runId is held it is still sent so non-anonymous mismatches 409.
+      if (!_token) return Promise.resolve({ ok: false, error: "missing_token" });
       return fetch(API_BASE + "/api/assignments/complete/" + encodeURIComponent(_token), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ runId: runId })
+        body: JSON.stringify(runId ? { runId: runId } : {})
       })
         .then(function (r) {
           return r.json().catch(function () { return null; }).then(function (body) {
