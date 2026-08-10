@@ -34,8 +34,9 @@
 
 <h1>Live QC Matrix</h1>
 <p class="sub">
-  144 preset fixtures across all four instruments, three depths, three vantages, four answer patterns,
-  five sizing profiles and seven sectors. Nothing to configure. Each fixture drives the real API
+  144 controlled fixtures across all four instruments, three run lengths, three vantages, and four semantic answer patterns.
+  Organization context, pathway, sector, and sizing stay fixed so a changed score can be attributed to the diagnostic inputs.
+  Each fixture drives the real API
   (start, answer, finalize), then injects the result into the real instrument page to scrape the
   actual deliverable prose, then runs QC on both the numbers and the language.
   Stop is safe at any point and the JSON stays downloadable.
@@ -58,6 +59,7 @@
     <select id="conc"><option selected>1</option><option>2</option><option>3</option><option>5</option></select>
   </label>
   <label><input type="checkbox" id="scrape" checked> Scrape the real deliverable prose</label>
+  <label><input type="checkbox" id="pdf" checked> Build 12 representative PDFs</label>
   <button class="go" id="goBtn">Run</button>
   <button class="stop" id="stopBtn" disabled>Stop</button>
   <button class="dl" id="dlBtn" disabled>Download JSON</button>
@@ -83,14 +85,11 @@
 
 <script type="module">
 const API_BASE  = "https://monderman-api.onrender.com/api";
-const PAGE_BASE = "https://www.monderman.com";
+const PAGE_BASE = /^https?:$/.test(location.protocol) ? location.origin : "https://www.monderman.com";
 
-const PROFILES = {
-  small:  { peopleInvolved:6,   hourlyCost:65,  annualVolume:12,   meetingHours:4 },
-  mid:    { peopleInvolved:50,  hourlyCost:180, annualVolume:50,   meetingHours:180 },
-  large:  { peopleInvolved:900, hourlyCost:320, annualVolume:2400, meetingHours:30 },
-  lowvol: { peopleInvolved:140, hourlyCost:92,  annualVolume:4,    meetingHours:160 },
-  hivol:  { peopleInvolved:45,  hourlyCost:110, annualVolume:5200, meetingHours:2 }
+const CONTROL_CONTEXT = {
+  profile:"controlled_mid", peopleInvolved:50, hourlyCost:180, annualVolume:50, meetingHours:180,
+  sector:"technology_software", pathway:"change requests"
 };
 const INSTRUMENTS = [
   ["sc","structural-clarity","structural_clarity","Structural Clarity"],
@@ -98,10 +97,8 @@ const INSTRUMENTS = [
   ["os","operational-systems","operational_systems","Operational Systems"],
   ["ip","institutional-performance","institutional_performance","Institutional Performance"]
 ];
-const DEPTHS=[10,30,60], ROLES=["operational","managerial","senior_leader"], ANSWERS=["best","mid","worst","alt"];
-const SECTORS=["financial_services","government_defense","healthcare_life_sciences","technology_software","manufacturing_industrial","energy_utilities","other"];
-const PATHWAYS=["vendor approvals","hiring and offer approvals","capital expenditure requests","incident escalation","care coordination","change requests","tasking cycles"];
-const PROFKEYS=Object.keys(PROFILES);
+const DEPTHS=[10,30,60], ROLES=["operational","managerial","senior_leader"];
+const ANSWERS=["healthy","mixed","unhealthy","contradictory"];
 
 // Vocabulary that must not cross between instruments. Each instrument has its
 // own register; a term from another lane appearing in output is cross-bleed,
@@ -112,25 +109,31 @@ const LANE_TERMS = {
   os: ["systems friction","reporting burden","upkeep burden","process density"],
   ip: ["institutional confidence","compensatory dependence","execution coherence"]
 };
+const DIMENSION_LABELS = {
+  role_clarity:"Role clarity", decision_rights_clarity:"Decision rights clarity", handoff_clarity:"Handoff integrity", accountability_clarity:"Accountability clarity", duplicate_approvals_inverse:"Governance proportionality",
+  cycle_velocity:"Cycle velocity", approval_efficiency:"Approval efficiency", coordination_load:"Coordination load", execution_stability:"Execution stability",
+  process_density:"Process density", systems_friction:"Systems friction", reporting_exception_burden:"Reporting and exception burden", workaround_dependence:"Workaround dependence", control_load:"Control load", upkeep_burden:"Upkeep burden",
+  execution_coherence:"Execution coherence", decision_reliability:"Decision reliability", adaptive_capacity:"Adaptive capacity", institutional_confidence:"Institutional confidence", performance_stability:"Performance stability", compensatory_effort:"Compensatory effort"
+};
+const PLACEHOLDER_RE=/\b(?:undefined|NaN|\[object Object\]|headline finding will appear|priority actions will appear|remedy paths will appear|will appear once|awaiting (?:data|results)|could not be loaded|not enough [^.]{0,40} signal)\b/i;
 
 function buildFixtures() {
-  const out=[]; let i=0;
+  const out=[];
   for (const [inst,path,tool,label] of INSTRUMENTS)
     for (const depth of DEPTHS)
       for (const role of ROLES)
         for (const answers of ANSWERS) {
-          i++;
           out.push({ id:`${inst}-${depth}-${role.slice(0,4)}-${answers}`, inst, path, tool, label,
-            depth, role, answers, profile:PROFKEYS[i%PROFKEYS.length],
-            sector:SECTORS[i%SECTORS.length], pathway:PATHWAYS[i%PATHWAYS.length] });
+            depth, role, answers, profile:CONTROL_CONTEXT.profile,
+            sector:CONTROL_CONTEXT.sector, pathway:CONTROL_CONTEXT.pathway });
         }
   return out;
 }
 const ALL = buildFixtures();
 function scoped(n) {
   if (n>=144) return ALL;
-  if (n>=48)  return ALL.filter(f=>f.answers==="mid" || f.answers==="worst").slice(0,48);
-  return ALL.filter(f=>f.answers==="mid" && f.role==="managerial");
+  if (n>=48)  return ALL.filter(f=>f.answers==="mixed" || f.answers==="unhealthy").slice(0,48);
+  return ALL.filter(f=>f.answers==="mixed" && f.role==="managerial");
 }
 
 const $=(id)=>document.getElementById(id);
@@ -185,22 +188,68 @@ async function postJSON(url, body, label) {
 
 const H=()=>authToken?{ "Content-Type":"application/json", Authorization:"Bearer "+authToken }:{ "Content-Type":"application/json" };
 
+const NUMERIC_FIXTURES = {
+  dv_g5_decision_days:{healthy:3,mixed:14,unhealthy:45},
+  dv_d1_approval_count:{healthy:1,mixed:4,unhealthy:8},
+  dv_d2_meeting_count:{healthy:1,mixed:4,unhealthy:10},
+  dv_d2_systems_touched:{healthy:1,mixed:4,unhealthy:10},
+  dv_d3_handoff_count:{healthy:1,mixed:4,unhealthy:10},
+  os_d1_routine_step_count:{healthy:2,mixed:5,unhealthy:12},
+  os_d2_systems_touched:{healthy:1,mixed:4,unhealthy:10},
+  os_d3_reporting_hours_weekly:{healthy:1,mixed:5,unhealthy:15},
+  os_d6_admin_hours_weekly:{healthy:1,mixed:6,unhealthy:18},
+  sc_ctx_people_affected:{healthy:50,mixed:50,unhealthy:50},
+  sc_ctx_issues_per_month:{healthy:1,mixed:6,unhealthy:20},
+  sc_ctx_meetings_per_week:{healthy:1,mixed:5,unhealthy:15},
+  ip_n1_people_impacted:{healthy:50,mixed:50,unhealthy:50},
+  ip_n2_annual_cycles:{healthy:50,mixed:50,unhealthy:50},
+  ip_n3_hourly_cost:{healthy:180,mixed:180,unhealthy:180}
+};
+
+function optionHealth(option) {
+  const condition=option?.conditionSignal===null||option?.conditionSignal===undefined||option?.conditionSignal===""?null:Number(option.conditionSignal);
+  const burden=option?.burdenSignal===null||option?.burdenSignal===undefined||option?.burdenSignal===""?null:Number(option.burdenSignal);
+  if (Number.isFinite(condition)&&Number.isFinite(burden)) return condition-burden;
+  if (Number.isFinite(condition)) return condition;
+  if (Number.isFinite(burden)) return -burden;
+  return 0;
+}
+
 function pick(item, mode, idx) {
-  const o=item.options||[];
-  if (item.questionType==="numeric" || o.length===0)
-    return ({best:1,mid:6,worst:40,alt:idx%2?2:30})[mode];
-  if (item.questionType==="multi_select")
-    return (mode==="best"?o.slice(0,1):mode==="worst"?o:o.slice(0,2)).map(x=>x.value);
-  const i = mode==="best"?0 : mode==="worst"?o.length-1 : mode==="mid"?Math.floor((o.length-1)/2) : (idx%2?0:o.length-1);
-  return o[i].value;
+  const options=Array.isArray(item.options)?item.options:[];
+  if (item.questionType==="numeric" || options.length===0) {
+    const fixture=NUMERIC_FIXTURES[item.id];
+    if (!fixture) throw new Error(`No semantic numeric fixture for ${item.id}`);
+    return mode==="contradictory" ? (idx%2?fixture.healthy:fixture.unhealthy) : fixture[mode];
+  }
+  const ranked=options.map((option,optionIndex)=>({option,optionIndex,health:optionHealth(option)}))
+    .sort((a,b)=>a.health-b.health||a.optionIndex-b.optionIndex);
+  const valenced=ranked.some(entry=>entry.health!==ranked[0].health);
+  if (item.questionType==="multi_select") {
+    const adverseSet=item.id==="ip_s1_signal_profile";
+    if (!valenced&&!adverseSet) return mode==="contradictory"&&options.length>1?[options[1].value]:[options[0].value];
+    const adverse=adverseSet
+      ? options.slice(0,Math.min(3,options.length)).map(option=>option.value)
+      : ranked.slice(0,Math.min(3,ranked.length)).map(entry=>entry.option.value);
+    if (mode==="healthy") return [];
+    if (mode==="mixed") return adverse.slice(0,1);
+    if (mode==="unhealthy") return adverse;
+    return idx%2?[]:adverse;
+  }
+  if (!valenced) return mode==="contradictory"&&options.length>1?options[idx%2].value:options[0].value;
+  if (mode==="healthy") return ranked[ranked.length-1].option.value;
+  if (mode==="unhealthy") return ranked[0].option.value;
+  if (mode==="mixed") return ranked[Math.floor((ranked.length-1)/2)].option.value;
+  return (idx%2?ranked[ranked.length-1]:ranked[0]).option.value;
 }
 
 // Inject a finished result into the real instrument page and read back the
 // actual deliverable text. A <base> tag is required because srcdoc has no URL
 // of its own, so the page's relative asset paths would otherwise fail.
-async function scrapeDeliverable(fx, result) {
+async function scrapeDeliverable(fx, result, payload, buildPdf=false) {
   const html = await (await fetch(`${PAGE_BASE}/${fx.path}.html`)).text();
-  const inject = `<base href="${PAGE_BASE}/"><script>window.__mondermanInjectedResult=${JSON.stringify(result).replace(/</g,"\\u003c")};<\/script>`;
+  const injected={result,payload,narrative:result.interpretive_prose||null};
+  const inject = `<base href="${PAGE_BASE}/"><script>window.__mondermanInjectedResult=${JSON.stringify(injected).replace(/</g,"\\u003c")};<\/script>`;
   const doc = html.replace(/<head([^>]*)>/i, (m,a)=>`<head${a}>${inject}`);
   const frame = Object.assign(document.createElement("iframe"), { style:"position:fixed;left:-9999px;width:1200px;height:900px" });
   document.body.appendChild(frame);
@@ -210,27 +259,59 @@ async function scrapeDeliverable(fx, result) {
     for (let i=0;i<40;i++){ if (frame.contentWindow?.__mondermanTestHooks) break; await new Promise(r=>setTimeout(r,300)); }
     const hooks = frame.contentWindow?.__mondermanTestHooks;
     if (!hooks?.buildExecutiveReportHtml) return { ok:false, reason:"hooks_unavailable" };
-    const reportHtml = hooks.buildExecutiveReportHtml();
+    if (buildPdf) {
+      for (let i=0;i<40;i++){ if (frame.contentWindow?.__mondermanInjectionApplied) break; await new Promise(r=>setTimeout(r,300)); }
+      if (!frame.contentWindow?.__mondermanInjectionApplied) return { ok:false, reason:"result_injection_not_applied" };
+    }
+    const reportHtml = hooks.buildExecutiveReportHtml(result,payload);
     const tmp = frame.contentDocument.createElement("div");
     tmp.innerHTML = reportHtml;
     // The deliverable carries its own stylesheet and textContent includes it, so
     // number checks were scanning CSS: 255 from colours, 700 from font weights.
     tmp.querySelectorAll("style,script").forEach((n)=>n.remove());
-    return { ok:true, text:(tmp.textContent||"").replace(/\s+/g," ").trim(), length:reportHtml.length };
+    const report={ ok:true, text:(tmp.textContent||"").replace(/\s+/g," ").trim(), length:reportHtml.length,
+      pageCount:tmp.querySelectorAll(".page").length };
+    if (buildPdf) {
+      if (typeof hooks.downloadExecutiveReportPdf!=="function") report.pdf={ok:false,reason:"pdf_hook_unavailable"};
+      else {
+        const pdfResult=await hooks.downloadExecutiveReportPdf({returnBlob:true});
+        report.pdf=pdfResult&&typeof pdfResult==="object"?{
+          ok:pdfResult.ok===true, size:Number(pdfResult.size||pdfResult.blob?.size||0),
+          type:pdfResult.blob?.type||pdfResult.type||"", pageCount:Number(pdfResult.pageCount||0),
+          reason:pdfResult.error||pdfResult.reason||""
+        }:{ok:false,reason:"pdf_hook_returned_no_result"};
+      }
+    }
+    return report;
   } catch(e) { return { ok:false, reason:e.message };
   } finally { frame.remove(); }
 }
 
 function bandFor(score){ return score>=83?"healthy":score>=67?"moderate":score>=49?"material":"breakdown"; }
+const finiteNumber=(value)=>value!==null&&value!==undefined&&value!==""&&Number.isFinite(Number(value));
+const EXPECTED_BANDS={
+  sc:{healthy:"High structural clarity",moderate:"Moderate structural clarity",material:"Material ambiguity",breakdown:"Structural clarity breakdown"},
+  dv:{healthy:"Healthy velocity",moderate:"Moderate drag",material:"Significant friction",breakdown:"High bureaucratic latency"},
+  os:{healthy:"Light operating burden",moderate:"Manageable but compounding burden",material:"Heavy administrative environment",breakdown:"Operational drag condition"},
+  ip:{healthy:"Strong institutional condition",moderate:"Stable but exposed",material:"Fragile performance condition",breakdown:"Degraded institutional condition"}
+};
 
 function qc(fx, result, deliverable) {
   const c=[]; const add=(name,ok,detail,soft)=>c.push({name,ok:!!ok,soft:!!soft,detail:detail??""});
-  const ex=result.exposure||{}, prof=PROFILES[fx.profile];
-  const score=Number(result.score);
+  const ex=result.exposure||{}, prof=CONTROL_CONTEXT;
+  const score=finiteNumber(result.score)?Number(result.score):null;
 
-  add("score_in_range", Number.isFinite(score)&&score>=0&&score<=100, "score="+result.score);
+  add("score_in_range", score!==null&&score>=0&&score<=100, "score="+result.score);
   add("dimensions_present", Object.values(result.dimensions||{}).some(v=>typeof v==="number"), "");
   add("burden_breakdown_populated", Object.keys(result.burden_breakdown||{}).length>0, "");
+  const coverage=result.dimension_coverage||result.measurement_coverage;
+  add("coverage_metadata_present", !!coverage&&finiteNumber(coverage.coverage_percent), JSON.stringify(coverage));
+  add("scorer_version_present", /^\S+_2026_08_10_missingness_v2$/.test(String(result.scorer_version||"")), result.scorer_version);
+  if (coverage) {
+    const unmeasured=coverage.unmeasured_dimensions||[];
+    add("coverage_counts_reconcile", Number(coverage.measured_dimension_count)+unmeasured.length===Object.keys(result.dimensions||{}).length, JSON.stringify(coverage));
+    add("unmeasured_dimensions_are_null", unmeasured.every(key=>result.dimensions?.[key]===null), unmeasured.map(key=>`${key}=${result.dimensions?.[key]}`).join(", "));
+  }
 
   // exposure identities
   const priced = ex.priceable !== false;
@@ -251,7 +332,9 @@ function qc(fx, result, deliverable) {
   // "Material ambiguity", Operational Systems says "Heavy administrative
   // environment"), so matching words across instruments was simply wrong. Only
   // presence is asserted here; band-to-score ordering is checked across the run.
-  if (result.band !== undefined) add("band_present", !!String(result.band||"").trim(), `band="${result.band}"`, true);
+  const resultBand=String(result.score_band||result.band||"").trim();
+  add("band_present", !!resultBand, `band="${resultBand}"`);
+  add("band_matches_score", resultBand===EXPECTED_BANDS[fx.inst]?.[bandFor(score)], `${score} -> ${resultBand}`);
   // the ladder must exist when the condition is materially unhealthy
   const ladder = result.intervention_priority_ladder || result.canonical_descriptor?.priority_ladder;
   if (score<67) add("unhealthy_run_has_ladder", Array.isArray(ladder)&&ladder.length>0, "ladder="+(ladder?.length??"none"));
@@ -268,7 +351,7 @@ function qc(fx, result, deliverable) {
   const haveProse = strings.length>0 && all.trim().length>200;
   add("prose_produced", haveProse, strings.length+" strings, "+all.length+" chars");
   if (haveProse) {
-    add("no_placeholder_leak", !/\b(undefined|NaN|\[object Object\])\b/.test(all), "");
+    add("no_placeholder_leak", !PLACEHOLDER_RE.test(all), (all.match(PLACEHOLDER_RE)||[""])[0]);
     add("no_em_dash", !all.includes("\u2014"), (all.match(/[^.]{0,60}\u2014[^.]{0,60}/)||[""])[0]);
   const agree = new RegExp("the\\s+"+fx.pathway.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\s+(is|has|was|does)\\b","i");
     add("pathway_subject_agreement", !agree.test(all), "");
@@ -299,31 +382,58 @@ function qc(fx, result, deliverable) {
     if (deliverable.ok) {
       add("deliverable_non_trivial", (deliverable.text||"").length>800, (deliverable.text||"").length+" chars", true);
       add("deliverable_no_em_dash", !(deliverable.text||"").includes("\u2014"), "", true);
-      add("deliverable_no_placeholder", !/\b(undefined|NaN)\b/.test(deliverable.text||""), "", true);
-      add("deliverable_carries_score", (deliverable.text||"").includes(String(Math.round(score))), "", true);
+      add("deliverable_no_placeholder", !PLACEHOLDER_RE.test(deliverable.text||""), ((deliverable.text||"").match(PLACEHOLDER_RE)||[""])[0]);
+      add("deliverable_has_pages", Number(deliverable.pageCount)>=8, `pages=${deliverable.pageCount}`);
+      add("deliverable_carries_score", new RegExp(`(?:score|condition|clarity|velocity|systems)[^0-9]{0,80}\\b${Math.round(score)}\\b|\\b${Math.round(score)}\\s*\/\\s*100`,"i").test(deliverable.text||""), `score=${score}`);
+      const band=String(result.score_band||result.band||"").trim();
+      add("deliverable_carries_band", !!band&&(deliverable.text||"").toLowerCase().includes(band.toLowerCase()), band);
+      add("deliverable_has_priority_actions", /priority actions/i.test(deliverable.text||"")&&Array.isArray(pa)&&pa.length>0, "");
+      add("deliverable_has_remedy_paths", /three remedy paths/i.test(deliverable.text||"")&&Array.isArray(paths)&&paths.length===3, "");
+      add("deliverable_has_insight_depth", /insight depth/i.test(deliverable.text||"")&&finiteNumber(result.insight_depth?.score), "");
+      const measuredEntries=Object.entries(result.dimensions||{}).filter(([,value])=>typeof value==="number"&&Number.isFinite(value));
+      const missingDimensionText=measuredEntries.filter(([key,value])=>{
+        const label=DIMENSION_LABELS[key]||key.replace(/_/g," ");
+        return !(deliverable.text||"").toLowerCase().includes(label.toLowerCase()) || !(deliverable.text||"").includes(String(Math.round(value)));
+      });
+      add("deliverable_carries_measured_dimensions", missingDimensionText.length===0, missingDimensionText.map(([key,value])=>`${key}=${value}`).join(", "));
+      const unmeasuredCount=(coverage?.unmeasured_dimensions||[]).length;
+      if (unmeasuredCount) add("deliverable_marks_unmeasured", ((deliverable.text||"").match(/Not measured/gi)||[]).length>=unmeasuredCount, `expected=${unmeasuredCount}`);
+      if (deliverable.pdf) {
+        add("pdf_built", deliverable.pdf.ok, deliverable.pdf.reason||"");
+        add("pdf_mime", deliverable.pdf.type==="application/pdf", deliverable.pdf.type);
+        add("pdf_non_trivial", deliverable.pdf.size>10000, `size=${deliverable.pdf.size}`);
+        add("pdf_page_count", deliverable.pdf.pageCount>=8, `pages=${deliverable.pdf.pageCount}`);
+      }
     }
   }
   return c;
 }
 
 async function runFixture(fx) {
-  const prof=PROFILES[fx.profile];
+  const prof=CONTROL_CONTEXT;
   const ctx={ processName:fx.pathway, industry:fx.sector, businessUnit:"operations",
-    confidenceLevel:"moderate", ...prof };
+    confidenceLevel:"moderate", peopleInvolved:prof.peopleInvolved, hourlyCost:prof.hourlyCost,
+    annualVolume:prof.annualVolume, meetingHours:prof.meetingHours };
   const body={ participantMode:fx.role, diagnosticDepth:fx.depth, ...ctx };
   const s=await postJSON(`${API_BASE}/${fx.path}/run/start`, body, "start");
   if (!s.ok) throw new Error("start: "+(s.error||s.message));
+  const clone=(value)=>JSON.parse(JSON.stringify(value));
+  const trace={ runId:s.runId, start:{request:clone(body),response:clone(s)}, answers:[], finalize:null };
   let item=s.nextItem, steps=0;
   while (item && !stopped) {
     steps++;
+    const value=pick(item,fx.answers,steps);
+    const answerRequest={itemId:item.id,value};
     const a=await postJSON(`${API_BASE}/${fx.path}/run/${s.runId}/answer`,
-      { itemId:item.id, value:pick(item,fx.answers,steps) }, "answer@"+steps);
+      answerRequest, "answer@"+steps);
+    trace.answers.push({ sequence:steps, question:clone(item), answer:clone(answerRequest), response:clone(a) });
     if (!a.ok) throw new Error("answer@"+steps+": "+(a.error||a.message));
     if (a.shouldStop) break;
     item=a.nextItem;
   }
   if (stopped) return null;
   const f=await postJSON(`${API_BASE}/${fx.path}/run/${s.runId}/finalize`, undefined, "finalize");
+  trace.finalize={ response:clone(f) };
   if (!f.ok) throw new Error("finalize: "+(f.error||f.message));
   // A paywalled response carries ok:true with locked:true and only a teaser.
   // Treating that as a result made every language check pass vacuously.
@@ -334,8 +444,9 @@ async function runFixture(fx) {
   if (!result || typeof result.score !== "number") {
     throw new Error("finalize returned no scored result");
   }
-  const deliverable = $("scrape").checked ? await scrapeDeliverable(fx,result) : null;
-  return { fixture:fx, inputs:ctx, steps, result, deliverable, checks:qc(fx,result,deliverable) };
+  const representativePdf=$("pdf").checked&&fx.role==="managerial"&&fx.answers==="mixed";
+  const deliverable = $("scrape").checked ? await scrapeDeliverable(fx,result,body,representativePdf) : null;
+  return { fixture:fx, inputs:ctx, steps, trace, result, deliverable, checks:qc(fx,result,deliverable) };
 }
 
 function addRow(fx){ const tr=document.createElement("tr"); tr.id="r-"+fx.id;
@@ -422,7 +533,10 @@ $("stopBtn").onclick=()=>{ stopped=true; log("Stopping after in-flight fixtures 
 $("dlBtn").onclick=()=>{
   const payload={ generated:new Date().toISOString(), stopped_early:stopped,
     totals:{ done:doneCount, pass:passC, warn:warnC, fail:failC, checks:checkC, checks_failed:checkF },
-    profiles:PROFILES, cells:results };
+    methodology:{ matrix_type:"controlled_experiment", fixed_context:CONTROL_CONTEXT,
+      answer_patterns:ANSWERS, exact_question_and_answer_traces:true,
+      report_acceptance:true, representative_pdf_acceptance:$("pdf").checked },
+    cells:results };
   const a=document.createElement("a");
   a.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}));
   a.download="monderman-qc-matrix-"+Date.now()+".json"; a.click();

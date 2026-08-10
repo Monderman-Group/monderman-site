@@ -775,7 +775,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
           <div class="score-number-wrap">
             <p class="score-number" id="scoreNumber">0</p>
             <span class="insight-help" id="scoreRubricInfo" tabindex="0">ⓘ</span>
-            <span class="tooltip-panel" id="scoreRubricTooltip"><strong>Institutional performance score bands</strong><br>82–100: Institutionally strong<br>65–81: Stable but exposed<br>45–64: Fragile performance condition<br>0–44: Degraded institutional condition</span>
+            <span class="tooltip-panel" id="scoreRubricTooltip"><strong>Institutional performance score bands</strong><br>83–100: Strong institutional condition<br>67–82: Stable but exposed<br>49–66: Fragile performance condition<br>0–48: Degraded institutional condition</span>
           </div>
           <p class="score-band" id="scoreBand">--</p>
           <div class="score-badge" id="scoreBadge">Institutional Performance Diagnostic</div>
@@ -3222,13 +3222,11 @@ function getOperationalDimensions(result) {
 // kept separate. Charts read drag burdens so users see "where time disappears"
 // rather than internal scoring factors.
 const breakdown = asObject(result?.burden_breakdown);
+const measured = (value) => Number.isFinite(value) ? Number(value) : null;
 return {
-  approval:     Number(breakdown.approval || 0),
-  coordination: Number(breakdown.coordination || 0),
-  handoff:      Number(breakdown.handoff || 0),
-  escalation:   Number(breakdown.escalation || 0),
-  rework:       Number(breakdown.rework || 0),
-  key_person:   Number(breakdown.key_person || 0)
+  approval: measured(breakdown.approval), coordination: measured(breakdown.coordination),
+  handoff: measured(breakdown.handoff), escalation: measured(breakdown.escalation),
+  rework: measured(breakdown.rework), key_person: measured(breakdown.key_person)
 };
 }
 
@@ -3894,16 +3892,21 @@ const LABELS = {
 const COLORS = ["#0C6E78","#4E9098","#3C8A60","#3E8A92","#C9821F"];
 const entries = Object.entries(LABELS).map(([key, label], i) => ({
   key, label,
-  value: Math.round(Number.isFinite(dims[key]) ? dims[key] : 65),
+  value: Number.isFinite(dims[key]) ? Math.round(dims[key]) : null,
   color: COLORS[i % COLORS.length]
-})).sort((a, b) => a.value - b.value);
+})).sort((a, b) => a.value === null ? 1 : b.value === null ? -1 : a.value - b.value);
 if (!entries.length) {
   if (note) note.textContent = "Clarity dimension breakdown will appear after scoring.";
   return;
 }
 mount.innerHTML = entries.map(e => {
+  if (e.value === null) return `<div class="bar-row">
+    <span class="bar-label">${e.label}</span>
+    <div class="bar-track" style="background:repeating-linear-gradient(135deg,#EAE6DD,#EAE6DD 5px,#F7F5F0 5px,#F7F5F0 10px)"></div>
+    <span class="bar-value"><small style="color:var(--ink-muted);font-size:.75rem">Not measured</small></span>
+  </div>`;
   const width = e.value;
-  const clarityLabel = e.value >= 82 ? "Clear" : e.value >= 66 ? "Softening" : e.value >= 48 ? "Ambiguous" : "Breakdown";
+  const clarityLabel = e.value >= 83 ? "Clear" : e.value >= 67 ? "Softening" : e.value >= 49 ? "Ambiguous" : "Breakdown";
   return `<div class="bar-row">
     <span class="bar-label">${e.label}</span>
     <div class="bar-track">
@@ -3915,8 +3918,10 @@ mount.innerHTML = entries.map(e => {
 requestAnimationFrame(() => {
   mount.querySelectorAll(".bar-fill").forEach(el => { el.style.width = el.dataset.final + "%"; });
 });
-const primary = entries[0];
-if (note) note.textContent = `Primary institutional weakness: ${primary.label} (${primary.value}/100). Lower scores indicate where the structure is least readable.`;
+const primary = entries.find(entry => entry.value !== null);
+if (note) note.textContent = primary
+  ? `Primary institutional weakness: ${primary.label} (${primary.value}/100). Lower scores indicate where the institution is least reliable.`
+  : "No institutional condition dimensions were measured in this run.";
 }
 // Alias for backward compat
 function renderCapacityWaterfall(result) { renderClarityDimensionBars(result); }
@@ -4543,15 +4548,17 @@ const scDimDefs = [
   { key: "performance_stability", label: "Performance stability" }
 ];
 const scDimsData = result?.dimensions || {};
+const scCompensatoryValue = scDimsData.compensatory_effort;
+const scCompensatoryRow = `<div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:10px 0;border-top:1px solid #EAE6DD"><span style="font-size:12.5px;color:#08383E;font-weight:600">Compensatory effort <small style="display:block;color:#6E6F73;font-weight:400">Higher means more performance is being carried by extra effort.</small></span><span style="font-size:11px;color:#6E6F73;font-weight:600">${Number.isFinite(scCompensatoryValue) ? `${Math.round(scCompensatoryValue)} / 100` : "Not measured"}</span></div>`;
 const scDimSorted = scDimDefs
   .filter(d => Number.isFinite(scDimsData[d.key]))
   .sort((a,b) => scDimsData[a.key] - scDimsData[b.key]);
 const scDimBars = scDimSorted.length
   ? `<div style="margin-top:8px">` + scDimSorted.map((d, i) => {
       const v = Math.round(scDimsData[d.key]);
-      const band = v >= 82 ? "Clear" : v >= 66 ? "Softening" : v >= 48 ? "Ambiguous" : "Breakdown";
-      const color = v >= 82 ? "#0C6E78" : v >= 66 ? "#0C6E78" : v >= 48 ? "#C9821F" : "#B0392F";
-      const chipBg = v >= 82 ? "#EAE6DD" : v >= 66 ? "#EAE6DD" : v >= 48 ? "#F6F3EC" : "#FAFAF8";
+      const band = v >= 83 ? "Clear" : v >= 67 ? "Softening" : v >= 49 ? "Ambiguous" : "Breakdown";
+      const color = v >= 83 ? "#0C6E78" : v >= 67 ? "#0C6E78" : v >= 49 ? "#C9821F" : "#B0392F";
+      const chipBg = v >= 83 ? "#EAE6DD" : v >= 67 ? "#EAE6DD" : v >= 49 ? "#F6F3EC" : "#FAFAF8";
       const weakest = i === 0 ? `<span style="font-size:9px;letter-spacing:.08em;color:#9A9892;text-transform:uppercase;margin-left:8px">Weakest</span>` : "";
       return `<div style="margin-bottom:18px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px">
@@ -4562,13 +4569,13 @@ const scDimBars = scDimSorted.length
           </div>
         </div>
         <div style="position:relative;height:9px;background:#EAE6DD;border-radius:5px;overflow:hidden">
-          <div style="position:absolute;left:48%;top:0;bottom:0;width:1px;background:#EAE6DD"></div>
-          <div style="position:absolute;left:66%;top:0;bottom:0;width:1px;background:#EAE6DD"></div>
-          <div style="position:absolute;left:82%;top:0;bottom:0;width:1px;background:#EAE6DD"></div>
+          <div style="position:absolute;left:49%;top:0;bottom:0;width:1px;background:#EAE6DD"></div>
+          <div style="position:absolute;left:67%;top:0;bottom:0;width:1px;background:#EAE6DD"></div>
+          <div style="position:absolute;left:83%;top:0;bottom:0;width:1px;background:#EAE6DD"></div>
           <div style="height:9px;width:${v}%;background:${color};border-radius:5px"></div>
         </div>
       </div>`;
-    }).join("") + `<div style="display:flex;justify-content:space-between;font-size:8.5px;color:#9A9892;letter-spacing:.05em;text-transform:uppercase;margin-top:-6px;padding:0 1px"><span>Breakdown</span><span>Ambiguous</span><span>Softening</span><span>Clear</span></div></div>`
+    }).join("") + scDimDefs.filter(d => !Number.isFinite(scDimsData[d.key])).map(d => `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding:8px 0;border-bottom:1px solid #EAE6DD"><span style="font-size:12.5px;color:#08383E;font-weight:600">${d.label}</span><span style="font-size:10px;letter-spacing:.05em;color:#6E6F73;text-transform:uppercase">Not measured</span></div>`).join("") + `<div style="display:flex;justify-content:space-between;font-size:8.5px;color:#9A9892;letter-spacing:.05em;text-transform:uppercase;margin-top:-6px;padding:0 1px"><span>Breakdown</span><span>Ambiguous</span><span>Softening</span><span>Clear</span></div></div>`
   : `<p class="muted">Not enough dimension signal was available for this run.</p>`;
 const trajectoryDirection = result?.trajectory?.direction || "flat";
 const trajectoryProse = buildTrajectoryNarrative(trajectoryDirection);
@@ -4961,7 +4968,7 @@ return `<!doctype html>
   <div class="content">
     <p class="eyebrow">Where clarity is breaking down</p><h2>Clarity dimension breakdown</h2>
     <p>The condition view shows where institutional performance is weakest across the five dimensions Monderman measures: execution coherence, decision reliability, adaptive capacity, institutional confidence, and performance stability. Lower scores indicate where the institution is least able to sustain performance on its own.</p><p class="muted">The important signal is not only which dimension is lowest. The distribution also matters. A concentrated pattern points to a targeted institutional repair; a distributed pattern usually means a broader rebuild is needed across multiple dimensions.</p>
-    <div class="panel" style="padding:16px">${scDimBars}</div>
+    <div class="panel" style="padding:16px">${scDimBars}${scCompensatoryRow}</div>
     <h3 style="margin-top:24px">What the clarity profile tells us</h3>
     <p>${safeWords(concentrationProse, 76)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(compositionQuestion)}</p></div>
@@ -5111,21 +5118,24 @@ setTimeout(() => URL.revokeObjectURL(url), 1000);
 showToast("Executive Summary HTML downloaded.", "success");
 }
 
-async function downloadExecutiveReportPdf() {
+async function downloadExecutiveReportPdf(options = {}) {
+const returnBlob = options && options.returnBlob === true;
 if (!state.result || !state.renderPayload) {
+if (returnBlob) return { ok:false, error:"report_not_ready" };
 showToast("The report is not ready yet. Finish the diagnostic output first.");
 return;
 }
 
 const html = buildExecutiveReportHtml(state.result, state.renderPayload);
 const filename = buildExecutiveReportFilename(state.renderPayload).replace(/.html$/, ".pdf");
-showToast("Generating Executive Summary PDF...", "working");
+if (!returnBlob) showToast("Generating Executive Summary PDF...", "working");
 
 let libs;
 try {
 libs = await loadExecutivePdfLibraries();
 } catch (error) {
 console.error("PDF library load failed", error);
+if (returnBlob) return { ok:false, error:error?.message || "pdf_library_load_failed" };
 downloadHtmlReportFallback(html, filename);
 showToast("PDF libraries could not load. Downloaded the HTML executive summary instead.", "error");
 return;
@@ -5196,11 +5206,16 @@ for (let i = 0; i < pages.length; i += 1) {
   if (i > 0) pdf.addPage("letter", "portrait");
   pdf.addImage(imgData, "PNG", 0, 0, 612, 792, undefined, "FAST");
 }
+if (returnBlob) {
+  const blob = pdf.output("blob");
+  return { ok:true, blob, size:blob.size, type:blob.type, pageCount:pages.length };
+}
 pdf.save(filename);
 showToast("Executive Summary PDF downloaded.", "success");
 
 } catch (error) {
 console.error("Executive Summary PDF generation failed", error);
+if (returnBlob) return { ok:false, error:error?.message || "pdf_generation_failed" };
 downloadHtmlReportFallback(html, filename);
 showToast("PDF generation failed. Downloaded the HTML executive summary instead.", "error");
 } finally {
@@ -5338,7 +5353,7 @@ function renderBasisOfRead(result, payload) {
   if (people != null) inputs.push(`${people} people involved`);
   const rate = num(p.hourlyCost) ?? num(p.hourlyRate); if (rate != null) inputs.push(`$${rate}/hr loaded`);
   const vol = num(p.annualVolume) ?? num(p.annualCycles); if (vol != null) inputs.push(`${vol} annual cycles`);
-  const mtg = num(p.meetingHours); if (mtg != null) inputs.push(`${mtg} meeting hrs/wk`);
+  const mtg = num(p.meetingHours); if (mtg != null) inputs.push(`${mtg} coordination hrs/run`);
   const orgN = num(p.employeeCount); if (orgN != null) inputs.push(`organization of ${orgN}`);
   const depthMin = p.diagnostic_depth || p.diagnosticDepth || (typeof state !== "undefined" ? state.depth : null);
   const depthLabel = (typeof depthConfigs !== "undefined" && depthConfigs[String(depthMin)] && depthConfigs[String(depthMin)].label)
