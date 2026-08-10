@@ -475,6 +475,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
 }
 
 @media print{body{background:#FFF}.loading-screen,.env-foot,.frame-top,#questionStage,#processingStage,#downloadPdfBtn,#downloadReportBtn,#newRunBtn{display:none!important}.shell{padding:0}.app{width:100%}.environment{width:100%;box-shadow:none;border:none;border-radius:0;min-height:auto}.environment::before{display:none}.env-head{display:none}.stage{display:none!important}#resultsStage{display:block!important;padding:0}.report-only{display:block}.results-layout{gap:18px;padding:22px 26px}.score-panel,.summary-card,.result-card,.chart-card,.signal-tile,.report-header,.export-summary-card{break-inside:avoid;page-break-inside:avoid}.score-panel{background:#08383E!important;color:#FFF!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.summary-grid,.grid-2,.tiles-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.chart-wrap{height:220px;min-height:220px}body.print-summary-mode #resultsStage > *{display:none!important}body.print-summary-mode #resultsStage .report-header,body.print-summary-mode #resultsStage .score-panel,body.print-summary-mode #resultsStage .export-summary-card,body.print-summary-mode #resultsStage .results-disclaimer{display:block!important}body.print-summary-mode #resultsStage .score-panel{margin-top:0!important}body.print-summary-mode #resultsStage .report-header{margin-bottom:14px!important}body.print-summary-mode #resultsStage .export-summary-card{margin-top:14px!important}.results-layout::after{content:"Prepared by Monderman's diagnostic engine • Directional, user-input-based structural clarity output";display:block;margin-top:20px;padding-top:14px;border-top:1px solid rgba(24,25,28,.10);font-size:.8rem;color:#6E6F73}}
+@media print{#resultsStage,#resultsStage *{font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif!important}}
 /* ── Cover page ─────────────────────────────────── */
 #coverPage{display:none}
 @media print{
@@ -785,7 +786,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
               <span class="insight-depth-value" id="insightDepthValue">--</span>
               <span class="score-meta-pill" id="insightDepthBand">--</span>
               <span class="insight-help" id="insightDepthInfo" tabindex="0">ⓘ</span>
-              <span class="tooltip-panel" id="insightDepthTooltip">A quality-of-signal score, not a quality-of-answer score. For a single run, this score reflects only the depth of this run (10/30/60-minute) and the participant's self-reported confidence. A single run from a single perspective is always a narrow first signal regardless of how thoughtful it was. Comprehensive reads emerge from multiple perspectives, multiple runs over time, and cross-diagnostic synthesis. The synthesis tool computes a composite: breadth (12 points per distinct instrument), respondent depth (up to 38 points as more people take the same instrument — 5+ moderate, 20+ high, 50+ poll-grade), and vantage coverage (operational / managerial / executive). Single runs cap at 8 by design; added data spends the remaining points. <a href="https://www.monderman.com/research.html" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:8px;color:#8fb0d6;">Learn more about how this is calculated →</a></span>
+              <span class="tooltip-panel" id="insightDepthTooltip">A quality-of-signal score, not a quality-of-answer score. For a single run, this score reflects only the depth of this run (10/30/60-minute) and the participant's self-reported confidence. A single run from a single perspective is always a narrow first signal regardless of how thoughtful it was. Comprehensive reads emerge from multiple perspectives, multiple runs over time, and cross-diagnostic synthesis. The synthesis tool computes a composite: breadth (12 points per distinct instrument), respondent depth (up to 38 points as more people take the same instrument — 5+ emerging, 20+ broad, 50+ high-participation), and vantage coverage (operational / managerial / executive). Single runs cap at 8 by design; added evidence uses the remaining points. <a href="https://www.monderman.com/research.html" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:8px;color:#8fb0d6;">Learn more about how this is calculated →</a></span>
             </div>
             <p class="insight-depth-copy" id="insightDepthCopy">Broader participation, depth, and cross-synthesis make the output more defensible.</p>
           </div>
@@ -794,7 +795,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
       <div class="score-meta-strip"><div class="score-meta-note"><span class="score-meta-pill" id="scoreMetaIndustry">Industry: --</span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaShapeText">Clarity profile: --</span> <span class="insight-help" id="profileShapeInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="profileShapeTooltip"><strong>Clarity profile</strong><br>Concentrated means one dimension is clearly the primary legibility constraint. Distributed means clarity weaknesses are spread across dimensions. Self-contradictory means structural layers are producing incompatible signals.</span></span></span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaTrajectoryText">Trajectory: --</span> <span class="insight-help" id="trajectoryInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="trajectoryTooltip"><strong>Trajectory</strong><br>Trajectory indicates whether structural clarity appears to be eroding, holding steady, or improving based on the current signal pattern.</span></span></span></div></div>
     </div></section>
 
-    <section class="primary-waterfall"><div class="viz-card"><h4>Structural clarity by dimension</h4><div class="bar-stack" id="clarityDimensionBars"><p class="viz-note" id="clarityDimensionNote">Clarity dimension breakdown will appear here after scoring.</p></div></div><div class="viz-card"><h4>Where the capacity goes</h4><div id="effortFlowSankey"></div><p class="viz-note">Total annual capacity split across productive effort, structural overhead, and recoverable burden — midpoint of the modeled range, directional, not audited.</p></div></section>
+    <section class="primary-waterfall"><div class="viz-card"><h4>Structural clarity by dimension</h4><div class="bar-stack" id="clarityDimensionBars"><p class="viz-note" id="clarityDimensionNote">Clarity dimension breakdown will appear here after scoring.</p></div></div><div class="viz-card"><h4>Where the capacity goes</h4><div id="effortFlowSankey"></div><p class="viz-note">Total annual capacity split across productive effort, structural overhead, and the published recoverable-cost estimate — directional, not audited.</p></div></section>
 
     <section class="diagnosis-grid">
       <article class="diagnosis-card"><p class="summary-label">Legibility condition</p><p class="summary-value" id="cycleConditionValue">--</p><p class="summary-sub tight" id="cycleConditionSub">Overall structural clarity read</p></article>
@@ -844,13 +845,13 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
 
         <article class="accordion-section" data-accordion="benchmark">
           <button class="accordion-header" type="button">
-            <div class="accordion-header-main"><span class="accordion-title">Benchmark position</span><span class="accordion-sub">Industry range, opportunity range, and directional trajectory.</span></div>
+            <div class="accordion-header-main"><span class="accordion-title">Benchmark position</span><span class="accordion-sub">Structure-type benchmark, separate sector context, and directional trajectory.</span></div>
             <span class="accordion-chevron">⌄</span>
           </button>
           <div class="accordion-body">
             <div class="benchmark-shell">
               <div class="viz-grid">
-                <div class="viz-card"><h4>Industry positioning gauge</h4><div class="gauge-wrap"><div class="half-gauge" id="industryGauge"></div><div class="gauge-labels"><span>Below range</span><span>Within range</span><span>Above range</span><span>Opportunity</span></div></div></div>
+                <div class="viz-card"><h4>Sector positioning context</h4><div class="gauge-wrap"><div class="half-gauge" id="industryGauge"></div><div class="gauge-labels"><span>Below range</span><span>Within range</span><span>Above range</span><span>Opportunity</span></div></div></div>
                 <div class="viz-card"><h4>Trajectory</h4><div class="trajectory-inline"><div id="trajectoryChipMount"></div><div class="sparkline-wrap"><svg class="sparkline" id="trajectorySparkline" viewBox="0 0 120 34" preserveAspectRatio="none"></svg></div></div><p class="viz-note" id="trajectorySparklineNote">Trajectory interpretation will appear here after scoring.</p></div>
               </div>
               <section class="summary-grid">
@@ -893,7 +894,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
           <div class="accordion-body">
             <div class="detail-content" id="detailContent">
               <section class="grid-2">
-                <article class="chart-card"><h3>Governance Weight × Execution Responsiveness</h3><div class="quadrant-wrap"><div class="quad-with-yaxis"><div class="axis-y">Structural legibility</div><div class="quadrant-box"><div class="q-label q-tl">High legibility<br>Low governance</div><div class="q-label q-tr">High legibility<br>High governance</div><div class="q-label q-bl">Low legibility<br>Low governance</div><div class="q-label q-br">Low legibility<br>High governance</div><div class="quad-dot" id="quadDot"></div></div></div><div class="axis-x">Governance weight</div><div class="quad-guide-grid"><div class="quad-guide"><strong>Quadrant interpretation</strong><p class="tiny" id="quadrantInterpretationText">Quadrant interpretation will appear here after scoring.</p></div></div></div></article>
+                <article class="chart-card"><h3>Governance Weight × Structural Legibility</h3><div class="quadrant-wrap"><div class="quad-with-yaxis"><div class="axis-y">Structural legibility</div><div class="quadrant-box"><div class="q-label q-tl">High legibility<br>Low governance</div><div class="q-label q-tr">High legibility<br>High governance</div><div class="q-label q-bl">Low legibility<br>Low governance</div><div class="q-label q-br">Low legibility<br>High governance</div><div class="quad-dot" id="quadDot"></div></div></div><div class="axis-x">Governance weight</div><div class="quad-guide-grid"><div class="quad-guide"><strong>Quadrant interpretation</strong><p class="tiny" id="quadrantInterpretationText">Quadrant interpretation will appear here after scoring.</p></div></div></div></article>
                 <article class="result-card"><h3>Time, money, and resources</h3><p class="result-copy" id="tmrText"></p><div class="compact-card" style="margin-top:14px;"><h3>Trade-off note</h3><p class="result-copy" id="tradeoffText"></p></div></article>
               </section>
               <section class="grid-2"><article class="chart-card"><h3>Structural gaps</h3><div class="chart-wrap"><canvas id="gapChart"></canvas></div></article><article class="chart-card"><h3>Dimension profile</h3><div class="chart-wrap"><canvas id="dimensionChart"></canvas></div></article></section>
@@ -3232,10 +3233,20 @@ return {
 }
 
 function derivePrimaryBurdenSource(result) {
-// Read from canonical_composition — single source of truth.
-// Eliminates the incorrect control_load → "Manual workaround dependence" mapping
-// and the Math.max(systems_friction, workaround_dependence) merger that was
-// silently dropping whichever value was smaller.
+// Structural Clarity's canonical descriptor is the source of truth. The old
+// fallback below uses Decision Velocity labels, so it must never outrank the
+// descriptor on a current run.
+const descriptor = result?.canonical_descriptor || {};
+const primary = descriptor?.composition?.primary;
+if (descriptor.primary_constraint_label) {
+  return {
+    label: descriptor.primary_constraint_label,
+    value: primary?.weakness != null && Number.isFinite(Number(primary.weakness)) ? Number(primary.weakness) : null,
+    pct: descriptor.primary_constraint_pct != null && Number.isFinite(Number(descriptor.primary_constraint_pct)) ? Number(descriptor.primary_constraint_pct) : null,
+    note: descriptor.primary_constraint_note || "This dimension is the largest measured constraint on structural legibility."
+  };
+}
+// Legacy fallback for saved runs without a Structural Clarity descriptor.
 const pattern = getBurdenCompositionPattern(result);
 if (pattern.dominant && pattern.dominant.label !== "No dominant source") {
   // Note prose now sourced from canonical_descriptor.dominant_burden_note,
@@ -3263,13 +3274,18 @@ return { label: "Distributed clarity weakness", note: "No single clarity constra
 }
 
 function buildInterpretiveState(result, payload) {
-// Passthrough — backend scoreOperationalSystems.js writes
-// result.interpretive_state with governanceWeight, execResponsive,
-// quadrantKey, and governanceInputs. The axis blend weights, regPoints/
-// typePoints/peoplePoints/meetingPoints/sizePoints scales, and
-// stretchAxis calibration constants used to live here; migrated to
-// backend on 2026-05-13.
 const backendState = result?.interpretive_state || {};
+const dimensions = result?.dimensions || {};
+const governanceCandidate = backendState.governanceWeight ?? (
+  dimensions.duplicate_approvals_inverse != null && Number.isFinite(Number(dimensions.duplicate_approvals_inverse))
+    ? 100 - Number(dimensions.duplicate_approvals_inverse)
+    : null
+);
+const legibilityCandidate = backendState.structuralLegibility ?? backendState.execResponsive ?? (
+  result?.score != null && Number.isFinite(Number(result.score)) ? Number(result.score) : null
+);
+const governanceWeight = governanceCandidate != null && Number.isFinite(Number(governanceCandidate)) ? Number(governanceCandidate) : null;
+const structuralLegibility = legibilityCandidate != null && Number.isFinite(Number(legibilityCandidate)) ? Number(legibilityCandidate) : null;
 const benchmarkPos = result?.benchmark_position || "Industry range comparison";
 const topFocus = (asArray(result?.intervention_priority_ladder || result?.canonical_descriptor?.priority_ladder)[0]?.focus) || derivePrimaryBurdenSource(result).label;
 const directionSummary =
@@ -3277,9 +3293,10 @@ const directionSummary =
   result?.trajectory?.direction === "down" ? "burden pressure is easing" :
                                               "burden pressure is relatively steady";
 return {
-  governanceWeight:     Number(backendState.governanceWeight ?? 50),
-  execResponsive:       Number(backendState.execResponsive   ?? 50),
-  quadrantKey:          backendState.quadrantKey || "lower_right",
+  governanceWeight,
+  structuralLegibility,
+  execResponsive:       structuralLegibility,
+  quadrantKey:          backendState.quadrantKey || "condition_not_measured",
   benchmarkPos,
   topFocus,
   sectorLabel:          resolveIndustryLabel(result, payload, { titleCase: false }),
@@ -3488,13 +3505,33 @@ benchmarkMarker.style.left = `${score}%`;
 }
 
 function renderQuadrant(result) {
-const stateObj = result.__interpretiveState || buildInterpretiveState(result, {});
 const quadDot = $("quadDot");
 const text = $("quadrantInterpretationText");
 if (!quadDot) return;
-quadDot.style.left = `${stateObj.governanceWeight}%`;
-quadDot.style.top = `${100 - stateObj.execResponsive}%`;
+const coordinates = getQuadrantCoordinates(result);
+if (coordinates) {
+  quadDot.style.display = "block";
+  quadDot.style.left = `${coordinates.left}%`;
+  quadDot.style.top = `${coordinates.top}%`;
+} else {
+  quadDot.style.display = "none";
+  quadDot.style.left = "";
+  quadDot.style.top = "";
+}
 if (text) text.textContent = buildQuadrantInterpretation(result);
+}
+
+function getQuadrantCoordinates(result) {
+const stateObj = result?.__interpretiveState || buildInterpretiveState(result || {}, {});
+const governanceRaw = stateObj?.governanceWeight;
+const legibilityRaw = stateObj?.structuralLegibility ?? stateObj?.execResponsive;
+const governance = Number(governanceRaw);
+const legibility = Number(legibilityRaw);
+if (governanceRaw == null || legibilityRaw == null || !Number.isFinite(governance) || !Number.isFinite(legibility)) return null;
+return {
+  left: Math.max(8, Math.min(92, governance)),
+  top: Math.max(8, Math.min(92, 100 - legibility))
+};
 }
 
 function chartOptions() {
@@ -3876,7 +3913,9 @@ function renderEffortFlow(result) {
 
     // recoverable burden, apportioned by canonical composition (fallback: burden_breakdown)
     let dims = [];
-    const segs = (result && result.canonical_composition && result.canonical_composition.segments) || [];
+    const segs = (result && result.canonical_descriptor && result.canonical_descriptor.composition && result.canonical_descriptor.composition.segments)
+      || (result && result.canonical_composition && result.canonical_composition.segments)
+      || [];
     if (segs.length) {
       dims = segs.map(function (s) { return { label: s.label || s.key || "", cost: reclaimCost * ((Number(s.pct) || 0) / 100) }; })
                  .filter(function (d) { return d.cost > 0; });
@@ -3894,7 +3933,7 @@ function renderEffortFlow(result) {
       productiveCost: productiveCost, productiveHours: productiveHours,
       structuralCost: structuralCost, reclaimCost: reclaimCost,
       dims: dims,
-      note: "Directional estimate at the midpoint of the modeled range. Dimension dollars apportion the recoverable burden by composition \u2014 not audited."
+      note: "Published directional estimate. Dimension dollars apportion the recoverable burden by measured clarity weakness - not audited."
     });
 
     // The Sankey supersedes the segmented bar — hide the now-redundant bar, legend, and note.
@@ -4465,7 +4504,7 @@ const otherRoles = role === "senior_leader"
 : role === "managerial"
 ? "operational and senior-leader perspectives"
 : "managerial and senior-leader perspectives";
-const crossRoleBullet = `Run this diagnostic from ${otherRoles} to test whether the same weak spot shows up at every level or is concentrated in specific roles. If different levels see it differently, the issue is about distribution, not the structure itself.`;
+const crossRoleBullet = `Run this diagnostic from ${otherRoles} to test whether the same weak spot shows up at every level or is concentrated in specific roles. If different levels see it differently, that may indicate uneven visibility, different structural exposure, or both.`;
 
 // Longitudinal comparison: gated on trajectory direction so the cadence
 // recommendation matches what this run actually surfaced.
@@ -4534,6 +4573,17 @@ const primarySource = (() => {
   return derivePrimaryBurdenSource(result || {});
 })();
 const stateObj = buildInterpretiveState(result || {}, payload || {});
+const coverage = result?.measurement_coverage || result?.dimension_coverage || {};
+const measuredDimensionCount = Number(coverage.measured_dimension_count);
+const totalDimensionCount = Number(coverage.total_dimension_count || (
+  Number.isFinite(measuredDimensionCount) && Array.isArray(coverage.unmeasured_dimensions)
+    ? measuredDimensionCount + coverage.unmeasured_dimensions.length
+    : 0
+));
+const coveragePercent = Number(coverage.coverage_percent);
+const coverageText = Number.isFinite(measuredDimensionCount) && totalDimensionCount > 0
+  ? `${measuredDimensionCount} of ${totalDimensionCount} dimensions measured${Number.isFinite(coveragePercent) ? ` (${Math.round(coveragePercent)}%)` : ""}`
+  : "Coverage metadata unavailable";
 const exportScore = Math.max(0, Math.min(100, Math.round(Number(result?.score || 0))));
 const processName = payload?.processName || payload?.process_name || "Structural Clarity Diagnostic";
 const benchmarkPosition = result?.benchmark_position || "Industry range comparison";
@@ -4618,10 +4668,10 @@ const contradictions = asArray(result?.contradictions);
 const quadrantText = buildQuadrantInterpretation({ ...(result || {}), __interpretiveState: stateObj });
 // SC quadrant: X = governance weight (duplicate_approvals), Y = legibility (score)
 const scDims = result?.dimensions || {};
-const scGovWeight = Math.max(8, Math.min(92, 100 - Number(scDims.duplicate_approvals_inverse ?? stateObj.governanceWeight ?? 50)));
-const scLegibility = Math.max(8, Math.min(92, Number(result?.score ?? stateObj.execResponsive ?? 50)));
-const qLeft = scGovWeight;
-const qTop = Math.max(8, Math.min(92, 100 - scLegibility));
+const quadrantCoordinates = getQuadrantCoordinates({ ...(result || {}), __interpretiveState: stateObj });
+const qLeft = quadrantCoordinates?.left ?? 50;
+const qTop = quadrantCoordinates?.top ?? 50;
+const quadrantDotHtml = quadrantCoordinates ? `<div class="qdot" style="left:${qLeft}%;top:${qTop}%"></div>` : "";
 const primaryReadLabel = buildPrimaryReadLabel(result || {}, payload || {});
 const primaryReadSummary = buildPrimaryReadSummary(result || {}, payload || {});
 const executiveQuestion = buildLeadershipQuestion(result || {}, payload || {}, "executive");
@@ -4721,7 +4771,7 @@ const decisionReviewPageNumber = hasExperienceLayer ? 7 : 6;
 const updateReadPageNumber = decisionReviewPageNumber + 1;
 const remedyPageNumber = updateReadPageNumber + 1;
 const methodPageNumber = remedyPageNumber + 1;
-const experienceReportPage = hasExperienceLayer ? '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p>This optional layer records how the workflow is experienced from the selected vantage point and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal process description and lived operating reality diverge.</p><div class="panel" style="margin:16px 0 18px"><h3>Experiential synthesis</h3><p>' + safeWords(experienceSynthesis, 88) + '</p><p class="muted">' + safeWords(experienceCaveat, 50) + '</p></div><div class="exp-grid">' + experienceCards + '</div><div class="panel bench"><p><b>Leadership question.</b> ' + safe(buildLeadershipQuestion(result || {}, payload || {}, "experience")) + '</p><p><b>How to use this layer.</b> Treat these notes as a way to plan follow-up conversations. If the same signal appears across operational, managerial, and senior-leader runs, it becomes more useful as a governance input. If it appears in only one lens, it is still valuable, but it should be read as a clue rather than a conclusion.</p></div></div></section>' : '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p style="margin-top:24px;color:var(--ink-soft);">No participant notes were provided for this run. This section will populate when the participant adds first-person observations about how the pathway is experienced across operational, managerial, and senior-leader levels.</p></div></section>';
+const experienceReportPage = hasExperienceLayer ? '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p>This optional layer records how the workflow is experienced from the selected vantage point and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal process description and lived operating reality diverge.</p><div class="panel" style="margin:16px 0 18px"><h3>Experiential synthesis</h3><p>' + safeWords(experienceSynthesis, 88) + '</p><p class="muted">' + safeWords(experienceCaveat, 50) + '</p></div><div class="exp-grid">' + experienceCards + '</div><div class="panel bench"><p><b>Leadership question.</b> ' + safe(buildLeadershipQuestion(result || {}, payload || {}, "experience")) + '</p><p><b>How to use this layer.</b> Treat these notes as a way to plan follow-up conversations. If the same signal appears across operational, managerial, and senior-leader runs, it becomes more useful as a governance input. If it appears in only one lens, it is still valuable, but it should be read as a clue rather than a conclusion.</p></div></div></section>' : '';
 const narrativeForReport = asObject(result?.narrative);
 const defaultReadings = [
 { label: "Legibility failure read", interpretation: "The structure exists on paper but cannot be read clearly enough in practice — ownership, authority, or handoffs require interpretation rather than observation.", what_would_distinguish_it: "A cross-role run would show whether multiple perspectives describe the same ambiguity or whether it is concentrated at one level." },
@@ -4801,7 +4851,7 @@ return `<!doctype html>
   @page { size: letter; margin: 0; }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; width: 8.5in; background: #fff; }
-  body { color: #18191C; font-family: "Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body, body * { color: #18191C; font-family: "Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .page { width: 8.5in; height: 11in; padding: .78in .76in .62in .76in; page-break-after: always; position: relative; overflow: hidden; background: #fff; }
   .page:last-child { page-break-after: auto; }
   .top { position: absolute; top: .56in; left: .76in; right: .76in; height: .24in; border-bottom: 1px solid #EAE6DD; padding-bottom: .28in; }
@@ -4978,11 +5028,11 @@ return `<!doctype html>
 <section class="page">
   ${footer(2)}
   <div class="content">
-    <p class="eyebrow">The pattern this run is detecting</p><h2>Headline finding</h2>
+    <p class="eyebrow">The pattern this run is detecting</p><h2>Structural clarity finding</h2>
     <p class="lede">${capitalizeFirst(safeWords(harmonized.headlineFinding || summary.body, 84))}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(executiveQuestion)}</p></div>
     <p>Directional modeling suggests ${safe(annualHoursText)} and about ${safe(annualCostText)} in labor exposure, with capacity drag around ${dragPct}%*. These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
-    <p>The question is not whether work is getting done — it is how much extra effort it takes to get there. When the structure is not clear, people spend time figuring out who owns what, asking for clarification, and coordinating around the gaps. That effort is the hidden cost. Notes added by participants do not change the score; they just show how the ambiguity feels at different levels of the organization.</p><p>When a team has to keep asking managers to settle ownership, or escalating to get unstuck, the work may still look fine on the surface while the cost of working around the structure keeps climbing.</p>
+    <p>The question is not whether work is getting done — it is how much extra effort it takes to get there. When the structure is unclear, people spend time resolving ownership, seeking clarification, and coordinating around gaps. Participant notes do not change the score; they provide context about how those gaps are experienced.</p>
     <div class="capacity"><div class="seg" style="width:${capacity.productive}%;background:#3C8A60">${capacity.productive}%</div><div class="seg" style="width:${capacity.admin}%;background:#C9821F">${capacity.admin}%</div><div class="seg" style="width:${capacity.drag}%;background:#B0392F">${capacity.drag}%</div></div>
     <div class="legend"><span><span class="dot" style="background:#3C8A60"></span>Productive work</span><span><span class="dot" style="background:#C9821F"></span>Routine coordination</span><span><span class="dot" style="background:#B0392F"></span>Recoverable ambiguity cost*</span></div>
     <p class="muted" style="font-size:8.5px">Estimates of how this pathway's available capacity is currently allocated. Recoverable ambiguity cost* is the portion that could be returned to productive use through structural intervention.</p>
@@ -5020,9 +5070,9 @@ return `<!doctype html>
 <section class="page">
   ${footer(5)}
   <div class="content">
-    <p class="eyebrow">Evidence and detail</p><h2 style="font-size:21px;margin-bottom:8px">Governance weight × execution responsiveness</h2>
-    <p style="margin-bottom:8px">This view places the run on two axes: how much governance weight the pathway is carrying, and how responsive execution appears under that weight.</p>
-    <div class="panel quadbox"><div class="axis-y">Structural legibility</div><div class="quad"><div class="qlabel" style="left:12px;top:12px">High legibility,<br>lighter governance</div><div class="qlabel" style="right:12px;top:12px;text-align:right">High legibility,<br>heavier governance</div><div class="qlabel" style="left:12px;bottom:12px">Low legibility,<br>lighter governance</div><div class="qlabel" style="right:12px;bottom:12px;text-align:right">Low legibility,<br>heavier governance</div><div class="qdot" style="left:${qLeft}%;top:${qTop}%"></div></div><div class="axis-x">Governance weight</div></div>
+    <p class="eyebrow">Evidence and detail</p><h2 style="font-size:21px;margin-bottom:8px">Governance weight × structural legibility</h2>
+    <p style="margin-bottom:8px">This view places the run on two axes: how much governance weight the pathway is carrying, and how legible the structure is under that weight.</p>
+    <div class="panel quadbox"><div class="axis-y">Structural legibility</div><div class="quad"><div class="qlabel" style="left:12px;top:12px">High legibility,<br>lighter governance</div><div class="qlabel" style="right:12px;top:12px;text-align:right">High legibility,<br>heavier governance</div><div class="qlabel" style="left:12px;bottom:12px">Low legibility,<br>lighter governance</div><div class="qlabel" style="right:12px;bottom:12px;text-align:right">Low legibility,<br>heavier governance</div>${quadrantDotHtml}</div><div class="axis-x">Governance weight</div></div>
     <h3>How to read this quadrant</h3><p>${safeWords(quadrantText, 80)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(quadrantQuestion)}</p></div>
     ${contradictionHtml}
@@ -5048,7 +5098,7 @@ ${decisionReviewPage}
   ${footer(methodPageNumber)}
   <div class="content">
     <p class="eyebrow">How to read this report</p><h2>How this was produced</h2>
-    <p>This diagnostic measures structural clarity across five dimensions: role clarity, decision rights clarity, handoff integrity, accountability clarity, and governance proportionality. It also estimates the amount of productive capacity being absorbed by structural ambiguity — the compensation, clarification, and escalation that occurs when the structure is not legible enough to act on directly. The diagnostic does not independently verify user inputs; it should be read as a directional structural read rather than a full audit.</p>
+    <p>This diagnostic measures structural clarity across five dimensions: role clarity, decision rights clarity, handoff integrity, accountability clarity, and governance proportionality. This run covered ${safe(coverageText)}; unmeasured dimensions were excluded rather than scored. It also estimates the amount of productive capacity being absorbed by structural ambiguity — the compensation, clarification, and escalation that occurs when the structure is not legible enough to act on directly. The diagnostic does not independently verify user inputs; it should be read as a directional structural read rather than a full audit.</p>
     <div class="rule"></div>
     <div class="ring-row"><svg class="ring" viewBox="0 0 58 58"><circle cx="29" cy="29" r="23" fill="none" stroke="#EAE6DD" stroke-width="7"/><circle cx="29" cy="29" r="23" fill="none" stroke="#C9821F" stroke-width="7" stroke-dasharray="${insight.available ? Math.round(insight.score * 1.45) : 0} 145" transform="rotate(-90 29 29)"/></svg><div><div style="font-size:24px;font-weight:700">${insight.available ? Math.round(insight.score) : "—"}</div><p class="muted">Insight depth score${insight.available ? ` · ${escapeHtml(insight.band)}` : " · Awaiting data"}<br>${insight.available ? "Single-run signal-quality indicator, not a correctness score." : "Insight depth could not be loaded from the diagnostic backend."}</p></div></div>
     <p>${insight.available ? "For a single run from a single perspective, this score reflects the depth of the run and self-reported confidence in the inputs. A single run is always a narrow first signal regardless of how thoughtful it was. To strengthen the read, run this diagnostic from other organizational perspectives and over time; the cross-diagnostic synthesis tool combines those runs and computes a broader insight depth score." : "The insight depth score is computed by the Monderman diagnostic backend. It could not be retrieved for this run; the rest of the report remains valid."}</p>
@@ -5186,12 +5236,11 @@ container.style.cssText = [
 "overflow:visible"
 ].join(";") + ";";
 
-const style = parsed.querySelector("style");
-if (style) {
-const styleEl = document.createElement("style");
-styleEl.textContent = style.textContent;
-container.appendChild(styleEl);
-}
+parsed.querySelectorAll("style").forEach((style) => {
+  const styleEl = document.createElement("style");
+  styleEl.textContent = style.textContent;
+  container.appendChild(styleEl);
+});
 const bodyWrap = document.createElement("div");
 bodyWrap.style.cssText = "width:816px;background:#fff;overflow:visible;";
 bodyWrap.innerHTML = parsed.body.innerHTML;
@@ -5204,6 +5253,13 @@ if (container && container.parentNode) container.parentNode.removeChild(containe
 
 try {
 await (document.fonts?.ready || Promise.resolve());
+if (document.fonts?.load) {
+  await Promise.allSettled([
+    document.fonts.load('400 16px "Neue Haas Grotesk"'),
+    document.fonts.load('500 16px "Neue Haas Grotesk"'),
+    document.fonts.load('700 16px "Neue Haas Grotesk"')
+  ]);
+}
 await waitForImages(bodyWrap);
 await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
@@ -5217,6 +5273,12 @@ pages.forEach((page) => {
 });
 
 const pdf = new libs.jsPDF({ unit: "pt", format: "letter", orientation: "portrait", compress: true });
+pdf.setProperties({
+  title: "Monderman Structural Clarity Diagnostic",
+  subject: "Directional structural clarity diagnostic report",
+  author: "Monderman",
+  creator: "Monderman diagnostic engine"
+});
 for (let i = 0; i < pages.length; i += 1) {
   const page = pages[i];
   const canvas = await libs.html2canvas(page, {
@@ -5234,6 +5296,16 @@ for (let i = 0; i < pages.length; i += 1) {
   });
   const imgData = canvas.toDataURL("image/png");
   if (i > 0) pdf.addPage("letter", "portrait");
+  // Preserve a searchable text layer under the visual page image. The PDF is
+  // still visually identical, while copy/search and basic document inspection
+  // no longer see an image-only file.
+  const searchableText = String(page.innerText || "").replace(/\s+/g, " ").trim();
+  if (searchableText) {
+    pdf.setFontSize(3);
+    pdf.setTextColor(255, 255, 255);
+    const textLines = pdf.splitTextToSize(searchableText, 588).slice(0, 240);
+    pdf.text(textLines, 12, 12, { baseline: "top", lineHeightFactor: 1.05 });
+  }
   pdf.addImage(imgData, "PNG", 0, 0, 612, 792, undefined, "FAST");
 }
 if (returnBlob) {
@@ -5392,8 +5464,17 @@ function renderBasisOfRead(result, payload) {
   const laneLabel = (typeof laneConfigs !== "undefined" && laneConfigs[mode] && laneConfigs[mode].label) || (mode ? String(mode) : "\u2014");
   const cfg = (typeof state !== "undefined" && state.configVersion) ? state.configVersion : "\u2014";
   const scorer = (result && result.scorer_version) ? result.scorer_version : "\u2014";
+  const coverage = result?.measurement_coverage || result?.dimension_coverage || {};
+  const measuredCount = num(coverage.measured_dimension_count);
+  const totalCount = num(coverage.total_dimension_count)
+    ?? ((measuredCount != null && Array.isArray(coverage.unmeasured_dimensions)) ? measuredCount + coverage.unmeasured_dimensions.length : null);
+  const coveragePct = num(coverage.coverage_percent);
+  const coverageText = measuredCount != null && totalCount != null
+    ? `${measuredCount} of ${totalCount} dimensions measured${coveragePct != null ? ` (${Math.round(coveragePct)}%)` : ""}`
+    : "Coverage metadata unavailable";
   const rows = [
-    ["Sector", esc(calTxt)],
+    ["Sector context", esc(calTxt)],
+    ["Measured coverage", esc(coverageText)],
     ["Disclosed inputs", esc(inputs.length ? inputs.join(" \u00b7 ") : "none beyond the structured answers")],
     ["Depth \u00b7 vantage", esc(`${depthLabel} \u00b7 ${laneLabel}`)],
     ["Instrument version", `<code style="font-size:.85em">config ${esc(cfg)} \u00b7 scorer ${esc(scorer)}</code>`]
@@ -5404,7 +5485,13 @@ function renderResults(result, payload, outputMode) {
 try { renderBasisOfRead(result, payload); } catch (_e) {}
 
 const harmonized = buildHarmonizedNarrative(result, payload);
-const resultWithState = { ...result, __interpretiveState: harmonized.state };
+const resultWithState = {
+  ...result,
+  __interpretiveState: {
+    ...buildInterpretiveState(result, payload),
+    ...(harmonized.state || {})
+  }
+};
 const burdenCondition = deriveOperatingBurdenCondition(result);
 const burdenConstraint = derivePrimaryBurdenSource(result);
 const burdenDiagnosis = deriveBurdenDiagnosis(result, payload);
@@ -5434,13 +5521,13 @@ $("benchmarkSub").textContent = "Read as context, not comfort.";
 $("trajectoryValue").textContent = result?.trajectory?.label || "--";
 $("trajectoryValueSub").textContent = result?.trajectory?.note || "Directional signal";
 (function(){
-  let amt = reclaim && reclaim.amount ? reclaim.amount : null;
-  if(!amt && result?.exposure?.annual_cost) amt = Math.round(Number(result.exposure.annual_cost) * 0.6);
-  $("reclaimValue").textContent = amt ? formatEstimateCurrencyRange(amt) : "Not estimated";
-  // Caption must follow whether a value rendered. SC sends no reclaim_potential, so the
-  // fallback driverText ("could not be loaded") must never sit under the 60% fallback value.
+  const canonicalRecovery = Number(result?.exposure?.recoverable_cost);
+  const amt = Number.isFinite(canonicalRecovery) && canonicalRecovery > 0
+    ? canonicalRecovery
+    : (reclaim && Number(reclaim.amount) > 0 ? Number(reclaim.amount) : null);
+  $("reclaimValue").textContent = amt ? formatCurrency(amt) : "Not estimated";
   $("reclaimSub").textContent = amt
-    ? ((reclaim && reclaim.amount && reclaim.driverText) || "Directional estimate of capacity that may be recoverable if the primary clarity constraint is addressed first.")
+    ? "Directional range centered on the same recoverable-cost estimate used throughout this report."
     : "Directional estimate could not be loaded for this run.";
 })();
 
@@ -5719,14 +5806,53 @@ showToast("Report download failed: " + (error.message || "Unknown error"));
 }
 }
 
+function buildStandaloneResultsHTML() {
+const source = document.getElementById("resultsStage");
+if (!source) return "<p>Results not available</p>";
+const clone = source.cloneNode(true);
+clone.classList.add("active");
+clone.style.display = "block";
+
+// Canvas pixels are not part of innerHTML. Replace each visible chart with an
+// image snapshot so the standalone file carries the same evidence as the page.
+const sourceCanvases = Array.from(source.querySelectorAll("canvas"));
+Array.from(clone.querySelectorAll("canvas")).forEach((canvas, index) => {
+  const original = sourceCanvases[index];
+  if (!original) return;
+  try {
+    const image = document.createElement("img");
+    image.src = original.toDataURL("image/png");
+    image.alt = original.getAttribute("aria-label") || "Diagnostic chart";
+    image.className = "exported-chart-image";
+    canvas.replaceWith(image);
+  } catch (_error) {
+    canvas.replaceWith(document.createTextNode("Chart unavailable in this export."));
+  }
+});
+
+clone.querySelectorAll(".accordion-toolbar,.accordion-chevron,.tooltip-panel,.insight-help,.export-cta-stack,.hidden-download,#opportunityGateWrap,.report-only").forEach((node) => node.remove());
+clone.querySelector('[data-accordion="export"]')?.remove();
+clone.querySelectorAll(".accordion-section.hidden").forEach((node) => node.remove());
+clone.querySelectorAll(".accordion-section").forEach((section) => section.classList.add("open"));
+clone.querySelectorAll(".accordion-body").forEach((body) => {
+  body.style.maxHeight = "none";
+  body.style.opacity = "1";
+  body.style.overflow = "visible";
+  body.style.transform = "none";
+});
+clone.querySelector("#opportunityRevealWrap")?.classList.remove("hidden");
+clone.querySelector("#remedyTreeWrap")?.classList.remove("hidden");
+return clone.outerHTML;
+}
+
 function buildFullReportHTML(result, payload, title) {
 const docTitle = escapeHtml(title);
 const processName = escapeHtml(payload.processName || payload.process_name || "Structural Clarity");
 const generated = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
-
-// Get current results HTML from DOM
-const resultsStage = document.getElementById("resultsStage");
-const resultsHTML = resultsStage ? resultsStage.innerHTML : "<p>Results not available</p>";
+const resultsHTML = buildStandaloneResultsHTML();
+const sourceStyles = Array.from(document.querySelectorAll("style"))
+  .map((style) => style.textContent || "")
+  .join("\n");
 
 return `<!DOCTYPE html>
 
@@ -5736,6 +5862,7 @@ return `<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${docTitle}</title>
   <style>
+    ${sourceStyles}
     ${getReportStyles()}
   </style>
 <style>
@@ -5769,7 +5896,7 @@ return `<!DOCTYPE html>
 }
 
 function getReportStyles() {
-return `* { box-sizing: border-box; } html, body { margin: 0; padding: 0; font-family: "Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif; } body { background: #fff; color: #18191C; line-height: 1.6; } .report-wrapper { max-width: 1200px; margin: 0 auto; padding: 40px; } .report-header-section { margin-bottom: 40px; padding-bottom: 30px; border-bottom: 1px solid rgba(24, 25, 28, 0.1); } .report-wordmark { font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #0C6E78; margin-bottom: 16px; } .report-title-block h1 { margin: 0 0 8px; font-size: 2.5rem; line-height: 1; letter-spacing: -0.04em; } .report-meta { margin: 0; font-size: 0.95rem; color: #6E6F73; } .report-content { margin-bottom: 40px; } .report-footer-section { padding-top: 30px; border-top: 1px solid rgba(24, 25, 28, 0.1); font-size: 0.85rem; color: #9A9892; } @media print { body { background: #fff; } .report-wrapper { padding: 20px; } }`;
+return `* { box-sizing: border-box; } html, body { margin: 0; padding: 0; font-family: "Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif; } body { background: #fff; color: #18191C; line-height: 1.6; } .report-wrapper,.report-wrapper * { font-family: "Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif !important; } .report-wrapper { max-width: 1120px; margin: 0 auto; padding: 40px; } .report-header-section { margin-bottom: 32px; padding-bottom: 26px; border-bottom: 1px solid rgba(24,25,28,.1); } .report-wordmark { font-size: 14px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: #0C6E78; margin-bottom: 16px; } .report-title-block h1 { margin: 0 0 8px; font-size: 2.5rem; line-height: 1; letter-spacing: -.04em; } .report-meta { margin: 0; font-size: .95rem; color: #6E6F73; } .report-content { margin-bottom: 40px; } .report-content #resultsStage { display:block !important; padding:0 !important; } .report-content .results-layout { padding:0; gap:18px; } .report-content .accordion-body { display:block !important; max-height:none !important; opacity:1 !important; overflow:visible !important; transform:none !important; padding:0 22px 22px !important; } .report-content .accordion-section.open .accordion-body { max-height:none !important; } .report-content .accordion-header { cursor:default; pointer-events:none; } .report-content .hidden { display:none !important; } .report-content #opportunityRevealWrap,.report-content #remedyTreeWrap { display:block !important; } .report-content .exported-chart-image { display:block; width:100%; height:auto; max-height:260px; object-fit:contain; } .report-content table { table-layout:fixed; width:100%; } .report-content th,.report-content td { overflow-wrap:anywhere; } .report-footer-section { padding-top:30px; border-top:1px solid rgba(24,25,28,.1); font-size:.85rem; color:#9A9892; } @media print { body { background:#fff; } .report-wrapper { max-width:none; padding:18px; } .report-content .grid-2,.report-content .summary-grid,.report-content .economic-strip,.report-content .diagnosis-grid,.report-content .primary-waterfall,.report-content .viz-grid,.report-content .remedy-grid { grid-template-columns:1fr !important; } .report-content .accordion-section,.report-content .result-card,.report-content .chart-card,.report-content .viz-card { break-inside:avoid; page-break-inside:avoid; overflow:visible !important; } }`;
 }
 
 learnMoreToggle.addEventListener("click", () => learnMorePanel.classList.toggle("show"));
@@ -6116,10 +6243,12 @@ showStage(resultsStage);
     let __pollAttempts = 0;
     const __chartPoll = setInterval(() => {
       __pollAttempts++;
-      if (__chartReady()) {
+      if (window.__mondermanInjectionApplied) {
+        clearInterval(__chartPoll);
+      } else if (__chartReady()) {
         clearInterval(__chartPoll);
         __applyInjection();
-      } else if (__pollAttempts > 250) { // 100 × 100ms = 10s
+      } else if (__pollAttempts > 100) { // 100 × 100ms = 10s
         clearInterval(__chartPoll);
         console.error("Test injection: Chart.js failed to load within 10s; falling back to lane stage.");
         setHeader("Choose participant perspective", "Select the perspective that best matches your role in the workflow, then choose the appropriate diagnostic depth.", "Awaiting selection");
@@ -6149,6 +6278,8 @@ showStage(resultsStage);
 if (typeof window !== "undefined") {
   window.__mondermanTestHooks = {
     buildExecutiveReportHtml: buildExecutiveReportHtml,
+    buildFullReportHTML: buildFullReportHTML,
+    getQuadrantCoordinates: getQuadrantCoordinates,
     downloadExecutiveReportPdf: downloadExecutiveReportPdf,
     exportExecutiveReport: (typeof exportExecutiveReport === "function") ? exportExecutiveReport : null,
     getState: () => state,
