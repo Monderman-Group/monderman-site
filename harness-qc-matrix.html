@@ -272,6 +272,19 @@ async function scrapeDeliverable(fx, result, payload, buildPdf=false) {
     const report={ ok:true, text:(tmp.textContent||"").replace(/\s+/g," ").trim(), length:reportHtml.length,
       pageCount:tmp.querySelectorAll(".page").length };
     if (buildPdf) {
+      if (typeof hooks.buildFullReportHTML === "function") {
+        const fullHtml = hooks.buildFullReportHTML(result, payload, "Monderman Diagnostic Acceptance Report");
+        const fullDoc = new DOMParser().parseFromString(fullHtml, "text/html");
+        fullDoc.querySelectorAll("style,script").forEach((node)=>node.remove());
+        report.fullHtml = {
+          ok: /<html[\s>]/i.test(fullHtml) && /Neue Haas Grotesk/i.test(fullHtml),
+          length: fullHtml.length,
+          text: (fullDoc.body?.textContent||"").replace(/\s+/g," ").trim(),
+          interactiveControls: fullDoc.querySelectorAll(".accordion-toolbar,#opportunityGateWrap,.export-cta-stack,.tooltip-panel").length,
+          closedAccordions: fullDoc.querySelectorAll(".accordion-section:not(.open)").length,
+          reason: ""
+        };
+      }
       if (typeof hooks.downloadExecutiveReportPdf!=="function") report.pdf={ok:false,reason:"pdf_hook_unavailable"};
       else {
         const pdfResult=await hooks.downloadExecutiveReportPdf({returnBlob:true});
@@ -399,6 +412,13 @@ function qc(fx, result, deliverable) {
       const unmeasuredCount=(coverage?.unmeasured_dimensions||[]).length;
       if (unmeasuredCount) add("deliverable_marks_unmeasured", ((deliverable.text||"").match(/Not measured/gi)||[]).length>=unmeasuredCount, `expected=${unmeasuredCount}`);
       if (deliverable.pdf) {
+        if (deliverable.fullHtml) {
+          add("full_html_built", deliverable.fullHtml.ok, deliverable.fullHtml.reason||"");
+          add("full_html_non_trivial", deliverable.fullHtml.length>25000, `size=${deliverable.fullHtml.length}`);
+          add("full_html_no_placeholder", !PLACEHOLDER_RE.test(deliverable.fullHtml.text||""), ((deliverable.fullHtml.text||"").match(PLACEHOLDER_RE)||[""])[0]);
+          add("full_html_controls_removed", deliverable.fullHtml.interactiveControls===0, `controls=${deliverable.fullHtml.interactiveControls}`);
+          add("full_html_sections_open", deliverable.fullHtml.closedAccordions===0, `closed=${deliverable.fullHtml.closedAccordions}`);
+        }
         add("pdf_built", deliverable.pdf.ok, deliverable.pdf.reason||"");
         add("pdf_mime", deliverable.pdf.type==="application/pdf", deliverable.pdf.type);
         add("pdf_non_trivial", deliverable.pdf.size>10000, `size=${deliverable.pdf.size}`);

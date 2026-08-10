@@ -785,7 +785,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
               <span class="insight-depth-value" id="insightDepthValue">--</span>
               <span class="score-meta-pill" id="insightDepthBand">--</span>
               <span class="insight-help" id="insightDepthInfo" tabindex="0">ⓘ</span>
-              <span class="tooltip-panel" id="insightDepthTooltip">A quality-of-signal score, not a quality-of-answer score. For a single run, this score reflects only the depth of this run (10/30/60-minute) and the participant's self-reported confidence. A single run from a single perspective is always a narrow first signal regardless of how thoughtful it was. Comprehensive reads emerge from multiple perspectives, multiple runs over time, and cross-diagnostic synthesis. The synthesis tool computes a composite: breadth (12 points per distinct instrument), respondent depth (up to 38 points as more people take the same instrument — 5+ moderate, 20+ high, 50+ poll-grade), and vantage coverage (operational / managerial / executive). Single runs cap at 8 by design; added data spends the remaining points. <a href="https://www.monderman.com/research.html" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:8px;color:#8fb0d6;">Learn more about how this is calculated →</a></span>
+              <span class="tooltip-panel" id="insightDepthTooltip">A quality-of-signal score, not a quality-of-answer score. For a single run, this score reflects only the depth of this run (10/30/60-minute) and the participant's self-reported confidence. A single run from a single perspective is always a narrow first signal regardless of how thoughtful it was. Comprehensive reads emerge from multiple perspectives, multiple runs over time, and cross-diagnostic synthesis. The synthesis tool computes a composite: breadth (12 points per distinct instrument), respondent depth (up to 38 points as more people take the same instrument — 5+ emerging, 20+ broad, 50+ high-participation), and vantage coverage (operational / managerial / executive). Single runs cap at 8 by design; added evidence uses the remaining points. <a href="https://www.monderman.com/research.html" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:8px;color:#8fb0d6;">Learn more about how this is calculated →</a></span>
             </div>
             <p class="insight-depth-copy" id="insightDepthCopy">Broader participation, depth, and cross-synthesis make the output more defensible.</p>
           </div>
@@ -4433,7 +4433,7 @@ const otherRoles = role === "senior_leader"
 : role === "managerial"
 ? "operational and senior-leader perspectives"
 : "managerial and senior-leader perspectives";
-const crossRoleBullet = `Run this diagnostic from ${otherRoles} to test whether the same weak spot shows up at every level or is concentrated in specific roles. If different levels see it differently, the issue is about distribution, not the structure itself.`;
+const crossRoleBullet = `Run this diagnostic from ${otherRoles} to test whether the same weak spot shows up at every level or is concentrated in specific roles. If different levels see it differently, that may indicate uneven visibility, different structural exposure, or both.`;
 
 // Longitudinal comparison: gated on trajectory direction so the cadence
 // recommendation matches what this run actually surfaced.
