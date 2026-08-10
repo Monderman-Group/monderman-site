@@ -3212,13 +3212,11 @@ function getOperationalDimensions(result) {
 // kept separate. Charts read drag burdens so users see "where time disappears"
 // rather than internal scoring factors.
 const breakdown = asObject(result?.burden_breakdown);
+const measured = (value) => Number.isFinite(value) ? Number(value) : null;
 return {
-  approval:     Number(breakdown.approval || 0),
-  coordination: Number(breakdown.coordination || 0),
-  handoff:      Number(breakdown.handoff || 0),
-  escalation:   Number(breakdown.escalation || 0),
-  rework:       Number(breakdown.rework || 0),
-  key_person:   Number(breakdown.key_person || 0)
+  approval: measured(breakdown.approval), coordination: measured(breakdown.coordination),
+  handoff: measured(breakdown.handoff), escalation: measured(breakdown.escalation),
+  rework: measured(breakdown.rework), key_person: measured(breakdown.key_person)
 };
 }
 
@@ -4514,6 +4512,13 @@ const annualCostText = formatEstimateCurrencyRange(result?.exposure?.annual_cost
 const dragPct = Math.max(0, Math.min(100, Math.round(Number(result?.exposure?.capacity_drag_percent || 0))));
 const capacity = calculateCapacityComposition(result?.exposure);
 const breakdown = asObject(result?.burden_breakdown);
+const dimensionRows = [
+  ["cycle_velocity","Cycle velocity"], ["approval_efficiency","Approval efficiency"],
+  ["coordination_load","Coordination load"], ["execution_stability","Execution stability"]
+].map(([key,label]) => {
+  const value = result?.dimensions?.[key];
+  return `<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #EAE6DD"><span>${safe(label)}</span><b>${Number.isFinite(value) ? `${Math.round(value)} / 100` : "Not measured"}</b></div>`;
+}).join("");
 const donutSegments = buildDonutSegments(breakdown);
 const donutPattern = analyzeDonutPattern(donutSegments, result);
 const donutPaths = buildDonutSvgPaths(donutSegments);
@@ -4908,6 +4913,7 @@ return `<!doctype html>
     <p class="eyebrow">Where the drag is coming from</p><h2>Drag composition</h2>
     <p>The composition view shows where the visible drag is coming from across the dimensions Monderman measures: approval density, coordination burden, handoff burden, escalation dependence, rework friction, and key-person brittleness. Dimensions with no material contribution to this run may be omitted from the chart below for clarity.</p><p class="muted">The important signal is not only which dimension is largest. The distribution also matters. A concentrated pattern usually points to a more targeted intervention; a distributed pattern usually means the pathway has absorbed drag into its normal operating design.</p>
     <div class="panel donut-panel"><div class="donut-wrap"><svg width="150" height="150" viewBox="0 0 200 200">${donutPaths}</svg><div class="donut-center"><div><small>DOMINANT</small><b>${dominantPct}%</b></div></div></div><div>${segmentLegend}</div></div>
+    <h3 style="margin-top:18px">Measured condition dimensions</h3><div class="panel">${dimensionRows}</div>
     <h3 style="margin-top:24px">What the composition tells us</h3>
     <p>${safeWords(concentrationProse, 76)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(compositionQuestion)}</p></div>
@@ -5057,21 +5063,24 @@ setTimeout(() => URL.revokeObjectURL(url), 1000);
 showToast("Executive Summary HTML downloaded.", "success");
 }
 
-async function downloadExecutiveReportPdf() {
+async function downloadExecutiveReportPdf(options = {}) {
+const returnBlob = options && options.returnBlob === true;
 if (!state.result || !state.renderPayload) {
+if (returnBlob) return { ok:false, error:"report_not_ready" };
 showToast("The report is not ready yet. Finish the diagnostic output first.");
 return;
 }
 
 const html = buildExecutiveReportHtml(state.result, state.renderPayload);
 const filename = buildExecutiveReportFilename(state.renderPayload).replace(/.html$/, ".pdf");
-showToast("Generating Executive Summary PDF...", "working");
+if (!returnBlob) showToast("Generating Executive Summary PDF...", "working");
 
 let libs;
 try {
 libs = await loadExecutivePdfLibraries();
 } catch (error) {
 console.error("PDF library load failed", error);
+if (returnBlob) return { ok:false, error:error?.message || "pdf_library_load_failed" };
 downloadHtmlReportFallback(html, filename);
 showToast("PDF libraries could not load. Downloaded the HTML executive summary instead.", "error");
 return;
@@ -5142,11 +5151,16 @@ for (let i = 0; i < pages.length; i += 1) {
   if (i > 0) pdf.addPage("letter", "portrait");
   pdf.addImage(imgData, "PNG", 0, 0, 612, 792, undefined, "FAST");
 }
+if (returnBlob) {
+  const blob = pdf.output("blob");
+  return { ok:true, blob, size:blob.size, type:blob.type, pageCount:pages.length };
+}
 pdf.save(filename);
 showToast("Executive Summary PDF downloaded.", "success");
 
 } catch (error) {
 console.error("Executive Summary PDF generation failed", error);
+if (returnBlob) return { ok:false, error:error?.message || "pdf_generation_failed" };
 downloadHtmlReportFallback(html, filename);
 showToast("PDF generation failed. Downloaded the HTML executive summary instead.", "error");
 } finally {
@@ -5284,7 +5298,7 @@ function renderBasisOfRead(result, payload) {
   if (people != null) inputs.push(`${people} people involved`);
   const rate = num(p.hourlyCost) ?? num(p.hourlyRate); if (rate != null) inputs.push(`$${rate}/hr loaded`);
   const vol = num(p.annualVolume) ?? num(p.annualCycles); if (vol != null) inputs.push(`${vol} annual cycles`);
-  const mtg = num(p.meetingHours); if (mtg != null) inputs.push(`${mtg} meeting hrs/wk`);
+  const mtg = num(p.meetingHours); if (mtg != null) inputs.push(`${mtg} coordination hrs/run`);
   const orgN = num(p.employeeCount); if (orgN != null) inputs.push(`organization of ${orgN}`);
   const depthMin = p.diagnostic_depth || p.diagnosticDepth || (typeof state !== "undefined" ? state.depth : null);
   const depthLabel = (typeof depthConfigs !== "undefined" && depthConfigs[String(depthMin)] && depthConfigs[String(depthMin)].label)
@@ -6035,6 +6049,7 @@ showStage(resultsStage);
 if (typeof window !== "undefined") {
   window.__mondermanTestHooks = {
     buildExecutiveReportHtml: buildExecutiveReportHtml,
+    downloadExecutiveReportPdf: downloadExecutiveReportPdf,
     exportExecutiveReport: (typeof exportExecutiveReport === "function") ? exportExecutiveReport : null,
     getState: () => state,
     getResult: () => state.result,
