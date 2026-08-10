@@ -192,8 +192,14 @@ async function renderArtifacts(apiRun){
   const jsonArtifact=hooks.buildCrossDiagnosticArtifact(apiRun.result,apiRun.payload);
   log("Building PDF from the production report renderer…");
   const pdfResult=await hooks.downloadExecutiveReportPdf({returnBlob:true});
-  if(!pdfResult?.ok||!(pdfResult.blob instanceof Blob))throw new Error(`PDF generation failed: ${pdfResult?.error||pdfResult?.reason||"no PDF blob"}`);
-  return {summaryHtml,fullHtml,jsonArtifact,pdfBlob:pdfResult.blob,pdf:{size:pdfResult.blob.size,type:pdfResult.blob.type,pageCount:Number(pdfResult.pageCount||0)}};
+  const iframeBlob=pdfResult?.blob;
+  if(!pdfResult?.ok||!iframeBlob||typeof iframeBlob.arrayBuffer!=="function"||!Number.isFinite(Number(iframeBlob.size)))throw new Error(`PDF generation failed: ${pdfResult?.error||pdfResult?.reason||"no PDF blob"}`);
+  // A Blob created in the report iframe belongs to that iframe's JavaScript
+  // realm, so `iframeBlob instanceof Blob` is false in the parent even when it
+  // is a valid PDF. Copy its bytes into a parent-realm Blob before retaining
+  // and downloading it.
+  const pdfBlob=new Blob([await iframeBlob.arrayBuffer()],{type:iframeBlob.type||"application/pdf"});
+  return {summaryHtml,fullHtml,jsonArtifact,pdfBlob,pdf:{size:pdfBlob.size,type:pdfBlob.type,pageCount:Number(pdfResult.pageCount||0)}};
 }
 function plainText(html){const doc=new DOMParser().parseFromString(html,"text/html");doc.querySelectorAll("style,script").forEach(node=>node.remove());return (doc.body?.textContent||"").replace(/\s+/g," ").trim()}
 function expectedBand(score){return score>=83?"High structural clarity":score>=67?"Moderate structural clarity":score>=49?"Material ambiguity":"Structural clarity breakdown"}
