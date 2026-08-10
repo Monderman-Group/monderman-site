@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Structural Clarity Acceptance Harness | Monderman</title>
+  <style>
+    @font-face{font-family:"Neue Haas Grotesk";src:url("55font.woff2") format("woff2"),url("55font.woff") format("woff");font-weight:400;font-display:swap}
+    @font-face{font-family:"Neue Haas Grotesk";src:url("65font.woff2") format("woff2"),url("65font.woff") format("woff");font-weight:500;font-display:swap}
+    @font-face{font-family:"Neue Haas Grotesk";src:url("75font.woff2") format("woff2"),url("75font.woff") format("woff");font-weight:700;font-display:swap}
+    :root{--ink:#18191c;--muted:#686b70;--paper:#f7f5f0;--card:#fff;--teal:#0c6e78;--red:#a63a32;--amber:#9b6b00;--line:#dedbd3}
+    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 "Neue Haas Grotesk",Arial,sans-serif}
+    main{max-width:1280px;margin:auto;padding:28px}h1{font-size:30px;line-height:1.05;margin:0 0 8px;letter-spacing:-.025em}h2{font-size:19px;margin:0 0 12px}
+    p{margin:0}.lead{max-width:900px;color:var(--muted)}.notice{margin:18px 0;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:#fff}
+    .toolbar,.downloads,.viewbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.toolbar{margin:18px 0}.downloads{margin-top:12px}
+    button{font:600 14px/1 "Neue Haas Grotesk",Arial,sans-serif;border:0;border-radius:7px;padding:11px 15px;cursor:pointer;background:var(--ink);color:#fff}
+    button.primary{background:var(--teal)}button.secondary{background:#fff;color:var(--ink);border:1px solid var(--line)}button:disabled{opacity:.35;cursor:not-allowed}
+    .grid{display:grid;grid-template-columns:minmax(300px,420px) minmax(0,1fr);gap:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;min-width:0}
+    .metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}.metric{padding:11px;border-radius:7px;background:var(--paper)}.metric b{display:block;font-size:21px}.metric span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+    .status{font-weight:700}.pass{color:var(--teal)}.fail{color:var(--red)}.warn{color:var(--amber)}
+    .checks,.ledger{margin:0;padding:0;list-style:none}.checks li{padding:7px 0;border-bottom:1px solid #eee}.checks small{display:block;color:var(--muted)}
+    details{border-top:1px solid var(--line);padding:10px 0}summary{cursor:pointer;font-weight:600}.ledger{margin-top:9px;font-size:13px}.ledger li{padding:7px 0;border-bottom:1px solid #eee}.ledger code{font-size:11px;color:var(--muted)}
+    .log{margin-top:14px;max-height:220px;overflow:auto;background:#111;color:#c7eadb;padding:12px;border-radius:7px;white-space:pre-wrap;font:12px/1.5 ui-monospace,monospace}
+    .viewer{padding:0;overflow:hidden}.viewbar{padding:12px 14px;border-bottom:1px solid var(--line)}.frame-wrap{overflow:auto;background:#ddd;padding:12px;min-height:720px;text-align:center}
+    iframe{display:block;margin:0 auto;border:0;background:#fff;width:1200px;height:900px;box-shadow:0 1px 8px rgba(0,0,0,.14)}iframe.mobile{width:390px;height:844px}
+    .hidden{display:none!important}
+    @media(max-width:900px){main{padding:18px}.grid{grid-template-columns:1fr}.frame-wrap{min-height:520px}.metrics{grid-template-columns:repeat(2,1fr)}}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Structural Clarity Acceptance Harness</h1>
+  <p class="lead">Runs one controlled Northbridge scenario through the live Structural Clarity API, renders it with the production report code, and creates the actual downloadable report artifacts.</p>
+  <div class="notice" id="authStatus">Checking the existing test-account session…</div>
+  <div class="toolbar">
+    <button class="primary" id="runBtn" disabled>Run Northbridge test</button>
+    <button class="secondary" id="clearBtn">Clear local results</button>
+    <span id="runStatus" class="status">Not run</span>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Acceptance result</h2>
+      <div class="metrics">
+        <div class="metric"><b id="score">—</b><span>Score</span></div>
+        <div class="metric"><b id="band">—</b><span>Band</span></div>
+        <div class="metric"><b id="coverage">—</b><span>Coverage</span></div>
+        <div class="metric"><b id="runId">—</b><span>Run ID</span></div>
+      </div>
+      <ul class="checks" id="checks"><li>No checks have run.</li></ul>
+      <div class="downloads">
+        <button id="pdfBtn" disabled>Download PDF</button>
+        <button id="summaryBtn" disabled>Summary HTML</button>
+        <button id="fullBtn" disabled>Full HTML</button>
+        <button id="jsonBtn" disabled>JSON export</button>
+        <button class="secondary" id="bundleBtn" disabled>Acceptance bundle</button>
+      </div>
+      <details><summary>Answer ledger</summary><ol class="ledger" id="ledger"><li>Not available.</li></ol></details>
+      <details><summary>Unasked questions</summary><ul class="ledger" id="unasked"><li>Not available.</li></ul></details>
+      <details><summary>API activity</summary><div class="log" id="log">Ready.</div></details>
+    </section>
+
+    <section class="card viewer">
+      <div class="viewbar">
+        <strong>Production report preview</strong>
+        <button class="secondary" id="desktopBtn" disabled>Desktop</button>
+        <button class="secondary" id="mobileBtn" disabled>Mobile</button>
+      </div>
+      <div class="frame-wrap" id="frameWrap"><p id="emptyPreview">Run the test to render the report.</p></div>
+    </section>
+  </div>
+</main>
+
+<script type="module">
+const API_BASE="https://monderman-api.onrender.com/api";
+const PAGE_BASE=/^https?:$/.test(location.protocol)?location.origin:"https://www.monderman.com";
+const $=(id)=>document.getElementById(id);
+const clone=(value)=>JSON.parse(JSON.stringify(value));
+const sleep=(ms)=>new Promise(resolve=>setTimeout(resolve,ms));
+const PLACEHOLDER_RE=/\b(?:undefined|NaN|Infinity|\[object Object\]|headline finding will appear|priority actions will appear|remedy paths will appear|will appear once|lorem ipsum|a Other)\b/i;
+
+const SCENARIO={
+  organizationName:"Northbridge Community Health Network",
+  processName:"Capital equipment procurement approvals", process_name:"Capital equipment procurement approvals",
+  focus_area:"Capital equipment procurement approvals",
+  businessUnit:"Procurement and Clinical Operations", business_unit:"Procurement and Clinical Operations",
+  industry:"healthcare_life_sciences", regulatoryIntensity:"high", regulatory_intensity:"high",
+  decisionType:"procurement", decision_type:"procurement", employeeCount:2400, organizationSize:"large",
+  peopleInvolved:9, peopleAffected:9, hourlyCost:78, annualVolume:120, meetingHours:32,
+  confidenceLevel:"moderate", confidence_level:"moderate", participantMode:"managerial", participant_mode:"managerial",
+  diagnosticDepth:30, diagnostic_depth:30,
+  description:"Routine capital equipment requests cross procurement, finance, clinical operations, IT security, and compliance. Ownership is documented but exceptions are common, approval thresholds are outdated, and managers frequently chase status or escalate stalled requests. Most decisions eventually succeed, but delays and rework are material rather than catastrophic."
+};
+const EXPERIENCE={
+  self:"Managers spend material time interpreting thresholds, locating the next owner, and escalating exceptions so requests keep moving.",
+  observedOperational:"Requestors often ask a veteran procurement coordinator which reviewer owns the next step, then chase updates through email because the workflow does not show a reliable handoff owner.",
+  observedManagerial:"Managers reinterpret approval thresholds and use escalation relationships when the published pathway does not resolve an exception.",
+  observedSeniorLeader:"Senior leaders generally believe the published RACI and approval policy are adequate. In practice, managers reinterpret thresholds and rely on escalation relationships, so the documented clarity overstates how predictable the pathway is.",
+  observedExecutive:"Senior leaders generally believe the published RACI and approval policy are adequate. In practice, managers reinterpret thresholds and rely on escalation relationships, so the documented clarity overstates how predictable the pathway is."
+};
+const ANSWERS={
+  sc_g1_structure_type:"cross-functional", sc_g2_change_pace:"frequent_change", sc_g3_primary_concern:"multiple_concerns",
+  sc_g4_compensation_level:"significant_key_people_fill_gaps", sc_d1_role_explicitness:"defined_but_interpreted_differently",
+  sc_d1_ownership_visibility:"often_unclear", sc_d1_role_overlap:"meaningful_overlap_causes_gaps",
+  sc_d2_authority_clarity:"situational_depends_on_who_pushes", sc_d2_authority_limits:"fuzzy_at_the_edges",
+  sc_d2_decision_consistency:"inconsistent_depends_on_context", sc_d3_handoff_visibility:"often_unclear_work_stalls_at_boundaries",
+  sc_d3_boundary_integrity:"frequently_lost_someone_has_to_re_establish_it", sc_d3_transfer_friction:"frequent_bouncing_or_stalling",
+  sc_d4_answerability:"often_diffuse_multiple_people_half_accountable", sc_d4_diffusion:"shared_in_ways_that_create_gap_risk",
+  sc_d4_escalation_pattern:"frequently_escalated_takes_time", sc_d5_review_layers:"three_plus_some_redundant",
+  sc_d5_approval_redundancy:"mixed_some_add_value_some_dont", sc_d5_governance_proportionality:"noticeably_heavier",
+  sc_c1_key_person_probe:"specific_person_is_essential", sc_c2_roles_vs_accountability_probe:"both_are_unclear",
+  sc_c3_authority_contest_probe:"authority_boundary_unclear", sc_ctx_people_affected:9, sc_ctx_issues_per_month:12,
+  sc_ctx_meetings_per_week:16
+};
+const ELIGIBLE_IDS=Object.keys(ANSWERS);
+let supaClient=null,authToken=null,running=false,artifacts=null,reportFrame=null;
+
+function log(message){$("log").textContent+=`\n${new Date().toLocaleTimeString()}  ${message}`;$("log").scrollTop=1e9}
+function textFor(item){return typeof item?.text==="string"?item.text:(item?.text?.managerial||item?.text?.senior_leader||item?.text?.operational||item?.id||"")}
+function labelFor(item,value){const option=(item?.options||[]).find(entry=>JSON.stringify(entry.value)===JSON.stringify(value));return option?.label||String(value)}
+function fileStem(){return "northbridge-structural-clarity-acceptance"}
+function download(blobOrText,name,type="text/plain;charset=utf-8"){
+  const blob=blobOrText instanceof Blob?blobOrText:new Blob([blobOrText],{type});
+  const url=URL.createObjectURL(blob);const link=document.createElement("a");link.href=url;link.download=name;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+async function freshToken(){
+  const {data}=await supaClient.auth.getSession();authToken=data?.session?.access_token||null;return authToken;
+}
+async function postJSON(url,body,label){
+  for(let attempt=1;attempt<=4;attempt++){
+    await freshToken();const started=performance.now();
+    const response=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${authToken}`},body:body===undefined?undefined:JSON.stringify(body)});
+    const raw=await response.text();let data=null;try{data=JSON.parse(raw)}catch(_e){}
+    log(`${label}: HTTP ${response.status} (${Math.round(performance.now()-started)} ms)`);
+    if(response.status===429){const seconds=Number(response.headers.get("Retry-After")||data?.retry_after_seconds||30);log(`Rate limited. Retrying in ${seconds} seconds.`);await sleep((seconds+1)*1000);continue}
+    if(!response.ok||!data)throw new Error(`${label}: ${data?.error||data?.message||raw.slice(0,180)||`HTTP ${response.status}`}`);
+    return data;
+  }
+  throw new Error(`${label}: rate limit did not clear`);
+}
+function answerFor(item){
+  if(!Object.prototype.hasOwnProperty.call(ANSWERS,item.id))throw new Error(`Unexpected question ${item.id}. Available options: ${(item.options||[]).map(x=>`${x.value} (${x.label})`).join(", ")}`);
+  const value=ANSWERS[item.id];
+  if(Array.isArray(item.options)&&item.options.length&&!item.options.some(option=>JSON.stringify(option.value)===JSON.stringify(value)))throw new Error(`Fixture value ${JSON.stringify(value)} is invalid for ${item.id}. Available: ${item.options.map(x=>JSON.stringify(x.value)).join(", ")}`);
+  return value;
+}
+function experienceLayer(){return {participantPerspective:"Managerial",hasInput:true,source:"unedited_participant_input",entries:[
+  {key:"self",label:"Your managerial experience",text:EXPERIENCE.self},
+  {key:"observedOperational",label:"What operational staff may be experiencing",text:EXPERIENCE.observedOperational},
+  {key:"observedManagerial",label:"What managers may be experiencing",text:EXPERIENCE.observedManagerial},
+  {key:"observedSeniorLeader",label:"What senior leaders may be seeing",text:EXPERIENCE.observedSeniorLeader}
+]}}
+async function driveApi(){
+  const startRequest={...SCENARIO};
+  const start=await postJSON(`${API_BASE}/structural-clarity/run/start`,startRequest,"start");
+  if(!start.ok)throw new Error(`start: ${start.error||start.message||"not accepted"}`);
+  const trace={runId:start.runId,start:{request:clone(startRequest),response:clone(start)},answers:[],finalize:null};
+  let item=start.nextItem,guard=0;
+  while(item){
+    if(++guard>60)throw new Error("Adaptive route exceeded 60 questions");
+    const value=answerFor(item);const request={itemId:item.id,value};
+    const response=await postJSON(`${API_BASE}/structural-clarity/run/${start.runId}/answer`,request,`answer ${guard}: ${item.id}`);
+    trace.answers.push({sequence:guard,id:item.id,dimension:item.dimension||null,question:textFor(item),selectedValue:clone(value),selectedAnswer:labelFor(item,value),questionType:item.questionType||null,required:item.isOptional!==true,request:clone(request),response:clone(response)});
+    if(!response.ok)throw new Error(`answer ${item.id}: ${response.error||response.message||"not accepted"}`);
+    if(response.shouldStop)break;item=response.nextItem;
+  }
+  const finalizeRequest={confidenceLevel:"moderate",confidence_level:"moderate",rawExperience:EXPERIENCE};
+  const finalized=await postJSON(`${API_BASE}/structural-clarity/run/${start.runId}/finalize`,finalizeRequest,"finalize");
+  trace.finalize={request:clone(finalizeRequest),response:clone(finalized)};
+  if(!finalized.ok)throw new Error(`finalize: ${finalized.error||finalized.message||"not accepted"}`);
+  if(finalized.locked===true||(finalized.result||{}).locked===true)throw new Error(`The test account is locked: ${finalized.reason||"run limit reached"}`);
+  const result=finalized.result||finalized;
+  if(!Number.isFinite(Number(result.score)))throw new Error("Finalize returned no numeric score");
+  const layer=experienceLayer();
+  const payload={...(finalized.legacyPayload||{}),...SCENARIO,rawExperience:EXPERIENCE,raw_experience:EXPERIENCE,experientialLayer:layer,experiential_layer:layer};
+  return {runId:start.runId,result,payload,trace,finalized};
+}
+async function renderArtifacts(apiRun){
+  const source=await (await fetch(`${PAGE_BASE}/structural-clarity.html`,{cache:"no-store"})).text();
+  if(!source.includes("__mondermanTestHooks"))throw new Error("Production report page does not expose acceptance hooks");
+  const injected={result:apiRun.result,payload:apiRun.payload,narrative:apiRun.result.interpretive_prose||apiRun.result.narrative||null};
+  const inject=`<base href="${PAGE_BASE}/"><script>window.__mondermanInjectedResult=${JSON.stringify(injected).replace(/</g,"\\u003c")};<\/script>`;
+  const doc=source.replace(/<head([^>]*)>/i,(match,attrs)=>`<head${attrs}>${inject}`);
+  $("emptyPreview")?.remove();reportFrame=document.createElement("iframe");reportFrame.title="Rendered Structural Clarity report";$("frameWrap").replaceChildren(reportFrame);reportFrame.srcdoc=doc;
+  await new Promise(resolve=>{reportFrame.onload=resolve;setTimeout(resolve,12000)});
+  for(let i=0;i<80&&!reportFrame.contentWindow?.__mondermanInjectionApplied;i++)await sleep(250);
+  const hooks=reportFrame.contentWindow?.__mondermanTestHooks;
+  if(!hooks||!reportFrame.contentWindow?.__mondermanInjectionApplied)throw new Error("Production renderer did not accept the finalized payload");
+  const summaryHtml=hooks.buildExecutiveReportHtml(apiRun.result,apiRun.payload);
+  const fullHtml=hooks.buildFullReportHTML(apiRun.result,apiRun.payload,"Monderman Structural Clarity Report");
+  const jsonArtifact=hooks.buildCrossDiagnosticArtifact(apiRun.result,apiRun.payload);
+  log("Building PDF from the production report renderer…");
+  const pdfResult=await hooks.downloadExecutiveReportPdf({returnBlob:true});
+  if(!pdfResult?.ok||!(pdfResult.blob instanceof Blob))throw new Error(`PDF generation failed: ${pdfResult?.error||pdfResult?.reason||"no PDF blob"}`);
+  return {summaryHtml,fullHtml,jsonArtifact,pdfBlob:pdfResult.blob,pdf:{size:pdfResult.blob.size,type:pdfResult.blob.type,pageCount:Number(pdfResult.pageCount||0)}};
+}
+function plainText(html){const doc=new DOMParser().parseFromString(html,"text/html");doc.querySelectorAll("style,script").forEach(node=>node.remove());return (doc.body?.textContent||"").replace(/\s+/g," ").trim()}
+function expectedBand(score){return score>=83?"High structural clarity":score>=67?"Moderate structural clarity":score>=49?"Material ambiguity":"Structural clarity breakdown"}
+function runChecks(apiRun,files){
+  const result=apiRun.result,ex=result.exposure||{},coverage=result.dimension_coverage||result.measurement_coverage||{},summary=plainText(files.summaryHtml),full=plainText(files.fullHtml),score=Number(result.score),band=String(result.score_band||result.band||"");
+  const dimensions=Object.entries(result.dimensions||{}),unmeasured=coverage.unmeasured_dimensions||[];
+  const composition=ex.composition||{};const compositionTotal=Object.values(composition).reduce((sum,value)=>sum+(Number(value)||0),0);
+  const tolerance=(actual,expected,absolute=2)=>Number.isFinite(actual)&&Number.isFinite(expected)&&Math.abs(actual-expected)<=Math.max(absolute,Math.abs(expected)*.01);
+  const quadrant=reportFrame.contentWindow.__mondermanTestHooks.getQuadrantCoordinates(apiRun.result);
+  const governanceMeasured=Number.isFinite(Number(result.dimensions?.duplicate_approvals_inverse));
+  const checks=[
+    ["Nonzero score",score>0&&score<=100,`score=${score}`],
+    ["Band matches score",band===expectedBand(score),`${score} → ${band}`],
+    ["Scorer version present",Boolean(result.scorer_version),String(result.scorer_version||"missing")],
+    ["Coverage metadata present",Number.isFinite(Number(coverage.coverage_percent)),JSON.stringify(coverage)],
+    ["Coverage counts reconcile",Number(coverage.measured_dimension_count)+unmeasured.length===dimensions.length,`${coverage.measured_dimension_count||0} measured + ${unmeasured.length} unmeasured / ${dimensions.length}`],
+    ["Unmeasured dimensions remain null",unmeasured.every(key=>result.dimensions?.[key]===null),unmeasured.map(key=>`${key}=${result.dimensions?.[key]}`).join(", ")||"none"],
+    ["Annual cost reconciles",tolerance(Number(ex.annual_cost),Number(ex.annual_hours)*Number(ex.average_hourly_cost)),`${ex.annual_cost} vs ${ex.annual_hours} × ${ex.average_hourly_cost}`],
+    ["Capacity drag reconciles",Number(ex.total_capacity_hours)>0&&tolerance(Number(ex.annual_hours),Number(ex.total_capacity_hours)*Number(ex.capacity_drag_percent)/100,50),`${ex.capacity_drag_percent}% of ${ex.total_capacity_hours}`],
+    ["Recoverable cost reconciles",tolerance(Number(ex.recoverable_cost),Number(ex.annual_cost)*Number(ex.recoverable_share_percent)/100,2),`${ex.recoverable_cost} at ${ex.recoverable_share_percent}%`],
+    ["Recoverable is below burden",Number(ex.recoverable_cost)<=Number(ex.annual_cost),`${ex.recoverable_cost} ≤ ${ex.annual_cost}`],
+    ["Composition reconciles",!Object.keys(composition).length||tolerance(compositionTotal,Number(ex.annual_hours),2),`${compositionTotal} vs ${ex.annual_hours}`],
+    ["Summary HTML built",files.summaryHtml.length>20000&&/<html[\s>]/i.test(files.summaryHtml),`${files.summaryHtml.length} bytes`],
+    ["Full HTML built",files.fullHtml.length>25000&&/<html[\s>]/i.test(files.fullHtml),`${files.fullHtml.length} bytes`],
+    ["Neue Haas included in both HTML files",/Neue Haas Grotesk/i.test(files.summaryHtml)&&/Neue Haas Grotesk/i.test(files.fullHtml),"font declaration"],
+    ["No placeholder or invalid values",!PLACEHOLDER_RE.test(`${summary} ${full} ${JSON.stringify(result)}`),( `${summary} ${full}`.match(PLACEHOLDER_RE)||["none"] )[0]],
+    ["Score parity in both HTML files",summary.includes(String(Math.round(score)))&&full.includes(String(Math.round(score))),`score=${score}`],
+    ["Band parity in both HTML files",summary.toLowerCase().includes(band.toLowerCase())&&full.toLowerCase().includes(band.toLowerCase()),band],
+    ["Unmeasured labels rendered",!unmeasured.length||(summary.match(/Not measured/gi)||[]).length>=unmeasured.length,`${unmeasured.length} expected`],
+    ["PDF built",files.pdf.size>10000&&files.pdf.type==="application/pdf"&&files.pdf.pageCount>=8,`${files.pdf.size} bytes; ${files.pdf.pageCount} pages`],
+    ["Chart marker policy",governanceMeasured?(quadrant&&Number.isFinite(quadrant.left)&&Number.isFinite(quadrant.top)&&quadrant.left>=8&&quadrant.left<=92&&quadrant.top>=8&&quadrant.top<=92):quadrant===null,governanceMeasured?JSON.stringify(quadrant):"governance not measured; no coordinate"]
+  ];
+  return checks.map(([name,ok,detail])=>({name,ok:Boolean(ok),detail}));
+}
+function showLedger(trace){
+  $("ledger").replaceChildren(...trace.answers.map(entry=>{const li=document.createElement("li");li.innerHTML=`<strong>${entry.sequence}. ${escapeHtml(entry.question)}</strong><br>${escapeHtml(entry.selectedAnswer)} <code>${escapeHtml(entry.id)} = ${escapeHtml(JSON.stringify(entry.selectedValue))}</code>`;return li}));
+  const asked=new Set(trace.answers.map(entry=>entry.id));const missing=ELIGIBLE_IDS.filter(id=>!asked.has(id));
+  $("unasked").replaceChildren(...(missing.length?missing.map(id=>{const li=document.createElement("li");li.innerHTML=`<code>${escapeHtml(id)}</code> — Not asked by the adaptive route`;return li}):[Object.assign(document.createElement("li"),{textContent:"None."})]));
+}
+function escapeHtml(value){return String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[char]))}
+function enableDownloads(enabled){["pdfBtn","summaryBtn","fullBtn","jsonBtn","bundleBtn","desktopBtn","mobileBtn"].forEach(id=>$(id).disabled=!enabled)}
+function renderChecks(checks){$("checks").replaceChildren(...checks.map(check=>{const li=document.createElement("li");li.innerHTML=`<span class="${check.ok?"pass":"fail"}">${check.ok?"PASS":"FAIL"}</span> — ${escapeHtml(check.name)}<small>${escapeHtml(check.detail)}</small>`;return li}))}
+async function run(){
+  if(running)return;running=true;artifacts=null;enableDownloads(false);$("runBtn").disabled=true;$("runStatus").className="status warn";$("runStatus").textContent="Running…";$("checks").innerHTML="<li>Running the live diagnostic…</li>";$("log").textContent="Starting.";
+  try{
+    const apiRun=await driveApi();log(`Finalized run ${apiRun.runId}. Rendering production artifacts.`);
+    const files=await renderArtifacts(apiRun);const checks=runChecks(apiRun,files);
+    const unasked=ELIGIBLE_IDS.filter(id=>!new Set(apiRun.trace.answers.map(entry=>entry.id)).has(id));
+    const bundle={generatedAt:new Date().toISOString(),environment:{page:location.href,apiBase:API_BASE,frontendSource:`${PAGE_BASE}/structural-clarity.html`,userAgent:navigator.userAgent},scenario:SCENARIO,experience:EXPERIENCE,trace:apiRun.trace,unaskedQuestions:unasked,result:apiRun.result,payload:apiRun.payload,exportMetadata:{summaryHtmlBytes:files.summaryHtml.length,fullHtmlBytes:files.fullHtml.length,pdf:files.pdf},checks};
+    artifacts={...files,bundle};
+    $("score").textContent=apiRun.result.score;$("band").textContent=apiRun.result.score_band||apiRun.result.band||"—";$("coverage").textContent=`${apiRun.result.dimension_coverage?.coverage_percent??"—"}%`;$("runId").textContent=String(apiRun.runId).slice(0,12);
+    showLedger(apiRun.trace);renderChecks(checks);enableDownloads(true);
+    const failed=checks.filter(check=>!check.ok);$("runStatus").className=`status ${failed.length?"fail":"pass"}`;$("runStatus").textContent=failed.length?`FAIL — ${failed.length} check${failed.length===1?"":"s"}`:"PASS";
+    log(`Completed with ${checks.length-failed.length}/${checks.length} checks passing.`);
+  }catch(error){console.error(error);$("runStatus").className="status fail";$("runStatus").textContent="FAIL";$("checks").innerHTML=`<li><span class="fail">FAIL</span> — ${escapeHtml(error.message)}</li>`;log(`FAILED: ${error.message}`)}
+  finally{running=false;$("runBtn").disabled=!authToken}
+}
+
+$("runBtn").addEventListener("click",run);
+$("clearBtn").addEventListener("click",()=>{artifacts=null;reportFrame?.remove();reportFrame=null;$("frameWrap").innerHTML='<p id="emptyPreview">Run the test to render the report.</p>';$("score").textContent=$("band").textContent=$("coverage").textContent=$("runId").textContent="—";$("checks").innerHTML="<li>No checks have run.</li>";$("ledger").innerHTML="<li>Not available.</li>";$("unasked").innerHTML="<li>Not available.</li>";$("runStatus").className="status";$("runStatus").textContent="Not run";enableDownloads(false)});
+$("pdfBtn").addEventListener("click",()=>download(artifacts.pdfBlob,`${fileStem()}.pdf`));
+$("summaryBtn").addEventListener("click",()=>download(artifacts.summaryHtml,`${fileStem()}-summary.html`,"text/html;charset=utf-8"));
+$("fullBtn").addEventListener("click",()=>download(artifacts.fullHtml,`${fileStem()}-full.html`,"text/html;charset=utf-8"));
+$("jsonBtn").addEventListener("click",()=>download(JSON.stringify(artifacts.jsonArtifact,null,2),`${fileStem()}.json`,"application/json;charset=utf-8"));
+$("bundleBtn").addEventListener("click",()=>download(JSON.stringify(artifacts.bundle,null,2),`${fileStem()}-bundle.json`,"application/json;charset=utf-8"));
+$("desktopBtn").addEventListener("click",()=>reportFrame?.classList.remove("mobile"));$("mobileBtn").addEventListener("click",()=>reportFrame?.classList.add("mobile"));
+
+try{
+  const {createClient}=await import("https://esm.sh/@supabase/supabase-js@2");
+  supaClient=createClient("https://ptkxrzgmeldalrkfruth.supabase.co","sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",{auth:{persistSession:true,autoRefreshToken:true}});
+  await freshToken();
+  if(authToken){$("authStatus").textContent="Signed in. This harness will create one real test run in the current account. It will not purchase, promote, archive, or alter other runs.";$("authStatus").style.borderColor="#8fc79d";$("runBtn").disabled=false}
+  else{$("authStatus").textContent="Sign in to the Monderman workspace in this browser, then reload this page. The harness never creates an account."}
+}catch(error){$("authStatus").textContent=`Session check failed: ${error.message}`}
+</script>
+</body>
+</html>
