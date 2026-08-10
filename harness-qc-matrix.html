@@ -213,6 +213,9 @@ async function scrapeDeliverable(fx, result) {
     const reportHtml = hooks.buildExecutiveReportHtml();
     const tmp = frame.contentDocument.createElement("div");
     tmp.innerHTML = reportHtml;
+    // The deliverable carries its own stylesheet and textContent includes it, so
+    // number checks were scanning CSS: 255 from colours, 700 from font weights.
+    tmp.querySelectorAll("style,script").forEach((n)=>n.remove());
     return { ok:true, text:(tmp.textContent||"").replace(/\s+/g," ").trim(), length:reportHtml.length };
   } catch(e) { return { ok:false, reason:e.message };
   } finally { frame.remove(); }
@@ -244,9 +247,11 @@ function qc(fx, result, deliverable) {
     add("rate_matches_input", Math.abs(rate-prof.hourlyCost)<=1, `${rate} vs ${prof.hourlyCost}`);
   }
   // band coherence: the printed band must agree with the numeric score
-  if (result.band) add("band_matches_score",
-    String(result.band).toLowerCase().includes(bandFor(score).slice(0,6)) || bandFor(score)==="moderate",
-    `band="${result.band}" score=${score}`, true);
+  // Each instrument names its bands in its own register (Structural Clarity says
+  // "Material ambiguity", Operational Systems says "Heavy administrative
+  // environment"), so matching words across instruments was simply wrong. Only
+  // presence is asserted here; band-to-score ordering is checked across the run.
+  if (result.band !== undefined) add("band_present", !!String(result.band||"").trim(), `band="${result.band}"`, true);
   // the ladder must exist when the condition is materially unhealthy
   const ladder = result.intervention_priority_ladder || result.canonical_descriptor?.priority_ladder;
   if (score<67) add("unhealthy_run_has_ladder", Array.isArray(ladder)&&ladder.length>0, "ladder="+(ladder?.length??"none"));
