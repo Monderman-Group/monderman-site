@@ -4552,7 +4552,37 @@ if (qualitative.type === "bypass_control_risk") return "Does the documented proc
 return "What does leadership need to admit about how this really works before a fix will stick?";
 }
 
+function buildStructuralClarityReportFacts(result = {}, payload = {}) {
+const p = payload || {};
+const exposure = result?.exposure || {};
+const model = exposure?.model || {};
+const organizationName = String(p.organizationName || p.organization_name || result?.organization_name || "").trim();
+const businessUnit = String(p.businessUnit || p.business_unit || p.functionName || p.function_name || "").trim();
+const configVersion = result?.config_version || p?.routing_meta?.configVersion || p?.routingMeta?.configVersion || p?.config_version || state?.configVersion || null;
+const participantMode = p.participantMode || p.participant_mode || result?.participant_mode || state?.mode || "senior_leader";
+return {
+  organizationName,
+  businessUnit,
+  participantMode,
+  perspectiveLabel: displayPerspectiveLabel(participantMode),
+  processName: p.processName || p.process_name || result?.process_name || "Structural Clarity Diagnostic",
+  configVersion,
+  scorerVersion: result?.scorer_version || null,
+  sourceRunId: result?.saved_run_id || result?.source_run_id || p?.savedRunId || p?.runId || null,
+  exposureModel: {
+    version: model.version || null,
+    inputHoursPerRun: Number.isFinite(Number(model.input_hours_per_run)) ? Number(model.input_hours_per_run) : null,
+    annualCycles: Number.isFinite(Number(model.annual_cycles)) ? Number(model.annual_cycles) : null,
+    attributableSharePercent: Number.isFinite(Number(model.attributable_burden_share_percent)) ? Number(model.attributable_burden_share_percent) : null,
+    attributedHoursBeforeCapacityLimit: Number.isFinite(Number(model.attributed_hours_before_capacity_limit)) ? Number(model.attributed_hours_before_capacity_limit) : null,
+    capacityLimitApplied: Boolean(model.capacity_limit_applied),
+    formula: model.formula || null
+  }
+};
+}
+
 function buildExecutiveReportHtml(result, payload) {
+const reportFacts = buildStructuralClarityReportFacts(result, payload || {});
 const capitalizeFirst = (s) => { const t = String(s || "").trimStart(); return t ? t.charAt(0).toUpperCase() + t.slice(1) : t; };
 const harmonized = buildHarmonizedNarrative(result, payload || {});
 const summary = buildExecutiveSummary(result, payload || {});
@@ -4585,11 +4615,11 @@ const coverageText = Number.isFinite(measuredDimensionCount) && totalDimensionCo
   ? `${measuredDimensionCount} of ${totalDimensionCount} dimensions measured${Number.isFinite(coveragePercent) ? ` (${Math.round(coveragePercent)}%)` : ""}`
   : "Coverage metadata unavailable";
 const exportScore = Math.max(0, Math.min(100, Math.round(Number(result?.score || 0))));
-const processName = payload?.processName || payload?.process_name || "Structural Clarity Diagnostic";
+const processName = reportFacts.processName;
 const benchmarkPosition = result?.benchmark_position || "Industry range comparison";
 const sectorName = resolveIndustryLabel(result, payload, { titleCase: false });
 const sectorMeta = resolveIndustryLabel(result, payload, { titleCase: true });
-const levelMeta = humanize(payload?.organizationLevel || payload?.organization_level || payload?.unitType || payload?.unit_type || "Business unit");
+const levelMeta = reportFacts.businessUnit || humanize(payload?.organizationLevel || payload?.organization_level || payload?.unitType || payload?.unit_type || "");
 const annualHours = Math.round(Number(result?.exposure?.annual_hours || 0));
 const annualHoursText = annualHours ? formatRoundedHours(annualHours, { suffix: " annual burden hours*" }) : "annual burden hours* not estimated";
 const annualCostText = formatEstimateCurrencyRange(result?.exposure?.annual_cost);
@@ -4771,20 +4801,29 @@ const decisionReviewPageNumber = hasExperienceLayer ? 7 : 6;
 const updateReadPageNumber = decisionReviewPageNumber + 1;
 const remedyPageNumber = updateReadPageNumber + 1;
 const methodPageNumber = remedyPageNumber + 1;
-const experienceReportPage = hasExperienceLayer ? '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p>This optional layer records how the workflow is experienced from the selected vantage point and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal process description and lived operating reality diverge.</p><div class="panel" style="margin:16px 0 18px"><h3>Experiential synthesis</h3><p>' + safeWords(experienceSynthesis, 88) + '</p><p class="muted">' + safeWords(experienceCaveat, 50) + '</p></div><div class="exp-grid">' + experienceCards + '</div><div class="panel bench"><p><b>Leadership question.</b> ' + safe(buildLeadershipQuestion(result || {}, payload || {}, "experience")) + '</p><p><b>How to use this layer.</b> Treat these notes as a way to plan follow-up conversations. If the same signal appears across operational, managerial, and senior-leader runs, it becomes more useful as a governance input. If it appears in only one lens, it is still valuable, but it should be read as a clue rather than a conclusion.</p></div></div></section>' : '';
+const experienceSynthesisPanel = experienceSynthesis
+  ? '<div class="panel" style="margin:16px 0 18px"><h3>Experiential synthesis</h3><p>' + safeWords(experienceSynthesis, 88) + '</p><p class="muted">' + safeWords(experienceCaveat, 50) + '</p></div>'
+  : '';
+const experienceReportPage = hasExperienceLayer ? '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p>This optional layer records how the workflow is experienced from the selected vantage point and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal process description and lived operating reality diverge.</p>' + experienceSynthesisPanel + '<div class="exp-grid">' + experienceCards + '</div><div class="panel bench"><p><b>Leadership question.</b> ' + safe(buildLeadershipQuestion(result || {}, payload || {}, "experience")) + '</p><p><b>How to use this layer.</b> Treat these notes as a way to plan follow-up conversations. If the same signal appears across operational, managerial, and senior-leader runs, it becomes more useful as a governance input. If it appears in only one lens, it is still valuable, but it should be read as a clue rather than a conclusion.</p></div></div></section>' : '';
 const narrativeForReport = asObject(result?.narrative);
 const defaultReadings = [
 { label: "Legibility failure read", interpretation: "The structure exists on paper but cannot be read clearly enough in practice — ownership, authority, or handoffs require interpretation rather than observation.", what_would_distinguish_it: "A cross-role run would show whether multiple perspectives describe the same ambiguity or whether it is concentrated at one level." },
-{ label: "Structural drift read", interpretation: "The structure was once clearer and has softened through change, growth, or accumulated exception-handling that was never formalized back into the design.", what_would_distinguish_it: "A longitudinal re-run would detect whether ambiguity is stable or accumulating. Rising scores would suggest drift." },
+{ label: "Structural drift read", interpretation: "The structure was once clearer and has softened through change, growth, or accumulated exception-handling that was never formalized back into the design.", what_would_distinguish_it: "A longitudinal re-run would detect whether ambiguity is stable or accumulating. Falling clarity scores would suggest drift." },
 { label: "Compensatory stability read", interpretation: "The system may appear functional because experienced people are navigating informally around structural ambiguity — removing them would expose the design gap.", what_would_distinguish_it: "Key-person dependency signals in the run, or evidence that onboarding is disproportionately difficult, would support this read." }
 ];
 const competingReadings = (Array.isArray(narrativeForReport.competing_readings) && narrativeForReport.competing_readings.length ? narrativeForReport.competing_readings : defaultReadings).slice(0, 3);
-const updateReadItems = (Array.isArray(narrativeForReport.what_would_update_this_read) && narrativeForReport.what_would_update_this_read.length ? narrativeForReport.what_would_update_this_read : [
-"A managerial-perspective run showing the same legibility pattern would elevate the read from suggestive to confirmed.",
-"A senior-leader run showing confidence in the structure would expose a possible visibility gap between leadership perception and operational reality.",
+const currentPerspective = String(reportFacts.participantMode || "senior_leader").toLowerCase();
+const complementaryPerspectives = currentPerspective === "managerial"
+  ? "operational and senior-leader"
+  : currentPerspective === "operational"
+    ? "managerial and senior-leader"
+    : "operational and managerial";
+const updateReadItems = [
+`Runs from ${complementaryPerspectives} perspectives showing the same legibility pattern would strengthen the read and reveal any visibility gap.`,
+"A cross-role comparison that differs materially would show where the structure is being experienced differently.",
 "A re-run after deliberate structural change would show whether the ambiguity is structural or situational.",
 "Risk-tier data would show whether low-risk work is being trapped in a high-control path."
-]).slice(0, 3);
+].slice(0, 3);
 const readingHtml = competingReadings.map((item) => '<div class="mini-card"><b>' + safe(item.label || "Reading") + '</b><p>' + safeWords(item.interpretation || item, 44) + '</p><p class="muted">Signal test: ' + safeWords(item.what_would_distinguish_it || "Additional cross-role evidence would clarify this reading.", 50) + '</p></div>').join("");
 const updateHtml = updateReadItems.map((item) => '<p style="margin:0 0 8px">• ' + safeWords(item, 42) + '</p>').join("");
 const decisionReviewPage = '<section class="page">' + footer(decisionReviewPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>Competing readings</h2><p>This section names the plausible interpretations of the same signal and identifies the evidence that would confirm, weaken, or reframe the current read.</p><div class="card-row" style="grid-template-columns:1fr;gap:12px">' + readingHtml + '</div></div></section>'
@@ -4793,7 +4832,7 @@ const firstTwoActions = actions.slice(0, 2).length ? actions.slice(0, 2) : [
 "Reduce the heaviest visible burden first.",
 "Run the diagnostic again after the first real change."
 ];
-const metaLine = `${sectorMeta} · ${levelMeta} · ${generated}`;
+const metaLine = [reportFacts.organizationName, reportFacts.businessUnit || levelMeta, sectorMeta, generated].filter(Boolean).join(" · ");
 // Compute segment percentages with last-segment-absorbs-remainder so the
 // six values always sum to exactly 100. Independent Math.round of each
 // segment can sum to 99 or 101.
@@ -4972,7 +5011,7 @@ return `<!doctype html>
   <div class="cover-white">
     <p class="cover-kicker">Diagnostic Output &nbsp;/&nbsp; Structural Clarity</p>
     <div class="cover-workflow">${safe(processName)}</div>
-    <div class="cover-meta-line">${safe(sectorMeta)} · ${safe(levelMeta)}</div>
+    <div class="cover-meta-line">${safe([reportFacts.organizationName, reportFacts.businessUnit || levelMeta, sectorMeta].filter(Boolean).join(" · "))}</div>
     <div class="cover-date-line">${safe(generated)}</div>
     <div class="cover-pills">
       <span class="cover-pill-accent">${exportScore} · ${safe(burdenCondition.label)}</span>
@@ -5021,7 +5060,7 @@ return `<!doctype html>
       <div class="stat"><div class="stat-label">Exposure range</div><div class="stat-value">${safe(annualCostText)}</div><div class="stat-sub">labor exposure*</div></div>
       <div class="stat"><div class="stat-label">Capacity absorbed</div><div class="stat-value">${dragPct}%</div><div class="stat-sub">of available capacity</div></div>
     </div>
-    <div class="kv"><b>WORKFLOW</b><span>${safe(processName)}</span><b>SECTOR</b><span>${safe(sectorName)}</span><b>GENERATED</b><span>${safe(generated)}</span></div>
+    <div class="kv">${reportFacts.organizationName ? `<b>ORGANIZATION</b><span>${safe(reportFacts.organizationName)}</span>` : ""}${reportFacts.businessUnit ? `<b>FUNCTION</b><span>${safe(reportFacts.businessUnit)}</span>` : ""}<b>WORKFLOW</b><span>${safe(processName)}</span><b>SECTOR</b><span>${safe(sectorName)}</span><b>GENERATED</b><span>${safe(generated)}</span></div>
   </div>
 </section>
 
@@ -5103,8 +5142,8 @@ ${decisionReviewPage}
     <div class="ring-row"><svg class="ring" viewBox="0 0 58 58"><circle cx="29" cy="29" r="23" fill="none" stroke="#EAE6DD" stroke-width="7"/><circle cx="29" cy="29" r="23" fill="none" stroke="#C9821F" stroke-width="7" stroke-dasharray="${insight.available ? Math.round(insight.score * 1.45) : 0} 145" transform="rotate(-90 29 29)"/></svg><div><div style="font-size:24px;font-weight:700">${insight.available ? Math.round(insight.score) : "—"}</div><p class="muted">Insight depth score${insight.available ? ` · ${escapeHtml(insight.band)}` : " · Awaiting data"}<br>${insight.available ? "Single-run signal-quality indicator, not a correctness score." : "Insight depth could not be loaded from the diagnostic backend."}</p></div></div>
     <p>${insight.available ? "For a single run from a single perspective, this score reflects the depth of the run and self-reported confidence in the inputs. A single run is always a narrow first signal regardless of how thoughtful it was. To strengthen the read, run this diagnostic from other organizational perspectives and over time; the cross-diagnostic synthesis tool combines those runs and computes a broader insight depth score." : "The insight depth score is computed by the Monderman diagnostic backend. It could not be retrieved for this run; the rest of the report remains valid."}</p>
     <h3>What would strengthen the next read</h3><div class="method-box">${nextRunBullets.map((item) => `<p>• ${safeWords(item, 42)}</p>`).join("")}</div>
-    <h3>What the figures represent</h3><div class="method-box"><p>* Figures marked with an asterisk are directional estimates generated from your inputs, not guaranteed financial outcomes. They are intended to indicate rough order of magnitude so leadership can decide whether the pattern is worth investigating further. They should not be cited externally as audited measurements, and they should not be used as the basis for compensation decisions, performance reviews, or formal financial planning.</p></div>
-    <h3 style="margin-top:20px">Where Monderman fits</h3><p>Monderman is built for leaders who want a structured, repeatable read on decision-structural ambiguity - not a one-off consulting engagement. The diagnostic surfaces patterns; the leadership decides what to do about them. This report is the artifact of that read, suitable for distribution to peers, leadership, and trusted advisors who need to engage with the same picture.</p><p class="muted" style="font-size:9px;margin-top:18px">Prepared by Monderman's diagnostic engine.</p>
+    <h3>What the figures represent</h3><div class="method-box"><p>* Figures marked with an asterisk are directional estimates generated from your inputs, not guaranteed financial outcomes. They are intended to indicate rough order of magnitude so leadership can decide whether the pattern is worth investigating further. They should not be cited externally as audited measurements, and they should not be used as the basis for compensation decisions, performance reviews, or formal financial planning.</p>${reportFacts.exposureModel.formula ? `<p><b>Burden attribution.</b> The model applies ${safe(reportFacts.exposureModel.formula)} before any capacity limit. This separates total coordination time from the share directionally attributed to structural ambiguity.</p>` : ""}</div>
+    <h3 style="margin-top:20px">Where Monderman fits</h3><p>Monderman is built for leaders who want a structured, repeatable read on structural ambiguity—not a one-off consulting engagement. The diagnostic surfaces patterns; leadership decides what to do about them. This report is the artifact of that read, suitable for distribution to peers, leadership, and trusted advisors who need to engage with the same picture.</p><p class="muted" style="font-size:9px;margin-top:18px">Prepared by Monderman's diagnostic engine.</p>
   </div>
 </section>
 </body>
@@ -5296,16 +5335,9 @@ for (let i = 0; i < pages.length; i += 1) {
   });
   const imgData = canvas.toDataURL("image/png");
   if (i > 0) pdf.addPage("letter", "portrait");
-  // Preserve a searchable text layer under the visual page image. The PDF is
-  // still visually identical, while copy/search and basic document inspection
-  // no longer see an image-only file.
-  const searchableText = String(page.innerText || "").replace(/\s+/g, " ").trim();
-  if (searchableText) {
-    pdf.setFontSize(3);
-    pdf.setTextColor(255, 255, 255);
-    const textLines = pdf.splitTextToSize(searchableText, 588).slice(0, 240);
-    pdf.text(textLines, 12, 12, { baseline: "top", lineHeightFactor: 1.05 });
-  }
+  // The visible page is rendered from the branded HTML with Neue Haas
+  // Grotesk. Do not add jsPDF's built-in Helvetica as a hidden text layer;
+  // that would make the file claim to use a font the report does not use.
   pdf.addImage(imgData, "PNG", 0, 0, 612, 792, undefined, "FAST");
 }
 if (returnBlob) {
@@ -5326,12 +5358,28 @@ cleanup();
 }
 
 function buildCrossDiagnosticArtifact(result, payload) {
-// Generate a stable run identifier so cross-synth can deduplicate uploads.
-// Uses crypto.randomUUID where available, falls back to a timestamp-random hybrid.
-const runId = (typeof crypto !== "undefined" && crypto.randomUUID)
+const facts = buildStructuralClarityReportFacts(result, payload || {});
+// Prefer the persisted/source run identifier so repeated downloads deduplicate.
+const runId = facts.sourceRunId || ((typeof crypto !== "undefined" && crypto.randomUUID)
 ? crypto.randomUUID()
-: `run_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+: `run_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`);
 const generated = new Date().toISOString();
+const coverage = result?.measurement_coverage || result?.dimension_coverage || null;
+const trace = Array.isArray(payload?.answer_trace) ? payload.answer_trace.map((entry) => ({
+  sequence: entry.sequence ?? null,
+  question_id: entry.item_id || null,
+  dimension: entry.dimension ? humanize(entry.dimension) : null,
+  question: entry.question || null,
+  selected_answer: entry.answer_label || (entry.answer_value != null ? humanize(entry.answer_value) : null),
+  question_type: entry.question_type || null,
+  optional: Boolean(entry.optional)
+})) : [];
+const unasked = Array.isArray(payload?.unasked_questions) ? payload.unasked_questions.map((entry) => ({
+  question_id: entry.item_id || null,
+  dimension: entry.dimension ? humanize(entry.dimension) : null,
+  question: entry.question || null,
+  status: "Not asked"
+})) : [];
 return {
 // ─── Cross-synth required metadata (top level) ────────────────────────
 schema_version: "1.0.0",
@@ -5345,13 +5393,55 @@ generatedAt: generated,
 processName: payload?.processName || payload?.process_name || "Operating environment",
 participantMode: payload?.participantMode || payload?.participant_mode || state.mode || "executive",
 diagnosticDepth: payload?.diagnosticDepth || payload?.diagnostic_depth || state.depth || "30",
-score: result?.score || null,
+score: result?.score ?? null,
+band: result?.score_band || result?.band || null,
 benchmarkPosition: result?.benchmark_position || null,
-trajectory: result?.trajectory || null,
+benchmark_position: result?.benchmark_position || null,
+trajectory: result?.trajectory?.label || result?.trajectory?.direction || result?.trajectory || null,
 burdenBreakdown: result?.burden_breakdown || null,
 dimensions: result?.dimensions || null,
-result,
-payload,
+measurementCoverage: coverage,
+sector: payload?.industry || result?.industry || null,
+organization: {
+  name: facts.organizationName || null,
+  function: facts.businessUnit || null,
+  sector: payload?.industry || result?.industry || null,
+  employees: payload?.employeeCount ?? payload?.employee_count ?? null
+},
+instrument: {
+  config_version: facts.configVersion,
+  scorer_version: facts.scorerVersion
+},
+economics: {
+  annual_hours: result?.exposure?.annual_hours ?? null,
+  annual_cost: result?.exposure?.annual_cost ?? null,
+  capacity_drag_percent: result?.exposure?.capacity_drag_percent ?? null,
+  recoverable_share_percent: result?.exposure?.recoverable_share_percent ?? null,
+  recoverable_cost: result?.exposure?.recoverable_cost ?? null,
+  model: facts.exposureModel
+},
+exposure: {
+  priceable: result?.exposure?.priceable === undefined ? Number(result?.exposure?.annual_cost) > 0 : result.exposure.priceable !== false,
+  annual_hours: result?.exposure?.annual_hours ?? null,
+  annual_cost: result?.exposure?.annual_cost ?? null,
+  capacity_drag_percent: result?.exposure?.capacity_drag_percent ?? null,
+  recoverable_share_percent: result?.exposure?.recoverable_share_percent ?? null,
+  recoverable_cost: result?.exposure?.recoverable_cost ?? null,
+  total_capacity_hours: result?.exposure?.total_capacity_hours ?? null,
+  total_capacity_cost: result?.exposure?.total_capacity_cost ?? null
+},
+primary_driver: result?.canonical_descriptor?.primary_constraint_label || derivePrimaryBurdenSource(result || {}).label || null,
+key_findings: asArray(result?.contradictions).map((item) => typeof item === "string" ? item : item?.message || item?.label).filter(Boolean),
+priority_actions: buildPriorityActions(result, payload || {}).filter(Boolean),
+findings: {
+  headline: buildHarmonizedNarrative(result, payload || {}).headlineFinding || null,
+  executive_summary: buildExecutiveSummary(result, payload || {}),
+  contradictions: asArray(result?.contradictions),
+  recommendations: buildPriorityActions(result, payload || {}).filter(Boolean),
+  remedy_paths: buildRemedyPaths(result, payload || {})
+},
+answer_trace: trace,
+unasked_questions: unasked,
 experientialLayer: payload?.experientialLayer || payload?.experiential_layer || null
 };
 }
@@ -5441,6 +5531,7 @@ if (!panel.contains(event.target) && event.target !== trigger) panel.classList.r
 // ═══════════════════════════════════════════════════════════
 function renderBasisOfRead(result, payload) {
   const host = document.getElementById("basisRows"); if (!host) return;
+  const facts = buildStructuralClarityReportFacts(result, payload || {});
   const esc = (v) => String(v).replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]));
   const num = (v) => { const n = Number(v); return v !== "" && v != null && !Number.isNaN(n) ? n : null; };
   const p = payload || {};
@@ -5462,7 +5553,7 @@ function renderBasisOfRead(result, payload) {
     || (depthMin ? `${depthMin}-minute diagnostic` : "\u2014");
   const mode = p.participantMode || p.participant_mode || (typeof state !== "undefined" ? state.mode : "");
   const laneLabel = (typeof laneConfigs !== "undefined" && laneConfigs[mode] && laneConfigs[mode].label) || (mode ? String(mode) : "\u2014");
-  const cfg = (typeof state !== "undefined" && state.configVersion) ? state.configVersion : "\u2014";
+  const cfg = facts.configVersion || "\u2014";
   const scorer = (result && result.scorer_version) ? result.scorer_version : "\u2014";
   const coverage = result?.measurement_coverage || result?.dimension_coverage || {};
   const measuredCount = num(coverage.measured_dimension_count);
@@ -5477,7 +5568,10 @@ function renderBasisOfRead(result, payload) {
     ["Measured coverage", esc(coverageText)],
     ["Disclosed inputs", esc(inputs.length ? inputs.join(" \u00b7 ") : "none beyond the structured answers")],
     ["Depth \u00b7 vantage", esc(`${depthLabel} \u00b7 ${laneLabel}`)],
-    ["Instrument version", `<code style="font-size:.85em">config ${esc(cfg)} \u00b7 scorer ${esc(scorer)}</code>`]
+    ["Instrument version", `<code style="font-size:.85em">config ${esc(cfg)} \u00b7 scorer ${esc(scorer)}</code>`],
+    ["Exposure model", facts.exposureModel.formula
+      ? esc(`${facts.exposureModel.formula}${facts.exposureModel.capacityLimitApplied ? " · capacity limit applied" : ""}`)
+      : "Not estimated"]
   ];
   host.innerHTML = rows.map(([k, v]) => `<dt style="font-weight:700;">${esc(k)}</dt><dd style="margin:0;color:var(--ink-soft,#3A4754);">${v}</dd>`).join("");
 }
@@ -5671,27 +5765,31 @@ renderTableBody("costCompositionBody", [
 ], (row) => [`<td>${escapeHtml(row.label)}</td>`, `<td>${escapeHtml(row.value)}</td>`, `<td>${escapeHtml(row.note)}</td>`]);
 
 const roleRows = asArray(result.labor_profile).filter((row) => row && (hasMeaningfulValue(row.people) || row.significance || row.role));
+const roleCard = $("roleClusterBody")?.closest(".result-card");
 if (roleRows.length) {
+if (roleCard) roleCard.classList.remove("hidden");
 renderTableBody("roleClusterBody", roleRows, (row) => [
 `<td>${escapeHtml(row.role || "Role")}</td>`,
 `<td>${hasMeaningfulValue(row.people) ? Math.round(Number(row.people || 0)) : "N/A"}</td>`,
 `<td>${escapeHtml(row.significance || "Directional exposure signal only")}</td>`
 ]);
 } else {
-renderUnavailableTable("roleClusterBody", 3, "N/A — not enough signal is available to estimate role-cluster exposure for this run.");
+if (roleCard) roleCard.classList.add("hidden");
 }
 
 const impactRows = asArray(result?.impact_profile?.entries)
 .map((entry) => ({ label: entry.label || humanize(entry.code || "impact"), score: Number(entry.score || 0) }))
 .filter((row) => row.label || hasMeaningfulValue(row.score));
+const impactCard = $("impactBody")?.closest(".result-card");
 if (impactRows.length && hasMeaningfulSeries(impactRows.map((row) => row.score))) {
+if (impactCard) impactCard.classList.remove("hidden");
 renderTableBody("impactBody", impactRows, (row) => [
 `<td>${escapeHtml(row.label)}</td>`,
 `<td><span class="severity-pill sev-${Math.max(0, Math.min(5, Math.round(row.score)))}">${Math.round(row.score)}</span></td>`,
 `<td>${row.score >= 4 ? "High impact" : row.score >= 3 ? "Moderate impact" : row.score >= 2 ? "Mild impact" : row.score >= 1 ? "Minimal impact" : "No meaningful impact"}</td>`
 ]);
 } else {
-renderUnavailableTable("impactBody", 3, "N/A — not enough signal is available to estimate an impact severity matrix for this run.");
+if (impactCard) impactCard.classList.add("hidden");
 }
 
 const remedies = buildRemedyPaths(result, payload);
@@ -5701,8 +5799,9 @@ if (remedyWrap && remedyGrid) {
 remedyGrid.innerHTML = remedies.map((path) => `<div class="remedy-card"><span class="remedy-kicker">${escapeHtml(path.kicker)}</span><h4>${escapeHtml(path.label)}</h4><p>${escapeHtml(path.summary)}</p><ul>${path.actions.map((action) => `<li>${escapeHtml(action)}</li>`).join("")}</ul><div class="remedy-path-risk"><p><strong>Benefit</strong> ${escapeHtml(path.benefit)}</p><p><strong>Risk</strong> ${escapeHtml(path.risk)}</p></div></div>`).join("");
 }
 
-$("reportTitle").textContent = `${payload?.processName || payload?.process_name || "Workflow"} • Structural Clarity Diagnostic`;
-$("reportSubtitle").textContent = `${result.benchmark_position || "Industry range comparison"} • ${displayPerspectiveLabel(payload?.participantMode || payload?.participant_mode || state.mode || "senior_leader")} perspective • ${resolveIndustryLabel(result, payload, { titleCase: true })} • ${payload?.employeeCount ? `${Number(payload.employeeCount).toLocaleString()} employees` : humanize(payload?.organizationSize || result?.organization_size_label || "unknown")}`;
+const reportFacts = buildStructuralClarityReportFacts(result, payload || {});
+$("reportTitle").textContent = `${reportFacts.processName} • Structural Clarity Diagnostic`;
+$("reportSubtitle").textContent = [reportFacts.organizationName, reportFacts.businessUnit, result.benchmark_position || "Industry range comparison", `${reportFacts.perspectiveLabel} perspective`, resolveIndustryLabel(result, payload, { titleCase: true }), payload?.employeeCount ? `${Number(payload.employeeCount).toLocaleString()} employees` : humanize(payload?.organizationSize || result?.organization_size_label || "unknown")].filter(Boolean).join(" • ");
 $("metaProcess").textContent = `Pathway: ${payload?.processName || payload?.process_name || "Unnamed workflow"}`;
 $("metaBench").textContent = `Benchmark: ${result.benchmark_position || "Industry range comparison"}`;
 $("metaDate").textContent = `Generated: ${nowLabel()}`;
@@ -5714,9 +5813,14 @@ const dimensionCard = $("dimensionChart")?.closest(".chart-card");
 if (dimensionCard && !dimensionCard.querySelector(".dim-note")) {
 const note = document.createElement("p");
 note.className = "dim-note";
-note.textContent = "Higher values indicate where this run is surfacing heavier burden pressure: process, systems, control, reporting, or adaptation. The shape matters more than any single point.";
+note.textContent = "Higher values indicate greater structural clarity. Compare the shape across roles, decision rights, handoffs, accountability, and governance proportionality.";
 dimensionCard.appendChild(note);
 }
+document.querySelectorAll(".result-card h3").forEach((heading) => {
+  if (heading.textContent.trim() === "Opportunity: Faster decision pathways without weakening essential control") {
+    heading.textContent = "Opportunity: Restore structural legibility without adding unnecessary weight";
+  }
+});
 renderShareBar(result);
 renderClarityDimensionBars(result);
 renderEffortFlow(result);
@@ -5740,7 +5844,7 @@ const coverEmployeeRaw = Number(payload?.employeeCount || payload?.employee_coun
 const coverEmployees = coverEmployeeRaw >= 1000
   ? `${(coverEmployeeRaw / 1000).toFixed(coverEmployeeRaw % 1000 === 0 ? 0 : 1)}k employees`
   : coverEmployeeRaw > 0 ? `${coverEmployeeRaw} employees` : null;
-const coverMetaStr = [coverIndustry, coverEmployees].filter(Boolean).join(" · ");
+const coverMetaStr = [reportFacts.organizationName, reportFacts.businessUnit, coverIndustry, coverEmployees].filter(Boolean).join(" · ");
 const coverDateStr = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 const coverScoreLabel = `Score: ${result.score || "—"} · ${burdenCondition.label || "—"}`;
 const coverBenchmark  = result.benchmark_position || "—";
@@ -5847,7 +5951,9 @@ return clone.outerHTML;
 
 function buildFullReportHTML(result, payload, title) {
 const docTitle = escapeHtml(title);
-const processName = escapeHtml(payload.processName || payload.process_name || "Structural Clarity");
+const facts = buildStructuralClarityReportFacts(result, payload || {});
+const processName = escapeHtml(facts.processName || "Structural Clarity");
+const organizationLine = escapeHtml([facts.organizationName, facts.businessUnit].filter(Boolean).join(" · "));
 const generated = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 const resultsHTML = buildStandaloneResultsHTML();
 const sourceStyles = Array.from(document.querySelectorAll("style"))
@@ -5881,7 +5987,7 @@ return `<!DOCTYPE html>
       <div class="report-wordmark">Monderman</div>
       <div class="report-title-block">
         <h1>${docTitle}</h1>
-        <p class="report-meta">${processName} · Generated ${generated}</p>
+        <p class="report-meta">${organizationLine ? `${organizationLine} · ` : ""}${processName} · Generated ${generated}</p>
       </div>
     </header>
     <main class="report-content">
@@ -6280,6 +6386,7 @@ if (typeof window !== "undefined") {
     buildExecutiveReportHtml: buildExecutiveReportHtml,
     buildFullReportHTML: buildFullReportHTML,
     buildCrossDiagnosticArtifact: buildCrossDiagnosticArtifact,
+    buildStructuralClarityReportFacts: buildStructuralClarityReportFacts,
     getQuadrantCoordinates: getQuadrantCoordinates,
     downloadExecutiveReportPdf: downloadExecutiveReportPdf,
     exportExecutiveReport: (typeof exportExecutiveReport === "function") ? exportExecutiveReport : null,
