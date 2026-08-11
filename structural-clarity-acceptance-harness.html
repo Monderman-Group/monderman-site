@@ -33,7 +33,7 @@
 <main>
   <h1>Structural Clarity Acceptance Harness</h1>
   <p class="lead">Runs controlled customer scenarios through the live Structural Clarity API, renders every case with the production report code, and validates the PDF, summary HTML, full HTML, and JSON outputs from the same finalized payload.</p>
-  <div class="notice" id="authStatus" data-harness-build="2026-08-11.3">Harness build 2026-08-11.3 loaded; starting the session check…</div>
+  <div class="notice" id="authStatus" data-harness-build="2026-08-11.4">Harness build 2026-08-11.4 loaded; starting the session check…</div>
   <div class="toolbar">
     <button class="primary" id="runBtn" disabled>Run comprehensive 18-case test</button>
     <button class="secondary" id="clearBtn">Clear local results</button>
@@ -280,7 +280,8 @@ function runChecks(apiRun,files){
   const composition=ex.composition||{};const compositionTotal=Object.values(composition).reduce((sum,value)=>sum+(Number(value)||0),0);
   const tolerance=(actual,expected,absolute=2)=>Number.isFinite(actual)&&Number.isFinite(expected)&&Math.abs(actual-expected)<=Math.max(absolute,Math.abs(expected)*.01);
   const quadrant=reportFrame.contentWindow.__mondermanTestHooks.getQuadrantCoordinates(apiRun.result);
-  const governanceValue=result.dimensions?.duplicate_approvals_inverse;\n  const governanceMeasured=governanceValue!=null&&Number.isFinite(Number(governanceValue));
+  const governanceValue=result.dimensions?.duplicate_approvals_inverse;
+  const governanceMeasured=governanceValue!=null&&Number.isFinite(Number(governanceValue));
   const checks=[
     ["Nonzero score",score>0&&score<=100,`score=${score}`],
     ["Band matches score",band===expectedBand(score),`${score} → ${band}`],
