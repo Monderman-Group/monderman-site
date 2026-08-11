@@ -202,7 +202,8 @@ function runChecks(apiRun,files){
   const composition=ex.composition||{};const compositionTotal=Object.values(composition).reduce((sum,value)=>sum+(Number(value)||0),0);
   const tolerance=(actual,expected,absolute=2)=>Number.isFinite(actual)&&Number.isFinite(expected)&&Math.abs(actual-expected)<=Math.max(absolute,Math.abs(expected)*.01);
   const quadrant=reportFrame.contentWindow.__mondermanTestHooks.getQuadrantCoordinates(apiRun.result);
-  const governanceValue=result.dimensions?.duplicate_approvals_inverse;\n  const governanceMeasured=governanceValue!=null&&Number.isFinite(Number(governanceValue));
+  const governanceValue=result.dimensions?.duplicate_approvals_inverse;
+  const governanceMeasured=governanceValue!=null&&Number.isFinite(Number(governanceValue));
   const checks=[
     ["Nonzero score",score>0&&score<=100,`score=${score}`],
     ["Band matches score",band===expectedBand(score),`${score} → ${band}`],
