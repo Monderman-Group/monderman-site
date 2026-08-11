@@ -1,3 +1,4 @@
+(async function bootStructuralClarityAcceptanceHarness(){
 document.getElementById("authStatus").textContent="Starting the acceptance harness…";
 const API_BASE="https://monderman-api.onrender.com/api";
 const PAGE_BASE=/^https?:$/.test(location.protocol)?location.origin:"https://www.monderman.com";
@@ -315,3 +316,9 @@ try{
   if(authToken){$("authStatus").textContent="Signed in. The comprehensive test creates 18 real test runs in the current account and may pause if the API rate limit is reached. It will not purchase, promote, archive, or alter other runs.";$("authStatus").style.borderColor="#8fc79d";$("runBtn").disabled=false}
   else{$("authStatus").textContent="Sign in to the Monderman workspace in this browser, then reload this page. The harness never creates an account."}
 }catch(error){$("authStatus").textContent=`Session check failed: ${error.message}`}
+
+})().catch((error)=>{
+  console.error(error);
+  const status=document.getElementById("authStatus");
+  if(status)status.textContent=`Harness startup failed: ${error?.message||String(error)}`;
+});
