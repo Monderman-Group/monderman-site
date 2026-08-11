@@ -33,7 +33,7 @@
 <main>
   <h1>Structural Clarity Acceptance Harness</h1>
   <p class="lead">Runs controlled customer scenarios through the live Structural Clarity API, renders every case with the production report code, and validates the PDF, summary HTML, full HTML, and JSON outputs from the same finalized payload.</p>
-  <div class="notice" id="authStatus" data-harness-build="2026-08-11.4">Harness build 2026-08-11.4 loaded; starting the session check…</div>
+  <div class="notice" id="authStatus" data-harness-build="2026-08-11.5">Harness build 2026-08-11.5 loaded; starting the session check…</div>
   <div class="toolbar">
     <button class="primary" id="runBtn" disabled>Run comprehensive 18-case test</button>
     <button class="secondary" id="clearBtn">Clear local results</button>
@@ -57,6 +57,7 @@
         <button id="jsonBtn" disabled>JSON export</button>
         <button class="secondary" id="bundleBtn" disabled>Acceptance bundle</button>
         <button class="secondary" id="matrixBtn" disabled>Matrix results</button>
+        <button class="secondary" id="reviewBtn" disabled>Automated review file</button>
       </div>
       <details><summary>Answer ledger</summary><ol class="ledger" id="ledger"><li>Not available.</li></ol></details>
       <details><summary>Unasked questions</summary><ul class="ledger" id="unasked"><li>Not available.</li></ul></details>
@@ -331,7 +332,69 @@ function showLedger(apiRun){
   $("unasked").replaceChildren(...(missing.length?missing.map(entry=>{const li=document.createElement("li");li.innerHTML=`<code>${escapeHtml(entry.item_id||entry.question_id||"")}</code> — ${escapeHtml(entry.question||"Not asked by the adaptive route")}`;return li}):[Object.assign(document.createElement("li"),{textContent:"None."})]));
 }
 function escapeHtml(value){return String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[char]))}
-function enableDownloads(enabled){["pdfBtn","summaryBtn","fullBtn","jsonBtn","bundleBtn","matrixBtn","desktopBtn","mobileBtn"].forEach(id=>$(id).disabled=!enabled)}
+
+function buildExactSentenceRepetition(caseRows){
+  const occurrences=new Map();
+  caseRows.forEach(row=>{
+    const seen=new Set();
+    String(row.fullReportText||"").split(/(?<=[.!?])\s+/).forEach(sentence=>{
+      const display=sentence.replace(/\s+/g," ").trim();
+      const key=display.toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+      if(display.length<70||key.length<55||seen.has(key))return;
+      seen.add(key);
+      const entry=occurrences.get(key)||{sentence:display,cases:[]};
+      entry.cases.push(row.id);occurrences.set(key,entry);
+    });
+  });
+  return Array.from(occurrences.values()).filter(entry=>entry.cases.length>1).sort((a,b)=>b.cases.length-a.cases.length||b.sentence.length-a.sentence.length).slice(0,150);
+}
+function buildAutomatedReviewDataset(){
+  const caseRows=allCaseArtifacts.map(entry=>{
+    const result=entry.apiRun.result||{},coverage=result.dimension_coverage||result.measurement_coverage||{};
+    return {
+      id:entry.apiRun.case.id,name:entry.apiRun.case.name,profile:entry.apiRun.case.profile,
+      depth:entry.apiRun.case.depth,role:entry.apiRun.case.role,runId:entry.apiRun.runId,
+      scenario:entry.apiRun.scenario,score:result.score,band:result.score_band||result.band,
+      dimensions:result.dimensions,coverage,exposure:result.exposure,
+      scorerVersion:result.scorer_version||null,configVersion:result.config_version||null,
+      apiResult:result,customerJson:entry.files.jsonArtifact,
+      summaryReportText:plainText(entry.files.summaryHtml),fullReportText:plainText(entry.files.fullHtml),
+      browserAnswerLedger:entry.apiRun.trace,apiAnswerTrace:entry.apiRun.payload.answer_trace||[],
+      unaskedQuestions:entry.apiRun.payload.unasked_questions||[],
+      checks:entry.checks,failedChecks:entry.checks.filter(check=>!check.ok),
+      exports:{summaryHtmlBytes:entry.files.summaryHtml.length,fullHtmlBytes:entry.files.fullHtml.length,pdf:entry.files.pdf}
+    };
+  });
+  const failedCheckCounts={};
+  caseRows.flatMap(row=>row.failedChecks).forEach(check=>{failedCheckCounts[check.name]=(failedCheckCounts[check.name]||0)+1});
+  const bandCounts={};
+  caseRows.forEach(row=>{bandCounts[row.band]=(bandCounts[row.band]||0)+1});
+  return {
+    schemaVersion:"monderman_structural_clarity_aggregate_review_v1",
+    generatedAt:new Date().toISOString(),
+    environment:{page:location.href,apiBase:API_BASE,frontendSource:`${PAGE_BASE}/structural-clarity.html`,userAgent:navigator.userAgent},
+    reviewPurpose:"One-file corpus for cross-case customer-release review of prose, numbers, coverage, recommendations, parity, repetition, and outliers.",
+    limitations:["PDF bytes and page images are not embedded. PDF size, MIME type, and page count are included; visually inspect only cases flagged by this dataset or a representative sample."],
+    reviewQuestions:[
+      "Are scores, bands, dimensions, coverage, exposure figures, and recommendations credible for each scenario?",
+      "Does prose remain specific to the case rather than merely changing names and numbers?",
+      "Are repeated sentences legitimate report scaffolding or customer-visible duplication presented as distinct insight?",
+      "Do healthy, mixed, severe, contradictory, unpriced, short-route, and long-route cases behave coherently?",
+      "Are any assertions technically passing while the underlying output would still fail a customer belief test?"
+    ],
+    aggregate:{
+      caseCount:caseRows.length,totalChecks:caseRows.reduce((sum,row)=>sum+row.checks.length,0),
+      passedChecks:caseRows.reduce((sum,row)=>sum+row.checks.filter(check=>check.ok).length,0),
+      failedChecks:caseRows.reduce((sum,row)=>sum+row.failedChecks.length,0),
+      failedCases:caseRows.filter(row=>row.failedChecks.length).map(row=>row.id),
+      failedCheckCounts,bandCounts,
+      scoreRange:caseRows.length?{min:Math.min(...caseRows.map(row=>Number(row.score))),max:Math.max(...caseRows.map(row=>Number(row.score)))}:null,
+      exactRepeatedSentences:buildExactSentenceRepetition(caseRows)
+    },
+    cases:caseRows
+  };
+}
+function enableDownloads(enabled){["pdfBtn","summaryBtn","fullBtn","jsonBtn","bundleBtn","matrixBtn","reviewBtn","desktopBtn","mobileBtn"].forEach(id=>$(id).disabled=!enabled)}
 function renderChecks(checks){$("checks").replaceChildren(...checks.map(check=>{const li=document.createElement("li");li.innerHTML=`<span class="${check.ok?"pass":"fail"}">${check.ok?"PASS":"FAIL"}</span> — ${escapeHtml(check.name)}<small>${escapeHtml(check.detail)}</small>`;return li}))}
 function selectCaseArtifact(index){
   const entry=allCaseArtifacts[index];if(!entry)return;artifacts=entry.files;currentCase=entry.apiRun.case;
@@ -372,6 +435,7 @@ $("fullBtn").addEventListener("click",()=>download(artifacts.fullHtml,`${fileSte
 $("jsonBtn").addEventListener("click",()=>download(JSON.stringify(artifacts.jsonArtifact,null,2),`${fileStem()}.json`,"application/json;charset=utf-8"));
 $("bundleBtn").addEventListener("click",()=>download(JSON.stringify(artifacts.bundle,null,2),`${fileStem()}-bundle.json`,"application/json;charset=utf-8"));
 $("matrixBtn").addEventListener("click",()=>download(JSON.stringify({generatedAt:new Date().toISOString(),caseCount:allCaseArtifacts.length,cases:allCaseArtifacts.map(entry=>({id:entry.apiRun.case.id,name:entry.apiRun.case.name,profile:entry.apiRun.case.profile,depth:entry.apiRun.case.depth,role:entry.apiRun.case.role,runId:entry.apiRun.runId,score:entry.apiRun.result.score,band:entry.apiRun.result.score_band||entry.apiRun.result.band,coverage:entry.apiRun.result.dimension_coverage||entry.apiRun.result.measurement_coverage,checks:entry.checks,exportMetadata:entry.files.bundle.exportMetadata}))},null,2),"structural-clarity-18-case-matrix.json","application/json;charset=utf-8"));
+$("reviewBtn").addEventListener("click",()=>download(JSON.stringify(buildAutomatedReviewDataset(),null,2),"structural-clarity-automated-review-dataset.json","application/json;charset=utf-8"));
 $("desktopBtn").addEventListener("click",()=>reportFrame?.classList.remove("mobile"));$("mobileBtn").addEventListener("click",()=>reportFrame?.classList.add("mobile"));
 
 async function loadSupabaseClientFactory(){
