@@ -371,8 +371,22 @@ $("bundleBtn").addEventListener("click",()=>download(JSON.stringify(artifacts.bu
 $("matrixBtn").addEventListener("click",()=>download(JSON.stringify({generatedAt:new Date().toISOString(),caseCount:allCaseArtifacts.length,cases:allCaseArtifacts.map(entry=>({id:entry.apiRun.case.id,name:entry.apiRun.case.name,profile:entry.apiRun.case.profile,depth:entry.apiRun.case.depth,role:entry.apiRun.case.role,runId:entry.apiRun.runId,score:entry.apiRun.result.score,band:entry.apiRun.result.score_band||entry.apiRun.result.band,coverage:entry.apiRun.result.dimension_coverage||entry.apiRun.result.measurement_coverage,checks:entry.checks,exportMetadata:entry.files.bundle.exportMetadata}))},null,2),"structural-clarity-18-case-matrix.json","application/json;charset=utf-8"));
 $("desktopBtn").addEventListener("click",()=>reportFrame?.classList.remove("mobile"));$("mobileBtn").addEventListener("click",()=>reportFrame?.classList.add("mobile"));
 
+async function loadSupabaseClientFactory(){
+  const importWithTimeout=(url)=>Promise.race([
+    import(url),
+    new Promise((_,reject)=>setTimeout(()=>reject(new Error(`Timed out loading ${url}`)),8000))
+  ]);
+  try{return (await importWithTimeout("https://esm.sh/@supabase/supabase-js@2")).createClient}
+  catch(primaryError){
+    $("authStatus").textContent="The primary authentication client did not load. Trying the backup source…";
+    try{return (await importWithTimeout("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm")).createClient}
+    catch(backupError){throw new Error(`Authentication client failed to load. ${primaryError.message}; ${backupError.message}`)}
+  }
+}
+
 try{
-  const {createClient}=await import("https://esm.sh/@supabase/supabase-js@2");
+  const createClient=await loadSupabaseClientFactory();
+  if(typeof createClient!=="function")throw new Error("Authentication client loaded without createClient");
   supaClient=createClient("https://ptkxrzgmeldalrkfruth.supabase.co","sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",{auth:{persistSession:true,autoRefreshToken:true}});
   await freshToken();
   if(authToken){$("authStatus").textContent="Signed in. The comprehensive test creates 18 real test runs in the current account and may pause if the API rate limit is reached. It will not purchase, promote, archive, or alter other runs.";$("authStatus").style.borderColor="#8fc79d";$("runBtn").disabled=false}
