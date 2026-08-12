@@ -4543,7 +4543,7 @@ const dimensionRows = [
   ["coordination_load","Coordination load"], ["execution_stability","Execution stability"]
 ].map(([key,label]) => {
   const value = result?.dimensions?.[key];
-  return `<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #EAE6DD"><span>${safe(label)}</span><b>${Number.isFinite(value) ? `${Math.round(value)} / 100` : "Not measured"}</b></div>`;
+  return `<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #EAE6DD"><span>${escapeHtml(label)}</span><b>${Number.isFinite(value) ? `${Math.round(value)} / 100` : "Not measured"}</b></div>`;
 }).join("");
 const donutSegments = buildDonutSegments(breakdown);
 const donutPattern = analyzeDonutPattern(donutSegments, result);
