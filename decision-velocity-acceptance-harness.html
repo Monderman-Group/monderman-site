@@ -33,7 +33,7 @@
 <main>
   <h1>Decision Velocity Acceptance Harness</h1>
   <p class="lead">Runs controlled customer scenarios through the live Decision Velocity API, renders every case with the production report code, and validates the PDF, summary HTML, full HTML, and JSON outputs from the same finalized payload.</p>
-  <div class="notice" id="authStatus" data-harness-build="2026-08-12.2">Harness build 2026-08-12.2 loaded; starting the session check…</div>
+  <div class="notice" id="authStatus" data-harness-build="2026-08-12.3">Harness build 2026-08-12.3 loaded; starting the session check…</div>
   <div class="toolbar">
     <button class="primary" id="runBtn" disabled>Run comprehensive 18-case test</button>
     <button class="secondary" id="clearBtn">Clear local results</button>
@@ -355,9 +355,18 @@ function buildExactSentenceRepetition(caseRows){
   });
   return Array.from(occurrences.values()).filter(entry=>entry.cases.length>1).sort((a,b)=>b.cases.length-a.cases.length||b.sentence.length-a.sentence.length).slice(0,150);
 }
-function buildAutomatedReviewDataset(){
-  const caseRows=allCaseArtifacts.map(entry=>{
+function blobToDataUrl(blob){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.addEventListener("load",()=>resolve(String(reader.result||"")),{once:true});
+    reader.addEventListener("error",()=>reject(reader.error||new Error("Could not encode the PDF artifact")),{once:true});
+    reader.readAsDataURL(blob);
+  });
+}
+async function buildAutomatedReviewDataset(){
+  const caseRows=await Promise.all(allCaseArtifacts.map(async entry=>{
     const result=entry.apiRun.result||{},coverage=result.dimension_coverage||result.measurement_coverage||{};
+    const stem=`${entry.apiRun.case.id}-decision-velocity-acceptance`;
     return {
       id:entry.apiRun.case.id,name:entry.apiRun.case.name,profile:entry.apiRun.case.profile,
       depth:entry.apiRun.case.depth,role:entry.apiRun.case.role,runId:entry.apiRun.runId,
@@ -369,9 +378,14 @@ function buildAutomatedReviewDataset(){
       browserAnswerLedger:entry.apiRun.trace,apiAnswerTrace:entry.apiRun.payload.answer_trace||[],
       unaskedQuestions:entry.apiRun.payload.unasked_questions||[],
       checks:entry.checks,failedChecks:entry.checks.filter(check=>!check.ok),
-      exports:{summaryHtmlBytes:entry.files.summaryHtml.length,fullHtmlBytes:entry.files.fullHtml.length,pdf:entry.files.pdf}
+      artifacts:{
+        pdf:{filename:`${stem}.pdf`,mimeType:entry.files.pdfBlob.type||"application/pdf",sizeBytes:entry.files.pdfBlob.size,pageCount:entry.files.pdf.pageCount,dataUrl:await blobToDataUrl(entry.files.pdfBlob)},
+        summaryHtml:{filename:`${stem}-summary.html`,mimeType:"text/html;charset=utf-8",sizeCharacters:entry.files.summaryHtml.length,content:entry.files.summaryHtml},
+        fullHtml:{filename:`${stem}-full.html`,mimeType:"text/html;charset=utf-8",sizeCharacters:entry.files.fullHtml.length,content:entry.files.fullHtml},
+        customerJson:{filename:`${stem}.json`,mimeType:"application/json",content:entry.files.jsonArtifact}
+      }
     };
-  });
+  }));
   const failedCheckCounts={};
   caseRows.flatMap(row=>row.failedChecks).forEach(check=>{failedCheckCounts[check.name]=(failedCheckCounts[check.name]||0)+1});
   const bandCounts={};
@@ -379,11 +393,12 @@ function buildAutomatedReviewDataset(){
   const decisionTypes=[...new Set(caseRows.map(row=>row.scenario.decisionType||row.scenario.decision_type).filter(Boolean))].sort();
   const confidenceLevels=[...new Set(caseRows.map(row=>row.scenario.confidenceLevel||row.scenario.confidence_level).filter(Boolean))].sort();
   return {
-    schemaVersion:"monderman_decision_velocity_aggregate_review_v1",
+    schemaVersion:"monderman_decision_velocity_aggregate_review_v2",
     generatedAt:new Date().toISOString(),
     environment:{page:location.href,apiBase:API_BASE,frontendSource:`${PAGE_BASE}/decision-velocity.html`,userAgent:navigator.userAgent},
-    reviewPurpose:"One-file corpus for cross-case customer-release review of prose, numbers, coverage, recommendations, parity, repetition, and outliers.",
-    limitations:["PDF bytes and page images are not embedded. PDF size, MIME type, and page count are included; visually inspect only cases flagged by this dataset or a representative sample."],
+    reviewPurpose:"One-file corpus containing all four complete customer artifacts for every case, plus cross-case data for customer-release review of prose, numbers, coverage, recommendations, parity, repetition, and outliers.",
+    artifactEncoding:{pdf:"Complete PDF embedded as a data URL (base64 after the comma).",html:"Complete HTML source in the content field.",json:"Complete parsed customer JSON in the content field."},
+    limitations:["PDFs are fully embedded, but visual page inspection still requires decoding and rendering each PDF data URL."],
     reviewQuestions:[
       "Are scores, bands, dimensions, coverage, exposure figures, and recommendations credible for each scenario?",
       "Does prose remain specific to the case rather than merely changing names and numbers?",
@@ -444,7 +459,12 @@ $("fullBtn").addEventListener("click",()=>download(artifacts.fullHtml,`${fileSte
 $("jsonBtn").addEventListener("click",()=>download(JSON.stringify(artifacts.jsonArtifact,null,2),`${fileStem()}.json`,"application/json;charset=utf-8"));
 $("bundleBtn").addEventListener("click",()=>download(JSON.stringify(artifacts.bundle,null,2),`${fileStem()}-bundle.json`,"application/json;charset=utf-8"));
 $("matrixBtn").addEventListener("click",()=>download(JSON.stringify({generatedAt:new Date().toISOString(),caseCount:allCaseArtifacts.length,cases:allCaseArtifacts.map(entry=>({id:entry.apiRun.case.id,name:entry.apiRun.case.name,profile:entry.apiRun.case.profile,depth:entry.apiRun.case.depth,role:entry.apiRun.case.role,runId:entry.apiRun.runId,score:entry.apiRun.result.score,band:entry.apiRun.result.score_band||entry.apiRun.result.band,coverage:entry.apiRun.result.dimension_coverage||entry.apiRun.result.measurement_coverage,checks:entry.checks,exportMetadata:entry.files.bundle.exportMetadata}))},null,2),"decision-velocity-18-case-matrix.json","application/json;charset=utf-8"));
-$("reviewBtn").addEventListener("click",()=>download(JSON.stringify(buildAutomatedReviewDataset(),null,2),"decision-velocity-automated-review-dataset.json","application/json;charset=utf-8"));
+$("reviewBtn").addEventListener("click",async()=>{
+  const button=$("reviewBtn"),label=button.textContent;button.disabled=true;button.textContent="Building complete review file…";
+  try{download(JSON.stringify(await buildAutomatedReviewDataset()),"decision-velocity-automated-review-dataset.json","application/json;charset=utf-8")}
+  catch(error){console.error(error);alert(`Could not build the complete review file: ${error.message}`)}
+  finally{button.disabled=false;button.textContent=label}
+});
 $("desktopBtn").addEventListener("click",()=>reportFrame?.classList.remove("mobile"));$("mobileBtn").addEventListener("click",()=>reportFrame?.classList.add("mobile"));
 
 async function loadSupabaseClientFactory(){
