@@ -1303,21 +1303,21 @@ return formatted === "--" ? formatted : `${formatted}*`;
 function roundDirectionalCurrency(value) {
 const n = Number(value);
 if (!Number.isFinite(n) || n <= 0) return 0;
-// Step ladder: smaller steps at smaller magnitudes preserve differentiation
-// for remedy paths and other relative comparisons. Previously a flat $25K
-// step under $250K collapsed Light ($15K raw) and Moderate ($32K raw) into
-// the same display band; the new ladder keeps them distinct.
-const step = n < 50000 ? 5000 : n < 100000 ? 10000 : n < 250000 ? 25000 : 50000;
+// Use sub-$5K steps for small estimates. A $5K floor made values such as
+// $198 and $1,008 render as $5,000-$10,000, which was not a confidence band:
+// it was a material overstatement of the disclosed model output.
+const step = n < 1000 ? 50 : n < 5000 ? 250 : n < 50000 ? 5000 : n < 250000 ? 10000 : n < 500000 ? 25000 : 50000;
 return Math.max(step, Math.round(n / step) * step);
 }
 
 function buildCurrencyConfidenceBand(value) {
 const n = Number(value);
 if (!Number.isFinite(n) || n <= 0) return { midpoint: 0, low: 0, high: 0, label: "Not estimated" };
-// Step ladder matches roundDirectionalCurrency for consistency.
-const step = n < 50000 ? 5000 : n < 100000 ? 10000 : n < 250000 ? 25000 : 50000;
-const low = Math.max(step, Math.round((n * 0.8) / step) * step);
-const high = Math.max(low + step, Math.round((n * 1.25) / step) * step);
+// Step ladder matches roundDirectionalCurrency for consistency and guarantees
+// that the published range contains the underlying estimate.
+const step = n < 1000 ? 50 : n < 5000 ? 250 : n < 50000 ? 5000 : n < 250000 ? 10000 : n < 500000 ? 25000 : 50000;
+const low = Math.max(step, Math.floor((n * 0.8) / step) * step);
+const high = Math.max(low + step, Math.ceil((n * 1.25) / step) * step);
 const midpoint = Math.max(step, Math.round(n / step) * step);
 return { midpoint, low, high, label: `${formatCurrency(low)}–${formatCurrency(high)}*`, step };
 }
@@ -1331,7 +1331,7 @@ return band.label || "Not estimated";
 function roundDirectionalHours(value) {
 const n = Number(value);
 if (!Number.isFinite(n) || n <= 0) return 0;
-const step = n < 1000 ? 50 : n < 10000 ? 100 : 500;
+const step = n < 100 ? 10 : n < 1000 ? 50 : n < 10000 ? 100 : 500;
 return Math.max(step, Math.round(n / step) * step);
 }
 
@@ -1341,6 +1341,19 @@ if (!rounded) return options.fallback || "not estimated";
 const prefix = options.approximate === false ? "" : "about ";
 const suffix = options.suffix || "";
 return `${prefix}${rounded.toLocaleString()}${suffix}`.trim();
+}
+
+function formatCapacityDrag(exposure, fallback = "--") {
+const ex = exposure && typeof exposure === "object" ? exposure : {};
+if (ex.capacity_drag_percent == null || !Number.isFinite(Number(ex.capacity_drag_percent))) return fallback;
+const published = Math.max(0, Math.min(100, Number(ex.capacity_drag_percent)));
+const hours = Number(ex.annual_hours);
+const capacity = Number(ex.total_capacity_hours);
+const unrounded = Number.isFinite(hours) && hours > 0 && Number.isFinite(capacity) && capacity > 0
+  ? (hours / capacity) * 100
+  : published;
+if (unrounded > 0 && unrounded < 1) return "<1%";
+return `${Math.round(published)}%`;
 }
 
 // SectorWorkflowKnowledge — the sector × workflow knowledge tuples
@@ -3943,28 +3956,28 @@ function renderCapacityWaterfall(result) {
 const mount = $("capacityWaterfall");
 const note = $("capacityWaterfallNote");
 if (!mount) return;
-const capacityDrag = Math.max(0, Math.min(100, Math.round(Number(result?.exposure?.capacity_drag_percent || 0))));
-let estimatedAdminLoad = Math.max(8, Math.min(45, Math.round(Math.max(10, capacityDrag * 0.55))));
-let productive = Math.max(0, 100 - capacityDrag - estimatedAdminLoad);
-let drag = Math.max(5, Math.min(50, capacityDrag));
-let total = productive + estimatedAdminLoad + drag;
-if (total !== 100) {
-productive = (productive / total) * 100;
-estimatedAdminLoad = (estimatedAdminLoad / total) * 100;
-drag = (drag / total) * 100;
+const capacity = calculateCapacityComposition(result?.exposure);
+if (!capacity.measured) {
+mount.innerHTML = `<div class="treemap-empty">N/A — the disclosed inputs do not support a defensible capacity allocation.</div>`;
+if (note) note.textContent = "Capacity allocation was not estimated for this run.";
+return;
 }
+const productive = capacity.productive;
+const estimatedAdminLoad = capacity.admin;
+const drag = capacity.drag;
+const displayPct = value => value > 0 && value < 1 ? "<1%" : `${Math.round(value)}%`;
 const segments = [
 { cls: "segment-productive", label: "Productive work", value: productive },
 { cls: "segment-admin", label: "Necessary administrative load", value: estimatedAdminLoad },
 { cls: "segment-drag", label: "Recoverable drag", value: drag }
 ];
-mount.innerHTML = segments.map(seg => `<div class="capacity-segment ${seg.cls}" style="width:0%" data-final-width="${seg.value.toFixed(1)}">${seg.value >= 15 ? `${Math.round(seg.value)}%` : ""}</div>`).join("");
+mount.innerHTML = segments.map(seg => `<div class="capacity-segment ${seg.cls}" style="width:0%" data-final-width="${seg.value.toFixed(2)}">${seg.value >= 15 ? displayPct(seg.value) : ""}</div>`).join("");
 requestAnimationFrame(() => {
 mount.querySelectorAll(".capacity-segment").forEach((el) => {
 el.style.width = `${el.dataset.finalWidth}%`;
 });
 });
-if (note) note.textContent = `${Math.round(productive)}% productive work, ${Math.round(estimatedAdminLoad)}% necessary administrative load, and ${Math.round(drag)}% recoverable drag based on the current run assumptions.`;
+if (note) note.textContent = `${displayPct(productive)} productive work, ${displayPct(estimatedAdminLoad)} necessary administrative load, and ${displayPct(drag)} recoverable drag based on the current run assumptions.`;
 }
 
 function renderBurdenTreemap(result) {
@@ -4043,14 +4056,22 @@ if (note) note.textContent = result?.trajectory?.note || "Directional signal";
   if (ex.capacity_drag_percent == null || !Number.isFinite(Number(ex.capacity_drag_percent))) {
     return { measured: false, productive: null, admin: null, drag: null };
   }
-  const dragPct = Math.max(0, Math.min(100, Math.round(Number(ex.capacity_drag_percent) || 0)));
+  const publishedDrag = Math.max(0, Math.min(100, Number(ex.capacity_drag_percent) || 0));
+  const annualHours = Number(ex.annual_hours);
+  const capacityHours = Number(ex.total_capacity_hours);
+  const derivedDrag = Number.isFinite(annualHours) && annualHours > 0 && Number.isFinite(capacityHours) && capacityHours > 0
+    ? Math.max(0, Math.min(100, (annualHours / capacityHours) * 100))
+    : 0;
+  // Some scorer payloads round a small, nonzero ratio to 0%. Preserve the
+  // underlying measured fraction instead of presenting it as no burden.
+  const dragPct = publishedDrag === 0 && derivedDrag > 0 ? derivedDrag : publishedDrag;
   const recShare = Math.max(0, Math.min(100, Number(ex.recoverable_share_percent) || 0));
-  let drag = Math.round(dragPct * (recShare / 100));
+  let drag = dragPct * (recShare / 100);
   let admin = Math.max(0, dragPct - drag);
   let productive = Math.max(0, 100 - dragPct);
   const capTotal = productive + admin + drag || 1;
-  productive = Math.round((productive / capTotal) * 100);
-  admin = Math.round((admin / capTotal) * 100);
+  productive = (productive / capTotal) * 100;
+  admin = (admin / capTotal) * 100;
   drag = Math.max(0, 100 - productive - admin);
   return { measured: true, productive, admin, drag };
   }
@@ -4270,7 +4291,7 @@ return `<svg width="220" height="140" viewBox="0 0 220 140" xmlns="http://www.w3
   */
   function buildCoverStatsStrip(exportScore, result, benchmarkPosition) {
   const annualCost = formatEstimateCurrencyRange(result?.exposure?.annual_cost);
-  const dragPct = result?.exposure?.capacity_drag_percent == null ? null : Math.round(Number(result.exposure.capacity_drag_percent));
+  const dragText = formatCapacityDrag(result?.exposure, "Not estimated");
   return `<div class="cover-stat-strip">
   
    <div class="cover-stat">
@@ -4285,7 +4306,7 @@ return `<svg width="220" height="140" viewBox="0 0 220 140" xmlns="http://www.w3
    </div>
    <div class="cover-stat">
      <p class="cover-stat-label">Capacity absorbed</p>
-     <p class="cover-stat-value">${Number.isFinite(dragPct) ? `${dragPct}%` : "Not estimated"}</p>
+     <p class="cover-stat-value">${escapeHtml(dragText)}</p>
      <p class="cover-stat-sub">of available capacity</p>
    </div>
 
@@ -4496,6 +4517,9 @@ function buildPrimaryReadSummary(result = {}, payload = {}) {
 const qualitative = detectQualitativeOverride(payload);
 if (qualitative.type !== "none") return qualitative.summary;
 const primary = derivePrimaryBurdenSource(result);
+if (Number(result?.score) >= 83) {
+  return `${primary.label || "The leading residual signal"} is the largest remaining source of friction in an otherwise healthy pathway. Preserve the current design and monitor this signal for verified drift rather than redesigning a pathway that is working.`;
+}
 const trajectory = result?.trajectory?.direction === "up" ? " and the burden appears to be rising" : result?.trajectory?.direction === "down" ? " while some pressure may be easing" : " with no clear easing signal yet";
 const primaryNoteBase = (primary.note || "The pathway is carrying visible decision drag").replace(/\.\s*$/, "");
 return `${primaryNoteBase}${trajectory}.`;
@@ -4546,8 +4570,9 @@ const annualHours = Math.round(Number(result?.exposure?.annual_hours || 0));
 const annualHoursText = annualHours ? formatRoundedHours(annualHours, { suffix: " annual burden hours*" }) : "annual burden hours* not estimated";
 const annualCostText = formatEstimateCurrencyRange(result?.exposure?.annual_cost);
 const dragMeasured = result?.exposure?.capacity_drag_percent != null && Number.isFinite(Number(result.exposure.capacity_drag_percent));
-const dragPct = dragMeasured ? Math.max(0, Math.min(100, Math.round(Number(result.exposure.capacity_drag_percent)))) : null;
+const dragDisplay = formatCapacityDrag(result?.exposure, "Not estimated");
 const capacity = calculateCapacityComposition(result?.exposure);
+const capacityLabel = value => value > 0 && value < 1 ? "&lt;1%" : `${Math.round(value)}%`;
 const breakdown = asObject(result?.burden_breakdown);
 const dimensionRows = [
   ["cycle_velocity","Cycle velocity"], ["approval_efficiency","Approval efficiency"],
@@ -4935,7 +4960,7 @@ return `<!doctype html>
     <div class="stat-strip">
       <div class="stat"><div class="stat-label">Decision velocity score</div><div class="stat-value">${exportScore}</div><div class="stat-sub">${safe(burdenCondition.label)}</div></div>
       <div class="stat"><div class="stat-label">Exposure range</div><div class="stat-value">${safe(annualCostText)}</div><div class="stat-sub">labor exposure*</div></div>
-      <div class="stat"><div class="stat-label">Capacity absorbed</div><div class="stat-value">${dragMeasured ? `${dragPct}%` : "Not estimated"}</div><div class="stat-sub">${dragMeasured ? "of available capacity" : "missing capacity inputs"}</div></div>
+      <div class="stat"><div class="stat-label">Capacity absorbed</div><div class="stat-value">${safe(dragDisplay)}</div><div class="stat-sub">${dragMeasured ? "of available capacity" : "missing capacity inputs"}</div></div>
     </div>
     <div class="kv"><b>WORKFLOW</b><span>${safe(processName)}</span><b>SECTOR</b><span>${safe(sectorName)}</span><b>GENERATED</b><span>${safe(generated)}</span></div>
   </div>
@@ -4947,9 +4972,9 @@ return `<!doctype html>
     <p class="eyebrow">The pattern this run is detecting</p><h2>Headline finding</h2>
     <p class="lede">${safeWords(harmonized.headlineFinding || summary.body, 84)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(executiveQuestion)}</p></div>
-    <p>Directional modeling suggests ${safe(annualHoursText)} and ${safe(annualCostText)} in labor exposure${dragMeasured ? `, with capacity drag around ${dragPct}%*` : "; capacity drag was not estimated because the necessary capacity inputs were unavailable"}. These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
+    <p>Directional modeling suggests ${safe(annualHoursText)} and ${safe(annualCostText)} in labor exposure${dragMeasured ? `, with capacity drag around ${safe(dragDisplay)}*` : "; capacity drag was not estimated because the necessary capacity inputs were unavailable"}. These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
     <p>The practical question is not whether decisions are still getting made. It is how much organizational energy is now required to move them. The score should be read as a structured quantitative pathway-drag indicator. Experiential bypass signals, when present, do not change the score; they provide interpretive context about how the formal pathway may differ from operating reality.</p><p>When a pathway needs repeated chase effort, manager intervention, workaround maintenance, or escalation to move forward, the visible output may remain acceptable while the formal decision system underneath becomes increasingly expensive to sustain.</p>
-    ${capacity.measured ? `<div class="capacity"><div class="seg" style="width:${capacity.productive}%;background:#3C8A60">${capacity.productive}%</div><div class="seg" style="width:${capacity.admin}%;background:#C9821F">${capacity.admin}%</div><div class="seg" style="width:${capacity.drag}%;background:#B0392F">${capacity.drag}%</div></div><div class="legend"><span><span class="dot" style="background:#3C8A60"></span>Productive work</span><span><span class="dot" style="background:#C9821F"></span>Routine coordination</span><span><span class="dot" style="background:#B0392F"></span>Recoverable drag*</span></div><p class="muted" style="font-size:8.5px">Estimates of how this pathway's available capacity is currently allocated. Recoverable drag* is the portion that could be returned to productive use through structural intervention.</p>` : `<div class="panel"><b>Capacity allocation not estimated.</b><p>The disclosed inputs were not sufficient to calculate a defensible capacity percentage.</p></div>`}
+    ${capacity.measured ? `<div class="capacity"><div class="seg" style="width:${capacity.productive}%;background:#3C8A60">${capacityLabel(capacity.productive)}</div><div class="seg" style="width:${capacity.admin}%;background:#C9821F">${capacityLabel(capacity.admin)}</div><div class="seg" style="width:${capacity.drag}%;background:#B0392F">${capacityLabel(capacity.drag)}</div></div><div class="legend"><span><span class="dot" style="background:#3C8A60"></span>Productive work</span><span><span class="dot" style="background:#C9821F"></span>Routine coordination</span><span><span class="dot" style="background:#B0392F"></span>Recoverable drag*</span></div><p class="muted" style="font-size:8.5px">Estimates of how this pathway's available capacity is currently allocated. Recoverable drag* is the portion that could be returned to productive use through structural intervention.</p>` : `<div class="panel"><b>Capacity allocation not estimated.</b><p>The disclosed inputs were not sufficient to calculate a defensible capacity percentage.</p></div>`}
     <h3 style="margin-top:26px">Why this matters in ${safe(sectorName)}</h3>
     <p>${safeWords(industry.opportunityPattern, 44)}</p>
     <p>${safeWords(trajectoryProse, 36)}</p>
@@ -5431,12 +5456,19 @@ function renderResults(result, payload, outputMode) {
 try { renderBasisOfRead(result, payload); } catch (_e) {}
 
 const harmonized = buildHarmonizedNarrative(result, payload);
+const priorityActions = buildPriorityActions(result, payload).filter(Boolean);
 const resultWithState = { ...result, __interpretiveState: harmonized.state };
 const burdenCondition = deriveOperatingBurdenCondition(result);
 const burdenConstraint = derivePrimaryBurdenSource(result);
 const burdenDiagnosis = deriveBurdenDiagnosis(result, payload);
 const reclaim = estimateReclaimPotential(result, payload);
 const executiveSummary = buildExecutiveSummary(result, payload);
+const healthyCondition = Number(result?.score) >= 83;
+const diagnosisReads = healthyCondition ? {
+  burdenRead: "Measured decision velocity is strong. The leadership task is to preserve the conditions supporting that performance and watch for verified drift.",
+  sourceRead: `${burdenConstraint.label} is the largest residual signal, not evidence that the pathway requires redesign.`,
+  diagnosisRead: "The current time-and-control tradeoff appears proportionate. Any intervention should be evidence-triggered and narrowly targeted."
+} : harmonized.diagnosisReads;
 renderExperienceLayer(payload);
 
 animateNumber($("scoreNumber"), Number(result.score || 0));
@@ -5447,15 +5479,15 @@ $("findingBody").textContent = headlineParts.join(" ");
 $("scoreBadge").textContent = "Decision Velocity Diagnostic";
 
 $("cycleConditionValue").textContent = burdenCondition.label;
-$("cycleConditionSub").textContent = harmonized.diagnosisReads.burdenRead;
+$("cycleConditionSub").textContent = diagnosisReads.burdenRead;
 $("burdenConstraintValue").textContent = burdenConstraint.label;
-$("burdenConstraintSub").textContent = harmonized.diagnosisReads.sourceRead;
+$("burdenConstraintSub").textContent = diagnosisReads.sourceRead;
 $("tradeoffDiagnosisValue").textContent = burdenDiagnosis.label;
-$("tradeoffDiagnosisSub").textContent = harmonized.diagnosisReads.diagnosisRead;
+$("tradeoffDiagnosisSub").textContent = diagnosisReads.diagnosisRead;
 
 $("economicHoursValue").textContent = result?.exposure?.annual_hours != null ? formatRoundedHours(result.exposure.annual_hours, { suffix: " hrs" }) : "--";
 $("economicCostValue").textContent = formatEstimateCurrencyRange(result?.exposure?.annual_cost);
-$("economicCapacityValue").textContent = result?.exposure?.capacity_drag_percent != null ? `${Math.round(Number(result.exposure.capacity_drag_percent))}%` : "--";
+$("economicCapacityValue").textContent = formatCapacityDrag(result?.exposure);
 $("benchmarkValue").textContent = result.benchmark_position || "--";
 $("benchmarkSub").textContent = "Instrument design reference; not a peer benchmark.";
 $("trajectoryValue").textContent = result?.trajectory?.label || "--";
@@ -5520,8 +5552,8 @@ $("exportMetaOpportunity").textContent = `Primary burden source: ${burdenConstra
 
 renderList("leadershipList", harmonized.leadership);
 renderList("flagsList", harmonized.keyFlags);
-renderList("actionsList", harmonized.recommendedActions);
-renderList("actionsListDetail", harmonized.recommendedActions);
+renderList("actionsList", priorityActions);
+renderList("actionsListDetail", priorityActions);
 renderList("patternsList", asArray(result.patterns).map(humanize));
 const experientialSignalForDisplay = detectQualitativeOverride(payload || {});
 renderList("contradictionsList", asArray(result.contradictions).length
@@ -5529,7 +5561,7 @@ renderList("contradictionsList", asArray(result.contradictions).length
 : experientialSignalForDisplay.type !== "none"
 ? [`No structured-answer contradiction surfaced. Separately, the experiential layer surfaced an operating-reality tension: ${experientialSignalForDisplay.summary}`]
 : ["No material structured-answer contradiction signals surfaced in this run."]);
-renderList("execSummaryActions", harmonized.recommendedActions);
+renderList("execSummaryActions", priorityActions);
 
 const contradictionTiles = $("contradictionTiles");
 if (contradictionTiles) {
@@ -5613,7 +5645,7 @@ renderTableBody("costCompositionBody", [
 { label: "Average hourly cost*", value: formatCurrency(result?.exposure?.average_hourly_cost || payload?.hourlyCost), note: "Directional labor-cost assumption per materially involved participant." },
 { label: "Annual labor hours*", value: result?.exposure?.annual_hours ? formatRoundedHours(result.exposure.annual_hours, { suffix: " hrs" }) : "--", note: "Modeled across the workflow volume you provided." },
 { label: "Annual labor exposure*", value: formatEstimateCurrencyRange(result?.exposure?.annual_cost), note: "Directional labor-cost impact from keeping the workflow moving." },
-{ label: "Capacity drag*", value: result?.exposure?.capacity_drag_percent != null ? `${Math.round(Number(result.exposure.capacity_drag_percent))}%` : "--", note: "Estimated share of capacity absorbed by structural drag." }
+{ label: "Capacity drag*", value: formatCapacityDrag(result?.exposure), note: "Estimated share of capacity absorbed by structural drag." }
 ], (row) => [`<td>${escapeHtml(row.label)}</td>`, `<td>${escapeHtml(row.value)}</td>`, `<td>${escapeHtml(row.note)}</td>`]);
 
 const roleRows = asArray(result.labor_profile).filter((row) => row && (hasMeaningfulValue(row.people) || row.significance || row.role));
@@ -5660,7 +5692,7 @@ const dimensionCard = $("dimensionChart")?.closest(".chart-card");
 if (dimensionCard && !dimensionCard.querySelector(".dim-note")) {
 const note = document.createElement("p");
 note.className = "dim-note";
-note.textContent = "Higher values indicate where this run is surfacing heavier burden pressure: process, systems, control, reporting, or adaptation. The shape matters more than any single point.";
+note.textContent = "Higher values indicate stronger decision velocity. Compare the measured shape across cycle velocity, approval efficiency, coordination load, and execution stability; unmeasured dimensions remain excluded.";
 dimensionCard.appendChild(note);
 }
 renderShareBar(result);

@@ -153,8 +153,18 @@ async function postJSON(url,body,label){
   }
   throw new Error(`${label}: rate limit did not clear`);
 }
+function buildScenarioDescription(testCase,scenario){
+  const process=String(scenario.processName||"This decision pathway");
+  const unit=String(scenario.businessUnit||"the operating unit");
+  if(testCase.profile==="healthy")return `${process} in ${unit} generally move at a proportionate pace with clear routing, limited escalation, and little compensatory coordination. The test should preserve that healthy reading while identifying only residual watch items.`;
+  if(testCase.profile==="severe")return `${process} in ${unit} routinely stall across reviews, handoffs, and signoff. Escalation and key-person intervention have become normal operating mechanisms, creating substantial delay and capacity burden.`;
+  if(testCase.profile==="contradictory")return `${process} in ${unit} have formally assigned owners and relatively light approval architecture, yet decisions still escalate frequently. The test should surface the conflict between documented clarity and lived movement.`;
+  if(testCase.profile==="moderate")return `${process} in ${unit} continue to reach completion, but recurring coordination and alignment work create measurable drag. The burden is material enough to monitor without implying systemic failure.`;
+  return `${process} in ${unit} cross several roles and continue to move, but serial review, repeated coordination, and occasional escalation make the pathway materially slower than the decision class warrants.`;
+}
 function normalizedScenario(testCase){
   const s={...NORTHBRIDGE,...testCase.scenario};
+  if(!Object.prototype.hasOwnProperty.call(testCase.scenario||{},"description"))s.description=buildScenarioDescription(testCase,s);
   s.business_unit=s.businessUnit;s.process_name=s.processName;s.focus_area=s.processName;s.employee_count=s.employeeCount;
   s.peopleAffected=s.peopleInvolved;s.confidenceLevel=s.confidenceLevel||"moderate";s.confidence_level=s.confidenceLevel;
   s.participantMode=testCase.role;s.participant_mode=testCase.role;s.diagnosticDepth=testCase.depth;s.diagnostic_depth=testCase.depth;
@@ -263,10 +273,20 @@ async function renderArtifacts(apiRun){
 function plainText(html){const doc=new DOMParser().parseFromString(html,"text/html");doc.querySelectorAll("style,script").forEach(node=>node.remove());return (doc.body?.textContent||"").replace(/\s+/g," ").trim()}
 function sectionText(html,heading){const doc=new DOMParser().parseFromString(html,"text/html");const node=Array.from(doc.querySelectorAll("h1,h2,h3,h4")).find(el=>el.textContent.trim().toLowerCase()===heading.toLowerCase());return (node?.closest("section")?.textContent||node?.parentElement?.textContent||"").replace(/\s+/g," ").trim()}
 function expectedBand(score){return score>=83?"Healthy velocity":score>=67?"Moderate drag":score>=49?"Significant friction":"High bureaucratic latency"}
+function currencyBandContains(label,value){
+  if(value==null||!Number.isFinite(Number(value)))return /not estimated|--/i.test(String(label));
+  if(Number(value)<=0)return /not estimated|--|\$0/i.test(String(label));
+  const numbers=(String(label).match(/[\d,]+/g)||[]).map(item=>Number(item.replace(/,/g,""))).filter(Number.isFinite);
+  return numbers.length>=2&&numbers[0]<=Number(value)&&Number(value)<=numbers[1];
+}
 function runChecks(apiRun,files){
   const result=apiRun.result,ex=result.exposure||{},coverage=result.dimension_coverage||result.measurement_coverage||{},summary=plainText(files.summaryHtml),full=plainText(files.fullHtml),score=Number(result.score),band=String(result.score_band||result.band||"");
   const fullDoc=new DOMParser().parseFromString(files.fullHtml,"text/html");
   const exportedScoreText=(fullDoc.querySelector("#scoreNumber")?.textContent||"").trim();
+  const displayedCost=(fullDoc.querySelector("#economicCostValue")?.textContent||"").trim();
+  const displayedReclaim=(fullDoc.querySelector("#reclaimValue")?.textContent||"").trim();
+  const displayedCapacity=(fullDoc.querySelector("#economicCapacityValue")?.textContent||"").trim();
+  const dimensionCaption=(fullDoc.querySelector(".dim-note")?.textContent||"").trim();
   const dimensions=Object.entries(result.dimensions||{}),unmeasured=coverage.unmeasured_dimensions||[];
   const combined=`${summary} ${full}`;const jsonText=JSON.stringify(files.jsonArtifact);const model=ex.model||{};
   const updateSection=sectionText(files.summaryHtml,"What would update this read").toLowerCase();
@@ -294,6 +314,9 @@ function runChecks(apiRun,files){
     ["Capacity saturation withholds implausible outputs",ex.sizing_status!=="input_saturation"||(ex.annual_hours==null&&ex.annual_cost==null&&ex.recoverable_cost==null&&ex.capacity_drag_percent==null),`${ex.sizing_status}; hours=${ex.annual_hours}; cost=${ex.annual_cost}; drag=${ex.capacity_drag_percent}`],
     ["Capacity drag reconciles",ex.capacity_drag_percent==null||Number(ex.total_capacity_hours)>0&&Math.abs((Number(ex.annual_hours)/Number(ex.total_capacity_hours)*100)-Number(ex.capacity_drag_percent))<=0.51,`${ex.capacity_drag_percent}% displayed`],
     ["Recoverable cost reconciles",ex.cost_estimated===false?ex.recoverable_cost==null:tolerance(Number(ex.recoverable_cost),Number(ex.annual_cost)*Number(ex.recoverable_share_percent)/100,2),`${ex.recoverable_cost} at ${ex.recoverable_share_percent}%`],
+    ["Displayed exposure range contains modeled cost",currencyBandContains(displayedCost,ex.annual_cost),`${ex.annual_cost} in ${displayedCost}`],
+    ["Displayed reclaim range contains modeled amount",currencyBandContains(displayedReclaim,ex.recoverable_cost),`${ex.recoverable_cost} in ${displayedReclaim}`],
+    ["Sub-one-percent capacity is not displayed as zero",!(Number(ex.annual_hours)>0&&Number(ex.total_capacity_hours)>0&&Number(ex.annual_hours)/Number(ex.total_capacity_hours)<.01)||displayedCapacity==="<1%",`${ex.annual_hours}/${ex.total_capacity_hours} shown as ${displayedCapacity}`],
     ["Recoverable is below burden",ex.priceable===false||Number(ex.recoverable_cost)<=Number(ex.annual_cost),`${ex.recoverable_cost} ≤ ${ex.annual_cost}`],
     ["Composition reconciles",!Object.keys(composition).length||tolerance(compositionTotal,Number(ex.annual_hours),2),`${compositionTotal} vs ${ex.annual_hours}`],
     ["Exposure inputs reconcile",(Number(apiRun.scenario.meetingHours)>0?Number(model.input_hours_per_run)===Number(apiRun.scenario.meetingHours):model.input_hours_per_run==null)&&Number(model.annual_cycles)===Number(apiRun.scenario.annualVolume),`${model.input_hours_per_run} × ${model.annual_cycles}`],
@@ -309,6 +332,7 @@ function runChecks(apiRun,files){
     ["No placeholder or invalid values",!PLACEHOLDER_RE.test(`${combined} ${jsonText}`),( combined.match(PLACEHOLDER_RE)||["none"] )[0]],
     ["No cross-diagnostic language leakage",!/structural clarity diagnostic|institutional performance diagnostic|operational systems diagnostic|ownership_blur_pattern|duplicate_approvals_inverse/i.test(combined),(combined.match(/structural clarity diagnostic|institutional performance diagnostic|operational systems diagnostic|ownership_blur_pattern|duplicate_approvals_inverse/i)||["none"])[0]],
     ["Score direction language is correct",!/higher scores (?:mean|indicate) (?:more drag|worse|slower)|Rising scores would suggest drag/i.test(combined),"higher scores mean greater decision velocity"],
+    ["Dimension caption uses the correct higher-is-better direction",/higher values indicate stronger decision velocity/i.test(dimensionCaption)&&!/higher values indicate.*burden/i.test(dimensionCaption),dimensionCaption||"missing caption"],
     ["No empty experiential synthesis",!/Experiential synthesis\s+(?:Leadership question|How to use this layer)/i.test(summary),"empty panels must be omitted"],
     ["Current perspective is not prescribed again",!new RegExp(`(?:a |another )?${currentPerspective}[- ]perspective run`).test(updateSection),apiRun.case.role],
     ["Priority actions are usable and distinct",recommendations.length>=2&&recommendations.every(item=>String(item).trim().length>=20)&&new Set(recommendations.map(item=>String(item).toLowerCase().replace(/\W/g,""))).size===recommendations.length,`${recommendations.length} actions`],
@@ -332,6 +356,9 @@ function runChecks(apiRun,files){
     ["Healthy reports do not manufacture bypass tension",score<83||!/routinely bypassed|experiential operating-reality tension/i.test(combined),score<83?"not a healthy case":(combined.match(/routinely bypassed|experiential operating-reality tension/i)||["none"])[0]],
     ["Healthy remedies remain proportionate",score<83||!/full pathway redesign|over-engineering|emergency reset/i.test(remedySection),score<83?"not a healthy case":(remedySection.match(/full pathway redesign|over-engineering|emergency reset/i)||["none"])[0]],
     ["Healthy priority actions preserve rather than redesign",score<83||recommendations.every(item=>!/lighten|redesign|reduce unnecessary|first material intervention/i.test(String(item))),score<83?"not a healthy case":recommendations.join(" | ")],
+    ["Healthy full report contains no stale intervention language",score<83||!/fix now:\s*reduce|harder to defend relative|active attention rather than passive tolerance/i.test(full),score<83?"not a healthy case":(full.match(/fix now:\s*reduce|harder to defend relative|active attention rather than passive tolerance/i)||["none"])[0]],
+    ["Scenario description is case-specific",apiRun.case.id==="northbridge"||(String(apiRun.scenario.description||"").includes(apiRun.scenario.processName)&&String(apiRun.scenario.description||"").includes(apiRun.scenario.businessUnit)),String(apiRun.scenario.description||"missing")],
+    ["No Northbridge narrative contamination",apiRun.case.id==="northbridge"||!/procurement, finance, clinical operations, IT security/i.test(combined),apiRun.case.id==="northbridge"?"reference case":(combined.match(/procurement, finance, clinical operations, IT security/i)||["none"])[0]],
     ["Quadrant prose agrees with overall condition",score>=67||!/cleanest operating posture|moving acceptably fast/i.test(combined),score>=67?"moderate or healthy case":(combined.match(/cleanest operating posture|moving acceptably fast/i)||["none"])[0]],
     ["Customer copy is mechanically clean",!/senior_leader perspective|\bpathway pathway\b|weakness\s*-\s*not audited|yours\.Discuss|Monderman Monderman Decision/i.test(combined),(combined.match(/senior_leader perspective|\bpathway pathway\b|weakness\s*-\s*not audited|yours\.Discuss|Monderman Monderman Decision/i)||["none"])[0]]
   ];
@@ -448,6 +475,17 @@ async function run(){
       files.bundle=bundle;allCaseArtifacts.push({apiRun,files,checks});renderCaseTable();
       log(`${testCase.name}: ${checks.filter(check=>check.ok).length}/${checks.length} checks passing.`);
     }
+    const descriptionGroups=new Map();
+    allCaseArtifacts.forEach(entry=>{
+      const description=String(entry.apiRun.scenario.description||"").replace(/\s+/g," ").trim().toLowerCase();
+      const group=descriptionGroups.get(description)||[];group.push(entry);descriptionGroups.set(description,group);
+    });
+    descriptionGroups.forEach(group=>{
+      if(!group[0]||group.length===1)return;
+      const ids=group.map(entry=>entry.apiRun.case.id).join(", ");
+      group.forEach(entry=>entry.checks.push({name:"Scenario narratives are unique across the matrix",ok:false,detail:`Duplicated by: ${ids}`}));
+    });
+    renderCaseTable();
     selectCaseArtifact(0);
     const failedCases=allCaseArtifacts.filter(entry=>entry.checks.some(check=>!check.ok));const failedChecks=allCaseArtifacts.reduce((sum,entry)=>sum+entry.checks.filter(check=>!check.ok).length,0);
     $("runStatus").className=`status ${failedCases.length?"fail":"pass"}`;$("runStatus").textContent=failedCases.length?`FAIL — ${failedChecks} checks across ${failedCases.length} cases`:`PASS — ${CASE_DEFINITIONS.length} cases`;
