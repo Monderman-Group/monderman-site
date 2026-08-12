@@ -256,7 +256,7 @@ async function renderArtifacts(apiRun){
   const hooks=reportFrame.contentWindow?.__mondermanTestHooks;
   if(!hooks||!reportFrame.contentWindow?.__mondermanInjectionApplied)throw new Error("Production renderer did not accept the finalized payload");
   const summaryHtml=hooks.buildExecutiveReportHtml(apiRun.result,apiRun.payload);
-  const fullHtml=hooks.buildFullReportHTML(apiRun.result,apiRun.payload,"Monderman Structural Clarity Report");
+  const fullHtml=hooks.buildFullReportHTML(apiRun.result,apiRun.payload,"Structural Clarity Report");
   const jsonArtifact=hooks.buildCrossDiagnosticArtifact(apiRun.result,apiRun.payload);
   log("Building PDF from the production report renderer…");
   const pdfResult=await hooks.downloadExecutiveReportPdf({returnBlob:true});
@@ -274,9 +274,12 @@ function sectionText(html,heading){const doc=new DOMParser().parseFromString(htm
 function expectedBand(score){return score>=83?"High structural clarity":score>=67?"Moderate structural clarity":score>=49?"Material ambiguity":"Severe structural ambiguity"}
 function runChecks(apiRun,files){
   const result=apiRun.result,ex=result.exposure||{},coverage=result.dimension_coverage||result.measurement_coverage||{},summary=plainText(files.summaryHtml),full=plainText(files.fullHtml),score=Number(result.score),band=String(result.score_band||result.band||"");
+  const fullDoc=new DOMParser().parseFromString(files.fullHtml,"text/html");
+  const exportedScoreText=(fullDoc.querySelector("#scoreNumber")?.textContent||"").trim();
   const dimensions=Object.entries(result.dimensions||{}),unmeasured=coverage.unmeasured_dimensions||[];
   const combined=`${summary} ${full}`;const jsonText=JSON.stringify(files.jsonArtifact);const model=ex.model||{};
   const updateSection=sectionText(files.summaryHtml,"What would update this read").toLowerCase();
+  const remedySection=sectionText(files.fullHtml,"Three remedy paths");
   const currentPerspective=apiRun.case.role.replace("_","[- ]?");
   const recommendations=files.jsonArtifact.findings?.recommendations||[];
   const composition=ex.composition||{};const compositionTotal=Object.values(composition).reduce((sum,value)=>sum+(Number(value)||0),0);
@@ -323,12 +326,19 @@ function runChecks(apiRun,files){
     ["API trace matches browser ledger",Array.isArray(apiRun.payload.answer_trace)&&apiRun.payload.answer_trace.length===apiRun.trace.answers.length,`${apiRun.payload.answer_trace?.length||0} of ${apiRun.trace.answers.length} answers`],
     ["Evidence counts reconcile",Object.entries(coverage.evidence_counts||{}).every(([key,value])=>Number(value)===Number(apiRun.payload.measurement_evidence_counts?.[key]??value)),JSON.stringify(coverage.evidence_counts||{})],
     ["Score parity in both HTML files",summary.includes(String(Math.round(score)))&&full.includes(String(Math.round(score))),`score=${score}`],
+    ["Full HTML score card equals finalized score",exportedScoreText===String(Math.round(score)),`score card ${exportedScoreText||"missing"}; finalized ${Math.round(score)}`],
     ["Band parity in both HTML files",summary.toLowerCase().includes(band.toLowerCase())&&full.toLowerCase().includes(band.toLowerCase()),band],
     ["JSON parity",Number(files.jsonArtifact.score)===score&&JSON.stringify(files.jsonArtifact.dimensions)===JSON.stringify(result.dimensions),`score ${files.jsonArtifact.score}; dimensions ${Object.keys(files.jsonArtifact.dimensions||{}).length}`],
     ["JSON remains synthesis-compatible",Boolean(files.jsonArtifact.tool_type&&files.jsonArtifact.band&&files.jsonArtifact.primary_driver&&files.jsonArtifact.exposure&&Array.isArray(files.jsonArtifact.priority_actions)),`${files.jsonArtifact.tool_type} · ${files.jsonArtifact.primary_driver||"missing driver"}`],
     ["Unmeasured labels rendered",!unmeasured.length||(summary.match(/Not measured/gi)||[]).length>=unmeasured.length,`${unmeasured.length} expected`],
     ["PDF built",files.pdf.size>10000&&files.pdf.type==="application/pdf"&&files.pdf.pageCount>=8,`${files.pdf.size} bytes; ${files.pdf.pageCount} pages`],
-    ["Chart marker policy",governanceMeasured?(quadrant&&Number.isFinite(quadrant.left)&&Number.isFinite(quadrant.top)&&quadrant.left>=8&&quadrant.left<=92&&quadrant.top>=8&&quadrant.top<=92):quadrant===null,governanceMeasured?JSON.stringify(quadrant):"governance not measured; no coordinate"]
+    ["Chart marker policy",governanceMeasured?(quadrant&&Number.isFinite(quadrant.left)&&Number.isFinite(quadrant.top)&&quadrant.left>=8&&quadrant.left<=92&&quadrant.top>=8&&quadrant.top<=92):quadrant===null,governanceMeasured?JSON.stringify(quadrant):"governance not measured; no coordinate"],
+    ["No legacy benchmark-positioning labels",!/Sector positioning context|Benchmark and operating read|Industry positioning gauge/i.test(combined),(combined.match(/Sector positioning context|Benchmark and operating read|Industry positioning gauge/i)||["none"])[0]],
+    ["Run length is not mislabeled as short-form",!/single short-form run/i.test(combined),(combined.match(/single short-form run/i)||["none"])[0]],
+    ["No generic all-perspectives rerun instruction",!/other perspectives \(operational, managerial, senior leader\)/i.test(combined),(combined.match(/other perspectives \(operational, managerial, senior leader\)/i)||["none"])[0]],
+    ["Healthy reports do not manufacture bypass tension",score<83||!/routinely bypassed|experiential operating-reality tension/i.test(combined),score<83?"not a high-clarity case":(combined.match(/routinely bypassed|experiential operating-reality tension/i)||["none"])[0]],
+    ["Healthy remedies remain proportionate",score<83||!/full structural redesign|over-engineering|fastest structural reset/i.test(remedySection),score<83?"not a high-clarity case":(remedySection.match(/full structural redesign|over-engineering|fastest structural reset/i)||["none"])[0]],
+    ["Customer copy is mechanically clean",!/senior_leader perspective|\bstructures structures\b|weakness\s*-\s*not audited|yours\.Discuss|Monderman Monderman Structural/i.test(combined),(combined.match(/senior_leader perspective|\bstructures structures\b|weakness\s*-\s*not audited|yours\.Discuss|Monderman Monderman Structural/i)||["none"])[0]]
   ];
   return checks.map(([name,ok,detail])=>({name,ok:Boolean(ok),detail}));
 }
