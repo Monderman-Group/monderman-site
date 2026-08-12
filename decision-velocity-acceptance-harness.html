@@ -33,7 +33,7 @@
 <main>
   <h1>Decision Velocity Acceptance Harness</h1>
   <p class="lead">Runs controlled customer scenarios through the live Decision Velocity API, renders every case with the production report code, and validates the PDF, summary HTML, full HTML, and JSON outputs from the same finalized payload.</p>
-  <div class="notice" id="authStatus" data-harness-build="2026-08-12.2">Harness build 2026-08-12.2 loaded; starting the session check…</div>
+  <div class="notice" id="authStatus" data-harness-build="2026-08-12.3">Harness build 2026-08-12.3 loaded; starting the session check…</div>
   <div class="toolbar">
     <button class="primary" id="runBtn" disabled>Run comprehensive 18-case test</button>
     <button class="secondary" id="clearBtn">Clear local results</button>
@@ -197,7 +197,8 @@ function experienceForCase(testCase,scenario=normalizedScenario(testCase)){
 }
 function experienceLayer(testCase,scenario){
   const experience=experienceForCase(testCase,scenario);
-  if(!experience)return {participantPerspective:testCase.role,hasInput:false,source:"none",entries:[]};
+  const perspectiveLabel=testCase.role==="senior_leader"?"Senior leader":testCase.role==="managerial"?"Managerial":"Operational";
+  if(!experience)return {participantPerspective:perspectiveLabel,hasInput:false,source:"none",entries:[]};
   const definitions=[
     ["self",`Your ${testCase.role.replace("_"," ")} experience`],
     ["observedOperational","What operational staff may be experiencing"],
@@ -205,7 +206,7 @@ function experienceLayer(testCase,scenario){
     ["observedSeniorLeader","What senior leaders may be seeing"]
   ];
   const entries=definitions.filter(([key])=>String(experience[key]||"").trim()).map(([key,label])=>({key,label,text:experience[key]}));
-  return {participantPerspective:testCase.role,hasInput:Boolean(entries.length),source:"unedited_participant_input",entries};
+  return {participantPerspective:perspectiveLabel,hasInput:Boolean(entries.length),source:"unedited_participant_input",entries};
 }
 async function driveApi(testCase){
   const scenario=normalizedScenario(testCase);
@@ -295,7 +296,8 @@ function runChecks(apiRun,files){
     ["Recoverable cost reconciles",ex.cost_estimated===false?ex.recoverable_cost==null:tolerance(Number(ex.recoverable_cost),Number(ex.annual_cost)*Number(ex.recoverable_share_percent)/100,2),`${ex.recoverable_cost} at ${ex.recoverable_share_percent}%`],
     ["Recoverable is below burden",ex.priceable===false||Number(ex.recoverable_cost)<=Number(ex.annual_cost),`${ex.recoverable_cost} ≤ ${ex.annual_cost}`],
     ["Composition reconciles",!Object.keys(composition).length||tolerance(compositionTotal,Number(ex.annual_hours),2),`${compositionTotal} vs ${ex.annual_hours}`],
-    ["Exposure inputs reconcile",Number(model.input_hours_per_run)===Number(apiRun.scenario.meetingHours)&&Number(model.annual_cycles)===Number(apiRun.scenario.annualVolume),`${model.input_hours_per_run} × ${model.annual_cycles}`],
+    ["Exposure inputs reconcile",(Number(apiRun.scenario.meetingHours)>0?Number(model.input_hours_per_run)===Number(apiRun.scenario.meetingHours):model.input_hours_per_run==null)&&Number(model.annual_cycles)===Number(apiRun.scenario.annualVolume),`${model.input_hours_per_run} × ${model.annual_cycles}`],
+    ["Missing hours remain unpriced",Number(apiRun.scenario.meetingHours)>0||(ex.hours_estimated===false&&ex.cost_estimated===false&&ex.annual_hours==null&&ex.annual_cost==null),`${ex.sizing_status}; hours=${ex.annual_hours}; cost=${ex.annual_cost}`],
     ["Attribution model disclosed",model.model_type==="directional_scenario_not_empirical_benchmark"&&model.empirical_benchmark===false&&Boolean(model.formula),`${model.model_type} · ${model.formula||"missing formula"}`],
     ["Attribution responds to score",Number(model.attributable_burden_share_percent)===expectedAttribution,`${model.attributable_burden_share_percent}% vs expected ${expectedAttribution}%`],
     ["Attributed hours reconcile",ex.hours_estimated===false||tolerance(Number(model.attributed_hours_before_capacity_check),Number(apiRun.scenario.meetingHours)*Number(apiRun.scenario.annualVolume)*expectedAttribution/100,2),`${model.attributed_hours_before_capacity_check} at ${expectedAttribution}%`],
@@ -324,10 +326,13 @@ function runChecks(apiRun,files){
     ["PDF built",files.pdf.size>10000&&files.pdf.type==="application/pdf"&&files.pdf.pageCount>=8,`${files.pdf.size} bytes; ${files.pdf.pageCount} pages`],
     ["Chart marker policy",governanceMeasured?(quadrant&&Number.isFinite(quadrant.left)&&Number.isFinite(quadrant.top)&&quadrant.left>=8&&quadrant.left<=92&&quadrant.top>=8&&quadrant.top<=92):quadrant===null,governanceMeasured?JSON.stringify(quadrant):"governance not measured; no coordinate"],
     ["No empirical peer-benchmark claim",!/Where you stand versus similar organizations|comparable sector pathways|peer-normal|similar pathways (?:in|still)|outperform(?:s|ing)? (?:its )?peers|(?:above|below|within) (?:the )?industry range/i.test(combined),(combined.match(/Where you stand versus similar organizations|comparable sector pathways|peer-normal|similar pathways (?:in|still)|outperform(?:s|ing)? (?:its )?peers|(?:above|below|within) (?:the )?industry range/i)||["none"])[0]],
+    ["Model range is not labeled typical",!/typical range/i.test(combined),(combined.match(/typical range/i)||["none"])[0]],
     ["Run length is not mislabeled as short-form",!/single short-form run/i.test(combined),(combined.match(/single short-form run/i)||["none"])[0]],
     ["No generic all-perspectives rerun instruction",!/other perspectives \(operational, managerial, senior leader\)/i.test(combined),(combined.match(/other perspectives \(operational, managerial, senior leader\)/i)||["none"])[0]],
     ["Healthy reports do not manufacture bypass tension",score<83||!/routinely bypassed|experiential operating-reality tension/i.test(combined),score<83?"not a healthy case":(combined.match(/routinely bypassed|experiential operating-reality tension/i)||["none"])[0]],
     ["Healthy remedies remain proportionate",score<83||!/full pathway redesign|over-engineering|emergency reset/i.test(remedySection),score<83?"not a healthy case":(remedySection.match(/full pathway redesign|over-engineering|emergency reset/i)||["none"])[0]],
+    ["Healthy priority actions preserve rather than redesign",score<83||recommendations.every(item=>!/lighten|redesign|reduce unnecessary|first material intervention/i.test(String(item))),score<83?"not a healthy case":recommendations.join(" | ")],
+    ["Quadrant prose agrees with overall condition",score>=67||!/cleanest operating posture|moving acceptably fast/i.test(combined),score>=67?"moderate or healthy case":(combined.match(/cleanest operating posture|moving acceptably fast/i)||["none"])[0]],
     ["Customer copy is mechanically clean",!/senior_leader perspective|\bpathway pathway\b|weakness\s*-\s*not audited|yours\.Discuss|Monderman Monderman Decision/i.test(combined),(combined.match(/senior_leader perspective|\bpathway pathway\b|weakness\s*-\s*not audited|yours\.Discuss|Monderman Monderman Decision/i)||["none"])[0]]
   ];
   return checks.map(([name,ok,detail])=>({name,ok:Boolean(ok),detail}));
@@ -355,9 +360,18 @@ function buildExactSentenceRepetition(caseRows){
   });
   return Array.from(occurrences.values()).filter(entry=>entry.cases.length>1).sort((a,b)=>b.cases.length-a.cases.length||b.sentence.length-a.sentence.length).slice(0,150);
 }
-function buildAutomatedReviewDataset(){
-  const caseRows=allCaseArtifacts.map(entry=>{
+function blobToDataUrl(blob){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.addEventListener("load",()=>resolve(String(reader.result||"")),{once:true});
+    reader.addEventListener("error",()=>reject(reader.error||new Error("Could not encode the PDF artifact")),{once:true});
+    reader.readAsDataURL(blob);
+  });
+}
+async function buildAutomatedReviewDataset(){
+  const caseRows=await Promise.all(allCaseArtifacts.map(async entry=>{
     const result=entry.apiRun.result||{},coverage=result.dimension_coverage||result.measurement_coverage||{};
+    const stem=`${entry.apiRun.case.id}-decision-velocity-acceptance`;
     return {
       id:entry.apiRun.case.id,name:entry.apiRun.case.name,profile:entry.apiRun.case.profile,
       depth:entry.apiRun.case.depth,role:entry.apiRun.case.role,runId:entry.apiRun.runId,
@@ -369,9 +383,14 @@ function buildAutomatedReviewDataset(){
       browserAnswerLedger:entry.apiRun.trace,apiAnswerTrace:entry.apiRun.payload.answer_trace||[],
       unaskedQuestions:entry.apiRun.payload.unasked_questions||[],
       checks:entry.checks,failedChecks:entry.checks.filter(check=>!check.ok),
-      exports:{summaryHtmlBytes:entry.files.summaryHtml.length,fullHtmlBytes:entry.files.fullHtml.length,pdf:entry.files.pdf}
+      artifacts:{
+        pdf:{filename:`${stem}.pdf`,mimeType:entry.files.pdfBlob.type||"application/pdf",sizeBytes:entry.files.pdfBlob.size,pageCount:entry.files.pdf.pageCount,dataUrl:await blobToDataUrl(entry.files.pdfBlob)},
+        summaryHtml:{filename:`${stem}-summary.html`,mimeType:"text/html;charset=utf-8",sizeCharacters:entry.files.summaryHtml.length,content:entry.files.summaryHtml},
+        fullHtml:{filename:`${stem}-full.html`,mimeType:"text/html;charset=utf-8",sizeCharacters:entry.files.fullHtml.length,content:entry.files.fullHtml},
+        customerJson:{filename:`${stem}.json`,mimeType:"application/json",content:entry.files.jsonArtifact}
+      }
     };
-  });
+  }));
   const failedCheckCounts={};
   caseRows.flatMap(row=>row.failedChecks).forEach(check=>{failedCheckCounts[check.name]=(failedCheckCounts[check.name]||0)+1});
   const bandCounts={};
@@ -379,11 +398,12 @@ function buildAutomatedReviewDataset(){
   const decisionTypes=[...new Set(caseRows.map(row=>row.scenario.decisionType||row.scenario.decision_type).filter(Boolean))].sort();
   const confidenceLevels=[...new Set(caseRows.map(row=>row.scenario.confidenceLevel||row.scenario.confidence_level).filter(Boolean))].sort();
   return {
-    schemaVersion:"monderman_decision_velocity_aggregate_review_v1",
+    schemaVersion:"monderman_decision_velocity_aggregate_review_v2",
     generatedAt:new Date().toISOString(),
     environment:{page:location.href,apiBase:API_BASE,frontendSource:`${PAGE_BASE}/decision-velocity.html`,userAgent:navigator.userAgent},
-    reviewPurpose:"One-file corpus for cross-case customer-release review of prose, numbers, coverage, recommendations, parity, repetition, and outliers.",
-    limitations:["PDF bytes and page images are not embedded. PDF size, MIME type, and page count are included; visually inspect only cases flagged by this dataset or a representative sample."],
+    reviewPurpose:"One-file corpus containing all four complete customer artifacts for every case, plus cross-case data for customer-release review of prose, numbers, coverage, recommendations, parity, repetition, and outliers.",
+    artifactEncoding:{pdf:"Complete PDF embedded as a data URL (base64 after the comma).",html:"Complete HTML source in the content field.",json:"Complete parsed customer JSON in the content field."},
+    limitations:["PDFs are fully embedded, but visual page inspection still requires decoding and rendering each PDF data URL."],
     reviewQuestions:[
       "Are scores, bands, dimensions, coverage, exposure figures, and recommendations credible for each scenario?",
       "Does prose remain specific to the case rather than merely changing names and numbers?",
@@ -444,7 +464,12 @@ $("fullBtn").addEventListener("click",()=>download(artifacts.fullHtml,`${fileSte
 $("jsonBtn").addEventListener("click",()=>download(JSON.stringify(artifacts.jsonArtifact,null,2),`${fileStem()}.json`,"application/json;charset=utf-8"));
 $("bundleBtn").addEventListener("click",()=>download(JSON.stringify(artifacts.bundle,null,2),`${fileStem()}-bundle.json`,"application/json;charset=utf-8"));
 $("matrixBtn").addEventListener("click",()=>download(JSON.stringify({generatedAt:new Date().toISOString(),caseCount:allCaseArtifacts.length,cases:allCaseArtifacts.map(entry=>({id:entry.apiRun.case.id,name:entry.apiRun.case.name,profile:entry.apiRun.case.profile,depth:entry.apiRun.case.depth,role:entry.apiRun.case.role,runId:entry.apiRun.runId,score:entry.apiRun.result.score,band:entry.apiRun.result.score_band||entry.apiRun.result.band,coverage:entry.apiRun.result.dimension_coverage||entry.apiRun.result.measurement_coverage,checks:entry.checks,exportMetadata:entry.files.bundle.exportMetadata}))},null,2),"decision-velocity-18-case-matrix.json","application/json;charset=utf-8"));
-$("reviewBtn").addEventListener("click",()=>download(JSON.stringify(buildAutomatedReviewDataset(),null,2),"decision-velocity-automated-review-dataset.json","application/json;charset=utf-8"));
+$("reviewBtn").addEventListener("click",async()=>{
+  const button=$("reviewBtn"),label=button.textContent;button.disabled=true;button.textContent="Building complete review file…";
+  try{download(JSON.stringify(await buildAutomatedReviewDataset()),"decision-velocity-automated-review-dataset.json","application/json;charset=utf-8")}
+  catch(error){console.error(error);alert(`Could not build the complete review file: ${error.message}`)}
+  finally{button.disabled=false;button.textContent=label}
+});
 $("desktopBtn").addEventListener("click",()=>reportFrame?.classList.remove("mobile"));$("mobileBtn").addEventListener("click",()=>reportFrame?.classList.add("mobile"));
 
 async function loadSupabaseClientFactory(){

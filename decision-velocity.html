@@ -869,7 +869,8 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
           </button>
           <div class="accordion-body">
             <section class="standalone-opportunity">
-              <article class="result-card"><h3>Opportunity: Faster decision pathways without weakening essential control</h3><div class="section-divider"></div><div class="opportunity-tile"><strong>Guided opportunity view</strong><div id="opportunityGateWrap"><p class="result-copy" style="margin-bottom:10px;">Before opening the guided view, please acknowledge: this is a directional read based on your inputs, which Monderman hasn't verified, and any decisions from here are yours.</p><div class="checkbox-card" style="margin-bottom:12px;"><div class="checkbox-row"><input id="opportunityGateCheckbox" type="checkbox" /><label for="opportunityGateCheckbox">I understand and accept these terms for the guided opportunity view.</label></div></div><div class="actions" style="justify-content:flex-start;"><div class="actions-left"><button class="btn btn-soft" id="revealOpportunityBtn" type="button">Reveal guided opportunity view</button><a class="btn btn-accent" href="connect.html" target="_blank" rel="noopener noreferrer">Discuss with Monderman Platform Services</a></div></div></div><div id="opportunityRevealWrap" class="hidden"><div class="opportunity-shell"><div class="opportunity-brief"><p class="lead" id="opportunityLeadText">Opportunity framing will appear here after scoring.</p><p id="opportunitySectorText">Sector and workflow interpretation will appear here after scoring.</p><p id="opportunityActionReasonText">Why the first moves matter will appear here after scoring.</p><p id="leadershipWatchoutText">Leadership watchout will appear here after scoring.</p></div></div><div class="opportunity-disclaimer" id="opportunityDisclaimer">Guided insights are directional, based on your inputs, which Monderman hasn't verified. Any interpretation or decisions from here are yours.</div><div class="actions" style="justify-content:flex-start;margin-top:12px;"><div class="actions-left"><a class="btn btn-accent" href="connect.html" target="_blank" rel="noopener noreferrer">Discuss with Monderman Platform Services</a></div></div></div></div></article>
+              <article class="result-card"><h3>Opportunity: Faster decision pathways without weakening essential control</h3><div class="section-divider"></div><div class="opportunity-tile"><strong>Guided opportunity view</strong><div id="opportunityGateWrap"><p class="result-copy" style="margin-bottom:10px;">Before opening the guided view, please acknowledge: this is a directional read based on your inputs, which Monderman hasn't verified, and any decisions from here are yours.</p><div class="checkbox-card" style="margin-bottom:12px;"><div class="checkbox-row"><input id="opportunityGateCheckbox" type="checkbox" /><label for="opportunityGateCheckbox">I understand and accept these terms for the guided opportunity view.</label></div></div><div class="actions" style="justify-content:flex-start;"><div class="actions-left"><button class="btn btn-soft" id="revealOpportunityBtn" type="button">Reveal guided opportunity view</button><a class="btn btn-accent" href="connect.html" target="_blank" rel="noopener noreferrer">Discuss with Monderman Platform Services</a></div></div></div><div id="opportunityRevealWrap" class="hidden"><div class="opportunity-shell"><div class="opportunity-brief"><p class="lead" id="opportunityLeadText">Opportunity framing will appear here after scoring.</p><p id="opportunitySectorText">Sector and workflow interpretation will appear here after scoring.</p><p id="opportunityActionReasonText">Why the first moves matter will appear here after scoring.</p><p id="leadershipWatchoutText">Leadership watchout will appear here after scoring.</p></div></div><div class="opportunity-disclaimer" id="opportunityDisclaimer">Guided insights are directional, based on your inputs, which Monderman hasn't verified. Any interpretation or decisions from here are yours.</div>
+<div class="actions" style="justify-content:flex-start;margin-top:12px;"><div class="actions-left"><a class="btn btn-accent" href="connect.html" target="_blank" rel="noopener noreferrer">Discuss with Monderman Platform Services</a></div></div></div></div></article>
             </section>
           </div>
         </article>
@@ -3743,7 +3744,14 @@ function renderInsightDepth(payload) {
                      : insight.confidenceLevel === "limited" ? "limited self-reported confidence"
                      : insight.confidenceLevel === "moderate" ? "moderate self-reported confidence"
                      :                                          "the reported confidence level";
-    copyEl.textContent = `This score reflects ${depthPhrase} from a single perspective with ${confPhrase}. A single run is a narrow first signal regardless of how thoughtful it was. To strengthen the read, run this diagnostic again from other perspectives (operational, managerial, senior leader) and over time — the cross-diagnostic synthesis tool combines those runs and computes a broader insight depth score.`;
+    const currentMode = state?.mode || state?.renderPayload?.participantMode || state?.renderPayload?.participant_mode || "senior_leader";
+    const otherPerspectiveLabels = ["operational", "managerial", "senior_leader"]
+      .filter((mode) => mode !== currentMode)
+      .map((mode) => displayPerspectiveLabel(mode).toLowerCase());
+    const perspectivePhrase = otherPerspectiveLabels.length === 2
+      ? `${otherPerspectiveLabels[0]} and ${otherPerspectiveLabels[1]}`
+      : otherPerspectiveLabels.join(", ");
+    copyEl.textContent = `This score reflects ${depthPhrase} from a single perspective with ${confPhrase}. A single run is a narrow first signal regardless of how thoughtful it was. To strengthen the read, run this diagnostic from ${perspectivePhrase} perspectives and over time — the cross-diagnostic synthesis tool combines those runs and computes a broader insight depth score.`;
   }
   const circumference = 100.53;
   const arc = $("confidenceRingArc");
@@ -4527,6 +4535,9 @@ const primarySource = derivePrimaryBurdenSource(result || {});
 const stateObj = buildInterpretiveState(result || {}, payload || {});
 const exportScore = Math.max(0, Math.min(100, Math.round(Number(result?.score || 0))));
 const processName = payload?.processName || payload?.process_name || "Decision Velocity Diagnostic";
+const organizationName = payload?.organizationName || payload?.organization_name || "";
+const businessUnit = payload?.businessUnit || payload?.business_unit || "";
+const organizationContext = [organizationName, businessUnit].filter(Boolean).join(" · ");
 const benchmarkPosition = result?.benchmark_position || "Design reference not established";
 const sectorName = resolveIndustryLabel(result, payload, { titleCase: false });
 const sectorMeta = resolveIndustryLabel(result, payload, { titleCase: true });
@@ -4569,6 +4580,13 @@ const executiveQuestion = buildLeadershipQuestion(result || {}, payload || {}, "
 const compositionQuestion = buildLeadershipQuestion(result || {}, payload || {}, "composition");
 const quadrantQuestion = buildLeadershipQuestion(result || {}, payload || {}, "quadrant");
 const remedyQuestion = buildLeadershipQuestion(result || {}, payload || {}, "remedy");
+const participantMode = payload?.participantMode || payload?.participant_mode || "senior_leader";
+const otherPerspectiveLabels = ["operational", "managerial", "senior_leader"]
+  .filter((mode) => mode !== participantMode)
+  .map((mode) => displayPerspectiveLabel(mode).toLowerCase().replace("senior leader", "senior-leader"));
+const otherPerspectiveRunPhrase = otherPerspectiveLabels.length === 2
+  ? `${otherPerspectiveLabels[0]} and ${otherPerspectiveLabels[1]} runs`
+  : `${otherPerspectiveLabels.join(", ")} runs`;
 const experientialSignal = detectQualitativeOverride(payload || {});
 const hasExperientialTension = experientialSignal.type !== "none";
 
@@ -4673,12 +4691,15 @@ const defaultReadings = [
 { label: "Equilibrium-with-workarounds read", interpretation: "The system may be stable only because managers and operators have learned how to compensate around it.", what_would_distinguish_it: "Removing informal cover would quickly worsen cycle time, exception volume, or compliance friction." }
 ];
 const competingReadings = (Array.isArray(narrativeForReport.competing_readings) && narrativeForReport.competing_readings.length ? narrativeForReport.competing_readings : defaultReadings).slice(0, 3);
-const updateReadItems = (Array.isArray(narrativeForReport.what_would_update_this_read) && narrativeForReport.what_would_update_this_read.length ? narrativeForReport.what_would_update_this_read : [
-"A managerial-perspective run showing the same workaround pattern would elevate the read from suggestive to confirmed.",
-"A senior-leader run showing confidence that the formal path is followed would expose a possible visibility gap.",
-"Actual volume and cycle-time data would recalibrate the exposure range and show whether the issue is occasional or normalized.",
-"Risk-tier data would show whether low-risk work is being trapped in a high-control path."
-]).slice(0, 3);
+const rawUpdateReadItems = Array.isArray(narrativeForReport.what_would_update_this_read) && narrativeForReport.what_would_update_this_read.length
+  ? narrativeForReport.what_would_update_this_read
+  : [
+      `${otherPerspectiveRunPhrase} would test whether the same pattern holds outside the current vantage point.`,
+      "Actual volume and cycle-time data would recalibrate the exposure range and show whether the issue is occasional or normalized.",
+      "Risk-tier data would show whether low-risk work is being trapped in a high-control path."
+    ];
+const currentPerspectivePattern = new RegExp(`(?:a |another )?${participantMode.replace("_", "[- ]?")}[- ]perspective run`, "i");
+const updateReadItems = rawUpdateReadItems.filter((item) => !currentPerspectivePattern.test(String(item))).slice(0, 3);
 const readingHtml = competingReadings.map((item) => '<div class="mini-card"><b>' + safe(item.label || "Reading") + '</b><p>' + safeWords(item.interpretation || item, 44) + '</p><p class="muted">Signal test: ' + safeWords(item.what_would_distinguish_it || "Additional cross-role evidence would clarify this reading.", 50) + '</p></div>').join("");
 const updateHtml = updateReadItems.map((item) => '<p style="margin:0 0 8px">• ' + safeWords(item, 42) + '</p>').join("");
 const decisionReviewPage = '<section class="page">' + footer(decisionReviewPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>Competing readings</h2><p>This section names the plausible interpretations of the same signal and identifies the evidence that would confirm, weaken, or reframe the current read.</p><div class="card-row" style="grid-template-columns:1fr;gap:12px">' + readingHtml + '</div></div></section>'
@@ -4727,8 +4748,8 @@ const contradictionHtml = contradictions.length
 : serverGapForExport.type !== "none"
 ? `<div class="panel" style="font-size:11.5px;padding:14px 20px"><p><b>${gapCalloutHeader}</b> ${safeWords(serverGapForExport.description, 34)} This does not affect the quantitative score.</p></div>`
 : hasExperientialTension
-? `<div class="panel" style="font-size:11.5px;padding:14px 20px"><p><b>No major structured-answer contradiction surfaced in this run.</b> The scored answer pattern did not show a major internal conflict. Separately, the experiential layer surfaced an operating-reality tension: ${safeWords(experientialSignal.summary, 30)} This should be tested through managerial and senior-leader runs.</p></div>`
-: `<div class="panel" style="font-size:11.5px;padding:14px 20px"><p><b>No major structured-answer contradiction surfaced in this run.</b> That does not prove the system is healthy. It only means the scored answer pattern did not show a major internal conflict; experiential notes, if added later, should be tested through managerial and senior-leader runs.</p></div>`;
+? `<div class="panel" style="font-size:11.5px;padding:14px 20px"><p><b>No major structured-answer contradiction surfaced in this run.</b> The scored answer pattern did not show a major internal conflict. Separately, the experiential layer surfaced an operating-reality tension: ${safeWords(experientialSignal.summary, 30)} This should be tested through ${otherPerspectiveRunPhrase}.</p></div>`
+: `<div class="panel" style="font-size:11.5px;padding:14px 20px"><p><b>No major structured-answer contradiction surfaced in this run.</b> That does not prove the system is healthy. It only means the scored answer pattern did not show a major internal conflict; experiential notes, if added later, should be tested through ${otherPerspectiveRunPhrase}.</p></div>`;
 const remedyHtml = remedyPaths.slice(0, 3).map((path) => `<div class="remedy"><div class="tag">${safe(path.kicker)}</div><h3>${safe(path.label)}</h3><p>${safeWords(path.summary, 18)}</p><p class="muted">Benefit: ${safeWords(path.benefit, 18)}</p><p class="muted">${safeWords(path.risk, 18)}</p></div>`).join("");
 const gaugeArc = Math.max(12, Math.min(206, Math.round(2.2 * exportScore)));
 const needleAngle = Math.PI * (1 + exportScore / 100);
@@ -4866,6 +4887,7 @@ return `<!doctype html>
   <div class="cover-white">
     <p class="cover-kicker">Diagnostic Output &nbsp;/&nbsp; Decision Velocity</p>
     <div class="cover-workflow">${safe(processName)}</div>
+    ${organizationContext ? `<div class="cover-meta-line">${safe(organizationContext)}</div>` : ""}
     <div class="cover-meta-line">${safe(sectorMeta)} · ${safe(levelMeta)}</div>
     <div class="cover-date-line">${safe(generated)}</div>
     <div class="cover-pills">
@@ -4982,7 +5004,7 @@ ${decisionReviewPage}
     <p>Three distinct intervention strategies, ordered by ambition and risk. Each path implies a different leadership posture, time horizon, and tolerance for short-term disruption.</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(remedyQuestion)}</p></div>
     <div class="remedy-grid">${remedyHtml}</div>
-    <p class="remedy-calibration-note" style="margin:14px 0 0;padding:10px 12px;background:#F6F3EC;border-left:2px solid #A9CFD2;border-radius:0 6px 6px 0;font-size:11px;line-height:1.55;color:#6E6F73;font-style:italic">* Calibrate against Insight depth before acting. A single short-form run produces directional remedy guidance, not engineering specifications &mdash; the breadth, depth, and cross-validation of inputs governs how confidently any of these paths should be pursued.</p>
+    <p class="remedy-calibration-note" style="margin:14px 0 0;padding:10px 12px;background:#F6F3EC;border-left:2px solid #A9CFD2;border-radius:0 6px 6px 0;font-size:11px;line-height:1.55;color:#6E6F73;font-style:italic">* Calibrate against Insight depth before acting. A single diagnostic run produces directional remedy guidance, not engineering specifications &mdash; the breadth, depth, and cross-validation of inputs governs how confidently any of these paths should be pursued.</p>
     <div class="rule"></div><h3>Choosing between them</h3><p>The right choice depends less on the current drag score than on three things: how much stability the organization needs while changes happen, how much trust leadership has earned to redesign rather than tweak, and whether the pathway is on a path that is already worsening. Light paths preserve continuity; aggressive paths buy more capacity but require a stronger mandate.</p>
   </div>
 </section>
@@ -5381,7 +5403,7 @@ function renderBasisOfRead(result, payload) {
     ? (displayIndustryLabel(p.industry, { titleCase: true }) || "") : String(p.industry || "");
   const cal = (result && result.sector_context && result.sector_context.calibration) || {};
   const calTxt = (cal.industryMin != null && cal.industryMax != null)
-    ? `${sectorName || "Sector"} calibration \u00b7 typical range ${cal.industryMin}\u2013${cal.industryMax}`
+    ? `${sectorName || "Sector"} instrument design range \u00b7 ${cal.industryMin}\u2013${cal.industryMax}`
     : (sectorName ? `${sectorName} calibration` : "Sector-family calibration");
   const inputs = [];
   const people = num(p.peopleInvolved) ?? num(p.peopleAffected) ?? num(p.peopleCount);
@@ -5395,7 +5417,7 @@ function renderBasisOfRead(result, payload) {
     || (depthMin ? `${depthMin}-minute diagnostic` : "\u2014");
   const mode = p.participantMode || p.participant_mode || (typeof state !== "undefined" ? state.mode : "");
   const laneLabel = (typeof laneConfigs !== "undefined" && laneConfigs[mode] && laneConfigs[mode].label) || (mode ? String(mode) : "\u2014");
-  const cfg = (typeof state !== "undefined" && state.configVersion) ? state.configVersion : "\u2014";
+  const cfg = result?.config_version || ((typeof state !== "undefined" && state.configVersion) ? state.configVersion : "\u2014");
   const scorer = (result && result.scorer_version) ? result.scorer_version : "\u2014";
   const rows = [
     ["Sector", esc(calTxt)],
