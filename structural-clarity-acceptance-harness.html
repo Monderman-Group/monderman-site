@@ -119,26 +119,26 @@ const NORTHBRIDGE_ANSWERS={
   sc_c3_authority_contest_probe:"authority_boundary_unclear", sc_ctx_people_affected:9, sc_ctx_issues_per_month:12,
   sc_ctx_meetings_per_week:16
 };
-const PROFILE_INDEX={healthy:0,mixed:2,severe:-1};
+const PROFILE_SIGNAL={healthy:0,moderate:1,mixed:2,severe:3};
 const CASE_DEFINITIONS=[
   {id:"northbridge",name:"Northbridge healthcare",profile:"mixed",depth:30,role:"managerial",scenario:{...NORTHBRIDGE},answers:{...NORTHBRIDGE_ANSWERS},experience:EXPERIENCE},
-  {id:"healthy_ops_10",name:"Healthy technology operations",profile:"healthy",depth:10,role:"operational",scenario:{organizationName:"Alder Systems",businessUnit:"Cloud Operations",industry:"technology_software",employeeCount:680,peopleInvolved:5,hourlyCost:92,annualVolume:60,meetingHours:8,processName:"Production change approvals",regulatoryIntensity:"moderate"}},
-  {id:"healthy_mgr_30",name:"Healthy university administration",profile:"healthy",depth:30,role:"managerial",scenario:{organizationName:"Westbridge University",businessUnit:"Academic Administration",industry:"education_nonprofit",employeeCount:5100,peopleInvolved:7,hourlyCost:61,annualVolume:45,meetingHours:12,processName:"New program approvals",regulatoryIntensity:"moderate"}},
-  {id:"healthy_exec_60",name:"Healthy defense program",profile:"healthy",depth:60,role:"senior_leader",scenario:{organizationName:"Meridian Defense Services",businessUnit:"Program Governance",industry:"government_defense",employeeCount:12000,peopleInvolved:11,hourlyCost:104,annualVolume:30,meetingHours:20,processName:"Program baseline approvals",regulatoryIntensity:"high"}},
-  {id:"mixed_exec_10",name:"Mixed hospital leadership",profile:"mixed",depth:10,role:"senior_leader",scenario:{organizationName:"Harbor Regional Medical Center",businessUnit:"Clinical Governance",industry:"healthcare_life_sciences",employeeCount:3300,peopleInvolved:8,hourlyCost:84,annualVolume:80,meetingHours:18,processName:"Clinical policy exceptions",regulatoryIntensity:"high"}},
-  {id:"mixed_ops_60",name:"Mixed financial operations",profile:"mixed",depth:60,role:"operational",scenario:{organizationName:"Stonewell Financial",businessUnit:"Payment Operations",industry:"financial_services",employeeCount:1900,peopleInvolved:10,hourlyCost:73,annualVolume:240,meetingHours:14,processName:"Payment exception resolution",regulatoryIntensity:"high"}},
-  {id:"severe_mgr_10",name:"Severe technology scale-up",profile:"severe",depth:10,role:"managerial",scenario:{organizationName:"Kiteframe Labs",businessUnit:"Product and Engineering",industry:"technology_software",employeeCount:420,peopleInvolved:12,hourlyCost:118,annualVolume:150,meetingHours:24,processName:"Production incident decisions",regulatoryIntensity:"low"}},
+  {id:"healthy_ops_10",name:"Healthy technology operations",profile:"healthy",depth:10,role:"operational",scenario:{organizationName:"Alder Systems",businessUnit:"Cloud Operations",industry:"technology_software",structureType:"functional",confidenceLevel:"high",employeeCount:680,peopleInvolved:5,hourlyCost:92,annualVolume:60,meetingHours:8,processName:"Production change approvals",regulatoryIntensity:"moderate"}},
+  {id:"healthy_mgr_30",name:"Healthy university administration",profile:"healthy",depth:30,role:"managerial",scenario:{organizationName:"Westbridge University",businessUnit:"Academic Administration",industry:"education_nonprofit",structureType:"shared-service",confidenceLevel:"moderate",employeeCount:5100,peopleInvolved:7,hourlyCost:61,annualVolume:45,meetingHours:12,processName:"New program approvals",regulatoryIntensity:"moderate"}},
+  {id:"healthy_exec_60",name:"Healthy defense program",profile:"healthy",depth:60,role:"senior_leader",scenario:{organizationName:"Meridian Defense Services",businessUnit:"Program Governance",industry:"government_defense",structureType:"program",confidenceLevel:"high",employeeCount:12000,peopleInvolved:11,hourlyCost:104,annualVolume:30,meetingHours:20,processName:"Program baseline approvals",regulatoryIntensity:"high"}},
+  {id:"mixed_exec_10",name:"Mixed hospital leadership",profile:"mixed",depth:10,role:"senior_leader",scenario:{organizationName:"Harbor Regional Medical Center",businessUnit:"Clinical Governance",industry:"healthcare_life_sciences",structureType:"governance",confidenceLevel:"limited",employeeCount:3300,peopleInvolved:8,hourlyCost:84,annualVolume:80,meetingHours:18,processName:"Clinical policy exceptions",regulatoryIntensity:"high"}},
+  {id:"mixed_ops_60",name:"Mixed financial operations",profile:"mixed",depth:60,role:"operational",scenario:{organizationName:"Stonewell Financial",businessUnit:"Payment Operations",industry:"financial_services",structureType:"shared-service",confidenceLevel:"high",employeeCount:1900,peopleInvolved:10,hourlyCost:73,annualVolume:240,meetingHours:14,processName:"Payment exception resolution",regulatoryIntensity:"high"}},
+  {id:"severe_mgr_10",name:"Severe technology scale-up",profile:"severe",depth:10,role:"managerial",scenario:{organizationName:"Kiteframe Labs",businessUnit:"Product and Engineering",industry:"technology_software",structureType:"functional",confidenceLevel:"limited",employeeCount:420,peopleInvolved:12,hourlyCost:118,annualVolume:150,meetingHours:24,processName:"Production incident decisions",regulatoryIntensity:"low"}},
   {id:"severe_ops_30",name:"Severe healthcare handoffs",profile:"severe",depth:30,role:"operational",scenario:{organizationName:"Cedar County Health",businessUnit:"Patient Access",industry:"healthcare_life_sciences",employeeCount:1700,peopleInvolved:14,hourlyCost:57,annualVolume:365,meetingHours:28,processName:"Complex referral handoffs",regulatoryIntensity:"high"}},
-  {id:"severe_exec_60",name:"Severe public-sector governance",profile:"severe",depth:60,role:"senior_leader",scenario:{organizationName:"Metro Infrastructure Authority",businessUnit:"Capital Programs",industry:"government_defense",employeeCount:8600,peopleInvolved:18,hourlyCost:88,annualVolume:90,meetingHours:40,processName:"Capital change-control decisions",regulatoryIntensity:"high"}},
-  {id:"contradictory",name:"Contradictory cross-role signals",profile:"contradictory",depth:30,role:"managerial",scenario:{organizationName:"Orchard Mutual",businessUnit:"Claims Transformation",industry:"financial_services",employeeCount:2800,peopleInvolved:9,hourlyCost:79,annualVolume:180,meetingHours:20,processName:"Claims policy exceptions",regulatoryIntensity:"high"}},
-  {id:"unpriced_hours",name:"No coordination-hours estimate",profile:"mixed",depth:30,role:"managerial",scenario:{organizationName:"Eastport Foundation",businessUnit:"Grant Operations",industry:"education_nonprofit",employeeCount:210,peopleInvolved:6,hourlyCost:64,annualVolume:36,meetingHours:0,processName:"Grant exception approvals",regulatoryIntensity:"low"}},
-  {id:"unpriced_rate",name:"No labor-rate estimate",profile:"mixed",depth:30,role:"operational",scenario:{organizationName:"Lakeside Cooperative",businessUnit:"Member Services",industry:"other",employeeCount:95,peopleInvolved:4,hourlyCost:0,annualVolume:52,meetingHours:10,processName:"Member issue escalation",regulatoryIntensity:"low"}},
+  {id:"severe_exec_60",name:"Severe public-sector governance",profile:"severe",depth:60,role:"senior_leader",scenario:{organizationName:"Metro Infrastructure Authority",businessUnit:"Capital Programs",industry:"government_defense",structureType:"governance",confidenceLevel:"high",employeeCount:8600,peopleInvolved:18,hourlyCost:88,annualVolume:90,meetingHours:40,processName:"Capital change-control decisions",regulatoryIntensity:"high"}},
+  {id:"contradictory",name:"Contradictory cross-role signals",profile:"contradictory",depth:30,role:"managerial",scenario:{organizationName:"Orchard Mutual",businessUnit:"Claims Transformation",industry:"financial_services",structureType:"program",confidenceLevel:"moderate",employeeCount:2800,peopleInvolved:9,hourlyCost:79,annualVolume:180,meetingHours:20,processName:"Claims policy exceptions",regulatoryIntensity:"high"}},
+  {id:"unpriced_hours",name:"No coordination-hours estimate",profile:"mixed",depth:30,role:"managerial",scenario:{organizationName:"Eastport Foundation",businessUnit:"Grant Operations",industry:"education_nonprofit",structureType:"other",confidenceLevel:"limited",employeeCount:210,peopleInvolved:6,hourlyCost:64,annualVolume:36,meetingHours:0,processName:"Grant exception approvals",regulatoryIntensity:"low"}},
+  {id:"unpriced_rate",name:"No labor-rate estimate",profile:"mixed",depth:30,role:"operational",scenario:{organizationName:"Lakeside Cooperative",businessUnit:"Member Services",industry:"other",structureType:"shared-service",confidenceLevel:"moderate",employeeCount:95,peopleInvolved:4,hourlyCost:0,annualVolume:52,meetingHours:10,processName:"Member issue escalation",regulatoryIntensity:"low"}},
   {id:"small_org",name:"Small low-volume organization",profile:"mixed",depth:30,role:"senior_leader",scenario:{organizationName:"Beacon Arts Trust",businessUnit:"Administration",industry:"education_nonprofit",employeeCount:28,peopleInvolved:3,hourlyCost:48,annualVolume:12,meetingHours:5,processName:"Program funding decisions",regulatoryIntensity:"low"}},
-  {id:"capacity_ceiling",name:"High-volume capacity ceiling",profile:"severe",depth:60,role:"managerial",scenario:{organizationName:"Continental Logistics",businessUnit:"Network Operations",industry:"other",employeeCount:7600,peopleInvolved:20,hourlyCost:68,annualVolume:2200,meetingHours:80,processName:"Network disruption escalation",regulatoryIntensity:"moderate"}},
+  {id:"capacity_ceiling",name:"High-volume capacity ceiling",profile:"severe",depth:60,role:"managerial",scenario:{organizationName:"Continental Logistics",businessUnit:"Network Operations",industry:"other",structureType:"program",confidenceLevel:"high",employeeCount:7600,peopleInvolved:20,hourlyCost:68,annualVolume:2200,meetingHours:80,processName:"Network disruption escalation",regulatoryIntensity:"moderate"}},
   {id:"short_unmeasured",name:"Short route with unmeasured governance",profile:"mixed",depth:10,role:"operational",scenario:{organizationName:"Pine Street Retail",businessUnit:"Store Operations",industry:"retail_consumer",employeeCount:1400,peopleInvolved:6,hourlyCost:49,annualVolume:300,meetingHours:9,processName:"Store exception handling",regulatoryIntensity:"low"}},
-  {id:"long_governance",name:"Long route with governance evidence",profile:"mixed",depth:60,role:"managerial",scenario:{organizationName:"North Coast Energy",businessUnit:"Asset Governance",industry:"energy_utilities",employeeCount:4400,peopleInvolved:13,hourlyCost:96,annualVolume:72,meetingHours:34,processName:"Maintenance deferral approvals",regulatoryIntensity:"high"}},
-  {id:"no_experience",name:"No experiential notes",profile:"mixed",depth:30,role:"managerial",experience:null,scenario:{organizationName:"Summit Manufacturing",businessUnit:"Plant Operations",industry:"manufacturing_industrial",employeeCount:2300,peopleInvolved:8,hourlyCost:66,annualVolume:100,meetingHours:16,processName:"Production deviation approvals",regulatoryIntensity:"moderate"}},
-  {id:"partial_experience",name:"Partial experiential notes",profile:"mixed",depth:30,role:"senior_leader",experience:{observedSeniorLeader:"Leadership sees recurring exceptions but has limited visibility into how managers restore ownership after each handoff."},scenario:{organizationName:"Redwood Bioanalytics",businessUnit:"Quality and Laboratory Operations",industry:"healthcare_life_sciences",employeeCount:780,peopleInvolved:7,hourlyCost:101,annualVolume:64,meetingHours:15,processName:"Laboratory deviation review",regulatoryIntensity:"high"}}
+  {id:"long_governance",name:"Long route with governance evidence",profile:"mixed",depth:60,role:"managerial",scenario:{organizationName:"North Coast Energy",businessUnit:"Asset Governance",industry:"energy_utilities",structureType:"governance",confidenceLevel:"high",employeeCount:4400,peopleInvolved:13,hourlyCost:96,annualVolume:72,meetingHours:34,processName:"Maintenance deferral approvals",regulatoryIntensity:"high"}},
+  {id:"no_experience",name:"No experiential notes",profile:"moderate",depth:30,role:"managerial",experience:null,scenario:{organizationName:"Summit Manufacturing",businessUnit:"Plant Operations",industry:"manufacturing_industrial",structureType:"shared-service",confidenceLevel:"moderate",employeeCount:2300,peopleInvolved:8,hourlyCost:66,annualVolume:100,meetingHours:16,processName:"Production deviation approvals",regulatoryIntensity:"moderate"}},
+  {id:"partial_experience",name:"Partial experiential notes",profile:"moderate",depth:30,role:"senior_leader",experience:{observedSeniorLeader:"Leadership sees recurring exceptions but has limited visibility into how managers restore ownership after each handoff."},scenario:{organizationName:"Redwood Bioanalytics",businessUnit:"Quality and Laboratory Operations",industry:"healthcare_life_sciences",structureType:"program",confidenceLevel:"high",employeeCount:780,peopleInvolved:7,hourlyCost:101,annualVolume:64,meetingHours:15,processName:"Laboratory deviation review",regulatoryIntensity:"high"}}
 ];
 const SCORE_ITEM_RE=/^sc_d[1-5]_|^sc_c[1-3]_/;
 let supaClient=null,authToken=null,running=false,artifacts=null,allCaseArtifacts=[],reportFrame=null,currentCase=null;
@@ -169,18 +169,18 @@ async function postJSON(url,body,label){
 function normalizedScenario(testCase){
   const s={...NORTHBRIDGE,...testCase.scenario};
   s.business_unit=s.businessUnit;s.process_name=s.processName;s.focus_area=s.processName;s.employee_count=s.employeeCount;
-  s.peopleAffected=s.peopleInvolved;s.confidenceLevel=s.confidenceLevel||"moderate";s.confidence_level=s.confidenceLevel;
+  s.peopleAffected=s.peopleInvolved;s.confidenceLevel=s.confidenceLevel||"moderate";s.confidence_level=s.confidenceLevel;s.structureType=s.structureType||"cross-functional";s.structure_type=s.structureType;
   s.participantMode=testCase.role;s.participant_mode=testCase.role;s.diagnosticDepth=testCase.depth;s.diagnostic_depth=testCase.depth;
   s.regulatory_intensity=s.regulatoryIntensity;s.decisionType=s.decisionType||"operational";s.decision_type=s.decisionType;
   s.organizationSize=s.employeeCount>=5000?"enterprise":s.employeeCount>=1000?"large":s.employeeCount>=250?"medium":"small";
   return s;
 }
-function optionAt(item,index){const options=item.options||[];if(!options.length)throw new Error(`Question ${item.id} has no options`);return options[index<0?options.length-1:Math.min(index,options.length-1)].value}
+function optionForSignal(item,target){const options=item.options||[];if(!options.length)throw new Error(`Question ${item.id} has no options`);const scored=options.filter(option=>Number.isFinite(Number(option.claritySignal)));if(!scored.length)throw new Error(`Question ${item.id} exposes no claritySignal metadata; fixture selection by option position is prohibited.`);return scored.reduce((best,option)=>Math.abs(Number(option.claritySignal)-target)<Math.abs(Number(best.claritySignal)-target)?option:best).value}
 function answerFor(item,testCase,scenario){
   const overrides=testCase.answers||{};
   let value;
   if(Object.prototype.hasOwnProperty.call(overrides,item.id)) value=overrides[item.id];
-  else if(item.id==="sc_g1_structure_type") value="cross-functional";
+  else if(item.id==="sc_g1_structure_type") value=scenario.structureType;
   else if(item.id==="sc_g2_change_pace") value=testCase.profile==="healthy"?"some_change_manageable":testCase.profile==="severe"?"continuous_reorganization":"frequent_change";
   else if(item.id==="sc_g3_primary_concern") value=testCase.profile==="healthy"?"handoffs_and_transfers":"multiple_concerns";
   else if(item.id==="sc_g4_compensation_level") value=testCase.profile==="healthy"?"minimal_occasional_clarification":testCase.profile==="severe"?"system_runs_on_informal_knowledge":"significant_key_people_fill_gaps";
@@ -188,8 +188,9 @@ function answerFor(item,testCase,scenario){
   else if(item.id==="sc_ctx_issues_per_month") value=Math.max(1,Math.round(scenario.annualVolume/12));
   else if(item.id==="sc_ctx_meetings_per_week") value=Math.max(0,Math.round(scenario.meetingHours/2));
   else if(SCORE_ITEM_RE.test(item.id)){
-    const index=testCase.profile==="contradictory"?(Array.from(item.id).reduce((n,c)=>n+c.charCodeAt(0),0)%2?0:-1):PROFILE_INDEX[testCase.profile];
-    value=optionAt(item,index);
+    const signal=testCase.profile==="contradictory"?(Array.from(item.id).reduce((n,c)=>n+c.charCodeAt(0),0)%2?0:3):PROFILE_SIGNAL[testCase.profile];
+    if(!Number.isFinite(signal))throw new Error(`No semantic clarity-signal policy for profile ${testCase.profile}`);
+    value=optionForSignal(item,signal);
   } else throw new Error(`No semantic fixture policy for ${item.id}. Available options: ${(item.options||[]).map(x=>`${x.value} (${x.label})`).join(", ")}`);
   if(Array.isArray(item.options)&&item.options.length&&!item.options.some(option=>JSON.stringify(option.value)===JSON.stringify(value)))throw new Error(`Fixture value ${JSON.stringify(value)} is invalid for ${item.id}. Available: ${item.options.map(x=>JSON.stringify(x.value)).join(", ")}`);
   return value;
@@ -270,7 +271,7 @@ async function renderArtifacts(apiRun){
 }
 function plainText(html){const doc=new DOMParser().parseFromString(html,"text/html");doc.querySelectorAll("style,script").forEach(node=>node.remove());return (doc.body?.textContent||"").replace(/\s+/g," ").trim()}
 function sectionText(html,heading){const doc=new DOMParser().parseFromString(html,"text/html");const node=Array.from(doc.querySelectorAll("h1,h2,h3,h4")).find(el=>el.textContent.trim().toLowerCase()===heading.toLowerCase());return (node?.closest("section")?.textContent||node?.parentElement?.textContent||"").replace(/\s+/g," ").trim()}
-function expectedBand(score){return score>=83?"High structural clarity":score>=67?"Moderate structural clarity":score>=49?"Material ambiguity":"Structural clarity breakdown"}
+function expectedBand(score){return score>=83?"High structural clarity":score>=67?"Moderate structural clarity":score>=49?"Material ambiguity":"Severe structural ambiguity"}
 function runChecks(apiRun,files){
   const result=apiRun.result,ex=result.exposure||{},coverage=result.dimension_coverage||result.measurement_coverage||{},summary=plainText(files.summaryHtml),full=plainText(files.fullHtml),score=Number(result.score),band=String(result.score_band||result.band||"");
   const dimensions=Object.entries(result.dimensions||{}),unmeasured=coverage.unmeasured_dimensions||[];
@@ -280,6 +281,7 @@ function runChecks(apiRun,files){
   const recommendations=files.jsonArtifact.findings?.recommendations||[];
   const composition=ex.composition||{};const compositionTotal=Object.values(composition).reduce((sum,value)=>sum+(Number(value)||0),0);
   const tolerance=(actual,expected,absolute=2)=>Number.isFinite(actual)&&Number.isFinite(expected)&&Math.abs(actual-expected)<=Math.max(absolute,Math.abs(expected)*.01);
+  const expectedAttribution=Math.round(Math.max(5,Math.min(75,5+(100-score)*.70)));
   const quadrant=reportFrame.contentWindow.__mondermanTestHooks.getQuadrantCoordinates(apiRun.result);
   const governanceValue=result.dimensions?.duplicate_approvals_inverse;
   const governanceMeasured=governanceValue!=null&&Number.isFinite(Number(governanceValue));
@@ -293,14 +295,19 @@ function runChecks(apiRun,files){
     ["Coverage metadata present",Number.isFinite(Number(coverage.coverage_percent)),JSON.stringify(coverage)],
     ["Coverage counts reconcile",Number(coverage.measured_dimension_count)+unmeasured.length===dimensions.length,`${coverage.measured_dimension_count||0} measured + ${unmeasured.length} unmeasured / ${dimensions.length}`],
     ["Unmeasured dimensions remain null",unmeasured.every(key=>result.dimensions?.[key]===null),unmeasured.map(key=>`${key}=${result.dimensions?.[key]}`).join(", ")||"none"],
-    ["Annual cost reconciles",ex.priceable===false?(ex.annual_cost==null&&ex.annual_hours==null):tolerance(Number(ex.annual_cost),Number(ex.annual_hours)*Number(ex.average_hourly_cost)),`${ex.annual_cost} vs ${ex.annual_hours} × ${ex.average_hourly_cost}`],
-    ["Capacity drag reconciles",ex.priceable===false?ex.capacity_drag_percent==null:(Number(ex.total_capacity_hours)>0&&Math.abs((Number(ex.annual_hours)/Number(ex.total_capacity_hours)*100)-Number(ex.capacity_drag_percent))<=0.51),`${ex.capacity_drag_percent}% displayed; ${(Number(ex.annual_hours)/Number(ex.total_capacity_hours)*100).toFixed(2)}% recomputed`],
-    ["Recoverable cost reconciles",ex.priceable===false?ex.recoverable_cost==null:tolerance(Number(ex.recoverable_cost),Number(ex.annual_cost)*Number(ex.recoverable_share_percent)/100,2),`${ex.recoverable_cost} at ${ex.recoverable_share_percent}%`],
+    ["Annual cost reconciles",ex.cost_estimated===false?ex.annual_cost==null:tolerance(Number(ex.annual_cost),Number(ex.annual_hours)*Number(ex.average_hourly_cost)),`${ex.annual_cost} vs ${ex.annual_hours} × ${ex.average_hourly_cost}`],
+    ["Hours survive a missing labor rate",apiRun.scenario.hourlyCost>0||ex.hours_estimated!==true||Number(ex.annual_hours)>0,`${ex.annual_hours} hours; cost_estimated=${ex.cost_estimated}`],
+    ["Capacity saturation withholds implausible outputs",ex.sizing_status!=="input_saturation"||(ex.annual_hours==null&&ex.annual_cost==null&&ex.recoverable_cost==null&&ex.capacity_drag_percent==null),`${ex.sizing_status}; hours=${ex.annual_hours}; cost=${ex.annual_cost}; drag=${ex.capacity_drag_percent}`],
+    ["Capacity drag reconciles",ex.capacity_drag_percent==null||Number(ex.total_capacity_hours)>0&&Math.abs((Number(ex.annual_hours)/Number(ex.total_capacity_hours)*100)-Number(ex.capacity_drag_percent))<=0.51,`${ex.capacity_drag_percent}% displayed`],
+    ["Recoverable cost reconciles",ex.cost_estimated===false?ex.recoverable_cost==null:tolerance(Number(ex.recoverable_cost),Number(ex.annual_cost)*Number(ex.recoverable_share_percent)/100,2),`${ex.recoverable_cost} at ${ex.recoverable_share_percent}%`],
     ["Recoverable is below burden",ex.priceable===false||Number(ex.recoverable_cost)<=Number(ex.annual_cost),`${ex.recoverable_cost} ≤ ${ex.annual_cost}`],
     ["Composition reconciles",!Object.keys(composition).length||tolerance(compositionTotal,Number(ex.annual_hours),2),`${compositionTotal} vs ${ex.annual_hours}`],
     ["Exposure inputs reconcile",Number(model.input_hours_per_run)===Number(apiRun.scenario.meetingHours)&&Number(model.annual_cycles)===Number(apiRun.scenario.annualVolume),`${model.input_hours_per_run} × ${model.annual_cycles}`],
-    ["Attribution model disclosed",Number(model.attributable_burden_share_percent)===55&&Boolean(model.formula),`${model.attributable_burden_share_percent}% · ${model.formula||"missing formula"}`],
-    ["Attributed hours reconcile",tolerance(Number(model.attributed_hours_before_capacity_limit),Number(apiRun.scenario.meetingHours)*Number(apiRun.scenario.annualVolume)*.55,2),`${model.attributed_hours_before_capacity_limit} vs ${apiRun.scenario.meetingHours} × ${apiRun.scenario.annualVolume} × 55%`],
+    ["Attribution model disclosed",model.model_type==="directional_scenario_not_empirical_benchmark"&&model.empirical_benchmark===false&&Boolean(model.formula),`${model.model_type} · ${model.formula||"missing formula"}`],
+    ["Attribution responds to score",Number(model.attributable_burden_share_percent)===expectedAttribution,`${model.attributable_burden_share_percent}% vs expected ${expectedAttribution}%`],
+    ["Attributed hours reconcile",ex.hours_estimated===false||tolerance(Number(model.attributed_hours_before_capacity_check),Number(apiRun.scenario.meetingHours)*Number(apiRun.scenario.annualVolume)*expectedAttribution/100,2),`${model.attributed_hours_before_capacity_check} at ${expectedAttribution}%`],
+    ["Design reference is not presented as a peer benchmark",result.benchmark_context?.empirical_sample===false&&!/comparable structure range/i.test(String(result.benchmark_position)),String(result.benchmark_position)],
+    ["Single run does not claim measured trajectory",!/trajectory (?:is|shows|appears)|clarity is (?:eroding|improving|stable)|rising trajectory|easing trajectory/i.test(combined),(combined.match(/trajectory (?:is|shows|appears)|clarity is (?:eroding|improving|stable)|rising trajectory|easing trajectory/i)||["none"])[0]],
     ["Summary HTML built",files.summaryHtml.length>20000&&/<html[\s>]/i.test(files.summaryHtml),`${files.summaryHtml.length} bytes`],
     ["Full HTML built",files.fullHtml.length>25000&&/<html[\s>]/i.test(files.fullHtml),`${files.fullHtml.length} bytes`],
     ["Neue Haas included in both HTML files",/Neue Haas Grotesk/i.test(files.summaryHtml)&&/Neue Haas Grotesk/i.test(files.fullHtml),"font declaration"],
@@ -369,6 +376,8 @@ function buildAutomatedReviewDataset(){
   caseRows.flatMap(row=>row.failedChecks).forEach(check=>{failedCheckCounts[check.name]=(failedCheckCounts[check.name]||0)+1});
   const bandCounts={};
   caseRows.forEach(row=>{bandCounts[row.band]=(bandCounts[row.band]||0)+1});
+  const structureTypes=[...new Set(caseRows.map(row=>row.scenario.structureType||row.scenario.structure_type).filter(Boolean))].sort();
+  const confidenceLevels=[...new Set(caseRows.map(row=>row.scenario.confidenceLevel||row.scenario.confidence_level).filter(Boolean))].sort();
   return {
     schemaVersion:"monderman_structural_clarity_aggregate_review_v1",
     generatedAt:new Date().toISOString(),
@@ -387,7 +396,7 @@ function buildAutomatedReviewDataset(){
       passedChecks:caseRows.reduce((sum,row)=>sum+row.checks.filter(check=>check.ok).length,0),
       failedChecks:caseRows.reduce((sum,row)=>sum+row.failedChecks.length,0),
       failedCases:caseRows.filter(row=>row.failedChecks.length).map(row=>row.id),
-      failedCheckCounts,bandCounts,
+      failedCheckCounts,bandCounts,structureTypes,confidenceLevels,
       scoreRange:caseRows.length?{min:Math.min(...caseRows.map(row=>Number(row.score))),max:Math.max(...caseRows.map(row=>Number(row.score)))}:null,
       exactRepeatedSentences:buildExactSentenceRepetition(caseRows)
     },
