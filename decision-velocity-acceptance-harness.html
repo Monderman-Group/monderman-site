@@ -197,7 +197,8 @@ function experienceForCase(testCase,scenario=normalizedScenario(testCase)){
 }
 function experienceLayer(testCase,scenario){
   const experience=experienceForCase(testCase,scenario);
-  if(!experience)return {participantPerspective:testCase.role,hasInput:false,source:"none",entries:[]};
+  const perspectiveLabel=testCase.role==="senior_leader"?"Senior leader":testCase.role==="managerial"?"Managerial":"Operational";
+  if(!experience)return {participantPerspective:perspectiveLabel,hasInput:false,source:"none",entries:[]};
   const definitions=[
     ["self",`Your ${testCase.role.replace("_"," ")} experience`],
     ["observedOperational","What operational staff may be experiencing"],
@@ -205,7 +206,7 @@ function experienceLayer(testCase,scenario){
     ["observedSeniorLeader","What senior leaders may be seeing"]
   ];
   const entries=definitions.filter(([key])=>String(experience[key]||"").trim()).map(([key,label])=>({key,label,text:experience[key]}));
-  return {participantPerspective:testCase.role,hasInput:Boolean(entries.length),source:"unedited_participant_input",entries};
+  return {participantPerspective:perspectiveLabel,hasInput:Boolean(entries.length),source:"unedited_participant_input",entries};
 }
 async function driveApi(testCase){
   const scenario=normalizedScenario(testCase);
@@ -295,7 +296,8 @@ function runChecks(apiRun,files){
     ["Recoverable cost reconciles",ex.cost_estimated===false?ex.recoverable_cost==null:tolerance(Number(ex.recoverable_cost),Number(ex.annual_cost)*Number(ex.recoverable_share_percent)/100,2),`${ex.recoverable_cost} at ${ex.recoverable_share_percent}%`],
     ["Recoverable is below burden",ex.priceable===false||Number(ex.recoverable_cost)<=Number(ex.annual_cost),`${ex.recoverable_cost} ≤ ${ex.annual_cost}`],
     ["Composition reconciles",!Object.keys(composition).length||tolerance(compositionTotal,Number(ex.annual_hours),2),`${compositionTotal} vs ${ex.annual_hours}`],
-    ["Exposure inputs reconcile",Number(model.input_hours_per_run)===Number(apiRun.scenario.meetingHours)&&Number(model.annual_cycles)===Number(apiRun.scenario.annualVolume),`${model.input_hours_per_run} × ${model.annual_cycles}`],
+    ["Exposure inputs reconcile",(Number(apiRun.scenario.meetingHours)>0?Number(model.input_hours_per_run)===Number(apiRun.scenario.meetingHours):model.input_hours_per_run==null)&&Number(model.annual_cycles)===Number(apiRun.scenario.annualVolume),`${model.input_hours_per_run} × ${model.annual_cycles}`],
+    ["Missing hours remain unpriced",Number(apiRun.scenario.meetingHours)>0||(ex.hours_estimated===false&&ex.cost_estimated===false&&ex.annual_hours==null&&ex.annual_cost==null),`${ex.sizing_status}; hours=${ex.annual_hours}; cost=${ex.annual_cost}`],
     ["Attribution model disclosed",model.model_type==="directional_scenario_not_empirical_benchmark"&&model.empirical_benchmark===false&&Boolean(model.formula),`${model.model_type} · ${model.formula||"missing formula"}`],
     ["Attribution responds to score",Number(model.attributable_burden_share_percent)===expectedAttribution,`${model.attributable_burden_share_percent}% vs expected ${expectedAttribution}%`],
     ["Attributed hours reconcile",ex.hours_estimated===false||tolerance(Number(model.attributed_hours_before_capacity_check),Number(apiRun.scenario.meetingHours)*Number(apiRun.scenario.annualVolume)*expectedAttribution/100,2),`${model.attributed_hours_before_capacity_check} at ${expectedAttribution}%`],
@@ -324,10 +326,13 @@ function runChecks(apiRun,files){
     ["PDF built",files.pdf.size>10000&&files.pdf.type==="application/pdf"&&files.pdf.pageCount>=8,`${files.pdf.size} bytes; ${files.pdf.pageCount} pages`],
     ["Chart marker policy",governanceMeasured?(quadrant&&Number.isFinite(quadrant.left)&&Number.isFinite(quadrant.top)&&quadrant.left>=8&&quadrant.left<=92&&quadrant.top>=8&&quadrant.top<=92):quadrant===null,governanceMeasured?JSON.stringify(quadrant):"governance not measured; no coordinate"],
     ["No empirical peer-benchmark claim",!/Where you stand versus similar organizations|comparable sector pathways|peer-normal|similar pathways (?:in|still)|outperform(?:s|ing)? (?:its )?peers|(?:above|below|within) (?:the )?industry range/i.test(combined),(combined.match(/Where you stand versus similar organizations|comparable sector pathways|peer-normal|similar pathways (?:in|still)|outperform(?:s|ing)? (?:its )?peers|(?:above|below|within) (?:the )?industry range/i)||["none"])[0]],
+    ["Model range is not labeled typical",!/typical range/i.test(combined),(combined.match(/typical range/i)||["none"])[0]],
     ["Run length is not mislabeled as short-form",!/single short-form run/i.test(combined),(combined.match(/single short-form run/i)||["none"])[0]],
     ["No generic all-perspectives rerun instruction",!/other perspectives \(operational, managerial, senior leader\)/i.test(combined),(combined.match(/other perspectives \(operational, managerial, senior leader\)/i)||["none"])[0]],
     ["Healthy reports do not manufacture bypass tension",score<83||!/routinely bypassed|experiential operating-reality tension/i.test(combined),score<83?"not a healthy case":(combined.match(/routinely bypassed|experiential operating-reality tension/i)||["none"])[0]],
     ["Healthy remedies remain proportionate",score<83||!/full pathway redesign|over-engineering|emergency reset/i.test(remedySection),score<83?"not a healthy case":(remedySection.match(/full pathway redesign|over-engineering|emergency reset/i)||["none"])[0]],
+    ["Healthy priority actions preserve rather than redesign",score<83||recommendations.every(item=>!/lighten|redesign|reduce unnecessary|first material intervention/i.test(String(item))),score<83?"not a healthy case":recommendations.join(" | ")],
+    ["Quadrant prose agrees with overall condition",score>=67||!/cleanest operating posture|moving acceptably fast/i.test(combined),score>=67?"moderate or healthy case":(combined.match(/cleanest operating posture|moving acceptably fast/i)||["none"])[0]],
     ["Customer copy is mechanically clean",!/senior_leader perspective|\bpathway pathway\b|weakness\s*-\s*not audited|yours\.Discuss|Monderman Monderman Decision/i.test(combined),(combined.match(/senior_leader perspective|\bpathway pathway\b|weakness\s*-\s*not audited|yours\.Discuss|Monderman Monderman Decision/i)||["none"])[0]]
   ];
   return checks.map(([name,ok,detail])=>({name,ok:Boolean(ok),detail}));
