@@ -125,7 +125,7 @@ const CASE_DEFINITIONS=[
   {id:"partial_experience",name:"Partial experiential notes",profile:"moderate",depth:30,role:"senior_leader",experience:{observedSeniorLeader:"Leadership sees recurring delays but has limited visibility into the follow-up and escalation managers use to restore movement."},scenario:{organizationName:"Redwood Bioanalytics",businessUnit:"Quality and Laboratory Operations",industry:"healthcare_life_sciences",decisionType:"risk",confidenceLevel:"high",employeeCount:780,peopleInvolved:7,hourlyCost:101,annualVolume:64,meetingHours:15,processName:"Laboratory deviation decisions",regulatoryIntensity:"high"}}
 ];
 const SCORE_ITEM_RE=/^os_d|^os_c|^os_g[234]/;
-let supaClient=null,authToken=null,running=false,artifacts=null,allCaseArtifacts=[],reportFrame=null,currentCase=null;
+let supaClient=null,authToken=null,running=false,artifacts=null,allCaseArtifacts=[],executionFailures=[],reportFrame=null,currentCase=null;
 
 function log(message){$("log").textContent+=`\n${new Date().toLocaleTimeString()}  ${message}`;$("log").scrollTop=1e9}
 function textFor(item){return typeof item?.text==="string"?item.text:(item?.text?.managerial||item?.text?.senior_leader||item?.text?.operational||item?.id||"")}
@@ -477,6 +477,7 @@ async function buildAutomatedReviewDataset(){
       scoreRange:caseRows.length?{min:Math.min(...caseRows.map(row=>Number(row.score))),max:Math.max(...caseRows.map(row=>Number(row.score)))}:null,
       exactRepeatedSentences:buildExactSentenceRepetition(caseRows)
     },
+    executionFailures:executionFailures.map(entry=>({id:entry.case.id,name:entry.case.name,profile:entry.case.profile,depth:entry.case.depth,role:entry.case.role,error:entry.error})),
     cases:caseRows
   };
 }
@@ -492,18 +493,25 @@ function selectCaseArtifact(index){
 function renderCaseTable(){
   const body=$("caseTable").querySelector("tbody");body.innerHTML="";
   allCaseArtifacts.forEach((entry,index)=>{const failed=entry.checks.filter(check=>!check.ok);const tr=document.createElement("tr");tr.innerHTML=`<td style="text-align:left"><strong>${escapeHtml(entry.apiRun.case.name)}</strong></td><td>${escapeHtml(entry.apiRun.case.profile)}</td><td>${entry.apiRun.case.depth}</td><td>${escapeHtml(entry.apiRun.case.role.replace("_"," "))}</td><td>${entry.apiRun.result.score}</td><td class="${failed.length?"fail":"pass"}">${failed.length?`${failed.length} FAIL`:"PASS"}</td><td><button class="case-link" data-case-index="${index}">View</button></td>`;body.appendChild(tr)});
+  executionFailures.forEach(entry=>{const tr=document.createElement("tr");tr.innerHTML=`<td style="text-align:left"><strong>${escapeHtml(entry.case.name)}</strong></td><td>${escapeHtml(entry.case.profile)}</td><td>${entry.case.depth}</td><td>${escapeHtml(entry.case.role.replace("_"," "))}</td><td>—</td><td class="fail">EXECUTION FAIL</td><td title="${escapeHtml(entry.error)}">Recorded</td>`;body.appendChild(tr)});
   body.querySelectorAll("[data-case-index]").forEach(button=>button.addEventListener("click",()=>selectCaseArtifact(Number(button.dataset.caseIndex))));
 }
 async function run(){
-  if(running)return;running=true;artifacts=null;allCaseArtifacts=[];enableDownloads(false);$("runBtn").disabled=true;$("runStatus").className="status warn";$("runStatus").textContent="Running 0/18…";$("checks").innerHTML="<li>Running the live diagnostic matrix…</li>";$("caseTable").querySelector("tbody").innerHTML='<tr><td colspan="7">Starting…</td></tr>';$("log").textContent="Starting.";
+  if(running)return;running=true;artifacts=null;allCaseArtifacts=[];executionFailures=[];enableDownloads(false);$("runBtn").disabled=true;$("runStatus").className="status warn";$("runStatus").textContent="Running 0/18…";$("checks").innerHTML="<li>Running the live diagnostic matrix…</li>";$("caseTable").querySelector("tbody").innerHTML='<tr><td colspan="7">Starting…</td></tr>';$("log").textContent="Starting.";
   try{
     for(let index=0;index<CASE_DEFINITIONS.length;index++){
       const testCase=CASE_DEFINITIONS[index];currentCase=testCase;$("runStatus").textContent=`Running ${index+1}/${CASE_DEFINITIONS.length}: ${testCase.name}`;log(`CASE ${index+1}/${CASE_DEFINITIONS.length}: ${testCase.name}`);
-      const apiRun=await driveApi(testCase);log(`Finalized run ${apiRun.runId}. Rendering four production artifacts.`);
-      const files=await renderArtifacts(apiRun);const checks=runChecks(apiRun,files);
-      const bundle={generatedAt:new Date().toISOString(),environment:{page:location.href,apiBase:API_BASE,frontendSource:`${PAGE_BASE}/operational-systems.html`,userAgent:navigator.userAgent},case:testCase,scenario:apiRun.scenario,trace:apiRun.trace,unaskedQuestions:apiRun.payload.unasked_questions||[],result:apiRun.result,customerJson:files.jsonArtifact,exportMetadata:{summaryHtmlBytes:files.summaryHtml.length,fullHtmlBytes:files.fullHtml.length,pdf:files.pdf},checks};
-      files.bundle=bundle;allCaseArtifacts.push({apiRun,files,checks});renderCaseTable();
-      log(`${testCase.name}: ${checks.filter(check=>check.ok).length}/${checks.length} checks passing.`);
+      try {
+        const apiRun=await driveApi(testCase);log(`Finalized run ${apiRun.runId}. Rendering four production artifacts.`);
+        const files=await renderArtifacts(apiRun);const checks=runChecks(apiRun,files);
+        const bundle={generatedAt:new Date().toISOString(),environment:{page:location.href,apiBase:API_BASE,frontendSource:`${PAGE_BASE}/operational-systems.html`,userAgent:navigator.userAgent},case:testCase,scenario:apiRun.scenario,trace:apiRun.trace,unaskedQuestions:apiRun.payload.unasked_questions||[],result:apiRun.result,customerJson:files.jsonArtifact,exportMetadata:{summaryHtmlBytes:files.summaryHtml.length,fullHtmlBytes:files.fullHtml.length,pdf:files.pdf},checks};
+        files.bundle=bundle;allCaseArtifacts.push({apiRun,files,checks});renderCaseTable();
+        log(`${testCase.name}: ${checks.filter(check=>check.ok).length}/${checks.length} checks passing.`);
+      } catch (caseError) {
+        const message=caseError?.message||String(caseError);
+        executionFailures.push({case:testCase,error:message});renderCaseTable();
+        log(`CASE FAILED — ${testCase.name}: ${message}`);
+      }
     }
     const descriptionGroups=new Map();
     allCaseArtifacts.forEach(entry=>{
@@ -516,22 +524,24 @@ async function run(){
       group.forEach(entry=>entry.checks.push({name:"Scenario narratives are unique across the matrix",ok:false,detail:`Duplicated by: ${ids}`}));
     });
     renderCaseTable();
-    selectCaseArtifact(0);
+    if(allCaseArtifacts.length)selectCaseArtifact(0);
+    else { $("matrixBtn").disabled=false; $("reviewBtn").disabled=false; }
     const failedCases=allCaseArtifacts.filter(entry=>entry.checks.some(check=>!check.ok));const failedChecks=allCaseArtifacts.reduce((sum,entry)=>sum+entry.checks.filter(check=>!check.ok).length,0);
-    $("runStatus").className=`status ${failedCases.length?"fail":"pass"}`;$("runStatus").textContent=failedCases.length?`FAIL — ${failedChecks} checks across ${failedCases.length} cases`:`PASS — ${CASE_DEFINITIONS.length} cases`;
-    log(`Matrix complete: ${CASE_DEFINITIONS.length-failedCases.length}/${CASE_DEFINITIONS.length} cases passed every check.`);
+    const hasFailures=failedCases.length>0||executionFailures.length>0;
+    $("runStatus").className=`status ${hasFailures?"fail":"pass"}`;$("runStatus").textContent=hasFailures?`FAIL — ${failedChecks} check failures; ${executionFailures.length} execution failures`:`PASS — ${CASE_DEFINITIONS.length} cases`;
+    log(`Matrix complete: ${allCaseArtifacts.length} cases produced artifacts; ${executionFailures.length} execution failures were recorded.`);
   }catch(error){console.error(error);$("runStatus").className="status fail";$("runStatus").textContent="FAIL";$("checks").innerHTML=`<li><span class="fail">FAIL</span> — ${escapeHtml(error.message)}</li>`;log(`FAILED: ${error.message}`)}
   finally{running=false;$("runBtn").disabled=!authToken}
 }
 
 $("runBtn").addEventListener("click",run);
-$("clearBtn").addEventListener("click",()=>{artifacts=null;allCaseArtifacts=[];currentCase=null;reportFrame?.remove();reportFrame=null;$("frameWrap").innerHTML='<p id="emptyPreview">Run the test to render the report.</p>';$("score").textContent=$("band").textContent=$("coverage").textContent=$("runId").textContent="—";$("checks").innerHTML="<li>No checks have run.</li>";$("ledger").innerHTML="<li>Not available.</li>";$("unasked").innerHTML="<li>Not available.</li>";$("caseTable").querySelector("tbody").innerHTML='<tr><td colspan="7">Not run.</td></tr>';$("runStatus").className="status";$("runStatus").textContent="Not run";enableDownloads(false)});
+$("clearBtn").addEventListener("click",()=>{artifacts=null;allCaseArtifacts=[];executionFailures=[];currentCase=null;reportFrame?.remove();reportFrame=null;$("frameWrap").innerHTML='<p id="emptyPreview">Run the test to render the report.</p>';$("score").textContent=$("band").textContent=$("coverage").textContent=$("runId").textContent="—";$("checks").innerHTML="<li>No checks have run.</li>";$("ledger").innerHTML="<li>Not available.</li>";$("unasked").innerHTML="<li>Not available.</li>";$("caseTable").querySelector("tbody").innerHTML='<tr><td colspan="7">Not run.</td></tr>';$("runStatus").className="status";$("runStatus").textContent="Not run";enableDownloads(false)});
 $("pdfBtn").addEventListener("click",()=>download(artifacts.pdfBlob,`${fileStem()}.pdf`));
 $("summaryBtn").addEventListener("click",()=>download(artifacts.summaryHtml,`${fileStem()}-summary.html`,"text/html;charset=utf-8"));
 $("fullBtn").addEventListener("click",()=>download(artifacts.fullHtml,`${fileStem()}-full.html`,"text/html;charset=utf-8"));
 $("jsonBtn").addEventListener("click",()=>download(JSON.stringify(artifacts.jsonArtifact,null,2),`${fileStem()}.json`,"application/json;charset=utf-8"));
 $("bundleBtn").addEventListener("click",()=>download(JSON.stringify(artifacts.bundle,null,2),`${fileStem()}-bundle.json`,"application/json;charset=utf-8"));
-$("matrixBtn").addEventListener("click",()=>download(JSON.stringify({generatedAt:new Date().toISOString(),caseCount:allCaseArtifacts.length,cases:allCaseArtifacts.map(entry=>({id:entry.apiRun.case.id,name:entry.apiRun.case.name,profile:entry.apiRun.case.profile,depth:entry.apiRun.case.depth,role:entry.apiRun.case.role,runId:entry.apiRun.runId,score:entry.apiRun.result.score,band:entry.apiRun.result.score_band||entry.apiRun.result.band,coverage:entry.apiRun.result.dimension_coverage||entry.apiRun.result.measurement_coverage,checks:entry.checks,exportMetadata:entry.files.bundle.exportMetadata}))},null,2),"operational-systems-18-case-matrix.json","application/json;charset=utf-8"));
+$("matrixBtn").addEventListener("click",()=>download(JSON.stringify({generatedAt:new Date().toISOString(),caseCount:allCaseArtifacts.length,executionFailureCount:executionFailures.length,executionFailures:executionFailures.map(entry=>({id:entry.case.id,name:entry.case.name,profile:entry.case.profile,depth:entry.case.depth,role:entry.case.role,error:entry.error})),cases:allCaseArtifacts.map(entry=>({id:entry.apiRun.case.id,name:entry.apiRun.case.name,profile:entry.apiRun.case.profile,depth:entry.apiRun.case.depth,role:entry.apiRun.case.role,runId:entry.apiRun.runId,score:entry.apiRun.result.score,band:entry.apiRun.result.score_band||entry.apiRun.result.band,coverage:entry.apiRun.result.dimension_coverage||entry.apiRun.result.measurement_coverage,checks:entry.checks,exportMetadata:entry.files.bundle.exportMetadata}))},null,2),"operational-systems-18-case-matrix.json","application/json;charset=utf-8"));
 $("reviewBtn").addEventListener("click",async()=>{
   const button=$("reviewBtn"),label=button.textContent;button.disabled=true;button.textContent="Building complete review file…";
   try{download(JSON.stringify(await buildAutomatedReviewDataset()),"operational-systems-automated-review-dataset.json","application/json;charset=utf-8")}
