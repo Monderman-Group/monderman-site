@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Security — Monderman</title>
-<meta name="description" content="How Monderman handles diagnostic data: architecture, transport, storage, and access — the technical posture in plain terms."/>
+<meta name="description" content="Monderman security and data handling: the architecture end to end, what a diagnostic stores, who can read what, how anonymous responses work, and what we have not done. No security certification is claimed."/>
 <link href='data:image/svg+xml;utf8,
     &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"&gt;
       &lt;rect width="64" height="64" rx="10" fill="%2304181B"/&gt;
@@ -646,7 +646,7 @@
     <p class="hero-eyebrow">About</p>
     <h1>Security &amp; data handling.</h1>
 <p class="hero-dek">
-      The technical posture in plain terms &mdash; what runs where, what a diagnostic stores, and who can read it.
+      The technical posture in plain terms: what runs where, what a diagnostic stores, who can read it, and what we have not done.
     </p>
 </div>
 </section>
@@ -654,8 +654,9 @@
   <div class="section-inner">
     <p class="section-eyebrow">ARCHITECTURE</p>
     <h2>One paragraph, end to end</h2>
-      <p>The Monderman site is static pages served over HTTPS. Diagnostics run against a single API service, which scores responses, builds the narrative through Anthropic&rsquo;s API, and stores results in a managed Postgres database (Supabase). Scoring, narrative generation, and every write of a diagnostic result happen server-side: the API holds service-role credentials that the browser never sees, and no scoring logic or sector calibration is exposed to the client.</p>
-      <p>Once you are signed in, the workspace reads and updates your organization&rsquo;s own records &mdash; saved runs, action plans, notes, campaign tracking &mdash; directly against the database using a public, publishable key that carries no privileges of its own. Every table it touches is governed by row-level security, so that key can only ever reach rows belonging to the organization you are signed in to. Authorization is enforced by the database itself rather than by the browser.</p>
+      <p>The Monderman site is static pages served over HTTPS. Diagnostics run against a single API service, which scores responses, builds the written interpretation through Anthropic&rsquo;s API, and stores results in a managed Postgres database (Supabase). Scoring, interpretation, and every write of a diagnostic result happen server-side: the API holds service-role credentials that the browser never sees, and no scoring logic or sector reference range is exposed to the client.</p>
+      <p>Once you are signed in, the workspace reads and updates your organization&rsquo;s own records, saved runs, action plans, notes and campaign tracking, directly against the database using a public, publishable key. That key carries no privileges of its own: an unauthenticated request holds no read or write permission on any table. A signed-in request can read your organization&rsquo;s rows and write to a short list of tables, and every table is governed by row-level security, so it can only ever reach rows belonging to the organization you are signed in to. Authorization is enforced by the database itself rather than by the browser.</p>
+      <p>The complete set of outside services involved: <strong>Supabase</strong> for the database and sign-in, <strong>Render</strong> for the API, <strong>Anthropic</strong> for the written interpretation, <strong>Resend</strong> for email delivery, <strong>Stripe</strong> for payment, and <strong>Cloudflare</strong> for bot verification before a diagnostic opens and for serving the script that builds your downloadable report. Cloudflare receives browser and challenge information as part of that verification; it does not receive your diagnostic responses.</p>
   </div>
 </section>
 <section class="section">
@@ -669,8 +670,10 @@
   <div class="section-inner">
     <p class="section-eyebrow">STORAGE</p>
     <h2>What a diagnostic run stores</h2>
-      <p>A run stores the responses you provide and the derived result &mdash; scores, exposure figures, and narrative text. Runs are keyed to your organization&rsquo;s workspace.</p>
-      <p>In-flight session state is held server-side and expires on a fixed schedule; completed results persist in your workspace until deleted.</p>
+      <p>A run stores the responses you provide and the derived result: scores, exposure figures, and written interpretation. Runs are keyed to your organization&rsquo;s workspace.</p>
+      <p>While a diagnostic is in progress, your answers are held server-side so you can leave and come back. That in-progress state stops being usable four hours after the run begins. To be precise about what that means today: after four hours the data is no longer read or acted on, and it is not yet actively erased on that schedule. Tightening that from expiry to deletion is on our list, and this page will say so plainly when it changes rather than before.</p>
+      <p>Completed results persist in your workspace until you delete them.</p>
+      <p>You can also run a diagnostic without signing in. Those runs are not saved to any workspace and are not tied to an account, but your responses are still sent to our API and to Anthropic to produce the result, exactly as a signed-in run is. Nothing on this site produces a scored read without that happening.</p>
   </div>
 </section>
 <section class="section">
@@ -678,8 +681,27 @@
     <p class="section-eyebrow">ACCESS</p>
     <h2>Who can read what</h2>
       <p>Two credentials reach the database, and they are not equivalent. The API service holds a service-role credential, kept server-side and never sent to a browser; it performs scoring, result persistence, and administrative operations such as sending a campaign. The signed-in workspace holds only a public, publishable key, which grants nothing on its own.</p>
-      <p>Row-level security is enabled on every table and is the boundary that matters: each policy tests the signed-in user&rsquo;s organization membership before a row is returned or changed. Workspace results are visible to your organization&rsquo;s signed-in users and to no other tenant, and roles within your organization &mdash; participant, analyst, admin &mdash; govern what each person can see and do.</p>
-      <p>Diagnostics sent to named recipients use single-use links. The link itself is the credential: a recipient completes the assigned diagnostic without an account, sees their own result only if the sending admin chose to show it, and gains no access to your workspace.</p>
+      <p>Row-level security is enabled on every table and is the boundary that matters: each policy tests the signed-in user&rsquo;s organization membership before a row is returned or changed. Workspace results are visible to your organization&rsquo;s signed-in users and to no other tenant. Roles within your organization, Admin, Analyst and Member, govern what each person can see and do.</p>
+      <p>Some things are restricted below the level of a whole table. Your plan, limits and billing fields cannot be changed from a browser at all, by anyone, including your own administrators; only our payment system writes them. On a saved diagnostic, the only field a signed-in browser can change is its status, so a score, an exposure figure or a written interpretation cannot be edited after the fact.</p>
+      <p>Diagnostics sent to named recipients use a unique link per person. The link itself is the credential: a recipient completes the assigned diagnostic without an account, and gains no access to your workspace. It accepts one response, and remains valid afterwards so the recipient can reopen their own result, if the sending admin chose to show it to them. If the campaign has been closed, the link stops accepting responses.</p>
+  </div>
+</section>
+<section class="section">
+  <div class="section-inner">
+    <p class="section-eyebrow">ANONYMITY</p>
+    <h2>When responses are anonymous</h2>
+      <p>An administrator can send a diagnostic as anonymous. When they do, the person answering is told so before they start, and told exactly what that covers.</p>
+      <p>What it means in the system, not just in the interface: no record is written linking the response to the person who gave it. Not a hidden field, not a flag we agree not to look at. The connection is never stored in either direction. The response appears in the workspace under a label such as Respondent 4, drawn at random rather than in the order the invitations went out, and carries the date it was completed rather than the time. Once a campaign has been sent as anonymous, that cannot be reversed, by an administrator or by us.</p>
+      <p>What it does not cover, stated plainly because it matters: the business unit and team the response came from are still shown, because that is what the diagnostic measures. In a small unit, that can be enough to work out who answered. We tell respondents this too.</p>
+      <p>One consequence follows from the design and is worth being clear about. If you answered anonymously and later ask us to delete your responses, we cannot identify which response is yours, so we cannot delete it individually. That is not a gap in the promise; it is the same property that makes the promise real.</p>
+  </div>
+</section>
+<section class="section">
+  <div class="section-inner">
+    <p class="section-eyebrow">WHAT WE HAVE NOT DONE</p>
+    <h2>Where we are, honestly</h2>
+      <p>Monderman holds no security certification. There is no SOC 2 report, no ISO 27001 certificate, and no independent penetration-test attestation. If a certification matters to your procurement process, we do not have one, and we would rather you learn that here than three weeks into a review.</p>
+      <p>What we have instead is an architecture we can describe in full, which is what this page is, and a willingness to answer specifics in writing. If you want to know how a particular control works, ask and we will tell you.</p>
   </div>
 </section>
 <section class="section">
