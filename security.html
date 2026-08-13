@@ -455,15 +455,16 @@
       .nav {
         width: 100%;
         gap: 10px;
-        overflow-x: auto;
-        flex-wrap: nowrap;
+        overflow-x: visible;
+        flex-wrap: wrap;
         justify-content: flex-start;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
+        
+        
         padding-bottom: 4px;
-      }
+      
+ row-gap:10px;}
 
-      .nav::-webkit-scrollbar { display: none; }
+      
       .nav a {
         flex: 0 0 auto;
         font-size: 0.84rem;
@@ -663,7 +664,7 @@
     <h2>One paragraph, end to end</h2>
       <p>The Monderman site is static pages served over HTTPS. Diagnostics run against a single API service, which scores responses, builds the written interpretation through Anthropic&rsquo;s API, and stores results in a managed Postgres database (Supabase). Scoring, interpretation, and every write of a diagnostic result happen server-side: the API holds service-role credentials that the browser never sees, and scoring logic and source calibration tables remain server-side. After scoring, the API can return result-specific reference values needed for the browser to render that result; those presentation values are not credentials and do not grant database access.</p>
       <p>Once you are signed in, the workspace reads and updates your organization&rsquo;s own records, saved runs, action plans, notes and campaign tracking, directly against the database using a public, publishable key. That key carries no privileges of its own: an unauthenticated request holds no read or write permission on any table. A signed-in request can read your organization&rsquo;s rows and write to a short list of tables, and every table is governed by row-level security, so it can only ever reach rows belonging to the organization you are signed in to. Authorization is enforced by the database itself rather than by the browser.</p>
-      <p>Core outside services involved in operating the platform include: <strong>Supabase</strong> for the database and sign-in, <strong>Render</strong> for the API, <strong>Anthropic</strong> for the written interpretation, <strong>Resend</strong> for email delivery, <strong>Stripe</strong> for payment,, <strong>Cloudflare</strong> for bot verification before a diagnostic opens and for serving report-building code, and public content-delivery networks for versioned browser libraries used by the site. Cloudflare receives browser and challenge information as part of that verification; it does not receive your diagnostic responses.</p>
+      <p>Core outside services involved in operating the platform include: <strong>Supabase</strong> for the database and sign-in, <strong>Render</strong> for the API, <strong>Anthropic</strong> for the written interpretation, <strong>Resend</strong> for email delivery, <strong>Stripe</strong> for payment, <strong>Cloudflare</strong> for bot verification before a diagnostic opens and for serving report-building code, and public content-delivery networks for versioned browser libraries used by the site. Cloudflare receives browser and challenge information as part of that verification; it does not receive your diagnostic responses.</p>
   </div>
 </section>
 <section class="section">
@@ -772,8 +773,9 @@
   })();
 </script>
   <!-- Dynamic nav pill: Sign In (signed out) / Workspace (signed in) -->
-  <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2.111.0";
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
+<script type="module">
+    const { createClient } = window.supabase;
     const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co",
       "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
       { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" }});

@@ -799,13 +799,14 @@
         width: 100%;
         gap: 10px;
         justify-content: flex-start;
-        overflow-x: auto;
-        flex-wrap: nowrap;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
+        overflow-x: visible;
+        flex-wrap: wrap;
+        
+        
         padding-bottom: 4px;
-      }
-      .nav::-webkit-scrollbar { display: none; }
+      
+ row-gap:10px;}
+      
       .nav a {
         flex: 0 0 auto;
         font-size: 0.82rem;
@@ -1517,36 +1518,36 @@
 <div class="dx-tabs-wrap">
   <div style="max-width:1100px;margin:0 auto;padding:14px 20px 0;font-size:13px;color:#6E6F73;">Four complete sample deliverables. How these numbers are produced &mdash; <a href="roi.html" style="color:#0C6E78;text-decoration:none;border-bottom:1px solid rgba(12,110,120,.35);padding-bottom:1px;">ROI &amp; Method &rarr;</a></div>
 <div class="dx-tabs" role="tablist" aria-label="Choose a diagnostic">
-    <button class="dx-tab is-active" data-target="os" role="tab" aria-selected="true">
+    <button class="dx-tab is-active" data-target="os" role="tab" aria-selected="true" id="tab-os" aria-controls="report-os">
       <span class="dx-tab-name">Operational Systems</span>
       <span class="dx-tab-desc">Operating burden · 6 dimensions</span>
     </button>
-    <button class="dx-tab" data-target="dv" role="tab" aria-selected="false">
+    <button class="dx-tab" data-target="dv" role="tab" aria-selected="false" id="tab-dv" aria-controls="report-dv">
       <span class="dx-tab-name">Decision Velocity</span>
       <span class="dx-tab-desc">Decision-pathway drag · 6 dimensions</span>
     </button>
-    <button class="dx-tab" data-target="sc" role="tab" aria-selected="false">
+    <button class="dx-tab" data-target="sc" role="tab" aria-selected="false" id="tab-sc" aria-controls="report-sc">
       <span class="dx-tab-name">Structural Clarity</span>
       <span class="dx-tab-desc">Structural legibility · 5 dimensions</span>
     </button>
-    <button class="dx-tab" data-target="ip" role="tab" aria-selected="false">
+    <button class="dx-tab" data-target="ip" role="tab" aria-selected="false" id="tab-ip" aria-controls="report-ip">
       <span class="dx-tab-name">Institutional Performance</span>
       <span class="dx-tab-desc">Institutional condition · 5 dimensions</span>
     </button>
-    <button class="dx-tab dx-tab-synthesis" data-target="synthesis" role="tab" aria-selected="false">
+    <button class="dx-tab dx-tab-synthesis" data-target="synthesis" role="tab" aria-selected="false" id="tab-synthesis" aria-controls="report-synthesis">
       <span class="dx-tab-name">Cross-Diagnostic Synthesis</span>
       <span class="dx-tab-desc">Four diagnostics · One operating condition</span>
     </button>
-    <button class="dx-tab dx-tab-synthesis" data-target="depth" role="tab" aria-selected="false">
+    <button class="dx-tab dx-tab-synthesis" data-target="depth" role="tab" aria-selected="false" id="tab-depth" aria-controls="report-depth">
       <span class="dx-tab-name">Depth Synthesis</span>
       <span class="dx-tab-desc">One instrument · 156 respondents</span>
     </button>
   </div>
 </div>
 
-<section class="report-shell" data-report="os">
+<section class="report-shell" data-report="os" id="report-os" role="tabpanel" aria-labelledby="tab-os">
   <div class="toc-mobile">
-    <select onchange="if(this.value){var s=this.closest('.report-shell');var el=document.getElementById(s.dataset.report+'-'+this.value);if(el)el.scrollIntoView();}">
+    <select aria-label="Jump to report section" onchange="if(this.value){var s=this.closest('.report-shell');var el=document.getElementById(s.dataset.report+'-'+this.value);if(el)el.scrollIntoView();}">
         <option value="">Jump to section…</option>
         <option value="cover">Cover</option>
         <option value="headline">Headline finding</option>
@@ -1745,9 +1746,9 @@
   </div>
 </section>
 
-<section class="report-shell" data-report="dv" hidden>
+<section class="report-shell" data-report="dv" hidden id="report-dv" role="tabpanel" aria-labelledby="tab-dv">
   <div class="toc-mobile">
-    <select onchange="if(this.value){var s=this.closest('.report-shell');var el=document.getElementById(s.dataset.report+'-'+this.value);if(el)el.scrollIntoView();}">
+    <select aria-label="Jump to report section" onchange="if(this.value){var s=this.closest('.report-shell');var el=document.getElementById(s.dataset.report+'-'+this.value);if(el)el.scrollIntoView();}">
         <option value="">Jump to section…</option>
         <option value="cover">Cover</option>
         <option value="headline">Headline finding</option>
@@ -1945,9 +1946,9 @@
   </div>
 </section>
 
-<section class="report-shell" data-report="sc" hidden>
+<section class="report-shell" data-report="sc" hidden id="report-sc" role="tabpanel" aria-labelledby="tab-sc">
   <div class="toc-mobile">
-    <select onchange="if(this.value){var s=this.closest('.report-shell');var el=document.getElementById(s.dataset.report+'-'+this.value);if(el)el.scrollIntoView();}">
+    <select aria-label="Jump to report section" onchange="if(this.value){var s=this.closest('.report-shell');var el=document.getElementById(s.dataset.report+'-'+this.value);if(el)el.scrollIntoView();}">
         <option value="">Jump to section…</option>
         <option value="cover">Cover</option>
         <option value="headline">Headline finding</option>
@@ -2145,9 +2146,9 @@
   </div>
 </section>
 
-<section class="report-shell" data-report="ip" hidden>
+<section class="report-shell" data-report="ip" hidden id="report-ip" role="tabpanel" aria-labelledby="tab-ip">
   <div class="toc-mobile">
-    <select onchange="if(this.value){var s=this.closest('.report-shell');var el=document.getElementById(s.dataset.report+'-'+this.value);if(el)el.scrollIntoView();}">
+    <select aria-label="Jump to report section" onchange="if(this.value){var s=this.closest('.report-shell');var el=document.getElementById(s.dataset.report+'-'+this.value);if(el)el.scrollIntoView();}">
         <option value="">Jump to section…</option>
         <option value="cover">Cover</option>
         <option value="headline">Headline finding</option>
@@ -2345,7 +2346,7 @@
   </div>
 </section>
 
-<section class="report-shell" data-report="synthesis" hidden>
+<section class="report-shell" data-report="synthesis" hidden id="report-synthesis" role="tabpanel" aria-labelledby="tab-synthesis">
   <div class="doc-shell">
   <main class="doc-body">
 
@@ -2703,7 +2704,7 @@
   </div>
 </section>
 
-<section class="report-shell" data-report="depth" hidden>
+<section class="report-shell" data-report="depth" hidden id="report-depth" role="tabpanel" aria-labelledby="tab-depth">
   <div class="doc-shell">
   <main class="doc-body">
 
@@ -2996,8 +2997,9 @@
 </script>
 
   <!-- Dynamic nav pill: Sign In (signed out) / Workspace (signed in) -->
-  <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2.111.0";
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
+<script type="module">
+    const { createClient } = window.supabase;
     const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co",
       "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
       { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" }});

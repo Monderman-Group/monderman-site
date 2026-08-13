@@ -658,14 +658,15 @@
         display: flex;
         width: 100%;
         gap: 10px;
-        overflow-x: auto;
-        flex-wrap: nowrap;
+        overflow-x: visible;
+        flex-wrap: wrap;
         justify-content: flex-start;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
+        
+        
         padding-bottom: 4px;
-      }
-      .nav::-webkit-scrollbar { display: none; }
+      
+ row-gap:10px;}
+      
       .nav a {
         flex: 0 0 auto;
         font-size: 0.84rem;
@@ -1323,8 +1324,9 @@
     <!-- Monderman auth (single client): paints the nav pill + fast-paths signed-in users.
        Gated CTAs already point at signin.html?next=<tool>, so the gate is fail-closed —
        clicking one always lands on sign-in first, even if this script never loads. -->
-  <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2.111.0";
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
+<script type="module">
+    const { createClient } = window.supabase;
     const sb = createClient(
       "https://ptkxrzgmeldalrkfruth.supabase.co",
       "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",

@@ -482,10 +482,11 @@
       .header-inner,.pl-wrap,.pl-top-inner{padding-left:20px;padding-right:20px}
       .pl-top-inner{padding-top:120px}.pl-top h1{font-size:32px}
       .pl-form-grid{grid-template-columns:1fr}
-      .nav{width:100%;gap:8px;overflow-x:auto;flex-wrap:nowrap;justify-content:flex-start;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+      .nav{width:100%;gap:8px;overflow-x: visible;flex-wrap: wrap;justify-content:flex-start;
+ row-gap:10px;}
       .header{height:auto}
       .header-inner{flex-direction:column;align-items:flex-start;gap:14px;padding-top:16px;padding-bottom:12px}
-      .nav::-webkit-scrollbar{display:none}
+      
       .nav a{flex:0 0 auto;white-space:nowrap;font-size:0.84rem;line-height:1;padding:10px 12px;border-radius:5px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08)}
       .nav a::after{display:none}
     }
@@ -671,8 +672,9 @@
 
   <script>(function(){var h=document.getElementById('siteHeader');if(!h)return;var onScroll=function(){if(window.scrollY>12){h.classList.add('scrolled');}else{h.classList.remove('scrolled');}};window.addEventListener('scroll',onScroll,{passive:true});onScroll();})();</script>
   <!-- Dynamic nav pill: Sign In (signed out) / Workspace (signed in) -->
-  <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2.111.0";
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
+<script type="module">
+    const { createClient } = window.supabase;
     const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co",
       "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
       { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" }});
@@ -691,7 +693,7 @@
        Gated CTAs already point at signin.html?next=<tool>, so the gate is fail-closed —
        clicking one always lands on sign-in first, even if this script never loads. -->
   <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2.111.0";
+    const { createClient } = window.supabase;
     const sb = createClient(
       "https://ptkxrzgmeldalrkfruth.supabase.co",
       "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",

@@ -260,14 +260,15 @@
       .nav {
         width: 100%;
         gap: 10px;
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
         justify-content: flex-start;
-        overflow-x: auto;
+        overflow-x: visible;
         padding-bottom: 4px;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
-      }
-      .nav::-webkit-scrollbar { display: none; }
+        
+        
+      
+ row-gap:10px;}
+      
       .nav { gap: 22px; }
       .hero-inner { padding: 120px 24px 82px; }
       .hero .section { padding: 120px 24px 82px; }
@@ -317,14 +318,15 @@
       .nav {
         width: calc(100% + 4px);
         gap: 10px;
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
         justify-content: flex-start;
-        overflow-x: auto;
+        overflow-x: visible;
         padding: 2px 4px 6px 0;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
-      }
-      .nav::-webkit-scrollbar { display: none; }
+        
+        
+      
+ row-gap:10px;}
+      
       .nav a {
         flex: 0 0 auto;
         font-size: 0.84rem;
@@ -765,14 +767,15 @@
       .nav {
         width: 100%;
         gap: 22px;
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
         justify-content: flex-start;
-        overflow-x: auto;
+        overflow-x: visible;
         padding-bottom: 4px;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
-      }
-      .nav::-webkit-scrollbar { display: none; }
+        
+        
+      
+ row-gap:10px;}
+      
     }
     @media (max-width: 640px) {
       .header-inner {
@@ -1047,8 +1050,9 @@
     </div>
   </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
 <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2.111.0";
+    const { createClient } = window.supabase;
     const sb = createClient(
       "https://ptkxrzgmeldalrkfruth.supabase.co",
       "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
