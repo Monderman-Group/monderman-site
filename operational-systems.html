@@ -763,7 +763,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
               <span class="insight-depth-value" id="insightDepthValue">--</span>
               <span class="score-meta-pill" id="insightDepthBand">--</span>
               <span class="insight-help" id="insightDepthInfo" tabindex="0">ⓘ</span>
-              <span class="tooltip-panel" id="insightDepthTooltip">A quality-of-signal score, not a quality-of-answer score. For a single run, this score reflects only the depth of this run (10/30/60-minute) and the participant's self-reported confidence. A single run from a single perspective is always a narrow first signal regardless of how thoughtful it was. Comprehensive reads emerge from multiple perspectives, multiple runs over time, and cross-diagnostic synthesis. The synthesis tool computes a composite: breadth (12 points per distinct instrument), respondent depth (up to 38 points as more people take the same instrument — 5+ emerging, 20+ broad, 50+ high-participation), and vantage coverage (operational / managerial / executive). Single runs cap at 8 by design; added evidence uses the remaining points. <a href="https://www.monderman.com/research.html" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:8px;color:#8fb0d6;">Learn more about how this is calculated →</a></span>
+              <span class="tooltip-panel" id="insightDepthTooltip">A quality-of-signal score, not a quality-of-answer score. For a single run, this score reflects only its run length (10, 30, or 60 minutes) and the participant's self-reported confidence. A single run from a single perspective is always a narrow first signal regardless of how thoughtful it was. Comprehensive reads emerge from multiple perspectives, multiple runs over time, and cross-diagnostic synthesis. The synthesis tool computes a composite: breadth (12 points per distinct instrument), respondent depth (up to 38 points as more people take the same instrument — 5+ emerging, 20+ broad, 50+ high-participation), and vantage coverage (operational / managerial / executive). Single runs cap at 8 by design; added evidence uses the remaining points. <a href="https://www.monderman.com/research.html" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:8px;color:#8fb0d6;">Learn more about how this is calculated →</a></span>
             </div>
             <p class="insight-depth-copy" id="insightDepthCopy">Broader participation, depth, and cross-synthesis make the output more defensible.</p>
           </div>
@@ -3167,7 +3167,11 @@ return cleaned.length ? cleaned.reduce((a, b) => a + b, 0) / cleaned.length : 0;
 }
 
 function getOperationalDimensions(result) {
-const dims = asObject(result?.dimensions);
+// Charts on this page describe burden severity. result.dimensions contains
+// condition/health scores (higher is healthier), while burden_breakdown is
+// the customer-facing severity scale (higher is heavier). Mixing the two made
+// the chart caption assert the opposite of the values it plotted.
+const dims = asObject(result?.burden_breakdown);
 const measured = (value) => Number.isFinite(value) ? Number(value) : null;
 return {
 process_load: measured(dims.process_density),
@@ -3500,30 +3504,38 @@ dimensionChart = null;
 }
 }
 
-function renderCharts(result) {
-destroyCharts();
+function buildOperationalChartConfig(kind, result) {
 const dims = getOperationalDimensions(result);
-const gapCtx = $("gapChart")?.getContext("2d");
-const dimCtx = $("dimensionChart")?.getContext("2d");
-if (gapCtx) {
-gapChart = new Chart(gapCtx, {
-type: "bar",
-data: {
-labels: ["Process load", "Systems friction", "Control & review", "Reporting & oversight", "Adaptation drag"],
-datasets: [{ data: [dims.process_load, dims.systems_friction, dims.control_review_burden, dims.reporting_oversight_load, dims.adaptation_drag] }]
-},
-options: chartOptions()
-});
-}
-if (dimCtx) {
-dimensionChart = new Chart(dimCtx, {
+const values = [dims.process_load, dims.systems_friction, dims.control_review_burden, dims.reporting_oversight_load, dims.adaptation_drag];
+if (kind === "dimension") {
+return {
 type: "radar",
 data: {
 labels: ["Process", "Systems", "Control", "Reporting", "Adaptation"],
-datasets: [{ data: [dims.process_load, dims.systems_friction, dims.control_review_burden, dims.reporting_oversight_load, dims.adaptation_drag], fill: true }]
+datasets: [{ data: values, fill: true }]
 },
 options: { ...chartOptions(), scales: { r: { beginAtZero: true, max: 100 } } }
-});
+};
+}
+return {
+type: "bar",
+data: {
+labels: ["Process load", "Systems friction", "Control & review", "Reporting & oversight", "Adaptation drag"],
+datasets: [{ data: values }]
+},
+options: chartOptions()
+};
+}
+
+function renderCharts(result) {
+destroyCharts();
+const gapCtx = $("gapChart")?.getContext("2d");
+const dimCtx = $("dimensionChart")?.getContext("2d");
+if (gapCtx) {
+gapChart = new Chart(gapCtx, buildOperationalChartConfig("gap", result));
+}
+if (dimCtx) {
+dimensionChart = new Chart(dimCtx, buildOperationalChartConfig("dimension", result));
 }
 }
 
@@ -4496,7 +4508,7 @@ const dimensionRows = [
   ["reporting_exception_burden","Reporting and exception burden"], ["workaround_dependence","Workaround dependence"],
   ["control_load","Control load"], ["upkeep_burden","Upkeep burden"]
 ].map(([key,label]) => {
-  const value = result?.dimensions?.[key];
+  const value = result?.burden_breakdown?.[key];
   return `<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #EAE6DD"><span>${escapeHtml(label)}</span><b>${Number.isFinite(value) ? `${Math.round(value)} / 100` : "Not measured"}</b></div>`;
 }).join("");
 const donutSegments = buildDonutSegments(breakdown);
@@ -4903,7 +4915,7 @@ return `<!doctype html>
     <p class="eyebrow">Where the burden is coming from</p><h2>Burden composition</h2>
     <p>The composition view shows where the visible burden is coming from across the six dimensions Monderman measures: process density, systems friction, reporting burden, workaround dependence, control load, and administrative upkeep burden.</p><p class="muted">The important signal is not only which dimension is largest. The distribution also matters. A concentrated pattern usually points to a more targeted intervention; a distributed pattern usually means the workflow has absorbed burden into its normal operating design.</p>
     <div class="panel donut-panel"><div class="donut-wrap"><svg width="150" height="150" viewBox="0 0 200 200">${donutPaths}</svg><div class="donut-center"><div><small>DOMINANT</small><b>${dominantPct}%</b></div></div></div><div>${segmentLegend}</div></div>
-    <h3 style="margin-top:18px">Measured condition dimensions</h3><div class="panel">${dimensionRows}</div>
+    <h3 style="margin-top:18px">Measured burden severity</h3><div class="panel">${dimensionRows}</div><p class="muted" style="font-size:8.5px">Higher values indicate heavier measured burden. The overall Operational Systems score runs in the opposite direction: higher overall scores mean a lighter, stronger operating system.</p>
     <h3 style="margin-top:24px">What the composition tells us</h3>
     <p>${safeWords(concentrationProse, 76)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(compositionQuestion)}</p></div>
@@ -5583,7 +5595,7 @@ const dimensionCard = $("dimensionChart")?.closest(".chart-card");
 if (dimensionCard && !dimensionCard.querySelector(".dim-note")) {
 const note = document.createElement("p");
 note.className = "dim-note";
-note.textContent = "Higher values indicate where this run is surfacing heavier burden pressure: process, systems, control, reporting, or adaptation. The shape matters more than any single point.";
+note.textContent = "Higher values indicate heavier measured burden. The overall Operational Systems score runs in the opposite direction: higher overall scores mean a lighter, stronger operating system. The shape matters more than any single point.";
 dimensionCard.appendChild(note);
 }
 renderShareBar(result);
@@ -5673,6 +5685,102 @@ showToast("Report download failed: " + (error.message || "Unknown error"));
 }
 }
 
+function buildStandaloneChartDataUrl(kind, result) {
+if (typeof Chart !== "function") return null;
+const canvas = document.createElement("canvas");
+canvas.width = 1200;
+canvas.height = 560;
+const context = canvas.getContext("2d");
+if (!context) return null;
+let chart = null;
+try {
+const config = buildOperationalChartConfig(kind, result);
+config.options = { ...(config.options || {}), responsive: false, maintainAspectRatio: false, animation: false };
+chart = new Chart(context, config);
+return canvas.toDataURL("image/png");
+} catch (error) {
+console.warn(`Standalone ${kind} chart could not be serialized:`, error);
+return null;
+} finally {
+if (chart) chart.destroy();
+}
+}
+
+function prepareStandaloneResultsClone(result) {
+const source = document.getElementById("resultsStage");
+if (!source) return null;
+const clone = source.cloneNode(true);
+const clonedScore = clone.querySelector("#scoreNumber");
+if (clonedScore) clonedScore.textContent = String(Math.max(0, Math.min(100, Math.round(Number(result?.score || 0)))));
+
+// A downloaded HTML report is a static document. Interactive disclosure
+// state must not strand customer content behind collapsed accordions or the
+// in-browser opportunity acknowledgement.
+clone.querySelector("#opportunityGateWrap")?.remove();
+const opportunity = clone.querySelector("#opportunityRevealWrap");
+if (opportunity) {
+opportunity.classList.remove("hidden");
+opportunity.style.display = "block";
+}
+const remedies = clone.querySelector("#remedyTreeWrap");
+if (remedies) {
+remedies.classList.remove("hidden");
+remedies.style.display = "block";
+}
+clone.querySelectorAll(".accordion-section.hidden").forEach((section) => section.remove());
+clone.querySelectorAll(".accordion-section").forEach((section) => {
+section.classList.add("open");
+const body = section.querySelector(".accordion-body");
+if (body) {
+body.style.maxHeight = "none";
+body.style.overflow = "visible";
+body.style.opacity = "1";
+body.style.transform = "none";
+}
+const header = section.querySelector(".accordion-header");
+if (header) {
+const staticHeader = document.createElement("div");
+staticHeader.className = header.className;
+staticHeader.innerHTML = header.innerHTML;
+header.replaceWith(staticHeader);
+}
+section.querySelector(".accordion-chevron")?.remove();
+});
+
+clone.querySelectorAll(".accordion-toolbar,.export-cta-stack,.env-foot,#questionFooter,.hidden-download,.insight-help,.tooltip-panel").forEach((node) => node.remove());
+clone.querySelectorAll("a[href]").forEach((link) => {
+const href = link.getAttribute("href") || "";
+if (href && !/^(?:https?:|mailto:|#)/i.test(href)) link.setAttribute("href", `https://www.monderman.com/${href.replace(/^\.\//, "")}`);
+});
+
+// Canvas pixels are not preserved by cloneNode()/innerHTML. Render the two
+// production Chart.js configurations onto export canvases and embed their
+// pixels as images. Remove the hidden legacy canvas rather than exporting a
+// blank 300x150 placeholder.
+clone.querySelectorAll("canvas").forEach((canvas) => {
+const kind = canvas.id === "gapChart" ? "gap" : canvas.id === "dimensionChart" ? "dimension" : null;
+if (!kind) {
+canvas.remove();
+return;
+}
+const dataUrl = buildStandaloneChartDataUrl(kind, result);
+if (!dataUrl) {
+const unavailable = document.createElement("p");
+unavailable.className = "viz-note standalone-chart-unavailable";
+unavailable.textContent = "Chart unavailable in this export. The measured values remain available in the report tables and JSON export.";
+canvas.replaceWith(unavailable);
+return;
+}
+const image = document.createElement("img");
+image.src = dataUrl;
+image.alt = kind === "gap" ? "Measured burden severity bar chart" : "Measured burden severity radar chart";
+image.className = "standalone-chart-image";
+canvas.replaceWith(image);
+});
+
+return clone;
+}
+
 function buildFullReportHTML(result, payload, title) {
 const docTitle = escapeHtml(title);
 const processName = escapeHtml(payload.processName || payload.process_name || "Operational Systems");
@@ -5680,11 +5788,7 @@ const organizationName = escapeHtml(payload.organizationName || payload.organiza
 const businessUnit = escapeHtml(payload.businessUnit || payload.business_unit || "Not provided");
 const generated = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 
-// Get current results HTML from DOM
-const resultsStage = document.getElementById("resultsStage");
-const resultsClone = resultsStage ? resultsStage.cloneNode(true) : null;
-const clonedScore = resultsClone?.querySelector("#scoreNumber");
-if (clonedScore) clonedScore.textContent = String(Math.max(0, Math.min(100, Math.round(Number(result?.score || 0)))));
+const resultsClone = prepareStandaloneResultsClone(result);
 const resultsHTML = resultsClone ? resultsClone.innerHTML : "<p>Results not available</p>";
 
 return `<!DOCTYPE html>
@@ -5728,7 +5832,12 @@ return `<!DOCTYPE html>
 }
 
 function getReportStyles() {
-return `* { box-sizing: border-box; } html, body { margin: 0; padding: 0; font-family: "Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif; } body { background: #fff; color: #18191C; line-height: 1.6; } .report-wrapper { max-width: 1200px; margin: 0 auto; padding: 40px; } .report-header-section { margin-bottom: 40px; padding-bottom: 30px; border-bottom: 1px solid rgba(24, 25, 28, 0.1); } .report-wordmark { font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #0C6E78; margin-bottom: 16px; } .report-title-block h1 { margin: 0 0 8px; font-size: 2.5rem; line-height: 1; letter-spacing: -0.04em; } .report-meta { margin: 0; font-size: 0.95rem; color: #6E6F73; } .report-content { margin-bottom: 40px; } .report-footer-section { padding-top: 30px; border-top: 1px solid rgba(24, 25, 28, 0.1); font-size: 0.85rem; color: #9A9892; } @media print { body { background: #fff; } .report-wrapper { padding: 20px; } }`;
+const productionStyles = Array.from(document.querySelectorAll("style"))
+.map((style) => style.textContent || "")
+.join("\n");
+return `${productionStyles}
+/* monderman-standalone-full-report-v2 */
+*{box-sizing:border-box}html,body{margin:0;padding:0;font-family:"Neue Haas Grotesk",Arial,sans-serif}body{background:#fff;color:#18191C;line-height:1.6}.report-wrapper{max-width:1200px;margin:0 auto;padding:40px}.report-header-section{margin-bottom:40px;padding-bottom:30px;border-bottom:1px solid rgba(24,25,28,.1)}.report-wordmark{font-size:14px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#0C6E78;margin-bottom:16px}.report-title-block h1{margin:0 0 8px;font-size:2.5rem;line-height:1;letter-spacing:-.04em}.report-meta{margin:0;font-size:.95rem;color:#6E6F73}.report-content{margin-bottom:40px}.report-content .accordion-body{max-height:none!important;overflow:visible!important;opacity:1!important;transform:none!important;padding:0 28px 28px!important}.report-content .accordion-section{break-inside:avoid-page}.report-content .accordion-header{cursor:default}.standalone-chart-image{display:block;width:100%;height:auto;max-height:360px;object-fit:contain}.report-footer-section{padding-top:30px;border-top:1px solid rgba(24,25,28,.1);font-size:.85rem;color:#9A9892}@media(max-width:720px){.report-wrapper{padding:20px}.report-title-block h1{font-size:2rem}.report-content .accordion-body{padding:0 18px 20px!important}}@media print{body{background:#fff}.report-wrapper{padding:20px}.accordion-section,.result-card,.viz-card{break-inside:avoid-page}}`;
 }
 
 learnMoreToggle.addEventListener("click", () => learnMorePanel.classList.toggle("show"));
@@ -6097,6 +6206,7 @@ if (typeof window !== "undefined") {
     buildFullReportHTML: buildFullReportHTML,
     buildCrossDiagnosticArtifact: buildCrossDiagnosticArtifact,
     getQuadrantCoordinates: getQuadrantCoordinates,
+    getOperationalDimensions: getOperationalDimensions,
     downloadExecutiveReportPdf: downloadExecutiveReportPdf,
     exportExecutiveReport: (typeof exportExecutiveReport === "function") ? exportExecutiveReport : null,
     getState: () => state,
