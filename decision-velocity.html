@@ -1356,6 +1356,29 @@ if (unrounded > 0 && unrounded < 1) return "<1%";
 return `${Math.round(published)}%`;
 }
 
+function buildExposureNarrative(exposure) {
+const ex = exposure && typeof exposure === "object" ? exposure : {};
+const hasHours = ex.annual_hours != null && Number.isFinite(Number(ex.annual_hours)) && Number(ex.annual_hours) > 0;
+const hasCost = ex.annual_cost != null && Number.isFinite(Number(ex.annual_cost)) && Number(ex.annual_cost) > 0;
+const hasDrag = ex.capacity_drag_percent != null && Number.isFinite(Number(ex.capacity_drag_percent));
+if (ex.sizing_status === "input_saturation") {
+  return "The disclosed workload exceeds the available capacity assumption, so burden hours, labor exposure, and capacity drag are not published for this scenario.";
+}
+if (!hasHours) {
+  return "Burden hours and labor exposure were not estimated because no usable coordination-hours input was provided.";
+}
+const hours = formatRoundedHours(ex.annual_hours, { suffix: " annual burden hours*" });
+if (!hasCost) {
+  const dragClause = hasDrag ? ` Estimated capacity drag is ${formatCapacityDrag(ex)}*.` : "";
+  return `Directional modeling suggests ${hours}. Labor exposure was not priced because no usable hourly cost was provided.${dragClause}`;
+}
+const cost = formatEstimateCurrencyRange(ex.annual_cost);
+const dragClause = hasDrag
+  ? ` Capacity drag is ${formatCapacityDrag(ex)}*.`
+  : " Capacity drag was not estimated because the necessary capacity inputs were unavailable.";
+return `Directional modeling suggests ${hours} and ${cost} in labor exposure.${dragClause}`;
+}
+
 // SectorWorkflowKnowledge — the sector × workflow knowledge tuples
 // (bottlenecks/remedies/failure modes) — was migrated to backend
 // sectorIntelligence.js on 2026-05-13. The frontend now reads
@@ -3432,6 +3455,16 @@ return {
 };
 }
 
+function buildCustomerExecutiveSummary(result, payload) {
+const summary = { ...buildExecutiveSummary(result, payload || {}) };
+if (Number(result?.score) >= 83) {
+  const process = payload?.processName || payload?.process_name || "This workflow";
+  const source = String(derivePrimaryBurdenSource(result || {}).label || "the leading residual signal").toLowerCase();
+  summary.headline = `${process}: Preserve healthy velocity and monitor ${source}`;
+}
+return summary;
+}
+
 function buildBenchmarkInterpretationText(result, payload) {
 // Passthrough — backend narrativeBuilders.js produces benchmark interpretation
 // and attaches it as result.interpretive_prose.benchmark_interpretation. The
@@ -4546,7 +4579,7 @@ return "What does leadership need to admit about how this really works before th
 
 function buildExecutiveReportHtml(result, payload) {
 const harmonized = buildHarmonizedNarrative(result, payload || {});
-const summary = buildExecutiveSummary(result, payload || {});
+const summary = buildCustomerExecutiveSummary(result, payload || {});
 const actions = buildPriorityActions(result, payload || {}).filter(Boolean);
 const benchmark = buildBenchmarkInterpretationText(result, payload || {});
 const generated = nowLabel();
@@ -4566,11 +4599,10 @@ const benchmarkPosition = result?.benchmark_position || "Design reference not es
 const sectorName = resolveIndustryLabel(result, payload, { titleCase: false });
 const sectorMeta = resolveIndustryLabel(result, payload, { titleCase: true });
 const levelMeta = humanize(payload?.organizationLevel || payload?.organization_level || payload?.unitType || payload?.unit_type || "Business unit");
-const annualHours = Math.round(Number(result?.exposure?.annual_hours || 0));
-const annualHoursText = annualHours ? formatRoundedHours(annualHours, { suffix: " annual burden hours*" }) : "annual burden hours* not estimated";
 const annualCostText = formatEstimateCurrencyRange(result?.exposure?.annual_cost);
 const dragMeasured = result?.exposure?.capacity_drag_percent != null && Number.isFinite(Number(result.exposure.capacity_drag_percent));
 const dragDisplay = formatCapacityDrag(result?.exposure, "Not estimated");
+const exposureNarrative = buildExposureNarrative(result?.exposure);
 const capacity = calculateCapacityComposition(result?.exposure);
 const capacityLabel = value => value > 0 && value < 1 ? "&lt;1%" : `${Math.round(value)}%`;
 const breakdown = asObject(result?.burden_breakdown);
@@ -4972,7 +5004,7 @@ return `<!doctype html>
     <p class="eyebrow">The pattern this run is detecting</p><h2>Headline finding</h2>
     <p class="lede">${safeWords(harmonized.headlineFinding || summary.body, 84)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(executiveQuestion)}</p></div>
-    <p>Directional modeling suggests ${safe(annualHoursText)} and ${safe(annualCostText)} in labor exposure${dragMeasured ? `, with capacity drag around ${safe(dragDisplay)}*` : "; capacity drag was not estimated because the necessary capacity inputs were unavailable"}. These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
+    <p><span id="exposureNarrative">${safe(exposureNarrative)}</span> These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
     <p>The practical question is not whether decisions are still getting made. It is how much organizational energy is now required to move them. The score should be read as a structured quantitative pathway-drag indicator. Experiential bypass signals, when present, do not change the score; they provide interpretive context about how the formal pathway may differ from operating reality.</p><p>When a pathway needs repeated chase effort, manager intervention, workaround maintenance, or escalation to move forward, the visible output may remain acceptable while the formal decision system underneath becomes increasingly expensive to sustain.</p>
     ${capacity.measured ? `<div class="capacity"><div class="seg" style="width:${capacity.productive}%;background:#3C8A60">${capacityLabel(capacity.productive)}</div><div class="seg" style="width:${capacity.admin}%;background:#C9821F">${capacityLabel(capacity.admin)}</div><div class="seg" style="width:${capacity.drag}%;background:#B0392F">${capacityLabel(capacity.drag)}</div></div><div class="legend"><span><span class="dot" style="background:#3C8A60"></span>Productive work</span><span><span class="dot" style="background:#C9821F"></span>Routine coordination</span><span><span class="dot" style="background:#B0392F"></span>Recoverable drag*</span></div><p class="muted" style="font-size:8.5px">Estimates of how this pathway's available capacity is currently allocated. Recoverable drag* is the portion that could be returned to productive use through structural intervention.</p>` : `<div class="panel"><b>Capacity allocation not estimated.</b><p>The disclosed inputs were not sufficient to calculate a defensible capacity percentage.</p></div>`}
     <h3 style="margin-top:26px">Why this matters in ${safe(sectorName)}</h3>
@@ -5325,7 +5357,7 @@ key_findings: asArray(result?.key_findings).filter(Boolean),
 priority_actions: actions,
 findings: {
   headline: buildHarmonizedNarrative(result, payload || {}).headlineFinding || null,
-  executive_summary: buildExecutiveSummary(result, payload || {}),
+  executive_summary: buildCustomerExecutiveSummary(result, payload || {}),
   contradictions: asArray(result?.contradictions),
   recommendations: actions,
   remedy_paths: buildRemedyPaths(result, payload || {})
@@ -5462,7 +5494,8 @@ const burdenCondition = deriveOperatingBurdenCondition(result);
 const burdenConstraint = derivePrimaryBurdenSource(result);
 const burdenDiagnosis = deriveBurdenDiagnosis(result, payload);
 const reclaim = estimateReclaimPotential(result, payload);
-const executiveSummary = buildExecutiveSummary(result, payload);
+const executiveSummary = buildCustomerExecutiveSummary(result, payload);
+const exposureNarrative = buildExposureNarrative(result?.exposure);
 const healthyCondition = Number(result?.score) >= 83;
 const diagnosisReads = healthyCondition ? {
   burdenRead: "Measured decision velocity is strong. The leadership task is to preserve the conditions supporting that performance and watch for verified drift.",
@@ -5520,7 +5553,7 @@ trajectoryWrap.innerHTML = trajectoryChipHtml;
 }
 
 $("executiveText").textContent = harmonized.executive;
-$("roiNarrativeText").textContent = harmonized.tmr;
+$("roiNarrativeText").textContent = exposureNarrative;
 $("benchmarkInterpretationText").textContent = harmonized.benchmark;
 const tradeoffEl = $("tradeoffReadingText");
 if (tradeoffEl && burdenDiagnosis.note) {
@@ -5531,7 +5564,7 @@ $("opportunityLeadText").textContent = harmonized.opportunityFields.opening;
 $("opportunitySectorText").textContent = harmonized.opportunityFields.sectorDynamic;
 $("opportunityActionReasonText").textContent = [harmonized.opportunityFields.runIndicates, harmonized.opportunityFields.buildAdvantage, harmonized.opportunityFields.firstMoves].filter(Boolean).join(" ");
 $("leadershipWatchoutText").textContent = harmonized.opportunityFields.watchout;
-$("tmrText").textContent = harmonized.tmr;
+$("tmrText").textContent = exposureNarrative;
 $("tradeoffText").textContent = harmonized.tradeoff;
 
 $("execSummaryHeadline").textContent = executiveSummary.headline;

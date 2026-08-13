@@ -281,11 +281,16 @@ function currencyBandContains(label,value){
 }
 function runChecks(apiRun,files){
   const result=apiRun.result,ex=result.exposure||{},coverage=result.dimension_coverage||result.measurement_coverage||{},summary=plainText(files.summaryHtml),full=plainText(files.fullHtml),score=Number(result.score),band=String(result.score_band||result.band||"");
+  const summaryDoc=new DOMParser().parseFromString(files.summaryHtml,"text/html");
   const fullDoc=new DOMParser().parseFromString(files.fullHtml,"text/html");
   const exportedScoreText=(fullDoc.querySelector("#scoreNumber")?.textContent||"").trim();
   const displayedCost=(fullDoc.querySelector("#economicCostValue")?.textContent||"").trim();
   const displayedReclaim=(fullDoc.querySelector("#reclaimValue")?.textContent||"").trim();
   const displayedCapacity=(fullDoc.querySelector("#economicCapacityValue")?.textContent||"").trim();
+  const summaryExposureNarrative=(summaryDoc.querySelector("#exposureNarrative")?.textContent||"").trim();
+  const fullRoiNarrative=(fullDoc.querySelector("#roiNarrativeText")?.textContent||"").trim();
+  const fullTmrNarrative=(fullDoc.querySelector("#tmrText")?.textContent||"").trim();
+  const jsonHeadline=String(files.jsonArtifact.findings?.executive_summary?.headline||"").trim();
   const dimensionCaption=(fullDoc.querySelector(".dim-note")?.textContent||"").trim();
   const dimensions=Object.entries(result.dimensions||{}),unmeasured=coverage.unmeasured_dimensions||[];
   const combined=`${summary} ${full}`;const jsonText=JSON.stringify(files.jsonArtifact);const model=ex.model||{};
@@ -315,6 +320,11 @@ function runChecks(apiRun,files){
     ["Capacity drag reconciles",ex.capacity_drag_percent==null||Number(ex.total_capacity_hours)>0&&Math.abs((Number(ex.annual_hours)/Number(ex.total_capacity_hours)*100)-Number(ex.capacity_drag_percent))<=0.51,`${ex.capacity_drag_percent}% displayed`],
     ["Recoverable cost reconciles",ex.cost_estimated===false?ex.recoverable_cost==null:tolerance(Number(ex.recoverable_cost),Number(ex.annual_cost)*Number(ex.recoverable_share_percent)/100,2),`${ex.recoverable_cost} at ${ex.recoverable_share_percent}%`],
     ["Displayed exposure range contains modeled cost",currencyBandContains(displayedCost,ex.annual_cost),`${ex.annual_cost} in ${displayedCost}`],
+    ["Canonical exposure prose matches every HTML location",Boolean(summaryExposureNarrative)&&summaryExposureNarrative===fullRoiNarrative&&fullRoiNarrative===fullTmrNarrative,`summary=${summaryExposureNarrative} | ROI=${fullRoiNarrative} | TMR=${fullTmrNarrative}`],
+    ["Exposure prose uses the displayed cost range",ex.cost_estimated===false||summaryExposureNarrative.includes(displayedCost),`${displayedCost} in ${summaryExposureNarrative}`],
+    ["Exposure prose uses the displayed capacity value",ex.capacity_drag_percent==null||summaryExposureNarrative.includes(displayedCapacity),`${displayedCapacity} in ${summaryExposureNarrative}`],
+    ["Unpriced exposure prose explains the missing input",ex.cost_estimated!==false||(ex.hours_estimated===false?/no usable coordination-hours input/i.test(summaryExposureNarrative):/no usable hourly cost/i.test(summaryExposureNarrative)),summaryExposureNarrative],
+    ["Exposure prose contains no stale or awkward financial copy",!/capacity drag around 0%|and Not estimated in labor exposure|annual burden hours\* not estimated|labor exposure of \$5,000–\$10,000.*capacity drag around 0%/i.test(`${summaryExposureNarrative} ${fullRoiNarrative} ${fullTmrNarrative}`),`${summaryExposureNarrative} | ${fullRoiNarrative} | ${fullTmrNarrative}`],
     ["Displayed reclaim range contains modeled amount",currencyBandContains(displayedReclaim,ex.recoverable_cost),`${ex.recoverable_cost} in ${displayedReclaim}`],
     ["Sub-one-percent capacity is not displayed as zero",!(Number(ex.annual_hours)>0&&Number(ex.total_capacity_hours)>0&&Number(ex.annual_hours)/Number(ex.total_capacity_hours)<.01)||displayedCapacity==="<1%",`${ex.annual_hours}/${ex.total_capacity_hours} shown as ${displayedCapacity}`],
     ["Recoverable is below burden",ex.priceable===false||Number(ex.recoverable_cost)<=Number(ex.annual_cost),`${ex.recoverable_cost} ≤ ${ex.annual_cost}`],
@@ -356,6 +366,7 @@ function runChecks(apiRun,files){
     ["Healthy reports do not manufacture bypass tension",score<83||!/routinely bypassed|experiential operating-reality tension/i.test(combined),score<83?"not a healthy case":(combined.match(/routinely bypassed|experiential operating-reality tension/i)||["none"])[0]],
     ["Healthy remedies remain proportionate",score<83||!/full pathway redesign|over-engineering|emergency reset/i.test(remedySection),score<83?"not a healthy case":(remedySection.match(/full pathway redesign|over-engineering|emergency reset/i)||["none"])[0]],
     ["Healthy priority actions preserve rather than redesign",score<83||recommendations.every(item=>!/lighten|redesign|reduce unnecessary|first material intervention/i.test(String(item))),score<83?"not a healthy case":recommendations.join(" | ")],
+    ["Healthy JSON headline preserves rather than intervenes",score<83||(/preserve|protect|monitor/i.test(jsonHeadline)&&!/^(?:.*?:\s*)?(?:reduce|tighten|redesign|lighten)\b/i.test(jsonHeadline)),score<83?"not a healthy case":jsonHeadline],
     ["Healthy full report contains no stale intervention language",score<83||!/fix now:\s*reduce|harder to defend relative|active attention rather than passive tolerance/i.test(full),score<83?"not a healthy case":(full.match(/fix now:\s*reduce|harder to defend relative|active attention rather than passive tolerance/i)||["none"])[0]],
     ["Scenario description is case-specific",apiRun.case.id==="northbridge"||(String(apiRun.scenario.description||"").includes(apiRun.scenario.processName)&&String(apiRun.scenario.description||"").includes(apiRun.scenario.businessUnit)),String(apiRun.scenario.description||"missing")],
     ["No Northbridge narrative contamination",apiRun.case.id==="northbridge"||!/procurement, finance, clinical operations, IT security/i.test(combined),apiRun.case.id==="northbridge"?"reference case":(combined.match(/procurement, finance, clinical operations, IT security/i)||["none"])[0]],
