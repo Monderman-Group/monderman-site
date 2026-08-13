@@ -144,11 +144,11 @@
       </li>
       <li>
         <strong>Diagnostic processing relies on a small set of trusted providers.</strong>
-        Generating your results involves secure processing by Monderman and a limited number of reputable third-party providers — for AI interpretation, cloud hosting, authentication, and email delivery. They process your data only to deliver the service, never to market to you, and never to train their own products on your content.
+        Generating your results involves secure processing by Monderman and a small number of named providers: <strong>Anthropic</strong> for the written interpretation, <strong>Supabase</strong> for the database and sign-in, <strong>Render</strong> for the API, <strong>Resend</strong> for email delivery, <strong>Stripe</strong> for payment, and <strong>Cloudflare</strong> for bot verification and for serving the script that builds your downloadable report. They process your data only to deliver the service, never to market to you, and never to train their own products on your content.
       </li>
       <li>
-        <strong>You can see what is held about you, and have it deleted on request.</strong>
-        If you have a workspace, contacted Monderman, or run a saved diagnostic, you can request a copy of the information held about you, or its deletion, at any time. Both will be honored.
+        <strong>You can see what is held about you, and have it deleted on request, with one exception we will name rather than bury.</strong>
+        If you have a workspace, contacted Monderman, or run a saved diagnostic, you can request a copy of the information held about you, or its deletion, at any time. Both will be honored. The exception is a response you gave anonymously: nothing links it to you, so we genuinely cannot find it in order to delete it. That is the same property that makes anonymity real, and it is explained in full further down this page.
       </li>
       <li>
         <strong>Security incidents will be disclosed quickly and honestly.</strong>
@@ -163,7 +163,7 @@
     <p class="section-eyebrow">How Your Data Is Handled</p>
     <h2>What happens to your data when you run a diagnostic.</h2>
     <p>
-      You use Monderman by signing in and running a diagnostic. When you do, the platform is doing real work on your behalf, and that work involves processing your data. Specifically: the descriptions and answers you enter — including free-text responses in guided-interview mode — are sent securely to Monderman's processing environment and to an AI provider that generates the written interpretation of your results and lightly refines your free-text notes for readability before they appear in the report; and the results — your scores, signals, and the narrative produced — are saved to your workspace so you can return to them, track them over time, and share them within your organization.
+      Most people use Monderman by signing in and running a diagnostic, and you can also run one without an account. Either way, the platform is doing real work on your behalf, and that work involves processing your data. Specifically: the descriptions and answers you enter, including free-text responses in guided-interview mode, are sent securely to Monderman's processing environment and to Anthropic, which generates the written interpretation of your results and lightly refines your free-text notes for readability before they appear in the report; and the results — your scores, signals, and the narrative produced — are saved to your workspace so you can return to them, track them over time, and share them within your organization.
     </p>
     <p>
       This is how the platform delivers what it promises. Monderman is not a tool that keeps everything on your device; it is a system that processes and stores your diagnostic work so it remains useful to you. In every case, your data is used to operate the platform and serve you — not to build advertising profiles, and not for any purpose you have not engaged Monderman for.
@@ -185,7 +185,7 @@
       <strong>Contact and account information you provide.</strong> When you submit the Connect form, email <a class="inline" href="mailto:connect@monderman.com">connect@monderman.com</a>, or create a workspace, the information you provide — name, role, organization, the content of your message, your sign-in identity — is used to respond to you, to operate your account, and to support an ongoing relationship where appropriate. It is not added to a marketing list and it is not shared for marketing.
     </p>
     <p>
-      <strong>Basic site activity.</strong> Server logs may record information needed to operate and secure the site — such as IP address, browser type, the page requested, and the time of the request — retained for a short period for security and operational purposes. The Connect form uses a privacy-respecting bot-verification tool to prevent automated abuse. There are no third-party advertising or behavioral-analytics scripts on this site.
+      <strong>Basic site activity.</strong> Server logs may record information needed to operate and secure the site — such as IP address, browser type, the page requested, and the time of the request — retained for a short period for security and operational purposes. Bot verification, provided by <strong>Cloudflare</strong>, runs on the Connect form and before a diagnostic opens, to prevent automated abuse. Cloudflare receives browser and challenge information as part of that check; it does not receive your diagnostic responses. There are no third-party advertising or behavioral-analytics scripts on this site.
     </p>
   </div>
 </section>
@@ -223,7 +223,7 @@
     <ul>
       <li>Ask what is held about you, and receive a plain-language account of it.</li>
       <li>Request correction of anything inaccurate.</li>
-      <li>Request deletion. This will be honored unless there is a specific legal reason not to — and if so, that reason will be explained to you.</li>
+      <li>Request deletion. This will be honored unless there is a specific legal reason not to, and if so, that reason will be explained to you. The one practical limit is an anonymous response, which cannot be located because nothing connects it to you.</li>
       <li>Withdraw consent for any ongoing communication or service, at any time.</li>
       <li>Lodge a complaint with a relevant data protection authority if you believe your rights have not been respected.</li>
     </ul>
@@ -235,10 +235,38 @@
 
 <section class="section">
   <div class="section-inner">
+    <p class="section-eyebrow">Anonymous Responses</p>
+    <h2>What anonymity covers, and what it does not.</h2>
+    <p>
+      When an administrator sends a diagnostic to a group, they can mark it anonymous. If they do, you are told so before you answer, and told what it covers.
+    </p>
+    <p>
+      What it means in the system rather than only in the interface: no record is written that links your response to you. Not a hidden field, not a flag anyone has agreed not to look at. The connection is never stored, in either direction. Your response appears to your organization under a label such as Respondent 4, assigned at random rather than in the order invitations were sent, and carries the date you completed it rather than the time. Once a campaign has been sent as anonymous, that cannot be reversed, by your administrator or by us.
+    </p>
+    <p>
+      What it does not cover, said plainly because it is the part that matters: your business unit and team are still shown, because that is what the diagnostic measures. In a small unit, that can be enough for someone to work out who answered. We would rather you know that before you answer than assume otherwise.
+    </p>
+    <p>
+      And the consequence for your rights: because nothing links an anonymous response to you, we cannot identify it in order to show it to you or delete it on request. We are not willing to keep a hidden key that would let us, because that key is exactly what would make the anonymity false.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-inner">
     <p class="section-eyebrow">Retention &amp; Deletion</p>
     <h2>How long data is kept.</h2>
     <p>
-      Diagnostic results and account information are retained for as long as your workspace is active or as needed to support an ongoing relationship, and are deleted on request or when no longer needed for the purpose collected. Operational logs are kept only for a short period. If your organization's engagement specifies particular retention, deletion, or data-residency requirements, those are set out in your agreement and take precedence.
+      Diagnostic results and account information are retained for as long as your workspace is active or as needed to support an ongoing relationship, and are deleted on request or when no longer needed for the purpose collected. Operational logs are kept only for a short period.
+    </p>
+    <p>
+      While a diagnostic is in progress, your answers are held on our server so you can leave and come back. That in-progress state stops being usable four hours after the run begins. To be exact about what that means today: after four hours the data is no longer read or acted on, and it is not yet actively erased on that schedule. Moving from expiry to deletion is work we have identified and not yet done, and this page will say so when it changes rather than in advance of it.
+    </p>
+    <p>
+      A diagnostic you run without signing in is not saved to any workspace.
+    </p>
+    <p>
+      If your organization's engagement specifies particular retention, deletion, or data-residency requirements, those are set out in your agreement and take precedence.
     </p>
   </div>
 </section>
