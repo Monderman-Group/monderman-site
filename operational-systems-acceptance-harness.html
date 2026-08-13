@@ -33,7 +33,7 @@
 <main>
   <h1>Operational Systems Acceptance Harness</h1>
   <p class="lead">Runs controlled customer scenarios through the live Operational Systems API, renders every case with the production report code, and validates the PDF, summary HTML, full HTML, and JSON outputs from the same finalized payload.</p>
-  <div class="notice" id="authStatus" data-harness-build="2026-08-13.1">Harness build 2026-08-13.1 loaded; starting the session check…</div>
+  <div class="notice" id="authStatus" data-harness-build="2026-08-13.2">Harness build 2026-08-13.2 loaded; starting the session check…</div>
   <div class="toolbar">
     <button class="primary" id="runBtn" disabled>Run comprehensive 18-case test</button>
     <button class="secondary" id="clearBtn">Clear local results</button>
@@ -334,6 +334,14 @@ function runChecks(apiRun,files){
   const remedyBenefits=Array.from(fullDoc.querySelectorAll(".remedy-path-risk p")).filter(node=>/^Benefit\b/i.test(node.textContent||"")).map(node=>String(node.textContent||"").replace(/^Benefit\s*/i,"").split(/Directional (?:reclaim band|value protected):/i)[0].trim());
   const currentPerspective=apiRun.case.role.replace("_","[- ]?");
   const recommendations=files.jsonArtifact.findings?.recommendations||[];
+  const primaryAction=String(recommendations[0]||"");
+  const primaryActionPatterns={process_density:/\b(?:step|process|review|control)\b/i,systems_friction:/\b(?:system|tool|data[- ]entry|re-entry|authoritative record)\b/i,reporting_exception_burden:/\b(?:report|exception)\b/i,workaround_dependence:/\b(?:off-formal-path|workaround|formal gap|route)\b/i,control_load:/\b(?:control|risk|requirement)\b/i,upkeep_burden:/\b(?:upkeep|tracker|reconciliation|maintenance)\b/i};
+  const primaryActionPattern=primaryActionPatterns[result.primary_constraint];
+  const structuredScore=result.score_before_risk_adjustment==null?null:Math.max(8,Math.min(98,Math.round(Number(result.score_before_risk_adjustment))));
+  const qualitativeSignal=result.qualitative_risk_signal||result.qualitative_interpretive_signal||{};
+  const unsupportedClaim=/\b(?:every|all)\s+(?:case|request|decision|workflow|transaction|deviation|exception|incident|referral|route|cycle)s?\b|\b(?:typically|commonly|usually)\b|\bmost\s+other\s+(?:friction|burden|drag|problems?)\b|\b(?:is|are)\s+(?:the\s+)?(?:primary|upstream|direct)\s+(?:driver|cause)\b|\bforces?\s+(?:staff|teams|managers|leaders|people|employees)\b|\bwill\s+(?:continue|keep|get|become|worsen|cause|remain|not\s+self-correct)\b|\bmakes?\s+recovery\s+harder\b|\bmost\s+likely\s+to\s+cause\b/i;
+  const lowerCaseDimensionStart=/[.!?]\s+(?:process density|systems friction|reporting(?: and exception)? burden|off-formal-path execution|control load|administrative upkeep burden)\b/;
+  const hyphenatedDesignRange=combined.match(/(?:\b\d{1,3}\s*-\s*\d{1,3}\b[^.!?]{0,60}\bdesign[- ]reference\s+range\b|\bdesign[- ]reference\s+range\b[^.!?]{0,60}\b\d{1,3}\s*-\s*\d{1,3}\b)/i);
   const composition=ex.composition||{};const compositionTotal=Object.values(composition).reduce((sum,value)=>sum+(Number(value)||0),0);
   const tolerance=(actual,expected,absolute=2)=>Number.isFinite(actual)&&Number.isFinite(expected)&&Math.abs(actual-expected)<=Math.max(absolute,Math.abs(expected)*.01);
   const expectedAttribution=55;
@@ -343,7 +351,8 @@ function runChecks(apiRun,files){
   const checks=[
     ["Nonzero score",score>0&&score<=100,`score=${score}`],
     ["Band matches score",band===expectedBand(score),`${score} → ${band}`],
-    ["Scorer version present",Boolean(result.scorer_version),String(result.scorer_version||"missing")],
+    ["Scorer version present",/^operational_systems_\S+_2026_08_13_experience_neutral_v3$/.test(String(result.scorer_version||"")),String(result.scorer_version||"missing")],
+    ["Experiential layer is excluded from the numeric score",score===structuredScore&&result.experiential_score_effect==="none"&&qualitativeSignal.interpretive_only===true&&Number(qualitativeSignal.score_penalty||0)===0&&qualitativeSignal.score_cap==null,`score=${score}; structured=${structuredScore}; signal=${qualitativeSignal.type||"none"}`],
     ["Config version present",Boolean(result.config_version),String(result.config_version||"missing")],
     ["Organization identity in both HTML files",summary.includes(apiRun.scenario.organizationName)&&full.includes(apiRun.scenario.organizationName),apiRun.scenario.organizationName],
     ["Function identity in both HTML files",summary.includes(apiRun.scenario.businessUnit)&&full.includes(apiRun.scenario.businessUnit),apiRun.scenario.businessUnit],
@@ -373,6 +382,7 @@ function runChecks(apiRun,files){
     ["Design reference is not presented as a peer benchmark",result.benchmark_context?.empirical_sample===false&&!/comparable structure range/i.test(String(result.benchmark_position)),String(result.benchmark_position)],
     ["One canonical design-reference range feeds result and sector context",Number.isFinite(expectedReferenceMin)&&Number.isFinite(expectedReferenceMax)&&Number(benchmark.referenceMin??benchmark.moderateMin)===expectedReferenceMin&&Number(benchmark.referenceMax??benchmark.healthyMax)===expectedReferenceMax,`benchmark ${benchmark.referenceMin??benchmark.moderateMin}-${benchmark.referenceMax??benchmark.healthyMax}; sector ${expectedReferenceMin}-${expectedReferenceMax}`],
     ["Every numeric design-reference claim uses the canonical range",claimedReferenceRanges.every(range=>range.min===expectedReferenceMin&&range.max===expectedReferenceMax),claimedReferenceRanges.map(range=>`${range.min}-${range.max}`).join(", ")||"no numeric range claimed"],
+    ["Numeric design-reference ranges use an en dash",!hyphenatedDesignRange,hyphenatedDesignRange?.[0]||"canonical punctuation"],
     ["Change signal is explicitly self-reported",result.trajectory?.longitudinal_measurement===false&&result.trajectory?.evidence_type==="self_reported_change_signal"&&/self-reported|not a measured longitudinal trend/i.test(`${result.trajectory?.label||""} ${result.trajectory?.note||""}`),`${result.trajectory?.evidence_type||"missing"} · longitudinal=${result.trajectory?.longitudinal_measurement}`],
     ["Summary HTML built",files.summaryHtml.length>20000&&/<html[\s>]/i.test(files.summaryHtml),`${files.summaryHtml.length} bytes`],
     ["Full HTML built",files.fullHtml.length>25000&&/<html[\s>]/i.test(files.fullHtml),`${files.fullHtml.length} bytes`],
@@ -390,6 +400,7 @@ function runChecks(apiRun,files){
     ["No empty experiential synthesis",!/Experiential synthesis\s+(?:Leadership question|How to use this layer)/i.test(summary),"empty panels must be omitted"],
     ["Current perspective is not prescribed again",!new RegExp(`(?:a |another )?${currentPerspective}[- ]perspective run`).test(updateSection),apiRun.case.role],
     ["Priority actions are usable and distinct",recommendations.length>=2&&recommendations.every(item=>String(item).trim().length>=20)&&new Set(recommendations.map(item=>String(item).toLowerCase().replace(/\W/g,""))).size===recommendations.length,`${recommendations.length} actions`],
+    ["First priority action targets the primary measured burden",score>=83||Boolean(primaryActionPattern?.test(primaryAction)),`${result.primary_constraint||"missing"}: ${primaryAction||"missing action"}`],
     ["JSON does not expose raw internal result/payload",!Object.prototype.hasOwnProperty.call(files.jsonArtifact,"result")&&!Object.prototype.hasOwnProperty.call(files.jsonArtifact,"payload"),"customer artifact only"],
     ["JSON does not expose internal pattern enums",!/ownership_blur_pattern|authority_gap_pattern|handoff_breakdown_pattern|governance_overweight_pattern/i.test(jsonText),(jsonText.match(/ownership_blur_pattern|authority_gap_pattern|handoff_breakdown_pattern|governance_overweight_pattern/i)||["none"])[0]],
     ["JSON preserves complete answer trace",Array.isArray(files.jsonArtifact.answer_trace)&&files.jsonArtifact.answer_trace.length===apiRun.trace.answers.length,`${files.jsonArtifact.answer_trace?.length||0} of ${apiRun.trace.answers.length} answers`],
@@ -417,7 +428,9 @@ function runChecks(apiRun,files){
     ["Scenario description is case-specific",apiRun.case.id==="northbridge"||(String(apiRun.scenario.description||"").includes(apiRun.scenario.processName)&&String(apiRun.scenario.description||"").includes(apiRun.scenario.businessUnit)),String(apiRun.scenario.description||"missing")],
     ["No Northbridge narrative contamination",apiRun.case.id==="northbridge"||!/procurement, finance, clinical operations, IT security/i.test(combined),apiRun.case.id==="northbridge"?"reference case":(combined.match(/procurement, finance, clinical operations, IT security/i)||["none"])[0]],
     ["Quadrant prose agrees with overall condition",score>=67||!/cleanest operating posture|moving acceptably fast/i.test(combined),score>=67?"moderate or healthy case":(combined.match(/cleanest operating posture|moving acceptably fast/i)||["none"])[0]],
-    ["Remedy paths make no unsupported prevalence or timing claims",!/\b(?:the\s+)?majority\s+of\s+(?:cases|requests|decisions|workflows|transactions)\b|\b(?:most\s+common|highest[- ](?:volume|frequency))\b|\bwithin\s+(?:(?:one|two|three|four|five|\d+)(?:\s+to\s+(?:one|two|three|four|five|\d+))?\s+|a\s+few\s+)?(?:cycles?|weeks?|months?|years?)\b/i.test(remedySection),(remedySection.match(/\b(?:the\s+)?majority\s+of\s+(?:cases|requests|decisions|workflows|transactions)\b|\b(?:most\s+common|highest[- ](?:volume|frequency))\b|\bwithin\s+(?:(?:one|two|three|four|five|\d+)(?:\s+to\s+(?:one|two|three|four|five|\d+))?\s+|a\s+few\s+)?(?:cycles?|weeks?|months?|years?)\b/i)||["none"])[0]],
+    ["Remedy paths make no unsupported prevalence or timing claims",!/\b(?:the\s+)?majority\s+of\s+(?:cases|requests|decisions|workflows|transactions|deviations|exceptions|incidents|referrals|routes|workarounds|transitions|points|case types)\b|\b(?:top\s+)?(?:two|three|four|five|\d+)(?:\s+to\s+(?:two|three|four|five|\d+))?\s+most\s+(?:common|frequent(?:ly\s+used)?)\b|\b(?:most[- ]used|highest[- ](?:volume|frequency))\b|\bwithin\s+(?:(?:one|two|three|four|five|several|\d+)(?:\s+to\s+(?:one|two|three|four|five|several|\d+))?\s+|a\s+few\s+)?(?:cycles?|quarters?|weeks?|months?|years?)\b/i.test(remedySection),(remedySection.match(/\b(?:the\s+)?majority\s+of\s+(?:cases|requests|decisions|workflows|transactions|deviations|exceptions|incidents|referrals|routes|workarounds|transitions|points|case types)\b|\b(?:top\s+)?(?:two|three|four|five|\d+)(?:\s+to\s+(?:two|three|four|five|\d+))?\s+most\s+(?:common|frequent(?:ly\s+used)?)\b|\b(?:most[- ]used|highest[- ](?:volume|frequency))\b|\bwithin\s+(?:(?:one|two|three|four|five|several|\d+)(?:\s+to\s+(?:one|two|three|four|five|several|\d+))?\s+|a\s+few\s+)?(?:cycles?|quarters?|weeks?|months?|years?)\b/i)||["none"])[0]],
+    ["Single-run prose avoids unsupported prevalence, causality, and forecasts",!unsupportedClaim.test(combined),(combined.match(unsupportedClaim)||["none"])[0]],
+    ["Dimension labels start sentences cleanly",!lowerCaseDimensionStart.test(combined),(combined.match(lowerCaseDimensionStart)||["none"])[0]],
     ["Every remedy benefit is conditional rather than guaranteed",remedyBenefits.length===3&&remedyBenefits.every(text=>/\b(?:could|may|might|potential(?:ly)?|possible upside|is intended to|would be expected to|can help)\b/i.test(text))&&remedyBenefits.every(text=>!/\bfully recovered\b|\bentirely\b/i.test(text)),remedyBenefits.join(" | ")],
     ["Run length is not mislabeled as depth",!/depth of this run\s*\(10\/30\/60/i.test(combined),(combined.match(/depth of this run\s*\(10\/30\/60/i)||["none"])[0]],
     ["Customer copy is mechanically clean",!/senior_leader perspective|\bpathway pathway\b|\bempirical empirical\b|weakness\s*-\s*not audited|yours\.Discuss|Monderman Monderman Decision/i.test(combined),(combined.match(/senior_leader perspective|\bpathway pathway\b|\bempirical empirical\b|weakness\s*-\s*not audited|yours\.Discuss|Monderman Monderman Decision/i)||["none"])[0]]
@@ -598,8 +611,8 @@ try{
   if(typeof createClient!=="function")throw new Error("Authentication client loaded without createClient");
   supaClient=createClient("https://ptkxrzgmeldalrkfruth.supabase.co","sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",{auth:{persistSession:true,autoRefreshToken:true}});
   await freshToken();
-  if(authToken){$("authStatus").textContent="Harness build 2026-08-13.1. Signed in. The comprehensive test creates 18 real test runs in the current account and may pause if the API rate limit is reached. It will not purchase, promote, archive, or alter other runs.";$("authStatus").style.borderColor="#8fc79d";$("runBtn").disabled=false}
-  else{$("authStatus").textContent="Harness build 2026-08-13.1. Sign in to the Monderman workspace in this browser, then reload this page. The harness never creates an account."}
+  if(authToken){$("authStatus").textContent="Harness build 2026-08-13.2. Signed in. The comprehensive test creates 18 real test runs in the current account and may pause if the API rate limit is reached. It will not purchase, promote, archive, or alter other runs.";$("authStatus").style.borderColor="#8fc79d";$("runBtn").disabled=false}
+  else{$("authStatus").textContent="Harness build 2026-08-13.2. Sign in to the Monderman workspace in this browser, then reload this page. The harness never creates an account."}
 }catch(error){$("authStatus").textContent=`Session check failed: ${error.message}`}
 
 })().catch((error)=>{
