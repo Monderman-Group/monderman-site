@@ -142,12 +142,35 @@ async function mustNotRead(client, table, column, value, label) {
   } catch (e) { record(label, "0 rows", "pass", "threw: " + e.message); }
 }
 
+/* Classify a refusal. A permission or policy refusal is a genuine defence. A
+   schema or payload error means the request never reached the permission layer,
+   so it proves nothing and must NOT be counted as a pass: the first version of
+   this harness scored two such cases green because the insert used column names
+   that do not exist. */
+function refusalKind(message) {
+  const m = String(message || "").toLowerCase();
+  if (m.includes("permission denied")) return "grant";
+  if (m.includes("row-level security") || m.includes("violates row-level")) return "rls";
+  if (m.includes("schema cache") || m.includes("could not find the")
+      || m.includes("column") && m.includes("does not exist")) return "inconclusive";
+  if (m.includes("null value in column") || m.includes("violates not-null")) return "inconclusive";
+  if (m.includes("violates foreign key")) return "inconclusive";
+  return "other";
+}
+
 /* A write that should be impossible. Either an error, or zero rows affected.
    Anything actually written is a breach, and is recorded for cleanup. */
 async function mustNotWrite(client, table, payload, label, opts = {}) {
   try {
     const { data, error } = await client.from(table).insert(payload).select();
-    if (error) return record(label, "refused", "pass", error.message);
+    if (error) {
+      const kind = refusalKind(error.message);
+      if (kind === "inconclusive") {
+        return record(label, "refused", "info",
+          "INCONCLUSIVE, the request failed before the permission layer: " + error.message);
+      }
+      return record(label, "refused", "pass", `[${kind}] ` + error.message);
+    }
     const n = (data || []).length;
     if (n > 0) {
       created.push({ table, ids: data.map((r) => r.id).filter(Boolean) });
@@ -194,6 +217,37 @@ async function run() {
     await mustNotRead(authed, t, col, otherOrg, `read ${t} of another tenant`);
   }
   await mustNotRead(authed, "assignment_run_defaults", "organization_id", otherOrg, "read the assignment view of another tenant");
+
+  // ---- 1b. unfiltered reads: what does RLS actually return? ----
+  group("1b. Unfiltered reads, to see what RLS actually returns");
+  {
+    const expectOwnOnly = [
+      ["organizations", "one row, my own"],
+      ["organization_members", "only my organization's members"],
+      ["diagnostic_runs", "only my organization's runs"],
+      ["diagnostic_assignments", "only my organization's assignments"]
+    ];
+    for (const [table, expectation] of expectOwnOnly) {
+      try {
+        const { data, error } = await authed.from(table).select("organization_id, id").limit(200);
+        if (error) { record(`unfiltered read of ${table}`, expectation, "pass", "refused: " + error.message); continue; }
+        const rows = data || [];
+        const foreign = rows.filter((r) => r.organization_id && r.organization_id !== myOrg);
+        if (table === "organizations") {
+          const others = rows.filter((r) => r.id !== myOrg);
+          record(`unfiltered read of ${table}`, expectation, others.length === 0 ? "pass" : "fail",
+            others.length === 0 ? `${rows.length} row(s), all mine` : `${others.length} FOREIGN ORGANISATION(S) VISIBLE`);
+        } else {
+          record(`unfiltered read of ${table}`, expectation, foreign.length === 0 ? "pass" : "fail",
+            foreign.length === 0 ? `${rows.length} row(s), all mine` : `${foreign.length} FOREIGN ROW(S) VISIBLE`);
+        }
+      } catch (e) { record(`unfiltered read of ${table}`, expectation, "pass", "threw: " + e.message); }
+    }
+    if (!isReal) {
+      record("second-tenant coverage", "a real second org", "info",
+        "NOT TESTED: this run used a fabricated organization id. Only one organization exists in the database, so a cross-tenant read returns zero rows whether the policy works or not. The group 1 read checks are therefore weak. Supply a real second organization id to make them meaningful.");
+    }
+  }
 
   // ---- 2. service-role-only tables ----
   group("2. Tables that only the API service role should reach");
@@ -326,8 +380,11 @@ async function run() {
       }
     } catch (e) { record(`anon reads ${t}`, "0 rows", "pass", "threw: " + e.message); }
   }
-  await mustNotWrite(anon, "connect_requests", { name: "harness", email: "harness@example.com" }, "anon writes connect_requests");
-  await mustNotWrite(anon, "feedback", { message: "harness" }, "anon writes feedback");
+  // Empty payloads deliberately: any column name I guess wrong produces a schema
+  // error that never reaches the permission check, which is what made these two
+  // pass for the wrong reason before.
+  await mustNotWrite(anon, "connect_requests", {}, "anon writes connect_requests");
+  await mustNotWrite(anon, "feedback", {}, "anon writes feedback");
   await mustNotWrite(anon, "users", { id: uuid() }, "anon writes users");
   await rpcMustFail(anon, "bootstrap_my_workspace", { p_name: "harness", p_slug_base: "harness" }, "anon calls bootstrap_my_workspace");
 
@@ -395,9 +452,14 @@ async function run() {
     }
   }
 
-  const verdict = nFail === 0 ? "CLEAN" : `${nFail} BREACH`;
+  // A clean result with a fabricated second tenant, or with inconclusive checks,
+  // is not the same as a clean two-tenant result. Say so in the verdict rather
+  // than letting the word CLEAN carry more than the run proves.
+  const verdict = nFail > 0 ? `${nFail} BREACH`
+    : (!isReal ? "clean, 1 tenant" : (nInfo > 1 ? "clean, gaps" : "CLEAN"));
   $("sVerdict").textContent = verdict;
-  $("sVerdict").style.color = nFail === 0 ? "#0C6E78" : "#B3261E";
+  $("sVerdict").style.color = nFail > 0 ? "#B3261E" : (isReal ? "#0C6E78" : "#8A6A00");
+  $("sVerdict").style.fontSize = "15px";
   log(`Finished. ${nPass} held, ${nFail} breached, ${nInfo} informational.`);
   if (!isReal) log("NOTE: this run used a fabricated second-tenant UUID. It proves the policy predicates refuse an unknown organization. A true two-tenant test needs a real second organization id in the field above.");
   $("goBtn").disabled = false; $("dlBtn").disabled = false;
