@@ -184,20 +184,48 @@ async function createTenantB() {
     else if (error) log("anonymous sign-in unavailable: " + error.message);
   } catch (e) { log("anonymous sign-in threw: " + e.message); }
 
+  // Password signup, tried with several address shapes. Supabase validates the
+  // domain and rejects non-deliverable TLDs such as .invalid and .test, so the
+  // first attempt at this failed on the address rather than on the provider
+  // setting and told us nothing about whether signup is enabled.
+  //
+  // The plus-alias of the operator's own address is tried FIRST because it is a
+  // real deliverable mailbox: if email confirmation is required, the link
+  // actually arrives and the run can be completed by clicking it. example.com
+  // and the two throwaway domains are fallbacks for the case where confirmation
+  // is off and no mail needs to be received.
   if (!session) {
-    const email = `harness-tenant-b-${Date.now()}@monderman-harness.invalid`;
+    const stamp = Date.now();
+    const candidates = [
+      `jason.ivan.adamson+mdmb${stamp}@gmail.com`,
+      `harness-tenant-b-${stamp}@example.com`,
+      `harness-tenant-b-${stamp}@mailinator.com`
+    ];
     const password = crypto.randomUUID() + "Aa1!";
-    try {
-      const { data, error } = await B.auth.signUp({ email, password });
-      if (!error && data?.session) { session = data.session; method = "password signup"; }
-      else if (error) log("password signup unavailable: " + error.message);
-      else log("password signup returned no session, which means email confirmation is required");
-    } catch (e) { log("password signup threw: " + e.message); }
+    for (const email of candidates) {
+      try {
+        const { data, error } = await B.auth.signUp({ email, password });
+        if (!error && data?.session) {
+          session = data.session; method = `password signup as ${email}`;
+          log("password signup succeeded: " + email);
+          break;
+        }
+        if (!error && data?.user && !data.session) {
+          log(`CONFIRMATION REQUIRED: signup accepted ${email} but issued no session.`);
+          log("Email confirmation is enabled on this project, which is a GOOD finding: it means");
+          log("a person cannot obtain a session for an address they do not control, so");
+          log("redeem_my_invites cannot be pointed at someone else's invites.");
+          log("To finish this test, click the confirmation link sent to that address and rerun.");
+          break;
+        }
+        if (error) log(`password signup rejected ${email}: ${error.message}`);
+      } catch (e) { log(`password signup threw for ${email}: ${e.message}`); }
+    }
   }
 
   if (!session) {
     record("create tenant B", "a second real tenant", "info",
-      "COULD NOT CREATE: neither anonymous sign-in nor password signup produced a session. Enable Anonymous Sign-Ins in Supabase Auth providers for the duration of this test, or create a second account by hand and use the single-tenant harness with its organization id.");
+      "COULD NOT CREATE a session for a second tenant. Read the log below: it now reports the exact reason for each attempt. If it says confirmation is required, that is a positive security finding, not a harness failure, and the test can be completed by clicking the emailed link and rerunning. If every attempt was rejected outright, enable Anonymous Sign-Ins in Supabase Auth providers for the duration of this test, or create one account by hand and use the single-tenant harness with its organization id.");
     return null;
   }
 
