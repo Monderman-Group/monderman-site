@@ -817,7 +817,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
 
         <article class="accordion-section" data-accordion="benchmark">
           <button class="accordion-header" type="button">
-            <div class="accordion-header-main"><span class="accordion-title">Benchmark position</span><span class="accordion-sub">Industry range, opportunity range, and directional trajectory.</span></div>
+            <div class="accordion-header-main"><span class="accordion-title">Design-reference position</span><span class="accordion-sub">Expert-authored design reference, opportunity framing, and self-reported change signal.</span></div>
             <span class="accordion-chevron">⌄</span>
           </button>
           <div class="accordion-body">
@@ -848,7 +848,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
 
         <article class="accordion-section" data-accordion="remedy">
           <button class="accordion-header" type="button">
-            <div class="accordion-header-main"><span class="accordion-title">Three remedy paths</span><span class="accordion-sub">Light, moderate, and aggressive intervention paths with benefits and risks.</span></div>
+            <div class="accordion-header-main"><span class="accordion-title">Three remedy paths</span><span class="accordion-sub">Three proportionate intervention options with benefits and risks.</span></div>
             <span class="accordion-chevron">⌄</span>
           </button>
           <div class="accordion-body">
@@ -1256,6 +1256,20 @@ const formatted = formatCurrency(value);
 return formatted === "--" ? formatted : `${formatted}*`;
 }
 
+function directionalCurrencyStep(value) {
+const n = Number(value);
+if (!Number.isFinite(n) || n <= 0) return 0;
+if (n < 100) return 10;
+if (n < 500) return 50;
+if (n < 2500) return 250;
+if (n < 10000) return 1000;
+if (n < 25000) return 2500;
+if (n < 50000) return 5000;
+if (n < 100000) return 10000;
+if (n < 250000) return 25000;
+return 50000;
+}
+
 function roundDirectionalCurrency(value) {
 const n = Number(value);
 if (!Number.isFinite(n) || n <= 0) return 0;
@@ -1263,7 +1277,7 @@ if (!Number.isFinite(n) || n <= 0) return 0;
 // for remedy paths and other relative comparisons. Previously a flat $25K
 // step under $250K collapsed Light ($15K raw) and Moderate ($32K raw) into
 // the same display band; the new ladder keeps them distinct.
-const step = n < 50000 ? 5000 : n < 100000 ? 10000 : n < 250000 ? 25000 : 50000;
+const step = directionalCurrencyStep(n);
 return Math.max(step, Math.round(n / step) * step);
 }
 
@@ -1271,7 +1285,7 @@ function buildCurrencyConfidenceBand(value) {
 const n = Number(value);
 if (!Number.isFinite(n) || n <= 0) return { midpoint: 0, low: 0, high: 0, label: "Not estimated" };
 // Step ladder matches roundDirectionalCurrency for consistency.
-const step = n < 50000 ? 5000 : n < 100000 ? 10000 : n < 250000 ? 25000 : 50000;
+const step = directionalCurrencyStep(n);
 const low = Math.max(step, Math.round((n * 0.8) / step) * step);
 const high = Math.max(low + step, Math.round((n * 1.25) / step) * step);
 const midpoint = Math.max(step, Math.round(n / step) * step);
@@ -4666,7 +4680,11 @@ const contradictionHtml = contradictions.length
 : hasExperientialTension
 ? `<div class="panel" style="font-size:11.5px;padding:14px 20px"><p><b>No major structured-answer contradiction surfaced in this run.</b> The scored answer pattern did not show a major internal conflict. Separately, the experiential layer surfaced an operating-reality tension: ${safeWords(experientialSignal.summary, 30)} This should be tested through managerial and senior-leader runs.</p></div>`
 : `<div class="panel" style="font-size:11.5px;padding:14px 20px"><p><b>No major structured-answer contradiction surfaced in this run.</b> That does not prove the system is healthy. It only means the scored answer pattern did not show a major internal conflict; experiential notes, if added later, should be tested through managerial and senior-leader runs.</p></div>`;
-const remedyHtml = remedyPaths.slice(0, 3).map((path) => `<div class="remedy"><div class="tag">${safe(path.kicker)}</div><h3>${safe(path.label)}</h3><p>${safeWords(path.summary, 18)}</p><p class="muted">Benefit: ${safeWords(path.benefit, 18)}</p><p class="muted">${safeWords(path.risk, 18)}</p></div>`).join("");
+const remedyHtml = remedyPaths.slice(0, 3).map((path) => {
+  const benefit = String(path.benefit || "").replace(/\*{2,}/g, "*");
+  const risk = String(path.risk || "").replace(/^Risk:\s*/i, "");
+  return `<div class="remedy"><div class="tag">${safe(path.kicker)}</div><h3>${safe(path.label)}</h3><p>${safeWords(path.summary, 18)}</p><p class="muted">Benefit: ${safeWords(benefit, 18)}</p><p class="muted">Risk: ${safeWords(risk, 18)}</p></div>`;
+}).join("");
 const gaugeArc = Math.max(12, Math.min(206, Math.round(2.2 * exportScore)));
 const needleAngle = Math.PI * (1 + exportScore / 100);
 const needleX = 110 + Math.cos(needleAngle) * 54;
@@ -5086,6 +5104,9 @@ if (container && container.parentNode) container.parentNode.removeChild(containe
 
 try {
 await (document.fonts?.ready || Promise.resolve());
+if (document.fonts && ![400, 500, 700].every((weight) => document.fonts.check(`${weight} 16px "Neue Haas Grotesk"`))) {
+  throw new Error("Neue Haas Grotesk did not load for the PDF export.");
+}
 await waitForImages(bodyWrap);
 await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
@@ -5172,6 +5193,13 @@ input_confidence: payload?.confidenceLevel || payload?.confidence_level || null,
 score: result?.score ?? null,
 band: result?.score_band || result?.band || deriveOperatingBurdenCondition(result || {}).label || null,
 benchmark_position: result?.benchmark_position || null,
+benchmark_context: {
+  reference_type: "expert_authored_design_reference",
+  empirical_sample: false,
+  affects_score: false,
+  affects_recoverable_calculation: false,
+  ...(result?.benchmark_context || {})
+},
 trajectory: result?.trajectory || null,
 dimensions: result?.dimensions || {},
 dimension_coverage: coverage,
@@ -5331,7 +5359,6 @@ const resultWithState = { ...result, __interpretiveState: harmonized.state };
 const burdenCondition = deriveOperatingBurdenCondition(result);
 const burdenConstraint = derivePrimaryBurdenSource(result);
 const burdenDiagnosis = deriveBurdenDiagnosis(result, payload);
-const reclaim = estimateReclaimPotential(result, payload);
 const executiveSummary = buildExecutiveSummary(result, payload);
 const exposureNarrative = buildExposureNarrative(result?.exposure);
 renderExperienceLayer(payload);
@@ -5358,7 +5385,9 @@ $("benchmarkSub").textContent = "Read as context, not comfort.";
 $("trajectoryValue").textContent = result?.trajectory?.label || "--";
 $("trajectoryValueSub").textContent = result?.trajectory?.note || "Directional signal";
 $("reclaimValue").textContent = result?.exposure?.recoverable_cost != null ? formatEstimateCurrencyRange(result.exposure.recoverable_cost) : "--";
-$("reclaimSub").textContent = reclaim.driverText;
+$("reclaimSub").textContent = result?.exposure?.recoverable_cost != null && Number.isFinite(Number(result?.exposure?.recoverable_share_percent))
+  ? `Directional estimate calculated from modeled annual labor exposure and the disclosed ${Math.round(Number(result.exposure.recoverable_share_percent))}% recoverable share for this run.`
+  : "Recoverable value was not estimated because the required workload or labor-cost input was unavailable.";
 const opportunityDisclaimer = $("opportunityDisclaimer");
 if (opportunityDisclaimer && !/\s$/.test(opportunityDisclaimer.textContent || "")) opportunityDisclaimer.appendChild(document.createTextNode(" "));
 
@@ -5395,7 +5424,7 @@ $("scoreMetaTrajectoryText").textContent = `Trajectory: ${result?.trajectory?.la
 const insight = renderInsightDepth(payload);
 $("execMeaningText").textContent = executiveSummary.opportunity;
 $("execOpportunityTitle").textContent = harmonized.opportunityFields.title;
-$("execSectorPatternText").textContent = `What organizations in this sector often get wrong: ${harmonized.opportunityFields.sectorDynamic}`;
+$("execSectorPatternText").textContent = `Expert-authored sector hypothesis to test: ${harmonized.opportunityFields.sectorDynamic}`;
 $("execActionsRationaleText").textContent = `Why these first moves matter: ${harmonized.opportunityFields.firstMoves}`;
 $("execLeadershipWatchoutText").textContent = `What leadership should avoid: ${harmonized.opportunityFields.watchout}`;
 
@@ -5529,7 +5558,11 @@ const remedies = buildRemedyPaths(result, payload);
 const remedyWrap = $("remedyTreeWrap");
 const remedyGrid = $("remedyGrid");
 if (remedyWrap && remedyGrid) {
-remedyGrid.innerHTML = remedies.map((path) => `<div class="remedy-card"><span class="remedy-kicker">${escapeHtml(path.kicker)}</span><h4>${escapeHtml(path.label)}</h4><p>${escapeHtml(path.summary)}</p><ul>${path.actions.map((action) => `<li>${escapeHtml(action)}</li>`).join("")}</ul><div class="remedy-path-risk"><p><strong>Benefit</strong> ${escapeHtml(path.benefit)}</p><p><strong>Risk</strong> ${escapeHtml(path.risk)}</p></div></div>`).join("");
+remedyGrid.innerHTML = remedies.map((path) => {
+  const benefit = String(path.benefit || "").replace(/\*{2,}/g, "*");
+  const risk = String(path.risk || "").replace(/^Risk:\s*/i, "");
+  return `<div class="remedy-card"><span class="remedy-kicker">${escapeHtml(path.kicker)}</span><h4>${escapeHtml(path.label)}</h4><p>${escapeHtml(path.summary)}</p><ul>${path.actions.map((action) => `<li>${escapeHtml(action)}</li>`).join("")}</ul><div class="remedy-path-risk"><p><strong>Benefit</strong> ${escapeHtml(benefit)}</p><p><strong>Risk</strong> ${escapeHtml(risk)}</p></div></div>`;
+}).join("");
 }
 
 $("reportTitle").textContent = `${payload?.processName || payload?.process_name || "Workflow"} • Operational Systems Diagnostic`;
