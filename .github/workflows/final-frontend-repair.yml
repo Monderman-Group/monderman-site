@@ -24,7 +24,9 @@ jobs:
         run: python scripts/validate_frontend_release.py
       - name: Commit validated repairs
         run: |
-          rm -f scripts/final_frontend_repair.py scripts/fix_workspace_sri.py .github/workflows/final-frontend-repair.yml
+          rm -f scripts/final_frontend_repair.py scripts/fix_workspace_sri.py
+          rm -f .github/workflows/frontend-release.yml
+          git checkout HEAD -- .github/workflows/final-frontend-repair.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
