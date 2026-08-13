@@ -2059,7 +2059,7 @@
 <div class="cost-card reveal reveal-delay-1">
 <div class="cost-card-title">Evidence<span class="asterisk">*</span></div>
 <p class="cost-card-source"><em>* Hamel &amp; Zanini, HBR, 2017</em></p>
-<div class="cost-card-number" data-count-type="plain" data-target="7000">7,000+</div>
+<div class="cost-card-number" data-count-type="plain-plus" data-target="7000">7,000+</div>
 <p class="cost-card-text">HBR readers contributed to a large survey of bureaucracy and bureaucratic drag.</p>
 </div>
 <div class="cost-card reveal reveal-delay-2">
@@ -2535,7 +2535,7 @@
 </div>
 </article>
 <article class="latest-card">
-<div class="latest-card-image"><img alt="Washington, D.C. skyline for Monderman defense research" src="Washington DC.jpg"/ loading="lazy"></div>
+<div class="latest-card-image"><img alt="Washington, D.C. skyline for Monderman defense research" src="Washington DC.jpg" loading="lazy" /></div>
 <div class="latest-card-body">
 <p class="latest-card-kicker">Defense · Brief</p>
 <h3 class="latest-card-title">Accumulated Drag in the Department of War</h3>
@@ -2544,7 +2544,7 @@
 </div>
 </article>
 <article class="latest-card">
-<div class="latest-card-image"><img alt="Healthcare costs graphic for Monderman healthcare research" src="Healthcare costs.jpg"/ loading="lazy"></div>
+<div class="latest-card-image"><img alt="Healthcare costs graphic for Monderman healthcare research" src="Healthcare costs.jpg" loading="lazy" /></div>
 <div class="latest-card-body">
 <p class="latest-card-kicker">Healthcare · Brief</p>
 <h3 class="latest-card-title">Quarter-Trillion Friction in U.S. Healthcare</h3>
@@ -2553,7 +2553,7 @@
 </div>
 </article>
 <article class="latest-card">
-<div class="latest-card-image"><img alt="After the First Lap hero graphic — two curves showing per-token price falling and total enterprise AI bills rising" src="hero_after_first_lap.png"/ loading="lazy"></div>
+<div class="latest-card-image"><img alt="After the First Lap hero graphic — two curves showing per-token price falling and total enterprise AI bills rising" src="hero_after_first_lap.png" loading="lazy" /></div>
 <div class="latest-card-body">
 <p class="latest-card-kicker">Enterprise · Insight</p>
 <h3 class="latest-card-title">After the First Lap</h3>
@@ -2562,7 +2562,7 @@
 </div>
 </article>
 <article class="latest-card">
-<div class="latest-card-image"><img alt="Tree canopy image for Monderman perspective on compensatory systems" src="Trees.jpg"/ loading="lazy"></div>
+<div class="latest-card-image"><img alt="Tree canopy image for Monderman perspective on compensatory systems" src="Trees.jpg" loading="lazy" /></div>
 <div class="latest-card-body">
 <p class="latest-card-kicker">Enterprise · Brief</p>
 <h3 class="latest-card-title">How Workarounds Preserve Output While Masking Institutional Dysfunction</h3>
@@ -2571,7 +2571,7 @@
 </div>
 </article>
 <article class="latest-card">
-<div class="latest-card-image"><img alt="Kodak aperture image for Monderman research brief" src="apature.jpg"/ loading="lazy"></div>
+<div class="latest-card-image"><img alt="Kodak aperture image for Monderman research brief" src="apature.jpg" loading="lazy" /></div>
 <div class="latest-card-body">
 <p class="latest-card-kicker">Enterprise · Brief</p>
 <h3 class="latest-card-title">How the Collapse of Eastman Kodak Is Misunderstood</h3>
@@ -2612,7 +2612,7 @@
 </div>
 </article>
 <article class="latest-card">
-<div class="latest-card-image"><img alt="Abstract institutional image for Monderman insight" src="iStock-511677736.jpg"/ loading="lazy"></div>
+<div class="latest-card-image"><img alt="Abstract institutional image for Monderman insight" src="iStock-511677736.jpg" loading="lazy" /></div>
 <div class="latest-card-body">
 <p class="latest-card-kicker">Insight</p>
 <h3 class="latest-card-title">Governing Complexity</h3>
@@ -2621,7 +2621,7 @@
 </div>
 </article>
 <article class="latest-card">
-<div class="latest-card-image"><img alt="Decision velocity visual for Monderman insight" src="Decision Velocity.jpg"/ loading="lazy"></div>
+<div class="latest-card-image"><img alt="Decision velocity visual for Monderman insight" src="Decision Velocity.jpg" loading="lazy" /></div>
 <div class="latest-card-body">
 <p class="latest-card-kicker">Insight</p>
 <h3 class="latest-card-title">Designing for Decision Velocity</h3>
@@ -2745,6 +2745,7 @@
     function formatCounter(type, value) {
       if (type === "percent") return `${Math.round(value)}%`;
       if (type === "currency-trillion") return `$${Math.round(value)}T`;
+      if (type === "plain-plus") return `${Math.round(value).toLocaleString("en-US")}+`;
       if (type === "range-percent") {
         const maxVal = Math.round(value);
         const minVal = Math.round((value * 2) / 3);

@@ -27,6 +27,20 @@ pr=(r/'platform-services.html').read_text()
 for x in ['unlimited people','People you can ask, per year']:
  if x in pr:e.append('pricing '+x)
 if 'payment,,' in (r/'security.html').read_text():e.append('double comma')
+
+# Surgical regression guards added 2026-08-13.
+idx=(r/'index.html').read_text(errors='ignore')
+if 'data-count-type="plain-plus" data-target="7000"' not in idx or 'type === "plain-plus"' not in idx or 'toLocaleString("en-US")' not in idx:
+ e.append('homepage 7000+ counter formatting')
+if re.search(r'<img[^>]*?/\s+loading="lazy">',idx,re.I):
+ e.append('malformed homepage lazy-load img markup')
+for name in ['decision-velocity.html','operational-systems.html','structural-clarity.html','institutional-performance.html']:
+ t=(r/name).read_text(errors='ignore')
+ for url in ['chart.js@4.5.1/dist/chart.umd.min.js','html2canvas/1.4.1/html2canvas.min.js','jspdf/2.5.1/jspdf.umd.min.js','@supabase/supabase-js@2.111.0']:
+  tags=[m.group(0) for m in re.finditer(r'<script\s+[^>]*src="[^"]*'+re.escape(url)+r'[^"]*"[^>]*>',t,re.I)]
+  if not tags or not any('integrity=' in tag and 'crossorigin=' in tag and re.search(r'\bdefer\b',tag,re.I) for tag in tags):
+   e.append(name+': deferred SRI library '+url)
+
 print('frontend release errors:',len(e))
 for x in e:print('ERROR',x)
 sys.exit(bool(e))
