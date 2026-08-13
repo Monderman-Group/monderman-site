@@ -33,7 +33,7 @@
 <main>
   <h1>Operational Systems Acceptance Harness</h1>
   <p class="lead">Runs controlled customer scenarios through the live Operational Systems API, renders every case with the production report code, and validates the PDF, summary HTML, full HTML, and JSON outputs from the same finalized payload.</p>
-  <div class="notice" id="authStatus" data-harness-build="2026-08-12.3">Harness build 2026-08-12.3 loaded; starting the session check…</div>
+  <div class="notice" id="authStatus" data-harness-build="2026-08-13.1">Harness build 2026-08-13.1 loaded; starting the session check…</div>
   <div class="toolbar">
     <button class="primary" id="runBtn" disabled>Run comprehensive 18-case test</button>
     <button class="secondary" id="clearBtn">Clear local results</button>
@@ -77,7 +77,7 @@
 </main>
 
 <script>
-(async function bootDecisionVelocityAcceptanceHarness(){
+(async function bootOperationalSystemsAcceptanceHarness(){
 document.getElementById("authStatus").textContent="Starting the acceptance harness…";
 const API_BASE="https://monderman-api.onrender.com/api";
 const PAGE_BASE=/^https?:$/.test(location.protocol)?location.origin:"https://www.monderman.com";
@@ -354,11 +354,16 @@ function runChecks(apiRun,files){
     ["Fixed attribution is explicit and consistent",Number(model.attributable_burden_share_percent)===expectedAttribution,`${model.attributable_burden_share_percent}% vs disclosed ${expectedAttribution}%`],
     ["Attributed hours reconcile",ex.hours_estimated===false||tolerance(Number(model.attributed_hours_before_capacity_check),Number(apiRun.scenario.meetingHours)*Number(apiRun.scenario.annualVolume)*expectedAttribution/100,2),`${model.attributed_hours_before_capacity_check} at ${expectedAttribution}%`],
     ["Design reference is not presented as a peer benchmark",result.benchmark_context?.empirical_sample===false&&!/comparable structure range/i.test(String(result.benchmark_position)),String(result.benchmark_position)],
+    ["Design-reference copy does not introduce a second recoverable assumption",!/reference range and \d+% recoverable-drag assumption/i.test(combined),(combined.match(/reference range and \d+% recoverable-drag assumption/i)||["none"])[0]],
+    ["Customer JSON preserves design-reference metadata",files.jsonArtifact.benchmark_context?.empirical_sample===false&&files.jsonArtifact.benchmark_context?.affects_score===false,JSON.stringify(files.jsonArtifact.benchmark_context||{})],
+    ["Reclaim explanation uses the disclosed run calculation",ex.recoverable_cost==null||new RegExp(`disclosed ${Math.round(Number(ex.recoverable_share_percent))}% recoverable share`).test(combined),`${ex.recoverable_share_percent}% disclosed`],
     ["Change signal is explicitly self-reported",result.trajectory?.longitudinal_measurement===false&&result.trajectory?.evidence_type==="self_reported_change_signal"&&/self-reported|not a measured longitudinal trend/i.test(`${result.trajectory?.label||""} ${result.trajectory?.note||""}`),`${result.trajectory?.evidence_type||"missing"} · longitudinal=${result.trajectory?.longitudinal_measurement}`],
     ["Summary HTML built",files.summaryHtml.length>20000&&/<html[\s>]/i.test(files.summaryHtml),`${files.summaryHtml.length} bytes`],
     ["Full HTML built",files.fullHtml.length>25000&&/<html[\s>]/i.test(files.fullHtml),`${files.fullHtml.length} bytes`],
     ["Neue Haas included in both HTML files",/Neue Haas Grotesk/i.test(files.summaryHtml)&&/Neue Haas Grotesk/i.test(files.fullHtml),"font declaration"],
     ["No placeholder or invalid values",!PLACEHOLDER_RE.test(`${combined} ${jsonText}`)&&!invalidValue,invalidValue||(combined.match(PLACEHOLDER_RE)||["none"])[0]],
+    ["Remedy copy has no duplicate labels or footnote markers",!/Risk\s+Risk:|\*\*/i.test(combined),(combined.match(/Risk\s+Risk:|\*\*/i)||["none"])[0]],
+    ["Design-reference heading is current",!/Benchmark position\s+Industry range, opportunity range/i.test(combined),(combined.match(/Benchmark position\s+Industry range, opportunity range/i)||["none"])[0]],
     ["No cross-diagnostic language leakage",!/structural clarity diagnostic|institutional performance diagnostic|decision velocity diagnostic|ownership_blur_pattern|duplicate_approvals_inverse/i.test(combined),(combined.match(/structural clarity diagnostic|institutional performance diagnostic|decision velocity diagnostic|ownership_blur_pattern|duplicate_approvals_inverse/i)||["none"])[0]],
     ["Score direction language is correct",!/higher scores (?:mean|indicate) (?:more drag|worse|heavier burden)|Rising scores would suggest (?:drag|burden)/i.test(combined),"higher overall scores mean a lighter, stronger operating system"],
     ["Dimension caption uses the correct burden direction",/higher values indicate.*heavier burden/i.test(dimensionCaption),dimensionCaption||"missing caption"],
@@ -383,12 +388,13 @@ function runChecks(apiRun,files){
     ["Run length is not mislabeled as short-form",!/single short-form run/i.test(combined),(combined.match(/single short-form run/i)||["none"])[0]],
     ["No generic all-perspectives rerun instruction",!/other perspectives \(operational, managerial, senior leader\)/i.test(combined),(combined.match(/other perspectives \(operational, managerial, senior leader\)/i)||["none"])[0]],
     ["Healthy reports do not manufacture bypass tension",score<83||!/routinely bypassed|experiential operating-reality tension/i.test(combined),score<83?"not a healthy case":(combined.match(/routinely bypassed|experiential operating-reality tension/i)||["none"])[0]],
-    ["Healthy remedies remain proportionate",score<83||!/full pathway redesign|over-engineering|emergency reset/i.test(remedySection),score<83?"not a healthy case":(remedySection.match(/full pathway redesign|over-engineering|emergency reset/i)||["none"])[0]],
+    ["Healthy remedies remain proportionate",score<83||!/full pathway redesign|architecture reset|wholesale|consolidat(?:e|ion)|replace the platform|targeted redesign|fastest structural reset/i.test(remedySection),score<83?"not a healthy case":(remedySection.match(/full pathway redesign|architecture reset|wholesale|consolidat(?:e|ion)|replace the platform|targeted redesign|fastest structural reset/i)||["none"])[0]],
     ["Healthy priority actions preserve rather than redesign",score<83||recommendations.every(item=>!/lighten|redesign|reduce unnecessary|first material intervention/i.test(String(item))),score<83?"not a healthy case":recommendations.join(" | ")],
     ["Healthy JSON headline preserves rather than intervenes",score<83||(/preserve|protect|monitor/i.test(jsonHeadline)&&!/^(?:.*?:\s*)?(?:reduce|tighten|redesign|lighten)\b/i.test(jsonHeadline)),score<83?"not a healthy case":jsonHeadline],
     ["Healthy full report contains no stale intervention language",score<83||!/fix now:\s*reduce|harder to defend relative|active attention rather than passive tolerance/i.test(full),score<83?"not a healthy case":(full.match(/fix now:\s*reduce|harder to defend relative|active attention rather than passive tolerance/i)||["none"])[0]],
     ["Scenario description is case-specific",apiRun.case.id==="northbridge"||(String(apiRun.scenario.description||"").includes(apiRun.scenario.processName)&&String(apiRun.scenario.description||"").includes(apiRun.scenario.businessUnit)),String(apiRun.scenario.description||"missing")],
     ["No Northbridge narrative contamination",apiRun.case.id==="northbridge"||!/procurement, finance, clinical operations, IT security/i.test(combined),apiRun.case.id==="northbridge"?"reference case":(combined.match(/procurement, finance, clinical operations, IT security/i)||["none"])[0]],
+    ["Sector context is labeled as a hypothesis",!/What organizations in this sector often get wrong|organizations (?:commonly|often|typically)|comparable operating conditions in this sector/i.test(combined),(combined.match(/What organizations in this sector often get wrong|organizations (?:commonly|often|typically)|comparable operating conditions in this sector/i)||["none"])[0]],
     ["Quadrant prose agrees with overall condition",score>=67||!/cleanest operating posture|moving acceptably fast/i.test(combined),score>=67?"moderate or healthy case":(combined.match(/cleanest operating posture|moving acceptably fast/i)||["none"])[0]],
     ["Customer copy is mechanically clean",!/senior_leader perspective|\bpathway pathway\b|weakness\s*-\s*not audited|yours\.Discuss|Monderman Monderman Decision/i.test(combined),(combined.match(/senior_leader perspective|\bpathway pathway\b|weakness\s*-\s*not audited|yours\.Discuss|Monderman Monderman Decision/i)||["none"])[0]]
   ];
