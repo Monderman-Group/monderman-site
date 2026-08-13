@@ -11,6 +11,30 @@
 (function () {
   "use strict";
 
+  // Shared public-site mobile header repair. Public pages use the same .header,
+  // .header-inner and .nav hooks; lock them to an opaque Monderman header and a
+  // single horizontally scrollable nav row on tablet/mobile.
+  var publicHeaderFix = document.createElement("style");
+  publicHeaderFix.id = "mnd-public-header-fix";
+  publicHeaderFix.textContent = '@media (max-width:980px){'
+    + '.header,.header.scrolled{background:#08383E!important;border-bottom:1px solid rgba(255,255,255,.08)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;height:auto!important;}'
+    + '.header-inner{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:10px!important;padding:14px 20px 10px!important;height:auto!important;}'
+    + '.brand{flex:0 0 auto!important;}'
+    + '.nav{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;justify-content:flex-start!important;align-items:center!important;gap:10px!important;width:100%!important;max-width:100%!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:none!important;padding:2px 0 8px!important;row-gap:0!important;}'
+    + '.nav::-webkit-scrollbar{display:none!important;}'
+    + '.nav a{flex:0 0 auto!important;white-space:nowrap!important;font-size:.88rem!important;line-height:1!important;padding:10px 12px!important;border-radius:7px!important;background:rgba(255,255,255,.055)!important;border:1px solid rgba(255,255,255,.10)!important;color:rgba(245,241,232,.88)!important;}'
+    + '.nav a::after{display:none!important;}'
+    + '.nav a:hover,.nav a:focus-visible{background:rgba(255,255,255,.10)!important;border-color:rgba(255,255,255,.18)!important;color:#fff!important;transform:none!important;}'
+    + '.nav a.is-active{background:rgba(12,110,120,.34)!important;border-color:rgba(79,167,174,.52)!important;color:#fff!important;}'
+    + '.nav a.workspace-link{background:rgba(255,255,255,.08)!important;border-color:rgba(255,255,255,.22)!important;color:#fff!important;font-weight:600!important;}'
+    + '}'
+    + '@media (max-width:640px){'
+    + '.header-inner{padding:12px 16px 9px!important;gap:9px!important;}'
+    + '.nav{gap:8px!important;padding-bottom:7px!important;}'
+    + '.nav a{font-size:.84rem!important;padding:9px 11px!important;}'
+    + '}';
+  document.head.appendChild(publicHeaderFix);
+
   // Homepage hero framing lock. The responsive <picture> can swap source files,
   // but the image itself must remain geometrically centered at every viewport.
   var heroImage = document.getElementById("heroImage");
