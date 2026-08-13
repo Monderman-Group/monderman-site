@@ -853,7 +853,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
           </button>
           <div class="accordion-body">
             <section class="remedy-standalone">
-              <div id="remedyTreeWrap" class="remedy-band hidden"><div class="remedy-band-head"><strong>Three remedy paths</strong><p>These paths are not arranged as one automatic best answer. They show the trade space between burden of recovery, implementation burden, and organizational risk.</p></div><div class="remedy-grid" id="remedyGrid"></div><p class="remedy-calibration-note">* Calibrate against Insight depth before acting. A single short-form run produces directional remedy guidance, not engineering specifications &mdash; the breadth, depth, and cross-validation of inputs governs how confidently any of these paths should be pursued.</p></div>
+              <div id="remedyTreeWrap" class="remedy-band hidden"><div class="remedy-band-head"><strong>Three remedy paths</strong><p>These paths are not arranged as one automatic best answer. They show the trade space between burden of recovery, implementation burden, and organizational risk.</p></div><div class="remedy-grid" id="remedyGrid"></div><p class="remedy-calibration-note">* Calibrate against Insight depth before acting. A single-perspective run produces directional remedy guidance, not engineering specifications &mdash; the breadth, depth, and cross-validation of inputs governs how confidently any of these paths should be pursued.</p></div>
             </section>
           </div>
         </article>
@@ -1297,6 +1297,29 @@ if (!rounded) return options.fallback || "not estimated";
 const prefix = options.approximate === false ? "" : "about ";
 const suffix = options.suffix || "";
 return `${prefix}${rounded.toLocaleString()}${suffix}`.trim();
+}
+
+function formatCapacityDrag(exposure, fallback = "--") {
+const ex = exposure && typeof exposure === "object" ? exposure : {};
+if (ex.capacity_drag_percent == null || !Number.isFinite(Number(ex.capacity_drag_percent))) return fallback;
+const published = Math.max(0, Math.min(100, Number(ex.capacity_drag_percent)));
+const hours = Number(ex.annual_hours);
+const capacity = Number(ex.total_capacity_hours);
+const unrounded = Number.isFinite(hours) && hours > 0 && Number.isFinite(capacity) && capacity > 0 ? (hours / capacity) * 100 : published;
+if (unrounded > 0 && unrounded < 1) return "<1%";
+return `${Math.round(published)}%`;
+}
+
+function buildExposureNarrative(exposure) {
+const ex = exposure && typeof exposure === "object" ? exposure : {};
+const hasHours = ex.annual_hours != null && Number.isFinite(Number(ex.annual_hours)) && Number(ex.annual_hours) > 0;
+const hasCost = ex.annual_cost != null && Number.isFinite(Number(ex.annual_cost)) && Number(ex.annual_cost) > 0;
+const hasDrag = ex.capacity_drag_percent != null && Number.isFinite(Number(ex.capacity_drag_percent));
+if (ex.sizing_status === "input_saturation") return "The disclosed workload exceeds the available capacity assumption, so burden hours, labor exposure, and capacity drag are not published for this scenario.";
+if (!hasHours) return "Burden hours and labor exposure were not estimated because no usable coordination-hours input was provided.";
+const hours = formatRoundedHours(ex.annual_hours, { suffix: " annual burden hours*" });
+if (!hasCost) return `Directional modeling suggests ${hours}. Labor exposure was not priced because no usable hourly cost was provided.${hasDrag ? ` Estimated capacity drag is ${formatCapacityDrag(ex)}*.` : ""}`;
+return `Directional modeling suggests ${hours} and ${formatEstimateCurrencyRange(ex.annual_cost)} in labor exposure.${hasDrag ? ` Capacity drag is ${formatCapacityDrag(ex)}*.` : " Capacity drag was not estimated because the necessary capacity inputs were unavailable."}`;
 }
 
 // SectorWorkflowKnowledge — the sector × workflow knowledge tuples
@@ -3407,9 +3430,27 @@ const stateObj = result.__interpretiveState || buildInterpretiveState(result, {}
 const quadDot = $("quadDot");
 const text = $("quadrantInterpretationText");
 if (!quadDot) return;
-quadDot.style.left = `${stateObj.governanceWeight}%`;
-quadDot.style.top = `${100 - stateObj.execResponsive}%`;
+const coordinates = getQuadrantCoordinates(result);
+if (!coordinates) {
+  quadDot.style.display = "none";
+  if (text) text.textContent = "The quadrant was not plotted because the finalized result did not contain both measured axes.";
+  return;
+}
+quadDot.style.display = "";
+quadDot.style.left = `${coordinates.left}%`;
+quadDot.style.top = `${coordinates.top}%`;
 if (text) text.textContent = buildQuadrantInterpretation(result);
+}
+
+function getQuadrantCoordinates(result) {
+const stateObj = result?.interpretive_state || result?.__interpretiveState || null;
+const governance = Number(stateObj?.governanceWeight);
+const responsiveness = Number(stateObj?.execResponsive);
+if (!Number.isFinite(governance) || !Number.isFinite(responsiveness)) return null;
+return {
+  left: Math.max(8, Math.min(92, governance)),
+  top: Math.max(8, Math.min(92, 100 - responsiveness))
+};
 }
 
 function chartOptions() {
@@ -4151,7 +4192,7 @@ return `<svg width="220" height="140" viewBox="0 0 220 140" xmlns="http://www.w3
   */
   function buildCoverStatsStrip(exportScore, result, benchmarkPosition) {
   const annualCost = formatEstimateCurrencyRange(result?.exposure?.annual_cost);
-  const dragPct = Math.round(Number(result?.exposure?.capacity_drag_percent || 0));
+  const dragDisplay = formatCapacityDrag(result?.exposure, "Not estimated");
   return `<div class="cover-stat-strip">
   
    <div class="cover-stat">
@@ -4166,7 +4207,7 @@ return `<svg width="220" height="140" viewBox="0 0 220 140" xmlns="http://www.w3
    </div>
    <div class="cover-stat">
      <p class="cover-stat-label">Capacity absorbed</p>
-     <p class="cover-stat-value">${dragPct}%</p>
+     <p class="cover-stat-value">${escapeHtml(dragDisplay)}</p>
      <p class="cover-stat-sub">of available capacity</p>
    </div>
 
@@ -4420,10 +4461,9 @@ const benchmarkPosition = result?.benchmark_position || "Industry range comparis
 const sectorName = resolveIndustryLabel(result, payload, { titleCase: false });
 const sectorMeta = resolveIndustryLabel(result, payload, { titleCase: true });
 const levelMeta = humanize(payload?.organizationLevel || payload?.organization_level || payload?.unitType || payload?.unit_type || "Business unit");
-const annualHours = Math.round(Number(result?.exposure?.annual_hours || 0));
-const annualHoursText = annualHours ? formatRoundedHours(annualHours, { suffix: " annual burden hours*" }) : "annual burden hours* not estimated";
 const annualCostText = formatEstimateCurrencyRange(result?.exposure?.annual_cost);
-const dragPct = Math.max(0, Math.min(100, Math.round(Number(result?.exposure?.capacity_drag_percent || 0))));
+const dragDisplay = formatCapacityDrag(result?.exposure, "Not estimated");
+const exposureNarrative = buildExposureNarrative(result?.exposure);
 const capacity = calculateCapacityComposition(result?.exposure);
 const breakdown = asObject(result?.burden_breakdown);
 const dimensionRows = [
@@ -4798,7 +4838,7 @@ return `<!doctype html>
     <div class="stat-strip">
       <div class="stat"><div class="stat-label">Operating burden score</div><div class="stat-value">${exportScore}</div><div class="stat-sub">${safe(burdenCondition.label)}</div></div>
       <div class="stat"><div class="stat-label">Exposure range</div><div class="stat-value">${safe(annualCostText)}</div><div class="stat-sub">labor exposure*</div></div>
-      <div class="stat"><div class="stat-label">Capacity absorbed</div><div class="stat-value">${dragPct}%</div><div class="stat-sub">of available capacity</div></div>
+      <div class="stat"><div class="stat-label">Capacity absorbed</div><div class="stat-value">${safe(dragDisplay)}</div><div class="stat-sub">of available capacity</div></div>
     </div>
     <div class="kv"><b>WORKFLOW</b><span>${safe(processName)}</span><b>SECTOR</b><span>${safe(sectorName)}</span><b>GENERATED</b><span>${safe(generated)}</span></div>
   </div>
@@ -4810,7 +4850,7 @@ return `<!doctype html>
     <p class="eyebrow">The pattern this run is detecting</p><h2>Headline finding</h2>
     <p class="lede">${safeWords(harmonized.headlineFinding || summary.body, 84)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(executiveQuestion)}</p></div>
-    <p>Directional modeling suggests ${safe(annualHoursText)} and about ${safe(annualCostText)} in labor exposure, with capacity drag around ${dragPct}%*. These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
+    <p><span id="exposureNarrative">${safe(exposureNarrative)}</span> These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
     <p>The practical question is not whether work is still getting done. It is how much organizational energy is now required to make it happen. The score should be read as a structured quantitative operating-burden indicator. Experiential bypass signals, when present, do not change the score; they provide interpretive context about how the formal process may differ from operating reality.</p><p>When a workflow needs repeated coordination, compensating behavior, workaround maintenance, or control translation, the visible output may remain acceptable while the operating system underneath becomes increasingly expensive to sustain.</p>
     <div class="capacity"><div class="seg" style="width:${capacity.productive}%;background:#3C8A60">${capacity.productive}%</div><div class="seg" style="width:${capacity.admin}%;background:#C9821F">${capacity.admin}%</div><div class="seg" style="width:${capacity.drag}%;background:#B0392F">${capacity.drag}%</div></div>
     <div class="legend"><span><span class="dot" style="background:#3C8A60"></span>Productive work</span><span><span class="dot" style="background:#C9821F"></span>Admin upkeep</span><span><span class="dot" style="background:#B0392F"></span>Recoverable drag*</span></div>
@@ -4869,7 +4909,7 @@ ${decisionReviewPage}
     <p>Three distinct intervention strategies, ordered by ambition and risk. Each path implies a different leadership posture, time horizon, and tolerance for short-term disruption.</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(remedyQuestion)}</p></div>
     <div class="remedy-grid">${remedyHtml}</div>
-    <p class="remedy-calibration-note" style="margin:14px 0 0;padding:10px 12px;background:#F6F3EC;border-left:2px solid #A9CFD2;border-radius:0 6px 6px 0;font-size:11px;line-height:1.55;color:#6E6F73;font-style:italic">* Calibrate against Insight depth before acting. A single short-form run produces directional remedy guidance, not engineering specifications &mdash; the breadth, depth, and cross-validation of inputs governs how confidently any of these paths should be pursued.</p>
+    <p class="remedy-calibration-note" style="margin:14px 0 0;padding:10px 12px;background:#F6F3EC;border-left:2px solid #A9CFD2;border-radius:0 6px 6px 0;font-size:11px;line-height:1.55;color:#6E6F73;font-style:italic">* Calibrate against Insight depth before acting. A single-perspective run produces directional remedy guidance, not engineering specifications &mdash; the breadth, depth, and cross-validation of inputs governs how confidently any of these paths should be pursued.</p>
     <div class="rule"></div><h3>Choosing between them</h3><p>The right choice depends less on the current burden score than on three things: how much stability the organization needs while changes happen, how much trust leadership has earned to redesign rather than tweak, and whether the workflow is on a path that is already worsening. Light paths preserve continuity; aggressive paths buy more capacity but require a stronger mandate.</p>
   </div>
 </section>
@@ -5084,33 +5124,74 @@ cleanup();
 }
 
 function buildCrossDiagnosticArtifact(result, payload) {
-// Generate a stable run identifier so cross-synth can deduplicate uploads.
-// Uses crypto.randomUUID where available, falls back to a timestamp-random hybrid.
-const runId = (typeof crypto !== "undefined" && crypto.randomUUID)
+const runId = payload?.runId || payload?.run_id || state.runId || ((typeof crypto !== "undefined" && crypto.randomUUID)
 ? crypto.randomUUID()
-: `run_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+: `run_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`);
 const generated = new Date().toISOString();
+const coverage = result?.dimension_coverage || result?.measurement_coverage || {};
+const trace = asArray(payload?.answer_trace).map((entry) => ({
+  sequence: entry?.sequence ?? null,
+  item_id: entry?.item_id || entry?.id || null,
+  dimension: entry?.dimension || null,
+  question: entry?.question || null,
+  selected_value: entry?.selected_value ?? entry?.selectedValue ?? null,
+  selected_answer: entry?.selected_answer || entry?.selectedAnswer || null,
+  question_type: entry?.question_type || entry?.questionType || null,
+  required: entry?.required !== false
+}));
+const actions = buildPriorityActions(result, payload || {}).filter(Boolean);
 return {
-// ─── Cross-synth required metadata (top level) ────────────────────────
-schema_version: "1.0.0",
+schema_version: "2.0.0",
 run_id: runId,
 tool_type: "operational_systems",
 tool_label: "Operational Systems Diagnostic",
 generated_at: generated,
-// ─── Legacy/display fields (kept for backwards compatibility) ──────────
 tool: "operational_systems",
 generatedAt: generated,
-processName: payload?.processName || payload?.process_name || "Operating environment",
-participantMode: payload?.participantMode || payload?.participant_mode || state.mode || "executive",
-diagnosticDepth: payload?.diagnosticDepth || payload?.diagnostic_depth || state.depth || "30",
-score: result?.score || null,
-benchmarkPosition: result?.benchmark_position || null,
+scorer_version: result?.scorer_version || null,
+config_version: result?.config_version || null,
+process_name: payload?.processName || payload?.process_name || "Operating environment",
+organization_name: payload?.organizationName || payload?.organization_name || null,
+business_unit: payload?.businessUnit || payload?.business_unit || null,
+industry: payload?.industry || null,
+participant_mode: payload?.participantMode || payload?.participant_mode || state.mode || "senior_leader",
+diagnostic_depth: Number(payload?.diagnosticDepth || payload?.diagnostic_depth || state.depth || 30),
+input_confidence: payload?.confidenceLevel || payload?.confidence_level || null,
+score: result?.score ?? null,
+band: result?.score_band || result?.band || deriveOperatingBurdenCondition(result || {}).label || null,
+benchmark_position: result?.benchmark_position || null,
 trajectory: result?.trajectory || null,
-burdenBreakdown: result?.burden_breakdown || null,
-dimensions: result?.dimensions || null,
-result,
-payload,
-experientialLayer: payload?.experientialLayer || payload?.experiential_layer || null
+dimensions: result?.dimensions || {},
+dimension_coverage: coverage,
+burden_breakdown: result?.burden_breakdown || {},
+exposure: {
+  priceable: result?.exposure?.priceable === true,
+  hours_estimated: result?.exposure?.hours_estimated === true,
+  cost_estimated: result?.exposure?.cost_estimated === true,
+  sizing_status: result?.exposure?.sizing_status || null,
+  annual_hours: result?.exposure?.annual_hours ?? null,
+  annual_cost: result?.exposure?.annual_cost ?? null,
+  capacity_drag_percent: result?.exposure?.capacity_drag_percent ?? null,
+  recoverable_share_percent: result?.exposure?.recoverable_share_percent ?? null,
+  recoverable_cost: result?.exposure?.recoverable_cost ?? null,
+  total_capacity_hours: result?.exposure?.total_capacity_hours ?? null,
+  total_capacity_cost: result?.exposure?.total_capacity_cost ?? null,
+  composition: result?.exposure?.composition || null,
+  model: result?.exposure?.model || null
+},
+primary_driver: result?.canonical_descriptor?.primary_constraint_label || derivePrimaryBurdenSource(result || {}).label || null,
+key_findings: asArray(result?.key_findings).filter(Boolean),
+priority_actions: actions,
+findings: {
+  headline: buildHarmonizedNarrative(result, payload || {}).headlineFinding || null,
+  executive_summary: buildExecutiveSummary(result, payload || {}),
+  contradictions: asArray(result?.contradictions),
+  recommendations: actions,
+  remedy_paths: buildRemedyPaths(result, payload || {})
+},
+answer_trace: trace,
+unasked_questions: asArray(payload?.unasked_questions),
+experiential_layer: payload?.experientialLayer || payload?.experiential_layer || null
 };
 }
 
@@ -5240,6 +5321,7 @@ const burdenConstraint = derivePrimaryBurdenSource(result);
 const burdenDiagnosis = deriveBurdenDiagnosis(result, payload);
 const reclaim = estimateReclaimPotential(result, payload);
 const executiveSummary = buildExecutiveSummary(result, payload);
+const exposureNarrative = buildExposureNarrative(result?.exposure);
 renderExperienceLayer(payload);
 
 animateNumber($("scoreNumber"), Number(result.score || 0));
@@ -5258,7 +5340,7 @@ $("tradeoffDiagnosisSub").textContent = harmonized.diagnosisReads.diagnosisRead;
 
 $("economicHoursValue").textContent = result?.exposure?.annual_hours != null ? formatRoundedHours(result.exposure.annual_hours, { suffix: " hrs" }) : "--";
 $("economicCostValue").textContent = formatEstimateCurrencyRange(result?.exposure?.annual_cost);
-$("economicCapacityValue").textContent = result?.exposure?.capacity_drag_percent != null ? `${Math.round(Number(result.exposure.capacity_drag_percent))}%` : "--";
+$("economicCapacityValue").textContent = formatCapacityDrag(result?.exposure);
 $("benchmarkValue").textContent = result.benchmark_position || "--";
 $("benchmarkSub").textContent = "Read as context, not comfort.";
 $("trajectoryValue").textContent = result?.trajectory?.label || "--";
@@ -5277,7 +5359,7 @@ trajectoryWrap.innerHTML = trajectoryChipHtml;
 }
 
 $("executiveText").textContent = harmonized.executive;
-$("roiNarrativeText").textContent = harmonized.tmr;
+$("roiNarrativeText").textContent = exposureNarrative;
 $("benchmarkInterpretationText").textContent = harmonized.benchmark;
 const tradeoffEl = $("tradeoffReadingText");
 if (tradeoffEl && burdenDiagnosis.note) {
@@ -5288,7 +5370,7 @@ $("opportunityLeadText").textContent = harmonized.opportunityFields.opening;
 $("opportunitySectorText").textContent = harmonized.opportunityFields.sectorDynamic;
 $("opportunityActionReasonText").textContent = [harmonized.opportunityFields.runIndicates, harmonized.opportunityFields.buildAdvantage, harmonized.opportunityFields.firstMoves].filter(Boolean).join(" ");
 $("leadershipWatchoutText").textContent = harmonized.opportunityFields.watchout;
-$("tmrText").textContent = harmonized.tmr;
+$("tmrText").textContent = exposureNarrative;
 $("tradeoffText").textContent = harmonized.tradeoff;
 
 $("execSummaryHeadline").textContent = executiveSummary.headline;
@@ -5955,6 +6037,9 @@ requestAnimationFrame(() => {
 if (typeof window !== "undefined") {
   window.__mondermanTestHooks = {
     buildExecutiveReportHtml: buildExecutiveReportHtml,
+    buildFullReportHTML: buildFullReportHTML,
+    buildCrossDiagnosticArtifact: buildCrossDiagnosticArtifact,
+    getQuadrantCoordinates: getQuadrantCoordinates,
     downloadExecutiveReportPdf: downloadExecutiveReportPdf,
     exportExecutiveReport: (typeof exportExecutiveReport === "function") ? exportExecutiveReport : null,
     getState: () => state,
