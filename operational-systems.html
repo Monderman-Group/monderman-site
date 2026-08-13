@@ -5,6 +5,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Operational Systems Diagnostic | Monderman</title>
+<link rel="canonical" href="https://www.monderman.com/operational-systems.html"/>
+<meta property="og:title" content="Operational Systems Diagnostic | Monderman"/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://www.monderman.com/operational-systems.html"/>
+<meta property="og:description" content="Run the Operational Systems diagnostic: the administrative weight your workflows carry and where burden concentrates — deterministic scoring, free first read."/>
   <meta name="description" content="Run the Operational Systems diagnostic: the administrative weight your workflows carry and where burden concentrates — deterministic scoring, free first read." />
   <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
@@ -12,10 +17,10 @@
       <text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23FAFAF8">M</text>
       <rect x="47" y="36" width="8" height="8" rx="1.2" fill="%230C6E78"/>
     </svg>' />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" defer></script>
 <script>
     window.MONDERMAN_SUPABASE_URL = "https://ptkxrzgmeldalrkfruth.supabase.co";
     window.MONDERMAN_SUPABASE_ANON_KEY = "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
@@ -33,7 +38,7 @@
     })();
   </script>
   <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2.111.0";
     const sb = createClient(
       window.MONDERMAN_SUPABASE_URL,
       window.MONDERMAN_SUPABASE_ANON_KEY,
@@ -810,7 +815,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
               <article class="result-card"><h3>Current operating burden</h3><div class="section-divider"></div><div id="trajectorySignalWrap" class="result-copy" style="margin-bottom:12px;">Trajectory signal will appear here after scoring.</div><p class="result-copy" id="executiveText"></p><div class="premium-note" id="conditionSupportText" style="display:none"></div></article>
               <article class="result-card"><h3>Cost of current administrative burden</h3><div class="section-divider"></div><p class="result-copy" id="roiNarrativeText">This section translates recurring process burden into labor cost, management attention, and the specific capacity the organization could reclaim by reducing unnecessary administrative load.</p></article>
               <article class="result-card"><h3>Priority actions</h3><div class="section-divider"></div><ul class="result-list" id="actionsList"></ul><div class="compact-card" style="margin-top:14px;"><h3>Leadership implication</h3><ul class="result-list" id="leadershipList"></ul></div></article>
-              <article class="result-card"><h3>Benchmark and operating read</h3><div class="section-divider"></div><p class="result-copy" id="benchmarkInterpretationText">Benchmark interpretation will appear here after scoring.</p><div class="premium-note" id="tradeoffReadingText" style="display:none"></div></article>
+              <article class="result-card"><h3>Design reference and operating read</h3><div class="section-divider"></div><p class="result-copy" id="benchmarkInterpretationText">Design-reference interpretation will appear here after scoring.</p><div class="premium-note" id="tradeoffReadingText" style="display:none"></div></article>
             </section>
           </div>
         </article>
@@ -1502,10 +1507,10 @@ return output;
 
 function buildBenchmarkTension(result, payload = {}) {
 const score = Number(result?.score || 0);
-const position = result?.benchmark_position || "Industry range comparison";
+const position = result?.benchmark_position || "Design-reference position";
 const industry = getIndustryNarrative(result, payload);
 if (/within/i.test(position) && score < 67) {
-return `This is heavy in absolute terms but within the comparable range for ${industry.sectorName}. That means peer benchmarks will not create urgency by themselves; the case for change comes from trajectory, qualitative operating evidence, and recoverable capacity.`;
+return `This is heavy in absolute terms but within the comparable range for ${industry.sectorName}. The design reference is not itself evidence of peer performance; the case for change comes from trajectory, qualitative operating evidence, and recoverable capacity.`;
 }
 return buildBenchmarkInterpretationText(result, payload);
 }
@@ -3220,7 +3225,7 @@ function buildInterpretiveState(result, payload) {
 // stretchAxis calibration constants used to live here; migrated to
 // backend on 2026-05-13.
 const backendState = result?.interpretive_state || {};
-const benchmarkPos = result?.benchmark_position || "Industry range comparison";
+const benchmarkPos = result?.benchmark_position || "Design-reference position";
 const topFocus = (asArray(result?.intervention_priority_ladder || result?.canonical_descriptor?.priority_ladder)[0]?.focus) || derivePrimaryBurdenSource(result).label;
 const directionSummary =
   result?.trajectory?.direction === "up" ? "burden pressure is rising" :
@@ -3949,7 +3954,7 @@ const score = Math.max(0, Math.min(100, Number(result?.score || 0)));
 const scoreToAngle = (value) => 180 - (value * 1.8);
 const needleAngle = scoreToAngle(score);
 const needle = polarToCartesian(150, 150, 92, needleAngle);
-mount.innerHTML = `<svg class="gauge-svg" viewBox="0 0 300 170"> <path d="${describeArc(150,150,92,180,110)}" fill="none" stroke="#B0392F" stroke-width="18" stroke-linecap="round"></path> <path d="${describeArc(150,150,92,110,70)}" fill="none" stroke="#C9821F" stroke-width="18" stroke-linecap="round"></path> <path d="${describeArc(150,150,92,70,35)}" fill="none" stroke="#0C6E78" stroke-width="18" stroke-linecap="round"></path> <path d="${describeArc(150,150,92,35,0)}" fill="none" stroke="#3C8A60" stroke-width="18" stroke-linecap="round"></path> <line x1="150" y1="150" x2="${needle.x}" y2="${needle.y}" stroke="#18191C" stroke-width="4" stroke-linecap="round"></line> <circle cx="150" cy="150" r="8" fill="#18191C"></circle> <text x="150" y="118" text-anchor="middle" font-size="28" font-weight="700" fill="#18191C">${score}</text> <text x="150" y="136" text-anchor="middle" font-size="11" fill="#6E6F73">${result?.benchmark_position || "Industry range comparison"}</text> </svg>`;
+mount.innerHTML = `<svg class="gauge-svg" viewBox="0 0 300 170"> <path d="${describeArc(150,150,92,180,110)}" fill="none" stroke="#B0392F" stroke-width="18" stroke-linecap="round"></path> <path d="${describeArc(150,150,92,110,70)}" fill="none" stroke="#C9821F" stroke-width="18" stroke-linecap="round"></path> <path d="${describeArc(150,150,92,70,35)}" fill="none" stroke="#0C6E78" stroke-width="18" stroke-linecap="round"></path> <path d="${describeArc(150,150,92,35,0)}" fill="none" stroke="#3C8A60" stroke-width="18" stroke-linecap="round"></path> <line x1="150" y1="150" x2="${needle.x}" y2="${needle.y}" stroke="#18191C" stroke-width="4" stroke-linecap="round"></line> <circle cx="150" cy="150" r="8" fill="#18191C"></circle> <text x="150" y="118" text-anchor="middle" font-size="28" font-weight="700" fill="#18191C">${score}</text> <text x="150" y="136" text-anchor="middle" font-size="11" fill="#6E6F73">${result?.benchmark_position || "Design-reference position"}</text> </svg>`;
 }
 
 function renderTrajectorySparkline(result) {
@@ -4477,7 +4482,7 @@ const primarySource = derivePrimaryBurdenSource(result || {});
 const stateObj = buildInterpretiveState(result || {}, payload || {});
 const exportScore = Math.max(0, Math.min(100, Math.round(Number(result?.score || 0))));
 const processName = payload?.processName || payload?.process_name || "Operational Systems Diagnostic";
-const benchmarkPosition = result?.benchmark_position || "Industry range comparison";
+const benchmarkPosition = result?.benchmark_position || "Design-reference position";
 const sectorName = resolveIndustryLabel(result, payload, { titleCase: false });
 const sectorMeta = resolveIndustryLabel(result, payload, { titleCase: true });
 const levelMeta = humanize(payload?.organizationLevel || payload?.organization_level || payload?.unitType || payload?.unit_type || "Business unit");
@@ -5428,7 +5433,7 @@ $("execSectorPatternText").textContent = `Expert-authored sector hypothesis to t
 $("execActionsRationaleText").textContent = `Why these first moves matter: ${harmonized.opportunityFields.firstMoves}`;
 $("execLeadershipWatchoutText").textContent = `What leadership should avoid: ${harmonized.opportunityFields.watchout}`;
 
-$("exportMetaBenchmark").textContent = `Benchmark: ${result.benchmark_position || "Industry range comparison"}`;
+$("exportMetaBenchmark").textContent = `Benchmark: ${result.benchmark_position || "Design-reference position"}`;
 $("exportMetaTrajectory").textContent = `Trajectory: ${result?.trajectory?.label || "No strong directional signal"}`;
 $("exportMetaOpportunity").textContent = `Primary burden source: ${burdenConstraint.label}`;
 
@@ -5566,9 +5571,9 @@ remedyGrid.innerHTML = remedies.map((path) => {
 }
 
 $("reportTitle").textContent = `${payload?.processName || payload?.process_name || "Workflow"} • Operational Systems Diagnostic`;
-$("reportSubtitle").textContent = `${result.benchmark_position || "Industry range comparison"} • ${displayPerspectiveLabel(payload?.participantMode || payload?.participant_mode || state.mode || "senior_leader")} perspective • ${resolveIndustryLabel(result, payload, { titleCase: true })} • ${payload?.employeeCount ? `${Number(payload.employeeCount).toLocaleString()} employees` : humanize(payload?.organizationSize || result?.organization_size_label || "unknown")}`;
+$("reportSubtitle").textContent = `${result.benchmark_position || "Design-reference position"} • ${displayPerspectiveLabel(payload?.participantMode || payload?.participant_mode || state.mode || "senior_leader")} perspective • ${resolveIndustryLabel(result, payload, { titleCase: true })} • ${payload?.employeeCount ? `${Number(payload.employeeCount).toLocaleString()} employees` : humanize(payload?.organizationSize || result?.organization_size_label || "unknown")}`;
 $("metaProcess").textContent = `Pathway: ${payload?.processName || payload?.process_name || "Unnamed workflow"}`;
-$("metaBench").textContent = `Benchmark: ${result.benchmark_position || "Industry range comparison"}`;
+$("metaBench").textContent = `Benchmark: ${result.benchmark_position || "Design-reference position"}`;
 $("metaDate").textContent = `Generated: ${nowLabel()}`;
 
 renderBenchmarkBar(result, payload);

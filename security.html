@@ -4,6 +4,11 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Security — Monderman</title>
+<link rel="canonical" href="https://www.monderman.com/security.html"/>
+<meta property="og:title" content="Security — Monderman"/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://www.monderman.com/security.html"/>
+<meta property="og:description" content="Monderman security and data handling: the architecture end to end, what a diagnostic stores, who can read what, how anonymous responses work, and what we have not done. No security certification is claimed."/>
 <meta name="description" content="Monderman security and data handling: the architecture end to end, what a diagnostic stores, who can read what, how anonymous responses work, and what we have not done. No security certification is claimed."/>
 <link href='data:image/svg+xml;utf8,
     &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"&gt;
@@ -656,9 +661,9 @@
   <div class="section-inner">
     <p class="section-eyebrow">ARCHITECTURE</p>
     <h2>One paragraph, end to end</h2>
-      <p>The Monderman site is static pages served over HTTPS. Diagnostics run against a single API service, which scores responses, builds the written interpretation through Anthropic&rsquo;s API, and stores results in a managed Postgres database (Supabase). Scoring, interpretation, and every write of a diagnostic result happen server-side: the API holds service-role credentials that the browser never sees, and no scoring logic or sector reference range is exposed to the client.</p>
+      <p>The Monderman site is static pages served over HTTPS. Diagnostics run against a single API service, which scores responses, builds the written interpretation through Anthropic&rsquo;s API, and stores results in a managed Postgres database (Supabase). Scoring, interpretation, and every write of a diagnostic result happen server-side: the API holds service-role credentials that the browser never sees, and scoring logic and source calibration tables remain server-side. After scoring, the API can return result-specific reference values needed for the browser to render that result; those presentation values are not credentials and do not grant database access.</p>
       <p>Once you are signed in, the workspace reads and updates your organization&rsquo;s own records, saved runs, action plans, notes and campaign tracking, directly against the database using a public, publishable key. That key carries no privileges of its own: an unauthenticated request holds no read or write permission on any table. A signed-in request can read your organization&rsquo;s rows and write to a short list of tables, and every table is governed by row-level security, so it can only ever reach rows belonging to the organization you are signed in to. Authorization is enforced by the database itself rather than by the browser.</p>
-      <p>The complete set of outside services involved: <strong>Supabase</strong> for the database and sign-in, <strong>Render</strong> for the API, <strong>Anthropic</strong> for the written interpretation, <strong>Resend</strong> for email delivery, <strong>Stripe</strong> for payment, and <strong>Cloudflare</strong> for bot verification before a diagnostic opens and for serving the script that builds your downloadable report. Cloudflare receives browser and challenge information as part of that verification; it does not receive your diagnostic responses.</p>
+      <p>Core outside services involved in operating the platform include: <strong>Supabase</strong> for the database and sign-in, <strong>Render</strong> for the API, <strong>Anthropic</strong> for the written interpretation, <strong>Resend</strong> for email delivery, <strong>Stripe</strong> for payment,, <strong>Cloudflare</strong> for bot verification before a diagnostic opens and for serving report-building code, and public content-delivery networks for versioned browser libraries used by the site. Cloudflare receives browser and challenge information as part of that verification; it does not receive your diagnostic responses.</p>
   </div>
 </section>
 <section class="section">
@@ -768,7 +773,7 @@
 </script>
   <!-- Dynamic nav pill: Sign In (signed out) / Workspace (signed in) -->
   <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2.111.0";
     const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co",
       "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
       { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" }});
