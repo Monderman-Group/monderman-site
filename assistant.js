@@ -10,6 +10,19 @@
    ============================================================================ */
 (function () {
   "use strict";
+
+  // Homepage hero framing lock. The responsive <picture> can swap source files,
+  // but the image itself must remain geometrically centered at every viewport.
+  var heroImage = document.getElementById("heroImage");
+  if (heroImage) {
+    heroImage.style.setProperty("object-fit", "cover", "important");
+    heroImage.style.setProperty("object-position", "50% 50%", "important");
+    heroImage.style.setProperty("--hero-shift-x", "0%", "important");
+    heroImage.style.setProperty("left", "0", "important");
+    heroImage.style.setProperty("right", "0", "important");
+    heroImage.style.setProperty("transform", "none", "important");
+  }
+
   if (window.__mondermanAssistantLoaded) return;       // never inject twice
   window.__mondermanAssistantLoaded = true;
   var API_URL    = "https://monderman-api.onrender.com/api/site-assistant";
