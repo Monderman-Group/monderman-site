@@ -450,15 +450,16 @@
       .nav {
         width: 100%;
         gap: 10px;
-        overflow-x: auto;
-        flex-wrap: nowrap;
+        overflow-x: visible;
+        flex-wrap: wrap;
         justify-content: flex-start;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
+        
+        
         padding-bottom: 4px;
-      }
+      
+ row-gap:10px;}
 
-      .nav::-webkit-scrollbar { display: none; }
+      
       .nav a {
         flex: 0 0 auto;
         font-size: 0.84rem;
@@ -852,8 +853,9 @@
   })();
 </script>
 <!-- Dynamic nav pill: Sign In (signed out) / Workspace (signed in) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
 <script type="module">
-  import { createClient } from "https://esm.sh/@supabase/supabase-js@2.111.0";
+  const { createClient } = window.supabase;
   const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co",
     "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
     { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" }});
