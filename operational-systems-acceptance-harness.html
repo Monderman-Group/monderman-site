@@ -319,7 +319,7 @@ function runChecks(apiRun,files){
   const recommendations=files.jsonArtifact.findings?.recommendations||[];
   const composition=ex.composition||{};const compositionTotal=Object.values(composition).reduce((sum,value)=>sum+(Number(value)||0),0);
   const tolerance=(actual,expected,absolute=2)=>Number.isFinite(actual)&&Number.isFinite(expected)&&Math.abs(actual-expected)<=Math.max(absolute,Math.abs(expected)*.01);
-  const expectedAttribution=Math.round(Math.max(5,Math.min(75,5+(100-score)*.70)));
+  const expectedAttribution=55;
   const quadrant=reportFrame.contentWindow.__mondermanTestHooks.getQuadrantCoordinates(apiRun.result);
   const interpretiveState=result.interpretive_state||result.__interpretiveState||{};
   const governanceMeasured=Number.isFinite(Number(interpretiveState.governanceWeight))&&Number.isFinite(Number(interpretiveState.execResponsive));
@@ -351,7 +351,7 @@ function runChecks(apiRun,files){
     ["Exposure inputs reconcile",(Number(apiRun.scenario.meetingHours)>0?Number(model.input_hours_per_run)===Number(apiRun.scenario.meetingHours):model.input_hours_per_run==null)&&Number(model.annual_cycles)===Number(apiRun.scenario.annualVolume),`${model.input_hours_per_run} × ${model.annual_cycles}`],
     ["Missing hours remain unpriced",Number(apiRun.scenario.meetingHours)>0||(ex.hours_estimated===false&&ex.cost_estimated===false&&ex.annual_hours==null&&ex.annual_cost==null),`${ex.sizing_status}; hours=${ex.annual_hours}; cost=${ex.annual_cost}`],
     ["Attribution model disclosed",model.model_type==="directional_scenario_not_empirical_benchmark"&&model.empirical_benchmark===false&&Boolean(model.formula),`${model.model_type} · ${model.formula||"missing formula"}`],
-    ["Attribution responds to score",Number(model.attributable_burden_share_percent)===expectedAttribution,`${model.attributable_burden_share_percent}% vs expected ${expectedAttribution}%`],
+    ["Fixed attribution is explicit and consistent",Number(model.attributable_burden_share_percent)===expectedAttribution,`${model.attributable_burden_share_percent}% vs disclosed ${expectedAttribution}%`],
     ["Attributed hours reconcile",ex.hours_estimated===false||tolerance(Number(model.attributed_hours_before_capacity_check),Number(apiRun.scenario.meetingHours)*Number(apiRun.scenario.annualVolume)*expectedAttribution/100,2),`${model.attributed_hours_before_capacity_check} at ${expectedAttribution}%`],
     ["Design reference is not presented as a peer benchmark",result.benchmark_context?.empirical_sample===false&&!/comparable structure range/i.test(String(result.benchmark_position)),String(result.benchmark_position)],
     ["Change signal is explicitly self-reported",result.trajectory?.longitudinal_measurement===false&&result.trajectory?.evidence_type==="self_reported_change_signal"&&/self-reported|not a measured longitudinal trend/i.test(`${result.trajectory?.label||""} ${result.trajectory?.note||""}`),`${result.trajectory?.evidence_type||"missing"} · longitudinal=${result.trajectory?.longitudinal_measurement}`],

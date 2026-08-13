@@ -823,11 +823,11 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
           <div class="accordion-body">
             <div class="benchmark-shell">
               <div class="viz-grid">
-                <div class="viz-card"><h4>Industry positioning gauge</h4><div class="gauge-wrap"><div class="half-gauge" id="industryGauge"></div><div class="gauge-labels"><span>Below range</span><span>Within range</span><span>Above range</span><span>Opportunity</span></div></div></div>
+                <div class="viz-card"><h4>Instrument design-reference gauge</h4><div class="gauge-wrap"><div class="half-gauge" id="industryGauge"></div><div class="gauge-labels"><span>Below reference</span><span>Within reference</span><span>Above reference</span><span>Opportunity</span></div></div></div>
                 <div class="viz-card"><h4>Trajectory</h4><div class="trajectory-inline"><div id="trajectoryChipMount"></div><div class="sparkline-wrap"><svg class="sparkline" id="trajectorySparkline" viewBox="0 0 120 34" preserveAspectRatio="none"></svg></div></div><p class="viz-note" id="trajectorySparklineNote">Trajectory interpretation will appear here after scoring.</p></div>
               </div>
               <section class="summary-grid">
-                <article class="summary-card"><p class="summary-label">Benchmark</p><p class="summary-value" id="benchmarkValue">--</p><div class="benchmark-band"><div class="benchmark-track"><div class="benchmark-range industry-range" id="industryRange"></div><div class="benchmark-range opportunity-range" id="opportunityRange"></div><div class="benchmark-marker" id="benchmarkMarker"></div></div><div class="benchmark-legend"><span><span class="legend-dot dot-gold"></span>Comparable range</span><span><span class="legend-dot dot-green"></span>Opportunity range</span><span><span class="legend-dot dot-blue"></span>Your workflow</span></div><div class="benchmark-caption" id="benchmarkCaption"><strong>Where you stand versus similar organizations — with room to lighten the load</strong><br>Even sitting inside the comparable range, there's usually recoverable drag.</div></div><p class="summary-sub tight" id="benchmarkSub">Similar-workflow context</p></article>
+                <article class="summary-card"><p class="summary-label">Design reference</p><p class="summary-value" id="benchmarkValue">--</p><div class="benchmark-band"><div class="benchmark-track"><div class="benchmark-range industry-range" id="industryRange"></div><div class="benchmark-range opportunity-range" id="opportunityRange"></div><div class="benchmark-marker" id="benchmarkMarker"></div></div><div class="benchmark-legend"><span><span class="legend-dot dot-gold"></span>Design reference range</span><span><span class="legend-dot dot-green"></span>Opportunity range</span><span><span class="legend-dot dot-blue"></span>Your workflow</span></div><div class="benchmark-caption" id="benchmarkCaption"><strong>Position against the instrument's design reference</strong><br>This is an expert-authored reference range, not an empirical peer benchmark.</div></div><p class="summary-sub tight" id="benchmarkSub">Instrument design context</p></article>
                 <article class="summary-card"><p class="summary-label">Trajectory</p><p class="summary-value" id="trajectoryValue">--</p><p class="summary-sub tight" id="trajectoryValueSub">Directional signal</p></article>
               </section>
             </div>
@@ -3677,7 +3677,13 @@ function renderInsightDepth(payload) {
                      : insight.confidenceLevel === "limited" ? "limited self-reported confidence"
                      : insight.confidenceLevel === "moderate" ? "moderate self-reported confidence"
                      :                                          "the reported confidence level";
-    copyEl.textContent = `This score reflects ${depthPhrase} from a single perspective with ${confPhrase}. A single run is a narrow first signal regardless of how thoughtful it was. To strengthen the read, run this diagnostic again from other perspectives (operational, managerial, senior leader) and over time — the cross-diagnostic synthesis tool combines those runs and computes a broader insight depth score.`;
+    const currentRole = String(state?.mode || "senior_leader").toLowerCase();
+    const missingRoles = currentRole === "managerial"
+      ? "operational and senior-leader perspectives"
+      : currentRole === "operational"
+      ? "managerial and senior-leader perspectives"
+      : "operational and managerial perspectives";
+    copyEl.textContent = `This score reflects ${depthPhrase} from a single perspective with ${confPhrase}. A single run is a narrow first signal regardless of how thoughtful it was. To strengthen the read, run this diagnostic from ${missingRoles} and over time — the cross-diagnostic synthesis tool combines those runs and computes a broader insight depth score.`;
   }
   const circumference = 100.53;
   const arc = $("confidenceRingArc");
@@ -4598,12 +4604,16 @@ const defaultReadings = [
 { label: "Equilibrium-with-workarounds read", interpretation: "The system may be stable only because managers and operators have learned how to compensate around it.", what_would_distinguish_it: "Removing informal cover would quickly worsen cycle time, exception volume, or compliance friction." }
 ];
 const competingReadings = (Array.isArray(narrativeForReport.competing_readings) && narrativeForReport.competing_readings.length ? narrativeForReport.competing_readings : defaultReadings).slice(0, 3);
-const updateReadItems = (Array.isArray(narrativeForReport.what_would_update_this_read) && narrativeForReport.what_would_update_this_read.length ? narrativeForReport.what_would_update_this_read : [
-"A managerial-perspective run showing the same workaround pattern would elevate the read from suggestive to confirmed.",
-"A senior-leader run showing confidence that the formal path is followed would expose a possible visibility gap.",
-"Actual volume and cycle-time data would recalibrate the exposure range and show whether the issue is occasional or normalized.",
-"Risk-tier data would show whether low-risk work is being trapped in a high-control path."
-]).slice(0, 3);
+const currentRole = String(payload?.participantMode || payload?.participant_mode || result?.participant_mode || "senior_leader").toLowerCase();
+const roleEvidence = currentRole === "managerial"
+  ? ["An operational-perspective run would test whether the reported burden is visible at the point of work.", "A senior-leader run would test whether the formal operating picture matches the managerial read."]
+  : currentRole === "operational"
+  ? ["A managerial-perspective run would test whether local friction is being absorbed through coordination or escalation.", "A senior-leader run would test whether the operating burden is visible at the governance level."]
+  : ["An operational-perspective run would test how the burden appears at the point of work.", "A managerial-perspective run would test how much compensating coordination is required to sustain output."];
+const updateReadItems = (Array.isArray(narrativeForReport.what_would_update_this_read) && narrativeForReport.what_would_update_this_read.length
+  ? narrativeForReport.what_would_update_this_read.filter((item) => !new RegExp(`\\b${currentRole.replace("_", "[- ]")}[- ]perspective run\\b`, "i").test(String(item)))
+  : [...roleEvidence, "Actual volume and cycle-time data would recalibrate the exposure range and show whether the issue is occasional or normalized."]
+).slice(0, 3);
 const readingHtml = competingReadings.map((item) => '<div class="mini-card"><b>' + safe(item.label || "Reading") + '</b><p>' + safeWords(item.interpretation || item, 44) + '</p><p class="muted">Signal test: ' + safeWords(item.what_would_distinguish_it || "Additional cross-role evidence would clarify this reading.", 50) + '</p></div>').join("");
 const updateHtml = updateReadItems.map((item) => '<p style="margin:0 0 8px">• ' + safeWords(item, 42) + '</p>').join("");
 const decisionReviewPage = '<section class="page">' + footer(decisionReviewPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>Competing readings</h2><p>This section names the plausible interpretations of the same signal and identifies the evidence that would confirm, weaken, or reframe the current read.</p><div class="card-row" style="grid-template-columns:1fr;gap:12px">' + readingHtml + '</div></div></section>'
@@ -4612,7 +4622,9 @@ const firstTwoActions = actions.slice(0, 2).length ? actions.slice(0, 2) : [
 "Reduce the heaviest visible burden first.",
 "Run the diagnostic again after the first real change."
 ];
-const metaLine = `${sectorMeta} · ${levelMeta} · ${generated}`;
+const organizationName = payload?.organizationName || payload?.organization_name || "";
+const businessUnit = payload?.businessUnit || payload?.business_unit || "";
+const metaLine = [organizationName, businessUnit, sectorMeta, levelMeta, generated].filter(Boolean).join(" · ");
 // Compute segment percentages with last-segment-absorbs-remainder so the
 // six values always sum to exactly 100. Independent Math.round of each
 // segment can sum to 99 or 101.
@@ -4791,7 +4803,7 @@ return `<!doctype html>
   <div class="cover-white">
     <p class="cover-kicker">Diagnostic Output &nbsp;/&nbsp; Operational Systems</p>
     <div class="cover-workflow">${safe(processName)}</div>
-    <div class="cover-meta-line">${safe(sectorMeta)} · ${safe(levelMeta)}</div>
+    <div class="cover-meta-line">${safe([organizationName, businessUnit, sectorMeta, levelMeta].filter(Boolean).join(" · "))}</div>
     <div class="cover-date-line">${safe(generated)}</div>
     <div class="cover-pills">
       <span class="cover-pill-accent">${exportScore} · ${safe(burdenCondition.label)}</span>
@@ -4840,7 +4852,7 @@ return `<!doctype html>
       <div class="stat"><div class="stat-label">Exposure range</div><div class="stat-value">${safe(annualCostText)}</div><div class="stat-sub">labor exposure*</div></div>
       <div class="stat"><div class="stat-label">Capacity absorbed</div><div class="stat-value">${safe(dragDisplay)}</div><div class="stat-sub">of available capacity</div></div>
     </div>
-    <div class="kv"><b>WORKFLOW</b><span>${safe(processName)}</span><b>SECTOR</b><span>${safe(sectorName)}</span><b>GENERATED</b><span>${safe(generated)}</span></div>
+    <div class="kv"><b>ORGANIZATION</b><span>${safe(organizationName || "Not provided")}</span><b>FUNCTION</b><span>${safe(businessUnit || "Not provided")}</span><b>WORKFLOW</b><span>${safe(processName)}</span><b>SECTOR</b><span>${safe(sectorName)}</span><b>GENERATED</b><span>${safe(generated)}</span></div>
   </div>
 </section>
 
@@ -5166,8 +5178,8 @@ dimension_coverage: coverage,
 burden_breakdown: result?.burden_breakdown || {},
 exposure: {
   priceable: result?.exposure?.priceable === true,
-  hours_estimated: result?.exposure?.hours_estimated === true,
-  cost_estimated: result?.exposure?.cost_estimated === true,
+  hours_estimated: result?.exposure?.hours_estimated === true || Number.isFinite(Number(result?.exposure?.annual_hours)),
+  cost_estimated: result?.exposure?.cost_estimated === true || Number.isFinite(Number(result?.exposure?.annual_cost)),
   sizing_status: result?.exposure?.sizing_status || null,
   annual_hours: result?.exposure?.annual_hours ?? null,
   annual_cost: result?.exposure?.annual_cost ?? null,
@@ -5287,8 +5299,8 @@ function renderBasisOfRead(result, payload) {
     ? (displayIndustryLabel(p.industry, { titleCase: true }) || "") : String(p.industry || "");
   const cal = (result && result.sector_context && result.sector_context.calibration) || {};
   const calTxt = (cal.industryMin != null && cal.industryMax != null)
-    ? `${sectorName || "Sector"} calibration \u00b7 typical range ${cal.industryMin}\u2013${cal.industryMax}`
-    : (sectorName ? `${sectorName} calibration` : "Sector-family calibration");
+    ? `${sectorName || "Sector"} expert-authored design reference \u00b7 range ${cal.industryMin}\u2013${cal.industryMax}`
+    : (sectorName ? `${sectorName} expert-authored design reference` : "Instrument design reference");
   const inputs = [];
   const people = num(p.peopleInvolved) ?? num(p.peopleAffected) ?? num(p.peopleCount);
   if (people != null) inputs.push(`${people} people involved`);
@@ -5345,8 +5357,10 @@ $("benchmarkValue").textContent = result.benchmark_position || "--";
 $("benchmarkSub").textContent = "Read as context, not comfort.";
 $("trajectoryValue").textContent = result?.trajectory?.label || "--";
 $("trajectoryValueSub").textContent = result?.trajectory?.note || "Directional signal";
-$("reclaimValue").textContent = reclaim.amount ? formatEstimateCurrencyRange(reclaim.amount) : "--";
+$("reclaimValue").textContent = result?.exposure?.recoverable_cost != null ? formatEstimateCurrencyRange(result.exposure.recoverable_cost) : "--";
 $("reclaimSub").textContent = reclaim.driverText;
+const opportunityDisclaimer = $("opportunityDisclaimer");
+if (opportunityDisclaimer && !/\s$/.test(opportunityDisclaimer.textContent || "")) opportunityDisclaimer.appendChild(document.createTextNode(" "));
 
 const trajectoryWrap = $("trajectorySignalWrap");
 let trajectoryChipHtml = "";
@@ -5624,11 +5638,16 @@ showToast("Report download failed: " + (error.message || "Unknown error"));
 function buildFullReportHTML(result, payload, title) {
 const docTitle = escapeHtml(title);
 const processName = escapeHtml(payload.processName || payload.process_name || "Operational Systems");
+const organizationName = escapeHtml(payload.organizationName || payload.organization_name || "Not provided");
+const businessUnit = escapeHtml(payload.businessUnit || payload.business_unit || "Not provided");
 const generated = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 
 // Get current results HTML from DOM
 const resultsStage = document.getElementById("resultsStage");
-const resultsHTML = resultsStage ? resultsStage.innerHTML : "<p>Results not available</p>";
+const resultsClone = resultsStage ? resultsStage.cloneNode(true) : null;
+const clonedScore = resultsClone?.querySelector("#scoreNumber");
+if (clonedScore) clonedScore.textContent = String(Math.max(0, Math.min(100, Math.round(Number(result?.score || 0)))));
+const resultsHTML = resultsClone ? resultsClone.innerHTML : "<p>Results not available</p>";
 
 return `<!DOCTYPE html>
 
@@ -5656,7 +5675,7 @@ return `<!DOCTYPE html>
       <div class="report-wordmark">Monderman</div>
       <div class="report-title-block">
         <h1>${docTitle}</h1>
-        <p class="report-meta">${processName} · Generated ${generated}</p>
+        <p class="report-meta">${organizationName} · ${businessUnit} · ${processName} · Generated ${generated}</p>
       </div>
     </header>
     <main class="report-content">
