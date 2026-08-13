@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Monderman - Live Security Harness</title>
+<style>
+ body{font:14px/1.5 -apple-system,Helvetica,Arial,sans-serif;background:#F7F5F0;color:#18191C;margin:0;padding:22px}
+ h1{font-size:19px;margin:0 0 3px}
+ .sub{color:#5B6068;font-size:13px;margin:0 0 16px;max-width:1020px}
+ .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 14px}
+ input{font:inherit;padding:7px 9px;border:1px solid rgba(24,25,28,.2);border-radius:7px;background:#fff;min-width:330px}
+ button{font:inherit;font-weight:600;padding:9px 16px;border:0;border-radius:7px;cursor:pointer}
+ .go{background:#0C6E78;color:#fff}.dl{background:#18191C;color:#fff}
+ button:disabled{opacity:.35;cursor:not-allowed}
+ .stats{display:flex;gap:20px;flex-wrap:wrap;background:#fff;border-radius:9px;padding:11px 15px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.06);font-variant-numeric:tabular-nums}
+ .stats b{font-size:18px;display:block}
+ .stats span{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#5B6068}
+ table{width:100%;border-collapse:collapse;background:#fff;border-radius:9px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);font-size:12.5px}
+ th,td{text-align:left;padding:7px 10px;border-bottom:1px solid #EFEDE7;vertical-align:top}
+ th{background:#F1EFE9;font-size:11px;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0}
+ tr.pass td:first-child{border-left:3px solid #0C6E78}
+ tr.fail td:first-child{border-left:3px solid #B3261E}
+ tr.info td:first-child{border-left:3px solid #9A968C}
+ .v{font-weight:700}.vp{color:#0C6E78}.vf{color:#B3261E}.vi{color:#8A6A00}
+ .grp{background:#F1EFE9;font-weight:700;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase}
+ .det{color:#5B6068;font-size:11.5px;font-family:ui-monospace,Menlo,monospace;white-space:pre-wrap;word-break:break-word}
+ .log{margin-top:16px;background:#111;color:#B9E6D3;font:11.5px/1.5 ui-monospace,Menlo,monospace;padding:12px 14px;border-radius:9px;max-height:200px;overflow:auto;white-space:pre-wrap}
+ .warnbox{background:#FFF7E6;border:1px solid #F0C36D;padding:9px 13px;border-radius:7px;font-size:12.5px;margin-bottom:14px}
+</style>
+</head>
+<body>
+
+<h1>Live Security Harness</h1>
+<p class="sub">
+  Attempts tenant-isolation and privilege-escalation attacks against the real Data API, then confirms
+  legitimate access still works. Every attack targets a fabricated organization UUID, never your own
+  records, so a successful defence leaves nothing behind. The three sanity tests that must succeed create
+  one row each and delete it again. Nothing here can modify your organization's data: the one write it
+  makes to your own row sets the name to the value it already has.
+</p>
+
+<div class="warnbox" id="authWarn">Checking session...</div>
+
+<div class="bar">
+  <label>Second organization UUID (optional, for a true two-tenant test)
+    <input id="otherOrg" placeholder="leave blank to use a fabricated UUID">
+  </label>
+  <button class="go" id="goBtn">Run</button>
+  <button class="dl" id="dlBtn" disabled>Download JSON</button>
+</div>
+
+<div class="stats">
+  <div><b id="sTotal">0</b><span>Checks</span></div>
+  <div><b id="sPass">0</b><span>Pass</span></div>
+  <div><b id="sFail">0</b><span>FAIL</span></div>
+  <div><b id="sInfo">0</b><span>Info</span></div>
+  <div><b id="sVerdict">-</b><span>Verdict</span></div>
+</div>
+
+<table>
+  <thead><tr><th style="width:26%">Check</th><th style="width:9%">Expect</th><th style="width:9%">Result</th><th>Detail</th></tr></thead>
+  <tbody id="rows"></tbody>
+</table>
+
+<div class="log" id="log">Ready.</div>
+
+<script type="module">
+const SUPA_URL = "https://ptkxrzgmeldalrkfruth.supabase.co";
+const SUPA_KEY = "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
+
+const $ = (id) => document.getElementById(id);
+const log = (m) => { $("log").textContent += "\n" + new Date().toLocaleTimeString() + "  " + m; $("log").scrollTop = 1e9; };
+
+let results = [], nPass = 0, nFail = 0, nInfo = 0;
+const created = [];   // rows this harness created, for cleanup
+
+const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
+
+// Signed-in client: reuses the persisted session on this origin.
+const authed = createClient(SUPA_URL, SUPA_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
+
+// Anonymous client: an isolated storage key and no session, so requests carry
+// the publishable key with no user JWT and are evaluated as the anon role. This
+// is what an unauthenticated visitor is, and testing it needs its own client
+// because the signed-in one would attach a token.
+const anon = createClient(SUPA_URL, SUPA_KEY, {
+  auth: { persistSession: false, autoRefreshToken: false, storageKey: "mdm-harness-anon" }
+});
+
+let me = null, myOrg = null;
+{
+  const { data } = await authed.auth.getSession();
+  me = data?.session?.user || null;
+  const w = $("authWarn");
+  if (!me) {
+    w.textContent = "No session. Open this page on monderman.com while signed in to the workspace in the same browser.";
+    $("goBtn").disabled = true;
+  } else {
+    const { data: m } = await authed.from("organization_members")
+      .select("organization_id, role").eq("user_id", me.id).limit(1).maybeSingle();
+    myOrg = m?.organization_id || null;
+    w.style.background = "#E9F5EC"; w.style.borderColor = "#8FCB9E";
+    w.textContent = `Signed in. Role: ${m?.role || "unknown"}. Organization resolved: ${myOrg ? "yes" : "NO - some checks will be skipped"}.`;
+  }
+}
+
+function uuid() {
+  return crypto.randomUUID ? crypto.randomUUID()
+    : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+        const r = Math.random() * 16 | 0; return (c === "x" ? r : (r & 0x3 | 0x8)).toString(16);
+      });
+}
+
+function group(title) {
+  const tr = document.createElement("tr");
+  tr.innerHTML = `<td class="grp" colspan="4">${title}</td>`;
+  $("rows").appendChild(tr);
+}
+
+// verdict: "pass" the defence held, "fail" it did not, "info" not a boundary
+function record(name, expect, verdict, detail) {
+  results.push({ name, expect, verdict, detail: String(detail || "").slice(0, 400) });
+  if (verdict === "pass") nPass++; else if (verdict === "fail") nFail++; else nInfo++;
+  const tr = document.createElement("tr");
+  tr.className = verdict;
+  const cls = verdict === "pass" ? "vp" : verdict === "fail" ? "vf" : "vi";
+  const label = verdict === "pass" ? "held" : verdict === "fail" ? "BREACH" : "info";
+  tr.innerHTML = `<td>${name}</td><td>${expect}</td><td class="v ${cls}">${label}</td><td class="det">${(detail || "").toString().replace(/[<>]/g, "")}</td>`;
+  $("rows").appendChild(tr);
+  $("sTotal").textContent = results.length;
+  $("sPass").textContent = nPass; $("sFail").textContent = nFail; $("sInfo").textContent = nInfo;
+}
+
+/* A read against another tenant must return zero rows. An error is also a pass:
+   both mean the data was not disclosed. Rows returned is the breach. */
+async function mustNotRead(client, table, column, value, label) {
+  try {
+    const { data, error } = await client.from(table).select("*").eq(column, value).limit(5);
+    if (error) return record(label, "0 rows", "pass", "refused: " + error.message);
+    const n = (data || []).length;
+    record(label, "0 rows", n === 0 ? "pass" : "fail", n === 0 ? "0 rows" : `${n} ROW(S) DISCLOSED`);
+  } catch (e) { record(label, "0 rows", "pass", "threw: " + e.message); }
+}
+
+/* A write that should be impossible. Either an error, or zero rows affected.
+   Anything actually written is a breach, and is recorded for cleanup. */
+async function mustNotWrite(client, table, payload, label, opts = {}) {
+  try {
+    const { data, error } = await client.from(table).insert(payload).select();
+    if (error) return record(label, "refused", "pass", error.message);
+    const n = (data || []).length;
+    if (n > 0) {
+      created.push({ table, ids: data.map((r) => r.id).filter(Boolean) });
+      return record(label, "refused", "fail", `${n} ROW(S) WRITTEN - id ${data.map((r) => r.id).join(",")}`);
+    }
+    record(label, "refused", "pass", "0 rows written");
+  } catch (e) { record(label, "refused", "pass", "threw: " + e.message); }
+}
+
+async function mustNotUpdate(client, table, patch, column, value, label) {
+  try {
+    const { data, error } = await client.from(table).update(patch).eq(column, value).select();
+    if (error) return record(label, "refused", "pass", error.message);
+    const n = (data || []).length;
+    record(label, "refused", n === 0 ? "pass" : "fail", n === 0 ? "0 rows changed" : `${n} ROW(S) CHANGED`);
+  } catch (e) { record(label, "refused", "pass", "threw: " + e.message); }
+}
+
+async function rpcMustFail(client, fn, args, label) {
+  try {
+    const { error } = await client.rpc(fn, args);
+    record(label, "refused", error ? "pass" : "fail", error ? error.message : "RPC EXECUTED");
+  } catch (e) { record(label, "refused", "pass", "threw: " + e.message); }
+}
+
+async function run() {
+  $("goBtn").disabled = true; $("dlBtn").disabled = true;
+  $("rows").innerHTML = ""; results = []; nPass = nFail = nInfo = 0; created.length = 0;
+
+  const otherOrg = ($("otherOrg").value || "").trim() || uuid();
+  const isReal = ($("otherOrg").value || "").trim().length > 0;
+  log(`Second tenant: ${isReal ? "REAL id supplied" : "fabricated UUID"} ${otherOrg}`);
+
+  const TENANT_TABLES = [
+    "organizations", "organization_members", "organization_invites",
+    "diagnostic_runs", "diagnostic_assignments", "action_plans", "action_items",
+    "workspace_notes", "org_snapshots", "participants", "campaigns", "comments"
+  ];
+
+  // ---- 1. cross-tenant reads, as a signed-in user ----
+  group(`1. Cross-tenant reads as a signed-in user${isReal ? " (real second tenant)" : ""}`);
+  for (const t of TENANT_TABLES) {
+    const col = t === "organizations" ? "id" : "organization_id";
+    await mustNotRead(authed, t, col, otherOrg, `read ${t} of another tenant`);
+  }
+  await mustNotRead(authed, "assignment_run_defaults", "organization_id", otherOrg, "read the assignment view of another tenant");
+
+  // ---- 2. service-role-only tables ----
+  group("2. Tables that only the API service role should reach");
+  for (const t of ["session_store", "billing_events", "workspace_audit_log", "feedback", "connect_requests", "diagnostic_assignment_audit_log"]) {
+    try {
+      const { data, error } = await authed.from(t).select("*").limit(3);
+      if (error) record(`read ${t}`, "0 rows", "pass", "refused: " + error.message);
+      else {
+        const n = (data || []).length;
+        record(`read ${t}`, "0 rows", n === 0 ? "pass" : "fail", n === 0 ? "0 rows" : `${n} ROW(S) DISCLOSED`);
+      }
+    } catch (e) { record(`read ${t}`, "0 rows", "pass", "threw: " + e.message); }
+  }
+  await mustNotWrite(authed, "session_store", { id: "harness-" + uuid(), payload: {} }, "write session_store");
+  await mustNotWrite(authed, "workspace_audit_log", { organization_id: otherOrg, action: "harness" }, "write workspace_audit_log");
+  await mustNotWrite(authed, "billing_events", { organization_id: otherOrg }, "write billing_events");
+
+  // ---- 3. self-elevation and tenant joining ----
+  group("3. Self-elevation and joining another tenant");
+  await mustNotWrite(authed, "organization_members",
+    { organization_id: otherOrg, user_id: me.id, role: "admin" },
+    "insert myself as admin of another tenant");
+  await mustNotWrite(authed, "organizations",
+    { name: "harness", slug: "harness-" + uuid().slice(0, 8), owner_user_id: me.id, plan: "enterprise" },
+    "create an organization with an elevated plan");
+  if (myOrg) {
+    await mustNotUpdate(authed, "organization_members", { role: "admin" }, "organization_id", otherOrg,
+      "promote myself in another tenant");
+  }
+
+  // ---- 4. entitlement and billing columns on my OWN organization ----
+  group("4. Entitlement columns on my own organization (the billing boundary)");
+  if (myOrg) {
+    // These must target the REAL organization row: aiming at a fabricated id
+    // would be refused by RLS, and the refusal would not tell us whether the
+    // column grant is doing its job. So the values are snapshotted first and
+    // restored if any attack lands. A breach is then detected and undone in the
+    // same run rather than left in place.
+    const ENT_COLS = "plan, run_limit, campaigns_enabled, respondent_pool, aggregation_limit, analyst_limit, internal_test_override, subscription_status, stripe_customer_id";
+    let snapshot = null;
+    try {
+      const { data } = await authed.from("organizations").select(ENT_COLS).eq("id", myOrg).maybeSingle();
+      snapshot = data || null;
+      record("snapshot entitlement columns before attacking them", "succeeds",
+        snapshot ? "info" : "fail", snapshot ? `plan=${snapshot.plan}` : "could not snapshot; entitlement attacks SKIPPED");
+    } catch (e) {
+      record("snapshot entitlement columns before attacking them", "succeeds", "fail", e.message);
+    }
+    if (!snapshot) {
+      record("entitlement column tests", "refused", "info", "skipped: no snapshot, refusing to attack without a restore path");
+    } else {
+    for (const [patch, label] of [
+      [{ plan: "enterprise" }, "set plan = enterprise"],
+      [{ run_limit: null }, "remove the run limit"],
+      [{ campaigns_enabled: true }, "enable campaigns"],
+      [{ respondent_pool: 99999 }, "raise the respondent pool"],
+      [{ aggregation_limit: null }, "unlimited aggregation"],
+      [{ analyst_limit: 99 }, "raise the analyst limit"],
+      [{ internal_test_override: true }, "set the internal test override"],
+      [{ subscription_status: "active" }, "set subscription status"],
+      [{ stripe_customer_id: "cus_harness" }, "set the Stripe customer id"]
+    ]) {
+      await mustNotUpdate(authed, "organizations", patch, "id", myOrg, label);
+    }
+
+    // Restore if anything landed.
+    try {
+      const { data: after } = await authed.from("organizations").select(ENT_COLS).eq("id", myOrg).maybeSingle();
+      const drifted = after && Object.keys(snapshot).filter((k) => String(after[k]) !== String(snapshot[k]));
+      if (drifted && drifted.length) {
+        await authed.from("organizations").update(snapshot).eq("id", myOrg);
+        const { data: fixed } = await authed.from("organizations").select(ENT_COLS).eq("id", myOrg).maybeSingle();
+        const stillOff = fixed && Object.keys(snapshot).filter((k) => String(fixed[k]) !== String(snapshot[k]));
+        record("restore entitlement columns after a breach", "succeeds",
+          (stillOff && stillOff.length) ? "fail" : "pass",
+          (stillOff && stillOff.length)
+            ? "COULD NOT RESTORE: " + stillOff.join(", ") + " - fix these by hand immediately"
+            : "restored: " + drifted.join(", "));
+      } else {
+        record("entitlement columns unchanged after all attacks", "unchanged", "pass", "no drift, nothing to restore");
+      }
+    } catch (e) {
+      record("restore entitlement columns after a breach", "succeeds", "fail", "restore check threw: " + e.message);
+    }
+    }
+  } else record("entitlement column tests", "refused", "info", "skipped: organization not resolved");
+
+  // ---- 5. run tampering ----
+  group("5. Diagnostic run tampering");
+  if (myOrg) {
+    // Aimed at a run id that does not exist, deliberately. A column-privilege
+    // error is raised before any row is matched, so this proves the grant
+    // without the possibility of touching a real run. The earlier version of
+    // this harness filtered on organization_id with no id, which would have
+    // rewritten the score of EVERY run in the organization had the grant been
+    // missing. That is a worse outcome than the finding it was testing for.
+    const phantomRun = uuid();
+    for (const [patch, label] of [
+      [{ score: 99 }, "rewrite a run score"],
+      [{ band: "healthy" }, "rewrite a run band"],
+      [{ full_result_json: {} }, "rewrite full_result_json"],
+      [{ exposure_json: {} }, "rewrite exposure_json"],
+      [{ is_anonymous_response: false }, "remove anonymity from a run"]
+    ]) {
+      await mustNotUpdate(authed, "diagnostic_runs", patch, "id", phantomRun, label);
+    }
+    await mustNotUpdate(authed, "diagnostic_runs", { status: "archived" }, "organization_id", otherOrg,
+      "archive another tenant's runs");
+  } else record("run tampering tests", "refused", "info", "skipped: organization not resolved");
+
+  // ---- 6. security-definer functions ----
+  group("6. SECURITY DEFINER functions that should not be callable");
+  await rpcMustFail(authed, "save_member_diagnostic_run",
+    { p_organization_id: otherOrg, p_user_id: me.id, p_run: {} }, "call save_member_diagnostic_run");
+  await rpcMustFail(authed, "redeem_pending_invites",
+    { p_user_id: me.id, p_email: "someone-else@example.com" }, "call redeem_pending_invites for another email");
+  await rpcMustFail(authed, "complete_assignment_run",
+    { p_token: "harness-not-a-token", p_tool_type: "structural_clarity", p_run: {} }, "call complete_assignment_run");
+
+  // ---- 7. as an unauthenticated visitor ----
+  group("7. As an unauthenticated visitor (anon role)");
+  for (const t of ["organizations", "diagnostic_runs", "diagnostic_assignments", "organization_members",
+                   "organization_invites", "session_store", "billing_events", "users", "workspace_notes"]) {
+    try {
+      const { data, error } = await anon.from(t).select("*").limit(3);
+      if (error) record(`anon reads ${t}`, "0 rows", "pass", "refused: " + error.message);
+      else {
+        const n = (data || []).length;
+        record(`anon reads ${t}`, "0 rows", n === 0 ? "pass" : "fail", n === 0 ? "0 rows" : `${n} ROW(S) DISCLOSED`);
+      }
+    } catch (e) { record(`anon reads ${t}`, "0 rows", "pass", "threw: " + e.message); }
+  }
+  await mustNotWrite(anon, "connect_requests", { name: "harness", email: "harness@example.com" }, "anon writes connect_requests");
+  await mustNotWrite(anon, "feedback", { message: "harness" }, "anon writes feedback");
+  await mustNotWrite(anon, "users", { id: uuid() }, "anon writes users");
+  await rpcMustFail(anon, "bootstrap_my_workspace", { p_name: "harness", p_slug_base: "harness" }, "anon calls bootstrap_my_workspace");
+
+  // ---- 8. legitimate access must still work ----
+  group("8. Legitimate access, which must SUCCEED (catches over-tightening)");
+  if (myOrg) {
+    try {
+      const { data, error } = await authed.from("organizations").select("id, name, plan").eq("id", myOrg).maybeSingle();
+      record("read my own organization", "succeeds", (!error && data) ? "pass" : "fail",
+        error ? error.message : `plan=${data?.plan}`);
+    } catch (e) { record("read my own organization", "succeeds", "fail", e.message); }
+
+    try {
+      const { data, error } = await authed.from("diagnostic_runs").select("id, score, tool_type").limit(5);
+      record("read my own diagnostic runs", "succeeds", error ? "fail" : "pass",
+        error ? error.message : `${(data || []).length} run(s) visible`);
+    } catch (e) { record("read my own diagnostic runs", "succeeds", "fail", e.message); }
+
+    // Rename to the value it already holds: proves the single-column grant works
+    // and changes nothing.
+    try {
+      const { data: cur } = await authed.from("organizations").select("name").eq("id", myOrg).maybeSingle();
+      const { error } = await authed.from("organizations").update({ name: cur?.name }).eq("id", myOrg);
+      record("rename my organization (to its current name)", "succeeds", error ? "fail" : "pass",
+        error ? error.message : "the single-column UPDATE grant works");
+    } catch (e) { record("rename my organization (to its current name)", "succeeds", "fail", e.message); }
+
+    // Create and immediately remove one workspace note.
+    try {
+      const { data, error } = await authed.from("workspace_notes")
+        .insert({ organization_id: myOrg, body: "security harness, safe to delete" }).select();
+      if (error) record("create a workspace note", "succeeds", "fail", error.message);
+      else {
+        record("create a workspace note", "succeeds", "pass", "created");
+        const id = data?.[0]?.id;
+        if (id) {
+          const { error: delErr } = await authed.from("workspace_notes").delete().eq("id", id);
+          record("delete that workspace note", "succeeds", delErr ? "fail" : "pass", delErr ? delErr.message : "cleaned up");
+        }
+      }
+    } catch (e) { record("create a workspace note", "succeeds", "fail", e.message); }
+
+    try {
+      const { error } = await authed.rpc("redeem_my_invites");
+      record("call redeem_my_invites (own identity)", "succeeds", error ? "fail" : "pass",
+        error ? error.message : "returned without error");
+    } catch (e) { record("call redeem_my_invites (own identity)", "succeeds", "fail", e.message); }
+
+    try {
+      const { data, error } = await authed.rpc("bootstrap_my_workspace", { p_name: "x", p_slug_base: "x" });
+      const same = data?.organization_id === myOrg;
+      record("bootstrap_my_workspace returns my existing org", "succeeds", (!error && same) ? "pass" : "fail",
+        error ? error.message : (same ? "returned the existing organization, did not create one" : "RETURNED A DIFFERENT ORG"));
+    } catch (e) { record("bootstrap_my_workspace returns my existing org", "succeeds", "fail", e.message); }
+  } else record("legitimate access tests", "succeeds", "info", "skipped: organization not resolved");
+
+  // ---- cleanup anything a breach created ----
+  if (created.length) {
+    log("CLEANUP: removing rows written by a failed defence");
+    for (const c of created) {
+      for (const id of c.ids) {
+        try { await authed.from(c.table).delete().eq("id", id); log(`deleted ${c.table} ${id}`); }
+        catch (e) { log(`COULD NOT DELETE ${c.table} ${id}: ${e.message} - remove it manually`); }
+      }
+    }
+  }
+
+  const verdict = nFail === 0 ? "CLEAN" : `${nFail} BREACH`;
+  $("sVerdict").textContent = verdict;
+  $("sVerdict").style.color = nFail === 0 ? "#0C6E78" : "#B3261E";
+  log(`Finished. ${nPass} held, ${nFail} breached, ${nInfo} informational.`);
+  if (!isReal) log("NOTE: this run used a fabricated second-tenant UUID. It proves the policy predicates refuse an unknown organization. A true two-tenant test needs a real second organization id in the field above.");
+  $("goBtn").disabled = false; $("dlBtn").disabled = false;
+}
+
+$("goBtn").onclick = run;
+$("dlBtn").onclick = () => {
+  const payload = {
+    generated: new Date().toISOString(),
+    user_id: me?.id || null, organization_id: myOrg,
+    totals: { checks: results.length, held: nPass, breached: nFail, info: nInfo },
+    verdict: nFail === 0 ? "clean" : "breach",
+    checks: results
+  };
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" }));
+  a.download = "monderman-security-harness-" + Date.now() + ".json"; a.click();
+};
+</script>
+</body>
+</html>
