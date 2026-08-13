@@ -84,7 +84,7 @@ const PAGE_BASE=/^https?:$/.test(location.protocol)?location.origin:"https://www
 const $=(id)=>document.getElementById(id);
 const clone=(value)=>JSON.parse(JSON.stringify(value));
 const sleep=(ms)=>new Promise(resolve=>setTimeout(resolve,ms));
-const PLACEHOLDER_RE=/\b(?:undefined|NaN|Infinity|\[object Object\]|headline finding will appear|priority actions will appear|remedy paths will appear|will appear once|lorem ipsum|a Other)\b/i;
+const PLACEHOLDER_RE=/\b(?:headline finding will appear|priority actions will appear|remedy paths will appear|will appear once|lorem ipsum|a Other)\b/i;
 
 const NORTHBRIDGE={
   organizationName:"Northbridge Community Health Network", processName:"Capital equipment procurement approvals", process_name:"Capital equipment procurement approvals", focus_area:"Capital equipment procurement approvals",
@@ -273,6 +273,25 @@ async function renderArtifacts(apiRun){
 function plainText(html){const doc=new DOMParser().parseFromString(html,"text/html");doc.querySelectorAll("style,script").forEach(node=>node.remove());return (doc.body?.textContent||"").replace(/\s+/g," ").trim()}
 function sectionText(html,heading){const doc=new DOMParser().parseFromString(html,"text/html");const node=Array.from(doc.querySelectorAll("h1,h2,h3,h4")).find(el=>el.textContent.trim().toLowerCase()===heading.toLowerCase());return (node?.closest("section")?.textContent||node?.parentElement?.textContent||"").replace(/\s+/g," ").trim()}
 function expectedBand(score){return score>=83?"Healthy velocity":score>=67?"Moderate drag":score>=49?"Significant friction":"High bureaucratic latency"}
+function findInvalidArtifactValue(value,path="artifact"){
+  if(typeof value==="number"&&!Number.isFinite(value))return `${path}=${String(value)}`;
+  if(typeof value==="string"&&/^(?:undefined|NaN|Infinity|\[object Object\])$/i.test(value.trim()))return `${path}=${value}`;
+  if(Array.isArray(value)){
+    for(let index=0;index<value.length;index++){const hit=findInvalidArtifactValue(value[index],`${path}[${index}]`);if(hit)return hit}
+  }else if(value&&typeof value==="object"){
+    for(const [key,item] of Object.entries(value)){const hit=findInvalidArtifactValue(item,`${path}.${key}`);if(hit)return hit}
+  }
+  return null;
+}
+function findInvalidRenderedValue(...docs){
+  const invalid=/^(?:undefined|NaN|Infinity|\[object Object\])$/i;
+  for(const doc of docs){
+    for(const element of doc.body?.querySelectorAll("*")||[]){
+      if(!element.children.length&&invalid.test(String(element.textContent||"").trim()))return `${element.tagName.toLowerCase()}=${String(element.textContent||"").trim()}`;
+    }
+  }
+  return null;
+}
 function currencyBandContains(label,value){
   if(value==null||!Number.isFinite(Number(value)))return /not estimated|--/i.test(String(label));
   if(Number(value)<=0)return /not estimated|--|\$0/i.test(String(label));
@@ -291,6 +310,7 @@ function runChecks(apiRun,files){
   const fullRoiNarrative=(fullDoc.querySelector("#roiNarrativeText")?.textContent||"").trim();
   const fullTmrNarrative=(fullDoc.querySelector("#tmrText")?.textContent||"").trim();
   const jsonHeadline=String(files.jsonArtifact.findings?.executive_summary?.headline||"").trim();
+  const invalidValue=findInvalidArtifactValue(files.jsonArtifact)||findInvalidRenderedValue(summaryDoc,fullDoc);
   const dimensionCaption=(fullDoc.querySelector(".dim-note")?.textContent||"").trim();
   const dimensions=Object.entries(result.dimensions||{}),unmeasured=coverage.unmeasured_dimensions||[];
   const combined=`${summary} ${full}`;const jsonText=JSON.stringify(files.jsonArtifact);const model=ex.model||{};
@@ -323,7 +343,7 @@ function runChecks(apiRun,files){
     ["Canonical exposure prose matches every HTML location",Boolean(summaryExposureNarrative)&&summaryExposureNarrative===fullRoiNarrative&&fullRoiNarrative===fullTmrNarrative,`summary=${summaryExposureNarrative} | ROI=${fullRoiNarrative} | TMR=${fullTmrNarrative}`],
     ["Exposure prose uses the displayed cost range",ex.cost_estimated===false||summaryExposureNarrative.includes(displayedCost),`${displayedCost} in ${summaryExposureNarrative}`],
     ["Exposure prose uses the displayed capacity value",ex.capacity_drag_percent==null||summaryExposureNarrative.includes(displayedCapacity),`${displayedCapacity} in ${summaryExposureNarrative}`],
-    ["Unpriced exposure prose explains the missing input",ex.cost_estimated!==false||(ex.hours_estimated===false?/no usable coordination-hours input/i.test(summaryExposureNarrative):/no usable hourly cost/i.test(summaryExposureNarrative)),summaryExposureNarrative],
+    ["Unpriced exposure prose explains the missing input",ex.cost_estimated!==false||(ex.sizing_status==="input_saturation"?/exceeds the available capacity assumption.*not published/i.test(summaryExposureNarrative):ex.hours_estimated===false?/no usable coordination-hours input/i.test(summaryExposureNarrative):/no usable hourly cost/i.test(summaryExposureNarrative)),summaryExposureNarrative],
     ["Exposure prose contains no stale or awkward financial copy",!/capacity drag around 0%|and Not estimated in labor exposure|annual burden hours\* not estimated|labor exposure of \$5,000–\$10,000.*capacity drag around 0%/i.test(`${summaryExposureNarrative} ${fullRoiNarrative} ${fullTmrNarrative}`),`${summaryExposureNarrative} | ${fullRoiNarrative} | ${fullTmrNarrative}`],
     ["Displayed reclaim range contains modeled amount",currencyBandContains(displayedReclaim,ex.recoverable_cost),`${ex.recoverable_cost} in ${displayedReclaim}`],
     ["Sub-one-percent capacity is not displayed as zero",!(Number(ex.annual_hours)>0&&Number(ex.total_capacity_hours)>0&&Number(ex.annual_hours)/Number(ex.total_capacity_hours)<.01)||displayedCapacity==="<1%",`${ex.annual_hours}/${ex.total_capacity_hours} shown as ${displayedCapacity}`],
@@ -339,7 +359,7 @@ function runChecks(apiRun,files){
     ["Summary HTML built",files.summaryHtml.length>20000&&/<html[\s>]/i.test(files.summaryHtml),`${files.summaryHtml.length} bytes`],
     ["Full HTML built",files.fullHtml.length>25000&&/<html[\s>]/i.test(files.fullHtml),`${files.fullHtml.length} bytes`],
     ["Neue Haas included in both HTML files",/Neue Haas Grotesk/i.test(files.summaryHtml)&&/Neue Haas Grotesk/i.test(files.fullHtml),"font declaration"],
-    ["No placeholder or invalid values",!PLACEHOLDER_RE.test(`${combined} ${jsonText}`),( combined.match(PLACEHOLDER_RE)||["none"] )[0]],
+    ["No placeholder or invalid values",!PLACEHOLDER_RE.test(`${combined} ${jsonText}`)&&!invalidValue,invalidValue||(combined.match(PLACEHOLDER_RE)||["none"])[0]],
     ["No cross-diagnostic language leakage",!/structural clarity diagnostic|institutional performance diagnostic|operational systems diagnostic|ownership_blur_pattern|duplicate_approvals_inverse/i.test(combined),(combined.match(/structural clarity diagnostic|institutional performance diagnostic|operational systems diagnostic|ownership_blur_pattern|duplicate_approvals_inverse/i)||["none"])[0]],
     ["Score direction language is correct",!/higher scores (?:mean|indicate) (?:more drag|worse|slower)|Rising scores would suggest drag/i.test(combined),"higher scores mean greater decision velocity"],
     ["Dimension caption uses the correct higher-is-better direction",/higher values indicate stronger decision velocity/i.test(dimensionCaption)&&!/higher values indicate.*burden/i.test(dimensionCaption),dimensionCaption||"missing caption"],
