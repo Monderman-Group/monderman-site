@@ -136,7 +136,14 @@ function record(name, expect, verdict, detail) {
 async function mustNotRead(client, table, column, value, label) {
   try {
     const { data, error } = await client.from(table).select("*").eq(column, value).limit(5);
-    if (error) return record(label, "0 rows", "pass", "refused: " + error.message);
+    if (error) {
+      const kind = refusalKind(error.message);
+      if (kind === "inconclusive") {
+        return record(label, "0 rows", "info",
+          "INCONCLUSIVE, the query failed before the permission layer: " + error.message);
+      }
+      return record(label, "0 rows", "pass", `[${kind}] ` + error.message);
+    }
     const n = (data || []).length;
     record(label, "0 rows", n === 0 ? "pass" : "fail", n === 0 ? "0 rows" : `${n} ROW(S) DISCLOSED`);
   } catch (e) { record(label, "0 rows", "pass", "threw: " + e.message); }
@@ -183,7 +190,14 @@ async function mustNotWrite(client, table, payload, label, opts = {}) {
 async function mustNotUpdate(client, table, patch, column, value, label) {
   try {
     const { data, error } = await client.from(table).update(patch).eq(column, value).select();
-    if (error) return record(label, "refused", "pass", error.message);
+    if (error) {
+      const kind = refusalKind(error.message);
+      if (kind === "inconclusive") {
+        return record(label, "refused", "info",
+          "INCONCLUSIVE, failed before the permission layer: " + error.message);
+      }
+      return record(label, "refused", "pass", `[${kind}] ` + error.message);
+    }
     const n = (data || []).length;
     record(label, "refused", n === 0 ? "pass" : "fail", n === 0 ? "0 rows changed" : `${n} ROW(S) CHANGED`);
   } catch (e) { record(label, "refused", "pass", "threw: " + e.message); }
@@ -192,7 +206,13 @@ async function mustNotUpdate(client, table, patch, column, value, label) {
 async function rpcMustFail(client, fn, args, label) {
   try {
     const { error } = await client.rpc(fn, args);
-    record(label, "refused", error ? "pass" : "fail", error ? error.message : "RPC EXECUTED");
+    if (!error) return record(label, "refused", "fail", "RPC EXECUTED");
+    const kind = refusalKind(error.message);
+    // An argument-shape error means the call never reached the permission check.
+    const inconclusive = kind === "inconclusive"
+      || /function .* does not exist|could not find the function/i.test(error.message);
+    record(label, "refused", inconclusive ? "info" : "pass",
+      (inconclusive ? "INCONCLUSIVE, failed before the permission layer: " : `[${kind}] `) + error.message);
   } catch (e) { record(label, "refused", "pass", "threw: " + e.message); }
 }
 
@@ -221,27 +241,37 @@ async function run() {
   // ---- 1b. unfiltered reads: what does RLS actually return? ----
   group("1b. Unfiltered reads, to see what RLS actually returns");
   {
+    // organizations is keyed on id; every other table carries organization_id.
+    // Getting that wrong is what made this check pass without running.
     const expectOwnOnly = [
-      ["organizations", "one row, my own"],
-      ["organization_members", "only my organization's members"],
-      ["diagnostic_runs", "only my organization's runs"],
-      ["diagnostic_assignments", "only my organization's assignments"]
+      ["organizations", "id", "one row, my own"],
+      ["organization_members", "organization_id", "only my organization's members"],
+      ["diagnostic_runs", "organization_id", "only my organization's runs"],
+      ["diagnostic_assignments", "organization_id", "only my organization's assignments"],
+      ["action_plans", "organization_id", "only my organization's plans"],
+      ["workspace_notes", "organization_id", "only my organization's notes"]
     ];
-    for (const [table, expectation] of expectOwnOnly) {
+    for (const [table, keyCol, expectation] of expectOwnOnly) {
       try {
-        const { data, error } = await authed.from(table).select("organization_id, id").limit(200);
-        if (error) { record(`unfiltered read of ${table}`, expectation, "pass", "refused: " + error.message); continue; }
-        const rows = data || [];
-        const foreign = rows.filter((r) => r.organization_id && r.organization_id !== myOrg);
-        if (table === "organizations") {
-          const others = rows.filter((r) => r.id !== myOrg);
-          record(`unfiltered read of ${table}`, expectation, others.length === 0 ? "pass" : "fail",
-            others.length === 0 ? `${rows.length} row(s), all mine` : `${others.length} FOREIGN ORGANISATION(S) VISIBLE`);
-        } else {
-          record(`unfiltered read of ${table}`, expectation, foreign.length === 0 ? "pass" : "fail",
-            foreign.length === 0 ? `${rows.length} row(s), all mine` : `${foreign.length} FOREIGN ROW(S) VISIBLE`);
+        // Two queries: an exact total, and an exact count of rows belonging to
+        // anyone else. No row limit, so "all mine" covers every row rather than
+        // the first page. The earlier version capped at 200 and reported
+        // "200 row(s), all mine", which said nothing about row 201.
+        const total = await authed.from(table).select("*", { count: "exact", head: true });
+        const foreign = await authed.from(table).select("*", { count: "exact", head: true }).neq(keyCol, myOrg);
+        if (total.error || foreign.error) {
+          const msg = (total.error || foreign.error).message;
+          const kind = refusalKind(msg);
+          record(`unfiltered read of ${table}`, expectation,
+            kind === "inconclusive" ? "info" : "pass",
+            (kind === "inconclusive" ? "INCONCLUSIVE, query failed before the permission layer: " : `[${kind}] `) + msg);
+          continue;
         }
-      } catch (e) { record(`unfiltered read of ${table}`, expectation, "pass", "threw: " + e.message); }
+        const n = total.count ?? 0, nf = foreign.count ?? 0;
+        record(`unfiltered read of ${table}`, expectation, nf === 0 ? "pass" : "fail",
+          nf === 0 ? `${n} row(s) visible, none belonging to another tenant`
+                   : `${nf} of ${n} ROW(S) BELONG TO ANOTHER TENANT`);
+      } catch (e) { record(`unfiltered read of ${table}`, expectation, "info", "threw: " + e.message); }
     }
     if (!isReal) {
       record("second-tenant coverage", "a real second org", "info",
@@ -254,8 +284,11 @@ async function run() {
   for (const t of ["session_store", "billing_events", "workspace_audit_log", "feedback", "connect_requests", "diagnostic_assignment_audit_log"]) {
     try {
       const { data, error } = await authed.from(t).select("*").limit(3);
-      if (error) record(`read ${t}`, "0 rows", "pass", "refused: " + error.message);
-      else {
+      if (error) {
+        const kind = refusalKind(error.message);
+        record(`read ${t}`, "0 rows", kind === "inconclusive" ? "info" : "pass",
+          (kind === "inconclusive" ? "INCONCLUSIVE, failed before the permission layer: " : `[${kind}] `) + error.message);
+      } else {
         const n = (data || []).length;
         record(`read ${t}`, "0 rows", n === 0 ? "pass" : "fail", n === 0 ? "0 rows" : `${n} ROW(S) DISCLOSED`);
       }
@@ -373,8 +406,11 @@ async function run() {
                    "organization_invites", "session_store", "billing_events", "users", "workspace_notes"]) {
     try {
       const { data, error } = await anon.from(t).select("*").limit(3);
-      if (error) record(`anon reads ${t}`, "0 rows", "pass", "refused: " + error.message);
-      else {
+      if (error) {
+        const kind = refusalKind(error.message);
+        record(`anon reads ${t}`, "0 rows", kind === "inconclusive" ? "info" : "pass",
+          (kind === "inconclusive" ? "INCONCLUSIVE, failed before the permission layer: " : `[${kind}] `) + error.message);
+      } else {
         const n = (data || []).length;
         record(`anon reads ${t}`, "0 rows", n === 0 ? "pass" : "fail", n === 0 ? "0 rows" : `${n} ROW(S) DISCLOSED`);
       }
@@ -471,7 +507,14 @@ $("dlBtn").onclick = () => {
     generated: new Date().toISOString(),
     user_id: me?.id || null, organization_id: myOrg,
     totals: { checks: results.length, held: nPass, breached: nFail, info: nInfo },
-    verdict: nFail === 0 ? "clean" : "breach",
+    // The JSON is the artefact that gets kept and quoted, so it carries the same
+    // caveat as the on-screen verdict. "clean" on its own would overstate a run
+    // that never had a second tenant to isolate from.
+    verdict: nFail > 0 ? "breach"
+      : (($("otherOrg").value || "").trim() ? (nInfo > 1 ? "clean_with_gaps" : "clean_two_tenant")
+                                            : "clean_single_tenant_only"),
+    second_tenant_supplied: Boolean(($("otherOrg").value || "").trim()),
+    inconclusive_checks: results.filter((r) => r.verdict === "info" && /INCONCLUSIVE/.test(r.detail)).map((r) => r.name),
     checks: results
   };
   const a = document.createElement("a");
