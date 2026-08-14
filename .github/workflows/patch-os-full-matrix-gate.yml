@@ -1,0 +1,51 @@
+name: Patch Operational Systems full-matrix gate
+
+on:
+  push:
+    branches: [agent/os-full-matrix-gate-2026-08-14]
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Apply full-matrix gate repair
+        run: python scripts/patch-os-full-matrix-gate.py
+
+      - name: Validate renderer and harness
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          text = Path('operational-systems-acceptance-harness.html').read_text()
+          match = re.search(r'<script>\s*(.*?)\s*</script>\s*</body>', text, re.S)
+          if not match:
+              raise SystemExit('Could not extract harness JavaScript')
+          Path('/tmp/os-harness.mjs').write_text(match.group(1))
+          PY
+          node --check /tmp/os-harness.mjs
+          python scripts/validate_os_output_integrity.py
+          git diff --check
+
+      - name: Commit focused repair
+        run: |
+          if git diff --quiet -- operational-systems.html operational-systems-acceptance-harness.html scripts/validate_os_output_integrity.py; then
+            echo 'Repair already applied.'
+            exit 0
+          fi
+          git config user.name 'Monderman-Group'
+          git config user.email 'jason.ivan.adamson@gmail.com'
+          git add operational-systems.html operational-systems-acceptance-harness.html scripts/validate_os_output_integrity.py
+          git commit -m 'Repair Operational Systems full-matrix gate'
+          git push origin HEAD
