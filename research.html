@@ -1,20 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Research | Monderman</title>
-<link rel="canonical" href="https://www.monderman.com/research.html"/>
-<meta property="og:title" content="Research | Monderman"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Monderman</title>
+<link rel="canonical" href="https://www.monderman.com/"/>
+<meta property="og:title" content="Monderman"/>
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://www.monderman.com/research.html"/>
-<meta property="og:description" content="Insights, briefs, and working papers on administrative burden, decision velocity, and institutional performance — the research behind the Monderman instruments."/>
-  <meta name="description" content="Insights, briefs, and working papers on administrative burden, decision velocity, and institutional performance — the research behind the Monderman instruments." />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
-  <link rel="icon" type="image/x-icon" sizes="any" href="/favicon.ico"/>
-  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png"/>
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
-  <style>
+<meta property="og:url" content="https://www.monderman.com/"/>
+<meta property="og:description" content="Monderman is a suite of deterministic diagnostic instruments that measures how your institution actually performs — burden, clarity, velocity, condition — and tracks change over time."/>
+  <meta name="description" content="Monderman is a suite of deterministic diagnostic instruments that measures how your institution actually performs — burden, clarity, velocity, condition — and tracks change over time." />
+<link href='data:image/svg+xml;utf8,
+    &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"&gt;
+      &lt;rect width="64" height="64" rx="10" fill="%2304181B"/&gt;
+      &lt;text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23FAFAF8"&gt;M&lt;/text&gt;
+      &lt;rect x="47" y="36" width="8" height="8" rx="1.2" fill="%230C6E78"/&gt;
+    &lt;/svg&gt;' rel="icon" type="image/svg+xml"/>
+<!-- Crawlable favicon files for Google search results -->
+<link as="image" fetchpriority="high" href="Hero-Image.jpg" rel="preload" type="image/jpeg"/>
+<link href="https://www.monderman.com/favicon.ico" rel="icon" type="image/x-icon" sizes="any"/>
+<link href="https://www.monderman.com/favicon-192.png" rel="icon" type="image/png" sizes="192x192"/>
+<link href="https://www.monderman.com/favicon-192.png" rel="apple-touch-icon"/>
+<!-- Organization structured data for Google logo in Knowledge Panel / rich results -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Monderman",
+  "url": "https://www.monderman.com",
+  "logo": "https://www.monderman.com/favicon-192.png",
+  "description": "Organizational diagnostics for complex institutions. Monderman measures decision velocity, structural clarity, operational systems burden, and institutional performance.",
+  "slogan": "Measure the conditions. Own the outcome."
+}
+</script>
+
+<style>
     @font-face {
       font-family: "Neue Haas Grotesk";
       src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff");
@@ -39,44 +59,64 @@
     :root {
       --accent: #0C6E78;
       --accent-dark: #0A5B63;
-      --bg: #08383E;
-      --bg-2: #08373C;
-      --panel: rgba(255,255,255,0.05);
-      --panel-2: rgba(255,255,255,0.035);
-      --line: rgba(255,255,255,0.11);
-      --line-soft: rgba(255,255,255,0.08);
-      --text: #F4EFE6;
-      --muted: rgba(245,241,232,0.72);
-      --muted-2: rgba(245,241,232,0.52);
-      --paper: #FAFAF8;
-      --ink: #18191C;
-      --ink-soft: #6E6F73;
-      --ink-muted: #8A8C88;
-      --card-line: rgba(24,22,18,0.09);
-      --max: 1320px;
-      --radius-xl: 30px;
-      --radius-lg: 22px;
-      --radius-md: 18px;
-      --shadow: 0 22px 60px rgba(0,0,0,0.16);
-      --shadow-soft: 0 10px 30px rgba(0,0,0,0.08);
-      --transition: 220ms cubic-bezier(.22,1,.36,1);
+      --accent-light: #4FA7AE;
+      --bg-dark: #08383E;
+      --bg-dark-2: #08373C;
+      --bg-hero-fallback: #08383E;
+      --bg-offwhite: #FAFAF8;
+      --bg-white: #FFFFFF;
+      --text-light: #F4EFE6;
+      --muted-light: rgba(245,241,232,0.82);
+      --text-dark: #18191C;
+      --muted-dark: #6E6F73;
+      --muted-dark-2: #8A8C88;
+      --line-dark: #EAE6DD;
       --header-solid: rgba(9,57,62,0.87);
       --header-border: rgba(255,255,255,0.08);
+      --max: 1320px;
+      --transition: 220ms cubic-bezier(0.16, 1, 0.3, 1);
+      --transition-slow: 420ms cubic-bezier(0.16, 1, 0.3, 1);
+      --rail-gap: 18px;
+      --reveal-distance: 10px;
+      --panel-radius: 18px;
+      --card-radius: 16px;
+      --snap-offset: 72px;
+      --snap-landing-offset: 10px;
     }
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; scroll-padding-top: var(--snap-offset); }
     body {
       margin: 0;
-      background: var(--paper);
-      color: var(--ink);
+      background: var(--bg-dark);
+      color: var(--text-light);
       font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       text-rendering: optimizeLegibility;
     }
     a { color: inherit; text-decoration: none; }
-    img { display: block; max-width: 100%; }
-    h1, h2, h3, h4, p { margin: 0; }
+    img { max-width: 100%; display: block; }
+    h1, h2, h3 { letter-spacing: -0.048em; }
+    p { letter-spacing: -0.01em; }
+    :focus-visible {
+      outline: 2px solid rgba(118,165,211,0.95);
+      outline-offset: 3px;
+    }
+    .snap-anchor {
+      scroll-margin-top: 0;
+    }
+    .reveal {
+      opacity: 0;
+      transform: translateY(var(--reveal-distance));
+      transition: opacity 820ms cubic-bezier(0.22,1,0.36,1), transform 820ms cubic-bezier(0.22,1,0.36,1);
+      will-change: opacity, transform;
+    }
+    .reveal.is-visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 90ms; }
+    .reveal-delay-2 { transition-delay: 180ms; }
+    .reveal-delay-3 { transition-delay: 270ms; }
+    .reveal-delay-4 { transition-delay: 360ms; }
     .header {
       position: fixed;
       inset: 0 0 auto 0;
@@ -110,11 +150,10 @@
       font-size: 1.32rem;
       font-weight: 700;
       letter-spacing: -0.02em;
-      color: #fff;
+      color: #FFFFFF;
       white-space: nowrap;
       text-shadow: 0 1px 2px rgba(0,0,0,0.16);
     }
-    .brand::after { display: none; }
     .brand-dot {
       width: 6px;
       height: 6px;
@@ -136,534 +175,1374 @@
     .nav a {
       position: relative;
       font-size: 0.9rem;
-      color: rgba(245,241,232,0.84);
-      transition: color var(--transition), transform var(--transition);
+      font-weight: 500;
+      letter-spacing: 0.012em;
+      color: rgba(255,255,255,0.88);
+      transition: color var(--transition), transform var(--transition), opacity var(--transition);
       white-space: nowrap;
-    }
-    .nav a:hover,
-    .nav a:focus-visible {
-      color: #fff;
-      transform: translateY(-1px);
-      outline: none;
     }
     .nav a::after {
       content: "";
       position: absolute;
-      bottom: -3px;
       left: 0;
+      bottom: -6px;
       width: 100%;
-      height: 2px;
+      height: 1px;
       background: currentColor;
       transform: scaleX(0);
-      transform-origin: left;
-      transition: transform 0.2s ease;
+      transform-origin: left center;
+      transition: transform 180ms ease;
     }
+    .nav a:hover,
+    .nav a:focus-visible { color: #FFFFFF; transform: translateY(-1px); outline: none; }
+    .nav a:hover::after,
+    .nav a:focus-visible::after,
+    .nav a.is-active::after { transform: scaleX(1); }
     .nav a.is-active {
       color: var(--accent);
       transform: none;
       outline: none;
     }
-    .nav a:hover::after,
-    .nav a:focus-visible::after,
-    .nav a.is-active::after {
-      transform: scaleX(1);
-    }
     .hero {
-      padding: 120px 34px 64px;
-      background: linear-gradient(180deg, #07363B 0%, #08383E 60%, #04181B 100%);
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
+      background: var(--bg-hero-fallback);
+    }
+    .hero-media-wrap {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .hero-image {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 50% 68%;
+      /* Keep the composition nearly still and let the linework stay crisp. */
+      --hero-shift-x: 0%;
+      opacity: 0;
+      transform: translateX(var(--hero-shift-x));
+      transition: opacity 1100ms cubic-bezier(0.22,1,0.36,1) 120ms;
+      will-change: opacity;
+    }
+    .hero-image.is-loaded { opacity: 1; }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(4,24,27,0.58) 0%, rgba(4,24,27,0.42) 24%, rgba(4,24,27,0.18) 42%, rgba(4,24,27,0.06) 56%, rgba(4,24,27,0) 68%),
+        linear-gradient(180deg, rgba(4,24,27,0.14) 0%, rgba(4,24,27,0.04) 28%, rgba(4,24,27,0) 56%, rgba(4,24,27,0.12) 100%);
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      background:
+        radial-gradient(circle at 86% 22%, rgba(12,110,120,0.12) 0%, rgba(12,110,120,0.05) 18%, transparent 36%),
+        linear-gradient(180deg, rgba(7,10,16,0.04) 0%, rgba(7,10,16,0.18) 100%);
     }
     .hero-inner {
+      position: relative;
+      z-index: 2;
       max-width: var(--max);
+      min-height: 100vh;
       margin: 0 auto;
-      display: grid;
-      grid-template-columns: minmax(0, 1.08fr) minmax(280px, .92fr);
-      gap: 54px;
-      align-items: end;
+      padding: 136px 34px 104px;
+      display: flex;
+      align-items: center;
     }
-    .eyebrow {
-      margin-bottom: 18px;
-      font-size: 0.72rem;
-      font-weight: 700;
+    .hero-copy { max-width: 940px; }
+    .hero-eyebrow,
+    .hero h1,
+    .hero p,
+    .hero-actions {
+      opacity: 0;
+      transform: translateY(16px);
+      animation: heroFadeUp 900ms cubic-bezier(0.22,1,0.36,1) forwards;
+      will-change: transform, opacity;
+    }
+    .hero-eyebrow {
+      display: block;
+      margin: 0 0 34px;
+      padding-left: 1px;
+      font-size: 0.78rem;
       line-height: 1;
       letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: rgba(245,241,232,0.62);
-    }
-    .hero h1 {
-      max-width: 8.5ch;
-      font-size: 64px;
-      line-height: 0.94;
-      letter-spacing: -0.06em;
       font-weight: 700;
-      color: #fff;
-    }
-    .hero-copy {
-      margin-top: 24px;
-      max-width: 39ch;
-      font-size: 1.02rem;
-      line-height: 1.72;
-      color: var(--muted);
-    }
-    .hero-meta {
-      display: grid;
-      gap: 18px;
-      justify-self: start;
-      align-self: center;
-    }
-    .filter-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-    }
-    .filter-chip {
-      display: inline-flex;
-      align-items: center;
-      min-height: 40px;
-      padding: 0 15px;
-      border-radius: 11px;
-      border: 1px solid rgba(255,255,255,0.2);
-      background: rgba(255,255,255,0.02);
-      color: rgba(245,241,232,0.92);
-      font-size: 0.86rem;
-      font-weight: 500;
-      letter-spacing: -0.01em;
-      cursor: pointer;
-      transition: background 180ms ease, border-color 180ms ease, color 180ms ease;
-    }
-    .filter-chip:hover {
-      background: rgba(255,255,255,0.06);
-      border-color: rgba(255,255,255,0.32);
-    }
-    .filter-chip.is-active,
-    .filter-chip:first-child {
-      background: rgba(12,110,120,0.18);
-      border-color: rgba(12,110,120,0.44);
-      color: #fff;
-    }
-    /* the first chip is only pre-styled as active; real state is .is-active */
-    .filter-chip:first-child:not(.is-active) {
-      background: rgba(255,255,255,0.02);
-      border-color: rgba(255,255,255,0.2);
-      color: rgba(245,241,232,0.92);
-    }
-    button.filter-chip { font-family: inherit; }
-    .hero-search[hidden] { display: none; }
-    .hs-label {
-      display: block;
-      margin-bottom: 10px;
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: rgba(79,167,174,0.9);
-    }
-    .hs-field {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      padding: 0 15px;
-      border: 1px solid rgba(79,167,174,0.45);
-      border-radius: 13px;
-      background: rgba(4,24,27,0.42);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
-      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
-    }
-    .hs-field:focus-within {
-      border-color: #4FA7AE;
-      background: rgba(4,24,27,0.6);
-      box-shadow: 0 0 0 3px rgba(79,167,174,0.2);
-    }
-    .hs-field > svg { flex: 0 0 auto; color: #4FA7AE; }
-    .hs-field input {
-      flex: 1 1 auto;
-      min-width: 0;
-      border: 0;
-      outline: none;
-      background: transparent;
-      font: inherit;
-      font-size: 1rem;
-      letter-spacing: -0.01em;
-      color: #fff;
-      padding: 15px 0;
-    }
-    .hs-field input::placeholder { color: rgba(245,241,232,0.52); }
-    .hs-field input::-webkit-search-cancel-button { -webkit-appearance: none; }
-    .hs-clear {
-      flex: 0 0 auto;
-      border: 1px solid rgba(245,241,232,0.24);
-      background: transparent;
-      border-radius: 8px;
-      padding: 7px 11px;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: rgba(245,241,232,0.78);
-      transition: color var(--transition), border-color var(--transition);
-    }
-    .hs-clear:hover, .hs-clear:focus-visible { color: #fff; border-color: rgba(245,241,232,0.5); }
-    .library-stamp {
-      font-size: 0.84rem;
-      color: var(--muted-2);
-    }
-    .featured {
-      padding: 16px 34px 0;
-    }
-    .featured-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-      border-top: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
-      display: grid;
-      grid-template-columns: minmax(0, 1.08fr) minmax(320px, .92fr);
-      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.04));
-    }
-    .featured-main,
-    .featured-side {
-      padding: 34px 32px 34px;
-    }
-    .featured-main { border-right: 1px solid var(--line); }
-    .section-kicker {
-      margin-bottom: 24px;
-      font-size: 0.68rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(245,241,232,0.66);
-    }
-    .featured-title {
-      max-width: 9ch;
-      font-size: clamp(2rem, 3.2vw, 3rem);
-      line-height: 1.02;
-      letter-spacing: -0.045em;
-      color: #fff;
-    }
-    .featured-desc {
-      margin-top: 18px;
-      max-width: 34ch;
-      font-size: 1rem;
-      line-height: 1.78;
-      color: var(--muted);
-    }
-    .featured-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 28px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #fff;
-    }
-    .featured-link:hover { color: #E2EEEF; }
-    .meta-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: 18px 20px;
-    }
-    .meta-item strong {
-      display: block;
-      font-size: 1.9rem;
-      line-height: 1;
-      letter-spacing: -0.05em;
-      color: #fff;
-      margin-bottom: 4px;
-    }
-    .meta-item span {
-      font-size: 0.82rem;
-      line-height: 1.45;
-      color: var(--muted);
-    }
-    .featured-quote {
-      margin-top: 42px;
-      padding-top: 22px;
-      border-top: 1px solid var(--line);
-      font-size: clamp(1.55rem, 2.2vw, 2.2rem);
-      line-height: 1.38;
-      letter-spacing: -0.025em;
-      color: rgba(245,241,232,0.84);
-      max-width: none;
-    }
-    .library {
-      padding: 42px 34px 0;
-    }
-    .library-inner,
-    .onsite-inner,
-    .cta-inner,
-    .footer-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-    }
-    .band-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: end;
-      gap: 24px;
-      padding-bottom: 18px;
-      border-bottom: 1px solid var(--line);
-      margin-bottom: 0;
-    }
-    .band-head .left,
-    .band-head .right {
-      font-size: 0.72rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(245,241,232,0.68);
-    }
-    .research-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-    }
-    .paper-card {
-      padding: 24px 20px 22px;
-      border-bottom: 1px solid var(--line);
-      border-right: 1px solid var(--line-soft);
-      min-height: 228px;
-      display: grid;
-      align-content: start;
-      gap: 12px;
-    }
-    .paper-card:nth-child(2n) { border-right: none; }
-    .paper-card.wide {
-      grid-column: 1 / -1;
-      min-height: 180px;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 20px 36px;
-      align-items: end;
-      border-right: none;
-    }
-    .paper-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: start;
-      font-size: 0.64rem;
-      font-weight: 700;
-      line-height: 1.3;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: rgba(245,241,232,0.6);
-    }
-    .paper-title {
-      max-width: 14ch;
-      font-size: 1.72rem;
-      line-height: 1.08;
-      letter-spacing: -0.036em;
-      color: #fff;
-    }
-    .paper-card:not(.wide) .paper-title { font-size: 1.2rem; max-width: 15ch; }
-    .paper-body {
-      max-width: 38ch;
-      font-size: 0.96rem;
-      line-height: 1.72;
-      color: var(--muted);
-    }
-    .paper-foot {
-      display: flex;
-      justify-content: space-between;
-      align-items: end;
-      gap: 18px;
-      margin-top: auto;
-    }
-    .paper-stats {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px 16px;
-      font-size: 0.82rem;
-      color: var(--muted-2);
-    }
-    .paper-action {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.86rem;
-      font-weight: 600;
-      color: #fff;
-      white-space: nowrap;
-    }
-    .paper-action:hover { color: #E2EEEF; }
-    .divider-quote {
-      padding: 34px 34px 0;
-    }
-    .divider-quote-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 28px 0 30px;
-      border-bottom: 1px solid var(--line);
-      display: grid;
-      grid-template-columns: 180px minmax(0,1fr);
-      gap: 24px;
-      align-items: center;
-    }
-    .divider-label {
-      font-size: 0.72rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.18em;
       text-transform: uppercase;
       color: rgba(245,241,232,0.64);
+      animation-delay: 340ms;
     }
-    .divider-quote blockquote {
-      margin: 0;
-      max-width: 34ch;
-      font-size: clamp(1.55rem, 2.2vw, 2.2rem);
-      line-height: 1.38;
-      letter-spacing: -0.025em;
-      color: #fff;
-    }
-    .onsite {
-      padding: 0 34px 0;
-    }
-    .essay-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-    }
-    .essay-card {
-      padding: 24px 20px 22px;
-      border-bottom: 1px solid var(--line);
-      border-right: 1px solid var(--line-soft);
-      min-height: 212px;
-      display: grid;
-      align-content: start;
-      gap: 12px;
-    }
-    .essay-card:nth-child(2n) { border-right: none; }
-    .essay-title {
-      max-width: 16ch;
-      font-size: 1.18rem;
-      line-height: 1.16;
-      letter-spacing: -0.03em;
-      color: #fff;
-    }
-    .essay-body {
-      max-width: 34ch;
-      font-size: 0.95rem;
-      line-height: 1.7;
-      color: var(--muted);
-    }
-    .cta-band {
-      padding: 38px 34px 48px;
-    }
-    .cta-inner {
-      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.045));
-      border: 1px solid var(--line);
-      border-radius: var(--radius-xl);
-      padding: 34px 34px 32px;
-      display: grid;
-      grid-template-columns: minmax(0,1fr) auto;
-      gap: 28px;
-      align-items: center;
-      box-shadow: var(--shadow);
-    }
-    .cta-kicker {
-      margin-bottom: 12px;
-      font-size: 0.72rem;
+    .hero h1 {
+      margin: 0 0 16px;
+      max-width: 16.2ch;
+      font-size: 64px;
+      line-height: 1.0;
       font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(245,241,232,0.62);
+      letter-spacing: -0.04em;
+      color: #FFFFFF;
+      text-wrap: balance;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.16);
+      animation-delay: 480ms;
     }
-    .cta-title {
-      max-width: 15ch;
-      font-size: clamp(2rem, 3vw, 2.9rem);
-      line-height: 1.02;
-      letter-spacing: -0.045em;
-      color: #fff;
+    .hero-title {
+      display: block;
     }
-    .cta-copy {
-      margin-top: 14px;
-      max-width: 48ch;
-      font-size: 1rem;
-      line-height: 1.72;
-      color: var(--muted);
+    .hero-line {
+      display: block;
     }
-    .cta-actions {
+    .hero-dek {
+      max-width: 38ch;
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.65;
+      letter-spacing: -0.01em;
+      color: var(--muted-light);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.12);
+      animation-delay: 640ms;
+      text-wrap: balance;
+    }
+    .hero-actions {
       display: flex;
-      flex-wrap: wrap;
+      align-items: center;
       gap: 12px;
-      justify-content: flex-end;
+      flex-wrap: wrap;
+      margin-top: 30px;
+      animation-delay: 820ms;
+    }
+    @keyframes heroFadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 48px;
-      padding: 0 20px;
+      min-height: 46px;
+      min-width: 156px;
+      padding: 0 19px;
       border-radius: 7px;
-      border: 1px solid rgba(255,255,255,0.18);
-      background: rgba(255,255,255,0.04);
-      color: #fff;
-      font-size: 0.92rem;
-      font-weight: 600;
-      transition: transform var(--transition), background var(--transition), border-color var(--transition);
+      font-size: 0.91rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      background: rgba(255,255,255,0.98);
+      color: var(--accent);
+      border: 1px solid rgba(12,110,120,0.78);
+      box-shadow: 0 7px 16px rgba(0,0,0,0.038), 0 0 0 1px rgba(255,255,255,0.07);
+      transition: background 180ms cubic-bezier(0.22,1,0.36,1), color 180ms cubic-bezier(0.22,1,0.36,1), border-color 180ms cubic-bezier(0.22,1,0.36,1), transform 180ms cubic-bezier(0.22,1,0.36,1), box-shadow 180ms cubic-bezier(0.22,1,0.36,1);
+      cursor: pointer;
     }
     .btn:hover,
     .btn:focus-visible {
+      background: #FFFFFF;
+      color: var(--accent-dark);
+      border-color: var(--accent-dark);
       transform: translateY(-1px);
-      background: rgba(255,255,255,0.08);
-      border-color: rgba(255,255,255,0.28);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.052), 0 0 0 1px rgba(255,255,255,0.09);
       outline: none;
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,0.98);
+      color: var(--accent);
+      border: 1.25px solid rgba(12,110,120,0.9);
     }
     .btn-accent {
       background: var(--accent-dark);
-      border-color: rgba(12,110,120,0.4);
+      color: #FFFFFF;
+      border: 1px solid rgba(12,110,120,0.24);
+      box-shadow: 0 9px 20px rgba(12,110,120,0.20), 0 0 0 1px rgba(255,255,255,0.04);
     }
     .btn-accent:hover,
-    .btn-accent:focus-visible { background: #0A5B63; }
-    .footer {
-      padding: 0 34px 34px;
+    .btn-accent:focus-visible {
+      background: #08474E;
+      color: #FFFFFF;
+    }
+    
+    .differentiators {
+      position: relative;
+      background: #FFFFFF;
+      color: var(--text-dark);
+      padding: 34px 34px 38px;
+      border-top: 1px solid rgba(24,25,28,0.04);
+      border-bottom: 1px solid rgba(24,25,28,0.06);
+    }
+    .differentiators-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+    .differentiators-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 20px;
+    }
+    .diff-section-heading {
+      margin: 0 0 24px;
+      font-size: 28px;
+      line-height: 1.15;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text-dark);
+    }
+    .diff-card {
+      background: rgba(255,255,255,0.98);
+      border: 1px solid rgba(24,25,28,0.08);
+      border-radius: var(--card-radius);
+      padding: 24px 22px 22px;
+      box-shadow: none;
+      transition: transform var(--transition-slow), box-shadow var(--transition-slow), border-color var(--transition);
+    }
+    .diff-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(12,110,120,0.14);
+      box-shadow: none;
+    }
+    .diff-kicker {
+      margin: 0 0 10px;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.4;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .diff-title {
+      margin: 0 0 10px;
+      font-size: 17px;
+      line-height: 1.2;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-wrap: balance;
+    }
+    .diff-text {
+      margin: 0;
+      font-size: 0.93rem;
+      line-height: 1.62;
+      color: var(--muted-dark);
+      max-width: 30ch;
+    }
+    .latest-card-image--placeholder {
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-start;
+      padding: 20px;
+      background: #0C4A50;
+      color: #FFFFFF;
+      overflow: hidden;
+    }
+    .latest-card-image--placeholder::before {
+      display: none;
+    }
+    .latest-card-image--culture {
+      background: #0C4A50 !important;
+    }
+    .placeholder-cover {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      display: flex;
+      align-items: flex-end;
+      min-height: 100%;
+    }
+    .placeholder-cover-title {
+      margin: 0;
+      max-width: 72%;
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 1.78rem;
+      line-height: 0.96;
+      letter-spacing: -0.04em;
+      font-weight: 700;
+      text-wrap: balance;
+      color: #FFFFFF;
+    }
+    .placeholder-cover-top,
+    .placeholder-cover-main,
+    .placeholder-cover-brand,
+    .placeholder-cover-series,
+    .placeholder-cover-subtitle,
+    .placeholder-cover-meta {
+      display: none;
+    }
+.section-with-bar {
+      position: relative;
+    }
+    .section-with-bar .section-bar {
+      position: absolute;
+      top: 26px;
+      left: 34px;
+      z-index: 2;
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      color: rgba(24,25,28,0.48);
+      font-size: 0.68rem;
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      box-shadow: none;
+      pointer-events: none;
+    }
+    .section-intro h2 {
+      margin: 0 0 16px;
+      max-width: 760px;
+      font-size: 28px;
+      line-height: 1.15;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text-dark);
+      text-wrap: balance;
+    }
+    .section-intro p {
+      margin: 0;
+      max-width: 58ch;
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--muted-dark);
+    }
+    .bureaucracy-cost,
+    .diagnostic-estimate {
+      position: relative;
+      background: #FAFAF8;
+      border-top: 1px solid #EFEBE3;
+      border-bottom: 1px solid #EFEBE3;
+      color: var(--text-dark);
+      overflow: hidden;
+    }
+    .bureaucracy-cost { padding: 84px 34px 100px; }
+    .diagnostic-estimate { padding: 78px 34px 92px; }
+    .bureaucracy-cost::before,
+    .diagnostic-estimate::before {
+      content: none;
+    }
+    .cost-inner,
+    .diagnostic-estimate-inner,
+    .approach-inner,
+    .latest-inner,
+    .connect-inner,
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .cost-heading,
+    .diagnostic-estimate-heading {
+      max-width: 900px;
+      margin: 0 0 44px;
+    }
+    .cost-label,
+    .estimate-label,
+    .latest-label {
+      margin: 0 0 18px;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.4;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.85;
+    }
+    .cost-heading h2,
+    .diagnostic-estimate-heading h2 {
+      margin: 0 0 14px;
+      max-width: 760px;
+      font-size: 28px;
+      line-height: 1.15;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text-dark);
+      text-wrap: balance;
+    }
+    .cost-context,
+    .estimate-context,
+    .estimate-bridge {
+      margin: 0;
+      max-width: 64ch;
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--muted-dark);
+    }
+    .estimate-bridge { margin-top: 12px; }
+    .cost-grid,
+    .estimate-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 28px;
+      margin-top: 10px;
+    }
+    .cost-card,
+    .estimate-card {
+      background: rgba(255,255,255,0.96);
+      border: 1px solid rgba(24,25,28,0.06);
+      border-radius: var(--panel-radius);
+      padding: 42px 34px 38px;
+      box-shadow: none;
+      transition: transform var(--transition-slow), box-shadow var(--transition-slow), border-color var(--transition);
+    }
+    .cost-card { min-height: 310px; }
+    .estimate-card { min-height: 286px; }
+    .cost-card:hover,
+    .estimate-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(12,110,120,0.12);
+      box-shadow: none;
+    }
+    .cost-card-title,
+    .estimate-card-title {
+      margin: 0 0 8px;
+      font-size: 17px;
+      line-height: 1.2;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+    .cost-card-title .asterisk { font-size: 0.9em; vertical-align: 0.08em; }
+    .cost-card-source,
+    .estimate-card-source {
+      margin: 0 0 34px;
+      font-size: 0.76rem;
+      line-height: 1.45;
+      color: #9A9892;
+      font-style: italic;
+    }
+    .cost-card-number {
+      margin: 0 0 18px;
+      font-size: clamp(3rem, 4.8vw, 4.35rem);
+      line-height: 0.9;
+      letter-spacing: -0.065em;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .estimate-card-number {
+      margin: 0 0 18px;
+      font-size: clamp(2.15rem, 3vw, 3rem);
+      line-height: 1;
+      letter-spacing: -0.05em;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .cost-card-text,
+    .estimate-card-text {
+      margin: 0;
+      max-width: 24ch;
+      font-size: 1.02rem;
+      line-height: 1.64;
+      color: var(--muted-dark);
+    }
+    .cost-footer {
+      margin: 24px 0 0;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      color: var(--muted-dark-2);
+    }
+    .cost-action {
+      margin: 28px 0 0;
+      padding: 20px 24px;
+      background: rgba(12,110,120,0.04);
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
+      font-size: 1.02rem;
+      line-height: 1.55;
+      color: var(--text-dark);
+      max-width: 70ch;
+    }
+    .cost-action strong { font-weight: 600; }
+    .cost-action a {
+      display: inline-block;
+      margin-top: 8px;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.94rem;
+      border-bottom: 1px solid rgba(12,110,120,0.3);
+      transition: border-color 180ms ease;
+    }
+    .cost-action a:hover { border-color: var(--accent); }
+
+    /* How It Works strip */
+    .how-it-works {
+      background: #FFFFFF;
+      border-top: 1px solid rgba(24,25,28,0.06);
+      border-bottom: 1px solid rgba(24,25,28,0.06);
+      padding: 72px 34px 80px;
+    }
+    .how-it-works-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+    .how-it-works-eyebrow {
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 14px;
+    }
+    .how-it-works h2 {
+      font-size: clamp(28px, 3vw, 38px);
+      line-height: 1.18;
+      max-width: 22ch;
+      font-weight: 700;
+      margin: 0 0 36px;
+      color: var(--text-dark);
+      letter-spacing: -0.048em;
+    }
+    .how-it-works-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0;
+      border-top: 1px solid rgba(24,25,28,0.08);
+    }
+    .how-it-works-step {
+      padding: 28px 28px 28px 0;
+      border-bottom: 1px solid rgba(24,25,28,0.08);
+      border-right: 1px solid rgba(24,25,28,0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .how-it-works-step:last-child {
+      border-right: none;
+      padding-right: 0;
+    }
+    .how-it-works-step:not(:first-child) {
+      padding-left: 28px;
+    }
+    .how-it-works-num {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0;
+    }
+    .how-it-works-name {
+      font-size: 1.22rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-dark);
+      margin: 0;
+    }
+    .how-it-works-text {
+      font-size: 0.98rem;
+      line-height: 1.55;
+      color: var(--muted-dark);
+      margin: 4px 0 0;
+    }
+    @media (max-width: 900px) {
+      .how-it-works-grid { grid-template-columns: 1fr; }
+      .how-it-works-step {
+        padding: 24px 0;
+        border-right: none;
+      }
+      .how-it-works-step:not(:first-child) { padding-left: 0; }
+    }
+    @media (max-width: 720px) {
+      .how-it-works { padding: 56px 20px 60px; }
+    }
+    .estimate-controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+    .estimate-field { display: grid; gap: 10px; }
+    .estimate-field label {
+      font-size: 0.88rem;
+      line-height: 1.45;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    .estimate-field select {
+      width: 100%;
+      min-height: 56px;
+      padding: 0 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(24,25,28,0.10);
+      background: #FFFFFF;
+      color: var(--text-dark);
+      outline: none;
+      box-shadow: none;
+      transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+    }
+    .estimate-field select:hover {
+      border-color: rgba(24,25,28,0.18);
+    }
+    .estimate-field select:focus-visible {
+      border-color: rgba(12,110,120,0.58);
+      box-shadow: 0 0 0 4px rgba(12,110,120,0.10);
+      transform: translateY(-1px);
+      outline: none;
+    }
+    .estimate-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+    .estimate-foot-copy { max-width: 68ch; }
+    .estimate-foot-copy p {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.64;
+      color: var(--muted-dark);
+    }
+    .estimate-foot-copy p + p {
+      margin-top: 8px;
+      color: var(--muted-dark-2);
+      font-size: 0.86rem;
+    }
+    .approach {
+      position: relative;
+      background: var(--bg-white);
+      padding: 78px 34px 88px;
+      color: var(--text-dark);
+      overflow: hidden;
+    }
+    .approach-bridge {
+      max-width: 60ch;
+      font-size: 1rem;
+      line-height: 1.68;
+      color: var(--muted-dark);
+    }
+    .approach-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 34px;
+      margin-top: 52px;
+    }
+    .approach-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 356px;
+      background: rgba(255,255,255,0.99);
+      border: 1px solid var(--line-dark);
+      border-radius: var(--panel-radius);
+      padding: 40px 34px 46px;
+      overflow: hidden;
+      transition: transform var(--transition-slow), box-shadow var(--transition-slow), border-color var(--transition), background var(--transition);
+    }
+    .approach-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0%;
+      background: #C9821F;
+      transition: width 420ms cubic-bezier(0.22,1,0.36,1);
+    }
+    .approach-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(0,0,0,0.06);
+      background: #FFFFFF;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.045);
+    }
+    .approach-card:hover::before { width: 100%; }
+    .approach-card-head {
+      display: grid;
+      grid-template-columns: 40px minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+      margin-bottom: 8px;
+    }
+    .approach-glyph {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(12,110,120,0.05);
+      border: 1px solid rgba(12,110,120,0.10);
+      color: var(--accent);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.72);
+      transition: border-color var(--transition), background var(--transition), transform var(--transition);
+    }
+    .approach-glyph svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+    }
+    .approach-card:hover .approach-glyph {
+      background: rgba(12,110,120,0.08);
+      border-color: rgba(12,110,120,0.18);
+      transform: translateY(-1px);
+    }
+    .approach-card-head-copy {
+      min-width: 0;
+    }
+    .card-title {
+      margin-bottom: 8px;
+      font-size: 17px;
+      line-height: 1.2;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+    .card-subhead {
+      margin: 0 0 14px;
+      font-size: 0.88rem;
+      line-height: 1.35;
+      color: var(--muted-dark-2);
+    }
+    .approach-synthesis-item-head {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      width: 100%;
+    }
+    .approach-synthesis-glyph {
+      width: 28px;
+      height: 28px;
+      border-radius: 9px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(12,110,120,0.045);
+      border: 1px solid rgba(12,110,120,0.10);
+      color: var(--accent);
+      margin-top: -1px;
+      transition: border-color 200ms ease, background 200ms ease, transform 200ms ease;
+    }
+    .approach-synthesis-glyph svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+    }
+    .card-desc {
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--muted-dark);
+    }
+    .approach-card-link {
+      margin-top: auto;
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding-top: 26px;
+      font-size: 0.89rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: var(--accent);
+      transition: color var(--transition), transform var(--transition);
+    }
+    .approach-card-link:hover,
+    .approach-card-link:focus-visible {
+      color: var(--accent-dark);
+      transform: translateX(1px);
+      outline: none;
+    }
+    .approach-synthesis {
+      margin-top: 52px;
+      padding: 40px 34px 10px;
+      background: #FAFAF8;
+      border-radius: var(--panel-radius);
+      border: 1px solid #EAE6DD;
+      text-align: center;
+    }
+    .approach-synthesis-copy {
+      max-width: 52ch;
+      margin: 0 auto 24px;
+      font-size: 1.02rem;
+      line-height: 1.58;
+      color: #6E6F73;
+    }
+    .approach-synthesis-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      max-width: 1040px;
+      margin: 0 auto 14px;
+      align-items: stretch;
+    }
+    .approach-synthesis-item {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      min-height: 0;
+      padding: 22px 20px 22px;
+      text-align: left;
+      background: #FFFFFF;
+      border: 1px solid rgba(24,25,28,0.08);
+      border-radius: 16px;
+      box-shadow: none;
+      color: var(--text-dark);
+      transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease, background 200ms ease;
+    }
+    .approach-synthesis-item strong {
+      font-size: 0.98rem;
+      line-height: 1.12;
+      letter-spacing: -0.025em;
+      color: var(--text-dark);
+    }
+    .approach-synthesis-item:hover strong,
+    .approach-synthesis-item.is-linked strong {
+      color: var(--accent-dark);
+    }
+    .approach-synthesis-item:hover .approach-synthesis-link,
+    .approach-synthesis-item.is-linked .approach-synthesis-link {
+      color: var(--accent-dark);
+    }
+    .approach-synthesis-link {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      min-height: 0;
+      padding: 0;
+      border-radius: 0;
+      background: transparent;
+      border: 0;
+      font-size: 0.74rem;
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .approach-synthesis-body {
+      font-size: 0.88rem;
+      line-height: 1.56;
+      color: #74746F;
+    }
+    .approach-synthesis-item.is-linked,
+    .approach-synthesis-item:hover {
+      transform: translateY(-2px);
+      border-color: rgba(12,110,120,0.18);
+      box-shadow: none;
+      background: #FFFFFF;
+    }
+    .approach-synthesis-item.is-linked .approach-synthesis-glyph,
+    .approach-synthesis-item:hover .approach-synthesis-glyph {
+      background: rgba(12,110,120,0.07);
+      border-color: rgba(12,110,120,0.16);
+      transform: translateY(-1px);
+    }
+    .synthesis {
+      position: relative;
+      background: #FFFFFF;
+      padding: 78px 34px 88px;
+      color: var(--text-dark);
+      border-top: 1px solid rgba(24,25,28,0.04);
+      border-bottom: 1px solid rgba(24,25,28,0.04);
+    }
+    .synthesis-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .synthesis-panel {
+      margin-top: 28px;
+      padding: 0;
+      background: transparent;
+      border: 0;
+      text-align: left;
+    }
+    .synthesis-panel .approach-synthesis-grid {
+      margin: 0;
+      max-width: none;
+    }
+    .synthesis-panel .approach-synthesis-item {
+      border-radius: 14px;
+      box-shadow: none;
+      border: 1px solid rgba(24,25,28,0.08);
+    }
+    .approach-foundation {
+      margin: 20px auto 0;
+      max-width: 640px;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 20px;
+      border-radius: 10px;
+      background: rgba(12,110,120,0.04);
+      border: 1px solid rgba(12,110,120,0.10);
+      color: var(--accent-dark);
+      font-size: 0.74rem;
+      line-height: 1.2;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      box-shadow: none;
+      text-align: center;
+    }
+    .latest {
+      position: relative;
+      background: var(--bg-offwhite);
+      padding: 78px 34px 80px;
+      color: var(--text-dark);
+      overflow: hidden;
+      border-top: 1px solid rgba(24,25,28,0.04);
+      border-bottom: 1px solid rgba(24,25,28,0.04);
+    }
+    .latest-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 30px;
+      margin-bottom: 34px;
+    }
+    .latest-intro { max-width: 740px; }
+    .latest-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      flex: 0 0 auto;
+    }
+    .rail-arrow {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid rgba(24,25,28,0.12);
+      background: #FFFFFF;
+      color: rgba(24,25,28,0.88);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: none;
+      transition: border-color 180ms ease, color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+    }
+    .rail-arrow:hover,
+    .rail-arrow:focus-visible {
+      color: var(--accent-dark);
+      border-color: rgba(12,110,120,0.22);
+      transform: translateY(-1px);
+      box-shadow: none;
+      outline: none;
+    }
+    .latest-viewport {
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 240ms ease;
+    }
+    .latest-viewport.is-ready { opacity: 1; }
+    .latest-track {
+      display: flex;
+      gap: var(--rail-gap);
+      will-change: transform;
+      transition: transform 860ms cubic-bezier(0.22,1,0.36,1);
+    }
+    .latest-card {
+      flex: 0 0 calc((100% - (var(--rail-gap) * 2)) / 2.55);
+      background: #FFFFFF;
+      border: 1px solid rgba(24,25,28,0.08);
+      border-radius: var(--card-radius);
+      box-shadow: none;
+      overflow: hidden;
+      transition: transform var(--transition-slow), box-shadow var(--transition-slow), border-color var(--transition);
+    }
+    .latest-card {
       position: relative;
       overflow: hidden;
     }
-    .footer-inner {
-      border-top: 1px solid rgba(255,255,255,0.08);
-      padding-top: 22px;
-      display: flex;
-      justify-content: space-between;
-      gap: 22px;
+    .latest-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0%;
+      background: #C9821F;
+      transition: width 420ms cubic-bezier(0.22,1,0.36,1);
+      pointer-events: none;
+      z-index: 2;
+    }
+    .latest-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(12,110,120,0.14);
+      box-shadow: none;
+    }
+    .latest-card:hover::before { width: 100%; }
+    .latest-card-image {
+      aspect-ratio: 16 / 8.2;
+      overflow: hidden;
+      background: #E0DCD2;
+    }
+    .latest-card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .latest-card-image--culture .placeholder-cover-title {
+      text-shadow: 0 1px 2px rgba(0,0,0,0.12);
+    }
+    .latest-card-body { padding: 18px 18px 19px; }
+    .latest-card-kicker {
+      margin: 0 0 9px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .latest-card-title {
+      margin: 0 0 9px;
+      font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 1.08rem;
+      line-height: 1.14;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-wrap: balance;
+    }
+    .latest-card-text {
+      margin: 0 0 14px;
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--muted-dark);
+    }
+    .latest-card-link {
+      display: inline-flex;
       align-items: center;
+      gap: 8px;
+      font-size: 0.89rem;
+      font-weight: 500;
+      color: var(--text-dark);
+      transition: color var(--transition), transform var(--transition);
+    }
+    .latest-card-link:hover,
+    .latest-card-link:focus-visible {
+      color: var(--accent-dark);
+      transform: translateX(1px);
+      outline: none;
+    }
+    .latest-dots {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-top: 18px;
+    }
+    .latest-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      border: 0;
+      padding: 0;
+      background: rgba(24,25,28,0.18);
+      cursor: pointer;
+      transition: transform var(--transition), background var(--transition), width var(--transition);
+    }
+    .latest-dot.is-active {
+      width: 22px;
+      background: var(--accent);
+    }
+    .connect {
+      position: relative;
+      background: linear-gradient(180deg, #08383E 0%, #08373C 100%);
+      color: var(--text-light);
+      padding: 84px 34px 82px;
+      overflow: hidden;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .connect-inner {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) minmax(280px,420px);
+      gap: 56px;
+      align-items: start;
+    }
+    .connect-copy h2 {
+      color: #FFFFFF;
+      margin-bottom: 18px;
+    }
+    .connect-signal {
+      margin: 0 0 14px;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(245,241,232,0.54);
+    }
+    .connect-text {
+      margin: 0;
+      max-width: 54ch;
+      font-size: 17px;
+      line-height: 1.65;
+      color: rgba(245,241,232,0.74);
+    }
+    .connect-panel {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: var(--panel-radius);
+      padding: 30px 30px 27px;
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+    .connect-kicker {
+      margin: 0 0 14px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      color: rgba(245,241,232,0.54);
+    }
+    .connect-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 17px;
+      line-height: 1.3;
+      font-weight: 500;
+      letter-spacing: -0.015em;
+      color: #FFFFFF;
+    }
+    .connect-link-mark {
+      width: 7px;
+      height: 7px;
+      background: var(--accent);
+      border-radius: 1px;
+      flex: 0 0 auto;
+      transform: translateY(-1px);
+    }
+    .connect-note {
+      margin: 16px 0 0;
+      font-size: 0.92rem;
+      line-height: 1.64;
+      color: rgba(245,241,232,0.60);
+    }
+    .connect-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
       flex-wrap: wrap;
-      color: rgba(245,241,232,0.56);
+      margin-top: 20px;
+    }
+.connect-choice-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 4px;
+    }
+    .connect-choice-card {
+      display: grid;
+      gap: 6px;
+      padding: 18px 18px 16px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: transform var(--transition), border-color var(--transition), background var(--transition), box-shadow var(--transition);
+    }
+    .connect-choice-card strong {
+      font-size: 1rem;
+      line-height: 1.2;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: -0.02em;
+    }
+    .connect-choice-card span {
+      font-size: 0.9rem;
+      line-height: 1.56;
+      color: rgba(245,241,232,0.68);
+    }
+    .connect-choice-card:hover,
+    .connect-choice-card:focus-visible {
+      transform: translateY(-2px);
+      border-color: rgba(118,165,211,0.22);
+      background: rgba(255,255,255,0.06);
+      box-shadow: none;
+      outline: none;
+    }
+    .connect-inline-embedded {
+      font-size: 0.92rem;
+      color: rgba(245,241,232,0.86);
+    }
+    .connect-inline-link {
+      display: inline-flex;
+      align-items: center;
       font-size: 0.88rem;
+      line-height: 1.4;
+      font-weight: 500;
+      color: rgba(245,241,232,0.82);
+      transition: color var(--transition), transform var(--transition);
     }
-    @media (max-width: 1040px) {
-      .hero-inner,
-      .featured-inner,
-      .cta-inner,
-      .divider-quote-inner {
-        grid-template-columns: 1fr;
+    .connect-inline-link:hover,
+    .connect-inline-link:focus-visible {
+      color: #FFFFFF;
+      transform: translateX(1px);
+      outline: none;
+    }
+    .footer {
+      background: #073338;
+      color: rgba(245,241,232,0.88);
+      padding: 50px 34px 38px;
+      position: relative;
+      overflow: hidden;
+    }
+    .footer-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 40px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .footer-brand { max-width: 420px; }
+    .footer-mark {
+      display: inline-flex;
+      align-items: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      margin-bottom: 14px;
+    }
+    .footer-mark::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      background: var(--accent);
+      border-radius: 1px;
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+    .footer-nav {
+      display: flex;
+      gap: 48px;
+      flex-wrap: wrap;
+    }
+    .footer-nav-col { min-width: 120px; }
+    .footer-nav-title {
+      margin: 0 0 12px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245,241,232,0.50);
+    }
+    .footer-nav a {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      color: rgba(245,241,232,0.82);
+      transition: color var(--transition), transform var(--transition);
+    }
+    .footer-nav a:hover,
+    .footer-nav a:focus-visible {
+      color: #FFFFFF;
+      transform: translateX(1px);
+      outline: none;
+    }
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding-top: 18px;
+    }
+    .footer-meta,
+    .footer-contact {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: rgba(245,241,232,0.54);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
       }
-      .featured-main { border-right: none; border-bottom: 1px solid var(--line); }
-      .cta-actions { justify-content: flex-start; }
-      .research-grid,
-      .essay-grid { grid-template-columns: 1fr; }
-      .paper-card,
-      .essay-card { border-right: none !important; }
     }
-    @media (max-width: 760px) {
+    @media (max-width: 1100px) {
+      .differentiators-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .approach-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .cost-grid, .estimate-grid { grid-template-columns: 1fr; gap: 20px; }
+      .estimate-controls { grid-template-columns: 1fr; }
+      .cost-card, .estimate-card { min-height: auto; }
+      .connect-inner { grid-template-columns: 1fr; gap: 28px; }
+    }
+    @media (max-width: 980px) {
       .header { height: auto; }
       .header-inner {
-        padding: 14px 20px 10px;
+        padding: 16px 24px;
         align-items: flex-start;
         flex-direction: column;
+        gap: 14px;
+      }
+      .nav {
+        width: 100%;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        overflow-x: visible;
+        padding-bottom: 4px;
+        
+        
+      
+ row-gap:10px;}
+      
+      .nav { gap: 22px; }
+      .hero-inner { padding: 120px 24px 82px; }
+      .hero h1 { font-size: 52px; }
+      .section-with-bar .section-bar { left: 24px; }
+      .hero-image {
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-position: 56% 68%;
+        --hero-shift-x: 0%;
+      }
+      .hero-overlay {
+        background:
+          linear-gradient(90deg, rgba(4,24,27,0.72) 0%, rgba(4,24,27,0.56) 34%, rgba(4,24,27,0.22) 60%, rgba(4,24,27,0.08) 82%, rgba(4,24,27,0) 100%),
+          linear-gradient(180deg, rgba(4,24,27,0.18) 0%, rgba(4,24,27,0.06) 40%, rgba(4,24,27,0.14) 100%);
+      }
+      .bureaucracy-cost { padding-top: 62px; padding-bottom: 72px; }
+      .approach,
+      .synthesis,
+      .diagnostic-estimate,
+      .latest { padding-top: 60px; padding-bottom: 64px; }
+      .connect { padding-top: 60px; padding-bottom: 60px; }
+      .bureaucracy-cost,
+      .approach,
+      .synthesis,
+      .diagnostic-estimate,
+      .latest,
+      .connect,
+      .footer {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+      .latest-head {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+    @media (max-width: 640px) {
+      .header-inner {
+        padding: 14px 20px 10px;
         gap: 10px;
       }
       .nav {
-        display: flex;
-        width: 100%;
+        width: calc(100% + 4px);
         gap: 10px;
-        overflow-x: visible;
         flex-wrap: wrap;
         justify-content: flex-start;
+        overflow-x: visible;
+        padding: 2px 4px 6px 0;
         
         
-        padding-bottom: 4px;
       
  row-gap:10px;}
       
@@ -675,40 +1554,256 @@
         border-radius: 5px;
         background: rgba(255,255,255,0.06);
         border: 1px solid rgba(255,255,255,0.08);
-        white-space: nowrap;
       }
       .nav a::after { display: none; }
-      .header-inner,
-      .hero,
-      .featured,
-      .library,
-      .divider-quote,
-      .onsite,
-      .cta-band,
-      .footer { padding-left: 20px; padding-right: 20px; }
-      .hero { padding-top: 120px; padding-bottom: 40px; }
-      .hero h1 { max-width: 9.5ch; font-size: clamp(2.4rem, 12vw, 3.4rem); }
-      .featured-main,
-      .featured-side,
-      .cta-inner { padding: 24px 22px; }
-      .meta-grid { grid-template-columns: 1fr 1fr; }
-      .paper-card.wide { grid-template-columns: 1fr; }
-      .paper-card,
-      .essay-card { min-height: 0; }
-      .divider-quote { padding-top: 24px; }
-      .divider-quote blockquote { font-size: 1.45rem; }
-      .featured-quote { font-size: 1.45rem; }
-      .library { padding-top: 28px; }
-      .onsite { padding-top: 0; padding-bottom: 0; }
-      .cta-band { padding-top: 28px; padding-bottom: 32px; }
-      .cta-actions {
+      .hero-inner { padding: 120px 20px 72px; }
+      .hero-copy { max-width: 100%; }
+      .hero h1 {
+        max-width: 100%;
+        font-size: 44px;
+        line-height: 1.0;
+      }
+      .hero-title {
+        gap: 0.06em;
+      }
+      .hero-dek {
+        max-width: 100%;
+        font-size: 1rem;
+        line-height: 1.58;
+      }
+      .hero-actions {
         flex-direction: column;
         align-items: stretch;
-        width: 100%;
+        gap: 14px;
+        max-width: 420px;
       }
-      .cta-actions .btn { width: 100%; justify-content: center; }
+      .btn {
+        width: 100%;
+        min-width: 0;
+        min-height: 44px;
+        padding: 0 18px;
+        font-size: 0.94rem;
+      }
+      .section-with-bar .section-bar {
+        top: 20px;
+        left: 20px;
+        font-size: 0.64rem;
+        letter-spacing: 0.12em;
+      }
+      .approach-card-head {
+        grid-template-columns: 36px minmax(0, 1fr);
+        gap: 12px;
+      }
+      .approach-glyph {
+        width: 36px;
+        height: 36px;
+        border-radius: 11px;
+      }
+      .approach-glyph svg {
+        width: 16px;
+        height: 16px;
+      }
+      .approach-synthesis {
+        margin-top: 44px;
+        padding: 30px 22px 12px;
+      }
+      .approach-synthesis-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+      .approach-foundation {
+        max-width: 100%;
+        font-size: 0.7rem;
+        letter-spacing: 0.12em;
+        padding: 14px 16px;
+      }
+      .estimate-footer {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .approach-grid { grid-template-columns: 1fr; }
+      .approach-card { min-height: 0; }
+      .approach-synthesis-grid { grid-template-columns: 1fr; }
+      .rail-arrow { min-width: 44px; min-height: 44px; }
+      .latest-card { flex-basis: 100%; }
+      .differentiators { padding-left: 20px; padding-right: 20px; }
+      .bureaucracy-cost { padding-top: 52px; padding-bottom: 60px; }
+      .approach,
+      .synthesis,
+      .diagnostic-estimate,
+      .latest { padding-top: 52px; padding-bottom: 56px; }
+      .connect { padding-top: 52px; padding-bottom: 52px; }
+      .cost-heading,
+      .diagnostic-estimate-heading { margin-bottom: 28px; }
+      .differentiators-grid { grid-template-columns: 1fr; }
+      .hero-image {
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-position: 60% 50%;
+        --hero-shift-x: 0%;
+        opacity: 0;
+        transform: none;
+      }
+      .hero-image.is-loaded {
+        opacity: 0.92;
+        transform: none;
+      }
+      .hero-overlay {
+        background:
+          linear-gradient(180deg, rgba(4,24,27,0.54) 0%, rgba(4,24,27,0.34) 42%, rgba(4,24,27,0.56) 100%),
+          linear-gradient(0deg, rgba(4,24,27,0.34) 0%, transparent 56%);
+      }
+      .connect-panel { padding: 24px 22px 22px; }
+      .footer-top,
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
   
+/* Monderman harmonization polish: shared footer, micro-interactions, and editorial rhythm */
+.footer {
+  padding-top: 56px;
+  padding-bottom: 40px;
+}
+.footer-top {
+  gap: 52px;
+  padding-bottom: 32px;
+}
+.footer-mark {
+  letter-spacing: -0.018em;
+}
+.footer-nav {
+  gap: 46px;
+}
+.footer-nav-title {
+  letter-spacing: 0.18em;
+  color: rgba(245,241,232,0.54);
+}
+.footer-nav a {
+  margin-bottom: 9px;
+  color: rgba(245,241,232,0.78);
+  transition: color var(--transition), transform var(--transition), opacity var(--transition);
+}
+.footer-nav a:hover,
+.footer-nav a:focus-visible {
+  color: #FFFFFF;
+  transform: translateX(2px);
+  outline: none;
+}
+.footer-bottom {
+  padding-top: 21px;
+}
+.footer-meta,
+.footer-contact {
+  color: rgba(245,241,232,0.56);
+}
+.footer-contact {
+  max-width: 46ch;
+  text-align: right;
+}
+.btn {
+  transition: background 180ms cubic-bezier(0.22,1,0.36,1), color 180ms cubic-bezier(0.22,1,0.36,1), border-color 180ms cubic-bezier(0.22,1,0.36,1), transform 180ms cubic-bezier(0.22,1,0.36,1), box-shadow 180ms cubic-bezier(0.22,1,0.36,1), opacity 180ms cubic-bezier(0.22,1,0.36,1);
+}
+.card,
+.entry-card,
+.commitment-card,
+.connect-card,
+.latest-card,
+.service-card {
+  transition: transform var(--transition-slow), border-color var(--transition), box-shadow var(--transition-slow), background var(--transition);
+}
+.latest-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(12,110,120,0.18);
+  box-shadow: 0 12px 28px rgba(15,23,32,0.045);
+}
+.hero-eyebrow,
+.section-label,
+.footer-nav-title,
+.diff-kicker,
+.latest-card-kicker {
+  letter-spacing: 0.18em;
+}
+@media (max-width: 768px) {
+  .approach-synthesis-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .footer-nav { gap: 32px; }
+}
+@media (max-width: 760px) {
+  .footer-top,
+  .footer-bottom {
+    align-items: flex-start;
+  }
+  .footer-contact {
+    text-align: left;
+  }
+}
+/* Carousel articles — explicit Neue Haas Grotesk on every element */
+.latest-card,
+.latest-card-kicker,
+.latest-card-title,
+.latest-card-text,
+.latest-card-link,
+.placeholder-cover,
+.placeholder-cover-stack,
+.placeholder-cover-title,
+.placeholder-cover-subline,
+.placeholder-cover-top,
+.placeholder-cover-main,
+.placeholder-cover-brand,
+.placeholder-cover-series,
+.placeholder-cover-subtitle,
+.placeholder-cover-meta,
+.latest-card h3,
+.latest-card p,
+.latest-card a {
+  font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
+
+/* Editorial carousel tile subtitle alignment */
+.placeholder-cover {
+  align-items: flex-end;
+}
+.placeholder-cover-stack {
+  display: grid;
+  gap: 10px;
+  align-items: end;
+  max-width: 84%;
+}
+.placeholder-cover-subline {
+  display: block;
+  margin: 0;
+  max-width: 29ch;
+  font-size: 0.84rem;
+  line-height: 1.34;
+  letter-spacing: -0.01em;
+  color: rgba(255,255,255,0.82);
+  text-wrap: balance;
+}
+.placeholder-cover-title {
+  max-width: 100%;
+}
+        .footer {
+      position: relative;
+      overflow: hidden;
+    }
+    .footer-motif {
+      position: absolute;
+      bottom: -65px;
+      right: -65px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .footer-top, .footer-bottom, .footer-inner, .footer-brand,
+    .footer-nav, .footer-meta, .footer-contact {
+      position: relative;
+      z-index: 1;
+    }
+    
     .nav a.workspace-link {
       display: inline-flex;
       align-items: center;
@@ -847,439 +1942,760 @@
       .mond-footer .mf-motif svg { width: 220px; height: 220px; }
     }
 
-
-    /* ===== Cream body theme — content sections only; hero/header/footer stay dark teal ===== */
-    .featured-inner {
-      border-top-color: var(--card-line);
-      border-bottom-color: var(--card-line);
-      background: transparent;
-    }
-    .featured-main { border-right-color: var(--card-line); }
-    .section-kicker { color: rgba(24,22,18,0.62); }
-    .featured-title { color: var(--ink); }
-    .featured-desc { color: rgba(24,22,18,0.72); }
-    .featured-link { color: var(--accent-dark); }
-    .featured-link:hover { color: var(--accent); }
-    .meta-item strong { color: var(--ink); }
-    .meta-item span { color: rgba(24,22,18,0.66); }
-    .featured-quote {
-      border-top-color: var(--card-line);
-      color: rgba(24,22,18,0.76);
-    }
-
-    .band-head { border-bottom-color: var(--card-line); }
-    .band-head .left,
-    .band-head .right { color: rgba(24,22,18,0.62); }
-    .paper-card {
-      border-bottom-color: var(--card-line);
-      border-right-color: var(--card-line);
-    }
-    .paper-top { color: rgba(24,22,18,0.56); }
-    .paper-title { color: var(--ink); }
-    .paper-body { color: rgba(24,22,18,0.72); }
-    .paper-stats { color: rgba(24,22,18,0.56); }
-    .paper-action { color: var(--accent-dark); }
-    .paper-action:hover { color: var(--accent); }
-
-    .divider-quote-inner { border-bottom-color: var(--card-line); }
-    .divider-label { color: rgba(24,22,18,0.58); }
-    .divider-quote blockquote { color: var(--ink); }
-
-    .essay-card {
-      border-bottom-color: var(--card-line);
-      border-right-color: var(--card-line);
-    }
-    .essay-title { color: var(--ink); }
-    .essay-body { color: rgba(24,22,18,0.72); }
-
-    .cta-inner {
-      background: linear-gradient(180deg, rgba(24,22,18,0.02), rgba(24,22,18,0.035));
-      border-color: var(--card-line);
-      box-shadow: 0 22px 60px rgba(24,22,18,0.08);
-    }
-    .cta-kicker { color: rgba(24,22,18,0.62); }
-    .cta-title { color: var(--ink); }
-    .cta-copy { color: rgba(24,22,18,0.72); }
-    .cta-band .btn {
-      border-color: rgba(24,22,18,0.18);
-      background: rgba(24,22,18,0.02);
-      color: var(--ink);
-    }
-    .cta-band .btn:hover,
-    .cta-band .btn:focus-visible {
-      background: rgba(24,22,18,0.04);
-      border-color: rgba(24,22,18,0.28);
-    }
-    .cta-band .btn-accent {
-      background: var(--accent);
-      border-color: var(--accent-dark);
-      color: #fff;
-    }
-    .cta-band .btn-accent:hover,
-    .cta-band .btn-accent:focus-visible {
-      background: var(--accent-dark);
-      color: #fff;
-    }
-    /* orange — static left-edge on divider blockquote */
-    .divider-quote blockquote {
-      border-left: 3px solid #C9821F;
-      padding-left: 18px;
-    }
-    /* orange hover-reveal — paper-card hover reveal */
-    .paper-card { position: relative; overflow: hidden; }
-    .paper-card::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 3px;
-      width: 0%;
-      background: #C9821F;
-      transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
-      pointer-events: none;
-      z-index: 2;
-    }
-    .paper-card:hover::before { width: 100%; }
-
-
   </style>
+<style>
+.hero{background:linear-gradient(180deg,#08383E 0%,#05272B 54%,#04181B 100%) !important}
+.hero-bloom{display:none !important}
+.hero-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,rgba(4,24,27,0.40) 0%,rgba(4,24,27,0.14) 34%,rgba(4,24,27,0) 58%)}
+.hero-media-wrap{background:#08383E}
+.hero-actions .btn-accent{background:#FAFAF8;color:#0A5B63;border-color:#FAFAF8;box-shadow:0 8px 22px rgba(8,40,44,.22)}
+.hero-actions .btn-accent:hover,.hero-actions .btn-accent:focus-visible{background:#FFFFFF;color:#08474E;border-color:#FFFFFF}
+.hero-actions .btn-secondary{background:transparent;color:#FAFAF8;border-color:rgba(250,250,248,.55);box-shadow:none}
+.hero-actions .btn-secondary:hover,.hero-actions .btn-secondary:focus-visible{background:rgba(250,250,248,.12);color:#FFFFFF;border-color:#FAFAF8}
+.hero-founder-line{margin:18px 0 0;font-size:13px;letter-spacing:.01em}
+.hero-founder-line a{color:rgba(250,250,248,.62);border-bottom:1px solid rgba(250,250,248,.28);padding-bottom:2px;transition:color 180ms ease,border-color 180ms ease}
+.hero-founder-line a:hover,.hero-founder-line a:focus-visible{color:#FAFAF8;border-color:rgba(250,250,248,.7)}
+.nav a.is-active{color:#FFFFFF}
+@media (min-width:981px){
+  .header:not(.scrolled){
+    background:linear-gradient(180deg,rgba(4,24,27,.40) 0%,rgba(4,24,27,.25) 48%,rgba(4,24,27,.10) 100%);
+    border-bottom-color:rgba(255,255,255,.055);
+    -webkit-backdrop-filter:blur(8px) saturate(.94);
+    backdrop-filter:blur(8px) saturate(.94);
+  }
+}
+.header.scrolled{background:rgba(5,24,27,0.72);border-bottom-color:rgba(255,255,255,0.07)}
+.header.scrolled.past-hero{background:rgba(250,250,248,0.90);border-bottom-color:rgba(24,25,28,0.08)}
+.header.past-hero .brand{color:#18191C;text-shadow:none}
+.header.past-hero .nav a{color:rgba(24,25,28,0.74)}
+.header.past-hero .nav a:hover,.header.past-hero .nav a:focus-visible{color:#18191C}
+.header.past-hero .nav a.is-active{color:#0C6E78}
+.hero h1,.hero-dek{text-shadow:none}
+.cost-card-number{color:#C9821F}
+@media (min-aspect-ratio: 21/9) and (min-width: 1500px){
+  .hero-image{object-fit:contain;object-position:right center;width:100%;height:100%;left:auto;right:0;}
+  .hero-overlay{background:linear-gradient(90deg,rgba(4,24,27,0.48) 0%,rgba(4,24,27,0.32) 22%,rgba(4,24,27,0.10) 42%,rgba(4,24,27,0) 60%),linear-gradient(180deg,rgba(4,24,27,0.10) 0%,rgba(4,24,27,0.02) 36%,rgba(4,24,27,0.10) 100%)}
+  .hero-inner{max-width:min(1440px,100%);padding-left:clamp(34px,6vw,96px);padding-right:clamp(34px,6vw,96px);}
+  .hero-copy{max-width:820px;}
+}
+@media (max-width:640px){.hero-scrim{background:linear-gradient(180deg,rgba(4,24,27,0.16) 0%,rgba(4,24,27,0.06) 40%,rgba(4,24,27,0) 70%)}}
+
+/* Homepage hero: preserve original Hero-Image.jpg, shift canyon right, reduce glare, protect left-side copy. */
+.hero-media-wrap{background:#04181B}
+.hero-image{
+  object-fit:cover !important;
+  object-position:50% 50% !important;
+  filter:brightness(.78) saturate(.94) contrast(.98);
+  transform:scale(1.16) translateX(6%) !important;
+  transform-origin:center center;
+}
+.hero-image.is-loaded{opacity:.96}
+.hero-scrim{
+  background:
+    linear-gradient(90deg,rgba(4,24,27,.82) 0%,rgba(4,24,27,.68) 22%,rgba(4,24,27,.44) 40%,rgba(4,24,27,.20) 55%,rgba(4,24,27,.05) 68%,rgba(4,24,27,0) 78%),
+    linear-gradient(180deg,rgba(4,24,27,.10) 0%,rgba(4,24,27,.02) 46%,rgba(4,24,27,.10) 100%);
+}
+.hero-overlay{
+  background:
+    radial-gradient(ellipse at 60% 53%,rgba(4,24,27,.18) 0%,rgba(4,24,27,.09) 24%,rgba(4,24,27,0) 46%),
+    linear-gradient(180deg,rgba(4,24,27,.08) 0%,rgba(4,24,27,.02) 50%,rgba(4,24,27,.10) 100%);
+}
+@media (max-width:980px){
+  .hero-image{transform:scale(1.10) translateX(3%) !important;filter:brightness(.76) saturate(.92) contrast(.98);}
+  .hero-scrim{background:linear-gradient(90deg,rgba(4,24,27,.78) 0%,rgba(4,24,27,.60) 38%,rgba(4,24,27,.26) 66%,rgba(4,24,27,.08) 84%,rgba(4,24,27,0) 100%);}
+}
+@media (max-width:640px){
+  .hero-image{transform:scale(1.04) !important;filter:brightness(.72) saturate(.90) contrast(.98);}
+  .hero-scrim{background:linear-gradient(180deg,rgba(4,24,27,.44) 0%,rgba(4,24,27,.30) 44%,rgba(4,24,27,.52) 100%);}
+}
+</style>
 </head>
 <body>
-  <header class="header" id="siteHeader">
-    <div class="header-inner">
-      <a href="index.html" class="brand">Monderman<span class="brand-dot"></span></a>
-      <nav class="nav" aria-label="Primary navigation">
-        <a href="index.html#approach">Approach</a>
-        <a href="https://www.monderman.com/diagnostics.html">Diagnostics</a>
-        <a href="research.html" class="is-active">Research</a>
-        <a href="why-monderman.html">Why Monderman</a>
-        <a href="about.html">About</a>
-        <a href="platform-services.html">Platform Services</a>
-        <a href="connect.html">Connect</a>
-        <a class="workspace-link" href="workspace.html">Sign In</a>
-      </nav>
-    </div>
-  </header>
-  <section class="hero">
-    <div class="hero-inner">
-      <div>
-        <p class="eyebrow">Institutional Performance Research</p>
-        <h1>Insights, briefs, and working papers.</h1>
-        <p class="hero-copy">Original research on administrative burden, structural drag, decision systems, and institutional performance. Insights are longer, source-driven arguments; briefs are focused diagnostic reads; on-site essays extend the thinking. Built to be read and cited, not scrolled.</p>
-      </div>
-      <div class="hero-meta">
-        <div class="hero-search" id="heroSearch" hidden>
-          <span class="hs-label">Search the research</span>
-          <div class="hs-field">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="7"/><line x1="15.8" y1="15.8" x2="21" y2="21"/></svg>
-            <input id="rsearchInput" type="search" autocomplete="off" spellcheck="false" aria-label="Search the research on this page" placeholder="Search library content&hellip;"/>
-            <button type="button" class="hs-clear" id="rsearchClear" hidden>Clear</button>
-          </div>
+<header class="header" id="siteHeader">
+<div class="header-inner">
+<a class="brand" href="index.html">Monderman<span class="brand-dot"></span></a>
+<nav aria-label="Primary navigation" class="nav">
+<a href="#approach">Approach</a>
+<a href="diagnostics.html">Diagnostics</a>
+<a href="research.html">Research</a>
+<a href="why-monderman.html">Why Monderman</a>
+<a href="about.html">About</a>
+<a href="platform-services.html">Platform Services</a>
+<a href="connect.html">Connect</a>
+<a class="workspace-link" href="workspace.html">Sign In</a>
+</nav>
+</div>
+</header>
+<section aria-labelledby="hero-title" class="hero">
+<div class="hero-scrim" aria-hidden="true"></div>
+<div aria-hidden="true" class="hero-media-wrap">
+<img alt="" class="hero-image" decoding="async" fetchpriority="high" height="1365" id="heroImage" src="Hero-Image.jpg" width="2048"/>
+<div class="hero-overlay"></div>
+</div>
+<div class="hero-inner">
+<div class="hero-copy">
+<p class="hero-eyebrow">Organizations deliver at the speed of their administrative reality.</p>
+<h1 class="hero-title" id="hero-title">The best-run institutions measure what others assume.</h1>
+<p class="hero-dek">
+          Monderman is a suite of diagnostic instruments that shows how your institution is actually performing — and tracks change over time.
+        </p>
+<div class="hero-actions">
+          <a class="btn btn-accent" href="diagnostics.html">Run one yourself — free</a>
+          <a class="btn btn-secondary" href="connect.html">Discuss a diagnostic</a>
         </div>
-        <div class="filter-row" aria-label="Quick searches by category">
-          <button type="button" class="filter-chip is-active" data-q="">All</button>
-          <button type="button" class="filter-chip" data-q="Defense">Defense</button>
-          <button type="button" class="filter-chip" data-q="Healthcare">Healthcare</button>
-          <button type="button" class="filter-chip" data-q="Enterprise">Enterprise</button>
-          <button type="button" class="filter-chip" data-q="Decision Design">Decision Design</button>
-        </div>
-        <p class="library-stamp">13 items · Updated August 2026</p>
-      </div>
-    </div>
-  </section>
-  <!-- Search results. Rendered from the client-side index; the book feature is never indexed. -->
-  <section class="rsearch" id="rsearchOut" hidden>
-    <style>
-      .rsearch[hidden] { display: none; }
-      .rsearch {
-        padding: 34px 34px 6px;
-        background: linear-gradient(180deg, rgba(12,110,120,0.055), rgba(12,110,120,0.012));
-        border-bottom: 1px solid rgba(12,110,120,0.12);
-      }
-      .rsearch-inner { max-width: var(--max); margin: 0 auto; }
-      .rs-grid { display: grid; grid-template-columns: 1fr 1fr; }
-      .rs-hit {
-        padding: 26px 30px 24px; display: grid; align-content: start; gap: 11px;
-        border-bottom: 1px solid var(--card-line); border-right: 1px solid var(--card-line);
-      }
-      .rs-hit:nth-child(2n) { border-right: none; }
-      .rs-top {
-        display: flex; justify-content: space-between; gap: 12px;
-        font-size: 0.64rem; font-weight: 700; line-height: 1.3; letter-spacing: 0.16em;
-        text-transform: uppercase; color: rgba(24,22,18,0.56);
-      }
-      .rs-title { margin: 0; font-size: 1.2rem; line-height: 1.12; letter-spacing: -0.03em; color: var(--ink); }
-      .rs-title a { color: inherit; }
-      .rs-title a:hover, .rs-title a:focus-visible { color: var(--accent-dark); }
-      .rs-snip { margin: 0; font-size: 0.92rem; line-height: 1.66; color: rgba(24,22,18,0.72); }
-      .rs-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-top: 3px; }
-      .rs-stats { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(24,22,18,0.52); }
-      .rs-action { font-size: 0.82rem; font-weight: 600; color: var(--accent-dark); white-space: nowrap; }
-      .rs-action:hover, .rs-action:focus-visible { color: var(--accent); }
-      .rsearch mark {
-        background: rgba(201,130,31,0.26); color: inherit;
-        border-radius: 2px; padding: 0 1px; box-shadow: 0 0 0 1px rgba(201,130,31,0.28);
-      }
-      .rs-empty { padding: 26px 0 10px; font-size: 0.95rem; line-height: 1.7; color: rgba(24,22,18,0.7); }
-      .rs-empty button {
-        border: 0; background: none; padding: 0; cursor: pointer; font: inherit;
-        color: var(--accent-dark); font-weight: 600; border-bottom: 1px solid rgba(12,110,120,0.35);
-      }
-      @media (max-width: 860px) {
-        .rsearch { padding: 26px 20px 4px; }
-        .rs-grid { grid-template-columns: 1fr; }
-        .rs-hit { border-right: none; padding: 22px 0; }
-      }
-    </style>
-    <div class="rsearch-inner">
-      <div class="band-head">
-        <div class="left">Search results</div>
-        <div class="right" id="rsearchCount" role="status" aria-live="polite"></div>
-      </div>
-      <div class="rs-grid" id="rsearchResults"></div>
-    </div>
-  </section>
-  <section class="book-feature">
-    <style>
-      .book-feature { padding: 34px 34px 0; }
-      .book-feature-inner {
-        max-width: var(--max); margin: 0 auto;
-        border-top: 1px solid var(--card-line); border-bottom: 1px solid var(--card-line);
-        display: grid;
-        grid-template-columns: auto minmax(0, 1.02fr) minmax(280px, .72fr);
-        background: transparent;
-      }
-      .book-feature-cover { padding: 30px; border-right: 1px solid var(--card-line); display: flex; align-items: center; }
-      .bf-jacket { width: 178px; display: block; border-radius: 3px; box-shadow: 0 18px 36px rgba(148,94,18,0.22), 0 4px 10px rgba(24,22,18,0.14); }
-      .bf-cover-link { display: inline-block; transition: transform 200ms ease; }
-      .bf-cover-link:hover { transform: translateY(-3px); }
-      .bf-cover-link:focus-visible { outline: 2px solid #0C6E78; outline-offset: 4px; }
-      .bf-cover {
-        width: 178px; aspect-ratio: 5 / 7.6; position: relative;
-        background: linear-gradient(135deg,#D9953B 0%,#C9821F 55%,#A86A14 100%);
-        border-radius: 2px 6px 6px 2px; color: #18191C;
-        box-shadow: 0 18px 36px rgba(148,94,18,0.22), 0 4px 10px rgba(24,22,18,0.14);
-        display: flex; flex-direction: column; justify-content: space-between;
-        padding: 20px 18px 16px;
-      }
-      .bf-cover::before { content:""; position:absolute; left:8px; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.28); }
-      .bf-cover::after { content:""; position:absolute; right:-4px; top:5px; bottom:5px; width:4px; background:repeating-linear-gradient(90deg,#F4EFE6 0 1px,#D9D4C8 1px 2px); border-radius:0 2px 2px 0; }
-      .bf-cover-author { font-size:9px; font-weight:600; letter-spacing:.2em; text-transform:uppercase; color:rgba(24,25,28,0.64); }
-      .bf-cover-title { font-size:15px; font-weight:700; letter-spacing:-.02em; line-height:1.22; display:block; }
-      .bf-cover-rule { width:28px; height:2px; background:#18191C; margin:10px 0; display:block; }
-      .bf-cover-sub { font-size:9.5px; line-height:1.5; color:rgba(24,25,28,0.74); display:block; }
-      .bf-cover-imprint { font-size:9px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:rgba(24,25,28,0.55); }
-      .book-feature-main { padding: 34px 32px; }
-      .bf-title { margin: 0; font-size: clamp(1.5rem, 2.3vw, 2.05rem); line-height: 1.08; letter-spacing: -0.04em; color: var(--ink); }
-      .bf-subtitle { margin: 8px 0 0; font-size: 1rem; color: rgba(24,22,18,0.66); letter-spacing: -0.01em; }
-      .bf-desc { margin: 16px 0 0; font-size: 0.95rem; line-height: 1.65; color: rgba(24,22,18,0.72); max-width: 60ch; }
-      .bf-links { display: flex; gap: 26px; flex-wrap: wrap; }
-      .book-feature-side { padding: 34px 32px; border-left: 1px solid var(--card-line); }
-      .bf-series { margin: 22px 0 0; font-size: 0.82rem; line-height: 1.6; color: rgba(24,22,18,0.56); }
-      @media (max-width: 960px) {
-        .book-feature { padding: 26px 20px 0; }
-        .book-feature-inner { grid-template-columns: 1fr; }
-        .book-feature-cover { border-right: 0; border-bottom: 1px solid var(--card-line); }
-        .book-feature-side { border-left: 0; border-top: 1px solid var(--card-line); }
-      }
-    </style>
-    <div class="book-feature-inner">
-      <div class="book-feature-cover">
-        <a class="bf-cover-link" href="https://www.routledge.com/Governance-Bureaucracy-and-Organization-Stewardship-Drift-and-Administrative-Capacity/Adamson/p/book/9781041403296" target="_blank" rel="noopener noreferrer" aria-label="View Governance, Bureaucracy and Organization at Routledge">
-        <div class="bf-cover" aria-hidden="true">
-          <span class="bf-cover-author">Jason Adamson</span>
-          <span>
-            <span class="bf-cover-title">Governance,<br/>Bureaucracy and<br/>Organization</span>
-            <span class="bf-cover-rule"></span>
-            <span class="bf-cover-sub">Stewardship, Drift, and<br/>Administrative Capacity</span>
-          </span>
-          <span class="bf-cover-imprint">Routledge</span>
-        </div>
-        </a>
-      </div>
-      <div class="book-feature-main">
-        <p class="section-kicker">The Book · Routledge, 2027</p>
-        <h2 class="bf-title">Governance, Bureaucracy and Organization</h2>
-        <p class="bf-subtitle">Stewardship, Drift, and Administrative Capacity</p>
-        <p class="bf-desc">A peer-reviewed monograph on bureaucracy as living administrative architecture: why capable organizations drift into failure while staying busy, how to trace that drift forensically, and what it takes to govern bureaucracy as a standing executive discipline. Written for senior leaders, scholars, and analysts responsible for institutional performance.</p>
-        <div class="bf-links">
-          <a class="featured-link" href="https://www.routledge.com/Governance-Bureaucracy-and-Organization-Stewardship-Drift-and-Administrative-Capacity/Adamson/p/book/9781041403296" target="_blank" rel="noopener noreferrer">View at Routledge ↗</a>
-          <a class="featured-link" href="https://amzn.eu/d/0bTiOpb1" target="_blank" rel="noopener noreferrer">Also on Amazon ↗</a>
-        </div>
-      </div>
-      <div class="book-feature-side">
-        <div class="meta-grid">
-          <div class="meta-item"><strong>2027</strong><span>Publication</span></div>
-          <div class="meta-item"><strong>234</strong><span>Pages</span></div>
-          <div class="meta-item"><strong>16</strong><span>Illustrations</span></div>
-          <div class="meta-item"><strong>Routledge</strong><span>Publisher</span></div>
-        </div>
-        <p class="bf-series">Routledge Studies in Business Organizations and Networks · Taylor &amp; Francis</p>
-      </div>
-    </div>
-  </section>
-  <section class="featured">
-    <div class="featured-inner">
-      <div class="featured-main">
-        <p class="section-kicker">New paper · Start here</p>
-        <h2 class="featured-title">Merit After the Machine</h2>
-        <p class="featured-desc">A Monderman insight paper on what artificial intelligence actually breaks: not human merit, but the evidence institutions use to find it. Being smart and hardworking became the official story of getting ahead, read through essays, degrees, and tireless-looking output. The machines now produce that evidence for the price of a subscription, and the rules built on it, hiring screens, grading, reviews, and promotion, have started paying for the wrong things. The paper traces how recently those rules were built, what happened the last time machines took over something people were valued for, what may become scarcer next, and closes with a five-question evidence audit any leadership team can run this quarter.</p>
-        <a class="featured-link" href="Monderman_Insight_Merit_After_the_Machine_2026-08-11.pdf" target="_blank" rel="noopener noreferrer">Download the insight paper ↗</a>
-      </div>
-      <div class="featured-side">
-        <div class="meta-grid">
-          <div class="meta-item"><strong>August 2026</strong><span>Publication</span></div>
-          <div class="meta-item"><strong>15</strong><span>Pages</span></div>
-          <div class="meta-item"><strong>~18 min</strong><span>Read time</span></div>
-          <div class="meta-item"><strong>PDF</strong><span>Format</span></div>
-        </div>
-        <p class="featured-quote">“As answers get cheap, someone willing to stand behind an answer gets expensive.”</p>
-      </div>
-    </div>
-  </section>
-  <section class="library">
-    <div class="library-inner">
-      <div class="band-head">
-        <div class="left">Downloadable research</div>
-        <div class="right">PDF · 8 documents</div>
-      </div>
-      <div class="research-grid">
-        <article class="paper-card wide">
-          <div>
-            <div class="paper-top"><span>Decision Design</span><span>Insight · PDF</span></div>
-            <h3 class="paper-title">Terminal Fidelity</h3>
-            <p class="paper-body">Why the philosophies, movements, and companies that win begin to fail: founding principles are rules for going that rarely contain rules for stopping, and faithful application ends up producing the opposite of founding intent.</p>
+<p class="hero-founder-line"><a href="#book">Founded by the author of <em>Governance, Bureaucracy and Organization</em> (Routledge, 2027)</a></p>
+</div>
+</div>
+</section>
+<section aria-labelledby="differentiators-title" class="differentiators">
+<div class="differentiators-inner"><h2 class="diff-section-heading" id="differentiators-title">An instrument, not an assessment.</h2>
+<div class="differentiators-grid">
+<article class="diff-card reveal reveal-delay-1">
+<p class="diff-kicker">Repeated measurement</p>
+<h3 class="diff-title">Not one-time assessment.</h3>
+<p class="diff-text">
+            The same instrument, run again after change, is where value compounds. Monderman is built for the second, third, and tenth read.
+          </p>
+</article>
+<article class="diff-card reveal reveal-delay-2">
+<p class="diff-kicker">Perspective lenses</p>
+<h3 class="diff-title">Not a single perspective.</h3>
+<p class="diff-text">
+            Operational, managerial, and senior leader readings of the same reality rarely match perfectly. The divergence is often the signal.
+          </p>
+</article>
+<article class="diff-card reveal reveal-delay-3">
+<p class="diff-kicker">Cross-diagnostic synthesis</p>
+<h3 class="diff-title">Not isolated scores.</h3>
+<p class="diff-text">
+            Results from the four diagnostics can compose into a broader institutional read, making patterns legible across lenses rather than one score at a time.
+          </p>
+</article>
+<article class="diff-card reveal reveal-delay-4">
+<p class="diff-kicker">Longitudinal governance</p>
+<h3 class="diff-title">Not a one-off baseline.</h3>
+<p class="diff-text">
+            One instrument, administered the same way, run after run. Stable scoring, locked question paths, controlled visibility states, and auditable administration across teams and time.
+          </p>
+</article>
+</div>
+</div>
+</section>
+<section aria-labelledby="cost-title" class="bureaucracy-cost section-with-bar snap-anchor" id="cost-section">
+<div aria-hidden="true" class="section-bar">Cost of Bureaucratic Friction</div>
+<div class="cost-inner">
+<div class="cost-heading reveal">
+<h2 id="cost-title">Where performance is quietly lost.</h2>
+<p class="cost-context">
+          Many institutions are already paying these costs in time, money, and productive capacity without fully seeing where the losses originate or why repeated fixes fail to resolve them.
+        </p>
+</div>
+<div class="cost-grid">
+<div class="cost-card reveal reveal-delay-1">
+<div class="cost-card-title">Evidence<span class="asterisk">*</span></div>
+<p class="cost-card-source"><em>* Hamel &amp; Zanini, HBR, 2017</em></p>
+<div class="cost-card-number" data-count-type="plain-plus" data-target="7000">7,000+</div>
+<p class="cost-card-text">HBR readers contributed to a large survey of bureaucracy and bureaucratic drag.</p>
+</div>
+<div class="cost-card reveal reveal-delay-2">
+<div class="cost-card-title">Money<span class="asterisk">*</span></div>
+<p class="cost-card-source"><em>* Gary Hamel &amp; Michele Zanini, HBR, 2016</em></p>
+<div class="cost-card-number" data-count-type="currency-trillion" data-target="3">$0T</div>
+<p class="cost-card-text">estimated annual U.S. lost economic output attributed by the authors to excess bureaucracy.</p>
+</div>
+<div class="cost-card reveal reveal-delay-3">
+<div class="cost-card-title">Burden Reduction<span class="asterisk">*</span></div>
+<p class="cost-card-source"><em>* OECD Regulatory Policy Outlook, 2018</em></p>
+<div class="cost-card-number" data-count-type="percent" data-target="25">0%</div>
+<p class="cost-card-text">administrative-burden reduction target documented for the Netherlands' early Standard Cost Model program.</p>
+</div>
+</div>
+<p class="cost-action reveal reveal-delay-4">
+        <strong>Monderman is the instrument that surfaces where these losses originate</strong> — and helps institutions stay ahead of where they're forming next.
+        <br>
+        <a href="diagnostics.html">Run a diagnostic — free →</a>
+      </p>
+<p class="cost-footer reveal reveal-delay-4">
+        Sources: Gary Hamel and Michele Zanini, Harvard Business Review (2016, 2017); OECD Regulatory Policy Outlook 2018. These are external reference points, not Monderman measurements.
+      </p>
+</div>
+</section>
+<section aria-labelledby="approach-title" class="approach section-with-bar snap-anchor" id="approach">
+<div aria-hidden="true" class="section-bar">Our Approach</div>
+<div class="approach-inner">
+<div class="section-intro reveal">
+<h2 id="approach-title">Four lenses on the same system.</h2>
+<p class="approach-bridge">
+          Four diagnostic lenses on the same institutional system — time through it, legibility of it, weight of it, and whether it still holds. Together, they read where strategy becomes execution — or stalls under the weight of unclear structures, slower decisions, and administrative systems that no longer support the work.
+        </p>
+</div>
+<div class="approach-grid">
+<div class="approach-card reveal reveal-delay-1" data-effect-target="clarity">
+<div class="approach-card-head">
+<span aria-hidden="true" class="approach-glyph">
+<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+<path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
+</svg>
+</span>
+<div class="approach-card-head-copy">
+<div class="card-title">Structural Clarity</div>
+<div class="card-subhead"><em>Is the structure clear?</em></div>
+</div>
+</div>
+<div class="card-desc">
+            Monderman identifies where ambiguity in ownership, authority, handoffs, and role boundaries is forcing people to compensate around the structure instead of relying on it.
           </div>
-          <div class="paper-foot">
-            <div class="paper-stats"><span>16 pp</span><span>~20 min</span></div>
-            <a class="paper-action" href="Terminal_Fidelity.pdf" target="_blank" rel="noopener noreferrer">Download →</a>
+<a class="approach-card-link" href="structural-clarity-article.html">Read article →</a>
+</div>
+<div class="approach-card reveal reveal-delay-2" data-effect-target="velocity">
+<div class="approach-card-head">
+<span aria-hidden="true" class="approach-glyph">
+<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+<path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
+</svg>
+</span>
+<div class="approach-card-head-copy">
+<div class="card-title">Decision Velocity</div>
+<div class="card-subhead"><em>Do decisions move or stall?</em></div>
+</div>
+</div>
+<div class="card-desc">
+            Monderman surfaces where approvals, escalation, review layering, and routing burden are slowing movement through important decisions.
           </div>
-        </article>
-        <article class="paper-card wide">
-          <div>
-            <div class="paper-top"><span>Enterprise</span><span>Insight · PDF</span></div>
-            <h3 class="paper-title">After the First Lap</h3>
-            <p class="paper-body">How token economics will define the next phase of enterprise AI — and why the second lap will be won on disciplined consumption, procured from an emerging tier this paper names Deterministic AI Infrastructure.</p>
+<a class="approach-card-link" href="decision-velocity-article.html">Read article →</a>
+</div>
+<div class="approach-card reveal reveal-delay-3" data-effect-target="systems">
+<div class="approach-card-head">
+<span aria-hidden="true" class="approach-glyph">
+<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+<rect height="14" rx="2" width="16" x="4" y="5"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
+</svg>
+</span>
+<div class="approach-card-head-copy">
+<div class="card-title">Operational Systems</div>
+<div class="card-subhead"><em>How much weight is it carrying?</em></div>
+</div>
+</div>
+<div class="card-desc">
+            Monderman identifies where process density, reporting burden, and recurring administrative overhead are absorbing time and effort that should be supporting delivery.
           </div>
-          <div class="paper-foot">
-            <div class="paper-stats"><span>24 pp</span><span>~30 min</span></div>
-            <a class="paper-action" href="Monderman_Insight_After_the_First_Lap.pdf" target="_blank" rel="noopener noreferrer">Download →</a>
+<a class="approach-card-link" href="operational-systems-article.html">Read article →</a>
+</div>
+<div class="approach-card reveal reveal-delay-4" data-effect-target="performance">
+<div class="approach-card-head">
+<span aria-hidden="true" class="approach-glyph">
+<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+<path d="M4 20V10"></path><path d="M10 20V4"></path><path d="M16 20v-7"></path><path d="M22 20H2"></path>
+</svg>
+</span>
+<div class="approach-card-head-copy">
+<div class="card-title">Institutional Performance</div>
+<div class="card-subhead"><em>Is performance sustainable?</em></div>
+</div>
+</div>
+<div class="card-desc">
+            Monderman reads the broader institutional condition — whether the system is sustaining resilience, confidence, and adaptive capacity or quietly weakening beneath the work.
           </div>
-        </article>
-        <article class="paper-card">
-          <div class="paper-top"><span>Defense</span><span>Brief · PDF</span></div>
-          <h3 class="paper-title">Accumulated Drag in the Department of War</h3>
-          <p class="paper-body">Structural friction in one of the world’s most complex public institutions — measured, located, and named.</p>
-          <div class="paper-foot">
-            <div class="paper-stats"><span>22 pp</span><span>~17 min</span></div>
-            <a class="paper-action" href="Monderman_Brief_Accumulated_Drag_Department_of_War.pdf" target="_blank" rel="noopener noreferrer">Download →</a>
-          </div>
-        </article>
-        <article class="paper-card">
-          <div class="paper-top"><span>Healthcare</span><span>Brief · PDF</span></div>
-          <h3 class="paper-title">Quarter-Trillion Friction in U.S. Healthcare</h3>
-          <p class="paper-body">The administrative burden complicating performance in U.S. healthcare — quantified and mapped to structural causes.</p>
-          <div class="paper-foot">
-            <div class="paper-stats"><span>19 pp</span><span>~15 min</span></div>
-            <a class="paper-action" href="Monderman_Brief_Quarter_Trillion_Dollar_Friction_US_Healthcare.pdf" target="_blank" rel="noopener noreferrer">Download →</a>
-          </div>
-        </article>
-        <article class="paper-card">
-          <div class="paper-top"><span>Enterprise</span><span>Brief · PDF</span></div>
-          <h3 class="paper-title">How Workarounds Preserve Output While Masking Dysfunction</h3>
-          <p class="paper-body">Organizations appear to function because people compensate for structural weakness. Output survives. The system deteriorates.</p>
-          <div class="paper-foot">
-            <div class="paper-stats"><span>12 pp</span><span>~9 min</span></div>
-            <a class="paper-action" href="Monderman_Brief_Compensatory_Systems.pdf" target="_blank" rel="noopener noreferrer">Download →</a>
-          </div>
-        </article>
-        <article class="paper-card">
-          <div class="paper-top"><span>Enterprise</span><span>Brief · PDF</span></div>
-          <h3 class="paper-title">How the Collapse of Eastman Kodak Is Misunderstood</h3>
-          <p class="paper-body">Kodak did not fail because it missed technology. It failed because its decision systems could not adapt. The distinction matters.</p>
-          <div class="paper-foot">
-            <div class="paper-stats"><span>16 pp</span><span>~12 min</span></div>
-            <a class="paper-action" href="Monderman_Brief_The_Collapse_of_Eastman_Kodak.pdf" target="_blank" rel="noopener noreferrer">Download →</a>
-          </div>
-        </article>
-        <article class="paper-card wide">
-          <div>
-            <div class="paper-top"><span>Enterprise · Culture</span><span>Brief · PDF</span></div>
-            <h3 class="paper-title">The Culture Trap</h3>
-            <p class="paper-body">Why culture-first diagnosis mislocates the problem — and why organizations that fix sentiment before structure often fix the wrong thing first.</p>
-          </div>
-          <div class="paper-foot">
-            <div class="paper-stats"><span>2026</span><span>~11 min</span></div>
-            <a class="paper-action" href="Monderman_Brief_The_Culture_Trap.pdf" target="_blank" rel="noopener noreferrer">Download →</a>
-          </div>
-        </article>
-        <article class="paper-card wide">
-          <div>
-            <div class="paper-top"><span>Decision Design</span><span>Insight · PDF</span></div>
-            <h3 class="paper-title">The Art of Interior Reasoning</h3>
-            <p class="paper-body">The vast decision space that binary framing makes invisible — and why institutions miss viable options when complex choices are reduced too early.</p>
-          </div>
-          <div class="paper-foot">
-            <div class="paper-stats"><span>14 pp</span><span>~14 min</span></div>
-            <a class="paper-action" href="Monderman_Insight_The_Art_of_Interior_Reasoning.pdf" target="_blank" rel="noopener noreferrer">Download →</a>
-          </div>
-        </article>
-      </div>
-    </div>
-  </section>
-  <section class="divider-quote">
-    <div class="divider-quote-inner">
-      <div class="divider-label">On-site essays</div>
-      <blockquote>“Complexity does not appear all at once. It accumulates — faster than most institutions can absorb it.”</blockquote>
-    </div>
-  </section>
-  <section class="onsite">
-    <div class="onsite-inner">
-      <div class="essay-grid">
-        <article class="essay-card">
-          <div class="paper-top"><span>Insight</span><span>HTML · Essay</span></div>
-          <h3 class="essay-title">Governing Complexity</h3>
-          <p class="essay-body">Institutions rarely fail because complexity appears. They fail because it accumulates faster than their structures can absorb it.</p>
-          <div class="paper-foot">
-            <div class="paper-stats"><span>~8 min</span></div>
-            <a class="paper-action" href="governing-complexity.html">Read on site →</a>
-          </div>
-        </article>
-        <article class="essay-card">
-          <div class="paper-top"><span>Insight</span><span>HTML · Essay</span></div>
-          <h3 class="essay-title">Designing for Decision Velocity</h3>
-          <p class="essay-body">Institutions move well when governance, pathways, and role clarity support sound judgment without generating drag in the process.</p>
-          <div class="paper-foot">
-            <div class="paper-stats"><span>~7 min</span></div>
-            <a class="paper-action" href="designing-for-decision-velocity.html">Read on site →</a>
-          </div>
-        </article>
+<a class="approach-card-link" href="institutional-performance-article.html">Read article →</a>
+</div>
+</div>
+</div>
+</section>
 
-          <article class="essay-card">
-            <div class="paper-top"><span>Insight</span><span>HTML &middot; Essay</span></div>
-            <h3 class="essay-title">The Drift Problem</h3>
-            <p class="essay-body">Most institutions do not become bureaucratic on purpose. Administrative burden accumulates quietly &mdash; and repeated measurement is what catches it.</p>
-            <div class="paper-foot">
-              <div class="paper-stats"><span>~2 min</span></div>
-              <a class="paper-action" href="the-drift-problem.html">Read on site &rarr;</a>
-            </div>
-          </article>
+<section class="how-it-works snap-anchor" aria-labelledby="hiw-title">
+  <div class="how-it-works-inner">
+    <p class="how-it-works-eyebrow">How it works</p>
+    <h2 id="hiw-title">Three steps from first read to first action.</h2>
+    <div class="how-it-works-grid">
+      <div class="how-it-works-step reveal">
+        <p class="how-it-works-num">01</p>
+        <p class="how-it-works-name">Choose your strongest signal.</p>
+        <p class="how-it-works-text">Slowness, ambiguity, drag, or drift. Pick the diagnostic that maps to what you're actually feeling inside the organization.</p>
+      </div>
+      <div class="how-it-works-step reveal reveal-delay-1">
+        <p class="how-it-works-num">02</p>
+        <p class="how-it-works-name">Run the diagnostic in your browser.</p>
+        <p class="how-it-works-text">Take it as an interview or a guided form — about 25 minutes at the recommended depth either way. Your inputs are handled in confidence — never sold or shared.</p>
+      </div>
+      <div class="how-it-works-step reveal reveal-delay-2">
+        <p class="how-it-works-num">03</p>
+        <p class="how-it-works-name">Receive a read you can act on.</p>
+        <p class="how-it-works-text">Executive PDF, quantified score, primary structural signal, JSON export. Act on it. Re-run when conditions change.</p>
       </div>
     </div>
-  </section>
-  <section class="cta-band">
-    <div class="cta-inner">
-      <div>
-        <p class="cta-kicker">From reading to diagnosis</p>
-        <h2 class="cta-title">Move from research into application.</h2>
-        <p class="cta-copy">The library explains how structural drag forms. The Diagnostics help make those conditions legible inside a specific institution. Platform Services is where repeated measurement, support, and implementation become operational.</p>
-      </div>
-      <div class="cta-actions">
-        <a class="btn btn-accent" href="diagnostics.html">Enter the Diagnostics</a>
-        <a class="btn" href="platform-services.html">Platform Services</a>
+  </div>
+</section>
+
+<section class="proof-band" id="see-it" aria-labelledby="proof-title">
+  <style>
+    .proof-band{background:#F4F2EC;border-top:1px solid #EAE6DD;border-bottom:1px solid #EAE6DD;}
+    .proof-inner{max-width:1320px;margin:0 auto;padding:56px 28px;}
+    .proof-eyebrow{font-size:11.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#3E8A92;margin:0;}
+    .proof-band h2{margin:9px 0 0;font-size:24px;line-height:1.2;letter-spacing:-.03em;color:#0A4046;font-weight:600;}
+    .proof-lead{color:#6E6F73;font-size:15px;line-height:1.6;margin:10px 0 0;max-width:720px;}
+    .proof-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:30px;}
+    .proof-card{position:relative;display:flex;flex-direction:column;background:#fff;border:1px solid #EFEBE3;border-radius:14px;padding:24px 22px 20px;text-decoration:none;color:inherit;box-shadow:0 1px 2px rgba(16,30,48,.04),0 6px 16px rgba(16,30,48,.05);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;overflow:hidden;}
+    .proof-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:#0C6E78;transform:scaleX(0);transform-origin:left;transition:transform .2s ease;}
+    .proof-card:hover,.proof-card:focus-visible{transform:translateY(-3px);box-shadow:0 2px 4px rgba(16,30,48,.05),0 14px 30px rgba(16,30,48,.10);border-color:#CDE0E1;outline:none;}
+    .proof-card:hover::before,.proof-card:focus-visible::before{transform:scaleX(1);}
+    .proof-card-icon{width:36px;height:36px;border-radius:9px;background:#F1EEE7;color:#0C6E78;display:flex;align-items:center;justify-content:center;margin-bottom:15px;}
+    .proof-card-icon svg{width:19px;height:19px;}
+    .proof-card strong{font-size:15.5px;font-weight:600;color:#0A4046;letter-spacing:-.01em;line-height:1.3;}
+    .proof-card-text{color:#6E6F73;font-size:13px;line-height:1.55;margin:7px 0 0;flex:1;}
+    .proof-arrow{display:inline-flex;align-items:center;gap:5px;margin-top:18px;color:#0C6E78;font-weight:600;font-size:13px;}
+    .proof-arrow .pa-chev{transition:transform .2s ease;}
+    .proof-card:hover .proof-arrow .pa-chev,.proof-card:focus-visible .proof-arrow .pa-chev{transform:translateX(3px);}
+    @media(max-width:900px){.proof-grid{grid-template-columns:1fr;}.proof-inner{padding:44px 22px;}}
+  </style>
+  <div class="proof-inner">
+    <p class="proof-eyebrow">See it before you commit</p>
+    <h2 id="proof-title">See exactly what a diagnostic produces.</h2>
+    <p class="proof-lead">Three ways to see what Monderman delivers &mdash; and what it&rsquo;s worth &mdash; before you run anything.</p>
+    <div class="proof-grid">
+      <a class="proof-card" href="sample-report.html">
+        <span class="proof-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg></span>
+        <strong>See a full sample report</strong>
+        <p class="proof-card-text">A complete diagnostic readout &mdash; scores, exposure, and recommendations &mdash; exactly as the engine renders it.</p>
+        <span class="proof-arrow">View a sample report <span class="pa-chev">&rarr;</span></span>
+      </a>
+      <a class="proof-card" href="roi.html">
+        <span class="proof-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg></span>
+        <strong>Estimate your cost of structural drag</strong>
+        <p class="proof-card-text">How the engine quantifies administrative burden in your own time, money, and capacity, and models what&rsquo;s recoverable.</p>
+        <span class="proof-arrow">See the ROI logic <span class="pa-chev">&rarr;</span></span>
+      </a>
+      <a class="proof-card" href="Monderman_Platform_Brief.html">
+        <span class="proof-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+        <strong>Read the platform brief</strong>
+        <p class="proof-card-text">A short, plain-language overview of what the platform is, how it works, and where it fits.</p>
+        <span class="proof-arrow">Read the brief <span class="pa-chev">&rarr;</span></span>
+      </a>
+    </div>
+  </div>
+</section>
+<section aria-labelledby="synthesis-title" class="synthesis section-with-bar snap-anchor" id="synthesis"><div aria-hidden="true" class="section-bar">Synthesis</div><div class="synthesis-inner"><div class="section-intro reveal"><h2 id="synthesis-title">Where the systems become legible.</h2><p>What institutions gain when all four diagnostics are used together is not just four scores, but a broader institutional read that clarifies what to protect, what to fix, and where capacity can be recovered.</p></div><div class="synthesis-panel reveal reveal-delay-1">
+<div class="approach-synthesis-grid">
+<a class="approach-synthesis-item" data-effect="clarity" href="structural-clarity-article.html">
+<div class="approach-synthesis-item-head">
+<span aria-hidden="true" class="approach-synthesis-glyph">
+<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+<path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
+</svg>
+</span>
+<strong>Confident Action</strong>
+</div>
+<span class="approach-synthesis-link">Structural Clarity</span>
+<span class="approach-synthesis-body">People see who owns what, who decides, and how execution moves.</span>
+</a>
+<a class="approach-synthesis-item" data-effect="velocity" href="decision-velocity-article.html">
+<div class="approach-synthesis-item-head">
+<span aria-hidden="true" class="approach-synthesis-glyph">
+<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+<path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
+</svg>
+</span>
+<strong>Sustained Advantage</strong>
+</div>
+<span class="approach-synthesis-link">Decision Velocity</span>
+<span class="approach-synthesis-body">Important decisions move faster than the drag, delay, and review weight accumulating beneath the work.</span>
+</a>
+<a class="approach-synthesis-item" data-effect="systems" href="operational-systems-article.html">
+<div class="approach-synthesis-item-head">
+<span aria-hidden="true" class="approach-synthesis-glyph">
+<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+<rect height="14" rx="2" width="16" x="4" y="5"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
+</svg>
+</span>
+<strong>Delivery Capacity</strong>
+</div>
+<span class="approach-synthesis-link">Operational Systems</span>
+<span class="approach-synthesis-body">Administrative systems stop absorbing time and effort that should be available for delivery and judgment.</span>
+</a>
+<a class="approach-synthesis-item" data-effect="performance" href="institutional-performance-article.html">
+<div class="approach-synthesis-item-head">
+<span aria-hidden="true" class="approach-synthesis-glyph">
+<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+<path d="M4 20V10"></path><path d="M10 20V4"></path><path d="M16 20v-7"></path><path d="M22 20H2"></path>
+</svg>
+</span>
+<strong>Organizational Credibility</strong>
+</div>
+<span class="approach-synthesis-link">Institutional Performance</span>
+<span class="approach-synthesis-body">The institution continues to hold under pressure without depending on heroic effort or hidden compensation.</span>
+</a>
+</div>
+</div></div></section>
+<section aria-labelledby="estimate-title" class="diagnostic-estimate section-with-bar snap-anchor" id="diagnostic-estimate">
+<div aria-hidden="true" class="section-bar">Diagnostics</div>
+<div class="diagnostic-estimate-inner">
+<div class="diagnostic-estimate-heading reveal">
+<h2 id="estimate-title">Estimate the hidden cost of structural drag.</h2>
+<p class="estimate-context">
+          This directional estimate gives a high-level read on how much time, money, and productive capacity may be absorbed by administrative and bureaucratic burden inside a complex organization.
+        </p>
+<p class="estimate-bridge">
+          The cost rarely tracks workforce size. It tracks how administrative systems accumulate beneath operations — and how much they absorb when no one is measuring.
+        </p>
+</div>
+<div class="estimate-controls reveal reveal-delay-1">
+<div class="estimate-field">
+<label for="estimateOrgSize">Organization size</label>
+<select aria-label="Organization size" id="estimateOrgSize">
+<option selected="" value="">Select size</option>
+<option value="50">1–50</option>
+<option value="250">51–250</option>
+<option value="1000">251–1,000</option>
+<option value="5000">1,001–5,000</option>
+<option value="25000">5,001–25,000</option>
+<option value="100000">25,000+</option>
+</select>
+</div>
+<div class="estimate-field">
+<label for="estimateComplexity">Organizational complexity</label>
+<select aria-label="Organizational complexity" id="estimateComplexity">
+<option selected="" value="">Select complexity</option>
+<option value="moderate">Moderate</option>
+<option value="heavy">Heavy</option>
+<option value="excessive">Excessive</option>
+</select>
+</div>
+<div class="estimate-field">
+<label for="estimateSector">Sector</label>
+<select aria-label="Sector" id="estimateSector">
+<option selected="" value="">Select sector</option>
+<option value="defense-department">Department of War</option>
+<option value="defense-production">Defense production</option>
+<option value="federal-civilian">Federal civilian government</option>
+<option value="state-government">State government</option>
+<option value="local-government">Local government</option>
+<option value="intelligence">Intelligence / national security</option>
+<option value="healthcare-provider">Healthcare provider</option>
+<option value="health-insurer">Health insurer / payer</option>
+<option value="higher-education">Higher education</option>
+<option value="manufacturing">Manufacturing</option>
+<option value="financial-services">Financial services</option>
+<option value="insurance">Insurance</option>
+<option value="technology">Technology / software</option>
+<option value="energy">Energy / utilities</option>
+<option value="logistics">Logistics / transportation</option>
+<option value="professional-services">Professional services</option>
+<option value="nonprofit">Nonprofit / mission organization</option>
+</select>
+</div>
+</div>
+<div class="estimate-grid">
+<div class="estimate-card reveal reveal-delay-2">
+<div class="estimate-card-title">Time</div>
+<p class="estimate-card-source"><em>Directional annual labor hours</em></p>
+<div class="estimate-card-number" id="estimateTime">0</div>
+<p class="estimate-card-text">
+            estimated labor hours absorbed each year by coordination, compliance, review, and process burden.
+          </p>
+</div>
+<div class="estimate-card reveal reveal-delay-3">
+<div class="estimate-card-title">Money</div>
+<p class="estimate-card-source"><em>Directional annual cost equivalent</em></p>
+<div class="estimate-card-number" id="estimateMoney">$0</div>
+<p class="estimate-card-text">
+            estimated annual cost of overhead absorbed by administrative and bureaucratic systems.
+          </p>
+</div>
+<div class="estimate-card reveal reveal-delay-4">
+<div class="estimate-card-title">Productive Capacity</div>
+<p class="estimate-card-source"><em>Directional productive capacity absorbed</em></p>
+<div class="estimate-card-number" id="estimateResources">0%</div>
+<p class="estimate-card-text">
+            estimated share of productive capacity absorbed by administrative overhead rather than mission or operational output.
+          </p>
+</div>
+</div>
+<div class="estimate-footer reveal reveal-delay-4">
+<div class="estimate-foot-copy">
+<p>
+            <strong>This estimate is directional.</strong> A Monderman diagnostic identifies the specific structural conditions producing these losses inside your organization — and what to do about them. Every read returns the result in your numbers — productive effort, proportionate overhead, and recoverable burden, mapped to hours and dollars.
+          </p>
+<p>
+            These figures are based on public research on management overhead, administrative burden, and compliance costs. They are intended to provide a high-level signal, not an audited organizational measurement. Use the diagnostic suite to establish a baseline, then return as systems and surrounding conditions evolve. The value compounds on the second and third run, when institutions can compare conditions over time. Sector estimates use sector-family calibration, so closely related sectors share a calibration range.
+          </p>
+</div>
+<a class="btn btn-accent" href="diagnostics.html">Run a diagnostic — free</a>
+</div>
+</div>
+</section>
+<section class="mxidx-band" id="verify" aria-label="Measurement you can verify">
+  <style>
+    .mxidx-band{background:#08383E;color:#F4EFE6;}
+    .mxidx-inner{max-width:1320px;margin:0 auto;padding:64px 28px;}
+    .mxidx-eyebrow{font-size:12px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:#8FC4C9;}
+    .mxidx-band h2{margin:10px 0 0;font-size:29px;letter-spacing:-.04em;color:#F4EFE6;}
+    .mxidx-band .mxidx-lead{color:rgba(245,241,232,.78);font-size:16px;line-height:1.65;max-width:860px;margin:14px 0 0;}
+    .mxidx-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:30px;}
+    .mxidx-cell{border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:20px;}
+    .mxidx-cell b{display:block;font-size:15px;margin-bottom:6px;}
+    .mxidx-cell span{display:block;color:rgba(245,241,232,.68);font-size:13.5px;line-height:1.55;}
+    .mxidx-cell.is-instrument{background:rgba(12,110,120,.16);border-color:rgba(143,178,214,.4);}
+    .mxidx-link{display:inline-flex;margin-top:28px;color:#fff;font-weight:500;border-bottom:1px solid rgba(255,255,255,.35);padding-bottom:2px;text-decoration:none;font-size:14.5px;}
+    .mxidx-link:hover{border-color:#fff;}
+    .mxidx-cell .mxidx-link{margin-top:12px;font-size:13px;}
+    @media(max-width:900px){.mxidx-row{grid-template-columns:1fr;}}
+  </style>
+  <div class="mxidx-inner">
+    <div class="mxidx-eyebrow">Measurement you can verify</div>
+    <h2>A prompt. A judgment. An instrument.</h2>
+    <p class="mxidx-lead">There are three ways to ask what your bureaucracy is costing you. A general AI chatbot gives a thoughtful answer that changes every time you ask. A traditional six-figure study renders a considered judgment &mdash; once. Monderman is the third kind: a calibrated instrument, scored deterministically, repeatable on a governance cadence &mdash; so the return is verified on the second read instead of asserted on the first.</p>
+    <div class="mxidx-row">
+      <div class="mxidx-cell"><b>A prompt</b><span>Useful for thinking. Ask twice, receive two different reads &mdash; no baseline, no quantification, nothing defensible to a board.</span></div>
+      <div class="mxidx-cell"><b>A judgment</b><span>Experienced and bespoke, but a one-time event at deployment economics. Drift after the binder lands goes unmeasured.</span></div>
+      <div class="mxidx-cell is-instrument"><b>An instrument</b><span>Same answers, same score, every run. Quantified in your time, money, and capacity, against calibrated sector ranges. Built to be run again.</span><a class="mxidx-link" href="deterministic-ai-infrastructure.html">Explore how a modern instrument works &rarr;</a></div>
+    </div>
+  </div>
+</section>
+<section class="book-band" id="book" aria-labelledby="book-title">
+  <style>
+    .book-band{background:#FAFAF8;color:#18191C;border-top:1px solid rgba(24,25,28,0.04);}
+    .book-inner{max-width:1320px;margin:0 auto;padding:76px 34px;display:grid;grid-template-columns:auto 1fr;gap:60px;align-items:center;}
+    .book-jacket{
+      width:238px;flex-shrink:0;border-radius:4px;display:block;
+      box-shadow:0 24px 48px rgba(148,94,18,0.24),0 6px 14px rgba(24,25,28,0.16);
+    }
+    .book-cover-link{display:inline-block;transition:transform 200ms ease;}
+    .book-cover-link:hover{transform:translateY(-3px);}
+    .book-cover-link:focus-visible{outline:2px solid #0C6E78;outline-offset:4px;}
+    .book-cover{
+      width:238px;aspect-ratio:5 / 7.6;flex-shrink:0;position:relative;
+      background:linear-gradient(135deg,#D9953B 0%,#C9821F 55%,#A86A14 100%);
+      border-radius:3px 8px 8px 3px;color:#18191C;
+      box-shadow:0 24px 48px rgba(148,94,18,0.28),0 6px 14px rgba(24,25,28,0.16);
+      display:flex;flex-direction:column;justify-content:space-between;
+      padding:28px 24px 22px;
+    }
+    .book-cover::before{content:"";position:absolute;left:10px;top:0;bottom:0;width:1px;background:rgba(255,255,255,0.28);}
+    .book-cover::after{content:"";position:absolute;right:-5px;top:6px;bottom:6px;width:5px;background:repeating-linear-gradient(90deg,#F4EFE6 0 1px,#D9D4C8 1px 2px);border-radius:0 2px 2px 0;}
+    .book-cover-author{font-size:10.5px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:rgba(24,25,28,0.64);}
+    .book-cover-title{font-size:20px;font-weight:700;letter-spacing:-.02em;line-height:1.22;}
+    .book-cover-rule{width:34px;height:2px;background:#18191C;margin:14px 0;}
+    .book-cover-sub{font-size:11.5px;line-height:1.5;color:rgba(24,25,28,0.74);letter-spacing:.01em;}
+    .book-cover-imprint{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(24,25,28,0.55);}
+    .book-eyebrow{font-size:12px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:#0C6E78;}
+    .book-band h2{margin:10px 0 0;font-size:29px;letter-spacing:-0.048em;color:#18191C;}
+    .book-subtitle{margin:6px 0 0;font-size:17px;color:#6E6F73;letter-spacing:-.015em;}
+    .book-lead{color:rgba(24,25,28,0.72);font-size:16px;line-height:1.65;max-width:640px;margin:18px 0 0;}
+    .book-meta{margin:18px 0 0;font-size:13.5px;font-weight:500;letter-spacing:.02em;color:#6E6F73;}
+    .book-cta{margin-top:26px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+    .book-cta .btn{min-width:0;}
+    .book-alt-link{font-size:14px;font-weight:500;color:#0C6E78;border-bottom:1px solid rgba(12,110,120,0.35);padding-bottom:2px;}
+    .book-alt-link:hover{border-color:#0C6E78;}
+    @media(max-width:900px){
+      .book-inner{grid-template-columns:1fr;gap:40px;justify-items:start;padding:60px 24px;}
+      .book-cover{width:206px;}
+      .book-jacket{width:206px;}
+      .book-band h2{font-size:25px;}
+    }
+  </style>
+  <div class="book-inner">
+    <div class="reveal">
+    <a class="book-cover-link" href="https://www.routledge.com/Governance-Bureaucracy-and-Organization-Stewardship-Drift-and-Administrative-Capacity/Adamson/p/book/9781041403296" target="_blank" rel="noopener noreferrer" aria-label="View Governance, Bureaucracy and Organization at Routledge">
+    <div class="book-cover" aria-hidden="true">
+      <span class="book-cover-author">Jason Adamson</span>
+      <span>
+        <span class="book-cover-title">Governance,<br/>Bureaucracy and<br/>Organization</span>
+        <span class="book-cover-rule"></span>
+        <span class="book-cover-sub">Stewardship, Drift, and<br/>Administrative Capacity</span>
+      </span>
+      <span class="book-cover-imprint">Routledge</span>
+    </div>
+    </a>
+    </div>
+    <div class="book-copy reveal reveal-delay-1">
+      <div class="book-eyebrow">From Monderman's founder</div>
+      <h2 id="book-title">Governance, Bureaucracy and Organization</h2>
+      <p class="book-subtitle">Stewardship, Drift, and Administrative Capacity</p>
+      <p class="book-lead">A peer-reviewed monograph on bureaucracy as living administrative architecture: why capable organizations drift into failure while staying busy, how to trace that drift forensically, and what it takes to govern bureaucracy as a standing executive discipline. Written for senior leaders, scholars, and analysts responsible for institutional performance.</p>
+      <p class="book-meta">Jason Adamson &middot; Routledge / Taylor &amp; Francis &middot; 2027 &middot; 234 pages</p>
+      <div class="book-cta">
+        <a class="btn" href="https://www.routledge.com/Governance-Bureaucracy-and-Organization-Stewardship-Drift-and-Administrative-Capacity/Adamson/p/book/9781041403296" target="_blank" rel="noopener noreferrer">View at Routledge &rarr;</a>
+        <a class="book-alt-link" href="https://amzn.eu/d/0bTiOpb1" target="_blank" rel="noopener noreferrer">Also on Amazon &rarr;</a>
       </div>
     </div>
-  </section>
+  </div>
+</section>
+<section aria-labelledby="latest-title" class="latest section-with-bar snap-anchor" id="latest">
+<div aria-hidden="true" class="section-bar">Latest from Monderman</div>
+<div class="latest-inner">
+<div class="latest-head">
+<div class="latest-intro section-intro reveal">
+<h2 id="latest-title">Research, briefs, and perspectives</h2>
+<p>
+            Current publications and featured work on administrative burden, institutional design, decision velocity, and the hidden conditions Monderman is designed to diagnose under complexity.
+          </p>
+<a class="latest-card-link" href="research.html" style="margin-top:14px;display:inline-block;">See all research →</a>
+</div>
+<div aria-label="Latest content controls" class="latest-controls reveal reveal-delay-2">
+<button aria-label="Show previous latest items" class="rail-arrow" id="latestPrev" type="button">←</button>
+<button aria-label="Show next latest items" class="rail-arrow" id="latestNext" type="button">→</button>
+</div>
+</div>
+<div class="latest-viewport" id="latestViewport">
+<div class="latest-track" id="latestTrack">
+<article class="latest-card">
+<div aria-hidden="true" class="latest-card-image latest-card-image--placeholder latest-card-image--culture" style="background:#0E3A44;">
+<div class="placeholder-cover">
+<div class="placeholder-cover-stack">
+<h3 class="placeholder-cover-title">Merit After the Machine</h3>
+<p class="placeholder-cover-subline">Why AI weakens the evidence of merit<br/>faster than institutions can rebuild it.</p>
+</div>
+</div>
+</div>
+<div class="latest-card-body">
+<p class="latest-card-kicker">Enterprise · Insight</p>
+<h3 class="latest-card-title">Merit After the Machine</h3>
+<p class="latest-card-text">A Monderman insight paper on why AI weakens the familiar evidence of merit faster than institutions can rebuild it, and the evidence audit any leadership team can run this quarter.</p>
+<a class="latest-card-link" href="Monderman_Insight_Merit_After_the_Machine_2026-08-11.pdf" rel="noopener noreferrer" target="_blank">Download paper →</a>
+</div>
+</article>
+<article class="latest-card">
+<div aria-hidden="true" class="latest-card-image latest-card-image--placeholder latest-card-image--culture" style="background:#0E3A44;">
+<div class="placeholder-cover">
+<div class="placeholder-cover-stack">
+<h3 class="placeholder-cover-title">Terminal Fidelity</h3>
+<p class="placeholder-cover-subline">Why ideas in power consume themselves —<br/>and where the enduring ones learn to stop.</p>
+</div>
+</div>
+</div>
+<div class="latest-card-body">
+<p class="latest-card-kicker">Decision Design · Insight</p>
+<h3 class="latest-card-title">Terminal Fidelity</h3>
+<p class="latest-card-text">A Monderman insight paper on why ideas in power consume themselves through faithful application — and the stopping rules that separate the traditions and companies that endure.</p>
+<a class="latest-card-link" href="Terminal_Fidelity.pdf" rel="noopener noreferrer" target="_blank">Download paper →</a>
+</div>
+</article>
+<article class="latest-card">
+<div class="latest-card-image"><img alt="Washington, D.C. skyline for Monderman defense research" src="Washington DC.jpg" loading="lazy" /></div>
+<div class="latest-card-body">
+<p class="latest-card-kicker">Defense · Brief</p>
+<h3 class="latest-card-title">Accumulated Drag in the Department of War</h3>
+<p class="latest-card-text">A Monderman research brief on accumulated drag, administrative burden, and institutional friction in one of the world’s most complex public institutions.</p>
+<a class="latest-card-link" href="Monderman_Brief_Accumulated_Drag_Department_of_War.pdf" rel="noopener noreferrer" target="_blank">Download research →</a>
+</div>
+</article>
+<article class="latest-card">
+<div class="latest-card-image"><img alt="Healthcare costs graphic for Monderman healthcare research" src="Healthcare costs.jpg" loading="lazy" /></div>
+<div class="latest-card-body">
+<p class="latest-card-kicker">Healthcare · Brief</p>
+<h3 class="latest-card-title">Quarter-Trillion Friction in U.S. Healthcare</h3>
+<p class="latest-card-text">A Monderman brief on quarter-trillion friction, administrative burden, and the structural drag complicating performance in healthcare systems.</p>
+<a class="latest-card-link" href="Monderman_Brief_Quarter_Trillion_Dollar_Friction_US_Healthcare.pdf" rel="noopener noreferrer" target="_blank">Download research →</a>
+</div>
+</article>
+<article class="latest-card">
+<div class="latest-card-image"><img alt="From Tokens to Outcomes hero graphic — two curves showing per-token price falling and total enterprise AI bills rising" src="hero_after_first_lap.png" loading="lazy" /></div>
+<div class="latest-card-body">
+<p class="latest-card-kicker">Enterprise · Insight</p>
+<h3 class="latest-card-title">From Tokens to Outcomes</h3>
+<p class="latest-card-text">A Monderman insight paper on how token economics will define the next phase of enterprise AI — and why the second wave will be won on cost, not capability.</p>
+<a class="latest-card-link" href="Monderman_Insight_After_the_First_Lap.pdf" rel="noopener noreferrer" target="_blank">Download paper →</a>
+</div>
+</article>
+<article class="latest-card">
+<div class="latest-card-image"><img alt="Tree canopy image for Monderman perspective on compensatory systems" src="Trees.jpg" loading="lazy" /></div>
+<div class="latest-card-body">
+<p class="latest-card-kicker">Enterprise · Brief</p>
+<h3 class="latest-card-title">How Workarounds Preserve Output While Masking Institutional Dysfunction</h3>
+<p class="latest-card-text">Organizations often appear to function because people compensate for structural weakness. Output is preserved, but the underlying system continues to deteriorate.</p>
+<a class="latest-card-link" href="Monderman_Brief_Compensatory_Systems.pdf" rel="noopener noreferrer" target="_blank">Read the brief →</a>
+</div>
+</article>
+<article class="latest-card">
+<div class="latest-card-image"><img alt="Kodak aperture image for Monderman research brief" src="apature.jpg" loading="lazy" /></div>
+<div class="latest-card-body">
+<p class="latest-card-kicker">Enterprise · Brief</p>
+<h3 class="latest-card-title">How the Collapse of Eastman Kodak Is Misunderstood</h3>
+<p class="latest-card-text">Kodak did not fail because it missed technology. It failed because its administrative and decision systems could not adapt.</p>
+<a class="latest-card-link" href="Monderman_Brief_The_Collapse_of_Eastman_Kodak.pdf" rel="noopener noreferrer" target="_blank">Download research →</a>
+</div>
+</article>
+<article class="latest-card">
+<div aria-hidden="true" class="latest-card-image latest-card-image--placeholder latest-card-image--culture" style="background:#0C4A50;">
+<div class="placeholder-cover">
+<div class="placeholder-cover-stack">
+<h3 class="placeholder-cover-title">The Culture Trap</h3>
+<p class="placeholder-cover-subline">Why Organizations Measure Sentiment<br/>and Miss the System</p>
+</div>
+</div>
+</div>
+<div class="latest-card-body">
+<p class="latest-card-kicker">Enterprise · Brief</p>
+<h3 class="latest-card-title">The Culture Trap</h3>
+<p class="latest-card-text">Why culture-first diagnosis mislocates the problem — and why organizations that fix sentiment before structure often fix the wrong thing first.</p>
+<a class="latest-card-link" href="Monderman_Brief_The_Culture_Trap.pdf" rel="noopener noreferrer" target="_blank">Download research →</a>
+</div>
+</article>
+<article class="latest-card">
+<div aria-hidden="true" class="latest-card-image latest-card-image--placeholder latest-card-image--culture" style="background:#0C4A50;">
+<div class="placeholder-cover">
+<div class="placeholder-cover-stack">
+<h3 class="placeholder-cover-title">The Art of Interior Reasoning</h3>
+<p class="placeholder-cover-subline">Why excellent decisions live off the line.</p>
+</div>
+</div>
+</div>
+<div class="latest-card-body">
+<p class="latest-card-kicker">Decision Design · Insight</p>
+<h3 class="latest-card-title">The Art of Interior Reasoning</h3>
+<p class="latest-card-text">A Monderman insight on why excellent decisions live off the line — and what it takes, both analytically and emotionally, to consistently reach them.</p>
+<a class="latest-card-link" href="Monderman_Insight_The_Art_of_Interior_Reasoning.pdf" rel="noopener noreferrer" target="_blank">Download research →</a>
+</div>
+</article>
+<article class="latest-card">
+<div class="latest-card-image"><img alt="Abstract institutional image for Monderman insight" src="iStock-511677736.jpg" loading="lazy" /></div>
+<div class="latest-card-body">
+<p class="latest-card-kicker">Insight</p>
+<h3 class="latest-card-title">Governing Complexity</h3>
+<p class="latest-card-text">Why institutions rarely fail because complexity appears, and more often fail because it accumulates faster than their structures can absorb.</p>
+<a class="latest-card-link" href="governing-complexity.html">Read insight →</a>
+</div>
+</article>
+<article class="latest-card">
+<div class="latest-card-image"><img alt="Decision velocity visual for Monderman insight" src="Decision Velocity.jpg" loading="lazy" /></div>
+<div class="latest-card-body">
+<p class="latest-card-kicker">Insight</p>
+<h3 class="latest-card-title">Designing for Decision Velocity</h3>
+<p class="latest-card-text">Institutions move well when governance, pathways, and role clarity support sound judgment without generating unnecessary drag.</p>
+<a class="latest-card-link" href="designing-for-decision-velocity.html">Read insight →</a>
+</div>
+</article>
+</div>
+</div>
+<div aria-label="Latest content position" class="latest-dots" id="latestDots"></div>
+</div>
+</section>
+<section aria-labelledby="connect-title" class="connect" id="connect">
+<div class="connect-inner">
+<div class="connect-copy reveal">
+<h2 id="connect-title">Choose the right next step.</h2>
+<p class="connect-signal">Monderman supports both self-serve first reads and more structured conversations about fit, pilots, and platform use.</p>
+<p class="connect-text">
+          Some institutions are ready to run a first diagnostic immediately. Others need a more structured conversation about platform fit, support, or how repeated measurement would work in their environment.
+        </p>
+</div>
+<div class="connect-panel reveal reveal-delay-2">
+<p class="connect-kicker">Next Step</p>
+<div class="connect-choice-grid">
+<a class="connect-choice-card" href="connect.html">
+<strong>Discuss a diagnostic</strong>
+<span>Talk through fit, pilot structure, or how repeated measurement would work in your environment.</span>
+</a>
+<a class="connect-choice-card" href="diagnostics.html">
+<strong>Run one yourself — free</strong>
+<span>Start in the Diagnostics and establish a first baseline. Your diagnostic inputs are handled in confidence and never sold or shared.</span>
+</a>
+</div>
+<p class="connect-note">
+          Or reach out directly at <a class="connect-inline-link connect-inline-embedded" href="mailto:connect@monderman.com">connect@monderman.com →</a>
+</p>
+</div>
+</div>
+</section>
   <footer class="footer mond-footer">
     <div class="mf-motif" aria-hidden="true"><svg width="280" height="280" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#146C75" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#3E8A92" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#146C75" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#146C75" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#3E8A92" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#146C75" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#4E9098" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8FC4C9" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#A9CFD2" stroke-width="0.4" opacity="0.13"/><circle cx="86" cy="-35" r="2.8" fill="#0C6E78" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#3E8A92" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#0C6E78" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#C9821F" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#3E8A92" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#0C6E78" opacity="0.58"/></svg></div>
     <div class="mf-inner">
@@ -1289,7 +2705,7 @@
             <span class="mf-name">Monderman</span>
             <span class="mf-dot"></span>
           </div>
-          <p class="mf-copy">Monderman is the diagnostic platform institutions use to measure, compare, and govern administrative reality — repeatedly, across perspectives, over time.</p>
+          <p class="mf-copy">Monderman is the diagnostic platform institutions use to measure, compare, and govern how their structure, decisions, and systems are performing — repeatedly, across perspectives, over time.</p>
           <div class="mf-social">
             <a href="https://www.linkedin.com/in/jason-adamson-627622412/" target="_blank" rel="noopener noreferrer" aria-label="Monderman on LinkedIn"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
             <a href="https://x.com/MondermanHQ" target="_blank" rel="noopener noreferrer" aria-label="Monderman on X"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
@@ -1319,254 +2735,360 @@
       </div>
     </div>
   </footer>
-
-  <script>(function(){var h=document.getElementById('siteHeader');if(!h)return;var onScroll=function(){if(window.scrollY>12){h.classList.add('scrolled');}else{h.classList.remove('scrolled');}};window.addEventListener('scroll',onScroll,{passive:true});onScroll();})();</script>
-    <!-- Monderman auth (single client): paints the nav pill + fast-paths signed-in users.
-       Gated CTAs already point at signin.html?next=<tool>, so the gate is fail-closed —
-       clicking one always lands on sign-in first, even if this script never loads. -->
+<script>
+    const heroImage = document.getElementById("heroImage");
+    const header = document.getElementById("siteHeader");
+    function revealHero() {
+      if (!heroImage) return;
+      heroImage.classList.add("is-loaded");
+    }
+    if (heroImage && heroImage.complete) {
+      requestAnimationFrame(revealHero);
+    } else if (heroImage) {
+      heroImage.addEventListener("load", revealHero, { once: true });
+    }
+    var heroEl = document.querySelector(".hero");
+    function updateHeader() {
+      if (!header) return;
+      var heroH = heroEl ? heroEl.offsetHeight : window.innerHeight;
+      header.classList.toggle("scrolled", window.scrollY > 24);
+      header.classList.toggle("past-hero", window.scrollY > heroH - 72);
+    }
+    updateHeader();
+    window.addEventListener("scroll", updateHeader, { passive: true });
+    const costSection = document.getElementById("cost-section");
+    const counters = document.querySelectorAll(".cost-card-number");
+    let hasCounted = false;
+    function easeOutQuart(t) { return 1 - Math.pow(1 - t, 4); }
+    function formatCounter(type, value) {
+      if (type === "percent") return `${Math.round(value)}%`;
+      if (type === "currency-trillion") return `$${Math.round(value)}T`;
+      if (type === "plain-plus") return `${Math.round(value).toLocaleString("en-US")}+`;
+      if (type === "range-percent") {
+        const maxVal = Math.round(value);
+        const minVal = Math.round((value * 2) / 3);
+        return `${minVal}–${maxVal}%`;
+      }
+      return Math.round(value).toString();
+    }
+    function animateCounter(el, delay) {
+      const type = el.dataset.countType;
+      const target = Number(el.dataset.target);
+      const duration = 1800;
+      const beginDelay = delay || 0;
+      window.setTimeout(() => {
+        const start = performance.now();
+        function step(now) {
+          const progress = Math.min((now - start) / duration, 1);
+          const eased = easeOutQuart(progress);
+          const current = target * eased;
+          el.textContent = formatCounter(type, current);
+          if (progress < 1) requestAnimationFrame(step);
+          else el.textContent = formatCounter(type, target);
+        }
+        requestAnimationFrame(step);
+      }, beginDelay);
+    }
+    if (costSection && counters.length) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !hasCounted) {
+            hasCounted = true;
+            counters.forEach((counter, idx) => animateCounter(counter, idx * 130));
+            observer.disconnect();
+          }
+        });
+      }, { threshold: 0.28 });
+      observer.observe(costSection);
+    }
+    const revealItems = document.querySelectorAll(".reveal");
+    if (revealItems.length) {
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+      revealItems.forEach((item) => revealObserver.observe(item));
+    }
+    const latestTrack = document.getElementById("latestTrack");
+    const latestViewport = document.getElementById("latestViewport");
+    const latestPrev = document.getElementById("latestPrev");
+    const latestNext = document.getElementById("latestNext");
+    const latestDots = document.getElementById("latestDots");
+    const latestCards = latestTrack ? Array.from(latestTrack.querySelectorAll(".latest-card")) : [];
+    let latestIndex = 0;
+    let latestCardsPerView = window.innerWidth <= 760 ? 1 : 2;
+    let autoScrollInterval = null;
+    function getLatestMaxIndex() {
+      return Math.max(0, latestCards.length - latestCardsPerView);
+    }
+    function clampLatestIndex() {
+      latestIndex = Math.max(0, Math.min(latestIndex, getLatestMaxIndex()));
+    }
+    function renderLatestDots() {
+      if (!latestDots) return;
+      latestDots.innerHTML = "";
+      const dotCount = getLatestMaxIndex() + 1;
+      if (dotCount <= 1) return;
+      for (let i = 0; i < dotCount; i++) {
+        const dot = document.createElement("button");
+        dot.type = "button";
+        dot.className = "latest-dot" + (i === latestIndex ? " is-active" : "");
+        dot.setAttribute("aria-label", `Go to latest group ${i + 1}`);
+        dot.addEventListener("click", () => {
+          latestIndex = i;
+          updateLatestCarousel();
+          startAutoScroll();
+        });
+        latestDots.appendChild(dot);
+      }
+    }
+    function updateLatestCarousel() {
+      if (!latestTrack || !latestCards.length) return;
+      latestCardsPerView = window.innerWidth <= 760 ? 1 : 2;
+      clampLatestIndex();
+      const targetCard = latestCards[latestIndex];
+      const targetX = targetCard ? targetCard.offsetLeft : 0;
+      latestTrack.style.transform = `translateX(-${targetX}px)`;
+      latestViewport?.classList.add("is-ready");
+      renderLatestDots();
+    }
+    function stopAutoScroll() {
+      if (autoScrollInterval) {
+        clearInterval(autoScrollInterval);
+        autoScrollInterval = null;
+      }
+    }
+    function startAutoScroll() {
+      stopAutoScroll();
+      if (!latestTrack || latestCards.length <= latestCardsPerView) return;
+      autoScrollInterval = setInterval(() => {
+        latestIndex = latestIndex >= getLatestMaxIndex() ? 0 : latestIndex + 1;
+        updateLatestCarousel();
+      }, 8600);
+    }
+    latestPrev?.addEventListener("click", () => {
+      latestIndex = latestIndex <= 0 ? getLatestMaxIndex() : latestIndex - 1;
+      updateLatestCarousel();
+      startAutoScroll();
+    });
+    latestNext?.addEventListener("click", () => {
+      latestIndex = latestIndex >= getLatestMaxIndex() ? 0 : latestIndex + 1;
+      updateLatestCarousel();
+      startAutoScroll();
+    });
+    latestViewport?.addEventListener("mouseenter", stopAutoScroll);
+    latestViewport?.addEventListener("mouseleave", startAutoScroll);
+    latestViewport?.addEventListener("focusin", stopAutoScroll);
+    latestViewport?.addEventListener("focusout", startAutoScroll);
+    const approachCards = Array.from(document.querySelectorAll(".approach-card[data-effect-target]"));
+    const effectItems = Array.from(document.querySelectorAll(".approach-synthesis-item[data-effect]"));
+    function clearEffectLinks() {
+      effectItems.forEach((item) => item.classList.remove("is-linked"));
+    }
+    approachCards.forEach((card) => {
+      const target = card.dataset.effectTarget;
+      const linkedItem = effectItems.find((item) => item.dataset.effect === target);
+      if (!linkedItem) return;
+      card.addEventListener("mouseenter", () => {
+        clearEffectLinks();
+        linkedItem.classList.add("is-linked");
+      });
+      card.addEventListener("mouseleave", clearEffectLinks);
+      card.addEventListener("focusin", () => {
+        clearEffectLinks();
+        linkedItem.classList.add("is-linked");
+      });
+      card.addEventListener("focusout", clearEffectLinks);
+    });
+    const estimateOrgSize = document.getElementById("estimateOrgSize");
+    const estimateComplexity = document.getElementById("estimateComplexity");
+    const estimateSector = document.getElementById("estimateSector");
+    const estimateMoney = document.getElementById("estimateMoney");
+    const estimateTime = document.getElementById("estimateTime");
+    const estimateResources = document.getElementById("estimateResources");
+    const complexityProfiles = {
+      light: { low: 0.06, high: 0.10 },
+      moderate: { low: 0.10, high: 0.16 },
+      heavy: { low: 0.16, high: 0.24 },
+      excessive: { low: 0.24, high: 0.34 }
+    };
+    const sectorProfiles = {
+      "general": { multiplier: 1.00, rate: 62 },
+      "defense-department": { multiplier: 1.18, rate: 78 },
+      "defense-production": { multiplier: 1.12, rate: 74 },
+      "federal-civilian": { multiplier: 1.14, rate: 72 },
+      "state-government": { multiplier: 1.08, rate: 60 },
+      "local-government": { multiplier: 1.04, rate: 54 },
+      "intelligence": { multiplier: 1.20, rate: 86 },
+      "healthcare-provider": { multiplier: 1.10, rate: 66 },
+      "health-insurer": { multiplier: 1.12, rate: 68 },
+      "higher-education": { multiplier: 1.00, rate: 50 },
+      "manufacturing": { multiplier: 0.96, rate: 56 },
+      "financial-services": { multiplier: 1.08, rate: 82 },
+      "insurance": { multiplier: 1.04, rate: 72 },
+      "technology": { multiplier: 0.98, rate: 88 },
+      "energy": { multiplier: 1.02, rate: 80 },
+      "logistics": { multiplier: 0.94, rate: 52 },
+      "professional-services": { multiplier: 1.06, rate: 78 },
+      "nonprofit": { multiplier: 0.92, rate: 44 }
+    };
+    function formatHoursRange(low, high) {
+      const lowRounded = Math.round(low / 1000) * 1000;
+      const highRounded = Math.round(high / 1000) * 1000;
+      return `${abbrevNumber(lowRounded)}–${abbrevNumber(highRounded)}`;
+    }
+    function formatPercentRange(low, high) {
+      return `${Math.round(low)}–${Math.round(high)}%`;
+    }
+    function abbrevMoney(value) {
+      if (value >= 1e9) return `$${(value / 1e9).toFixed(1).replace(/\.0$/, "")}B`;
+      if (value >= 1e6) return `$${(value / 1e6).toFixed(1).replace(/\.0$/, "")}M`;
+      if (value >= 1e3) return `$${Math.round(value / 1e3)}K`;
+      return `$${Math.round(value)}`;
+    }
+    function abbrevNumber(value) {
+      if (value >= 1e6) return `${(value / 1e6).toFixed(1).replace(/\.0$/, "")}M hrs`;
+      if (value >= 1e3) return `${Math.round(value / 1e3)}k hrs`;
+      return `${Math.round(value)} hrs`;
+    }
+    function updateEstimate() {
+      if (!estimateOrgSize || !estimateComplexity || !estimateSector || !estimateMoney || !estimateTime || !estimateResources) return;
+      const orgSizeValue = estimateOrgSize.value;
+      const complexityValue = estimateComplexity.value;
+      const sectorValue = estimateSector.value;
+      if (!orgSizeValue || !complexityValue || !sectorValue) {
+        estimateTime.textContent = "0";
+        estimateMoney.textContent = "$0";
+        estimateResources.textContent = "0%";
+        return;
+      }
+      const orgSize = Number(orgSizeValue);
+      const complexity = complexityProfiles[complexityValue];
+      const sector = sectorProfiles[sectorValue] || sectorProfiles.general;
+      const annualHoursBase = orgSize * 1920;
+      const lowBurden = complexity.low * sector.multiplier;
+      const highBurden = complexity.high * sector.multiplier;
+      const lowHours = annualHoursBase * lowBurden;
+      const highHours = annualHoursBase * highBurden;
+      const lowMoney = lowHours * sector.rate;
+      const highMoney = highHours * sector.rate;
+      estimateTime.textContent = formatHoursRange(lowHours, highHours);
+      estimateMoney.textContent = `${abbrevMoney(lowMoney)}–${abbrevMoney(highMoney).replace("$", "")}`;
+      estimateResources.textContent = formatPercentRange(lowBurden * 100, highBurden * 100);
+    }
+    [estimateOrgSize, estimateComplexity, estimateSector].forEach((el) => el?.addEventListener("change", updateEstimate));
+    updateEstimate();
+    function initSoftSnap() {
+      const snapAnchors = Array.from(document.querySelectorAll(".snap-anchor"));
+      let snapTimer = null;
+      let isAutoSnapping = false;
+      function isDesktopSnap() {
+        return window.innerWidth > 980 && window.matchMedia("(prefers-reduced-motion: no-preference)").matches;
+      }
+      function getHeaderHeight() {
+        const headerEl = document.getElementById("siteHeader");
+        return headerEl ? headerEl.getBoundingClientRect().height : 72;
+      }
+      function getTargetTop(anchor) {
+        const headerHeight = getHeaderHeight();
+        const anchorStyles = window.getComputedStyle(anchor);
+        const anchorPaddingTop = parseFloat(anchorStyles.paddingTop) || 0;
+        const landingOffset = 10;
+        return Math.max(0, anchor.offsetTop - headerHeight - landingOffset + anchorPaddingTop);
+      }
+      function getNearestAnchor() {
+        const viewportTop = window.scrollY;
+        let nearest = null;
+        let nearestDistance = Infinity;
+        snapAnchors.forEach((anchor) => {
+          const targetTop = getTargetTop(anchor);
+          const distance = Math.abs(targetTop - viewportTop);
+          if (distance < nearestDistance) {
+            nearestDistance = distance;
+            nearest = anchor;
+          }
+        });
+        return { nearest, nearestDistance };
+      }
+      function softSnapToNearestAnchor() {
+        if (!isDesktopSnap() || !snapAnchors.length || isAutoSnapping) return;
+        const { nearest, nearestDistance } = getNearestAnchor();
+        if (!nearest) return;
+        const targetTop = getTargetTop(nearest);
+        if (nearestDistance > 64) return;
+        if (Math.abs(window.scrollY - targetTop) < 6) return;
+        isAutoSnapping = true;
+        window.scrollTo({
+          top: targetTop,
+          behavior: "smooth"
+        });
+        window.setTimeout(() => {
+          isAutoSnapping = false;
+        }, 280);
+      }
+      window.addEventListener("scroll", () => {
+        if (!isDesktopSnap() || isAutoSnapping) return;
+        clearTimeout(snapTimer);
+        snapTimer = setTimeout(softSnapToNearestAnchor, 420);
+      }, { passive: true });
+    }
+    window.addEventListener("resize", () => {
+      updateLatestCarousel();
+      startAutoScroll();
+    });
+    window.addEventListener("load", () => {
+      updateLatestCarousel();
+      startAutoScroll();
+      initSoftSnap();
+    });
+  </script>
+  <!-- Dynamic nav pill: Sign In (signed out) / Workspace (signed in) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
 <script type="module">
     const { createClient } = window.supabase;
-    const sb = createClient(
-      "https://ptkxrzgmeldalrkfruth.supabase.co",
+    const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co",
       "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
-      { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" } }
-    );
-
-    const GATED = new Set([
-      "structural-clarity.html", "decision-velocity.html",
-      "operational-systems.html", "institutional-performance.html"
-    ]);
-
-    // Pull the tool name out of a signin.html?next=<tool> href, if it is a gated one.
-    function gatedTarget(href) {
-      const m = /^signin\.html\?next=([^&#]+)/.exec(href || "");
-      if (!m) return null;
-      try { const t = decodeURIComponent(m[1]); return GATED.has(t) ? t : null; }
-      catch (e) { return null; }
-    }
-
-    async function apply() {
-      let signedIn = false;
+      { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" }});
+    (async () => {
+      const link = document.querySelector("a.workspace-link");
+      if (!link) return;
+      link.setAttribute("href", "workspace.html");
       try {
         const { data } = await sb.auth.getSession();
-        signedIn = !!(data && data.session && data.session.user);
-      } catch (e) { signedIn = false; }
-
-      // Nav pill: "Workspace" when signed in; "Sign In" -> the sign-in page when not.
-      const nav = document.querySelector("a.workspace-link");
-      if (nav) {
-        nav.textContent = signedIn ? "Workspace" : "Sign In";
-        nav.setAttribute("href", signedIn ? "workspace.html" : "signin.html?next=workspace.html");
-      }
-
-      // Smooth path for signed-in users: skip the sign-in hop on gated CTAs.
-      if (signedIn) {
-        document.querySelectorAll('a[href^="signin.html?next="]').forEach((a) => {
-          const t = gatedTarget(a.getAttribute("href"));
-          if (t) a.setAttribute("href", t);
-        });
-      }
-    }
-
-    apply();
-    sb.auth.onAuthStateChange(() => apply());
+        link.textContent = data?.session?.user ? "Workspace" : "Sign In";
+      } catch (e) { link.textContent = "Sign In"; }
+    })();
   </script>
 
-  <!-- Research search: builds a client-side index from the page itself at load.
-       The .book-feature section is excluded by design. Progressive enhancement:
-       the field stays hidden unless this script runs, so no-JS visitors see the
-       full library exactly as before. -->
-  <script>
-  (function () {
-    var wrap = document.getElementById('heroSearch');
-    var input = document.getElementById('rsearchInput');
-    var out = document.getElementById('rsearchOut');
-    var grid = document.getElementById('rsearchResults');
-    var countEl = document.getElementById('rsearchCount');
-    var clearBtn = document.getElementById('rsearchClear');
-    var chips = [].slice.call(document.querySelectorAll('.filter-chip[data-q]'));
-    if (!wrap || !input || !out || !grid || !countEl) return;
-
-    // Sections hidden while a query is active. The book band is in this list for
-    // layout adjacency only; it is never part of the index.
-    var corpusSections = [].slice.call(
-      document.querySelectorAll('.book-feature, .featured, .divider-quote, .library, .onsite')
-    );
-
-    function txt(el) { return el ? (el.textContent || '').replace(/\s+/g, ' ').trim() : ''; }
-    function all(root, sel) { return [].slice.call(root.querySelectorAll(sel)); }
-
-    // ---- index ----------------------------------------------------------
-    function collect(card, titleSel, bodySel) {
-      if (card.closest('.book-feature')) return null;          // book: never indexed
-      var link = card.querySelector('.paper-action, .featured-link');
-      var tags = all(card, '.paper-top span, .section-kicker').map(txt).filter(Boolean);
-      var stats = all(card, '.paper-stats span').map(txt).filter(Boolean);
-      var extra = all(card, '.meta-item, .featured-quote').map(txt).join(' ');
-      var it = {
-        title: txt(card.querySelector(titleSel)),
-        body: txt(card.querySelector(bodySel)),
-        tags: tags,
-        stats: stats,
-        href: link ? link.getAttribute('href') : '',
-        action: link ? txt(link) : '',
-        blank: !!(link && link.getAttribute('target') === '_blank')
-      };
-      if (!it.title) return null;
-      it.hay = (it.title + ' ' + tags.join(' ') + ' ' + it.body + ' ' + stats.join(' ') + ' ' + extra).toLowerCase();
-      it.titleLow = it.title.toLowerCase();
-      it.tagLow = tags.join(' ').toLowerCase();
-      it.bodyLow = it.body.toLowerCase();
-      return it;
-    }
-
-    var index = [];
-    var feat = document.querySelector('.featured .featured-inner');
-    if (feat) { var f = collect(feat, '.featured-title', '.featured-desc'); if (f) index.push(f); }
-    all(document, '.paper-card').forEach(function (c) { var i = collect(c, '.paper-title', '.paper-body'); if (i) index.push(i); });
-    all(document, '.essay-card').forEach(function (c) { var i = collect(c, '.essay-title', '.essay-body'); if (i) index.push(i); });
-    if (!index.length) return;
-
-    wrap.hidden = false;
-
-    // ---- matching -------------------------------------------------------
-    function escRx(t) { return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
-    // Terms match at word starts, so "govern" finds "governance" but "ai" does
-    // not fire inside "fail". Each term gets a reusable, non-global regex.
-    function terms(q) {
-      return q.toLowerCase().replace(/[\u0001\u0002]/g, ' ').split(/\s+/)
-        .filter(function (t) { return t.length > 1; })
-        .map(function (t) { return { t: t, re: new RegExp('\\b' + escRx(t), 'i') }; });
-    }
-    function score(it, ts) {
-      var s = 0;
-      for (var i = 0; i < ts.length; i++) {
-        var re = ts[i].re;
-        if (!re.test(it.hay)) return 0;                         // every term must appear
-        if (re.test(it.titleLow)) s += 6;
-        if (re.test(it.tagLow)) s += 3;
-        if (re.test(it.bodyLow)) s += 1;
-      }
-      return s;
-    }
-
-    // ---- safe highlighting ---------------------------------------------
-    // Match on raw text using sentinels, escape everything, then swap the
-    // sentinels for <mark>. Keeps user input out of the HTML entirely.
-    function esc(str) {
-      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
-    // Highlights the whole word a term begins, so "govern" marks "governance".
-    function rx(ts) {
-      return new RegExp('\\b(?:' + ts.map(function (x) { return escRx(x.t); }).join('|') + ')\\w*', 'gi');
-    }
-    function mark(text, re) {
-      if (!text) return '';
-      return esc(text.replace(re, '\u0001$&\u0002'))
-        .replace(/\u0001/g, '<mark>').replace(/\u0002/g, '</mark>');
-    }
-    function snippet(body, ts, len) {
-      if (!body) return '';
-      var pos = -1;
-      for (var i = 0; i < ts.length; i++) {
-        var p = body.search(ts[i].re);
-        if (p !== -1 && (pos === -1 || p < pos)) pos = p;
-      }
-      if (pos === -1) {
-        return body.length > len ? body.slice(0, len).replace(/\s+\S*$/, '') + '\u2026' : body;
-      }
-      var start = Math.max(0, pos - Math.floor(len / 3));
-      var end = Math.min(body.length, start + len);
-      var frag = body.slice(start, end);
-      if (start > 0) frag = '\u2026' + frag.replace(/^\S*\s+/, '');
-      if (end < body.length) frag = frag.replace(/\s+\S*$/, '') + '\u2026';
-      return frag;
-    }
-
-    // ---- render ---------------------------------------------------------
-    function searchMode(on) {
-      corpusSections.forEach(function (el) { el.hidden = on; });
-      out.hidden = !on;
-      clearBtn.hidden = !on;
-    }
-    function syncChips(q) {
-      var low = q.trim().toLowerCase();
-      chips.forEach(function (c) {
-        var cq = (c.getAttribute('data-q') || '').toLowerCase();
-        var on = cq ? cq === low : low === '';
-        if (on) { c.classList.add('is-active'); } else { c.classList.remove('is-active'); }
-      });
-    }
-
-    function render(q) {
-      syncChips(q);
-      var ts = terms(q);
-      if (!ts.length) { searchMode(false); grid.innerHTML = ''; countEl.textContent = ''; return; }
-      var re = rx(ts);
-      var hits = index
-        .map(function (it) { return { it: it, s: score(it, ts) }; })
-        .filter(function (h) { return h.s > 0; })
-        .sort(function (a, b) { return b.s - a.s; });
-
-      searchMode(true);
-      countEl.textContent = hits.length === 0
-        ? 'No matches'
-        : hits.length + (hits.length === 1 ? ' match' : ' matches');
-
-      if (!hits.length) {
-        grid.innerHTML = '';
-        grid.insertAdjacentHTML('beforeend',
-          '<p class="rs-empty">Nothing in the research on this page matches those terms. ' +
-          'Try a single broader word, or <button type="button" id="rsearchReset">clear the search</button> ' +
-          'to browse the full library.</p>');
-        var reset = document.getElementById('rsearchReset');
-        if (reset) reset.addEventListener('click', function () { input.value = ''; render(''); input.focus(); });
-        return;
-      }
-
-      grid.innerHTML = hits.map(function (h) {
-        var it = h.it;
-        var left = it.tags.length ? it.tags[0] : '';
-        var right = it.tags.length > 1 ? it.tags[it.tags.length - 1] : '';
-        var tgt = it.blank ? ' target="_blank" rel="noopener noreferrer"' : '';
-        var href = esc(it.href || '#');
-        return '<article class="rs-hit">' +
-          '<div class="rs-top"><span>' + mark(left, re) + '</span><span>' + mark(right, re) + '</span></div>' +
-          '<h3 class="rs-title"><a href="' + href + '"' + tgt + '>' + mark(it.title, re) + '</a></h3>' +
-          '<p class="rs-snip">' + mark(snippet(it.body, ts, 190), re) + '</p>' +
-          '<div class="rs-foot">' +
-            '<span class="rs-stats">' + esc(it.stats.join(' \u00b7 ')) + '</span>' +
-            (it.href ? '<a class="rs-action" href="' + href + '"' + tgt + '>' + esc(it.action || 'Open') + '</a>' : '') +
-          '</div>' +
-        '</article>';
-      }).join('');
-    }
-
-    // ---- wiring ---------------------------------------------------------
-    input.addEventListener('input', function () { render(input.value); });
-    input.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') { input.value = ''; render(''); }
-    });
-    clearBtn.addEventListener('click', function () { input.value = ''; render(''); input.focus(); });
-
-    chips.forEach(function (c) {
-      c.addEventListener('click', function () {
-        var q = c.getAttribute('data-q') || '';
-        input.value = q;
-        render(q);
-        if (q && out.scrollIntoView) { out.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-      });
-    });
-
-    // ?q=term deep link
-    try {
-      var q = new URLSearchParams(window.location.search).get('q');
-      if (q) { input.value = q; render(q); }
-    } catch (e) { /* older browsers: skip */ }
-  })();
-  </script>
-  <script src="assistant.js" defer></script>
+<script src="assistant.js" defer></script>
   <script src="connect-widget.js" defer></script>
+  <script>
+    // assistant.js applies a shared true-center lock. Re-assert the homepage art direction
+    // after deferred scripts execute so the canyon remains intentionally right-weighted.
+    window.addEventListener("DOMContentLoaded", function () {
+      var img = document.getElementById("heroImage");
+      if (!img) return;
+      function frameHero() {
+        var w = window.innerWidth;
+        img.style.setProperty("object-fit", "cover", "important");
+        img.style.setProperty("object-position", "50% 50%", "important");
+        img.style.setProperty("left", "0", "important");
+        img.style.setProperty("right", "0", "important");
+        if (w <= 640) {
+          img.style.setProperty("transform", "scale(1.04)", "important");
+        } else if (w <= 980) {
+          img.style.setProperty("transform", "scale(1.10) translateX(3%)", "important");
+        } else {
+          img.style.setProperty("transform", "scale(1.16) translateX(6%)", "important");
+        }
+      }
+      frameHero();
+      window.addEventListener("resize", frameHero, { passive: true });
+    });
+  </script>
 </body>
 </html>
