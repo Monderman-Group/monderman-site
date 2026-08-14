@@ -9,12 +9,17 @@ assert "const necessaryAdminLoad = Math.max(0, totalDrag - drag);" in page
 assert "The participant reported that burden has grown over the stated period." in page
 assert "cost of waiting compounds" not in page
 assert "limited input depth" not in page
-assert "Harness build 2026-08-13.5" in harness
+assert "Harness build 2026-08-13.6" in harness
 assert "no sector peer factor is added" in harness
+assert '"recommended_interventions","experiential_synthesis"' in harness
+assert "particularly\\s+susceptible" in harness
+assert "every\\s+(?:quarter|cycle|month|year)\\s+of\\s+delay" in harness
 for check in [
     "Full-report capacity allocation reconciles to the exposure model",
     "Governance interpretation preserves the scenario context",
     "Experiential synthesis acknowledges supplied participant notes",
+    "Experiential synthesis preserves single-participant provenance",
+    "Self-reported trajectory does not predict a rising cost of delay",
     "Update evidence does not request measurements already supplied",
     "One disclosed recoverable model feeds the report",
 ]:
