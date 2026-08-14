@@ -9,11 +9,14 @@ assert "const capacityComposition = calculateCapacityComposition(exposure);" in 
 assert "The participant reported that burden has grown over the stated period." in page
 assert "cost of waiting compounds" not in page
 assert "limited input depth" not in page
-assert "Harness build 2026-08-14.1" in harness
+assert "Harness build 2026-08-14.2" in harness
 assert "no sector peer factor is added" in harness
 assert '.primary-read strong' in harness
 assert 'authoritativeQualitativeType!=="none"' in harness
 assert 'reference\\s+(?:range|of)' in harness
+assert 'const renderSource=source.replace' in harness
+assert 'Production report access guard was not isolated for acceptance rendering' in harness
+assert 'PDF generation timed out after 120 seconds' in harness
 assert 'result?.config_version || result?.configVersion' in page
 assert 'displayPerspectiveLabel(mode)' in page
 assert page.count('function detectQualitativeOverride(payload = {}, result = {})') == 1
