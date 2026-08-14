@@ -19,6 +19,10 @@ assert 'detectQualitativeOverride(payload || {}, result || {})' in page
 assert 'toLocaleString("en-US")} employees' in page
 assert "inputs governs" not in page
 assert "aggressive paths buy more capacity" not in page
+assert "Experiential bypass signals" not in page
+assert "becomes increasingly expensive to sustain" not in page
+assert "Qualitative signals, when present" in page
+assert "may be more expensive to sustain than the visible output suggests" in page
 assert '"recommended_interventions","experiential_synthesis"' in harness
 assert "particularly\\s+susceptible" in harness
 assert "every\\s+(?:quarter|cycle|month|year)\\s+of\\s+delay" in harness
@@ -35,6 +39,7 @@ for check in [
     "Generated claims avoid outcome certainty and intervention forecasts",
     "Generated burden scope matches measured severities",
     "Static report copy remains mechanically and analytically calibrated",
+    "Remedy paths keep cross-dimension effects and workaround causality directional",
     "Update evidence does not request measurements already supplied",
     "One disclosed recoverable model feeds the report",
 ]:
