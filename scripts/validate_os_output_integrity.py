@@ -5,12 +5,15 @@ page = Path("operational-systems.html").read_text()
 harness = Path("operational-systems-acceptance-harness.html").read_text()
 
 assert "estimatedAdminLoad" not in page
-assert "const necessaryAdminLoad = Math.max(0, totalDrag - drag);" in page
+assert "const capacityComposition = calculateCapacityComposition(exposure);" in page
 assert "The participant reported that burden has grown over the stated period." in page
 assert "cost of waiting compounds" not in page
 assert "limited input depth" not in page
-assert "Harness build 2026-08-13.7" in harness
+assert "Harness build 2026-08-14.1" in harness
 assert "no sector peer factor is added" in harness
+assert '.primary-read strong' in harness
+assert 'authoritativeQualitativeType!=="none"' in harness
+assert 'reference\\s+(?:range|of)' in harness
 assert 'result?.config_version || result?.configVersion' in page
 assert 'displayPerspectiveLabel(mode)' in page
 assert page.count('function detectQualitativeOverride(payload = {}, result = {})') == 1

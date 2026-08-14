@@ -3926,9 +3926,10 @@ const modeledTotalDrag = Number.isFinite(annualHours) && annualHours >= 0 && Num
 : Number(exposure.capacity_drag_percent || 0);
 const totalDrag = Math.max(0, Math.min(100, modeledTotalDrag));
 const recoverableShare = Math.max(0, Math.min(100, Number(exposure.recoverable_share_percent || 0)));
-const drag = totalDrag * recoverableShare / 100;
-const necessaryAdminLoad = Math.max(0, totalDrag - drag);
-const productive = Math.max(0, 100 - totalDrag);
+const capacityComposition = calculateCapacityComposition(exposure);
+  const productive = capacityComposition.productive;
+  const necessaryAdminLoad = capacityComposition.admin;
+  const drag = capacityComposition.drag;
 const segments = [
 { cls: "segment-productive", label: "Productive work", value: productive },
 { cls: "segment-admin", label: "Necessary administrative load", value: necessaryAdminLoad },
