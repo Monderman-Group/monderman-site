@@ -33,7 +33,7 @@
 <main>
   <h1>Operational Systems Acceptance Harness</h1>
   <p class="lead">Runs controlled customer scenarios through the live Operational Systems API, renders every case with the production report code, and validates the PDF, summary HTML, full HTML, and JSON outputs from the same finalized payload.</p>
-  <div class="notice" id="authStatus" data-harness-build="2026-08-13.3">Harness build 2026-08-13.3 loaded; starting the session check…</div>
+  <div class="notice" id="authStatus" data-harness-build="2026-08-13.4">Harness build 2026-08-13.4 loaded; starting the session check…</div>
   <div class="toolbar">
     <button class="primary" id="runBtn" disabled>Run comprehensive 18-case test</button>
     <button class="secondary" id="clearBtn">Clear local results</button>
@@ -124,6 +124,13 @@ const CASE_DEFINITIONS=[
   {id:"no_experience",name:"No experiential notes",profile:"moderate",depth:30,role:"managerial",experience:null,scenario:{organizationName:"Summit Manufacturing",businessUnit:"Plant Operations",industry:"manufacturing_industrial",decisionType:"risk",confidenceLevel:"moderate",employeeCount:2300,peopleInvolved:8,hourlyCost:66,annualVolume:100,meetingHours:16,processName:"Production deviation decisions",regulatoryIntensity:"moderate"}},
   {id:"partial_experience",name:"Partial experiential notes",profile:"moderate",depth:30,role:"senior_leader",experience:{observedSeniorLeader:"Leadership sees recurring delays but has limited visibility into the follow-up and escalation managers use to restore movement."},scenario:{organizationName:"Redwood Bioanalytics",businessUnit:"Quality and Laboratory Operations",industry:"healthcare_life_sciences",decisionType:"risk",confidenceLevel:"high",employeeCount:780,peopleInvolved:7,hourlyCost:101,annualVolume:64,meetingHours:15,processName:"Laboratory deviation decisions",regulatoryIntensity:"high"}}
 ];
+const requestedCaseId=new URLSearchParams(location.search).get("case");
+const ACTIVE_CASE_DEFINITIONS=requestedCaseId?CASE_DEFINITIONS.filter(testCase=>testCase.id===requestedCaseId):CASE_DEFINITIONS;
+if(requestedCaseId&&!ACTIVE_CASE_DEFINITIONS.length)throw new Error(`Unknown acceptance case: ${requestedCaseId}`);
+if(requestedCaseId){
+  $("runBtn").textContent=`Run selected case: ${ACTIVE_CASE_DEFINITIONS[0].name}`;
+  $("runStatus").textContent=`Selected 1/18: ${ACTIVE_CASE_DEFINITIONS[0].name}`;
+}
 const SCORE_ITEM_RE=/^os_d|^os_c|^os_g[234]/;
 let supaClient=null,authToken=null,running=false,artifacts=null,allCaseArtifacts=[],executionFailures=[],reportFrame=null,currentCase=null;
 
@@ -544,10 +551,10 @@ function renderCaseTable(){
   body.querySelectorAll("[data-case-index]").forEach(button=>button.addEventListener("click",()=>selectCaseArtifact(Number(button.dataset.caseIndex))));
 }
 async function run(){
-  if(running)return;running=true;artifacts=null;allCaseArtifacts=[];executionFailures=[];enableDownloads(false);$("runBtn").disabled=true;$("runStatus").className="status warn";$("runStatus").textContent="Running 0/18…";$("checks").innerHTML="<li>Running the live diagnostic matrix…</li>";$("caseTable").querySelector("tbody").innerHTML='<tr><td colspan="7">Starting…</td></tr>';$("log").textContent="Starting.";
+  if(running)return;running=true;artifacts=null;allCaseArtifacts=[];executionFailures=[];enableDownloads(false);$("runBtn").disabled=true;$("runStatus").className="status warn";$("runStatus").textContent=`Running 0/${ACTIVE_CASE_DEFINITIONS.length}…`;$("checks").innerHTML="<li>Running the live diagnostic matrix…</li>";$("caseTable").querySelector("tbody").innerHTML='<tr><td colspan="7">Starting…</td></tr>';$("log").textContent="Starting.";
   try{
-    for(let index=0;index<CASE_DEFINITIONS.length;index++){
-      const testCase=CASE_DEFINITIONS[index];currentCase=testCase;$("runStatus").textContent=`Running ${index+1}/${CASE_DEFINITIONS.length}: ${testCase.name}`;log(`CASE ${index+1}/${CASE_DEFINITIONS.length}: ${testCase.name}`);
+    for(let index=0;index<ACTIVE_CASE_DEFINITIONS.length;index++){
+      const testCase=ACTIVE_CASE_DEFINITIONS[index];currentCase=testCase;$("runStatus").textContent=`Running ${index+1}/${ACTIVE_CASE_DEFINITIONS.length}: ${testCase.name}`;log(`CASE ${index+1}/${CASE_DEFINITIONS.length}: ${testCase.name}`);
       try {
         const apiRun=await driveApi(testCase);log(`Finalized run ${apiRun.runId}. Rendering four production artifacts.`);
         const files=await renderArtifacts(apiRun);const checks=runChecks(apiRun,files);
@@ -575,7 +582,7 @@ async function run(){
     else { $("matrixBtn").disabled=false; $("reviewBtn").disabled=false; }
     const failedCases=allCaseArtifacts.filter(entry=>entry.checks.some(check=>!check.ok));const failedChecks=allCaseArtifacts.reduce((sum,entry)=>sum+entry.checks.filter(check=>!check.ok).length,0);
     const hasFailures=failedCases.length>0||executionFailures.length>0;
-    $("runStatus").className=`status ${hasFailures?"fail":"pass"}`;$("runStatus").textContent=hasFailures?`FAIL — ${failedChecks} check failures; ${executionFailures.length} execution failures`:`PASS — ${CASE_DEFINITIONS.length} cases`;
+    $("runStatus").className=`status ${hasFailures?"fail":"pass"}`;$("runStatus").textContent=hasFailures?`FAIL — ${failedChecks} check failures; ${executionFailures.length} execution failures`:`PASS — ${ACTIVE_CASE_DEFINITIONS.length} cases`;
     log(`Matrix complete: ${allCaseArtifacts.length} cases produced artifacts; ${executionFailures.length} execution failures were recorded.`);
   }catch(error){console.error(error);$("runStatus").className="status fail";$("runStatus").textContent="FAIL";$("checks").innerHTML=`<li><span class="fail">FAIL</span> — ${escapeHtml(error.message)}</li>`;log(`FAILED: ${error.message}`)}
   finally{running=false;$("runBtn").disabled=!authToken}
@@ -588,7 +595,7 @@ $("summaryBtn").addEventListener("click",()=>download(artifacts.summaryHtml,`${f
 $("fullBtn").addEventListener("click",()=>download(artifacts.fullHtml,`${fileStem()}-full.html`,"text/html;charset=utf-8"));
 $("jsonBtn").addEventListener("click",()=>download(JSON.stringify(artifacts.jsonArtifact,null,2),`${fileStem()}.json`,"application/json;charset=utf-8"));
 $("bundleBtn").addEventListener("click",()=>download(JSON.stringify(artifacts.bundle,null,2),`${fileStem()}-bundle.json`,"application/json;charset=utf-8"));
-$("matrixBtn").addEventListener("click",()=>download(JSON.stringify({generatedAt:new Date().toISOString(),caseCount:allCaseArtifacts.length,executionFailureCount:executionFailures.length,executionFailures:executionFailures.map(entry=>({id:entry.case.id,name:entry.case.name,profile:entry.case.profile,depth:entry.case.depth,role:entry.case.role,error:entry.error})),cases:allCaseArtifacts.map(entry=>({id:entry.apiRun.case.id,name:entry.apiRun.case.name,profile:entry.apiRun.case.profile,depth:entry.apiRun.case.depth,role:entry.apiRun.case.role,runId:entry.apiRun.runId,score:entry.apiRun.result.score,band:entry.apiRun.result.score_band||entry.apiRun.result.band,coverage:entry.apiRun.result.dimension_coverage||entry.apiRun.result.measurement_coverage,checks:entry.checks,exportMetadata:entry.files.bundle.exportMetadata}))},null,2),"operational-systems-18-case-matrix.json","application/json;charset=utf-8"));
+$("matrixBtn").addEventListener("click",()=>download(JSON.stringify({generatedAt:new Date().toISOString(),caseCount:allCaseArtifacts.length,executionFailureCount:executionFailures.length,executionFailures:executionFailures.map(entry=>({id:entry.case.id,name:entry.case.name,profile:entry.case.profile,depth:entry.case.depth,role:entry.case.role,error:entry.error})),cases:allCaseArtifacts.map(entry=>({id:entry.apiRun.case.id,name:entry.apiRun.case.name,profile:entry.apiRun.case.profile,depth:entry.apiRun.case.depth,role:entry.apiRun.case.role,runId:entry.apiRun.runId,score:entry.apiRun.result.score,band:entry.apiRun.result.score_band||entry.apiRun.result.band,coverage:entry.apiRun.result.dimension_coverage||entry.apiRun.result.measurement_coverage,checks:entry.checks,exportMetadata:entry.files.bundle.exportMetadata}))},null,2),`operational-systems-${ACTIVE_CASE_DEFINITIONS.length}-case-matrix.json`,"application/json;charset=utf-8"));
 $("reviewBtn").addEventListener("click",async()=>{
   const button=$("reviewBtn"),label=button.textContent;button.disabled=true;button.textContent="Building complete review file…";
   try{download(JSON.stringify(await buildAutomatedReviewDataset()),"operational-systems-automated-review-dataset.json","application/json;charset=utf-8")}
@@ -615,8 +622,8 @@ try{
   if(typeof createClient!=="function")throw new Error("Authentication client loaded without createClient");
   supaClient=createClient("https://ptkxrzgmeldalrkfruth.supabase.co","sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",{auth:{persistSession:true,autoRefreshToken:true}});
   await freshToken();
-  if(authToken){$("authStatus").textContent="Harness build 2026-08-13.3. Signed in. The comprehensive test creates 18 real test runs in the current account and may pause if the API rate limit is reached. It will not purchase, promote, archive, or alter other runs.";$("authStatus").style.borderColor="#8fc79d";$("runBtn").disabled=false}
-  else{$("authStatus").textContent="Harness build 2026-08-13.3. Sign in to the Monderman workspace in this browser, then reload this page. The harness never creates an account."}
+  if(authToken){$("authStatus").textContent=`Harness build 2026-08-13.4. Signed in. This test creates ${ACTIVE_CASE_DEFINITIONS.length} real test run${ACTIVE_CASE_DEFINITIONS.length===1?"":"s"} in the current account and may pause if the API rate limit is reached. It will not purchase, promote, archive, or alter other runs.`;$("authStatus").style.borderColor="#8fc79d";$("runBtn").disabled=false}
+  else{$("authStatus").textContent="Harness build 2026-08-13.4. Sign in to the Monderman workspace in this browser, then reload this page. The harness never creates an account."}
 }catch(error){$("authStatus").textContent=`Session check failed: ${error.message}`}
 
 })().catch((error)=>{
