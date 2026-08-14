@@ -33,7 +33,7 @@
 <main>
   <h1>Operational Systems Acceptance Harness</h1>
   <p class="lead">Runs controlled customer scenarios through the live Operational Systems API, renders every case with the production report code, and validates the PDF, summary HTML, full HTML, and JSON outputs from the same finalized payload.</p>
-  <div class="notice" id="authStatus" data-harness-build="2026-08-14.1">Harness build 2026-08-14.1 loaded; starting the session check…</div>
+  <div class="notice" id="authStatus" data-harness-build="2026-08-14.2">Harness build 2026-08-14.2 loaded; starting the session check…</div>
   <div class="toolbar">
     <button class="primary" id="runBtn" disabled>Run comprehensive 18-case test</button>
     <button class="secondary" id="clearBtn">Clear local results</button>
@@ -254,9 +254,16 @@ async function driveApi(testCase){
 async function renderArtifacts(apiRun){
   const source=await (await fetch(`${PAGE_BASE}/operational-systems.html`,{cache:"no-store"})).text();
   if(!source.includes("__mondermanTestHooks"))throw new Error("Production report page does not expose acceptance hooks");
+  // The report is loaded as srcdoc for an unsaved internal acceptance run. Strip
+  // only the customer-session redirect block from that in-memory copy; otherwise
+  // it navigates the iframe to signin.html while html2canvas is rendering and the
+  // PDF promise never settles. The production page served to customers is not
+  // modified, and all API-side authentication and authorization remain active.
+  const renderSource=source.replace(/<!-- ===== Monderman access guard:[\s\S]*?<!-- ===== end access guard ===== -->/i,"");
+  if(renderSource===source)throw new Error("Production report access guard was not isolated for acceptance rendering");
   const injected={result:apiRun.result,payload:apiRun.payload,narrative:apiRun.result.interpretive_prose||apiRun.result.narrative||null};
   const inject=`<base href="${PAGE_BASE}/"><script>window.__mondermanInjectedResult=${JSON.stringify(injected).replace(/</g,"\\u003c")};<\/script>`;
-  const doc=source.replace(/<head([^>]*)>/i,(match,attrs)=>`<head${attrs}>${inject}`);
+  const doc=renderSource.replace(/<head([^>]*)>/i,(match,attrs)=>`<head${attrs}>${inject}`);
   $("emptyPreview")?.remove();reportFrame=document.createElement("iframe");reportFrame.title="Rendered Operational Systems report";$("frameWrap").replaceChildren(reportFrame);reportFrame.srcdoc=doc;
   await new Promise(resolve=>{reportFrame.onload=resolve;setTimeout(resolve,12000)});
   for(let i=0;i<80&&!reportFrame.contentWindow?.__mondermanInjectionApplied;i++)await sleep(250);
@@ -266,7 +273,10 @@ async function renderArtifacts(apiRun){
   const fullHtml=hooks.buildFullReportHTML(apiRun.result,apiRun.payload,"Operational Systems Report");
   const jsonArtifact=hooks.buildCrossDiagnosticArtifact(apiRun.result,apiRun.payload);
   log("Building PDF from the production report renderer…");
-  const pdfResult=await hooks.downloadExecutiveReportPdf({returnBlob:true});
+  const pdfResult=await Promise.race([
+    hooks.downloadExecutiveReportPdf({returnBlob:true}),
+    new Promise((_,reject)=>setTimeout(()=>reject(new Error("PDF generation timed out after 120 seconds")),120000))
+  ]);
   const iframeBlob=pdfResult?.blob;
   if(!pdfResult?.ok||!iframeBlob||typeof iframeBlob.arrayBuffer!=="function"||!Number.isFinite(Number(iframeBlob.size)))throw new Error(`PDF generation failed: ${pdfResult?.error||pdfResult?.reason||"no PDF blob"}`);
   // A Blob created in the report iframe belongs to that iframe's JavaScript
@@ -688,8 +698,8 @@ try{
   if(typeof createClient!=="function")throw new Error("Authentication client loaded without createClient");
   supaClient=createClient("https://ptkxrzgmeldalrkfruth.supabase.co","sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",{auth:{persistSession:true,autoRefreshToken:true}});
   await freshToken();
-  if(authToken){$("authStatus").textContent=`Harness build 2026-08-14.1. Signed in. This test creates ${ACTIVE_CASE_DEFINITIONS.length} real test run${ACTIVE_CASE_DEFINITIONS.length===1?"":"s"} in the current account and may pause if the API rate limit is reached. It will not purchase, promote, archive, or alter other runs.`;$("authStatus").style.borderColor="#8fc79d";$("runBtn").disabled=false}
-  else{$("authStatus").textContent="Harness build 2026-08-14.1. Sign in to the Monderman workspace in this browser, then reload this page. The harness never creates an account."}
+  if(authToken){$("authStatus").textContent=`Harness build 2026-08-14.2. Signed in. This test creates ${ACTIVE_CASE_DEFINITIONS.length} real test run${ACTIVE_CASE_DEFINITIONS.length===1?"":"s"} in the current account and may pause if the API rate limit is reached. It will not purchase, promote, archive, or alter other runs.`;$("authStatus").style.borderColor="#8fc79d";$("runBtn").disabled=false}
+  else{$("authStatus").textContent="Harness build 2026-08-14.2. Sign in to the Monderman workspace in this browser, then reload this page. The harness never creates an account."}
 }catch(error){$("authStatus").textContent=`Session check failed: ${error.message}`}
 
 })().catch((error)=>{
