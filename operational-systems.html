@@ -3906,19 +3906,20 @@ function renderCapacityWaterfall(result) {
 const mount = $("capacityWaterfall");
 const note = $("capacityWaterfallNote");
 if (!mount) return;
-const capacityDrag = Math.max(0, Math.min(100, Math.round(Number(result?.exposure?.capacity_drag_percent || 0))));
-let estimatedAdminLoad = Math.max(8, Math.min(45, Math.round(Math.max(10, capacityDrag * 0.55))));
-let productive = Math.max(0, 100 - capacityDrag - estimatedAdminLoad);
-let drag = Math.max(5, Math.min(50, capacityDrag));
-let total = productive + estimatedAdminLoad + drag;
-if (total !== 100) {
-productive = (productive / total) * 100;
-estimatedAdminLoad = (estimatedAdminLoad / total) * 100;
-drag = (drag / total) * 100;
-}
+const exposure = result?.exposure || {};
+const annualHours = Number(exposure.annual_hours);
+const totalCapacityHours = Number(exposure.total_capacity_hours);
+const modeledTotalDrag = Number.isFinite(annualHours) && annualHours >= 0 && Number.isFinite(totalCapacityHours) && totalCapacityHours > 0
+? (annualHours / totalCapacityHours) * 100
+: Number(exposure.capacity_drag_percent || 0);
+const totalDrag = Math.max(0, Math.min(100, modeledTotalDrag));
+const recoverableShare = Math.max(0, Math.min(100, Number(exposure.recoverable_share_percent || 0)));
+const drag = totalDrag * recoverableShare / 100;
+const necessaryAdminLoad = Math.max(0, totalDrag - drag);
+const productive = Math.max(0, 100 - totalDrag);
 const segments = [
 { cls: "segment-productive", label: "Productive work", value: productive },
-{ cls: "segment-admin", label: "Necessary administrative load", value: estimatedAdminLoad },
+{ cls: "segment-admin", label: "Necessary administrative load", value: necessaryAdminLoad },
 { cls: "segment-drag", label: "Recoverable drag", value: drag }
 ];
 mount.innerHTML = segments.map(seg => `<div class="capacity-segment ${seg.cls}" style="width:0%" data-final-width="${seg.value.toFixed(1)}">${seg.value >= 15 ? `${Math.round(seg.value)}%` : ""}</div>`).join("");
@@ -3927,7 +3928,7 @@ mount.querySelectorAll(".capacity-segment").forEach((el) => {
 el.style.width = `${el.dataset.finalWidth}%`;
 });
 });
-if (note) note.textContent = `${Math.round(productive)}% productive work, ${Math.round(estimatedAdminLoad)}% necessary administrative load, and ${Math.round(drag)}% recoverable drag based on the current run assumptions.`;
+if (note) note.textContent = `${Math.round(productive)}% productive work, ${Math.round(necessaryAdminLoad)}% necessary administrative load, and ${Math.round(drag)}% recoverable drag based on the current run assumptions.`;
 }
 
 function renderBurdenTreemap(result) {
@@ -4088,13 +4089,13 @@ if (note) note.textContent = result?.trajectory?.note || "Directional signal";
   */
   function buildConcentrationNarrative(pattern) {
   if (pattern.isConcentrated) {
-  return `The composition is concentrated rather than distributed. ${escapeHtml(pattern.dominant.label)} carries ${pattern.dominantPct}% of the visible burden by itself, which makes the condition more fixable: leadership can target one source first and expect a real shift in the workflow. Distributed conditions look the same from the outside but require redesigning the path itself, not just removing a layer.`;
+  return `The composition is concentrated rather than distributed. ${escapeHtml(pattern.dominant.label)} carries ${pattern.dominantPct}% of the visible burden by itself. That supports testing this source first; whether the workflow materially improves should be verified against the same measures after intervention.`;
   } else if (pattern.isDistributed) {
-  return `The composition is distributed rather than concentrated. No single source carries more than ${pattern.dominantPct}% of the visible burden, which means the workflow is heavy in a systemic way. People inside the path are more likely to describe it as "the way things work here" than as one specific bottleneck. This pattern resists single-fix interventions; it usually requires path redesign, not layer removal.`;
+  return `The composition is distributed rather than concentrated. No single source carries more than ${pattern.dominantPct}% of the visible burden, so no single source explains the condition. That supports examining path-level design and sequencing several burden tests rather than assuming one layer will resolve the whole pattern.`;
   } else if (pattern.hasSignal) {
-  return `The composition shows ${escapeHtml(pattern.dominant.label.toLowerCase())} as the dominant visible burden source at ${pattern.dominantPct}% of the total, with the remaining burden meaningfully distributed across the other dimensions. This middle pattern usually responds to focused intervention on the dominant source while watching for compensation in the others.`;
+  return `The composition shows ${escapeHtml(pattern.dominant.label.toLowerCase())} as the dominant visible burden source at ${pattern.dominantPct}% of the total, with the remaining burden distributed across the other dimensions. That supports testing the dominant source first while monitoring the others for burden displacement.`;
   } else {
-  return "Burden composition signal is too low in this run to identify a dominant source. This usually indicates either an exceptionally light operating environment or insufficient diagnostic input depth — re-run with broader participant coverage to confirm which.";
+  return "Burden composition signal is too low in this run to identify a dominant source. This can reflect either a light operating environment or limited measurement coverage; use the coverage metadata and follow-up evidence to distinguish them.";
   }
   }
 
@@ -4106,7 +4107,7 @@ if (note) note.textContent = result?.trajectory?.note || "Directional signal";
   */
   function buildTrajectoryNarrative(direction) {
   if (direction === "up") {
-  return "The trajectory signal indicates the burden is growing rather than holding steady. Early correction is more valuable here than late correction, because the cost of waiting compounds.";
+  return "The participant reported that burden has grown over the stated period. That makes a follow-up measurement timely, but it does not establish a continuing trend or the cost of delay.";
   } else if (direction === "down") {
   return "The trajectory signal suggests some pressure may be easing. Verify that with measurement before assuming the problem is self-correcting; perceived improvement and structural improvement are not the same.";
   } else {
@@ -4367,7 +4368,7 @@ return `<div class="donut-panel">
    <div class="alert-icon">!</div>
    <div class="alert-body">
      <p class="alert-eyebrow">Important note</p>
-     <p>This run shows rising trajectory combined with limited input depth. The pattern points toward worsening drag, but the signal underlying that pattern is thin. Treat the direction of the read seriously while treating the magnitude as provisional — a follow-up run with broader participant coverage is the right next step before committing to large interventions.</p>
+     <p>This run combines a self-reported rising trajectory with a single-perspective read. Treat the direction as a signal to investigate, not as a measured forecast. A cross-role follow-up is the right next step before committing to large interventions.</p>
    </div>
 
 </div>`;
@@ -4905,7 +4906,7 @@ return `<!doctype html>
     <h3 style="margin-top:26px">Why this matters in ${safe(sectorName)}</h3>
     <p>${safeWords(industry.opportunityPattern, 44)}</p>
     <p>${safeWords(trajectoryProse, 36)}</p>
-    ${showAlertCallout ? `<div class="note"><div class="bang">!</div><div><div class="note-title">Important note</div><p>This run shows rising trajectory combined with limited input depth. Treat the direction seriously while treating the magnitude as provisional. A follow-up run with broader participant coverage is the right next step before committing to large interventions.</p></div></div>` : ""}
+    ${showAlertCallout ? `<div class="note"><div class="bang">!</div><div><div class="note-title">Important note</div><p>This run combines a self-reported rising trajectory with a single-perspective read. Treat the direction as a signal to investigate, not as a measured forecast. A cross-role follow-up is the right next step before committing to large interventions.</p></div></div>` : ""}
   </div>
 </section>
 
@@ -4913,13 +4914,13 @@ return `<!doctype html>
   ${footer(3)}
   <div class="content">
     <p class="eyebrow">Where the burden is coming from</p><h2>Burden composition</h2>
-    <p>The composition view shows where the visible burden is coming from across the six dimensions Monderman measures: process density, systems friction, reporting burden, workaround dependence, control load, and administrative upkeep burden.</p><p class="muted">The important signal is not only which dimension is largest. The distribution also matters. A concentrated pattern usually points to a more targeted intervention; a distributed pattern usually means the workflow has absorbed burden into its normal operating design.</p>
+    <p>The composition view shows where the visible burden is coming from across the six dimensions Monderman measures: process density, systems friction, reporting burden, workaround dependence, control load, and administrative upkeep burden.</p><p class="muted">The important signal is not only which dimension is largest. The distribution also matters. A concentrated pattern supports a targeted first test; a distributed pattern supports examining how burden is embedded across the workflow.</p>
     <div class="panel donut-panel"><div class="donut-wrap"><svg width="150" height="150" viewBox="0 0 200 200">${donutPaths}</svg><div class="donut-center"><div><small>DOMINANT</small><b>${dominantPct}%</b></div></div></div><div>${segmentLegend}</div></div>
     <h3 style="margin-top:18px">Measured burden severity</h3><div class="panel">${dimensionRows}</div><p class="muted" style="font-size:8.5px">Higher values indicate heavier measured burden. The overall Operational Systems score runs in the opposite direction: higher overall scores mean a lighter, stronger operating system.</p>
     <h3 style="margin-top:24px">What the composition tells us</h3>
     <p>${safeWords(concentrationProse, 76)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(compositionQuestion)}</p></div>
-    <div class="card-row"><div class="mini-card"><b>Concentrated burden</b><p>One source dominates. Faster to fix because targeted intervention has high yield.</p></div><div class="mini-card"><b>Distributed burden</b><p>No single source dominates. Slower to fix; usually requires path-level redesign.</p></div></div>
+    <div class="card-row"><div class="mini-card"><b>Concentrated burden</b><p>One source dominates. This supports a targeted first test whose effect should be measured.</p></div><div class="mini-card"><b>Distributed burden</b><p>No single source dominates. This supports a broader path-level assessment before selecting a remedy.</p></div></div>
   </div>
 </section>
 
