@@ -27,13 +27,13 @@ harness_path.write_text(harness, encoding="utf-8")
 validator_path = Path("scripts/validate_os_output_integrity.py")
 validator = validator_path.read_text(encoding="utf-8")
 validator = validator.replace("Harness build 2026-08-14.2", "Harness build 2026-08-14.3")
-anchor = '''assert "Promise.race([pdfPromise,pdfTimeout])" in harness
-assert "__mondermanAcceptanceRender" in harness'''
-replacement = '''assert "Promise.race([pdfPromise,pdfTimeout])" in harness
-assert "__mondermanAcceptanceRender" in harness
+anchor = '''assert 'PDF generation timed out after 120 seconds' in harness
+assert 'result?.config_version || result?.configVersion' in page'''
+replacement = '''assert 'PDF generation timed out after 120 seconds' in harness
 assert "const requestsRedundantStepCount=" in harness
 assert "const addsEmpiricalDistribution=" in harness
 assert "recent quarter" in harness
-assert '&&/(?:routine |process )?step count' not in harness'''
-validator = replace_once(validator, anchor, replacement, "headless-render validator assertions")
+assert '&&/(?:routine |process )?step count' not in harness
+assert 'result?.config_version || result?.configVersion' in page'''
+validator = replace_once(validator, anchor, replacement, "current validator assertions")
 validator_path.write_text(validator, encoding="utf-8")
