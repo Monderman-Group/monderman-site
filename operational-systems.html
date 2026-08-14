@@ -858,7 +858,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
           </button>
           <div class="accordion-body">
             <section class="remedy-standalone">
-              <div id="remedyTreeWrap" class="remedy-band hidden"><div class="remedy-band-head"><strong>Three remedy paths</strong><p>These paths are not arranged as one automatic best answer. They show the trade space between burden of recovery, implementation burden, and organizational risk.</p></div><div class="remedy-grid" id="remedyGrid"></div><p class="remedy-calibration-note">* Calibrate against Insight depth before acting. A single-perspective run produces directional remedy guidance, not engineering specifications &mdash; the breadth, depth, and cross-validation of inputs governs how confidently any of these paths should be pursued.</p></div>
+              <div id="remedyTreeWrap" class="remedy-band hidden"><div class="remedy-band-head"><strong>Three remedy paths</strong><p>These paths are not arranged as one automatic best answer. They show the trade space between burden of recovery, implementation burden, and organizational risk.</p></div><div class="remedy-grid" id="remedyGrid"></div><p class="remedy-calibration-note">* Calibrate against Insight depth before acting. A single-perspective run produces directional remedy guidance, not engineering specifications &mdash; the breadth, depth, and cross-validation of inputs govern how confidently any of these paths should be pursued.</p></div>
             </section>
           </div>
         </article>
@@ -4957,8 +4957,8 @@ ${decisionReviewPage}
     <p>Three distinct intervention strategies, ordered by ambition and risk. Each path implies a different leadership posture, time horizon, and tolerance for short-term disruption.</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(remedyQuestion)}</p></div>
     <div class="remedy-grid">${remedyHtml}</div>
-    <p class="remedy-calibration-note" style="margin:14px 0 0;padding:10px 12px;background:#F6F3EC;border-left:2px solid #A9CFD2;border-radius:0 6px 6px 0;font-size:11px;line-height:1.55;color:#6E6F73;font-style:italic">* Calibrate against Insight depth before acting. A single-perspective run produces directional remedy guidance, not engineering specifications &mdash; the breadth, depth, and cross-validation of inputs governs how confidently any of these paths should be pursued.</p>
-    <div class="rule"></div><h3>Choosing between them</h3><p>The right choice depends less on the current burden score than on three things: how much stability the organization needs while changes happen, how much trust leadership has earned to redesign rather than tweak, and whether the workflow is on a path that is already worsening. Light paths preserve continuity; aggressive paths buy more capacity but require a stronger mandate.</p>
+    <p class="remedy-calibration-note" style="margin:14px 0 0;padding:10px 12px;background:#F6F3EC;border-left:2px solid #A9CFD2;border-radius:0 6px 6px 0;font-size:11px;line-height:1.55;color:#6E6F73;font-style:italic">* Calibrate against Insight depth before acting. A single-perspective run produces directional remedy guidance, not engineering specifications &mdash; the breadth, depth, and cross-validation of inputs govern how confidently any of these paths should be pursued.</p>
+    <div class="rule"></div><h3>Choosing between them</h3><p>The right choice depends less on the current burden score than on three things: how much stability the organization needs while changes happen, how much trust leadership has earned to redesign rather than tweak, and whether the workflow is on a path that is already worsening. Light paths preserve continuity; more ambitious paths offer greater recovery potential but require a stronger mandate.</p>
   </div>
 </section>
 
@@ -5353,13 +5353,13 @@ function renderBasisOfRead(result, payload) {
   const rate = num(p.hourlyCost) ?? num(p.hourlyRate); if (rate != null) inputs.push(`$${rate}/hr loaded`);
   const vol = num(p.annualVolume) ?? num(p.annualCycles); if (vol != null) inputs.push(`${vol} annual cycles`);
   const mtg = num(p.meetingHours); if (mtg != null) inputs.push(`${mtg} coordination hrs/run`);
-  const orgN = num(p.employeeCount); if (orgN != null) inputs.push(`organization of ${orgN}`);
+  const orgN = num(p.employeeCount); if (orgN != null) inputs.push(`${Number(orgN).toLocaleString("en-US")} employees`);
   const depthMin = p.diagnostic_depth || p.diagnosticDepth || (typeof state !== "undefined" ? state.depth : null);
   const depthLabel = (typeof depthConfigs !== "undefined" && depthConfigs[String(depthMin)] && depthConfigs[String(depthMin)].label)
     || (depthMin ? `${depthMin}-minute diagnostic` : "\u2014");
   const mode = p.participantMode || p.participant_mode || (typeof state !== "undefined" ? state.mode : "");
-  const laneLabel = (typeof laneConfigs !== "undefined" && laneConfigs[mode] && laneConfigs[mode].label) || (mode ? String(mode) : "\u2014");
-  const cfg = (typeof state !== "undefined" && state.configVersion) ? state.configVersion : "\u2014";
+  const laneLabel = mode ? (typeof displayPerspectiveLabel === "function" ? displayPerspectiveLabel(mode) : String(mode).replace(/_/g, " ")) : "\u2014";
+  const cfg = result?.config_version || result?.configVersion || p.config_version || p.configVersion || p.routing_meta?.configVersion || ((typeof state !== "undefined" && state.configVersion) ? state.configVersion : "\u2014");
   const scorer = (result && result.scorer_version) ? result.scorer_version : "\u2014";
   const rows = [
     ["Sector", esc(calTxt)],

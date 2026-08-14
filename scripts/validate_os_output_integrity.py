@@ -9,8 +9,13 @@ assert "const necessaryAdminLoad = Math.max(0, totalDrag - drag);" in page
 assert "The participant reported that burden has grown over the stated period." in page
 assert "cost of waiting compounds" not in page
 assert "limited input depth" not in page
-assert "Harness build 2026-08-13.6" in harness
+assert "Harness build 2026-08-13.7" in harness
 assert "no sector peer factor is added" in harness
+assert 'result?.config_version || result?.configVersion' in page
+assert 'displayPerspectiveLabel(mode)' in page
+assert 'toLocaleString("en-US")} employees' in page
+assert "inputs governs" not in page
+assert "aggressive paths buy more capacity" not in page
 assert '"recommended_interventions","experiential_synthesis"' in harness
 assert "particularly\\s+susceptible" in harness
 assert "every\\s+(?:quarter|cycle|month|year)\\s+of\\s+delay" in harness
@@ -20,6 +25,12 @@ for check in [
     "Experiential synthesis acknowledges supplied participant notes",
     "Experiential synthesis preserves single-participant provenance",
     "Self-reported trajectory does not predict a rising cost of delay",
+    "Basis of read preserves version and display metadata",
+    "Generated claims do not invent an ideal capacity benchmark",
+    "Generated claims do not assign unsupported hours to a burden source",
+    "Generated claims avoid outcome certainty and intervention forecasts",
+    "Generated burden scope matches measured severities",
+    "Static report copy remains mechanically and analytically calibrated",
     "Update evidence does not request measurements already supplied",
     "One disclosed recoverable model feeds the report",
 ]:
