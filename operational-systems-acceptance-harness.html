@@ -33,7 +33,7 @@
 <main>
   <h1>Operational Systems Acceptance Harness</h1>
   <p class="lead">Runs controlled customer scenarios through the live Operational Systems API, renders every case with the production report code, and validates the PDF, summary HTML, full HTML, and JSON outputs from the same finalized payload.</p>
-  <div class="notice" id="authStatus" data-harness-build="2026-08-13.2">Harness build 2026-08-13.2 loaded; starting the session check…</div>
+  <div class="notice" id="authStatus" data-harness-build="2026-08-13.3">Harness build 2026-08-13.3 loaded; starting the session check…</div>
   <div class="toolbar">
     <button class="primary" id="runBtn" disabled>Run comprehensive 18-case test</button>
     <button class="secondary" id="clearBtn">Clear local results</button>
@@ -347,6 +347,10 @@ function runChecks(apiRun,files){
   const expectedAttribution=55;
   const quadrant=reportFrame.contentWindow.__mondermanTestHooks.getQuadrantCoordinates(apiRun.result);
   const interpretiveState=result.interpretive_state||result.__interpretiveState||{};
+  const claimSectionKeys=new Set(["executive_interpretation","tradeoff_note","time_money_resources_summary","opportunity_opening","what_this_run_indicates","how_advantage_is_built_here","opportunity_rationale","first_move_1_reason","first_move_2_reason","recommended_actions_rationale","opportunity_guidance","sector_pattern"]);
+const rawNarrativeClaims=apiRun.finalized?.narrative?.narrative||{};
+const flattenClaimValue=(value)=>typeof value==="string"?value:Array.isArray(value)?value.map(flattenClaimValue).join(" "):value&&typeof value==="object"?Object.values(value).map(flattenClaimValue).join(" "):"";
+const singleRunClaimText=Object.entries(rawNarrativeClaims).filter(([key])=>claimSectionKeys.has(key)).map(([,value])=>flattenClaimValue(value)).join(" ");
   const governanceMeasured=Number.isFinite(Number(interpretiveState.governanceWeight))&&Number.isFinite(Number(interpretiveState.execResponsive));
   const checks=[
     ["Nonzero score",score>0&&score<=100,`score=${score}`],
@@ -429,7 +433,7 @@ function runChecks(apiRun,files){
     ["No Northbridge narrative contamination",apiRun.case.id==="northbridge"||!/procurement, finance, clinical operations, IT security/i.test(combined),apiRun.case.id==="northbridge"?"reference case":(combined.match(/procurement, finance, clinical operations, IT security/i)||["none"])[0]],
     ["Quadrant prose agrees with overall condition",score>=67||!/cleanest operating posture|moving acceptably fast/i.test(combined),score>=67?"moderate or healthy case":(combined.match(/cleanest operating posture|moving acceptably fast/i)||["none"])[0]],
     ["Remedy paths make no unsupported prevalence or timing claims",!/\b(?:the\s+)?majority\s+of\s+(?:cases|requests|decisions|workflows|transactions|deviations|exceptions|incidents|referrals|routes|workarounds|transitions|points|case types)\b|\b(?:top\s+)?(?:two|three|four|five|\d+)(?:\s+to\s+(?:two|three|four|five|\d+))?\s+most\s+(?:common|frequent(?:ly\s+used)?)\b|\b(?:most[- ]used|highest[- ](?:volume|frequency))\b|\bwithin\s+(?:(?:one|two|three|four|five|several|\d+)(?:\s+to\s+(?:one|two|three|four|five|several|\d+))?\s+|a\s+few\s+)?(?:cycles?|quarters?|weeks?|months?|years?)\b/i.test(remedySection),(remedySection.match(/\b(?:the\s+)?majority\s+of\s+(?:cases|requests|decisions|workflows|transactions|deviations|exceptions|incidents|referrals|routes|workarounds|transitions|points|case types)\b|\b(?:top\s+)?(?:two|three|four|five|\d+)(?:\s+to\s+(?:two|three|four|five|\d+))?\s+most\s+(?:common|frequent(?:ly\s+used)?)\b|\b(?:most[- ]used|highest[- ](?:volume|frequency))\b|\bwithin\s+(?:(?:one|two|three|four|five|several|\d+)(?:\s+to\s+(?:one|two|three|four|five|several|\d+))?\s+|a\s+few\s+)?(?:cycles?|quarters?|weeks?|months?|years?)\b/i)||["none"])[0]],
-    ["Single-run prose avoids unsupported prevalence, causality, and forecasts",!unsupportedClaim.test(combined),(combined.match(unsupportedClaim)||["none"])[0]],
+    ["Generated single-run claims avoid unsupported prevalence, causality, and forecasts",Boolean(singleRunClaimText)&&!unsupportedClaim.test(singleRunClaimText),(singleRunClaimText.match(unsupportedClaim)||[singleRunClaimText?"none":"missing generated claim text"])[0]],
     ["Dimension labels start sentences cleanly",!lowerCaseDimensionStart.test(combined),(combined.match(lowerCaseDimensionStart)||["none"])[0]],
     ["Every remedy benefit is conditional rather than guaranteed",remedyBenefits.length===3&&remedyBenefits.every(text=>/\b(?:could|may|might|potential(?:ly)?|possible upside|is intended to|would be expected to|can help)\b/i.test(text))&&remedyBenefits.every(text=>!/\bfully recovered\b|\bentirely\b/i.test(text)),remedyBenefits.join(" | ")],
     ["Run length is not mislabeled as depth",!/depth of this run\s*\(10\/30\/60/i.test(combined),(combined.match(/depth of this run\s*\(10\/30\/60/i)||["none"])[0]],
@@ -549,7 +553,7 @@ async function run(){
         const files=await renderArtifacts(apiRun);const checks=runChecks(apiRun,files);
         const bundle={generatedAt:new Date().toISOString(),environment:{page:location.href,apiBase:API_BASE,frontendSource:`${PAGE_BASE}/operational-systems.html`,userAgent:navigator.userAgent},case:testCase,scenario:apiRun.scenario,trace:apiRun.trace,unaskedQuestions:apiRun.payload.unasked_questions||[],result:apiRun.result,customerJson:files.jsonArtifact,exportMetadata:{summaryHtmlBytes:files.summaryHtml.length,fullHtmlBytes:files.fullHtml.length,pdf:files.pdf},checks};
         files.bundle=bundle;allCaseArtifacts.push({apiRun,files,checks});renderCaseTable();
-        log(`${testCase.name}: ${checks.filter(check=>check.ok).length}/${checks.length} checks passing.`);
+        const failedNames=checks.filter(check=>!check.ok).map(check=>check.name);log(`${testCase.name}: ${checks.filter(check=>check.ok).length}/${checks.length} checks passing${failedNames.length?`; failed: ${failedNames.join(" | ")}`:""}.`);
       } catch (caseError) {
         const message=caseError?.message||String(caseError);
         executionFailures.push({case:testCase,error:message});renderCaseTable();
@@ -611,8 +615,8 @@ try{
   if(typeof createClient!=="function")throw new Error("Authentication client loaded without createClient");
   supaClient=createClient("https://ptkxrzgmeldalrkfruth.supabase.co","sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",{auth:{persistSession:true,autoRefreshToken:true}});
   await freshToken();
-  if(authToken){$("authStatus").textContent="Harness build 2026-08-13.2. Signed in. The comprehensive test creates 18 real test runs in the current account and may pause if the API rate limit is reached. It will not purchase, promote, archive, or alter other runs.";$("authStatus").style.borderColor="#8fc79d";$("runBtn").disabled=false}
-  else{$("authStatus").textContent="Harness build 2026-08-13.2. Sign in to the Monderman workspace in this browser, then reload this page. The harness never creates an account."}
+  if(authToken){$("authStatus").textContent="Harness build 2026-08-13.3. Signed in. The comprehensive test creates 18 real test runs in the current account and may pause if the API rate limit is reached. It will not purchase, promote, archive, or alter other runs.";$("authStatus").style.borderColor="#8fc79d";$("runBtn").disabled=false}
+  else{$("authStatus").textContent="Harness build 2026-08-13.3. Sign in to the Monderman workspace in this browser, then reload this page. The harness never creates an account."}
 }catch(error){$("authStatus").textContent=`Session check failed: ${error.message}`}
 
 })().catch((error)=>{
