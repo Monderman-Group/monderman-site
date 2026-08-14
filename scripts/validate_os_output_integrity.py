@@ -13,6 +13,9 @@ assert "Harness build 2026-08-13.7" in harness
 assert "no sector peer factor is added" in harness
 assert 'result?.config_version || result?.configVersion' in page
 assert 'displayPerspectiveLabel(mode)' in page
+assert page.count('function detectQualitativeOverride(payload = {}, result = {})') == 1
+assert 'detectQualitativeOverride(payload, result)' in page
+assert 'detectQualitativeOverride(payload || {}, result || {})' in page
 assert 'toLocaleString("en-US")} employees' in page
 assert "inputs governs" not in page
 assert "aggressive paths buy more capacity" not in page
@@ -23,6 +26,7 @@ for check in [
     "Full-report capacity allocation reconciles to the exposure model",
     "Governance interpretation preserves the scenario context",
     "Experiential synthesis acknowledges supplied participant notes",
+    "Customer experiential signal matches API classification",
     "Experiential synthesis preserves single-participant provenance",
     "Self-reported trajectory does not predict a rising cost of delay",
     "Basis of read preserves version and display metadata",

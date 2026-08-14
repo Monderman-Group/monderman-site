@@ -1433,17 +1433,29 @@ const entries = Array.isArray(layer.entries) ? layer.entries : [];
 return entries.flatMap((entry) => [entry.text, entry.cleaned, entry.raw]).filter(Boolean).join(" ").toLowerCase();
 }
 
-function detectQualitativeOverride(payload = {}) {
-const text = getExperienceText(payload);
-const hasWorkaround = /workaround|work around|bypass|bypassed|circumvent|informal|shadow|off[-\s]?path/.test(text);
-const hasManager = /manager|managerial|top cover|cover|accommodat|allow|aware|shield/.test(text);
-const hasSeniorBlind = /senior|leader|executive|oblivious|unaware|do not see|don't see|visibility|blind|missing/.test(text);
-const hasLegal = /legal|contract|counsel|vendor|supplier|approval|review/.test(text);
-if (hasWorkaround && hasManager && (hasSeniorBlind || hasLegal)) {
-return { strength: "high", type: "bypass_control_risk", label: "Experiential bypass/control-risk signal", summary: "The experiential layer suggests that the formal path may be routinely bypassed in practice, with managerial accommodation and possible senior-leader visibility gaps. This is interpretive context and does not affect the quantitative score." };
+function detectQualitativeOverride(payload = {}, result = {}) {
+const authoritative = result?.qualitative_interpretive_signal || result?.qualitative_risk_signal || null;
+if (authoritative && typeof authoritative === "object" && authoritative.type) {
+const type = String(authoritative.type || "none");
+const strength = String(authoritative.strength || (type === "none" ? "low" : "moderate"));
+const label = String(authoritative.label || (type === "bypass_control_risk" ? "Qualitative bypass/control-risk signal" : type === "workaround_dependence" ? "Qualitative off-formal-path signal" : "No qualitative interpretive signal"));
+const summary = type === "bypass_control_risk"
+? "The qualitative layer indicates a possible bypass/control-risk condition that should be investigated alongside the structured score. This is interpretive context and does not affect the quantitative score."
+: type === "workaround_dependence"
+? "The qualitative layer indicates possible off-formal-path execution that should be investigated alongside the structured score. This is interpretive context and does not affect the quantitative score."
+: "No qualitative signal materially reframes the structured quantitative read.";
+return { strength, type, label, summary };
 }
-if (hasWorkaround) return { strength: "moderate", type: "workaround_dependence", label: "Experiential workaround-dependence signal", summary: "The experiential layer suggests that informal workarounds may be preserving movement where the formal path is too heavy. This is interpretive context and does not affect the quantitative score." };
-return { strength: "low", type: "none", label: "No experiential interpretive signal", summary: "No experiential signal materially reframes the structured quantitative read." };
+const text = getExperienceText(payload);
+const hasWorkaround = /workaround|work[-\s]around|bypass(?:ed|ing)?|circumvent|off[-\s]?path|shortcut|informal route|informal process|shadow process/.test(text);
+const hasManager = /(?:manager(?:s|ial)?|leadership)\s+(?:cover|accommodat|toleranc|tolerat|shield|allow|approv)|top\s+cover|tacit\s+(?:accommodat|approv|acceptance|tolerat)/.test(text);
+const hasSeniorBlind = /(?:senior\s+leader|executive|leadership)(?:s)?\s+(?:are\s+|do\s+not\s+|don't\s+)?(?:unaware|oblivious|see\s+(?:this|the|that)|know(?:s|n)?\s+about)|visibility\s+gap|leadership\s+visibility|oblivious\s+to/.test(text);
+const hasLegal = /compliance\s+(?:risk|exposure|gap|concern|finding)|audit\s+(?:risk|exposure|finding|gap|concern)|control\s+(?:gap|failure|exposure|breakdown)|legal\s+(?:exposure|risk)|regulatory\s+(?:exposure|risk|concern|gap)/.test(text);
+if (hasWorkaround && hasManager && (hasSeniorBlind || hasLegal)) {
+return { strength: "high", type: "bypass_control_risk", label: "Qualitative bypass/control-risk signal", summary: "The qualitative layer indicates a possible bypass/control-risk condition that should be investigated alongside the structured score. This is interpretive context and does not affect the quantitative score." };
+}
+if (hasWorkaround) return { strength: "moderate", type: "workaround_dependence", label: "Qualitative off-formal-path signal", summary: "The qualitative layer indicates possible off-formal-path execution that should be investigated alongside the structured score. This is interpretive context and does not affect the quantitative score." };
+return { strength: "low", type: "none", label: "No qualitative interpretive signal", summary: "No qualitative signal materially reframes the structured quantitative read." };
 }
 
 function getBurdenCompositionPattern(result = {}) {
@@ -4417,7 +4429,7 @@ return `<div class="donut-panel">
 }
 
 function buildPrimaryReadLabel(result = {}, payload = {}) {
-const qualitative = detectQualitativeOverride(payload);
+const qualitative = detectQualitativeOverride(payload, result);
 if (qualitative.type !== "none") return qualitative.label;
 const primary = derivePrimaryBurdenSource(result);
 return `${primary.label || "Operating burden"} pattern`;
@@ -4453,7 +4465,7 @@ return [crossRoleBullet, longitudinalBullet, adjacentBullet];
 }
 
 function buildPrimaryReadSummary(result = {}, payload = {}) {
-const qualitative = detectQualitativeOverride(payload);
+const qualitative = detectQualitativeOverride(payload, result);
 if (qualitative.type !== "none") return qualitative.summary;
 const primary = derivePrimaryBurdenSource(result);
 const trajectory = result?.trajectory?.direction === "up" ? " and the burden appears to be rising" : result?.trajectory?.direction === "down" ? " while some pressure may be easing" : " with no clear easing signal yet";
@@ -4462,7 +4474,7 @@ return `${primaryNoteBase}${trajectory}.`;
 }
 
 function buildLeadershipQuestion(result = {}, payload = {}, section = "executive") {
-const qualitative = detectQualitativeOverride(payload);
+const qualitative = detectQualitativeOverride(payload, result);
 const pattern = getBurdenCompositionPattern(result);
 if (section === "experience") return "Does the documented process still describe the process people actually use?";
 if (section === "composition") return pattern.shape === "concentrated" ? "Is the burden concentrated enough to remove surgically before it spreads?" : "Is burden distributed because the whole path is overbuilt, or because people have normalized compensating behavior?";
@@ -4535,7 +4547,7 @@ const executiveQuestion = buildLeadershipQuestion(result || {}, payload || {}, "
 const compositionQuestion = buildLeadershipQuestion(result || {}, payload || {}, "composition");
 const quadrantQuestion = buildLeadershipQuestion(result || {}, payload || {}, "quadrant");
 const remedyQuestion = buildLeadershipQuestion(result || {}, payload || {}, "remedy");
-const experientialSignal = detectQualitativeOverride(payload || {});
+const experientialSignal = detectQualitativeOverride(payload || {}, result || {});
 const hasExperientialTension = experientialSignal.type !== "none";
 
 const clean = (value) => String(value ?? "").replace(/\s+/g, " ").trim();
@@ -5455,7 +5467,7 @@ renderList("flagsList", harmonized.keyFlags);
 renderList("actionsList", harmonized.recommendedActions);
 renderList("actionsListDetail", harmonized.recommendedActions);
 renderList("patternsList", asArray(result.patterns).map(humanize));
-const experientialSignalForDisplay = detectQualitativeOverride(payload || {});
+const experientialSignalForDisplay = detectQualitativeOverride(payload || {}, result || {});
 renderList("contradictionsList", asArray(result.contradictions).length
 ? asArray(result.contradictions).map((item) => item.message || humanize(item.code || "contradiction"))
 : experientialSignalForDisplay.type !== "none"
