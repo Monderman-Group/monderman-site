@@ -33,7 +33,7 @@
 <main>
   <h1>Operational Systems Acceptance Harness</h1>
   <p class="lead">Runs controlled customer scenarios through the live Operational Systems API, renders every case with the production report code, and validates the PDF, summary HTML, full HTML, and JSON outputs from the same finalized payload.</p>
-  <div class="notice" id="authStatus" data-harness-build="2026-08-14.2">Harness build 2026-08-14.2 loaded; starting the session check…</div>
+  <div class="notice" id="authStatus" data-harness-build="2026-08-14.3">Harness build 2026-08-14.3 loaded; starting the session check…</div>
   <div class="toolbar">
     <button class="primary" id="runBtn" disabled>Run comprehensive 18-case test</button>
     <button class="secondary" id="clearBtn">Clear local results</button>
@@ -387,7 +387,13 @@ const singleRunClaimText=Object.entries(rawNarrativeClaims).filter(([key])=>clai
   const redundantEvidenceRequests=[];
   if(Number.isFinite(Number(apiRun.payload?.systemsTouched??apiRun.payload?.systems_touched))&&/systems?-touch count|count measuring how many (?:separate )?systems|how many (?:separate )?systems or tools/i.test(updateEvidenceText))redundantEvidenceRequests.push("systems-touch count");
   if(Number.isFinite(Number(apiRun.payload?.adminHoursWeekly??apiRun.payload?.admin_hours_weekly))&&/administrative-hours measurement|measure(?:ment|) of (?:weekly )?administrative hours/i.test(updateEvidenceText))redundantEvidenceRequests.push("administrative-hours measurement");
-  if(Number.isFinite(Number(apiRun.payload?.routineStepCount??apiRun.payload?.routine_step_count))&&/(?:routine |process )?step count|count of (?:approval|review|sign-off|process) steps/i.test(updateEvidenceText))redundantEvidenceRequests.push("step count");
+  const updateEvidenceItems=Array.isArray(rawNarrativeClaims.what_would_update_this_read)?rawNarrativeClaims.what_would_update_this_read.map(flattenClaimValue).filter(Boolean):[updateEvidenceText];
+  const requestsRedundantStepCount=updateEvidenceItems.some(item=>{
+    const mentionsStepCount=/(?:routine |process )?step[- ]count|count of (?:approval|review|sign-off|process|routine) steps|how many (?:approval|review|sign-off|process|routine) steps/i.test(item);
+    const addsEmpiricalDistribution=/\b(?:audit|categor(?:ize|izes|ized|izing|ization)|compare|comparison|distribution|variation|variance|segment|break down|breakdown|historical|recent quarter|across (?:cases|runs|cycles|categories))\b/i.test(item);
+    return mentionsStepCount&&!addsEmpiricalDistribution;
+  });
+  if(Number.isFinite(Number(apiRun.payload?.routineStepCount??apiRun.payload?.routine_step_count))&&requestsRedundantStepCount)redundantEvidenceRequests.push("step count");
   const governanceInputs=interpretiveState.governanceInputs||{};
   const expectedRegulatory=String(apiRun.scenario.regulatoryIntensity||apiRun.scenario.regulatory_intensity||"").toLowerCase();
   const expectedDecisionType=String(apiRun.scenario.decisionType||apiRun.scenario.decision_type||"").toLowerCase();
@@ -698,8 +704,8 @@ try{
   if(typeof createClient!=="function")throw new Error("Authentication client loaded without createClient");
   supaClient=createClient("https://ptkxrzgmeldalrkfruth.supabase.co","sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",{auth:{persistSession:true,autoRefreshToken:true}});
   await freshToken();
-  if(authToken){$("authStatus").textContent=`Harness build 2026-08-14.2. Signed in. This test creates ${ACTIVE_CASE_DEFINITIONS.length} real test run${ACTIVE_CASE_DEFINITIONS.length===1?"":"s"} in the current account and may pause if the API rate limit is reached. It will not purchase, promote, archive, or alter other runs.`;$("authStatus").style.borderColor="#8fc79d";$("runBtn").disabled=false}
-  else{$("authStatus").textContent="Harness build 2026-08-14.2. Sign in to the Monderman workspace in this browser, then reload this page. The harness never creates an account."}
+  if(authToken){$("authStatus").textContent=`Harness build 2026-08-14.3. Signed in. This test creates ${ACTIVE_CASE_DEFINITIONS.length} real test run${ACTIVE_CASE_DEFINITIONS.length===1?"":"s"} in the current account and may pause if the API rate limit is reached. It will not purchase, promote, archive, or alter other runs.`;$("authStatus").style.borderColor="#8fc79d";$("runBtn").disabled=false}
+  else{$("authStatus").textContent="Harness build 2026-08-14.3. Sign in to the Monderman workspace in this browser, then reload this page. The harness never creates an account."}
 }catch(error){$("authStatus").textContent=`Session check failed: ${error.message}`}
 
 })().catch((error)=>{
