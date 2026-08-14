@@ -10,6 +10,7 @@ assert "The participant reported that burden has grown over the stated period." 
 assert "cost of waiting compounds" not in page
 assert "limited input depth" not in page
 assert "Harness build 2026-08-13.5" in harness
+assert "no sector peer factor is added" in harness
 for check in [
     "Full-report capacity allocation reconciles to the exposure model",
     "Governance interpretation preserves the scenario context",

@@ -385,7 +385,7 @@ const singleRunClaimText=Object.entries(rawNarrativeClaims).filter(([key])=>clai
   const sectorPatternText=String(result.sector_context?.opportunityPattern||"");
   const unsupportedSectorPrevalence=/\b(?:the\s+)?(?:common|usual|typical)\s+pattern\b|\bburden\s+(?:often|usually|commonly|typically)\b|\bcomparable institutions\b/i;
   const reclaimPotential=result.reclaim_potential||{};
-  const recoverableModelParity=(reclaimPotential.amount==null&&ex.recoverable_cost==null)||(Number(reclaimPotential.amount)===Number(ex.recoverable_cost)&&Number(reclaimPotential.factor)===Number(ex.recoverable_share_percent)&&!/comparable operating conditions|sector peer/i.test(String(reclaimPotential.driverText||"")));
+  const recoverableModelParity=(reclaimPotential.amount==null&&ex.recoverable_cost==null)||(Number(reclaimPotential.amount)===Number(ex.recoverable_cost)&&Number(reclaimPotential.factor)===Number(ex.recoverable_share_percent)&&!/comparable operating conditions/i.test(String(reclaimPotential.driverText||""))&&/no sector peer factor is added/i.test(String(reclaimPotential.driverText||"")));
   const governanceMeasured=Number.isFinite(Number(interpretiveState.governanceWeight))&&Number.isFinite(Number(interpretiveState.execResponsive));
   const checks=[
     ["Nonzero score",score>0&&score<=100,`score=${score}`],
