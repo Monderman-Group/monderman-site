@@ -858,7 +858,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
           </button>
           <div class="accordion-body">
             <section class="remedy-standalone">
-              <div id="remedyTreeWrap" class="remedy-band hidden"><div class="remedy-band-head"><strong>Three remedy paths</strong><p>These paths are not arranged as one automatic best answer. They show the trade space between burden of recovery, implementation burden, and organizational risk.</p></div><div class="remedy-grid" id="remedyGrid"></div><p class="remedy-calibration-note">* Calibrate against Insight depth before acting. A single-perspective run produces directional remedy guidance, not engineering specifications &mdash; the breadth, depth, and cross-validation of inputs governs how confidently any of these paths should be pursued.</p></div>
+              <div id="remedyTreeWrap" class="remedy-band hidden"><div class="remedy-band-head"><strong>Three remedy paths</strong><p>These paths are not arranged as one automatic best answer. They show the trade space between burden of recovery, implementation burden, and organizational risk.</p></div><div class="remedy-grid" id="remedyGrid"></div><p class="remedy-calibration-note">* Calibrate against Insight depth before acting. A single-perspective run produces directional remedy guidance, not engineering specifications &mdash; the breadth, depth, and cross-validation of inputs govern how confidently any of these paths should be pursued.</p></div>
             </section>
           </div>
         </article>
@@ -1433,17 +1433,29 @@ const entries = Array.isArray(layer.entries) ? layer.entries : [];
 return entries.flatMap((entry) => [entry.text, entry.cleaned, entry.raw]).filter(Boolean).join(" ").toLowerCase();
 }
 
-function detectQualitativeOverride(payload = {}) {
-const text = getExperienceText(payload);
-const hasWorkaround = /workaround|work around|bypass|bypassed|circumvent|informal|shadow|off[-\s]?path/.test(text);
-const hasManager = /manager|managerial|top cover|cover|accommodat|allow|aware|shield/.test(text);
-const hasSeniorBlind = /senior|leader|executive|oblivious|unaware|do not see|don't see|visibility|blind|missing/.test(text);
-const hasLegal = /legal|contract|counsel|vendor|supplier|approval|review/.test(text);
-if (hasWorkaround && hasManager && (hasSeniorBlind || hasLegal)) {
-return { strength: "high", type: "bypass_control_risk", label: "Experiential bypass/control-risk signal", summary: "The experiential layer suggests that the formal path may be routinely bypassed in practice, with managerial accommodation and possible senior-leader visibility gaps. This is interpretive context and does not affect the quantitative score." };
+function detectQualitativeOverride(payload = {}, result = {}) {
+const authoritative = result?.qualitative_interpretive_signal || result?.qualitative_risk_signal || null;
+if (authoritative && typeof authoritative === "object" && authoritative.type) {
+const type = String(authoritative.type || "none");
+const strength = String(authoritative.strength || (type === "none" ? "low" : "moderate"));
+const label = String(authoritative.label || (type === "bypass_control_risk" ? "Qualitative bypass/control-risk signal" : type === "workaround_dependence" ? "Qualitative off-formal-path signal" : "No qualitative interpretive signal"));
+const summary = type === "bypass_control_risk"
+? "The qualitative layer indicates a possible bypass/control-risk condition that should be investigated alongside the structured score. This is interpretive context and does not affect the quantitative score."
+: type === "workaround_dependence"
+? "The qualitative layer indicates possible off-formal-path execution that should be investigated alongside the structured score. This is interpretive context and does not affect the quantitative score."
+: "No qualitative signal materially reframes the structured quantitative read.";
+return { strength, type, label, summary };
 }
-if (hasWorkaround) return { strength: "moderate", type: "workaround_dependence", label: "Experiential workaround-dependence signal", summary: "The experiential layer suggests that informal workarounds may be preserving movement where the formal path is too heavy. This is interpretive context and does not affect the quantitative score." };
-return { strength: "low", type: "none", label: "No experiential interpretive signal", summary: "No experiential signal materially reframes the structured quantitative read." };
+const text = getExperienceText(payload);
+const hasWorkaround = /workaround|work[-\s]around|bypass(?:ed|ing)?|circumvent|off[-\s]?path|shortcut|informal route|informal process|shadow process/.test(text);
+const hasManager = /(?:manager(?:s|ial)?|leadership)\s+(?:cover|accommodat|toleranc|tolerat|shield|allow|approv)|top\s+cover|tacit\s+(?:accommodat|approv|acceptance|tolerat)/.test(text);
+const hasSeniorBlind = /(?:senior\s+leader|executive|leadership)(?:s)?\s+(?:are\s+|do\s+not\s+|don't\s+)?(?:unaware|oblivious|see\s+(?:this|the|that)|know(?:s|n)?\s+about)|visibility\s+gap|leadership\s+visibility|oblivious\s+to/.test(text);
+const hasLegal = /compliance\s+(?:risk|exposure|gap|concern|finding)|audit\s+(?:risk|exposure|finding|gap|concern)|control\s+(?:gap|failure|exposure|breakdown)|legal\s+(?:exposure|risk)|regulatory\s+(?:exposure|risk|concern|gap)/.test(text);
+if (hasWorkaround && hasManager && (hasSeniorBlind || hasLegal)) {
+return { strength: "high", type: "bypass_control_risk", label: "Qualitative bypass/control-risk signal", summary: "The qualitative layer indicates a possible bypass/control-risk condition that should be investigated alongside the structured score. This is interpretive context and does not affect the quantitative score." };
+}
+if (hasWorkaround) return { strength: "moderate", type: "workaround_dependence", label: "Qualitative off-formal-path signal", summary: "The qualitative layer indicates possible off-formal-path execution that should be investigated alongside the structured score. This is interpretive context and does not affect the quantitative score." };
+return { strength: "low", type: "none", label: "No qualitative interpretive signal", summary: "No qualitative signal materially reframes the structured quantitative read." };
 }
 
 function getBurdenCompositionPattern(result = {}) {
@@ -4417,7 +4429,7 @@ return `<div class="donut-panel">
 }
 
 function buildPrimaryReadLabel(result = {}, payload = {}) {
-const qualitative = detectQualitativeOverride(payload);
+const qualitative = detectQualitativeOverride(payload, result);
 if (qualitative.type !== "none") return qualitative.label;
 const primary = derivePrimaryBurdenSource(result);
 return `${primary.label || "Operating burden"} pattern`;
@@ -4453,7 +4465,7 @@ return [crossRoleBullet, longitudinalBullet, adjacentBullet];
 }
 
 function buildPrimaryReadSummary(result = {}, payload = {}) {
-const qualitative = detectQualitativeOverride(payload);
+const qualitative = detectQualitativeOverride(payload, result);
 if (qualitative.type !== "none") return qualitative.summary;
 const primary = derivePrimaryBurdenSource(result);
 const trajectory = result?.trajectory?.direction === "up" ? " and the burden appears to be rising" : result?.trajectory?.direction === "down" ? " while some pressure may be easing" : " with no clear easing signal yet";
@@ -4462,7 +4474,7 @@ return `${primaryNoteBase}${trajectory}.`;
 }
 
 function buildLeadershipQuestion(result = {}, payload = {}, section = "executive") {
-const qualitative = detectQualitativeOverride(payload);
+const qualitative = detectQualitativeOverride(payload, result);
 const pattern = getBurdenCompositionPattern(result);
 if (section === "experience") return "Does the documented process still describe the process people actually use?";
 if (section === "composition") return pattern.shape === "concentrated" ? "Is the burden concentrated enough to remove surgically before it spreads?" : "Is burden distributed because the whole path is overbuilt, or because people have normalized compensating behavior?";
@@ -4535,7 +4547,7 @@ const executiveQuestion = buildLeadershipQuestion(result || {}, payload || {}, "
 const compositionQuestion = buildLeadershipQuestion(result || {}, payload || {}, "composition");
 const quadrantQuestion = buildLeadershipQuestion(result || {}, payload || {}, "quadrant");
 const remedyQuestion = buildLeadershipQuestion(result || {}, payload || {}, "remedy");
-const experientialSignal = detectQualitativeOverride(payload || {});
+const experientialSignal = detectQualitativeOverride(payload || {}, result || {});
 const hasExperientialTension = experientialSignal.type !== "none";
 
 const clean = (value) => String(value ?? "").replace(/\s+/g, " ").trim();
@@ -4899,7 +4911,7 @@ return `<!doctype html>
     <p class="lede">${safeWords(harmonized.headlineFinding || summary.body, 84)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(executiveQuestion)}</p></div>
     <p><span id="exposureNarrative">${safe(exposureNarrative)}</span> These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
-    <p>The practical question is not whether work is still getting done. It is how much organizational energy is now required to make it happen. The score should be read as a structured quantitative operating-burden indicator. Experiential bypass signals, when present, do not change the score; they provide interpretive context about how the formal process may differ from operating reality.</p><p>When a workflow needs repeated coordination, compensating behavior, workaround maintenance, or control translation, the visible output may remain acceptable while the operating system underneath becomes increasingly expensive to sustain.</p>
+    <p>The practical question is not whether work is still getting done. It is how much organizational energy is now required to make it happen. The score should be read as a structured quantitative operating-burden indicator. Qualitative signals, when present, do not change the score; they provide interpretive context about how the formal process may differ from operating reality.</p><p>When a workflow needs repeated coordination, compensating behavior, workaround maintenance, or control translation, the visible output may remain acceptable while the operating system underneath may be more expensive to sustain than the visible output suggests.</p>
     <div class="capacity"><div class="seg" style="width:${capacity.productive}%;background:#3C8A60">${capacity.productive}%</div><div class="seg" style="width:${capacity.admin}%;background:#C9821F">${capacity.admin}%</div><div class="seg" style="width:${capacity.drag}%;background:#B0392F">${capacity.drag}%</div></div>
     <div class="legend"><span><span class="dot" style="background:#3C8A60"></span>Productive work</span><span><span class="dot" style="background:#C9821F"></span>Admin upkeep</span><span><span class="dot" style="background:#B0392F"></span>Recoverable drag*</span></div>
     <p class="muted" style="font-size:8.5px">Estimates of how this workflow's available capacity is currently allocated. Recoverable drag* is the portion that could be returned to productive use through structural intervention.</p>
@@ -4957,8 +4969,8 @@ ${decisionReviewPage}
     <p>Three distinct intervention strategies, ordered by ambition and risk. Each path implies a different leadership posture, time horizon, and tolerance for short-term disruption.</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(remedyQuestion)}</p></div>
     <div class="remedy-grid">${remedyHtml}</div>
-    <p class="remedy-calibration-note" style="margin:14px 0 0;padding:10px 12px;background:#F6F3EC;border-left:2px solid #A9CFD2;border-radius:0 6px 6px 0;font-size:11px;line-height:1.55;color:#6E6F73;font-style:italic">* Calibrate against Insight depth before acting. A single-perspective run produces directional remedy guidance, not engineering specifications &mdash; the breadth, depth, and cross-validation of inputs governs how confidently any of these paths should be pursued.</p>
-    <div class="rule"></div><h3>Choosing between them</h3><p>The right choice depends less on the current burden score than on three things: how much stability the organization needs while changes happen, how much trust leadership has earned to redesign rather than tweak, and whether the workflow is on a path that is already worsening. Light paths preserve continuity; aggressive paths buy more capacity but require a stronger mandate.</p>
+    <p class="remedy-calibration-note" style="margin:14px 0 0;padding:10px 12px;background:#F6F3EC;border-left:2px solid #A9CFD2;border-radius:0 6px 6px 0;font-size:11px;line-height:1.55;color:#6E6F73;font-style:italic">* Calibrate against Insight depth before acting. A single-perspective run produces directional remedy guidance, not engineering specifications &mdash; the breadth, depth, and cross-validation of inputs govern how confidently any of these paths should be pursued.</p>
+    <div class="rule"></div><h3>Choosing between them</h3><p>The right choice depends less on the current burden score than on three things: how much stability the organization needs while changes happen, how much trust leadership has earned to redesign rather than tweak, and whether the workflow is on a path that is already worsening. Light paths preserve continuity; more ambitious paths offer greater recovery potential but require a stronger mandate.</p>
   </div>
 </section>
 
@@ -5353,13 +5365,13 @@ function renderBasisOfRead(result, payload) {
   const rate = num(p.hourlyCost) ?? num(p.hourlyRate); if (rate != null) inputs.push(`$${rate}/hr loaded`);
   const vol = num(p.annualVolume) ?? num(p.annualCycles); if (vol != null) inputs.push(`${vol} annual cycles`);
   const mtg = num(p.meetingHours); if (mtg != null) inputs.push(`${mtg} coordination hrs/run`);
-  const orgN = num(p.employeeCount); if (orgN != null) inputs.push(`organization of ${orgN}`);
+  const orgN = num(p.employeeCount); if (orgN != null) inputs.push(`${Number(orgN).toLocaleString("en-US")} employees`);
   const depthMin = p.diagnostic_depth || p.diagnosticDepth || (typeof state !== "undefined" ? state.depth : null);
   const depthLabel = (typeof depthConfigs !== "undefined" && depthConfigs[String(depthMin)] && depthConfigs[String(depthMin)].label)
     || (depthMin ? `${depthMin}-minute diagnostic` : "\u2014");
   const mode = p.participantMode || p.participant_mode || (typeof state !== "undefined" ? state.mode : "");
-  const laneLabel = (typeof laneConfigs !== "undefined" && laneConfigs[mode] && laneConfigs[mode].label) || (mode ? String(mode) : "\u2014");
-  const cfg = (typeof state !== "undefined" && state.configVersion) ? state.configVersion : "\u2014";
+  const laneLabel = mode ? (typeof displayPerspectiveLabel === "function" ? displayPerspectiveLabel(mode) : String(mode).replace(/_/g, " ")) : "\u2014";
+  const cfg = result?.config_version || result?.configVersion || p.config_version || p.configVersion || p.routing_meta?.configVersion || ((typeof state !== "undefined" && state.configVersion) ? state.configVersion : "\u2014");
   const scorer = (result && result.scorer_version) ? result.scorer_version : "\u2014";
   const rows = [
     ["Sector", esc(calTxt)],
@@ -5455,7 +5467,7 @@ renderList("flagsList", harmonized.keyFlags);
 renderList("actionsList", harmonized.recommendedActions);
 renderList("actionsListDetail", harmonized.recommendedActions);
 renderList("patternsList", asArray(result.patterns).map(humanize));
-const experientialSignalForDisplay = detectQualitativeOverride(payload || {});
+const experientialSignalForDisplay = detectQualitativeOverride(payload || {}, result || {});
 renderList("contradictionsList", asArray(result.contradictions).length
 ? asArray(result.contradictions).map((item) => item.message || humanize(item.code || "contradiction"))
 : experientialSignalForDisplay.type !== "none"
