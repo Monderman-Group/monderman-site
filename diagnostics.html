@@ -3217,22 +3217,37 @@
       });
     }
 
+    function uploadCanonicalResult(parsed) {
+      if (!parsed || typeof parsed !== "object") return {};
+      if (parsed.result && typeof parsed.result === "object") return parsed.result;
+      if (parsed.synthesis_payload && typeof parsed.synthesis_payload === "object") return parsed.synthesis_payload;
+      if (parsed.data && parsed.data.result && typeof parsed.data.result === "object") return parsed.data.result;
+      if (parsed.payload && parsed.payload.result && typeof parsed.payload.result === "object") return parsed.payload.result;
+      return parsed;
+    }
+
+    function uploadedSynthesisMode(validFiles) {
+      const tools = new Set(validFiles.map((file) => String(uploadCanonicalResult(file.parsed).tool_type || "").trim()).filter(Boolean));
+      return tools.size === 1 ? "depth" : "cross_lens";
+    }
+
     function syncSynthesisState() {
       renderFileList();
-      const validCount = uploadedFiles.filter((file) => file.valid).length;
+      const validFiles = uploadedFiles.filter((file) => file.valid);
+      const validCount = validFiles.length;
       synthesizeBtn.disabled = validCount < 2;
       if (!uploadedFiles.length) {
         showValidation("", "");
         return;
       }
       if (validCount >= 2) {
-        const validTools = new Set(uploadedFiles.filter((f) => f.valid).map((f) => (f.parsed && f.parsed.tool_type) || ""));
-        validTools.delete("");
-        if (validTools.size === 1) {
-          const onlyLabel = uploadedFiles.find((f) => f.valid)?.toolLabel || "one instrument";
-          showValidation(`${validCount}\u00d7 ${onlyLabel} ready \u2014 this will run a DEPTH read: one instrument across ${validCount} respondents (population statistics, consensus vs. division, vantage gaps), not a cross-lens synthesis.`, "ok");
+        const tools = new Set(validFiles.map((file) => String(uploadCanonicalResult(file.parsed).tool_type || "").trim()).filter(Boolean));
+        const totalBytes = validFiles.reduce((sum, file) => sum + Number(file.bytes || 0), 0);
+        if (tools.size === 1) {
+          const onlyLabel = validFiles[0]?.toolLabel || "one instrument";
+          showValidation(`${validCount} ${onlyLabel} files ready for a depth synthesis. The result will describe the observed median, distribution, segment evidence, and sampling limits; it will not claim population representativeness without a documented sampling frame. ${Math.round(totalBytes / 1024).toLocaleString()} KB selected.`, "ok");
         } else {
-          showValidation(`${validCount} valid result files across ${validTools.size} instruments ready. You can now generate a combined readout.`, "ok");
+          showValidation(`${validCount} valid files across ${tools.size} instruments ready for cross-lens synthesis. The API will compare the lenses and publish one composite only if scope, versions, source identity, measurement window, respondent depth, and lens balance satisfy the coherence rules. ${Math.round(totalBytes / 1024).toLocaleString()} KB selected.`, "ok");
         }
       } else {
         showValidation("Upload 2 or more valid Monderman JSON result files to continue.", "error");
@@ -3250,6 +3265,7 @@
             const valid = hasSchema;
             resolve({
               name: file.name,
+              bytes: Number(file.size || text.length || 0),
               valid,
               parsed,
               toolLabel: parsed.tool_label || parsed.tool_type || "Monderman result",
@@ -3259,6 +3275,7 @@
           } catch (error) {
             resolve({
               name: file.name,
+              bytes: Number(file.size || 0),
               valid: false,
               parsed: null,
               toolLabel: "Unrecognized file",
@@ -3270,6 +3287,7 @@
         reader.onerror = () => {
           resolve({
             name: file.name,
+            bytes: Number(file.size || 0),
             valid: false,
             parsed: null,
             toolLabel: "Read error",
@@ -3353,14 +3371,23 @@
     }
 
     async function runCrossDiagnosticSynthesis(validFiles) {
+      const mode = uploadedSynthesisMode(validFiles);
       const payload = {
         results: validFiles.map((file) => file.parsed),
         options: {
+          mode,
+          scopePolicy: "warn",
           includeNarrative: true,
           includeExport: true,
-          includeDebug: false
+          includeDebug: false,
+          ...(mode === "depth" ? { samplingFrame: { method: "observed_set" } } : {})
         }
       };
+      const bodyText = JSON.stringify(payload);
+      const bodyBytes = new TextEncoder().encode(bodyText).length;
+      if (bodyBytes > 220 * 1024) {
+        throw new Error("These result files exceed the safe direct-upload size. Add the runs to your workspace and build the synthesis from Analysis, which sends compact run IDs and supports cohorts of up to 5,000 runs.");
+      }
 
       const headers = { "Content-Type": "application/json" };
       const accessToken = readSupabaseAccessToken();
@@ -3368,17 +3395,15 @@
 
       const response = await fetch(SYNTHESIS_API_URL, {
         method: "POST",
-        headers: headers,
-        body: JSON.stringify(payload)
+        headers,
+        body: bodyText
       });
-
-      const data = await response.json();
-
+      const data = await response.json().catch(() => ({}));
       if (data && data.locked && data.teaser) {
         return { kind: "locked", teaser: data.teaser, message: data.message || "", reason: data.reason || data.error || "" };
       }
       if (!response.ok || !data.ok || !data.result) {
-        throw new Error((data && (data.message || data.error)) || "Cross-diagnostic synthesis failed.");
+        throw new Error((data && (data.message || data.error)) || "Meta-synthesis failed.");
       }
       return { kind: "full", result: data.result };
     }
@@ -3388,26 +3413,30 @@
       if (prior) prior.remove();
       if (!validationMessage) return;
       const t = outcome.teaser || {};
-      const ce = t.compounded_exposure || {};
+      const exposure = t.pathway_exposure || {};
       const escT = (v) => String(v == null ? "" : v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-      const money = (v) => (typeof v === "number" && isFinite(v)) ? ("$" + Math.round(v).toLocaleString()) : null;
+      const money = (v) => (v !== null && v !== undefined && v !== "" && Number.isFinite(Number(v))) ? ("$" + Math.round(Number(v)).toLocaleString()) : null;
       const rows = [];
-      if (t.reads_combined != null) rows.push(["Reads combined", escT(t.reads_combined)]);
-      if (t.cross_diagnostic_score != null) rows.push(["Combined condition", escT(t.cross_diagnostic_score) + (t.condition_band ? " \u00b7 " + escT(t.condition_band) : "")]);
-      if (money(ce.annual_cost)) rows.push(["Compounded exposure / yr", money(ce.annual_cost)]);
-      if (money(ce.recoverable_cost)) rows.push(["Estimated recoverable", money(ce.recoverable_cost) + (ce.recoverable_share_percent != null ? " (" + escT(ce.recoverable_share_percent) + "%)" : "")]);
+      if (t.reads_combined != null) rows.push(["Runs combined", Number(t.reads_combined).toLocaleString()]);
+      if (t.lens_count != null) rows.push(["Diagnostic lenses", Number(t.lens_count).toLocaleString()]);
+      if (t.evidence_label) rows.push(["Evidence band", escT(t.evidence_label)]);
+      rows.push(["Composite", t.score_status === "published" && t.cross_diagnostic_score != null ? escT(t.cross_diagnostic_score) + (t.condition_band ? " · " + escT(t.condition_band) : "") : "Withheld"]);
+      if (money(exposure.annual_cost)) rows.push(["Median annual labor cost", money(exposure.annual_cost)]);
+      if (money(exposure.recoverable_cost)) rows.push(["Observed recoverable estimate", money(exposure.recoverable_cost)]);
+      if (exposure.withheld_reason) rows.push(["Exposure status", escT(exposure.withheld_reason)]);
+      const product = t.synthesis_product === "depth_synthesis" ? "Depth synthesis" : "Cross-lens synthesis";
       const card = document.createElement("div");
       card.id = "synthesisTeaser";
       card.setAttribute("role", "status");
       card.style.cssText = "margin-top:18px;padding:22px 24px;background:#FFFFFF;border:1px solid rgba(12,110,120,.28);border-left:4px solid #0C6E78;border-radius:12px;";
       card.innerHTML =
-        '<p style="margin:0 0 6px;font-size:.76rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#0C6E78;">Your combined read is ready</p>' +
-        (rows.length ? '<div style="display:grid;grid-template-columns:auto 1fr;gap:6px 18px;margin:10px 0 12px;font-size:.95rem;">' +
-          rows.map((rw) => '<div style="color:#6E6F73;">' + rw[0] + '</div><div style="font-weight:600;color:#18191C;">' + rw[1] + "</div>").join("") + "</div>" : "") +
-        '<p style="margin:0 0 14px;font-size:.95rem;line-height:1.6;color:#18191C;">' + escT(outcome.message || "Sign in to see the full synthesis: the pattern behind these numbers, where the diagnostics agree and disagree, and what to do first.") + "</p>" +
+        '<p style="margin:0 0 6px;font-size:.76rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#0C6E78;">' + escT(product) + ' ready</p>' +
+        '<div style="display:grid;grid-template-columns:auto 1fr;gap:6px 18px;margin:10px 0 12px;font-size:.95rem;">' +
+          rows.map((rw) => '<div style="color:#6E6F73;">' + rw[0] + '</div><div style="font-weight:600;color:#18191C;">' + rw[1] + "</div>").join("") + "</div>" +
+        '<p style="margin:0 0 14px;font-size:.95rem;line-height:1.6;color:#18191C;">' + escT(outcome.message || "Sign in to see the full synthesis, its evidence limits, lens agreements and differences, and what would strengthen the read.") + "</p>" +
         '<div style="display:flex;gap:10px;flex-wrap:wrap;">' +
-        '<a class="btn btn-accent" href="signin.html?next=diagnostics.html">Sign in</a>' +
-        '<a class="btn" href="platform-services.html">See plans</a>' +
+          '<a class="btn btn-accent" href="signin.html?next=diagnostics.html">Sign in</a>' +
+          '<a class="btn" href="platform-services.html">See plans</a>' +
         "</div>";
       validationMessage.insertAdjacentElement("afterend", card);
     }
@@ -3422,7 +3451,7 @@
         }
 
         synthesizeBtn.disabled = true;
-        showValidation("Uploading files and generating synthesis...", "ok");
+        showValidation("Validating files and building the appropriate depth or cross-lens synthesis...", "ok");
 
         try {
           const outcome = await runCrossDiagnosticSynthesis(validFiles);
@@ -3440,7 +3469,7 @@
             JSON.stringify(outcome.result)
           );
 
-          showValidation("Synthesis complete. Opening combined readout...", "ok");
+          showValidation("Synthesis complete. Opening the evidence-banded report...", "ok");
 
           setTimeout(() => {
             window.location.href = "cross-tool-synthesis.html";
