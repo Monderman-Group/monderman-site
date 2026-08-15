@@ -1,6 +1,8 @@
 name: Meta-synthesis frontend customer-release regression
 
 on:
+  push:
+    branches: [agent/meta-synthesis-customer-release-2026-08-15-v1]
   pull_request:
     paths:
       - 'monderman-report.js'
@@ -13,6 +15,10 @@ on:
 
 permissions:
   contents: read
+
+concurrency:
+  group: meta-synthesis-frontend-release-2026-08-15-v1
+  cancel-in-progress: true
 
 jobs:
   regression:
