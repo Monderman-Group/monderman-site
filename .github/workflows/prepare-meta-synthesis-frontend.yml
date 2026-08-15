@@ -33,8 +33,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # Correct the temporary patcher's own terminal assertion before use.
+          # Correct temporary patcher assertions and make the published score type explicit.
           sed -i 's/"Composite score is withheld"/"one composite score is withheld"/' scripts/patch_workspace_meta_synthesis.py
+          sed -i 's/headlineBand: scorePublished ? conditionBand : "Composite withheld",/headlineBand: scorePublished ? (firstStr(r.score_label, conditionBand) + " · " + conditionBand) : "Composite withheld",/' scripts/patch_meta_synthesis_report.py
           python scripts/patch_meta_synthesis_report.py
           python scripts/patch_workspace_meta_synthesis.py
           python scripts/patch_diagnostics_meta_synthesis.py
