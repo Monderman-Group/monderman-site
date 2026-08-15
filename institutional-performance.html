@@ -541,7 +541,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
 #preflightContextMount .opt-other-input[hidden]{display:none!important}
 </style>
 </head>
-<body>
+<body data-ip-output-contract="2026-08-14.1">
   <div class="loading-screen" id="pageLoader" aria-live="polite"><div class="loading-box"><div class="ws-loader" aria-hidden="true"><i></i><i></i></div><p class="loading-title">Loading diagnostic environment</p><p class="loading-copy">Preparing Monderman's institutional performance environment.</p></div></div>
   <div class="shell"><main class="app">
     <section class="frame-top"><div class="engine-note"><div><p class="eyebrow">Reading whether the institution still converts structure into sustained performance — or quietly preserves output through compensation</p><p class="engine-copy">Powered by Monderman's proprietary diagnostic engine.</p></div><div class="hero-step"><span class="hero-step-dot" aria-hidden="true"></span><span>Step 1 of 3 · choose perspective and run depth</span></div></div><div class="tool-title"><div><h1>Institutional Performance Diagnostic</h1></div><p>See whether execution coherence, institutional confidence, adaptive capacity, and performance stability are holding — or whether visible output is being propped up by extra effort and management lift.</p></div></section>
@@ -860,7 +860,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
                 <div class="viz-card"><h4>Trajectory</h4><div class="trajectory-inline"><div id="trajectoryChipMount"></div><div class="sparkline-wrap"><svg class="sparkline" id="trajectorySparkline" viewBox="0 0 120 34" preserveAspectRatio="none"></svg></div></div><p class="viz-note" id="trajectorySparklineNote">Trajectory interpretation will appear here after scoring.</p></div>
               </div>
               <section class="summary-grid">
-                <article class="summary-card"><p class="summary-label">Design reference</p><p class="summary-value" id="benchmarkValue">--</p><div class="benchmark-band"><div class="benchmark-track"><div class="benchmark-range industry-range" id="industryRange"></div><div class="benchmark-range opportunity-range" id="opportunityRange"></div><div class="benchmark-marker" id="benchmarkMarker"></div></div><div class="benchmark-legend"><span><span class="legend-dot dot-gold"></span>Design reference</span><span><span class="legend-dot dot-green"></span>Opportunity range</span><span><span class="legend-dot dot-blue"></span>Your pathway</span></div><div class="benchmark-caption" id="benchmarkCaption"><strong>Where this result sits within the instrument’s sector-calibrated design reference</strong><br>Even within the design reference, there can still be recoverable drag.</div></div><p class="summary-sub tight" id="benchmarkSub">Instrument calibration; not a peer benchmark.</p></article>
+                <article class="summary-card"><p class="summary-label">Design reference</p><p class="summary-value" id="benchmarkValue">--</p><div class="benchmark-band"><div class="benchmark-track"><div class="benchmark-range industry-range" id="industryRange"></div><div class="benchmark-range opportunity-range" id="opportunityRange"></div><div class="benchmark-marker" id="benchmarkMarker"></div></div><div class="benchmark-legend"><span><span class="legend-dot dot-gold"></span>Design reference</span><span><span class="legend-dot dot-green"></span>Opportunity range</span><span><span class="legend-dot dot-blue"></span>Your pathway</span></div><div class="benchmark-caption" id="benchmarkCaption"><strong>Where this result sits within the instrument’s sector-calibrated design reference</strong><br>Even within the design reference, there can still be recoverable drag.</div></div><p class="summary-sub tight" id="benchmarkSub">Instrument calibration; not a instrument design reference.</p></article>
                 <article class="summary-card"><p class="summary-label">Trajectory</p><p class="summary-value" id="trajectoryValue">--</p><p class="summary-sub tight" id="trajectoryValueSub">Directional signal</p></article>
               </section>
             </div>
@@ -5359,7 +5359,7 @@ function renderBasisOfRead(result, payload) {
   const rate = num(p.hourlyCost) ?? num(p.hourlyRate); if (rate != null) inputs.push(`$${rate}/hr loaded`);
   const vol = num(p.annualVolume) ?? num(p.annualCycles); if (vol != null) inputs.push(`${vol} annual cycles`);
   const mtg = num(p.meetingHours); if (mtg != null) inputs.push(`${mtg} coordination hrs/run`);
-  const orgN = num(p.employeeCount); if (orgN != null) inputs.push(`organization of ${orgN}`);
+  const orgN = num(p.employeeCount); if (orgN != null) inputs.push(`${Number(orgN).toLocaleString("en-US")} employees`);
   const depthMin = p.diagnostic_depth || p.diagnosticDepth || (typeof state !== "undefined" ? state.depth : null);
   const depthLabel = (typeof depthConfigs !== "undefined" && depthConfigs[String(depthMin)] && depthConfigs[String(depthMin)].label)
     || (depthMin ? `${depthMin}-minute diagnostic` : "\u2014");
