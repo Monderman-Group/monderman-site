@@ -10,7 +10,7 @@
    Two adapters feed the model so every surface honors the four Diagnostics-tab
    promises (executive PDF read · quantified score · primary signal · portable JSON):
      • MondermanReport.fromRun(runResult)         — a single diagnostic run (its full_result_json / export shape)
-     • MondermanReport.fromSynthesis(synthResult) — a cross-diagnostic synthesis result (the /cross-diagnostic-synthesis payload; /cross-assessment-synthesis kept as a legacy alias)
+     • MondermanReport.fromSynthesis(synthResult) — a depth or cross-lens synthesis result (the /cross-diagnostic-synthesis payload; /cross-assessment-synthesis kept as a legacy alias)
 
    No dependencies. The PDF path is the browser's own print-to-PDF of the styled
    report, exactly as the original synthesis tool did it.
@@ -71,234 +71,176 @@
   //   footnote, filenameBase, source (the raw result, for JSON export)
   // }
 
-  // ---- adapter: cross-diagnostic synthesis result --> model -----------------
+  // ---- adapter: depth / cross-lens synthesis result --> model ---------------
   function fromSynthesis(result) {
     const r = obj(result);
-    const sources = arr(r.source_results);
-    const tools = sources.map((s) => s.tool_label || s.tool_type).filter(Boolean);
-    const exp = obj(r.compounded_exposure);
-    const nar = obj(r.narrative);
-    const diag = obj(r.diagnosis);
-    const brief = obj(r.executive_briefing);
-    const experiential = obj(r.experiential);
+    const strictNum = (v) => (v !== null && v !== undefined && v !== "" && Number.isFinite(Number(v))) ? Number(v) : null;
+    const product = r.synthesis_product === "depth_synthesis" || r.synthesis_mode === "depth" ? "depth" : "cross_lens";
+    const evidence = obj(r.evidence_assessment);
+    const scope = obj(evidence.scope);
+    const versions = obj(evidence.versions);
+    const timeWindow = obj(evidence.time_window);
+    const identity = obj(evidence.source_identity);
+    const balance = obj(evidence.lens_balance);
+    const representative = obj(evidence.representativeness);
+    const exposure = obj(r.pathway_exposure || r.compounded_exposure);
+    const narrative = obj(r.narrative);
+    const diagnosis = obj(r.diagnosis);
+    const briefing = obj(r.executive_briefing);
     const confidence = obj(r.confidence);
-
-    // Range formatter: pass an array [low, high] or a single number
-    const numRange = (a, unit) => {
-      if (Array.isArray(a) && a.length === 2 && a[0] != null && a[1] != null) {
-        return num(a[0]) + " – " + num(a[1]) + (unit ? " " + unit : "");
-      }
-      return num(a) + (unit ? " " + unit : "");
-    };
-    const curRange = (a) => {
-      if (Array.isArray(a) && a.length === 2 && a[0] != null && a[1] != null) {
-        return cur(a[0]) + " – " + cur(a[1]);
-      }
-      return cur(a);
-    };
-    // Compact currency: 11_000_000 → "$11M", 12_500_000 → "$12.5M"
-    const compactCur = (v) => {
-      if (v == null) return "—";
-      const n = Number(v);
-      if (n >= 1e9) return "$" + (Math.round(n / 1e8) / 10) + "B";
-      if (n >= 1e6) return "$" + (Math.round(n / 1e5) / 10).toString().replace(/\.0$/, "") + "M";
-      if (n >= 1e3) return "$" + Math.round(n / 1e3) + "K";
-      return "$" + n;
-    };
-    const compactCurRange = (a) => {
-      if (Array.isArray(a) && a.length === 2 && a[0] != null && a[1] != null) {
-        const l = compactCur(a[0]).replace("$", "");
-        const hi = compactCur(a[1]).replace("$", "");
-        return "$" + l + "–" + hi;
-      }
-      return compactCur(a);
-    };
-    // Compact number: 110000 → "~110k", 291000 → "~291k"
-    const compactNum = (v) => {
-      if (v == null) return "—";
-      const n = Number(v);
-      if (n >= 1e6) return "~" + (Math.round(n / 1e5) / 10).toString().replace(/\.0$/, "") + "M";
-      if (n >= 1e3) return "~" + Math.round(n / 1e3) + "k";
-      return "~" + n;
-    };
-    const weekRange = (a) => {
-      if (Array.isArray(a) && a.length === 2) {
-        if (a[1] == null) return String(a[0]) + "w+";
-        return String(a[0]) + "–" + String(a[1]) + "w";
-      }
-      return num(a) + "w";
-    };
-
-    // Legacy exposure fallback: if compensation_cost_low/_high missing, use annual_cost
-    const compCostLow = exp.compensation_cost_low != null ? exp.compensation_cost_low : exp.annual_cost;
-    const compCostHigh = exp.compensation_cost_high != null ? exp.compensation_cost_high : exp.annual_cost;
+    const score = strictNum(r.cross_diagnostic_score ?? r.aggregate_score);
+    const scorePublished = r.score_status === "published" && score !== null;
+    const sourceGroups = arr(r.source_groups).map((group) => {
+      const g = obj(group);
+      return {
+        toolType: firstStr(g.tool_type),
+        toolLabel: firstStr(g.tool_label, g.tool_type),
+        n: strictNum(g.respondents ?? g.n),
+        mean: strictNum(g.mean_score),
+        median: strictNum(g.median_score),
+        iqr: arr(g.score_iqr),
+        range: arr(g.score_range),
+        driver: firstStr(g.modal_driver_pattern),
+        participantModes: obj(g.participant_mode_counts),
+        sourceIdCount: strictNum(g.source_id_count),
+        configVersions: arr(g.config_versions),
+        scorerVersions: arr(g.scorer_versions)
+      };
+    });
+    const sampleReads = arr(r.sample_reads).map((item) => {
+      const read = obj(item);
+      const scores = obj(read.score);
+      return {
+        toolType: firstStr(read.tool_type),
+        toolLabel: firstStr(read.tool_label, read.tool_type),
+        n: strictNum(read.n),
+        observedBand: firstStr(read.observed_set_label, read.observed_set_band),
+        mean: strictNum(scores.mean),
+        median: strictNum(scores.median),
+        sd: strictNum(scores.sd),
+        min: strictNum(scores.min),
+        max: strictNum(scores.max),
+        iqr: arr(scores.iqr),
+        consensus: obj(read.consensus),
+        segments: arr(read.segments),
+        vantageGap: obj(read.vantage_gap),
+        interpretationLimit: firstStr(read.interpretation_limit)
+      };
+    });
+    const signals = arr(r.convergence_signals).map((item) => {
+      const signal = typeof item === "string" ? { text: item } : obj(item);
+      return {
+        label: firstStr(signal.label, signal.key, "Shared signal"),
+        text: firstStr(signal.text, signal.message),
+        tools: arr(signal.tools),
+        scope: firstStr(signal.scope),
+        limit: firstStr(signal.interpretation_limit)
+      };
+    }).filter((item) => item.text || item.label);
+    const differences = arr(r.contradictions).map((item) => firstStr(
+      typeof item === "string" ? item : "",
+      obj(item).text,
+      obj(item).message,
+      obj(item).label
+    )).filter(Boolean);
+    const requirements = arr(r.what_would_strengthen_the_read || evidence.next_band_requirements).map((item) => {
+      const requirement = typeof item === "string" ? { text: item } : obj(item);
+      return {
+        type: firstStr(requirement.type, "evidence"),
+        text: firstStr(requirement.text, requirement.message),
+        toolType: firstStr(requirement.tool_type),
+        currentRuns: strictNum(requirement.current_runs),
+        targetRuns: strictNum(requirement.target_runs),
+        additionalRuns: strictNum(requirement.additional_runs_needed)
+      };
+    }).filter((item) => item.text);
+    const actions = arr(r.priority_actions).map((item) => {
+      const action = typeof item === "string" ? { text: item } : obj(item);
+      return {
+        label: firstStr(action.label, "Action"),
+        text: firstStr(action.text, action.summary),
+        tier: firstStr(action.tier),
+        source: firstStr(action.source)
+      };
+    }).filter((item) => item.text);
+    const indicators = arr(r.leading_indicators).map((item) => {
+      const indicator = obj(item);
+      return {
+        lens: firstStr(indicator.lens_label, indicator.lens),
+        name: firstStr(indicator.name),
+        watchFor: firstStr(indicator.watch_for),
+        description: firstStr(indicator.description),
+        status: firstStr(indicator.current_status)
+      };
+    }).filter((item) => item.name || item.watchFor);
+    const experiential = obj(r.experiential);
+    const briefParagraphs = arr(briefing.paragraphs).map(firstStr).filter(Boolean);
+    const modeLabel = product === "depth" ? "Depth Synthesis" : "Cross-Lens Synthesis";
+    const reads = strictNum(r.respondent_count) ?? sourceGroups.reduce((sum, group) => sum + (group.n || 0), 0);
+    const lensCount = strictNum(r.lens_count) ?? sourceGroups.length;
+    const evidenceLabel = firstStr(evidence.evidence_label, r.readiness_label, "Evidence band unavailable");
+    const conditionBand = firstStr(r.condition_band, scorePublished ? "Observed condition" : "Composite withheld");
+    const coverBody = firstStr(narrative.executive_summary, briefing.lede, diagnosis.body, r.primary_pattern);
+    const filenameStem = product === "depth"
+      ? "depth-synthesis-" + slug(sourceGroups[0]?.toolType || "diagnostic") + "-n" + (reads || "x")
+      : "cross-lens-synthesis-n" + (reads || "x");
 
     return {
-      kind: "synthesis",
-      mastline: "Monderman • Cross-Diagnostic Synthesis",
-      title: "Cross-Diagnostic Synthesis Executive Report",
-      subtitle: "A combined leadership read across Monderman diagnostics — surfacing the primary shared pattern, contradictions, first-move action sequence, and what leadership should watch.",
+      kind: "meta-synthesis",
+      product: product,
+      mastline: "Monderman • " + modeLabel,
+      title: product === "depth" ? "Depth Synthesis Executive Report" : "Cross-Lens Synthesis Executive Report",
+      subtitle: product === "depth"
+        ? "A same-instrument read across multiple respondents — reporting the observed median, distribution, segment differences, and evidence limits."
+        : "A multi-lens read that separates lens comparison from a coherent composite and states exactly what evidence supports each conclusion.",
       meta: [
         { label: "Generated", value: nowLabel() },
-        { label: "Source tools", value: tools.join(", ") || "Selected diagnostics" },
-        { label: "Reads combined", value: String(sources.length || "—") }
+        { label: "Product", value: modeLabel },
+        { label: "Runs", value: reads == null ? "—" : num(reads) },
+        { label: "Lenses", value: lensCount == null ? "—" : num(lensCount) },
+        { label: "Evidence", value: evidenceLabel }
       ],
-      headlineScore: r.cross_diagnostic_score != null ? r.cross_diagnostic_score : "—",
-      headlineBand: firstStr(r.condition_band, "—"),
-      coverBody: firstStr(nar.executive_summary),
-
-      // ─── Diagnosis section (NEW) ───
-      diagnosis: diag.name ? {
-        name: firstStr(diag.name),
-        type: firstStr(diag.type),
-        body: firstStr(diag.body),
-        meta: [
-          ...(r.synthesis_mode ? [{ label: "Read type", value:
-            r.synthesis_mode === "depth" ? "Depth — " + (r.respondent_count || sources.length) + " respondents, 1 instrument"
-            : r.synthesis_mode === "mixed" ? "Mixed — " + r.lens_count + " instruments, " + r.respondent_count + " runs"
-            : "Cross-lens — " + r.lens_count + " instruments" }] : []),
-          { label: "Composite", value: String(r.cross_diagnostic_score != null ? r.cross_diagnostic_score + " / 100" : "—") },
-          { label: "Compensation cost", value: (compCostLow != null && compCostHigh != null ? compactCurRange([compCostLow, compCostHigh]) + " / yr*" : "—") },
-          { label: "Envelope drag", value: (exp.capacity_drag_percent != null ? pct(exp.capacity_drag_percent) + "*" : "—") },
-          { label: "Correction horizon", value: (exp.correction_horizon_weeks ? weekRange(exp.correction_horizon_weeks) : "—") }
-        ]
-      } : null,
-
-      // ─── Executive briefing (NEW) ───
-      briefing: brief.lede || (arr(brief.paragraphs).length > 0) ? {
-        lede: firstStr(brief.lede),
-        paragraphs: arr(brief.paragraphs).filter(Boolean).map(String)
-      } : null,
-
-      // ─── Composite section (existing enriched) ───
-      composite: {
-        score: r.cross_diagnostic_score,
-        band: firstStr(r.condition_band),
-        primaryPattern: firstStr(r.primary_pattern),
-        totalBurdenHours: exp.total_burden_hours,
-        compensationHours: exp.compensation_hours != null ? exp.compensation_hours : exp.annual_hours,
-        totalLaborLow: exp.total_labor_exposure_low,
-        totalLaborHigh: exp.total_labor_exposure_high,
-        compCostLow: compCostLow,
-        compCostHigh: compCostHigh,
-        capacityDrag: exp.capacity_drag_percent
-      },
-
-      // ─── Insight depth (schema 1.2, additive) ───
-      insightDepth: (r.insight_depth && typeof r.insight_depth.score === "number") ? {
-        score: Number(r.insight_depth.score),
-        basis: firstStr(r.insight_depth.basis),
-        depthTier: firstStr(r.insight_depth.depth_tier),
-        lenses: r.lens_count != null ? Number(r.lens_count) : arr(r.source_groups).length || 1,
-        levels: Number(r.insight_depth.levels_covered_count) || 1
-      } : null,
-
-      // ─── Read mode + sample depth (schema 1.2, additive) ───
-      mode: r.synthesis_mode ? {
-        synthesisMode: firstStr(r.synthesis_mode),
-        lensCount: r.lens_count != null ? Number(r.lens_count) : null,
-        respondentCount: r.respondent_count != null ? Number(r.respondent_count) : null
-      } : null,
-      sampleReads: arr(r.sample_reads).map((sr) => {
-        const s = obj(sr); const sc = obj(s.score); const cons = obj(s.consensus);
-        return {
-          toolLabel: firstStr(s.tool_label, s.tool_type),
-          n: Number(s.n) || 0,
-          mean: sc.mean, median: sc.median, sd: sc.sd, min: sc.min, max: sc.max,
-          iqr: Array.isArray(sc.iqr) ? sc.iqr : null,
-          consensusRead: firstStr(cons.read),
-          consensusDetail: firstStr(cons.detail),
-          split: cons.split ? obj(cons.split) : null,
-          segments: arr(s.segments).map((g) => obj(g)),
-          vantageGap: s.vantage_gap ? obj(s.vantage_gap) : null,
-          depthLabel: firstStr(s.depth_confidence_label, s.depth_confidence)
-        };
-      }),
-
-      // ─── Lenses ───
-      // Depth/mixed shape: one row per INSTRUMENT (respondent mean, × n)
-      // instead of one row per respondent — 150 uploads no longer render
-      // 150 identical lens rows or a 150-column convergence matrix.
-      lenses: (arr(r.source_groups).length && sources.length > arr(r.source_groups).length)
-        ? arr(r.source_groups).map((g) => ({
-            toolType: g.tool_type,
-            toolLabel: (g.tool_label || g.tool_type) + (g.respondents > 1 ? " \u00d7 " + g.respondents : ""),
-            score: g.mean_score,
-            band: "Respondent mean",
-            primaryDriver: String(g.modal_driver_pattern || "").replace(/_/g, " ")
-          }))
-        : sources.map((s) => ({
-            toolType: s.tool_type,
-            toolLabel: s.tool_label || s.tool_type,
-            score: s.score,
-            band: s.band || s.condition_band,
-            primaryDriver: firstStr(s.primary_driver, s.driver, "")
-          })),
-
-      // ─── Convergence signals (enriched — object shape with tools + dimensions) ───
-      convergenceSignals: arr(r.convergence_signals).map((sig) => {
-        if (typeof sig === "string") return { text: sig, label: "", tools: [], dimensions: [] };
-        const s = obj(sig);
-        return {
-          text: firstStr(s.text),
-          label: firstStr(s.label),
-          tools: arr(s.tools),
-          dimensions: arr(s.dimensions)
-        };
-      }),
-
-      // ─── Contradictions ───
-      contradictions: arr(r.contradictions).map((c) => (typeof c === "string" ? { text: c } : obj(c))),
-
-      // ─── Priority actions (enriched — object shape with tier + horizon) ───
-      priorityActions: arr(r.priority_actions).map((a) => {
-        if (typeof a === "string") return { text: a, label: "", tier: "", horizonWeeks: null };
-        const p = obj(a);
-        return {
-          text: firstStr(p.text),
-          label: firstStr(p.label),
-          tier: firstStr(p.tier).toLowerCase(),
-          horizonWeeks: p.horizon_weeks || null
-        };
-      }),
-
-      // ─── Experiential (NEW) ───
-      experiential: (experiential.operational_staff || experiential.managers || experiential.senior_leaders) ? {
-        operationalStaff: firstStr(experiential.operational_staff),
-        managers: firstStr(experiential.managers),
-        seniorLeaders: firstStr(experiential.senior_leaders)
-      } : null,
-
-      // ─── Leading indicators (NEW) ───
-      leadingIndicators: arr(r.leading_indicators).map((i) => {
-        const ind = obj(i);
-        return {
-          lens: firstStr(ind.lens).toLowerCase() || "cross",
-          lensLabel: firstStr(ind.lens_label),
-          name: firstStr(ind.name),
-          watchFor: firstStr(ind.watch_for),
-          description: firstStr(ind.description),
-          current: firstStr(ind.current)
-        };
-      }),
-
-      // ─── Leadership implication + sequencing (existing narrative) ───
-      leadership: {
-        implication: firstStr(nar.leadership_implication, r.primary_pattern, ""),
-        sequencingLogic: firstStr(nar.sequenced_action_logic, "")
-      },
-
-      // ─── Confidence tiers (NEW) ───
-      confidence: (confidence.convergence_signals || confidence.contradictions || confidence.composite_exposure_math) ? {
-        convergenceSignals: arr(confidence.convergence_signals),
-        contradictions: arr(confidence.contradictions),
-        compositeExposureMath: firstStr(confidence.composite_exposure_math),
-        cascadeUpstreamDriver: firstStr(confidence.cascade_upstream_driver),
-        sequencingHorizonEstimates: firstStr(confidence.sequencing_horizon_estimates)
-      } : null,
-
-      footnote: "* Time, cost, and capacity figures are directional estimates derived from the combined diagnostic results.",
-      filenameBase: "cross-diagnostic-synthesis-" + slug(sources.map((s) => s.tool_type).sort().join("-")),
+      headlineScore: scorePublished ? Math.round(score) : "—",
+      headlineBand: scorePublished ? (firstStr(r.score_label, conditionBand) + " · " + conditionBand) : "Composite withheld",
+      coverBody: coverBody,
+      scorePublished: scorePublished,
+      score: score,
+      scoreLabel: firstStr(r.score_label),
+      scoreBasis: firstStr(r.score_basis),
+      conditionBand: conditionBand,
+      conditionSpread: obj(r.condition_spread),
+      evidence: evidence,
+      evidenceLabel: evidenceLabel,
+      evidenceDescription: firstStr(evidence.evidence_description),
+      scope: scope,
+      versions: versions,
+      timeWindow: timeWindow,
+      sourceIdentity: identity,
+      lensBalance: balance,
+      representativeness: representative,
+      requirements: requirements,
+      diagnosis: diagnosis,
+      primaryPattern: firstStr(r.primary_pattern, diagnosis.body),
+      primaryPatternClaimLevel: firstStr(r.primary_pattern_claim_level),
+      briefing: { lede: firstStr(briefing.lede), paragraphs: briefParagraphs },
+      narrative: narrative,
+      sourceGroups: sourceGroups,
+      sampleReads: sampleReads,
+      signals: signals,
+      differences: differences,
+      exposure: exposure,
+      actions: actions,
+      experiential: experiential,
+      indicators: indicators,
+      leadership: firstStr(narrative.leadership_implication),
+      sequencingLogic: firstStr(narrative.sequenced_action_logic),
+      confidence: confidence,
+      reads: reads,
+      lensCount: lensCount,
+      footnote: product === "depth"
+        ? "This report describes the submitted same-instrument runs. Population generalization requires a documented sampling frame and response coverage."
+        : "This report is a directional cross-lens synthesis. A published composite is not a proven causal model; source evidence and alternative explanations remain necessary.",
+      filenameBase: filenameStem,
       source: r
     };
   }
@@ -398,474 +340,212 @@
 
   // ---- the executive report HTML (body + full document) ---------------------
   // ──────────────────────────────────────────────────────────────────────
-  // Synthesis crown-jewel renderers — SVG generators + section builders
-  // Each generator is defensive: returns "" if data missing so the
-  // corresponding section is silently omitted from the report.
+  // Depth and cross-lens synthesis renderers. Condition and evidence strength
+  // are deliberately separate: a lens comparison may be valuable while its
+  // composite score remains withheld.
   // ──────────────────────────────────────────────────────────────────────
 
-  function svgGauge(score, band) {
-    if (score == null) return "";
-    const s = Math.max(0, Math.min(100, Number(score)));
-    const circumference = 2 * Math.PI * 92;
-    const fillPct = 0.65; // arc spans 65% of full circle
-    const arcLen = circumference * fillPct;
-    const filled = arcLen * (s / 100);
-    const empty = arcLen - filled;
-    const rotationStart = -234; // start position (open at bottom)
-    return '<svg viewBox="0 0 240 240" role="img" aria-label="Composite condition gauge" class="mr-svg-gauge">' +
-      '<circle cx="120" cy="120" r="92" fill="none" stroke="#EAE6DD" stroke-width="18" stroke-dasharray="' + arcLen.toFixed(1) + ' ' + circumference.toFixed(1) + '" transform="rotate(' + rotationStart + ' 120 120)"/>' +
-      '<circle cx="120" cy="120" r="92" fill="none" stroke="#0C6E78" stroke-width="18" stroke-linecap="round" stroke-dasharray="' + filled.toFixed(1) + ' ' + circumference.toFixed(1) + '" transform="rotate(' + rotationStart + ' 120 120)"/>' +
-      '<text x="120" y="126" text-anchor="middle" font-family="Helvetica Neue,Arial,sans-serif" font-size="60" font-weight="700" fill="#18191C" letter-spacing="-.04em">' + Math.round(s) + '</text>' +
-      '<text x="120" y="150" text-anchor="middle" font-family="Helvetica Neue,Arial,sans-serif" font-size="12" fill="#6E6F73">/ 100</text>' +
-      (band ? '<text x="120" y="182" text-anchor="middle" font-family="Helvetica Neue,Arial,sans-serif" font-size="10" font-weight="700" fill="#0C6E78" letter-spacing=".16em">' + esc(String(band).toUpperCase()) + '</text>' : '') +
-      '</svg>';
+  function strictFinite(v) {
+    return v !== null && v !== undefined && v !== "" && Number.isFinite(Number(v));
+  }
+  function fmt1(v) { return strictFinite(v) ? (Math.round(Number(v) * 10) / 10).toLocaleString("en-US") : "—"; }
+  function fmtWhole(v) { return strictFinite(v) ? Math.round(Number(v)).toLocaleString("en-US") : "—"; }
+  function fmtMoney(v) { return strictFinite(v) ? cur(Number(v)) : "—"; }
+  function fmtPercent(v) { return strictFinite(v) ? (Math.round(Number(v) * 10) / 10).toLocaleString("en-US") + "%" : "—"; }
+  function fmtPair(values, formatter) {
+    const pair = arr(values);
+    if (pair.length < 2 || !strictFinite(pair[0]) || !strictFinite(pair[1])) return "—";
+    return formatter(pair[0]) + " – " + formatter(pair[1]);
+  }
+  function humanize(v) {
+    return String(v || "").replace(/[_-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+  function evidenceCard(label, value, detail) {
+    if (!value && !detail) return "";
+    return '<div class="mr-lens-card"><div class="mr-lens-label">' + esc(label) + '</div>' +
+      '<div style="font-family:\"Helvetica Neue\",Arial,sans-serif;font-size:1rem;font-weight:700;margin:7px 0 6px">' + esc(value || "—") + '</div>' +
+      (detail ? '<p class="mr-copy">' + esc(detail) + '</p>' : '') + '</div>';
+  }
+  function textItem(item) {
+    if (item == null) return "";
+    if (typeof item === "string") return item;
+    if (typeof item === "object") return firstStr(item.text, item.message, item.label);
+    return String(item);
   }
 
-  function svgLensBar(lenses, composite) {
-    const items = arr(lenses).filter((l) => l && l.score != null);
-    if (!items.length) return "";
-    const w = 640, h = 220, marginL = 220, marginR = 40, barH = 22, rowH = 42, topY = 40;
-    const xScale = (v) => marginL + ((w - marginL - marginR) * Math.max(0, Math.min(100, v))) / 100;
-    const parts = ['<svg viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="Four-lens comparison" class="mr-svg-lensbar">'];
-    // Reference zones
-    parts.push('<rect x="' + xScale(0) + '" y="' + topY + '" width="' + (xScale(60) - xScale(0)) + '" height="' + (rowH * items.length) + '" fill="#C9821F" opacity=".05"/>');
-    parts.push('<rect x="' + xScale(70) + '" y="' + topY + '" width="' + (xScale(100) - xScale(70)) + '" height="' + (rowH * items.length) + '" fill="#3C8A60" opacity=".06"/>');
-    // Threshold labels at top
-    parts.push('<text x="' + xScale(58) + '" y="30" text-anchor="end" font-family="Helvetica Neue,Arial,sans-serif" font-size="9" font-weight="700" fill="#C9821F" letter-spacing=".14em">&lt; 60 &middot; WORKING BUT BURDENED</text>');
-    parts.push('<text x="' + xScale(72) + '" y="30" font-family="Helvetica Neue,Arial,sans-serif" font-size="9" font-weight="700" fill="#3C8A60" letter-spacing=".14em">70+ &middot; HEALTHY RANGE</text>');
-    // Rows
-    items.forEach((lens, i) => {
-      const yRow = topY + i * rowH + rowH / 2 - barH / 2;
-      const label = lens.toolLabel || lens.toolType || "";
-      const score = Math.max(0, Math.min(100, Number(lens.score)));
-      parts.push('<text x="' + (marginL - 12) + '" y="' + (yRow + barH / 2 + 4) + '" text-anchor="end" font-family="Helvetica Neue,Arial,sans-serif" font-size="12" font-weight="600" fill="#18191C">' + esc(label) + '</text>');
-      parts.push('<rect x="' + xScale(0) + '" y="' + yRow + '" width="' + (xScale(100) - xScale(0)) + '" height="' + barH + '" fill="#F6F3EC" rx="4"/>');
-      parts.push('<rect x="' + xScale(0) + '" y="' + yRow + '" width="' + (xScale(score) - xScale(0)) + '" height="' + barH + '" fill="#0C6E78" rx="4"/>');
-      parts.push('<text x="' + (xScale(score) + 8) + '" y="' + (yRow + barH / 2 + 4) + '" font-family="Helvetica Neue,Arial,sans-serif" font-size="12" font-weight="700" fill="#18191C">' + Math.round(score) + '</text>');
-    });
-    // Composite marker
-    if (composite != null) {
-      const cx = xScale(Math.max(0, Math.min(100, Number(composite))));
-      const bottomY = topY + items.length * rowH + 8;
-      parts.push('<line x1="' + cx + '" y1="' + topY + '" x2="' + cx + '" y2="' + bottomY + '" stroke="#08383E" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.6"/>');
-      parts.push('<text x="' + cx + '" y="' + (bottomY + 14) + '" text-anchor="middle" font-family="Helvetica Neue,Arial,sans-serif" font-size="9" font-weight="700" fill="#08383E" letter-spacing=".14em">COMPOSITE ' + Math.round(composite) + '</text>');
-    }
-    parts.push('</svg>');
-    return parts.join("");
+  function renderMetaEvidence(m) {
+    const scope = obj(m.scope), versions = obj(m.versions), identity = obj(m.sourceIdentity);
+    const timeWindow = obj(m.timeWindow), balance = obj(m.lensBalance), representative = obj(m.representativeness);
+    const cards = [
+      evidenceCard("Evidence band", m.evidenceLabel, m.evidenceDescription),
+      evidenceCard("Composite score", m.scorePublished ? "Published" : "Withheld", m.scoreBasis),
+      evidenceCard("Scope", firstStr(scope.label, humanize(scope.status)), firstStr(scope.statement)),
+      evidenceCard("Lens balance", firstStr(humanize(balance.status), "Not applicable"), strictFinite(balance.ratio) ? "Strongest-to-weakest lens ratio: " + fmt1(balance.ratio) + ":1" : "Not applicable to one-lens depth synthesis."),
+      evidenceCard("Instrument versions", firstStr(versions.label, humanize(versions.status)), versions.conflicting_lenses?.length ? "Conflicting lenses: " + versions.conflicting_lenses.map(humanize).join(", ") : ""),
+      evidenceCard("Source identity", humanize(identity.status), firstStr(identity.statement)),
+      evidenceCard("Measurement window", humanize(timeWindow.status), firstStr(timeWindow.statement)),
+      evidenceCard("Representativeness", firstStr(representative.label, humanize(representative.status)), firstStr(representative.statement))
+    ].filter(Boolean).join("");
+    return '<section class="mr-section"><h2>1. Evidence status</h2>' +
+      '<div class="callout"><p><strong>' + esc(m.evidenceLabel) + '.</strong> ' + esc(m.evidenceDescription || "The evidence band governs what this synthesis is allowed to claim.") + '</p></div>' +
+      '<div class="mr-lens-grid">' + cards + '</div></section>';
   }
 
-  function svgHeroMap(lenses, composite, band, patternName, compensationHoursText, compensationCostText) {
-    const items = arr(lenses).filter((l) => l && l.score != null).slice(0, 4);
-    if (!items.length || !patternName) return "";
-    // Positions: TL, TR, BL, BR (OS/SC/DV/IP by convention if 4 items — but use items order defensively)
-    const positions = [
-      { x: 30, y: 60, anchor: "start" },
-      { x: 790, y: 60, anchor: "end" },
-      { x: 30, y: 340, anchor: "start" },
-      { x: 790, y: 340, anchor: "end" }
-    ];
-    const tierColors = ["#0C6E78", "#C9821F", "#08383E", "#3C8A60"];
-    const parts = ['<svg viewBox="0 0 820 500" role="img" aria-label="Hero synthesis map" class="mr-svg-hero">',
-      '<defs><linearGradient id="mrHeroGrad" x1="0%" x2="100%" y1="0%" y2="0%"><stop offset="0%" stop-color="#0C6E78"/><stop offset="45%" stop-color="#08383E"/><stop offset="72%" stop-color="#C9821F"/><stop offset="100%" stop-color="#3C8A60"/></linearGradient></defs>'];
-    if (composite != null) {
-      parts.push('<text x="410" y="26" text-anchor="middle" font-family="Helvetica Neue,Arial,sans-serif" font-size="10" font-weight="700" fill="#6E6F73" letter-spacing=".18em">COMPOSITE ' + Math.round(composite) + (band ? ' &middot; ' + esc(String(band).toUpperCase()) : '') + '</text>');
-    }
-    // Central pattern box
-    parts.push('<rect x="250" y="160" width="320" height="180" fill="#F6F3EC" stroke="#0C6E78" stroke-width="1.5" rx="12"/>');
-    parts.push('<text x="410" y="192" text-anchor="middle" font-family="Helvetica Neue,Arial,sans-serif" font-size="10" font-weight="700" fill="#0C6E78" letter-spacing=".18em">THE SHARED PATTERN</text>');
-    // Split pattern name onto up to 2 lines
-    const words = String(patternName).split(/\s+/);
-    let line1 = words[0] || "", line2 = words.slice(1).join(" ");
-    if (line1.length + line2.length < 24 && words.length <= 2) { line1 = String(patternName); line2 = ""; }
-    parts.push('<text x="410" y="228" text-anchor="middle" font-family="Helvetica Neue,Arial,sans-serif" font-size="22" font-weight="700" fill="#18191C" letter-spacing="-.02em">' + esc(line1) + '</text>');
-    if (line2) parts.push('<text x="410" y="256" text-anchor="middle" font-family="Helvetica Neue,Arial,sans-serif" font-size="22" font-weight="700" fill="#18191C" letter-spacing="-.02em">' + esc(line2) + '</text>');
-    parts.push('<line x1="380" y1="' + (line2 ? 274 : 246) + '" x2="440" y2="' + (line2 ? 274 : 246) + '" stroke="#0C6E78" stroke-width="2"/>');
-    if (compensationHoursText) parts.push('<text x="410" y="' + (line2 ? 298 : 270) + '" text-anchor="middle" font-family="Helvetica Neue,Arial,sans-serif" font-size="11" fill="#6E6F73">' + esc(compensationHoursText) + '</text>');
-    if (compensationCostText) parts.push('<text x="410" y="' + (line2 ? 316 : 288) + '" text-anchor="middle" font-family="Helvetica Neue,Arial,sans-serif" font-size="11" fill="#6E6F73">' + esc(compensationCostText) + '</text>');
-
-    // Four lens tiles
-    items.forEach((lens, i) => {
-      const pos = positions[i];
-      const color = tierColors[i];
-      const label = lens.toolLabel || lens.toolType || "";
-      const shortCode = String(label).match(/^[A-Z]{2}/) ? String(label).match(/^[A-Z]{2}/)[0] : label.substring(0, 2).toUpperCase();
-      const isLeft = pos.anchor === "start";
-      const xText = isLeft ? pos.x + 16 : pos.x - 16;
-      const xRect = isLeft ? pos.x : pos.x - 200;
-      const xAccent = isLeft ? pos.x : pos.x - 4;
-      // Tile
-      parts.push('<rect x="' + xRect + '" y="' + pos.y + '" width="200" height="100" fill="#FFF" stroke="#EAE6DD" stroke-width="1" rx="8"/>');
-      parts.push('<rect x="' + xAccent + '" y="' + pos.y + '" width="4" height="100" fill="' + color + '" rx="2"/>');
-      parts.push('<text x="' + xText + '" y="' + (pos.y + 22) + '" text-anchor="' + pos.anchor + '" font-family="Helvetica Neue,Arial,sans-serif" font-size="13" font-weight="700" fill="' + color + '">' + esc(shortCode) + '</text>');
-      parts.push('<text x="' + xText + '" y="' + (pos.y + 38) + '" text-anchor="' + pos.anchor + '" font-family="Helvetica Neue,Arial,sans-serif" font-size="10.5" font-weight="600" fill="' + color + '">' + esc(label) + '</text>');
-      parts.push('<text x="' + xText + '" y="' + (pos.y + 68) + '" text-anchor="' + pos.anchor + '" font-family="Helvetica Neue,Arial,sans-serif" font-size="28" font-weight="700" fill="#18191C" letter-spacing="-.03em">' + Math.round(Number(lens.score)) + '</text>');
-      if (lens.primaryDriver) parts.push('<text x="' + xText + '" y="' + (pos.y + 85) + '" text-anchor="' + pos.anchor + '" font-family="Helvetica Neue,Arial,sans-serif" font-size="10" fill="#6E6F73">' + esc(String(lens.primaryDriver).substring(0, 22)) + '</text>');
-      // Arrow to center
-      const arrowStartX = isLeft ? xRect + 200 : xRect;
-      const arrowStartY = pos.y + 50;
-      const arrowEndX = isLeft ? 250 : 570;
-      const arrowEndY = pos.y < 200 ? 200 : 300;
-      parts.push('<line x1="' + arrowStartX + '" y1="' + arrowStartY + '" x2="' + arrowEndX + '" y2="' + arrowEndY + '" stroke="#08383E" stroke-width="1.5" opacity="0.55"/>');
-    });
-    // Bottom sequence
-    parts.push('<text x="30" y="475" font-family="Helvetica Neue,Arial,sans-serif" font-size="9" font-weight="700" fill="#0C6E78" letter-spacing=".18em">STRUCTURAL &middot; UPSTREAM</text>');
-    parts.push('<line x1="240" y1="470" x2="580" y2="470" stroke="url(#mrHeroGrad)" stroke-width="3" stroke-linecap="round"/>');
-    parts.push('<polygon points="580,464 592,470 580,476" fill="#3C8A60"/>');
-    parts.push('<text x="790" y="475" text-anchor="end" font-family="Helvetica Neue,Arial,sans-serif" font-size="9" font-weight="700" fill="#3C8A60" letter-spacing=".18em">CULTURAL &middot; DOWNSTREAM</text>');
-    parts.push('<text x="410" y="493" text-anchor="middle" font-family="Helvetica Neue,Arial,sans-serif" font-size="9" fill="#9A9892" letter-spacing=".14em">CORRECTION MUST FOLLOW THIS DIRECTION</text>');
-    parts.push('</svg>');
-    return parts.join("");
+  function renderMetaFinding(m) {
+    const diagnosis = obj(m.diagnosis);
+    const paragraphs = arr(m.briefing?.paragraphs).map(textItem).filter(Boolean);
+    return '<section class="mr-section"><h2>2. What this read says</h2>' +
+      '<div class="mr-card"><h3>' + esc(firstStr(diagnosis.name, m.product === "depth" ? "Observed same-instrument pattern" : "Cross-lens finding")) + '</h3>' +
+      (diagnosis.type ? '<span class="mr-pill">' + esc(diagnosis.type) + '</span>' : '') +
+      '<p>' + esc(firstStr(diagnosis.body, m.primaryPattern, m.briefing?.lede)) + '</p></div>' +
+      (m.briefing?.lede ? '<p class="mr-lede">' + esc(m.briefing.lede) + '</p>' : '') +
+      paragraphs.map((p) => '<p>' + esc(p) + '</p>').join("") +
+      (m.scoreBasis ? '<div class="callout"><p><strong>Score basis.</strong> ' + esc(m.scoreBasis) + '</p></div>' : '') +
+      '</section>';
   }
 
-  function svgCascade(actions) {
-    const items = arr(actions).filter((a) => a && (a.label || a.text));
-    if (!items.length) return "";
-    const tierColorMap = { structural: "#0C6E78", behavioral: "#C9821F", cultural: "#3C8A60" };
-    const positionalFallback = ["#0C6E78", "#08383E", "#C9821F", "#3C8A60"];
-    const boxW = 130, gap = 30, startX = 40, y = 30, boxH = 80;
-    const parts = ['<svg viewBox="0 0 680 150" role="img" aria-label="Sequencing cascade" class="mr-svg-cascade">'];
-    parts.push('<text x="10" y="14" font-family="Helvetica Neue,Arial,sans-serif" font-size="9" font-weight="700" fill="#6E6F73" letter-spacing=".14em">UPSTREAM</text>');
-    parts.push('<text x="670" y="14" text-anchor="end" font-family="Helvetica Neue,Arial,sans-serif" font-size="9" font-weight="700" fill="#6E6F73" letter-spacing=".14em">DOWNSTREAM</text>');
-    items.slice(0, 4).forEach((a, i) => {
-      const x = startX + i * (boxW + gap);
-      const color = tierColorMap[String(a.tier).toLowerCase()] || positionalFallback[i] || "#0C6E78";
-      const label = a.label || String(a.text).split(/\s+/).slice(0, 2).join(" ");
-      parts.push('<rect x="' + x + '" y="' + y + '" width="' + boxW + '" height="' + boxH + '" fill="' + color + '" rx="8"/>');
-      parts.push('<text x="' + (x + boxW / 2) + '" y="' + (y + 26) + '" text-anchor="middle" font-family="Helvetica Neue,Arial,sans-serif" font-size="13" font-weight="700" fill="#FFF" letter-spacing=".08em">0' + (i + 1) + '</text>');
-      // Wrap label onto up to 2 lines
-      const words = String(label).split(/\s+/);
-      const lineY = y + 48;
-      parts.push('<text x="' + (x + boxW / 2) + '" y="' + lineY + '" text-anchor="middle" font-family="Helvetica Neue,Arial,sans-serif" font-size="11" font-weight="600" fill="#FFF">' + esc(words[0] || "") + '</text>');
-      if (words.length > 1) parts.push('<text x="' + (x + boxW / 2) + '" y="' + (lineY + 14) + '" text-anchor="middle" font-family="Helvetica Neue,Arial,sans-serif" font-size="11" font-weight="600" fill="#FFF">' + esc(words.slice(1).join(" ")) + '</text>');
-      // Tier label below
-      const tierLabel = String(a.tier || positionalFallback[i]).toUpperCase();
-      parts.push('<text x="' + (x + boxW / 2) + '" y="' + (y + boxH + 18) + '" text-anchor="middle" font-family="Helvetica Neue,Arial,sans-serif" font-size="8.5" font-weight="700" fill="' + color + '" letter-spacing=".14em">' + esc(tierLabel) + '</text>');
-      // Arrow to next
-      if (i < Math.min(items.length, 4) - 1) {
-        const ax = x + boxW + 4;
-        parts.push('<polygon points="' + ax + ',' + (y + boxH / 2 - 5) + ' ' + (ax + 18) + ',' + (y + boxH / 2) + ' ' + ax + ',' + (y + boxH / 2 + 5) + '" fill="#9A9892"/>');
-      }
-    });
-    parts.push('</svg>');
-    return parts.join("");
-  }
-
-  function svgTimeline(actions) {
-    const items = arr(actions).filter((a) => a && a.horizonWeeks && Array.isArray(a.horizonWeeks)).slice(0, 4);
-    if (!items.length) return "";
-    const tierColorMap = { structural: "#0C6E78", behavioral: "#C9821F", cultural: "#3C8A60" };
-    const positionalFallback = ["#0C6E78", "#08383E", "#C9821F", "#3C8A60"];
-    const w = 820, h = 260, marginL = 240, marginR = 20, maxW = w - marginL - marginR;
-    const maxWeek = 32;
-    const wScale = (wk) => marginL + (Math.min(maxWeek, wk) / maxWeek) * maxW;
-    const parts = ['<svg viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="Timeline horizon" class="mr-svg-timeline">'];
-    // Week axis
-    parts.push('<line x1="' + marginL + '" y1="30" x2="' + (w - marginR) + '" y2="30" stroke="rgba(24,25,28,.14)" stroke-width="1"/>');
-    [0, 8, 16, 24, 32].forEach((wk) => {
-      const x = wScale(wk);
-      parts.push('<text x="' + x + '" y="22" text-anchor="middle" font-family="Helvetica Neue,Arial,sans-serif" font-size="10" font-weight="600" fill="#6E6F73" letter-spacing=".06em">' + wk + (wk === 32 ? 'w+' : 'w') + '</text>');
-      parts.push('<line x1="' + x + '" y1="30" x2="' + x + '" y2="210" stroke="rgba(24,25,28,.06)" stroke-dasharray="2 4"/>');
-    });
-    // Rows
-    items.forEach((a, i) => {
-      const yRow = 58 + i * 40;
-      const color = tierColorMap[String(a.tier).toLowerCase()] || positionalFallback[i] || "#0C6E78";
-      const startWk = a.horizonWeeks[0] || 0;
-      const endWk = a.horizonWeeks[1] != null ? a.horizonWeeks[1] : maxWeek;
-      const barX = wScale(startWk);
-      const barW = Math.max(20, wScale(endWk) - barX);
-      const label = String(a.label || a.text || "").substring(0, 32);
-      parts.push('<text x="' + (marginL - 12) + '" y="' + (yRow + 14) + '" text-anchor="end" font-family="Helvetica Neue,Arial,sans-serif" font-size="12" font-weight="600" fill="#18191C">0' + (i + 1) + ' &middot; ' + esc(label) + '</text>');
-      parts.push('<rect x="' + barX + '" y="' + yRow + '" width="' + barW + '" height="28" fill="' + color + '" rx="4"/>');
-      const tierLabel = String(a.tier || positionalFallback[i]).toUpperCase();
-      const weekRange = a.horizonWeeks[1] != null ? startWk + '&ndash;' + endWk + 'w' : startWk + 'w+';
-      parts.push('<text x="' + (barX + barW / 2) + '" y="' + (yRow + 18) + '" text-anchor="middle" font-family="Helvetica Neue,Arial,sans-serif" font-size="10" font-weight="600" fill="#FFF" letter-spacing=".08em">' + esc(tierLabel) + ' &middot; ' + weekRange + '</text>');
-    });
-    parts.push('<text x="' + marginL + '" y="238" font-family="Helvetica Neue,Arial,sans-serif" font-size="10" font-weight="600" fill="#6E6F73" letter-spacing=".06em">EACH TIER BEGINS UNLOCKING BEFORE THE NEXT STARTS</text>');
-    parts.push('<text x="' + (w - marginR) + '" y="238" text-anchor="end" font-family="Helvetica Neue,Arial,sans-serif" font-size="10" font-weight="600" fill="#6E6F73" letter-spacing=".06em">TOTAL HORIZON ~32 WEEKS</text>');
-    parts.push('</svg>');
-    return parts.join("");
-  }
-
-  function svgConvergenceMatrix(signals, tools) {
-    const sigs = arr(signals).filter((s) => s && (s.text || s.label));
-    const toolList = arr(tools).length ? arr(tools) : ["OS", "DV", "SC", "IP"];
-    if (!sigs.length) return "";
-    const w = 640, h = 220, colW = 90, marginL = 30, rowH = 40, topY = 55;
-    const parts = ['<svg viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="Convergence matrix" class="mr-svg-matrix">'];
-    // Column headers
-    toolList.slice(0, 4).forEach((t, i) => {
-      const x = marginL + 240 + i * colW + colW / 2;
-      parts.push('<text x="' + x + '" y="30" text-anchor="middle" font-family="Helvetica Neue,Arial,sans-serif" font-size="11" font-weight="700" fill="#0C6E78" letter-spacing=".14em">' + esc(String(t).substring(0, 3).toUpperCase()) + '</text>');
-    });
-    // Rows
-    sigs.slice(0, 4).forEach((sig, i) => {
-      const y = topY + i * rowH;
-      const num = String(i + 1).padStart(2, "0");
-      const label = sig.label || String(sig.text || "").split(/\s+/).slice(0, 3).join(" ");
-      parts.push('<text x="' + marginL + '" y="' + (y + 22) + '" font-family="Helvetica Neue,Arial,sans-serif" font-size="9.5" font-weight="700" fill="#18191C" letter-spacing=".08em">' + num + ' ' + esc(String(label).toUpperCase()) + '</text>');
-      // Fill dots based on tools
-      const sigTools = arr(sig.tools).map((t) => String(t).toLowerCase());
-      toolList.slice(0, 4).forEach((t, j) => {
-        const cx = marginL + 240 + j * colW + colW / 2;
-        const cy = y + 20;
-        const tLower = String(t).toLowerCase();
-        const present = sigTools.some((st) => st === tLower || st.includes(tLower.substring(0, 2)) || tLower.includes(st.substring(0, 2)));
-        const filled = present || sigTools.length === 0; // if no tools listed, assume all
-        parts.push('<circle cx="' + cx + '" cy="' + cy + '" r="8" fill="' + (filled ? '#0C6E78' : '#F6F3EC') + '" stroke="' + (filled ? '#0C6E78' : '#EAE6DD') + '" stroke-width="1"/>');
-      });
-    });
-    parts.push('</svg>');
-    return parts.join("");
-  }
-
-  function svgExposureSplit(totalHours, compensationHours) {
-    if (!totalHours || !compensationHours) return "";
-    const total = Number(totalHours), comp = Number(compensationHours);
-    const pctComp = Math.min(1, comp / total);
-    const w = 640, h = 68, barY = 24, barH = 24;
-    const compW = w * pctComp;
-    return '<svg viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="Compensation subset of total burden" class="mr-svg-exposure">' +
-      '<rect x="0" y="' + barY + '" width="' + w + '" height="' + barH + '" fill="#EAE6DD" rx="4"/>' +
-      '<rect x="0" y="' + barY + '" width="' + compW + '" height="' + barH + '" fill="#0C6E78" rx="4"/>' +
-      '<text x="' + (compW / 2) + '" y="' + (barY + 16) + '" text-anchor="middle" font-family="Helvetica Neue,Arial,sans-serif" font-size="12" font-weight="600" fill="#FFF">Compensation &middot; ' + num(comp) + ' hrs</text>' +
-      '<text x="' + (compW + (w - compW) / 2) + '" y="' + (barY + 16) + '" text-anchor="middle" font-family="Helvetica Neue,Arial,sans-serif" font-size="12" font-weight="600" fill="#6E6F73">Other burden &middot; ' + num(total - comp) + ' hrs</text>' +
-      '<text x="' + w + '" y="' + (barY + barH + 18) + '" text-anchor="end" font-family="Helvetica Neue,Arial,sans-serif" font-size="9" font-weight="700" fill="#6E6F73" letter-spacing=".14em">TOTAL ' + num(total) + ' HRS</text>' +
-      '</svg>';
-  }
-
-  // ─── Section renderers (HTML fragments) ───
-
-  function renderDiagnosis(diag) {
-    if (!diag) return "";
-    const metaHtml = arr(diag.meta).map((m) => '<span class="mr-diag-meta-item"><strong>' + esc(m.label) + '</strong> ' + esc(m.value) + '</span>').join("");
-    return '<section class="mr-diag-section">' +
-      '<div class="mr-diag-hero">' +
-        '<p class="mr-diag-eyebrow">Diagnosis</p>' +
-        '<h2 class="mr-diag-title">' + esc(diag.name) + '</h2>' +
-        (diag.type ? '<p class="mr-diag-type">' + esc(diag.type) + '</p>' : "") +
-        '<div class="mr-diag-rule"></div>' +
-        (diag.body ? '<p class="mr-diag-body">' + esc(diag.body) + '</p>' : "") +
-        (metaHtml ? '<div class="mr-diag-meta">' + metaHtml + '</div>' : "") +
-      '</div>' +
-    '</section>';
-  }
-
-  function insightDepthLabel(d) {
-    if (d.lenses >= 4 && (d.depthTier === "high" || d.depthTier === "poll_grade") && d.levels >= 3) return "Cross-validated enterprise read";
-    if (d.lenses === 1 && (d.depthTier === "high" || d.depthTier === "poll_grade")) return "Population-validated, single-instrument read";
-    if (d.lenses === 1 && d.depthTier === "moderate") return "Population-informed, single-instrument read";
-    if (d.lenses >= 2) return "Cross-validated read";
-    return "Single-run read";
-  }
-
-  function renderInsightDepth(d) {
-    if (!d) return "";
-    const score = Math.max(0, Math.min(100, d.score));
-    const dash = (score / 100 * 144.5).toFixed(1);
-    return '<section class="mr-section"><h2>Insight depth</h2>'
-      + '<div class="mr-card"><div style="display:flex;align-items:center;gap:14px;">'
-      + '<svg viewBox="0 0 58 58" style="width:58px;height:58px;flex:0 0 58px;">'
-      + '<circle cx="29" cy="29" r="23" fill="none" stroke="#EAE6DD" stroke-width="7"/>'
-      + '<circle cx="29" cy="29" r="23" fill="none" stroke="#C9821F" stroke-width="7" stroke-dasharray="' + dash + ' 145" transform="rotate(-90 29 29)"/></svg>'
-      + '<div><div style="font-size:1.6rem;font-weight:700;line-height:1;">' + esc(score) + '</div>'
-      + '<p class="mr-copy" style="margin-top:6px;"><strong>Insight depth score \u00b7 ' + esc(insightDepthLabel(d)) + '.</strong> A quality-of-signal score, not a quality-of-answer score.</p></div></div>'
-      + (d.basis ? '<p class="mr-copy" style="margin-top:10px;">' + esc(d.basis) + '</p>' : '')
-      + '</div></section>';
-  }
-
-  function renderSampleDepth(sampleReads, mode) {
-    if (!Array.isArray(sampleReads) || !sampleReads.length) return "";
-    const rows = sampleReads.map((sr) => {
-      const splitBar = sr.split
-        ? '<div style="display:flex;height:9px;border-radius:5px;overflow:hidden;margin:8px 0 4px;">'
-          + '<div style="width:' + Number(sr.split.lower_share_pct) + '%;background:#0A5B63"></div>'
-          + '<div style="width:' + Number(sr.split.upper_share_pct) + '%;background:rgba(12,110,120,.28)"></div></div>'
-          + '<p class="mr-copy" style="margin:0">' + esc(sr.split.lower_share_pct) + '% weaker read · '
-          + esc(sr.split.upper_share_pct) + '% stronger read · boundary ' + esc(sr.split.boundary) + '</p>'
-        : "";
-      const segs = (sr.segments || []).map((g) =>
-        '<span class="mr-pill">' + esc(g.participant_mode) + ": " + esc(g.mean_score) + " (n=" + esc(g.n) + ")</span>").join(" ");
-      const vg = sr.vantageGap
-        ? '<p class="mr-copy" style="margin-top:6px"><strong>Vantage gap:</strong> ' + esc(sr.vantageGap.high_segment) + " "
-          + esc(sr.vantageGap.high_mean) + " vs " + esc(sr.vantageGap.low_segment) + " " + esc(sr.vantageGap.low_mean)
-          + " (Δ" + esc(sr.vantageGap.gap) + ")</p>"
-        : "";
-      return '<div class="mr-card">'
-        + "<h3>" + esc(sr.toolLabel) + " · " + esc(sr.n) + " respondents · " + esc(sr.depthLabel) + " sample</h3>"
-        + '<p class="mr-copy"><strong>Mean ' + esc(sr.mean) + "</strong> · median " + esc(sr.median)
-        + " · sd " + esc(sr.sd) + " · range " + esc(sr.min) + "–" + esc(sr.max)
-        + (sr.iqr ? " · IQR " + esc(sr.iqr[0]) + "–" + esc(sr.iqr[1]) : "") + "</p>"
-        + '<p class="mr-copy"><strong>' + esc(String(sr.consensusRead || "").toUpperCase()) + "</strong> — " + esc(sr.consensusDetail) + "</p>"
-        + splitBar + (segs ? '<div style="margin-top:6px">' + segs + "</div>" : "") + vg
-        + "</div>";
-    }).join("");
-    return '<section class="mr-section"><h2>Sample depth</h2>'
-      + '<p class="mr-copy">Population statistics for instruments completed by two or more respondents. Dispersion and division are findings in their own right — a divided clarity read is the clarity finding, measured directly.</p>'
-      + rows + "</section>";
-  }
-
-  function renderBriefing(brief) {
-    if (!brief) return "";
-    const paras = arr(brief.paragraphs).map((p) => '<p class="mr-briefing-body">' + esc(p) + '</p>').join("");
-    return '<section class="mr-briefing-section">' +
-      '<h2>Executive briefing</h2>' +
-      '<div class="mr-briefing-block">' +
-        (brief.lede ? '<p class="mr-briefing-lede">' + esc(brief.lede) + '</p>' : "") +
-        paras +
-      '</div>' +
-    '</section>';
-  }
-
-  function renderComposite(comp, heroSvg, gaugeSvg, exposureSvg) {
-    if (!comp) return "";
-    return '<section class="mr-composite-section">' +
-      '<h2>Composite finding</h2>' +
-      (comp.primaryPattern ? '<p class="mr-lede">' + esc(comp.primaryPattern) + '</p>' : "") +
-      (heroSvg ? '<div class="mr-viz-panel mr-viz-hero">' + heroSvg + '</div>' : "") +
-      (gaugeSvg ? '<div class="mr-viz-panel mr-viz-gauge">' + gaugeSvg + '</div>' : "") +
-      (exposureSvg ? '<div class="mr-viz-panel mr-viz-exposure"><p class="mr-viz-title">Compensation subset of total burden</p>' + exposureSvg + '</div>' : "") +
-    '</section>';
-  }
-
-  function renderLenses(lenses, lensBarSvg) {
-    if (!arr(lenses).length) return "";
-    const cards = arr(lenses).map((l) => '<div class="mr-lens-card">' +
-      '<p class="mr-lens-label">' + esc(l.toolLabel || l.toolType || "") + '</p>' +
-      '<p class="mr-lens-score">' + (l.score != null ? Math.round(Number(l.score)) : "—") + '</p>' +
-      (l.band ? '<p class="mr-lens-band">' + esc(l.band) + '</p>' : "") +
-      (l.primaryDriver ? '<p class="mr-lens-driver">' + esc(l.primaryDriver) + '</p>' : "") +
-    '</div>').join("");
-    return '<section class="mr-lenses-section">' +
-      '<h2>Four lenses</h2>' +
-      (lensBarSvg ? '<div class="mr-viz-panel">' + lensBarSvg + '</div>' : "") +
-      '<div class="mr-lens-grid">' + cards + '</div>' +
-    '</section>';
-  }
-
-  function renderConvergence(signals, matrixSvg) {
-    if (!arr(signals).length) return "";
-    const rows = arr(signals).map((sig, i) => {
-      const num = String(i + 1).padStart(2, "0");
-      const tagsHtml = arr(sig.dimensions).map((d) => '<span class="mr-tag">' + esc((d.tool || "") + (d.dimension ? " &middot; " + d.dimension : "") + (d.severity != null ? " [" + d.severity + "]" : "")) + '</span>').join("");
-      return '<div class="mr-signal">' +
-        '<span class="mr-signal-num">' + num + '</span>' +
-        '<div class="mr-signal-body">' +
-          '<p><strong>' + esc(sig.label || "") + (sig.label ? ". " : "") + '</strong>' + esc(sig.text) + '</p>' +
-          (tagsHtml ? '<div class="mr-signal-tags">' + tagsHtml + '</div>' : "") +
+  function renderDepthDistribution(m) {
+    if (m.product !== "depth" || !arr(m.sampleReads).length) return "";
+    const cards = arr(m.sampleReads).map((read) => {
+      const consensus = obj(read.consensus);
+      const segments = arr(read.segments).map((segment) => {
+        const s = obj(segment);
+        return '<div class="k">' + esc(humanize(s.participant_mode)) + ' · n=' + esc(fmtWhole(s.n)) + '</div><div>Mean ' + esc(fmt1(s.mean_score)) + ' · median ' + esc(fmt1(s.median_score)) + '</div>';
+      }).join("");
+      return '<div class="mr-card"><h3>' + esc(read.toolLabel) + '</h3>' +
+        '<div class="kvs">' +
+          '<div class="k">Observed runs</div><div>' + esc(fmtWhole(read.n)) + '</div>' +
+          '<div class="k">Median score</div><div>' + esc(fmt1(read.median)) + '</div>' +
+          '<div class="k">Mean score</div><div>' + esc(fmt1(read.mean)) + '</div>' +
+          '<div class="k">Observed range</div><div>' + esc(fmt1(read.min)) + ' – ' + esc(fmt1(read.max)) + '</div>' +
+          '<div class="k">Interquartile range</div><div>' + esc(fmtPair(read.iqr, fmt1)) + '</div>' +
+          '<div class="k">Sample standard deviation</div><div>' + esc(fmt1(read.sd)) + '</div>' +
         '</div>' +
+        (consensus.detail ? '<div class="callout"><p><strong>' + esc(humanize(consensus.read)) + '.</strong> ' + esc(consensus.detail) + '</p></div>' : '') +
+        (segments ? '<h3 style="margin-top:20px">Observed vantage segments</h3><div class="kvs">' + segments + '</div>' : '') +
+        (read.vantageGap?.statement ? '<p class="mr-copy"><strong>Segment difference:</strong> ' + esc(read.vantageGap.statement) + '</p>' : '') +
+        (read.interpretationLimit ? '<p class="mr-copy">' + esc(read.interpretationLimit) + '</p>' : '') +
       '</div>';
     }).join("");
-    return '<section class="mr-convergence-section">' +
-      '<h2>Convergence signals</h2>' +
-      '<p class="mr-lede">Where the four instruments agree, and what specifically converges.</p>' +
-      (matrixSvg ? '<div class="mr-viz-panel">' + matrixSvg + '</div>' : "") +
-      rows +
-    '</section>';
+    return '<section class="mr-section"><h2>3. Respondent distribution</h2>' + cards + '</section>';
   }
 
-  function renderContradictions(cs) {
-    if (!arr(cs).length) return "";
-    const rows = arr(cs).map((c) => '<div class="mr-contradiction"><p>' + esc(c.text) + '</p></div>').join("");
-    return '<section class="mr-contradictions-section">' +
-      '<h2>Contradictions</h2>' +
-      '<p class="mr-lede">Where the four instruments disagree — often the diagnostically richest area.</p>' +
-      rows +
-    '</section>';
-  }
-
-  function renderActions(actions, cascadeSvg, timelineSvg) {
-    if (!arr(actions).length) return "";
-    const rows = arr(actions).map((a, i) => {
-      const num = String(i + 1).padStart(2, "0");
-      const tier = String(a.tier || "").toLowerCase();
-      return '<div class="mr-action" data-tier="' + esc(tier) + '">' +
-        '<span class="mr-action-num">' + num + '</span>' +
-        '<div class="mr-action-body">' +
-          (a.label ? '<p class="mr-action-label">' + esc(a.label) + (tier ? ' &middot; ' + esc(tier.toUpperCase()) : '') + '</p>' : "") +
-          '<p>' + esc(a.text) + '</p>' +
-        '</div>' +
+  function renderLensSummary(m) {
+    if (!arr(m.sourceGroups).length) return "";
+    const cards = arr(m.sourceGroups).map((lens) => {
+      return '<div class="mr-lens-card"><div class="mr-lens-label">' + esc(lens.toolLabel) + '</div>' +
+        '<div style="font-family:\"Helvetica Neue\",Arial,sans-serif;font-size:2rem;font-weight:700;margin:8px 0 4px">' + esc(fmt1(lens.mean)) + '</div>' +
+        '<p class="mr-copy">Mean score · median ' + esc(fmt1(lens.median)) + ' · n=' + esc(fmtWhole(lens.n)) + '</p>' +
+        '<p class="mr-copy">IQR ' + esc(fmtPair(lens.iqr, fmt1)) + ' · range ' + esc(fmtPair(lens.range, fmt1)) + '</p>' +
+        (lens.driver ? '<span class="mr-pill">' + esc(humanize(lens.driver)) + '</span>' : '') +
       '</div>';
     }).join("");
-    return '<section class="mr-actions-section">' +
-      '<h2>Priority actions</h2>' +
-      '<p class="mr-lede">Where leadership should probably begin. Order matters — each tier begins unlocking before the next starts.</p>' +
-      (cascadeSvg ? '<div class="mr-viz-panel">' + cascadeSvg + '</div>' : "") +
-      rows +
-      (timelineSvg ? '<div class="mr-viz-panel mr-viz-timeline">' + timelineSvg + '</div>' : "") +
-    '</section>';
+    return '<section class="mr-section"><h2>' + (m.product === "depth" ? '4' : '3') + '. Contributing lens' + (m.sourceGroups.length === 1 ? '' : 'es') + '</h2>' +
+      '<div class="mr-lens-grid">' + cards + '</div></section>';
   }
 
-  function renderExperiential(exp) {
-    if (!exp) return "";
-    return '<section class="mr-experiential-section">' +
-      '<h2>Cross-organizational experience</h2>' +
-      '<p class="mr-lede">How the pattern manifests differently at each organizational layer — content only synthesis can produce.</p>' +
-      (exp.operationalStaff ? '<h3>What operational staff are experiencing</h3><p>' + esc(exp.operationalStaff) + '</p>' : "") +
-      (exp.managers ? '<h3>What managers are experiencing</h3><p>' + esc(exp.managers) + '</p>' : "") +
-      (exp.seniorLeaders ? '<h3>What senior leaders are seeing</h3><p>' + esc(exp.seniorLeaders) + '</p>' : "") +
-    '</section>';
-  }
-
-  function renderIndicators(indicators) {
-    if (!arr(indicators).length) return "";
-    const tiles = arr(indicators).map((i) => '<div class="mr-indicator-tile" data-lens="' + esc(i.lens || "cross") + '">' +
-      (i.lensLabel ? '<p class="mr-indicator-lens">' + esc(i.lensLabel) + '</p>' : "") +
-      '<p class="mr-indicator-name">' + esc(i.name) + '</p>' +
-      (i.description ? '<p class="mr-indicator-detail">' + (i.watchFor ? '<em>Watch for: ' + esc(i.watchFor) + '.</em> ' : "") + esc(i.description) + '</p>' : "") +
-      (i.current ? '<p class="mr-indicator-current">Current: <strong>' + esc(i.current) + '</strong></p>' : "") +
-    '</div>').join("");
-    return '<section class="mr-indicators-section">' +
-      '<h2>Leading indicators</h2>' +
-      '<p class="mr-lede">What to watch — measurable signals leadership should monitor to know if the pattern is worsening, holding, or receding.</p>' +
-      '<div class="mr-indicators-grid">' + tiles + '</div>' +
-    '</section>';
-  }
-
-  function renderLeadership(l) {
-    if (!l || (!l.implication && !l.sequencingLogic)) return "";
-    return '<section class="mr-leadership-section">' +
-      '<h2>Leadership read</h2>' +
-      (l.implication ? '<p>' + esc(l.implication) + '</p>' : "") +
-      (l.sequencingLogic ? '<h3>Sequencing logic</h3><p>' + esc(l.sequencingLogic) + '</p>' : "") +
-    '</section>';
-  }
-
-  function renderConfidence(conf) {
-    if (!conf) return "";
-    const tierMap = { high: { pct: 100, color: "#0C6E78", label: "HIGH" }, moderate: { pct: 65, color: "#C9821F", label: "MODERATE" }, directional: { pct: 35, color: "#9A9892", label: "DIRECTIONAL" } };
-    const rows = [];
-    arr(conf.convergenceSignals).forEach((tier, i) => {
-      const t = tierMap[String(tier).toLowerCase()] || tierMap.directional;
-      rows.push('<div class="mr-confidence-row" data-tier="' + esc(tier) + '"><div class="mr-confidence-label"><strong>Signal ' + String(i + 1).padStart(2, "0") + '</strong> confidence</div><div class="mr-confidence-bar" style="background:linear-gradient(to right,' + t.color + ' ' + t.pct + '%,#EAE6DD ' + t.pct + '%)"></div><div class="mr-confidence-tier">' + t.label + '</div></div>');
-    });
-    if (conf.compositeExposureMath) {
-      const t = tierMap[String(conf.compositeExposureMath).toLowerCase()] || tierMap.directional;
-      rows.push('<div class="mr-confidence-row"><div class="mr-confidence-label"><strong>Composite exposure math</strong> total + compensation subset</div><div class="mr-confidence-bar" style="background:linear-gradient(to right,' + t.color + ' ' + t.pct + '%,#EAE6DD ' + t.pct + '%)"></div><div class="mr-confidence-tier">' + t.label + '</div></div>');
+  function renderMetaSignals(m) {
+    const signals = arr(m.signals);
+    const differences = arr(m.differences);
+    if (!signals.length && !differences.length) return "";
+    let html = '<section class="mr-section"><h2>' + (m.product === "depth" ? '5' : '4') + '. Agreements and interpretation limits</h2>';
+    if (signals.length) {
+      html += '<h3 style="margin-top:14px">Recurring signals</h3>' + signals.map((signal) =>
+        '<div class="mr-card"><h3>' + esc(signal.label) + '</h3><p>' + esc(signal.text) + '</p>' +
+        (signal.tools.length ? '<div>' + signal.tools.map((tool) => '<span class="mr-pill">' + esc(humanize(tool)) + '</span>').join("") + '</div>' : '') +
+        (signal.limit ? '<p class="mr-copy">' + esc(signal.limit) + '</p>' : '') + '</div>'
+      ).join("");
     }
-    if (conf.cascadeUpstreamDriver) {
-      const t = tierMap[String(conf.cascadeUpstreamDriver).toLowerCase()] || tierMap.directional;
-      rows.push('<div class="mr-confidence-row"><div class="mr-confidence-label"><strong>Cascade upstream driver</strong> identified as root</div><div class="mr-confidence-bar" style="background:linear-gradient(to right,' + t.color + ' ' + t.pct + '%,#EAE6DD ' + t.pct + '%)"></div><div class="mr-confidence-tier">' + t.label + '</div></div>');
+    if (differences.length) {
+      html += '<h3 style="margin-top:22px">Differences to keep visible</h3><ul>' + differences.map((item) => '<li>' + esc(item) + '</li>').join("") + '</ul>';
     }
-    if (conf.sequencingHorizonEstimates) {
-      const t = tierMap[String(conf.sequencingHorizonEstimates).toLowerCase()] || tierMap.directional;
-      rows.push('<div class="mr-confidence-row"><div class="mr-confidence-label"><strong>Sequencing horizon estimates</strong> week ranges</div><div class="mr-confidence-bar" style="background:linear-gradient(to right,' + t.color + ' ' + t.pct + '%,#EAE6DD ' + t.pct + '%)"></div><div class="mr-confidence-tier">' + t.label + '</div></div>');
-    }
-    if (!rows.length) return "";
-    return '<section class="mr-confidence-section">' +
-      '<h2>Evidence trail</h2>' +
-      '<p class="mr-lede">Where the read is anchored, and where it is directional. Confidence tiers reflect how many independent signals support each finding.</p>' +
-      '<div class="mr-confidence-panel">' + rows.join("") + '</div>' +
-    '</section>';
+    return html + '</section>';
   }
 
-  function renderMethodNote() {
-    return '<section class="mr-method-section">' +
-      '<h2>How this was produced</h2>' +
-      '<p>This synthesis is produced by combining the individual diagnostic outputs of the Monderman instruments used in this read (some combination of Operational Systems, Decision Velocity, Structural Clarity, and Institutional Performance) using a cross-diagnostic engine. The engine identifies where lenses agree (convergence), where they don\u2019t (contradictions), and stitches those into a shared pattern and correction sequence.</p>' +
-      '<p>The composite score is a weighted read across the instruments, not a simple average. Compensation-cost and envelope-drag numbers are directional estimates derived from the combined diagnostic results and typical labor-rate references. Correction-horizon estimates reflect typical sequencing for a compensation-pattern correction; they are not commitments and should be checked against local capacity.</p>' +
-      '<p>This document is a directional executive read. Its strongest value is clarifying <em>where</em> the measured condition is pointing and <em>what</em> to address first. It is not a substitute for independent review or audited analysis.</p>' +
-    '</section>';
+  function renderMetaExposure(m) {
+    const exp = obj(m.exposure);
+    const sectionNumber = m.product === "depth" ? 6 : 5;
+    if (!exp.status) return "";
+    if (exp.status === "withheld" || exp.status === "unavailable") {
+      return '<section class="mr-section"><h2>' + sectionNumber + '. Pathway exposure</h2><div class="callout"><p><strong>' + esc(firstStr(exp.label, "Exposure withheld")) + '.</strong> ' + esc(firstStr(exp.withheld_reason, "The submitted runs do not contain enough source-backed economic data.")) + '</p></div></section>';
+    }
+    const kvs = [
+      ["Status", humanize(exp.status)],
+      ["Priceable runs", fmtWhole(exp.priceable_runs) + " of " + fmtWhole(exp.total_runs)],
+      ["Median annual hours", fmtWhole(exp.annual_hours)],
+      ["Observed hours IQR", strictFinite(exp.annual_hours_low) && strictFinite(exp.annual_hours_high) ? fmtWhole(exp.annual_hours_low) + " – " + fmtWhole(exp.annual_hours_high) : "—"],
+      ["Median annual labor cost", fmtMoney(exp.annual_cost)],
+      ["Observed cost IQR", strictFinite(exp.annual_cost_low) && strictFinite(exp.annual_cost_high) ? fmtMoney(exp.annual_cost_low) + " – " + fmtMoney(exp.annual_cost_high) : "—"],
+      ["Median capacity drag", fmtPercent(exp.capacity_drag_percent)],
+      ["Recoverable range across lens medians", strictFinite(exp.recoverable_cost_low) && strictFinite(exp.recoverable_cost_high) ? fmtMoney(exp.recoverable_cost_low) + " – " + fmtMoney(exp.recoverable_cost_high) : "—"]
+    ].map(([k, v]) => '<div class="k">' + esc(k) + '</div><div>' + esc(v) + '</div>').join("");
+    return '<section class="mr-section"><h2>' + sectionNumber + '. Source-backed pathway exposure</h2><div class="kvs">' + kvs + '</div>' +
+      '<div class="callout"><p><strong>Aggregation rule.</strong> ' + esc(firstStr(exp.basis, "Repeated estimates are summarized, not added together.")) + '</p></div></section>';
+  }
+
+  function renderRequirements(m) {
+    const requirements = arr(m.requirements);
+    if (!requirements.length) return "";
+    const sectionNumber = m.product === "depth" ? 7 : 6;
+    return '<section class="mr-section"><h2>' + sectionNumber + '. What would strengthen the read</h2>' +
+      requirements.map((item) => '<div class="mr-card"><span class="mr-pill">' + esc(humanize(item.type)) + '</span><p style="margin-top:10px">' + esc(item.text) + '</p></div>').join("") + '</section>';
+  }
+
+  function renderMetaActions(m) {
+    const actions = arr(m.actions);
+    if (!actions.length) return "";
+    const sectionNumber = m.product === "depth" ? 8 : 7;
+    return '<section class="mr-section"><h2>' + sectionNumber + '. Evidence-proportionate actions</h2>' +
+      actions.map((action, index) => '<div class="mr-card"><div class="mr-lens-label">Step ' + (index + 1) + (action.tier ? ' · ' + esc(humanize(action.tier)) : '') + '</div><h3 style="margin-top:8px">' + esc(action.label) + '</h3><p>' + esc(action.text) + '</p></div>').join("") +
+      (m.sequencingLogic ? '<p class="mr-copy">' + esc(m.sequencingLogic) + '</p>' : '') + '</section>';
+  }
+
+  function renderMetaExperience(m) {
+    const experience = obj(m.experiential);
+    const entries = [
+      ["Operational staff", firstStr(experience.operational_staff)],
+      ["Managers", firstStr(experience.managers)],
+      ["Senior leaders", firstStr(experience.senior_leaders)]
+    ].filter(([, value]) => value);
+    if (!entries.length && !experience.interpretation_limit) return "";
+    const sectionNumber = m.product === "depth" ? 9 : 8;
+    return '<section class="mr-section"><h2>' + sectionNumber + '. Measured segment evidence</h2>' +
+      entries.map(([label, value]) => '<div class="mr-card"><h3>' + esc(label) + '</h3><p>' + esc(value) + '</p></div>').join("") +
+      (experience.interpretation_limit ? '<p class="mr-copy">' + esc(experience.interpretation_limit) + '</p>' : '') + '</section>';
+  }
+
+  function renderMetaIndicators(m) {
+    const indicators = arr(m.indicators);
+    if (!indicators.length) return "";
+    const sectionNumber = m.product === "depth" ? 10 : 9;
+    return '<section class="mr-section"><h2>' + sectionNumber + '. Suggested measures</h2>' + indicators.map((indicator) =>
+      '<div class="mr-card"><div class="mr-lens-label">' + esc(indicator.lens || "Measurement") + '</div><h3 style="margin-top:8px">' + esc(indicator.name) + '</h3>' +
+      (indicator.watchFor ? '<p><strong>Watch for:</strong> ' + esc(indicator.watchFor) + '</p>' : '') +
+      (indicator.description ? '<p class="mr-copy">' + esc(indicator.description) + '</p>' : '') + '</div>'
+    ).join("") + '</section>';
+  }
+
+  function renderMetaMethod(m) {
+    const sectionNumber = m.product === "depth" ? 11 : 10;
+    const method = m.product === "depth"
+      ? "The published condition is the median of the submitted scores from one diagnostic lens. The observed distribution, segment differences, scope, source identity, versions, measurement window, and sampling frame are reported separately. Sample size alone does not establish population representativeness."
+      : "When the coherence band is met, the published composite is the arithmetic mean of the contributing lens means, so each diagnostic lens receives one vote regardless of respondent count. Respondent depth governs evidence strength and balance. A comparison-only or directional read withholds the composite. Lens disagreement remains visible and is not subtracted from the condition score.";
+    return '<section class="mr-section"><h2>' + sectionNumber + '. Method and limits</h2><p>' + esc(method) + '</p>' +
+      (m.leadership ? '<div class="callout"><p><strong>Leadership implication.</strong> ' + esc(m.leadership) + '</p></div>' : '') + '</section>';
+  }
+
+  function renderMetaSynthesis(m) {
+    return renderMetaEvidence(m) +
+      renderMetaFinding(m) +
+      renderDepthDistribution(m) +
+      renderLensSummary(m) +
+      renderMetaSignals(m) +
+      renderMetaExposure(m) +
+      renderRequirements(m) +
+      renderMetaActions(m) +
+      renderMetaExperience(m) +
+      renderMetaIndicators(m) +
+      renderMetaMethod(m);
   }
 
   function sectionHtml(s, n) {
@@ -905,8 +585,6 @@
   function buildReportBody(model) {
     const m = obj(model);
     const meta = arr(m.meta).map((x) => "<span>" + esc(x.label) + ": " + esc(x.value) + "</span>").join("");
-
-    // Common cover block for both synthesis and run reports
     const coverBlock =
       '<div class="mast">' + esc(m.mastline) + '</div>' +
       '<div class="rule"></div>' +
@@ -914,59 +592,14 @@
       '<p class="sub">' + esc(m.subtitle) + "</p>" +
       '<div class="meta">' + meta + "</div>" +
       '<div class="cover-score"><div class="score-line">' +
-        '<div class="score-num">' + esc(m.headlineScore) + "</div>" +
+        '<div class="score-num">' + esc(m.headlineScore == null ? "—" : m.headlineScore) + "</div>" +
         '<div class="score-band">' + esc(m.headlineBand) + "</div>" +
       "</div>" + (m.coverBody ? "<p>" + esc(m.coverBody) + "</p>" : "") + "</div>";
 
-    // ─── Synthesis path: 12-section crown-jewel pipeline ───
-    if (m.kind === "synthesis" && (m.diagnosis || m.composite || m.lenses)) {
-      const comp = obj(m.composite);
-      // Compact formatters for hero-map inline strings
-      const compactNumHrs = (v) => {
-        if (v == null) return "";
-        const n = Number(v);
-        if (n >= 1e6) return "~" + Math.round(n / 1e5) / 10 + "M";
-        if (n >= 1e3) return "~" + Math.round(n / 1e3) + "k";
-        return "~" + n;
-      };
-      const compactCurRange = (l, hi) => {
-        if (l == null || hi == null) return "";
-        const fmt = (n) => n >= 1e6 ? Math.round(n / 1e5) / 10 + "M" : n >= 1e3 ? Math.round(n / 1e3) + "K" : String(n);
-        return "$" + fmt(l).replace(/\.0M$/, "M") + "–" + fmt(hi).replace(/\.0M$/, "M");
-      };
-      const hoursText = comp.compensationHours ? compactNumHrs(comp.compensationHours) + " compensation hours / yr" : "";
-      const costText = (comp.compCostLow != null && comp.compCostHigh != null) ? compactCurRange(comp.compCostLow, comp.compCostHigh) + " compensation cost / yr" : "";
-
-      // Build all SVGs (each returns "" if data insufficient)
-      const heroSvg = m.diagnosis ? svgHeroMap(m.lenses, comp.score, comp.band, m.diagnosis.name, hoursText, costText) : "";
-      const gaugeSvg = svgGauge(comp.score, comp.band);
-      const exposureSvg = svgExposureSplit(comp.totalBurdenHours, comp.compensationHours);
-      const lensBarSvg = svgLensBar(m.lenses, comp.score);
-      const matrixSvg = svgConvergenceMatrix(m.convergenceSignals, m.lenses ? m.lenses.map((l) => l.toolLabel || l.toolType) : []);
-      const cascadeSvg = svgCascade(m.priorityActions);
-      const timelineSvg = svgTimeline(m.priorityActions);
-
-      // Assemble the 12 sections in order
-      const body =
-        renderDiagnosis(m.diagnosis) +
-        renderBriefing(m.briefing) +
-        renderSampleDepth(m.sampleReads, m.mode) +
-        renderInsightDepth(m.insightDepth) +
-        renderComposite(m.composite, heroSvg, gaugeSvg, exposureSvg) +
-        renderLenses(m.lenses, lensBarSvg) +
-        renderConvergence(m.convergenceSignals, matrixSvg) +
-        renderContradictions(m.contradictions) +
-        renderActions(m.priorityActions, cascadeSvg, timelineSvg) +
-        renderExperiential(m.experiential) +
-        renderIndicators(m.leadingIndicators) +
-        renderLeadership(m.leadership) +
-        renderConfidence(m.confidence) +
-        renderMethodNote();
-
-      return coverBlock + body + '<div class="footer">' + esc(m.footnote) + "</div>";
+    if (m.kind === "meta-synthesis") {
+      return coverBlock + renderMetaSynthesis(m) + '<div class="footer">' + esc(m.footnote) + "</div>";
     }
 
-    // ─── Legacy path: run reports (fromRun) still use the old sections shape ───
     const kvs = arr(m.kvs).map((x) => '<div class="k">' + esc(x.k) + "</div><div>" + esc(x.v) + "</div>").join("");
     let n = 0;
     const secHtml =
