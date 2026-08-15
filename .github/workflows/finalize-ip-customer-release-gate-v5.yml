@@ -1,0 +1,89 @@
+name: Finalize Institutional Performance frontend release gate v5
+
+on:
+  push:
+    branches: [agent/ip-customer-release-gate-2026-08-14]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  repair-test-and-merge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Apply frontend repair
+        run: python scripts/patch-ip-customer-release-gate-v4.py
+
+      - name: Add IP checks to the permanent frontend gate
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('scripts/validate_frontend_release.py')
+          text = path.read_text()
+          marker = '# IP_RELEASE_CONTRACT_V1'
+          if marker not in text:
+              text += '''\n\n# IP_RELEASE_CONTRACT_V1\nip_page = (ROOT / "institutional-performance.html").read_text(encoding="utf-8")\nip_lower = ip_page.lower()\nassert "IP_RELEASE_CONTRACT_V1" in ip_page\nassert "design-reference range" in ip_lower\nassert "comparable range" not in ip_lower\nassert "industry benchmark" not in ip_lower\nassert "peer benchmark" not in ip_lower\nassert "result?.exposure?.recoverable_cost" in ip_page\nassert "result?.exposure?.recoverable_share_percent" in ip_page\nassert "no sector peer factor is added" in ip_page\nassert "materially cheaper than acting after" not in ip_page\nassert "narrows the margin before visible performance moves" not in ip_page\nassert "which specific change produced that" not in ip_page\nassert "result?.config_version || result?.configVersion" in ip_page\nassert "displayPerspectiveLabel" in ip_page or "humanize" in ip_page\n'''
+              path.write_text(text)
+          PY
+
+      - name: Validate report JavaScript and permanent gate
+        run: |
+          python scripts/validate_ip_output_integrity_v4.py
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          page = Path('institutional-performance.html').read_text()
+          chunks = []
+          for attrs, body in re.findall(r'<script([^>]*)>(.*?)</script>', page, re.S | re.I):
+              type_match = re.search(r'type=["\']([^"\']+)', attrs, re.I)
+              script_type = type_match.group(1).lower() if type_match else 'text/javascript'
+              if script_type in ('text/javascript', 'application/javascript', 'module') and body.strip():
+                  chunks.append(body)
+          Path('/tmp/ip-page-inline.mjs').write_text('\n;\n'.join(chunks))
+          PY
+          node --check /tmp/ip-page-inline.mjs
+          python scripts/validate_frontend_release.py
+          git diff --check
+
+      - name: Commit production frontend changes
+        run: |
+          git config user.name 'Monderman-Group'
+          git config user.email 'jason.ivan.adamson@gmail.com'
+          git add institutional-performance.html scripts/validate_frontend_release.py
+          if ! git diff --cached --quiet; then
+            git commit -m 'Harden Institutional Performance customer report'
+            git push origin HEAD
+          fi
+
+      - name: Remove one-shot IP repair machinery
+        run: |
+          mapfile -t transient < <(git ls-files | grep -E '^(scripts/(patch-ip|validate_ip).*|\.github/workflows/(patch|finalize).*ip).*\.(py|yml|yaml)$' || true)
+          if [ ${#transient[@]} -gt 0 ]; then
+            git rm -f -- "${transient[@]}"
+            git commit -m 'Remove one-shot Institutional Performance frontend automation'
+            git push origin HEAD
+          fi
+
+      - name: Re-run permanent frontend release gate
+        run: |
+          python scripts/validate_frontend_release.py
+          git diff --check
+
+      - name: Merge frontend PR 42 only after green checks
+        run: |
+          gh pr ready 42 --repo Monderman-Group/monderman-site || true
+          gh pr merge 42 --repo Monderman-Group/monderman-site --merge --delete-branch
