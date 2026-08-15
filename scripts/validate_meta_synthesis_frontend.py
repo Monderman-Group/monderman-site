@@ -148,17 +148,16 @@ for token in (
 ):
     forbid(FULL_PAGE, token, "cross-tool-synthesis.html")
 
-# Mechanical cleanliness.
+# Mechanical cleanliness. Source may contain defensive checks for placeholders;
+# the fixture corpus below verifies that no placeholder reaches rendered output.
 for name, source in (
     ("monderman-report.js", REPORT),
     ("workspace-analysis.html", WORKSPACE),
     ("diagnostics.html", DIAGNOSTICS),
     ("cross-tool-synthesis.html", FULL_PAGE),
 ):
-    if re.search(r"\b(?:undefined|NaN|\[object Object\])\b", source):
-        # Source code may legitimately test undefined, but customer-copy literals
-        # and hard-coded placeholder values must not appear.
-        for literal in ('>undefined<', '"undefined"', '>NaN<', '"NaN"', '[object Object]'):
+    if re.search(r"\b(?:undefined|NaN)\b", source):
+        for literal in ('>undefined<', '"undefined"', '>NaN<', '"NaN"'):
             if literal in source:
                 raise AssertionError(f"{name}: customer-visible placeholder literal remains: {literal}")
 
