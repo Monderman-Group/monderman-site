@@ -1,0 +1,67 @@
+name: Finalize tested Institutional Performance frontend release PR
+
+on:
+  push:
+    branches: [agent/ip-release-candidate-2026-08-14-v3]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Wait for passing regression marker
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 60); do
+            git fetch origin agent/ip-release-candidate-2026-08-14-v3
+            git reset --hard origin/agent/ip-release-candidate-2026-08-14-v3
+            if [ -f IP_FRONTEND_TESTS_PASSED.txt ]; then exit 0; fi
+            if [ -f IP_FRONTEND_TESTS_FAILED.txt ]; then cat IP_FRONTEND_TESTS_FAILED.txt; exit 1; fi
+            sleep 10
+          done
+          echo 'Passing marker did not appear.' >&2
+          exit 1
+      - name: Remove one-shot automation and rerun final regressions
+        run: |
+          rm -f scripts/patch-ip-release.py
+          rm -f .github/workflows/patch-ip-release.yml .github/workflows/patch-ip-release-status.yml .github/workflows/finalize-ip-release-pr.yml
+          rm -f IP_FRONTEND_TESTS_PASSED.txt IP_FRONTEND_TESTS_FAILED.txt
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          for source in ["institutional-performance.html", "institutional-performance-acceptance-harness.html"]:
+              text = Path(source).read_text()
+              for index, match in enumerate(re.finditer(r'<script(?:\s[^>]*)?>([\s\S]*?)</script>', text, re.I)):
+                  body = match.group(1)
+                  if body.strip(): Path(f"/tmp/{Path(source).stem}-{index}.js").write_text(body)
+          PY
+          for f in /tmp/institutional-performance-*.js; do node --check "$f"; done
+          python scripts/validate_ip_output_integrity.py
+          git diff --check
+      - name: Commit cleanup and merge the PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name 'Monderman-Group'
+          git config user.email 'jason.ivan.adamson@gmail.com'
+          git add -A
+          git commit -m 'Remove one-shot Institutional Performance frontend automation' || true
+          git push origin HEAD
+          pr_number="$(gh pr list --repo Monderman-Group/monderman-site --head agent/ip-release-candidate-2026-08-14-v3 --state open --json number --jq '.[0].number')"
+          test -n "$pr_number"
+          gh pr ready "$pr_number" --repo Monderman-Group/monderman-site || true
+          gh pr merge "$pr_number" --repo Monderman-Group/monderman-site --merge --admin --delete-branch
