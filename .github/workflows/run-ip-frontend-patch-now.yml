@@ -1,0 +1,70 @@
+name: Run and certify Institutional Performance frontend repair
+
+on:
+  push:
+    branches: [agent/ip-customer-release-gate-2026-08-14]
+
+permissions:
+  contents: write
+
+jobs:
+  repair-and-certify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Apply the Institutional Performance frontend repair
+        run: |
+          if [ -f scripts/patch-ip-customer-release-v2.py ]; then
+            python scripts/patch-ip-customer-release-v2.py
+          else
+            python scripts/patch-ip-customer-release.py
+          fi
+
+      - name: Verify actual production file changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed="$(git diff --name-only)"
+          printf '%s\n' "$changed"
+          printf '%s\n' "$changed" | grep -Fxq institutional-performance.html || {
+            echo 'institutional-performance.html was not changed.' >&2
+            exit 1
+          }
+
+      - name: Validate frontend production contract
+        run: |
+          python scripts/validate_frontend_release.py
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          text = Path('institutional-performance.html').read_text()
+          scripts = re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>', text, re.S)
+          for i, script in enumerate(scripts):
+              if script.strip():
+                  Path(f'/tmp/ip-inline-{i}.mjs').write_text(script)
+          PY
+          for f in /tmp/ip-inline-*.mjs; do node --check "$f"; done
+          git diff --check
+
+      - name: Remove one-shot repair machinery
+        run: |
+          rm -f scripts/patch-ip-customer-release.py
+          rm -f scripts/patch-ip-customer-release-v2.py
+          rm -f .github/workflows/certify-ip-frontend-branch.yml
+          rm -f .github/workflows/run-ip-frontend-patch-now.yml
+
+      - name: Commit the certified frontend repair
+        run: |
+          git config user.name 'Monderman-Group'
+          git config user.email 'jason.ivan.adamson@gmail.com'
+          git add -A
+          git commit -m 'Align Institutional Performance customer outputs'
+          git push origin HEAD
