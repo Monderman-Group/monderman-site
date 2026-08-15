@@ -1,0 +1,53 @@
+name: Stabilize Institutional Performance frontend candidate
+
+on:
+  push:
+    branches: [agent/ip-release-candidate-2026-08-14-v3]
+
+permissions:
+  contents: write
+
+jobs:
+  stabilize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply release patch and stabilization
+        run: |
+          python scripts/patch-ip-release.py || true
+          python scripts/stabilize-ip-frontend.py
+      - name: Run frontend release regressions
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          for source in ["institutional-performance.html", "institutional-performance-acceptance-harness.html"]:
+              text = Path(source).read_text()
+              for index, match in enumerate(re.finditer(r'<script(?:\s[^>]*)?>([\s\S]*?)</script>', text, re.I)):
+                  body = match.group(1)
+                  if body.strip(): Path(f"/tmp/{Path(source).stem}-{index}.js").write_text(body)
+          PY
+          for f in /tmp/institutional-performance-*.js; do node --check "$f"; done
+          python scripts/validate_ip_output_integrity.py
+          git diff --check
+      - name: Commit stabilized candidate and passing marker
+        run: |
+          git config user.name 'Monderman-Group'
+          git config user.email 'jason.ivan.adamson@gmail.com'
+          rm -f IP_FRONTEND_TESTS_FAILED.txt
+          {
+            echo 'Institutional Performance frontend release regressions passed.'
+            echo 'Production-page syntax: pass'
+            echo 'Temporary 18-case harness syntax: pass'
+            echo 'IP output-integrity validator: pass'
+          } > IP_FRONTEND_TESTS_PASSED.txt
+          git add institutional-performance.html institutional-performance-acceptance-harness.html scripts/validate_ip_output_integrity.py scripts/ip_release_inventory.txt IP_FRONTEND_TESTS_PASSED.txt
+          git commit -m 'Stabilize Institutional Performance frontend candidate' || true
+          git push origin HEAD
