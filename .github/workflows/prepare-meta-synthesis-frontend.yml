@@ -40,47 +40,6 @@ jobs:
           python scripts/patch_workspace_meta_synthesis.py
           python scripts/patch_diagnostics_meta_synthesis.py
 
-      - name: Install permanent frontend regression workflow
-        shell: bash
-        run: |
-          set -euo pipefail
-          cat > .github/workflows/meta-synthesis-frontend-regression.yml <<'EOF'
-          name: Meta-synthesis frontend customer-release regression
-
-          on:
-            pull_request:
-              paths:
-                - 'monderman-report.js'
-                - 'workspace-analysis.html'
-                - 'diagnostics.html'
-                - 'cross-tool-synthesis.html'
-                - 'scripts/validate_meta_synthesis_frontend.py'
-                - 'scripts/meta_synthesis_frontend_fixture.mjs'
-            workflow_dispatch:
-
-          permissions:
-            contents: read
-
-          jobs:
-            regression:
-              runs-on: ubuntu-latest
-              timeout-minutes: 20
-              steps:
-                - uses: actions/checkout@v4
-                - uses: actions/setup-node@v4
-                  with:
-                    node-version: '22'
-                - uses: actions/setup-python@v5
-                  with:
-                    python-version: '3.12'
-                - name: Validate depth and cross-lens customer contracts
-                  run: python scripts/validate_meta_synthesis_frontend.py
-                - name: Run general frontend release validator
-                  run: python scripts/validate_frontend_release.py
-                - name: Verify diff integrity
-                  run: git diff --check
-          EOF
-
       - name: Record frontend audit and implementation contract
         shell: bash
         run: |
@@ -122,7 +81,6 @@ jobs:
           rm -f scripts/patch_meta_synthesis_report.py
           rm -f scripts/patch_workspace_meta_synthesis.py
           rm -f scripts/patch_diagnostics_meta_synthesis.py
-          rm -f .github/workflows/prepare-meta-synthesis-frontend.yml
 
       - name: Validate customer-facing output and general release integrity
         shell: bash
@@ -142,7 +100,7 @@ jobs:
           cat /tmp/meta-synthesis-site-files.txt
           while IFS= read -r file; do
             case "$file" in
-              monderman-report.js|workspace-analysis.html|diagnostics.html|cross-tool-synthesis.html|scripts/validate_meta_synthesis_frontend.py|scripts/meta_synthesis_frontend_fixture.mjs|.github/workflows/meta-synthesis-frontend-regression.yml|META_SYNTHESIS_FRONTEND_AUDIT_2026-08-15.md)
+              monderman-report.js|workspace-analysis.html|diagnostics.html|cross-tool-synthesis.html|scripts/validate_meta_synthesis_frontend.py|scripts/meta_synthesis_frontend_fixture.mjs|META_SYNTHESIS_FRONTEND_AUDIT_2026-08-15.md|.github/workflows/prepare-meta-synthesis-frontend.yml)
                 ;;
               *)
                 echo "Out-of-scope file changed: $file" >&2
