@@ -1,0 +1,160 @@
+name: Prepare meta-synthesis customer-release frontend
+
+on:
+  push:
+    branches: [agent/meta-synthesis-customer-release-2026-08-15-v1]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: prepare-meta-synthesis-frontend-2026-08-15-v1
+  cancel-in-progress: true
+
+jobs:
+  prepare:
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Apply depth and cross-lens report repairs
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Correct the temporary patcher's own terminal assertion before use.
+          sed -i 's/"Composite score is withheld"/"one composite score is withheld"/' scripts/patch_workspace_meta_synthesis.py
+          python scripts/patch_meta_synthesis_report.py
+          python scripts/patch_workspace_meta_synthesis.py
+          python scripts/patch_diagnostics_meta_synthesis.py
+
+      - name: Install permanent frontend regression workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > .github/workflows/meta-synthesis-frontend-regression.yml <<'EOF'
+          name: Meta-synthesis frontend customer-release regression
+
+          on:
+            pull_request:
+              paths:
+                - 'monderman-report.js'
+                - 'workspace-analysis.html'
+                - 'diagnostics.html'
+                - 'cross-tool-synthesis.html'
+                - 'scripts/validate_meta_synthesis_frontend.py'
+                - 'scripts/meta_synthesis_frontend_fixture.mjs'
+            workflow_dispatch:
+
+          permissions:
+            contents: read
+
+          jobs:
+            regression:
+              runs-on: ubuntu-latest
+              timeout-minutes: 20
+              steps:
+                - uses: actions/checkout@v4
+                - uses: actions/setup-node@v4
+                  with:
+                    node-version: '22'
+                - uses: actions/setup-python@v5
+                  with:
+                    python-version: '3.12'
+                - name: Validate depth and cross-lens customer contracts
+                  run: python scripts/validate_meta_synthesis_frontend.py
+                - name: Run general frontend release validator
+                  run: python scripts/validate_frontend_release.py
+                - name: Verify diff integrity
+                  run: git diff --check
+          EOF
+
+      - name: Record frontend audit and implementation contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > META_SYNTHESIS_FRONTEND_AUDIT_2026-08-15.md <<'EOF'
+          # Meta-synthesis frontend customer-release audit
+
+          Base: `2bbb67116c349861618cc1cb31aed5e729de85bf`
+
+          Scope: shared synthesis report rendering, workspace selection, direct JSON upload, and the saved synthesis report page. The four certified diagnostic pages and their report contracts remain unchanged.
+
+          ## Repairs
+
+          - separates Depth Synthesis from Cross-Lens Synthesis in customer copy and exports
+          - preserves a withheld composite as withheld in screen, HTML, JSON, and print/PDF output
+          - renders same-lens median, range, IQR, sample standard deviation, consensus state, and measured vantage segments
+          - renders evidence band, scope, source identity, version compatibility, measurement window, representativeness, and lens balance separately from condition
+          - replaces unsupported compensation, compounding, cascade, root-cause, and intervention-horizon presentation
+          - supports up to 5,000 selected workspace runs using compact authenticated run IDs
+          - pages up to 10,000 promoted workspace records while rendering only 250 individual rows
+          - keeps direct JSON uploads under a 220 KB preflight ceiling and directs larger cohorts to the workspace path
+          - uses one shared report renderer on the workspace and full-page report; the report page does not recalculate synthesis results
+
+          ## Permanent release fixtures
+
+          - 2,500-run same-lens depth synthesis
+          - divided same-lens respondent distribution
+          - imbalanced cross-lens comparison with composite withheld and exact run requirements
+          - coherent equal-lens composite
+          - missing economic inputs with exposure withheld
+
+          This file records implementation status, not production certification. No API or site branch should be merged or deployed until both regression workflows pass and the paired diffs are reviewed.
+          EOF
+
+      - name: Remove one-shot patch machinery
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f scripts/patch_meta_synthesis_report.py
+          rm -f scripts/patch_workspace_meta_synthesis.py
+          rm -f scripts/patch_diagnostics_meta_synthesis.py
+          rm -f .github/workflows/prepare-meta-synthesis-frontend.yml
+
+      - name: Validate customer-facing output and general release integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/validate_meta_synthesis_frontend.py
+          python scripts/validate_frontend_release.py
+          git diff --check
+
+      - name: Enforce meta-synthesis-only production scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=2bbb67116c349861618cc1cb31aed5e729de85bf
+          git add -A
+          git diff --cached --name-only "$base" > /tmp/meta-synthesis-site-files.txt
+          cat /tmp/meta-synthesis-site-files.txt
+          while IFS= read -r file; do
+            case "$file" in
+              monderman-report.js|workspace-analysis.html|diagnostics.html|cross-tool-synthesis.html|scripts/validate_meta_synthesis_frontend.py|scripts/meta_synthesis_frontend_fixture.mjs|.github/workflows/meta-synthesis-frontend-regression.yml|META_SYNTHESIS_FRONTEND_AUDIT_2026-08-15.md)
+                ;;
+              *)
+                echo "Out-of-scope file changed: $file" >&2
+                exit 1
+                ;;
+            esac
+          done < /tmp/meta-synthesis-site-files.txt
+
+      - name: Commit prepared customer-release branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'Monderman-Group'
+          git config user.email 'jason.ivan.adamson@gmail.com'
+          git commit -m 'Harden depth and cross-lens synthesis for customer release [skip ci]'
+          git push origin HEAD
