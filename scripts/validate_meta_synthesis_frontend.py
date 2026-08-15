@@ -57,7 +57,7 @@ for token in (
     'kind: "meta-synthesis"',
     'product: product',
     'scorePublished: scorePublished',
-    'headlineBand: scorePublished ? conditionBand : "Composite withheld"',
+    'headlineBand: scorePublished ? (firstStr(r.score_label, conditionBand) + " · " + conditionBand) : "Composite withheld"',
     "function renderMetaSynthesis",
     "function renderDepthDistribution",
     "function renderRequirements",
