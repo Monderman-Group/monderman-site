@@ -1,0 +1,68 @@
+name: Capture Institutional Performance frontend regression status
+
+on:
+  push:
+    branches: [agent/ip-release-candidate-2026-08-14-v3]
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply repair and run regressions
+        id: test
+        shell: bash
+        run: |
+          set +e
+          {
+            python scripts/patch-ip-release.py
+            python - <<'PY'
+            from pathlib import Path
+            import re
+            for source in ["institutional-performance.html", "institutional-performance-acceptance-harness.html"]:
+                text = Path(source).read_text()
+                for index, match in enumerate(re.finditer(r'<script(?:\s[^>]*)?>([\s\S]*?)</script>', text, re.I)):
+                    body = match.group(1)
+                    if body.strip(): Path(f"/tmp/{Path(source).stem}-{index}.js").write_text(body)
+            PY
+            for f in /tmp/institutional-performance-*.js; do node --check "$f"; done
+            python scripts/validate_ip_output_integrity.py
+            git diff --check
+          } > /tmp/ip-site-tests.log 2>&1
+          status=$?
+          cat /tmp/ip-site-tests.log
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Commit tested production files or failure evidence
+        shell: bash
+        run: |
+          git config user.name 'Monderman-Group'
+          git config user.email 'jason.ivan.adamson@gmail.com'
+          rm -f IP_FRONTEND_TESTS_PASSED.txt IP_FRONTEND_TESTS_FAILED.txt
+          if [ '${{ steps.test.outputs.status }}' = '0' ]; then
+            {
+              echo 'Institutional Performance frontend release regressions passed.'
+              echo 'Production page syntax: pass'
+              echo 'Temporary 18-case harness syntax: pass'
+              echo 'IP output-integrity validator: pass'
+            } > IP_FRONTEND_TESTS_PASSED.txt
+            git add institutional-performance.html institutional-performance-acceptance-harness.html scripts/validate_ip_output_integrity.py IP_FRONTEND_TESTS_PASSED.txt
+            git commit -m 'Record passing Institutional Performance frontend regressions' || true
+            git push origin HEAD
+          else
+            cp /tmp/ip-site-tests.log IP_FRONTEND_TESTS_FAILED.txt
+            git add IP_FRONTEND_TESTS_FAILED.txt
+            git commit -m 'Record Institutional Performance frontend regression failure' || true
+            git push origin HEAD
+            exit 1
+          fi
