@@ -1,0 +1,39 @@
+name: Meta-synthesis frontend customer-release regression
+
+on:
+  pull_request:
+    paths:
+      - 'monderman-report.js'
+      - 'workspace-analysis.html'
+      - 'diagnostics.html'
+      - 'cross-tool-synthesis.html'
+      - 'scripts/validate_meta_synthesis_frontend.py'
+      - 'scripts/meta_synthesis_frontend_fixture.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate depth and cross-lens customer contracts
+        run: python scripts/validate_meta_synthesis_frontend.py
+
+      - name: Run general frontend release validator
+        run: python scripts/validate_frontend_release.py
+
+      - name: Verify diff integrity
+        run: git diff --check
