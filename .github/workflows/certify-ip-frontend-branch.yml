@@ -1,0 +1,52 @@
+name: Certify Institutional Performance frontend repair
+
+on:
+  push:
+    branches: [agent/ip-customer-release-gate-2026-08-14]
+
+permissions:
+  contents: write
+
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Apply frontend repair and run release contracts
+        run: |
+          python scripts/patch-ip-customer-release-v2.py
+          python scripts/validate_ip_output_integrity.py
+          python scripts/validate_frontend_release.py
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          text = Path('institutional-performance.html').read_text()
+          scripts = re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>', text, re.S | re.I)
+          Path('/tmp/ip-page-scripts.js').write_text('\n'.join(scripts))
+          PY
+          node --check /tmp/ip-page-scripts.js
+          git diff --check
+
+      - name: Publish only the tested frontend branch
+        run: |
+          git config user.name 'Monderman-Group'
+          git config user.email 'jason.ivan.adamson@gmail.com'
+          git add institutional-performance.html scripts/validate_ip_output_integrity.py
+          git rm -f --ignore-unmatch \
+            scripts/patch-ip-customer-release.py \
+            scripts/patch-ip-customer-release-v2.py \
+            .github/workflows/certify-ip-frontend-branch.yml
+          if ! git diff --cached --quiet; then
+            git commit -m 'Harden Institutional Performance report outputs'
+          fi
+          git push --force origin HEAD:refs/heads/agent/ip-customer-release-frontend-tested-2026-08-14
