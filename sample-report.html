@@ -1318,6 +1318,9 @@
     .syn-action:nth-of-type(3) .syn-action-order { background: #C9821F; }
     .syn-action:nth-of-type(4) .syn-action-order { background: #3C8A60; }
     .report-shell[hidden] { display: none; }
+    .synthesis-report-stage { max-width: 1060px; margin: 0 auto; padding: 42px 28px 96px; }
+    .synthesis-report-stage .mr-report { border-radius: 20px; }
+    @media (max-width: 760px) { .synthesis-report-stage { padding: 28px 14px 72px; } }
 
     /* ---- Horizontal clarity/condition bars (SC + IP) ---- */
     .dimbars-panel { padding: 26px 28px; }
@@ -1524,7 +1527,7 @@
   <div class="notice-inner">
     <span class="notice-dot" aria-hidden="true"></span>
     <p>
-      <strong>These are representative samples, not customer reports.</strong> The organizations, populations, scenarios, and values are illustrative. They show the kinds of outputs, evidence limits, visuals, and recommendations the current products can present; actual customer results depend on the answers, context, eligible run set, and evidence available at the time.
+      <strong>Representative product outputs — not customer data.</strong> The organizations, populations, scenarios, and values are illustrative. They show the kinds of outputs, evidence limits, visuals, and recommendations the current products can present; actual customer results depend on the answers, context, eligible run set, and evidence available at the time.
     </p>
   </div>
 </div>
@@ -2371,13 +2374,13 @@
 </section>
 
 <section class="report-shell" data-report="synthesis" hidden id="report-synthesis" role="tabpanel" aria-labelledby="tab-synthesis">
-  <div style="max-width:980px;margin:0 auto;padding:46px 28px 90px;">
+  <div class="synthesis-report-stage">
     <div id="sampleCrossLensRendered"></div>
   </div>
 </section>
 
 <section class="report-shell" data-report="depth" hidden id="report-depth" role="tabpanel" aria-labelledby="tab-depth">
-  <div style="max-width:980px;margin:0 auto;padding:46px 28px 90px;">
+  <div class="synthesis-report-stage">
     <div id="sampleDepthRendered"></div>
   </div>
 </section>
