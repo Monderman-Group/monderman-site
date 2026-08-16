@@ -18,7 +18,8 @@ public='\n'.join(text(f) for f in public_files)
 for token in [
  'per employee','per-employee','combined read','Cross-Diagnostic Synthesis','Cross-Tool Synthesis',
  'front line against','executive seat','Executive lens','unlimited people','Insight depth',
- 'Expert help','Meta-diagnostic','Meta-diagnostics','seat charge','seat-free'
+ 'Expert help','Meta-diagnostic','Meta-diagnostics','seat charge','seat-free',
+ 'analyst accounts','admin accounts','executive-seat'
 ]:
     forbid(public,token,'public truth sweep')
 
@@ -26,10 +27,10 @@ for token in ['Depth Synthesis','Cross-Lens Synthesis','No per-participant prici
     require(public,token,'public truth sweep')
 
 signal=text('plan-signal.html')
-for token in ['50 completed participant responses','12 Syntheses','two analyst accounts','one admin account','Anonymous participant responses and unlimited Syntheses are part of Pattern']:
+for token in ['50 completed participant responses','12 Syntheses','two analyst workspace users','one admin workspace user','Anonymous participant responses and unlimited Syntheses are part of Pattern']:
     require(signal,token,'Signal')
 pattern=text('plan-pattern.html')
-for token in ['500 completed participant responses','Unlimited Syntheses','anonymous participant responses','five analyst accounts','two admin accounts']:
+for token in ['500 completed participant responses','Unlimited Syntheses','anonymous participant responses','five analyst workspace users','two admin workspace users']:
     require(pattern,token,'Pattern')
 enterprise=text('plan-enterprise.html')
 for token in ['participant-response, Synthesis, and workspace-user capacity','defined in the order form','bespoke Diagnostic or vantage design']:
