@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   repair-and-certify:
-    if: ${{ !contains(github.event.head_commit.message, '[byte-report-applied]') }}
+    if: ${{ !contains(github.event.head_commit.message, '[byte-report-final]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -28,8 +28,14 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Apply byte-level report repair
-        run: python scripts/byte_level_report_repair.py
+      - name: Apply or refine byte-level report repair
+        shell: bash
+        run: |
+          if grep -q 'function renderCrossLensEvidenceMap' monderman-report.js; then
+            python scripts/byte_level_report_refine.py
+          else
+            python scripts/byte_level_report_repair.py
+          fi
 
       - name: Static and existing release gates
         run: |
@@ -62,12 +68,12 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: byte-level-report-rendered-evidence
+          name: byte-level-report-rendered-evidence-final
           path: /tmp/byte-report-smoke
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Commit certified repair
+      - name: Commit certified final repair
         run: |
           if git diff --quiet -- monderman-report.js; then
             echo "No generated renderer changes to commit"
@@ -76,5 +82,5 @@ jobs:
           git config user.name "Monderman-Group"
           git config user.email "jason.ivan.adamson@gmail.com"
           git add monderman-report.js
-          git commit -m "Harden Synthesis report typography and evidence visuals [byte-report-applied]"
+          git commit -m "Finalize Synthesis report evidence presentation [byte-report-final]"
           git push origin HEAD
