@@ -1,0 +1,79 @@
+name: Synthesis report visual-density repair
+
+on:
+  push:
+    branches:
+      - agent/synthesis-report-visual-density-2026-08-16-v1
+
+permissions:
+  contents: write
+
+concurrency:
+  group: synthesis-report-visual-density-2026-08-16
+  cancel-in-progress: true
+
+jobs:
+  repair-and-certify:
+    if: ${{ !contains(github.event.head_commit.message, '[synthesis-visual-applied]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Apply Synthesis visual-density repair
+        run: python scripts/repair_synthesis_report_visual_density.py
+
+      - name: Run static and product-contract gates
+        run: |
+          node --check monderman-report.js
+          python scripts/validate_report_presentation.py
+          python scripts/validate_frontend_release.py
+          python scripts/validate_six_product_ecosystem.py
+          python scripts/validate_meta_synthesis_frontend.py
+
+      - name: Install Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Serve exact candidate
+        run: |
+          python3 -m http.server 8080 --bind 127.0.0.1 >/tmp/synth-report-http.log 2>&1 &
+          echo $! >/tmp/synth-report-http.pid
+          for i in {1..20}; do curl -fsS http://127.0.0.1:8080/sample-report.html >/dev/null && exit 0; sleep 1; done
+          cat /tmp/synth-report-http.log
+          exit 1
+
+      - name: Render presentation certification
+        env:
+          REPORT_OUT: /tmp/synthesis-report-visual-density
+        run: node scripts/report_presentation_smoke.mjs
+
+      - name: Upload rendered evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: synthesis-report-visual-density-evidence
+          path: /tmp/synthesis-report-visual-density
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Commit certified renderer
+        run: |
+          if git diff --quiet; then
+            echo "No generated renderer changes"
+            exit 0
+          fi
+          git config user.name "Monderman-Group"
+          git config user.email "jason.ivan.adamson@gmail.com"
+          git add monderman-report.js
+          git commit -m "Make Synthesis Executive Reports visually substantive [synthesis-visual-applied]"
+          git push origin HEAD
