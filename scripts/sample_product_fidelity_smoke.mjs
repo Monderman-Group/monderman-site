@@ -23,7 +23,7 @@ async function openTab(key) {
 
 await page.goto(`${base}/sample-report.html`, { waitUntil: 'networkidle', timeout: 90000 });
 const bodyText = await page.locator('body').textContent();
-assert(bodyText.includes('These are representative samples, not customer reports.'), 'representative-sample disclosure missing');
+assert(bodyText.includes('Representative product outputs — not customer data.'), 'representative-output disclosure missing');
 assert(!/\bseat(?:s|-year)?\b/i.test(bodyText), 'seat vocabulary remains');
 assert(!/Insight depth/i.test(bodyText), 'Insight depth remains');
 assert(!bodyText.includes('Against comparable institutions'), 'empirical peer-comparison claim remains in sample');
