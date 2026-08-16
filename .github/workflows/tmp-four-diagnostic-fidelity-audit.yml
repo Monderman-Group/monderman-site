@@ -1,0 +1,29 @@
+name: Temporary Four Diagnostic Fidelity Audit
+
+on:
+  push:
+    branches:
+      - agent/four-diagnostic-sample-fidelity-2026-08-16
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/four-diagnostic-sample-fidelity-2026-08-16
+      - name: Print diagnostic trajectory renderers and sample provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in operational-systems.html decision-velocity.html structural-clarity.html institutional-performance.html; do
+            echo "===== $f :: renderTrajectorySparkline ====="
+            sed -n '/function renderTrajectorySparkline/,/^}/p' "$f" || true
+            echo "===== $f :: trajectory/change labels ====="
+            grep -n -E 'Trajectory|trajectory|Self-reported change|Change-pressure risk|longitudinal|predictive' "$f" | head -n 100 || true
+          done
+          echo "===== sample-report trajectory/change/provenance ====="
+          grep -n -E 'Trajectory|trajectory|Self-reported change|Change-pressure risk|scorer |config [0-9]|likely to continue|Operational creep|directional signal' sample-report.html || true
