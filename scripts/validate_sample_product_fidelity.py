@@ -5,6 +5,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sample = (ROOT / "sample-report.html").read_text(encoding="utf-8")
 renderer = (ROOT / "monderman-report.js").read_text(encoding="utf-8")
 repair = (ROOT / "scripts/rebuild_sample_product_fidelity.py").read_text(encoding="utf-8")
+quadrant_alignment = (ROOT / "scripts/align_sample_quadrants_to_production.py").read_text(encoding="utf-8")
 
 failures = []
 
@@ -12,22 +13,36 @@ def require(cond, msg):
     if not cond:
         failures.append(msg)
 
-# Diagnostic marketing reports must contain actual quadrant forms, not empty shells.
+# Diagnostic marketing reports must use the same quadrant concepts, geometry,
+# threshold rules, and coordinate clamp as the customer Diagnostic component.
 expected_quadrants = {
-    "os-quadrant": "Governance weight &times; execution responsiveness",
-    "dv-quadrant": "Governance weight &times; execution responsiveness",
-    "sc-quadrant": "Governance weight &times; structural legibility",
-    "ip-quadrant": "Institutional condition &times; compensatory dependence",
+    "os-quadrant": ("Governance weight &times; execution responsiveness", 50),
+    "dv-quadrant": ("Governance weight &times; execution responsiveness", 50),
+    "sc-quadrant": ("Governance weight &times; structural legibility", 67),
+    "ip-quadrant": ("Institutional condition &times; compensatory dependence", 67),
 }
-for section_id, heading in expected_quadrants.items():
+for section_id, (heading, y_threshold) in expected_quadrants.items():
     match = re.search(rf'<section class="section" id="{re.escape(section_id)}">(.*?)</section>', sample, re.S)
     require(bool(match), f"missing {section_id}")
     if match:
         body = match.group(1)
         require(heading in body, f"{section_id} heading does not match production concept")
+        require('data-production-component="diagnostic-quadrant"' in body, f"{section_id} is not marked as the production quadrant component")
+        require(f'data-y-threshold="{y_threshold}"' in body, f"{section_id} does not use production y-threshold {y_threshold}")
+        require("sample-production-quadrant-box" in body, f"{section_id} lacks production quadrant geometry")
         require("sample-quadrant-dot" in body, f"{section_id} has no plotted quadrant dot")
         require("role=\"img\"" in body, f"{section_id} quadrant is not exposed as a graphic")
         require("Representative plotted values:" in body, f"{section_id} lacks disclosed representative axis values")
+
+for token in [
+    'height:320px',
+    'width:22px;height:22px',
+    'calc(50% - 1px)',
+    'calc(67% - 1px)',
+    'max(8, min(92, cfg["x"]))',
+    'max(8, min(92, 100 - cfg["y"]))',
+]:
+    require(token in quadrant_alignment, f"production quadrant alignment missing rule: {token}")
 
 # The Diagnostic samples retain production visualization primitives/snapshots.
 for token in [
@@ -99,8 +114,10 @@ for token in [
     require(token in renderer, f"production Synthesis renderer missing: {token}")
 require('same-instrument read across multiple respondents' not in renderer, "stale same-instrument Synthesis copy remains")
 
-# Repair must be deterministic: production renderer and sample are both generated together.
+# Repair must be deterministic: production renderer and sample are generated,
+# then the sample quadrant is normalized to the exact live component geometry.
 require('monderman-report.js' in repair and 'sample-report.html' in repair, "repair does not update renderer and samples together")
+require('sample-report.html' in quadrant_alignment, "quadrant alignment does not deterministically target sample report")
 
 if failures:
     print("SAMPLE_PRODUCT_FIDELITY_FAIL")
