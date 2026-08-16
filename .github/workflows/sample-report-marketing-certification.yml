@@ -1,46 +1,73 @@
-name: Sample report marketing certification
+name: Sample and Executive Report certification
 
 on:
+  pull_request:
+    paths:
+      - 'sample-report.html'
+      - 'monderman-report.js'
+      - 'scripts/report_presentation_smoke.mjs'
+      - 'scripts/validate_report_presentation.py'
+      - 'scripts/validate_sample_product_fidelity.py'
+      - '.github/workflows/sample-report-marketing-certification.yml'
   push:
     branches:
-      - agent/customer-lexicon-sample-reports-2026-08-16-v1
+      - main
+    paths:
+      - 'sample-report.html'
+      - 'monderman-report.js'
+      - 'scripts/report_presentation_smoke.mjs'
+      - 'scripts/validate_report_presentation.py'
+      - 'scripts/validate_sample_product_fidelity.py'
+      - '.github/workflows/sample-report-marketing-certification.yml'
 
 permissions:
   contents: read
 
 concurrency:
-  group: sample-report-marketing-certification
+  group: report-certification-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   certify:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+
+      - name: Static report contracts
+        run: |
+          node --check monderman-report.js
+          python scripts/validate_report_presentation.py
+          python scripts/validate_sample_product_fidelity.py
+          python scripts/validate_six_product_ecosystem.py
+          python scripts/validate_meta_synthesis_frontend.py
+
       - name: Install browser tooling
         run: |
           npm install --no-save --package-lock=false playwright@1.55.0
           npx playwright install --with-deps chromium
-      - name: Serve branch candidate
+
+      - name: Serve candidate
         run: |
-          python3 -m http.server 8080 --bind 127.0.0.1 >/tmp/sample-http.log 2>&1 &
-          echo $! >/tmp/sample-http.pid
+          python3 -m http.server 8080 --bind 127.0.0.1 >/tmp/report-cert-http.log 2>&1 &
+          echo $! >/tmp/report-cert-http.pid
           for i in {1..20}; do curl -fsS http://127.0.0.1:8080/sample-report.html >/dev/null && exit 0; sleep 1; done
-          cat /tmp/sample-http.log
+          cat /tmp/report-cert-http.log
           exit 1
-      - name: Render and verify all six sample products
+
+      - name: Render and verify customer report surfaces
         env:
-          SAMPLE_OUT: /tmp/sample-report-marketing-smoke
-        run: node scripts/sample_report_marketing_smoke.mjs
+          REPORT_OUT: /tmp/report-presentation-smoke
+        run: node scripts/report_presentation_smoke.mjs
+
       - name: Upload rendered evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: sample-report-marketing-certification-2026-08-16
-          path: /tmp/sample-report-marketing-smoke
+          name: report-presentation-certification
+          path: /tmp/report-presentation-smoke
           if-no-files-found: warn
           retention-days: 14
