@@ -1,5 +1,7 @@
 from pathlib import Path
-p=Path(__file__).resolve().parents[1]/'plan-enterprise.html'
+ROOT=Path(__file__).resolve().parents[1]
+
+p=ROOT/'plan-enterprise.html'
 s=p.read_text(encoding='utf-8')
 for old,new in [
  ('Unlimited participant responses','Participant-response capacity defined in the order form'),
@@ -17,4 +19,25 @@ for old,new in [
 ]:
     s=s.replace(old,new)
 p.write_text(s,encoding='utf-8')
-print('ENTERPRISE_LEXICON_TAIL_COMPLETE')
+
+# The four live Diagnostic pages use Run evidence for customer-visible evidence context.
+for name in ['decision-velocity.html','operational-systems.html','institutional-performance.html','structural-clarity.html']:
+    p=ROOT/name
+    s=p.read_text(encoding='utf-8')
+    s=s.replace('Insight depth','Run evidence').replace('insight depth','run evidence')
+    p.write_text(s,encoding='utf-8')
+
+# Remove the last role-as-seat language from the representative Sample Reports.
+p=ROOT/'sample-report.html'
+s=p.read_text(encoding='utf-8')
+for old,new in [
+    ('transfers with the seat instead of leaving with the person','transfers with the role instead of leaving with the person'),
+    ('All three seats describe','All three vantages describe'),
+    ('all three seats describe','all three vantages describe'),
+    ('three seats describe','three vantages describe'),
+    ('three seats','three vantages'),
+]:
+    s=s.replace(old,new)
+p.write_text(s,encoding='utf-8')
+
+print('FINAL_VISIBLE_LEXICON_CLEANUP_COMPLETE')
