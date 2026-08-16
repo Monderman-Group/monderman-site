@@ -59,6 +59,17 @@ req(all(x >= 0 for x in order), 'Synthesis renderer sequence not found')
 if all(x >= 0 for x in order):
     req(order[0] < order[2] and order[1] < order[2] and order[2] < order[3], 'Synthesis evidence chart does not precede narrative/evidence matrix')
 
+# Synthesis editorial-family requirements. The engine supplies structured evidence;
+# the renderer must not turn prose/evidence/action sections into a wall of dashboard tiles.
+for token, msg in [
+    ('mr-evidence-grid', 'Synthesis evidence status is not rendered as a continuous evidence table'),
+    ('mr-diagnosis-block', 'Executive synthesis diagnosis is not rendered as an editorial lead block'),
+    ('mr-depth-stats', 'Depth statistics are not rendered as a continuous statistics block'),
+    ('mr-editorial-row', 'Synthesis prose/action rows are still using undifferentiated card presentation'),
+    ('Synthesis is an executive report, not a dashboard', 'editorial-family CSS contract missing'),
+]:
+    req(token in report, msg)
+
 # Marketing sample disclosure and renderer parity.
 req('Representative product outputs — not customer data.' in sample, 'top representative-output disclosure missing')
 req('synthesis-report-stage' in sample, 'Synthesis report stage wrapper missing')
