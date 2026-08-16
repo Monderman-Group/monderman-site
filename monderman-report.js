@@ -386,16 +386,16 @@
       evidenceCard("Measurement window", humanize(timeWindow.status), firstStr(timeWindow.statement)),
       evidenceCard("Representativeness", firstStr(representative.label, humanize(representative.status)), firstStr(representative.statement))
     ].filter(Boolean).join("");
-    return '<section class="mr-section"><h2>' + n + '. Evidence status</h2>' +
+    return '<section class="mr-section mr-evidence-status"><h2>' + n + '. Evidence status</h2>' +
       '<div class="callout"><p><strong>' + esc(m.evidenceLabel) + '.</strong> ' + esc(m.evidenceDescription || "The evidence band governs what this Synthesis is allowed to claim.") + '</p></div>' +
-      '<div class="mr-lens-grid">' + cards + '</div></section>';
+      '<div class="mr-lens-grid mr-evidence-grid">' + cards + '</div></section>';
   }
 
   function renderMetaFinding(m, n) {
     const diagnosis = obj(m.diagnosis);
     const paragraphs = arr(m.briefing?.paragraphs).map(textItem).filter(Boolean);
-    return '<section class="mr-section"><h2>' + n + '. Executive synthesis</h2>' +
-      '<div class="mr-card"><h3>' + esc(firstStr(diagnosis.name, m.product === "depth" ? "Observed same-Diagnostic pattern" : "Cross-Lens finding")) + '</h3>' +
+    return '<section class="mr-section mr-executive-synthesis"><h2>' + n + '. Executive synthesis</h2>' +
+      '<div class="mr-card mr-diagnosis-block"><h3>' + esc(firstStr(diagnosis.name, m.product === "depth" ? "Observed same-Diagnostic pattern" : "Cross-Lens finding")) + '</h3>' +
       (diagnosis.type ? '<span class="mr-pill">' + esc(humanize(diagnosis.type)) + '</span>' : '') +
       '<p>' + esc(firstStr(diagnosis.body, m.primaryPattern, m.briefing?.lede)) + '</p></div>' +
       (m.briefing?.lede ? '<p class="mr-lede">' + esc(m.briefing.lede) + '</p>' : '') +
@@ -455,7 +455,7 @@
         const s = obj(segment);
         return '<div class="k">' + esc(humanize(s.participant_mode)) + ' · n=' + esc(fmtWhole(s.n)) + '</div><div>Mean ' + esc(fmt1(s.mean_score)) + ' · median ' + esc(fmt1(s.median_score)) + '</div>';
       }).join("");
-      return renderDepthDistributionGraphic(read) + '<div class="mr-card"><h3>' + esc(read.toolLabel) + '</h3>' +
+      return renderDepthDistributionGraphic(read) + '<div class="mr-card mr-depth-stats"><h3>' + esc(read.toolLabel) + '</h3>' +
         '<div class="kvs">' +
           '<div class="k">Eligible runs</div><div>' + esc(fmtWhole(read.n)) + '</div>' +
           '<div class="k">Median score</div><div>' + esc(fmt1(read.median)) + '</div>' +
@@ -549,7 +549,7 @@
     html += renderCrossLensEvidenceMap(m);
     if (signals.length && !crossLensMapped) {
       html += '<h3 style="margin-top:14px">Recurring signals</h3>' + signals.map((signal) =>
-        '<div class="mr-card"><h3>' + esc(signal.label) + '</h3><p>' + esc(signal.text) + '</p>' +
+        '<div class="mr-card mr-editorial-row mr-signal-row"><h3>' + esc(signal.label) + '</h3><p>' + esc(signal.text) + '</p>' +
         (signal.tools.length ? '<div>' + signal.tools.map((tool) => '<span class="mr-pill">' + esc(humanize(tool)) + '</span>').join("") + '</div>' : '') +
         (signal.limit ? '<p class="mr-copy">' + esc(signal.limit) + '</p>' : '') + '</div>'
       ).join("");
@@ -602,14 +602,14 @@
     const requirements = arr(m.requirements);
     if (!requirements.length) return "";
     return '<section class="mr-section"><h2>' + n + '. What would strengthen the read</h2>' +
-      requirements.map((item) => '<div class="mr-card"><span class="mr-pill">' + esc(humanize(item.type)) + '</span><p style="margin-top:10px">' + esc(item.text) + '</p></div>').join("") + '</section>';
+      requirements.map((item) => '<div class="mr-card mr-editorial-row mr-requirement-row"><span class="mr-pill">' + esc(humanize(item.type)) + '</span><p style="margin-top:10px">' + esc(item.text) + '</p></div>').join("") + '</section>';
   }
 
   function renderMetaActions(m, n) {
     const actions = arr(m.actions);
     if (!actions.length) return "";
     return '<section class="mr-section"><h2>' + n + '. Evidence-proportionate actions</h2>' +
-      actions.map((action, index) => '<div class="mr-card"><div class="mr-lens-label">Step ' + (index + 1) + (action.tier ? ' · ' + esc(humanize(action.tier)) : '') + '</div><h3 style="margin-top:8px">' + esc(action.label) + '</h3><p>' + esc(action.text) + '</p></div>').join("") +
+      actions.map((action, index) => '<div class="mr-card mr-editorial-row mr-action-row"><div class="mr-lens-label">Step ' + (index + 1) + (action.tier ? ' · ' + esc(humanize(action.tier)) : '') + '</div><h3 style="margin-top:8px">' + esc(action.label) + '</h3><p>' + esc(action.text) + '</p></div>').join("") +
       (m.sequencingLogic ? '<div class="callout"><p><strong>Sequencing logic.</strong> ' + esc(m.sequencingLogic) + '</p></div>' : '') + '</section>';
   }
 
@@ -622,7 +622,7 @@
     ].filter(([, value]) => value);
     if (!entries.length && !experience.interpretation_limit) return "";
     return '<section class="mr-section"><h2>' + n + '. Vantage evidence</h2>' +
-      entries.map(([label, value]) => '<div class="mr-card"><h3>' + esc(label) + '</h3><p>' + esc(value) + '</p></div>').join("") +
+      entries.map(([label, value]) => '<div class="mr-card mr-editorial-row mr-vantage-row"><h3>' + esc(label) + '</h3><p>' + esc(value) + '</p></div>').join("") +
       (experience.interpretation_limit ? '<p class="mr-copy">' + esc(experience.interpretation_limit) + '</p>' : '') + '</section>';
   }
 
@@ -630,7 +630,7 @@
     const indicators = arr(m.indicators);
     if (!indicators.length) return "";
     return '<section class="mr-section"><h2>' + n + '. What to watch next</h2>' + indicators.map((indicator) =>
-      '<div class="mr-card"><div class="mr-lens-label">' + esc(indicator.lens || "Measurement") + '</div><h3 style="margin-top:8px">' + esc(indicator.name) + '</h3>' +
+      '<div class="mr-card mr-editorial-row mr-indicator-row"><div class="mr-lens-label">' + esc(indicator.lens || "Measurement") + '</div><h3 style="margin-top:8px">' + esc(indicator.name) + '</h3>' +
       (indicator.watchFor ? '<p><strong>Watch for:</strong> ' + esc(indicator.watchFor) + '</p>' : '') +
       (indicator.description ? '<p class="mr-copy">' + esc(indicator.description) + '</p>' : '') + '</div>'
     ).join("") + '</section>';
@@ -935,6 +935,34 @@
     .mr-method-section { margin:24px 0 8px; }
     .mr-method-section p { font-size:0.94rem; line-height:1.65; color:#18191C; }
 
+
+    /* Synthesis is an executive report, not a dashboard. Keep discrete cards for
+       genuinely discrete evidence (Diagnostic lenses) and visual panels, while
+       prose, actions, vantages, and evidence status read as a continuous document. */
+    .mr-report .mr-section>h2{font-size:1.65rem;line-height:1.12;letter-spacing:-.035em;margin-bottom:18px;max-width:32ch}
+    .mr-report .mr-section+.mr-section{margin-top:48px;padding-top:38px}
+    .mr-evidence-grid{grid-template-columns:1fr;gap:0;margin-top:18px;border-top:1px solid #EAE6DD}
+    .mr-evidence-grid .mr-lens-card{display:grid;grid-template-columns:180px minmax(0,1fr);column-gap:24px;row-gap:2px;background:transparent;border:0;border-bottom:1px solid #EAE6DD;border-radius:0;padding:15px 0;margin:0}
+    .mr-evidence-grid .mr-lens-card>.mr-lens-label{grid-column:1;grid-row:1 / span 2;margin:3px 0 0;color:#6E6F73}
+    .mr-evidence-grid .mr-lens-card>div:not(.mr-lens-label){grid-column:2;grid-row:1;margin:0!important;font-size:1rem!important}
+    .mr-evidence-grid .mr-lens-card>.mr-copy{grid-column:2;grid-row:2;margin:4px 0 0!important;max-width:64ch}
+    .mr-diagnosis-block{background:transparent!important;border:0!important;border-left:3px solid #0C6E78!important;border-radius:0!important;padding:3px 0 3px 22px!important;margin:20px 0 24px!important}
+    .mr-diagnosis-block h3{font-size:1.22rem!important;line-height:1.3;margin-bottom:10px!important}
+    .mr-diagnosis-block p{font-size:1.04rem!important;line-height:1.65!important;max-width:68ch}
+    .mr-depth-stats{background:transparent!important;border:0!important;border-radius:0!important;padding:0 0 6px!important;margin:26px 0 4px!important}
+    .mr-depth-stats>h3{font-size:1.1rem!important;margin:0 0 12px!important}
+    .mr-depth-stats>.kvs{border-top:1px solid #EAE6DD;border-bottom:1px solid #EAE6DD;padding:14px 0;margin:0 0 18px}
+    .mr-editorial-row{background:transparent!important;border:0!important;border-top:1px solid #EAE6DD!important;border-radius:0!important;padding:18px 0!important;margin:0!important}
+    .mr-editorial-row:last-of-type{border-bottom:1px solid #EAE6DD!important}
+    .mr-editorial-row h3{font-size:1.08rem!important;line-height:1.35;margin-bottom:7px!important}
+    .mr-editorial-row p{max-width:68ch}
+    .mr-editorial-row .mr-lens-label{color:#6E6F73}
+    .mr-requirement-row .mr-pill{margin-bottom:2px}
+    @media(max-width:640px){
+      .mr-evidence-grid .mr-lens-card{grid-template-columns:1fr;gap:4px;padding:14px 0}
+      .mr-evidence-grid .mr-lens-card>.mr-lens-label,.mr-evidence-grid .mr-lens-card>div:not(.mr-lens-label),.mr-evidence-grid .mr-lens-card>.mr-copy{grid-column:1;grid-row:auto}
+      .mr-report .mr-section>h2{font-size:1.45rem}
+    }
     @media (max-width:640px) {
       .mr-diag-hero { padding:32px 28px 28px; }
       .mr-diag-title { font-size:1.5rem; }
