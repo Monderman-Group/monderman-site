@@ -12,6 +12,7 @@ on:
       - 'scripts/report_presentation_smoke.mjs'
       - 'scripts/report_pdf_smoke.mjs'
       - 'scripts/sample_product_fidelity_smoke.mjs'
+      - 'scripts/validate_diagnostic_inline_js.py'
       - 'scripts/validate_report_presentation.py'
       - 'scripts/validate_sample_product_fidelity.py'
       - '.github/workflows/sample-report-marketing-certification.yml'
@@ -28,6 +29,7 @@ on:
       - 'scripts/report_presentation_smoke.mjs'
       - 'scripts/report_pdf_smoke.mjs'
       - 'scripts/sample_product_fidelity_smoke.mjs'
+      - 'scripts/validate_diagnostic_inline_js.py'
       - 'scripts/validate_report_presentation.py'
       - 'scripts/validate_sample_product_fidelity.py'
       - '.github/workflows/sample-report-marketing-certification.yml'
@@ -55,6 +57,7 @@ jobs:
           node --check scripts/report_presentation_smoke.mjs
           node --check scripts/report_pdf_smoke.mjs
           node --check scripts/sample_product_fidelity_smoke.mjs
+          python scripts/validate_diagnostic_inline_js.py
           python scripts/validate_report_presentation.py
           python scripts/validate_sample_product_fidelity.py
           python scripts/validate_six_product_ecosystem.py
