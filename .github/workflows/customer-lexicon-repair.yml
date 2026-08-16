@@ -27,6 +27,7 @@ jobs:
         run: |
           python scripts/customer_lexicon_repair.py
           python scripts/customer_lexicon_repair_tail.py
+          python scripts/customer_lexicon_report_final.py
       - name: Run existing frontend validators
         run: |
           python scripts/validate_frontend_release.py
@@ -77,6 +78,6 @@ jobs:
           fi
           git config user.name "Monderman-Group"
           git config user.email "jason.ivan.adamson@gmail.com"
-          git add '*.html' scripts/customer_lexicon_repair.py scripts/customer_lexicon_repair_tail.py scripts/validate_six_product_ecosystem.py
+          git add '*.html' scripts/customer_lexicon_repair.py scripts/customer_lexicon_repair_tail.py scripts/customer_lexicon_report_final.py scripts/validate_six_product_ecosystem.py
           git commit -m "Align customer lexicon and sample reports [lexicon-applied]"
           git push origin HEAD
