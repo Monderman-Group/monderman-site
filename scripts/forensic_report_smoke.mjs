@@ -40,7 +40,10 @@ for (const key of diagnostics) {
   const shell = await openTab(key);
   const svgCount = await shell.locator('svg[role="img"]').count();
   assert(svgCount >= 4, `${key} has only ${svgCount} evidence graphics`);
-  assert(await shell.locator(`#${key}-quadrant .sample-production-quadrant`).isVisible(), `${key} production quadrant not visible`);
+  const quadrant = shell.locator(`#${key}-quadrant .sample-production-quadrant-wrap`);
+  assert(await quadrant.isVisible(), `${key} production quadrant not visible`);
+  assert(await quadrant.locator('.sample-production-quadrant-box').isVisible(), `${key} production quadrant box not visible`);
+  assert(await quadrant.locator('.sample-quadrant-dot').isVisible(), `${key} production quadrant marker not visible`);
   assert(await shell.locator('svg[aria-label="Burden composition — share of total"]').first().isVisible(), `${key} composition graphic not visible`);
   assert(await shell.locator('svg[aria-label="Burden severity by dimension"]').first().isVisible(), `${key} severity graphic not visible`);
   assert(await shell.locator('svg[aria-label="Intervention order"]').first().isVisible(), `${key} intervention graphic not visible`);
