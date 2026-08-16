@@ -30,7 +30,11 @@ jobs:
 
       - name: Rebuild product-faithful Sample Reports and Synthesis renderer
         run: |
-          python scripts/rebuild_sample_product_fidelity.py
+          if grep -q 'aria-label="Depth Synthesis score distribution"' monderman-report.js && grep -q 'MONDERMAN_REPRESENTATIVE_SYNTHESIS_FIXTURES' sample-report.html; then
+            echo "Core Sample/Synthesis repair already present; preserving the certified generated renderer."
+          else
+            python scripts/rebuild_sample_product_fidelity.py
+          fi
           python scripts/align_sample_quadrants_to_production.py
           python scripts/align_synthesis_fixture_terminology.py
 
