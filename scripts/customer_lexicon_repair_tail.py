@@ -9,7 +9,6 @@ def replace_file(name, pairs):
         s=s.replace(old,new)
     p.write_text(s,encoding='utf-8')
 
-# Enterprise capacities are scoped rather than advertised as unlimited.
 replace_file('plan-enterprise.html',[
  ('Unlimited participant responses','Participant-response capacity defined in the order form'),
  ('unlimited participant responses','participant-response capacity defined in the order form'),
@@ -26,14 +25,12 @@ replace_file('plan-enterprise.html',[
  ('Bespoke diagnostics built to your structure','Bespoke Diagnostics built to your structure'),
  ('Multi-entity measurement as scoped &mdash; subsidiaries, commands, or portfolios in comparable reads','Multi-entity measurement as scoped &mdash; subsidiaries, commands, or portfolios with comparable results'),
  ('Participant responses, Syntheses &amp; accounts','Participant responses, Syntheses &amp; workspace users'),
- ('<div><dt>The allowance</dt><dd>Capacity is defined in the order form applies. Response capacity is agreed to your size on your order form. The only other scoped quantity is bespoke Diagnostic or vantage design.</dd></div>',
-  '<div><dt>Capacity</dt><dd>Participant-response, Synthesis, and workspace-user capacity are stated in the order form. Bespoke Diagnostic or vantage design is scoped separately when required.</dd></div>'),
+ ('<div><dt>The allowance</dt><dd>Capacity is defined in the order form applies. Response capacity is agreed to your size on your order form. The only other scoped quantity is bespoke Diagnostic or vantage design.</dd></div>', '<div><dt>Capacity</dt><dd>Participant-response, Synthesis, and workspace-user capacity are stated in the order form. Bespoke Diagnostic or vantage design is scoped separately when required.</dd></div>'),
  ('Your diagnostic inputs and reads are used only to generate and support your diagnostics.','Your Diagnostic inputs and results are used only to generate and support your Diagnostics.'),
  ('the assumption set behind every score is published with the read.','the basis behind every score is published with the Executive Report.'),
  ('where a structural edge case affects your read.','where a structural edge case affects your result.'),
 ])
 
-# Signal: use the product vocabulary customers see in the workspace.
 replace_file('plan-signal.html',[
  ('Four diagnostics, one ruler.','Four Diagnostics, one ruler.'),
  ('All four diagnostics are included','All four Diagnostics are included'),
@@ -51,7 +48,6 @@ replace_file('plan-signal.html',[
  ('You are an early customer of an instrument that is still maturing','You are an early customer of a product suite that is still maturing'),
 ])
 
-# Pattern: distinguish repeated evidence from a vague "read" metaphor and use participants/workspace users.
 replace_file('plan-pattern.html',[
  ('One read is a signal. Many reads are a pattern.','One result is a signal. Repeated evidence reveals a pattern.'),
  ('Every respondent, every vantage','Every participant, every vantage'),
@@ -68,7 +64,6 @@ replace_file('plan-pattern.html',[
  ('You are an early customer of an instrument that is still maturing','You are an early customer of a product suite that is still maturing'),
 ])
 
-# Platform Services: remove remaining commercial uses of instrument/read and make upgrade triggers value-based.
 replace_file('platform-services.html',[
  ('with the basis stated on every read: disclosed inputs, sector calibration, and instrument version.','with the basis stated in every Executive Report: disclosed inputs, sector calibration, and instrument version.'),
  ('<li><b>Unlimited reads you run yourself</b> &mdash; never metered</li>','<li><b>Unlimited self-runs</b> &mdash; never metered</li>'),
@@ -80,20 +75,29 @@ replace_file('platform-services.html',[
  ('Population reads &mdash; sample statistics, splits, vantage gaps','Cohort statistics, distributions, and vantage gaps'),
 ])
 
-# Home-page metadata and common commercial phrases.
+# Checkout must mirror the plan pages and live workspace entitlements exactly.
+replace_file('checkout.html',[
+ ('<strong>Your instrument.</strong> Baseline covers one diagnostic of your choice, switchable at any quarter boundary.','<strong>Your Diagnostic.</strong> Choose the Diagnostic associated with this purchase.'),
+ ('Choose your diagnostic&hellip;','Choose your Diagnostic&hellip;'),
+ ('Enterprise has no platform response ceiling.','Enterprise participant-response capacity is defined in the order form.'),
+ ('"All four diagnostics \\u2014 every depth, every vantage"','"All four Diagnostics \\u2014 every depth, every vantage"'),
+ ('"Unlimited reads you run yourself \\u2014 no annual ceiling"','"Unlimited self-runs \\u2014 no annual ceiling"'),
+ ('"Full written deliverable on every read"','"Executive Report for every completed run"'),
+ ('"One analyst account and one admin account"','"3 workspace users \\u2014 2 analysts and 1 admin"'),
+ ('"Send a diagnostic to a group \\u2014 500 responses a year"','"Diagnostic Campaigns \\u2014 500 completed participant responses a year"'),
+ ('"Depth Synthesis and Cross-Lens Synthesis within the plan allowance"','"Unlimited Depth Synthesis and Cross-Lens Synthesis"'),
+ ('"Five analyst accounts and two admin accounts"','"7 workspace users \\u2014 5 analysts and 2 admins"'),
+])
+
 replace_file('index.html',[
  ('suite of deterministic diagnostic instruments','suite of deterministic Diagnostics'),
  ('one instrument','one Diagnostic'),
 ])
-replace_file('diagnostics.html',[
- ('one instrument','one Diagnostic'),
-])
+replace_file('diagnostics.html',[('one instrument','one Diagnostic')])
 
-# The four live Diagnostic pages use Run evidence for customer-visible evidence context.
 for name in ['decision-velocity.html','operational-systems.html','institutional-performance.html','structural-clarity.html']:
     replace_file(name,[('Insight depth','Run evidence'),('insight depth','run evidence')])
 
-# Representative Sample Reports: no role-as-seat language and no obsolete evidence score.
 p=ROOT/'sample-report.html'
 s=p.read_text(encoding='utf-8')
 for old,new in [
@@ -104,8 +108,7 @@ for old,new in [
     ('three seats','three vantages'),
     ('seat-year','person-year'),
     ('seat year','person-year'),
-]:
-    s=s.replace(old,new)
+]: s=s.replace(old,new)
 s=re.sub(r'\bseats\b','vantages',s,flags=re.I)
 s=re.sub(r'\bseat\b','role',s,flags=re.I)
 p.write_text(s,encoding='utf-8')
