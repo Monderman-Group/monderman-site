@@ -59,15 +59,29 @@ for token in ['No per-participant pricing','Depth Synthesis','Cross-Lens Synthes
 for token in ['Most of your organization is under strain','Your organization is holding steady','critical level']:
     forbid(overview,token,'Overview')
 
+# The product must retain the evidence-discipline behavior: real Cross-Lens
+# reports explain withholding when coherence is insufficient.
 report=text('cross-tool-synthesis.html')
 for token in ['/api/synthesis-runs/','Median Diagnostic Score','Cross-Lens Composite Score withheld','Print or save as PDF']:
     require(report,token,'Synthesis report')
 
+# The flagship marketing sample should demonstrate the strongest valid outcome,
+# not default to a withholding case. Withholding remains certified above.
 sample=text('sample-report.html')
-for token in ['Cross-Lens Synthesis','Median Diagnostic Score','Composite Score withheld','What would unlock a Composite Score','Representative sample','Run evidence']:
+for token in [
+    'Cross-Lens Synthesis','Median Diagnostic Score','Cross-Lens Composite Score',
+    'score_status: "published"','evidence_label: "Strong"','cross_diagnostic_score: 55.5',
+    'Structural Clarity','Decision Velocity','Operational Systems','Institutional Performance',
+    'evidence_label: "Substantial"','respondent_count: 18',
+    'Representative sample','Run evidence'
+]:
     require(sample,token,'Sample report')
-for token in ['insight-depth','Insight depth','four-instrument composed','compounded exposure','executive-seat','one per seat','per seat-year','unedited output','identical to a real run']:
+for token in [
+    'Composite Score withheld','Comparison Only','insight-depth','Insight depth',
+    'four-instrument composed','compounded exposure','executive-seat','one per seat',
+    'per seat-year','unedited output','identical to a real run'
+]:
     forbid(sample,token,'Sample report')
 
-print({'ok':True,'public_files':len(public_files),'workspace_contract':'pass','plan_contract':'pass'})
-print('Six-product ecosystem vocabulary, entitlement, workflow, and truth-sweep validation passed.')
+print({'ok':True,'public_files':len(public_files),'workspace_contract':'pass','plan_contract':'pass','flagship_cross_lens':'published_strong'})
+print('Six-product ecosystem vocabulary, entitlement, workflow, evidence-discipline, and flagship-sample validation passed.')

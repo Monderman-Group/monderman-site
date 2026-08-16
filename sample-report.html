@@ -1466,6 +1466,22 @@
     }
 
   </style>
+
+<style id="sample-production-quadrant-css">
+  /* Exact customer Diagnostic quadrant geometry and placement rules. */
+  .sample-production-quadrant-wrap{display:grid;gap:10px}
+  .sample-production-quad-with-yaxis{display:flex;align-items:stretch;gap:8px}
+  .sample-production-axis-x,.sample-production-axis-y{font-size:.78rem;color:#6E6F73}
+  .sample-production-axis-x{text-align:center}
+  .sample-production-axis-y{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;flex:0 0 auto;padding:8px 0;align-self:stretch;display:flex;align-items:center;justify-content:center}
+  .sample-production-quadrant-box{position:relative;height:320px;border:1px solid rgba(24,25,28,.16);border-radius:18px;overflow:hidden;flex:1;background-color:#FAFAF8}
+  .sample-production-quadrant-box[data-y-threshold="50"]{background:radial-gradient(ellipse at 25% 28%,rgba(12,110,120,.06) 0%,transparent 50%),linear-gradient(to right,transparent calc(50% - 1px),rgba(24,25,28,.15) calc(50% - 1px),rgba(24,25,28,.15) calc(50% + 1px),transparent calc(50% + 1px)),linear-gradient(to top,transparent calc(50% - 1px),rgba(24,25,28,.15) calc(50% - 1px),rgba(24,25,28,.15) calc(50% + 1px),transparent calc(50% + 1px)),#FAFAF8}
+  .sample-production-quadrant-box[data-y-threshold="67"]{background:radial-gradient(ellipse at 25% 28%,rgba(12,110,120,.06) 0%,transparent 50%),linear-gradient(to right,transparent calc(50% - 1px),rgba(24,25,28,.15) calc(50% - 1px),rgba(24,25,28,.15) calc(50% + 1px),transparent calc(50% + 1px)),linear-gradient(to top,transparent calc(67% - 1px),rgba(24,25,28,.15) calc(67% - 1px),rgba(24,25,28,.15) calc(67% + 1px),transparent calc(67% + 1px)),#FAFAF8}
+  .sample-production-q-label{position:absolute;font-size:.8rem;line-height:1.35;color:#6E6F73;max-width:120px;z-index:1}
+  .sample-production-q-tl{top:12px;left:12px}.sample-production-q-tr{top:12px;right:12px;text-align:right}.sample-production-q-bl{bottom:12px;left:12px}.sample-production-q-br{bottom:12px;right:12px;text-align:right}
+  .sample-quadrant-dot{position:absolute;width:22px;height:22px;border-radius:999px;background:#0C6E78;border:3px solid rgba(255,255,255,.98);box-shadow:0 4px 14px rgba(12,110,120,.40),0 0 0 7px rgba(12,110,120,.10);transform:translate(-50%,-50%);z-index:0}
+</style>
+
 </head>
 <body>
 
@@ -1536,11 +1552,11 @@
     </button>
     <button class="dx-tab dx-tab-synthesis" data-target="synthesis" role="tab" aria-selected="false" id="tab-synthesis" aria-controls="report-synthesis">
       <span class="dx-tab-name">Cross-Lens Synthesis</span>
-      <span class="dx-tab-desc">Different Diagnostics · evidence-gated Composite Score</span>
+      <span class="dx-tab-desc">Strong evidence · published composite</span>
     </button>
     <button class="dx-tab dx-tab-synthesis" data-target="depth" role="tab" aria-selected="false" id="tab-depth" aria-controls="report-depth">
       <span class="dx-tab-name">Depth Synthesis</span>
-      <span class="dx-tab-desc">One Diagnostic · Median Diagnostic Score</span>
+      <span class="dx-tab-desc">Substantial evidence · 18 eligible runs</span>
     </button>
   </div>
 </div>
@@ -1625,9 +1641,20 @@
     <section class="section" id="os-quadrant">
       <p class="section-eyebrow">Two axes, one position <span class="pg">Page 5</span></p>
       <h2>Governance weight &times; execution responsiveness</h2>
-      <div class="panel" style="display:flex;gap:26px;flex-wrap:wrap;align-items:center;">
-        
-        <p style="flex:1;min-width:260px;margin:0;">The organization is still getting movement, but it is paying for that movement with heavier governance weight than it likely wants. The task is to strip out non-proportionate burden without weakening control quality.</p>
+      <div class="panel" style="display:flex;gap:28px;flex-wrap:wrap;align-items:center;"><div class="sample-quadrant sample-production-quadrant-wrap" data-production-component="diagnostic-quadrant" data-y-threshold="50" role="img" aria-label="Governance weight &times; execution responsiveness: Governance weight 68, Execution responsiveness 44" style="flex:0 1 430px;min-width:310px;max-width:100%;">
+          <div class="sample-production-quad-with-yaxis">
+            <div class="sample-production-axis-y">Execution responsiveness</div>
+            <div class="sample-production-quadrant-box" data-y-threshold="50">
+              <div class="sample-production-q-label sample-production-q-tl">Fast movement,<br>lighter governance</div>
+              <div class="sample-production-q-label sample-production-q-tr">Fast movement,<br>heavier governance</div>
+              <div class="sample-production-q-label sample-production-q-bl">Slow movement,<br>lighter governance</div>
+              <div class="sample-production-q-label sample-production-q-br">Slow movement,<br>heavier governance</div>
+              <div class="sample-quadrant-dot" style="left:68%;top:56%;"></div>
+            </div>
+          </div>
+          <div class="sample-production-axis-x">Governance weight</div>
+          <p class="muted" style="margin:8px 0 0 28px;font-size:.8rem;">Representative plotted values: Governance weight 68/100 &middot; Execution responsiveness 44/100.</p>
+        </div><p style="flex:1;min-width:260px;margin:0;">This representative run sits in the heavier-governance / lower-responsiveness half of the matrix. The organization is still getting movement, but it is buying that movement with reconciliation, duplicate approval, and workaround effort. The task is to remove non-proportionate weight without weakening control quality.</p>
       </div>
     </section>
 
@@ -1817,9 +1844,20 @@
     <section class="section" id="dv-quadrant">
       <p class="section-eyebrow">Two axes, one position <span class="pg">Page 5</span></p>
       <h2>Governance weight &times; execution responsiveness</h2>
-      <div class="panel" style="display:flex;gap:26px;flex-wrap:wrap;align-items:center;">
-        
-        <p style="flex:1;min-width:260px;margin:0;">The pathway is moving fast under proportionate governance — the cleanest operating posture in this matrix. The leadership task here is preservation: governance accumulation is what erodes this position over time. The current run reads as significant friction, so the priority is structural intervention rather than incremental tuning.</p>
+      <div class="panel" style="display:flex;gap:28px;flex-wrap:wrap;align-items:center;"><div class="sample-quadrant sample-production-quadrant-wrap" data-production-component="diagnostic-quadrant" data-y-threshold="50" role="img" aria-label="Governance weight &times; execution responsiveness: Governance weight 64, Execution responsiveness 52" style="flex:0 1 430px;min-width:310px;max-width:100%;">
+          <div class="sample-production-quad-with-yaxis">
+            <div class="sample-production-axis-y">Execution responsiveness</div>
+            <div class="sample-production-quadrant-box" data-y-threshold="50">
+              <div class="sample-production-q-label sample-production-q-tl">Fast movement,<br>lighter governance</div>
+              <div class="sample-production-q-label sample-production-q-tr">Fast movement,<br>heavier governance</div>
+              <div class="sample-production-q-label sample-production-q-bl">Slow movement,<br>lighter governance</div>
+              <div class="sample-production-q-label sample-production-q-br">Slow movement,<br>heavier governance</div>
+              <div class="sample-quadrant-dot" style="left:64%;top:48%;"></div>
+            </div>
+          </div>
+          <div class="sample-production-axis-x">Governance weight</div>
+          <p class="muted" style="margin:8px 0 0 28px;font-size:.8rem;">Representative plotted values: Governance weight 64/100 &middot; Execution responsiveness 52/100.</p>
+        </div><p style="flex:1;min-width:260px;margin:0;">The representative pathway is still moving, but governance weight is consuming responsiveness. Four sequential approvals and recurring senior touches keep routine decisions near the middle of the matrix instead of in the lighter-governance / faster-movement quadrant.</p>
       </div>
     </section>
 
@@ -2007,10 +2045,21 @@
 
     <section class="section" id="sc-quadrant">
       <p class="section-eyebrow">Two axes, one position <span class="pg">Page 5</span></p>
-      <h2>Structural ambiguity &times; coordination responsiveness</h2>
-      <div class="panel" style="display:flex;gap:26px;flex-wrap:wrap;align-items:center;">
-        
-        <p style="flex:1;min-width:260px;margin:0;">The structure is legible, but it is carrying heavier review and approval layering than the work likely requires. Clarity is not the problem; proportionality is. The opportunity is removing duplicate control without eroding the readability the structure already has. The current run shows a material ambiguity problem, so the priority is making ownership and authority explicit rather than adding more process.</p>
+      <h2>Governance weight &times; structural legibility</h2>
+      <div class="panel" style="display:flex;gap:28px;flex-wrap:wrap;align-items:center;"><div class="sample-quadrant sample-production-quadrant-wrap" data-production-component="diagnostic-quadrant" data-y-threshold="67" role="img" aria-label="Governance weight &times; structural legibility: Governance weight 56, Structural legibility 50" style="flex:0 1 430px;min-width:310px;max-width:100%;">
+          <div class="sample-production-quad-with-yaxis">
+            <div class="sample-production-axis-y">Structural legibility</div>
+            <div class="sample-production-quadrant-box" data-y-threshold="67">
+              <div class="sample-production-q-label sample-production-q-tl">High legibility<br>Low governance</div>
+              <div class="sample-production-q-label sample-production-q-tr">High legibility<br>High governance</div>
+              <div class="sample-production-q-label sample-production-q-bl">Low legibility<br>Low governance</div>
+              <div class="sample-production-q-label sample-production-q-br">Low legibility<br>High governance</div>
+              <div class="sample-quadrant-dot" style="left:56%;top:50%;"></div>
+            </div>
+          </div>
+          <div class="sample-production-axis-x">Governance weight</div>
+          <p class="muted" style="margin:8px 0 0 28px;font-size:.8rem;">Representative plotted values: Governance weight 56/100 &middot; Structural legibility 50/100.</p>
+        </div><p style="flex:1;min-width:260px;margin:0;">This representative run lands near the boundary between low and high legibility while carrying heavier governance. That combination is consistent with the sample's 50 Diagnostic score and duplicate-approval burden: the structure eventually resolves ambiguity, but only after extra interpretation and review.</p>
       </div>
     </section>
 
@@ -2198,10 +2247,21 @@
 
     <section class="section" id="ip-quadrant">
       <p class="section-eyebrow">Two axes, one position <span class="pg">Page 5</span></p>
-      <h2>Compensation dependence &times; delivery responsiveness</h2>
-      <div class="panel" style="display:flex;gap:26px;flex-wrap:wrap;align-items:center;">
-        
-        <p style="flex:1;min-width:260px;margin:0;">This unit sits in the most exposed quadrant: a weak institutional condition held together by heavy informal effort. Visible output is being borrowed from people’s extra effort and management overhead rather than carried by the institution itself — which is exactly the combination that fails suddenly rather than gradually.</p>
+      <h2>Institutional condition &times; compensatory dependence</h2>
+      <div class="panel" style="display:flex;gap:28px;flex-wrap:wrap;align-items:center;"><div class="sample-quadrant sample-production-quadrant-wrap" data-production-component="diagnostic-quadrant" data-y-threshold="67" role="img" aria-label="Institutional condition &times; compensatory dependence: Compensatory dependence 55, Institutional condition 47" style="flex:0 1 430px;min-width:310px;max-width:100%;">
+          <div class="sample-production-quad-with-yaxis">
+            <div class="sample-production-axis-y">Institutional condition</div>
+            <div class="sample-production-quadrant-box" data-y-threshold="67">
+              <div class="sample-production-q-label sample-production-q-tl">Sound condition<br>Low compensation</div>
+              <div class="sample-production-q-label sample-production-q-tr">Sound condition<br>High compensation</div>
+              <div class="sample-production-q-label sample-production-q-bl">Weak condition<br>Low compensation</div>
+              <div class="sample-production-q-label sample-production-q-br">Weak condition<br>High compensation</div>
+              <div class="sample-quadrant-dot" style="left:55%;top:53%;"></div>
+            </div>
+          </div>
+          <div class="sample-production-axis-x">Compensatory dependence</div>
+          <p class="muted" style="margin:8px 0 0 28px;font-size:.8rem;">Representative plotted values: Compensatory dependence 55/100 &middot; Institutional condition 47/100.</p>
+        </div><p style="flex:1;min-width:260px;margin:0;">This representative run sits in the exposed lower-right quadrant: Institutional Performance is 47 while compensatory effort is 55. Visible output is being sustained by informal effort and management absorption rather than by a condition strong enough to carry the work on its own.</p>
       </div>
     </section>
 
@@ -2311,30 +2371,230 @@
 </section>
 
 <section class="report-shell" data-report="synthesis" hidden id="report-synthesis" role="tabpanel" aria-labelledby="tab-synthesis">
-  <div class="doc-shell"><main class="doc-body">
-    <section class="cover" id="synthesis-cover">
-      <div class="cover-dark"><p class="cover-mark">Cross-Lens Synthesis</p><div class="cover-rule"></div><h2 class="cover-title">Executive Report</h2><p class="cover-sub">Illustrative evidence-gated cross-Diagnostic comparison</p></div>
-      <div class="cover-stripe"></div>
-      <div class="cover-white"><p class="cover-kicker">Illustrative format</p><h2 class="cover-workflow">Different Diagnostics, one bounded scope</h2><p class="cover-meta-line">Eligible Included runs &middot; compatible scope and versions required</p><div class="cover-pills"><span class="cover-pill cover-pill-accent">Composite Score withheld in this example</span></div></div>
-    </section>
-    <section class="section" id="synthesis-headline"><p class="section-eyebrow">What Cross-Lens Synthesis does</p><h2>Compare different Diagnostic lenses without forcing unlike evidence into one number.</h2><p class="lede">Cross-Lens Synthesis compares eligible Included runs from two or more Monderman Diagnostics. Each Diagnostic remains visible on its own terms. A Cross-Lens Composite Score is published only when scope, timing, Diagnostic/scorer versions, source identity, participant depth, and lens balance support a coherent reading.</p><div class="syn-lens-grid"><div class="syn-lens-card"><div class="syn-lens-card-head"><span class="syn-lens-card-tool">Structural Clarity</span><span class="syn-lens-card-score">53</span></div><p class="syn-lens-card-band">Moderate structural ambiguity</p><p class="syn-lens-card-driver">Ownership and handoff clarity are the principal constraints in this representative bounded scope.</p></div><div class="syn-lens-card"><div class="syn-lens-card-head"><span class="syn-lens-card-tool">Decision Velocity</span><span class="syn-lens-card-score">78</span></div><p class="syn-lens-card-band">Lighter decision drag</p><p class="syn-lens-card-driver">The decision pathway is materially healthier than the structural-clarity reading, so the disagreement itself is useful evidence.</p></div></div><div class="panel bench"><p style="margin:0;"><strong>Evidence status: Comparison Only.</strong> The two lenses can be compared, but one Composite Score would imply more coherence than the evidence supports. Monderman therefore withholds it.</p></div></section>
-    <section class="section" id="synthesis-status"><p class="section-eyebrow">Composite Score status</p><h2>Composite Score withheld</h2><div class="panel bench"><h3 style="margin-top:0;">Why</h3><p><strong>Evidence strength: Comparison Only.</strong> The illustrative selection does not meet the Coherent evidence threshold. Withholding is a product output, not an error: the comparison remains available while the single Composite Score is suppressed.</p></div><div class="panel bench"><h3 style="margin-top:0;">What would unlock a Composite Score</h3><ul><li>Reach at least five eligible Included runs in each contributing Diagnostic lens.</li><li>Keep the most- and least-represented lenses within a 4:1 balance.</li><li>Align the operating pathway and organizational scope.</li><li>Use compatible Diagnostic/scorer versions and measurement windows.</li><li>Use verifiable source identities for the contributing runs.</li></ul></div></section>
-    <section class="section" id="synthesis-method"><p class="section-eyebrow">How a published Composite Score is calculated</p><h2>One vote per Diagnostic lens.</h2><p>If the Coherent threshold is met, the Cross-Lens Composite Score is the arithmetic mean of the contributing Diagnostic lens means. Participant count strengthens evidence and affects balance requirements; it does not give a high-volume lens more weight in the Composite Score. Lens disagreement remains visible and does not mechanically lower the score.</p><div class="panel bench" style="margin-top:18px;"><h3 style="margin-top:0;">Representative contributing Diagnostics</h3><p><strong>Structural Clarity — 53.</strong> Ownership and handoff clarity are the principal constraints in this illustrative bounded scope.</p><p style="margin-top:10px;"><strong>Decision Velocity — 78.</strong> The decision pathway is materially healthier than the Structural Clarity result; that disagreement is itself useful evidence and is preserved rather than averaged away.</p></div></section>
-  </main></div>
+  <div style="max-width:980px;margin:0 auto;padding:46px 28px 90px;">
+    <div id="sampleCrossLensRendered"></div>
+  </div>
 </section>
 
 <section class="report-shell" data-report="depth" hidden id="report-depth" role="tabpanel" aria-labelledby="tab-depth">
-  <div class="doc-shell"><main class="doc-body">
-    <section class="cover" id="depth-cover">
-      <div class="cover-dark"><p class="cover-mark">Depth Synthesis</p><div class="cover-rule"></div><h2 class="cover-title">Executive Report</h2><p class="cover-sub">Illustrative same-Diagnostic cohort summary</p></div>
-      <div class="cover-stripe"></div>
-      <div class="cover-white"><p class="cover-kicker">Illustrative format</p><h2 class="cover-workflow">One Diagnostic, multiple eligible Included runs</h2><p class="cover-meta-line">Observed cohort &middot; same Diagnostic version &middot; bounded evidence claims</p><div class="cover-pills"><span class="cover-pill cover-pill-accent">Median Diagnostic Score</span></div></div>
-    </section>
-    <section class="section" id="depth-headline"><p class="section-eyebrow">What Depth Synthesis does</p><h2>Turn repeated evidence from one Diagnostic into a distribution, not a louder anecdote.</h2><p class="lede">Depth Synthesis requires two or more eligible unique runs from exactly one Diagnostic. It reports the <strong>Median Diagnostic Score</strong>, distribution, range, interquartile range, sample standard deviation, consensus pattern, and participant-vantage segments when those segments were measured.</p><div class="syn-gauge-panel"><svg class="syn-gauge-svg" viewBox="0 0 200 200" role="img" aria-label="Illustrative Median Diagnostic Score 56"><circle cx="100" cy="100" r="78" fill="none" stroke="#EAE6DD" stroke-width="14"/><circle cx="100" cy="100" r="78" fill="none" stroke="#0C6E78" stroke-width="14" stroke-linecap="round" stroke-dasharray="274 490" transform="rotate(-90 100 100)"/><text x="100" y="95" text-anchor="middle" font-size="44" font-weight="700" fill="#18191C">56</text><text x="100" y="120" text-anchor="middle" font-size="11" font-weight="700" fill="#6E6F73" letter-spacing="1.2">MEDIAN</text></svg><div class="syn-gauge-caption"><p class="syn-gauge-band">Developing evidence · 7 eligible runs</p><p class="syn-gauge-desc">Representative scores: 48, 51, 53, 56, 61, 64, 67. Median 56; range 48–67. The distribution shows that the condition is shared but not uniform.</p><p class="syn-gauge-context">Illustrative vantage pattern: Operational median 51, Managerial 58, Senior Leader 64. Vantage differences are displayed as evidence; they do not reweight the Median Diagnostic Score.</p></div></div></section>
-    <section class="section" id="depth-evidence"><p class="section-eyebrow">Evidence strength</p><h2>Condition and evidence strength stay separate.</h2><div class="panel bench"><p><strong>Limited:</strong> 2&ndash;4 eligible runs &middot; <strong>Developing:</strong> 5&ndash;14 &middot; <strong>Substantial:</strong> 15&ndash;49 &middot; <strong>Large:</strong> 50+. A large observed participant set does not by itself establish population representativeness; the sampling frame must support that claim.</p></div></section>
-    <section class="section" id="depth-vantages"><p class="section-eyebrow">Participant vantages</p><h2>Operational, Managerial, and Senior Leader.</h2><p>Where compatible runs contain more than one standard vantage, Depth Synthesis can show those segments without changing the Median Diagnostic Score into a participant-weighted or role-weighted score.</p></section>
-  </main></div>
+  <div style="max-width:980px;margin:0 auto;padding:46px 28px 90px;">
+    <div id="sampleDepthRendered"></div>
+  </div>
 </section>
+
+<script src="monderman-report.js"></script>
+<script>
+  window.MONDERMAN_REPRESENTATIVE_SYNTHESIS_FIXTURES = {
+    crossLens: {
+      synthesis_product: "cross_lens_synthesis",
+      synthesis_mode: "cross_lens",
+      score_status: "published",
+      cross_diagnostic_score: 55.5,
+      score_label: "Cross-Lens Composite Score",
+      score_basis: "Equal-lens mean: Structural Clarity 52 + Decision Velocity 63 + Operational Systems 49 + Institutional Performance 58, divided by four = 55.5. Each Diagnostic receives one vote.",
+      condition_band: "Observed cross-lens condition",
+      respondent_count: 48,
+      lens_count: 4,
+      evidence_assessment: {
+        evidence_band: "strong",
+        evidence_label: "Strong",
+        evidence_description: "Four Diagnostic lenses each contain 12 eligible unique runs in one bounded operating scope. The lenses are balanced 1:1, versions and source identities are verified, the measurement window is aligned, and more than one participant vantage is represented.",
+        scope: { status: "anchored", label: "Scope aligned", statement: "All contributing runs describe the same capital-equipment approval pathway in Procurement & Clinical Operations." },
+        versions: { status: "verified", label: "Diagnostic/scorer versions aligned", conflicting_lenses: [] },
+        time_window: { status: "aligned", span_days: 28, maximum_days: 180, statement: "All contributing runs fall within a 28-day measurement window." },
+        source_identity: { status: "verified", explicit_source_ids: 48, total_runs: 48, statement: "Every contributing run carries a unique source-run identifier." },
+        representativeness: { status: "per_lens_only", label: "Observed participant sets by Diagnostic", statement: "The Synthesis describes the Included participant sets. Population claims still require a documented sampling frame within each Diagnostic." },
+        lens_balance: { status: "strong", ratio: 1, weakest_lens_n: 12, strongest_lens_n: 12 },
+        next_band_requirements: []
+      },
+      source_groups: [
+        { tool_type: "structural_clarity", tool_label: "Structural Clarity", respondents: 12, mean_score: 52, median_score: 51, score_iqr: [47, 57], score_range: [42, 65], modal_driver_pattern: "handoff_ambiguity", source_id_count: 12, config_versions: ["sc-1.1"], scorer_versions: ["scorer-2026-08"] },
+        { tool_type: "decision_velocity", tool_label: "Decision Velocity", respondents: 12, mean_score: 63, median_score: 62, score_iqr: [57, 69], score_range: [49, 76], modal_driver_pattern: "escalation_dependence", source_id_count: 12, config_versions: ["dv-1.1"], scorer_versions: ["scorer-2026-08"] },
+        { tool_type: "operational_systems", tool_label: "Operational Systems", respondents: 12, mean_score: 49, median_score: 48, score_iqr: [44, 55], score_range: [39, 61], modal_driver_pattern: "process_density", source_id_count: 12, config_versions: ["os-1.1"], scorer_versions: ["scorer-2026-08"] },
+        { tool_type: "institutional_performance", tool_label: "Institutional Performance", respondents: 12, mean_score: 58, median_score: 57, score_iqr: [52, 64], score_range: [45, 70], modal_driver_pattern: "compensatory_effort", source_id_count: 12, config_versions: ["ip-1.1"], scorer_versions: ["scorer-2026-08"] }
+      ],
+      diagnosis: {
+        name: "Control is being preserved by borrowing execution capacity",
+        type: "cross_lens_pattern",
+        body: "The four Diagnostics point to one bounded operating problem from different directions: ownership is readable only after repeated handoffs, routine cases still climb the approval chain, administrative burden is concentrated in process density, and informal effort is compensating for the formal design. The condition is not that every system is weak; it is that governance weight and execution friction are reinforcing one another."
+      },
+      primary_pattern: "Governance weight and execution friction reinforce one another across the bounded pathway.",
+      executive_briefing: {
+        lede: "The pathway is functioning, but it is using managerial and senior attention as a hidden operating resource.",
+        paragraphs: [
+          "Structural Clarity and Decision Velocity locate the immediate mechanism: ownership blurs at handoffs, then routine cases escalate to recover certainty. Operational Systems shows what that recovery costs in repeated coordination and process density. Institutional Performance shows the consequence: people compensate for design weaknesses to preserve visible output.",
+          "The 55.5 Composite Score is therefore useful as a directional condition summary, not as a substitute for the four lens results. Decision Velocity is the strongest lens at 63; Operational Systems is the weakest at 49. Keeping that 14-point spread visible is essential because it tells leadership where the aggregate condition is being produced."
+        ]
+      },
+      convergence_signals: [
+        { label: "Handoff ambiguity is driving escalation", text: "Structural Clarity and Decision Velocity both locate friction where ownership passes between teams. The shared signal is not simply delay; it is the need for additional authority touches to restore certainty after a handoff.", tools: ["structural_clarity", "decision_velocity"] },
+        { label: "Informal effort is protecting visible throughput", text: "Operational Systems and Institutional Performance both show people absorbing work that the formal pathway does not carry cleanly. That compensation keeps output moving while making the underlying design look healthier than it is.", tools: ["operational_systems", "institutional_performance"] }
+      ],
+      contradictions: [
+        "Decision Velocity is materially stronger than Operational Systems. That difference suggests delay is concentrated in authority and handoff design rather than uniformly distributed across the entire operating system.",
+        "Senior-leader observations describe control as stable while operational observations describe recurring workaround effort. The Synthesis preserves that vantage difference instead of treating it as noise."
+      ],
+      pathway_exposure: {
+        status: "available",
+        priceable_runs: 44,
+        total_runs: 48,
+        annual_hours: 7800,
+        annual_hours_low: 6100,
+        annual_hours_high: 9600,
+        annual_cost: 702000,
+        annual_cost_low: 558000,
+        annual_cost_high: 864000,
+        capacity_drag_percent: 18.5,
+        recoverable_cost_low: 185000,
+        recoverable_cost_high: 310000,
+        basis: "Repeated economic estimates are summarized by median and interquartile range. They are not added across Diagnostics or participants."
+      },
+      priority_actions: [
+        { label: "Make the handoff owner explicit", text: "Name one accountable owner at the highest-friction transfer point and publish the decision rights that move with the work. Do this before adding automation or another approval layer.", tier: "structural", source: "Structural Clarity + Decision Velocity" },
+        { label: "Lower routine escalation out of the senior path", text: "Define the exception conditions that genuinely require senior review and move routine cases below that threshold. Track the share of cases that still climb above it.", tier: "behavioral", source: "Decision Velocity" },
+        { label: "Retire the workaround, not the people using it", text: "Use the informal tracker and reconciliation steps as design evidence. Rebuild the formal path to carry the information people currently preserve manually, then remove the duplicate mechanism.", tier: "structural", source: "Operational Systems + Institutional Performance" }
+      ],
+      experiential: {
+        operational_staff: "Operational participants describe locating work through side channels and checking more than one system to know where an approval actually sits.",
+        managers: "Managers describe pre-briefing approvers and personally reconciling queue state so routine cases do not restart or disappear between teams.",
+        senior_leaders: "Senior leaders describe the controls as necessary but cannot consistently identify which approval layer changes an outcome versus which one confirms a decision already made.",
+        interpretation_limit: "Vantage evidence is interpretive and does not alter the quantitative scores. It helps locate why the four Diagnostic lenses differ."
+      },
+      leading_indicators: [
+        { lens_label: "Decision Velocity", name: "Routine cases requiring senior escalation", watch_for: "A sustained decline after authority thresholds are reset.", description: "If the redesign is working, routine approvals should stop consuming senior calendar time before the Composite Score materially moves." },
+        { lens_label: "Structural Clarity", name: "Handoffs requiring ownership clarification", watch_for: "Fewer transfers that trigger a manager message or meeting to establish who owns the next step.", description: "This is the earliest operational test of whether ownership became legible." },
+        { lens_label: "Operational Systems", name: "Duplicate tracking or reconciliation touches", watch_for: "Shadow-tracker use and manual queue reconciliation falling without a rise in missed cases.", description: "This tests whether burden was removed rather than displaced." }
+      ],
+      narrative: {
+        executive_summary: "Across four balanced Diagnostic lenses, the pathway shows a coherent pattern of governance weight, handoff ambiguity, escalation, and compensatory effort. The Strong evidence band supports a published Cross-Lens Composite Score of 55.5 while preserving the 14-point spread between the strongest and weakest Diagnostic lenses.",
+        leadership_implication: "Treat senior attention as a scarce operating resource. The near-term opportunity is not to remove control; it is to stop using escalation and workaround effort to compensate for unclear ownership and duplicated process.",
+        sequenced_action_logic: "Clarify ownership first, reset routine escalation second, then remove the duplicate operating path. Re-measure after the first full operating cycle so movement can be tested in the same four Diagnostic lenses."
+      },
+      confidence: { label: "Strong evidence within the submitted scope" }
+    },
+
+    depth: {
+      synthesis_product: "depth_synthesis",
+      synthesis_mode: "depth",
+      score_status: "published",
+      aggregate_score: 56,
+      score_label: "Median Diagnostic Score",
+      score_basis: "The published condition is the median of 18 eligible Structural Clarity run scores. Vantage differences are reported separately and do not reweight the median.",
+      condition_band: "Observed Structural Clarity condition",
+      respondent_count: 18,
+      lens_count: 1,
+      evidence_assessment: {
+        evidence_band: "substantial_observed_set",
+        evidence_label: "Substantial",
+        evidence_description: "This Depth Synthesis summarizes 18 eligible Structural Clarity runs from one bounded operating scope. The observed set is large enough for a substantially richer description of the submitted participants, but sample size alone does not establish population representativeness.",
+        scope: { status: "anchored", label: "Scope aligned", statement: "All 18 runs describe the same capital-equipment approval pathway in Procurement & Clinical Operations." },
+        versions: { status: "verified", label: "Diagnostic/scorer versions aligned", conflicting_lenses: [] },
+        time_window: { status: "aligned", span_days: 21, maximum_days: 180, statement: "All 18 runs fall within a 21-day measurement window." },
+        source_identity: { status: "verified", explicit_source_ids: 18, total_runs: 18, statement: "Every contributing run carries a unique source-run identifier." },
+        representativeness: { status: "observed_set", label: "Observed participant set", statement: "The read describes the 18 Included participants. Generalization to the broader population requires a documented sampling frame and response coverage." },
+        lens_balance: { status: "not_applicable", ratio: 1, weakest_lens_n: 18, strongest_lens_n: 18 },
+        next_band_requirements: [
+          { type: "runs", current_runs: 18, target_runs: 50, additional_runs_needed: 32, text: "32 additional unique runs would move this Depth Synthesis into the Large observed-set band." },
+          { type: "sampling_frame", text: "Document the invited population and sampling method before generalizing beyond the observed participant set." }
+        ]
+      },
+      source_groups: [
+        { tool_type: "structural_clarity", tool_label: "Structural Clarity", respondents: 18, mean_score: 57.2, median_score: 56, score_iqr: [50, 64], score_range: [41, 74], modal_driver_pattern: "handoff_ambiguity", source_id_count: 18, config_versions: ["sc-1.1"], scorer_versions: ["scorer-2026-08"] }
+      ],
+      sample_reads: [
+        {
+          tool_type: "structural_clarity",
+          tool_label: "Structural Clarity",
+          n: 18,
+          observed_set_label: "Substantial",
+          score: { mean: 57.2, median: 56, sd: 9.4, min: 41, max: 74, iqr: [50, 64] },
+          consensus: { read: "mixed", detail: "The observed runs show moderate variation rather than one uniform experience. The median is stable enough to summarize the set, but the vantage pattern matters to interpretation." },
+          segments: [
+            { participant_mode: "operational", n: 6, mean_score: 49.5, median_score: 49 },
+            { participant_mode: "managerial", n: 6, mean_score: 56.8, median_score: 56 },
+            { participant_mode: "senior_leader", n: 6, mean_score: 65.3, median_score: 65 }
+          ],
+          vantage_gap: { high_segment: "senior_leader", high_mean: 65.3, low_segment: "operational", low_mean: 49.5, gap: 15.8, statement: "Senior Leader and Operational mean scores differ by 15.8 points. The gap is large enough to investigate as a real vantage difference rather than hide inside the overall median." },
+          interpretation_limit: "These statistics describe the 18 submitted runs. Population claims require a documented sampling frame and response coverage."
+        }
+      ],
+      diagnosis: {
+        name: "Ownership is clear at the top and ambiguous at the handoff",
+        type: "same_Diagnostic_pattern",
+        body: "The 18 Structural Clarity runs do not describe a uniformly unclear organization. They describe a specific break: senior leaders see a reasonably legible structure, while operational participants experience ownership becoming ambiguous when work moves between teams. That 15.8-point vantage gap is the most decision-relevant feature of the distribution."
+      },
+      primary_pattern: "Handoff ownership deteriorates as the work moves away from the senior-leader view of the structure.",
+      executive_briefing: {
+        lede: "The median score of 56 matters less than where the distribution separates.",
+        paragraphs: [
+          "Across 18 eligible runs, the middle half of scores sits between 50 and 64. That is not a collapsed distribution, but it is also not random noise. Operational participants cluster materially below Senior Leaders, and the recurring narrative evidence locates the gap at cross-team handoffs rather than at basic role descriptions.",
+          "The practical implication is narrower than 'clarify roles.' The evidence supports fixing the ownership transfer point: who owns the case after approval, what authority moves with it, and what condition returns it to the prior owner. If those rules become legible, the next Depth Synthesis should show the Operational segment move before the Senior Leader segment does."
+        ]
+      },
+      convergence_signals: [
+        { label: "Handoff ownership is the recurring break", text: "Across the observed runs, ambiguity concentrates where responsibility crosses team boundaries. Participants generally understand their own role; they disagree about who owns the next state of the work.", tools: ["structural_clarity"] },
+        { label: "The vantage gap is directional, not cosmetic", text: "Senior Leaders score the structure more favorably than Operational participants. The difference is large enough that a single organization-wide interpretation would conceal the operating experience closest to the handoff.", tools: ["structural_clarity"] }
+      ],
+      contradictions: [
+        "Managerial scores sit near the overall median rather than forming a second extreme. That makes a simple 'leadership versus staff' explanation incomplete; the break appears to sharpen closest to execution.",
+        "Not every low-scoring run reports duplicate approval burden. The recurring signal is ownership transfer, so control reduction should not be treated as the only remedy."
+      ],
+      pathway_exposure: {
+        status: "available",
+        priceable_runs: 16,
+        total_runs: 18,
+        annual_hours: 6100,
+        annual_hours_low: 4800,
+        annual_hours_high: 7900,
+        annual_cost: 549000,
+        annual_cost_low: 432000,
+        annual_cost_high: 711000,
+        capacity_drag_percent: 14.8,
+        recoverable_cost_low: 120000,
+        recoverable_cost_high: 210000,
+        basis: "Repeated estimates are summarized by median and interquartile range. They are not added across participants."
+      },
+      what_would_strengthen_the_read: [
+        { type: "runs", current_runs: 18, target_runs: 50, additional_runs_needed: 32, text: "32 additional unique runs would move this Depth Synthesis into the Large observed-set band." },
+        { type: "sampling_frame", text: "Document the invited population and sampling method before treating the observed set as representative of the full pathway population." }
+      ],
+      priority_actions: [
+        { label: "Define the ownership transfer point", text: "Write one explicit rule for when responsibility moves from the initiating team to the receiving team, including the authority and information that move with it.", tier: "structural", source: "Structural Clarity" },
+        { label: "Test the rule against the six lowest operational reads", text: "Use the specific handoffs described in the lowest-scoring Operational runs as acceptance tests. If the new rule cannot resolve those cases without managerial interpretation, it is not yet clear enough.", tier: "behavioral", source: "Operational segment" },
+        { label: "Re-measure the same pathway after one full cycle", text: "Run the same Structural Clarity Diagnostic across the same vantages after the ownership rule has been in use long enough to affect real handoffs. Look first for movement in the Operational segment and a narrowing vantage gap.", tier: "structural", source: "Depth Synthesis" }
+      ],
+      experiential: {
+        operational_staff: "Operational participants repeatedly describe cases that are technically approved but still require messages or meetings to establish who owns the next action.",
+        managers: "Managers describe becoming the translation layer when two teams can each explain their own responsibilities but disagree about the transfer point between them.",
+        senior_leaders: "Senior Leaders generally describe the formal role structure as clear and are more likely to see the problem as isolated exception handling rather than a recurring ownership-transfer issue.",
+        interpretation_limit: "These vantage narratives help locate the quantitative gap. They do not change the Median Diagnostic Score."
+      },
+      leading_indicators: [
+        { lens_label: "Structural Clarity", name: "Handoffs requiring manager clarification", watch_for: "A sustained reduction in cases where a manager must establish the next owner after work changes teams.", description: "This should improve before the overall median moves materially." },
+        { lens_label: "Structural Clarity", name: "Operational-to-Senior Leader vantage gap", watch_for: "The 15.8-point mean gap narrowing while the Senior Leader segment remains stable.", description: "A narrowing gap would indicate that the formal structure is becoming more legible at the point of execution rather than simply being redescribed at the top." },
+        { lens_label: "Structural Clarity", name: "Same-day ownership reversals", watch_for: "Fewer cases in which two teams give different answers about who owns the next step.", description: "This is a direct behavioral test of whether the handoff rule is working."
+        }
+      ],
+      narrative: {
+        executive_summary: "Eighteen eligible Structural Clarity runs produce a Median Diagnostic Score of 56 with Substantial evidence. The dominant feature is not the median alone but a 15.8-point difference between Senior Leader and Operational mean scores, concentrated around cross-team ownership handoffs.",
+        leadership_implication: "Do not launch a broad role-clarity program. Fix the ownership transfer point that the distribution actually isolates, then re-measure whether Operational experience moves toward the structure Senior Leaders already believe exists.",
+        sequenced_action_logic: "Define the handoff rule, test it against the lowest-scoring operational cases, then re-measure the same scope and vantages."
+      },
+      confidence: { label: "Substantial observed-set evidence" }
+    }
+  };
+
+  (function renderRepresentativeSyntheses() {
+    function go() {
+      if (!window.MondermanReport) throw new Error("MondermanReport renderer unavailable on Sample Reports");
+      const fixtures = window.MONDERMAN_REPRESENTATIVE_SYNTHESIS_FIXTURES;
+      MondermanReport.render("sampleCrossLensRendered", MondermanReport.fromSynthesis(fixtures.crossLens));
+      MondermanReport.render("sampleDepthRendered", MondermanReport.fromSynthesis(fixtures.depth));
+    }
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", go, { once: true });
+    else go();
+  })();
+</script>
 
 <script>
   (function () {
