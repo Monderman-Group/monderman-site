@@ -14,7 +14,7 @@ req('.mr-report h1,.mr-report h2,.mr-report h3' in report, 'heading rules are no
 req('.mr-report p{' in report, 'paragraph rules are not scoped to report root')
 req('mr-report-boundary' in report, 'integrated interpretation-boundary component missing')
 req('mr-cover-dark' in report and 'mr-cover-white' in report and 'mr-cover-stripe' in report, 'source-aligned dark/white report cover missing')
-req('Number.isInteger(score) ? String(score) : fmt1(score)' in report, 'fractional published Synthesis score is still rounded')
+req('Number.isInteger(score) ? score : Math.round(score * 10) / 10' in report, 'fractional published Synthesis score is not preserved as a number')
 
 # The evidence-bearing visual must lead the Synthesis, not trail the evidence matrix.
 order = [
