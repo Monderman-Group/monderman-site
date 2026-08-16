@@ -3244,7 +3244,7 @@
         const tools = new Set(validFiles.map((file) => String(uploadCanonicalResult(file.parsed).tool_type || "").trim()).filter(Boolean));
         const totalBytes = validFiles.reduce((sum, file) => sum + Number(file.bytes || 0), 0);
         if (tools.size === 1) {
-          const onlyLabel = validFiles[0]?.toolLabel || "one instrument";
+          const onlyLabel = validFiles[0]?.toolLabel || "one Diagnostic";
           showValidation(`${validCount} ${onlyLabel} files ready for a Depth Synthesis. The result will describe the observed median, distribution, segment evidence, and sampling limits; it will not claim population representativeness without a documented sampling frame. ${Math.round(totalBytes / 1024).toLocaleString()} KB selected.`, "ok");
         } else {
           showValidation(`${validCount} valid files across ${tools.size} instruments ready for Cross-Lens Synthesis. The API will compare the lenses and publish one composite only if scope, versions, source identity, measurement window, respondent depth, and lens balance satisfy the coherence rules. ${Math.round(totalBytes / 1024).toLocaleString()} KB selected.`, "ok");
