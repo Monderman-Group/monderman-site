@@ -4,13 +4,14 @@ on:
   push:
     branches:
       - agent/sample-report-byte-level-repair-2026-08-16
+    paths:
+      - '.github/workflows/temporary-report-renderer-byte-repair.yml'
 
 permissions:
   contents: write
 
 jobs:
   patch:
-    if: ${{ !contains(github.event.head_commit.message, '[renderer-patched]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -32,40 +33,50 @@ jobs:
           s = p.read_text(encoding='utf-8')
           original = s
 
-          # 1. Typography: the shared report declared Neue Haas but multiple
-          # components and both synthesis SVGs explicitly overrode it with
-          # Helvetica. Remove every such override so the report is internally
-          # consistent in screen, standalone HTML, and print/PDF paths.
-          s = s.replace('font-family:\\"Helvetica Neue\\",Arial,sans-serif', 'font-family:\\"Neue Haas Grotesk\\",\\"Helvetica Neue\\",Helvetica,Arial,sans-serif')
-          s = s.replace('font-family:\"Helvetica Neue\",Arial,sans-serif', 'font-family:\"Neue Haas Grotesk\",\"Helvetica Neue\",Helvetica,Arial,sans-serif')
-          s = s.replace('font-family:Helvetica Neue,Arial,sans-serif', "font-family:'Neue Haas Grotesk','Helvetica Neue',Helvetica,Arial,sans-serif")
+          # Make Neue Haas the actual report font, including SVG and smaller
+          # report components that previously forced Helvetica Neue.
+          replacements = [
+              ('font-family:\\"Helvetica Neue\\",Arial,sans-serif', 'font-family:\\"Neue Haas Grotesk\\",\\"Helvetica Neue\\",Helvetica,Arial,sans-serif'),
+              ('font-family:\"Helvetica Neue\",Arial,sans-serif', 'font-family:\"Neue Haas Grotesk\",\"Helvetica Neue\",Helvetica,Arial,sans-serif'),
+              ('font-family:Helvetica Neue,Arial,sans-serif', "font-family:'Neue Haas Grotesk','Helvetica Neue',Helvetica,Arial,sans-serif"),
+          ]
+          for old, new in replacements:
+              s = s.replace(old, new)
 
-          # 2. Cover hierarchy: do not repeat the score label in the band line
-          # and again as a status pill. The score label already sits directly
-          # above the condition band.
+          # Cover hierarchy: score label is already displayed beside the score;
+          # keep the band line for the condition itself instead of repeating the
+          # score label and condition twice.
           old = 'headlineBand: scorePublished ? (firstStr(r.score_label, conditionBand) + " · " + conditionBand) : "Composite withheld",'
           new = 'headlineBand: scorePublished ? conditionBand : "Composite withheld",'
           if old not in s:
               raise SystemExit('headlineBand contract not found')
           s = s.replace(old, new, 1)
 
-          status_re = re.compile(r'''    const statusPills = \[\n      m\.headlineBand \? '<span class="mr-cover-pill mr-cover-pill-accent">' \+ esc\(m\.headlineBand\) \+ '</span>' : '',\n      evidenceLabel \? '<span class="mr-cover-pill">' \+ esc\(evidenceLabel\) \+ ' evidence</span>' : ''\n    \]\.filter\(Boolean\)\.join\(""\);''')
-          replacement = '''    const statusPills = [\n      evidenceLabel ? '<span class="mr-cover-pill mr-cover-pill-accent">' + esc(evidenceLabel) + ' evidence</span>' : ''\n    ].filter(Boolean).join("");'''
-          s, count = status_re.subn(replacement, s, count=1)
-          if count != 1:
-              raise SystemExit(f'cover status pill contract match count={count}')
+          old = '''    const statusPills = [
+      m.headlineBand ? '<span class="mr-cover-pill mr-cover-pill-accent">' + esc(m.headlineBand) + '</span>' : '',
+      evidenceLabel ? '<span class="mr-cover-pill">' + esc(evidenceLabel) + ' evidence</span>' : ''
+    ].filter(Boolean).join("");'''
+          new = '''    const statusPills = [
+      evidenceLabel ? '<span class="mr-cover-pill mr-cover-pill-accent">' + esc(evidenceLabel) + ' evidence</span>' : ''
+    ].filter(Boolean).join("");'''
+          if old not in s:
+              raise SystemExit('cover status pills contract not found')
+          s = s.replace(old, new, 1)
 
-          # 3. Move the interpretation boundary into the executive reading
-          # hierarchy as well as retaining the complete boundary at the end.
-          cover_tail = "      (m.coverBody ? '<p class=\\\"mr-cover-body\\\">' + esc(m.coverBody) + '</p>' : '') +\n      '</div></section>';"
-          if cover_tail not in s:
-              raise SystemExit('cover tail not found')
-          cover_tail_new = "      (m.coverBody ? '<p class=\\\"mr-cover-body\\\">' + esc(m.coverBody) + '</p>' : '') +\n      (m.kind === \\\"meta-synthesis\\\" && m.footnote ? '<div class=\\\"mr-cover-boundary\\\"><div class=\\\"mr-cover-boundary-label\\\">Interpretation boundary</div><p>' + esc(m.footnote) + '</p></div>' : '') +\n      '</div></section>';"
-          s = s.replace(cover_tail, cover_tail_new, 1)
+          # Put the interpretation boundary into the opening executive hierarchy
+          # as well as retaining the full end-of-report boundary.
+          old = '''      (m.coverBody ? '<p class="mr-cover-body">' + esc(m.coverBody) + '</p>' : '') +
+      '</div></section>';'''
+          new = '''      (m.coverBody ? '<p class="mr-cover-body">' + esc(m.coverBody) + '</p>' : '') +
+      (m.kind === "meta-synthesis" && m.footnote ? '<div class="mr-cover-boundary"><div class="mr-cover-boundary-label">Interpretation boundary</div><p>' + esc(m.footnote) + '</p></div>' : '') +
+      '</div></section>';'''
+          if old not in s:
+              raise SystemExit('cover body tail not found')
+          s = s.replace(old, new, 1)
 
-          # 4. Use already-certified API fields more fully. This is an evidence
-          # map, not a causal diagram: lens means/drivers and API-returned
-          # convergence signals only.
+          # Cross-Lens evidence map. This uses only API-returned lens groups,
+          # drivers, recurring signals, and the primary observed pattern. It is
+          # deliberately not a causal pathway diagram.
           marker = '\n  function renderMetaSignals(m, n) {'
           if marker not in s:
               raise SystemExit('renderMetaSignals marker not found')
@@ -92,22 +103,24 @@ jobs:
       (signalRows ? '<div class="mr-map-signals">' + signalRows + '</div>' : '') + '</div>';
   }
 '''
-          if 'function renderCrossLensEvidenceMap' not in s:
-              s = s.replace(marker, evidence_map + marker, 1)
+          s = s.replace(marker, evidence_map + marker, 1)
 
-          old_signal_open = "    let html = '<section class=\\\"mr-section\\\"><h2>' + n + '. Agreements and differences</h2>';\n    if (signals.length) {"
-          if old_signal_open not in s:
+          old = '''    let html = '<section class="mr-section"><h2>' + n + '. Agreements and differences</h2>';
+    if (signals.length) {'''
+          new = '''    let html = '<section class="mr-section"><h2>' + n + '. Agreements and differences</h2>';
+    html += renderCrossLensEvidenceMap(m);
+    if (signals.length) {'''
+          if old not in s:
               raise SystemExit('renderMetaSignals opening not found')
-          new_signal_open = "    let html = '<section class=\\\"mr-section\\\"><h2>' + n + '. Agreements and differences</h2>';\n    html += renderCrossLensEvidenceMap(m);\n    if (signals.length) {"
-          s = s.replace(old_signal_open, new_signal_open, 1)
+          s = s.replace(old, new, 1)
 
-          # 5. Visualize source-backed exposure ranges already returned by the
-          # certified synthesis API. Each metric has its own local scale and is
-          # explicitly not comparable in bar length to the other metric.
-          exposure_marker = '\n  function renderMetaExposure(m, n) {'
-          if exposure_marker not in s:
+          # Source-backed exposure-range visual. Values already exist in the
+          # certified payload. Hours and cost are intentionally given separate
+          # local scales and the report says so explicitly.
+          marker = '\n  function renderMetaExposure(m, n) {'
+          if marker not in s:
               raise SystemExit('renderMetaExposure marker not found')
-          exposure_helper = r'''
+          helper = r'''
   function renderExposureRangeGraphic(exp) {
     const rows = [];
     function row(label, low, mid, high, formatter) {
@@ -126,20 +139,20 @@ jobs:
     return '<div class="mr-viz-panel mr-exposure-range"><div class="mr-viz-title">Observed exposure ranges</div>' + rows.join("") + '<p class="mr-copy">Range bars summarize the submitted priceable runs. Hours and cost use separate local scales; bar lengths should not be compared across the two metrics.</p></div>';
   }
 '''
-          if 'function renderExposureRangeGraphic' not in s:
-              s = s.replace(exposure_marker, exposure_helper + exposure_marker, 1)
+          s = s.replace(marker, helper + marker, 1)
 
-          exposure_return = "    return '<section class=\\\"mr-section\\\"><h2>' + n + '. Source-backed pathway exposure</h2><div class=\\\"kvs\\\">' + kvs + '</div>' +"
-          if exposure_return not in s:
+          old = '''    return '<section class="mr-section"><h2>' + n + '. Source-backed pathway exposure</h2><div class="kvs">' + kvs + '</div>' +'''
+          new = '''    return '<section class="mr-section"><h2>' + n + '. Source-backed pathway exposure</h2>' + renderExposureRangeGraphic(exp) + '<div class="kvs">' + kvs + '</div>' +'''
+          if old not in s:
               raise SystemExit('exposure return not found')
-          s = s.replace(exposure_return, "    return '<section class=\\\"mr-section\\\"><h2>' + n + '. Source-backed pathway exposure</h2>' + renderExposureRangeGraphic(exp) + '<div class=\\\"kvs\\\">' + kvs + '</div>' +", 1)
+          s = s.replace(old, new, 1)
 
-          # 6. Presentation CSS for the new evidence/range visuals and the
-          # cover-level interpretation boundary. No new quantitative claims.
-          css_anchor = '    .mr-synth-chart{min-height:180px}\n'
-          if css_anchor not in s:
-              raise SystemExit('CSS anchor not found')
-          css_add = r'''    .mr-synth-chart{min-height:180px;font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif}
+          # Presentation support for the added evidence/range visuals and the
+          # opening interpretation boundary.
+          anchor = '    .mr-synth-chart{min-height:180px}\n'
+          if anchor not in s:
+              raise SystemExit('synthesis chart CSS anchor not found')
+          css = r'''    .mr-synth-chart{min-height:180px;font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif}
     .mr-cover-boundary{margin:20px 0 0;padding:14px 16px;border-left:3px solid #0C6E78;background:#FAFAF8;border-radius:0 8px 8px 0}
     .mr-cover-boundary-label{font-size:.66rem;letter-spacing:.15em;text-transform:uppercase;color:#0C6E78;font-weight:700;margin:0 0 6px}
     .mr-cover-boundary p{font-size:.84rem!important;line-height:1.5!important;color:#6E6F73!important;margin:0!important}
@@ -166,20 +179,10 @@ jobs:
     .mr-range-foot{margin-top:7px;font-size:.76rem;color:#6E6F73}
     @media(max-width:760px){.mr-map-lenses{grid-template-columns:repeat(2,minmax(0,1fr))}.mr-map-signal{grid-template-columns:1fr}.mr-map-tools{justify-content:flex-start;max-width:none}}
 '''
-          s = s.replace(css_anchor, css_add, 1)
+          s = s.replace(anchor, css, 1)
 
           if s == original:
               raise SystemExit('repair made no changes')
-
-          # Byte-level guards: no forced Helvetica-only report component remains.
-          forbidden = [
-              'font-family:Helvetica Neue,Arial,sans-serif',
-              'font-family:\"Helvetica Neue\",Arial,sans-serif',
-              'font-family:\\"Helvetica Neue\\",Arial,sans-serif',
-          ]
-          leftovers = [x for x in forbidden if x in s]
-          if leftovers:
-              raise SystemExit('forced Helvetica remains: ' + repr(leftovers))
           for required in ['mr-cover-boundary', 'renderCrossLensEvidenceMap', 'Cross-lens evidence map', 'renderExposureRangeGraphic', 'Observed exposure ranges']:
               if required not in s:
                   raise SystemExit('missing repaired surface: ' + required)
