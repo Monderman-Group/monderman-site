@@ -1,0 +1,58 @@
+name: Apply six-product frontend ecosystem
+
+on:
+  push:
+    branches: [agent/six-product-ecosystem-frontend-2026-08-16-v1]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apply-six-product-frontend-2026-08-16-v1
+  cancel-in-progress: true
+
+jobs:
+  apply-and-verify:
+    if: ${{ !contains(github.event.head_commit.message, '[frontend applied]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Reconstruct and apply exact frontend patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat scripts/site-ecosystem.patch.gz.b64.* | base64 --decode > /tmp/site.patch.gz
+          echo 'da9e9d1c094371404042720b6e6363b1abf50b322192e48276af18c047bd9425  /tmp/site.patch.gz' | sha256sum --check
+          gzip -dc /tmp/site.patch.gz > /tmp/site.patch
+          echo '1f3d2425b05cd631e066063ffd08b7db7b16e73c08bb8d02dd232f2f89da1f28  /tmp/site.patch' | sha256sum --check
+          git apply --check /tmp/site.patch
+          git apply /tmp/site.patch
+          rm -f scripts/site-ecosystem.patch.gz.b64.*
+
+      - name: Validate frontend
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/validate_frontend_release.py
+          python scripts/validate_meta_synthesis_frontend.py
+          python scripts/validate_six_product_ecosystem.py
+          node scripts/meta_synthesis_frontend_fixture.mjs
+          git diff --check
+
+      - name: Commit verified candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'Monderman-Group'
+          git config user.email 'jason.ivan.adamson@gmail.com'
+          git add -A
+          git commit -m 'Integrate six-product frontend ecosystem [frontend applied]'
+          git push origin HEAD
