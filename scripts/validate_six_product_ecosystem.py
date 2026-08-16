@@ -15,7 +15,11 @@ public_files=[
  'sample-report.html','Monderman_Infographic.html','Monderman_Platform_Brief.html'
 ]
 public='\n'.join(text(f) for f in public_files)
-for token in ['per employee','per-employee','combined read','Cross-Diagnostic Synthesis','Cross-Tool Synthesis','front line against','executive seat','Executive lens','unlimited people']:
+for token in [
+ 'per employee','per-employee','combined read','Cross-Diagnostic Synthesis','Cross-Tool Synthesis',
+ 'front line against','executive seat','Executive lens','unlimited people','Insight depth',
+ 'Expert help','Meta-diagnostic','Meta-diagnostics','seat charge','seat-free'
+]:
     forbid(public,token,'public truth sweep')
 
 for token in ['Depth Synthesis','Cross-Lens Synthesis','No per-participant pricing','Operational','Managerial','Senior Leader']:
@@ -28,8 +32,10 @@ pattern=text('plan-pattern.html')
 for token in ['500 completed participant responses','Unlimited Syntheses','anonymous participant responses','five analyst accounts','two admin accounts']:
     require(pattern,token,'Pattern')
 enterprise=text('plan-enterprise.html')
-for token in ['unlimited participant responses','unlimited analyst and admin accounts','bespoke Diagnostic or vantage design']:
+for token in ['participant-response, Synthesis, and workspace-user capacity','defined in the order form','bespoke Diagnostic or vantage design']:
     require(enterprise,token,'Enterprise')
+for token in ['unlimited participant responses','unlimited analyst and admin accounts','No platform ceilings']:
+    forbid(enterprise,token,'Enterprise')
 
 analysis=text('workspace-analysis.html')
 for token in ['/api/synthesis','/api/synthesis-runs','Build Depth Synthesis','Build Cross-Lens Synthesis','Why the Composite was withheld','What could unlock a Composite','Latest Diagnostic snapshot','Calibration position','Before-and-after change']:
@@ -57,9 +63,9 @@ for token in ['/api/synthesis-runs/','Median Diagnostic Score','Cross-Lens Compo
     require(report,token,'Synthesis report')
 
 sample=text('sample-report.html')
-for token in ['Cross-Lens Synthesis','Median Diagnostic Score','Composite Score withheld','What would unlock a Composite Score']:
+for token in ['Cross-Lens Synthesis','Median Diagnostic Score','Composite Score withheld','What would unlock a Composite Score','Representative sample','Run evidence']:
     require(sample,token,'Sample report')
-for token in ['insight-depth','four-instrument composed','compounded exposure']:
+for token in ['insight-depth','Insight depth','four-instrument composed','compounded exposure','executive-seat','one per seat','per seat-year','unedited output','identical to a real run']:
     forbid(sample,token,'Sample report')
 
 print({'ok':True,'public_files':len(public_files),'workspace_contract':'pass','plan_contract':'pass'})
