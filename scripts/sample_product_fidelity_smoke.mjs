@@ -28,21 +28,20 @@ assert(!/\bseat(?:s|-year)?\b/i.test(bodyText), 'seat vocabulary remains');
 assert(!/Insight depth/i.test(bodyText), 'Insight depth remains');
 
 const diagnostics = [
-  ['os', 'Governance weight × execution responsiveness'],
-  ['dv', 'Governance weight × execution responsiveness'],
-  ['sc', 'Governance weight × structural legibility'],
-  ['ip', 'Institutional condition × compensatory dependence'],
+  ['os', 'Governance weight × execution responsiveness', 'Burden composition'],
+  ['dv', 'Governance weight × execution responsiveness', 'Drag composition'],
+  ['sc', 'Governance weight × structural legibility', 'Clarity readings'],
+  ['ip', 'Institutional condition × compensatory dependence', 'Burden composition'],
 ];
-for (const [key, quadrantHeading] of diagnostics) {
+for (const [key, quadrantHeading, compositionHeading] of diagnostics) {
   const shell = await openTab(key);
   const txt = await shell.textContent();
   assert(txt.includes(quadrantHeading), `${key} quadrant heading mismatch`);
+  assert(txt.includes(compositionHeading), `${key} missing ${compositionHeading}`);
+  assert(txt.includes('Where to focus first'), `${key} missing Where to focus first`);
   const quadrant = shell.locator(`#${key}-quadrant .sample-quadrant`);
   assert(await quadrant.isVisible(), `${key} quadrant graphic not visible`);
   assert(await quadrant.locator('.sample-quadrant-dot').isVisible(), `${key} quadrant dot not visible`);
-  for (const label of ['Burden composition', 'Where to focus first']) {
-    assert(txt.includes(label), `${key} missing ${label}`);
-  }
   assert(await shell.locator('svg[aria-label="Burden composition — share of total"]').first().isVisible(), `${key} share graphic not visible`);
   assert(await shell.locator('svg[aria-label="Burden severity by dimension"]').first().isVisible(), `${key} severity graphic not visible`);
   assert(await shell.locator('svg[aria-label="Intervention order"]').first().isVisible(), `${key} intervention graphic not visible`);
