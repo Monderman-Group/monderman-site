@@ -31,7 +31,7 @@
   var LENS_LABEL = {
     operational: "Operational",
     managerial: "Managerial",
-    executive: "Senior leaders"
+    executive: "Senior Leader"
   };
 
   var INK = "#0F1720",
@@ -272,7 +272,7 @@
       overlay(
         "&#10003;",
         "Thank you &mdash; your perspective is recorded",
-        "Your responses have been submitted to your organization. Readings like yours are combined into a single, measured view of how the work actually runs &mdash; one that informs where attention and effort go next. Your part is complete; you can close this window."
+        "Your responses have been submitted to your organization. The completed participant run will be staged for review and may be included in Analysis or Synthesis. Your part is complete; you can close this window."
       );
     },
     // Blocking variant for hidden-results runs: the honest state is "not

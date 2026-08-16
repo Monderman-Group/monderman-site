@@ -478,7 +478,7 @@ body{transition:background-color .25s ease, color .25s ease}
       <header class="ws5-topbar">
         <div class="ws5-crumb"><h1>Action Plans</h1><span id="ws5Org">&mdash;</span></div>
         <div class="ws5-topright">
-          <a class="ws5-btn" href="workspace.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Run a diagnostic</a>
+          <a class="ws5-btn" href="workspace-diagnostics.html#launch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Run a Diagnostic</a>
           <div class="ws5-user"><div class="ws5-ava" id="ws5Ava">&mdash;</div><div class="ws5-who"><b id="ws5UserName">&mdash;</b><span id="ws5UserRole">&mdash;</span></div></div>
         </div>
       </header>
@@ -492,7 +492,7 @@ body{transition:background-color .25s ease, color .25s ease}
           <div class="lead">
             <div class="eyebrow">Action board</div>
             <h2>Turn findings into a plan &mdash; and track it to done</h2>
-            <p>Adopt the recommendations worth acting on, sequence them with an owner and a status, then close the loop by linking a re-measure. What you adopt becomes the working plan.</p>
+            <p>Import findings from an included Diagnostic or saved Synthesis, adopt the items worth acting on, assign owners and status, then close the loop with a like-for-like remeasurement.</p>
           </div>
 
           <div id="boardLock" class="lock" hidden>
@@ -520,7 +520,7 @@ body{transition:background-color .25s ease, color .25s ease}
               <button type="button" class="btn-mini ghost" id="addActionCancel">Cancel</button>
             </div>
             <div class="planbar-row inline-form" id="importRow" hidden style="flex-wrap:wrap">
-              <select id="importRunSel" class="board-select" aria-label="Choose a promoted run" style="min-width:260px"></select>
+              <select id="importRunSel" class="board-select" aria-label="Choose a Diagnostic or saved Synthesis" style="min-width:300px"></select>
               <button type="button" class="btn" id="importSubmit" disabled>Add selected</button>
               <button type="button" class="btn-mini ghost" id="importCancel">Cancel</button>
               <div id="importList" style="flex:1 1 100%;display:flex;flex-direction:column;gap:6px;margin-top:8px"></div>
@@ -557,7 +557,8 @@ body{transition:background-color .25s ease, color .25s ease}
     const TOOL = { operational_systems:"Operational Systems", decision_velocity:"Decision Velocity", structural_clarity:"Structural Clarity", institutional_performance:"Institutional Performance" };
     const TOOL_HTML = { operational_systems:"operational-systems.html", decision_velocity:"decision-velocity.html", structural_clarity:"structural-clarity.html", institutional_performance:"institutional-performance.html" };
 
-    const state = { user:null, orgId:null, userId:null, role:"viewer", recipients:[], lastReady:0, plans:[], planId:null, items:[], members:[], promotedRuns:[], promotedLoaded:false };
+    const state = { user:null, orgId:null, userId:null, role:"viewer", recipients:[], lastReady:0, plans:[], planId:null, items:[], members:[], promotedRuns:[], promotedLoaded:false, syntheses:[], synthesesLoaded:false, synthesisResults:new Map() };
+    const ITEM_COLS = "id, organization_id, plan_id, title, detail, decision, status, position, owner_user_id, source_run_id, source_campaign_id, source_synthesis_id, source_finding_json, remeasure_run_id, remeasure_synthesis_id, created_at, updated_at";
     function isAdmin(){ return state.role==="admin" || state.role==="owner"; }
 
     const $ = id => document.getElementById(id);
@@ -580,7 +581,7 @@ body{transition:background-color .25s ease, color .25s ease}
       const bl=$("boardLock"); if(bl) bl.hidden=admin;
       if(admin){
         loadMembers().then(()=>{ if(state.items.length) renderBoard(); });
-        loadPromotedRuns().then(()=>{ if(state.items.some(i=>i.status==="done")) renderBoard(); });
+        Promise.all([loadPromotedRuns(),loadSyntheses()]).then(()=>{ if(state.items.some(i=>i.status==="done")) renderBoard(); });
       }
       await loadPlans();
     }
@@ -619,8 +620,9 @@ body{transition:background-color .25s ease, color .25s ease}
     function srcChip(it){
       const f = it.source_finding_json;
       if(f && (f.label||f.title)) return `<span class="ai-chip">${esc(f.label||f.title)}</span>`;
-      if(it.source_run_id) return `<span class="ai-chip">from a run</span>`;
-      if(it.source_campaign_id) return `<span class="ai-chip">from a campaign</span>`;
+      if(it.source_synthesis_id) return `<span class="ai-chip">from a Synthesis</span>`;
+      if(it.source_run_id) return `<span class="ai-chip">from a Diagnostic</span>`;
+      if(it.source_campaign_id) return `<span class="ai-chip">from a Diagnostic campaign</span>`;
       return `<span class="ai-chip">added manually</span>`;
     }
     function memberName(uid){
@@ -645,24 +647,23 @@ body{transition:background-color .25s ease, color .25s ease}
     }
     function remeasureRow(it){
       if(it.status!=="done") return "";
-      const sourceRun = state.promotedRuns.find(r=>r.id===it.source_run_id) || null;
-      const srcTool = (it.source_finding_json && it.source_finding_json.tool_type) ||
-        sourceRun?.tool_type || null;
-      const after = Date.parse(sourceRun?.created_at || it.created_at || 0);
-      const cands = state.promotedRuns.filter(r=>
-        r.id!==it.source_run_id
-        && (!srcTool || r.tool_type===srcTool)
-        && (!sourceRun?.business_unit || r.business_unit===sourceRun.business_unit)
-        && Date.parse(r.created_at||0) > after
-      );
-      if(it.remeasure_run_id && !cands.some(r=>r.id===it.remeasure_run_id)){
-        const cur = state.promotedRuns.find(r=>r.id===it.remeasure_run_id);
-        if(cur) cands.unshift(cur);
+      if(it.source_synthesis_id){
+        const src=state.syntheses.find(x=>x.id===it.source_synthesis_id)||null;
+        if(!src) return "";
+        const cands=state.syntheses.filter(x=>x.id!==src.id && x.synthesis_product===src.synthesis_product && Date.parse(x.created_at||0)>Date.parse(src.created_at||0));
+        if(it.remeasure_synthesis_id && !cands.some(x=>x.id===it.remeasure_synthesis_id)){ const cur=state.syntheses.find(x=>x.id===it.remeasure_synthesis_id); if(cur)cands.unshift(cur); }
+        if(!cands.length&&!it.remeasure_synthesis_id) return "";
+        const opts=[`<option value="">Link a like-for-like Synthesis…</option>`].concat(cands.map(x=>`<option value="synth:${x.id}"${it.remeasure_synthesis_id===x.id?" selected":""}>${esc(x.synthesis_product==="depth_synthesis"?"Depth Synthesis":"Cross-Lens Synthesis")} · ${fmtDate(x.created_at)}</option>`));
+        return `<div class="ai-row" style="margin-top:6px"><select class="mini-select" data-remeasurefor="${it.id}" aria-label="Link a Synthesis remeasurement" title="Link a later like-for-like Synthesis">${opts.join("")}</select></div>`;
       }
-      if(!cands.length && !it.remeasure_run_id) return "";
-      const opts = [`<option value="">Link a re-measure\u2026</option>`]
-        .concat(cands.map(r=>`<option value="${r.id}"${it.remeasure_run_id===r.id?" selected":""}>${esc(toolLabel(r.tool_type))} \u00b7 ${fmtDate(r.created_at)}</option>`));
-      return `<div class="ai-row" style="margin-top:6px"><select class="mini-select" data-remeasurefor="${it.id}" aria-label="Link a re-measure" title="Link the after reading">${opts.join("")}</select></div>`;
+      const sourceRun=state.promotedRuns.find(r=>r.id===it.source_run_id)||null;
+      const srcTool=(it.source_finding_json&&it.source_finding_json.tool_type)||sourceRun?.tool_type||null;
+      const after=Date.parse(sourceRun?.created_at||it.created_at||0);
+      const cands=state.promotedRuns.filter(r=>r.id!==it.source_run_id && (!srcTool||r.tool_type===srcTool) && (!sourceRun?.business_unit||r.business_unit===sourceRun.business_unit) && (!sourceRun?.pathway_name||r.pathway_name===sourceRun.pathway_name) && (!sourceRun?.config_version||r.config_version===sourceRun.config_version) && (!sourceRun?.scorer_version||r.scorer_version===sourceRun.scorer_version) && Date.parse(r.created_at||0)>after);
+      if(it.remeasure_run_id&&!cands.some(r=>r.id===it.remeasure_run_id)){const cur=state.promotedRuns.find(r=>r.id===it.remeasure_run_id);if(cur)cands.unshift(cur);}
+      if(!cands.length&&!it.remeasure_run_id) return "";
+      const opts=[`<option value="">Link a like-for-like Diagnostic…</option>`].concat(cands.map(r=>`<option value="run:${r.id}"${it.remeasure_run_id===r.id?" selected":""}>${esc(toolLabel(r.tool_type))} · ${fmtDate(r.created_at)}</option>`));
+      return `<div class="ai-row" style="margin-top:6px"><select class="mini-select" data-remeasurefor="${it.id}" aria-label="Link a Diagnostic remeasurement" title="Link the later like-for-like Diagnostic">${opts.join("")}</select></div>`;
     }
     function proposedCard(it, admin){
       return `<article class="ai-card" data-id="${it.id}">
@@ -671,7 +672,7 @@ body{transition:background-color .25s ease, color .25s ease}
       </article>`;
     }
     function adoptedCard(it, admin){
-      const re = it.remeasure_run_id ? `<span class="ai-chip done">\u21bb re-measured</span>` : "";
+      const re = (it.remeasure_run_id||it.remeasure_synthesis_id) ? `<span class="ai-chip done">↻ re-measured</span>` : "";
       return `<article class="ai-card" data-id="${it.id}">
         <div class="ai-main"><div class="ai-title">${esc(it.title)}</div>${it.detail?`<div class="ai-detail">${esc(it.detail)}</div>`:""}<div class="ai-meta">${srcChip(it)}${ownerChip(it)}${re}</div></div>
         ${admin?`<div class="ai-actions col">
@@ -790,13 +791,30 @@ body{transition:background-color .25s ease, color .25s ease}
       if(state.promotedLoaded || !state.orgId) return;
       try{
         const { data, error } = await supabase.from("diagnostic_runs")
-          .select("id, tool_type, tool_label, pathway_name, business_unit, created_at, priority_actions_json, key_findings_json, full_result_json")
+          .select("id, tool_type, tool_label, pathway_name, business_unit, created_at, priority_actions_json, key_findings_json, full_result_json, config_version, scorer_version")
           .eq("organization_id", state.orgId).eq("status","promoted")
           .order("created_at",{ascending:false}).limit(40);
         if(error) throw error;
         state.promotedRuns = data || [];
       }catch(e){ state.promotedRuns = []; }
       state.promotedLoaded = true;
+    }
+    async function loadSyntheses(){
+      if(state.synthesesLoaded||!state.orgId) return;
+      try{
+        const res=await fetch(`${API_BASE}/api/synthesis-runs?limit=250`,{headers:await apiAuthHeaders()});
+        const j=await res.json().catch(()=>({}));
+        if(!res.ok||!j?.ok) throw new Error(j?.error||("HTTP "+res.status));
+        state.syntheses=Array.isArray(j.syntheses)?j.syntheses:[];
+      }catch(e){ state.syntheses=[]; }
+      state.synthesesLoaded=true;
+    }
+    async function getSynthesisResult(id){
+      if(state.synthesisResults.has(id)) return state.synthesisResults.get(id);
+      const res=await fetch(`${API_BASE}/api/synthesis-runs/${encodeURIComponent(id)}`,{headers:await apiAuthHeaders()});
+      const j=await res.json().catch(()=>({}));
+      if(!res.ok||!j?.result) throw new Error(j?.error||("HTTP "+res.status));
+      state.synthesisResults.set(id,j.result); return j.result;
     }
     function findingLabel(f){
       if(f==null) return "";
@@ -820,47 +838,45 @@ body{transition:background-color .25s ease, color .25s ease}
       return sources.flatMap(value=>Array.isArray(value)?value:[]).map(f=>({ label:String(findingLabel(f)).trim(), raw:f }))
         .filter(f=>{ const key=f.label.toLowerCase(); if(!key||seen.has(key)) return false; seen.add(key); return true; });
     }
-    function renderImportList(){
-      const run = state.promotedRuns.find(r=>r.id===$("importRunSel")?.value);
-      const list=$("importList"), btn=$("importSubmit");
-      if(!list) return;
-      const fs = run ? findingsOf(run) : [];
-      list.innerHTML = fs.length
-        ? fs.map((f,i)=>`<label style="display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.45"><input type="checkbox" data-fidx="${i}" checked style="margin-top:3px">${esc(f.label)}</label>`).join("")
-        : `<p class="muted" style="font-size:13px;margin:2px 0">This run has no recorded findings or recommendations to import.</p>`;
-      if(btn) btn.disabled = !fs.length;
+    function findingsOfSynthesis(result){
+      const sources=[result?.priority_actions,result?.what_would_unlock_a_composite,result?.what_would_strengthen_the_read,result?.key_findings,result?.executive_briefing?.priority_actions];
+      const seen=new Set();
+      return sources.flatMap(value=>Array.isArray(value)?value:[]).map(f=>({label:String(findingLabel(f)).trim(),raw:f})).filter(f=>{const k=f.label.toLowerCase();if(!k||seen.has(k))return false;seen.add(k);return true;});
+    }
+    async function renderImportList(){
+      const value=$("importRunSel")?.value||"";
+      const isSynth=value.startsWith("synth:");
+      const run=!isSynth?state.promotedRuns.find(r=>`run:${r.id}`===value):null;
+      const list=$("importList"), btn=$("importSubmit"); if(!list)return;
+      list.innerHTML=`<p class="muted" style="font-size:13px;margin:2px 0">Loading findings…</p>`;
+      let fs=[];
+      try{ fs=isSynth?findingsOfSynthesis(await getSynthesisResult(value.slice(6))):(run?findingsOf(run):[]); }catch(e){ fs=[]; }
+      list.dataset.source=value;
+      list._findings=fs;
+      list.innerHTML=fs.length?fs.map((f,i)=>`<label style="display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.45"><input type="checkbox" data-fidx="${i}" checked style="margin-top:3px">${esc(f.label)}</label>`).join(""):`<p class="muted" style="font-size:13px;margin:2px 0">This source has no recorded findings or actions to import.</p>`;
+      if(btn)btn.disabled=!fs.length;
     }
     async function openImport(preselectId){
-      await loadPromotedRuns();
-      const row=$("importRow"), sel=$("importRunSel");
-      if(!row || !sel) return;
-      if(!state.promotedRuns.length){ flash("boardMsg","No promoted runs to import from yet.","bad"); return; }
-      sel.innerHTML = state.promotedRuns.map(r=>`<option value="${r.id}">${esc(toolLabel(r.tool_type))}${r.pathway_name?" \u00b7 "+esc(r.pathway_name):""}${r.business_unit?" \u00b7 "+esc(r.business_unit):""} \u00b7 ${fmtDate(r.created_at)}</option>`).join("");
-      if(preselectId && state.promotedRuns.some(r=>r.id===preselectId)) sel.value = preselectId;
-      row.hidden=false; renderImportList();
+      await Promise.all([loadPromotedRuns(),loadSyntheses()]);
+      const row=$("importRow"),sel=$("importRunSel"); if(!row||!sel)return;
+      const options=[];
+      state.promotedRuns.forEach(r=>options.push(`<option value="run:${r.id}">Diagnostic · ${esc(toolLabel(r.tool_type))}${r.pathway_name?" · "+esc(r.pathway_name):""}${r.business_unit?" · "+esc(r.business_unit):""} · ${fmtDate(r.created_at)}</option>`));
+      state.syntheses.forEach(x=>options.push(`<option value="synth:${x.id}">${esc(x.synthesis_product==="depth_synthesis"?"Depth Synthesis":"Cross-Lens Synthesis")} · ${fmtDate(x.created_at)}${x.score_status==="published"&&x.score!=null?" · "+esc(x.score):" · Composite withheld"}</option>`));
+      if(!options.length){flash("boardMsg","No included Diagnostics or saved Syntheses to import from yet.","bad");return;}
+      sel.innerHTML=options.join("");
+      if(preselectId){ const rv=`run:${preselectId}`,sv=`synth:${preselectId}`; if([...sel.options].some(o=>o.value===rv))sel.value=rv; else if([...sel.options].some(o=>o.value===sv))sel.value=sv; }
+      row.hidden=false; await renderImportList();
     }
     async function importSelected(){
-      const run = state.promotedRuns.find(r=>r.id===$("importRunSel")?.value);
-      if(!run || !state.planId) return;
-      const fs = findingsOf(run);
-      const chosen = Array.from($("importList")?.querySelectorAll("input[data-fidx]:checked")||[]).map(cb=>fs[Number(cb.dataset.fidx)]).filter(Boolean);
-      if(!chosen.length) return;
-      let pos = state.items.length;
-      const rows = chosen.map(f=>({
-        organization_id: state.orgId, plan_id: state.planId,
-        title: f.label.slice(0,200), detail: null,
-        decision:"proposed", status:"todo", position: pos++,
-        created_by: state.userId,
-        source_run_id: run.id,
-        source_finding_json: { label: f.label, tool_type: run.tool_type }
-      }));
-      try{
-        const { error } = await supabase.from("action_items").insert(rows);
-        if(error) throw error;
-      }catch(e){ flash("boardMsg","Couldn\u2019t import findings. Admins only \u2014 and the action_items insert policy must cover the source columns.","bad"); return; }
-      const row=$("importRow"); if(row) row.hidden=true;
-      flash("boardMsg", chosen.length+" finding"+(chosen.length>1?"s":"")+" added to Proposed.","ok");
-      await loadItems();
+      const value=$("importRunSel")?.value||""; if(!value||!state.planId)return;
+      const isSynth=value.startsWith("synth:"); const id=value.slice(value.indexOf(":")+1);
+      const run=!isSynth?state.promotedRuns.find(r=>r.id===id):null;
+      const fs=Array.isArray($("importList")?._findings)?$("importList")._findings:[];
+      const chosen=Array.from($("importList")?.querySelectorAll("input[data-fidx]:checked")||[]).map(cb=>fs[Number(cb.dataset.fidx)]).filter(Boolean); if(!chosen.length)return;
+      let pos=state.items.length;
+      const rows=chosen.map(f=>({organization_id:state.orgId,plan_id:state.planId,title:f.label.slice(0,200),detail:null,decision:"proposed",status:"todo",position:pos++,created_by:state.userId,source_run_id:isSynth?null:id,source_synthesis_id:isSynth?id:null,source_finding_json:{label:f.label,tool_type:run?.tool_type||null,source_type:isSynth?"synthesis":"diagnostic"}}));
+      try{const {error}=await supabase.from("action_items").insert(rows);if(error)throw error;}catch(e){flash("boardMsg","Couldn’t import findings. Only workspace admins can change the Action Plan.","bad");return;}
+      const row=$("importRow");if(row)row.hidden=true;flash("boardMsg",chosen.length+" finding"+(chosen.length>1?"s":"")+" added to Proposed.","ok");await loadItems();
     }
 
     function wireBoard(){
@@ -872,7 +888,7 @@ body{transition:background-color .25s ease, color .25s ease}
       $("btnAddAction")?.addEventListener("click", ()=>{ const r=$("addActionRow"); if(r){ r.hidden=!r.hidden; if(!r.hidden) $("addActionTitle")?.focus(); } });
       $("btnImportFindings")?.addEventListener("click", ()=> openImport());
       $("importCancel")?.addEventListener("click", ()=>{ const r=$("importRow"); if(r) r.hidden=true; });
-      $("importRunSel")?.addEventListener("change", renderImportList);
+      $("importRunSel")?.addEventListener("change", ()=>renderImportList());
       $("importSubmit")?.addEventListener("click", importSelected);
       $("addActionCancel")?.addEventListener("click", ()=>{ const r=$("addActionRow"); if(r) r.hidden=true; });
       $("addActionSubmit")?.addEventListener("click", ()=> addAction($("addActionTitle")?.value, $("addActionDetail")?.value));
@@ -895,7 +911,7 @@ body{transition:background-color .25s ease, color .25s ease}
         const o=e.target.closest("select[data-ownerfor]");
         if(o){ setOwner(o.dataset.ownerfor, o.value||null); return; }
         const r=e.target.closest("select[data-remeasurefor]");
-        if(r){ patchItem(r.dataset.remeasurefor, { remeasure_run_id: r.value||null }).then(ok=>{ if(ok) loadItems(); }); }
+        if(r){ const v=r.value||""; const patch=v.startsWith("synth:")?{remeasure_synthesis_id:v.slice(6),remeasure_run_id:null}:v.startsWith("run:")?{remeasure_run_id:v.slice(4),remeasure_synthesis_id:null}:{remeasure_run_id:null,remeasure_synthesis_id:null}; patchItem(r.dataset.remeasurefor,patch).then(ok=>{if(ok)loadItems();}); }
       });
     }
 

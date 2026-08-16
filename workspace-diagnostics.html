@@ -521,26 +521,26 @@ body{transition:background-color .25s ease, color .25s ease}
       <main class="content">
         <nav class="subtabs" id="measureSubtabs" style="margin-top:4px">
           <a data-mtab="run" class="active">Run one yourself</a>
-          <a data-mtab="send" id="sendTabBtn" hidden>Send to a group</a>
+          <a data-mtab="send" id="sendTabBtn" hidden>Diagnostic campaigns</a>
         </nav>
         <div class="tabwrap" data-mtab="run">
         <div class="lead">
           <div class="eyebrow">Measure</div>
-          <h2>Run an instrument, review the result, promote what counts</h2>
-          <p>This is where measurement starts. Launch one of the four instruments; each completed run lands in your history below, where you promote the ones worth keeping into the organisation’s record. That record is what the Analysis space reads.</p>
+          <h2>Run a Diagnostic, review the result, include what counts</h2>
+          <p>This is where measurement starts. Each completion lands as Staged. Review it, check its quality status and scope, then Include in analysis only when it is complete and suitable for organizational analysis.</p>
         </div>
 
         <div class="dx-flow">
-          <div class="dx-step"><span class="dx-n">1</span><div><b>Run</b><span class="s">Launch an instrument below</span></div></div>
+          <div class="dx-step"><span class="dx-n">1</span><div><b>Complete</b><span class="s">Run a Diagnostic</span></div></div>
           <span class="dx-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
-          <div class="dx-step"><span class="dx-n">2</span><div><b>Review</b><span class="s">It lands in run history</span></div></div>
+          <div class="dx-step"><span class="dx-n">2</span><div><b>Staged → Reviewed</b><span class="s">Check scope and quality status</span></div></div>
           <span class="dx-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
-          <div class="dx-step"><span class="dx-n">3</span><div><b>Promote</b><span class="s">It feeds Analysis</span></div></div>
+          <div class="dx-step"><span class="dx-n">3</span><div><b>Include</b><span class="s">Eligible for Analysis and Synthesis</span></div></div>
         </div>
 
         <section class="card" id="launch">
           <div class="card-h"><h3>Launch a diagnostic</h3><span class="hist-note">About 25 minutes each at recommended depth</span></div>
-          <p class="card-sub">Each instrument is a different lens on the organisation. Pick the one whose question fits what you’re trying to see.</p>
+          <p class="card-sub">Each instrument is a different lens on the organization. Pick the one whose question fits what you’re trying to see.</p>
           <div class="launch-grid">
             <a class="launch-card" href="structural-clarity.html">
               <span class="launch-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h8"/><path d="M4 12h16"/><path d="M4 17h11"/></svg></span>
@@ -570,11 +570,11 @@ body{transition:background-color .25s ease, color .25s ease}
             <h3>Run history</h3>
             <div class="right"><span class="hist-note" id="histNote"></span><button class="btn-refresh" id="btnRefresh" type="button">Refresh</button></div>
           </div>
-          <p class="card-sub">Every completed run collects here. Promote the ones that count and they’ll appear in Analysis; archive the rest to keep the list clean.</p>
+          <p class="card-sub">Completed runs are Staged first. Review completed runs and include those that are complete, in scope, and suitable for organizational analysis. Included runs are eligible for Analysis and Synthesis; archived runs remain out of both.</p>
           <div class="filters" id="filters">
             <button data-f="all" class="active">All</button>
             <button data-f="staged">Staged</button>
-            <button data-f="promoted">Promoted</button>
+            <button data-f="promoted">Included</button>
             <button data-f="archived">Archived</button>
           </div>
           <div id="runMsg"></div>
@@ -584,9 +584,9 @@ body{transition:background-color .25s ease, color .25s ease}
 
                 <div class="tabwrap" data-mtab="send" hidden>
         <div class="lead">
-          <div class="eyebrow">Campaigns</div>
-          <h2>Dispatch a diagnostic to the people who hold the answer</h2>
-          <p>Compose a directed run, send it to named recipients, and track who has responded. Each recipient gets their own link; completed runs flow into Analysis &mdash; and the vantage you choose powers the Across-vantages lens.</p>
+          <div class="eyebrow">Diagnostic campaigns</div>
+          <h2>Invite participants into a bounded operating pathway</h2>
+          <p>Create a Diagnostic campaign, choose the participant vantage, and send each participant a unique invitation. Completed participant runs are Staged for review before they can be Included in analysis.</p>
         </div>
 
         <!-- locked notice for non-admins -->
@@ -617,9 +617,9 @@ body{transition:background-color .25s ease, color .25s ease}
             <div class="field">
               <label for="fVantage">Vantage</label>
               <select id="fVantage">
-                <option value="operational" selected>Operational &mdash; front line</option>
+                <option value="operational" selected>Operational</option>
                 <option value="managerial">Managerial</option>
-                <option value="executive">Executive</option>
+                <option value="executive">Senior Leader</option>
               </select>
             </div>
           </div>
@@ -722,7 +722,7 @@ body{transition:background-color .25s ease, color .25s ease}
                          free:"Trial", baseline:"Signal", advisory:"Pattern" };
     const TOOL = { operational_systems:"Operational Systems", decision_velocity:"Decision Velocity", structural_clarity:"Structural Clarity", institutional_performance:"Institutional Performance" };
 
-    const state = { user:null, orgId:null, userId:null, role:"viewer", runs:[], filter:"all", expanded:{} };
+    const state = { user:null, orgId:null, userId:null, role:"viewer", runs:[], filter:"all", expanded:{}, organization:null };
 
     const $ = id => document.getElementById(id);
     function setText(id,v){ const e=$(id); if(e&&v!=null) e.textContent=v; }
@@ -744,7 +744,7 @@ body{transition:background-color .25s ease, color .25s ease}
       $("runsBody").innerHTML = `<p class="muted">Loading…</p>`;
       try{
         const { data, error } = await supabase.from("diagnostic_runs")
-          .select("id, tool_type, tool_label, business_unit, pathway_name, score, band, primary_driver, benchmark_position, trajectory_label, exposure_json, key_findings_json, priority_actions_json, status, created_at")
+          .select("id, tool_type, tool_label, business_unit, pathway_name, score, band, primary_driver, benchmark_position, trajectory_label, exposure_json, key_findings_json, priority_actions_json, status, normalization_status, included_in_aggregates, config_version, scorer_version, created_at")
           .order("created_at",{ ascending:false }).limit(200);
         if(error) throw error;
         state.runs = data || [];
@@ -764,13 +764,13 @@ body{transition:background-color .25s ease, color .25s ease}
 
     function render(){
       const c = counts();
-      setText("histNote", `${c.all} run${c.all===1?"":"s"} · ${c.staged} staged · ${c.promoted} promoted`);
+      setText("histNote", `${c.all} run${c.all===1?"":"s"} · ${c.staged} staged · ${c.promoted} included`);
       // filter active state
       $("filters").querySelectorAll("button").forEach(b => b.classList.toggle("active", b.dataset.f===state.filter));
 
       const rows = state.runs.filter(r => state.filter==="all" ? true : r.status===state.filter);
       if(!state.runs.length){
-        $("runsBody").innerHTML = `<div class="empty"><b>No runs yet</b><p>Launch a diagnostic from the cards above. Completed runs land here, where you can promote them into Analysis.</p></div>`;
+        $("runsBody").innerHTML = `<div class="empty"><b>No runs yet</b><p>Launch a diagnostic from the cards above. Completed runs land here as Staged. Review them before including them in Analysis.</p></div>`;
         return;
       }
       if(!rows.length){
@@ -784,19 +784,27 @@ body{transition:background-color .25s ease, color .25s ease}
     function statusPill(st){
       const s = (st||"staged");
       const cls = s==="promoted" ? "spill-promoted" : (s==="archived" ? "spill-archived" : "spill-staged");
-      return `<span class="spill ${cls}">${cap(s)}</span>`;
+      const label=s==="promoted"?"Included":cap(s); return `<span class="spill ${cls}">${label}</span>`;
+    }
+
+    function qualityPill(r){
+      const st=r.normalization_status||null;
+      if(st==="included") return `<span class="spill spill-promoted">Included</span>`;
+      if(st==="included_with_caution") return `<span class="spill spill-staged">Included with caution</span>`;
+      if(st==="excluded_from_aggregates"||r.included_in_aggregates===false) return `<span class="spill spill-archived">Excluded from aggregates</span>`;
+      return `<span class="spill">Not yet screened</span>`;
     }
     function actionsFor(r){
-      if(state.role!=="admin") return "";
+      if(!["admin","owner"].includes(String(state.role||"").toLowerCase())) return "";
       const id = r.id;
       if(r.status==="promoted"){
-        return `<button class="ract" data-act="staged" data-id="${id}">Unpromote</button><button class="ract danger" data-act="archived" data-id="${id}">Archive</button>`;
+        return `<button class="ract" data-act="staged" data-id="${id}">Remove from analysis</button><button class="ract danger" data-act="archived" data-id="${id}">Archive</button>`;
       }
       if(r.status==="archived"){
         return `<button class="ract" data-act="staged" data-id="${id}">Restore</button>`;
       }
       // staged
-      return `<button class="ract primary" data-act="promoted" data-id="${id}">Promote</button><button class="ract danger" data-act="archived" data-id="${id}">Archive</button>`;
+      return `<button class="ract primary" data-act="promoted" data-id="${id}">Include in analysis</button><button class="ract danger" data-act="archived" data-id="${id}">Archive</button>`;
     }
     function runRowHTML(r){
       const sc = asNum(r.score);
@@ -805,7 +813,7 @@ body{transition:background-color .25s ease, color .25s ease}
       return `<div class="run" data-row="${r.id}">
           <div class="run-tool">${esc(toolLabel(r))}<span>${esc(sub)}</span></div>
           <div class="run-score num" style="color:${tone(sc)}">${sc??"—"}</div>
-          <div class="run-mid">${r.band?`<span class="run-band">${esc(r.band)}</span>`:""}${statusPill(r.status)}</div>
+          <div class="run-mid">${r.band?`<span class="run-band">${esc(r.band)}</span>`:""}${statusPill(r.status)}${qualityPill(r)}</div>
           <div class="run-actions">${actionsFor(r)}<button class="ract" data-report="${r.id}">Report</button><button class="ract" data-json="${r.id}">JSON</button><button class="run-expand" data-exp="${r.id}">${open?"Hide":"Details"}</button></div>
           ${open?`<div class="run-detail">${runDetailHTML(r)}</div>`:""}
         </div>`;
@@ -838,12 +846,12 @@ body{transition:background-color .25s ease, color .25s ease}
         if(error) throw error;
         run.status = status;
         render();
-        const note = status==="promoted" ? "Promoted — it’s now in your organisation’s record and will appear in Analysis."
-          : (prev==="promoted" && status==="staged") ? "Moved back to staged — removed from Analysis."
+        const note = status==="promoted" ? "Included in analysis — this run is now eligible for Analysis and Synthesis."
+          : (prev==="promoted" && status==="staged") ? "Removed from analysis and returned to Staged."
           : status==="archived" ? "Archived." : "Restored to staged.";
         flash("ok", note);
       }catch(e){
-        flash("bad", "Couldn’t update that run — promoting and archiving are admin-only. (" + (e.message||"error") + ")");
+        flash("bad", "Couldn’t update that run — including and archiving are admin-only. (" + (e.message||"error") + ")");
       }
     }
 
@@ -897,20 +905,29 @@ body{transition:background-color .25s ease, color .25s ease}
       const name=user.user_metadata?.full_name || user.user_metadata?.name || user.email || "Monderman User";
       setText("ws5UserName",name); setText("ws5Ava", initials(name,user.email));
       try{
-        const { data:m } = await supabase.from("organization_members").select("organization_id, role, organizations(name, plan)").limit(1).maybeSingle();
+        const { data:m } = await supabase.from("organization_members").select("organization_id, role, organizations(name, plan, anonymous_responses_enabled, campaigns_enabled, respondent_pool, respondents_used)").limit(1).maybeSingle();
         state.orgId = m?.organization_id || null;
-        state.role = m?.role || "viewer";
+        state.role = m?.role || "viewer"; state.organization=m?.organizations||null;
         setText("ws5UserRole", cap(state.role));
         setText("ws5Org", (m?.organizations?.name)||"Personal workspace");
-        setText("ws5Plan", PLAN_LABEL[m?.organizations?.plan]||m?.organizations?.plan||"Free");
+        setText("ws5Plan", PLAN_LABEL[m?.organizations?.plan]||m?.organizations?.plan||"Trial");
+        const anon=$("fAnon"); if(anon){ const enabled=m?.organizations?.anonymous_responses_enabled===true; anon.disabled=!enabled; if(!enabled){ anon.checked=false; anon.title="Anonymous participant responses are included with Pattern and Enterprise."; const note=$("anonNote"); if(note) note.insertAdjacentHTML("afterbegin","<b>Plan note:</b> Anonymous participant responses are included with Pattern and Enterprise.<br>"); } }
       }catch(e){ setText("ws5UserRole","Viewer"); setText("ws5Org","Workspace"); setText("ws5Plan","—"); }
 
-      if(state.role!=="admin"){
+      if(!["admin","owner"].includes(String(state.role||"").toLowerCase())){
         setText("histNote","");
         // soft hint that promotion is an admin action (shown once above the list after load)
       }
       await loadRuns();
-      if(state.role!=="admin" && state.runs.length){ flash("ok","Viewing run history. Promoting and archiving runs is an admin action."); }
+      const reportId=new URLSearchParams(location.search).get("report");
+      if(reportId && state.runs.some(r=>r.id===reportId)){
+        setTimeout(()=>exportRun(reportId,"report",null),0);
+      }else if(state.runs.some(r=>r.status==="staged")){
+        state.filter="staged"; render();
+        flash("ok",`${state.runs.filter(r=>r.status==="staged").length} staged run${state.runs.filter(r=>r.status==="staged").length===1?"":"s"} awaiting review.`);
+      }else if(!["admin","owner"].includes(String(state.role||"").toLowerCase()) && state.runs.length){
+        flash("ok","Viewing run history. Including and archiving runs is an admin action.");
+      }
     }
     boot();
   </script>
@@ -1502,12 +1519,13 @@ body{transition:background-color .25s ease, color .25s ease}
       if(!user){ window.location.replace("signin.html?next=workspace-diagnostics.html"); return; }
       state.user=user; state.userId=user.id;
       try{
-        const { data:m } = await supabase.from("organization_members").select("organization_id, role, organizations(name, plan)").limit(1).maybeSingle();
+        const { data:m } = await supabase.from("organization_members").select("organization_id, role, organizations(name, plan, anonymous_responses_enabled, campaigns_enabled, respondent_pool, respondents_used)").limit(1).maybeSingle();
         state.orgId = m?.organization_id || null;
         state.role = m?.role || "viewer";
       }catch(e){}
       if(canRunCampaigns()){
         document.getElementById("sendTabBtn")?.removeAttribute("hidden");
+        if(location.hash==="#campaigns") setTimeout(()=>document.getElementById("sendTabBtn")?.click(),0);
         $("composeCard").hidden=false;
         setupComposerAutosave();
         wireBulkImport();
@@ -1526,6 +1544,12 @@ body{transition:background-color .25s ease, color .25s ease}
     function show(t){ tabs.forEach(function(x){ x.classList.toggle('active', x.getAttribute('data-mtab')===t); });
       Array.prototype.slice.call(document.querySelectorAll('.tabwrap[data-mtab]')).forEach(function(w){ w.hidden = (w.getAttribute('data-mtab')!==t); }); }
     tabs.forEach(function(a){ a.addEventListener('click', function(){ show(a.getAttribute('data-mtab')); }); });
+    if (location.hash === "#campaigns" && document.getElementById("sendTabBtn") && !document.getElementById("sendTabBtn").hidden) show("send");
+    else if (location.hash === "#launch") show("run");
+    window.addEventListener("hashchange", function(){
+      if (location.hash === "#campaigns" && document.getElementById("sendTabBtn") && !document.getElementById("sendTabBtn").hidden) show("send");
+      else if (location.hash === "#launch") show("run");
+    });
   })();
   </script>
   <script src="workspace-assistant.js" defer></script>

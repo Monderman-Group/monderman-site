@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Depth & Cross-Lens Synthesis | Monderman</title>
+  <title>Depth Synthesis & Cross-Lens Synthesis | Monderman</title>
   <link rel="canonical" href="https://www.monderman.com/cross-tool-synthesis.html">
-  <meta property="og:title" content="Depth & Cross-Lens Synthesis | Monderman">
+  <meta property="og:title" content="Depth Synthesis & Cross-Lens Synthesis | Monderman">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://www.monderman.com/cross-tool-synthesis.html">
   <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="10" fill="%2304181B"/><text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23FAFAF8">M</text><rect x="47" y="36" width="8" height="8" rx="1.2" fill="%230C6E78"/></svg>'>
@@ -52,7 +52,7 @@
     <div class="topbar-inner">
       <a class="brand" href="index.html">Monderman<span class="brand-dot"></span></a>
       <nav class="top-links" aria-label="Synthesis navigation">
-        <a href="workspace-analysis.html">Analysis</a>
+        <a href="workspace-analysis.html#synthesis">Analysis</a>
         <a href="diagnostics.html">Diagnostics</a>
         <a href="workspace.html">Workspace</a>
       </nav>
@@ -62,9 +62,9 @@
   <main class="shell">
     <section class="hero">
       <div>
-        <p class="eyebrow">Meta-diagnostics</p>
-        <h1 id="pageTitle">Depth & cross-lens synthesis</h1>
-        <p id="pageDek">One instrument across many respondents produces a depth read. Two or more instruments produce a cross-lens comparison, with one composite published only when the evidence is coherent enough.</p>
+        <p class="eyebrow">Synthesis Executive Report</p>
+        <h1 id="pageTitle">Depth Synthesis &amp; Cross-Lens Synthesis</h1>
+        <p id="pageDek">Depth Synthesis combines eligible runs from one Diagnostic. Cross-Lens Synthesis compares eligible runs from two or more Diagnostics and publishes a Cross-Lens Composite Score only when the evidence is sufficiently coherent.</p>
       </div>
       <div class="hero-badge">
         <span>Current result</span>
@@ -73,17 +73,17 @@
     </section>
 
     <div class="actions" id="reportActions" hidden>
-      <button class="btn primary" id="openPdf" type="button">Open executive report (PDF)</button>
+      <button class="btn primary" id="openPdf" type="button">Print or save as PDF</button>
       <button class="btn" id="downloadHtml" type="button">Download HTML</button>
       <button class="btn" id="downloadJson" type="button">Download JSON</button>
-      <a class="btn" href="workspace-analysis.html">Build another synthesis</a>
+      <a class="btn" href="workspace-analysis.html#synthesis">Build another Synthesis</a>
     </div>
 
     <section class="state" id="missingState">
-      <h2>No synthesis is saved in this browser session</h2>
-      <p>Build a depth or cross-lens synthesis from the Analysis workspace, or upload two or more diagnostic result files from Diagnostics. This page renders the saved API result; it does not recalculate scores, evidence bands, or exposure.</p>
+      <h2 id="missingTitle">No saved Synthesis selected</h2>
+      <p id="missingCopy">Open a saved Synthesis from Analysis, or build a new Depth Synthesis or Cross-Lens Synthesis. This page renders the API result; it does not recalculate scores, evidence bands, or exposure.</p>
       <div class="actions">
-        <a class="btn primary" href="workspace-analysis.html">Open Analysis</a>
+        <a class="btn primary" href="workspace-analysis.html#synthesis">Open Analysis</a>
         <a class="btn" href="diagnostics.html">Open Diagnostics</a>
       </div>
     </section>
@@ -93,47 +93,68 @@
   </main>
 
   <script src="monderman-report.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
   <script>
     (function(){
       "use strict";
+      const API_BASE="https://monderman-api.onrender.com";
       const STORAGE_KEY="mondermanCrossDiagnosticSynthesis";
       const byId=(id)=>document.getElementById(id);
+      const supabase=window.supabase?.createClient
+        ? window.supabase.createClient("https://ptkxrzgmeldalrkfruth.supabase.co","sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}})
+        : null;
       function unwrap(value){
         if(!value||typeof value!=="object") return null;
         if(value.result&&typeof value.result==="object") return value.result;
         if(value.synthesis_payload&&typeof value.synthesis_payload==="object") return value.synthesis_payload;
         return value;
       }
-      function readResult(){
-        try{
-          const raw=sessionStorage.getItem(STORAGE_KEY);
-          return raw?unwrap(JSON.parse(raw)):null;
-        }catch(error){ return null; }
+      function readLegacyResult(){ try{ const raw=sessionStorage.getItem(STORAGE_KEY); return raw?unwrap(JSON.parse(raw)):null; }catch(error){return null;} }
+      function safeFilename(result,model){ const hint=result?.export_payload?.filename_hint||model?.filenameBase||"monderman-synthesis"; return String(hint).replace(/\.json$/i,""); }
+      function productLabel(result){ return result?.synthesis_product==="depth_synthesis"||result?.synthesis_mode==="depth"?"Depth Synthesis":"Cross-Lens Synthesis"; }
+      function renderResult(result){
+        if(!result||!window.MondermanReport) return false;
+        const model=window.MondermanReport.fromSynthesis(result);
+        const isDepth=result.synthesis_product==="depth_synthesis"||result.synthesis_mode==="depth";
+        const label=productLabel(result);
+        const evidence=result.evidence_assessment?.evidence_label||result.readiness_label||"Evidence band unavailable";
+        const scoreState=isDepth
+          ? `Median Diagnostic Score ${result.cross_diagnostic_score??"—"}`
+          : result.score_status==="published"?`Cross-Lens Composite Score ${result.cross_diagnostic_score??"—"}`:"Cross-Lens Composite Score withheld";
+        byId("pageTitle").textContent=label;
+        byId("pageDek").textContent=isDepth
+          ? "A same-Diagnostic Synthesis reporting the Median Diagnostic Score, distribution, participant-vantage evidence, and limits of the observed set."
+          : "A multi-Diagnostic Synthesis that keeps each lens visible and publishes a Cross-Lens Composite Score only when the evidence meets the coherence requirements.";
+        byId("resultBadge").textContent=`${label} · ${evidence} · ${scoreState}`;
+        byId("missingState").hidden=true; byId("reportActions").hidden=false; byId("methodNote").hidden=false;
+        window.MondermanReport.render("reportHost",model);
+        const filename=safeFilename(result,model);
+        byId("openPdf").onclick=()=>window.MondermanReport.openReport(model);
+        byId("downloadHtml").onclick=()=>window.MondermanReport.downloadHtml(model);
+        byId("downloadJson").onclick=()=>window.MondermanReport.downloadJson(result,filename);
+        return true;
       }
-      function safeFilename(result,model){
-        const hint=result?.export_payload?.filename_hint||model?.filenameBase||"monderman-synthesis";
-        return String(hint).replace(/\.json$/i,"");
+      async function load(){
+        const id=new URLSearchParams(location.search).get("id");
+        if(id){
+          if(!supabase){ byId("missingTitle").textContent="Couldn’t load the saved Synthesis"; return; }
+          try{
+            const {data}=await supabase.auth.getSession(); const token=data?.session?.access_token;
+            if(!token){ location.replace("signin.html?next="+encodeURIComponent("cross-tool-synthesis.html?id="+id)); return; }
+            const response=await fetch(`${API_BASE}/api/synthesis-runs/${encodeURIComponent(id)}`,{headers:{Authorization:"Bearer "+token}});
+            const payload=await response.json().catch(()=>({}));
+            if(!response.ok||!payload.result) throw new Error(payload.error||`HTTP ${response.status}`);
+            renderResult(payload.result); return;
+          }catch(error){
+            byId("missingTitle").textContent="Saved Synthesis unavailable";
+            byId("missingCopy").textContent="This saved Synthesis could not be loaded for your workspace. Return to Analysis to choose another saved Synthesis or build a new one.";
+            return;
+          }
+        }
+        const legacy=readLegacyResult();
+        if(legacy){ renderResult(legacy); return; }
       }
-      const result=readResult();
-      if(!result||!window.MondermanReport){ return; }
-      const model=window.MondermanReport.fromSynthesis(result);
-      const isDepth=result.synthesis_product==="depth_synthesis"||result.synthesis_mode==="depth";
-      const label=isDepth?"Depth synthesis":"Cross-lens synthesis";
-      const evidence=result.evidence_assessment?.evidence_label||result.readiness_label||"Evidence band unavailable";
-      const scoreState=result.score_status==="published"?"score published":"composite withheld";
-      byId("pageTitle").textContent=isDepth?"Depth synthesis":"Cross-lens synthesis";
-      byId("pageDek").textContent=isDepth
-        ? "A same-instrument read across multiple respondents, reporting the observed median, distribution, segment differences, and sampling limits."
-        : "A multi-lens read that separates comparison from a coherent composite and states exactly what evidence supports each conclusion.";
-      byId("resultBadge").textContent=`${label} · ${evidence} · ${scoreState}`;
-      byId("missingState").hidden=true;
-      byId("reportActions").hidden=false;
-      byId("methodNote").hidden=false;
-      window.MondermanReport.render("reportHost",model);
-      const filename=safeFilename(result,model);
-      byId("openPdf").addEventListener("click",()=>window.MondermanReport.openReport(model));
-      byId("downloadHtml").addEventListener("click",()=>window.MondermanReport.downloadHtml(model));
-      byId("downloadJson").addEventListener("click",()=>window.MondermanReport.downloadJson(result,filename));
+      load();
     })();
   </script>
 </body>

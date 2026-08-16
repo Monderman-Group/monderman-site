@@ -455,12 +455,18 @@ body{transition:background-color .25s ease,color .25s ease}
       </div>
     </section>
 
-    <!-- the four instruments -->
-    <section class="ws-instruments" id="wsInstruments" aria-label="The four instruments">
+    <!-- the four Diagnostics -->
+    <section class="ws-instruments" id="wsInstruments" aria-label="The four Diagnostics">
       <div class="ws-inst"><div class="name">Structural Clarity</div><div class="val empty">—</div><div class="row"><span class="ws-muted" style="font-size:12.5px">Loading…</span></div></div>
       <div class="ws-inst"><div class="name">Decision Velocity</div><div class="val empty">—</div></div>
       <div class="ws-inst"><div class="name">Operational Systems</div><div class="val empty">—</div></div>
       <div class="ws-inst"><div class="name">Institutional Performance</div><div class="val empty">—</div></div>
+    </section>
+
+    <div class="ws-section-label"><span class="ws-eyebrow">Synthesis readiness</span><a class="ws-link" href="workspace-analysis.html#synthesis">Open Analysis →</a></div>
+    <section class="ws-instruments" id="wsSynthesisReadiness" aria-label="Synthesis readiness" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+      <div class="ws-inst"><div class="name">Depth Synthesis</div><div class="val empty">—</div><div class="row"><span class="ws-muted" style="font-size:12.5px">Loading eligible candidates…</span></div></div>
+      <div class="ws-inst"><div class="name">Cross-Lens Synthesis</div><div class="val empty">—</div></div>
     </section>
 
     <!-- recommended next -->
@@ -480,9 +486,9 @@ body{transition:background-color .25s ease,color .25s ease}
 
     <!-- quiet drawer to the rest -->
     <nav class="ws-drawer" aria-label="More">
-      <a href="workspace-diagnostics.html">All reads <span class="n" id="wsAllReadsN">(0)</span></a>
-      <a href="workspace-analysis.html">Synthesis</a>
-      <a href="workspace-actions.html">Campaigns</a>
+      <a href="workspace-diagnostics.html">Run history <span class="n" id="wsAllReadsN">(0)</span></a>
+      <a href="workspace-analysis.html#synthesis">Depth &amp; Cross-Lens Synthesis</a>
+      <a href="workspace-diagnostics.html#campaigns">Diagnostic campaigns</a>
       <a href="workspace-settings.html">Plan &amp; settings</a>
     </nav>
 
@@ -577,17 +583,8 @@ body{transition:background-color .25s ease,color .25s ease}
       return map;
     }
 
-    // honest, cheap standing headline (NO synthesis call)
-    function dominantHeadline(byTool){
-      const reads = TOOLS.map(t=>byTool[t]).filter(Boolean).map(e=>e.run);
-      const cls = reads.map(r=>bandClass(r.band, r.score));
-      const worst = reads.slice().sort((a,b)=> (Number(a.score)||999)-(Number(b.score)||999))[0];
-      if(cls.includes("crit")) return `${toolName(worst.tool_type)} is at a critical level.`;
-      const nBad = cls.filter(c=>c==="crit"||c==="s").length;
-      if(nBad >= Math.ceil(reads.length/2)) return "Most of your organization is under strain.";
-      if(cls.length && cls.every(c=>c==="k")) return "Your organization is holding steady.";
-      return "Strong in some areas, strained in others.";
-    }
+    // Overview never infers an organization-wide condition from unrelated scopes.
+    function includedCandidates(runs){ return (runs||[]).filter(r=>r.status==="promoted" && r.included_in_aggregates!==false); }
 
     // ---- data (preserved) ----
     async function ensureWorkspace(user){
@@ -606,7 +603,7 @@ body{transition:background-color .25s ease,color .25s ease}
       const { error:inviteError } = await supabase.rpc("redeem_my_invites");
       const { data:memberships, error:membershipError } = await supabase
         .from("organization_members")
-        .select("organization_id, role, organizations(id, name, slug, plan, run_limit, runs_used, seat_limit, features, analyst_reviews_included, hands_on_advisory, plan_period, allowed_tool_type)")
+        .select("organization_id, role, organizations(id, name, slug, plan, run_limit, runs_used, seat_limit, features, analyst_reviews_included, hands_on_advisory, plan_period, allowed_tool_type, analyst_limit, admin_limit, campaigns_enabled, respondent_pool, respondents_used, aggregation_enabled, aggregation_limit, aggregations_used, anonymous_responses_enabled)")
         .eq("user_id", user.id).limit(1);
       if(membershipError) throw membershipError;
       if(memberships?.length) return memberships[0];
@@ -633,7 +630,7 @@ body{transition:background-color .25s ease,color .25s ease}
       // personal-only when no organization is linked. Requires the org-scoped
       // SELECT policy on diagnostic_runs (see deployment notes).
       const orgId = state.membership?.organization_id || null;
-      let query = supabase.from("diagnostic_runs").select("*").eq("status","promoted").order("created_at",{ ascending:false }).limit(50);
+      let query = supabase.from("diagnostic_runs").select("*").eq("status","promoted").order("created_at",{ ascending:false }).limit(1000);
       query = orgId ? query.eq("organization_id", orgId) : query.eq("user_id", state.user.id);
       const { data, error } = await query;
       if(error) throw error;
@@ -656,38 +653,40 @@ body{transition:background-color .25s ease,color .25s ease}
     }
 
     function renderHero(byTool){
-      const readCount = TOOLS.filter(t=>byTool[t]).length;
-      const orgName = state.organization?.name || "Your workspace";
-      const dates = TOOLS.map(t=>byTool[t]?.run.created_at).filter(Boolean).sort((a,b)=> new Date(b)-new Date(a));
-      $("wsEyebrow").textContent = `${orgName} · ${dates.length ? "as of "+monthLabel(dates[0]) : "no reads yet"}`;
-
-      const thesis=$("wsThesis"), meta=$("wsReadMeta"), cta=$("wsHeroCta");
-      if(readCount===0){
-        thesis.innerHTML = 'Measure how your organization is really <em>performing</em>.';
-        meta.textContent = "Four instruments. About 25 minutes each at the recommended depth.";
-        cta.textContent = "Run a diagnostic"; cta.href = "workspace-diagnostics.html#launch";
-      } else if(readCount < 2){
-        thesis.textContent = `${readCount} of four instruments measured.`;
-        meta.textContent = "Read the rest to see the whole system.";
-        cta.textContent = "Run another diagnostic"; cta.href = "workspace-diagnostics.html#launch";
-      } else {
-        thesis.textContent = dominantHeadline(byTool);
-        meta.textContent = `${readCount} of four instruments measured · a synthesized read is one step away in Analysis.`;
-        cta.textContent = "Synthesize your reads →"; cta.href = "workspace-analysis.html";
+      const represented=TOOLS.filter(t=>byTool[t]).length;
+      const candidates=includedCandidates(state.runs);
+      const orgName=state.organization?.name||"Your workspace";
+      const dates=candidates.map(r=>r.created_at).filter(Boolean).sort((a,b)=>new Date(b)-new Date(a));
+      $("wsEyebrow").textContent=`${orgName} · ${dates.length?"latest included run "+monthLabel(dates[0]):"no included runs yet"}`;
+      const thesis=$("wsThesis"),meta=$("wsReadMeta"),cta=$("wsHeroCta");
+      if(!candidates.length){
+        thesis.textContent="Measure one bounded operating pathway.";
+        meta.textContent="Four Diagnostics answer different questions. Completed runs are reviewed before they enter Analysis or Synthesis.";
+        cta.textContent="Run a Diagnostic"; cta.href="workspace-diagnostics.html#launch";
+      }else{
+        thesis.textContent=`${candidates.length} included Diagnostic run${candidates.length===1?"":"s"} available for Analysis.`;
+        meta.textContent=`${represented} of four Diagnostics represented in the latest included results. Scores remain scoped to their own pathway, unit, date, and vantage.`;
+        cta.textContent="Open Analysis →"; cta.href="workspace-analysis.html";
       }
     }
 
     function renderInstruments(byTool){
-      $("wsInstruments").innerHTML = TOOLS.map(t=>{
-        const e = byTool[t], label = toolName(t);
-        if(!e){
-          return `<div class="ws-inst"><div class="name">${label}</div><div class="val empty">—</div><div class="row"><a class="ws-link" href="workspace-diagnostics.html#launch">Run →</a></div></div>`;
-        }
-        const r = e.run;
-        const score = (r.score!=null && r.score!=="") ? escapeHtml(String(r.score)) : "—";
-        const chip = r.band ? `<span class="ws-chip ${bandClass(r.band, r.score)}">${escapeHtml(r.band)}</span>` : "";
-        return `<div class="ws-inst"><div class="name">${label}</div><div class="val tnum">${score}</div><div class="row">${chip}${trendHTML(e.trend)}</div></div>`;
+      $("wsInstruments").innerHTML=TOOLS.map(t=>{
+        const e=byTool[t],label=toolName(t);
+        if(!e) return `<div class="ws-inst"><div class="name">${label}</div><div class="val empty">—</div><div class="row"><a class="ws-link" href="workspace-diagnostics.html#launch">Run →</a></div></div>`;
+        const r=e.run,score=(r.score!=null&&r.score!=="")?escapeHtml(String(r.score)):"—";
+        const chip=r.band?`<span class="ws-chip ${bandClass(r.band,r.score)}">${escapeHtml(r.band)}</span>`:"";
+        const scope=escapeHtml(r.business_unit||r.pathway_name||"Scope not labeled"),date=escapeHtml(monthLabel(r.created_at));
+        return `<div class="ws-inst"><div class="name">${label}</div><div class="val tnum">${score}</div><div class="row">${chip}</div><div class="row"><span class="ws-muted" style="font-size:12px">${scope} · ${date}</span></div><div class="row"><a class="ws-link" href="workspace-diagnostics.html?report=${encodeURIComponent(r.id)}">Open report</a><a class="ws-link" href="workspace-diagnostics.html#launch">Run again</a></div></div>`;
       }).join("");
+    }
+
+    function renderSynthesisReadiness(){
+      const runs=includedCandidates(state.runs),counts={}; runs.forEach(r=>{counts[r.tool_type]=(counts[r.tool_type]||0)+1;});
+      const depthTools=TOOLS.filter(t=>(counts[t]||0)>=2); const lensCount=TOOLS.filter(t=>(counts[t]||0)>=1).length;
+      const depth=depthTools.length?`${depthTools.length} Diagnostic${depthTools.length===1?"":"s"} with 2+ candidates`:"Needs 2+ eligible runs from one Diagnostic";
+      const cross=lensCount>=2?`${lensCount} Diagnostic lenses represented`:"Needs eligible runs from at least 2 Diagnostics";
+      $("wsSynthesisReadiness").innerHTML=`<div class="ws-inst"><div class="name">Depth Synthesis</div><div class="val" style="font-size:18px">${escapeHtml(depthTools.length?"Available to build":"Not ready")}</div><div class="row"><span class="ws-muted" style="font-size:12.5px">${escapeHtml(depth)}. Analysis verifies scope and version eligibility.</span></div><div class="row"><a class="ws-link" href="workspace-analysis.html#synthesis">Build Depth Synthesis →</a></div></div><div class="ws-inst"><div class="name">Cross-Lens Synthesis</div><div class="val" style="font-size:18px">${escapeHtml(lensCount>=2?"Available to compare":"Not ready")}</div><div class="row"><span class="ws-muted" style="font-size:12.5px">${escapeHtml(cross)}. A Composite Score may still be withheld.</span></div><div class="row"><a class="ws-link" href="workspace-analysis.html#synthesis">Build Cross-Lens Synthesis →</a></div></div>`;
     }
 
     function renderRecommended(runs){
@@ -721,47 +720,13 @@ body{transition:background-color .25s ease,color .25s ease}
     }
 
     function renderEntitlements(){
-      const org = state.organization || {};
-      const plan = org.plan || "trial";
-      const used = Number(org.runs_used ?? state.runs.length ?? 0);
-      const usage = plan==="free" ? `${Math.min(used,3)} of 3 free runs used`
-                   : (org.run_limit==null ? "Runs covered by your tier's allowance" : `${used} of ${org.run_limit} runs this year`);
-      const instrument = (plan==="baseline" && org.allowed_tool_type)
-        ? `<span class="sep">·</span><span>Instrument: ${escapeHtml(toolName(org.allowed_tool_type))}</span>` : "";
-      $("wsPlanStrip").innerHTML =
-        `<span><b>${escapeHtml(PLAN_LABEL[plan]||plan)}</b> plan</span>`+
-        `<span class="sep">·</span><span>${escapeHtml(usage)}</span>`+
-        instrument+
-        `<span class="sep">·</span><span>Unlimited people</span>`;
-      const manage = $("wsManageLink");
-      manage.textContent = plan==="free" ? "Upgrade →" : "Manage plan →";
-      // Free: the link is an upgrade path. Paid: it opens the Stripe billing
-      // portal (card, interval, cancel), which is what the plan pages promise.
-      manage.href = plan==="free" ? "platform-services.html" : "#billing";
-      if (plan !== "free" && !manage.dataset.billingWired) {
-        manage.dataset.billingWired = "1";
-        manage.addEventListener("click", async (e) => {
-          e.preventDefault();
-          const prior = manage.textContent;
-          manage.textContent = "Opening billing\u2026";
-          try {
-            const { data } = await supabase.auth.getSession();
-            const res = await fetch("https://monderman-api.onrender.com/api/billing/portal-session", {
-              method: "POST",
-              headers: { "content-type": "application/json", authorization: "Bearer " + (data?.session?.access_token || "") }
-            });
-            const out = await res.json().catch(() => ({}));
-            if (res.ok && out.url) { location.href = out.url; return; }
-            manage.textContent = prior;
-            wsNotice(res.status === 403 ? "Only a workspace admin can manage billing."
-                   : res.status === 404 ? "No self-serve billing account yet. Invoiced plans are managed via Connect."
-                   : "Billing portal is unavailable right now. Try again shortly.");
-          } catch (_e) {
-            manage.textContent = prior;
-            wsNotice("Billing portal could not be reached. Try again shortly.");
-          }
-        });
-      }
+      const org=state.organization||{},plan=org.plan||"trial";
+      const responseAllowance=org.respondent_pool==null?"Unlimited participant responses":`${Number(org.respondents_used)||0} of ${Number(org.respondent_pool)||0} participant responses used`;
+      const synthAllowance=org.aggregation_limit==null?"Unlimited Syntheses":`${Number(org.aggregations_used)||0} of ${Number(org.aggregation_limit)||0} Syntheses used`;
+      const users=[]; if(org.analyst_limit!=null)users.push(`${org.analyst_limit} analyst${Number(org.analyst_limit)===1?"":"s"}`); if(org.admin_limit!=null)users.push(`${org.admin_limit} admin${Number(org.admin_limit)===1?"":"s"}`);
+      $("wsPlanStrip").innerHTML=`<span><b>${escapeHtml(PLAN_LABEL[plan]||plan)}</b> plan</span><span class="sep">·</span><span>No per-participant pricing</span><span class="sep">·</span><span>${escapeHtml(responseAllowance)}</span><span class="sep">·</span><span>${escapeHtml(synthAllowance)}</span>${users.length?`<span class="sep">·</span><span>${escapeHtml(users.join(" + "))}</span>`:""}`;
+      const manage=$("wsManageLink"),isTrial=plan==="trial"||plan==="free"; manage.textContent=isTrial?"Upgrade →":"Manage plan →"; manage.href=isTrial?"platform-services.html":"#billing";
+      if(!isTrial&&!manage.dataset.billingWired){ manage.dataset.billingWired="1"; manage.addEventListener("click",async(e)=>{e.preventDefault();const prior=manage.textContent;manage.textContent="Opening billing…";try{const{data}=await supabase.auth.getSession();const res=await fetch("https://monderman-api.onrender.com/api/billing/portal-session",{method:"POST",headers:{"content-type":"application/json",authorization:"Bearer "+(data?.session?.access_token||"")}});const out=await res.json().catch(()=>({}));if(res.ok&&out.url){location.href=out.url;return;}manage.textContent=prior;wsNotice(res.status===403?"Only a workspace admin can manage billing.":res.status===404?"No self-serve billing account yet. Invoiced plans are managed via Connect.":"Billing portal is unavailable right now. Try again shortly.");}catch(_e){manage.textContent=prior;wsNotice("Billing portal could not be reached. Try again shortly.");}}); }
     }
 
     async function resolveUser(){
@@ -797,6 +762,7 @@ body{transition:background-color .25s ease,color .25s ease}
         const byTool = latestByTool(state.runs);
         renderHero(byTool);
         renderInstruments(byTool);
+        renderSynthesisReadiness();
         renderRecommended(state.runs);
         $("wsAllReadsN").textContent = `(${state.runs.length})`;
         renderEntitlements();
