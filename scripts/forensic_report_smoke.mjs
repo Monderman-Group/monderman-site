@@ -12,6 +12,7 @@ const errors = [];
 page.on('pageerror', e => errors.push(`pageerror: ${e.message}`));
 page.on('console', m => { if (m.type() === 'error') errors.push(`console: ${m.text()}`); });
 function assert(ok, msg) { if (!ok) throw new Error(msg); }
+function isActualSerif(font) { return /Georgia|Times New Roman/i.test(font); }
 
 await page.goto(`${base}/sample-report.html`, { waitUntil: 'networkidle', timeout: 90000 });
 
@@ -21,7 +22,7 @@ const hostTypography = await page.evaluate(() => ({
   intro: getComputedStyle(document.querySelector('.intro-pin h1')).fontFamily,
 }));
 for (const [where, font] of Object.entries(hostTypography)) {
-  assert(!/Georgia|Times New Roman|serif/i.test(font), `${where} contaminated by shared report serif CSS: ${font}`);
+  assert(!isActualSerif(font), `${where} contaminated by shared report serif CSS: ${font}`);
   assert(/Neue Haas|Helvetica|Arial/i.test(font), `${where} no longer uses Monderman sans typography: ${font}`);
 }
 assert((await page.locator('body').textContent()).includes('Representative product outputs — not customer data.'), 'designed representative-output disclosure missing');
@@ -84,19 +85,15 @@ await page.screenshot({ path: path.join(out, 'depth-full.png'), fullPage: true }
 await depth.locator('.mr-cover').screenshot({ path: path.join(out, 'depth-cover.png') });
 await depthChart.screenshot({ path: path.join(out, 'depth-chart.png') });
 
-// Re-check host after both shared reports have rendered. This catches exactly the
-// CSS-leak bug that made the site header and intro switch to Georgia.
 const afterTypography = await page.evaluate(() => ({
   body: getComputedStyle(document.body).fontFamily,
   brand: getComputedStyle(document.querySelector('.brand')).fontFamily,
   intro: getComputedStyle(document.querySelector('.intro-pin h1')).fontFamily,
 }));
 for (const [where, font] of Object.entries(afterTypography)) {
-  assert(!/Georgia|Times New Roman|serif/i.test(font), `${where} contaminated after report render: ${font}`);
+  assert(!isActualSerif(font), `${where} contaminated after report render: ${font}`);
 }
 
-// Standalone customer HTML must carry the same cover, chart, precision, and
-// interpretation-boundary architecture as the embedded sample.
 const standaloneHtml = await page.evaluate(() => {
   const fx = window.MONDERMAN_REPRESENTATIVE_SYNTHESIS_FIXTURES.crossLens;
   return window.MondermanReport.buildReportHtml(window.MondermanReport.fromSynthesis(fx));
@@ -108,7 +105,7 @@ assert((await standalone.locator('.mr-cover-score').textContent()).trim() === '5
 assert(await standalone.locator('svg[aria-label="Cross-Lens Diagnostic score comparison"]').isVisible(), 'standalone Cross-Lens chart missing');
 assert(await standalone.locator('.mr-report-boundary').isVisible(), 'standalone interpretation boundary missing');
 const standaloneFont = await standalone.locator('.mr-report').evaluate(el => getComputedStyle(el).fontFamily);
-assert(!/Georgia|Times New Roman|serif/i.test(standaloneFont), `standalone report still uses serif typography: ${standaloneFont}`);
+assert(!isActualSerif(standaloneFont), `standalone report still uses serif typography: ${standaloneFont}`);
 await standalone.screenshot({ path: path.join(out, 'standalone-cross-lens.png'), fullPage: true });
 await standalone.close();
 
