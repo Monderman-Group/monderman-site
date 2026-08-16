@@ -29,7 +29,9 @@ jobs:
           node-version: '22'
 
       - name: Rebuild product-faithful Sample Reports and Synthesis renderer
-        run: python scripts/rebuild_sample_product_fidelity.py
+        run: |
+          python scripts/rebuild_sample_product_fidelity.py
+          python scripts/align_synthesis_fixture_terminology.py
 
       - name: Run static product-fidelity and existing frontend gates
         run: |
@@ -73,6 +75,6 @@ jobs:
           fi
           git config user.name "Monderman-Group"
           git config user.email "jason.ivan.adamson@gmail.com"
-          git add monderman-report.js sample-report.html scripts/rebuild_sample_product_fidelity.py scripts/validate_sample_product_fidelity.py scripts/sample_product_fidelity_smoke.mjs
+          git add monderman-report.js sample-report.html scripts/meta_synthesis_frontend_fixture.mjs scripts/rebuild_sample_product_fidelity.py scripts/align_synthesis_fixture_terminology.py scripts/validate_sample_product_fidelity.py scripts/sample_product_fidelity_smoke.mjs
           git commit -m "Make Sample Reports product-faithful and enrich Synthesis reports [sample-fidelity-applied]"
           git push origin HEAD
