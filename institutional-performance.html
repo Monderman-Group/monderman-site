@@ -886,7 +886,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
           </button>
           <div class="accordion-body">
             <section class="remedy-standalone">
-              <div id="remedyTreeWrap" class="remedy-band hidden"><div class="remedy-band-head"><strong>Three remedy paths</strong><p>These paths are not arranged as one automatic best answer. They show the trade space between burden of recovery, implementation burden, and organizational risk.</p></div><div class="remedy-grid" id="remedyGrid"></div><p class="remedy-calibration-note">* Calibrate against Insight depth before acting. A single short-form run produces directional remedy guidance, not engineering specifications &mdash; the breadth, depth, and cross-validation of inputs governs how confidently any of these paths should be pursued.</p></div>
+              <div id="remedyTreeWrap" class="remedy-band hidden"><div class="remedy-band-head"><strong>Three remedy paths</strong><p>These paths are not arranged as one automatic best answer. They show the trade space between burden of recovery, implementation burden, and organizational risk.</p></div><div class="remedy-grid" id="remedyGrid"></div><p class="remedy-calibration-note">* Calibrate against Run evidence before acting. A single short-form run produces directional remedy guidance, not engineering specifications &mdash; the breadth, depth, and cross-validation of inputs governs how confidently any of these paths should be pursued.</p></div>
             </section>
           </div>
         </article>
@@ -3729,7 +3729,7 @@ function renderInsightDepth(payload) {
     if (valueEl) valueEl.textContent = "—";
     if (bandEl) bandEl.textContent = "Awaiting data";
     if (copyEl) {
-      copyEl.textContent = "Insight depth could not be loaded from the diagnostic backend. The score and band are computed server-side; retry the run or contact support if this persists.";
+      copyEl.textContent = "Run evidence could not be loaded from the diagnostic backend. The score and band are computed server-side; retry the run or contact support if this persists.";
     }
     const arc = $("confidenceRingArc");
     const value = $("confidenceRingValue");
@@ -4409,7 +4409,7 @@ return `<div class="donut-panel">
    </div>
    <div class="ring-text">
      <strong>${insight.score}</strong>
-     <span>${escapeHtml(insight.band)} insight depth</span>
+     <span>${escapeHtml(insight.band)} run evidence</span>
    </div>
 
 </div>`;
@@ -5014,7 +5014,7 @@ ${decisionReviewPage}
     <p>Three distinct intervention strategies, ordered by ambition and risk. Each path implies a different leadership posture, time horizon, and tolerance for short-term disruption.</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(remedyQuestion)}</p></div>
     <div class="remedy-grid">${remedyHtml}</div>
-    <p class="remedy-calibration-note" style="margin:14px 0 0;padding:10px 12px;background:#F6F3EC;border-left:2px solid #A9CFD2;border-radius:0 6px 6px 0;font-size:11px;line-height:1.55;color:#6E6F73;font-style:italic">* Calibrate against Insight depth before acting. A single short-form run produces directional remedy guidance, not engineering specifications &mdash; the breadth, depth, and cross-validation of inputs governs how confidently any of these paths should be pursued.</p>
+    <p class="remedy-calibration-note" style="margin:14px 0 0;padding:10px 12px;background:#F6F3EC;border-left:2px solid #A9CFD2;border-radius:0 6px 6px 0;font-size:11px;line-height:1.55;color:#6E6F73;font-style:italic">* Calibrate against Run evidence before acting. A single short-form run produces directional remedy guidance, not engineering specifications &mdash; the breadth, depth, and cross-validation of inputs governs how confidently any of these paths should be pursued.</p>
     <div class="rule"></div><h3>Choosing between them</h3><p>The right choice depends less on the current score than on three things: how much stability the organization needs while changes happen, how much trust leadership has earned to redesign rather than tweak, and whether the pathway is on a path that is already worsening. Light paths preserve continuity; aggressive paths buy more capacity but require a stronger mandate.</p>
   </div>
 </section>
@@ -5025,7 +5025,7 @@ ${decisionReviewPage}
     <p class="eyebrow">How to read this report</p><h2>How this was produced</h2>
     <p>This diagnostic measures institutional performance across five dimensions: execution coherence, decision reliability, adaptive capacity, institutional confidence, and performance stability. It also estimates the amount of productive capacity being absorbed sustaining performance through compensation, management lift, and rework rather than sound institutional condition. The diagnostic does not independently verify user inputs; it should be read as a directional institutional read rather than a full audit.</p>
     <div class="rule"></div>
-    <div class="ring-row"><svg class="ring" viewBox="0 0 58 58"><circle cx="29" cy="29" r="23" fill="none" stroke="#EAE6DD" stroke-width="7"/><circle cx="29" cy="29" r="23" fill="none" stroke="#C9821F" stroke-width="7" stroke-dasharray="${insight.available ? Math.round(insight.score * 1.45) : 0} 145" transform="rotate(-90 29 29)"/></svg><div><div style="font-size:24px;font-weight:700">${insight.available ? Math.round(insight.score) : "—"}</div><p class="muted">Insight depth score${insight.available ? ` · ${escapeHtml(insight.band)}` : " · Awaiting data"}<br>${insight.available ? "Single-run signal-quality indicator, not a correctness score." : "Insight depth could not be loaded from the diagnostic backend."}</p></div></div>
+    <div class="ring-row"><svg class="ring" viewBox="0 0 58 58"><circle cx="29" cy="29" r="23" fill="none" stroke="#EAE6DD" stroke-width="7"/><circle cx="29" cy="29" r="23" fill="none" stroke="#C9821F" stroke-width="7" stroke-dasharray="${insight.available ? Math.round(insight.score * 1.45) : 0} 145" transform="rotate(-90 29 29)"/></svg><div><div style="font-size:24px;font-weight:700">${insight.available ? Math.round(insight.score) : "—"}</div><p class="muted">Run evidence score${insight.available ? ` · ${escapeHtml(insight.band)}` : " · Awaiting data"}<br>${insight.available ? "Single-run signal-quality indicator, not a correctness score." : "Run evidence could not be loaded from the diagnostic backend."}</p></div></div>
     <p>${insight.available ? "This single-run evidence context reflects run length and self-reported input confidence. It is not a population measure and is separate from Depth Synthesis and Cross-Lens Synthesis evidence bands." : "The single-run evidence-context field could not be retrieved for this run; the rest of the report remains valid."}</p>
     <h3>What would strengthen the next read</h3><div class="method-box">${nextRunBullets.map((item) => `<p>• ${safeWords(item, 42)}</p>`).join("")}</div>
     <h3>What the figures represent</h3><div class="method-box"><p>* Figures marked with an asterisk are directional estimates generated from your inputs, not guaranteed financial outcomes. They are intended to indicate rough order of magnitude so leadership can decide whether the pattern is worth investigating further. They should not be cited externally as audited measurements, and they should not be used as the basis for compensation decisions, performance reviews, or formal financial planning.</p></div>
