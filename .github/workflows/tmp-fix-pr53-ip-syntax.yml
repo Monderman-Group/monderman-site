@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   repair:
-    if: ${{ !contains(github.event.head_commit.message, '[fix-ip-syntax]') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,17 +29,23 @@ jobs:
   return "The trajectory signal suggests relative stability. Stability here should not be confused with strength — a structure that looks stable can still be carrying real cost that people have simply gotten used to.";
   }
 '''
-          if stale not in s:
-              raise SystemExit('expected duplicated trajectory tail not found')
-          s = s.replace(stale, '', 1)
-          p.write_text(s, encoding='utf-8')
+          if stale in s:
+              p.write_text(s.replace(stale, '', 1), encoding='utf-8')
+              print('IP_SYNTAX_REPAIRED')
+          else:
+              print('IP_SYNTAX_ALREADY_CLEAN')
           PY
       - name: Validate all Diagnostic inline JavaScript
         run: python scripts/validate_diagnostic_inline_js.py
-      - name: Commit syntax repair
+      - name: Commit syntax repair when needed
+        shell: bash
         run: |
+          if git diff --quiet; then
+            echo "No repair changes required."
+            exit 0
+          fi
           git config user.name "Monderman-Group"
           git config user.email "jason.ivan.adamson@gmail.com"
           git add institutional-performance.html
-          git commit -m "Fix Institutional Performance narrative syntax [fix-ip-syntax]"
+          git commit -m "Fix Institutional Performance narrative syntax"
           git push origin HEAD:agent/four-diagnostic-sample-fidelity-2026-08-16
