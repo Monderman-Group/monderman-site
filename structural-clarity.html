@@ -840,7 +840,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
             <div class="viz-card" style="margin-top:14px;"><h4>Intervention order</h4><div id="priorityPathMount"></div><p class="viz-note">Where to act first across the heaviest dimensions — fix now, fix next, monitor.</p></div>
             <div style="display:none;" aria-hidden="true"><canvas id="burdenDonutChart"></canvas><div class="donut-center"><strong id="donutCenterValue">--</strong></div><div class="treemap" id="burdenTreemap"></div></div>
             <section class="economic-strip">
-              <article class="result-card"><h3>Pathway condition</h3><div class="section-divider"></div><div id="trajectorySignalWrap" class="result-copy" style="margin-bottom:12px;">Trajectory signal will appear here after scoring.</div><p class="result-copy" id="executiveText"></p><div class="premium-note" id="conditionSupportText" style="display:none"></div></article>
+              <article class="result-card"><h3>Pathway condition</h3><div class="section-divider"></div><div id="trajectorySignalWrap" class="result-copy" style="margin-bottom:12px;">Change-pressure risk signal will appear here after scoring.</div><p class="result-copy" id="executiveText"></p><div class="premium-note" id="conditionSupportText" style="display:none"></div></article>
               <article class="result-card"><h3>Cost of current administrative burden</h3><div class="section-divider"></div><p class="result-copy" id="roiNarrativeText">This section translates recurring process burden into labor cost, management attention, and the specific capacity leadership could reclaim by reducing unnecessary administrative load.</p></article>
               <article class="result-card"><h3>Priority actions</h3><div class="section-divider"></div><ul class="result-list" id="actionsList"></ul><div class="compact-card" style="margin-top:14px;"><h3>Leadership implication</h3><ul class="result-list" id="leadershipList"></ul></div></article>
               <article class="result-card"><h3>Design reference and operating read</h3><div class="section-divider"></div><p class="result-copy" id="benchmarkInterpretationText">Design-reference interpretation will appear here after scoring.</p><div class="premium-note" id="tradeoffReadingText" style="display:none"></div></article>
@@ -4093,12 +4093,13 @@ const chipMount = $("trajectoryChipMount");
 const note = $("trajectorySparklineNote");
 if (!mount || !chipMount) return;
 const dir = result?.trajectory?.direction || "flat";
-const values = dir === "up" ? [18,20,22,25,28,31] : dir === "down" ? [31,29,27,25,23,20] : [24,24,25,24,24,24];
 const color = dir === "up" ? "#B0392F" : dir === "down" ? "#3C8A60" : "#C9821F";
-const points = values.map((v, i) => `${i * 24},${34 - v}`).join(" ");
-mount.innerHTML = `<polyline fill="none" stroke="${color}" stroke-width="3" points="${points}" />`;
+const arrow = dir === "up" ? "↗" : dir === "down" ? "↘" : "→";
+// A single run cannot supply a time series. Show the reported direction as a
+// symbol rather than drawing fabricated historical points.
+mount.innerHTML = `<text x="60" y="25" text-anchor="middle" font-size="24" font-weight="700" fill="${color}">${arrow}</text>`;
 chipMount.innerHTML = $("trajectorySignalWrap")?.innerHTML || "";
-if (note) note.textContent = result?.trajectory?.note || "Directional signal";
+if (note) note.textContent = result?.trajectory?.note || "Single-run directional signal";
 }
 
 // ═══════════════════════════════════════════════════════════
