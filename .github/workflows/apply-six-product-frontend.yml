@@ -29,6 +29,18 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          echo '5e515530ecda0e38c8d85abab378c1677f954eeb23da1fb2e8266cc79419fad1  scripts/site-ecosystem.patch.gz.b64.00' | sha256sum --check
+          echo '818fb4587b9a2b1e83a1fca5e960e4acbc0342ce002812827fc72ead8ed0d065  scripts/site-ecosystem.patch.gz.b64.01' | sha256sum --check
+          echo '1bfce46e25e8bbd06e16caf2960b621051192876de952237423e71ed893b3a0a  scripts/site-ecosystem.patch.gz.b64.02' | sha256sum --check
+          echo '2f07b93d1f75b2bc39018dcb7fb3945d61fbf30e5217508b238f4bc93de50d2a  scripts/site-ecosystem.patch.gz.b64.03' | sha256sum --check
+          echo 'c3c8f79670116990966caea4ccb81b02cb065cb1c685592aa26aaaed1c3ff03e  scripts/site-ecosystem.patch.gz.b64.04' | sha256sum --check
+          echo '40cd3feed6ee5b64e8cdd2003c29df5211345540e271514dac95857d4ac38566  scripts/site-ecosystem.patch.gz.b64.05' | sha256sum --check
+          echo '9f03f559b2499943175d1eeb7a41c35038ea0daec89b7548506834b680ba04af  scripts/site-ecosystem.patch.gz.b64.06' | sha256sum --check
+          echo '709b7a849d6895b4a16780cda4a0907d18f26e09fbca13f2e4f320de7b2d2bd6  scripts/site-ecosystem.patch.gz.b64.07' | sha256sum --check
+          echo 'cc125a7fe0589980ab6e3ee31940fd78172391eef3b624cde60efbca05131e1d  scripts/site-ecosystem.patch.gz.b64.08' | sha256sum --check
+          echo '16f78b202f4b4e0f0e04a537faf92b21901227b85f5a3e2be2fad8ce0d724c86  scripts/site-ecosystem.patch.gz.b64.09' | sha256sum --check
+          echo '32db2f911f370d40cbbd47fb67e99d6fe0e8361d52b8e5efb7e8b97843b492bc  scripts/site-ecosystem.patch.gz.b64.10' | sha256sum --check
+          echo '160b372416e56bc587d67fdc65ba8794e83fa7098f3d78a280d08b52bbb77e7d  scripts/site-ecosystem.patch.gz.b64.11' | sha256sum --check
           cat scripts/site-ecosystem.patch.gz.b64.* | base64 --decode > /tmp/site.patch.gz
           echo 'da9e9d1c094371404042720b6e6363b1abf50b322192e48276af18c047bd9425  /tmp/site.patch.gz' | sha256sum --check
           gzip -dc /tmp/site.patch.gz > /tmp/site.patch
