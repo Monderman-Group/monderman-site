@@ -11,7 +11,7 @@ original = s
 replacements = [
     ('font-family:\\"Helvetica Neue\\",Arial,sans-serif', 'font-family:\\"Neue Haas Grotesk\\",\\"Helvetica Neue\\",Helvetica,Arial,sans-serif'),
     ('font-family:\"Helvetica Neue\",Arial,sans-serif', 'font-family:\"Neue Haas Grotesk\",\"Helvetica Neue\",Helvetica,Arial,sans-serif'),
-    ('font-family:Helvetica Neue,Arial,sans-serif', "font-family:'Neue Haas Grotesk','Helvetica Neue',Helvetica,Arial,sans-serif"),
+    ('font-family:Helvetica Neue,Arial,sans-serif', 'font-family:Neue Haas Grotesk,Helvetica Neue,Helvetica,Arial,sans-serif'),
 ]
 for old, new in replacements:
     s = s.replace(old, new)
