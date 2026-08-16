@@ -314,7 +314,7 @@ body{transition:background-color .25s ease, color .25s ease}
       </a>
       <nav class="ws5-nav">
         <a href="workspace.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.4"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.4"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.4"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.4"/></svg>Overview</a>
-        <a href="workspace-diagnostics.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16a8 8 0 0 1 16 0"/><path d="M12 16l3.5-4.5"/><circle cx="12" cy="16" r="1.3"/></svg>Measure</a>
+        <a href="workspace-diagnostics.html#launch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16a8 8 0 0 1 16 0"/><path d="M12 16l3.5-4.5"/><circle cx="12" cy="16" r="1.3"/></svg>Measure</a>
         <a href="workspace-analysis.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>Analysis</a>
         <a href="workspace-actions.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l3.5 3.5L19 6"/><path d="M5 19h14" opacity=".5"/></svg>Action Plans</a>
         <a href="workspace-settings.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h9M17 7h3"/><circle cx="15" cy="7" r="2"/><path d="M4 17h3M11 17h9"/><circle cx="9" cy="17" r="2"/></svg>Settings</a>
@@ -334,7 +334,7 @@ body{transition:background-color .25s ease, color .25s ease}
       <header class="ws5-topbar">
         <div class="ws5-crumb"><h1>Settings</h1><span id="ws5Org">&mdash;</span></div>
         <div class="ws5-topright">
-          <a class="ws5-btn" href="workspace-diagnostics.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Run a diagnostic</a>
+          <a class="ws5-btn" href="workspace-diagnostics.html#launch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Run a Diagnostic</a>
           <div class="ws5-user"><div class="ws5-ava" id="ws5Ava">&mdash;</div><div class="ws5-who"><b id="ws5UserName">&mdash;</b><span id="ws5UserRole">&mdash;</span></div></div>
         </div>
       </header>
@@ -342,16 +342,16 @@ body{transition:background-color .25s ease, color .25s ease}
       <main class="content">
         <div class="lead">
           <div class="eyebrow">Settings</div>
-          <h2>Your organisation and workspace</h2>
-          <p>Manage the organisation profile, invite teammates and set their role, review usage, and export your data.</p>
+          <h2>Your organization and workspace</h2>
+          <p>Manage the organization profile, invite teammates and set their role, review usage, and export your data.</p>
         </div>
 
         <!-- ORGANISATION -->
         <section class="card">
-          <div class="card-h"><h3>Organisation</h3></div>
+          <div class="card-h"><h3>Organization</h3></div>
           <p class="card-sub" id="orgSub">The name shown across your workspace.</p>
           <div class="frow">
-            <div class="field"><label for="orgName">Organisation name</label><input type="text" id="orgName" placeholder="Organisation name" disabled></div>
+            <div class="field"><label for="orgName">Organization name</label><input type="text" id="orgName" placeholder="Organization name" disabled></div>
             <button class="btn" id="saveOrg" type="button" disabled>Save</button>
           </div>
           <div class="kv" style="margin-top:18px">
@@ -384,19 +384,20 @@ body{transition:background-color .25s ease, color .25s ease}
         <!-- PEOPLE -->
         <section class="card">
           <div class="card-h"><h3>People</h3><span class="note" id="peopleCount"></span></div>
-          <p class="card-sub">Everyone in your organisation directory. People are added automatically as you run campaigns from Actions.</p>
+          <p class="card-sub">Everyone in your organization directory. Participants are added as Diagnostic campaigns are run from Measure.</p>
           <div id="peopleBody"></div>
         </section>
 
         <!-- PLAN & USAGE -->
         <section class="card">
           <div class="card-h"><h3>Plan &amp; usage</h3></div>
-          <p class="card-sub">A live snapshot of what your workspace holds.</p>
+          <p class="card-sub">A live snapshot of workspace records. Plan pricing is not per participant.</p>
           <div class="tiles" id="usageTiles">
             <div class="tile"><div class="n num" id="uRuns">&mdash;</div><div class="l">Diagnostic runs</div></div>
-            <div class="tile"><div class="n num" id="uPromoted">&mdash;</div><div class="l">Promoted to record</div></div>
+            <div class="tile"><div class="n num" id="uPromoted">&mdash;</div><div class="l">Included in analysis</div></div>
             <div class="tile"><div class="n num" id="uPeople">&mdash;</div><div class="l">People</div></div>
-            <div class="tile"><div class="n num" id="uAssign">&mdash;</div><div class="l">Campaign assignments</div></div>
+            <div class="tile"><div class="n num" id="uAssign">&mdash;</div><div class="l">Participant invitations</div></div>
+            <div class="tile"><div class="n num" id="uSynth">&mdash;</div><div class="l">Saved Syntheses</div></div>
           </div>
         </section>
 
@@ -464,8 +465,8 @@ body{transition:background-color .25s ease, color .25s ease}
       }catch(e){}
       let org=null;
       try{
-        if(orgId){ const { data } = await supabase.from("organizations").select("id, name, plan, owner_user_id").eq("id",orgId).maybeSingle(); org=data||null; }
-        else { const { data } = await supabase.from("organizations").select("id, name, plan, owner_user_id").eq("owner_user_id",user.id).limit(1).maybeSingle(); org=data||null; orgId=org?.id||null; }
+        if(orgId){ const { data } = await supabase.from("organizations").select("id, name, plan, owner_user_id, respondent_pool, respondents_used, aggregation_limit, aggregations_used, analyst_limit, admin_limit").eq("id",orgId).maybeSingle(); org=data||null; }
+        else { const { data } = await supabase.from("organizations").select("id, name, plan, owner_user_id, respondent_pool, respondents_used, aggregation_limit, aggregations_used, analyst_limit, admin_limit").eq("owner_user_id",user.id).limit(1).maybeSingle(); org=data||null; orgId=org?.id||null; }
       }catch(e){}
       state.orgId=orgId; state.org=org;
       state.isOwner = !!(org && org.owner_user_id===user.id);
@@ -484,18 +485,18 @@ body{transition:background-color .25s ease, color .25s ease}
       const can = isAdmin() && !!state.orgId;
       $("orgName").disabled = !can;
       $("saveOrg").disabled = !can;
-      $("orgSub").textContent = can ? "The name shown across your workspace." : "Only an organisation admin can change these settings.";
+      $("orgSub").textContent = can ? "The name shown across your workspace." : "Only an organization admin can change these settings.";
     }
     async function saveOrgName(){
       const name=($("orgName").value||"").trim();
-      if(!name){ flash("orgMsg","bad","Give the organisation a name."); return; }
+      if(!name){ flash("orgMsg","bad","Give the organization a name."); return; }
       $("saveOrg").disabled=true;
       try{
         const { error } = await supabase.from("organizations").update({ name }).eq("id", state.orgId);
         if(error) throw error;
         state.org.name=name; setText("ws5Org",name);
         flash("orgMsg","ok","Saved.");
-      }catch(e){ flash("orgMsg","bad","Couldn’t save — organisation changes are admin-only. ("+(e.message||"error")+")"); }
+      }catch(e){ flash("orgMsg","bad","Couldn’t save — organization changes are admin-only. ("+(e.message||"error")+")"); }
       finally{ $("saveOrg").disabled=!isAdmin(); }
     }
 
@@ -503,7 +504,7 @@ body{transition:background-color .25s ease, color .25s ease}
     async function loadInvites(){
       if(!isAdmin()){
         $("inviteComposer").style.display="none";
-        $("invitesBody").innerHTML = `<div class="empty">Ask an organisation admin to invite teammates.</div>`;
+        $("invitesBody").innerHTML = `<div class="empty">Ask an organization admin to invite teammates.</div>`;
         return;
       }
       try{
@@ -537,7 +538,7 @@ body{transition:background-color .25s ease, color .25s ease}
       const email=($("invEmail").value||"").trim().toLowerCase();
       const role=$("invRole").value;
       if(!validEmail(email)){ flash("inviteMsg","bad","Enter a valid email address."); return; }
-      if(!state.orgId){ flash("inviteMsg","bad","No organisation is set on your account."); return; }
+      if(!state.orgId){ flash("inviteMsg","bad","No organization is set on your account."); return; }
       $("createInvite").disabled=true;
       const token=genToken();
       try{
@@ -580,7 +581,7 @@ body{transition:background-color .25s ease, color .25s ease}
     function renderPeople(){
       setText("peopleCount", state.people.length ? `${state.people.length}` : "");
       if(!state.people.length){
-        $("peopleBody").innerHTML = `<div class="empty">No people yet. They appear here as you run campaigns from Actions.</div>`;
+        $("peopleBody").innerHTML = `<div class="empty">No people yet. Participants appear here as you run Diagnostic campaigns from Measure.</div>`;
         return;
       }
       $("peopleBody").innerHTML = `<div class="lst">` + state.people.map(peopleRow).join("") + `</div>`;
@@ -604,13 +605,14 @@ body{transition:background-color .25s ease, color .25s ease}
       }catch(e){ return "—"; }
     }
     async function loadUsage(){
-      const [runs, promoted, people, assign] = await Promise.all([
+      const [runs, included, people, assign, synth] = await Promise.all([
         count("diagnostic_runs"),
         count("diagnostic_runs", q=>q.eq("status","promoted")),
         count("participants"),
         count("diagnostic_assignments"),
+        count("synthesis_runs"),
       ]);
-      setText("uRuns",runs); setText("uPromoted",promoted); setText("uPeople",people); setText("uAssign",assign);
+      setText("uRuns",runs); setText("uPromoted",included); setText("uPeople",people); setText("uAssign",assign); setText("uSynth",synth);
     }
 
     // ── DATA EXPORT ──

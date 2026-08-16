@@ -97,7 +97,11 @@ for token in (
     'mode:"depth"',
     'mode:"cross_lens"',
     'mondermanCrossDiagnosticSynthesis',
-    'one composite score is withheld',
+    'If a Cross-Lens Composite Score is withheld, the report states why and what actions could unlock one.',
+    '/api/synthesis',
+    '/api/synthesis-runs',
+    'Build Depth Synthesis',
+    'Build Cross-Lens Synthesis',
 ):
     require(WORKSPACE, token, "workspace-analysis.html")
 
@@ -134,11 +138,12 @@ for token in (
     'const STORAGE_KEY="mondermanCrossDiagnosticSynthesis"',
     "MondermanReport.fromSynthesis(result)",
     'result.score_status==="published"',
-    "This page renders the saved API result; it does not recalculate scores",
+    "This page renders the API result; it does not recalculate scores",
+    '/api/synthesis-runs/',
+    'Cross-Lens Composite Score withheld',
 ):
     require(FULL_PAGE, token, "cross-tool-synthesis.html")
 for token in (
-    "fetch(",
     "/api/cross-diagnostic-synthesis",
     "compensation",
     "correction horizon",
