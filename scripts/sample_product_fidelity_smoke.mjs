@@ -23,22 +23,30 @@ async function openTab(key) {
 
 await page.goto(`${base}/sample-report.html`, { waitUntil: 'networkidle', timeout: 90000 });
 const bodyText = await page.locator('body').textContent();
-assert(bodyText.includes('These are representative samples, not customer reports.'), 'representative-sample disclosure missing');
+assert(bodyText.includes('Representative product outputs — not customer data.'), 'representative-output disclosure missing');
 assert(!/\bseat(?:s|-year)?\b/i.test(bodyText), 'seat vocabulary remains');
 assert(!/Insight depth/i.test(bodyText), 'Insight depth remains');
+assert(!bodyText.includes('Against comparable institutions'), 'empirical peer-comparison claim remains in sample');
+assert(!bodyText.includes('likely to continue accumulating'), 'single-run predictive trajectory claim remains in sample');
 
 const diagnostics = [
-  ['os', 'Governance weight × execution responsiveness', 'Burden composition'],
-  ['dv', 'Governance weight × execution responsiveness', 'Drag composition'],
-  ['sc', 'Governance weight × structural legibility', 'Clarity readings'],
-  ['ip', 'Institutional condition × compensatory dependence', 'Burden composition'],
+  ['os', 'Governance weight × execution responsiveness', 'Burden composition', 'Self-reported change.', '5,280 annual burden hours', 'Productive work 76%', 'Recoverable drag 8%', '$485,760 / yr measured burden'],
+  ['dv', 'Governance weight × execution responsiveness', 'Drag composition', 'Self-reported change.', '3,128 annual burden hours', 'Productive work 78%', 'Recoverable drag 5%', '$344,080 / yr measured burden'],
+  ['sc', 'Governance weight × structural legibility', 'Clarity readings', 'Change-pressure risk.', '960 annual burden hours', 'Productive work 93%', 'Recoverable drag 2%', '$74,880 / yr measured burden'],
+  ['ip', 'Institutional condition × compensatory dependence', 'Burden composition', 'Self-reported change.', '8,448 annual burden hours', 'Productive work 74%', 'Recoverable drag 9%', '$844,800 / yr measured burden'],
 ];
-for (const [key, quadrantHeading, compositionHeading] of diagnostics) {
+for (const [key, quadrantHeading, compositionHeading, changeLabel, hoursToken, productiveToken, recoverableToken, coverCostToken] of diagnostics) {
   const shell = await openTab(key);
   const txt = await shell.textContent();
   assert(txt.includes(quadrantHeading), `${key} quadrant heading mismatch`);
   assert(txt.includes(compositionHeading), `${key} missing ${compositionHeading}`);
   assert(txt.includes('Where to focus first'), `${key} missing Where to focus first`);
+  assert(txt.includes(changeLabel), `${key} missing bounded single-run change label`);
+  assert(txt.includes(hoursToken), `${key} sample economics not current: ${hoursToken}`);
+  assert(txt.includes(productiveToken), `${key} capacity allocation not current: ${productiveToken}`);
+  assert(txt.includes(recoverableToken), `${key} recoverable capacity allocation not current: ${recoverableToken}`);
+  const coverText = await shell.locator(`#${key}-cover`).textContent();
+  assert(coverText.includes(coverCostToken), `${key} cover economics disagree with the report body: ${coverCostToken}`);
   const quadrant = shell.locator(`#${key}-quadrant .sample-quadrant`);
   assert(await quadrant.isVisible(), `${key} quadrant graphic not visible`);
   assert(await quadrant.locator('.sample-quadrant-dot').isVisible(), `${key} quadrant dot not visible`);
@@ -46,56 +54,31 @@ for (const [key, quadrantHeading, compositionHeading] of diagnostics) {
   assert(await shell.locator('svg[aria-label="Burden severity by dimension"]').first().isVisible(), `${key} severity graphic not visible`);
   assert(await shell.locator('svg[aria-label="Intervention order"]').first().isVisible(), `${key} intervention graphic not visible`);
   assert(await shell.locator('svg[aria-label="Score in sector context"]').first().isVisible(), `${key} score-context graphic not visible`);
+  assert(await shell.locator('svg[aria-label="Capacity allocation"]').first().isVisible(), `${key} current capacity-allocation graphic not visible`);
   await page.screenshot({ path: path.join(out, `${key}.png`), fullPage: true });
 }
 
+const ipText = await (await openTab('ip')).textContent();
+assert(ipText.includes('Degraded institutional condition'), 'IP score 47 is not using current certified band');
+assert(ipText.includes('Against the Monderman instrument design reference'), 'IP sample design-reference language missing');
+
 const cross = await openTab('synthesis');
 const crossText = await cross.textContent();
-for (const token of [
-  'Cross-Lens Composite Score',
-  'Strong',
-  '55.5',
-  'Structural Clarity',
-  'Decision Velocity',
-  'Operational Systems',
-  'Institutional Performance',
-  'Executive synthesis',
-  'Agreements and differences',
-  'Evidence-proportionate actions',
-  'What to watch next',
-  'Equal-lens mean',
-]) assert(crossText.includes(token), `Cross-Lens missing ${token}`);
-const crossScoreBand = await cross.locator('.score-band').first().textContent();
-assert(crossScoreBand.includes('Cross-Lens Composite Score'), 'Cross-Lens headline does not show published Composite Score');
-assert(!/withheld/i.test(crossScoreBand), 'Cross-Lens headline still shows a withheld Composite Score');
-const crossEvidence = await cross.locator('.mr-section').first().textContent();
-assert(crossEvidence.includes('Strong'), 'Cross-Lens evidence status is not Strong');
-assert(!crossEvidence.includes('Comparison Only'), 'Cross-Lens evidence status still says Comparison Only');
+for (const token of ['Cross-Lens Composite Score','Strong','55.5','Structural Clarity','Decision Velocity','Operational Systems','Institutional Performance','Executive synthesis','Agreements and differences','Evidence-proportionate actions','What to watch next','Equal-lens mean']) assert(crossText.includes(token), `Cross-Lens missing ${token}`);
+const crossScoreLabel = await cross.locator('.mr-cover-score-label').first().textContent();
+assert(crossScoreLabel.includes('Cross-Lens Composite Score'), 'Cross-Lens cover does not show the published Composite Score label');
+const crossCondition = await cross.locator('.mr-cover-score-band').first().textContent();
+assert(!/withheld/i.test(crossCondition), 'Cross-Lens cover still shows a withheld Composite Score');
 assert(await cross.locator('svg[aria-label="Cross-Lens Diagnostic score comparison"]').isVisible(), 'Cross-Lens comparison visual not visible');
 await page.screenshot({ path: path.join(out, 'synthesis.png'), fullPage: true });
 
 const depth = await openTab('depth');
 const depthText = await depth.textContent();
-for (const token of [
-  'Median Diagnostic Score',
-  'Substantial',
-  '18',
-  '56',
-  'Observed participant distribution',
-  'Operational',
-  'Managerial',
-  'Senior Leader',
-  '15.8',
-  'Executive synthesis',
-  'Agreements and differences',
-  'Evidence-proportionate actions',
-  'What to watch next',
-  '32 additional unique runs',
-]) assert(depthText.includes(token), `Depth missing ${token}`);
+for (const token of ['Median Diagnostic Score','Substantial','18','56','Observed participant distribution','Operational','Managerial','Senior Leader','15.8','Executive synthesis','Agreements and differences','Evidence-proportionate actions','What to watch next','32 additional unique runs']) assert(depthText.includes(token), `Depth missing ${token}`);
 assert(await depth.locator('svg[aria-label="Depth Synthesis score distribution"]').isVisible(), 'Depth distribution visual not visible');
 await page.screenshot({ path: path.join(out, 'depth.png'), fullPage: true });
 
 assert(errors.length === 0, errors.join('\n'));
-fs.writeFileSync(path.join(out, 'result.json'), JSON.stringify({ ok: true, diagnostic_tabs: 4, synthesis_tabs: 2, console_errors: errors }, null, 2));
+fs.writeFileSync(path.join(out, 'result.json'), JSON.stringify({ ok: true, diagnostic_tabs: 4, synthesis_tabs: 2, current_capacity_allocation: true, bounded_single_run_change: true, cover_body_economics_parity: true, console_errors: errors }, null, 2));
 console.log('SAMPLE_PRODUCT_FIDELITY_RENDER_PASS_6_OF_6');
 await browser.close();

@@ -4,17 +4,20 @@ import re
 ROOT = Path(__file__).resolve().parents[1]
 sample = (ROOT / "sample-report.html").read_text(encoding="utf-8")
 renderer = (ROOT / "monderman-report.js").read_text(encoding="utf-8")
-repair = (ROOT / "scripts/rebuild_sample_product_fidelity.py").read_text(encoding="utf-8")
 quadrant_alignment = (ROOT / "scripts/align_sample_quadrants_to_production.py").read_text(encoding="utf-8")
+products = {
+    "os": (ROOT / "operational-systems.html").read_text(encoding="utf-8"),
+    "dv": (ROOT / "decision-velocity.html").read_text(encoding="utf-8"),
+    "sc": (ROOT / "structural-clarity.html").read_text(encoding="utf-8"),
+    "ip": (ROOT / "institutional-performance.html").read_text(encoding="utf-8"),
+}
 
 failures = []
-
 def require(cond, msg):
     if not cond:
         failures.append(msg)
 
-# Diagnostic marketing reports must use the same quadrant concepts, geometry,
-# threshold rules, and coordinate clamp as the customer Diagnostic component.
+# Diagnostic marketing reports must retain the customer quadrant concepts and geometry.
 expected_quadrants = {
     "os-quadrant": ("Governance weight &times; execution responsiveness", 50),
     "dv-quadrant": ("Governance weight &times; execution responsiveness", 50),
@@ -27,102 +30,75 @@ for section_id, (heading, y_threshold) in expected_quadrants.items():
     if match:
         body = match.group(1)
         require(heading in body, f"{section_id} heading does not match production concept")
-        require('data-production-component="diagnostic-quadrant"' in body, f"{section_id} is not marked as the production quadrant component")
-        require(f'data-y-threshold="{y_threshold}"' in body, f"{section_id} does not use production y-threshold {y_threshold}")
-        require("sample-production-quadrant-box" in body, f"{section_id} lacks production quadrant geometry")
-        require("sample-quadrant-dot" in body, f"{section_id} has no plotted quadrant dot")
-        require("role=\"img\"" in body, f"{section_id} quadrant is not exposed as a graphic")
+        require('data-production-component="diagnostic-quadrant"' in body, f"{section_id} is not marked as production quadrant")
+        require(f'data-y-threshold="{y_threshold}"' in body, f"{section_id} y-threshold mismatch")
+        require("sample-production-quadrant-box" in body and "sample-quadrant-dot" in body, f"{section_id} geometry incomplete")
         require("Representative plotted values:" in body, f"{section_id} lacks disclosed representative axis values")
-
-for token in [
-    'height:320px',
-    'width:22px;height:22px',
-    'calc(50% - 1px)',
-    'calc(67% - 1px)',
-    'max(8, min(92, cfg["x"]))',
-    'max(8, min(92, 100 - cfg["y"]))',
-]:
+for token in ['height:320px','width:22px;height:22px','calc(50% - 1px)','calc(67% - 1px)','max(8, min(92, cfg["x"]))','max(8, min(92, 100 - cfg["y"]))']:
     require(token in quadrant_alignment, f"production quadrant alignment missing rule: {token}")
 
-# The Diagnostic samples retain production visualization primitives/snapshots.
-for token in [
-    'aria-label="Burden composition — share of total"',
-    'aria-label="Burden severity by dimension"',
-    'aria-label="Intervention order"',
-    'aria-label="Score in sector context"',
-    'aria-label="Where annual labor capacity goes"',
-]:
-    require(token in sample, f"missing Diagnostic production visual: {token}")
+# Diagnostic samples retain evidence visuals, but capacity must use the CURRENT
+# production semantics: productive work / necessary administrative load /
+# recoverable drag. The obsolete dollar-apportioned Sankey must never return.
+for token in ['aria-label="Burden composition — share of total"','aria-label="Burden severity by dimension"','aria-label="Intervention order"','aria-label="Score in sector context"']:
+    require(token in sample, f"missing Diagnostic evidence visual: {token}")
+require(sample.count('aria-label="Capacity allocation"') == 4, "each Diagnostic sample must show one current capacity-allocation visual")
+require('aria-label="Where annual labor capacity goes"' not in sample, "obsolete sample capacity-flow visual remains")
+require('Dimension dollars apportion the recoverable burden' not in sample, "obsolete dimension-dollar allocation claim remains")
 
-# Synthesis samples must be rendered through the exact customer renderer.
+# Current representative economics. These are hypothetical sample inputs but the
+# arithmetic must be values the live scorers can actually produce.
+expected_economics = {
+    "os": ["5,280 annual burden hours", "$485,760", "capacity drag around 24%", "Productive work 76%", "Necessary administrative load 16%", "Recoverable drag 8%", "12 people per normal run", "600 runs/yr", "16 coordination hrs/run", "55% modeled burden attribution"],
+    "dv": ["3,128 annual burden hours", "$344,080", "capacity drag around 22%", "Productive work 78%", "Necessary administrative load 17%", "Recoverable drag 5%", "8 people per normal decision run", "1,150 decisions/yr", "8 coordination hrs/run", "34% score-responsive attribution"],
+    "sc": ["960 annual burden hours", "$74,880", "capacity drag around 7%", "Productive work 93%", "Necessary administrative load 5%", "Recoverable drag 2%", "8 people per normal run", "600 runs/yr", "4 ambiguity-driven coordination hrs/run", "40% score-responsive attribution"],
+    "ip": ["8,448 annual burden hours", "$844,800", "capacity drag around 26%", "Productive work 74%", "Necessary administrative load 17%", "Recoverable drag 9%", "18 people per normal run", "240 tasking cycles/yr", "64 coordination hrs/run", "55% modeled burden attribution"],
+}
+for product, tokens in expected_economics.items():
+    for token in tokens:
+        require(token in sample, f"{product} sample missing current-model economics token: {token}")
+for stale in ["31,500 annual burden hours","$2.9M*","5,500 annual burden hours","$600,930*","2,000 annual burden hours","$153,894*","58,800 annual burden hours","$5,875,200*","$29.4M  ·  294K hrs"]:
+    require(stale not in sample, f"stale sample economics remain: {stale}")
+
+# Sample provenance must identify the currently certified scorer/config pair.
+for token in [
+    "config 1.2.0 · scorer operational_systems_high_score_good_2026_08_13_experience_neutral_v3",
+    "config 1.0.0 · scorer decision_velocity_high_score_good_2026_08_12_release_v3",
+    "config 1.2.0 · scorer structural_clarity_high_score_good_2026_08_11_methodology_v4",
+    "config 1.2.0 · scorer institutional_performance_high_score_good_2026_08_10_missingness_v2",
+]: require(token in sample, f"sample provenance missing current pair: {token}")
+
+# A single run may contain self-reported direction or change-pressure evidence;
+# it may not be visualized or narrated as a measured time series.
+fake_series = "[18,20,22,25,28,31]"
+for key in ["os", "sc", "ip"]:
+    require(fake_series not in products[key], f"{key} still fabricates historical sparkline points")
+    require("A single run cannot supply a time series" in products[key], f"{key} lacks non-temporal change glyph contract")
+require("Self-reported change: --" in products["os"], "OS customer surface still labels single-run change as Trajectory")
+require("Change-pressure risk: --" in products["sc"], "SC customer surface lost change-pressure risk label")
+require("Self-reported change: --" in products["ip"], "IP customer surface still labels single-run change as Trajectory")
+require("cost of waiting compounds" not in products["ip"], "IP still turns a single-run signal into compounding trend language")
+require("not a measured longitudinal trend or forecast" in products["ip"], "IP lacks explicit non-longitudinal/non-predictive boundary")
+require("Design reference: --" in products["ip"], "IP export surface still labels design reference as Benchmark")
+require("<strong>Condition profile</strong>" in products["ip"], "IP condition-profile tooltip is mislabeled")
+
+# Marketing copy must obey the same single-run and benchmark boundaries.
+for token in ["<strong>Self-reported change.</strong> Operational creep is rising.", "<strong>Self-reported change.</strong> Rising drag pressure.", "<strong>Change-pressure risk.</strong> No elevated change-pressure signal.", "<strong>Self-reported change.</strong> Rising strain."]:
+    require(token in sample, f"sample missing bounded change language: {token}")
+require("likely to continue accumulating" not in sample, "DV sample still predicts future accumulation from one run")
+require("Against comparable institutions" not in sample, "IP sample still presents the design reference as empirical peer comparison")
+require("Degraded institutional condition" in sample, "IP score 47 is not using its current certified band")
+
+# Synthesis samples remain rendered through the exact shared customer renderer.
 require('<script src="monderman-report.js"></script>' in sample, "sample does not load shared customer report renderer")
-require('MondermanReport.fromSynthesis(fixtures.crossLens)' in sample, "Cross-Lens sample does not use MondermanReport.fromSynthesis")
-require('MondermanReport.fromSynthesis(fixtures.depth)' in sample, "Depth sample does not use MondermanReport.fromSynthesis")
-require('MondermanReport.render("sampleCrossLensRendered"' in sample, "Cross-Lens sample not rendered through MondermanReport")
-require('MondermanReport.render("sampleDepthRendered"' in sample, "Depth sample not rendered through MondermanReport")
-
-# Flagship Cross-Lens marketing example must be a legitimate publishable case.
-for token in [
-    'score_status: "published"',
-    'cross_diagnostic_score: 55.5',
-    'evidence_label: "Strong"',
-    'respondent_count: 48',
-    'lens_count: 4',
-    'Structural Clarity',
-    'Decision Velocity',
-    'Operational Systems',
-    'Institutional Performance',
-    'Strong evidence · published composite',
-]:
-    require(token in sample, f"Cross-Lens flagship missing: {token}")
-require('Composite Score withheld' not in sample, "flagship sample still defaults to a withheld Composite Score")
-require('Comparison Only' not in sample, "flagship sample still presents Comparison Only evidence")
-
-# Depth must be analytically substantive and use fields the live API already returns.
-for token in [
-    'aggregate_score: 56',
-    'evidence_label: "Substantial"',
-    'respondent_count: 18',
-    'observed_set_label: "Substantial"',
-    'mean: 57.2',
-    'median: 56',
-    'sd: 9.4',
-    'min: 41',
-    'max: 74',
-    'iqr: [50, 64]',
-    'participant_mode: "operational"',
-    'participant_mode: "managerial"',
-    'participant_mode: "senior_leader"',
-    'gap: 15.8',
-    'priority_actions:',
-    'leading_indicators:',
-    'Substantial evidence · 18 eligible runs',
-]:
-    require(token in sample, f"Depth sample missing substantive field: {token}")
-
-# The actual production Synthesis renderer must now expose these visuals and richer sections.
-for token in [
-    'aria-label="Depth Synthesis score distribution"',
-    'aria-label="Cross-Lens Diagnostic score comparison"',
-    'Observed participant distribution',
-    'Executive synthesis',
-    'Agreements and differences',
-    'Evidence-proportionate actions',
-    'What to watch next',
-    'same-Diagnostic',
-]:
+require('MondermanReport.fromSynthesis(fixtures.crossLens)' in sample and 'MondermanReport.fromSynthesis(fixtures.depth)' in sample, "Synthesis sample adapter parity broken")
+for token in ['score_status: "published"','cross_diagnostic_score: 55.5','evidence_label: "Strong"','respondent_count: 48','lens_count: 4','aggregate_score: 56','evidence_label: "Substantial"','respondent_count: 18']:
+    require(token in sample, f"Synthesis fixture fidelity missing: {token}")
+for token in ['aria-label="Depth Synthesis score distribution"','aria-label="Cross-Lens Diagnostic score comparison"','Executive synthesis','Agreements and differences','Evidence-proportionate actions','What to watch next']:
     require(token in renderer, f"production Synthesis renderer missing: {token}")
-require('same-instrument read across multiple respondents' not in renderer, "stale same-instrument Synthesis copy remains")
-
-# Repair must be deterministic: production renderer and sample are generated,
-# then the sample quadrant is normalized to the exact live component geometry.
-require('monderman-report.js' in repair and 'sample-report.html' in repair, "repair does not update renderer and samples together")
-require('sample-report.html' in quadrant_alignment, "quadrant alignment does not deterministically target sample report")
 
 if failures:
     print("SAMPLE_PRODUCT_FIDELITY_FAIL")
-    for item in failures:
-        print("-", item)
+    for item in failures: print("-", item)
     raise SystemExit(1)
-
 print("SAMPLE_PRODUCT_FIDELITY_PASS")

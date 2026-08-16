@@ -769,7 +769,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
           </div>
         </div>
       </div>
-      <div class="score-meta-strip"><div class="score-meta-note"><span class="score-meta-pill" id="scoreMetaIndustry">Industry: --</span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaShapeText">Profile shape: --</span> <span class="insight-help" id="profileShapeInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="profileShapeTooltip"><strong>Profile shape</strong><br>Concentrated means one burden source dominates. Distributed means multiple sources materially contribute. Hidden means the visible workflow likely understates the real upkeep cost.</span></span></span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaTrajectoryText">Trajectory: --</span> <span class="insight-help" id="trajectoryInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="trajectoryTooltip"><strong>Trajectory</strong><br>Trajectory indicates whether burden pressure appears to be rising, holding steady, or easing based on the current signal pattern.</span></span></span></div></div>
+      <div class="score-meta-strip"><div class="score-meta-note"><span class="score-meta-pill" id="scoreMetaIndustry">Industry: --</span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaShapeText">Profile shape: --</span> <span class="insight-help" id="profileShapeInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="profileShapeTooltip"><strong>Profile shape</strong><br>Concentrated means one burden source dominates. Distributed means multiple sources materially contribute. Hidden means the visible workflow likely understates the real upkeep cost.</span></span></span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaTrajectoryText">Self-reported change: --</span> <span class="insight-help" id="trajectoryInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="trajectoryTooltip"><strong>Self-reported change</strong><br>This records the participant's reported change direction in the current run. It is not a measured longitudinal trend.</span></span></span></div></div>
     </div></section>
 
     <section class="primary-waterfall"><div class="viz-card"><h4>Capacity allocation</h4><div class="capacity-waterfall"><div id="effortFlowSankey" style="margin-bottom:6px;"></div><div class="capacity-bar" id="capacityWaterfall"></div><div class="capacity-legend"><span><span class="legend-dot dot-green"></span>Productive work</span><span><span class="legend-dot dot-gold"></span>Necessary administrative load</span><span><span class="legend-dot" style="background:#B0392F"></span>Recoverable drag</span></div><p class="viz-note" id="capacityWaterfallNote">Capacity allocation view will appear here after scoring.</p></div></div></section>
@@ -812,7 +812,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
             <div class="viz-card" style="margin-top:14px;"><h4>Intervention order</h4><div id="priorityPathMount"></div><p class="viz-note">Where to act first across the heaviest dimensions — fix now, fix next, monitor.</p></div>
             <div style="display:none;" aria-hidden="true"><canvas id="burdenDonutChart"></canvas><div class="donut-center"><strong id="donutCenterValue">--</strong></div><div class="treemap" id="burdenTreemap"></div></div>
             <section class="economic-strip">
-              <article class="result-card"><h3>Current operating burden</h3><div class="section-divider"></div><div id="trajectorySignalWrap" class="result-copy" style="margin-bottom:12px;">Trajectory signal will appear here after scoring.</div><p class="result-copy" id="executiveText"></p><div class="premium-note" id="conditionSupportText" style="display:none"></div></article>
+              <article class="result-card"><h3>Current operating burden</h3><div class="section-divider"></div><div id="trajectorySignalWrap" class="result-copy" style="margin-bottom:12px;">Self-reported change signal will appear here after scoring.</div><p class="result-copy" id="executiveText"></p><div class="premium-note" id="conditionSupportText" style="display:none"></div></article>
               <article class="result-card"><h3>Cost of current administrative burden</h3><div class="section-divider"></div><p class="result-copy" id="roiNarrativeText">This section translates recurring process burden into labor cost, management attention, and the specific capacity the organization could reclaim by reducing unnecessary administrative load.</p></article>
               <article class="result-card"><h3>Priority actions</h3><div class="section-divider"></div><ul class="result-list" id="actionsList"></ul><div class="compact-card" style="margin-top:14px;"><h3>Leadership implication</h3><ul class="result-list" id="leadershipList"></ul></div></article>
               <article class="result-card"><h3>Design reference and operating read</h3><div class="section-divider"></div><p class="result-copy" id="benchmarkInterpretationText">Design-reference interpretation will appear here after scoring.</p><div class="premium-note" id="tradeoffReadingText" style="display:none"></div></article>
@@ -829,11 +829,11 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
             <div class="benchmark-shell">
               <div class="viz-grid">
                 <div class="viz-card"><h4>Instrument design-reference gauge</h4><div class="gauge-wrap"><div class="half-gauge" id="industryGauge"></div><div class="gauge-labels"><span>Below reference</span><span>Within reference</span><span>Above reference</span><span>Opportunity</span></div></div></div>
-                <div class="viz-card"><h4>Trajectory</h4><div class="trajectory-inline"><div id="trajectoryChipMount"></div><div class="sparkline-wrap"><svg class="sparkline" id="trajectorySparkline" viewBox="0 0 120 34" preserveAspectRatio="none"></svg></div></div><p class="viz-note" id="trajectorySparklineNote">Trajectory interpretation will appear here after scoring.</p></div>
+                <div class="viz-card"><h4>Self-reported change</h4><div class="trajectory-inline"><div id="trajectoryChipMount"></div><div class="sparkline-wrap"><svg class="sparkline" id="trajectorySparkline" viewBox="0 0 120 34" preserveAspectRatio="none"></svg></div></div><p class="viz-note" id="trajectorySparklineNote">Self-reported change interpretation will appear here after scoring.</p></div>
               </div>
               <section class="summary-grid">
                 <article class="summary-card"><p class="summary-label">Design reference</p><p class="summary-value" id="benchmarkValue">--</p><div class="benchmark-band"><div class="benchmark-track"><div class="benchmark-range industry-range" id="industryRange"></div><div class="benchmark-range opportunity-range" id="opportunityRange"></div><div class="benchmark-marker" id="benchmarkMarker"></div></div><div class="benchmark-legend"><span><span class="legend-dot dot-gold"></span>Design reference range</span><span><span class="legend-dot dot-green"></span>Opportunity range</span><span><span class="legend-dot dot-blue"></span>Your workflow</span></div><div class="benchmark-caption" id="benchmarkCaption"><strong>Position against the instrument's design reference</strong><br>This is an expert-authored reference range, not an empirical peer benchmark.</div></div><p class="summary-sub tight" id="benchmarkSub">Instrument design context</p></article>
-                <article class="summary-card"><p class="summary-label">Trajectory</p><p class="summary-value" id="trajectoryValue">--</p><p class="summary-sub tight" id="trajectoryValueSub">Directional signal</p></article>
+                <article class="summary-card"><p class="summary-label">Self-reported change</p><p class="summary-value" id="trajectoryValue">--</p><p class="summary-sub tight" id="trajectoryValueSub">Not a longitudinal measurement</p></article>
               </section>
             </div>
           </div>
@@ -905,7 +905,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
             <span class="accordion-chevron">⌄</span>
           </button>
           <div class="accordion-body">
-            <section class="export-summary-card executive-export-card"><div class="export-summary-head"><p class="export-summary-kicker">Leadership bottom line</p><h3 class="export-summary-title" id="execSummaryHeadline">Executive summary will appear here after scoring.</h3><p class="result-copy" id="execSummaryBody"></p><div class="export-meta"><span class="export-pill" id="exportMetaBenchmark">Benchmark: --</span><span class="export-pill" id="exportMetaTrajectory">Trajectory: --</span><span class="export-pill" id="exportMetaOpportunity">Opportunity: --</span></div></div><div class="export-grid"><div class="export-block"><h4>Priority actions</h4><ul class="result-list" id="execSummaryActions"></ul></div><div class="export-block"><h4 id="execOpportunityTitle">What this means</h4><p class="result-copy" id="execMeaningText">This executive summary is intended to stand on its own as a concise leadership readout anchored in burden, capacity, risk, and operational action.</p><p class="result-copy" id="execSectorPatternText" style="margin-top:10px;"></p><p class="result-copy" id="execActionsRationaleText" style="margin-top:10px;"></p><p class="result-copy" id="execLeadershipWatchoutText" style="margin-top:10px;"></p></div></div></section>
+            <section class="export-summary-card executive-export-card"><div class="export-summary-head"><p class="export-summary-kicker">Leadership bottom line</p><h3 class="export-summary-title" id="execSummaryHeadline">Executive summary will appear here after scoring.</h3><p class="result-copy" id="execSummaryBody"></p><div class="export-meta"><span class="export-pill" id="exportMetaBenchmark">Design reference: --</span><span class="export-pill" id="exportMetaTrajectory">Self-reported change: --</span><span class="export-pill" id="exportMetaOpportunity">Opportunity: --</span></div></div><div class="export-grid"><div class="export-block"><h4>Priority actions</h4><ul class="result-list" id="execSummaryActions"></ul></div><div class="export-block"><h4 id="execOpportunityTitle">What this means</h4><p class="result-copy" id="execMeaningText">This executive summary is intended to stand on its own as a concise leadership readout anchored in burden, capacity, risk, and operational action.</p><p class="result-copy" id="execSectorPatternText" style="margin-top:10px;"></p><p class="result-copy" id="execActionsRationaleText" style="margin-top:10px;"></p><p class="result-copy" id="execLeadershipWatchoutText" style="margin-top:10px;"></p></div></div></section>
           </div>
         </article>
 
@@ -1522,7 +1522,7 @@ const score = Number(result?.score || 0);
 const position = result?.benchmark_position || "Design-reference position";
 const industry = getIndustryNarrative(result, payload);
 if (/within/i.test(position) && score < 67) {
-return `This is heavy in absolute terms but within the comparable range for ${industry.sectorName}. The design reference is not itself evidence of peer performance; the case for change comes from trajectory, qualitative operating evidence, and recoverable capacity.`;
+return `This is heavy in absolute terms but within the instrument design-reference range for ${industry.sectorName}. The design reference is not itself evidence of peer performance; the case for change comes from self-reported change evidence, qualitative operating evidence, and recoverable capacity.`;
 }
 return buildBenchmarkInterpretationText(result, payload);
 }
@@ -3989,12 +3989,13 @@ const chipMount = $("trajectoryChipMount");
 const note = $("trajectorySparklineNote");
 if (!mount || !chipMount) return;
 const dir = result?.trajectory?.direction || "flat";
-const values = dir === "up" ? [18,20,22,25,28,31] : dir === "down" ? [31,29,27,25,23,20] : [24,24,25,24,24,24];
 const color = dir === "up" ? "#B0392F" : dir === "down" ? "#3C8A60" : "#C9821F";
-const points = values.map((v, i) => `${i * 24},${34 - v}`).join(" ");
-mount.innerHTML = `<polyline fill="none" stroke="${color}" stroke-width="3" points="${points}" />`;
+const arrow = dir === "up" ? "↗" : dir === "down" ? "↘" : "→";
+// A single run cannot supply a time series. Show the reported direction as a
+// symbol rather than drawing fabricated historical points.
+mount.innerHTML = `<text x="60" y="25" text-anchor="middle" font-size="24" font-weight="700" fill="${color}">${arrow}</text>`;
 chipMount.innerHTML = $("trajectorySignalWrap")?.innerHTML || "";
-if (note) note.textContent = result?.trajectory?.note || "Directional signal";
+if (note) note.textContent = result?.trajectory?.note || "Single-run directional signal";
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -4361,11 +4362,11 @@ return `<div class="donut-panel">
 - Builds at-a-glance pullquote
   */
   function buildPullquote(summary, benchmarkPosition, trajectoryLabel) {
-  const trajectoryLine = trajectoryLabel ? ` &nbsp;·&nbsp; <strong>Trajectory:</strong> ${escapeHtml(trajectoryLabel)}` : '';
+  const trajectoryLine = trajectoryLabel ? ` &nbsp;·&nbsp; <strong>Self-reported change:</strong> ${escapeHtml(trajectoryLabel)}` : '';
   return `<div class="pullquote">
   
    <p class="pullquote-eyebrow">At a glance</p>
-   <p><strong>Condition:</strong> ${escapeHtml(summary.headline)} &nbsp;·&nbsp; <strong>Benchmark:</strong> ${escapeHtml(benchmarkPosition)}${trajectoryLine}</p>
+   <p><strong>Condition:</strong> ${escapeHtml(summary.headline)} &nbsp;·&nbsp; <strong>Design reference:</strong> ${escapeHtml(benchmarkPosition)}${trajectoryLine}</p>
 
 </div>`;
 
@@ -5451,7 +5452,7 @@ $("execSummaryHeadline").textContent = executiveSummary.headline;
 $("execSummaryBody").textContent = executiveSummary.body;
 $("scoreMetaIndustry").textContent = `Industry: ${resolveIndustryLabel(result, payload, { titleCase: true })}`;
 $("scoreMetaShapeText").textContent = `Profile shape: ${humanize(result?.canonical_descriptor?.burden_distribution_type || harmonized.state.burdenProfileShape || "concentrated")}`;
-$("scoreMetaTrajectoryText").textContent = `Trajectory: ${result?.trajectory?.label || "No strong directional signal"}`;
+$("scoreMetaTrajectoryText").textContent = `Self-reported change: ${result?.trajectory?.label || "Not established"}`;
 const insight = renderInsightDepth(payload);
 $("execMeaningText").textContent = executiveSummary.opportunity;
 $("execOpportunityTitle").textContent = harmonized.opportunityFields.title;
@@ -5459,8 +5460,8 @@ $("execSectorPatternText").textContent = `Expert-authored sector hypothesis to t
 $("execActionsRationaleText").textContent = `Why these first moves matter: ${harmonized.opportunityFields.firstMoves}`;
 $("execLeadershipWatchoutText").textContent = `What leadership should avoid: ${harmonized.opportunityFields.watchout}`;
 
-$("exportMetaBenchmark").textContent = `Benchmark: ${result.benchmark_position || "Design-reference position"}`;
-$("exportMetaTrajectory").textContent = `Trajectory: ${result?.trajectory?.label || "No strong directional signal"}`;
+$("exportMetaBenchmark").textContent = `Design reference: ${result.benchmark_position || "Design-reference position"}`;
+$("exportMetaTrajectory").textContent = `Self-reported change: ${result?.trajectory?.label || "Not established"}`;
 $("exportMetaOpportunity").textContent = `Primary burden source: ${burdenConstraint.label}`;
 
 renderList("leadershipList", harmonized.leadership);
@@ -5599,7 +5600,7 @@ remedyGrid.innerHTML = remedies.map((path) => {
 $("reportTitle").textContent = `${payload?.processName || payload?.process_name || "Workflow"} • Operational Systems Diagnostic`;
 $("reportSubtitle").textContent = `${result.benchmark_position || "Design-reference position"} • ${displayPerspectiveLabel(payload?.participantMode || payload?.participant_mode || state.mode || "senior_leader")} perspective • ${resolveIndustryLabel(result, payload, { titleCase: true })} • ${payload?.employeeCount ? `${Number(payload.employeeCount).toLocaleString()} employees` : humanize(payload?.organizationSize || result?.organization_size_label || "unknown")}`;
 $("metaProcess").textContent = `Pathway: ${payload?.processName || payload?.process_name || "Unnamed workflow"}`;
-$("metaBench").textContent = `Benchmark: ${result.benchmark_position || "Design-reference position"}`;
+$("metaBench").textContent = `Design reference: ${result.benchmark_position || "Design-reference position"}`;
 $("metaDate").textContent = `Generated: ${nowLabel()}`;
 
 renderBenchmarkBar(result, payload);
