@@ -600,6 +600,7 @@
   }
 
   function renderLensSummary(m, n) {
+    if (m.product === "depth") return "";
     if (!arr(m.sourceGroups).length) return "";
     const cards = arr(m.sourceGroups).map((lens) => {
       return '<div class="mr-lens-card"><div class="mr-lens-label">' + esc(lens.toolLabel) + '</div>' +
