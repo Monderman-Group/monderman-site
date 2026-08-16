@@ -1,4 +1,4 @@
-// Final release-candidate render gate for the customer-facing sample library.
+// Final exact-head release-candidate render gate for the customer-facing sample library.
 import { chromium } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';
