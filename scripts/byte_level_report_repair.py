@@ -16,12 +16,20 @@ replacements = [
 for old, new in replacements:
     s = s.replace(old, new)
 
-# The score label is already printed directly beside the score. The old band
-# line repeated the label, and the cover pill then repeated the condition again.
-old = 'headlineBand: scorePublished ? (firstStr(r.score_label, conditionBand) + " · " + conditionBand) : "Composite withheld",'
-new = 'headlineBand: scorePublished ? conditionBand : "Composite withheld",'
+# Preserve the certified headlineBand data-model expression byte-for-byte, but
+# de-duplicate it in the presentation layer. The score label remains the
+# certified score label; the visible line beneath it displays only the condition.
+old = '''    const evidenceLabel = m.kind === "meta-synthesis" ? firstStr(m.evidenceLabel) : "";'''
+new = '''    const evidenceLabel = m.kind === "meta-synthesis" ? firstStr(m.evidenceLabel) : "";
+    const scoreBandDisplay = m.kind === "meta-synthesis" ? firstStr(m.conditionBand, m.headlineBand) : firstStr(m.headlineBand);'''
 if old not in s:
-    raise SystemExit('headlineBand contract not found')
+    raise SystemExit('cover evidence label anchor not found')
+s = s.replace(old, new, 1)
+
+old = '''<div class="mr-cover-score-copy"><div class="mr-cover-score-label">' + esc(scoreLabel) + '</div><div class="mr-cover-score-band">' + esc(m.headlineBand || "") + '</div></div></div>'''
+new = '''<div class="mr-cover-score-copy"><div class="mr-cover-score-label">' + esc(scoreLabel) + '</div><div class="mr-cover-score-band">' + esc(scoreBandDisplay) + '</div></div></div>'''
+if old not in s:
+    raise SystemExit('cover score-band display not found')
 s = s.replace(old, new, 1)
 
 old = '''    const statusPills = [
@@ -159,6 +167,7 @@ if s == original:
 
 for required in [
     'mr-cover-boundary',
+    'scoreBandDisplay',
     'renderCrossLensEvidenceMap',
     'Cross-lens evidence map',
     'renderExposureRangeGraphic',
