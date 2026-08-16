@@ -29,7 +29,9 @@ jobs:
           node-version: '22'
 
       - name: Apply Synthesis visual-density repair
-        run: python scripts/repair_synthesis_report_visual_density.py
+        run: |
+          python scripts/repair_synthesis_report_visual_density.py
+          python scripts/fix_synthesis_boundary_layout.py
 
       - name: Run static and product-contract gates
         run: |
