@@ -65,8 +65,12 @@ for (const token of [
   'What to watch next',
   'Equal-lens mean',
 ]) assert(crossText.includes(token), `Cross-Lens missing ${token}`);
-assert(!crossText.includes('Composite withheld'), 'Cross-Lens flagship still withholds Composite Score');
-assert(!crossText.includes('Comparison Only'), 'Cross-Lens flagship still uses Comparison Only');
+const crossScoreBand = await cross.locator('.score-band').first().textContent();
+assert(crossScoreBand.includes('Cross-Lens Composite Score'), 'Cross-Lens headline does not show published Composite Score');
+assert(!/withheld/i.test(crossScoreBand), 'Cross-Lens headline still shows a withheld Composite Score');
+const crossEvidence = await cross.locator('.mr-section').first().textContent();
+assert(crossEvidence.includes('Strong'), 'Cross-Lens evidence status is not Strong');
+assert(!crossEvidence.includes('Comparison Only'), 'Cross-Lens evidence status still says Comparison Only');
 assert(await cross.locator('svg[aria-label="Cross-Lens Diagnostic score comparison"]').isVisible(), 'Cross-Lens comparison visual not visible');
 await page.screenshot({ path: path.join(out, 'synthesis.png'), fullPage: true });
 
