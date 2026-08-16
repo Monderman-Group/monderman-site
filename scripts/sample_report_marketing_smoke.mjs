@@ -13,7 +13,8 @@ page.on('console',m=>{if(m.type()==='error') errors.push(`console: ${m.text()}`)
 
 function assert(ok,msg){ if(!ok) throw new Error(msg); }
 await page.goto(`${base}/sample-report.html`,{waitUntil:'networkidle',timeout:90000});
-const pageText=await page.locator('body').innerText();
+// textContent intentionally includes hidden tab panels; each panel is separately rendered below.
+const pageText=await page.locator('body').textContent();
 assert(pageText.includes('These are representative samples, not customer reports.'),'representative-sample disclosure missing');
 assert(!/\bseat(?:s|-year)?\b/i.test(pageText),'seat vocabulary remains');
 assert(!/Insight depth/i.test(pageText),'Insight depth remains');
@@ -42,7 +43,6 @@ for(const [key,label,required] of cases){
   await page.screenshot({path:path.join(out,`${key}.png`),fullPage:true});
 }
 
-// Depth sample arithmetic and evidence label are representative but must be internally exact.
 const depthText=await page.locator('[data-report="depth"]').innerText();
 assert(depthText.includes('Representative scores: 48, 51, 53, 56, 61, 64, 67.'),'Depth representative distribution missing');
 assert(depthText.includes('Median 56'),'Depth median mismatch');
