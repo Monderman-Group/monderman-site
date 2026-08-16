@@ -1466,6 +1466,22 @@
     }
 
   </style>
+
+<style id="sample-production-quadrant-css">
+  /* Exact customer Diagnostic quadrant geometry and placement rules. */
+  .sample-production-quadrant-wrap{display:grid;gap:10px}
+  .sample-production-quad-with-yaxis{display:flex;align-items:stretch;gap:8px}
+  .sample-production-axis-x,.sample-production-axis-y{font-size:.78rem;color:#6E6F73}
+  .sample-production-axis-x{text-align:center}
+  .sample-production-axis-y{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;flex:0 0 auto;padding:8px 0;align-self:stretch;display:flex;align-items:center;justify-content:center}
+  .sample-production-quadrant-box{position:relative;height:320px;border:1px solid rgba(24,25,28,.16);border-radius:18px;overflow:hidden;flex:1;background-color:#FAFAF8}
+  .sample-production-quadrant-box[data-y-threshold="50"]{background:radial-gradient(ellipse at 25% 28%,rgba(12,110,120,.06) 0%,transparent 50%),linear-gradient(to right,transparent calc(50% - 1px),rgba(24,25,28,.15) calc(50% - 1px),rgba(24,25,28,.15) calc(50% + 1px),transparent calc(50% + 1px)),linear-gradient(to top,transparent calc(50% - 1px),rgba(24,25,28,.15) calc(50% - 1px),rgba(24,25,28,.15) calc(50% + 1px),transparent calc(50% + 1px)),#FAFAF8}
+  .sample-production-quadrant-box[data-y-threshold="67"]{background:radial-gradient(ellipse at 25% 28%,rgba(12,110,120,.06) 0%,transparent 50%),linear-gradient(to right,transparent calc(50% - 1px),rgba(24,25,28,.15) calc(50% - 1px),rgba(24,25,28,.15) calc(50% + 1px),transparent calc(50% + 1px)),linear-gradient(to top,transparent calc(67% - 1px),rgba(24,25,28,.15) calc(67% - 1px),rgba(24,25,28,.15) calc(67% + 1px),transparent calc(67% + 1px)),#FAFAF8}
+  .sample-production-q-label{position:absolute;font-size:.8rem;line-height:1.35;color:#6E6F73;max-width:120px;z-index:1}
+  .sample-production-q-tl{top:12px;left:12px}.sample-production-q-tr{top:12px;right:12px;text-align:right}.sample-production-q-bl{bottom:12px;left:12px}.sample-production-q-br{bottom:12px;right:12px;text-align:right}
+  .sample-quadrant-dot{position:absolute;width:22px;height:22px;border-radius:999px;background:#0C6E78;border:3px solid rgba(255,255,255,.98);box-shadow:0 4px 14px rgba(12,110,120,.40),0 0 0 7px rgba(12,110,120,.10);transform:translate(-50%,-50%);z-index:0}
+</style>
+
 </head>
 <body>
 
@@ -1625,24 +1641,20 @@
     <section class="section" id="os-quadrant">
       <p class="section-eyebrow">Two axes, one position <span class="pg">Page 5</span></p>
       <h2>Governance weight &times; execution responsiveness</h2>
-      <div class="panel" style="display:flex;gap:28px;flex-wrap:wrap;align-items:center;">
-        <div class="sample-quadrant" role="img" aria-label="Governance weight &times; execution responsiveness: Governance weight 68, Execution responsiveness 44" style="flex:0 1 390px;min-width:300px;max-width:100%;">
-          <div style="display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;">
-            <div style="writing-mode:vertical-rl;transform:rotate(180deg);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6E6F73;text-align:center;">Execution responsiveness</div>
-            <div style="position:relative;height:250px;border:1px solid rgba(24,25,28,.16);border-radius:10px;background:linear-gradient(90deg,rgba(60,138,96,.035) 0 50%,rgba(201,130,31,.045) 50% 100%);overflow:hidden;">
-              <div style="position:absolute;left:50%;top:0;bottom:0;border-left:1px solid rgba(24,25,28,.12);"></div>
-              <div style="position:absolute;top:50%;left:0;right:0;border-top:1px solid rgba(24,25,28,.12);"></div>
-              <span style="position:absolute;left:12px;top:10px;font-size:10.5px;color:#6E6F73;line-height:1.25;">Fast movement,<br>lighter governance</span>
-              <span style="position:absolute;right:12px;top:10px;font-size:10.5px;color:#6E6F73;line-height:1.25;text-align:right;">Fast movement,<br>heavier governance</span>
-              <span style="position:absolute;left:12px;bottom:10px;font-size:10.5px;color:#6E6F73;line-height:1.25;">Slow movement,<br>lighter governance</span>
-              <span style="position:absolute;right:12px;bottom:10px;font-size:10.5px;color:#6E6F73;line-height:1.25;text-align:right;">Slow movement,<br>heavier governance</span>
-              <span class="sample-quadrant-dot" style="position:absolute;left:68%;top:56%;width:16px;height:16px;border-radius:50%;background:#0C6E78;border:3px solid #fff;box-shadow:0 0 0 2px rgba(12,110,120,.22);transform:translate(-50%,-50%);"></span>
+      <div class="panel" style="display:flex;gap:28px;flex-wrap:wrap;align-items:center;"><div class="sample-quadrant sample-production-quadrant-wrap" data-production-component="diagnostic-quadrant" data-y-threshold="50" role="img" aria-label="Governance weight &times; execution responsiveness: Governance weight 68, Execution responsiveness 44" style="flex:0 1 430px;min-width:310px;max-width:100%;">
+          <div class="sample-production-quad-with-yaxis">
+            <div class="sample-production-axis-y">Execution responsiveness</div>
+            <div class="sample-production-quadrant-box" data-y-threshold="50">
+              <div class="sample-production-q-label sample-production-q-tl">Fast movement,<br>lighter governance</div>
+              <div class="sample-production-q-label sample-production-q-tr">Fast movement,<br>heavier governance</div>
+              <div class="sample-production-q-label sample-production-q-bl">Slow movement,<br>lighter governance</div>
+              <div class="sample-production-q-label sample-production-q-br">Slow movement,<br>heavier governance</div>
+              <div class="sample-quadrant-dot" style="left:68%;top:56%;"></div>
             </div>
           </div>
-          <div style="margin:8px 0 0 36px;text-align:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6E6F73;">Governance weight</div>
-          <p class="muted" style="margin:8px 0 0 36px;font-size:.8rem;">Representative plotted values: Governance weight 68/100 · Execution responsiveness 44/100.</p>
-        </div>
-        <p style="flex:1;min-width:260px;margin:0;">This representative run sits in the heavier-governance / lower-responsiveness half of the matrix. The organization is still getting movement, but it is buying that movement with reconciliation, duplicate approval, and workaround effort. The task is to remove non-proportionate weight without weakening control quality.</p>
+          <div class="sample-production-axis-x">Governance weight</div>
+          <p class="muted" style="margin:8px 0 0 28px;font-size:.8rem;">Representative plotted values: Governance weight 68/100 &middot; Execution responsiveness 44/100.</p>
+        </div><p style="flex:1;min-width:260px;margin:0;">This representative run sits in the heavier-governance / lower-responsiveness half of the matrix. The organization is still getting movement, but it is buying that movement with reconciliation, duplicate approval, and workaround effort. The task is to remove non-proportionate weight without weakening control quality.</p>
       </div>
     </section>
 
@@ -1832,24 +1844,20 @@
     <section class="section" id="dv-quadrant">
       <p class="section-eyebrow">Two axes, one position <span class="pg">Page 5</span></p>
       <h2>Governance weight &times; execution responsiveness</h2>
-      <div class="panel" style="display:flex;gap:28px;flex-wrap:wrap;align-items:center;">
-        <div class="sample-quadrant" role="img" aria-label="Governance weight &times; execution responsiveness: Governance weight 64, Execution responsiveness 52" style="flex:0 1 390px;min-width:300px;max-width:100%;">
-          <div style="display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;">
-            <div style="writing-mode:vertical-rl;transform:rotate(180deg);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6E6F73;text-align:center;">Execution responsiveness</div>
-            <div style="position:relative;height:250px;border:1px solid rgba(24,25,28,.16);border-radius:10px;background:linear-gradient(90deg,rgba(60,138,96,.035) 0 50%,rgba(201,130,31,.045) 50% 100%);overflow:hidden;">
-              <div style="position:absolute;left:50%;top:0;bottom:0;border-left:1px solid rgba(24,25,28,.12);"></div>
-              <div style="position:absolute;top:50%;left:0;right:0;border-top:1px solid rgba(24,25,28,.12);"></div>
-              <span style="position:absolute;left:12px;top:10px;font-size:10.5px;color:#6E6F73;line-height:1.25;">Fast movement,<br>lighter governance</span>
-              <span style="position:absolute;right:12px;top:10px;font-size:10.5px;color:#6E6F73;line-height:1.25;text-align:right;">Fast movement,<br>heavier governance</span>
-              <span style="position:absolute;left:12px;bottom:10px;font-size:10.5px;color:#6E6F73;line-height:1.25;">Slow movement,<br>lighter governance</span>
-              <span style="position:absolute;right:12px;bottom:10px;font-size:10.5px;color:#6E6F73;line-height:1.25;text-align:right;">Slow movement,<br>heavier governance</span>
-              <span class="sample-quadrant-dot" style="position:absolute;left:64%;top:48%;width:16px;height:16px;border-radius:50%;background:#0C6E78;border:3px solid #fff;box-shadow:0 0 0 2px rgba(12,110,120,.22);transform:translate(-50%,-50%);"></span>
+      <div class="panel" style="display:flex;gap:28px;flex-wrap:wrap;align-items:center;"><div class="sample-quadrant sample-production-quadrant-wrap" data-production-component="diagnostic-quadrant" data-y-threshold="50" role="img" aria-label="Governance weight &times; execution responsiveness: Governance weight 64, Execution responsiveness 52" style="flex:0 1 430px;min-width:310px;max-width:100%;">
+          <div class="sample-production-quad-with-yaxis">
+            <div class="sample-production-axis-y">Execution responsiveness</div>
+            <div class="sample-production-quadrant-box" data-y-threshold="50">
+              <div class="sample-production-q-label sample-production-q-tl">Fast movement,<br>lighter governance</div>
+              <div class="sample-production-q-label sample-production-q-tr">Fast movement,<br>heavier governance</div>
+              <div class="sample-production-q-label sample-production-q-bl">Slow movement,<br>lighter governance</div>
+              <div class="sample-production-q-label sample-production-q-br">Slow movement,<br>heavier governance</div>
+              <div class="sample-quadrant-dot" style="left:64%;top:48%;"></div>
             </div>
           </div>
-          <div style="margin:8px 0 0 36px;text-align:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6E6F73;">Governance weight</div>
-          <p class="muted" style="margin:8px 0 0 36px;font-size:.8rem;">Representative plotted values: Governance weight 64/100 · Execution responsiveness 52/100.</p>
-        </div>
-        <p style="flex:1;min-width:260px;margin:0;">The representative pathway is still moving, but governance weight is consuming responsiveness. Four sequential approvals and recurring senior touches keep routine decisions near the middle of the matrix instead of in the lighter-governance / faster-movement quadrant.</p>
+          <div class="sample-production-axis-x">Governance weight</div>
+          <p class="muted" style="margin:8px 0 0 28px;font-size:.8rem;">Representative plotted values: Governance weight 64/100 &middot; Execution responsiveness 52/100.</p>
+        </div><p style="flex:1;min-width:260px;margin:0;">The representative pathway is still moving, but governance weight is consuming responsiveness. Four sequential approvals and recurring senior touches keep routine decisions near the middle of the matrix instead of in the lighter-governance / faster-movement quadrant.</p>
       </div>
     </section>
 
@@ -2038,24 +2046,20 @@
     <section class="section" id="sc-quadrant">
       <p class="section-eyebrow">Two axes, one position <span class="pg">Page 5</span></p>
       <h2>Governance weight &times; structural legibility</h2>
-      <div class="panel" style="display:flex;gap:28px;flex-wrap:wrap;align-items:center;">
-        <div class="sample-quadrant" role="img" aria-label="Governance weight &times; structural legibility: Governance weight 56, Structural legibility 50" style="flex:0 1 390px;min-width:300px;max-width:100%;">
-          <div style="display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;">
-            <div style="writing-mode:vertical-rl;transform:rotate(180deg);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6E6F73;text-align:center;">Structural legibility</div>
-            <div style="position:relative;height:250px;border:1px solid rgba(24,25,28,.16);border-radius:10px;background:linear-gradient(90deg,rgba(60,138,96,.035) 0 50%,rgba(201,130,31,.045) 50% 100%);overflow:hidden;">
-              <div style="position:absolute;left:50%;top:0;bottom:0;border-left:1px solid rgba(24,25,28,.12);"></div>
-              <div style="position:absolute;top:50%;left:0;right:0;border-top:1px solid rgba(24,25,28,.12);"></div>
-              <span style="position:absolute;left:12px;top:10px;font-size:10.5px;color:#6E6F73;line-height:1.25;">High legibility,<br>lighter governance</span>
-              <span style="position:absolute;right:12px;top:10px;font-size:10.5px;color:#6E6F73;line-height:1.25;text-align:right;">High legibility,<br>heavier governance</span>
-              <span style="position:absolute;left:12px;bottom:10px;font-size:10.5px;color:#6E6F73;line-height:1.25;">Low legibility,<br>lighter governance</span>
-              <span style="position:absolute;right:12px;bottom:10px;font-size:10.5px;color:#6E6F73;line-height:1.25;text-align:right;">Low legibility,<br>heavier governance</span>
-              <span class="sample-quadrant-dot" style="position:absolute;left:56%;top:50%;width:16px;height:16px;border-radius:50%;background:#0C6E78;border:3px solid #fff;box-shadow:0 0 0 2px rgba(12,110,120,.22);transform:translate(-50%,-50%);"></span>
+      <div class="panel" style="display:flex;gap:28px;flex-wrap:wrap;align-items:center;"><div class="sample-quadrant sample-production-quadrant-wrap" data-production-component="diagnostic-quadrant" data-y-threshold="67" role="img" aria-label="Governance weight &times; structural legibility: Governance weight 56, Structural legibility 50" style="flex:0 1 430px;min-width:310px;max-width:100%;">
+          <div class="sample-production-quad-with-yaxis">
+            <div class="sample-production-axis-y">Structural legibility</div>
+            <div class="sample-production-quadrant-box" data-y-threshold="67">
+              <div class="sample-production-q-label sample-production-q-tl">High legibility<br>Low governance</div>
+              <div class="sample-production-q-label sample-production-q-tr">High legibility<br>High governance</div>
+              <div class="sample-production-q-label sample-production-q-bl">Low legibility<br>Low governance</div>
+              <div class="sample-production-q-label sample-production-q-br">Low legibility<br>High governance</div>
+              <div class="sample-quadrant-dot" style="left:56%;top:50%;"></div>
             </div>
           </div>
-          <div style="margin:8px 0 0 36px;text-align:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6E6F73;">Governance weight</div>
-          <p class="muted" style="margin:8px 0 0 36px;font-size:.8rem;">Representative plotted values: Governance weight 56/100 · Structural legibility 50/100.</p>
-        </div>
-        <p style="flex:1;min-width:260px;margin:0;">This representative run lands near the boundary between low and high legibility while carrying heavier governance. That combination is consistent with the sample's 50 Diagnostic score and duplicate-approval burden: the structure eventually resolves ambiguity, but only after extra interpretation and review.</p>
+          <div class="sample-production-axis-x">Governance weight</div>
+          <p class="muted" style="margin:8px 0 0 28px;font-size:.8rem;">Representative plotted values: Governance weight 56/100 &middot; Structural legibility 50/100.</p>
+        </div><p style="flex:1;min-width:260px;margin:0;">This representative run lands near the boundary between low and high legibility while carrying heavier governance. That combination is consistent with the sample's 50 Diagnostic score and duplicate-approval burden: the structure eventually resolves ambiguity, but only after extra interpretation and review.</p>
       </div>
     </section>
 
@@ -2244,24 +2248,20 @@
     <section class="section" id="ip-quadrant">
       <p class="section-eyebrow">Two axes, one position <span class="pg">Page 5</span></p>
       <h2>Institutional condition &times; compensatory dependence</h2>
-      <div class="panel" style="display:flex;gap:28px;flex-wrap:wrap;align-items:center;">
-        <div class="sample-quadrant" role="img" aria-label="Institutional condition &times; compensatory dependence: Compensatory dependence 55, Institutional condition 47" style="flex:0 1 390px;min-width:300px;max-width:100%;">
-          <div style="display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;">
-            <div style="writing-mode:vertical-rl;transform:rotate(180deg);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6E6F73;text-align:center;">Institutional condition</div>
-            <div style="position:relative;height:250px;border:1px solid rgba(24,25,28,.16);border-radius:10px;background:linear-gradient(90deg,rgba(60,138,96,.035) 0 50%,rgba(201,130,31,.045) 50% 100%);overflow:hidden;">
-              <div style="position:absolute;left:50%;top:0;bottom:0;border-left:1px solid rgba(24,25,28,.12);"></div>
-              <div style="position:absolute;top:50%;left:0;right:0;border-top:1px solid rgba(24,25,28,.12);"></div>
-              <span style="position:absolute;left:12px;top:10px;font-size:10.5px;color:#6E6F73;line-height:1.25;">Sound condition<br>Low compensation</span>
-              <span style="position:absolute;right:12px;top:10px;font-size:10.5px;color:#6E6F73;line-height:1.25;text-align:right;">Sound condition<br>High compensation</span>
-              <span style="position:absolute;left:12px;bottom:10px;font-size:10.5px;color:#6E6F73;line-height:1.25;">Weak condition<br>Low compensation</span>
-              <span style="position:absolute;right:12px;bottom:10px;font-size:10.5px;color:#6E6F73;line-height:1.25;text-align:right;">Weak condition<br>High compensation</span>
-              <span class="sample-quadrant-dot" style="position:absolute;left:55%;top:53%;width:16px;height:16px;border-radius:50%;background:#0C6E78;border:3px solid #fff;box-shadow:0 0 0 2px rgba(12,110,120,.22);transform:translate(-50%,-50%);"></span>
+      <div class="panel" style="display:flex;gap:28px;flex-wrap:wrap;align-items:center;"><div class="sample-quadrant sample-production-quadrant-wrap" data-production-component="diagnostic-quadrant" data-y-threshold="67" role="img" aria-label="Institutional condition &times; compensatory dependence: Compensatory dependence 55, Institutional condition 47" style="flex:0 1 430px;min-width:310px;max-width:100%;">
+          <div class="sample-production-quad-with-yaxis">
+            <div class="sample-production-axis-y">Institutional condition</div>
+            <div class="sample-production-quadrant-box" data-y-threshold="67">
+              <div class="sample-production-q-label sample-production-q-tl">Sound condition<br>Low compensation</div>
+              <div class="sample-production-q-label sample-production-q-tr">Sound condition<br>High compensation</div>
+              <div class="sample-production-q-label sample-production-q-bl">Weak condition<br>Low compensation</div>
+              <div class="sample-production-q-label sample-production-q-br">Weak condition<br>High compensation</div>
+              <div class="sample-quadrant-dot" style="left:55%;top:53%;"></div>
             </div>
           </div>
-          <div style="margin:8px 0 0 36px;text-align:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6E6F73;">Compensatory dependence</div>
-          <p class="muted" style="margin:8px 0 0 36px;font-size:.8rem;">Representative plotted values: Compensatory dependence 55/100 · Institutional condition 47/100.</p>
-        </div>
-        <p style="flex:1;min-width:260px;margin:0;">This representative run sits in the exposed lower-right quadrant: Institutional Performance is 47 while compensatory effort is 55. Visible output is being sustained by informal effort and management absorption rather than by a condition strong enough to carry the work on its own.</p>
+          <div class="sample-production-axis-x">Compensatory dependence</div>
+          <p class="muted" style="margin:8px 0 0 28px;font-size:.8rem;">Representative plotted values: Compensatory dependence 55/100 &middot; Institutional condition 47/100.</p>
+        </div><p style="flex:1;min-width:260px;margin:0;">This representative run sits in the exposed lower-right quadrant: Institutional Performance is 47 while compensatory effort is 55. Visible output is being sustained by informal effort and management absorption rather than by a condition strong enough to carry the work on its own.</p>
       </div>
     </section>
 
