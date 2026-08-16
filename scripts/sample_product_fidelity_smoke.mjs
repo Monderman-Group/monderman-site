@@ -63,9 +63,10 @@ assert(ipText.includes('Against the Monderman instrument design reference'), 'IP
 const cross = await openTab('synthesis');
 const crossText = await cross.textContent();
 for (const token of ['Cross-Lens Composite Score','Strong','55.5','Structural Clarity','Decision Velocity','Operational Systems','Institutional Performance','Executive synthesis','Agreements and differences','Evidence-proportionate actions','What to watch next','Equal-lens mean']) assert(crossText.includes(token), `Cross-Lens missing ${token}`);
-const crossScoreBand = await cross.locator('.score-band').first().textContent();
-assert(crossScoreBand.includes('Cross-Lens Composite Score'), 'Cross-Lens headline does not show published Composite Score');
-assert(!/withheld/i.test(crossScoreBand), 'Cross-Lens headline still shows a withheld Composite Score');
+const crossScoreLabel = await cross.locator('.mr-cover-score-label').first().textContent();
+assert(crossScoreLabel.includes('Cross-Lens Composite Score'), 'Cross-Lens cover does not show the published Composite Score label');
+const crossCondition = await cross.locator('.mr-cover-score-band').first().textContent();
+assert(!/withheld/i.test(crossCondition), 'Cross-Lens cover still shows a withheld Composite Score');
 assert(await cross.locator('svg[aria-label="Cross-Lens Diagnostic score comparison"]').isVisible(), 'Cross-Lens comparison visual not visible');
 await page.screenshot({ path: path.join(out, 'synthesis.png'), fullPage: true });
 
