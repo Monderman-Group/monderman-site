@@ -29,7 +29,9 @@ jobs:
           node-version: '22'
 
       - name: Apply forensic report rebuild
-        run: python scripts/forensic_report_rebuild.py
+        run: |
+          python scripts/forensic_report_rebuild.py
+          python scripts/normalize_forensic_score_contract.py
 
       - name: Static and existing release gates
         run: |
