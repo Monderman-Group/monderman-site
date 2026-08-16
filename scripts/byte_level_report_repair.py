@@ -17,13 +17,17 @@ for old, new in replacements:
     s = s.replace(old, new)
 
 # Preserve the certified headlineBand data-model expression byte-for-byte, but
-# de-duplicate it in the presentation layer. The score label remains the
-# certified score label; the visible line beneath it displays only the condition.
-old = '''    const evidenceLabel = m.kind === "meta-synthesis" ? firstStr(m.evidenceLabel) : "";'''
-new = '''    const evidenceLabel = m.kind === "meta-synthesis" ? firstStr(m.evidenceLabel) : "";
+# de-duplicate it in the presentation layer. Use the API-provided score label
+# when available (for example, Equal-lens composite condition score), then show
+# only the condition band beneath it.
+old = '''    const scoreLabel = m.product === "depth" ? "Median Diagnostic Score" : m.product === "cross_lens" ? "Cross-Lens Composite Score" : "Diagnostic Score";
+    const evidenceLabel = m.kind === "meta-synthesis" ? firstStr(m.evidenceLabel) : "";'''
+new = '''    const defaultScoreLabel = m.product === "depth" ? "Median Diagnostic Score" : m.product === "cross_lens" ? "Cross-Lens Composite Score" : "Diagnostic Score";
+    const scoreLabel = m.kind === "meta-synthesis" ? firstStr(m.scoreLabel, defaultScoreLabel) : defaultScoreLabel;
+    const evidenceLabel = m.kind === "meta-synthesis" ? firstStr(m.evidenceLabel) : "";
     const scoreBandDisplay = m.kind === "meta-synthesis" ? firstStr(m.conditionBand, m.headlineBand) : firstStr(m.headlineBand);'''
 if old not in s:
-    raise SystemExit('cover evidence label anchor not found')
+    raise SystemExit('cover score/evidence label anchor not found')
 s = s.replace(old, new, 1)
 
 old = '''<div class="mr-cover-score-copy"><div class="mr-cover-score-label">' + esc(scoreLabel) + '</div><div class="mr-cover-score-band">' + esc(m.headlineBand || "") + '</div></div></div>'''
