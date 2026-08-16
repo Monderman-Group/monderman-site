@@ -31,7 +31,9 @@ jobs:
       - name: Apply or refine byte-level report repair
         shell: bash
         run: |
-          if grep -q 'function renderCrossLensEvidenceMap' monderman-report.js; then
+          if grep -q 'const crossLensMapped = m.product === "cross_lens";' monderman-report.js; then
+            echo "Byte-level report repair already applied and refined."
+          elif grep -q 'function renderCrossLensEvidenceMap' monderman-report.js; then
             python scripts/byte_level_report_refine.py
           else
             python scripts/byte_level_report_repair.py
