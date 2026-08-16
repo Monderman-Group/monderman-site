@@ -545,8 +545,9 @@
     const differences = arr(m.differences);
     if (!signals.length && !differences.length) return "";
     let html = '<section class="mr-section"><h2>' + n + '. Agreements and differences</h2>';
+    const crossLensMapped = m.product === "cross_lens";
     html += renderCrossLensEvidenceMap(m);
-    if (signals.length) {
+    if (signals.length && !crossLensMapped) {
       html += '<h3 style="margin-top:14px">Recurring signals</h3>' + signals.map((signal) =>
         '<div class="mr-card"><h3>' + esc(signal.label) + '</h3><p>' + esc(signal.text) + '</p>' +
         (signal.tools.length ? '<div>' + signal.tools.map((tool) => '<span class="mr-pill">' + esc(humanize(tool)) + '</span>').join("") + '</div>' : '') +
