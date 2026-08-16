@@ -18,7 +18,9 @@ jobs:
           ref: agent/four-diagnostic-sample-fidelity-2026-08-16
           fetch-depth: 0
       - name: Apply four-diagnostic report fidelity repair
-        run: python3 scripts/tmp_apply_four_diagnostic_fidelity.py
+        run: |
+          python3 scripts/tmp_apply_four_diagnostic_fidelity.py
+          python3 scripts/tmp_fix_sample_provenance.py
       - name: Validate repaired files
         run: |
           python3 scripts/validate_sample_product_fidelity.py
