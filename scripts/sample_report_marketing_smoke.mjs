@@ -14,7 +14,7 @@ page.on('console',m=>{if(m.type()==='error') errors.push(`console: ${m.text()}`)
 
 function assert(ok,msg){ if(!ok) throw new Error(msg); }
 await page.goto(`${base}/sample-report.html`,{waitUntil:'networkidle',timeout:90000});
-// textContent intentionally includes hidden tab panels; each panel is separately rendered below.
+// textContent intentionally includes hidden tab panels; each panel is separately made visible and rendered below.
 const pageText=await page.locator('body').textContent();
 assert(pageText.includes('These are representative samples, not customer reports.'),'representative-sample disclosure missing');
 assert(!/\bseat(?:s|-year)?\b/i.test(pageText),'seat vocabulary remains');
@@ -39,12 +39,14 @@ for(const [key,label,required] of cases){
   await page.waitForTimeout(250);
   const shell=page.locator(`[data-report="${key}"]`);
   assert(await shell.isVisible(),`${label} shell not visible`);
-  const txt=await shell.innerText();
+  const box=await shell.boundingBox();
+  assert(box && box.width>0 && box.height>0,`${label} has no rendered geometry`);
+  const txt=await shell.textContent();
   for(const token of required) assert(txt.includes(token),`${label} missing ${token}`);
   await page.screenshot({path:path.join(out,`${key}.png`),fullPage:true});
 }
 
-const depthText=await page.locator('[data-report="depth"]').innerText();
+const depthText=await page.locator('[data-report="depth"]').textContent();
 assert(depthText.includes('Representative scores: 48, 51, 53, 56, 61, 64, 67.'),'Depth representative distribution missing');
 assert(depthText.includes('Median 56'),'Depth median mismatch');
 
