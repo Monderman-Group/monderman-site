@@ -36,7 +36,7 @@ async function certifyPdf({ key, reportHtml, chartLabel, expectedScore, expected
   assert(await chart.isVisible(), `${key} evidence chart is not visible before PDF render`);
   const chartFont = await chart.evaluate(el => getComputedStyle(el).fontFamily);
   assert(isMondermanFont(chartFont), `${key} evidence chart is not using Neue Haas Grotesk before PDF render: ${chartFont}`);
-  assert(await page.locator(expectedVisual).isVisible(), `${key} expected report visual ${expectedVisual} is not visible before PDF render`);
+  assert(await page.locator(expectedVisual).first().isVisible(), `${key} expected report visual ${expectedVisual} is not visible before PDF render`);
   assert(await page.locator('.mr-cover .mr-cover-boundary').isVisible(), `${key} cover interpretation boundary missing before PDF render`);
   assert(await page.locator('.mr-report-boundary').isVisible(), `${key} end interpretation boundary missing before PDF render`);
 
