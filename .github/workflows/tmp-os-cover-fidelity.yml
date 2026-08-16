@@ -1,0 +1,42 @@
+name: Temporary OS Cover Fidelity Repair
+
+on:
+  push:
+    branches:
+      - agent/four-diagnostic-sample-fidelity-2026-08-16
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    if: ${{ !contains(github.event.head_commit.message, '[os-cover-fidelity]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/four-diagnostic-sample-fidelity-2026-08-16
+          fetch-depth: 0
+      - name: Repair OS sample cover economics
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('sample-report.html')
+          s=p.read_text(encoding='utf-8')
+          old='<span class="cover-pill cover-pill-neutral">$2,897,724 / yr measured burden<sup>*</sup></span>'
+          new='<span class="cover-pill cover-pill-neutral">$485,760 / yr measured burden<sup>*</sup></span>'
+          if s.count(old) != 1:
+              raise SystemExit(f'expected one stale OS cover value, found {s.count(old)}')
+          s=s.replace(old,new,1)
+          p.write_text(s,encoding='utf-8')
+          PY
+          python3 scripts/validate_sample_product_fidelity.py
+          git diff --check
+      - name: Commit repaired sample
+        run: |
+          git config user.name "Monderman-Group"
+          git config user.email "jason.ivan.adamson@gmail.com"
+          git add sample-report.html
+          git commit -m "Align OS sample cover economics [os-cover-fidelity]"
+          git push origin HEAD:agent/four-diagnostic-sample-fidelity-2026-08-16
