@@ -30,12 +30,12 @@ assert(!bodyText.includes('Against comparable institutions'), 'empirical peer-co
 assert(!bodyText.includes('likely to continue accumulating'), 'single-run predictive trajectory claim remains in sample');
 
 const diagnostics = [
-  ['os', 'Governance weight × execution responsiveness', 'Burden composition', 'Self-reported change.', '5,280 annual burden hours', 'Productive work 76%', 'Recoverable drag 8%'],
-  ['dv', 'Governance weight × execution responsiveness', 'Drag composition', 'Self-reported change.', '3,128 annual burden hours', 'Productive work 78%', 'Recoverable drag 5%'],
-  ['sc', 'Governance weight × structural legibility', 'Clarity readings', 'Change-pressure risk.', '960 annual burden hours', 'Productive work 93%', 'Recoverable drag 2%'],
-  ['ip', 'Institutional condition × compensatory dependence', 'Burden composition', 'Self-reported change.', '8,448 annual burden hours', 'Productive work 74%', 'Recoverable drag 9%'],
+  ['os', 'Governance weight × execution responsiveness', 'Burden composition', 'Self-reported change.', '5,280 annual burden hours', 'Productive work 76%', 'Recoverable drag 8%', '$485,760 / yr measured burden'],
+  ['dv', 'Governance weight × execution responsiveness', 'Drag composition', 'Self-reported change.', '3,128 annual burden hours', 'Productive work 78%', 'Recoverable drag 5%', '$344,080 / yr measured burden'],
+  ['sc', 'Governance weight × structural legibility', 'Clarity readings', 'Change-pressure risk.', '960 annual burden hours', 'Productive work 93%', 'Recoverable drag 2%', '$74,880 / yr measured burden'],
+  ['ip', 'Institutional condition × compensatory dependence', 'Burden composition', 'Self-reported change.', '8,448 annual burden hours', 'Productive work 74%', 'Recoverable drag 9%', '$844,800 / yr measured burden'],
 ];
-for (const [key, quadrantHeading, compositionHeading, changeLabel, hoursToken, productiveToken, recoverableToken] of diagnostics) {
+for (const [key, quadrantHeading, compositionHeading, changeLabel, hoursToken, productiveToken, recoverableToken, coverCostToken] of diagnostics) {
   const shell = await openTab(key);
   const txt = await shell.textContent();
   assert(txt.includes(quadrantHeading), `${key} quadrant heading mismatch`);
@@ -45,6 +45,8 @@ for (const [key, quadrantHeading, compositionHeading, changeLabel, hoursToken, p
   assert(txt.includes(hoursToken), `${key} sample economics not current: ${hoursToken}`);
   assert(txt.includes(productiveToken), `${key} capacity allocation not current: ${productiveToken}`);
   assert(txt.includes(recoverableToken), `${key} recoverable capacity allocation not current: ${recoverableToken}`);
+  const coverText = await shell.locator(`#${key}-cover`).textContent();
+  assert(coverText.includes(coverCostToken), `${key} cover economics disagree with the report body: ${coverCostToken}`);
   const quadrant = shell.locator(`#${key}-quadrant .sample-quadrant`);
   assert(await quadrant.isVisible(), `${key} quadrant graphic not visible`);
   assert(await quadrant.locator('.sample-quadrant-dot').isVisible(), `${key} quadrant dot not visible`);
@@ -77,6 +79,6 @@ assert(await depth.locator('svg[aria-label="Depth Synthesis score distribution"]
 await page.screenshot({ path: path.join(out, 'depth.png'), fullPage: true });
 
 assert(errors.length === 0, errors.join('\n'));
-fs.writeFileSync(path.join(out, 'result.json'), JSON.stringify({ ok: true, diagnostic_tabs: 4, synthesis_tabs: 2, current_capacity_allocation: true, bounded_single_run_change: true, console_errors: errors }, null, 2));
+fs.writeFileSync(path.join(out, 'result.json'), JSON.stringify({ ok: true, diagnostic_tabs: 4, synthesis_tabs: 2, current_capacity_allocation: true, bounded_single_run_change: true, cover_body_economics_parity: true, console_errors: errors }, null, 2));
 console.log('SAMPLE_PRODUCT_FIDELITY_RENDER_PASS_6_OF_6');
 await browser.close();
