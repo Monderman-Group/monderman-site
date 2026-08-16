@@ -191,7 +191,7 @@
       mastline: "Monderman • " + modeLabel,
       title: product === "depth" ? "Depth Synthesis Executive Report" : "Cross-Lens Synthesis Executive Report",
       subtitle: product === "depth"
-        ? "A same-instrument read across multiple respondents — reporting the observed median, distribution, segment differences, and evidence limits."
+        ? "A same-Diagnostic read across multiple eligible runs — reporting the observed median, distribution, vantage differences, and evidence limits."
         : "A multi-lens read that separates lens comparison from a coherent composite and states exactly what evidence supports each conclusion.",
       meta: [
         { label: "Generated", value: nowLabel() },
@@ -238,7 +238,7 @@
       reads: reads,
       lensCount: lensCount,
       footnote: product === "depth"
-        ? "This report describes the submitted same-instrument runs. Population generalization requires a documented sampling frame and response coverage."
+        ? "This report describes the submitted same-Diagnostic runs. Population generalization requires a documented sampling frame and response coverage."
         : "This report is a directional cross-lens synthesis. A published composite is not a proven causal model; source evidence and alternative explanations remain necessary.",
       filenameBase: filenameStem,
       source: r
@@ -373,30 +373,30 @@
     return String(item);
   }
 
-  function renderMetaEvidence(m) {
+  function renderMetaEvidence(m, n) {
     const scope = obj(m.scope), versions = obj(m.versions), identity = obj(m.sourceIdentity);
     const timeWindow = obj(m.timeWindow), balance = obj(m.lensBalance), representative = obj(m.representativeness);
     const cards = [
-      evidenceCard("Evidence band", m.evidenceLabel, m.evidenceDescription),
-      evidenceCard("Composite score", m.scorePublished ? "Published" : "Withheld", m.scoreBasis),
+      evidenceCard("Evidence strength", m.evidenceLabel, m.evidenceDescription),
+      evidenceCard(m.product === "depth" ? "Median Diagnostic Score" : "Cross-Lens Composite Score", m.scorePublished ? "Published" : "Withheld", m.scoreBasis),
       evidenceCard("Scope", firstStr(scope.label, humanize(scope.status)), firstStr(scope.statement)),
-      evidenceCard("Lens balance", firstStr(humanize(balance.status), "Not applicable"), strictFinite(balance.ratio) ? "Strongest-to-weakest lens ratio: " + fmt1(balance.ratio) + ":1" : "Not applicable to one-lens depth synthesis."),
-      evidenceCard("Instrument versions", firstStr(versions.label, humanize(versions.status)), versions.conflicting_lenses?.length ? "Conflicting lenses: " + versions.conflicting_lenses.map(humanize).join(", ") : ""),
+      evidenceCard("Lens balance", firstStr(humanize(balance.status), "Not applicable"), strictFinite(balance.ratio) ? "Strongest-to-weakest lens ratio: " + fmt1(balance.ratio) + ":1" : "Not applicable to one-Diagnostic Depth Synthesis."),
+      evidenceCard("Diagnostic/scorer versions", firstStr(versions.label, humanize(versions.status)), versions.conflicting_lenses?.length ? "Conflicting Diagnostics: " + versions.conflicting_lenses.map(humanize).join(", ") : ""),
       evidenceCard("Source identity", humanize(identity.status), firstStr(identity.statement)),
       evidenceCard("Measurement window", humanize(timeWindow.status), firstStr(timeWindow.statement)),
       evidenceCard("Representativeness", firstStr(representative.label, humanize(representative.status)), firstStr(representative.statement))
     ].filter(Boolean).join("");
-    return '<section class="mr-section"><h2>1. Evidence status</h2>' +
-      '<div class="callout"><p><strong>' + esc(m.evidenceLabel) + '.</strong> ' + esc(m.evidenceDescription || "The evidence band governs what this synthesis is allowed to claim.") + '</p></div>' +
+    return '<section class="mr-section"><h2>' + n + '. Evidence status</h2>' +
+      '<div class="callout"><p><strong>' + esc(m.evidenceLabel) + '.</strong> ' + esc(m.evidenceDescription || "The evidence band governs what this Synthesis is allowed to claim.") + '</p></div>' +
       '<div class="mr-lens-grid">' + cards + '</div></section>';
   }
 
-  function renderMetaFinding(m) {
+  function renderMetaFinding(m, n) {
     const diagnosis = obj(m.diagnosis);
     const paragraphs = arr(m.briefing?.paragraphs).map(textItem).filter(Boolean);
-    return '<section class="mr-section"><h2>2. What this read says</h2>' +
-      '<div class="mr-card"><h3>' + esc(firstStr(diagnosis.name, m.product === "depth" ? "Observed same-instrument pattern" : "Cross-lens finding")) + '</h3>' +
-      (diagnosis.type ? '<span class="mr-pill">' + esc(diagnosis.type) + '</span>' : '') +
+    return '<section class="mr-section"><h2>' + n + '. Executive synthesis</h2>' +
+      '<div class="mr-card"><h3>' + esc(firstStr(diagnosis.name, m.product === "depth" ? "Observed same-Diagnostic pattern" : "Cross-Lens finding")) + '</h3>' +
+      (diagnosis.type ? '<span class="mr-pill">' + esc(humanize(diagnosis.type)) + '</span>' : '') +
       '<p>' + esc(firstStr(diagnosis.body, m.primaryPattern, m.briefing?.lede)) + '</p></div>' +
       (m.briefing?.lede ? '<p class="mr-lede">' + esc(m.briefing.lede) + '</p>' : '') +
       paragraphs.map((p) => '<p>' + esc(p) + '</p>').join("") +
@@ -404,7 +404,50 @@
       '</section>';
   }
 
-  function renderDepthDistribution(m) {
+  function synthAxisX(v, left, width) {
+    const x = Number(v);
+    const bounded = Number.isFinite(x) ? Math.max(0, Math.min(100, x)) : 0;
+    return left + (bounded / 100) * width;
+  }
+
+  function renderDepthDistributionGraphic(read) {
+    const iqr = arr(read.iqr);
+    if (!strictFinite(read.min) || !strictFinite(read.max) || !strictFinite(read.median) || iqr.length < 2 || !strictFinite(iqr[0]) || !strictFinite(iqr[1])) return "";
+    const W = 680, L = 52, R = 28, plotW = W - L - R;
+    const segments = arr(read.segments).filter((s) => strictFinite(obj(s).mean_score) || strictFinite(obj(s).median_score));
+    const H = 148 + segments.length * 36;
+    const axisY = 72;
+    const X = (v) => synthAxisX(v, L, plotW);
+    let svg = '<svg class="mr-synth-chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Depth Synthesis score distribution" style="display:block;width:100%;height:auto;font-family:Helvetica Neue,Arial,sans-serif">';
+    [0,25,50,75,100].forEach((tick) => {
+      svg += '<line x1="' + X(tick) + '" y1="46" x2="' + X(tick) + '" y2="' + (H - 18) + '" stroke="rgba(24,25,28,.07)"/>';
+      svg += '<text x="' + X(tick) + '" y="36" text-anchor="middle" font-size="11" fill="#9A9892">' + tick + '</text>';
+    });
+    svg += '<text x="' + L + '" y="17" font-size="11" font-weight="700" letter-spacing="1.2" fill="#6E6F73">OBSERVED DISTRIBUTION</text>';
+    svg += '<line x1="' + X(read.min) + '" y1="' + axisY + '" x2="' + X(read.max) + '" y2="' + axisY + '" stroke="#6E6F73" stroke-width="2"/>';
+    svg += '<line x1="' + X(read.min) + '" y1="' + (axisY-8) + '" x2="' + X(read.min) + '" y2="' + (axisY+8) + '" stroke="#6E6F73" stroke-width="2"/>';
+    svg += '<line x1="' + X(read.max) + '" y1="' + (axisY-8) + '" x2="' + X(read.max) + '" y2="' + (axisY+8) + '" stroke="#6E6F73" stroke-width="2"/>';
+    svg += '<rect x="' + X(iqr[0]) + '" y="' + (axisY-14) + '" width="' + Math.max(3, X(iqr[1]) - X(iqr[0])) + '" height="28" rx="5" fill="rgba(12,110,120,.16)" stroke="#0C6E78"/>';
+    svg += '<line x1="' + X(read.median) + '" y1="' + (axisY-18) + '" x2="' + X(read.median) + '" y2="' + (axisY+18) + '" stroke="#08383E" stroke-width="3"/>';
+    if (strictFinite(read.mean)) svg += '<circle cx="' + X(read.mean) + '" cy="' + axisY + '" r="5" fill="#C9821F" stroke="#fff" stroke-width="1.5"/>';
+    svg += '<text x="' + X(read.median) + '" y="' + (axisY+34) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#08383E">median ' + esc(fmt1(read.median)) + '</text>';
+    svg += '<text x="' + L + '" y="' + (axisY+55) + '" font-size="11" fill="#6E6F73">Range ' + esc(fmt1(read.min)) + '–' + esc(fmt1(read.max)) + ' · IQR ' + esc(fmtPair(read.iqr, fmt1)) + (strictFinite(read.sd) ? ' · sample sd ' + esc(fmt1(read.sd)) : '') + '</text>';
+    segments.forEach((segment, index) => {
+      const s = obj(segment);
+      const y = 146 + index * 36;
+      const mean = strictFinite(s.mean_score) ? Number(s.mean_score) : Number(s.median_score);
+      const med = strictFinite(s.median_score) ? Number(s.median_score) : mean;
+      svg += '<text x="' + L + '" y="' + (y+4) + '" font-size="12" font-weight="600" fill="#18191C">' + esc(humanize(s.participant_mode)) + ' · n=' + esc(fmtWhole(s.n)) + '</text>';
+      svg += '<line x1="' + X(0) + '" y1="' + (y+14) + '" x2="' + X(100) + '" y2="' + (y+14) + '" stroke="rgba(24,25,28,.09)"/>';
+      svg += '<circle cx="' + X(mean) + '" cy="' + (y+14) + '" r="6" fill="#0C6E78"/>';
+      svg += '<circle cx="' + X(med) + '" cy="' + (y+14) + '" r="3" fill="#fff" stroke="#08383E" stroke-width="2"/>';
+      svg += '<text x="' + Math.min(W-R, X(mean)+12) + '" y="' + (y+18) + '" font-size="11" fill="#6E6F73">mean ' + esc(fmt1(mean)) + ' · median ' + esc(fmt1(med)) + '</text>';
+    });
+    svg += '</svg>';
+    return '<div class="mr-viz-panel"><div class="mr-viz-title">Distribution at a glance</div>' + svg + '<p class="mr-copy">Box = interquartile range; dark line = median; amber dot = mean. Vantage dots describe observed segments and do not reweight the Median Diagnostic Score.</p></div>';
+  }
+
+  function renderDepthDistribution(m, n) {
     if (m.product !== "depth" || !arr(m.sampleReads).length) return "";
     const cards = arr(m.sampleReads).map((read) => {
       const consensus = obj(read.consensus);
@@ -412,9 +455,9 @@
         const s = obj(segment);
         return '<div class="k">' + esc(humanize(s.participant_mode)) + ' · n=' + esc(fmtWhole(s.n)) + '</div><div>Mean ' + esc(fmt1(s.mean_score)) + ' · median ' + esc(fmt1(s.median_score)) + '</div>';
       }).join("");
-      return '<div class="mr-card"><h3>' + esc(read.toolLabel) + '</h3>' +
+      return renderDepthDistributionGraphic(read) + '<div class="mr-card"><h3>' + esc(read.toolLabel) + '</h3>' +
         '<div class="kvs">' +
-          '<div class="k">Observed runs</div><div>' + esc(fmtWhole(read.n)) + '</div>' +
+          '<div class="k">Eligible runs</div><div>' + esc(fmtWhole(read.n)) + '</div>' +
           '<div class="k">Median score</div><div>' + esc(fmt1(read.median)) + '</div>' +
           '<div class="k">Mean score</div><div>' + esc(fmt1(read.mean)) + '</div>' +
           '<div class="k">Observed range</div><div>' + esc(fmt1(read.min)) + ' – ' + esc(fmt1(read.max)) + '</div>' +
@@ -423,14 +466,44 @@
         '</div>' +
         (consensus.detail ? '<div class="callout"><p><strong>' + esc(humanize(consensus.read)) + '.</strong> ' + esc(consensus.detail) + '</p></div>' : '') +
         (segments ? '<h3 style="margin-top:20px">Observed vantage segments</h3><div class="kvs">' + segments + '</div>' : '') +
-        (read.vantageGap?.statement ? '<p class="mr-copy"><strong>Segment difference:</strong> ' + esc(read.vantageGap.statement) + '</p>' : '') +
+        (read.vantageGap?.statement ? '<p class="mr-copy"><strong>Vantage difference:</strong> ' + esc(read.vantageGap.statement) + '</p>' : '') +
         (read.interpretationLimit ? '<p class="mr-copy">' + esc(read.interpretationLimit) + '</p>' : '') +
       '</div>';
     }).join("");
-    return '<section class="mr-section"><h2>3. Respondent distribution</h2>' + cards + '</section>';
+    return '<section class="mr-section"><h2>' + n + '. Observed participant distribution</h2>' + cards + '</section>';
   }
 
-  function renderLensSummary(m) {
+  function renderCrossLensGraphic(m) {
+    if (m.product !== "cross_lens" || !arr(m.sourceGroups).length) return "";
+    const groups = arr(m.sourceGroups).filter((lens) => strictFinite(lens.mean));
+    if (!groups.length) return "";
+    const W = 680, labelW = 182, R = 42, plotW = W - labelW - R;
+    const rowH = 46, top = 64, H = top + groups.length * rowH + 42;
+    const X = (v) => synthAxisX(v, labelW, plotW);
+    let svg = '<svg class="mr-synth-chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Cross-Lens Diagnostic score comparison" style="display:block;width:100%;height:auto;font-family:Helvetica Neue,Arial,sans-serif">';
+    [0,25,50,75,100].forEach((tick) => {
+      svg += '<line x1="' + X(tick) + '" y1="38" x2="' + X(tick) + '" y2="' + (H-28) + '" stroke="rgba(24,25,28,.07)"/>';
+      svg += '<text x="' + X(tick) + '" y="28" text-anchor="middle" font-size="11" fill="#9A9892">' + tick + '</text>';
+    });
+    if (m.scorePublished && strictFinite(m.score)) {
+      svg += '<line x1="' + X(m.score) + '" y1="36" x2="' + X(m.score) + '" y2="' + (H-28) + '" stroke="#08383E" stroke-width="2.5" stroke-dasharray="5 4"/>';
+      svg += '<text x="' + X(m.score) + '" y="14" text-anchor="middle" font-size="11" font-weight="700" fill="#08383E">Composite ' + esc(fmt1(m.score)) + '</text>';
+    }
+    groups.forEach((lens, index) => {
+      const y = top + index * rowH;
+      svg += '<text x="' + (labelW-12) + '" y="' + (y+4) + '" text-anchor="end" font-size="12" font-weight="700" fill="#18191C">' + esc(lens.toolLabel) + '</text>';
+      if (arr(lens.iqr).length >= 2 && strictFinite(lens.iqr[0]) && strictFinite(lens.iqr[1])) {
+        svg += '<line x1="' + X(lens.iqr[0]) + '" y1="' + y + '" x2="' + X(lens.iqr[1]) + '" y2="' + y + '" stroke="rgba(12,110,120,.38)" stroke-width="7" stroke-linecap="round"/>';
+      }
+      svg += '<circle cx="' + X(lens.mean) + '" cy="' + y + '" r="7" fill="#0C6E78" stroke="#fff" stroke-width="1.5"/>';
+      svg += '<text x="' + Math.min(W-R+6, X(lens.mean)+12) + '" y="' + (y+4) + '" font-size="12" font-weight="700" fill="#18191C">' + esc(fmt1(lens.mean)) + '</text>';
+      svg += '<text x="' + (labelW-12) + '" y="' + (y+20) + '" text-anchor="end" font-size="10.5" fill="#9A9892">median ' + esc(fmt1(lens.median)) + ' · n=' + esc(fmtWhole(lens.n)) + '</text>';
+    });
+    svg += '</svg>';
+    return '<div class="mr-viz-panel"><div class="mr-viz-title">Diagnostic lenses on one scale</div>' + svg + '<p class="mr-copy">Dots are per-Diagnostic mean scores; horizontal marks show each lens IQR when available. The dashed Composite line is the equal-lens mean. Participant volume strengthens evidence but does not give a larger lens more weight.</p></div>';
+  }
+
+  function renderLensSummary(m, n) {
     if (!arr(m.sourceGroups).length) return "";
     const cards = arr(m.sourceGroups).map((lens) => {
       return '<div class="mr-lens-card"><div class="mr-lens-label">' + esc(lens.toolLabel) + '</div>' +
@@ -440,15 +513,16 @@
         (lens.driver ? '<span class="mr-pill">' + esc(humanize(lens.driver)) + '</span>' : '') +
       '</div>';
     }).join("");
-    return '<section class="mr-section"><h2>' + (m.product === "depth" ? '4' : '3') + '. Contributing lens' + (m.sourceGroups.length === 1 ? '' : 'es') + '</h2>' +
+    const graphic = m.product === "cross_lens" ? renderCrossLensGraphic(m) : "";
+    return '<section class="mr-section"><h2>' + n + '. Contributing Diagnostic lens' + (m.sourceGroups.length === 1 ? '' : 'es') + '</h2>' + graphic +
       '<div class="mr-lens-grid">' + cards + '</div></section>';
   }
 
-  function renderMetaSignals(m) {
+  function renderMetaSignals(m, n) {
     const signals = arr(m.signals);
     const differences = arr(m.differences);
     if (!signals.length && !differences.length) return "";
-    let html = '<section class="mr-section"><h2>' + (m.product === "depth" ? '5' : '4') + '. Agreements and interpretation limits</h2>';
+    let html = '<section class="mr-section"><h2>' + n + '. Agreements and differences</h2>';
     if (signals.length) {
       html += '<h3 style="margin-top:14px">Recurring signals</h3>' + signals.map((signal) =>
         '<div class="mr-card"><h3>' + esc(signal.label) + '</h3><p>' + esc(signal.text) + '</p>' +
@@ -462,12 +536,11 @@
     return html + '</section>';
   }
 
-  function renderMetaExposure(m) {
+  function renderMetaExposure(m, n) {
     const exp = obj(m.exposure);
-    const sectionNumber = m.product === "depth" ? 6 : 5;
     if (!exp.status) return "";
     if (exp.status === "withheld" || exp.status === "unavailable") {
-      return '<section class="mr-section"><h2>' + sectionNumber + '. Pathway exposure</h2><div class="callout"><p><strong>' + esc(firstStr(exp.label, "Exposure withheld")) + '.</strong> ' + esc(firstStr(exp.withheld_reason, "The submitted runs do not contain enough source-backed economic data.")) + '</p></div></section>';
+      return '<section class="mr-section"><h2>' + n + '. Pathway exposure</h2><div class="callout"><p><strong>' + esc(firstStr(exp.label, "Exposure withheld")) + '.</strong> ' + esc(firstStr(exp.withheld_reason, "The submitted runs do not contain enough source-backed economic data.")) + '</p></div></section>';
     }
     const kvs = [
       ["Status", humanize(exp.status)],
@@ -477,75 +550,78 @@
       ["Median annual labor cost", fmtMoney(exp.annual_cost)],
       ["Observed cost IQR", strictFinite(exp.annual_cost_low) && strictFinite(exp.annual_cost_high) ? fmtMoney(exp.annual_cost_low) + " – " + fmtMoney(exp.annual_cost_high) : "—"],
       ["Median capacity drag", fmtPercent(exp.capacity_drag_percent)],
-      ["Recoverable range across lens medians", strictFinite(exp.recoverable_cost_low) && strictFinite(exp.recoverable_cost_high) ? fmtMoney(exp.recoverable_cost_low) + " – " + fmtMoney(exp.recoverable_cost_high) : "—"]
+      ["Recoverable range across Diagnostic medians", strictFinite(exp.recoverable_cost_low) && strictFinite(exp.recoverable_cost_high) ? fmtMoney(exp.recoverable_cost_low) + " – " + fmtMoney(exp.recoverable_cost_high) : "—"]
     ].map(([k, v]) => '<div class="k">' + esc(k) + '</div><div>' + esc(v) + '</div>').join("");
-    return '<section class="mr-section"><h2>' + sectionNumber + '. Source-backed pathway exposure</h2><div class="kvs">' + kvs + '</div>' +
+    return '<section class="mr-section"><h2>' + n + '. Source-backed pathway exposure</h2><div class="kvs">' + kvs + '</div>' +
       '<div class="callout"><p><strong>Aggregation rule.</strong> ' + esc(firstStr(exp.basis, "Repeated estimates are summarized, not added together.")) + '</p></div></section>';
   }
 
-  function renderRequirements(m) {
+  function renderRequirements(m, n) {
     const requirements = arr(m.requirements);
     if (!requirements.length) return "";
-    const sectionNumber = m.product === "depth" ? 7 : 6;
-    return '<section class="mr-section"><h2>' + sectionNumber + '. What would strengthen the read</h2>' +
+    return '<section class="mr-section"><h2>' + n + '. What would strengthen the read</h2>' +
       requirements.map((item) => '<div class="mr-card"><span class="mr-pill">' + esc(humanize(item.type)) + '</span><p style="margin-top:10px">' + esc(item.text) + '</p></div>').join("") + '</section>';
   }
 
-  function renderMetaActions(m) {
+  function renderMetaActions(m, n) {
     const actions = arr(m.actions);
     if (!actions.length) return "";
-    const sectionNumber = m.product === "depth" ? 8 : 7;
-    return '<section class="mr-section"><h2>' + sectionNumber + '. Evidence-proportionate actions</h2>' +
+    return '<section class="mr-section"><h2>' + n + '. Evidence-proportionate actions</h2>' +
       actions.map((action, index) => '<div class="mr-card"><div class="mr-lens-label">Step ' + (index + 1) + (action.tier ? ' · ' + esc(humanize(action.tier)) : '') + '</div><h3 style="margin-top:8px">' + esc(action.label) + '</h3><p>' + esc(action.text) + '</p></div>').join("") +
-      (m.sequencingLogic ? '<p class="mr-copy">' + esc(m.sequencingLogic) + '</p>' : '') + '</section>';
+      (m.sequencingLogic ? '<div class="callout"><p><strong>Sequencing logic.</strong> ' + esc(m.sequencingLogic) + '</p></div>' : '') + '</section>';
   }
 
-  function renderMetaExperience(m) {
+  function renderMetaExperience(m, n) {
     const experience = obj(m.experiential);
     const entries = [
-      ["Operational staff", firstStr(experience.operational_staff)],
-      ["Managers", firstStr(experience.managers)],
-      ["Senior leaders", firstStr(experience.senior_leaders)]
+      ["Operational", firstStr(experience.operational_staff)],
+      ["Managerial", firstStr(experience.managers)],
+      ["Senior Leader", firstStr(experience.senior_leaders)]
     ].filter(([, value]) => value);
     if (!entries.length && !experience.interpretation_limit) return "";
-    const sectionNumber = m.product === "depth" ? 9 : 8;
-    return '<section class="mr-section"><h2>' + sectionNumber + '. Measured segment evidence</h2>' +
+    return '<section class="mr-section"><h2>' + n + '. Vantage evidence</h2>' +
       entries.map(([label, value]) => '<div class="mr-card"><h3>' + esc(label) + '</h3><p>' + esc(value) + '</p></div>').join("") +
       (experience.interpretation_limit ? '<p class="mr-copy">' + esc(experience.interpretation_limit) + '</p>' : '') + '</section>';
   }
 
-  function renderMetaIndicators(m) {
+  function renderMetaIndicators(m, n) {
     const indicators = arr(m.indicators);
     if (!indicators.length) return "";
-    const sectionNumber = m.product === "depth" ? 10 : 9;
-    return '<section class="mr-section"><h2>' + sectionNumber + '. Suggested measures</h2>' + indicators.map((indicator) =>
+    return '<section class="mr-section"><h2>' + n + '. What to watch next</h2>' + indicators.map((indicator) =>
       '<div class="mr-card"><div class="mr-lens-label">' + esc(indicator.lens || "Measurement") + '</div><h3 style="margin-top:8px">' + esc(indicator.name) + '</h3>' +
       (indicator.watchFor ? '<p><strong>Watch for:</strong> ' + esc(indicator.watchFor) + '</p>' : '') +
       (indicator.description ? '<p class="mr-copy">' + esc(indicator.description) + '</p>' : '') + '</div>'
     ).join("") + '</section>';
   }
 
-  function renderMetaMethod(m) {
-    const sectionNumber = m.product === "depth" ? 11 : 10;
+  function renderMetaMethod(m, n) {
     const method = m.product === "depth"
-      ? "The published condition is the median of the submitted scores from one diagnostic lens. The observed distribution, segment differences, scope, source identity, versions, measurement window, and sampling frame are reported separately. Sample size alone does not establish population representativeness."
-      : "When the coherence band is met, the published composite is the arithmetic mean of the contributing lens means, so each diagnostic lens receives one vote regardless of respondent count. Respondent depth governs evidence strength and balance. A comparison-only or directional read withholds the composite. Lens disagreement remains visible and is not subtracted from the condition score.";
-    return '<section class="mr-section"><h2>' + sectionNumber + '. Method and limits</h2><p>' + esc(method) + '</p>' +
+      ? "The published condition is the median of the submitted scores from one Diagnostic. The observed distribution, vantage differences, scope, source identity, versions, measurement window, and sampling frame are reported separately. Sample size alone does not establish population representativeness."
+      : "When the Coherent or Strong evidence threshold is met, the published composite is the arithmetic mean of the contributing Diagnostic means, so each Diagnostic receives one vote regardless of participant count. Participant depth governs evidence strength and balance. A Comparison Only or Directional read withholds the composite. Diagnostic disagreement remains visible and is not subtracted from the condition score.";
+    return '<section class="mr-section"><h2>' + n + '. Method and limits</h2><p>' + esc(method) + '</p>' +
       (m.leadership ? '<div class="callout"><p><strong>Leadership implication.</strong> ' + esc(m.leadership) + '</p></div>' : '') + '</section>';
   }
 
   function renderMetaSynthesis(m) {
-    return renderMetaEvidence(m) +
-      renderMetaFinding(m) +
-      renderDepthDistribution(m) +
-      renderLensSummary(m) +
-      renderMetaSignals(m) +
-      renderMetaExposure(m) +
-      renderRequirements(m) +
-      renderMetaActions(m) +
-      renderMetaExperience(m) +
-      renderMetaIndicators(m) +
-      renderMetaMethod(m);
+    const renderers = [
+      renderMetaEvidence,
+      renderMetaFinding,
+      renderDepthDistribution,
+      renderLensSummary,
+      renderMetaSignals,
+      renderMetaExposure,
+      renderRequirements,
+      renderMetaActions,
+      renderMetaExperience,
+      renderMetaIndicators,
+      renderMetaMethod
+    ];
+    let html = "", n = 1;
+    renderers.forEach((renderer) => {
+      const block = renderer(m, n);
+      if (block) { html += block; n += 1; }
+    });
+    return html;
   }
 
   function sectionHtml(s, n) {

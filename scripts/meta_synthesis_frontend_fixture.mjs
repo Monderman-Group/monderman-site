@@ -112,7 +112,7 @@ assert.equal(depthModel.product, "depth");
 assert.equal(depthModel.headlineScore, 65);
 const depthHtml = Report.buildReportHtml(depthModel);
 assert.match(depthHtml, /Depth Synthesis Executive Report/);
-assert.match(depthHtml, /Respondent distribution/);
+assert.match(depthHtml, /Observed participant distribution/);
 assert.match(depthHtml, /2,500/);
 assert.match(depthHtml, /Observed respondent set/);
 assert.match(depthHtml, /Population generalization requires a documented sampling frame/);
