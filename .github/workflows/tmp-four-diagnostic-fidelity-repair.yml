@@ -1,0 +1,32 @@
+name: Temporary Four Diagnostic Fidelity Repair
+
+on:
+  push:
+    branches:
+      - agent/four-diagnostic-sample-fidelity-2026-08-16
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    if: ${{ !contains(github.event.head_commit.message, '[four-diagnostic-fidelity-applied]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/four-diagnostic-sample-fidelity-2026-08-16
+          fetch-depth: 0
+      - name: Apply four-diagnostic report fidelity repair
+        run: python3 scripts/tmp_apply_four_diagnostic_fidelity.py
+      - name: Validate repaired files
+        run: |
+          python3 scripts/validate_sample_product_fidelity.py
+          git diff --check
+      - name: Commit repair
+        run: |
+          git config user.name "Monderman-Group"
+          git config user.email "jason.ivan.adamson@gmail.com"
+          git add operational-systems.html structural-clarity.html institutional-performance.html sample-report.html
+          git commit -m "Align Diagnostic samples with certified customer output [four-diagnostic-fidelity-applied]"
+          git push origin HEAD:agent/four-diagnostic-sample-fidelity-2026-08-16
