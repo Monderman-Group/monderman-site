@@ -73,7 +73,7 @@ for token in [
     'score_status: "published"','evidence_label: "Strong"','cross_diagnostic_score: 55.5',
     'Structural Clarity','Decision Velocity','Operational Systems','Institutional Performance',
     'evidence_label: "Substantial"','respondent_count: 18',
-    'Representative sample','Run evidence'
+    'Representative sample','Observed-set evidence','Composite view.','Source-backed remedy paths'
 ]:
     require(sample,token,'Sample report')
 for token in [
