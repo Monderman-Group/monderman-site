@@ -380,6 +380,21 @@
       color: #6E6F73;
     }
 
+    /* Single-run evidence context: backend-produced insight_depth, ceiling 8. */
+    .sample-depth-read{display:grid;grid-template-columns:86px minmax(0,1fr);gap:20px;align-items:center;margin-top:22px;padding-top:20px;border-top:1px solid var(--line);}
+    .sample-depth-ring{--depth:75%;width:78px;height:78px;border-radius:50%;display:grid;place-items:center;position:relative;background:conic-gradient(#C9821F 0 var(--depth),#EAE6DD var(--depth) 100%);}
+    .sample-depth-ring::after{content:"";position:absolute;inset:9px;border-radius:50%;background:#FFF;}
+    .sample-depth-number{position:relative;z-index:1;text-align:center;font-size:1.25rem;line-height:1;font-weight:700;color:#18191C;letter-spacing:-.03em;}
+    .sample-depth-number small{display:block;margin-top:4px;font-size:.52rem;line-height:1.1;letter-spacing:.11em;text-transform:uppercase;color:#9A9892;}
+    .sample-depth-copy b{display:block;font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;color:#C9821F;margin-bottom:5px;}
+    .sample-depth-copy strong{display:block;font-size:1rem;color:#18191C;margin-bottom:5px;}
+    .sample-depth-copy p{font-size:.84rem;line-height:1.5;color:#6E6F73;margin:0;}
+    .synthesis-doc-shell{max-width:1240px;margin:0 auto;padding:42px 28px 96px;display:grid;grid-template-columns:minmax(0,1fr) var(--rail-width);gap:42px;align-items:start;}
+    .synthesis-doc-shell .synthesis-report-stage{max-width:none;margin:0;padding:0;min-width:0;}
+    .synthesis-toc{top:110px;}
+    @media(max-width:980px){.synthesis-doc-shell{grid-template-columns:minmax(0,1fr);padding:28px 14px 72px}.synthesis-toc{display:none}.sample-depth-read{grid-template-columns:72px minmax(0,1fr)}.sample-depth-ring{width:66px;height:66px}}
+    @media print{.synthesis-doc-shell{display:block;max-width:none;padding:0}.synthesis-toc{display:none!important}}
+
     /* Section structure */
     .section { margin: 0 0 64px; scroll-margin-top: 100px; }
     .section-eyebrow {
@@ -1601,6 +1616,14 @@
           <span class="cover-pill cover-pill-neutral">$485,760 / yr measured burden<sup>*</sup></span>
           <span class="cover-pill cover-pill-neutral">Below design reference</span>
         </div>
+        <div class="sample-depth-read" aria-label="Single-run evidence context 6 out of 8">
+          <div class="sample-depth-ring" style="--depth:75%"><div class="sample-depth-number">6 / 8<small>single-run ceiling</small></div></div>
+          <div class="sample-depth-copy">
+            <b>Single-run evidence context</b>
+            <strong>Narrow — directional read</strong>
+            <p>This backend-produced indicator reflects a 30-minute run and high self-reported input confidence. Eight is the documented ceiling for any single-perspective run; the score is not out of 100 and does not determine Synthesis eligibility.</p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1811,6 +1834,14 @@
           <span class="cover-pill cover-pill-neutral">$344,080 / yr measured burden<sup>*</sup></span>
           <span class="cover-pill cover-pill-neutral">Within design reference</span>
         </div>
+        <div class="sample-depth-read" aria-label="Single-run evidence context 7 out of 8">
+          <div class="sample-depth-ring" style="--depth:87.5%"><div class="sample-depth-number">7 / 8<small>single-run ceiling</small></div></div>
+          <div class="sample-depth-copy">
+            <b>Single-run evidence context</b>
+            <strong>Narrow — focused read</strong>
+            <p>This backend-produced indicator reflects a 30-minute run and high self-reported input confidence. Eight is the documented ceiling for any single-perspective run; the score is not out of 100 and does not determine Synthesis eligibility.</p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -2019,6 +2050,14 @@
           <span class="cover-pill cover-pill-accent">Material ambiguity</span>
           <span class="cover-pill cover-pill-neutral">$74,880 / yr measured burden<sup>*</sup></span>
           <span class="cover-pill cover-pill-neutral">Below design reference</span>
+        </div>
+        <div class="sample-depth-read" aria-label="Single-run evidence context 5 out of 8">
+          <div class="sample-depth-ring" style="--depth:62.5%"><div class="sample-depth-number">5 / 8<small>single-run ceiling</small></div></div>
+          <div class="sample-depth-copy">
+            <b>Single-run evidence context</b>
+            <strong>Narrow — directional read</strong>
+            <p>This backend-produced indicator reflects a 30-minute run and moderate self-reported input confidence. Eight is the documented ceiling for any single-perspective run; the score is not out of 100 and does not determine Synthesis eligibility.</p>
+          </div>
         </div>
       </div>
     </section>
@@ -2229,6 +2268,14 @@
           <span class="cover-pill cover-pill-neutral">$844,800 / yr measured burden<sup>*</sup></span>
           <span class="cover-pill cover-pill-neutral">Below design reference</span>
         </div>
+        <div class="sample-depth-read" aria-label="Single-run evidence context 7 out of 8">
+          <div class="sample-depth-ring" style="--depth:87.5%"><div class="sample-depth-number">7 / 8<small>single-run ceiling</small></div></div>
+          <div class="sample-depth-copy">
+            <b>Single-run evidence context</b>
+            <strong>Narrow — focused read</strong>
+            <p>This backend-produced indicator reflects a 30-minute run and high self-reported input confidence. Eight is the documented ceiling for any single-perspective run; the score is not out of 100 and does not determine Synthesis eligibility.</p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -2402,14 +2449,16 @@
 </section>
 
 <section class="report-shell" data-report="synthesis" hidden id="report-synthesis" role="tabpanel" aria-labelledby="tab-synthesis">
-  <div class="synthesis-report-stage">
-    <div id="sampleCrossLensRendered"></div>
+  <div class="synthesis-doc-shell">
+    <div class="synthesis-report-stage"><div id="sampleCrossLensRendered"></div></div>
+    <aside class="toc-rail synthesis-toc" id="synthesisToc" aria-label="Cross-Lens Synthesis contents"><p class="toc-rail-label">Contents</p><ol></ol></aside>
   </div>
 </section>
 
 <section class="report-shell" data-report="depth" hidden id="report-depth" role="tabpanel" aria-labelledby="tab-depth">
-  <div class="synthesis-report-stage">
-    <div id="sampleDepthRendered"></div>
+  <div class="synthesis-doc-shell">
+    <div class="synthesis-report-stage"><div id="sampleDepthRendered"></div></div>
+    <aside class="toc-rail synthesis-toc" id="depthToc" aria-label="Depth Synthesis contents"><p class="toc-rail-label">Contents</p><ol></ol></aside>
   </div>
 </section>
 
@@ -2621,6 +2670,42 @@
       const fixtures = window.MONDERMAN_REPRESENTATIVE_SYNTHESIS_FIXTURES;
       MondermanReport.render("sampleCrossLensRendered", MondermanReport.fromSynthesis(fixtures.crossLens));
       MondermanReport.render("sampleDepthRendered", MondermanReport.fromSynthesis(fixtures.depth));
+      buildSynthesisContents("sampleCrossLensRendered", "synthesisToc", "synthesis");
+      buildSynthesisContents("sampleDepthRendered", "depthToc", "depth");
+
+      function buildSynthesisContents(mountId, tocId, prefix) {
+        const mount = document.getElementById(mountId);
+        const toc = document.getElementById(tocId);
+        if (!mount || !toc) return;
+        const list = toc.querySelector("ol");
+        const nodes = Array.prototype.slice.call(mount.querySelectorAll(".mr-cover, .mr-section, .mr-report-boundary"));
+        list.innerHTML = "";
+        nodes.forEach(function (node, index) {
+          const id = prefix + "-section-" + (index + 1);
+          node.id = id;
+          const heading = node.classList.contains("mr-cover") ? "Executive cover" :
+            node.classList.contains("mr-report-boundary") ? "Interpretation boundary" :
+            ((node.querySelector("h2") || {}).textContent || "Report section").replace(/^\d+\.\s*/, "");
+          const li = document.createElement("li");
+          const a = document.createElement("a");
+          a.href = "#" + id;
+          a.setAttribute("data-section", id);
+          a.innerHTML = '<span class="toc-num">' + String(index + 1).padStart(2, "0") + '</span>' + heading;
+          li.appendChild(a); list.appendChild(li);
+        });
+        const links = Array.prototype.slice.call(list.querySelectorAll("a"));
+        const byId = {}; links.forEach(function (link) { byId[link.getAttribute("data-section")] = link; });
+        if ("IntersectionObserver" in window) {
+          const observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+              if (!entry.isIntersecting) return;
+              links.forEach(function (link) { link.classList.remove("is-active"); });
+              if (byId[entry.target.id]) byId[entry.target.id].classList.add("is-active");
+            });
+          }, { rootMargin: "-30% 0px -60% 0px", threshold: 0 });
+          nodes.forEach(function (node) { observer.observe(node); });
+        }
+      }
     }
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", go, { once: true });
     else go();
