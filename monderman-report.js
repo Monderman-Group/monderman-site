@@ -250,7 +250,7 @@
       remedyStatement: firstStr(remedyBlock.statement),
       experiential: experiential,
       indicators: indicators,
-      leadership: firstStr(narrative.leadership_implication),
+      organizationalImplication: firstStr(narrative.organizational_implication, narrative.leadership_implication),
       sequencingLogic: firstStr(narrative.sequenced_action_logic),
       confidence: confidence,
       reads: reads,
@@ -309,6 +309,7 @@
       "This executive read summarizes the diagnostic's quantified condition, its primary structural signal, and the recommended first moves."
     );
     const bottomLine = firstStr(
+      nar.organizational_implication, r.organizational_implication,
       nar.leadership_implication, r.leadership_implication, driver !== "—" ? driver : "",
       "Treat this as a directional read of the measured condition."
     );
@@ -338,7 +339,7 @@
       kind: "run",
       mastline: "Monderman • " + (toolLabel || "Diagnostic"),
       title: (toolLabel || "Diagnostic") + " — Executive Report",
-      subtitle: "A leadership read of this diagnostic: its quantified condition, primary structural signal, and recommended first moves.",
+      subtitle: "An organizational read of this diagnostic: its quantified condition, primary structural signal, and recommended first moves.",
       meta: [
         { label: "Generated", value: nowLabel() },
         { label: "Instrument", value: toolLabel || "—" }
@@ -412,7 +413,7 @@
       '<div class="mr-decision-frame">' + metrics + '</div>' +
       '<div class="mr-decision-story">' +
         (finding ? '<div><div class="mr-lens-label">What the evidence says</div><p>' + esc(finding) + '</p></div>' : '') +
-        (actionText ? '<div><div class="mr-lens-label">What leadership can do first</div><h3>' + esc(actionLabel) + '</h3><p>' + esc(actionText) + '</p></div>' : '') +
+        (actionText ? '<div><div class="mr-lens-label">First supported move</div><h3>' + esc(actionLabel) + '</h3><p>' + esc(actionText) + '</p></div>' : '') +
       '</div></section>';
   }
 
@@ -721,7 +722,7 @@
       ? "The published condition is the median of the submitted scores from one Diagnostic. The observed distribution, vantage differences, scope, source identity, versions, measurement window, and sampling frame are reported separately. Sample size alone does not establish population representativeness."
       : "When the Coherent or Strong evidence threshold is met, the published composite is the arithmetic mean of the contributing Diagnostic means, so each Diagnostic receives one vote regardless of participant count. Participant depth governs evidence strength and balance. A Comparison Only or Directional read withholds the composite. Diagnostic disagreement remains visible and is not subtracted from the condition score.";
     return '<section class="mr-section"><h2>' + n + '. Method and limits</h2><p>' + esc(method) + '</p>' +
-      (m.leadership ? '<div class="callout"><p><strong>Leadership implication.</strong> ' + esc(m.leadership) + '</p></div>' : '') + '</section>';
+      (m.organizationalImplication ? '<div class="callout"><p><strong>Organizational implication.</strong> ' + esc(m.organizationalImplication) + '</p></div>' : '') + '</section>';
   }
 
   function renderMetaSynthesis(m) {
@@ -826,7 +827,7 @@
     let n = 0;
     const secHtml =
       '<section class="mr-section"><h2>1. Executive summary</h2><p class="mr-exec-lede">' + esc(m.execSummary) + "</p>" +
-      '<div class="callout"><p><strong>Bottom line for leadership.</strong> ' + esc(m.bottomLine) + "</p></div>" +
+      '<div class="callout"><p><strong>Organizational implication.</strong> ' + esc(m.bottomLine) + "</p></div>" +
       (kvs ? '<div class="kvs">' + kvs + "</div>" : "") + '</section>' +
       arr(m.sections).map((s) => '<section class="mr-section">' + sectionHtml(s, (n += 1) + 1) + '</section>').join("") +
       '<section class="mr-section"><h2>' + (n + 2) + '. Conclusion and next step</h2><p>This Executive Report is a directional read of the measured condition. Use the reported evidence, limitations, and recommended first moves as the basis for a bounded operating decision and like-for-like remeasurement.</p></section>';
