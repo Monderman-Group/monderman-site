@@ -28,6 +28,10 @@ assert(!/\bseat(?:s|-year)?\b/i.test(bodyText), 'seat vocabulary remains');
 assert(!/Insight depth/i.test(bodyText), 'Insight depth remains');
 assert(!bodyText.includes('Against comparable institutions'), 'empirical peer-comparison claim remains in sample');
 assert(!bodyText.includes('likely to continue accumulating'), 'single-run predictive trajectory claim remains in sample');
+assert(bodyText.includes('return time, money, and productive capacity to the organization'), 'canonical organizational value statement missing');
+for (const stale of ['Senior hours returned to mission', 'senior time returns to mission', 'Treat senior attention as a scarce operating resource', 'spending its scarcest resource', 'Leadership bottom line', 'Bottom line for leadership']) {
+  assert(!bodyText.toLowerCase().includes(stale.toLowerCase()), `role-centric value framing remains: ${stale}`);
+}
 
 const diagnostics = [
   ['os', 'Governance weight × execution responsiveness', 'Burden composition', 'Self-reported change.', '5,280 annual burden hours', 'Productive work 76%', 'Recoverable drag 8%', '$485,760 / yr measured burden'],
@@ -64,7 +68,7 @@ assert(ipText.includes('Against the Monderman instrument design reference'), 'IP
 
 const cross = await openTab('synthesis');
 const crossText = await cross.textContent();
-for (const token of ['Cross-Lens Composite Score','Strong','55.5','Structural Clarity','Decision Velocity','Operational Systems','Institutional Performance','Executive synthesis','Agreements and differences','Evidence-proportionate actions','What to watch next','Equal-lens mean']) assert(crossText.includes(token), `Cross-Lens missing ${token}`);
+for (const token of ['Cross-Lens Composite Score','Strong','55.5','Structural Clarity','Decision Velocity','Operational Systems','Institutional Performance','Executive synthesis','Agreements and differences','Evidence-proportionate actions','What to watch next','Equal-lens mean','Organizational implication','return time, money, and productive capacity to the organization']) assert(crossText.includes(token), `Cross-Lens missing ${token}`);
 const crossScoreLabel = await cross.locator('.mr-cover-score-label').first().textContent();
 assert(crossScoreLabel.includes('Cross-Lens Composite Score'), 'Cross-Lens cover does not show the published Composite Score label');
 const crossCondition = await cross.locator('.mr-cover-score-band').first().textContent();
