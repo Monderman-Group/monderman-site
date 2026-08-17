@@ -51,6 +51,10 @@ for (const key of diagnostics) {
   assert(await shell.locator('svg[aria-label="Burden composition — share of total"]').first().isVisible(), `${key} composition graphic not visible`);
   assert(await shell.locator('svg[aria-label="Burden severity by dimension"]').first().isVisible(), `${key} severity graphic not visible`);
   assert(await shell.locator('svg[aria-label="Intervention order"]').first().isVisible(), `${key} intervention graphic not visible`);
+  const depthRead = shell.locator('.sample-depth-read');
+  assert(await depthRead.isVisible(), `${key} single-run evidence context missing`);
+  assert(/\d+\s*\/\s*8/.test(await depthRead.textContent()), `${key} insight depth does not show the ceiling of 8`);
+  assert((await depthRead.textContent()).includes('score is not out of 100'), `${key} insight-depth scale explanation missing`);
   await page.screenshot({ path: path.join(out, `${key}-full.png`), fullPage: true });
 }
 
@@ -79,6 +83,11 @@ const crossText = await cross.textContent();
 assert(crossText.includes('Executive synthesis'), 'Cross-Lens executive synthesis missing');
 assert(crossText.includes('Agreements and differences'), 'Cross-Lens agreements/differences missing');
 assert(crossText.includes('Evidence-proportionate actions'), 'Cross-Lens actions missing');
+assert(crossText.includes('Executive decision frame'), 'Cross-Lens executive decision frame missing');
+assert(await cross.locator('.mr-decision-metric').count() === 4, 'Cross-Lens decision frame does not show four executive metrics');
+assert(await cross.locator('.mr-action-path .mr-action-step').count() >= 3, 'Cross-Lens visual action sequence is too thin');
+assert(await cross.locator('.mr-evidence-ladder .mr-evidence-step').count() === 4, 'Cross-Lens evidence ladder incomplete');
+assert(await cross.locator('#synthesisToc a').count() >= 10, 'Cross-Lens Contents rail is incomplete');
 
 const evidenceMap = cross.locator('.mr-cross-lens-map');
 assert(await evidenceMap.isVisible(), 'Cross-Lens evidence map not visible');
@@ -120,6 +129,11 @@ const depthStart = await depth.evaluate(el => el.getBoundingClientRect().top + w
 assert(depthTop - depthStart < 1150, `Depth chart is still buried ${Math.round(depthTop-depthStart)}px into report`);
 assert((await depth.textContent()).includes('15.8'), 'Depth vantage gap not visible');
 assert((await depth.textContent()).includes('Evidence-proportionate actions'), 'Depth actions missing');
+assert((await depth.textContent()).includes('Executive decision frame'), 'Depth executive decision frame missing');
+assert(await depth.locator('.mr-decision-metric').count() === 4, 'Depth decision frame does not show four executive metrics');
+assert(await depth.locator('.mr-action-path .mr-action-step').count() >= 3, 'Depth visual action sequence is too thin');
+assert(await depth.locator('.mr-evidence-ladder .mr-evidence-step').count() === 4, 'Depth evidence ladder incomplete');
+assert(await depth.locator('#depthToc a').count() >= 10, 'Depth Contents rail is incomplete');
 assert(await depth.locator('.mr-report-boundary').isVisible(), 'Depth end interpretation boundary missing');
 await page.screenshot({ path: path.join(out, 'depth-full.png'), fullPage: true });
 await depth.locator('.mr-cover').screenshot({ path: path.join(out, 'depth-cover.png') });
@@ -172,6 +186,11 @@ fs.writeFileSync(path.join(out, 'result.json'), JSON.stringify({
     crossLensEvidenceMap:true,
     crossLensSignalsDeduplicated:true,
     sourceBackedExposureVisual:true,
+    singleRunInsightDepth:true,
+    synthesisContentsNavigation:true,
+    executiveDecisionFrame:true,
+    evidenceStrengthLadder:true,
+    visualActionSequence:true,
     synthesisChartsUseNeueHaas:true,
     standaloneParity:true,
   },
