@@ -210,6 +210,8 @@
       conditionBand: conditionBand,
       conditionSpread: obj(r.condition_spread),
       evidence: evidence,
+      reads: reads,
+      lensCount: lensCount,
       evidenceLabel: evidenceLabel,
       evidenceDescription: firstStr(evidence.evidence_description),
       scope: scope,
@@ -373,6 +375,46 @@
     return String(item);
   }
 
+  function renderExecutiveDecisionFrame(m, n) {
+    const exp = obj(m.exposure);
+    const diagnosis = obj(m.diagnosis);
+    const firstAction = arr(m.actions)[0] || {};
+    const annualCost = strictFinite(exp.annual_cost) ? fmtMoney(exp.annual_cost) : "Not priceable";
+    const annualHours = strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " hrs" : "Not priceable";
+    const scoreValue = m.scorePublished && strictFinite(m.score) ? fmt1(m.score) : "Withheld";
+    const metrics = [
+      ["Condition", scoreValue, m.product === "depth" ? "Observed median" : "Equal-lens composite"],
+      ["Evidence", firstStr(m.evidenceLabel, "Unavailable"), "Claim strength"],
+      ["Included runs", strictFinite(m.reads) ? fmtWhole(m.reads) : "—", m.product === "depth" ? "One Diagnostic" : fmtWhole(m.lensCount) + " Diagnostics"],
+      ["Annual exposure", annualCost, annualHours]
+    ].map((item) => '<div class="mr-decision-metric"><div class="mr-lens-label">' + esc(item[0]) + '</div><div class="mr-decision-value">' + esc(item[1]) + '</div><div class="mr-copy">' + esc(item[2]) + '</div></div>').join("");
+    const finding = firstStr(diagnosis.body, m.primaryPattern, m.briefing?.lede);
+    const actionText = firstStr(firstAction.text);
+    const actionLabel = firstStr(firstAction.label, "First evidence-proportionate move");
+    return '<section class="mr-section mr-decision-section"><h2>' + n + '. Executive decision frame</h2>' +
+      '<p class="mr-lede">The decision frame brings the condition, evidence strength, observed exposure, and first supported move into one view. The detailed sections below preserve the underlying distributions, differences, and limits.</p>' +
+      '<div class="mr-decision-frame">' + metrics + '</div>' +
+      '<div class="mr-decision-story">' +
+        (finding ? '<div><div class="mr-lens-label">What the evidence says</div><p>' + esc(finding) + '</p></div>' : '') +
+        (actionText ? '<div><div class="mr-lens-label">What leadership can do first</div><h3>' + esc(actionLabel) + '</h3><p>' + esc(actionText) + '</p></div>' : '') +
+      '</div></section>';
+  }
+
+  function renderEvidenceLadder(m) {
+    const labels = m.product === "depth"
+      ? ["Minimal", "Developing", "Substantial", "Large"]
+      : ["Comparison", "Directional", "Coherent", "Strong"];
+    const active = String(m.evidenceLabel || "").toLowerCase();
+    const steps = labels.map((label) => {
+      const selected = active.includes(label.toLowerCase()) || (label === "Comparison" && active.includes("comparison only"));
+      return '<div class="mr-evidence-step' + (selected ? ' is-active' : '') + '"><span></span><b>' + esc(label) + '</b></div>';
+    }).join("");
+    const note = m.product === "depth"
+      ? "Observed-set size strengthens the same-Diagnostic read; it does not by itself establish population representativeness."
+      : "The evidence gate controls whether a Composite Score may be published. Comparison remains available below that threshold.";
+    return '<div class="mr-evidence-ladder" aria-label="Evidence strength ladder">' + steps + '</div><p class="mr-copy">' + esc(note) + '</p>';
+  }
+
   function renderMetaEvidence(m, n) {
     const scope = obj(m.scope), versions = obj(m.versions), identity = obj(m.sourceIdentity);
     const timeWindow = obj(m.timeWindow), balance = obj(m.lensBalance), representative = obj(m.representativeness);
@@ -388,6 +430,7 @@
     ].filter(Boolean).join("");
     return '<section class="mr-section mr-evidence-status"><h2>' + n + '. Evidence status</h2>' +
       '<div class="callout"><p><strong>' + esc(m.evidenceLabel) + '.</strong> ' + esc(m.evidenceDescription || "The evidence band governs what this Synthesis is allowed to claim.") + '</p></div>' +
+      renderEvidenceLadder(m) +
       '<div class="mr-lens-grid mr-evidence-grid">' + cards + '</div></section>';
   }
 
@@ -608,7 +651,10 @@
   function renderMetaActions(m, n) {
     const actions = arr(m.actions);
     if (!actions.length) return "";
-    return '<section class="mr-section"><h2>' + n + '. Evidence-proportionate actions</h2>' +
+    const path = '<div class="mr-action-path" aria-label="Evidence-proportionate action sequence">' + actions.slice(0, 4).map((action, index) =>
+      '<div class="mr-action-step" data-tier="' + esc(action.tier || "structural") + '"><div class="mr-action-step-num">' + (index + 1) + '</div><div><div class="mr-lens-label">' + esc(humanize(action.tier || "action")) + '</div><strong>' + esc(action.label) + '</strong></div></div>'
+    ).join("") + '</div>';
+    return '<section class="mr-section"><h2>' + n + '. Evidence-proportionate actions</h2>' + path +
       actions.map((action, index) => '<div class="mr-card mr-editorial-row mr-action-row"><div class="mr-lens-label">Step ' + (index + 1) + (action.tier ? ' · ' + esc(humanize(action.tier)) : '') + '</div><h3 style="margin-top:8px">' + esc(action.label) + '</h3><p>' + esc(action.text) + '</p></div>').join("") +
       (m.sequencingLogic ? '<div class="callout"><p><strong>Sequencing logic.</strong> ' + esc(m.sequencingLogic) + '</p></div>' : '') + '</section>';
   }
@@ -648,6 +694,7 @@
     const renderers = [
       renderDepthDistribution,
       renderLensSummary,
+      renderExecutiveDecisionFrame,
       renderMetaFinding,
       renderMetaSignals,
       renderMetaExposure,
@@ -837,6 +884,23 @@
     .mr-map-signal-label{font-size:.82rem;font-weight:700;color:#18191C;margin-bottom:5px}
     .mr-map-signal p{font-size:.86rem!important;line-height:1.5!important;color:#6E6F73!important;margin:0!important}
     .mr-map-tools{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;max-width:230px}
+    .mr-decision-frame{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:20px 0 16px}
+    .mr-decision-metric{padding:16px 15px;border:1px solid #EAE6DD;border-top:3px solid #0C6E78;border-radius:9px;background:#FAFAF8;min-width:0}
+    .mr-decision-metric:nth-child(2){border-top-color:#C9821F}.mr-decision-metric:nth-child(3){border-top-color:#3C8A60}.mr-decision-metric:nth-child(4){border-top-color:#08383E}
+    .mr-decision-value{font-size:1.55rem;line-height:1.05;letter-spacing:-.035em;font-weight:700;color:#18191C;margin:8px 0 5px;overflow-wrap:anywhere}
+    .mr-decision-story{display:grid;grid-template-columns:1.15fr .85fr;gap:0;margin-top:14px;border:1px solid #EAE6DD;border-radius:11px;overflow:hidden}
+    .mr-decision-story>div{padding:20px 22px;background:#FFF}.mr-decision-story>div+div{border-left:1px solid #EAE6DD;background:#F6F3EC}
+    .mr-decision-story h3{font-size:1.05rem!important;margin:8px 0 8px!important}.mr-decision-story p{font-size:.94rem!important;line-height:1.58!important;margin:7px 0 0!important}
+    .mr-evidence-ladder{display:grid;grid-template-columns:repeat(4,1fr);margin:22px 0 10px;gap:0}
+    .mr-evidence-step{position:relative;text-align:center;padding-top:17px;color:#9A9892;font-size:.72rem}.mr-evidence-step:before{content:"";position:absolute;left:0;right:0;top:6px;height:2px;background:#EAE6DD}
+    .mr-evidence-step:first-child:before{left:50%}.mr-evidence-step:last-child:before{right:50%}.mr-evidence-step span{position:absolute;left:50%;top:1px;width:12px;height:12px;border-radius:50%;transform:translateX(-50%);background:#D8D5CE;border:2px solid #FFF;box-shadow:0 0 0 1px #D8D5CE}
+    .mr-evidence-step.is-active{color:#0C6E78}.mr-evidence-step.is-active span{background:#0C6E78;box-shadow:0 0 0 2px rgba(12,110,120,.18)}
+    .mr-action-path{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0 24px}
+    .mr-action-step{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:start;padding:14px 14px;border:1px solid #EAE6DD;border-top:3px solid #0C6E78;border-radius:9px;background:#FAFAF8}
+    .mr-action-step[data-tier="behavioral"]{border-top-color:#C9821F}.mr-action-step[data-tier="cultural"]{border-top-color:#3C8A60}
+    .mr-action-step-num{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:#08383E;color:#FFF;font-size:.78rem;font-weight:700}
+    .mr-action-step strong{display:block;font-size:.83rem;line-height:1.35;color:#18191C;margin-top:5px}
+    @media(max-width:760px){.mr-decision-frame{grid-template-columns:repeat(2,minmax(0,1fr))}.mr-decision-story{grid-template-columns:1fr}.mr-decision-story>div+div{border-left:0;border-top:1px solid #EAE6DD}.mr-action-path{grid-template-columns:1fr}}
     .mr-exposure-range{padding:22px 24px!important}
     .mr-range-row{margin:16px 0 20px}
     .mr-range-head{display:flex;justify-content:space-between;gap:14px;align-items:baseline;font-size:.88rem;color:#18191C}
