@@ -2007,6 +2007,169 @@
   .hero-image{transform:scale(1.04) !important;filter:brightness(.72) saturate(.90) contrast(.98);}
   .hero-scrim{background:linear-gradient(180deg,rgba(4,24,27,.44) 0%,rgba(4,24,27,.30) 44%,rgba(4,24,27,.52) 100%);}
 }
+
+/* Hero credibility test: product proof at right, author authority beneath the actions. */
+.hero-inner{
+  max-width:1440px;
+  display:grid;
+  grid-template-columns:minmax(0,1.05fr) minmax(480px,.74fr);
+  gap:clamp(46px,5vw,84px);
+}
+.hero-copy{max-width:780px;}
+.hero-report-proof{
+  position:relative;
+  width:min(100%,540px);
+  justify-self:end;
+  color:#18191C;
+  opacity:0;
+  transform:translateY(18px);
+  animation:heroFadeUp 950ms cubic-bezier(.22,1,.36,1) 900ms forwards;
+}
+.hero-report-link{display:block;color:inherit;text-decoration:none;}
+.hero-report-page{
+  position:relative;
+  min-height:366px;
+  padding:25px 27px 22px;
+  overflow:hidden;
+  background:linear-gradient(180deg,#FFFFFF 0%,#FAFAF8 100%);
+  border:1px solid rgba(143,196,201,.72);
+  border-radius:3px;
+  box-shadow:0 32px 72px rgba(1,17,20,.36),0 8px 24px rgba(1,17,20,.22);
+  transition:transform 220ms cubic-bezier(.22,1,.36,1),box-shadow 220ms ease;
+}
+.hero-report-link:hover .hero-report-page,
+.hero-report-link:focus-visible .hero-report-page{transform:translateY(-5px);box-shadow:0 38px 82px rgba(1,17,20,.42),0 10px 28px rgba(1,17,20,.24);}
+.hero-report-link:focus-visible{outline:2px solid #FAFAF8;outline-offset:7px;border-radius:3px;}
+.hrp-top{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin:-25px -27px 0;padding:17px 27px 15px;background:#08383E;border-bottom:1px solid rgba(255,255,255,.12);}
+.hrp-brand{font-size:13px;font-weight:700;letter-spacing:-.025em;color:#0A4046;}
+.hrp-top .hrp-brand{color:#FFFFFF;}
+.hrp-meta{text-align:right;font-size:7.5px;line-height:1.5;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.68);}
+.hrp-kicker{margin:16px 0 4px;font-size:7.5px;font-weight:700;letter-spacing:.17em;text-transform:uppercase;color:#0C6E78;}
+.hrp-title{margin:0;max-width:none;font-size:21px;line-height:1.05;letter-spacing:-.045em;font-weight:700;color:#18191C;}
+.hrp-deck{opacity:1 !important;transform:none !important;animation:none !important;margin:6px 0 0;max-width:62ch;font-size:7.7px;line-height:1.48;color:#666760;}
+.hrp-report-grid{display:grid;grid-template-columns:minmax(0,.88fr) minmax(190px,1.12fr);gap:17px;margin-top:16px;align-items:stretch;}
+.hrp-value-grid{display:grid;grid-template-columns:1fr;gap:1px;background:#DCD9D1;border:1px solid #DCD9D1;}
+.hrp-value{background:#FAFAF8;padding:15px 14px 14px;}
+.hrp-value.wide{display:block;background:#F2EFE8;}
+.hrp-value-label{display:block;font-size:6.8px;line-height:1.35;letter-spacing:.13em;text-transform:uppercase;color:#77786F;}
+.hrp-value b{display:block;margin-top:5px;font-size:22px;line-height:1;letter-spacing:-.045em;color:#0A4046;}
+.hrp-value.cost b{color:#0C6E78;}
+.hrp-value.wide b{font-size:24px;color:#0A4046;}
+.hrp-value-note{display:block;margin-top:5px;max-width:170px;font-size:6.6px;line-height:1.4;color:#77786F;text-align:left;}
+.hrp-quadrant{position:relative;min-height:174px;padding:14px 14px 18px 26px;background:#F2EFE8;border:1px solid #E2DED5;}
+.hrp-quadrant-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:9px;}
+.hrp-quadrant-head strong{font-size:8.5px;color:#242528;}
+.hrp-quadrant-head span{font-size:6.2px;letter-spacing:.08em;text-transform:uppercase;color:#85867F;}
+.hrp-quadrant-plot{position:relative;height:116px;border-left:1px solid #AAA9A3;border-bottom:1px solid #AAA9A3;background:linear-gradient(90deg,transparent 49.7%,#D8D4CB 50%,transparent 50.3%),linear-gradient(180deg,transparent 49.7%,#D8D4CB 50%,transparent 50.3%);}
+.hrp-quadrant-zone{position:absolute;font-size:5.8px;line-height:1.15;letter-spacing:.06em;text-transform:uppercase;color:#9A9992;}
+.hrp-q-tl{left:7px;top:7px}.hrp-q-tr{right:7px;top:7px;text-align:right}.hrp-q-bl{left:7px;bottom:7px}.hrp-q-br{right:7px;bottom:7px;text-align:right}
+.hrp-quadrant-dot{position:absolute;left:70%;top:29%;width:13px;height:13px;border:3px solid #FAFAF8;border-radius:50%;background:#0C6E78;box-shadow:0 0 0 1px rgba(12,110,120,.42);}
+.hrp-quadrant-dot::after{content:"Priority";position:absolute;left:13px;top:-4px;font-size:6px;font-style:normal;font-weight:700;color:#0C6E78;white-space:nowrap;}
+.hrp-axis-y{position:absolute;left:7px;top:61%;font-size:5.7px;letter-spacing:.08em;text-transform:uppercase;color:#85867F;transform:rotate(-90deg);transform-origin:left top;}
+.hrp-axis-x{position:absolute;right:15px;bottom:5px;font-size:5.7px;letter-spacing:.08em;text-transform:uppercase;color:#85867F;}
+.hrp-allocation{margin-top:13px;padding:10px 12px 9px;background:#F2EFE8;border:1px solid #E2DED5;}
+.hrp-allocation-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:8px;}
+.hrp-allocation-head strong{font-size:8.5px;color:#242528;}
+.hrp-allocation-head span{font-size:6.5px;letter-spacing:.09em;text-transform:uppercase;color:#85867F;}
+.hrp-allocation-bar{height:10px;display:flex;overflow:hidden;background:#E3DFD6;}
+.hrp-allocation-bar i{display:block;height:100%;}
+.hrp-productive{width:64%;background:#08383E;}
+.hrp-necessary{width:21%;background:#8FC4C9;}
+.hrp-recoverable{width:15%;background:#0C6E78;}
+.hrp-allocation-key{display:flex;gap:10px;flex-wrap:wrap;margin-top:7px;font-size:6.2px;color:#70716B;}
+.hrp-allocation-key span{display:inline-flex;align-items:center;gap:4px;}
+.hrp-allocation-key i{width:5px;height:5px;border-radius:50%;display:inline-block;}
+.hrp-finding{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:11px;}
+.hrp-finding-block{padding:9px 11px;border-left:2px solid #0C6E78;background:rgba(143,196,201,.12);}
+.hrp-finding-block:last-child{border-left-color:#08383E;background:rgba(8,56,62,.055);}
+.hrp-finding-block span{display:block;font-size:6.3px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0C6E78;}
+.hrp-finding-block:last-child span{color:#08383E;}
+.hrp-finding-block p{opacity:1 !important;transform:none !important;animation:none !important;margin:4px 0 0;font-size:7px;line-height:1.42;color:#5F605B;}
+.hrp-story-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:14px;margin-top:15px;}
+.hrp-story-card{position:relative;min-height:184px;padding:13px 14px 12px;background:#F2EFE8;border:1px solid #E2DED5;overflow:hidden;}
+.hrp-story-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:11px;}
+.hrp-story-head strong{font-size:8.8px;color:#242528;}
+.hrp-story-head span{font-size:6.2px;letter-spacing:.08em;text-transform:uppercase;color:#85867F;}
+.hrp-recovery-visual{display:grid;grid-template-columns:100px 1fr;gap:13px;align-items:center;}
+.hrp-recovery-ring{width:96px;height:96px;border-radius:50%;position:relative;display:grid;place-items:center;background:conic-gradient(#C9821F 0 30%,#DDDAD2 30% 100%);}
+.hrp-recovery-ring::after{content:"";position:absolute;inset:13px;border-radius:50%;background:#F2EFE8;}
+.hrp-recovery-center{position:relative;z-index:1;text-align:center;line-height:1;}
+.hrp-recovery-center b{display:block;font-size:24px;letter-spacing:-.055em;color:#08383E;}
+.hrp-recovery-center span{display:block;margin-top:3px;font-size:6px;line-height:1.25;letter-spacing:.08em;text-transform:uppercase;color:#70716B;}
+.hrp-recovery-metrics{display:grid;gap:9px;}
+.hrp-recovery-metric{padding-bottom:8px;border-bottom:1px solid #D7D3CA;}
+.hrp-recovery-metric:last-child{padding-bottom:0;border-bottom:0;}
+.hrp-recovery-metric span{display:block;font-size:6.2px;letter-spacing:.1em;text-transform:uppercase;color:#77786F;}
+.hrp-recovery-metric b{display:block;margin-top:3px;font-size:15px;line-height:1;color:#123E52;letter-spacing:-.035em;}
+.hrp-recovery-metric:nth-child(2) b{color:#0C6E78;}
+.hrp-recovery-metric:nth-child(3) b{color:#C9821F;}
+.hrp-recovery-note{margin:10px 0 0 !important;opacity:1 !important;transform:none !important;animation:none !important;font-size:6.3px;line-height:1.4;color:#787973;}
+.hrp-composition-bars{display:grid;gap:10px;margin-top:4px;}
+.hrp-composition-row{display:grid;grid-template-columns:72px 1fr 24px;gap:8px;align-items:center;}
+.hrp-composition-row span,.hrp-composition-row b{font-size:6.8px;color:#666760;}
+.hrp-composition-row b{text-align:right;color:#0A4046;}
+.hrp-composition-track{height:11px;background:#DCE5E4;overflow:hidden;}
+.hrp-composition-fill{display:block;height:100%;background:#08383E;}
+.hrp-composition-row:nth-child(1) .hrp-composition-fill{background:#123E52;}
+.hrp-composition-row:nth-child(2) .hrp-composition-fill{background:#0C6E78;}
+.hrp-composition-row:nth-child(3) .hrp-composition-fill{background:#5A86A2;}
+.hrp-composition-row:nth-child(4) .hrp-composition-fill{background:#6F927C;}
+.hrp-composition-note{margin:12px 0 0 !important;opacity:1 !important;transform:none !important;animation:none !important;padding-top:8px;border-top:1px solid #D7D3CA;font-size:6.3px;line-height:1.42;color:#787973;}
+.hrp-section{margin-top:14px;}
+.hrp-section-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:10px;}
+.hrp-section-head strong{font-size:10px;color:#242528;}
+.hrp-section-head span{font-size:7px;color:#85867F;letter-spacing:.08em;text-transform:uppercase;}
+.hrp-action{display:grid;grid-template-columns:25px 1fr;gap:11px;align-items:start;padding-top:12px;border-top:2px solid #0C6E78;}
+.hrp-action-num{width:23px;height:23px;border-radius:50%;display:grid;place-items:center;background:#0A4046;color:#FAFAF8;font-size:8px;font-weight:700;}
+.hrp-action strong{display:block;font-size:9px;color:#242528;}
+.hrp-action p{opacity:1 !important;transform:none !important;animation:none !important;margin:4px 0 0;font-size:7.5px;line-height:1.45;color:#71726C;}
+.hrp-footer{display:flex;justify-content:space-between;margin-top:11px;padding-top:8px;border-top:1px solid #DCD9D1;font-size:6.3px;letter-spacing:.08em;text-transform:uppercase;color:#92938B;}
+.hero-report-caption{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:15px;color:#FAFAF8;font-size:13px;font-weight:600;letter-spacing:-.01em;}
+.hero-report-caption span:last-child{font-size:18px;transition:transform 180ms ease;}
+.hero-report-link:hover .hero-report-caption span:last-child{transform:translateX(4px);}
+.hero-founder-line{
+  display:inline-flex;
+  align-items:center;
+  max-width:620px;
+  margin-top:22px;
+  padding:12px 15px 12px 17px;
+  border-left:3px solid #4FA7AE;
+  background:rgba(4,24,27,.34);
+  font-size:14px;
+  line-height:1.45;
+}
+.hero-founder-line a{color:rgba(250,250,248,.86);border-bottom:0;padding-bottom:0;}
+.hero-founder-line a:hover,.hero-founder-line a:focus-visible{color:#FFFFFF;}
+@media (max-width:1120px){
+  .hero-inner{grid-template-columns:minmax(0,1fr) minmax(440px,.68fr);gap:34px;padding-left:30px;padding-right:30px;}
+  .hero h1{font-size:clamp(48px,5.5vw,60px);}
+  .hero-report-page{min-height:382px;padding:23px 24px 20px;}
+  .hrp-top{margin:-23px -24px 0;padding-left:24px;padding-right:24px;}
+  .hrp-footer{left:25px;right:25px;}
+}
+@media (max-width:900px){
+  .hero{min-height:auto;}
+  .hero-inner{min-height:auto;grid-template-columns:1fr;padding-top:132px;padding-bottom:76px;gap:52px;}
+  .hero-copy{max-width:760px;}
+  .hero-report-proof{width:min(100%,540px);justify-self:center;}
+  .hero-report-page{min-height:382px;}
+}
+@media (max-width:640px){
+  .hero-inner{padding:116px 20px 58px;gap:40px;}
+  .hero h1{font-size:43px;}
+  .hero-actions{align-items:stretch;}
+  .hero-actions .btn{width:100%;}
+  .hero-founder-line{font-size:13px;}
+  .hero-report-page{min-height:0;padding:22px 20px 20px;}
+  .hrp-title{font-size:22px;}
+  .hrp-report-grid{grid-template-columns:1fr;}
+  .hrp-value-grid{grid-template-columns:repeat(3,1fr);}
+  .hrp-value.wide{display:block;}
+  .hrp-quadrant{min-height:190px;}
+  .hrp-finding{grid-template-columns:1fr;}
+  .hrp-story-grid{grid-template-columns:1fr;}
+  .hrp-footer{left:20px;right:20px;}
+}
 </style>
 </head>
 <body>
@@ -2044,6 +2207,55 @@
         </div>
 <p class="hero-founder-line"><a href="#book">Founded by the author of <em>Governance, Bureaucracy and Organization</em> (Routledge, 2027)</a></p>
 </div>
+<aside class="hero-report-proof" aria-label="Sample Monderman report preview">
+  <a class="hero-report-link" href="sample-report.html" aria-label="View complete Monderman sample reports">
+    <div class="hero-report-page">
+      <div class="hrp-top">
+        <span class="hrp-brand">Monderman</span>
+        <span class="hrp-meta">Operational Systems<br/>Executive Report</span>
+      </div>
+      <p class="hrp-kicker">Composite report view &middot; representative output</p>
+      <h2 class="hrp-title">The operating burden is measurable&mdash;and part of it is recoverable.</h2>
+      <p class="hrp-deck">A Monderman report connects the measured condition to annual exposure, capacity that can be reclaimed, and the intervention the evidence supports first.</p>
+      <div class="hrp-story-grid">
+        <div class="hrp-story-card" aria-label="Representative recovery opportunity">
+          <div class="hrp-story-head"><strong>Recovery opportunity</strong><span>Annualized</span></div>
+          <div class="hrp-recovery-visual">
+            <div class="hrp-recovery-ring" aria-hidden="true"><div class="hrp-recovery-center"><b>30%</b><span>potentially<br/>recoverable</span></div></div>
+            <div class="hrp-recovery-metrics">
+              <div class="hrp-recovery-metric"><span>Burden exposed</span><b>5,280 hrs</b></div>
+              <div class="hrp-recovery-metric"><span>Annual cost</span><b>$411,840</b></div>
+              <div class="hrp-recovery-metric"><span>Recovery value</span><b>$123,552</b></div>
+            </div>
+          </div>
+          <p class="hrp-recovery-note">Directional estimate using the sample organization&rsquo;s run frequency, coordination time, and loaded hourly cost.</p>
+        </div>
+        <div class="hrp-story-card" aria-label="Representative measured burden composition">
+          <div class="hrp-story-head"><strong>Where the burden concentrates</strong><span>Scored dimensions</span></div>
+          <div class="hrp-composition-bars" aria-hidden="true">
+            <div class="hrp-composition-row"><span>Coordination load</span><i class="hrp-composition-track"><i class="hrp-composition-fill" style="width:84%"></i></i><b>34%</b></div>
+            <div class="hrp-composition-row"><span>Reporting burden</span><i class="hrp-composition-track"><i class="hrp-composition-fill" style="width:67%"></i></i><b>27%</b></div>
+            <div class="hrp-composition-row"><span>Process density</span><i class="hrp-composition-track"><i class="hrp-composition-fill" style="width:57%"></i></i><b>23%</b></div>
+            <div class="hrp-composition-row"><span>Recurring overhead</span><i class="hrp-composition-track"><i class="hrp-composition-fill" style="width:40%"></i></i><b>16%</b></div>
+          </div>
+          <p class="hrp-composition-note">Composition reflects the diagnostic burden signal. The engine does not allocate dollars to individual dimensions.</p>
+        </div>
+      </div>
+      <div class="hrp-finding">
+        <div class="hrp-finding-block">
+          <span>What the engine found</span>
+          <p>Recurring coordination work is absorbing material capacity beyond the administration required to keep the system controlled.</p>
+        </div>
+        <div class="hrp-finding-block">
+          <span>What to do first</span>
+          <p>Target the highest-frequency burden before adding controls, preserving necessary administration while removing avoidable repetition.</p>
+        </div>
+      </div>
+      <div class="hrp-footer"><span>Sample organization</span><span>Time &middot; cost &middot; capacity</span></div>
+    </div>
+    <div class="hero-report-caption"><span>Explore complete sample reports</span><span aria-hidden="true">&rarr;</span></div>
+  </a>
+</aside>
 </div>
 </section>
 <section aria-labelledby="differentiators-title" class="differentiators">
