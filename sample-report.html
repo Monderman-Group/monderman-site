@@ -2551,7 +2551,29 @@
         { label: "Lower routine escalation out of the senior path", text: "Define the exception conditions that genuinely require senior review and move routine cases below that threshold. Track the share of cases that still climb above it.", tier: "behavioral", source: "Decision Velocity" },
         { label: "Retire the workaround, not the people using it", text: "Use the informal tracker and reconciliation steps as design evidence. Rebuild the formal path to carry the information people currently preserve manually, then remove the duplicate mechanism.", tier: "structural", source: "Operational Systems + Institutional Performance" }
       ],
+      remedy_paths: {
+        status: "source_backed",
+        source_path_count: 36,
+        statement: "These alternatives are synthesized from structured remedy paths carried by the four contributing Diagnostics. They are candidates for validation, not automatic prescriptions.",
+        paths: [
+          { kicker: "Low disruption", label: "Reset the routine escalation threshold", summary: "Test a narrower senior-review rule in one approval class while preserving the existing control architecture.", actions: ["Define the exceptions that genuinely require senior review.", "Track routine cases that still escalate and why.", "Remeasure all four lenses after one operating cycle."], benefit: "Tests whether approval density can fall without weakening control.", risk: "Ownership ambiguity and duplicate tracking may remain." },
+          { kicker: "Targeted redesign", label: "Repair ownership and the approval path together", summary: "Pair one explicit handoff owner with a lower routine escalation threshold and one authoritative queue.", actions: ["Name the accountable owner at the transfer point.", "Move routine approvals below the senior threshold.", "Retire the duplicate tracker after the primary queue proves reliable."], benefit: "Addresses the convergent cross-lens pattern without an organization-wide rebuild.", risk: "Partial implementation can move burden from escalation into reconciliation." },
+          { kicker: "Broader reset", label: "Rebuild the bounded capital-approval pathway", summary: "Redesign authority, handoffs, controls, and system-of-record behavior as one operating path.", actions: ["Map the current formal and informal paths.", "Rebuild decision rights and transfer rules.", "Remove superseded controls and workarounds only after the new path carries live cases.", "Remeasure the same lens set and vantages."], benefit: "Treats the condition as one operating-system problem rather than four separate symptoms.", risk: "Requires stronger sponsorship and disciplined sequencing." }
+        ]
+      },
       experiential: {
+        status: "source_backed",
+        source_path_count: 54,
+        statement: "These alternatives are carried from the structured Structural Clarity remedy paths in the 18 source runs and grouped by intervention depth.",
+        paths: [
+          { kicker: "Low disruption", label: "Write the ownership-transfer rule", summary: "Test one explicit sentence defining when ownership, authority, and required information move between teams.", actions: ["Draft the transfer rule against the six lowest Operational cases.", "Use those cases as acceptance tests.", "Measure manager clarification touches for one full cycle."], benefit: "Creates a fast, bounded test of whether ambiguity is concentrated at one transfer point.", risk: "The rule may expose adjacent role problems without resolving them." },
+          { kicker: "Targeted redesign", label: "Repair the highest-friction handoff", summary: "Redesign the transfer boundary, role expectations, and escalation logic where the respondent distribution is weakest.", actions: ["Name one accountable receiving owner.", "Specify the authority and information that move with the work.", "Remove the standing clarification step once the rule is carrying live cases."], benefit: "Targets the recurring condition visible across Operational and Managerial reports.", risk: "Other handoffs may continue to rely on interpretation." },
+          { kicker: "Broader reset", label: "Rebuild pathway-wide structural clarity", summary: "Apply the validated ownership and authority model across the bounded capital-equipment approval pathway.", actions: ["Map every transfer boundary.", "Standardize decision rights and answerability.", "Retire duplicate local agreements.", "Repeat the same Diagnostic across all three vantages."], benefit: "Reduces dependence on managers as the translation layer across the entire pathway.", risk: "A broader reset can create implementation burden if sequenced as documentation rather than operating change." }
+        ]
+      },
+      experiential: {
+        participant_reports_available: true,
+        source_report_count: 18,
         operational_staff: "Operational participants describe locating work through side channels and checking more than one system to know where an approval actually sits.",
         managers: "Managers describe pre-briefing approvers and personally reconciling queue state so routine cases do not restart or disappear between teams.",
         senior_leaders: "Senior leaders describe the controls as necessary but cannot consistently identify which approval layer changes an outcome versus which one confirms a decision already made.",
@@ -2661,6 +2683,8 @@
         { label: "Re-measure the same pathway after one full cycle", text: "Run the same Structural Clarity Diagnostic across the same vantages after the ownership rule has been in use long enough to affect real handoffs. Look first for movement in the Operational segment and a narrowing vantage gap.", tier: "structural", source: "Depth Synthesis" }
       ],
       experiential: {
+        participant_reports_available: true,
+        source_report_count: 18,
         operational_staff: "Operational participants repeatedly describe cases that are technically approved but still require messages or meetings to establish who owns the next action.",
         managers: "Managers describe becoming the translation layer when two teams can each explain their own responsibilities but disagree about the transfer point between them.",
         senior_leaders: "Senior Leaders generally describe the formal role structure as clear and are more likely to see the problem as isolated exception handling rather than a recurring ownership-transfer issue.",
