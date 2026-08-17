@@ -163,6 +163,20 @@
         source: firstStr(action.source)
       };
     }).filter((item) => item.text);
+    const remedyBlock = obj(r.remedy_paths);
+    const remedyPaths = arr(remedyBlock.paths).map((item) => {
+      const path = obj(item);
+      return {
+        kicker: firstStr(path.kicker),
+        label: firstStr(path.label),
+        summary: firstStr(path.summary),
+        actions: arr(path.actions).map(firstStr).filter(Boolean),
+        benefit: firstStr(path.benefit),
+        risk: firstStr(path.risk),
+        sourceLens: firstStr(path.source_tool_label),
+        supportingRuns: strictNum(path.supporting_runs)
+      };
+    }).filter((item) => item.label || item.summary || item.actions.length);
     const indicators = arr(r.leading_indicators).map((item) => {
       const indicator = obj(item);
       return {
@@ -232,6 +246,8 @@
       differences: differences,
       exposure: exposure,
       actions: actions,
+      remedyPaths: remedyPaths,
+      remedyStatement: firstStr(remedyBlock.statement),
       experiential: experiential,
       indicators: indicators,
       leadership: firstStr(narrative.leadership_implication),
@@ -659,15 +675,33 @@
       (m.sequencingLogic ? '<div class="callout"><p><strong>Sequencing logic.</strong> ' + esc(m.sequencingLogic) + '</p></div>' : '') + '</section>';
   }
 
+  function renderMetaRemedyPaths(m, n) {
+    const paths = arr(m.remedyPaths);
+    if (!paths.length) return "";
+    return '<section class="mr-section"><h2>' + n + '. Source-backed remedy paths</h2>' +
+      (m.remedyStatement ? '<p class="mr-copy">' + esc(m.remedyStatement) + '</p>' : '') +
+      '<div class="mr-remedy-grid">' + paths.map((path) =>
+        '<div class="mr-card mr-remedy-card">' +
+          '<div class="mr-lens-label">' + esc(path.kicker || path.sourceLens || "Candidate path") + '</div>' +
+          '<h3>' + esc(path.label || "Remedy path") + '</h3>' +
+          (path.summary ? '<p>' + esc(path.summary) + '</p>' : '') +
+          (path.actions.length ? '<ul>' + path.actions.map((action) => '<li>' + esc(action) + '</li>').join("") + '</ul>' : '') +
+          (path.benefit ? '<p><strong>Potential benefit:</strong> ' + esc(path.benefit) + '</p>' : '') +
+          (path.risk ? '<p><strong>Tradeoff:</strong> ' + esc(path.risk) + '</p>' : '') +
+        '</div>'
+      ).join("") + '</div></section>';
+  }
+
   function renderMetaExperience(m, n) {
     const experience = obj(m.experiential);
     const entries = [
-      ["Operational", firstStr(experience.operational_staff)],
-      ["Managerial", firstStr(experience.managers)],
-      ["Senior Leader", firstStr(experience.senior_leaders)]
+      ["Operational", firstStr(experience.operational, experience.operational_staff)],
+      ["Managerial", firstStr(experience.managerial, experience.managers)],
+      ["Senior Leader", firstStr(experience.senior_leader, experience.senior_leaders)]
     ].filter(([, value]) => value);
     if (!entries.length && !experience.interpretation_limit) return "";
-    return '<section class="mr-section"><h2>' + n + '. Vantage evidence</h2>' +
+    const heading = experience.participant_reports_available ? "What participants reported" : "Vantage evidence";
+    return '<section class="mr-section"><h2>' + n + '. ' + heading + '</h2>' +
       entries.map(([label, value]) => '<div class="mr-card mr-editorial-row mr-vantage-row"><h3>' + esc(label) + '</h3><p>' + esc(value) + '</p></div>').join("") +
       (experience.interpretation_limit ? '<p class="mr-copy">' + esc(experience.interpretation_limit) + '</p>' : '') + '</section>';
   }
@@ -699,6 +733,7 @@
       renderMetaSignals,
       renderMetaExposure,
       renderMetaActions,
+      renderMetaRemedyPaths,
       renderMetaExperience,
       renderMetaIndicators,
       renderMetaEvidence,
@@ -801,7 +836,7 @@
 
   var REPORT_CSS =
     '.mr-report{--ink:#18191C;--soft:#6E6F73;--muted:#9A9892;--accent:#0C6E78;--line:#EAE6DD;--paper:#fff;--page:#F6F3EC}' +
-    '.mr-report,.mr-report *{box-sizing:border-box}' +
+    '.mr-remedy-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}.mr-remedy-card{border-top:3px solid #C9821F}.mr-remedy-card h3{margin:8px 0}.mr-remedy-card ul{padding-left:18px}.mr-remedy-card li{margin:6px 0}@media(max-width:760px){.mr-remedy-grid{grid-template-columns:1fr}}.mr-report,.mr-report *{box-sizing:border-box}' +
     '.mr-report{margin:0;background:var(--page);color:var(--ink);font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:400;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}' +
     '.mr-report .mr-page{max-width:960px;margin:0 auto;background:var(--paper);padding:48px 54px 64px;box-shadow:0 18px 48px rgba(15,23,32,.08)}' +
     '.mast{font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;font-size:.78rem;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}' +
