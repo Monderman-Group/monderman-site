@@ -83,5 +83,54 @@ for token in [
 ]:
     forbid(sample,token,'Sample report')
 
+# Organizational-value contract. The product may identify leadership burden,
+# leadership action, and Senior Leader vantage evidence. It may not frame the
+# recovered value or product purpose as belonging to that layer.
+value_files = [
+    'about.html', 'why-monderman.html', 'roi.html', 'sample-report.html',
+    'operational-systems-article.html', 'decision-velocity-article.html',
+    'structural-clarity-article.html', 'institutional-performance-article.html',
+    'operational-systems.html', 'decision-velocity.html',
+    'structural-clarity.html', 'institutional-performance.html',
+]
+value_surfaces = '\n'.join(text(name) for name in value_files) + '\n' + text('monderman-report.js')
+for token in [
+    'absorbs leadership capacity', 'capacity leadership could reclaim',
+    'Senior hours returned to mission', 'senior time returns to mission',
+    'leadership-facing readout', 'concise leadership readout',
+    'This summary is written for leaders', 'Monderman is built for leaders',
+    'Leadership bottom line', 'Bottom line for leadership',
+    'Treat senior attention as a scarce operating resource',
+    'spending its scarcest resource',
+]:
+    forbid(value_surfaces, token, 'organizational-value contract')
+
+role_re = re.compile(r'\b(?:senior(?:[- ]leader)?s?|leaders?|leadership|executives?)\b', re.I)
+resource_re = re.compile(r'\b(?:time|hours?|money|attention|capacity|bandwidth|productivity)\b', re.I)
+recovery_re = re.compile(r'\b(?:return(?:ed|ing|s)?|reclaim(?:ed|ing|s)?|recover(?:ed|ing|s)?|restore(?:d|ing|s)?|free(?:d|ing|s)?|sav(?:e|ed|es|ing)|give(?:s|n|ing)?\s+back)\b', re.I)
+role = r'(?:senior(?:[- ]leader)?s?|leaders?|leadership|executives?)'
+resource = r'(?:time|hours?|money|attention|capacity|bandwidth|productivity)'
+recovery = r'(?:return(?:ed|ing|s)?|reclaim(?:ed|ing|s)?|recover(?:ed|ing|s)?|restore(?:d|ing|s)?|free(?:d|ing|s)?|sav(?:e|ed|es|ing)|give(?:s|n|ing)?\s+back)'
+role_benefit_patterns = [
+    re.compile(rf'\b{recovery}\b.{{0,80}}\b{role}\b.{{0,40}}\b{resource}\b', re.I),
+    re.compile(rf'\b{role}\b.{{0,40}}\b{resource}\b.{{0,80}}\b{recovery}\b', re.I),
+    re.compile(rf'\b{role}\b.{{0,40}}\b{recovery}\b.{{0,40}}\b{resource}\b', re.I),
+    re.compile(rf'\b{resource}\b.{{0,30}}\b{role}\b.{{0,40}}\b{recovery}\b', re.I),
+]
+visible_value_surfaces = re.sub(r'<(?:script|style)\b[^>]*>.*?</(?:script|style)>', ' ', value_surfaces, flags=re.I | re.S)
+visible_value_surfaces = re.sub(r'<[^>]+>', ' ', visible_value_surfaces)
+for sentence in re.split(r'(?<=[.!?])\s+', visible_value_surfaces):
+    if '?' in sentence:
+        continue
+    if any(pattern.search(sentence) for pattern in role_benefit_patterns):
+        raise AssertionError(f'organizational-value contract: recovered value assigned to a role: {sentence.strip()[:180]!r}')
+
+for token in [
+    'return time, money, and productive capacity to the organization',
+    'Organizational implication',
+    'Hours returned to mission across the measured unit, per week.',
+]:
+    require(value_surfaces, token, 'organizational-value contract')
+
 print({'ok':True,'public_files':len(public_files),'workspace_contract':'pass','plan_contract':'pass','flagship_cross_lens':'published_strong'})
 print('Six-product ecosystem vocabulary, entitlement, workflow, evidence-discipline, and flagship-sample validation passed.')
