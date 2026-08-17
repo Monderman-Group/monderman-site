@@ -36,11 +36,10 @@ async function openTab(key) {
   return shell;
 }
 
-// The four certified Diagnostic samples keep the actual production visual
-// primitives and production quadrant geometry. This gate verifies visibility;
-// it does not alter any Diagnostic engine or scoring behavior.
-const diagnostics = ['os','dv','sc','ip'];
-for (const key of diagnostics) {
+// The four lens samples are honest same-lens Depth Synthesis reports built
+// from compatible respondent sets while retaining certified lens visuals.
+const diagnostics = { os: 18, dv: 21, sc: 15, ip: 24 };
+for (const [key, expectedN] of Object.entries(diagnostics)) {
   const shell = await openTab(key);
   const svgCount = await shell.locator('svg[role="img"]').count();
   assert(svgCount >= 4, `${key} has only ${svgCount} evidence graphics`);
@@ -52,9 +51,13 @@ for (const key of diagnostics) {
   assert(await shell.locator('svg[aria-label="Burden severity by dimension"]').first().isVisible(), `${key} severity graphic not visible`);
   assert(await shell.locator('svg[aria-label="Intervention order"]').first().isVisible(), `${key} intervention graphic not visible`);
   const depthRead = shell.locator('.sample-depth-read');
-  assert(await depthRead.isVisible(), `${key} single-run evidence context missing`);
-  assert(/\d+\s*\/\s*8/.test(await depthRead.textContent()), `${key} insight depth does not show the ceiling of 8`);
-  assert((await depthRead.textContent()).includes('score is not out of 100'), `${key} insight-depth scale explanation missing`);
+  assert(await depthRead.isVisible(), `${key} Depth Synthesis evidence context missing`);
+  const depthText = await depthRead.textContent();
+  assert(depthText.includes(`n=${expectedN}`), `${key} respondent count missing from evidence context`);
+  assert(depthText.includes('Substantial observed respondent set'), `${key} evidence band missing`);
+  assert(/Population inference/i.test(depthText), `${key} sampling-frame limit missing`);
+  assert((await shell.textContent()).includes('Composite view.'), `${key} composite disclosure missing from cover`);
+  assert((await shell.textContent()).includes('What participants reported'), `${key} multi-participant experiential section missing`);
   await page.screenshot({ path: path.join(out, `${key}-full.png`), fullPage: true });
 }
 
@@ -83,6 +86,9 @@ const crossText = await cross.textContent();
 assert(crossText.includes('Executive synthesis'), 'Cross-Lens executive synthesis missing');
 assert(crossText.includes('Agreements and differences'), 'Cross-Lens agreements/differences missing');
 assert(crossText.includes('Evidence-proportionate actions'), 'Cross-Lens actions missing');
+assert(crossText.includes('Source-backed remedy paths'), 'Cross-Lens remedy paths missing');
+assert(crossText.includes('What participants reported'), 'Cross-Lens participant-reported layer missing');
+assert(await cross.locator('.mr-remedy-card').count() === 3, 'Cross-Lens does not show three remedy alternatives');
 assert(crossText.includes('Executive decision frame'), 'Cross-Lens executive decision frame missing');
 assert(await cross.locator('.mr-decision-metric').count() === 4, 'Cross-Lens decision frame does not show four executive metrics');
 assert(await cross.locator('.mr-action-path .mr-action-step').count() >= 3, 'Cross-Lens visual action sequence is too thin');
@@ -129,6 +135,9 @@ const depthStart = await depth.evaluate(el => el.getBoundingClientRect().top + w
 assert(depthTop - depthStart < 1150, `Depth chart is still buried ${Math.round(depthTop-depthStart)}px into report`);
 assert((await depth.textContent()).includes('15.8'), 'Depth vantage gap not visible');
 assert((await depth.textContent()).includes('Evidence-proportionate actions'), 'Depth actions missing');
+assert((await depth.textContent()).includes('Source-backed remedy paths'), 'Depth remedy paths missing');
+assert((await depth.textContent()).includes('What participants reported'), 'Depth participant-reported layer missing');
+assert(await depth.locator('.mr-remedy-card').count() === 3, 'Depth does not show three remedy alternatives');
 assert((await depth.textContent()).includes('Executive decision frame'), 'Depth executive decision frame missing');
 assert(await depth.locator('.mr-decision-metric').count() === 4, 'Depth decision frame does not show four executive metrics');
 assert(await depth.locator('.mr-action-path .mr-action-step').count() >= 3, 'Depth visual action sequence is too thin');
