@@ -67,12 +67,20 @@ for token, msg in [
     ('mr-depth-stats', 'Depth statistics are not rendered as a continuous statistics block'),
     ('mr-editorial-row', 'Synthesis prose/action rows are still using undifferentiated card presentation'),
     ('Synthesis is an executive report, not a dashboard', 'editorial-family CSS contract missing'),
+    ('Executive decision frame', 'Synthesis lacks an early executive decision frame'),
+    ('mr-decision-frame', 'Synthesis decision metrics are not rendered'),
+    ('mr-evidence-ladder', 'Synthesis evidence strength ladder is missing'),
+    ('mr-action-path', 'Synthesis action sequence visual is missing'),
 ]:
     req(token in report, msg)
 
 # Marketing sample disclosure and renderer parity.
 req('Representative product outputs — not customer data.' in sample, 'top representative-output disclosure missing')
 req('synthesis-report-stage' in sample, 'Synthesis report stage wrapper missing')
+req(sample.count('class="sample-depth-read"') == 4, 'all four Diagnostic samples must show backend insight depth')
+req('single-run ceiling' in sample and 'score is not out of 100' in sample, 'single-run depth scale explanation missing')
+req(sample.count('class="toc-rail synthesis-toc"') == 2, 'Cross-Lens and Depth Contents rails missing')
+req('buildSynthesisContents' in sample, 'generated Synthesis Contents navigation missing')
 req('MondermanReport.fromSynthesis(fixtures.crossLens)' in sample, 'Cross-Lens sample is not using shared customer renderer')
 req('MondermanReport.fromSynthesis(fixtures.depth)' in sample, 'Depth sample is not using shared customer renderer')
 
