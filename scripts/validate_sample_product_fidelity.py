@@ -102,6 +102,49 @@ for token in ['score_status: "published"','cross_diagnostic_score: 55.5','eviden
 for token in ['aria-label="Depth Synthesis score distribution"','aria-label="Cross-Lens Diagnostic score comparison"','Executive decision frame','mr-decision-frame','mr-evidence-ladder','mr-action-path','Executive synthesis','Agreements and differences','Evidence-proportionate actions','Source-backed remedy paths','What participants reported','What to watch next']:
     require(token in renderer, f"production Synthesis renderer missing: {token}")
 
+# The product beneficiary is the organization. Senior Leader remains a valid
+# participant vantage, and senior escalation can remain a measured mechanism,
+# but customer-facing benefit language must not assign recovered value to one
+# organizational layer.
+role_re = re.compile(r"\b(?:senior(?:[- ]leader)?s?|leaders?|leadership|executives?)\b", re.I)
+resource_re = re.compile(r"\b(?:time|hours?|money|attention|capacity|bandwidth|productivity)\b", re.I)
+recovery_re = re.compile(r"\b(?:return(?:ed|ing|s)?|reclaim(?:ed|ing|s)?|recover(?:ed|ing|s)?|restore(?:d|ing|s)?|free(?:d|ing|s)?|sav(?:e|ed|es|ing)|give(?:s|n|ing)?\s+back)\b", re.I)
+role = r"(?:senior(?:[- ]leader)?s?|leaders?|leadership|executives?)"
+resource = r"(?:time|hours?|money|attention|capacity|bandwidth|productivity)"
+recovery = r"(?:return(?:ed|ing|s)?|reclaim(?:ed|ing|s)?|recover(?:ed|ing|s)?|restore(?:d|ing|s)?|free(?:d|ing|s)?|sav(?:e|ed|es|ing)|give(?:s|n|ing)?\s+back)"
+role_benefit_patterns = [
+    re.compile(rf"\b{recovery}\b.{{0,80}}\b{role}\b.{{0,40}}\b{resource}\b", re.I),
+    re.compile(rf"\b{role}\b.{{0,40}}\b{resource}\b.{{0,80}}\b{recovery}\b", re.I),
+    re.compile(rf"\b{role}\b.{{0,40}}\b{recovery}\b.{{0,40}}\b{resource}\b", re.I),
+    re.compile(rf"\b{resource}\b.{{0,30}}\b{role}\b.{{0,40}}\b{recovery}\b", re.I),
+]
+for surface_name, surface in {"sample": sample, **products}.items():
+    visible = re.sub(r"<(?:script|style)\b[^>]*>.*?</(?:script|style)>", " ", surface, flags=re.I | re.S)
+    visible = re.sub(r"<[^>]+>", " ", visible)
+    for sentence in re.split(r"(?<=[.!?])\s+", visible):
+        if "?" in sentence:  # governance/remedy questions may name an accountable role
+            continue
+        if any(pattern.search(sentence) for pattern in role_benefit_patterns):
+            require(False, f"{surface_name} assigns recovered organizational value to a role: {sentence.strip()[:180]}")
+
+for stale in [
+    "Senior hours returned to mission",
+    "senior time returns to mission",
+    "Treat senior attention as a scarce operating resource",
+    "spending its scarcest resource",
+    "Leadership bottom line",
+    "Bottom line for leadership",
+    "leadership-facing readout",
+    "concise leadership readout",
+    "This summary is written for leaders",
+]:
+    require(stale.lower() not in (sample + renderer + "\n".join(products.values())).lower(), f"role-centric value framing remains: {stale}")
+
+require("return time, money, and productive capacity to the organization" in sample, "sample lacks the canonical organizational value statement")
+require("organizationalImplication: firstStr(narrative.organizational_implication, narrative.leadership_implication)" in renderer, "renderer does not prefer organizational_implication with legacy fallback")
+for token in ["Organizational implication.", "First supported move", "An organizational read of this diagnostic"]:
+    require(token in renderer, f"renderer lacks neutral organizational framing: {token}")
+
 if failures:
     print("SAMPLE_PRODUCT_FIDELITY_FAIL")
     for item in failures: print("-", item)
