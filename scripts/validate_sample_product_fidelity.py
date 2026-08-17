@@ -92,9 +92,14 @@ require("Degraded institutional condition" in sample, "IP score 47 is not using 
 # Synthesis samples remain rendered through the exact shared customer renderer.
 require('<script src="monderman-report.js"></script>' in sample, "sample does not load shared customer report renderer")
 require('MondermanReport.fromSynthesis(fixtures.crossLens)' in sample and 'MondermanReport.fromSynthesis(fixtures.depth)' in sample, "Synthesis sample adapter parity broken")
+require(sample.count('class="sample-depth-read"') == 4, "all four Diagnostic samples must expose insight_depth")
+for token in ['6 / 8','7 / 8','5 / 8','single-run ceiling','score is not out of 100']:
+    require(token in sample, f"single-run evidence-context fidelity missing: {token}")
+require(sample.count('class="toc-rail synthesis-toc"') == 2, "Synthesis Contents rails missing")
+require('buildSynthesisContents' in sample, "Synthesis Contents generation missing")
 for token in ['score_status: "published"','cross_diagnostic_score: 55.5','evidence_label: "Strong"','respondent_count: 48','lens_count: 4','aggregate_score: 56','evidence_label: "Substantial"','respondent_count: 18']:
     require(token in sample, f"Synthesis fixture fidelity missing: {token}")
-for token in ['aria-label="Depth Synthesis score distribution"','aria-label="Cross-Lens Diagnostic score comparison"','Executive synthesis','Agreements and differences','Evidence-proportionate actions','What to watch next']:
+for token in ['aria-label="Depth Synthesis score distribution"','aria-label="Cross-Lens Diagnostic score comparison"','Executive decision frame','mr-decision-frame','mr-evidence-ladder','mr-action-path','Executive synthesis','Agreements and differences','Evidence-proportionate actions','What to watch next']:
     require(token in renderer, f"production Synthesis renderer missing: {token}")
 
 if failures:
