@@ -54,6 +54,8 @@ for (const [key, expectedN] of Object.entries(diagnostics)) {
   assert(await depthRead.isVisible(), `${key} Depth Synthesis evidence context missing`);
   const depthText = await depthRead.textContent();
   assert(depthText.includes(`n=${expectedN}`), `${key} respondent count missing from evidence context`);
+  const ringStyle = await depthRead.locator('.sample-depth-ring').getAttribute('style');
+  assert(ringStyle.includes(`--depth:${expectedN}%`), `${key} depth ring is not proportional to n=${expectedN}`);
   assert(depthText.includes('Substantial observed respondent set'), `${key} evidence band missing`);
   assert(/Population inference/i.test(depthText), `${key} sampling-frame limit missing`);
   assert((await shell.textContent()).includes('Composite view.'), `${key} composite disclosure missing from cover`);
