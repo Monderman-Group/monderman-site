@@ -59,17 +59,7 @@
       <div class="price" id="priceLine"></div>
       <p class="billing-line" id="billingLine"></p>
       <ul class="inc" id="incList"></ul>
-      <div id="instrumentPick" style="display:none;margin:14px 0 4px;">
-        <label for="baselineInstrument" style="display:block;font-size:.92rem;line-height:1.5;margin:0 0 6px;"><strong>Your Diagnostic.</strong> Choose the Diagnostic associated with this purchase.</label>
-        <select id="baselineInstrument" style="width:100%;padding:10px 12px;font:inherit;border:1px solid rgba(24,22,18,.18);border-radius:8px;background:#fff;">
-          <option value="">Choose your Diagnostic&hellip;</option>
-          <option value="structural_clarity">Structural Clarity</option>
-          <option value="decision_velocity">Decision Velocity</option>
-          <option value="operational_systems">Operational Systems</option>
-          <option value="institutional_performance">Institutional Performance</option>
-        </select>
-      </div>
-      <div class="seatline"><strong>No per-participant pricing.</strong> Participant-response allowances are plan-based: Signal includes 50 completed participant responses a year, Pattern 500, and Enterprise participant-response capacity is defined in the order form. Self-runs are separate from participant-response allowances.</div>
+      <div class="seatline"><strong>No per-participant pricing.</strong> Signal includes 50 completed participant responses and 12 Syntheses a year. Pattern includes 500 completed participant responses and unlimited Syntheses. Self-runs are unlimited on both tiers and do not draw on the participant-response allowance.</div>
       <button class="btn" id="payBtn" disabled>Continue to secure checkout</button>
       <div class="panel warn" id="unavailablePanel">
         Self-serve checkout is being enabled. In the meantime, request an order form and we will set your tier up by invoice: <a id="connectLink" href="connect.html">open the Connect form</a>.
@@ -89,15 +79,17 @@
 
     const API_BASE = "https://monderman-api.onrender.com";
 
-    // Tier facts shown on this page. Prices are display-only; the amount Stripe
-    // charges comes from the server-selected Price ID, never from this file.
+    // Display facts mirror the published plan pages. The amount charged is
+    // selected and validated server-side against Stripe; browser values are
+    // never trusted for billing.
     const TIERS = {
       signal: {
         name: "Signal",
         includes: [
-          "All four Diagnostics \u2014 every depth, every vantage",
-          "Unlimited self-runs \u2014 no annual ceiling",
-          "Executive Report for every completed run",
+          "All four Diagnostics \u2014 every standard depth and vantage",
+          "Unlimited self-runs \u2014 never metered",
+          "50 completed participant responses a year through Diagnostic campaigns",
+          "12 Syntheses a year across Depth Synthesis and Cross-Lens Synthesis",
           "Saved history, results library, and the over-time lens",
           "3 workspace users \u2014 2 analysts and 1 admin",
           "Email platform support"
@@ -112,13 +104,11 @@
         name: "Pattern",
         includes: [
           "Everything in Signal",
-          "Diagnostic Campaigns \u2014 500 completed participant responses a year",
+          "500 completed participant responses a year",
           "Unlimited Depth Synthesis and Cross-Lens Synthesis",
-          "Across vantages \u2014 Operational, Managerial, and Senior Leader",
-          "Cross-Lens Synthesis \u2014 different Diagnostics compared under evidence-coherence rules",
-          "Anonymous responses with pseudonyms",
+          "Anonymous participant responses with pseudonyms and day-level timestamps",
           "7 workspace users \u2014 5 analysts and 2 admins",
-          "Priority support + onboarding session"
+          "Priority platform support plus a one-time onboarding session"
         ],
         prices: {
           monthly:   { headline: "$3,000", line: "per month, billed monthly" },
@@ -136,10 +126,6 @@
     if (["monthly","quarterly","annual"].includes(interval)) sessionStorage.setItem("mdm_checkout_interval", interval);
 
     let sessionReady = false;
-    const INSTRUMENTS = ["structural_clarity","decision_velocity","operational_systems","institutional_performance"];
-    let baselineInstrument = (params.get("instrument") || sessionStorage.getItem("mdm_checkout_instrument") || "").toLowerCase();
-    if (!INSTRUMENTS.includes(baselineInstrument)) baselineInstrument = "";
-    if (baselineInstrument) sessionStorage.setItem("mdm_checkout_instrument", baselineInstrument);
     function updatePayState() {
       const b = document.getElementById("payBtn");
       if (b) b.disabled = !sessionReady;
@@ -159,16 +145,6 @@
       el("billingLine").textContent = "Purchasing for your organization \u2014 the tier unlocks for everyone in your workspace.";
       el("incList").innerHTML = t.includes.map((x) => "<li>" + x + "</li>").join("");
       el("connectLink").href = "connect.html?plan=" + tier;
-      if (tier === "baseline") {
-        el("instrumentPick").style.display = "block";
-        const sel = el("baselineInstrument");
-        sel.value = baselineInstrument;
-        sel.addEventListener("change", () => {
-          baselineInstrument = INSTRUMENTS.includes(sel.value) ? sel.value : "";
-          if (baselineInstrument) sessionStorage.setItem("mdm_checkout_instrument", baselineInstrument);
-          updatePayState();
-        });
-      }
       boot();
     }
 
@@ -192,7 +168,7 @@
               "content-type": "application/json",
               "authorization": "Bearer " + (s?.session?.access_token || "")
             },
-            body: JSON.stringify(tier === "baseline" && baselineInstrument ? { tier, interval, baseline_instrument: baselineInstrument } : { tier, interval })
+            body: JSON.stringify({ tier, interval })
           });
           const out = await res.json().catch(() => ({}));
           if (res.ok && out.url) { location.href = out.url; return; }
