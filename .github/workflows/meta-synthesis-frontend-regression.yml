@@ -2,8 +2,7 @@ name: Meta-synthesis frontend customer-release regression
 
 on:
   push:
-    branches: [agent/meta-synthesis-customer-release-2026-08-15-v1]
-  pull_request:
+    branches: [main]
     paths:
       - 'monderman-report.js'
       - 'workspace-analysis.html'
@@ -11,13 +10,24 @@ on:
       - 'cross-tool-synthesis.html'
       - 'scripts/validate_meta_synthesis_frontend.py'
       - 'scripts/meta_synthesis_frontend_fixture.mjs'
+      - '.github/workflows/meta-synthesis-frontend-regression.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'monderman-report.js'
+      - 'workspace-analysis.html'
+      - 'diagnostics.html'
+      - 'cross-tool-synthesis.html'
+      - 'scripts/validate_meta_synthesis_frontend.py'
+      - 'scripts/meta_synthesis_frontend_fixture.mjs'
+      - '.github/workflows/meta-synthesis-frontend-regression.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: meta-synthesis-frontend-release-2026-08-15-v1
+  group: meta-synthesis-frontend-release-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
