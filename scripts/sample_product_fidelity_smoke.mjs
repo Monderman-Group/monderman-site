@@ -29,23 +29,27 @@ assert(!/Insight depth/i.test(bodyText), 'Insight depth remains');
 assert(!bodyText.includes('Against comparable institutions'), 'empirical peer-comparison claim remains in sample');
 assert(!bodyText.includes('likely to continue accumulating'), 'single-run predictive trajectory claim remains in sample');
 assert(bodyText.includes('return time, money, and productive capacity to the organization'), 'canonical organizational value statement missing');
+for (const stale of ['Operational creep is rising', 'Rising drag pressure', 'Rising strain']) {
+  assert(!bodyText.includes(stale), `condition-direction wording remains in sample: ${stale}`);
+}
 for (const stale of ['Senior hours returned to mission', 'senior time returns to mission', 'Treat senior attention as a scarce operating resource', 'spending its scarcest resource', 'Leadership bottom line', 'Bottom line for leadership']) {
   assert(!bodyText.toLowerCase().includes(stale.toLowerCase()), `role-centric value framing remains: ${stale}`);
 }
 
 const diagnostics = [
-  ['os', 'Governance weight × execution responsiveness', 'Burden composition', 'Self-reported change.', '5,280 annual burden hours', 'Productive work 76%', 'Recoverable drag 8%', '$485,760 / yr measured burden'],
-  ['dv', 'Governance weight × execution responsiveness', 'Drag composition', 'Self-reported change.', '3,128 annual burden hours', 'Productive work 78%', 'Recoverable drag 5%', '$344,080 / yr measured burden'],
-  ['sc', 'Governance weight × structural legibility', 'Clarity readings', 'Change-pressure risk.', '960 annual burden hours', 'Productive work 93%', 'Recoverable drag 2%', '$74,880 / yr measured burden'],
-  ['ip', 'Institutional condition × compensatory dependence', 'Burden composition', 'Self-reported change.', '8,448 annual burden hours', 'Productive work 74%', 'Recoverable drag 9%', '$844,800 / yr measured burden'],
+  ['os', 'Governance weight × execution responsiveness', 'Burden composition', 'Self-reported change.', 'Worsening', '5,280 annual burden hours', 'Productive work 76%', 'Recoverable drag 8%', '$485,760 / yr measured burden'],
+  ['dv', 'Governance weight × execution responsiveness', 'Drag composition', 'Self-reported change.', 'Worsening', '3,128 annual burden hours', 'Productive work 78%', 'Recoverable drag 5%', '$344,080 / yr measured burden'],
+  ['sc', 'Governance weight × structural legibility', 'Clarity readings', 'Change-pressure risk.', 'No elevated change-pressure signal.', '960 annual burden hours', 'Productive work 93%', 'Recoverable drag 2%', '$74,880 / yr measured burden'],
+  ['ip', 'Institutional condition × compensatory dependence', 'Burden composition', 'Self-reported change.', 'Worsening', '8,448 annual burden hours', 'Productive work 74%', 'Recoverable drag 9%', '$844,800 / yr measured burden'],
 ];
-for (const [key, quadrantHeading, compositionHeading, changeLabel, hoursToken, productiveToken, recoverableToken, coverCostToken] of diagnostics) {
+for (const [key, quadrantHeading, compositionHeading, changeLabel, changeState, hoursToken, productiveToken, recoverableToken, coverCostToken] of diagnostics) {
   const shell = await openTab(key);
   const txt = await shell.textContent();
   assert(txt.includes(quadrantHeading), `${key} quadrant heading mismatch`);
   assert(txt.includes(compositionHeading), `${key} missing ${compositionHeading}`);
   assert(txt.includes('Where to focus first'), `${key} missing Where to focus first`);
   assert(txt.includes(changeLabel), `${key} missing bounded single-run change label`);
+  assert(txt.includes(changeState), `${key} change-state language mismatch: ${changeState}`);
   assert(txt.includes(hoursToken), `${key} sample economics not current: ${hoursToken}`);
   assert(txt.includes(productiveToken), `${key} capacity allocation not current: ${productiveToken}`);
   assert(txt.includes(recoverableToken), `${key} recoverable capacity allocation not current: ${recoverableToken}`);

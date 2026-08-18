@@ -267,15 +267,23 @@
   // Reads the run's exported result shape (full_result_json) with broad fallbacks,
   // mirroring the synthesis lib's extractor so field names line up.
   // All four scorers emit `trajectory` as an object ({direction, label, ...}).
-  // Pull the human label out of it; fall back to plain direction words.
-  function labelFromTrajectory(t) {
+  // Customer reports express directional state as organizational health direction,
+  // not as the direction of a negative condition. Internal scorer direction values
+  // remain untouched: `up` still means more burden/drag/strain and therefore maps
+  // to Worsening; `down` maps to Improving. Structural Clarity is a change-pressure
+  // risk signal rather than a trend signal, so its scorer label remains explicit.
+  function labelFromTrajectory(toolType, t) {
     if (!t || typeof t !== "object") return "";
-    if (typeof t.label === "string" && t.label.trim()) return t.label.trim();
+    const raw = typeof t.label === "string" ? t.label.trim() : "";
+    const toolKey = String(toolType || "").toLowerCase().replace(/[-\s]+/g, "_");
+    if (toolKey === "structural_clarity") return raw;
+    if (t.self_reported === false || t.measurement_basis === "not_measured" || t.delta === null || /not established/i.test(raw)) return "Not established";
+    if (t.stated === "unsure" || /unclear/i.test(raw)) return "Direction unclear";
     const dir = String(t.direction || "").toLowerCase();
-    if (dir === "up") return "Rising";
-    if (dir === "down") return "Easing";
-    if (dir === "flat") return "Holding steady";
-    return "";
+    if (dir === "up") return "Worsening";
+    if (dir === "down") return "Improving";
+    if (dir === "flat") return "Steady";
+    return raw;
   }
 
   function fromRun(run) {
@@ -288,7 +296,7 @@
     const score = r.score != null ? r.score : (r.cross_diagnostic_score != null ? r.cross_diagnostic_score : "—");
     const band = firstStr(r.band, r.score_band, r.condition_band, "—");
     const benchmark = firstStr(r.benchmark_position, r.benchmarkPosition, r.peer_position, "—");
-    const trajectory = firstStr(r.trajectory_label, r.trajectory_signal, labelFromTrajectory(r.trajectory), r.trajectory, "—");
+    const trajectory = firstStr(labelFromTrajectory(toolType, r.trajectory), r.trajectory_label, r.trajectory_signal, r.trajectory, "—");
     const driver = firstStr(
       r.primary_driver, r.primary_constraint, r.primary_exposure_source,
       r.primary_burden_source, r.primary_structural_weakness, "—"
