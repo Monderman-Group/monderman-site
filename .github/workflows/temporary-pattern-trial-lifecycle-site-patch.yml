@@ -29,6 +29,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Repair temporary patch anchor
+        run: python scripts/temporary_pattern_trial_lifecycle_site_patch_fix.py
       - name: Apply guarded lifecycle UX patch
         run: python scripts/temporary_pattern_trial_lifecycle_site_patch.py
       - name: Validate lifecycle UX patch
