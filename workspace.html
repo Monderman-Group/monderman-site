@@ -584,7 +584,7 @@ body{transition:background-color .25s ease,color .25s ease}
     }
 
     // Overview never infers an organization-wide condition from unrelated scopes.
-    function includedCandidates(runs){ return (runs||[]).filter(r=>r.status==="promoted" && r.included_in_aggregates!==false); }
+    function includedCandidates(runs){ return (runs||[]).filter(r=>r.status==="promoted" && r.included_in_aggregates===true && ["included","included_with_caution"].includes(r.normalization_status)); }
 
     // ---- data (preserved) ----
     async function ensureWorkspace(user){

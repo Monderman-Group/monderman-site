@@ -717,6 +717,7 @@ body{transition:background-color .25s ease, color .25s ease}
       "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
       { auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" } }
     );
+    const API_BASE = "https://monderman-api.onrender.com";
 
     const PLAN_LABEL = { trial:"Trial", signal:"Signal", pattern:"Pattern", enterprise:"Enterprise", // legacy values kept so an old row still renders a name rather than a blank
                          free:"Trial", baseline:"Signal", advisory:"Pattern" };
@@ -789,10 +790,10 @@ body{transition:background-color .25s ease, color .25s ease}
 
     function qualityPill(r){
       const st=r.normalization_status||null;
-      if(st==="included") return `<span class="spill spill-promoted">Included</span>`;
-      if(st==="included_with_caution") return `<span class="spill spill-staged">Included with caution</span>`;
-      if(st==="excluded_from_aggregates"||r.included_in_aggregates===false) return `<span class="spill spill-archived">Excluded from aggregates</span>`;
-      return `<span class="spill">Not yet screened</span>`;
+      if(st==="included") return `<span class="spill spill-promoted">Reviewed</span>`;
+      if(st==="included_with_caution") return `<span class="spill spill-staged">Reviewed · caution</span>`;
+      if(st==="excluded_from_aggregates"||r.included_in_aggregates===false) return `<span class="spill spill-archived">Not eligible for analysis</span>`;
+      return `<span class="spill">Not yet reviewed</span>`;
     }
     function actionsFor(r){
       if(!["admin","owner"].includes(String(state.role||"").toLowerCase())) return "";
@@ -804,7 +805,7 @@ body{transition:background-color .25s ease, color .25s ease}
         return `<button class="ract" data-act="staged" data-id="${id}">Restore</button>`;
       }
       // staged
-      return `<button class="ract primary" data-act="promoted" data-id="${id}">Include in analysis</button><button class="ract danger" data-act="archived" data-id="${id}">Archive</button>`;
+      return `<button class="ract primary" data-act="promoted" data-id="${id}">Review & include</button><button class="ract danger" data-act="archived" data-id="${id}">Archive</button>`;
     }
     function runRowHTML(r){
       const sc = asNum(r.score);
@@ -838,20 +839,49 @@ body{transition:background-color .25s ease, color .25s ease}
 
     function flash(kind,msg){ $("runMsg").innerHTML = `<div class="msg ${kind}">${esc(msg)}</div>`; if(kind==="ok") setTimeout(()=>{ if($("runMsg")) $("runMsg").innerHTML=""; }, 4000); }
 
+    const REVIEW_ELIGIBLE = new Set(["included", "included_with_caution"]);
+    async function reviewRunForInclusion(run){
+      const { data } = await supabase.auth.getSession();
+      const token = data?.session?.access_token;
+      if(!token) throw new Error("Your Workspace session has expired. Sign in again before reviewing this run.");
+      const response = await fetch(`${API_BASE}/api/normalization/normalize-run/${encodeURIComponent(run.id)}`, {
+        method:"POST",
+        headers:{ "Content-Type":"application/json", Authorization:"Bearer "+token },
+        body:"{}"
+      });
+      const payload = await response.json().catch(()=>({}));
+      if(!response.ok || payload.ok===false) throw new Error(payload.error || `Review failed (HTTP ${response.status})`);
+      const reviewed = payload.run || {};
+      const quality = reviewed.normalization_status || payload.normalization?.normalization_status || null;
+      const aggregateEligible = reviewed.included_in_aggregates ?? payload.normalization?.included_in_aggregates;
+      run.normalization_status = quality;
+      run.included_in_aggregates = aggregateEligible === true;
+      if(reviewed.normalization_score!==undefined) run.normalization_score=reviewed.normalization_score;
+      return REVIEW_ELIGIBLE.has(quality) && aggregateEligible === true;
+    }
+
     async function setStatus(id, status){
       const run = state.runs.find(r=>r.id===id); if(!run) return;
       const prev = run.status;
       try{
+        if(status==="promoted"){
+          const eligible = await reviewRunForInclusion(run);
+          if(!eligible){
+            render();
+            flash("bad", "Review complete — this run is not eligible for Analysis or Synthesis. It remains Staged.");
+            return;
+          }
+        }
         const { error } = await supabase.from("diagnostic_runs").update({ status }).eq("id", id);
         if(error) throw error;
         run.status = status;
         render();
-        const note = status==="promoted" ? "Included in analysis — this run is now eligible for Analysis and Synthesis."
+        const note = status==="promoted" ? "Reviewed and Included — this run is now eligible for Analysis and Synthesis."
           : (prev==="promoted" && status==="staged") ? "Removed from analysis and returned to Staged."
           : status==="archived" ? "Archived." : "Restored to staged.";
         flash("ok", note);
       }catch(e){
-        flash("bad", "Couldn’t update that run — including and archiving are admin-only. (" + (e.message||"error") + ")");
+        flash("bad", "Couldn’t update that run — " + (e.message||"please try again.") );
       }
     }
 
