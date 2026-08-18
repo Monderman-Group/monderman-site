@@ -41,6 +41,17 @@ for name in ['decision-velocity.html','operational-systems.html','structural-cla
   if not tags or not any('integrity=' in tag and 'crossorigin=' in tag and re.search(r'\bdefer\b',tag,re.I) for tag in tags):
    e.append(name+': deferred SRI library '+url)
 
+# Pattern trial contract: explicit, no-card, one-use and non-renewing.
+trial=(r/'pattern-trial.html').read_text(errors='ignore')
+for token in ['Use the full Pattern Workspace for 30 days.','No card is required to start','does not renew automatically','/api/billing/start-pattern-trial','pattern_trial_already_used','trial_requires_admin','Nothing was charged','One Pattern trial per Workspace']:
+ if token not in trial:e.append('pattern trial contract '+token)
+pattern=(r/'plan-pattern.html').read_text(errors='ignore')
+for token in ['href="pattern-trial.html"','Start free 30-day trial','No card required','does not renew automatically']:
+ if token not in pattern:e.append('pattern trial entry '+token)
+shell=(r/'workspace-shell.js').read_text(errors='ignore')
+for token in ['subscription_status','pattern_trial_ends_at','org.subscription_status === "trialing"','Pattern trial · ${days} day']:
+ if token not in shell:e.append('pattern trial shell '+token)
+
 print('frontend release errors:',len(e))
 for x in e:print('ERROR',x)
 sys.exit(bool(e))
