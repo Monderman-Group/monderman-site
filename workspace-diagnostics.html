@@ -728,6 +728,27 @@ body{transition:background-color .25s ease, color .25s ease}
     const $ = id => document.getElementById(id);
     function setText(id,v){ const e=$(id); if(e&&v!=null) e.textContent=v; }
     function cap(s){ return s ? s.charAt(0).toUpperCase()+s.slice(1) : (s||""); }
+    function trialDaysLeft(org){
+      if(!org || org.plan!=="pattern" || org.subscription_status!=="trialing" || !org.pattern_trial_ends_at) return null;
+      const ms=Date.parse(org.pattern_trial_ends_at)-Date.now();
+      if(!Number.isFinite(ms)) return null;
+      return Math.max(0,Math.ceil(ms/86400000));
+    }
+    function renderRailPlan(org){
+      setText("ws5Plan", PLAN_LABEL[org?.plan]||org?.plan||"Trial");
+      const chip=document.querySelector(".ws5-planchip");
+      if(!chip) return;
+      chip.querySelector("#ws5TrialTag")?.remove();
+      const days=trialDaysLeft(org);
+      if(days==null) return;
+      const a=document.createElement("a");
+      a.id="ws5TrialTag";
+      a.href="plan-pattern.html";
+      a.textContent=` · trial · ${days}d left`;
+      a.style.cssText="color:#A9CFD2;text-decoration:none;font-weight:600";
+      a.title="Pattern evaluation — choose a paid plan explicitly to continue after the trial";
+      chip.appendChild(a);
+    }
     function toolLabel(r){ return (r.tool_label && r.tool_label.trim()) || TOOL[r.tool_type] || r.tool_type || "Diagnostic"; }
     function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
     function initials(name,email){ const b=(name&&name.trim())||(email||"").split("@")[0]||""; const p=b.split(/\s+/).filter(Boolean); return (p.length>=2?(p[0][0]+p[p.length-1][0]):b.slice(0,2)||"M").toUpperCase(); }
@@ -935,12 +956,12 @@ body{transition:background-color .25s ease, color .25s ease}
       const name=user.user_metadata?.full_name || user.user_metadata?.name || user.email || "Monderman User";
       setText("ws5UserName",name); setText("ws5Ava", initials(name,user.email));
       try{
-        const { data:m } = await supabase.from("organization_members").select("organization_id, role, organizations(name, plan, anonymous_responses_enabled, campaigns_enabled, respondent_pool, respondents_used)").limit(1).maybeSingle();
+        const { data:m } = await supabase.from("organization_members").select("organization_id, role, organizations(name, plan, anonymous_responses_enabled, campaigns_enabled, respondent_pool, respondents_used, subscription_status, pattern_trial_ends_at)").limit(1).maybeSingle();
         state.orgId = m?.organization_id || null;
         state.role = m?.role || "viewer"; state.organization=m?.organizations||null;
         setText("ws5UserRole", cap(state.role));
         setText("ws5Org", (m?.organizations?.name)||"Personal workspace");
-        setText("ws5Plan", PLAN_LABEL[m?.organizations?.plan]||m?.organizations?.plan||"Trial");
+        renderRailPlan(m?.organizations||null);
         const anon=$("fAnon"); if(anon){ const enabled=m?.organizations?.anonymous_responses_enabled===true; anon.disabled=!enabled; if(!enabled){ anon.checked=false; anon.title="Anonymous participant responses are included with Pattern and Enterprise."; const note=$("anonNote"); if(note) note.insertAdjacentHTML("afterbegin","<b>Plan note:</b> Anonymous participant responses are included with Pattern and Enterprise.<br>"); } }
       }catch(e){ setText("ws5UserRole","Viewer"); setText("ws5Org","Workspace"); setText("ws5Plan","—"); }
 
@@ -988,6 +1009,27 @@ body{transition:background-color .25s ease, color .25s ease}
     const $ = id => document.getElementById(id);
     function setText(id,v){ const e=$(id); if(e&&v!=null) e.textContent=v; }
     function cap(s){ return s ? s.charAt(0).toUpperCase()+s.slice(1) : (s||""); }
+    function trialDaysLeft(org){
+      if(!org || org.plan!=="pattern" || org.subscription_status!=="trialing" || !org.pattern_trial_ends_at) return null;
+      const ms=Date.parse(org.pattern_trial_ends_at)-Date.now();
+      if(!Number.isFinite(ms)) return null;
+      return Math.max(0,Math.ceil(ms/86400000));
+    }
+    function renderRailPlan(org){
+      setText("ws5Plan", PLAN_LABEL[org?.plan]||org?.plan||"Trial");
+      const chip=document.querySelector(".ws5-planchip");
+      if(!chip) return;
+      chip.querySelector("#ws5TrialTag")?.remove();
+      const days=trialDaysLeft(org);
+      if(days==null) return;
+      const a=document.createElement("a");
+      a.id="ws5TrialTag";
+      a.href="plan-pattern.html";
+      a.textContent=` · trial · ${days}d left`;
+      a.style.cssText="color:#A9CFD2;text-decoration:none;font-weight:600";
+      a.title="Pattern evaluation — choose a paid plan explicitly to continue after the trial";
+      chip.appendChild(a);
+    }
     function toolLabel(t){ return TOOL[t]||t||"\u2014"; }
     function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
     function initials(name,email){ const b=(name&&name.trim())||(email||"").split("@")[0]||""; const p=b.split(/\s+/).filter(Boolean); return (p.length>=2?(p[0][0]+p[p.length-1][0]):b.slice(0,2)||"M").toUpperCase(); }
@@ -1549,7 +1591,7 @@ body{transition:background-color .25s ease, color .25s ease}
       if(!user){ window.location.replace("signin.html?next=workspace-diagnostics.html"); return; }
       state.user=user; state.userId=user.id;
       try{
-        const { data:m } = await supabase.from("organization_members").select("organization_id, role, organizations(name, plan, anonymous_responses_enabled, campaigns_enabled, respondent_pool, respondents_used)").limit(1).maybeSingle();
+        const { data:m } = await supabase.from("organization_members").select("organization_id, role, organizations(name, plan, anonymous_responses_enabled, campaigns_enabled, respondent_pool, respondents_used, subscription_status, pattern_trial_ends_at)").limit(1).maybeSingle();
         state.orgId = m?.organization_id || null;
         state.role = m?.role || "viewer";
       }catch(e){}

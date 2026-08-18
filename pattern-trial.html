@@ -21,6 +21,7 @@
     button{width:100%;border:0;border-radius:10px;background:var(--accent);color:white;padding:15px 18px;font:600 15px 'Neue Haas Grotesk',sans-serif;cursor:pointer;margin-top:12px}button:hover{background:var(--accent-d)}button:disabled{opacity:.55;cursor:default}
     .msg{display:none;margin-top:16px;border-radius:9px;padding:12px 14px;font-size:13.5px;line-height:1.55}.msg.err{display:block;background:#FBEBE9;color:#7A2A22}.msg.ok{display:block;background:#EAF4EE;color:#285D43}
     .fine{font-size:12.5px;line-height:1.55;color:#8A8B90;text-align:center;margin:15px 0 0}
+    .confirm{display:flex;gap:10px;align-items:flex-start;margin:18px 0 4px;padding:13px 14px;border:1px solid var(--line);border-radius:10px;background:#FCFBF8;font-size:13px;line-height:1.5;color:#4E5054}.confirm input{margin-top:3px;flex:0 0 auto}
   </style>
 </head>
 <body>
@@ -36,7 +37,8 @@
       <li>Anonymous participant responses</li>
       <li>Pattern Workspace capacity for five analysts and two admins</li>
     </ul>
-    <div class="terms"><strong>What happens on day 30:</strong> the Pattern trial ends automatically. If you have not explicitly chosen a paid subscription, nothing is charged and your Workspace returns to the standard Trial level. Your saved work remains in your Workspace.</div>
+    <div class="terms"><strong>What happens on day 30:</strong> the Pattern trial ends automatically. If you have not explicitly chosen a paid subscription, nothing is charged and your Workspace returns to the standard Trial level. Your saved work is retained. Standard Trial access limits apply after day 30; choosing a paid plan restores the applicable Pattern access.</div>
+    <label class="confirm"><input type="checkbox" id="ackStart"><span>I understand this one-time 30-day evaluation starts immediately for this Workspace when I continue.</span></label>
     <button id="startBtn" disabled>Start my 30-day Pattern trial</button>
     <div id="msg" class="msg" role="status" aria-live="polite"></div>
     <p class="fine">One Pattern trial per Workspace. An organization admin must start the trial.</p>
@@ -47,11 +49,14 @@
     const { createClient } = window.supabase;
     const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co", "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz", { auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"} });
     const API_BASE = "https://monderman-api.onrender.com";
-    const btn = document.getElementById("startBtn"), msg = document.getElementById("msg");
+    const btn = document.getElementById("startBtn"), msg = document.getElementById("msg"), ack = document.getElementById("ackStart");
+    let sessionReady=false;
     function show(text, kind="err"){ msg.textContent=text; msg.className="msg "+kind; }
+    function syncStart(){ btn.disabled=!(sessionReady && ack.checked); }
     const { data } = await sb.auth.getSession();
     if(!data?.session){ location.replace("signin.html?next="+encodeURIComponent("pattern-trial.html")); }
-    else { btn.disabled=false; }
+    else { sessionReady=true; syncStart(); }
+    ack.addEventListener("change",syncStart);
     btn.addEventListener("click", async()=>{
       btn.disabled=true; btn.textContent="Starting your trial…"; msg.className="msg";
       try{
@@ -68,7 +73,7 @@
         };
         show(messages[out.error] || "The Pattern trial could not be started. Nothing was charged.");
       }catch(e){ show("The Pattern trial could not be reached. Nothing was charged. Please try again."); }
-      btn.disabled=false; btn.textContent="Start my 30-day Pattern trial";
+      btn.textContent="Start my 30-day Pattern trial"; syncStart();
     });
   </script>
 </body>
