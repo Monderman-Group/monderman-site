@@ -133,6 +133,26 @@
     });
   }
 
+  // Customer-safe UI context only. No result data, diagnostic inputs, org data,
+  // participant data, or hidden implementation details are sent to Hans.
+  function workspaceContext() {
+    var pageMap = {
+      "workspace.html": "overview",
+      "workspace-diagnostics.html": "measure",
+      "workspace-analysis.html": "analysis",
+      "workspace-actions.html": "action_plans",
+      "workspace-settings.html": "settings"
+    };
+    var file = (location.pathname.split("/").pop() || "workspace.html").toLowerCase();
+    var planEl = document.getElementById("ws5Plan");
+    var roleEl = document.getElementById("ws5UserRole");
+    return {
+      page: pageMap[file] || null,
+      plan: planEl ? String(planEl.textContent || "").trim().toLowerCase() : null,
+      role: roleEl ? String(roleEl.textContent || "").trim().toLowerCase() : null
+    };
+  }
+
   /* ---- helpers ------------------------------------------------------------- */
   function loadHistory() {
     try { var raw = sessionStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : []; }
@@ -178,7 +198,7 @@
       var res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
-        body: JSON.stringify({ messages: history.slice(-12) })
+        body: JSON.stringify({ messages: history.slice(-12), context: workspaceContext() })
       });
       var data = await res.json().catch(function () { return null; });
       hideTyping();
