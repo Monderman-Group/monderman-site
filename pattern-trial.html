@@ -29,7 +29,7 @@
   <main><div class="card">
     <p class="eyebrow">Pattern evaluation</p>
     <h1>Use the full Pattern Workspace for 30 days.</h1>
-    <p class="lead">A one-time evaluation for your Workspace. No card is required to start, and the trial does not renew automatically.</p>
+    <p class="lead">A one-time evaluation for a Workspace currently on the standard Trial level. No card is required to start, and the trial does not renew automatically.</p>
     <ul>
       <li>All four Diagnostics, standard depths and vantages</li>
       <li>Diagnostic campaigns and up to 500 participant responses</li>
@@ -38,7 +38,7 @@
       <li>Pattern Workspace capacity for five analysts and two admins</li>
     </ul>
     <div class="terms"><strong>What happens on day 30:</strong> the Pattern trial ends automatically. If you have not explicitly chosen a paid subscription, nothing is charged and your Workspace returns to the standard Trial level. Your saved work is retained. Standard Trial access limits apply after day 30; choosing a paid plan restores the applicable Pattern access.</div>
-    <label class="confirm"><input type="checkbox" id="ackStart"><span>I understand this one-time 30-day evaluation starts immediately for this Workspace when I continue.</span></label>
+    <label class="confirm"><input type="checkbox" id="ackStart" disabled><span>I understand this one-time 30-day evaluation starts immediately for this Workspace when I continue.</span></label>
     <button id="startBtn" disabled>Start my 30-day Pattern trial</button>
     <div id="msg" class="msg" role="status" aria-live="polite"></div>
     <p class="fine">One Pattern trial per Workspace. An organization admin must start the trial.</p>
@@ -53,9 +53,21 @@
     let sessionReady=false;
     function show(text, kind="err"){ msg.textContent=text; msg.className="msg "+kind; }
     function syncStart(){ btn.disabled=!(sessionReady && ack.checked); }
+    function denyStart(text){ sessionReady=false; ack.checked=false; ack.disabled=true; syncStart(); show(text); }
     const { data } = await sb.auth.getSession();
     if(!data?.session){ location.replace("signin.html?next="+encodeURIComponent("pattern-trial.html")); }
-    else { sessionReady=true; syncStart(); }
+    else {
+      try{
+        const { data:membership, error } = await sb.from("organization_members")
+          .select("role, organizations(plan, pattern_trial_used_at)")
+          .limit(1).maybeSingle();
+        if(error || !membership?.organizations) denyStart("We couldn’t verify this Workspace’s trial eligibility. Please open the Workspace and try again.");
+        else if(!["admin","owner"].includes(String(membership.role||"").toLowerCase())) denyStart("Only an organization admin can start the Pattern trial.");
+        else if(membership.organizations.pattern_trial_used_at) denyStart("This Workspace has already used its one-time Pattern trial.");
+        else if(membership.organizations.plan!=="trial") denyStart("The 30-day Pattern evaluation is available to Workspaces that are currently on the standard Trial level.");
+        else { sessionReady=true; ack.disabled=false; syncStart(); }
+      }catch(e){ denyStart("We couldn’t verify this Workspace’s trial eligibility. Please try again."); }
+    }
     ack.addEventListener("change",syncStart);
     btn.addEventListener("click", async()=>{
       btn.disabled=true; btn.textContent="Starting your trial…"; msg.className="msg";
