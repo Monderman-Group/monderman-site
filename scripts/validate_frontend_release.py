@@ -64,6 +64,12 @@ for name in ['workspace-actions.html','workspace-analysis.html','workspace-diagn
  for token in ['pattern_trial_ends_at','subscription_status','ws5TrialTag','trial · ${days}d left']:
   if token not in t:e.append(name+': pattern trial rail '+token)
 
+# A staff seat paused by a plan downgrade must be explained to that user on
+# every main Workspace surface rather than looking like missing/empty data.
+theme=(r/'workspace-theme.js').read_text(errors='ignore')
+for token in ['ws5SeatPauseNotice','billing_suspended_role','Your <b>','Workspace seat is paused','Your saved work is retained','Ask a Workspace admin','platform-services.html']:
+ if token not in theme:e.append('paused seat notice '+token)
+
 print('frontend release errors:',len(e))
 for x in e:print('ERROR',x)
 sys.exit(bool(e))
