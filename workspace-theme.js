@@ -110,3 +110,45 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mountEntitlementGuard);
   else mountEntitlementGuard();
 })();
+
+/* Paused paid-seat notice.
+   Pattern can temporarily carry more Analysts/Admins than the standard Trial
+   plan. On a downgrade the database preserves excess users as ordinary Members
+   and records their prior staff role. A signed-in user should never have to
+   infer why Analysis/results suddenly disappeared, so every Workspace surface
+   shows the same explicit explanation. */
+(function () {
+  var SB_URL = "https://ptkxrzgmeldalrkfruth.supabase.co";
+  var SB_KEY = "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
+
+  function mountNotice(role) {
+    if (document.getElementById("ws5SeatPauseNotice")) return;
+    var label = role === "admin" ? "Admin" : "Analyst";
+    var box = document.createElement("aside");
+    box.id = "ws5SeatPauseNotice";
+    box.setAttribute("role", "status");
+    box.style.cssText = "position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:2147483000;max-width:760px;width:calc(100% - 32px);padding:12px 16px;border:1px solid rgba(201,130,31,.42);border-radius:10px;background:#FFF8E9;color:#4F421E;box-shadow:0 8px 28px rgba(0,0,0,.12);font:500 13px/1.5 'Neue Haas Grotesk',Helvetica,Arial,sans-serif;text-align:center";
+    box.innerHTML = "Your <b>" + label + " Workspace seat is paused</b> because this organization’s current plan has lower staff capacity. Your saved work is retained. Ask a Workspace admin to restore a paid plan or change seat assignments. <a href=\"platform-services.html\" style=\"color:#0C6E78;font-weight:700;text-decoration:none\">See plans →</a>";
+    document.body.appendChild(box);
+  }
+
+  async function checkPausedSeat() {
+    try {
+      if (!window.supabase || typeof window.supabase.createClient !== "function") return;
+      var sb = window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" } });
+      var userResult = await sb.auth.getUser();
+      var user = userResult && userResult.data && userResult.data.user;
+      if (!user) return;
+      var result = await sb.from("organization_members")
+        .select("billing_suspended_role")
+        .eq("user_id", user.id)
+        .not("billing_suspended_role", "is", null)
+        .limit(1)
+        .maybeSingle();
+      if (!result.error && result.data && result.data.billing_suspended_role) mountNotice(result.data.billing_suspended_role);
+    } catch (_e) {}
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", checkPausedSeat);
+  else checkPausedSeat();
+})();
