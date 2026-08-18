@@ -1,0 +1,39 @@
+name: Temporary Pattern trial site patch
+
+on:
+  push:
+    branches:
+      - agent/pattern-30day-trial-20260818
+    paths:
+      - '.github/workflows/temporary-pattern-trial-site-patch.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/pattern-30day-trial-20260818
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python scripts/temporary_pattern_trial_site_patch.py
+      - name: Validate patch
+        run: |
+          set -euo pipefail
+          python scripts/validate_frontend_release.py
+          git diff --check
+      - name: Commit product patch
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add plan-pattern.html
+          git diff --cached --quiet && { echo "No product patch changes produced"; exit 1; }
+          git commit -m "Add Pattern trial entry point"
+          git push origin HEAD:agent/pattern-30day-trial-20260818
