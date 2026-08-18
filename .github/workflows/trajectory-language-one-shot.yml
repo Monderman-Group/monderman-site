@@ -1,0 +1,193 @@
+name: One-shot trajectory language consistency repair
+
+on:
+  push:
+    branches:
+      - agent/trajectory-language-consistency-20260817
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/trajectory-language-consistency-20260817
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Apply exact customer-facing trajectory language repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def replace_exact(path, old, new, expected=1):
+              p = Path(path)
+              text = p.read_text(encoding="utf-8")
+              count = text.count(old)
+              if count != expected:
+                  raise SystemExit(f"{path}: expected {expected} matches, found {count} for replacement beginning {old[:80]!r}")
+              p.write_text(text.replace(old, new), encoding="utf-8")
+
+          chip_old = '''const dir = result?.trajectory?.direction || "flat";
+          const arrow = dir === "up" ? "↑" : dir === "down" ? "↓" : "→";
+          const cls = dir === "up" ? "trajectory-up" : dir === "down" ? "trajectory-down" : "trajectory-flat";
+          trajectoryChipHtml = `<span class="trajectory-chip ${cls}"><span class="traj-arrow">${arrow}</span><span>${escapeHtml(result?.trajectory?.label || "No strong directional signal")}</span></span>`;'''
+
+          chip_new = '''const dir = result?.trajectory?.direction || "flat";
+          const rawTrajectoryLabel = String(result?.trajectory?.label || "").trim();
+          const trajectoryNotEstablished = result?.trajectory?.self_reported === false
+            || result?.trajectory?.measurement_basis === "not_measured"
+            || result?.trajectory?.delta === null
+            || /not established/i.test(rawTrajectoryLabel);
+          const trajectoryUnclear = result?.trajectory?.stated === "unsure" || /unclear/i.test(rawTrajectoryLabel);
+          const arrow = trajectoryNotEstablished || trajectoryUnclear ? "→" : dir === "up" ? "↓" : dir === "down" ? "↑" : "→";
+          const cls = dir === "up" ? "trajectory-up" : dir === "down" ? "trajectory-down" : "trajectory-flat";
+          const displayTrajectoryLabel = trajectoryNotEstablished
+            ? "Not established"
+            : trajectoryUnclear
+            ? "Direction unclear"
+            : dir === "up"
+            ? "Worsening"
+            : dir === "down"
+            ? "Improving"
+            : "Steady";
+          trajectoryChipHtml = `<span class="trajectory-chip ${cls}"><span class="traj-arrow">${arrow}</span><span>${escapeHtml(displayTrajectoryLabel)}</span></span>`;'''
+
+          spark_old = 'const arrow = dir === "up" ? "↗" : dir === "down" ? "↘" : "→";'
+          spark_new = '''const rawTrajectoryLabel = String(result?.trajectory?.label || "").trim();
+          const trajectoryNotEstablished = result?.trajectory?.self_reported === false
+            || result?.trajectory?.measurement_basis === "not_measured"
+            || result?.trajectory?.delta === null
+            || /not established/i.test(rawTrajectoryLabel);
+          const trajectoryUnclear = result?.trajectory?.stated === "unsure" || /unclear/i.test(rawTrajectoryLabel);
+          const arrow = trajectoryNotEstablished || trajectoryUnclear ? "→" : dir === "up" ? "↘" : dir === "down" ? "↗" : "→";'''
+
+          for product in ["operational-systems.html", "decision-velocity.html", "institutional-performance.html"]:
+              replace_exact(product, chip_old, chip_new)
+              replace_exact(product, spark_old, spark_new)
+
+          renderer_old = '''  // All four scorers emit `trajectory` as an object ({direction, label, ...}).
+            // Pull the human label out of it; fall back to plain direction words.
+            function labelFromTrajectory(t) {
+              if (!t || typeof t !== "object") return "";
+              if (typeof t.label === "string" && t.label.trim()) return t.label.trim();
+              const dir = String(t.direction || "").toLowerCase();
+              if (dir === "up") return "Rising";
+              if (dir === "down") return "Easing";
+              if (dir === "flat") return "Holding steady";
+              return "";
+            }'''
+
+          renderer_new = '''  // All four scorers emit `trajectory` as an object ({direction, label, ...}).
+            // Customer reports express directional state as organizational health direction,
+            // not as the direction of a negative condition. Internal scorer direction values
+            // remain untouched: `up` still means more burden/drag/strain and therefore maps
+            // to Worsening; `down` maps to Improving. Structural Clarity is a change-pressure
+            // risk signal rather than a trend signal, so its scorer label remains explicit.
+            function labelFromTrajectory(toolType, t) {
+              if (!t || typeof t !== "object") return "";
+              const raw = typeof t.label === "string" ? t.label.trim() : "";
+              const toolKey = String(toolType || "").toLowerCase().replace(/[-\\s]+/g, "_");
+              if (toolKey === "structural_clarity") return raw;
+              if (t.self_reported === false || t.measurement_basis === "not_measured" || t.delta === null || /not established/i.test(raw)) return "Not established";
+              if (t.stated === "unsure" || /unclear/i.test(raw)) return "Direction unclear";
+              const dir = String(t.direction || "").toLowerCase();
+              if (dir === "up") return "Worsening";
+              if (dir === "down") return "Improving";
+              if (dir === "flat") return "Steady";
+              return raw;
+            }'''
+          replace_exact("monderman-report.js", renderer_old, renderer_new)
+
+          trajectory_line_old = '    const trajectory = firstStr(r.trajectory_label, r.trajectory_signal, labelFromTrajectory(r.trajectory), r.trajectory, "—");'
+          trajectory_line_new = '    const trajectory = firstStr(labelFromTrajectory(toolType, r.trajectory), r.trajectory_label, r.trajectory_signal, r.trajectory, "—");'
+          replace_exact("monderman-report.js", trajectory_line_old, trajectory_line_new)
+
+          for old in ["Operational creep is rising", "Rising drag pressure", "Rising strain"]:
+              replace_exact("sample-report.html", old, "Worsening", expected=2)
+
+          validator_old = '''# Marketing copy must obey the same single-run and benchmark boundaries.
+          for token in ["<strong>Self-reported change.</strong> Operational creep is rising.", "<strong>Self-reported change.</strong> Rising drag pressure.", "<strong>Change-pressure risk.</strong> No elevated change-pressure signal.", "<strong>Self-reported change.</strong> Rising strain."]:
+              require(token in sample, f"sample missing bounded change language: {token}")'''
+          validator_new = '''# Marketing copy must obey the same single-run and benchmark boundaries.
+          # Directional copy is expressed as health direction so arrow, color, and words
+          # cannot disagree when the measured condition itself is negatively framed.
+          require(sample.count('<strong>Self-reported change.</strong> Worsening.') == 3, "OS/DV/IP samples must use health-direction worsening language")
+          require(sample.count('<span class="trend-arrow down">↘</span><strong>Worsening</strong>') == 3, "OS/DV/IP sample arrow and worsening label must stay paired")
+          require("<strong>Change-pressure risk.</strong> No elevated change-pressure signal." in sample, "SC sample lost bounded change-pressure language")
+          for stale in ["Operational creep is rising", "Rising drag pressure", "Rising strain"]:
+              require(stale not in sample, f"condition-direction wording remains in sample: {stale}")
+          for key in ["os", "dv", "ip"]:
+              require("Worsening" in products[key] and "Improving" in products[key] and "Steady" in products[key], f"{key} customer surface lacks normalized health-direction labels")
+              require(re.search(r'dir\\s*===\\s*"up"\\s*\\?\\s*"↓"', products[key]), f"{key} worsening direction does not render downward")
+              require(re.search(r'dir\\s*===\\s*"down"\\s*\\?\\s*"↑"', products[key]), f"{key} improving direction does not render upward")
+              require("Not established" in products[key] and "Direction unclear" in products[key], f"{key} customer surface does not preserve uncertain trajectory states")
+          for token in ['return "Worsening";', 'return "Improving";', 'return "Steady";', 'return "Not established";', 'return "Direction unclear";']:
+              require(token in renderer, f"shared report renderer missing normalized trajectory contract: {token}")'''
+          replace_exact("scripts/validate_sample_product_fidelity.py", validator_old, validator_new)
+
+          smoke_rows_old = '''const diagnostics = [
+            ['os', 'Governance weight × execution responsiveness', 'Burden composition', 'Self-reported change.', '5,280 annual burden hours', 'Productive work 76%', 'Recoverable drag 8%', '$485,760 / yr measured burden'],
+            ['dv', 'Governance weight × execution responsiveness', 'Drag composition', 'Self-reported change.', '3,128 annual burden hours', 'Productive work 78%', 'Recoverable drag 5%', '$344,080 / yr measured burden'],
+            ['sc', 'Governance weight × structural legibility', 'Clarity readings', 'Change-pressure risk.', '960 annual burden hours', 'Productive work 93%', 'Recoverable drag 2%', '$74,880 / yr measured burden'],
+            ['ip', 'Institutional condition × compensatory dependence', 'Burden composition', 'Self-reported change.', '8,448 annual burden hours', 'Productive work 74%', 'Recoverable drag 9%', '$844,800 / yr measured burden'],
+          ];
+          for (const [key, quadrantHeading, compositionHeading, changeLabel, hoursToken, productiveToken, recoverableToken, coverCostToken] of diagnostics) {'''
+          smoke_rows_new = '''const diagnostics = [
+            ['os', 'Governance weight × execution responsiveness', 'Burden composition', 'Self-reported change.', 'Worsening', '5,280 annual burden hours', 'Productive work 76%', 'Recoverable drag 8%', '$485,760 / yr measured burden'],
+            ['dv', 'Governance weight × execution responsiveness', 'Drag composition', 'Self-reported change.', 'Worsening', '3,128 annual burden hours', 'Productive work 78%', 'Recoverable drag 5%', '$344,080 / yr measured burden'],
+            ['sc', 'Governance weight × structural legibility', 'Clarity readings', 'Change-pressure risk.', 'No elevated change-pressure signal.', '960 annual burden hours', 'Productive work 93%', 'Recoverable drag 2%', '$74,880 / yr measured burden'],
+            ['ip', 'Institutional condition × compensatory dependence', 'Burden composition', 'Self-reported change.', 'Worsening', '8,448 annual burden hours', 'Productive work 74%', 'Recoverable drag 9%', '$844,800 / yr measured burden'],
+          ];
+          for (const [key, quadrantHeading, compositionHeading, changeLabel, changeState, hoursToken, productiveToken, recoverableToken, coverCostToken] of diagnostics) {'''
+          replace_exact("scripts/sample_product_fidelity_smoke.mjs", smoke_rows_old, smoke_rows_new)
+
+          smoke_assert_old = '''  assert(txt.includes(changeLabel), `${key} missing bounded single-run change label`);
+            assert(txt.includes(hoursToken), `${key} sample economics not current: ${hoursToken}`);'''
+          smoke_assert_new = '''  assert(txt.includes(changeLabel), `${key} missing bounded single-run change label`);
+            assert(txt.includes(changeState), `${key} change-state language mismatch: ${changeState}`);
+            assert(txt.includes(hoursToken), `${key} sample economics not current: ${hoursToken}`);'''
+          replace_exact("scripts/sample_product_fidelity_smoke.mjs", smoke_assert_old, smoke_assert_new)
+
+          smoke_boundary_old = '''assert(bodyText.includes('return time, money, and productive capacity to the organization'), 'canonical organizational value statement missing');'''
+          smoke_boundary_new = '''assert(bodyText.includes('return time, money, and productive capacity to the organization'), 'canonical organizational value statement missing');
+          for (const stale of ['Operational creep is rising', 'Rising drag pressure', 'Rising strain']) {
+            assert(!bodyText.includes(stale), `condition-direction wording remains in sample: ${stale}`);
+          }'''
+          replace_exact("scripts/sample_product_fidelity_smoke.mjs", smoke_boundary_old, smoke_boundary_new)
+          PY
+
+      - name: Run focused pre-commit validation
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check monderman-report.js
+          node --check scripts/sample_product_fidelity_smoke.mjs
+          python scripts/validate_sample_product_fidelity.py
+          python scripts/validate_frontend_release.py
+          git diff --check
+
+      - name: Commit repaired product files and remove one-shot workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/trajectory-language-one-shot.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add operational-systems.html decision-velocity.html institutional-performance.html monderman-report.js sample-report.html scripts/validate_sample_product_fidelity.py scripts/sample_product_fidelity_smoke.mjs
+          git diff --cached --check
+          git commit -m "Normalize customer-facing trajectory direction language"
+          git push origin HEAD:agent/trajectory-language-consistency-20260817
