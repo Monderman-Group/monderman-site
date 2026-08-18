@@ -27,6 +27,11 @@ while i < len(lines):
     out.append(line); i+=1
 if found!=1:
     raise SystemExit(f'expected one Analysis/actions cap anchor, found {found}')
-newseg=''.join(out)
-p.write_text(s[:start]+newseg+s[end:],encoding='utf-8')
-print('temporary site patch anchor repaired')
+s=s[:start]+''.join(out)+s[end:]
+old="s=one(s,q,'organizations(name, plan, anonymous_responses_enabled, campaigns_enabled, respondent_pool, respondents_used, subscription_status, pattern_trial_ends_at)','diagnostics trial fields first query')\n"
+new="""if s.count(q)!=2:\n raise SystemExit(f'diagnostics organization query count changed: {s.count(q)}')\ns=s.replace(q,'organizations(name, plan, anonymous_responses_enabled, campaigns_enabled, respondent_pool, respondents_used, subscription_status, pattern_trial_ends_at)',2)\n"""
+if old not in s:
+    raise SystemExit('diagnostics query patch line not found')
+s=s.replace(old,new,1)
+p.write_text(s,encoding='utf-8')
+print('temporary site patch anchors repaired')
