@@ -3990,7 +3990,13 @@ const note = $("trajectorySparklineNote");
 if (!mount || !chipMount) return;
 const dir = result?.trajectory?.direction || "flat";
 const color = dir === "up" ? "#B0392F" : dir === "down" ? "#3C8A60" : "#C9821F";
-const arrow = dir === "up" ? "↗" : dir === "down" ? "↘" : "→";
+const rawTrajectoryLabel = String(result?.trajectory?.label || "").trim();
+const trajectoryNotEstablished = result?.trajectory?.self_reported === false
+  || result?.trajectory?.measurement_basis === "not_measured"
+  || result?.trajectory?.delta === null
+  || /not established/i.test(rawTrajectoryLabel);
+const trajectoryUnclear = result?.trajectory?.stated === "unsure" || /unclear/i.test(rawTrajectoryLabel);
+const arrow = trajectoryNotEstablished || trajectoryUnclear ? "→" : dir === "up" ? "↘" : dir === "down" ? "↗" : "→";
 // A single run cannot supply a time series. Show the reported direction as a
 // symbol rather than drawing fabricated historical points.
 mount.innerHTML = `<text x="60" y="25" text-anchor="middle" font-size="24" font-weight="700" fill="${color}">${arrow}</text>`;
@@ -5427,9 +5433,24 @@ const trajectoryWrap = $("trajectorySignalWrap");
 let trajectoryChipHtml = "";
 if (trajectoryWrap) {
 const dir = result?.trajectory?.direction || "flat";
-const arrow = dir === "up" ? "↑" : dir === "down" ? "↓" : "→";
+const rawTrajectoryLabel = String(result?.trajectory?.label || "").trim();
+const trajectoryNotEstablished = result?.trajectory?.self_reported === false
+  || result?.trajectory?.measurement_basis === "not_measured"
+  || result?.trajectory?.delta === null
+  || /not established/i.test(rawTrajectoryLabel);
+const trajectoryUnclear = result?.trajectory?.stated === "unsure" || /unclear/i.test(rawTrajectoryLabel);
+const arrow = trajectoryNotEstablished || trajectoryUnclear ? "→" : dir === "up" ? "↓" : dir === "down" ? "↑" : "→";
 const cls = dir === "up" ? "trajectory-up" : dir === "down" ? "trajectory-down" : "trajectory-flat";
-trajectoryChipHtml = `<span class="trajectory-chip ${cls}"><span class="traj-arrow">${arrow}</span><span>${escapeHtml(result?.trajectory?.label || "No strong directional signal")}</span></span>`;
+const displayTrajectoryLabel = trajectoryNotEstablished
+  ? "Not established"
+  : trajectoryUnclear
+  ? "Direction unclear"
+  : dir === "up"
+  ? "Worsening"
+  : dir === "down"
+  ? "Improving"
+  : "Steady";
+trajectoryChipHtml = `<span class="trajectory-chip ${cls}"><span class="traj-arrow">${arrow}</span><span>${escapeHtml(displayTrajectoryLabel)}</span></span>`;
 trajectoryWrap.innerHTML = trajectoryChipHtml;
 }
 

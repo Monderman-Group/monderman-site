@@ -83,8 +83,20 @@ require("Design reference: --" in products["ip"], "IP export surface still label
 require("<strong>Condition profile</strong>" in products["ip"], "IP condition-profile tooltip is mislabeled")
 
 # Marketing copy must obey the same single-run and benchmark boundaries.
-for token in ["<strong>Self-reported change.</strong> Operational creep is rising.", "<strong>Self-reported change.</strong> Rising drag pressure.", "<strong>Change-pressure risk.</strong> No elevated change-pressure signal.", "<strong>Self-reported change.</strong> Rising strain."]:
-    require(token in sample, f"sample missing bounded change language: {token}")
+# Directional copy is expressed as health direction so arrow, color, and words
+# cannot disagree when the measured condition itself is negatively framed.
+require(sample.count('<strong>Self-reported change.</strong> Worsening.') == 3, "OS/DV/IP samples must use health-direction worsening language")
+require(sample.count('>Worsening</text></svg>') == 2, "OS/DV SVG direction glyphs must stay paired with worsening labels")
+require("<strong>Change-pressure risk.</strong> No elevated change-pressure signal." in sample, "SC sample lost bounded change-pressure language")
+for stale in ["Operational creep is rising", "Rising drag pressure", "Rising strain"]:
+    require(stale not in sample, f"condition-direction wording remains in sample: {stale}")
+for key in ["os", "dv", "ip"]:
+    require("Worsening" in products[key] and "Improving" in products[key] and "Steady" in products[key], f"{key} customer surface lacks normalized health-direction labels")
+    require(re.search(r'dir\s*===\s*"up"\s*\?\s*"↓"', products[key]), f"{key} worsening direction does not render downward")
+    require(re.search(r'dir\s*===\s*"down"\s*\?\s*"↑"', products[key]), f"{key} improving direction does not render upward")
+    require("Not established" in products[key] and "Direction unclear" in products[key], f"{key} customer surface does not preserve uncertain trajectory states")
+for token in ['return "Worsening";', 'return "Improving";', 'return "Steady";', 'return "Not established";', 'return "Direction unclear";']:
+    require(token in renderer, f"shared report renderer missing normalized trajectory contract: {token}")
 require("likely to continue accumulating" not in sample, "DV sample still predicts future accumulation from one run")
 require("Against comparable institutions" not in sample, "IP sample still presents the design reference as empirical peer comparison")
 require("Degraded institutional condition" in sample, "IP score 47 is not using its current certified band")
