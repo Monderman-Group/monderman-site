@@ -20,6 +20,15 @@ function initials(name, email) {
   return (base.slice(0, 2) || "M").toUpperCase();
 }
 function set(id, val) { const el = document.getElementById(id); if (el && val != null) el.textContent = val; }
+function planDisplay(org) {
+  if (!org) return "Free";
+  if (org.plan === "pattern" && org.subscription_status === "trialing" && org.pattern_trial_ends_at) {
+    const ms = new Date(org.pattern_trial_ends_at).getTime() - Date.now();
+    const days = Math.max(0, Math.ceil(ms / 86400000));
+    return `Pattern trial · ${days} day${days === 1 ? "" : "s"} left`;
+  }
+  return PLAN_LABEL[org.plan] || org.plan || "Trial";
+}
 
 (async () => {
   const page = location.pathname.split("/").pop() || "workspace.html";
@@ -40,14 +49,14 @@ function set(id, val) { const el = document.getElementById(id); if (el && val !=
   try {
     const { data: m } = await supabase
       .from("organization_members")
-      .select("role, organizations(name, plan)")
+      .select("role, organizations(name, plan, subscription_status, pattern_trial_ends_at)")
       .limit(1)
       .maybeSingle();
     const role = m?.role || "viewer";
     set("ws5UserRole", role.charAt(0).toUpperCase() + role.slice(1));
     const org = m?.organizations || null;
     set("ws5Org", (org && org.name) || "Personal workspace");
-    set("ws5Plan", (org && (PLAN_LABEL[org.plan] || org.plan)) || "Free");
+    set("ws5Plan", planDisplay(org));
   } catch (e) {
     set("ws5UserRole", "Viewer");
     set("ws5Org", "Workspace");
