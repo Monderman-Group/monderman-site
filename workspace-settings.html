@@ -381,6 +381,14 @@ body{transition:background-color .25s ease, color .25s ease}
           <div id="invitesBody" style="margin-top:16px"></div>
         </section>
 
+        <!-- WORKSPACE USERS -->
+        <section class="card">
+          <div class="card-h"><h3>Workspace users</h3><span class="note" id="memberCount"></span></div>
+          <p class="card-sub">Admins and analysts use the workspace seats included with your plan. If a plan ends, users above the lower plan's capacity are paused rather than deleted and are restored automatically when capacity returns.</p>
+          <div id="membersBody"></div>
+          <div id="memberMsg"></div>
+        </section>
+
         <!-- PEOPLE -->
         <section class="card">
           <div class="card-h"><h3>People</h3><span class="note" id="peopleCount"></span></div>
@@ -430,7 +438,7 @@ body{transition:background-color .25s ease, color .25s ease}
     const ROLE_LABEL = { admin:"Admin", analyst:"Analyst", member:"Member", participant:"Member", viewer:"Viewer" };
     const ACCEPT_PATH = "accept-invite.html";
 
-    const state = { user:null, userId:null, orgId:null, role:"viewer", isOwner:false, org:null, invites:[], people:[] };
+    const state = { user:null, userId:null, orgId:null, role:"viewer", isOwner:false, org:null, invites:[], members:[], people:[] };
 
     const $ = id => document.getElementById(id);
     function setText(id,v){ const e=$(id); if(e&&v!=null) e.textContent=v; }
@@ -448,6 +456,27 @@ body{transition:background-color .25s ease, color .25s ease}
     }
     function inviteLink(token){ try{ return new URL(ACCEPT_PATH+"?token="+encodeURIComponent(token), location.href).href; }catch(e){ return "https://monderman.com/"+ACCEPT_PATH+"?token="+token; } }
     function daysLeft(iso){ if(!iso) return null; return Math.ceil((new Date(iso).getTime()-Date.now())/86400000); }
+    function trialDaysLeft(org){
+      if(!org || org.plan!=="pattern" || org.subscription_status!=="trialing" || !org.pattern_trial_ends_at) return null;
+      const ms=Date.parse(org.pattern_trial_ends_at)-Date.now();
+      if(!Number.isFinite(ms)) return null;
+      return Math.max(0,Math.ceil(ms/86400000));
+    }
+    function renderRailPlan(org){
+      setText("ws5Plan", PLAN_LABEL[org?.plan]||org?.plan||"Trial");
+      const chip=document.querySelector(".ws5-planchip");
+      if(!chip) return;
+      chip.querySelector("#ws5TrialTag")?.remove();
+      const days=trialDaysLeft(org);
+      if(days==null) return;
+      const a=document.createElement("a");
+      a.id="ws5TrialTag";
+      a.href="plan-pattern.html";
+      a.textContent=` · trial · ${days}d left`;
+      a.style.cssText="color:#A9CFD2;text-decoration:none;font-weight:600";
+      a.title="Pattern evaluation — choose a paid plan explicitly to continue after the trial";
+      chip.appendChild(a);
+    }
 
     // ── context: user + org + role (owner is always admin) ──
     async function resolveContext(){
@@ -465,8 +494,8 @@ body{transition:background-color .25s ease, color .25s ease}
       }catch(e){}
       let org=null;
       try{
-        if(orgId){ const { data } = await supabase.from("organizations").select("id, name, plan, owner_user_id, respondent_pool, respondents_used, aggregation_limit, aggregations_used, analyst_limit, admin_limit").eq("id",orgId).maybeSingle(); org=data||null; }
-        else { const { data } = await supabase.from("organizations").select("id, name, plan, owner_user_id, respondent_pool, respondents_used, aggregation_limit, aggregations_used, analyst_limit, admin_limit").eq("owner_user_id",user.id).limit(1).maybeSingle(); org=data||null; orgId=org?.id||null; }
+        if(orgId){ const { data } = await supabase.from("organizations").select("id, name, plan, owner_user_id, respondent_pool, respondents_used, aggregation_limit, aggregations_used, analyst_limit, admin_limit, subscription_status, pattern_trial_ends_at").eq("id",orgId).maybeSingle(); org=data||null; }
+        else { const { data } = await supabase.from("organizations").select("id, name, plan, owner_user_id, respondent_pool, respondents_used, aggregation_limit, aggregations_used, analyst_limit, admin_limit, subscription_status, pattern_trial_ends_at").eq("owner_user_id",user.id).limit(1).maybeSingle(); org=data||null; orgId=org?.id||null; }
       }catch(e){}
       state.orgId=orgId; state.org=org;
       state.isOwner = !!(org && org.owner_user_id===user.id);
@@ -474,14 +503,15 @@ body{transition:background-color .25s ease, color .25s ease}
 
       setText("ws5UserRole", ROLE_LABEL[state.role]||cap(state.role));
       setText("ws5Org", org?.name || "Personal workspace");
-      setText("ws5Plan", PLAN_LABEL[org?.plan] || org?.plan || "Free");
+      renderRailPlan(org);
       return true;
     }
 
     // ── ORGANISATION ──
     function renderOrg(){
       $("orgName").value = state.org?.name || "";
-      setText("orgPlan", PLAN_LABEL[state.org?.plan] || state.org?.plan || "Free");
+      const d=trialDaysLeft(state.org);
+      setText("orgPlan", d==null ? (PLAN_LABEL[state.org?.plan] || state.org?.plan || "Free") : `Pattern trial · ${d} day${d===1?"":"s"} left`);
       const can = isAdmin() && !!state.orgId;
       $("orgName").disabled = !can;
       $("saveOrg").disabled = !can;
@@ -516,7 +546,7 @@ body{transition:background-color .25s ease, color .25s ease}
       renderInvites();
     }
     function renderInvites(){
-      const pending = state.invites.filter(i=>!i.accepted_at);
+      const pending = state.invites.filter(i=>!i.accepted_at && (daysLeft(i.expires_at)==null || daysLeft(i.expires_at)>=0));
       setText("inviteCount", pending.length ? `${pending.length} pending` : "");
       if(!state.invites.length){ $("invitesBody").innerHTML = `<div class="empty">No invites yet.</div>`; return; }
       $("invitesBody").innerHTML = `<div class="lst">` + state.invites.map(inviteRow).join("") + `</div>`;
@@ -550,7 +580,10 @@ body{transition:background-color .25s ease, color .25s ease}
         $("invEmail").value="";
         await loadInvites();
         flash("inviteMsg","ok","Invite created for "+email+" — copy the link below to send it.");
-      }catch(e){ flash("inviteMsg","bad","Couldn’t create the invite. ("+(e.message||"error")+")"); }
+      }catch(e){
+        const m=String(e.message||"error");
+        flash("inviteMsg","bad",m.includes("seat limit reached")?"That role is at this plan’s seat limit. Pending invites reserve seats too.":("Couldn’t create the invite. ("+m+")"));
+      }
       finally{ $("createInvite").disabled=false; }
     }
     async function revokeInvite(id){
@@ -566,6 +599,55 @@ body{transition:background-color .25s ease, color .25s ease}
       const link=inviteLink(token);
       try{ await navigator.clipboard.writeText(link); flash("inviteMsg","ok","Link copied to clipboard."); }
       catch(e){ flash("inviteMsg","ok","Invite link: "+link); }
+    }
+
+    // ── WORKSPACE USERS ──
+    async function loadMembers(){
+      if(!isAdmin()){
+        $("membersBody").innerHTML=`<div class="empty">Only an organization admin can manage Workspace users.</div>`;
+        return;
+      }
+      try{
+        const { data,error }=await supabase.rpc("workspace_member_directory",{p_organization_id:state.orgId});
+        if(error) throw error;
+        state.members=data||[];
+      }catch(e){ state.members=[]; $("membersBody").innerHTML=`<div class="empty">Couldn’t load Workspace users.</div>`; return; }
+      renderMembers();
+    }
+    function renderMembers(){
+      setText("memberCount",state.members.length?`${state.members.length} users`:"");
+      if(!state.members.length){ $("membersBody").innerHTML=`<div class="empty">No Workspace users found.</div>`; return; }
+      $("membersBody").innerHTML=`<div class="lst">`+state.members.map(memberRow).join("")+`</div>`;
+      $("membersBody").querySelectorAll("select[data-member-role]").forEach(el=>el.addEventListener("change",()=>updateMemberRole(el.dataset.memberRole,el.value)));
+      $("membersBody").querySelectorAll("button[data-member-remove]").forEach(el=>el.addEventListener("click",()=>removeMember(el.dataset.memberRemove)));
+    }
+    function memberRow(m){
+      const suspended=m.billing_suspended_role;
+      const current=suspended?`Paused ${ROLE_LABEL[suspended]||cap(suspended)}`:(ROLE_LABEL[m.role]||cap(m.role));
+      const badge=m.is_owner?`<span class="badge active">Owner</span>`:suspended?`<span class="badge pending">Paused by plan</span>`:`<span class="badge active">${esc(current)}</span>`;
+      const controls=m.is_owner?"":suspended
+        ? `<button class="linkbtn danger" data-member-remove="${esc(m.member_id)}">Remove</button>`
+        : `<select data-member-role="${esc(m.member_id)}" aria-label="Role for ${esc(m.email||m.full_name||"user")}"><option value="member"${m.role==="member"?" selected":""}>Member</option><option value="analyst"${m.role==="analyst"?" selected":""}>Analyst</option><option value="admin"${m.role==="admin"?" selected":""}>Admin</option></select><button class="linkbtn danger" data-member-remove="${esc(m.member_id)}">Remove</button>`;
+      const pause=suspended?`<span>Previously ${esc(ROLE_LABEL[suspended]||suspended)}; access will restore automatically if that seat is available on a future plan.</span>`:"";
+      return `<div class="lrow"><div class="main"><b>${esc(m.full_name||m.email||"Workspace user")}</b><span>${esc(m.email||"")}</span>${pause}</div>${badge}<div class="act">${controls}</div></div>`;
+    }
+    async function updateMemberRole(id,role){
+      try{
+        const {error}=await supabase.from("organization_members").update({role,billing_suspended_role:null,billing_suspended_at:null}).eq("id",id);
+        if(error) throw error;
+        await loadMembers(); flash("memberMsg","ok","Workspace role updated.");
+      }catch(e){
+        const m=String(e.message||"error");
+        flash("memberMsg","bad",m.includes("seat limit")?"That role is already at this plan’s seat limit.":("Couldn’t change that Workspace role. ("+m+")"));
+        await loadMembers();
+      }
+    }
+    async function removeMember(id){
+      try{
+        const {error}=await supabase.from("organization_members").delete().eq("id",id);
+        if(error) throw error;
+        await loadMembers(); flash("memberMsg","ok","Workspace user removed.");
+      }catch(e){ flash("memberMsg","bad","Couldn’t remove that Workspace user. The organization owner cannot be removed."); await loadMembers(); }
     }
 
     // ── PEOPLE ──
@@ -642,7 +724,7 @@ body{transition:background-color .25s ease, color .25s ease}
       const okc = await resolveContext();
       if(!okc) return;
       renderOrg();
-      await Promise.all([ loadInvites(), loadPeople(), loadUsage() ]);
+      await Promise.all([ loadInvites(), loadMembers(), loadPeople(), loadUsage() ]);
     }
     boot();
   </script>

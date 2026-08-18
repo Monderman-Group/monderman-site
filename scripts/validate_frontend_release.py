@@ -43,7 +43,7 @@ for name in ['decision-velocity.html','operational-systems.html','structural-cla
 
 # Pattern trial contract: explicit, no-card, one-use and non-renewing.
 trial=(r/'pattern-trial.html').read_text(errors='ignore')
-for token in ['Use the full Pattern Workspace for 30 days.','No card is required to start','does not renew automatically','/api/billing/start-pattern-trial','pattern_trial_already_used','trial_requires_admin','Nothing was charged','One Pattern trial per Workspace']:
+for token in ['Use the full Pattern Workspace for 30 days.','No card is required to start','does not renew automatically','/api/billing/start-pattern-trial','pattern_trial_already_used','trial_requires_admin','Nothing was charged','One Pattern trial per Workspace','ackStart','starts immediately for this Workspace','Your saved work is retained. Standard Trial access limits apply after day 30']:
  if token not in trial:e.append('pattern trial contract '+token)
 pattern=(r/'plan-pattern.html').read_text(errors='ignore')
 for token in ['href="pattern-trial.html"','Start free 30-day trial','No card required','does not renew automatically']:
@@ -51,6 +51,18 @@ for token in ['href="pattern-trial.html"','Start free 30-day trial','No card req
 shell=(r/'workspace-shell.js').read_text(errors='ignore')
 for token in ['subscription_status','pattern_trial_ends_at','org.subscription_status === "trialing"','Pattern trial · ${days} day']:
  if token not in shell:e.append('pattern trial shell '+token)
+
+# Pattern trial 30-day lifecycle UX: countdown, explicit paid conversion, and seat management.
+overview=(r/'workspace.html').read_text(errors='ignore')
+for token in ['subscription_status, pattern_trial_used_at, pattern_trial_ends_at','Pattern trial · ${trialDays} day','Choose paid plan →','plan-pattern.html']:
+ if token not in overview:e.append('pattern lifecycle overview '+token)
+settings=(r/'workspace-settings.html').read_text(errors='ignore')
+for token in ['Workspace users','workspace_member_directory','billing_suspended_role','Paused by plan','pattern_trial_ends_at','renderRailPlan(org)','seat limit']:
+ if token not in settings:e.append('pattern lifecycle settings '+token)
+for name in ['workspace-actions.html','workspace-analysis.html','workspace-diagnostics.html']:
+ t=(r/name).read_text(errors='ignore')
+ for token in ['pattern_trial_ends_at','subscription_status','ws5TrialTag','trial · ${days}d left']:
+  if token not in t:e.append(name+': pattern trial rail '+token)
 
 print('frontend release errors:',len(e))
 for x in e:print('ERROR',x)

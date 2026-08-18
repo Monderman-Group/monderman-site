@@ -603,7 +603,7 @@ body{transition:background-color .25s ease,color .25s ease}
       const { error:inviteError } = await supabase.rpc("redeem_my_invites");
       const { data:memberships, error:membershipError } = await supabase
         .from("organization_members")
-        .select("organization_id, role, organizations(id, name, slug, plan, run_limit, runs_used, seat_limit, features, analyst_reviews_included, hands_on_advisory, plan_period, allowed_tool_type, analyst_limit, admin_limit, campaigns_enabled, respondent_pool, respondents_used, aggregation_enabled, aggregation_limit, aggregations_used, anonymous_responses_enabled)")
+        .select("organization_id, role, organizations(id, name, slug, plan, run_limit, runs_used, seat_limit, features, analyst_reviews_included, hands_on_advisory, plan_period, allowed_tool_type, analyst_limit, admin_limit, campaigns_enabled, respondent_pool, respondents_used, aggregation_enabled, aggregation_limit, aggregations_used, anonymous_responses_enabled, subscription_status, pattern_trial_used_at, pattern_trial_ends_at)")
         .eq("user_id", user.id).limit(1);
       if(membershipError) throw membershipError;
       if(memberships?.length) return memberships[0];
@@ -721,11 +721,16 @@ body{transition:background-color .25s ease,color .25s ease}
 
     function renderEntitlements(){
       const org=state.organization||{},plan=org.plan||"trial";
+      const trialing=plan==="pattern"&&org.subscription_status==="trialing"&&org.pattern_trial_ends_at;
+      const trialDays=trialing?Math.max(0,Math.ceil((Date.parse(org.pattern_trial_ends_at)-Date.now())/86400000)):null;
       const responseAllowance=org.respondent_pool==null?"Unlimited participant responses":`${Number(org.respondents_used)||0} of ${Number(org.respondent_pool)||0} participant responses used`;
       const synthAllowance=org.aggregation_limit==null?"Unlimited Syntheses":`${Number(org.aggregations_used)||0} of ${Number(org.aggregation_limit)||0} Syntheses used`;
       const users=[]; if(org.analyst_limit!=null)users.push(`${org.analyst_limit} analyst${Number(org.analyst_limit)===1?"":"s"}`); if(org.admin_limit!=null)users.push(`${org.admin_limit} admin${Number(org.admin_limit)===1?"":"s"}`);
-      $("wsPlanStrip").innerHTML=`<span><b>${escapeHtml(PLAN_LABEL[plan]||plan)}</b> plan</span><span class="sep">·</span><span>No per-participant pricing</span><span class="sep">·</span><span>${escapeHtml(responseAllowance)}</span><span class="sep">·</span><span>${escapeHtml(synthAllowance)}</span>${users.length?`<span class="sep">·</span><span>${escapeHtml(users.join(" + "))}</span>`:""}`;
-      const manage=$("wsManageLink"),isTrial=plan==="trial"||plan==="free"; manage.textContent=isTrial?"Upgrade →":"Manage plan →"; manage.href=isTrial?"platform-services.html":"#billing";
+      const planCopy=trialing?`Pattern trial · ${trialDays} day${trialDays===1?"":"s"} left`:`${PLAN_LABEL[plan]||plan} plan`;
+      $("wsPlanStrip").innerHTML=`<span><b>${escapeHtml(planCopy)}</b></span><span class="sep">·</span><span>No per-participant pricing</span><span class="sep">·</span><span>${escapeHtml(responseAllowance)}</span><span class="sep">·</span><span>${escapeHtml(synthAllowance)}</span>${users.length?`<span class="sep">·</span><span>${escapeHtml(users.join(" + "))}</span>`:""}`;
+      const manage=$("wsManageLink"),isTrial=plan==="trial"||plan==="free";
+      if(trialing){ manage.textContent="Choose paid plan →"; manage.href="plan-pattern.html"; return; }
+      manage.textContent=isTrial?"Upgrade →":"Manage plan →"; manage.href=isTrial?"platform-services.html":"#billing";
       if(!isTrial&&!manage.dataset.billingWired){ manage.dataset.billingWired="1"; manage.addEventListener("click",async(e)=>{e.preventDefault();const prior=manage.textContent;manage.textContent="Opening billing…";try{const{data}=await supabase.auth.getSession();const res=await fetch("https://monderman-api.onrender.com/api/billing/portal-session",{method:"POST",headers:{"content-type":"application/json",authorization:"Bearer "+(data?.session?.access_token||"")}});const out=await res.json().catch(()=>({}));if(res.ok&&out.url){location.href=out.url;return;}manage.textContent=prior;wsNotice(res.status===403?"Only a workspace admin can manage billing.":res.status===404?"No self-serve billing account yet. Invoiced plans are managed via Connect.":"Billing portal is unavailable right now. Try again shortly.");}catch(_e){manage.textContent=prior;wsNotice("Billing portal could not be reached. Try again shortly.");}}); }
     }
 
