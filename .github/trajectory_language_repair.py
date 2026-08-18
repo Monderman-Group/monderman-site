@@ -93,8 +93,12 @@ replace_exact(
     '    const trajectory = firstStr(labelFromTrajectory(toolType, r.trajectory), r.trajectory_label, r.trajectory_signal, r.trajectory, "—");',
 )
 
-for old in ["Operational creep is rising", "Rising drag pressure", "Rising strain"]:
-    replace_exact("sample-report.html", old, "Worsening", expected=2)
+for old, expected in [
+    ("Operational creep is rising", 2),
+    ("Rising drag pressure", 2),
+    ("Rising strain", 1),
+]:
+    replace_exact("sample-report.html", old, "Worsening", expected=expected)
 
 validator_old = '''# Marketing copy must obey the same single-run and benchmark boundaries.
 for token in ["<strong>Self-reported change.</strong> Operational creep is rising.", "<strong>Self-reported change.</strong> Rising drag pressure.", "<strong>Change-pressure risk.</strong> No elevated change-pressure signal.", "<strong>Self-reported change.</strong> Rising strain."]:
@@ -103,7 +107,7 @@ validator_new = '''# Marketing copy must obey the same single-run and benchmark 
 # Directional copy is expressed as health direction so arrow, color, and words
 # cannot disagree when the measured condition itself is negatively framed.
 require(sample.count('<strong>Self-reported change.</strong> Worsening.') == 3, "OS/DV/IP samples must use health-direction worsening language")
-require(sample.count('>Worsening</text></svg>') == 3, "OS/DV/IP sample downward glyph and worsening label must stay paired")
+require(sample.count('>Worsening</text></svg>') == 2, "OS/DV SVG direction glyphs must stay paired with worsening labels")
 require("<strong>Change-pressure risk.</strong> No elevated change-pressure signal." in sample, "SC sample lost bounded change-pressure language")
 for stale in ["Operational creep is rising", "Rising drag pressure", "Rising strain"]:
     require(stale not in sample, f"condition-direction wording remains in sample: {stale}")
