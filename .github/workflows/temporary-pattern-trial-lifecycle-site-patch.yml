@@ -1,0 +1,48 @@
+name: Temporary Pattern trial lifecycle site patch
+
+on:
+  push:
+    branches:
+      - agent/pattern-trial-30day-lifecycle-hardening-20260818
+    paths:
+      - '.github/workflows/temporary-pattern-trial-lifecycle-site-patch.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/temporary-pattern-trial-lifecycle-site-patch.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/pattern-trial-30day-lifecycle-hardening-20260818
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply guarded lifecycle UX patch
+        run: python scripts/temporary_pattern_trial_lifecycle_site_patch.py
+      - name: Validate lifecycle UX patch
+        run: |
+          set -euo pipefail
+          python scripts/validate_frontend_release.py
+          python scripts/validate_meta_synthesis_frontend.py
+          git diff --check
+      - name: Commit product patch
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pattern-trial.html workspace.html workspace-actions.html workspace-analysis.html workspace-diagnostics.html workspace-settings.html scripts/validate_frontend_release.py
+          git diff --cached --quiet && { echo "No lifecycle UX patch changes produced"; exit 1; }
+          git commit -m "Harden Pattern trial lifecycle UX"
+          git push origin HEAD:agent/pattern-trial-30day-lifecycle-hardening-20260818
