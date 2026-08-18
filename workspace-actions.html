@@ -791,8 +791,9 @@ body{transition:background-color .25s ease, color .25s ease}
       if(state.promotedLoaded || !state.orgId) return;
       try{
         const { data, error } = await supabase.from("diagnostic_runs")
-          .select("id, tool_type, tool_label, pathway_name, business_unit, created_at, priority_actions_json, key_findings_json, full_result_json, config_version, scorer_version")
+          .select("id, tool_type, tool_label, pathway_name, business_unit, created_at, priority_actions_json, key_findings_json, full_result_json, config_version, scorer_version, normalization_status, included_in_aggregates")
           .eq("organization_id", state.orgId).eq("status","promoted")
+          .eq("included_in_aggregates",true).in("normalization_status",["included","included_with_caution"])
           .order("created_at",{ascending:false}).limit(40);
         if(error) throw error;
         state.promotedRuns = data || [];

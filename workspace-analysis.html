@@ -888,10 +888,13 @@ body{transition:background-color .25s ease, color .25s ease}
         for(let from=0; from<SYNTH_MAX_LOAD; from+=SYNTH_PAGE_SIZE){
           const to=Math.min(SYNTH_MAX_LOAD-1,from+SYNTH_PAGE_SIZE-1);
           const { data,error }=await supabase.from("diagnostic_runs")
-            .select("id, tool_type, tool_label, business_unit, pathway_name, participant_mode, diagnostic_depth, score, band, created_at, status, included_in_aggregates, label, is_anonymous_response, assignment_id, config_version, scorer_version")
-            .eq("status","promoted").order("created_at",{ascending:false}).range(from,to);
+            .select("id, tool_type, tool_label, business_unit, pathway_name, participant_mode, diagnostic_depth, score, band, created_at, status, normalization_status, included_in_aggregates, label, is_anonymous_response, assignment_id, config_version, scorer_version")
+            .eq("status","promoted")
+            .eq("included_in_aggregates",true)
+            .in("normalization_status",["included","included_with_caution"])
+            .order("created_at",{ascending:false}).range(from,to);
           if(error) throw error;
-          const page=(data||[]).filter(run=>run.included_in_aggregates!==false);
+          const page=data||[];
           rows.push(...page);
           if((data||[]).length<SYNTH_PAGE_SIZE) break;
         }

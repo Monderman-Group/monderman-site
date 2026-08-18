@@ -8,6 +8,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 REPORT = (ROOT / "monderman-report.js").read_text(encoding="utf-8")
 WORKSPACE = (ROOT / "workspace-analysis.html").read_text(encoding="utf-8")
+MEASURE = (ROOT / "workspace-diagnostics.html").read_text(encoding="utf-8")
+OVERVIEW = (ROOT / "workspace.html").read_text(encoding="utf-8")
+ACTIONS = (ROOT / "workspace-actions.html").read_text(encoding="utf-8")
 DIAGNOSTICS = (ROOT / "diagnostics.html").read_text(encoding="utf-8")
 FULL_PAGE = (ROOT / "cross-tool-synthesis.html").read_text(encoding="utf-8")
 
@@ -102,6 +105,8 @@ for token in (
     '/api/synthesis-runs',
     'Build Depth Synthesis',
     'Build Cross-Lens Synthesis',
+    '.eq("included_in_aggregates",true)',
+    '.in("normalization_status",["included","included_with_caution"])',
 ):
     require(WORKSPACE, token, "workspace-analysis.html")
 
@@ -114,6 +119,29 @@ for token in (
 ):
     forbid(WORKSPACE, token, "workspace-analysis.html")
 
+# Inclusion boundary: Staged runs are reviewed before Include, and every downstream
+# Workspace surface consumes the same quality-eligible Included set.
+for token in (
+    'Review & include',
+    '/api/normalization/normalize-run/',
+    'REVIEW_ELIGIBLE = new Set(["included", "included_with_caution"])',
+    'aggregateEligible === true',
+    'this run is not eligible for Analysis or Synthesis. It remains Staged.',
+):
+    require(MEASURE, token, "workspace-diagnostics.html")
+
+require(
+    OVERVIEW,
+    'r.status==="promoted" && r.included_in_aggregates===true && ["included","included_with_caution"].includes(r.normalization_status)',
+    "workspace.html Included helper",
+)
+for token in (
+    '.eq("status","promoted")',
+    '.eq("included_in_aggregates",true)',
+    '.in("normalization_status",["included","included_with_caution"])',
+):
+    require(ACTIONS, token, "workspace-actions.html")
+
 # Direct-upload parity and body-size guard.
 for token in (
     "function uploadedSynthesisMode",
@@ -124,6 +152,9 @@ for token in (
     "t.evidence_label",
     't.score_status === "published"',
     "t.pathway_exposure",
+    'outcome.reason === "workspace_inclusion_required"',
+    'workspace-analysis.html#synthesis',
+    '"Open Analysis"',
 ):
     require(DIAGNOSTICS, token, "diagnostics.html")
 for token in (
@@ -158,6 +189,9 @@ for token in (
 for name, source in (
     ("monderman-report.js", REPORT),
     ("workspace-analysis.html", WORKSPACE),
+    ("workspace-diagnostics.html", MEASURE),
+    ("workspace.html", OVERVIEW),
+    ("workspace-actions.html", ACTIONS),
     ("diagnostics.html", DIAGNOSTICS),
     ("cross-tool-synthesis.html", FULL_PAGE),
 ):
@@ -170,6 +204,9 @@ node_check(ROOT / "monderman-report.js")
 node_check(ROOT / "scripts/meta_synthesis_frontend_fixture.mjs")
 inline_counts = {
     "workspace-analysis.html": check_inline_scripts(ROOT / "workspace-analysis.html"),
+    "workspace-diagnostics.html": check_inline_scripts(ROOT / "workspace-diagnostics.html"),
+    "workspace.html": check_inline_scripts(ROOT / "workspace.html"),
+    "workspace-actions.html": check_inline_scripts(ROOT / "workspace-actions.html"),
     "diagnostics.html": check_inline_scripts(ROOT / "diagnostics.html"),
     "cross-tool-synthesis.html": check_inline_scripts(ROOT / "cross-tool-synthesis.html"),
 }
