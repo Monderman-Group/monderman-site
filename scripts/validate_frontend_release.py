@@ -70,6 +70,26 @@ theme=(r/'workspace-theme.js').read_text(errors='ignore')
 for token in ['ws5SeatPauseNotice','billing_suspended_role','Your <b>','Workspace seat is paused','Your saved work is retained','Ask a Workspace admin','platform-services.html']:
  if token not in theme:e.append('paused seat notice '+token)
 
+
+# Retired diagnostic endpoints must never be called from customer HTML.
+retired_routes = [
+ '/api/decision-velocity-score','/api/decision-velocity-narrative',
+ '/api/structural-clarity-score','/api/structural-clarity-narrative',
+ '/api/structural-clarity/score','/api/structural-clarity/narrative',
+ '/api/operational-systems-score','/api/operational-systems-narrative',
+ '/api/operational-systems/score','/api/operational-systems/narrative',
+ '/api/institutional-performance-score','/api/institutional-performance-narrative',
+ '/api/institutional-performance/score','/api/institutional-performance/narrative'
+]
+for p in r.glob('*.html'):
+ t=p.read_text(errors='ignore')
+ for route in retired_routes:
+  if route in t:e.append(p.name+': retired diagnostic route '+route)
+
+dv=(r/'decision-velocity.html').read_text(errors='ignore')
+m=re.search(r'const FINALIZE_TIMEOUT_MS\s*=\s*(\d+)\s*;',dv)
+if not m or int(m.group(1)) < 180000:e.append('Decision Velocity finalize timeout below 180 seconds')
+
 print('frontend release errors:',len(e))
 for x in e:print('ERROR',x)
 sys.exit(bool(e))
