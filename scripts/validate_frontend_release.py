@@ -41,16 +41,36 @@ for name in ['decision-velocity.html','operational-systems.html','structural-cla
   if not tags or not any('integrity=' in tag and 'crossorigin=' in tag and re.search(r'\bdefer\b',tag,re.I) for tag in tags):
    e.append(name+': deferred SRI library '+url)
 
-# Pattern trial contract: explicit, no-card, one-use and non-renewing.
+# Pattern beta trial contract: no card, identity-scoped one-use, non-renewing.
 trial=(r/'pattern-trial.html').read_text(errors='ignore')
-for token in ['Use the full Pattern Workspace for 30 days.','No card is required to start','does not renew automatically','/api/billing/start-pattern-trial','pattern_trial_already_used','trial_requires_admin','Nothing was charged','One Pattern trial per Workspace','ackStart','starts immediately for this Workspace','Your saved work is retained. Standard Trial access limits apply after day 30']:
+for token in ['Use the full Pattern Workspace for 30 days.','No card is required to start','does not renew automatically','/api/billing/start-pattern-trial','pattern_trial_already_used','trial_requires_admin','Nothing was charged','One Pattern trial per eligible account identity','Deleting or replacing a Workspace does not reset eligibility','ackStart','starts immediately when I continue','Your saved work is retained. Standard Trial access limits apply after day 30','Pattern &middot; 30-day Beta trial']:
  if token not in trial:e.append('pattern trial contract '+token)
+for stale in ['One Pattern trial per Workspace','starts immediately for this Workspace','This Workspace has already used its one-time Pattern trial']:
+ if stale in trial:e.append('pattern trial stale scope '+stale)
 pattern=(r/'plan-pattern.html').read_text(errors='ignore')
-for token in ['href="pattern-trial.html"','Start free 30-day trial','No card required','does not renew automatically']:
+for token in ['href="pattern-trial.html"','Start free 30-day Beta trial','No card required','does not renew automatically','One trial per eligible account identity','Deleting or replacing a Workspace does not reset eligibility','Pattern &middot; Public Beta']:
  if token not in pattern:e.append('pattern trial entry '+token)
 shell=(r/'workspace-shell.js').read_text(errors='ignore')
 for token in ['subscription_status','pattern_trial_ends_at','org.subscription_status === "trialing"','Pattern trial · ${days} day']:
  if token not in shell:e.append('pattern trial shell '+token)
+
+# Restrained Beta labeling belongs to the app shell and plan/trial pages, not outputs.
+for name in ['workspace.html','workspace-diagnostics.html','workspace-analysis.html','workspace-actions.html','workspace-settings.html']:
+ if 'ws-beta-release' not in (r/name).read_text(errors='ignore'):
+  e.append(name+': beta badge missing')
+for name in ['sample-report.html','decision-velocity.html','operational-systems.html','structural-clarity.html','institutional-performance.html']:
+ t=(r/name).read_text(errors='ignore')
+ if re.search(r'>\s*Beta\s*<|Public Beta|beta release',t,re.I):e.append(name+': beta label on diagnostic/report output')
+
+# Public beta privacy/security disclosures must match current architecture and trial rules.
+privacy=(r/'privacy.html').read_text(errors='ignore')
+for token in ['Last updated: August 19, 2026','currently in public beta','one-time Pattern-trial anti-abuse record','survive Workspace deletion','Anthropic\'s commercial API','not used to train its models by default','automatically deleted from its backend within 30 days','Stripe handles payment details','does not receive or store your full card number','anonymous response']:
+ if token not in privacy:e.append('privacy disclosure '+token)
+security=(r/'security.html').read_text(errors='ignore')
+for token in ['currently in public beta','Ordinary Diagnostics require a signed-in member session','Directed campaign assignment links','All public Postgres tables currently have row-level security enabled','public publishable key','service-role database credentials','Anthropic\'s commercial API','durable one-time redemption record','Deleting a Workspace therefore does not create another trial','does not currently claim SOC 2']:
+ if token not in security:e.append('security disclosure '+token)
+for stale in ['A person can run a scored Diagnostic without signing in','an unauthenticated request holds no read or write permission on any table']:
+ if stale in security:e.append('security stale claim '+stale)
 
 # Pattern trial 30-day lifecycle UX: countdown, explicit paid conversion, and seat management.
 overview=(r/'workspace.html').read_text(errors='ignore')
@@ -70,7 +90,6 @@ theme=(r/'workspace-theme.js').read_text(errors='ignore')
 for token in ['ws5SeatPauseNotice','billing_suspended_role','Your <b>','Workspace seat is paused','Your saved work is retained','Ask a Workspace admin','platform-services.html']:
  if token not in theme:e.append('paused seat notice '+token)
 
-
 # Retired diagnostic API routes must never return as browser callers.
 retired_by_page={
  'decision-velocity.html':['/api/decision-velocity-narrative','/api/decision-velocity-score'],
@@ -83,8 +102,7 @@ for name,urls in retired_by_page.items():
  for url in urls:
   if url in t:e.append(name+': retired route caller '+url)
  m=re.search(r'const FINALIZE_TIMEOUT_MS = (\d+);',t)
- if not m or int(m.group(1)) < 90000:e.append(name+': finalize timeout below 90 seconds')
-
+ if not m or int(m.group(1)) < 280000:e.append(name+': finalize timeout below 280 seconds')
 
 # Customer-facing product copy uses Diagnostic terminology. Internal wire keys
 # such as assessment_scope and evidence_assessment are intentionally exempt.
