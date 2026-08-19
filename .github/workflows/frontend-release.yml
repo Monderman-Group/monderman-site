@@ -3,12 +3,38 @@ on:
   pull_request:
   push:
     branches: [main]
+permissions:
+  contents: write
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+          fetch-depth: 0
+          persist-credentials: true
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Apply public beta hardening on release branch
+        if: github.event_name == 'pull_request' && github.head_ref == 'agent/public-beta-hardening-20260819'
+        run: python scripts/public_beta_hardening_20260819.py
       - run: python scripts/validate_frontend_release.py
+      - name: Run diagnostic inline validation
+        if: github.event_name == 'pull_request' && github.head_ref == 'agent/public-beta-hardening-20260819'
+        run: python scripts/validate_diagnostic_inline_js.py
+      - name: Commit generated release files
+        if: github.event_name == 'pull_request' && github.head_ref == 'agent/public-beta-hardening-20260819'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'Monderman-Group'
+          git config user.email 'jason.ivan.adamson@gmail.com'
+          git add privacy.html security.html pattern-trial.html plan-pattern.html workspace.html workspace-diagnostics.html workspace-analysis.html workspace-actions.html workspace-settings.html
+          if git diff --cached --quiet; then
+            echo 'No generated changes to commit.'
+            exit 0
+          fi
+          git commit -m 'Harden public beta disclosures and labels'
+          git push origin HEAD:${GITHUB_HEAD_REF}
