@@ -687,6 +687,7 @@
     <h2>Row-level security is the customer boundary</h2>
     <p>All public Postgres tables currently have row-level security enabled. Customer browser access uses Supabase's public publishable key plus the signed-in user's session. The publishable key is intentionally visible in browser code; it is not a service-role secret.</p>
     <p>Policies and authorization helpers restrict signed-in users to the Workspace operations their role allows. Service-only tables can have RLS enabled with no customer policies, which means browser roles cannot read or write those rows. Privileged server operations use server-side credentials.</p>
+    <p>Client write privileges are also narrowed at the grant layer. Workspace administrators can change the Workspace name and review status through the customer interface, while plan, usage, billing and stored Diagnostic result fields remain server-managed.</p>
   </div>
 </section>
 <section class="section">
@@ -695,6 +696,14 @@
     <h2>Workspace pages require a valid session</h2>
     <p>Supabase Auth manages member sessions. Protected Workspace pages check for a valid session and redirect signed-out users to sign in. Authorization is then enforced again at the database or API boundary instead of trusting a hidden button or browser-only check.</p>
     <p>Directed campaign recipients receive scoped assignment links. Those links authorize only the assigned Diagnostic flow and do not turn the recipient into a Workspace member.</p>
+  </div>
+</section>
+<section class="section">
+  <div class="section-inner">
+    <p class="section-eyebrow">IN-PROGRESS SESSIONS</p>
+    <h2>Long Diagnostics survive deploys without becoming permanent active sessions</h2>
+    <p>While a Diagnostic is in progress, Monderman keeps temporary run state so a 30- or 60-minute Diagnostic can survive a service restart or deploy. The API keeps a local copy and a durable Supabase snapshot.</p>
+    <p>For all four Diagnostics, active run state has a four-hour cutoff. Restore logic ignores a session once it is older than that cutoff. The durable snapshot can remain until it is overwritten, so four hours is the active-use and restore boundary, not a promise of physical deletion from every stored snapshot at exactly four hours.</p>
   </div>
 </section>
 <section class="section">
@@ -734,6 +743,7 @@
     <p class="section-eyebrow">SECRETS</p>
     <h2>Public configuration is separated from privileged credentials</h2>
     <p>The browser necessarily contains public configuration such as the Supabase project URL, publishable key and public bot-verification site key. Those values are not treated as secrets. Privileged database, payment, AI and email credentials stay on the server.</p>
+    <p>AI-backed API endpoints also apply request-size and rate limits to reduce automated abuse and unexpected model spend.</p>
   </div>
 </section>
 <section class="section">
