@@ -1,0 +1,40 @@
+name: Post-beta live boundary probe
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/post-beta-live-boundary.yml'
+permissions:
+  contents: read
+jobs:
+  verify-live:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify beta frontend is live
+        shell: bash
+        run: |
+          set -euo pipefail
+          stamp="$(date +%s)"
+          fetch(){ curl -fsSL --retry 3 --retry-delay 2 -H 'Cache-Control: no-cache' "$1?release_probe=$stamp"; }
+          privacy="$(fetch https://www.monderman.com/privacy.html)"
+          grep -Fq 'Last updated: August 19, 2026' <<<"$privacy"
+          grep -Fq 'one-time Pattern-trial anti-abuse record' <<<"$privacy"
+          grep -Fq 'authorized Monderman personnel' <<<"$privacy"
+          security="$(fetch https://www.monderman.com/security.html)"
+          grep -Fq 'Ordinary Diagnostics require a signed-in member session' <<<"$security"
+          grep -Fq 'All public Postgres tables currently have row-level security enabled' <<<"$security"
+          grep -Fq 'four-hour cutoff' <<<"$security"
+          trial="$(fetch https://www.monderman.com/pattern-trial.html)"
+          grep -Fq 'Pattern &middot; 30-day Beta trial' <<<"$trial"
+          grep -Fq 'One Pattern trial per eligible account identity' <<<"$trial"
+          workspace="$(fetch https://www.monderman.com/workspace.html)"
+          grep -Fq 'ws-beta-release' <<<"$workspace"
+          sample="$(fetch https://www.monderman.com/sample-report.html)"
+          ! grep -Eqi '>Beta<|Public Beta|beta release' <<<"$sample"
+          health="$(curl -sS -o /tmp/api-health -w '%{http_code}' --retry 3 --retry-delay 2 https://monderman-api.onrender.com/api/health)"
+          billing="$(curl -sS -o /tmp/billing-health -w '%{http_code}' --retry 3 --retry-delay 2 https://monderman-api.onrender.com/api/billing/health)"
+          retired="$(curl -sS -o /tmp/retired -w '%{http_code}' -X POST -H 'content-type: application/json' -d '{}' https://monderman-api.onrender.com/api/decision-velocity-narrative)"
+          test "$health" = '200'
+          test "$billing" = '200'
+          test "$retired" = '410'
+          echo 'POST_BETA_LIVE_BOUNDARY=PASS'
