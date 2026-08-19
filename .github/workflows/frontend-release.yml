@@ -26,6 +26,9 @@ jobs:
       - name: Apply public beta hardening on release branch
         if: github.event_name == 'pull_request' && github.head_ref == 'agent/public-beta-hardening-20260819'
         run: python scripts/public_beta_hardening_20260819.py
+      - name: Add final verified disclosures
+        if: github.event_name == 'pull_request' && github.head_ref == 'agent/public-beta-hardening-20260819'
+        run: python scripts/finalize_public_beta_disclosures.py
       - run: python scripts/validate_frontend_release.py
       - name: Run diagnostic inline validation
         if: github.event_name == 'pull_request' && github.head_ref == 'agent/public-beta-hardening-20260819'
@@ -42,5 +45,5 @@ jobs:
             echo 'No generated changes to commit.'
             exit 0
           fi
-          git commit -m 'Harden public beta disclosures and release contracts'
+          git commit -m 'Finalize public beta disclosures and release contracts'
           git push origin HEAD:${GITHUB_HEAD_REF}
