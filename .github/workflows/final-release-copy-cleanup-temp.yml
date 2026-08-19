@@ -1,0 +1,74 @@
+name: Apply final-release customer terminology cleanup
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/final-release-copy-cleanup-temp.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/final-release-copy-cleanup-work-20260818
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply exact customer-copy replacements
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          replacements = {
+            'index.html': [
+              ('HBR readers contributed to a large survey of bureaucracy and bureaucratic drag.', 'HBR readers contributed to a large research effort on bureaucracy and bureaucratic drag.'),
+              ('An instrument, not an assessment.', 'A diagnostic instrument for repeated measurement.'),
+              ('Not one-time assessment.', 'Built for repeated diagnostic measurement.'),
+            ],
+            'why-monderman.html': [
+              ('Why Monderman: an instrument, not an assessment.', 'Why Monderman: a diagnostic instrument for repeated measurement.'),
+              ('One-time assessment is insufficient. Repeated measurement is the unit of value.', 'One diagnostic run is insufficient. Repeated measurement is the unit of value.'),
+              ('Designed for repeated measurement, not one-time assessment.', 'Designed for repeated diagnostic measurement.'),
+            ],
+            'Monderman_Infographic.html': [
+              ('Repeated measurement,<br/>not one-time assessment.', 'Repeated diagnostic measurement,<br/>not one-time scoring.'),
+            ],
+            'Monderman_Platform_Brief.html': [
+              ('Repeated measurement,<br/>not one-time assessment.', 'Repeated diagnostic measurement,<br/>not one-time scoring.'),
+            ],
+          }
+          for name, pairs in replacements.items():
+            p=Path(name); s=p.read_text()
+            for old,new in pairs:
+              if old not in s: raise SystemExit(f'{name}: copy anchor missing: {old}')
+              s=s.replace(old,new)
+            p.write_text(s)
+          PY
+      - name: Validate visible terminology and frontend release
+        run: |
+          python scripts/validate_frontend_release.py
+          python - <<'PY'
+          from pathlib import Path
+          visible_files=['index.html','why-monderman.html','Monderman_Infographic.html','Monderman_Platform_Brief.html']
+          forbidden=['one-time assessment','not an assessment','large survey of bureaucracy']
+          hits=[]
+          for name in visible_files:
+            text=Path(name).read_text().lower()
+            for phrase in forbidden:
+              if phrase in text:hits.append((name,phrase))
+          if hits: raise SystemExit('visible terminology remains: '+repr(hits))
+          print('visible terminology cleanup passed')
+          PY
+          git diff --check
+      - name: Commit copy-only repair
+        run: |
+          git config user.name 'Monderman release repair'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html why-monderman.html Monderman_Infographic.html Monderman_Platform_Brief.html
+          git commit -m 'Align customer terminology with diagnostic language'
+          git push origin HEAD:agent/final-release-copy-cleanup-work-20260818
