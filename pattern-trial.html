@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>30-day Pattern trial | Monderman</title>
+  <title>30-day Pattern beta trial | Monderman</title>
   <link rel="canonical" href="https://www.monderman.com/pattern-trial.html" />
   <meta name="robots" content="noindex" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
@@ -27,9 +27,9 @@
 <body>
   <header><a class="brand" href="index.html">Monderman</a><a href="plan-pattern.html">&larr; Pattern details</a></header>
   <main><div class="card">
-    <p class="eyebrow">Pattern evaluation</p>
+    <p class="eyebrow">Pattern &middot; 30-day Beta trial</p>
     <h1>Use the full Pattern Workspace for 30 days.</h1>
-    <p class="lead">A one-time evaluation for a Workspace currently on the standard Trial level. No card is required to start, and the trial does not renew automatically.</p>
+    <p class="lead">A one-time beta evaluation for an eligible account whose Workspace is currently on the standard Trial level. No card is required to start, and the trial does not renew automatically.</p>
     <ul>
       <li>All four Diagnostics, standard depths and vantages</li>
       <li>Diagnostic campaigns and up to 500 participant responses</li>
@@ -38,10 +38,10 @@
       <li>Pattern Workspace capacity for five analysts and two admins</li>
     </ul>
     <div class="terms"><strong>What happens on day 30:</strong> the Pattern trial ends automatically. If you have not explicitly chosen a paid subscription, nothing is charged and your Workspace returns to the standard Trial level. Your saved work is retained. Standard Trial access limits apply after day 30; choosing a paid plan restores the applicable Pattern access.</div>
-    <label class="confirm"><input type="checkbox" id="ackStart" disabled><span>I understand this one-time 30-day evaluation starts immediately for this Workspace when I continue.</span></label>
+    <label class="confirm"><input type="checkbox" id="ackStart" disabled><span>I understand this one-time 30-day beta evaluation starts immediately when I continue and remains used for this account identity even if the Workspace is later deleted or replaced.</span></label>
     <button id="startBtn" disabled>Start my 30-day Pattern trial</button>
     <div id="msg" class="msg" role="status" aria-live="polite"></div>
-    <p class="fine">One Pattern trial per Workspace. An organization admin must start the trial.</p>
+    <p class="fine">One Pattern trial per eligible account identity. Deleting or replacing a Workspace does not reset eligibility. An organization admin must start the trial.</p>
   </div></main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
@@ -63,7 +63,7 @@
           .limit(1).maybeSingle();
         if(error || !membership?.organizations) denyStart("We couldn’t verify this Workspace’s trial eligibility. Please open the Workspace and try again.");
         else if(!["admin","owner"].includes(String(membership.role||"").toLowerCase())) denyStart("Only an organization admin can start the Pattern trial.");
-        else if(membership.organizations.pattern_trial_used_at) denyStart("This Workspace has already used its one-time Pattern trial.");
+        else if(membership.organizations.pattern_trial_used_at) denyStart("This account identity has already used its one-time Pattern trial.");
         else if(membership.organizations.plan!=="trial") denyStart("The 30-day Pattern evaluation is available to Workspaces that are currently on the standard Trial level.");
         else { sessionReady=true; ack.disabled=false; syncStart(); }
       }catch(e){ denyStart("We couldn’t verify this Workspace’s trial eligibility. Please try again."); }
@@ -77,7 +77,7 @@
         const out = await res.json().catch(()=>({}));
         if(res.ok && out.ok){ show("Pattern is active. Opening your Workspace…","ok"); setTimeout(()=>location.href="workspace.html",700); return; }
         const messages={
-          pattern_trial_already_used:"This Workspace has already used its Pattern trial.",
+          pattern_trial_already_used:"This account identity has already used its Pattern trial.",
           pattern_trial_not_eligible:"This Workspace is not eligible for a Pattern trial.",
           trial_requires_trial_workspace:"The 30-day Pattern trial is available to Workspaces that are currently on the standard Trial level.",
           trial_requires_admin:"Only an organization admin can start the Pattern trial.",

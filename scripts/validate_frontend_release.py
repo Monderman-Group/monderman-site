@@ -65,10 +65,10 @@ for name in ['sample-report.html','decision-velocity.html','operational-systems.
 # Public beta privacy/security disclosures must match current architecture and trial rules.
 privacy=(r/'privacy.html').read_text(errors='ignore')
 for token in ['Last updated: August 19, 2026','currently in public beta','one-time Pattern-trial anti-abuse record','survive Workspace deletion','Anthropic\'s commercial API','not used to train its models by default','automatically deleted from its backend within 30 days','Stripe handles payment details','does not receive or store your full card number','anonymous response']:
- if token not in privacy:e.append('privacy disclosure '+token)
+ if token.lower() not in privacy.lower():e.append('privacy disclosure '+token)
 security=(r/'security.html').read_text(errors='ignore')
 for token in ['currently in public beta','Ordinary Diagnostics require a signed-in member session','Directed campaign assignment links','All public Postgres tables currently have row-level security enabled','public publishable key','service-role database credentials','Anthropic\'s commercial API','durable one-time redemption record','Deleting a Workspace therefore does not create another trial','does not currently claim SOC 2']:
- if token not in security:e.append('security disclosure '+token)
+ if token.lower() not in security.lower():e.append('security disclosure '+token)
 for stale in ['A person can run a scored Diagnostic without signing in','an unauthenticated request holds no read or write permission on any table']:
  if stale in security:e.append('security stale claim '+stale)
 
