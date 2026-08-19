@@ -20,6 +20,9 @@ jobs:
       - name: Correct temporary public beta patcher
         if: github.event_name == 'pull_request' && github.head_ref == 'agent/public-beta-hardening-20260819'
         run: python scripts/fix_public_beta_workspace_patch.py
+      - name: Correct public beta release validator
+        if: github.event_name == 'pull_request' && github.head_ref == 'agent/public-beta-hardening-20260819'
+        run: python scripts/fix_public_beta_validator.py
       - name: Apply public beta hardening on release branch
         if: github.event_name == 'pull_request' && github.head_ref == 'agent/public-beta-hardening-20260819'
         run: python scripts/public_beta_hardening_20260819.py
@@ -34,10 +37,10 @@ jobs:
           set -euo pipefail
           git config user.name 'Monderman-Group'
           git config user.email 'jason.ivan.adamson@gmail.com'
-          git add privacy.html security.html pattern-trial.html plan-pattern.html workspace.html workspace-diagnostics.html workspace-analysis.html workspace-actions.html workspace-settings.html
+          git add privacy.html security.html pattern-trial.html plan-pattern.html workspace.html workspace-diagnostics.html workspace-analysis.html workspace-actions.html workspace-settings.html scripts/validate_frontend_release.py
           if git diff --cached --quiet; then
             echo 'No generated changes to commit.'
             exit 0
           fi
-          git commit -m 'Harden public beta disclosures and labels'
+          git commit -m 'Harden public beta disclosures and release contracts'
           git push origin HEAD:${GITHUB_HEAD_REF}
