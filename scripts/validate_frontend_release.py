@@ -85,6 +85,14 @@ for name,urls in retired_by_page.items():
  m=re.search(r'const FINALIZE_TIMEOUT_MS = (\d+);',t)
  if not m or int(m.group(1)) < 90000:e.append(name+': finalize timeout below 90 seconds')
 
+
+# Customer-facing product copy uses Diagnostic terminology. Internal wire keys
+# such as assessment_scope and evidence_assessment are intentionally exempt.
+for name in ['index.html','why-monderman.html']:
+ t=(r/name).read_text(errors='ignore').lower()
+ if 'not an assessment' in t or 'one-time assessment' in t:
+  e.append(name+': stale customer-facing assessment terminology')
+
 print('frontend release errors:',len(e))
 for x in e:print('ERROR',x)
 sys.exit(bool(e))
