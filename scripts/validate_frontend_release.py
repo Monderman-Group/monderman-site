@@ -111,6 +111,19 @@ for name in ['index.html','why-monderman.html']:
  if 'not an assessment' in t or 'one-time assessment' in t:
   e.append(name+': stale customer-facing assessment terminology')
 
+# Public beta Terms must exist and remain wired at acceptance points.
+terms=(r/'terms.html').read_text(errors='ignore')
+for token in ['Public Beta Terms of Use','does not auto-renew','once per eligible account identity','not legal, medical, accounting, investment, safety, employment','connect@monderman.com','privacy.html','security.html']:
+ if token not in terms:e.append('public beta terms '+token)
+trial=(r/'pattern-trial.html').read_text(errors='ignore')
+for token in ['href="terms.html"','href="privacy.html"','I agree to the']:
+ if token not in trial:e.append('pattern trial legal acceptance '+token)
+signin=(r/'signin.html').read_text(errors='ignore')
+for token in ['href="terms.html"','href="privacy.html"','By signing in']:
+ if token not in signin:e.append('signin terms '+token)
+for name in ['privacy.html','security.html']:
+ if 'href="terms.html"' not in (r/name).read_text(errors='ignore'):e.append(name+': terms link')
+
 print('frontend release errors:',len(e))
 for x in e:print('ERROR',x)
 sys.exit(bool(e))
