@@ -1,0 +1,46 @@
+name: Final release retired route cleanup
+
+on:
+  push:
+    branches:
+      - agent/final-release-retired-route-cleanup-20260819
+    paths:
+      - 'final-release-site-patch.py'
+      - '.github/workflows/final-release-site-patch.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/final-release-retired-route-cleanup-20260819
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Remove retired browser callers
+        run: python final-release-site-patch.py
+
+      - name: Run frontend release gate
+        run: |
+          python scripts/validate_frontend_release.py
+          ! grep -nE '/api/(decision-velocity|structural-clarity|operational-systems|institutional-performance)-(narrative|score)' decision-velocity.html structural-clarity.html operational-systems.html institutional-performance.html
+          grep -q 'const FINALIZE_TIMEOUT_MS = 280000;' decision-velocity.html
+          git diff --check
+
+      - name: Commit repaired frontend files and remove patch machinery
+        run: |
+          rm -f final-release-site-patch.py .github/workflows/final-release-site-patch.yml
+          git config user.name 'Monderman Release Audit'
+          git config user.email 'release-audit@users.noreply.github.com'
+          git add decision-velocity.html structural-clarity.html operational-systems.html institutional-performance.html scripts/validate_frontend_release.py
+          git add -u final-release-site-patch.py .github/workflows/final-release-site-patch.yml
+          git commit -m 'Remove retired diagnostic narrative callers'
+          git push origin HEAD:agent/final-release-retired-route-cleanup-20260819
