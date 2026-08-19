@@ -1,0 +1,24 @@
+name: Magic link email proof
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/magic-link-email-proof.yml'
+permissions:
+  contents: read
+jobs:
+  send-magic-link:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request real Monderman magic link
+        shell: bash
+        run: |
+          set -euo pipefail
+          code="$(curl -sS -o /tmp/otp.json -w '%{http_code}' \
+            -X POST \
+            -H 'apikey: sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz' \
+            -H 'content-type: application/json' \
+            --data '{"email":"jason.ivan.adamson+monderman-beta-magic-20260819@gmail.com","create_user":true,"data":{"full_name":"Monderman Beta Magic Link Proof"}}' \
+            'https://ptkxrzgmeldalrkfruth.supabase.co/auth/v1/otp?redirect_to=https%3A%2F%2Fwww.monderman.com%2Fworkspace.html')"
+          test "$code" = '200'
+          echo 'MAGIC_LINK_REQUEST=PASS'
