@@ -17,6 +17,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Correct temporary public beta patcher
+        if: github.event_name == 'pull_request' && github.head_ref == 'agent/public-beta-hardening-20260819'
+        run: python scripts/fix_public_beta_workspace_patch.py
       - name: Apply public beta hardening on release branch
         if: github.event_name == 'pull_request' && github.head_ref == 'agent/public-beta-hardening-20260819'
         run: python scripts/public_beta_hardening_20260819.py
