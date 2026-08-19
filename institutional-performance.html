@@ -3048,36 +3048,6 @@ if (narrativeEnvelope.narrative && !result.narrative) {
   result.narrative = narrativeEnvelope.narrative;
 }
 
-if (refinedExperienceLayer?.hasInput) {
-  try {
-    setProcessingStep(2, "Running premium consistency review against experiential evidence...");
-    const narrativeResponse = await fetchWithTimeout(`${API_BASE}/api/institutional-performance-narrative`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...result,
-        tool_type: "institutional_performance",
-        process_name: payload.processName || payload.process_name,
-        industry: payload.industry,
-        industry_label: displayIndustryLabel(payload.industry, { titleCase: true }),
-        participantMode: payload.participantMode || state.mode,
-        participant_mode: payload.participantMode || state.mode,
-        payload_context: payload,
-        experiential_layer: refinedExperienceLayer,
-        experientialLayer: refinedExperienceLayer
-      })
-    }, FINALIZE_TIMEOUT_MS);
-    const narrativeData = await narrativeResponse.json().catch(() => null);
-    if (narrativeResponse.ok && narrativeData?.narrative) {
-      result.narrative = narrativeData.narrative;
-      result.anthropic = narrativeData.anthropic || result.anthropic;
-    } else {
-      console.warn("Premium narrative refresh did not return narrative.", narrativeData);
-    }
-  } catch (error) {
-    console.warn("Premium narrative refresh failed; using finalize narrative.", error?.message || error);
-  }
-}
 
 state.result = result;
 // Persist the premium pass (8 Aug 2026): the refined participant notes and

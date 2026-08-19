@@ -70,6 +70,21 @@ theme=(r/'workspace-theme.js').read_text(errors='ignore')
 for token in ['ws5SeatPauseNotice','billing_suspended_role','Your <b>','Workspace seat is paused','Your saved work is retained','Ask a Workspace admin','platform-services.html']:
  if token not in theme:e.append('paused seat notice '+token)
 
+
+# Retired diagnostic API routes must never return as browser callers.
+retired_by_page={
+ 'decision-velocity.html':['/api/decision-velocity-narrative','/api/decision-velocity-score'],
+ 'structural-clarity.html':['/api/structural-clarity-narrative','/api/structural-clarity-score'],
+ 'operational-systems.html':['/api/operational-systems-narrative','/api/operational-systems-score'],
+ 'institutional-performance.html':['/api/institutional-performance-narrative','/api/institutional-performance-score'],
+}
+for name,urls in retired_by_page.items():
+ t=(r/name).read_text(errors='ignore')
+ for url in urls:
+  if url in t:e.append(name+': retired route caller '+url)
+ m=re.search(r'const FINALIZE_TIMEOUT_MS = (\d+);',t)
+ if not m or int(m.group(1)) < 90000:e.append(name+': finalize timeout below 90 seconds')
+
 print('frontend release errors:',len(e))
 for x in e:print('ERROR',x)
 sys.exit(bool(e))
