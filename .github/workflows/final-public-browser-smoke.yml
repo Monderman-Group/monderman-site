@@ -22,7 +22,7 @@ jobs:
       - name: Run public browser and accessibility smoke
         shell: bash
         run: |
-          cat > /tmp/browser-smoke.mjs <<'NODE'
+          cat > browser-smoke.mjs <<'NODE'
           import assert from 'node:assert/strict';
           import { chromium, webkit } from 'playwright';
 
@@ -79,4 +79,4 @@ jobs:
           await browser.close();
           console.log('FINAL_PUBLIC_BROWSER_SMOKE=PASS');
           NODE
-          node /tmp/browser-smoke.mjs
+          node browser-smoke.mjs
