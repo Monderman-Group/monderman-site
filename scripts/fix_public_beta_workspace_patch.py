@@ -46,5 +46,7 @@ for name in workspace_files:
 '''
 
 s = s[:start] + replacement + s[end:]
+s = s.replace("assert 'all public Postgres tables currently have row-level security enabled' in load('security.html')", "assert 'all public postgres tables currently have row-level security enabled' in load('security.html').lower()")
+s = s.replace("assert 'ordinary Diagnostics require a signed-in member session' in load('security.html')", "assert 'ordinary diagnostics require a signed-in member session' in load('security.html').lower()")
 p.write_text(s, encoding='utf-8')
 print('PUBLIC_BETA_PATCHER_FIX=PASS')
