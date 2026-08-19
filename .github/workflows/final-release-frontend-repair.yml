@@ -1,9 +1,8 @@
 name: Apply final-release frontend repair
 
 on:
-  push:
-    branches:
-      - agent/final-release-frontend-repair-20260818
+  pull_request:
+    branches: [main]
     paths:
       - '.github/workflows/final-release-frontend-repair.yml'
 
@@ -66,8 +65,6 @@ jobs:
                   raise SystemExit(f'{name}: retired route remains after repair')
               p.write_text(s)
 
-          # This unlinked legacy page still called a retired API route. Keep direct
-          # bookmarks safe by forwarding them to the current Decision Velocity diagnostic.
           Path('abm-decision-velocity.html').write_text('''<!DOCTYPE html>
           <html lang="en">
           <head>
