@@ -1,0 +1,82 @@
+name: Final public browser smoke
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/final-public-browser-smoke.yml'
+permissions:
+  contents: read
+jobs:
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium webkit
+      - name: Run public browser and accessibility smoke
+        shell: bash
+        run: |
+          cat > /tmp/browser-smoke.mjs <<'NODE'
+          import assert from 'node:assert/strict';
+          import { chromium, webkit } from 'playwright';
+
+          const SITE='https://www.monderman.com';
+          const publicPages=['/','/terms.html','/privacy.html','/security.html','/signin.html','/platform-services.html'];
+
+          async function checkPages(browserType,label,viewport){
+            const browser=await browserType.launch({headless:true});
+            const context=await browser.newContext({viewport});
+            const page=await context.newPage();
+            for(const path of publicPages){
+              const response=await page.goto(`${SITE}${path}?browser_smoke=20260819_${label}_${Date.now()}`,{waitUntil:'domcontentloaded',timeout:60000});
+              assert.ok(response && response.status()<400,`${label} ${path} HTTP ${response?.status()}`);
+              await page.waitForTimeout(350);
+              const title=await page.title();
+              assert.ok(title.trim(),`${label} ${path} missing title`);
+              const geom=await page.evaluate(()=>({w:innerWidth,sw:document.documentElement.scrollWidth,body:document.body?.innerText||''}));
+              assert.ok(geom.sw<=geom.w+4,`${label} ${path} horizontal overflow ${geom.sw}>${geom.w}`);
+              assert.ok(geom.body.trim().length>40,`${label} ${path} looks empty`);
+            }
+            await browser.close();
+          }
+
+          await checkPages(chromium,'chromium-desktop',{width:1440,height:1000});
+          await checkPages(webkit,'webkit-desktop',{width:1440,height:1000});
+          await checkPages(chromium,'chromium-mobile',{width:390,height:844});
+          await checkPages(webkit,'webkit-mobile',{width:390,height:844});
+
+          const browser=await chromium.launch({headless:true});
+          const context=await browser.newContext({viewport:{width:1280,height:900}});
+          const page=await context.newPage();
+          await page.goto(`${SITE}/signin.html?browser_smoke=keyboard_${Date.now()}`,{waitUntil:'domcontentloaded',timeout:60000});
+          await page.locator('#sessionCheck').waitFor({state:'hidden',timeout:15000}).catch(()=>{});
+          const seen=[];
+          for(let i=0;i<10;i++){
+            await page.keyboard.press('Tab');
+            const focus=await page.evaluate(()=>{
+              const e=document.activeElement;
+              if(!e)return null;
+              const r=e.getBoundingClientRect();
+              return {tag:e.tagName,id:e.id||'',href:e.getAttribute('href')||'',text:(e.textContent||'').trim().slice(0,80),visible:r.width>0&&r.height>0};
+            });
+            if(focus?.visible) seen.push(focus);
+          }
+          assert.ok(seen.some(x=>x.id==='googleBtn'),'keyboard could not reach Google sign-in');
+          assert.ok(seen.some(x=>x.id==='emailInput'),'keyboard could not reach email field');
+          assert.ok(seen.some(x=>x.id==='emailSubmit'),'keyboard could not reach email submit');
+          assert.ok(seen.some(x=>x.href==='terms.html'),'keyboard could not reach Terms link');
+          assert.ok(seen.some(x=>x.href==='privacy.html'),'keyboard could not reach Privacy link');
+
+          await page.goto(`${SITE}/workspace.html?browser_smoke=auth_boundary_${Date.now()}`,{waitUntil:'domcontentloaded',timeout:60000});
+          await page.waitForURL(/signin\.html/,{timeout:30000});
+          assert.match(page.url(),/signin\.html/,'signed-out Workspace did not redirect to sign-in');
+          await browser.close();
+          console.log('FINAL_PUBLIC_BROWSER_SMOKE=PASS');
+          NODE
+          node /tmp/browser-smoke.mjs
