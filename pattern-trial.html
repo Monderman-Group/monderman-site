@@ -21,7 +21,7 @@
     button{width:100%;border:0;border-radius:10px;background:var(--accent);color:white;padding:15px 18px;font:600 15px 'Neue Haas Grotesk',sans-serif;cursor:pointer;margin-top:12px}button:hover{background:var(--accent-d)}button:disabled{opacity:.55;cursor:default}
     .msg{display:none;margin-top:16px;border-radius:9px;padding:12px 14px;font-size:13.5px;line-height:1.55}.msg.err{display:block;background:#FBEBE9;color:#7A2A22}.msg.ok{display:block;background:#EAF4EE;color:#285D43}
     .fine{font-size:12.5px;line-height:1.55;color:#8A8B90;text-align:center;margin:15px 0 0}
-    .confirm{display:flex;gap:10px;align-items:flex-start;margin:18px 0 4px;padding:13px 14px;border:1px solid var(--line);border-radius:10px;background:#FCFBF8;font-size:13px;line-height:1.5;color:#4E5054}.confirm input{margin-top:3px;flex:0 0 auto}
+    .confirm{display:flex;gap:10px;align-items:flex-start;margin:18px 0 4px;padding:13px 14px;border:1px solid var(--line);border-radius:10px;background:#FCFBF8;font-size:13px;line-height:1.5;color:#4E5054}.confirm input{margin-top:3px;flex:0 0 auto}.confirm a{color:var(--accent-d);font-weight:600}
   </style>
 </head>
 <body>
@@ -38,7 +38,7 @@
       <li>Pattern Workspace capacity for five analysts and two admins</li>
     </ul>
     <div class="terms"><strong>What happens on day 30:</strong> the Pattern trial ends automatically. If you have not explicitly chosen a paid subscription, nothing is charged and your Workspace returns to the standard Trial level. Your saved work is retained. Standard Trial access limits apply after day 30; choosing a paid plan restores the applicable Pattern access.</div>
-    <label class="confirm"><input type="checkbox" id="ackStart" disabled><span>I understand this one-time 30-day beta evaluation starts immediately when I continue and remains used for this account identity even if the Workspace is later deleted or replaced.</span></label>
+    <label class="confirm"><input type="checkbox" id="ackStart" disabled><span>I understand this one-time 30-day beta evaluation starts immediately when I continue, remains used for this account identity even if the Workspace is later deleted or replaced, and I agree to the <a href="terms.html" target="_blank" rel="noopener">Public Beta Terms</a> and <a href="privacy.html" target="_blank" rel="noopener">Privacy notice</a>.</span></label>
     <button id="startBtn" disabled>Start my 30-day Pattern trial</button>
     <div id="msg" class="msg" role="status" aria-live="polite"></div>
     <p class="fine">One Pattern trial per eligible account identity. Deleting or replacing a Workspace does not reset eligibility. An organization admin must start the trial.</p>
