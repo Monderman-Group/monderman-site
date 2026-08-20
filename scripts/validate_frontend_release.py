@@ -133,6 +133,13 @@ for token in ['href="terms.html"','href="privacy.html"','By signing in']:
 for name in ['privacy.html','security.html']:
  if 'href="terms.html"' not in (r/name).read_text(errors='ignore'):e.append(name+': terms link')
 
+# Saved Synthesis reports/history are RLS-readable customer records. Keep a
+# direct database fallback so report reopening and Actions do not inherit the
+# compute budget or availability of the Synthesis build endpoint.
+for name in ['cross-tool-synthesis.html','workspace-actions.html','workspace-analysis.html']:
+ t=(r/name).read_text(errors='ignore')
+ if '.from("synthesis_runs")' not in t:e.append(name+': saved Synthesis RLS fallback missing')
+
 print('frontend release errors:',len(e))
 for x in e:print('ERROR',x)
 sys.exit(bool(e))
