@@ -143,8 +143,10 @@
             if(!token){ location.replace("signin.html?next="+encodeURIComponent("cross-tool-synthesis.html?id="+id)); return; }
             const response=await fetch(`${API_BASE}/api/synthesis-runs/${encodeURIComponent(id)}`,{headers:{Authorization:"Bearer "+token}});
             const payload=await response.json().catch(()=>({}));
-            if(!response.ok||!payload.result) throw new Error(payload.error||`HTTP ${response.status}`);
-            renderResult(payload.result); return;
+            if(response.ok&&payload.result){ renderResult(payload.result); return; }
+            const {data:row,error}=await supabase.from("synthesis_runs").select("id, created_at, result_json").eq("id",id).maybeSingle();
+            if(error||!row?.result_json) throw new Error(payload.error||error?.message||`HTTP ${response.status}`);
+            renderResult({...row.result_json,synthesis_id:row.id,saved_at:row.created_at}); return;
           }catch(error){
             byId("missingTitle").textContent="Saved Synthesis unavailable";
             byId("missingCopy").textContent="This saved Synthesis could not be loaded for your workspace. Return to Analysis to choose another saved Synthesis or build a new one.";
