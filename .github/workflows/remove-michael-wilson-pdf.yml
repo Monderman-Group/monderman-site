@@ -1,0 +1,93 @@
+name: One-time Michael Wilson PDF scrub
+
+on:
+  push:
+    branches:
+      - cleanup/remove-michael-wilson
+
+permissions:
+  contents: write
+
+jobs:
+  scrub-pdf:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: cleanup/remove-michael-wilson
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install PDF tooling
+        run: python -m pip install --quiet 'PyMuPDF>=1.24,<2'
+      - name: Remove Michael Wilson attribution from DAII PDF
+        shell: bash
+        run: |
+          python - <<'PY'
+          import fitz
+          import os
+          from pathlib import Path
+
+          src = Path('Monderman_Insight_After_the_First_Lap.pdf')
+          out = Path('Monderman_Insight_After_the_First_Lap.clean.pdf')
+          doc = fitz.open(src)
+
+          # Cover: retain Jason Adamson and remove only the co-author attribution.
+          cover = doc[0]
+          hits = cover.search_for('& Michael Wilson')
+          if not hits:
+              raise SystemExit('Expected cover attribution was not found')
+          cover_bg = (14/255, 58/255, 68/255)
+          for r in hits:
+              rr = fitz.Rect(r.x0 - 0.8, r.y0 - 0.8, r.x1 + 1.2, r.y1 + 0.8)
+              cover.add_redact_annot(rr, fill=cover_bg)
+          cover.apply_redactions()
+
+          # Final page: remove Michael's complete author bio block.
+          page = doc[-1]
+          blocks = page.get_text('blocks')
+          michael_blocks = [b for b in blocks if 'Michael Wilson, CISSP' in b[4]]
+          if not michael_blocks:
+              raise SystemExit('Expected Michael Wilson author bio was not found')
+          for b in michael_blocks:
+              rr = fitz.Rect(b[:4])
+              rr = fitz.Rect(rr.x0 - 1, rr.y0 - 1, rr.x1 + 1, rr.y1 + 1)
+              page.add_redact_annot(rr, fill=(1, 1, 1))
+
+          # Make the surviving heading singular without re-typesetting it.
+          headings = page.search_for('ABOUT THE AUTHORS')
+          words = page.get_text('words')
+          for r in headings:
+              author_words = [w for w in words if w[4] == 'AUTHORS' and abs(w[1] - r.y0) < 6]
+              if author_words:
+                  wr = fitz.Rect(author_words[0][:4])
+                  s_width = max(3.0, wr.width / 7.0)
+                  sr = fitz.Rect(wr.x1 - s_width - 0.2, wr.y0 - 0.5, wr.x1 + 0.5, wr.y1 + 0.5)
+              else:
+                  sr = fitz.Rect(r.x1 - 5, r.y0 - 0.5, r.x1 + 0.5, r.y1 + 0.5)
+              page.add_redact_annot(sr, fill=(1, 1, 1))
+          page.apply_redactions()
+
+          metadata = doc.metadata or {}
+          metadata['author'] = 'Jason Adamson'
+          doc.set_metadata(metadata)
+          doc.save(out, garbage=4, deflate=True, clean=True)
+          doc.close()
+          os.replace(out, src)
+          PY
+
+          pdftotext -layout Monderman_Insight_After_the_First_Lap.pdf - | grep -Eiq 'Michael|Wilson|SiteShadow|Tallgrass' && {
+            echo 'Residual Michael Wilson text remains in PDF' >&2
+            exit 1
+          } || true
+          pdfinfo Monderman_Insight_After_the_First_Lap.pdf | grep -q '^Author:[[:space:]]*Jason Adamson$'
+      - name: Commit scrubbed PDF and remove one-time workflow
+        shell: bash
+        run: |
+          rm .github/workflows/remove-michael-wilson-pdf.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Remove Michael Wilson attribution from DAII paper'
+          git push origin HEAD:cleanup/remove-michael-wilson
