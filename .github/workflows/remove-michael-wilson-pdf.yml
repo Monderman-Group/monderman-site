@@ -1,4 +1,4 @@
-# One-time cleanup workflow. It self-deletes after a successful PDF scrub.
+# One-time cleanup workflow for PR #85. Remove this file after successful PDF scrub.
 name: One-time Michael Wilson PDF scrub
 
 on:
@@ -29,7 +29,7 @@ jobs:
         shell: bash
         run: |
           python - <<'PY'
-          import fitz
+          import pymupdf as fitz
           import os
           from pathlib import Path
 
@@ -74,19 +74,22 @@ jobs:
           doc.save(out, garbage=4, deflate=True, clean=True)
           doc.close()
           os.replace(out, src)
-          PY
 
-          if pdftotext -layout Monderman_Insight_After_the_First_Lap.pdf - | grep -Eiq 'Michael|Wilson|SiteShadow|Tallgrass'; then
-            echo 'Residual Michael Wilson text remains in PDF' >&2
-            exit 1
-          fi
-          pdfinfo Monderman_Insight_After_the_First_Lap.pdf | grep -q '^Author:[[:space:]]*Jason Adamson$'
-      - name: Commit scrubbed PDF and remove one-time workflow
+          check = fitz.open(src)
+          all_text = '\n'.join(p.get_text() for p in check)
+          for needle in ('Michael', 'Wilson', 'SiteShadow', 'Tallgrass'):
+              if needle.casefold() in all_text.casefold():
+                  raise SystemExit(f'Residual text remains in PDF: {needle}')
+          author = (check.metadata or {}).get('author')
+          if author != 'Jason Adamson':
+              raise SystemExit(f'Unexpected PDF author metadata: {author!r}')
+          check.close()
+          PY
+      - name: Commit scrubbed PDF
         shell: bash
         run: |
-          rm .github/workflows/remove-michael-wilson-pdf.yml
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
+          git add Monderman_Insight_After_the_First_Lap.pdf
           git commit -m 'Remove Michael Wilson attribution from DAII paper'
           git push origin HEAD:cleanup/remove-michael-wilson
