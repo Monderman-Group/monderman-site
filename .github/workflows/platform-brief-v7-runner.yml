@@ -1,0 +1,37 @@
+name: One-shot Platform Brief v7 runner
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/platform_brief_v7_patch.py
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply Platform Brief label patch
+        run: python scripts/platform_brief_v7_patch.py
+      - name: Validate frontend
+        run: |
+          git diff --check
+          python scripts/validate_frontend_release.py
+      - name: Commit repair
+        run: |
+          git config user.name "ChatGPT"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- Monderman_Platform_Brief.html
+          git diff --cached --check
+          if git diff --cached --quiet; then echo "No page changes produced" >&2; exit 1; fi
+          git commit -m "Rename Cross-Lens composite threshold"
+          git push origin HEAD:main
