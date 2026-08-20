@@ -47,6 +47,15 @@
     heroImage.style.setProperty("transform", "none", "important");
   }
 
+  // Homepage hero CTA: keep the free-run action and route the secondary action
+  // to the executive Platform Brief. The exact-text/href guard prevents this
+  // from touching any other Connect link or public page.
+  var heroSecondaryCta = document.querySelector('.hero-actions a.btn-secondary[href="connect.html"]');
+  if (heroSecondaryCta && heroSecondaryCta.textContent.trim() === "Discuss a diagnostic") {
+    heroSecondaryCta.setAttribute("href", "Monderman_Platform_Brief.html");
+    heroSecondaryCta.textContent = "View Platform Brief";
+  }
+
   if (window.__mondermanAssistantLoaded) return;       // never inject twice
   window.__mondermanAssistantLoaded = true;
   var API_URL    = "https://monderman-api.onrender.com/api/site-assistant";
