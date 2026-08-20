@@ -924,8 +924,11 @@ body{transition:background-color .25s ease, color .25s ease}
         try{
           const {data:sess}=await supabase.auth.getSession(); const token=sess?.session?.access_token;
           const hr=await fetch(`${API_BASE}/api/synthesis-runs?limit=100`,{headers:token?{Authorization:"Bearer "+token}:{}});
-          const hj=await hr.json().catch(()=>({})); SYNTH_HISTORY=hr.ok&&Array.isArray(hj.syntheses)?hj.syntheses:[]; SAVED_SYNTHESES=SYNTH_HISTORY;
-        }catch(_e){ SYNTH_HISTORY=[]; SAVED_SYNTHESES=[]; }
+          const hj=await hr.json().catch(()=>({})); if(!hr.ok||!Array.isArray(hj.syntheses))throw new Error(hj.error||("HTTP "+hr.status)); SYNTH_HISTORY=hj.syntheses; SAVED_SYNTHESES=SYNTH_HISTORY;
+        }catch(_e){
+          try{ const {data,error}=await supabase.from("synthesis_runs").select("id, title, synthesis_product, synthesis_mode, source_run_count, lens_count, score_status, score, score_label, condition_band, evidence_band, evidence_label, created_by_user_id, created_at, updated_at").eq("organization_id",ws5OrgId).order("created_at",{ascending:false}).limit(100); if(error)throw error; SYNTH_HISTORY=data||[]; SAVED_SYNTHESES=SYNTH_HISTORY; }
+          catch(_fallbackError){ SYNTH_HISTORY=[]; SAVED_SYNTHESES=[]; }
+        }
       }catch(error){
         SYNTH_RUNS=[];
         if(body) body.innerHTML=emptyHTML("Couldn’t load reads","Refresh the workspace. Synthesis uses Included, aggregate-eligible runs from your organization.");
@@ -1145,7 +1148,8 @@ body{transition:background-color .25s ease, color .25s ease}
         if(linkResult.error) throw linkResult.error;
         SNAPS = (snapshotResult.data || []).map(s=>({ ...s, vantage:normalizeVantage(s.vantage) }));
         ACTION_LINKS = (linkResult.data || []).filter(x=>(x.source_run_id&&x.remeasure_run_id)||(x.source_synthesis_id&&x.remeasure_synthesis_id));
-        try{ const {data:sess}=await supabase.auth.getSession(); const token=sess?.session?.access_token; const sr=await fetch(`${API_BASE}/api/synthesis-runs?limit=500`,{headers:token?{Authorization:"Bearer "+token}:{}}); const sj=await sr.json().catch(()=>({})); SAVED_SYNTHESES=sr.ok&&Array.isArray(sj.syntheses)?sj.syntheses:[]; }catch(_e){ SAVED_SYNTHESES=[]; }
+        try{ const {data:sess}=await supabase.auth.getSession(); const token=sess?.session?.access_token; const sr=await fetch(`${API_BASE}/api/synthesis-runs?limit=500`,{headers:token?{Authorization:"Bearer "+token}:{}}); const sj=await sr.json().catch(()=>({})); if(!sr.ok||!Array.isArray(sj.syntheses))throw new Error(sj.error||("HTTP "+sr.status)); SAVED_SYNTHESES=sj.syntheses; }
+        catch(_e){ try{ const {data,error}=await supabase.from("synthesis_runs").select("id, title, synthesis_product, synthesis_mode, source_run_count, lens_count, score_status, score, score_label, condition_band, evidence_band, evidence_label, created_by_user_id, created_at, updated_at").eq("organization_id",ws5OrgId).order("created_at",{ascending:false}).limit(500); if(error)throw error; SAVED_SYNTHESES=data||[]; }catch(_fallbackError){ SAVED_SYNTHESES=[]; } }
         // 8 Aug 2026: carry each snapshot's instrument version so trends never
         // compare across versions. "Comparisons hold within a version" is a
         // published DAII commitment; the trend previously plotted 1.0.0 and
