@@ -176,7 +176,7 @@
         '<p class="mdn-fb-err" id="mdn-fb-err-email">That email doesn\u2019t look right \u2014 fix it or leave it blank.</p>' +
       '</div>' +
       '<div class="mdn-fb-foot">' +
-        '<span class="mdn-fb-note">Sent in confidence. Never sold or shared.</span>' +
+        '<span class="mdn-fb-note">Sent in confidence. Not sold; processed only as described in the Privacy Policy.</span>' +
         '<button type="button" class="mdn-fb-send" id="mdn-fb-send">Send</button>' +
       '</div>' +
     '</div>';
