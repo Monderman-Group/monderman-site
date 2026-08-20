@@ -448,6 +448,23 @@ body{transition:background-color .25s ease, color .25s ease}
     function initials(name,email){ const b=(name&&name.trim())||(email||"").split("@")[0]||""; const p=b.split(/\s+/).filter(Boolean); return (p.length>=2?(p[0][0]+p[p.length-1][0]):b.slice(0,2)||"M").toUpperCase(); }
     function isAdmin(){ return state.role==="admin"; }
     function isStaff(){ return state.role==="admin"||state.role==="analyst"; }
+    function requireWorkspaceOrgId(){
+      if(!state.orgId) throw new Error("No active Workspace organization is available.");
+      return state.orgId;
+    }
+    // RLS decides which rows the signed-in person may read. Settings has a
+    // narrower job: every snapshot, list, export, and mutation must describe
+    // only the active Workspace. Keep that context explicit on every
+    // organization-owned query so cross-Workspace visibility cannot mix data.
+    function workspaceSelect(table, columns, options){
+      return supabase.from(table).select(columns, options).eq("organization_id", requireWorkspaceOrgId());
+    }
+    function workspaceUpdate(table, values){
+      return supabase.from(table).update(values).eq("organization_id", requireWorkspaceOrgId());
+    }
+    function workspaceDelete(table){
+      return supabase.from(table).delete().eq("organization_id", requireWorkspaceOrgId());
+    }
     function validEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e||""); }
     function flash(slot,kind,msg){ const e=$(slot); if(!e) return; e.innerHTML=`<div class="msg ${kind}">${esc(msg)}</div>`; if(kind==="ok") setTimeout(()=>{ if($(slot)) $(slot).innerHTML=""; },4000); }
     function genToken(){
@@ -490,7 +507,7 @@ body{transition:background-color .25s ease, color .25s ease}
 
       let orgId=null, memberRole=null;
       try{
-        const { data:m } = await supabase.from("organization_members").select("organization_id, role").limit(1).maybeSingle();
+        const { data:m } = await supabase.from("organization_members").select("organization_id, role").eq("user_id",user.id).limit(1).maybeSingle();
         orgId=m?.organization_id||null; memberRole=m?.role||null;
       }catch(e){}
       let org=null;
@@ -539,8 +556,9 @@ body{transition:background-color .25s ease, color .25s ease}
         return;
       }
       try{
-        const { data, error } = await supabase.from("organization_invites")
-          .select("id, email, role, token, created_at, expires_at, accepted_at").order("created_at",{ascending:false}).limit(100);
+        const { data, error } = await workspaceSelect("organization_invites",
+          "id, email, role, token, created_at, expires_at, accepted_at")
+          .order("created_at",{ascending:false}).limit(100);
         if(error) throw error;
         state.invites = data || [];
       }catch(e){ state.invites=[]; }
@@ -589,7 +607,7 @@ body{transition:background-color .25s ease, color .25s ease}
     }
     async function revokeInvite(id){
       try{
-        const { error } = await supabase.from("organization_invites").delete().eq("id", id);
+        const { error } = await workspaceDelete("organization_invites").eq("id", id);
         if(error) throw error;
         state.invites = state.invites.filter(i=>i.id!==id);
         renderInvites();
@@ -634,7 +652,7 @@ body{transition:background-color .25s ease, color .25s ease}
     }
     async function updateMemberRole(id,role){
       try{
-        const {error}=await supabase.from("organization_members").update({role,billing_suspended_role:null,billing_suspended_at:null}).eq("id",id);
+        const {error}=await workspaceUpdate("organization_members",{role,billing_suspended_role:null,billing_suspended_at:null}).eq("id",id);
         if(error) throw error;
         await loadMembers(); flash("memberMsg","ok","Workspace role updated.");
       }catch(e){
@@ -645,7 +663,7 @@ body{transition:background-color .25s ease, color .25s ease}
     }
     async function removeMember(id){
       try{
-        const {error}=await supabase.from("organization_members").delete().eq("id",id);
+        const {error}=await workspaceDelete("organization_members").eq("id",id);
         if(error) throw error;
         await loadMembers(); flash("memberMsg","ok","Workspace user removed.");
       }catch(e){ flash("memberMsg","bad","Couldn’t remove that Workspace user. The organization owner cannot be removed."); await loadMembers(); }
@@ -654,8 +672,9 @@ body{transition:background-color .25s ease, color .25s ease}
     // ── PEOPLE ──
     async function loadPeople(){
       try{
-        const { data, error } = await supabase.from("participants")
-          .select("id, display_name, email, team, business_unit, user_id, upgraded_at").order("created_at",{ascending:false}).limit(200);
+        const { data, error } = await workspaceSelect("participants",
+          "id, display_name, email, team, business_unit, user_id, upgraded_at")
+          .order("created_at",{ascending:false}).limit(200);
         if(error) throw error;
         state.people = data || [];
       }catch(e){ state.people=[]; }
@@ -680,7 +699,7 @@ body{transition:background-color .25s ease, color .25s ease}
     // ── PLAN & USAGE ──
     async function count(table, build){
       try{
-        let q = supabase.from(table).select("*",{count:"exact",head:true});
+        let q = workspaceSelect(table,"*",{count:"exact",head:true});
         if(build) q=build(q);
         const { count, error } = await q;
         if(error) throw error;
@@ -702,8 +721,8 @@ body{transition:background-color .25s ease, color .25s ease}
     async function exportRuns(){
       $("exportRuns").disabled=true;
       try{
-        const { data, error } = await supabase.from("diagnostic_runs")
-          .select("id, tool_type, tool_label, business_unit, pathway_name, score, band, primary_driver, benchmark_position, trajectory_label, status, created_at")
+        const { data, error } = await workspaceSelect("diagnostic_runs",
+          "id, organization_id, tool_type, tool_label, business_unit, pathway_name, score, band, primary_driver, benchmark_position, trajectory_label, status, created_at")
           .order("created_at",{ascending:false});
         if(error) throw error;
         const payload = { exported_at:new Date().toISOString(), organization:state.org?.name||null, count:(data||[]).length, runs:data||[] };

@@ -1,5 +1,5 @@
 from pathlib import Path
-import re,sys
+import re,runpy,sys
 r=Path('.')
 e=[]
 for f in ["decision-velocity-acceptance-harness.html","operational-systems-acceptance-harness.html","structural-clarity-acceptance-harness.html","structural-clarity-acceptance-harness.js","harness-qc-matrix.html","harness-security.html","harness-two-tenant.html"]:
@@ -145,6 +145,13 @@ for name in ['cross-tool-synthesis.html','workspace-actions.html','workspace-ana
 analysis=(r/'workspace-analysis.html').read_text(errors='ignore')
 if 'normalizeVantage(r.vantage||r.participant_lens||r.participant_mode)' not in analysis:
  e.append('workspace-analysis.html: participant_mode trust mapping missing')
+
+# Settings is narrower than RLS visibility: lists, usage, export, and mutations
+# must remain explicitly constrained to the active Workspace organization.
+try:
+ runpy.run_path(str(r/'scripts/validate_workspace_settings_scope.py'))['validate']()
+except Exception as exc:
+ e.append('workspace Settings organization scoping: '+str(exc))
 
 print('frontend release errors:',len(e))
 for x in e:print('ERROR',x)
