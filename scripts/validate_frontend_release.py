@@ -140,6 +140,12 @@ for name in ['cross-tool-synthesis.html','workspace-actions.html','workspace-ana
  t=(r/name).read_text(errors='ignore')
  if '.from("synthesis_runs")' not in t:e.append(name+': saved Synthesis RLS fallback missing')
 
+# Analysis trust must count the canonical participant_mode field returned by
+# the normalization workspace-runs endpoint.
+analysis=(r/'workspace-analysis.html').read_text(errors='ignore')
+if 'normalizeVantage(r.vantage||r.participant_lens||r.participant_mode)' not in analysis:
+ e.append('workspace-analysis.html: participant_mode trust mapping missing')
+
 print('frontend release errors:',len(e))
 for x in e:print('ERROR',x)
 sys.exit(bool(e))
