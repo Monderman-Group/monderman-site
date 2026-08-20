@@ -829,15 +829,28 @@ body{transition:background-color .25s ease, color .25s ease}
         const j=await res.json().catch(()=>({}));
         if(!res.ok||!j?.ok) throw new Error(j?.error||("HTTP "+res.status));
         state.syntheses=Array.isArray(j.syntheses)?j.syntheses:[];
-      }catch(e){ state.syntheses=[]; }
+      }catch(e){
+        try{
+          const {data,error}=await supabase.from("synthesis_runs")
+            .select("id, title, synthesis_product, synthesis_mode, source_run_count, lens_count, score_status, score, score_label, condition_band, evidence_band, evidence_label, created_by_user_id, created_at, updated_at")
+            .eq("organization_id",state.orgId).order("created_at",{ascending:false}).limit(250);
+          if(error) throw error; state.syntheses=data||[];
+        }catch(_fallbackError){ state.syntheses=[]; }
+      }
       state.synthesesLoaded=true;
     }
     async function getSynthesisResult(id){
       if(state.synthesisResults.has(id)) return state.synthesisResults.get(id);
-      const res=await fetch(`${API_BASE}/api/synthesis-runs/${encodeURIComponent(id)}`,{headers:await apiAuthHeaders()});
-      const j=await res.json().catch(()=>({}));
-      if(!res.ok||!j?.result) throw new Error(j?.error||("HTTP "+res.status));
-      state.synthesisResults.set(id,j.result); return j.result;
+      try{
+        const res=await fetch(`${API_BASE}/api/synthesis-runs/${encodeURIComponent(id)}`,{headers:await apiAuthHeaders()});
+        const j=await res.json().catch(()=>({}));
+        if(!res.ok||!j?.result) throw new Error(j?.error||("HTTP "+res.status));
+        state.synthesisResults.set(id,j.result); return j.result;
+      }catch(error){
+        const {data:row,error:readError}=await supabase.from("synthesis_runs").select("id, created_at, result_json").eq("organization_id",state.orgId).eq("id",id).maybeSingle();
+        if(readError||!row?.result_json) throw readError||error;
+        const result={...row.result_json,synthesis_id:row.id,saved_at:row.created_at}; state.synthesisResults.set(id,result); return result;
+      }
     }
     function findingLabel(f){
       if(f==null) return "";
