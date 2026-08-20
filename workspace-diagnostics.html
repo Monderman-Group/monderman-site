@@ -972,7 +972,11 @@ body{transition:background-color .25s ease, color .25s ease}
       }
       await loadRuns();
       const reportId=new URLSearchParams(location.search).get("report");
-      if(reportId && state.runs.some(r=>r.id===reportId)){
+      // Overview and other Workspace surfaces link to saved reports by ID. The
+      // Measure history is intentionally capped at 200 rows, so an older owned
+      // run may not be present in state.runs. Let exportRun query it directly;
+      // the diagnostic_runs RLS policy remains the ownership boundary.
+      if(reportId){
         setTimeout(()=>exportRun(reportId,"report",null),0);
       }else if(state.runs.some(r=>r.status==="staged")){
         state.filter="staged"; render();
