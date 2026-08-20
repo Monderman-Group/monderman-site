@@ -1,5 +1,6 @@
 from pathlib import Path
 
+# Retriggered after workflow registration; patch scope remains the homepage hero CTA only.
 p = Path('index.html')
 text = p.read_text(encoding='utf-8')
 
