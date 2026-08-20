@@ -3,8 +3,6 @@ on:
   pull_request:
   push:
     branches: [main]
-permissions:
-  contents: write
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -14,30 +12,3 @@ jobs:
         with:
           python-version: '3.12'
       - run: python scripts/validate_frontend_release.py
-      - name: Remove temporary homepage CTA JavaScript fallback
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          index = Path('index.html').read_text(encoding='utf-8')
-          expected = '<a class="btn btn-secondary" href="Monderman_Platform_Brief.html">View Platform Brief</a>'
-          if index.count(expected) != 1:
-              raise SystemExit('Static homepage Platform Brief CTA is not present exactly once')
-          p = Path('assistant.js')
-          text = p.read_text(encoding='utf-8')
-          block = '''\n  // Homepage hero CTA: keep the free-run action and route the secondary action\n  // to the executive Platform Brief. The exact-text/href guard prevents this\n  // from touching any other Connect link or public page.\n  var heroSecondaryCta = document.querySelector('.hero-actions a.btn-secondary[href="connect.html"]');\n  if (heroSecondaryCta && heroSecondaryCta.textContent.trim() === "Discuss a diagnostic") {\n    heroSecondaryCta.setAttribute("href", "Monderman_Platform_Brief.html");\n    heroSecondaryCta.textContent = "View Platform Brief";\n  }\n'''
-          if block in text:
-              text = text.replace(block, '\n', 1)
-              p.write_text(text, encoding='utf-8')
-          elif 'heroSecondaryCta' in text:
-              raise SystemExit('Unexpected homepage CTA fallback state in assistant.js')
-          PY
-          git diff --check
-          python scripts/validate_frontend_release.py
-          git config user.name "ChatGPT"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- assistant.js
-          if ! git diff --cached --quiet; then
-            git commit -m "Remove temporary homepage CTA fallback"
-            git push origin HEAD:main
-          fi
