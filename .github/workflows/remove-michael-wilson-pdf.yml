@@ -1,3 +1,4 @@
+# Triggered only on the cleanup branch; self-deletes after successful scrub.
 name: One-time Michael Wilson PDF scrub
 
 on:
@@ -33,7 +34,6 @@ jobs:
           out = Path('Monderman_Insight_After_the_First_Lap.clean.pdf')
           doc = fitz.open(src)
 
-          # Cover: retain Jason Adamson and remove only the co-author attribution.
           cover = doc[0]
           hits = cover.search_for('& Michael Wilson')
           if not hits:
@@ -44,7 +44,6 @@ jobs:
               cover.add_redact_annot(rr, fill=cover_bg)
           cover.apply_redactions()
 
-          # Final page: remove Michael's complete author bio block.
           page = doc[-1]
           blocks = page.get_text('blocks')
           michael_blocks = [b for b in blocks if 'Michael Wilson, CISSP' in b[4]]
@@ -55,7 +54,6 @@ jobs:
               rr = fitz.Rect(rr.x0 - 1, rr.y0 - 1, rr.x1 + 1, rr.y1 + 1)
               page.add_redact_annot(rr, fill=(1, 1, 1))
 
-          # Make the surviving heading singular without re-typesetting it.
           headings = page.search_for('ABOUT THE AUTHORS')
           words = page.get_text('words')
           for r in headings:
@@ -77,10 +75,10 @@ jobs:
           os.replace(out, src)
           PY
 
-          pdftotext -layout Monderman_Insight_After_the_First_Lap.pdf - | grep -Eiq 'Michael|Wilson|SiteShadow|Tallgrass' && {
+          if pdftotext -layout Monderman_Insight_After_the_First_Lap.pdf - | grep -Eiq 'Michael|Wilson|SiteShadow|Tallgrass'; then
             echo 'Residual Michael Wilson text remains in PDF' >&2
             exit 1
-          } || true
+          fi
           pdfinfo Monderman_Insight_After_the_First_Lap.pdf | grep -q '^Author:[[:space:]]*Jason Adamson$'
       - name: Commit scrubbed PDF and remove one-time workflow
         shell: bash
