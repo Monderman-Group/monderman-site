@@ -84,6 +84,15 @@ for name in ['workspace-actions.html','workspace-analysis.html','workspace-diagn
  for token in ['pattern_trial_ends_at','subscription_status','ws5TrialTag','trial · ${days}d left']:
   if token not in t:e.append(name+': pattern trial rail '+token)
 
+# Saved reports linked from Overview must reopen even when the run is older
+# than the Measure page's capped 200-row history. RLS on diagnostic_runs is the
+# ownership boundary for exportRun's direct query.
+measure=(r/'workspace-diagnostics.html').read_text(errors='ignore')
+if 'if(reportId){' not in measure or 'exportRun(reportId,"report",null)' not in measure:
+ e.append('workspace diagnostics direct report reopen')
+if 'reportId && state.runs.some' in measure:
+ e.append('workspace diagnostics direct report depends on capped history')
+
 # A staff seat paused by a plan downgrade must be explained to that user on
 # every main Workspace surface rather than looking like missing/empty data.
 theme=(r/'workspace-theme.js').read_text(errors='ignore')
