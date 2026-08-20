@@ -1,10 +1,13 @@
-# Triggered only on the cleanup branch; self-deletes after successful scrub.
+# One-time cleanup workflow. It self-deletes after a successful PDF scrub.
 name: One-time Michael Wilson PDF scrub
 
 on:
   push:
     branches:
       - cleanup/remove-michael-wilson
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -45,8 +48,7 @@ jobs:
           cover.apply_redactions()
 
           page = doc[-1]
-          blocks = page.get_text('blocks')
-          michael_blocks = [b for b in blocks if 'Michael Wilson, CISSP' in b[4]]
+          michael_blocks = [b for b in page.get_text('blocks') if 'Michael Wilson, CISSP' in b[4]]
           if not michael_blocks:
               raise SystemExit('Expected Michael Wilson author bio was not found')
           for b in michael_blocks:
@@ -54,9 +56,8 @@ jobs:
               rr = fitz.Rect(rr.x0 - 1, rr.y0 - 1, rr.x1 + 1, rr.y1 + 1)
               page.add_redact_annot(rr, fill=(1, 1, 1))
 
-          headings = page.search_for('ABOUT THE AUTHORS')
           words = page.get_text('words')
-          for r in headings:
+          for r in page.search_for('ABOUT THE AUTHORS'):
               author_words = [w for w in words if w[4] == 'AUTHORS' and abs(w[1] - r.y0) < 6]
               if author_words:
                   wr = fitz.Rect(author_words[0][:4])
