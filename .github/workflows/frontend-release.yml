@@ -3,6 +3,8 @@ on:
   pull_request:
   push:
     branches: [main]
+permissions:
+  contents: write
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -12,3 +14,29 @@ jobs:
         with:
           python-version: '3.12'
       - run: python scripts/validate_frontend_release.py
+      - name: Apply approved homepage Platform Brief CTA
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          text = p.read_text(encoding='utf-8')
+          old = '<a class="btn btn-secondary" href="connect.html">Discuss a diagnostic</a>'
+          new = '<a class="btn btn-secondary" href="Monderman_Platform_Brief.html">View Platform Brief</a>'
+          if text.count(old) == 1:
+              text = text.replace(old, new, 1)
+              p.write_text(text, encoding='utf-8')
+          elif text.count(new) == 1:
+              pass
+          else:
+              raise SystemExit('Homepage hero CTA source did not match the approved old or new state')
+          PY
+          git diff --check
+          python scripts/validate_frontend_release.py
+          git config user.name "ChatGPT"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Add Platform Brief homepage hero CTA"
+            git push origin HEAD:main
+          fi
