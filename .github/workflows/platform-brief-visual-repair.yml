@@ -1,0 +1,91 @@
+name: One-shot Platform Brief visual repair
+
+on:
+  push:
+    branches:
+      - agent/platform-brief-visual-repair-20260819
+    paths:
+      - .github/workflows/platform-brief-visual-repair.yml
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/platform-brief-visual-repair-20260819
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Repair Platform Brief visuals
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('Monderman_Platform_Brief.html')
+          text=p.read_text(encoding='utf-8')
+
+          replacements=[
+            ('h1{font-size:clamp(3.2rem,6.7vw,6.8rem);line-height:.94;margin-bottom:24px}h2{font-size:clamp(2.6rem,5vw,5rem);line-height:.98;margin-bottom:22px}',
+             'h1{font-size:clamp(2.65rem,4.3vw,4.6rem);line-height:1.0;margin-bottom:22px}h2{font-size:clamp(2.1rem,3.3vw,3.35rem);line-height:1.05;margin-bottom:20px}'),
+            ('.close h2{max-width:11ch;font-size:clamp(3.6rem,7.2vw,7.3rem)}',
+             '.close h2{max-width:13ch;font-size:clamp(2.75rem,4.6vw,4.85rem);line-height:1.0}'),
+            ('@media(max-width:680px){:root{--topbar:58px}.topbar-inner{padding:0 16px}.deck-label,.top-actions a:not(.top-cta){display:none}.progress{right:9px}.progress-count{display:none}.slide{padding:calc(var(--topbar) + 34px) 30px 38px 20px;min-height:100svh}h1{font-size:clamp(2.8rem,15vw,4.7rem)}h2{font-size:clamp(2.45rem,12vw,4rem)}',
+             '@media(max-width:680px){:root{--topbar:58px}.topbar-inner{padding:0 16px}.deck-label,.top-actions a:not(.top-cta){display:none}.progress{right:9px}.progress-count{display:none}.slide{padding:calc(var(--topbar) + 34px) 30px 38px 20px;min-height:100svh}h1{font-size:clamp(2.35rem,11vw,3.5rem)}h2{font-size:clamp(2.05rem,9.5vw,3rem)}'),
+            ('.system-field{position:absolute;right:-6vw;top:50%;width:min(49vw,760px);height:min(72vh,680px);transform:translateY(-46%);opacity:.72;pointer-events:none}.system-field .orbit{fill:none;stroke:rgba(169,207,210,.18);stroke-width:1}.system-field .flow{fill:none;stroke:rgba(169,207,210,.36);stroke-width:1.4;stroke-dasharray:7 9;animation:dash 12s linear infinite}.system-field .node{fill:var(--teal-light)}.system-field .active{fill:var(--orange);animation:pulse 2.4s ease-in-out infinite}@keyframes dash{to{stroke-dashoffset:-160}}@keyframes pulse{50%{opacity:.3;transform:scale(1.7);transform-origin:center}}',
+             '.system-field{position:absolute;right:-7vw;top:50%;width:min(52vw,780px);height:min(78vh,720px);transform:translateY(-48%);opacity:.64;pointer-events:none}.system-field .ring-base{fill:none;stroke:rgba(169,207,210,.10);stroke-width:1}.system-field .ring-arc{fill:none;stroke:rgba(79,167,174,.38);stroke-width:1.35;stroke-linecap:round}.system-field .ring-arc.fine{stroke:rgba(79,167,174,.24);stroke-width:.9}.system-field .ring-node{fill:#4FA7AE;opacity:.72}.system-field .ring-node.soft{fill:#A9CFD2;opacity:.58}.system-field .ring-core{fill:url(#ringGlow);opacity:.72}.system-field .spin-cw,.system-field .spin-ccw{transform-box:fill-box;transform-origin:center;will-change:transform}.system-field .spin-cw{animation:ringCw 52s linear infinite}.system-field .spin-ccw{animation:ringCcw 68s linear infinite}.system-field .spin-cw.slow{animation-duration:86s}.system-field .spin-ccw.slow{animation-duration:104s}@keyframes ringCw{to{transform:rotate(360deg)}}@keyframes ringCcw{to{transform:rotate(-360deg)}}'),
+            ('<svg class="system-field" viewBox="0 0 720 720" aria-hidden="true"><circle class="orbit" cx="360" cy="360" r="284"/><circle class="orbit" cx="360" cy="360" r="222"/><circle class="orbit" cx="360" cy="360" r="160"/><circle class="orbit" cx="360" cy="360" r="98"/><path class="flow" d="M94 294 C190 112 355 124 455 210 S626 397 548 532 S264 662 166 519 S112 354 94 294"/><path class="flow" d="M157 453 C260 360 282 188 421 171 S604 282 579 401 S443 598 300 554 S116 490 157 453"/><circle class="node" cx="168" cy="232" r="5"/><circle class="node" cx="522" cy="211" r="5"/><circle class="node" cx="566" cy="486" r="5"/><circle class="node" cx="265" cy="584" r="5"/><circle class="active" cx="360" cy="360" r="7"/><circle class="active" cx="452" cy="296" r="5"/></svg>',
+             '<svg class="system-field" viewBox="0 0 720 720" aria-hidden="true"><defs><radialGradient id="ringGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#0C9AA0" stop-opacity=".46"/><stop offset="52%" stop-color="#0C6E78" stop-opacity=".16"/><stop offset="100%" stop-color="#0C6E78" stop-opacity="0"/></radialGradient></defs><circle class="ring-core" cx="360" cy="360" r="138"/><g><circle class="ring-base" cx="360" cy="360" r="105"/><circle class="ring-base" cx="360" cy="360" r="142"/><circle class="ring-base" cx="360" cy="360" r="180"/><circle class="ring-base" cx="360" cy="360" r="218"/><circle class="ring-base" cx="360" cy="360" r="256"/><circle class="ring-base" cx="360" cy="360" r="294"/></g><g class="spin-cw"><circle class="ring-arc" cx="360" cy="360" r="122" stroke-dasharray="82 34 18 42 106 76"/><circle class="ring-node" cx="360" cy="238" r="4"/><circle class="ring-node soft" cx="452" cy="280" r="3.5"/></g><g class="spin-ccw"><circle class="ring-arc fine" cx="360" cy="360" r="162" stroke-dasharray="118 54 28 31 75 92"/><circle class="ring-node" cx="198" cy="360" r="3.5"/><circle class="ring-node soft" cx="460" cy="488" r="4"/></g><g class="spin-cw slow"><circle class="ring-arc" cx="360" cy="360" r="203" stroke-dasharray="150 64 34 26 96 114"/><circle class="ring-node" cx="502" cy="215" r="4"/><circle class="ring-node soft" cx="202" cy="487" r="3.5"/></g><g class="spin-ccw slow"><circle class="ring-arc fine" cx="360" cy="360" r="242" stroke-dasharray="176 72 22 46 122 102"/><circle class="ring-node" cx="138" cy="456" r="3.5"/><circle class="ring-node soft" cx="586" cy="274" r="4"/></g><g class="spin-cw"><circle class="ring-arc fine" cx="360" cy="360" r="278" stroke-dasharray="210 98 30 54 132 126"/><circle class="ring-node" cx="585" cy="523" r="3.5"/><circle class="ring-node soft" cx="160" cy="167" r="4"/></g></svg>'),
+            ('.preview-shell{border:1px solid var(--line);border-radius:20px;background:#fff;box-shadow:var(--shadow);overflow:hidden}.preview-bar{height:42px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:7px;padding:0 14px}.preview-bar i{width:7px;height:7px;border-radius:50%;background:#D8D5CE}.preview-bar span{margin-left:8px;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted2)}.preview-viewport{height:430px;overflow:hidden;background:#fff}.preview-viewport iframe{width:1440px;height:980px;border:0;transform:scale(.39);transform-origin:top left;pointer-events:none}.print-preview{display:none}',
+             '.report-preview-link{display:block;color:inherit;text-decoration:none}.report-preview-card{position:relative;min-height:382px;padding:24px 25px 20px;overflow:hidden;background:linear-gradient(180deg,#FFFFFF 0%,#FAFAF8 100%);border:1px solid rgba(143,196,201,.72);border-radius:4px;box-shadow:0 16px 44px rgba(24,25,28,.10);transition:transform 220ms var(--ease),box-shadow 220ms var(--ease)}.report-preview-link:hover .report-preview-card,.report-preview-link:focus-visible .report-preview-card{transform:translateY(-3px);box-shadow:0 20px 50px rgba(24,25,28,.14)}.rpt-top{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin:-24px -25px 0;padding:17px 25px 15px;background:#08383E;border-bottom:1px solid rgba(255,255,255,.12)}.rpt-brand{font-size:13px;font-weight:700;letter-spacing:-.025em;color:#fff}.rpt-meta{text-align:right;font-size:7.5px;line-height:1.5;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.68)}.rpt-kicker{margin:16px 0 5px;font-size:7.5px;font-weight:700;letter-spacing:.17em;text-transform:uppercase;color:#0C6E78}.rpt-title{margin:0;font-size:22px;line-height:1.08;letter-spacing:-.04em;color:#18191C}.rpt-deck{margin:7px 0 0;font-size:8px;line-height:1.5;color:#666760}.rpt-story{display:grid;grid-template-columns:112px 1fr;gap:18px;align-items:center;margin-top:20px;padding:16px;background:#F2EFE8;border:1px solid #E2DED5}.rpt-ring{width:104px;height:104px;border-radius:50%;position:relative;display:grid;place-items:center;background:conic-gradient(#C9821F 0 30%,#DDDAD2 30% 100%)}.rpt-ring::after{content:"";position:absolute;inset:14px;border-radius:50%;background:#F2EFE8}.rpt-ring-center{position:relative;z-index:1;text-align:center}.rpt-ring-center b{display:block;font-size:26px;line-height:1;letter-spacing:-.055em;color:#08383E}.rpt-ring-center span{display:block;margin-top:4px;font-size:6px;line-height:1.25;letter-spacing:.08em;text-transform:uppercase;color:#70716B}.rpt-metrics{display:grid;gap:10px}.rpt-metric{padding-bottom:9px;border-bottom:1px solid #D7D3CA}.rpt-metric:last-child{padding-bottom:0;border-bottom:0}.rpt-metric span{display:block;font-size:6.4px;letter-spacing:.1em;text-transform:uppercase;color:#77786F}.rpt-metric b{display:block;margin-top:3px;font-size:15px;line-height:1;color:#123E52;letter-spacing:-.035em}.rpt-metric:nth-child(2) b{color:#0C6E78}.rpt-footer{display:flex;justify-content:space-between;margin-top:15px;padding-top:10px;border-top:1px solid #DCD9D1;font-size:6.5px;letter-spacing:.08em;text-transform:uppercase;color:#92938B}.report-preview-caption{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:13px;font-size:.82rem;font-weight:600;color:var(--teal)}.report-preview-caption span:last-child{font-size:1.1rem;transition:transform 180ms ease}.report-preview-link:hover .report-preview-caption span:last-child{transform:translateX(4px)}.print-preview{display:none}'),
+            ('<div class="reveal delay-2"><div class="preview-shell" aria-label="Live preview of the current Monderman Sample Reports page"><div class="preview-bar"><i></i><i></i><i></i><span>Live page preview · sample-report.html</span></div><div class="preview-viewport"><iframe src="sample-report.html" loading="lazy" title="Current Monderman Sample Reports page preview" tabindex="-1"></iframe></div></div><div class="print-preview"><p class="eyebrow" style="margin-bottom:10px">Current product evidence</p><strong>Sample Reports</strong><p class="micro" style="margin:8px 0 0">View the current Diagnostic and Synthesis report formats at monderman.com/sample-report.html.</p></div></div>',
+             '<div class="reveal delay-2"><a class="report-preview-link" href="sample-report.html" aria-label="Open complete Monderman sample reports"><div class="report-preview-card"><div class="rpt-top"><span class="rpt-brand">Monderman</span><span class="rpt-meta">Operational Systems<br/>Executive Report</span></div><p class="rpt-kicker">Composite report view · representative output</p><h3 class="rpt-title">The operating burden is measurable—and part of it is recoverable.</h3><p class="rpt-deck">A Monderman report connects the measured condition to annual exposure, modeled recoverable capacity, and the intervention the evidence supports first.</p><div class="rpt-story"><div class="rpt-ring" aria-hidden="true"><div class="rpt-ring-center"><b>30%</b><span>potentially<br/>recoverable</span></div></div><div class="rpt-metrics"><div class="rpt-metric"><span>Burden exposed</span><b>5,280 hrs</b></div><div class="rpt-metric"><span>Annual cost</span><b>$411,840</b></div><div class="rpt-metric"><span>Recovery value</span><b>$123,552</b></div></div></div><div class="rpt-footer"><span>Sample organization</span><span>Time · cost · capacity</span></div></div><div class="report-preview-caption"><span>Explore complete sample reports</span><span aria-hidden="true">→</span></div></a><div class="print-preview"><p class="eyebrow" style="margin-bottom:10px">Current product evidence</p><strong>Sample Reports</strong><p class="micro" style="margin:8px 0 0">View the current Diagnostic and Synthesis report formats at monderman.com/sample-report.html.</p></div></div>'),
+            ('.close-mark{width:74px;height:74px;margin-bottom:28px;border-radius:20px;border:1px solid rgba(169,207,210,.24);display:flex;align-items:center;justify-content:center}.close-mark span{font-size:2.1rem;font-weight:700;color:#fff}.close-mark i{width:8px;height:8px;border-radius:2px;background:var(--orange);margin:24px 0 0 4px}',
+             '.close-wordmark{display:inline-flex;align-items:center;gap:10px;margin-bottom:28px;color:#fff;font-size:1.35rem;font-weight:700;letter-spacing:-.025em}.close-wordmark i{width:7px;height:7px;border-radius:2px;background:var(--teal-light)}'),
+            ('<div class="close-mark reveal"><span>M</span><i></i></div><p class="eyebrow reveal delay-1">Monderman</p>',
+             '<div class="close-wordmark reveal">Monderman<i></i></div><p class="eyebrow reveal delay-1">Platform brief</p>'),
+          ]
+          for old,new in replacements:
+            c=text.count(old)
+            if c!=1: raise SystemExit(f'Expected one occurrence, found {c}: {old[:100]}')
+            text=text.replace(old,new)
+
+          text=text.replace('.preview-shell{height:360px}.preview-viewport{height:318px}', '.report-preview-card{min-height:350px}')
+          text=text.replace('.preview-shell{display:none}', '.report-preview-link{display:none}')
+          text=text.replace('.preview-shell{display:none!important}', '.report-preview-link{display:none!important}')
+
+          p.write_text(text,encoding='utf-8')
+          PY
+          git diff --check
+          python scripts/validate_frontend_release.py
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          text=Path('Monderman_Platform_Brief.html').read_text(encoding='utf-8')
+          for x in ['<iframe','class="close-mark"','class="orbit"','class="flow"','font-size:clamp(3.2rem,6.7vw,6.8rem)']:
+            if x in text: raise SystemExit(f'Forbidden stale visual remains: {x}')
+          for x in ['class="report-preview-link"','Explore complete sample reports','spin-cw','spin-ccw','class="close-wordmark"','font-size:clamp(2.65rem,4.3vw,4.6rem)']:
+            if x not in text: raise SystemExit(f'Required repair missing: {x}')
+          ids=re.findall(r'\bid="([^"]+)"',text)
+          dupes=sorted({x for x in ids if ids.count(x)>1})
+          if dupes: raise SystemExit(f'Duplicate ids: {dupes}')
+          PY
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          text=Path('Monderman_Platform_Brief.html').read_text(encoding='utf-8')
+          blocks=re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>',text,flags=re.S|re.I)
+          Path('/tmp/platform-brief.js').write_text('\n'.join(blocks),encoding='utf-8')
+          PY
+          node --check /tmp/platform-brief.js
+      - name: Commit repaired brief
+        run: |
+          git config user.name "ChatGPT"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- Monderman_Platform_Brief.html
+          git diff --cached --check
+          git commit -m "Refine Platform Brief visuals"
+          git push origin HEAD:agent/platform-brief-visual-repair-20260819
