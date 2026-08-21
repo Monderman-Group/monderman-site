@@ -184,6 +184,15 @@ try:
 except Exception as exc:
  e.append('beta compliance implementation: '+str(exc))
 
+invite=(r/'accept-invite.html').read_text(errors='ignore')
+signin=(r/'signin.html').read_text(errors='ignore')
+for token in ['You&rsquo;ve been invited to a Monderman workspace','No purchase or separate signup is required','Continue securely']:
+ if token not in invite:e.append('signed-out invitation landing '+token)
+for token in ['Accept your Monderman workspace invitation','Invited email address','Review the terms to join this workspace','invitationStatusMessage','invite_email_mismatch','invite_expired','invite_not_found','history.replaceState(null, ""','sessionStorage.removeItem(INVITE_STORAGE_KEY)']:
+ if token not in signin:e.append('signed-out invitation sign-in '+token)
+if 'Your account was not activated' in signin:e.append('signed-out invitation false activation error')
+if signin.count('createClient(')!=1:e.append('sign-in shared Supabase client count')
+
 print('frontend release errors:',len(e))
 for x in e:print('ERROR',x)
 sys.exit(bool(e))
