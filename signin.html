@@ -27,6 +27,7 @@
     html{scroll-behavior:smooth}
     body{margin:0;min-height:100vh;background:radial-gradient(circle at 86% 10%, rgba(12,110,120,.08), transparent 22%),linear-gradient(180deg,#FAFAF8 0%, var(--page) 100%);color:var(--ink);font-family:"Neue Haas Grotesk","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;display:flex;flex-direction:column}
     a{text-decoration:none;color:inherit}
+    a:focus-visible{outline:3px solid rgba(12,110,120,.28);outline-offset:3px;border-radius:4px}
     button,input{font:inherit}
     button{appearance:none}
     h1,h2,h3{margin:0;letter-spacing:-.03em}
@@ -86,8 +87,10 @@
     .legal-acceptance p{font-size:.88rem;line-height:1.55;color:var(--ink-soft);margin:0 0 13px}
     .legal-check{display:flex;align-items:flex-start;gap:10px;font-size:.9rem;line-height:1.5;color:var(--ink)}
     .legal-check input{margin-top:3px;flex:0 0 auto}
+    .legal-check input:focus-visible{outline:3px solid rgba(12,110,120,.28);outline-offset:3px}
     .legal-check a{color:var(--accent-dark);font-weight:600;text-decoration:underline}
     .legal-submit{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:48px;margin-top:15px;border:0;border-radius:12px;background:var(--accent-dark);color:#fff;font-weight:600;cursor:pointer}
+    .legal-submit:focus-visible{outline:3px solid rgba(12,110,120,.28);outline-offset:3px}
     .legal-submit:disabled{opacity:.55;cursor:not-allowed}
 
     .sample-line{margin:18px 0 0;text-align:center;font-size:.9rem;color:var(--ink-soft)}
@@ -507,7 +510,6 @@
     // ---- Boot ----
     checkExistingSession();
   </script>
-  <script src="assistant.js" defer></script>
   <script src="connect-widget.js" defer></script>
 </body>
 </html>
