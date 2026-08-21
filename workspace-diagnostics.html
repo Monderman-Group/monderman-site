@@ -334,6 +334,7 @@ body{transition:background-color .25s ease, color .25s ease}
   <style>
     .note{margin-top:16px;font-size:13px;line-height:1.5;padding:12px 14px;border-radius:9px}
     .note.ok{background:var(--ok-bg);color:var(--ok-fg)}
+    .note.warn{background:var(--warn-bg);color:var(--warn-fg)}
     .note.bad{background:var(--rose-bg);color:var(--rose-fg)}
     .prev-summary{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
     .chip{font-size:12.5px;font-weight:600;padding:5px 11px;border-radius:5px}
@@ -599,6 +600,10 @@ body{transition:background-color .25s ease, color .25s ease}
         <!-- COMPOSE -->
         <section class="card" id="composeCard" hidden>
           <div class="card-h"><h3>Compose a campaign</h3><span class="sub">Directed campaign</span><span id="draftInd" aria-live="polite" style="margin-left:auto;font-size:12px;color:var(--muted-2);align-self:center"></span></div>
+
+          <div class="note warn" id="usBetaCampaignRestriction" role="note">
+            <b>U.S.-only controlled beta.</b> Unless Monderman separately agrees in writing to an international arrangement, self-service campaigns are for U.S.-based organizations and adult participants located in the United States. Before sending, confirm that every invited participant is located in the United States. Do not send an invitation or submit personal information that requires a non-U.S. processing or transfer arrangement Monderman has not separately established.
+          </div>
 
           <div class="grid">
             <div class="field full">
