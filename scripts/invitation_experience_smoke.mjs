@@ -4,12 +4,14 @@ import vm from "node:vm";
 
 const invite = readFileSync(new URL("../accept-invite.html", import.meta.url), "utf8");
 const signin = readFileSync(new URL("../signin.html", import.meta.url), "utf8");
+const workspace = readFileSync(new URL("../workspace.html", import.meta.url), "utf8");
 
 for (const text of [
   "You&rsquo;ve been invited to a Monderman workspace",
   "the email address that received this invitation",
   "No purchase or separate signup is required",
-  "Continue securely"
+  "Continue securely",
+  "Return to sign in"
 ]) assert.ok(invite.includes(text), `invitation landing copy missing: ${text}`);
 
 for (const text of [
@@ -29,8 +31,20 @@ assert.ok(signin.includes('sessionStorage.removeItem(INVITE_STORAGE_KEY)'), "inv
 assert.ok(signin.indexOf('if (invitationMode) {') < signin.indexOf('checkExistingSession();'), "invitation copy must be applied before auth boot");
 assert.ok(signin.includes('ui.sampleLine.hidden = true'), "generic acquisition path must be absent in invitation mode");
 assert.ok(signin.includes('window.__mondermanConnectLoaded = true'), "invitation mode must prevent Connect-widget collision");
+assert.ok(!signin.includes('<script src="assistant.js"'), "transactional sign-in and legal states must not load the floating assistant");
+assert.ok(!invite.includes('<script src="assistant.js"'), "invitation landing must not load the floating assistant");
+assert.ok(workspace.includes('<script src="workspace-assistant.js" defer></script>'), "ordinary Workspace assistance must remain available");
 assert.ok(!signin.includes("Your account was not activated"), "pre-auth/legal lookup failures must not claim account activation failed");
 assert.ok(invite.includes('/^[A-Za-z0-9_-]{16,240}$/.test(token)'), "missing and malformed invitation tokens must be rejected before sign-in");
+
+assert.match(invite, /<a class="cta" id="continueBtn" href="signin\.html\?next=workspace\.html">Continue securely<\/a>/, "Continue securely must remain a native keyboard-activatable link");
+assert.match(invite, /<a class="cta" href="signin\.html\?next=workspace\.html">Return to sign in<\/a>/, "invalid-link recovery must remain a native keyboard-activatable link");
+assert.match(signin, /<button class="provider-btn" id="googleBtn" type="button">/, "Google authentication must remain a native button");
+assert.match(signin, /<form class="email-form" id="emailForm"[^>]*>/, "email sign-in must remain a native form");
+assert.match(signin, /<button class="email-submit" id="emailSubmit" type="submit">/, "email magic-link submission must remain a native submit button");
+assert.match(signin, /<input id="legalAgree" type="checkbox" \/>/, "legal acknowledgement must remain a native checkbox");
+assert.match(signin, /<button class="legal-submit" id="legalSubmit" type="button" disabled>/, "legal submission must remain a native button with an accurate initial disabled state");
+assert.match(signin, /<button class="invitation-recovery" id="invitationRecovery" type="button">/, "wrong-identity recovery must remain a native button");
 
 const functionSource = signin.match(/function invitationStatusMessage\(code, networkFailure=false\)\{[\s\S]*?\n    \}/)?.[0];
 assert.ok(functionSource, "invitation error mapper must remain testable");
@@ -47,8 +61,14 @@ for (const token of [
   'min-height:52px',
   'role="status" aria-live="polite"',
   'overflow-wrap:anywhere',
+  'a:focus-visible',
+  '.provider-btn:hover,.provider-btn:focus-visible',
+  '.email-submit:hover,.email-submit:focus-visible',
+  '.invitation-recovery:hover,.invitation-recovery:focus-visible',
+  '.legal-check input:focus-visible',
+  '.legal-submit:focus-visible',
   'ui.invitationRecovery.focus()',
   'ui.emailInput.focus()'
 ]) assert.ok(signin.includes(token), `mobile/accessibility guard missing: ${token}`);
 
-console.log("Invitation experience smoke passed: invitation copy, secure context, accurate states, singleton auth, and mobile/accessibility guards.");
+console.log("Invitation experience smoke passed: invitation copy, secure context, accurate states, focused transactional presentation, native keyboard semantics, singleton auth, and mobile/accessibility guards.");
