@@ -30,8 +30,8 @@ assert.ok(signin.includes('history.replaceState(null, ""'), "invitation material
 assert.ok(signin.includes('sessionStorage.removeItem(INVITE_STORAGE_KEY)'), "invitation context must be cleared after completion");
 assert.ok(signin.indexOf('if (invitationMode) {') < signin.indexOf('checkExistingSession();'), "invitation copy must be applied before auth boot");
 assert.ok(signin.includes('ui.sampleLine.hidden = true'), "generic acquisition path must be absent in invitation mode");
-assert.ok(signin.includes('window.__mondermanConnectLoaded = true'), "invitation mode must prevent Connect-widget collision");
 assert.ok(!signin.includes('<script src="assistant.js"'), "transactional sign-in and legal states must not load the floating assistant");
+assert.ok(!signin.includes('<script src="connect-widget.js"'), "transactional sign-in and legal states must not load the Connect acquisition widget");
 assert.ok(!invite.includes('<script src="assistant.js"'), "invitation landing must not load the floating assistant");
 assert.ok(workspace.includes('<script src="workspace-assistant.js" defer></script>'), "ordinary Workspace assistance must remain available");
 assert.ok(!signin.includes("Your account was not activated"), "pre-auth/legal lookup failures must not claim account activation failed");
