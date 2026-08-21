@@ -29,7 +29,7 @@
       display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-size:22px;
     }
     h1{margin:0 0 10px; font-size:22px; letter-spacing:-.02em}
-    p{margin:0 0 14px; font-size:14.5px; line-height:1.6; color:var(--muted)}
+    p{margin:0 0 14px; font-size:14.5px; line-height:1.6; color:var(--muted); overflow-wrap:anywhere}
     p:last-of-type{margin-bottom:0}
     .cta{
       display:inline-block; margin-top:24px; font:inherit; font-size:15px; font-weight:600;
@@ -45,13 +45,13 @@
     <div class="mark" aria-hidden="true">&#9679;</div>
     <div id="valid">
       <h1>You&rsquo;ve been invited to a Monderman workspace</h1>
-      <p>Sign in &mdash; or create your account &mdash; using <b>the email address this invitation was sent to</b>. Before the invitation is activated, you will be asked to agree to the Terms of Service and acknowledge the Privacy Notice.</p>
-      <a class="cta" id="continueBtn" href="signin.html?next=workspace.html">Continue to sign in</a>
+      <p>Authenticate using <b>the email address that received this invitation</b>. No purchase or separate signup is required. Access is granted only after you review and accept the current Terms of Service and Privacy Notice.</p>
+      <a class="cta" id="continueBtn" href="signin.html?next=workspace.html">Continue securely</a>
       <p class="fine">Used a different email address day to day? Ask whoever invited you to re-send the invitation to that address instead.</p>
     </div>
     <div id="invalid" hidden>
       <h1>This invitation link is incomplete</h1>
-      <p>The link is missing its invitation code. Open the link exactly as it appears in your email, or ask whoever invited you to send it again.</p>
+      <p>Open the complete link from your invitation email, or ask the workspace administrator to send a new invitation.</p>
     </div>
   </main>
   <script>
@@ -63,7 +63,8 @@
     (function () {
       var token = null;
       try { token = new URLSearchParams(location.search).get("token"); } catch (e) {}
-      if (!token) {
+      var tokenIsWellFormed = typeof token === "string" && /^[A-Za-z0-9_-]{16,240}$/.test(token);
+      if (!tokenIsWellFormed) {
         document.getElementById("valid").hidden = true;
         document.getElementById("invalid").hidden = false;
       } else {
