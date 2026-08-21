@@ -77,6 +77,16 @@
     .signin-footnote a{color:var(--accent-dark);font-weight:600}
     .signin-footnote a:hover{text-decoration:underline}
 
+    .legal-acceptance{display:none;margin-top:22px;padding:18px;border:1px solid var(--line-strong);border-radius:14px;background:var(--accent-softer)}
+    .legal-acceptance.show{display:block}
+    .legal-acceptance h2{font-size:1.05rem;line-height:1.3;margin:0 0 8px}
+    .legal-acceptance p{font-size:.88rem;line-height:1.55;color:var(--ink-soft);margin:0 0 13px}
+    .legal-check{display:flex;align-items:flex-start;gap:10px;font-size:.9rem;line-height:1.5;color:var(--ink)}
+    .legal-check input{margin-top:3px;flex:0 0 auto}
+    .legal-check a{color:var(--accent-dark);font-weight:600;text-decoration:underline}
+    .legal-submit{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:48px;margin-top:15px;border:0;border-radius:12px;background:var(--accent-dark);color:#fff;font-weight:600;cursor:pointer}
+    .legal-submit:disabled{opacity:.55;cursor:not-allowed}
+
     .sample-line{margin:18px 0 0;text-align:center;font-size:.9rem;color:var(--ink-soft)}
     .sample-line a{color:var(--accent-dark);font-weight:600}
     .sample-line a:hover{text-decoration:underline}
@@ -137,11 +147,19 @@
 
       <div class="signin-status" id="signinStatus" role="status" aria-live="polite"></div>
 
+      <section class="legal-acceptance" id="legalAcceptance" aria-labelledby="legalAcceptanceHeading">
+        <h2 id="legalAcceptanceHeading">Review the beta terms</h2>
+        <p>Your account is signed in. Complete this required acknowledgement before continuing.</p>
+        <label class="legal-check">
+          <input id="legalAgree" type="checkbox" />
+          <span>I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms of Service</a> and acknowledge the <a href="privacy.html" target="_blank" rel="noopener">Privacy Notice</a>.</span>
+        </label>
+        <button class="legal-submit" id="legalSubmit" type="button" disabled>Agree and continue</button>
+      </section>
+
       <p class="sample-line">Not ready to sign up? <a href="sample-report.html">View a sample report first →</a></p>
 
-      <p class="signin-footnote">
-        By signing in, you agree to the <a href="terms.html">Public Beta Terms</a>. We use your sign-in to identify and secure your workspace. See the <a href="privacy.html">Privacy notice</a>.
-      </p>
+      <p class="signin-footnote">We use your sign-in to identify and secure your workspace. New accounts and designated activation flows require affirmative agreement to the <a href="terms.html">Terms of Service</a> and acknowledgement of the <a href="privacy.html">Privacy Notice</a>.</p>
     </div>
   </main>
 
@@ -175,6 +193,7 @@
         flowType: "pkce"
       }
     });
+    const API_BASE = "https://monderman-api.onrender.com";
 
     // ---- Resolve the post-login destination from ?next= (default: workspace) ----
     // Only allow same-site relative targets to avoid open-redirect abuse.
@@ -190,9 +209,21 @@
 
     // The OAuth redirect must come back to THIS page, preserving ?next=,
     // so the session-check below can forward the user on to nextTarget.
-    function oauthRedirectTo(){
+    function acceptanceContext(providerSource){
+      const params = new URLSearchParams(window.location.search);
+      const inviteToken = params.get("invite_token") || "";
+      const requested = params.get("acceptance_source") || "";
+      const source = requested === "invite" && inviteToken
+        ? "invite"
+        : (providerSource || requested || "signup");
+      return { source, inviteToken };
+    }
+    function authReturnUrl(providerSource){
       const base = window.location.origin + window.location.pathname;
-      return `${base}?next=${encodeURIComponent(nextTarget)}`;
+      const current = acceptanceContext(providerSource);
+      const params = new URLSearchParams({ next: nextTarget, acceptance_source: current.source });
+      if (current.inviteToken) params.set("invite_token", current.inviteToken);
+      return `${base}?${params.toString()}`;
     }
 
     // ---- UI helpers ----
@@ -205,6 +236,9 @@
       emailInput: document.getElementById("emailInput"),
       emailSubmit: document.getElementById("emailSubmit"),
       status: document.getElementById("signinStatus"),
+      legalAcceptance: document.getElementById("legalAcceptance"),
+      legalAgree: document.getElementById("legalAgree"),
+      legalSubmit: document.getElementById("legalSubmit"),
     };
     function setStatus(message, tone="info"){
       if(!message){ ui.status.className="signin-status"; ui.status.textContent=""; return; }
@@ -230,6 +264,72 @@
       window.location.replace(nextTarget);
     }
 
+    let revealTimer;
+    let acceptanceCheckStarted = false;
+    let pendingSession = null;
+    let currentDocuments = null;
+    async function continueAfterAuth(session){
+      if (forwarded || acceptanceCheckStarted || !session?.user) return;
+      acceptanceCheckStarted = true;
+      pendingSession = session;
+      const context = acceptanceContext();
+      const query = new URLSearchParams({ source: context.source });
+      if (context.inviteToken) query.set("invite_token", context.inviteToken);
+      try{
+        const response = await fetch(`${API_BASE}/api/legal/acceptance/status?${query.toString()}`, {
+          headers: { authorization: `Bearer ${session.access_token}` }
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || !result.ok) throw new Error(result.error || "legal_acceptance_status_failed");
+        if (!result.requiresAcceptance){ forwardOn(); return; }
+        currentDocuments = result;
+        clearTimeout(revealTimer);
+        ui.sessionCheck.classList.add("hidden");
+        ui.google.hidden = true;
+        document.querySelector(".divider").hidden = true;
+        ui.emailForm.hidden = true;
+        ui.legalAcceptance.classList.add("show");
+        ui.legalAgree.focus();
+        setStatus("");
+      }catch(error){
+        clearTimeout(revealTimer);
+        ui.sessionCheck.classList.add("hidden");
+        setStatus("We couldn’t verify the current Terms and Privacy Notice. Your account was not activated; please try again or contact support.", "error");
+        console.warn("Legal acceptance status error:", error?.message || error);
+      }
+    }
+
+    ui.legalAgree.addEventListener("change", () => {
+      ui.legalSubmit.disabled = !ui.legalAgree.checked;
+    });
+    ui.legalSubmit.addEventListener("click", async () => {
+      if (!ui.legalAgree.checked || !pendingSession || !currentDocuments) return;
+      const context = acceptanceContext();
+      ui.legalSubmit.disabled = true;
+      ui.legalSubmit.textContent = "Recording…";
+      try{
+        const response = await fetch(`${API_BASE}/api/legal/acceptance`, {
+          method: "POST",
+          headers: { "content-type": "application/json", authorization: `Bearer ${pendingSession.access_token}` },
+          body: JSON.stringify({
+            agreed: true,
+            source: context.source,
+            invite_token: context.inviteToken || undefined,
+            terms_version: currentDocuments.termsVersion,
+            privacy_notice_version: currentDocuments.privacyNoticeVersion
+          })
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || !result.ok) throw new Error(result.error || "legal_acceptance_failed");
+        forwardOn();
+      }catch(error){
+        ui.legalSubmit.disabled = false;
+        ui.legalSubmit.textContent = "Agree and continue";
+        setStatus("We couldn’t record your agreement. Nothing was activated; please try again.", "error");
+        console.warn("Legal acceptance error:", error?.message || error);
+      }
+    });
+
     // Are we returning from an OAuth provider? Supabase appends a ?code=... (PKCE)
     // or #access_token=... to the URL. If so, the session is mid-exchange — we must
     // WAIT for it rather than immediately showing the form.
@@ -241,12 +341,12 @@
 
     // Forward the instant Supabase finishes establishing the session.
     supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) forwardOn();
+      if (session?.user) continueAfterAuth(session);
     });
 
     // Safety net: never trap the user on the spinner. Wait LONGER if we're
     // mid-OAuth-exchange (so we don't flash the form before the session lands).
-    const revealTimer = setTimeout(revealForm, returningFromOAuth ? 9000 : 4000);
+    revealTimer = setTimeout(revealForm, returningFromOAuth ? 9000 : 4000);
 
     async function checkExistingSession(){
       // Retry getSession a few times — right after an OAuth redirect the session
@@ -257,7 +357,7 @@
           const { data } = await supabase.auth.getSession();
           if (data?.session?.user){
             clearTimeout(revealTimer);
-            forwardOn();
+            continueAfterAuth(data.session);
             return;
           }
         }catch(e){ /* keep trying */ }
@@ -275,7 +375,7 @@
       try{
         const { error } = await supabase.auth.signInWithOAuth({
           provider,
-          options: { redirectTo: oauthRedirectTo() }
+          options: { redirectTo: authReturnUrl(provider === "google" ? "google_oauth" : "signup") }
         });
         if (error) throw error;
         // On success the browser redirects to the provider; nothing else to do.
@@ -304,7 +404,7 @@
       try{
         const { error } = await supabase.auth.signInWithOtp({
           email,
-          options: { emailRedirectTo: window.location.origin + "/" + nextTarget }
+          options: { emailRedirectTo: authReturnUrl(acceptanceContext().source === "invite" ? "invite" : "signup") }
         });
         if (error) throw error;
         setStatus(`Check your inbox — we sent a sign-in link to ${email}. It expires shortly, so use it soon.`, "ok");

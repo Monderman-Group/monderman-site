@@ -64,9 +64,12 @@
       // Sits directly under the assigned banner, before the first question, so a
       // recipient knows what is and is not attached to their answers before they
       // start rather than afterwards.
-      ".ma-privacy{background:#FAFAF8;border-bottom:1px solid rgba(24,25,28,.12);" +
-      "padding:14px 26px;font-size:15px;line-height:1.55;color:#18191C;}" +
+      ".ma-privacy{display:block;position:relative;top:auto;z-index:1190;background:#FAFAF8;" +
+      "border-bottom:1px solid rgba(24,25,28,.12);padding:16px 26px;font-size:14.5px;" +
+      "line-height:1.55;color:#18191C;box-shadow:none;}" +
       ".ma-privacy b{font-weight:600}" +
+      ".ma-privacy p{margin:7px 0;color:#303136;font-size:14.5px;line-height:1.55}" +
+      ".ma-privacy a{color:#0C6E78;font-weight:600}" +
       ".ma-privacy .ma-pl{display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;" +
       "color:#5B6068;margin-bottom:4px}" +
       ".ma-banner b{font-weight:600;}" +
@@ -159,21 +162,19 @@
       var box = document.createElement("div");
       box.className = "ma-privacy";
       box.id = "ma-privacy";
-      if (cfg.is_anonymous_response) {
-        box.innerHTML =
-          "<span class='ma-pl'>Anonymous run</span>" +
-          "<b>Your name is not attached to these answers.</b> Your organization sees this " +
-          "response as a pseudonym, with the date you answered rather than the time. It does " +
-          "see which business unit the response came from, because that is what this " +
-          "diagnostic measures. In a small unit, that could narrow down who answered." +
-          "<br><br>You will see your results when you finish. They cannot be reopened " +
-          "afterwards, because nothing links this response back to you.";
-      } else {
-        box.innerHTML =
-          "<span class='ma-pl'>Attributed run</span>" +
-          "<b>Your name is attached to these answers.</b> Your organization sees who answered, " +
-          "along with your business unit and when you completed it.";
-      }
+      var sponsor = escapeHtml(cfg.sponsoring_organization_name || "the sponsoring organization");
+      var resultVisibility = cfg.show_results_to_assignee !== false
+        ? "You will see the individual report after a successful submission; an anonymous report cannot later be reopened from the invitation."
+        : "You will not receive an individual report after submission; the sponsoring organization receives the completed result for its Workspace review.";
+      var attribution = cfg.is_anonymous_response
+        ? "<b>This campaign is configured as anonymous.</b> The saved Diagnostic result is shown under a pseudonym and is not attached to the named recipient assignment in the customer Workspace. Business unit or team may still be shown, so a person can be inferable in a small group. Monderman still processes the invitation and necessary request and security metadata to deliver and protect the service."
+        : "<b>This campaign is attributable.</b> Your name is attached to the response. The sponsoring organization can see who answered, organizational context such as business unit, and completion information.";
+      box.innerHTML =
+        "<span class='ma-pl'>Participant privacy notice</span>" +
+        "<p>Monderman provides the Diagnostic platform. <b>" + sponsor + "</b> requested this Diagnostic and receives the completed result in its Workspace.</p>" +
+        "<p>You will provide structured answers and may add written observations. " + attribution + "</p>" +
+        "<p>The quantitative score is calculated deterministically from structured answers. Content needed for the Diagnostic&rsquo;s written interpretation may be processed by Monderman&rsquo;s AI provider. This can include structured Diagnostic context and results and, when applicable, interview messages or optional written observations. AI does not calculate or set the quantitative score.</p>" +
+        "<p>Monderman and necessary service providers may process data in the United States and other jurisdictions where they operate. " + resultVisibility + " Retention, rights, and provider details are in the <a href='privacy.html' target='_blank' rel='noopener'>Privacy Notice</a>.</p>";
       var banner = document.getElementById("ma-banner");
       if (banner && banner.parentNode) banner.parentNode.insertBefore(box, banner.nextSibling);
       else document.body.insertBefore(box, document.body.firstChild);
@@ -187,10 +188,11 @@
       bar.className = "ma-banner";
       bar.id = "ma-banner";
       var lens = LENS_LABEL[cfg.participant_lens] || cfg.participant_lens || "";
+      var sponsor = escapeHtml(cfg.sponsoring_organization_name || "your organization");
       bar.innerHTML =
         "<span class='ma-dot'></span>" +
         "<span class='ma-eyebrow'>Assigned</span>" +
-        "<span>by your organization" +
+        "<span>by <b>" + sponsor + "</b>" +
         (cfg.event_path_name ? "<span class='ma-sep'>&middot;</span><b>" + escapeHtml(cfg.event_path_name) + "</b>" : "") +
         "</span>" +
         (lens ? "<span class='ma-tag'>" + escapeHtml(lens) + " perspective</span>" : "");

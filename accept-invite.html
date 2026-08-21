@@ -45,7 +45,7 @@
     <div class="mark" aria-hidden="true">&#9679;</div>
     <div id="valid">
       <h1>You&rsquo;ve been invited to a Monderman workspace</h1>
-      <p>Sign in &mdash; or create your account &mdash; using <b>the email address this invitation was sent to</b>. Your membership activates automatically the moment you&rsquo;re signed in; there&rsquo;s nothing else to accept.</p>
+      <p>Sign in &mdash; or create your account &mdash; using <b>the email address this invitation was sent to</b>. Before the invitation is activated, you will be asked to agree to the Terms of Service and acknowledge the Privacy Notice.</p>
       <a class="cta" id="continueBtn" href="signin.html?next=workspace.html">Continue to sign in</a>
       <p class="fine">Used a different email address day to day? Ask whoever invited you to re-send the invitation to that address instead.</p>
     </div>
@@ -58,14 +58,21 @@
     // The token in the URL identifies the invitation for support purposes, but
     // redemption itself is email-based: signing in with the invited address
     // triggers the redeem_my_invites() flow (auth trigger plus the RPC the
-    // workspace calls on load). This page therefore only needs to explain the
-    // one step that matters and route to sign-in.
+    // workspace calls on load). Preserve the invitation token through sign-in
+    // so the server can bind the acceptance record to the invited organization.
     (function () {
       var token = null;
       try { token = new URLSearchParams(location.search).get("token"); } catch (e) {}
       if (!token) {
         document.getElementById("valid").hidden = true;
         document.getElementById("invalid").hidden = false;
+      } else {
+        var params = new URLSearchParams({
+          next: "workspace.html",
+          acceptance_source: "invite",
+          invite_token: token
+        });
+        document.getElementById("continueBtn").href = "signin.html?" + params.toString();
       }
     })();
   </script>

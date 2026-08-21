@@ -334,6 +334,7 @@ body{transition:background-color .25s ease, color .25s ease}
   <style>
     .note{margin-top:16px;font-size:13px;line-height:1.5;padding:12px 14px;border-radius:9px}
     .note.ok{background:var(--ok-bg);color:var(--ok-fg)}
+    .note.warn{background:var(--warn-bg);color:var(--warn-fg)}
     .note.bad{background:var(--rose-bg);color:var(--rose-fg)}
     .prev-summary{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
     .chip{font-size:12.5px;font-weight:600;padding:5px 11px;border-radius:5px}
@@ -600,6 +601,10 @@ body{transition:background-color .25s ease, color .25s ease}
         <section class="card" id="composeCard" hidden>
           <div class="card-h"><h3>Compose a campaign</h3><span class="sub">Directed campaign</span><span id="draftInd" aria-live="polite" style="margin-left:auto;font-size:12px;color:var(--muted-2);align-self:center"></span></div>
 
+          <div class="note warn" id="usBetaCampaignRestriction" role="note">
+            <b>U.S.-only controlled beta.</b> Unless Monderman separately agrees in writing to an international arrangement, self-service campaigns are for U.S.-based organizations and adult participants located in the United States. Before sending, confirm that every invited participant is located in the United States. Do not send an invitation or submit personal information that requires a non-U.S. processing or transfer arrangement Monderman has not separately established.
+          </div>
+
           <div class="grid">
             <div class="field full">
               <label for="fPath">Pathway label</label>
@@ -660,11 +665,12 @@ body{transition:background-color .25s ease, color .25s ease}
                    business-unit exception here stops an admin promising more
                    than the tool delivers. -->
               <p class="tiny" id="anonNote" style="flex:1 1 100%;margin:6px 0 0">
-                <b>Anonymous responses:</b> names are not attached to answers. You see each
-                response as a pseudonym, with the date rather than the time. Business unit and
-                team are still shown, because that is what the diagnostic measures, so in a
-                small unit you may still work out who answered. Once a campaign is sent,
-                anonymity cannot be switched off.
+                <b>Anonymous responses:</b> the completed result has no direct assignment-ID or
+                run-ID join back to the named recipient in this Workspace. You see each response
+                as a pseudonym, with the date rather than the time. Monderman still processes
+                invitation and necessary request, delivery, and security metadata. Business unit
+                and team remain visible, so a person may be inferable in a small unit. Once a
+                campaign is sent, anonymity cannot be switched off.
               </p>
             </div>
           </div>
@@ -711,6 +717,7 @@ body{transition:background-color .25s ease, color .25s ease}
 
   <script src="monderman-report.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
+  <script src="workspace-access-gate.js"></script>
 <script type="module">
     const { createClient } = window.supabase;
     const supabase = createClient(
