@@ -270,9 +270,6 @@
       footnote: document.querySelector(".signin-footnote"),
     };
     if (invitationMode) {
-      // The optional acquisition widget can cover the primary action on a
-      // narrow invitation screen. Keep this transactional flow focused.
-      window.__mondermanConnectLoaded = true;
       document.querySelector(".signin-kicker").textContent = "Workspace invitation";
       ui.heading.textContent = "Accept your Monderman workspace invitation";
       ui.sub.textContent = "Sign in with the email address that received this invitation. No purchase or separate signup is required. Access is granted only after you review and accept the current Terms and Privacy Notice.";
@@ -510,6 +507,5 @@
     // ---- Boot ----
     checkExistingSession();
   </script>
-  <script src="connect-widget.js" defer></script>
 </body>
 </html>
