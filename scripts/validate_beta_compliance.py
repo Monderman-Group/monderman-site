@@ -8,6 +8,22 @@ def require(text, tokens, label):
     if missing:
         raise AssertionError(f"{label} missing: {', '.join(missing)}")
 
+UNRESOLVED_LEGAL_MARKERS = [
+    re.compile(r"\[[^\]]*(?:TBD|TO BE CONFIRMED|CONFIRMATION REQUIRED|DECISION REQUIRED|COUNSEL REVIEW)[^\]]*\]", re.I),
+    re.compile(r"\bTBD\b", re.I),
+    re.compile(r"\bto be confirmed\b", re.I),
+    re.compile(r"\bcounsel review\b", re.I),
+    re.compile(r"\b(?:business|legal|counsel|contract|product) confirmation required\b", re.I),
+    re.compile(r"\b(?:business|legal|counsel|product) decision required\b", re.I),
+    re.compile(r"\bunresolved (?:legal |production )?(?:drafting )?(?:marker|placeholder)s?\b", re.I),
+]
+
+def assert_no_drafting_markers(text, label):
+    for pattern in UNRESOLVED_LEGAL_MARKERS:
+        match = pattern.search(text)
+        if match:
+            raise AssertionError(f"{label} contains unresolved drafting marker: {match.group(0)}")
+
 def validate():
     assignment = (ROOT / "assignment-mode.js").read_text(errors="ignore")
     require(assignment, [
@@ -69,21 +85,38 @@ def validate():
     require(privacy, [
         "Version 2026-08-20-beta", "Subprocessors and infrastructure page",
         "does not currently display a nonessential-cookie opt-in banner",
-        "four-hour recovery window", "[LEGAL ENTITY AND ADDRESS TO BE CONFIRMED]",
-        "[COUNSEL AND CONTRACT CONFIRMATION REQUIRED]"
+        "Monderman, LLC", "Alabama, United States", "generally acts as the controller or business",
+        "generally acts as the customer's processor or service provider",
+        "performance of a contract", "legitimate interests", "does not treat a participant's acknowledgement",
+        "In-progress Diagnostic recovery sessions expire after four hours",
+        "campaign plus 12 months", "24 months after the last substantive interaction",
+        "Billing and tax records are retained for seven years",
+        "Legal-acceptance records are retained for seven years after the relationship ends",
+        "Pattern-trial anti-abuse record is retained for three years",
+        "removed from active systems within 30 days", "provider's controlled deletion schedule",
+        "EU Standard Contractual Clauses", "must not submit that information through the self-service beta",
+        "Anthropic does not calculate or set those scores", "lodge a complaint"
     ], "Privacy Notice")
+    assert_no_drafting_markers(privacy, "Privacy Notice")
     terms = (ROOT / "terms.html").read_text(errors="ignore")
     require(terms, [
         "Version 2026-08-20-beta", "affirmative agreement", "Terms version",
         "Privacy Notice version", "server-recorded acceptance timestamp", "source/context",
-        "[BUSINESS AND COUNSEL CONFIRMATION REQUIRED]"
+        "Monderman, LLC", "Alabama, United States", "requires no payment card, ends automatically",
+        "does not convert to a paid subscription", "non-refundable except where applicable law requires",
+        "Cancellation prevents a future renewal", "“as is” and “as available”",
+        "12 months immediately preceding", "US $100 if the claim relates only to free beta use",
+        "courts serving Madison County, Alabama", "do not require mandatory arbitration",
+        "payment-card data into Diagnostic fields", "biometric identifiers", "children's data"
     ], "Terms")
+    assert_no_drafting_markers(terms, "Terms")
 
     subprocessors = (ROOT / "subprocessors.html").read_text(errors="ignore")
     require(subprocessors, [
         "Supabase", "Render", "Anthropic", "Resend", "Stripe", "Google", "Cloudflare",
         "Factual inventory, not a contract.", "Public-site and browser infrastructure"
     ], "subprocessor page")
+    assert_no_drafting_markers(subprocessors, "Subprocessor page")
 
     for sitemap in ["sitemap.xml", "sitemap.txt"]:
         if "subprocessors.html" not in (ROOT / sitemap).read_text(errors="ignore"):

@@ -17,15 +17,24 @@ for p in r.glob("*.html"):
   if 'integrity=' not in tag or 'crossorigin=' not in tag:e.append(p.name+": external script without SRI")
  if 'esm.sh/@supabase' in t or '/@supabase/supabase-js@2.111.0/+esm' in t:e.append(p.name+": Supabase ESM import remains")
 
-# Draft/beta branches may carry conspicuous counsel placeholders. An outside-
-# beta production certification may not. Release automation must set
-# MONDERMAN_RELEASE_CHANNEL=production, which turns these markers into hard
-# failures without inventing the unresolved legal/business answers here.
+# Public Privacy and Terms must be operative text before production. Draft
+# branches may still be checked under the beta channel, but the production
+# channel treats any common unresolved drafting marker as a hard failure.
 if release_channel in {'production','outside-beta'}:
- placeholder=re.compile(r'\[[^\]]*(?:TO BE CONFIRMED|CONFIRMATION REQUIRED|COUNSEL REVIEW REQUIRED|COUNSEL/PRODUCT DECISION REQUIRED)[^\]]*\]',re.I)
+ placeholder_patterns=[
+  re.compile(r'\[[^\]]*(?:TBD|TO BE CONFIRMED|CONFIRMATION REQUIRED|DECISION REQUIRED|COUNSEL REVIEW)[^\]]*\]',re.I),
+  re.compile(r'\bTBD\b',re.I),
+  re.compile(r'\bto be confirmed\b',re.I),
+  re.compile(r'\bcounsel review\b',re.I),
+  re.compile(r'\b(?:business|legal|counsel|contract|product) confirmation required\b',re.I),
+  re.compile(r'\b(?:business|legal|counsel|product) decision required\b',re.I),
+  re.compile(r'\bunresolved (?:legal |production )?(?:drafting )?(?:marker|placeholder)s?\b',re.I),
+ ]
  for name in ['privacy.html','terms.html']:
-  for marker in sorted(set(placeholder.findall((r/name).read_text(errors='ignore')))):
-   e.append(name+': unresolved production legal placeholder '+marker)
+  public_text=(r/name).read_text(errors='ignore')
+  for pattern in placeholder_patterns:
+   for match in pattern.finditer(public_text):
+    e.append(name+': unresolved production legal drafting marker '+match.group(0))
 s=(r/'sample-report.html').read_text()
 if len(re.findall(r'<h1\b',s,re.I))!=1:e.append('sample h1')
 if s.count('aria-label="Jump to report section"')<4:e.append('sample selects')
