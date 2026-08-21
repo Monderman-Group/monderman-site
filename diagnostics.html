@@ -2493,6 +2493,7 @@
       "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
       { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" } }
     );
+    window.__mondermanSB = supabase;
     // Resolve current session (null if signed out). Exposed for the tile click handler.
     window.mondermanGetSession = async function(){
       try {
@@ -3816,10 +3817,7 @@
 
   <!-- Dynamic nav pill: Sign In (signed out) / Workspace (signed in) -->
   <script type="module">
-    const { createClient } = window.supabase;
-    const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co",
-      "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
-      { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" }});
+    const sb = window.__mondermanSB;
     (async () => {
       const link = document.querySelector("a.workspace-link");
       if (!link) return;

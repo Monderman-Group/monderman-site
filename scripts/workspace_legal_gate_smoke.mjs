@@ -4,9 +4,10 @@ import vm from "node:vm";
 
 const source = readFileSync(new URL("../workspace-access-gate.js", import.meta.url), "utf8");
 
-async function runScenario({ status, pathname = "/workspace-diagnostics.html", search = "", user = true }) {
+async function runScenario({ status, pathname = "/workspace-diagnostics.html", search = "", user = true, memberships = null }) {
   const redirects = [];
   let statusCalls = 0;
+  let clientCreations = 0;
   const location = {
     pathname,
     search,
@@ -27,10 +28,16 @@ async function runScenario({ status, pathname = "/workspace-diagnostics.html", s
     auth: {
       getUser: async () => ({ data: { user: user ? { id: "user-1" } : null } }),
       getSession: async () => ({ data: { session: user ? { access_token: "verified-token" } : null } })
-    }
+    },
+    from: () => ({
+      select() { return this; },
+      async eq() {
+        return { data: memberships || [{ user_id: "user-1", organization_id: "org-1", role: "admin", organizations: { id: "org-1", name: "Fixture Workspace", owner_user_id: "user-1" } }], error: null };
+      }
+    })
   };
   const window = {
-    supabase: { createClient: () => client },
+    supabase: { createClient: () => { clientCreations += 1; return client; } },
     __mondermanSB: null
   };
   const context = vm.createContext({
@@ -38,6 +45,7 @@ async function runScenario({ status, pathname = "/workspace-diagnostics.html", s
     document,
     location,
     URLSearchParams,
+    sessionStorage: { getItem() { return null; }, setItem() {} },
     Promise,
     setTimeout,
     clearTimeout,
@@ -52,7 +60,7 @@ async function runScenario({ status, pathname = "/workspace-diagnostics.html", s
   });
   vm.runInContext(source, context);
   const decision = await window.mondermanWorkspaceAccessReady;
-  return { decision, redirects, statusCalls, root, elements };
+  return { decision, redirects, statusCalls, root, elements, clientCreations, client: window.__mondermanSB };
 }
 
 const blocked = await runScenario({
@@ -70,6 +78,8 @@ const accepted = await runScenario({
   status: { ok: true, enforcementActive: true, requiresAcceptance: false, accepted: true }
 });
 assert.equal(accepted.decision.allowed, true, "current acceptance opens normal Workspace/product use");
+assert.equal(accepted.decision.activeWorkspace.id, "org-1");
+assert.equal(accepted.clientCreations, 1, "the gate creates exactly one Supabase client");
 assert.equal(accepted.root.style.visibility, "");
 assert.deepEqual(accepted.redirects, []);
 
@@ -81,6 +91,7 @@ assert.equal(existingUser.decision.allowed, true, "pre-cutover user remains comp
 const assignment = await runScenario({ search: "?assignment_token=directed-token" });
 assert.equal(assignment.decision.context, "assignment", "directed participant flow retains its token-authorized boundary");
 assert.equal(assignment.statusCalls, 0);
+assert.equal(assignment.clientCreations, 1, "direct assignments retain the same singleton client contract");
 
 const signedOut = await runScenario({ user: false });
 assert.equal(signedOut.decision.reason, "sign_in_required");

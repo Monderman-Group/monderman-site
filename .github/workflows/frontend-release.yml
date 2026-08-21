@@ -21,4 +21,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python scripts/validate_stabilization.py
+      - run: node scripts/workspace_legal_gate_smoke.mjs
       - run: python scripts/validate_frontend_release.py

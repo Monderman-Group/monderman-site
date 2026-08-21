@@ -43,6 +43,7 @@
     .panel.warn{background:#FBF3E3;border:1px solid rgba(201,130,31,.35);color:#6B4E14;}
     .panel.err{background:#FBEBE9;border:1px solid rgba(170,50,40,.3);color:#7A2A22;}
     .panel a{color:inherit;font-weight:600;}
+    .workspace-choice{margin:16px 0 0;padding:13px 14px;border:1px solid var(--line);border-radius:10px;background:#FCFBF8}.workspace-choice label{display:block;margin-bottom:7px;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--deep)}.workspace-choice select{width:100%;padding:10px 11px;border:1px solid #D8D4CA;border-radius:8px;background:#fff;color:var(--ink);font:500 14px 'Neue Haas Grotesk',sans-serif}.workspace-choice p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink)}
     .muted-note{margin-top:26px;text-align:center;font-size:12.8px;color:#8A8B90;}
     .muted-note a{color:var(--accent);text-decoration:none;font-weight:500;}
   </style>
@@ -60,6 +61,11 @@
       <p class="billing-line" id="billingLine"></p>
       <ul class="inc" id="incList"></ul>
       <div class="seatline"><strong>No per-participant pricing.</strong> Signal includes 50 completed participant responses and 12 Syntheses a year. Pattern includes 500 completed participant responses and unlimited Syntheses. Self-runs are unlimited on both tiers and do not draw on the participant-response allowance.</div>
+      <div class="workspace-choice" id="workspaceChoice" hidden>
+        <label for="organizationSelect">Workspace for this subscription</label>
+        <select id="organizationSelect" hidden></select>
+        <p id="organizationName"></p>
+      </div>
       <button class="btn" id="payBtn" disabled>Continue to secure checkout</button>
       <div class="panel warn" id="unavailablePanel">
         Self-serve checkout is being enabled. In the meantime, request an order form and we will set your tier up by invoice: <a id="connectLink" href="connect.html">open the Connect form</a>.
@@ -73,10 +79,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
   <script src="workspace-access-gate.js"></script>
 <script type="module">
-    const { createClient } = window.supabase;
-    const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co",
-      "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
-      { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" }});
+    const workspaceAccess = await window.mondermanWorkspaceAccessReady;
+    if (!workspaceAccess?.allowed) throw new Error("workspace_access_not_allowed");
+    const sb = await window.mondermanGetSupabaseClient();
 
     const API_BASE = "https://monderman-api.onrender.com";
 
@@ -127,6 +132,7 @@
     if (["monthly","quarterly","annual"].includes(interval)) sessionStorage.setItem("mdm_checkout_interval", interval);
 
     let sessionReady = false;
+    let organizationId = null;
     function updatePayState() {
       const b = document.getElementById("payBtn");
       if (b) b.disabled = !sessionReady;
@@ -152,12 +158,51 @@
     async function boot() {
       const { data } = await sb.auth.getSession();
       if (!data?.session) {
-        location.replace("signin.html?next=" + encodeURIComponent("checkout.html"));
+        location.replace("signin.html?next=" + encodeURIComponent("checkout.html" + (location.search || "")));
         return;
       }
       const btn = el("payBtn");
-      sessionReady = true;
-      updatePayState();
+      const choice = el("workspaceChoice"), select = el("organizationSelect"), name = el("organizationName");
+      const setOrganization = (organization) => {
+        organizationId = organization?.id || null;
+        sessionReady = Boolean(organizationId);
+        choice.hidden = !organizationId;
+        name.textContent = organizationId ? `This subscription will apply to ${organization.name || "the selected Workspace"}.` : "";
+        if (organizationId) sessionStorage.setItem("monderman_active_organization_id", organizationId);
+        updatePayState();
+      };
+      try {
+        const query = new URLSearchParams({ purpose: "checkout" });
+        const requestedOrganizationId = params.get("organization_id") || sessionStorage.getItem("monderman_active_organization_id") || "";
+        if (requestedOrganizationId) query.set("organization_id", requestedOrganizationId);
+        let response = await fetch(API_BASE + "/api/billing/organizations?" + query.toString(), { headers: { authorization: "Bearer " + data.session.access_token } });
+        let out = await response.json().catch(() => ({}));
+        if (!response.ok && requestedOrganizationId && out.error === "organization_access_denied") {
+          query.delete("organization_id");
+          response = await fetch(API_BASE + "/api/billing/organizations?" + query.toString(), { headers: { authorization: "Bearer " + data.session.access_token } });
+          out = await response.json().catch(() => ({}));
+        }
+        const organizations = Array.isArray(out.organizations) ? out.organizations : [];
+        if (!response.ok || !out.ok || !organizations.length) {
+          showError(out.error === "checkout_requires_admin" ? "Only a Workspace admin can purchase for an organization." : "No eligible Workspace is available for self-service checkout.");
+          return;
+        }
+        if (organizations.length === 1) setOrganization(organizations[0]);
+        else {
+          choice.hidden = false;
+          select.hidden = false;
+          name.textContent = "Choose the Workspace that should receive this subscription.";
+          select.replaceChildren(new Option("Select a Workspace…", ""));
+          organizations.forEach((organization) => select.add(new Option(organization.name || "Workspace", organization.id)));
+          select.addEventListener("change", () => {
+            const organization = organizations.find((candidate) => candidate.id === select.value);
+            if (organization) setOrganization(organization);
+          });
+        }
+      } catch (_error) {
+        showError("Workspace billing access could not be verified. Nothing was charged.");
+        return;
+      }
       btn.addEventListener("click", async () => {
         btn.disabled = true;
         btn.textContent = "Opening secure checkout\u2026";
@@ -169,12 +214,13 @@
               "content-type": "application/json",
               "authorization": "Bearer " + (s?.session?.access_token || "")
             },
-            body: JSON.stringify({ tier, interval })
+            body: JSON.stringify({ tier, interval, organization_id: organizationId })
           });
           const out = await res.json().catch(() => ({}));
           if (res.ok && out.url) { location.href = out.url; return; }
           if (res.status === 503) { el("unavailablePanel").style.display = "block"; }
-          else if (res.status === 403) { showError("Only a workspace admin can purchase for the organization. Ask your admin to complete checkout, or contact us via the Connect form."); }
+          else if (res.status === 403) { showError("Only a workspace admin can purchase for the selected organization. Ask your admin to complete checkout, or contact us via the Connect form."); }
+          else if (out.error === "organization_selection_required") { showError("Choose the Workspace that should receive this subscription."); }
           else if (res.status === 401) { location.replace("signin.html?next=" + encodeURIComponent("checkout.html")); return; }
           else { showError("Checkout could not be started. Nothing was charged \u2014 please try again, or use the Connect form for an order form."); }
         } catch (e) {

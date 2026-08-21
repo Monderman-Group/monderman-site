@@ -678,24 +678,7 @@
   </footer>
 
   <script>(function(){var h=document.getElementById('siteHeader');if(!h)return;var onScroll=function(){if(window.scrollY>12){h.classList.add('scrolled');}else{h.classList.remove('scrolled');}};window.addEventListener('scroll',onScroll,{passive:true});onScroll();})();</script>
-  <!-- Dynamic nav pill: Sign In (signed out) / Workspace (signed in) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
-<script type="module">
-    const { createClient } = window.supabase;
-    const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co",
-      "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
-      { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" }});
-    (async () => {
-      const link = document.querySelector("a.workspace-link");
-      if (!link) return;
-      link.setAttribute("href", "workspace.html");
-      try {
-        const { data } = await sb.auth.getSession();
-        link.textContent = data?.session?.user ? "Workspace" : "Sign In";
-      } catch (e) { link.textContent = "Sign In"; }
-    })();
-  </script>
-
       <!-- Monderman auth (single client): paints the nav pill + fast-paths signed-in users.
        Gated CTAs already point at signin.html?next=<tool>, so the gate is fail-closed —
        clicking one always lands on sign-in first, even if this script never loads. -->
@@ -706,6 +689,14 @@
       "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
       { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" } }
     );
+    const organizationId = new URLSearchParams(location.search).get("organization_id") || sessionStorage.getItem("monderman_active_organization_id") || "";
+    if (organizationId) {
+      document.querySelectorAll('a[href="pattern-trial.html"],a[href^="checkout.html?"]').forEach((link) => {
+        const target = new URL(link.getAttribute("href"), location.href);
+        target.searchParams.set("organization_id", organizationId);
+        link.setAttribute("href", target.pathname.split("/").pop() + target.search);
+      });
+    }
 
     const GATED = new Set([
       "structural-clarity.html", "decision-velocity.html",

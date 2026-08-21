@@ -101,9 +101,7 @@
       const API_BASE="https://monderman-api.onrender.com";
       const STORAGE_KEY="mondermanCrossDiagnosticSynthesis";
       const byId=(id)=>document.getElementById(id);
-      const supabase=window.supabase?.createClient
-        ? window.supabase.createClient("https://ptkxrzgmeldalrkfruth.supabase.co","sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}})
-        : null;
+      let supabase=null;
       function unwrap(value){
         if(!value||typeof value!=="object") return null;
         if(value.result&&typeof value.result==="object") return value.result;
@@ -136,9 +134,11 @@
         return true;
       }
       async function load(){
+        const access=await window.mondermanWorkspaceAccessReady;
+        if(!access?.allowed) return;
+        supabase=await window.mondermanGetSupabaseClient();
         const id=new URLSearchParams(location.search).get("id");
         if(id){
-          if(!supabase){ byId("missingTitle").textContent="Couldn’t load the saved Synthesis"; return; }
           try{
             const {data}=await supabase.auth.getSession(); const token=data?.session?.access_token;
             if(!token){ location.replace("signin.html?next="+encodeURIComponent("cross-tool-synthesis.html?id="+id)); return; }

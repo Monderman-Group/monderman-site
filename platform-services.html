@@ -852,6 +852,15 @@
   </footer>
 
   <script>(function(){var h=document.getElementById('siteHeader');if(!h)return;var onScroll=function(){if(window.scrollY>12){h.classList.add('scrolled');}else{h.classList.remove('scrolled');}};window.addEventListener('scroll',onScroll,{passive:true});onScroll();})();</script>
+  <script>
+    (function(){
+      var organizationId=new URLSearchParams(location.search).get("organization_id")||sessionStorage.getItem("monderman_active_organization_id")||"";
+      if(!organizationId)return;
+      document.querySelectorAll('a[href="plan-signal.html"],a[href="plan-pattern.html"]').forEach(function(link){
+        link.href=link.getAttribute("href")+"?organization_id="+encodeURIComponent(organizationId);
+      });
+    })();
+  </script>
 
     <!-- Monderman auth (single client): paints the nav pill + fast-paths signed-in users.
        Gated CTAs already point at signin.html?next=<tool>, so the gate is fail-closed —

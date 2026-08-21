@@ -118,12 +118,9 @@
 
   function accessToken() {
     if (!authClientPromise) {
-      authClientPromise = import("https://esm.sh/@supabase/supabase-js@2").then(function (mod) {
-        return mod.createClient(
-          "https://ptkxrzgmeldalrkfruth.supabase.co",
-          "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
-          { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" } }
-        );
+      authClientPromise = window.mondermanWorkspaceAccessReady.then(function (access) {
+        if (!access || !access.allowed) throw new Error("workspace_access_not_allowed");
+        return window.mondermanGetSupabaseClient();
       });
     }
     return authClientPromise.then(function (client) {

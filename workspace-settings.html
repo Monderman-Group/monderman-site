@@ -424,12 +424,9 @@ body{transition:background-color .25s ease, color .25s ease}
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
   <script src="workspace-access-gate.js"></script>
 <script type="module">
-    const { createClient } = window.supabase;
-    const supabase = createClient(
-      "https://ptkxrzgmeldalrkfruth.supabase.co",
-      "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
-      { auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" } }
-    );
+    const workspaceAccess = await window.mondermanWorkspaceAccessReady;
+    if (!workspaceAccess?.allowed) throw new Error("workspace_access_not_allowed");
+    const supabase = await window.mondermanGetSupabaseClient();
 
     const PLAN_LABEL = { trial:"Trial", signal:"Signal", pattern:"Pattern", enterprise:"Enterprise", // legacy values kept so an old row still renders a name rather than a blank
                          free:"Trial", baseline:"Signal", advisory:"Pattern" };
@@ -508,7 +505,7 @@ body{transition:background-color .25s ease, color .25s ease}
 
       let orgId=null, memberRole=null;
       try{
-        const { data:m } = await supabase.from("organization_members").select("organization_id, role").eq("user_id",user.id).limit(1).maybeSingle();
+        const { data:m } = await supabase.from("organization_members").select("organization_id, role").eq("user_id",user.id).eq("organization_id",window.__mondermanActiveOrganizationId).maybeSingle();
         orgId=m?.organization_id||null; memberRole=m?.role||null;
       }catch(e){}
       let org=null;

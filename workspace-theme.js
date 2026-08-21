@@ -118,8 +118,6 @@
    infer why Analysis/results suddenly disappeared, so every Workspace surface
    shows the same explicit explanation. */
 (function () {
-  var SB_URL = "https://ptkxrzgmeldalrkfruth.supabase.co";
-  var SB_KEY = "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
 
   function mountNotice(role) {
     if (document.getElementById("ws5SeatPauseNotice")) return;
@@ -134,14 +132,16 @@
 
   async function checkPausedSeat() {
     try {
-      if (!window.supabase || typeof window.supabase.createClient !== "function") return;
-      var sb = window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" } });
+      var access = await window.mondermanWorkspaceAccessReady;
+      if (!access || !access.allowed) return;
+      var sb = await window.mondermanGetSupabaseClient();
       var userResult = await sb.auth.getUser();
       var user = userResult && userResult.data && userResult.data.user;
       if (!user) return;
       var result = await sb.from("organization_members")
         .select("billing_suspended_role")
         .eq("user_id", user.id)
+        .eq("organization_id", window.__mondermanActiveOrganizationId)
         .not("billing_suspended_role", "is", null)
         .limit(1)
         .maybeSingle();

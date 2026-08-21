@@ -1,13 +1,9 @@
 // Monderman workspace shell — shared chrome for the stub spaces.
-// Guards auth (redirects to sign-in if no session), fills the rail/topbar identity,
+// Reuses the central access gate, fills the rail/topbar identity,
 // and wires sign-out. The Overview page has its own richer script and does not use this.
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const supabase = createClient(
-  "https://ptkxrzgmeldalrkfruth.supabase.co",
-  "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
-  { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" } }
-);
+const workspaceAccess = await window.mondermanWorkspaceAccessReady;
+if (!workspaceAccess?.allowed) throw new Error("workspace_access_not_allowed");
+const supabase = await window.mondermanGetSupabaseClient();
 
 const PLAN_LABEL = { trial: "Trial", signal: "Signal", pattern: "Pattern", enterprise: "Enterprise",
   // legacy values kept so an old row still renders a name rather than a blank
@@ -50,7 +46,7 @@ function planDisplay(org) {
     const { data: m } = await supabase
       .from("organization_members")
       .select("role, organizations(name, plan, subscription_status, pattern_trial_ends_at)")
-      .limit(1)
+      .eq("organization_id", window.__mondermanActiveOrganizationId)
       .maybeSingle();
     const role = m?.role || "viewer";
     set("ws5UserRole", role.charAt(0).toUpperCase() + role.slice(1));
