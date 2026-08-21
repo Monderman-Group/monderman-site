@@ -39,53 +39,12 @@
     })();
   </script>
   <script type="module">
-    const { createClient } = window.supabase;
-    const sb = createClient(
-      window.MONDERMAN_SUPABASE_URL,
-      window.MONDERMAN_SUPABASE_ANON_KEY,
-      { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" } }
-    );
-    window.__mondermanSB = sb; // reused by fetchWithTimeout to send the user's token
-
-    async function reveal() {
-      const gate = await window.mondermanWorkspaceAccessReady;
-      if (!gate?.allowed) return;
+    const gate = await window.mondermanWorkspaceAccessReady;
+    if (gate?.allowed) {
+      await window.mondermanGetSupabaseClient();
       clearTimeout(window.__mondermanRevealTimer);
       if (window.__mondermanReveal) window.__mondermanReveal();
     }
-    function toSignIn() {
-      // Keep the query string: context like assignment_token must survive the
-      // sign-in round trip instead of being silently dropped.
-      const here = (location.pathname.split("/").pop() || "workspace.html") + (location.search || "");
-      location.replace("signin.html?next=" + encodeURIComponent(here));
-    }
-
-    // Coming straight from an email magic-link? The session is mid-exchange in the
-    // URL — wait for it rather than bouncing someone who actually just signed in.
-    const midExchange = location.href.indexOf("code=") > -1 || location.href.indexOf("access_token") > -1;
-
-    let decided = false;
-    sb.auth.onAuthStateChange((_e, session) => {
-      if (!decided && session && session.user) { decided = true; reveal(); }
-    });
-    (async () => {
-      // Directed-campaign exemption: an assignment link must open without an
-      // account — the backend promised recipients "no account needed", and the
-      // taker's run persists through /api/assignments/complete, not through a
-      // member session. Everyone else still goes through the session check.
-      if (new URLSearchParams(location.search).has("assignment_token")) { decided = true; reveal(); return; }
-      const attempts = midExchange ? 12 : 3;
-      for (let i = 0; i < attempts; i++) {
-        try {
-          const { data } = await sb.auth.getSession();
-          if (data && data.session && data.session.user) { decided = true; reveal(); return; }
-        } catch (e) { /* transient — retry */ }
-        await new Promise(r => setTimeout(r, 500));
-      }
-      if (decided) return;   // a session landed via onAuthStateChange while we waited
-      decided = true;
-      toSignIn();            // genuinely signed out -> go authenticate
-    })();
   </script>
   <!-- ===== end access guard ===== -->
 

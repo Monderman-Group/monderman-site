@@ -714,6 +714,7 @@
     const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co",
       "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
       { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" }});
+    window.__mondermanSB = sb;
     (async () => {
       const link = document.querySelector("a.workspace-link");
       if (!link) return;
@@ -729,12 +730,7 @@
        Gated CTAs already point at signin.html?next=<tool>, so the gate is fail-closed —
        clicking one always lands on sign-in first, even if this script never loads. -->
   <script type="module">
-    const { createClient } = window.supabase;
-    const sb = createClient(
-      "https://ptkxrzgmeldalrkfruth.supabase.co",
-      "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
-      { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" } }
-    );
+    const sb = window.__mondermanSB;
 
     const GATED = new Set([
       "structural-clarity.html", "decision-velocity.html",

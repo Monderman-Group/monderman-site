@@ -553,12 +553,9 @@ body{transition:background-color .25s ease, color .25s ease}
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
   <script src="workspace-access-gate.js"></script>
 <script type="module">
-    const { createClient } = window.supabase;
-    const supabase = createClient(
-      "https://ptkxrzgmeldalrkfruth.supabase.co",
-      "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz",
-      { auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" } }
-    );
+    const workspaceAccess = await window.mondermanWorkspaceAccessReady;
+    if (!workspaceAccess?.allowed) throw new Error("workspace_access_not_allowed");
+    const supabase = await window.mondermanGetSupabaseClient();
     const API_BASE = "https://monderman-api.onrender.com";
     let ws5OrgId = null, ws5Role = "viewer";
 
@@ -1131,7 +1128,7 @@ body{transition:background-color .25s ease, color .25s ease}
       const name = user.user_metadata?.full_name || user.user_metadata?.name || user.email || "Monderman User";
       setText("ws5UserName", name); setText("ws5Ava", initials(name, user.email));
       try{
-        const { data:m } = await supabase.from("organization_members").select("role, organization_id, organizations(name, plan, subscription_status, pattern_trial_ends_at)").limit(1).maybeSingle();
+        const { data:m } = await supabase.from("organization_members").select("role, organization_id, organizations(name, plan, subscription_status, pattern_trial_ends_at)").eq("organization_id",window.__mondermanActiveOrganizationId).maybeSingle();
         ws5Role = String(m?.role||"viewer").toLowerCase(); ws5OrgId = m?.organization_id || null;
         setText("ws5UserRole", cap(m?.role||"viewer"));
         setText("ws5Org", (m?.organizations?.name)||"Personal workspace");

@@ -22,6 +22,7 @@
     .msg{display:none;margin-top:16px;border-radius:9px;padding:12px 14px;font-size:13.5px;line-height:1.55}.msg.err{display:block;background:#FBEBE9;color:#7A2A22}.msg.ok{display:block;background:#EAF4EE;color:#285D43}
     .fine{font-size:12.5px;line-height:1.55;color:#8A8B90;text-align:center;margin:15px 0 0}
     .confirm{display:flex;gap:10px;align-items:flex-start;margin:18px 0 4px;padding:13px 14px;border:1px solid var(--line);border-radius:10px;background:#FCFBF8;font-size:13px;line-height:1.5;color:#4E5054}.confirm input{margin-top:3px;flex:0 0 auto}.confirm a{color:var(--accent-d);font-weight:600}
+    .workspace-choice{margin:18px 0;padding:14px 16px;border:1px solid var(--line);border-radius:11px;background:#FCFBF8}.workspace-choice label{display:block;margin-bottom:7px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--deep)}.workspace-choice select{width:100%;padding:11px 12px;border:1px solid #D8D4CA;border-radius:8px;background:#fff;color:var(--ink);font:500 14px 'Neue Haas Grotesk',sans-serif}.workspace-choice p{margin:0;font-size:14px;line-height:1.5;color:var(--ink)}
   </style>
 </head>
 <body>
@@ -38,6 +39,11 @@
       <li>Pattern Workspace capacity for five analysts and two admins</li>
     </ul>
     <div class="terms"><strong>What happens on day 30:</strong> the Pattern trial ends automatically. If you have not explicitly chosen a paid subscription, nothing is charged and your Workspace returns to the standard Trial level. Your saved work is retained. Standard Trial access limits apply after day 30; choosing a paid plan restores the applicable Pattern access.</div>
+    <div class="workspace-choice" id="workspaceChoice" hidden>
+      <label for="organizationSelect">Workspace for this trial</label>
+      <select id="organizationSelect" hidden></select>
+      <p id="organizationName"></p>
+    </div>
     <label class="confirm"><input type="checkbox" id="ackStart" disabled><span>I understand this one-time 30-day beta evaluation starts immediately when I continue and remains used for this account identity even if the Workspace is later deleted or replaced. I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms of Service</a> and acknowledge the <a href="privacy.html" target="_blank" rel="noopener">Privacy Notice</a>.</span></label>
     <button id="startBtn" disabled>Start my 30-day Pattern trial</button>
     <div id="msg" class="msg" role="status" aria-live="polite"></div>
@@ -50,22 +56,52 @@
     const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co", "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz", { auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"} });
     const API_BASE = "https://monderman-api.onrender.com";
     const btn = document.getElementById("startBtn"), msg = document.getElementById("msg"), ack = document.getElementById("ackStart");
+    const choice = document.getElementById("workspaceChoice"), organizationSelect = document.getElementById("organizationSelect"), organizationName = document.getElementById("organizationName");
     let sessionReady=false, organizationId=null;
     function show(text, kind="err"){ msg.textContent=text; msg.className="msg "+kind; }
     function syncStart(){ btn.disabled=!(sessionReady && ack.checked); }
     function denyStart(text){ sessionReady=false; ack.checked=false; ack.disabled=true; syncStart(); show(text); }
+    function selectOrganization(organization){
+      organizationId=organization?.id || null;
+      sessionReady=!!organizationId;
+      choice.hidden=!organizationId;
+      organizationName.textContent=organizationId ? `This Pattern trial will start for ${organization.name || "the selected Workspace"}.` : "";
+      if(organizationId) sessionStorage.setItem("monderman_active_organization_id", organizationId);
+      ack.disabled=!sessionReady;
+      syncStart();
+    }
     const { data } = await sb.auth.getSession();
-    if(!data?.session){ location.replace("signin.html?next="+encodeURIComponent("pattern-trial.html")); }
+    if(!data?.session){ location.replace("signin.html?next="+encodeURIComponent("pattern-trial.html"+(location.search||""))); }
     else {
       try{
-        const { data:membership, error } = await sb.from("organization_members")
-          .select("organization_id, role, organizations(plan, pattern_trial_used_at)")
-          .limit(1).maybeSingle();
-        if(error || !membership?.organizations) denyStart("We couldn’t verify this Workspace’s trial eligibility. Please open the Workspace and try again.");
-        else if(!["admin","owner"].includes(String(membership.role||"").toLowerCase())) denyStart("Only an organization admin can start the Pattern trial.");
-        else if(membership.organizations.pattern_trial_used_at) denyStart("This account identity has already used its one-time Pattern trial.");
-        else if(membership.organizations.plan!=="trial") denyStart("The 30-day Pattern evaluation is available to Workspaces that are currently on the standard Trial level.");
-        else { organizationId=membership.organization_id; sessionReady=true; ack.disabled=false; syncStart(); }
+        const token=data.session.access_token || "";
+        const query=new URLSearchParams({purpose:"trial"});
+        const requestedOrganizationId=new URLSearchParams(location.search).get("organization_id") || sessionStorage.getItem("monderman_active_organization_id") || "";
+        if(requestedOrganizationId) query.set("organization_id",requestedOrganizationId);
+        let response=await fetch(API_BASE+"/api/billing/organizations?"+query.toString(),{headers:{authorization:"Bearer "+token}});
+        let out=await response.json().catch(()=>({}));
+        if(!response.ok && requestedOrganizationId && out.error==="organization_access_denied"){
+          query.delete("organization_id");
+          response=await fetch(API_BASE+"/api/billing/organizations?"+query.toString(),{headers:{authorization:"Bearer "+token}});
+          out=await response.json().catch(()=>({}));
+        }
+        const organizations=Array.isArray(out.organizations)?out.organizations:[];
+        if(!response.ok || !out.ok || !organizations.length){
+          const messages={trial_requires_admin:"Only an organization admin can start the Pattern trial.",no_trial_eligible_organization:"No eligible Trial Workspace is available for this one-time Pattern evaluation."};
+          denyStart(messages[out.error] || "We couldn’t verify an eligible Workspace. Please open the Workspace and try again.");
+        }else if(organizations.length===1){
+          selectOrganization(organizations[0]);
+        }else{
+          choice.hidden=false;
+          organizationSelect.hidden=false;
+          organizationName.textContent="Choose the Workspace that should receive this Pattern trial.";
+          organizationSelect.replaceChildren(new Option("Select a Workspace…", ""));
+          organizations.forEach((org)=>organizationSelect.add(new Option(org.name || "Workspace", org.id)));
+          organizationSelect.addEventListener("change",()=>{
+            const organization=organizations.find((org)=>org.id===organizationSelect.value);
+            if(organization) selectOrganization(organization);
+          });
+        }
       }catch(e){ denyStart("We couldn’t verify this Workspace’s trial eligibility. Please try again."); }
     }
     ack.addEventListener("change",syncStart);
@@ -83,7 +119,7 @@
           const acceptance = await acceptanceResponse.json().catch(()=>({}));
           if(!acceptanceResponse.ok || !acceptance.ok) throw new Error(acceptance.error || "legal_acceptance_failed");
         }
-        const res = await fetch(API_BASE+"/api/billing/start-pattern-trial", {method:"POST", headers:{"content-type":"application/json","authorization":"Bearer "+(s?.session?.access_token||"")}, body:"{}"});
+        const res = await fetch(API_BASE+"/api/billing/start-pattern-trial", {method:"POST", headers:{"content-type":"application/json","authorization":"Bearer "+(s?.session?.access_token||"")}, body:JSON.stringify({organization_id:organizationId})});
         const out = await res.json().catch(()=>({}));
         if(res.ok && out.ok){ show("Pattern is active. Opening your Workspace…","ok"); setTimeout(()=>location.href="workspace.html",700); return; }
         const messages={
@@ -91,6 +127,8 @@
           pattern_trial_not_eligible:"This Workspace is not eligible for a Pattern trial.",
           trial_requires_trial_workspace:"The 30-day Pattern trial is available to Workspaces that are currently on the standard Trial level.",
           trial_requires_admin:"Only an organization admin can start the Pattern trial.",
+          organization_access_denied:"You do not have billing authority for the selected Workspace.",
+          organization_selection_required:"Choose the Workspace that should receive this Pattern trial.",
           trial_unavailable:"The Pattern trial is temporarily unavailable. Please try again shortly."
         };
         show(messages[out.error] || "The Pattern trial could not be started. Nothing was charged.");

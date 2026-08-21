@@ -1,18 +1,11 @@
 // Workspace notes — a floating admin notepad shared across every workspace page.
-// Self-contained: creates its own Supabase client (reads the existing session), is admin-only,
+// Reuses the access gate's Supabase client, is admin-only,
 // and persists notes in public.workspace_notes (org-scoped, admin RLS). Loaded as a module on each page.
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 (async () => {
-  const SUPABASE_URL = "https://ptkxrzgmeldalrkfruth.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
-
-  let supabase;
-  try {
-    supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
-    });
-  } catch (e) { return; }
+  const access = await window.mondermanWorkspaceAccessReady;
+  if (!access?.allowed) return;
+  const supabase = await window.mondermanGetSupabaseClient();
 
   // identify the signed-in user, their org, and whether they are an admin
   let user = null, orgId = null;
@@ -20,7 +13,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
   if (!user) return;
   try {
     const { data: m } = await supabase.from("organization_members")
-      .select("organization_id, role").limit(1).maybeSingle();
+      .select("organization_id, role").eq("organization_id", window.__mondermanActiveOrganizationId).maybeSingle();
     orgId = m?.organization_id || null;
     if (String(m?.role || "").toLowerCase() !== "admin" || !orgId) return; // admin-only widget
   } catch (e) { return; }

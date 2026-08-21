@@ -508,24 +508,10 @@ body{transition:background-color .25s ease,color .25s ease}
   <script src="workspace-access-gate.js"></script>
   <script type="module">
     window.__wsBooted = "module-eval";
-    let createClient;
-    try {
-      ({ createClient } = window.supabase);
-    } catch (e1) {
-      try {
-        ({ createClient } = window.supabase);
-      } catch (e2) {
-        (window.__bootErrors = window.__bootErrors || []).push("Supabase library failed to initialize: " + ((e2 && e2.message) ? e2.message : e2));
-        throw e2;
-      }
-    }
+    const workspaceAccess = await window.mondermanWorkspaceAccessReady;
+    if (!workspaceAccess?.allowed) throw new Error("workspace_access_not_allowed");
+    const supabase = await window.mondermanGetSupabaseClient();
     window.__wsBooted = "lib-loaded";
-
-    const supabaseUrl = "https://ptkxrzgmeldalrkfruth.supabase.co";
-    const supabaseKey = "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
-    const supabase = createClient(supabaseUrl, supabaseKey, {
-      auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:"pkce" }
-    });
 
     const state = { user:null, membership:null, organization:null, role:"viewer", runs:[] };
     const TOOLS = ["structural_clarity","decision_velocity","operational_systems","institutional_performance"];
@@ -606,9 +592,13 @@ body{transition:background-color .25s ease,color .25s ease}
       const { data:memberships, error:membershipError } = await supabase
         .from("organization_members")
         .select("organization_id, role, organizations(id, name, slug, plan, run_limit, runs_used, seat_limit, features, analyst_reviews_included, hands_on_advisory, plan_period, allowed_tool_type, analyst_limit, admin_limit, campaigns_enabled, respondent_pool, respondents_used, aggregation_enabled, aggregation_limit, aggregations_used, anonymous_responses_enabled, subscription_status, pattern_trial_used_at, pattern_trial_ends_at)")
-        .eq("user_id", user.id).limit(1);
+        .eq("user_id", user.id);
       if(membershipError) throw membershipError;
-      if(memberships?.length) return memberships[0];
+      const activeOrganizationId=window.__mondermanActiveOrganizationId || null;
+      const activeMembership=(memberships||[]).find((membership)=>membership.organization_id===activeOrganizationId);
+      if(activeMembership) return activeMembership;
+      if(memberships?.length===1) return memberships[0];
+      if(memberships?.length>1) throw new Error("workspace_selection_required");
       // If invite redemption failed and no existing membership was found, do
       // not silently create a separate workspace. The caller can retry after
       // the database/RPC issue is corrected without splitting their account.
@@ -731,9 +721,10 @@ body{transition:background-color .25s ease,color .25s ease}
       const planCopy=trialing?`Pattern trial · ${trialDays} day${trialDays===1?"":"s"} left`:`${PLAN_LABEL[plan]||plan} plan`;
       $("wsPlanStrip").innerHTML=`<span><b>${escapeHtml(planCopy)}</b></span><span class="sep">·</span><span>No per-participant pricing</span><span class="sep">·</span><span>${escapeHtml(responseAllowance)}</span><span class="sep">·</span><span>${escapeHtml(synthAllowance)}</span>${users.length?`<span class="sep">·</span><span>${escapeHtml(users.join(" + "))}</span>`:""}`;
       const manage=$("wsManageLink"),isTrial=plan==="trial"||plan==="free";
-      if(trialing){ manage.textContent="Choose paid plan →"; manage.href="plan-pattern.html"; return; }
-      manage.textContent=isTrial?"Upgrade →":"Manage plan →"; manage.href=isTrial?"platform-services.html":"#billing";
-      if(!isTrial&&!manage.dataset.billingWired){ manage.dataset.billingWired="1"; manage.addEventListener("click",async(e)=>{e.preventDefault();const prior=manage.textContent;manage.textContent="Opening billing…";try{const{data}=await supabase.auth.getSession();const res=await fetch("https://monderman-api.onrender.com/api/billing/portal-session",{method:"POST",headers:{"content-type":"application/json",authorization:"Bearer "+(data?.session?.access_token||"")}});const out=await res.json().catch(()=>({}));if(res.ok&&out.url){location.href=out.url;return;}manage.textContent=prior;wsNotice(res.status===403?"Only a workspace admin can manage billing.":res.status===404?"No self-serve billing account yet. Invoiced plans are managed via Connect.":"Billing portal is unavailable right now. Try again shortly.");}catch(_e){manage.textContent=prior;wsNotice("Billing portal could not be reached. Try again shortly.");}}); }
+      const organizationQuery=org.id?`?organization_id=${encodeURIComponent(org.id)}`:"";
+      if(trialing){ manage.textContent="Choose paid plan →"; manage.href="plan-pattern.html"+organizationQuery; return; }
+      manage.textContent=isTrial?"Upgrade →":"Manage plan →"; manage.href=isTrial?"platform-services.html"+organizationQuery:"#billing";
+      if(!isTrial&&!manage.dataset.billingWired){ manage.dataset.billingWired="1"; manage.addEventListener("click",async(e)=>{e.preventDefault();const prior=manage.textContent;manage.textContent="Opening billing…";try{const{data}=await supabase.auth.getSession();const res=await fetch("https://monderman-api.onrender.com/api/billing/portal-session",{method:"POST",headers:{"content-type":"application/json",authorization:"Bearer "+(data?.session?.access_token||"")},body:JSON.stringify({organization_id:org.id||null})});const out=await res.json().catch(()=>({}));if(res.ok&&out.url){location.href=out.url;return;}manage.textContent=prior;wsNotice(res.status===403?"Only a workspace admin can manage billing.":res.status===404?"No self-serve billing account yet. Invoiced plans are managed via Connect.":out.error==="organization_selection_required"?"Choose a Workspace before opening billing.":"Billing portal is unavailable right now. Try again shortly.");}catch(_e){manage.textContent=prior;wsNotice("Billing portal could not be reached. Try again shortly.");}}); }
     }
 
     async function resolveUser(){
@@ -755,6 +746,7 @@ body{transition:background-color .25s ease,color .25s ease}
         state.membership = await ensureWorkspace(state.user);
         state.organization = state.membership?.organizations || null;
         state.role = state.membership?.role || "viewer";
+        if(state.membership?.organization_id) sessionStorage.setItem("monderman_active_organization_id", state.membership.organization_id);
         setRoleState(state.role);
         populateChrome();
 
