@@ -668,7 +668,7 @@
     <h1>How Monderman handles your data.</h1>
     <p class="hero-dek">This page explains, in plain language, how Monderman handles the information you provide and the diagnostic work you do on the platform — what is collected, when, why, and what control you have over it.</p>
 <p><em>See also: <a href="security.html">Security &amp; data handling</a> for the technical posture and <a href="terms.html">Public Beta Terms</a> for the rules of use.</em></p>
-    <p class="hero-meta">Last updated: August 19, 2026</p>
+    <p class="hero-meta">Version 2026-08-20-beta · Last updated: August 20, 2026</p>
   </div>
 </section>
 
@@ -709,8 +709,8 @@
   <div class="section-inner">
     <p class="section-eyebrow">ANONYMITY</p>
     <h2>Anonymous campaign responses</h2>
-    <p>When a campaign is configured as anonymous, Monderman does not save a link from the completed Diagnostic run back to the named recipient assignment. The Workspace can still retain organizational context such as business unit or team, which may make a person inferable in a small group.</p>
-    <p>Because the identity link is not retained, Monderman cannot later identify and delete one specific anonymous response on behalf of the person who submitted it.</p>
+    <p>When a campaign is configured as anonymous, the completed Diagnostic result is not saved with an assignment ID or run-ID join back to the named recipient in the customer Workspace. Monderman still processes invitation records and necessary request, delivery, and security metadata to operate and protect the service. The Workspace can retain organizational context such as business unit or team, which may make a person inferable in a small group.</p>
+    <p>Because the customer Workspace has no direct completed-result-to-recipient join, a specific anonymous result ordinarily cannot later be located from the recipient identity alone. Monderman will still assess a rights request against any invitation, security, or other records that can be verified.</p>
   </div>
 </section>
 <section class="section">
@@ -723,8 +723,9 @@
 <section class="section">
   <div class="section-inner">
     <p class="section-eyebrow">AI PROCESSING</p>
-    <h2>Written interpretation uses Anthropic's API</h2>
-    <p>Diagnostic content needed for written interpretation is sent from the Monderman API to Anthropic's commercial API. Monderman does not send Stripe card details or Monderman service credentials with that content.</p>
+    <h2>Specified writing and interview functions use Anthropic's API</h2>
+    <p>Monderman may send the content needed for Diagnostic written interpretation, interview-mode coding, optional experiential-text refinement, the public assistant, and the Workspace assistant to Anthropic's commercial API. The exact content depends on the function used and can include structured Diagnostic context, recent interview or assistant messages, and optional written observations. Monderman does not send Stripe card details or Monderman service credentials with that content.</p>
+    <p>Quantitative Diagnostic scores are calculated deterministically by Monderman's scoring code from structured inputs. Anthropic does not calculate or set those scores. Current Depth Synthesis and Cross-Lens Synthesis calculations are also deterministic.</p>
     <p>Anthropic states that inputs and outputs from its commercial products are not used to train its models by default unless the commercial customer explicitly opts in or submits qualifying feedback. Anthropic also states that standard API inputs and outputs are automatically deleted from its backend within 30 days, subject to its stated safety, legal and contractual exceptions.</p>
   </div>
 </section>
@@ -742,15 +743,16 @@
     <h2>Service, security and delivery records</h2>
     <p>Operating the service creates technical records such as request times, delivery events, authentication events, error logs, browser or network information supplied to service providers, and security or bot-verification signals. We use these records to operate, secure, troubleshoot and improve the service.</p>
     <p>Contact forms, feedback and support requests store the information you submit so we can respond and investigate issues.</p>
-    <p>The signed-in product uses browser storage needed to maintain authentication and Workspace state. Security, payment and other service providers can also use essential cookies or storage on their own domains when providing their part of the service. Monderman does not intentionally place advertising cookies.</p>
+    <p>The signed-in product uses first-party browser storage for Supabase authentication, the selected theme, user-saved Diagnostic context, in-tab report/Synthesis state, assistant conversation history, checkout selection, and a short-lived Cloudflare bot-verification token. Session-scoped values normally end with the browser tab; saved preferences and authentication remain until logout, expiry, deletion, or browser clearing.</p>
+    <p>Stripe and Google can use essential cookies or browser storage on their own domains when you choose checkout or Google sign-in. Monderman does not currently use analytics cookies, advertising pixels, cross-context behavioral advertising, or session-replay tooling. The present authentication, security, preference and checkout storage is used to provide functions you request, so Monderman does not currently display a nonessential-cookie opt-in banner.</p>
   </div>
 </section>
 <section class="section">
   <div class="section-inner">
     <p class="section-eyebrow">SERVICE PROVIDERS</p>
     <h2>Who processes data for Monderman</h2>
-    <p>Core providers currently include Supabase for database and authentication, Render for the API, Anthropic for generated interpretation, Resend for email delivery, Stripe for billing, Cloudflare for bot verification, GitHub for the static site repository and hosting workflow, and public content-delivery networks for versioned browser libraries used by the site.</p>
-    <p>Each provider receives only the information needed for the function it performs, subject to its own terms and the agreements applicable to Monderman's use of that service.</p>
+    <p>Core providers currently include Supabase for database and authentication, Render for the API, Anthropic for specified AI-assisted product functions, Resend for email delivery, Stripe for billing, Google for optional sign-in, and Cloudflare for bot verification. GitHub and browser content-delivery networks support the public site and browser libraries.</p>
+    <p>The maintained <a href="subprocessors.html">Subprocessors and infrastructure page</a> describes each provider's purpose, broad data category, and whether customer content may be processed. It does not promise a particular contract, transfer mechanism, certification, or data location.</p>
   </div>
 </section>
 <section class="section">
@@ -759,6 +761,7 @@
     <h2>We retain data for the service and its safeguards</h2>
     <p>Saved Workspace content remains available until it is deleted, the Workspace is deleted, or retention is otherwise required for service operation, security, fraud prevention, billing, dispute handling or law. Provider-side copies can remain for their documented backup, security or legal retention periods.</p>
     <p>Deleting a Workspace is not a promise that every operational record disappears immediately. In particular, the one-time Pattern-trial anti-abuse record is intentionally retained after Workspace deletion. Billing, security, audit and legal records may also be retained when reasonably necessary for those purposes.</p>
+    <p><strong>Beta retention status:</strong> expired in-progress Diagnostic snapshots are removed from durable recovery storage after their four-hour recovery window. Final periods for saved Diagnostic and Synthesis runs, campaign and participant records, inquiries, billing events, and security/audit records remain <strong>[BUSINESS AND COUNSEL CONFIRMATION REQUIRED]</strong>. Until approved periods are published, Monderman should not represent a shorter guaranteed deletion schedule.</p>
   </div>
 </section>
 <section class="section">
@@ -766,7 +769,8 @@
     <p class="section-eyebrow">YOUR CHOICES</p>
     <h2>Access, correction and deletion requests</h2>
     <p>You can update ordinary Workspace information through the product where controls are available. You may also contact Monderman to request access to, correction of or deletion of personal information, subject to identity verification and legal, security, billing, anti-abuse and technical limitations.</p>
-    <p>Anonymous campaign responses have a special limitation: because the identity link is deliberately not stored, we cannot identify a particular anonymous response later in order to delete it for one respondent.</p>
+    <p>Anonymous campaign responses have a special limitation: the customer Workspace does not retain a direct completed-result-to-recipient join, so a particular anonymous result ordinarily cannot be located later from the recipient identity alone. Other verifiable invitation or security records remain subject to the applicable request process.</p>
+    <p>Depending on applicable law and Monderman's role, additional rights can include portability, restriction, objection, appeal, or a complaint to a privacy regulator. The jurisdiction-specific scope, lawful bases, and response periods remain <strong>[COUNSEL CONFIRMATION REQUIRED]</strong>. When Monderman processes participant data for a sponsoring organization, the organization may need to decide and respond to the request, with Monderman assisting as its service provider.</p>
   </div>
 </section>
 <section class="section">
@@ -780,7 +784,15 @@
   <div class="section-inner">
     <p class="section-eyebrow">LOCATION</p>
     <h2>Data can be processed across service-provider regions</h2>
-    <p>Monderman and its service providers may process data in the United States and other locations where those providers operate. If your organization requires a specific residency, contractual or regulated-data arrangement, contact us before submitting that data.</p>
+    <p>Monderman and its service providers may process data in the United States and other locations where those providers operate. Monderman does not currently promise a customer-selected data-residency location in the self-service beta.</p>
+    <p>Any EU/EEA or UK transfer mechanism, transfer assessment, and EU or UK representative status remain <strong>[COUNSEL AND CONTRACT CONFIRMATION REQUIRED]</strong>. Do not submit data requiring a specific transfer or residency arrangement unless it has been confirmed in a separately executed agreement.</p>
+  </div>
+</section>
+<section class="section">
+  <div class="section-inner">
+    <p class="section-eyebrow">BETA LEGAL STATUS</p>
+    <h2>Items awaiting business and counsel confirmation</h2>
+    <p>The operating legal entity and mailing address are <strong>[LEGAL ENTITY AND ADDRESS TO BE CONFIRMED]</strong>. The final controller/processor allocation, lawful-basis wording, jurisdiction-specific notices and final retention periods also require counsel review. These markers are included so the beta notice does not imply that undecided legal or business facts are final.</p>
   </div>
 </section>
 <section class="section">
@@ -824,6 +836,7 @@
             <a href="connect.html">Open Connect Form</a>
             <a href="mailto:connect@monderman.com">connect@monderman.com</a>
             <a href="privacy.html">Privacy</a>
+            <a href="subprocessors.html">Subprocessors</a>
           </div>
         </nav>
       </div>

@@ -38,7 +38,7 @@
       <li>Pattern Workspace capacity for five analysts and two admins</li>
     </ul>
     <div class="terms"><strong>What happens on day 30:</strong> the Pattern trial ends automatically. If you have not explicitly chosen a paid subscription, nothing is charged and your Workspace returns to the standard Trial level. Your saved work is retained. Standard Trial access limits apply after day 30; choosing a paid plan restores the applicable Pattern access.</div>
-    <label class="confirm"><input type="checkbox" id="ackStart" disabled><span>I understand this one-time 30-day beta evaluation starts immediately when I continue, remains used for this account identity even if the Workspace is later deleted or replaced, and I agree to the <a href="terms.html" target="_blank" rel="noopener">Public Beta Terms</a> and <a href="privacy.html" target="_blank" rel="noopener">Privacy notice</a>.</span></label>
+    <label class="confirm"><input type="checkbox" id="ackStart" disabled><span>I understand this one-time 30-day beta evaluation starts immediately when I continue and remains used for this account identity even if the Workspace is later deleted or replaced. I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms of Service</a> and acknowledge the <a href="privacy.html" target="_blank" rel="noopener">Privacy Notice</a>.</span></label>
     <button id="startBtn" disabled>Start my 30-day Pattern trial</button>
     <div id="msg" class="msg" role="status" aria-live="polite"></div>
     <p class="fine">One Pattern trial per eligible account identity. Deleting or replacing a Workspace does not reset eligibility. An organization admin must start the trial.</p>
@@ -50,7 +50,7 @@
     const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co", "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz", { auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"} });
     const API_BASE = "https://monderman-api.onrender.com";
     const btn = document.getElementById("startBtn"), msg = document.getElementById("msg"), ack = document.getElementById("ackStart");
-    let sessionReady=false;
+    let sessionReady=false, organizationId=null;
     function show(text, kind="err"){ msg.textContent=text; msg.className="msg "+kind; }
     function syncStart(){ btn.disabled=!(sessionReady && ack.checked); }
     function denyStart(text){ sessionReady=false; ack.checked=false; ack.disabled=true; syncStart(); show(text); }
@@ -59,13 +59,13 @@
     else {
       try{
         const { data:membership, error } = await sb.from("organization_members")
-          .select("role, organizations(plan, pattern_trial_used_at)")
+          .select("organization_id, role, organizations(plan, pattern_trial_used_at)")
           .limit(1).maybeSingle();
         if(error || !membership?.organizations) denyStart("We couldn’t verify this Workspace’s trial eligibility. Please open the Workspace and try again.");
         else if(!["admin","owner"].includes(String(membership.role||"").toLowerCase())) denyStart("Only an organization admin can start the Pattern trial.");
         else if(membership.organizations.pattern_trial_used_at) denyStart("This account identity has already used its one-time Pattern trial.");
         else if(membership.organizations.plan!=="trial") denyStart("The 30-day Pattern evaluation is available to Workspaces that are currently on the standard Trial level.");
-        else { sessionReady=true; ack.disabled=false; syncStart(); }
+        else { organizationId=membership.organization_id; sessionReady=true; ack.disabled=false; syncStart(); }
       }catch(e){ denyStart("We couldn’t verify this Workspace’s trial eligibility. Please try again."); }
     }
     ack.addEventListener("change",syncStart);
@@ -73,6 +73,16 @@
       btn.disabled=true; btn.textContent="Starting your trial…"; msg.className="msg";
       try{
         const { data:s } = await sb.auth.getSession();
+        const token = s?.session?.access_token || "";
+        const statusQuery = new URLSearchParams({ source:"trial", organization_id:organizationId });
+        const statusResponse = await fetch(API_BASE+"/api/legal/acceptance/status?"+statusQuery.toString(), { headers:{authorization:"Bearer "+token} });
+        const status = await statusResponse.json().catch(()=>({}));
+        if(!statusResponse.ok || !status.ok) throw new Error(status.error || "legal_acceptance_status_failed");
+        if(status.requiresAcceptance){
+          const acceptanceResponse = await fetch(API_BASE+"/api/legal/acceptance", {method:"POST", headers:{"content-type":"application/json",authorization:"Bearer "+token}, body:JSON.stringify({agreed:true,source:"trial",organization_id:organizationId,terms_version:status.termsVersion,privacy_notice_version:status.privacyNoticeVersion})});
+          const acceptance = await acceptanceResponse.json().catch(()=>({}));
+          if(!acceptanceResponse.ok || !acceptance.ok) throw new Error(acceptance.error || "legal_acceptance_failed");
+        }
         const res = await fetch(API_BASE+"/api/billing/start-pattern-trial", {method:"POST", headers:{"content-type":"application/json","authorization":"Bearer "+(s?.session?.access_token||"")}, body:"{}"});
         const out = await res.json().catch(()=>({}));
         if(res.ok && out.ok){ show("Pattern is active. Opening your Workspace…","ok"); setTimeout(()=>location.href="workspace.html",700); return; }

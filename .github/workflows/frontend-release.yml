@@ -3,9 +3,19 @@ on:
   pull_request:
   push:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      release_channel:
+        description: Release channel to certify
+        required: true
+        default: beta
+        type: choice
+        options: [beta, production]
 jobs:
   validate:
     runs-on: ubuntu-latest
+    env:
+      MONDERMAN_RELEASE_CHANNEL: ${{ github.event_name == 'workflow_dispatch' && inputs.release_channel || 'beta' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

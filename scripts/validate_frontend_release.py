@@ -1,7 +1,8 @@
 from pathlib import Path
-import re,runpy,sys
+import os,re,runpy,sys
 r=Path('.')
 e=[]
+release_channel=os.environ.get('MONDERMAN_RELEASE_CHANNEL','beta').strip().lower()
 for f in ["decision-velocity-acceptance-harness.html","operational-systems-acceptance-harness.html","structural-clarity-acceptance-harness.html","structural-clarity-acceptance-harness.js","harness-qc-matrix.html","harness-security.html","harness-two-tenant.html"]:
  if (r/f).exists():e.append("public harness "+f)
 for f in ["fonts","ABM_brief_image.png"]:
@@ -15,6 +16,16 @@ for p in r.glob("*.html"):
   tag=m.group(0)
   if 'integrity=' not in tag or 'crossorigin=' not in tag:e.append(p.name+": external script without SRI")
  if 'esm.sh/@supabase' in t or '/@supabase/supabase-js@2.111.0/+esm' in t:e.append(p.name+": Supabase ESM import remains")
+
+# Draft/beta branches may carry conspicuous counsel placeholders. An outside-
+# beta production certification may not. Release automation must set
+# MONDERMAN_RELEASE_CHANNEL=production, which turns these markers into hard
+# failures without inventing the unresolved legal/business answers here.
+if release_channel in {'production','outside-beta'}:
+ placeholder=re.compile(r'\[[^\]]*(?:TO BE CONFIRMED|CONFIRMATION REQUIRED|COUNSEL REVIEW REQUIRED|COUNSEL/PRODUCT DECISION REQUIRED)[^\]]*\]',re.I)
+ for name in ['privacy.html','terms.html']:
+  for marker in sorted(set(placeholder.findall((r/name).read_text(errors='ignore')))):
+   e.append(name+': unresolved production legal placeholder '+marker)
 s=(r/'sample-report.html').read_text()
 if len(re.findall(r'<h1\b',s,re.I))!=1:e.append('sample h1')
 if s.count('aria-label="Jump to report section"')<4:e.append('sample selects')
@@ -64,7 +75,7 @@ for name in ['sample-report.html','decision-velocity.html','operational-systems.
 
 # Public beta privacy/security disclosures must match current architecture and trial rules.
 privacy=(r/'privacy.html').read_text(errors='ignore')
-for token in ['Last updated: August 19, 2026','currently in public beta','one-time Pattern-trial anti-abuse record','survive Workspace deletion','Anthropic\'s commercial API','not used to train its models by default','automatically deleted from its backend within 30 days','Stripe handles payment details','does not receive or store your full card number','anonymous response','authorized Monderman personnel','browser storage needed to maintain authentication','not directed to children']:
+for token in ['Last updated: August 20, 2026','currently in public beta','one-time Pattern-trial anti-abuse record','survive Workspace deletion','Anthropic\'s commercial API','not used to train its models by default','automatically deleted from its backend within 30 days','Stripe handles payment details','does not receive or store your full card number','anonymous campaign responses','authorized Monderman personnel','first-party browser storage for Supabase authentication','not directed to children']:
  if token.lower() not in privacy.lower():e.append('privacy disclosure '+token)
 security=(r/'security.html').read_text(errors='ignore')
 for token in ['currently in public beta','Ordinary Diagnostics require a signed-in member session','Directed campaign assignment links','All public Postgres tables currently have row-level security enabled','public publishable key','service-role database credentials','Anthropic\'s commercial API','durable one-time redemption record','Deleting a Workspace therefore does not create another trial','does not currently claim SOC 2','four-hour cutoff','durable Supabase snapshot','plan, usage, billing and stored Diagnostic result fields remain server-managed','request-size and rate limits']:
@@ -128,8 +139,14 @@ trial=(r/'pattern-trial.html').read_text(errors='ignore')
 for token in ['href="terms.html"','href="privacy.html"','I agree to the']:
  if token not in trial:e.append('pattern trial legal acceptance '+token)
 signin=(r/'signin.html').read_text(errors='ignore')
-for token in ['href="terms.html"','href="privacy.html"','By signing in']:
+for token in ['href="terms.html"','href="privacy.html"','I agree to the','and acknowledge the','/api/legal/acceptance']:
  if token not in signin:e.append('signin terms '+token)
+gate=(r/'workspace-access-gate.js').read_text(errors='ignore')
+for token in ['getUser()','/api/legal/acceptance/status?source=signup','legal_acceptance_required','acceptance_source','mondermanWorkspaceAccessReady']:
+ if token not in gate:e.append('workspace legal gate '+token)
+for name in ['workspace.html','workspace-diagnostics.html','workspace-analysis.html','workspace-actions.html','workspace-settings.html','decision-velocity.html','operational-systems.html','structural-clarity.html','institutional-performance.html','cross-tool-synthesis.html','checkout.html']:
+ if 'workspace-access-gate.js' not in (r/name).read_text(errors='ignore'):
+  e.append(name+': centralized legal-access gate missing')
 for name in ['privacy.html','security.html']:
  if 'href="terms.html"' not in (r/name).read_text(errors='ignore'):e.append(name+': terms link')
 
@@ -152,6 +169,11 @@ try:
  runpy.run_path(str(r/'scripts/validate_workspace_settings_scope.py'))['validate']()
 except Exception as exc:
  e.append('workspace Settings organization scoping: '+str(exc))
+
+try:
+ runpy.run_path(str(r/'scripts/validate_beta_compliance.py'))['validate']()
+except Exception as exc:
+ e.append('beta compliance implementation: '+str(exc))
 
 print('frontend release errors:',len(e))
 for x in e:print('ERROR',x)

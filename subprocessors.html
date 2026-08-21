@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Subprocessors and infrastructure — Monderman</title>
+  <link rel="canonical" href="https://www.monderman.com/subprocessors.html">
+  <meta name="description" content="Current providers used to operate the Monderman public beta.">
+  <style>
+    :root{--ink:#18191C;--dark:#08383E;--paper:#FAFAF8;--line:#DEDAD2;--accent:#0C6E78;--muted:#666760;--max:1040px}
+    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+    a{color:inherit}.header,.footer{background:var(--dark);color:#fff}.header-inner,.footer-inner{max-width:var(--max);margin:auto;padding:22px 28px;display:flex;justify-content:space-between;gap:20px;align-items:center}.brand{font-size:20px;font-weight:700;text-decoration:none}.nav,.footer-links{display:flex;gap:18px;flex-wrap:wrap}.nav a,.footer a{font-size:14px;color:rgba(255,255,255,.82);text-decoration:none}
+    .hero{background:linear-gradient(180deg,#08383E,#04181B);color:#fff}.hero-inner,main{max-width:var(--max);margin:auto;padding:72px 28px}.hero h1{margin:0;font-size:clamp(38px,6vw,62px);letter-spacing:-.045em}.hero p{max-width:70ch;line-height:1.65;color:rgba(255,255,255,.78)}main{padding-top:48px;padding-bottom:80px}
+    .notice{padding:18px 20px;border:1px solid rgba(12,110,120,.24);background:rgba(12,110,120,.06);border-radius:12px;line-height:1.6}.group{margin-top:44px}.group h2{font-size:28px;margin:0 0 10px}.group>p{color:var(--muted);line-height:1.65}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px;background:#fff}table{width:100%;border-collapse:collapse;min-width:760px}th,td{text-align:left;vertical-align:top;padding:15px;border-bottom:1px solid var(--line);font-size:14px;line-height:1.5}th{background:#F2EFE8;font-size:12px;text-transform:uppercase;letter-spacing:.08em}tr:last-child td{border-bottom:0}
+    @media(max-width:640px){.header-inner,.footer-inner{align-items:flex-start;flex-direction:column}.hero-inner,main,.header-inner,.footer-inner{padding-left:20px;padding-right:20px}}
+  </style>
+</head>
+<body>
+  <header class="header"><div class="header-inner"><a class="brand" href="index.html">Monderman</a><nav class="nav"><a href="privacy.html">Privacy</a><a href="security.html">Security</a><a href="terms.html">Terms</a><a href="connect.html">Connect</a></nav></div></header>
+  <section class="hero"><div class="hero-inner"><h1>Subprocessors and infrastructure.</h1><p>This page identifies providers currently used to operate the Monderman public beta and separates providers that may process customer content from ordinary public-site and browser infrastructure.</p><p>Last reviewed: August 20, 2026</p></div></section>
+  <main>
+    <div class="notice"><strong>Factual inventory, not a contract.</strong> This page does not represent that a particular DPA, certification, transfer mechanism, retention period, or data-residency commitment applies. Customer-specific commitments require a separately reviewed and executed agreement.</div>
+    <section class="group"><h2>Core product providers</h2><p>These services may receive account, customer, participant, support, or billing information when their function is used.</p><div class="table-wrap"><table><thead><tr><th>Provider</th><th>Purpose</th><th>Broad data category</th><th>Customer content?</th></tr></thead><tbody>
+      <tr><td>Supabase</td><td>Authentication, Postgres database, and temporary durable run recovery</td><td>Account identifiers, Workspace records, Diagnostic and campaign records, acceptance records</td><td>Yes</td></tr>
+      <tr><td>Render</td><td>Hosts the Monderman production API</td><td>API requests, application processing, technical logs</td><td>Yes</td></tr>
+      <tr><td>Anthropic</td><td>Specified written interpretation, interview coding, optional text refinement, and assistant functions</td><td>Relevant Diagnostic context, written observations, interview or assistant messages</td><td>Yes, when an AI-assisted function is used</td></tr>
+      <tr><td>Resend</td><td>Authentication, invitation, notification, and inquiry email delivery</td><td>Email addresses, names where supplied, delivery content and events</td><td>Limited communication content</td></tr>
+      <tr><td>Stripe</td><td>Hosted checkout, subscriptions, billing portal, and billing events</td><td>Billing identity, subscription and payment information</td><td>Billing data; Diagnostic content is not ordinarily sent</td></tr>
+      <tr><td>Google</td><td>Optional Google account sign-in</td><td>OAuth identity, email, and authentication metadata</td><td>No Diagnostic content through sign-in</td></tr>
+      <tr><td>Cloudflare</td><td>Bot verification and security-related request handling</td><td>IP/browser signals, verification tokens, request/security metadata</td><td>Request content may traverse relevant infrastructure</td></tr>
+    </tbody></table></div></section>
+    <section class="group"><h2>Public-site and browser infrastructure</h2><p>GitHub Pages/Fastly serves the public site. jsDelivr, cdnjs and esm.sh deliver versioned browser libraries; Google Fonts delivers a workspace font. These services ordinarily receive browser and request metadata such as IP address and user agent. Monderman does not intentionally send Diagnostic answers to them as content-processing providers.</p></section>
+    <section class="group"><h2>Questions and future changes</h2><p>Questions can be sent to <a href="mailto:connect@monderman.com">connect@monderman.com</a>. Monderman will update this page when the implemented provider set materially changes. A formal subprocessor-notice and objection procedure remains subject to counsel-approved customer terms.</p></section>
+  </main>
+  <footer class="footer"><div class="footer-inner"><div>Monderman</div><div class="footer-links"><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="subprocessors.html">Subprocessors</a><a href="security.html">Security</a></div></div></footer>
+</body>
+</html>

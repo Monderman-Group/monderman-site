@@ -21,6 +21,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk" crossorigin="anonymous" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous" defer></script>
+  <script src="workspace-access-gate.js" defer></script>
 <script>
     window.MONDERMAN_SUPABASE_URL = "https://ptkxrzgmeldalrkfruth.supabase.co";
     window.MONDERMAN_SUPABASE_ANON_KEY = "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
@@ -34,7 +35,7 @@
       var el = document.documentElement;
       el.style.visibility = "hidden";
       window.__mondermanReveal = function () { el.style.visibility = ""; };
-      window.__mondermanRevealTimer = setTimeout(window.__mondermanReveal, 8000);
+      window.__mondermanRevealTimer = null;
     })();
   </script>
   <script type="module">
@@ -46,7 +47,9 @@
     );
     window.__mondermanSB = sb; // reused by fetchWithTimeout to send the user's token
 
-    function reveal() {
+    async function reveal() {
+      const gate = await window.mondermanWorkspaceAccessReady;
+      if (!gate?.allowed) return;
       clearTimeout(window.__mondermanRevealTimer);
       if (window.__mondermanReveal) window.__mondermanReveal();
     }
@@ -1547,7 +1550,7 @@ try {
 // anonymous calls behave exactly as before.
 let __opts = options;
 try {
-if (window.__mondermanSB && /\/api\//.test(url)) {
+if (window.__mondermanSB && /\/api\//.test(url) && !(window.MondermanAssignment && window.MondermanAssignment.active && window.MondermanAssignment.active())) {
 const { data } = await window.__mondermanSB.auth.getSession();
 const __tok = data && data.session && data.session.access_token;
 if (__tok) __opts = { ...options, headers: { ...(options.headers || {}), Authorization: "Bearer " + __tok } };

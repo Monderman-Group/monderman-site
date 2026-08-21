@@ -128,7 +128,7 @@
     field('roleTitle', 'Role / title <em>\u00b7 optional</em>', inp('roleTitle', 'text', false)) +
     field('subjectLine', 'Subject <em>\u00b7 optional</em>', inp('subjectLine', 'text', false)) +
     field('additionalContext', 'Additional context <em>\u00b7 optional</em>', ta('additionalContext', false)) +
-    '<label class="mdn-cn-consent"><input type="checkbox" id="mdncn-consent" required /> <span>I understand Monderman does not sell, share, or distribute contact information; submissions are used only to review this inquiry. Full commitments are in the <a href="privacy.html" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;">privacy policy</a>.</span></label>' +
+    '<label class="mdn-cn-consent"><input type="checkbox" id="mdncn-consent" required /> <span>I understand Monderman does not sell contact information or share it for advertising. Necessary service providers process the submission so Monderman can receive, secure, and respond to this inquiry. Details are in the <a href="privacy.html" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;">Privacy Notice</a>.</span></label>' +
     '<div class="mdn-cn-nav"><button type="button" class="mdn-cn-pill" id="mdncn-back">\u2190 Back</button>' +
     '<button type="button" class="mdn-cn-pill mdn-cn-pill-primary" id="mdncn-send">Submit request</button></div>' +
     '<p class="mdn-cn-status" id="mdncn-status" aria-live="polite"></p>';

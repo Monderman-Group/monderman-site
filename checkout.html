@@ -65,12 +65,13 @@
         Self-serve checkout is being enabled. In the meantime, request an order form and we will set your tier up by invoice: <a id="connectLink" href="connect.html">open the Connect form</a>.
       </div>
       <div class="panel err" id="errorPanel"></div>
-      <p class="fine">Payment and card handling by <strong>Stripe</strong>; your card details never touch Monderman. Subscriptions renew automatically and can be cancelled any time from your workspace, effective at the end of the paid period. By continuing you agree to the <a href="privacy.html">privacy notice</a>; the subscription terms are presented on the Stripe checkout page.</p>
+      <p class="fine">Full payment-card details are handled in Stripe-hosted checkout and are not received or stored by Monderman. Subscriptions renew automatically and can be cancelled any time from your Workspace, effective at the end of the paid period. Review the Monderman <a href="terms.html">Terms of Service</a> and <a href="privacy.html">Privacy Notice</a>; Stripe presents the checkout-specific price, billing interval, and purchase details before payment.</p>
     </div>
     <p class="muted-note">Prefer invoicing on a purchase order, or buying Advisory or Enterprise? <a href="connect.html">Talk to us</a>.</p>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
+  <script src="workspace-access-gate.js"></script>
 <script type="module">
     const { createClient } = window.supabase;
     const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co",
