@@ -1,5 +1,5 @@
 from pathlib import Path
-import os,re,runpy,sys
+import os,re,runpy,subprocess,sys
 r=Path('.')
 e=[]
 release_channel=os.environ.get('MONDERMAN_RELEASE_CHANNEL','beta').strip().lower()
@@ -214,6 +214,11 @@ for token in ['Accept your Monderman workspace invitation','Invited email addres
  if token not in signin:e.append('signed-out invitation sign-in '+token)
 if 'Your account was not activated' in signin:e.append('signed-out invitation false activation error')
 if signin.count('createClient(')!=1:e.append('sign-in shared Supabase client count')
+
+try:
+ subprocess.run(['node','scripts/diagnostic_completion_reliability_smoke.mjs'],cwd=r,check=True,capture_output=True,text=True)
+except Exception as exc:
+ e.append('diagnostic completion reliability: '+str(exc))
 
 print('frontend release errors:',len(e))
 for x in e:print('ERROR',x)
