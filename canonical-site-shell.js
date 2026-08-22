@@ -93,7 +93,7 @@
       const status = overlay.querySelector(".site-search-status");
       const results = overlay.querySelector(".site-search-results");
       let searchIndex;
-      const loadIndex = () => searchIndex || (searchIndex = fetch("public-search-index.json?v=20260822-search1").then((response) => {
+      const loadIndex = () => searchIndex || (searchIndex = fetch("public-search-index.json?v=20260822-search2").then((response) => {
         if (!response.ok) throw new Error("Search index unavailable");
         return response.json();
       }));
