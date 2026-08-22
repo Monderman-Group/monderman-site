@@ -54,63 +54,6 @@
   else mount();
 })();
 
-/* Campaign entitlement presentation guard.
-   The API/database remain the source of truth; this keeps standard-plan UI from
-   offering controls that the customer's plan cannot use. */
-(function () {
-  function planName() {
-    var el = document.getElementById("ws5Plan");
-    return el ? String(el.textContent || "").trim().toLowerCase() : "";
-  }
-
-  function applyCampaignPlanUi() {
-    var anon = document.getElementById("fAnon");
-    var note = document.getElementById("anonNote");
-    var tab = document.getElementById("sendTabBtn");
-    var compose = document.getElementById("composeCard");
-    if (!anon && !tab && !compose) return;
-
-    var plan = planName();
-    if (!plan || plan === "—") return;
-
-    if (plan === "trial") {
-      if (anon) { anon.checked = false; anon.disabled = true; }
-      if (tab) tab.hidden = true;
-      if (compose) compose.hidden = true;
-      return;
-    }
-
-    if (plan === "signal") {
-      if (anon) {
-        anon.checked = false;
-        anon.disabled = true;
-        anon.title = "Anonymous participant responses are included with Pattern.";
-      }
-      if (note && !note.dataset.signalGate) {
-        note.dataset.signalGate = "1";
-        note.insertAdjacentHTML("afterbegin", "<b>Plan note:</b> Anonymous participant responses are included with Pattern.<br>");
-      }
-      return;
-    }
-
-    if (plan === "pattern") {
-      if (anon) { anon.disabled = false; anon.removeAttribute("title"); }
-    }
-    // Enterprise capacity is order-form-defined; do not infer custom entitlements here.
-  }
-
-  function mountEntitlementGuard() {
-    var plan = document.getElementById("ws5Plan");
-    if (!plan) return;
-    applyCampaignPlanUi();
-    new MutationObserver(applyCampaignPlanUi).observe(plan, { childList: true, characterData: true, subtree: true });
-    [100, 400, 1000, 2000].forEach(function (ms) { setTimeout(applyCampaignPlanUi, ms); });
-  }
-
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mountEntitlementGuard);
-  else mountEntitlementGuard();
-})();
-
 /* Paused paid-seat notice.
    Pattern can temporarily carry more Analysts/Admins than the standard Trial
    plan. On a downgrade the database preserves excess users as ordinary Members
