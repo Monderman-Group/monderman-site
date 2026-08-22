@@ -31,9 +31,9 @@ async function verifyCanonicalCapacityGraphic(shell, key, expected) {
   assert(text.includes('Source-backed exposure bridge'), `${key} canonical capacity-allocation title missing`);
   for (const token of expected) assert(text.includes(token), `${key} canonical capacity-allocation content missing: ${token}`);
 
-  const superseded = shell.locator(`#${key}-headline .panel[hidden][aria-hidden="true"]`).filter({
-    has: shell.locator('svg[aria-label="Capacity allocation"]')
-  });
+  const superseded = shell.locator(
+    `#${key}-headline .panel[hidden][aria-hidden="true"]:has(svg[aria-label="Capacity allocation"])`
+  );
   assert(await superseded.count() === 1, `${key} superseded capacity panel is not uniquely hidden from users and assistive technology`);
   assert(!(await superseded.isVisible()), `${key} superseded capacity panel is exposed`);
 }
