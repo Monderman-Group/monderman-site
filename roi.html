@@ -786,14 +786,6 @@
       transform: none;
     }
 
-    /* Canonical header polish: scrolled + past-hero behavior (matches index.html) */
-    .header.scrolled { background: rgba(5, 24, 27, 0.72); border-bottom-color: rgba(255, 255, 255, 0.07); }
-    .header.scrolled.past-hero { background: rgba(250, 250, 248, 0.90); border-bottom-color: rgba(24, 25, 28, 0.08); }
-    .header.past-hero .brand { color: #18191C; text-shadow: none; }
-    .header.past-hero .nav a { color: rgba(24, 25, 28, 0.74); }
-    .header.past-hero .nav a:hover, .header.past-hero .nav a:focus-visible { color: #18191C; }
-    .header.past-hero .nav a.is-active { color: #0C6E78; }
-
     /* Canonical mobile header pattern (must come AFTER main .header CSS to win cascade — matches index.html) */
     @media (max-width: 980px) {
       .header { height: auto; }
@@ -838,7 +830,7 @@
       .nav a::after { display: none; }
     }
   </style>
-<link rel="stylesheet" href="canonical-site-shell.css">
+<link rel="stylesheet" href="canonical-site-shell.css?v=20260822-header2">
 </head>
 <body class="canonical-green-shell">
 
@@ -1201,7 +1193,6 @@
     if (!h) return;
     var heroH = heroEl ? heroEl.offsetHeight : window.innerHeight;
     h.classList.toggle("scrolled", window.scrollY > 24);
-    h.classList.toggle("past-hero", window.scrollY > heroH - 72);
   }
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
