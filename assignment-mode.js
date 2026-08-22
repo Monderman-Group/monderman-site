@@ -123,10 +123,17 @@
         .then(function (data) {
           if (!data || !data.ok || !data.assignment) {
             _state = "invalid";
+            if (data && ["invalid_token", "campaign_closed", "campaign_access_ended"].indexOf(data.error) > -1 &&
+                window.MondermanAssignmentDraft) {
+              window.MondermanAssignmentDraft.clearActive();
+            }
             return null;
           }
           _config = data.assignment;
           _state = data.already_completed ? "completed" : "active";
+          if (_state === "completed" && window.MondermanAssignmentDraft) {
+            window.MondermanAssignmentDraft.clearActive();
+          }
           return _config;
         })
         .catch(function () {
@@ -174,6 +181,7 @@
         "<p>Monderman provides the Diagnostic platform. <b>" + sponsor + "</b> requested this Diagnostic and receives the completed result in its Workspace.</p>" +
         "<p>You will provide structured answers and may add written observations. " + attribution + "</p>" +
         "<p>The quantitative score is calculated deterministically from structured answers. Content needed for the Diagnostic&rsquo;s written interpretation may be processed by Monderman&rsquo;s AI provider. This can include structured Diagnostic context and results and, when applicable, interview messages or optional written observations. AI does not calculate or set the quantitative score.</p>" +
+        "<p>Until you submit, the answers needed to recover from a reload are kept only in this browser tab, under this assignment&rsquo;s non-secret identifier. The draft is cleared after completion or if the assignment is invalid, closed, revoked, or expired, and it disappears when this tab is closed.</p>" +
         "<p>Monderman and necessary service providers may process data in the United States and other jurisdictions where they operate. " + resultVisibility + " Retention, rights, and provider details are in the <a href='privacy.html' target='_blank' rel='noopener'>Privacy Notice</a>.</p>";
       var banner = document.getElementById("ma-banner");
       if (banner && banner.parentNode) banner.parentNode.insertBefore(box, banner.nextSibling);
@@ -257,6 +265,7 @@
         .then(function (r) {
           return r.json().catch(function () { return null; }).then(function (body) {
             if (body && (body.ok === true || body.already_completed === true)) {
+              if (window.MondermanAssignmentDraft) window.MondermanAssignmentDraft.clearActive();
               return { ok: true, alreadyCompleted: body.already_completed === true, runId: body.run_id || null };
             }
             var reason = (body && (body.error || body.message)) || ("HTTP " + r.status);
