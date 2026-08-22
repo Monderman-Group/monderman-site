@@ -687,16 +687,27 @@
   function renderMetaRemedyPaths(m, n) {
     const paths = arr(m.remedyPaths);
     if (!paths.length) return "";
+    const evidenceBasis = (path) => {
+      const parts = [];
+      if (path.sourceLens) parts.push(path.sourceLens);
+      if (strictFinite(path.supportingRuns)) parts.push(fmtWhole(path.supportingRuns) + " supporting runs");
+      if (!parts.length) parts.push(m.product === "depth" ? "Eligible same-Diagnostic evidence" : "Contributing Diagnostic remedy paths");
+      return parts.join(" · ");
+    };
     return '<section class="mr-section"><h2>' + n + '. Source-backed remedy paths</h2>' +
       (m.remedyStatement ? '<p class="mr-copy">' + esc(m.remedyStatement) + '</p>' : '') +
-      '<div class="mr-remedy-grid">' + paths.map((path) =>
+      '<div class="mr-remedy-grid">' + paths.map((path, index) =>
         '<div class="mr-card mr-remedy-card">' +
-          '<div class="mr-lens-label">' + esc(path.kicker || path.sourceLens || "Candidate path") + '</div>' +
+          '<div class="mr-remedy-head"><span class="mr-remedy-number">0' + (index + 1) + '</span><div><div class="mr-lens-label">' + esc(path.kicker || path.sourceLens || "Candidate path") + '</div>' +
           '<h3>' + esc(path.label || "Remedy path") + '</h3>' +
+          '</div></div>' +
           (path.summary ? '<p>' + esc(path.summary) + '</p>' : '') +
-          (path.actions.length ? '<ul>' + path.actions.map((action) => '<li>' + esc(action) + '</li>').join("") + '</ul>' : '') +
-          (path.benefit ? '<p><strong>Potential benefit:</strong> ' + esc(path.benefit) + '</p>' : '') +
-          (path.risk ? '<p><strong>Tradeoff:</strong> ' + esc(path.risk) + '</p>' : '') +
+          (path.actions.length ? '<div class="mr-remedy-actions"><div class="mr-remedy-field-label">Recommended actions</div><ol>' + path.actions.map((action) => '<li>' + esc(action) + '</li>').join("") + '</ol></div>' : '') +
+          '<div class="mr-remedy-tradeoffs">' +
+            (path.benefit ? '<div><div class="mr-remedy-field-label">Potential benefit</div><p>' + esc(path.benefit) + '</p></div>' : '') +
+            (path.risk ? '<div><div class="mr-remedy-field-label">Tradeoff</div><p>' + esc(path.risk) + '</p></div>' : '') +
+          '</div>' +
+          '<div class="mr-remedy-evidence"><span>Evidence basis</span><strong>' + esc(evidenceBasis(path)) + '</strong></div>' +
         '</div>'
       ).join("") + '</div></section>';
   }
@@ -845,9 +856,9 @@
 
   var REPORT_CSS =
     '.mr-report{--ink:#18191C;--soft:#6E6F73;--muted:#9A9892;--accent:#0C6E78;--line:#EAE6DD;--paper:#fff;--page:#F6F3EC}' +
-    '.mr-remedy-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}.mr-remedy-card{border-top:3px solid #C9821F}.mr-remedy-card h3{margin:8px 0}.mr-remedy-card ul{padding-left:18px}.mr-remedy-card li{margin:6px 0}@media(max-width:760px){.mr-remedy-grid{grid-template-columns:1fr}}.mr-report,.mr-report *{box-sizing:border-box}' +
+    '.mr-remedy-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px;counter-reset:remedy}.mr-remedy-card{display:flex;flex-direction:column;border-top:3px solid #C9821F;overflow:hidden}.mr-remedy-card:nth-child(2){border-top-color:#0C6E78}.mr-remedy-card:nth-child(3){border-top-color:#08383E}.mr-remedy-head{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start}.mr-remedy-number{color:rgba(12,110,120,.22);font-size:2rem;line-height:.9;font-weight:700;letter-spacing:-.06em}.mr-remedy-card h3{margin:6px 0 10px}.mr-remedy-actions{margin:12px 0 0;padding-top:12px;border-top:1px solid var(--line)}.mr-remedy-card ol{margin:8px 0 0;padding-left:20px}.mr-remedy-card li{margin:6px 0}.mr-remedy-field-label{font-size:.68rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--accent)}.mr-remedy-tradeoffs{display:grid;gap:10px;margin-top:14px}.mr-remedy-tradeoffs>div{padding:11px 12px;background:#F6F3EC;border-radius:8px}.mr-remedy-tradeoffs p{margin:5px 0 0;font-size:.9rem;line-height:1.5}.mr-remedy-evidence{display:grid;gap:4px;margin-top:auto;padding-top:14px;border-top:1px solid var(--line);font-size:.76rem;color:var(--soft)}.mr-remedy-evidence span{font-size:.64rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}.mr-remedy-evidence strong{font-weight:600;color:var(--soft)}@media(max-width:760px){.mr-remedy-grid{grid-template-columns:1fr}}.mr-report,.mr-report *{box-sizing:border-box}' +
     '.mr-report{margin:0;background:var(--page);color:var(--ink);font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:400;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}' +
-    '.mr-report .mr-page{max-width:960px;margin:0 auto;background:var(--paper);padding:48px 54px 64px;box-shadow:0 18px 48px rgba(15,23,32,.08)}' +
+    '.mr-report .mr-page{max-width:960px;margin:0 auto;background:var(--paper);padding:48px 54px 64px;border:1px solid rgba(24,25,28,.13);border-radius:20px;box-shadow:0 20px 54px rgba(8,56,62,.07)}' +
     '.mast{font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;font-size:.78rem;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}' +
     '.rule{height:2px;background:var(--accent);opacity:.22;margin:10px 0 28px}' +
     '.mr-report h1,.mr-report h2,.mr-report h3{font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;color:var(--ink);margin:0}' +
@@ -874,7 +885,7 @@
     '.mr-report .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px;font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif}' +
     '.mr-report .btn{display:inline-flex;align-items:center;justify-content:center;min-height:50px;min-width:168px;padding:0 24px;border-radius:7px;font-size:15px;font-weight:500;white-space:nowrap;background:#FFF;color:#18191C;border:1px solid rgba(24,25,28,.12);box-shadow:none;cursor:pointer}' +
     '.mr-report .btn-accent{background:#0C6E78;color:#FFF;border-color:rgba(12,110,120,.18)}' +
-    '@media print{.mr-report{background:#fff}.mr-report .mr-page{box-shadow:none;max-width:none;padding:28px 32px}.mr-report .actions{display:none!important}}' +
+    '@media print{.mr-report{background:#fff}.mr-report .mr-page{border:0;border-radius:0;box-shadow:none;max-width:none;padding:28px 32px}.mr-report .actions{display:none!important}}' +
 
     // ═══ Synthesis crown-jewel section styles ═══
     `
