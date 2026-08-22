@@ -212,6 +212,19 @@
       var result = await client.auth.getUser();
       userId = cleanUuid(result && result.data && result.data.user && result.data.user.id);
       organizationId = cleanUuid(window.__mondermanActiveOrganizationId);
+      if (userId && !organizationId) {
+        var storedOrganizationId = cleanUuid(storageGet("monderman_active_organization_id"));
+        if (storedOrganizationId) {
+          var membership = await client.from("organization_members")
+            .select("organization_id")
+            .eq("user_id", userId)
+            .eq("organization_id", storedOrganizationId)
+            .maybeSingle();
+          if (!membership.error && membership.data && cleanUuid(membership.data.organization_id) === storedOrganizationId) {
+            organizationId = storedOrganizationId;
+          }
+        }
+      }
       if (!userId || !organizationId) return false;
       active = true;
       clearAllExceptIdentity(userId, organizationId);
