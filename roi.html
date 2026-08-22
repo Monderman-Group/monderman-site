@@ -133,6 +133,45 @@
     @media(max-width:860px){.stats{grid-template-columns:1fr;}}
     .methnote{margin-top:22px;font-size:12.5px;color:var(--muted-dark-2);max-width:840px;line-height:1.6;}
 
+    /* Interactive exposure model: distinct from the sample-report experience. */
+    .roi-legacy{display:none!important;}
+    .exposure-band{background:#F6F3EC;border-bottom:1px solid #E7E2D6;}
+    .exposure-shell{max-width:var(--max);margin:0 auto;padding:72px 28px 78px;}
+    .exposure-heading{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,.72fr);gap:54px;align-items:end;}
+    .exposure-heading h2{margin:10px 0 0;font-size:clamp(32px,3vw,38.4px);line-height:1.08;letter-spacing:-.04em;}
+    .exposure-heading .boundary{margin:0;padding:17px 19px;border-left:3px solid var(--accent);background:rgba(255,255,255,.58);color:#555751;font-size:13.5px;line-height:1.55;}
+    .exposure-model{display:grid;grid-template-columns:minmax(280px,.76fr) minmax(0,1.45fr);gap:24px;margin-top:38px;align-items:stretch;}
+    .exposure-inputs,.exposure-outputs{border:1px solid #DED9D0;background:#fff;box-shadow:var(--soft-shadow);}
+    .exposure-inputs{padding:26px;}
+    .model-label{margin:0 0 20px;font-size:11px;line-height:1;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);}
+    .model-field{display:grid;grid-template-columns:1fr 132px;gap:18px;align-items:center;padding:14px 0;border-top:1px solid #ECE8DF;}
+    .model-field:first-of-type{border-top:0;padding-top:0;}
+    .model-field label{font-size:14px;font-weight:600;color:#292B2C;}
+    .model-field small{display:block;margin-top:4px;color:#777871;font-size:11.5px;line-height:1.35;}
+    .model-field input{width:100%;padding:11px 12px;border:1px solid #D8D4CA;border-radius:7px;background:#FAFAF8;color:#18191C;font:600 15px "Neue Haas Grotesk","Helvetica Neue",sans-serif;text-align:right;}
+    .model-field input:focus{outline:2px solid rgba(12,110,120,.22);border-color:var(--accent);}
+    .exposure-outputs{display:grid;grid-template-columns:repeat(3,1fr);background:#073338;color:#F4EFE6;overflow:hidden;}
+    .exposure-output{display:flex;flex-direction:column;justify-content:space-between;min-height:218px;padding:27px 25px;border-left:1px solid rgba(255,255,255,.1);}
+    .exposure-output:first-child{border-left:0;}
+    .exposure-output span{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#A9CFD2;}
+    .exposure-output strong{display:block;margin-top:28px;font-size:clamp(30px,3.4vw,47px);line-height:.95;letter-spacing:-.055em;color:#fff;font-variant-numeric:tabular-nums;}
+    .exposure-output p{margin:12px 0 0;color:rgba(244,239,230,.62);font-size:12.5px;line-height:1.45;}
+    .return-band{background:#FAFAF8;border-bottom:1px solid #E7E2D6;}
+    .return-shell{max-width:var(--max);margin:0 auto;padding:68px 28px 74px;}
+    .return-grid{display:grid;grid-template-columns:minmax(280px,.78fr) minmax(0,1.22fr);gap:28px;margin-top:30px;}
+    .return-assumptions{padding:26px;border:1px solid #DED9D0;background:#F4EFE6;}
+    .return-results{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid #DED9D0;background:#fff;}
+    .return-result{padding:26px 24px;border-left:1px solid #E7E2D6;}
+    .return-result:first-child{border-left:0;}
+    .return-result span{display:block;font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:#6E6F73;}
+    .return-result strong{display:block;margin-top:22px;font-size:clamp(25px,2.6vw,37px);line-height:1;letter-spacing:-.045em;color:#08383E;font-variant-numeric:tabular-nums;}
+    .return-result p{margin:10px 0 0;color:#777871;font-size:12px;line-height:1.45;}
+    .model-formula{margin:22px 0 0;color:#6E6F73;font-size:12.5px;line-height:1.6;}
+    .model-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:24px;}
+    .model-actions a:not(.btn){color:var(--accent-dark);font-size:13px;font-weight:600;border-bottom:1px solid rgba(12,110,120,.35);}
+    @media(max-width:920px){.exposure-heading,.exposure-model,.return-grid{grid-template-columns:1fr}.exposure-outputs,.return-results{grid-template-columns:1fr}.exposure-output,.return-result{min-height:0;border-left:0;border-top:1px solid rgba(255,255,255,.1)}.return-result{border-top-color:#E7E2D6}.exposure-output:first-child,.return-result:first-child{border-top:0}}
+    @media(max-width:600px){.exposure-shell,.return-shell{padding:52px 20px 58px}.model-field{grid-template-columns:1fr 116px}.exposure-heading{gap:24px}}
+
     /* cta band */
     .ctaband{background:var(--bg-dark);color:var(--text-light);}
     .ctaband .section{display:flex;align-items:center;justify-content:space-between;gap:26px;flex-wrap:wrap;padding:56px 28px;}
@@ -832,6 +871,58 @@
     </div>
   </div>
 
+  <section class="exposure-band" aria-labelledby="exposure-title">
+    <div class="exposure-shell">
+      <div class="exposure-heading">
+        <div>
+          <div class="eyebrow">Directional economics</div>
+          <h2 id="exposure-title">Put a number on the burden.</h2>
+          <p class="lede">Use operating assumptions you recognize. The model translates recurring participation, time, frequency, and loaded labor cost into annual exposure. It does not assume that all exposed capacity can be recovered.</p>
+        </div>
+        <p class="boundary"><strong>Model boundary.</strong> This is a directional exposure estimate—not audited savings, a peer benchmark, or a guaranteed recoverable amount. Change any assumption to see exactly what drives the result.</p>
+      </div>
+
+      <div class="exposure-model">
+        <div class="exposure-inputs" aria-label="Structural drag exposure assumptions">
+          <p class="model-label">Your operating assumptions</p>
+          <div class="model-field"><div><label for="roiPeople">People involved</label><small>Participants touched by the recurring burden</small></div><input id="roiPeople" type="number" min="1" max="100000" step="1" value="120" inputmode="numeric"></div>
+          <div class="model-field"><div><label for="roiHours">Hours per person, per cycle</label><small>Coordination, review, rework, or process time</small></div><input id="roiHours" type="number" min="0" max="200" step="0.25" value="1.5" inputmode="decimal"></div>
+          <div class="model-field"><div><label for="roiCycles">Cycles per year</label><small>How often the burden recurs</small></div><input id="roiCycles" type="number" min="1" max="1000" step="1" value="48" inputmode="numeric"></div>
+          <div class="model-field"><div><label for="roiRate">Loaded hourly cost</label><small>Salary, benefits, and applicable overhead</small></div><input id="roiRate" type="number" min="1" max="5000" step="1" value="78" inputmode="decimal"></div>
+        </div>
+
+        <div class="exposure-outputs" aria-live="polite" aria-label="Directional annual exposure">
+          <div class="exposure-output"><span>Annual hours exposed</span><div><strong id="roiAnnualHours">8,640</strong><p>People × hours per cycle × annual cycles</p></div></div>
+          <div class="exposure-output"><span>Labor-cost exposure</span><div><strong id="roiAnnualCost">$673,920</strong><p>Annual exposed hours × loaded hourly cost</p></div></div>
+          <div class="exposure-output"><span>Capacity equivalent</span><div><strong id="roiFte">4.5</strong><p>Full-time working years at 1,920 hours</p></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="return-band" aria-labelledby="return-title">
+    <div class="return-shell">
+      <div class="eyebrow">Only then is it ROI</div>
+      <h2 id="return-title">Separate exposure from the recovery hypothesis.</h2>
+      <p class="lede">A return scenario needs two additional assumptions: the share of exposed burden that an intervention might recover and the cost of that intervention. Those assumptions remain visible and editable.</p>
+      <div class="return-grid">
+        <div class="return-assumptions">
+          <p class="model-label">Scenario assumptions</p>
+          <div class="model-field"><div><label for="roiRecovery">Modeled recoverable share</label><small>Not a guaranteed saving</small></div><input id="roiRecovery" type="number" min="0" max="100" step="1" value="20" inputmode="decimal"></div>
+          <div class="model-field"><div><label for="roiIntervention">Intervention cost</label><small>Software, advisory, and implementation cost</small></div><input id="roiIntervention" type="number" min="0" max="100000000" step="1000" value="45000" inputmode="numeric"></div>
+        </div>
+        <div class="return-results" aria-live="polite" aria-label="Directional return scenario">
+          <div class="return-result"><span>Modeled recovery value</span><strong id="roiRecoveryValue">$134,784</strong><p>Exposure × disclosed recovery assumption</p></div>
+          <div class="return-result"><span>First-year net scenario</span><strong id="roiNetValue">$89,784</strong><p>Modeled recovery value minus intervention cost</p></div>
+          <div class="return-result"><span>Benefit-cost ratio</span><strong id="roiBenefitCost">3.0×</strong><p>Modeled recovery value ÷ intervention cost</p></div>
+        </div>
+      </div>
+      <p class="model-formula"><strong>The disclosed model:</strong> recurring operating inputs → directional exposure → separately stated recovery assumption → intervention cost → return scenario. A compatible re-measurement can show whether the measured condition changed; it does not by itself prove that the intervention caused a financial return.</p>
+      <div class="model-actions"><a class="btn btn-primary" href="diagnostics.html">Establish a measured baseline</a><a href="sample-report.html">See how measured burden appears in a report</a></div>
+    </div>
+  </section>
+
+  <div class="roi-legacy" hidden aria-hidden="true">
   <!-- ── MECHANISM ────────────────────────────────────────────────── -->
   <div class="section">
     <div class="eyebrow">The mechanism</div>
@@ -1012,6 +1103,8 @@
     </div>
   </div>
 
+  </div>
+
   <footer class="footer mond-footer">
     <div class="mf-motif" aria-hidden="true"><svg width="280" height="280" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#146C75" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#3E8A92" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#146C75" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#146C75" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#3E8A92" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#146C75" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#4E9098" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8FC4C9" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#A9CFD2" stroke-width="0.4" opacity="0.13"/><circle cx="86" cy="-35" r="2.8" fill="#0C6E78" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#3E8A92" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#0C6E78" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#C9821F" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#3E8A92" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#0C6E78" opacity="0.58"/></svg></div>
     <div class="mf-inner">
@@ -1112,6 +1205,77 @@
   }
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
+})();
+</script>
+<script>
+(() => {
+  const fields = {
+    people: document.getElementById("roiPeople"),
+    hours: document.getElementById("roiHours"),
+    cycles: document.getElementById("roiCycles"),
+    rate: document.getElementById("roiRate"),
+    recovery: document.getElementById("roiRecovery"),
+    intervention: document.getElementById("roiIntervention")
+  };
+  const outputs = {
+    hours: document.getElementById("roiAnnualHours"),
+    cost: document.getElementById("roiAnnualCost"),
+    fte: document.getElementById("roiFte"),
+    recovery: document.getElementById("roiRecoveryValue"),
+    net: document.getElementById("roiNetValue"),
+    ratio: document.getElementById("roiBenefitCost")
+  };
+  if (Object.values(fields).some((el) => !el) || Object.values(outputs).some((el) => !el)) return;
+
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const number = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
+  const currency = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+  const value = (field) => Math.max(0, Number(field.value) || 0);
+  const formatters = {
+    hours: (n) => number.format(Math.round(n)),
+    cost: (n) => currency.format(Math.round(n)),
+    fte: (n) => n.toFixed(1),
+    recovery: (n) => currency.format(Math.round(n)),
+    net: (n) => `${n < 0 ? "−" : ""}${currency.format(Math.abs(Math.round(n)))}`,
+    ratio: (n) => Number.isFinite(n) ? `${n.toFixed(1)}×` : "—"
+  };
+  const state = { hours:8640, cost:673920, fte:4.5, recovery:134784, net:89784, ratio:2.9952 };
+
+  function paint(key, next) {
+    const start = state[key];
+    state[key] = next;
+    if (reduced || !Number.isFinite(start) || !Number.isFinite(next)) {
+      outputs[key].textContent = formatters[key](next);
+      return;
+    }
+    const begin = performance.now();
+    const duration = 340;
+    function frame(now) {
+      const t = Math.min(1, (now - begin) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      outputs[key].textContent = formatters[key](start + (next - start) * eased);
+      if (t < 1) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function update() {
+    const annualHours = value(fields.people) * value(fields.hours) * value(fields.cycles);
+    const annualCost = annualHours * value(fields.rate);
+    const fte = annualHours / 1920;
+    const recoveryValue = annualCost * Math.min(100, value(fields.recovery)) / 100;
+    const intervention = value(fields.intervention);
+    const net = recoveryValue - intervention;
+    const ratio = intervention > 0 ? recoveryValue / intervention : NaN;
+    paint("hours", annualHours);
+    paint("cost", annualCost);
+    paint("fte", fte);
+    paint("recovery", recoveryValue);
+    paint("net", net);
+    paint("ratio", ratio);
+  }
+  Object.values(fields).forEach((field) => field.addEventListener("input", update));
+  update();
 })();
 </script>
   <script src="assistant.js" defer></script>
