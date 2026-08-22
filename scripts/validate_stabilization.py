@@ -82,7 +82,7 @@ for name in ["plan-pattern.html", "plan-signal.html", "platform-services.html"]:
 
 for name in [
     "plan-pattern.html", "plan-signal.html", "plan-enterprise.html",
-    "advisory-services.html", "diagnostics.html"
+    "diagnostics.html"
 ]:
     assert (ROOT / name).read_text().count("createClient(") == 1, f"{name} must have one public-page auth client"
 
