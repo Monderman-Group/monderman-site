@@ -235,11 +235,11 @@
     }
     .notice strong { font-weight: 600; }
 
-    /* Pinned intro — the report sheet scrolls over it */
+    /* The library introduction stays in normal flow so its disclosure
+       remains fully readable before the report navigation begins. */
     .intro-pin { position: relative; z-index: 1; }
     .report-sheet { position: relative; z-index: 2; background: var(--bg-white); }
     @media (min-width: 761px) {
-      .intro-pin { position: sticky; top: var(--pin-top, 64px); }
       .report-sheet {
         border-radius: 26px 26px 0 0;
         box-shadow: 0 -24px 56px rgba(24,25,28,.16), 0 -1px 0 rgba(24,25,28,.06);
