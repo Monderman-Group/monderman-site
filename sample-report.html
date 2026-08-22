@@ -251,6 +251,52 @@
       .report-sheet { box-shadow: none; border-radius: 0; }
     }
 
+    /* ---- Executive analytical visual system ---- */
+    .sample-decision-frame {
+      display:grid; grid-template-columns:1.05fr repeat(3,minmax(0,.72fr));
+      margin:18px 0 34px; background:#08383E; color:#fff;
+      border:1px solid rgba(255,255,255,.08); border-radius:18px; overflow:hidden;
+      box-shadow:0 22px 54px rgba(8,56,62,.13);
+    }
+    .sample-decision-cell { min-width:0; padding:22px 24px 20px; border-left:1px solid rgba(255,255,255,.12); }
+    .sample-decision-cell:first-child { border-left:0; }
+    .sample-decision-label { margin:0 0 11px; color:#A9CFD2; font-size:.68rem; font-weight:700; letter-spacing:.15em; text-transform:uppercase; }
+    .sample-decision-value { margin:0; color:#fff; font-size:clamp(1.25rem,2.15vw,2rem); line-height:1.02; font-weight:700; letter-spacing:-.035em; font-variant-numeric:tabular-nums; }
+    .sample-decision-cell:first-child .sample-decision-value { font-size:clamp(1.08rem,1.75vw,1.48rem); line-height:1.14; }
+    .sample-decision-note { margin:9px 0 0; color:rgba(255,255,255,.6); font-size:.76rem; line-height:1.4; }
+    .sample-exposure-bridge { margin:24px 0 0; padding:22px 24px 20px; background:#fff; border:1px solid rgba(24,25,28,.1); border-radius:16px; }
+    .sample-exposure-head { display:flex; justify-content:space-between; align-items:flex-start; gap:20px; margin-bottom:22px; }
+    .sample-exposure-head p { margin:0; }
+    .sample-exposure-title { color:#18191C; font-size:1rem; font-weight:700; }
+    .sample-exposure-basis { color:#6E6F73; font-size:.76rem; text-align:right; max-width:44ch; }
+    .sample-exposure-track { position:relative; display:grid; grid-template-columns:repeat(4,1fr); gap:10px; align-items:end; min-height:142px; padding-top:18px; }
+    .sample-exposure-track::before { content:""; position:absolute; left:5%; right:5%; top:18px; border-top:1px solid rgba(24,25,28,.1); }
+    .sample-exposure-step { position:relative; min-height:104px; padding:15px 14px 13px; border-radius:10px; background:#F4F1EA; border-top:4px solid #9A9892; }
+    .sample-exposure-step::before { content:""; position:absolute; top:-25px; left:50%; width:9px; height:9px; transform:translateX(-50%); border-radius:50%; background:#9A9892; box-shadow:0 0 0 5px #fff; }
+    .sample-exposure-step.is-burden { background:rgba(201,130,31,.09); border-top-color:#C9821F; }
+    .sample-exposure-step.is-burden::before { background:#C9821F; }
+    .sample-exposure-step.is-recovery { background:rgba(12,110,120,.08); border-top-color:#0C6E78; }
+    .sample-exposure-step.is-recovery::before { background:#0C6E78; }
+    .sample-exposure-step.is-limit { background:rgba(24,25,28,.035); border-top-color:#18191C; }
+    .sample-exposure-step.is-limit::before { background:#18191C; }
+    .sample-exposure-step small { display:block; color:#6E6F73; font-size:.62rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
+    .sample-exposure-step strong { display:block; margin-top:8px; color:#18191C; font-size:1.18rem; line-height:1; font-variant-numeric:tabular-nums; }
+    .sample-exposure-step span { display:block; margin-top:8px; color:#6E6F73; font-size:.72rem; line-height:1.35; }
+    .section[id$="-composition"] > .panel { border-top:3px solid #0C6E78; box-shadow:0 18px 44px rgba(8,56,62,.07); }
+    .section[id$="-composition"] > .panel::before { content:"DIAGNOSTIC SIGNATURE"; display:block; margin:0 0 18px; color:#0C6E78; font-size:.67rem; font-weight:700; letter-spacing:.15em; }
+    .section[id$="-experiential"] .exp-grid { position:relative; padding-top:22px; }
+    .section[id$="-experiential"] .exp-grid::before { content:"PARTICIPANT EVIDENCE — REPORTED BY LEVEL, NOT USED TO REWEIGHT THE SCORE"; position:absolute; top:0; left:0; color:#0C6E78; font-size:.64rem; font-weight:700; letter-spacing:.12em; }
+    .section[id$="-experiential"] .exp-card { border-top:3px solid #7FB0B6; min-height:176px; box-shadow:0 12px 30px rgba(8,56,62,.045); }
+    .section[id$="-readings"] .card-row, .section[id$="-remedies"] .remedy-grid { counter-reset:analysis-card; }
+    .section[id$="-readings"] .mini-card, .section[id$="-remedies"] .remedy { position:relative; overflow:hidden; }
+    .section[id$="-readings"] .mini-card::after, .section[id$="-remedies"] .remedy::after { counter-increment:analysis-card; content:"0" counter(analysis-card); position:absolute; right:14px; top:10px; color:rgba(12,110,120,.18); font-size:2rem; font-weight:700; letter-spacing:-.05em; }
+    .section[id$="-method"] .method-box { border-left:4px solid #08383E; box-shadow:0 16px 38px rgba(8,56,62,.055); }
+    @media(max-width:820px){
+      .sample-decision-frame{grid-template-columns:1fr 1fr}.sample-decision-cell:nth-child(3){border-left:0;border-top:1px solid rgba(255,255,255,.12)}.sample-decision-cell:nth-child(4){border-top:1px solid rgba(255,255,255,.12)}
+      .sample-exposure-track{grid-template-columns:1fr 1fr}.sample-exposure-track::before{display:none}.sample-exposure-step::before{display:none}
+    }
+    @media(max-width:540px){.sample-decision-frame,.sample-exposure-track{grid-template-columns:1fr}.sample-decision-cell{border-left:0;border-top:1px solid rgba(255,255,255,.12)}.sample-decision-cell:first-child{border-top:0}.sample-exposure-head{display:block}.sample-exposure-basis{text-align:left;margin-top:6px!important}}
+
     /* Document layout */
     .doc-shell {
       max-width: 1240px;
@@ -2768,6 +2814,38 @@
     }
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", go, { once: true });
     else go();
+  })();
+</script>
+
+<script>
+  (function installExecutiveVisualSystem() {
+    var reports = {
+      os:{score:"46",condition:"Operational drag condition",evidence:"18 eligible runs",hours:"5,280 hrs",cost:"$485,760",drag:"24%",primary:"Process density",basis:"600 runs × 16 disclosed coordination hours × 55% modeled burden attribution"},
+      dv:{score:"58",condition:"Significant decision friction",evidence:"21 eligible runs",hours:"3,128 hrs",cost:"$344,080",drag:"22%",primary:"Approval burden",basis:"~1,150 decisions × disclosed coordination hours × current pathway model"},
+      sc:{score:"50",condition:"Material structural ambiguity",evidence:"15 eligible runs",hours:"960 hrs",cost:"$74,880",drag:"7%",primary:"Handoff integrity",basis:"600 cycles × 4 disclosed ambiguity-driven coordination hours × current pathway model"},
+      ip:{score:"47",condition:"Degraded institutional condition",evidence:"24 eligible runs",hours:"8,448 hrs",cost:"$844,800",drag:"26%",primary:"Informal-effort compensation",basis:"240 tasking cycles × 64 disclosed coordination hours × 55% modeled burden attribution"}
+    };
+    function cell(label,value,note){return '<div class="sample-decision-cell"><p class="sample-decision-label">'+label+'</p><p class="sample-decision-value">'+value+'</p><p class="sample-decision-note">'+note+'</p></div>';}
+    Object.keys(reports).forEach(function(key){
+      var d=reports[key], cover=document.getElementById(key+'-cover'), headline=document.getElementById(key+'-headline');
+      if(!cover||!headline) return;
+      var frame=document.createElement('div');
+      frame.className='sample-decision-frame';
+      frame.setAttribute('aria-label',key.toUpperCase()+' executive decision frame');
+      frame.innerHTML=cell('Measured condition',d.condition,'Median Diagnostic Score '+d.score)+cell('Evidence',d.evidence,'One compatible Diagnostic and bounded scope')+cell('Annual exposure',d.cost,d.hours+' modeled burden')+cell('Primary mechanism',d.primary,'Highest-priority measured constraint');
+      cover.insertAdjacentElement('afterend',frame);
+      var bridge=document.createElement('div');
+      bridge.className='sample-exposure-bridge';
+      bridge.setAttribute('role','img');
+      bridge.setAttribute('aria-label','Source-backed exposure bridge: '+d.hours+', '+d.cost+', '+d.drag+' capacity drag');
+      bridge.innerHTML='<div class="sample-exposure-head"><p class="sample-exposure-title">Source-backed exposure bridge</p><p class="sample-exposure-basis">'+d.basis+'. Directional scenario—not an audited time study.</p></div><div class="sample-exposure-track"><div class="sample-exposure-step"><small>Disclosed inputs</small><strong>Workload</strong><span>People, volume, hours, and loaded labor cost supplied for this bounded scope.</span></div><div class="sample-exposure-step is-burden"><small>Modeled burden</small><strong>'+d.hours+'</strong><span>Annual hours attributed to maintaining the measured condition.</span></div><div class="sample-exposure-step is-recovery"><small>Labor exposure</small><strong>'+d.cost+'</strong><span>Burden hours translated through the disclosed loaded labor cost.</span></div><div class="sample-exposure-step is-limit"><small>Capacity equivalent</small><strong>'+d.drag+'</strong><span>Share of the materially involved participant capacity represented by the scenario.</span></div></div>';
+      var firstPanel=headline.querySelector('.panel');
+      if(firstPanel) {
+        firstPanel.insertAdjacentElement('beforebegin',bridge);
+        firstPanel.hidden=true;
+        firstPanel.setAttribute('aria-hidden','true');
+      } else headline.appendChild(bridge);
+    });
   })();
 </script>
 
