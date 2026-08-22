@@ -11,27 +11,54 @@ const pages = [
   "institutional-performance.html",
 ];
 
-for (const page of pages) {
-  const source = readFileSync(join(root, page), "utf8");
+function validateCompletionContract(source, page = "fixture") {
   const finalizeStart = source.indexOf("async function finalizeAdaptiveRun()");
-  const render = source.indexOf("showStage(resultsStage);", finalizeStart);
-  const background = source.indexOf("void (async () => { try {", finalizeStart);
+  const finalizeEnd = source.indexOf("\nfunction confirmRestart()", finalizeStart);
+  const finalize = finalizeStart >= 0 && finalizeEnd > finalizeStart
+    ? source.slice(finalizeStart, finalizeEnd)
+    : "";
+  const render = finalize.indexOf("showStage(resultsStage);");
+  const background = finalize.indexOf("void (async () => { try {");
 
-  assert(finalizeStart >= 0, `${page}: finalize function missing`);
-  assert.match(source, /if \(state\.finalizeInFlight\) return;/, `${page}: duplicate-finalize guard missing`);
-  assert.match(source, /state\.finalizeInFlight = true;/, `${page}: finalize guard is never acquired`);
-  assert.match(source, /finally \{\s*clearTimeout\(slowFinalizeTimer\);\s*state\.finalizeInFlight = false;/s, `${page}: finalize guard is not released`);
-  assert.match(source, /Still finalizing safely\. Do not resubmit/, `${page}: bounded slow-progress copy missing`);
-  assert.match(source, /const refinedExperienceLayer = rawExperienceLayer;/, `${page}: success still waits for optional refinement`);
-  assert(background > finalizeStart && background < render, `${page}: optional refinement is not nonblocking`);
-  assert.match(source, /const backgroundExperienceLayer = await refineExperientialLayerForOutput/, `${page}: delayed refinement path missing`);
-  assert.match(source, /renderExperienceLayer\(payload\)/, `${page}: delayed refinement cannot update the visible report`);
-  assert.match(source, /premium-pass save-back failed/, `${page}: nonfatal save-back failure path missing`);
-  assert.match(source, /narrativePending/, `${page}: persisted-run narrative recovery missing`);
-  assert.match(source, /retryFinalizeBtn/, `${page}: retry control missing`);
-  assert.match(source, /Open saved result(?:s)? in Workspace/, `${page}: Workspace recovery route missing`);
+  assert(finalizeStart >= 0 && finalizeEnd > finalizeStart, `${page}: finalize function missing or unbounded`);
+  assert.match(finalize, /if \(state\.finalizeInFlight\) return;/, `${page}: duplicate-finalize guard missing`);
+  assert.match(finalize, /state\.finalizeInFlight = true;/, `${page}: finalize guard is never acquired`);
+  assert.match(finalize, /finally \{\s*clearTimeout\(slowFinalizeTimer\);\s*state\.finalizeInFlight = false;/s, `${page}: finalize guard is not released`);
+  assert.match(finalize, /const slowFinalizeTimer = setTimeout\([\s\S]*?,\s*12000\);/, `${page}: bounded slow-progress timer missing`);
+  assert.match(finalize, /Still finalizing safely\. Do not resubmit/, `${page}: bounded slow-progress copy missing`);
+  assert.match(finalize, /const refinedExperienceLayer = rawExperienceLayer;/, `${page}: authoritative success still waits for optional refinement`);
+  assert.doesNotMatch(finalize, /const refinedExperienceLayer = await refineExperientialLayerForOutput/, `${page}: optional refinement blocks authoritative rendering`);
+  assert(background > 0 && background < render, `${page}: optional refinement is not nonblocking before result rendering`);
+  assert.match(finalize, /const backgroundExperienceLayer = await refineExperientialLayerForOutput/, `${page}: delayed refinement path missing`);
+  assert.match(finalize, /renderExperienceLayer\(payload\)/, `${page}: delayed refinement cannot update the visible report`);
+  assert.match(finalize, /premium-pass save-back failed/, `${page}: nonfatal save-back failure path missing`);
+  assert.match(finalize, /if \(!response\.ok\s*\|\|\s*!data\?\.ok\)/, `${page}: finalize HTTP failure handling missing`);
+  assert.match(finalize, /const result = asObject\(data\.result\)/, `${page}: authoritative API result handling missing`);
+  assert.match(finalize, /narrativePending/, `${page}: persisted-run narrative recovery missing`);
+  assert.match(finalize, /retryFinalizeBtn/, `${page}: retry control missing`);
+  assert.match(finalize, /Open saved result(?:s)? in Workspace/, `${page}: Workspace recovery route missing`);
   assert.match(source, /href="workspace-diagnostics\.html"/, `${page}: Workspace target missing`);
   assert.match(source, /Start over\? This clears all your answers/, `${page}: restart confirmation missing`);
 }
 
-console.log(`Diagnostic completion reliability contract passed for ${pages.length} Diagnostics.`);
+for (const page of pages) validateCompletionContract(readFileSync(join(root, page), "utf8"), page);
+
+const certified = readFileSync(join(root, pages[0]), "utf8");
+const mutations = [
+  ["single-flight", (s) => s.replace("if (state.finalizeInFlight) return;", "")],
+  ["bounded-wait", (s) => s.replace("const slowFinalizeTimer = setTimeout(() => {", "const slowFinalizeTimer = (() => {")],
+  ["nonblocking-refinement", (s) => s.replace("const refinedExperienceLayer = rawExperienceLayer;", "const refinedExperienceLayer = await refineExperientialLayerForOutput(rawExperienceLayer);")],
+  ["background-refinement", (s) => s.replace("void (async () => { try {", "try {")],
+  ["saved-run-recovery", (s) => s.replaceAll("Open saved results in Workspace", "Saved result unavailable")],
+  ["response-contract", (s) => s.replaceAll("if (!response.ok || !data?.ok)", "if (!data?.ok)")],
+  ["guard-cleanup", (s) => s.replace("state.finalizeInFlight = false;", "")],
+];
+
+for (const [name, mutate] of mutations) {
+  const regressed = mutate(certified);
+  assert.notEqual(regressed, certified, `negative fixture mutation did not apply: ${name}`);
+  assert.throws(() => validateCompletionContract(regressed, `negative:${name}`), undefined,
+    `deliberately regressed ${name} fixture unexpectedly passed`);
+}
+
+console.log(`Diagnostic completion reliability contract passed for ${pages.length} Diagnostics; ${mutations.length} deliberate regressions were rejected.`);
