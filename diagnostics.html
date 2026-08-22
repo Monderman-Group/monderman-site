@@ -2506,6 +2506,76 @@
   </script>
 
 <link rel="stylesheet" href="canonical-site-shell.css?v=20260822-header3">
+<style>
+  .diagnostics-page{background:#F4EFE6;color:#18191C;}
+  .dx-shell{max-width:1320px;margin:0 auto;padding:0 34px;}
+  .dx-kicker{margin:0 0 12px;color:#0C6E78;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;}
+  .dx-title{margin:0;font-size:clamp(36px,4.2vw,58px);line-height:1;letter-spacing:-.055em;color:#18191C;}
+  .dx-intro{max-width:690px;margin:20px 0 0;color:#666761;font-size:18px;line-height:1.65;}
+  .dx-choice{padding:88px 0 96px;background:#FAFAF8;border-bottom:1px solid #E7E2D6;}
+  .dx-choice-grid{display:grid;grid-template-columns:minmax(260px,.78fr) minmax(0,1.22fr);gap:76px;align-items:start;}
+  .dx-choice-copy{position:sticky;top:108px;}
+  .dx-choice-list{border-top:1px solid #D8D3C8;}
+  .dx-choice-row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:22px;align-items:center;padding:25px 0;border-bottom:1px solid #D8D3C8;transition:color 180ms ease;}
+  .dx-choice-row:hover{color:#0C6E78;}
+  .dx-choice-number{font-size:12px;font-weight:700;letter-spacing:.12em;color:#0C6E78;}
+  .dx-choice-signal{display:block;font-size:clamp(19px,2vw,27px);font-weight:700;line-height:1.12;letter-spacing:-.035em;}
+  .dx-choice-lens{display:block;margin-top:6px;color:#77766F;font-size:14px;line-height:1.4;}
+  .dx-choice-arrow{font-size:23px;color:#0C6E78;}
+  .dx-lenses{padding:94px 0 104px;}
+  .dx-section-head{display:flex;align-items:end;justify-content:space-between;gap:48px;margin-bottom:42px;}
+  .dx-section-head .dx-intro{max-width:520px;margin:0;font-size:16px;}
+  .dx-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;}
+  .dx-card{background:#FFF;border:1px solid #DED9CE;border-radius:16px;overflow:hidden;}
+  .dx-card-link{display:flex;min-height:100%;padding:34px;flex-direction:column;transition:background 180ms ease,border-color 180ms ease;}
+  .dx-card-link:hover{background:#FAFAF8;}
+  .dx-card-top{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:50px;}
+  .dx-card-index{color:#0C6E78;font-size:12px;font-weight:700;letter-spacing:.16em;}
+  .dx-card-time{color:#85837B;font-size:12px;}
+  .dx-card h3{max-width:15ch;margin:0;color:#18191C;font-size:clamp(27px,3vw,39px);line-height:1;letter-spacing:-.05em;}
+  .dx-card-measures{margin:13px 0 0;color:#0C6E78;font-size:13px;font-weight:700;letter-spacing:.04em;}
+  .dx-card-rule{height:1px;margin:30px 0 24px;background:#E5E0D6;}
+  .dx-card-use{margin:0;color:#6E6F69;font-size:15px;line-height:1.65;}
+  .dx-card-use strong{display:block;margin-bottom:5px;color:#18191C;}
+  .dx-card-open{display:inline-flex;align-items:center;gap:8px;margin-top:auto;padding-top:30px;color:#0C6E78;font-size:15px;font-weight:700;}
+  .dx-output{background:#08383E;color:#FAFAF8;}
+  .dx-output-inner{display:grid;grid-template-columns:.9fr 1.1fr;gap:74px;padding-top:82px;padding-bottom:84px;}
+  .dx-output .dx-kicker{color:#A9CFD2;}
+  .dx-output .dx-title{color:#FAFAF8;}
+  .dx-output-copy{max-width:530px;margin:20px 0 0;color:rgba(250,250,248,.72);font-size:16px;line-height:1.65;}
+  .dx-output-list{border-top:1px solid rgba(255,255,255,.18);}
+  .dx-output-item{display:grid;grid-template-columns:34px 1fr;gap:18px;padding:22px 0;border-bottom:1px solid rgba(255,255,255,.18);}
+  .dx-output-item span{color:#A9CFD2;font-size:12px;font-weight:700;}
+  .dx-output-item h3{margin:0 0 6px;color:#FFF;font-size:19px;letter-spacing:-.03em;}
+  .dx-output-item p{margin:0;color:rgba(250,250,248,.65);font-size:14px;line-height:1.55;}
+  .dx-use{padding:94px 0 102px;background:#FAFAF8;}
+  .dx-steps{display:grid;grid-template-columns:repeat(3,1fr);margin-top:42px;border-top:1px solid #D8D3C8;border-bottom:1px solid #D8D3C8;}
+  .dx-step{padding:28px 30px 32px;border-left:1px solid #D8D3C8;}
+  .dx-step:first-child{border-left:0;padding-left:0;}
+  .dx-step:last-child{padding-right:0;}
+  .dx-step span{color:#0C6E78;font-size:11px;font-weight:700;letter-spacing:.15em;}
+  .dx-step h3{margin:24px 0 9px;color:#18191C;font-size:22px;line-height:1.1;}
+  .dx-step p{margin:0;color:#6E6F69;font-size:14px;line-height:1.6;}
+  .dx-use-actions{display:flex;align-items:center;gap:14px;margin-top:34px;}
+  .dx-advisory{padding:76px 0;background:#F4EFE6;border-top:1px solid #E0DBD0;}
+  .dx-advisory-inner{display:flex;align-items:center;justify-content:space-between;gap:54px;}
+  .dx-advisory h2{max-width:700px;margin:0;color:#18191C;font-size:clamp(30px,3.4vw,46px);line-height:1.02;}
+  @media(max-width:900px){
+    .dx-choice-grid,.dx-output-inner{grid-template-columns:1fr;gap:44px;}
+    .dx-choice-copy{position:static;}
+    .dx-section-head{display:block;}.dx-section-head .dx-intro{margin-top:18px;}
+    .dx-card-grid{grid-template-columns:1fr;}
+  }
+  @media(max-width:700px){
+    .dx-shell{padding-left:20px;padding-right:20px;}
+    .dx-choice,.dx-lenses,.dx-use{padding-top:64px;padding-bottom:70px;}
+    .dx-choice-row{grid-template-columns:32px minmax(0,1fr) auto;gap:12px;}
+    .dx-card-link{padding:26px 22px;}.dx-card-top{margin-bottom:36px;}
+    .dx-steps{grid-template-columns:1fr;}.dx-step,.dx-step:first-child,.dx-step:last-child{padding:24px 0;border-left:0;border-top:1px solid #D8D3C8;}.dx-step:first-child{border-top:0;}
+    .dx-advisory-inner{display:block;}.dx-advisory .btn{margin-top:26px;}
+    .dx-use-actions{align-items:stretch;flex-direction:column;}.dx-use-actions .btn{text-align:center;}
+  }
+</style>
 </head>
 <body class="canonical-green-shell">
   <header class="header" id="siteHeader">
@@ -2523,6 +2593,118 @@
       </nav>
     </div>
   </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <p class="hero-eyebrow">Diagnostics</p>
+        <h1 style="max-width:13ch;">Start with the problem you can see.</h1>
+        <p class="hero-dek">Four distinct diagnostic lenses reveal where administrative systems are obscuring ownership, slowing decisions, consuming capacity, or weakening institutional performance.</p>
+        <div class="hero-actions">
+          <a class="btn btn-accent" href="#choose-a-lens">Choose a lens</a>
+          <a class="btn btn-hero-secondary" href="sample-report.html">See a completed report</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="diagnostics-page">
+    <section class="dx-choice" id="choose-a-lens" aria-labelledby="dx-choice-title">
+      <div class="dx-shell dx-choice-grid">
+        <div class="dx-choice-copy">
+          <p class="dx-kicker">Choose by visible signal</p>
+          <h2 class="dx-title" id="dx-choice-title">What is getting in the way?</h2>
+          <p class="dx-intro">You do not need to diagnose the organization before choosing an instrument. Begin with the clearest recurring problem. Monderman maps it to the lens designed to examine that part of the system.</p>
+        </div>
+        <div class="dx-choice-list">
+          <a class="dx-choice-row" href="#structural-clarity">
+            <span class="dx-choice-number">01</span><span><strong class="dx-choice-signal">Ownership is unclear.</strong><span class="dx-choice-lens">Structural Clarity</span></span><span class="dx-choice-arrow">→</span>
+          </a>
+          <a class="dx-choice-row" href="#decision-velocity">
+            <span class="dx-choice-number">02</span><span><strong class="dx-choice-signal">Decisions stall or circle.</strong><span class="dx-choice-lens">Decision Velocity</span></span><span class="dx-choice-arrow">→</span>
+          </a>
+          <a class="dx-choice-row" href="#operational-systems">
+            <span class="dx-choice-number">03</span><span><strong class="dx-choice-signal">Process consumes the work.</strong><span class="dx-choice-lens">Operational Systems</span></span><span class="dx-choice-arrow">→</span>
+          </a>
+          <a class="dx-choice-row" href="#institutional-performance">
+            <span class="dx-choice-number">04</span><span><strong class="dx-choice-signal">Performance is weakening across the system.</strong><span class="dx-choice-lens">Institutional Performance</span></span><span class="dx-choice-arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="dx-lenses" aria-labelledby="dx-lenses-title">
+      <div class="dx-shell">
+        <div class="dx-section-head">
+          <div><p class="dx-kicker">Four diagnostic lenses</p><h2 class="dx-title" id="dx-lenses-title">Measure the part of the system that matters.</h2></div>
+          <p class="dx-intro">Each instrument uses its own calibrated questions and scoring model. All four return an Executive Report and preserve the context required for disciplined later comparison.</p>
+        </div>
+        <div class="dx-card-grid">
+          <article class="dx-card" id="structural-clarity">
+            <a class="dx-card-link diagnostic-link" href="structural-clarity.html">
+              <div class="dx-card-top"><span class="dx-card-index">01 · STRUCTURE</span><span class="dx-card-time">~25 minutes</span></div>
+              <h3>Structural Clarity</h3><p class="dx-card-measures">Roles · ownership · handoffs</p><div class="dx-card-rule"></div>
+              <p class="dx-card-use"><strong>Use when</strong>Ambiguity, duplicated ownership, proliferating handoffs, or drifting role boundaries make execution unreliable.</p>
+              <span class="dx-card-open">Open diagnostic →</span>
+            </a>
+          </article>
+          <article class="dx-card" id="decision-velocity">
+            <a class="dx-card-link diagnostic-link" href="decision-velocity.html">
+              <div class="dx-card-top"><span class="dx-card-index">02 · DECISIONS</span><span class="dx-card-time">~25 minutes</span></div>
+              <h3>Decision Velocity</h3><p class="dx-card-measures">Approvals · escalation · delay</p><div class="dx-card-rule"></div>
+              <p class="dx-card-use"><strong>Use when</strong>Approvals, routing complexity, escalation patterns, or unclear authority keep important decisions from moving.</p>
+              <span class="dx-card-open">Open diagnostic →</span>
+            </a>
+          </article>
+          <article class="dx-card" id="operational-systems">
+            <a class="dx-card-link diagnostic-link" href="operational-systems.html">
+              <div class="dx-card-top"><span class="dx-card-index">03 · OPERATIONS</span><span class="dx-card-time">~25 minutes</span></div>
+              <h3>Operational Systems</h3><p class="dx-card-measures">Process load · reporting · overhead</p><div class="dx-card-rule"></div>
+              <p class="dx-card-use"><strong>Use when</strong>Reporting, coordination, recurring administration, or process density consumes capacity without clearly protecting the work.</p>
+              <span class="dx-card-open">Open diagnostic →</span>
+            </a>
+          </article>
+          <article class="dx-card" id="institutional-performance">
+            <a class="dx-card-link diagnostic-link" href="institutional-performance.html">
+              <div class="dx-card-top"><span class="dx-card-index">04 · PERFORMANCE</span><span class="dx-card-time">~25 minutes</span></div>
+              <h3>Institutional Performance</h3><p class="dx-card-measures">System health · adaptation · reliability</p><div class="dx-card-rule"></div>
+              <p class="dx-card-use"><strong>Use when</strong>The problem extends beyond one workflow and the institution may be losing execution reliability, resilience, or adaptive capacity.</p>
+              <span class="dx-card-open">Open diagnostic →</span>
+            </a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="dx-output" aria-labelledby="dx-output-title">
+      <div class="dx-shell dx-output-inner">
+        <div><p class="dx-kicker">A diagnostic, not a survey</p><h2 class="dx-title" id="dx-output-title">Every run produces an operating read.</h2><p class="dx-output-copy">The report converts structured evidence into a bounded account of the measured condition. It does not infer organizational health from mood or aggregate sentiment.</p></div>
+        <div class="dx-output-list">
+          <div class="dx-output-item"><span>01</span><div><h3>A scored result</h3><p>A deterministic score tied to the selected instrument, depth, and scorer version.</p></div></div>
+          <div class="dx-output-item"><span>02</span><div><h3>An Executive Report</h3><p>The primary measured signal, supporting patterns, implications, and disciplined next questions.</p></div></div>
+          <div class="dx-output-item"><span>03</span><div><h3>A comparison-ready record</h3><p>Scope, participant perspective, depth, and version context are preserved so eligible later runs can be compared without erasing their distinctions.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="dx-use" aria-labelledby="dx-use-title">
+      <div class="dx-shell">
+        <p class="dx-kicker">From first read to governed change</p><h2 class="dx-title" id="dx-use-title">Run one lens. Keep the evidence. Return when the system changes.</h2>
+        <div class="dx-steps">
+          <div class="dx-step"><span>01 · BOUND</span><h3>Name the operating pathway.</h3><p>Choose a specific workflow, decision path, business unit, or institutional scope and the participant perspective being measured.</p></div>
+          <div class="dx-step"><span>02 · DIAGNOSE</span><h3>Run the matching instrument.</h3><p>Answer the calibrated questions, receive the scored Result, and retain the Executive Report in your Workspace.</p></div>
+          <div class="dx-step"><span>03 · RETURN</span><h3>Test what moved.</h3><p>Use a compatible later run to see whether the measured condition changed and whether the recovery hypothesis became more or less credible.</p></div>
+        </div>
+        <div class="dx-use-actions"><a class="btn btn-accent" href="signin.html?next=workspace.html">Sign in to run a diagnostic</a><a class="btn btn-subtle" href="sample-report.html">View sample reports</a></div>
+      </div>
+    </section>
+
+    <section class="dx-advisory">
+      <div class="dx-shell dx-advisory-inner"><div><p class="dx-kicker">Platform Services</p><h2>When the measured problem crosses lenses, go deeper.</h2></div><a class="btn btn-accent" href="platform-services.html">Explore Platform Services</a></div>
+    </section>
+  </main>
+
+  <div id="legacyDiagnosticsPage" hidden aria-hidden="true">
 
   <section class="hero">
     <div class="hero-inner">
@@ -2817,6 +2999,8 @@
   </p>
 </div>
   </main>
+  </div>
+  <script>document.getElementById("legacyDiagnosticsPage")?.remove();</script>
 
   <div class="under-development-modal" id="underDevelopmentModal" aria-hidden="true">
     <div class="under-development-panel" role="dialog" aria-modal="true" aria-labelledby="underDevelopmentTitle">
@@ -3610,7 +3794,8 @@
       preloadTurnstileId = window.turnstile.render("#turnstilePreload", {
         sitekey: TURNSTILE_SITE_KEY,
         theme: "light",
-        size: "invisible",
+        execution: "execute",
+        appearance: "interaction-only",
         callback: (token) => {
           // Store the raw token without verifying — verification is deferred
           // to launch time so a cold backend doesn't eat the token silently.
