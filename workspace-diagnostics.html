@@ -718,6 +718,7 @@ body{transition:background-color .25s ease, color .25s ease}
   <script src="monderman-report.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
   <script src="workspace-access-gate.js"></script>
+  <script src="campaign-access.js"></script>
 <script type="module">
     const workspaceAccess = await window.mondermanWorkspaceAccessReady;
     if (!workspaceAccess?.allowed) throw new Error("workspace_access_not_allowed");
@@ -967,7 +968,7 @@ body{transition:background-color .25s ease, color .25s ease}
         setText("ws5UserRole", cap(state.role));
         setText("ws5Org", (m?.organizations?.name)||"Personal workspace");
         renderRailPlan(m?.organizations||null);
-        const anon=$("fAnon"); if(anon){ const enabled=m?.organizations?.anonymous_responses_enabled===true; anon.disabled=!enabled; if(!enabled){ anon.checked=false; anon.title="Anonymous participant responses are included with Pattern and Enterprise."; const note=$("anonNote"); if(note) note.insertAdjacentHTML("afterbegin","<b>Plan note:</b> Anonymous participant responses are included with Pattern and Enterprise.<br>"); } }
+        const anon=$("fAnon"); if(anon){ const enabled=m?.organizations?.anonymous_responses_enabled===true; anon.disabled=!enabled; if(!enabled){ anon.checked=false; anon.title="Anonymous participant responses are not enabled for this workspace."; const note=$("anonNote"); if(note) note.insertAdjacentHTML("afterbegin","<b>Workspace setting:</b> Anonymous participant responses are not enabled for this workspace.<br>"); } }
       }catch(e){ setText("ws5UserRole","Viewer"); setText("ws5Org","Workspace"); setText("ws5Plan","—"); }
 
       if(!["admin","owner"].includes(String(state.role||"").toLowerCase())){
@@ -1009,7 +1010,7 @@ body{transition:background-color .25s ease, color .25s ease}
     const TOOL = { operational_systems:"Operational Systems", decision_velocity:"Decision Velocity", structural_clarity:"Structural Clarity", institutional_performance:"Institutional Performance" };
     const TOOL_HTML = { operational_systems:"operational-systems.html", decision_velocity:"decision-velocity.html", structural_clarity:"structural-clarity.html", institutional_performance:"institutional-performance.html" };
 
-    const state = { user:null, orgId:null, userId:null, role:"viewer", recipients:[], lastReady:0, plans:[], planId:null, items:[], members:[], promotedRuns:[], promotedLoaded:false };
+    const state = { user:null, orgId:null, userId:null, role:"viewer", organization:null, campaignAccess:null, recipients:[], lastReady:0, plans:[], planId:null, items:[], members:[], promotedRuns:[], promotedLoaded:false };
     function isAdmin(){ return state.role==="admin" || state.role==="owner"; }
 
     const $ = id => document.getElementById(id);
@@ -1586,7 +1587,29 @@ body{transition:background-color .25s ease, color .25s ease}
 
     // ============ Action board ============
 
-    function canRunCampaigns(){ return isAdmin(); }
+    async function campaignAccessState(){
+      const access=window.MondermanCampaignAccess;
+      let result=access.evaluate({ role:state.role, organization:state.organization });
+      if(!result.needsCapacity) return result;
+      try{
+        const { data, error }=await supabase.from("diagnostic_assignments")
+          .select("status, completed_at, closed_at, close_at, send_status")
+          .eq("organization_id",state.orgId);
+        if(error) throw error;
+        result=access.evaluate({ role:state.role, organization:state.organization, reserved:access.countReserved(data,Date.now()) });
+      }catch(error){
+        return { allowed:false, title:"Participant capacity could not be confirmed", message:"The campaign composer is paused because current participant capacity could not be verified. Refresh and try again." };
+      }
+      return result;
+    }
+    function showComposerLock(access){
+      const lock=$("composeLock"); if(!lock) return;
+      const title=lock.querySelector("b"), copy=lock.querySelector("p");
+      if(title) title.textContent=access.title||"Campaign composer unavailable";
+      if(copy) copy.textContent=access.message||"This workspace cannot compose a campaign right now.";
+      lock.hidden=false; $("composeCard").hidden=true;
+    }
+    function canRunCampaigns(){ return !!state.campaignAccess?.allowed; }
     async function boot(){
       $("btnAddRow")?.addEventListener("click", ()=>{ state.recipients.push({email:"",full_name:"",business_unit:"",team:""}); renderRecipients(); });
       $("btnPreview")?.addEventListener("click", doPreview);
@@ -1600,10 +1623,15 @@ body{transition:background-color .25s ease, color .25s ease}
         const { data:m } = await supabase.from("organization_members").select("organization_id, role, organizations(name, plan, anonymous_responses_enabled, campaigns_enabled, respondent_pool, respondents_used, subscription_status, pattern_trial_ends_at)").eq("organization_id",window.__mondermanActiveOrganizationId).maybeSingle();
         state.orgId = m?.organization_id || null;
         state.role = m?.role || "viewer";
+        state.organization = m?.organizations || null;
       }catch(e){}
-      if(canRunCampaigns()){
+      state.campaignAccess=await campaignAccessState();
+      if(isAdmin()){
         document.getElementById("sendTabBtn")?.removeAttribute("hidden");
         if(location.hash==="#campaigns") setTimeout(()=>document.getElementById("sendTabBtn")?.click(),0);
+      }
+      if(canRunCampaigns()){
+        $("composeLock").hidden=true;
         $("composeCard").hidden=false;
         setupComposerAutosave();
         wireBulkImport();
@@ -1611,6 +1639,9 @@ body{transition:background-color .25s ease, color .25s ease}
           state.recipients=[{email:"",full_name:"",business_unit:"",team:""}];
           renderRecipients();
         }
+        loadTracking();
+      }else if(isAdmin()){
+        showComposerLock(state.campaignAccess);
         loadTracking();
       }
     }
