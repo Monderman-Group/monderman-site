@@ -91,16 +91,36 @@ function makeRuntime() {
     getElementById(id) { return elements.get(id) || null; }
   };
   let userId = "11111111-1111-4111-8111-111111111111";
+  let membershipOrganizationId = "22222222-2222-4222-8222-222222222222";
   const window = {
     sessionStorage,
     location: { search: "" },
     mondermanWorkspaceAccessReady: Promise.resolve({ allowed: true, context: "workspace" }),
     __mondermanActiveOrganizationId: "22222222-2222-4222-8222-222222222222",
-    mondermanGetSupabaseClient: async () => ({ auth: { getUser: async () => ({ data: { user: { id: userId } } }) } })
+    mondermanGetSupabaseClient: async () => ({
+      auth: { getUser: async () => ({ data: { user: { id: userId } } }) },
+      from(table) {
+        assert.equal(table, "organization_members");
+        const filters = {};
+        const query = {
+          select() { return query; },
+          eq(column, value) { filters[column] = value; return query; },
+          async maybeSingle() {
+            const allowed = filters.user_id === userId && filters.organization_id === membershipOrganizationId;
+            return allowed ? { data: { organization_id: membershipOrganizationId }, error: null } : { data: null, error: null };
+          }
+        };
+        return query;
+      }
+    })
   };
   const context = vm.createContext({ window, document, URLSearchParams, Date, JSON, Number, String, Array, Object, RegExp });
   vm.runInContext(helperSource, context, { filename: "self-diagnostic-draft.js" });
-  return { window, document, sessionStorage, setUser(id) { userId = id; } };
+  return {
+    window, document, sessionStorage,
+    setUser(id) { userId = id; },
+    setMembershipOrganization(id) { membershipOrganizationId = id; }
+  };
 }
 
 const runtime = makeRuntime();
@@ -150,6 +170,17 @@ assert.equal(restoredState.currentItem.id, "q4");
 assert.deepEqual(restoredState.answerCache, state.answerCache);
 assert.equal(rendered, 1);
 assert.equal(shown, 1);
+
+// Standalone Diagnostic pages do not receive the Workspace-only organization
+// global. Recover the tab-scoped organization only after verifying that the
+// signed-in user still belongs to it.
+runtime.window.__mondermanActiveOrganizationId = "";
+runtime.sessionStorage.setItem("monderman_active_organization_id", ids.org);
+assert.equal(await makeController({}).activate(), true);
+runtime.setMembershipOrganization("55555555-5555-4555-8555-555555555555");
+assert.equal(await makeController({}).activate(), false);
+runtime.setMembershipOrganization(ids.org);
+runtime.window.__mondermanActiveOrganizationId = ids.org;
 
 // A different Diagnostic cannot discover or combine the draft.
 const otherTool = makeController({}, "decision_velocity");
