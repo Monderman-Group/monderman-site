@@ -32,12 +32,17 @@
           ["Pattern", "plan-pattern.html"],
           ["Enterprise", "plan-enterprise.html"],
           ["Advisory Services", "advisory-services.html"]
+        ]],
+        ["Company", "why-monderman.html", [
+          ["Why Monderman", "why-monderman.html"],
+          ["About", "about.html"],
+          ["Security & Data Handling", "security.html"]
         ]]
       ];
       const menuMarkup = menus.map(([label, href, items]) =>
         `<div class="nav-menu"><a class="nav-parent" href="${href}" aria-haspopup="true" aria-expanded="false">${label}<span class="nav-chevron" aria-hidden="true"></span></a><div class="nav-dropdown">${items.map(([itemLabel, itemHref]) => `<a href="${itemHref}">${itemLabel}</a>`).join("")}</div></div>`
       ).join("");
-      nav.innerHTML = `${menuMarkup}<a href="why-monderman.html">Why Monderman</a><a href="about.html">About</a><a href="connect.html">Connect</a><a class="workspace-link" href="workspace.html">Sign In</a>`;
+      nav.innerHTML = `${menuMarkup}<a href="connect.html">Connect</a><a class="workspace-link" href="workspace.html">Sign In</a>`;
       const closeMenus = (except) => nav.querySelectorAll(".nav-menu.is-open").forEach((menu) => {
         if (menu !== except) {
           menu.classList.remove("is-open");
