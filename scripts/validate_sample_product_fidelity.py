@@ -102,7 +102,7 @@ require("Against comparable institutions" not in sample, "IP sample still presen
 require("Degraded institutional condition" in sample, "IP score 47 is not using its current certified band")
 
 # Synthesis samples remain rendered through the exact shared customer renderer.
-require('<script src="monderman-report.js"></script>' in sample, "sample does not load shared customer report renderer")
+require('<script src="monderman-report.js?v=' in sample, "sample does not load a versioned shared customer report renderer")
 require('MondermanReport.fromSynthesis(fixtures.crossLens)' in sample and 'MondermanReport.fromSynthesis(fixtures.depth)' in sample, "Synthesis sample adapter parity broken")
 require(sample.count('class="sample-depth-read"') == 4, "all four lens samples must expose Depth Synthesis evidence context")
 for token in ['n=18','n=21','n=15','n=24','Substantial observed respondent set','Composite view.','three participant levels']:
