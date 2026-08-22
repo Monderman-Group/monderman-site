@@ -90,6 +90,8 @@ req('padding: 48px 54px 64px;' in sample, 'Diagnostic sample documents do not ma
 req('border-radius: 20px;' in sample and 'box-shadow: 0 20px 54px rgba(8,56,62,.07);' in sample, 'Diagnostic sample document frame does not match Synthesis')
 req('gap:56px;' in sample and '.synthesis-report-stage .mr-page{box-shadow:0 20px 54px rgba(8,56,62,.07)!important;}' in sample, 'Synthesis sample canvas does not match the Diagnostic viewer grid and frame')
 req('.synthesis-report-stage .mr-card.mr-remedy-card{border-top:1px solid #EAE6DD!important;}' in sample, 'sample page does not neutralize stale renderer remedy-card top borders')
+req('#report-synthesis .synthesis-report-stage .mr-cover{margin-bottom:12px;}' in sample, 'Cross-Lens sample does not preserve its certified early-chart inset')
+req('#report-synthesis .synthesis-report-stage .mr-cover + .mr-section{margin-top:20px;}' in sample, 'Cross-Lens first visual section can drift below its certified position')
 req('.doc .sample-production-quadrant-wrap { flex: 1 1 100% !important; min-width: 0 !important; width: 100%; }' in sample, 'Diagnostic quadrant retains a fixed mobile minimum width')
 req('.doc .sample-production-quadrant-wrap + p { min-width: 0 !important; flex-basis: 100% !important; }' in sample, 'Diagnostic quadrant narrative retains a fixed mobile minimum width')
 req('.cover-pill { max-width: 100%; white-space: normal; }' in sample, 'Diagnostic cover pills can force mobile overflow')
