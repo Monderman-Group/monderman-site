@@ -21,6 +21,23 @@ async function openTab(key) {
   return shell;
 }
 
+async function verifyCanonicalCapacityGraphic(shell, key, expected) {
+  const canonical = shell.locator(`#${key}-headline .sample-exposure-bridge[role="img"]`);
+  assert(await canonical.count() === 1, `${key} canonical capacity-allocation graphic missing or ambiguous`);
+  assert(await canonical.isVisible(), `${key} canonical capacity-allocation graphic not visible`);
+  const label = await canonical.getAttribute('aria-label');
+  assert(label?.startsWith('Source-backed exposure bridge:'), `${key} canonical capacity-allocation graphic lacks its semantic label`);
+  const text = await canonical.textContent();
+  assert(text.includes('Source-backed exposure bridge'), `${key} canonical capacity-allocation title missing`);
+  for (const token of expected) assert(text.includes(token), `${key} canonical capacity-allocation content missing: ${token}`);
+
+  const superseded = shell.locator(
+    `#${key}-headline .panel[hidden][aria-hidden="true"]:has(svg[aria-label="Capacity allocation"])`
+  );
+  assert(await superseded.count() === 1, `${key} superseded capacity panel is not uniquely hidden from users and assistive technology`);
+  assert(!(await superseded.isVisible()), `${key} superseded capacity panel is exposed`);
+}
+
 await page.goto(`${base}/sample-report.html`, { waitUntil: 'networkidle', timeout: 90000 });
 const bodyText = await page.locator('body').textContent();
 assert(bodyText.includes('Representative product outputs — not customer data.'), 'representative-output disclosure missing');
@@ -62,9 +79,28 @@ for (const [key, quadrantHeading, compositionHeading, changeLabel, changeState, 
   assert(await shell.locator('svg[aria-label="Burden severity by dimension"]').first().isVisible(), `${key} severity graphic not visible`);
   assert(await shell.locator('svg[aria-label="Intervention order"]').first().isVisible(), `${key} intervention graphic not visible`);
   assert(await shell.locator('svg[aria-label="Score in sector context"]').first().isVisible(), `${key} score-context graphic not visible`);
-  assert(await shell.locator('svg[aria-label="Capacity allocation"]').first().isVisible(), `${key} current capacity-allocation graphic not visible`);
+  const canonicalCapacity = {
+    os: ['5,280 hrs', '$485,760', '24%', 'Directional scenario—not an audited time study.'],
+    dv: ['3,128 hrs', '$344,080', '22%', 'Directional scenario—not an audited time study.'],
+    sc: ['960 hrs', '$74,880', '7%', 'Directional scenario—not an audited time study.'],
+    ip: ['8,448 hrs', '$844,800', '26%', 'Directional scenario—not an audited time study.'],
+  };
+  await verifyCanonicalCapacityGraphic(shell, key, canonicalCapacity[key]);
   await page.screenshot({ path: path.join(out, `${key}.png`), fullPage: true });
 }
+
+const osShell = await openTab('os');
+const osCanonical = osShell.locator('#os-headline .sample-exposure-bridge[role="img"]');
+await osCanonical.evaluate(node => { node.hidden = true; });
+let hiddenCanonicalRejected = false;
+try {
+  await verifyCanonicalCapacityGraphic(osShell, 'os', ['5,280 hrs', '$485,760', '24%', 'Directional scenario—not an audited time study.']);
+} catch (error) {
+  hiddenCanonicalRejected = /canonical capacity-allocation graphic not visible/.test(error.message);
+}
+await osCanonical.evaluate(node => { node.hidden = false; });
+assert(hiddenCanonicalRejected, 'deliberately hidden canonical capacity-allocation graphic was not rejected');
+await verifyCanonicalCapacityGraphic(osShell, 'os', ['5,280 hrs', '$485,760', '24%', 'Directional scenario—not an audited time study.']);
 
 const ipText = await (await openTab('ip')).textContent();
 assert(ipText.includes('Degraded institutional condition'), 'IP score 47 is not using current certified band');
@@ -87,6 +123,6 @@ assert(await depth.locator('svg[aria-label="Depth Synthesis score distribution"]
 await page.screenshot({ path: path.join(out, 'depth.png'), fullPage: true });
 
 assert(errors.length === 0, errors.join('\n'));
-fs.writeFileSync(path.join(out, 'result.json'), JSON.stringify({ ok: true, diagnostic_tabs: 4, synthesis_tabs: 2, current_capacity_allocation: true, bounded_single_run_change: true, cover_body_economics_parity: true, console_errors: errors }, null, 2));
+fs.writeFileSync(path.join(out, 'result.json'), JSON.stringify({ ok: true, diagnostic_tabs: 4, synthesis_tabs: 2, current_capacity_allocation: true, hidden_canonical_regression_rejected: true, bounded_single_run_change: true, cover_body_economics_parity: true, console_errors: errors }, null, 2));
 console.log('SAMPLE_PRODUCT_FIDELITY_RENDER_PASS_6_OF_6');
 await browser.close();
