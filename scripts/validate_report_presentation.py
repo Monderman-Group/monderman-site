@@ -84,6 +84,7 @@ req(sample.count('Composite view.') == 4, 'lens sample composite disclosures are
 req('Population inference still requires a documented sampling frame.' in sample, 'observed-set sampling-frame limit missing')
 req('Source-backed remedy paths' in report and 'mr-remedy-card' in report, 'source-backed remedy renderer missing')
 req('.mr-card.mr-remedy-card{background:#fff}' in report, 'Synthesis remedy cards do not override the generic cream card surface')
+req('border-top:3px solid #C9821F' not in report and '.mr-remedy-card:nth-child(' not in report, 'Synthesis remedy cards still carry option-specific top borders')
 req('--max-doc: 960px;' in sample, 'Diagnostic sample documents do not match the 960px Synthesis canvas')
 req('padding: 48px 54px 64px;' in sample, 'Diagnostic sample documents do not match Synthesis document padding')
 req('border-radius: 20px;' in sample and 'box-shadow: 0 20px 54px rgba(8,56,62,.07);' in sample, 'Diagnostic sample document frame does not match Synthesis')
