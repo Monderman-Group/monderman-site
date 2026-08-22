@@ -50,6 +50,12 @@ if 'payment,,' in (r/'security.html').read_text():e.append('double comma')
 
 # Surgical regression guards added 2026-08-13.
 idx=(r/'index.html').read_text(errors='ignore')
+if '<script src="assistant.js" defer></script>' not in idx:
+ e.append('homepage assistant loader missing')
+if re.search(r'^\s*#mnd-launcher\s*\{[^}]*display\s*:\s*none',idx,re.I|re.M):
+ e.append('homepage assistant launcher hidden')
+for token in ['body:has(#mnd-panel.mnd-open) .mdn-cn-launch','body:has(#mdn-cn-panel.mdn-cn-open) #mnd-launcher']:
+ if token not in idx:e.append('homepage assistant/Connect collision guard '+token)
 if 'data-count-type="plain-plus" data-target="7000"' not in idx or 'type === "plain-plus"' not in idx or 'toLocaleString("en-US")' not in idx:
  e.append('homepage 7000+ counter formatting')
 if re.search(r'<img[^>]*?/\s+loading="lazy">',idx,re.I):
