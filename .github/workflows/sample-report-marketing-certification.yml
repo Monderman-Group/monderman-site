@@ -13,6 +13,8 @@ on:
       - 'research.html'
       - 'assistant.js'
       - 'connect-widget.js'
+      - 'self-diagnostic-draft.js'
+      - 'scripts/diagnostic_draft_recovery_smoke.mjs'
       - 'scripts/homepage_assistant_smoke.mjs'
       - 'scripts/report_presentation_smoke.mjs'
       - 'scripts/report_pdf_smoke.mjs'
@@ -35,6 +37,8 @@ on:
       - 'research.html'
       - 'assistant.js'
       - 'connect-widget.js'
+      - 'self-diagnostic-draft.js'
+      - 'scripts/diagnostic_draft_recovery_smoke.mjs'
       - 'scripts/homepage_assistant_smoke.mjs'
       - 'scripts/report_presentation_smoke.mjs'
       - 'scripts/report_pdf_smoke.mjs'
@@ -68,6 +72,7 @@ jobs:
           node --check scripts/report_pdf_smoke.mjs
           node --check scripts/sample_product_fidelity_smoke.mjs
           node --check scripts/homepage_assistant_smoke.mjs
+          node scripts/diagnostic_draft_recovery_smoke.mjs
           python scripts/validate_diagnostic_inline_js.py
           python scripts/validate_report_presentation.py
           python scripts/validate_sample_product_fidelity.py
