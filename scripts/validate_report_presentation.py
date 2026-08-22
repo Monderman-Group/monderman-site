@@ -87,6 +87,12 @@ req(sample.count('class="toc-rail synthesis-toc"') == 2, 'Cross-Lens and Depth C
 req('buildSynthesisContents' in sample, 'generated Synthesis Contents navigation missing')
 req('MondermanReport.fromSynthesis(fixtures.crossLens)' in sample, 'Cross-Lens sample is not using shared customer renderer')
 req('MondermanReport.fromSynthesis(fixtures.depth)' in sample, 'Depth sample is not using shared customer renderer')
+req('installExecutiveVisualSystem' in sample, 'Diagnostic executive visual-system installer missing')
+req('sample-decision-frame' in sample, 'Diagnostic executive decision frame missing')
+req('sample-exposure-bridge' in sample, 'source-backed Diagnostic exposure bridge missing')
+req('Directional scenario—not an audited time study.' in sample, 'Diagnostic exposure bridge lacks model boundary')
+req('firstPanel.hidden=true' in sample, 'superseded capacity panel is not removed from the visual hierarchy')
+req('Sankey' not in sample, 'sample library labels an allocation view as a Sankey')
 
 # Existing product fidelity requirements remain mandatory for the four certified
 # Diagnostics. These samples must retain production visualization primitives.
