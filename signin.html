@@ -203,8 +203,18 @@
     const API_BASE = "https://monderman-api.onrender.com";
 
     const INVITE_STORAGE_KEY = "monderman.pendingInviteToken";
+    const AUTH_CONTEXT_STORAGE_KEY = "monderman.pendingAuthContext";
+    const AUTH_CONTEXT_TTL_MS = 15 * 60 * 1000;
     const initialParams = new URLSearchParams(window.location.search);
-    const requestedAcceptanceSource = initialParams.get("acceptance_source") || "";
+    let storedAuthContext = null;
+    try {
+      storedAuthContext = JSON.parse(sessionStorage.getItem(AUTH_CONTEXT_STORAGE_KEY) || "null");
+      if (!storedAuthContext || Date.now() - Number(storedAuthContext.saved_at || 0) > AUTH_CONTEXT_TTL_MS) {
+        storedAuthContext = null;
+        sessionStorage.removeItem(AUTH_CONTEXT_STORAGE_KEY);
+      }
+    } catch (error) { storedAuthContext = null; }
+    const requestedAcceptanceSource = initialParams.get("acceptance_source") || storedAuthContext?.source || "";
     let pendingInviteToken = initialParams.get("invite_token") || "";
     if (pendingInviteToken) {
       try { sessionStorage.setItem(INVITE_STORAGE_KEY, pendingInviteToken); } catch (error) {}
@@ -224,7 +234,7 @@
     // ---- Resolve the post-login destination from ?next= (default: workspace) ----
     // Only allow same-site relative targets to avoid open-redirect abuse.
     function resolveNext(){
-      const raw = new URLSearchParams(window.location.search).get("next") || "workspace.html";
+      const raw = new URLSearchParams(window.location.search).get("next") || storedAuthContext?.next || "workspace.html";
       // reject anything that looks like an absolute URL or protocol-relative
       if (/^https?:\/\//i.test(raw) || raw.startsWith("//") || raw.includes(":")) return "workspace.html";
       // strip any leading slashes; keep it a simple relative page (+ optional hash/query)
@@ -247,6 +257,9 @@
       const current = acceptanceContext(providerSource);
       const params = new URLSearchParams({ next: nextTarget, acceptance_source: current.source });
       if (current.inviteToken) params.set("invite_token", current.inviteToken);
+      try {
+        sessionStorage.setItem(AUTH_CONTEXT_STORAGE_KEY, JSON.stringify({ source: current.source, next: nextTarget, saved_at: Date.now() }));
+      } catch (error) {}
       return `${base}?${params.toString()}`;
     }
 
@@ -302,6 +315,7 @@
       if (forwarded) return;
       forwarded = true;
       try { sessionStorage.removeItem(INVITE_STORAGE_KEY); } catch (error) {}
+      try { sessionStorage.removeItem(AUTH_CONTEXT_STORAGE_KEY); } catch (error) {}
       window.location.replace(nextTarget);
     }
 
