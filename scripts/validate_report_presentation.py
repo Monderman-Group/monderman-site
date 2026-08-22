@@ -89,6 +89,7 @@ req('--max-doc: 960px;' in sample, 'Diagnostic sample documents do not match the
 req('padding: 48px 54px 64px;' in sample, 'Diagnostic sample documents do not match Synthesis document padding')
 req('border-radius: 20px;' in sample and 'box-shadow: 0 20px 54px rgba(8,56,62,.07);' in sample, 'Diagnostic sample document frame does not match Synthesis')
 req('gap:56px;' in sample and '.synthesis-report-stage .mr-page{box-shadow:0 20px 54px rgba(8,56,62,.07)!important;}' in sample, 'Synthesis sample canvas does not match the Diagnostic viewer grid and frame')
+req('.synthesis-report-stage .mr-card.mr-remedy-card{border-top:1px solid #EAE6DD!important;}' in sample, 'sample page does not neutralize stale renderer remedy-card top borders')
 req('.canonical-green-shell .doc .section h2 {' in sample and 'font-size: 1.28rem;' in sample and '.doc .section p {' in sample and sample.count('line-height: 1.67;') >= 1, 'Diagnostic sample section typography does not override the site shell at the Synthesis report scale')
 req(sample.count('class="toc-rail synthesis-toc"') == 2, 'Cross-Lens and Depth Contents rails missing')
 req('buildSynthesisContents' in sample, 'generated Synthesis Contents navigation missing')
