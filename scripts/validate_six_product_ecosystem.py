@@ -12,7 +12,7 @@ def forbid(src, token, label):
 public_files=[
  'index.html','diagnostics.html','why-monderman.html','platform-services.html',
  'plan-signal.html','plan-pattern.html','plan-enterprise.html','checkout.html',
- 'sample-report.html','Monderman_Infographic.html','Monderman_Platform_Brief.html'
+ 'sample-report.html','Monderman_Platform_Brief.html'
 ]
 public='\n'.join(text(f) for f in public_files)
 for token in [
@@ -33,9 +33,12 @@ pattern=text('plan-pattern.html')
 for token in ['500 completed participant responses','Unlimited Syntheses','anonymous participant responses','five analyst workspace users','two admin workspace users']:
     require(pattern,token,'Pattern')
 enterprise=text('plan-enterprise.html')
-for token in ['participant-response, Synthesis, and workspace-user capacity','defined in the order form','bespoke Diagnostic or vantage design']:
+for token in [
+    'unlimited participant responses','unlimited Syntheses','unlimited self-runs',
+    'Unlimited analyst and admin workspace users','bespoke Diagnostic or participant-perspective design'
+]:
     require(enterprise,token,'Enterprise')
-for token in ['unlimited participant responses','unlimited analyst and admin accounts','No platform ceilings']:
+for token in ['participant-response capacity is defined in the order form','workspace-user capacity defined in the order form']:
     forbid(enterprise,token,'Enterprise')
 
 analysis=text('workspace-analysis.html')

@@ -122,7 +122,7 @@
           : result.score_status==="published"?`Cross-Lens Composite Score ${result.cross_diagnostic_score??"—"}`:"Cross-Lens Composite Score withheld";
         byId("pageTitle").textContent=label;
         byId("pageDek").textContent=isDepth
-          ? "A same-Diagnostic Synthesis reporting the Median Diagnostic Score, distribution, participant-vantage evidence, and limits of the observed set."
+          ? "A same-Diagnostic Synthesis reporting the Median Diagnostic Score, distribution, participant-perspective evidence, and limits of the observed set."
           : "A multi-Diagnostic Synthesis that keeps each lens visible and publishes a Cross-Lens Composite Score only when the evidence meets the coherence requirements.";
         byId("resultBadge").textContent=`${label} · ${evidence} · ${scoreState}`;
         byId("missingState").hidden=true; byId("reportActions").hidden=false; byId("methodNote").hidden=false;

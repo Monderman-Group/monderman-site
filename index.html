@@ -8,8 +8,8 @@
 <meta property="og:title" content="Monderman"/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://www.monderman.com/"/>
-<meta property="og:description" content="Monderman is a suite of deterministic Diagnostics that measures how your institution actually performs — burden, clarity, velocity, condition — and tracks change over time."/>
-  <meta name="description" content="Monderman is a suite of deterministic Diagnostics that measures how your institution actually performs — burden, clarity, velocity, condition — and tracks change over time." />
+<meta property="og:description" content="Monderman is a Systems Measurement platform with four Diagnostic Instruments that measure the structural conditions beneath visible performance and support compatible re-measurement over time."/>
+  <meta name="description" content="Monderman is a Systems Measurement platform with four Diagnostic Instruments that measure the structural conditions beneath visible performance and support compatible re-measurement over time." />
 <link href='data:image/svg+xml;utf8,
     &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"&gt;
       &lt;rect width="64" height="64" rx="10" fill="%2304181B"/&gt;
@@ -2188,8 +2188,53 @@
   .connect .connect-kicker{color:#0C6E78}
   .mxidx-band .mxidx-eyebrow{color:#A9CFD2}
   .systems-measurement-stat span strong{display:block;margin-bottom:5px;color:#0A5B63;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase}
+  /* One deliberate scale for homepage section-level headings. */
+  #systems-measurement-title,
+  #cost-title,
+  #approach-title,
+  #differentiators-title,
+  #proof-title,
+  #synthesis-title,
+  #estimate-title,
+  .mxidx-band h2,
+  #book-title,
+  #latest-title,
+  #connect-title{font-size:clamp(32px,3vw,38.4px);line-height:1.08;letter-spacing:-.04em}
 </style>
 <link rel="stylesheet" href="canonical-site-shell.css">
+<style id="homepage-editorial-pass">
+  body{display:flex;flex-direction:column;}
+  body>.header{order:0;} body>.hero{order:1;} body>.proof-band{order:2;} body>.mxidx-band{order:3;} body>.approach{order:4;} body>.measurement-loop{order:5;} body>.book-band{order:6;} body>.latest{order:7;} body>.connect{order:8;} body>.footer{order:9;}
+  body>.systems-measurement-bridge,body>.bureaucracy-cost,body>.differentiators-compact,body>.synthesis,body>.diagnostic-estimate{display:none!important;}
+  .hero-enterprise-link{display:inline-flex;align-items:center;margin-top:15px;color:rgba(255,255,255,.86);font-size:14px;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.38);padding-bottom:2px;}
+  .hero-enterprise-link:hover,.hero-enterprise-link:focus-visible{color:#fff;border-color:#fff;}
+  .measurement-loop{background:#F4EFE6;color:#18191C;border-top:1px solid #E2DED5;border-bottom:1px solid #E2DED5;}
+  .measurement-loop-inner{max-width:1320px;margin:0 auto;padding:76px 34px;}
+  .measurement-loop .loop-eyebrow{margin:0;color:#0C6E78;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;}
+  .measurement-loop h2{max-width:760px;margin:10px 0 0;font-size:clamp(2rem,3.4vw,3.2rem);line-height:1.04;letter-spacing:-.05em;}
+  .measurement-loop .loop-lead{max-width:720px;margin:16px 0 0;color:#666760;font-size:17px;line-height:1.6;}
+  .loop-flow{display:grid;grid-template-columns:1fr 52px 1fr 52px 1fr 52px 1fr;align-items:stretch;margin-top:38px;}
+  .loop-step{min-height:210px;padding:24px;border:1px solid #DCD7CD;border-radius:14px;background:#FAFAF8;}
+  .loop-step-no{display:block;color:#0C6E78;font-size:11px;font-weight:700;letter-spacing:.15em;}
+  .loop-step strong{display:block;margin-top:28px;font-size:20px;letter-spacing:-.025em;}
+  .loop-step p{margin:9px 0 0;color:#666760;font-size:14px;line-height:1.55;}
+  .loop-arrow{display:flex;align-items:center;justify-content:center;color:#0C6E78;font-size:24px;}
+  .loop-synthesis{display:flex;justify-content:space-between;gap:28px;align-items:center;margin-top:22px;padding:20px 24px;border-left:3px solid #0C6E78;background:rgba(255,255,255,.48);}
+  .loop-synthesis p{margin:0;max-width:820px;color:#4F504C;font-size:14px;line-height:1.6;}
+  .loop-synthesis a{white-space:nowrap;color:#0A5B63;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(12,110,120,.35);}
+  .book-inner{padding-top:48px!important;padding-bottom:48px!important;grid-template-columns:150px 1fr!important;gap:38px!important;}
+  .book-cover,.book-jacket{width:150px!important;}.book-cover{padding:20px 17px 16px!important;}.book-cover-title{font-size:14px!important;}.book-lead{font-size:14px!important;line-height:1.55!important;margin-top:12px!important;}.book-cta{margin-top:18px!important;}
+  .latest-inner{padding-top:54px!important;padding-bottom:60px!important;}.latest-track .latest-card:nth-child(n+4){display:none;}.connect-text{display:none;}
+  .header a[href="why-monderman.html"],.header a[href="about.html"],.header a[href="connect.html"]{display:none!important;}
+  .approach .reveal,.book-band .reveal,.connect .reveal,.measurement-loop .reveal{opacity:1!important;transform:none!important;visibility:visible!important;}
+  .latest-track{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:20px!important;transform:none!important;overflow:visible!important;}
+  .latest-card{width:auto!important;flex-basis:auto!important;min-width:0!important;}
+  .latest-controls,.latest-dots{display:none!important;}
+  #mnd-launcher{display:none!important;}
+  @media(max-width:900px){.loop-flow{grid-template-columns:1fr;gap:12px;}.loop-arrow{min-height:28px;transform:rotate(90deg);}.loop-step{min-height:0;}.loop-step strong{margin-top:16px;}.loop-synthesis{align-items:flex-start;flex-direction:column;}.book-inner{grid-template-columns:1fr!important;}}
+  @media(max-width:900px){.latest-track{grid-template-columns:1fr!important;}}
+  @media(max-width:600px){.measurement-loop-inner{padding:54px 20px;}.proof-inner,.mxidx-inner{padding-left:20px!important;padding-right:20px!important;}}
+</style>
 </head>
 <body>
 <header class="header" id="siteHeader">
@@ -2218,12 +2263,13 @@
 <p class="hero-eyebrow">Organizations deliver at the speed of their administrative reality.</p>
 <h1 class="hero-title" id="hero-title">The best-run institutions measure what others assume.</h1>
 <p class="hero-dek">
-          Monderman is a suite of diagnostic instruments that shows how your institution is actually performing — and tracks change over time.
+          Monderman helps institutional leaders measure structural drag across ownership, decisions, operating systems, and performance&mdash;then establish a compatible baseline for action and remeasurement.
         </p>
 <div class="hero-actions">
-          <a class="btn btn-accent" href="diagnostics.html">Run one yourself — free</a>
-          <a class="btn btn-secondary" href="Monderman_Platform_Brief.html">View Platform Brief</a>
+          <a class="btn btn-accent" href="sample-report.html">See a sample report</a>
+          <a class="btn btn-secondary" href="diagnostics.html">Start the standard Trial</a>
         </div>
+<a class="hero-enterprise-link" href="connect.html">Discuss an institutional deployment &rarr;</a>
 <p class="hero-founder-line">Founded by the author of&nbsp; <a href="https://www.routledge.com/Governance-Bureaucracy-and-Organization-Stewardship-Drift-and-Administrative-Capacity/Adamson/p/book/9781041403296" target="_blank" rel="noopener noreferrer"><em>Governance, Bureaucracy and Organization</em> (Routledge, forthcoming October 12, 2026)</a></p>
 </div>
 <aside class="hero-report-proof" aria-label="Sample Monderman report preview">
@@ -2233,7 +2279,7 @@
         <span class="hrp-brand">Monderman</span>
         <span class="hrp-meta">Operational Systems<br/>Executive Report</span>
       </div>
-      <p class="hrp-kicker">Composite report view &middot; representative output</p>
+      <p class="hrp-kicker">Executive Report preview &middot; representative output</p>
       <h2 class="hrp-title">The operating burden is measurable&mdash;and part of it is recoverable.</h2>
       <p class="hrp-deck">A Monderman report connects the measured condition to annual exposure, capacity that can be reclaimed, and the intervention the evidence supports first.</p>
       <div class="hrp-story-grid">
@@ -2310,7 +2356,7 @@
 <p class="cost-action reveal reveal-delay-4">
         <strong>Monderman is the instrument that surfaces where these losses originate</strong> — and helps institutions stay ahead of where they're forming next.
         <br>
-        <a href="diagnostics.html">Run a diagnostic — free →</a>
+        <a href="diagnostics.html">Start the standard Trial →</a>
       </p>
 <p class="cost-footer reveal reveal-delay-4">
         Sources: Gary Hamel and Michele Zanini, Harvard Business Review (2016, 2017); OECD Regulatory Policy Outlook 2018. These are external reference points, not Monderman measurements.
@@ -2403,10 +2449,10 @@
 <style>.differentiators-compact{background:#F4EFE6;border-bottom:1px solid #E7E3DA}.differentiators-compact .differentiators-inner{padding-top:50px;padding-bottom:50px}.differentiators-compact .diff-section-heading{max-width:650px;font-size:clamp(1.9rem,3vw,2.8rem)}.diff-compact-lead{max-width:700px;margin:12px 0 0;color:#666760;font-size:1rem;line-height:1.55}.diff-compact-grid{display:grid;grid-template-columns:1.25fr repeat(3,1fr);gap:0;margin-top:28px;border-top:1px solid #DCD8CF;border-bottom:1px solid #DCD8CF}.diff-compact-item{padding:20px 22px;border-right:1px solid #DCD8CF}.diff-compact-item:first-child{padding-left:0}.diff-compact-item:last-child{border-right:0;padding-right:0}.diff-compact-item .diff-kicker{margin-bottom:6px}.diff-compact-item .diff-text{margin:0;font-size:.88rem;line-height:1.45}.diff-compact-item:first-child .diff-text{color:#24383B;font-weight:500}@media(max-width:900px){.diff-compact-grid{grid-template-columns:1fr 1fr}.diff-compact-item,.diff-compact-item:first-child,.diff-compact-item:last-child{padding:18px}.diff-compact-item:nth-child(2){border-right:0}.diff-compact-item:nth-child(-n+2){border-bottom:1px solid #DCD8CF}}@media(max-width:560px){.diff-compact-grid{grid-template-columns:1fr}.diff-compact-item,.diff-compact-item:first-child,.diff-compact-item:last-child{padding:17px 0;border-right:0;border-bottom:1px solid #DCD8CF}.diff-compact-item:last-child{border-bottom:0}}</style>
 <div class="differentiators-inner">
 <h2 class="diff-section-heading" id="differentiators-title">Built for the second read, not just the first.</h2>
-<p class="diff-compact-lead">Monderman becomes more valuable when the same institution can compare compatible evidence across perspectives and over time.</p>
+<p class="diff-compact-lead">Monderman becomes more valuable when the same institution can compare compatible evidence across participant perspectives and over time.</p>
 <div class="diff-compact-grid">
 <article class="diff-compact-item reveal"><p class="diff-kicker">Repeated measurement</p><p class="diff-text">Run the same instrument after change to see whether the measured condition moved.</p></article>
-<article class="diff-compact-item reveal reveal-delay-1"><p class="diff-kicker">Perspective lenses</p><p class="diff-text">Compare operational, managerial, and senior leader readings of the same system.</p></article>
+<article class="diff-compact-item reveal reveal-delay-1"><p class="diff-kicker">Participant perspectives</p><p class="diff-text">Compare operational, managerial, and senior leader readings of the same system.</p></article>
 <article class="diff-compact-item reveal reveal-delay-2"><p class="diff-kicker">Cross-Lens Synthesis</p><p class="diff-text">Combine eligible evidence only when coherence requirements support a broader read.</p></article>
 <article class="diff-compact-item reveal reveal-delay-3"><p class="diff-kicker">Longitudinal governance</p><p class="diff-text">Preserve stable scoring, controlled visibility, and auditable administration over time.</p></article>
 </div>
@@ -2460,7 +2506,7 @@
     </div>
   </div>
 </section>
-<section aria-labelledby="synthesis-title" class="synthesis section-with-bar snap-anchor" id="synthesis"><div aria-hidden="true" class="section-bar">Synthesis</div><div class="synthesis-inner"><div class="section-intro reveal"><h2 id="synthesis-title">Where the systems become legible.</h2><p>What institutions gain when all four diagnostics are used together is not just four scores, but a broader institutional read that clarifies what to protect, what to fix, and where capacity can be recovered.</p></div><div class="synthesis-panel reveal reveal-delay-1">
+<section aria-labelledby="synthesis-title" class="synthesis section-with-bar snap-anchor" id="synthesis"><div aria-hidden="true" class="section-bar">Synthesis</div><div class="synthesis-inner"><div class="section-intro reveal"><h2 id="synthesis-title">Where the systems become legible.</h2><p>Cross-Lens Synthesis can compare eligible evidence from two or more different Diagnostic lenses, up to all four. It preserves each Diagnostic as a distinct measurement and publishes a Composite Score only when the selected evidence is sufficiently coherent.</p></div><div class="synthesis-panel reveal reveal-delay-1">
 <div class="approach-synthesis-grid">
 <a class="approach-synthesis-item" data-effect="clarity" href="structural-clarity-article.html">
 <div class="approach-synthesis-item-head">
@@ -2606,7 +2652,7 @@
             These figures are based on public research on management overhead, administrative burden, and compliance costs. They are intended to provide a high-level signal, not an audited organizational measurement. Use the diagnostic suite to establish a baseline, then return as systems and surrounding conditions evolve. The value compounds on the second and third run, when institutions can compare conditions over time. Sector estimates use sector-family calibration, so closely related sectors share a calibration range.
           </p>
 </div>
-<a class="btn btn-accent" href="diagnostics.html">Run a diagnostic — free</a>
+<a class="btn btn-accent" href="diagnostics.html">Start the standard Trial</a>
 </div>
 </div>
 </section>
@@ -2630,12 +2676,29 @@
   <div class="mxidx-inner">
     <div class="mxidx-eyebrow">Measurement you can verify</div>
     <h2>A prompt. A judgment. An instrument.</h2>
-    <p class="mxidx-lead">There are three ways to ask what your bureaucracy is costing you. A general AI chatbot gives a thoughtful answer that changes every time you ask. A traditional six-figure study renders a considered judgment &mdash; once. Monderman is the third kind: a calibrated instrument, scored deterministically, repeatable on a governance cadence &mdash; so the return is verified on the second read instead of asserted on the first.</p>
+    <p class="mxidx-lead">There are three ways to ask what your bureaucracy is costing you. A general AI chatbot gives a thoughtful answer that changes every time you ask. A traditional study renders a considered judgment &mdash; once. Monderman is the third kind: a calibrated instrument with deterministic scoring and compatible re-measurement, so a later read can show whether the measured condition changed.</p>
     <div class="mxidx-row">
       <div class="mxidx-cell"><b>A prompt</b><span>Useful for thinking. Ask twice, receive two different reads &mdash; no baseline, no quantification, nothing defensible to a board.</span></div>
       <div class="mxidx-cell"><b>A judgment</b><span>Experienced and bespoke, but a one-time event at deployment economics. Drift after the binder lands goes unmeasured.</span></div>
-      <div class="mxidx-cell is-instrument"><b>An instrument</b><span>Same answers, same score, every run. Quantified in your time, money, and capacity, against calibrated sector ranges. Built to be run again.</span><a class="mxidx-link" href="deterministic-ai-infrastructure.html">Explore how a modern instrument works &rarr;</a></div>
+      <div class="mxidx-cell is-instrument"><b>An instrument</b><span>Within the same instrument/scorer version, the same structured answers produce the same score. Diagnostic scores use sector calibration; time, labor cost, and recoverable capacity are separate directional scenarios built from disclosed sizing inputs.</span><a class="mxidx-link" href="deterministic-ai-infrastructure.html">Explore how a modern instrument works &rarr;</a></div>
     </div>
+  </div>
+</section>
+<section class="measurement-loop" aria-labelledby="measurement-loop-title">
+  <div class="measurement-loop-inner">
+    <p class="loop-eyebrow">From first read to governed change</p>
+    <h2 id="measurement-loop-title">Built for the second read, not just the first.</h2>
+    <p class="loop-lead">Monderman turns a one-time diagnosis into a disciplined measurement cycle. Compatible evidence shows what changed, what did not, and whether the recovery hypothesis became more or less credible.</p>
+    <div class="loop-flow" aria-label="Monderman measurement cycle">
+      <article class="loop-step"><span class="loop-step-no">01 &middot; DIAGNOSE</span><strong>See the system.</strong><p>Choose one of four Diagnostic lenses and establish the measured condition in a bounded operating scope.</p></article>
+      <div class="loop-arrow" aria-hidden="true">&rarr;</div>
+      <article class="loop-step"><span class="loop-step-no">02 &middot; BASELINE</span><strong>Save the evidence.</strong><p>Preserve the scored Result, its basis, participant perspective, depth, and version context.</p></article>
+      <div class="loop-arrow" aria-hidden="true">&rarr;</div>
+      <article class="loop-step"><span class="loop-step-no">03 &middot; ACT</span><strong>Change the mechanism.</strong><p>Use the evidence to target ownership, authority, routing, process load, or performance discipline.</p></article>
+      <div class="loop-arrow" aria-hidden="true">&rarr;</div>
+      <article class="loop-step"><span class="loop-step-no">04 &middot; REMEASURE</span><strong>Test what moved.</strong><p>Run a compatible later read to see whether the measured condition changed and strengthen or weaken the recovery hypothesis.</p></article>
+    </div>
+    <div class="loop-synthesis"><p><strong>Synthesis adds institutional scale.</strong> Depth Synthesis summarizes eligible evidence from one Diagnostic. Cross-Lens Synthesis compares two or more different Diagnostic lenses without erasing their distinctions.</p><a href="Monderman_Platform_Brief.html">See the platform architecture &rarr;</a></div>
   </div>
 </section>
 <section class="book-band" id="book" aria-labelledby="book-title">
@@ -2881,7 +2944,7 @@
 <span>Talk through fit, pilot structure, or how repeated measurement would work in your environment.</span>
 </a>
 <a class="connect-choice-card" href="diagnostics.html">
-<strong>Run one yourself — free</strong>
+<strong>Start the standard Trial</strong>
 <span>Start in the Diagnostics and establish a first baseline. Your diagnostic inputs are handled in confidence, not sold, and processed only as described in the Privacy Policy.</span>
 </a>
 </div>
@@ -2900,7 +2963,7 @@
             <span class="mf-name">Monderman</span>
             <span class="mf-dot"></span>
           </div>
-          <p class="mf-copy">Monderman is the diagnostic platform institutions use to measure, compare, and govern administrative reality — repeatedly, across perspectives, over time.</p>
+          <p class="mf-copy">Monderman is the diagnostic platform institutions use to measure, compare, and govern administrative reality — repeatedly, across participant perspectives, over time.</p>
           <div class="mf-social">
             <a href="https://www.linkedin.com/in/jason-adamson-627622412/" target="_blank" rel="noopener noreferrer" aria-label="Monderman on LinkedIn"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
             <a href="https://x.com/MondermanHQ" target="_blank" rel="noopener noreferrer" aria-label="Monderman on X"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>

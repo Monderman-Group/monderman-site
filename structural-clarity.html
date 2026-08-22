@@ -9,8 +9,8 @@
 <meta property="og:title" content="Structural Clarity Diagnostic | Monderman"/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://www.monderman.com/structural-clarity.html"/>
-<meta property="og:description" content="Run the Structural Clarity diagnostic: whether ownership, authority, and roles are clear enough to support execution — deterministic scoring, free first read."/>
-  <meta name="description" content="Run the Structural Clarity diagnostic: whether ownership, authority, and roles are clear enough to support execution — deterministic scoring, free first read." />
+<meta property="og:description" content="Run the Structural Clarity diagnostic: whether ownership, authority, and roles are clear enough to support execution — deterministic scoring, with three Diagnostic runs and one Synthesis in the standard Trial."/>
+  <meta name="description" content="Run the Structural Clarity diagnostic: whether ownership, authority, and roles are clear enough to support execution — deterministic scoring, with three Diagnostic runs and one Synthesis in the standard Trial." />
   <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
       <rect width="64" height="64" rx="10" fill="%2304181B"/>
@@ -534,7 +534,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
     <div class="intake-content">
       <p class="intake-step-kicker">Step 1 &middot; Perspective</p>
       <h3 class="intake-step-title">Choose the perspective that best matches your role.</h3>
-      <p class="intake-step-copy">Each version looks at the same pathway from a different vantage point. Pick the lane that best matches what you can see firsthand. The diagnostic engine is unchanged across lanes; the questions shift to fit what each perspective can observe most credibly.</p>
+      <p class="intake-step-copy">Each version looks at the same pathway from a different participant perspective. Pick the lane that best matches what you can see firsthand. The diagnostic engine is unchanged across lanes; the questions shift to fit what each perspective can observe most credibly.</p>
       <div class="intake-options">
         <button class="intake-option lane-btn" type="button" data-lane="operational" data-lane-tile="operational"><span class="intake-option-radio"><span class="intake-option-radio-check">&#10003;</span></span><div class="intake-option-body"><p class="intake-option-name">Operational <span class="intake-option-tag">Closest to the work</span></p><p class="intake-option-desc">Built for people closest to the work. Best for surfacing manual follow-up, off-path coordination, instruction variance, and where pathways quietly absorb chase effort.</p></div></button>
         <button class="intake-option lane-btn" type="button" data-lane="managerial" data-lane-tile="managerial"><span class="intake-option-radio"><span class="intake-option-radio-check">&#10003;</span></span><div class="intake-option-body"><p class="intake-option-name">Managerial <span class="intake-option-tag">Coordinating teams</span></p><p class="intake-option-desc">Built for people coordinating teams and execution. Best for identifying manager-intervention dependence, exception normalization, and where pathway weight is growing fastest.</p></div></button>
@@ -917,7 +917,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
             <span class="mf-name">Monderman</span>
             <span class="mf-dot"></span>
           </div>
-          <p class="mf-copy">Monderman is the diagnostic platform institutions use to measure, compare, and govern administrative reality — repeatedly, across perspectives, over time.</p>
+          <p class="mf-copy">Monderman is the diagnostic platform institutions use to measure, compare, and govern administrative reality — repeatedly, across participant perspectives, over time.</p>
           <div class="mf-social">
             <a href="https://www.linkedin.com/in/jason-adamson-627622412/" target="_blank" rel="noopener noreferrer" aria-label="Monderman on LinkedIn"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
             <a href="https://x.com/MondermanHQ" target="_blank" rel="noopener noreferrer" aria-label="Monderman on X"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
@@ -2621,7 +2621,7 @@ options: [
 
 const EXPERIENCE_PROMPT_SETS = {
   operational: [
-    { key: "self", label: "Your experience of this structure", text: "Optional: From your vantage point, where does this structure require you to ask, infer, or work around because ownership, authority, or handoffs are unclear?" },
+    { key: "self", label: "Your experience of this structure", text: "Optional: From your participant perspective, where does this structure require you to ask, infer, or work around because ownership, authority, or handoffs are unclear?" },
     { key: "observedManagerial", label: "What managers may be experiencing", text: "Optional: Describe what you observe about how managers navigate structural ambiguity — whether they are interpreting, clarifying, or compensating for legibility gaps on behalf of their teams." },
     { key: "observedSeniorLeader", label: "What senior leaders may be seeing", text: "Optional: Describe what senior leaders appear to believe about how clear and readable this structure is — and whether their read matches the reality you see daily." }
   ],
@@ -2631,7 +2631,7 @@ const EXPERIENCE_PROMPT_SETS = {
     { key: "observedSeniorLeader", label: "What senior leaders may be seeing", text: "Optional: Describe what senior leaders appear to believe about structural clarity — and whether that matches what you see in how people actually navigate this structure." }
   ],
   executive: [
-    { key: "self", label: "Your senior-leader experience", text: "Optional: Where does this structure require interpretation, escalation, or informal navigation even from your leadership vantage point — where ownership or authority is not fully legible?" },
+    { key: "self", label: "Your senior-leader experience", text: "Optional: Where does this structure require interpretation, escalation, or informal navigation even from your Senior Leader participant perspective — where ownership or authority is not fully legible?" },
     { key: "observedManagerial", label: "What managers may be experiencing", text: "Optional: Describe what managers appear to experience about structural ambiguity — whether they are regularly clarifying or compensating for legibility gaps on behalf of their teams." },
     { key: "observedOperational", label: "What operational staff may be experiencing", text: "Optional: Describe what operational staff appear to experience about structural legibility — where informal knowledge or personal relationships substitute for readable design." }
   ]
@@ -4830,7 +4830,7 @@ const methodPageNumber = remedyPageNumber + 1;
 const experienceSynthesisPanel = experienceSynthesis
   ? '<div class="panel" style="margin:16px 0 18px"><h3>Experiential synthesis</h3><p>' + safeWords(experienceSynthesis, 88) + '</p><p class="muted">' + safeWords(experienceCaveat, 50) + '</p></div>'
   : '';
-const experienceReportPage = hasExperienceLayer ? '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p>This optional layer records how the workflow is experienced from the selected vantage point and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal process description and lived operating reality diverge.</p>' + experienceSynthesisPanel + '<div class="exp-grid">' + experienceCards + '</div><div class="panel bench"><p><b>Leadership question.</b> ' + safe(buildLeadershipQuestion(result || {}, payload || {}, "experience")) + '</p><p><b>How to use this layer.</b> Treat these notes as a way to plan follow-up conversations. If the same signal appears across operational, managerial, and senior-leader runs, it becomes more useful as a governance input. If it appears in only one lens, it is still valuable, but it should be read as a clue rather than a conclusion.</p></div></div></section>' : '';
+const experienceReportPage = hasExperienceLayer ? '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p>This optional layer records how the workflow is experienced from the selected participant perspective and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal process description and lived operating reality diverge.</p>' + experienceSynthesisPanel + '<div class="exp-grid">' + experienceCards + '</div><div class="panel bench"><p><b>Leadership question.</b> ' + safe(buildLeadershipQuestion(result || {}, payload || {}, "experience")) + '</p><p><b>How to use this layer.</b> Treat these notes as a way to plan follow-up conversations. If the same signal appears across operational, managerial, and senior-leader runs, it becomes more useful as a governance input. If it appears in only one lens, it is still valuable, but it should be read as a clue rather than a conclusion.</p></div></div></section>' : '';
 const narrativeForReport = asObject(result?.narrative);
 const defaultReadings = [
 { label: "Legibility failure read", interpretation: "The structure exists on paper but cannot be read clearly enough in practice — ownership, authority, or handoffs require interpretation rather than observation.", what_would_distinguish_it: "A cross-role run would show whether multiple perspectives describe the same ambiguity or whether it is concentrated at one level." },
