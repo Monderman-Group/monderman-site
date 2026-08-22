@@ -896,7 +896,7 @@
       .toc-mobile { padding: 10px 20px; }
 
       .doc-shell { padding: 36px 20px 56px; }
-      .doc { padding: 22px 20px 34px; border-radius: 16px; }
+      .doc { width: 100%; min-width: 0; padding: 22px 20px 34px; border-radius: 16px; overflow: hidden; }
       .cover-dark { padding: 40px 28px 32px; }
       .cover-white { padding: 28px 28px 32px; }
       .cover-title { font-size: 32px; }
@@ -913,6 +913,12 @@
       .exp-grid { grid-template-columns: 1fr; }
       .remedy-grid { grid-template-columns: 1fr; }
       .ring-row { grid-template-columns: 64px 1fr; gap: 14px; }
+      .cover-pills { min-width: 0; }
+      .cover-pill { max-width: 100%; white-space: normal; }
+      .doc .sample-production-quadrant-wrap { flex: 1 1 100% !important; min-width: 0 !important; width: 100%; }
+      .doc .sample-production-quadrant-wrap + p { min-width: 0 !important; flex-basis: 100% !important; }
+      .sample-production-quadrant-box { min-width: 0; height: 280px; }
+      .sample-production-q-label { max-width: 42%; font-size: 0.72rem; }
 
       .footer-top { flex-direction: column; align-items: flex-start; gap: 14px; }
       .footer-bottom { flex-direction: column; align-items: flex-start; gap: 6px; }
