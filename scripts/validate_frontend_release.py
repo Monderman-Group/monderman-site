@@ -60,6 +60,28 @@ for name in ['decision-velocity.html','operational-systems.html','structural-cla
   tags=[m.group(0) for m in re.finditer(r'<script\s+[^>]*src="[^"]*'+re.escape(url)+r'[^"]*"[^>]*>',t,re.I)]
   if not tags or not any('integrity=' in tag and 'crossorigin=' in tag and re.search(r'\bdefer\b',tag,re.I) for tag in tags):
    e.append(name+': deferred SRI library '+url)
+ navigation_contract={
+  'questionFooter':r'<footer\s+class="env-foot"\s+id="questionFooter"',
+  'progressCopy':r'id="progressCopy"',
+  'pathHint':r'id="pathHint"',
+  'progressBar':r'id="progressBar"',
+  'backBtn':r'id="backBtn"[^>]*>Back</button>',
+  'skipBtn':r'id="skipBtn"[^>]*>Skip</button>',
+  'restartBtn':r'id="restartBtn"[^>]*>Start over</button>',
+  'continueBtn':r'id="continueBtn"[^>]*>Continue</button>',
+ }
+ for control,pattern in navigation_contract.items():
+  if len(re.findall(pattern,t,re.I))!=1:
+   e.append(name+': diagnostic navigation control '+control)
+ for control in ['continueBtn','backBtn','skipBtn','restartBtn']:
+  if not re.search(re.escape(control)+r'\.addEventListener\("click"',t):
+   e.append(name+': disconnected diagnostic navigation handler '+control)
+ if not re.search(r'@media\s*\(max-width:760px\).*?\.env-foot',t,re.I|re.S):
+  e.append(name+': diagnostic navigation mobile layout')
+ if not re.search(r'questionFooter\.style\.display\s*=\s*stage\s*===\s*questionStage\s*\?\s*"grid"\s*:\s*"none"',t):
+  e.append(name+': diagnostic navigation stage visibility')
+ if 'if (!continueBtn || continueBtn.style.display === "none" || continueBtn.disabled) return;' not in t or 'continueBtn.click();' not in t:
+  e.append(name+': diagnostic keyboard activation guard')
 
 # Pattern beta trial contract: no card, identity-scoped one-use, non-renewing.
 trial=(r/'pattern-trial.html').read_text(errors='ignore')
