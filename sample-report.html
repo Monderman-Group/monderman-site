@@ -55,7 +55,7 @@
       --warn-border: #EAE6DD;
       --warn-icon-bg: #FAFAF8;
       --warn-icon-text: #B0392F;
-      --max-doc: 760px;
+      --max-doc: 960px;
       --rail-width: 240px;
     }
 
@@ -310,11 +310,11 @@
     .doc {
       max-width: var(--max-doc);
       margin: 0 auto;
-      padding: 34px 36px 46px;
+      padding: 48px 54px 64px;
       background: #FFFFFF;
       border: 1px solid rgba(24,25,28,.13);
-      border-radius: 22px;
-      box-shadow: 0 20px 54px rgba(8,56,62,.065);
+      border-radius: 20px;
+      box-shadow: 0 20px 54px rgba(8,56,62,.07);
     }
 
     /* Right rail TOC */
@@ -441,8 +441,9 @@
     .sample-depth-copy b{display:block;font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;color:#C9821F;margin-bottom:5px;}
     .sample-depth-copy strong{display:block;font-size:1rem;color:#18191C;margin-bottom:5px;}
     .sample-depth-copy p{font-size:.84rem;line-height:1.5;color:#6E6F73;margin:0;}
-    .synthesis-doc-shell{max-width:1240px;margin:0 auto;padding:42px 28px 96px;display:grid;grid-template-columns:minmax(0,1fr) var(--rail-width);gap:42px;align-items:start;}
+    .synthesis-doc-shell{max-width:1240px;margin:0 auto;padding:64px 28px 96px;display:grid;grid-template-columns:minmax(0,1fr) var(--rail-width);gap:56px;align-items:start;}
     .synthesis-doc-shell .synthesis-report-stage{max-width:none;margin:0;padding:0;min-width:0;}
+    .synthesis-report-stage .mr-page{box-shadow:0 20px 54px rgba(8,56,62,.07)!important;}
     .synthesis-toc{top:110px;}
     @media(max-width:980px){.synthesis-doc-shell{grid-template-columns:minmax(0,1fr);padding:28px 14px 72px}.synthesis-toc{display:none}.sample-depth-read{grid-template-columns:72px minmax(0,1fr)}.sample-depth-ring{width:66px;height:66px}}
     @media print{.synthesis-doc-shell{display:block;max-width:none;padding:0}.synthesis-toc{display:none!important}}
@@ -460,10 +461,10 @@
       letter-spacing: 0.18em;
       font-size: 0.66rem;
     }
-    .section h2 {
-      font-size: clamp(26px, 3vw, 34px);
-      line-height: 1.1;
-      letter-spacing: -0.035em;
+    .canonical-green-shell .doc .section h2 {
+      font-size: 1.28rem;
+      line-height: 1.18;
+      letter-spacing: -0.025em;
       margin: 0 0 18px;
       max-width: 28ch;
       font-weight: 700;
@@ -474,13 +475,13 @@
       margin: 22px 0 10px;
       font-weight: 700;
     }
-    .section p {
+    .doc .section p {
       font-size: 1rem;
-      line-height: 1.62;
+      line-height: 1.67;
       color: var(--text-dark);
       margin: 0 0 14px;
     }
-    .section p.lede {
+    .doc .section p.lede {
       font-size: 1.12rem;
       line-height: 1.5;
       margin-bottom: 18px;
@@ -900,7 +901,7 @@
       .cover-title { font-size: 32px; }
       .cover-workflow { font-size: 1.4rem; }
       .section { margin-bottom: 48px; }
-      .section h2 { font-size: 24px; }
+      .canonical-green-shell .doc .section h2 { font-size: 1.28rem; }
       .donut-panel {
         grid-template-columns: 1fr;
         gap: 16px;
@@ -2540,7 +2541,7 @@
   </div>
 </section>
 
-<script src="monderman-report.js?v=20260822-remedy-paths"></script>
+<script src="monderman-report.js?v=20260822-report-canvas"></script>
 <script>
   window.MONDERMAN_REPRESENTATIVE_SYNTHESIS_FIXTURES = {
     crossLens: {
