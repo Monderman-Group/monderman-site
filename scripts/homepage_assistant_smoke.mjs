@@ -26,7 +26,7 @@ try {
     const assistantBox = await launcher.boundingBox();
     const connectBox = await connect.boundingBox();
     assert(assistantBox && connectBox, `${viewport.name}: launcher geometry unavailable`);
-    assert(assistantBox.y + assistantBox.height <= connectBox.y, `${viewport.name}: assistant and Connect launchers overlap`);
+    assert(connectBox.y + connectBox.height <= assistantBox.y, `${viewport.name}: assistant and Connect launchers overlap`);
 
     await launcher.focus();
     assert.equal(await launcher.evaluate(node => document.activeElement === node), true, `${viewport.name}: launcher cannot receive focus`);
