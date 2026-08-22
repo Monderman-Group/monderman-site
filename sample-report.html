@@ -872,6 +872,14 @@
   
     /* ---- Diagnostic tab switcher ---- */
     .dx-tabs-wrap { background: var(--bg-white); border-bottom: 1px solid var(--line); }
+    @media (min-width: 761px) {
+      .dx-tabs-wrap {
+        position: sticky;
+        top: 72px;
+        z-index: 90;
+        box-shadow: 0 12px 28px rgba(24,25,28,.08);
+      }
+    }
     .dx-tabs {
       max-width: 1240px; margin: 0 auto; padding: 14px 28px 16px;
       display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;
@@ -1513,7 +1521,7 @@
         <a href="research.html" class="is-active">Research</a>
         <a href="why-monderman.html">Why Monderman</a>
         <a href="about.html">About</a>
-        <a href="platform-services.html">Platform Services</a>
+        <a href="platform-services.html">Plans &amp; Pricing</a>
         <a href="connect.html">Connect</a>
         <a class="workspace-link" href="workspace.html">Sign In</a>
       </nav>
@@ -2796,12 +2804,16 @@
       t.addEventListener('click', function () {
         var key = t.getAttribute('data-target');
         show(key, true);
-        try { if (history && history.replaceState) history.replaceState(null, '', '#' + key); } catch (e) { /* sandboxed preview */ }
+        try { if (history && history.pushState) history.pushState({ report: key }, '', '#' + key); } catch (e) { /* sandboxed preview */ }
       });
     });
 
     var initial = (location.hash || '').replace('#', '');
     show(shells[initial] ? initial : 'os', false);
+    window.addEventListener('popstate', function () {
+      var key = (location.hash || '').replace('#', '');
+      show(shells[key] ? key : 'os', false);
+    });
 
     // Active TOC tracking (scoped naturally: hidden shells' sections never intersect)
     var sections = document.querySelectorAll('main .section, main .cover');

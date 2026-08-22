@@ -905,7 +905,6 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
 
         <section class="viz-card" id="basisOfRead" style="margin:6px 0 0;"><h4>Basis of this read</h4><dl id="basisRows" style="display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:10px 0 0;font-size:.92rem;line-height:1.55;"></dl><p class="viz-note" style="margin-top:10px;">Published with every read: the same basis travels in the JSON export. Identical answers on this instrument version yield the identical score.</p></section>
     <section class="advisory-card"><div><p class="summary-label" style="margin-bottom:8px;color:var(--accent);">Next step</p><h3 id="nextStepHeading" style="margin:0 0 8px;">Decide whether this pattern needs deeper investigation.</h3><p class="result-copy" id="nextStepCopy" style="margin:0;">If the legibility failure appears broader, more persistent, or more structurally embedded than a directional tool can resolve, Monderman can go deeper on authority design, ownership architecture, handoff integrity, and structural redesign.</p></div><div class="export-cta-stack"><div class="export-primary-row"><button class="btn btn-accent" id="downloadPdfBtn" type="button">Download Summary (PDF)</button><a class="btn" href="connect.html" target="_blank" rel="noopener noreferrer">Discuss with Monderman Platform Services</a></div><div class="export-inline-row"><button class="action-link" id="downloadReportBtn" type="button">Download Summary (HTML)</button><span aria-hidden="true" style="color:rgba(24,25,28,.18)">|</span><button class="action-link" id="downloadFullReportBtn" type="button">Download Full Report (HTML)</button><span aria-hidden="true" style="color:rgba(24,25,28,.18)">|</span><button class="action-link" id="saveCrossDiagnosticBtn" type="button">Export JSON for Synthesis</button></div><div class="export-utility-row"><button class="utility-btn" id="newRunBtn" type="button">Run another diagnostic</button><span aria-hidden="true" style="color:rgba(24,25,28,.18)">|</span><a class="utility-btn" href="diagnostics.html" target="_blank" rel="noopener noreferrer">Back to diagnostics</a></div><a id="reportDownloadLink" class="hidden-download" download="monderman-structural-clarity-report.html"></a><a id="crossDiagnosticDownloadLink" class="hidden-download" download="monderman-structural-clarity-result.json"></a></div></section>
-    <p style="margin:18px 0 0;"><a class="btn" href="workspace-diagnostics.html">Open saved result in Workspace</a></p>
     <section class="results-disclaimer" id="bottomDisclaimer"></section>
   </div></div>
   <footer class="env-foot" id="questionFooter"><div class="progress-wrap"><div class="progress-top"><p id="progressCopy"></p><p id="pathHint"></p></div><div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div></div><div class="actions"><div class="actions-left"><button class="btn" id="backBtn" type="button">Back</button><button class="btn" id="skipBtn" type="button">Skip</button></div><div class="actions-right"><button class="btn btn-soft" id="restartBtn" type="button">Start over</button><button class="btn btn-accent" id="continueBtn" type="button">Continue</button></div></div></footer>
@@ -933,7 +932,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
             <a href="research.html">Research</a>
             <a href="why-monderman.html">Why Monderman</a>
             <a href="about.html">About</a>
-            <a href="platform-services.html">Platform Services</a>
+            <a href="platform-services.html">Plans &amp; Pricing</a>
           </div>
           <div class="mf-col">
             <p class="mf-col-title">Connect</p>
@@ -2941,14 +2940,9 @@ await startAdaptiveRun();
 
 async function finalizeAdaptiveRun() {
 if (!state.runId) return;
-if (state.finalizeInFlight) return;
-state.finalizeInFlight = true;
 showStage(processingStage);
 resetProcessingUI();
 setProcessingStep(0, "Finalizing adaptive run...");
-const slowFinalizeTimer = setTimeout(() => {
-  setProcessingStep(1, "Still finalizing safely. Do not resubmit — any saved run will appear in Workspace.");
-}, 12000);
 
 try {
 setProcessingStep(1, "Translating run state into structured output...");
@@ -3020,10 +3014,7 @@ const inferredCoverage = inferParticipantCoverage();
 const legacyPayload = asObject(data.legacyPayload);
 const rawExperienceLayer = buildExperienceLayer();
 if (rawExperienceLayer?.hasInput) setProcessingStep(2, "Refining experiential notes into a report-ready readback...");
-// A saved score must never wait on optional prose refinement. Render the
-// authoritative result with participant-provided notes, then refine/save back
-// those notes in the background without reopening or duplicating the run.
-const refinedExperienceLayer = rawExperienceLayer;
+const refinedExperienceLayer = await refineExperientialLayerForOutput(rawExperienceLayer);
 const payload = {
   ...legacyPayload,
   processName: legacyPayload.processName || legacyPayload.process_name || state.preflight.processName,
@@ -3063,16 +3054,11 @@ state.result = result;
 // fields only; scores and bands are never client-writable. Awaited with a
 // nonfatal, visible notice on failure (8 Aug 2026 correction): a silent
 // fire-and-forget could leave the workspace copy stale with no signal.
-void (async () => { try {
+try {
   if (data && data.savedRunId && rawExperienceLayer && rawExperienceLayer.hasInput) {
-    const backgroundExperienceLayer = await refineExperientialLayerForOutput(rawExperienceLayer);
-    payload.experientialLayer = backgroundExperienceLayer;
-    payload.experiential_layer = backgroundExperienceLayer;
-    state.renderPayload = payload;
-    try { renderExperienceLayer(payload); } catch (_renderExperienceErr) { /* result remains usable */ }
     var __saveBody = {
       run_id: data.savedRunId,
-      experiential_layer: backgroundExperienceLayer,
+      experiential_layer: refinedExperienceLayer,
       narrative: result.narrative || null
     };
     try {
@@ -3096,7 +3082,7 @@ void (async () => { try {
       try { if (typeof showToast === "function") showToast("The refined notes shown here could not be saved to the workspace copy of this run."); } catch (_toastErr) {}
     }
   }
-} catch (_persistErr) { /* non-blocking */ } })();
+} catch (_persistErr) { /* non-blocking */ }
 
 state.renderPayload = payload;
 
@@ -3135,10 +3121,8 @@ if (state.gateNotice) {
   } catch (_e) {}
 }
 showStage(resultsStage);
-clearTimeout(slowFinalizeTimer);
 
 } catch (error) {
-clearTimeout(slowFinalizeTimer);
 console.error("Adaptive finalize failed", error);
 {
 const directedRun = Boolean(window.MondermanAssignment && window.MondermanAssignment.active && window.MondermanAssignment.active());
@@ -3160,7 +3144,7 @@ if (qCard) {
 const errMsg = error?.message || "Unknown error";
 const errStatus = error?.status ? ` (HTTP ${error.status})` : "";
 const errBody = error?.responseBody ? `<details style="margin-top:8px;"><summary style="cursor:pointer;font-size:.82rem;color:var(--ink-muted);">Show technical details</summary><pre style="margin-top:8px;padding:10px;background:#FAFAF8;border:1px solid rgba(24,25,28,.10);border-radius:8px;font-size:.78rem;overflow:auto;max-height:160px;white-space:pre-wrap;">${error.responseBody.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</pre></details>` : "";
-qCard.innerHTML = ` <div style="display:grid;gap:18px;padding:4px 0;"> <p style="margin:0;font-size:1rem;font-weight:600;color:var(--ink);">${(error?.narrativePending && error?.savedRunId != null) ? pendingTitle : "Output generation failed."}</p> <p style="margin:0;font-size:.95rem;line-height:1.65;color:var(--ink-soft);">${(error?.narrativePending && error?.savedRunId != null) ? pendingBody : "The diagnostic run is complete but the output could not be generated."}</p> <div style="padding:12px 14px;background:#FAFAF8;border:1px solid rgba(176,57,47,.30);border-radius:8px;"> <p style="margin:0 0 4px;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#B0392F;">${(error?.narrativePending && error?.savedRunId != null) ? "Write-up error" : "Error"}${errStatus}</p> <p style="margin:0;font-size:.88rem;color:var(--ink);font-family:'Neue Haas Grotesk','Helvetica Neue',Helvetica,Arial,sans-serif;">${errMsg.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</p> ${errBody} </div> <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;"> <button class="btn btn-accent" id="retryFinalizeBtn" type="button">${(error?.narrativePending && error?.savedRunId != null) ? "Generate the write-up" : "Try again"}</button> <a class="btn" href="workspace-diagnostics.html">Open saved results in Workspace</a> <button class="btn" id="retryRestartBtn" type="button">Start over</button> </div> </div>`;
+qCard.innerHTML = ` <div style="display:grid;gap:18px;padding:4px 0;"> <p style="margin:0;font-size:1rem;font-weight:600;color:var(--ink);">${(error?.narrativePending && error?.savedRunId != null) ? pendingTitle : "Output generation failed."}</p> <p style="margin:0;font-size:.95rem;line-height:1.65;color:var(--ink-soft);">${(error?.narrativePending && error?.savedRunId != null) ? pendingBody : "The diagnostic run is complete but the output could not be generated."}</p> <div style="padding:12px 14px;background:#FAFAF8;border:1px solid rgba(176,57,47,.30);border-radius:8px;"> <p style="margin:0 0 4px;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#B0392F;">${(error?.narrativePending && error?.savedRunId != null) ? "Write-up error" : "Error"}${errStatus}</p> <p style="margin:0;font-size:.88rem;color:var(--ink);font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;">${errMsg.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</p> ${errBody} </div> <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;"> <button class="btn btn-accent" id="retryFinalizeBtn" type="button">${(error?.narrativePending && error?.savedRunId != null) ? "Generate the write-up" : "Try again"}</button> <button class="btn" id="retryRestartBtn" type="button">Start over</button> </div> </div>`;
 $("retryFinalizeBtn")?.addEventListener("click", async () => {
 $("retryFinalizeBtn").disabled = true;
 $("retryFinalizeBtn").textContent = "Generating...";
@@ -3169,10 +3153,6 @@ await finalizeAdaptiveRun();
 $("retryRestartBtn")?.addEventListener("click", confirmRestart);
 }
 }
-}
-finally {
-clearTimeout(slowFinalizeTimer);
-state.finalizeInFlight = false;
 }
 }
 
