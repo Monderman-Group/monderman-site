@@ -310,6 +310,11 @@
     .doc {
       max-width: var(--max-doc);
       margin: 0 auto;
+      padding: 34px 36px 46px;
+      background: #FFFFFF;
+      border: 1px solid rgba(24,25,28,.13);
+      border-radius: 22px;
+      box-shadow: 0 20px 54px rgba(8,56,62,.065);
     }
 
     /* Right rail TOC */
@@ -889,6 +894,7 @@
       .toc-mobile { padding: 10px 20px; }
 
       .doc-shell { padding: 36px 20px 56px; }
+      .doc { padding: 22px 20px 34px; border-radius: 16px; }
       .cover-dark { padding: 40px 28px 32px; }
       .cover-white { padding: 28px 28px 32px; }
       .cover-title { font-size: 32px; }
@@ -913,6 +919,7 @@
     @media print {
       .header, .meta-bar, .notice, .toc-rail, .toc-mobile, .footer { display: none; }
       .doc-shell { padding: 0; grid-template-columns: 1fr; }
+      .doc { border: 0; border-radius: 0; box-shadow: none; padding: 0; }
       .section { page-break-inside: avoid; }
     }
   
@@ -2533,7 +2540,7 @@
   </div>
 </section>
 
-<script src="monderman-report.js"></script>
+<script src="monderman-report.js?v=20260822-remedy-paths"></script>
 <script>
   window.MONDERMAN_REPRESENTATIVE_SYNTHESIS_FIXTURES = {
     crossLens: {
