@@ -30,8 +30,7 @@
           ["Plans & Pricing", "platform-services.html"],
           ["Signal", "plan-signal.html"],
           ["Pattern", "plan-pattern.html"],
-          ["Enterprise", "plan-enterprise.html"],
-          ["Advisory Services", "advisory-services.html"]
+          ["Enterprise", "plan-enterprise.html"]
         ]],
         ["Company", "why-monderman.html", [
           ["Why Monderman", "why-monderman.html"],
