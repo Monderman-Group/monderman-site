@@ -956,6 +956,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   <script src="monderman-viz.js"></script>
   <script src="assignment-mode.js"></script>
   <script src="assignment-draft.js"></script>
+  <script src="self-diagnostic-draft.js"></script>
   <script src="interview-mode.js"></script>
   <script>
 const MondermanDiagnostic = (() => {
@@ -2574,6 +2575,7 @@ if (!response.ok || !data?.ok) {
 }
 
 state.runId = data.runId;
+state.configVersion = data?.routingMeta?.configVersion || data?.configVersion || data?.config_version || null;
 state.currentItem = data.nextItem;
 state.currentProgress = data.progress || null;
 state.started = true;
@@ -2816,6 +2818,7 @@ queueExperienceQuestion(nextIndex);
 state.experienceComplete = true;
 queueConfidenceQuestion();
 }
+if (selfDraft) selfDraft.saveAccepted();
 return;
 }
 // Do not auto-replay cached answers. Every value in this run must be user-authored in the current pass.
@@ -2825,6 +2828,7 @@ showQuestionRequired('This question is required.');
 return;
 }
 state.preflight.confidenceLevel = value;
+if (selfDraft) selfDraft.saveAccepted();
 continueBtn.disabled = true;
 skipBtn.disabled = true;
 continueBtn.textContent = "Generating output...";
@@ -2872,11 +2876,13 @@ state.currentProgress = data.progress || state.currentProgress;
 if (data.shouldStop || !data.nextItem) {
 if (!state.experienceComplete) {
 queueExperienceQuestion(0);
+if (selfDraft) selfDraft.saveAccepted();
 renderedNextQuestion = true;
 return;
 }
 if (!state.preflight.confidenceLevel) {
 queueConfidenceQuestion();
+if (selfDraft) selfDraft.saveAccepted();
 renderedNextQuestion = true;
 return;
 }
@@ -2885,6 +2891,7 @@ return;
 }
 state.currentItem = data.nextItem;
 renderQuestion();
+if (selfDraft) selfDraft.saveAccepted();
 renderedNextQuestion = true;
 return;
 } catch (error) {
@@ -3135,6 +3142,7 @@ if (state.gateNotice) {
   } catch (_e) {}
 }
 showStage(resultsStage);
+if (selfDraft) selfDraft.clear();
 clearTimeout(slowFinalizeTimer);
 
 } catch (error) {
@@ -3187,10 +3195,12 @@ function confirmRestart() {
 
 function restartDiagnostic(preserveParticipantDraft = false) {
 if (!preserveParticipantDraft && participantDraft && window.MondermanAssignment && window.MondermanAssignment.active()) participantDraft.clear();
+if (!preserveParticipantDraft && selfDraft) selfDraft.clear();
 state.started = false;
 state.runId = null;
 state.currentItem = null;
 state.currentProgress = null;
+state.configVersion = null;
 state.result = null;
 state.renderPayload = null;
 state.answerCache = {};
@@ -6317,6 +6327,16 @@ const participantDraft = window.MondermanAssignmentDraft && window.MondermanAssi
   showStage,
   stages: { lane: laneStage, depth: depthStage, intro: introStage, question: questionStage }
 });
+
+const selfDraft = window.MondermanSelfDiagnosticDraft && window.MondermanSelfDiagnosticDraft.createController({
+  tool: "structural_clarity",
+  state,
+  questionStage,
+  renderQuestion,
+  showStage,
+  startOver: function () { restartDiagnostic(); }
+});
+if (selfDraft) void selfDraft.activate();
 
 // ── Directed (campaign) mode: when opened from an assignment link, lock the
 //    vantage to the admin's choice and skip the chooser. No-op otherwise. ──
