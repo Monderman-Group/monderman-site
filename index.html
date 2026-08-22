@@ -56,6 +56,20 @@
       font-weight: 700;
       font-display: swap;
     }
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("56font.woff2") format("woff2"), url("56font.woff") format("woff");
+      font-style: italic;
+      font-weight: 400;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("66font.woff2") format("woff2"), url("66font.woff") format("woff");
+      font-style: italic;
+      font-weight: 500 700;
+      font-display: swap;
+    }
     :root {
       --accent: #0C6E78;
       --accent-dark: #0A5B63;
@@ -2204,10 +2218,25 @@
 <link rel="stylesheet" href="canonical-site-shell.css">
 <style id="homepage-editorial-pass">
   body{display:flex;flex-direction:column;}
-  body>.header{order:0;} body>.hero{order:1;} body>.proof-band{order:2;} body>.mxidx-band{order:3;} body>.approach{order:4;} body>.measurement-loop{order:5;} body>.book-band{order:6;} body>.latest{order:7;} body>.connect{order:8;} body>.footer{order:9;}
+  body>.header{order:0;} body>.hero{order:1;} body>.proof-band{order:2;} body>.mxidx-band{order:3;} body>.systems-analysis-bridge{order:4;} body>.approach{order:5;} body>.measurement-loop{order:6;} body>.book-band{order:7;} body>.latest{order:8;} body>.connect{order:9;} body>.footer{order:10;}
+  body,body button,body input,body select,body textarea,body *{font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif!important;}
   body>.systems-measurement-bridge,body>.bureaucracy-cost,body>.differentiators-compact,body>.synthesis,body>.diagnostic-estimate{display:none!important;}
   .hero-enterprise-link{display:inline-flex;align-items:center;margin-top:15px;color:rgba(255,255,255,.86);font-size:14px;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.38);padding-bottom:2px;}
   .hero-enterprise-link:hover,.hero-enterprise-link:focus-visible{color:#fff;border-color:#fff;}
+  .systems-analysis-bridge{background:#FAFAF8;color:#18191C;border-top:1px solid #E2DED5;border-bottom:1px solid #E2DED5;}
+  .systems-analysis-inner{max-width:1320px;margin:0 auto;padding:66px 34px;}
+  .systems-analysis-eyebrow{margin:0;color:#0C6E78;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;}
+  .systems-analysis-bridge h2{max-width:820px;margin:10px 0 0;font-size:clamp(2rem,3.2vw,3rem);line-height:1.05;letter-spacing:-.05em;}
+  .systems-analysis-lead{max-width:760px;margin:15px 0 0;color:#666760;font-size:17px;line-height:1.6;}
+  .systems-analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:32px;}
+  .systems-analysis-card{padding:26px 28px;border:1px solid #DED9D0;border-radius:14px;background:#fff;}
+  .systems-analysis-card.systems{background:#EEF5F4;border-color:#C9DDDC;}
+  .systems-analysis-label{display:block;color:#0C6E78;font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;}
+  .systems-analysis-card h3{margin:13px 0 0;font-size:22px;letter-spacing:-.035em;}
+  .systems-analysis-card p{margin:10px 0 0;color:#5F605C;font-size:15px;line-height:1.6;}
+  .systems-analysis-conclusion{display:flex;align-items:center;justify-content:space-between;gap:28px;margin-top:20px;padding:20px 24px;border-left:3px solid #0C6E78;background:#F4EFE6;}
+  .systems-analysis-conclusion p{max-width:900px;margin:0;color:#333B3C;font-size:16px;line-height:1.55;}
+  .systems-analysis-conclusion a{white-space:nowrap;color:#0A5B63;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(12,110,120,.35);}
   .measurement-loop{background:#F4EFE6;color:#18191C;border-top:1px solid #E2DED5;border-bottom:1px solid #E2DED5;}
   .measurement-loop-inner{max-width:1320px;margin:0 auto;padding:76px 34px;}
   .measurement-loop .loop-eyebrow{margin:0;color:#0C6E78;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;}
@@ -2231,7 +2260,7 @@
   .latest-card{width:auto!important;flex-basis:auto!important;min-width:0!important;}
   .latest-controls,.latest-dots{display:none!important;}
   #mnd-launcher{display:none!important;}
-  @media(max-width:900px){.loop-flow{grid-template-columns:1fr;gap:12px;}.loop-arrow{min-height:28px;transform:rotate(90deg);}.loop-step{min-height:0;}.loop-step strong{margin-top:16px;}.loop-synthesis{align-items:flex-start;flex-direction:column;}.book-inner{grid-template-columns:1fr!important;}}
+  @media(max-width:900px){.systems-analysis-grid{grid-template-columns:1fr;}.systems-analysis-conclusion{align-items:flex-start;flex-direction:column;}.loop-flow{grid-template-columns:1fr;gap:12px;}.loop-arrow{min-height:28px;transform:rotate(90deg);}.loop-step{min-height:0;}.loop-step strong{margin-top:16px;}.loop-synthesis{align-items:flex-start;flex-direction:column;}.book-inner{grid-template-columns:1fr!important;}}
   @media(max-width:900px){.latest-track{grid-template-columns:1fr!important;}}
   @media(max-width:600px){.measurement-loop-inner{padding:54px 20px;}.proof-inner,.mxidx-inner{padding-left:20px!important;padding-right:20px!important;}}
 </style>
@@ -2682,6 +2711,26 @@
       <div class="mxidx-cell"><b>A judgment</b><span>Experienced and bespoke, but a one-time event at deployment economics. Drift after the binder lands goes unmeasured.</span></div>
       <div class="mxidx-cell is-instrument"><b>An instrument</b><span>Within the same instrument/scorer version, the same structured answers produce the same score. Diagnostic scores use sector calibration; time, labor cost, and recoverable capacity are separate directional scenarios built from disclosed sizing inputs.</span><a class="mxidx-link" href="deterministic-ai-infrastructure.html">Explore how a modern instrument works &rarr;</a></div>
     </div>
+  </div>
+</section>
+<section class="systems-analysis-bridge" aria-labelledby="systems-analysis-title">
+  <div class="systems-analysis-inner">
+    <p class="systems-analysis-eyebrow">What the instrument measures</p>
+    <h2 id="systems-analysis-title">Experience is evidence. The system is the diagnosis.</h2>
+    <p class="systems-analysis-lead">Reported experience matters, but it cannot by itself identify the organizational mechanisms producing that experience. Monderman measures the operating layer beneath the signal.</p>
+    <div class="systems-analysis-grid">
+      <article class="systems-analysis-card">
+        <span class="systems-analysis-label">Sentiment measurement</span>
+        <h3>Locates reported strain.</h3>
+        <p>Engagement, morale, confidence, and perceived experience show where people feel pressure or disconnection.</p>
+      </article>
+      <article class="systems-analysis-card systems">
+        <span class="systems-analysis-label">Systems Measurement</span>
+        <h3>Examines the mechanisms beneath it.</h3>
+        <p>Ownership, authority, handoffs, routing, process load, and performance discipline reveal how the institution is actually operating.</p>
+      </article>
+    </div>
+    <div class="systems-analysis-conclusion"><p><strong>Sentiment can show where people experience strain. Monderman examines the organizational systems producing it.</strong></p><a href="the-culture-trap.html">See the evidence &rarr;</a></div>
   </div>
 </section>
 <section class="measurement-loop" aria-labelledby="measurement-loop-title">
