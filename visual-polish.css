@@ -1,0 +1,158 @@
+/*
+  Monderman final visual-polish layer.
+  Cosmetic only: no visibility, state, positioning, or event behavior used by
+  Diagnostic scoring, persistence, authentication, checkout, or Workspace.
+*/
+
+:root{
+  --mond-surface:#FFFFFF;
+  --mond-paper:#FAFAF8;
+  --mond-panel:#F2EFE8;
+  --mond-ink:#18191C;
+  --mond-muted:#6E6F73;
+  --mond-faint:#8A8C88;
+  --mond-line:#EAE6DD;
+  --mond-line-soft:#F1EEE7;
+  --mond-teal:#0C6E78;
+  --mond-teal-dark:#0A5B63;
+  --mond-green:#08383E;
+  --mond-deep:#04181B;
+  --mond-orange:#C9821F;
+  --mond-radius-control:7px;
+  --mond-radius-card:11px;
+  --mond-shadow-card:0 1px 2px rgba(24,25,28,.045);
+  --mond-shadow-feature:0 14px 38px rgba(4,24,27,.12);
+  --mond-reading:72ch;
+  --mond-section-space:clamp(64px,7vw,96px);
+}
+
+html{scroll-padding-top:96px;overflow-x:clip}
+body{
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
+}
+::selection{background:rgba(143,196,201,.42);color:var(--mond-ink)}
+:where(h1,h2,h3){text-wrap:balance}
+:where(p,li){text-wrap:pretty}
+:where(section[id],article[id],div[id][class*="section"]){scroll-margin-top:104px}
+:where(.tnum,[data-value],[class*="score"],[class*="metric"],[class*="amount"]){font-variant-numeric:tabular-nums}
+.canonical-green-shell{overflow-x:clip}
+
+/* One keyboard-focus language across every page family. */
+:where(.canonical-green-shell,.diagnostic-instrument,.workspace-surface,.transaction-surface) :focus-visible{
+  outline:2px solid var(--mond-teal);
+  outline-offset:3px;
+}
+:where(.canonical-green-shell,.diagnostic-instrument,.workspace-surface,.transaction-surface) :is(button,[role="button"],input,select,textarea):focus-visible{
+  box-shadow:0 0 0 4px rgba(12,110,120,.16);
+}
+
+/* Public reading pages: disciplined measure and section rhythm. */
+.page-legal .section-inner,
+.page-legal main>.section,
+.page-article main,
+.page-article .article-inner{max-width:var(--mond-reading)}
+.page-legal .section,
+.page-legal main>.section{padding-top:48px;padding-bottom:48px}
+.page-legal .section+ .section,
+.page-legal main>.section+section{border-top:1px solid var(--mond-line)}
+.page-legal :where(p,li){line-height:1.72}
+.page-legal :where(h2,h3){max-width:24ch}
+
+/* Cards: one restrained material language. */
+.canonical-green-shell :where(.card,.panel,.ps-tier,.research-card,.paper-card){
+  border-color:var(--mond-line);
+  box-shadow:var(--mond-shadow-card);
+}
+.canonical-green-shell :where(.card,.panel,.ps-tier,.research-card,.paper-card):is(a,button):hover{
+  border-color:rgba(12,110,120,.34);
+}
+.canonical-green-shell .article-layout>*{min-width:0}
+.canonical-green-shell :where(.content,.article-body){overflow-wrap:anywhere}
+.canonical-green-shell .ps-cmp-scroll{
+  width:100%;
+  max-width:100%;
+  contain:paint;
+  overscroll-behavior-inline:contain;
+}
+
+/* Reports and briefs read as finished paper artifacts. */
+.page-report :where(.report-canvas,.report-page,.hero-report-page,.deck){
+  border-color:#DEDAD2;
+}
+.page-report :where(.report-canvas,.report-page,.hero-report-page){
+  box-shadow:0 2px 4px rgba(24,25,28,.05),0 18px 48px rgba(4,24,27,.10);
+}
+.page-report :where(table,svg){max-width:100%}
+
+/* Diagnostic instruments: visual consistency without touching state logic. */
+.diagnostic-instrument{
+  --r-btn:var(--mond-radius-control);
+  --r-card:var(--mond-radius-card);
+  --shadow-card:var(--mond-shadow-card);
+  font-variant-numeric:tabular-nums;
+}
+.diagnostic-instrument :where(button,.btn,[role="button"]){
+  min-height:40px;
+  border-radius:var(--mond-radius-control);
+}
+.diagnostic-instrument :where(.card,.panel,[class*="card"]){
+  box-shadow:var(--mond-shadow-card);
+}
+.diagnostic-instrument :where(input,select,textarea){border-radius:var(--mond-radius-control)}
+.diagnostic-instrument :where(.muted,.sub,.note,[class*="meta"]){line-height:1.5}
+
+/* Workspace polish is token-only and does not alter app layout or visibility. */
+.workspace-surface :where(.ws-btn,.ws-input,.ws-select,.ws-textarea,.ws-signout){min-height:40px}
+.workspace-surface :where(.ws-card,.ws-list,.ws-rec){box-shadow:var(--mond-shadow-card)}
+.workspace-surface :where(.ws-pagehead p,.ws-card p,.ws-empty p){line-height:1.58}
+
+/* Transaction surfaces share the same calm control geometry. */
+.transaction-surface :where(button,.btn,input,select,textarea){border-radius:var(--mond-radius-control)}
+.transaction-surface :where(button,.btn){min-height:42px}
+
+/* Floating help must clear device safe areas and each other. */
+#mnd-launcher{right:max(20px,env(safe-area-inset-right))!important;bottom:max(20px,env(safe-area-inset-bottom))!important}
+#mnd-panel{right:max(20px,env(safe-area-inset-right))!important}
+.mdn-cn-launch{right:max(22px,env(safe-area-inset-right))!important;bottom:max(90px,calc(env(safe-area-inset-bottom) + 90px))!important}
+#mdn-cn-panel{right:max(22px,env(safe-area-inset-right))!important}
+
+/* Touch/tablet navigation remains one deliberate, discoverable strip. */
+@media(max-width:760px){
+  .canonical-green-shell .nav{
+    flex-wrap:nowrap!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    overscroll-behavior-inline:contain;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+  }
+  .canonical-green-shell .nav::-webkit-scrollbar{display:none}
+  .canonical-green-shell .nav>*{scroll-snap-align:start;flex:0 0 auto}
+  .canonical-green-shell .nav :where(a,.nav-parent,.site-search-button){min-height:40px}
+  .page-legal .section,
+  .page-legal main>.section{padding-top:36px;padding-bottom:36px}
+  .page-report :where(.report-canvas,.report-page){box-shadow:0 1px 2px rgba(24,25,28,.05)}
+  #mnd-launcher{right:max(14px,env(safe-area-inset-right))!important;bottom:max(14px,env(safe-area-inset-bottom))!important}
+  .mdn-cn-launch{right:max(14px,env(safe-area-inset-right))!important;bottom:max(82px,calc(env(safe-area-inset-bottom) + 82px))!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto!important}
+  *,*::before,*::after{
+    scroll-behavior:auto!important;
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+  }
+}
+
+@media print{
+  .header,.mond-footer,#mnd-launcher,#mnd-panel,#mdn-cn-root,.site-search-overlay{display:none!important}
+  html,body{background:#fff!important;color:#18191C!important}
+  :where(.report-canvas,.report-page,.hero-report-page,.deck){box-shadow:none!important}
+  a{color:inherit!important;text-decoration:none!important}
+  .page-report :where(section,article,figure,table){break-inside:avoid}
+}
