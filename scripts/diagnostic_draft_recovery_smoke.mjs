@@ -29,7 +29,7 @@ function validateHelper(source) {
 function validateDiagnostic(source, tool) {
   assert.ok(source.includes('<script src="self-diagnostic-draft.js"></script>'));
   assert.ok(source.includes(`tool: "${tool}"`));
-  assert.match(source, /state\.configVersion = data\?\.routingMeta\?\.configVersion/);
+  assert.match(source, /state\.configVersion = data\?\.routingMeta\?\.configVersion \|\| data\?\.routingVersion/);
   assert.ok((source.match(/selfDraft\.saveAccepted\(\)/g) || []).length >= 5, `${tool} must save every accepted-answer path`);
   assert.ok((source.match(/selfDraft\.clear\(\)/g) || []).length >= 2, `${tool} must clear on completion and Start over`);
   assert.match(source, /showStage\(resultsStage\);\s*if \(selfDraft\) selfDraft\.clear\(\);/, `${tool} must clear only after successful result rendering`);
@@ -53,6 +53,7 @@ for (const [label, mutated] of [
 for (const [path, tool] of diagnostics) {
   const source = read(path);
   for (const [label, mutated] of [
+    ["start-response routing version", source.replace(" || data?.routingVersion", "")],
     ["accepted-answer saving", source.replace(/if \(selfDraft\) selfDraft\.saveAccepted\(\);/g, "")],
     ["draft clearing", source.replace(/if \(selfDraft\) selfDraft\.clear\(\);/g, "")],
     ["duplicate protection", source.replace("if (state.finalizeInFlight) return;", "")]
