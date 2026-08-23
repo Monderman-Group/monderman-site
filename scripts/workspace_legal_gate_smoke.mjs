@@ -8,6 +8,8 @@ async function runScenario({ status, pathname = "/workspace-diagnostics.html", s
   const redirects = [];
   let statusCalls = 0;
   let clientCreations = 0;
+  let bootstrapCalls = 0;
+  let currentMemberships = memberships;
   const location = {
     pathname,
     search,
@@ -26,13 +28,22 @@ async function runScenario({ status, pathname = "/workspace-diagnostics.html", s
   };
   const client = {
     auth: {
-      getUser: async () => ({ data: { user: user ? { id: "user-1" } : null } }),
+      getUser: async () => ({ data: { user: user ? { id: "user-1", user_metadata: { full_name: "Fixture User" } } : null } }),
       getSession: async () => ({ data: { session: user ? { access_token: "verified-token" } : null } })
+    },
+    rpc: async (name) => {
+      if (name === "redeem_my_invites") return { data: null, error: null };
+      if (name === "bootstrap_my_workspace") {
+        bootstrapCalls += 1;
+        currentMemberships = [{ user_id: "user-1", organization_id: "org-new", role: "owner", organizations: { id: "org-new", name: "Fixture User Workspace", owner_user_id: "user-1" } }];
+        return { data: { organization_id: "org-new" }, error: null };
+      }
+      throw new Error(`unexpected RPC ${name}`);
     },
     from: () => ({
       select() { return this; },
       async eq() {
-        return { data: memberships || [{ user_id: "user-1", organization_id: "org-1", role: "admin", organizations: { id: "org-1", name: "Fixture Workspace", owner_user_id: "user-1" } }], error: null };
+        return { data: currentMemberships === null ? [{ user_id: "user-1", organization_id: "org-1", role: "admin", organizations: { id: "org-1", name: "Fixture Workspace", owner_user_id: "user-1" } }] : currentMemberships, error: null };
       }
     })
   };
@@ -60,7 +71,7 @@ async function runScenario({ status, pathname = "/workspace-diagnostics.html", s
   });
   vm.runInContext(source, context);
   const decision = await window.mondermanWorkspaceAccessReady;
-  return { decision, redirects, statusCalls, root, elements, clientCreations, client: window.__mondermanSB };
+  return { decision, redirects, statusCalls, root, elements, clientCreations, bootstrapCalls, client: window.__mondermanSB };
 }
 
 const blocked = await runScenario({
@@ -82,6 +93,15 @@ assert.equal(accepted.decision.activeWorkspace.id, "org-1");
 assert.equal(accepted.clientCreations, 1, "the gate creates exactly one Supabase client");
 assert.equal(accepted.root.style.visibility, "");
 assert.deepEqual(accepted.redirects, []);
+
+const directNewAccount = await runScenario({
+  pathname: "/structural-clarity.html",
+  memberships: [],
+  status: { ok: true, enforcementActive: true, requiresAcceptance: false, accepted: true }
+});
+assert.equal(directNewAccount.decision.allowed, true, "a new account may enter a Diagnostic after isolated Workspace bootstrap");
+assert.equal(directNewAccount.decision.activeWorkspace.id, "org-new");
+assert.equal(directNewAccount.bootstrapCalls, 1, "new-account Diagnostic entry bootstraps exactly one Workspace");
 
 const existingUser = await runScenario({
   status: { ok: true, enforcementActive: true, requiresAcceptance: false, accepted: false }
