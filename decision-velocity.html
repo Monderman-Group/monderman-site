@@ -2610,7 +2610,7 @@ if (!response.ok || !data?.ok) {
 }
 
 state.runId = data.runId;
-state.configVersion = data?.routingMeta?.configVersion || data?.configVersion || data?.config_version || null;
+state.configVersion = data?.routingMeta?.configVersion || data?.routingVersion || data?.configVersion || data?.config_version || null;
 state.currentItem = data.nextItem;
 state.currentProgress = data.progress || null;
 state.started = true;
