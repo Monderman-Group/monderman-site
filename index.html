@@ -3375,8 +3375,7 @@
 <script src="assistant.js" defer></script>
   <script src="connect-widget.js" defer></script>
   <script>
-    // assistant.js applies a shared true-center lock. Re-assert the homepage art direction
-    // after deferred scripts execute so the canyon remains intentionally right-weighted.
+    // Reassert the homepage crop after deferred scripts while preserving a true-centered canyon.
     window.addEventListener("DOMContentLoaded", function () {
       var img = document.getElementById("heroImage");
       if (!img) return;
@@ -3389,9 +3388,9 @@
         if (w <= 640) {
           img.style.setProperty("transform", "scale(1.04)", "important");
         } else if (w <= 980) {
-          img.style.setProperty("transform", "scale(1.10) translateX(3%)", "important");
+          img.style.setProperty("transform", "scale(1.10) translateX(0)", "important");
         } else {
-          img.style.setProperty("transform", "scale(1.16) translateX(6%)", "important");
+          img.style.setProperty("transform", "scale(1.16) translateX(0)", "important");
         }
       }
       frameHero();
