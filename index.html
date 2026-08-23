@@ -2018,12 +2018,8 @@
   .hero-scrim{background:linear-gradient(90deg,rgba(4,24,27,.78) 0%,rgba(4,24,27,.60) 38%,rgba(4,24,27,.26) 66%,rgba(4,24,27,.08) 84%,rgba(4,24,27,0) 100%);}
 }
 @media (max-width:640px){
-  .hero-image{object-position:53.5% 50% !important;transform:scale(1.04) !important;filter:brightness(.72) saturate(.90) contrast(.98);}
-  .hero-scrim{
-    background:
-      linear-gradient(90deg,rgba(4,24,27,.66) 0%,rgba(4,24,27,.38) 28%,rgba(4,24,27,.10) 56%,rgba(4,24,27,0) 74%),
-      linear-gradient(180deg,rgba(4,24,27,.44) 0%,rgba(4,24,27,.30) 44%,rgba(4,24,27,.52) 100%);
-  }
+  .hero-image{transform:scale(1.04) !important;filter:brightness(.72) saturate(.90) contrast(.98);}
+  .hero-scrim{background:linear-gradient(180deg,rgba(4,24,27,.44) 0%,rgba(4,24,27,.30) 44%,rgba(4,24,27,.52) 100%);}
 }
 
 /* Hero credibility test: product proof at right, author authority beneath the actions. */
@@ -3386,7 +3382,7 @@
       function frameHero() {
         var w = window.innerWidth;
         img.style.setProperty("object-fit", "cover", "important");
-        img.style.setProperty("object-position", w <= 640 ? "53.5% 50%" : "50% 50%", "important");
+        img.style.setProperty("object-position", "50% 50%", "important");
         img.style.setProperty("left", "0", "important");
         img.style.setProperty("right", "0", "important");
         if (w <= 640) {
