@@ -67,6 +67,16 @@
     } catch (_error) { return fallback; }
   }
 
+  async function waitForWorkspaceAccess() {
+    for (var attempt = 0; attempt < 80; attempt += 1) {
+      if (window.mondermanWorkspaceAccessReady && typeof window.mondermanWorkspaceAccessReady.then === "function") {
+        return window.mondermanWorkspaceAccessReady;
+      }
+      await new Promise(function (resolve) { setTimeout(resolve, 50); });
+    }
+    return null;
+  }
+
   function identityPrefix(userId, organizationId, tool) {
     return PREFIX + userId + "." + organizationId + "." + tool + ".";
   }
@@ -215,7 +225,7 @@
 
     async function activateOnce() {
       if (new URLSearchParams(window.location.search).has("assignment_token")) return false;
-      var access = await window.mondermanWorkspaceAccessReady;
+      var access = await waitForWorkspaceAccess();
       if (!access || !access.allowed || access.context !== "workspace") return false;
       var client = await window.mondermanGetSupabaseClient();
       var result = await client.auth.getUser();
