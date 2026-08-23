@@ -284,8 +284,8 @@
     .sample-exposure-step span { display:block; margin-top:8px; color:#6E6F73; font-size:.72rem; line-height:1.35; }
     .section[id$="-composition"] > .panel { border-top:3px solid #0C6E78; box-shadow:0 18px 44px rgba(8,56,62,.07); }
     .section[id$="-composition"] > .panel::before { content:"DIAGNOSTIC SIGNATURE"; display:block; margin:0 0 18px; color:#0C6E78; font-size:.67rem; font-weight:700; letter-spacing:.15em; }
-    .section[id$="-experiential"] .exp-grid { position:relative; padding-top:22px; }
-    .section[id$="-experiential"] .exp-grid::before { content:"PARTICIPANT EVIDENCE — REPORTED BY LEVEL, NOT USED TO REWEIGHT THE SCORE"; position:absolute; top:0; left:0; color:#0C6E78; font-size:.64rem; font-weight:700; letter-spacing:.12em; }
+    .section[id$="-experiential"] .exp-grid { position:relative; }
+    .section[id$="-experiential"] .exp-grid::before { content:"PARTICIPANT EVIDENCE — REPORTED BY LEVEL, NOT USED TO REWEIGHT THE SCORE"; display:block; grid-column:1/-1; color:#0C6E78; font-size:.64rem; line-height:1.45; font-weight:700; letter-spacing:.12em; }
     .section[id$="-experiential"] .exp-card { border-top:3px solid #7FB0B6; min-height:176px; box-shadow:0 12px 30px rgba(8,56,62,.045); }
     .section[id$="-readings"] .card-row, .section[id$="-remedies"] .remedy-grid { counter-reset:analysis-card; }
     .section[id$="-readings"] .mini-card, .section[id$="-remedies"] .remedy { position:relative; overflow:hidden; }
@@ -792,6 +792,8 @@
       border-radius: 12px;
       padding: 18px 20px;
       margin: 12px 0;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
     .method-box p {
       font-size: 0.92rem !important;
@@ -1569,7 +1571,7 @@
   .sample-production-q-tl{top:12px;left:12px}.sample-production-q-tr{top:12px;right:12px;text-align:right}.sample-production-q-bl{bottom:12px;left:12px}.sample-production-q-br{bottom:12px;right:12px;text-align:right}
   .sample-quadrant-dot{position:absolute;width:22px;height:22px;border-radius:999px;background:#0C6E78;border:3px solid rgba(255,255,255,.98);box-shadow:0 4px 14px rgba(12,110,120,.40),0 0 0 7px rgba(12,110,120,.10);transform:translate(-50%,-50%);z-index:0}
 </style>
-<link rel="stylesheet" href="canonical-site-shell.css?v=20260823-polish1">
+<link rel="stylesheet" href="canonical-site-shell.css?v=20260823-polish2">
 </head>
 <body class="canonical-green-shell canonical-solid-header page-report">
 
