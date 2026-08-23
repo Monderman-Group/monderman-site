@@ -912,7 +912,13 @@ body{transition:background-color .25s ease, color .25s ease}
       }
     }
 
-    async function exportRun(id, mode, btn){
+    function reserveWorkspaceReportWindow(){
+      const reportWindow = window.MondermanReport?.reserveReportWindow?.();
+      if(!reportWindow) flash("bad", "Your browser blocked the report window. Allow pop-ups for Monderman and try again.");
+      return reportWindow;
+    }
+
+    async function exportRun(id, mode, btn, reportWindow){
       if(!window.MondermanReport){ flash("bad","Report module didn’t load — please refresh and try again."); return; }
       const row = state.runs.find(r=>r.id===id) || {};
       const orig = btn ? btn.textContent : ""; if(btn){ btn.disabled=true; btn.textContent="…"; }
@@ -933,8 +939,9 @@ body{transition:background-color .25s ease, color .25s ease}
         if(m.priority_actions==null){ const pa=parseMaybe(row.priority_actions_json); if(pa) m.priority_actions=listItems(pa); }
         if(m.exposure==null){ const ex=parseMaybe(row.exposure_json); if(ex) m.exposure=ex; }
         if(mode==="json"){ window.MondermanReport.downloadJson(m, m.tool_type||"diagnostic"); }
-        else { window.MondermanReport.openReport(window.MondermanReport.fromRun(m)); }
+        else { window.MondermanReport.openReport(window.MondermanReport.fromRun(m), reportWindow); }
       }catch(e){
+        window.MondermanReport?.closeReservedReportWindow?.(reportWindow);
         flash("bad","Couldn’t open that report — "+(e.message||"please try again."));
       }finally{
         if(btn){ btn.disabled=false; btn.textContent=orig; }
@@ -946,7 +953,7 @@ body{transition:background-color .25s ease, color .25s ease}
         const id=b.dataset.exp; state.expanded[id]=!state.expanded[id]; render();
       }));
       $("runsBody").querySelectorAll(".ract[data-act]").forEach(b => b.addEventListener("click", ()=> setStatus(b.dataset.id, b.dataset.act)));
-      $("runsBody").querySelectorAll("[data-report]").forEach(b => b.addEventListener("click", ()=> exportRun(b.dataset.report, "report", b)));
+      $("runsBody").querySelectorAll("[data-report]").forEach(b => b.addEventListener("click", ()=>{ const reportWindow=reserveWorkspaceReportWindow(); if(reportWindow) exportRun(b.dataset.report, "report", b, reportWindow); }));
       $("runsBody").querySelectorAll("[data-json]").forEach(b => b.addEventListener("click", ()=> exportRun(b.dataset.json, "json", b)));
     }
 
@@ -1389,7 +1396,7 @@ body{transition:background-color .25s ease, color .25s ease}
         if(btn){ btn.textContent="Couldn\u2019t save"; setTimeout(()=>{ if(btn){ btn.textContent=orig; btn.disabled=false; } }, 2400); }
       }
     }
-    async function exportAssignmentRun(runId, toolType, mode, btn){
+    async function exportAssignmentRun(runId, toolType, mode, btn, reportWindow){
       if(!runId) return;
       const orig = btn ? btn.textContent : "";
       const fail = (label)=>{ if(btn){ btn.textContent=label; setTimeout(()=>{ if(btn){ btn.textContent=orig; btn.disabled=false; } }, 2400); } };
@@ -1411,9 +1418,9 @@ body{transition:background-color .25s ease, color .25s ease}
         if(m.primary_driver==null) m.primary_driver=row.primary_driver;
         if(m.business_unit==null) m.business_unit=row.business_unit;
         if(mode==="json"){ window.MondermanReport.downloadJson(m, m.tool_type||"diagnostic"); }
-        else { window.MondermanReport.openReport(window.MondermanReport.fromRun(m)); }
+        else { window.MondermanReport.openReport(window.MondermanReport.fromRun(m), reportWindow); }
         if(btn){ btn.disabled=false; btn.textContent=orig; }
-      }catch(e){ fail("Couldn\u2019t open"); }
+      }catch(e){ window.MondermanReport?.closeReservedReportWindow?.(reportWindow); fail("Couldn\u2019t open"); }
     }
     function renderTracking(rows){
       const board=$("trackBody"); if(!board) return;
@@ -1474,7 +1481,7 @@ body{transition:background-color .25s ease, color .25s ease}
         const o=b.textContent; b.textContent="Copied"; setTimeout(()=>b.textContent=o,1200);
       }));
       board.querySelectorAll("[data-remind]").forEach(b=> b.addEventListener("click", (e)=>{ e.stopPropagation(); remind([b.dataset.remind], b); }));
-      board.querySelectorAll("[data-report]").forEach(b=> b.addEventListener("click", (e)=>{ e.stopPropagation(); exportAssignmentRun(b.dataset.report, b.dataset.tt, "report", b); }));
+      board.querySelectorAll("[data-report]").forEach(b=> b.addEventListener("click", (e)=>{ e.stopPropagation(); const reportWindow=reserveWorkspaceReportWindow(); if(reportWindow) exportAssignmentRun(b.dataset.report, b.dataset.tt, "report", b, reportWindow); }));
       board.querySelectorAll("[data-json]").forEach(b=> b.addEventListener("click", (e)=>{ e.stopPropagation(); exportAssignmentRun(b.dataset.json, b.dataset.tt, "json", b); }));
       board.querySelectorAll("[data-remindcamp]").forEach(b=> b.addEventListener("click", (e)=>{
         e.stopPropagation();

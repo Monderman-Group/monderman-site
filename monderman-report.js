@@ -1124,10 +1124,26 @@
     setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
   }
 
-  function openReport(model) {
+  function reserveReportWindow() {
+    const reportWindow = window.open("about:blank", "_blank");
+    if (!reportWindow) return null;
+    try {
+      reportWindow.opener = null;
+      reportWindow.document.title = "Preparing Monderman report";
+      reportWindow.document.body.innerHTML = '<main style="font:16px/1.5 system-ui,sans-serif;max-width:42rem;margin:12vh auto;padding:2rem;color:#17333a"><p style="letter-spacing:.14em;text-transform:uppercase;font-size:.75rem">Monderman</p><h1 style="font-size:1.6rem">Preparing report…</h1><p>The saved result is loading securely.</p></main>';
+    } catch (_error) {}
+    return reportWindow;
+  }
+
+  function closeReservedReportWindow(reportWindow) {
+    try { if (reportWindow && !reportWindow.closed) reportWindow.close(); } catch (_error) {}
+  }
+
+  function openReport(model, reportWindow) {
     const art = createArtifact(model);
     const url = URL.createObjectURL(art.blob);
-    window.open(url, "_blank", "noopener,noreferrer");
+    if (reportWindow && !reportWindow.closed) reportWindow.location.replace(url);
+    else window.open(url, "_blank", "noopener,noreferrer");
     setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
   }
 
@@ -1170,6 +1186,8 @@
     buildReportHtml: buildReportHtml,
     createArtifact: createArtifact,
     render: render,
+    reserveReportWindow: reserveReportWindow,
+    closeReservedReportWindow: closeReservedReportWindow,
     openReport: openReport,
     downloadHtml: downloadHtml,
     downloadPdf: downloadPdf,
