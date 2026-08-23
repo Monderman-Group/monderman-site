@@ -56,6 +56,12 @@ if re.search(r'^\s*#mnd-launcher\s*\{[^}]*display\s*:\s*none',idx,re.I|re.M):
  e.append('homepage assistant launcher hidden')
 for token in ['body:has(#mnd-panel.mnd-open) .mdn-cn-launch','body:has(#mdn-cn-panel.mdn-cn-open) #mnd-launcher']:
  if token not in idx:e.append('homepage assistant/Connect collision guard '+token)
+canonical_shell=(r/'canonical-site-shell.js').read_text(errors='ignore')
+canonical_css=(r/'canonical-site-shell.css').read_text(errors='ignore')
+for token in ['site-menu-button','aria-label", "Open navigation','mobile-nav-open','closeMobileNav','event.key === "Escape"']:
+ if token not in canonical_shell:e.append('public mobile navigation behavior '+token)
+for token in ['@media(max-width:760px)','header.mobile-nav-open .nav','width:44px;height:44px','display:none;width:100%','nav .nav-menu.is-open .nav-dropdown']:
+ if token not in canonical_css:e.append('public mobile navigation layout '+token)
 if 'data-count-type="plain-plus" data-target="7000"' not in idx or 'type === "plain-plus"' not in idx or 'toLocaleString("en-US")' not in idx:
  e.append('homepage 7000+ counter formatting')
 if re.search(r'<img[^>]*?/\s+loading="lazy">',idx,re.I):

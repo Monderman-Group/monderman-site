@@ -42,6 +42,26 @@
         `<div class="nav-menu"><a class="nav-parent" href="${href}" aria-haspopup="true" aria-expanded="false">${label}<span class="nav-chevron" aria-hidden="true"></span></a><div class="nav-dropdown">${items.map(([itemLabel, itemHref]) => `<a href="${itemHref}">${itemLabel}</a>`).join("")}</div></div>`
       ).join("");
       nav.innerHTML = `${menuMarkup}<a href="connect.html">Connect</a><button class="site-search-button" type="button" aria-label="Search Monderman" title="Search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.6"></circle><path d="m16 16 4.2 4.2"></path></svg></button><a class="workspace-link" href="workspace.html">Sign In</a>`;
+      const menuButton = document.createElement("button");
+      menuButton.className = "site-menu-button";
+      menuButton.type = "button";
+      menuButton.setAttribute("aria-label", "Open navigation");
+      menuButton.setAttribute("aria-expanded", "false");
+      menuButton.innerHTML = '<span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>';
+      nav.before(menuButton);
+      const closeMobileNav = ({ restoreFocus = false } = {}) => {
+        header.classList.remove("mobile-nav-open");
+        menuButton.setAttribute("aria-expanded", "false");
+        menuButton.setAttribute("aria-label", "Open navigation");
+        if (restoreFocus) menuButton.focus();
+      };
+      menuButton.addEventListener("click", () => {
+        const opening = !header.classList.contains("mobile-nav-open");
+        header.classList.toggle("mobile-nav-open", opening);
+        menuButton.setAttribute("aria-expanded", String(opening));
+        menuButton.setAttribute("aria-label", opening ? "Close navigation" : "Open navigation");
+        if (!opening) closeMenus();
+      });
       var closeMenus = (except) => nav.querySelectorAll(".nav-menu.is-open").forEach((menu) => {
         if (menu !== except) {
           menu.classList.remove("is-open");
@@ -65,8 +85,14 @@
       document.addEventListener("keydown", (event) => {
         if (event.key === "Escape") {
           closeMenus();
-          nav.querySelector(".nav-menu:focus-within .nav-parent")?.focus();
+          if (header.classList.contains("mobile-nav-open")) closeMobileNav({ restoreFocus: true });
+          else nav.querySelector(".nav-menu:focus-within .nav-parent")?.focus();
         }
+      });
+      nav.addEventListener("click", (event) => {
+        if (!window.matchMedia("(max-width: 760px)").matches) return;
+        const link = event.target.closest("a");
+        if (link && !link.classList.contains("nav-parent")) closeMobileNav();
       });
     }
     const applyHeader = () => header.classList.toggle("scrolled", window.scrollY > 24);
