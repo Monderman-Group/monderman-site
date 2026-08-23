@@ -60,6 +60,9 @@ for token in ['body:has(#mnd-panel.mnd-open) .mdn-cn-launch','body:has(#mdn-cn-p
  if token not in idx:e.append('homepage assistant/Connect collision guard '+token)
 canonical_shell=(r/'canonical-site-shell.js').read_text(errors='ignore')
 canonical_css=(r/'canonical-site-shell.css').read_text(errors='ignore')
+assistant_source=(r/'assistant.js').read_text(errors='ignore')
+if 'if (!document.body.classList.contains("canonical-green-shell"))' not in assistant_source:
+ e.append('assistant legacy header fallback overrides canonical mobile navigation')
 for token in ['site-menu-button','aria-label", "Open navigation','mobile-nav-open','closeMobileNav','event.key === "Escape"']:
  if token not in canonical_shell:e.append('public mobile navigation behavior '+token)
 for token in ['@media(max-width:760px)','header.mobile-nav-open .nav','width:44px;height:44px','display:none;width:100%','nav .nav-menu.is-open .nav-dropdown']:
