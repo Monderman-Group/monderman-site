@@ -388,8 +388,9 @@ body{transition:background-color .25s ease,color .25s ease}
     window.addEventListener("error", function(e){ try{ window.__bootErrors.push((e && e.message ? e.message : "error") + (e && e.filename ? " @ " + e.filename.split("/").pop() + ":" + e.lineno : "")); }catch(_){} });
     window.addEventListener("unhandledrejection", function(e){ try{ window.__bootErrors.push("promise: " + ((e && e.reason && e.reason.message) ? e.reason.message : (e && e.reason ? String(e.reason) : "rejection"))); }catch(_){} });
   </script>
+  <link rel="stylesheet" href="visual-polish.css?v=20260823-4">
 </head>
-<body>
+<body class="workspace-surface">
 
   <div class="ws-overlay" id="wsOverlay">
     <div class="ov-box" role="status" aria-live="polite">
