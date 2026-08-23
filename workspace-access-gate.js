@@ -96,16 +96,35 @@
   }
 
   async function resolveActiveWorkspace(client, user) {
-    var page = location.pathname.split("/").pop() || "workspace.html";
-    if (!/^workspace(?:-|\.)/.test(page)) return null;
-    var result = await client.from("organization_members")
-      .select("user_id, organization_id, role, organizations(id, name, owner_user_id)")
-      .eq("user_id", user.id);
+    var inviteResult = await client.rpc("redeem_my_invites");
+    if (inviteResult.error) throw new Error("workspace_invite_redemption_failed");
+
+    async function membershipsForUser() {
+      return client.from("organization_members")
+        .select("user_id, organization_id, role, organizations(id, name, owner_user_id)")
+        .eq("user_id", user.id);
+    }
+
+    var result = await membershipsForUser();
     if (result.error) throw new Error("workspace_memberships_unavailable");
     var memberships = (result.data || []).filter(function (membership) {
       return membership && membership.organizations && membership.organizations.id;
     });
-    if (!memberships.length) return null;
+    if (!memberships.length) {
+      var fullName = user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name) || "Monderman User";
+      var slugBase = String(fullName).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "workspace";
+      var bootstrap = await client.rpc("bootstrap_my_workspace", {
+        p_name: fullName + " Workspace",
+        p_slug_base: slugBase + "-workspace"
+      });
+      if (bootstrap.error) throw new Error("workspace_bootstrap_failed");
+      result = await membershipsForUser();
+      if (result.error) throw new Error("workspace_memberships_unavailable_after_bootstrap");
+      memberships = (result.data || []).filter(function (membership) {
+        return membership && membership.organizations && membership.organizations.id;
+      });
+      if (!memberships.length) throw new Error("workspace_bootstrap_returned_no_membership");
+    }
 
     var params = new URLSearchParams(location.search);
     var requested = params.get("organization_id") || "";
