@@ -50,6 +50,8 @@ if 'payment,,' in (r/'security.html').read_text():e.append('double comma')
 
 # Surgical regression guards added 2026-08-13.
 idx=(r/'index.html').read_text(errors='ignore')
+if '<body class="canonical-green-shell">' not in idx:
+ e.append('homepage canonical shell scope missing')
 if '<script src="assistant.js" defer></script>' not in idx:
  e.append('homepage assistant loader missing')
 if re.search(r'^\s*#mnd-launcher\s*\{[^}]*display\s*:\s*none',idx,re.I|re.M):
