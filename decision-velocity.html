@@ -3231,6 +3231,7 @@ function confirmRestart() {
 function restartDiagnostic(preserveParticipantDraft = false) {
 if (!preserveParticipantDraft && participantDraft && window.MondermanAssignment && window.MondermanAssignment.active()) participantDraft.clear();
 if (!preserveParticipantDraft && selfDraft) selfDraft.clear();
+reviewingHistoryItemId = null;
 state.started = false;
 state.runId = null;
 state.currentItem = null;
@@ -5949,21 +5950,20 @@ return `* { box-sizing: border-box; } html, body { margin: 0; padding: 0; font-f
 learnMoreToggle.addEventListener("click", () => learnMorePanel.classList.toggle("show"));
 preStartConsent.addEventListener("change", syncBeginButton);
 beginBtn.addEventListener("click", startAdaptiveRun);
+let reviewingHistoryItemId = null;
 continueBtn.addEventListener("click", async () => {
 if (!state.currentItem) return;
 const value = readCurrentAnswer();
 const itemId = state.currentItem.id;
-// If we're not replaying and there's a cached answer for THIS item that
-// differs from what's currently selected, the user went back and changed it --
-// restart and replay.
-const hadCachedAnswer = state.answerCache[itemId] !== undefined;
-const previousValue = state.answerCache[itemId];
-const valueChanged = hadCachedAnswer && previousValue !== value;
 state.answerCache[itemId] = value;
-if (valueChanged && !state._replaying) {
+// Only Back navigation authorizes a restart/replay. A recovered or repeated
+// adaptive item may legitimately have a cached value and must keep advancing.
+if (reviewingHistoryItemId === itemId && !state._replaying) {
+reviewingHistoryItemId = null;
 await replayAnswersAndResume(itemId, value);
 return;
 }
+reviewingHistoryItemId = null;
 await submitAnswer(itemId, value);
 });
 backBtn.addEventListener("click", async () => {
@@ -5977,6 +5977,7 @@ return;
 const prev = state.questionHistory.pop();
 state.currentItem = prev.item;
 state.answerCache[prev.item.id] = prev.value;
+reviewingHistoryItemId = prev.item.id;
 renderQuestion();
 showToast("Reviewing previous answer. Change it and continue to restart from here.");
 });
