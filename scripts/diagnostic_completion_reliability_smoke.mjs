@@ -29,6 +29,8 @@ function validateCompletionContract(source, page = "fixture") {
   assert(startBegin >= 0 && startEnd > startBegin, `${page}: start function missing or unbounded`);
   assert.match(start, /response\.status === 402 && data\?\.error === "run_limit_reached"/, `${page}: exhausted self-run is not intercepted before question one`);
   assert.match(start, /showRunsExhausted\(\);\s*return;/s, `${page}: exhausted self-run does not route to the entitlement screen`);
+  assert.match(source, /Your existing results remain available in Workspace/, `${page}: exhausted-run copy does not preserve existing-result access`);
+  assert.doesNotMatch(source, /this run is saved/, `${page}: exhausted preflight falsely claims an unstarted run was saved`);
   assert.match(finalize, /if \(state\.finalizeInFlight\) return;/, `${page}: duplicate-finalize guard missing`);
   assert.match(finalize, /state\.finalizeInFlight = true;/, `${page}: finalize guard is never acquired`);
   assert.match(finalize, /finally \{\s*clearTimeout\(slowFinalizeTimer\);\s*state\.finalizeInFlight = false;/s, `${page}: finalize guard is not released`);
