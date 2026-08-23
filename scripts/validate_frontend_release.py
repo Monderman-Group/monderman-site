@@ -136,6 +136,11 @@ for name in ['workspace-actions.html','workspace-analysis.html','workspace-diagn
 # than the Measure page's capped 200-row history. RLS on diagnostic_runs is the
 # ownership boundary for exportRun's direct query.
 measure=(r/'workspace-diagnostics.html').read_text(errors='ignore')
+report_module=(r/'monderman-report.js').read_text(errors='ignore')
+for token in ['reserveReportWindow: reserveReportWindow', 'closeReservedReportWindow: closeReservedReportWindow', 'openReport(model, reportWindow)', 'reportWindow.location.replace(url)']:
+ if token not in report_module:e.append('popup-safe report delivery '+token)
+for token in ['function reserveWorkspaceReportWindow()', 'const reportWindow=reserveWorkspaceReportWindow()', 'exportRun(b.dataset.report, "report", b, reportWindow)', 'exportAssignmentRun(b.dataset.report, b.dataset.tt, "report", b, reportWindow)']:
+ if token not in measure:e.append('workspace synchronous report reservation '+token)
 if 'if(reportId){' not in measure or 'exportRun(reportId,"report",null)' not in measure:
  e.append('workspace diagnostics direct report reopen')
 if 'reportId && state.runs.some' in measure:
