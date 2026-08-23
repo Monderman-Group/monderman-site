@@ -15,7 +15,7 @@ function validateHelper(source) {
   for (const token of [
     "window.sessionStorage", "user_id", "organization_id", "tool",
     "config_version", "draft_id", "MAX_AGE_MS", "MAX_BYTES",
-    "Resume", "Start over", "clearAllExceptIdentity", "saveAccepted", "activationPromise"
+    "Resume", "Start over", "clearAllExceptIdentity", "saveAccepted", "activationPromise", "waitForWorkspaceAccess"
   ]) assert.ok(source.includes(token), `draft helper missing ${token}`);
   assert.ok(!source.includes("window.localStorage"), "sensitive drafts must not use localStorage");
   assert.match(source, /token\|password\|secret\|credential\|authorization/, "credential-shaped fields must be stripped recursively");
@@ -83,7 +83,7 @@ class FakeElement {
   set innerHTML(_value) {}
 }
 
-function makeRuntime({ deferUser = false } = {}) {
+function makeRuntime({ deferUser = false, deferGate = false } = {}) {
   const sessionStorage = new SessionStore();
   const elements = new Map();
   const document = {
@@ -98,7 +98,6 @@ function makeRuntime({ deferUser = false } = {}) {
   const window = {
     sessionStorage,
     location: { search: "" },
-    mondermanWorkspaceAccessReady: Promise.resolve({ allowed: true, context: "workspace" }),
     __mondermanActiveOrganizationId: "22222222-2222-4222-8222-222222222222",
     mondermanGetSupabaseClient: async () => ({
       auth: { getUser: async () => { await userReady; return { data: { user: { id: userId } } }; } },
@@ -117,10 +116,12 @@ function makeRuntime({ deferUser = false } = {}) {
       }
     })
   };
-  const context = vm.createContext({ window, document, URLSearchParams, Date, JSON, Number, String, Array, Object, RegExp });
+  if (!deferGate) window.mondermanWorkspaceAccessReady = Promise.resolve({ allowed: true, context: "workspace" });
+  const context = vm.createContext({ window, document, URLSearchParams, Date, JSON, Number, String, Array, Object, RegExp, Promise, setTimeout });
   vm.runInContext(helperSource, context, { filename: "self-diagnostic-draft.js" });
   return {
     window, document, sessionStorage,
+    releaseGate() { window.mondermanWorkspaceAccessReady = Promise.resolve({ allowed: true, context: "workspace" }); },
     releaseUser() { if (releaseUser) releaseUser(); },
     setUser(id) { userId = id; },
     setMembershipOrganization(id) { membershipOrganizationId = id; }
@@ -178,6 +179,22 @@ await delayedActivation;
 await Promise.resolve();
 const delayedKey = delayedRuntime.window.MondermanSelfDiagnosticDraft._test.draftKey(ids.user, ids.org, "structural_clarity", "sc.v1.2.3", ids.run);
 assert.ok(delayedRuntime.sessionStorage.getItem(delayedKey), "accepted answer queued during activation must persist after identity verification");
+
+// The helper is a synchronous body script while the access gate is deferred
+// in the document head. Recovery must wait for the gate promise to exist.
+const delayedGateRuntime = makeRuntime({ deferGate: true });
+const delayedGateState = JSON.parse(JSON.stringify(state));
+const delayedGateController = delayedGateRuntime.window.MondermanSelfDiagnosticDraft.createController({
+  tool: "structural_clarity", state: delayedGateState, questionStage,
+  renderQuestion() {}, showStage() {}, startOver() {}
+});
+const delayedGateActivation = delayedGateController.activate();
+assert.equal(delayedGateController.saveAccepted(), false);
+delayedGateRuntime.releaseGate();
+await delayedGateActivation;
+await Promise.resolve();
+const delayedGateKey = delayedGateRuntime.window.MondermanSelfDiagnosticDraft._test.draftKey(ids.user, ids.org, "structural_clarity", "sc.v1.2.3", ids.run);
+assert.ok(delayedGateRuntime.sessionStorage.getItem(delayedGateKey), "accepted answer must persist when the deferred access gate initializes after the helper");
 
 const restoredState = { mode: null, depth: null, preflight: {}, answerCache: {}, questionHistory: [] };
 const second = makeController(restoredState);
