@@ -35,6 +35,11 @@ function validateDiagnostic(source, tool) {
   assert.match(source, /showStage\(resultsStage\);\s*if \(selfDraft\) selfDraft\.clear\(\);/, `${tool} must clear only after successful result rendering`);
   assert.match(source, /if \(!preserveParticipantDraft && selfDraft\) selfDraft\.clear\(\);/, `${tool} Start over must clear its scoped draft`);
   assert.match(source, /if \(state\.finalizeInFlight\) return;/, `${tool} must retain single-flight finalization`);
+  assert.match(source, /let reviewingHistoryItemId = null;/, `${tool} must mark intentional Back review explicitly`);
+  assert.match(source, /if \(reviewingHistoryItemId === itemId && !state\._replaying\)/, `${tool} must replay only an intentionally reviewed item`);
+  assert.match(source, /state\.currentItem = prev\.item;[\s\S]*reviewingHistoryItemId = prev\.item\.id;[\s\S]*renderQuestion\(\);/, `${tool} Back must mark the reviewed item before rendering it`);
+  assert.match(source, /function restartDiagnostic\(preserveParticipantDraft = false\)[\s\S]*reviewingHistoryItemId = null;[\s\S]*state\.started = false;/, `${tool} Start over must clear the Back marker`);
+  assert.doesNotMatch(source, /hadCachedAnswer|valueChanged = hadCachedAnswer/, `${tool} must not infer Back navigation from a recovered cache entry`);
 }
 
 validateHelper(helperSource);
@@ -56,7 +61,9 @@ for (const [path, tool] of diagnostics) {
     ["start-response routing version", source.replace(" || data?.routingVersion", "")],
     ["accepted-answer saving", source.replace(/if \(selfDraft\) selfDraft\.saveAccepted\(\);/g, "")],
     ["draft clearing", source.replace(/if \(selfDraft\) selfDraft\.clear\(\);/g, "")],
-    ["duplicate protection", source.replace("if (state.finalizeInFlight) return;", "")]
+    ["duplicate protection", source.replace("if (state.finalizeInFlight) return;", "")],
+    ["explicit Back marker", source.replace("reviewingHistoryItemId = prev.item.id;", "")],
+    ["Back marker reset", source.replace("reviewingHistoryItemId = null;\nstate.started = false;", "state.started = false;")]
   ]) assert.throws(() => validateDiagnostic(mutated, tool), undefined, `${tool} negative mutation must fail: ${label}`);
 }
 
