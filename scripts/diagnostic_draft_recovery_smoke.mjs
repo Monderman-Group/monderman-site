@@ -15,7 +15,7 @@ function validateHelper(source) {
   for (const token of [
     "window.sessionStorage", "user_id", "organization_id", "tool",
     "config_version", "draft_id", "MAX_AGE_MS", "MAX_BYTES",
-    "Resume", "Start over", "clearAllExceptIdentity", "saveAccepted"
+    "Resume", "Start over", "clearAllExceptIdentity", "saveAccepted", "activationPromise"
   ]) assert.ok(source.includes(token), `draft helper missing ${token}`);
   assert.ok(!source.includes("window.localStorage"), "sensitive drafts must not use localStorage");
   assert.match(source, /token\|password\|secret\|credential\|authorization/, "credential-shaped fields must be stripped recursively");
@@ -83,7 +83,7 @@ class FakeElement {
   set innerHTML(_value) {}
 }
 
-function makeRuntime() {
+function makeRuntime({ deferUser = false } = {}) {
   const sessionStorage = new SessionStore();
   const elements = new Map();
   const document = {
@@ -93,13 +93,15 @@ function makeRuntime() {
   };
   let userId = "11111111-1111-4111-8111-111111111111";
   let membershipOrganizationId = "22222222-2222-4222-8222-222222222222";
+  let releaseUser;
+  const userReady = deferUser ? new Promise((resolve) => { releaseUser = resolve; }) : Promise.resolve();
   const window = {
     sessionStorage,
     location: { search: "" },
     mondermanWorkspaceAccessReady: Promise.resolve({ allowed: true, context: "workspace" }),
     __mondermanActiveOrganizationId: "22222222-2222-4222-8222-222222222222",
     mondermanGetSupabaseClient: async () => ({
-      auth: { getUser: async () => ({ data: { user: { id: userId } } }) },
+      auth: { getUser: async () => { await userReady; return { data: { user: { id: userId } } }; } },
       from(table) {
         assert.equal(table, "organization_members");
         const filters = {};
@@ -119,6 +121,7 @@ function makeRuntime() {
   vm.runInContext(helperSource, context, { filename: "self-diagnostic-draft.js" });
   return {
     window, document, sessionStorage,
+    releaseUser() { if (releaseUser) releaseUser(); },
     setUser(id) { userId = id; },
     setMembershipOrganization(id) { membershipOrganizationId = id; }
   };
@@ -159,6 +162,22 @@ const expectedKey = runtime.window.MondermanSelfDiagnosticDraft._test.draftKey(i
 const encoded = runtime.sessionStorage.getItem(expectedKey);
 assert.ok(encoded);
 assert.doesNotMatch(encoded, /must-not-be-selected|access_token|refresh_token|magic_link/);
+
+// If the first accepted answer arrives while the server-backed identity check
+// is still resolving, queue the write instead of silently losing recovery.
+const delayedRuntime = makeRuntime({ deferUser: true });
+const delayedState = JSON.parse(JSON.stringify(state));
+const delayedController = delayedRuntime.window.MondermanSelfDiagnosticDraft.createController({
+  tool: "structural_clarity", state: delayedState, questionStage,
+  renderQuestion() {}, showStage() {}, startOver() {}
+});
+const delayedActivation = delayedController.activate();
+assert.equal(delayedController.saveAccepted(), false);
+delayedRuntime.releaseUser();
+await delayedActivation;
+await Promise.resolve();
+const delayedKey = delayedRuntime.window.MondermanSelfDiagnosticDraft._test.draftKey(ids.user, ids.org, "structural_clarity", "sc.v1.2.3", ids.run);
+assert.ok(delayedRuntime.sessionStorage.getItem(delayedKey), "accepted answer queued during activation must persist after identity verification");
 
 const restoredState = { mode: null, depth: null, preflight: {}, answerCache: {}, questionHistory: [] };
 const second = makeController(restoredState);
