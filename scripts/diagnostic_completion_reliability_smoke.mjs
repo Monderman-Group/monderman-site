@@ -12,6 +12,11 @@ const pages = [
 ];
 
 function validateCompletionContract(source, page = "fixture") {
+  const startBegin = source.indexOf("async function startAdaptiveRun()");
+  const startEnd = source.indexOf("\nfunction buildConfidenceQuestion()", startBegin);
+  const start = startBegin >= 0 && startEnd > startBegin
+    ? source.slice(startBegin, startEnd)
+    : "";
   const finalizeStart = source.indexOf("async function finalizeAdaptiveRun()");
   const finalizeEnd = source.indexOf("\nfunction confirmRestart()", finalizeStart);
   const finalize = finalizeStart >= 0 && finalizeEnd > finalizeStart
@@ -21,6 +26,9 @@ function validateCompletionContract(source, page = "fixture") {
   const background = finalize.indexOf("void (async () => { try {");
 
   assert(finalizeStart >= 0 && finalizeEnd > finalizeStart, `${page}: finalize function missing or unbounded`);
+  assert(startBegin >= 0 && startEnd > startBegin, `${page}: start function missing or unbounded`);
+  assert.match(start, /response\.status === 402 && data\?\.error === "run_limit_reached"/, `${page}: exhausted self-run is not intercepted before question one`);
+  assert.match(start, /showRunsExhausted\(\);\s*return;/s, `${page}: exhausted self-run does not route to the entitlement screen`);
   assert.match(finalize, /if \(state\.finalizeInFlight\) return;/, `${page}: duplicate-finalize guard missing`);
   assert.match(finalize, /state\.finalizeInFlight = true;/, `${page}: finalize guard is never acquired`);
   assert.match(finalize, /finally \{\s*clearTimeout\(slowFinalizeTimer\);\s*state\.finalizeInFlight = false;/s, `${page}: finalize guard is not released`);
@@ -45,6 +53,7 @@ for (const page of pages) validateCompletionContract(readFileSync(join(root, pag
 
 const certified = readFileSync(join(root, pages[0]), "utf8");
 const mutations = [
+  ["preflight-run-limit", (s) => s.replace('response.status === 402 && data?.error === "run_limit_reached"', 'response.status === 418 && data?.error === "run_limit_reached"')],
   ["single-flight", (s) => s.replace("if (state.finalizeInFlight) return;", "")],
   ["bounded-wait", (s) => s.replace("const slowFinalizeTimer = setTimeout(() => {", "const slowFinalizeTimer = (() => {")],
   ["nonblocking-refinement", (s) => s.replace("const refinedExperienceLayer = rawExperienceLayer;", "const refinedExperienceLayer = await refineExperientialLayerForOutput(rawExperienceLayer);")],
