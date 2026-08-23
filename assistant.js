@@ -11,9 +11,9 @@
 (function () {
   "use strict";
 
-  // Shared public-site mobile header repair. Public pages use the same .header,
-  // .header-inner and .nav hooks; lock them to an opaque Monderman header and a
-  // single horizontally scrollable nav row on tablet/mobile.
+  // Legacy fallback for pages that have not adopted the canonical public shell.
+  // Canonical pages own their responsive navigation in canonical-site-shell.css;
+  // injecting this older !important row there would defeat the accessible menu.
   var publicHeaderFix = document.createElement("style");
   publicHeaderFix.id = "mnd-public-header-fix";
   publicHeaderFix.textContent = '@media (max-width:980px){'
@@ -33,7 +33,9 @@
     + '.nav{gap:8px!important;padding-bottom:7px!important;}'
     + '.nav a{font-size:.84rem!important;padding:9px 11px!important;}'
     + '}';
-  document.head.appendChild(publicHeaderFix);
+  if (!document.body.classList.contains("canonical-green-shell")) {
+    document.head.appendChild(publicHeaderFix);
+  }
 
   // Homepage hero framing lock. The responsive <picture> can swap source files,
   // but the image itself must remain geometrically centered at every viewport.
