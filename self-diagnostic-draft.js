@@ -124,6 +124,7 @@
     var key = "";
     var pending = null;
     var active = false;
+    var activationPromise = null;
 
     function selectedState() {
       var out = {};
@@ -176,7 +177,7 @@
       return true;
     }
 
-    function saveAccepted() {
+    function writeAccepted() {
       if (!active || !userId || !organizationId) return false;
       if (state.result || document.getElementById("resultsStage")?.classList.contains("active")) return false;
       var configVersion = cleanSegment(state.configVersion);
@@ -204,7 +205,15 @@
       return true;
     }
 
-    async function activate() {
+    function saveAccepted() {
+      if (active) return writeAccepted();
+      if (activationPromise) {
+        activationPromise.then(function () { if (active) writeAccepted(); }).catch(function () {});
+      }
+      return false;
+    }
+
+    async function activateOnce() {
       if (new URLSearchParams(window.location.search).has("assignment_token")) return false;
       var access = await window.mondermanWorkspaceAccessReady;
       if (!access || !access.allowed || access.context !== "workspace") return false;
@@ -248,6 +257,11 @@
         if (typeof options.startOver === "function") options.startOver();
       });
       return true;
+    }
+
+    function activate() {
+      if (!activationPromise) activationPromise = activateOnce();
+      return activationPromise;
     }
 
     return { activate: activate, saveAccepted: saveAccepted, clear: clear, restore: restore };
