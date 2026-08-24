@@ -98,6 +98,11 @@ const crossCompositeLabel = await cross.locator('.mr-system-composite-label').ev
   return { x:box.x, right:box.x + box.width, bottom:box.y + box.height };
 });
 assert(crossCompositeLabel.x >= 290 && crossCompositeLabel.right <= 430 && crossCompositeLabel.bottom <= 258, `Cross-Lens composite label escapes its circle: ${JSON.stringify(crossCompositeLabel)}`);
+const crossTocTarget = cross.locator('.psr-toc a').nth(1);
+await crossTocTarget.click();
+assert(await cross.isVisible(), 'Cross-Lens contents navigation switched to another report');
+assert(await page.locator('#tab-synthesis').getAttribute('aria-selected') === 'true', 'Cross-Lens contents navigation changed the selected product');
+assert(new URL(page.url()).hash === '#synthesis', 'Cross-Lens contents navigation replaced the product hash');
 
 await page.locator('#tab-depth').click();
 const depth = page.locator('#report-depth');
