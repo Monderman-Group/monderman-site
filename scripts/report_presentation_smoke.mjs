@@ -83,6 +83,11 @@ assert(await cross.locator('.mr-system-read').evaluate(el => el === el.parentEle
 const crossSystem = cross.locator('svg[aria-label="Four Diagnostic lenses connected to the equal-lens Cross-Lens Composite Score"]');
 assert(await crossSystem.isVisible(), 'Cross-Lens system picture not visible');
 assert(await crossSystem.locator('circle').count() >= 2, 'Cross-Lens system picture lacks a substantive composite graphic');
+const compositeLabelBox = await crossSystem.locator('.mr-system-composite-label').evaluate(el => {
+  const box = el.getBBox();
+  return { x:box.x, y:box.y, right:box.x + box.width, bottom:box.y + box.height, width:box.width, height:box.height };
+});
+assert(compositeLabelBox.x >= 290 && compositeLabelBox.right <= 430 && compositeLabelBox.bottom <= 258, `Cross-Lens composite label escapes its circle: ${JSON.stringify(compositeLabelBox)}`);
 assert(await cross.locator('.mr-system-metrics .mr-run-metric').count() === 4, 'Cross-Lens system read does not expose four board metrics');
 const crossChart = cross.locator('svg[aria-label="Cross-Lens Diagnostic score comparison"]');
 assert(await crossChart.isVisible(), 'Cross-Lens comparison chart not visible');

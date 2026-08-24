@@ -57,8 +57,8 @@ for key, contract in expected.items():
     require(result.get("interpretive_prose", {}).get("executive_summary"), f"{key} executive summary missing")
     require(result.get("canonical_descriptor", {}).get("priority_ladder"), f"{key} canonical priority ladder missing")
 
-require('sample-report-production.css?v=eed3e2819589' in sample, "sample page does not load the production-contract presentation")
-require('sample-report-production.js?v=eed3e2819589' in sample, "sample page does not load the production-contract renderer")
+require('sample-report-production.css?v=20260824-sample-alignment' in sample, "sample page does not load the aligned production-contract presentation")
+require('sample-report-production.js?v=20260824-sample-alignment' in sample, "sample page does not load the aligned production-contract renderer")
 require('sample-data/production-diagnostic-samples.json?v=eed3e2819589' in renderer, "renderer does not load the reviewed artifact")
 for key in ["operational_systems", "decision_velocity", "structural_clarity", "institutional_performance"]:
     require(key in renderer, f"renderer omits {key}")
@@ -66,7 +66,7 @@ for token in [
     "MondermanReport", "Report.fromRun(source)", "Report.render(stage, model)",
     "Report.downloadHtml(model)", "Report.downloadJson(source", "Report.downloadPdf(model)",
     "Download HTML", "Download JSON", "Print or save PDF",
-    "data-engine-commit", "data-artifact-sha256",
+    "data-engine-commit", "data-artifact-sha256", "psr-doc-shell", "psr-toc-mobile", "psr-toc",
 ]:
     require(token in renderer, f"shared production Diagnostic renderer bridge missing: {token}")
 for stale in ["Competing readings", "What would update this read"]:
@@ -88,7 +88,7 @@ for token in ["Cross-Lens Composite Score Withheld", "Agreement, divergence, and
 
 for token in [
     '@media (max-width:640px)', '.psr-toolbar-actions { width:100%;',
-    '.psr-wrap { padding:0 10px;', '@media print', 'print-color-adjust:exact',
+    '.psr-wrap { padding:0 10px;', '@media (max-width:1080px)', '@media print', 'print-color-adjust:exact',
 ]:
     require(token in styles, f"responsive/print report protection missing: {token}")
 require('overflow-wrap:anywhere' in styles, "long report text lacks a bleed guard")

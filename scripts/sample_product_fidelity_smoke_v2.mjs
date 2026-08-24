@@ -36,6 +36,8 @@ for (const [key, contract] of Object.entries(expected)) {
   assert(await shell.isVisible(), `${key} report shell is not visible`);
   const report = shell.locator('.psr-wrap');
   assert(await report.count() === 1, `${key} production-contract report is missing or duplicated`);
+  assert(await shell.locator('.psr-doc-shell').count() === 1, `${key} shared promotional report frame is missing or duplicated`);
+  assert(await shell.locator('.psr-toc a').count() >= 8, `${key} desktop contents rail is incomplete`);
   assert(await report.getAttribute('data-engine-commit') === expectedEngine, `${key} engine revision mismatch`);
   assert(await report.getAttribute('data-artifact-sha256') === expectedArtifact, `${key} artifact digest mismatch`);
   assert(await report.getAttribute('data-source-key') === contract.source, `${key} source identity mismatch`);
@@ -84,32 +86,58 @@ await printReport.close();
 
 await page.locator('#tab-synthesis').click();
 const cross = page.locator('#report-synthesis');
+assert(await cross.locator('.psr-doc-shell').count() === 1, 'Cross-Lens shared promotional report frame is missing');
+assert(await cross.locator('.psr-toolbar').isVisible(), 'Cross-Lens shared report controls are missing');
 const crossText = await cross.innerText();
 for (const token of ['Cross-Lens Composite Score', '55.5', 'Strong', 'Equal-lens mean', 'Source-backed remedy paths', 'Interpretation boundary']) {
   assert(crossText.includes(token), `Cross-Lens sample missing ${token}`);
 }
 assert(await cross.locator('svg[aria-label="Cross-Lens Diagnostic score comparison"]').isVisible(), 'Cross-Lens comparison visual is not visible');
+const crossCompositeLabel = await cross.locator('.mr-system-composite-label').evaluate((el) => {
+  const box = el.getBBox();
+  return { x:box.x, right:box.x + box.width, bottom:box.y + box.height };
+});
+assert(crossCompositeLabel.x >= 290 && crossCompositeLabel.right <= 430 && crossCompositeLabel.bottom <= 258, `Cross-Lens composite label escapes its circle: ${JSON.stringify(crossCompositeLabel)}`);
 
 await page.locator('#tab-depth').click();
 const depth = page.locator('#report-depth');
+assert(await depth.locator('.psr-doc-shell').count() === 1, 'Depth shared promotional report frame is missing');
+assert(await depth.locator('.psr-toolbar').isVisible(), 'Depth shared report controls are missing');
 const depthText = await depth.innerText();
 for (const token of ['Median Diagnostic Score', '56', 'Substantial', '18', 'Agreement, divergence, and coverage', 'Interpretation boundary']) {
   assert(depthText.includes(token), `Depth sample missing ${token}`);
 }
 assert(await depth.locator('svg[aria-label="Depth Synthesis score distribution"]').isVisible(), 'Depth distribution visual is not visible');
 
-await page.setViewportSize({ width: 390, height: 844 });
-for (const key of ['os', 'dv', 'sc', 'ip', 'synthesis', 'depth']) {
-  await page.locator(`#tab-${key}`).click();
-  const fit = await page.locator(`#report-${key}`).evaluate((shell) => ({
-    shellClient: shell.clientWidth,
-    shellScroll: shell.scrollWidth,
-    rootClient: document.documentElement.clientWidth,
-    rootScroll: document.documentElement.scrollWidth,
-  }));
-  assert(fit.shellScroll <= fit.shellClient, `${key} report overflows its 390px shell`);
-  assert(fit.rootScroll <= fit.rootClient, `${key} creates horizontal page overflow at 390px`);
+const sampleViewports = [
+  { name:'mobile', width:390, height:844 },
+  { name:'tablet', width:768, height:1024 },
+  { name:'desktop', width:1440, height:1100 },
+];
+for (const viewport of sampleViewports) {
+  await page.setViewportSize({ width:viewport.width, height:viewport.height });
+  for (const key of ['os', 'dv', 'sc', 'ip', 'synthesis', 'depth']) {
+    await page.locator(`#tab-${key}`).click();
+    const shell = page.locator(`#report-${key}`);
+    const fit = await shell.evaluate((node) => ({
+      shellClient: node.clientWidth,
+      shellScroll: node.scrollWidth,
+      rootClient: document.documentElement.clientWidth,
+      rootScroll: document.documentElement.scrollWidth,
+    }));
+    assert(fit.shellScroll <= fit.shellClient, `${key} report overflows its ${viewport.width}px shell`);
+    assert(fit.rootScroll <= fit.rootClient, `${key} creates horizontal page overflow at ${viewport.width}px`);
+    assert(await shell.locator('.psr-doc-shell').count() === 1, `${key} loses the shared frame at ${viewport.name}`);
+    if (viewport.width < 1080) {
+      assert(await shell.locator('.psr-toc-mobile').isVisible(), `${key} mobile/tablet section navigator is hidden at ${viewport.name}`);
+      assert(await shell.locator('.psr-toc').isVisible() === false, `${key} desktop rail remains visible at ${viewport.name}`);
+    } else {
+      assert(await shell.locator('.psr-toc').isVisible(), `${key} desktop contents rail is hidden`);
+      assert(await shell.locator('.psr-toc-mobile').isVisible() === false, `${key} compact navigator remains visible on desktop`);
+    }
+  }
 }
+await page.setViewportSize({ width:390, height:844 });
 await page.locator('#tab-os').click();
 await page.screenshot({ path: path.join(out, 'os-390px.png'), fullPage: true });
 
@@ -125,7 +153,7 @@ fs.writeFileSync(path.join(out, 'result.json'), JSON.stringify({
   artifact_sha256: expectedArtifact,
   diagnostic_products: 4,
   synthesis_products: 2,
-  responsive_width: 390,
+  responsive_widths: sampleViewports.map(viewport => viewport.width),
   console_errors: errors,
 }, null, 2));
 console.log('PRODUCTION_SAMPLE_PRODUCT_FIDELITY_PASS_6_OF_6');
