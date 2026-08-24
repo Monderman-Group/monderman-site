@@ -86,6 +86,12 @@ for (const [key, quadrantHeading, compositionHeading, changeLabel, changeState, 
     ip: ['8,448 hrs', '$844,800', '26%', 'Directional scenario—not an audited time study.'],
   };
   await verifyCanonicalCapacityGraphic(shell, key, canonicalCapacity[key]);
+  const diagnosticText = await shell.textContent();
+  for (const token of ['Interpretation boundary', 'What to watch next', 'Three remedy paths', 'How this was produced']) {
+    assert(diagnosticText.includes(token), `${key} missing production-equivalent section: ${token}`);
+  }
+  assert(!diagnosticText.includes('Competing readings'), `${key} still requires outdated Competing readings section`);
+  assert(!diagnosticText.includes('What would update this read'), `${key} still requires outdated update-read section`);
   await page.screenshot({ path: path.join(out, `${key}.png`), fullPage: true });
 }
 
