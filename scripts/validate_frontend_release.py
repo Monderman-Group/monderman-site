@@ -52,6 +52,54 @@ if 'payment,,' in (r/'security.html').read_text():e.append('double comma')
 idx=(r/'index.html').read_text(errors='ignore')
 if '<body class="canonical-green-shell">' not in idx:
  e.append('homepage canonical shell scope missing')
+
+# The two compact promotional report placements must remain a defensible
+# composite of generated Depth output. Keep the data contract, the responsive
+# layout, and the whole-card route aligned rather than letting marketing-only
+# values or a hidden mobile preview return.
+brief=(r/'Monderman_Platform_Brief.html').read_text(errors='ignore')
+sample_tile_css=(r/'sample-report-tile.css').read_text(errors='ignore') if (r/'sample-report-tile.css').exists() else ''
+tile_required=[
+ 'sample-report-tile.css?v=20260824-depth1',
+ 'class="hero-report-proof has-sample-depth-tile"',
+ 'class="hero-report-page sample-depth-tile"',
+ 'href="sample-report.html"',
+ 'Depth Synthesis',
+ 'Observed exposure ranges',
+ '4,800','7,900','6,100',
+ '$432,000','$711,000','$549,000',
+ '$120,000&ndash;$210,000',
+ 'Observed vantage segments',
+ '15.8-point mean gap',
+ '49.5','56.8','65.3',
+ 'Observed participant set',
+ 'Not a population claim',
+ '--range-left:60.76%;--range-width:39.24%;--median:77.22%',
+]
+for name,text in [('index.html',idx),('Monderman_Platform_Brief.html',brief)]:
+ for token in tile_required:
+  if token not in text:e.append(name+': generated-output sample tile '+token)
+ tile_match=re.search(r'<aside class="hero-report-proof has-sample-depth-tile".*?</aside>',text,re.I|re.S)
+ if not tile_match:
+  e.append(name+': generated-output sample tile boundary missing')
+ else:
+  tile=tile_match.group(0)
+  for stale in ['5,280 hrs','$411,840','$123,552','hrp-recovery-ring','hrp-composition-bars']:
+   if stale in tile:e.append(name+': stale promotional sample tile value '+stale)
+if not sample_tile_css:
+ e.append('generated-output sample tile stylesheet missing')
+else:
+ for token in [
+  '.sample-depth-tile',
+  '.sdt-exposure-grid',
+  'grid-template-columns:repeat(2,minmax(0,1fr))',
+  '@container (max-width:499px)',
+  '.hero-report-proof.has-sample-depth-tile',
+  '.hero-report-proof.has-sample-depth-tile .hero-report-link{display:block;}',
+ ]:
+  if token not in sample_tile_css:e.append('generated-output sample tile responsive contract '+token)
+ if 'transform:scale' in sample_tile_css.replace(' ',''):
+  e.append('generated-output sample tile must reflow instead of scale')
 if '<script src="assistant.js" defer></script>' not in idx:
  e.append('homepage assistant loader missing')
 if re.search(r'^\s*#mnd-launcher\s*\{[^}]*display\s*:\s*none',idx,re.I|re.M):
