@@ -43,7 +43,10 @@ for (const [key, contract] of Object.entries(expected)) {
   assert(await shell.locator('.psr-dimension').count() === contract.dimensions, `${key} generated dimension count mismatch`);
   assert(await shell.locator('.psr-remedy').count() === 3, `${key} must show three engine-generated remedy paths`);
   assert(await shell.locator('.cover').count() === 0, `${key} legacy hand-authored report remains in the live DOM`);
-  const text = await shell.innerText();
+  const executiveRead = shell.locator('.psr-cover-read');
+  assert(await executiveRead.isVisible(), `${key} executive headline block is not visible`);
+  assert((await executiveRead.textContent()).includes('Executive headline'), `${key} executive headline label is missing`);
+  const text = await shell.textContent();
   for (const token of [
     'Production-engine-generated representative output', 'Executive headline', 'What this run returned',
     'The scored condition, dimension by dimension', 'How the disclosed scenario becomes exposure',
