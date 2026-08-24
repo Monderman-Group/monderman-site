@@ -1,4 +1,31 @@
 (() => {
+  document.querySelectorAll('link[rel="icon"],link[rel="shortcut icon"]').forEach((link) => link.remove());
+  const favicon = document.createElement("link");
+  favicon.rel = "icon";
+  favicon.type = "image/svg+xml";
+  favicon.href = "assets/brand/monderman-favicon.svg";
+  document.head.appendChild(favicon);
+  if (!document.querySelector('link[href="assets/brand/brand-lockup.css"]')) {
+    const brandStyles = document.createElement("link");
+    brandStyles.rel = "stylesheet";
+    brandStyles.href = "assets/brand/brand-lockup.css";
+    document.head.appendChild(brandStyles);
+  }
+  const enhanceBrand = () => {
+    const brand = document.querySelector(".brand");
+    if (!brand || brand.querySelector(".monderman-lockup__mark")) return;
+    brand.classList.add("monderman-lockup");
+    brand.insertAdjacentHTML("afterbegin", '<svg class="monderman-lockup__mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M15 15L23.5 8L32 14L40.5 8L49 15V56L40.5 49L32 55L23.5 49L15 56Z" stroke-width="2.8" stroke-linejoin="round"/><path d="M23.5 8V49M32 14V55M40.5 8V49" stroke-width="2.4" stroke-linecap="round"/></svg>');
+    const textNode = [...brand.childNodes].find((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
+    if (textNode) {
+      const name = document.createElement("span");
+      name.className = "monderman-lockup__name";
+      name.textContent = textNode.textContent.trim();
+      textNode.replaceWith(name);
+    }
+    brand.querySelectorAll(".brand-dot").forEach((dot) => dot.remove());
+  };
+  enhanceBrand();
   const header = document.getElementById("siteHeader");
   if (header) {
     const nav = header.querySelector(".nav");

@@ -448,7 +448,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
 #coverPage{display:block;page-break-after:always;width:100%;font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif}
 }
 .cover-dark{background:#04181B;padding:52px 60px 48px;position:relative;overflow:hidden;min-height:260px;box-sizing:border-box}
-.cover-mark{font-size:9px;letter-spacing:.32em;color:rgba(255,255,255,.38);font-weight:600;text-transform:uppercase;margin-bottom:20px}
+.cover-mark{display:flex;align-items:center;gap:7px;color:#FAFAF8;font-size:18px;font-weight:700;letter-spacing:-.02em;margin-bottom:20px}.cover-mark svg{width:26px;height:32px;fill:none;stroke:currentColor}.cover-mark svg path:first-child{stroke-width:2.8}.cover-mark svg path:last-child{stroke-width:2.4;stroke-linecap:round}
 .cover-rule{width:32px;height:2px;background:#0C6E78;margin-bottom:28px}
 .cover-headline{font-size:38px;font-weight:700;color:#fff;line-height:1.08;letter-spacing:-.03em;margin-bottom:14px}
 .cover-sub{font-size:13px;color:rgba(255,255,255,.36);font-weight:400;letter-spacing:.04em}
@@ -664,10 +664,10 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
      ═══════════════════════════════════════════════════ -->
 <div id="coverPage">
   <div class="cover-dark">
-    <div class="cover-mark">M O N D E R M A N</div>
+<div class="cover-mark"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M15 15L23.5 8L32 14L40.5 8L49 15V56L40.5 49L32 55L23.5 49L15 56Z"/><path d="M23.5 8V49M32 14V55M40.5 8V49"/></svg><span>Monderman</span></div>
     <div class="cover-rule"></div>
-    <div class="cover-headline">Institutional Performance<br>Diagnostic</div>
-    <div class="cover-sub">Executive Summary</div>
+    <div class="cover-headline">Institutional Performance</div>
+    <div class="cover-sub">Diagnostic Output</div>
   </div>
   <div class="cover-stripe"></div>
   <div class="cover-white">
@@ -4807,7 +4807,10 @@ return `<!doctype html>
   .content { position: relative; margin-top: .74in; }
   .cover-page { padding: 0; overflow: hidden; background: #fff; display: flex; flex-direction: column; }
   .cover-dark { background: #04181B; width: 100%; padding: .72in .80in .64in; box-sizing: border-box; min-height: 3.62in; position: relative; overflow: hidden; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .cover-mark { font-size: 9px; letter-spacing: .32em; color: rgba(255,255,255,.38); font-weight: 700; text-transform: uppercase; margin: 0 0 .26in; }
+  .cover-mark { display:flex; align-items:center; gap:7px; color:#FAFAF8; font-size:18px; font-weight:700; letter-spacing:-.02em; margin:0 0 .26in; }
+  .cover-mark svg { width:26px; height:32px; fill:none; stroke:currentColor; }
+  .cover-mark svg path:first-child { stroke-width:2.8; }
+  .cover-mark svg path:last-child { stroke-width:2.4; stroke-linecap:round; }
   .cover-rule { width: 36px; height: 2px; background: #0C6E78; margin-bottom: .34in; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .cover-title { font-size: 44px; line-height: 1.06; letter-spacing: -.04em; margin: 0 0 .18in; color: #ffffff; font-weight: 700; max-width: 5.4in; }
   .cover-sub { font-size: 13px; color: rgba(255,255,255,.36); font-weight: 400; letter-spacing: .03em; margin: 0; }
@@ -4908,10 +4911,10 @@ return `<!doctype html>
 
 <section class="page cover-page">
   <div class="cover-dark">
-    <div class="cover-mark">M O N D E R M A N</div>
+<div class="cover-mark"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M15 15L23.5 8L32 14L40.5 8L49 15V56L40.5 49L32 55L23.5 49L15 56Z"/><path d="M23.5 8V49M32 14V55M40.5 8V49"/></svg><span>Monderman</span></div>
     <div class="cover-rule"></div>
-    <h1 class="cover-title">Institutional Performance<br>Diagnostic</h1>
-    <p class="cover-sub">Executive Summary</p>
+    <h1 class="cover-title">Institutional Performance</h1>
+    <p class="cover-sub">Diagnostic Output</p>
   </div>
   <div class="cover-stripe"></div>
   <div class="cover-white">

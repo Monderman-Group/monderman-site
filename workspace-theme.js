@@ -13,6 +13,18 @@
          document.documentElement.setAttribute("data-theme","dark");}catch(e){}</script>
    ============================================================================ */
 (function () {
+  document.querySelectorAll('link[rel="icon"],link[rel="shortcut icon"]').forEach(function (link) { link.remove(); });
+  var favicon = document.createElement("link");
+  favicon.rel = "icon";
+  favicon.type = "image/svg+xml";
+  favicon.href = "assets/brand/monderman-favicon.svg";
+  document.head.appendChild(favicon);
+  if (!document.querySelector('link[href="assets/brand/brand-lockup.css"]')) {
+    var brandStyles = document.createElement("link");
+    brandStyles.rel = "stylesheet";
+    brandStyles.href = "assets/brand/brand-lockup.css";
+    document.head.appendChild(brandStyles);
+  }
   var KEY = "mndTheme";
   var root = document.documentElement;
 
@@ -35,6 +47,14 @@
   }
 
   function mount() {
+    document.querySelectorAll(".ws-brand,.ws5-brand").forEach(function (brand) {
+      if (brand.querySelector(".monderman-lockup__mark")) return;
+      brand.classList.add("monderman-lockup");
+      brand.insertAdjacentHTML("afterbegin", '<svg class="monderman-lockup__mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M15 15L23.5 8L32 14L40.5 8L49 15V56L40.5 49L32 55L23.5 49L15 56Z" stroke-width="2.8" stroke-linejoin="round"/><path d="M23.5 8V49M32 14V55M40.5 8V49" stroke-width="2.4" stroke-linecap="round"/></svg>');
+      var name = brand.querySelector("b");
+      if (name) name.classList.add("monderman-lockup__name");
+      brand.querySelectorAll(".dot,.ws5-brand-dot").forEach(function (dot) { dot.remove(); });
+    });
     if (document.querySelector(".ws5-theme-toggle")) return;
     var btn = document.createElement("button");
     btn.type = "button";
