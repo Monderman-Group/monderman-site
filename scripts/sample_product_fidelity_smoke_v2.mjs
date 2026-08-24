@@ -73,7 +73,7 @@ assert(await cross.locator('svg[aria-label="Cross-Lens Diagnostic score comparis
 await page.locator('#tab-depth').click();
 const depth = page.locator('#report-depth');
 const depthText = await depth.innerText();
-for (const token of ['Median Diagnostic Score', '56', 'Substantial', '18', 'Observed participant distribution', 'Interpretation boundary']) {
+for (const token of ['Median Diagnostic Score', '56', 'Substantial', '18', 'Agreement, divergence, and coverage', 'Interpretation boundary']) {
   assert(depthText.includes(token), `Depth sample missing ${token}`);
 }
 assert(await depth.locator('svg[aria-label="Depth Synthesis score distribution"]').isVisible(), 'Depth distribution visual is not visible');

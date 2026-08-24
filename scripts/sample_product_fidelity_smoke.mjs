@@ -129,7 +129,7 @@ await page.screenshot({ path: path.join(out, 'synthesis.png'), fullPage: true })
 
 const depth = await openTab('depth');
 const depthText = await depth.textContent();
-for (const token of ['Median Diagnostic Score','Substantial','18','56','Observed participant distribution','Operational','Managerial','Senior Leader','15.8','Executive synthesis','Agreements and differences','Evidence-proportionate actions','What to watch next','32 additional unique runs']) assert(depthText.includes(token), `Depth missing ${token}`);
+for (const token of ['Median Diagnostic Score','Substantial','18','56','Agreement, divergence, and coverage','Operational','Managerial','Senior Leader','15.8','Executive synthesis','Agreements and differences','Evidence-proportionate actions','What to watch next','32 additional unique runs']) assert(depthText.includes(token), `Depth missing ${token}`);
 assert(await depth.locator('svg[aria-label="Depth Synthesis score distribution"]').isVisible(), 'Depth distribution visual not visible');
 await page.screenshot({ path: path.join(out, 'depth.png'), fullPage: true });
 

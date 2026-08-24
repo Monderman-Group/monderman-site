@@ -81,7 +81,7 @@ for token in [
     'score_status: "published"', 'evidence_label: "Strong"', 'evidence_label: "Substantial"',
 ]:
     require(token in sample, f"Synthesis fixture contract missing: {token}")
-for token in ["Cross-Lens Composite Score Withheld", "Observed participant distribution", "Source-backed remedy paths", "Interpretation boundary"]:
+for token in ["Cross-Lens Composite Score Withheld", "Agreement, divergence, and coverage", "Source-backed remedy paths", "Interpretation boundary"]:
     require(token in shared, f"shared Synthesis renderer missing: {token}")
 
 for token in [

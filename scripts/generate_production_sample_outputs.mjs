@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-const API_COMMIT = "379ff62eee8157efe0115ee825933adbefc493d2";
+const API_COMMIT = "fbbadb70b4d0c480f5d4ae58c4b6285b3164fccc";
 const apiRoot = process.env.MONDERMAN_API_ROOT;
 if (!apiRoot) throw new Error("MONDERMAN_API_ROOT is required");
 
@@ -16,7 +16,7 @@ const SOURCE_BLOBS = {
   "buildCanonicalDescriptorDV.js": "f844bf35b5b02637923c6e6b7e515744e0ba2c7a",
   "buildCanonicalDescriptorSC.js": "d363651a2a57e0d07edb7fcd2b97bdfc7fdd380f",
   "buildCanonicalDescriptorIP.js": "38f967d5229ebb711e567458aaa2a2a4726b0a6e",
-  "narrativeBuilders.js": "74a71de9b202f5860bd0c77b38b40842e1c9894d",
+  "narrativeBuilders.js": "a8b90ace4cfb8201a8149280bdde75e162359a32",
   "dvNarrativeBuilders.js": "725503df31e9d606863e41d503f750152eaedd65",
   "scNarrativeBuilders.js": "404157f72070703199c1ebc96c49046da3b9ef47",
   "ipNarrativeBuilders.js": "bd820789817d05bde9582bc6964c76ba913881d6",
