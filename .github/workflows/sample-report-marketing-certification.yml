@@ -16,6 +16,8 @@ on:
       - 'canonical-site-shell.js'
       - 'canonical-site-shell.css'
       - 'index.html'
+      - 'Monderman_Platform_Brief.html'
+      - 'sample-report-tile.css'
       - 'research.html'
       - 'assistant.js'
       - 'connect-widget.js'
@@ -24,6 +26,7 @@ on:
       - 'scripts/diagnostic_draft_recovery_smoke.mjs'
       - 'scripts/workspace_legal_gate_smoke.mjs'
       - 'scripts/homepage_assistant_smoke.mjs'
+      - 'scripts/sample_tile_smoke.mjs'
       - 'scripts/report_presentation_smoke.mjs'
       - 'scripts/authenticated_report_engine_fixture.mjs'
       - 'scripts/report_pdf_smoke.mjs'
@@ -51,6 +54,8 @@ on:
       - 'canonical-site-shell.js'
       - 'canonical-site-shell.css'
       - 'index.html'
+      - 'Monderman_Platform_Brief.html'
+      - 'sample-report-tile.css'
       - 'research.html'
       - 'assistant.js'
       - 'connect-widget.js'
@@ -59,6 +64,7 @@ on:
       - 'scripts/diagnostic_draft_recovery_smoke.mjs'
       - 'scripts/workspace_legal_gate_smoke.mjs'
       - 'scripts/homepage_assistant_smoke.mjs'
+      - 'scripts/sample_tile_smoke.mjs'
       - 'scripts/report_presentation_smoke.mjs'
       - 'scripts/authenticated_report_engine_fixture.mjs'
       - 'scripts/report_pdf_smoke.mjs'
@@ -98,6 +104,7 @@ jobs:
           node --check scripts/sample_product_fidelity_smoke.mjs
           node --check scripts/sample_product_fidelity_smoke_v2.mjs
           node --check scripts/homepage_assistant_smoke.mjs
+          node --check scripts/sample_tile_smoke.mjs
           node scripts/diagnostic_draft_recovery_smoke.mjs
           node scripts/workspace_legal_gate_smoke.mjs
           node scripts/authenticated_report_engine_fixture.mjs
@@ -127,6 +134,11 @@ jobs:
 
       - name: Verify homepage assistant launcher
         run: node scripts/homepage_assistant_smoke.mjs
+
+      - name: Verify responsive generated-output sample tiles
+        env:
+          TILE_OUT: /tmp/report-presentation-smoke/sample-tiles
+        run: node scripts/sample_tile_smoke.mjs
 
       - name: Render and verify all six sample products
         env:
