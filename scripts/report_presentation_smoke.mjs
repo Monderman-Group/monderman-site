@@ -149,7 +149,7 @@ assert(await depthChart.isVisible(), 'Depth distribution chart not visible');
 const depthChartFont = await depthChart.evaluate(el => getComputedStyle(el).fontFamily);
 assert(isMondermanFont(depthChartFont), `Depth chart bypasses Neue Haas Grotesk: ${depthChartFont}`);
 const depthTop = await depthChart.evaluate(el => el.getBoundingClientRect().top + window.scrollY);
-const depthStart = await depth.evaluate(el => el.getBoundingClientRect().top + window.scrollY);
+const depthStart = await depth.locator('.mr-report').evaluate(el => el.getBoundingClientRect().top + window.scrollY);
 assert(depthTop - depthStart < 1150, `Depth chart is still buried ${Math.round(depthTop-depthStart)}px into report`);
 assert((await depth.textContent()).includes('15.8'), 'Depth vantage gap not visible');
 assert((await depth.textContent()).includes('Evidence-proportionate actions'), 'Depth actions missing');
