@@ -74,7 +74,7 @@ def card(c, x, top, w, h, headline, label, body):
 
 def cover(c):
     c.setFillColor(DARK); c.rect(0,0,W,H,fill=1,stroke=0)
-    draw_header_lockup(c, x=M, baseline=H-74, contrast_field=True)
+    draw_header_lockup(c, x=M, baseline=H-74, color=HexColor("#FFFFFF"))
     c.setStrokeColor(HexColor("#8FC4C9")); c.line(M,H-92,M+52,H-92)
     c.setFillColor(HexColor("#FFFFFF"))
     c.setFont("Haas-Bold",8.5); c.drawString(M,H-190,"I N S T I T U T I O N A L   P E R F O R M A N C E   R E S E A R C H")

@@ -21,7 +21,6 @@ FONT_PATH = ROOT / "pdf-src" / "fonts" / "NeueHaasGroteskText-Bold.ttf"
 FONT_NAME = "Monderman-NHG-Bold"
 
 TEAL = HexColor("#0C6E78")
-CREAM = HexColor("#FAFAF8")
 WHITE = HexColor("#FFFFFF")
 DARK_CULTURE = HexColor("#0B3D43")
 DARK_INSIGHT = HexColor("#0E3A44")
@@ -42,8 +41,8 @@ class Publication:
     old_bottom: float
     old_right: float
     background: object
-    contrast_field: bool
     x: float = 59.5
+    color: object = TEAL
 
 
 @dataclass(frozen=True)
@@ -56,15 +55,15 @@ class Endorsement:
 
 
 PUBLICATIONS = (
-    Publication("Monderman_Brief_Accumulated_Drag_Department_of_War.pdf", 675.0, 103.0, 124.0, 277.0, WHITE, False),
-    Publication("Monderman_Brief_Compensatory_Systems.pdf", 675.0, 103.0, 124.0, 277.0, WHITE, False),
-    Publication("Monderman_Brief_Quarter_Trillion_Dollar_Friction_US_Healthcare.pdf", 675.0, 103.0, 124.0, 277.0, WHITE, False),
-    Publication("Monderman_Brief_The_Collapse_of_Eastman_Kodak.pdf", 675.0, 103.0, 124.0, 277.0, WHITE, False),
-    Publication("Monderman_Brief_The_Culture_Trap.pdf", 718.0, 55.0, 82.0, 224.0, DARK_CULTURE, True, 58.0),
-    Publication("Monderman_Insight_After_the_First_Lap.pdf", 680.6, 96.0, 122.0, 270.0, DARK_INSIGHT, True, 59.5),
-    Publication("Monderman_Insight_Merit_After_the_Machine_2026-08-11.pdf", 668.2, 105.0, 136.0, 291.0, DARK_INSIGHT, True, 59.0),
-    Publication("Monderman_Insight_The_Art_of_Interior_Reasoning.pdf", 678.1, 97.0, 122.0, 286.0, DARK_INSIGHT, True, 59.5),
-    Publication("Terminal_Fidelity.pdf", 678.1, 97.0, 122.0, 285.0, DARK_INSIGHT, True, 59.5),
+    Publication("Monderman_Brief_Accumulated_Drag_Department_of_War.pdf", 675.0, 103.0, 124.0, 277.0, WHITE),
+    Publication("Monderman_Brief_Compensatory_Systems.pdf", 675.0, 103.0, 124.0, 277.0, WHITE),
+    Publication("Monderman_Brief_Quarter_Trillion_Dollar_Friction_US_Healthcare.pdf", 675.0, 103.0, 124.0, 277.0, WHITE),
+    Publication("Monderman_Brief_The_Collapse_of_Eastman_Kodak.pdf", 675.0, 103.0, 124.0, 277.0, WHITE),
+    Publication("Monderman_Brief_The_Culture_Trap.pdf", 718.0, 55.0, 82.0, 224.0, DARK_CULTURE, 58.0, WHITE),
+    Publication("Monderman_Insight_After_the_First_Lap.pdf", 680.6, 96.0, 122.0, 270.0, DARK_INSIGHT, 59.5, WHITE),
+    Publication("Monderman_Insight_Merit_After_the_Machine_2026-08-11.pdf", 668.2, 105.0, 136.0, 291.0, DARK_INSIGHT, 59.0, WHITE),
+    Publication("Monderman_Insight_The_Art_of_Interior_Reasoning.pdf", 678.1, 97.0, 122.0, 286.0, DARK_INSIGHT, 59.5, WHITE),
+    Publication("Terminal_Fidelity.pdf", 678.1, 97.0, 122.0, 285.0, DARK_INSIGHT, 59.5, WHITE),
 )
 
 
@@ -131,17 +130,10 @@ def draw_header_lockup(
     *,
     x: float,
     baseline: float,
-    contrast_field: bool = False,
     color=TEAL,
 ) -> None:
     """Draw the site-header lockup at print scale, preserving its exact proportions."""
     ensure_font()
-    if contrast_field:
-        field_x = x - 6.0
-        field_y = baseline - 8.0
-        canvas.setFillColor(CREAM)
-        canvas.rect(field_x, field_y, lockup_width() + 12.0, 27.0, fill=1, stroke=0)
-
     # In the canonical mark, visible geometry occupies y=8..56 of a 64-unit box.
     # This positions that visible height exactly on the M cap-height baseline.
     mark_y = baseline - MARK_SIZE * (8.0 / 64.0)
@@ -174,7 +166,7 @@ def make_overlay(publication: Publication) -> BytesIO:
         canvas,
         x=publication.x,
         baseline=publication.baseline,
-        contrast_field=publication.contrast_field,
+        color=publication.color,
     )
     canvas.save()
     stream.seek(0)
