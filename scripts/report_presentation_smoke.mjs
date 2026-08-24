@@ -36,10 +36,10 @@ async function openTab(key) {
   return shell;
 }
 
-// The four lens samples are honest same-lens Depth Synthesis reports built
-// from compatible respondent sets while retaining certified lens visuals.
-const diagnostics = { os: 18, dv: 21, sc: 15, ip: 24 };
-for (const [key, expectedN] of Object.entries(diagnostics)) {
+// The four lens samples represent one completed production Diagnostic run;
+// Depth Synthesis remains the separate same-Diagnostic median product.
+const diagnostics = ['os', 'dv', 'sc', 'ip'];
+for (const key of diagnostics) {
   const shell = await openTab(key);
   const svgCount = await shell.locator('svg[role="img"]').count();
   assert(svgCount >= 4, `${key} has only ${svgCount} evidence graphics`);
@@ -51,15 +51,15 @@ for (const [key, expectedN] of Object.entries(diagnostics)) {
   assert(await shell.locator('svg[aria-label="Burden severity by dimension"]').first().isVisible(), `${key} severity graphic not visible`);
   assert(await shell.locator('svg[aria-label="Intervention order"]').first().isVisible(), `${key} intervention graphic not visible`);
   const depthRead = shell.locator('.sample-depth-read');
-  assert(await depthRead.isVisible(), `${key} Depth Synthesis evidence context missing`);
+  assert(await depthRead.isVisible(), `${key} single-run evidence context missing`);
   const depthText = await depthRead.textContent();
-  assert(depthText.includes(`n=${expectedN}`), `${key} respondent count missing from evidence context`);
+  assert(depthText.includes('n=1'), `${key} single-run count missing from evidence context`);
   const ringStyle = await depthRead.locator('.sample-depth-ring').getAttribute('style');
-  assert(ringStyle.includes(`--depth:${expectedN}%`), `${key} depth ring is not proportional to n=${expectedN}`);
-  assert(depthText.includes('Substantial observed respondent set'), `${key} evidence band missing`);
-  assert(/Population inference/i.test(depthText), `${key} sampling-frame limit missing`);
-  assert((await shell.textContent()).includes('Composite view.'), `${key} composite disclosure missing from cover`);
-  assert((await shell.textContent()).includes('What participants reported'), `${key} multi-participant experiential section missing`);
+  assert(ringStyle.includes('--depth:8%'), `${key} single-run evidence ring is not bounded`);
+  assert(depthText.includes('Directional single-run evidence'), `${key} evidence status missing`);
+  assert(/does not establish prevalence or population representativeness/i.test(depthText), `${key} single-run inference limit missing`);
+  assert((await shell.textContent()).includes('Evidence status.'), `${key} evidence-status disclosure missing from cover`);
+  assert((await shell.textContent()).includes('What the participant added'), `${key} participant evidence section missing`);
   await page.screenshot({ path: path.join(out, `${key}-full.png`), fullPage: true });
 }
 
