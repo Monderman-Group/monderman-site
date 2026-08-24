@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - 'sample-report.html'
+      - 'sample-report-production.js'
+      - 'sample-report-production.css'
+      - 'sample-data/production-diagnostic-samples.json'
       - 'operational-systems.html'
       - 'decision-velocity.html'
       - 'structural-clarity.html'
@@ -17,18 +20,14 @@ on:
       - 'connect-widget.js'
       - 'self-diagnostic-draft.js'
       - 'workspace-access-gate.js'
-      - 'workspace.html'
-      - 'workspace-diagnostics.html'
-      - 'workspace-analysis.html'
-      - 'workspace-actions.html'
-      - 'workspace-settings.html'
-      - 'scripts/validate_workspace_membership_scope.py'
       - 'scripts/diagnostic_draft_recovery_smoke.mjs'
       - 'scripts/workspace_legal_gate_smoke.mjs'
       - 'scripts/homepage_assistant_smoke.mjs'
       - 'scripts/report_presentation_smoke.mjs'
       - 'scripts/report_pdf_smoke.mjs'
       - 'scripts/sample_product_fidelity_smoke.mjs'
+      - 'scripts/sample_product_fidelity_smoke_v2.mjs'
+      - 'scripts/generate_production_sample_outputs.mjs'
       - 'scripts/validate_diagnostic_inline_js.py'
       - 'scripts/validate_report_presentation.py'
       - 'scripts/validate_sample_product_fidelity.py'
@@ -38,6 +37,9 @@ on:
       - main
     paths:
       - 'sample-report.html'
+      - 'sample-report-production.js'
+      - 'sample-report-production.css'
+      - 'sample-data/production-diagnostic-samples.json'
       - 'operational-systems.html'
       - 'decision-velocity.html'
       - 'structural-clarity.html'
@@ -51,18 +53,14 @@ on:
       - 'connect-widget.js'
       - 'self-diagnostic-draft.js'
       - 'workspace-access-gate.js'
-      - 'workspace.html'
-      - 'workspace-diagnostics.html'
-      - 'workspace-analysis.html'
-      - 'workspace-actions.html'
-      - 'workspace-settings.html'
-      - 'scripts/validate_workspace_membership_scope.py'
       - 'scripts/diagnostic_draft_recovery_smoke.mjs'
       - 'scripts/workspace_legal_gate_smoke.mjs'
       - 'scripts/homepage_assistant_smoke.mjs'
       - 'scripts/report_presentation_smoke.mjs'
       - 'scripts/report_pdf_smoke.mjs'
       - 'scripts/sample_product_fidelity_smoke.mjs'
+      - 'scripts/sample_product_fidelity_smoke_v2.mjs'
+      - 'scripts/generate_production_sample_outputs.mjs'
       - 'scripts/validate_diagnostic_inline_js.py'
       - 'scripts/validate_report_presentation.py'
       - 'scripts/validate_sample_product_fidelity.py'
@@ -88,9 +86,12 @@ jobs:
       - name: Static report contracts
         run: |
           node --check monderman-report.js
+          node --check sample-report-production.js
+          node --check scripts/generate_production_sample_outputs.mjs
           node --check scripts/report_presentation_smoke.mjs
           node --check scripts/report_pdf_smoke.mjs
           node --check scripts/sample_product_fidelity_smoke.mjs
+          node --check scripts/sample_product_fidelity_smoke_v2.mjs
           node --check scripts/homepage_assistant_smoke.mjs
           node scripts/diagnostic_draft_recovery_smoke.mjs
           node scripts/workspace_legal_gate_smoke.mjs
@@ -124,7 +125,7 @@ jobs:
       - name: Render and verify all six sample products
         env:
           SAMPLE_OUT: /tmp/report-presentation-smoke/sample-product-fidelity
-        run: node scripts/sample_product_fidelity_smoke.mjs
+        run: node scripts/sample_product_fidelity_smoke_v2.mjs
 
       - name: Render and verify standalone PDFs
         env:

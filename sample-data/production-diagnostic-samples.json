@@ -1,0 +1,2017 @@
+{
+  "contract": "monderman-public-diagnostic-sample-output/v1",
+  "engine_commit": "379ff62eee8157efe0115ee825933adbefc493d2",
+  "generated_at": "2026-08-23T00:00:00.000Z",
+  "generation_mode": "production scorer, canonical descriptor, and deterministic interpretive-prose builders; no customer data and no model-authored claims",
+  "source_blobs": {
+    "scoreOperationalSystems.js": "b23647f9d8828787bb036aed3942046448fb6049",
+    "scoreDecisionVelocity.js": "a4d9bdfd7741b60cf9851d4f807bf68725716cbd",
+    "scoreStructuralClarity.js": "917abe51106acbbeafa63013a00fe22af66cdedf",
+    "scoreInstitutionalPerformance.js": "559858278de552f73707d064cb8016407fef3dfd",
+    "buildCanonicalDescriptor.js": "916ff588328f483e34824aaf2a4d420610ccd03e",
+    "buildCanonicalDescriptorDV.js": "f844bf35b5b02637923c6e6b7e515744e0ba2c7a",
+    "buildCanonicalDescriptorSC.js": "d363651a2a57e0d07edb7fcd2b97bdfc7fdd380f",
+    "buildCanonicalDescriptorIP.js": "38f967d5229ebb711e567458aaa2a2a4726b0a6e",
+    "narrativeBuilders.js": "74a71de9b202f5860bd0c77b38b40842e1c9894d",
+    "dvNarrativeBuilders.js": "725503df31e9d606863e41d503f750152eaedd65",
+    "scNarrativeBuilders.js": "404157f72070703199c1ebc96c49046da3b9ef47",
+    "ipNarrativeBuilders.js": "bd820789817d05bde9582bc6964c76ba913881d6",
+    "participantEvidence.js": "591449d786f24391b1bb988ebb30be99ad60d821",
+    "remedyPaths.js": "659a70f3d40de51f6fa77f40e3220ec5af7c31f9"
+  },
+  "outputs": {
+    "operational_systems": {
+      "input_context": {
+        "organizationName": "Representative organization",
+        "processName": "capital approval pathway",
+        "functionName": "Procurement and Operations",
+        "businessUnit": "Procurement and Operations",
+        "unitName": "Capital approvals",
+        "industry": "other",
+        "sector": "other",
+        "organizationSize": "enterprise",
+        "orgSize": "enterprise",
+        "employeeCount": 2500,
+        "regulatoryIntensity": "moderate",
+        "decisionType": "operational",
+        "confidenceLevel": "moderate",
+        "peopleInvolved": 18,
+        "peopleAffected": 18,
+        "peopleImpacted": 18,
+        "people_involved": 18,
+        "annualVolume": 96,
+        "annualCycles": 96,
+        "annual_cycles": 96,
+        "hourlyCost": 78,
+        "hourly_cost": 78,
+        "meetingHours": 32,
+        "meeting_hours": 32
+      },
+      "result": {
+        "tool_type": "operational_systems",
+        "tool_label": "Operational Systems",
+        "score": 44,
+        "score_band": "Drag",
+        "score_band_note": "The environment appears to preserve output through workaround effort, exception handling, and manual burden rather than a lighter operating design.",
+        "dimensions": {
+          "process_density": 48.5,
+          "systems_friction": 58,
+          "reporting_exception_burden": 33,
+          "workaround_dependence": 52,
+          "control_load": 57,
+          "upkeep_burden": 67
+        },
+        "burden_breakdown": {
+          "process_density": 51.5,
+          "systems_friction": 42,
+          "reporting_exception_burden": 67,
+          "workaround_dependence": 48,
+          "control_load": 43,
+          "upkeep_burden": 33
+        },
+        "benchmark": {
+          "label": "Other",
+          "basis": "expert_authored_design_reference",
+          "referenceMin": 58,
+          "referenceMax": 69,
+          "opportunityMin": 70,
+          "opportunityMax": 84,
+          "healthyMin": 58,
+          "healthyMax": 69,
+          "moderateMin": 58,
+          "moderateMax": 69
+        },
+        "benchmark_position": "Below design reference range",
+        "trajectory": {
+          "direction": "up",
+          "label": "Operational creep is rising",
+          "glyph": "↗",
+          "note": "This is a self-reported change signal from the current run, not a measured longitudinal trend.",
+          "delta": 5,
+          "experiential_signal": "none",
+          "evidence_type": "self_reported_change_signal",
+          "longitudinal_measurement": false
+        },
+        "exposure": {
+          "priceable": true,
+          "hours_estimated": true,
+          "cost_estimated": true,
+          "sizing_status": "estimated",
+          "unpriced_reason": null,
+          "annual_hours": 1690,
+          "annual_cost": 131820,
+          "capacity_drag_percent": 5,
+          "recoverable_share_percent": 37,
+          "recoverable_cost": 48773,
+          "average_hourly_cost": 78,
+          "hourly_cost": 78,
+          "total_capacity_hours": 32400,
+          "total_capacity_cost": 2527200,
+          "composition": null,
+          "model": {
+            "model_type": "directional_scenario_not_empirical_benchmark",
+            "empirical_benchmark": false,
+            "formula": "hours per run × annual runs × fixed 55% burden-attribution share",
+            "input_hours_per_run": 32,
+            "annual_cycles": 96,
+            "attributable_burden_share_percent": 55,
+            "attributed_hours_before_capacity_check": 1690,
+            "note": "The 55% attribution is an explicit instrument assumption applied consistently to pathway sizing, not an observed time study or peer benchmark."
+          }
+        },
+        "primary_constraint": "reporting_exception_burden",
+        "primary_driver": "Reporting and exception burden",
+        "patterns": [
+          "process_density_pattern",
+          "manual_workaround_pattern"
+        ],
+        "contradictions": [
+          {
+            "code": "probe_some_work_off_path",
+            "severity": "moderate",
+            "message": "Some of the real work happens off the official path, so the process only shows part of it.",
+            "source": "reported"
+          },
+          {
+            "code": "probe_oversight_mostly_accumulates",
+            "severity": "moderate",
+            "message": "Oversight tends to get added more easily than it gets removed, so the load drifts upward.",
+            "source": "reported"
+          },
+          {
+            "code": "probe_systems_partly_join_up",
+            "severity": "moderate",
+            "message": "Part of the friction is that the systems don't join up, so some of the bridging is done by hand.",
+            "source": "reported"
+          },
+          {
+            "code": "probe_effort_possibly_absorbed",
+            "severity": "moderate",
+            "message": "Some of the extra effort here may have been absorbed as normal work, so the real load could be heavier than it looks.",
+            "source": "reported"
+          },
+          {
+            "code": "probe_exceptions_partly_normalized",
+            "severity": "moderate",
+            "message": "Exception handling has been part of the job long enough that it is starting to go unnoticed.",
+            "source": "reported"
+          }
+        ],
+        "key_findings": [
+          "Process density appears to be absorbing more operating attention than it should.",
+          "Reporting and exception handling appear to be functioning like ongoing upkeep burden, not light oversight.",
+          "The environment appears to rely on off-path effort or workaround behavior to keep work moving.",
+          "Control accumulation appears heavier than the real operating need may require.",
+          "Some answers suggest the visible system may look lighter than the lived operating burden actually is."
+        ],
+        "watch_items": [
+          "Some of the real work happens off the official path, so the process only shows part of it.",
+          "Oversight tends to get added more easily than it gets removed, so the load drifts upward.",
+          "Part of the friction is that the systems don't join up, so some of the bridging is done by hand.",
+          "Some of the extra effort here may have been absorbed as normal work, so the real load could be heavier than it looks.",
+          "Exception handling has been part of the job long enough that it is starting to go unnoticed."
+        ],
+        "participant_evidence": [],
+        "participant_mode": "managerial",
+        "insight_depth": {
+          "score": 7,
+          "band": "Narrow - focused read",
+          "run_depth": 60,
+          "confidence_level": "moderate",
+          "participant_count": 1,
+          "levels_covered_count": 1,
+          "cross_synthesis_count": 1,
+          "ceiling": 8
+        },
+        "measurement_coverage": {
+          "measured_dimension_count": 6,
+          "total_dimension_count": 6,
+          "coverage_percent": 100,
+          "measured_dimensions": [
+            "process_density",
+            "systems_friction",
+            "reporting_exception_burden",
+            "workaround_dependence",
+            "control_load",
+            "upkeep_burden"
+          ],
+          "unmeasured_dimensions": [],
+          "dimensions": {
+            "process_density": {
+              "status": "measured",
+              "value": 48.5,
+              "evidence_count": 3
+            },
+            "systems_friction": {
+              "status": "measured",
+              "value": 58,
+              "evidence_count": 2
+            },
+            "reporting_exception_burden": {
+              "status": "measured",
+              "value": 33,
+              "evidence_count": 4
+            },
+            "workaround_dependence": {
+              "status": "measured",
+              "value": 52,
+              "evidence_count": 3
+            },
+            "control_load": {
+              "status": "measured",
+              "value": 57,
+              "evidence_count": 3
+            },
+            "upkeep_burden": {
+              "status": "measured",
+              "value": 67,
+              "evidence_count": 2
+            }
+          }
+        },
+        "dimension_coverage": {
+          "measured_dimension_count": 6,
+          "total_dimension_count": 6,
+          "coverage_percent": 100,
+          "measured_dimensions": [
+            "process_density",
+            "systems_friction",
+            "reporting_exception_burden",
+            "workaround_dependence",
+            "control_load",
+            "upkeep_burden"
+          ],
+          "unmeasured_dimensions": [],
+          "dimensions": {
+            "process_density": {
+              "status": "measured",
+              "value": 48.5,
+              "evidence_count": 3
+            },
+            "systems_friction": {
+              "status": "measured",
+              "value": 58,
+              "evidence_count": 2
+            },
+            "reporting_exception_burden": {
+              "status": "measured",
+              "value": 33,
+              "evidence_count": 4
+            },
+            "workaround_dependence": {
+              "status": "measured",
+              "value": 52,
+              "evidence_count": 3
+            },
+            "control_load": {
+              "status": "measured",
+              "value": 57,
+              "evidence_count": 3
+            },
+            "upkeep_burden": {
+              "status": "measured",
+              "value": 67,
+              "evidence_count": 2
+            }
+          }
+        },
+        "input_confidence_label": "Moderate input depth",
+        "quadrant_interpretation_text": "Movement is weak while governance weight is already heavy. Time, cost, and capacity are likely being consumed at the same time.",
+        "sector_context": {
+          "industryKey": "other",
+          "workflowKey": "default",
+          "sectorName": "this sector",
+          "benchmarkWithin": "A within-range score means this result falls inside the instrument's expert-authored design reference. It can still coexist with meaningful burden in individual dimensions.",
+          "benchmarkAbove": "An above-range score means this run shows lighter measured burden than the instrument's expert-authored design reference. Verify that interpretation against workflow evidence.",
+          "benchmarkBelow": "A below-range score means this run shows heavier measured burden than the instrument's expert-authored design reference. The score does not by itself identify the cause.",
+          "opportunityPattern": "A sector-informed hypothesis to test in this sector is whether drag has become normalized even though it may still be leaving meaningful time, money, and capacity on the table.",
+          "openingClause": "operational responsiveness",
+          "marginTerm": "usable capacity",
+          "calibration": {
+            "industryMin": 58,
+            "industryMax": 69,
+            "opportunityMin": 70,
+            "opportunityMax": 84,
+            "typicalDrag": 20
+          },
+          "knowledge": {
+            "knownBottlenecks": [
+              "unclear routing",
+              "duplicate handling",
+              "manual coordination",
+              "control layers that are not risk-tiered"
+            ],
+            "knownRemedies": [
+              "risk-tiering",
+              "standard work redesign",
+              "clear exception thresholds",
+              "pathway ownership"
+            ],
+            "knownFailureModes": [
+              "hidden compensation",
+              "normalized workarounds",
+              "control without control benefit"
+            ]
+          },
+          "workflowRemedyLanguage": {
+            "routineWork": "routine capital approval pathway",
+            "trueExceptions": "true exceptions",
+            "playbooks": "standard playbooks",
+            "controlReset": "formal control, managerial cover, and senior-leader visibility"
+          }
+        },
+        "reclaim_potential": {
+          "amount": 48773,
+          "factor": 37,
+          "impact": "High",
+          "driverText": "Uses the same disclosed Operational Systems scenario estimate published in the report; no sector peer factor is added."
+        },
+        "canonical_descriptor": {
+          "score": 44,
+          "composition": {
+            "segments": [
+              {
+                "key": "reporting_exception_burden",
+                "label": "Reporting burden",
+                "value": 67,
+                "pct": 24
+              },
+              {
+                "key": "process_density",
+                "label": "Process density",
+                "value": 51.5,
+                "pct": 18
+              },
+              {
+                "key": "workaround_dependence",
+                "label": "Off-formal-path execution",
+                "value": 48,
+                "pct": 17
+              },
+              {
+                "key": "control_load",
+                "label": "Control load",
+                "value": 43,
+                "pct": 15
+              },
+              {
+                "key": "systems_friction",
+                "label": "Systems friction",
+                "value": 42,
+                "pct": 15
+              },
+              {
+                "key": "upkeep_burden",
+                "label": "Administrative upkeep burden",
+                "value": 33,
+                "pct": 11
+              }
+            ],
+            "total": 284.5,
+            "dominant": {
+              "key": "reporting_exception_burden",
+              "label": "Reporting burden",
+              "value": 67,
+              "pct": 24
+            },
+            "dominant_pct": 24,
+            "shape": "distributed"
+          },
+          "dimension_display": {
+            "process_density": "Process density",
+            "systems_friction": "Systems friction",
+            "reporting_exception_burden": "Reporting burden",
+            "workaround_dependence": "Off-formal-path execution",
+            "control_load": "Control load",
+            "upkeep_burden": "Administrative upkeep burden"
+          },
+          "priority_ladder": [
+            {
+              "priority": "Fix now",
+              "focus": "Reporting burden",
+              "key": "reporting_exception_burden",
+              "severity": 67,
+              "pct": 24
+            },
+            {
+              "priority": "Fix next",
+              "focus": "Process density",
+              "key": "process_density",
+              "severity": 51.5,
+              "pct": 18
+            },
+            {
+              "priority": "Monitor",
+              "focus": "Off-formal-path execution",
+              "key": "workaround_dependence",
+              "severity": 48,
+              "pct": 17
+            }
+          ],
+          "dominant_burden_label": "Reporting burden",
+          "dominant_burden_pct": 24,
+          "dominant_burden_note": "Reporting and exception work are taking more effort than they should, as one of several loads.",
+          "burden_distribution_type": "distributed",
+          "primary_constraint_key": null,
+          "primary_constraint_label": null,
+          "primary_constraint_note": null,
+          "legibility_failure_mode": null,
+          "institutional_condition": null,
+          "dominant_is_material": null,
+          "evidence_limits": null,
+          "governance_context": null,
+          "reference_range": {
+            "min": 58,
+            "max": 69
+          },
+          "opportunity_range": {
+            "min": 70,
+            "max": 84
+          },
+          "score_band_text": "Drag",
+          "benchmark_text": "Below design reference range",
+          "trajectory_text": "Operational creep is rising",
+          "trajectory_note": "This is a self-reported change signal from the current run, not a measured longitudinal trend."
+        },
+        "interpretive_prose": {
+          "executive_summary": {
+            "headline": "Capital approval pathway is carrying more drag than a the instrument design reference suggests it should.",
+            "body": "Reporting and exception-handling are eating more capacity than this workflow should need. The burden is distributed across multiple dimensions rather than concentrated in one place; no single source carries more than 24% of the visible burden. Trajectory signals suggest the burden is growing rather than holding steady. At the current run assumptions, the workflow is sustaining about 1,700 annual burden hours*, which is meaningful in this sector.",
+            "opportunity": "This run suggests the strongest immediate opportunity sits in reporting burden, because that burden appears to be carrying more of the workflow than it should in this sector. In this sector, the current read suggests the heaviest visible burden is not just incidental friction but a pattern worth governing directly. The first moves should target the structure carrying the work, using remedies such as risk-tiering, standard work redesign, clear exception thresholds."
+          },
+          "benchmark_interpretation": "This workflow sits below the instrument's expert-authored general design reference. This reference is an interpretive model input, not an empirical peer benchmark, and it does not alter the score or the disclosed recoverable calculation for this run. Use it as directional context and rely on the workload inputs, measured dimensions, and repeated measurements for decisions.",
+          "priority_actions": [
+            "List each report and exception step in capital approval pathway, identify its decision user, and retire or automate items without a current operating purpose.",
+            "Map each step in capital approval pathway, name the risk or decision it serves, and remove or combine steps that add no distinct control value.",
+            "Assign one owner to test the first change against reporting and exception burden, using the same workload and evidence measures so the organization can verify whether burden was removed or displaced.",
+            "Run the diagnostic again after the change and compare another organizational lens with this one to test whether the measured improvement is shared or vantage-specific."
+          ],
+          "remedy_paths": [
+            {
+              "label": "Target the leading burden",
+              "kicker": "Low disruption",
+              "summary": "Fix the biggest visible problem without redesigning everything.",
+              "actions": [
+                "List each report and exception step in capital approval pathway, identify its decision user, and retire or automate items without a current operating purpose."
+              ],
+              "benefit": "Possible upside in the range of $7,500–$12,500* if the first fix sticks quickly.",
+              "risk": "The surface looks better while the real problem stays."
+            },
+            {
+              "label": "Redesign the normal case",
+              "kicker": "Targeted redesign",
+              "summary": "Redesign how the normal case flows and clarify who decides what.",
+              "actions": [
+                "List each report and exception step in capital approval pathway, identify its decision user, and retire or automate items without a current operating purpose.",
+                "Map each step in capital approval pathway, name the risk or decision it serves, and remove or combine steps that add no distinct control value."
+              ],
+              "benefit": "Possible upside in the range of $17,500–$30,000* if the redesigned path holds.",
+              "risk": "The organization ends up in a better but still burdened middle state."
+            },
+            {
+              "label": "Reset the operating path",
+              "kicker": "Fastest structural reset",
+              "summary": "Remove several burden layers at once and separate normal cases from exceptions cleanly.",
+              "actions": [
+                "List each report and exception step in capital approval pathway, identify its decision user, and retire or automate items without a current operating purpose.",
+                "Map each step in capital approval pathway, name the risk or decision it serves, and remove or combine steps that add no distinct control value.",
+                "Assign one owner to test the first change against reporting and exception burden, using the same workload and evidence measures so the organization can verify whether burden was removed or displaced.",
+                "Run the diagnostic again after the change and compare another organizational lens with this one to test whether the measured improvement is shared or vantage-specific."
+              ],
+              "benefit": "Possible upside in the range of $30,000–$45,000* if the redesigned operating pattern holds.",
+              "risk": "People who relied on the old controls may recreate them informally."
+            }
+          ],
+          "harmonized_narrative": {
+            "state": {
+              "governanceWeight": 72,
+              "execResponsive": 32.34,
+              "quadrantKey": "lower_right",
+              "benchmarkPos": "Below design reference range",
+              "topFocus": "Reporting burden",
+              "sectorLabel": "Other",
+              "trajectoryDirection": "up",
+              "directionSummary": "burden pressure is rising",
+              "governanceInputs": {
+                "regulatory": "moderate",
+                "decisionType": "operational",
+                "meetingLoad": 32,
+                "participantLoad": 18,
+                "employeeCount": 2500,
+                "orgSize": "enterprise",
+                "governanceFromInputs": 72
+              },
+              "burdenProfileShape": "distributed"
+            },
+            "executive": "Capital approval pathway currently reads as drag. A sector-informed hypothesis to test is whether this default workflow is being affected by unclear routing, duplicate handling, manual coordination.",
+            "headlineFinding": "Reporting and exception-handling are eating more capacity than this workflow should need. The burden is distributed across multiple dimensions rather than concentrated in one place; no single source carries more than 24% of the visible burden. Trajectory signals suggest the burden is growing rather than holding steady. At the current run assumptions, the workflow is sustaining about 1,700 annual burden hours*, which is meaningful in this sector.",
+            "leadership": [
+              "List each report and exception step in capital approval pathway, identify its decision user, and retire or automate items without a current operating purpose.",
+              "Map each step in capital approval pathway, name the risk or decision it serves, and remove or combine steps that add no distinct control value.",
+              "Assign one owner to test the first change against reporting and exception burden, using the same workload and evidence measures so the organization can verify whether burden was removed or displaced.",
+              "Run the diagnostic again after the change and compare another organizational lens with this one to test whether the measured improvement is shared or vantage-specific."
+            ],
+            "tradeoff": "The environment appears to be paying too much in time, money, and capacity for the amount of operational value being preserved.",
+            "tmr": "Directional modeling suggests about 1,700 annual hours* and a labor-exposure range of $100,000–$175,000*, with capacity drag around 5%*.",
+            "benchmark": "This workflow sits below the instrument's expert-authored general design reference. This reference is an interpretive model input, not an empirical peer benchmark, and it does not alter the score or the disclosed recoverable calculation for this run. Use it as directional context and rely on the workload inputs, measured dimensions, and repeated measurements for decisions.",
+            "opportunity": "This run suggests the strongest immediate opportunity sits in reporting burden, because that burden appears to be carrying more of the workflow than it should in this sector. In this sector, the current read suggests the heaviest visible burden is not just incidental friction but a pattern worth governing directly. The first moves should target the structure carrying the work, using remedies such as risk-tiering, standard work redesign, clear exception thresholds.",
+            "diagnosisReads": {
+              "burdenRead": "The environment appears to preserve output through workaround effort, exception handling, and manual burden rather than a lighter operating design. The burden is spread across several dimensions at once, which makes the environment feel heavier even when no single layer looks dominant in isolation.",
+              "sourceRead": "Reporting weight and exception handling appear to be eating up more effort than they should in capital approval pathway.",
+              "diagnosisRead": "The current operating trade-off appears too expensive in time, money, and usable capacity for the amount of value being protected.",
+              "severityRead": "The heaviest visible drag is strong enough to justify measuring whether the first intervention produces recovery."
+            },
+            "opportunityFields": {
+              "title": "Reduce reporting burden without weakening essential control",
+              "opening": "This run suggests the strongest immediate opportunity sits in reporting burden, because that burden appears to be carrying more of the workflow than it should in this sector.",
+              "sectorDynamic": "A sector-informed hypothesis to test is whether this default workflow is being affected by unclear routing, duplicate handling, manual coordination.",
+              "runIndicates": "In this sector, the current read suggests the heaviest visible burden is not just incidental friction but a pattern worth governing directly.",
+              "buildAdvantage": "The first moves should target the structure carrying the work, using remedies such as risk-tiering, standard work redesign, clear exception thresholds.",
+              "firstMoves": "List each report and exception step in capital approval pathway, identify its decision user, and retire or automate items without a current operating purpose. Map each step in capital approval pathway, name the risk or decision it serves, and remove or combine steps that add no distinct control value. Assign one owner to test the first change against reporting and exception burden, using the same workload and evidence measures so the organization can verify whether burden was removed or displaced. Run the diagnostic again after the change and compare another organizational lens with this one to test whether the measured improvement is shared or vantage-specific.",
+              "watchout": "Avoid responding by simply adding more review, more documentation, or more oversight without redesigning the operating path itself."
+            },
+            "keyFlags": [
+              "Process density appears to be absorbing more operating attention than it should.",
+              "Reporting and exception handling appear to be functioning like ongoing upkeep burden, not light oversight.",
+              "The environment appears to rely on off-path effort or workaround behavior to keep work moving.",
+              "Control accumulation appears heavier than the real operating need may require.",
+              "Some answers suggest the visible system may look lighter than the lived operating burden actually is."
+            ],
+            "recommendedActions": [
+              "List each report and exception step in capital approval pathway, identify its decision user, and retire or automate items without a current operating purpose.",
+              "Map each step in capital approval pathway, name the risk or decision it serves, and remove or combine steps that add no distinct control value.",
+              "Assign one owner to test the first change against reporting and exception burden, using the same workload and evidence measures so the organization can verify whether burden was removed or displaced.",
+              "Run the diagnostic again after the change and compare another organizational lens with this one to test whether the measured improvement is shared or vantage-specific."
+            ]
+          },
+          "governance_context": null,
+          "reclaim_potential": null
+        }
+      }
+    },
+    "decision_velocity": {
+      "input_context": {
+        "organizationName": "Representative organization",
+        "processName": "capital approval pathway",
+        "functionName": "Procurement and Operations",
+        "businessUnit": "Procurement and Operations",
+        "unitName": "Capital approvals",
+        "industry": "other",
+        "sector": "other",
+        "organizationSize": "enterprise",
+        "orgSize": "enterprise",
+        "employeeCount": 2500,
+        "regulatoryIntensity": "moderate",
+        "decisionType": "operational",
+        "confidenceLevel": "moderate",
+        "peopleInvolved": 18,
+        "peopleAffected": 18,
+        "peopleImpacted": 18,
+        "people_involved": 18,
+        "annualVolume": 96,
+        "annualCycles": 96,
+        "annual_cycles": 96,
+        "hourlyCost": 78,
+        "hourly_cost": 78,
+        "meetingHours": 32,
+        "meeting_hours": 32
+      },
+      "result": {
+        "tool_type": "decision_velocity",
+        "tool_label": "Decision Velocity",
+        "score": 51,
+        "score_band": "Heavy",
+        "score_band_note": null,
+        "dimensions": {
+          "cycle_velocity": 92,
+          "approval_efficiency": 57,
+          "coordination_load": 33,
+          "execution_stability": 57
+        },
+        "burden_breakdown": {
+          "approval": 43,
+          "coordination": 67,
+          "handoff": 48,
+          "escalation": 42,
+          "rework": 34,
+          "key_person": 42
+        },
+        "benchmark": {
+          "label": "Other • Other",
+          "healthyMin": 67,
+          "healthyMax": 79,
+          "moderateMin": 53,
+          "moderateMax": 66,
+          "comparison_basis": {
+            "decision_type_label": "Other",
+            "industry": "other",
+            "industry_label": "Other",
+            "organization_size": "enterprise",
+            "organization_size_label": "Enterprise-scale organization",
+            "regulatory_intensity": "moderate",
+            "regulatory_intensity_label": "Moderate-regulation environment",
+            "applied_modifier": -3,
+            "basis_type": "instrument_design_reference",
+            "empirical_sample": false,
+            "description": "A design reference derived from the instrument's scoring model. It is not a sampled peer or industry benchmark."
+          }
+        },
+        "benchmark_position": "Below design-reference range",
+        "trajectory": {
+          "direction": "flat",
+          "label": "No strong self-reported change",
+          "glyph": "→",
+          "note": "The participant did not report a strong change direction. This run does not establish a longitudinal trend.",
+          "delta": 2,
+          "evidence_type": "self_reported_change_signal",
+          "longitudinal_measurement": false
+        },
+        "exposure": {
+          "priceable": true,
+          "hours_estimated": true,
+          "cost_estimated": true,
+          "sizing_status": "estimated",
+          "unpriced_reason": null,
+          "annual_hours": 1198,
+          "annual_cost": 93444,
+          "capacity_drag_percent": 4,
+          "recoverable_share_percent": 24,
+          "recoverable_cost": 22427,
+          "average_hourly_cost": 78,
+          "total_capacity_hours": 32400,
+          "total_capacity_cost": 2527200,
+          "composition": null,
+          "model": {
+            "model_type": "directional_scenario_not_empirical_benchmark",
+            "empirical_benchmark": false,
+            "formula": "hours per run × annual runs × score-responsive attributable share",
+            "input_hours_per_run": 32,
+            "annual_cycles": 96,
+            "attributable_burden_share_percent": 39,
+            "attributed_hours_before_capacity_check": 1198,
+            "note": "This is a directional planning scenario based on disclosed inputs, not an observed time study or peer benchmark."
+          }
+        },
+        "primary_constraint": "compensatory_coordination_pattern",
+        "primary_driver": null,
+        "patterns": [
+          "compensatory_coordination_pattern"
+        ],
+        "contradictions": [
+          {
+            "code": "probe_some_hidden_followup",
+            "severity": "moderate",
+            "message": "Some of the time here goes into follow-up and informal review that the process doesn't capture.",
+            "source": "reported"
+          },
+          {
+            "code": "probe_ownership_blurs_under_pressure",
+            "severity": "moderate",
+            "message": "Ownership holds most of the time and blurs under pressure, which is when escalation happens.",
+            "source": "reported"
+          },
+          {
+            "code": "probe_people_still_matter",
+            "severity": "moderate",
+            "message": "The structure helps, but specific people are still what keeps this moving.",
+            "source": "reported"
+          }
+        ],
+        "key_findings": [
+          "High approval bottleneck concentration is increasing pathway weight.",
+          "Meeting demand suggests coordination is absorbing structural weakness.",
+          "High handoff density is distributing accountability broadly.",
+          "Surface answers suggest the formal process may look healthier than the lived one."
+        ],
+        "watch_items": [
+          "Some of the time here goes into follow-up and informal review that the process doesn't capture.",
+          "Ownership holds most of the time and blurs under pressure, which is when escalation happens.",
+          "The structure helps, but specific people are still what keeps this moving."
+        ],
+        "participant_evidence": [],
+        "participant_mode": "managerial",
+        "insight_depth": {
+          "score": 8,
+          "band": "Narrow - focused read",
+          "run_depth": 60,
+          "confidence_level": "moderate",
+          "participant_count": 1,
+          "levels_covered_count": 1,
+          "cross_synthesis_count": 1,
+          "ceiling": 8
+        },
+        "measurement_coverage": {
+          "measured_dimension_count": 4,
+          "total_dimension_count": 4,
+          "coverage_percent": 100,
+          "measured_dimensions": [
+            "cycle_velocity",
+            "approval_efficiency",
+            "coordination_load",
+            "execution_stability"
+          ],
+          "unmeasured_dimensions": [],
+          "dimensions": {
+            "cycle_velocity": {
+              "status": "measured",
+              "value": 92,
+              "evidence_count": 1
+            },
+            "approval_efficiency": {
+              "status": "measured",
+              "value": 57,
+              "evidence_count": 3
+            },
+            "coordination_load": {
+              "status": "measured",
+              "value": 33,
+              "evidence_count": 3
+            },
+            "execution_stability": {
+              "status": "measured",
+              "value": 57,
+              "evidence_count": 6
+            }
+          }
+        },
+        "dimension_coverage": {
+          "measured_dimension_count": 4,
+          "total_dimension_count": 4,
+          "coverage_percent": 100,
+          "measured_dimensions": [
+            "cycle_velocity",
+            "approval_efficiency",
+            "coordination_load",
+            "execution_stability"
+          ],
+          "unmeasured_dimensions": [],
+          "dimensions": {
+            "cycle_velocity": {
+              "status": "measured",
+              "value": 92,
+              "evidence_count": 1
+            },
+            "approval_efficiency": {
+              "status": "measured",
+              "value": 57,
+              "evidence_count": 3
+            },
+            "coordination_load": {
+              "status": "measured",
+              "value": 33,
+              "evidence_count": 3
+            },
+            "execution_stability": {
+              "status": "measured",
+              "value": 57,
+              "evidence_count": 6
+            }
+          }
+        },
+        "input_confidence_label": "Moderate input depth",
+        "quadrant_interpretation_text": "This placement combines relatively stronger execution responsiveness with lighter governance weight. It is structurally favorable on these two axes, but it does not by itself establish a healthy pathway: coordination load, execution stability, and the overall score still govern the condition read. The current run reads as significant friction, so the priority is structural intervention rather than incremental tuning.",
+        "sector_context": {
+          "industryKey": "other",
+          "workflowKey": "default",
+          "sectorName": "this sector",
+          "benchmarkWithin": "A within-range score for decision pathways can still hide latency that has been absorbed into the operational rhythm - approval cycles, escalation patterns, or handoff weight that no longer registers as friction because it has been there long enough to feel normal.",
+          "benchmarkAbove": "An above-range score usually means decision pathways are moving at appropriate tempo for the decision classes involved.",
+          "benchmarkBelow": "A below-range score usually means approval bottleneck, escalation dependence, or handoff burden is now slowing decisions to the point where pathway tempo is misaligned with the work.",
+          "opportunityPattern": "Comparable pathways often carry decision latency that has been normalized by the broader operating culture - approval architecture calibrated for one class of decision applied to all classes, and escalation as the default rather than the exception.",
+          "openingClause": "decision responsiveness at operational tempo",
+          "marginTerm": "decision pace at appropriate tempo",
+          "calibration": {
+            "industryMin": 58,
+            "industryMax": 69,
+            "opportunityMin": 70,
+            "opportunityMax": 84,
+            "typicalDrag": 20
+          },
+          "knowledge": {
+            "knownBottlenecks": [
+              "unclear routing",
+              "duplicate handling",
+              "manual coordination",
+              "control layers that are not risk-tiered"
+            ],
+            "knownRemedies": [
+              "risk-tiering",
+              "standard work redesign",
+              "clear exception thresholds",
+              "pathway ownership"
+            ],
+            "knownFailureModes": [
+              "hidden compensation",
+              "normalized workarounds",
+              "control without control benefit"
+            ]
+          },
+          "workflowRemedyLanguage": {
+            "routineWork": "routine capital approval pathway",
+            "trueExceptions": "true exceptions",
+            "playbooks": "standard playbooks",
+            "controlReset": "formal control, managerial cover, and senior-leader visibility"
+          }
+        },
+        "reclaim_potential": {
+          "amount": 22427,
+          "factor": 24,
+          "impact": "Moderate",
+          "driverText": "Uses the same disclosed Decision Velocity scenario estimate published in the report; no sector peer factor is added."
+        },
+        "canonical_descriptor": {
+          "score": 51,
+          "composition": {
+            "segments": [
+              {
+                "key": "coordination",
+                "label": "Coordination burden",
+                "value": 67,
+                "pct": 24
+              },
+              {
+                "key": "handoff",
+                "label": "Handoff burden",
+                "value": 48,
+                "pct": 17
+              },
+              {
+                "key": "approval",
+                "label": "Approval bottleneck",
+                "value": 43,
+                "pct": 16
+              },
+              {
+                "key": "escalation",
+                "label": "Escalation dependence",
+                "value": 42,
+                "pct": 15
+              },
+              {
+                "key": "key_person",
+                "label": "Key-person brittleness",
+                "value": 42,
+                "pct": 15
+              },
+              {
+                "key": "rework",
+                "label": "Rework friction",
+                "value": 34,
+                "pct": 13
+              }
+            ],
+            "total": 276,
+            "dominant": {
+              "key": "coordination",
+              "label": "Coordination burden",
+              "value": 67,
+              "pct": 24
+            },
+            "dominant_pct": 24,
+            "shape": "distributed"
+          },
+          "dimension_display": {
+            "approval": "Approval bottleneck",
+            "coordination": "Coordination burden",
+            "handoff": "Handoff burden",
+            "escalation": "Escalation dependence",
+            "rework": "Rework friction",
+            "key_person": "Key-person brittleness"
+          },
+          "priority_ladder": [
+            {
+              "priority": "Fix now",
+              "focus": "Coordination burden",
+              "key": "coordination",
+              "severity": 67,
+              "pct": 24
+            },
+            {
+              "priority": "Fix next",
+              "focus": "Handoff burden",
+              "key": "handoff",
+              "severity": 48,
+              "pct": 17
+            },
+            {
+              "priority": "Monitor",
+              "focus": "Approval bottleneck",
+              "key": "approval",
+              "severity": 43,
+              "pct": 16
+            }
+          ],
+          "dominant_burden_label": "Coordination burden",
+          "dominant_burden_pct": 24,
+          "dominant_burden_note": "Coordination work is taking up meaningful time, as one of several drags on the path.",
+          "burden_distribution_type": "distributed",
+          "primary_constraint_key": null,
+          "primary_constraint_label": null,
+          "primary_constraint_note": null,
+          "legibility_failure_mode": null,
+          "institutional_condition": null,
+          "dominant_is_material": null,
+          "evidence_limits": null,
+          "governance_context": null,
+          "reference_range": null,
+          "opportunity_range": null,
+          "score_band_text": "Heavy",
+          "benchmark_text": "Below design-reference range",
+          "trajectory_text": "No strong self-reported change",
+          "trajectory_note": "The participant did not report a strong change direction. This run does not establish a longitudinal trend."
+        },
+        "interpretive_prose": {
+          "executive_summary": {
+            "headline": "Capital approval pathway is below its comparison range, with coordination burden as the clearest place to intervene first.",
+            "body": "Capital approval pathway is still functioning, but the governing signal is that the participant reports no strong change direction and the pathway is leaning increasingly burdened rather than resilient.",
+            "opportunity": "This run suggests the strongest immediate opportunity sits in coordination burden, because that drag source appears to be carrying more of the pathway than it should. The opportunity is to reduce the heaviest visible drag source first, then verify through a repeat run that the pathway has actually become lighter. In this sector, the current read suggests the heaviest visible drag is not just incidental friction but a pattern worth governing directly. These first moves matter because they target the structure carrying the work, not just the symptoms people are compensating for. The goal is to move the pathway out of a recoverable drag condition and into a more proportionate, self-sustaining operating state. Stability here should not be mistaken for strength if reclaimable drag is still embedded in the pathway."
+          },
+          "benchmark_interpretation": "This pathway sits on the weaker side of the instrument's design reference for this sector. This is a model-based interpretation of the structured answers, not a sampled peer or industry benchmark. The score, measured dimensions, and disclosed operating evidence should drive the decision to act.",
+          "priority_actions": [
+            "Tighten required inputs, ownership points, and handoffs so the cycle can move without repeated follow-up, manual coordination, or parallel side-channel work.",
+            "Reset decision rights and escalation thresholds so routine cases resolve where they should instead of climbing upward through habit, ambiguity, or caution.",
+            "Reduce dependence on specific individuals by standardizing criteria, routing logic, and role expectations so movement does not depend on informal fixers.",
+            "Re-run the diagnostic after the first material intervention to verify that the cycle actually became faster and lighter rather than merely shifting drag elsewhere."
+          ],
+          "remedy_paths": [
+            {
+              "label": "Light remedy path",
+              "kicker": "Low disruption",
+              "summary": "Tighten the most visible pain point without materially redesigning the full pathway.",
+              "actions": [
+                "Tighten required inputs, ownership points, and handoffs so the cycle can move without repeated follow-up, manual coordination, or parallel side-channel work.",
+                "Add one clear exception threshold and one cleaner ownership rule."
+              ],
+              "benefit": "Likely lower-friction gain with directional upside around $5,000–$10,000** if the cycle responds.",
+              "risk": "Risk: may preserve too much drag, produce only cosmetic improvement, or fail to reach opportunity advantage if old approval habits remain in place."
+            },
+            {
+              "label": "Moderate remedy path",
+              "kicker": "Targeted redesign",
+              "summary": "Redesign the normal pathway and clarify decision rights around the cycle's heaviest drag source.",
+              "actions": [
+                "Tighten required inputs, ownership points, and handoffs so the cycle can move without repeated follow-up, manual coordination, or parallel side-channel work.",
+                "Reset decision rights and escalation thresholds so routine cases resolve where they should instead of climbing upward through habit, ambiguity, or caution."
+              ],
+              "benefit": "Likely stronger cycle-quality gain with directional upside around $10,000–$15,000** if redesign holds.",
+              "risk": "Risk: can leave the organization in a 'better but still burdened' middle state, create coordination confusion, or produce partial redesign without enough follow-through."
+            },
+            {
+              "label": "Aggressive remedy path",
+              "kicker": "Fastest structural reset",
+              "summary": "Remove multiple layers of low-yield pathway weight at once and force a cleaner separation between normal cases and exceptions.",
+              "actions": [
+                "Tighten required inputs, ownership points, and handoffs so the cycle can move without repeated follow-up, manual coordination, or parallel side-channel work.",
+                "Reset decision rights and escalation thresholds so routine cases resolve where they should instead of climbing upward through habit, ambiguity, or caution.",
+                "Reduce dependence on specific individuals by standardizing criteria, routing logic, and role expectations so movement does not depend on informal fixers.",
+                "Re-run the diagnostic after the first material intervention to verify that the cycle actually became faster and lighter rather than merely shifting drag elsewhere."
+              ],
+              "benefit": "Highest upside if executed well, with a directional recovery case around $15,000–$20,000** and faster movement sooner.",
+              "risk": "Risk: pushback, decision whiplash, confusion about decision rights, local resistance, and the perception that oversight is being weakened even if the real goal is better proportion."
+            }
+          ],
+          "harmonized_narrative": {
+            "state": {
+              "governanceWeight": 43,
+              "execResponsive": 68,
+              "nearMidline": true,
+              "benchmarkPos": "Below design-reference range",
+              "topFocus": "Coordination burden",
+              "sectorLabel": "Other",
+              "decisionLabel": "Operational",
+              "condition": "burdened",
+              "quadrantKey": "upper_left",
+              "trajectoryDirection": "flat",
+              "directionSummary": "the participant reports no strong change direction",
+              "governanceInputs": {
+                "regWeight": 5,
+                "climateWeight": 0,
+                "trendWeight": 10,
+                "removalPenalty": -2,
+                "governanceFitWeight": -2,
+                "controlBiasWeight": 0,
+                "routeWeight": 0
+              },
+              "dragProfileShape": "distributed"
+            },
+            "executive": "Capital approval pathway is still functioning, but the governing signal is that the participant reports no strong change direction and the pathway is leaning increasingly burdened rather than resilient.",
+            "headlineFinding": "This decision pathway is constrained most by coordination density, while the overall cycle reads as functional but burdened. capital approval pathway is still functioning, but the governing signal is that the participant reports no strong change direction and the pathway is leaning increasingly burdened rather than resilient.",
+            "leadership": [
+              "Do not treat capital approval pathway as healthy simply because it is still moving.",
+              "Use coordination burden as the first intervention point because it is carrying the heaviest visible drag.",
+              "Re-run after the first targeted correction to verify that drag is actually falling."
+            ],
+            "tradeoff": "Some drag may be justified by risk, quality, or governance needs. The organizational question is whether the current amount of friction is proportionate to the decision being processed.",
+            "tmr": "Directional modeling suggests about 1,200 annual hours* and labor exposure of $70,000–$120,000*, with capacity drag around 4%*.",
+            "benchmark": "This pathway sits on the weaker side of the instrument's design reference for this sector. This is a model-based interpretation of the structured answers, not a sampled peer or industry benchmark. The score, measured dimensions, and disclosed operating evidence should drive the decision to act.",
+            "opportunity": "This run suggests the strongest immediate opportunity sits in coordination burden, because that drag source appears to be carrying more of the pathway than it should. The opportunity is to reduce the heaviest visible drag source first, then verify through a repeat run that the pathway has actually become lighter. In this sector, the current read suggests the heaviest visible drag is not just incidental friction but a pattern worth governing directly. These first moves matter because they target the structure carrying the work, not just the symptoms people are compensating for. The goal is to move the pathway out of a recoverable drag condition and into a more proportionate, self-sustaining operating state. Stability here should not be mistaken for strength if reclaimable drag is still embedded in the pathway.",
+            "diagnosisReads": {
+              "burdenRead": "The cycle is still moving, but it is consuming more effort, coordination, and management attention than a healthy routine path should need. Against the instrument's design reference, this cycle is in the weaker range; the structured drag warrants attention.",
+              "sourceRead": "Handoffs, coordination overhead, and repeated alignment cycles appear to be carrying most of the drag in capital approval pathway.",
+              "diagnosisRead": "The cycle appears heavier than the underlying decision class requires, even by the standards normal in this sector.",
+              "severityRead": "The dominant drag source is concentrated enough to make it the first place to test for measurable cycle improvement."
+            },
+            "opportunityFields": {
+              "title": "Recover capacity trapped in coordination burden",
+              "opening": "This run suggests the strongest immediate opportunity sits in coordination burden, because that drag source appears to be carrying more of the pathway than it should. The opportunity is to reduce the heaviest visible drag source first, then verify through a repeat run that the pathway has actually become lighter.",
+              "sectorDynamic": "In other, organizations often accumulate drag when routine pathways become heavier than the risk or value at stake warrants.",
+              "runIndicates": "In this sector, the current read suggests the heaviest visible drag is not just incidental friction but a pattern worth governing directly.",
+              "buildAdvantage": "These first moves matter because they target the structure carrying the work, not just the symptoms people are compensating for. The goal is to move the pathway out of a recoverable drag condition and into a more proportionate, self-sustaining operating state. Stability here should not be mistaken for strength if reclaimable drag is still embedded in the pathway.",
+              "firstMoves": "Tighten required inputs, ownership points, and handoffs so the cycle can move without repeated follow-up, manual coordination, or parallel side-channel work. Reset decision rights and escalation thresholds so routine cases resolve where they should instead of climbing upward through habit, ambiguity, or caution. Reduce dependence on specific individuals by standardizing criteria, routing logic, and role expectations so movement does not depend on informal fixers. Re-run the diagnostic after the first material intervention to verify that the cycle actually became faster and lighter rather than merely shifting drag elsewhere.",
+              "watchout": "Avoid responding by simply adding more oversight or more reviewers; heavier governance without redesign usually deepens the condition rather than fixing it."
+            },
+            "keyFlags": [
+              "High approval bottleneck concentration is increasing pathway weight.",
+              "Meeting demand suggests coordination is absorbing structural weakness.",
+              "High handoff density is distributing accountability broadly.",
+              "Surface answers suggest the formal process may look healthier than the lived one."
+            ],
+            "recommendedActions": [
+              "Tighten required inputs, ownership points, and handoffs so the cycle can move without repeated follow-up, manual coordination, or parallel side-channel work.",
+              "Reset decision rights and escalation thresholds so routine cases resolve where they should instead of climbing upward through habit, ambiguity, or caution.",
+              "Reduce dependence on specific individuals by standardizing criteria, routing logic, and role expectations so movement does not depend on informal fixers.",
+              "Re-run the diagnostic after the first material intervention to verify that the cycle actually became faster and lighter rather than merely shifting drag elsewhere."
+            ],
+            "cycleConditionRead": {
+              "label": "Functional but burdened",
+              "note": "The cycle is still moving, but it is consuming more effort, coordination, and management attention than a healthy routine path should need."
+            },
+            "speedConstraintRead": {
+              "label": "Coordination density",
+              "value": 67,
+              "note": "The cycle appears to be slowed primarily by handoffs, coordination effort, and repeated alignment work."
+            },
+            "tradeoffRead": {
+              "label": "Heavier than the decision requires",
+              "note": "This slower cycle appears heavier than the underlying decision likely requires."
+            },
+            "quadrant": "The pathway sits just inside the upper-left area. That is a borderline position, not a clearly strong one: movement is still holding, but only with a limited margin before the pathway slips into a weaker condition.",
+            "benchmarkLine": "Below design-reference range • Other • Mixed Route"
+          },
+          "governance_context": null,
+          "reclaim_potential": null
+        }
+      }
+    },
+    "structural_clarity": {
+      "input_context": {
+        "organizationName": "Representative organization",
+        "processName": "capital approval pathway",
+        "functionName": "Procurement and Operations",
+        "businessUnit": "Procurement and Operations",
+        "unitName": "Capital approvals",
+        "industry": "other",
+        "sector": "other",
+        "organizationSize": "enterprise",
+        "orgSize": "enterprise",
+        "employeeCount": 2500,
+        "regulatoryIntensity": "moderate",
+        "decisionType": "operational",
+        "confidenceLevel": "moderate",
+        "peopleInvolved": 18,
+        "peopleAffected": 18,
+        "peopleImpacted": 18,
+        "people_involved": 18,
+        "annualVolume": 96,
+        "annualCycles": 96,
+        "annual_cycles": 96,
+        "hourlyCost": 78,
+        "hourly_cost": 78,
+        "meetingHours": 32,
+        "meeting_hours": 32
+      },
+      "result": {
+        "tool_type": "structural_clarity",
+        "tool_label": "Structural Clarity",
+        "score": 51,
+        "score_band": "Heavy",
+        "score_band_note": null,
+        "dimensions": {
+          "role_clarity": 53,
+          "decision_rights_clarity": 51,
+          "handoff_clarity": 49,
+          "accountability_clarity": 50,
+          "duplicate_approvals_inverse": 53
+        },
+        "burden_breakdown": {
+          "role": 47,
+          "decision_rights": 49,
+          "handoff": 51,
+          "accountability": 50,
+          "governance": 47
+        },
+        "benchmark": {
+          "label": "Program / project structure",
+          "healthyMin": 68,
+          "healthyMax": 82,
+          "moderateMin": 54,
+          "moderateMax": 67,
+          "frictionMin": 38,
+          "frictionMax": 53
+        },
+        "benchmark_position": "Below design reference range",
+        "trajectory": {
+          "direction": "up",
+          "label": "Elevated change-pressure risk",
+          "glyph": "↗",
+          "note": "Current change conditions increase the risk that ambiguity will accumulate unless roles, rights, and handoffs are actively governed. This is a risk signal, not a measured trend over time."
+        },
+        "exposure": {
+          "priceable": true,
+          "hours_estimated": true,
+          "cost_estimated": true,
+          "sizing_status": "estimated",
+          "unpriced_reason": null,
+          "annual_hours": 1198,
+          "annual_cost": 93444,
+          "capacity_drag_percent": 4,
+          "recoverable_share_percent": 23,
+          "recoverable_hours": 276,
+          "recoverable_cost": 21492,
+          "average_hourly_cost": 78,
+          "total_capacity_hours": 32400,
+          "total_capacity_cost": 2527200,
+          "model": {
+            "version": "structural_clarity_scenario_exposure_v2",
+            "model_type": "directional_scenario_not_empirical_benchmark",
+            "input_hours_per_run": 32,
+            "annual_cycles": 96,
+            "total_coordination_hours": 3072,
+            "attributable_burden_share_percent": 39,
+            "attributed_hours_before_capacity_check": 1198,
+            "capacity_check_status": "within_range",
+            "capacity_hours_per_person_year": 1800,
+            "formula": "hours per run × annual cycles × (5% + 70% × clarity gap)",
+            "empirical_benchmark": false
+          },
+          "composition": null,
+          "composition_status": "not_measured"
+        },
+        "primary_constraint": null,
+        "primary_driver": null,
+        "patterns": [
+          "ownership_blur_pattern",
+          "authority_gap_pattern",
+          "handoff_breakdown_pattern"
+        ],
+        "contradictions": [
+          {
+            "code": "probe_context_held_by_few",
+            "severity": "moderate",
+            "message": "A few people carry knowledge about how this works that isn't written down anywhere.",
+            "source": "reported"
+          },
+          {
+            "code": "probe_accountable_without_control",
+            "severity": "high",
+            "message": "People know who gets held responsible if it goes wrong, but not who actually owns the work. Someone can be on the hook for something they don't control.",
+            "source": "reported"
+          },
+          {
+            "code": "probe_decisions_at_wrong_level",
+            "severity": "moderate",
+            "message": "Decisions are landing at the wrong level. The right level exists, it just isn't being used.",
+            "source": "reported"
+          }
+        ],
+        "key_findings": [
+          "Decision rights appear weaker in practice than the structure likely suggests on paper.",
+          "Handoffs are a major point of structural breakdown.",
+          "Accountability is diffusing across too many people or groups.",
+          "Some answers suggest the visible structure may look cleaner than the lived one."
+        ],
+        "watch_items": [],
+        "participant_evidence": [],
+        "participant_mode": "managerial",
+        "insight_depth": {
+          "score": 7,
+          "band": "Narrow - focused read",
+          "run_depth": 60,
+          "confidence_level": "moderate",
+          "participant_count": 1,
+          "levels_covered_count": 1,
+          "cross_synthesis_count": 1,
+          "ceiling": 8
+        },
+        "measurement_coverage": {
+          "measured_dimension_count": 5,
+          "total_dimension_count": 5,
+          "coverage_percent": 100,
+          "measured_dimensions": [
+            "role_clarity",
+            "decision_rights_clarity",
+            "handoff_clarity",
+            "accountability_clarity",
+            "duplicate_approvals_inverse"
+          ],
+          "unmeasured_dimensions": [],
+          "dimensions": {
+            "role_clarity": {
+              "status": "measured",
+              "value": 53,
+              "evidence_count": 3
+            },
+            "decision_rights_clarity": {
+              "status": "measured",
+              "value": 51,
+              "evidence_count": 3
+            },
+            "handoff_clarity": {
+              "status": "measured",
+              "value": 49,
+              "evidence_count": 3
+            },
+            "accountability_clarity": {
+              "status": "measured",
+              "value": 50,
+              "evidence_count": 3
+            },
+            "duplicate_approvals_inverse": {
+              "status": "measured",
+              "value": 53,
+              "evidence_count": 3
+            }
+          }
+        },
+        "dimension_coverage": {
+          "measured_dimension_count": 5,
+          "total_dimension_count": 5,
+          "coverage_percent": 100,
+          "measured_dimensions": [
+            "role_clarity",
+            "decision_rights_clarity",
+            "handoff_clarity",
+            "accountability_clarity",
+            "duplicate_approvals_inverse"
+          ],
+          "unmeasured_dimensions": [],
+          "dimensions": {
+            "role_clarity": {
+              "status": "measured",
+              "value": 53,
+              "evidence_count": 3
+            },
+            "decision_rights_clarity": {
+              "status": "measured",
+              "value": 51,
+              "evidence_count": 3
+            },
+            "handoff_clarity": {
+              "status": "measured",
+              "value": 49,
+              "evidence_count": 3
+            },
+            "accountability_clarity": {
+              "status": "measured",
+              "value": 50,
+              "evidence_count": 3
+            },
+            "duplicate_approvals_inverse": {
+              "status": "measured",
+              "value": 53,
+              "evidence_count": 3
+            }
+          }
+        },
+        "input_confidence_label": "Moderate input depth",
+        "quadrant_interpretation_text": "The structure is hard to read, but the cause is not excess control - governance is comparatively light. The constraint sits in ownership, authority, and handoff design rather than approval architecture, so clarifying those boundaries will do more than trimming process. The current run shows a material ambiguity problem, so the priority is making ownership and authority explicit rather than adding more process.",
+        "sector_context": {
+          "industryKey": "other",
+          "workflowKey": "default",
+          "sectorName": "this sector",
+          "benchmarkWithin": "A within-range score means this result falls inside the instrument's expert-authored design reference. It can still coexist with meaningful burden in individual dimensions.",
+          "benchmarkAbove": "An above-range score means this run shows lighter measured burden than the instrument's expert-authored design reference. Verify that interpretation against workflow evidence.",
+          "benchmarkBelow": "A below-range score means this run shows heavier measured burden than the instrument's expert-authored design reference. The score does not by itself identify the cause.",
+          "opportunityPattern": "A sector-informed hypothesis to test in this sector is whether drag has become normalized even though it may still be leaving meaningful time, money, and capacity on the table.",
+          "openingClause": "operational responsiveness",
+          "marginTerm": "usable capacity",
+          "calibration": {
+            "industryMin": 58,
+            "industryMax": 69,
+            "opportunityMin": 70,
+            "opportunityMax": 84,
+            "typicalDrag": 20
+          },
+          "knowledge": {
+            "knownBottlenecks": [
+              "unclear routing",
+              "duplicate handling",
+              "manual coordination",
+              "control layers that are not risk-tiered"
+            ],
+            "knownRemedies": [
+              "risk-tiering",
+              "standard work redesign",
+              "clear exception thresholds",
+              "pathway ownership"
+            ],
+            "knownFailureModes": [
+              "hidden compensation",
+              "normalized workarounds",
+              "control without control benefit"
+            ]
+          },
+          "workflowRemedyLanguage": {
+            "routineWork": "routine capital approval pathway",
+            "trueExceptions": "true exceptions",
+            "playbooks": "standard playbooks",
+            "controlReset": "formal control, managerial cover, and senior-leader visibility"
+          }
+        },
+        "reclaim_potential": {
+          "amount": 21492,
+          "factor": 23,
+          "impact": "Moderate",
+          "driverText": "Uses the same disclosed Structural Clarity scenario estimate published in the report; no sector peer factor is added."
+        },
+        "canonical_descriptor": {
+          "score": 51,
+          "composition": {
+            "segments": [
+              {
+                "key": "handoff_clarity",
+                "label": "Handoff integrity",
+                "value": 49,
+                "weakness": 51,
+                "pct": 21
+              },
+              {
+                "key": "accountability_clarity",
+                "label": "Accountability clarity",
+                "value": 50,
+                "weakness": 50,
+                "pct": 20
+              },
+              {
+                "key": "decision_rights_clarity",
+                "label": "Decision rights clarity",
+                "value": 51,
+                "weakness": 49,
+                "pct": 20
+              },
+              {
+                "key": "role_clarity",
+                "label": "Role clarity",
+                "value": 53,
+                "weakness": 47,
+                "pct": 19
+              },
+              {
+                "key": "duplicate_approvals_inverse",
+                "label": "Governance proportionality",
+                "value": 53,
+                "weakness": 47,
+                "pct": 20
+              }
+            ],
+            "primary": {
+              "key": "handoff_clarity",
+              "label": "Handoff integrity",
+              "value": 49,
+              "weakness": 51,
+              "pct": 21
+            },
+            "shape": "distributed"
+          },
+          "dimension_display": {
+            "role_clarity": "Role clarity",
+            "decision_rights_clarity": "Decision rights clarity",
+            "handoff_clarity": "Handoff integrity",
+            "accountability_clarity": "Accountability clarity",
+            "duplicate_approvals_inverse": "Governance proportionality"
+          },
+          "priority_ladder": [
+            {
+              "priority": "Fix now",
+              "focus": "Handoff integrity",
+              "key": "handoff_clarity",
+              "clarity": 49,
+              "weakness": 51,
+              "pct": 21
+            },
+            {
+              "priority": "Fix next",
+              "focus": "Accountability clarity",
+              "key": "accountability_clarity",
+              "clarity": 50,
+              "weakness": 50,
+              "pct": 20
+            },
+            {
+              "priority": "Monitor",
+              "focus": "Decision rights clarity",
+              "key": "decision_rights_clarity",
+              "clarity": 51,
+              "weakness": 49,
+              "pct": 20
+            }
+          ],
+          "dominant_burden_label": "Handoff integrity",
+          "dominant_burden_pct": 21,
+          "dominant_burden_note": null,
+          "burden_distribution_type": "distributed",
+          "primary_constraint_key": "handoff_clarity",
+          "primary_constraint_label": "Handoff integrity",
+          "primary_constraint_note": "Handoffs are getting unclear - work sometimes stalls at the boundary because it is not obvious where one team's job ends.",
+          "legibility_failure_mode": "self_contradictory",
+          "institutional_condition": null,
+          "dominant_is_material": null,
+          "evidence_limits": null,
+          "governance_context": null,
+          "reference_range": null,
+          "opportunity_range": null,
+          "score_band_text": "Heavy",
+          "benchmark_text": "Below design reference range",
+          "trajectory_text": "Elevated change-pressure risk",
+          "trajectory_note": "Current change conditions increase the risk that ambiguity will accumulate unless roles, rights, and handoffs are actively governed. This is a risk signal, not a measured trend over time."
+        },
+        "interpretive_prose": {
+          "executive_summary": {
+            "headline": "The capital approval pathway structure is giving people conflicting answers on handoff integrity - roles, reporting lines, and informal norms point in different directions instead of adding up to one clear structure.",
+            "body": "The capital approval pathway structure is showing a self-contradictory condition. Handoffs are getting unclear - work sometimes stalls at the boundary because it is not obvious where one team's job ends."
+          },
+          "benchmark_interpretation": "This score sits below Monderman's design reference range for program / project structure. The reference is an instrument calibration, not a sampled peer benchmark. The measured dimension pattern suggests a design problem rather than a communication-only problem; a cross-role read should test that interpretation.",
+          "priority_actions": [
+            "Name one Procurement and Operations leader accountable for handoff integrity; map the current owner, decision point, and handoff for the capital approval pathway structure, then resolve the first disputed boundary within 30 days.",
+            "Test the revised boundary against five recent cases involving accountability clarity; keep the rule only if managers can identify the owner without escalation.",
+            "Recheck decision rights clarity after the first two changes and compare the exception log; do not add approval or coordination layers unless a specific risk remains uncovered."
+          ],
+          "remedy_paths": [
+            {
+              "label": "Make handoff integrity explicit",
+              "summary": "Document and communicate handoff integrity in the capital approval pathway structure in a form people can read without asking - formal role maps, RACI, or authority matrices depending on the failure mode.",
+              "benefit": "Fewer clarification requests, fewer escalations just to find out who decides, and fewer repeated arguments about who owns what.",
+              "risk": "If what's written down doesn't match how things actually work, you make it worse - now there are two conflicting versions of who owns what.",
+              "kicker": "Low disruption",
+              "actions": [
+                "Name one Procurement and Operations leader accountable for handoff integrity; map the current owner, decision point, and handoff for the capital approval pathway structure, then resolve the first disputed boundary within 30 days."
+              ]
+            },
+            {
+              "label": "Redesign handoff integrity boundaries",
+              "summary": "Restructure the handoff integrity layer in the capital approval pathway structure so that ownership, authority, or handoff points are unambiguous at the design level - not just communicated better.",
+              "benefit": "Produces a structurally legible environment that does not require managerial interpretation or escalation to operate.",
+              "risk": "Redesign at the wrong level of granularity can introduce new ambiguities or eliminate governance that was genuinely necessary. Cross-functional redesigns require multi-stakeholder alignment to hold.",
+              "kicker": "Targeted redesign",
+              "actions": [
+                "Name one Procurement and Operations leader accountable for handoff integrity; map the current owner, decision point, and handoff for the capital approval pathway structure, then resolve the first disputed boundary within 30 days.",
+                "Test the revised boundary against five recent cases involving accountability clarity; keep the rule only if managers can identify the owner without escalation."
+              ]
+            },
+            {
+              "label": "Reallocate authority and accountability architecture",
+              "summary": "Rebuild how authority and ownership work in the capital approval pathway structure - reassign who decides what, make ownership clear, and fix the places where the structure contradicts itself.",
+              "benefit": "Replaces the informal workarounds people have built up with a structure they can actually read - the most lasting fix when a team has been running on tribal knowledge.",
+              "risk": "High political cost. Authority redistribution requires senior-leader commitment and typically surfaces prior disagreements about who should hold what. Partial redesign may entrench the contradictions it was meant to resolve.",
+              "kicker": "Fastest structural reset",
+              "actions": [
+                "Name one Procurement and Operations leader accountable for handoff integrity; map the current owner, decision point, and handoff for the capital approval pathway structure, then resolve the first disputed boundary within 30 days.",
+                "Test the revised boundary against five recent cases involving accountability clarity; keep the rule only if managers can identify the owner without escalation.",
+                "Recheck decision rights clarity after the first two changes and compare the exception log; do not add approval or coordination layers unless a specific risk remains uncovered.",
+                "Re-measure after the first correction so the change is attributable."
+              ]
+            }
+          ],
+          "harmonized_narrative": {
+            "state": {
+              "benchmarkPos": "Below design reference range",
+              "trajectoryDirection": "up",
+              "directionSummary": "change conditions are increasing drift risk"
+            },
+            "executive": "The capital approval pathway structure is showing a self-contradictory condition. Handoffs are getting unclear - work sometimes stalls at the boundary because it is not obvious where one team's job ends.",
+            "headlineFinding": "The capital approval pathway structure is giving people conflicting answers on handoff integrity - roles, reporting lines, and informal norms point in different directions instead of adding up to one clear structure.",
+            "leadership": [
+              "Name one Procurement and Operations leader accountable for handoff integrity; map the current owner, decision point, and handoff for the capital approval pathway structure, then resolve the first disputed boundary within 30 days.",
+              "Test the revised boundary against five recent cases involving accountability clarity; keep the rule only if managers can identify the owner without escalation.",
+              "Recheck decision rights clarity after the first two changes and compare the exception log; do not add approval or coordination layers unless a specific risk remains uncovered."
+            ],
+            "tradeoff": "Simplification can become naive when real coordination, governance, or risk needs are present. The question is not whether the structure feels simple, but whether it makes accountability, authority, and handoffs clear enough for the work it is meant to carry.",
+            "tmr": "The scenario model estimates about 1,200 annual burden hours* and $70,000–$120,000* in labor exposure, with modeled participant-capacity drag around 4%*.",
+            "benchmark": "This score sits below Monderman's design reference range for program / project structure. The reference is an instrument calibration, not a sampled peer benchmark. The measured dimension pattern suggests a design problem rather than a communication-only problem; a cross-role read should test that interpretation.",
+            "opportunity": "The strongest immediate opportunity in the capital approval pathway structure is to make handoff integrity legible enough that people can act on the structure directly rather than interpret or work around it.",
+            "opportunityFields": {
+              "title": "Resolve the structural self-contradiction",
+              "opening": "The strongest immediate opportunity in the capital approval pathway structure is to make handoff integrity legible enough that people can act on the structure directly rather than interpret or work around it.",
+              "sectorDynamic": "In this structural environment, handoff integrity clarity tends to erode quietly - through accumulated change, reorganization, and informal workarounds that substitute for explicit design.",
+              "firstMoves": "Name one Procurement and Operations leader accountable for handoff integrity; map the current owner, decision point, and handoff for the capital approval pathway structure, then resolve the first disputed boundary within 30 days. Test the revised boundary against five recent cases involving accountability clarity; keep the rule only if managers can identify the owner without escalation. Recheck decision rights clarity after the first two changes and compare the exception log; do not add approval or coordination layers unless a specific risk remains uncovered.",
+              "watchout": "Avoid responding to structural ambiguity by adding communication - the structure needs to be redesigned, not explained more clearly.",
+              "legibilityMode": "The capital approval pathway structure is giving people conflicting answers on handoff integrity - roles, reporting lines, and informal norms point in different directions instead of adding up to one clear structure."
+            },
+            "keyFlags": [
+              "Decision rights appear weaker in practice than the structure likely suggests on paper.",
+              "Handoffs are a major point of structural breakdown.",
+              "Accountability is diffusing across too many people or groups.",
+              "Some answers suggest the visible structure may look cleaner than the lived one."
+            ],
+            "recommendedActions": [
+              "Name one Procurement and Operations leader accountable for handoff integrity; map the current owner, decision point, and handoff for the capital approval pathway structure, then resolve the first disputed boundary within 30 days.",
+              "Test the revised boundary against five recent cases involving accountability clarity; keep the rule only if managers can identify the owner without escalation.",
+              "Recheck decision rights clarity after the first two changes and compare the exception log; do not add approval or coordination layers unless a specific risk remains uncovered."
+            ],
+            "diagnosisReads": {
+              "burdenRead": "",
+              "sourceRead": "Handoff integrity",
+              "diagnosisRead": "",
+              "severityRead": "Ambiguity is becoming costly"
+            }
+          },
+          "governance_context": null,
+          "reclaim_potential": null
+        }
+      }
+    },
+    "institutional_performance": {
+      "input_context": {
+        "organizationName": "Representative organization",
+        "processName": "capital approval pathway",
+        "functionName": "Procurement and Operations",
+        "businessUnit": "Procurement and Operations",
+        "unitName": "Capital approvals",
+        "industry": "other",
+        "sector": "other",
+        "organizationSize": "enterprise",
+        "orgSize": "enterprise",
+        "employeeCount": 2500,
+        "regulatoryIntensity": "moderate",
+        "decisionType": "operational",
+        "confidenceLevel": "moderate",
+        "peopleInvolved": 18,
+        "peopleAffected": 18,
+        "peopleImpacted": 18,
+        "people_involved": 18,
+        "annualVolume": 96,
+        "annualCycles": 96,
+        "annual_cycles": 96,
+        "hourlyCost": 78,
+        "hourly_cost": 78,
+        "meetingHours": 32,
+        "meeting_hours": 32
+      },
+      "result": {
+        "tool_type": "institutional_performance",
+        "tool_label": "Institutional Performance",
+        "score": 48,
+        "score_band": "Drag",
+        "score_band_note": null,
+        "dimensions": {
+          "execution_coherence": 60,
+          "decision_reliability": 60,
+          "adaptive_capacity": 60,
+          "institutional_confidence": 60,
+          "performance_stability": 60,
+          "compensatory_effort": 55
+        },
+        "burden_breakdown": {
+          "execution": 40,
+          "confidence": 40,
+          "adaptation": 40,
+          "stability": 40,
+          "compensation": 55
+        },
+        "benchmark": {
+          "label": "Other",
+          "basis": "expert_authored_instrument_design_reference",
+          "reference_type": "expert_authored_instrument_design_reference",
+          "empirical": false,
+          "empirical_peer_benchmark": false,
+          "referenceMin": 57,
+          "referenceMax": 70,
+          "opportunityMin": 72,
+          "opportunityMax": 84,
+          "industryMin": 57,
+          "industryMax": 70,
+          "moderateMin": 57,
+          "healthyMax": 70,
+          "note": "This is an expert-authored instrument design reference, not derived from an empirical comparison sample."
+        },
+        "benchmark_position": "Below design-reference range",
+        "trajectory": {
+          "direction": "flat",
+          "label": "Strain holding steady",
+          "note": "The participant reports steady strain. Preserve current controls and re-measure after a meaningful change or defined interval.",
+          "magnitude": 0,
+          "stated": "about_the_same",
+          "self_reported": true,
+          "longitudinal": false,
+          "predictive": false,
+          "measurement_basis": "single_run_self_report"
+        },
+        "exposure": {
+          "priceable": true,
+          "unpriced_reason": null,
+          "annual_hours": 1690,
+          "annual_cost": 131820,
+          "capacity_drag_percent": 5,
+          "recoverable_share_percent": 36,
+          "recoverable_cost": 47455,
+          "average_hourly_cost": 78,
+          "hourly_cost": 78,
+          "total_capacity_hours": 32400,
+          "total_capacity_cost": 2527200,
+          "model": {
+            "model_type": "directional_scenario_not_empirical_benchmark",
+            "empirical_benchmark": false,
+            "formula": "hours per run × annual cycles × fixed 55% burden-attribution share",
+            "input_hours_per_run": 32,
+            "annual_cycles": 96,
+            "attributable_burden_share_percent": 55,
+            "attributed_hours_before_capacity_check": 1690,
+            "note": "The 55% attribution is an explicit instrument assumption applied consistently to pathway sizing, not an observed time study or empirical comparison sample."
+          }
+        },
+        "primary_constraint": "effort-compensates",
+        "primary_driver": null,
+        "patterns": [
+          "effort-compensates",
+          "informal-dependence"
+        ],
+        "contradictions": [],
+        "key_findings": [
+          "Execution coherence appears weaker than leadership intent requires.",
+          "Decision reliability appears inconsistent across the assessed environment.",
+          "Adaptive capacity appears limited under changing conditions or pressure.",
+          "Organizational trust appears lower than sustained performance likely requires."
+        ],
+        "watch_items": [
+          "Execution coherence appears weaker than leadership intent requires.",
+          "Decision reliability appears inconsistent across the assessed environment.",
+          "Adaptive capacity appears limited under changing conditions or pressure."
+        ],
+        "participant_evidence": [],
+        "participant_mode": "managerial",
+        "insight_depth": {
+          "score": 8,
+          "band": "Narrow - focused read",
+          "run_depth": 60,
+          "confidence_level": "moderate",
+          "participant_count": 1,
+          "levels_covered_count": 1,
+          "cross_synthesis_count": 1,
+          "ceiling": 8
+        },
+        "measurement_coverage": {
+          "measured_dimension_count": 6,
+          "total_dimension_count": 6,
+          "coverage_percent": 100,
+          "measured_dimensions": [
+            "execution_coherence",
+            "decision_reliability",
+            "adaptive_capacity",
+            "institutional_confidence",
+            "performance_stability",
+            "compensatory_effort"
+          ],
+          "unmeasured_dimensions": [],
+          "dimensions": {
+            "execution_coherence": {
+              "status": "measured",
+              "value": 60,
+              "evidence_count": 3
+            },
+            "decision_reliability": {
+              "status": "measured",
+              "value": 60,
+              "evidence_count": 4
+            },
+            "adaptive_capacity": {
+              "status": "measured",
+              "value": 60,
+              "evidence_count": 4
+            },
+            "institutional_confidence": {
+              "status": "measured",
+              "value": 60,
+              "evidence_count": 3
+            },
+            "performance_stability": {
+              "status": "measured",
+              "value": 60,
+              "evidence_count": 4
+            },
+            "compensatory_effort": {
+              "status": "measured",
+              "value": 55,
+              "evidence_count": 1
+            }
+          }
+        },
+        "dimension_coverage": {
+          "measured_dimension_count": 6,
+          "total_dimension_count": 6,
+          "coverage_percent": 100,
+          "measured_dimensions": [
+            "execution_coherence",
+            "decision_reliability",
+            "adaptive_capacity",
+            "institutional_confidence",
+            "performance_stability",
+            "compensatory_effort"
+          ],
+          "unmeasured_dimensions": [],
+          "dimensions": {
+            "execution_coherence": {
+              "status": "measured",
+              "value": 60,
+              "evidence_count": 3
+            },
+            "decision_reliability": {
+              "status": "measured",
+              "value": 60,
+              "evidence_count": 4
+            },
+            "adaptive_capacity": {
+              "status": "measured",
+              "value": 60,
+              "evidence_count": 4
+            },
+            "institutional_confidence": {
+              "status": "measured",
+              "value": 60,
+              "evidence_count": 3
+            },
+            "performance_stability": {
+              "status": "measured",
+              "value": 60,
+              "evidence_count": 4
+            },
+            "compensatory_effort": {
+              "status": "measured",
+              "value": 55,
+              "evidence_count": 1
+            }
+          }
+        },
+        "input_confidence_label": "Moderate input depth",
+        "quadrant_interpretation_text": "This unit sits in the most exposed quadrant: a weak institutional condition held together by heavy informal effort. Visible output is being borrowed from people’s extra effort and management overhead rather than carried by the institution itself - Treat that combination as the highest-priority follow-up condition; this single run does not establish how or when failure would occur.",
+        "sector_context": {
+          "industryKey": "other",
+          "workflowKey": "default",
+          "sectorName": "this sector",
+          "benchmarkWithin": "A within-range score means this result falls inside the instrument's expert-authored design reference. It can still coexist with meaningful burden in individual dimensions.",
+          "benchmarkAbove": "An above-range score means this run shows lighter measured burden than the instrument's expert-authored design reference. Verify that interpretation against workflow evidence.",
+          "benchmarkBelow": "A below-range score means this run shows heavier measured burden than the instrument's expert-authored design reference. The score does not by itself identify the cause.",
+          "opportunityPattern": "A sector-informed hypothesis to test in this sector is whether drag has become normalized even though it may still be leaving meaningful time, money, and capacity on the table.",
+          "openingClause": "operational responsiveness",
+          "marginTerm": "usable capacity",
+          "calibration": {
+            "industryMin": 58,
+            "industryMax": 69,
+            "opportunityMin": 70,
+            "opportunityMax": 84,
+            "typicalDrag": 20
+          },
+          "knowledge": {
+            "knownBottlenecks": [
+              "unclear routing",
+              "duplicate handling",
+              "manual coordination",
+              "control layers that are not risk-tiered"
+            ],
+            "knownRemedies": [
+              "risk-tiering",
+              "standard work redesign",
+              "clear exception thresholds",
+              "pathway ownership"
+            ],
+            "knownFailureModes": [
+              "hidden compensation",
+              "normalized workarounds",
+              "control without control benefit"
+            ]
+          },
+          "workflowRemedyLanguage": {
+            "routineWork": "routine capital approval pathway",
+            "trueExceptions": "true exceptions",
+            "playbooks": "standard playbooks",
+            "controlReset": "formal control, managerial cover, and senior-leader visibility"
+          }
+        },
+        "reclaim_potential": {
+          "amount": 47455,
+          "factor": 36,
+          "impact": "High",
+          "driverText": "Uses the same disclosed Operational Systems scenario estimate published in the report; no sector peer factor is added."
+        },
+        "canonical_descriptor": {
+          "score": 48,
+          "composition": {
+            "segments": [
+              {
+                "key": "compensation",
+                "label": "Compensatory dependence",
+                "value": 55,
+                "pct": 26
+              },
+              {
+                "key": "adaptation",
+                "label": "Adaptive strain",
+                "value": 40,
+                "pct": 19
+              },
+              {
+                "key": "confidence",
+                "label": "Confidence erosion",
+                "value": 40,
+                "pct": 19
+              },
+              {
+                "key": "execution",
+                "label": "Execution fragility",
+                "value": 40,
+                "pct": 19
+              },
+              {
+                "key": "stability",
+                "label": "Performance instability",
+                "value": 40,
+                "pct": 19
+              }
+            ],
+            "total": 215,
+            "dominant": {
+              "key": "compensation",
+              "label": "Compensatory dependence",
+              "value": 55,
+              "pct": 26
+            },
+            "dominant_pct": 26,
+            "shape": "concentrated"
+          },
+          "dimension_display": null,
+          "priority_ladder": [
+            {
+              "focus": "Compensatory dependence",
+              "key": "compensation",
+              "severity": 55,
+              "pct": 26
+            },
+            {
+              "focus": "Adaptive strain",
+              "key": "adaptation",
+              "severity": 40,
+              "pct": 19
+            },
+            {
+              "focus": "Confidence erosion",
+              "key": "confidence",
+              "severity": 40,
+              "pct": 19
+            }
+          ],
+          "dominant_burden_label": "Compensatory dependence",
+          "dominant_burden_pct": 26,
+          "dominant_burden_note": "Visible output appears to depend heavily on extra effort or management lift.",
+          "burden_distribution_type": "concentrated",
+          "primary_constraint_key": null,
+          "primary_constraint_label": "Compensatory dependence",
+          "primary_constraint_note": "Visible output appears to depend heavily on extra effort or management lift.",
+          "legibility_failure_mode": null,
+          "institutional_condition": null,
+          "dominant_is_material": true,
+          "evidence_limits": {
+            "participant_count": 1,
+            "cross_role_confirmation": false,
+            "longitudinal_measurement": false,
+            "empirical_peer_benchmark": false
+          },
+          "governance_context": {
+            "organizationName": "Representative organization",
+            "functionName": "Procurement and Operations",
+            "businessUnit": "Procurement and Operations",
+            "employeeCount": 2500,
+            "organizationSize": "enterprise",
+            "sector": "other",
+            "regulatoryIntensity": "moderate",
+            "decisionType": "operational",
+            "participantMode": "managerial",
+            "diagnosticDepth": 60
+          },
+          "reference_range": {
+            "min": 57,
+            "max": 70
+          },
+          "opportunity_range": {
+            "min": 72,
+            "max": 84
+          },
+          "score_band_text": "Drag",
+          "benchmark_text": "Below design-reference range",
+          "trajectory_text": "Strain holding steady",
+          "trajectory_note": "The participant reports steady strain. Preserve current controls and re-measure after a meaningful change or defined interval."
+        },
+        "interpretive_prose": {
+          "executive_summary": {
+            "headline": "The capital approvals environment is showing informal-absorption dependence - visible output is being held up by extra effort and management overhead more than by the institution itself, concentrated in compensatory dependence.",
+            "body": "The capital approvals environment scores 48 - drag. Visible output appears to depend heavily on extra effort or management lift."
+          },
+          "benchmark_interpretation": "This run sits below the instrument's expert-authored design-reference range for Other. The position indicates heavier measured institutional strain than the reference assumptions, but it does not by itself establish the cause.",
+          "priority_actions": [
+            "Informal-absorption dependence",
+            "Execution fragility",
+            "Trust erosion"
+          ],
+          "remedy_paths": [
+            {
+              "kicker": "Low disruption",
+              "label": "Targeted condition repair",
+              "summary": "Strengthen execution coherence directly - the single weakest dimension - before touching anything else, so the institution carries more of its own performance.",
+              "actions": [
+                "Isolate the specific failures driving execution coherence rather than treating the dimension as a whole.",
+                "Assign clear ownership for the repair and a date to re-measure.",
+                "Hold the other dimensions steady so the change is attributable."
+              ],
+              "benefit": "Lowest-disruption path; addresses the binding constraint without destabilizing what already works.",
+              "risk": "If the weakness is broader than one dimension, a targeted repair may need to be followed by wider work."
+            },
+            {
+              "kicker": "Targeted redesign",
+              "label": "Condition and dependence review",
+              "summary": "Pair the repair to execution coherence with a review of where output currently depends on extra effort and management overhead, so durable capacity replaces borrowed performance.",
+              "actions": [
+                "Map where current output depends on individual heroics or manager intervention.",
+                "Convert the most load-bearing informal practices into durable, owned routines.",
+                "Re-run from a second perspective to test whether the same dependence is visible from another vantage point."
+              ],
+              "benefit": "Pairs the primary fix with a test of whether informal-absorption dependence can be reduced before conditions change.",
+              "risk": "Requires honest visibility into informal effort, which can be uncomfortable to surface."
+            },
+            {
+              "kicker": "Fastest structural reset",
+              "label": "Full institutional rebuild",
+              "summary": "Rebuild the unit’s execution, confidence, and adaptive routines end to end.",
+              "actions": [
+                "Secure an explicit leadership mandate before starting - this path needs one.",
+                "Sequence the rebuild so performance is protected while routines are replaced.",
+                "Stand up measurement before, during, and after to test whether the measured condition changes as intended."
+              ],
+              "benefit": "Provides the broadest route for testing whether institutional routines can be rebuilt coherently.",
+              "risk": "Heavy and disruptive, but credible when the condition is genuinely degraded across most dimensions."
+            }
+          ],
+          "harmonized_narrative": {
+            "state": {
+              "benchmarkPos": "Below design-reference range",
+              "trajectoryDirection": "flat",
+              "directionSummary": "the participant reports steady or unclear institutional strain"
+            },
+            "executive": "The capital approvals environment scores 48 - drag. Visible output appears to depend heavily on extra effort or management lift.",
+            "headlineFinding": "The capital approvals environment is showing informal-absorption dependence - visible output is being held up by extra effort and management overhead more than by the institution itself, concentrated in compensatory dependence.",
+            "leadership": [
+              "Informal-absorption dependence",
+              "Execution fragility",
+              "Trust erosion"
+            ],
+            "tradeoff": "Output that looks stable is not the same as an institution that is sound. The question is not whether the work is getting done, but whether it is being carried by the institution itself or propped up by informal effort that will not hold when conditions change.",
+            "tmr": "Directional modeling suggests about 1,700 annual hours* and a labor-exposure range of $100,000–$175,000*, with capacity drag around 5%*.",
+            "benchmark": "This run sits below the instrument's expert-authored design-reference range for Other. The position indicates heavier measured institutional strain than the reference assumptions, but it does not by itself establish the cause.",
+            "opportunity": "The strongest immediate opportunity in the capital approvals environment is to strengthen compensatory dependence so the institution carries more of its own performance - rather than relying on extra effort and management overhead to keep output visible.",
+            "opportunityFields": {
+              "title": "Convert borrowed performance into durable institutional capacity",
+              "opening": "The strongest immediate opportunity in the capital approvals environment is to strengthen compensatory dependence so the institution carries more of its own performance - rather than relying on extra effort and management overhead to keep output visible.",
+              "sectorDynamic": "A sector-informed hypothesis to test is whether capable people are absorbing gaps that the formal institution is not yet carrying consistently.",
+              "firstMoves": "Informal-absorption dependence Execution fragility Trust erosion",
+              "watchout": "Avoid mistaking stable output for a sound institution - adding pressure to a unit already running on informal effort accelerates the failure it is meant to prevent.",
+              "pattern": "The capital approvals environment is showing informal-absorption dependence - visible output is being held up by extra effort and management overhead more than by the institution itself, concentrated in compensatory dependence."
+            },
+            "keyFlags": [
+              "Execution coherence appears weaker than leadership intent requires.",
+              "Decision reliability appears inconsistent across the assessed environment.",
+              "Adaptive capacity appears limited under changing conditions or pressure.",
+              "Organizational trust appears lower than sustained performance likely requires.",
+              "Informal relationships appear to be compensating for formal system weakness."
+            ],
+            "recommendedActions": [
+              "Informal-absorption dependence",
+              "Execution fragility",
+              "Trust erosion"
+            ],
+            "diagnosisReads": {
+              "burdenRead": "The capital approvals environment is showing informal-absorption dependence - visible output is being held up by extra effort and management overhead more than by the institution itself, concentrated in compensatory dependence.",
+              "sourceRead": "Compensatory dependence",
+              "diagnosisRead": "The capital approvals environment is showing informal-absorption dependence - visible output is being held up by extra effort and management overhead more than by the institution itself, concentrated in compensatory dependence.",
+              "severityRead": "Drag"
+            }
+          },
+          "governance_context": {
+            "organizationName": "Representative organization",
+            "functionName": "Procurement and Operations",
+            "businessUnit": "Procurement and Operations",
+            "employeeCount": 2500,
+            "organizationSize": "enterprise",
+            "sector": "other",
+            "regulatoryIntensity": "moderate",
+            "decisionType": "operational",
+            "participantMode": "managerial",
+            "diagnosticDepth": 60
+          },
+          "reclaim_potential": {
+            "amount": 47455,
+            "factor": 36,
+            "driverText": "Uses the run's disclosed exposure model and recoverable share; no sector or narrative-derived factor is added."
+          }
+        }
+      }
+    }
+  },
+  "artifact_sha256": "611188e3ab10e20c62a3229604f03dbf39d6fa02f2ed14ffa2d787a55681b982"
+}

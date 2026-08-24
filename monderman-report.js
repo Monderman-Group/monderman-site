@@ -445,7 +445,11 @@
     const timeWindow = obj(m.timeWindow), balance = obj(m.lensBalance), representative = obj(m.representativeness);
     const cards = [
       evidenceCard("Evidence strength", m.evidenceLabel, m.evidenceDescription),
-      evidenceCard(m.product === "depth" ? "Median Diagnostic Score" : "Cross-Lens Composite Score", m.scorePublished ? "Published" : "Withheld", m.scoreBasis),
+      evidenceCard(
+        m.product === "depth" ? "Median Diagnostic Score" : (m.scorePublished ? "Cross-Lens Composite Score" : "Cross-Lens Composite Score Withheld"),
+        m.scorePublished ? "Published" : "Withheld",
+        m.scoreBasis
+      ),
       evidenceCard("Scope", firstStr(scope.label, humanize(scope.status)), firstStr(scope.statement)),
       evidenceCard("Lens balance", firstStr(humanize(balance.status), "Not applicable"), strictFinite(balance.ratio) ? "Strongest-to-weakest lens ratio: " + fmt1(balance.ratio) + ":1" : "Not applicable to one-Diagnostic Depth Synthesis."),
       evidenceCard("Diagnostic/scorer versions", firstStr(versions.label, humanize(versions.status)), versions.conflicting_lenses?.length ? "Conflicting Diagnostics: " + versions.conflicting_lenses.map(humanize).join(", ") : ""),

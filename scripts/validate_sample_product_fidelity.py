@@ -1,171 +1,99 @@
 from pathlib import Path
-import re
+import hashlib
+import json
 
 ROOT = Path(__file__).resolve().parents[1]
 sample = (ROOT / "sample-report.html").read_text(encoding="utf-8")
-renderer = (ROOT / "monderman-report.js").read_text(encoding="utf-8")
-quadrant_alignment = (ROOT / "scripts/align_sample_quadrants_to_production.py").read_text(encoding="utf-8")
-products = {
-    "os": (ROOT / "operational-systems.html").read_text(encoding="utf-8"),
-    "dv": (ROOT / "decision-velocity.html").read_text(encoding="utf-8"),
-    "sc": (ROOT / "structural-clarity.html").read_text(encoding="utf-8"),
-    "ip": (ROOT / "institutional-performance.html").read_text(encoding="utf-8"),
-}
+renderer = (ROOT / "sample-report-production.js").read_text(encoding="utf-8")
+styles = (ROOT / "sample-report-production.css").read_text(encoding="utf-8")
+shared = (ROOT / "monderman-report.js").read_text(encoding="utf-8")
+artifact = json.loads((ROOT / "sample-data" / "production-diagnostic-samples.json").read_text(encoding="utf-8"))
 
 failures = []
-def require(cond, msg):
-    if not cond:
-        failures.append(msg)
 
-# Diagnostic marketing reports must retain the customer quadrant concepts and geometry.
-expected_quadrants = {
-    "os-quadrant": ("Governance weight &times; execution responsiveness", 50),
-    "dv-quadrant": ("Governance weight &times; execution responsiveness", 50),
-    "sc-quadrant": ("Governance weight &times; structural legibility", 67),
-    "ip-quadrant": ("Institutional condition &times; compensatory dependence", 67),
+
+def require(condition, message):
+    if not condition:
+        failures.append(message)
+
+
+expected_commit = "379ff62eee8157efe0115ee825933adbefc493d2"
+expected_digest = "611188e3ab10e20c62a3229604f03dbf39d6fa02f2ed14ffa2d787a55681b982"
+require(artifact.get("contract") == "monderman-public-diagnostic-sample-output/v1", "unexpected production sample artifact contract")
+require(artifact.get("engine_commit") == expected_commit, "sample artifact is not locked to the reviewed API main revision")
+require(artifact.get("artifact_sha256") == expected_digest, "sample artifact digest is not the reviewed digest")
+digest_input = dict(artifact)
+digest_input.pop("artifact_sha256", None)
+canonical = json.dumps(digest_input, separators=(",", ":"), ensure_ascii=False)
+require(hashlib.sha256(canonical.encode("utf-8")).hexdigest() == expected_digest, "sample artifact content does not match its digest")
+require("no customer data and no model-authored claims" in artifact.get("generation_mode", ""), "sample generation mode is not bounded")
+require(len(artifact.get("source_blobs", {})) >= 14, "engine-source provenance is incomplete")
+
+expected = {
+    "operational_systems": {"score": 44, "band": "Drag", "dimensions": 6, "hours": 1690, "cost": 131820, "drag": 5},
+    "decision_velocity": {"score": 51, "band": "Heavy", "dimensions": 4, "hours": 1198, "cost": 93444, "drag": 4},
+    "structural_clarity": {"score": 51, "band": "Heavy", "dimensions": 5, "hours": 1198, "cost": 93444, "drag": 4},
+    "institutional_performance": {"score": 48, "band": "Drag", "dimensions": 6, "hours": 1690, "cost": 131820, "drag": 5},
 }
-for section_id, (heading, y_threshold) in expected_quadrants.items():
-    match = re.search(rf'<section class="section" id="{re.escape(section_id)}">(.*?)</section>', sample, re.S)
-    require(bool(match), f"missing {section_id}")
-    if match:
-        body = match.group(1)
-        require(heading in body, f"{section_id} heading does not match production concept")
-        require('data-production-component="diagnostic-quadrant"' in body, f"{section_id} is not marked as production quadrant")
-        require(f'data-y-threshold="{y_threshold}"' in body, f"{section_id} y-threshold mismatch")
-        require("sample-production-quadrant-box" in body and "sample-quadrant-dot" in body, f"{section_id} geometry incomplete")
-        require("Representative plotted values:" in body, f"{section_id} lacks disclosed representative axis values")
-for token in ['height:320px','width:22px;height:22px','calc(50% - 1px)','calc(67% - 1px)','max(8, min(92, cfg["x"]))','max(8, min(92, 100 - cfg["y"]))']:
-    require(token in quadrant_alignment, f"production quadrant alignment missing rule: {token}")
+outputs = artifact.get("outputs", {})
+require(set(outputs) == set(expected), "artifact must contain exactly the four public Diagnostic outputs")
+for key, contract in expected.items():
+    source = outputs.get(key, {})
+    result = source.get("result", {})
+    require(result.get("tool_type") == key, f"{key} tool identity mismatch")
+    require(result.get("score") == contract["score"], f"{key} score is not the generated score")
+    require(result.get("score_band") == contract["band"], f"{key} band is not the generated band")
+    require(len(result.get("dimensions", {})) == contract["dimensions"], f"{key} dimension count mismatch")
+    exposure = result.get("exposure", {})
+    require(exposure.get("annual_hours") == contract["hours"], f"{key} annual hours mismatch")
+    require(exposure.get("annual_cost") == contract["cost"], f"{key} annual cost mismatch")
+    require(exposure.get("capacity_drag_percent") == contract["drag"], f"{key} capacity drag mismatch")
+    require(len(result.get("interpretive_prose", {}).get("remedy_paths", [])) == 3, f"{key} does not carry three engine-generated remedy paths")
+    require(len(result.get("interpretive_prose", {}).get("priority_actions", [])) >= 3, f"{key} action ladder is incomplete")
+    require(result.get("measurement_coverage", {}).get("coverage_percent") == 100, f"{key} measurement coverage mismatch")
+    require(result.get("participant_evidence") == [], f"{key} unexpectedly contains participant statements")
+    require(result.get("interpretive_prose", {}).get("executive_summary"), f"{key} executive summary missing")
+    require(result.get("canonical_descriptor", {}).get("priority_ladder"), f"{key} canonical priority ladder missing")
 
-# Diagnostic samples retain evidence visuals, but capacity must use the CURRENT
-# production semantics: productive work / necessary administrative load /
-# recoverable drag. The obsolete dollar-apportioned Sankey must never return.
-for token in ['aria-label="Burden composition — share of total"','aria-label="Burden severity by dimension"','aria-label="Intervention order"','aria-label="Score in sector context"']:
-    require(token in sample, f"missing Diagnostic evidence visual: {token}")
-require(sample.count('aria-label="Capacity allocation"') == 4, "each Diagnostic sample must show one current capacity-allocation visual")
-require('aria-label="Where annual labor capacity goes"' not in sample, "obsolete sample capacity-flow visual remains")
-require('Dimension dollars apportion the recoverable burden' not in sample, "obsolete dimension-dollar allocation claim remains")
-
-# Current representative economics. These are hypothetical sample inputs but the
-# arithmetic must be values the live scorers can actually produce.
-expected_economics = {
-    "os": ["5,280 annual burden hours", "$485,760", "capacity drag around 24%", "Productive work 76%", "Necessary administrative load 16%", "Recoverable drag 8%", "12 people per normal cycle", "600 cycles per year", "16 coordination hours per cycle", "55% modeled burden attribution"],
-    "dv": ["3,128 annual burden hours", "$344,080", "capacity drag around 22%", "Productive work 78%", "Necessary administrative load 17%", "Recoverable drag 5%", "eight people per normal decision cycle", "1,150 decisions per year", "eight coordination hours per cycle", "34% score-responsive attribution"],
-    "sc": ["960 annual burden hours", "$74,880", "capacity drag around 7%", "Productive work 93%", "Necessary administrative load 5%", "Recoverable drag 2%", "eight people per normal cycle", "600 cycles per year", "four ambiguity-driven coordination hours per cycle", "40% score-responsive attribution"],
-    "ip": ["8,448 annual burden hours", "$844,800", "capacity drag around 26%", "Productive work 74%", "Necessary administrative load 17%", "Recoverable drag 9%", "18 people per normal tasking cycle", "240 cycles per year", "64 coordination hours per cycle", "55% modeled burden attribution"],
-}
-for product, tokens in expected_economics.items():
-    for token in tokens:
-        require(token in sample, f"{product} sample missing current-model economics token: {token}")
-for stale in ["31,500 annual burden hours","$2.9M*","5,500 annual burden hours","$600,930*","2,000 annual burden hours","$153,894*","58,800 annual burden hours","$5,875,200*","$29.4M  ·  294K hrs"]:
-    require(stale not in sample, f"stale sample economics remain: {stale}")
-
-# Sample provenance must identify the currently certified scorer/config pair.
+require('sample-report-production.css?v=611188e3ab10' in sample, "sample page does not load the production-contract presentation")
+require('sample-report-production.js?v=611188e3ab10' in sample, "sample page does not load the production-contract renderer")
+require('sample-data/production-diagnostic-samples.json?v=611188e3ab10' in renderer, "renderer does not load the reviewed artifact")
+for key in ["operational_systems", "decision_velocity", "structural_clarity", "institutional_performance"]:
+    require(key in renderer, f"renderer omits {key}")
 for token in [
-    "config 1.2.0 · scorer operational_systems_high_score_good_2026_08_13_experience_neutral_v3",
-    "config 1.0.0 · scorer decision_velocity_high_score_good_2026_08_12_release_v3",
-    "config 1.2.0 · scorer structural_clarity_high_score_good_2026_08_11_methodology_v4",
-    "config 1.2.0 · scorer institutional_performance_high_score_good_2026_08_10_missingness_v2",
-]: require(token in sample, f"sample provenance missing current pair: {token}")
-
-# A single run may contain self-reported direction or change-pressure evidence;
-# it may not be visualized or narrated as a measured time series.
-fake_series = "[18,20,22,25,28,31]"
-for key in ["os", "sc", "ip"]:
-    require(fake_series not in products[key], f"{key} still fabricates historical sparkline points")
-    require("A single run cannot supply a time series" in products[key], f"{key} lacks non-temporal change glyph contract")
-require("Self-reported change: --" in products["os"], "OS customer surface still labels single-run change as Trajectory")
-require("Change-pressure risk: --" in products["sc"], "SC customer surface lost change-pressure risk label")
-require("Self-reported change: --" in products["ip"], "IP customer surface still labels single-run change as Trajectory")
-require("cost of waiting compounds" not in products["ip"], "IP still turns a single-run signal into compounding trend language")
-require("not a measured longitudinal trend or forecast" in products["ip"], "IP lacks explicit non-longitudinal/non-predictive boundary")
-require("Design reference: --" in products["ip"], "IP export surface still labels design reference as Benchmark")
-require("<strong>Condition profile</strong>" in products["ip"], "IP condition-profile tooltip is mislabeled")
-
-# Marketing copy must obey the same single-run and benchmark boundaries.
-# Directional copy is expressed as health direction so arrow, color, and words
-# cannot disagree when the measured condition itself is negatively framed.
-require(sample.count('<strong>Self-reported change.</strong> Worsening.') == 3, "OS/DV/IP samples must use health-direction worsening language")
-require(sample.count('>Worsening</text></svg>') == 2, "OS/DV SVG direction glyphs must stay paired with worsening labels")
-require("<strong>Change-pressure risk.</strong> No elevated change-pressure signal." in sample, "SC sample lost bounded change-pressure language")
-for stale in ["Operational creep is rising", "Rising drag pressure", "Rising strain"]:
-    require(stale not in sample, f"condition-direction wording remains in sample: {stale}")
-for key in ["os", "dv", "ip"]:
-    require("Worsening" in products[key] and "Improving" in products[key] and "Steady" in products[key], f"{key} customer surface lacks normalized health-direction labels")
-    require(re.search(r'dir\s*===\s*"up"\s*\?\s*"↓"', products[key]), f"{key} worsening direction does not render downward")
-    require(re.search(r'dir\s*===\s*"down"\s*\?\s*"↑"', products[key]), f"{key} improving direction does not render upward")
-    require("Not established" in products[key] and "Direction unclear" in products[key], f"{key} customer surface does not preserve uncertain trajectory states")
-for token in ['return "Worsening";', 'return "Improving";', 'return "Steady";', 'return "Not established";', 'return "Direction unclear";']:
-    require(token in renderer, f"shared report renderer missing normalized trajectory contract: {token}")
-require("likely to continue accumulating" not in sample, "DV sample still predicts future accumulation from one run")
-require("Against comparable institutions" not in sample, "IP sample still presents the design reference as empirical peer comparison")
-require("Degraded institutional condition" in sample, "IP score 47 is not using its current certified band")
-
-# Synthesis samples remain rendered through the exact shared customer renderer.
-require('<script src="monderman-report.js?v=' in sample, "sample does not load a versioned shared customer report renderer")
-require('MondermanReport.fromSynthesis(fixtures.crossLens)' in sample and 'MondermanReport.fromSynthesis(fixtures.depth)' in sample, "Synthesis sample adapter parity broken")
-for token in ['Interpretation boundary','What to watch next','Basis of this read.','Three remedy paths','How this was produced']:
-    require(sample.count(token) >= 4, f"Diagnostic production-equivalent section missing: {token}")
-for token in ['Sample Diagnostic Executive Report','representative completed run','Directional single-run evidence','What the participant added','One completed Diagnostic run','does not establish prevalence or population representativeness']:
-    require(sample.count(token) >= 4, f"single-Diagnostic production contract missing: {token}")
-for stale in ['Competing readings','What would update this read']:
-    require(stale not in sample, f"outdated standalone Diagnostic section remains required: {stale}")
-for stale in ['Sample Depth Synthesis Report','Composite view.','Depth Synthesis evidence context','compatible runs &middot; one']:
-    require(stale not in sample, f"single-Diagnostic sample still masquerades as Depth Synthesis: {stale}")
-require(sample.count('class="toc-rail synthesis-toc"') == 2, "Synthesis Contents rails missing")
-require('buildSynthesisContents' in sample, "Synthesis Contents generation missing")
-for token in ['score_status: "published"','cross_diagnostic_score: 55.5','evidence_label: "Strong"','respondent_count: 48','lens_count: 4','aggregate_score: 56','evidence_label: "Substantial"','respondent_count: 18']:
-    require(token in sample, f"Synthesis fixture fidelity missing: {token}")
-require('score_type: "within_lens_median"' in sample, "Depth fixture does not declare its published median contract")
-require('score_type: "equal_lens_mean"' in sample and 'score_basis: "Equal-lens mean:' in sample, "Cross-Lens fixture does not truthfully declare composite publication and basis")
-for token in ['aria-label="Depth Synthesis score distribution"','aria-label="Cross-Lens Diagnostic score comparison"','Executive decision frame','mr-decision-frame','mr-evidence-ladder','mr-action-path','Executive synthesis','Agreements and differences','Evidence-proportionate actions','Source-backed remedy paths','What participants reported','What to watch next']:
-    require(token in renderer, f"production Synthesis renderer missing: {token}")
-
-# The product beneficiary is the organization. Senior Leader remains a valid
-# participant vantage, and senior escalation can remain a measured mechanism,
-# but customer-facing benefit language must not assign recovered value to one
-# organizational layer.
-role_re = re.compile(r"\b(?:senior(?:[- ]leader)?s?|leaders?|leadership|executives?)\b", re.I)
-resource_re = re.compile(r"\b(?:time|hours?|money|attention|capacity|bandwidth|productivity)\b", re.I)
-recovery_re = re.compile(r"\b(?:return(?:ed|ing|s)?|reclaim(?:ed|ing|s)?|recover(?:ed|ing|s)?|restore(?:d|ing|s)?|free(?:d|ing|s)?|sav(?:e|ed|es|ing)|give(?:s|n|ing)?\s+back)\b", re.I)
-role = r"(?:senior(?:[- ]leader)?s?|leaders?|leadership|executives?)"
-resource = r"(?:time|hours?|money|attention|capacity|bandwidth|productivity)"
-recovery = r"(?:return(?:ed|ing|s)?|reclaim(?:ed|ing|s)?|recover(?:ed|ing|s)?|restore(?:d|ing|s)?|free(?:d|ing|s)?|sav(?:e|ed|es|ing)|give(?:s|n|ing)?\s+back)"
-role_benefit_patterns = [
-    re.compile(rf"\b{recovery}\b.{{0,80}}\b{role}\b.{{0,40}}\b{resource}\b", re.I),
-    re.compile(rf"\b{role}\b.{{0,40}}\b{resource}\b.{{0,80}}\b{recovery}\b", re.I),
-    re.compile(rf"\b{role}\b.{{0,40}}\b{recovery}\b.{{0,40}}\b{resource}\b", re.I),
-    re.compile(rf"\b{resource}\b.{{0,30}}\b{role}\b.{{0,40}}\b{recovery}\b", re.I),
-]
-for surface_name, surface in {"sample": sample, **products}.items():
-    visible = re.sub(r"<(?:script|style)\b[^>]*>.*?</(?:script|style)>", " ", surface, flags=re.I | re.S)
-    visible = re.sub(r"<[^>]+>", " ", visible)
-    for sentence in re.split(r"(?<=[.!?])\s+", visible):
-        if "?" in sentence:  # governance/remedy questions may name an accountable role
-            continue
-        if any(pattern.search(sentence) for pattern in role_benefit_patterns):
-            require(False, f"{surface_name} assigns recovered organizational value to a role: {sentence.strip()[:180]}")
-
-for stale in [
-    "Senior hours returned to mission",
-    "senior time returns to mission",
-    "Treat senior attention as a scarce operating resource",
-    "spending its scarcest resource",
-    "Leadership bottom line",
-    "Bottom line for leadership",
-    "leadership-facing readout",
-    "concise leadership readout",
-    "This summary is written for leaders",
+    "Executive headline", "Dimension profile", "Observed burden", "Governance and capacity",
+    "Evidence status", "Action ladder", "Method and limits", "Interpretation boundary",
+    "No participant notes were supplied", "Download representative JSON", "Print or save PDF",
+    "data-engine-commit", "data-artifact-sha256",
 ]:
-    require(stale.lower() not in (sample + renderer + "\n".join(products.values())).lower(), f"role-centric value framing remains: {stale}")
+    require(token in renderer, f"production Diagnostic renderer missing: {token}")
+for stale in ["Competing readings", "What would update this read"]:
+    require(stale not in renderer, f"outdated standalone section required by production renderer: {stale}")
 
-require("return time, money, and productive capacity to the organization" in sample, "sample lacks the canonical organizational value statement")
-require("organizationalImplication: firstStr(narrative.organizational_implication, narrative.leadership_implication)" in renderer, "renderer does not prefer organizational_implication with legacy fallback")
-for token in ["Organizational implication.", "First supported move", "An organizational read of this diagnostic"]:
-    require(token in renderer, f"renderer lacks neutral organizational framing: {token}")
+require('Decision-pathway drag · 4 dimensions' in sample, "Decision Velocity tab does not match the engine dimension count")
+require('Institutional condition · 6 dimensions' in sample, "Institutional Performance tab does not match the engine dimension count")
+require('<script src="monderman-report.js?v=' in sample, "sample does not load the shared Synthesis renderer")
+require('MondermanReport.fromSynthesis(fixtures.crossLens)' in sample, "Cross-Lens sample is not using the shared renderer")
+require('MondermanReport.fromSynthesis(fixtures.depth)' in sample, "Depth sample is not using the shared renderer")
+for token in [
+    'score_type: "within_lens_median"', 'aggregate_score: 56', 'respondent_count: 18',
+    'score_type: "equal_lens_mean"', 'cross_diagnostic_score: 55.5', 'respondent_count: 48',
+    'score_status: "published"', 'evidence_label: "Strong"', 'evidence_label: "Substantial"',
+]:
+    require(token in sample, f"Synthesis fixture contract missing: {token}")
+for token in ["Cross-Lens Composite Score Withheld", "Observed participant distribution", "Source-backed remedy paths", "Interpretation boundary"]:
+    require(token in shared, f"shared Synthesis renderer missing: {token}")
+
+for token in [
+    '@media (max-width:640px)', '.psr-remedy-grid { grid-template-columns:1fr; }',
+    '.psr-wrap { padding:0 10px;', '@media print', 'print-color-adjust:exact',
+]:
+    require(token in styles, f"responsive/print report protection missing: {token}")
+require('overflow-wrap:anywhere' in styles, "long report text lacks a bleed guard")
 
 if failures:
     print("SAMPLE_PRODUCT_FIDELITY_FAIL")
-    for item in failures: print("-", item)
+    for item in failures:
+        print("-", item)
     raise SystemExit(1)
 print("SAMPLE_PRODUCT_FIDELITY_PASS")

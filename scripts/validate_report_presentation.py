@@ -74,49 +74,35 @@ for token, msg in [
 ]:
     req(token in report, msg)
 
-# Marketing sample disclosure and renderer parity.
+# Marketing sample disclosure and production-artifact renderer parity.
+production_renderer = (ROOT / "sample-report-production.js").read_text(encoding="utf-8")
+production_styles = (ROOT / "sample-report-production.css").read_text(encoding="utf-8")
 req('Representative product outputs — not customer data.' in sample, 'top representative-output disclosure missing')
 req('synthesis-report-stage' in sample, 'Synthesis report stage wrapper missing')
-req(sample.count('class="sample-depth-read"') == 4, 'all four lens samples must show the single-run evidence context')
-req(sample.count('Directional single-run evidence') == 4, 'all four lens samples must show the single-run evidence boundary')
-req(sample.count('n=1') == 4, 'lens sample run counts are incomplete')
-req(sample.count('Evidence status.') == 4, 'lens sample evidence-status disclosures are incomplete')
-req(sample.count('does not establish prevalence or population representativeness') == 4, 'single-run population-inference limit missing')
+req('sample-report-production.js?v=611188e3ab10' in sample, 'production sample renderer missing')
+req('sample-report-production.css?v=611188e3ab10' in sample, 'production sample presentation missing')
+req('sample-data/production-diagnostic-samples.json?v=611188e3ab10' in production_renderer, 'production artifact URL mismatch')
+req('data-engine-commit' in production_renderer and 'data-artifact-sha256' in production_renderer, 'visible sample provenance missing')
+for token in ['Executive headline','Dimension profile','Observed burden','Governance and capacity','Evidence status','Action ladder','Method and limits','Interpretation boundary']:
+    req(token in production_renderer, f'production Diagnostic presentation missing: {token}')
+req('No participant notes were supplied' in production_renderer, 'empty participant-evidence state is not explicit')
+req('@media (max-width:640px)' in production_styles and '@media print' in production_styles, 'production sample responsive/print protections missing')
+req('overflow-wrap:anywhere' in production_styles, 'production sample lacks text-bleed protection')
 req('Source-backed remedy paths' in report and 'mr-remedy-card' in report, 'source-backed remedy renderer missing')
 req('.mr-card.mr-remedy-card{background:#fff}' in report, 'Synthesis remedy cards do not override the generic cream card surface')
 req('border-top:3px solid #C9821F' not in report and '.mr-remedy-card:nth-child(' not in report, 'Synthesis remedy cards still carry option-specific top borders')
-req('--max-doc: 960px;' in sample, 'Diagnostic sample documents do not match the 960px Synthesis canvas')
-req('padding: 48px 54px 64px;' in sample, 'Diagnostic sample documents do not match Synthesis document padding')
-req('border-radius: 20px;' in sample and 'box-shadow: 0 20px 54px rgba(8,56,62,.07);' in sample, 'Diagnostic sample document frame does not match Synthesis')
 req('gap:56px;' in sample and '.synthesis-report-stage .mr-page{box-shadow:0 20px 54px rgba(8,56,62,.07)!important;}' in sample, 'Synthesis sample canvas does not match the Diagnostic viewer grid and frame')
 req('.synthesis-report-stage .mr-card.mr-remedy-card{border-top:1px solid #EAE6DD!important;}' in sample, 'sample page does not neutralize stale renderer remedy-card top borders')
-req('.doc .sample-production-quadrant-wrap { flex: 1 1 100% !important; min-width: 0 !important; width: 100%; }' in sample, 'Diagnostic quadrant retains a fixed mobile minimum width')
-req('.doc .sample-production-quadrant-wrap + p { min-width: 0 !important; flex-basis: 100% !important; }' in sample, 'Diagnostic quadrant narrative retains a fixed mobile minimum width')
-req('.cover-pill { max-width: 100%; white-space: normal; }' in sample, 'Diagnostic cover pills can force mobile overflow')
-req('.canonical-green-shell .doc .section h2 {' in sample and 'font-size: 1.28rem;' in sample and '.doc .section p {' in sample and sample.count('line-height: 1.67;') >= 1, 'Diagnostic sample section typography does not override the site shell at the Synthesis report scale')
 req(sample.count('class="toc-rail synthesis-toc"') == 2, 'Cross-Lens and Depth Contents rails missing')
 req('buildSynthesisContents' in sample, 'generated Synthesis Contents navigation missing')
 req('MondermanReport.fromSynthesis(fixtures.crossLens)' in sample, 'Cross-Lens sample is not using shared customer renderer')
 req('MondermanReport.fromSynthesis(fixtures.depth)' in sample, 'Depth sample is not using shared customer renderer')
-req('installExecutiveVisualSystem' in sample, 'Diagnostic executive visual-system installer missing')
-req('sample-decision-frame' in sample, 'Diagnostic executive decision frame missing')
-req('sample-exposure-bridge' in sample, 'source-backed Diagnostic exposure bridge missing')
-req('Directional scenario—not an audited time study.' in sample, 'Diagnostic exposure bridge lacks model boundary')
-req('firstPanel.hidden=true' in sample, 'superseded capacity panel is not removed from the visual hierarchy')
 req('Sankey' not in sample, 'sample library labels an allocation view as a Sankey')
 
-# Existing product fidelity requirements remain mandatory for the four certified
-# Diagnostics. These samples must retain production visualization primitives.
+# Existing Synthesis fidelity requirements remain mandatory.
 for token in [
-    'aria-label="Burden composition — share of total"',
-    'aria-label="Burden severity by dimension"',
-    'aria-label="Intervention order"',
-    'aria-label="Score in sector context"',
-    'sample-production-quadrant',
-    'cross_diagnostic_score: 55.5',
-    'evidence_label: "Strong"',
-    'aggregate_score: 56',
-    'evidence_label: "Substantial"',
+    'cross_diagnostic_score: 55.5', 'evidence_label: "Strong"',
+    'aggregate_score: 56', 'evidence_label: "Substantial"',
 ]:
     req(token in sample, f'missing product-fidelity token: {token}')
 

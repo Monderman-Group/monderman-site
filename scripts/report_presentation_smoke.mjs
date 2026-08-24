@@ -16,6 +16,7 @@ function isActualSerif(font) { return /Georgia|Times New Roman/i.test(font); }
 function isMondermanFont(font) { return /Neue Haas Grotesk/i.test(font); }
 
 await page.goto(`${base}/sample-report.html`, { waitUntil: 'networkidle', timeout: 90000 });
+await page.locator('body.production-samples-ready').waitFor({ state: 'attached', timeout: 30000 });
 
 const hostTypography = await page.evaluate(() => ({
   body: getComputedStyle(document.body).fontFamily,
@@ -36,30 +37,25 @@ async function openTab(key) {
   return shell;
 }
 
-// The four lens samples represent one completed production Diagnostic run;
-// Depth Synthesis remains the separate same-Diagnostic median product.
-const diagnostics = ['os', 'dv', 'sc', 'ip'];
-for (const key of diagnostics) {
+// The four Diagnostic samples must be the live projection of the locked
+// production-engine artifact, not the legacy hand-authored report markup.
+const diagnostics = {
+  os:{score:'44',dimensions:6}, dv:{score:'51',dimensions:4},
+  sc:{score:'51',dimensions:5}, ip:{score:'48',dimensions:6}
+};
+for (const [key, expected] of Object.entries(diagnostics)) {
   const shell = await openTab(key);
-  const svgCount = await shell.locator('svg[role="img"]').count();
-  assert(svgCount >= 4, `${key} has only ${svgCount} evidence graphics`);
-  const quadrant = shell.locator(`#${key}-quadrant .sample-production-quadrant-wrap`);
-  assert(await quadrant.isVisible(), `${key} production quadrant not visible`);
-  assert(await quadrant.locator('.sample-production-quadrant-box').isVisible(), `${key} production quadrant box not visible`);
-  assert(await quadrant.locator('.sample-quadrant-dot').isVisible(), `${key} production quadrant marker not visible`);
-  assert(await shell.locator('svg[aria-label="Burden composition — share of total"]').first().isVisible(), `${key} composition graphic not visible`);
-  assert(await shell.locator('svg[aria-label="Burden severity by dimension"]').first().isVisible(), `${key} severity graphic not visible`);
-  assert(await shell.locator('svg[aria-label="Intervention order"]').first().isVisible(), `${key} intervention graphic not visible`);
-  const depthRead = shell.locator('.sample-depth-read');
-  assert(await depthRead.isVisible(), `${key} single-run evidence context missing`);
-  const depthText = await depthRead.textContent();
-  assert(depthText.includes('n=1'), `${key} single-run count missing from evidence context`);
-  const ringStyle = await depthRead.locator('.sample-depth-ring').getAttribute('style');
-  assert(ringStyle.includes('--depth:8%'), `${key} single-run evidence ring is not bounded`);
-  assert(depthText.includes('Directional single-run evidence'), `${key} evidence status missing`);
-  assert(/does not establish prevalence or population representativeness/i.test(depthText), `${key} single-run inference limit missing`);
-  assert((await shell.textContent()).includes('Evidence status.'), `${key} evidence-status disclosure missing from cover`);
-  assert((await shell.textContent()).includes('What the participant added'), `${key} participant evidence section missing`);
+  const report = shell.locator('.psr-wrap');
+  assert(await report.getAttribute('data-engine-commit') === '379ff62eee8157efe0115ee825933adbefc493d2', `${key} engine revision mismatch`);
+  assert(await report.getAttribute('data-artifact-sha256') === '611188e3ab10e20c62a3229604f03dbf39d6fa02f2ed14ffa2d787a55681b982', `${key} artifact digest mismatch`);
+  assert((await shell.locator('.psr-score strong').textContent()).trim() === expected.score, `${key} score mismatch`);
+  assert(await shell.locator('.psr-dimension').count() === expected.dimensions, `${key} dimension profile mismatch`);
+  assert(await shell.locator('.psr-remedy').count() === 3, `${key} remedy-path count mismatch`);
+  assert(await shell.locator('.cover').count() === 0, `${key} legacy sample remains in the live DOM`);
+  const text = await shell.textContent();
+  for (const token of ['Production-engine-generated representative output','Executive headline','Observed burden','Evidence status','Action ladder','Method and limits','Interpretation boundary','No participant notes were supplied']) {
+    assert(text.includes(token), `${key} production-contract section missing: ${token}`);
+  }
   await page.screenshot({ path: path.join(out, `${key}-full.png`), fullPage: true });
 }
 
