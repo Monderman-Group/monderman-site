@@ -1129,7 +1129,7 @@ body{transition:background-color .25s ease, color .25s ease}
       const name = user.user_metadata?.full_name || user.user_metadata?.name || user.email || "Monderman User";
       setText("ws5UserName", name); setText("ws5Ava", initials(name, user.email));
       try{
-        const { data:m } = await supabase.from("organization_members").select("role, organization_id, organizations(name, plan, subscription_status, pattern_trial_ends_at)").eq("organization_id",window.__mondermanActiveOrganizationId).maybeSingle();
+        const { data:m } = await supabase.from("organization_members").select("role, organization_id, organizations(name, plan, subscription_status, pattern_trial_ends_at)").eq("user_id",user.id).eq("organization_id",window.__mondermanActiveOrganizationId).maybeSingle();
         ws5Role = String(m?.role||"viewer").toLowerCase(); ws5OrgId = m?.organization_id || null;
         setText("ws5UserRole", cap(m?.role||"viewer"));
         setText("ws5Org", (m?.organizations?.name)||"Personal workspace");
