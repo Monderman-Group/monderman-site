@@ -90,6 +90,11 @@ for (const [key, quadrantHeading, compositionHeading, changeLabel, changeState, 
   for (const token of ['Interpretation boundary', 'What to watch next', 'Three remedy paths', 'How this was produced']) {
     assert(diagnosticText.includes(token), `${key} missing production-equivalent section: ${token}`);
   }
+  for (const token of ['Sample Diagnostic Executive Report', 'Directional single-run evidence', 'What the participant added']) {
+    assert(diagnosticText.includes(token), `${key} missing single-Diagnostic production contract: ${token}`);
+  }
+  assert(!diagnosticText.includes('Sample Depth Synthesis Report'), `${key} still presents the Diagnostic report as Depth Synthesis`);
+  assert(!diagnosticText.includes('Depth Synthesis evidence context'), `${key} still uses the old Depth evidence card`);
   assert(!diagnosticText.includes('Competing readings'), `${key} still requires outdated Competing readings section`);
   assert(!diagnosticText.includes('What would update this read'), `${key} still requires outdated update-read section`);
   await page.screenshot({ path: path.join(out, `${key}.png`), fullPage: true });

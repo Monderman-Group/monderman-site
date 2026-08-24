@@ -49,10 +49,10 @@ require('Dimension dollars apportion the recoverable burden' not in sample, "obs
 # Current representative economics. These are hypothetical sample inputs but the
 # arithmetic must be values the live scorers can actually produce.
 expected_economics = {
-    "os": ["5,280 annual burden hours", "$485,760", "capacity drag around 24%", "Productive work 76%", "Necessary administrative load 16%", "Recoverable drag 8%", "12 people per normal run", "600 runs/yr", "16 coordination hrs/run", "55% modeled burden attribution"],
-    "dv": ["3,128 annual burden hours", "$344,080", "capacity drag around 22%", "Productive work 78%", "Necessary administrative load 17%", "Recoverable drag 5%", "8 people per normal decision run", "1,150 decisions/yr", "8 coordination hrs/run", "34% score-responsive attribution"],
-    "sc": ["960 annual burden hours", "$74,880", "capacity drag around 7%", "Productive work 93%", "Necessary administrative load 5%", "Recoverable drag 2%", "8 people per normal run", "600 runs/yr", "4 ambiguity-driven coordination hrs/run", "40% score-responsive attribution"],
-    "ip": ["8,448 annual burden hours", "$844,800", "capacity drag around 26%", "Productive work 74%", "Necessary administrative load 17%", "Recoverable drag 9%", "18 people per normal run", "240 tasking cycles/yr", "64 coordination hrs/run", "55% modeled burden attribution"],
+    "os": ["5,280 annual burden hours", "$485,760", "capacity drag around 24%", "Productive work 76%", "Necessary administrative load 16%", "Recoverable drag 8%", "12 people per normal cycle", "600 cycles per year", "16 coordination hours per cycle", "55% modeled burden attribution"],
+    "dv": ["3,128 annual burden hours", "$344,080", "capacity drag around 22%", "Productive work 78%", "Necessary administrative load 17%", "Recoverable drag 5%", "eight people per normal decision cycle", "1,150 decisions per year", "eight coordination hours per cycle", "34% score-responsive attribution"],
+    "sc": ["960 annual burden hours", "$74,880", "capacity drag around 7%", "Productive work 93%", "Necessary administrative load 5%", "Recoverable drag 2%", "eight people per normal cycle", "600 cycles per year", "four ambiguity-driven coordination hours per cycle", "40% score-responsive attribution"],
+    "ip": ["8,448 annual burden hours", "$844,800", "capacity drag around 26%", "Productive work 74%", "Necessary administrative load 17%", "Recoverable drag 9%", "18 people per normal tasking cycle", "240 cycles per year", "64 coordination hours per cycle", "55% modeled burden attribution"],
 }
 for product, tokens in expected_economics.items():
     for token in tokens:
@@ -106,8 +106,12 @@ require('<script src="monderman-report.js?v=' in sample, "sample does not load a
 require('MondermanReport.fromSynthesis(fixtures.crossLens)' in sample and 'MondermanReport.fromSynthesis(fixtures.depth)' in sample, "Synthesis sample adapter parity broken")
 for token in ['Interpretation boundary','What to watch next','Basis of this read.','Three remedy paths','How this was produced']:
     require(sample.count(token) >= 4, f"Diagnostic production-equivalent section missing: {token}")
+for token in ['Sample Diagnostic Executive Report','representative completed run','Directional single-run evidence','What the participant added','One completed Diagnostic run','does not establish prevalence or population representativeness']:
+    require(sample.count(token) >= 4, f"single-Diagnostic production contract missing: {token}")
 for stale in ['Competing readings','What would update this read']:
     require(stale not in sample, f"outdated standalone Diagnostic section remains required: {stale}")
+for stale in ['Sample Depth Synthesis Report','Composite view.','Depth Synthesis evidence context','compatible runs &middot; one']:
+    require(stale not in sample, f"single-Diagnostic sample still masquerades as Depth Synthesis: {stale}")
 require(sample.count('class="toc-rail synthesis-toc"') == 2, "Synthesis Contents rails missing")
 require('buildSynthesisContents' in sample, "Synthesis Contents generation missing")
 for token in ['score_status: "published"','cross_diagnostic_score: 55.5','evidence_label: "Strong"','respondent_count: 48','lens_count: 4','aggregate_score: 56','evidence_label: "Substantial"','respondent_count: 18']:
