@@ -104,13 +104,16 @@ require("Degraded institutional condition" in sample, "IP score 47 is not using 
 # Synthesis samples remain rendered through the exact shared customer renderer.
 require('<script src="monderman-report.js?v=' in sample, "sample does not load a versioned shared customer report renderer")
 require('MondermanReport.fromSynthesis(fixtures.crossLens)' in sample and 'MondermanReport.fromSynthesis(fixtures.depth)' in sample, "Synthesis sample adapter parity broken")
-require(sample.count('class="sample-depth-read"') == 4, "all four lens samples must expose Depth Synthesis evidence context")
-for token in ['n=18','n=21','n=15','n=24','Substantial observed respondent set','Composite view.','three participant levels']:
-    require(token in sample, f"multi-participant Depth Synthesis fidelity missing: {token}")
+for token in ['Interpretation boundary','What to watch next','Basis of this read.','Three remedy paths','How this was produced']:
+    require(sample.count(token) >= 4, f"Diagnostic production-equivalent section missing: {token}")
+for stale in ['Competing readings','What would update this read']:
+    require(stale not in sample, f"outdated standalone Diagnostic section remains required: {stale}")
 require(sample.count('class="toc-rail synthesis-toc"') == 2, "Synthesis Contents rails missing")
 require('buildSynthesisContents' in sample, "Synthesis Contents generation missing")
 for token in ['score_status: "published"','cross_diagnostic_score: 55.5','evidence_label: "Strong"','respondent_count: 48','lens_count: 4','aggregate_score: 56','evidence_label: "Substantial"','respondent_count: 18']:
     require(token in sample, f"Synthesis fixture fidelity missing: {token}")
+require('score_type: "within_lens_median"' in sample, "Depth fixture does not declare its published median contract")
+require('score_type: "equal_lens_mean"' in sample and 'score_basis: "Equal-lens mean:' in sample, "Cross-Lens fixture does not truthfully declare composite publication and basis")
 for token in ['aria-label="Depth Synthesis score distribution"','aria-label="Cross-Lens Diagnostic score comparison"','Executive decision frame','mr-decision-frame','mr-evidence-ladder','mr-action-path','Executive synthesis','Agreements and differences','Evidence-proportionate actions','Source-backed remedy paths','What participants reported','What to watch next']:
     require(token in renderer, f"production Synthesis renderer missing: {token}")
 
