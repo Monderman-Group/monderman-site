@@ -8,6 +8,7 @@ renderer = (ROOT / "sample-report-production.js").read_text(encoding="utf-8")
 styles = (ROOT / "sample-report-production.css").read_text(encoding="utf-8")
 shared = (ROOT / "monderman-report.js").read_text(encoding="utf-8")
 artifact = json.loads((ROOT / "sample-data" / "production-diagnostic-samples.json").read_text(encoding="utf-8"))
+engine_fixture = json.loads((ROOT / "test-fixtures" / "authenticated-report-engine-runs.json").read_text(encoding="utf-8"))
 
 failures = []
 
@@ -17,8 +18,8 @@ def require(condition, message):
         failures.append(message)
 
 
-expected_commit = "379ff62eee8157efe0115ee825933adbefc493d2"
-expected_digest = "611188e3ab10e20c62a3229604f03dbf39d6fa02f2ed14ffa2d787a55681b982"
+expected_commit = "fbbadb70b4d0c480f5d4ae58c4b6285b3164fccc"
+expected_digest = "eed3e281958989ac478c3b9ec14878c76299460e57c3f4e80e6d55dbd4418820"
 require(artifact.get("contract") == "monderman-public-diagnostic-sample-output/v1", "unexpected production sample artifact contract")
 require(artifact.get("engine_commit") == expected_commit, "sample artifact is not locked to the reviewed API main revision")
 require(artifact.get("artifact_sha256") == expected_digest, "sample artifact digest is not the reviewed digest")
@@ -26,6 +27,7 @@ digest_input = dict(artifact)
 digest_input.pop("artifact_sha256", None)
 canonical = json.dumps(digest_input, separators=(",", ":"), ensure_ascii=False)
 require(hashlib.sha256(canonical.encode("utf-8")).hexdigest() == expected_digest, "sample artifact content does not match its digest")
+require(artifact == engine_fixture, "public Diagnostic samples have drifted from the certified authenticated-engine fixture")
 require("no customer data and no model-authored claims" in artifact.get("generation_mode", ""), "sample generation mode is not bounded")
 require(len(artifact.get("source_blobs", {})) >= 14, "engine-source provenance is incomplete")
 
@@ -55,18 +57,18 @@ for key, contract in expected.items():
     require(result.get("interpretive_prose", {}).get("executive_summary"), f"{key} executive summary missing")
     require(result.get("canonical_descriptor", {}).get("priority_ladder"), f"{key} canonical priority ladder missing")
 
-require('sample-report-production.css?v=611188e3ab10' in sample, "sample page does not load the production-contract presentation")
-require('sample-report-production.js?v=611188e3ab10' in sample, "sample page does not load the production-contract renderer")
-require('sample-data/production-diagnostic-samples.json?v=611188e3ab10' in renderer, "renderer does not load the reviewed artifact")
+require('sample-report-production.css?v=eed3e2819589' in sample, "sample page does not load the production-contract presentation")
+require('sample-report-production.js?v=eed3e2819589' in sample, "sample page does not load the production-contract renderer")
+require('sample-data/production-diagnostic-samples.json?v=eed3e2819589' in renderer, "renderer does not load the reviewed artifact")
 for key in ["operational_systems", "decision_velocity", "structural_clarity", "institutional_performance"]:
     require(key in renderer, f"renderer omits {key}")
 for token in [
-    "Executive headline", "Dimension profile", "Observed burden", "Governance and capacity",
-    "Evidence status", "Action ladder", "Method and limits", "Interpretation boundary",
-    "No participant notes were supplied", "Download representative JSON", "Print or save PDF",
+    "MondermanReport", "Report.fromRun(source)", "Report.render(stage, model)",
+    "Report.downloadHtml(model)", "Report.downloadJson(source", "Report.downloadPdf(model)",
+    "Download HTML", "Download JSON", "Print or save PDF",
     "data-engine-commit", "data-artifact-sha256",
 ]:
-    require(token in renderer, f"production Diagnostic renderer missing: {token}")
+    require(token in renderer, f"shared production Diagnostic renderer bridge missing: {token}")
 for stale in ["Competing readings", "What would update this read"]:
     require(stale not in renderer, f"outdated standalone section required by production renderer: {stale}")
 
@@ -85,7 +87,7 @@ for token in ["Cross-Lens Composite Score Withheld", "Agreement, divergence, and
     require(token in shared, f"shared Synthesis renderer missing: {token}")
 
 for token in [
-    '@media (max-width:640px)', '.psr-remedy-grid { grid-template-columns:1fr; }',
+    '@media (max-width:640px)', '.psr-toolbar-actions { width:100%;',
     '.psr-wrap { padding:0 10px;', '@media print', 'print-color-adjust:exact',
 ]:
     require(token in styles, f"responsive/print report protection missing: {token}")

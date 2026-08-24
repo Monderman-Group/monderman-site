@@ -54,14 +54,14 @@ const diagnostics = {
 for (const [key, expected] of Object.entries(diagnostics)) {
   const shell = await openTab(key);
   const report = shell.locator('.psr-wrap');
-  assert(await report.getAttribute('data-engine-commit') === '379ff62eee8157efe0115ee825933adbefc493d2', `${key} engine revision mismatch`);
-  assert(await report.getAttribute('data-artifact-sha256') === '611188e3ab10e20c62a3229604f03dbf39d6fa02f2ed14ffa2d787a55681b982', `${key} artifact digest mismatch`);
-  assert((await shell.locator('.psr-score strong').textContent()).trim() === expected.score, `${key} score mismatch`);
-  assert(await shell.locator('.psr-dimension').count() === expected.dimensions, `${key} dimension profile mismatch`);
-  assert(await shell.locator('.psr-remedy').count() === 3, `${key} remedy-path count mismatch`);
+  assert(await report.getAttribute('data-engine-commit') === 'fbbadb70b4d0c480f5d4ae58c4b6285b3164fccc', `${key} engine revision mismatch`);
+  assert(await report.getAttribute('data-artifact-sha256') === 'eed3e281958989ac478c3b9ec14878c76299460e57c3f4e80e6d55dbd4418820', `${key} artifact digest mismatch`);
+  assert((await shell.locator('.mr-run-score-stamp strong').textContent()).trim() === expected.score, `${key} score mismatch`);
+  assert(await shell.locator('.mr-dimension-row').count() === expected.dimensions, `${key} dimension profile mismatch`);
+  assert(await shell.locator('.mr-run-remedy').count() === 3, `${key} remedy-path count mismatch`);
   assert(await shell.locator('.cover').count() === 0, `${key} legacy sample remains in the live DOM`);
   const text = await shell.textContent();
-  for (const token of ['Production-engine-generated representative output','Executive headline','Observed burden','Evidence status','Action ladder','Method and limits','Interpretation boundary','No participant notes were supplied']) {
+  for (const token of ['Executive decision brief','Dimension profile','Constraint concentration','Evidence status','Priority map','Method and limits','Interpretation boundary','No participant notes were supplied','Leadership handoff']) {
     assert(text.includes(token), `${key} production-contract section missing: ${token}`);
   }
   await page.screenshot({ path: path.join(out, `${key}-full.png`), fullPage: true });

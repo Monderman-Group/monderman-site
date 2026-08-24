@@ -82,15 +82,15 @@ production_renderer = (ROOT / "sample-report-production.js").read_text(encoding=
 production_styles = (ROOT / "sample-report-production.css").read_text(encoding="utf-8")
 req('Representative product outputs — not customer data.' in sample, 'top representative-output disclosure missing')
 req('synthesis-report-stage' in sample, 'Synthesis report stage wrapper missing')
-req('sample-report-production.js?v=611188e3ab10' in sample, 'production sample renderer missing')
-req('sample-report-production.css?v=611188e3ab10' in sample, 'production sample presentation missing')
-req('sample-data/production-diagnostic-samples.json?v=611188e3ab10' in production_renderer, 'production artifact URL mismatch')
+req('sample-report-production.js?v=eed3e2819589' in sample, 'production sample renderer missing')
+req('sample-report-production.css?v=eed3e2819589' in sample, 'production sample presentation missing')
+req('sample-data/production-diagnostic-samples.json?v=eed3e2819589' in production_renderer, 'production artifact URL mismatch')
 req('data-engine-commit' in production_renderer and 'data-artifact-sha256' in production_renderer, 'visible sample provenance missing')
-for token in ['Executive headline','Dimension profile','Observed burden','Governance and capacity','Evidence status','Action ladder','Method and limits','Interpretation boundary']:
-    req(token in production_renderer, f'production Diagnostic presentation missing: {token}')
-req('No participant notes were supplied' in production_renderer, 'empty participant-evidence state is not explicit')
+for token in ['Report.fromRun(source)','Report.render(stage, model)','Report.downloadHtml(model)','Report.downloadJson(source','Report.downloadPdf(model)']:
+    req(token in production_renderer, f'public Diagnostic sample bypasses the certified engine bridge: {token}')
 for token in ['Executive decision brief','Dimension profile','Capacity exposure','Leadership read','Evidence status','Action architecture','Method and limits','Leadership handoff','Interpretation boundary']:
     req(token in report, f'authenticated Diagnostic presentation missing: {token}')
+req('No participant notes were supplied' in report, 'empty participant-evidence state is not explicit')
 for token in ['mr-run-decision','mr-dimension-profile','mr-constraint-view','mr-exposure-flow','mr-priority-matrix','mr-priority-ladder','mr-remedy-grid','mr-remedy-evidence','mr-run-method','mr-leadership-close']:
     req(token in report, f'premium Diagnostic visual contract missing: {token}')
 for token in ['mr-depth-system-read','mr-depth-metrics','mr-interaction-grid','mr-system-metrics']:
