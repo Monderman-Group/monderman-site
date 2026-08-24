@@ -93,6 +93,7 @@ const depth = {
       { participant_mode: "managerial", n: 800, mean_score: 66, median_score: 66 },
       { participant_mode: "senior_leader", n: 500, mean_score: 70, median_score: 70 },
     ],
+    vantage_gap: { gap: 8, low_segment: "operational", high_segment: "senior_leader", statement: "The observed senior-leader mean is 8 points above the operational mean." },
     interpretation_limit: "These statistics describe the submitted runs.",
   }],
   source_groups: [{ tool_type: "institutional_performance", tool_label: "Institutional Performance", respondents: 2500, mean_score: 65, median_score: 65, score_iqr: [61, 69], score_range: [52, 79], modal_driver_pattern: "institutional_fragility" }],
@@ -112,10 +113,18 @@ assert.equal(depthModel.product, "depth");
 assert.equal(depthModel.headlineScore, 65);
 const depthHtml = Report.buildReportHtml(depthModel);
 assert.match(depthHtml, /Depth Synthesis Executive Report/);
-assert.match(depthHtml, /Observed participant distribution/);
+assert.match(depthHtml, /Agreement, divergence, and coverage/);
+assert.match(depthHtml, /Median Diagnostic Score/);
 assert.match(depthHtml, /2,500/);
 assert.match(depthHtml, /Observed respondent set/);
 assert.match(depthHtml, /Population generalization requires a documented sampling frame/);
+assert.match(depthHtml, /aria-label="Depth Synthesis score distribution"/);
+assert.match(depthHtml, /Interquartile range/);
+assert.match(depthHtml, /Perspective difference/);
+assert.match(depthHtml, /Agreement versus divergence/);
+assert.match(depthHtml, /Outlier status/);
+assert.match(depthHtml, /Not classified from aggregate source data/);
+assert.match(depthHtml, /Vantage difference/);
 
 const divided = structuredClone(depth);
 divided.sample_reads[0].consensus = { read: "divided", detail: "The observed runs form two materially separated score groups.", split: { lower_share_pct: 45, upper_share_pct: 55 } };
@@ -181,6 +190,12 @@ assert.match(comparisonHtml, /Lens comparison—not a composite diagnosis/);
 assert.match(comparisonHtml, /Composite withheld/);
 assert.match(comparisonHtml, /Operational Systems needs 32 additional runs/);
 assert.match(comparisonHtml, /Pathway exposure withheld/);
+assert.match(comparisonHtml, /aria-label="Four Diagnostic lenses connected to the equal-lens Cross-Lens Composite Score"/);
+assert.match(comparisonHtml, /COMPOSITE WITHHELD/);
+assert.match(comparisonHtml, /Lens interaction evidence/);
+assert.match(comparisonHtml, /Review and operating overhead/);
+assert.match(comparisonHtml, /Compounding constraints to investigate/);
+assert.match(comparisonHtml, /Co-occurrence supports a systems hypothesis; it does not establish a causal chain/);
 assert.doesNotMatch(comparisonHtml, /Severe observed strain/);
 
 const coherent = structuredClone(comparison);
@@ -214,6 +229,9 @@ const coherentHtml = Report.buildReportHtml(Report.fromSynthesis(coherent));
 assert.match(coherentHtml, /Equal-lens composite condition score/);
 assert.match(coherentHtml, /Each diagnostic lens receives one vote/);
 assert.match(coherentHtml, />60</);
+assert.match(coherentHtml, /EQUAL-LENS COMPOSITE/);
+assert.match(coherentHtml, /Strongest observed lens/);
+assert.match(coherentHtml, /Weakest observed lens/);
 
 const missingEconomics = structuredClone(coherent);
 missingEconomics.pathway_exposure = { status: "unavailable", label: "Pathway exposure unavailable", withheld_reason: "The submitted results do not contain source-backed exposure estimates." };

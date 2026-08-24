@@ -7,6 +7,7 @@ on:
       - 'sample-report-production.js'
       - 'sample-report-production.css'
       - 'sample-data/production-diagnostic-samples.json'
+      - 'test-fixtures/authenticated-report-engine-runs.json'
       - 'operational-systems.html'
       - 'decision-velocity.html'
       - 'structural-clarity.html'
@@ -24,6 +25,7 @@ on:
       - 'scripts/workspace_legal_gate_smoke.mjs'
       - 'scripts/homepage_assistant_smoke.mjs'
       - 'scripts/report_presentation_smoke.mjs'
+      - 'scripts/authenticated_report_engine_fixture.mjs'
       - 'scripts/report_pdf_smoke.mjs'
       - 'scripts/sample_product_fidelity_smoke.mjs'
       - 'scripts/sample_product_fidelity_smoke_v2.mjs'
@@ -40,6 +42,7 @@ on:
       - 'sample-report-production.js'
       - 'sample-report-production.css'
       - 'sample-data/production-diagnostic-samples.json'
+      - 'test-fixtures/authenticated-report-engine-runs.json'
       - 'operational-systems.html'
       - 'decision-velocity.html'
       - 'structural-clarity.html'
@@ -57,6 +60,7 @@ on:
       - 'scripts/workspace_legal_gate_smoke.mjs'
       - 'scripts/homepage_assistant_smoke.mjs'
       - 'scripts/report_presentation_smoke.mjs'
+      - 'scripts/authenticated_report_engine_fixture.mjs'
       - 'scripts/report_pdf_smoke.mjs'
       - 'scripts/sample_product_fidelity_smoke.mjs'
       - 'scripts/sample_product_fidelity_smoke_v2.mjs'
@@ -88,6 +92,7 @@ jobs:
           node --check monderman-report.js
           node --check sample-report-production.js
           node --check scripts/generate_production_sample_outputs.mjs
+          node --check scripts/authenticated_report_engine_fixture.mjs
           node --check scripts/report_presentation_smoke.mjs
           node --check scripts/report_pdf_smoke.mjs
           node --check scripts/sample_product_fidelity_smoke.mjs
@@ -95,6 +100,7 @@ jobs:
           node --check scripts/homepage_assistant_smoke.mjs
           node scripts/diagnostic_draft_recovery_smoke.mjs
           node scripts/workspace_legal_gate_smoke.mjs
+          node scripts/authenticated_report_engine_fixture.mjs
           python scripts/validate_diagnostic_inline_js.py
           python scripts/validate_report_presentation.py
           python scripts/validate_sample_product_fidelity.py
