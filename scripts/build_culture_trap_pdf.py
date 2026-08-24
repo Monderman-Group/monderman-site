@@ -13,6 +13,8 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen.canvas import Canvas
 from reportlab.platypus import Paragraph
 
+from pdf_brand_lockup import draw_header_lockup
+
 ROOT = Path(__file__).resolve().parents[1]
 OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "Monderman_Brief_The_Culture_Trap.pdf"
 FONT_DIR = ROOT / "pdf-src" / "fonts"
@@ -72,8 +74,9 @@ def card(c, x, top, w, h, headline, label, body):
 
 def cover(c):
     c.setFillColor(DARK); c.rect(0,0,W,H,fill=1,stroke=0)
-    c.setFillColor(HexColor("#FFFFFF")); c.setFont("Haas-Bold",15); c.drawString(M,H-74,"M  O  N  D  E  R  M  A  N")
+    draw_header_lockup(c, x=M, baseline=H-74, contrast_field=True)
     c.setStrokeColor(HexColor("#8FC4C9")); c.line(M,H-92,M+52,H-92)
+    c.setFillColor(HexColor("#FFFFFF"))
     c.setFont("Haas-Bold",8.5); c.drawString(M,H-190,"I N S T I T U T I O N A L   P E R F O R M A N C E   R E S E A R C H")
     c.setFont("Haas-Bold",49); c.drawString(M,H-254,"The Culture Trap")
     paragraph(c,"Why sentiment measurement can locate strain without identifying the organizational systems beneath it.",M,H-282,W-2*M,ParagraphStyle("cover-sub",fontName="Haas-Medium",fontSize=19,leading=23,textColor=HexColor("#9ED0D3")))
