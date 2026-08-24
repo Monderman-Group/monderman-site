@@ -61,6 +61,39 @@ for token in ['body:has(#mnd-panel.mnd-open) .mdn-cn-launch','body:has(#mdn-cn-p
 canonical_shell=(r/'canonical-site-shell.js').read_text(errors='ignore')
 canonical_css=(r/'canonical-site-shell.css').read_text(errors='ignore')
 assistant_source=(r/'assistant.js').read_text(errors='ignore')
+public_header_pages=[]
+public_header_css_versions=set()
+public_header_js_versions=set()
+for page in r.glob('*.html'):
+ t=page.read_text(errors='ignore')
+ if 'id="siteHeader"' in t:
+  public_header_pages.append(page.name)
+  if '<body class="canonical-green-shell' not in t:e.append(page.name+': canonical header shell scope missing')
+  css_version=re.search(r'canonical-site-shell\.css\?v=([^"\']+)',t)
+  js_version=re.search(r'canonical-site-shell\.js\?v=([^"\']+)',t)
+  if not css_version:e.append(page.name+': versioned canonical header styles missing')
+  else:public_header_css_versions.add(css_version.group(1))
+  if not js_version:e.append(page.name+': versioned canonical header behavior missing')
+  else:public_header_js_versions.add(js_version.group(1))
+if not public_header_pages:e.append('canonical public headers missing')
+if len(public_header_css_versions)!=1:e.append('canonical public header style versions diverge: '+str(sorted(public_header_css_versions)))
+if len(public_header_js_versions)!=1:e.append('canonical public header behavior versions diverge: '+str(sorted(public_header_js_versions)))
+if 'past-hero' in idx or 'past-hero' in canonical_css or 'past-hero' in canonical_shell:
+ e.append('homepage-only past-hero header state remains')
+for token in ['font-size:.975rem;line-height:1.2;font-weight:500','font-size:.9375rem;line-height:1.2;font-weight:500']:
+ if token not in canonical_css:e.append('canonical header type scale '+token)
+compact_header_contract={
+ 'cross-tool-synthesis.html':'font-size:.975rem;line-height:1.2;font-weight:500',
+ 'checkout.html':'font-size:.9375rem;line-height:1.2',
+ 'pattern-trial.html':'font-size:.9375rem;line-height:1.2',
+ 'workspace.html':'text-decoration:none;font-size:15px;font-weight:450',
+ 'workspace-actions.html':'text-decoration:none;font-size:15px',
+ 'workspace-analysis.html':'text-decoration:none;font-size:15px',
+ 'workspace-diagnostics.html':'text-decoration:none;font-size:15px',
+ 'workspace-settings.html':'text-decoration:none;font-size:15px',
+}
+for name,token in compact_header_contract.items():
+ if token not in (r/name).read_text(errors='ignore'):e.append(name+': readable compact header type scale missing')
 if 'if (!document.body.classList.contains("canonical-green-shell"))' not in assistant_source:
  e.append('assistant legacy header fallback overrides canonical mobile navigation')
 for token in ['site-menu-button','aria-label", "Open navigation','mobile-nav-open','closeMobileNav','event.key === "Escape"']:

@@ -1973,11 +1973,6 @@
   }
 }
 .header.scrolled{background:rgba(5,24,27,0.72);border-bottom-color:rgba(255,255,255,0.07)}
-.header.scrolled.past-hero{background:rgba(250,250,248,0.90);border-bottom-color:rgba(24,25,28,0.08)}
-.header.past-hero .brand{color:#18191C;text-shadow:none}
-.header.past-hero .nav a{color:rgba(24,25,28,0.74)}
-.header.past-hero .nav a:hover,.header.past-hero .nav a:focus-visible{color:#18191C}
-.header.past-hero .nav a.is-active{color:#0C6E78}
 .hero h1,.hero-dek{text-shadow:none}
 .cost-card-number{color:#C9821F}
 @media (min-aspect-ratio: 21/9) and (min-width: 1500px){
@@ -2211,7 +2206,7 @@
   #latest-title,
   #connect-title{font-size:clamp(32px,3vw,38.4px);line-height:1.08;letter-spacing:-.04em}
 </style>
-<link rel="stylesheet" href="canonical-site-shell.css?v=20260824-wide1">
+<link rel="stylesheet" href="canonical-site-shell.css?v=20260824-header2">
 <style id="homepage-editorial-pass">
   body{display:flex;flex-direction:column;}
   body>.header{order:0;} body>.hero{order:1;} body>.proof-band{order:2;} body>.mxidx-band{order:3;} body>.systems-analysis-bridge{order:4;} body>.approach{order:5;} body>.measurement-loop{order:6;} body>.book-band{order:7;} body>.latest{order:8;} body>.connect{order:9;} body>.footer{order:10;}
@@ -3040,7 +3035,6 @@
   </footer>
 <script>
     const heroImage = document.getElementById("heroImage");
-    const header = document.getElementById("siteHeader");
     function revealHero() {
       if (!heroImage) return;
       heroImage.classList.add("is-loaded");
@@ -3050,15 +3044,6 @@
     } else if (heroImage) {
       heroImage.addEventListener("load", revealHero, { once: true });
     }
-    var heroEl = document.querySelector(".hero");
-    function updateHeader() {
-      if (!header) return;
-      var heroH = heroEl ? heroEl.offsetHeight : window.innerHeight;
-      header.classList.toggle("scrolled", window.scrollY > 24);
-      header.classList.toggle("past-hero", window.scrollY > heroH - 72);
-    }
-    updateHeader();
-    window.addEventListener("scroll", updateHeader, { passive: true });
     const costSection = document.getElementById("cost-section");
     const counters = document.querySelectorAll(".cost-card-number");
     let hasCounted = false;
@@ -3367,7 +3352,7 @@
     })();
   </script>
 
-<script src="canonical-site-shell.js?v=20260824-wide1"></script>
+<script src="canonical-site-shell.js?v=20260824-header2"></script>
 <script src="assistant.js" defer></script>
   <script src="connect-widget.js" defer></script>
   <script>
