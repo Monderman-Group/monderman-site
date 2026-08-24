@@ -82,7 +82,7 @@ production_renderer = (ROOT / "sample-report-production.js").read_text(encoding=
 production_styles = (ROOT / "sample-report-production.css").read_text(encoding="utf-8")
 req('Representative product outputs — not customer data.' in sample, 'top representative-output disclosure missing')
 req('synthesis-report-stage' in sample, 'Synthesis report stage wrapper missing')
-req('sample-report-production.js?v=20260824-sample-alignment' in sample, 'aligned production sample renderer missing')
+req('sample-report-production.js?v=20260824-sample-alignment2' in sample, 'aligned production sample renderer missing')
 req('sample-report-production.css?v=20260824-sample-alignment' in sample, 'aligned production sample presentation missing')
 req('sample-data/production-diagnostic-samples.json?v=eed3e2819589' in production_renderer, 'production artifact URL mismatch')
 req('data-engine-commit' in production_renderer and 'data-artifact-sha256' in production_renderer, 'visible sample provenance missing')

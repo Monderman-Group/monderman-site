@@ -39,6 +39,11 @@
       li.appendChild(link);
       list.appendChild(li);
       links.push(link);
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        const target = document.getElementById(id);
+        if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
       const option = document.createElement("option");
       option.value = id;
       option.textContent = String(index + 1).padStart(2, "0") + " · " + label;
