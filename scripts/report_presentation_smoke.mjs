@@ -79,7 +79,7 @@ const coverBoundaryText = await cross.locator('.mr-cover .mr-cover-boundary').te
 assert(/not a proven causal model/i.test(coverBoundaryText), 'Cross-Lens cover boundary lost its causal-interpretation limit');
 
 const crossFirstHeading = (await cross.locator('.mr-section h2').first().textContent()).trim();
-assert(/Controls being preserved|Cross-Lens/i.test(crossFirstHeading), `Cross-Lens system read is not first substantive section: ${crossFirstHeading}`);
+assert(await cross.locator('.mr-system-read').evaluate(el => el === el.parentElement.querySelector('.mr-section')), `Cross-Lens system read is not first substantive section: ${crossFirstHeading}`);
 const crossSystem = cross.locator('svg[aria-label="Four Diagnostic lenses connected to the equal-lens Cross-Lens Composite Score"]');
 assert(await crossSystem.isVisible(), 'Cross-Lens system picture not visible');
 assert(await crossSystem.locator('circle').count() >= 2, 'Cross-Lens system picture lacks a substantive composite graphic');
