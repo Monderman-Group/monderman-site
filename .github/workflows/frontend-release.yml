@@ -30,6 +30,8 @@ jobs:
       - run: python scripts/validate_stabilization.py
       - run: node scripts/workspace_legal_gate_smoke.mjs
       - run: node scripts/campaign_participant_reliability_smoke.mjs
+      - name: Reject cross-member Workspace context regressions
+        run: python scripts/validate_workspace_membership_scope.py
       - name: Reject authenticated Diagnostic draft-recovery regressions
         run: node scripts/diagnostic_draft_recovery_smoke.mjs
       - name: Reject Diagnostic completion-protection regressions

@@ -970,7 +970,7 @@ body{transition:background-color .25s ease, color .25s ease}
       const name=user.user_metadata?.full_name || user.user_metadata?.name || user.email || "Monderman User";
       setText("ws5UserName",name); setText("ws5Ava", initials(name,user.email));
       try{
-        const { data:m } = await supabase.from("organization_members").select("organization_id, role, organizations(name, plan, anonymous_responses_enabled, campaigns_enabled, respondent_pool, respondents_used, subscription_status, pattern_trial_ends_at)").eq("organization_id",window.__mondermanActiveOrganizationId).maybeSingle();
+        const { data:m } = await supabase.from("organization_members").select("organization_id, role, organizations(name, plan, anonymous_responses_enabled, campaigns_enabled, respondent_pool, respondents_used, subscription_status, pattern_trial_ends_at)").eq("user_id",user.id).eq("organization_id",window.__mondermanActiveOrganizationId).maybeSingle();
         state.orgId = m?.organization_id || null;
         state.role = m?.role || "viewer"; state.organization=m?.organizations||null;
         setText("ws5UserRole", cap(state.role));
@@ -1628,7 +1628,7 @@ body{transition:background-color .25s ease, color .25s ease}
       if(!user){ window.location.replace("signin.html?next=workspace-diagnostics.html"); return; }
       state.user=user; state.userId=user.id;
       try{
-        const { data:m } = await supabase.from("organization_members").select("organization_id, role, organizations(name, plan, anonymous_responses_enabled, campaigns_enabled, respondent_pool, respondents_used, subscription_status, pattern_trial_ends_at)").eq("organization_id",window.__mondermanActiveOrganizationId).maybeSingle();
+        const { data:m } = await supabase.from("organization_members").select("organization_id, role, organizations(name, plan, anonymous_responses_enabled, campaigns_enabled, respondent_pool, respondents_used, subscription_status, pattern_trial_ends_at)").eq("user_id",user.id).eq("organization_id",window.__mondermanActiveOrganizationId).maybeSingle();
         state.orgId = m?.organization_id || null;
         state.role = m?.role || "viewer";
         state.organization = m?.organizations || null;
