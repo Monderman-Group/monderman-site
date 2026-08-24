@@ -9,6 +9,11 @@
 
 .psr-wrap { width:100%; max-width:1160px; margin:0 auto 72px; padding:0 20px; box-sizing:border-box; color:#18191C; }
 .psr-wrap, .psr-wrap * { box-sizing:border-box; }
+.psr-doc-shell .psr-main { min-width:0; }
+.psr-doc-shell .psr-wrap { max-width:none; margin:0; padding:0; }
+.psr-doc-shell .psr-toolbar { margin-top:0; }
+.psr-toc-mobile { scroll-margin-top:90px; }
+.psr-toc a { overflow-wrap:anywhere; }
 .psr-toolbar { display:flex; justify-content:space-between; gap:18px; align-items:center; margin:20px 0 14px; padding:13px 16px; border:1px solid #DCD8CF; border-radius:10px; background:#F7F5F0; font-size:.76rem; color:#6E6F73; }
 .psr-toolbar > div:first-child { display:grid; gap:2px; min-width:0; }
 .psr-toolbar strong { color:#18191C; letter-spacing:.07em; text-transform:uppercase; }
@@ -19,8 +24,13 @@
 .psr-engine-stage { min-width:0; }
 .psr-load-error { margin:24px auto 80px; max-width:800px; padding:28px; border:1px solid #C8A6A6; background:#FFF8F8; color:#6F2525; }
 
+@media (max-width:1080px) {
+  .psr-doc-shell { grid-template-columns:minmax(0,1fr); gap:0; }
+}
+
 @media (max-width:640px) {
   .psr-wrap { padding:0 10px; margin-bottom:42px; }
+  .psr-doc-shell .psr-wrap { padding:0; }
   .psr-toolbar { align-items:flex-start; flex-direction:column; }
   .psr-toolbar-actions { width:100%; justify-content:stretch; }
   .psr-toolbar button { flex:1 1 120px; }
@@ -30,7 +40,8 @@
   body * { visibility:hidden !important; }
   .report-shell:not([hidden]), .report-shell:not([hidden]) * { visibility:visible !important; }
   .report-shell:not([hidden]) { position:absolute; inset:0; width:100%; }
-  .psr-toolbar, .header, .meta-bar, .intro-pin, .dx-tabs-wrap, .mond-footer, .site-assistant, .connect-fab { display:none !important; }
+  .psr-toolbar, .psr-toc-mobile, .psr-toc, .header, .meta-bar, .intro-pin, .dx-tabs-wrap, .mond-footer, .site-assistant, .connect-fab { display:none !important; }
+  .psr-doc-shell { display:block; max-width:none; margin:0; padding:0; }
   .psr-wrap { max-width:none; margin:0; padding:0; }
   .psr-engine-stage { print-color-adjust:exact; -webkit-print-color-adjust:exact; }
 }

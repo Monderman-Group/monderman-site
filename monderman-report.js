@@ -704,7 +704,10 @@
     if (!groups.length) return "";
     const positions = [[118, 92], [602, 92], [118, 288], [602, 288]];
     const centerX = 360, centerY = 190;
+    const compositeAccessibleLabel = m.scorePublished ? "EQUAL-LENS COMPOSITE" : "COMPOSITE WITHHELD";
+    const compositeLabel = m.scorePublished ? ["EQUAL-LENS", "COMPOSITE"] : ["COMPOSITE", "WITHHELD"];
     let svg = '<svg class="mr-system-map" viewBox="0 0 720 390" role="img" aria-label="Four Diagnostic lenses connected to the equal-lens Cross-Lens Composite Score">';
+    svg += '<desc>Center label: ' + esc(compositeAccessibleLabel) + '</desc>';
     svg += '<defs><linearGradient id="mr-system-gradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0C6E78"/><stop offset="1" stop-color="#08383E"/></linearGradient></defs>';
     groups.forEach((lens, index) => {
       const point = positions[index];
@@ -714,7 +717,11 @@
     svg += '<circle cx="' + centerX + '" cy="' + centerY + '" r="83" fill="none" stroke="rgba(12,110,120,.16)" stroke-width="2"/>';
     svg += '<text x="' + centerX + '" y="' + (centerY - 23) + '" text-anchor="middle" fill="#A9CED1" font-size="10" font-weight="700" letter-spacing="1.6">CROSS-LENS</text>';
     svg += '<text x="' + centerX + '" y="' + (centerY + 15) + '" text-anchor="middle" fill="#FFF" font-size="38" font-weight="700" letter-spacing="-2">' + esc(m.scorePublished ? fmt1(m.score) : "—") + '</text>';
-    svg += '<text x="' + centerX + '" y="' + (centerY + 37) + '" text-anchor="middle" fill="#A9CED1" font-size="11" font-weight="600">' + esc(m.scorePublished ? "EQUAL-LENS COMPOSITE" : "COMPOSITE WITHHELD") + '</text>';
+    svg += '<text class="mr-system-composite-label" x="' + centerX + '" y="' + (centerY + 35) + '" text-anchor="middle" fill="#A9CED1" font-size="9.5" font-weight="700" letter-spacing=".55">';
+    compositeLabel.forEach((line, index) => {
+      svg += '<tspan x="' + centerX + '" dy="' + (index ? 13 : 0) + '">' + esc(line) + '</tspan>';
+    });
+    svg += '</text>';
     groups.forEach((lens, index) => {
       const point = positions[index], label = splitSvgLabel(lens.toolLabel);
       const x = point[0] - 96, y = point[1] - 43;

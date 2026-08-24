@@ -83,13 +83,21 @@ assert(await cross.locator('.mr-system-read').evaluate(el => el === el.parentEle
 const crossSystem = cross.locator('svg[aria-label="Four Diagnostic lenses connected to the equal-lens Cross-Lens Composite Score"]');
 assert(await crossSystem.isVisible(), 'Cross-Lens system picture not visible');
 assert(await crossSystem.locator('circle').count() >= 2, 'Cross-Lens system picture lacks a substantive composite graphic');
+const compositeLabelBox = await crossSystem.locator('.mr-system-composite-label').evaluate(el => {
+  const box = el.getBBox();
+  return { x:box.x, y:box.y, right:box.x + box.width, bottom:box.y + box.height, width:box.width, height:box.height };
+});
+assert(compositeLabelBox.x >= 290 && compositeLabelBox.right <= 430 && compositeLabelBox.bottom <= 258, `Cross-Lens composite label escapes its circle: ${JSON.stringify(compositeLabelBox)}`);
 assert(await cross.locator('.mr-system-metrics .mr-run-metric').count() === 4, 'Cross-Lens system read does not expose four board metrics');
 const crossChart = cross.locator('svg[aria-label="Cross-Lens Diagnostic score comparison"]');
 assert(await crossChart.isVisible(), 'Cross-Lens comparison chart not visible');
 const crossChartFont = await crossChart.evaluate(el => getComputedStyle(el).fontFamily);
 assert(isMondermanFont(crossChartFont), `Cross-Lens chart bypasses Neue Haas Grotesk: ${crossChartFont}`);
 const crossTop = await crossSystem.evaluate(el => el.getBoundingClientRect().top + window.scrollY);
-const crossStart = await cross.evaluate(el => el.getBoundingClientRect().top + window.scrollY);
+// Promotional navigation and export controls sit outside the generated report.
+// Measure the report hierarchy from the production renderer's document root so
+// shell chrome cannot create a false regression in the executive-layout gate.
+const crossStart = await cross.locator('.mr-report').evaluate(el => el.getBoundingClientRect().top + window.scrollY);
 assert(crossTop - crossStart < 1150, `Cross-Lens chart is still buried ${Math.round(crossTop-crossStart)}px into report`);
 
 const crossText = await cross.textContent();
@@ -141,7 +149,7 @@ assert(await depthChart.isVisible(), 'Depth distribution chart not visible');
 const depthChartFont = await depthChart.evaluate(el => getComputedStyle(el).fontFamily);
 assert(isMondermanFont(depthChartFont), `Depth chart bypasses Neue Haas Grotesk: ${depthChartFont}`);
 const depthTop = await depthChart.evaluate(el => el.getBoundingClientRect().top + window.scrollY);
-const depthStart = await depth.evaluate(el => el.getBoundingClientRect().top + window.scrollY);
+const depthStart = await depth.locator('.mr-report').evaluate(el => el.getBoundingClientRect().top + window.scrollY);
 assert(depthTop - depthStart < 1150, `Depth chart is still buried ${Math.round(depthTop-depthStart)}px into report`);
 assert((await depth.textContent()).includes('15.8'), 'Depth vantage gap not visible');
 assert((await depth.textContent()).includes('Evidence-proportionate actions'), 'Depth actions missing');
