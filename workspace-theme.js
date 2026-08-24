@@ -17,7 +17,7 @@
   var favicon = document.createElement("link");
   favicon.rel = "icon";
   favicon.type = "image/svg+xml";
-  favicon.href = "assets/brand/monderman-favicon.svg";
+  favicon.href = "assets/brand/monderman-favicon.svg?v=20260824-wide1";
   document.head.appendChild(favicon);
   if (!document.querySelector('link[href="assets/brand/brand-lockup.css"]')) {
     var brandStyles = document.createElement("link");
@@ -50,7 +50,7 @@
     document.querySelectorAll(".ws-brand,.ws5-brand").forEach(function (brand) {
       if (brand.querySelector(".monderman-lockup__mark")) return;
       brand.classList.add("monderman-lockup");
-      brand.insertAdjacentHTML("afterbegin", '<svg class="monderman-lockup__mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M15 15L23.5 8L32 14L40.5 8L49 15V56L40.5 49L32 55L23.5 49L15 56Z" stroke-width="2.8" stroke-linejoin="round"/><path d="M23.5 8V49M32 14V55M40.5 8V49" stroke-width="2.4" stroke-linecap="round"/></svg>');
+      brand.insertAdjacentHTML("afterbegin", '<svg class="monderman-lockup__mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M9.5 15L20.75 8L32 14L43.25 8L54.5 15V56L43.25 49L32 55L20.75 49L9.5 56Z" stroke-width="2.8" stroke-linejoin="round"/><path d="M20.75 8V49M32 14V55M43.25 8V49" stroke-width="2.4" stroke-linecap="round"/></svg>');
       var name = brand.querySelector("b");
       if (name) name.classList.add("monderman-lockup__name");
       brand.querySelectorAll(".dot,.ws5-brand-dot").forEach(function (dot) { dot.remove(); });
