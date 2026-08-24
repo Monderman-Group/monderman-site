@@ -94,7 +94,10 @@ assert(await crossChart.isVisible(), 'Cross-Lens comparison chart not visible');
 const crossChartFont = await crossChart.evaluate(el => getComputedStyle(el).fontFamily);
 assert(isMondermanFont(crossChartFont), `Cross-Lens chart bypasses Neue Haas Grotesk: ${crossChartFont}`);
 const crossTop = await crossSystem.evaluate(el => el.getBoundingClientRect().top + window.scrollY);
-const crossStart = await cross.evaluate(el => el.getBoundingClientRect().top + window.scrollY);
+// Promotional navigation and export controls sit outside the generated report.
+// Measure the report hierarchy from the production renderer's document root so
+// shell chrome cannot create a false regression in the executive-layout gate.
+const crossStart = await cross.locator('.mr-report').evaluate(el => el.getBoundingClientRect().top + window.scrollY);
 assert(crossTop - crossStart < 1150, `Cross-Lens chart is still buried ${Math.round(crossTop-crossStart)}px into report`);
 
 const crossText = await cross.textContent();
