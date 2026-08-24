@@ -67,5 +67,5 @@
 <script>
 (()=>{const h=document.getElementById('siteHeader');const applyHeader=()=>h?.classList.toggle('scrolled',window.scrollY>24);applyHeader();window.addEventListener('scroll',applyHeader,{passive:true});const link=document.querySelector('a.workspace-link');if(!link||!window.supabase?.createClient)return;const sb=window.supabase.createClient('https://ptkxrzgmeldalrkfruth.supabase.co','sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'pkce'}});const apply=async()=>{let signedIn=false;try{const {data}=await sb.auth.getSession();signedIn=!!data?.session?.user}catch(e){}link.textContent=signedIn?'Workspace':'Sign In';link.setAttribute('href',signedIn?'workspace.html':'signin.html?next=workspace.html')};apply();sb.auth.onAuthStateChange(()=>apply())})();
 </script>
-<script src="canonical-site-shell.js?v=20260822-search2"></script>
+<script src="canonical-site-shell.js?v=20260824-brand1"></script>
 </body></html>
