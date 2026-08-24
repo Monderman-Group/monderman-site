@@ -1350,6 +1350,7 @@
     .mr-map-signal p{font-size:.86rem!important;line-height:1.5!important;color:#6E6F73!important;margin:0!important}
     .mr-map-tools{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;max-width:230px}
     .mr-system-read>h2{font-size:clamp(1.9rem,3.8vw,3.1rem)!important;line-height:1.02!important;letter-spacing:-.045em!important;max-width:22ch!important}
+    .mr-system-read{display:flex;flex-direction:column}.mr-system-read>.mr-system-panel{order:-1;margin-bottom:28px}
     .mr-system-panel{padding:22px 24px 18px!important;background:linear-gradient(180deg,#FAFAF8 0,#FFF 100%)}
     .mr-system-map{display:block;width:100%;height:auto;min-height:310px;font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif}
     .mr-system-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid #E0DCD3;border-radius:12px;overflow:hidden;margin:16px 0}
