@@ -237,7 +237,7 @@ for (const instrument of instruments) {
 const artifact = {
   contract: "monderman-public-diagnostic-sample-output/v1",
   engine_commit: API_COMMIT,
-  generated_at: "2026-08-23T00:00:00.000Z",
+  generated_at: "2026-08-24T04:07:00.000Z",
   generation_mode: "production scorer, canonical descriptor, and deterministic interpretive-prose builders; no customer data and no model-authored claims",
   source_blobs: SOURCE_BLOBS,
   outputs
