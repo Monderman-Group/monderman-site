@@ -31,6 +31,7 @@
     a:focus-visible{outline:3px solid rgba(12,110,120,.28);outline-offset:3px;border-radius:4px}
     button,input{font:inherit}
     button{appearance:none}
+    .signin-card [hidden]{display:none!important}
     h1,h2,h3{margin:0;letter-spacing:-.03em}
     p{margin:0;letter-spacing:-.01em}
 
@@ -93,6 +94,11 @@
     .legal-submit{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:48px;margin-top:15px;border:0;border-radius:12px;background:var(--accent-dark);color:#fff;font-weight:600;cursor:pointer}
     .legal-submit:focus-visible{outline:3px solid rgba(12,110,120,.28);outline-offset:3px}
     .legal-submit:disabled{opacity:.55;cursor:not-allowed}
+    .legal-decline{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:44px;margin-top:8px;border:1px solid var(--line-strong);border-radius:12px;background:transparent;color:var(--ink-soft);font-weight:600;cursor:pointer}
+    .legal-decline:hover{border-color:rgba(12,110,120,.4);color:var(--ink)}
+    .legal-decline:focus-visible{outline:3px solid rgba(12,110,120,.28);outline-offset:3px}
+    .legal-decline:disabled{opacity:.55;cursor:not-allowed}
+    .legal-acceptance .legal-decline-note{margin:10px 0 0;text-align:center;color:var(--ink-muted);font-size:.8rem}
 
     .sample-line{margin:18px 0 0;text-align:center;font-size:.9rem;color:var(--ink-soft)}
     .sample-line a{color:var(--accent-dark);font-weight:600}
@@ -161,9 +167,11 @@
         <p id="legalAcceptanceCopy">Your account is signed in. Complete this required acknowledgement before continuing.</p>
         <label class="legal-check">
           <input id="legalAgree" type="checkbox" />
-          <span>I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms of Service</a> and acknowledge the <a href="privacy.html" target="_blank" rel="noopener">Privacy Notice</a>.</span>
+          <span>I agree to the <a href="terms.html" id="legalTermsLink" target="_blank" rel="noopener">Terms of Service</a> and acknowledge the <a href="privacy.html" id="legalPrivacyLink" target="_blank" rel="noopener">Privacy Notice</a>. I understand that financial, time, capacity, productivity and recovery figures are directional estimates, not guaranteed outcomes, and that my organization is responsible for its data, decisions, implementation and results.</span>
         </label>
         <button class="legal-submit" id="legalSubmit" type="button" disabled>Agree and continue</button>
+        <button class="legal-decline" id="legalDecline" type="button">Decline and exit</button>
+        <p class="legal-decline-note" id="legalDeclineNote">If you decline, you will be signed out and cannot enter Workspace.</p>
       </section>
 
       <p class="sample-line">Not ready to sign up? <a href="sample-report.html">View a sample report first →</a></p>
@@ -280,6 +288,9 @@
       legalAcceptanceCopy: document.getElementById("legalAcceptanceCopy"),
       legalAgree: document.getElementById("legalAgree"),
       legalSubmit: document.getElementById("legalSubmit"),
+      legalDecline: document.getElementById("legalDecline"),
+      legalTermsLink: document.getElementById("legalTermsLink"),
+      legalPrivacyLink: document.getElementById("legalPrivacyLink"),
       invitationRecovery: document.getElementById("invitationRecovery"),
       sampleLine: document.querySelector(".sample-line"),
       footnote: document.querySelector(".signin-footnote"),
@@ -334,6 +345,15 @@
     let acceptanceCheckStarted = false;
     let pendingSession = null;
     let currentDocuments = null;
+    function legalDocumentPath(kind, version){
+      const normalized = String(version || "");
+      if (!/^\d{4}-\d{2}-\d{2}-beta$/.test(normalized)) throw new Error("invalid_legal_document_version");
+      return `${kind}-${normalized}.html`;
+    }
+    function setExactLegalDocumentLinks(documents){
+      ui.legalTermsLink.href = legalDocumentPath("terms", documents?.termsVersion);
+      ui.legalPrivacyLink.href = legalDocumentPath("privacy", documents?.privacyNoticeVersion);
+    }
     async function continueAfterAuth(session){
       if (forwarded || acceptanceCheckStarted || !session?.user) return;
       acceptanceCheckStarted = true;
@@ -352,6 +372,7 @@
           throw statusError;
         }
         if (!result.requiresAcceptance){ forwardOn(); return; }
+        setExactLegalDocumentLinks(result);
         currentDocuments = result;
         clearTimeout(revealTimer);
         ui.sessionCheck.classList.add("hidden");
@@ -391,6 +412,30 @@
 
     ui.legalAgree.addEventListener("change", () => {
       ui.legalSubmit.disabled = !ui.legalAgree.checked;
+    });
+    ui.legalDecline.addEventListener("click", async () => {
+      ui.legalAgree.disabled = true;
+      ui.legalSubmit.disabled = true;
+      ui.legalDecline.disabled = true;
+      ui.legalDecline.textContent = "Signing out…";
+      setStatus("");
+      try{
+        const { error } = await supabase.auth.signOut({ scope: "local" });
+        if (error) throw error;
+        pendingSession = null;
+        currentDocuments = null;
+        acceptanceCheckStarted = false;
+        try { sessionStorage.removeItem(INVITE_STORAGE_KEY); } catch (error) {}
+        try { sessionStorage.removeItem(AUTH_CONTEXT_STORAGE_KEY); } catch (error) {}
+        window.location.replace("index.html");
+      }catch(error){
+        ui.legalAgree.disabled = false;
+        ui.legalSubmit.disabled = !ui.legalAgree.checked;
+        ui.legalDecline.disabled = false;
+        ui.legalDecline.textContent = "Decline and exit";
+        setStatus("We couldn’t sign you out. No agreement was recorded; please try again.", "error");
+        console.warn("Legal decline sign-out error:", error?.message || error);
+      }
     });
     ui.legalSubmit.addEventListener("click", async () => {
       if (!ui.legalAgree.checked || !pendingSession || !currentDocuments) return;
