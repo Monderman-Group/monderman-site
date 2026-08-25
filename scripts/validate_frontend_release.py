@@ -1,5 +1,5 @@
 from pathlib import Path
-import hashlib,os,re,runpy,subprocess,sys
+import os,re,runpy,subprocess,sys
 r=Path('.')
 e=[]
 release_channel=os.environ.get('MONDERMAN_RELEASE_CHANNEL','beta').strip().lower()
@@ -59,20 +59,23 @@ if '<body class="canonical-green-shell">' not in idx:
 # values or a hidden mobile preview return.
 brief=(r/'Monderman_Platform_Brief.html').read_text(errors='ignore')
 sample_tile_css=(r/'sample-report-tile.css').read_text(errors='ignore') if (r/'sample-report-tile.css').exists() else ''
+lure_tile_css=(r/'monderman-depth-lure-tile.css').read_text(errors='ignore') if (r/'monderman-depth-lure-tile.css').exists() else ''
 tile_required=[
  'sample-report-tile.css?v=20260824-depth4',
+ 'monderman-depth-lure-tile.css?v=20260824-source1',
  'class="hero-report-proof has-sample-depth-tile"',
- 'class="hero-report-page sample-depth-tile-approved"',
- 'class="sample-depth-tile-approved-image"',
- 'assets/report/sample-depth-synthesis-composite-approved.png?v=20260824-approved1',
- 'width="940" height="936"',
+ 'id="monderman-depth-lure-composite"',
+ 'class="md-tile"',
+ 'class="md-opening"',
+ 'class="md-exposure-track"',
+ 'class="md-vantage-row"',
  'href="sample-report.html"',
  'Depth Synthesis',
  'Observed exposure ranges',
  '4,800','7,900','6,100',
- '$432,000','$711,000','$549,000','$120,000 to $210,000',
+ '$432,000','$711,000','$549,000','$120,000','$210,000',
  '49.5','56.8','65.3',
- 'First leadership move',
+ 'Fix the ownership transfer point.',
 ]
 for name,text in [('index.html',idx),('Monderman_Platform_Brief.html',brief)]:
  for token in tile_required:
@@ -82,26 +85,30 @@ for name,text in [('index.html',idx),('Monderman_Platform_Brief.html',brief)]:
   e.append(name+': generated-output sample tile boundary missing')
  else:
   tile=tile_match.group(0)
-  for stale in ['5,280 hrs','$411,840','$123,552','hrp-recovery-ring','hrp-composition-bars']:
+  for stale in ['5,280 hrs','$411,840','$123,552','hrp-recovery-ring','hrp-composition-bars','sample-depth-tile-approved-image','sample-depth-synthesis-composite-approved.png']:
    if stale in tile:e.append(name+': stale promotional sample tile value '+stale)
 if not sample_tile_css:
  e.append('generated-output sample tile stylesheet missing')
 else:
- if r'\\n' in sample_tile_css:
+ if r'\n' in sample_tile_css:
   e.append('generated-output sample tile stylesheet contains escaped newline corruption')
  for token in [
-  '.sample-depth-tile-approved',
-  '.sample-depth-tile-approved-image',
-  'aspect-ratio:940 / 936',
   '.hero-report-proof.has-sample-depth-tile',
   '.hero-report-proof.has-sample-depth-tile .hero-report-link{display:block;}',
  ]:
   if token not in sample_tile_css:e.append('generated-output sample tile responsive contract '+token)
-approved_tile=r/'assets/report/sample-depth-synthesis-composite-approved.png'
-if not approved_tile.exists():
- e.append('approved generated-output sample tile artifact missing')
-elif hashlib.sha256(approved_tile.read_bytes()).hexdigest()!='5387a8f433db6948bbcfbdd00d67f7b56b42762c9a996b940b684ea660fa1ec3':
- e.append('approved generated-output sample tile artifact hash mismatch')
+if not lure_tile_css:
+ e.append('in-chat source sample tile stylesheet missing')
+else:
+ for token in [
+  '#monderman-depth-lure-composite',
+  'grid-template-columns:120px minmax(0,1fr)',
+  'left:60.76%',
+  'left:77.22%',
+  'grid-template-columns:92px minmax(130px,1fr) 136px',
+  '@container monderman-composite (max-width:520px)',
+ ]:
+  if token not in lure_tile_css:e.append('in-chat source sample tile contract '+token)
 if '<script src="assistant.js" defer></script>' not in idx:
  e.append('homepage assistant loader missing')
 if re.search(r'^\s*#mnd-launcher\s*\{[^}]*display\s*:\s*none',idx,re.I|re.M):

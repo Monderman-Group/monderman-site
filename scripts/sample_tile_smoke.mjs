@@ -31,11 +31,12 @@ try {
       assert.equal(await tile.locator('.hero-report-link').getAttribute('href'), 'sample-report.html', `${placement.name}/${viewport.name}: whole-card sample route changed`);
 
       const geometry = await tile.evaluate((el) => {
-        const card = el.querySelector('.sample-depth-tile-approved');
-        const image = el.querySelector('.sample-depth-tile-approved-image');
+        const root = el.querySelector('#monderman-depth-lure-composite');
+        const card = el.querySelector('.md-tile');
+        const panels = [...el.querySelectorAll('.md-opening,.md-panel,.md-action,.md-foot')];
         const tileBox = el.getBoundingClientRect();
+        const rootBox = root.getBoundingClientRect();
         const cardBox = card.getBoundingClientRect();
-        const imageBox = image.getBoundingClientRect();
         return {
           display: getComputedStyle(el).display,
           linkDisplay: getComputedStyle(el.querySelector('.hero-report-link')).display,
@@ -47,14 +48,16 @@ try {
           cardRight: cardBox.right,
           cardTop: cardBox.top,
           cardBottom: cardBox.bottom,
-          imageLeft: imageBox.left,
-          imageRight: imageBox.right,
-          imageTop: imageBox.top,
-          imageBottom: imageBox.bottom,
-          imageComplete: image.complete,
-          naturalWidth: image.naturalWidth,
-          naturalHeight: image.naturalHeight,
-          source: image.getAttribute('src'),
+          rootLeft: rootBox.left,
+          rootRight: rootBox.right,
+          panelBoxes: panels.map((panel) => {
+            const box = panel.getBoundingClientRect();
+            return { left: box.left, right: box.right, top: box.top, bottom: box.bottom };
+          }),
+          hasWrongRaster: !!el.querySelector('.sample-depth-tile-approved-image'),
+          exposureRangeCount: el.querySelectorAll('.md-exposure-track').length,
+          vantageRowCount: el.querySelectorAll('.md-vantage-row').length,
+          actionText: el.querySelector('.md-action')?.textContent.replace(/\s+/g, ' ').trim(),
           viewportWidth: document.documentElement.clientWidth,
           documentWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
         };
@@ -63,14 +66,16 @@ try {
       assert.equal(geometry.display, 'block', `${placement.name}/${viewport.name}: sample tile is hidden`);
       assert.equal(geometry.linkDisplay, 'block', `${placement.name}/${viewport.name}: sample tile link is hidden`);
       assert(geometry.width > 260 && geometry.width <= 540.5, `${placement.name}/${viewport.name}: tile width is outside the approved seat: ${geometry.width}`);
-      assert.equal(geometry.imageComplete, true, `${placement.name}/${viewport.name}: approved rendering did not load`);
-      assert.equal(geometry.naturalWidth, 940, `${placement.name}/${viewport.name}: approved rendering width changed`);
-      assert.equal(geometry.naturalHeight, 936, `${placement.name}/${viewport.name}: approved rendering height changed`);
-      assert.equal(geometry.source, 'assets/report/sample-depth-synthesis-composite-approved.png?v=20260824-approved1', `${placement.name}/${viewport.name}: approved rendering source changed`);
-      assert(Math.abs((geometry.cardWidth / geometry.cardHeight) - (940 / 936)) < 0.002, `${placement.name}/${viewport.name}: approved composition aspect ratio changed`);
+      assert.equal(geometry.hasWrongRaster, false, `${placement.name}/${viewport.name}: superseded screenshot artifact returned`);
+      assert.equal(geometry.exposureRangeCount, 2, `${placement.name}/${viewport.name}: source exposure composition changed`);
+      assert.equal(geometry.vantageRowCount, 3, `${placement.name}/${viewport.name}: source vantage composition changed`);
+      assert.equal(geometry.actionText, 'Fix the ownership transfer point. Then re-measure the same scope.', `${placement.name}/${viewport.name}: source leadership move changed`);
       assert(geometry.documentWidth <= geometry.viewportWidth + 1, `${placement.name}/${viewport.name}: page overflows horizontally`);
-      assert(geometry.imageLeft >= geometry.cardLeft - 1 && geometry.imageRight <= geometry.cardRight + 1, `${placement.name}/${viewport.name}: approved rendering escapes the card horizontally`);
-      assert(geometry.imageTop >= geometry.cardTop - 1 && geometry.imageBottom <= geometry.cardBottom + 1, `${placement.name}/${viewport.name}: approved rendering is clipped vertically`);
+      assert(geometry.rootLeft >= geometry.cardLeft - 1 && geometry.rootRight <= geometry.cardRight + 1, `${placement.name}/${viewport.name}: source component escapes the card horizontally`);
+      for (const [index, panel] of geometry.panelBoxes.entries()) {
+        assert(panel.left >= geometry.cardLeft - 1 && panel.right <= geometry.cardRight + 1, `${placement.name}/${viewport.name}: panel ${index + 1} escapes the card horizontally (${JSON.stringify({ panel, card: { left: geometry.cardLeft, right: geometry.cardRight } })})`);
+        assert(panel.top >= geometry.cardTop - 1 && panel.bottom <= geometry.cardBottom + 1, `${placement.name}/${viewport.name}: panel ${index + 1} is clipped vertically (${JSON.stringify({ panel, card: { top: geometry.cardTop, bottom: geometry.cardBottom } })})`);
+      }
 
       await tile.screenshot({ path: path.join(out, `${placement.name}-${viewport.name}.png`) });
       await page.close();
