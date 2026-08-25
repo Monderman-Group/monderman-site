@@ -347,7 +347,7 @@
   color:#8E8F88;
 }
 
-@container (max-width:499px){
+/* Preserve the approved two-column composition through standard phone,\n   tablet, and desktop seats. Reflow only when the card itself becomes too\n   narrow to keep the two evidence ranges legible. */\n@container (max-width:359px){
   .sdt-body{padding:15px 16px 13px;}
   .sdt-opening{grid-template-columns:88px minmax(0,1fr);gap:13px;}
   .sdt-score{min-height:77px;}
@@ -372,7 +372,7 @@
   .hero .hero-report-proof.has-sample-depth-tile{margin-bottom:110px;}
 }
 
-@media(max-width:390px){
+@media(max-width:359px){
   .sdt-top{padding:14px 16px 13px;}
   .sdt-opening{grid-template-columns:78px minmax(0,1fr);gap:11px;}
   .sdt-score strong{font-size:39px;}
