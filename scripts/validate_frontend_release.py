@@ -217,7 +217,7 @@ for name in ['sample-report.html','decision-velocity.html','operational-systems.
 
 # Public beta privacy/security disclosures must match current architecture and trial rules.
 privacy=(r/'privacy.html').read_text(errors='ignore')
-for token in ['Last updated: August 20, 2026','currently in public beta','one-time Pattern-trial anti-abuse record','survive Workspace deletion','Anthropic\'s commercial API','not used to train its models by default','automatically deleted from its backend within 30 days','Stripe handles payment details','does not receive or store your full card number','anonymous campaign responses','authorized Monderman personnel','first-party browser storage for Supabase authentication','not directed to children']:
+for token in ['Last updated: August 24, 2026','currently in public beta','one-time Pattern-trial anti-abuse record','survive Workspace deletion','Anthropic\'s commercial API','not used to train its models by default','automatically deleted from its backend within 30 days','Stripe handles payment details','does not receive or store your full card number','anonymous campaign responses','authorized Monderman personnel','first-party browser storage for Supabase authentication','not directed to children']:
  if token.lower() not in privacy.lower():e.append('privacy disclosure '+token)
 security=(r/'security.html').read_text(errors='ignore')
 for token in ['currently in public beta','Ordinary Diagnostics require a signed-in member session','Directed campaign assignment links','All public Postgres tables currently have row-level security enabled','public publishable key','service-role database credentials','Anthropic\'s commercial API','durable one-time redemption record','Deleting a Workspace therefore does not create another trial','does not currently claim SOC 2','four-hour cutoff','durable Supabase snapshot','plan, usage, billing and stored Diagnostic result fields remain server-managed','request-size and rate limits']:
@@ -280,7 +280,7 @@ for name in ['index.html','why-monderman.html']:
 
 # Public beta Terms must exist and remain wired at acceptance points.
 terms=(r/'terms.html').read_text(errors='ignore')
-for token in ['Public Beta Terms of Use','does not auto-renew','once per eligible account identity','not legal, medical, accounting, investment, safety, employment','connect@monderman.com','privacy.html','security.html']:
+for token in ['Public Beta Terms of Use','Version 2026-08-24-beta','does not auto-renew','once per eligible account identity','not legal, medical, accounting, investment, safety, employment','not designed, validated or offered as employee-selection procedures','must not attempt to identify an anonymous Participant','The Customer will defend, indemnify and hold harmless Monderman','connect@monderman.com','privacy.html','security.html']:
  if token not in terms:e.append('public beta terms '+token)
 trial=(r/'pattern-trial.html').read_text(errors='ignore')
 for token in ['href="terms.html"','href="privacy.html"','I agree to the']:
@@ -321,6 +321,11 @@ try:
  runpy.run_path(str(r/'scripts/validate_beta_compliance.py'))['validate']()
 except Exception as exc:
  e.append('beta compliance implementation: '+str(exc))
+
+try:
+ runpy.run_path(str(r/'scripts/validate_legal_terms_protection.py'))['validate']()
+except Exception as exc:
+ e.append('legal terms protection: '+str(exc))
 
 invite=(r/'accept-invite.html').read_text(errors='ignore')
 signin=(r/'signin.html').read_text(errors='ignore')
