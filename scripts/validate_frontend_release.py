@@ -55,14 +55,14 @@ if '<body class="canonical-green-shell">' not in idx:
 
 # The two compact promotional report placements must remain a defensible
 # composite of generated Depth output. Keep the data contract, the responsive
-# layout, and the whole-card route aligned rather than letting marketing-only
-# values or a hidden mobile preview return.
+# layout, and the whole-card route aligned while keeping the dense preview
+# off phone screens, where the architectural hero is the clearer lure.
 brief=(r/'Monderman_Platform_Brief.html').read_text(errors='ignore')
 sample_tile_css=(r/'sample-report-tile.css').read_text(errors='ignore') if (r/'sample-report-tile.css').exists() else ''
 lure_tile_css=(r/'monderman-depth-lure-tile.css').read_text(errors='ignore') if (r/'monderman-depth-lure-tile.css').exists() else ''
 tile_required=[
  'sample-report-tile.css?v=20260824-depth4',
- 'monderman-depth-lure-tile.css?v=20260824-hero3',
+ 'monderman-depth-lure-tile.css?v=20260825-mobile4',
  'class="hero-report-proof has-sample-depth-tile"',
  'id="monderman-depth-lure-composite"',
  'class="md-tile"',
@@ -111,6 +111,8 @@ else:
   '.md-foot{',
   'display:none',
   'min-height:calc(100svh - 128px)',
+  '@media (max-width:640px)',
+  'object-position:48.75% 50%!important',
   '@container monderman-composite (max-width:520px)',
  ]:
   if token not in lure_tile_css:e.append('in-chat source sample tile contract '+token)
