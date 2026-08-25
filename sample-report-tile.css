@@ -14,6 +14,31 @@
   text-decoration:none;
 }
 
+/* The user-approved lure is a fixed editorial composition. Seat that exact
+ * rendering at every responsive width instead of reconstructing it from a
+ * second set of responsive report styles. */
+.has-sample-depth-tile .sample-depth-tile-approved{
+  min-height:0;
+  padding:0;
+  overflow:hidden;
+  background:transparent;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+}
+
+.sample-depth-tile-approved-image{
+  display:block;
+  width:100%;
+  height:auto;
+  aspect-ratio:940 / 936;
+}
+
+.has-sample-depth-tile .hero-report-link:hover .sample-depth-tile-approved,
+.has-sample-depth-tile .hero-report-link:focus-visible .sample-depth-tile-approved{
+  box-shadow:none;
+}
+
 .has-sample-depth-tile .sample-depth-tile{
   min-height:0;
   padding:0;

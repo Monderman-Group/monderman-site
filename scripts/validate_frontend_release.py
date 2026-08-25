@@ -1,5 +1,5 @@
 from pathlib import Path
-import os,re,runpy,subprocess,sys
+import hashlib,os,re,runpy,subprocess,sys
 r=Path('.')
 e=[]
 release_channel=os.environ.get('MONDERMAN_RELEASE_CHANNEL','beta').strip().lower()
@@ -60,21 +60,19 @@ if '<body class="canonical-green-shell">' not in idx:
 brief=(r/'Monderman_Platform_Brief.html').read_text(errors='ignore')
 sample_tile_css=(r/'sample-report-tile.css').read_text(errors='ignore') if (r/'sample-report-tile.css').exists() else ''
 tile_required=[
- 'sample-report-tile.css?v=20260824-depth3',
+ 'sample-report-tile.css?v=20260824-depth4',
  'class="hero-report-proof has-sample-depth-tile"',
- 'class="hero-report-page sample-depth-tile"',
+ 'class="hero-report-page sample-depth-tile-approved"',
+ 'class="sample-depth-tile-approved-image"',
+ 'assets/report/sample-depth-synthesis-composite-approved.png?v=20260824-approved1',
+ 'width="940" height="936"',
  'href="sample-report.html"',
  'Depth Synthesis',
  'Observed exposure ranges',
  '4,800','7,900','6,100',
- '$432,000','$711,000','$549,000',
- '$120,000&ndash;$210,000',
- 'Observed vantage segments',
- '15.8-point mean gap',
+ '$432,000','$711,000','$549,000','$120,000 to $210,000',
  '49.5','56.8','65.3',
- 'Observed participant set',
- 'Not a population claim',
- '--range-left:60.76%;--range-width:39.24%;--median:77.22%',
+ 'First leadership move',
 ]
 for name,text in [('index.html',idx),('Monderman_Platform_Brief.html',brief)]:
  for token in tile_required:
@@ -92,16 +90,18 @@ else:
  if r'\\n' in sample_tile_css:
   e.append('generated-output sample tile stylesheet contains escaped newline corruption')
  for token in [
-  '.sample-depth-tile',
-  '.sdt-exposure-grid',
-  'grid-template-columns:repeat(2,minmax(0,1fr))',
-  '@container (max-width:259px)',
+  '.sample-depth-tile-approved',
+  '.sample-depth-tile-approved-image',
+  'aspect-ratio:940 / 936',
   '.hero-report-proof.has-sample-depth-tile',
   '.hero-report-proof.has-sample-depth-tile .hero-report-link{display:block;}',
  ]:
   if token not in sample_tile_css:e.append('generated-output sample tile responsive contract '+token)
- if 'transform:scale' in sample_tile_css.replace(' ',''):
-  e.append('generated-output sample tile must reflow instead of scale')
+approved_tile=r/'assets/report/sample-depth-synthesis-composite-approved.png'
+if not approved_tile.exists():
+ e.append('approved generated-output sample tile artifact missing')
+elif hashlib.sha256(approved_tile.read_bytes()).hexdigest()!='5387a8f433db6948bbcfbdd00d67f7b56b42762c9a996b940b684ea660fa1ec3':
+ e.append('approved generated-output sample tile artifact hash mismatch')
 if '<script src="assistant.js" defer></script>' not in idx:
  e.append('homepage assistant loader missing')
 if re.search(r'^\s*#mnd-launcher\s*\{[^}]*display\s*:\s*none',idx,re.I|re.M):

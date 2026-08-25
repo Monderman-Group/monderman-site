@@ -13,11 +13,11 @@ const placements = [
   { name: 'platform-brief', route: '/Monderman_Platform_Brief.html' },
 ];
 const viewports = [
-  { name: 'narrow-mobile', width: 320, height: 844, expectedColumns: 2 },
-  { name: 'mobile', width: 390, height: 844, expectedColumns: 2 },
-  { name: 'tablet', width: 768, height: 1024, expectedColumns: 2 },
-  { name: 'tablet-landscape', width: 1024, height: 900, expectedColumns: 2 },
-  { name: 'desktop', width: 1440, height: 1000, expectedColumns: 2 },
+  { name: 'narrow-mobile', width: 320, height: 844 },
+  { name: 'mobile', width: 390, height: 844 },
+  { name: 'tablet', width: 768, height: 1024 },
+  { name: 'tablet-landscape', width: 1024, height: 900 },
+  { name: 'desktop', width: 1440, height: 1000 },
 ];
 
 try {
@@ -30,20 +30,13 @@ try {
       await tile.waitFor({ state: 'visible', timeout: 10000 });
       assert.equal(await tile.locator('.hero-report-link').getAttribute('href'), 'sample-report.html', `${placement.name}/${viewport.name}: whole-card sample route changed`);
 
-      const geometry = await tile.evaluate((el, expectedColumns) => {
-        const card = el.querySelector('.sample-depth-tile');
-        const exposure = el.querySelector('.sdt-exposure-grid');
-        const panels = [...el.querySelectorAll('.sdt-opening,.sdt-panel,.sdt-action,.sdt-foot')];
+      const geometry = await tile.evaluate((el) => {
+        const card = el.querySelector('.sample-depth-tile-approved');
+        const image = el.querySelector('.sample-depth-tile-approved-image');
         const tileBox = el.getBoundingClientRect();
         const cardBox = card.getBoundingClientRect();
-        const panelBoxes = panels.map(panel => {
-          const box = panel.getBoundingClientRect();
-          return { left: box.left, right: box.right, top: box.top, bottom: box.bottom };
-        });
-        const columns = getComputedStyle(exposure).gridTemplateColumns.split(' ').filter(Boolean).length;
+        const imageBox = image.getBoundingClientRect();
         return {
-          expectedColumns,
-          columns,
           display: getComputedStyle(el).display,
           linkDisplay: getComputedStyle(el.querySelector('.hero-report-link')).display,
           width: tileBox.width,
@@ -54,22 +47,30 @@ try {
           cardRight: cardBox.right,
           cardTop: cardBox.top,
           cardBottom: cardBox.bottom,
-          panelBoxes,
+          imageLeft: imageBox.left,
+          imageRight: imageBox.right,
+          imageTop: imageBox.top,
+          imageBottom: imageBox.bottom,
+          imageComplete: image.complete,
+          naturalWidth: image.naturalWidth,
+          naturalHeight: image.naturalHeight,
+          source: image.getAttribute('src'),
           viewportWidth: document.documentElement.clientWidth,
           documentWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
         };
-      }, viewport.expectedColumns);
+      });
 
       assert.equal(geometry.display, 'block', `${placement.name}/${viewport.name}: sample tile is hidden`);
       assert.equal(geometry.linkDisplay, 'block', `${placement.name}/${viewport.name}: sample tile link is hidden`);
-      assert.equal(geometry.columns, geometry.expectedColumns, `${placement.name}/${viewport.name}: exposure ranges do not reflow as specified`);
       assert(geometry.width > 260 && geometry.width <= 540.5, `${placement.name}/${viewport.name}: tile width is outside the approved seat: ${geometry.width}`);
-      assert(geometry.cardHeight > 490 && geometry.cardHeight < 620, `${placement.name}/${viewport.name}: tile height is distorted: ${geometry.cardHeight}`);
+      assert.equal(geometry.imageComplete, true, `${placement.name}/${viewport.name}: approved rendering did not load`);
+      assert.equal(geometry.naturalWidth, 940, `${placement.name}/${viewport.name}: approved rendering width changed`);
+      assert.equal(geometry.naturalHeight, 936, `${placement.name}/${viewport.name}: approved rendering height changed`);
+      assert.equal(geometry.source, 'assets/report/sample-depth-synthesis-composite-approved.png?v=20260824-approved1', `${placement.name}/${viewport.name}: approved rendering source changed`);
+      assert(Math.abs((geometry.cardWidth / geometry.cardHeight) - (940 / 936)) < 0.002, `${placement.name}/${viewport.name}: approved composition aspect ratio changed`);
       assert(geometry.documentWidth <= geometry.viewportWidth + 1, `${placement.name}/${viewport.name}: page overflows horizontally`);
-      for (const [index, panel] of geometry.panelBoxes.entries()) {
-        assert(panel.left >= geometry.cardLeft - 1 && panel.right <= geometry.cardRight + 1, `${placement.name}/${viewport.name}: panel ${index + 1} escapes the card horizontally`);
-        assert(panel.top >= geometry.cardTop - 1 && panel.bottom <= geometry.cardBottom + 1, `${placement.name}/${viewport.name}: panel ${index + 1} is clipped vertically`);
-      }
+      assert(geometry.imageLeft >= geometry.cardLeft - 1 && geometry.imageRight <= geometry.cardRight + 1, `${placement.name}/${viewport.name}: approved rendering escapes the card horizontally`);
+      assert(geometry.imageTop >= geometry.cardTop - 1 && geometry.imageBottom <= geometry.cardBottom + 1, `${placement.name}/${viewport.name}: approved rendering is clipped vertically`);
 
       await tile.screenshot({ path: path.join(out, `${placement.name}-${viewport.name}.png`) });
       await page.close();
