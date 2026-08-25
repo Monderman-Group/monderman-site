@@ -62,7 +62,7 @@ sample_tile_css=(r/'sample-report-tile.css').read_text(errors='ignore') if (r/'s
 lure_tile_css=(r/'monderman-depth-lure-tile.css').read_text(errors='ignore') if (r/'monderman-depth-lure-tile.css').exists() else ''
 tile_required=[
  'sample-report-tile.css?v=20260824-depth4',
- 'monderman-depth-lure-tile.css?v=20260824-source1',
+ 'monderman-depth-lure-tile.css?v=20260824-compact2',
  'class="hero-report-proof has-sample-depth-tile"',
  'id="monderman-depth-lure-composite"',
  'class="md-tile"',
