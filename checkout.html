@@ -46,6 +46,8 @@
     .panel.err{background:#FBEBE9;border:1px solid rgba(170,50,40,.3);color:#7A2A22;}
     .panel a{color:inherit;font-weight:600;}
     .workspace-choice{margin:16px 0 0;padding:13px 14px;border:1px solid var(--line);border-radius:10px;background:#FCFBF8}.workspace-choice label{display:block;margin-bottom:7px;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--deep)}.workspace-choice select{width:100%;padding:10px 11px;border:1px solid #D8D4CA;border-radius:8px;background:#fff;color:var(--ink);font:500 14px 'Neue Haas Grotesk',sans-serif}.workspace-choice p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink)}
+    .billing-contact{margin:16px 0 0;padding:14px;border:1px solid var(--line);border-radius:10px;background:#FCFBF8}.billing-contact h2{margin:0 0 4px;color:var(--deep);font-size:14px}.billing-contact>p{margin:0 0 12px;color:#6E6F73;font-size:12.5px;line-height:1.5}.billing-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.billing-field{display:grid;gap:5px}.billing-field.email{grid-column:1/-1}.billing-field label{color:var(--deep);font-size:11.5px;font-weight:700}.billing-field input{width:100%;min-width:0;padding:10px 11px;border:1px solid #D8D4CA;border-radius:8px;background:#fff;color:var(--ink);font:500 14px 'Neue Haas Grotesk',sans-serif}.billing-field input:focus{outline:2px solid rgba(12,110,120,.22);border-color:var(--accent)}.billing-field input:invalid:not(:placeholder-shown){border-color:#A33A32}.billing-field small{color:#85878A;font-size:11px;line-height:1.35}
+    @media(max-width:520px){.billing-grid{grid-template-columns:1fr}.billing-field.email{grid-column:auto}}
     .muted-note{margin-top:26px;text-align:center;font-size:12.8px;color:#8A8B90;}
     .muted-note a{color:var(--accent);text-decoration:none;font-weight:500;}
   </style>
@@ -69,12 +71,21 @@
         <select id="organizationSelect" hidden></select>
         <p id="organizationName"></p>
       </div>
+      <section class="billing-contact" aria-labelledby="billingContactTitle">
+        <h2 id="billingContactTitle">Billing and purchasing record</h2>
+        <p>Optional. Workspace Admins always receive purchase confirmation; add an accounts-payable contact or internal reference if needed.</p>
+        <div class="billing-grid">
+          <div class="billing-field"><label for="billingContactName">Billing contact name</label><input id="billingContactName" name="billing_contact_name" autocomplete="name" maxlength="160" placeholder="Accounts payable" /></div>
+          <div class="billing-field"><label for="purchaseOrderReference">PO or internal reference</label><input id="purchaseOrderReference" name="purchase_order_reference" maxlength="120" placeholder="Optional" /><small>Shown on Stripe invoices when supplied.</small></div>
+          <div class="billing-field email"><label for="billingEmail">Billing email</label><input id="billingEmail" name="billing_email" type="email" autocomplete="email" maxlength="320" placeholder="billing@organization.com" /><small>The welcome package and PDF invoice also go here.</small></div>
+        </div>
+      </section>
       <button class="btn" id="payBtn" disabled>Continue to secure checkout</button>
       <div class="panel warn" id="unavailablePanel">
         Self-serve checkout is being enabled. In the meantime, request an order form and we will set your tier up by invoice: <a id="connectLink" href="connect.html">open the Connect form</a>.
       </div>
       <div class="panel err" id="errorPanel"></div>
-      <p class="fine">Full payment-card details are handled in Stripe-hosted checkout and are not received or stored by Monderman. Subscriptions renew automatically and can be cancelled any time from your Workspace, effective at the end of the paid period. Review the Monderman <a href="terms.html">Terms of Service</a> and <a href="privacy.html">Privacy Notice</a>; Stripe presents the checkout-specific price, billing interval, and purchase details before payment.</p>
+      <p class="fine">Full payment-card details are handled in Stripe-hosted checkout and are not received or stored by Monderman. Stripe collects the required billing address and any applicable business tax ID. Subscriptions renew automatically and can be cancelled any time from your Workspace, effective at the end of the paid period. Review the Monderman <a href="terms.html">Terms of Service</a> and <a href="privacy.html">Privacy Notice</a>; Stripe presents the checkout-specific price, billing interval, and purchase details before payment.</p>
     </div>
     <p class="muted-note">Prefer invoicing on a purchase order, or buying Advisory or Enterprise? <a href="connect.html">Talk to us</a>.</p>
   </main>
@@ -138,10 +149,13 @@
     let organizationId = null;
     function updatePayState() {
       const b = document.getElementById("payBtn");
-      if (b) b.disabled = !sessionReady;
+      const billingEmail = document.getElementById("billingEmail");
+      const billingEmailValid = !billingEmail?.value.trim() || billingEmail.checkValidity();
+      if (b) b.disabled = !sessionReady || !billingEmailValid;
     }
 
     const el = (id) => document.getElementById(id);
+    el("billingEmail")?.addEventListener("input", updatePayState);
 
     if (!TIERS[tier] || !TIERS[tier].prices[interval]) {
       el("tierName").textContent = "Pick a tier first";
@@ -217,13 +231,21 @@
               "content-type": "application/json",
               "authorization": "Bearer " + (s?.session?.access_token || "")
             },
-            body: JSON.stringify({ tier, interval, organization_id: organizationId })
+            body: JSON.stringify({
+              tier,
+              interval,
+              organization_id: organizationId,
+              billing_contact_name: el("billingContactName").value.trim(),
+              billing_email: el("billingEmail").value.trim(),
+              purchase_order_reference: el("purchaseOrderReference").value.trim()
+            })
           });
           const out = await res.json().catch(() => ({}));
           if (res.ok && out.url) { location.href = out.url; return; }
           if (res.status === 503) { el("unavailablePanel").style.display = "block"; }
           else if (res.status === 403) { showError("Only a workspace admin can purchase for the selected organization. Ask your admin to complete checkout, or contact us via the Connect form."); }
           else if (out.error === "organization_selection_required") { showError("Choose the Workspace that should receive this subscription."); }
+          else if (out.error === "invalid_billing_email") { showError("Enter a valid billing email address or leave the optional field blank."); }
           else if (res.status === 401) { location.replace("signin.html?next=" + encodeURIComponent("checkout.html")); return; }
           else { showError("Checkout could not be started. Nothing was charged \u2014 please try again, or use the Connect form for an order form."); }
         } catch (e) {
