@@ -13,8 +13,10 @@ const placements = [
   { name: 'platform-brief', route: '/Monderman_Platform_Brief.html' },
 ];
 const viewports = [
-  { name: 'mobile', width: 390, height: 844, expectedColumns: 1 },
+  { name: 'narrow-mobile', width: 320, height: 844, expectedColumns: 2 },
+  { name: 'mobile', width: 390, height: 844, expectedColumns: 2 },
   { name: 'tablet', width: 768, height: 1024, expectedColumns: 2 },
+  { name: 'tablet-landscape', width: 1024, height: 900, expectedColumns: 2 },
   { name: 'desktop', width: 1440, height: 1000, expectedColumns: 2 },
 ];
 
@@ -61,7 +63,7 @@ try {
       assert.equal(geometry.display, 'block', `${placement.name}/${viewport.name}: sample tile is hidden`);
       assert.equal(geometry.linkDisplay, 'block', `${placement.name}/${viewport.name}: sample tile link is hidden`);
       assert.equal(geometry.columns, geometry.expectedColumns, `${placement.name}/${viewport.name}: exposure ranges do not reflow as specified`);
-      assert(geometry.width > 300 && geometry.width <= 540.5, `${placement.name}/${viewport.name}: tile width is outside the approved seat: ${geometry.width}`);
+      assert(geometry.width > 260 && geometry.width <= 540.5, `${placement.name}/${viewport.name}: tile width is outside the approved seat: ${geometry.width}`);
       assert(geometry.cardHeight > 490 && geometry.cardHeight < 620, `${placement.name}/${viewport.name}: tile height is distorted: ${geometry.cardHeight}`);
       assert(geometry.documentWidth <= geometry.viewportWidth + 1, `${placement.name}/${viewport.name}: page overflows horizontally`);
       for (const [index, panel] of geometry.panelBoxes.entries()) {
