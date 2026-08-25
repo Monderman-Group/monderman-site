@@ -1,0 +1,182 @@
+/* Phone-only presentation safeguards.
+   Product behavior and tablet/desktop layouts are intentionally out of scope. */
+@media (max-width: 640px) {
+  /* Keep senior-team portraits compact and honor their intended square crop. */
+  .canonical-green-shell .founder-grid {
+    gap: 24px;
+  }
+
+  .canonical-green-shell .founder-photo {
+    width: min(44vw, 168px);
+    max-width: 168px;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    justify-self: start;
+  }
+
+  .canonical-green-shell .founder .section-inner > h2 {
+    margin-bottom: 28px !important;
+  }
+
+  /* Article grids must shrink below their content's intrinsic width. */
+  .canonical-green-shell .article-inner,
+  .canonical-green-shell .article-layout,
+  .canonical-green-shell .article-layout > *,
+  .canonical-green-shell .content,
+  .canonical-green-shell .sidebar,
+  .canonical-green-shell .sidebar-card,
+  .canonical-green-shell .pullquote,
+  .canonical-green-shell .signal-figure,
+  .canonical-green-shell .output-figure,
+  .canonical-green-shell .cta {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .canonical-green-shell .article-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .canonical-green-shell .content,
+  .canonical-green-shell .sidebar {
+    width: 100%;
+  }
+
+  .canonical-green-shell .lens-matrix {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* The four Diagnostic shells are grid-centered on larger screens. At the
+     narrowest phone width that creates a min-content floor, so use the full
+     available phone measure without touching any controls or behavior. */
+  .diagnostic-instrument .shell {
+    display: block;
+  }
+
+  .diagnostic-instrument .shell > .app,
+  .diagnostic-instrument .frame-top,
+  .diagnostic-instrument .environment,
+  .diagnostic-instrument .environment-inner,
+  .diagnostic-instrument .stage,
+  .diagnostic-instrument .env-head,
+  .diagnostic-instrument .env-foot,
+  .diagnostic-instrument .question-card,
+  .diagnostic-instrument .intake-shell,
+  .diagnostic-instrument .intake-content {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .diagnostic-instrument .shell > .app {
+    margin-inline: auto;
+  }
+
+  .diagnostic-instrument .engine-note,
+  .diagnostic-instrument .tool-title {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .diagnostic-instrument .hero-step {
+    width: 100%;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .diagnostic-instrument .toast-stack {
+    right: 14px;
+    left: 14px;
+  }
+
+  .diagnostic-instrument .toast {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* Long promotional links wrap inside the phone measure. */
+  .canonical-green-shell .ps-sample-link {
+    max-width: 100% !important;
+    padding-inline: 20px !important;
+  }
+
+  .canonical-green-shell .ps-sample-link a,
+  .canonical-green-shell .ps-contact a {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .canonical-green-shell .mxps-why .mxps-card > a {
+    flex: 1 1 100%;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  /* Research's featured-book grid is declared later in the page. Give each
+     grid item permission to shrink to the phone measure without changing its
+     tablet or desktop composition. */
+  .canonical-green-shell .book-feature,
+  .canonical-green-shell .book-feature-inner,
+  .canonical-green-shell .book-feature-cover,
+  .canonical-green-shell .book-feature-main,
+  .canonical-green-shell .book-feature-side,
+  .canonical-green-shell .bf-links {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .canonical-green-shell .book-feature-inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .canonical-green-shell .book-feature-cover,
+  .canonical-green-shell .book-feature-main,
+  .canonical-green-shell .book-feature-side {
+    padding-inline: 20px;
+  }
+
+  .canonical-green-shell .bf-links a {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .canonical-green-shell .paper-card.wide > *,
+  .canonical-green-shell .paper-top,
+  .canonical-green-shell .paper-body,
+  .canonical-green-shell .paper-foot {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .canonical-green-shell .paper-foot {
+    flex-wrap: wrap;
+  }
+
+  .canonical-green-shell .paper-action {
+    white-space: normal;
+  }
+
+  /* Keep the four history filters usable at 320px without changing their
+     meaning, order, or event wiring. */
+  .workspace-surface #filters.filters {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .workspace-surface #filters.filters button {
+    flex: 1 1 calc(50% - 2px);
+    min-width: 0;
+    padding-inline: 8px;
+  }
+}
