@@ -1,6 +1,69 @@
 /* Phone-only presentation safeguards.
    Product behavior and tablet/desktop layouts are intentionally out of scope. */
 @media (max-width: 640px) {
+  /* The brief's desktop slide rail depends on each section occupying most of
+     the viewport. Several phone sections are deliberately taller, so use
+     natural scrolling instead of showing a progress state that cannot track
+     them truthfully. */
+  html:has(.deck > .slide) {
+    scroll-snap-type: none;
+  }
+
+  body:has(.deck > .slide) .progress:has(.progress-dot) {
+    display: none;
+  }
+
+  body:has(.deck > .slide) .deck > .slide {
+    padding-right: 18px;
+  }
+
+  /* Keep the number, title, and explanation in stable columns instead of
+     allowing the title to auto-flow into the narrow number column. */
+  body:has(.deck > .slide) .artifact-row {
+    grid-template-columns: 32px minmax(0, 1fr);
+    grid-template-areas:
+      "number title"
+      ". description";
+    gap: 5px 12px;
+    align-items: start;
+  }
+
+  body:has(.deck > .slide) .artifact-row .artifact-num {
+    grid-area: number !important;
+  }
+
+  body:has(.deck > .slide) .artifact-row strong {
+    grid-area: title;
+  }
+
+  body:has(.deck > .slide) .artifact-row > span:last-child {
+    grid-area: description !important;
+  }
+
+  /* Preserve the evidence icon as one anchor spanning its title and
+     explanation; the earlier auto-placement compressed explanations into the
+     icon column on narrow screens. */
+  body:has(.deck > .slide) .evidence-step {
+    grid-template-columns: 54px minmax(0, 1fr);
+    grid-template-areas:
+      "node title"
+      "node description";
+    gap: 3px 13px;
+    align-items: center;
+  }
+
+  body:has(.deck > .slide) .evidence-step .evidence-node {
+    grid-area: node;
+  }
+
+  body:has(.deck > .slide) .evidence-step strong {
+    grid-area: title;
+  }
+
+  body:has(.deck > .slide) .evidence-step > span {
+    grid-area: description;
+  }
+
   /* Keep senior-team portraits compact and honor their intended square crop. */
   .canonical-green-shell .founder-grid {
     gap: 24px;

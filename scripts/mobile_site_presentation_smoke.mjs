@@ -164,6 +164,137 @@ try {
     }
   }
 
+  // Exercise presentation-only runtime behavior on a bounded local subset.
+  // Every non-local request is blocked, and no form submit or product action is
+  // triggered. This catches injected-widget and progressive-layout defects that
+  // a JavaScript-disabled geometry sweep cannot see.
+  const runtimePage = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await runtimePage.route('**/*', async (route) => {
+    const url = new URL(route.request().url());
+    if (url.origin === localOrigin || url.protocol === 'data:' || url.protocol === 'blob:') {
+      await route.continue();
+    } else {
+      await route.abort();
+    }
+  });
+
+  await runtimePage.goto(`${base}/index.html`, { waitUntil: 'load', timeout: 30000 });
+  await runtimePage.locator('#mnd-launcher').waitFor({ state: 'visible' });
+  await runtimePage.locator('.mdn-cn-launch').waitFor({ state: 'visible' });
+
+  const connectLauncher = await runtimePage.locator('.mdn-cn-launch').evaluate((element) => {
+    const box = element.getBoundingClientRect();
+    const label = element.querySelector('span');
+    const labelBox = label?.getBoundingClientRect();
+    return {
+      width: box.width,
+      height: box.height,
+      accessibleName: element.textContent?.trim(),
+      labelWidth: labelBox?.width || 0,
+    };
+  });
+  if (Math.abs(connectLauncher.width - 48) > 1 || Math.abs(connectLauncher.height - 48) > 1) {
+    failures.push(`runtime utilities: Connect launcher is not a compact 48px phone target (${JSON.stringify(connectLauncher)})`);
+  }
+  if (connectLauncher.accessibleName !== 'Connect' || connectLauncher.labelWidth > 2) {
+    failures.push(`runtime utilities: Connect label is not visually compact while remaining named (${JSON.stringify(connectLauncher)})`);
+  }
+
+  await runtimePage.locator('#mnd-launcher').click();
+  const assistantState = await runtimePage.evaluate(() => {
+    const panel = document.querySelector('#mnd-panel');
+    const connect = document.querySelector('.mdn-cn-launch');
+    const box = panel.getBoundingClientRect();
+    return {
+      left: box.left,
+      right: box.right,
+      width: box.width,
+      viewportWidth: document.documentElement.clientWidth,
+      connectVisible: getComputedStyle(connect).display !== 'none',
+    };
+  });
+  if (assistantState.left < -1 || assistantState.right > assistantState.viewportWidth + 1 || assistantState.width < assistantState.viewportWidth - 2) {
+    failures.push(`runtime utilities: assistant panel is clipped on phone (${JSON.stringify(assistantState)})`);
+  }
+  if (assistantState.connectVisible) failures.push('runtime utilities: Connect launcher remains visible over the open assistant');
+
+  await runtimePage.locator('#mnd-close').click();
+  await runtimePage.locator('.mdn-cn-launch').click();
+  const connectState = await runtimePage.evaluate(() => {
+    const panel = document.querySelector('#mdn-cn-panel');
+    const assistant = document.querySelector('#mnd-launcher');
+    const box = panel.getBoundingClientRect();
+    return {
+      left: box.left,
+      right: box.right,
+      viewportWidth: document.documentElement.clientWidth,
+      assistantVisible: getComputedStyle(assistant).display !== 'none',
+    };
+  });
+  if (connectState.left < -1 || connectState.right > connectState.viewportWidth + 1) {
+    failures.push(`runtime utilities: Connect panel is clipped on phone (${JSON.stringify(connectState)})`);
+  }
+  if (connectState.assistantVisible) failures.push('runtime utilities: assistant launcher remains visible over the open Connect panel');
+  await runtimePage.close();
+
+  for (const viewport of [{ name: 'compact-phone', width: 320, height: 700 }, { name: 'iphone', width: 390, height: 844 }]) {
+    const briefPage = await browser.newPage({ viewport });
+    await briefPage.route('**/*', async (route) => {
+      const url = new URL(route.request().url());
+      if (url.origin === localOrigin || url.protocol === 'data:' || url.protocol === 'blob:') {
+        await route.continue();
+      } else {
+        await route.abort();
+      }
+    });
+    await briefPage.goto(`${base}/Monderman_Platform_Brief.html`, { waitUntil: 'load', timeout: 30000 });
+
+    const briefLayout = await briefPage.evaluate(() => {
+      const progress = document.querySelector('.progress');
+      const artifact = document.querySelector('.artifact-row');
+      const numberBox = artifact.querySelector('.artifact-num').getBoundingClientRect();
+      const titleBox = artifact.querySelector('strong').getBoundingClientRect();
+      const descriptionBox = artifact.querySelector('span:last-child').getBoundingClientRect();
+      const evidence = document.querySelector('.evidence-step');
+      const nodeBox = evidence.querySelector('.evidence-node').getBoundingClientRect();
+      const evidenceTitleBox = evidence.querySelector('strong').getBoundingClientRect();
+      const evidenceDescriptionBox = evidence.querySelector('span').getBoundingClientRect();
+      return {
+        progressDisplay: getComputedStyle(progress).display,
+        scrollSnapType: getComputedStyle(document.documentElement).scrollSnapType,
+        artifact: {
+          numberLeft: numberBox.left,
+          numberRight: numberBox.right,
+          titleLeft: titleBox.left,
+          titleWidth: titleBox.width,
+          descriptionLeft: descriptionBox.left,
+          descriptionTop: descriptionBox.top,
+          titleBottom: titleBox.bottom,
+        },
+        evidence: {
+          nodeRight: nodeBox.right,
+          titleLeft: evidenceTitleBox.left,
+          titleWidth: evidenceTitleBox.width,
+          descriptionLeft: evidenceDescriptionBox.left,
+          descriptionWidth: evidenceDescriptionBox.width,
+          descriptionTop: evidenceDescriptionBox.top,
+          titleBottom: evidenceTitleBox.bottom,
+        },
+      };
+    });
+
+    if (briefLayout.progressDisplay !== 'none' || briefLayout.scrollSnapType !== 'none') {
+      failures.push(`Platform Brief/${viewport.name}: broken phone slide rail or snapping remains (${JSON.stringify(briefLayout)})`);
+    }
+    if (briefLayout.artifact.titleLeft <= briefLayout.artifact.numberRight || briefLayout.artifact.titleWidth < 200 || briefLayout.artifact.descriptionLeft !== briefLayout.artifact.titleLeft || briefLayout.artifact.descriptionTop < briefLayout.artifact.titleBottom) {
+      failures.push(`Platform Brief/${viewport.name}: artifact hierarchy is mis-gridded (${JSON.stringify(briefLayout.artifact)})`);
+    }
+    if (briefLayout.evidence.titleLeft <= briefLayout.evidence.nodeRight || briefLayout.evidence.titleWidth < 190 || briefLayout.evidence.descriptionLeft !== briefLayout.evidence.titleLeft || briefLayout.evidence.descriptionWidth < 190 || briefLayout.evidence.descriptionTop < briefLayout.evidence.titleBottom) {
+      failures.push(`Platform Brief/${viewport.name}: evidence hierarchy is mis-gridded (${JSON.stringify(briefLayout.evidence)})`);
+    }
+    await briefPage.close();
+  }
+
   assert.deepEqual(failures, [], `mobile site presentation failures:\n${failures.join('\n')}`);
   console.log(`mobile site presentation smoke: passed ${pages.length} pages across ${viewports.length} phone widths`);
 } finally {
