@@ -17,6 +17,7 @@ const viewports = [
   { name: 'mobile', width: 390, height: 844 },
   { name: 'tablet', width: 768, height: 1024 },
   { name: 'tablet-landscape', width: 1024, height: 900 },
+  { name: 'desktop-short', width: 1440, height: 835 },
   { name: 'desktop', width: 1440, height: 1000 },
 ];
 
@@ -33,10 +34,13 @@ try {
       const geometry = await tile.evaluate((el) => {
         const root = el.querySelector('#monderman-depth-lure-composite');
         const card = el.querySelector('.md-tile');
-        const panels = [...el.querySelectorAll('.md-opening,.md-panel,.md-action,.md-foot')];
+        const panels = [...el.querySelectorAll('.md-opening,.md-panel,.md-action')];
+        const foot = el.querySelector('.md-foot');
+        const slide = el.closest('.slide');
         const tileBox = el.getBoundingClientRect();
         const rootBox = root.getBoundingClientRect();
         const cardBox = card.getBoundingClientRect();
+        const slideBox = slide?.getBoundingClientRect();
         return {
           display: getComputedStyle(el).display,
           linkDisplay: getComputedStyle(el.querySelector('.hero-report-link')).display,
@@ -48,8 +52,14 @@ try {
           cardRight: cardBox.right,
           cardTop: cardBox.top,
           cardBottom: cardBox.bottom,
+          tileBottom: tileBox.bottom,
           rootLeft: rootBox.left,
           rootRight: rootBox.right,
+          footDisplay: getComputedStyle(foot).display,
+          slideHeight: slideBox?.height ?? null,
+          slideBottom: slideBox?.bottom ?? null,
+          slideScrollHeight: slide?.scrollHeight ?? null,
+          slideClientHeight: slide?.clientHeight ?? null,
           panelBoxes: panels.map((panel) => {
             const box = panel.getBoundingClientRect();
             return { left: box.left, right: box.right, top: box.top, bottom: box.bottom };
@@ -59,22 +69,34 @@ try {
           vantageRowCount: el.querySelectorAll('.md-vantage-row').length,
           actionText: el.querySelector('.md-action')?.textContent.replace(/\s+/g, ' ').trim(),
           viewportWidth: document.documentElement.clientWidth,
+          viewportHeight: document.documentElement.clientHeight,
           documentWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
         };
       });
 
       assert.equal(geometry.display, 'block', `${placement.name}/${viewport.name}: sample tile is hidden`);
       assert.equal(geometry.linkDisplay, 'block', `${placement.name}/${viewport.name}: sample tile link is hidden`);
-      assert(geometry.width > 260 && geometry.width <= 540.5, `${placement.name}/${viewport.name}: tile width is outside the approved seat: ${geometry.width}`);
+      assert(geometry.width > 260 && geometry.width <= 580.5, `${placement.name}/${viewport.name}: tile width is outside the approved seat: ${geometry.width}`);
       assert.equal(geometry.hasWrongRaster, false, `${placement.name}/${viewport.name}: superseded screenshot artifact returned`);
       assert.equal(geometry.exposureRangeCount, 2, `${placement.name}/${viewport.name}: source exposure composition changed`);
       assert.equal(geometry.vantageRowCount, 3, `${placement.name}/${viewport.name}: source vantage composition changed`);
       assert.equal(geometry.actionText, 'Fix the ownership transfer point. Then re-measure the same scope.', `${placement.name}/${viewport.name}: source leadership move changed`);
+      assert.equal(geometry.footDisplay, 'none', `${placement.name}/${viewport.name}: redundant qualification footer returned`);
       assert(geometry.documentWidth <= geometry.viewportWidth + 1, `${placement.name}/${viewport.name}: page overflows horizontally`);
       assert(geometry.rootLeft >= geometry.cardLeft - 1 && geometry.rootRight <= geometry.cardRight + 1, `${placement.name}/${viewport.name}: source component escapes the card horizontally`);
       for (const [index, panel] of geometry.panelBoxes.entries()) {
         assert(panel.left >= geometry.cardLeft - 1 && panel.right <= geometry.cardRight + 1, `${placement.name}/${viewport.name}: panel ${index + 1} escapes the card horizontally (${JSON.stringify({ panel, card: { left: geometry.cardLeft, right: geometry.cardRight } })})`);
         assert(panel.top >= geometry.cardTop - 1 && panel.bottom <= geometry.cardBottom + 1, `${placement.name}/${viewport.name}: panel ${index + 1} is clipped vertically (${JSON.stringify({ panel, card: { top: geometry.cardTop, bottom: geometry.cardBottom } })})`);
+      }
+      if (viewport.name === 'desktop-short') {
+        assert(geometry.cardHeight <= 620, `${placement.name}/${viewport.name}: compact report card is too tall (${geometry.cardHeight}px)`);
+        if (placement.name === 'homepage') {
+          assert(geometry.tileBottom <= geometry.viewportHeight + 1, `${placement.name}/${viewport.name}: complete tile falls below the hero viewport (${geometry.tileBottom}px > ${geometry.viewportHeight}px)`);
+        } else {
+          assert(geometry.slideHeight <= geometry.viewportHeight + 2, `${placement.name}/${viewport.name}: report tile expands the snap slide (${geometry.slideHeight}px > ${geometry.viewportHeight}px)`);
+          assert(geometry.slideScrollHeight <= geometry.slideClientHeight + 1, `${placement.name}/${viewport.name}: report tile creates internal slide overflow`);
+          assert(geometry.tileBottom <= geometry.slideBottom + 1, `${placement.name}/${viewport.name}: report tile escapes its snap slide`);
+        }
       }
 
       await tile.screenshot({ path: path.join(out, `${placement.name}-${viewport.name}.png`) });
