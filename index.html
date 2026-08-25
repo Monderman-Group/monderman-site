@@ -2208,7 +2208,7 @@
 </style>
 <link rel="stylesheet" href="canonical-site-shell.css?v=20260824-header2">
 <link rel="stylesheet" href="sample-report-tile.css?v=20260824-depth4">
-<link rel="stylesheet" href="monderman-depth-lure-tile.css?v=20260824-hero3">
+<link rel="stylesheet" href="monderman-depth-lure-tile.css?v=20260825-mobile4">
 <style id="homepage-editorial-pass">
   body{display:flex;flex-direction:column;}
   body>.header{order:0;} body>.hero{order:1;} body>.proof-band{order:2;} body>.mxidx-band{order:3;} body>.systems-analysis-bridge{order:4;} body>.approach{order:5;} body>.measurement-loop{order:6;} body>.book-band{order:7;} body>.latest{order:8;} body>.connect{order:9;} body>.footer{order:10;}
@@ -3352,14 +3352,14 @@
 <script src="assistant.js" defer></script>
   <script src="connect-widget.js" defer></script>
   <script>
-    // Reassert the homepage crop after deferred scripts while preserving a true-centered canyon.
+    // Reassert the homepage crop after deferred scripts and center the architectural opening at each breakpoint.
     window.addEventListener("DOMContentLoaded", function () {
       var img = document.getElementById("heroImage");
       if (!img) return;
       function frameHero() {
         var w = window.innerWidth;
         img.style.setProperty("object-fit", "cover", "important");
-        img.style.setProperty("object-position", "50% 50%", "important");
+        img.style.setProperty("object-position", w <= 640 ? "48.75% 50%" : "50% 50%", "important");
         img.style.setProperty("left", "0", "important");
         img.style.setProperty("right", "0", "important");
         if (w <= 640) {

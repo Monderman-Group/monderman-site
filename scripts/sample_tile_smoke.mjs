@@ -15,6 +15,7 @@ const placements = [
 const viewports = [
   { name: 'narrow-mobile', width: 320, height: 844 },
   { name: 'mobile', width: 390, height: 844 },
+  { name: 'large-mobile', width: 430, height: 932 },
   { name: 'tablet', width: 768, height: 1024 },
   { name: 'tablet-landscape', width: 1024, height: 900 },
   { name: 'desktop-short', width: 1440, height: 835 },
@@ -28,7 +29,7 @@ try {
       await page.goto(`${base}${placement.route}`, { waitUntil: 'networkidle', timeout: 90000 });
 
       const tile = page.locator('.hero-report-proof.has-sample-depth-tile');
-      await tile.waitFor({ state: 'visible', timeout: 10000 });
+      await tile.waitFor({ state: 'attached', timeout: 10000 });
       assert.equal(await tile.locator('.hero-report-link').getAttribute('href'), 'sample-report.html', `${placement.name}/${viewport.name}: whole-card sample route changed`);
 
       const geometry = await tile.evaluate((el) => {
@@ -38,6 +39,7 @@ try {
         const foot = el.querySelector('.md-foot');
         const slide = el.closest('.slide');
         const hero = el.closest('.hero');
+        const heroImage = hero?.querySelector('.hero-image');
         const tileBox = el.getBoundingClientRect();
         const rootBox = root.getBoundingClientRect();
         const cardBox = card.getBoundingClientRect();
@@ -58,6 +60,7 @@ try {
           heroTop: heroBox?.top ?? null,
           heroBottom: heroBox?.bottom ?? null,
           heroHeight: heroBox?.height ?? null,
+          heroImageObjectPosition: heroImage ? getComputedStyle(heroImage).objectPosition : null,
           rootLeft: rootBox.left,
           rootRight: rootBox.right,
           footDisplay: getComputedStyle(foot).display,
@@ -78,6 +81,17 @@ try {
           documentWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
         };
       });
+
+      if (viewport.width <= 640) {
+        assert.equal(geometry.display, 'none', `${placement.name}/${viewport.name}: sample tile remains visible on a phone`);
+        assert.equal(geometry.height, 0, `${placement.name}/${viewport.name}: hidden sample tile still reserves vertical space`);
+        if (placement.name === 'homepage') {
+          assert.equal(geometry.heroImageObjectPosition, '48.75% 50%', `${placement.name}/${viewport.name}: hero is not centered on the architectural opening`);
+        }
+        await page.screenshot({ path: path.join(out, `${placement.name}-${viewport.name}.png`), fullPage: false });
+        await page.close();
+        continue;
+      }
 
       assert.equal(geometry.display, 'block', `${placement.name}/${viewport.name}: sample tile is hidden`);
       assert.equal(geometry.linkDisplay, 'block', `${placement.name}/${viewport.name}: sample tile link is hidden`);
