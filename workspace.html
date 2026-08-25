@@ -311,6 +311,17 @@ a{color:inherit;text-decoration:none}
     .ws-planstrip b{color:var(--ink);font-weight:600}
     .ws-planstrip .sep{color:var(--faint)}
     .ws-planstrip .manage{margin-left:auto}
+    .ws-onboarding{margin:0 0 34px;padding:22px 24px;background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--teal);border-radius:10px}
+    .ws-onboarding-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:17px}
+    .ws-onboarding h2{margin:3px 0 3px;color:var(--ink);font-size:20px;letter-spacing:-.025em}
+    .ws-onboarding p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+    .ws-onboarding-hide{border:0;background:transparent;color:var(--muted);font:600 12px/1 inherit;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+    .ws-onboarding-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+    .ws-onboarding-step{display:flex;min-width:0;flex-direction:column;gap:7px;padding:14px;background:var(--paper);color:var(--muted);font-size:12px;line-height:1.4;text-decoration:none}
+    .ws-onboarding-step b{color:var(--ink);font-size:13px}.ws-onboarding-step .state{font-weight:700;color:var(--teal)}
+    .ws-onboarding-step.done{background:color-mix(in srgb,var(--teal) 7%,var(--paper))}.ws-onboarding-step.done .state{color:#397969}
+    @media(max-width:820px){.ws-onboarding-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:540px){.ws-onboarding-steps{grid-template-columns:1fr}.ws-onboarding-step{display:grid;grid-template-columns:1fr auto;align-items:center}.ws-onboarding-step span:not(.state){grid-column:1/-1}}
     .ws-status{font-size:13px;margin-top:14px}
     .ws-status.error{color:var(--critical)}
 
@@ -452,6 +463,14 @@ body{transition:background-color .25s ease,color .25s ease}
         <span class="meta" id="wsReadMeta">Loading your reads…</span>
         <a class="ws-btn" id="wsHeroCta" href="workspace-diagnostics.html#launch">Run a diagnostic</a>
       </div>
+    </section>
+
+    <section class="ws-onboarding" id="wsOnboarding" aria-labelledby="wsOnboardingTitle" hidden>
+      <div class="ws-onboarding-head">
+        <div><span class="ws-eyebrow">Workspace setup</span><h2 id="wsOnboardingTitle">Turn the purchase into an operating baseline.</h2><p id="wsOnboardingMeta">Checking measurable setup progress…</p></div>
+        <button class="ws-onboarding-hide" id="wsOnboardingHide" type="button">Hide for this session</button>
+      </div>
+      <div class="ws-onboarding-steps" id="wsOnboardingSteps"></div>
     </section>
 
     <!-- the four Diagnostics -->
@@ -725,6 +744,39 @@ body{transition:background-color .25s ease,color .25s ease}
       if(!isTrial&&!manage.dataset.billingWired){ manage.dataset.billingWired="1"; manage.addEventListener("click",async(e)=>{e.preventDefault();const prior=manage.textContent;manage.textContent="Opening billing…";try{const{data}=await supabase.auth.getSession();const res=await fetch("https://monderman-api.onrender.com/api/billing/portal-session",{method:"POST",headers:{"content-type":"application/json",authorization:"Bearer "+(data?.session?.access_token||"")},body:JSON.stringify({organization_id:org.id||null})});const out=await res.json().catch(()=>({}));if(res.ok&&out.url){location.href=out.url;return;}manage.textContent=prior;wsNotice(res.status===403?"Only a workspace admin can manage billing.":res.status===404?"No self-serve billing account yet. Invoiced plans are managed via Connect.":out.error==="organization_selection_required"?"Choose a Workspace before opening billing.":"Billing portal is unavailable right now. Try again shortly.");}catch(_e){manage.textContent=prior;wsNotice("Billing portal could not be reached. Try again shortly.");}}); }
     }
 
+    async function renderOnboardingProgress(){
+      const panel=$("wsOnboarding"),stepsEl=$("wsOnboardingSteps"),meta=$("wsOnboardingMeta");
+      const org=state.organization||{},orgId=org.id;
+      const paid=!['trial','free'].includes(String(org.plan||'trial').toLowerCase());
+      const admin=ADMIN_ROLES.includes(String(state.role||'').toLowerCase());
+      if(!panel||!orgId||!paid||!admin) return;
+      const hiddenKey=`monderman_setup_hidden_${orgId}`;
+      try{ if(sessionStorage.getItem(hiddenKey)==='1') return; }catch(_error){}
+      panel.hidden=false;
+      $("wsOnboardingHide")?.addEventListener("click",()=>{try{sessionStorage.setItem(hiddenKey,'1');}catch(_error){} panel.hidden=true;},{once:true});
+      async function count(table,configure){
+        try{let query=supabase.from(table).select('id',{count:'exact',head:true}).eq('organization_id',orgId);query=configure?configure(query):query;const result=await query;return result.error?0:Number(result.count||0);}catch(_error){return 0;}
+      }
+      const [memberCount,synthesisCount,planCount,remeasureRuns,remeasureSyntheses]=await Promise.all([
+        count('organization_members'),
+        count('synthesis_runs'),
+        count('action_plans'),
+        count('action_items',(query)=>query.not('remeasure_run_id','is',null)),
+        count('action_items',(query)=>query.not('remeasure_synthesis_id','is',null))
+      ]);
+      const steps=[
+        {done:true,title:'Workspace confirmed',detail:'Plan and Admin access are active.',href:'workspace-settings.html'},
+        {done:memberCount>1,title:'Team configured',detail:memberCount>1?`${memberCount} Workspace members.`:'Invite the people needed for the baseline.',href:'workspace-settings.html#team'},
+        {done:state.runs.length>0,title:'Baseline recorded',detail:state.runs.length>0?`${state.runs.length} saved Diagnostic read${state.runs.length===1?'':'s'}.`:'Run the first Diagnostic before intervening.',href:'workspace-diagnostics.html#launch'},
+        {done:synthesisCount>0,title:'Evidence synthesized',detail:synthesisCount>0?`${synthesisCount} saved Synthesis${synthesisCount===1?'':'es'}.`:'Review Analysis and build the appropriate Synthesis.',href:'workspace-analysis.html#synthesis'},
+        {done:planCount>0,title:'Action Plan established',detail:planCount>0?`${planCount} Action Plan${planCount===1?'':'s'} in the Workspace.`:'Translate measured priorities into owned work.',href:'workspace-actions.html'},
+        {done:(remeasureRuns+remeasureSyntheses)>0,title:'Remeasurement linked',detail:(remeasureRuns+remeasureSyntheses)>0?'At least one action is tied to later evidence.':'Link later evidence to the action it tests.',href:'workspace-actions.html'}
+      ];
+      const completed=steps.filter(step=>step.done).length;
+      meta.textContent=completed===steps.length?'The initial operating loop is fully established.':`${completed} of ${steps.length} measurable setup milestones complete.`;
+      stepsEl.innerHTML=steps.map((step,index)=>`<a class="ws-onboarding-step ${step.done?'done':''}" href="${step.href}"><b>${index+1}. ${step.title}</b><span>${step.detail}</span><span class="state">${step.done?'Complete':'Next →'}</span></a>`).join('');
+    }
+
     async function resolveUser(){
       for(let attempt=0; attempt<5; attempt++){
         const { data } = await supabase.auth.getSession();
@@ -763,6 +815,7 @@ body{transition:background-color .25s ease,color .25s ease}
         renderRecommended(state.runs);
         $("wsAllReadsN").textContent = `(${state.runs.length})`;
         renderEntitlements();
+        await renderOnboardingProgress();
 
         window.__wsBooted = "rendered";
         hideOverlay();
