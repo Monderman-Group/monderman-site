@@ -60,7 +60,7 @@ if '<body class="canonical-green-shell">' not in idx:
 brief=(r/'Monderman_Platform_Brief.html').read_text(errors='ignore')
 sample_tile_css=(r/'sample-report-tile.css').read_text(errors='ignore') if (r/'sample-report-tile.css').exists() else ''
 tile_required=[
- 'sample-report-tile.css?v=20260824-depth2',
+ 'sample-report-tile.css?v=20260824-depth3',
  'class="hero-report-proof has-sample-depth-tile"',
  'class="hero-report-page sample-depth-tile"',
  'href="sample-report.html"',
@@ -89,6 +89,8 @@ for name,text in [('index.html',idx),('Monderman_Platform_Brief.html',brief)]:
 if not sample_tile_css:
  e.append('generated-output sample tile stylesheet missing')
 else:
+ if r'\\n' in sample_tile_css:
+  e.append('generated-output sample tile stylesheet contains escaped newline corruption')
  for token in [
   '.sample-depth-tile',
   '.sdt-exposure-grid',
