@@ -43,7 +43,8 @@
   text-align:right;
   text-transform:uppercase;
 }
-#monderman-depth-lure-composite .md-body{display:grid;gap:14px;padding:20px 22px 16px}
+#monderman-depth-lure-composite .md-body{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;padding:20px 22px 16px}
+#monderman-depth-lure-composite .md-body>*{min-width:0}
 #monderman-depth-lure-composite .md-opening{
   display:grid;
   grid-template-columns:120px minmax(0,1fr);
@@ -244,7 +245,10 @@
   #monderman-depth-lure-composite .md-score strong{font-size:3.2rem}
   #monderman-depth-lure-composite h2,
   #monderman-depth-lure-composite h3{font-size:1.15rem}
-  #monderman-depth-lure-composite .md-vantage-row{grid-template-columns:70px minmax(82px,1fr) 88px;gap:5px}
+  #monderman-depth-lure-composite .md-panel-head,
+  #monderman-depth-lure-composite .md-exposure-head{flex-wrap:wrap}
+  #monderman-depth-lure-composite .md-vantage-row{grid-template-columns:64px minmax(54px,1fr) 78px;gap:4px}
+  #monderman-depth-lure-composite .md-vantage-value{font-size:.64rem}
   #monderman-depth-lure-composite .md-recovery-read{display:block}
   #monderman-depth-lure-composite .md-recovery-read strong{display:block;margin-top:3px}
   #monderman-depth-lure-composite .md-action,
