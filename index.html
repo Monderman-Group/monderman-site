@@ -3352,14 +3352,14 @@
 <script src="assistant.js" defer></script>
   <script src="connect-widget.js" defer></script>
   <script>
-    // Reassert the homepage crop after deferred scripts while preserving a true-centered canyon.
+    // Reassert the homepage crop after deferred scripts and center the architectural opening at each breakpoint.
     window.addEventListener("DOMContentLoaded", function () {
       var img = document.getElementById("heroImage");
       if (!img) return;
       function frameHero() {
         var w = window.innerWidth;
         img.style.setProperty("object-fit", "cover", "important");
-        img.style.setProperty("object-position", "50% 50%", "important");
+        img.style.setProperty("object-position", w <= 640 ? "48.75% 50%" : "50% 50%", "important");
         img.style.setProperty("left", "0", "important");
         img.style.setProperty("right", "0", "important");
         if (w <= 640) {
