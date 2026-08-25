@@ -50,12 +50,21 @@ def validate():
         '"google_oauth"',
         "authReturnUrl",
         "terms_version: currentDocuments.termsVersion",
-        "privacy_notice_version: currentDocuments.privacyNoticeVersion"
+        "privacy_notice_version: currentDocuments.privacyNoticeVersion",
+        'id="legalDecline"',
+        'supabase.auth.signOut({ scope: "local" })',
+        'window.location.replace("index.html")',
+        "No agreement was recorded"
     ], "sign-in acceptance")
     if re.search(r"accepted_at\s*:", signin):
         raise AssertionError("sign-in must not supply an acceptance timestamp")
     if "emailRedirectTo: window.location.origin + \"/\" + nextTarget" in signin:
         raise AssertionError("magic link bypasses acceptance gate")
+    decline_handler = signin.split('ui.legalDecline.addEventListener("click", async () => {', 1)[1].split(
+        'ui.legalSubmit.addEventListener("click", async () => {', 1
+    )[0]
+    if "/api/legal/acceptance" in decline_handler or "agreed: true" in decline_handler:
+        raise AssertionError("declining Terms records legal acceptance")
 
     gate = (ROOT / "workspace-access-gate.js").read_text(errors="ignore")
     require(gate, [
@@ -83,7 +92,7 @@ def validate():
 
     privacy = (ROOT / "privacy.html").read_text(errors="ignore")
     require(privacy, [
-        "Version 2026-08-20-beta", "Subprocessors and infrastructure page",
+        "Version 2026-08-24-beta", "Subprocessors and infrastructure page",
         "does not currently display a nonessential-cookie opt-in banner",
         "Monderman, LLC", "Alabama, United States", "generally acts as the controller or business",
         "generally acts as the customer's processor or service provider",
@@ -95,12 +104,14 @@ def validate():
         "Pattern-trial anti-abuse record is retained for three years",
         "removed from active systems within 30 days", "provider's controlled deletion schedule",
         "EU Standard Contractual Clauses", "must not submit that information through the self-service beta",
-        "Anthropic does not calculate or set those scores", "lodge a complaint"
+        "Anthropic does not calculate or set those scores", "Monderman does not opt customer content into general model training",
+        "AGGREGATED &amp; DE-IDENTIFIED INFORMATION", "cannot reasonably identify a customer or person",
+        "Social Security or other government identification numbers", "lodge a complaint"
     ], "Privacy Notice")
     assert_no_drafting_markers(privacy, "Privacy Notice")
     terms = (ROOT / "terms.html").read_text(errors="ignore")
     require(terms, [
-        "Version 2026-08-20-beta", "affirmative agreement", "Terms version",
+        "Version 2026-08-24-beta", "affirmative agreement", "Terms version",
         "Privacy Notice version", "database-server timestamp", "source/context",
         "normalized account email verified at acceptance", "organization name verified at acceptance",
         "seven-year legal-acceptance retention period",
@@ -110,10 +121,16 @@ def validate():
         "12 months immediately preceding", "US $100 if the claim relates only to free beta use",
         "courts serving Madison County, Alabama", "do not require mandatory arbitration",
         "payment-card data into Diagnostic fields", "biometric identifiers", "children's data",
-        "self-service controlled beta is offered only to U.S.-based organizations and adult participants located in the United States",
-        "must not invite a participant located outside the United States",
+        "self-service controlled beta is offered only to U.S.-based organizations and adult Participants located in the United States",
+        "must not invite a Participant located outside the United States",
         "knowingly submit personal information subject to a non-U.S. processing or transfer arrangement",
-        "Public informational pages may remain accessible globally"
+        "Public informational pages may remain accessible globally",
+        "not designed, validated or offered as employee-selection procedures",
+        "must not attempt to identify an anonymous Participant",
+        "Monderman does not opt Customer content into general model training",
+        "The Customer will defend, indemnify and hold harmless Monderman",
+        "must be filed within 12 months after the claim accrued",
+        "requires fresh affirmative acceptance"
     ], "Terms")
     assert_no_drafting_markers(terms, "Terms")
 

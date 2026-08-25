@@ -45,7 +45,7 @@
       <select id="organizationSelect" hidden></select>
       <p id="organizationName"></p>
     </div>
-    <label class="confirm"><input type="checkbox" id="ackStart" disabled><span>I understand this one-time 30-day beta evaluation starts immediately when I continue and remains used for this account identity even if the Workspace is later deleted or replaced. I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms of Service</a> and acknowledge the <a href="privacy.html" target="_blank" rel="noopener">Privacy Notice</a>.</span></label>
+    <label class="confirm"><input type="checkbox" id="ackStart" disabled><span>I understand this one-time 30-day beta evaluation starts immediately when I continue and remains used for this account identity even if the Workspace is later deleted or replaced. I agree to the <a href="terms.html" id="trialTermsLink" target="_blank" rel="noopener">Terms of Service</a> and acknowledge the <a href="privacy.html" id="trialPrivacyLink" target="_blank" rel="noopener">Privacy Notice</a>. I understand that financial, time, capacity, productivity and recovery figures are directional estimates, not guaranteed outcomes, and that my organization is responsible for its data, decisions, implementation and results.</span></label>
     <button id="startBtn" disabled>Start my 30-day Pattern trial</button>
     <div id="msg" class="msg" role="status" aria-live="polite"></div>
     <p class="fine">One Pattern trial per eligible account identity. Deleting or replacing a Workspace does not reset eligibility. An organization admin must start the trial.</p>
@@ -57,11 +57,22 @@
     const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co", "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz", { auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"} });
     const API_BASE = "https://monderman-api.onrender.com";
     const btn = document.getElementById("startBtn"), msg = document.getElementById("msg"), ack = document.getElementById("ackStart");
+    const trialTermsLink = document.getElementById("trialTermsLink"), trialPrivacyLink = document.getElementById("trialPrivacyLink");
     const choice = document.getElementById("workspaceChoice"), organizationSelect = document.getElementById("organizationSelect"), organizationName = document.getElementById("organizationName");
-    let sessionReady=false, organizationId=null;
+    let sessionReady=false, organizationId=null, currentDocuments=null;
     function show(text, kind="err"){ msg.textContent=text; msg.className="msg "+kind; }
     function syncStart(){ btn.disabled=!(sessionReady && ack.checked); }
     function denyStart(text){ sessionReady=false; ack.checked=false; ack.disabled=true; syncStart(); show(text); }
+    function legalDocumentPath(kind, version){
+      const normalized=String(version||"");
+      if(!/^\d{4}-\d{2}-\d{2}-beta$/.test(normalized)) throw new Error("invalid_legal_document_version");
+      return `${kind}-${normalized}.html`;
+    }
+    function setExactLegalDocumentLinks(documents){
+      trialTermsLink.href=legalDocumentPath("terms",documents?.termsVersion);
+      trialPrivacyLink.href=legalDocumentPath("privacy",documents?.privacyNoticeVersion);
+      currentDocuments={termsVersion:documents.termsVersion,privacyNoticeVersion:documents.privacyNoticeVersion};
+    }
     function selectOrganization(organization){
       organizationId=organization?.id || null;
       sessionReady=!!organizationId;
@@ -76,6 +87,10 @@
     else {
       try{
         const token=data.session.access_token || "";
+        const legalStatusResponse=await fetch(API_BASE+"/api/legal/acceptance/status?source=trial",{headers:{authorization:"Bearer "+token}});
+        const legalStatus=await legalStatusResponse.json().catch(()=>({}));
+        if(!legalStatusResponse.ok || !legalStatus.ok) throw new Error(legalStatus.error || "legal_acceptance_status_failed");
+        setExactLegalDocumentLinks(legalStatus);
         const query=new URLSearchParams({purpose:"trial"});
         const requestedOrganizationId=new URLSearchParams(location.search).get("organization_id") || sessionStorage.getItem("monderman_active_organization_id") || "";
         if(requestedOrganizationId) query.set("organization_id",requestedOrganizationId);
@@ -115,6 +130,12 @@
         const statusResponse = await fetch(API_BASE+"/api/legal/acceptance/status?"+statusQuery.toString(), { headers:{authorization:"Bearer "+token} });
         const status = await statusResponse.json().catch(()=>({}));
         if(!statusResponse.ok || !status.ok) throw new Error(status.error || "legal_acceptance_status_failed");
+        if(status.termsVersion!==currentDocuments?.termsVersion || status.privacyNoticeVersion!==currentDocuments?.privacyNoticeVersion){
+          setExactLegalDocumentLinks(status);
+          ack.checked=false;
+          syncStart();
+          throw new Error("legal_documents_changed");
+        }
         if(status.requiresAcceptance){
           const acceptanceResponse = await fetch(API_BASE+"/api/legal/acceptance", {method:"POST", headers:{"content-type":"application/json",authorization:"Bearer "+token}, body:JSON.stringify({agreed:true,source:"trial",organization_id:organizationId,terms_version:status.termsVersion,privacy_notice_version:status.privacyNoticeVersion})});
           const acceptance = await acceptanceResponse.json().catch(()=>({}));
@@ -133,7 +154,11 @@
           trial_unavailable:"The Pattern trial is temporarily unavailable. Please try again shortly."
         };
         show(messages[out.error] || "The Pattern trial could not be started. Nothing was charged.");
-      }catch(e){ show("The Pattern trial could not be reached. Nothing was charged. Please try again."); }
+      }catch(e){
+        show(e?.message==="legal_documents_changed"
+          ? "The Terms or Privacy Notice changed while this page was open. Review the current documents, select the acknowledgement again, and continue."
+          : "The Pattern trial could not be reached. Nothing was charged. Please try again.");
+      }
       btn.textContent="Start my 30-day Pattern trial"; syncStart();
     });
   </script>
