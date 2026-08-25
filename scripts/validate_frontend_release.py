@@ -60,7 +60,7 @@ if '<body class="canonical-green-shell">' not in idx:
 brief=(r/'Monderman_Platform_Brief.html').read_text(errors='ignore')
 sample_tile_css=(r/'sample-report-tile.css').read_text(errors='ignore') if (r/'sample-report-tile.css').exists() else ''
 tile_required=[
- 'sample-report-tile.css?v=20260824-depth1',
+ 'sample-report-tile.css?v=20260824-depth2',
  'class="hero-report-proof has-sample-depth-tile"',
  'class="hero-report-page sample-depth-tile"',
  'href="sample-report.html"',
@@ -93,7 +93,7 @@ else:
   '.sample-depth-tile',
   '.sdt-exposure-grid',
   'grid-template-columns:repeat(2,minmax(0,1fr))',
-  '@container (max-width:499px)',
+  '@container (max-width:359px)',
   '.hero-report-proof.has-sample-depth-tile',
   '.hero-report-proof.has-sample-depth-tile .hero-report-link{display:block;}',
  ]:
