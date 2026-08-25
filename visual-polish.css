@@ -157,6 +157,45 @@ body{
   .mdn-cn-launch{right:max(14px,env(safe-area-inset-right))!important;bottom:max(82px,calc(env(safe-area-inset-bottom) + 82px))!important}
 }
 
+@media(max-width:640px){
+  /* The injected assistant's 100vw phone panel was still offset by the shared
+     desktop safe-area rule. Anchor both edges and let the browser calculate the
+     available phone width so no header or close control is clipped. */
+  #mnd-panel{
+    left:max(0px,env(safe-area-inset-left))!important;
+    right:max(0px,env(safe-area-inset-right))!important;
+    width:auto!important;
+    max-width:none!important;
+  }
+
+  /* Use one compact utility language on phones. The visible word remains in
+     the accessibility tree while the launcher itself no longer covers CTAs or
+     form labels. */
+  .mdn-cn-launch{
+    width:48px;
+    height:48px;
+    padding:0!important;
+    justify-content:center;
+    border-radius:50%;
+  }
+  .mdn-cn-launch span{
+    position:absolute!important;
+    width:1px!important;
+    height:1px!important;
+    padding:0!important;
+    margin:-1px!important;
+    overflow:hidden!important;
+    clip:rect(0,0,0,0)!important;
+    white-space:nowrap!important;
+    border:0!important;
+  }
+
+  /* Never stack the two public utilities over each other while either dialog
+     is open. This mirrors the homepage behavior across every phone surface. */
+  body:has(#mnd-panel.mnd-open) .mdn-cn-launch{display:none!important}
+  body:has(#mdn-cn-panel.mdn-cn-open) #mnd-launcher{display:none!important}
+}
+
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto!important}
   *,*::before,*::after{
