@@ -62,7 +62,7 @@ sample_tile_css=(r/'sample-report-tile.css').read_text(errors='ignore') if (r/'s
 lure_tile_css=(r/'monderman-depth-lure-tile.css').read_text(errors='ignore') if (r/'monderman-depth-lure-tile.css').exists() else ''
 tile_required=[
  'sample-report-tile.css?v=20260824-depth4',
- 'monderman-depth-lure-tile.css?v=20260824-compact2',
+ 'monderman-depth-lure-tile.css?v=20260824-hero3',
  'class="hero-report-proof has-sample-depth-tile"',
  'id="monderman-depth-lure-composite"',
  'class="md-tile"',
@@ -110,6 +110,7 @@ else:
   'grid-template-columns:92px minmax(130px,1fr) 136px',
   '.md-foot{',
   'display:none',
+  'min-height:calc(100svh - 128px)',
   '@container monderman-composite (max-width:520px)',
  ]:
   if token not in lure_tile_css:e.append('in-chat source sample tile contract '+token)

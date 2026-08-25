@@ -37,10 +37,12 @@ try {
         const panels = [...el.querySelectorAll('.md-opening,.md-panel,.md-action')];
         const foot = el.querySelector('.md-foot');
         const slide = el.closest('.slide');
+        const hero = el.closest('.hero');
         const tileBox = el.getBoundingClientRect();
         const rootBox = root.getBoundingClientRect();
         const cardBox = card.getBoundingClientRect();
         const slideBox = slide?.getBoundingClientRect();
+        const heroBox = hero?.getBoundingClientRect();
         return {
           display: getComputedStyle(el).display,
           linkDisplay: getComputedStyle(el.querySelector('.hero-report-link')).display,
@@ -53,6 +55,9 @@ try {
           cardTop: cardBox.top,
           cardBottom: cardBox.bottom,
           tileBottom: tileBox.bottom,
+          heroTop: heroBox?.top ?? null,
+          heroBottom: heroBox?.bottom ?? null,
+          heroHeight: heroBox?.height ?? null,
           rootLeft: rootBox.left,
           rootRight: rootBox.right,
           footDisplay: getComputedStyle(foot).display,
@@ -91,6 +96,9 @@ try {
       if (viewport.name === 'desktop-short') {
         assert(geometry.cardHeight <= 620, `${placement.name}/${viewport.name}: compact report card is too tall (${geometry.cardHeight}px)`);
         if (placement.name === 'homepage') {
+          assert(geometry.heroHeight <= geometry.viewportHeight + 2, `${placement.name}/${viewport.name}: hero exceeds one viewport after the bottom crop (${geometry.heroHeight}px > ${geometry.viewportHeight}px)`);
+          assert(geometry.heroTop >= -1 && geometry.heroBottom <= geometry.viewportHeight + 2, `${placement.name}/${viewport.name}: hero crop boundary escapes the viewport`);
+          assert(geometry.cardTop <= geometry.viewportHeight * 0.27, `${placement.name}/${viewport.name}: hero content remains vertically low (${geometry.cardTop}px)`);
           assert(geometry.tileBottom <= geometry.viewportHeight + 1, `${placement.name}/${viewport.name}: complete tile falls below the hero viewport (${geometry.tileBottom}px > ${geometry.viewportHeight}px)`);
         } else {
           assert(geometry.slideHeight <= geometry.viewportHeight + 2, `${placement.name}/${viewport.name}: report tile expands the snap slide (${geometry.slideHeight}px > ${geometry.viewportHeight}px)`);
