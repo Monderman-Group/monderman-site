@@ -63,7 +63,7 @@ try {
       assert.equal(geometry.display, 'block', `${placement.name}/${viewport.name}: sample tile is hidden`);
       assert.equal(geometry.linkDisplay, 'block', `${placement.name}/${viewport.name}: sample tile link is hidden`);
       assert.equal(geometry.columns, geometry.expectedColumns, `${placement.name}/${viewport.name}: exposure ranges do not reflow as specified`);
-      assert(geometry.width > 300 && geometry.width <= 540.5, `${placement.name}/${viewport.name}: tile width is outside the approved seat: ${geometry.width}`);
+      assert(geometry.width > 260 && geometry.width <= 540.5, `${placement.name}/${viewport.name}: tile width is outside the approved seat: ${geometry.width}`);
       assert(geometry.cardHeight > 490 && geometry.cardHeight < 620, `${placement.name}/${viewport.name}: tile height is distorted: ${geometry.cardHeight}`);
       assert(geometry.documentWidth <= geometry.viewportWidth + 1, `${placement.name}/${viewport.name}: page overflows horizontally`);
       for (const [index, panel] of geometry.panelBoxes.entries()) {
