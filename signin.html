@@ -166,9 +166,9 @@
       </form>
 
       <form class="otp-form" id="otpForm" hidden novalidate>
-        <label class="email-label" for="otpInput">Six-digit sign-in code</label>
-        <input class="email-input otp-input" id="otpInput" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" aria-describedby="otpHelp" placeholder="000000" />
-        <p class="otp-help" id="otpHelp">Enter the six-digit code from your Monderman email. The code is verified only after you submit it here.</p>
+        <label class="email-label" for="otpInput">Eight-digit sign-in code</label>
+        <input class="email-input otp-input" id="otpInput" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{8}" maxlength="8" aria-describedby="otpHelp" placeholder="00000000" />
+        <p class="otp-help" id="otpHelp">Enter the eight-digit code from your Monderman email. The code is verified only after you submit it here.</p>
         <button class="email-submit" id="otpSubmit" type="submit">Verify and continue</button>
         <div class="otp-actions">
           <button class="otp-secondary" id="otpResend" type="button">Send a new code</button>
@@ -377,7 +377,7 @@
       document.querySelector(".divider").hidden = true;
       ui.emailForm.hidden = true;
       ui.otpForm.hidden = false;
-      ui.otpHelp.textContent = `Enter the six-digit code sent to ${pendingEmail}. The code is verified only after you submit it here.`;
+      ui.otpHelp.textContent = `Enter the eight-digit code sent to ${pendingEmail}. The code is verified only after you submit it here.`;
       if (focus) ui.otpInput.focus();
     }
     function showEmailForm({ clearOtp=true } = {}){
@@ -634,8 +634,8 @@
         await sendEmailCode(email);
         showOtpForm(email);
         setStatus(invitationMode
-          ? `Check your inbox — we sent a six-digit sign-in code to ${email}. Enter it here to return to this invitation.`
-          : `Check your inbox — we sent a six-digit sign-in code to ${email}. Enter it here to continue.`, "ok");
+          ? `Check your inbox — we sent an eight-digit sign-in code to ${email}. Enter it here to return to this invitation.`
+          : `Check your inbox — we sent an eight-digit sign-in code to ${email}. Enter it here to continue.`, "ok");
         ui.emailForm.reset();
       }catch(err){
         setStatus(invitationMode
@@ -649,13 +649,13 @@
     });
 
     ui.otpInput.addEventListener("input", () => {
-      ui.otpInput.value = ui.otpInput.value.replace(/\D/g, "").slice(0, 6);
+      ui.otpInput.value = ui.otpInput.value.replace(/\D/g, "").slice(0, 8);
     });
     ui.otpForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const code = (ui.otpInput.value || "").replace(/\D/g, "");
-      if (!pendingEmail || !/^\d{6}$/.test(code)) {
-        setStatus("Enter the complete six-digit code from your email.", "error");
+      if (!pendingEmail || !/^\d{8}$/.test(code)) {
+        setStatus("Enter the complete eight-digit code from your email.", "error");
         ui.otpInput.focus();
         return;
       }
@@ -688,7 +688,7 @@
       try {
         await sendEmailCode(pendingEmail);
         ui.otpForm.reset();
-        setStatus(`A new six-digit code was sent to ${pendingEmail}.`, "ok");
+        setStatus(`A new eight-digit code was sent to ${pendingEmail}.`, "ok");
         ui.otpInput.focus();
       } catch (err) {
         setStatus("We couldn’t send a new code yet. Wait a moment and try again.", "error");
